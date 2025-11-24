@@ -1,14 +1,17 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 [Serializable]
 public struct BigNumber
 {
     [SerializeField] public double Power;
     [SerializeField][Range(-1, 1)] public int Sign;
-    private static readonly BigNumber Zero = 0;
-    private static readonly BigNumber One = 1;
-    private static readonly BigNumber NegativeOne = -1;
+    public static readonly BigNumber Infinity = new BigNumber(Math.Log10(double.MaxValue), 1);
+    public static readonly BigNumber TrueInfinity = new BigNumber(double.MaxValue, 1);
+    public static readonly BigNumber E = new BigNumber(Math.Log10(Math.E), 1);
+    public static readonly BigNumber PI = new BigNumber(Math.Log10(Math.PI), 1);
     public BigNumber(string val)
     {
         if (char.IsDigit(val[0]) || val[0] == '+' || val[0] == 'e')
@@ -30,8 +33,9 @@ public struct BigNumber
             Power = Math.Log10(value);
             return;
         }
-        string[] vals = val.Split('e');
-        Power = Math.Log10(double.Parse(vals[0])) + double.Parse(vals[1]);
+        string left = (pos == 0) ? "1" : val[..pos];
+        string right = val[(pos + 1)..];
+        Power = Math.Log10(double.Parse(left)) + double.Parse(right);
     }
     public BigNumber(double power = double.NegativeInfinity, int sign = 1)
     {
@@ -39,11 +43,7 @@ public struct BigNumber
         Sign = sign;
         Normalize();
     }
-    public static bool operator ==(BigNumber a, BigNumber b)
-    {
-        if (a.Sign == 0 && b.Sign == 0) return true;
-        return a.Sign == b.Sign && Math.Abs(a.Power - b.Power) < 1e-10;
-    }
+    public static bool operator ==(BigNumber a, BigNumber b) => (a.Sign == 0 && b.Sign == 0) || (a.Sign == b.Sign && Math.Abs(a.Power - b.Power) < 1e-10);
     public static bool operator >(BigNumber a, BigNumber b)
     {
         if (a.Sign != b.Sign)
@@ -51,7 +51,7 @@ public struct BigNumber
         return a.Sign * a.Power > b.Sign * b.Power;
     }
     public static bool operator !=(BigNumber a, BigNumber b) => !(a == b);
-    public static bool operator >=(BigNumber a, BigNumber b) => a > b || a == b;
+    public static bool operator >=(BigNumber a, BigNumber b) => !(a < b);
     public static bool operator <(BigNumber a, BigNumber b) => b > a;
     public static bool operator <=(BigNumber a, BigNumber b) => !(a > b);
     public static BigNumber operator +(BigNumber a, BigNumber b)
@@ -59,7 +59,7 @@ public struct BigNumber
         if (a.Sign == 0) return b;
         if (b.Sign == 0) return a;
 
-        if (Math.Abs(a.Power - b.Power) >= 15)
+        if (Math.Abs(a.Power - b.Power) >= 8)
             return AbsMax(a, b);
 
         double powerDiff = a.Power - b.Power;
@@ -89,6 +89,8 @@ public struct BigNumber
         result.Normalize();
         return result;
     }
+    public static BigNumber operator +(BigNumber self) => self;
+    public static BigNumber operator -(BigNumber self) => self * (-1);
     public static BigNumber Pow(BigNumber num, double p) => new BigNumber(num.Power * p, num.Sign > 0 ? 1 : (p % 2 == 0 ? 1 : -1));
     public static BigNumber Sqrt(BigNumber num)
     {
@@ -130,8 +132,29 @@ public struct BigNumber
             return this == other;
         return false;
     }
+    public override string ToString()
+    {
+        if (Sign == 0)
+            return "0";
+        if (Power <= 5 && Power >= -5)
+        {
+            double value = Sign * Math.Pow(10, Power);
+            if (Math.Abs(value - Math.Round(value)) < 1e-10)
+                return $"{(Sign == -1 ? "-" : "")}{Math.Round(value)}";
+            string formatted = value.ToString("G4", System.Globalization.CultureInfo.InvariantCulture);
+            return formatted.Replace("E", "e").Replace("e+", "e");
+        }
+        if (Power > -1e6 && Power < 1e6)
+        {
+            double mantissa = Sign * Math.Pow(10, Power - Math.Floor(Power));
+            int exponent = (int)Math.Floor(Power);
+            string mantissaStr = mantissa.ToString("G4", System.Globalization.CultureInfo.InvariantCulture);
+            mantissaStr = mantissaStr.Replace("E", "e").Replace("e+", "e");
+            return $"{mantissaStr}e{exponent}";
+        }
+        return $"{(Sign == -1 ? "-" : "")}e{Power.ToString("G4", System.Globalization.CultureInfo.InvariantCulture).Replace("E", "e").Replace("e+", "e")}";
+    }
     public override int GetHashCode() => (Power.GetHashCode() * 397) ^ Sign.GetHashCode();
-
     public static implicit operator BigNumber(string val) => new BigNumber(val);
     public static implicit operator BigNumber(double val) => new BigNumber(val.ToString());
     public static implicit operator BigNumber(float val) => new BigNumber(val.ToString());

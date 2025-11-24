@@ -3,16 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    void Start()
+    protected override void TickLong()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        base.TickLong();
     }
 }
