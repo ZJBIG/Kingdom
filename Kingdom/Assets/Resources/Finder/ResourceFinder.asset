@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ebb42c35a689a4386cc3f5bf86d2cf, type: 3}
+  m_Name: ResourceFinder
+  m_EditorClassIdentifier: 
+  WoodLog: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  DryadWoodLog: {fileID: 11400000, guid: 5a2717b4454f40c4da0016df5c3932c4, type: 2}
+  ElvenWoodLog: {fileID: 11400000, guid: c890f09e287d24442994128bfef57f2e, type: 2}
+  CandyLog: {fileID: 11400000, guid: 2438b3cdcd26c16489754a9c5e707ec0, type: 2}
+  AncientWoodLog: {fileID: 11400000, guid: e1a8b2d4c743ff64e975ff4263d0c3c1, type: 2}
+  CopperOre: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
+  TinOre: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
+  IronOre: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
+  SilverOre: {fileID: 11400000, guid: 3a57870b94f80e34b82401b5c3824bbf, type: 2}
+  GoldOre: {fileID: 11400000, guid: 53a62f1a09fc35546bda0664241a0df9, type: 2}
+  TitaniumOre: {fileID: 11400000, guid: b821cb92d3c3d634fac907c15be3d975, type: 2}
+  MithrilOre: {fileID: 11400000, guid: b74c4adb481d597458ee5ab74bbddb05, type: 2}
+  Coal: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  Citrine: {fileID: 11400000, guid: e3f84a1b5fefac64a89b24e5401b0d8a, type: 2}
+  Emerald: {fileID: 11400000, guid: e975d1292a9050445973b560447d30bc, type: 2}
+  Jade: {fileID: 11400000, guid: 6599fccb9115a504fa28e5efb6030a96, type: 2}
+  Ruby: {fileID: 11400000, guid: d40c8a039d39bd44f920904216ac7c3f, type: 2}
+  Sapphire: {fileID: 11400000, guid: 17f3d52ca154e7d4f844551455469c4f, type: 2}
+  Diamond: {fileID: 11400000, guid: 5643a57e5114cc543910f6b46c71210e, type: 2}
+  Uranium: {fileID: 11400000, guid: 874632fa8a29f8542b4694364931eabf, type: 2}
+  Bronze: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  Iron: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+  Silver: {fileID: 11400000, guid: 0d060bec598f2704ba1ddcf1c9039164, type: 2}
+  Gold: {fileID: 11400000, guid: e2e6a2c4b4340cf42a52f024271142b4, type: 2}
+  Steel: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  Titanium: {fileID: 11400000, guid: ddcc3c043d8924549962e2c4ab49f67c, type: 2}
+  Mithril: {fileID: 11400000, guid: c6914a8f5de09ad489f26c9297b1c180, type: 2}

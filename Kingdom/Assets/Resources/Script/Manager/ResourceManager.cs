@@ -1,26 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
-    public Transform ResourceViewer;
-    public GameObject ResourceDisplayerSetPrefab;
-    public List<Resource> Resources;
+    [SerializeField] private Transform Content;
     public Dictionary<Resource, BigNumber> ResourceAmount = new Dictionary<Resource, BigNumber>();
-    private Transform Content;
-    private void Start()
-    {
-        Content = ResourceViewer.GetChild(0).GetChild(0);
-        foreach (Resource r in Resources)
-        {
-            ResourceDisplayerSet Displayer = Instantiate(ResourceDisplayerSetPrefab).GetComponent<ResourceDisplayerSet>();
-            Displayer.transform.SetParent(Content.transform);
-        }
-    }
+    public Dictionary<Resource, BigNumber> ResourceGrowthRate = new Dictionary<Resource, BigNumber>();
+    public ResourceFinder ResourceFinder;
+    [Header("´óÀà")]
+    public ResourceDisplayerSet WoodSet;
+    public ResourceDisplayerSet OreSet;
+    public ResourceDisplayerSet MineralSet;
+    public ResourceDisplayerSet IngotSet;
+    public ResourceDisplayerSet UltraTechSet;
+    private float Timer;
     protected override void Tick()
     {
         base.Tick();
+        Timer += Time.deltaTime;
+        if (Timer >= 1)
+        {
+            Timer = 0;
+            ResourceUpdate();
+        }
+    }
+    private void ResourceUpdate()
+    {
+        List<Resource> keys = new(ResourceAmount.Keys);
+        foreach (var r in keys)
+            ResourceAmount[r] += ResourceGrowthRate[r];
     }
 }

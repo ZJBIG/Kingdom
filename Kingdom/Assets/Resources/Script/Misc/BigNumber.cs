@@ -1,7 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 [Serializable]
 public struct BigNumber
@@ -136,23 +134,19 @@ public struct BigNumber
     {
         if (Sign == 0)
             return "0";
-        if (Power <= 5 && Power >= -5)
+        if (Power >= -6 && Power <= 6)
         {
-            double value = Sign * Math.Pow(10, Power);
-            if (Math.Abs(value - Math.Round(value)) < 1e-10)
-                return $"{(Sign == -1 ? "-" : "")}{Math.Round(value)}";
-            string formatted = value.ToString("G4", System.Globalization.CultureInfo.InvariantCulture);
-            return formatted.Replace("E", "e").Replace("e+", "e");
+            return $"{Math.Pow(10, Power):F4}";
         }
-        if (Power > -1e6 && Power < 1e6)
+        if (Power >= -1e6 && Power <= 1e6)
         {
             double mantissa = Sign * Math.Pow(10, Power - Math.Floor(Power));
             int exponent = (int)Math.Floor(Power);
             string mantissaStr = mantissa.ToString("G4", System.Globalization.CultureInfo.InvariantCulture);
-            mantissaStr = mantissaStr.Replace("E", "e").Replace("e+", "e");
+            mantissaStr = mantissaStr.Replace("E", "e").Replace("e+", "e").Replace("e0", "e");
             return $"{mantissaStr}e{exponent}";
         }
-        return $"{(Sign == -1 ? "-" : "")}e{Power.ToString("G4", System.Globalization.CultureInfo.InvariantCulture).Replace("E", "e").Replace("e+", "e")}";
+        return $"{(Sign == -1 ? "-" : "")}e{Power.ToString("G4", System.Globalization.CultureInfo.InvariantCulture).Replace("E", "e").Replace("e+", "e").Replace("e0", "e")}";
     }
     public override int GetHashCode() => (Power.GetHashCode() * 397) ^ Sign.GetHashCode();
     public static implicit operator BigNumber(string val) => new BigNumber(val);
