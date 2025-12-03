@@ -15,21 +15,18 @@ public class ResourceManager : Singleton<ResourceManager>
     public ResourceDisplayerSet MineralSet;
     public ResourceDisplayerSet IngotSet;
     public ResourceDisplayerSet UltraTechSet;
-    private float Timer;
-    protected override void Tick()
+    private void Start()
     {
-        base.Tick();
-        Timer += Time.deltaTime;
-        if (Timer >= 1)
-        {
-            Timer = 0;
-            ResourceUpdate();
-        }
+        StartCoroutine(ResourceUpdate());
     }
-    private void ResourceUpdate()
+    private IEnumerator ResourceUpdate()
     {
-        List<Resource> keys = new(ResourceAmount.Keys);
-        foreach (var r in keys)
-            ResourceAmount[r] += ResourceGrowthRate[r];
+        while (true)
+        {
+            List<Resource> keys = new(ResourceAmount.Keys);
+            foreach (var r in keys)
+                ResourceAmount[r] += ResourceGrowthRate[r] / 2;
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 }

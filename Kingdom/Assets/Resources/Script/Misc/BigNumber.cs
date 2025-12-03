@@ -7,7 +7,6 @@ public struct BigNumber
     [SerializeField] public double Power;
     [SerializeField][Range(-1, 1)] public int Sign;
     public static readonly BigNumber Infinity = new BigNumber(Math.Log10(double.MaxValue), 1);
-    public static readonly BigNumber TrueInfinity = new BigNumber(double.MaxValue, 1);
     public static readonly BigNumber E = new BigNumber(Math.Log10(Math.E), 1);
     public static readonly BigNumber PI = new BigNumber(Math.Log10(Math.PI), 1);
     public BigNumber(string val)

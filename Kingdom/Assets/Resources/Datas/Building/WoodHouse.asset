@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: WoodHouse
+  m_EditorClassIdentifier: 
+  Label: "\u6728\u5C4B"
+  Description: "\u4E00\u95F4\u5C0F\u6728\u5C4B,\u80FD\u5BB9\u7EB3\u4E00\u4F4D\u4F4F\u6C11"
+  BuildTime:
+    Power: 0
+    Sign: 1
+  SpaceOccupy:
+    Power: 0
+    Sign: 1
+  ResourceRequire:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      Power: 1
+      Sign: 1
+  ResearchRequisites: []
+  RequirePeople: 0
+  Population:
+    Power: 0
+    Sign: 0
+  ResourceGenerate: []

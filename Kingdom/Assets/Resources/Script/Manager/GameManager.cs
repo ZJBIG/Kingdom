@@ -1,6 +1,4 @@
-using System.Collections;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
@@ -17,16 +15,19 @@ public class GameManager : Singleton<GameManager>
     }
     ResourceFinder resourceFinder;
     ResourceManager resourceManager;
-    public BigNumber UnassignedPopulation, TotalPopulation;
+    [HideInInspector] public BigNumber UnassignedPopulation, TotalPopulation;
     [SerializeField] private TMP_Text Calendar;
     [SerializeField] private TMP_Text TechLevel;
+    [SerializeField] private TMP_Text Food;
     [SerializeField] private TMP_Text KingdomName;
     [SerializeField] private TMP_Text Population;
+    [SerializeField] private TMP_Text KingdomSpace;
     private void Start()
     {
         resourceFinder = ResourceManager.Instance.ResourceFinder;
         resourceManager = ResourceManager.Instance;
         resourceManager.WoodSet.AddResource(resourceFinder.WoodLog);
+        resourceManager.ResourceGrowthRate[resourceFinder.WoodLog] = BigNumber.E;
     }
     protected override void TickLong()
     {
@@ -35,9 +36,11 @@ public class GameManager : Singleton<GameManager>
     }
     private void UpdateUI()
     {
-        Calendar.text = "5500年12月21日";
-        TechLevel.text = "科技等级:茹毛饮血";
-        KingdomName.text = "鹰之团";
-        Population.text = $"{UnassignedPopulation}/{TotalPopulation}";
+        Calendar.text = $"日历:{System.DateTime.Now}";
+        TechLevel.text = "技术等级:茹毛饮血";
+        Food.text = "粮食:32121   -32321/s";
+        KingdomName.text = "王国:鹰之团";
+        Population.text = $"人口:{UnassignedPopulation}/{TotalPopulation}";
+        KingdomSpace.text = "领土:1e231";
     }
 }
