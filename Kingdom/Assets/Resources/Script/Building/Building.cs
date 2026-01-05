@@ -6,12 +6,15 @@ public class Building : ScriptableObject
 {
     public string Label;
     public string Description;
-    public BigNumber BuildTime;
-    public BigNumber SpaceOccupy;
-    public List<Pair<Resource, BigNumber>> ResourceRequire;
+    public string BuildEffort;
+    public string SpaceOccupy;
     public List<Research> ResearchRequisites;
+    public GameManager.TechnologyLevel TechLevel;
     [Header("¹¦ÄÜ")]
-    public bool AutomaticBuilding;
-    public BigNumber PopulationCapacity;
-    public List<Pair<Resource, BigNumber>> ResourceGenerate;
+    public string PopulationRequirement;
+    public string FoodRequirement;
+    public List<Pair<Resource, string>> BuildCost;
+    public List<Pair<Resource, string>> ResourceGeneratePerSecond;
+    public List<Pair<Resource, string>> ResourceConsumptionPerSecond;
+    [Range(0f, 1f)] public float DeconstructReturnPercentage;
 }

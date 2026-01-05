@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public struct Pair<T1, T2>
@@ -23,4 +24,9 @@ public struct Tuple<T1, T2, T3>
         this.second = second;
         this.third = third;
     }
+}
+public static class Tool
+{
+    public static string Colorize(this string s, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{s}</color>";
+    public static bool NullOrEmpty(this string str) => string.IsNullOrEmpty(str);
 }

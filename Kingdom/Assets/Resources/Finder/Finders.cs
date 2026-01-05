@@ -4,13 +4,14 @@ public class ResourceFinder : ScriptableObject
 {
     [Header("Ä¾Í·")]
     public Resource WoodLog;
-    public Resource DryadWoodLog;
+    public Resource WhiteBirchLog;
+    public Resource RoseWoodLog;
+    public Resource ScentedWoodLog;
+    public Resource EbonyLog;
     public Resource ElvenWoodLog;
-    public Resource CandyLog;
-    public Resource AncientWoodLog;
     [Header("¿óÊ¯")]
     public Resource CopperOre;
-    public Resource TinOre  ;
+    public Resource TinOre;
     public Resource IronOre;
     public Resource SilverOre;
     public Resource GoldOre;
@@ -33,4 +34,11 @@ public class ResourceFinder : ScriptableObject
     public Resource Steel;
     public Resource Titanium;
     public Resource Mithril;
+}
+public class BuildingFinder : ScriptableObject
+{
+    public Building WoodHouse;
+    public Building Quarry;
+    public Building Farm;
+    public Building Lumberyard;
 }

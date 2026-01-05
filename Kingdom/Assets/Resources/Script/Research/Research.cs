@@ -6,9 +6,11 @@ public class Research : ScriptableObject
 {
     public string Label;
     public string Description;
-    public List<Pair<Resource,BigNumber>> ResourceRequire;
-    public BigNumber ResearchBaseCost;
+    public string BaseCost;
+    public List<Research> Prequisites;
+    public List<Pair<Resource, string>> ResourceRequirement;
     public GameManager.TechnologyLevel TechLevel;
     [Header("TabPosition")]
-    public float x, y;
+    public float x;
+    public float y;
 }

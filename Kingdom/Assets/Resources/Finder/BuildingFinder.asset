@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: BuildingFinder
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingFinder
+  WoodHouse: {fileID: 11400000, guid: a91a9ad3e78b7464ebf48b963e5d079e, type: 2}
+  Quarry: {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
+  Farm: {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
+  Lumberyard: {fileID: 11400000, guid: ca3f59da2f199d043b5e67ac86f178e5, type: 2}

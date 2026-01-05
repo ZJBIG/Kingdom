@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: Farm
+  m_EditorClassIdentifier: 
+  Label: "\u519C\u573A"
+  Description: "\u6700\u666E\u901A\u7684\u519C\u573A\uFF0C\u80FD\u591F\u751F\u4EA7\u98DF\u7269"
+  BuildEffort: 1
+  SpaceOccupy: 2
+  ResearchRequisites: []
+  TechLevel: 0
+  PopulationRequirement: 1
+  FoodRequirement: -5
+  BuildCost:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: 1
+  ResourceGeneratePerSecond: []
+  ResourceConsumptionPerSecond: []
+  DeconstructReturnPercentage: 0.5
