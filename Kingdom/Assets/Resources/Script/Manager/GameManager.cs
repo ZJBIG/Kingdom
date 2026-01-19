@@ -1,7 +1,5 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -15,17 +13,19 @@ public class GameManager : Singleton<GameManager>
         Archotech,
         Ascend
     }
-    ResourceFinder resourceFinder;
-    ResourceManager resourceManager;
-    BuildingFinder buildingFinder;
-    BuildingManager buildingManager;
+
+    ResourceFinder ResourceFinder;
+    ResourceManager ResourceManager;
+
+    BuildingFinder BuildingFinder;
+    BuildingManager BuildingManager;
 
     [HideInInspector] public string Calendar;
     [HideInInspector] public string KingdomName;
     [HideInInspector] public TechnologyLevel TechLevel;
     [HideInInspector] public BigNumber CurrentFood, FoodGrowthRate;
     [HideInInspector] public BigNumber KingdomSpace;
-    [HideInInspector] public BigNumber UnassignedPopulation, TotalPopulation;
+    [HideInInspector] public BigNumber UnassignedProductivity, TotalProductivity;
 
     [SerializeField] private Transform Top;
 
@@ -33,30 +33,29 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private TMP_Text Text_TechLevel;
     [SerializeField] private TMP_Text Text_Food;
     [SerializeField] private TMP_Text Text_KingdomName;
-    [SerializeField] private TMP_Text Text_Population;
+    [SerializeField] private TMP_Text Text_Productivity;
     [SerializeField] private TMP_Text Text_KingdomSpace;
 
 
     [Header("Viewer")]
     [SerializeField] private Transform ResourceViewer;
     [SerializeField] private Transform BuildingViewer;
+    [SerializeField] private Transform ResearchViewer;
     private void Start()
     {
-        resourceFinder = ResourceManager.Instance.ResourceFinder;
-        resourceManager = ResourceManager.Instance;
-        buildingFinder = BuildingManager.Instance.BuildingFinder;
-        buildingManager = BuildingManager.Instance;
+        ResourceFinder = ResourceManager.Instance.ResourceFinder;
+        ResourceManager = ResourceManager.Instance;
+        BuildingFinder = BuildingManager.Instance.BuildingFinder;
+        BuildingManager = BuildingManager.Instance;
 
-        TechLevel = TechnologyLevel.Primitive;
+        TechLevel = TechnologyLevel.Spacer;
         KingdomSpace = 1e10;
         CurrentFood = 10000;
-        TotalPopulation = 10;
-        UnassignedPopulation = 10;
+        TotalProductivity = 10;
+        UnassignedProductivity = 10;
 
-
-        resourceManager.AddResource(resourceManager.WoodSet, resourceFinder.WoodLog);
-        buildingManager.AddBuilding(buildingFinder.Lumberyard);
-        buildingManager.AddBuilding(buildingFinder.WoodHouse);
+        BuildingManager.AddBuilding(BuildingFinder.Lumberyard);
+        BuildingManager.AddBuilding(BuildingFinder.WoodHouse);
     }
     protected override void TickLong()
     {
@@ -69,7 +68,7 @@ public class GameManager : Singleton<GameManager>
         Text_TechLevel.text = $"技术等级:{TechLevel}";
         Text_Food.text = $"粮食:{CurrentFood.ToString()}   {(FoodGrowthRate < 0 ? "-" : "+")}{FoodGrowthRate}/s";
         Text_KingdomName.text = $"国名:{KingdomName}";
-        Text_Population.text = $"人口:{UnassignedPopulation.ToString().Replace(".0000", "")}/{TotalPopulation.ToString().Replace(".0000", "")}";
+        Text_Productivity.text = $"生产力:{UnassignedProductivity}/{TotalProductivity}";
         Text_KingdomSpace.text = $"剩余领土:{KingdomSpace}";
     }
     public void SwitchTopUI()

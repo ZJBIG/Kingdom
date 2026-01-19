@@ -168,6 +168,12 @@ public struct BigNumber
             Sign = 0;
         }
     }
+    public double ToDouble()
+    {
+        if (Power > 308)
+            throw new Exception("This BigNum was too big to convert to double");
+        return Math.Pow(10, Power);
+    }
     public override bool Equals(object obj)
     {
         if (obj is BigNumber other)
@@ -197,5 +203,4 @@ public struct BigNumber
     public static implicit operator BigNumber(float val) => new BigNumber(val.ToString());
     public static implicit operator BigNumber(int val) => new BigNumber(val.ToString());
     public static implicit operator BigNumber(long val) => new BigNumber(val.ToString());
-    public static implicit operator string(BigNumber val) => val.ToString();
 }

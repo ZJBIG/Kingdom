@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: WoodHouse
   m_EditorClassIdentifier: 
-  Label: "\u6728\u5C4B"
+  Label: "\u6728\u5C4B\u7684\u5EFA\u9020"
   Description: "\u5B50\u6C11\u4EEC\u5B66\u4F1A\u4E86\u5982\u4F55\u642D\u5EFA\u623F\u5C4B"
   BaseCost: 100
   Prequisites: []

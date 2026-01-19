@@ -21,9 +21,14 @@ public class BuildingManager : Singleton<BuildingManager>
         {
             Building building = pair.first.Building;
             foreach (var pair2 in building.ResourceGeneratePerSecond)
-                ResourceManager.Instance.Displayers[pair2.first].ResourceGrowthRate += pair2.second * pair.first.BuildingAmount;
+                ResourceManager.Instance.FindResourceDisplayer(pair2.first).ResourceGrowthRate = 0;
             foreach (var pair2 in building.ResourceConsumptionPerSecond)
-                ResourceManager.Instance.Displayers[pair2.first].ResourceGrowthRate += pair2.second * pair.first.BuildingAmount;
+                ResourceManager.Instance.FindResourceDisplayer(pair2.first).ResourceGrowthRate = 0;
+
+            foreach (var pair2 in building.ResourceGeneratePerSecond)
+                ResourceManager.Instance.FindResourceDisplayer(pair2.first).ResourceGrowthRate += pair2.second * pair.first.BuildingAmount;
+            foreach (var pair2 in building.ResourceConsumptionPerSecond)
+                ResourceManager.Instance.FindResourceDisplayer(pair2.first).ResourceGrowthRate += pair2.second * pair.first.BuildingAmount;
             GameManager.Instance.FoodGrowthRate += pair.first.BuildingAmount * building.FoodRequirement;
         }
     }
@@ -41,7 +46,7 @@ public class BuildingManager : Singleton<BuildingManager>
             foreach (var (_, pair) in Displayers)
             {
                 Building building = pair.first.Building;
-                BigNumber add = BigNumber.Floor(perEffort / building.BuildEffort);
+                BigNumber add = BigNumber.Floor(perEffort / building.BuildDifficulty);
                 if (add == 0)
                     Debug.Log($"Too Hard to auto-build{building.Label}");
                 else
@@ -60,5 +65,8 @@ public class BuildingManager : Singleton<BuildingManager>
         Displayer.BuildingAmount = 0;
         Displayer.transform.SetParent(Content.transform);
         Displayers.Add(building, new Pair<BuildingDisplayer, bool>(Displayer, false));
+
+        foreach (var pair in building.BuildCost)
+            ResourceManager.Instance.AddResource(pair.first);
     }
 }

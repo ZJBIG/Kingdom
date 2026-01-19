@@ -1,33 +1,36 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ResearchDisplayer : MonoBehaviour
 {
+    public enum State
+    {
+        Finished, Now, InQueue, NotActive
+    }
     [SerializeField] private TMP_Text Label;
-    [SerializeField] private TMP_Text Description;
-    private LineRenderer lineRenderer;
-    public Research Research;
-    public int Scale = 1;
-    private Vector2 Position => new Vector2(Research.x, Research.y) * Scale;
+    [SerializeField] private Slider Fill;
+    [HideInInspector] public State CurState = State.NotActive;
+    [HideInInspector] public BigNumber ProgressReal;
+    [HideInInspector] public Research Research;
+    public double ProgressPercent => BigNumber.Clamp01(ProgressReal / Research.BaseCost).ToDouble();
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-    }
-    void Update()
-    {
+        Label.text = Research.Label;
 
+        StartCoroutine(UpdateUI());
     }
-    void DrawLine()
+    public void RefreshResearchQueue() => ResearchManager.Instance.RefreshResearchQueue(Research);
+    public void SetSelect() => ResearchManager.Instance.ResearchViewer.CurSelect = Research;
+    IEnumerator UpdateUI()
     {
-        lineRenderer.startColor = Color.white;
-        lineRenderer.endColor = Color.white;
-        lineRenderer.startWidth = 0.1f;
-        lineRenderer.endWidth = 0.1f;
-        lineRenderer.positionCount = 2;
-        foreach (var req in Research.Prequisites)
+        while (true)
         {
-            //lineRenderer.SetPosition(0, transform.position);
-            //lineRenderer.SetPosition(1, req.position);
+            Fill.value = (float)ProgressPercent;
+            if (CurState == State.Finished)
+                yield break;
+            yield return new WaitForSecondsRealtime(0.1f);
         }
     }
 }

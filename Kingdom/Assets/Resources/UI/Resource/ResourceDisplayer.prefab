@@ -96,6 +96,12 @@ MonoBehaviour:
   GrowthRateText: {fileID: 2899800352527952774}
   Details: {fileID: 2095574397476968449}
   Resource: {fileID: 0}
+  ResourceGrowthRate:
+    Power: 0
+    Sign: 0
+  ResourceAmount:
+    Power: 0
+    Sign: 0
   ShouldDisplay: 0
 --- !u!1 &1395311270426129970
 GameObject:

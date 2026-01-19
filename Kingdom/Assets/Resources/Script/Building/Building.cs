@@ -6,8 +6,9 @@ public class Building : ScriptableObject
 {
     public string Label;
     public string Description;
-    public string BuildEffort;
+    public string BuildDifficulty;
     public string SpaceOccupy;
+    public string ProductivityRequirment;
     public List<Research> ResearchRequisites;
     public GameManager.TechnologyLevel TechLevel;
     [Header("¹¦ÄÜ")]

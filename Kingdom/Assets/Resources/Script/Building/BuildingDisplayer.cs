@@ -17,7 +17,7 @@ public class BuildingDisplayer : MonoBehaviour
     [HideInInspector] public bool ShouldDisplay;
 
     [HideInInspector] public BigNumber BuildingAmount = 0;
-    public Building Building;
+    [HideInInspector] public Building Building;
     public bool AutoBuild;
 
     void Start()
@@ -74,19 +74,19 @@ public class BuildingDisplayer : MonoBehaviour
     public void TryConstruct(string amount)
     {
         foreach (var pair in Building.BuildCost)
-            if (ResourceManager.Instance.Displayers[pair.first].ResourceAmount < pair.second * (BigNumber)amount)
+            if (ResourceManager.Instance.FindResourceDisplayer(pair.first).ResourceAmount < pair.second * (BigNumber)amount)
                 return;
         foreach (var pair in Building.BuildCost)
-            ResourceManager.Instance.Displayers[pair.first].ResourceAmount -= pair.second * (BigNumber)amount;
+            ResourceManager.Instance.FindResourceDisplayer(pair.first).ResourceAmount -= pair.second * (BigNumber)amount;
         BuildingAmount += amount;
         BuildingManager.Instance.UpdateResourceGrowthRate();
     }
     public void TryDeconstruct(string amount)
     {
         if (BuildingAmount <= amount)
-            amount = BuildingAmount;
+            amount = BuildingAmount.ToString();
         foreach (var pair in Building.BuildCost)
-            ResourceManager.Instance.Displayers[pair.first].ResourceAmount += pair.second * (BigNumber)Building.DeconstructReturnPercentage;
+            ResourceManager.Instance.FindResourceDisplayer(pair.first).ResourceAmount += pair.second * (BigNumber)Building.DeconstructReturnPercentage;
         BuildingAmount -= amount;
         BuildingManager.Instance.UpdateResourceGrowthRate();
     }

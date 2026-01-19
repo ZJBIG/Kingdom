@@ -7,11 +7,8 @@ public class ResourceDisplayerSet : MonoBehaviour
 {
     public Transform Content;
     [SerializeField] private Transform InfoBase;
-    [SerializeField] private GameObject ResourceDisplayerPrefab;
-    //private List<ResourceDisplayer> Displayers = new List<ResourceDisplayer>();
 
     public Dictionary<Resource, ResourceDisplayer> Displayers = new Dictionary<Resource, ResourceDisplayer>();
-
     void Awake()
     {
         StartCoroutine(UpdateHeight());
@@ -42,18 +39,4 @@ public class ResourceDisplayerSet : MonoBehaviour
         }
     }
     public void OpenUpResourceSet() => Content.gameObject.SetActive(!Content.gameObject.activeSelf);
-    public void AddResource(Resource resource)
-    {
-        if (Displayers.ContainsKey(resource))
-            throw new System.Exception($"{resource.name} has already added");
-
-        ResourceDisplayer Displayer = Instantiate(ResourceDisplayerPrefab).GetComponent<ResourceDisplayer>();
-        Displayer.Resource = resource;
-        Displayer.ResourceAmount = 0;
-        Displayer.ResourceGrowthRate = 0;
-        Displayer.transform.SetParent(Content.transform);
-        Displayers.Add(resource, Displayer);
-
-        ResourceManager.Instance.Displayers.Add(resource,Displayer);
-    }
 }

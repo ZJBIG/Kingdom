@@ -15,3 +15,5 @@ MonoBehaviour:
   Label: "\u94C0"
   Description: 
   Sprite: {fileID: 21300000, guid: f886e837b716ede4b8d451a000b3457f, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 2
