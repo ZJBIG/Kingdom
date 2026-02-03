@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: WoodHouse
+  m_Name: StoneCutting
   m_EditorClassIdentifier: 
-  Label: "\u6728\u5C4B\u7684\u5EFA\u9020"
-  Description: "\u5B50\u6C11\u4EEC\u5B66\u4F1A\u4E86\u5982\u4F55\u642D\u5EFA\u623F\u5C4B"
-  BaseCost: 100
-  Prequisites: []
+  Label: "\u5207\u77F3\u6280\u672F"
+  Description: "\u628A\u5927\u5757\u7684\u77F3\u5934\u5207\u5236\u6210\u5E73\u6574\u7684\u77F3\u7816"
+  BaseCost: 5000
+  Prequisites:
+  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
   ResourceRequirement:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
     second: 500
+  BuildingUnlock:
+  - {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
   TechLevel: 0
-  x: 0
+  x: 1
   y: 0

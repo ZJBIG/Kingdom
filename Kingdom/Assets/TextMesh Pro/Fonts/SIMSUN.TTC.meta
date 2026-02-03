@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2ffeab32092cce546b6898d562fe73e4
+guid: 53cb981011e9daf459021a2eeb25d403
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - FangSong
+  - SimSun
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

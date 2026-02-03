@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static ResourceDisplayer;
 
 public class ResourceDisplayerSet : MonoBehaviour
 {
@@ -39,4 +41,13 @@ public class ResourceDisplayerSet : MonoBehaviour
         }
     }
     public void OpenUpResourceSet() => Content.gameObject.SetActive(!Content.gameObject.activeSelf);
+
+
+
+    [Serializable]
+    public class ResourceDisplayerSetData
+    {
+        public string SetName;
+        public List<ResourceDisplayerData> ResourceDisplayerData;
+    }
 }

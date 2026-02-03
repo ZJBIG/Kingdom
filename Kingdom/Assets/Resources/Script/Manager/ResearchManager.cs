@@ -1,25 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
+using static ResearchDisplayer;
 
 public class ResearchManager : Singleton<ResearchManager>
 {
+
+    const string SAVE_FILE = "ResearchDatas.json";
 
     public ResearchViewer ResearchViewer;
     [SerializeField] private GameObject ResearchDisplayerPrefab;
     [SerializeField] private GameObject TransitionLinePrefab;
 
+    public ResearchFinder ResearchFinder;
+
     [HideInInspector] public Queue<Research> ResearcheQueue = new();
-    [HideInInspector] public Collection<Pair<Research, Research>> ResearcheCollection = new();
 
     public Dictionary<Research, ResearchDisplayer> Displayers = new();
+    public Dictionary<Pair<Research, Research>, ResearchTransitionLine> Lines = new();
 
-    Vector2 ZeroPoint = new Vector2(100, -25f);
-    Func<float, float, Vector3> PlacePosition = (x, y) => new Vector3(x, -y) * 200;
+    static readonly Vector3 ZeroPoint = new Vector3(100, -25f);
+    readonly Func<float, float, Vector3> PlacePosition = (x, y) => ZeroPoint + new Vector3(x, -y) * 300;
     protected override void Initialize()
     {
         base.Initialize();
@@ -27,7 +32,9 @@ public class ResearchManager : Singleton<ResearchManager>
     private void Start()
     {
         InitializeResearchDisplayer();
+        InitializeResearchLine();
         StartCoroutine(DoInvest());
+
     }
     public void RefreshResearchQueue(Research research)
     {
@@ -55,7 +62,6 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         while (true)
         {
-            Debug.Log(ResearcheQueue.Count);
             if (ResearcheQueue.TryPeek(out Research research))
             {
                 ResearchDisplayer cur = Displayers[research];
@@ -66,8 +72,12 @@ public class ResearchManager : Singleton<ResearchManager>
 
                 if (cur.ProgressReal >= cur.Research.BaseCost)
                 {
-                    cur.CurState = ResearchDisplayer.State.Finished;
+                    cur.CurState = State.Finished;
                     ResearcheQueue.Dequeue();
+                    research.BuildingUnlock.ForEach(b =>
+                    {
+                        BuildingManager.Instance.AddBuilding(b);
+                    });
                 }
 
             }
@@ -82,7 +92,7 @@ public class ResearchManager : Singleton<ResearchManager>
         ResearchDisplayer Displayer = Instantiate(ResearchDisplayerPrefab).GetComponent<ResearchDisplayer>();
         Displayer.Research = research;
         Displayer.ProgressReal = 0;
-        Displayer.CurState = ResearchDisplayer.State.NotActive;
+        Displayer.CurState = State.NotActive;
         Displayer.transform.SetParent(ResearchViewer.Content.transform);
 
         RectTransform rectTransform = Displayer.GetComponent<RectTransform>();
@@ -93,21 +103,96 @@ public class ResearchManager : Singleton<ResearchManager>
     public void InitializeResearchDisplayer() => Resources.LoadAll<Research>("Datas/Research").ToList().ForEach(r => AddResearch(r));
     public void InitializeResearchLine()
     {
-        Resources.LoadAll<Research>("Datas/Research").ToList().ForEach(r =>
+        foreach (var (r, _) in Displayers)
+            if (r.Prequisites.Count != 0)
+                foreach (var p in r.Prequisites)
+                {
+                    ResearchTransitionLine Line = Instantiate(TransitionLinePrefab, ResearchViewer.LineContainer.transform).GetComponent<ResearchTransitionLine>();
+
+                    Vector2 begin, end;
+                    ResearchTransitionLine LineComp = Line.GetComponent<ResearchTransitionLine>();
+                    Rect LineRect = Line.GetComponent<RectTransform>().rect;
+
+                    Lines.Add(new Pair<Research, Research>(p, r), Line);
+
+                    begin = PlacePosition(p.x, p.y);
+                    end = PlacePosition(r.x, r.y);
+
+                    float dx = end.x - begin.x, dy = end.y - begin.y;
+                    float Length = Mathf.Sqrt(dx * dx + dy * dy);
+
+                    Line.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(Length, 5f);
+
+                    Line.transform.Rotate(new Vector3(0, 0, Mathf.Rad2Deg * Mathf.Atan2(dy, dx)));
+                    Line.GetComponent<RectTransform>().localPosition = begin + new Vector2(dx / 2, dy / 2);
+                }
+    }
+
+
+
+
+
+    public override void Save()
+    {
+        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
+        var SaveData = new SaveData
         {
-            GameObject Line = Instantiate(TransitionLinePrefab);
-            Vector2 begin, end = PlacePosition(r.x, r.y);
-            ResearchTransitionLine LineComp =Line .GetComponent<ResearchTransitionLine>();
-            Rect LineRect = Line.GetComponent<RectTransform>().rect;
-            r.Prequisites.ForEach(p =>
+            ResearchDisplayerData = new List<ResearchDisplayerData>(),
+            Queue = new List<string>()
+        };
+
+        foreach (var (_, displayer) in Displayers)
+        {
+            SaveData.ResearchDisplayerData.Add(new ResearchDisplayerData
             {
-                LineComp.From = p;
-                LineComp.To = r;
-                begin = PlacePosition(p.x, p.y);
-                float Length = Vector2.Distance(begin, end);
-                LineRect.height = Length;
-                Line.transform.Rotate(new Vector3(0, 0, Mathf.Atan2(end.y - begin.y, end.x - begin.x)));
+                ResearchName = displayer.Research.name,
+                CurState = displayer.CurState,
+                ProgressReal = displayer.ProgressReal
             });
-        });
+        }
+
+        foreach (var research in ResearcheQueue)
+            SaveData.Queue.Add(research.name);
+
+        SaveData.CurSelect = ResearchViewer.CurSelect;
+
+        string json = JsonUtility.ToJson(SaveData, true);
+
+        File.WriteAllText(path, json);
+        Debug.Log($"Saved research data to: {path}");
+    }
+    public override void Load()
+    {
+        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
+        if (!File.Exists(path))
+            Save();
+        var json = File.ReadAllText(path);
+        LoadFromJson(json);
+    }
+    private void LoadFromJson(string json)
+    {
+        var SaveData = JsonUtility.FromJson<SaveData>(json);
+
+        foreach (var data in SaveData.ResearchDisplayerData)
+        {
+            Research research = ResearchFinder.GetFromString(data.ResearchName);
+            var displayer = Displayers[research];
+            displayer.CurState = data.CurState;
+            displayer.ProgressReal = data.ProgressReal;
+        }
+
+        ResearcheQueue.Clear();
+        foreach (var researchName in SaveData.Queue)
+            ResearcheQueue.Enqueue(ResearchFinder.GetFromString(researchName));
+
+        ResearchViewer.CurSelect = SaveData.CurSelect;
+    }
+
+    [Serializable]
+    private class SaveData
+    {
+        public List<ResearchDisplayerData> ResearchDisplayerData;
+        public List<string> Queue;
+        public Research CurSelect;
     }
 }

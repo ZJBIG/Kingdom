@@ -10,14 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: StoneHouse
+  m_Name: Quarry
   m_EditorClassIdentifier: 
-  Label: "\u77F3\u5C4B\u7684\u5EFA\u9020"
-  Description: 233223
-  BaseCost: 400
-  Prequisites:
-  - {fileID: 11400000, guid: 26a245f0b5769714281e4b32ffce61d2, type: 2}
-  ResourceRequirement: []
+  Label: "\u91C7\u77F3\u573A"
+  Description: "\u5982\u4F55\u91C7\u53D6\u77F3\u5934"
+  BaseCost: 1000
+  Prequisites: []
+  ResourceRequirement:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: 500
+  BuildingUnlock:
+  - {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
   TechLevel: 0
-  x: 2
+  x: 0
   y: 0

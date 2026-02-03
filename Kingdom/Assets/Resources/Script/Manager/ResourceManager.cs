@@ -1,8 +1,17 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using static ResourceDisplayer;
+using static ResourceDisplayerSet;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
+
+    const string SAVE_FILE = "ResourceDatas.json";
+
+
     [SerializeField] private Transform Content;
     [SerializeField] private GameObject ResourceDisplayerPrefab;
     public ResourceFinder ResourceFinder;
@@ -34,10 +43,84 @@ public class ResourceManager : Singleton<ResourceManager>
         ResourceDisplayer Displayer = Instantiate(ResourceDisplayerPrefab).GetComponent<ResourceDisplayer>();
         Displayer.Resource = resource;
         Displayer.ResourceAmount = 0;
-        Displayer.ResourceGrowthRate = 0;
+        Displayer.GenerateRate = 0;
+        Displayer.ConsumeRate = 0;
         Displayer.transform.SetParent(set.Content.transform);
 
         set.Displayers.Add(resource, Displayer);
     }
     public ResourceDisplayer FindResourceDisplayer(Resource resource) => DisplayerSets[resource.DisplayerSet.ToString()].Displayers[resource];
+
+
+
+
+
+
+
+
+    public override void Save()
+    {
+        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
+        var SaveData = new SaveData
+        {
+            ResourceDisplayerSetData = new List<ResourceDisplayerSetData>(),
+        };
+
+        foreach (var (key, displayerSet) in DisplayerSets)
+        {
+            var SetData = new ResourceDisplayerSetData();
+            SetData.SetName = key;
+            SetData.ResourceDisplayerData = new List<ResourceDisplayerData>();
+
+            foreach (var (r, displayer) in displayerSet.Displayers)
+                SetData.ResourceDisplayerData.Add(new ResourceDisplayerData
+                {
+                    ResourceName = r.name,
+                    GenerateRate = displayer.GenerateRate,
+                    ConsumeRate = displayer.ConsumeRate,
+                    ResourceAmount = displayer.ResourceAmount
+                });
+            SaveData.ResourceDisplayerSetData.Add(SetData);
+        }
+
+        string json = JsonUtility.ToJson(SaveData, true);
+
+        File.WriteAllText(path, json);
+        Debug.Log($"Saved resource data to: {path}");
+    }
+    public override void Load()
+    {
+        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
+        if (!File.Exists(path))
+            Save();
+        var json = File.ReadAllText(path);
+        LoadFromJson(json);
+    }
+    private void LoadFromJson(string json)
+    {
+        var SaveData = JsonUtility.FromJson<SaveData>(json);
+
+        foreach (var Setdata in SaveData.ResourceDisplayerSetData)
+        {
+            var set = DisplayerSets[Setdata.SetName];
+            foreach (var data in Setdata.ResourceDisplayerData)
+            {
+                Resource resource = ResourceFinder.GetFromString(data.ResourceName);
+
+                AddResource(resource);
+
+                var displayer = set.Displayers[resource];
+                displayer.GenerateRate = data.GenerateRate;
+                displayer.ConsumeRate = data.ConsumeRate;
+                displayer.ResourceAmount = data.ResourceAmount;
+            }
+        }
+    }
+
+
+    [Serializable]
+    private class SaveData
+    {
+        public List<ResourceDisplayerSetData> ResourceDisplayerSetData;
+    }
 }

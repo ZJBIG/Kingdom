@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Label: "\u5EFA\u9020\u4E2D\u5FC3"
   Description: "\u63D0\u5347\u5EFA\u9020\u6C34\u5E73\u7684\u5730\u65B9"
-  BuildEffort: 100
+  BuildDifficulty: 
   SpaceOccupy: 100
+  ProductivityRequirment: 
   ResearchRequisites: []
   TechLevel: 1
-  PopulationRequirement: 5
-  FoodRequirement: 20
-  BuildCost:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: 1000
+  ProductivityRequirement: 
+  FoodConsumeRate: 
+  ResourceRequirement:
   - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
-    second: 500
-  ResourceGeneratePerSecond: []
-  ResourceConsumptionPerSecond: []
+    second: 100
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+    second: 100
+  - first: {fileID: 11400000, guid: 0d060bec598f2704ba1ddcf1c9039164, type: 2}
+    second: 100
+  ResourceGenerateRate: []
+  ResourceConsumeRate: []
   DeconstructReturnPercentage: 0

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -22,7 +23,16 @@ public class ResearchDisplayer : MonoBehaviour
         StartCoroutine(UpdateUI());
     }
     public void RefreshResearchQueue() => ResearchManager.Instance.RefreshResearchQueue(Research);
-    public void SetSelect() => ResearchManager.Instance.ResearchViewer.CurSelect = Research;
+    public void SetSelect()
+    {
+        ResearchManager.Instance.ResearchViewer.CurSelect = Research;
+        foreach (var (pair, line) in ResearchManager.Instance.Lines)
+            line.GetComponent<Image>().color = ResearchTransitionLine.UnSel;
+        Research.Prequisites.ForEach(r =>
+        {
+            ResearchManager.Instance.Lines[new Pair<Research, Research>(r, Research)].GetComponent<Image>().color = ResearchTransitionLine.Sel;
+        });
+    }
     IEnumerator UpdateUI()
     {
         while (true)
@@ -33,4 +43,14 @@ public class ResearchDisplayer : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.1f);
         }
     }
+
+
+    [Serializable]
+    public class ResearchDisplayerData
+    {
+        public string ResearchName;
+        public State CurState;
+        public BigNumber ProgressReal;
+    }
 }
+

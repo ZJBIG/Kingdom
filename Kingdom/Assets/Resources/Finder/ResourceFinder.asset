@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40ebb42c35a689a4386cc3f5bf86d2cf, type: 3}
+  m_Script: {fileID: 0}
   m_Name: ResourceFinder
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceFinder
   WoodLog: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
   WhiteBirchLog: {fileID: 11400000, guid: 4cfca02efb443164d97b85eafdf816ad, type: 2}
   RoseWoodLog: {fileID: 11400000, guid: 2a42c91e8da2c5944879764d6dc008d2, type: 2}
@@ -33,6 +33,8 @@ MonoBehaviour:
   Sapphire: {fileID: 11400000, guid: 17f3d52ca154e7d4f844551455469c4f, type: 2}
   Diamond: {fileID: 11400000, guid: 5643a57e5114cc543910f6b46c71210e, type: 2}
   Uranium: {fileID: 11400000, guid: 874632fa8a29f8542b4694364931eabf, type: 2}
+  StoneBrick_Marble: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  StoneChunk_Marble: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
   Bronze: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
   Iron: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
   Silver: {fileID: 11400000, guid: 0d060bec598f2704ba1ddcf1c9039164, type: 2}

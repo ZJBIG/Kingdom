@@ -12,10 +12,18 @@ public struct BigNumber
 
     public BigNumber(string val)
     {
+        //if (val == "-Infinity")
+        //{
+        //    Power = double.NegativeInfinity;
+        //    Sign = 0;
+        //    return;
+        //}
         if (char.IsDigit(val[0]) || val[0] == '+' || val[0] == 'e')
             Sign = 1;
         else
             Sign = -1;
+
+
         if (val[0] == '+' || val[0] == '-')
             val = val.Substring(1);
         int pos = val.IndexOf('e');
@@ -162,7 +170,7 @@ public struct BigNumber
             Sign = 1;
         if (Sign == 0)
             Power = double.NegativeInfinity;
-        else if (double.IsInfinity(Power) || double.IsNaN(Power))
+        else if (double.IsInfinity(Power) || double.IsNaN(Power) || Power <= -10)
         {
             Power = double.NegativeInfinity;
             Sign = 0;
@@ -185,17 +193,18 @@ public struct BigNumber
         if (Sign == 0)
             return "0";
         if (Power >= -6 && Power <= 6)
-            return $"{Math.Pow(10, Power):F4}";
+            return $"{Math.Pow(10, Power):F3}";
         if (Power >= -1e6 && Power <= 1e6)
         {
             double mantissa = Sign * Math.Pow(10, Power - Math.Floor(Power));
             int exponent = (int)Math.Floor(Power);
-            string mantissaStr = mantissa.ToString("G4", System.Globalization.CultureInfo.InvariantCulture);
+            string mantissaStr = mantissa.ToString("G3", System.Globalization.CultureInfo.InvariantCulture);
             mantissaStr = mantissaStr.Replace("E", "e").Replace("e+", "e").Replace("e0", "e");
             return $"{mantissaStr}e{exponent}";
         }
-        return $"{(Sign == -1 ? "-" : "")}e{Power.ToString("G4", System.Globalization.CultureInfo.InvariantCulture).Replace("E", "e").Replace("e+", "e").Replace("e0", "e")}";
+        return $"{(Sign == -1 ? "-" : "")}e{Power.ToString("G3", System.Globalization.CultureInfo.InvariantCulture).Replace("E", "e").Replace("e+", "e").Replace("e0", "e")}";
     }
+    public string ToStringWithPositiveSign() => Sign > 0 ? "+" + ToString() : ToString();
     public static string ToString(BigNumber val) => val.ToString();
     public override int GetHashCode() => (Power.GetHashCode() * 397) ^ Sign.GetHashCode();
     public static implicit operator BigNumber(string val) => new BigNumber(val);

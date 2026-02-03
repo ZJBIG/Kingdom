@@ -2,7 +2,6 @@ using UnityEngine;
 
 public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
 {
-    private int timeCounter;
     private static T instance;
     public static T Instance
     {
@@ -28,26 +27,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
             Destroy(gameObject);
         Initialize();
     }
-    public virtual void Update()
-    {
-        timeCounter++;
-        Tick();
-        if (timeCounter % 60 == 0)
-            TickLong();
-        if (timeCounter % 1800 == 0)
-            TickRare();
-    }
     protected virtual void Initialize() { }
-    /// <summary>
-    /// Tick/ 1 Frame
-    /// </summary>
-    protected virtual void Tick() { }
-    /// <summary>
-    /// Tick/ 60 Frame
-    /// </summary>
-    protected virtual void TickLong() { }
-    /// <summary>
-    /// Tick/ 1800 Frame
-    /// </summary>
-    protected virtual void TickRare() { }
+    public virtual void Save() { }
+    public virtual void Load() { }   
 }

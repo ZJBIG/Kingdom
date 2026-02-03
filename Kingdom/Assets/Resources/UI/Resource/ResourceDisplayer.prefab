@@ -96,13 +96,15 @@ MonoBehaviour:
   GrowthRateText: {fileID: 2899800352527952774}
   Details: {fileID: 2095574397476968449}
   Resource: {fileID: 0}
-  ResourceGrowthRate:
+  GenerateRate:
+    Power: 0
+    Sign: 0
+  ConsumeRate:
     Power: 0
     Sign: 0
   ResourceAmount:
     Power: 0
     Sign: 0
-  ShouldDisplay: 0
 --- !u!1 &1395311270426129970
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,8 +172,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0/s
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
-  m_sharedMaterial: {fileID: -8321479245251401379, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
+  m_sharedMaterial: {fileID: 6400294774922949722, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -304,8 +306,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
-  m_sharedMaterial: {fileID: -8321479245251401379, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
+  m_sharedMaterial: {fileID: 6400294774922949722, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -672,8 +674,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Details
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
-  m_sharedMaterial: {fileID: -8321479245251401379, guid: c25cd540d77b403428c4ec46bb19fbcd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
+  m_sharedMaterial: {fileID: 6400294774922949722, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -806,8 +808,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u6728\u5934"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9f8c551feb7ce594fa476e77f5da9f2a, type: 2}
-  m_sharedMaterial: {fileID: 3827212218981259370, guid: 9f8c551feb7ce594fa476e77f5da9f2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
+  m_sharedMaterial: {fileID: 6400294774922949722, guid: 5b758da28e677c14598099ee8ce557c8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

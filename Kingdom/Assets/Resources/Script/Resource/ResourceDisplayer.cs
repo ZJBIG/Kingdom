@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -11,9 +12,10 @@ public class ResourceDisplayer : MonoBehaviour
     [SerializeField] private TMP_Text GrowthRateText;
     [SerializeField] private Transform Details;
     [HideInInspector] public Resource Resource;
-    [HideInInspector] public BigNumber ResourceGrowthRate;
+
+    [HideInInspector] public BigNumber GenerateRate;
+    [HideInInspector] public BigNumber ConsumeRate;
     [HideInInspector] public BigNumber ResourceAmount;
-    [HideInInspector] public bool ShouldDisplay;
 
     void Start()
     {
@@ -44,7 +46,7 @@ public class ResourceDisplayer : MonoBehaviour
         while (true)
         {
             Amount.text = ResourceAmount.ToString();
-            GrowthRateText.text = ResourceGrowthRate.ToString() + " /s";
+            GrowthRateText.text = (GenerateRate - ConsumeRate).ToStringWithPositiveSign() + " /s";
             yield return new WaitForSecondsRealtime(0.1f);
         }
     }
@@ -52,8 +54,20 @@ public class ResourceDisplayer : MonoBehaviour
     {
         while (true)
         {
-            ResourceAmount += ResourceGrowthRate / 10;
+            ResourceAmount += (GenerateRate - ConsumeRate) / 10;
             yield return new WaitForSecondsRealtime(0.1f);
         }
+    }
+
+
+
+
+    [Serializable]
+    public class ResourceDisplayerData
+    {
+        public string ResourceName;
+        public BigNumber GenerateRate;
+        public BigNumber ConsumeRate;
+        public BigNumber ResourceAmount;
     }
 }
