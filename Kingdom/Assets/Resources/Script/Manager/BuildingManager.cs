@@ -17,8 +17,7 @@ public class BuildingManager : Singleton<BuildingManager>
     public Dictionary<Building, Pair<BuildingDisplayer, bool>> Displayers = new();
 
     public BuildingFinder BuildingFinder;
-    [HideInInspector] public BigNumber BuildEffort;
-
+    [HideInInspector] public BigNumber GlobalEfficiencyFactor = 1;
     public IEnumerator AutoBuild()
     {
         while (true)
@@ -29,15 +28,15 @@ public class BuildingManager : Singleton<BuildingManager>
                 yield return new WaitForSecondsRealtime(1f);
                 continue;
             }
-            BigNumber perEffort = BuildEffort / count;
-            foreach (var (_, pair) in Displayers)
+            BigNumber perEffort = GameManager.Instance.Productivity / count;
+            foreach (var (_, (displayer, _)) in Displayers)
             {
-                Building building = pair.first.Building;
+                Building building = displayer.Building;
                 BigNumber add = BigNumber.Floor(perEffort / building.BuildDifficulty);
                 if (add == 0)
                     Debug.Log($"Too Hard to auto-build{building.Label}");
                 else
-                    pair.first.BuildingAmount += add;
+                    displayer.BuildingAmount += add;
             }
             yield return new WaitForSecondsRealtime(0.1f);
         }
@@ -45,7 +44,8 @@ public class BuildingManager : Singleton<BuildingManager>
     public void AddBuilding(Building building)
     {
         if (Displayers.ContainsKey(building))
-            throw new System.Exception($"{building.name} has already added");
+            return;
+            //throw new System.Exception($"{building.name} has already added");
 
         BuildingDisplayer Displayer = Instantiate(BuildingDisplayerPrefab).GetComponent<BuildingDisplayer>();
         Displayer.Building = building;
@@ -54,10 +54,10 @@ public class BuildingManager : Singleton<BuildingManager>
         Displayer.transform.SetParent(Content.transform);
         Displayers.Add(building, new Pair<BuildingDisplayer, bool>(Displayer, false));
 
-        foreach (var pair in building.ResourceRequirement)
-            ResourceManager.Instance.AddResource(pair.first);
-        foreach (var pair in building.ResourceGenerateRate)
-            ResourceManager.Instance.AddResource(pair.first);
+        foreach (var (r, _) in building.ResourceRequirement)
+            ResourceManager.Instance.AddResource(r);
+        foreach (var (r, _) in building.ResourceGenerateRate)
+            ResourceManager.Instance.AddResource(r);
     }
 
 
@@ -71,11 +71,11 @@ public class BuildingManager : Singleton<BuildingManager>
         var SaveData = new SaveData
         {
             BuildingDisplayerData = new List<BuildingDisplayerData>(),
+            GlobalEfficiencyFactor = GlobalEfficiencyFactor,
         };
 
-        foreach (var (_, displayerPair) in Displayers)
+        foreach (var (_, (displayer, _)) in Displayers)
         {
-            var displayer = displayerPair.first;
             SaveData.BuildingDisplayerData.Add(new BuildingDisplayerData
             {
                 BuildingName = displayer.Building?.name,
@@ -84,7 +84,6 @@ public class BuildingManager : Singleton<BuildingManager>
                 Efficiency = displayer.Efficiency
             });
         }
-
         string json = JsonUtility.ToJson(SaveData, true);
 
         File.WriteAllText(path, json);
@@ -115,6 +114,7 @@ public class BuildingManager : Singleton<BuildingManager>
             displayerPair.second = data.AutoBuild;
             displayer.Efficiency = data.Efficiency;
         }
+        GlobalEfficiencyFactor = SaveData.GlobalEfficiencyFactor;
     }
 
 
@@ -122,5 +122,6 @@ public class BuildingManager : Singleton<BuildingManager>
     private class SaveData
     {
         public List<BuildingDisplayerData> BuildingDisplayerData;
+        public BigNumber GlobalEfficiencyFactor;
     }
 }

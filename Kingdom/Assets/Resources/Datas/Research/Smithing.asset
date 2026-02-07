@@ -10,17 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: Quarry
+  m_Name: Smithing
   m_EditorClassIdentifier: 
-  Label: "\u91C7\u77F3\u573A"
-  Description: "\u5982\u4F55\u91C7\u53D6\u77F3\u5934"
-  BaseCost: 1000
-  Prequisites: []
-  ResourceRequirement:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: 500
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
-  TechLevel: 0
-  x: 0
-  y: 0.5
+  Label: "\u51B6\u70BC\u91D1\u5C5E"
+  Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
+  BaseCost: 5000
+  Prequisites:
+  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  ResourceRequirement: []
+  BuildingUnlock: []
+  TechLevel: 1
+  x: 1.2
+  y: 0.8

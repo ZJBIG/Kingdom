@@ -10,8 +10,8 @@ public class MusicManager : Singleton<MusicManager>
     {
         base.Initialize();
         AudioSource = GetComponent<AudioSource>();
-        MusicTypes.Add(new Pair<string, int>("day", 5));
-        MusicTypes.Add(new Pair<string, int>("silence", 11));
+        MusicTypes.Add(new Pair<string, int>("day", 6));
+        MusicTypes.Add(new Pair<string, int>("silence", 12));
         MusicTypes.Add(new Pair<string, int>("village", 8));
     }
     private void Start()

@@ -25,7 +25,8 @@ public class GameManager : Singleton<GameManager>
     [HideInInspector] public string Calendar;
     [HideInInspector] public string KingdomName;
     [HideInInspector] public TechLevel TechLevel;
-    [HideInInspector] public BigNumber CurrentFood, FoodGrowthRate;
+    [HideInInspector] public BigNumber CurrentFood;
+    [HideInInspector] public BigNumber FoodGenerateRate,FoodConsumeRate;
     [HideInInspector] public BigNumber KingdomSpace;
     [HideInInspector] public BigNumber Productivity;
 
@@ -88,8 +89,8 @@ public class GameManager : Singleton<GameManager>
         while (true)
         {
             Text_Calendar.text = Calendar;
-            Text_TechLevel.text = $"技术等级:{TechLevel}";
-            Text_Food.text = $"粮食:{CurrentFood.ToString()}   {(FoodGrowthRate < 0 ? "-" : "+")}{FoodGrowthRate}/s";
+            Text_TechLevel.text = $"技术等级:{TechLevel.GetDescription()}";
+            Text_Food.text = $"粮食:{CurrentFood.ToString()}   {(FoodGenerateRate-FoodGenerateRate).ToStringWithPositiveSign()}/s";
             Text_KingdomName.text = $"国名:{KingdomName}";
             Text_Productivity.text = $"生产力:{Productivity}";
             Text_KingdomSpace.text = $"剩余领土:{KingdomSpace}";
@@ -121,7 +122,8 @@ public class GameManager : Singleton<GameManager>
             KingdomName = KingdomName,
             TechLevel = TechLevel,
             CurrentFood = CurrentFood,
-            FoodGrowthRate = FoodGrowthRate,
+            FoodGenerateRate = FoodGenerateRate,
+            FoodConsumeRate = FoodConsumeRate,
             KingdomSpace = KingdomSpace,
             Productivity = Productivity,
         };
@@ -147,18 +149,19 @@ public class GameManager : Singleton<GameManager>
         KingdomName = SaveData.KingdomName;
         TechLevel = SaveData.TechLevel;
         CurrentFood = SaveData.CurrentFood;
-        FoodGrowthRate = SaveData.FoodGrowthRate;
+        FoodGenerateRate = SaveData.FoodGenerateRate;
+        FoodConsumeRate = SaveData.FoodConsumeRate;
         KingdomSpace = SaveData.KingdomSpace;
         Productivity = SaveData.Productivity;
     }
-    private void SaveTheGame()
+     void SaveTheGame()
     {
         ResourceManager.Instance.Save();
         BuildingManager.Instance.Save();
         ResearchManager.Instance.Save();
         Save();
     }
-    private IEnumerator LoadTheGame()
+     IEnumerator LoadTheGame()
     {
         var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
         yield return new WaitForSecondsRealtime(0.1f);
@@ -178,7 +181,8 @@ public class GameManager : Singleton<GameManager>
         public string Calendar;
         public string KingdomName;
         public TechLevel TechLevel;
-        public BigNumber CurrentFood, FoodGrowthRate;
+        public BigNumber CurrentFood;
+        public BigNumber FoodGenerateRate, FoodConsumeRate;
         public BigNumber KingdomSpace;
         public BigNumber Productivity;
     }

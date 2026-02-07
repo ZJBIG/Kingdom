@@ -17,6 +17,8 @@ public class ResourceDisplayer : MonoBehaviour
     [HideInInspector] public BigNumber ConsumeRate;
     [HideInInspector] public BigNumber ResourceAmount;
 
+    [HideInInspector] public BigNumber Efficiency;
+
     void Start()
     {
         Sprite.sprite = Resource.Sprite;
@@ -69,5 +71,6 @@ public class ResourceDisplayer : MonoBehaviour
         public BigNumber GenerateRate;
         public BigNumber ConsumeRate;
         public BigNumber ResourceAmount;
+        public BigNumber Efficiency;
     }
 }

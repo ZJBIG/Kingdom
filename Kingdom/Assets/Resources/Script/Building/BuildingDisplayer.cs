@@ -18,8 +18,9 @@ public class BuildingDisplayer : MonoBehaviour
 
     [HideInInspector] public BigNumber BuildingAmount;
     [HideInInspector] public Building Building;
+    [HideInInspector] public BigNumber Efficiency;
     [HideInInspector] public bool AutoBuild;
-    [HideInInspector] public double Efficiency = 1;
+
 
     void Start()
     {
@@ -83,21 +84,16 @@ public class BuildingDisplayer : MonoBehaviour
     {
         BigNumber SpaceReq = amount * (BigNumber)Building.SpaceOccupy;
         BigNumber ProductivityReq = amount * (BigNumber)Building.ProductivityRequirement;
-        foreach (var pair in Building.ResourceRequirement)
+        foreach (var (r, req) in Building.ResourceRequirement)
         {
-            var r = pair.first;
-            var req = pair.second;
             if (FindResourceDisplayer(r).ResourceAmount < (BigNumber)req * amount
                 || GameManager.Instance.KingdomSpace < SpaceReq
                 || GameManager.Instance.Productivity < ProductivityReq)
                 return;
         }
-        foreach (var pair in Building.ResourceRequirement)
-        {
-            var r = pair.first;
-            BigNumber num = pair.second;
-            FindResourceDisplayer(r).ResourceAmount -= num * Building.DeconstructReturnPercentage;
-        }
+        foreach (var (r, num) in Building.ResourceRequirement)
+            FindResourceDisplayer(r).ResourceAmount -= (BigNumber)num * Building.DeconstructReturnPercentage;
+
         GameManager.Instance.KingdomSpace -= SpaceReq;
         GameManager.Instance.Productivity -= ProductivityReq;
         BigNumber NewBuildingAmount = BuildingAmount + amount;
@@ -111,51 +107,49 @@ public class BuildingDisplayer : MonoBehaviour
         BigNumber ProductivityReq = (BigNumber)amount * Building.ProductivityRequirement;
         if (BuildingAmount <= amount)
             amount = BuildingAmount.ToString();
-        foreach (var pair in Building.ResourceRequirement)
-        {
-            var r = pair.first;
-            BigNumber num = pair.second;
-            FindResourceDisplayer(r).ResourceAmount += num * Building.DeconstructReturnPercentage;
-        }
+        foreach (var (r, num) in Building.ResourceRequirement)
+            FindResourceDisplayer(r).ResourceAmount += (BigNumber)num * Building.DeconstructReturnPercentage;
+
         GameManager.Instance.KingdomSpace += SpaceReq;
         GameManager.Instance.Productivity += ProductivityReq;
         BigNumber NewBuildingAmount = BuildingAmount - amount;
         RefreshResourceRate(GetEfficiency(), NewBuildingAmount);
     }
-    private void RefreshResourceRate(double NewEfficiency, BigNumber NewBuildingAmount)
+    private void RefreshResourceRate(BigNumber NewEfficiency, BigNumber NewBuildingAmount)
     {
-        foreach (var pair in Building.ResourceGenerateRate)
+        foreach (var (r, num) in Building.ResourceGenerateRate)
         {
-            var r = pair.first;
-            BigNumber num = pair.second;
-
             FindResourceDisplayer(r).GenerateRate -= BuildingAmount * Efficiency * num;
             FindResourceDisplayer(r).GenerateRate += NewBuildingAmount * NewEfficiency * num;
         }
-        foreach (var pair in Building.ResourceConsumeRate)
+        foreach (var (r, num) in Building.ResourceConsumeRate)
         {
-            var r = pair.first;
-            BigNumber num = pair.second;
-
-            FindResourceDisplayer(r).GenerateRate -= BuildingAmount * Efficiency * num;
-            FindResourceDisplayer(r).GenerateRate += NewBuildingAmount * NewEfficiency * num;
+            FindResourceDisplayer(r).ConsumeRate -= BuildingAmount * Efficiency * num;
+            FindResourceDisplayer(r).ConsumeRate += NewBuildingAmount * NewEfficiency * num;
         }
-        GameManager.Instance.FoodGrowthRate += BuildingAmount * Efficiency * Building.FoodConsumeRate;
-        GameManager.Instance.FoodGrowthRate -= NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
+        if ((BigNumber)Building.FoodConsumeRate >= 0)
+        {
+            GameManager.Instance.FoodConsumeRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
+            GameManager.Instance.FoodConsumeRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
+        }
+        else
+        {
+            GameManager.Instance.FoodGenerateRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
+            GameManager.Instance.FoodGenerateRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
+        }
         Efficiency = NewEfficiency;
         BuildingAmount = NewBuildingAmount;
     }
-    private double GetEfficiency()
+    private BigNumber GetEfficiency()
     {
         double result = 1;
-        Building.ResourceConsumeRate.ForEach(pair =>
+        foreach (var (r, _) in Building.ResourceConsumeRate)
         {
-            var r = pair.first;
             var displayer = ResourceManager.Instance.FindResourceDisplayer(r);
             if (displayer.ResourceAmount == 0)
                 result *= Math.Clamp((displayer.ConsumeRate / displayer.GenerateRate).ToDouble(), 0, 1);
-        });
-        return result;
+        }
+        return result * BuildingManager.Instance.GlobalEfficiencyFactor;
     }
 
 
@@ -165,6 +159,6 @@ public class BuildingDisplayer : MonoBehaviour
         public string BuildingName;
         public bool AutoBuild;
         public BigNumber BuildingAmount;
-        public double Efficiency;
+        public BigNumber Efficiency;
     }
 }

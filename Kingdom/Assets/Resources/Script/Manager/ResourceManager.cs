@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 using static ResourceDisplayer;
 using static ResourceDisplayerSet;
@@ -11,6 +10,7 @@ public class ResourceManager : Singleton<ResourceManager>
 
     const string SAVE_FILE = "ResourceDatas.json";
 
+    [HideInInspector] public BigNumber GlobalEfficiencyFactor = 1;
 
     [SerializeField] private Transform Content;
     [SerializeField] private GameObject ResourceDisplayerPrefab;
@@ -45,6 +45,7 @@ public class ResourceManager : Singleton<ResourceManager>
         Displayer.ResourceAmount = 0;
         Displayer.GenerateRate = 0;
         Displayer.ConsumeRate = 0;
+        Displayer.Efficiency = 1;
         Displayer.transform.SetParent(set.Content.transform);
 
         set.Displayers.Add(resource, Displayer);
@@ -64,6 +65,7 @@ public class ResourceManager : Singleton<ResourceManager>
         var SaveData = new SaveData
         {
             ResourceDisplayerSetData = new List<ResourceDisplayerSetData>(),
+            GlobalEfficiencyFactor = GlobalEfficiencyFactor
         };
 
         foreach (var (key, displayerSet) in DisplayerSets)
@@ -72,17 +74,18 @@ public class ResourceManager : Singleton<ResourceManager>
             SetData.SetName = key;
             SetData.ResourceDisplayerData = new List<ResourceDisplayerData>();
 
+
             foreach (var (r, displayer) in displayerSet.Displayers)
                 SetData.ResourceDisplayerData.Add(new ResourceDisplayerData
                 {
                     ResourceName = r.name,
                     GenerateRate = displayer.GenerateRate,
                     ConsumeRate = displayer.ConsumeRate,
-                    ResourceAmount = displayer.ResourceAmount
+                    ResourceAmount = displayer.ResourceAmount,
+                    Efficiency = displayer.Efficiency,
                 });
             SaveData.ResourceDisplayerSetData.Add(SetData);
         }
-
         string json = JsonUtility.ToJson(SaveData, true);
 
         File.WriteAllText(path, json);
@@ -113,8 +116,10 @@ public class ResourceManager : Singleton<ResourceManager>
                 displayer.GenerateRate = data.GenerateRate;
                 displayer.ConsumeRate = data.ConsumeRate;
                 displayer.ResourceAmount = data.ResourceAmount;
+                displayer.Efficiency = data.Efficiency;
             }
         }
+        GlobalEfficiencyFactor = SaveData.GlobalEfficiencyFactor;
     }
 
 
@@ -122,5 +127,6 @@ public class ResourceManager : Singleton<ResourceManager>
     private class SaveData
     {
         public List<ResourceDisplayerSetData> ResourceDisplayerSetData;
+        public BigNumber GlobalEfficiencyFactor = 1;
     }
 }

@@ -11,6 +11,7 @@ public class ResearchDisplayer : MonoBehaviour
         Finished, Now, InQueue, NotActive
     }
     [SerializeField] private TMP_Text Label;
+    [SerializeField] private TMP_Text Point;
     [SerializeField] private Slider Fill;
     [HideInInspector] public State CurState = State.NotActive;
     [HideInInspector] public BigNumber ProgressReal;
@@ -19,6 +20,7 @@ public class ResearchDisplayer : MonoBehaviour
     void Start()
     {
         Label.text = Research.Label;
+        Point.text = ((BigNumber)(Research.BaseCost)).ToString();
 
         StartCoroutine(UpdateUI());
     }
@@ -26,12 +28,10 @@ public class ResearchDisplayer : MonoBehaviour
     public void SetSelect()
     {
         ResearchManager.Instance.ResearchViewer.CurSelect = Research;
-        foreach (var (pair, line) in ResearchManager.Instance.Lines)
+        foreach (var (_, line) in ResearchManager.Instance.Lines)
             line.GetComponent<Image>().color = ResearchTransitionLine.UnSel;
-        Research.Prequisites.ForEach(r =>
-        {
+        foreach (var r in Research.Prequisites)
             ResearchManager.Instance.Lines[new Pair<Research, Research>(r, Research)].GetComponent<Image>().color = ResearchTransitionLine.Sel;
-        });
     }
     IEnumerator UpdateUI()
     {

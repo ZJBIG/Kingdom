@@ -12,6 +12,8 @@ public class ResearchManager : Singleton<ResearchManager>
 
     const string SAVE_FILE = "ResearchDatas.json";
 
+    [HideInInspector] public BigNumber GlobalEfficiencyFactor = 1;
+
     public ResearchViewer ResearchViewer;
     [SerializeField] private GameObject ResearchDisplayerPrefab;
     [SerializeField] private GameObject TransitionLinePrefab;
@@ -65,11 +67,7 @@ public class ResearchManager : Singleton<ResearchManager>
             if (ResearcheQueue.TryPeek(out Research research))
             {
                 ResearchDisplayer cur = Displayers[research];
-
-
-                cur.ProgressReal += 1f;
-
-
+                cur.ProgressReal += GlobalEfficiencyFactor;
                 if (cur.ProgressReal >= cur.Research.BaseCost)
                 {
                     cur.CurState = State.Finished;
@@ -79,9 +77,8 @@ public class ResearchManager : Singleton<ResearchManager>
                         BuildingManager.Instance.AddBuilding(b);
                     });
                 }
-
             }
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return new WaitForSecondsRealtime(0.02f);
         }
     }
     public void AddResearch(Research research)
@@ -138,7 +135,8 @@ public class ResearchManager : Singleton<ResearchManager>
         var SaveData = new SaveData
         {
             ResearchDisplayerData = new List<ResearchDisplayerData>(),
-            Queue = new List<string>()
+            Queue = new List<string>(),
+            GlobalEfficiencyFactor = GlobalEfficiencyFactor,
         };
 
         foreach (var (_, displayer) in Displayers)
@@ -147,7 +145,7 @@ public class ResearchManager : Singleton<ResearchManager>
             {
                 ResearchName = displayer.Research.name,
                 CurState = displayer.CurState,
-                ProgressReal = displayer.ProgressReal
+                ProgressReal = displayer.ProgressReal,
             });
         }
 
@@ -186,6 +184,8 @@ public class ResearchManager : Singleton<ResearchManager>
             ResearcheQueue.Enqueue(ResearchFinder.GetFromString(researchName));
 
         ResearchViewer.CurSelect = SaveData.CurSelect;
+
+        GlobalEfficiencyFactor = SaveData.GlobalEfficiencyFactor;
     }
 
     [Serializable]
@@ -194,5 +194,6 @@ public class ResearchManager : Singleton<ResearchManager>
         public List<ResearchDisplayerData> ResearchDisplayerData;
         public List<string> Queue;
         public Research CurSelect;
+        public BigNumber GlobalEfficiencyFactor;
     }
 }
