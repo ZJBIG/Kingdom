@@ -20,13 +20,13 @@ public class GameManager : Singleton<GameManager>
 {
     const string SAVE_FILE = "GameDatas.json";
 
-    public float AutoSaveDuration = 30;
+    public float AutoSaveDuration = 5f;
 
-    [HideInInspector] public string Calendar;
+    [HideInInspector] public int CalendarInt;
     [HideInInspector] public string KingdomName;
     [HideInInspector] public TechLevel TechLevel;
     [HideInInspector] public BigNumber CurrentFood;
-    [HideInInspector] public BigNumber FoodGenerateRate,FoodConsumeRate;
+    [HideInInspector] public BigNumber FoodGenerateRate, FoodConsumeRate;
     [HideInInspector] public BigNumber KingdomSpace;
     [HideInInspector] public BigNumber Productivity;
 
@@ -44,38 +44,68 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private RectTransform ResourceViewer;
     [SerializeField] private RectTransform BuildingViewer;
     [SerializeField] private RectTransform ResearchViewer;
-    private readonly Vector2 ResourceViewerLocalPos = new Vector2(-400, 895);
-    private readonly Vector2 BuildingViewerLocalPos = new Vector2(-400, 895);
-    private readonly Vector2 ResearchViewerLocalPos = new Vector2(0, 895);
-    private readonly Vector2 OutsideTheWindows = new Vector2(-10000, -10000);
+    [SerializeField] private RectTransform SpecialViewer;
+    [SerializeField] private RectTransform SettingViewer;
+
+    public static readonly Vector2 ResourceViewerLocalPos = new Vector2(-400, 825);
+    public static readonly Vector2 BuildingViewerLocalPos = new Vector2(-400, 825);
+    public static readonly Vector2 ResearchViewerLocalPos = new Vector2(0, 825);
+    public static readonly Vector2 SpecialViewerLocalPos = new Vector2(0, 875);
+    public static readonly Vector2 SettingViewerLocalPos = new Vector2(0, 875);
+
+
+    public static readonly Vector2 OutsideTheWindows = new Vector2(-10000, -10000);
     private void Start()
     {
-
         Application.runInBackground = true;
 
         StartCoroutine(LoadTheGame());
         StartCoroutine(AutoSave(AutoSaveDuration));
         StartCoroutine(UpdateUI());
+        StartCoroutine(LazyCalendarUpdate());
 
         UpdateViewerPosition();
     }
     private void InitializeGame()
     {
-        Calendar = CalendarToString(5500, 3, 12);
+        CalendarInt = 0;
         KingdomName = "鼠托邦";
         TechLevel = TechLevel.Primitive;
         KingdomSpace = 100000;
         CurrentFood = 10000;
         Productivity = 100;
 
+        ResourceViewer.localPosition = ResourceViewerLocalPos;
+        BuildingViewer.localPosition = OutsideTheWindows;
+        ResearchViewer.localPosition = OutsideTheWindows;
+        SpecialViewer.localPosition = OutsideTheWindows;
+        SettingViewer.localPosition = OutsideTheWindows;
 
         ResourceManager.Instance.AddResource(ResourceManager.Instance.ResourceFinder.WoodLog);
         ResourceManager.Instance.DisplayerSets["WoodSet"].Displayers[ResourceManager.Instance.ResourceFinder.WoodLog].GenerateRate = 10;
     }
-    private string CalendarToString(int year, int month, int day)
+    public static (int Year, int Month, int Day) CalendarIntToData(int x, int baseYear = 5500, int daysPerMonth = 30, int monthsPerYear = 12 * 30)
     {
-        return $"{year} {month} {day}";
+        int daysPerYear = monthsPerYear * daysPerMonth;
+
+        int totalDays = x;
+        int yearsOffset = totalDays / daysPerYear;
+        int remainingDaysAfterYears = totalDays % daysPerYear;
+        if (remainingDaysAfterYears < 0)
+        {
+            yearsOffset--;
+            remainingDaysAfterYears += daysPerYear;
+        }
+
+        int year = baseYear + yearsOffset;
+
+        int monthsOffset = remainingDaysAfterYears / daysPerMonth;
+        int day = remainingDaysAfterYears % daysPerMonth + 1;
+        int month = monthsOffset + 1;
+
+        return (year, month, day);
     }
+    public static string CalendarDataToString(int x) => $"{CalendarIntToData(x).Year}/{CalendarIntToData(x).Month}/{CalendarIntToData(x).Day}";
     IEnumerator AutoSave(float duration)
     {
         while (true)
@@ -88,16 +118,24 @@ public class GameManager : Singleton<GameManager>
     {
         while (true)
         {
-            Text_Calendar.text = Calendar;
+            Text_Calendar.text = CalendarDataToString(CalendarInt);
             Text_TechLevel.text = $"技术等级:{TechLevel.GetDescription()}";
-            Text_Food.text = $"粮食:{CurrentFood.ToString()}   {(FoodGenerateRate-FoodGenerateRate).ToStringWithPositiveSign()}/s";
-            Text_KingdomName.text = $"国名:{KingdomName}";
+            Text_Food.text = $"粮食:{CurrentFood.ToString()}   {(FoodGenerateRate - FoodGenerateRate).ToStringWithPositiveSign()}/s";
+            Text_KingdomName.text = KingdomName;
             Text_Productivity.text = $"生产力:{Productivity}";
             Text_KingdomSpace.text = $"剩余领土:{KingdomSpace}";
             yield return new WaitForSecondsRealtime(0.1f);
         }
     }
-    public void SwitchTopUI()
+    IEnumerator LazyCalendarUpdate()
+    {
+        while (true)
+        {
+            CalendarInt++;
+            yield return new WaitForSecondsRealtime(5f);
+        }
+    }
+    public void SwitchTop()
     {
         Text_TopText.text = Text_TopText.text switch
         {
@@ -107,18 +145,12 @@ public class GameManager : Singleton<GameManager>
         };
         UpdateViewerPosition();
     }
-    private void UpdateViewerPosition()
-    {
-        ResourceViewer.localPosition = Text_TopText.text == "资源" ? ResourceViewerLocalPos : OutsideTheWindows;
-        BuildingViewer.localPosition = Text_TopText.text == "建筑" ? BuildingViewerLocalPos : OutsideTheWindows;
-        ResearchViewer.localPosition = Text_TopText.text == "研究" ? ResearchViewerLocalPos : OutsideTheWindows;
-    }
     public override void Save()
     {
         var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
         var SaveData = new SaveData
         {
-            Calendar = Calendar,
+            CalendarInt = CalendarInt,
             KingdomName = KingdomName,
             TechLevel = TechLevel,
             CurrentFood = CurrentFood,
@@ -141,11 +173,11 @@ public class GameManager : Singleton<GameManager>
         var json = File.ReadAllText(path);
         LoadFromJson(json);
     }
-    private void LoadFromJson(string json)
+    void LoadFromJson(string json)
     {
         var SaveData = JsonUtility.FromJson<SaveData>(json);
 
-        Calendar = SaveData.Calendar;
+        CalendarInt = SaveData.CalendarInt;
         KingdomName = SaveData.KingdomName;
         TechLevel = SaveData.TechLevel;
         CurrentFood = SaveData.CurrentFood;
@@ -154,14 +186,20 @@ public class GameManager : Singleton<GameManager>
         KingdomSpace = SaveData.KingdomSpace;
         Productivity = SaveData.Productivity;
     }
-     void SaveTheGame()
+    void SaveTheGame()
     {
         ResourceManager.Instance.Save();
         BuildingManager.Instance.Save();
         ResearchManager.Instance.Save();
         Save();
     }
-     IEnumerator LoadTheGame()
+    void UpdateViewerPosition()
+    {
+        ResourceViewer.localPosition = Text_TopText.text == "资源" ? ResourceViewerLocalPos : OutsideTheWindows;
+        BuildingViewer.localPosition = Text_TopText.text == "建筑" ? BuildingViewerLocalPos : OutsideTheWindows;
+        ResearchViewer.localPosition = Text_TopText.text == "研究" ? ResearchViewerLocalPos : OutsideTheWindows;
+    }
+    IEnumerator LoadTheGame()
     {
         var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
         yield return new WaitForSecondsRealtime(0.1f);
@@ -178,7 +216,7 @@ public class GameManager : Singleton<GameManager>
     [Serializable]
     public class SaveData
     {
-        public string Calendar;
+        public int CalendarInt;
         public string KingdomName;
         public TechLevel TechLevel;
         public BigNumber CurrentFood;

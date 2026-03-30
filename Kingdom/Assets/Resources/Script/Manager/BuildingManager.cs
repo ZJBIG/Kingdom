@@ -45,7 +45,6 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (Displayers.ContainsKey(building))
             return;
-            //throw new System.Exception($"{building.name} has already added");
 
         BuildingDisplayer Displayer = Instantiate(BuildingDisplayerPrefab).GetComponent<BuildingDisplayer>();
         Displayer.Building = building;

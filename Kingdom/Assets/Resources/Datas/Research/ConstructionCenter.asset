@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ConstructionCenter
+  m_EditorClassIdentifier: 
+  Label: "\u5EFA\u9020\u4E2D\u5FC3"
+  Description: "\u628A\u5927\u5757\u7684\u77F3\u5934\u5207\u5236\u6210\u5E73\u6574\u7684\u77F3\u7816"
+  BaseCost: 5000
+  Prequisites: []
+  ResourceRequirement:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: 500
+  BuildingUnlock:
+  - {fileID: 11400000, guid: dc71725cc0a4c6549ba4ffb5cc5f6030, type: 2}
+  TechLevel: 0
+  x: 0
+  y: 0.15

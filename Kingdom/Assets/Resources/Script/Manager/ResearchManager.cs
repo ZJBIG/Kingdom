@@ -17,26 +17,21 @@ public class ResearchManager : Singleton<ResearchManager>
     public ResearchViewer ResearchViewer;
     [SerializeField] private GameObject ResearchDisplayerPrefab;
     [SerializeField] private GameObject TransitionLinePrefab;
-
     public ResearchFinder ResearchFinder;
 
-    [HideInInspector] public Queue<Research> ResearcheQueue = new();
-
+    public Queue<Research> ResearcheQueue = new();
     public Dictionary<Research, ResearchDisplayer> Displayers = new();
-    public Dictionary<Pair<Research, Research>, ResearchTransitionLine> Lines = new();
+    public Dictionary<Pair<Research, Research>, GameObject> Lines = new();
+    public Dictionary<TechLevel, int> ResearchCount = new();
 
-    static readonly Vector3 ZeroPoint = new Vector3(100, -25f);
-    readonly Func<float, float, Vector3> PlacePosition = (x, y) => ZeroPoint + new Vector3(x, -y) * 300;
-    protected override void Initialize()
-    {
-        base.Initialize();
-    }
+    readonly Func<float, float, Vector3> PlacePosition = (x, y) => new Vector3(100 + 300 * x, -25f - 300 * y);
+    public int TotalResearchCount => ResearchCount.Sum(kvp => kvp.Value);
     private void Start()
     {
         InitializeResearchDisplayer();
         InitializeResearchLine();
+        InitializeResearchCount();
         StartCoroutine(DoInvest());
-
     }
     public void RefreshResearchQueue(Research research)
     {
@@ -81,7 +76,7 @@ public class ResearchManager : Singleton<ResearchManager>
             yield return new WaitForSecondsRealtime(0.02f);
         }
     }
-    public void AddResearch(Research research)
+    void AddResearch(Research research)
     {
         if (Displayers.ContainsKey(research))
             throw new System.Exception($"{research.name} has already added");
@@ -97,17 +92,27 @@ public class ResearchManager : Singleton<ResearchManager>
 
         Displayers.Add(research, Displayer);
     }
-    public void InitializeResearchDisplayer() => Resources.LoadAll<Research>("Datas/Research").ToList().ForEach(r => AddResearch(r));
-    public void InitializeResearchLine()
+    void InitializeResearchDisplayer()
+    {
+        float x = 0;
+        var list = Resources.LoadAll<Research>("Datas/Research").ToList();
+        list.ForEach(r =>
+        {
+            x = Mathf.Max(PlacePosition(x, 0).x + 100, r.x);
+            AddResearch(r);
+        });
+        var content = ResearchViewer.Content.GetComponent<RectTransform>();
+        content.sizeDelta = new Vector2(x, content.rect.height);
+    }
+    void InitializeResearchLine()
     {
         foreach (var (r, _) in Displayers)
             if (r.Prequisites.Count != 0)
                 foreach (var p in r.Prequisites)
                 {
-                    ResearchTransitionLine Line = Instantiate(TransitionLinePrefab, ResearchViewer.LineContainer.transform).GetComponent<ResearchTransitionLine>();
+                    GameObject Line = Instantiate(TransitionLinePrefab, ResearchViewer.LineContainer.transform);
 
                     Vector2 begin, end;
-                    ResearchTransitionLine LineComp = Line.GetComponent<ResearchTransitionLine>();
                     Rect LineRect = Line.GetComponent<RectTransform>().rect;
 
                     Lines.Add(new Pair<Research, Research>(p, r), Line);
@@ -124,7 +129,13 @@ public class ResearchManager : Singleton<ResearchManager>
                     Line.GetComponent<RectTransform>().localPosition = begin + new Vector2(dx / 2, dy / 2);
                 }
     }
-
+    void InitializeResearchCount()
+    {
+        foreach (TechLevel techLevel in Enum.GetValues(typeof(TechLevel)))
+            ResearchCount[techLevel] = 0;
+        foreach (var (r, _) in Displayers)
+            ResearchCount[r.TechLevel]++;
+    }
 
 
 

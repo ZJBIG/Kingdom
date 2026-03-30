@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: Smithing
+  m_Name: Agriculture
   m_EditorClassIdentifier: 
-  Label: "\u51B6\u70BC\u91D1\u5C5E"
-  Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
+  Label: "\u519C\u4E1A"
+  Description: "\u519C\u4E1A\u662F\u6839\u57FA"
   BaseCost: 5000
-  Prequisites:
-  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  Prequisites: []
   ResourceRequirement: []
   BuildingUnlock: []
-  TechLevel: 1
-  x: 1.2
-  y: 0.8
+  TechLevel: 0
+  x: 0
+  y: 1

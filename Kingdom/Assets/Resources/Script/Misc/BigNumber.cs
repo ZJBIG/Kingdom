@@ -12,12 +12,12 @@ public struct BigNumber
 
     public BigNumber(string val)
     {
-        //if (val == "-Infinity")
-        //{
-        //    Power = double.NegativeInfinity;
-        //    Sign = 0;
-        //    return;
-        //}
+        if (val == "-Infinity")
+        {
+            Power = double.NegativeInfinity;
+            Sign = 0;
+            return;
+        }
         if (char.IsDigit(val[0]) || val[0] == '+' || val[0] == 'e')
             Sign = 1;
         else

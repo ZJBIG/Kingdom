@@ -76,7 +76,7 @@ public class BuildingDisplayer : MonoBehaviour
     {
         while (true)
         {
-            RefreshResourceRate(GetEfficiency(), BuildingAmount);
+            Refresh(GetEfficiency(), BuildingAmount);
             yield return new WaitForSecondsRealtime(10f);
         }
     }
@@ -97,7 +97,7 @@ public class BuildingDisplayer : MonoBehaviour
         GameManager.Instance.KingdomSpace -= SpaceReq;
         GameManager.Instance.Productivity -= ProductivityReq;
         BigNumber NewBuildingAmount = BuildingAmount + amount;
-        RefreshResourceRate(GetEfficiency(), NewBuildingAmount);
+        Refresh(GetEfficiency(), NewBuildingAmount);
     }
     public void TryDeconstruct(string amount)
     {
@@ -113,9 +113,10 @@ public class BuildingDisplayer : MonoBehaviour
         GameManager.Instance.KingdomSpace += SpaceReq;
         GameManager.Instance.Productivity += ProductivityReq;
         BigNumber NewBuildingAmount = BuildingAmount - amount;
-        RefreshResourceRate(GetEfficiency(), NewBuildingAmount);
+        Refresh(GetEfficiency(), NewBuildingAmount);
     }
-    private void RefreshResourceRate(BigNumber NewEfficiency, BigNumber NewBuildingAmount)
+    public void Clear() => TryDeconstruct(BuildingAmount.ToString());
+    private void Refresh(BigNumber NewEfficiency, BigNumber NewBuildingAmount)
     {
         foreach (var (r, num) in Building.ResourceGenerateRate)
         {
@@ -127,16 +128,16 @@ public class BuildingDisplayer : MonoBehaviour
             FindResourceDisplayer(r).ConsumeRate -= BuildingAmount * Efficiency * num;
             FindResourceDisplayer(r).ConsumeRate += NewBuildingAmount * NewEfficiency * num;
         }
-        if ((BigNumber)Building.FoodConsumeRate >= 0)
-        {
-            GameManager.Instance.FoodConsumeRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
-            GameManager.Instance.FoodConsumeRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
-        }
-        else
-        {
-            GameManager.Instance.FoodGenerateRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
-            GameManager.Instance.FoodGenerateRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
-        }
+        //if ((BigNumber)Building.FoodConsumeRate >= 0)
+        //{
+        //    GameManager.Instance.FoodConsumeRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
+        //    GameManager.Instance.FoodConsumeRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
+        //}
+        //else
+        //{
+        //    GameManager.Instance.FoodGenerateRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
+        //    GameManager.Instance.FoodGenerateRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
+        //}
         Efficiency = NewEfficiency;
         BuildingAmount = NewBuildingAmount;
     }

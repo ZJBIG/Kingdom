@@ -8,39 +8,40 @@ using static ResourceDisplayer;
 public class ResourceDisplayerSet : MonoBehaviour
 {
     public Transform Content;
+    public Transform Hide;
     [SerializeField] private Transform InfoBase;
+    public bool Closed = true;
 
     public Dictionary<Resource, ResourceDisplayer> Displayers = new Dictionary<Resource, ResourceDisplayer>();
-    void Awake()
+
+    private void Start()
     {
         StartCoroutine(UpdateHeight());
     }
+
     IEnumerator UpdateHeight()
     {
         while (true)
         {
-            float Height = 0;
-            if (Content.gameObject.activeSelf)
-                foreach (var (_, displayer) in Displayers)
-                {
-                    Image ImageComp = displayer.GetComponent<Image>();
-                    Height += ImageComp.rectTransform.rect.height;
-                }
-            Height += 50;
-            if (Displayers.Count == 0)
-            {
-                GetComponent<Image>().rectTransform.sizeDelta = new Vector2(GetComponent<Image>().rectTransform.rect.width, 0);
-                InfoBase.gameObject.SetActive(false);
-            }
+            Image ImageComp = GetComponent<Image>();
+            float Height = 50;
+            if (Closed)
+                ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, Height);
             else
             {
-                GetComponent<Image>().rectTransform.sizeDelta = new Vector2(GetComponent<Image>().rectTransform.rect.width, Height);
-                InfoBase.gameObject.SetActive(true);
+                foreach (var (_, displayer) in Displayers)
+                    Height += displayer.GetComponent<Image>().rectTransform.rect.height;
+                ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, Height);
             }
             yield return new WaitForSeconds(0.1f);
         }
     }
-    public void OpenUpResourceSet() => Content.gameObject.SetActive(!Content.gameObject.activeSelf);
+    public void OpenUpResourceSet()
+    {
+        Closed = !Closed;
+        foreach (var (_, displayer) in Displayers)
+            displayer.transform.SetParent(Closed ? Hide : Content);
+    }
 
 
 
@@ -48,6 +49,7 @@ public class ResourceDisplayerSet : MonoBehaviour
     public class ResourceDisplayerSetData
     {
         public string SetName;
+        public bool Closed;
         public List<ResourceDisplayerData> ResourceDisplayerData;
     }
 }

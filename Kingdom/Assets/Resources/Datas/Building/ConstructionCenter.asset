@@ -16,10 +16,8 @@ MonoBehaviour:
   Description: "\u63D0\u5347\u5EFA\u9020\u6C34\u5E73\u7684\u5730\u65B9"
   BuildDifficulty: 
   SpaceOccupy: 100
-  ProductivityRequirment: 
-  ResearchRequisites: []
-  TechLevel: 1
-  ProductivityRequirement: 
+  ProductivityRequirement: -1000
+  TechLevel: 0
   FoodConsumeRate: 
   ResourceRequirement:
   - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Mining_Quartz
+  m_EditorClassIdentifier: 
+  Label: "\u77F3\u82F1\u91C7\u6398"
+  Description: "\u526F\u4EA7\u7269\u77FF\u7269\u9EC4\u91D1\u548C\u767D\u94F6"
+  BaseCost: e6
+  Prequisites:
+  - {fileID: 11400000, guid: 085134b52d1524643b12d5e2aa8ba4e7, type: 2}
+  ResourceRequirement: []
+  BuildingUnlock: []
+  TechLevel: 0
+  x: 3
+  y: 0.25

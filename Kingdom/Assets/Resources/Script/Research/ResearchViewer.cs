@@ -20,23 +20,25 @@ public class ResearchViewer : MonoBehaviour
     {
         get
         {
+            if (GameManager.Instance.TechLevel < SelectDisplayer.Research.TechLevel)
+                return "技术等级过低";
             return SelectDisplayer.CurState switch
             {
-                ResearchDisplayer.State.Finished => "当前研究已完成",
-                ResearchDisplayer.State.InQueue or ResearchDisplayer.State.Now => "在队列中",
+                ResearchDisplayer.State.Finished => "项目已经完成",
+                ResearchDisplayer.State.Now => "正在进行研究",
+                ResearchDisplayer.State.InQueue => "于研究队列中",
                 ResearchDisplayer.State.NotActive => "开始此项研究",
                 _ => ""
             };
         }
     }
-
     private void Start()
     {
         StartCoroutine(UpdateUI());
     }
     public void DoInvest()
     {
-        if (SelectDisplayer.CurState == ResearchDisplayer.State.Finished)
+        if (SelectDisplayer.CurState == ResearchDisplayer.State.Finished || GameManager.Instance.TechLevel < SelectDisplayer.Research.TechLevel)
             return;
         ResearchManager.Instance.RefreshResearchQueue(CurSelect);
     }
@@ -48,10 +50,18 @@ public class ResearchViewer : MonoBehaviour
             {
                 DoInvestButton.text = ButtonText;
                 ProgressPercentage.value = (float)SelectDisplayer.ProgressPercent;
-                BaseInfo.text = $"{CurSelect.Label}\n{CurSelect.TechLevel.GetDescription()}\n{SelectDisplayer.ProgressPercent * 100f:F2}%\n{CurSelect.Description}";
+
+                string label = CurSelect.Label ?? "未知研究";
+                string techLevelDesc = CurSelect.TechLevel.GetDescription() ?? "无等级";
+                double progress = SelectDisplayer.ProgressPercent * 100;
+                string desc = CurSelect.Description ?? "无描述";
+
+                BaseInfo.text = $"{label}\n{techLevelDesc}\n{progress:F2}%\n{desc}";
+
                 if (CurSelect != PreSelect)
                 {
-                    for (int i = 1; i < ResourceList.childCount; i++)
+                    int count = ResourceList.childCount;
+                    for (int i = count - 1; i >= 1; i--)
                         Destroy(ResourceList.GetChild(i).gameObject);
                     foreach (var (r, num) in CurSelect.ResourceRequirement)
                     {

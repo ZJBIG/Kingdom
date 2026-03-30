@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -25,14 +26,16 @@ public class ResourceManager : Singleton<ResourceManager>
 
     protected override void Initialize()
     {
-        base.Initialize();
         DisplayerSets.Add("WoodSet", WoodSet);
         DisplayerSets.Add("OreSet", OreSet);
         DisplayerSets.Add("MineralSet", MineralSet);
         DisplayerSets.Add("IngotSet", IngotSet);
         DisplayerSets.Add("UltraTechSet", UltraTechSet);
     }
-
+    private void Start()
+    {
+        StartCoroutine(UpdateUI());
+    }
     public void AddResource(Resource resource)
     {
         ResourceDisplayerSet set = DisplayerSets[resource.DisplayerSet.ToString()];
@@ -51,7 +54,15 @@ public class ResourceManager : Singleton<ResourceManager>
         set.Displayers.Add(resource, Displayer);
     }
     public ResourceDisplayer FindResourceDisplayer(Resource resource) => DisplayerSets[resource.DisplayerSet.ToString()].Displayers[resource];
-
+    IEnumerator UpdateUI()
+    {
+        while (true)
+        {
+            foreach (var (_, set) in DisplayerSets)
+                set.gameObject.SetActive(set.Displayers.Count != 0);
+            yield return new WaitForSecondsRealtime(1f);
+        }
+    }
 
 
 
@@ -73,7 +84,7 @@ public class ResourceManager : Singleton<ResourceManager>
             var SetData = new ResourceDisplayerSetData();
             SetData.SetName = key;
             SetData.ResourceDisplayerData = new List<ResourceDisplayerData>();
-
+            SetData.Closed = displayerSet.Closed;
 
             foreach (var (r, displayer) in displayerSet.Displayers)
                 SetData.ResourceDisplayerData.Add(new ResourceDisplayerData
@@ -106,6 +117,7 @@ public class ResourceManager : Singleton<ResourceManager>
         foreach (var Setdata in SaveData.ResourceDisplayerSetData)
         {
             var set = DisplayerSets[Setdata.SetName];
+            set.Closed = Setdata.Closed;
             foreach (var data in Setdata.ResourceDisplayerData)
             {
                 Resource resource = ResourceFinder.GetFromString(data.ResourceName);

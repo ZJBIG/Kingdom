@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Mining
+  m_EditorClassIdentifier: 
+  Label: "\u77FF\u7269\u5F00\u91C7"
+  Description: 
+  BaseCost: e4
+  Prequisites:
+  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
+  ResourceRequirement: []
+  BuildingUnlock: []
+  TechLevel: 0
+  x: 1
+  y: 0.25
