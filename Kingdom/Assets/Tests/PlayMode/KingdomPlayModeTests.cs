@@ -62,6 +62,27 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.State.Version, Is.EqualTo(versionBefore));
     }
 
+    [UnityTest]
+    public IEnumerator SettingViewerDisabled_MusicManagerContinues()
+    {
+        GameObject musicObject = new GameObject("PlayMode-MusicManager");
+        createdObjects.Add(musicObject);
+        AudioSource audioSource = musicObject.AddComponent<AudioSource>();
+        MusicManager musicManager = musicObject.AddComponent<MusicManager>();
+
+        GameObject settingObject = new GameObject("PlayMode-SettingViewer");
+        createdObjects.Add(settingObject);
+        settingObject.AddComponent<SettingViewer>();
+        settingObject.SetActive(false);
+
+        AudioClip clip = AudioClip.Create("PlayModeClip", 4410, 1, 44100, false);
+        createdObjects.Add(clip);
+        yield return null;
+
+        Assert.That(musicManager.Play(clip), Is.True);
+        Assert.That(audioSource.clip, Is.SameAs(clip));
+    }
+
     private T FindOrCreateManager<T>(string name) where T : Component
     {
         T existing = Object.FindObjectOfType<T>();
