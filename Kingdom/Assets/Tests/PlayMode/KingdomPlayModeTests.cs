@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -180,6 +181,31 @@ public sealed class KingdomPlayModeTests
         Assert.That(probe.RefreshCount, Is.GreaterThan(0));
     }
 
+    [UnityTest]
+    public IEnumerator ViewerReenabled_ImmediatelyShowsLatestState()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Hud-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-Hud-Managers");
+        yield return null;
+
+        MethodInfo initializeNew = typeof(GameState).GetMethod(
+            "InitializeNew",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNew, Is.Not.Null);
+        initializeNew.Invoke(gameManager.State, new object[] { "Latest State" });
+
+        GameObject hudObject = new GameObject("PlayMode-HudViewer");
+        createdObjects.Add(hudObject);
+        TextMeshProUGUI kingdomName = hudObject.AddComponent<TextMeshProUGUI>();
+        GameHudViewer hud = hudObject.AddComponent<GameHudViewer>();
+        SetPrivateField(hud, "Text_KingdomName", kingdomName);
+
+        hud.enabled = false;
+        hud.enabled = true;
+
+        Assert.That(kingdomName.text, Is.EqualTo("Latest State"));
+    }
+
     private static Research FindAvailableResearch(ResearchManager researchManager)
     {
         IReadOnlyList<Research> researches = DataBase<Research>.All;
@@ -194,6 +220,15 @@ public sealed class KingdomPlayModeTests
 
         Assert.Fail("No unfinished research without prerequisites is available for the PlayMode test.");
         return null;
+    }
+
+    private static void SetPrivateField(object target, string name, object value)
+    {
+        FieldInfo field = target.GetType().GetField(
+            name,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(field, Is.Not.Null, $"Missing serialized field '{name}'.");
+        field.SetValue(target, value);
     }
 
     private sealed class RefreshProbe : MonoBehaviour, IGameUIRefreshable
