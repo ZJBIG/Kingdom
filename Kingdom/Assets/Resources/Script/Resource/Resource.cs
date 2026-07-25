@@ -9,7 +9,8 @@ public class Resource : GameDefinition
         OreSet,
         MineralSet,
         IngotSet,
-        UltraTechSet
+        UltraTechSet,
+        SpaceSet
     }
     public string Label;
     public string Description;

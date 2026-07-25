@@ -193,6 +193,8 @@ public class GameManager : Singleton<GameManager>
     public void AdjustLogisticsRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
         State.AdjustLogisticsRates(productionDelta, consumptionDelta);
 
+    public void AdjustFleetPower(ExpantaNum delta) => State.AdjustFleetPower(delta);
+
     public void AdjustPopulationCapacity(ExpantaNum capacityDelta) =>
         State.AdjustPopulationCapacity(capacityDelta);
 

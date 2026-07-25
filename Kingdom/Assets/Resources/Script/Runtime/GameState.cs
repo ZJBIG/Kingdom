@@ -19,6 +19,7 @@ public sealed class GameState
     public ExpantaNum LogisticsProductionRate { get; private set; }
     public ExpantaNum LogisticsConsumptionRate { get; private set; }
     public ExpantaNum LogisticsSatisfaction { get; private set; }
+    public ExpantaNum FleetPower { get; private set; }
     public TerritoryState Territory { get; private set; }
     public ExpantaNum TerritoryTotal => Territory.TerritoryTotal;
     public ExpantaNum TerritoryUsed => Territory.TerritoryUsed;
@@ -45,6 +46,7 @@ public sealed class GameState
         LogisticsProductionRate = ExpantaNum.Zero;
         LogisticsConsumptionRate = ExpantaNum.Zero;
         LogisticsSatisfaction = ExpantaNum.One;
+        FleetPower = ExpantaNum.Zero;
         Territory = new TerritoryState();
         Population = new PopulationState();
         LastSaveUnixSeconds = 0;
@@ -103,6 +105,7 @@ public sealed class GameState
         LogisticsProductionRate = ExpantaNum.Zero;
         LogisticsConsumptionRate = ExpantaNum.Zero;
         LogisticsSatisfaction = ExpantaNum.One;
+        FleetPower = ExpantaNum.Zero;
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
         Population.ResetDerivedCapacity();
         Population.ResetDerivedWorkforce();
@@ -152,6 +155,15 @@ public sealed class GameState
     {
         LogisticsProductionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsProductionRate + productionDelta);
         LogisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsConsumptionRate + consumptionDelta);
+        Version++;
+    }
+
+    internal void AdjustFleetPower(ExpantaNum delta)
+    {
+        ExpantaNum next = ExpantaNum.Max(ExpantaNum.Zero, FleetPower + delta);
+        if (FleetPower == next)
+            return;
+        FleetPower = next;
         Version++;
     }
 

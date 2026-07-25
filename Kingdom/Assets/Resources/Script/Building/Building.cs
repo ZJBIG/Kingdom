@@ -37,6 +37,8 @@ public class Building : GameDefinition
     private ExpantaNum logisticsProductionRate;
     [SerializeField, Tooltip("每个建筑每秒消耗的物流吞吐；不是库存。")]
     private ExpantaNum logisticsConsumptionRate;
+    [SerializeField, Tooltip("每个建筑提供的有效舰队力量；不是资源库存。")]
+    private ExpantaNum fleetPowerGranted;
     [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
     [SerializeField]
@@ -60,6 +62,7 @@ public class Building : GameDefinition
     public ExpantaNum PowerConsumptionRate => powerConsumptionRate;
     public ExpantaNum LogisticsProductionRate => logisticsProductionRate;
     public ExpantaNum LogisticsConsumptionRate => logisticsConsumptionRate;
+    public ExpantaNum FleetPowerGranted => fleetPowerGranted;
     public ExpantaNum CostGrowth =>
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
 

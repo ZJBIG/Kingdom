@@ -434,6 +434,8 @@ public class BuildingManager : Singleton<BuildingManager>
         GameManager.Instance.AdjustLogisticsRates(
             scaleDelta * state.Definition.LogisticsProductionRate,
             scaleDelta * state.Definition.LogisticsConsumptionRate);
+        GameManager.Instance.AdjustFleetPower(
+            scaleDelta * state.Definition.FleetPowerGranted);
     }
 
     private static void EnsureBuildingResources(Building building)
