@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: TinSmelter
+  m_EditorClassIdentifier: 
+  id: TinSmelter
+  Label: "\u9521\u51B6\u70BC\u7089"
+  Description: "\u5C06\u9521\u77FF\u8FD8\u539F\u4E3A\u9521\u952D\uFF0C\u4E3A\u540E\u7EED\u7684\u5408\u91D1\u5DE5\u827A\u505A\u51C6\u5907\u3002"
+  TechLevel: 1
+  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 240, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
+  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 60, layer: 0, operators: []}
+  resourceGenerationRates:
+  - first: {fileID: 11400000, guid: 7d8636f8f9d650b4cc23e2f67e8f5b12, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.8, layer: 0, operators: []}
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 1, scalar: 0.5, layer: 0, operators: []}

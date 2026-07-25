@@ -17,7 +17,7 @@ Pottery,陶器制作,Neolithic/新石器,3600,False,StoneTools,Clay:50,PotteryKi
 TextileCraft,纺织工艺,Neolithic/新石器,3400,False,Agriculture,PlantFiber:50,WeavingWorkshop,False,Assets/Resources/Datas/Research/Neolithic/TextileCraft.asset
 CoalMining,煤炭开采,Neolithic/新石器,7200,False,Mining,WoodLog:220; StoneChunk_Marble:140,CoalMine,False,Assets/Resources/Datas/Research/Neolithic/CoalMining.asset
 NeolithicSettlement,定居聚落,Neolithic/新石器,7000,True,AnimalHusbandry; Pottery; TextileCraft,WoodLog:250; StoneChunk_Marble:150; Clay:100; Pottery:100; Cloth:50,,False,Assets/Resources/Datas/Research/Neolithic/NeolithicSettlement.asset
-Smithing,冶炼金属,Neolithic/新石器,5000,False,StoneCutting; CoalMining,CopperOre:200; StoneBrick_Marble:1000; Coal:300,,False,Assets/Resources/Datas/Research/Neolithic/Smithing.asset
+Smithing,冶炼金属,Neolithic/新石器,5000,False,StoneCutting; CoalMining,StoneBrick_Marble:1000; Coal:300,,False,Assets/Resources/Datas/Research/Neolithic/Smithing.asset
 FoodStorage,食物储藏,Neolithic/新石器,4200,False,NeolithicSettlement,WoodLog:300; StoneChunk_Marble:200,Granary,False,Assets/Resources/Datas/Research/Neolithic/FoodStorage.asset
 Measurement,度量衡,Neolithic/新石器,5200,False,Mathematics,Clay:80; StoneChunk_Marble:60,,False,Assets/Resources/Datas/Research/Neolithic/Measurement.asset
 Smithing_Iron,冶炼铁,Neolithic/新石器,5000,False,Smithing,IronOre:300; Coal:420,IronSmelter,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Iron.asset
@@ -28,5 +28,5 @@ Mining_Tin,锡矿采掘,Neolithic/新石器,9000,False,Mining; NeolithicSettleme
 WrittenRecords,文字记录,Neolithic/新石器,6800,False,Calendar; NeolithicSettlement,Clay:120; WoodLog:100; Pottery:20; Cloth:10,,False,Assets/Resources/Datas/Research/Neolithic/WrittenRecords.asset
 WaterManagement,水利管理,Neolithic/新石器,6200,False,Agriculture; Measurement,WoodLog:180; StoneChunk_Marble:120; Clay:80,Farm,False,Assets/Resources/Datas/Research/Neolithic/WaterManagement.asset
 Masonry,砌筑技术,Neolithic/新石器,7600,False,StoneCutting; Measurement,WoodLog:240; StoneChunk_Marble:260,WoodHouse,False,Assets/Resources/Datas/Research/Neolithic/Masonry.asset
-Smithing_Bronze,冶炼青铜,Neolithic/新石器,5000,False,Smithing_Copper; Smithing_Tin,CopperOre:180; Coal:300,BronzeFoundry,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Bronze.asset
+Smithing_Bronze,冶炼青铜,Neolithic/新石器,5000,False,Smithing_Copper; Smithing_Tin,Copper:180; Tin:180; Coal:300,BronzeFoundry,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Bronze.asset
 SmithingRevolution,冶炼技术革新,Medieval/中世纪,1e8,False,Smithing_Bronze; Smithing_Iron; WrittenRecords,Coal:1200; IronOre:800,,False,Assets/Resources/Datas/Research/Medieval/SmithingRevolution.asset

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Smithing
+  m_EditorClassIdentifier: 
+  id: Smithing
+  Label: "\u51B6\u70BC\u91D1\u5C5E"
+  Description: "Introduces metal smelting and opens copper, tin, iron, and bronze processing."
+  BaseCost: 5000
+  prerequisites:
+  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  - {fileID: 11400000, guid: 6e4a1c8b2d5f47a09c3e7b1d8f5264a9, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1000
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  BuildingUnlock: []
+  TechLevel: 1
+  x: 6
+  y: 9
