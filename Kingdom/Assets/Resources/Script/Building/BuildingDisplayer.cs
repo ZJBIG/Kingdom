@@ -134,6 +134,7 @@ public class BuildingDisplayer : MonoBehaviour
             BuildFailure.SpaceInsufficient => "领土不足",
             BuildFailure.ProductivityInsufficient => "生产力不足",
             BuildFailure.DeconstructionUnavailable => "没有可拆除的建筑",
+            BuildFailure.TechnologyInsufficient => "Technology level insufficient.",
             _ => string.Empty
         };
 

@@ -15,7 +15,7 @@ FiberGatheringCamp,纤维采集地,Animal/原始,60,3,3,0,0,1,0.0,WoodLog:60,Pla
 IronMine,铁矿井,Neolithic/新石器,300,10,12,0,0,6,0.0,WoodLog:220; StoneChunk_Marble:160; StoneTool:30,IronOre:0.8/s,,Assets/Resources/Datas/Building/Neolithic/IronMine.asset
 Granary,食物仓,Neolithic/新石器,50,3,5,0,0,0,5000.0,WoodLog:100; StoneChunk_Marble:50; Pottery:30,,,Assets/Resources/Datas/Building/Neolithic/Granary.asset
 IronSmelter,铁冶炼炉,Neolithic/新石器,240,10,24,0,0,1,0.0,WoodLog:100; StoneChunk_Marble:80,Iron:0.8/s,IronOre:1/s; Coal:0.5/s,Assets/Resources/Datas/Building/Neolithic/IronSmelter.asset
-Pasture,牧场,Neolithic/新石器,80,5,8,0,7,2,0.0,WoodLog:120,,,Assets/Resources/Datas/Building/Neolithic/Pasture.asset
+Pasture,牧场,Animal/原始,80,5,8,0,7,2,0.0,WoodLog:120,,,Assets/Resources/Datas/Building/Neolithic/Pasture.asset
 PotteryKiln,陶窑,Neolithic/新石器,60,3,5,0,0,1,250.0,Clay:50; WoodLog:30,Pottery:1/s,Clay:1/s; WoodLog:0.2/s,Assets/Resources/Datas/Building/Neolithic/PotteryKiln.asset
 TinSmelter,锡冶炼炉,Neolithic/新石器,240,10,20,0,0,1,0.0,WoodLog:80; StoneChunk_Marble:60,Tin:0.8/s,TinOre:1/s; Coal:0.5/s,Assets/Resources/Datas/Building/Neolithic/TinSmelter.asset
 TinMine,锡矿井,Neolithic/新石器,240,8,10,0,0,5,0.0,WoodLog:180; StoneChunk_Marble:120; StoneTool:20,TinOre:0.8/s,,Assets/Resources/Datas/Building/Neolithic/TinMine.asset

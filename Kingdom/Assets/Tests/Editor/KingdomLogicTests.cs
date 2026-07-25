@@ -545,6 +545,28 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void BuildingManager_RejectsBuildingsAboveCurrentTechLevel()
+    {
+        CreateManager<GameManager>("Tech-Gate-GameManager");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("Tech-Gate-BuildingManager");
+        Building medievalBuilding = ScriptableObject.CreateInstance<Building>();
+        medievalBuilding.TechLevel = TechLevel.Medieval;
+        createdObjects.Add(medievalBuilding);
+
+        bool built = buildingManager.TryBuild(
+            medievalBuilding,
+            ExpantaNum.One,
+            out BuildFailure failure);
+
+        Assert.That(built, Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.TechnologyInsufficient));
+        Assert.That(buildingManager.States.ContainsKey(medievalBuilding), Is.False);
+        Assert.That(
+            buildingManager.GetMaxBuildable(medievalBuilding, ExpantaNum.One),
+            Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
     public void ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered()
     {
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceManager");

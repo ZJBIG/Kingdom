@@ -5,6 +5,7 @@ public enum BuildFailure
 {
     None,
     InvalidAmount,
+    TechnologyInsufficient,
     ResourceInsufficient,
     SpaceInsufficient,
     ProductivityInsufficient,
@@ -55,6 +56,12 @@ public class BuildingManager : Singleton<BuildingManager>
         if (building == null)
         {
             failure = BuildFailure.InvalidAmount;
+            return false;
+        }
+
+        if (building.TechLevel > GameManager.Instance.State.TechLevel)
+        {
+            failure = BuildFailure.TechnologyInsufficient;
             return false;
         }
 
@@ -158,6 +165,9 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public ExpantaNum GetMaxBuildable(Building building, ExpantaNum requestedMaximum)
     {
+        if (building == null || building.TechLevel > GameManager.Instance.State.TechLevel)
+            return ExpantaNum.Zero;
+
         BuildingState state = EnsureBuilding(building);
         ExpantaNum result = ExpantaNum.Max(ExpantaNum.Zero, requestedMaximum.Floor());
         if (result < ExpantaNum.One)
