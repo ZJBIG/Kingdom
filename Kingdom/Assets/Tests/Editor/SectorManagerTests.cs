@@ -5,7 +5,7 @@ public sealed class SectorManagerTests
     [Test]
     public void C704_ManagerUsesStableDefinitionOrderAndPrerequisites()
     {
-        var manager = new SectorManager();
+        var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
 
         Assert.That(manager.OrderedStates, Has.Count.EqualTo(3));
@@ -19,7 +19,7 @@ public sealed class SectorManagerTests
     [Test]
     public void C704_SectorStateRoundTripsByStableId()
     {
-        var manager = new SectorManager();
+        var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
         SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
         SectorState state = manager.GetState(lowOrbit);
@@ -43,7 +43,7 @@ public sealed class SectorManagerTests
     [Test]
     public void C704_NonRepeatableSectorCannotBeOccupiedTwice()
     {
-        var manager = new SectorManager();
+        var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
         SectorState state = manager.GetState(DataBase<SectorDefinition>.Find("LowOrbit"));
         state.SetUnlockedForEditor(true);
@@ -52,5 +52,21 @@ public sealed class SectorManagerTests
         Assert.That(manager.TryOccupy(state.Definition, out SectorOperationFailure second), Is.False);
         Assert.That(second, Is.EqualTo(SectorOperationFailure.AlreadyOccupied));
         Assert.That(state.VisitCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void C705_SectorRewardsUseExistingStrategicResources()
+    {
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        Resource composite = DataBase<Resource>.Find("Composite");
+        Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+
+        Assert.That(moon.ResourceRewards, Has.Count.EqualTo(1));
+        Assert.That(moon.ResourceRewards[0].First, Is.EqualTo(composite));
+        Assert.That(moon.ResourceRewards[0].Second, Is.EqualTo(new ExpantaNum(75)));
+        Assert.That(mars.ResourceRewards, Has.Count.EqualTo(1));
+        Assert.That(mars.ResourceRewards[0].First, Is.EqualTo(rocketFuel));
+        Assert.That(mars.ResourceRewards[0].Second, Is.EqualTo(new ExpantaNum(100)));
     }
 }

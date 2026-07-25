@@ -27,6 +27,16 @@ public sealed class TerritoryState
         Version++;
     }
 
+    internal void AddTotal(ExpantaNum delta)
+    {
+        if (delta.IsNaN || delta < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(delta), "Territory reward must be a non-negative number.");
+        if (delta == ExpantaNum.Zero)
+            return;
+        total += delta;
+        Version++;
+    }
+
     internal void ResetDerived(ExpantaNum minimumTotal)
     {
         total = ExpantaNum.Max(total, ExpantaNum.Max(ExpantaNum.Zero, minimumTotal));

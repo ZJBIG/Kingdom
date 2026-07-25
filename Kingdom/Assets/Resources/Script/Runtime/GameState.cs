@@ -94,6 +94,12 @@ public sealed class GameState
         Version++;
     }
 
+    internal void AdjustTerritoryTotal(ExpantaNum delta)
+    {
+        Territory.AddTotal(delta);
+        Version++;
+    }
+
     internal void ResetDerivedEconomy(ExpantaNum minimumTerritoryTotal, ExpantaNum availableProductivity)
     {
         FoodProductionRate = ExpantaNum.Zero;

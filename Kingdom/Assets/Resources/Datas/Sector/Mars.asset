@@ -19,7 +19,9 @@ MonoBehaviour:
   prerequisiteSectors:
   - {fileID: 11400000, guid: c7200000000000000000000000000002, type: 2}
   territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
-  resourceRewards: []
+  resourceRewards:
+  - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

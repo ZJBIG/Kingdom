@@ -10,6 +10,7 @@ public enum SectorOperationFailure
     AlreadyOccupied,
     PrerequisiteNotOccupied,
     LaunchCenterRequired,
+    InvalidReward,
     NotUnlocked
 }
 
@@ -19,7 +20,17 @@ public sealed class SectorManager
 
     private readonly Dictionary<SectorDefinition, SectorState> states = new();
     private readonly List<SectorState> orderedStates = new();
+    private readonly Action<SectorDefinition> rewardApplier;
     private bool initialized;
+
+    public SectorManager() : this(ApplyRewards)
+    {
+    }
+
+    public SectorManager(Action<SectorDefinition> rewardApplier)
+    {
+        this.rewardApplier = rewardApplier ?? throw new ArgumentNullException(nameof(rewardApplier));
+    }
 
     public IReadOnlyDictionary<SectorDefinition, SectorState> States => states;
     public IReadOnlyList<SectorState> OrderedStates => orderedStates;
@@ -122,9 +133,15 @@ public sealed class SectorManager
             failure = SectorOperationFailure.AlreadyOccupied;
             return false;
         }
+        if (!ValidateRewards(definition))
+        {
+            failure = SectorOperationFailure.InvalidReward;
+            return false;
+        }
 
         state.SetOccupied(true);
         state.SetVisitCount(state.VisitCount + 1);
+        rewardApplier(definition);
         failure = SectorOperationFailure.None;
         return true;
     }
@@ -204,6 +221,37 @@ public sealed class SectorManager
         return buildingManager != null &&
             buildingManager.States.TryGetValue(launchCenter, out BuildingState state) &&
             state.Amount >= ExpantaNum.One;
+    }
+
+    private static bool ValidateRewards(SectorDefinition definition)
+    {
+        if (definition.TerritoryReward.IsNaN || definition.TerritoryReward < ExpantaNum.Zero)
+            return false;
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        if (rewards == null)
+            return true;
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> reward = rewards[i];
+            if (reward.First == null || reward.Second.IsNaN || reward.Second < ExpantaNum.Zero)
+                return false;
+        }
+        return true;
+    }
+
+    private static void ApplyRewards(SectorDefinition definition)
+    {
+        GameManager.Instance.AdjustTerritoryTotal(definition.TerritoryReward);
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        if (rewards == null)
+            return;
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> reward = rewards[i];
+            if (reward.Second > ExpantaNum.Zero)
+                ResourceManager.Instance.AddAmount(reward.First, reward.Second);
+        }
     }
 
     private void InsertOrdered(SectorState state)

@@ -183,6 +183,8 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum productivityGranted) =>
         State.RefundConstruction(territoryCost, buildEffort, productivityGranted);
 
+    public void AdjustTerritoryTotal(ExpantaNum delta) => State.AdjustTerritoryTotal(delta);
+
     public void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
         State.AdjustFoodRates(productionDelta, consumptionDelta);
 
