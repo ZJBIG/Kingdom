@@ -42,4 +42,28 @@ public sealed class FoodEfficiencyTests
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
         Assert.That(state.Version, Is.EqualTo(versionBefore));
     }
+
+    [Test]
+    public void GameState_NoOpDerivedMutationsDoNotIncrementVersion()
+    {
+        GameState state = new GameState();
+        int versionBefore = state.Version;
+        Invoke(state, "AdjustFoodRates", ExpantaNum.Zero, ExpantaNum.Zero);
+        Invoke(state, "AdjustFoodCapacity", ExpantaNum.Zero);
+        Invoke(state, "AdjustPowerRates", ExpantaNum.Zero, ExpantaNum.Zero);
+        Invoke(state, "AdjustLogisticsRates", ExpantaNum.Zero, ExpantaNum.Zero);
+        Invoke(state, "AdjustPopulationCapacity", ExpantaNum.Zero);
+        Invoke(state, "AdjustTerritoryTotal", ExpantaNum.Zero);
+
+        Assert.That(state.Version, Is.EqualTo(versionBefore));
+    }
+
+    private static void Invoke(GameState state, string methodName, params object[] arguments)
+    {
+        var method = typeof(GameState).GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null, methodName);
+        method.Invoke(state, arguments);
+    }
 }

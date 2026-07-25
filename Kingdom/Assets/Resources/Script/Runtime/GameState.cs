@@ -137,8 +137,10 @@ public sealed class GameState
 
     internal void AdjustTerritoryTotal(ExpantaNum delta)
     {
+        int previousVersion = Territory.Version;
         Territory.AddTotal(delta);
-        Version++;
+        if (Territory.Version != previousVersion)
+            Version++;
     }
 
     internal void ResetDerivedEconomy(ExpantaNum minimumTerritoryTotal, ExpantaNum availableProductivity)
@@ -181,15 +183,30 @@ public sealed class GameState
 
     internal void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
-        FoodProductionRate = ExpantaNum.Max(ExpantaNum.Zero, FoodProductionRate + productionDelta);
-        FoodConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, FoodConsumptionRate + consumptionDelta);
+        ExpantaNum newProductionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            FoodProductionRate + productionDelta);
+        ExpantaNum newConsumptionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            FoodConsumptionRate + consumptionDelta);
+        if (FoodProductionRate == newProductionRate &&
+            FoodConsumptionRate == newConsumptionRate)
+            return;
+
+        FoodProductionRate = newProductionRate;
+        FoodConsumptionRate = newConsumptionRate;
         Version++;
     }
 
     internal void AdjustFoodCapacity(ExpantaNum capacityDelta)
     {
-        FoodCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
-        FoodAmount = ExpantaNum.Min(FoodAmount, FoodCapacity);
+        ExpantaNum newCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
+        ExpantaNum newAmount = ExpantaNum.Min(FoodAmount, newCapacity);
+        if (FoodCapacity == newCapacity && FoodAmount == newAmount)
+            return;
+
+        FoodCapacity = newCapacity;
+        FoodAmount = newAmount;
         Version++;
     }
 
@@ -207,15 +224,35 @@ public sealed class GameState
 
     internal void AdjustPowerRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
-        PowerProductionRate = ExpantaNum.Max(ExpantaNum.Zero, PowerProductionRate + productionDelta);
-        PowerConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, PowerConsumptionRate + consumptionDelta);
+        ExpantaNum newProductionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            PowerProductionRate + productionDelta);
+        ExpantaNum newConsumptionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            PowerConsumptionRate + consumptionDelta);
+        if (PowerProductionRate == newProductionRate &&
+            PowerConsumptionRate == newConsumptionRate)
+            return;
+
+        PowerProductionRate = newProductionRate;
+        PowerConsumptionRate = newConsumptionRate;
         Version++;
     }
 
     internal void AdjustLogisticsRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
-        LogisticsProductionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsProductionRate + productionDelta);
-        LogisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsConsumptionRate + consumptionDelta);
+        ExpantaNum newProductionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            LogisticsProductionRate + productionDelta);
+        ExpantaNum newConsumptionRate = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            LogisticsConsumptionRate + consumptionDelta);
+        if (LogisticsProductionRate == newProductionRate &&
+            LogisticsConsumptionRate == newConsumptionRate)
+            return;
+
+        LogisticsProductionRate = newProductionRate;
+        LogisticsConsumptionRate = newConsumptionRate;
         Version++;
     }
 
@@ -291,8 +328,10 @@ public sealed class GameState
 
     internal void AdjustPopulationCapacity(ExpantaNum capacityDelta)
     {
+        int previousVersion = Population.Version;
         Population.AdjustPopulationCapacity(capacityDelta);
-        Version++;
+        if (Population.Version != previousVersion)
+            Version++;
     }
 
     internal void AdvancePopulationGrowth(double deltaSeconds)
