@@ -11,7 +11,7 @@ GoldOre,金矿石,夹杂金色颗粒的矿石，冶炼后可获得象征财富�
 IronOre,铁矿石,沉重的含铁矿石，是王国从木石时代走向铁器时代的重要资源。,1,Assets/Resources/Datas/Resource/Mineral/Ore/IronOre.asset,db6d6f6d27aa55e4e84b21f45ab8e814
 MithrilOre,秘银矿石,罕见的秘银矿石，需要高超技术才能提炼出兼具轻盈与强度的材料。,1,Assets/Resources/Datas/Resource/Mineral/Ore/MithrilOre.asset,b74c4adb481d597458ee5ab74bbddb05
 SilverOre,银矿石,含银矿石，能够提炼出适合贸易、仪式和精密工艺的银锭。,1,Assets/Resources/Datas/Resource/Mineral/Ore/SilverOre.asset,3a57870b94f80e34b82401b5c3824bbf
-TinOre,锌矿石,可冶炼为对应金属锭的矿石，是早期合金体系中不可忽视的一环。,1,Assets/Resources/Datas/Resource/Mineral/Ore/TinOre.asset,f1ffd5e8f4e0f074b9951b470bbb83e2
+TinOre,锡矿石,可冶炼为对应金属锭的矿石，是早期合金体系中不可忽视的一环。,1,Assets/Resources/Datas/Resource/Mineral/Ore/TinOre.asset,f1ffd5e8f4e0f074b9951b470bbb83e2
 TitaniumOre,钛矿石,高价值的钛矿石，只有成熟的冶炼体系才能释放它面向未来工业的潜力。,1,Assets/Resources/Datas/Resource/Mineral/Ore/TitaniumOre.asset,b821cb92d3c3d634fac907c15be3d975
 Citrine,黄晶,明亮温暖的黄色晶体，可作为装饰品、贸易品或能量研究的早期媒介。,2,Assets/Resources/Datas/Resource/Mineral/Citrine.asset,e3f84a1b5fefac64a89b24e5401b0d8a
 Clay,黏土,河流与湖岸沉积的柔软土料，可塑造成器皿并烧制成耐用的陶器。,2,Assets/Resources/Datas/Resource/Clay.asset,a00b94d6daff457487d955412946cfc5
