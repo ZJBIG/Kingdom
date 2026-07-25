@@ -30,7 +30,6 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         SaveManager.Instance.SetReady(true);
         SimulationManager.Instance.SetRunning(true);
         completed = true;
-        ResourceManager.Instance.AddResource(DataBase<Resource>.Find("Gold"));
     }
 
     private static void ValidateDefinitions()
