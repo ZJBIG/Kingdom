@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Bookmaking
+  m_EditorClassIdentifier: 
+  id: Bookmaking
+  Label: Bookmaking
+  Description: Combines writing, pottery, and cloth into a durable tradition of books and scholarship.
+  BaseCost: 110000
+  prerequisites:
+  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 150, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 200, layer: 0, operators: []}
+  BuildingUnlock:
+  - {fileID: 11400000, guid: a4444444444444444444444444444444, type: 2}
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  effects:
+  - Type: 4
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: ""
+    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.1, layer: 0, operators: []}
+  x: 6
+  y: 12

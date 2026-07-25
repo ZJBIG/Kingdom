@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: FeudalAdministration
+  m_EditorClassIdentifier: 
+  id: FeudalAdministration
+  Label: Feudal Administration
+  Description: Establishes durable medieval administration and expands controlled territory.
+  BaseCost: 80000
+  prerequisites:
+  - {fileID: 11400000, guid: b5ca6874cd854e44e80ddc49eb795153, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
+  BuildingUnlock: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  effects:
+  - Type: 8
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: ""
+    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 25, layer: 0, operators: []}
+  - Type: 9
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: feudal-administration
+    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  x: 0
+  y: 12
