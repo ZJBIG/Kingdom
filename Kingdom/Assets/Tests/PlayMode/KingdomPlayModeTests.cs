@@ -206,6 +206,26 @@ public sealed class KingdomPlayModeTests
         Assert.That(kingdomName.text, Is.EqualTo("Latest State"));
     }
 
+    [UnityTest]
+    public IEnumerator SimulationPaused_DoesNotAdvanceDuringUpdate()
+    {
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Pause-Managers");
+        FindOrCreateManager<GameManager>("PlayMode-Pause-Managers");
+        FindOrCreateManager<BuildingManager>("PlayMode-Pause-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-Pause-Managers");
+        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Pause-Managers");
+        yield return null;
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, ExpantaNum.Zero);
+        resourceManager.SetProductionRate(wood, 10);
+        simulationManager.SetRunning(false);
+
+        yield return new WaitForSecondsRealtime(0.15f);
+
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+    }
+
     private static Research FindAvailableResearch(ResearchManager researchManager)
     {
         IReadOnlyList<Research> researches = DataBase<Research>.All;
