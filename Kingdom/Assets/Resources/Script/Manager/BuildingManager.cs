@@ -259,6 +259,10 @@ public class BuildingManager : Singleton<BuildingManager>
         resourceManager.BeginTick();
         ExpantaNum potentialFoodProduction = ExpantaNum.Zero;
         ExpantaNum potentialFoodConsumption = ExpantaNum.Zero;
+        ExpantaNum potentialPowerProduction = ExpantaNum.Zero;
+        ExpantaNum potentialPowerConsumption = ExpantaNum.Zero;
+        ExpantaNum potentialLogisticsProduction = ExpantaNum.Zero;
+        ExpantaNum potentialLogisticsConsumption = ExpantaNum.Zero;
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
@@ -267,6 +271,10 @@ public class BuildingManager : Singleton<BuildingManager>
 
             potentialFoodProduction += potentialScale * state.Definition.FoodProductionRate;
             potentialFoodConsumption += potentialScale * state.Definition.FoodConsumptionRate;
+            potentialPowerProduction += potentialScale * state.Definition.PowerProductionRate;
+            potentialPowerConsumption += potentialScale * state.Definition.PowerConsumptionRate;
+            potentialLogisticsProduction += potentialScale * state.Definition.LogisticsProductionRate;
+            potentialLogisticsConsumption += potentialScale * state.Definition.LogisticsConsumptionRate;
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
             for (int j = 0; j < generation.Count; j++)
@@ -285,6 +293,11 @@ public class BuildingManager : Singleton<BuildingManager>
             potentialFoodProduction,
             potentialFoodConsumption,
             deltaSeconds);
+        GameManager.Instance.PrepareFlowSatisfaction(
+            potentialPowerProduction,
+            potentialPowerConsumption,
+            potentialLogisticsProduction,
+            potentialLogisticsConsumption);
         resourceManager.CalculateTickSatisfaction(deltaSeconds);
     }
 
@@ -338,7 +351,9 @@ public class BuildingManager : Singleton<BuildingManager>
         return CalculateEffectiveEfficiency(
             GlobalEfficiencyFactor,
             resourceSatisfaction,
-            GameManager.Instance.State.FoodSatisfaction);
+            GameManager.Instance.State.FoodSatisfaction,
+            GameManager.Instance.State.PowerSatisfaction,
+            GameManager.Instance.State.LogisticsSatisfaction);
     }
 
     public static ExpantaNum CalculateEffectiveEfficiency(
@@ -346,10 +361,27 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum resourceSatisfaction,
         ExpantaNum foodSatisfaction)
     {
+        return CalculateEffectiveEfficiency(
+            globalEfficiency,
+            resourceSatisfaction,
+            foodSatisfaction,
+            ExpantaNum.One,
+            ExpantaNum.One);
+    }
+
+    public static ExpantaNum CalculateEffectiveEfficiency(
+        ExpantaNum globalEfficiency,
+        ExpantaNum resourceSatisfaction,
+        ExpantaNum foodSatisfaction,
+        ExpantaNum powerSatisfaction,
+        ExpantaNum logisticsSatisfaction)
+    {
         return ExpantaNum.Clamp01(
             globalEfficiency *
             ExpantaNum.Clamp01(resourceSatisfaction) *
-            ExpantaNum.Clamp01(foodSatisfaction));
+            ExpantaNum.Clamp01(foodSatisfaction) *
+            ExpantaNum.Clamp01(powerSatisfaction) *
+            ExpantaNum.Clamp01(logisticsSatisfaction));
     }
 
     private static ExpantaNum GetAutoBuildEfficiency(TechLevel techLevel)
@@ -396,6 +428,12 @@ public class BuildingManager : Singleton<BuildingManager>
             scaleDelta * state.Definition.FoodCapacityGranted);
         GameManager.Instance.AdjustPopulationCapacity(
             scaleDelta * state.Definition.PopulationCapacityGranted);
+        GameManager.Instance.AdjustPowerRates(
+            scaleDelta * state.Definition.PowerProductionRate,
+            scaleDelta * state.Definition.PowerConsumptionRate);
+        GameManager.Instance.AdjustLogisticsRates(
+            scaleDelta * state.Definition.LogisticsProductionRate,
+            scaleDelta * state.Definition.LogisticsConsumptionRate);
     }
 
     private static void EnsureBuildingResources(Building building)

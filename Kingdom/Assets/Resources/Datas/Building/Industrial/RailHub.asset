@@ -25,6 +25,10 @@ MonoBehaviour:
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  powerProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  powerConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  logisticsProductionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
+  logisticsConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   resourceRequirements:
   - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 180, layer: 0, operators: []}

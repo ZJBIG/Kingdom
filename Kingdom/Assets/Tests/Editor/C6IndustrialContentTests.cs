@@ -44,6 +44,19 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C602_IndustrialBuildingsDeclarePowerAndLogisticsFlows()
+    {
+        Assert.That(DataBase<Building>.Find("SteamPlant").PowerProductionRate,
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<Building>.Find("MachineFactory").PowerConsumptionRate,
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<Building>.Find("RailHub").LogisticsProductionRate,
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<Building>.Find("ArmsFactory").LogisticsConsumptionRate,
+            Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
     public void C601_IndustrializationUnlocksTheIndustrialBuildingLayer()
     {
         Research industrialization = DataBase<Research>.Find("Industrialization");

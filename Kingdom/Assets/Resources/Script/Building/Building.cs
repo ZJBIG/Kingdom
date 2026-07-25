@@ -29,6 +29,14 @@ public class Building : GameDefinition
     private ExpantaNum foodConsumptionRate;
     [SerializeField, Tooltip("每个建筑提供的食物储存容量。")]
     private ExpantaNum foodCapacityGranted;
+    [SerializeField, Tooltip("每个建筑每秒提供的电力流量；不是库存。")]
+    private ExpantaNum powerProductionRate;
+    [SerializeField, Tooltip("每个建筑每秒消耗的电力流量；不是库存。")]
+    private ExpantaNum powerConsumptionRate;
+    [SerializeField, Tooltip("每个建筑每秒提供的物流吞吐；不是库存。")]
+    private ExpantaNum logisticsProductionRate;
+    [SerializeField, Tooltip("每个建筑每秒消耗的物流吞吐；不是库存。")]
+    private ExpantaNum logisticsConsumptionRate;
     [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
     [SerializeField]
@@ -48,12 +56,27 @@ public class Building : GameDefinition
     public ExpantaNum FoodProductionRate => foodProductionRate;
     public ExpantaNum FoodConsumptionRate => foodConsumptionRate;
     public ExpantaNum FoodCapacityGranted => foodCapacityGranted;
+    public ExpantaNum PowerProductionRate => powerProductionRate;
+    public ExpantaNum PowerConsumptionRate => powerConsumptionRate;
+    public ExpantaNum LogisticsProductionRate => logisticsProductionRate;
+    public ExpantaNum LogisticsConsumptionRate => logisticsConsumptionRate;
     public ExpantaNum CostGrowth =>
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
 
 #if UNITY_EDITOR
     public void SetResearchPowerForEditor(ExpantaNum value) =>
         researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value);
+    public void SetPowerFlowForEditor(ExpantaNum production, ExpantaNum consumption)
+    {
+        powerProductionRate = ExpantaNum.Max(ExpantaNum.Zero, production);
+        powerConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, consumption);
+    }
+
+    public void SetLogisticsFlowForEditor(ExpantaNum production, ExpantaNum consumption)
+    {
+        logisticsProductionRate = ExpantaNum.Max(ExpantaNum.Zero, production);
+        logisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, consumption);
+    }
 #endif
 
 }

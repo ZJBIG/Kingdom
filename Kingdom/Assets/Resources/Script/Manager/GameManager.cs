@@ -128,6 +128,17 @@ public class GameManager : Singleton<GameManager>
         return ExpantaNum.Clamp01(available / demand);
     }
 
+    public static ExpantaNum CalculateFlowSatisfaction(
+        ExpantaNum potentialProductionRate,
+        ExpantaNum potentialConsumptionRate)
+    {
+        ExpantaNum production = ExpantaNum.Max(ExpantaNum.Zero, potentialProductionRate);
+        ExpantaNum demand = ExpantaNum.Max(ExpantaNum.Zero, potentialConsumptionRate);
+        if (demand <= ExpantaNum.Zero)
+            return ExpantaNum.One;
+        return ExpantaNum.Clamp01(production / demand);
+    }
+
     internal void PrepareFoodSatisfaction(
         ExpantaNum potentialProductionRate,
         ExpantaNum potentialConsumptionRate,
@@ -139,6 +150,20 @@ public class GameManager : Singleton<GameManager>
             potentialProductionRate,
             potentialConsumptionRate,
             deltaSeconds));
+    }
+
+    internal void PrepareFlowSatisfaction(
+        ExpantaNum potentialPowerProductionRate,
+        ExpantaNum potentialPowerConsumptionRate,
+        ExpantaNum potentialLogisticsProductionRate,
+        ExpantaNum potentialLogisticsConsumptionRate)
+    {
+        State.SetPowerSatisfaction(CalculateFlowSatisfaction(
+            potentialPowerProductionRate,
+            potentialPowerConsumptionRate));
+        State.SetLogisticsSatisfaction(CalculateFlowSatisfaction(
+            potentialLogisticsProductionRate,
+            potentialLogisticsConsumptionRate));
     }
 
     public bool CanAffordConstruction(ExpantaNum territoryCost, ExpantaNum buildEffort) =>
@@ -161,6 +186,12 @@ public class GameManager : Singleton<GameManager>
 
     public void AdjustFoodCapacity(ExpantaNum capacityDelta) =>
         State.AdjustFoodCapacity(capacityDelta);
+
+    public void AdjustPowerRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
+        State.AdjustPowerRates(productionDelta, consumptionDelta);
+
+    public void AdjustLogisticsRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
+        State.AdjustLogisticsRates(productionDelta, consumptionDelta);
 
     public void AdjustPopulationCapacity(ExpantaNum capacityDelta) =>
         State.AdjustPopulationCapacity(capacityDelta);

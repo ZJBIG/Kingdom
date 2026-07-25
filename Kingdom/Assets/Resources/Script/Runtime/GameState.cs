@@ -13,6 +13,12 @@ public sealed class GameState
     public ExpantaNum FoodProductionRate { get; private set; }
     public ExpantaNum FoodConsumptionRate { get; private set; }
     public ExpantaNum FoodSatisfaction { get; private set; }
+    public ExpantaNum PowerProductionRate { get; private set; }
+    public ExpantaNum PowerConsumptionRate { get; private set; }
+    public ExpantaNum PowerSatisfaction { get; private set; }
+    public ExpantaNum LogisticsProductionRate { get; private set; }
+    public ExpantaNum LogisticsConsumptionRate { get; private set; }
+    public ExpantaNum LogisticsSatisfaction { get; private set; }
     public TerritoryState Territory { get; private set; }
     public ExpantaNum TerritoryTotal => Territory.TerritoryTotal;
     public ExpantaNum TerritoryUsed => Territory.TerritoryUsed;
@@ -33,6 +39,12 @@ public sealed class GameState
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
+        PowerProductionRate = ExpantaNum.Zero;
+        PowerConsumptionRate = ExpantaNum.Zero;
+        PowerSatisfaction = ExpantaNum.One;
+        LogisticsProductionRate = ExpantaNum.Zero;
+        LogisticsConsumptionRate = ExpantaNum.Zero;
+        LogisticsSatisfaction = ExpantaNum.One;
         Territory = new TerritoryState();
         Population = new PopulationState();
         LastSaveUnixSeconds = 0;
@@ -85,6 +97,12 @@ public sealed class GameState
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
+        PowerProductionRate = ExpantaNum.Zero;
+        PowerConsumptionRate = ExpantaNum.Zero;
+        PowerSatisfaction = ExpantaNum.One;
+        LogisticsProductionRate = ExpantaNum.Zero;
+        LogisticsConsumptionRate = ExpantaNum.Zero;
+        LogisticsSatisfaction = ExpantaNum.One;
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
         Population.ResetDerivedCapacity();
         Population.ResetDerivedWorkforce();
@@ -120,6 +138,38 @@ public sealed class GameState
     {
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
         FoodAmount = ExpantaNum.Min(FoodAmount, FoodCapacity);
+        Version++;
+    }
+
+    internal void AdjustPowerRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
+    {
+        PowerProductionRate = ExpantaNum.Max(ExpantaNum.Zero, PowerProductionRate + productionDelta);
+        PowerConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, PowerConsumptionRate + consumptionDelta);
+        Version++;
+    }
+
+    internal void AdjustLogisticsRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
+    {
+        LogisticsProductionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsProductionRate + productionDelta);
+        LogisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, LogisticsConsumptionRate + consumptionDelta);
+        Version++;
+    }
+
+    internal void SetPowerSatisfaction(ExpantaNum value)
+    {
+        ExpantaNum normalized = ExpantaNum.Clamp01(value);
+        if (PowerSatisfaction == normalized)
+            return;
+        PowerSatisfaction = normalized;
+        Version++;
+    }
+
+    internal void SetLogisticsSatisfaction(ExpantaNum value)
+    {
+        ExpantaNum normalized = ExpantaNum.Clamp01(value);
+        if (LogisticsSatisfaction == normalized)
+            return;
+        LogisticsSatisfaction = normalized;
         Version++;
     }
 
