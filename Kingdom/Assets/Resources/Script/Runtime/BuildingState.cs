@@ -18,6 +18,7 @@ public sealed class BuildingState
     public ExpantaNum AutoBuildWorkRequired => Definition.AutoBuildWorkRequired;
     public ExpantaNum SpaceCost => Definition.SpaceCost;
     public ExpantaNum ProductivityConsumption => Definition.ProductivityConsumption;
+    public ExpantaNum WorkforceConsumption => Definition.ProductivityConsumption;
     public ExpantaNum ProductivityGranted => Definition.ProductivityGranted;
     public ExpantaNum PopulationCapacityGranted => Definition.PopulationCapacityGranted;
     public ExpantaNum FoodCapacityGranted => Definition.FoodCapacityGranted;

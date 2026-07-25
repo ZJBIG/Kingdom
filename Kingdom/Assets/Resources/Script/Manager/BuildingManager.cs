@@ -11,6 +11,7 @@ public enum BuildFailure
     ResourceInsufficient,
     SpaceInsufficient,
     ProductivityInsufficient,
+    WorkforceInsufficient,
     DeconstructionUnavailable
 }
 
@@ -111,10 +112,10 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        ExpantaNum requiredProductivity = state.ProductivityConsumption * amount;
-        if (GameManager.Instance.State.AvailableProductivity < requiredProductivity)
+        ExpantaNum requiredWorkforce = state.WorkforceConsumption * amount;
+        if (GameManager.Instance.State.Population.AvailableWorkforce < requiredWorkforce)
         {
-            failure = BuildFailure.ProductivityInsufficient;
+            failure = BuildFailure.WorkforceInsufficient;
             return false;
         }
 
@@ -145,7 +146,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         GameManager.Instance.CommitConstruction(
             requiredSpace,
-            requiredProductivity,
+            requiredWorkforce,
             state.ProductivityGranted * amount);
         SetAmountAndRates(state, state.Amount + amount);
         RefreshResearchPower();
@@ -173,15 +174,6 @@ public class BuildingManager : Singleton<BuildingManager>
         if (amount < ExpantaNum.One)
         {
             failure = BuildFailure.InvalidAmount;
-            return false;
-        }
-
-        ExpantaNum productivityAfterRemoval =
-            GameManager.Instance.State.AvailableProductivity + state.ProductivityConsumption * amount -
-            state.ProductivityGranted * amount;
-        if (productivityAfterRemoval < ExpantaNum.Zero)
-        {
-            failure = BuildFailure.ProductivityInsufficient;
             return false;
         }
 
@@ -224,7 +216,7 @@ public class BuildingManager : Singleton<BuildingManager>
         {
             result = ExpantaNum.Min(
                 result,
-                (GameManager.Instance.State.AvailableProductivity / state.ProductivityConsumption).Floor());
+                (GameManager.Instance.State.Population.AvailableWorkforce / state.WorkforceConsumption).Floor());
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
@@ -308,7 +300,7 @@ public class BuildingManager : Singleton<BuildingManager>
         if (enabledCount == 0)
             return;
 
-        ExpantaNum effortPerBuilding = GameManager.Instance.State.AvailableProductivity / enabledCount;
+        ExpantaNum effortPerBuilding = GameManager.Instance.State.Population.AvailableWorkforce / enabledCount;
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];

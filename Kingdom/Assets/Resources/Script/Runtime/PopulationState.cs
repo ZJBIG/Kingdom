@@ -9,14 +9,19 @@ public sealed class PopulationState
     private ExpantaNum population;
     private ExpantaNum populationCapacity;
     private ExpantaNum assignedMilitary;
+    private ExpantaNum assignedBuildingWorkforce;
     private ExpantaNum growthProgress;
 
     public ExpantaNum Population => population;
     public ExpantaNum PopulationCapacity => populationCapacity;
     public ExpantaNum AssignedMilitary => assignedMilitary;
+    public ExpantaNum TotalWorkforce =>
+        population * new ExpantaNum(DefaultWorkforcePerPerson);
+    public ExpantaNum AssignedBuildingWorkforce => assignedBuildingWorkforce;
     public ExpantaNum AvailableWorkforce =>
-        ExpantaNum.Max(ExpantaNum.Zero, population - assignedMilitary) *
-        new ExpantaNum(DefaultWorkforcePerPerson);
+        ExpantaNum.Max(
+            ExpantaNum.Zero,
+            TotalWorkforce - assignedMilitary - assignedBuildingWorkforce);
     public ExpantaNum GrowthProgress => growthProgress;
     public ExpantaNum FoodPerPerson { get; private set; }
     public int Version { get; private set; }
@@ -28,6 +33,7 @@ public sealed class PopulationState
         population = new ExpantaNum(15);
         populationCapacity = new ExpantaNum(20);
         assignedMilitary = ExpantaNum.Zero;
+        assignedBuildingWorkforce = ExpantaNum.Zero;
         growthProgress = ExpantaNum.Zero;
         FoodPerPerson = new ExpantaNum(DefaultFoodPerPerson);
         Version++;
@@ -43,6 +49,7 @@ public sealed class PopulationState
         population = NormalizeWhole(restoredPopulation);
         populationCapacity = ExpantaNum.Max(population, NormalizeWhole(restoredPopulationCapacity));
         assignedMilitary = ExpantaNum.Min(population, NormalizeWhole(restoredAssignedMilitary));
+        assignedBuildingWorkforce = ExpantaNum.Zero;
         growthProgress = ExpantaNum.Clamp01(restoredGrowthProgress);
         FoodPerPerson = ExpantaNum.Max(ExpantaNum.Zero, restoredFoodPerPerson);
         Version++;
@@ -60,6 +67,22 @@ public sealed class PopulationState
         if (populationCapacity == resetCapacity)
             return;
         populationCapacity = resetCapacity;
+        Version++;
+    }
+
+    internal void ResetDerivedWorkforce()
+    {
+        if (assignedBuildingWorkforce == ExpantaNum.Zero)
+            return;
+        assignedBuildingWorkforce = ExpantaNum.Zero;
+        Version++;
+    }
+
+    internal void AdjustBuildingWorkforce(ExpantaNum delta)
+    {
+        assignedBuildingWorkforce = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            assignedBuildingWorkforce + delta);
         Version++;
     }
 

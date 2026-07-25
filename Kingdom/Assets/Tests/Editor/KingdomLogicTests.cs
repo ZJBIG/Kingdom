@@ -118,7 +118,7 @@ public sealed class KingdomLogicTests
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
-        Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(state.Population.Population, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
         Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(15)));
@@ -220,7 +220,7 @@ public sealed class KingdomLogicTests
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
-        Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(15)));
     }
 
     [Test]
@@ -248,6 +248,23 @@ public sealed class KingdomLogicTests
 
         InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(-10));
         Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(20)));
+    }
+
+    [Test]
+    public void C403_WorkforceSeparatesBuildingMilitaryAndAvailableAssignments()
+    {
+        PopulationState population = new PopulationState();
+
+        InvokePopulationMethod(population, "AdjustBuildingWorkforce", new ExpantaNum(4));
+        InvokePopulationMethod(population, "SetAssignedMilitary", new ExpantaNum(3));
+
+        Assert.That(population.TotalWorkforce, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(population.AssignedBuildingWorkforce, Is.EqualTo(new ExpantaNum(4)));
+        Assert.That(population.AssignedMilitary, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(8)));
+
+        InvokePopulationMethod(population, "AdjustBuildingWorkforce", new ExpantaNum(-2));
+        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(10)));
     }
 
     [Test]

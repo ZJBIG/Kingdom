@@ -17,7 +17,6 @@ public sealed class GameState
     public ExpantaNum TerritoryTotal => Territory.TerritoryTotal;
     public ExpantaNum TerritoryUsed => Territory.TerritoryUsed;
     public ExpantaNum AvailableTerritory => Territory.AvailableTerritory;
-    public ExpantaNum AvailableProductivity { get; private set; }
     public PopulationState Population { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
@@ -35,7 +34,6 @@ public sealed class GameState
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
         Territory = new TerritoryState();
-        AvailableProductivity = new ExpantaNum(15);
         Population = new PopulationState();
         LastSaveUnixSeconds = 0;
         Version++;
@@ -89,8 +87,8 @@ public sealed class GameState
         FoodSatisfaction = ExpantaNum.One;
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
         Population.ResetDerivedCapacity();
+        Population.ResetDerivedWorkforce();
         Territory.ResetDerived(minimumTerritoryTotal);
-        AvailableProductivity = ExpantaNum.Max(ExpantaNum.Zero, availableProductivity);
         Version++;
     }
 
@@ -163,9 +161,7 @@ public sealed class GameState
         ExpantaNum productivityGranted)
     {
         Territory.AdjustUsed(spaceCost);
-        AvailableProductivity = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            AvailableProductivity - buildEffort + productivityGranted);
+        Population.AdjustBuildingWorkforce(buildEffort);
         Version++;
     }
 
@@ -175,9 +171,7 @@ public sealed class GameState
         ExpantaNum productivityGranted)
     {
         Territory.AdjustUsed(-spaceCost);
-        AvailableProductivity = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            AvailableProductivity + buildEffort - productivityGranted);
+        Population.AdjustBuildingWorkforce(-buildEffort);
         Version++;
     }
 

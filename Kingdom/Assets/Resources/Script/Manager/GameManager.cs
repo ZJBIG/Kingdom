@@ -142,7 +142,7 @@ public class GameManager : Singleton<GameManager>
     }
 
     public bool CanAffordConstruction(ExpantaNum territoryCost, ExpantaNum buildEffort) =>
-        State.AvailableTerritory >= territoryCost && State.AvailableProductivity >= buildEffort;
+        State.AvailableTerritory >= territoryCost && State.Population.AvailableWorkforce >= buildEffort;
 
     public void CommitConstruction(
         ExpantaNum territoryCost,

@@ -68,7 +68,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (Text_KingdomName != null)
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
         if (Text_Productivity != null)
-            SetTextIfChanged(Text_Productivity, $"生产力:{state.AvailableProductivity.ToGameString()}");
+            SetTextIfChanged(Text_Productivity, $"劳动力:{state.Population.AvailableWorkforce.ToGameString()}");
         if (Text_Productivity != null)
         {
             ResearchManager researchManager = FindObjectOfType<ResearchManager>();
@@ -80,7 +80,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
                 : string.Empty;
             SetTextIfChanged(
                 Text_Productivity,
-                $"Productivity: {state.AvailableProductivity.ToGameString()}   Research Power: {researchPower}/s{foodEfficiency}");
+                $"Workforce: {state.Population.AvailableWorkforce.ToGameString()}   Research Power: {researchPower}/s{foodEfficiency}");
         }
         if (Text_KingdomSpace != null)
             SetTextIfChanged(
