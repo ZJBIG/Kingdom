@@ -270,6 +270,11 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string KingdomName;
         public TechLevel TechLevel;
         public string FoodAmount;
+        public string Population;
+        public string PopulationCapacity;
+        public string AssignedMilitary;
+        public string GrowthProgress;
+        public string FoodPerPerson;
         public long LastSaveUnixSeconds;
     }
 

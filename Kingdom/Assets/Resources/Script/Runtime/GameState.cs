@@ -15,6 +15,7 @@ public sealed class GameState
     public ExpantaNum FoodSatisfaction { get; private set; }
     public ExpantaNum AvailableSpace { get; private set; }
     public ExpantaNum AvailableProductivity { get; private set; }
+    public PopulationState Population { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
 
@@ -32,6 +33,7 @@ public sealed class GameState
         FoodSatisfaction = ExpantaNum.One;
         AvailableSpace = new ExpantaNum(100);
         AvailableProductivity = new ExpantaNum(15);
+        Population = new PopulationState();
         LastSaveUnixSeconds = 0;
         Version++;
     }
@@ -53,12 +55,31 @@ public sealed class GameState
         Version++;
     }
 
+    internal void RestorePopulation(
+        ExpantaNum population,
+        ExpantaNum populationCapacity,
+        ExpantaNum assignedMilitary,
+        ExpantaNum growthProgress,
+        ExpantaNum foodPerPerson)
+    {
+        if (Population == null)
+            Population = new PopulationState();
+        Population.Restore(
+            population,
+            populationCapacity,
+            assignedMilitary,
+            growthProgress,
+            foodPerPerson);
+        Version++;
+    }
+
     internal void ResetDerivedEconomy(ExpantaNum availableSpace, ExpantaNum availableProductivity)
     {
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
+        Population.ResetDerivedCapacity();
         AvailableSpace = ExpantaNum.Max(ExpantaNum.Zero, availableSpace);
         AvailableProductivity = ExpantaNum.Max(ExpantaNum.Zero, availableProductivity);
         Version++;
@@ -75,7 +96,7 @@ public sealed class GameState
         FoodAmount = GameManager.AdvanceFood(
             FoodAmount,
             FoodProductionRate,
-            FoodConsumptionRate,
+            FoodConsumptionRate + Population.Population * Population.FoodPerPerson,
             FoodCapacity,
             deltaSeconds);
         Version++;
@@ -93,6 +114,20 @@ public sealed class GameState
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
         FoodAmount = ExpantaNum.Min(FoodAmount, FoodCapacity);
         Version++;
+    }
+
+    internal void AdjustPopulationCapacity(ExpantaNum capacityDelta)
+    {
+        Population.AdjustPopulationCapacity(capacityDelta);
+        Version++;
+    }
+
+    internal void AdvancePopulationGrowth(double deltaSeconds)
+    {
+        int previousVersion = Population.Version;
+        Population.AdvanceGrowth(deltaSeconds, FoodSatisfaction);
+        if (Population.Version != previousVersion)
+            Version++;
     }
 
     internal void SetFoodSatisfaction(ExpantaNum value)

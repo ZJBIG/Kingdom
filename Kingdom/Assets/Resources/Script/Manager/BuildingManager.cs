@@ -402,6 +402,8 @@ public class BuildingManager : Singleton<BuildingManager>
             scaleDelta * state.Definition.FoodConsumptionRate);
         GameManager.Instance.AdjustFoodCapacity(
             scaleDelta * state.Definition.FoodCapacityGranted);
+        GameManager.Instance.AdjustPopulationCapacity(
+            scaleDelta * state.Definition.PopulationCapacityGranted);
     }
 
     private static void EnsureBuildingResources(Building building)

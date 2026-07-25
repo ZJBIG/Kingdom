@@ -77,6 +77,7 @@ public class GameManager : Singleton<GameManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         State.AdvanceFood(deltaSeconds);
+        State.AdvancePopulationGrowth(deltaSeconds);
         calendarElapsedSeconds += deltaSeconds;
         while (calendarElapsedSeconds >= CalendarUpdateInterval)
         {
@@ -132,6 +133,7 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
     {
+        potentialConsumptionRate += State.Population.Population * State.Population.FoodPerPerson;
         State.SetFoodSatisfaction(CalculateFoodSatisfaction(
             State.FoodAmount,
             potentialProductionRate,
@@ -160,6 +162,9 @@ public class GameManager : Singleton<GameManager>
     public void AdjustFoodCapacity(ExpantaNum capacityDelta) =>
         State.AdjustFoodCapacity(capacityDelta);
 
+    public void AdjustPopulationCapacity(ExpantaNum capacityDelta) =>
+        State.AdjustPopulationCapacity(capacityDelta);
+
     internal void AdvanceTechLevel(TechLevel target) => State.AdvanceTechLevel(target);
 
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
@@ -176,6 +181,11 @@ public class GameManager : Singleton<GameManager>
             KingdomName = State.KingdomName,
             TechLevel = State.TechLevel,
             FoodAmount = State.FoodAmount.ToString(),
+            Population = State.Population.Population.ToString(),
+            PopulationCapacity = State.Population.PopulationCapacity.ToString(),
+            AssignedMilitary = State.Population.AssignedMilitary.ToString(),
+            GrowthProgress = State.Population.GrowthProgress.ToString(),
+            FoodPerPerson = State.Population.FoodPerPerson.ToString(),
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
     }
@@ -191,6 +201,15 @@ public class GameManager : Singleton<GameManager>
             data.TechLevel,
             Parse(data.FoodAmount, nameof(data.FoodAmount)),
             data.LastSaveUnixSeconds);
+        if (!string.IsNullOrWhiteSpace(data.Population))
+        {
+            State.RestorePopulation(
+                Parse(data.Population, nameof(data.Population)),
+                Parse(data.PopulationCapacity, nameof(data.PopulationCapacity)),
+                Parse(data.AssignedMilitary, nameof(data.AssignedMilitary)),
+                Parse(data.GrowthProgress, nameof(data.GrowthProgress)),
+                Parse(data.FoodPerPerson, nameof(data.FoodPerPerson)));
+        }
         ResetCalendarAccumulator();
     }
 

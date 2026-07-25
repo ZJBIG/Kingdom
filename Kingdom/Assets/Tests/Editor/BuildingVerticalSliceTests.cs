@@ -53,6 +53,15 @@ public sealed class BuildingVerticalSliceTests
     }
 
     [Test]
+    public void WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity()
+    {
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+
+        Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
+    }
+
+    [Test]
     public void KeyBuildings_MatchTheProductionAndEraPlan()
     {
         Building farm = DataBase<Building>.Find("Farm");

@@ -117,6 +117,10 @@ public sealed class KingdomLogicTests
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(state.Population.Population, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(state.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
+        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(state.Population.FoodPerPerson, Is.EqualTo(new ExpantaNum(1)));
         Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(2));
     }
 
@@ -182,12 +186,12 @@ public sealed class KingdomLogicTests
         gameManager.Tick(9.9d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(0));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(324.5)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(201)));
 
         gameManager.Tick(0.1d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(325)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(200)));
 
     }
 
@@ -213,6 +217,19 @@ public sealed class KingdomLogicTests
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
+    }
+
+    [Test]
+    public void C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero()
+    {
+        PopulationState population = new PopulationState();
+        InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.Zero);
+        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(population.GrowthProgress, Is.EqualTo(ExpantaNum.Zero));
+
+        InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.One);
+        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(16)));
+        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(16)));
     }
 
     [Test]
@@ -331,6 +348,8 @@ public sealed class KingdomLogicTests
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(firstFoodRate));
         Assert.That(buildingManager.GetState(farm).Amount, Is.EqualTo(firstBuildingAmount));
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
+        Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
     }
 
     [Test]
@@ -362,6 +381,11 @@ public sealed class KingdomLogicTests
                 KingdomName = "Save Test",
                 TechLevel = TechLevel.Animal,
                 FoodAmount = "10000",
+                Population = "17",
+                PopulationCapacity = "20",
+                AssignedMilitary = "2",
+                GrowthProgress = "0.25",
+                FoodPerPerson = "1",
                 LastSaveUnixSeconds = 1
             },
             Resources = new SaveManager.ResourceSaveData
@@ -407,6 +431,15 @@ public sealed class KingdomLogicTests
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         MethodInfo method = typeof(GameState).GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
+
+    private static void InvokePopulationMethod(PopulationState state, string methodName, params object[] arguments)
+    {
+        MethodInfo method = typeof(PopulationState).GetMethod(
             methodName,
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
@@ -554,7 +587,8 @@ public sealed class KingdomLogicTests
         Building woodHouse = DataBase<Building>.Find("WoodHouse");
 
         Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(8)));
         Assert.That(farm.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
     }

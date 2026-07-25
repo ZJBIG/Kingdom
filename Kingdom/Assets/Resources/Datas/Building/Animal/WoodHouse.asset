@@ -40,6 +40,13 @@ MonoBehaviour:
     operators: []
   productivityGranted:
     sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
     representation: 1
     operatorCount: 0
     scalar: 5
