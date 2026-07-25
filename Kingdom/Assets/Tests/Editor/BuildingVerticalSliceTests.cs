@@ -75,6 +75,34 @@ public sealed class BuildingVerticalSliceTests
     }
 
     [Test]
+    public void C502_MedievalBuildingLayerContainsTheSevenCoreBuildings()
+    {
+        string[] ids =
+        {
+            "WaterMill",
+            "SteelForge",
+            "Blacksmith",
+            "Library",
+            "Market",
+            "Barracks",
+            "Fortification"
+        };
+
+        foreach (string id in ids)
+        {
+            Building building = DataBase<Building>.Find(id);
+            Assert.That(building, Is.Not.Null, $"Missing medieval building '{id}'.");
+            Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Medieval));
+            Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
+        }
+
+        Assert.That(DataBase<Building>.Find("WaterMill").FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<Building>.Find("SteelForge").ResourceGenerationRates, Has.Count.EqualTo(1));
+        Assert.That(DataBase<Building>.Find("Blacksmith").ResourceGenerationRates, Has.Count.EqualTo(1));
+        Assert.That(DataBase<Building>.Find("Library").ResearchPowerGranted, Is.EqualTo(new ExpantaNum(25)));
+    }
+
+    [Test]
     public void KeyBuildings_MatchTheProductionAndEraPlan()
     {
         Building farm = DataBase<Building>.Find("Farm");

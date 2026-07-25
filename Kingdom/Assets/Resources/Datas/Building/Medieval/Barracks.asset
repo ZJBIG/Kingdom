@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: Barracks
+  m_EditorClassIdentifier: 
+  id: Barracks
+  Label: "兵营"
+  Description: "训练并组织军队，消耗人口提供的劳动力。"
+  TechLevel: 2
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.2, layer: 0, operators: []}
+  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  researchPowerGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
+  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 6e3b8a1c4d5f4790a2b7c8d9e0f12345, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
+  resourceGenerationRates: []
+  resourceConsumptionRates: []
