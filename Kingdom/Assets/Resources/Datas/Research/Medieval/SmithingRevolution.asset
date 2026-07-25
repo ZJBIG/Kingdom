@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: SmithingRevolution
+  m_EditorClassIdentifier: 
+  id: SmithingRevolution
+  Label: "\u51B6\u70BC\u6280\u672F\u9769\u65B0"
+  Description: "\u6539\u8FDB\u51B6\u70BC\u6D41\u7A0B\u3001\u7089\u6E29\u63A7\u5236\u4E0E\u91D1\u5C5E\u52A0\u5DE5\uFF0C\u4F7F\u91D1\u5C5E\u751F\u4EA7\u4ECE\u624B\u5DE5\u4F5C\u574A\u8FC8\u5411\u7A33\u5B9A\u9AD8\u6548\u7684\u4F53\u7CFB\u3002"
+  BaseCost: 1e8
+  prerequisites:
+  - {fileID: 11400000, guid: b60f6ee9055bb2f40860844fbca930ab, type: 2}
+  - {fileID: 11400000, guid: 719b40f73a323184a9703dea27f21ac1, type: 2}
+  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 800
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2000
+      layer: 0
+      operators: []
+  BuildingUnlock: []
+  TechLevel: 2
+  AdvancesTechLevel: 1
+  x: 12
+  y: 10

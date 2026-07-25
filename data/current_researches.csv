@@ -10,7 +10,6 @@ ForagingGroups,采集分工,Animal/原始,2400,False,StoneTools,WoodLog:40,Hunte
 Mining_Copper,铜矿采掘,Animal/原始,9000,False,Mining,,CopperMine,True,Assets/Resources/Datas/Research/Animal/Mining_Copper.asset
 StoneCutting,切石技术,Animal/原始,5000,False,Quarry,WoodLog:500,StoneCuttingWorkshop_Marble,True,Assets/Resources/Datas/Research/Animal/StoneCutting.asset
 Mathematics,数学,Animal/原始,3600,False,ForagingGroups,WoodLog:80; StoneChunk_Marble:40,,True,Assets/Resources/Datas/Research/Animal/Mathematics.asset
-Mining_Quartz,石英采掘,Animal/原始,e6,False,Mining_Copper,,,True,Assets/Resources/Datas/Research/Animal/Mining_Quartz.asset
 Calendar,历法,Animal/原始,2800,False,Mathematics,WoodLog:80; StoneChunk_Marble:30,,True,Assets/Resources/Datas/Research/Animal/Calendar.asset
 ClayExtraction,黏土采集,Animal/原始,240,False,ControlledFire,WoodLog:40,ClayPit,True,Assets/Resources/Datas/Research/Animal/ClayExtraction.asset
 Pottery,陶器制作,Neolithic/新石器,3600,False,StoneTools,Clay:50,PotteryKiln,False,Assets/Resources/Datas/Research/Neolithic/Pottery.asset
@@ -29,4 +28,4 @@ WrittenRecords,文字记录,Neolithic/新石器,6800,False,Calendar; NeolithicSe
 WaterManagement,水利管理,Neolithic/新石器,6200,False,Agriculture; Measurement,WoodLog:180; StoneChunk_Marble:120; Clay:80,Farm,False,Assets/Resources/Datas/Research/Neolithic/WaterManagement.asset
 Masonry,砌筑技术,Neolithic/新石器,7600,False,StoneCutting; Measurement,WoodLog:240; StoneChunk_Marble:260,WoodHouse,False,Assets/Resources/Datas/Research/Neolithic/Masonry.asset
 Smithing_Bronze,冶炼青铜,Neolithic/新石器,5000,False,Smithing_Copper; Smithing_Tin,Copper:180; Tin:180; Coal:300,BronzeFoundry,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Bronze.asset
-SmithingRevolution,冶炼技术革新,Medieval/中世纪,1e8,False,Smithing_Bronze; Smithing_Iron; WrittenRecords,Coal:1200; IronOre:800,,False,Assets/Resources/Datas/Research/Medieval/SmithingRevolution.asset
+SmithingRevolution,冶炼技术革新,Medieval/中世纪,1e8,True,Smithing_Bronze; Smithing_Iron; WrittenRecords,Coal:1200; IronOre:800,,False,Assets/Resources/Datas/Research/Medieval/SmithingRevolution.asset
