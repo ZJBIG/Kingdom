@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: TinOre
   m_EditorClassIdentifier: 
+  id: TinOre
   Label: "\u950C\u77FF\u77F3"
-  Description: 
+  Description: "可冶炼为对应金属锭的矿石，是早期合金体系中不可忽视的一环。"
   Sprite: {fileID: 21300000, guid: 0fd6f590d2441334fac3dd30d505db4a, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 1

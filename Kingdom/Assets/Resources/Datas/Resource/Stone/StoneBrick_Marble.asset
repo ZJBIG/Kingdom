@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: StoneBrick_Marble
   m_EditorClassIdentifier: 
+  id: StoneBrick_Marble
   Label: "\u5927\u7406\u77F3\u77F3\u7816"
-  Description: 
+  Description: "切制平整的大理石砖，能让建筑从临时遮蔽走向庄严、耐久与秩序。"
   Sprite: {fileID: 21300000, guid: c9b1c6571b6ba304c832c59228436c48, type: 3}
   Color: {r: 0.5176471, g: 0.5294118, b: 0.5176471, a: 1}
   DisplayerSet: 2

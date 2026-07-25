@@ -1,227 +1,162 @@
 using System;
-using System.Collections;
 using System.ComponentModel;
-using System.IO;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum TechLevel
 {
-    [Description("‘≠ º ±¥˙")] Primitive,
-    [Description("÷– ¿ºÕ")] Medieval,
-    [Description("π§“µ ±¥˙")] Industrial,
-    [Description("Ã´ø’ ±¥˙")] Spacer,
-    [Description("º´÷¬ ±¥˙")] Ultra,
-    [Description("‘∂π≈ø∆ºº ±¥˙")] Archotech,
-    [Description("≥¨∑≤ ±¥˙")] Ascend
+    [Description("ÂéüÂßãÊó∂‰ª£")] Primitive,
+    [Description("‰∏≠‰∏ñÁ∫™")] Medieval,
+    [Description("Â∑•‰∏öÊó∂‰ª£")] Industrial,
+    [Description("Â§™Á©∫Êó∂‰ª£")] Spacer,
+    [Description("ÊûÅËá¥Êó∂‰ª£")] Ultra,
+    [Description("ËøúÂè§ÁßëÊäÄÊó∂‰ª£")] Archotech,
+    [Description("Ë∂ÖÂá°Êó∂‰ª£")] Ascend
 }
+
 public class GameManager : Singleton<GameManager>
 {
-    const string SAVE_FILE = "GameDatas.json";
+    private const float CalendarUpdateInterval = 10f;
+    private const string DefaultKingdomName = "Èº†ÊâòÈÇ¶";
 
-    public float AutoSaveDuration = 5f;
+    public GameState State { get; private set; } = new GameState();
 
-    [HideInInspector] public int CalendarInt;
-    [HideInInspector] public string KingdomName;
-    [HideInInspector] public TechLevel TechLevel;
-    [HideInInspector] public BigNumber CurrentFood;
-    [HideInInspector] public BigNumber FoodGenerateRate, FoodConsumeRate;
-    [HideInInspector] public BigNumber KingdomSpace;
-    [HideInInspector] public BigNumber Productivity;
+    private double calendarElapsedSeconds;
 
-    [SerializeField] private Transform Top;
-
-    [SerializeField] private TMP_Text Text_Calendar;
-    [SerializeField] private TMP_Text Text_TechLevel;
-    [SerializeField] private TMP_Text Text_Food;
-    [SerializeField] private TMP_Text Text_KingdomName;
-    [SerializeField] private TMP_Text Text_Productivity;
-    [SerializeField] private TMP_Text Text_KingdomSpace;
-    [SerializeField] private TMP_Text Text_TopText;
-
-    [Header("Viewer")]
-    [SerializeField] private RectTransform ResourceViewer;
-    [SerializeField] private RectTransform BuildingViewer;
-    [SerializeField] private RectTransform ResearchViewer;
-    [SerializeField] private RectTransform SpecialViewer;
-    [SerializeField] private RectTransform SettingViewer;
-
-    public static readonly Vector2 ResourceViewerLocalPos = new Vector2(-400, 825);
-    public static readonly Vector2 BuildingViewerLocalPos = new Vector2(-400, 825);
-    public static readonly Vector2 ResearchViewerLocalPos = new Vector2(0, 825);
-    public static readonly Vector2 SpecialViewerLocalPos = new Vector2(0, 875);
-    public static readonly Vector2 SettingViewerLocalPos = new Vector2(0, 875);
-
-
-    public static readonly Vector2 OutsideTheWindows = new Vector2(-10000, -10000);
     private void Start()
     {
         Application.runInBackground = true;
-
-        StartCoroutine(LoadTheGame());
-        StartCoroutine(AutoSave(AutoSaveDuration));
-        StartCoroutine(UpdateUI());
-        StartCoroutine(LazyCalendarUpdate());
-
-        UpdateViewerPosition();
     }
-    private void InitializeGame()
+
+    internal void InitializeNewGame()
     {
-        CalendarInt = 0;
-        KingdomName = " ÛÕ–∞Ó";
-        TechLevel = TechLevel.Primitive;
-        KingdomSpace = 100000;
-        CurrentFood = 10000;
-        Productivity = 100;
-
-        ResourceViewer.localPosition = ResourceViewerLocalPos;
-        BuildingViewer.localPosition = OutsideTheWindows;
-        ResearchViewer.localPosition = OutsideTheWindows;
-        SpecialViewer.localPosition = OutsideTheWindows;
-        SettingViewer.localPosition = OutsideTheWindows;
-
-        ResourceManager.Instance.AddResource(ResourceManager.Instance.ResourceFinder.WoodLog);
-        ResourceManager.Instance.DisplayerSets["WoodSet"].Displayers[ResourceManager.Instance.ResourceFinder.WoodLog].GenerateRate = 10;
+        State.InitializeNew(DefaultKingdomName);
+        ResetCalendarAccumulator();
+        InitializeStartingResources();
     }
-    public static (int Year, int Month, int Day) CalendarIntToData(int x, int baseYear = 5500, int daysPerMonth = 30, int monthsPerYear = 12 * 30)
+
+    internal void InitializeStartingResources()
     {
+        Resource woodLog = DataBase<Resource>.Find("WoodLog");
+        ResourceManager.Instance.AddResource(woodLog);
+        ResourceManager.Instance.SetProductionRate(woodLog, 1);
+    }
+
+    public static (int Year, int Month, int Day) CalendarIntToData(
+        int totalDays,
+        int baseYear = 5500,
+        int daysPerMonth = 30,
+        int monthsPerYear = 12)
+    {
+        if (daysPerMonth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(daysPerMonth));
+        if (monthsPerYear <= 0)
+            throw new ArgumentOutOfRangeException(nameof(monthsPerYear));
+
         int daysPerYear = monthsPerYear * daysPerMonth;
-
-        int totalDays = x;
-        int yearsOffset = totalDays / daysPerYear;
-        int remainingDaysAfterYears = totalDays % daysPerYear;
-        if (remainingDaysAfterYears < 0)
+        int yearsOffset = Math.DivRem(totalDays, daysPerYear, out int remainingDays);
+        if (remainingDays < 0)
         {
             yearsOffset--;
-            remainingDaysAfterYears += daysPerYear;
+            remainingDays += daysPerYear;
         }
 
-        int year = baseYear + yearsOffset;
+        int month = remainingDays / daysPerMonth + 1;
+        int day = remainingDays % daysPerMonth + 1;
+        return (baseYear + yearsOffset, month, day);
+    }
 
-        int monthsOffset = remainingDaysAfterYears / daysPerMonth;
-        int day = remainingDaysAfterYears % daysPerMonth + 1;
-        int month = monthsOffset + 1;
+    public static string CalendarDataToString(int totalDays)
+    {
+        var date = CalendarIntToData(totalDays);
+        return $"{date.Year}/{date.Month}/{date.Day}";
+    }
 
-        return (year, month, day);
-    }
-    public static string CalendarDataToString(int x) => $"{CalendarIntToData(x).Year}/{CalendarIntToData(x).Month}/{CalendarIntToData(x).Day}";
-    IEnumerator AutoSave(float duration)
+    public void Tick(double deltaSeconds)
     {
-        while (true)
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+
+        State.AdvanceFood(deltaSeconds);
+        calendarElapsedSeconds += deltaSeconds;
+        while (calendarElapsedSeconds >= CalendarUpdateInterval)
         {
-            yield return new WaitForSecondsRealtime(duration);
-            SaveTheGame();
+            State.AdvanceCalendarStep();
+            calendarElapsedSeconds -= CalendarUpdateInterval;
         }
     }
-    IEnumerator UpdateUI()
+
+    public static ExpantaNum AdvanceFood(
+        ExpantaNum current,
+        ExpantaNum productionRate,
+        ExpantaNum consumptionRate,
+        double deltaSeconds)
     {
-        while (true)
-        {
-            Text_Calendar.text = CalendarDataToString(CalendarInt);
-            Text_TechLevel.text = $"ºº ıµ»º∂:{TechLevel.GetDescription()}";
-            Text_Food.text = $"¡∏ ≥:{CurrentFood.ToString()}   {(FoodGenerateRate - FoodGenerateRate).ToStringWithPositiveSign()}/s";
-            Text_KingdomName.text = KingdomName;
-            Text_Productivity.text = $"…˙≤˙¡¶:{Productivity}";
-            Text_KingdomSpace.text = $" £”‡¡ÏÕ¡:{KingdomSpace}";
-            yield return new WaitForSecondsRealtime(0.1f);
-        }
+        if (deltaSeconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+
+        return ExpantaNum.Max(
+            ExpantaNum.Zero,
+            current + (productionRate - consumptionRate) * deltaSeconds);
     }
-    IEnumerator LazyCalendarUpdate()
+
+    public bool CanAffordConstruction(ExpantaNum spaceCost, ExpantaNum buildEffort) =>
+        State.AvailableSpace >= spaceCost && State.AvailableProductivity >= buildEffort;
+
+    public void CommitConstruction(
+        ExpantaNum spaceCost,
+        ExpantaNum buildEffort,
+        ExpantaNum productivityGranted) =>
+        State.CommitConstruction(spaceCost, buildEffort, productivityGranted);
+
+    public void RefundConstruction(
+        ExpantaNum spaceCost,
+        ExpantaNum buildEffort,
+        ExpantaNum productivityGranted) =>
+        State.RefundConstruction(spaceCost, buildEffort, productivityGranted);
+
+    public void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
+        State.AdjustFoodRates(productionDelta, consumptionDelta);
+
+    internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
+
+    internal void ResetDerivedEconomy() =>
+        State.ResetDerivedEconomy(new ExpantaNum(100000), new ExpantaNum(100));
+
+    internal SaveManager.GameSaveData CaptureSaveData()
     {
-        while (true)
+        State.MarkSaved(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        return new SaveManager.GameSaveData
         {
-            CalendarInt++;
-            yield return new WaitForSecondsRealtime(5f);
-        }
-    }
-    public void SwitchTop()
-    {
-        Text_TopText.text = Text_TopText.text switch
-        {
-            "◊ ‘¥" => "Ω®÷˛",
-            "Ω®÷˛" => "—–æø",
-            _ => "◊ ‘¥"
+            CalendarDays = State.CalendarDays,
+            KingdomName = State.KingdomName,
+            TechLevel = State.TechLevel,
+            FoodAmount = State.FoodAmount.ToString(),
+            LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
-        UpdateViewerPosition();
     }
-    public override void Save()
-    {
-        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
-        var SaveData = new SaveData
-        {
-            CalendarInt = CalendarInt,
-            KingdomName = KingdomName,
-            TechLevel = TechLevel,
-            CurrentFood = CurrentFood,
-            FoodGenerateRate = FoodGenerateRate,
-            FoodConsumeRate = FoodConsumeRate,
-            KingdomSpace = KingdomSpace,
-            Productivity = Productivity,
-        };
 
-        string json = JsonUtility.ToJson(SaveData, true);
+    internal void RestoreSaveData(SaveManager.GameSaveData data)
+    {
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
 
-        File.WriteAllText(path, json);
-        Debug.Log($"Saved game data to: {path}");
+        State.RestoreCore(
+            data.CalendarDays,
+            data.KingdomName,
+            data.TechLevel,
+            Parse(data.FoodAmount, nameof(data.FoodAmount)),
+            data.LastSaveUnixSeconds);
+        ResetCalendarAccumulator();
     }
-    public override void Load()
-    {
-        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
-        if (!File.Exists(path))
-            Save();
-        var json = File.ReadAllText(path);
-        LoadFromJson(json);
-    }
-    void LoadFromJson(string json)
-    {
-        var SaveData = JsonUtility.FromJson<SaveData>(json);
 
-        CalendarInt = SaveData.CalendarInt;
-        KingdomName = SaveData.KingdomName;
-        TechLevel = SaveData.TechLevel;
-        CurrentFood = SaveData.CurrentFood;
-        FoodGenerateRate = SaveData.FoodGenerateRate;
-        FoodConsumeRate = SaveData.FoodConsumeRate;
-        KingdomSpace = SaveData.KingdomSpace;
-        Productivity = SaveData.Productivity;
-    }
-    void SaveTheGame()
+    public override void Save() => SaveManager.Instance.SaveNow(true);
+
+    public override void Load() => SaveManager.Instance.LoadOrCreateGame();
+
+    private static ExpantaNum Parse(string raw, string field)
     {
-        ResourceManager.Instance.Save();
-        BuildingManager.Instance.Save();
-        ResearchManager.Instance.Save();
-        Save();
-    }
-    void UpdateViewerPosition()
-    {
-        ResourceViewer.localPosition = Text_TopText.text == "◊ ‘¥" ? ResourceViewerLocalPos : OutsideTheWindows;
-        BuildingViewer.localPosition = Text_TopText.text == "Ω®÷˛" ? BuildingViewerLocalPos : OutsideTheWindows;
-        ResearchViewer.localPosition = Text_TopText.text == "—–æø" ? ResearchViewerLocalPos : OutsideTheWindows;
-    }
-    IEnumerator LoadTheGame()
-    {
-        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
-        yield return new WaitForSecondsRealtime(0.1f);
-        if (!File.Exists(path))
-        {
-            InitializeGame();
-            yield break;
-        }
-        ResourceManager.Instance.Load();
-        BuildingManager.Instance.Load();
-        ResearchManager.Instance.Load();
-        Load();
-    }
-    [Serializable]
-    public class SaveData
-    {
-        public int CalendarInt;
-        public string KingdomName;
-        public TechLevel TechLevel;
-        public BigNumber CurrentFood;
-        public BigNumber FoodGenerateRate, FoodConsumeRate;
-        public BigNumber KingdomSpace;
-        public BigNumber Productivity;
+        if (ExpantaNum.TryParse(raw, out ExpantaNum value))
+            return value;
+        throw new FormatException($"Invalid ExpantaNum '{raw}' for GameState.{field}.");
     }
 }

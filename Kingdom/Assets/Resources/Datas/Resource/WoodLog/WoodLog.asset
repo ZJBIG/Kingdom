@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: WoodLog
   m_EditorClassIdentifier: 
+  id: WoodLog
   Label: "\u539F\u6728"
   Description: "\u672A\u7ECF\u52A0\u5DE5\u7684\u6728\u5934\uFF0C\u662F\u8425\u706B\u7684\u826F\u597D\u71C3\u6599\uFF0C\u80FD\u7528\u4E8E\u5EFA\u9020\u6216\u5236\u4F5C\u5404\u79CD\u73A9\u610F\u3002"
   Sprite: {fileID: 21300000, guid: dd191cf4bf110854791134f1b927f071, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 0

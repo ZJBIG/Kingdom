@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: Mining
   m_EditorClassIdentifier: 
+  id: Mining
   Label: "\u77FF\u7269\u5F00\u91C7"
-  Description: 
+  Description: "系统化地寻找、开凿和运输矿物，让文明获得迈向金属时代的地下资源。"
   BaseCost: e4
-  Prequisites:
+  prerequisites:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
-  ResourceRequirement: []
+  resourceRequirements: []
   BuildingUnlock: []
   TechLevel: 0
   x: 1

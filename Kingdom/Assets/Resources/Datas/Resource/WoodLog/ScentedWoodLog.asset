@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: ScentedWoodLog
   m_EditorClassIdentifier: 
+  id: ScentedWoodLog
   Label: "\u82B1\u68A8"
   Description: "\u82B1\u68A8\uFF0C\u53C8\u79F0\u964D\u9999\u6728\uFF0C\u53EF\u5165\u836F\u3002\u8D35\u91CD\u6728\u6750\uFF0C\u662F\u5236\u4F5C\u9AD8\u6863\u5BB6\u5177\u7684\u597D\u6750\u6599\uFF0C\u5E8A\u5177\u5C24\u5176\u4F18\u79C0"
   Sprite: {fileID: 21300000, guid: 6c979f8a7257a344bb93321bac7535a6, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 0

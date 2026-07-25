@@ -1,0 +1,13 @@
+Resource satisfaction migration notes
+====================================
+
+Do not patch only CalculateEfficiency. The tick needs a coherent potential/actual two-phase calculation.
+
+Regression cases:
+- inventory 1, tick demand 2 -> 0.5 satisfaction in the same tick;
+- inventory 0, potential production 5, demand 10 -> 0.5;
+- demand 0 -> 1;
+- actual consumption <= inventory + actual production;
+- insertion order does not change result.
+
+Use stable ordered State lists and bounded reusable buffers. Avoid LINQ and temporary dictionaries in Tick.

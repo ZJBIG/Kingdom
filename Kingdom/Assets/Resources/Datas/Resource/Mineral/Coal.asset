@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Coal
   m_EditorClassIdentifier: 
+  id: Coal
   Label: "\u7164\u70AD"
-  Description: 
+  Description: "可燃的黑色矿物，是炉火、冶炼和早期工业生产的重要燃料。"
   Sprite: {fileID: 21300000, guid: 0ca33c39a13102849a44dde0e9ecf31f, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

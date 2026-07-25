@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Mithril
   m_EditorClassIdentifier: 
+  id: Mithril
   Label: "\u79D8\u94F6\u952D"
-  Description: 
+  Description: "传说般轻盈而强韧的金属锭，预示着王国工艺开始触及超凡领域。"
   Sprite: {fileID: 21300000, guid: 0b9c236e04bf8d245935af114254fe75, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 3

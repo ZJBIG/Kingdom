@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: TreeCultivate
   m_EditorClassIdentifier: 
+  id: TreeCultivate
   Label: "\u690D\u6811"
-  Description: 
+  Description: "掌握有计划地种植和照料树木的方法，让木材来源不再完全依赖野外采集。"
   BaseCost: 1e4
-  Prequisites:
+  prerequisites:
   - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
-  ResourceRequirement: []
+  resourceRequirements: []
   BuildingUnlock:
   - {fileID: 11400000, guid: ca3f59da2f199d043b5e67ac86f178e5, type: 2}
   TechLevel: 0

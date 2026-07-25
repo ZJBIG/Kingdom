@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Steel
   m_EditorClassIdentifier: 
+  id: Steel
   Label: "\u94A2\u952D"
-  Description: 
+  Description: "由铁进一步锻炼出的高强度材料，是工业化设备、坚固结构和先进武备的支柱。"
   Sprite: {fileID: 21300000, guid: aefe90a70ed0cd94d8124e29b8ca4547, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 3

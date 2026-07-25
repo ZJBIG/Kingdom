@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: GoldOre
   m_EditorClassIdentifier: 
+  id: GoldOre
   Label: "\u91D1\u77FF\u77F3"
-  Description: 
+  Description: "夹杂金色颗粒的矿石，冶炼后可获得象征财富与权力的金锭。"
   Sprite: {fileID: 21300000, guid: 5934e9630af77ad46b30347e68230241, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 1

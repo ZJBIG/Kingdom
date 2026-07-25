@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: RoseWoodLog
   m_EditorClassIdentifier: 
+  id: RoseWoodLog
   Label: "\u7D2B\u6A80"
   Description: "\u7D2B\u6A80\uFF0C\u53C8\u79F0\u73AB\u7470\u6728\uFF0C\u5145\u6EE1\u7985\u610F\u7684\u6728\u6750"
   Sprite: {fileID: 21300000, guid: d03c720c0ae88a6498498319b0426933, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 0

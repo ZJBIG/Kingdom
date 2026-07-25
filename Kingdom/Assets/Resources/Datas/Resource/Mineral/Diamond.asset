@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Diamond
   m_EditorClassIdentifier: 
+  id: Diamond
   Label: "\u94BB\u77F3"
-  Description: 
+  Description: "极其坚硬而珍贵的晶体，既能彰显财富，也能用于高精度切割与高级工艺。"
   Sprite: {fileID: 21300000, guid: 33252bd182840c04a8a4f15048ea58a9, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

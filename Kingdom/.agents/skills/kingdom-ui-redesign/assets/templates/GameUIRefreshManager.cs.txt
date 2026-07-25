@@ -1,0 +1,42 @@
+using UnityEngine;
+
+// Template only. Adapt serialized references to the actual Scene.
+public sealed class GameUIRefreshManager : MonoBehaviour
+{
+    [SerializeField, Min(0.05f)] private float refreshIntervalSeconds = 0.1f;
+    [SerializeField] private GameHudViewer hudViewer;
+    [SerializeField] private MainNavigationViewer navigationViewer;
+    [SerializeField] private ResourceViewer resourceViewer;
+    [SerializeField] private BuildingViewer buildingViewer;
+    [SerializeField] private ResearchViewer researchViewer;
+    [SerializeField] private MusicViewer musicViewer;
+    [SerializeField] private SettingViewer settingViewer;
+
+    private float elapsed;
+
+    private void Update()
+    {
+        elapsed += Time.unscaledDeltaTime;
+        if (elapsed < refreshIntervalSeconds)
+            return;
+
+        elapsed = 0f;
+        hudViewer?.Refresh(GameManager.Instance.State);
+
+        switch (navigationViewer.CurrentTab)
+        {
+            case MainTab.Resource:
+                resourceViewer?.RefreshAll();
+                break;
+            case MainTab.Building:
+                buildingViewer?.RefreshAll();
+                break;
+            case MainTab.Research:
+                researchViewer?.RefreshVisible();
+                break;
+        }
+
+        if (settingViewer != null && settingViewer.gameObject.activeInHierarchy)
+            musicViewer?.RefreshNowPlaying();
+    }
+}

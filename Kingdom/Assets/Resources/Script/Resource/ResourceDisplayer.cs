@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,66 +9,63 @@ public class ResourceDisplayer : MonoBehaviour
     [SerializeField] private TMP_Text Amount;
     [SerializeField] private TMP_Text GrowthRateText;
     [SerializeField] private Transform Details;
-    [HideInInspector] public Resource Resource;
+    [SerializeField] private TMP_Text Description;
 
-    [HideInInspector] public BigNumber GenerateRate;
-    [HideInInspector] public BigNumber ConsumeRate;
-    [HideInInspector] public BigNumber ResourceAmount;
+    private ResourceState state;
 
-    [HideInInspector] public BigNumber Efficiency;
+    public Resource Resource => state?.Definition;
 
-    void Start()
+    public void Bind(ResourceState newState)
     {
+        state = newState ?? throw new System.ArgumentNullException(nameof(newState));
+
         Sprite.sprite = Resource.Sprite;
         Sprite.color = Resource.Color;
         Label.text = Resource.Label;
-        Details.GetChild(1).GetComponent<TMP_Text>().text = Resource.Description;
+        if (Description != null)
+            Description.text = Resource.Description;
+        else if (Details != null && Details.childCount > 1)
+        {
+            TMP_Text detailsText = Details.GetChild(1).GetComponent<TMP_Text>();
+            if (detailsText != null)
+                detailsText.text = Resource.Description;
+        }
 
-        StartCoroutine(ResourceUpdate());
-        StartCoroutine(UpdateUI());
+        ApplyCardHeight();
+
+        Refresh();
     }
+
     public void DisplayDetails()
     {
-        Image ImageComp = GetComponent<Image>();
-        if (Details.gameObject.activeSelf)
-        {
-            Details.gameObject.SetActive(false);
-            ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, 100);
-        }
-        else
-        {
-            Details.gameObject.SetActive(true);
-            ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, 230);
-        }
-    }
-    private IEnumerator UpdateUI()
-    {
-        while (true)
-        {
-            Amount.text = ResourceAmount.ToString();
-            GrowthRateText.text = (GenerateRate - ConsumeRate).ToStringWithPositiveSign() + " /s";
-            yield return new WaitForSecondsRealtime(0.1f);
-        }
-    }
-    private IEnumerator ResourceUpdate()
-    {
-        while (true)
-        {
-            ResourceAmount += (GenerateRate - ConsumeRate) / 10;
-            yield return new WaitForSecondsRealtime(0.1f);
-        }
+        if (Details == null)
+            return;
+        Details.gameObject.SetActive(!Details.gameObject.activeSelf);
+        ApplyCardHeight();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
-
-
-
-    [Serializable]
-    public class ResourceDisplayerData
+    private void ApplyCardHeight()
     {
-        public string ResourceName;
-        public BigNumber GenerateRate;
-        public BigNumber ConsumeRate;
-        public BigNumber ResourceAmount;
-        public BigNumber Efficiency;
+        RectTransform rectTransform = transform as RectTransform;
+        if (rectTransform == null)
+            return;
+
+        rectTransform.sizeDelta = new Vector2(
+            rectTransform.sizeDelta.x,
+            Details != null && Details.gameObject.activeSelf ? 230f : 100f);
+    }
+
+    public bool Refresh()
+    {
+        if (state == null)
+            return false;
+
+        Amount.text = state.Amount.ToGameString();
+        ExpantaNum netRate = state.ProductionRate - state.ConsumptionRate;
+        GrowthRateText.text = (netRate >= ExpantaNum.Zero
+            ? "+" + netRate.ToGameString()
+            : netRate.ToGameString()) + " /s";
+        return true;
     }
 }

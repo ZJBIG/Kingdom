@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: Smithing_Tin
   m_EditorClassIdentifier: 
+  id: Smithing_Tin
   Label: "\u51B6\u70BC\u950C"
   Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
   BaseCost: 5000
-  Prequisites:
+  prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
-  ResourceRequirement: []
+  resourceRequirements: []
   BuildingUnlock: []
   TechLevel: 1
   x: 2

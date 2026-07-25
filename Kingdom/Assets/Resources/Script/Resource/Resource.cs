@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Create", menuName = "Data/Resource", order = 0)]
-public class Resource : ScriptableObject
+public class Resource : GameDefinition
 {
     public enum Set
     {

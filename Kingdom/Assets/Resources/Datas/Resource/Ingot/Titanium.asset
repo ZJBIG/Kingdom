@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Titanium
   m_EditorClassIdentifier: 
+  id: Titanium
   Label: "\u949B\u952D"
-  Description: 
+  Description: "轻而坚硬的高级金属锭，适合航空、精密结构和迈向未来科技的核心构件。"
   Sprite: {fileID: 21300000, guid: 27762a6e65b74214f80d8d717898e575, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 3

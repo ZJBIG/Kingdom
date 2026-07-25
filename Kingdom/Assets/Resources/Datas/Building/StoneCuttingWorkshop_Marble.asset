@@ -12,19 +12,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: StoneCuttingWorkshop_Marble
   m_EditorClassIdentifier: 
+  id: StoneCuttingWorkshop_Marble
   Label: "\u91C7\u77F3\u573A"
   Description: "\u7528\u6765\u6316\u6398\u77F3\u5934\u7684\u77FF\u5751\uFF0C\u5076\u5C14\u80FD\u6316\u51FA\u91D1\u5C5E"
-  BuildDifficulty: 200
-  SpaceOccupy: 10
-  ProductivityRequirement: 20
-  ResearchRequisites: []
   TechLevel: 0
-  FoodConsumeRate: 10
-  ResourceRequirement:
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 200
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 10
+    layer: 0
+    operators: []
+  buildEffort:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 20
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 10
+    layer: 0
+    operators: []
+  resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: 200
-  ResourceGenerateRate:
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  resourceGenerationRates:
   - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second: 1
-  ResourceConsumeRate: []
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1
+      layer: 0
+      operators: []
+  resourceConsumptionRates: []
   DeconstructReturnPercentage: 1

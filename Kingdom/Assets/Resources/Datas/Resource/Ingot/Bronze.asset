@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Bronze
   m_EditorClassIdentifier: 
+  id: Bronze
   Label: "\u9752\u94DC\u952D"
-  Description: 
+  Description: "铜与锡合铸成的早期金属锭，足以让部落从石器工具迈向更坚固的器械。"
   Sprite: {fileID: 21300000, guid: cd6cc51b43cda4745acf30d1966b7b64, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 3

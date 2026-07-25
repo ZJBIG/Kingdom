@@ -1,0 +1,14 @@
+使用仓库技能 `kingdom-ui-redesign`，但不要立即做纯视觉重绘。
+
+第一目标是完成 UI-Ready Gate：
+- 将 ResourceViewer、BuildingViewer、ResearchViewer 的 Update 刷新统一到 GameUIRefreshManager；
+- 删除 GameHudViewer 和 MusicViewer 的 UI 刷新协程；
+- 保留 State.Version 跳过未变化数据；
+- 用 Unity Layout 组件替代 Resource/Building 手算高度和 Hide 父节点；
+- 添加 ResearchLineView；
+- 添加真实 PlayMode UI 生命周期测试；
+- 只有测试通过后才把主页面和 SettingViewer 改为 SetActive，并删除 OutsideTheWindows。
+
+UI-Ready Gate 通过后，再根据 docs/ui/ 建立 UITheme、公共组件、HUD/导航以及资源、建筑、科研、设置页面。
+
+先审计 Scene、Prefab 和现有截图；保留 .meta/GUID；不要安装新包；不要把游戏逻辑放回 UI。

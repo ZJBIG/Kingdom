@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: Agriculture
   m_EditorClassIdentifier: 
+  id: Agriculture
   Label: "\u519C\u4E1A"
   Description: "\u519C\u4E1A\u662F\u6839\u57FA"
   BaseCost: 5000
-  Prequisites: []
-  ResourceRequirement: []
+  prerequisites: []
+  resourceRequirements: []
   BuildingUnlock: []
   TechLevel: 0
   x: 0

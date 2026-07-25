@@ -1,0 +1,25 @@
+使用仓库技能 `kingdom-runtime-refactor` 和 `kingdom-ui-redesign` 处理当前 Kingdom3 仓库。
+
+先完整阅读：
+- AGENTS.md
+- ToDoList_New.txt
+- docs/repository-map.md
+- docs/audits/kingdom3-static-audit.md
+- docs/architecture/runtime-state.md
+- docs/architecture/ui-boundaries.md
+- docs/plans/ui-ready-and-redesign.md
+- 两个 Skill 及最近的 scoped AGENTS.md
+
+然后执行：
+1. 检查 git status，不覆盖用户改动。
+2. 运行 validate-guidance、inspect-kingdom、audit-ui。
+3. 定位 Unity 2022.3.62f2c1 并编译未修改基线。
+4. 不要重新进行 BigNumber、Pair<Resource,string>、Runtime State、DataBase 或统一存档迁移，这些已经完成。
+5. 从 ToDoList_New 的 K3-01 开始：先写失败测试，修复本 Tick 资源满足率和食物/日期积分。
+6. 每个独立批次真实编译并运行相关 EditMode 测试。
+7. UI 生命周期或 Scene/Prefab 修改必须运行有真实用例的 PlayMode 测试。
+8. P7 门槛通过前，不得删除 OutsideTheWindows 或声称可以安全 SetActive。
+9. 未经授权不得 commit、push、安装包或升级 Unity。
+10. 每批报告文件、TODO、编译、测试 XML/日志、Console、手动 Inspector/Scene 项和下一步。
+
+如果无法运行 Unity，明确写：未执行真实 Unity 编译。

@@ -12,16 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: Smithing
   m_EditorClassIdentifier: 
+  id: Smithing
   Label: "\u51B6\u70BC\u91D1\u5C5E"
   Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
   BaseCost: 5000
-  Prequisites:
+  prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
-  ResourceRequirement:
+  resourceRequirements:
   - first: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
-    second: 200
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
-    second: 1000
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1000
+      layer: 0
+      operators: []
   BuildingUnlock: []
   TechLevel: 1
   x: 1.2

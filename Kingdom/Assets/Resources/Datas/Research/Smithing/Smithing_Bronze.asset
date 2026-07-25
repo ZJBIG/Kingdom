@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: Smithing_Bronze
   m_EditorClassIdentifier: 
+  id: Smithing_Bronze
   Label: "\u51B6\u70BC\u9752\u94DC"
   Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
   BaseCost: 5000
-  Prequisites:
+  prerequisites:
   - {fileID: 11400000, guid: 8487fd4809790b14ab8eeb42d2b906a2, type: 2}
   - {fileID: 11400000, guid: 0d09b89ba4e1e4c479483a92ab621b1c, type: 2}
-  ResourceRequirement: []
+  resourceRequirements: []
   BuildingUnlock: []
   TechLevel: 1
   x: 3

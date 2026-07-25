@@ -1,15 +1,24 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
+#pragma warning disable CS0649
 public class MusicDisplayer : MonoBehaviour
 {
-    public TMP_Text Type;
-    public TMP_Text Label;
-    public void Play()
+    [SerializeField, FormerlySerializedAs("Type")] private TMP_Text typeText;
+    [SerializeField, FormerlySerializedAs("Label")] private TMP_Text labelText;
+
+    private AudioClip clip;
+
+    public void Bind(string newTypeName, AudioClip newClip)
     {
-        AudioClip clip = Resources.Load<AudioClip>($"Musics/{Type.text}/{Label.text}");
-        AudioSource AudioSource = MusicManager.Instance.AudioSource;
-        AudioSource.clip = clip;
-        AudioSource.Play();
+        clip = newClip;
+        if (typeText != null)
+            typeText.text = newTypeName;
+        if (labelText != null)
+            labelText.text = clip == null ? string.Empty : clip.name;
     }
+
+    public void Play() => MusicManager.Instance.Play(clip);
 }
+#pragma warning restore CS0649

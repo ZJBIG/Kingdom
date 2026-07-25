@@ -2,15 +2,16 @@ using UnityEngine;
 
 public class SettingViewer : MonoBehaviour
 {
-    public MusicViewer musicViewer;
+    [SerializeField] private MusicViewer musicViewer;
     public enum SettingType
     {
         Music,
     }
-    private void Start()
+    private void OnEnable()
     {
-        musicViewer.InitMusicSetting();
+        musicViewer?.InitMusicSetting();
     }
-    public void OpenSettingWindow() => GetComponent<RectTransform>().localPosition = GameManager.SettingViewerLocalPos;
-    public void CloseSettingWindow() => GetComponent<RectTransform>().localPosition = GameManager.OutsideTheWindows;
+
+    public void OpenSettingWindow() => gameObject.SetActive(true);
+    public void CloseSettingWindow() => gameObject.SetActive(false);
 }

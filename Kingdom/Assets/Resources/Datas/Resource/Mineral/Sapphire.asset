@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Sapphire
   m_EditorClassIdentifier: 
+  id: Sapphire
   Label: "\u84DD\u5B9D\u77F3"
-  Description: 
+  Description: "深蓝色的珍贵宝石，常被视作理性、秩序与高级研究的象征材料。"
   Sprite: {fileID: 21300000, guid: f13706fa6ddc97c4696cd6f9bf07626d, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

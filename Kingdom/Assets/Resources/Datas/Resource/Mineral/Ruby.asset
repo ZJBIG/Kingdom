@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Ruby
   m_EditorClassIdentifier: 
+  id: Ruby
   Label: "\u7EA2\u5B9D\u77F3"
-  Description: 
+  Description: "鲜红而珍贵的宝石，如凝固的火焰，可用于奢侈品和高阶仪式材料。"
   Sprite: {fileID: 21300000, guid: fda33911d7b9c5342b3748ac40bc0ef5, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

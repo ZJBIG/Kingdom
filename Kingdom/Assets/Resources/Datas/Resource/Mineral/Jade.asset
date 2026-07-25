@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Jade
   m_EditorClassIdentifier: 
+  id: Jade
   Label: "\u7FE1\u7FE0"
-  Description: 
+  Description: "温润坚致的玉石，适合雕琢成礼器、饰品和象征秩序的王国宝物。"
   Sprite: {fileID: 21300000, guid: d248449ed15ca4b459bf6e1d8c3abf3d, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

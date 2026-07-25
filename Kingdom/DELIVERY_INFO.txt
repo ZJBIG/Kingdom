@@ -1,0 +1,17 @@
+Kingdom Codex Repository Pack
+=============================
+
+Date: 2026-07-24
+Audited source: Kingdom3.7z
+Source SHA256: ac2827dfa3b912a4d2f24250051ea3cb8d033da3273c94da163ca28fa01b34c4
+Unity: 2022.3.62f2c1
+
+Purpose:
+- replace stale repository guidance;
+- mark completed Kingdom3 migrations as complete;
+- define the remaining simulation/UI-ready work;
+- provide runtime-correctness and UI-redesign skills;
+- provide PowerShell audit/compile/test helpers.
+
+Static generation only.
+未执行真实 Unity 编译。

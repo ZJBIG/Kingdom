@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: StoneChunk_Marble
   m_EditorClassIdentifier: 
+  id: StoneChunk_Marble
   Label: "\u5927\u7406\u77F3\u77F3\u5757"
-  Description: 
+  Description: "开采出的粗重大理石块，需要切制后才能用于更精美的建筑工程。"
   Sprite: {fileID: 21300000, guid: 73ab6924373cf8144a41e11b5eed2856, type: 3}
   Color: {r: 0.5176471, g: 0.5294118, b: 0.5176471, a: 1}
   DisplayerSet: 2

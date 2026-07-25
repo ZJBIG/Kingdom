@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Iron
   m_EditorClassIdentifier: 
+  id: Iron
   Label: "\u94C1\u952D"
-  Description: 
+  Description: "坚韧实用的金属锭，是农具、武备和大型建筑从简陋走向可靠的基础。"
   Sprite: {fileID: 21300000, guid: 2774dba1779de6744a650c2742f97305, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 3

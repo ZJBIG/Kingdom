@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: MithrilOre
   m_EditorClassIdentifier: 
+  id: MithrilOre
   Label: "\u79D8\u94F6\u77FF\u77F3"
-  Description: 
+  Description: "罕见的秘银矿石，需要高超技术才能提炼出兼具轻盈与强度的材料。"
   Sprite: {fileID: 21300000, guid: 695f15f89c7ef4b47b27de07312b5811, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 1

@@ -1,0 +1,26 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "UITheme", menuName = "Kingdom/UI Theme")]
+public sealed class UITheme : ScriptableObject
+{
+    [Header("Surfaces")]
+    public Color BackgroundPrimary;
+    public Color BackgroundSecondary;
+    public Color Panel;
+    public Color PanelRaised;
+    public Color Border;
+
+    [Header("Text and states")]
+    public Color TextPrimary;
+    public Color TextSecondary;
+    public Color Accent;
+    public Color Positive;
+    public Color Negative;
+    public Color Warning;
+    public Color Locked;
+    public Color Completed;
+
+    [Header("Timing")]
+    [Min(0f)] public float FastTransition = 0.1f;
+    [Min(0f)] public float NormalTransition = 0.2f;
+}

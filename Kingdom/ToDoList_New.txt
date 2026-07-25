@@ -1,0 +1,781 @@
+Kingdom 3 UI-Ready、模拟收尾与 UI 重设计 ToDoList
+=================================================
+
+版本日期：2026-07-24
+唯一代码基线：Kingdom3.7z
+基线 SHA256：ac2827dfa3b912a4d2f24250051ea3cb8d033da3273c94da163ca28fa01b34c4
+Unity 版本：2022.3.62f2c1
+主场景：Assets/Scenes/SampleScene.unity
+
+======================================================================
+0. 本清单的定位
+======================================================================
+
+本清单不是旧版“大重构从零开始”计划。
+
+Kingdom3 已经完成了以下基础迁移：
+
+[x] BigNumber 已完全移除。
+[x] ExpantaNum 已成为唯一权威数值类型。
+[x] Building/Research 资源配置已迁移到 Pair<Resource, ExpantaNum>。
+[x] ResourceState、BuildingState、ResearchState、GameState 已建立。
+[x] ResourceManager、BuildingManager、ResearchManager 已持有运行时 State。
+[x] Manager 已不再创建或保存 Displayer/Viewer。
+[x] SimulationManager 已建立，并支持 ManualTick。
+[x] 稳定 ID、DataBase、GameBootstrap、统一 SaveManager 已建立。
+[x] 存档使用 ExpantaNum.ToString()，不使用 ToGameString()。
+[x] Transform.GetChild(index) 已从游戏脚本中清除。
+[x] Tool.GetDescription 已加入缓存。
+[x] Music 自动播放核心已迁移到 MusicManager。
+[x] 已有 EditMode 回归测试。
+
+Codex 不得重新执行 BigNumber、Pair、State、DataBase 或统一存档迁移。
+若当前仓库与本清单冲突，以当前仓库实际代码和 Unity 资产为准。
+
+当前真正目标：
+
+1. 修复剩余模拟正确性问题。
+2. 完成 P6/P7 意义上的 UI 生命周期解耦。
+3. 建立 PlayMode UI 验收。
+4. 删除移出屏幕隐藏方式。
+5. 建立 Kingdom UI Design System。
+6. 重新设计资源、建筑、科研、设置和 HUD 页面。
+
+======================================================================
+1. Kingdom3 实际仓库审计
+======================================================================
+
+代码与资产：
+- 游戏 C# 文件：42
+- 游戏 C# 总行数：约 7006
+- EditMode 测试文件：1
+- 现有 NUnit Test/TestCase 标记：35
+- PlayMode 测试：0
+- ScriptableObject 定义资产：50
+  - Building：6
+  - Research：14
+  - Resource：30
+- Prefab：9
+- Scene：2
+- asmdef：0
+
+当前已确认的良好结构：
+[x] Manager 目录不再引用 TMP_Text、Image、RectTransform、Viewer 或 Displayer。
+[x] Viewer 监听 Manager 的 StateAdded 事件并创建 UI。
+[x] Displayer 读取 State.Version，避免部分重复文本格式化。
+[x] ResourceRequirementView 已替代脆弱子节点索引。
+[x] MainTab 已使用 enum。
+[x] Resource、Building、Research 定义均使用稳定 ID。
+[x] 所有 50 个定义资产均存在非空 ID。
+[x] Save DTO 不保存 ScriptableObject 引用和派生速率。
+[x] SampleScene 是唯一启用的 Build Scene。
+
+当前明确剩余：
+[ ] BuildingViewer、ResourceViewer、ResearchViewer 各有自己的 Update 刷新循环。
+[ ] GameHudViewer 仍有永久 UI 刷新协程。
+[ ] MusicViewer 仍有永久 UI 刷新协程。
+[ ] ResourceDisplayerSet 仍通过改变父节点和手算高度折叠。
+[ ] ResourceDisplayer 仍手动写 100/230 高度。
+[ ] BuildingDisplayer 仍使用固定高度公式和手动 sizeDelta。
+[ ] MainNavigationViewer 仍把页面移动到 (-10000,-10000)。
+[ ] SettingViewer 仍使用相同的移出屏幕方案。
+[ ] 项目没有 PlayMode 测试用例。
+[ ] BackGround 旋转仍与帧率相关。
+[ ] ResearchLineView 尚未建立。
+[ ] Dimension.cs 仍是空脚本。
+[ ] 仓库中的旧 repository-map 和 runtime skill 仍描述 BigNumber/旧架构。
+[ ] 根 AGENTS.md 引用的 ToDoList_New.txt、docs/、tools/codex/ 在压缩包中缺失。
+
+======================================================================
+2. 不可违反的架构规则
+======================================================================
+
+2.1 定义数据
+- Resource、Building、Research 等 ScriptableObject 只保存定义数据。
+- 不保存当前数量、效率、进度、队列、自动建造进度或 UI 引用。
+- ID 是代码和存档键；Label 只用于显示。
+- 不使用显示文本、资源名称或反射字段作为存档键。
+
+2.2 运行时状态
+- ResourceState、BuildingState、ResearchState、GameState 是唯一权威状态。
+- State 是 class，不是 struct。
+- State 不引用 GameObject、Transform、TMP、Image、Viewer 或 Displayer。
+- 普通外部代码不得直接写 State；写入通过 Manager 或 internal 方法。
+
+2.3 Manager
+- Manager 负责规则、验证、事务和 State 修改。
+- Manager 不创建 UI，不持有 UI，不读取 UI 文本。
+- 建造、拆除、自动建造与科研支付必须先完整验证，再一次性提交。
+- 失败时不得发生部分资源变化。
+
+2.4 SimulationManager
+- SimulationManager 是唯一核心模拟时钟。
+- 每次 Tick 显式接收 deltaSeconds。
+- 相同初始状态、相同命令、相同总时间应得到相同结果。
+- 结果不得依赖 Dictionary 遍历顺序。
+- UI 激活状态不得影响模拟。
+
+2.5 UI
+- Viewer 负责页面、集合、选择和刷新调度。
+- Displayer/View 只负责 Bind、Refresh、输入和调用 Manager。
+- UI 不推进资源、建筑、科研、食物或日期。
+- 隐藏页面不得持续格式化文本或触发布局重建。
+- UI 动画不得成为游戏状态。
+
+2.6 ExpantaNum
+- ExpantaNum 只负责数字。
+- ExpantaNumExtensions 只负责无状态通用数学公式。
+- 不向数值核心增加建筑、科研、UI、时间推进或存档业务 API。
+- 存档使用可 Parse 的 ToString()。
+- 玩家显示使用 ToGameString()。
+- 不重新引入 BigNumber 或兼容包装器。
+
+2.7 Pair
+- 真正的二元数据继续使用 Pair<T1,T2>。
+- Pair 保留 first/second 序列化字段名。
+- Save DTO 使用明确命名字段，不使用 Pair。
+- 有第三字段、单位、独立验证、行为或版本需求时创建领域类型。
+
+======================================================================
+3. K3-01：模拟正确性收尾（最高优先级）
+======================================================================
+
+TODO K3-01-01：重写本 Tick 资源满足率
+涉及：
+- Manager/SimulationManager.cs
+- Manager/BuildingManager.cs
+- Manager/ResourceManager.cs
+- Runtime/ResourceState.cs
+- Runtime/BuildingState.cs
+
+当前问题：
+BuildingManager.CalculateEfficiency 只在资源 Amount == 0 时降低效率。
+当库存大于 0、但不足以覆盖本 Tick 需求时，建筑仍按 100% 效率产出，
+随后 ResourceManager 仅把资源 Clamp 到 0，造成一个 Tick 的超额产出。
+
+目标算法：
+1. 按稳定顺序收集所有建筑的潜在生成和潜在消耗。
+2. 对每种资源计算：
+   available = currentInventory + potentialProduction * deltaSeconds
+   demand = potentialConsumption * deltaSeconds
+   satisfaction = demand <= 0 ? 1 : Clamp01(available / demand)
+3. 每个建筑的资源效率为其所有输入资源满足率的最小值。
+4. 再汇总实际生成和实际消耗。
+5. 最终资源库存不得低于 0。
+6. 相同建筑以不同插入顺序创建时结果一致。
+
+要求：
+[ ] 不使用“库存大于 0 就 100%”。
+[ ] 不允许先完整产出再 Clamp 掉不足的消耗。
+[ ] 满足率为 0~1。
+[ ] 没有输入资源的建筑不受资源限制。
+[ ] 多建筑竞争同一资源使用统一规则。
+[ ] 不在 Tick 中使用 LINQ、闭包或临时 Dictionary。
+[ ] 使用稳定 orderedStates/定义 ID 顺序。
+[ ] 为缓冲集合预分配并复用，容量有界。
+
+验收测试：
+[ ] 库存 1，本 Tick 需求 2，满足率和实际产出为 50%。
+[ ] 库存 0、生产 5、需求 10，满足率为 50%。
+[ ] 需求为 0 时满足率为 1。
+[ ] 资源最终不小于 0。
+[ ] 两个建筑竞争资源时总消耗不超过可用量。
+[ ] 改变建筑创建顺序，10 秒结果一致。
+
+TODO K3-01-02：食物每 Tick 积分，日期独立推进
+涉及：
+- Runtime/GameState.cs
+- Manager/GameManager.cs
+- Manager/SimulationManager.cs
+
+当前问题：
+GameState.AdvanceCalendarStep 同时推进一天和一次性结算 5 秒食物。
+若玩家在第 4.9 秒建造或拆除农场，会错误按完整 5 秒的新速率结算。
+
+目标：
+- 每个模拟 Tick：
+  FoodAmount = Max(0, FoodAmount + netFoodRate * deltaSeconds)
+- 单独累计 calendarElapsedSeconds。
+- 每累计 realSecondsPerGameDay 再增加 CalendarDays。
+- 保存是否保留不足一天的余量需要明确；默认可暂不保存，但必须记录决定。
+
+要求：
+[ ] 食物积分与日期步进分离。
+[ ] 建筑在任意 Tick 建造/拆除，只影响之后的时间。
+[ ] 不同帧率运行相同总秒数结果一致。
+[ ] 食物不低于 0。
+
+验收：
+[ ] 第 4.9 秒建造农场，5 秒时只获得 0.1 秒产量。
+[ ] 第 4.9 秒拆除农场，前 4.9 秒产量不丢失。
+[ ] 359、360、361 游戏日转换正确。
+
+TODO K3-01-03：限制严重卡顿后的补算积压
+涉及：
+- Manager/SimulationManager.cs
+
+当前 Advance 在达到 maximumTicksPerFrame 后保留全部 accumulatedSeconds。
+长时间卡顿可能让后续很多帧持续补算。
+
+要求：
+[ ] 明确策略：Clamp backlog、丢弃超额，或转入离线/批量补算。
+[ ] 默认建议 Clamp 到 tickInterval * maximumTicksPerFrame。
+[ ] 输出 Development Build 警告，但避免每帧刷日志。
+[ ] ManualTick 不受该限制。
+
+======================================================================
+4. K3-02：存档健壮性收尾
+======================================================================
+
+TODO K3-02-01：主存档应用失败时尝试 backup
+当前 TryReadPath 只验证 JSON 与 Version。
+若 JSON 合法，但 ApplySaveData 因失效 ID、无效 ExpantaNum 或语义错误抛异常，
+当前流程不会自动尝试 backup。
+
+要求：
+[ ] “读取 + 完整验证/应用”作为一次候选加载事务。
+[ ] 主文件应用失败后恢复干净初始状态，再尝试 backup。
+[ ] 错误日志包含路径、字段、ID 和原值。
+[ ] 主文件失败且 backup 成功时明确记录。
+[ ] 两者都失败时创建新游戏，不残留半应用状态。
+
+TODO K3-02-02：重复 Load 幂等
+要求：
+[ ] 同一进程中连续 Load 两次结果一致。
+[ ] 加载前清空或重置所有不可由存档覆盖的旧 State/Queue。
+[ ] 存档中不存在的状态不会残留。
+[ ] 不重复创建 Viewer 卡片或事件订阅。
+
+TODO K3-02-03：存档测试
+[ ] 新游戏初始化。
+[ ] 正常保存并恢复。
+[ ] backup 恢复。
+[ ] 无效 ExpantaNum 主文件回退 backup。
+[ ] 不存在的 stable ID 输出可定位错误。
+[ ] 派生速率加载后重算。
+[ ] 自动建造状态、进度、科研队列和 CostPaid 恢复。
+
+======================================================================
+5. K3-03：统一 UI 刷新
+======================================================================
+
+TODO K3-03-01：创建 GameUIRefreshManager
+新建建议：
+- UI/GameUIRefreshManager.cs
+
+替代：
+- BuildingViewer.Update
+- ResourceViewer.Update
+- ResearchViewer.Update
+- GameHudViewer.RefreshLoop
+- MusicViewer.UpdateUI
+
+职责：
+- 顶栏 5~10 次/秒刷新。
+- 只刷新当前激活页面。
+- 设置窗口打开时才刷新 MusicViewer。
+- 只调用 Refresh，不推进 State。
+- 可通过 MainTab/窗口状态决定刷新集合。
+- OnEnable 时强制刷新。
+
+要求：
+[ ] 全游戏只有一个普通 UI 刷新调度入口。
+[ ] Displayer 继续使用 State.Version。
+[ ] Viewer 关闭时不刷新。
+[ ] 模拟频率和 UI 刷新频率完全独立。
+[ ] 不给每个卡片添加 Update 或协程。
+[ ] 设置窗口关闭时 MusicViewer 不再运行刷新循环。
+
+TODO K3-03-02：Viewer 依赖注入
+当前 Viewer 在 OnEnable 中 FindObjectOfType Manager。
+
+目标：
+- 优先使用 [SerializeField] 引用或明确 Bootstrap/Installer 绑定。
+- 若保留 Singleton.Instance，直接通过明确 API 访问。
+- 不在每次 OnEnable 做场景搜索。
+- 事件订阅/退订必须对称。
+
+验收：
+[ ] 页面反复启用/禁用不会重复订阅。
+[ ] StateAdded 只创建一个卡片。
+[ ] Viewer 晚于 State 创建时能绑定全部现有 State。
+
+TODO K3-03-03：统一 Refresh 接口
+可选：
+public interface IGameUIView
+{
+    void RefreshVisible(bool force);
+}
+
+不要为了形式强行创建过度抽象；只有三个以上页面确实共享调度时再使用接口。
+
+======================================================================
+6. K3-04：布局系统迁移
+======================================================================
+
+TODO K3-04-01：ResourceDisplayer
+当前手写 100/230 高度。
+
+目标 Hierarchy：
+ResourceRow
+├─ Header
+└─ Details
+
+组件：
+- VerticalLayoutGroup
+- ContentSizeFitter 或 LayoutElement
+- Details.SetActive(expanded)
+
+要求：
+[ ] 不在脚本中直接写卡片高度。
+[ ] 不在刷新时 GetComponent<Image>()。
+[ ] 展开仅影响布局和显示。
+
+TODO K3-04-02：ResourceDisplayerSet
+当前折叠时把卡片移动到 Hide Transform，并手算总高度。
+
+目标：
+ResourceSet
+├─ HeaderButton
+└─ Content
+   ├─ VerticalLayoutGroup
+   └─ ResourceRows
+
+要求：
+[ ] 删除 Hide Transform 依赖。
+[ ] 折叠使用 Content.SetActive(false) 或 CanvasGroup。
+[ ] 不改变 ResourceDisplayer 父节点。
+[ ] 不遍历卡片手算高度。
+[ ] Displayers 字典改为 private，只读暴露必要信息。
+
+TODO K3-04-03：BuildingDisplayer
+当前使用：
+- 50 固定收起高度
+- 150/200 基础高度
+- requirementRows * 50
+
+目标：
+BuildingCard
+├─ Header
+└─ Details
+   ├─ Description
+   ├─ RequirementList
+   ├─ ConstructionControls
+   ├─ AutoBuildProgress
+   └─ StatusText
+
+要求：
+[ ] VerticalLayoutGroup/LayoutElement 计算高度。
+[ ] 需求列表不手写行数高度。
+[ ] 建造与拆除失败显示明确 BuildFailure。
+[ ] 输入无效、资源不足、空间不足、生产力不足可区分。
+[ ] 建造/拆除按钮与全部拆除按钮分离。
+[ ] 全部拆除应有 ConfirmDialog。
+
+TODO K3-04-04：ResearchViewer
+要求：
+[ ] 创建 ResearchLineView，缓存 Image 和 RectTransform。
+[ ] Lines 使用明确关系键；Pair 可继续作纯二元键。
+[ ] Content 宽高按所有节点最终坐标、NodeSize、Padding 一次计算。
+[ ] 需求行只在选中研究变化时重建。
+[ ] 可选对象池；当前规模较小时不强制。
+[ ] 详情区不把多行信息全部拼进一个 TMP_Text，拆成明确字段。
+
+======================================================================
+7. K3-05：UI-Ready Gate 清理
+======================================================================
+
+TODO K3-05-01：音乐 UI
+MusicManager 已负责自动换曲，这是已完成项。
+
+剩余：
+[ ] 删除 MusicViewer 永久协程。
+[ ] MusicViewer.OnEnable 强制刷新。
+[ ] 仅窗口打开时由 UI 刷新器更新进度。
+[ ] MusicDisplayer 直接绑定 AudioClip 或稳定音乐定义，不通过显示文本拼路径。
+[ ] 空列表、空 clip、length <= 0 全部安全。
+[ ] 音乐核心位于 SettingViewer 外。
+
+TODO K3-05-02：背景
+[ ] BackGround 使用 RotateSpeed * Time.deltaTime 或 unscaledDeltaTime。
+[ ] 字段改为 [SerializeField] private。
+[ ] 明确暂停时是否继续旋转。
+
+TODO K3-05-03：空脚本和弱脚本
+[ ] 检查 Scene/Prefab GUID 后删除 Dimension.cs，或删除空 Start/Update 并写明确职责。
+[ ] FoodVarietyViewer 保持 UI 占位，不参与模拟和存档。
+[ ] 清理触碰文件中的乱码换行和旧公开字段。
+[ ] Inspector 引用优先 [SerializeField] private。
+[ ] public API 使用 PascalCase，private 字段使用 camelCase。
+
+TODO K3-05-04：仓库指导文件
+[ ] 用本交付包覆盖旧 AGENTS/Skill。
+[ ] 添加 ToDoList_New.txt、docs/、tools/codex/。
+[ ] repository-map 不得再描述 BigNumber 或 Pair<Resource,string>。
+[ ] runtime skill 明确“迁移已完成，不得重做”。
+[ ] 新增 kingdom-ui-redesign skill。
+
+======================================================================
+8. K3-06：真实 PlayMode UI 验收
+======================================================================
+
+新建：
+- Assets/Tests/PlayMode/
+- PlayMode asmdef（若需要）
+- KingdomUiLifecycleTests.cs
+
+测试不能只运行 Runner，必须有真实用例。
+
+最低用例：
+[ ] ResourceViewerDisabled_SimulationContinues
+[ ] BuildingViewerDisabled_SimulationContinues
+[ ] ResearchViewerDisabled_ResearchContinues
+[ ] SettingViewerDisabled_MusicManagerContinues
+[ ] ViewerReenabled_ImmediatelyShowsLatestState
+[ ] MainTabSwitch_DoesNotMutateGameplayState
+[ ] DisabledViewer_DoesNotRunRefreshLoop
+[ ] RepeatedEnableDisable_DoesNotDuplicateCardsOrSubscriptions
+
+测试方法：
+- 优先调用 SimulationManager.ManualTick，不用真实等待 60 秒。
+- 另保留一个短时生命周期 Smoke Test。
+- 测试清理创建的 GameObject、临时资产和静态状态。
+- 不依赖本地化文字判断状态。
+
+手动验收：
+[ ] 各主 Viewer 关闭 60 秒，模拟继续。
+[ ] 设置窗口关闭，音乐播放并自动换曲。
+[ ] 页面重开立即显示最新 State。
+[ ] Console 无 NullReference/MissingReference。
+[ ] Profiler 中隐藏页面无持续 TMP/Layout 刷新。
+
+======================================================================
+9. K3-07：删除移出屏幕隐藏方式
+======================================================================
+
+只有 K3-06 全部通过后执行。
+
+涉及：
+- UI/MainNavigationViewer.cs
+- Setting/SettingViewer.cs
+- Scene/Prefab
+
+删除：
+- OutsideTheWindows
+- ResourceViewerLocalPos
+- BuildingViewerLocalPos
+- ResearchViewerLocalPos
+- SpecialViewerLocalPos
+- SettingViewerLocalPos
+- 通过 localPosition 切换页面
+
+目标：
+public void SetMainTab(MainTab tab)
+{
+    resourceViewer.SetActive(tab == MainTab.Resource);
+    buildingViewer.SetActive(tab == MainTab.Building);
+    researchViewer.SetActive(tab == MainTab.Research);
+}
+
+要求：
+[ ] MainNavigationViewer 暴露 CurrentTab。
+[ ] 提供 MainTabChanged 事件。
+[ ] Viewer.OnEnable 强制绑定与刷新。
+[ ] Viewer.OnDisable 只退订事件，不修改 State。
+[ ] SettingViewer 可 SetActive(false)。
+[ ] Managers 和 MusicManager 位于所有 UI 页面外。
+[ ] Scene 中不再有 Hide 容器和 -10000 坐标。
+
+======================================================================
+10. K3-08：Kingdom UI Design System
+======================================================================
+
+完成 UI-Ready Gate 后才进入视觉重设计。
+
+TODO K3-08-01：视觉方向
+默认建议：
+- 深色、低饱和中世纪策略风。
+- 金色作为主强调色。
+- 正增长、负增长、警告、锁定、完成均有独立语义。
+- 数字可读性优先于装饰。
+
+在最终定稿前收集：
+[ ] 当前 1920x1080 全页面截图。
+[ ] 3~10 张目标游戏 UI 参考。
+[ ] 字体许可和图标来源。
+[ ] 是否需要中文/英文双语。
+[ ] 最低支持分辨率。
+
+TODO K3-08-02：UITheme
+创建 UITheme ScriptableObject，仅保存视觉 Token：
+- 背景、面板、边框、文本、强调、正向、负向、警告、锁定、完成色。
+- 字体和字号层级。
+- Spacing：4/8/12/16/24/32。
+- Radius：4/8/12。
+- 动画时间：快/普通/慢。
+- 常用按钮、输入框、卡片高度。
+
+UITheme 不保存运行时游戏状态。
+
+TODO K3-08-03：公共组件
+建立可复用 Prefab：
+[ ] PrimaryButton
+[ ] SecondaryButton
+[ ] DangerButton
+[ ] IconButton
+[ ] TabButton
+[ ] TextInput
+[ ] Toggle
+[ ] ProgressBar
+[ ] ResourceRequirementView
+[ ] StatusBadge
+[ ] Tooltip
+[ ] ToastView
+[ ] ConfirmDialog
+[ ] EmptyState
+[ ] SectionHeader
+
+要求：
+- 不复制三套外观相似的按钮。
+- 组件不读取 Manager，数据通过 Bind 参数进入。
+- 组件状态完整：Normal/Hover/Pressed/Selected/Disabled/Locked。
+
+======================================================================
+11. K3-09：页面重新设计
+======================================================================
+
+11.1 全局布局
+推荐：
+Canvas
+├─ TopBar
+├─ MainNavigation
+├─ MainContent
+│  ├─ ResourceViewer
+│  ├─ BuildingViewer
+│  └─ ResearchViewer
+└─ Overlay
+   ├─ SettingViewer
+   ├─ Tooltip
+   ├─ Toast
+   └─ ConfirmDialog
+
+Managers 必须在 Canvas/MainContent 外。
+
+11.2 HUD
+显示：
+- 王国名称
+- 日期
+- 技术等级
+- 食物总量与净速率
+- 可用生产力
+- 剩余领土
+- 保存状态
+
+要求：
+- 不执行任何运算。
+- 不使用永久协程。
+- 文本变化时才赋值。
+- 重要资源不足有状态图标，不把所有信息挤进一行。
+
+11.3 资源页
+资源行：
+图标 | 名称 | 数量 | 净速率 | 状态 | 展开
+
+展开：
+- 描述
+- 生产速率
+- 消耗速率
+- 主要来源与用途（后续）
+
+要求：
+- 资源短缺可识别。
+- 正负速率颜色与符号一致。
+- 分类折叠不影响 State。
+
+11.4 建筑页
+推荐“列表 + 详情”或可扩展卡片。
+
+必须显示：
+- 图标、名称、数量、效率
+- 自动建造状态与进度
+- 单个成本、当前拥有、本次总成本
+- 空间和生产力要求
+- 产出与消耗
+- 建造数量
+- 建造、拆除、全部拆除
+- 失败原因
+
+要求：
+- UI 不自行计算成本权威值；可调用 Manager 的只读预览 API。
+- 失败必须有即时反馈。
+- 大数输入和显示兼容 ExpantaNum。
+
+11.5 科研页
+布局：
+- GraphScrollRect
+- LineContainer
+- NodeContainer
+- DetailPanel
+
+节点状态：
+- Locked
+- Available
+- Queued
+- WaitingResources
+- Researching
+- Completed
+- Selected
+
+详情：
+- 名称、时代、描述
+- 进度与百分比
+- 资源需求
+- 队列位置
+- 解锁建筑
+- 行动按钮
+
+11.6 设置页
+- 设置页可完全关闭。
+- 音乐继续运行。
+- 打开时读取当前音乐状态。
+- 关闭时停止 UI 刷新。
+- 添加手动保存和保存结果反馈。
+
+======================================================================
+12. K3-10：响应式、可访问性与性能
+======================================================================
+
+分辨率：
+[ ] 1920x1080
+[ ] 2560x1440
+[ ] 1366x768
+[ ] 16:10
+[ ] 超宽屏
+[ ] 小窗口
+
+CanvasScaler：
+- Scale With Screen Size
+- 参考分辨率默认 1920x1080
+- Match 值通过实际页面测试决定
+
+可访问性：
+[ ] 文字和背景对比度足够。
+[ ] 不仅靠颜色表达状态。
+[ ] 按钮有 Disabled 原因。
+[ ] 字号缩放不导致裁切。
+[ ] Tooltip 可通过鼠标和键盘触达（若项目支持键盘导航）。
+[ ] 动画不过度闪烁。
+
+性能：
+[ ] 只有一个 Simulation Tick。
+[ ] 只有一个普通 UI 刷新调度。
+[ ] 隐藏页面不刷新 TMP/Layout。
+[ ] Tick 中不 Parse。
+[ ] Tick 中无 LINQ/闭包/临时集合。
+[ ] UI 需求行不持续 Destroy/Instantiate。
+[ ] 运行 1 小时无持续内存增长。
+[ ] Profiler 记录 GC Alloc、Layout.Rebuild、Canvas.BuildBatch。
+
+======================================================================
+13. 推荐 Commit 顺序
+======================================================================
+
+Commit 1: fix simulation satisfaction and food integration
+- K3-01-01
+- K3-01-02
+- K3-01-03
+- 对应 EditMode 测试
+
+Commit 2: harden save reload and backup fallback
+- K3-02
+- 存档回归测试
+
+Commit 3: centralize UI refresh
+- K3-03
+- 删除 Viewer Update/HUD/MusicViewer 刷新协程
+
+Commit 4: migrate UI layouts
+- K3-04
+- Resource、Building、Research 布局迁移
+
+Commit 5: finish cleanup and guidance
+- K3-05
+- BackGround、空脚本、命名、Skill/docs/tools
+
+Commit 6: add PlayMode UI lifecycle tests
+- K3-06
+
+Commit 7: switch pages to SetActive
+- K3-07
+
+Commit 8: introduce UI design system
+- K3-08
+
+Commit 9: redesign main screens
+- K3-09
+
+Commit 10: responsive, accessibility and profiler acceptance
+- K3-10
+
+每个 Commit：
+1. 修改前检查 git status。
+2. 不覆盖用户改动。
+3. 保留 .meta 和 GUID。
+4. 执行真实 Unity 编译。
+5. 执行相关 EditMode/PlayMode 测试。
+6. 检查 Console。
+7. 有编译错误不得进入下一 Commit。
+8. 未被明确授权时不得 commit、push、rebase 或安装包。
+
+======================================================================
+14. 最终验收
+======================================================================
+
+逻辑：
+[ ] 建造和拆除原子化。
+[ ] 自动建造使用同一 TryBuild。
+[ ] 资源满足率按本 Tick 可用量计算。
+[ ] 资源不低于 0。
+[ ] 食物按真实秒积分。
+[ ] 日期独立推进。
+[ ] 科研成本只支付一次。
+[ ] 科研队列状态正确。
+[ ] 不同帧率结果一致。
+
+架构：
+[ ] ScriptableObject 只含定义。
+[ ] State 是唯一权威状态。
+[ ] Manager 不引用 UI。
+[ ] SimulationManager 是唯一模拟时钟。
+[ ] UI 不推进游戏。
+[ ] BigNumber 引用为 0。
+[ ] Pair<Resource,string> 引用为 0。
+
+UI：
+[ ] Viewer 可安全 SetActive(false)。
+[ ] 页面重开立即刷新。
+[ ] 设置页关闭音乐继续。
+[ ] 无 OutsideTheWindows。
+[ ] 无手算卡片高度。
+[ ] 无 Transform.GetChild(index)。
+[ ] 无每卡片永久 Update/协程。
+[ ] 公共组件风格统一。
+
+存档：
+[ ] 单一版本化存档。
+[ ] temp + backup。
+[ ] 主文件语义失败可回退 backup。
+[ ] 重复 Load 幂等。
+[ ] 只保存不可推导状态和稳定 ID。
+[ ] ExpantaNum 可往返。
+
+测试与证据：
+[ ] Unity 编译通过。
+[ ] EditMode 通过。
+[ ] PlayMode 有真实用例并通过。
+[ ] Console 无错误。
+[ ] Profiler 验收完成。
+[ ] 记录命令、退出码、日志和 XML 路径。
+
+没有运行 Unity 时，报告必须明确写：
+未执行真实 Unity 编译。

@@ -1,210 +1,371 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using static ResearchDisplayer;
 
 public class ResearchManager : Singleton<ResearchManager>
 {
+    public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
 
-    const string SAVE_FILE = "ResearchDatas.json";
+    private readonly Dictionary<Research, ResearchState> states = new();
+    private readonly Dictionary<TechLevel, int> researchCountByTech = new();
+    private readonly List<ResearchState> orderedStates = new();
 
-    [HideInInspector] public BigNumber GlobalEfficiencyFactor = 1;
+    public IReadOnlyDictionary<Research, ResearchState> States => states;
+    public IReadOnlyDictionary<TechLevel, int> ResearchCountByTech => researchCountByTech;
+    public ResearchState ActiveResearch { get; private set; }
+    public int TotalResearchCount => orderedStates.Count;
+    public string SelectedResearchId { get; private set; } = string.Empty;
+    public event Action<ResearchState> ResearchStateAdded;
 
-    public ResearchViewer ResearchViewer;
-    [SerializeField] private GameObject ResearchDisplayerPrefab;
-    [SerializeField] private GameObject TransitionLinePrefab;
-    public ResearchFinder ResearchFinder;
-
-    public Queue<Research> ResearcheQueue = new();
-    public Dictionary<Research, ResearchDisplayer> Displayers = new();
-    public Dictionary<Pair<Research, Research>, GameObject> Lines = new();
-    public Dictionary<TechLevel, int> ResearchCount = new();
-
-    readonly Func<float, float, Vector3> PlacePosition = (x, y) => new Vector3(100 + 300 * x, -25f - 300 * y);
-    public int TotalResearchCount => ResearchCount.Sum(kvp => kvp.Value);
-    private void Start()
+    public int TotalFinishedResearchCount
     {
-        InitializeResearchDisplayer();
-        InitializeResearchLine();
-        InitializeResearchCount();
-        StartCoroutine(DoInvest());
+        get
+        {
+            int count = 0;
+            for (int i = 0; i < orderedStates.Count; i++)
+                if (orderedStates[i].Status == ResearchStatus.Completed)
+                    count++;
+            return count;
+        }
     }
-    public void RefreshResearchQueue(Research research)
-    {
-        foreach (var (_, displayer) in Displayers)
-            if (displayer.CurState != ResearchDisplayer.State.Finished)
-                displayer.CurState = ResearchDisplayer.State.NotActive;
 
-        ResearcheQueue.Clear();
-        EnqueuePrequisites(research);
-        Displayers[ResearcheQueue.Peek()].CurState = ResearchDisplayer.State.Now;
-    }
-    void EnqueuePrequisites(Research research)
+    protected override void Initialize()
     {
-        if (Displayers[research].CurState == ResearchDisplayer.State.Finished)
+        IReadOnlyList<Research> researches = DataBase<Research>.All;
+        if (!ResearchValidator.ValidateNoCycles(researches, out string error))
+        {
+            Debug.LogError(error);
+            enabled = false;
             return;
-        foreach (var r in research.Prequisites)
-            EnqueuePrequisites(r);
-        if (Displayers[research].CurState != ResearchDisplayer.State.InQueue)
-        {
-            ResearcheQueue.Enqueue(research);
-            Displayers[research].CurState = ResearchDisplayer.State.InQueue;
         }
+
+        InitializeResearchStates(researches);
+        InitializeResearchCount();
     }
-    IEnumerator DoInvest()
+
+    public ResearchState GetState(Research research)
     {
-        while (true)
+        if (research == null)
+            throw new ArgumentNullException(nameof(research));
+        if (states.TryGetValue(research, out ResearchState state))
+            return state;
+        throw new KeyNotFoundException($"Research state '{research.Id}' has not been created.");
+    }
+
+    public bool StartResearch(Research research)
+    {
+        if (research == null || !states.ContainsKey(research))
         {
-            if (ResearcheQueue.TryPeek(out Research research))
+            Debug.LogError("Cannot start a null or uninitialized research definition.");
+            return false;
+        }
+        ResearchState state = states[research];
+        if (state.Status == ResearchStatus.Completed ||
+            GameManager.Instance.State.TechLevel < research.TechLevel ||
+            !ArePrerequisitesCompleted(research) || !state.CostPaid)
+            return false;
+
+        if (ActiveResearch == state)
+            return true;
+
+        if (ActiveResearch != null)
+        {
+            ActiveResearch.SetStatus(
+                ArePrerequisitesCompleted(ActiveResearch.Definition)
+                    ? ResearchStatus.Available
+                    : ResearchStatus.Locked);
+        }
+
+        ActiveResearch = state;
+        state.SetStatus(ResearchStatus.Researching);
+        return true;
+    }
+
+    public void SetSelectedResearch(Research research)
+    {
+        SelectedResearchId = research == null ? string.Empty : research.Id;
+    }
+
+    public void Tick(double deltaSeconds)
+    {
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        ResearchState current = ActiveResearch;
+        if (current == null)
+            return;
+
+        if (!current.CostPaid)
+        {
+            current.SetStatus(ResearchStatus.WaitingResources);
+            return;
+        }
+
+        current.SetStatus(ResearchStatus.Researching);
+        ExpantaNum speed = ResearchSpeedEffect(
+            GameManager.Instance.State.TechLevel,
+            current.Definition.TechLevel) * GlobalEfficiencyFactor;
+        current.SetProgress(AdvanceResearchProgress(
+            current.Progress,
+            speed,
+            current.BaseCost,
+            deltaSeconds));
+
+        if (current.Progress < current.BaseCost)
+            return;
+
+        CompleteCurrentResearch(current);
+    }
+
+    public static bool TryPayResearchCost(ResearchState state)
+    {
+        if (state == null)
+            throw new ArgumentNullException(nameof(state));
+        if (state.CostPaid)
+            return true;
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+        bool fullyPaid = true;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.Second <= ExpantaNum.Zero)
+                continue;
+
+            ResourceState resource = ResourceManager.Instance.EnsureResource(requirement.First);
+            ExpantaNum paid = state.GetPaidResourceCost(requirement.First);
+            ExpantaNum remaining = ExpantaNum.Max(ExpantaNum.Zero, requirement.Second - paid);
+            if (remaining <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum payment = ExpantaNum.Min(
+                ExpantaNum.Max(ExpantaNum.Zero, resource.Amount),
+                remaining);
+            if (payment > ExpantaNum.Zero)
             {
-                ResearchDisplayer cur = Displayers[research];
-                cur.ProgressReal += GlobalEfficiencyFactor;
-                if (cur.ProgressReal >= cur.Research.BaseCost)
-                {
-                    cur.CurState = State.Finished;
-                    ResearcheQueue.Dequeue();
-                    research.BuildingUnlock.ForEach(b =>
-                    {
-                        BuildingManager.Instance.AddBuilding(b);
-                    });
-                }
+                ResourceManager.Instance.AddAmount(requirement.First, -payment);
+                state.SetPaidResourceCost(requirement.First, paid + payment);
             }
-            yield return new WaitForSecondsRealtime(0.02f);
+
+            if (paid + payment < requirement.Second)
+                fullyPaid = false;
+        }
+
+        if (fullyPaid)
+            state.SetCostPaid(true);
+        return fullyPaid;
+    }
+
+    private void CompleteCurrentResearch(ResearchState current)
+    {
+        current.SetProgress(current.BaseCost);
+        current.SetStatus(ResearchStatus.Completed);
+        ActiveResearch = null;
+
+        IReadOnlyList<Building> unlocks = current.Definition.BuildingUnlock;
+        if (unlocks != null)
+        {
+            for (int i = 0; i < unlocks.Count; i++)
+                BuildingManager.Instance.AddBuilding(unlocks[i]);
+        }
+
+        RefreshAvailabilityStatuses();
+    }
+
+    private void RefreshAvailabilityStatuses()
+    {
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            ResearchState state = orderedStates[i];
+            if (state.Status == ResearchStatus.Completed)
+                continue;
+            state.SetStatus(ArePrerequisitesCompleted(state.Definition)
+                ? ResearchStatus.Available
+                : ResearchStatus.Locked);
         }
     }
-    void AddResearch(Research research)
+
+    public bool ArePrerequisitesCompleted(Research research)
     {
-        if (Displayers.ContainsKey(research))
-            throw new System.Exception($"{research.name} has already added");
-
-        ResearchDisplayer Displayer = Instantiate(ResearchDisplayerPrefab).GetComponent<ResearchDisplayer>();
-        Displayer.Research = research;
-        Displayer.ProgressReal = 0;
-        Displayer.CurState = State.NotActive;
-        Displayer.transform.SetParent(ResearchViewer.Content.transform);
-
-        RectTransform rectTransform = Displayer.GetComponent<RectTransform>();
-        rectTransform.localPosition = PlacePosition(research.x, research.y);
-
-        Displayers.Add(research, Displayer);
+        IReadOnlyList<Research> prerequisites = research.Prerequisites;
+        if (prerequisites == null)
+            return true;
+        for (int i = 0; i < prerequisites.Count; i++)
+            if (states[prerequisites[i]].Status != ResearchStatus.Completed)
+                return false;
+        return true;
     }
-    void InitializeResearchDisplayer()
+
+    public static ExpantaNum AdvanceResearchProgress(
+        ExpantaNum current,
+        ExpantaNum speedPerSecond,
+        ExpantaNum baseCost,
+        double deltaSeconds)
     {
-        float x = 0;
-        var list = Resources.LoadAll<Research>("Datas/Research").ToList();
-        list.ForEach(r =>
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        return ExpantaNum.Min(baseCost, current + speedPerSecond * deltaSeconds);
+    }
+
+    public static double ResearchSpeedEffect(TechLevel current, TechLevel target)
+    {
+        if (current == target)
+            return 1d;
+        return 1d / Math.Abs((int)target - (int)current + 0.5d);
+    }
+
+    private void InitializeResearchStates(IReadOnlyList<Research> researches)
+    {
+        for (int i = 0; i < researches.Count; i++)
         {
-            x = Mathf.Max(PlacePosition(x, 0).x + 100, r.x);
-            AddResearch(r);
-        });
-        var content = ResearchViewer.Content.GetComponent<RectTransform>();
-        content.sizeDelta = new Vector2(x, content.rect.height);
+            Research research = researches[i];
+            var state = new ResearchState(research);
+            states.Add(research, state);
+            orderedStates.Add(state);
+            ResearchStateAdded?.Invoke(state);
+        }
     }
-    void InitializeResearchLine()
-    {
-        foreach (var (r, _) in Displayers)
-            if (r.Prequisites.Count != 0)
-                foreach (var p in r.Prequisites)
-                {
-                    GameObject Line = Instantiate(TransitionLinePrefab, ResearchViewer.LineContainer.transform);
 
-                    Vector2 begin, end;
-                    Rect LineRect = Line.GetComponent<RectTransform>().rect;
-
-                    Lines.Add(new Pair<Research, Research>(p, r), Line);
-
-                    begin = PlacePosition(p.x, p.y);
-                    end = PlacePosition(r.x, r.y);
-
-                    float dx = end.x - begin.x, dy = end.y - begin.y;
-                    float Length = Mathf.Sqrt(dx * dx + dy * dy);
-
-                    Line.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(Length, 5f);
-
-                    Line.transform.Rotate(new Vector3(0, 0, Mathf.Rad2Deg * Mathf.Atan2(dy, dx)));
-                    Line.GetComponent<RectTransform>().localPosition = begin + new Vector2(dx / 2, dy / 2);
-                }
-    }
-    void InitializeResearchCount()
+    private void InitializeResearchCount()
     {
         foreach (TechLevel techLevel in Enum.GetValues(typeof(TechLevel)))
-            ResearchCount[techLevel] = 0;
-        foreach (var (r, _) in Displayers)
-            ResearchCount[r.TechLevel]++;
+            researchCountByTech[techLevel] = 0;
+        for (int i = 0; i < orderedStates.Count; i++)
+            researchCountByTech[orderedStates[i].Definition.TechLevel]++;
     }
 
-
-
-
-    public override void Save()
+    internal SaveManager.ResearchSaveData CaptureSaveData()
     {
-        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
-        var SaveData = new SaveData
+        var data = new SaveManager.ResearchSaveData
         {
-            ResearchDisplayerData = new List<ResearchDisplayerData>(),
-            Queue = new List<string>(),
-            GlobalEfficiencyFactor = GlobalEfficiencyFactor,
+            States = new List<SaveManager.ResearchStateSaveData>(orderedStates.Count),
+            ActiveResearchId = ActiveResearch?.Definition.Id,
+            SelectedResearchId = SelectedResearchId,
+            GlobalEfficiencyFactor = GlobalEfficiencyFactor.ToString()
         };
 
-        foreach (var (_, displayer) in Displayers)
+        for (int i = 0; i < orderedStates.Count; i++)
         {
-            SaveData.ResearchDisplayerData.Add(new ResearchDisplayerData
+            ResearchState state = orderedStates[i];
+            data.States.Add(new SaveManager.ResearchStateSaveData
             {
-                ResearchName = displayer.Research.name,
-                CurState = displayer.CurState,
-                ProgressReal = displayer.ProgressReal,
+                ResearchId = state.Definition.Id,
+                Progress = state.Progress.ToString(),
+                CostPaid = state.CostPaid,
+                Completed = state.Status == ResearchStatus.Completed,
+                PaidResourceCosts = CapturePaidResourceCosts(state)
             });
         }
 
-        foreach (var research in ResearcheQueue)
-            SaveData.Queue.Add(research.name);
-
-        SaveData.CurSelect = ResearchViewer.CurSelect;
-
-        string json = JsonUtility.ToJson(SaveData, true);
-
-        File.WriteAllText(path, json);
-        Debug.Log($"Saved research data to: {path}");
+        return data;
     }
-    public override void Load()
-    {
-        var path = Path.Combine(Application.persistentDataPath, SAVE_FILE);
-        if (!File.Exists(path))
-            Save();
-        var json = File.ReadAllText(path);
-        LoadFromJson(json);
-    }
-    private void LoadFromJson(string json)
-    {
-        var SaveData = JsonUtility.FromJson<SaveData>(json);
 
-        foreach (var data in SaveData.ResearchDisplayerData)
+    internal void ResetForLoad()
+    {
+        ActiveResearch = null;
+        SelectedResearchId = string.Empty;
+        GlobalEfficiencyFactor = ExpantaNum.One;
+        for (int i = 0; i < orderedStates.Count; i++)
+            orderedStates[i].ResetForLoad();
+    }
+
+    internal void RestoreSaveData(SaveManager.ResearchSaveData data)
+    {
+        if (data == null)
+            return;
+
+        if (data.States != null)
         {
-            Research research = ResearchFinder.GetFromString(data.ResearchName);
-            var displayer = Displayers[research];
-            displayer.CurState = data.CurState;
-            displayer.ProgressReal = data.ProgressReal;
+            for (int i = 0; i < data.States.Count; i++)
+            {
+                SaveManager.ResearchStateSaveData saved = data.States[i];
+                ResearchState state = GetState(DataBase<Research>.Find(saved.ResearchId));
+                state.Restore(
+                    Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress)),
+                    saved.CostPaid,
+                    saved.Completed,
+                    RestorePaidResourceCosts(saved.PaidResourceCosts));
+            }
         }
 
-        ResearcheQueue.Clear();
-        foreach (var researchName in SaveData.Queue)
-            ResearcheQueue.Enqueue(ResearchFinder.GetFromString(researchName));
+        RefreshAvailabilityStatuses();
+        if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
+        {
+            ResearchState state = GetState(DataBase<Research>.Find(data.ActiveResearchId));
+            if (state.Status != ResearchStatus.Completed && ArePrerequisitesCompleted(state.Definition))
+            {
+                ActiveResearch = state;
+                state.SetStatus(state.CostPaid
+                    ? ResearchStatus.Researching
+                    : ResearchStatus.WaitingResources);
+            }
+        }
 
-        ResearchViewer.CurSelect = SaveData.CurSelect;
-
-        GlobalEfficiencyFactor = SaveData.GlobalEfficiencyFactor;
+        if (string.IsNullOrWhiteSpace(data.SelectedResearchId))
+        {
+            SelectedResearchId = string.Empty;
+        }
+        else
+        {
+            Research selected = DataBase<Research>.Find(data.SelectedResearchId);
+            SelectedResearchId = selected.Id;
+        }
+        GlobalEfficiencyFactor = Parse(
+            data.GlobalEfficiencyFactor,
+            nameof(ResearchManager),
+            nameof(data.GlobalEfficiencyFactor),
+            ExpantaNum.One);
     }
 
-    [Serializable]
-    private class SaveData
+    public override void Save() => SaveManager.Instance.SaveNow(true);
+
+    public override void Load() => SaveManager.Instance.LoadOrCreateGame();
+
+    private static ExpantaNum Parse(
+        string raw,
+        string owner,
+        string field,
+        ExpantaNum fallback = default)
     {
-        public List<ResearchDisplayerData> ResearchDisplayerData;
-        public List<string> Queue;
-        public Research CurSelect;
-        public BigNumber GlobalEfficiencyFactor;
+        if (ExpantaNum.TryParse(raw, out ExpantaNum value))
+            return value;
+        if (string.IsNullOrEmpty(raw))
+            return fallback;
+        throw new FormatException($"Invalid ExpantaNum '{raw}' for {owner}.{field}.");
     }
+
+    private static List<SaveManager.ResearchResourceCostSaveData> CapturePaidResourceCosts(ResearchState state)
+    {
+        var result = new List<SaveManager.ResearchResourceCostSaveData>();
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            ExpantaNum paid = state.GetPaidResourceCost(requirements[i].First);
+            if (paid > ExpantaNum.Zero)
+            {
+                result.Add(new SaveManager.ResearchResourceCostSaveData
+                {
+                    ResourceId = requirements[i].First.Id,
+                    Amount = paid.ToString()
+                });
+            }
+        }
+        return result;
+    }
+
+    private static IReadOnlyDictionary<Resource, ExpantaNum> RestorePaidResourceCosts(
+        List<SaveManager.ResearchResourceCostSaveData> savedCosts)
+    {
+        var result = new Dictionary<Resource, ExpantaNum>();
+        if (savedCosts == null)
+            return result;
+
+        for (int i = 0; i < savedCosts.Count; i++)
+        {
+            SaveManager.ResearchResourceCostSaveData saved = savedCosts[i];
+            Resource resource = DataBase<Resource>.Find(saved.ResourceId);
+            result[resource] = Parse(saved.Amount, saved.ResourceId, nameof(saved.Amount));
+        }
+        return result;
+    }
+
 }

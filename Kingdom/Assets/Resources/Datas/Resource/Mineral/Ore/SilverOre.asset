@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: SilverOre
   m_EditorClassIdentifier: 
+  id: SilverOre
   Label: "\u94F6\u77FF\u77F3"
-  Description: 
+  Description: "含银矿石，能够提炼出适合贸易、仪式和精密工艺的银锭。"
   Sprite: {fileID: 21300000, guid: 9a7dd1ea470e20842923ba3cf8ac73e0, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 1

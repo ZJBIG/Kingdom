@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: CopperOre
   m_EditorClassIdentifier: 
+  id: CopperOre
   Label: "\u94DC\u77FF\u77F3"
-  Description: 
+  Description: "含铜的原矿石，经过冶炼后能成为早期金属工具和青铜工艺的起点。"
   Sprite: {fileID: 21300000, guid: d68e3a4faca3fdb4483411dcba1e6d6c, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 1

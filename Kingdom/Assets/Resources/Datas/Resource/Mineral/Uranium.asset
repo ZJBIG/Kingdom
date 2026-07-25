@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Uranium
   m_EditorClassIdentifier: 
+  id: Uranium
   Label: "\u94C0"
-  Description: 
+  Description: "蕴含巨大能量的危险矿物，只有高度发达的科技体系才能安全利用。"
   Sprite: {fileID: 21300000, guid: f886e837b716ede4b8d451a000b3457f, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

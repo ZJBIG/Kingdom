@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
@@ -8,25 +9,33 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
         get
         {
             if (instance == null)
-            {
                 instance = FindObjectOfType<T>();
-                if (instance == null)
-                {
-                    GameObject obj = new GameObject(typeof(T).Name);
-                    instance = obj.AddComponent<T>();
-                }
-            }
+
+            if (instance == null)
+                throw new InvalidOperationException($"{typeof(T).Name} is missing from the scene.");
+
             return instance;
         }
     }
-    public virtual void Awake()
+
+    protected virtual void Awake()
     {
-        if (instance == null)
-            instance = this as T;
-        else
+        if (instance != null && instance != this)
+        {
             Destroy(gameObject);
+            return;
+        }
+
+        instance = (T)this;
         Initialize();
     }
+
+    protected virtual void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
+    }
+
     protected virtual void Initialize() { }
     public virtual void Save() { }
     public virtual void Load() { }   

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +6,7 @@ public class BuildingDisplayer : MonoBehaviour
 {
     [SerializeField] private TMP_Text Label;
     [SerializeField] private TMP_Text Description;
+    [SerializeField] private TMP_Text StatusText;
     [SerializeField] private TMP_Text Amount;
     [SerializeField] private Image AutoBuildSpirit;
     [SerializeField] private Transform Details;
@@ -16,150 +15,159 @@ public class BuildingDisplayer : MonoBehaviour
     [SerializeField] private Sprite Enable, Disable;
     [SerializeField] private GameObject BuildResourceReqPrefab;
 
-    [HideInInspector] public BigNumber BuildingAmount;
-    [HideInInspector] public Building Building;
-    [HideInInspector] public BigNumber Efficiency;
-    [HideInInspector] public bool AutoBuild;
+    private BuildingState state;
+    private int renderedVersion = -1;
+    private bool requirementsBound;
+    private BuildFailure lastFailure;
+    public Building Building => state?.Definition;
 
-
-    void Start()
+    private void Awake()
     {
+        VerticalLayoutGroup layout = GetComponent<VerticalLayoutGroup>();
+        if (layout == null)
+            layout = gameObject.AddComponent<VerticalLayoutGroup>();
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
+
+        ContentSizeFitter fitter = GetComponent<ContentSizeFitter>();
+        if (fitter == null)
+            fitter = gameObject.AddComponent<ContentSizeFitter>();
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        if (ResourceList != null)
+        {
+            GridLayoutGroup requirementsLayout = ResourceList.GetComponent<GridLayoutGroup>();
+            if (requirementsLayout == null)
+                requirementsLayout = ResourceList.gameObject.AddComponent<GridLayoutGroup>();
+            requirementsLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            requirementsLayout.constraintCount = 2;
+            requirementsLayout.cellSize = new Vector2(191.5f, 50f);
+        }
+    }
+
+    public void Bind(BuildingState newState)
+    {
+        state = newState ?? throw new System.ArgumentNullException(nameof(newState));
+
         Label.text = Building.Label;
         Description.text = Building.Description;
-        foreach (var res in Building.ResourceRequirement)
-        {
-            var go = Instantiate(BuildResourceReqPrefab);
-            go.transform.SetParent(ResourceList);
-            go.transform.GetChild(0).GetComponent<Image>().sprite = res.first.Sprite;
-            go.transform.GetChild(0).GetComponent<Image>().color = res.first.Color;
-            go.transform.GetChild(1).GetComponent<TMP_Text>().text = BigNumber.ToString(res.second);
-        }
-        AutoBuildSpirit.sprite = Disable;
-        StartCoroutine(UpdateHeight());
-        StartCoroutine(UpdateUI());
-        StartCoroutine(UpdateResourceRate());
+        if (StatusText != null)
+            StatusText.text = string.Empty;
+        BindRequirements();
+        renderedVersion = -1;
+        Refresh();
     }
-    public void DisplayDetails() => Details.gameObject.SetActive(!Details.gameObject.activeSelf);
-    public void SwitchAutoBuild() => AutoBuild = !AutoBuild;
-    public ResourceDisplayer FindResourceDisplayer(Resource r) => ResourceManager.Instance.FindResourceDisplayer(r);
-    IEnumerator UpdateHeight()
-    {
-        while (true)
-        {
-            Image ImageComp = GetComponent<Image>();
-            Image ResourceListImageComp = ResourceList.GetComponent<Image>();
-            if (Details.gameObject.activeSelf)
-            {
-                int resReqAmonut = (ResourceList.childCount + 1) / 2;
-                if (AutoBuild)
-                    ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, 150 + resReqAmonut * 50);
-                else
-                    ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, 200 + resReqAmonut * 50);
-                ResourceListImageComp.rectTransform.sizeDelta = new Vector2(ResourceListImageComp.rectTransform.rect.width, resReqAmonut * 50);
-            }
-            else
-                ImageComp.rectTransform.sizeDelta = new Vector2(ImageComp.rectTransform.rect.width, 50);
-            yield return new WaitForSecondsRealtime(0.1f);
-        }
-    }
-    IEnumerator UpdateUI()
-    {
-        while (true)
-        {
-            Amount.text = BuildingAmount.ToString();
-            Construction.gameObject.SetActive(!AutoBuild);
-            AutoBuildSpirit.sprite = AutoBuild ? Enable : Disable;
-            yield return new WaitForSecondsRealtime(0.1f);
-        }
-    }
-    IEnumerator UpdateResourceRate()
-    {
-        while (true)
-        {
-            Refresh(GetEfficiency(), BuildingAmount);
-            yield return new WaitForSecondsRealtime(10f);
-        }
-    }
-    public void TryConstruct(string amount)
-    {
-        BigNumber SpaceReq = amount * (BigNumber)Building.SpaceOccupy;
-        BigNumber ProductivityReq = amount * (BigNumber)Building.ProductivityRequirement;
-        foreach (var (r, req) in Building.ResourceRequirement)
-        {
-            if (FindResourceDisplayer(r).ResourceAmount < (BigNumber)req * amount
-                || GameManager.Instance.KingdomSpace < SpaceReq
-                || GameManager.Instance.Productivity < ProductivityReq)
-                return;
-        }
-        foreach (var (r, num) in Building.ResourceRequirement)
-            FindResourceDisplayer(r).ResourceAmount -= (BigNumber)num * Building.DeconstructReturnPercentage;
 
-        GameManager.Instance.KingdomSpace -= SpaceReq;
-        GameManager.Instance.Productivity -= ProductivityReq;
-        BigNumber NewBuildingAmount = BuildingAmount + amount;
-        Refresh(GetEfficiency(), NewBuildingAmount);
-    }
-    public void TryDeconstruct(string amount)
+    public void DisplayDetails()
     {
-        if (BuildingAmount <= 0.01)
+        if (Details == null)
             return;
-        BigNumber SpaceReq = (BigNumber)amount * Building.SpaceOccupy;
-        BigNumber ProductivityReq = (BigNumber)amount * Building.ProductivityRequirement;
-        if (BuildingAmount <= amount)
-            amount = BuildingAmount.ToString();
-        foreach (var (r, num) in Building.ResourceRequirement)
-            FindResourceDisplayer(r).ResourceAmount += (BigNumber)num * Building.DeconstructReturnPercentage;
-
-        GameManager.Instance.KingdomSpace += SpaceReq;
-        GameManager.Instance.Productivity += ProductivityReq;
-        BigNumber NewBuildingAmount = BuildingAmount - amount;
-        Refresh(GetEfficiency(), NewBuildingAmount);
-    }
-    public void Clear() => TryDeconstruct(BuildingAmount.ToString());
-    private void Refresh(BigNumber NewEfficiency, BigNumber NewBuildingAmount)
-    {
-        foreach (var (r, num) in Building.ResourceGenerateRate)
-        {
-            FindResourceDisplayer(r).GenerateRate -= BuildingAmount * Efficiency * num;
-            FindResourceDisplayer(r).GenerateRate += NewBuildingAmount * NewEfficiency * num;
-        }
-        foreach (var (r, num) in Building.ResourceConsumeRate)
-        {
-            FindResourceDisplayer(r).ConsumeRate -= BuildingAmount * Efficiency * num;
-            FindResourceDisplayer(r).ConsumeRate += NewBuildingAmount * NewEfficiency * num;
-        }
-        //if ((BigNumber)Building.FoodConsumeRate >= 0)
-        //{
-        //    GameManager.Instance.FoodConsumeRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
-        //    GameManager.Instance.FoodConsumeRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
-        //}
-        //else
-        //{
-        //    GameManager.Instance.FoodGenerateRate -= BuildingAmount * Efficiency * Building.FoodConsumeRate;
-        //    GameManager.Instance.FoodGenerateRate += NewBuildingAmount * NewEfficiency * Building.FoodConsumeRate;
-        //}
-        Efficiency = NewEfficiency;
-        BuildingAmount = NewBuildingAmount;
-    }
-    private BigNumber GetEfficiency()
-    {
-        double result = 1;
-        foreach (var (r, _) in Building.ResourceConsumeRate)
-        {
-            var displayer = ResourceManager.Instance.FindResourceDisplayer(r);
-            if (displayer.ResourceAmount == 0)
-                result *= Math.Clamp((displayer.ConsumeRate / displayer.GenerateRate).ToDouble(), 0, 1);
-        }
-        return result * BuildingManager.Instance.GlobalEfficiencyFactor;
+        Details.gameObject.SetActive(!Details.gameObject.activeSelf);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
+    public void SwitchAutoBuild() =>
+        BuildingManager.Instance.SetAutoBuild(Building, !state.AutoBuild);
 
-    [Serializable]
-    public class BuildingDisplayerData
+    public void TryConstruct(string input)
     {
-        public string BuildingName;
-        public bool AutoBuild;
-        public BigNumber BuildingAmount;
-        public BigNumber Efficiency;
+        if (!BuildingTransactionRules.TryNormalizePositiveWhole(input, out ExpantaNum amount))
+        {
+            ShowFailure(BuildFailure.InvalidAmount);
+            return;
+        }
+
+        if (BuildingManager.Instance.TryBuild(Building, amount, out BuildFailure failure))
+            ClearFailure();
+        else
+            ShowFailure(failure);
     }
+
+    public void TryDeconstruct(string input)
+    {
+        if (!BuildingTransactionRules.TryNormalizePositiveWhole(input, out ExpantaNum amount))
+        {
+            ShowFailure(BuildFailure.InvalidAmount);
+            return;
+        }
+
+        if (BuildingManager.Instance.TryDeconstruct(Building, amount, out BuildFailure failure))
+            ClearFailure();
+        else
+            ShowFailure(failure);
+    }
+
+    public void Clear()
+    {
+        if (BuildingManager.Instance.TryDeconstruct(Building, state.Amount, out BuildFailure failure))
+            ClearFailure();
+        else
+            ShowFailure(failure);
+    }
+
+    public bool Refresh()
+    {
+        if (state == null)
+            return false;
+
+        bool changed = renderedVersion != state.Version;
+        if (changed)
+        {
+            Amount.text = state.Amount.ToGameString();
+            Construction.gameObject.SetActive(!state.AutoBuild);
+            AutoBuildSpirit.sprite = state.AutoBuild ? Enable : Disable;
+            renderedVersion = state.Version;
+        }
+
+        return changed;
+    }
+
+    private void ShowFailure(BuildFailure failure)
+    {
+        lastFailure = failure;
+        string message = failure switch
+        {
+            BuildFailure.InvalidAmount => "请输入有效的整数数量",
+            BuildFailure.ResourceInsufficient => "资源不足，无法完成建造或拆除",
+            BuildFailure.SpaceInsufficient => "领土不足",
+            BuildFailure.ProductivityInsufficient => "生产力不足",
+            BuildFailure.DeconstructionUnavailable => "没有可拆除的建筑",
+            _ => string.Empty
+        };
+
+        if (StatusText != null)
+            StatusText.text = message;
+        else if (Description != null && !string.IsNullOrEmpty(message))
+            Description.text = Building.Description + "\n" + message;
+    }
+
+    private void ClearFailure()
+    {
+        if (lastFailure == BuildFailure.None)
+            return;
+        lastFailure = BuildFailure.None;
+        if (StatusText != null)
+            StatusText.text = string.Empty;
+        else if (Description != null)
+            Description.text = Building.Description;
+    }
+
+    private void BindRequirements()
+    {
+        if (requirementsBound)
+            return;
+
+        foreach (Pair<Resource, ExpantaNum> requirement in Building.ResourceRequirements)
+        {
+            GameObject go = Instantiate(BuildResourceReqPrefab, ResourceList, false);
+            ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
+            if (view != null)
+                view.Bind(requirement.First, requirement.Second);
+        }
+
+        requirementsBound = true;
+    }
+
 }

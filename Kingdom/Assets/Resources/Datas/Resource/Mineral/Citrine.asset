@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Citrine
   m_EditorClassIdentifier: 
+  id: Citrine
   Label: "\u9EC4\u6676"
-  Description: 
+  Description: "明亮温暖的黄色晶体，可作为装饰品、贸易品或能量研究的早期媒介。"
   Sprite: {fileID: 21300000, guid: 36d5acc74cff85946879c09719f07f56, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 2

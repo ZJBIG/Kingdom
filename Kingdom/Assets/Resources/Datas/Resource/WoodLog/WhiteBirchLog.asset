@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: WhiteBirchLog
   m_EditorClassIdentifier: 
+  id: WhiteBirchLog
   Label: "\u767D\u6866"
   Description: "\u767D\u6866\u6728\uFF0C\u751F\u957F\u8FC5\u901F\uFF0C\u6613\u4E8E\u5904\u7406\u52A0\u5DE5\uFF0C\u4F18\u79C0\u7684\u7ECF\u6D4E\u6728\u6750"
   Sprite: {fileID: 21300000, guid: d671612ded416d24b816f848ea124305, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 0

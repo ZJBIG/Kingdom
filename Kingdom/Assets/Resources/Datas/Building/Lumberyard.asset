@@ -12,22 +12,77 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Lumberyard
   m_EditorClassIdentifier: 
+  id: Lumberyard
   Label: "\u4F10\u6728\u573A"
   Description: "\u4EA7\u51FA\u6728\u67F4\u7684\u5730\u65B9"
-  BuildDifficulty: 
-  SpaceOccupy: 10
-  ProductivityRequirment: 
-  ResearchRequisites: []
   TechLevel: 0
-  ProductivityRequirement: 
-  FoodConsumeRate: 
-  ResourceRequirement:
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 10
+    layer: 0
+    operators: []
+  buildEffort:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  resourceRequirements:
   - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
-    second: 200
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: 200
-  ResourceGenerateRate:
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  resourceGenerationRates:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: 10
-  ResourceConsumeRate: []
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 10
+      layer: 0
+      operators: []
+  resourceConsumptionRates: []
   DeconstructReturnPercentage: 1

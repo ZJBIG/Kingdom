@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4031370224422033176}
   - component: {fileID: 1578443422016471009}
   - component: {fileID: 734298894757864792}
+  - component: {fileID: 734298894757864793}
   m_Layer: 5
   m_Name: ResearchTransitionLine
   m_TagString: Untagged
@@ -75,3 +76,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &734298894757864793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2551330627643820085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d98a08ac6de4e34b3d6f9c1d4f0a271, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineImage: {fileID: 734298894757864792}
