@@ -168,13 +168,15 @@ public sealed class GameState
 
     internal void AdvanceFood(double deltaSeconds)
     {
+        ExpantaNum previousAmount = FoodAmount;
         FoodAmount = GameManager.AdvanceFood(
             FoodAmount,
             FoodProductionRate,
             FoodConsumptionRate + Population.Population * Population.FoodPerPerson,
             FoodCapacity,
             deltaSeconds);
-        Version++;
+        if (FoodAmount != previousAmount)
+            Version++;
     }
 
     internal void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)

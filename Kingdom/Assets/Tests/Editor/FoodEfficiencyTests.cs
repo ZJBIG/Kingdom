@@ -26,4 +26,20 @@ public sealed class FoodEfficiencyTests
             BuildingManager.CalculateEffectiveEfficiency(2, 1, 1),
             Is.EqualTo(ExpantaNum.One));
     }
+
+    [Test]
+    public void GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged()
+    {
+        GameState state = new GameState();
+        int versionBefore = state.Version;
+        var method = typeof(GameState).GetMethod(
+            "AdvanceFood",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+
+        method.Invoke(state, new object[] { 0d });
+
+        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+        Assert.That(state.Version, Is.EqualTo(versionBefore));
+    }
 }
