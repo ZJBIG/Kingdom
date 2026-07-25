@@ -18,15 +18,14 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
     [SerializeField] private GameObject sectorNodePrefab;
     [SerializeField] private TMP_Text detailText;
 
-    private readonly Dictionary<SectorDefinition, SectorState> states = new();
     private readonly Dictionary<SectorDefinition, SectorNodeView> displayers = new();
-    private readonly List<SectorDefinition> orderedDefinitions = new();
     private SectorDefinition selectedSector;
     private int selectedVersion = -1;
     private bool warnedMissingPrefab;
 
-    public IReadOnlyDictionary<SectorDefinition, SectorState> States => states;
-    public IReadOnlyList<SectorDefinition> OrderedDefinitions => orderedDefinitions;
+    private SectorManager SectorManager => GameManager.Instance.Sectors;
+    public IReadOnlyDictionary<SectorDefinition, SectorState> States => SectorManager.States;
+    public IReadOnlyList<SectorState> OrderedStates => SectorManager.OrderedStates;
     public SectorDefinition SelectedSector => selectedSector;
 
     private void OnEnable()
@@ -40,9 +39,9 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
 
     public void RefreshUI()
     {
-        for (int i = 0; i < orderedDefinitions.Count; i++)
+        for (int i = 0; i < OrderedStates.Count; i++)
         {
-            SectorDefinition definition = orderedDefinitions[i];
+            SectorDefinition definition = OrderedStates[i].Definition;
             if (displayers.TryGetValue(definition, out SectorNodeView node))
                 node.Refresh();
         }
@@ -52,7 +51,7 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
 
     public void SelectSector(SectorDefinition definition)
     {
-        if (definition == null || !states.ContainsKey(definition))
+        if (definition == null || !States.ContainsKey(definition))
             return;
 
         selectedSector = definition;
@@ -64,14 +63,14 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
     {
         if (definition == null)
             throw new ArgumentNullException(nameof(definition));
-        return states[definition];
+        return States[definition];
     }
 
     public SectorAccessStatus GetAccessStatus(SectorDefinition definition)
     {
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !States.TryGetValue(definition, out SectorState state))
             return SectorAccessStatus.Locked;
-        return GetAccessStatus(state, states);
+        return GetAccessStatus(state, States);
     }
 
     public static SectorAccessStatus GetAccessStatus(
@@ -102,21 +101,10 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
 
     private void BindDefinitions()
     {
-        IReadOnlyList<SectorDefinition> definitions = DataBase<SectorDefinition>.All;
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            SectorDefinition definition = definitions[i];
-            if (definition == null || states.ContainsKey(definition))
-                continue;
-
-            states.Add(definition, new SectorState(definition));
-            orderedDefinitions.Add(definition);
-        }
-
-        orderedDefinitions.Sort(CompareDefinitions);
+        SectorManager.InitializeDefinitions();
         CreateMissingNodes();
-        if (selectedSector == null && orderedDefinitions.Count > 0)
-            selectedSector = orderedDefinitions[0];
+        if (selectedSector == null && OrderedStates.Count > 0)
+            selectedSector = OrderedStates[0].Definition;
     }
 
     private void CreateMissingNodes()
@@ -131,9 +119,9 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
             return;
         }
 
-        for (int i = 0; i < orderedDefinitions.Count; i++)
+        for (int i = 0; i < OrderedStates.Count; i++)
         {
-            SectorDefinition definition = orderedDefinitions[i];
+            SectorDefinition definition = OrderedStates[i].Definition;
             if (displayers.ContainsKey(definition))
                 continue;
 
@@ -145,7 +133,7 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
                 continue;
             }
 
-            node.Bind(states[definition], SelectSector);
+            node.Bind(States[definition], SelectSector);
             RectTransform rect = node.transform as RectTransform;
             if (rect != null)
                 rect.anchoredPosition = new Vector2(definition.MapX, definition.MapY);
@@ -155,7 +143,7 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
 
     private void RefreshDetails()
     {
-        if (detailText == null || selectedSector == null || !states.TryGetValue(selectedSector, out SectorState state))
+        if (detailText == null || selectedSector == null || !States.TryGetValue(selectedSector, out SectorState state))
             return;
         if (selectedVersion == state.Version)
             return;
@@ -166,12 +154,10 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
             ? selectedSector.Id
             : selectedSector.Label);
         builder.AppendLine(selectedSector.Description ?? string.Empty);
-        builder.AppendLine($"状态：{GetAccessStatus(state, states)}");
+        builder.AppendLine($"状态：{GetAccessStatus(state, States)}");
         builder.AppendLine($"敌对力量：{selectedSector.EnemyPower.ToGameString()}");
         builder.AppendLine($"领土奖励：{selectedSector.TerritoryReward.ToGameString()}");
         detailText.text = builder.ToString();
     }
 
-    private static int CompareDefinitions(SectorDefinition left, SectorDefinition right) =>
-        string.Compare(left?.Id, right?.Id, StringComparison.OrdinalIgnoreCase);
 }

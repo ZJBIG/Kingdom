@@ -25,6 +25,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         _ = ResourceManager.Instance;
         _ = BuildingManager.Instance;
         _ = ResearchManager.Instance;
+        GameManager.Instance.Sectors.InitializeDefinitions();
 
         SaveManager.Instance.LoadOrCreateGame();
         SaveManager.Instance.SetReady(true);
@@ -37,6 +38,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         ValidateDefinitions<Resource>();
         ValidateDefinitions<Building>();
         ValidateDefinitions<Research>();
+        ValidateDefinitions<SectorDefinition>();
     }
 
     private static void ValidateDefinitions<T>() where T : GameDefinition

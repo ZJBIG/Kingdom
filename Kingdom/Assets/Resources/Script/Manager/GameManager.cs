@@ -19,6 +19,7 @@ public class GameManager : Singleton<GameManager>
     private const string DefaultKingdomName = "鼠托邦";
 
     public GameState State { get; private set; } = new GameState();
+    public SectorManager Sectors { get; } = new SectorManager();
 
     private double calendarElapsedSeconds;
 
@@ -30,6 +31,7 @@ public class GameManager : Singleton<GameManager>
     internal void InitializeNewGame()
     {
         State.InitializeNew(DefaultKingdomName);
+        Sectors.InitializeNew();
         ResetCalendarAccumulator();
         InitializeStartingResources();
     }

@@ -126,7 +126,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             General = GameManager.Instance.CaptureSaveData(),
             Resources = ResourceManager.Instance.CaptureSaveData(),
             Buildings = BuildingManager.Instance.CaptureSaveData(),
-            Researches = ResearchManager.Instance.CaptureSaveData()
+            Researches = ResearchManager.Instance.CaptureSaveData(),
+            Sectors = GameManager.Instance.Sectors.CaptureSaveData()
         };
     }
 
@@ -148,6 +149,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RecalculateDerivedStateFromBuildings();
         BuildingManager.Instance.RefreshEfficiencies();
         ResearchManager.Instance.RestoreSaveData(data.Researches);
+        GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
     }
 
     private bool TryLoadCandidate(string path, out KingdomSaveData data)
@@ -178,6 +180,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ResourceManager.Instance.ResetForLoad();
         BuildingManager.Instance.ResetForLoad();
         ResearchManager.Instance.ResetForLoad();
+        GameManager.Instance.Sectors.ResetForLoad();
     }
 
     private static bool TryReadPath(string path, out KingdomSaveData data)
@@ -244,6 +247,8 @@ public sealed class SaveManager : Singleton<SaveManager>
                 if (researches.TryGetValue(researchDefinitions[i], out ResearchState state))
                     Append(ref hash, state.Version);
 
+            GameManager.Instance.Sectors.AppendStateSignature(ref hash);
+
             return hash;
         }
     }
@@ -261,6 +266,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public ResourceSaveData Resources;
         public BuildingSaveData Buildings;
         public ResearchSaveData Researches;
+        public SectorSaveData Sectors;
     }
 
     [Serializable]
@@ -333,5 +339,21 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         public string ResourceId;
         public string Amount;
+    }
+
+    [Serializable]
+    public sealed class SectorSaveData
+    {
+        public List<SectorStateSaveData> States;
+    }
+
+    [Serializable]
+    public sealed class SectorStateSaveData
+    {
+        public string SectorId;
+        public bool Unlocked;
+        public bool Occupied;
+        public string CampaignProgress;
+        public int VisitCount;
     }
 }

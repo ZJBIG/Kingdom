@@ -27,10 +27,27 @@ public sealed class SectorState
         Change(ref campaignProgress, ExpantaNum.Clamp01(value));
     internal void SetVisitCount(int value) => Change(ref visitCount, Math.Max(0, value));
 
+    internal void ResetForLoad()
+    {
+        SetUnlocked(false);
+        SetOccupied(false);
+        SetCampaignProgress(ExpantaNum.Zero);
+        SetVisitCount(0);
+    }
+
+    internal void Restore(bool restoredUnlocked, bool restoredOccupied, ExpantaNum progress, int visits)
+    {
+        SetUnlocked(restoredUnlocked);
+        SetOccupied(restoredOccupied && restoredUnlocked);
+        SetCampaignProgress(progress);
+        SetVisitCount(visits);
+    }
+
 #if UNITY_EDITOR
     public void SetUnlockedForEditor(bool value) => SetUnlocked(value);
     public void SetOccupiedForEditor(bool value) => SetOccupied(value);
     public void SetCampaignProgressForEditor(ExpantaNum value) => SetCampaignProgress(value);
+    public void SetVisitCountForEditor(int value) => SetVisitCount(value);
 #endif
 
     private void Change(ref bool field, bool value)
