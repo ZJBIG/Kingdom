@@ -23,7 +23,7 @@ MonoBehaviour:
   productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   powerProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   powerConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
@@ -36,6 +36,8 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 200, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
   resourceGenerationRates:
   - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
@@ -48,3 +50,5 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.2, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.4, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.3, layer: 0, operators: []}

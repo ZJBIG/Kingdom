@@ -57,6 +57,35 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C603_IndustrialBuildingsUseWorkforceAndFlowsInsteadOfFood()
+    {
+        for (int i = 0; i < IndustrialBuildingIds.Length; i++)
+        {
+            Building building = DataBase<Building>.Find(IndustrialBuildingIds[i]);
+            Assert.That(building.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero),
+                $"Industrial building '{building.Id}' must not directly consume Food.");
+            Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(
+                building.PowerProductionRate > ExpantaNum.Zero ||
+                building.PowerConsumptionRate > ExpantaNum.Zero ||
+                building.LogisticsProductionRate > ExpantaNum.Zero ||
+                building.LogisticsConsumptionRate > ExpantaNum.Zero,
+                $"Industrial building '{building.Id}' must declare a Power or Logistics flow.");
+        }
+    }
+
+    [Test]
+    public void C603_IndustrialEraRetainsCoalCopperIronAndSteelUses()
+    {
+        var legacyIndustrialResources = new[] { "Coal", "Copper", "Iron", "Steel" };
+        for (int i = 0; i < legacyIndustrialResources.Length; i++)
+        {
+            Assert.That(CountConsumerBuildings(legacyIndustrialResources[i]), Is.GreaterThan(0),
+                $"Industrial layer lost its use for '{legacyIndustrialResources[i]}'.");
+        }
+    }
+
+    [Test]
     public void C601_IndustrializationUnlocksTheIndustrialBuildingLayer()
     {
         Research industrialization = DataBase<Research>.Find("Industrialization");

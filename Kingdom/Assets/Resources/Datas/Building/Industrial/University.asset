@@ -23,7 +23,7 @@ MonoBehaviour:
   productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   powerProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   powerConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
