@@ -9662,7 +9662,7 @@ MonoBehaviour:
   Text_KingdomName: {fileID: 1026444806}
   Text_Productivity: {fileID: 966590016}
   Text_KingdomSpace: {fileID: 2116126618}
-  Text_TopText: {fileID: 0}
+  Text_TopText: {fileID: 292959977}
 --- !u!114 &2026995241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9718,8 +9718,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92783039a598b0847940e96c30656956, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tickIntervalSeconds: 0.02
-  maximumTicksPerFrame: 1000
+  tickIntervalSeconds: 0.1
+  maximumTicksPerFrame: 20
 --- !u!114 &2026995245
 MonoBehaviour:
   m_ObjectHideFlags: 0

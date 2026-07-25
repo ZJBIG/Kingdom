@@ -25,7 +25,11 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        Application.runInBackground = true;
+        if (Application.platform == RuntimePlatform.Android ||
+            Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            Application.runInBackground = false;
+        }
     }
 
     internal void InitializeNewGame()

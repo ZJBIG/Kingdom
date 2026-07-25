@@ -3,8 +3,8 @@ using UnityEngine;
 
 public sealed class SimulationManager : Singleton<SimulationManager>
 {
-    [SerializeField] private float tickIntervalSeconds = 0.02f;
-    [SerializeField] private int maximumTicksPerFrame = 1000;
+    [SerializeField] private float tickIntervalSeconds = 0.1f;
+    [SerializeField] private int maximumTicksPerFrame = 20;
 
     private double accumulatedSeconds;
     private bool running;
