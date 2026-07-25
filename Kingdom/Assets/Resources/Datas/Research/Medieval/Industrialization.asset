@@ -26,7 +26,13 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1000, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 6e3b8a1c4d5f4790a2b7c8d9e0f12345, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
-  BuildingUnlock: []
+  BuildingUnlock:
+  - {fileID: 11400000, guid: c6100000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: c6100000000000000000000000000002, type: 2}
+  - {fileID: 11400000, guid: c6100000000000000000000000000003, type: 2}
+  - {fileID: 11400000, guid: c6100000000000000000000000000004, type: 2}
+  - {fileID: 11400000, guid: c6100000000000000000000000000005, type: 2}
+  - {fileID: 11400000, guid: c6100000000000000000000000000006, type: 2}
   TechLevel: 3
   AdvancesTechLevel: 1
   effects:

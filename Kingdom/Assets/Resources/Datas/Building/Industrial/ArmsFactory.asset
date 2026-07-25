@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: ArmsFactory
+  m_EditorClassIdentifier: 
+  id: ArmsFactory
+  Label: Arms Factory
+  Description: Converts industrial materials into modern military equipment.
+  TechLevel: 3
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.24, layer: 0, operators: []}
+  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 1800, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 22, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 18, layer: 0, operators: []}
+  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 40, layer: 0, operators: []}
+  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
+  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 180, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
+  resourceGenerationRates: []
+  resourceConsumptionRates: []
