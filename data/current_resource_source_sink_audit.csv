@@ -4,7 +4,7 @@ Citrine,,,,,False,False,True
 Clay,ClayPit,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,True,True,False
 Coal,CoalMine,BronzeFoundry; IronSmelter; TinSmelter; CopperSmelter,,SmithingRevolution; Smithing_Tin; Smithing_Iron; Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
 Copper,CopperSmelter,BronzeFoundry,,,True,True,False
-CopperOre,,CopperSmelter,,Smithing; Smithing_Copper; Smithing_Bronze,False,True,False
+CopperOre,CopperMine,,CopperSmelter,Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
 Diamond,,,,,False,False,True
 EbonyLog,,,,,False,False,True
 ElvenWoodLog,,,,,False,False,True
@@ -12,7 +12,7 @@ Emerald,,,,,False,False,True
 Gold,,,,,False,False,True
 GoldOre,,,,,False,False,True
 Iron,IronSmelter,,,,True,False,False
-IronOre,,IronSmelter,,SmithingRevolution; Smithing_Iron,False,True,False
+IronOre,IronMine,,IronSmelter,SmithingRevolution; Smithing_Iron,True,True,False
 Jade,,,,,False,False,True
 Mithril,,,,,False,False,True
 MithrilOre,,,,,False,False,True
@@ -28,7 +28,7 @@ StoneBrick_Marble,StoneCuttingWorkshop_Marble,,,Smithing,True,True,False
 StoneChunk_Marble,Quarry,StoneCuttingWorkshop_Marble,BronzeFoundry; IronSmelter; TinSmelter; CoalMine; Granary; CopperSmelter; Lumberyard,CoalMining; Measurement; NeolithicSettlement; Masonry; FoodStorage; WaterManagement; Mathematics; StoneTools; Calendar,True,True,False
 StoneTool,,,,,False,False,True
 Tin,TinSmelter,BronzeFoundry,,,True,True,False
-TinOre,,TinSmelter,,Smithing_Tin,False,True,False
+TinOre,TinMine,,TinSmelter,Smithing_Tin,True,True,False
 Titanium,,,,,False,False,True
 TitaniumOre,,,,,False,False,True
 Uranium,,,,,False,False,True

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: TinMine
+  m_EditorClassIdentifier: 
+  id: TinMine
+  Label: "\u9521\u77FF\u4E95"
+  Description: "\u5F00\u91C7\u9521\u77FF\uFF0C\u4E3A\u9752\u94DC\u548C\u5176\u4ED6\u5408\u91D1\u5DE5\u827A\u63D0\u4F9B\u539F\u6599\u3002"
+  TechLevel: 1
+  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 240, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
+  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
+  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 180, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 327ecde187504c9e8264e132274bef00, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
+  resourceGenerationRates:
+  - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.8, layer: 0, operators: []}
+  resourceConsumptionRates: []

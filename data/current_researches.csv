@@ -7,7 +7,7 @@ StoneTools,打制石器,Animal/原始,1800,False,ControlledFire,WoodLog:30; Ston
 TreeCultivate,植树,Animal/原始,1e4,False,Agriculture,,Lumberyard,True,Assets/Resources/Datas/Research/Animal/TreeCultivate.asset
 Mining,矿物开采,Animal/原始,e4,False,Quarry,,,True,Assets/Resources/Datas/Research/Animal/Mining.asset
 ForagingGroups,采集分工,Animal/原始,2400,False,StoneTools,WoodLog:40,HunterGathererCamp,True,Assets/Resources/Datas/Research/Animal/ForagingGroups.asset
-Mining_Copper,铜矿采掘,Animal/原始,5000,False,Mining,,,True,Assets/Resources/Datas/Research/Animal/Mining_Copper.asset
+Mining_Copper,铜矿采掘,Animal/原始,9000,False,Mining,,CopperMine,True,Assets/Resources/Datas/Research/Animal/Mining_Copper.asset
 StoneCutting,切石技术,Animal/原始,5000,False,Quarry,WoodLog:500,StoneCuttingWorkshop_Marble,True,Assets/Resources/Datas/Research/Animal/StoneCutting.asset
 Mathematics,数学,Animal/原始,3600,False,ForagingGroups,WoodLog:80; StoneChunk_Marble:40,,True,Assets/Resources/Datas/Research/Animal/Mathematics.asset
 Mining_Quartz,石英采掘,Animal/原始,e6,False,Mining_Copper,,,True,Assets/Resources/Datas/Research/Animal/Mining_Quartz.asset
@@ -23,6 +23,8 @@ Measurement,度量衡,Neolithic/新石器,5200,False,Mathematics,Clay:80; StoneC
 Smithing_Iron,冶炼铁,Neolithic/新石器,5000,False,Smithing,IronOre:300; Coal:420,IronSmelter,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Iron.asset
 Smithing_Copper,冶炼铜,Neolithic/新石器,5000,False,Smithing,CopperOre:240; Coal:180,CopperSmelter,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Copper.asset
 Smithing_Tin,冶炼锡,Neolithic/新石器,5000,False,Smithing,TinOre:220; Coal:160,TinSmelter,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Tin.asset
+Mining_Iron,铁矿采掘,Neolithic/新石器,12000,False,Mining; NeolithicSettlement,,IronMine,False,Assets/Resources/Datas/Research/Neolithic/Mining_Iron.asset
+Mining_Tin,锡矿采掘,Neolithic/新石器,9000,False,Mining; NeolithicSettlement,,TinMine,False,Assets/Resources/Datas/Research/Neolithic/Mining_Tin.asset
 WrittenRecords,文字记录,Neolithic/新石器,6800,False,Calendar; NeolithicSettlement,Clay:120; WoodLog:100,,False,Assets/Resources/Datas/Research/Neolithic/WrittenRecords.asset
 WaterManagement,水利管理,Neolithic/新石器,6200,False,Agriculture; Measurement,WoodLog:180; StoneChunk_Marble:120; Clay:80,Farm,False,Assets/Resources/Datas/Research/Neolithic/WaterManagement.asset
 Masonry,砌筑技术,Neolithic/新石器,7600,False,StoneCutting; Measurement,WoodLog:240; StoneChunk_Marble:260,WoodHouse,False,Assets/Resources/Datas/Research/Neolithic/Masonry.asset
