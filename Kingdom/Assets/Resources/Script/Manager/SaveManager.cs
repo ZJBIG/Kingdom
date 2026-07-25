@@ -275,6 +275,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string AssignedMilitary;
         public string GrowthProgress;
         public string FoodPerPerson;
+        public string TerritoryTotal;
         public long LastSaveUnixSeconds;
     }
 

@@ -83,7 +83,9 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
                 $"Productivity: {state.AvailableProductivity.ToGameString()}   Research Power: {researchPower}/s{foodEfficiency}");
         }
         if (Text_KingdomSpace != null)
-            SetTextIfChanged(Text_KingdomSpace, $"领土:{state.AvailableSpace.ToGameString()}");
+            SetTextIfChanged(
+                Text_KingdomSpace,
+                $"领土:{state.AvailableTerritory.ToGameString()}/{state.TerritoryTotal.ToGameString()}");
     }
 
     public void RefreshUI() => Refresh(GameManager.Instance.State);

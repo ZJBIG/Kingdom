@@ -105,7 +105,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         ExpantaNum requiredSpace = state.SpaceCost * amount;
-        if (GameManager.Instance.State.AvailableSpace < requiredSpace)
+        if (GameManager.Instance.State.AvailableTerritory < requiredSpace)
         {
             failure = BuildFailure.SpaceInsufficient;
             return false;
@@ -219,7 +219,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return ExpantaNum.Zero;
 
         if (state.SpaceCost > ExpantaNum.Zero)
-            result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableSpace / state.SpaceCost).Floor());
+                result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableTerritory / state.SpaceCost).Floor());
         if (state.ProductivityConsumption > ExpantaNum.Zero)
         {
             result = ExpantaNum.Min(

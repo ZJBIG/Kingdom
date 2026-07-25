@@ -141,20 +141,20 @@ public class GameManager : Singleton<GameManager>
             deltaSeconds));
     }
 
-    public bool CanAffordConstruction(ExpantaNum spaceCost, ExpantaNum buildEffort) =>
-        State.AvailableSpace >= spaceCost && State.AvailableProductivity >= buildEffort;
+    public bool CanAffordConstruction(ExpantaNum territoryCost, ExpantaNum buildEffort) =>
+        State.AvailableTerritory >= territoryCost && State.AvailableProductivity >= buildEffort;
 
     public void CommitConstruction(
-        ExpantaNum spaceCost,
+        ExpantaNum territoryCost,
         ExpantaNum buildEffort,
         ExpantaNum productivityGranted) =>
-        State.CommitConstruction(spaceCost, buildEffort, productivityGranted);
+        State.CommitConstruction(territoryCost, buildEffort, productivityGranted);
 
     public void RefundConstruction(
-        ExpantaNum spaceCost,
+        ExpantaNum territoryCost,
         ExpantaNum buildEffort,
         ExpantaNum productivityGranted) =>
-        State.RefundConstruction(spaceCost, buildEffort, productivityGranted);
+        State.RefundConstruction(territoryCost, buildEffort, productivityGranted);
 
     public void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
         State.AdjustFoodRates(productionDelta, consumptionDelta);
@@ -186,6 +186,7 @@ public class GameManager : Singleton<GameManager>
             AssignedMilitary = State.Population.AssignedMilitary.ToString(),
             GrowthProgress = State.Population.GrowthProgress.ToString(),
             FoodPerPerson = State.Population.FoodPerPerson.ToString(),
+            TerritoryTotal = State.TerritoryTotal.ToString(),
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
     }
@@ -210,6 +211,8 @@ public class GameManager : Singleton<GameManager>
                 Parse(data.GrowthProgress, nameof(data.GrowthProgress)),
                 Parse(data.FoodPerPerson, nameof(data.FoodPerPerson)));
         }
+        if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
+            State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
         ResetCalendarAccumulator();
     }
 

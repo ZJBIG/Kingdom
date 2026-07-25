@@ -115,7 +115,9 @@ public sealed class KingdomLogicTests
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(state.Population.Population, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
@@ -215,7 +217,9 @@ public sealed class KingdomLogicTests
 
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
-        Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
     }
 
@@ -230,6 +234,20 @@ public sealed class KingdomLogicTests
         InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.One);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(16)));
         Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(16)));
+    }
+
+    [Test]
+    public void C402_TerritoryTracksTotalUsedAndAvailableSeparately()
+    {
+        TerritoryState territory = new TerritoryState();
+
+        InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(30));
+        Assert.That(territory.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(30)));
+        Assert.That(territory.AvailableTerritory, Is.EqualTo(new ExpantaNum(70)));
+
+        InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(-10));
+        Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(20)));
     }
 
     [Test]
@@ -350,6 +368,8 @@ public sealed class KingdomLogicTests
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(10)));
         Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
         Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
+        Assert.That(GameManager.Instance.State.TerritoryTotal, Is.EqualTo(new ExpantaNum(120)));
+        Assert.That(GameManager.Instance.State.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -386,6 +406,7 @@ public sealed class KingdomLogicTests
                 AssignedMilitary = "2",
                 GrowthProgress = "0.25",
                 FoodPerPerson = "1",
+                TerritoryTotal = "120",
                 LastSaveUnixSeconds = 1
             },
             Resources = new SaveManager.ResourceSaveData
@@ -440,6 +461,15 @@ public sealed class KingdomLogicTests
     private static void InvokePopulationMethod(PopulationState state, string methodName, params object[] arguments)
     {
         MethodInfo method = typeof(PopulationState).GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
+
+    private static void InvokeTerritoryMethod(TerritoryState state, string methodName, params object[] arguments)
+    {
+        MethodInfo method = typeof(TerritoryState).GetMethod(
             methodName,
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
