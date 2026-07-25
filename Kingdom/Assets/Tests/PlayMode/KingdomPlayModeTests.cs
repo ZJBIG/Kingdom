@@ -150,6 +150,36 @@ public sealed class KingdomPlayModeTests
         Assert.That(state.Progress, Is.GreaterThan(before));
     }
 
+    [UnityTest]
+    public IEnumerator RepeatedEnableDisable_DoesNotDuplicateRefreshRegistration()
+    {
+        GameUIRefreshManager manager = Object.FindObjectOfType<GameUIRefreshManager>();
+        if (manager == null)
+        {
+            GameObject managerObject = new GameObject("PlayMode-UIRefreshManager");
+            createdObjects.Add(managerObject);
+            manager = managerObject.AddComponent<GameUIRefreshManager>();
+        }
+
+        GameObject probeObject = new GameObject("PlayMode-RefreshProbe");
+        createdObjects.Add(probeObject);
+        RefreshProbe probe = probeObject.AddComponent<RefreshProbe>();
+        yield return null;
+
+        manager.Register(probe);
+        manager.Register(probe);
+        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(1));
+
+        probe.enabled = false;
+        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(0));
+        probe.enabled = true;
+        manager.Register(probe);
+        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(1));
+
+        yield return new WaitForSecondsRealtime(0.15f);
+        Assert.That(probe.RefreshCount, Is.GreaterThan(0));
+    }
+
     private static Research FindAvailableResearch(ResearchManager researchManager)
     {
         IReadOnlyList<Research> researches = DataBase<Research>.All;
@@ -164,6 +194,26 @@ public sealed class KingdomPlayModeTests
 
         Assert.Fail("No unfinished research without prerequisites is available for the PlayMode test.");
         return null;
+    }
+
+    private sealed class RefreshProbe : MonoBehaviour, IGameUIRefreshable
+    {
+        public int RefreshCount { get; private set; }
+
+        private void OnEnable()
+        {
+            GameUIRefreshManager.Instance?.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            GameUIRefreshManager.Instance?.Unregister(this);
+        }
+
+        public void RefreshUI()
+        {
+            RefreshCount++;
+        }
     }
 
     private T FindOrCreateManager<T>(string name) where T : Component
