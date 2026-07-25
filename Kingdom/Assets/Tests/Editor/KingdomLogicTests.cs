@@ -484,6 +484,15 @@ public sealed class KingdomLogicTests
         method.Invoke(state, arguments);
     }
 
+    private static void InvokeMilitaryMethod(MilitaryState state, string methodName, params object[] arguments)
+    {
+        MethodInfo method = typeof(MilitaryState).GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
+
     private static void InvokeTerritoryMethod(TerritoryState state, string methodName, params object[] arguments)
     {
         MethodInfo method = typeof(TerritoryState).GetMethod(
@@ -545,6 +554,38 @@ public sealed class KingdomLogicTests
         Assert.That(
             ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Medieval),
             Is.EqualTo(1d / 2.5d).Within(1e-12));
+    }
+
+    [Test]
+    public void CampaignProgress_UsesDeterministicRatioBandsAndSoftcap()
+    {
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(0.69d)), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(0.85d)).ToDouble(), Is.EqualTo(0.125d).Within(0.000001d));
+        Assert.That(CampaignManager.CalculateProgressRate(ExpantaNum.One).ToDouble(), Is.EqualTo(0.25d).Within(0.000001d));
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(2d)), Is.EqualTo(ExpantaNum.One));
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(100d)) < new ExpantaNum(2d), Is.True);
+    }
+
+    [Test]
+    public void CampaignProgress_ClampsAndRejectsNegativeElapsedTime()
+    {
+        Assert.That(
+            CampaignManager.AdvanceProgress(new ExpantaNum(0.99d), new ExpantaNum(2d), 60d),
+            Is.EqualTo(ExpantaNum.One));
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => CampaignManager.AdvanceProgress(ExpantaNum.Zero, ExpantaNum.One, -0.1d));
+    }
+
+    [Test]
+    public void MilitaryState_ClampsSupplyAndNonNegativePower()
+    {
+        var military = new MilitaryState();
+        InvokeMilitaryMethod(military, "AdjustAttackPower", new ExpantaNum(10));
+        InvokeMilitaryMethod(military, "AdjustAttackPower", new ExpantaNum(-25));
+        InvokeMilitaryMethod(military, "SetSupplySatisfaction", new ExpantaNum(2));
+
+        Assert.That(military.AttackPower, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(military.SupplySatisfaction, Is.EqualTo(ExpantaNum.One));
     }
 
     [Test]

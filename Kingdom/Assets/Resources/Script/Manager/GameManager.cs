@@ -199,6 +199,14 @@ public class GameManager : Singleton<GameManager>
 
     public void AdjustFleetPower(ExpantaNum delta) => State.AdjustFleetPower(delta);
 
+    public void AdjustAttackPower(ExpantaNum delta) => State.AdjustAttackPower(delta);
+
+    public void AdjustDefensePower(ExpantaNum delta) => State.AdjustDefensePower(delta);
+
+    public void AdjustMilitaryManpower(ExpantaNum delta) => State.AdjustMilitaryManpower(delta);
+
+    public void SetSupplySatisfaction(ExpantaNum value) => State.SetSupplySatisfaction(value);
+
     public void AdjustPopulationCapacity(ExpantaNum capacityDelta) =>
         State.AdjustPopulationCapacity(capacityDelta);
 
