@@ -10,31 +10,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
-  m_Name: Quarry
+  m_Name: Farm
   m_EditorClassIdentifier: 
-  id: Quarry
-  Label: "\u91C7\u77F3\u573A"
-  Description: "从岩层中持续采集石材，为石器、石墙、道路和早期大型建筑提供稳定供给。"
+  id: Farm
+  Label: "\u519C\u573A"
+  Description: "通过耕作土地稳定生产食物，让聚落从依赖采集逐步走向定居与持续增长。"
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.14, layer: 0, operators: []}
   autoBuildWorkRequired:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 200
+    scalar: 5
     layer: 0
     operators: []
   spaceCost:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 10
+    scalar: 4
     layer: 0
     operators: []
-  buildEffort:
+  productivityConsumption:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 20
+    scalar: 3
     layer: 0
     operators: []
   productivityGranted:
@@ -46,16 +47,16 @@ MonoBehaviour:
     operators: []
   foodProductionRate:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
-    scalar: 0
+    scalar: 8
     layer: 0
     operators: []
   foodConsumptionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 10
+    scalar: 0
     layer: 0
     operators: []
   resourceRequirements:
@@ -64,17 +65,8 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 200
+      scalar: 50
       layer: 0
       operators: []
-  resourceGenerationRates:
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1
-      layer: 0
-      operators: []
+  resourceGenerationRates: []
   resourceConsumptionRates: []
-  DeconstructReturnPercentage: 1

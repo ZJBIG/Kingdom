@@ -16,20 +16,20 @@ MonoBehaviour:
   Label: "煤矿"
   Description: "从煤层中持续开采燃料，为冶炼炉提供稳定热源。"
   TechLevel: 1
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.14, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 240, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  buildEffort: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
   productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 220, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 150, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 140, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
   resourceGenerationRates:
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.5, layer: 0, operators: []}
   resourceConsumptionRates: []
-  DeconstructReturnPercentage: 0.5

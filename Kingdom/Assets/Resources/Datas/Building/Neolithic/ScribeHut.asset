@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "Scribe Hut"
   Description: "A workshop where scribes preserve knowledge and accelerate research."
   TechLevel: 1
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.2, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
   spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
   productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}

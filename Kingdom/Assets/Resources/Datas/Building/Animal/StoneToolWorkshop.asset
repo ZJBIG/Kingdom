@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "\u77F3\u5668\u5DE5\u574A"
   Description: "\u6253\u78E8\u548C\u88C5\u67C4\u77F3\u5668\uFF0C\u63D0\u9AD8\u65E9\u671F\u91C7\u96C6\u3001\u72E9\u730E\u548C\u5EFA\u9020\u6548\u7387\u3002"
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.16, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
   spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
   productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}

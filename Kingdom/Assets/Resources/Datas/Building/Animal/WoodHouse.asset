@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
-  m_Name: Farm
+  m_Name: WoodHouse
   m_EditorClassIdentifier: 
-  id: Farm
-  Label: "\u519C\u573A"
-  Description: "通过耕作土地稳定生产食物，让聚落从依赖采集逐步走向定居与持续增长。"
+  id: WoodHouse
+  Label: "\u6728\u5C4B"
+  Description: "\u4E00\u95F4\u5C0F\u6728\u5C4B,\u80FD\u5BB9\u7EB3\u4E00\u4F4D\u4F4F\u6C11"
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.18, layer: 0, operators: []}
   autoBuildWorkRequired:
     sign: 0
     representation: 1
@@ -27,33 +28,33 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 2
+    scalar: 3
     layer: 0
     operators: []
-  buildEffort:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 2
-    layer: 0
-    operators: []
-  productivityGranted:
+  productivityConsumption:
     sign: 0
     representation: 0
     operatorCount: 0
     scalar: 0
     layer: 0
     operators: []
-  foodProductionRate:
+  productivityGranted:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 5
     layer: 0
     operators: []
-  foodConsumptionRate:
+  foodProductionRate:
     sign: 0
     representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 1
     operatorCount: 0
     scalar: 0
     layer: 0
@@ -64,9 +65,8 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 15
+      scalar: 80
       layer: 0
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates: []
-  DeconstructReturnPercentage: 0.5

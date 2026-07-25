@@ -16,12 +16,13 @@ MonoBehaviour:
   Label: "Weaving Workshop"
   Description: "Weaves plant fiber into cloth for storage, housing, and early tools."
   TechLevel: 1
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.16, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 70, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
-  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 6, layer: 0, operators: []}
+  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
+  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
   productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 99fb240680f34c6596b44ecd3abade40, type: 2}

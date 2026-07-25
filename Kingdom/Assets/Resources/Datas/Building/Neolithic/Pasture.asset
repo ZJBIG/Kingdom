@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "Pasture"
   Description: "Raises livestock and provides a stable food source for settlements."
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.15, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
   spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
   productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
@@ -25,6 +26,6 @@ MonoBehaviour:
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
   resourceGenerationRates: []
   resourceConsumptionRates: []

@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "\u5207\u77F3\u5DE5\u574A"
   Description: "将粗糙石料加工成规整石材，提升建筑质量并为更复杂的工程技术奠定基础。"
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.15, layer: 0, operators: []}
   autoBuildWorkRequired:
     sign: 0
     representation: 1
@@ -27,14 +28,14 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 10
+    scalar: 5
     layer: 0
     operators: []
-  buildEffort:
+  productivityConsumption:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 20
+    scalar: 5
     layer: 0
     operators: []
   productivityGranted:
@@ -55,7 +56,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 10
+    scalar: 2
     layer: 0
     operators: []
   resourceRequirements:
@@ -64,11 +65,19 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 200
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
       layer: 0
       operators: []
   resourceGenerationRates:
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
     second:
       sign: 0
       representation: 1
@@ -76,5 +85,12 @@ MonoBehaviour:
       scalar: 1
       layer: 0
       operators: []
-  resourceConsumptionRates: []
-  DeconstructReturnPercentage: 1
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2
+      layer: 0
+      operators: []

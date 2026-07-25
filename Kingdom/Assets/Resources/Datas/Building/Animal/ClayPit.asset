@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "\u9ECF\u571F\u5751"
   Description: "\u4ECE\u6CB3\u5CB8\u548C\u6E56\u5CB8\u91C7\u96C6\u9ECF\u571F\uFF0C\u4E3A\u9676\u5668\u548C\u5EFA\u7B51\u63D0\u4F9B\u539F\u6599\u3002"
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.14, layer: 0, operators: []}
   autoBuildWorkRequired:
     sign: 0
     representation: 1

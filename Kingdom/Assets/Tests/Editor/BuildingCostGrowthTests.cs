@@ -44,18 +44,18 @@ public sealed class BuildingCostGrowthTests
         Building farm = DataBase<Building>.Find("Farm");
         resourceManager.AddAmount(wood, new ExpantaNum(1000));
 
-        Assert.That(farm.CostGrowth, Is.EqualTo(new ExpantaNum(1.15d)));
+        Assert.That(farm.CostGrowth, Is.EqualTo(new ExpantaNum(1.14d)));
         Assert.That(buildingManager.TryBuild(farm, ExpantaNum.One, out BuildFailure firstFailure), Is.True);
         Assert.That(firstFailure, Is.EqualTo(BuildFailure.None));
         Assert.That(
             buildingManager.TryBuild(farm, ExpantaNum.One, out BuildFailure secondFailure),
             Is.True);
         Assert.That(secondFailure, Is.EqualTo(BuildFailure.None));
-        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(967.75d).Within(0.000001d));
+        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(893d).Within(0.000001d));
 
         Assert.That(buildingManager.TryDeconstruct(farm, ExpantaNum.One, out BuildFailure deconstructFailure), Is.True);
         Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
-        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(971.2d).Within(0.000001d));
+        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(904.4d).Within(0.000001d));
     }
 
     private T CreateManager<T>(string name) where T : Component

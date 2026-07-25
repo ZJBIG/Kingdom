@@ -16,6 +16,7 @@ MonoBehaviour:
   Label: "Knowledge Circle"
   Description: "A communal place for recording observations and sharing ideas."
   TechLevel: 0
+  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.2, layer: 0, operators: []}
   autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
   spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
   productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
