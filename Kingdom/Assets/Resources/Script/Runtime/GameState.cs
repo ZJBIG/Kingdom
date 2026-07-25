@@ -25,13 +25,13 @@ public sealed class GameState
         CalendarDays = 0;
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = TechLevel.Animal;
-        FoodAmount = new ExpantaNum(10000);
-        FoodCapacity = new ExpantaNum(10000);
+        FoodAmount = new ExpantaNum(300);
+        FoodCapacity = new ExpantaNum(500);
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
-        AvailableSpace = new ExpantaNum(100000);
-        AvailableProductivity = new ExpantaNum(100);
+        AvailableSpace = new ExpantaNum(100);
+        AvailableProductivity = new ExpantaNum(15);
         LastSaveUnixSeconds = 0;
         Version++;
     }
@@ -58,7 +58,7 @@ public sealed class GameState
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
-        FoodCapacity = new ExpantaNum(10000);
+        FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
         AvailableSpace = ExpantaNum.Max(ExpantaNum.Zero, availableSpace);
         AvailableProductivity = ExpantaNum.Max(ExpantaNum.Zero, availableProductivity);
         Version++;

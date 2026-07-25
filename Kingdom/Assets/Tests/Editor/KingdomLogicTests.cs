@@ -111,11 +111,12 @@ public sealed class KingdomLogicTests
         Assert.That(state.CalendarDays, Is.EqualTo(0));
         Assert.That(state.KingdomName, Is.EqualTo("鼠托邦"));
         Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Animal));
-        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
+        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+        Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100000)));
-        Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(2));
     }
 
@@ -181,12 +182,37 @@ public sealed class KingdomLogicTests
         gameManager.Tick(9.9d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(0));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(10024.5)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(324.5)));
 
         gameManager.Tick(0.1d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(10025)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(325)));
+
+    }
+
+    [Test]
+    public void C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood()
+    {
+        var state = new GameState();
+        InvokeGameStateMethod(
+            state,
+            "RestoreCore",
+            3,
+            "Legacy",
+            TechLevel.Animal,
+            new ExpantaNum(10000),
+            1L);
+        InvokeGameStateMethod(
+            state,
+            "ResetDerivedEconomy",
+            new ExpantaNum(100),
+            new ExpantaNum(15));
+
+        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
+        Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
+        Assert.That(state.AvailableSpace, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.AvailableProductivity, Is.EqualTo(new ExpantaNum(15)));
     }
 
     [Test]
@@ -376,6 +402,15 @@ public sealed class KingdomLogicTests
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
         method.Invoke(saveManager, new object[] { data });
+    }
+
+    private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
+    {
+        MethodInfo method = typeof(GameState).GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
     }
 
     [Test]

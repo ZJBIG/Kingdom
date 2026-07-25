@@ -165,7 +165,7 @@ public class GameManager : Singleton<GameManager>
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 
     internal void ResetDerivedEconomy() =>
-        State.ResetDerivedEconomy(new ExpantaNum(100000), new ExpantaNum(100));
+        State.ResetDerivedEconomy(new ExpantaNum(100), new ExpantaNum(15));
 
     internal SaveManager.GameSaveData CaptureSaveData()
     {
