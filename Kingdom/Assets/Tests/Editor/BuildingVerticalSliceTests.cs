@@ -62,6 +62,19 @@ public sealed class BuildingVerticalSliceTests
     }
 
     [Test]
+    public void C501_MedievalResourceLayerContainsSteelAndMetalTools()
+    {
+        Resource steel = DataBase<Resource>.Find("Steel");
+        Resource metalTool = DataBase<Resource>.Find("MetalTool");
+
+        Assert.That(steel, Is.Not.Null);
+        Assert.That(metalTool, Is.Not.Null);
+        Assert.That(steel.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
+        Assert.That(metalTool.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
+        Assert.That(metalTool.Label, Is.EqualTo("金属工具"));
+    }
+
+    [Test]
     public void KeyBuildings_MatchTheProductionAndEraPlan()
     {
         Building farm = DataBase<Building>.Find("Farm");
