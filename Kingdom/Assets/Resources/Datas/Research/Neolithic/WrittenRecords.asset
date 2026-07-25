@@ -24,6 +24,10 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
   BuildingUnlock: []
   TechLevel: 1
   AdvancesTechLevel: 0

@@ -23,7 +23,8 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
-  BuildingUnlock: []
+  BuildingUnlock:
+  - {fileID: 11400000, guid: eeb1d81ceff9430b90f269df32643bd1, type: 2}
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 2

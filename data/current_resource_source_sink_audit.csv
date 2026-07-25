@@ -2,6 +2,8 @@
 Bronze,BronzeFoundry,,,,True,False,False
 Citrine,,,,,False,False,True
 Clay,ClayPit,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,True,True,False
+Cloth,WeavingWorkshop,,,NeolithicSettlement; WrittenRecords,True,True,False
+Pottery,PotteryKiln,,Granary,NeolithicSettlement; WrittenRecords,True,True,False
 Coal,CoalMine,BronzeFoundry; IronSmelter; TinSmelter; CopperSmelter,,SmithingRevolution; Smithing_Tin; Smithing_Iron; Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
 Copper,CopperSmelter,BronzeFoundry,,,True,True,False
 CopperOre,CopperMine,,CopperSmelter,Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
@@ -26,7 +28,7 @@ SilverOre,,,,,False,False,True
 Steel,,,,,False,False,True
 StoneBrick_Marble,StoneCuttingWorkshop_Marble,,,Smithing,True,True,False
 StoneChunk_Marble,Quarry,StoneCuttingWorkshop_Marble,BronzeFoundry; IronSmelter; TinSmelter; CoalMine; Granary; CopperSmelter; Lumberyard,CoalMining; Measurement; NeolithicSettlement; Masonry; FoodStorage; WaterManagement; Mathematics; StoneTools; Calendar,True,True,False
-StoneTool,,,,,False,False,True
+StoneTool,StoneToolWorkshop,,CopperMine; TinMine; IronMine,,True,True,False
 Tin,TinSmelter,BronzeFoundry,,,True,True,False
 TinOre,TinMine,,TinSmelter,Smithing_Tin,True,True,False
 Titanium,,,,,False,False,True

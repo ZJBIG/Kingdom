@@ -3,7 +3,7 @@ ControlledFire,控制火种,Animal/原始,1200,False,,WoodLog:20,,True,Assets/Re
 AnimalHusbandry,动物驯养,Animal/原始,3200,False,,WoodLog:80,Pasture,True,Assets/Resources/Datas/Research/Animal/AnimalHusbandry.asset
 Agriculture,农业,Animal/原始,5000,False,,,"Farm; FiberGatheringCamp",True,Assets/Resources/Datas/Research/Animal/Agriculture.asset
 Quarry,采石场,Animal/原始,1000,False,,WoodLog:500,Quarry,True,Assets/Resources/Datas/Research/Animal/Quarry.asset
-StoneTools,打制石器,Animal/原始,1800,False,ControlledFire,WoodLog:30; StoneChunk_Marble:20,,True,Assets/Resources/Datas/Research/Animal/StoneTools.asset
+StoneTools,打制石器,Animal/原始,1800,False,ControlledFire,WoodLog:30; StoneChunk_Marble:20,StoneToolWorkshop,True,Assets/Resources/Datas/Research/Animal/StoneTools.asset
 TreeCultivate,植树,Animal/原始,1e4,False,Agriculture,,Lumberyard,True,Assets/Resources/Datas/Research/Animal/TreeCultivate.asset
 Mining,矿物开采,Animal/原始,e4,False,Quarry,,,True,Assets/Resources/Datas/Research/Animal/Mining.asset
 ForagingGroups,采集分工,Animal/原始,2400,False,StoneTools,WoodLog:40,HunterGathererCamp,True,Assets/Resources/Datas/Research/Animal/ForagingGroups.asset
@@ -16,7 +16,7 @@ ClayExtraction,黏土采集,Animal/原始,240,False,ControlledFire,WoodLog:40,Cl
 Pottery,陶器制作,Neolithic/新石器,3600,False,StoneTools,Clay:50,PotteryKiln,False,Assets/Resources/Datas/Research/Neolithic/Pottery.asset
 TextileCraft,纺织工艺,Neolithic/新石器,3400,False,Agriculture,PlantFiber:50,WeavingWorkshop,False,Assets/Resources/Datas/Research/Neolithic/TextileCraft.asset
 CoalMining,煤炭开采,Neolithic/新石器,7200,False,Mining,WoodLog:220; StoneChunk_Marble:140,CoalMine,False,Assets/Resources/Datas/Research/Neolithic/CoalMining.asset
-NeolithicSettlement,定居聚落,Neolithic/新石器,7000,True,AnimalHusbandry; Pottery; TextileCraft,WoodLog:250; StoneChunk_Marble:150; Clay:100,,False,Assets/Resources/Datas/Research/Neolithic/NeolithicSettlement.asset
+NeolithicSettlement,定居聚落,Neolithic/新石器,7000,True,AnimalHusbandry; Pottery; TextileCraft,WoodLog:250; StoneChunk_Marble:150; Clay:100; Pottery:100; Cloth:50,,False,Assets/Resources/Datas/Research/Neolithic/NeolithicSettlement.asset
 Smithing,冶炼金属,Neolithic/新石器,5000,False,StoneCutting; CoalMining,CopperOre:200; StoneBrick_Marble:1000; Coal:300,,False,Assets/Resources/Datas/Research/Neolithic/Smithing.asset
 FoodStorage,食物储藏,Neolithic/新石器,4200,False,NeolithicSettlement,WoodLog:300; StoneChunk_Marble:200,Granary,False,Assets/Resources/Datas/Research/Neolithic/FoodStorage.asset
 Measurement,度量衡,Neolithic/新石器,5200,False,Mathematics,Clay:80; StoneChunk_Marble:60,,False,Assets/Resources/Datas/Research/Neolithic/Measurement.asset
@@ -25,7 +25,7 @@ Smithing_Copper,冶炼铜,Neolithic/新石器,5000,False,Smithing,CopperOre:240;
 Smithing_Tin,冶炼锡,Neolithic/新石器,5000,False,Smithing,TinOre:220; Coal:160,TinSmelter,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Tin.asset
 Mining_Iron,铁矿采掘,Neolithic/新石器,12000,False,Mining; NeolithicSettlement,,IronMine,False,Assets/Resources/Datas/Research/Neolithic/Mining_Iron.asset
 Mining_Tin,锡矿采掘,Neolithic/新石器,9000,False,Mining; NeolithicSettlement,,TinMine,False,Assets/Resources/Datas/Research/Neolithic/Mining_Tin.asset
-WrittenRecords,文字记录,Neolithic/新石器,6800,False,Calendar; NeolithicSettlement,Clay:120; WoodLog:100,,False,Assets/Resources/Datas/Research/Neolithic/WrittenRecords.asset
+WrittenRecords,文字记录,Neolithic/新石器,6800,False,Calendar; NeolithicSettlement,Clay:120; WoodLog:100; Pottery:20; Cloth:10,,False,Assets/Resources/Datas/Research/Neolithic/WrittenRecords.asset
 WaterManagement,水利管理,Neolithic/新石器,6200,False,Agriculture; Measurement,WoodLog:180; StoneChunk_Marble:120; Clay:80,Farm,False,Assets/Resources/Datas/Research/Neolithic/WaterManagement.asset
 Masonry,砌筑技术,Neolithic/新石器,7600,False,StoneCutting; Measurement,WoodLog:240; StoneChunk_Marble:260,WoodHouse,False,Assets/Resources/Datas/Research/Neolithic/Masonry.asset
 Smithing_Bronze,冶炼青铜,Neolithic/新石器,5000,False,Smithing_Copper; Smithing_Tin,CopperOre:180; Coal:300,BronzeFoundry,False,Assets/Resources/Datas/Research/Neolithic/Smithing_Bronze.asset

@@ -2,6 +2,7 @@
 EbonyLog,乌木,光滑细腻，清香醒神，防腐耐用，是制作实用家具的好材料,0,Assets/Resources/Datas/Resource/WoodLog/EbonyLog.asset,68a4f84c7474d3a42b5cb62a91d07643
 ElvenWoodLog,精灵木,美丽、舒适、清洁、颜色稀有。外观飘然若仙，是美丽的装饰材料,0,Assets/Resources/Datas/Resource/WoodLog/ElvenWoodLog.asset,c890f09e287d24442994128bfef57f2e
 PlantFiber,植物纤维,从茎秆与树皮中抽取的纤维，可编织成绳索、布料和早期农具。,0,Assets/Resources/Datas/Resource/PlantFiber.asset,99fb240680f34c6596b44ecd3abade40
+Cloth,布料,由植物纤维纺织而成，可用于住房、军需和更复杂的工艺。,2,Assets/Resources/Datas/Resource/Cloth.asset,fb6918034a7f45948e025ac1f8457c14
 RoseWoodLog,紫檀,紫檀，又称玫瑰木，充满禅意的木材,0,Assets/Resources/Datas/Resource/WoodLog/RoseWoodLog.asset,2a42c91e8da2c5944879764d6dc008d2
 ScentedWoodLog,花梨,花梨，又称降香木，可入药。贵重木材，是制作高档家具的好材料，床具尤其优秀,0,Assets/Resources/Datas/Resource/WoodLog/ScentedWoodLog.asset,6aab72b0986d6e0469d06e9888148580
 WhiteBirchLog,白桦,白桦木，生长迅速，易于处理加工，优秀的经济木材,0,Assets/Resources/Datas/Resource/WoodLog/WhiteBirchLog.asset,4cfca02efb443164d97b85eafdf816ad
@@ -24,6 +25,7 @@ Sapphire,蓝宝石,深蓝色的珍贵宝石，常被视作理性、秩序与高�
 StoneBrick_Marble,大理石石砖,切制平整的石砖，能让建筑从临时遮蔽走向庄严、耐久与秩序。,2,Assets/Resources/Datas/Resource/Stone/StoneBrick.asset,1cb24afc717993a4eac10f33d2a219af
 StoneChunk_Marble,石块,开采出的粗重石块，需要切制后才能用于更精美的建筑工程。,2,Assets/Resources/Datas/Resource/Stone/StoneChunk.asset,08c50d67b71459740b828057df0c2a7f
 StoneTool,石制工具,经过打磨和装柄的石器，显著提升采集、狩猎和早期建造的效率。,2,Assets/Resources/Datas/Resource/StoneTool.asset,327ecde187504c9e8264e132274bef00
+Pottery,陶器,经过烧制的耐用器物，用于食物储存、建筑和早期文字记录。,2,Assets/Resources/Datas/Resource/Pottery.asset,8c9b1bf6c75b4392ad971ea448e6572f
 Uranium,铀,蕴含巨大能量的危险矿物，只有高度发达的科技体系才能安全利用。,2,Assets/Resources/Datas/Resource/Mineral/Uranium.asset,874632fa8a29f8542b4694364931eabf
 Bronze,青铜锭,铜与锡合铸成的早期金属锭，足以让部落从石器工具迈向更坚固的器械。,3,Assets/Resources/Datas/Resource/Ingot/Bronze.asset,73fee56e899d16340a4dc584fe5ba535
 Copper,铜锭,经过冶炼的铜，可用于制作工具、容器和青铜合金。,3,Assets/Resources/Datas/Resource/Ingot/Copper.asset,6c7525e7e8c54fa3bb12d1f56d7e4a01
