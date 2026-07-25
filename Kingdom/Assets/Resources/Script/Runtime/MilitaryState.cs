@@ -52,6 +52,21 @@ public sealed class MilitaryState
         Version++;
     }
 
+    internal void Restore(
+        ExpantaNum restoredAttackPower,
+        ExpantaNum restoredDefensePower,
+        ExpantaNum restoredFleetPower,
+        ExpantaNum restoredMilitaryManpower,
+        ExpantaNum restoredSupplySatisfaction)
+    {
+        attackPower = ExpantaNum.Max(ExpantaNum.Zero, restoredAttackPower);
+        defensePower = ExpantaNum.Max(ExpantaNum.Zero, restoredDefensePower);
+        fleetPower = ExpantaNum.Max(ExpantaNum.Zero, restoredFleetPower);
+        militaryManpower = ExpantaNum.Max(ExpantaNum.Zero, restoredMilitaryManpower);
+        supplySatisfaction = ExpantaNum.Clamp01(restoredSupplySatisfaction);
+        Version++;
+    }
+
     private bool AdjustNonNegative(ref ExpantaNum field, ExpantaNum delta)
     {
         ExpantaNum next = ExpantaNum.Max(ExpantaNum.Zero, field + delta);

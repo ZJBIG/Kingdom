@@ -232,6 +232,13 @@ public class GameManager : Singleton<GameManager>
             GrowthProgress = State.Population.GrowthProgress.ToString(),
             FoodPerPerson = State.Population.FoodPerPerson.ToString(),
             TerritoryTotal = State.TerritoryTotal.ToString(),
+            AttackPower = State.AttackPower.ToString(),
+            DefensePower = State.DefensePower.ToString(),
+            FleetPower = State.FleetPower.ToString(),
+            MilitaryManpower = State.MilitaryManpower.ToString(),
+            SupplySatisfaction = State.SupplySatisfaction.ToString(),
+            PowerSatisfaction = State.PowerSatisfaction.ToString(),
+            LogisticsSatisfaction = State.LogisticsSatisfaction.ToString(),
             CampaignActive = State.Campaign.Active,
             CampaignTargetSectorId = State.Campaign.TargetSectorId,
             CampaignCasualties = State.Campaign.Casualties.ToString(),
@@ -271,6 +278,21 @@ public class GameManager : Singleton<GameManager>
                 ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
         }
         ResetCalendarAccumulator();
+    }
+
+    internal void RestoreMilitarySaveData(SaveManager.GameSaveData data)
+    {
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
+
+        State.RestoreMilitary(
+            ParseOptional(data.AttackPower, State.AttackPower, nameof(data.AttackPower)),
+            ParseOptional(data.DefensePower, State.DefensePower, nameof(data.DefensePower)),
+            ParseOptional(data.FleetPower, State.FleetPower, nameof(data.FleetPower)),
+            ParseOptional(data.MilitaryManpower, State.MilitaryManpower, nameof(data.MilitaryManpower)),
+            ParseOptional(data.SupplySatisfaction, State.SupplySatisfaction, nameof(data.SupplySatisfaction)),
+            ParseOptional(data.PowerSatisfaction, State.PowerSatisfaction, nameof(data.PowerSatisfaction)),
+            ParseOptional(data.LogisticsSatisfaction, State.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction)));
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);

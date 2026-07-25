@@ -148,6 +148,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RestoreSaveData(data.Buildings);
         BuildingManager.Instance.RecalculateDerivedStateFromBuildings();
         BuildingManager.Instance.RefreshEfficiencies();
+        GameManager.Instance.RestoreMilitarySaveData(data.General);
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
     }
@@ -282,6 +283,13 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string GrowthProgress;
         public string FoodPerPerson;
         public string TerritoryTotal;
+        public string AttackPower;
+        public string DefensePower;
+        public string FleetPower;
+        public string MilitaryManpower;
+        public string SupplySatisfaction;
+        public string PowerSatisfaction;
+        public string LogisticsSatisfaction;
         public bool CampaignActive;
         public string CampaignTargetSectorId;
         public string CampaignCasualties;

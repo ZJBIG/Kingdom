@@ -237,6 +237,45 @@ public sealed class SectorManagerTests
         }
     }
 
+    [Test]
+    public void C807_GameSaveDataRoundTripsMilitaryRuntimeState()
+    {
+        GameObject gameObject = new GameObject("C807-GameManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            gameManager.AdjustAttackPower(new ExpantaNum(11));
+            gameManager.AdjustDefensePower(new ExpantaNum(13));
+            gameManager.AdjustFleetPower(new ExpantaNum(17));
+            gameManager.AdjustMilitaryManpower(new ExpantaNum(19));
+            gameManager.SetSupplySatisfaction(new ExpantaNum(0.75d));
+            InvokeGameStateMethod(gameManager.State, "SetPowerSatisfaction", new ExpantaNum(0.5d));
+            InvokeGameStateMethod(gameManager.State, "SetLogisticsSatisfaction", new ExpantaNum(0.25d));
+
+            SaveManager.GameSaveData saved = (SaveManager.GameSaveData)InvokeGameManagerMethod(
+                gameManager,
+                "CaptureSaveData");
+            InvokeGameManagerMethod(gameManager, "ResetDerivedEconomy");
+            InvokeGameManagerMethod(gameManager, "RestoreMilitarySaveData", saved);
+
+            Assert.That(saved.AttackPower, Is.EqualTo("11"));
+            Assert.That(saved.DefensePower, Is.EqualTo("13"));
+            Assert.That(saved.FleetPower, Is.EqualTo("17"));
+            Assert.That(saved.MilitaryManpower, Is.EqualTo("19"));
+            Assert.That(gameManager.State.AttackPower, Is.EqualTo(new ExpantaNum(11)));
+            Assert.That(gameManager.State.DefensePower, Is.EqualTo(new ExpantaNum(13)));
+            Assert.That(gameManager.State.FleetPower, Is.EqualTo(new ExpantaNum(17)));
+            Assert.That(gameManager.State.MilitaryManpower, Is.EqualTo(new ExpantaNum(19)));
+            Assert.That(gameManager.State.SupplySatisfaction, Is.EqualTo(new ExpantaNum(0.75d)));
+            Assert.That(gameManager.State.PowerSatisfaction, Is.EqualTo(new ExpantaNum(0.5d)));
+            Assert.That(gameManager.State.LogisticsSatisfaction, Is.EqualTo(new ExpantaNum(0.25d)));
+        }
+        finally
+        {
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         var method = typeof(GameState).GetMethod(
@@ -244,6 +283,17 @@ public sealed class SectorManagerTests
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
         method.Invoke(state, arguments);
+    }
+
+    private static object InvokeGameManagerMethod(GameManager manager, string methodName, params object[] arguments)
+    {
+        var method = typeof(GameManager).GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        return method.Invoke(manager, arguments);
     }
 
     private static void InvokeCampaignMethod(CampaignState state, string methodName, params object[] arguments)

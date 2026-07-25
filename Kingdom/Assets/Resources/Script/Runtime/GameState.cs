@@ -267,6 +267,26 @@ public sealed class GameState
         Version++;
     }
 
+    internal void RestoreMilitary(
+        ExpantaNum attackPower,
+        ExpantaNum defensePower,
+        ExpantaNum fleetPower,
+        ExpantaNum militaryManpower,
+        ExpantaNum supplySatisfaction,
+        ExpantaNum powerSatisfaction,
+        ExpantaNum logisticsSatisfaction)
+    {
+        Military.Restore(
+            attackPower,
+            defensePower,
+            fleetPower,
+            militaryManpower,
+            supplySatisfaction);
+        PowerSatisfaction = ExpantaNum.Clamp01(powerSatisfaction);
+        LogisticsSatisfaction = ExpantaNum.Clamp01(logisticsSatisfaction);
+        Version++;
+    }
+
     internal void AdjustPopulationCapacity(ExpantaNum capacityDelta)
     {
         Population.AdjustPopulationCapacity(capacityDelta);
