@@ -4,13 +4,13 @@ using UnityEngine;
 
 public enum TechLevel
 {
-    [Description("原始时代")] Primitive,
+    [Description("原始时代")] Animal,
+    [Description("新石器时代")] Neolithic,
     [Description("中世纪")] Medieval,
     [Description("工业时代")] Industrial,
     [Description("太空时代")] Spacer,
     [Description("极致时代")] Ultra,
-    [Description("远古科技时代")] Archotech,
-    [Description("超凡时代")] Ascend
+    [Description("远古科技时代")] Archotech
 }
 
 public class GameManager : Singleton<GameManager>
@@ -90,13 +90,23 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum productionRate,
         ExpantaNum consumptionRate,
         double deltaSeconds)
+        => AdvanceFood(current, productionRate, consumptionRate, ExpantaNum.Max(current, new ExpantaNum("1e1000000")), deltaSeconds);
+
+    public static ExpantaNum AdvanceFood(
+        ExpantaNum current,
+        ExpantaNum productionRate,
+        ExpantaNum consumptionRate,
+        ExpantaNum capacity,
+        double deltaSeconds)
     {
         if (deltaSeconds < 0)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
-        return ExpantaNum.Max(
+        return ExpantaNum.Min(
+            ExpantaNum.Max(
             ExpantaNum.Zero,
-            current + (productionRate - consumptionRate) * deltaSeconds);
+            current + (productionRate - consumptionRate) * deltaSeconds),
+            ExpantaNum.Max(ExpantaNum.Zero, capacity));
     }
 
     public bool CanAffordConstruction(ExpantaNum spaceCost, ExpantaNum buildEffort) =>
@@ -116,6 +126,11 @@ public class GameManager : Singleton<GameManager>
 
     public void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta) =>
         State.AdjustFoodRates(productionDelta, consumptionDelta);
+
+    public void AdjustFoodCapacity(ExpantaNum capacityDelta) =>
+        State.AdjustFoodCapacity(capacityDelta);
+
+    internal void AdvanceTechLevel(TechLevel target) => State.AdvanceTechLevel(target);
 
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 

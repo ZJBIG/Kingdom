@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Lumberyard
   Label: "\u4F10\u6728\u573A"
-  Description: "\u4EA7\u51FA\u6728\u67F4\u7684\u5730\u65B9"
+  Description: "集中处理和储存木材，为住房、工具、建筑以及更高阶段的工业发展提供基础材料。"
   TechLevel: 0
   autoBuildWorkRequired:
     sign: 0

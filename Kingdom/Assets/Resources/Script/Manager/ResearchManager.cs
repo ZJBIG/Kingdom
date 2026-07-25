@@ -61,7 +61,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
         ResearchState state = states[research];
         if (state.Status == ResearchStatus.Completed ||
-            GameManager.Instance.State.TechLevel < research.TechLevel ||
+            !CanAccessResearch(research) ||
             !ArePrerequisitesCompleted(research) || !state.CostPaid)
             return false;
 
@@ -84,6 +84,16 @@ public class ResearchManager : Singleton<ResearchManager>
     public void SetSelectedResearch(Research research)
     {
         SelectedResearchId = research == null ? string.Empty : research.Id;
+    }
+
+    public bool IsResearchCompleted(string researchId)
+    {
+        if (string.IsNullOrWhiteSpace(researchId) ||
+            !DataBase<Research>.TryFind(researchId, out Research research))
+            return false;
+
+        return states.TryGetValue(research, out ResearchState state) &&
+            state.Status == ResearchStatus.Completed;
     }
 
     public void Tick(double deltaSeconds)
@@ -161,6 +171,9 @@ public class ResearchManager : Singleton<ResearchManager>
         current.SetStatus(ResearchStatus.Completed);
         ActiveResearch = null;
 
+        if (current.Definition.AdvancesTechLevel)
+            GameManager.Instance.AdvanceTechLevel(current.Definition.TechLevel);
+
         IReadOnlyList<Building> unlocks = current.Definition.BuildingUnlock;
         if (unlocks != null)
         {
@@ -193,6 +206,14 @@ public class ResearchManager : Singleton<ResearchManager>
             if (states[prerequisites[i]].Status != ResearchStatus.Completed)
                 return false;
         return true;
+    }
+
+    public bool CanAccessResearch(Research research)
+    {
+        if (research == null)
+            return false;
+        return GameManager.Instance.State.TechLevel >= research.TechLevel ||
+            research.AdvancesTechLevel && research.TechLevel == GameManager.Instance.State.TechLevel + 1;
     }
 
     public static ExpantaNum AdvanceResearchProgress(

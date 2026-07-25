@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: FoodStorage
+  m_EditorClassIdentifier: 
+  id: FoodStorage
+  Label: "食物储藏"
+  Description: "总结干燥、密封和防潮经验，让聚落能够跨越季节保存食物，并提高安全储量。"
+  BaseCost: 4200
+  prerequisites:
+  - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 200, layer: 0, operators: []}
+  BuildingUnlock:
+  - {fileID: 11400000, guid: 289d5a18df2f434885c563dd1b36be4e, type: 2}
+  TechLevel: 1
+  AdvancesTechLevel: 0
+  x: 8
+  y: 4

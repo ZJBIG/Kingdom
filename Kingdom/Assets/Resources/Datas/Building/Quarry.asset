@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Quarry
   Label: "\u91C7\u77F3\u573A"
-  Description: "\u7528\u6765\u6316\u6398\u77F3\u5934\u7684\u77FF\u5751\uFF0C\u5076\u5C14\u80FD\u6316\u51FA\u91D1\u5C5E"
+  Description: "从岩层中持续采集石材，为石器、石墙、道路和早期大型建筑提供稳定供给。"
   TechLevel: 0
   autoBuildWorkRequired:
     sign: 0

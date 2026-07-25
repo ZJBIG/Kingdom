@@ -9,6 +9,7 @@ public sealed class GameState
     public string KingdomName { get; private set; }
     public TechLevel TechLevel { get; private set; }
     public ExpantaNum FoodAmount { get; private set; }
+    public ExpantaNum FoodCapacity { get; private set; }
     public ExpantaNum FoodProductionRate { get; private set; }
     public ExpantaNum FoodConsumptionRate { get; private set; }
     public ExpantaNum AvailableSpace { get; private set; }
@@ -22,8 +23,9 @@ public sealed class GameState
     {
         CalendarDays = 0;
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
-        TechLevel = TechLevel.Primitive;
+        TechLevel = TechLevel.Animal;
         FoodAmount = new ExpantaNum(10000);
+        FoodCapacity = new ExpantaNum(10000);
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
         AvailableSpace = new ExpantaNum(100000);
@@ -43,6 +45,7 @@ public sealed class GameState
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = techLevel;
         FoodAmount = ExpantaNum.Max(ExpantaNum.Zero, foodAmount);
+        FoodCapacity = ExpantaNum.Max(FoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
         Version++;
     }
@@ -51,6 +54,7 @@ public sealed class GameState
     {
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
+        FoodCapacity = new ExpantaNum(10000);
         AvailableSpace = ExpantaNum.Max(ExpantaNum.Zero, availableSpace);
         AvailableProductivity = ExpantaNum.Max(ExpantaNum.Zero, availableProductivity);
         Version++;
@@ -68,6 +72,7 @@ public sealed class GameState
             FoodAmount,
             FoodProductionRate,
             FoodConsumptionRate,
+            FoodCapacity,
             deltaSeconds);
         Version++;
     }
@@ -76,6 +81,21 @@ public sealed class GameState
     {
         FoodProductionRate = ExpantaNum.Max(ExpantaNum.Zero, FoodProductionRate + productionDelta);
         FoodConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, FoodConsumptionRate + consumptionDelta);
+        Version++;
+    }
+
+    internal void AdjustFoodCapacity(ExpantaNum capacityDelta)
+    {
+        FoodCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
+        FoodAmount = ExpantaNum.Min(FoodAmount, FoodCapacity);
+        Version++;
+    }
+
+    internal void AdvanceTechLevel(TechLevel target)
+    {
+        if (target <= TechLevel)
+            return;
+        TechLevel = target;
         Version++;
     }
 

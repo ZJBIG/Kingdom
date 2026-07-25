@@ -16,6 +16,7 @@ public class Research : GameDefinition
 
     public List<Building> BuildingUnlock;
     public TechLevel TechLevel;
+    public bool AdvancesTechLevel;
     [Header("TabPosition")]
     public float x;
     public float y;

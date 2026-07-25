@@ -20,6 +20,8 @@ public class Building : GameDefinition
     private ExpantaNum foodProductionRate;
     [SerializeField, Tooltip("每个建筑每秒消耗的粮食。")]
     private ExpantaNum foodConsumptionRate;
+    [SerializeField, Tooltip("每个建筑提供的食物储存容量。")]
+    private ExpantaNum foodCapacityGranted;
     [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
     [SerializeField]
@@ -36,6 +38,7 @@ public class Building : GameDefinition
     public ExpantaNum ProductivityGranted => productivityGranted;
     public ExpantaNum FoodProductionRate => foodProductionRate;
     public ExpantaNum FoodConsumptionRate => foodConsumptionRate;
+    public ExpantaNum FoodCapacityGranted => foodCapacityGranted;
 
     [Range(0f, 1f)] public float DeconstructReturnPercentage;
 

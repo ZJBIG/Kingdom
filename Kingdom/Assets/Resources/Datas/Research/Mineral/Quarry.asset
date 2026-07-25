@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Quarry
   Label: "\u91C7\u77F3\u573A"
-  Description: "\u5982\u4F55\u91C7\u53D6\u77F3\u5934"
+  Description: "研究寻找、开采和运输石料的完整方法，让早期聚落拥有持续扩张的建材来源。"
   BaseCost: 1000
   prerequisites: []
   resourceRequirements:
@@ -30,4 +30,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
   TechLevel: 0
   x: 0
-  y: 0.5
+  y: 8

@@ -96,13 +96,21 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void AdvanceFood_ClampsProductionAtFoodCapacity()
+    {
+        Assert.That(
+            GameManager.AdvanceFood(995, 10, 0, 1000, 1),
+            Is.EqualTo(new ExpantaNum(1000)));
+    }
+
+    [Test]
     public void GameState_HoldsCanonicalNewGameValues()
     {
         var state = new GameState();
 
         Assert.That(state.CalendarDays, Is.EqualTo(0));
         Assert.That(state.KingdomName, Is.EqualTo("鼠托邦"));
-        Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Primitive));
+        Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
@@ -228,7 +236,7 @@ public sealed class KingdomLogicTests
             {
                 CalendarDays = 7,
                 KingdomName = "Test",
-                TechLevel = TechLevel.Primitive,
+                TechLevel = TechLevel.Animal,
                 FoodAmount = "100",
                 LastSaveUnixSeconds = 1
             },
@@ -326,7 +334,7 @@ public sealed class KingdomLogicTests
             {
                 CalendarDays = 3,
                 KingdomName = "Save Test",
-                TechLevel = TechLevel.Primitive,
+                TechLevel = TechLevel.Animal,
                 FoodAmount = "10000",
                 LastSaveUnixSeconds = 1
             },
@@ -418,10 +426,10 @@ public sealed class KingdomLogicTests
     [Test]
     public void ResearchSpeedEffect_IsDeterministicAcrossTechLevels()
     {
-        Assert.That(ResearchManager.ResearchSpeedEffect(TechLevel.Primitive, TechLevel.Primitive), Is.EqualTo(1d));
+        Assert.That(ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Animal), Is.EqualTo(1d));
         Assert.That(
-            ResearchManager.ResearchSpeedEffect(TechLevel.Primitive, TechLevel.Medieval),
-            Is.EqualTo(2d / 3d).Within(1e-12));
+            ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Medieval),
+            Is.EqualTo(1d / 2.5d).Within(1e-12));
     }
 
     [Test]

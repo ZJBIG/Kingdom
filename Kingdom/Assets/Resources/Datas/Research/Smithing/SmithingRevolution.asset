@@ -14,13 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SmithingRevolution
   Label: "\u51B6\u70BC\u6280\u672F\u9769\u65B0"
-  Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
+  Description: "改进冶炼流程、炉温控制与金属加工，使金属生产从手工作坊迈向稳定高效的体系。"
   BaseCost: 1e8
   prerequisites:
   - {fileID: 11400000, guid: b60f6ee9055bb2f40860844fbca930ab, type: 2}
   - {fileID: 11400000, guid: 719b40f73a323184a9703dea27f21ac1, type: 2}
-  resourceRequirements: []
+  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1200, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 800, layer: 0, operators: []}
   BuildingUnlock: []
-  TechLevel: 1
-  x: 4
-  y: 1
+  TechLevel: 2
+  x: 12
+  y: 10

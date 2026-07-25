@@ -21,5 +21,5 @@ MonoBehaviour:
   resourceRequirements: []
   BuildingUnlock: []
   TechLevel: 0
-  x: 1
-  y: 0.25
+  x: 2
+  y: 8

@@ -51,8 +51,16 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (state == null)
             return;
 
+        bool calendarKnown = ResearchManager.Instance != null &&
+            ResearchManager.Instance.IsResearchCompleted("Calendar");
         if (Text_Calendar != null)
-            SetTextIfChanged(Text_Calendar, GameManager.CalendarDataToString(state.CalendarDays));
+        {
+            Text_Calendar.enabled = calendarKnown;
+            if (calendarKnown)
+                SetTextIfChanged(Text_Calendar, GameManager.CalendarDataToString(state.CalendarDays));
+            else
+                SetTextIfChanged(Text_Calendar, string.Empty);
+        }
         if (Text_TechLevel != null)
             SetTextIfChanged(Text_TechLevel, $"技术等级:{state.TechLevel.GetDescription()}");
 
@@ -61,7 +69,9 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             ? "+" + netFoodRate.ToGameString()
             : netFoodRate.ToGameString();
         if (Text_Food != null)
-            SetTextIfChanged(Text_Food, $"粮食:{state.FoodAmount.ToGameString()}   {signedFoodRate}/s");
+            SetTextIfChanged(
+                Text_Food,
+                $"粮食:{state.FoodAmount.ToGameString()}/{state.FoodCapacity.ToGameString()}   {signedFoodRate}/s");
         if (Text_KingdomName != null)
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
         if (Text_Productivity != null)

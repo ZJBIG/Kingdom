@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StoneCutting
   Label: "\u5207\u77F3\u6280\u672F"
-  Description: "\u628A\u5927\u5757\u7684\u77F3\u5934\u5207\u5236\u6210\u5E73\u6574\u7684\u77F3\u7816"
+  Description: "研究切割、打磨和拼接石材的方法，使石料从天然资源转化为可靠的建筑构件。"
   BaseCost: 5000
   prerequisites:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
@@ -28,7 +28,8 @@ MonoBehaviour:
       layer: 0
       operators: []
   BuildingUnlock:
-  - {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
+  - {fileID: 11400000, guid: 3c449575f64463949af720fdf25ca954, type: 2}
   TechLevel: 0
-  x: 1
-  y: 0.5
+  x: 4
+  x: 4
+  y: 9

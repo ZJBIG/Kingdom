@@ -22,5 +22,5 @@ MonoBehaviour:
   BuildingUnlock:
   - {fileID: 11400000, guid: ca3f59da2f199d043b5e67ac86f178e5, type: 2}
   TechLevel: 0
-  x: 1
-  y: 1
+  x: 2
+  y: 4

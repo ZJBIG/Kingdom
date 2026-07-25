@@ -21,23 +21,31 @@ public class ResourceViewer : MonoBehaviour, IGameUIRefreshable
 
     private void OnEnable()
     {
-        resourceManager = ResourceManager.Instance;
-        if (resourceManager != null)
-        {
-            resourceManager.ResourceStateAdded += OnResourceStateAdded;
-            resourceManager.ResourceStateChanged += OnResourceStateChanged;
-            BindExistingStates();
-        }
+        TryBindResourceManager();
         GameUIRefreshManager.Instance?.Register(this);
         RefreshAll();
     }
 
     private void Start()
     {
-        // OnEnable can run before the scene-wide refresh manager has awakened.
-        // Retry registration after all scene Awake methods have completed.
+        // Bootstrap managers may be created after this viewer is enabled.
+        TryBindResourceManager();
         GameUIRefreshManager.Instance?.Register(this);
         RefreshAll();
+    }
+
+    private void TryBindResourceManager()
+    {
+        if (resourceManager == null)
+            resourceManager = ResourceManager.Instance;
+        if (resourceManager == null)
+            return;
+
+        resourceManager.ResourceStateAdded -= OnResourceStateAdded;
+        resourceManager.ResourceStateChanged -= OnResourceStateChanged;
+        resourceManager.ResourceStateAdded += OnResourceStateAdded;
+        resourceManager.ResourceStateChanged += OnResourceStateChanged;
+        BindExistingStates();
     }
 
     private void OnDisable()
@@ -92,6 +100,11 @@ public class ResourceViewer : MonoBehaviour, IGameUIRefreshable
 
     public void RefreshAll()
     {
+        if (resourceManager == null)
+            TryBindResourceManager();
+        if (resourceManager == null)
+            return;
+
         foreach (ResourceDisplayer displayer in displayers.Values)
             displayer.Refresh();
 

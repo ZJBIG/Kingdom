@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing
   Label: "\u51B6\u70BC\u91D1\u5C5E"
-  Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
+  Description: "掌握从矿石中提炼并加工金属的基本工艺，开启工具、武器与工业文明的新阶段。"
   BaseCost: 5000
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  - {fileID: 11400000, guid: 6e4a1c8b2d5f47a09c3e7b1d8f5264a9, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
     second:
@@ -35,7 +36,15 @@ MonoBehaviour:
       scalar: 1000
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
   BuildingUnlock: []
   TechLevel: 1
-  x: 1.2
-  y: 0.8
+  x: 6
+  y: 9

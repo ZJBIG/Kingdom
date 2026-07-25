@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,43 +15,15 @@ public class ResourceDisplayerSet : MonoBehaviour
     public Transform ContentTransform => Content;
     public IReadOnlyDictionary<Resource, ResourceDisplayer> Displayers => displayers;
 
-    private void Start()
+    private void Awake()
     {
-        StartCoroutine(UpdateHeight());
-    }
-
-    private IEnumerator UpdateHeight()
-    {
-        while (true)
-        {
-            Image image = GetComponent<Image>();
-            if (image != null)
-            {
-                float height = 50f;
-                if (!Closed)
-                {
-                    foreach (ResourceDisplayer displayer in displayers.Values)
-                        height += displayer.GetComponent<Image>().rectTransform.rect.height;
-                }
-
-                image.rectTransform.sizeDelta =
-                    new Vector2(image.rectTransform.rect.width, height);
-            }
-
-            yield return new WaitForSeconds(0.1f);
-        }
+        ConfigureContentLayout();
     }
 
     public void OpenUpResourceSet()
     {
         Closed = !Closed;
-        foreach (ResourceDisplayer displayer in displayers.Values)
-        {
-            Transform parent = Closed ? Hide : Content;
-            if (parent != null)
-                displayer.transform.SetParent(parent, false);
-            displayer.gameObject.SetActive(true);
-        }
+        RefreshLayout();
     }
 
     public void RefreshLayout()
@@ -61,8 +32,53 @@ public class ResourceDisplayerSet : MonoBehaviour
         if (parent == null)
             return;
 
+        RectTransform contentRect = Content as RectTransform;
+        float contentHeight = 0f;
+
+        if (contentRect != null)
+        {
+            // The resource prefab already owns its internal layout. Stack the
+            // cards here with explicit positions so no layout group can move
+            // their anchored children or stretch their height.
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0f);
+            VerticalLayoutGroup layout = contentRect.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+                layout.enabled = false;
+        }
+
         foreach (ResourceDisplayer displayer in displayers.Values)
+        {
+            RectTransform row = displayer.transform as RectTransform;
             displayer.transform.SetParent(parent, false);
+
+            if (!Closed && row != null)
+            {
+                float rowHeight = Mathf.Max(100f, row.sizeDelta.y);
+                row.anchorMin = new Vector2(0.5f, 1f);
+                row.anchorMax = new Vector2(0.5f, 1f);
+                row.pivot = new Vector2(0.5f, 0.5f);
+                row.anchoredPosition = new Vector2(0f, -contentHeight - rowHeight * 0.5f);
+                contentHeight += rowHeight;
+            }
+        }
+
+        if (contentRect != null)
+        {
+            contentRect.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                contentHeight);
+
+            Image image = GetComponent<Image>();
+            if (image != null)
+            {
+                image.rectTransform.SetSizeWithCurrentAnchors(
+                    RectTransform.Axis.Vertical,
+                    50f + contentHeight);
+            }
+
+            Canvas.ForceUpdateCanvases();
+        }
     }
 
     public void AddDisplayer(Resource resource, ResourceDisplayer displayer)
@@ -71,5 +87,16 @@ public class ResourceDisplayerSet : MonoBehaviour
             return;
 
         displayers.Add(resource, displayer);
+    }
+
+    private void ConfigureContentLayout()
+    {
+        RectTransform contentRect = Content as RectTransform;
+        if (contentRect == null)
+            return;
+
+        VerticalLayoutGroup layout = contentRect.GetComponent<VerticalLayoutGroup>();
+        if (layout != null)
+            layout.enabled = false;
     }
 }

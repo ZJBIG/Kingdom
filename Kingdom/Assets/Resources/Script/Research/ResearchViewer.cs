@@ -64,14 +64,15 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
 
     private void OnEnable()
     {
-        researchManager = ResearchManager.Instance;
-        if (researchManager != null)
-        {
-            researchManager.ResearchStateAdded += OnResearchStateAdded;
-            BindExistingStates();
-            RestoreSelection();
-        }
+        TryBindResearchManager();
         GameUIRefreshManager.Instance?.Register(this);
+        RefreshAll();
+    }
+
+    private void Start()
+    {
+        // Bootstrap managers may be created after this inactive tab is enabled.
+        TryBindResearchManager();
         RefreshAll();
     }
 
@@ -85,6 +86,19 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
 
     public void RefreshUI() => RefreshAll();
 
+    private void TryBindResearchManager()
+    {
+        if (researchManager == null)
+            researchManager = ResearchManager.Instance;
+        if (researchManager == null)
+            return;
+
+        researchManager.ResearchStateAdded -= OnResearchStateAdded;
+        researchManager.ResearchStateAdded += OnResearchStateAdded;
+        BindExistingStates();
+        RestoreSelection();
+    }
+
     public void DoInvest()
     {
         if (selectedResearch == null)
@@ -92,7 +106,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
         ResearchState state = SelectedState;
         if (state == null)
             return;
-        if (GameManager.Instance.State.TechLevel < selectedResearch.TechLevel ||
+        if (!ResearchManager.Instance.CanAccessResearch(selectedResearch) ||
             !ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
         {
             RefreshAll();
@@ -105,7 +119,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             return;
         }
         if (state.Status == ResearchStatus.Completed ||
-            GameManager.Instance.State.TechLevel < selectedResearch.TechLevel)
+            !ResearchManager.Instance.CanAccessResearch(selectedResearch))
         {
             return;
         }
@@ -217,6 +231,11 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
 
     private void RefreshAll()
     {
+        if (researchManager == null)
+            TryBindResearchManager();
+        if (researchManager == null)
+            return;
+
         RestoreSelection();
         foreach (ResearchDisplayer displayer in displayers.Values)
             displayer.Refresh();
@@ -276,12 +295,31 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             }
         }
 
+        PositionResourceListAfterBaseInfo();
         RebuildRequirementRows(selectedResearch);
+    }
+
+    private void PositionResourceListAfterBaseInfo()
+    {
+        if (BaseInfo == null || ResourceList == null)
+            return;
+
+        float preferredHeight = BaseInfo.GetPreferredValues(
+            BaseInfo.text,
+            BaseInfo.rectTransform.rect.width,
+            0f).y;
+        ResourceList.anchoredPosition = new Vector2(0f, -preferredHeight - 20f);
+
+        RectTransform detailContent = BaseInfo.rectTransform;
+        float requiredHeight = preferredHeight + 20f + ResourceList.rect.height;
+        detailContent.SetSizeWithCurrentAnchors(
+            RectTransform.Axis.Vertical,
+            Mathf.Max(428f, requiredHeight));
     }
 
     private string ButtonText(ResearchState state)
     {
-        if (GameManager.Instance.State.TechLevel < selectedResearch.TechLevel)
+        if (!ResearchManager.Instance.CanAccessResearch(selectedResearch))
             return "技术等级过低";
         if (!ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
             return "前置研究未完成";
@@ -392,5 +430,5 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             SelectResearch(restored);
     }
 
-    private static Func<float, float, Vector3> PlacePosition => (x, y) => new Vector3(-600f + 300f * x, -25f - 300f * y);
+    private static Func<float, float, Vector3> PlacePosition => (x, y) => new Vector3(-750f + 120f * x, -25f - 60f * y);
 }

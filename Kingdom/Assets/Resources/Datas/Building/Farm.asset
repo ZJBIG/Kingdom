@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Farm
   Label: "\u519C\u573A"
-  Description: "\u6700\u666E\u901A\u7684\u519C\u573A\uFF0C\u80FD\u591F\u751F\u4EA7\u98DF\u7269"
+  Description: "通过耕作土地稳定生产食物，让聚落从依赖采集逐步走向定居与持续增长。"
   TechLevel: 0
   autoBuildWorkRequired:
     sign: 0

@@ -43,6 +43,7 @@ public class ResourceDisplayer : MonoBehaviour
         Details.gameObject.SetActive(!Details.gameObject.activeSelf);
         ApplyCardHeight();
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+        GetComponentInParent<ResourceDisplayerSet>()?.RefreshLayout();
     }
 
     private void ApplyCardHeight()

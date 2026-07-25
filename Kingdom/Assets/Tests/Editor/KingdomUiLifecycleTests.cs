@@ -163,7 +163,7 @@ public sealed class KingdomUiLifecycleTests
         {
             KingdomName = "Latest State",
             FoodAmount = "10000",
-            TechLevel = TechLevel.Primitive
+            TechLevel = TechLevel.Animal
         }});
         hud.enabled = false;
         hud.enabled = true;

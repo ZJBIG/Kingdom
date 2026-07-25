@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Tin
   Label: "\u51B6\u70BC\u950C"
-  Description: "\u628A\u6709\u7528\u7684\u91D1\u5C5E\u4ECE\u77FF\u77F3\u4E2D\u63D0\u53D6\u51FA\u6765"
+  Description: "改进锡矿提炼与加工，为合金制造、精密器具和更先进的金属工业提供材料基础。"
   BaseCost: 5000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
-  resourceRequirements: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 220, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}
   BuildingUnlock: []
   TechLevel: 1
-  x: 2
-  y: 0.8
+  x: 8
+  y: 10
