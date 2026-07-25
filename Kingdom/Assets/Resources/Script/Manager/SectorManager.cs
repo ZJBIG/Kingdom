@@ -11,7 +11,10 @@ public enum SectorOperationFailure
     PrerequisiteNotOccupied,
     LaunchCenterRequired,
     InvalidReward,
-    NotUnlocked
+    NotUnlocked,
+    CampaignRequired,
+    CampaignInProgress,
+    InvalidDelta
 }
 
 public sealed class SectorManager
@@ -133,6 +136,11 @@ public sealed class SectorManager
             failure = SectorOperationFailure.AlreadyOccupied;
             return false;
         }
+        if (definition.EnemyPower > ExpantaNum.Zero && state.CampaignProgress < ExpantaNum.One)
+        {
+            failure = SectorOperationFailure.CampaignRequired;
+            return false;
+        }
         if (!ValidateRewards(definition))
         {
             failure = SectorOperationFailure.InvalidReward;
@@ -142,6 +150,84 @@ public sealed class SectorManager
         state.SetOccupied(true);
         state.SetVisitCount(state.VisitCount + 1);
         rewardApplier(definition);
+        failure = SectorOperationFailure.None;
+        return true;
+    }
+
+    public bool TryAdvanceCampaign(
+        SectorDefinition definition,
+        double deltaSeconds,
+        GameState runtimeState,
+        out SectorOperationFailure failure)
+    {
+        EnsureInitialized();
+        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        {
+            failure = SectorOperationFailure.UnknownSector;
+            return false;
+        }
+        if (runtimeState == null)
+        {
+            failure = SectorOperationFailure.InvalidDelta;
+            return false;
+        }
+        if (deltaSeconds < 0d)
+        {
+            failure = SectorOperationFailure.InvalidDelta;
+            return false;
+        }
+        if (!state.Unlocked)
+        {
+            failure = SectorOperationFailure.NotUnlocked;
+            return false;
+        }
+        if (state.Occupied)
+        {
+            failure = SectorOperationFailure.AlreadyOccupied;
+            return false;
+        }
+        if (runtimeState.Campaign.Active &&
+            !string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            failure = SectorOperationFailure.CampaignInProgress;
+            return false;
+        }
+        if (!ValidateRewards(definition))
+        {
+            failure = SectorOperationFailure.InvalidReward;
+            return false;
+        }
+
+        if (definition.EnemyPower <= ExpantaNum.Zero)
+        {
+            state.SetCampaignProgress(ExpantaNum.One);
+            CompleteOccupation(definition, state, runtimeState);
+            failure = SectorOperationFailure.None;
+            return true;
+        }
+
+        runtimeState.BeginCampaign(definition.Id);
+        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
+            runtimeState.AttackPower,
+            runtimeState.FleetPower,
+            runtimeState.MilitaryManpower,
+            runtimeState.SupplySatisfaction,
+            ProgressionModifierManager.Current.MilitaryMultiplier);
+        ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
+        ExpantaNum nextProgress = CampaignManager.AdvanceProgress(
+            state.CampaignProgress,
+            combatRatio,
+            deltaSeconds);
+        ExpantaNum casualties = CampaignManager.CalculateCasualtyAmount(combatRatio, deltaSeconds);
+        state.SetCampaignProgress(nextProgress);
+        runtimeState.RecordCampaignCombat(combatRatio, casualties);
+
+        if (nextProgress >= ExpantaNum.One)
+        {
+            state.SetCampaignProgress(ExpantaNum.One);
+            CompleteOccupation(definition, state, runtimeState);
+        }
+
         failure = SectorOperationFailure.None;
         return true;
     }
@@ -252,6 +338,17 @@ public sealed class SectorManager
             if (reward.Second > ExpantaNum.Zero)
                 ResourceManager.Instance.AddAmount(reward.First, reward.Second);
         }
+    }
+
+    private void CompleteOccupation(
+        SectorDefinition definition,
+        SectorState state,
+        GameState runtimeState)
+    {
+        state.SetOccupied(true);
+        state.SetVisitCount(state.VisitCount + 1);
+        runtimeState.CompleteCampaign();
+        rewardApplier(definition);
     }
 
     private void InsertOrdered(SectorState state)

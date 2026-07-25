@@ -232,6 +232,10 @@ public class GameManager : Singleton<GameManager>
             GrowthProgress = State.Population.GrowthProgress.ToString(),
             FoodPerPerson = State.Population.FoodPerPerson.ToString(),
             TerritoryTotal = State.TerritoryTotal.ToString(),
+            CampaignActive = State.Campaign.Active,
+            CampaignTargetSectorId = State.Campaign.TargetSectorId,
+            CampaignCasualties = State.Campaign.Casualties.ToString(),
+            CampaignCombatRatio = State.Campaign.CombatRatio.ToString(),
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
     }
@@ -258,6 +262,14 @@ public class GameManager : Singleton<GameManager>
         }
         if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
             State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
+        if (data.CampaignActive)
+        {
+            State.RestoreCampaign(
+                true,
+                data.CampaignTargetSectorId,
+                ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
+                ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
+        }
         ResetCalendarAccumulator();
     }
 
@@ -270,5 +282,12 @@ public class GameManager : Singleton<GameManager>
         if (ExpantaNum.TryParse(raw, out ExpantaNum value))
             return value;
         throw new FormatException($"Invalid ExpantaNum '{raw}' for GameState.{field}.");
+    }
+
+    private static ExpantaNum ParseOptional(string raw, ExpantaNum fallback, string field)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return fallback;
+        return Parse(raw, field);
     }
 }

@@ -66,4 +66,11 @@ public static class CampaignManager
         return ExpantaNum.Clamp01(
             progress + CalculateProgressRate(combatRatio) * deltaSeconds / 60d);
     }
+
+    public static ExpantaNum CalculateCasualtyAmount(ExpantaNum combatRatio, double deltaSeconds)
+    {
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        return CalculateCasualtyRate(combatRatio) * deltaSeconds / 60d;
+    }
 }

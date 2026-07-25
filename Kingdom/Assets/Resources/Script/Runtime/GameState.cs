@@ -20,6 +20,7 @@ public sealed class GameState
     public ExpantaNum LogisticsConsumptionRate { get; private set; }
     public ExpantaNum LogisticsSatisfaction { get; private set; }
     public MilitaryState Military { get; private set; }
+    public CampaignState Campaign { get; private set; }
     public ExpantaNum AttackPower => Military.AttackPower;
     public ExpantaNum DefensePower => Military.DefensePower;
     public ExpantaNum FleetPower => Military.FleetPower;
@@ -52,6 +53,7 @@ public sealed class GameState
         LogisticsConsumptionRate = ExpantaNum.Zero;
         LogisticsSatisfaction = ExpantaNum.One;
         Military = new MilitaryState();
+        Campaign = new CampaignState();
         Territory = new TerritoryState();
         Population = new PopulationState();
         LastSaveUnixSeconds = 0;
@@ -97,6 +99,40 @@ public sealed class GameState
     {
         Territory.RestoreTotal(territoryTotal);
         Version++;
+    }
+
+    internal void RestoreCampaign(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio)
+    {
+        Campaign.Restore(active, targetSectorId, casualties, combatRatio);
+        Version++;
+    }
+
+    internal void BeginCampaign(string sectorId)
+    {
+        int previousVersion = Campaign.Version;
+        Campaign.Begin(sectorId);
+        if (Campaign.Version != previousVersion)
+            Version++;
+    }
+
+    internal void RecordCampaignCombat(ExpantaNum combatRatio, ExpantaNum casualties)
+    {
+        int previousVersion = Campaign.Version;
+        Campaign.RecordCombat(combatRatio, casualties);
+        if (Campaign.Version != previousVersion)
+            Version++;
+    }
+
+    internal void CompleteCampaign()
+    {
+        int previousVersion = Campaign.Version;
+        Campaign.Complete();
+        if (Campaign.Version != previousVersion)
+            Version++;
     }
 
     internal void AdjustTerritoryTotal(ExpantaNum delta)

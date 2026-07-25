@@ -69,4 +69,39 @@ public sealed class SectorManagerTests
         Assert.That(mars.ResourceRewards[0].First, Is.EqualTo(rocketFuel));
         Assert.That(mars.ResourceRewards[0].Second, Is.EqualTo(new ExpantaNum(100)));
     }
+
+    [Test]
+    public void C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorState state = manager.GetState(moon);
+        state.SetUnlockedForEditor(true);
+
+        Assert.That(manager.TryOccupy(moon, out SectorOperationFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(SectorOperationFailure.CampaignRequired));
+    }
+
+    [Test]
+    public void C802_CampaignStateTracksTargetAndCasualties()
+    {
+        var campaign = new CampaignState();
+        InvokeCampaignMethod(campaign, "Begin", "Moon");
+        InvokeCampaignMethod(campaign, "RecordCombat", new ExpantaNum(0.8d), new ExpantaNum(2));
+
+        Assert.That(campaign.Active, Is.True);
+        Assert.That(campaign.TargetSectorId, Is.EqualTo("Moon"));
+        Assert.That(campaign.Casualties, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(campaign.CombatRatio, Is.EqualTo(new ExpantaNum(0.8d)));
+    }
+
+    private static void InvokeCampaignMethod(CampaignState state, string methodName, params object[] arguments)
+    {
+        var method = typeof(CampaignState).GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
 }

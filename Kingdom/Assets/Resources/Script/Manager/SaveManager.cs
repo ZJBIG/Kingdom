@@ -282,6 +282,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string GrowthProgress;
         public string FoodPerPerson;
         public string TerritoryTotal;
+        public bool CampaignActive;
+        public string CampaignTargetSectorId;
+        public string CampaignCasualties;
+        public string CampaignCombatRatio;
         public long LastSaveUnixSeconds;
     }
 
