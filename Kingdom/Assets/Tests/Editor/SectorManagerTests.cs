@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 
 public sealed class SectorManagerTests
 {
@@ -138,6 +139,102 @@ public sealed class SectorManagerTests
         Assert.That(preview.ResourceCostsPerMinute, Has.Count.EqualTo(1));
         Assert.That(preview.ResourceCostsPerMinute[0].First.Id, Is.EqualTo("RocketFuel"));
         Assert.That(preview.HasSupply, Is.False);
+    }
+
+    [Test]
+    public void C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        manager.GetState(moon).SetUnlockedForEditor(true);
+        var runtimeState = new GameState();
+
+        bool advanced = manager.TryAdvanceCampaign(
+            moon,
+            60d,
+            runtimeState,
+            null,
+            out SectorOperationFailure failure);
+
+        Assert.That(advanced, Is.False);
+        Assert.That(failure, Is.EqualTo(SectorOperationFailure.InsufficientCampaignSupply));
+        Assert.That(runtimeState.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+        Assert.That(runtimeState.Campaign.Active, Is.False);
+        Assert.That(manager.GetState(moon).CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward()
+    {
+        GameObject resourceObject = new GameObject("C806-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
+
+            var rewards = 0;
+            var manager = new SectorManager(_ => rewards++);
+            manager.InitializeDefinitions();
+            SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+            manager.GetState(moon).SetUnlockedForEditor(true);
+            var runtimeState = new GameState();
+
+            bool advanced = manager.TryAdvanceCampaign(
+                moon,
+                60d,
+                runtimeState,
+                resourceManager,
+                out SectorOperationFailure failure);
+
+            Assert.That(advanced, Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(runtimeState.FoodAmount, Is.EqualTo(new ExpantaNum(298)));
+            Assert.That(resourceManager.GetAmount(rocketFuel), Is.EqualTo(new ExpantaNum(9)));
+            Assert.That(runtimeState.Campaign.Active, Is.True);
+            Assert.That(runtimeState.Campaign.Casualties, Is.EqualTo(new ExpantaNum(1)));
+            Assert.That(manager.GetState(moon).CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(rewards, Is.EqualTo(0));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void C806_RewardsApplyOnlyWhenCampaignCompletes()
+    {
+        GameObject resourceObject = new GameObject("C806-Reward-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
+
+            var rewards = 0;
+            var manager = new SectorManager(_ => rewards++);
+            manager.InitializeDefinitions();
+            SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+            manager.GetState(moon).SetUnlockedForEditor(true);
+            var runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+            InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(100));
+
+            Assert.That(manager.TryAdvanceCampaign(moon, 60d, runtimeState, resourceManager, out _), Is.True);
+            Assert.That(rewards, Is.EqualTo(0));
+            Assert.That(manager.GetState(moon).CampaignProgress.ToDouble(), Is.EqualTo(0.25d).Within(0.000001d));
+
+            Assert.That(manager.TryAdvanceCampaign(moon, 180d, runtimeState, resourceManager, out _), Is.True);
+            Assert.That(rewards, Is.EqualTo(1));
+            Assert.That(manager.GetState(moon).Occupied, Is.True);
+            Assert.That(runtimeState.Campaign.Active, Is.False);
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
     }
 
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
