@@ -41,6 +41,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
         InitializeResearchStates(researches);
         InitializeResearchCount();
+        ProgressionModifierManager.Rebuild(orderedStates);
     }
 
     public ResearchState GetState(Research research)
@@ -113,7 +114,8 @@ public class ResearchManager : Singleton<ResearchManager>
         current.SetStatus(ResearchStatus.Researching);
         ExpantaNum speed = ResearchSpeedEffect(
             GameManager.Instance.State.TechLevel,
-            current.Definition.TechLevel) * GlobalEfficiencyFactor;
+            current.Definition.TechLevel) * GlobalEfficiencyFactor *
+            ProgressionModifierManager.Current.GlobalResearchMultiplier;
         current.SetProgress(AdvanceResearchProgress(
             current.Progress,
             speed,
@@ -181,6 +183,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 BuildingManager.Instance.AddBuilding(unlocks[i]);
         }
 
+        ProgressionModifierManager.Rebuild(orderedStates);
         RefreshAvailabilityStatuses();
     }
 
@@ -287,6 +290,7 @@ public class ResearchManager : Singleton<ResearchManager>
         GlobalEfficiencyFactor = ExpantaNum.One;
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
+        ProgressionModifierManager.Rebuild(orderedStates);
     }
 
     internal void RestoreSaveData(SaveManager.ResearchSaveData data)
@@ -308,6 +312,7 @@ public class ResearchManager : Singleton<ResearchManager>
             }
         }
 
+        ProgressionModifierManager.Rebuild(orderedStates);
         RefreshAvailabilityStatuses();
         if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
         {
