@@ -10,6 +10,8 @@ public sealed class SectorDefinition : GameDefinition
     [SerializeField] private List<SectorDefinition> prerequisiteSectors = new();
     [SerializeField] private ExpantaNum territoryReward;
     [SerializeField] private List<Pair<Resource, ExpantaNum>> resourceRewards = new();
+    [SerializeField] private ExpantaNum campaignFoodPerMinute = new ExpantaNum(1);
+    [SerializeField] private List<Pair<Resource, ExpantaNum>> campaignResourceCosts = new();
     [SerializeField] private bool repeatable;
     [SerializeField] private Sprite background;
     [SerializeField] private Sprite icon;
@@ -20,6 +22,8 @@ public sealed class SectorDefinition : GameDefinition
     public IReadOnlyList<SectorDefinition> PrerequisiteSectors => prerequisiteSectors;
     public ExpantaNum TerritoryReward => territoryReward;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards => resourceRewards;
+    public ExpantaNum CampaignFoodPerMinute => campaignFoodPerMinute;
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceCosts => campaignResourceCosts;
     public bool Repeatable => repeatable;
     public Sprite Background => background;
     public Sprite Icon => icon;
@@ -34,6 +38,14 @@ public sealed class SectorDefinition : GameDefinition
     {
         territoryReward = ExpantaNum.Max(ExpantaNum.Zero, territory);
         resourceRewards = resources ?? new List<Pair<Resource, ExpantaNum>>();
+    }
+
+    public void SetCampaignCostsForEditor(
+        ExpantaNum foodPerMinute,
+        List<Pair<Resource, ExpantaNum>> resources)
+    {
+        campaignFoodPerMinute = ExpantaNum.Max(ExpantaNum.Zero, foodPerMinute);
+        campaignResourceCosts = resources ?? new List<Pair<Resource, ExpantaNum>>();
     }
 #endif
 }

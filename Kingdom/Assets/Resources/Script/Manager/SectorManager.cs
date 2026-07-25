@@ -14,7 +14,9 @@ public enum SectorOperationFailure
     NotUnlocked,
     CampaignRequired,
     CampaignInProgress,
-    InvalidDelta
+    InvalidDelta,
+    InsufficientCampaignSupply,
+    InvalidCampaignCost
 }
 
 public sealed class SectorManager
@@ -160,6 +162,25 @@ public sealed class SectorManager
         GameState runtimeState,
         out SectorOperationFailure failure)
     {
+        ResourceManager resourceManager = null;
+        if (definition != null && definition.CampaignResourceCosts != null &&
+            definition.CampaignResourceCosts.Count > 0)
+            resourceManager = ResourceManager.Instance;
+        return TryAdvanceCampaign(
+            definition,
+            deltaSeconds,
+            runtimeState,
+            ResourceManager.Instance,
+            out failure);
+    }
+
+    public bool TryAdvanceCampaign(
+        SectorDefinition definition,
+        double deltaSeconds,
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        out SectorOperationFailure failure)
+    {
         EnsureInitialized();
         if (definition == null || !states.TryGetValue(definition, out SectorState state))
         {
@@ -198,8 +219,28 @@ public sealed class SectorManager
             return false;
         }
 
+        if (!TryCalculateCampaignCosts(
+                definition,
+                deltaSeconds,
+                resourceManager,
+                out ExpantaNum foodCost,
+                out List<Pair<Resource, ExpantaNum>> resourceCosts,
+                out failure))
+            return false;
+        if (runtimeState.FoodAmount < foodCost)
+        {
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
+        }
+        if (!HasResourceCosts(resourceManager, resourceCosts))
+        {
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
+        }
+
         if (definition.EnemyPower <= ExpantaNum.Zero)
         {
+            ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
             state.SetCampaignProgress(ExpantaNum.One);
             CompleteOccupation(definition, state, runtimeState);
             failure = SectorOperationFailure.None;
@@ -207,11 +248,14 @@ public sealed class SectorManager
         }
 
         runtimeState.BeginCampaign(definition.Id);
+        ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
         ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
             runtimeState.AttackPower,
             runtimeState.FleetPower,
             runtimeState.MilitaryManpower,
             runtimeState.SupplySatisfaction,
+            runtimeState.PowerSatisfaction,
+            runtimeState.LogisticsSatisfaction,
             ProgressionModifierManager.Current.MilitaryMultiplier);
         ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
         ExpantaNum nextProgress = CampaignManager.AdvanceProgress(
@@ -338,6 +382,78 @@ public sealed class SectorManager
             if (reward.Second > ExpantaNum.Zero)
                 ResourceManager.Instance.AddAmount(reward.First, reward.Second);
         }
+    }
+
+    private static bool TryCalculateCampaignCosts(
+        SectorDefinition definition,
+        double deltaSeconds,
+        ResourceManager resourceManager,
+        out ExpantaNum foodCost,
+        out List<Pair<Resource, ExpantaNum>> resourceCosts,
+        out SectorOperationFailure failure)
+    {
+        foodCost = ExpantaNum.Max(ExpantaNum.Zero,
+            definition.CampaignFoodPerMinute * deltaSeconds / 60d);
+        resourceCosts = new List<Pair<Resource, ExpantaNum>>();
+        if (definition.CampaignFoodPerMinute.IsNaN || definition.CampaignFoodPerMinute < ExpantaNum.Zero)
+        {
+            failure = SectorOperationFailure.InvalidCampaignCost;
+            return false;
+        }
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> configured = definition.CampaignResourceCosts;
+        if (configured != null)
+        {
+            for (int i = 0; i < configured.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> cost = configured[i];
+                if (cost.First == null || cost.Second.IsNaN || cost.Second < ExpantaNum.Zero)
+                {
+                    failure = SectorOperationFailure.InvalidCampaignCost;
+                    return false;
+                }
+                resourceCosts.Add(new Pair<Resource, ExpantaNum>(
+                    cost.First,
+                    cost.Second * deltaSeconds / 60d));
+            }
+        }
+
+        if (resourceCosts.Count > 0 && resourceManager == null)
+        {
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
+        }
+        failure = SectorOperationFailure.None;
+        return true;
+    }
+
+    private static bool HasResourceCosts(
+        ResourceManager resourceManager,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    {
+        if (costs == null || costs.Count == 0)
+            return true;
+        for (int i = 0; i < costs.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> cost = costs[i];
+            if (!resourceManager.States.TryGetValue(cost.First, out ResourceState state) ||
+                state.Amount < cost.Second)
+                return false;
+        }
+        return true;
+    }
+
+    private static void ConsumeCampaignCosts(
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        ExpantaNum foodCost,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts)
+    {
+        runtimeState.TryConsumeFood(foodCost);
+        if (resourceCosts == null)
+            return;
+        for (int i = 0; i < resourceCosts.Count; i++)
+            resourceManager.AddAmount(resourceCosts[i].First, -resourceCosts[i].Second);
     }
 
     private void CompleteOccupation(

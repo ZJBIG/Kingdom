@@ -11,6 +11,23 @@ public static class CampaignManager
         ExpantaNum militaryManpower,
         ExpantaNum supplySatisfaction,
         ExpantaNum militaryMultiplier)
+        => CalculateEffectivePower(
+            attackPower,
+            fleetPower,
+            militaryManpower,
+            supplySatisfaction,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            militaryMultiplier);
+
+    public static ExpantaNum CalculateEffectivePower(
+        ExpantaNum attackPower,
+        ExpantaNum fleetPower,
+        ExpantaNum militaryManpower,
+        ExpantaNum supplySatisfaction,
+        ExpantaNum powerSatisfaction,
+        ExpantaNum logisticsSatisfaction,
+        ExpantaNum militaryMultiplier)
     {
         ExpantaNum basePower = ExpantaNum.Max(ExpantaNum.Zero, attackPower) +
             ExpantaNum.Max(ExpantaNum.Zero, fleetPower);
@@ -20,6 +37,7 @@ public static class CampaignManager
         ExpantaNum manpowerFactor = ExpantaNum.Clamp01(
             ExpantaNum.Max(ExpantaNum.Zero, militaryManpower) / basePower);
         return basePower * manpowerFactor * ExpantaNum.Clamp01(supplySatisfaction) *
+            ExpantaNum.Clamp01(powerSatisfaction) * ExpantaNum.Clamp01(logisticsSatisfaction) *
             ExpantaNum.Max(ExpantaNum.Zero, militaryMultiplier);
     }
 

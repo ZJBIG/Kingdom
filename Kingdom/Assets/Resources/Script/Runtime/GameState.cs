@@ -191,6 +191,18 @@ public sealed class GameState
         Version++;
     }
 
+    internal bool TryConsumeFood(ExpantaNum amount)
+    {
+        ExpantaNum cost = ExpantaNum.Max(ExpantaNum.Zero, amount);
+        if (FoodAmount < cost)
+            return false;
+        if (cost <= ExpantaNum.Zero)
+            return true;
+        FoodAmount -= cost;
+        Version++;
+        return true;
+    }
+
     internal void AdjustPowerRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
         PowerProductionRate = ExpantaNum.Max(ExpantaNum.Zero, PowerProductionRate + productionDelta);

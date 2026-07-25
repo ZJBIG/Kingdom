@@ -96,6 +96,24 @@ public sealed class SectorManagerTests
         Assert.That(campaign.CombatRatio, Is.EqualTo(new ExpantaNum(0.8d)));
     }
 
+    [Test]
+    public void C803_CampaignCostMathRejectsInsufficientFoodAtomically()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorState state = manager.GetState(moon);
+        state.SetUnlockedForEditor(true);
+        var runtimeState = new GameState();
+
+        bool advanced = manager.TryAdvanceCampaign(moon, 60d, runtimeState, null, out SectorOperationFailure failure);
+
+        Assert.That(advanced, Is.False);
+        Assert.That(failure, Is.EqualTo(SectorOperationFailure.InsufficientCampaignSupply));
+        Assert.That(runtimeState.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+        Assert.That(state.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+    }
+
     private static void InvokeCampaignMethod(CampaignState state, string methodName, params object[] arguments)
     {
         var method = typeof(CampaignState).GetMethod(
