@@ -69,7 +69,19 @@ public class BuildingDisplayer : MonoBehaviour
     }
 
     public void SwitchAutoBuild() =>
-        BuildingManager.Instance.SetAutoBuild(Building, !state.AutoBuild);
+        SwitchAutoBuildInternal();
+
+    private void SwitchAutoBuildInternal()
+    {
+        bool enabled = !state.AutoBuild;
+        if (BuildingManager.Instance.SetAutoBuild(Building, enabled))
+        {
+            ClearFailure();
+            return;
+        }
+
+        ShowFailure(BuildFailure.AutoBuildUnavailable);
+    }
 
     public void TryConstruct(string input)
     {
@@ -135,6 +147,7 @@ public class BuildingDisplayer : MonoBehaviour
             BuildFailure.ProductivityInsufficient => "生产力不足",
             BuildFailure.DeconstructionUnavailable => "没有可拆除的建筑",
             BuildFailure.TechnologyInsufficient => "Technology level insufficient.",
+            BuildFailure.AutoBuildUnavailable => "Automatic building unlocks from the Neolithic era.",
             _ => string.Empty
         };
 

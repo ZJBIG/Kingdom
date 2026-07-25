@@ -6,6 +6,7 @@ public enum BuildFailure
     None,
     InvalidAmount,
     TechnologyInsufficient,
+    AutoBuildUnavailable,
     ResourceInsufficient,
     SpaceInsufficient,
     ProductivityInsufficient,
@@ -49,8 +50,35 @@ public class BuildingManager : Singleton<BuildingManager>
         throw new KeyNotFoundException($"Building state '{building.Id}' has not been created.");
     }
 
-    public void SetAutoBuild(Building building, bool enabled) =>
-        EnsureBuilding(building).SetAutoBuild(enabled);
+    public bool SetAutoBuild(Building building, bool enabled)
+    {
+        BuildingState state = EnsureBuilding(building);
+        if (enabled && !CanAutoBuild(building))
+        {
+            state.SetAutoBuild(false);
+            return false;
+        }
+
+        state.SetAutoBuild(enabled);
+        return true;
+    }
+
+    public bool CanAutoBuild(Building building)
+    {
+        if (building == null || GameManager.Instance.State.TechLevel < TechLevel.Neolithic)
+            return false;
+        return building.TechLevel <= GameManager.Instance.State.TechLevel &&
+               building.AutoBuildWorkRequired > ExpantaNum.Zero;
+    }
+
+    public ExpantaNum GetAutoBuildWorkRequired(Building building)
+    {
+        if (!CanAutoBuild(building))
+            return ExpantaNum.Zero;
+
+        BuildingState state = EnsureBuilding(building);
+        return state.AutoBuildWorkRequired * building.CostGrowth.Pow(state.Amount);
+    }
 
     public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure)
     {
@@ -272,9 +300,16 @@ public class BuildingManager : Singleton<BuildingManager>
             BuildingState state = orderedStates[i];
             if (!state.AutoBuild || state.AutoBuildWorkRequired <= ExpantaNum.Zero)
                 continue;
+            if (!CanAutoBuild(state.Definition))
+            {
+                state.SetAutoBuild(false);
+                continue;
+            }
 
-            state.AddAutoBuildProgress(effortPerBuilding * deltaSeconds);
-            ExpantaNum candidate = (state.AutoBuildProgress / state.AutoBuildWorkRequired).Floor();
+            state.AddAutoBuildProgress(
+                effortPerBuilding * deltaSeconds * GetAutoBuildEfficiency(GameManager.Instance.State.TechLevel));
+            ExpantaNum workRequired = GetAutoBuildWorkRequired(state.Definition);
+            ExpantaNum candidate = (state.AutoBuildProgress / workRequired).Floor();
             if (candidate < ExpantaNum.One)
                 continue;
 
@@ -296,6 +331,18 @@ public class BuildingManager : Singleton<BuildingManager>
             result *= ResourceManager.Instance.GetTickSatisfaction(rates[i].First);
         }
         return ExpantaNum.Clamp01(result);
+    }
+
+    private static ExpantaNum GetAutoBuildEfficiency(TechLevel techLevel)
+    {
+        return techLevel switch
+        {
+            TechLevel.Industrial => new ExpantaNum(1.5d),
+            TechLevel.Spacer => new ExpantaNum(2d),
+            TechLevel.Ultra => new ExpantaNum(3d),
+            TechLevel.Archotech => new ExpantaNum(5d),
+            _ => ExpantaNum.One
+        };
     }
 
     private void SetAmountAndRates(BuildingState state, ExpantaNum newAmount)
@@ -424,7 +471,11 @@ public class BuildingManager : Singleton<BuildingManager>
                     saved.AutoBuildProgress,
                     saved.BuildingId,
                     nameof(saved.AutoBuildProgress));
-                state.Restore(amount, saved.AutoBuild, progress);
+                bool autoBuild = saved.AutoBuild && CanAutoBuild(state.Definition);
+                state.Restore(
+                    amount,
+                    autoBuild,
+                    autoBuild ? progress : ExpantaNum.Zero);
             }
         }
 
