@@ -29,16 +29,9 @@ public sealed class FlowEfficiencyTests
     [Test]
     public void PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields()
     {
-        string[] fieldNames =
-        {
-            nameof(SaveManager.GameSaveData.General),
-            nameof(SaveManager.GameSaveData.Resources),
-            nameof(SaveManager.GameSaveData.Buildings),
-            nameof(SaveManager.GameSaveData.Researches)
-        };
-
-        Assert.That(fieldNames, Does.Not.Contain("PowerProduction"));
-        Assert.That(fieldNames, Does.Not.Contain("LogisticsProduction"));
-        Assert.That(typeof(SaveManager.GameSaveData).GetFields(), Has.Length.EqualTo(4));
+        Assert.That(typeof(SaveManager.GameSaveData).GetField("PowerProduction"), Is.Null);
+        Assert.That(typeof(SaveManager.GameSaveData).GetField("LogisticsProduction"), Is.Null);
+        Assert.That(typeof(SaveManager.GameSaveData).GetField("PowerSatisfaction"), Is.Not.Null);
+        Assert.That(typeof(SaveManager.GameSaveData).GetField("LogisticsSatisfaction"), Is.Not.Null);
     }
 }

@@ -347,6 +347,42 @@ public sealed class SectorManagerTests
         Assert.That(armsFactory.DefensePowerGranted, Is.EqualTo(new ExpantaNum(2)));
     }
 
+    [Test]
+    public void C810_BuildingManagerDerivesAndRemovesMilitaryPower()
+    {
+        GameObject gameObject = new GameObject("C810-Military-Managers");
+        GameObject resourceObject = new GameObject("C810-ResourceManager");
+        GameObject buildingObject = new GameObject("C810-BuildingManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            resourceObject.AddComponent<ResourceManager>();
+            BuildingManager buildingManager = buildingObject.AddComponent<BuildingManager>();
+            Building barracks = DataBase<Building>.Find("Barracks");
+            BuildingState state = buildingManager.EnsureBuilding(barracks);
+            var method = typeof(BuildingManager).GetMethod(
+                "SetAmountAndRates",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+
+            method.Invoke(buildingManager, new object[] { state, new ExpantaNum(1) });
+            Assert.That(gameManager.State.AttackPower, Is.EqualTo(new ExpantaNum(2)));
+            Assert.That(gameManager.State.DefensePower, Is.EqualTo(new ExpantaNum(1)));
+            Assert.That(gameManager.State.MilitaryManpower, Is.EqualTo(new ExpantaNum(5)));
+
+            method.Invoke(buildingManager, new object[] { state, ExpantaNum.Zero });
+            Assert.That(gameManager.State.AttackPower, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.State.DefensePower, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.State.MilitaryManpower, Is.EqualTo(ExpantaNum.Zero));
+        }
+        finally
+        {
+            Object.DestroyImmediate(buildingObject);
+            Object.DestroyImmediate(resourceObject);
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         var method = typeof(GameState).GetMethod(
