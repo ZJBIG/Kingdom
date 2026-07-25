@@ -25,6 +25,9 @@ MonoBehaviour:
   foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
   foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  attackPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
+  defensePowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  militaryManpowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}

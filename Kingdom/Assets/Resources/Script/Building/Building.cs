@@ -40,6 +40,12 @@ public class Building : GameDefinition
     [SerializeField, Tooltip("每个建筑提供的有效舰队力量；不是资源库存。")]
     private ExpantaNum fleetPowerGranted;
     [SerializeField]
+    private ExpantaNum attackPowerGranted = ExpantaNum.Zero;
+    [SerializeField]
+    private ExpantaNum defensePowerGranted = ExpantaNum.Zero;
+    [SerializeField]
+    private ExpantaNum militaryManpowerGranted = ExpantaNum.Zero;
+    [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
     [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceGenerationRates = new();
@@ -63,6 +69,9 @@ public class Building : GameDefinition
     public ExpantaNum LogisticsProductionRate => logisticsProductionRate;
     public ExpantaNum LogisticsConsumptionRate => logisticsConsumptionRate;
     public ExpantaNum FleetPowerGranted => fleetPowerGranted;
+    public ExpantaNum AttackPowerGranted => attackPowerGranted;
+    public ExpantaNum DefensePowerGranted => defensePowerGranted;
+    public ExpantaNum MilitaryManpowerGranted => militaryManpowerGranted;
     public ExpantaNum CostGrowth =>
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
 

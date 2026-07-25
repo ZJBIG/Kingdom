@@ -332,6 +332,21 @@ public sealed class SectorManagerTests
         Assert.That(moonState.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
     }
 
+    [Test]
+    public void C809_MilitaryBuildingsExposeAttackDefenseAndManpowerSources()
+    {
+        Building barracks = DataBase<Building>.Find("Barracks");
+        Building fortification = DataBase<Building>.Find("Fortification");
+        Building armsFactory = DataBase<Building>.Find("ArmsFactory");
+
+        Assert.That(barracks.AttackPowerGranted, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(barracks.DefensePowerGranted, Is.EqualTo(new ExpantaNum(1)));
+        Assert.That(barracks.MilitaryManpowerGranted, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(fortification.DefensePowerGranted, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(armsFactory.AttackPowerGranted, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(armsFactory.DefensePowerGranted, Is.EqualTo(new ExpantaNum(2)));
+    }
+
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         var method = typeof(GameState).GetMethod(

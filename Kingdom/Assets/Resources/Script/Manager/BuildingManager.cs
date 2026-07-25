@@ -436,6 +436,12 @@ public class BuildingManager : Singleton<BuildingManager>
             scaleDelta * state.Definition.LogisticsConsumptionRate);
         GameManager.Instance.AdjustFleetPower(
             scaleDelta * state.Definition.FleetPowerGranted);
+        GameManager.Instance.AdjustAttackPower(
+            scaleDelta * state.Definition.AttackPowerGranted);
+        GameManager.Instance.AdjustDefensePower(
+            scaleDelta * state.Definition.DefensePowerGranted);
+        GameManager.Instance.AdjustMilitaryManpower(
+            scaleDelta * state.Definition.MilitaryManpowerGranted);
     }
 
     private static void EnsureBuildingResources(Building building)
