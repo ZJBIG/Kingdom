@@ -43,6 +43,25 @@ public sealed class KingdomPlayModeTests
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(10)));
     }
 
+    [UnityTest]
+    public IEnumerator MainTabSwitch_DoesNotMutateGameplayState()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Navigation-Managers");
+        yield return null;
+
+        int versionBefore = gameManager.State.Version;
+        GameObject navigationObject = new GameObject("PlayMode-Navigation");
+        createdObjects.Add(navigationObject);
+        MainNavigationViewer navigation = navigationObject.AddComponent<MainNavigationViewer>();
+
+        navigation.SetMainTab(MainTab.Building);
+        navigation.SetMainTab(MainTab.Research);
+        navigation.SetMainTab(MainTab.Resource);
+
+        Assert.That(navigation.CurrentTab, Is.EqualTo(MainTab.Resource));
+        Assert.That(gameManager.State.Version, Is.EqualTo(versionBefore));
+    }
+
     private T FindOrCreateManager<T>(string name) where T : Component
     {
         T existing = Object.FindObjectOfType<T>();
