@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -81,6 +82,38 @@ public sealed class KingdomPlayModeTests
 
         Assert.That(musicManager.Play(clip), Is.True);
         Assert.That(audioSource.clip, Is.SameAs(clip));
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingViewerDisabled_SimulationContinues()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Building-Managers");
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Building-Managers");
+        BuildingManager buildingManager = FindOrCreateManager<BuildingManager>("PlayMode-Building-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-Building-Managers");
+        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Building-Managers");
+        yield return null;
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, ExpantaNum.Zero);
+        Building lumberyard = DataBase<Building>.Find("Lumberyard");
+        BuildingState state = buildingManager.EnsureBuilding(lumberyard);
+        MethodInfo setAmountAndRates = typeof(BuildingManager).GetMethod(
+            "SetAmountAndRates",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setAmountAndRates, Is.Not.Null);
+        setAmountAndRates.Invoke(buildingManager, new object[] { state, ExpantaNum.One });
+
+        GameObject viewerObject = new GameObject("PlayMode-BuildingViewer");
+        createdObjects.Add(viewerObject);
+        BuildingViewer viewer = viewerObject.AddComponent<BuildingViewer>();
+        viewer.enabled = false;
+
+        simulationManager.SetRunning(false);
+        simulationManager.ManualTick(1d);
+
+        Assert.That(gameManager.State, Is.Not.Null);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(5)));
     }
 
     private T FindOrCreateManager<T>(string name) where T : Component
