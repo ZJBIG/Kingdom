@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: Smithing_Tin
+  m_Name: Smithing_Iron
   m_EditorClassIdentifier: 
-  id: Smithing_Tin
-  Label: "\u51B6\u70BC\u9521"
-  Description: "改进锡矿提炼与加工，为合金制造、精密器具和更先进的金属工业提供材料基础。"
-  BaseCost: 12000
+  id: Smithing_Iron
+  Label: "\u51B6\u70BC\u94C1"
+  Description: "研究高温炼铁与锻造技术，获得足以支撑重型工具、武备和大规模工程的铁材。"
+  BaseCost: 15000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 220, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 420, layer: 0, operators: []}
   BuildingUnlock:
-  - {fileID: 11400000, guid: 4daf4e679f056ec9cafd4c7c9f1ab823, type: 2}
+  - {fileID: 11400000, guid: 3c9f3d568ef45d8bafec3b6b8e09a712, type: 2}
   TechLevel: 1
   x: 8
-  y: 10
+  y: 8

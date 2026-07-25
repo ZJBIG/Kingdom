@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Smithing
   Label: "\u51B6\u70BC\u91D1\u5C5E"
   Description: "Introduces metal smelting and opens copper, tin, iron, and bronze processing."
-  BaseCost: 5000
+  BaseCost: 8000
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
   - {fileID: 11400000, guid: 6e4a1c8b2d5f47a09c3e7b1d8f5264a9, type: 2}

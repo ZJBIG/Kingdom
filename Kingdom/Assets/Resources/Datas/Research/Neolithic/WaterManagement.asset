@@ -16,7 +16,7 @@ MonoBehaviour:
   id: WaterManagement
   Label: "水利管理"
   Description: "修整取水点、排水沟和灌溉路线，让农耕不再完全依赖偶然的降雨。"
-  BaseCost: 6200
+  BaseCost: 5500
   prerequisites:
   - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
   - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}

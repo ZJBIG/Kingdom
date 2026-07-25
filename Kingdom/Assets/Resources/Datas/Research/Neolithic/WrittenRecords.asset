@@ -15,7 +15,7 @@ MonoBehaviour:
   id: WrittenRecords
   Label: "文字记录"
   Description: "用符号记录数量、约定和季节信息，让经验能够跨越个人记忆传给下一代。"
-  BaseCost: 6800
+  BaseCost: 4500
   prerequisites:
   - {fileID: 11400000, guid: 4a6f9bd1540c47e2a1db6c5e3f8b7210, type: 2}
   - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}

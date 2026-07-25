@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ControlledFire
   Label: "控制火种"
   Description: "学会保存、搬运和稳定使用火焰，让人类获得熟食、保暖和驱赶野兽的能力。"
-  BaseCost: 1200
+  BaseCost: 60
   prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}

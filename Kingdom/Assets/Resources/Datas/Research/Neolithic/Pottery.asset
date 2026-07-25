@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Pottery
   Label: "陶器制作"
   Description: "掌握黏土成型与烧制，让人类能够储存食物、搬运饮水并制作更耐用的生活器具。"
-  BaseCost: 3600
+  BaseCost: 1200
   prerequisites:
   - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
   resourceRequirements:

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: AnimalHusbandry
   Label: "动物驯养"
   Description: "观察动物的习性并进行驯养，让人类获得稳定的食物来源和从狩猎走向畜牧的能力。"
-  BaseCost: 3200
+  BaseCost: 240
   prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}

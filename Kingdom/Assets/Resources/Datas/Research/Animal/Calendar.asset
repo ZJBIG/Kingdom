@@ -16,7 +16,7 @@ MonoBehaviour:
   id: Calendar
   Label: "历法"
   Description: "记录月相、季节和迁徙周期，让聚落第一次能够准确理解并计划时间。"
-  BaseCost: 2800
+  BaseCost: 1400
   prerequisites:
   - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
   resourceRequirements:

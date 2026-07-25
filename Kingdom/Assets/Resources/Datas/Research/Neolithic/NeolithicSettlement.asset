@@ -15,7 +15,7 @@ MonoBehaviour:
   id: NeolithicSettlement
   Label: "定居聚落"
   Description: "农业、驯养、陶器与纺织共同成熟，人类终于能够离开迁徙生活，建立可以长期维持的定居聚落。"
-  BaseCost: 7000
+  BaseCost: 2500
   prerequisites:
   - {fileID: 11400000, guid: 12dde9a8f5a549bdac2c27085d753190, type: 2}
   - {fileID: 11400000, guid: a1e320f1f8a04854a0ca04a2051d9a36, type: 2}

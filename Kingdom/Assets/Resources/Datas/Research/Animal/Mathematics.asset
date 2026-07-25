@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Mathematics
   Label: "数学"
   Description: "从数量、分组和简单运算中建立抽象规则，为精确记录、测量和历法计算打下基础。"
-  BaseCost: 3600
+  BaseCost: 1000
   prerequisites:
   - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
   resourceRequirements:

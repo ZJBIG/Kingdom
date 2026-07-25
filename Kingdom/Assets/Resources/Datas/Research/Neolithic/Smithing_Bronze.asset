@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Smithing_Bronze
   Label: "\u51B6\u70BC\u9752\u94DC"
   Description: "\u7814\u7A76\u94DC\u4E0E\u5176\u4ED6\u91D1\u5C5E\u7684\u914D\u6BD4\u548C\u94F8\u9020\u6280\u672F\uFF0C\u5236\u9020\u6BD4\u77F3\u5668\u66F4\u575A\u97E7\u53EF\u9760\u7684\u9752\u94DC\u5DE5\u5177\u4E0E\u6B66\u5668\u3002"
-  BaseCost: 5000
+  BaseCost: 20000
   prerequisites:
   - {fileID: 11400000, guid: 8487fd4809790b14ab8eeb42d2b906a2, type: 2}
   - {fileID: 11400000, guid: 0d09b89ba4e1e4c479483a92ab621b1c, type: 2}

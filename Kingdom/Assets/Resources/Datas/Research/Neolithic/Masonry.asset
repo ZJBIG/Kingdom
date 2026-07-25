@@ -16,7 +16,7 @@ MonoBehaviour:
   id: Masonry
   Label: "砌筑技术"
   Description: "掌握承重、抹缝和墙体修整，让居所更加坚固、耐久并适合长期生活。"
-  BaseCost: 7600
+  BaseCost: 6500
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
   - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: FoodStorage
   Label: "食物储藏"
   Description: "总结干燥、密封和防潮经验，让聚落能够跨越季节保存食物，并提高安全储量。"
-  BaseCost: 4200
+  BaseCost: 3500
   prerequisites:
   - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}
   resourceRequirements:

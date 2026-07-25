@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: Agriculture
+  m_Name: TreeCultivate
   m_EditorClassIdentifier: 
-  id: Agriculture
-  Label: "\u519C\u4E1A"
-  Description: "系统掌握播种、耕作与收获，让人口增长不再完全受制于野外食物的偶然性。"
-  BaseCost: 180
-  prerequisites: []
+  id: TreeCultivate
+  Label: "\u690D\u6811"
+  Description: "掌握有计划地种植和照料树木的方法，让木材来源不再完全依赖野外采集。"
+  BaseCost: 750
+  prerequisites:
+  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
   resourceRequirements: []
   BuildingUnlock:
-  - {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
-  - {fileID: 11400000, guid: 67d9710a4528473c9d3ae62ff260d5f5, type: 2}
+  - {fileID: 11400000, guid: ca3f59da2f199d043b5e67ac86f178e5, type: 2}
   TechLevel: 0
-  x: 0
+  x: 2
   y: 4

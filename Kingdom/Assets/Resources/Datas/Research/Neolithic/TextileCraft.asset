@@ -15,7 +15,7 @@ MonoBehaviour:
   id: TextileCraft
   Label: "纺织工艺"
   Description: "把植物纤维纺成绳索和布料，改善住房、储存与劳动工具，让定居生活更加稳定。"
-  BaseCost: 3400
+  BaseCost: 1400
   prerequisites:
   - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
   resourceRequirements:
