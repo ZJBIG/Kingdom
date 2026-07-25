@@ -1,7 +1,7 @@
 ﻿Id,Label,TechLevel,BaseCost,AdvancesTechLevel,Prerequisites,ResourceRequirements,BuildingUnlocks,ReachableFromNewGameStaticAudit,Path
 ControlledFire,控制火种,Animal/原始,1200,False,,WoodLog:20,,True,Assets/Resources/Datas/Research/Animal/ControlledFire.asset
 AnimalHusbandry,动物驯养,Animal/原始,3200,False,,WoodLog:80,Pasture,True,Assets/Resources/Datas/Research/Animal/AnimalHusbandry.asset
-Agriculture,农业,Animal/原始,5000,False,,,,True,Assets/Resources/Datas/Research/Animal/Agriculture.asset
+Agriculture,农业,Animal/原始,5000,False,,,"Farm; FiberGatheringCamp",True,Assets/Resources/Datas/Research/Animal/Agriculture.asset
 Quarry,采石场,Animal/原始,1000,False,,WoodLog:500,Quarry,True,Assets/Resources/Datas/Research/Animal/Quarry.asset
 StoneTools,打制石器,Animal/原始,1800,False,ControlledFire,WoodLog:30; StoneChunk_Marble:20,,True,Assets/Resources/Datas/Research/Animal/StoneTools.asset
 TreeCultivate,植树,Animal/原始,1e4,False,Agriculture,,Lumberyard,True,Assets/Resources/Datas/Research/Animal/TreeCultivate.asset
@@ -12,6 +12,7 @@ StoneCutting,切石技术,Animal/原始,5000,False,Quarry,WoodLog:500,StoneCutti
 Mathematics,数学,Animal/原始,3600,False,ForagingGroups,WoodLog:80; StoneChunk_Marble:40,,True,Assets/Resources/Datas/Research/Animal/Mathematics.asset
 Mining_Quartz,石英采掘,Animal/原始,e6,False,Mining_Copper,,,True,Assets/Resources/Datas/Research/Animal/Mining_Quartz.asset
 Calendar,历法,Animal/原始,2800,False,Mathematics,WoodLog:80; StoneChunk_Marble:30,,True,Assets/Resources/Datas/Research/Animal/Calendar.asset
+ClayExtraction,黏土采集,Animal/原始,240,False,ControlledFire,WoodLog:40,ClayPit,True,Assets/Resources/Datas/Research/Animal/ClayExtraction.asset
 Pottery,陶器制作,Neolithic/新石器,3600,False,StoneTools,Clay:50,PotteryKiln,False,Assets/Resources/Datas/Research/Neolithic/Pottery.asset
 TextileCraft,纺织工艺,Neolithic/新石器,3400,False,Agriculture,PlantFiber:50,WeavingWorkshop,False,Assets/Resources/Datas/Research/Neolithic/TextileCraft.asset
 CoalMining,煤炭开采,Neolithic/新石器,7200,False,Mining,WoodLog:220; StoneChunk_Marble:140,CoalMine,False,Assets/Resources/Datas/Research/Neolithic/CoalMining.asset

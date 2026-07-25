@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ClayExtraction
+  m_EditorClassIdentifier: 
+  id: ClayExtraction
+  Label: "\u9ECF\u571F\u91C7\u96C6"
+  Description: "\u638C\u63E1\u4ECE\u6CB3\u5CB8\u548C\u6E56\u5CB8\u63D0\u53D6\u9ECF\u571F\u7684\u65B9\u6CD5\uFF0C\u89E3\u9501\u9ECF\u571F\u5751\u3002"
+  BaseCost: 240
+  prerequisites:
+  - {fileID: 11400000, guid: 7aa0ac993e0240d09d92b5a9be2d496e, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  BuildingUnlock:
+  - {fileID: 11400000, guid: faf6768594ac486bb133f5181a179f01, type: 2}
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 2
+  y: 4

@@ -1,7 +1,7 @@
 ﻿ResourceId,Producers,ContinuousConsumers,BuildingCostSinks,ResearchSinks,HasProducer,HasAnySink,CurrentlyUnused
 Bronze,BronzeFoundry,,,,True,False,False
 Citrine,,,,,False,False,True
-Clay,,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,False,True,False
+Clay,ClayPit,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,True,True,False
 Coal,CoalMine,BronzeFoundry; IronSmelter; TinSmelter; CopperSmelter,,SmithingRevolution; Smithing_Tin; Smithing_Iron; Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
 Copper,CopperSmelter,BronzeFoundry,,,True,True,False
 CopperOre,,CopperSmelter,,Smithing; Smithing_Copper; Smithing_Bronze,False,True,False
@@ -16,7 +16,7 @@ IronOre,,IronSmelter,,SmithingRevolution; Smithing_Iron,False,True,False
 Jade,,,,,False,False,True
 Mithril,,,,,False,False,True
 MithrilOre,,,,,False,False,True
-PlantFiber,,,WeavingWorkshop,TextileCraft,False,True,False
+PlantFiber,FiberGatheringCamp,,WeavingWorkshop,TextileCraft,True,True,False
 RoseWoodLog,,,,,False,False,True
 Ruby,,,,,False,False,True
 Sapphire,,,,,False,False,True
