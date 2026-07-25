@@ -26,6 +26,20 @@ public sealed class ResourceContinuityTests
         });
     }
 
+    [Test]
+    public void CampaignStrategicResourcesHaveIndustrialSourcesAndSinks()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(HasGenerationRate("ChemicalPlant", "RocketFuel", 0.25d), Is.True);
+            Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.15d), Is.True);
+            Assert.That(HasBuildingRequirement("LaunchCenter", "RocketFuel"), Is.True);
+            Assert.That(HasBuildingRequirement("Shipyard", "Composite"), Is.True);
+            Assert.That(HasCampaignCost("Moon", "RocketFuel", 1d), Is.True);
+            Assert.That(HasCampaignCost("Mars", "Composite", 1d), Is.True);
+        });
+    }
+
     private static bool HasRequirement(Research research, string resourceId, double amount)
     {
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
@@ -47,6 +61,34 @@ public sealed class ResourceContinuityTests
             if (pair.First != null && pair.First.Id == resourceId)
                 return true;
         }
+        return false;
+    }
+
+    private static bool HasGenerationRate(string buildingId, string resourceId, double amount)
+    {
+        Building building = DataBase<Building>.Find(buildingId);
+        for (int i = 0; i < building.ResourceGenerationRates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = building.ResourceGenerationRates[i];
+            if (pair.First != null && pair.First.Id == resourceId &&
+                pair.Second.ToDouble() == amount)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasCampaignCost(string sectorId, string resourceId, double amount)
+    {
+        SectorDefinition sector = DataBase<SectorDefinition>.Find(sectorId);
+        for (int i = 0; i < sector.CampaignResourceCosts.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = sector.CampaignResourceCosts[i];
+            if (pair.First != null && pair.First.Id == resourceId &&
+                pair.Second.ToDouble() == amount)
+                return true;
+        }
+
         return false;
     }
 }

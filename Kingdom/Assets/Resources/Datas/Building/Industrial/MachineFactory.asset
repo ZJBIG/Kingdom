@@ -45,7 +45,7 @@ MonoBehaviour:
   - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.25, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: c7400000000000000000000000000002, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.2, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.15, layer: 0, operators: []}
   resourceConsumptionRates:
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.8, layer: 0, operators: []}
