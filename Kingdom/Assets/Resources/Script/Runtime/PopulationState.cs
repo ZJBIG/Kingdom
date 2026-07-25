@@ -57,7 +57,10 @@ public sealed class PopulationState
 
     internal void AdjustPopulationCapacity(ExpantaNum delta)
     {
-        populationCapacity = ExpantaNum.Max(population, populationCapacity + delta);
+        ExpantaNum next = ExpantaNum.Max(population, populationCapacity + delta);
+        if (populationCapacity == next)
+            return;
+        populationCapacity = next;
         Version++;
     }
 
@@ -80,9 +83,12 @@ public sealed class PopulationState
 
     internal void AdjustBuildingWorkforce(ExpantaNum delta)
     {
-        assignedBuildingWorkforce = ExpantaNum.Max(
+        ExpantaNum next = ExpantaNum.Max(
             ExpantaNum.Zero,
             assignedBuildingWorkforce + delta);
+        if (assignedBuildingWorkforce == next)
+            return;
+        assignedBuildingWorkforce = next;
         Version++;
     }
 

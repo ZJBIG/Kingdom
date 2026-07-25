@@ -39,14 +39,20 @@ public sealed class TerritoryState
 
     internal void ResetDerived(ExpantaNum minimumTotal)
     {
-        total = ExpantaNum.Max(total, ExpantaNum.Max(ExpantaNum.Zero, minimumTotal));
+        ExpantaNum nextTotal = ExpantaNum.Max(total, ExpantaNum.Max(ExpantaNum.Zero, minimumTotal));
+        if (total == nextTotal && used == ExpantaNum.Zero)
+            return;
+        total = nextTotal;
         used = ExpantaNum.Zero;
         Version++;
     }
 
     internal void AdjustUsed(ExpantaNum delta)
     {
-        used = ExpantaNum.Clamp(used + delta, ExpantaNum.Zero, total);
+        ExpantaNum next = ExpantaNum.Clamp(used + delta, ExpantaNum.Zero, total);
+        if (used == next)
+            return;
+        used = next;
         Version++;
     }
 }
