@@ -157,6 +157,23 @@ public sealed class SectorMapViewer : MonoBehaviour, IGameUIRefreshable
         builder.AppendLine($"状态：{GetAccessStatus(state, States)}");
         builder.AppendLine($"敌对力量：{selectedSector.EnemyPower.ToGameString()}");
         builder.AppendLine($"领土奖励：{selectedSector.TerritoryReward.ToGameString()}");
+        SectorCampaignPreview preview = SectorManager.GetCampaignPreview(
+            selectedSector,
+            GameManager.Instance.State,
+            ResourceManager.Instance);
+        if (preview.IsValid && selectedSector.EnemyPower > ExpantaNum.Zero)
+        {
+            builder.AppendLine($"Campaign ratio: {preview.CombatRatio.ToGameString()}");
+            builder.AppendLine($"Progress/min: {preview.ProgressPerMinute.ToGameString()}");
+            builder.AppendLine($"Casualties/min: {preview.CasualtiesPerMinute.ToGameString()}");
+            builder.AppendLine($"Food/min: {preview.FoodCostPerMinute.ToGameString()}");
+            for (int i = 0; i < preview.ResourceCostsPerMinute.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> cost = preview.ResourceCostsPerMinute[i];
+                builder.AppendLine($"{cost.First.Id}/min: {cost.Second.ToGameString()}");
+            }
+            builder.AppendLine(preview.HasSupply ? "Supply: Ready" : "Supply: Insufficient");
+        }
         detailText.text = builder.ToString();
     }
 

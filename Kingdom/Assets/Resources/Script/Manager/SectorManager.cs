@@ -19,6 +19,41 @@ public enum SectorOperationFailure
     InvalidCampaignCost
 }
 
+public sealed class SectorCampaignPreview
+{
+    public bool IsValid { get; }
+    public bool HasSupply { get; }
+    public ExpantaNum CurrentProgress { get; }
+    public ExpantaNum EffectivePower { get; }
+    public ExpantaNum CombatRatio { get; }
+    public ExpantaNum ProgressPerMinute { get; }
+    public ExpantaNum CasualtiesPerMinute { get; }
+    public ExpantaNum FoodCostPerMinute { get; }
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerMinute { get; }
+
+    internal SectorCampaignPreview(
+        bool isValid,
+        bool hasSupply,
+        ExpantaNum currentProgress,
+        ExpantaNum effectivePower,
+        ExpantaNum combatRatio,
+        ExpantaNum progressPerMinute,
+        ExpantaNum casualtiesPerMinute,
+        ExpantaNum foodCostPerMinute,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCostsPerMinute)
+    {
+        IsValid = isValid;
+        HasSupply = hasSupply;
+        CurrentProgress = currentProgress;
+        EffectivePower = effectivePower;
+        CombatRatio = combatRatio;
+        ProgressPerMinute = progressPerMinute;
+        CasualtiesPerMinute = casualtiesPerMinute;
+        FoodCostPerMinute = foodCostPerMinute;
+        ResourceCostsPerMinute = resourceCostsPerMinute;
+    }
+}
+
 public sealed class SectorManager
 {
     private const string LaunchCenterId = "LaunchCenter";
@@ -67,6 +102,59 @@ public sealed class SectorManager
         if (states.TryGetValue(definition, out SectorState state))
             return state;
         throw new KeyNotFoundException($"Sector state '{definition.Id}' has not been created.");
+    }
+
+    public SectorCampaignPreview GetCampaignPreview(
+        SectorDefinition definition,
+        GameState runtimeState,
+        ResourceManager resourceManager)
+    {
+        EnsureInitialized();
+        if (definition == null || runtimeState == null || !states.TryGetValue(definition, out SectorState state))
+            return new SectorCampaignPreview(
+                false,
+                false,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                Array.Empty<Pair<Resource, ExpantaNum>>());
+
+        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
+            runtimeState.AttackPower,
+            runtimeState.FleetPower,
+            runtimeState.MilitaryManpower,
+            runtimeState.SupplySatisfaction,
+            runtimeState.PowerSatisfaction,
+            runtimeState.LogisticsSatisfaction,
+            ProgressionModifierManager.Current.MilitaryMultiplier);
+        ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
+        ExpantaNum progressPerMinute = CampaignManager.CalculateProgressRate(combatRatio);
+        ExpantaNum casualtiesPerMinute = CampaignManager.CalculateCasualtyAmount(combatRatio, 60d);
+        ExpantaNum foodCostPerMinute = ExpantaNum.Max(ExpantaNum.Zero, definition.CampaignFoodPerMinute);
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts = definition.CampaignResourceCosts ??
+            Array.Empty<Pair<Resource, ExpantaNum>>();
+        bool hasSupply = runtimeState.FoodAmount >= foodCostPerMinute;
+        for (int i = 0; i < resourceCosts.Count && hasSupply; i++)
+        {
+            Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+            hasSupply = resourceManager != null &&
+                resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState) &&
+                resourceState.Amount >= cost.Second;
+        }
+
+        return new SectorCampaignPreview(
+            true,
+            hasSupply,
+            state.CampaignProgress,
+            effectivePower,
+            combatRatio,
+            progressPerMinute,
+            casualtiesPerMinute,
+            foodCostPerMinute,
+            resourceCosts);
     }
 
     public bool CanAccess(SectorDefinition definition)

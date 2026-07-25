@@ -114,6 +114,41 @@ public sealed class SectorManagerTests
         Assert.That(state.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
     }
 
+    [Test]
+    public void C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorState state = manager.GetState(moon);
+        state.SetUnlockedForEditor(true);
+        var runtimeState = new GameState();
+        InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+        InvokeGameStateMethod(runtimeState, "AdjustFleetPower", new ExpantaNum(50));
+        InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(150));
+
+        SectorCampaignPreview preview = manager.GetCampaignPreview(moon, runtimeState, null);
+
+        Assert.That(preview.IsValid, Is.True);
+        Assert.That(preview.CurrentProgress, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(preview.CombatRatio.ToDouble(), Is.EqualTo(1.5d).Within(0.000001d));
+        Assert.That(preview.ProgressPerMinute.ToDouble(), Is.EqualTo(0.625d).Within(0.000001d));
+        Assert.That(preview.CasualtiesPerMinute, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(preview.FoodCostPerMinute, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(preview.ResourceCostsPerMinute, Has.Count.EqualTo(1));
+        Assert.That(preview.ResourceCostsPerMinute[0].First.Id, Is.EqualTo("RocketFuel"));
+        Assert.That(preview.HasSupply, Is.False);
+    }
+
+    private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
+    {
+        var method = typeof(GameState).GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
+
     private static void InvokeCampaignMethod(CampaignState state, string methodName, params object[] arguments)
     {
         var method = typeof(CampaignState).GetMethod(
