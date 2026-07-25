@@ -14,6 +14,7 @@ public enum BuildFailure
 
 public class BuildingManager : Singleton<BuildingManager>
 {
+    private const double DeconstructionReturnRate = 0.2d;
     private readonly Dictionary<Building, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
 
@@ -80,7 +81,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        ExpantaNum requiredProductivity = state.BuildEffort * amount;
+        ExpantaNum requiredProductivity = state.ProductivityConsumption * amount;
         if (GameManager.Instance.State.AvailableProductivity < requiredProductivity)
         {
             failure = BuildFailure.ProductivityInsufficient;
@@ -91,7 +92,11 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
-            if (ResourceManager.Instance.GetAmount(pair.First) < pair.Second * amount)
+            ExpantaNum totalCost = pair.Second.GeometricSeriesCost(
+                building.CostGrowth,
+                state.Amount,
+                amount);
+            if (totalCost.IsNaN || ResourceManager.Instance.GetAmount(pair.First) < totalCost)
             {
                 failure = BuildFailure.ResourceInsufficient;
                 return false;
@@ -101,7 +106,11 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
-            ResourceManager.Instance.AddAmount(pair.First, -pair.Second * amount);
+            ExpantaNum totalCost = pair.Second.GeometricSeriesCost(
+                building.CostGrowth,
+                state.Amount,
+                amount);
+            ResourceManager.Instance.AddAmount(pair.First, -totalCost);
         }
 
         GameManager.Instance.CommitConstruction(
@@ -137,7 +146,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         ExpantaNum productivityAfterRemoval =
-            GameManager.Instance.State.AvailableProductivity + state.BuildEffort * amount -
+            GameManager.Instance.State.AvailableProductivity + state.ProductivityConsumption * amount -
             state.ProductivityGranted * amount;
         if (productivityAfterRemoval < ExpantaNum.Zero)
         {
@@ -149,14 +158,18 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
+            ExpantaNum refund = pair.Second.GeometricSeriesCost(
+                building.CostGrowth,
+                state.Amount - amount,
+                amount);
             ResourceManager.Instance.AddAmount(
                 pair.First,
-                pair.Second * amount * building.DeconstructReturnPercentage);
+                refund * DeconstructionReturnRate);
         }
 
         GameManager.Instance.RefundConstruction(
             state.SpaceCost * amount,
-            state.BuildEffort * amount,
+            state.ProductivityConsumption * amount,
             state.ProductivityGranted * amount);
         SetAmountAndRates(state, state.Amount - amount);
         failure = BuildFailure.None;
@@ -175,11 +188,11 @@ public class BuildingManager : Singleton<BuildingManager>
 
         if (state.SpaceCost > ExpantaNum.Zero)
             result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableSpace / state.SpaceCost).Floor());
-        if (state.BuildEffort > ExpantaNum.Zero)
+        if (state.ProductivityConsumption > ExpantaNum.Zero)
         {
             result = ExpantaNum.Min(
                 result,
-                (GameManager.Instance.State.AvailableProductivity / state.BuildEffort).Floor());
+                (GameManager.Instance.State.AvailableProductivity / state.ProductivityConsumption).Floor());
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
@@ -190,7 +203,10 @@ public class BuildingManager : Singleton<BuildingManager>
                 continue;
             result = ExpantaNum.Min(
                 result,
-                (ResourceManager.Instance.GetAmount(pair.First) / pair.Second).Floor());
+                ResourceManager.Instance.GetAmount(pair.First).MaxAffordableGeometricSeries(
+                    pair.Second,
+                    building.CostGrowth,
+                    state.Amount));
         }
 
         return ExpantaNum.Max(ExpantaNum.Zero, result);
@@ -356,7 +372,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
             GameManager.Instance.CommitConstruction(
                 state.SpaceCost * state.Amount,
-                state.BuildEffort * state.Amount,
+                state.ProductivityConsumption * state.Amount,
                 state.ProductivityGranted * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }

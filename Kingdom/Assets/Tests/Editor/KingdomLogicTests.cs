@@ -508,7 +508,7 @@ public sealed class KingdomLogicTests
         Assert.That(state.AutoBuildProgress, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AutoBuildWorkRequired, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(state.SpaceCost, Is.EqualTo(new ExpantaNum(2)));
-        Assert.That(state.BuildEffort, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(state.ProductivityConsumption, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(state.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
     }
 
@@ -518,7 +518,7 @@ public sealed class KingdomLogicTests
         Building constructionCenter = DataBase<Building>.Find("ConstructionCenter");
         Building farm = DataBase<Building>.Find("Farm");
 
-        Assert.That(constructionCenter.BuildEffort, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(constructionCenter.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(constructionCenter.ProductivityGranted, Is.EqualTo(new ExpantaNum(1000)));
         Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(farm.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
