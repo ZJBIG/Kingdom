@@ -116,6 +116,56 @@ public sealed class KingdomPlayModeTests
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(5)));
     }
 
+    [UnityTest]
+    public IEnumerator ResearchViewerDisabled_ResearchContinues()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Research-Managers");
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Research-Managers");
+        FindOrCreateManager<BuildingManager>("PlayMode-Research-Managers");
+        ResearchManager researchManager = FindOrCreateManager<ResearchManager>("PlayMode-Research-Managers");
+        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Research-Managers");
+        yield return null;
+
+        Research research = FindAvailableResearch(researchManager);
+        ResearchState state = researchManager.GetState(research);
+        for (int i = 0; i < research.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+            resourceManager.SetAmount(requirement.First, requirement.Second * 2d);
+        }
+
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+        Assert.That(researchManager.StartResearch(research), Is.True);
+
+        GameObject viewerObject = new GameObject("PlayMode-ResearchViewer");
+        createdObjects.Add(viewerObject);
+        ResearchViewer viewer = viewerObject.AddComponent<ResearchViewer>();
+        viewer.enabled = false;
+
+        simulationManager.SetRunning(false);
+        ExpantaNum before = state.Progress;
+        simulationManager.ManualTick(1d);
+
+        Assert.That(gameManager.State, Is.Not.Null);
+        Assert.That(state.Progress, Is.GreaterThan(before));
+    }
+
+    private static Research FindAvailableResearch(ResearchManager researchManager)
+    {
+        IReadOnlyList<Research> researches = DataBase<Research>.All;
+        for (int i = 0; i < researches.Count; i++)
+        {
+            Research research = researches[i];
+            ResearchState state = researchManager.GetState(research);
+            if (state.Status != ResearchStatus.Completed &&
+                (research.Prerequisites == null || research.Prerequisites.Count == 0))
+                return research;
+        }
+
+        Assert.Fail("No unfinished research without prerequisites is available for the PlayMode test.");
+        return null;
+    }
+
     private T FindOrCreateManager<T>(string name) where T : Component
     {
         T existing = Object.FindObjectOfType<T>();
