@@ -490,7 +490,7 @@ public sealed class KingdomLogicTests
 
         Assert.That(farm.ResourceRequirements.Count, Is.EqualTo(1));
         Assert.That(farm.ResourceRequirements[0].First, Is.SameAs(DataBase<Resource>.Find("WoodLog")));
-        Assert.That(farm.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(farm.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum(50)));
         Assert.That(farm.ResourceGenerationRates, Is.Empty);
         Assert.That(farm.ResourceConsumptionRates, Is.Empty);
     }
@@ -507,20 +507,20 @@ public sealed class KingdomLogicTests
         Assert.That(state.AutoBuild, Is.False);
         Assert.That(state.AutoBuildProgress, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AutoBuildWorkRequired, Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(state.SpaceCost, Is.EqualTo(new ExpantaNum(2)));
-        Assert.That(state.ProductivityConsumption, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(state.SpaceCost, Is.EqualTo(new ExpantaNum(4)));
+        Assert.That(state.ProductivityConsumption, Is.EqualTo(new ExpantaNum(3)));
         Assert.That(state.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
     public void BuildingDefinitions_SplitCostsFromGrantedProductionAndFood()
     {
-        Building constructionCenter = DataBase<Building>.Find("ConstructionCenter");
         Building farm = DataBase<Building>.Find("Farm");
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
 
-        Assert.That(constructionCenter.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(constructionCenter.ProductivityGranted, Is.EqualTo(new ExpantaNum(1000)));
-        Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(8)));
         Assert.That(farm.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
     }
 

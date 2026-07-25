@@ -12,6 +12,7 @@ public sealed class GameState
     public ExpantaNum FoodCapacity { get; private set; }
     public ExpantaNum FoodProductionRate { get; private set; }
     public ExpantaNum FoodConsumptionRate { get; private set; }
+    public ExpantaNum FoodSatisfaction { get; private set; }
     public ExpantaNum AvailableSpace { get; private set; }
     public ExpantaNum AvailableProductivity { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
@@ -28,6 +29,7 @@ public sealed class GameState
         FoodCapacity = new ExpantaNum(10000);
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
+        FoodSatisfaction = ExpantaNum.One;
         AvailableSpace = new ExpantaNum(100000);
         AvailableProductivity = new ExpantaNum(100);
         LastSaveUnixSeconds = 0;
@@ -45,6 +47,7 @@ public sealed class GameState
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = techLevel;
         FoodAmount = ExpantaNum.Max(ExpantaNum.Zero, foodAmount);
+        FoodSatisfaction = ExpantaNum.One;
         FoodCapacity = ExpantaNum.Max(FoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
         Version++;
@@ -54,6 +57,7 @@ public sealed class GameState
     {
         FoodProductionRate = ExpantaNum.Zero;
         FoodConsumptionRate = ExpantaNum.Zero;
+        FoodSatisfaction = ExpantaNum.One;
         FoodCapacity = new ExpantaNum(10000);
         AvailableSpace = ExpantaNum.Max(ExpantaNum.Zero, availableSpace);
         AvailableProductivity = ExpantaNum.Max(ExpantaNum.Zero, availableProductivity);
@@ -88,6 +92,16 @@ public sealed class GameState
     {
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
         FoodAmount = ExpantaNum.Min(FoodAmount, FoodCapacity);
+        Version++;
+    }
+
+    internal void SetFoodSatisfaction(ExpantaNum value)
+    {
+        ExpantaNum normalized = ExpantaNum.Clamp01(value);
+        if (FoodSatisfaction == normalized)
+            return;
+
+        FoodSatisfaction = normalized;
         Version++;
     }
 

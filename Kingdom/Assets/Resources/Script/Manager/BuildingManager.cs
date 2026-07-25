@@ -265,11 +265,16 @@ public class BuildingManager : Singleton<BuildingManager>
 
         ResourceManager resourceManager = ResourceManager.Instance;
         resourceManager.BeginTick();
+        ExpantaNum potentialFoodProduction = ExpantaNum.Zero;
+        ExpantaNum potentialFoodConsumption = ExpantaNum.Zero;
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
             ExpantaNum potentialScale = state.Amount * ExpantaNum.Clamp01(GlobalEfficiencyFactor);
             ExpantaNum actualScale = state.Amount * state.Efficiency;
+
+            potentialFoodProduction += potentialScale * state.Definition.FoodProductionRate;
+            potentialFoodConsumption += potentialScale * state.Definition.FoodConsumptionRate;
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
             for (int j = 0; j < generation.Count; j++)
@@ -284,6 +289,10 @@ public class BuildingManager : Singleton<BuildingManager>
                     (potentialScale - actualScale) * consumption[j].Second);
         }
 
+        GameManager.Instance.PrepareFoodSatisfaction(
+            potentialFoodProduction,
+            potentialFoodConsumption,
+            deltaSeconds);
         resourceManager.CalculateTickSatisfaction(deltaSeconds);
     }
 
@@ -329,13 +338,26 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private ExpantaNum CalculateEfficiency(Building building)
     {
-        ExpantaNum result = GlobalEfficiencyFactor;
+        ExpantaNum resourceSatisfaction = ExpantaNum.One;
         IReadOnlyList<Pair<Resource, ExpantaNum>> rates = building.ResourceConsumptionRates;
         for (int i = 0; i < rates.Count; i++)
-        {
-            result *= ResourceManager.Instance.GetTickSatisfaction(rates[i].First);
-        }
-        return ExpantaNum.Clamp01(result);
+            resourceSatisfaction *= ResourceManager.Instance.GetTickSatisfaction(rates[i].First);
+
+        return CalculateEffectiveEfficiency(
+            GlobalEfficiencyFactor,
+            resourceSatisfaction,
+            GameManager.Instance.State.FoodSatisfaction);
+    }
+
+    public static ExpantaNum CalculateEffectiveEfficiency(
+        ExpantaNum globalEfficiency,
+        ExpantaNum resourceSatisfaction,
+        ExpantaNum foodSatisfaction)
+    {
+        return ExpantaNum.Clamp01(
+            globalEfficiency *
+            ExpantaNum.Clamp01(resourceSatisfaction) *
+            ExpantaNum.Clamp01(foodSatisfaction));
     }
 
     private static ExpantaNum GetAutoBuildEfficiency(TechLevel techLevel)

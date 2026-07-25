@@ -109,6 +109,36 @@ public class GameManager : Singleton<GameManager>
             ExpantaNum.Max(ExpantaNum.Zero, capacity));
     }
 
+    public static ExpantaNum CalculateFoodSatisfaction(
+        ExpantaNum currentInventory,
+        ExpantaNum potentialProductionRate,
+        ExpantaNum potentialConsumptionRate,
+        double deltaSeconds)
+    {
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+
+        ExpantaNum available = ExpantaNum.Max(ExpantaNum.Zero, currentInventory) +
+            ExpantaNum.Max(ExpantaNum.Zero, potentialProductionRate) * deltaSeconds;
+        ExpantaNum demand = ExpantaNum.Max(ExpantaNum.Zero, potentialConsumptionRate) * deltaSeconds;
+        if (demand <= ExpantaNum.Zero)
+            return ExpantaNum.One;
+
+        return ExpantaNum.Clamp01(available / demand);
+    }
+
+    internal void PrepareFoodSatisfaction(
+        ExpantaNum potentialProductionRate,
+        ExpantaNum potentialConsumptionRate,
+        double deltaSeconds)
+    {
+        State.SetFoodSatisfaction(CalculateFoodSatisfaction(
+            State.FoodAmount,
+            potentialProductionRate,
+            potentialConsumptionRate,
+            deltaSeconds));
+    }
+
     public bool CanAffordConstruction(ExpantaNum spaceCost, ExpantaNum buildEffort) =>
         State.AvailableSpace >= spaceCost && State.AvailableProductivity >= buildEffort;
 

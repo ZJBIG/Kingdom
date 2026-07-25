@@ -6,6 +6,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
     private const string ResourceTabLabel = "资源";
     private const string BuildingTabLabel = "建筑";
     private const string ResearchTabLabel = "研究";
+    private const string SpecialTabLabel = "特殊";
 
     [SerializeField] private TMP_Text Text_Calendar;
     [SerializeField] private TMP_Text Text_TechLevel;
@@ -42,6 +43,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         {
             MainTab.Building => BuildingTabLabel,
             MainTab.Research => ResearchTabLabel,
+            MainTab.Special => SpecialTabLabel,
             _ => ResourceTabLabel
         };
     }
@@ -51,16 +53,9 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (state == null)
             return;
 
-        bool calendarKnown = ResearchManager.Instance != null &&
-            ResearchManager.Instance.IsResearchCompleted("Calendar");
+        bool calendarKnown = ResearchManager.Instance.IsResearchCompleted("Calendar");
         if (Text_Calendar != null)
-        {
-            Text_Calendar.enabled = calendarKnown;
-            if (calendarKnown)
-                SetTextIfChanged(Text_Calendar, GameManager.CalendarDataToString(state.CalendarDays));
-            else
-                SetTextIfChanged(Text_Calendar, string.Empty);
-        }
+            SetTextIfChanged(Text_Calendar, calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??");
         if (Text_TechLevel != null)
             SetTextIfChanged(Text_TechLevel, $"技术等级:{state.TechLevel.GetDescription()}");
 
@@ -69,9 +64,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             ? "+" + netFoodRate.ToGameString()
             : netFoodRate.ToGameString();
         if (Text_Food != null)
-            SetTextIfChanged(
-                Text_Food,
-                $"粮食:{state.FoodAmount.ToGameString()}/{state.FoodCapacity.ToGameString()}   {signedFoodRate}/s");
+            SetTextIfChanged(Text_Food,$"粮食:{state.FoodAmount.ToGameString()}/{state.FoodCapacity.ToGameString()}   {signedFoodRate}/s");
         if (Text_KingdomName != null)
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
         if (Text_Productivity != null)
@@ -82,12 +75,15 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             string researchPower = researchManager == null
                 ? ExpantaNum.One.ToGameString()
                 : researchManager.ResearchPower.ToGameString();
+            string foodEfficiency = state.FoodSatisfaction < ExpantaNum.One
+                ? $"   Food Limit: {state.FoodSatisfaction.ToGameString()}"
+                : string.Empty;
             SetTextIfChanged(
                 Text_Productivity,
-                $"Productivity: {state.AvailableProductivity.ToGameString()}   Research Power: {researchPower}/s");
+                $"Productivity: {state.AvailableProductivity.ToGameString()}   Research Power: {researchPower}/s{foodEfficiency}");
         }
         if (Text_KingdomSpace != null)
-            SetTextIfChanged(Text_KingdomSpace, $"剩余领土:{state.AvailableSpace.ToGameString()}");
+            SetTextIfChanged(Text_KingdomSpace, $"领土:{state.AvailableSpace.ToGameString()}");
     }
 
     public void RefreshUI() => Refresh(GameManager.Instance.State);
