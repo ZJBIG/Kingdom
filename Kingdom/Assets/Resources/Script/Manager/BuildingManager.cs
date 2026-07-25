@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public enum BuildFailure
 {
@@ -20,6 +21,7 @@ public class BuildingManager : Singleton<BuildingManager>
     private readonly List<BuildingState> orderedStates = new();
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
+    internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
     public event Action<BuildingState> BuildingStateAdded;
 
@@ -146,6 +148,7 @@ public class BuildingManager : Singleton<BuildingManager>
             requiredProductivity,
             state.ProductivityGranted * amount);
         SetAmountAndRates(state, state.Amount + amount);
+        RefreshResearchPower();
         failure = BuildFailure.None;
         return true;
     }
@@ -200,6 +203,7 @@ public class BuildingManager : Singleton<BuildingManager>
             state.ProductivityConsumption * amount,
             state.ProductivityGranted * amount);
         SetAmountAndRates(state, state.Amount - amount);
+        RefreshResearchPower();
         failure = BuildFailure.None;
         return true;
     }
@@ -251,6 +255,7 @@ public class BuildingManager : Singleton<BuildingManager>
             ApplyRateDelta(state, state.Amount, state.Efficiency, state.Amount, efficiency);
             state.SetEfficiency(efficiency);
         }
+        RefreshResearchPower();
     }
 
     internal void PrepareTickResourceSatisfaction(double deltaSeconds)
@@ -423,6 +428,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 state.ProductivityGranted * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }
+        RefreshResearchPower();
     }
 
     internal void ResetForLoad()
@@ -430,6 +436,7 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
         GlobalEfficiencyFactor = ExpantaNum.One;
+        RefreshResearchPower();
     }
 
     internal SaveManager.BuildingSaveData CaptureSaveData()
@@ -484,11 +491,18 @@ public class BuildingManager : Singleton<BuildingManager>
             nameof(BuildingManager),
             nameof(data.GlobalEfficiencyFactor),
             ExpantaNum.One);
+        RefreshResearchPower();
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);
 
     public override void Load() => SaveManager.Instance.LoadOrCreateGame();
+
+    private void RefreshResearchPower()
+    {
+        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        researchManager?.RebuildResearchPower(orderedStates);
+    }
 
     private static ExpantaNum Parse(
         string raw,

@@ -19,6 +19,8 @@ public class Building : GameDefinition
     private ExpantaNum productivityConsumption;
     [SerializeField, Tooltip("每个已建成建筑提供的可用生产力。")]
     private ExpantaNum productivityGranted;
+    [SerializeField, Tooltip("每个建筑每秒提供的研究力。")]
+    private ExpantaNum researchPowerGranted;
     [SerializeField, Tooltip("每个建筑每秒生产的粮食。")]
     private ExpantaNum foodProductionRate;
     [SerializeField, Tooltip("每个建筑每秒消耗的粮食。")]
@@ -39,10 +41,16 @@ public class Building : GameDefinition
     public ExpantaNum SpaceCost => spaceCost;
     public ExpantaNum ProductivityConsumption => productivityConsumption;
     public ExpantaNum ProductivityGranted => productivityGranted;
+    public ExpantaNum ResearchPowerGranted => researchPowerGranted;
     public ExpantaNum FoodProductionRate => foodProductionRate;
     public ExpantaNum FoodConsumptionRate => foodConsumptionRate;
     public ExpantaNum FoodCapacityGranted => foodCapacityGranted;
     public ExpantaNum CostGrowth =>
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
+
+#if UNITY_EDITOR
+    public void SetResearchPowerForEditor(ExpantaNum value) =>
+        researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value);
+#endif
 
 }

@@ -76,6 +76,16 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
         if (Text_Productivity != null)
             SetTextIfChanged(Text_Productivity, $"生产力:{state.AvailableProductivity.ToGameString()}");
+        if (Text_Productivity != null)
+        {
+            ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+            string researchPower = researchManager == null
+                ? ExpantaNum.One.ToGameString()
+                : researchManager.ResearchPower.ToGameString();
+            SetTextIfChanged(
+                Text_Productivity,
+                $"Productivity: {state.AvailableProductivity.ToGameString()}   Research Power: {researchPower}/s");
+        }
         if (Text_KingdomSpace != null)
             SetTextIfChanged(Text_KingdomSpace, $"剩余领土:{state.AvailableSpace.ToGameString()}");
     }

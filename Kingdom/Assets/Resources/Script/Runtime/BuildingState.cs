@@ -34,6 +34,11 @@ public sealed class BuildingState
     internal void SpendAutoBuildProgress(ExpantaNum value) =>
         Change(ref autoBuildProgress, ExpantaNum.Max(ExpantaNum.Zero, autoBuildProgress - value));
 
+#if UNITY_EDITOR
+    public void SetAmountForEditor(ExpantaNum value) => SetAmount(value);
+    public void SetEfficiencyForEditor(ExpantaNum value) => SetEfficiency(value);
+#endif
+
     internal void ResetForLoad()
     {
         SetAmount(ExpantaNum.Zero);

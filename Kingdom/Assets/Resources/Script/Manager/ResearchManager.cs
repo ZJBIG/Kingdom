@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class ResearchManager : Singleton<ResearchManager>
 {
+    public static readonly ExpantaNum BaseResearchPower = ExpantaNum.One;
+
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
+    public ExpantaNum ResearchPower { get; private set; } = BaseResearchPower;
 
     private readonly Dictionary<Research, ResearchState> states = new();
     private readonly Dictionary<TechLevel, int> researchCountByTech = new();
@@ -42,6 +45,8 @@ public class ResearchManager : Singleton<ResearchManager>
         InitializeResearchStates(researches);
         InitializeResearchCount();
         ProgressionModifierManager.Rebuild(orderedStates);
+        BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+        RebuildResearchPower(buildingManager?.OrderedStates);
     }
 
     public ResearchState GetState(Research research)
@@ -115,7 +120,7 @@ public class ResearchManager : Singleton<ResearchManager>
         ExpantaNum speed = ResearchSpeedEffect(
             GameManager.Instance.State.TechLevel,
             current.Definition.TechLevel) * GlobalEfficiencyFactor *
-            ProgressionModifierManager.Current.GlobalResearchMultiplier;
+            ResearchPower * ProgressionModifierManager.Current.GlobalResearchMultiplier;
         current.SetProgress(AdvanceResearchProgress(
             current.Progress,
             speed,
@@ -291,6 +296,8 @@ public class ResearchManager : Singleton<ResearchManager>
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
         ProgressionModifierManager.Rebuild(orderedStates);
+        BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+        RebuildResearchPower(buildingManager?.OrderedStates);
     }
 
     internal void RestoreSaveData(SaveManager.ResearchSaveData data)
@@ -313,6 +320,8 @@ public class ResearchManager : Singleton<ResearchManager>
         }
 
         ProgressionModifierManager.Rebuild(orderedStates);
+        BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+        RebuildResearchPower(buildingManager?.OrderedStates);
         RefreshAvailabilityStatuses();
         if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
         {
@@ -345,6 +354,35 @@ public class ResearchManager : Singleton<ResearchManager>
     public override void Save() => SaveManager.Instance.SaveNow(true);
 
     public override void Load() => SaveManager.Instance.LoadOrCreateGame();
+
+    internal void RebuildResearchPower(IReadOnlyList<BuildingState> buildingStates)
+    {
+        ResearchPower = CalculateResearchPower(buildingStates, BaseResearchPower);
+    }
+
+    public static ExpantaNum CalculateResearchPower(
+        IReadOnlyList<BuildingState> buildingStates,
+        ExpantaNum baseResearchPower)
+    {
+        ExpantaNum total = ExpantaNum.Max(ExpantaNum.Zero, baseResearchPower);
+        if (buildingStates == null)
+            return total;
+
+        for (int i = 0; i < buildingStates.Count; i++)
+        {
+            BuildingState state = buildingStates[i];
+            if (state == null || state.Amount <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum contribution = state.Definition.ResearchPowerGranted
+                * state.Amount
+                * ExpantaNum.Clamp01(state.Efficiency);
+            if (!contribution.IsNaN && contribution > ExpantaNum.Zero)
+                total += contribution;
+        }
+
+        return ExpantaNum.Max(ExpantaNum.Zero, total);
+    }
 
     private static ExpantaNum Parse(
         string raw,
