@@ -1,5 +1,5 @@
 ﻿ResourceId,Producers,ContinuousConsumers,BuildingCostSinks,ResearchSinks,HasProducer,HasAnySink,CurrentlyUnused
-Bronze,BronzeFoundry,,,,True,False,False
+Bronze,BronzeFoundry,,,SmithingRevolution,True,True,False
 Citrine,,,,,False,False,True
 Clay,ClayPit,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,True,True,False
 Cloth,WeavingWorkshop,,,NeolithicSettlement; WrittenRecords,True,True,False
@@ -13,7 +13,7 @@ ElvenWoodLog,,,,,False,False,True
 Emerald,,,,,False,False,True
 Gold,,,,,False,False,True
 GoldOre,,,,,False,False,True
-Iron,IronSmelter,,,,True,False,False
+Iron,IronSmelter,,,SmithingRevolution,True,True,False
 IronOre,IronMine,,IronSmelter,SmithingRevolution; Smithing_Iron,True,True,False
 Jade,,,,,False,False,True
 Mithril,,,,,False,False,True
