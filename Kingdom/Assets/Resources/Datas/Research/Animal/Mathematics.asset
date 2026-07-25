@@ -13,19 +13,36 @@ MonoBehaviour:
   m_Name: Mathematics
   m_EditorClassIdentifier: 
   id: Mathematics
-  Label: "数学"
-  Description: "从数量、分组和简单运算中建立抽象规则，为精确记录、测量和历法计算打下基础。"
+  Label: "\u6570\u5B66"
+  Description: "\u4ECE\u6570\u91CF\u3001\u5206\u7EC4\u548C\u7B80\u5355\u8FD0\u7B97\u4E2D\u5EFA\u7ACB\u62BD\u8C61\u89C4\u5219\uFF0C\u4E3A\u7CBE\u786E\u8BB0\u5F55\u3001\u6D4B\u91CF\u548C\u5386\u6CD5\u8BA1\u7B97\u6253\u4E0B\u57FA\u7840\u3002"
   BaseCost: 1000
   prerequisites:
   - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 40, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: b28e59293cc542ae9340e14339ba430f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  BuildingUnlock: []
   TechLevel: 0
   AdvancesTechLevel: 0
+  effects:
+  - Type: 4
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: ""
+    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.25, layer: 0, operators: []}
   x: 6
   y: 0

@@ -21,6 +21,7 @@ public sealed class ResearchBalanceTests
             ["StoneCutting"] = 900d,
             ["Mathematics"] = 1000d,
             ["Calendar"] = 1400d,
+            ["KnowledgeSharing"] = 1500d,
             ["Pottery"] = 1200d,
             ["TextileCraft"] = 1400d,
             ["CoalMining"] = 1800d,
@@ -61,5 +62,35 @@ public sealed class ResearchBalanceTests
         Assert.That(transition.BaseCost, Is.EqualTo("60000"));
         Assert.That(transition.TechLevel, Is.EqualTo(TechLevel.Medieval));
         Assert.That(transition.AdvancesTechLevel, Is.True);
+    }
+
+    [Test]
+    public void VerticalSlice_ResearchEffectsAndUnlocksMatchTheContentPlan()
+    {
+        Research mathematics = DataBase<Research>.Find("Mathematics");
+        Research calendar = DataBase<Research>.Find("Calendar");
+        Research knowledgeSharing = DataBase<Research>.Find("KnowledgeSharing");
+        Research measurement = DataBase<Research>.Find("Measurement");
+        Research waterManagement = DataBase<Research>.Find("WaterManagement");
+
+        Assert.That(mathematics.BuildingUnlock, Is.Empty);
+        Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.25d), Is.True);
+        Assert.That(HasEffect(calendar, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
+        Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
+        Assert.That(HasEffect(waterManagement, ResearchEffectType.BuildingFoodProductionMultiplier, 1.5d), Is.True);
+        Assert.That(knowledgeSharing.BuildingUnlock, Has.Count.EqualTo(1));
+        Assert.That(knowledgeSharing.BuildingUnlock[0].Id, Is.EqualTo("KnowledgeCircle"));
+    }
+
+    private static bool HasEffect(Research research, ResearchEffectType type, double value)
+    {
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Type == type &&
+                effect.Value.ToDouble() == value)
+                return true;
+        }
+        return false;
     }
 }

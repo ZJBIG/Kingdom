@@ -38,5 +38,11 @@ MonoBehaviour:
   BuildingUnlock: []
   TechLevel: 1
   AdvancesTechLevel: 0
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: ""
+    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.1, layer: 0, operators: []}
   x: 8
   y: 6
