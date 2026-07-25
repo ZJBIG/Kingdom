@@ -269,14 +269,15 @@ public class GameManager : Singleton<GameManager>
         }
         if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
             State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
-        if (data.CampaignActive)
-        {
-            State.RestoreCampaign(
-                true,
-                data.CampaignTargetSectorId,
-                ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
-                ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
-        }
+        State.RestoreCampaign(
+            data.CampaignActive,
+            data.CampaignTargetSectorId,
+            data.CampaignActive
+                ? ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties))
+                : ExpantaNum.Zero,
+            data.CampaignActive
+                ? ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio))
+                : ExpantaNum.Zero);
         ResetCalendarAccumulator();
     }
 

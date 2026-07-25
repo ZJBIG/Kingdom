@@ -406,6 +406,9 @@ public sealed class SectorManager
         if (data?.States == null)
             return;
 
+        for (int i = 0; i < orderedStates.Count; i++)
+            orderedStates[i].ResetForLoad();
+
         for (int i = 0; i < data.States.Count; i++)
         {
             SaveManager.SectorStateSaveData saved = data.States[i];

@@ -276,6 +276,62 @@ public sealed class SectorManagerTests
         }
     }
 
+    [Test]
+    public void C808_InactiveCampaignSaveClearsExistingCampaignState()
+    {
+        GameObject gameObject = new GameObject("C808-GameManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            InvokeGameStateMethod(gameManager.State, "BeginCampaign", "Moon");
+            InvokeGameStateMethod(
+                gameManager.State,
+                "RecordCampaignCombat",
+                new ExpantaNum(0.8d),
+                new ExpantaNum(2));
+
+            InvokeGameManagerMethod(
+                gameManager,
+                "RestoreSaveData",
+                new SaveManager.GameSaveData
+                {
+                    FoodAmount = "300",
+                    KingdomName = "Restore Test",
+                    TechLevel = TechLevel.Animal,
+                    CampaignActive = false,
+                    CampaignTargetSectorId = string.Empty
+                });
+
+            Assert.That(gameManager.State.Campaign.Active, Is.False);
+            Assert.That(gameManager.State.Campaign.TargetSectorId, Is.Empty);
+            Assert.That(gameManager.State.Campaign.Casualties, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.State.Campaign.CombatRatio, Is.EqualTo(ExpantaNum.Zero));
+        }
+        finally
+        {
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
+    [Test]
+    public void C808_PartialSectorSaveClearsMissingSectorStates()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorState moonState = manager.GetState(moon);
+        moonState.SetUnlockedForEditor(true);
+        moonState.SetCampaignProgressForEditor(new ExpantaNum(0.5d));
+
+        manager.RestoreSaveData(new SaveManager.SectorSaveData
+        {
+            States = new System.Collections.Generic.List<SaveManager.SectorStateSaveData>()
+        });
+
+        Assert.That(moonState.Unlocked, Is.False);
+        Assert.That(moonState.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+    }
+
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         var method = typeof(GameState).GetMethod(
