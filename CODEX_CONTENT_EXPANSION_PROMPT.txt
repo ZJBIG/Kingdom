@@ -1,0 +1,64 @@
+你现在要在 Kingdom Unity 仓库中继续制作游戏内容和数值，而不是重新做已经完成的底层重构，也不是一次性生成所有未来时代。
+
+开始前完整阅读：
+
+1. AGENTS.md
+2. ToDoList_Content_Next_2026-07-25.txt
+3. .agents/skills/kingdom-content-expansion/SKILL.md
+4. docs/audits/kingdom5-content-static-audit.md
+5. docs/balance/no-resource-caps.md
+6. docs/balance/balance-model.md
+7. docs/content/progression-roadmap.md
+8. docs/testing/content-balance-tests.md
+9. data/*.csv
+10. 当前仓库中的全部 Resource、Building、Research、Manager、State、测试和 Scene/Prefab
+
+最高规则：
+
+- 除 Food 外，普通资源永远没有仓储上限。
+- 不得新增 ResourceState.Capacity、Resource.MaxAmount 或普通资源仓库。
+- 不得重新迁移 BigNumber、Pair、State、DataBase、SaveManager。
+- 当前第一目标是让 Animal -> Neolithic -> Medieval 形成无作弊可达的完整纵向切片。
+- 不得先做 Industrial、Space 或 AlienWar 的大量资产。
+- 数值必须经过自动审计和节奏模拟，不得只凭感觉填写。
+
+先完成 Commit 1，仅做审计和测试：
+
+1. 更新仓库基线描述为 Kingdom5。
+2. 建立 Research/Building/Resource 静态可达性测试。
+3. 建立每个资源的来源/持续消耗/建筑成本/科研用途报告。
+4. 建立研究成本、研究力和目标耗时报告。
+5. 建立建筑首座回本时间报告。
+6. 确认当前新游戏为什么无法进入 Neolithic，并输出完整阻断链。
+7. 编译并运行 EditMode。
+8. 不在本 Commit 修改正式数值或创建未来时代资产。
+
+Commit 1 通过后执行 Commit 2：
+
+- 删除 GameBootstrap 中的 Gold 调试添加。
+- 修正 TinOre 中文名。
+- 添加 ClayPit、FiberGatheringCamp、CopperMine、TinMine、IronMine。
+- 添加必要研究并补全解锁。
+- 添加 Pottery、Cloth，激活 StoneTool 生产链。
+- 修正冶炼和青铜配方。
+- 将 SmithingRevolution 设为中世纪跃迁。
+- 使用 Unity Editor API 创建/修改资产，保留稳定 ID 和 .meta。
+- 添加可达性测试，确认可以从新游戏进入 Medieval。
+
+Commit 2 通过后再执行等比建筑成本和研究效果系统。
+
+每个 Commit 后报告：
+
+- TODO 编号；
+- 改动脚本和资产；
+- 新 Stable ID；
+- 可达性结果；
+- 来源/用途结果；
+- 数值前后对比；
+- Unity 编译；
+- EditMode/PlayMode；
+- Console；
+- 手动 Inspector/Scene 工作；
+- 下一范围。
+
+任何主线不可达、编译错误或定义数据丢失都必须停止进入下一阶段。

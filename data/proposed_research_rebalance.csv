@@ -1,0 +1,33 @@
+﻿Id,Label,Era,RecommendedBaseCost,ExpectedResearchPower,Action,Notes
+ControlledFire,控制火种,Animal,60.0,1.0,keep,开局第一个研究；木材20；完成后解锁知识篝火/陶土采集前置
+Quarry,采石场,Animal,120.0,1.0,change,资源要求木材100；解锁采石场
+Agriculture,农业,Animal,180.0,1.0,change,解锁农场和纤维采集地；不再是空节点
+AnimalHusbandry,动物驯养,Animal,240.0,1.0,change,解锁牧场；牧场 TechLevel 改为 Animal
+ClayExtraction,黏土采集,Animal,240.0,1.0,new,前置控制火种；解锁黏土坑
+StoneTools,打制石器,Animal,300.0,2.0,change,解锁石器工坊；开始生产 StoneTool
+ForagingGroups,采集分工,Animal,450.0,2.0,keep,解锁采集营地
+Mining,矿物开采,Animal,600.0,2.0,change,解锁基础勘探，不直接要求后期矿石
+TreeCultivate,植树,Animal,750.0,2.0,keep,解锁伐木场
+Mining_Copper,铜矿采掘,Animal,900.0,2.0,change,必须解锁 CopperMine
+StoneCutting,切石技术,Animal,900.0,2.0,keep,解锁切石工坊
+Mathematics,数学,Animal,1000.0,2.0,change,提供全局研究速度×1.25或建造效率×1.10
+Calendar,历法,Animal,1400.0,2.0,change,提供食物生产×1.10或季节系统解锁
+KnowledgeSharing,知识传承,Animal,1500.0,2.0,new,解锁 KnowledgeCircle，研究力+1/座
+Mining_Quartz,石英采掘,Deferred,,,defer,当前没有 Quartz 资源和用途；隐藏直到至少有1个来源和2个用途
+Pottery,陶器制作,Neolithic,1200.0,5.0,change,陶窑必须产出 Pottery，陶器成为建筑/研究材料
+TextileCraft,纺织工艺,Neolithic,1400.0,5.0,change,纺织工坊必须产出 Cloth
+CoalMining,煤炭开采,Neolithic,1800.0,5.0,change,煤矿产出煤炭
+NeolithicSettlement,定居聚落,Neolithic,2500.0,5.0,keep,AdvancesTechLevel=true；原始→新石器
+Measurement,度量衡,Neolithic,3200.0,8.0,change,建筑成本显示/批量建造增强；全局建造效率×1.10
+FoodStorage,食物储藏,Neolithic,3500.0,8.0,keep,只增加粮食容量，绝不增加普通资源容量
+WrittenRecords,文字记录,Neolithic,4500.0,8.0,change,解锁 ScribeHut，研究力+5/座
+WaterManagement,水利管理,Neolithic,5500.0,10.0,change,农场产出×1.50；不要再次解锁同一个 Farm
+Masonry,砌筑技术,Neolithic,6500.0,10.0,change,解锁更高级住房/城墙基础
+Smithing,冶炼金属,Neolithic,8000.0,10.0,change,需求改为石砖200+煤100，避免铜矿石循环依赖
+Mining_Tin,锡矿采掘,Neolithic,9000.0,10.0,new,解锁 TinMine
+Smithing_Copper,冶炼铜,Neolithic,10000.0,10.0,change,需求铜矿石120+煤80；解锁铜冶炼炉
+Mining_Iron,铁矿采掘,Neolithic,12000.0,12.0,new,解锁 IronMine
+Smithing_Tin,冶炼锡,Neolithic,12000.0,12.0,change,修正“锌矿石”为“锡矿石”；需求锡矿石100+煤60
+Smithing_Iron,冶炼铁,Neolithic,15000.0,12.0,change,需求铁矿石150+煤120
+Smithing_Bronze,冶炼青铜,Neolithic,20000.0,15.0,change,需求铜锭120+锡锭60+煤100，不再只使用铜矿石
+SmithingRevolution,冶炼技术革新,Medieval,60000.0,20.0,change,必须 AdvancesTechLevel=true；新石器→中世纪

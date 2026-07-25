@@ -1,0 +1,24 @@
+﻿Id,Label,Era,Role,CostGrowth,SpaceCost,ProductivityConsumption,ProductivityGranted,FoodProduction,FoodConsumption,FoodCapacity,ResearchPowerGranted,Requirements,Generation,Consumption,Notes
+HunterGathererCamp,采集营地,Animal,food,1.15,2,2,0,3,1,0,0,WoodLog:30,,,早期净粮食+2/s
+Farm,农场,Animal,food,1.14,4,3,0,8,0,0,0,WoodLog:50,,,Agriculture 解锁
+Pasture,牧场,Animal,food,1.15,5,4,0,6,1,0,0,WoodLog:100,,,TechLevel 改为 Animal
+Lumberyard,伐木场,Animal,raw,1.13,6,4,0,0,2,0,0,WoodLog:120; StoneChunk_Marble:50,WoodLog:5/s,,不能继续保持0生产力消耗
+Quarry,采石场,Animal,raw,1.14,6,6,0,0,3,0,0,WoodLog:120,StoneChunk_Marble:2/s,,首座回本约1–2分钟
+ClayPit,黏土坑,Animal,raw,1.14,4,4,0,0,2,0,0,WoodLog:80,Clay:1.5/s,,新增，修复 Pottery 不可达
+FiberGatheringCamp,纤维采集地,Animal,raw,1.14,3,3,0,0,1,0,0,WoodLog:60,PlantFiber:1.5/s,,新增，修复 TextileCraft 不可达
+StoneToolWorkshop,石器工坊,Animal,processor,1.16,4,4,0,0,2,0,0,WoodLog:80; StoneChunk_Marble:60,StoneTool:0.5/s,StoneChunk_Marble:1/s; WoodLog:0.2/s,让现有 StoneTool 资源进入循环
+StoneCuttingWorkshop_Marble,切石工坊,Animal,processor,1.15,5,5,0,0,2,0,0,WoodLog:100; StoneChunk_Marble:100,StoneBrick_Marble:1/s,StoneChunk_Marble:2/s,处理链有损耗
+WoodHouse,木屋,Animal,infrastructure,1.18,3,0,5,0,0,0,0,WoodLog:80,,,人口系统完成后改为人口容量+5
+KnowledgeCircle,知识篝火,Animal,research,1.2,2,2,0,0,1,0,1,WoodLog:100; StoneChunk_Marble:20,,,新增研究力，不是可储存资源
+CoalMine,煤矿,Neolithic,raw,1.14,8,8,0,0,4,0,0,WoodLog:150; StoneChunk_Marble:100,Coal:1.5/s,,
+CopperMine,铜矿井,Neolithic,raw,1.15,8,10,0,0,5,0,0,WoodLog:180; StoneChunk_Marble:120; StoneTool:20,CopperOre:1/s,,新增
+TinMine,锡矿井,Neolithic,raw,1.15,8,10,0,0,5,0,0,WoodLog:180; StoneChunk_Marble:120; StoneTool:20,TinOre:0.8/s,,新增
+IronMine,铁矿井,Neolithic,raw,1.15,10,12,0,0,6,0,0,WoodLog:220; StoneChunk_Marble:160; StoneTool:30,IronOre:0.8/s,,新增
+PotteryKiln,陶窑,Neolithic,processor,1.16,4,5,0,0,2,250,0,Clay:50; WoodLog:50,Pottery:1/s,Clay:1/s; WoodLog:0.2/s,新增 Pottery 资源；粮食容量仅+250
+WeavingWorkshop,纺织工坊,Neolithic,processor,1.16,4,5,0,0,2,0,0,PlantFiber:50; WoodLog:40,Cloth:1/s,PlantFiber:1/s,新增 Cloth 资源
+CopperSmelter,铜冶炼炉,Neolithic,processor,1.17,8,10,0,0,3,0,0,WoodLog:100; StoneBrick_Marble:80,Copper:0.8/s,CopperOre:1/s; Coal:0.5/s,
+TinSmelter,锡冶炼炉,Neolithic,processor,1.17,8,10,0,0,3,0,0,WoodLog:100; StoneBrick_Marble:80,Tin:0.8/s,TinOre:1/s; Coal:0.5/s,
+IronSmelter,铁冶炼炉,Neolithic,processor,1.17,10,12,0,0,4,0,0,WoodLog:120; StoneBrick_Marble:100,Iron:0.8/s,IronOre:1/s; Coal:0.6/s,
+BronzeFoundry,青铜铸造炉,Neolithic,processor,1.18,12,16,0,0,5,0,0,StoneBrick_Marble:150; WoodLog:120,Bronze:1/s,Copper:1/s; Tin:0.5/s; Coal:0.5/s,
+Granary,食物仓,Neolithic,food-capacity,1.18,4,2,0,0,0,1000,0,WoodLog:150; StoneBrick_Marble:100; Pottery:30,,,唯一允许的仓储类建筑，只提高粮食容量
+ScribeHut,抄写屋,Neolithic,research,1.2,5,5,0,0,2,0,5,WoodLog:200; StoneBrick_Marble:100; Pottery:20; Cloth:20,,,新增
