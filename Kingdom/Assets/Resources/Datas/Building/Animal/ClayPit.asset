@@ -16,7 +16,13 @@ MonoBehaviour:
   Label: "\u9ECF\u571F\u5751"
   Description: "\u4ECE\u6CB3\u5CB8\u548C\u6E56\u5CB8\u91C7\u96C6\u9ECF\u571F\uFF0C\u4E3A\u9676\u5668\u548C\u5EFA\u7B51\u63D0\u4F9B\u539F\u6599\u3002"
   TechLevel: 0
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.14, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.14
+    layer: 0
+    operators: []
   autoBuildWorkRequired:
     sign: 0
     representation: 1
@@ -45,6 +51,20 @@ MonoBehaviour:
     scalar: 0
     layer: 0
     operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   foodProductionRate:
     sign: 0
     representation: 0
@@ -54,12 +74,68 @@ MonoBehaviour:
     operators: []
   foodConsumptionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 2
+    scalar: 0
     layer: 0
     operators: []
   foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
     sign: 0
     representation: 0
     operatorCount: 0
@@ -85,3 +161,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: 7aa0ac993e0240d09d92b5a9be2d496e, type: 2}
+  - {fileID: 11400000, guid: 32d97831dab14245909b70db5aefd06e, type: 2}
+  requiredWorkshopUpgrades: []

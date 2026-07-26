@@ -13,29 +13,51 @@ MonoBehaviour:
   m_Name: FeudalAdministration
   m_EditorClassIdentifier: 
   id: FeudalAdministration
-  Label: Feudal Administration
-  Description: Establishes durable medieval administration and expands controlled territory.
+  Label: "\u5C01\u5EFA\u884C\u653F"
+  Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u4E2D\u4E16\u7EAA\u884C\u653F\u4F53\u7CFB\uFF0C\u5E76\u6269\u5927\u53EF\u6CBB\u7406\u7684\u9886\u571F\u3002"
   BaseCost: 80000
-  prerequisites:
-  - {fileID: 11400000, guid: b5ca6874cd854e44e80ddc49eb795153, type: 2}
+  prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
-  BuildingUnlock: []
-  TechLevel: 2
-  AdvancesTechLevel: 0
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
   effects:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: ""
-    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 25, layer: 0, operators: []}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 25
+      layer: 0
+      operators: []
   - Type: 9
     Building: {fileID: 0}
     Resource: {fileID: 0}
     SystemId: feudal-administration
-    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  x: 0
-  y: 12
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1
+      layer: 0
+      operators: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  x: 78
+  y: 36

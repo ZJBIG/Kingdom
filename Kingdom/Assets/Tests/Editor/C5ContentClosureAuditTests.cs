@@ -20,7 +20,6 @@ public sealed class C5ContentClosureAuditTests
     {
         "WaterMill",
         "SteelForge",
-        "Blacksmith",
         "Library",
         "Market",
         "Barracks",
@@ -59,7 +58,7 @@ public sealed class C5ContentClosureAuditTests
             new[] { "WoodLog" },
             TechLevel.Animal);
 
-        var strategicResources = new[] { "Steel", "MetalTool" };
+        var strategicResources = new[] { "Steel", "Bronze" };
         for (int i = 0; i < strategicResources.Length; i++)
         {
             Assert.That(result.ResourcesWithoutSource, Does.Not.Contain(strategicResources[i]),

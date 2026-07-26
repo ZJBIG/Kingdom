@@ -14,17 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Iron
   Label: "\u51B6\u70BC\u94C1"
-  Description: "研究高温炼铁与锻造技术，获得足以支撑重型工具、武备和大规模工程的铁材。"
+  Description: "\u7814\u7A76\u9AD8\u6E29\u70BC\u94C1\u4E0E\u953B\u9020\u6280\u672F\uFF0C\u83B7\u5F97\u8DB3\u4EE5\u652F\u6491\u91CD\u578B\u5DE5\u5177\u3001\u6B66\u5907\u548C\u5927\u89C4\u6A21\u5DE5\u7A0B\u7684\u94C1\u6750\u3002"
   BaseCost: 15000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 420, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 3c9f3d568ef45d8bafec3b6b8e09a712, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 420
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 1
-  x: 8
-  y: 8
+  AdvancesTechLevel: 0
+  x: 60
+  y: 30

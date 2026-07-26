@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -132,8 +133,39 @@ public class BuildingDisplayer : MonoBehaviour
             AutoBuildSpirit.sprite = state.AutoBuild ? Enable : Disable;
             renderedVersion = state.Version;
         }
+        if (lastFailure == BuildFailure.None && StatusText != null)
+            StatusText.text = BuildPrerequisiteStatus();
 
         return changed;
+    }
+
+    private string BuildPrerequisiteStatus()
+    {
+        var missing = new List<string>();
+        if (GameManager.Instance.State.TechLevel < Building.TechLevel)
+            missing.Add($"Era: {Building.TechLevel}");
+
+        ResearchManager researchManager = ResearchManager.Instance;
+        for (int i = 0; i < Building.RequiredResearch.Count; i++)
+        {
+            Research research = Building.RequiredResearch[i];
+            if (research == null ||
+                !researchManager.States.TryGetValue(research, out ResearchState researchState) ||
+                researchState.Status != ResearchStatus.Completed)
+                missing.Add($"Research: {research?.Label ?? "Missing definition"}");
+        }
+
+        WorkshopManager workshopManager = WorkshopManager.Instance;
+        for (int i = 0; i < Building.RequiredWorkshopUpgrades.Count; i++)
+        {
+            WorkshopUpgradeDefinition upgrade = Building.RequiredWorkshopUpgrades[i];
+            if (upgrade == null ||
+                !workshopManager.States.TryGetValue(upgrade, out WorkshopUpgradeState upgradeState) ||
+                !upgradeState.Purchased)
+                missing.Add($"Workshop: {upgrade?.Label ?? "Missing definition"}");
+        }
+
+        return missing.Count == 0 ? string.Empty : "Missing — " + string.Join("; ", missing);
     }
 
     private void ShowFailure(BuildFailure failure)
@@ -147,6 +179,8 @@ public class BuildingDisplayer : MonoBehaviour
             BuildFailure.ProductivityInsufficient => "生产力不足",
             BuildFailure.DeconstructionUnavailable => "没有可拆除的建筑",
             BuildFailure.TechnologyInsufficient => "Technology level insufficient.",
+            BuildFailure.ResearchPrerequisiteIncomplete => "Required research is incomplete.",
+            BuildFailure.WorkshopPrerequisiteIncomplete => "Required workshop upgrade is incomplete.",
             BuildFailure.AutoBuildUnavailable => "Automatic building unlocks from the Neolithic era.",
             _ => string.Empty
         };

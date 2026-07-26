@@ -4,6 +4,40 @@ using NUnit.Framework;
 
 public sealed class ContentProgressionValidatorTests
 {
+    private static readonly string[] ReleasedVerticalSliceResourceIds =
+    {
+        "WoodLog",
+        "StoneChunk",
+        "StoneBrick",
+        "Clay",
+        "PlantFiber",
+        "Pottery",
+        "Cloth",
+        "Coal",
+        "CopperOre",
+        "TinOre",
+        "IronOre",
+        "Copper",
+        "Tin",
+        "Iron",
+        "Bronze",
+        "Steel",
+        "Chemical",
+        "Machinery",
+        "Electronics",
+        "CrudeOil",
+        "Silica",
+        "Coke",
+        "Glass",
+        "IndustrialCeramic",
+        "RefinedFuel",
+        "Lubricant",
+        "Rubber",
+        "CopperWire",
+        "PrecisionParts",
+        "Engine"
+    };
+
     [Test]
     public void MainProgression_ReachesMedievalWithoutInjectedResources()
     {
@@ -26,15 +60,13 @@ public sealed class ContentProgressionValidatorTests
             DataBase<Building>.All,
             DataBase<Research>.All,
             new[] { "WoodLog" },
-            TechLevel.Animal);
+            TechLevel.Animal,
+            ReleasedVerticalSliceResourceIds);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.ResourcesWithoutSource, Is.Empty,
-                string.Join("\n", result.ResourcesWithoutSource));
-            Assert.That(result.ResourcesWithoutSink, Is.Empty,
-                string.Join("\n", result.ResourcesWithoutSink));
-        });
+        Assert.That(result.ResourcesWithoutSource, Is.Empty,
+            string.Join("\n", result.ResourcesWithoutSource));
+        Assert.That(result.ResourcesWithoutSink, Is.Empty,
+            string.Join("\n", result.ResourcesWithoutSink));
     }
 }
 
@@ -64,9 +96,13 @@ public static class ContentProgressionAudit
         IReadOnlyList<Building> buildings,
         IReadOnlyList<Research> researches,
         IReadOnlyList<string> startingResourceIds,
-        TechLevel startingTechLevel)
+        TechLevel startingTechLevel,
+        IReadOnlyCollection<string> releasedResourceIds = null)
     {
         var result = new ProgressionAuditResult { HighestTechLevel = startingTechLevel };
+        HashSet<string> releasedResources = releasedResourceIds == null
+            ? null
+            : new HashSet<string>(releasedResourceIds, StringComparer.OrdinalIgnoreCase);
         var reachableResources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var reachableBuildings = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var completedResearch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -93,29 +129,17 @@ public static class ContentProgressionAudit
                 Research research = researches[i];
                 if (research == null || completedResearch.Contains(research.Id))
                     continue;
-                if (research.TechLevel > result.HighestTechLevel || !PrerequisitesComplete(research, completedResearch))
+                if (!IsResearchEraAccessible(research, result.HighestTechLevel) ||
+                    !PrerequisitesComplete(research, completedResearch))
                     continue;
                 if (!RequirementsAvailable(research.ResourceRequirements, reachableResources))
                     continue;
 
                 completedResearch.Add(research.Id);
+                AddPairs(research.ResourceRequirements, reachableResources, sinkResources, false);
                 if (research.AdvancesTechLevel && research.TechLevel > result.HighestTechLevel)
                     result.HighestTechLevel = research.TechLevel;
                 changed = true;
-            }
-
-            for (int i = 0; i < researches.Count; i++)
-            {
-                Research research = researches[i];
-                if (research == null || !completedResearch.Contains(research.Id) || research.BuildingUnlock == null)
-                    continue;
-                AddPairs(research.ResourceRequirements, reachableResources, sinkResources, false);
-                for (int j = 0; j < research.BuildingUnlock.Count; j++)
-                {
-                    Building building = research.BuildingUnlock[j];
-                    if (building != null && reachableBuildings.Add(building.Id))
-                        changed = true;
-                }
             }
 
             for (int i = 0; i < buildings.Count; i++)
@@ -123,8 +147,7 @@ public static class ContentProgressionAudit
                 Building building = buildings[i];
                 if (building == null || building.TechLevel > result.HighestTechLevel)
                     continue;
-                if (!IsAvailableWithoutResearch(building, researches, completedResearch) &&
-                    !reachableBuildings.Contains(building.Id))
+                if (!BuildingResearchComplete(building, completedResearch))
                     continue;
                 if (!RequirementsAvailable(building.ResourceRequirements, reachableResources))
                     continue;
@@ -142,6 +165,8 @@ public static class ContentProgressionAudit
         {
             Resource resource = resources[i];
             if (resource == null)
+                continue;
+            if (releasedResources != null && !releasedResources.Contains(resource.Id))
                 continue;
             if (!sourceResources.Contains(resource.Id))
                 result.ResourcesWithoutSource.Add(resource.Id);
@@ -177,6 +202,15 @@ public static class ContentProgressionAudit
         return true;
     }
 
+    private static bool IsResearchEraAccessible(Research research, TechLevel highestTechLevel)
+    {
+        if (research.TechLevel <= highestTechLevel)
+            return true;
+
+        return research.AdvancesTechLevel &&
+               (int)research.TechLevel == (int)highestTechLevel + 1;
+    }
+
     private static bool RequirementsAvailable(
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
         HashSet<string> reachableResources)
@@ -190,21 +224,15 @@ public static class ContentProgressionAudit
         return true;
     }
 
-    private static bool IsAvailableWithoutResearch(
+    private static bool BuildingResearchComplete(
         Building building,
-        IReadOnlyList<Research> researches,
         HashSet<string> completedResearch)
     {
-        for (int i = 0; i < researches.Count; i++)
+        for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
-            Research research = researches[i];
-            if (research == null || research.BuildingUnlock == null)
-                continue;
-            for (int j = 0; j < research.BuildingUnlock.Count; j++)
-            {
-                if (research.BuildingUnlock[j] != null && research.BuildingUnlock[j].Id == building.Id)
-                    return false;
-            }
+            Research research = building.RequiredResearch[i];
+            if (research == null || !completedResearch.Contains(research.Id))
+                return false;
         }
         return true;
     }

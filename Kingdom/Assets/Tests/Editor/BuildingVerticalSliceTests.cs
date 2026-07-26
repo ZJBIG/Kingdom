@@ -15,10 +15,9 @@ public sealed class BuildingVerticalSliceTests
             ["Quarry"] = 1.14d,
             ["ClayPit"] = 1.14d,
             ["FiberGatheringCamp"] = 1.14d,
-            ["StoneToolWorkshop"] = 1.16d,
-            ["StoneCuttingWorkshop_Marble"] = 1.15d,
+            ["StoneCuttingWorkshop"] = 1.15d,
             ["WoodHouse"] = 1.18d,
-            ["KnowledgeCircle"] = 1.2d,
+            ["KnowledgeCircle"] = 1.20d,
             ["CoalMine"] = 1.14d,
             ["CopperMine"] = 1.15d,
             ["TinMine"] = 1.15d,
@@ -30,15 +29,13 @@ public sealed class BuildingVerticalSliceTests
             ["IronSmelter"] = 1.17d,
             ["BronzeFoundry"] = 1.18d,
             ["Granary"] = 1.18d,
-            ["ScribeHut"] = 1.2d
+            ["ScribeHut"] = 1.20d
         };
 
         foreach (KeyValuePair<string, double> pair in expected)
         {
             Building building = DataBase<Building>.Find(pair.Key);
-            Assert.That(
-                building.CostGrowth.ToDouble(),
-                Is.EqualTo(pair.Value).Within(0.000001d),
+            Assert.That(building.CostGrowth.ToDouble(), Is.EqualTo(pair.Value).Within(0.000001d),
                 $"Building '{pair.Key}' has drifted from the vertical-slice cost baseline.");
         }
     }
@@ -56,36 +53,36 @@ public sealed class BuildingVerticalSliceTests
     public void WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity()
     {
         Building woodHouse = DataBase<Building>.Find("WoodHouse");
-
         Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
     }
 
     [Test]
-    public void C501_MedievalResourceLayerContainsSteelAndMetalTools()
+    public void WoodHouse_IsTheZeroWorkforceStartingPopulationBootstrap()
     {
-        Resource steel = DataBase<Resource>.Find("Steel");
-        Resource metalTool = DataBase<Resource>.Find("MetalTool");
-
-        Assert.That(steel, Is.Not.Null);
-        Assert.That(metalTool, Is.Not.Null);
-        Assert.That(steel.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
-        Assert.That(metalTool.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
-        Assert.That(metalTool.Label, Is.EqualTo("金属工具"));
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+        Assert.That(woodHouse.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(woodHouse.RequiredResearch, Is.Empty);
+        Assert.That(woodHouse.RequiredWorkshopUpgrades, Is.Empty);
     }
 
     [Test]
-    public void C502_MedievalBuildingLayerContainsTheSevenCoreBuildings()
+    public void MedievalResourceLayerContainsSteelWithoutAbstractToolStocks()
+    {
+        Resource steel = DataBase<Resource>.Find("Steel");
+        Assert.That(steel, Is.Not.Null);
+        Assert.That(steel.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
+        Assert.That(DataBase<Resource>.Contains("MetalTool"), Is.False);
+        Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
+    }
+
+    [Test]
+    public void MedievalBuildingLayerContainsTheSixCoreBuildings()
     {
         string[] ids =
         {
-            "WaterMill",
-            "SteelForge",
-            "Blacksmith",
-            "Library",
-            "Market",
-            "Barracks",
-            "Fortification"
+            "WaterMill", "SteelForge", "Library", "Market", "Barracks", "Fortification"
         };
 
         foreach (string id in ids)
@@ -96,9 +93,9 @@ public sealed class BuildingVerticalSliceTests
             Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
         }
 
+        Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
         Assert.That(DataBase<Building>.Find("WaterMill").FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("SteelForge").ResourceGenerationRates, Has.Count.EqualTo(1));
-        Assert.That(DataBase<Building>.Find("Blacksmith").ResourceGenerationRates, Has.Count.EqualTo(1));
         Assert.That(DataBase<Building>.Find("Library").ResearchPowerGranted, Is.EqualTo(new ExpantaNum(25)));
     }
 
@@ -109,12 +106,9 @@ public sealed class BuildingVerticalSliceTests
         Building pasture = DataBase<Building>.Find("Pasture");
         Building lumberyard = DataBase<Building>.Find("Lumberyard");
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(farm.TechLevel, Is.EqualTo(TechLevel.Animal));
-            Assert.That(farm.FoodProductionRate.ToDouble(), Is.EqualTo(8d));
-            Assert.That(pasture.TechLevel, Is.EqualTo(TechLevel.Animal));
-            Assert.That(lumberyard.ProductivityConsumption.ToDouble(), Is.EqualTo(4d));
-        });
+        Assert.That(farm.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(farm.FoodProductionRate.ToDouble(), Is.EqualTo(8d));
+        Assert.That(pasture.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(lumberyard.ProductivityConsumption.ToDouble(), Is.EqualTo(4d));
     }
 }

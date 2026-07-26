@@ -51,10 +51,17 @@ public class Building : GameDefinition
     private List<Pair<Resource, ExpantaNum>> resourceGenerationRates = new();
     [SerializeField]
     private List<Pair<Resource, ExpantaNum>> resourceConsumptionRates = new();
+    [Header("Prerequisites")]
+    [SerializeField]
+    private List<Research> requiredResearch = new();
+    [SerializeField]
+    private List<WorkshopUpgradeDefinition> requiredWorkshopUpgrades = new();
 
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceGenerationRates => resourceGenerationRates;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates => resourceConsumptionRates;
+    public IReadOnlyList<Research> RequiredResearch => requiredResearch;
+    public IReadOnlyList<WorkshopUpgradeDefinition> RequiredWorkshopUpgrades => requiredWorkshopUpgrades;
     public ExpantaNum AutoBuildWorkRequired => autoBuildWorkRequired;
     public ExpantaNum SpaceCost => spaceCost;
     public ExpantaNum ProductivityConsumption => productivityConsumption;
@@ -76,6 +83,56 @@ public class Building : GameDefinition
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
 
 #if UNITY_EDITOR
+    public void ConfigureEconomyForEditor(
+        ExpantaNum growth,
+        ExpantaNum autoWork,
+        ExpantaNum territory,
+        ExpantaNum workforce,
+        ExpantaNum productivity,
+        ExpantaNum populationCapacity,
+        ExpantaNum researchPower,
+        ExpantaNum foodProduction,
+        ExpantaNum foodConsumption,
+        ExpantaNum foodCapacity,
+        ExpantaNum powerProduction,
+        ExpantaNum powerConsumption,
+        ExpantaNum logisticsProduction,
+        ExpantaNum logisticsConsumption,
+        ExpantaNum attack,
+        ExpantaNum defense,
+        ExpantaNum manpower,
+        List<Pair<Resource, ExpantaNum>> requirements,
+        List<Pair<Resource, ExpantaNum>> generation,
+        List<Pair<Resource, ExpantaNum>> consumption)
+    {
+        costGrowth = growth;
+        autoBuildWorkRequired = autoWork;
+        spaceCost = territory;
+        productivityConsumption = workforce;
+        productivityGranted = productivity;
+        populationCapacityGranted = populationCapacity;
+        researchPowerGranted = researchPower;
+        foodProductionRate = foodProduction;
+        foodConsumptionRate = foodConsumption;
+        foodCapacityGranted = foodCapacity;
+        powerProductionRate = powerProduction;
+        powerConsumptionRate = powerConsumption;
+        logisticsProductionRate = logisticsProduction;
+        logisticsConsumptionRate = logisticsConsumption;
+        attackPowerGranted = attack;
+        defensePowerGranted = defense;
+        militaryManpowerGranted = manpower;
+        resourceRequirements = requirements ?? new List<Pair<Resource, ExpantaNum>>();
+        resourceGenerationRates = generation ?? new List<Pair<Resource, ExpantaNum>>();
+        resourceConsumptionRates = consumption ?? new List<Pair<Resource, ExpantaNum>>();
+    }
+
+    public void SetRequiredResearchForEditor(List<Research> values) =>
+        requiredResearch = values ?? new List<Research>();
+
+    public void SetRequiredWorkshopUpgradesForEditor(List<WorkshopUpgradeDefinition> values) =>
+        requiredWorkshopUpgrades = values ?? new List<WorkshopUpgradeDefinition>();
+
     public void SetResearchPowerForEditor(ExpantaNum value) =>
         researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value);
     public void SetPowerFlowForEditor(ExpantaNum production, ExpantaNum consumption)

@@ -14,14 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Quarry
   Label: "\u91C7\u77F3\u573A"
-  Description: "从岩层中持续采集石材，为石器、石墙、道路和早期大型建筑提供稳定供给。"
+  Description: "\u4ECE\u5CA9\u5C42\u4E2D\u6301\u7EED\u91C7\u96C6\u77F3\u6750\uFF0C\u4E3A\u77F3\u5668\u3001\u77F3\u5899\u3001\u9053\u8DEF\u548C\u65E9\u671F\u5927\u578B\u5EFA\u7B51\u63D0\u4F9B\u7A33\u5B9A\u4F9B\u7ED9\u3002"
   TechLevel: 0
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.14, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.14
+    layer: 0
+    operators: []
   autoBuildWorkRequired:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 200
+    scalar: 80
     layer: 0
     operators: []
   spaceCost:
@@ -45,6 +51,20 @@ MonoBehaviour:
     scalar: 0
     layer: 0
     operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   foodProductionRate:
     sign: 0
     representation: 0
@@ -54,9 +74,72 @@ MonoBehaviour:
     operators: []
   foodConsumptionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 3
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
     layer: 0
     operators: []
   resourceRequirements:
@@ -78,3 +161,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
+  - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
+  requiredWorkshopUpgrades: []

@@ -43,6 +43,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         {
             MainTab.Building => BuildingTabLabel,
             MainTab.Research => ResearchTabLabel,
+            MainTab.Workshop => "Workshop",
             MainTab.Special => SpecialTabLabel,
             _ => ResourceTabLabel
         };
@@ -59,7 +60,8 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (Text_TechLevel != null)
             SetTextIfChanged(Text_TechLevel, $"技术等级:{state.TechLevel.GetDescription()}");
 
-        ExpantaNum netFoodRate = state.FoodProductionRate - state.FoodConsumptionRate;
+        ExpantaNum populationFoodConsumption = state.Population.Population * state.Population.FoodPerPerson;
+        ExpantaNum netFoodRate = state.FoodProductionRate - state.FoodConsumptionRate - populationFoodConsumption;
         string signedFoodRate = netFoodRate >= ExpantaNum.Zero
             ? "+" + netFoodRate.ToGameString()
             : netFoodRate.ToGameString();
@@ -68,7 +70,9 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (Text_KingdomName != null)
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
         if (Text_Productivity != null)
-            SetTextIfChanged(Text_Productivity, $"劳动力:{state.Population.AvailableWorkforce.ToGameString()}");
+            SetTextIfChanged(
+                Text_Productivity,
+                $"劳动力:{BuildingManager.Instance.AvailableWorkforce.ToGameString()}");
         if (Text_Productivity != null)
         {
             ResearchManager researchManager = FindObjectOfType<ResearchManager>();
@@ -80,7 +84,7 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
                 : string.Empty;
             SetTextIfChanged(
                 Text_Productivity,
-                $"Workforce: {state.Population.AvailableWorkforce.ToGameString()}   Research Power: {researchPower}/s{foodEfficiency}");
+                $"劳动力:{BuildingManager.Instance.AvailableWorkforce.ToGameString()}   研究力:{researchPower}/s{foodEfficiency}");
         }
         if (Text_KingdomSpace != null)
             SetTextIfChanged(

@@ -19,6 +19,7 @@ namespace Kingdom.EditorTools
             bool changed = false;
             changed |= EnsureComponent<GameBootstrap>(managerObject);
             changed |= EnsureComponent<SaveManager>(managerObject);
+            changed |= EnsureComponent<WorkshopManager>(managerObject);
 
             if (changed)
             {

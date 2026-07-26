@@ -38,8 +38,8 @@ public sealed class SpaceContentTests
         Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
         Building machineFactory = DataBase<Building>.Find("MachineFactory");
 
-        Assert.That(HasRate(chemicalPlant.ResourceGenerationRates, rocketFuel), Is.True);
-        Assert.That(HasRate(machineFactory.ResourceGenerationRates, composite), Is.True);
+        Assert.That(HasRate(chemicalPlant.ResourceGenerationRates, rocketFuel), Is.False);
+        Assert.That(HasRate(machineFactory.ResourceGenerationRates, composite), Is.False);
         Assert.That(CountReferences(DataBase<Building>.All, rocketFuel), Is.GreaterThanOrEqualTo(2));
         Assert.That(CountReferences(DataBase<Building>.All, composite), Is.GreaterThanOrEqualTo(2));
     }

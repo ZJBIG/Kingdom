@@ -14,13 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Agriculture
   Label: "\u519C\u4E1A"
-  Description: "系统掌握播种、耕作与收获，让人口增长不再完全受制于野外食物的偶然性。"
+  Description: "\u7CFB\u7EDF\u638C\u63E1\u64AD\u79CD\u3001\u8015\u4F5C\u4E0E\u6536\u83B7\uFF0C\u8BA9\u4EBA\u53E3\u589E\u957F\u4E0D\u518D\u5B8C\u5168\u53D7\u5236\u4E8E\u91CE\u5916\u98DF\u7269\u7684\u5076\u7136\u6027\u3002"
   BaseCost: 180
   prerequisites: []
   resourceRequirements: []
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
-  - {fileID: 11400000, guid: 67d9710a4528473c9d3ae62ff260d5f5, type: 2}
+  effects: []
   TechLevel: 0
+  AdvancesTechLevel: 0
   x: 0
-  y: 4
+  y: 12

@@ -204,7 +204,17 @@ public class ResourceManager : Singleton<ResourceManager>
             for (int i = 0; i < saveData.Resources.Count; i++)
             {
                 SaveManager.ResourceStateSaveData data = saveData.Resources[i];
-                Resource resource = DataBase<Resource>.Find(data.ResourceId);
+                string resourceId =
+                    RetiredDefinitionMigration.NormalizeResourceId(data.ResourceId);
+                if (!DataBase<Resource>.TryFind(resourceId, out Resource resource))
+                {
+                    if (RetiredDefinitionMigration.IsRetired(data.ResourceId))
+                        RetiredDefinitionMigration.LogOnce();
+                    else
+                        UnityEngine.Debug.LogWarning(
+                            $"Ignoring unknown resource '{data.ResourceId}' while loading.");
+                    continue;
+                }
                 ResourceState state = EnsureResource(resource);
                 state.SetAmount(Parse(data.Amount, resource.Id, nameof(data.Amount)));
             }

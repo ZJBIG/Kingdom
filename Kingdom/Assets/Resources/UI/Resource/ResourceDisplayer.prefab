@@ -95,19 +95,7 @@ MonoBehaviour:
   Amount: {fileID: 1211656393018928525}
   GrowthRateText: {fileID: 2899800352527952774}
   Details: {fileID: 2095574397476968449}
-  Resource: {fileID: 0}
-  GenerateRate:
-    Power: 0
-    Sign: 0
-  ConsumeRate:
-    Power: 0
-    Sign: 0
-  ResourceAmount:
-    Power: 0
-    Sign: 0
-  Efficiency:
-    Power: 0
-    Sign: 0
+  Description: {fileID: 0}
 --- !u!1 &1395311270426129970
 GameObject:
   m_ObjectHideFlags: 0
@@ -843,8 +831,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

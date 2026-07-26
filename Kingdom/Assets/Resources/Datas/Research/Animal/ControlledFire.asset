@@ -13,14 +13,42 @@ MonoBehaviour:
   m_Name: ControlledFire
   m_EditorClassIdentifier: 
   id: ControlledFire
-  Label: "控制火种"
-  Description: "学会保存、搬运和稳定使用火焰，让人类获得熟食、保暖和驱赶野兽的能力。"
+  Label: "\u63A7\u5236\u706B\u79CD"
+  Description: "\u5B66\u4F1A\u4FDD\u5B58\u3001\u642C\u8FD0\u548C\u7A33\u5B9A\u4F7F\u7528\u706B\u7130\uFF0C\u8BA9\u4EBA\u7C7B\u83B7\u5F97\u719F\u98DF\u3001\u4FDD\u6696\u548C\u9A71\u8D76\u91CE\u517D\u7684\u80FD\u529B\u3002"
   BaseCost: 60
   prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
-  BuildingUnlock: []
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 20
+      layer: 0
+      operators: []
+  effects:
+  - Type: 2
+    Building: {fileID: 11400000, guid: 59c60dd8247e4929a1b852bb6ddcfda1, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 3e79e2c0be7842b9bd01979bb0ebbe1d, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 0

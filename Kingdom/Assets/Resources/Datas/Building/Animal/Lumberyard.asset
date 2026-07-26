@@ -14,14 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Lumberyard
   Label: "\u4F10\u6728\u573A"
-  Description: "集中处理和储存木材，为住房、工具、建筑以及更高阶段的工业发展提供基础材料。"
+  Description: "\u96C6\u4E2D\u5904\u7406\u548C\u50A8\u5B58\u6728\u6750\uFF0C\u4E3A\u4F4F\u623F\u3001\u5DE5\u5177\u3001\u5EFA\u7B51\u4EE5\u53CA\u66F4\u9AD8\u9636\u6BB5\u7684\u5DE5\u4E1A\u53D1\u5C55\u63D0\u4F9B\u57FA\u7840\u6750\u6599\u3002"
   TechLevel: 0
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.13, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.13
+    layer: 0
+    operators: []
   autoBuildWorkRequired:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
-    scalar: 0
+    scalar: 80
     layer: 0
     operators: []
   spaceCost:
@@ -33,12 +39,26 @@ MonoBehaviour:
     operators: []
   productivityConsumption:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
     scalar: 4
     layer: 0
     operators: []
   productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
     sign: 0
     representation: 0
     operatorCount: 0
@@ -54,26 +74,89 @@ MonoBehaviour:
     operators: []
   foodConsumptionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 2
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 50
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
       layer: 0
       operators: []
   resourceGenerationRates:
@@ -86,3 +169,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: e87d32dcff6a4374ab6d26ffa078450c, type: 2}
+  - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
+  requiredWorkshopUpgrades: []

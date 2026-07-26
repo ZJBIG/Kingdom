@@ -14,12 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mining
   Label: "\u77FF\u7269\u5F00\u91C7"
-  Description: "系统化地寻找、开凿和运输矿物，让文明获得迈向金属时代的地下资源。"
+  Description: "\u7CFB\u7EDF\u5316\u5730\u5BFB\u627E\u3001\u5F00\u51FF\u548C\u8FD0\u8F93\u77FF\u7269\uFF0C\u8BA9\u6587\u660E\u83B7\u5F97\u8FC8\u5411\u91D1\u5C5E\u65F6\u4EE3\u7684\u5730\u4E0B\u8D44\u6E90\u3002"
   BaseCost: 600
   prerequisites:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
   resourceRequirements: []
-  BuildingUnlock: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: f4b8d2e6913c47a0b5e8d7c214f9638a, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 9bf9289db69344a5977403d9bf822c5f, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 1d5fba0f9e9d4136bcb90f36fa76b3dc, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 2b272120c5154656ad1cec1fc1d38f27, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
   TechLevel: 0
-  x: 2
-  y: 8
+  AdvancesTechLevel: 0
+  x: 6
+  y: 18

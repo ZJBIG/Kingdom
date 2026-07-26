@@ -16,30 +16,217 @@ MonoBehaviour:
   Label: Arms Factory
   Description: Converts industrial materials into modern military equipment.
   TechLevel: 3
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.24, layer: 0, operators: []}
-  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 1800, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 22, layer: 0, operators: []}
-  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 18, layer: 0, operators: []}
-  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 40, layer: 0, operators: []}
-  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  powerProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  powerConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
-  logisticsProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  logisticsConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 15, layer: 0, operators: []}
-  attackPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  defensePowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
-  militaryManpowerGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.24
+    layer: 0
+    operators: []
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 200
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 22
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 18
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 35
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 20
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 10
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 2
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 180, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 120, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
   resourceGenerationRates: []
-  resourceConsumptionRates: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.5
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.2
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.15
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.1
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.1
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.1
+      layer: 0
+      operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: eadf8ba08147af2479e037bba70ae97b, type: 2}
+  - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: c9754cda2ed79f64abf02cb8ff6d226a, type: 2}

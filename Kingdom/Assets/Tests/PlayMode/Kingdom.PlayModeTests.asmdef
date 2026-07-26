@@ -2,8 +2,8 @@
     "name": "Kingdom.PlayModeTests",
     "rootNamespace": "",
     "references": [
-        "Assembly-CSharp",
-        "UnityEngine.TestRunner"
+        "Kingdom.Runtime",
+        "Unity.TextMeshPro"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

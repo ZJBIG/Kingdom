@@ -8,6 +8,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     private double accumulatedSeconds;
     private bool running;
+    private bool resumeAfterApplicationPause;
     private bool backlogWarningLogged;
 
     public bool IsRunning => running;
@@ -25,6 +26,22 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         running = value;
         if (!running)
             accumulatedSeconds = 0d;
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            resumeAfterApplicationPause = running;
+            SetRunning(false);
+            return;
+        }
+
+        if (resumeAfterApplicationPause)
+        {
+            resumeAfterApplicationPause = false;
+            SetRunning(true);
+        }
     }
 
     public void Advance(double elapsedSeconds)

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing
   Label: "\u51B6\u70BC\u91D1\u5C5E"
-  Description: "Introduces metal smelting and opens copper, tin, iron, and bronze processing."
+  Description: "\u5F15\u5165\u91D1\u5C5E\u51B6\u70BC\u6280\u672F\uFF0C\u5E76\u5F00\u542F\u94DC\u3001\u9521\u3001\u94C1\u4E0E\u9752\u94DC\u52A0\u5DE5\u3002"
   BaseCost: 8000
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
@@ -36,7 +36,63 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  BuildingUnlock: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 2b8e2c457de34c9baedb2a5a7fd8f601, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4daf4e679f056ec9cafd4c7c9f1ab823, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 3c9f3d568ef45d8bafec3b6b8e09a712, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 5eb05f78a0167fda9b0d5d8e0a2bc934, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.05
+      layer: 0
+      operators: []
   TechLevel: 1
-  x: 6
-  y: 9
+  AdvancesTechLevel: 0
+  x: 42
+  y: 30

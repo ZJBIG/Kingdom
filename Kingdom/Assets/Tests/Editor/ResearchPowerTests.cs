@@ -29,7 +29,7 @@ public sealed class ResearchPowerTests
             new List<BuildingState> { knowledgeState, scribeState },
             ExpantaNum.One);
 
-        Assert.That(result.ToDouble(), Is.EqualTo(9.5d).Within(0.000001d));
+        Assert.That(result.ToDouble(), Is.EqualTo(10.5d).Within(0.000001d));
     }
 
     [Test]

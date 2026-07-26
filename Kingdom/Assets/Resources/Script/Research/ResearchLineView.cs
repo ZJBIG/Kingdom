@@ -25,10 +25,7 @@ public sealed class ResearchLineView : MonoBehaviour
             lineImage = GetComponent<Image>();
     }
 
-    public void Bind(Research prerequisiteResearch, Research targetResearch)
-    {
-        Bind(prerequisiteResearch, targetResearch, null, null);
-    }
+    public void Bind(Research prerequisiteResearch, Research targetResearch)=>Bind(prerequisiteResearch, targetResearch, null, null);
 
     public void Bind(
         Research prerequisiteResearch,
@@ -40,20 +37,15 @@ public sealed class ResearchLineView : MonoBehaviour
         research = targetResearch ?? throw new System.ArgumentNullException(nameof(targetResearch));
         prerequisiteNode = prerequisiteResearchNode;
         researchNode = targetResearchNode;
-        if (lineTransform == null)
+
             lineTransform = transform as RectTransform;
-        if (lineImage == null)
             lineImage = GetComponent<Image>();
 
         RefreshGeometry();
         SetSelectedResearch(null);
     }
 
-    public void SetSelectedResearch(Research selectedResearch)
-    {
-        if (lineImage != null)
-            lineImage.color = GetColor(selectedResearch, prerequisite, research);
-    }
+    public void SetSelectedResearch(Research selectedResearch)=> lineImage.color = GetColor(selectedResearch, prerequisite, research);
 
     public void RefreshGeometry()
     {
@@ -65,20 +57,18 @@ public sealed class ResearchLineView : MonoBehaviour
         Vector3 delta = endWorld - beginWorld;
         lineTransform.sizeDelta = new Vector2(delta.magnitude, 5f);
         lineTransform.position = (beginWorld + endWorld) * 0.5f;
-        lineTransform.rotation = Quaternion.Euler(
-            0f,
-            0f,
-            Mathf.Rad2Deg * Mathf.Atan2(delta.y, delta.x));
+        lineTransform.rotation = Quaternion.Euler(0f,0f,Mathf.Rad2Deg * Mathf.Atan2(delta.y, delta.x));
     }
 
     public static Color GetColor(Research selectedResearch, Research prerequisiteResearch, Research targetResearch)
     {
-        if (selectedResearch == null)
-            return UnselectedColor;
-        if (selectedResearch == prerequisiteResearch)
-            return NextColor;
+        // Only color the direct edge connected to the selected node.
+        // The viewer owns one line per direct prerequisite relationship;
+        // do not walk or color any transitive research chain here.
         if (selectedResearch == targetResearch)
             return PrerequisiteColor;
+        if (selectedResearch == prerequisiteResearch)
+            return NextColor;
         return UnselectedColor;
     }
 
@@ -87,8 +77,7 @@ public sealed class ResearchLineView : MonoBehaviour
         if (node == null)
             return new Vector3(
                 100f + 300f * researchDefinition.x,
-                -25f - 300f * researchDefinition.y,
-                0f);
+                -25f - 300f * researchDefinition.y);
 
         return node.TransformPoint(node.rect.center);
     }

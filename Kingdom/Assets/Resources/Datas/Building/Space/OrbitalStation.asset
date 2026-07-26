@@ -13,34 +13,177 @@ MonoBehaviour:
   m_Name: OrbitalStation
   m_EditorClassIdentifier: 
   id: OrbitalStation
-  Label: "轨道空间站"
-  Description: "建立稳定的近地轨道节点，为后续星区探索和舰队提供基础设施。"
+  Label: "\u8F68\u9053\u7A7A\u95F4\u7AD9"
+  Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u8FD1\u5730\u8F68\u9053\u8282\u70B9\uFF0C\u4E3A\u540E\u7EED\u661F\u533A\u63A2\u7D22\u548C\u8230\u961F\u63D0\u4F9B\u57FA\u7840\u8BBE\u65BD\u3002"
   TechLevel: 4
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.22, layer: 0, operators: []}
-  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 3200, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 45, layer: 0, operators: []}
-  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 28, layer: 0, operators: []}
-  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  populationCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 90, layer: 0, operators: []}
-  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  powerProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  powerConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
-  logisticsProductionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
-  logisticsConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  fleetPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.22
+    layer: 0
+    operators: []
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 3200
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 45
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 28
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 90
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 50
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 20
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 10
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 50
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1600, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1600
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 600, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c7400000000000000000000000000002, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 300, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
   - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 0.05, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.05
+      layer: 0
+      operators: []
+  requiredResearch: []
+  requiredWorkshopUpgrades: []

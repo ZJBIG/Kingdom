@@ -382,6 +382,8 @@ public sealed class GameState
 
     internal void MarkSaved(long unixSeconds)
     {
+        if (LastSaveUnixSeconds == unixSeconds)
+            return;
         LastSaveUnixSeconds = unixSeconds;
         Version++;
     }

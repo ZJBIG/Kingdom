@@ -60,19 +60,24 @@ foreach ($group in ($resources | Group-Object DisplaySet)) {
 }
 
 $hasProducer = @($sourceSink | Where-Object { $_.HasProducer -eq 'True' }).Count
-$hasSink = @($sourceSink | Where-Object { $_.HasAnySink -eq 'True' }).Count
-$unused = @($sourceSink | Where-Object { $_.CurrentlyUnused -eq 'True' }).Count
+$hasSink = @($sourceSink | Where-Object {
+    ([int]$_.BuildingSinks + [int]$_.ResearchSinks) -gt 0
+}).Count
+$unused = @($sourceSink | Where-Object {
+    $_.HasProducer -ne 'True' -and
+    ([int]$_.BuildingSinks + [int]$_.ResearchSinks) -eq 0
+}).Count
 Add-SummaryRow $rows 'ResourcesWithProducer' $hasProducer 'count' 'current_resource_source_sink_audit.csv' 'Measured' 'Producer field is present in the supplied static audit.'
 Add-SummaryRow $rows 'ResourcesWithAnySink' $hasSink 'count' 'current_resource_source_sink_audit.csv' 'Measured' 'Any sink includes building or research sinks.'
 Add-SummaryRow $rows 'CurrentlyUnusedResources' $unused 'count' 'current_resource_source_sink_audit.csv' 'Measured' 'Static audit classification; not a release decision.'
 
-$reachable = @($researches | Where-Object { $_.ReachableFromNewGameStaticAudit -eq 'True' })
-Add-SummaryRow $rows 'ResearchReachableFromNewGameStaticAudit' $reachable.Count 'count' 'current_researches.csv' 'Measured' 'Copied from the supplied static audit column.'
+$reachable = @($researches)
+Add-SummaryRow $rows 'ResearchDefinitionsInProgressionAudit' $reachable.Count 'count' 'current_researches.csv' 'Measured' 'All current research definitions are included in the Unity progression audit.'
 
 $expectedResearchPower = 1.0
 $animalReachableCost = 0.0
 $animalUnparsed = New-Object System.Collections.Generic.List[string]
-foreach ($research in ($reachable | Where-Object { $_.TechLevel -like 'Animal*' })) {
+foreach ($research in ($reachable | Where-Object { $_.TechLevel -eq 'Animal' })) {
     $cost = Convert-ToSnapshotNumber $research.BaseCost
     if ($null -eq $cost) {
         $animalUnparsed.Add($research.Id)
@@ -85,10 +90,16 @@ if ($animalUnparsed.Count -gt 0) {
     $animalNotes += ' Unparsed BaseCost IDs: ' + ($animalUnparsed -join ', ') + '.'
 }
 Add-SummaryRow $rows 'AnimalReachableNominalResearchTime' ($animalReachableCost / $expectedResearchPower).ToString('0.###', $culture) 'seconds' 'current_researches.csv' 'Derived' $animalNotes
-Add-SummaryRow $rows 'AnimalToNeolithicEstimatedTime' 'NotDerivable' 'seconds' 'current_researches.csv' 'Blocked' 'No statically reachable Neolithic transition is present; requires C1 fixes and simulation.'
-Add-SummaryRow $rows 'NeolithicToMedievalEstimatedTime' 'NotDerivable' 'seconds' 'current_researches.csv' 'Blocked' 'No statically reachable Medieval transition is present; requires C1 fixes and simulation.'
+$pacingPath = Join-Path $ProjectRoot 'TestResults/C10-28/balance/vertical-slice-pacing-after.csv'
+if (Test-Path $pacingPath) {
+    $balanced = Import-Csv $pacingPath | Where-Object {
+        $_.Scenario -eq 'Balanced' -and $_.HorizonSeconds -eq '86400'
+    } | Select-Object -First 1
+    Add-SummaryRow $rows 'AnimalToNeolithicEstimatedTime' $balanced.NeolithicAtSeconds 'seconds' 'vertical-slice-pacing-after.csv' 'Estimated' 'Deterministic balanced-strategy research model; resource reachability is validated separately.'
+    Add-SummaryRow $rows 'AnimalToMedievalEstimatedTime' $balanced.MedievalAtSeconds 'seconds' 'vertical-slice-pacing-after.csv' 'Estimated' 'Deterministic balanced-strategy research model; not a recorded human playthrough.'
+}
 
-Add-SummaryRow $rows 'BuildingFirstCopyPayback' 'NotDerivable' 'seconds' 'current_buildings.csv' 'MissingModel' 'The snapshot has material requirements and outputs but no resource valuation, workforce schedule, or construction-time model.'
+Add-SummaryRow $rows 'BuildingFirstCopyPayback' 'ReportedSeparately' 'seconds' 'building-first-copy-payback-after.csv' 'Estimated' 'Nominal material-unit heuristic; strategic and infrastructure buildings require playtest valuation.'
 Add-SummaryRow $rows 'ResearchPowerAssumption' $expectedResearchPower.ToString('0.###', $culture) 'research/s' 'balance-model.md' 'Assumption' 'Temporary baseline only; replace with measured ResearchPower after C2.'
 
 $parent = Split-Path -Parent $OutputPath

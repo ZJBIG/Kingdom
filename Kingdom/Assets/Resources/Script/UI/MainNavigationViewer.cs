@@ -5,7 +5,9 @@ public enum MainTab
 {
     Resource,
     Building,
-    Research
+    Research,
+    Workshop,
+    Special,
 }
 
 public sealed class MainNavigationViewer : MonoBehaviour
@@ -14,6 +16,7 @@ public sealed class MainNavigationViewer : MonoBehaviour
     [SerializeField] private RectTransform ResourceViewer;
     [SerializeField] private RectTransform BuildingViewer;
     [SerializeField] private RectTransform ResearchViewer;
+    [SerializeField] private RectTransform WorkshopViewer;
     [SerializeField] private RectTransform SpecialViewer;
     [SerializeField] private RectTransform SettingViewer;
 
@@ -36,22 +39,33 @@ public sealed class MainNavigationViewer : MonoBehaviour
         {
             MainTab.Resource => MainTab.Building,
             MainTab.Building => MainTab.Research,
+            MainTab.Research => IsWorkshopAvailable() ? MainTab.Workshop : MainTab.Special,
+            MainTab.Workshop => MainTab.Special,
             _ => MainTab.Resource
         });
     }
 
     public void SetMainTab(MainTab tab)
     {
+        if (tab == MainTab.Workshop && !IsWorkshopAvailable())
+            tab = MainTab.Research;
         bool changed = currentTab != tab;
         currentTab = tab;
         SetActive(ResourceViewer, tab == MainTab.Resource);
         SetActive(BuildingViewer, tab == MainTab.Building);
         SetActive(ResearchViewer, tab == MainTab.Research);
-        SetActive(SpecialViewer, false);
+        SetActive(WorkshopViewer, tab == MainTab.Workshop);
+        SetActive(SpecialViewer, tab == MainTab.Special);
         SetActive(SettingViewer, false);
         HudViewer?.SetMainTab(currentTab);
         if (changed)
             MainTabChanged?.Invoke(currentTab);
+    }
+
+    private static bool IsWorkshopAvailable()
+    {
+        WorkshopManager manager = FindObjectOfType<WorkshopManager>();
+        return manager != null && manager.IsSystemUnlocked;
     }
 
     private static void SetActive(RectTransform viewer, bool active)

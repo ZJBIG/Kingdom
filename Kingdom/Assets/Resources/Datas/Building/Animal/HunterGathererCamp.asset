@@ -13,19 +13,146 @@ MonoBehaviour:
   m_Name: HunterGathererCamp
   m_EditorClassIdentifier: 
   id: HunterGathererCamp
-  Label: "采集营地"
-  Description: "组织采集者和猎人分工行动，让聚落获得比零散采集更稳定的食物来源。"
+  Label: "\u91C7\u96C6\u8425\u5730"
+  Description: "\u7EC4\u7EC7\u91C7\u96C6\u8005\u548C\u730E\u4EBA\u5206\u5DE5\u884C\u52A8\uFF0C\u8BA9\u805A\u843D\u83B7\u5F97\u6BD4\u96F6\u6563\u91C7\u96C6\u66F4\u7A33\u5B9A\u7684\u98DF\u7269\u6765\u6E90\u3002"
   TechLevel: 0
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.15, layer: 0, operators: []}
-  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 20, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
-  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
-  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodProductionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.15
+    layer: 0
+    operators: []
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 80
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 2
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 2
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 3
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 30
+      layer: 0
+      operators: []
   resourceGenerationRates: []
   resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
+  requiredWorkshopUpgrades: []

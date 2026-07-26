@@ -13,17 +13,22 @@ MonoBehaviour:
   m_Name: TextileCraft
   m_EditorClassIdentifier: 
   id: TextileCraft
-  Label: "纺织工艺"
-  Description: "把植物纤维纺成绳索和布料，改善住房、储存与劳动工具，让定居生活更加稳定。"
+  Label: "\u7EBA\u7EC7\u5DE5\u827A"
+  Description: "\u628A\u690D\u7269\u7EA4\u7EF4\u7EBA\u6210\u7EF3\u7D22\u548C\u5E03\u6599\uFF0C\u6539\u5584\u4F4F\u623F\u3001\u50A8\u5B58\u4E0E\u52B3\u52A8\u5DE5\u5177\uFF0C\u8BA9\u5B9A\u5C45\u751F\u6D3B\u66F4\u52A0\u7A33\u5B9A\u3002"
   BaseCost: 1400
   prerequisites:
   - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 99fb240680f34c6596b44ecd3abade40, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: bd51efc1e4d6487caf3dd86ef99a333b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 4
-  y: 4
+  x: 36
+  y: 12

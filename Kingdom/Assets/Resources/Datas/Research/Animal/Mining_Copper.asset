@@ -19,9 +19,8 @@ MonoBehaviour:
   prerequisites:
   - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
   resourceRequirements: []
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 9bf9289db69344a5977403d9bf822c5f, type: 2}
+  effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 4
-  y: 7
+  x: 12
+  y: 18

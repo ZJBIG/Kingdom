@@ -46,6 +46,164 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator NewGameStartup_InitializesCoreRuntimeState()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-NewGame-Managers");
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-NewGame-Managers");
+        FindOrCreateManager<BuildingManager>("PlayMode-NewGame-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-NewGame-Managers");
+        yield return null;
+
+        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
+            "InitializeNewGame",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNewGame, Is.Not.Null);
+        initializeNewGame.Invoke(gameManager, null);
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.EqualTo(new ExpantaNum(1)));
+    }
+
+    [UnityTest]
+    public IEnumerator NewGameFirstTenMinutes_SimulationSmokeRemainsStable()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-TenMinute-Managers");
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-TenMinute-Managers");
+        FindOrCreateManager<BuildingManager>("PlayMode-TenMinute-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-TenMinute-Managers");
+        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-TenMinute-Managers");
+        yield return null;
+
+        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
+            "InitializeNewGame",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNewGame, Is.Not.Null);
+        initializeNewGame.Invoke(gameManager, null);
+        simulationManager.SetRunning(true);
+
+        for (int i = 0; i < 6000; i++)
+        {
+            simulationManager.Advance(0.1d);
+            if (i % 250 == 0)
+                yield return null;
+        }
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Assert.That(gameManager.State.CalendarDays, Is.InRange(59, 60));
+        Assert.That(gameManager.State.FoodAmount.IsFinite, Is.True);
+        Assert.That(resourceManager.GetAmount(wood).IsFinite, Is.True);
+    }
+
+    [UnityTest]
+    public IEnumerator FoodProducer_RecoversAfterInventoryAndPriorEfficiencyReachZero()
+    {
+        GameManager gameManager =
+            FindOrCreateManager<GameManager>("PlayMode-FoodRecovery-Managers");
+        FindOrCreateManager<ResourceManager>("PlayMode-FoodRecovery-Managers");
+        BuildingManager buildingManager =
+            FindOrCreateManager<BuildingManager>("PlayMode-FoodRecovery-Managers");
+        FindOrCreateManager<ResearchManager>("PlayMode-FoodRecovery-Managers");
+        SimulationManager simulationManager =
+            FindOrCreateManager<SimulationManager>("PlayMode-FoodRecovery-Managers");
+        yield return null;
+
+        typeof(GameState).GetMethod(
+                "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[]
+            {
+                0, "Test", TechLevel.Animal, ExpantaNum.Zero, 0L
+            });
+        typeof(GameState).GetMethod(
+                "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[]
+            {
+                new ExpantaNum(3), new ExpantaNum(10), ExpantaNum.Zero,
+                ExpantaNum.Zero, ExpantaNum.One
+            });
+        BuildingState farm =
+            buildingManager.EnsureBuilding(DataBase<Building>.Find("Farm"));
+        farm.SetAmountForEditor(1);
+        farm.SetEfficiencyForEditor(ExpantaNum.Zero);
+
+        simulationManager.SetRunning(false);
+        simulationManager.ManualTick(1d);
+
+        Assert.That(farm.Efficiency, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(gameManager.State.FoodSatisfaction, Is.EqualTo(ExpantaNum.One));
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingManager_RequiresEveryResearchAndWorkshopPrerequisite()
+    {
+        GameManager gameManager =
+            FindOrCreateManager<GameManager>("PlayMode-Prerequisite-Managers");
+        FindOrCreateManager<ResourceManager>("PlayMode-Prerequisite-Managers");
+        BuildingManager buildingManager =
+            FindOrCreateManager<BuildingManager>("PlayMode-Prerequisite-Managers");
+        ResearchManager researchManager =
+            FindOrCreateManager<ResearchManager>("PlayMode-Prerequisite-Managers");
+        WorkshopManager workshopManager =
+            FindOrCreateManager<WorkshopManager>("PlayMode-Prerequisite-Managers");
+        yield return null;
+
+        typeof(GameState).GetMethod(
+            "AdvanceTechLevel", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[] { TechLevel.Industrial });
+
+        Building refinery = DataBase<Building>.Find("OilRefinery");
+        Assert.That(buildingManager.ArePrerequisitesMet(refinery, out BuildFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.ResearchPrerequisiteIncomplete));
+
+        MethodInfo restoreResearch = typeof(ResearchState).GetMethod(
+            "Restore", BindingFlags.Instance | BindingFlags.NonPublic, null,
+            new[] { typeof(ExpantaNum), typeof(bool), typeof(bool) }, null);
+        for (int i = 0; i < refinery.RequiredResearch.Count; i++)
+            restoreResearch.Invoke(
+                researchManager.GetState(refinery.RequiredResearch[i]),
+                new object[] { ExpantaNum.Zero, false, true });
+
+        Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.WorkshopPrerequisiteIncomplete));
+
+        WorkshopUpgradeDefinition upgrade = refinery.RequiredWorkshopUpgrades[0];
+        typeof(WorkshopUpgradeState).GetMethod(
+                "SetPurchased", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(workshopManager.States[upgrade], new object[] { true });
+
+        Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+    }
+
+    [UnityTest]
+    public IEnumerator ApplicationPause_StopsAndRestoresSimulationRunningState()
+    {
+        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-PauseLifecycle");
+        yield return null;
+
+        MethodInfo applicationPause = typeof(SimulationManager).GetMethod(
+            "OnApplicationPause",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(applicationPause, Is.Not.Null);
+
+        simulationManager.SetRunning(true);
+        applicationPause.Invoke(simulationManager, new object[] { true });
+        Assert.That(simulationManager.IsRunning, Is.False);
+
+        applicationPause.Invoke(simulationManager, new object[] { false });
+        Assert.That(simulationManager.IsRunning, Is.True);
+
+        simulationManager.SetRunning(false);
+        applicationPause.Invoke(simulationManager, new object[] { true });
+        applicationPause.Invoke(simulationManager, new object[] { false });
+        Assert.That(simulationManager.IsRunning, Is.False);
+    }
+
+    [UnityTest]
     public IEnumerator MainTabSwitch_DoesNotMutateGameplayState()
     {
         GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Navigation-Managers");
@@ -114,7 +272,7 @@ public sealed class KingdomPlayModeTests
         simulationManager.ManualTick(1d);
 
         Assert.That(gameManager.State, Is.Not.Null);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(6)));
     }
 
     [UnityTest]

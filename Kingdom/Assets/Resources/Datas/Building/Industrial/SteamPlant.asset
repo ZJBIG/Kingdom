@@ -14,29 +14,171 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SteamPlant
   Label: Steam Plant
-  Description: Burns coal to provide the industrial power source used by later flow systems.
+  Description: Burns coal to provide the industrial power source used by later flow
+    systems.
   TechLevel: 3
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.2, layer: 0, operators: []}
-  autoBuildWorkRequired: {sign: 0, representation: 1, operatorCount: 0, scalar: 1200, layer: 0, operators: []}
-  spaceCost: {sign: 0, representation: 1, operatorCount: 0, scalar: 18, layer: 0, operators: []}
-  productivityConsumption: {sign: 0, representation: 1, operatorCount: 0, scalar: 12, layer: 0, operators: []}
-  productivityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  researchPowerGranted: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  foodProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  foodCapacityGranted: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  powerProductionRate: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
-  powerConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  logisticsProductionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  logisticsConsumptionRate: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.2
+    layer: 0
+    operators: []
+  autoBuildWorkRequired:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 200
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 18
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 12
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 100
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 50
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 250, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 400, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2
+      layer: 0
+      operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: f5010000000000000000000000000009, type: 2}
+  - {fileID: 11400000, guid: b17ef79351de8c943a50503573200687, type: 2}
+  requiredWorkshopUpgrades: []

@@ -70,16 +70,56 @@ public sealed class ResearchBalanceTests
         Research mathematics = DataBase<Research>.Find("Mathematics");
         Research calendar = DataBase<Research>.Find("Calendar");
         Research knowledgeSharing = DataBase<Research>.Find("KnowledgeSharing");
+        Research controlledFire = DataBase<Research>.Find("ControlledFire");
+        Research mining = DataBase<Research>.Find("Mining");
         Research measurement = DataBase<Research>.Find("Measurement");
+        Research smithing = DataBase<Research>.Find("Smithing");
         Research waterManagement = DataBase<Research>.Find("WaterManagement");
 
-        Assert.That(mathematics.BuildingUnlock, Is.Empty);
+        Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
+        Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.15d), Is.True);
         Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.25d), Is.True);
         Assert.That(HasEffect(calendar, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
         Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
+        Assert.That(
+            HasEffect(
+                smithing,
+                ResearchEffectType.BuildingProductionMultiplier,
+                1.1d,
+                "CopperSmelter"),
+            Is.True);
         Assert.That(HasEffect(waterManagement, ResearchEffectType.BuildingFoodProductionMultiplier, 1.5d), Is.True);
-        Assert.That(knowledgeSharing.BuildingUnlock, Has.Count.EqualTo(1));
-        Assert.That(knowledgeSharing.BuildingUnlock[0].Id, Is.EqualTo("KnowledgeCircle"));
+        Assert.That(
+            DataBase<Building>.Find("KnowledgeCircle").RequiredResearch,
+            Does.Contain(knowledgeSharing));
+    }
+
+    [Test]
+    public void PublishedResearch_HasAConcreteUnlockEffectOrEraTransition()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            if (research.TechLevel > TechLevel.Medieval)
+                continue;
+
+            bool hasConcreteOutcome =
+                research.AdvancesTechLevel ||
+                IsRequiredByBuilding(research) ||
+                research.Effects.Count > 0;
+            Assert.That(
+                hasConcreteOutcome,
+                Is.True,
+                $"Published research '{research.Id}' is a prerequisite-only node with no gameplay effect.");
+        }
+    }
+
+    private static bool IsRequiredByBuilding(Research research)
+    {
+        foreach (Building building in DataBase<Building>.All)
+            for (int i = 0; i < building.RequiredResearch.Count; i++)
+                if (building.RequiredResearch[i] == research)
+                    return true;
+        return false;
     }
 
     private static bool HasEffect(Research research, ResearchEffectType type, double value)
@@ -89,6 +129,24 @@ public sealed class ResearchBalanceTests
             ResearchEffectDefinition effect = research.Effects[i];
             if (effect != null && effect.Type == type &&
                 effect.Value.ToDouble() == value)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasEffect(
+        Research research,
+        ResearchEffectType type,
+        double value,
+        string buildingId)
+    {
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Type == type &&
+                effect.Value.ToDouble() == value &&
+                effect.Building != null &&
+                effect.Building.Id == buildingId)
                 return true;
         }
         return false;

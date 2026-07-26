@@ -9,16 +9,34 @@ public class MusicDisplayer : MonoBehaviour
     [SerializeField, FormerlySerializedAs("Label")] private TMP_Text labelText;
 
     private AudioClip clip;
+    private string resourcePath;
 
     public void Bind(string newTypeName, AudioClip newClip)
     {
         clip = newClip;
+        resourcePath = string.Empty;
         if (typeText != null)
             typeText.text = newTypeName;
         if (labelText != null)
             labelText.text = clip == null ? string.Empty : clip.name;
     }
 
-    public void Play() => MusicManager.Instance.Play(clip);
+    public void Bind(string newTypeName, string newResourcePath, string newLabel)
+    {
+        clip = null;
+        resourcePath = newResourcePath;
+        if (typeText != null)
+            typeText.text = newTypeName;
+        if (labelText != null)
+            labelText.text = newLabel ?? string.Empty;
+    }
+
+    public void Play()
+    {
+        if (!string.IsNullOrEmpty(resourcePath))
+            MusicManager.Instance.QueuePlay(resourcePath);
+        else
+            MusicManager.Instance.Play(clip);
+    }
 }
 #pragma warning restore CS0649

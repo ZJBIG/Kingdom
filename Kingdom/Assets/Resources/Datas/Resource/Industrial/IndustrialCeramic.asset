@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
+  m_Name: IndustrialCeramic
+  m_EditorClassIdentifier: 
+  id: IndustrialCeramic
+  Label: "\u5DE5\u4E1A\u9676\u74F7"
+  Description: "\u7CBE\u5BC6\u673A\u68B0\u3001\u5B9E\u9A8C\u8BBE\u5907\u4E0E\u9694\u70ED\u7ED3\u6784\u6750\u6599\u3002"
+  Sprite: {fileID: 21300000, guid: e9c8047a18d052d4ba6472b0106cfc86, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 4

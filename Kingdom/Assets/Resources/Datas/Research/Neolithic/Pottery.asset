@@ -13,17 +13,23 @@ MonoBehaviour:
   m_Name: Pottery
   m_EditorClassIdentifier: 
   id: Pottery
-  Label: "陶器制作"
-  Description: "掌握黏土成型与烧制，让人类能够储存食物、搬运饮水并制作更耐用的生活器具。"
+  Label: "\u9676\u5668\u5236\u4F5C"
+  Description: "\u638C\u63E1\u9ECF\u571F\u6210\u578B\u4E0E\u70E7\u5236\uFF0C\u8BA9\u4EBA\u7C7B\u80FD\u591F\u50A8\u5B58\u98DF\u7269\u3001\u642C\u8FD0\u996E\u6C34\u5E76\u5236\u4F5C\u66F4\u8010\u7528\u7684\u751F\u6D3B\u5668\u5177\u3002"
   BaseCost: 1200
   prerequisites:
   - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
+  - {fileID: 11400000, guid: 32d97831dab14245909b70db5aefd06e, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 3e79e2c0be7842b9bd01979bb0ebbe1d, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 4
-  y: 2
+  x: 36
+  y: 6

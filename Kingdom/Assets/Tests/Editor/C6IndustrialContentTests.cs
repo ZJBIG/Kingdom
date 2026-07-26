@@ -7,14 +7,31 @@ public sealed class C6IndustrialContentTests
     {
         "Machinery",
         "Chemical",
-        "Electronics"
+        "Electronics",
+        "CrudeOil",
+        "Silica",
+        "Coke",
+        "Glass",
+        "IndustrialCeramic",
+        "RefinedFuel",
+        "Lubricant",
+        "Rubber",
+        "CopperWire",
+        "PrecisionParts",
+        "Engine"
     };
 
     private static readonly string[] IndustrialBuildingIds =
     {
         "SteamPlant",
+        "OilDerrick",
+        "SilicaQuarry",
+        "CokeOven",
+        "Glassworks",
         "MachineFactory",
         "ChemicalPlant",
+        "OilRefinery",
+        "WireMill",
         "University",
         "RailHub",
         "ArmsFactory"
@@ -86,20 +103,24 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C601_IndustrializationUnlocksTheIndustrialBuildingLayer()
+    public void C601_IndustrialBuildingsOwnTheirResearchPrerequisites()
     {
         Research industrialization = DataBase<Research>.Find("Industrialization");
         var expected = new HashSet<string>(IndustrialBuildingIds);
         var actual = new HashSet<string>();
 
-        for (int i = 0; i < industrialization.BuildingUnlock.Count; i++)
+        foreach (Building building in DataBase<Building>.All)
         {
-            Building building = industrialization.BuildingUnlock[i];
-            if (building != null)
-                actual.Add(building.Id);
+            if (building.TechLevel != TechLevel.Industrial)
+                continue;
+            Assert.That(building.RequiredResearch, Is.Not.Empty, building.Id);
+            for (int i = 0; i < building.RequiredResearch.Count; i++)
+                if (building.RequiredResearch[i] == industrialization)
+                    actual.Add(building.Id);
         }
 
-        Assert.That(actual, Is.EqualTo(expected));
+        Assert.That(actual, Is.SubsetOf(expected));
+        Assert.That(actual, Does.Contain("SteamPlant"));
     }
 
     [Test]
@@ -118,8 +139,8 @@ public sealed class C6IndustrialContentTests
                 string.Join(", ", result.ResourcesWithoutSource));
             Assert.That(result.ResourcesWithoutSink, Does.Not.Contain(IndustrialResourceIds[i]),
                 string.Join(", ", result.ResourcesWithoutSink));
-            Assert.That(CountConsumerBuildings(IndustrialResourceIds[i]), Is.GreaterThanOrEqualTo(2),
-                $"Industrial resource '{IndustrialResourceIds[i]}' must have at least two building uses.");
+            Assert.That(CountConsumerUses(IndustrialResourceIds[i]), Is.GreaterThanOrEqualTo(2),
+                $"Industrial resource '{IndustrialResourceIds[i]}' must have at least two independent uses.");
         }
     }
 
@@ -133,6 +154,18 @@ public sealed class C6IndustrialContentTests
                 ContainsResource(building.ResourceConsumptionRates, resourceId))
                 count++;
         }
+        return count;
+    }
+
+    private static int CountConsumerUses(string resourceId)
+    {
+        int count = CountConsumerBuildings(resourceId);
+        for (int i = 0; i < DataBase<Research>.All.Count; i++)
+            if (ContainsResource(DataBase<Research>.All[i].ResourceRequirements, resourceId))
+                count++;
+        for (int i = 0; i < DataBase<WorkshopUpgradeDefinition>.All.Count; i++)
+            if (ContainsResource(DataBase<WorkshopUpgradeDefinition>.All[i].ResourceRequirements, resourceId))
+                count++;
         return count;
     }
 

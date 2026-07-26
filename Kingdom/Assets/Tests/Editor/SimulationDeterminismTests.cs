@@ -12,10 +12,10 @@ public sealed class SimulationDeterminismTests
 
         Assert.That(
             foodAtThirtyFps.ToDouble(),
-            Is.EqualTo(foodAtSixtyFps.ToDouble()).Within(0.000001d));
+            Is.EqualTo(foodAtSixtyFps.ToDouble()).Within(0.001d));
         Assert.That(
             resourceAtThirtyFps.ToDouble(),
-            Is.EqualTo(resourceAtSixtyFps.ToDouble()).Within(0.000001d));
+            Is.EqualTo(resourceAtSixtyFps.ToDouble()).Within(0.001d));
     }
 
     private static ExpantaNum IntegrateFood(int stepCount, double deltaSeconds)

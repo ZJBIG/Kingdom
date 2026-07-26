@@ -17,7 +17,6 @@ public class Research : GameDefinition
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
     public IReadOnlyList<ResearchEffectDefinition> Effects => effects;
 
-    public List<Building> BuildingUnlock;
     public TechLevel TechLevel;
     public bool AdvancesTechLevel;
     [Header("TabPosition")]
@@ -25,6 +24,10 @@ public class Research : GameDefinition
     public float y;
 
 #if UNITY_EDITOR
+    public void SetResourceRequirementsForEditor(
+        List<Pair<Resource, ExpantaNum>> values) =>
+        resourceRequirements = values ?? new List<Pair<Resource, ExpantaNum>>();
+
     public void SetEffectsForEditor(List<ResearchEffectDefinition> values)
     {
         effects = values ?? new List<ResearchEffectDefinition>();

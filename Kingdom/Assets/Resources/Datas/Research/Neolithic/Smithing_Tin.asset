@@ -14,17 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Tin
   Label: "\u51B6\u70BC\u9521"
-  Description: "改进锡矿提炼与加工，为合金制造、精密器具和更先进的金属工业提供材料基础。"
+  Description: "\u6539\u8FDB\u9521\u77FF\u63D0\u70BC\u4E0E\u52A0\u5DE5\uFF0C\u4E3A\u5408\u91D1\u5236\u9020\u3001\u7CBE\u5BC6\u5668\u5177\u548C\u66F4\u5148\u8FDB\u7684\u91D1\u5C5E\u5DE5\u4E1A\u63D0\u4F9B\u6750\u6599\u57FA\u7840\u3002"
   BaseCost: 12000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 220, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 4daf4e679f056ec9cafd4c7c9f1ab823, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 160
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 1
-  x: 8
-  y: 10
+  AdvancesTechLevel: 0
+  x: 54
+  y: 30

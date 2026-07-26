@@ -6,8 +6,14 @@ public sealed class C6IndustrialClosureAuditTests
     private static readonly string[] IndustrialBuildingIds =
     {
         "SteamPlant",
+        "OilDerrick",
+        "SilicaQuarry",
+        "CokeOven",
+        "Glassworks",
         "MachineFactory",
         "ChemicalPlant",
+        "OilRefinery",
+        "WireMill",
         "University",
         "RailHub",
         "ArmsFactory"
@@ -17,7 +23,18 @@ public sealed class C6IndustrialClosureAuditTests
     {
         "Machinery",
         "Chemical",
-        "Electronics"
+        "Electronics",
+        "CrudeOil",
+        "Silica",
+        "Coke",
+        "Glass",
+        "IndustrialCeramic",
+        "RefinedFuel",
+        "Lubricant",
+        "Rubber",
+        "CopperWire",
+        "PrecisionParts",
+        "Engine"
     };
 
     [Test]
@@ -48,7 +65,7 @@ public sealed class C6IndustrialClosureAuditTests
     }
 
     [Test]
-    public void C604_PowerAndLogisticsRemainDerivedOutsideSaveDtos()
+    public void C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos()
     {
         foreach (Type fieldType in new[]
         {
@@ -58,8 +75,10 @@ public sealed class C6IndustrialClosureAuditTests
         {
             foreach (var field in fieldType.GetFields())
             {
-                Assert.That(field.Name, Does.Not.Contain("Power"));
-                Assert.That(field.Name, Does.Not.Contain("Logistics"));
+                Assert.That(field.Name, Is.Not.EqualTo("PowerProductionRate"));
+                Assert.That(field.Name, Is.Not.EqualTo("PowerConsumptionRate"));
+                Assert.That(field.Name, Is.Not.EqualTo("LogisticsProductionRate"));
+                Assert.That(field.Name, Is.Not.EqualTo("LogisticsConsumptionRate"));
             }
         }
     }

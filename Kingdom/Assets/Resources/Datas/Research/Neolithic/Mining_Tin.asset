@@ -18,11 +18,9 @@ MonoBehaviour:
   BaseCost: 9000
   prerequisites:
   - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
-  - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}
   resourceRequirements: []
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 1d5fba0f9e9d4136bcb90f36fa76b3dc, type: 2}
+  effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6
-  y: 8
+  x: 54
+  y: 24

@@ -13,31 +13,53 @@ MonoBehaviour:
   m_Name: Fortification
   m_EditorClassIdentifier: 
   id: Fortification
-  Label: Fortification
-  Description: Turns masonry and steel into a permanent defensive frontier.
+  Label: "\u9632\u5FA1\u5DE5\u4E8B"
+  Description: "\u5C06\u780C\u7B51\u6280\u672F\u4E0E\u94A2\u94C1\u8F6C\u5316\u4E3A\u575A\u56FA\u6301\u4E45\u7684\u9632\u5FA1\u8FB9\u7586\u3002"
   BaseCost: 140000
   prerequisites:
   - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
   - {fileID: 11400000, guid: b5e8c2d7419f4a6b8d0e3c7f1a526984, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 600, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 150, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: a7777777777777777777777777777777, type: 2}
-  TechLevel: 2
-  AdvancesTechLevel: 0
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
   effects:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: ""
-    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
   - Type: 9
     Building: {fileID: 0}
     Resource: {fileID: 0}
     SystemId: fortification
-    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  x: 4
-  y: 14
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1
+      layer: 0
+      operators: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  x: 84
+  y: 30

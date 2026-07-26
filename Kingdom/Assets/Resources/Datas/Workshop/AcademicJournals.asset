@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: AcademicJournals
+  m_EditorClassIdentifier: 
+  id: AcademicJournals
+  Label: "\u5B66\u672F\u671F\u520A"
+  Description: "\u5B66\u672F\u671F\u520A\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Category: "\u79D1\u7814"
+  SortOrder: 130
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: a983adc6884e79f4ea3777d1277d713f, type: 2}
+  requiredUpgrades: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 384c42715adad4640b0d3becdb1c823f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  effects:
+  - Type: 9
+    Building: {fileID: 11400000, guid: c6100000000000000000000000000004, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.25
+      layer: 0
+      operators: []

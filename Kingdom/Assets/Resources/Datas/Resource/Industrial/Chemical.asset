@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Chemical
   m_EditorClassIdentifier: 
   id: Chemical
-  Label: Chemical
-  Description: Industrial chemical feedstock used for advanced manufacturing and power systems.
-  Sprite: {fileID: 0}
-  Color: {r: 0.2, g: 0.65, b: 0.35, a: 1}
+  Label: "\u5316\u5DE5\u6750\u6599"
+  Description: "\u7528\u4E8E\u5148\u8FDB\u5236\u9020\u4E0E\u80FD\u6E90\u7CFB\u7EDF\u7684\u5DE5\u4E1A\u5316\u5DE5\u539F\u6599\u3002"
+  Sprite: {fileID: 21300000, guid: 40f449c8569652a44a60de74bdc1bd5f, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
   DisplayerSet: 4

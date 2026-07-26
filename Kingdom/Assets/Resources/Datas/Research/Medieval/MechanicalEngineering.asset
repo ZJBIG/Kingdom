@@ -13,25 +13,41 @@ MonoBehaviour:
   m_Name: MechanicalEngineering
   m_EditorClassIdentifier: 
   id: MechanicalEngineering
-  Label: Mechanical Engineering
-  Description: Applies mechanical power to improve medieval production.
+  Label: "\u673A\u68B0\u5DE5\u7A0B"
+  Description: "\u8FD0\u7528\u673A\u68B0\u52A8\u529B\u63D0\u5347\u4E2D\u4E16\u7EAA\u751F\u4EA7\u6548\u7387\u3002"
   BaseCost: 120000
   prerequisites:
   - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 200, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: 6e3b8a1c4d5f4790a2b7c8d9e0f12345, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: a1111111111111111111111111111111, type: 2}
-  TechLevel: 2
-  AdvancesTechLevel: 0
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: a1111111111111111111111111111111, type: 2}
     Resource: {fileID: 0}
-    SystemId: ""
-    Value: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.25, layer: 0, operators: []}
-  x: 2
-  y: 12
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.25
+      layer: 0
+      operators: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  x: 84
+  y: 36

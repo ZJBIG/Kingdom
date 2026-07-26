@@ -13,15 +13,21 @@ MonoBehaviour:
   m_Name: Granary
   m_EditorClassIdentifier: 
   id: Granary
-  Label: "食物仓"
-  Description: "干燥、储存并保护食物，显著扩大聚落能够安全保存的食物容量。"
+  Label: "\u98DF\u7269\u4ED3"
+  Description: "\u5E72\u71E5\u3001\u50A8\u5B58\u5E76\u4FDD\u62A4\u98DF\u7269\uFF0C\u663E\u8457\u6269\u5927\u805A\u843D\u80FD\u591F\u5B89\u5168\u4FDD\u5B58\u7684\u98DF\u7269\u5BB9\u91CF\u3002"
   TechLevel: 1
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.18, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.18
+    layer: 0
+    operators: []
   autoBuildWorkRequired:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 50
+    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -39,6 +45,20 @@ MonoBehaviour:
     layer: 0
     operators: []
   productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
     sign: 0
     representation: 0
     operatorCount: 0
@@ -66,12 +86,90 @@ MonoBehaviour:
     scalar: 1000
     layer: 0
     operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 150, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 30, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 30
+      layer: 0
+      operators: []
   resourceGenerationRates: []
   resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: de08318881dc4c91a110881c12672414, type: 2}
+  - {fileID: 11400000, guid: a1e320f1f8a04854a0ca04a2051d9a36, type: 2}
+  requiredWorkshopUpgrades: []

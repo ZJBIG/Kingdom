@@ -32,12 +32,12 @@ public sealed class ResearchMedievalContentTests
     }
 
     [Test]
-    public void C503_MedievalResearchUnlocksTheSevenCoreBuildings()
+    public void C503_MedievalBuildingsOwnTheirResearchPrerequisites()
     {
         var expectedUnlocks = new Dictionary<string, string[]>
         {
             ["MechanicalEngineering"] = new[] { "WaterMill" },
-            ["Steelmaking"] = new[] { "SteelForge", "Blacksmith" },
+            ["Steelmaking"] = new[] { "SteelForge" },
             ["Bookmaking"] = new[] { "Library" },
             ["TradeRoutes"] = new[] { "Market" },
             ["Fortification"] = new[] { "Fortification" },
@@ -46,10 +46,10 @@ public sealed class ResearchMedievalContentTests
 
         foreach (KeyValuePair<string, string[]> pair in expectedUnlocks)
         {
-            Research research = DataBase<Research>.Find(pair.Key);
-            Assert.That(research.BuildingUnlock, Has.Count.EqualTo(pair.Value.Length));
             for (int i = 0; i < pair.Value.Length; i++)
-                Assert.That(research.BuildingUnlock[i].Id, Is.EqualTo(pair.Value[i]));
+                Assert.That(
+                    DataBase<Building>.Find(pair.Value[i]).RequiredResearch,
+                    Does.Contain(DataBase<Research>.Find(pair.Key)));
         }
     }
 
@@ -61,7 +61,12 @@ public sealed class ResearchMedievalContentTests
         Assert.That(industrialization.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(industrialization.AdvancesTechLevel, Is.True);
         Assert.That(industrialization.Prerequisites, Has.Count.EqualTo(4));
-        Assert.That(industrialization.Effects, Has.Count.EqualTo(2));
+        Assert.That(industrialization.Effects, Has.Count.EqualTo(3));
+        Assert.That(
+            industrialization.Effects,
+            Has.Some.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.ProductivityGranted &&
+                effect.Value == new ExpantaNum(800)));
     }
 
     [Test]

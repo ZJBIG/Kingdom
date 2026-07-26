@@ -25,6 +25,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         _ = ResourceManager.Instance;
         _ = BuildingManager.Instance;
         _ = ResearchManager.Instance;
+        _ = WorkshopManager.Instance;
         GameManager.Instance.Sectors.InitializeDefinitions();
 
         SaveManager.Instance.LoadOrCreateGame();
@@ -38,7 +39,17 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         ValidateDefinitions<Resource>();
         ValidateDefinitions<Building>();
         ValidateDefinitions<Research>();
+        ValidateDefinitions<WorkshopUpgradeDefinition>();
         ValidateDefinitions<SectorDefinition>();
+        if (!EconomyDependencyValidator.Validate(
+                DataBase<Resource>.All,
+                DataBase<Building>.All,
+                DataBase<Research>.All,
+                DataBase<WorkshopUpgradeDefinition>.All,
+                out string error))
+        {
+            throw new InvalidOperationException(error);
+        }
     }
 
     private static void ValidateDefinitions<T>() where T : GameDefinition

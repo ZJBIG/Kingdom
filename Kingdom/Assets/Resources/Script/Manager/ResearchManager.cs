@@ -19,6 +19,7 @@ public class ResearchManager : Singleton<ResearchManager>
     public int TotalResearchCount => orderedStates.Count;
     public string SelectedResearchId { get; private set; } = string.Empty;
     public event Action<ResearchState> ResearchStateAdded;
+    internal IReadOnlyList<ResearchState> OrderedStatesForProgression => orderedStates;
 
     public int TotalFinishedResearchCount
     {
@@ -44,7 +45,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
         InitializeResearchStates(researches);
         InitializeResearchCount();
-        ProgressionModifierManager.Rebuild(orderedStates);
+        RebuildProgressionModifiers();
         BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
         RebuildResearchPower(buildingManager?.OrderedStates);
     }
@@ -181,14 +182,11 @@ public class ResearchManager : Singleton<ResearchManager>
         if (current.Definition.AdvancesTechLevel)
             GameManager.Instance.AdvanceTechLevel(current.Definition.TechLevel);
 
-        IReadOnlyList<Building> unlocks = current.Definition.BuildingUnlock;
-        if (unlocks != null)
-        {
-            for (int i = 0; i < unlocks.Count; i++)
-                BuildingManager.Instance.AddBuilding(unlocks[i]);
-        }
-
-        ProgressionModifierManager.Rebuild(orderedStates);
+        ProgressionModifierState previousModifiers = ProgressionModifierManager.Current;
+        RebuildProgressionModifiers();
+        BuildingManager.Instance.ApplyProgressionModifierChange(
+            previousModifiers,
+            ProgressionModifierManager.Current);
         RefreshAvailabilityStatuses();
     }
 
@@ -295,7 +293,7 @@ public class ResearchManager : Singleton<ResearchManager>
         GlobalEfficiencyFactor = ExpantaNum.One;
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
-        ProgressionModifierManager.Rebuild(orderedStates);
+        RebuildProgressionModifiers();
         BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
         RebuildResearchPower(buildingManager?.OrderedStates);
     }
@@ -319,8 +317,12 @@ public class ResearchManager : Singleton<ResearchManager>
             }
         }
 
-        ProgressionModifierManager.Rebuild(orderedStates);
+        ProgressionModifierState previousModifiers = ProgressionModifierManager.Current;
+        RebuildProgressionModifiers();
         BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+        buildingManager?.ApplyProgressionModifierChange(
+            previousModifiers,
+            ProgressionModifierManager.Current);
         RebuildResearchPower(buildingManager?.OrderedStates);
         RefreshAvailabilityStatuses();
         if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
@@ -355,6 +357,14 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public override void Load() => SaveManager.Instance.LoadOrCreateGame();
 
+    internal void RebuildProgressionModifiers()
+    {
+        WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
+        ProgressionModifierManager.Rebuild(
+            orderedStates,
+            workshop?.OrderedStates);
+    }
+
     internal void RebuildResearchPower(IReadOnlyList<BuildingState> buildingStates)
     {
         ResearchPower = CalculateResearchPower(buildingStates, BaseResearchPower);
@@ -376,7 +386,9 @@ public class ResearchManager : Singleton<ResearchManager>
 
             ExpantaNum contribution = state.Definition.ResearchPowerGranted
                 * state.Amount
-                * ExpantaNum.Clamp01(state.Efficiency);
+                * ExpantaNum.Clamp01(state.Efficiency)
+                * ProgressionModifierManager.Current
+                    .GetBuildingResearchPowerMultiplier(state.Definition);
             if (!contribution.IsNaN && contribution > ExpantaNum.Zero)
                 total += contribution;
         }
@@ -426,7 +438,9 @@ public class ResearchManager : Singleton<ResearchManager>
         for (int i = 0; i < savedCosts.Count; i++)
         {
             SaveManager.ResearchResourceCostSaveData saved = savedCosts[i];
-            Resource resource = DataBase<Resource>.Find(saved.ResourceId);
+            string resourceId =
+                RetiredDefinitionMigration.NormalizeResourceId(saved.ResourceId);
+            Resource resource = DataBase<Resource>.Find(resourceId);
             result[resource] = Parse(saved.Amount, saved.ResourceId, nameof(saved.Amount));
         }
         return result;

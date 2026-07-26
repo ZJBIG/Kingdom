@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: StoneCutting
+  m_EditorClassIdentifier: 
+  id: StoneCutting
+  Label: "\u5207\u77F3\u6280\u672F"
+  Description: "\u7814\u7A76\u5207\u5272\u3001\u6253\u78E8\u548C\u62FC\u63A5\u77F3\u6750\u7684\u65B9\u6CD5\uFF0C\u4F7F\u77F3\u6599\u4ECE\u5929\u7136\u8D44\u6E90\u8F6C\u5316\u4E3A\u53EF\u9760\u7684\u5EFA\u7B51\u6784\u4EF6\u3002"
+  BaseCost: 900
+  prerequisites:
+  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  effects: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 4
+  y: 30

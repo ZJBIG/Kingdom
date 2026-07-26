@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
+  m_Name: Emerald
+  m_EditorClassIdentifier: 
+  id: Emerald
+  Label: "\u7EFF\u5B9D\u77F3"
+  Description: "\u7FE0\u7EFF\u8272\u7684\u5B9D\u77F3\uFF0C\u7A00\u6709\u800C\u9192\u76EE\uFF0C\u5E38\u88AB\u7528\u4E8E\u8D35\u65CF\u88C5\u9970\u548C\u9AD8\u4EF7\u503C\u8D38\u6613\u3002"
+  Sprite: {fileID: 21300000, guid: e400c4cadb1cdb7458935256cf5799f8, type: 3}
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  DisplayerSet: 2

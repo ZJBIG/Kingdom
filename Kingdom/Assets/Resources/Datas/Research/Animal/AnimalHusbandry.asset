@@ -13,16 +13,21 @@ MonoBehaviour:
   m_Name: AnimalHusbandry
   m_EditorClassIdentifier: 
   id: AnimalHusbandry
-  Label: "动物驯养"
-  Description: "观察动物的习性并进行驯养，让人类获得稳定的食物来源和从狩猎走向畜牧的能力。"
+  Label: "\u52A8\u7269\u9A6F\u517B"
+  Description: "\u89C2\u5BDF\u52A8\u7269\u7684\u4E60\u6027\u5E76\u8FDB\u884C\u9A6F\u517B\uFF0C\u8BA9\u4EBA\u7C7B\u83B7\u5F97\u7A33\u5B9A\u7684\u98DF\u7269\u6765\u6E90\u548C\u4ECE\u72E9\u730E\u8D70\u5411\u755C\u7267\u7684\u80FD\u529B\u3002"
   BaseCost: 240
   prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: a42bd7bec591404f8802b499927b1bce, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 0
-  y: 2
+  y: 6

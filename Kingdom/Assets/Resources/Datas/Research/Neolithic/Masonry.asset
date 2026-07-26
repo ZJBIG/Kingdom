@@ -6,7 +6,6 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 3
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -14,20 +13,42 @@ MonoBehaviour:
   m_Name: Masonry
   m_EditorClassIdentifier: 
   id: Masonry
-  Label: "砌筑技术"
-  Description: "掌握承重、抹缝和墙体修整，让居所更加坚固、耐久并适合长期生活。"
+  Label: "\u780C\u7B51\u6280\u672F"
+  Description: "\u638C\u63E1\u627F\u91CD\u3001\u62B9\u7F1D\u548C\u5899\u4F53\u4FEE\u6574\uFF0C\u8BA9\u5C45\u6240\u66F4\u52A0\u575A\u56FA\u3001\u8010\u4E45\u5E76\u9002\u5408\u957F\u671F\u751F\u6D3B\u3002"
   BaseCost: 6500
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
   - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 240, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 240
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 260, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: a91a9ad3e78b7464ebf48b963e5d079e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 260
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: masonry
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 10
-  y: 8
+  x: 48
+  y: 18

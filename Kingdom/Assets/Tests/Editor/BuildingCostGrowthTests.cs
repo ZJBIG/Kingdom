@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -39,6 +40,9 @@ public sealed class BuildingCostGrowthTests
         CreateManager<GameManager>("Growth-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("Growth-ResourceManager");
         BuildingManager buildingManager = CreateManager<BuildingManager>("Growth-BuildingManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("Growth-ResearchManager");
+        RestorePopulation(GameManager.Instance.State, new ExpantaNum(20));
+        CompleteResearch(researchManager, "Agriculture");
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
         Building farm = DataBase<Building>.Find("Farm");
@@ -63,5 +67,43 @@ public sealed class BuildingCostGrowthTests
         GameObject gameObject = new GameObject(name);
         createdObjects.Add(gameObject);
         return gameObject.AddComponent<T>();
+    }
+
+    private static void RestorePopulation(GameState state, ExpantaNum population)
+    {
+        MethodInfo method = typeof(GameState).GetMethod(
+            "RestorePopulation",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(
+            state,
+            new object[]
+            {
+                population,
+                population,
+                ExpantaNum.Zero,
+                ExpantaNum.Zero,
+                new ExpantaNum(PopulationState.DefaultFoodPerPerson)
+            });
+    }
+
+    private static void CompleteResearch(ResearchManager manager, string id)
+    {
+        EnsureInitialized(manager);
+        ResearchState state = manager.GetState(DataBase<Research>.Find(id));
+        MethodInfo method = typeof(ResearchState).GetMethod(
+            "SetStatus",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        method.Invoke(state, new object[] { ResearchStatus.Completed });
+    }
+
+    private static void EnsureInitialized(ResearchManager manager)
+    {
+        if (manager.States.Count > 0)
+            return;
+        MethodInfo method = typeof(ResearchManager).GetMethod(
+            "Initialize",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        method.Invoke(manager, null);
     }
 }

@@ -3,18 +3,22 @@ using UnityEngine;
 
 public enum ResearchEffectType
 {
-    UnlockBuilding,
-    BuildingProductionMultiplier,
-    BuildingFoodProductionMultiplier,
-    ResourceProductionMultiplier,
-    GlobalResearchMultiplier,
-    GlobalConstructionMultiplier,
-    FoodCapacityMultiplier,
-    ProductivityGranted,
-    TerritoryGranted,
-    UnlockSystem,
-    MilitaryMultiplier,
-    PowerMultiplier
+    BuildingProductionMultiplier = 1,
+    BuildingFoodProductionMultiplier = 2,
+    ResourceProductionMultiplier = 3,
+    GlobalResearchMultiplier = 4,
+    GlobalConstructionMultiplier = 5,
+    FoodCapacityMultiplier = 6,
+    ProductivityGranted = 7,
+    TerritoryGranted = 8,
+    UnlockSystem = 9,
+    MilitaryMultiplier = 10,
+    PowerMultiplier = 11,
+    GlobalBuildingProductionMultiplier = 12,
+    BuildingResearchPowerMultiplier = 13,
+    BuildingPowerProductionMultiplier = 14,
+    BuildingLogisticsProductionMultiplier = 15,
+    GlobalLogisticsMultiplier = 16
 }
 
 [Serializable]

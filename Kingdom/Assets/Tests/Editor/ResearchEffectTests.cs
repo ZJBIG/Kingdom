@@ -20,7 +20,6 @@ public sealed class ResearchEffectTests
     public void Rebuild_AppliesCompletedEffectsAndIgnoresIncompleteResearch()
     {
         Research completed = CreateResearch("research-completed");
-        Building building = CreateDefinition<Building>("building-unlocked");
         completed.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -37,11 +36,6 @@ public sealed class ResearchEffectTests
             {
                 Type = ResearchEffectType.TerritoryGranted,
                 Value = new ExpantaNum(4d)
-            },
-            new ResearchEffectDefinition
-            {
-                Type = ResearchEffectType.UnlockBuilding,
-                Building = building
             },
             new ResearchEffectDefinition
             {
@@ -72,8 +66,7 @@ public sealed class ResearchEffectTests
         Assert.That(modifiers.GlobalResearchMultiplier.ToDouble(), Is.EqualTo(2d).Within(0.000001d));
         Assert.That(modifiers.ProductivityGranted.ToDouble(), Is.EqualTo(3d).Within(0.000001d));
         Assert.That(modifiers.TerritoryGranted.ToDouble(), Is.EqualTo(4d).Within(0.000001d));
-        Assert.That(modifiers.UnlockedBuildings, Does.Contain(building));
-        Assert.That(modifiers.UnlockedSystems, Does.Contain("military"));
+        Assert.That(modifiers.IsSystemUnlocked("military"), Is.True);
     }
 
     [Test]

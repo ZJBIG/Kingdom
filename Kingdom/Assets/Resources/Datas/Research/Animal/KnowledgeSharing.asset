@@ -11,18 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: KnowledgeSharing
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: KnowledgeSharing
-  Label: "知识传承"
-  Description: "通过共同记录和讲授，让知识不再依赖单个记忆，并使研究工作形成稳定的公共积累。"
+  Label: "\u77E5\u8BC6\u4F20\u627F"
+  Description: "\u901A\u8FC7\u5171\u540C\u8BB0\u5F55\u548C\u8BB2\u6388\uFF0C\u8BA9\u77E5\u8BC6\u4E0D\u518D\u4F9D\u8D56\u5355\u4E2A\u8BB0\u5FC6\uFF0C\u5E76\u4F7F\u7814\u7A76\u5DE5\u4F5C\u5F62\u6210\u7A33\u5B9A\u7684\u516C\u5171\u79EF\u7D2F\u3002"
   BaseCost: 1500
   prerequisites:
   - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
   resourceRequirements: []
-  BuildingUnlock:
-  - {fileID: 11400000, guid: b28e59293cc542ae9340e14339ba430f, type: 2}
+  effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  effects: []
-  x: 8
-  y: 0
+  x: 18
+  y: 6

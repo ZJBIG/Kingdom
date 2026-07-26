@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: StoneCuttingWorkshop
   m_EditorClassIdentifier: 
-  id: StoneCuttingWorkshop_Marble
+  id: StoneCuttingWorkshop
   Label: "\u5207\u77F3\u5DE5\u574A"
-  Description: "将粗糙石料加工成规整石材，提升建筑质量并为更复杂的工程技术奠定基础。"
+  Description: "\u5C06\u7C97\u7CD9\u77F3\u6599\u52A0\u5DE5\u6210\u89C4\u6574\u77F3\u6750\uFF0C\u63D0\u5347\u5EFA\u7B51\u8D28\u91CF\u5E76\u4E3A\u66F4\u590D\u6742\u7684\u5DE5\u7A0B\u6280\u672F\u5960\u5B9A\u57FA\u7840\u3002"
   TechLevel: 0
-  costGrowth: {sign: 0, representation: 1, operatorCount: 0, scalar: 1.15, layer: 0, operators: []}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.15
+    layer: 0
+    operators: []
   autoBuildWorkRequired:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 200
+    scalar: 80
     layer: 0
     operators: []
   spaceCost:
@@ -45,6 +51,20 @@ MonoBehaviour:
     scalar: 0
     layer: 0
     operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   foodProductionRate:
     sign: 0
     representation: 0
@@ -54,9 +74,72 @@ MonoBehaviour:
     operators: []
   foodConsumptionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 2
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
     layer: 0
     operators: []
   resourceRequirements:
@@ -94,3 +177,7 @@ MonoBehaviour:
       scalar: 2
       layer: 0
       operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
+  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  requiredWorkshopUpgrades: []

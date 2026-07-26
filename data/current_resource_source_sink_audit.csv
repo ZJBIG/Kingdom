@@ -1,38 +1,31 @@
-﻿ResourceId,Producers,ContinuousConsumers,BuildingCostSinks,ResearchSinks,HasProducer,HasAnySink,CurrentlyUnused
-Bronze,BronzeFoundry,,,SmithingRevolution,True,True,False
-Citrine,,,,,False,False,True
-Clay,ClayPit,,PotteryKiln,Measurement; NeolithicSettlement; Pottery; WrittenRecords; WaterManagement,True,True,False
-Cloth,WeavingWorkshop,,,NeolithicSettlement; WrittenRecords,True,True,False
-Pottery,PotteryKiln,,Granary,NeolithicSettlement; WrittenRecords,True,True,False
-Coal,CoalMine,BronzeFoundry; IronSmelter; TinSmelter; CopperSmelter,,SmithingRevolution; Smithing_Tin; Smithing_Iron; Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
-Copper,CopperSmelter,BronzeFoundry,,,True,True,False
-CopperOre,CopperMine,,CopperSmelter,Smithing; Smithing_Copper; Smithing_Bronze,True,True,False
-Diamond,,,,,False,False,True
-EbonyLog,,,,,False,False,True
-ElvenWoodLog,,,,,False,False,True
-Emerald,,,,,False,False,True
-Gold,,,,,False,False,True
-GoldOre,,,,,False,False,True
-Iron,IronSmelter,,,SmithingRevolution,True,True,False
-IronOre,IronMine,,IronSmelter,SmithingRevolution; Smithing_Iron,True,True,False
-Jade,,,,,False,False,True
-Mithril,,,,,False,False,True
-MithrilOre,,,,,False,False,True
-PlantFiber,FiberGatheringCamp,,WeavingWorkshop,TextileCraft,True,True,False
-RoseWoodLog,,,,,False,False,True
-Ruby,,,,,False,False,True
-Sapphire,,,,,False,False,True
-ScentedWoodLog,,,,,False,False,True
-Silver,,,,,False,False,True
-SilverOre,,,,,False,False,True
-Steel,,,,,False,False,True
-StoneBrick_Marble,StoneCuttingWorkshop_Marble,,,Smithing,True,True,False
-StoneChunk_Marble,Quarry,StoneCuttingWorkshop_Marble,BronzeFoundry; IronSmelter; TinSmelter; CoalMine; Granary; CopperSmelter; Lumberyard,CoalMining; Measurement; NeolithicSettlement; Masonry; FoodStorage; WaterManagement; Mathematics; StoneTools; Calendar,True,True,False
-StoneTool,StoneToolWorkshop,,CopperMine; TinMine; IronMine,,True,True,False
-Tin,TinSmelter,BronzeFoundry,,,True,True,False
-TinOre,TinMine,,TinSmelter,Smithing_Tin,True,True,False
-Titanium,,,,,False,False,True
-TitaniumOre,,,,,False,False,True
-Uranium,,,,,False,False,True
-WhiteBirchLog,,,,,False,False,True
-WoodLog,Lumberyard,,BronzeFoundry; IronSmelter; TinSmelter; CoalMine; Granary; Pasture; CopperSmelter; WeavingWorkshop; PotteryKiln; HunterGathererCamp; StoneCuttingWorkshop_Marble; Quarry; WoodHouse; Lumberyard; Farm,CoalMining; NeolithicSettlement; Masonry; WrittenRecords; FoodStorage; WaterManagement; AnimalHusbandry; ForagingGroups; Quarry; Mathematics; StoneTools; StoneCutting; Calendar; ControlledFire,True,True,False
+﻿"Id","HasProducer","BuildingSinks","ResearchSinks","WorkshopSinks","TotalIndependentSinks","HasStrategicSink"
+"Bronze","True","9","8","3","20","True"
+"Chemical","True","3","7","6","16","False"
+"Clay","True","1","6","0","7","True"
+"Cloth","True","4","6","4","14","False"
+"Coal","True","8","10","0","18","True"
+"Coke","True","2","1","3","6","False"
+"Copper","True","3","2","0","5","False"
+"CopperOre","True","1","1","0","2","False"
+"CopperWire","True","1","2","4","7","False"
+"CrudeOil","True","2","1","0","3","False"
+"Electronics","True","6","6","3","15","False"
+"Engine","True","1","5","3","9","False"
+"Glass","True","1","4","3","8","False"
+"IndustrialCeramic","True","1","0","2","3","False"
+"Iron","True","1","1","0","2","True"
+"IronOre","True","1","2","0","3","False"
+"Lubricant","True","3","2","2","7","False"
+"Machinery","True","5","8","7","20","False"
+"PlantFiber","True","1","2","0","3","True"
+"Pottery","True","5","4","2","11","False"
+"PrecisionParts","True","1","3","4","8","False"
+"RefinedFuel","True","2","1","0","3","False"
+"Rubber","True","0","2","1","3","False"
+"Silica","True","1","1","1","3","False"
+"Steel","True","16","14","9","39","True"
+"StoneBrick","True","16","4","1","21","False"
+"StoneChunk","True","7","8","0","15","True"
+"Tin","True","2","1","0","3","False"
+"TinOre","True","1","1","0","2","False"
+"WoodLog","True","27","15","1","43","True"

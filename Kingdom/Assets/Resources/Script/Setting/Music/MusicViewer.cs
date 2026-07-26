@@ -18,6 +18,10 @@ public class MusicViewer : MonoBehaviour, IGameUIRefreshable
     public AudioSource AudioSource => MusicManager.Instance.AudioSource;
 
     private readonly List<MusicDisplayer> displayers = new List<MusicDisplayer>();
+    private AudioClip lastDisplayedClip;
+    private int lastDisplayedSecond = -1;
+    private int lastDisplayedLength = -1;
+    private bool lastDisplayWasEmpty;
 
     public void InitMusicSetting()
     {
@@ -30,15 +34,9 @@ public class MusicViewer : MonoBehaviour, IGameUIRefreshable
             {
                 MusicDisplayer displayer = Instantiate(musicDisplayerPrefab, musicList, false)
                     .GetComponent<MusicDisplayer>();
-                AudioClip clip = Resources.Load<AudioClip>($"Musics/{typeName}/{typeName}{i}");
-                if (clip == null)
-                {
-                    Debug.LogWarning($"Missing music clip Musics/{typeName}/{typeName}{i}.");
-                    Destroy(displayer.gameObject);
-                    continue;
-                }
-
-                displayer.Bind(typeName, clip);
+                string clipName = typeName + i;
+                string resourcePath = $"Musics/{typeName}/{clipName}";
+                displayer.Bind(typeName, resourcePath, clipName);
                 displayers.Add(displayer);
             }
         }
@@ -66,25 +64,46 @@ public class MusicViewer : MonoBehaviour, IGameUIRefreshable
     {
         if (AudioSource == null || AudioSource.clip == null)
         {
-            if (curPlayingLabel != null)
-                curPlayingLabel.text = string.Empty;
-            if (curPlayingTime != null)
-                curPlayingTime.text = "0:00/0:00";
-            if (playingTimeSlider != null)
-                playingTimeSlider.value = 0f;
+            if (!lastDisplayWasEmpty)
+            {
+                if (curPlayingLabel != null)
+                    curPlayingLabel.text = string.Empty;
+                if (curPlayingTime != null)
+                    curPlayingTime.text = "0:00/0:00";
+                if (playingTimeSlider != null)
+                    playingTimeSlider.value = 0f;
+            }
+
+            lastDisplayedClip = null;
+            lastDisplayedSecond = -1;
+            lastDisplayedLength = -1;
+            lastDisplayWasEmpty = true;
             return;
         }
 
+        lastDisplayWasEmpty = false;
+        AudioClip clip = AudioSource.clip;
+        int elapsedSecond = (int)AudioSource.time;
+        int lengthSecond = (int)clip.length;
+        if (clip != lastDisplayedClip)
+        {
+            if (curPlayingLabel != null)
+                curPlayingLabel.text = clip.name;
+            lastDisplayedClip = clip;
+        }
+
         var curTime = TimeConvert((int)AudioSource.time);
-        var musicLen = TimeConvert((int)AudioSource.clip.length);
-        if (curPlayingLabel != null)
-            curPlayingLabel.text = AudioSource.clip.name;
-        if (curPlayingTime != null)
-            curPlayingTime.text = $"{curTime.minute}:{curTime.second:D2}/{musicLen.minute}:{musicLen.second:D2}";
+        var musicLen = TimeConvert(lengthSecond);
+        if (elapsedSecond != lastDisplayedSecond || lengthSecond != lastDisplayedLength)
+        {
+            if (curPlayingTime != null)
+                curPlayingTime.text = $"{curTime.minute}:{curTime.second:D2}/{musicLen.minute}:{musicLen.second:D2}";
+            lastDisplayedSecond = elapsedSecond;
+            lastDisplayedLength = lengthSecond;
+        }
+
         if (playingTimeSlider != null)
-            playingTimeSlider.value = AudioSource.clip.length <= 0f
-                ? 0f
-                : AudioSource.time / AudioSource.clip.length;
+            playingTimeSlider.value = clip.length <= 0f ? 0f : AudioSource.time / clip.length;
     }
 }
 #pragma warning restore CS0649

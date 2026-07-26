@@ -27,9 +27,8 @@ MonoBehaviour:
       scalar: 40
       layer: 0
       operators: []
-  BuildingUnlock:
-  - {fileID: 11400000, guid: faf6768594ac486bb133f5181a179f01, type: 2}
+  effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 2
-  y: 4
+  x: 6
+  y: 6

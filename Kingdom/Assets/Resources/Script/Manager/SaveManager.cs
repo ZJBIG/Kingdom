@@ -58,6 +58,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
+        BuildingManager.Instance.InitializeStartingBuildings();
         ready = true;
         dirty = true;
         lastSavedStateSignature = CalculateStateSignature();
@@ -127,6 +128,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             Resources = ResourceManager.Instance.CaptureSaveData(),
             Buildings = BuildingManager.Instance.CaptureSaveData(),
             Researches = ResearchManager.Instance.CaptureSaveData(),
+            Workshop = WorkshopManager.Instance.CaptureSaveData(),
             Sectors = GameManager.Instance.Sectors.CaptureSaveData()
         };
     }
@@ -140,6 +142,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
+        BuildingManager.Instance.InitializeStartingBuildings();
         GameManager.Instance.RestoreSaveData(data.General);
         GameManager.Instance.ResetDerivedEconomy();
         ResourceManager.Instance.ResetDerivedRates();
@@ -150,6 +153,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
         ResearchManager.Instance.RestoreSaveData(data.Researches);
+        WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
     }
 
@@ -169,6 +173,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         {
             ResetRuntimeStateForLoad();
             GameManager.Instance.InitializeNewGame();
+            BuildingManager.Instance.InitializeStartingBuildings();
             Debug.LogError(
                 $"Failed to apply Kingdom save '{path}'. Runtime state was reset before the next candidate. " +
                 $"Details: {exception.Message}");
@@ -181,6 +186,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ResourceManager.Instance.ResetForLoad();
         BuildingManager.Instance.ResetForLoad();
         ResearchManager.Instance.ResetForLoad();
+        WorkshopManager.Instance.ResetForLoad();
         GameManager.Instance.Sectors.ResetForLoad();
     }
 
@@ -248,6 +254,14 @@ public sealed class SaveManager : Singleton<SaveManager>
                 if (researches.TryGetValue(researchDefinitions[i], out ResearchState state))
                     Append(ref hash, state.Version);
 
+            IReadOnlyDictionary<WorkshopUpgradeDefinition, WorkshopUpgradeState> upgrades =
+                WorkshopManager.Instance.States;
+            IReadOnlyList<WorkshopUpgradeDefinition> upgradeDefinitions =
+                DataBase<WorkshopUpgradeDefinition>.All;
+            for (int i = 0; i < upgradeDefinitions.Count; i++)
+                if (upgrades.TryGetValue(upgradeDefinitions[i], out WorkshopUpgradeState state))
+                    Append(ref hash, state.Version);
+
             GameManager.Instance.Sectors.AppendStateSignature(ref hash);
 
             return hash;
@@ -267,6 +281,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public ResourceSaveData Resources;
         public BuildingSaveData Buildings;
         public ResearchSaveData Researches;
+        public WorkshopSaveData Workshop;
         public SectorSaveData Sectors;
     }
 
@@ -351,6 +366,12 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         public string ResourceId;
         public string Amount;
+    }
+
+    [Serializable]
+    public sealed class WorkshopSaveData
+    {
+        public List<string> PurchasedUpgradeIds;
     }
 
     [Serializable]

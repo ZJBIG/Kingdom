@@ -14,17 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Copper
   Label: "\u51B6\u70BC\u94DC"
-  Description: "掌握铜矿冶炼与锻打工艺，将天然铜矿转化为适合工具、装饰和生产的实用金属。"
+  Description: "\u638C\u63E1\u94DC\u77FF\u51B6\u70BC\u4E0E\u953B\u6253\u5DE5\u827A\uFF0C\u5C06\u5929\u7136\u94DC\u77FF\u8F6C\u5316\u4E3A\u9002\u5408\u5DE5\u5177\u3001\u88C5\u9970\u548C\u751F\u4EA7\u7684\u5B9E\u7528\u91D1\u5C5E\u3002"
   BaseCost: 10000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 240, layer: 0, operators: []}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 240
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 180, layer: 0, operators: []}
-  BuildingUnlock:
-  - {fileID: 11400000, guid: 2b8e2c457de34c9baedb2a5a7fd8f601, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  effects: []
   TechLevel: 1
-  x: 8
-  y: 9
+  AdvancesTechLevel: 0
+  x: 48
+  y: 30

@@ -5,6 +5,7 @@ using UnityEngine;
 public class MusicManager : Singleton<MusicManager>
 {
     private readonly List<Pair<string, int>> musicTypes = new List<Pair<string, int>>();
+    private Coroutine loadingCoroutine;
 
     public IReadOnlyList<Pair<string, int>> MusicTypes => musicTypes;
     public AudioSource AudioSource { get; private set; }
@@ -25,23 +26,49 @@ public class MusicManager : Singleton<MusicManager>
 
     public bool Play(string type, string clipName)
     {
-        if (AudioSource == null || string.IsNullOrEmpty(type) || string.IsNullOrEmpty(clipName))
+        if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(clipName))
             return false;
 
-        AudioClip clip = Resources.Load<AudioClip>($"Musics/{type}/{clipName}");
+        return QueuePlay($"Musics/{type}/{clipName}");
+    }
+
+    public bool QueuePlay(string resourcePath)
+    {
+        if (AudioSource == null || string.IsNullOrEmpty(resourcePath))
+            return false;
+
+        if (loadingCoroutine != null)
+            StopCoroutine(loadingCoroutine);
+        loadingCoroutine = StartCoroutine(LoadAndPlay(resourcePath));
+        return true;
+    }
+
+    private IEnumerator LoadAndPlay(string resourcePath)
+    {
+        ResourceRequest request = Resources.LoadAsync<AudioClip>(resourcePath);
+        yield return request;
+
+        AudioClip clip = request.asset as AudioClip;
+        loadingCoroutine = null;
         if (clip == null)
         {
-            Debug.LogWarning($"Missing music clip Musics/{type}/{clipName}.");
-            return false;
+            Debug.LogWarning($"Missing music clip {resourcePath}.");
+            yield break;
         }
 
-        return Play(clip);
+        Play(clip);
     }
 
     public bool Play(AudioClip clip)
     {
         if (AudioSource == null || clip == null)
             return false;
+
+        if (loadingCoroutine != null)
+        {
+            StopCoroutine(loadingCoroutine);
+            loadingCoroutine = null;
+        }
 
         AudioSource.clip = clip;
         AudioSource.Play();
@@ -59,7 +86,7 @@ public class MusicManager : Singleton<MusicManager>
             return false;
 
         string clipName = type.First + Random.Range(0, type.Second);
-        return Play(type.First, clipName);
+        return QueuePlay($"Musics/{type.First}/{clipName}");
     }
 
     private IEnumerator AutoPlayLoop()

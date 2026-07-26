@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public sealed class ResourceRequirementView : MonoBehaviour
 {
     [SerializeField] private Image Icon;
+    [SerializeField] private TMP_Text Label;
     [SerializeField] private TMP_Text Amount;
 
     public void Bind(Resource resource, ExpantaNum amount)
@@ -17,6 +18,9 @@ public sealed class ResourceRequirementView : MonoBehaviour
             Icon.sprite = resource.Sprite;
             Icon.color = resource.Color;
         }
+        
+        if (Label != null)
+            Label.text = resource.Label;
 
         if (Amount != null)
             Amount.text = amount.ToGameString();

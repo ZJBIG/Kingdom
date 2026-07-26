@@ -15,10 +15,6 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     [SerializeField] private GameObject DisplayerPrefab;
     [SerializeField] private GameObject TransitionLinePrefab;
     [SerializeField] private TMP_Text BaseInfo;
-    //[SerializeField] private TMP_Text ResearchLabel;
-    //[SerializeField] private TMP_Text ResearchTechLevel;
-    //[SerializeField] private TMP_Text ResearchProgress;
-    //[SerializeField] private TMP_Text ResearchDescription;
     [SerializeField] private RectTransform ResourceList;
     [SerializeField] private TMP_Text DoInvestButton;
     [SerializeField] private Slider ProgressPercentage;
@@ -239,7 +235,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
         RestoreSelection();
         foreach (ResearchDisplayer displayer in displayers.Values)
             displayer.Refresh();
-        RefreshSelectedDetails(force: false);
+        RefreshSelectedDetails(false);
     }
 
     private void RefreshSelectedDetails(bool force)
@@ -253,14 +249,6 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
                 ProgressPercentage.value = 0f;
             if (BaseInfo != null)
                 BaseInfo.text = string.Empty;
-            //if (ResearchLabel != null)
-            //    ResearchLabel.text = string.Empty;
-            //if (ResearchTechLevel != null)
-            //    ResearchTechLevel.text = string.Empty;
-            //if (ResearchProgress != null)
-            //    ResearchProgress.text = string.Empty;
-            //if (ResearchDescription != null)
-            //    ResearchDescription.text = string.Empty;
             RebuildRequirementRows(null);
             return;
         }
@@ -273,26 +261,14 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             DoInvestButton.text = ButtonText(state);
         if (ProgressPercentage != null)
             ProgressPercentage.value = (float)state.ProgressRatio.ToDouble();
-        if (BaseInfo != null && ("ResearchLabel != null || ResearchTechLevel != null ||" +
-            "ResearchProgress != null || ResearchDescription != null") != null)
+        if (BaseInfo != null)
         {
             string label = selectedResearch.Label ?? "Unknown research";
             string techLevelDesc = selectedResearch.TechLevel.GetDescription() ?? "No tech level";
             double progress = state.ProgressRatio.ToDouble() * 100d;
             string desc = selectedResearch.Description ?? "No description";
-            //if (ResearchLabel != null)
-            //    ResearchLabel.text = label;
-            //if (ResearchTechLevel != null)
-            //    ResearchTechLevel.text = techLevelDesc;
-            //if (ResearchProgress != null)
-            //    ResearchProgress.text = $"{progress:F2}%";
-            //if (ResearchDescription != null)
-            //    ResearchDescription.text = desc;
-            if (BaseInfo != null && ("ResearchLabel != null || ResearchTechLevel != null ||" +
-            "ResearchProgress != null || ResearchDescription != null") != null)
-            {
+            if (BaseInfo != null)
                 BaseInfo.text = $"{label}\n{techLevelDesc}\n{progress:F2}%\n{desc}";
-            }
         }
 
         PositionResourceListAfterBaseInfo();
@@ -367,9 +343,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             Pair<Resource, ExpantaNum> requirement = requirements[i];
             ResourceRequirementView view;
             if (canRefreshExisting)
-            {
                 view = resourceRequirementRows[i].GetComponent<ResourceRequirementView>();
-            }
             else
             {
                 GameObject row = Instantiate(ResourceReqPrefab, ResourceList, false);
@@ -430,5 +404,5 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             SelectResearch(restored);
     }
 
-    private static Func<float, float, Vector3> PlacePosition => (x, y) => new Vector3(-750f + 120f * x, -25f - 60f * y);
+    private static Func<float, float, Vector3> PlacePosition => (x, y) => new Vector3(-750f + 50f * x, -25f - 30f * y);
 }

@@ -30,8 +30,8 @@ public sealed class PopulationState
 
     internal void InitializeNew()
     {
-        population = new ExpantaNum(15);
-        populationCapacity = new ExpantaNum(20);
+        population = ExpantaNum.Zero;
+        populationCapacity = ExpantaNum.Zero;
         assignedMilitary = ExpantaNum.Zero;
         assignedBuildingWorkforce = ExpantaNum.Zero;
         growthProgress = ExpantaNum.Zero;
@@ -66,7 +66,7 @@ public sealed class PopulationState
 
     internal void ResetDerivedCapacity()
     {
-        ExpantaNum resetCapacity = ExpantaNum.Max(population, new ExpantaNum(20));
+        ExpantaNum resetCapacity = ExpantaNum.Max(population, ExpantaNum.Zero);
         if (populationCapacity == resetCapacity)
             return;
         populationCapacity = resetCapacity;

@@ -30,7 +30,7 @@ if ($missing.Count -gt 0) {
 }
 
 $noCaps = Get-Content (Join-Path $ProjectRoot 'docs/balance/no-resource-caps.md') -Raw
-if ($noCaps -notmatch 'FoodAmount' -or $noCaps -notmatch 'Capacity') {
+if ($noCaps -notmatch 'FoodAmount' -or $noCaps -notmatch '普通资源') {
     throw 'No-resource-cap rule is missing.'
 }
 
