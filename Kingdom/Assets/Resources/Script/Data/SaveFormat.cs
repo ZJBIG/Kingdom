@@ -1,4 +1,4 @@
 public static class SaveFormat
 {
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 }

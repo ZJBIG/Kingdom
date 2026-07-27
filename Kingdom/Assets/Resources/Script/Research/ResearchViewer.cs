@@ -171,6 +171,9 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             .GetComponent<ResearchDisplayer>();
         displayer.Bind(state);
         RectTransform rectTransform = displayer.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0f, 1f);
+        rectTransform.anchorMax = new Vector2(0f, 1f);
+        rectTransform.pivot = new Vector2(0f, 1f);
         rectTransform.anchoredPosition = PlacePosition(state.Definition.x, state.Definition.y);
         displayers.Add(state.Definition, displayer);
         RefreshContentBounds();
@@ -235,6 +238,8 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
         RestoreSelection();
         foreach (ResearchDisplayer displayer in displayers.Values)
             displayer.Refresh();
+        RefreshContentBounds();
+        RefreshLines();
         RefreshSelectedDetails(false);
     }
 
@@ -381,13 +386,24 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
         foreach (ResearchDisplayer displayer in displayers.Values)
         {
             RectTransform node = displayer.GetComponent<RectTransform>();
-            Vector2 position = node.anchoredPosition;
+            Vector2 position = PlacePosition(displayer.Research.x, displayer.Research.y);
             float halfWidth = Mathf.Max(ResearchNodeSize, node.rect.width) * 0.5f;
             float halfHeight = Mathf.Max(ResearchNodeSize, node.rect.height) * 0.5f;
             minX = Mathf.Min(minX, position.x - halfWidth);
             maxX = Mathf.Max(maxX, position.x + halfWidth);
             minY = Mathf.Min(minY, position.y - halfHeight);
             maxY = Mathf.Max(maxY, position.y + halfHeight);
+        }
+
+        Vector2 offset = new Vector2(
+            ResearchContentPadding - minX,
+            -ResearchContentPadding - maxY);
+        foreach (ResearchDisplayer displayer in displayers.Values)
+        {
+            RectTransform node = displayer.GetComponent<RectTransform>();
+            node.anchoredPosition = PlacePosition(
+                displayer.Research.x,
+                displayer.Research.y) + offset;
         }
 
         Content.sizeDelta = new Vector2(
@@ -404,5 +420,5 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             SelectResearch(restored);
     }
 
-    private static Func<float, float, Vector3> PlacePosition => (x, y) => new Vector3(-750f + 50f * x, -25f - 30f * y);
+    private static Vector2 PlacePosition(float x, float y) => new Vector2(-750f + 325f * x, -25f - 75f * y);
 }

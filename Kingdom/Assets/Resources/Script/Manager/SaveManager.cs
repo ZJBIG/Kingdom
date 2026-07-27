@@ -338,8 +338,6 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         public string BuildingId;
         public string Amount;
-        public bool AutoBuild;
-        public string AutoBuildProgress;
     }
 
     [Serializable]

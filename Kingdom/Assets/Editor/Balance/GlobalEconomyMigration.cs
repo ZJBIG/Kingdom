@@ -677,7 +677,7 @@ namespace Kingdom.EditorTools
             if (string.IsNullOrWhiteSpace(building.Label))
                 building.Label = id;
             building.ConfigureEconomyForEditor(
-                N(growth), N(tech >= TechLevel.Neolithic ? 200 : 80), N(territory),
+                N(growth), N(territory),
                 N(workforce), N(productivity), N(population), N(research),
                 N(foodProduction), N(foodConsumption), N(foodCapacity),
                 N(powerProduction), N(powerConsumption), N(logisticsProduction),

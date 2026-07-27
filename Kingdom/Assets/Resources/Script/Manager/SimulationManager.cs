@@ -90,6 +90,5 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         GameManager.Instance.Tick(deltaSeconds);
         ResourceManager.Instance.Tick(deltaSeconds);
         ResearchManager.Instance.Tick(deltaSeconds);
-        BuildingManager.Instance.AdvanceAutoBuild(deltaSeconds);
     }
 }

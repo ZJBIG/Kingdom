@@ -9,11 +9,9 @@ public class BuildingDisplayer : MonoBehaviour
     [SerializeField] private TMP_Text Description;
     [SerializeField] private TMP_Text StatusText;
     [SerializeField] private TMP_Text Amount;
-    [SerializeField] private Image AutoBuildSpirit;
     [SerializeField] private Transform Details;
     [SerializeField] private RectTransform Construction;
     [SerializeField] private RectTransform ResourceList;
-    [SerializeField] private Sprite Enable, Disable;
     [SerializeField] private GameObject BuildResourceReqPrefab;
 
     private BuildingState state;
@@ -69,21 +67,6 @@ public class BuildingDisplayer : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
-    public void SwitchAutoBuild() =>
-        SwitchAutoBuildInternal();
-
-    private void SwitchAutoBuildInternal()
-    {
-        bool enabled = !state.AutoBuild;
-        if (BuildingManager.Instance.SetAutoBuild(Building, enabled))
-        {
-            ClearFailure();
-            return;
-        }
-
-        ShowFailure(BuildFailure.AutoBuildUnavailable);
-    }
-
     public void TryConstruct(string input)
     {
         if (!BuildingTransactionRules.TryNormalizePositiveWhole(input, out ExpantaNum amount))
@@ -129,8 +112,6 @@ public class BuildingDisplayer : MonoBehaviour
         if (changed)
         {
             Amount.text = state.Amount.ToGameString();
-            Construction.gameObject.SetActive(!state.AutoBuild);
-            AutoBuildSpirit.sprite = state.AutoBuild ? Enable : Disable;
             renderedVersion = state.Version;
         }
         if (lastFailure == BuildFailure.None && StatusText != null)
@@ -181,7 +162,6 @@ public class BuildingDisplayer : MonoBehaviour
             BuildFailure.TechnologyInsufficient => "Technology level insufficient.",
             BuildFailure.ResearchPrerequisiteIncomplete => "Required research is incomplete.",
             BuildFailure.WorkshopPrerequisiteIncomplete => "Required workshop upgrade is incomplete.",
-            BuildFailure.AutoBuildUnavailable => "Automatic building unlocks from the Neolithic era.",
             _ => string.Empty
         };
 

@@ -76,8 +76,8 @@ public sealed class ResearchLineView : MonoBehaviour
     {
         if (node == null)
             return new Vector3(
-                100f + 300f * researchDefinition.x,
-                -25f - 300f * researchDefinition.y);
+                -750f + 50f * researchDefinition.x,
+                -25f - 30f * researchDefinition.y);
 
         return node.TransformPoint(node.rect.center);
     }

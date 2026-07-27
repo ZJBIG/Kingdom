@@ -16,7 +16,8 @@ MonoBehaviour:
   Label: "\u70BC\u94A2\u672F"
   Description: "\u5C06\u94C1\u4E0E\u7164\u70BC\u5236\u6210\u53EF\u9760\u7684\u94A2\u6750\uFF0C\u5E76\u5F00\u542F\u4E2D\u4E16\u7EAA\u91D1\u5C5E\u52A0\u5DE5\u94FE\u3002"
   BaseCost: 100000
-  prerequisites: []
+  prerequisites:
+  - {fileID: 11400000, guid: 719b40f73a323184a9703dea27f21ac1, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
     second:
@@ -48,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 78
-  y: 24
+  x: 8
+  y: 1.3

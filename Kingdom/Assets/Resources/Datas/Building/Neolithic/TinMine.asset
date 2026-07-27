@@ -23,7 +23,6 @@ MonoBehaviour:
     scalar: 1.15
     layer: 0
     operators: []
-  autoBuildWorkRequired:
     sign: 0
     representation: 1
     operatorCount: 0

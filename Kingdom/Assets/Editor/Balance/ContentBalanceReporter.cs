@@ -140,7 +140,7 @@ namespace Kingdom.EditorTools
             var rows = new List<string>
             {
                 Csv(
-                    "Id", "Label", "TechLevel", "CostGrowth", "AutoBuildWork",
+                    "Id", "Label", "TechLevel", "CostGrowth",
                     "SpaceCost", "Workforce", "PopulationCapacity", "ResearchPower",
                     "FoodProductionPerSec", "FoodConsumptionPerSec", "FoodCapacity",
                     "PowerProduction", "PowerConsumption", "LogisticsProduction",
@@ -155,7 +155,6 @@ namespace Kingdom.EditorTools
                     building.Label,
                     building.TechLevel.ToString(),
                     Number(building.CostGrowth),
-                    Number(building.AutoBuildWorkRequired),
                     Number(building.SpaceCost),
                     Number(building.ProductivityConsumption),
                     Number(building.PopulationCapacityGranted),

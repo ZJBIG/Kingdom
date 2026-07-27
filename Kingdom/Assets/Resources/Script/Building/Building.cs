@@ -11,8 +11,6 @@ public class Building : GameDefinition
     [SerializeField, Tooltip("Each new building multiplies its material cost by this ratio.")]
     private ExpantaNum costGrowth = new ExpantaNum(DefaultCostGrowthValue);
     [Header("功能")]
-    [SerializeField, Tooltip("自动建造一个该建筑需要累计的工作量；0 表示不可自动建造。")]
-    private ExpantaNum autoBuildWorkRequired;
     [SerializeField, Tooltip("每建造一个该建筑占用的领土。")]
     private ExpantaNum spaceCost;
     [SerializeField, Tooltip("每建造一个该建筑消耗的可用生产力。")]
@@ -62,7 +60,6 @@ public class Building : GameDefinition
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates => resourceConsumptionRates;
     public IReadOnlyList<Research> RequiredResearch => requiredResearch;
     public IReadOnlyList<WorkshopUpgradeDefinition> RequiredWorkshopUpgrades => requiredWorkshopUpgrades;
-    public ExpantaNum AutoBuildWorkRequired => autoBuildWorkRequired;
     public ExpantaNum SpaceCost => spaceCost;
     public ExpantaNum ProductivityConsumption => productivityConsumption;
     public ExpantaNum ProductivityGranted => productivityGranted;
@@ -85,7 +82,6 @@ public class Building : GameDefinition
 #if UNITY_EDITOR
     public void ConfigureEconomyForEditor(
         ExpantaNum growth,
-        ExpantaNum autoWork,
         ExpantaNum territory,
         ExpantaNum workforce,
         ExpantaNum productivity,
@@ -106,7 +102,6 @@ public class Building : GameDefinition
         List<Pair<Resource, ExpantaNum>> consumption)
     {
         costGrowth = growth;
-        autoBuildWorkRequired = autoWork;
         spaceCost = territory;
         productivityConsumption = workforce;
         productivityGranted = productivity;

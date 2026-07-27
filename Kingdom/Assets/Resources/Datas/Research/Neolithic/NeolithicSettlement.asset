@@ -78,5 +78,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 1
-  x: 42
-  y: 12
+  x: 5.00
+  y: 11.96

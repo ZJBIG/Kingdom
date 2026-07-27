@@ -48,6 +48,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   TechLevel: 0
-  AdvancesTechLevel: 0
-  x: 18
-  y: 0
+  AdvancesTechLevel: 1
+  x: 3
+  y: 7.79

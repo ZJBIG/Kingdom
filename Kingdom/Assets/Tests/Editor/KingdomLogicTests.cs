@@ -355,10 +355,8 @@ public sealed class KingdomLogicTests
                 {
                     new SaveManager.BuildingStateSaveData
                     {
-                        BuildingId = "Farm",
-                        Amount = "2",
-                        AutoBuild = true,
-                        AutoBuildProgress = "3"
+                         BuildingId = "Farm",
+                         Amount = "2"
                     }
                 }
             },
@@ -465,10 +463,8 @@ public sealed class KingdomLogicTests
                 {
                     new SaveManager.BuildingStateSaveData
                     {
-                        BuildingId = "Farm",
-                        Amount = "2",
-                        AutoBuild = true,
-                        AutoBuildProgress = "3"
+                         BuildingId = "Farm",
+                         Amount = "2"
                     }
                 }
             },
@@ -717,9 +713,6 @@ public sealed class KingdomLogicTests
         Assert.That(state.Definition, Is.SameAs(building));
         Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Efficiency, Is.EqualTo(ExpantaNum.One));
-        Assert.That(state.AutoBuild, Is.False);
-        Assert.That(state.AutoBuildProgress, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AutoBuildWorkRequired, Is.EqualTo(new ExpantaNum(80)));
         Assert.That(state.SpaceCost, Is.EqualTo(new ExpantaNum(4)));
         Assert.That(state.ProductivityConsumption, Is.EqualTo(new ExpantaNum(3)));
         Assert.That(state.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));

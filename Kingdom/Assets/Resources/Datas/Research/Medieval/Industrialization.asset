@@ -72,7 +72,7 @@ MonoBehaviour:
       scalar: 800
       layer: 0
       operators: []
-  TechLevel: 3
+  TechLevel: 2
   AdvancesTechLevel: 1
-  x: 102
-  y: 36
+  x: 11
+  y: 9.9
