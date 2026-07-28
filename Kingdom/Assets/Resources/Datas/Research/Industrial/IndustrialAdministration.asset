@@ -14,37 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAdministration
   Label: "\u5DE5\u4E1A\u884C\u653F"
-  Description: "\u5DE5\u4E1A\u884C\u653F\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u5efa\u7acb\u8de8\u5de5\u5382\u7684\u7edf\u8ba1\u3001\u9884\u7b97\u3001\u4eba\u5458\u3001\u6cd5\u89c4\u548c\u4ea7\u80fd\u8c03\u5ea6\u4f53\u7cfb\uff0c\u4f7f\u5927\u578b\u5de5\u4e1a\u7f51\u7edc\u80fd\u591f\u88ab\u7edf\u4e00\u7ba1\u7406\u3002"
   BaseCost: 1800000
   prerequisites:
   - {fileID: 11400000, guid: 4cd46b11b9f721c428c77de1fd30de62, type: 2}
   - {fileID: 11400000, guid: 5c2c36a9093babd4db12dbfcf1e8fe74, type: 2}
   - {fileID: 11400000, guid: eadf8ba08147af2479e037bba70ae97b, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
     second:
       sign: 0
@@ -86,5 +62,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 22.00
-  y: 9.37
+  x: 25.00
+  y: 11.994

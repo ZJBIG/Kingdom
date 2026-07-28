@@ -2006,7 +2006,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!114 &519420030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2597,7 +2597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Content: {fileID: 350559672}
-  DisplayerPrefab: {fileID: 1474475315906517090, guid: 7dd60f0974892564dac34251ae18d0e1, type: 3}
+  DisplayerPrefab: {fileID: 1474475315906517090, guid: 9dde5e8f895f4537819fd92fcc1e0463, type: 3}
 --- !u!1 &657890391
 GameObject:
   m_ObjectHideFlags: 0
@@ -5470,8 +5470,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 800, y: -400}
-  m_SizeDelta: {x: 800, y: 800}
+  m_AnchoredPosition: {x: 600, y: -1200}
+  m_SizeDelta: {x: 1200, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1288763813
 MonoBehaviour:
@@ -9226,7 +9226,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1737806772}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.4
+  m_Size: 0.6
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

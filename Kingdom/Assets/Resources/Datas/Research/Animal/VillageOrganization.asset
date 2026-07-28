@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: VillageOrganization
+  m_EditorClassIdentifier: 
+  id: VillageOrganization
+  Label: "\u805A\u843D\u7EC4\u7EC7"
+  Description: "\u5212\u5206\u5C45\u4F4F\u3001\u50A8\u85CF\u3001\u751F\u4EA7\u548C\u516C\u5171\u533A\u57DF\uFF0C\u5E76\u5EFA\u7ACB\u4EFB\u52A1\u5206\u6D3E\u4E0E\u7269\u8D44\u534F\u8C03\u65B9\u5F0F\uFF0C\u4F7F\u6269\u5927\u540E\u7684\u805A\u843D\u4FDD\u6301\u79E9\u5E8F\u3002"
+  BaseCost: 2000
+  prerequisites:
+  - {fileID: 11400000, guid: 4bf7bf3d222a4f228048ca5553826c42, type: 2}
+  - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_MeetingGround
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 4
+  y: 11.6

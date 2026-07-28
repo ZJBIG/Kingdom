@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Agriculture
   Label: "\u519C\u4E1A"
-  Description: "\u7CFB\u7EDF\u638C\u63E1\u64AD\u79CD\u3001\u8015\u4F5C\u4E0E\u6536\u83B7\uFF0C\u8BA9\u4EBA\u53E3\u589E\u957F\u4E0D\u518D\u5B8C\u5168\u53D7\u5236\u4E8E\u91CE\u5916\u98DF\u7269\u7684\u5076\u7136\u6027\u3002"
+  Description: "\u901a\u8fc7\u9009\u79cd\u3001\u64ad\u79cd\u3001\u8015\u4f5c\u548c\u5b9a\u671f\u6536\u83b7\u5efa\u7acb\u7a33\u5b9a\u7684\u7cae\u98df\u751f\u4ea7\uff0c\u4f7f\u805a\u843d\u4e0d\u518d\u5b8c\u5168\u4f9d\u8d56\u5b63\u8282\u6027\u91c7\u96c6\u3002"
   BaseCost: 180
   prerequisites: []
   resourceRequirements: []
@@ -22,4 +22,4 @@ MonoBehaviour:
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 0.00
-  y: 14.31
+  y: 4.561

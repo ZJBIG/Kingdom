@@ -103,6 +103,10 @@ public sealed class GlobalEconomyDefinitionTests
         foreach (WorkshopUpgradeDefinition upgrade in DataBase<WorkshopUpgradeDefinition>.All)
         {
             Assert.That(upgrade.Effects, Is.Not.Empty, upgrade.Id);
+            Assert.That(
+                upgrade.RequiredResearch.Count + upgrade.RequiredUpgrades.Count,
+                Is.GreaterThan(0),
+                $"{upgrade.Id} must have an explicit prerequisite");
             AssertUnique(upgrade.RequiredResearch, $"{upgrade.Id} research");
             AssertUnique(upgrade.RequiredUpgrades, $"{upgrade.Id} upgrade");
         }

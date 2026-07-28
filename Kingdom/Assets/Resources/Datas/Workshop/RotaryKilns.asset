@@ -20,7 +20,8 @@ MonoBehaviour:
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: a503809720a528146b1350c3e5510cb1, type: 2}
-  requiredUpgrades: []
+  requiredUpgrades:
+  - {fileID: 11400000, guid: cc77afd776dafa8438dc8e28049c06b3, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
     second:

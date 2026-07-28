@@ -1,0 +1,192 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: VillageWorkshop
+  m_EditorClassIdentifier:
+  id: VillageWorkshop
+  Label: "村落工坊"
+  Description: "村落工坊：前三时代内容设计包中的建筑。"
+  TechLevel: 1
+  upgradeTo: {fileID: 0}
+  costGrowth:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []
+  spaceCost:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 5
+      layer: 0
+      operators: []
+  productivityConsumption:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 8
+      layer: 0
+      operators: []
+  productivityGranted:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 32
+      layer: 0
+      operators: []
+  populationCapacityGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  researchPowerGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  foodProductionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  foodConsumptionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  foodCapacityGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  powerProductionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  powerConsumptionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  logisticsProductionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  logisticsConsumptionRate:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  fleetPowerGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  attackPowerGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  defensePowerGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  militaryManpowerGranted:
+      sign: 0
+      representation: 0
+      operatorCount: 0
+      scalar: 0
+      layer: 0
+      operators: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 280
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 30
+      layer: 0
+      operators: []
+  resourceGenerationRates: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.2
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.05
+      layer: 0
+      operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: b7120000000000000000000000000000, type: 2}
+  requiredWorkshopUpgrades: []

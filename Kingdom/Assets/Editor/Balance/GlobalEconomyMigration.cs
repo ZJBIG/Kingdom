@@ -234,6 +234,12 @@ namespace Kingdom.EditorTools
 
         private static void ConfigureAllResearch()
         {
+            Research neolithicSettlement = Find<Research>("NeolithicSettlement");
+            neolithicSettlement.TechLevel = TechLevel.Neolithic;
+            neolithicSettlement.AdvancesTechLevel = true;
+            Research smithingRevolution = Find<Research>("SmithingRevolution");
+            smithingRevolution.TechLevel = TechLevel.Medieval;
+            smithingRevolution.AdvancesTechLevel = true;
             Research industrialization = Find<Research>("Industrialization");
             industrialization.SetResourceRequirementsForEditor(Pairs(
                 "Steel", 1000, "Bronze", 500));
@@ -243,6 +249,8 @@ namespace Kingdom.EditorTools
                 Territory(1000),
                 Productivity(800)
             });
+            industrialization.TechLevel = TechLevel.Industrial;
+            industrialization.AdvancesTechLevel = true;
             EditorUtility.SetDirty(industrialization);
 
             ConfigureResearch("SteamPower", "蒸汽动力", 75000,
@@ -266,7 +274,7 @@ namespace Kingdom.EditorTools
                 BuildingMultiplier("ChemicalPlant", 1.10));
             ConfigureResearch("ElectricalEngineering", "电气工程", 220000,
                 R("IndustrialChemistry", "Standardization"),
-                P("Copper", 500, "Glass", 250, "Rubber", 100),
+                P("Copper", 500, "Glass", 250, "Steel", 100),
                 BuildingMultiplier("WireMill", 1.10));
             ConfigureResearch("PrecisionManufacturing", "精密制造", 280000,
                 R("IndustrialChemistry", "ElectricalEngineering"),
@@ -274,7 +282,7 @@ namespace Kingdom.EditorTools
                 GlobalConstruction(1.05));
             ConfigureResearch("MechanizedProduction", "机械化生产", 360000,
                 R("PrecisionManufacturing"),
-                P("Machinery", 100, "PrecisionParts", 50),
+                P("Steel", 500, "Coke", 300),
                 BuildingMultiplier("MachineFactory", 1.20));
             ConfigureResearch("RailwayEngineering", "铁路工程", 440000,
                 R("MechanizedProduction"),
@@ -449,7 +457,7 @@ namespace Kingdom.EditorTools
                 0, 18, 0, 0, P("Steel", 500, "Copper", 300, "Bronze", 150),
                 P("CopperWire", 1.5), P("Copper", 1.2, "Tin", .1, "Lubricant", .05),
                 R("ElectricalEngineering", "Standardization"), 0, 10);
-            B("MachineFactory", TechLevel.Industrial, 1.22, 20, 16, 0, 0, 0, 0, 0, 0,
+            B("MachineFactory", TechLevel.Industrial, 1.20, 20, 16, 0, 0, 0, 0, 0, 0,
                 0, 30, 0, 0, P("Steel", 600, "CopperWire", 200, "Coke", 200, "Bronze", 200),
                 P("Machinery", 1, "Electronics", .3, "PrecisionParts", .35, "Engine", .15),
                 P("Steel", .8, "Coke", .4, "Lubricant", .15, "CopperWire", .4,
@@ -459,10 +467,10 @@ namespace Kingdom.EditorTools
                 0, 8, 100, 0, P("Machinery", 180, "Electronics", 120, "Steel", 300, "Engine", 30),
                 P(), P("RefinedFuel", .3, "Lubricant", .05),
                 R("RailwayEngineering", "CombustionEngines"));
-            B("University", TechLevel.Industrial, 1.22, 12, 12, 0, 0, 250, 0, 0, 0,
+            B("University", TechLevel.Industrial, 1.20, 12, 12, 0, 0, 250, 0, 0, 0,
                 0, 10, 0, 0, P("Machinery", 100, "Chemical", 80, "Electronics", 100, "Glass", 150),
                 P(), P(), R("ModernUniversity", "ScientificMethod"), 0, 5);
-            B("ArmsFactory", TechLevel.Industrial, 1.24, 22, 18, 0, 0, 0, 0, 0, 0,
+            B("ArmsFactory", TechLevel.Industrial, 1.20, 22, 18, 0, 0, 0, 0, 0, 0,
                 0, 35, 0, 10, P("Steel", 500, "Machinery", 180, "Chemical", 120, "Electronics", 80),
                 P(), P("Steel", .5, "Machinery", .2, "Chemical", .15, "PrecisionParts", .1,
                     "Electronics", .1, "RefinedFuel", .1),
@@ -526,6 +534,34 @@ namespace Kingdom.EditorTools
             W("MilitaryStandardization", "军工标准化", "军事", 180, R("MilitaryIndustry"),
                 P("Engine", 50, "PrecisionParts", 200, "Chemical", 200, "Steel", 800),
                 E(WorkshopEffectType.MilitaryMultiplier, 1.25));
+            SetWorkshopPrerequisites("AcademicJournals", "LaboratoryGlassware");
+            SetWorkshopPrerequisites("AgriculturalMachinery", "DraftingTables");
+            SetWorkshopPrerequisites("ChemicalCatalysts", "RotaryKilns");
+            SetWorkshopPrerequisites("ConveyorSystems", "InterchangeableParts");
+            SetWorkshopPrerequisites("ElectricalInstrumentation", "LaboratoryGlassware");
+            SetWorkshopPrerequisites("InterchangeableParts", "PrecisionTooling");
+            SetWorkshopPrerequisites("MechanicalLooms", "ConveyorSystems");
+            SetWorkshopPrerequisites("PoweredMining", "InterchangeableParts");
+            SetWorkshopPrerequisites("PrecisionTooling", "DraftingTables");
+            SetWorkshopPrerequisites("ReinforcedConcrete", "RotaryKilns");
+            SetWorkshopPrerequisites("RotaryKilns", "LaboratoryGlassware");
+            SetWorkshopPrerequisites("ShiftRegisters", "ElectricalInstrumentation");
+            SetWorkshopPrerequisites("StandardGauge", "ReinforcedBoilers");
+            SetWorkshopPrerequisites("TelegraphDispatch", "ElectricalInstrumentation");
+        }
+
+        private static void SetWorkshopPrerequisites(string id, params string[] prerequisiteIds)
+        {
+            WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
+            var prerequisites = new List<WorkshopUpgradeDefinition>();
+            for (int i = 0; i < prerequisiteIds.Length; i++)
+                prerequisites.Add(Find<WorkshopUpgradeDefinition>(prerequisiteIds[i]));
+            definition.ConfigureForEditor(
+                definition.RequiredResearch.ToList(),
+                prerequisites,
+                definition.ResourceRequirements.ToList(),
+                definition.Effects.ToList());
+            EditorUtility.SetDirty(definition);
         }
 
         private static void ConfigureBuildingWorkshopPrerequisites()

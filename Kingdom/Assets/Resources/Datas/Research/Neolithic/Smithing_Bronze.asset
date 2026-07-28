@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Bronze
   Label: "\u51B6\u70BC\u9752\u94DC"
-  Description: "\u7814\u7A76\u94DC\u4E0E\u5176\u4ED6\u91D1\u5C5E\u7684\u914D\u6BD4\u548C\u94F8\u9020\u6280\u672F\uFF0C\u5236\u9020\u6BD4\u77F3\u5668\u66F4\u575A\u97E7\u53EF\u9760\u7684\u9752\u94DC\u5DE5\u5177\u4E0E\u6B66\u5668\u3002"
+  Description: "\u7cbe\u786e\u914d\u6bd4\u94dc\u4e0e\u9521\u5e76\u638c\u63e1\u7194\u94f8\u5de5\u827a\uff0c\u5236\u9020\u786c\u5ea6\u3001\u97e7\u6027\u548c\u6210\u578b\u80fd\u529b\u4f18\u4e8e\u7eaf\u94dc\u7684\u9752\u94dc\u5236\u54c1\u3002"
   BaseCost: 20000
   prerequisites:
   - {fileID: 11400000, guid: 8487fd4809790b14ab8eeb42d2b906a2, type: 2}
@@ -47,5 +47,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7.00
-  y: 1.63
+  x: 8.00
+  y: 26.113

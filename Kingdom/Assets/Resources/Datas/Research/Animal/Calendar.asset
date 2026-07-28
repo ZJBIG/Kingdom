@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Calendar
   Label: "\u5386\u6CD5"
-  Description: "\u8BB0\u5F55\u6708\u76F8\u3001\u5B63\u8282\u548C\u8FC1\u5F99\u5468\u671F\uFF0C\u8BA9\u805A\u843D\u7B2C\u4E00\u6B21\u80FD\u591F\u51C6\u786E\u7406\u89E3\u5E76\u8BA1\u5212\u65F6\u95F4\u3002"
+  Description: "\u4EE5\u65E5\u5F71\u3001\u6708\u76F8\u548C\u5B63\u8282\u5FAA\u73AF\u6821\u51C6\u65F6\u95F4\uFF0C\u5E2E\u52A9\u805A\u843D\u5B89\u6392\u64AD\u79CD\u3001\u6536\u83B7\u3001\u8FC1\u5F99\u4E0E\u7269\u8D44\u50A8\u5907\u3002"
   BaseCost: 1400
   prerequisites:
   - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 4.00
-  y: 6.62
+  x: 4
+  y: 3.81

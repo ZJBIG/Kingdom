@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
-  m_Name: Industrialization
-  m_EditorClassIdentifier: 
-  id: Industrialization
-  Label: "\u5DE5\u4E1A\u5316"
-  Description: "\u5C06\u4E2D\u4E16\u7EAA\u7684\u77E5\u8BC6\u3001\u94A2\u94C1\u4E0E\u8D38\u6613\u57FA\u7840\u8F6C\u5316\u4E3A\u5DE5\u4E1A\u65F6\u4EE3\u3002"
-  BaseCost: 300000
+  m_Name: GuildSystem
+  m_EditorClassIdentifier:
+  id: GuildSystem
+  Label: "行会制度"
+  Description: "\u4ee5\u884c\u4f1a\u89c4\u8303\u5b66\u5f92\u57f9\u517b\u3001\u4ea7\u54c1\u8d28\u91cf\u3001\u4ef7\u683c\u548c\u884c\u4e1a\u4e92\u52a9\uff0c\u4f7f\u57ce\u5e02\u624b\u5de5\u4e1a\u5f62\u6210\u7a33\u5b9a\u7684\u4e13\u4e1a\u7ec4\u7ec7\u3002"
+  BaseCost: 110000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000002, type: 2}
-  - {fileID: 11400000, guid: f5010000000000000000000000000003, type: 2}
+  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
   - {fileID: 11400000, guid: f5010000000000000000000000000005, type: 2}
   - {fileID: 11400000, guid: f5010000000000000000000000000004, type: 2}
   resourceRequirements:
@@ -27,52 +26,38 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1000
+      scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
       layer: 0
       operators: []
   effects:
-  - Type: 9
+  - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: industrialization
+    SystemId: UnlockBuilding_GuildHall
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1
-      layer: 0
-      operators: []
-  - Type: 8
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1000
-      layer: 0
-      operators: []
-  - Type: 7
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 800
+      scalar: 1.02
       layer: 0
       operators: []
   TechLevel: 2
-  AdvancesTechLevel: 1
-  x: 11
-  y: 9.9
+  AdvancesTechLevel: 0
+  x: 13.00
+  y: 7.120

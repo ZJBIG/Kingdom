@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Measurement
   Label: "\u5EA6\u91CF\u8861"
-  Description: "\u7EDF\u4E00\u957F\u5EA6\u3001\u91CD\u91CF\u548C\u5BB9\u91CF\u7684\u6807\u51C6\uFF0C\u8BA9\u5EFA\u7B51\u3001\u50A8\u5B58\u4E0E\u4EA4\u6362\u4E0D\u518D\u4F9D\u8D56\u6BCF\u4E2A\u4EBA\u5404\u81EA\u7684\u4F30\u7B97\u3002"
+  Description: "\u7edf\u4e00\u957f\u5ea6\u3001\u91cd\u91cf\u548c\u5bb9\u91cf\u5355\u4f4d\uff0c\u5e76\u5236\u4f5c\u53ef\u590d\u6838\u7684\u91cf\u5177\uff0c\u4f7f\u4ea4\u6613\u3001\u65bd\u5de5\u548c\u7269\u8d44\u7ba1\u7406\u62e5\u6709\u5171\u540c\u6807\u51c6\u3002"
   BaseCost: 3200
   prerequisites:
   - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 5.00
-  y: 9.22
+  x: 6.00
+  y: 10.058

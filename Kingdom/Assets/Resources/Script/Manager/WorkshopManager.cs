@@ -43,7 +43,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     public bool ArePrerequisitesMet(WorkshopUpgradeDefinition definition)
     {
-        if (definition == null || GameManager.Instance.State.TechLevel < definition.TechLevel)
+        if (definition == null)
             return false;
         for (int i = 0; i < definition.RequiredResearch.Count; i++)
             if (!ResearchManager.Instance.IsResearchCompleted(definition.RequiredResearch[i].Id))
@@ -66,11 +66,6 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         if (!IsSystemUnlocked)
         {
             failure = WorkshopPurchaseFailure.SystemLocked;
-            return false;
-        }
-        if (GameManager.Instance.State.TechLevel < definition.TechLevel)
-        {
-            failure = WorkshopPurchaseFailure.TechnologyInsufficient;
             return false;
         }
         if (state.Purchased)

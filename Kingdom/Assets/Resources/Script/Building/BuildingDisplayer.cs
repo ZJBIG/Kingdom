@@ -19,21 +19,21 @@ public class BuildingDisplayer : MonoBehaviour
     private bool requirementsBound;
     private BuildFailure lastFailure;
     public Building Building => state?.Definition;
+    public bool IsExpanded => Details != null && Details.gameObject.activeSelf;
+    public float PreferredHeight => IsExpanded
+        ? 50f + Mathf.Max(1, Mathf.CeilToInt((Building?.ResourceRequirements.Count ?? 0) / 2f)) * 50f + 50f
+        : 100f;
 
     private void Awake()
     {
         VerticalLayoutGroup layout = GetComponent<VerticalLayoutGroup>();
-        if (layout == null)
-            layout = gameObject.AddComponent<VerticalLayoutGroup>();
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = false;
+        if (layout != null)
+            layout.enabled = false;
 
         ContentSizeFitter fitter = GetComponent<ContentSizeFitter>();
         if (fitter == null)
             fitter = gameObject.AddComponent<ContentSizeFitter>();
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        fitter.enabled = false;
 
         if (ResourceList != null)
         {
@@ -44,6 +44,23 @@ public class BuildingDisplayer : MonoBehaviour
             requirementsLayout.constraintCount = 2;
             requirementsLayout.cellSize = new Vector2(191.5f, 50f);
         }
+
+        if (Details != null)
+        {
+            foreach (LayoutGroup detailsLayout in Details.GetComponents<LayoutGroup>())
+                detailsLayout.enabled = false;
+        }
+
+        if (Description != null)
+            Description.gameObject.SetActive(false);
+
+        if (Construction != null)
+        {
+            foreach (LayoutGroup constructionLayout in Construction.GetComponents<LayoutGroup>())
+                constructionLayout.enabled = false;
+        }
+
+        SetDetailsVisible(false);
     }
 
     public void Bind(BuildingState newState)
@@ -56,6 +73,7 @@ public class BuildingDisplayer : MonoBehaviour
             StatusText.text = string.Empty;
         BindRequirements();
         renderedVersion = -1;
+        ApplyCardHeight();
         Refresh();
     }
 
@@ -63,8 +81,9 @@ public class BuildingDisplayer : MonoBehaviour
     {
         if (Details == null)
             return;
-        Details.gameObject.SetActive(!Details.gameObject.activeSelf);
+        SetDetailsVisible(!IsExpanded);
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+        GetComponentInParent<BuildingViewer>()?.RefreshLayout();
     }
 
     public void TryConstruct(string input)
@@ -112,6 +131,7 @@ public class BuildingDisplayer : MonoBehaviour
         if (changed)
         {
             Amount.text = state.Amount.ToGameString();
+            RebindRequirements();
             renderedVersion = state.Version;
         }
         if (lastFailure == BuildFailure.None && StatusText != null)
@@ -187,15 +207,104 @@ public class BuildingDisplayer : MonoBehaviour
         if (requirementsBound)
             return;
 
-        foreach (Pair<Resource, ExpantaNum> requirement in Building.ResourceRequirements)
+        RebindRequirements();
+        requirementsBound = true;
+    }
+
+    private void RebindRequirements()
+    {
+        if (ResourceList == null || BuildResourceReqPrefab == null || Building == null)
+            return;
+
+        ExpantaNum nextAmount = ExpantaNum.One;
+        ExpantaNum owned = state?.Amount ?? ExpantaNum.Zero;
+        int requirementCount = Building.ResourceRequirements.Count;
+        bool reuse = ResourceList.childCount == requirementCount;
+        if (!reuse)
         {
-            GameObject go = Instantiate(BuildResourceReqPrefab, ResourceList, false);
-            ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
-            if (view != null)
-                view.Bind(requirement.First, requirement.Second);
+            for (int i = ResourceList.childCount - 1; i >= 0; i--)
+                Destroy(ResourceList.GetChild(i).gameObject);
         }
 
-        requirementsBound = true;
+        int index = 0;
+        foreach (Pair<Resource, ExpantaNum> requirement in Building.ResourceRequirements)
+        {
+            ExpantaNum cost = requirement.Second.GeometricSeriesCost(
+                Building.CostGrowth,
+                owned,
+                nextAmount);
+            GameObject go = reuse
+                ? ResourceList.GetChild(index).gameObject
+                : Instantiate(BuildResourceReqPrefab, ResourceList, false);
+            ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
+            if (view != null)
+                view.Bind(requirement.First, cost);
+            index++;
+        }
+    }
+
+    private void ApplyCardHeight()
+    {
+        RectTransform rectTransform = transform as RectTransform;
+        if (rectTransform == null)
+            return;
+
+        // ResourceDisplayer uses a fixed top-origin card. Keep the card's
+        // origin stable while its height changes; a centered pivot makes the
+        // detail area move upward when the card expands and causes the parent
+        // grid to visually flatten it back into the collapsed row.
+        rectTransform.anchorMin = new Vector2(0.5f, 1f);
+        rectTransform.anchorMax = new Vector2(0.5f, 1f);
+        rectTransform.pivot = new Vector2(0.5f, 1f);
+
+        float requirementHeight = Mathf.Max(
+            50f,
+            Mathf.Max(1, Mathf.CeilToInt((Building?.ResourceRequirements.Count ?? 0) / 2f)) * 50f);
+        if (ResourceList != null)
+        {
+            ResourceList.anchorMin = new Vector2(0.5f, 1f);
+            ResourceList.anchorMax = new Vector2(0.5f, 1f);
+            ResourceList.pivot = new Vector2(0.5f, 1f);
+            ResourceList.anchoredPosition = new Vector2(0f, -25f);
+            ResourceList.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                IsExpanded ? requirementHeight : 0f);
+        }
+
+        if (Details is RectTransform detailsRect)
+        {
+            detailsRect.anchorMin = new Vector2(0.5f, 1f);
+            detailsRect.anchorMax = new Vector2(0.5f, 1f);
+            detailsRect.pivot = new Vector2(0.5f, 1f);
+            detailsRect.anchoredPosition = new Vector2(0f, -50f);
+            detailsRect.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                IsExpanded ? requirementHeight + 50f : 0f);
+        }
+
+        if (Construction != null)
+        {
+            Construction.anchorMin = new Vector2(0.5f, 1f);
+            Construction.anchorMax = new Vector2(0.5f, 1f);
+            Construction.pivot = new Vector2(0.5f, 1f);
+            Construction.anchoredPosition = new Vector2(
+                0f,
+                -(25f + (IsExpanded ? requirementHeight : 0f)));
+            Construction.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 383f);
+            Construction.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 50f);
+        }
+
+        rectTransform.sizeDelta = new Vector2(
+            rectTransform.sizeDelta.x,
+            IsExpanded ? 50f + requirementHeight + 50f : 100f);
+    }
+
+    private void SetDetailsVisible(bool visible)
+    {
+        if (Details != null)
+            Details.gameObject.SetActive(visible);
+
+        ApplyCardHeight();
     }
 
 }

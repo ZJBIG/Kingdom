@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrganizedDefense
+  m_EditorClassIdentifier: 
+  id: OrganizedDefense
+  Label: "\u7EC4\u7EC7\u9632\u536B"
+  Description: "\u8BBE\u7F6E\u8B66\u6212\u3001\u96C6\u5408\u548C\u8F6E\u73ED\u5236\u5EA6\uFF0C\u7EDF\u4E00\u6B66\u5668\u4F7F\u7528\u4E0E\u9632\u5B88\u4F4D\u7F6E\uFF0C\u4F7F\u805A\u843D\u80FD\u591F\u5E94\u5BF9\u6709\u7EC4\u7EC7\u7684\u88AD\u51FB\u3002"
+  BaseCost: 2200
+  prerequisites:
+  - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
+  - {fileID: 11400000, guid: b7050000000000000000000000000000, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 160
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_LookoutPost
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 4.37
+  y: 14.4

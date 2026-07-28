@@ -220,4 +220,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a503809720a528146b1350c3e5510cb1, type: 2}
   - {fileID: 11400000, guid: 95c4a93adb768bb4d8e7978fe41bc6e8, type: 2}
   requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: 9c8257bca960c3d45b2ad88bbf3097e1, type: 2}

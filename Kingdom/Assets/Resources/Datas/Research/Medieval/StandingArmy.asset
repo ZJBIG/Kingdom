@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StandingArmy
   Label: "\u5E38\u5907\u519B"
-  Description: "\u5EFA\u7ACB\u62E5\u6709\u53D7\u8BAD\u4EBA\u529B\u548C\u8865\u7ED9\u7EAA\u5F8B\u7684\u5E38\u8BBE\u519B\u4E8B\u673A\u6784\u3002"
+  Description: "\u7ef4\u6301\u5e38\u8bbe\u5175\u5458\u3001\u8bad\u7ec3\u5236\u5ea6\u3001\u519b\u9977\u4e0e\u8865\u7ed9\u4f53\u7cfb\uff0c\u4f7f\u519b\u4e8b\u529b\u91cf\u80fd\u591f\u5feb\u901f\u96c6\u7ed3\u5e76\u6267\u884c\u957f\u671f\u4efb\u52a1\u3002"
   BaseCost: 150000
   prerequisites:
   - {fileID: 11400000, guid: f5010000000000000000000000000006, type: 2}
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 10.00
-  y: 5.66
+  x: 12.00
+  y: 22.943

@@ -6,7 +6,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
 {
     private const int GridColumns = 2;
     private const float CardWidth = 383f;
-    private const float CardHeight = 150f;
+    private const float CollapsedCardHeight = 100f;
     private const float GridSpacing = 12f;
 
     [SerializeField] private RectTransform Content;
@@ -36,6 +36,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
     }
 
     public void RefreshUI() => RefreshAll();
+    public void RefreshLayout() => RefreshGridLayout();
 
     private void BindExistingStates()
     {
@@ -55,7 +56,16 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
             return;
         }
 
-        BuildingDisplayer displayer = Instantiate(DisplayerPrefab, Content, false).GetComponent<BuildingDisplayer>();
+        GameObject instance = Instantiate(DisplayerPrefab, Content, false);
+        BuildingDisplayer displayer = instance.GetComponent<BuildingDisplayer>();
+        if (displayer == null)
+        {
+            Debug.LogError(
+                $"BuildingViewer prefab '{DisplayerPrefab.name}' must have a BuildingDisplayer component on its root.",
+                DisplayerPrefab);
+            Destroy(instance);
+            return;
+        }
         displayer.Bind(state);
         displayers.Add(state.Definition, displayer);
         RefreshGridLayout();
@@ -88,8 +98,18 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
         if (layoutGroup != null)
             layoutGroup.enabled = false;
 
+        // The cards are positioned explicitly below, just like the resource
+        // list. A ContentSizeFitter would calculate the scroll content from
+        // the prefab's stale preferred height and collapse expanded cards
+        // back into the 50/100 pixel row.
+        ContentSizeFitter fitter = Content.GetComponent<ContentSizeFitter>();
+        if (fitter != null)
+            fitter.enabled = false;
+
+        List<BuildingDisplayer> ordered = new(displayers.Values);
         int index = 0;
-        foreach (BuildingDisplayer displayer in displayers.Values)
+        List<float> rowHeights = new();
+        foreach (BuildingDisplayer displayer in ordered)
         {
             RectTransform card = displayer.transform as RectTransform;
             if (card == null)
@@ -97,18 +117,25 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
 
             int column = index % GridColumns;
             int row = index / GridColumns;
+            while (rowHeights.Count <= row)
+                rowHeights.Add(CollapsedCardHeight);
+            rowHeights[row] = Mathf.Max(rowHeights[row], displayer.PreferredHeight);
             card.anchorMin = new Vector2(0f, 1f);
             card.anchorMax = new Vector2(0f, 1f);
             card.pivot = new Vector2(0f, 1f);
-            card.anchoredPosition = new Vector2(
-                column * (CardWidth + GridSpacing),
-                -row * (CardHeight + GridSpacing));
+            float y = 0f;
+            for (int previous = 0; previous < row; previous++)
+                y += rowHeights[previous] + GridSpacing;
+            card.anchoredPosition = new Vector2(column * (CardWidth + GridSpacing), -y);
             index++;
         }
 
         int rows = (index + GridColumns - 1) / GridColumns;
+        float contentHeight = 0f;
+        for (int row = 0; row < rows; row++)
+            contentHeight += rowHeights[row] + (row == 0 ? 0f : GridSpacing);
         Content.sizeDelta = new Vector2(
             GridColumns * CardWidth + (GridColumns - 1) * GridSpacing,
-            Mathf.Max(CardHeight, rows * CardHeight + Mathf.Max(0, rows - 1) * GridSpacing));
+            Mathf.Max(CollapsedCardHeight, contentHeight));
     }
 }

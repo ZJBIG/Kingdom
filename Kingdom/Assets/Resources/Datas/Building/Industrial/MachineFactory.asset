@@ -20,7 +20,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 1.22
+    scalar: 1.2
     layer: 0
     operators: []
     sign: 0
@@ -224,7 +224,7 @@ MonoBehaviour:
       scalar: 0.4
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 191b0a72e60f12d4ba2e236156a8f21c, type: 2}
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
     second:
       sign: 0
       representation: 1
@@ -248,15 +248,14 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 779cfc010f2985349a79549f375e5b31, type: 2}
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.05
+      scalar: 0.1
       layer: 0
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: dfe60d6549eee974aaae3e840d84380f, type: 2}
   requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: 8dd1be483d425a743902246ddb2e4b9b, type: 2}

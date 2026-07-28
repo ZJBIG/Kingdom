@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Fortification
   Label: "\u9632\u5FA1\u5DE5\u4E8B"
-  Description: "\u5C06\u780C\u7B51\u6280\u672F\u4E0E\u94A2\u94C1\u8F6C\u5316\u4E3A\u575A\u56FA\u6301\u4E45\u7684\u9632\u5FA1\u8FB9\u7586\u3002"
+  Description: "\u6839\u636E\u5730\u5F62\u5E03\u7F6E\u57CE\u5899\u3001\u58D5\u6C9F\u3001\u5821\u5792\u548C\u5C04\u51FB\u4F4D\u7F6E\uFF0C\u628A\u77F3\u5DE5\u4E0E\u519B\u4E8B\u7ECF\u9A8C\u8F6C\u5316\u4E3A\u5B8C\u6574\u7684\u9632\u5FA1\u4F53\u7CFB\u3002"
   BaseCost: 140000
   prerequisites:
   - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
@@ -61,5 +61,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 9.00
-  y: 2.83
+  x: 11
+  y: 15.214

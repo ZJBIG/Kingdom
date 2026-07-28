@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Geometry
+  m_EditorClassIdentifier: 
+  id: Geometry
+  Label: "\u51E0\u4F55\u5B66"
+  Description: "\u7528\u5F62\u72B6\u3001\u89D2\u5EA6\u548C\u6BD4\u4F8B\u6539\u8FDB\u77F3\u6750\u52A0\u5DE5\u3002"
+  BaseCost: 900
+  prerequisites:
+  - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 414ccdfc36a0e064fb86a9399beddebb, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 3c449575f64463949af720fdf25ca954, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 5
+  y: 10.47

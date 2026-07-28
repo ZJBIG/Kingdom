@@ -218,8 +218,10 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (research == null)
             return false;
-        return GameManager.Instance.State.TechLevel >= research.TechLevel ||
-            research.AdvancesTechLevel && research.TechLevel == GameManager.Instance.State.TechLevel + 1;
+        TechLevel currentTechLevel = GameManager.Instance.State.TechLevel;
+        if (research.AdvancesTechLevel)
+            return (int)research.TechLevel == (int)currentTechLevel + 1;
+        return currentTechLevel >= research.TechLevel;
     }
 
     public static ExpantaNum AdvanceResearchProgress(

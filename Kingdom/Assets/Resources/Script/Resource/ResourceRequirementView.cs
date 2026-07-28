@@ -15,7 +15,9 @@ public sealed class ResourceRequirementView : MonoBehaviour
 
         if (Icon != null)
         {
-            Icon.sprite = resource.Sprite;
+            Icon.sprite = resource.Sprite != null
+                ? resource.Sprite
+                : ResourceIconFallback.Get(resource);
             Icon.color = resource.Color;
         }
         
@@ -23,6 +25,8 @@ public sealed class ResourceRequirementView : MonoBehaviour
             Label.text = resource.Label;
 
         if (Amount != null)
-            Amount.text = amount.ToGameString();
+            Amount.text = Label != null
+                ? amount.ToGameString()
+                : $"{resource.Label}  {amount.ToGameString()}";
     }
 }

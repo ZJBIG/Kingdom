@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: LogisticsManagement
   Label: "\u7269\u6D41\u7BA1\u7406"
-  Description: "\u7269\u6D41\u7BA1\u7406\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u901a\u8fc7\u5e93\u5b58\u8bb0\u5f55\u3001\u8fd0\u8f93\u6392\u7a0b\u548c\u8865\u7ed9\u4f18\u5148\u7ea7\u534f\u8c03\u591a\u5904\u4ed3\u5e93\u4e0e\u751f\u4ea7\u70b9\uff0c\u964d\u4f4e\u7f3a\u6599\u3001\u79ef\u538b\u548c\u7a7a\u8f7d\u8fd0\u8f93\u3002"
   BaseCost: 1350000
   prerequisites:
   - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
@@ -58,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 20.00
-  y: 3.67
+  x: 23.00
+  y: 13.262

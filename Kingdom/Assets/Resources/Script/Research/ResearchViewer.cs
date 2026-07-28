@@ -108,11 +108,13 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             RefreshAll();
             return;
         }
-        if (!state.CostPaid)
+        if (!state.CostPaid && HasPositiveResourceRequirement(selectedResearch))
         {
-            ResearchManager.TryPayResearchCost(state);
-            RefreshAll();
-            return;
+            if (!ResearchManager.TryPayResearchCost(state))
+            {
+                RefreshAll();
+                return;
+            }
         }
         if (state.Status == ResearchStatus.Completed ||
             !ResearchManager.Instance.CanAccessResearch(selectedResearch))
@@ -317,6 +319,17 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
         };
     }
 
+    private static bool HasPositiveResourceRequirement(Research research)
+    {
+        if (research == null)
+            return false;
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+            if (requirements[i].Second > ExpantaNum.Zero)
+                return true;
+        return false;
+    }
+
     private void RebuildRequirementRows(Research research)
     {
         if (research == null || ResourceList == null || ResourceReqPrefab == null)
@@ -420,5 +433,6 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             SelectResearch(restored);
     }
 
-    private static Vector2 PlacePosition(float x, float y) => new Vector2(-750f + 325f * x, -25f - 75f * y);
+    //private static Vector2 PlacePosition(float x, float y) => new Vector2(-750f + 325f * x, -25f - 75f * y);
+    private static Vector2 PlacePosition(float x, float y) => new Vector2(325f * x,- 75f * y);
 }

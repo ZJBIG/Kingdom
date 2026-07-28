@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StoneCutting
   Label: "\u5207\u77F3\u6280\u672F"
-  Description: "\u7814\u7A76\u5207\u5272\u3001\u6253\u78E8\u548C\u62FC\u63A5\u77F3\u6750\u7684\u65B9\u6CD5\uFF0C\u4F7F\u77F3\u6599\u4ECE\u5929\u7136\u8D44\u6E90\u8F6C\u5316\u4E3A\u53EF\u9760\u7684\u5EFA\u7B51\u6784\u4EF6\u3002"
+  Description: "\u638c\u63e1\u5288\u88c2\u3001\u5207\u524a\u3001\u78e8\u5e73\u548c\u62fc\u63a5\u77f3\u6750\u7684\u6280\u5de7\uff0c\u4f7f\u5929\u7136\u77f3\u5757\u80fd\u591f\u6210\u4e3a\u89c4\u5219\u8010\u7528\u7684\u5efa\u7b51\u6784\u4ef6\u3002"
   BaseCost: 900
   prerequisites:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
@@ -31,4 +31,4 @@ MonoBehaviour:
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 1.00
-  y: 4.22
+  y: 21.518

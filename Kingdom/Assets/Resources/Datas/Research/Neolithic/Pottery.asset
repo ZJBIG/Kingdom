@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Pottery
   Label: "\u9676\u5668\u5236\u4F5C"
-  Description: "\u638C\u63E1\u9ECF\u571F\u6210\u578B\u4E0E\u70E7\u5236\uFF0C\u8BA9\u4EBA\u7C7B\u80FD\u591F\u50A8\u5B58\u98DF\u7269\u3001\u642C\u8FD0\u996E\u6C34\u5E76\u5236\u4F5C\u66F4\u8010\u7528\u7684\u751F\u6D3B\u5668\u5177\u3002"
+  Description: "\u638c\u63e1\u9ecf\u571f\u6dd8\u6d17\u3001\u6210\u578b\u3001\u5e72\u71e5\u548c\u70e7\u5236\u6d41\u7a0b\uff0c\u5236\u9020\u9002\u5408\u50a8\u7cae\u3001\u53d6\u6c34\u3001\u70f9\u996a\u4e0e\u8fd0\u8f93\u7684\u8010\u7528\u5bb9\u5668\u3002"
   BaseCost: 1200
   prerequisites:
   - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
@@ -31,5 +31,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 5.00
-  y: 10.95
+  x: 6.00
+  y: 23.565

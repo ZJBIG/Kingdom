@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: KilnEfficiency
+  m_EditorClassIdentifier:
+  id: KilnEfficiency
+  Label: "高效窑炉"
+  Description: "\u6539\u8fdb\u7a91\u4f53\u4fdd\u6e29\u3001\u8fdb\u6c14\u548c\u71c3\u6599\u5e03\u7f6e\uff0c\u4f7f\u70e7\u5236\u6e29\u5ea6\u66f4\u9ad8\u4e14\u66f4\u5747\u5300\uff0c\u51cf\u5c11\u9676\u5668\u4e0e\u51b6\u70bc\u8fc7\u7a0b\u4e2d\u7684\u5e9f\u54c1\u3002"
+  BaseCost: 8500
+  prerequisites:
+  - {fileID: 11400000, guid: a1e320f1f8a04854a0ca04a2051d9a36, type: 2}
+  - {fileID: 11400000, guid: b5e8c2d7419f4a6b8d0e3c7f1a526984, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_KilnEfficiency
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 1
+  AdvancesTechLevel: 0
+  x: 8.00
+  y: 25.113

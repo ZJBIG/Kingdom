@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MilitaryIndustry
   Label: "\u519B\u4E8B\u5DE5\u4E1A"
-  Description: "\u519B\u4E8B\u5DE5\u4E1A\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u5c06\u6b66\u5668\u8bbe\u8ba1\u3001\u6807\u51c6\u96f6\u4ef6\u3001\u5f39\u836f\u751f\u4ea7\u548c\u519b\u9700\u9a8c\u6536\u7eb3\u5165\u4e13\u95e8\u5de5\u5382\uff0c\u4fdd\u969c\u5927\u89c4\u6a21\u519b\u4e8b\u88c5\u5907\u7684\u6301\u7eed\u4f9b\u5e94\u3002"
   BaseCost: 1200000
   prerequisites:
   - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
@@ -66,5 +66,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 21.00
-  y: 14.67
+  x: 24.00
+  y: 11.499

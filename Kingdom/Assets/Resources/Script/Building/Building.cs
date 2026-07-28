@@ -8,6 +8,8 @@ public class Building : GameDefinition
     public string Label;
     public string Description;
     public TechLevel TechLevel;
+    [SerializeField, Tooltip("Optional next tier in a building line. This is definition-only until the housing line runtime is enabled.")]
+    private Building upgradeTo;
     [SerializeField, Tooltip("Each new building multiplies its material cost by this ratio.")]
     private ExpantaNum costGrowth = new ExpantaNum(DefaultCostGrowthValue);
     [Header("功能")]
@@ -60,6 +62,7 @@ public class Building : GameDefinition
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates => resourceConsumptionRates;
     public IReadOnlyList<Research> RequiredResearch => requiredResearch;
     public IReadOnlyList<WorkshopUpgradeDefinition> RequiredWorkshopUpgrades => requiredWorkshopUpgrades;
+    public Building UpgradeTo => upgradeTo;
     public ExpantaNum SpaceCost => spaceCost;
     public ExpantaNum ProductivityConsumption => productivityConsumption;
     public ExpantaNum ProductivityGranted => productivityGranted;
@@ -127,6 +130,8 @@ public class Building : GameDefinition
 
     public void SetRequiredWorkshopUpgradesForEditor(List<WorkshopUpgradeDefinition> values) =>
         requiredWorkshopUpgrades = values ?? new List<WorkshopUpgradeDefinition>();
+
+    public void SetUpgradeToForEditor(Building value) => upgradeTo = value;
 
     public void SetResearchPowerForEditor(ExpantaNum value) =>
         researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value);

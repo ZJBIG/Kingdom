@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrganizedWatch
+  m_EditorClassIdentifier:
+  id: OrganizedWatch
+  Label: "守望制度"
+  Description: "\u5efa\u7acb\u56fa\u5b9a\u54e8\u4f4d\u3001\u5de1\u903b\u8def\u7ebf\u548c\u62a5\u8b66\u4fe1\u53f7\uff0c\u4f7f\u5a01\u80c1\u80fd\u591f\u5728\u63a5\u8fd1\u805a\u843d\u524d\u88ab\u53d1\u73b0\u5e76\u8fc5\u901f\u4f20\u9012\u3002"
+  BaseCost: 17000
+  prerequisites:
+  - {fileID: 11400000, guid: b7140000000000000000000000000000, type: 2}
+  - {fileID: 11400000, guid: b60f6ee9055bb2f40860844fbca930ab, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_Watchtower
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 1
+  AdvancesTechLevel: 0
+  x: 9.00
+  y: 22.304

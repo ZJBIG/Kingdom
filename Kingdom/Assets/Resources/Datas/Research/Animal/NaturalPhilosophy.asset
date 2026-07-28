@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: NaturalPhilosophy
+  m_EditorClassIdentifier: 
+  id: NaturalPhilosophy
+  Label: "\u81EA\u7136\u54F2\u5B66"
+  Description: "\u7528\u89C2\u5BDF\u3001\u5206\u7C7B\u548C\u8BB0\u5F55\u7406\u89E3\u81EA\u7136\u89C4\u5F8B\u3002"
+  BaseCost: 1700
+  prerequisites:
+  - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
+  - {fileID: 11400000, guid: b7030000000000000000000000000000, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  effects:
+  - Type: 13
+    Building: {fileID: 11400000, guid: b28e59293cc542ae9340e14339ba430f, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  - Type: 13
+    Building: {fileID: 11400000, guid: a7050000000000000000000000000000, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  - Type: 13
+    Building: {fileID: 11400000, guid: 87da367afb3e4cafb03ac7fee9cf1a5a, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 3.7
+  y: 2.58

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Coking
   Label: "\u70BC\u7126"
-  Description: "\u70BC\u7126\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u5728\u9694\u7edd\u7a7a\u6c14\u7684\u7089\u5185\u5e72\u998f\u7164\u70ad\uff0c\u5236\u5f97\u9ad8\u5f3a\u5ea6\u3001\u4f4e\u6742\u8d28\u7684\u7126\u70ad\uff0c\u4e3a\u5927\u578b\u9ad8\u6e29\u51b6\u91d1\u63d0\u4f9b\u7a33\u5b9a\u71c3\u6599\u4e0e\u8fd8\u539f\u5242\u3002"
   BaseCost: 140000
   prerequisites:
   - {fileID: 11400000, guid: b17ef79351de8c943a50503573200687, type: 2}
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 13.00
-  y: 5.64
+  x: 16.00
+  y: 14.716

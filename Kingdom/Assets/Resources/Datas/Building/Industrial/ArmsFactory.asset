@@ -20,7 +20,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 1.24
+    scalar: 1.2
     layer: 0
     operators: []
     sign: 0
@@ -228,4 +228,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: eadf8ba08147af2479e037bba70ae97b, type: 2}
   - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
   requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: c9754cda2ed79f64abf02cb8ff6d226a, type: 2}

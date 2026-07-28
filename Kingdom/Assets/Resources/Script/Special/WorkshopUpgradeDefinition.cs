@@ -9,6 +9,8 @@ public sealed class WorkshopUpgradeDefinition : GameDefinition
     [TextArea] public string Description;
     public string Category;
     public int SortOrder;
+    // Legacy content classification retained for serialized asset compatibility.
+    // Workshop availability is governed by IndustrialWorkshop plus explicit prerequisites.
     public TechLevel TechLevel = TechLevel.Industrial;
     [SerializeField] private List<Research> requiredResearch = new();
     [SerializeField] private List<WorkshopUpgradeDefinition> requiredUpgrades = new();

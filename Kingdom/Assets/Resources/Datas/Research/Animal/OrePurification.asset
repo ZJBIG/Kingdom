@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrePurification
+  m_EditorClassIdentifier: 
+  id: OrePurification
+  Label: "\u77FF\u77F3\u9664\u6742"
+  Description: "\u901A\u8FC7\u5206\u9009\u3001\u7119\u70E7\u548C\u51C0\u5316\u6539\u8FDB\u65E9\u671F\u51B6\u70BC\u3002"
+  BaseCost: 2400
+  prerequisites:
+  - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
+  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 2b8e2c457de34c9baedb2a5a7fd8f601, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4daf4e679f056ec9cafd4c7c9f1ab823, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 3c9f3d568ef45d8bafec3b6b8e09a712, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 3.09
+  y: 20.2

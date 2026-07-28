@@ -6,7 +6,6 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
     private const string ResourceTabLabel = "资源";
     private const string BuildingTabLabel = "建筑";
     private const string ResearchTabLabel = "研究";
-    private const string SpecialTabLabel = "特殊";
 
     [SerializeField] private TMP_Text Text_Calendar;
     [SerializeField] private TMP_Text Text_TechLevel;
@@ -44,7 +43,6 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             MainTab.Building => BuildingTabLabel,
             MainTab.Research => ResearchTabLabel,
             MainTab.Workshop => "Workshop",
-            MainTab.Special => SpecialTabLabel,
             _ => ResourceTabLabel
         };
     }
@@ -86,6 +84,11 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
                 Text_Productivity,
                 $"劳动力:{BuildingManager.Instance.AvailableWorkforce.ToGameString()}   研究力:{researchPower}/s{foodEfficiency}");
         }
+        if (Text_Productivity != null)
+            SetTextIfChanged(
+                Text_Productivity,
+                $"Population: {state.Population.Population.ToGameString()}/{state.Population.PopulationCapacity.ToGameString()}   " +
+                $"Workforce: {BuildingManager.Instance.AvailableWorkforce.ToGameString()}");
         if (Text_KingdomSpace != null)
             SetTextIfChanged(
                 Text_KingdomSpace,

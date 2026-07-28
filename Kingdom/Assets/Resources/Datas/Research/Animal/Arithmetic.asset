@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Arithmetic
+  m_EditorClassIdentifier: 
+  id: Arithmetic
+  Label: "\u7B97\u672F"
+  Description: "\u7528\u6570\u91CF\u3001\u6BD4\u4F8B\u548C\u8BB0\u6570\u7EDF\u4E00\u65E5\u5E38\u8BA1\u7B97\u3002"
+  BaseCost: 700
+  prerequisites:
+  - {fileID: 11400000, guid: 4bf7bf3d222a4f228048ca5553826c42, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 60
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 30
+      layer: 0
+      operators: []
+  effects:
+  - Type: 4
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.07
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 5
+  y: 11.44

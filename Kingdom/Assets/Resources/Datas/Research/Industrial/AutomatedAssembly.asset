@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: AutomatedAssembly
+  m_EditorClassIdentifier:
+  id: AutomatedAssembly
+  Label: "自动化装配"
+  Description: "\u4f7f\u7528\u4e13\u7528\u673a\u68b0\u3001\u4f20\u9001\u88c5\u7f6e\u548c\u987a\u5e8f\u63a7\u5236\u91cd\u590d\u5b8c\u6210\u88c5\u914d\u5de5\u5e8f\uff0c\u51cf\u5c11\u4eba\u5de5\u5dee\u5f02\u5e76\u63d0\u9ad8\u590d\u6742\u4ea7\u54c1\u7684\u4e00\u81f4\u4ea7\u91cf\u3002"
+  BaseCost: 400000
+  prerequisites:
+  - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
+  - {fileID: 11400000, guid: 5c2c36a9093babd4db12dbfcf1e8fe74, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 12
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId:
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 23.00
+  y: 5.750
+

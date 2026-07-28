@@ -150,6 +150,14 @@ MonoBehaviour:
       scalar: 1600
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
     second:
       sign: 0
@@ -158,15 +166,15 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c7400000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
     second:
       sign: 0
       representation: 1
@@ -176,7 +184,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
     second:
       sign: 0
       representation: 1

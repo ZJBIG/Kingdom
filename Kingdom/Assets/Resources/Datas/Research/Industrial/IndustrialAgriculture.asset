@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAgriculture
   Label: "\u5DE5\u4E1A\u519C\u4E1A"
-  Description: "\u5DE5\u4E1A\u519C\u4E1A\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u628a\u673a\u68b0\u519c\u5177\u3001\u5316\u5b66\u6295\u5165\u3001\u89c4\u6a21\u5316\u704c\u6e89\u4e0e\u96c6\u4e2d\u50a8\u8fd0\u7ed3\u5408\u8d77\u6765\uff0c\u4ee5\u5de5\u4e1a\u65b9\u5f0f\u63d0\u9ad8\u5355\u4f4d\u52b3\u52a8\u529b\u7684\u519c\u4e1a\u4ea7\u51fa\u3002"
   BaseCost: 1050000
   prerequisites:
   - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 500
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
@@ -35,12 +35,12 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 30
+      scalar: 150
       layer: 0
       operators: []
   effects:
@@ -79,5 +79,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 17.00
-  y: 10.96
+  x: 20.00
+  y: 13.665

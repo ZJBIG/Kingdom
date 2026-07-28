@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ScientificInstrumentation
+  m_EditorClassIdentifier:
+  id: ScientificInstrumentation
+  Label: "科学仪器"
+  Description: "\u5236\u9020\u7cbe\u5bc6\u6d4b\u91cf\u3001\u5149\u5b66\u548c\u5b9e\u9a8c\u88c5\u7f6e\uff0c\u628a\u96be\u4ee5\u89c2\u5bdf\u7684\u73b0\u8c61\u8f6c\u5316\u4e3a\u53ef\u91cd\u590d\u6570\u636e\uff0c\u63d0\u5347\u7814\u7a76\u7684\u51c6\u786e\u6027\u4e0e\u8303\u56f4\u3002"
+  BaseCost: 450000
+  prerequisites:
+  - {fileID: 11400000, guid: 3915650d9308e514c8dae362ebde15ea, type: 2}
+  - {fileID: 11400000, guid: a983adc6884e79f4ea3777d1277d713f, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  effects:
+  - Type: 4
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId:
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 22.00
+  y: 13.750
+

@@ -14,33 +14,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModernUniversity
   Label: "\u73B0\u4EE3\u5927\u5B66"
-  Description: "\u73B0\u4EE3\u5927\u5B66\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u628a\u6559\u5b66\u3001\u5b9e\u9a8c\u5ba4\u3001\u4e13\u4e1a\u5b66\u79d1\u548c\u7814\u7a76\u804c\u4f4d\u7ed3\u5408\u4e3a\u73b0\u4ee3\u5927\u5b66\u4f53\u7cfb\uff0c\u6301\u7eed\u57f9\u517b\u5de5\u7a0b\u5e08\u5e76\u7ec4\u7ec7\u7cfb\u7edf\u6027\u7814\u7a76\u3002"
   BaseCost: 520000
   prerequisites:
   - {fileID: 11400000, guid: 32fcf4393a54f1c41818af39b2342227, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 384c42715adad4640b0d3becdb1c823f, type: 2}
+  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
       layer: 0
       operators: []
   effects:
@@ -57,5 +65,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 17.00
-  y: 8.25
+  x: 20.00
+  y: 14.665

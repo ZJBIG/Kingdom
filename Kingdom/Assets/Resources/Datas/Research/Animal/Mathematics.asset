@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mathematics
   Label: "\u6570\u5B66"
-  Description: "\u4ECE\u6570\u91CF\u3001\u5206\u7EC4\u548C\u7B80\u5355\u8FD0\u7B97\u4E2D\u5EFA\u7ACB\u62BD\u8C61\u89C4\u5219\uFF0C\u4E3A\u7CBE\u786E\u8BB0\u5F55\u3001\u6D4B\u91CF\u548C\u5386\u6CD5\u8BA1\u7B97\u6253\u4E0B\u57FA\u7840\u3002"
+  Description: "\u4ece\u8ba1\u6570\u3001\u5206\u7ec4\u548c\u6bd4\u8f83\u4e2d\u5f62\u6210\u62bd\u8c61\u6570\u91cf\u6982\u5ff5\uff0c\u4e3a\u6d4b\u91cf\u3001\u5386\u6cd5\u3001\u5e93\u5b58\u8bb0\u5f55\u548c\u540e\u7eed\u5de5\u7a0b\u8ba1\u7b97\u5960\u5b9a\u57fa\u7840\u3002"
   BaseCost: 1000
   prerequisites:
   - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
@@ -48,6 +48,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   TechLevel: 0
-  AdvancesTechLevel: 1
-  x: 3
-  y: 7.79
+  AdvancesTechLevel: 0
+  x: 3.00
+  y: 9.033

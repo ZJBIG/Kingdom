@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mining
   Label: "\u77FF\u7269\u5F00\u91C7"
-  Description: "\u7CFB\u7EDF\u5316\u5730\u5BFB\u627E\u3001\u5F00\u51FF\u548C\u8FD0\u8F93\u77FF\u7269\uFF0C\u8BA9\u6587\u660E\u83B7\u5F97\u8FC8\u5411\u91D1\u5C5E\u65F6\u4EE3\u7684\u5730\u4E0B\u8D44\u6E90\u3002"
+  Description: "\u5efa\u7acb\u5bfb\u627e\u77ff\u8109\u3001\u5f00\u51ff\u5ca9\u5c42\u3001\u652f\u6491\u5751\u9053\u548c\u8fd0\u51fa\u77ff\u77f3\u7684\u57fa\u672c\u6d41\u7a0b\uff0c\u4f7f\u5730\u4e0b\u8d44\u6e90\u80fd\u591f\u88ab\u6301\u7eed\u5229\u7528\u3002"
   BaseCost: 600
   prerequisites:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
@@ -67,4 +67,4 @@ MonoBehaviour:
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 1.00
-  y: 0.22
+  y: 18.270

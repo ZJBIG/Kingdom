@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: HerbalKnowledge
+  m_EditorClassIdentifier:
+  id: HerbalKnowledge
+  Label: "草药知识"
+  Description: "\u8fa8\u8ba4\u5e38\u89c1\u836f\u7528\u690d\u7269\u5e76\u603b\u7ed3\u91c7\u96c6\u3001\u5e72\u71e5\u548c\u914d\u4f0d\u65b9\u6cd5\uff0c\u4f7f\u4f24\u53e3\u5904\u7406\u548c\u5e38\u89c1\u75c5\u75c7\u62e5\u6709\u66f4\u53ef\u9760\u7684\u8349\u836f\u6765\u6e90\u3002"
+  BaseCost: 850
+  prerequisites:
+  - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
+  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 99fb240680f34c6596b44ecd3abade40, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_HealerHut
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 3.00
+  y: 5.517

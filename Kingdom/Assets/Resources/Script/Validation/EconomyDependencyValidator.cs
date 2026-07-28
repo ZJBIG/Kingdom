@@ -12,6 +12,8 @@ public static class EconomyDependencyValidator
     {
         if (!ValidateBuildingPrerequisites(buildings, out error))
             return false;
+        if (!ValidateWorkshopPrerequisites(upgrades, out error))
+            return false;
         if (!ValidateProductionGraph(resources, buildings, out error))
             return false;
         if (!ValidateDirectUnlockDeadlocks(buildings, researches, upgrades, out error))
@@ -20,6 +22,81 @@ public static class EconomyDependencyValidator
             return false;
         error = string.Empty;
         return true;
+    }
+
+    private static bool ValidateWorkshopPrerequisites(
+        IReadOnlyList<WorkshopUpgradeDefinition> upgrades,
+        out string error)
+    {
+        var known = new HashSet<WorkshopUpgradeDefinition>();
+        for (int i = 0; i < upgrades.Count; i++)
+            if (upgrades[i] != null)
+                known.Add(upgrades[i]);
+
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            WorkshopUpgradeDefinition upgrade = upgrades[i];
+            if (upgrade == null)
+                continue;
+            if (upgrade.RequiredResearch.Count == 0 && upgrade.RequiredUpgrades.Count == 0)
+            {
+                error = $"Workshop upgrade '{upgrade.Id}' has no prerequisite.";
+                return false;
+            }
+            for (int j = 0; j < upgrade.RequiredUpgrades.Count; j++)
+            {
+                WorkshopUpgradeDefinition prerequisite = upgrade.RequiredUpgrades[j];
+                if (prerequisite == null || !known.Contains(prerequisite))
+                {
+                    error = $"Workshop upgrade '{upgrade.Id}' has an invalid workshop prerequisite.";
+                    return false;
+                }
+                if (ReferenceEquals(upgrade, prerequisite))
+                {
+                    error = $"Workshop upgrade '{upgrade.Id}' requires itself.";
+                    return false;
+                }
+            }
+        }
+
+        var visiting = new HashSet<WorkshopUpgradeDefinition>();
+        var visited = new HashSet<WorkshopUpgradeDefinition>();
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            WorkshopUpgradeDefinition upgrade = upgrades[i];
+            if (upgrade != null && HasWorkshopCycle(upgrade, visiting, visited, out error))
+                return false;
+        }
+        error = string.Empty;
+        return true;
+    }
+
+    private static bool HasWorkshopCycle(
+        WorkshopUpgradeDefinition current,
+        HashSet<WorkshopUpgradeDefinition> visiting,
+        HashSet<WorkshopUpgradeDefinition> visited,
+        out string error)
+    {
+        if (visited.Contains(current))
+        {
+            error = string.Empty;
+            return false;
+        }
+        if (!visiting.Add(current))
+        {
+            error = $"Workshop prerequisite cycle includes '{current.Id}'.";
+            return true;
+        }
+        for (int i = 0; i < current.RequiredUpgrades.Count; i++)
+        {
+            WorkshopUpgradeDefinition prerequisite = current.RequiredUpgrades[i];
+            if (prerequisite != null && HasWorkshopCycle(prerequisite, visiting, visited, out error))
+                return true;
+        }
+        visiting.Remove(current);
+        visited.Add(current);
+        error = string.Empty;
+        return false;
     }
 
     private static bool ValidateReleasedReachability(

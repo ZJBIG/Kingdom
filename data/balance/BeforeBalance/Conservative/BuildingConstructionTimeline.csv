@@ -1,0 +1,17 @@
+TimeSeconds,Minute,TechLevel,BuildingId,Count
+810.0,13.5,Animal,"ClayPit",1
+1080.0,18,Animal,"ClayPit",2
+4860.0,81,Animal,"Quarry",1
+5130.0,85.5,Animal,"Lumberyard",1
+5400.0,90,Animal,"FiberGatheringCamp",1
+5670.0,94.5,Animal,"StoneCuttingWorkshop",1
+5940.0,99,Animal,"Lumberyard",2
+6210.0,103.5,Animal,"Quarry",2
+6480.0,108,Animal,"FiberGatheringCamp",2
+6750.0,112.5,Animal,"StoneCuttingWorkshop",2
+10260.0,171,Neolithic,"CopperMine",1
+10530.0,175.5,Neolithic,"CopperMine",2
+14310.0,238.5,Neolithic,"PotteryKiln",1
+14580.0,243,Neolithic,"PotteryKiln",2
+17820.0,297,Neolithic,"WeavingWorkshop",1
+18090.0,301.5,Neolithic,"WeavingWorkshop",2

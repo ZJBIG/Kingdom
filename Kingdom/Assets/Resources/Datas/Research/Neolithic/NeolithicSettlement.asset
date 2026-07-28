@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: NeolithicSettlement
   Label: "\u5B9A\u5C45\u805A\u843D"
-  Description: "\u519C\u4E1A\u3001\u9A6F\u517B\u3001\u9676\u5668\u4E0E\u7EBA\u7EC7\u5171\u540C\u6210\u719F\uFF0C\u4EBA\u7C7B\u7EC8\u4E8E\u80FD\u591F\u79BB\u5F00\u8FC1\u5F99\u751F\u6D3B\uFF0C\u5EFA\u7ACB\u53EF\u4EE5\u957F\u671F\u7EF4\u6301\u7684\u5B9A\u5C45\u805A\u843D\u3002"
+  Description: "\u628A\u519C\u4E1A\u3001\u755C\u517B\u3001\u50A8\u85CF\u548C\u4F4F\u623F\u6574\u5408\u4E3A\u5E38\u5E74\u8FD0\u8F6C\u7684\u805A\u843D\u4F53\u7CFB\uFF0C\u4F7F\u4EBA\u53E3\u80FD\u591F\u5728\u56FA\u5B9A\u5730\u70B9\u6301\u7EED\u589E\u957F\u3002"
   BaseCost: 2500
   prerequisites:
   - {fileID: 11400000, guid: 12dde9a8f5a549bdac2c27085d753190, type: 2}
@@ -78,5 +78,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 1
-  x: 5.00
-  y: 11.96
+  x: 2
+  y: 11.83

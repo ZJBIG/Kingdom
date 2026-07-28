@@ -668,6 +668,17 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void ResearchCostPayment_WithNoRequirementsCompletesOnFirstPaymentAttempt()
+    {
+        Research research = DataBase<Research>.Find("KnowledgeSharing");
+        var state = new ResearchState(research);
+
+        Assert.That(research.ResourceRequirements, Is.Empty);
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+        Assert.That(state.CostPaid, Is.True);
+    }
+
+    [Test]
     public void DataBase_FindsDefinitionsByStableId()
     {
         Resource wood = DataBase<Resource>.Find("WoodLog");

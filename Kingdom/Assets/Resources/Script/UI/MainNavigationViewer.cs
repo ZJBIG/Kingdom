@@ -7,7 +7,6 @@ public enum MainTab
     Building,
     Research,
     Workshop,
-    Special,
 }
 
 public sealed class MainNavigationViewer : MonoBehaviour
@@ -39,8 +38,8 @@ public sealed class MainNavigationViewer : MonoBehaviour
         {
             MainTab.Resource => MainTab.Building,
             MainTab.Building => MainTab.Research,
-            MainTab.Research => IsWorkshopAvailable() ? MainTab.Workshop : MainTab.Special,
-            MainTab.Workshop => MainTab.Special,
+            MainTab.Research => IsWorkshopAvailable() ? MainTab.Workshop : MainTab.Resource,
+            MainTab.Workshop => MainTab.Resource,
             _ => MainTab.Resource
         });
     }
@@ -55,7 +54,6 @@ public sealed class MainNavigationViewer : MonoBehaviour
         SetActive(BuildingViewer, tab == MainTab.Building);
         SetActive(ResearchViewer, tab == MainTab.Research);
         SetActive(WorkshopViewer, tab == MainTab.Workshop);
-        SetActive(SpecialViewer, tab == MainTab.Special);
         SetActive(SettingViewer, false);
         HudViewer?.SetMainTab(currentTab);
         if (changed)

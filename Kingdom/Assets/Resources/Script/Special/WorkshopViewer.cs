@@ -28,13 +28,19 @@ public sealed class WorkshopViewer : MonoBehaviour, IGameUIRefreshable
 
     public void RefreshUI()
     {
+        if (manager == null)
+            return;
+
+        if (rows.Count == 0)
+            BuildRows();
+
         foreach (KeyValuePair<WorkshopUpgradeDefinition, Row> pair in rows)
             RefreshRow(pair.Key, pair.Value);
     }
 
     private void BuildRows()
     {
-        if (Content == null || rows.Count != 0)
+        if (Content == null || rows.Count != 0 || manager == null || !manager.IsSystemUnlocked)
             return;
 
         VerticalLayoutGroup layout = Content.GetComponent<VerticalLayoutGroup>();
@@ -54,7 +60,11 @@ public sealed class WorkshopViewer : MonoBehaviour, IGameUIRefreshable
         IReadOnlyList<WorkshopUpgradeDefinition> definitions =
             DataBase<WorkshopUpgradeDefinition>.All;
         for (int i = 0; i < definitions.Count; i++)
+        {
+            if (definitions[i].TechLevel < TechLevel.Industrial)
+                continue;
             rows.Add(definitions[i], CreateRow(definitions[i]));
+        }
     }
 
     private Row CreateRow(WorkshopUpgradeDefinition definition)
@@ -122,6 +132,12 @@ public sealed class WorkshopViewer : MonoBehaviour, IGameUIRefreshable
             if (result.Length > 0)
                 result += "  ";
             result += $"Research: {definition.RequiredResearch[i].Label}";
+        }
+        for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
+        {
+            if (result.Length > 0)
+                result += "  ";
+            result += $"Workshop: {definition.RequiredUpgrades[i].Label}";
         }
         for (int i = 0; i < definition.ResourceRequirements.Count; i++)
         {

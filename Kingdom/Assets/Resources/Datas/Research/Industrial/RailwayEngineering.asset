@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailwayEngineering
   Label: "\u94C1\u8DEF\u5DE5\u7A0B"
-  Description: "\u94C1\u8DEF\u5DE5\u7A0B\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u7efc\u5408\u8f68\u9053\u3001\u8def\u57fa\u3001\u673a\u8f66\u3001\u4fe1\u53f7\u548c\u8f66\u7ad9\u8c03\u5ea6\uff0c\u5efa\u7acb\u9002\u5408\u5927\u5b97\u8d27\u7269\u4e0e\u8fdc\u8ddd\u79bb\u8fd0\u8f93\u7684\u94c1\u8def\u7cfb\u7edf\u3002"
   BaseCost: 440000
   prerequisites:
   - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
@@ -57,5 +57,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 19.00
-  y: 5.42
+  x: 22.00
+  y: 14.665

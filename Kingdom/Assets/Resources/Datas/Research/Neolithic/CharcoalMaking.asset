@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: CharcoalMaking
+  m_EditorClassIdentifier:
+  id: CharcoalMaking
+  Label: "烧炭技术"
+  Description: "\u901a\u8fc7\u9650\u6c27\u5806\u70e7\u628a\u6728\u6750\u8f6c\u5316\u4e3a\u9ad8\u70ed\u503c\u6728\u70ad\uff0c\u4e3a\u7a91\u7089\u3001\u91d1\u5c5e\u51b6\u70bc\u548c\u7cbe\u7ec6\u52a0\u5de5\u63d0\u4f9b\u66f4\u7a33\u5b9a\u7684\u9ad8\u6e29\u71c3\u6599\u3002"
+  BaseCost: 4000
+  prerequisites:
+  - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}
+  - {fileID: 11400000, guid: 7aa0ac993e0240d09d92b5a9be2d496e, type: 2}
+  - {fileID: 11400000, guid: 6e4a1c8b2d5f47a09c3e7b1d8f5264a9, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_CharcoalKiln
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 1
+  AdvancesTechLevel: 0
+  x: 6.00
+  y: 19.585

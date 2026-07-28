@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: WrittenRecords
   Label: "\u6587\u5B57\u8BB0\u5F55"
-  Description: "\u7528\u7B26\u53F7\u8BB0\u5F55\u6570\u91CF\u3001\u7EA6\u5B9A\u548C\u5B63\u8282\u4FE1\u606F\uFF0C\u8BA9\u7ECF\u9A8C\u80FD\u591F\u8DE8\u8D8A\u4E2A\u4EBA\u8BB0\u5FC6\u4F20\u7ED9\u4E0B\u4E00\u4EE3\u3002"
+  Description: "\u7528\u56fa\u5b9a\u7b26\u53f7\u8bb0\u5f55\u6570\u91cf\u3001\u5951\u7ea6\u3001\u4e8b\u4ef6\u548c\u77e5\u8bc6\uff0c\u4f7f\u4fe1\u606f\u80fd\u591f\u8131\u79bb\u53e3\u8ff0\u8bb0\u5fc6\u957f\u671f\u4fdd\u5b58\u5e76\u51c6\u786e\u4f20\u9012\u3002"
   BaseCost: 4500
   prerequisites:
   - {fileID: 11400000, guid: 4a6f9bd1540c47e2a1db6c5e3f8b7210, type: 2}
@@ -54,5 +54,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 5.00
-  y: 7.27
+  x: 6.00
+  y: 12.073

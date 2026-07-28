@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialChemistry
   Label: "\u5DE5\u4E1A\u5316\u5B66"
-  Description: "\u5DE5\u4E1A\u5316\u5B66\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u4f7f\u7528\u53ef\u63a7\u53cd\u5e94\u5668\u3001\u7eaf\u5316\u6d41\u7a0b\u548c\u6279\u91cf\u914d\u65b9\u5236\u9020\u9178\u78b1\u3001\u67d3\u6599\u3001\u80a5\u6599\u4e0e\u5176\u4ed6\u5316\u5de5\u539f\u6599\uff0c\u4f7f\u5316\u5b66\u8f6c\u5316\u8fdb\u5165\u89c4\u6a21\u751f\u4ea7\u3002"
   BaseCost: 180000
   prerequisites:
   - {fileID: 11400000, guid: 7f4321e3c378f8a4c9415ef490d0d248, type: 2}
@@ -36,12 +36,12 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 384c42715adad4640b0d3becdb1c823f, type: 2}
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 200
       layer: 0
       operators: []
   effects:
@@ -58,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 14.00
-  y: 1.68
+  x: 17.00
+  y: 14.373

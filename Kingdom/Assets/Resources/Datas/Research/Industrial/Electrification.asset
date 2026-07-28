@@ -14,20 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Electrification
   Label: "\u7535\u6C14\u5316"
-  Description: "\u7535\u6C14\u5316\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u628a\u53d1\u7535\u8bbe\u65bd\u3001\u7535\u7f51\u548c\u7535\u52a8\u8bbe\u5907\u63a5\u5165\u5de5\u5382\u4e0e\u57ce\u5e02\uff0c\u4f7f\u7167\u660e\u3001\u52a8\u529b\u548c\u751f\u4ea7\u4e0d\u518d\u53d7\u5355\u4e00\u673a\u68b0\u8f74\u7cfb\u9650\u5236\u3002"
   BaseCost: 860000
   prerequisites:
   - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
   - {fileID: 11400000, guid: 32fcf4393a54f1c41818af39b2342227, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
     second:
       sign: 0
@@ -58,5 +50,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 20.00
-  y: 9.78
+  x: 23.00
+  y: 14.262

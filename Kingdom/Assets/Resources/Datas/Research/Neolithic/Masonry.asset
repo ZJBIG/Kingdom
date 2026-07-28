@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Masonry
   Label: "\u780C\u7B51\u6280\u672F"
-  Description: "\u638C\u63E1\u627F\u91CD\u3001\u62B9\u7F1D\u548C\u5899\u4F53\u4FEE\u6574\uFF0C\u8BA9\u5C45\u6240\u66F4\u52A0\u575A\u56FA\u3001\u8010\u4E45\u5E76\u9002\u5408\u957F\u671F\u751F\u6D3B\u3002"
+  Description: "\u638c\u63e1\u780c\u5757\u6392\u5e03\u3001\u7802\u6d46\u586b\u7f1d\u3001\u627f\u91cd\u548c\u5899\u4f53\u4fee\u6574\u65b9\u6cd5\uff0c\u5efa\u9020\u6bd4\u6728\u571f\u7ed3\u6784\u66f4\u575a\u56fa\u8010\u4e45\u7684\u8bbe\u65bd\u3002"
   BaseCost: 6500
   prerequisites:
   - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
@@ -50,5 +50,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.00
-  y: 7.18
+  x: 7.00
+  y: 23.376

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: Woodworking
+  m_EditorClassIdentifier:
+  id: Woodworking
+  Label: "木工技术"
+  Description: "\u638c\u63e1\u6728\u6750\u9009\u62e9\u3001\u5288\u952f\u3001\u69ab\u63a5\u548c\u8868\u9762\u5904\u7406\u65b9\u6cd5\uff0c\u5236\u9020\u66f4\u53ef\u9760\u7684\u5de5\u5177\u67c4\u3001\u5bb9\u5668\u3001\u5bb6\u5177\u4e0e\u5efa\u7b51\u90e8\u4ef6\u3002"
+  BaseCost: 950
+  prerequisites:
+  - {fileID: 11400000, guid: 7bb037cc447349799134ba98505c04ae, type: 2}
+  - {fileID: 11400000, guid: e87d32dcff6a4374ab6d26ffa078450c, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_CraftShelter
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 2.00
+  y: 4.441

@@ -21,7 +21,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 1.22
+    scalar: 1.2
     layer: 0
     operators: []
     sign: 0
@@ -143,12 +143,20 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 700
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
@@ -156,23 +164,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 80
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 384c42715adad4640b0d3becdb1c823f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
       scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
       layer: 0
       operators: []
   resourceGenerationRates: []
@@ -181,4 +181,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a983adc6884e79f4ea3777d1277d713f, type: 2}
   - {fileID: 11400000, guid: 3915650d9308e514c8dae362ebde15ea, type: 2}
   requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: cc77afd776dafa8438dc8e28049c06b3, type: 2}

@@ -14,20 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CombustionEngines
   Label: "\u5185\u71C3\u673A"
-  Description: "\u5185\u71C3\u673A\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u5728\u6c14\u7f38\u5185\u5468\u671f\u6027\u71c3\u70e7\u71c3\u6599\u5e76\u628a\u81a8\u80c0\u538b\u529b\u8f6c\u5316\u4e3a\u65cb\u8f6c\u52a8\u529b\uff0c\u4e3a\u8f66\u8f86\u548c\u5206\u6563\u5f0f\u673a\u68b0\u63d0\u4f9b\u7d27\u51d1\u52a8\u529b\u6e90\u3002"
   BaseCost: 1650000
   prerequisites:
   - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
   - {fileID: 11400000, guid: a503809720a528146b1350c3e5510cb1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
     second:
       sign: 0
@@ -69,5 +61,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 19.00
-  y: 2.04
+  x: 22.00
+  y: 15.665

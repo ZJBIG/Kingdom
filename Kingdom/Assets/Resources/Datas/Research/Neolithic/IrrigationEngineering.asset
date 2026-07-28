@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: IrrigationEngineering
+  m_EditorClassIdentifier:
+  id: IrrigationEngineering
+  Label: "灌溉工程"
+  Description: "\u8bbe\u8ba1\u6e20\u9053\u3001\u95f8\u53e3\u548c\u7530\u95f4\u5206\u6c34\u7ed3\u6784\uff0c\u628a\u6c34\u6e90\u6309\u9700\u8981\u8f93\u9001\u5230\u8015\u5730\uff0c\u5e76\u63a7\u5236\u65f1\u5b63\u4f9b\u6c34\u4e0e\u96e8\u5b63\u6392\u6d9d\u3002"
+  BaseCost: 9000
+  prerequisites:
+  - {fileID: 11400000, guid: 7c2d1e8f4a6b49d3b0e5c7f912ab6384, type: 2}
+  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_IrrigationWorks
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 1
+  AdvancesTechLevel: 0
+  x: 8.00
+  y: 15.998

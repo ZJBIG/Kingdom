@@ -192,7 +192,7 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 191b0a72e60f12d4ba2e236156a8f21c, type: 2}
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
     second:
       sign: 0
       representation: 1

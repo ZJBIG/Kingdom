@@ -14,25 +14,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanizedProduction
   Label: "\u673A\u68B0\u5316\u751F\u4EA7"
-  Description: "\u673A\u68B0\u5316\u751F\u4EA7\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u7528\u84b8\u6c7d\u673a\u6216\u53d1\u52a8\u673a\u9a71\u52a8\u673a\u5e8a\u548c\u4f20\u9001\u673a\u6784\uff0c\u66ff\u4ee3\u91cd\u590d\u4f53\u529b\u52b3\u52a8\u5e76\u6269\u5927\u5355\u4e2a\u5de5\u5382\u7684\u751f\u4ea7\u80fd\u529b\u3002"
   BaseCost: 360000
   prerequisites:
   - {fileID: 11400000, guid: dfe60d6549eee974aaae3e840d84380f, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 50
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
       layer: 0
       operators: []
   effects:
@@ -49,5 +65,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 18.00
-  y: 5.95
+  x: 21.00
+  y: 15.890

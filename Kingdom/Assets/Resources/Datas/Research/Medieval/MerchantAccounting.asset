@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: MerchantAccounting
+  m_EditorClassIdentifier:
+  id: MerchantAccounting
+  Label: "商账制度"
+  Description: "\u91c7\u7528\u5206\u7c7b\u8d26\u3001\u501f\u8d37\u8bb0\u5f55\u548c\u5b9a\u671f\u6838\u7b97\u8ffd\u8e2a\u8d27\u7269\u3001\u503a\u52a1\u4e0e\u5229\u6da6\uff0c\u4f7f\u8de8\u5730\u533a\u8d38\u6613\u80fd\u591f\u63a7\u5236\u98ce\u9669\u548c\u6210\u672c\u3002"
+  BaseCost: 135000
+  prerequisites:
+  - {fileID: 11400000, guid: f5010000000000000000000000000005, type: 2}
+  - {fileID: 11400000, guid: f5010000000000000000000000000004, type: 2}
+  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 350
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_MerchantAccounting
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  x: 13.00
+  y: 2.673

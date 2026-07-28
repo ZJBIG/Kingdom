@@ -266,7 +266,7 @@ namespace Kingdom.EditorTools
 
                 WorkshopUpgradeDefinition next = workshops
                     .Where(value => !purchasedWorkshop.Contains(value) &&
-                        value.TechLevel <= techLevel &&
+                        value.TechLevel >= TechLevel.Industrial &&
                         value.RequiredResearch.All(completedResearch.Contains) &&
                         value.RequiredUpgrades.All(purchasedWorkshop.Contains) &&
                         CanAfford(value.ResourceRequirements))

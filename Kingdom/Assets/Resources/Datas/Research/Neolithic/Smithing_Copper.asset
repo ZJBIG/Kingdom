@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Copper
   Label: "\u51B6\u70BC\u94DC"
-  Description: "\u638C\u63E1\u94DC\u77FF\u51B6\u70BC\u4E0E\u953B\u6253\u5DE5\u827A\uFF0C\u5C06\u5929\u7136\u94DC\u77FF\u8F6C\u5316\u4E3A\u9002\u5408\u5DE5\u5177\u3001\u88C5\u9970\u548C\u751F\u4EA7\u7684\u5B9E\u7528\u91D1\u5C5E\u3002"
+  Description: "\u901a\u8fc7\u7119\u70e7\u3001\u7194\u70bc\u548c\u953b\u6253\u4ece\u94dc\u77ff\u4e2d\u63d0\u53d6\u53ef\u7528\u91d1\u5c5e\uff0c\u5236\u9020\u65e9\u671f\u91d1\u5c5e\u5de5\u5177\u3001\u5668\u76bf\u548c\u88c5\u9970\u6784\u4ef6\u3002"
   BaseCost: 10000
   prerequisites:
   - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
@@ -38,5 +38,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.00
-  y: 2.53
+  x: 7.00
+  y: 29.462

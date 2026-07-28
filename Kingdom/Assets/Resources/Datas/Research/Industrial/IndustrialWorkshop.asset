@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialWorkshop
   Label: "\u5DE5\u4E1A\u5DE5\u574A"
-  Description: "\u5DE5\u4E1A\u5DE5\u574A\u63A8\u52A8\u5DE5\u4E1A\u6587\u660E\u7684\u751F\u4EA7\u4E0E\u7EC4\u7EC7\u80FD\u529B\u3002"
+  Description: "\u4ee5\u52a8\u529b\u673a\u68b0\u3001\u4e13\u7528\u673a\u5e8a\u548c\u96c6\u4e2d\u5de5\u4f4d\u6539\u9020\u4f20\u7edf\u4f5c\u574a\uff0c\u4e3a\u65e9\u671f\u5de5\u4e1a\u8bbe\u5907\u548c\u6807\u51c6\u96f6\u4ef6\u63d0\u4f9b\u7a33\u5b9a\u5236\u9020\u573a\u6240\u3002"
   BaseCost: 90000
   prerequisites:
   - {fileID: 11400000, guid: f5010000000000000000000000000009, type: 2}
@@ -57,5 +57,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 12
-  y: 14.93
+  x: 15.00
+  y: 12.716

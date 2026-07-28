@@ -68,6 +68,16 @@ The current repository has unreachable content because Clay, PlantFiber and meta
 
 Do not generate hundreds of future assets in one patch.
 
+## Offline economy simulation
+
+When the task asks for economy pacing, era timing or balance warnings, create or reuse the standalone simulator under `Tools/EconomySimulator/`. Do not launch Unity and do not modify runtime code or ScriptableObject assets during the analysis pass.
+
+The simulator must read Resource, Building and Research YAML assets through `.meta` GUID resolution, start from the same new-game defaults as `GameBootstrap` (`WoodLog` production, Animal tech, no completed research or owned buildings unless the current code says otherwise), and advance in one-minute ticks. Model production, consumption, construction costs, research prerequisites/resource costs, tech transitions, one research queue, and the normal-player priority: sustain basics, unlock producers, add processing, research, then advance the era.
+
+Every simulation batch must emit `EconomySimulationReport.md`, `SimulationTimeline.csv`, and `BalanceWarnings.csv`. Report per-era unlock time, research completion time, core-building timing, resource rates, bottlenecks, negative-flow resources, single-point producers, production/consumption ratios above 10, research pacing anomalies, and buildings whose cost exceeds ten minutes of current production. Separate future eras that lack an explicit transition from the current released/validated era scope; do not silently mark them reachable.
+
+Treat simulation output as balance evidence, not runtime acceptance. Include the formula and assumptions used for research duration, construction timing, workforce/power/logistics omissions, and any Unity/build/device validation that was not performed.
+
 ## Balance rules
 
 - Use `GeometricSeriesCost` and `MaxAffordableGeometricSeries` for scalable building costs.

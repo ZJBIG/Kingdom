@@ -162,5 +162,4 @@ MonoBehaviour:
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
-  - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
   requiredWorkshopUpgrades: []
