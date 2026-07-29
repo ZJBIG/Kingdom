@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: "\u91C7\u77F3\u573A"
   Description: "\u4ECE\u5CA9\u5C42\u4E2D\u6301\u7EED\u91C7\u96C6\u77F3\u6750\uFF0C\u4E3A\u77F3\u5668\u3001\u77F3\u5899\u3001\u9053\u8DEF\u548C\u65E9\u671F\u5927\u578B\u5EFA\u7B51\u63D0\u4F9B\u7A33\u5B9A\u4F9B\u7ED9\u3002"
   TechLevel: 0
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.14
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 80
     layer: 0
     operators: []
   spaceCost:
@@ -156,7 +151,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 2
+      scalar: 2.4
       layer: 0
       operators: []
   resourceConsumptionRates: []

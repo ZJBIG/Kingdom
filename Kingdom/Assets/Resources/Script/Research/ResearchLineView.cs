@@ -4,8 +4,12 @@ using UnityEngine.UI;
 public sealed class ResearchLineView : MonoBehaviour
 {
     public static readonly Color UnselectedColor = new Color(1f, 1f, 1f, 0.1882353f);
-    public static readonly Color PrerequisiteColor = new Color(0f, 0.6784314f, 1f, 0.5058824f);
-    public static readonly Color NextColor = new Color(0.05882353f, 0.9490196f, 0.1882353f, 0.3764706f);
+    public static readonly Color IncompletePrerequisiteColor =
+        new Color(1f, 0.2509804f, 0.1843137f, 0.9f);
+    public static readonly Color CompletedPrerequisiteColor =
+        new Color(0.5607843f, 0.3372549f, 0.9411765f, 0.9f);
+    public static readonly Color AvailableSuccessorColor =
+        new Color(0.1647059f, 0.8f, 0.3764706f, 0.9f);
 
     [SerializeField] private Image lineImage;
 
@@ -45,7 +49,15 @@ public sealed class ResearchLineView : MonoBehaviour
         SetSelectedResearch(null);
     }
 
-    public void SetSelectedResearch(Research selectedResearch)=> lineImage.color = GetColor(selectedResearch, prerequisite, research);
+    public void SetSelectedResearch(Research selectedResearch)
+    {
+        ResearchStatus prerequisiteStatus = GetStatus(prerequisite);
+        lineImage.color = GetColor(
+            selectedResearch,
+            prerequisite,
+            research,
+            prerequisiteStatus);
+    }
 
     public void RefreshGeometry()
     {
@@ -60,16 +72,38 @@ public sealed class ResearchLineView : MonoBehaviour
         lineTransform.rotation = Quaternion.Euler(0f,0f,Mathf.Rad2Deg * Mathf.Atan2(delta.y, delta.x));
     }
 
-    public static Color GetColor(Research selectedResearch, Research prerequisiteResearch, Research targetResearch)
+    public static Color GetColor(
+        Research selectedResearch,
+        Research prerequisiteResearch,
+        Research targetResearch,
+        ResearchStatus prerequisiteStatus)
     {
         // Only color the direct edge connected to the selected node.
         // The viewer owns one line per direct prerequisite relationship;
         // do not walk or color any transitive research chain here.
         if (selectedResearch == targetResearch)
-            return PrerequisiteColor;
+        {
+            return prerequisiteStatus == ResearchStatus.Completed
+                ? CompletedPrerequisiteColor
+                : IncompletePrerequisiteColor;
+        }
         if (selectedResearch == prerequisiteResearch)
-            return NextColor;
+            return AvailableSuccessorColor;
         return UnselectedColor;
+    }
+
+    private static ResearchStatus GetStatus(Research definition)
+    {
+        if (definition != null &&
+            ResearchManager.Instance != null &&
+            ResearchManager.Instance.States.TryGetValue(
+                definition,
+                out ResearchState state))
+        {
+            return state.Status;
+        }
+
+        return ResearchStatus.Locked;
     }
 
     private static Vector3 GetNodeCenter(Research researchDefinition, RectTransform node)

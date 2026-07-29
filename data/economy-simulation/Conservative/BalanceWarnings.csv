@@ -1,5 +1,1 @@
 Type,Object,Reason,Severity,Suggestion
-"Economy explosion","WoodLog","Lumberyard output/active demand ratio exceeds 10.","High","Reduce multiplier or add sinks."
-"Single point bottleneck","Clay","Only one defined producer serves PotteryKiln.","Medium","Add an alternative producer or move the dependency later."
-"Single point bottleneck","WoodLog","Only one defined producer serves PotteryKiln.","Medium","Add an alternative producer or move the dependency later."
-"Single point bottleneck","StoneChunk","Only one defined producer serves StoneCuttingWorkshop.","Medium","Add an alternative producer or move the dependency later."

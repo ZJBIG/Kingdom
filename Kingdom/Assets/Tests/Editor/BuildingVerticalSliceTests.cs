@@ -58,7 +58,7 @@ public sealed class BuildingVerticalSliceTests
     }
 
     [Test]
-    public void WoodHouse_IsTheZeroWorkforceStartingPopulationBootstrap()
+    public void WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap()
     {
         Building woodHouse = DataBase<Building>.Find("WoodHouse");
         Assert.That(woodHouse.TechLevel, Is.EqualTo(TechLevel.Animal));

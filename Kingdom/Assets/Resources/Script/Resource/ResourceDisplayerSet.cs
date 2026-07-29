@@ -49,10 +49,11 @@ public class ResourceDisplayerSet : MonoBehaviour
 
         foreach (ResourceDisplayer displayer in displayers.Values)
         {
+            bool visible = displayer != null && displayer.gameObject.activeSelf;
             RectTransform row = displayer.transform as RectTransform;
-            displayer.transform.SetParent(parent, false);
+            displayer.transform.SetParent(visible ? parent : Hide, false);
 
-            if (!Closed && row != null)
+            if (!Closed && visible && row != null)
             {
                 float rowHeight = Mathf.Max(100f, row.sizeDelta.y);
                 row.anchorMin = new Vector2(0.5f, 1f);
@@ -87,6 +88,19 @@ public class ResourceDisplayerSet : MonoBehaviour
             return;
 
         displayers.Add(resource, displayer);
+    }
+
+    public bool SetVisible(Resource resource, bool visible)
+    {
+        if (resource == null || !displayers.TryGetValue(resource, out ResourceDisplayer displayer) ||
+            displayer == null)
+            return false;
+
+        if (displayer.gameObject.activeSelf == visible)
+            return false;
+
+        displayer.gameObject.SetActive(visible);
+        return true;
     }
 
     private void ConfigureContentLayout()

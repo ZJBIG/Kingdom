@@ -42,6 +42,7 @@ public sealed class ResearchState
         status = definition.Prerequisites == null || definition.Prerequisites.Count == 0
             ? ResearchStatus.Available
             : ResearchStatus.Locked;
+        costPaid = !definition.HasPositiveResourceRequirement;
     }
 
     internal void SetProgress(ExpantaNum value) =>
@@ -75,7 +76,7 @@ public sealed class ResearchState
     internal void ResetForLoad()
     {
         SetProgress(ExpantaNum.Zero);
-        SetCostPaid(false);
+        SetCostPaid(!Definition.HasPositiveResourceRequirement);
         ResetPaidResourceCosts();
         SetStatus(Definition.Prerequisites == null || Definition.Prerequisites.Count == 0
             ? ResearchStatus.Available
@@ -94,7 +95,7 @@ public sealed class ResearchState
         IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts)
     {
         SetProgress(restoredProgress);
-        SetCostPaid(restoredCostPaid);
+        SetCostPaid(restoredCostPaid || !Definition.HasPositiveResourceRequirement);
         ResetPaidResourceCosts();
         if (restoredPaidResourceCosts != null)
         {

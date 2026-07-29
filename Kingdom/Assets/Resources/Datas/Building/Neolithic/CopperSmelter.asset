@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: "\u94DC\u51B6\u70BC\u7089"
   Description: "\u7528\u7164\u70AD\u52A0\u70ED\u94DC\u77FF\uFF0C\u751F\u4EA7\u53EF\u4EE5\u52A0\u5DE5\u548C\u5408\u91D1\u7684\u94DC\u952D\u3002"
   TechLevel: 1
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.17
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -164,7 +159,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.8
+      scalar: 1.2
       layer: 0
       operators: []
   resourceConsumptionRates:

@@ -121,8 +121,7 @@ public sealed class KingdomPlayModeTests
                 "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
             .Invoke(gameManager.State, new object[]
             {
-                new ExpantaNum(3), new ExpantaNum(10), ExpantaNum.Zero,
-                ExpantaNum.Zero, ExpantaNum.One
+                new ExpantaNum(3), new ExpantaNum(10), ExpantaNum.Zero
             });
         BuildingState farm =
             buildingManager.EnsureBuilding(DataBase<Building>.Find("Farm"));

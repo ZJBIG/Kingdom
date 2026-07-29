@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: "\u9752\u94DC\u94F8\u9020\u7089"
   Description: "\u5C06\u94DC\u548C\u9521\u878D\u5408\u4E3A\u9752\u94DC\uFF0C\u6253\u9020\u66F4\u8010\u7528\u7684\u5DE5\u5177\u548C\u8BBE\u65BD\u3002"
   TechLevel: 1
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.18
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -158,13 +153,37 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7d8636f8f9d650b4cc23e2f67e8f5b12, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.5
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.5
+      layer: 0
+      operators: []
   resourceGenerationRates:
   - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1
+      scalar: 1.2
       layer: 0
       operators: []
   resourceConsumptionRates:

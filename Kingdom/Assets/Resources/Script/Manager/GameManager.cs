@@ -42,9 +42,7 @@ public class GameManager : Singleton<GameManager>
 
     internal void InitializeStartingResources()
     {
-        Resource woodLog = DataBase<Resource>.Find("WoodLog");
-        ResourceManager.Instance.AddResource(woodLog);
-        ResourceManager.Instance.SetProductionRate(woodLog, 1);
+        ResourceManager.Instance.EnsureStartingResource();
     }
 
     public static (int Year, int Month, int Day) CalendarIntToData(
@@ -150,7 +148,9 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
     {
-        potentialConsumptionRate += State.Population.Population * State.Population.FoodPerPerson;
+        potentialProductionRate += GameState.BaseFoodProductionRate;
+        potentialConsumptionRate +=
+            State.Population.Population * PopulationState.FoodConsumptionPerPerson;
         State.SetFoodSatisfaction(CalculateFoodSatisfaction(
             State.FoodAmount,
             potentialProductionRate,
@@ -172,20 +172,11 @@ public class GameManager : Singleton<GameManager>
             potentialLogisticsConsumptionRate));
     }
 
-    public bool CanAffordConstruction(ExpantaNum territoryCost, ExpantaNum buildEffort) =>
-        State.AvailableTerritory >= territoryCost && State.Population.AvailableWorkforce >= buildEffort;
+    public void CommitConstruction(ExpantaNum territoryCost) =>
+        State.CommitConstruction(territoryCost);
 
-    public void CommitConstruction(
-        ExpantaNum territoryCost,
-        ExpantaNum buildEffort,
-        ExpantaNum productivityGranted) =>
-        State.CommitConstruction(territoryCost, buildEffort, productivityGranted);
-
-    public void RefundConstruction(
-        ExpantaNum territoryCost,
-        ExpantaNum buildEffort,
-        ExpantaNum productivityGranted) =>
-        State.RefundConstruction(territoryCost, buildEffort, productivityGranted);
+    public void RefundConstruction(ExpantaNum territoryCost) =>
+        State.RefundConstruction(territoryCost);
 
     public void AdjustTerritoryTotal(ExpantaNum delta) => State.AdjustTerritoryTotal(delta);
 
@@ -219,7 +210,7 @@ public class GameManager : Singleton<GameManager>
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 
     internal void ResetDerivedEconomy() =>
-        State.ResetDerivedEconomy(new ExpantaNum(100), new ExpantaNum(15));
+        State.ResetDerivedEconomy(new ExpantaNum(100));
 
     internal SaveManager.GameSaveData CaptureSaveData()
     {
@@ -232,9 +223,7 @@ public class GameManager : Singleton<GameManager>
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
             PopulationCapacity = State.Population.PopulationCapacity.ToString(),
-            AssignedMilitary = State.Population.AssignedMilitary.ToString(),
             GrowthProgress = State.Population.GrowthProgress.ToString(),
-            FoodPerPerson = State.Population.FoodPerPerson.ToString(),
             TerritoryTotal = State.TerritoryTotal.ToString(),
             AttackPower = State.AttackPower.ToString(),
             DefensePower = State.DefensePower.ToString(),
@@ -267,9 +256,7 @@ public class GameManager : Singleton<GameManager>
             State.RestorePopulation(
                 Parse(data.Population, nameof(data.Population)),
                 Parse(data.PopulationCapacity, nameof(data.PopulationCapacity)),
-                Parse(data.AssignedMilitary, nameof(data.AssignedMilitary)),
-                Parse(data.GrowthProgress, nameof(data.GrowthProgress)),
-                Parse(data.FoodPerPerson, nameof(data.FoodPerPerson)));
+                Parse(data.GrowthProgress, nameof(data.GrowthProgress)));
         }
         if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
             State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));

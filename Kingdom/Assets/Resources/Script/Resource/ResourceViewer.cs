@@ -69,6 +69,13 @@ public class ResourceViewer : MonoBehaviour, IGameUIRefreshable
 
     private void OnResourceStateAdded(ResourceState state)
     {
+        if (state == null || !IsResourceManufacturable(state.Definition))
+            return;
+        CreateDisplayer(state);
+    }
+
+    private void CreateDisplayer(ResourceState state)
+    {
         if (state == null || displayers.ContainsKey(state.Definition))
             return;
         if (!sets.TryGetValue(state.Definition.DisplayerSet, out ResourceDisplayerSet set) ||
@@ -105,13 +112,66 @@ public class ResourceViewer : MonoBehaviour, IGameUIRefreshable
         if (resourceManager == null)
             return;
 
-        foreach (ResourceDisplayer displayer in displayers.Values)
-            displayer.Refresh();
+        foreach (ResourceState state in resourceManager.States.Values)
+        {
+            bool manufacturable = IsResourceManufacturable(state.Definition);
+            if (manufacturable)
+                CreateDisplayer(state);
+
+            if (!displayers.TryGetValue(state.Definition, out ResourceDisplayer displayer))
+                continue;
+
+            if (sets.TryGetValue(state.Definition.DisplayerSet, out ResourceDisplayerSet set))
+                set.SetVisible(state.Definition, manufacturable);
+            if (manufacturable)
+                displayer.Refresh();
+        }
 
         foreach (ResourceDisplayerSet set in sets.Values)
         {
-            set.gameObject.SetActive(set.Displayers.Count != 0);
+            bool hasVisibleDisplayer = false;
+            foreach (ResourceDisplayer displayer in set.Displayers.Values)
+            {
+                if (displayer != null && displayer.gameObject.activeSelf)
+                {
+                    hasVisibleDisplayer = true;
+                    break;
+                }
+            }
+            set.gameObject.SetActive(hasVisibleDisplayer);
             set.RefreshLayout();
         }
+    }
+
+    private static bool IsResourceManufacturable(Resource resource)
+    {
+        if (resource == null)
+            return false;
+        if (ResourceManager.IsStartingResource(resource))
+            return true;
+        if (GameManager.Instance == null || BuildingManager.Instance == null)
+            return false;
+
+        IReadOnlyList<Building> buildings = DataBase<Building>.All;
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            Building building = buildings[i];
+            if (building == null)
+                continue;
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> generation =
+                building.ResourceGenerationRates;
+            for (int j = 0; j < generation.Count; j++)
+            {
+                Pair<Resource, ExpantaNum> output = generation[j];
+                if (output.First != resource || output.Second <= ExpantaNum.Zero)
+                    continue;
+
+                if (BuildingManager.Instance.ArePrerequisitesMet(building, out _))
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

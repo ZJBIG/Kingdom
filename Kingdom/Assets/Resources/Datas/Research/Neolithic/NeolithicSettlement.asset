@@ -15,7 +15,7 @@ MonoBehaviour:
   id: NeolithicSettlement
   Label: "\u5B9A\u5C45\u805A\u843D"
   Description: "\u628A\u519C\u4E1A\u3001\u755C\u517B\u3001\u50A8\u85CF\u548C\u4F4F\u623F\u6574\u5408\u4E3A\u5E38\u5E74\u8FD0\u8F6C\u7684\u805A\u843D\u4F53\u7CFB\uFF0C\u4F7F\u4EBA\u53E3\u80FD\u591F\u5728\u56FA\u5B9A\u5730\u70B9\u6301\u7EED\u589E\u957F\u3002"
-  BaseCost: 2500
+  BaseCost: 4400
   prerequisites:
   - {fileID: 11400000, guid: 12dde9a8f5a549bdac2c27085d753190, type: 2}
   - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}

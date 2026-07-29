@@ -83,7 +83,7 @@ public static class GenerateFirstThreeErasContent
         building.ConfigureEconomyForEditor(
             NumberValue(row, "growth", 1.15),
             NumberValue(row, "space", 0),
-            NumberValue(row, "workforce", 0),
+            NumberValue(row, "productivity_cost", 0),
             NumberValue(row, "productivity", 0),
             NumberValue(row, "population", 0),
             NumberValue(row, "research", 0),

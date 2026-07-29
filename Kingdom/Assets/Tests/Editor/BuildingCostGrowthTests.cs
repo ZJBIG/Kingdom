@@ -81,9 +81,7 @@ public sealed class BuildingCostGrowthTests
             {
                 population,
                 population,
-                ExpantaNum.Zero,
-                ExpantaNum.Zero,
-                new ExpantaNum(PopulationState.DefaultFoodPerPerson)
+                ExpantaNum.Zero
             });
     }
 

@@ -4,47 +4,54 @@ Offline runtime-aligned simulation; no Unity runtime was launched.
 
 ## Rules
 
-- Fixed 0.1 second ticks, minute aggregation, stockpiles clamp at zero.
-- Research cost is paid progressively; research speed uses ResearchPower and runtime era effect.
-- Buildings can repeat and use geometric cost growth; construction is immediate after payment.
+- Fixed one-second ticks with integer minute snapshots.
+- Research is selected first; resource costs are paid progressively before progress begins.
+- Research speed uses ResearchPower and runtime era effects.
+- Buildings use geometric cost growth and commit immediately after payment.
+- Food starts at +5/s; population consumes 1 food/s per person and grows toward housing capacity.
+- Total productivity equals population plus fixed research and owned-building grants; construction checks pre-build available productivity.
 
+## Animal Age
 
-# Animal Age
+到达时间: 0 分钟
+完成研究: 8
 
-预计时间: 0分钟
+## Neolithic Age
 
-研究完成数: 13; 资源归零时间: 0 分钟。
+到达时间: 98.3 分钟
+完成研究: 44
 
-# Neolithic Age
+## Medieval Age
 
-预计时间: 152分钟
+到达时间: 774.42 分钟
+完成研究: 9
 
-研究完成数: 22; 资源归零时间: 0 分钟。
+## Industrial Age
 
-# Medieval Age
+到达时间: 1247.7 分钟
+完成研究: 8
 
-预计时间: 不可达
-
-研究完成数: 0; 资源归零时间: 0 分钟。
-
-# Industrial Age
-
-预计时间: 不可达
-
-研究完成数: 0; 资源归零时间: 0 分钟。
+原始时代最长无研究目标: 4 分钟；新石器时代: 4 分钟。
 
 ## Bottlenecks
 
 - Clay: single producer
-- WoodLog: single producer
+- Copper: single producer
+- CopperOre: single producer
+- Iron: single producer
+- IronOre: single producer
+- PlantFiber: single producer
+- Pottery: single producer
+- Silica: single producer
+- Steel: single producer
 - StoneChunk: single producer
+- Tin: single producer
+- TinOre: single producer
+- WoodLog: single producer
 
 ## Warnings
 
-- **High Economy explosion** WoodLog: Lumberyard output/active demand ratio exceeds 10. Suggestion: Reduce multiplier or add sinks.
-- **Medium Single point bottleneck** Clay: Only one defined producer serves PotteryKiln. Suggestion: Add an alternative producer or move the dependency later.
-- **Medium Single point bottleneck** WoodLog: Only one defined producer serves PotteryKiln. Suggestion: Add an alternative producer or move the dependency later.
-- **Medium Single point bottleneck** StoneChunk: Only one defined producer serves StoneCuttingWorkshop. Suggestion: Add an alternative producer or move the dependency later.
+None
 
 ## Validation boundary
 

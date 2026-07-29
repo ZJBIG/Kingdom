@@ -141,7 +141,7 @@ namespace Kingdom.EditorTools
             {
                 Csv(
                     "Id", "Label", "TechLevel", "CostGrowth",
-                    "SpaceCost", "Workforce", "PopulationCapacity", "ResearchPower",
+                    "SpaceCost", "ProductivityCost", "PopulationCapacity", "ResearchPower",
                     "FoodProductionPerSec", "FoodConsumptionPerSec", "FoodCapacity",
                     "PowerProduction", "PowerConsumption", "LogisticsProduction",
                     "LogisticsConsumption", "RequiredResearch", "RequiredWorkshop",

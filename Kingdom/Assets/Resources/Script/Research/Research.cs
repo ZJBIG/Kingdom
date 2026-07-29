@@ -16,6 +16,16 @@ public class Research : GameDefinition
 
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
     public IReadOnlyList<ResearchEffectDefinition> Effects => effects;
+    public bool HasPositiveResourceRequirement
+    {
+        get
+        {
+            for (int i = 0; i < resourceRequirements.Count; i++)
+                if (resourceRequirements[i].Second > ExpantaNum.Zero)
+                    return true;
+            return false;
+        }
+    }
 
     public TechLevel TechLevel;
     public bool AdvancesTechLevel;

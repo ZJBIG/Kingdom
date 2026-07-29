@@ -58,7 +58,8 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
         if (Text_TechLevel != null)
             SetTextIfChanged(Text_TechLevel, $"技术等级:{state.TechLevel.GetDescription()}");
 
-        ExpantaNum populationFoodConsumption = state.Population.Population * state.Population.FoodPerPerson;
+        ExpantaNum populationFoodConsumption =
+            state.Population.Population * PopulationState.FoodConsumptionPerPerson;
         ExpantaNum netFoodRate = state.FoodProductionRate - state.FoodConsumptionRate - populationFoodConsumption;
         string signedFoodRate = netFoodRate >= ExpantaNum.Zero
             ? "+" + netFoodRate.ToGameString()
@@ -67,10 +68,6 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             SetTextIfChanged(Text_Food,$"粮食:{state.FoodAmount.ToGameString()}/{state.FoodCapacity.ToGameString()}   {signedFoodRate}/s");
         if (Text_KingdomName != null)
             SetTextIfChanged(Text_KingdomName, state.KingdomName);
-        if (Text_Productivity != null)
-            SetTextIfChanged(
-                Text_Productivity,
-                $"劳动力:{BuildingManager.Instance.AvailableWorkforce.ToGameString()}");
         if (Text_Productivity != null)
         {
             ResearchManager researchManager = FindObjectOfType<ResearchManager>();
@@ -82,13 +79,10 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
                 : string.Empty;
             SetTextIfChanged(
                 Text_Productivity,
-                $"劳动力:{BuildingManager.Instance.AvailableWorkforce.ToGameString()}   研究力:{researchPower}/s{foodEfficiency}");
+                $"人口:{state.Population.Population.ToGameString()}/{state.Population.PopulationCapacity.ToGameString()}   " +
+                $"生产力:{BuildingManager.Instance.AvailableProductivity.ToGameString()}/{BuildingManager.Instance.TotalProductivity.ToGameString()}   " +
+                $"研究力:{researchPower}/s{foodEfficiency}");
         }
-        if (Text_Productivity != null)
-            SetTextIfChanged(
-                Text_Productivity,
-                $"Population: {state.Population.Population.ToGameString()}/{state.Population.PopulationCapacity.ToGameString()}   " +
-                $"Workforce: {BuildingManager.Instance.AvailableWorkforce.ToGameString()}");
         if (Text_KingdomSpace != null)
             SetTextIfChanged(
                 Text_KingdomSpace,

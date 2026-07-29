@@ -108,7 +108,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             RefreshAll();
             return;
         }
-        if (!state.CostPaid && HasPositiveResourceRequirement(selectedResearch))
+        if (!state.CostPaid && selectedResearch.HasPositiveResourceRequirement)
         {
             if (!ResearchManager.TryPayResearchCost(state))
             {
@@ -317,17 +317,6 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             ResearchStatus.Available => "开始此项研究",
             _ => ""
         };
-    }
-
-    private static bool HasPositiveResourceRequirement(Research research)
-    {
-        if (research == null)
-            return false;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
-        for (int i = 0; i < requirements.Count; i++)
-            if (requirements[i].Second > ExpantaNum.Zero)
-                return true;
-        return false;
     }
 
     private void RebuildRequirementRows(Research research)

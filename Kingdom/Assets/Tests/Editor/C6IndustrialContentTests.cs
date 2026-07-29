@@ -74,7 +74,7 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C603_IndustrialBuildingsUseWorkforceAndFlowsInsteadOfFood()
+    public void C603_IndustrialBuildingsUseProductivityAndFlowsInsteadOfFood()
     {
         for (int i = 0; i < IndustrialBuildingIds.Length; i++)
         {

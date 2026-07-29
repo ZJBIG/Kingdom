@@ -11,6 +11,7 @@ namespace Kingdom.EditorTools
     {
         private const double TickSeconds = 1d;
         private const double DurationSeconds = 86400d;
+        private const int MaxProductionSolverPasses = 16;
         private static readonly double[] Horizons = { 600d, 3600d, 14400d, 43200d, 86400d };
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
@@ -23,9 +24,9 @@ namespace Kingdom.EditorTools
         {
             var policies = new[]
             {
-                new Policy("FastestEra", 15d, 1, 1.0d),
-                new Policy("Balanced", 45d, 1, 0.75d),
-                new Policy("LowFrequency", 270d, 1, 1.5d)
+                new Policy("FastestEra", 1d, 10d, 3, 4d, 25d, 65d),
+                new Policy("Balanced", 180d, 45d, 3, 3d, 20d, 40d),
+                new Policy("LowFrequency", 300d, 270d, 2, 2d, 12d, 35d)
             };
             var summaries = new List<string>
             {
@@ -73,7 +74,8 @@ namespace Kingdom.EditorTools
             private Research activeResearch;
             private double activeResearchProgress;
             private double elapsed;
-            private double nextDecision;
+            private double nextResearchDecision;
+            private double nextBuildingDecision;
             private double population;
             private double populationGrowthProgress;
             private double food = 300d;
@@ -111,10 +113,19 @@ namespace Kingdom.EditorTools
             {
                 while (elapsed < duration && finite)
                 {
-                    if (elapsed + 0.0001d >= nextDecision)
+                    if (elapsed + 0.0001d >= nextResearchDecision)
                     {
-                        Decide();
-                        nextDecision += policy.DecisionInterval;
+                        DecideResearch();
+                        double retryInterval =
+                            completedResearch.Count == 0 && activeResearch == null
+                                ? Math.Min(30d, policy.ResearchDecisionInterval)
+                                : policy.ResearchDecisionInterval;
+                        nextResearchDecision += retryInterval;
+                    }
+                    if (elapsed + 0.0001d >= nextBuildingDecision)
+                    {
+                        DecideBuilding();
+                        nextBuildingDecision += policy.BuildingDecisionInterval;
                     }
                     AdvanceProduction(TickSeconds);
                     AdvanceResearch(TickSeconds);
@@ -123,7 +134,7 @@ namespace Kingdom.EditorTools
                     foodSatisfactionIntegral += foodSatisfaction * TickSeconds;
                     if (IsSnapshotTime(elapsed))
                         snapshots.Add(CaptureSnapshot());
-                    finite = IsFiniteState();
+                    finite = finite && IsFiniteState();
                 }
                 if (!milestoneTimes.ContainsKey("IndustrialComplete") &&
                     researches.Where(value => value.TechLevel == TechLevel.Industrial)
@@ -164,7 +175,9 @@ namespace Kingdom.EditorTools
                     value.TotalBuildings.ToString(Invariant),
                     value.Population.ToString("0.###", Invariant),
                     value.AverageFoodSatisfaction.ToString("0.######", Invariant),
-                    policy.DecisionInterval.ToString("0.###", Invariant),
+                    Math.Max(
+                        policy.ResearchDecisionInterval,
+                        policy.BuildingDecisionInterval).ToString("0.###", Invariant),
                     Milestone("NeolithicSettlement"),
                     Milestone("SmithingRevolution"),
                     Milestone("Industrialization"),
@@ -173,7 +186,7 @@ namespace Kingdom.EditorTools
                     negativeInventory.ToString());
             }
 
-            private void Decide()
+            private void DecideResearch()
             {
                 Research candidate = SelectResearch();
                 if (activeResearch == null && candidate != null &&
@@ -188,7 +201,11 @@ namespace Kingdom.EditorTools
                 }
 
                 PurchaseAvailableWorkshop();
+            }
 
+            private void DecideBuilding()
+            {
+                Research candidate = SelectResearch();
                 Building building = SelectBuilding(candidate);
                 if (building != null && CanBuild(building) &&
                     CanAfford(BuildCost(building)))
@@ -209,13 +226,28 @@ namespace Kingdom.EditorTools
                 HashSet<Research> eraPath = NextEraPath();
                 return researches
                     .Where(IsResearchAvailable)
-                    .OrderBy(value => CanAfford(value.ResourceRequirements) ? 0 : 1)
-                    .ThenBy(value => ImprovesResearchPower(value) ? 0 : 1)
-                    .ThenBy(value => eraPath.Contains(value) ? 0 : 1)
-                    .ThenBy(value => value.AdvancesTechLevel ? 0 : 1)
-                    .ThenBy(value => value.TechLevel)
+                    .Where(CostsHaveAvailableSources)
+                    .OrderByDescending(value => value.AdvancesTechLevel)
                     .ThenBy(ResearchCost)
+                    .ThenBy(value => value.Id, StringComparer.Ordinal)
                     .FirstOrDefault();
+            }
+
+            private bool CostsHaveAvailableSources(Research research)
+            {
+                for (int i = 0; i < research.ResourceRequirements.Count; i++)
+                {
+                    Resource resource = research.ResourceRequirements[i].First;
+                    if (resource == null || resource.Id == "WoodLog")
+                        continue;
+                    bool sourceAvailable = buildings.Any(building =>
+                        building.TechLevel <= techLevel &&
+                        building.RequiredResearch.All(completedResearch.Contains) &&
+                        Contains(building.ResourceGenerationRates, resource));
+                    if (!sourceAvailable)
+                        return false;
+                }
+                return true;
             }
 
             private bool ImprovesResearchPower(Research value)
@@ -304,6 +336,7 @@ namespace Kingdom.EditorTools
                     Building selected = SelectBuildableOrHousing(foodBuilding, house);
                     if (selected != null)
                         return selected;
+                    return null;
                 }
 
                 if (candidate != null)
@@ -312,24 +345,23 @@ namespace Kingdom.EditorTools
                     if (missing != null)
                     {
                         Building producer = SelectProducerFor(
-                            missing, available, new HashSet<Resource>());
+                            missing,
+                            available,
+                            new HashSet<Resource>(),
+                            RequiredAmount(candidate.ResourceRequirements, missing));
                         Building selected = SelectBuildableOrHousing(producer, house);
                         if (selected != null)
                             return selected;
                     }
                 }
 
-                double targetResearchPower = techLevel switch
-                {
-                    TechLevel.Animal => 2d,
-                    TechLevel.Neolithic => 10d,
-                    TechLevel.Medieval => 25d,
-                    _ => 250d
-                };
-                if (ResearchPower() < targetResearchPower * policy.ResearchPowerFactor)
+                double targetResearchPower = policy.ResearchPowerTarget(techLevel);
+                if (ResearchPower() < targetResearchPower)
                 {
                     Building researchBuilding = available
                         .Where(value => D(value.ResearchPowerGranted) > 0d)
+                        .Where(value =>
+                            buildingCounts[value] < ResearchBuildingLimit(value))
                         .Where(value => CanAfford(BuildCost(value)))
                         .OrderByDescending(value => D(value.ResearchPowerGranted))
                         .FirstOrDefault();
@@ -338,21 +370,30 @@ namespace Kingdom.EditorTools
                         return selected;
                 }
 
-                Building economic = available
-                    .Where(value => buildingCounts[value] < policy.GeneralBuildingTarget)
-                    .Where(value => HasEconomicOutput(value))
-                    .Where(value => CanAfford(BuildCost(value)))
-                    .OrderBy(value => value.TechLevel)
-                    .ThenBy(value => buildingCounts[value])
-                    .ThenBy(value => value.Id, StringComparer.Ordinal)
-                    .FirstOrDefault();
-                return SelectBuildableOrHousing(economic, house);
+                // Do not fill every unlocked economic building to an arbitrary cap.
+                // Required producers are selected above from the active research cost;
+                // speculative filling consumes productivity and territory and can block
+                // the very producer needed by the main progression path.
+                return null;
+            }
+
+            private static int ResearchBuildingLimit(Building building)
+            {
+                return building.Id switch
+                {
+                    "KnowledgeCircle" => 3,
+                    "MeetingGround" => 3,
+                    "ScribeHut" => 4,
+                    "CouncilHall" => 3,
+                    _ => 3
+                };
             }
 
             private Building SelectProducerFor(
                 Resource resource,
                 List<Building> available,
-                HashSet<Resource> visiting)
+                HashSet<Resource> visiting,
+                double desiredInventory)
             {
                 if (resource == null || !visiting.Add(resource))
                     return null;
@@ -370,7 +411,11 @@ namespace Kingdom.EditorTools
                     if (missingCost != null)
                     {
                         Building upstream =
-                            SelectProducerFor(missingCost, available, visiting);
+                            SelectProducerFor(
+                                missingCost,
+                                available,
+                                visiting,
+                                RequiredAmount(cost, missingCost));
                         if (upstream != null)
                             return upstream;
                         continue;
@@ -378,12 +423,22 @@ namespace Kingdom.EditorTools
 
                     bool needsFirstCopy = buildingCounts[producer] == 0;
                     bool needsPositiveFlow =
-                        NetResourceRate(resource) <= 0.000001d &&
-                        buildingCounts[producer] < 5;
+                        (inventory[resource] + 0.000001d < desiredInventory ||
+                         NetResourceRate(resource) <= 0.000001d) &&
+                        buildingCounts[producer] < policy.GeneralBuildingTarget;
                     if (needsFirstCopy || needsPositiveFlow)
                         return producer;
                 }
                 return null;
+            }
+
+            private static double RequiredAmount(
+                IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+                Resource resource)
+            {
+                return costs
+                    .Where(value => value.First == resource)
+                    .Sum(value => D(value.Second));
             }
 
             private double NetResourceRate(Resource resource)
@@ -401,13 +456,12 @@ namespace Kingdom.EditorTools
                 if (CanBuild(candidate))
                     return candidate;
 
-                double requiredWorkforce =
-                    WorkforceUsed() + D(candidate.ProductivityConsumption);
+                double requiredProductivity =
+                    ProductivityUsed() + D(candidate.ProductivityConsumption);
                 EffectSnapshot effects =
                     EffectSnapshot.Create(completedResearch, purchasedWorkshop);
                 bool waitingForPopulation =
-                    requiredWorkforce >
-                    population + effects.ProductivityGranted + 0.000001d;
+                    requiredProductivity > TotalProductivity(effects) + 0.000001d;
                 bool populationAtCapacity =
                     population + 0.000001d >= PopulationCapacity();
                 if (waitingForPopulation && populationAtCapacity &&
@@ -427,12 +481,12 @@ namespace Kingdom.EditorTools
             {
                 if (!AreBuildingPrerequisitesMet(value))
                     return false;
-                double workforceAfter = WorkforceUsed() + D(value.ProductivityConsumption);
+                double productivityAfter =
+                    ProductivityUsed() + D(value.ProductivityConsumption);
                 double territoryAfter = TerritoryUsed() + D(value.SpaceCost);
                 EffectSnapshot effects =
                     EffectSnapshot.Create(completedResearch, purchasedWorkshop);
-                return workforceAfter <=
-                        population + effects.ProductivityGranted + 0.000001d &&
+                return productivityAfter <= TotalProductivity(effects) + 0.000001d &&
                     territoryAfter <= TerritoryTotal() + 0.000001d;
             }
 
@@ -479,7 +533,8 @@ namespace Kingdom.EditorTools
                 var effects = EffectSnapshot.Create(completedResearch, purchasedWorkshop);
                 for (int i = 0; i < buildings.Count; i++)
                     buildingEfficiency[buildings[i]] = 1d;
-                for (int pass = 0; pass <= buildings.Count; pass++)
+                bool converged = false;
+                for (int pass = 0; pass < MaxProductionSolverPasses; pass++)
                 {
                     Dictionary<Resource, double> production = ProductionRates(effects);
                     Dictionary<Resource, double> demand = PotentialConsumptionRates();
@@ -503,7 +558,7 @@ namespace Kingdom.EditorTools
                     double logisticsDemand = FlowPotential(value => D(value.LogisticsConsumptionRate));
                     double logisticsSatisfaction = logisticsDemand <= 0d
                         ? 1d : Clamp01(logisticsProduction / logisticsDemand);
-                    double foodProduction = FoodProduction(effects);
+                    double foodProduction = FoodProductionPotential(effects);
                     double foodDemand = population + FlowPotential(value => D(value.FoodConsumptionRate));
                     foodSatisfaction = foodDemand <= 0d
                         ? 1d
@@ -529,7 +584,22 @@ namespace Kingdom.EditorTools
                         }
                     }
                     if (!changed)
+                    {
+                        converged = true;
                         break;
+                    }
+                }
+                if (!converged)
+                {
+                    finite = false;
+                    EventRows.Add(Csv(
+                        elapsed.ToString("0", Invariant),
+                        "SimulationError",
+                        "ProductionSolver",
+                        MaxProductionSolverPasses.ToString(Invariant),
+                        techLevel.ToString(),
+                        "production satisfaction did not converge"));
+                    return;
                 }
 
                 EffectSnapshot finalEffects =
@@ -609,7 +679,7 @@ namespace Kingdom.EditorTools
 
             private double FoodProduction(EffectSnapshot effects)
             {
-                double result = 0d;
+                double result = 5d;
                 for (int i = 0; i < buildings.Count; i++)
                 {
                     Building building = buildings[i];
@@ -623,9 +693,23 @@ namespace Kingdom.EditorTools
 
             private double FoodProductionPotential()
             {
-                double result = 0d;
+                double result = 5d;
                 for (int i = 0; i < buildings.Count; i++)
                     result += buildingCounts[buildings[i]] * D(buildings[i].FoodProductionRate);
+                return result;
+            }
+
+            private double FoodProductionPotential(EffectSnapshot effects)
+            {
+                double result = 5d;
+                for (int i = 0; i < buildings.Count; i++)
+                {
+                    Building building = buildings[i];
+                    result += buildingCounts[building] *
+                        D(building.FoodProductionRate) *
+                        effects.BuildingProductionMultiplier(building) *
+                        effects.BuildingFoodMultiplier(building);
+                }
                 return result;
             }
 
@@ -679,8 +763,14 @@ namespace Kingdom.EditorTools
                 500d + buildings.Sum(value =>
                     buildingCounts[value] * buildingEfficiency[value] * D(value.FoodCapacityGranted));
 
-            private double WorkforceUsed() =>
+            private double ProductivityUsed() =>
                 buildings.Sum(value => buildingCounts[value] * D(value.ProductivityConsumption));
+
+            private double TotalProductivity(EffectSnapshot effects) =>
+                population +
+                effects.ProductivityGranted +
+                buildings.Sum(value =>
+                    buildingCounts[value] * D(value.ProductivityGranted));
 
             private double TerritoryUsed() =>
                 buildings.Sum(value => buildingCounts[value] * D(value.SpaceCost));
@@ -914,19 +1004,38 @@ namespace Kingdom.EditorTools
         private sealed class Policy
         {
             public Policy(
-                string name, double decisionInterval, int generalBuildingTarget,
-                double researchPowerFactor)
+                string name,
+                double researchDecisionInterval,
+                double buildingDecisionInterval,
+                int generalBuildingTarget,
+                double animalResearchPower,
+                double neolithicResearchPower,
+                double medievalResearchPower)
             {
                 Name = name;
-                DecisionInterval = decisionInterval;
+                ResearchDecisionInterval = researchDecisionInterval;
+                BuildingDecisionInterval = buildingDecisionInterval;
                 GeneralBuildingTarget = generalBuildingTarget;
-                ResearchPowerFactor = researchPowerFactor;
+                AnimalResearchPower = animalResearchPower;
+                NeolithicResearchPower = neolithicResearchPower;
+                MedievalResearchPower = medievalResearchPower;
             }
 
             public string Name { get; }
-            public double DecisionInterval { get; }
+            public double ResearchDecisionInterval { get; }
+            public double BuildingDecisionInterval { get; }
             public int GeneralBuildingTarget { get; }
-            public double ResearchPowerFactor { get; }
+            public double AnimalResearchPower { get; }
+            public double NeolithicResearchPower { get; }
+            public double MedievalResearchPower { get; }
+
+            public double ResearchPowerTarget(TechLevel techLevel) => techLevel switch
+            {
+                TechLevel.Animal => AnimalResearchPower,
+                TechLevel.Neolithic => NeolithicResearchPower,
+                TechLevel.Medieval => MedievalResearchPower,
+                _ => 100d
+            };
         }
 
         private sealed class Snapshot

@@ -19,32 +19,24 @@ MonoBehaviour:
   SortOrder: 150
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 1598b3a500f87a94faa75abeb182f4ef, type: 2}
+  - {fileID: 11400000, guid: 32fcf4393a54f1c41818af39b2342227, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: cc77afd776dafa8438dc8e28049c06b3, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 350
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: 384c42715adad4640b0d3becdb1c823f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 200
       layer: 0
       operators: []
   effects:

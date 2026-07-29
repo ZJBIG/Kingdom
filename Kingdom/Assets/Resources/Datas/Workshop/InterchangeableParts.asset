@@ -31,20 +31,12 @@ MonoBehaviour:
       scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
+      scalar: 250
       layer: 0
       operators: []
   effects:

@@ -12,7 +12,6 @@ public enum BuildFailure
     ResourceInsufficient,
     SpaceInsufficient,
     ProductivityInsufficient,
-    WorkforceInsufficient,
     DeconstructionUnavailable
 }
 
@@ -24,9 +23,30 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
-    public ExpantaNum AvailableWorkforce =>
-        GameManager.Instance.State.Population.AvailableWorkforce +
-        ProgressionModifierManager.Current.ProductivityGranted;
+    public ExpantaNum TotalProductivity
+    {
+        get
+        {
+            ExpantaNum total =
+                GameManager.Instance.State.Population.Population +
+                ProgressionModifierManager.Current.ProductivityGranted;
+            for (int i = 0; i < orderedStates.Count; i++)
+                total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
+            return ExpantaNum.Max(ExpantaNum.Zero, total);
+        }
+    }
+    public ExpantaNum UsedProductivity
+    {
+        get
+        {
+            ExpantaNum used = ExpantaNum.Zero;
+            for (int i = 0; i < orderedStates.Count; i++)
+                used += orderedStates[i].Amount * orderedStates[i].ProductivityConsumption;
+            return ExpantaNum.Max(ExpantaNum.Zero, used);
+        }
+    }
+    public ExpantaNum AvailableProductivity =>
+        ExpantaNum.Max(ExpantaNum.Zero, TotalProductivity - UsedProductivity);
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
     public event Action<BuildingState> BuildingStateAdded;
 
@@ -130,10 +150,10 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        ExpantaNum requiredWorkforce = state.WorkforceConsumption * amount;
-        if (AvailableWorkforce < requiredWorkforce)
+        ExpantaNum requiredProductivity = state.ProductivityConsumption * amount;
+        if (AvailableProductivity < requiredProductivity)
         {
-            failure = BuildFailure.WorkforceInsufficient;
+            failure = BuildFailure.ProductivityInsufficient;
             return false;
         }
 
@@ -162,10 +182,7 @@ public class BuildingManager : Singleton<BuildingManager>
             ResourceManager.Instance.AddAmount(pair.First, -totalCost);
         }
 
-        GameManager.Instance.CommitConstruction(
-            requiredSpace,
-            requiredWorkforce,
-            state.ProductivityGranted * amount);
+        GameManager.Instance.CommitConstruction(requiredSpace);
         SetAmountAndRates(state, state.Amount + amount);
         RefreshResearchPower();
         failure = BuildFailure.None;
@@ -208,10 +225,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 refund * DeconstructionReturnRate);
         }
 
-        GameManager.Instance.RefundConstruction(
-            state.SpaceCost * amount,
-            state.ProductivityConsumption * amount,
-            state.ProductivityGranted * amount);
+        GameManager.Instance.RefundConstruction(state.SpaceCost * amount);
         SetAmountAndRates(state, state.Amount - amount);
         RefreshResearchPower();
         failure = BuildFailure.None;
@@ -234,7 +248,7 @@ public class BuildingManager : Singleton<BuildingManager>
         {
             result = ExpantaNum.Min(
                 result,
-                (AvailableWorkforce / state.WorkforceConsumption).Floor());
+                (AvailableProductivity / state.ProductivityConsumption).Floor());
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
@@ -306,7 +320,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 ExpantaNum foodProductionMultiplier =
                     modifiers.GetBuildingFoodProductionMultiplier(state.Definition);
 
-                potentialFoodProduction += actualScale * state.Definition.FoodProductionRate
+                potentialFoodProduction += potentialScale * state.Definition.FoodProductionRate
                     * productionMultiplier * foodProductionMultiplier;
                 potentialFoodConsumption += potentialScale * state.Definition.FoodConsumptionRate;
                 potentialPowerProduction += actualScale * state.Definition.PowerProductionRate
@@ -356,13 +370,18 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum logisticsSatisfaction = building.LogisticsConsumptionRate > ExpantaNum.Zero
             ? GameManager.Instance.State.LogisticsSatisfaction
             : ExpantaNum.One;
+        ExpantaNum foodSatisfaction = CalculateFoodConstraint(
+            GameManager.Instance.State.FoodSatisfaction);
         return CalculateEffectiveEfficiency(
             GlobalEfficiencyFactor,
             resourceSatisfaction,
-            GameManager.Instance.State.FoodSatisfaction,
+            foodSatisfaction,
             powerSatisfaction,
             logisticsSatisfaction);
     }
+
+    public static ExpantaNum CalculateFoodConstraint(ExpantaNum foodSatisfaction) =>
+        ExpantaNum.Clamp01(foodSatisfaction);
 
     public static ExpantaNum CalculateEffectiveEfficiency(
         ExpantaNum globalEfficiency,
@@ -408,6 +427,7 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum oldScale = oldAmount * oldEfficiency;
         ExpantaNum newScale = newAmount * newEfficiency;
         ExpantaNum scaleDelta = newScale - oldScale;
+        ExpantaNum amountDelta = newAmount - oldAmount;
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum productionMultiplier =
             modifiers.GetBuildingProductionMultiplier(state.Definition) *
@@ -434,7 +454,7 @@ public class BuildingManager : Singleton<BuildingManager>
             scaleDelta * state.Definition.FoodCapacityGranted
                 * modifiers.FoodCapacityMultiplier);
         GameManager.Instance.AdjustPopulationCapacity(
-            scaleDelta * state.Definition.PopulationCapacityGranted);
+            amountDelta * state.Definition.PopulationCapacityGranted);
         GameManager.Instance.AdjustPowerRates(
             scaleDelta * state.Definition.PowerProductionRate
                 * modifiers.PowerMultiplier
@@ -582,10 +602,7 @@ public class BuildingManager : Singleton<BuildingManager>
             if (state.Amount <= ExpantaNum.Zero)
                 continue;
 
-            GameManager.Instance.CommitConstruction(
-                state.SpaceCost * state.Amount,
-                state.ProductivityConsumption * state.Amount,
-                state.ProductivityGranted * state.Amount);
+            GameManager.Instance.CommitConstruction(state.SpaceCost * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }
         RefreshResearchPower();

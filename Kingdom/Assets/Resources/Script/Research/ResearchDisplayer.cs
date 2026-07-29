@@ -9,6 +9,7 @@ public class ResearchDisplayer : MonoBehaviour
     public static class DisplayerFrame
     {
         public static readonly Color OutlineSel = new Color(0f, 0.6901961f, 0.7647059f, 1f);
+        public static readonly Color OutlineCompleted = new Color(1f, 0.6588235f, 0.09803922f, 0.92f);
         public static readonly Color OutlineUnsel = new Color(0f, 0f, 0f, 0f);
         public static Dictionary<TechLevel, Pair<Sprite, Sprite>> FrameAndProgress = new(){
         {TechLevel.Animal,new Pair<Sprite,Sprite>(Resources.Load<Sprite>($"Texture/UI/ResearchUI/Animal"),Resources.Load<Sprite>($"Texture/UI/ResearchUI/ProgressAnimal")) },
@@ -28,6 +29,7 @@ public class ResearchDisplayer : MonoBehaviour
 
     private ResearchState state;
     private ResearchViewer viewer;
+    private bool selected;
     public Research Research => state?.Definition;
     public ResearchState BoundState => state;
     public double ProgressPercent => state.ProgressRatio.ToDouble();
@@ -50,15 +52,32 @@ public class ResearchDisplayer : MonoBehaviour
 
     public void SetSelectedVisual(bool selected)
     {
-        if (Outline != null)
-            Outline.color = selected ? DisplayerFrame.OutlineSel : DisplayerFrame.OutlineUnsel;
+        this.selected = selected;
+        RefreshOutline();
     }
 
     public void Refresh()
     {
-        if (state == null || Frame == null)
+        if (state == null)
             return;
-        Frame.value = (float)ProgressPercent;
+        if (Frame != null)
+            Frame.value = (float)ProgressPercent;
+        RefreshOutline();
+    }
+
+    public static Color GetOutlineColor(bool selected, ResearchStatus status)
+    {
+        if (selected)
+            return DisplayerFrame.OutlineSel;
+        return status == ResearchStatus.Completed
+            ? DisplayerFrame.OutlineCompleted
+            : DisplayerFrame.OutlineUnsel;
+    }
+
+    private void RefreshOutline()
+    {
+        if (Outline != null && state != null)
+            Outline.color = GetOutlineColor(selected, state.Status);
     }
 
     private void RefreshStatic()

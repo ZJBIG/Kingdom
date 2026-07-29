@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -15,6 +16,7 @@ public sealed class KingdomLogicTests
         for (int i = createdObjects.Count - 1; i >= 0; i--)
             UnityEngine.Object.DestroyImmediate(createdObjects[i]);
         createdObjects.Clear();
+        ProgressionModifierManager.Rebuild(null);
     }
 
     [TestCase(0, 5500, 1, 1)]
@@ -113,17 +115,15 @@ public sealed class KingdomLogicTests
         Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
-        Assert.That(state.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
-        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.Population.FoodPerPerson, Is.EqualTo(new ExpantaNum(1)));
-        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(2));
+        Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(ExpantaNum.One));
+        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(4));
     }
 
     [Test]
@@ -140,6 +140,29 @@ public sealed class KingdomLogicTests
         Assert.That(state.ProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.ConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Efficiency, Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void ResourceManager_AlwaysCreatesStartingWoodStateAndProduction()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("Starting-Wood-ResourceManager");
+        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+
+        Assert.That(resourceManager.States.ContainsKey(wood), Is.True);
+        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void ResourceViewer_TreatsStartingWoodAsVisibleWithoutBuildingSources()
+    {
+        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        MethodInfo method = typeof(ResourceViewer).GetMethod(
+            "IsResourceManufacturable",
+            BindingFlags.Static | BindingFlags.NonPublic);
+
+        Assert.That(method, Is.Not.Null);
+        Assert.That((bool)method.Invoke(null, new object[] { wood }), Is.True);
     }
 
     [Test]
@@ -167,21 +190,82 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchLineView_UsesStableSelectionColors()
+    public void ResearchLineView_DistinguishesSelectedResearchRelationships()
     {
         Research prerequisite = CreateResearch("LinePrerequisite");
         Research target = CreateResearch("LineTarget");
         Research unrelated = CreateResearch("LineUnrelated");
 
-        Assert.That(ResearchLineView.GetColor(null, prerequisite, target), Is.EqualTo(ResearchLineView.UnselectedColor));
-        Assert.That(ResearchLineView.GetColor(prerequisite, prerequisite, target), Is.EqualTo(ResearchLineView.NextColor));
-        Assert.That(ResearchLineView.GetColor(target, prerequisite, target), Is.EqualTo(ResearchLineView.PrerequisiteColor));
-        Assert.That(ResearchLineView.GetColor(unrelated, prerequisite, target), Is.EqualTo(ResearchLineView.UnselectedColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                null,
+                prerequisite,
+                target,
+                ResearchStatus.Locked),
+            Is.EqualTo(ResearchLineView.UnselectedColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                target,
+                prerequisite,
+                target,
+                ResearchStatus.Available),
+            Is.EqualTo(ResearchLineView.IncompletePrerequisiteColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                target,
+                prerequisite,
+                target,
+                ResearchStatus.Completed),
+            Is.EqualTo(ResearchLineView.CompletedPrerequisiteColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                prerequisite,
+                prerequisite,
+                target,
+                ResearchStatus.Locked),
+            Is.EqualTo(ResearchLineView.AvailableSuccessorColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                prerequisite,
+                prerequisite,
+                target,
+                ResearchStatus.Completed),
+            Is.EqualTo(ResearchLineView.AvailableSuccessorColor));
+        Assert.That(
+            ResearchLineView.GetColor(
+                unrelated,
+                prerequisite,
+                target,
+                ResearchStatus.Completed),
+            Is.EqualTo(ResearchLineView.UnselectedColor));
 
         Research transitivePrerequisite = CreateResearch("LineTransitivePrerequisite");
         Assert.That(
-            ResearchLineView.GetColor(transitivePrerequisite, prerequisite, target),
+            ResearchLineView.GetColor(
+                transitivePrerequisite,
+                prerequisite,
+                target,
+                ResearchStatus.Completed),
             Is.EqualTo(ResearchLineView.UnselectedColor));
+    }
+
+    [Test]
+    public void ResearchDisplayer_UsesDistinctCompletedAndSelectedOutlineColors()
+    {
+        Color selected = ResearchDisplayer.GetOutlineColor(
+            true,
+            ResearchStatus.Completed);
+        Color completed = ResearchDisplayer.GetOutlineColor(
+            false,
+            ResearchStatus.Completed);
+        Color inactive = ResearchDisplayer.GetOutlineColor(
+            false,
+            ResearchStatus.Available);
+
+        Assert.That(selected, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineSel));
+        Assert.That(completed, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineCompleted));
+        Assert.That(inactive, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineUnsel));
+        Assert.That(completed, Is.Not.EqualTo(selected));
     }
 
     [Test]
@@ -193,12 +277,12 @@ public sealed class KingdomLogicTests
         gameManager.Tick(9.9d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(0));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(349.5d)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(399d)));
 
         gameManager.Tick(0.1d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(350)));
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(400)));
 
     }
 
@@ -217,15 +301,14 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             state,
             "ResetDerivedEconomy",
-            new ExpantaNum(100),
-            new ExpantaNum(15));
+            new ExpantaNum(100));
 
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
-        Assert.That(state.Population.AvailableWorkforce, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -237,9 +320,7 @@ public sealed class KingdomLogicTests
             "Restore",
             new ExpantaNum(15),
             new ExpantaNum(15),
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            new ExpantaNum(PopulationState.DefaultFoodPerPerson));
+            ExpantaNum.Zero);
         InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(1));
         InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.Zero);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
@@ -247,7 +328,6 @@ public sealed class KingdomLogicTests
 
         InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.One);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(16)));
-        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(16)));
     }
 
     [Test]
@@ -265,28 +345,151 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void C403_WorkforceSeparatesBuildingMilitaryAndAvailableAssignments()
+    public void C403_PopulationStateOnlyStoresPopulationCapacityAndGrowth()
     {
         PopulationState population = new PopulationState();
         InvokePopulationMethod(
             population,
             "Restore",
             new ExpantaNum(15),
-            new ExpantaNum(15),
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            new ExpantaNum(PopulationState.DefaultFoodPerPerson));
+            new ExpantaNum(20),
+            new ExpantaNum(0.25d));
 
-        InvokePopulationMethod(population, "AdjustBuildingWorkforce", new ExpantaNum(4));
-        InvokePopulationMethod(population, "SetAssignedMilitary", new ExpantaNum(3));
+        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
+        Assert.That(population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
+        Assert.That(population.GrowthProgress, Is.EqualTo(new ExpantaNum(0.25d)));
+    }
 
-        Assert.That(population.TotalWorkforce, Is.EqualTo(new ExpantaNum(15)));
-        Assert.That(population.AssignedBuildingWorkforce, Is.EqualTo(new ExpantaNum(4)));
-        Assert.That(population.AssignedMilitary, Is.EqualTo(new ExpantaNum(3)));
-        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(8)));
+    [Test]
+    public void Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Productivity-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("Productivity-BuildingManager");
+        InvokeGameStateMethod(
+            gameManager.State,
+            "RestorePopulation",
+            new ExpantaNum(10),
+            new ExpantaNum(10),
+            ExpantaNum.Zero);
+        Building building = CreateEconomyBuilding(
+            "ProductivityProvider",
+            productivityConsumption: 3,
+            productivityGranted: 4,
+            populationCapacity: 0);
+        Research research = CreateResearch("ProductivityResearch");
+        research.BaseCost = "1";
+        research.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.ProductivityGranted,
+                Value = new ExpantaNum(7)
+            }
+        });
+        ResearchState researchState = new ResearchState(research);
+        typeof(ResearchState).GetMethod(
+                "Restore",
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool) },
+                null)
+            .Invoke(researchState, new object[] { ExpantaNum.Zero, false, true });
+        ProgressionModifierManager.Rebuild(new List<ResearchState> { researchState });
 
-        InvokePopulationMethod(population, "AdjustBuildingWorkforce", new ExpantaNum(-2));
-        Assert.That(population.AvailableWorkforce, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(17)));
+        Assert.That(buildingManager.TryBuild(building, 2, out BuildFailure failure), Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(25)));
+        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(6)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(19)));
+
+        buildingManager.GetState(building).SetEfficiencyForEditor(ExpantaNum.Zero);
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(25)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(19)));
+    }
+
+    [Test]
+    public void ProductivityProvider_CannotFundItsOwnConstruction()
+    {
+        GameManager gameManager = CreateManager<GameManager>("SelfFunding-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("SelfFunding-BuildingManager");
+        InvokeGameStateMethod(
+            gameManager.State,
+            "RestorePopulation",
+            new ExpantaNum(2),
+            new ExpantaNum(2),
+            ExpantaNum.Zero);
+        Building building = CreateEconomyBuilding(
+            "SelfFundingProvider",
+            productivityConsumption: 3,
+            productivityGranted: 100,
+            populationCapacity: 0);
+
+        Assert.That(
+            buildingManager.TryBuild(building, ExpantaNum.One, out BuildFailure failure),
+            Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
+        Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Overcommit-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("Overcommit-BuildingManager");
+        InvokeGameStateMethod(
+            gameManager.State,
+            "RestorePopulation",
+            new ExpantaNum(2),
+            new ExpantaNum(2),
+            ExpantaNum.Zero);
+        Building existing = CreateEconomyBuilding(
+            "LegacyOvercommit",
+            productivityConsumption: 3,
+            productivityGranted: 0,
+            populationCapacity: 0);
+        BuildingState existingState = buildingManager.EnsureBuilding(existing);
+        existingState.SetAmountForEditor(ExpantaNum.One);
+        Building candidate = CreateEconomyBuilding(
+            "BlockedByOvercommit",
+            productivityConsumption: 1,
+            productivityGranted: 0,
+            populationCapacity: 0);
+
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(
+            buildingManager.TryBuild(candidate, ExpantaNum.One, out BuildFailure failure),
+            Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
+        Assert.That(existingState.Amount, Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void HousingAddsCapacityWithoutAddingProductivity()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Housing-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("Housing-BuildingManager");
+        InvokeGameStateMethod(
+            gameManager.State,
+            "RestorePopulation",
+            new ExpantaNum(5),
+            new ExpantaNum(5),
+            ExpantaNum.Zero);
+        Building house = CreateEconomyBuilding(
+            "TestHouse",
+            productivityConsumption: 0,
+            productivityGranted: 0,
+            populationCapacity: 5);
+
+        Assert.That(buildingManager.TryBuild(house, ExpantaNum.One, out _), Is.True);
+        Assert.That(gameManager.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(5)));
     }
 
     [Test]
@@ -370,13 +573,30 @@ public sealed class KingdomLogicTests
 
         string json = JsonUtility.ToJson(saveData);
 
-        StringAssert.Contains("\"Version\":2", json);
+        StringAssert.Contains("\"Version\":4", json);
         StringAssert.Contains("\"ResourceId\":\"WoodLog\"", json);
+        StringAssert.DoesNotContain("AssignedMilitary", json);
+        StringAssert.DoesNotContain("FoodPerPerson", json);
         StringAssert.DoesNotContain("ProductionRate", json);
         StringAssert.DoesNotContain("ConsumptionRate", json);
         StringAssert.DoesNotContain("FoodProductionRate", json);
         StringAssert.DoesNotContain("FoodConsumptionRate", json);
         StringAssert.DoesNotContain("fileID", json);
+    }
+
+    [Test]
+    public void SaveApply_RejectsPreviousSchemaWithoutMigration()
+    {
+        SaveManager saveManager = CreateManager<SaveManager>("Save-Version-SaveManager");
+        var data = new SaveManager.KingdomSaveData
+        {
+            Version = SaveFormat.CurrentVersion - 1
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidDataException>());
+        StringAssert.Contains("not current", exception.InnerException.Message);
     }
 
     [Test]
@@ -403,7 +623,7 @@ public sealed class KingdomLogicTests
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(firstAmount));
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(firstFoodRate));
         Assert.That(buildingManager.GetState(farm).Amount, Is.EqualTo(firstBuildingAmount));
-        Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(16)));
+        Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(21)));
         Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
         Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(17)));
         Assert.That(GameManager.Instance.State.TerritoryTotal, Is.EqualTo(new ExpantaNum(120)));
@@ -442,9 +662,7 @@ public sealed class KingdomLogicTests
                 FoodAmount = "10000",
                 Population = "17",
                 PopulationCapacity = "20",
-                AssignedMilitary = "2",
                 GrowthProgress = "0.25",
-                FoodPerPerson = "1",
                 TerritoryTotal = "120",
                 LastSaveUnixSeconds = 1
             },
@@ -544,7 +762,7 @@ public sealed class KingdomLogicTests
         Assert.That(state.Definition, Is.SameAs(research));
         Assert.That(state.Progress, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Status, Is.EqualTo(ResearchStatus.Locked));
-        Assert.That(state.CostPaid, Is.False);
+        Assert.That(state.CostPaid, Is.True);
         Assert.That(state.BaseCost, Is.EqualTo(ExpantaNum.Parse("1e1000")));
         Assert.That(state.ProgressRatio, Is.EqualTo(ExpantaNum.Zero));
     }
@@ -668,14 +886,34 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchCostPayment_WithNoRequirementsCompletesOnFirstPaymentAttempt()
+    public void ResearchCostPayment_WithNoRequirementsStartsPaid()
     {
         Research research = DataBase<Research>.Find("KnowledgeSharing");
         var state = new ResearchState(research);
 
         Assert.That(research.ResourceRequirements, Is.Empty);
+        Assert.That(research.HasPositiveResourceRequirement, Is.False);
+        Assert.That(state.CostPaid, Is.True);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(state.CostPaid, Is.True);
+    }
+
+    [Test]
+    public void Agriculture_WithNoResourceRequirementsCanStartImmediately()
+    {
+        CreateManager<GameManager>("Agriculture-GameManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("Agriculture-ResearchManager");
+        Research agriculture = DataBase<Research>.Find("Agriculture");
+        ResearchState state = researchManager.GetState(agriculture);
+
+        Assert.That(agriculture.ResourceRequirements, Is.Empty);
+        Assert.That(agriculture.HasPositiveResourceRequirement, Is.False);
+        Assert.That(state.Status, Is.EqualTo(ResearchStatus.Available));
+        Assert.That(state.CostPaid, Is.True);
+        Assert.That(researchManager.StartResearch(agriculture), Is.True);
+        Assert.That(researchManager.ActiveResearch, Is.SameAs(state));
+        Assert.That(state.Status, Is.EqualTo(ResearchStatus.Researching));
     }
 
     [Test]
@@ -787,6 +1025,10 @@ public sealed class KingdomLogicTests
     [Test]
     public void ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered()
     {
+        CreateManager<GameManager>("ResourceViewer-GameManager");
+        CreateManager<BuildingManager>("ResourceViewer-BuildingManager");
+        CreateManager<ResearchManager>("ResourceViewer-ResearchManager");
+        CreateManager<WorkshopManager>("ResourceViewer-WorkshopManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceManager");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.EnsureResource(wood);
@@ -820,6 +1062,48 @@ public sealed class KingdomLogicTests
         viewer.RefreshAll();
 
         Assert.That(set.Displayers.ContainsKey(wood), Is.True);
+    }
+
+    [Test]
+    public void ResourceViewer_DoesNotCreateDisplayerForLockedIndustrialOutput()
+    {
+        CreateManager<GameManager>("ResourceViewer-Locked-GameManager");
+        CreateManager<BuildingManager>("ResourceViewer-Locked-BuildingManager");
+        CreateManager<ResearchManager>("ResourceViewer-Locked-ResearchManager");
+        CreateManager<WorkshopManager>("ResourceViewer-Locked-WorkshopManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceViewer-Locked-ResourceManager");
+        Resource electronics = DataBase<Resource>.Find("Electronics");
+        resourceManager.EnsureResource(electronics);
+
+        GameObject setObject = new GameObject(
+            electronics.DisplayerSet.ToString(),
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(ResourceDisplayerSet));
+        createdObjects.Add(setObject);
+        ResourceDisplayerSet set = setObject.GetComponent<ResourceDisplayerSet>();
+        set.Content = new GameObject("Content", typeof(RectTransform)).transform;
+        createdObjects.Add(set.Content.gameObject);
+        set.Content.SetParent(setObject.transform, false);
+
+        GameObject viewerObject = new GameObject("ResourceViewer-Locked", typeof(RectTransform));
+        createdObjects.Add(viewerObject);
+        viewerObject.SetActive(false);
+        setObject.transform.SetParent(viewerObject.transform, false);
+        ResourceViewer viewer = viewerObject.AddComponent<ResourceViewer>();
+        GameObject displayerPrefab = Resources.Load<GameObject>("UI/Resource/ResourceDisplayer");
+        Assert.That(displayerPrefab, Is.Not.Null);
+        typeof(ResourceViewer)
+            .GetField("DisplayerPrefab", BindingFlags.Instance | BindingFlags.NonPublic)
+            .SetValue(viewer, displayerPrefab);
+        viewerObject.SetActive(true);
+        typeof(ResourceViewer)
+            .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(viewer, null);
+        viewer.RefreshAll();
+
+        Assert.That(set.Displayers.ContainsKey(electronics), Is.False);
+        Assert.That(setObject.activeSelf, Is.False);
     }
 
     [Test]
@@ -860,6 +1144,40 @@ public sealed class KingdomLogicTests
         research.SetPrerequisitesForEditor(new List<Research>());
         createdObjects.Add(research);
         return research;
+    }
+
+    private Building CreateEconomyBuilding(
+        string id,
+        double productivityConsumption,
+        double productivityGranted,
+        double populationCapacity)
+    {
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.name = id;
+        building.SetIdForEditor(id);
+        building.TechLevel = TechLevel.Animal;
+        building.ConfigureEconomyForEditor(
+            new ExpantaNum(1.15d),
+            ExpantaNum.Zero,
+            new ExpantaNum(productivityConsumption),
+            new ExpantaNum(productivityGranted),
+            new ExpantaNum(populationCapacity),
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>());
+        createdObjects.Add(building);
+        return building;
     }
 
     private T CreateManager<T>(string name) where T : Component

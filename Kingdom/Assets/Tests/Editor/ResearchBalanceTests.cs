@@ -25,7 +25,7 @@ public sealed class ResearchBalanceTests
             ["Pottery"] = 1200d,
             ["TextileCraft"] = 1400d,
             ["CoalMining"] = 1800d,
-            ["NeolithicSettlement"] = 2500d,
+            ["NeolithicSettlement"] = 4400d,
             ["Measurement"] = 3200d,
             ["FoodStorage"] = 3500d,
             ["WrittenRecords"] = 4500d,
@@ -71,6 +71,7 @@ public sealed class ResearchBalanceTests
         Research calendar = DataBase<Research>.Find("Calendar");
         Research knowledgeSharing = DataBase<Research>.Find("KnowledgeSharing");
         Research controlledFire = DataBase<Research>.Find("ControlledFire");
+        Research foragingGroups = DataBase<Research>.Find("ForagingGroups");
         Research mining = DataBase<Research>.Find("Mining");
         Research measurement = DataBase<Research>.Find("Measurement");
         Research smithing = DataBase<Research>.Find("Smithing");
@@ -89,9 +90,37 @@ public sealed class ResearchBalanceTests
                 "CopperSmelter"),
             Is.True);
         Assert.That(HasEffect(waterManagement, ResearchEffectType.BuildingFoodProductionMultiplier, 1.5d), Is.True);
+        Building knowledgeCircle = DataBase<Building>.Find("KnowledgeCircle");
+        Assert.That(knowledgeCircle.RequiredResearch, Is.EquivalentTo(new[] { controlledFire }));
+        Assert.That(knowledgeCircle.ResourceRequirements.Count, Is.EqualTo(1));
+        Assert.That(knowledgeCircle.ResourceRequirements[0].First.Id, Is.EqualTo("WoodLog"));
         Assert.That(
-            DataBase<Building>.Find("KnowledgeCircle").RequiredResearch,
-            Does.Contain(knowledgeSharing));
+            knowledgeCircle.ResourceRequirements[0].Second.ToDouble(),
+            Is.EqualTo(50d).Within(0.000001d));
+        Assert.That(
+            knowledgeCircle.ResearchPowerGranted.ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d));
+        Assert.That(
+            knowledgeCircle.ProductivityConsumption.ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d),
+            "The first knowledge building must leave two workers for food recovery.");
+        Assert.That(
+            HasEffect(
+                knowledgeSharing,
+                ResearchEffectType.GlobalResearchMultiplier,
+                1.15d),
+            Is.True);
+        Building hunterGatherer = DataBase<Building>.Find("HunterGathererCamp");
+        Assert.That(
+            hunterGatherer.RequiredResearch,
+            Is.EquivalentTo(new[] { controlledFire }));
+        Assert.That(
+            HasEffect(
+                foragingGroups,
+                ResearchEffectType.BuildingFoodProductionMultiplier,
+                1.25d,
+                "HunterGathererCamp"),
+            Is.True);
     }
 
     [Test]

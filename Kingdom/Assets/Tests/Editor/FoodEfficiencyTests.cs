@@ -3,10 +3,27 @@ using NUnit.Framework;
 public sealed class FoodEfficiencyTests
 {
     [Test]
+    public void NewGameAndDerivedReset_PreserveFiveFoodPerSecondBaseline()
+    {
+        GameState state = new GameState();
+        Assert.That(state.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
+
+        var reset = typeof(GameState).GetMethod(
+            "ResetDerivedEconomy",
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic);
+        Assert.That(reset, Is.Not.Null);
+        reset.Invoke(state, new object[] { new ExpantaNum(100) });
+
+        Assert.That(state.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
+    }
+
+    [Test]
     public void FoodSatisfaction_UsesInventoryAndPotentialFlow()
     {
         Assert.That(GameManager.CalculateFoodSatisfaction(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(GameManager.CalculateFoodSatisfaction(5, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(GameManager.CalculateFoodSatisfaction(0, 5, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
         Assert.That(GameManager.CalculateFoodSatisfaction(0, 10, 10, 1), Is.EqualTo(ExpantaNum.One));
         Assert.That(GameManager.CalculateFoodSatisfaction(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
         Assert.Throws<System.ArgumentOutOfRangeException>(
@@ -35,6 +52,14 @@ public sealed class FoodEfficiencyTests
             1, resourceInputs, 0.5d, 0.5d, 0.5d);
 
         Assert.That(result.ToDouble(), Is.EqualTo(0.05d).Within(0.000001d));
+    }
+
+    [Test]
+    public void EveryBuildingUsesTheSameFoodSupplyRatio()
+    {
+        Assert.That(
+            BuildingManager.CalculateFoodConstraint(0.4d),
+            Is.EqualTo(new ExpantaNum(0.4d)));
     }
 
     [Test]

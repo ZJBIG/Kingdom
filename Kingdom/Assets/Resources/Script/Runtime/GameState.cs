@@ -3,6 +3,8 @@ using System;
 [Serializable]
 public sealed class GameState
 {
+    public static ExpantaNum BaseFoodProductionRate => new ExpantaNum(5);
+
     private const string DefaultKingdomName = "鼠托邦";
 
     public int CalendarDays { get; private set; }
@@ -43,7 +45,7 @@ public sealed class GameState
         TechLevel = TechLevel.Animal;
         FoodAmount = new ExpantaNum(300);
         FoodCapacity = new ExpantaNum(500);
-        FoodProductionRate = ExpantaNum.Zero;
+        FoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
@@ -80,18 +82,14 @@ public sealed class GameState
     internal void RestorePopulation(
         ExpantaNum population,
         ExpantaNum populationCapacity,
-        ExpantaNum assignedMilitary,
-        ExpantaNum growthProgress,
-        ExpantaNum foodPerPerson)
+        ExpantaNum growthProgress)
     {
         if (Population == null)
             Population = new PopulationState();
         Population.Restore(
             population,
             populationCapacity,
-            assignedMilitary,
-            growthProgress,
-            foodPerPerson);
+            growthProgress);
         Version++;
     }
 
@@ -143,9 +141,9 @@ public sealed class GameState
             Version++;
     }
 
-    internal void ResetDerivedEconomy(ExpantaNum minimumTerritoryTotal, ExpantaNum availableProductivity)
+    internal void ResetDerivedEconomy(ExpantaNum minimumTerritoryTotal)
     {
-        FoodProductionRate = ExpantaNum.Zero;
+        FoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodSatisfaction = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
@@ -157,7 +155,6 @@ public sealed class GameState
         Military.ResetDerived();
         FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
         Population.ResetDerivedCapacity();
-        Population.ResetDerivedWorkforce();
         Territory.ResetDerived(minimumTerritoryTotal);
         Version++;
     }
@@ -174,7 +171,7 @@ public sealed class GameState
         FoodAmount = GameManager.AdvanceFood(
             FoodAmount,
             FoodProductionRate,
-            FoodConsumptionRate + Population.Population * Population.FoodPerPerson,
+            FoodConsumptionRate + Population.Population * PopulationState.FoodConsumptionPerPerson,
             FoodCapacity,
             deltaSeconds);
         if (FoodAmount != previousAmount)
@@ -360,23 +357,15 @@ public sealed class GameState
         Version++;
     }
 
-    internal void CommitConstruction(
-        ExpantaNum spaceCost,
-        ExpantaNum buildEffort,
-        ExpantaNum productivityGranted)
+    internal void CommitConstruction(ExpantaNum spaceCost)
     {
         Territory.AdjustUsed(spaceCost);
-        Population.AdjustBuildingWorkforce(buildEffort);
         Version++;
     }
 
-    internal void RefundConstruction(
-        ExpantaNum spaceCost,
-        ExpantaNum buildEffort,
-        ExpantaNum productivityGranted)
+    internal void RefundConstruction(ExpantaNum spaceCost)
     {
         Territory.AdjustUsed(-spaceCost);
-        Population.AdjustBuildingWorkforce(-buildEffort);
         Version++;
     }
 

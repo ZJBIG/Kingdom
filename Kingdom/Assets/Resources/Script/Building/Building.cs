@@ -86,7 +86,7 @@ public class Building : GameDefinition
     public void ConfigureEconomyForEditor(
         ExpantaNum growth,
         ExpantaNum territory,
-        ExpantaNum workforce,
+        ExpantaNum productivityConsumptionValue,
         ExpantaNum productivity,
         ExpantaNum populationCapacity,
         ExpantaNum researchPower,
@@ -106,7 +106,7 @@ public class Building : GameDefinition
     {
         costGrowth = growth;
         spaceCost = territory;
-        productivityConsumption = workforce;
+        productivityConsumption = productivityConsumptionValue;
         productivityGranted = productivity;
         populationCapacityGranted = populationCapacity;
         researchPowerGranted = researchPower;

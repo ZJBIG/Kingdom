@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
+    public const string StartingResourceId = "WoodLog";
+
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
 
     private readonly Dictionary<Resource, ResourceState> states = new();
@@ -14,8 +16,12 @@ public class ResourceManager : Singleton<ResourceManager>
 
     protected override void Initialize()
     {
-        EnsureStartingProduction();
+        EnsureStartingResource();
     }
+
+    public static bool IsStartingResource(Resource resource) =>
+        resource != null &&
+        string.Equals(resource.Id, StartingResourceId, StringComparison.OrdinalIgnoreCase);
 
     public ResourceState EnsureResource(Resource resource)
     {
@@ -226,15 +232,16 @@ public class ResourceManager : Singleton<ResourceManager>
             nameof(saveData.GlobalEfficiencyFactor),
             ExpantaNum.One);
 
-        EnsureStartingProduction();
+        EnsureStartingResource();
     }
 
-    private void EnsureStartingProduction()
+    internal ResourceState EnsureStartingResource()
     {
-        Resource woodLog = DataBase<Resource>.Find("WoodLog");
+        Resource woodLog = DataBase<Resource>.Find(StartingResourceId);
         ResourceState state = EnsureResource(woodLog);
         if (state.ProductionRate < ExpantaNum.One)
             state.SetProductionRate(ExpantaNum.One);
+        return state;
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);

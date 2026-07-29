@@ -39,6 +39,7 @@ namespace Kingdom.EditorTools
             ConfigureAllResearch();
             ConfigureAllBuildings();
             ConfigureWorkshopUpgrades();
+            ConfigureWorkshopClosureOverrides();
             ConfigureBuildingWorkshopPrerequisites();
             NormalizeDefinitionFolders();
 
@@ -484,10 +485,10 @@ namespace Kingdom.EditorTools
             W("ShiftRegisters", "轮班登记", "基础设施", 20, R("IndustrialWorkshop"),
                 P("Pottery", 200, "Cloth", 200, "Steel", 150), E(WorkshopEffectType.GlobalResearchMultiplier, 1.10));
             W("ReinforcedBoilers", "强化锅炉", "动力", 30, R("SteamPower"),
-                P("Steel", 350, "Coke", 300, "PrecisionParts", 50),
+                P("Coal", 350, "Iron", 300),
                 EB(WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant", 1.25));
             W("InterchangeableParts", "互换零件", "机械", 40, R("PrecisionManufacturing"),
-                P("Steel", 400, "Bronze", 200, "CopperWire", 100),
+                P("Steel", 400, "Copper", 250),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "MachineFactory", 1.20));
             W("PrecisionTooling", "精密加工", "机械", 50, R("PrecisionManufacturing"),
                 P("Steel", 600, "Bronze", 250, "CopperWire", 200, "Lubricant", 80),
@@ -505,10 +506,10 @@ namespace Kingdom.EditorTools
                 P("Machinery", 100, "Steel", 200, "Cloth", 200),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "WeavingWorkshop", 1.50));
             W("RotaryKilns", "回转窑", "加工", 100, R("IndustrialChemistry"),
-                P("Machinery", 100, "Coke", 200, "Pottery", 200),
+                P("Coal", 250, "Clay", 250),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "Glassworks", 1.35));
             W("StandardGauge", "标准轨距", "物流", 110, R("RailwayEngineering"),
-                P("Machinery", 150, "Engine", 20, "Steel", 600),
+                P("Steel", 600, "Coke", 300),
                 EB(WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub", 1.30));
             W("TelegraphDispatch", "电报调度", "物流", 120, R("LogisticsManagement"),
                 P("Electronics", 180, "CopperWire", 400, "Machinery", 120),
@@ -524,7 +525,7 @@ namespace Kingdom.EditorTools
                 E(WorkshopEffectType.PowerMultiplier, 1.20),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.10));
             W("ConveyorSystems", "传送系统", "机械", 160, R("MassProduction"),
-                P("Machinery", 300, "PrecisionParts", 150, "Rubber", 150),
+                P("Machinery", 300, "Steel", 250),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.15));
             W("ReinforcedConcrete", "钢筋混凝土", "基础设施", 170, R("FactoryOrganization"),
                 P("Chemical", 200, "StoneBrick", 1500, "Steel", 400,
@@ -548,6 +549,30 @@ namespace Kingdom.EditorTools
             SetWorkshopPrerequisites("ShiftRegisters", "ElectricalInstrumentation");
             SetWorkshopPrerequisites("StandardGauge", "ReinforcedBoilers");
             SetWorkshopPrerequisites("TelegraphDispatch", "ElectricalInstrumentation");
+        }
+
+        private static void ConfigureWorkshopClosureOverrides()
+        {
+            OverrideWorkshop("ReinforcedBoilers", R("SteamPower"), P("Coal", 350, "Iron", 300));
+            OverrideWorkshop("InterchangeableParts", R("PrecisionManufacturing"), P("Steel", 400, "Copper", 250));
+            OverrideWorkshop("RotaryKilns", R("IndustrialChemistry"), P("Coal", 250, "Clay", 250));
+            OverrideWorkshop("ElectricalInstrumentation", R("ElectricalEngineering"), P("CopperWire", 350, "Glass", 200));
+            OverrideWorkshop("ConveyorSystems", R("FactoryOrganization"), P("Machinery", 300, "Steel", 250));
+            OverrideWorkshop("StandardGauge", R("RailwayEngineering"), P("Steel", 600, "Coke", 300));
+        }
+
+        private static void OverrideWorkshop(
+            string id,
+            List<Research> research,
+            List<Pair<Resource, ExpantaNum>> requirements)
+        {
+            WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
+            definition.ConfigureForEditor(
+                research,
+                definition.RequiredUpgrades.ToList(),
+                requirements,
+                definition.Effects.ToList());
+            EditorUtility.SetDirty(definition);
         }
 
         private static void SetWorkshopPrerequisites(string id, params string[] prerequisiteIds)
@@ -698,7 +723,7 @@ namespace Kingdom.EditorTools
         }
 
         private static void B(
-            string id, TechLevel tech, double growth, double territory, double workforce,
+            string id, TechLevel tech, double growth, double territory, double productivityConsumption,
             double productivity, double population, double research, double foodProduction,
             double foodConsumption, double foodCapacity, double powerProduction,
             double powerConsumption, double logisticsProduction, double attack,
@@ -714,7 +739,7 @@ namespace Kingdom.EditorTools
                 building.Label = id;
             building.ConfigureEconomyForEditor(
                 N(growth), N(territory),
-                N(workforce), N(productivity), N(population), N(research),
+                N(productivityConsumption), N(productivity), N(population), N(research),
                 N(foodProduction), N(foodConsumption), N(foodCapacity),
                 N(powerProduction), N(powerConsumption), N(logisticsProduction),
                 N(logisticsConsumption), N(attack), N(defense), N(manpower),

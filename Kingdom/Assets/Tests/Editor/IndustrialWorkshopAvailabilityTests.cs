@@ -73,6 +73,45 @@ public class IndustrialWorkshopAvailabilityTests
                 definitions[i].Id);
     }
 
+    [Test]
+    public void IndustrialWorkshopClosureItemsHaveRealCostsAndEffects()
+    {
+        AssertWorkshop("ReinforcedBoilers", "Coal", "Iron", WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant");
+        AssertWorkshop("InterchangeableParts", "Steel", "Copper", WorkshopEffectType.BuildingProductionMultiplier, "MachineFactory");
+        AssertWorkshop("RotaryKilns", "Coal", "Clay", WorkshopEffectType.BuildingProductionMultiplier, "Glassworks");
+        AssertWorkshop("ElectricalInstrumentation", "CopperWire", "Glass", WorkshopEffectType.PowerMultiplier, null);
+        AssertWorkshop("ConveyorSystems", "Machinery", "Steel", WorkshopEffectType.GlobalBuildingProductionMultiplier, null);
+        AssertWorkshop("StandardGauge", "Steel", "Coke", WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub");
+    }
+
+    private static void AssertWorkshop(
+        string id,
+        string firstResource,
+        string secondResource,
+        WorkshopEffectType effectType,
+        string targetBuilding)
+    {
+        WorkshopUpgradeDefinition definition =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/" + id);
+        Assert.That(definition, Is.Not.Null, id);
+        Assert.That(definition.ResourceRequirements.Count, Is.EqualTo(2), id);
+        Assert.That(definition.ResourceRequirements[0].First.Id, Is.EqualTo(firstResource), id);
+        Assert.That(definition.ResourceRequirements[1].First.Id, Is.EqualTo(secondResource), id);
+
+        bool found = false;
+        for (int i = 0; i < definition.Effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = definition.Effects[i];
+            if (effect.Type != effectType)
+                continue;
+            if (targetBuilding == null ||
+                (effect.Building != null && effect.Building.Id == targetBuilding))
+                found = true;
+        }
+
+        Assert.That(found, Is.True, id);
+    }
+
     private static void AssertUpgradeRequires(string definitionId, string prerequisiteId)
     {
         WorkshopUpgradeDefinition definition =
