@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: ConcreteWorks
   m_EditorClassIdentifier: 
   id: ConcreteWorks
-  Label: ConcreteWorks
-  Description: 
-  TechLevel: 3
+  Label: "混凝土厂"
+  Description: "将石料与工业胶结材料按标准配比混合，连续生产大型工程所需的混凝土。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

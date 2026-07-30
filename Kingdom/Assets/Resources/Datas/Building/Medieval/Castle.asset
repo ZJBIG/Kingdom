@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Castle
   m_EditorClassIdentifier: 
   id: Castle
-  Label: "\u57CE\u5821"
-  Description: "\u57CE\u5821\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "城堡"
+  Description: "在瞭望与预警体系上整合城墙、守军、仓储和指挥设施，为城市提供完整而持久的防御核心。"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:

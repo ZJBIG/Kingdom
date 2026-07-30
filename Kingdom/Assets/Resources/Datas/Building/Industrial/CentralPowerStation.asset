@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: CentralPowerStation
   m_EditorClassIdentifier: 
   id: CentralPowerStation
-  Label: CentralPowerStation
-  Description: 
-  TechLevel: 3
+  Label: "中央发电站"
+  Description: "以集中锅炉和大型发电机组持续供电，并通过电网向整个工业区分配能源。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

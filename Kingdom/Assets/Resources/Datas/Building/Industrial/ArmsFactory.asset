@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ArmsFactory
   m_EditorClassIdentifier: 
   id: ArmsFactory
-  Label: Arms Factory
-  Description: Converts industrial materials into modern military equipment.
+  Label: "军工厂"
+  Description: "将兵营训练与军械库的装备体系升级为标准化军工生产，持续提供现代武器、军需和成建制战斗能力。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -119,21 +119,21 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 10
+    scalar: 45
     layer: 0
     operators: []
   defensePowerGranted:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 2
+    scalar: 10
     layer: 0
     operators: []
   militaryManpowerGranted:
     sign: 0
     representation: 0
     operatorCount: 0
-    scalar: 0
+    scalar: 40
     layer: 0
     operators: []
   resourceRequirements:

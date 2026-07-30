@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SteelForge
   m_EditorClassIdentifier: 
   id: SteelForge
-  Label: "\u70BC\u94A2\u7089"
-  Description: "\u4EE5\u94C1\u548C\u7164\u4E3A\u8F93\u5165\uFF0C\u8FDE\u7EED\u751F\u4EA7\u94A2\u6750\u3002"
+  Label: "炼钢炉"
+  Description: "以铁和煤为原料控制炉温与含碳量，连续生产强度更高的钢材。"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: c3b7f892911733247aea889f1bf878ee, type: 2}
   costGrowth:

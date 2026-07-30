@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Caravanserai
   m_EditorClassIdentifier: 
   id: Caravanserai
-  Label: "\u5546\u65C5\u9A7F\u7AD9"
-  Description: "\u5546\u65C5\u9A7F\u7AD9\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "商旅驿站"
+  Description: "整合市场交易、商队住宿、仓储、牲畜补给和货物转运，承担城市的商业与区域物流职能。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
   costGrowth:
     sign: 0
     representation: 1
@@ -42,7 +42,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 15
+    scalar: 30
     layer: 0
     operators: []
   populationCapacityGranted:
@@ -56,7 +56,7 @@ MonoBehaviour:
     sign: 0
     representation: 0
     operatorCount: 0
-    scalar: 0
+    scalar: 5
     layer: 0
     operators: []
   foodProductionRate:

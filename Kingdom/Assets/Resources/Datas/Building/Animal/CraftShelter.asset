@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: CraftShelter
   m_EditorClassIdentifier: 
   id: CraftShelter
-  Label: "\u624B\u5DE5\u4E1A\u68DA"
-  Description: "\u624B\u5DE5\u4E1A\u68DA\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "手工业棚"
+  Description: "集中木工、骨器和简单编织等手工业活动，以少量劳动力提升聚落的基础生产能力。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 00c0d8550c950ef41a991c22d3647a31, type: 2}
   costGrowth:
     sign: 0
     representation: 1

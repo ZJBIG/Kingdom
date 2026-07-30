@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: IndustrialCopperSmelter
   m_EditorClassIdentifier: 
   id: IndustrialCopperSmelter
-  Label: IndustrialCopperSmelter
-  Description: 
-  TechLevel: 3
+  Label: "工业铜冶炼炉"
+  Description: "利用机械化炉体和电力设备连续冶炼铜矿，以更高效率生产铜锭。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

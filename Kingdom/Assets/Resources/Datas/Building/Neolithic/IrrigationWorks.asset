@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IrrigationWorks
   m_EditorClassIdentifier: 
   id: IrrigationWorks
-  Label: "\u704C\u6E89\u8BBE\u65BD"
-  Description: "\u704C\u6E89\u8BBE\u65BD\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "灌溉设施"
+  Description: "修筑沟渠、蓄水池和分水设施，提高农田产量，并缓冲旱季造成的食物波动。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

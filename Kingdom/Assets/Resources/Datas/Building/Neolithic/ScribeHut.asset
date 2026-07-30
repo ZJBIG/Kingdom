@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ScribeHut
   m_EditorClassIdentifier: 
   id: ScribeHut
-  Label: Scribe Hut
-  Description: A workshop where scribes preserve knowledge and accelerate research.
+  Label: "文书小屋"
+  Description: "由专职文书在陶片、木板和布帛上整理记录，持续提升知识保存与研究效率。"
   TechLevel: 1
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 453e503a91786d147a6751312083c50a, type: 2}
   costGrowth:
     sign: 0
     representation: 1

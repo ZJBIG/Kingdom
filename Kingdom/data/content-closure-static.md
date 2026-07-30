@@ -2,9 +2,9 @@
 
 TechLevel reached: 3
 Industrial baseline: False
-Research reachable (up to Industrial): 122/122
+Research reachable (up to Industrial): 121/121
 Workshop reachable (up to Industrial): 32/32
-Building reachable (up to Industrial): 71/71
+Building reachable (up to Industrial): 64/64
 Resources available: 33
 
 ## Unreachable research

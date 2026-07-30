@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: BauxiteMine
   m_EditorClassIdentifier: 
   id: BauxiteMine
-  Label: BauxiteMine
-  Description: 
-  TechLevel: 3
+  Label: "铝土矿场"
+  Description: "使用工业设备开采和选矿铝土矿，为铝冶炼体系提供稳定矿源。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

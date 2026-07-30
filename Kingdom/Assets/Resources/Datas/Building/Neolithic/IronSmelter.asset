@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IronSmelter
   m_EditorClassIdentifier: 
   id: IronSmelter
-  Label: "\u94C1\u51B6\u70BC\u7089"
-  Description: "\u7528\u7164\u70AD\u8FD8\u539F\u94C1\u77FF\uFF0C\u4E3A\u66F4\u575A\u56FA\u7684\u5DE5\u5177\u548C\u7ED3\u6784\u63D0\u4F9B\u94C1\u952D\u3002"
+  Label: "铁冶炼炉"
+  Description: "以燃料加热并还原铁矿，生产用于工具、武器和结构件的铁锭。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

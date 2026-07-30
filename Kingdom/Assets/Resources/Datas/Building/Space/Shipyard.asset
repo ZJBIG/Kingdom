@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Shipyard
   m_EditorClassIdentifier: 
   id: Shipyard
-  Label: "\u661F\u8230\u8239\u575E"
-  Description: "\u4F7F\u7528\u590D\u5408\u6750\u6599\u3001\u673A\u68B0\u548C\u7535\u5B50\u8BBE\u5907\u5EFA\u9020\u8FDC\u5F81\u8230\u961F\u3002"
+  Label: "星舰船坞"
+  Description: "利用复合材料、机械和电子设备建造远征舰船，形成可持续扩张的太空舰队。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth:

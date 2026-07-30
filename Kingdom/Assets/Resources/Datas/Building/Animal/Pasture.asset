@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Pasture
   m_EditorClassIdentifier: 
   id: Pasture
-  Label: Pasture
-  Description: Raises livestock and provides a stable food source for settlements.
+  Label: "牧场"
+  Description: "圈定草场并集中放牧，稳定获得畜产品和食物，是后续牲畜围场的基础形态。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 9968e902b2866134396af64bcf810d2e, type: 2}
   costGrowth:
     sign: 0
     representation: 1

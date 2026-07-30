@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: CokeOven
   m_EditorClassIdentifier: 
   id: CokeOven
-  Label: CokeOven
-  Description: 
-  TechLevel: 3
+  Label: "焦炉"
+  Description: "在隔绝空气的炉室中高温干馏煤炭，生产适合高炉和化工流程使用的焦炭。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

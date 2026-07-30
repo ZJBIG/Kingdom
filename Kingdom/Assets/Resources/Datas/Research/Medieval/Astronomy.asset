@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Astronomy
   Label: "\u5929\u6587\u5B66"
-  Description: "\u901A\u8FC7\u957F\u671F\u89C2\u6D4B\u6052\u661F\u3001\u884C\u661F\u548C\u65E5\u6708\u8FD0\u52A8\u6539\u8FDB\u5386\u6CD5\u4E0E\u65B9\u4F4D\u5224\u65AD\uFF0C\u4E3A\u8FDC\u884C\u3001\u6D4B\u7ED8\u548C\u5B63\u8282\u9884\u6D4B\u63D0\u4F9B\u4F9D\u636E\u3002"
+  Description: "\u901a\u8fc7\u957f\u671f\u89c2\u6d4b\u6052\u661f\u3001\u884c\u661f\u548c\u65e5\u6708\u8fd0\u52a8\u6539\u8fdb\u5386\u6cd5\u3001\u6d4b\u7ed8\u4e0e\u65b9\u5411\u5224\u65ad\uff0c\u5e76\u628a\u89c4\u5f8b\u6027\u89c2\u6d4b\u65b9\u6cd5\u7528\u4e8e\u5176\u4ed6\u5b66\u79d1\uff0c\u4f7f\u5168\u5c40\u7814\u7a76\u6548\u7387\u63d0\u9ad812%\u3002"
   BaseCost: 150000
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
@@ -46,15 +46,15 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 5
+  - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: UnlockBuilding_Observatory
+    SystemId: 
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.02
+      scalar: 1.12
       layer: 0
       operators: []
   TechLevel: 2

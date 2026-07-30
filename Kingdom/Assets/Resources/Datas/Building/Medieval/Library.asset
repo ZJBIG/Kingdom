@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Library
   m_EditorClassIdentifier: 
   id: Library
-  Label: "\u56FE\u4E66\u9986"
-  Description: "\u6574\u7406\u4E66\u7C4D\u548C\u8BB0\u5F55\uFF0C\u663E\u8457\u63D0\u9AD8\u7814\u7A76\u529B\u3002"
+  Label: "图书馆"
+  Description: "集中收藏、分类和抄录书籍，使知识能够长期保存，并稳定转化为研究力。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: dc6457aada3ab7c4fa8517340f6ad101, type: 2}
   costGrowth:
     sign: 0
     representation: 1

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public sealed class SimulationManager : Singleton<SimulationManager>
 {
+    private const double OfflineStepSeconds = 60d;
+
     [SerializeField] private float tickIntervalSeconds = 0.1f;
     [SerializeField] private int maximumTicksPerFrame = 20;
 
@@ -92,5 +94,31 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             BuildingManager.Instance.SafePopulationDepartureAllowance);
         ResourceManager.Instance.Tick(deltaSeconds);
         ResearchManager.Instance.Tick(deltaSeconds);
+    }
+
+    public double AdvanceOffline(double elapsedSeconds)
+    {
+        if (elapsedSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
+        if (elapsedSeconds <= 0d)
+            return 0d;
+
+        double remaining = elapsedSeconds;
+        double advanced = 0d;
+        while (remaining > 0d)
+        {
+            double step = Math.Min(OfflineStepSeconds, remaining);
+            BuildingManager.Instance.PrepareTickResourceSatisfaction(step);
+            BuildingManager.Instance.RefreshEfficiencies();
+            GameManager.Instance.Tick(
+                step,
+                BuildingManager.Instance.SafePopulationDepartureAllowance);
+            ResourceManager.Instance.Tick(step);
+            ResearchManager.Instance.TickOffline(step);
+            remaining -= step;
+            advanced += step;
+        }
+
+        return advanced;
     }
 }

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CharcoalKiln
   m_EditorClassIdentifier: 
   id: CharcoalKiln
-  Label: "\u70AD\u7A91"
-  Description: "\u70AD\u7A91\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "炭窑"
+  Description: "在缺氧窑体中炭化木材，生产适合冶炼和高温加工的木炭。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

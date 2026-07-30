@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: KnowledgeCircle
   m_EditorClassIdentifier: 
   id: KnowledgeCircle
-  Label: Knowledge Circle
-  Description: A communal place for recording observations and sharing ideas.
+  Label: "知识圈"
+  Description: "由经验丰富的成员记录天象、动植物和工具用法，把零散经验转化为最早的研究力。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 704f8c01123417d4e815763f95a5c807, type: 2}
   costGrowth:
     sign: 0
     representation: 1

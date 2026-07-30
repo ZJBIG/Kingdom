@@ -29,17 +29,17 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 2
-    Building: {fileID: 11400000, guid: 24f1479e192cb5444a4570e0965a06f0, type: 2}
+    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.25
+      scalar: 1.1
       layer: 0
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 2
-  y: 11.653
+  y: 10

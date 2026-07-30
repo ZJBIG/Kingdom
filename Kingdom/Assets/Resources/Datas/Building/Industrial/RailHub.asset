@@ -43,7 +43,7 @@ MonoBehaviour:
     sign: 0
     representation: 0
     operatorCount: 0
-    scalar: 0
+    scalar: 45
     layer: 0
     operators: []
   populationCapacityGranted:
@@ -57,7 +57,7 @@ MonoBehaviour:
     sign: 0
     representation: 0
     operatorCount: 0
-    scalar: 0
+    scalar: 5
     layer: 0
     operators: []
   foodProductionRate:

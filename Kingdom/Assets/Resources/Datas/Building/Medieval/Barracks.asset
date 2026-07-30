@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Barracks
   m_EditorClassIdentifier: 
   id: Barracks
-  Label: "\u5175\u8425"
-  Description: "\u8BAD\u7EC3\u5E76\u7EC4\u7EC7\u519B\u961F\uFF0C\u6D88\u8017\u4EBA\u53E3\u63D0\u4F9B\u7684\u52B3\u52A8\u529B\u3002"
+  Label: "兵营"
+  Description: "集中训练、编组并维持常备士兵，是军械库与工业化军工体系的人员基础。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: d8ff2d5d1666ccd4b9744dc3ad06756a, type: 2}
   costGrowth:
     sign: 0
     representation: 1

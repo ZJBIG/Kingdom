@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CoalMine
   m_EditorClassIdentifier: 
   id: CoalMine
-  Label: "\u7164\u77FF"
-  Description: "\u4ECE\u7164\u5C42\u4E2D\u6301\u7EED\u5F00\u91C7\u71C3\u6599\uFF0C\u4E3A\u51B6\u70BC\u7089\u63D0\u4F9B\u7A33\u5B9A\u70ED\u6E90\u3002"
+  Label: "煤矿井"
+  Description: "从煤层持续开采煤炭，为冶炼、供热和早期动力设备提供高密度燃料。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WeavingWorkshop
   m_EditorClassIdentifier: 
   id: WeavingWorkshop
-  Label: Weaving Workshop
-  Description: Weaves plant fiber into cloth for storage, housing, and early tools.
+  Label: "纺织工坊"
+  Description: "将植物纤维纺成线并织成布料，供应服装、储物、住房和工具制作。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

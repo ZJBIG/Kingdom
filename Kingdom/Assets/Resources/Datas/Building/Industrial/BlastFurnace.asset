@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: BlastFurnace
   m_EditorClassIdentifier: 
   id: BlastFurnace
-  Label: BlastFurnace
-  Description: 
-  TechLevel: 3
+  Label: "高炉"
+  Description: "在高温连续炉中冶炼铁矿并控制成分，大规模生产工业钢材。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

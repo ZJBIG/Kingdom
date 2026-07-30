@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: IndustrialBronzeFoundry
   m_EditorClassIdentifier: 
   id: IndustrialBronzeFoundry
-  Label: IndustrialBronzeFoundry
-  Description: 
-  TechLevel: 3
+  Label: "工业青铜铸造炉"
+  Description: "使用动力设备精确控制铜锡配比与炉温，以更高效率连续生产青铜。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

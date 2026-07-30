@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Arsenal
   m_EditorClassIdentifier: 
   id: Arsenal
-  Label: "\u519B\u68B0\u5E93"
-  Description: "\u519B\u68B0\u5E93\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "军械库"
+  Description: "在兵营体系上增加武器储备、维修和统一配发，使军队获得更强战力并为军工厂升级做好准备。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 70dd159874cad3f4ba18b95696149157, type: 2}
   costGrowth:
     sign: 0
     representation: 1

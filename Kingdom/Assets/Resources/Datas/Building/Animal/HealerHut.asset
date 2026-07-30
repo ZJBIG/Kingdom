@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: HealerHut
   m_EditorClassIdentifier: 
   id: HealerHut
-  Label: "\u7597\u6108\u68DA"
-  Description: "\u7597\u6108\u68DA\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "疗愈棚"
+  Description: "储存草药并集中处理伤病，减少劳动力损失，同时改善聚落的日常生产效率。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 39c04765ccfce5949b526ee5a0e1bb4b, type: 2}
   costGrowth:
     sign: 0
     representation: 1

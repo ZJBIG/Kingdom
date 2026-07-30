@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Academy
   m_EditorClassIdentifier: 
   id: Academy
-  Label: "\u5B66\u9662"
-  Description: "\u5B66\u9662\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "学院"
+  Description: "组织系统课程、学术讨论和专职研究，使零散知识发展为稳定的学术体系。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
   costGrowth:
     sign: 0
     representation: 1

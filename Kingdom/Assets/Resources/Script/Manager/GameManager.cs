@@ -237,6 +237,8 @@ public class GameManager : Singleton<GameManager>
 
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 
+    internal void MarkSaveTimestamp(long unixSeconds) => State.MarkSaved(unixSeconds);
+
     internal void ResetDerivedEconomy() =>
         State.ResetDerivedEconomy(TerritoryState.InitialTotal);
 

@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: AluminumSmelter
   m_EditorClassIdentifier: 
   id: AluminumSmelter
-  Label: AluminumSmelter
-  Description: 
-  TechLevel: 3
+  Label: "铝冶炼厂"
+  Description: "消耗大量电力从铝土矿中提炼铝，生产轻质且耐腐蚀的工业金属。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

@@ -28,8 +28,10 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         _ = WorkshopManager.Instance;
         GameManager.Instance.Sectors.InitializeDefinitions();
 
-        SaveManager.Instance.LoadOrCreateGame();
+        bool loadedExistingGame = SaveManager.Instance.LoadOrCreateGame();
         SaveManager.Instance.SetReady(true);
+        if (loadedExistingGame && SaveManager.Instance.ApplyOfflineProgress())
+            SaveManager.Instance.SaveNow(true);
         SimulationManager.Instance.SetRunning(true);
         completed = true;
     }

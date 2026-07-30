@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: OilDerrick
   m_EditorClassIdentifier: 
   id: OilDerrick
-  Label: OilDerrick
-  Description: 
-  TechLevel: 3
+  Label: "石油钻井"
+  Description: "钻入地下油层并抽取原油，为炼油、化工和液体燃料体系提供基础资源。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

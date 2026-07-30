@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Farm
   Label: "\u519C\u573A"
-  Description: "\u901A\u8FC7\u8015\u4F5C\u571F\u5730\u7A33\u5B9A\u751F\u4EA7\u98DF\u7269\uFF0C\u8BA9\u805A\u843D\u4ECE\u4F9D\u8D56\u91C7\u96C6\u9010\u6B65\u8D70\u5411\u5B9A\u5C45\u4E0E\u6301\u7EED\u589E\u957F\u3002"
+  Description: "\u5F00\u57A6\u5E76\u8F6E\u4F5C\u519C\u7530\uFF0C\u7A33\u5B9A\u4EA7\u51FA\u7CAE\u98DF\uFF0C\u4F7F\u4EBA\u53E3\u589E\u957F\u4E0D\u518D\u5B8C\u5168\u4F9D\u8D56\u72E9\u730E\u4E0E\u91C7\u96C6\u3002"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
   costGrowth:
     sign: 0
     representation: 1
@@ -63,7 +63,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 8
+    scalar: 6
     layer: 0
     operators: []
   foodConsumptionRate:

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TinSmelter
   m_EditorClassIdentifier: 
   id: TinSmelter
-  Label: "\u9521\u51B6\u70BC\u7089"
-  Description: "\u5C06\u9521\u77FF\u8FD8\u539F\u4E3A\u9521\u952D\uFF0C\u4E3A\u540E\u7EED\u7684\u5408\u91D1\u5DE5\u827A\u505A\u51C6\u5907\u3002"
+  Label: "锡冶炼炉"
+  Description: "将锡矿还原为锡锭，为青铜铸造和后续合金工艺准备精炼金属。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 4eb4345e79b1078428c5e005ca18ee3e, type: 2}
   costGrowth:

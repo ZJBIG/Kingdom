@@ -134,6 +134,13 @@ public class ResearchManager : Singleton<ResearchManager>
         CompleteCurrentResearch(current);
     }
 
+    internal void TickOffline(double deltaSeconds)
+    {
+        if (ActiveResearch != null && !ActiveResearch.CostPaid)
+            TryPayResearchCost(ActiveResearch);
+        Tick(deltaSeconds);
+    }
+
     public static bool TryPayResearchCost(ResearchState state)
     {
         if (state == null)

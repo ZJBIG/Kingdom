@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PotteryKiln
   m_EditorClassIdentifier: 
   id: PotteryKiln
-  Label: Pottery Kiln
-  Description: Fires clay into durable pottery for storage and early construction.
+  Label: "陶窑"
+  Description: "以高温烧制黏土，生产耐久陶器，用于储粮、运输和早期建筑。"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Smokehouse
   m_EditorClassIdentifier: 
   id: Smokehouse
-  Label: "\u718F\u5236\u68DA"
-  Description: "\u718F\u5236\u68DA\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "熏制棚"
+  Description: "通过烟熏和风干延长肉类保存时间，同时提供少量持续食物和早期储粮空间。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: d680825d0f43bc54897cc09901119203, type: 2}
   costGrowth:
     sign: 0
     representation: 1

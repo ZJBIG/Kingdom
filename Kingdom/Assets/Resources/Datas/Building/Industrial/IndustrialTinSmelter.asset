@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: IndustrialTinSmelter
   m_EditorClassIdentifier: 
   id: IndustrialTinSmelter
-  Label: IndustrialTinSmelter
-  Description: 
-  TechLevel: 3
+  Label: "工业锡冶炼炉"
+  Description: "采用机械输送和稳定热源大规模冶炼锡矿，持续产出高纯度锡锭。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

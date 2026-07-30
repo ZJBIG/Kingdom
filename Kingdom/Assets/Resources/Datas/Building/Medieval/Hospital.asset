@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Hospital
   m_EditorClassIdentifier: 
   id: Hospital
-  Label: "\u533B\u9662"
-  Description: "\u533B\u9662\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "医院"
+  Description: "设置病房、药房和专职医护人员，集中治疗伤病并减少长期劳动力损失。"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:

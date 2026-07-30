@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: SilicaQuarry
   m_EditorClassIdentifier: 
   id: SilicaQuarry
-  Label: SilicaQuarry
-  Description: 
-  TechLevel: 3
+  Label: "硅砂矿场"
+  Description: "机械化开采并筛选高纯度硅砂，为玻璃和其他硅基材料提供原料。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

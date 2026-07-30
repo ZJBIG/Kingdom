@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: Glassworks
   m_EditorClassIdentifier: 
   id: Glassworks
-  Label: Glassworks
-  Description: 
-  TechLevel: 3
+  Label: "玻璃厂"
+  Description: "熔化并精炼硅砂，生产建筑、实验仪器和精密设备所需的玻璃。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

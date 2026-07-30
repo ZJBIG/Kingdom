@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FiberGatheringCamp
   m_EditorClassIdentifier: 
   id: FiberGatheringCamp
-  Label: "\u7EA4\u7EF4\u91C7\u96C6\u5730"
-  Description: "\u6536\u96C6\u690D\u7269\u7EA4\u7EF4\uFF0C\u4E3A\u7EBA\u7EC7\u548C\u65E9\u671F\u5DE5\u5177\u63D0\u4F9B\u539F\u6599\u3002"
+  Label: "纤维采集地"
+  Description: "采集麻、草茎等植物纤维，作为绳索、织物和轻型工具的基础原料。"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:

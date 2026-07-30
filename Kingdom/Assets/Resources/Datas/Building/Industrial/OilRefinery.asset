@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: OilRefinery
   m_EditorClassIdentifier: 
   id: OilRefinery
-  Label: OilRefinery
-  Description: 
-  TechLevel: 3
+  Label: "炼油厂"
+  Description: "通过蒸馏和裂化处理原油，生产可供交通、发电与工业设备使用的燃料。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

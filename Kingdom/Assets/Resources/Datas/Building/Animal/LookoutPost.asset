@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: LookoutPost
   m_EditorClassIdentifier: 
   id: LookoutPost
-  Label: "\u77AD\u671B\u5C97"
-  Description: "\u77AD\u671B\u5C97\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "瞭望岗"
+  Description: "在聚落边缘持续警戒，提前发现威胁，并为少量守卫提供基础防御据点。"
   TechLevel: 0
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 0ebe3de8a8fc0644b9810a21d32a4fcb, type: 2}
   costGrowth:
     sign: 0
     representation: 1

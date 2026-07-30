@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: RoyalWorkshop
   m_EditorClassIdentifier: 
   id: RoyalWorkshop
-  Label: "\u7687\u5BB6\u5DE5\u574A"
-  Description: "\u7687\u5BB6\u5DE5\u574A\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "皇家工坊"
+  Description: "由熟练工匠在标准化工位中制造精密器具和高质量部件，是机器制造厂出现前的高级生产中心。"
   TechLevel: 2
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
   costGrowth:
     sign: 0
     representation: 1

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: StoneHouse
   m_EditorClassIdentifier: 
   id: StoneHouse
-  Label: "\u77F3\u5C4B"
-  Description: "\u77F3\u5C4B\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
+  Label: "石屋"
+  Description: "以加工石材替代易损木构，提供更耐久且容量更高的定居住宅。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: be5213f0e4ae52f40b3f4f81301955ca, type: 2}
   costGrowth:

@@ -18,6 +18,25 @@ public sealed class SimulationDeterminismTests
             Is.EqualTo(resourceAtSixtyFps.ToDouble()).Within(0.001d));
     }
 
+    [Test]
+    public void OfflineElapsedTime_ClampsAndRejectsClockRollback()
+    {
+        Assert.That(
+            SaveManager.CalculateOfflineElapsedSeconds(100, 370, 1000),
+            Is.EqualTo(270d));
+        Assert.That(
+            SaveManager.CalculateOfflineElapsedSeconds(100, 370, 120),
+            Is.EqualTo(120d));
+        Assert.That(
+            SaveManager.CalculateOfflineElapsedSeconds(100, 99, 1000),
+            Is.EqualTo(0d));
+        Assert.That(
+            SaveManager.CalculateOfflineElapsedSeconds(0, 370, 1000),
+            Is.EqualTo(0d));
+        Assert.Throws<System.ArgumentOutOfRangeException>(
+            () => SaveManager.CalculateOfflineElapsedSeconds(100, 370, -1d));
+    }
+
     private static ExpantaNum IntegrateFood(int stepCount, double deltaSeconds)
     {
         ExpantaNum amount = new ExpantaNum(300);

@@ -37,7 +37,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: d79117356935b484288c9e07b35e806e, type: 2}
+    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:

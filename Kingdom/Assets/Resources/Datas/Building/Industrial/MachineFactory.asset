@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MachineFactory
   m_EditorClassIdentifier: 
   id: MachineFactory
-  Label: Machine Factory
-  Description: Manufactures machinery and electronics from steel, tools, and copper.
+  Label: "机器制造厂"
+  Description: "把皇家工坊的熟练手工业升级为标准化机器生产，在提升整体生产力的同时制造机械设备和复杂工业部件。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -42,7 +42,7 @@ MonoBehaviour:
     sign: 0
     representation: 0
     operatorCount: 0
-    scalar: 0
+    scalar: 180
     layer: 0
     operators: []
   populationCapacityGranted:

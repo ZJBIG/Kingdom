@@ -11,6 +11,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     private const string BackupExtension = ".bak";
 
     [SerializeField] private float autoSaveIntervalSeconds = 30f;
+    [SerializeField] private float maximumOfflineHours = 24f;
 
     private bool ready;
     private bool dirty = true;
@@ -27,6 +28,8 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool HasSave => File.Exists(SavePath) || File.Exists(BackupPath);
 
+    public double LastOfflineProgressSeconds { get; private set; }
+
     public void SetReady(bool value)
     {
         ready = value;
@@ -35,6 +38,38 @@ public sealed class SaveManager : Singleton<SaveManager>
     }
 
     public void MarkDirty() => dirty = true;
+
+    public bool ApplyOfflineProgress()
+    {
+        LastOfflineProgressSeconds = 0d;
+        long savedAt = GameManager.Instance.State.LastSaveUnixSeconds;
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        double maximumSeconds = Math.Max(0d, maximumOfflineHours) * 3600d;
+        double elapsedSeconds = CalculateOfflineElapsedSeconds(
+            savedAt,
+            now,
+            maximumSeconds);
+        if (elapsedSeconds <= 0d)
+            return false;
+
+        LastOfflineProgressSeconds = SimulationManager.Instance.AdvanceOffline(elapsedSeconds);
+        GameManager.Instance.MarkSaveTimestamp(now);
+        dirty = true;
+        Debug.Log($"Applied offline progress: {LastOfflineProgressSeconds:0.##} seconds.");
+        return LastOfflineProgressSeconds > 0d;
+    }
+
+    public static double CalculateOfflineElapsedSeconds(
+        long savedAt,
+        long currentTime,
+        double maximumSeconds)
+    {
+        if (maximumSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(maximumSeconds));
+        if (savedAt <= 0L || currentTime <= savedAt)
+            return 0d;
+        return Math.Min(currentTime - savedAt, maximumSeconds);
+    }
 
     public bool LoadOrCreateGame()
     {
@@ -111,6 +146,12 @@ public sealed class SaveManager : Singleton<SaveManager>
     private void OnApplicationPause(bool paused)
     {
         if (paused)
+        {
+            SaveNow(true);
+            return;
+        }
+
+        if (ready && ApplyOfflineProgress())
             SaveNow(true);
     }
 

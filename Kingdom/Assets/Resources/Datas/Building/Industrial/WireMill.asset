@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: WireMill
   m_EditorClassIdentifier: 
   id: WireMill
-  Label: WireMill
-  Description: 
-  TechLevel: 3
+  Label: "电线厂"
+  Description: "将铜锭拉拔、退火并包覆为标准电线，为电网、电机和电子设备提供导体。"
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

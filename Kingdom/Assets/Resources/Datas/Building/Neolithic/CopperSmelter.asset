@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CopperSmelter
   m_EditorClassIdentifier: 
   id: CopperSmelter
-  Label: "\u94DC\u51B6\u70BC\u7089"
-  Description: "\u7528\u7164\u70AD\u52A0\u70ED\u94DC\u77FF\uFF0C\u751F\u4EA7\u53EF\u4EE5\u52A0\u5DE5\u548C\u5408\u91D1\u7684\u94DC\u952D\u3002"
+  Label: "铜冶炼炉"
+  Description: "以燃料冶炼铜矿，生产可直接加工或用于合金铸造的铜锭。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
   costGrowth:

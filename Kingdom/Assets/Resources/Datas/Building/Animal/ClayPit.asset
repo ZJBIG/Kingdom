@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ClayPit
   m_EditorClassIdentifier: 
   id: ClayPit
-  Label: "\u9ECF\u571F\u5751"
-  Description: "\u4ECE\u6CB3\u5CB8\u548C\u6E56\u5CB8\u91C7\u96C6\u9ECF\u571F\uFF0C\u4E3A\u9676\u5668\u548C\u5EFA\u7B51\u63D0\u4F9B\u539F\u6599\u3002"
+  Label: "黏土坑"
+  Description: "在河岸和浅层土壤中开采黏土，持续供应陶器烧制与早期建筑所需的原料。"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:

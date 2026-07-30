@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Quarry
   m_EditorClassIdentifier: 
   id: Quarry
-  Label: "\u91C7\u77F3\u573A"
-  Description: "\u4ECE\u5CA9\u5C42\u4E2D\u6301\u7EED\u91C7\u96C6\u77F3\u6750\uFF0C\u4E3A\u77F3\u5668\u3001\u77F3\u5899\u3001\u9053\u8DEF\u548C\u65E9\u671F\u5927\u578B\u5EFA\u7B51\u63D0\u4F9B\u7A33\u5B9A\u4F9B\u7ED9\u3002"
+  Label: "采石场"
+  Description: "从裸露岩层中采出粗石，持续供应石器、道路和石质建筑的原料。"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:

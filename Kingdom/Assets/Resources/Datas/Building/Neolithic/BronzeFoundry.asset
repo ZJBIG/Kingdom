@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: BronzeFoundry
   m_EditorClassIdentifier: 
   id: BronzeFoundry
-  Label: "\u9752\u94DC\u94F8\u9020\u7089"
-  Description: "\u5C06\u94DC\u548C\u9521\u878D\u5408\u4E3A\u9752\u94DC\uFF0C\u6253\u9020\u66F4\u8010\u7528\u7684\u5DE5\u5177\u548C\u8BBE\u65BD\u3002"
+  Label: "青铜铸造炉"
+  Description: "按比例熔合铜与锡并浇铸成青铜，为耐用工具、武器和设施提供材料。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: d2f4d9e2b10195842ad6e1e89e47c256, type: 2}
   costGrowth:
