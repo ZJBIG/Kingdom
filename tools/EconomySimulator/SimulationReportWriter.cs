@@ -167,9 +167,9 @@ public static class SimulationReportWriter
         builder.AppendLine("- Research is selected first; resource costs are paid progressively before progress begins.");
         builder.AppendLine("- Research speed uses ResearchPower and runtime era effects.");
         builder.AppendLine("- Buildings use geometric cost growth and commit immediately after payment.");
-        builder.AppendLine("- Food starts at +5/s; population consumes 1 food/s per person and grows toward housing capacity.");
-        builder.AppendLine("- Population growth is base 1/min x completed-research multiplier x food satisfaction; departure remains 1/min.");
-        builder.AppendLine("- Total productivity equals population plus fixed research and owned-building grants; construction checks pre-build available productivity.");
+        builder.AppendLine("- Food starts at +5/s; population consumes 0.8 food/s per person and grows toward housing capacity.");
+        builder.AppendLine("- Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.");
+        builder.AppendLine("- Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.");
         TimelineSnapshot? latest = state.Timeline.LastOrDefault();
         builder.AppendLine(
             $"- Productivity-blocked building decision time: total " +

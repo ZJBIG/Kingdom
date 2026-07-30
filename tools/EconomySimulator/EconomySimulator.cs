@@ -152,6 +152,7 @@ public static class EconomySimulator
         r.Notes.Add("Research selection may wait while its resource cost is paid progressively.");
         r.Notes.Add("Research speed is ResearchPower x global multiplier x runtime era effect.");
         r.Notes.Add("Building costs use geometric growth; construction commits immediately.");
+        r.Notes.Add("Population growth uses logistic occupancy; departure accelerates with relative overcapacity and remains productivity-gated.");
         r.Notes.Add(
             $"Productivity-blocked building decision time: {s.ProductivityWaitingSeconds:0.##} seconds.");
         return r;
@@ -170,8 +171,7 @@ public static class EconomySimulator
             TotalProductivity=BuildingSimulator.TotalProductivity(s,buildings),
             UsedProductivity=BuildingSimulator.UsedProductivity(s,buildings),
             PopulationGrowthMultiplier=ResourceSimulator.PopulationGrowthMultiplier(s),
-            PopulationGrowthPerMinute=
-                ResourceSimulator.PopulationGrowthMultiplier(s)*s.FoodSatisfaction,
+            PopulationGrowthPerMinute=ResourceSimulator.PopulationGrowthRatePerMinute(s),
             TerritoryTotal=BuildingSimulator.TotalTerritory(s),
             TerritoryUsed=BuildingSimulator.UsedTerritory(s,buildings),
             Resources=string.Join(";",s.Resources.OrderBy(x=>x.Key).Select(x=>$"{x.Key}={x.Value:0.##}")),

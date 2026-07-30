@@ -40,9 +40,7 @@ public class BuildingDisplayer : MonoBehaviour
         if (!expanded)
             return HeaderHeight;
 
-        int requirementRows = Mathf.Max(
-            1,
-            Mathf.CeilToInt(Mathf.Max(0, requirementCount) / 2f));
+        int requirementRows = Mathf.Max(1, requirementCount);
         return HeaderHeight +
             requirementRows * DetailRowHeight +
             ActionRowHeight;
@@ -65,8 +63,8 @@ public class BuildingDisplayer : MonoBehaviour
             if (requirementsLayout == null)
                 requirementsLayout = ResourceList.gameObject.AddComponent<GridLayoutGroup>();
             requirementsLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            requirementsLayout.constraintCount = 2;
-            requirementsLayout.cellSize = new Vector2(191.5f, DetailRowHeight);
+            requirementsLayout.constraintCount = 1;
+            requirementsLayout.cellSize = new Vector2(383f, DetailRowHeight);
         }
 
         if (Details != null)
@@ -304,7 +302,7 @@ public class BuildingDisplayer : MonoBehaviour
             DetailRowHeight,
             Mathf.Max(
                 1,
-                Mathf.CeilToInt(DisplayedRequirementCount / 2f)) *
+                DisplayedRequirementCount) *
                 DetailRowHeight);
         if (ResourceList != null)
         {

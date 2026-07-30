@@ -173,7 +173,7 @@ public static class BuildingSimulator
         double research=s.ActiveEffects.Where(x=>x.Type==7).Sum(x=>Math.Max(0,x.Value));
         double infrastructure=buildings.Sum(x=>
             s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.ProductivityGranted));
-        return Math.Max(0,s.Population+research+infrastructure);
+        return Math.Max(0,s.Population*2d+research+infrastructure);
     }
     public static double UsedProductivity(SimulationState s,IReadOnlyList<Definition> buildings)=>
         Math.Max(0,buildings.Sum(x=>

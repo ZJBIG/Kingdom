@@ -14,6 +14,14 @@ public sealed class GameState
     public ExpantaNum FoodCapacity { get; private set; }
     public ExpantaNum FoodProductionRate { get; private set; }
     public ExpantaNum FoodConsumptionRate { get; private set; }
+    public ExpantaNum FoodPopulationConsumptionRate =>
+        Population == null
+            ? ExpantaNum.Zero
+            : Population.Population * PopulationState.FoodConsumptionPerPerson;
+    public ExpantaNum FoodTotalConsumptionRate =>
+        FoodConsumptionRate + FoodPopulationConsumptionRate;
+    public ExpantaNum FoodNetRate =>
+        FoodProductionRate - FoodTotalConsumptionRate;
     public ExpantaNum FoodSatisfaction { get; private set; }
     public ExpantaNum PowerProductionRate { get; private set; }
     public ExpantaNum PowerConsumptionRate { get; private set; }
@@ -188,7 +196,7 @@ public sealed class GameState
         FoodAmount = GameManager.AdvanceFood(
             FoodAmount,
             FoodProductionRate,
-            FoodConsumptionRate + Population.Population * PopulationState.FoodConsumptionPerPerson,
+            FoodTotalConsumptionRate,
             FoodCapacity,
             deltaSeconds);
         if (FoodAmount != previousAmount)

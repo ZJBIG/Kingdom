@@ -90,6 +90,21 @@ public sealed class FoodEfficiencyTests
     }
 
     [Test]
+    public void GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate()
+    {
+        GameState state = new GameState();
+        Invoke(state, "RestorePopulation", new ExpantaNum(3));
+
+        Assert.That(state.FoodPopulationConsumptionRate, Is.EqualTo(new ExpantaNum(2.4d)));
+        Assert.That(state.FoodTotalConsumptionRate, Is.EqualTo(new ExpantaNum(2.4d)));
+        Assert.That(state.FoodNetRate, Is.EqualTo(new ExpantaNum(2.6d)));
+
+        Invoke(state, "AdvanceFood", 1d);
+
+        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(302.6d)));
+    }
+
+    [Test]
     public void GameState_NoOpDerivedMutationsDoNotIncrementVersion()
     {
         GameState state = new GameState();

@@ -62,6 +62,25 @@ public sealed class BuildingCostGrowthTests
         Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(904.4d).Within(0.000001d));
     }
 
+    [Test]
+    public void AgricultureCompletion_MakesFarmAvailableToBuildingMenu()
+    {
+        CreateManager<GameManager>("FarmVisibility-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("FarmVisibility-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("FarmVisibility-ResearchManager");
+        Building farm = DataBase<Building>.Find("Farm");
+
+        Assert.That(buildingManager.ShouldDisplay(farm), Is.False);
+        CompleteResearch(researchManager, "Agriculture");
+
+        Assert.That(
+            buildingManager.ShouldDisplay(farm),
+            Is.True,
+            "Farm must become visible as soon as Agriculture is completed.");
+    }
+
     private T CreateManager<T>(string name) where T : Component
     {
         GameObject gameObject = new GameObject(name);

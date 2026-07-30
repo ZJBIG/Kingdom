@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
 {
-    private const int GridColumns = 2;
     private const float CardWidth = 383f;
     private const float CollapsedCardHeight = BuildingDisplayer.HeaderHeight;
     private const float GridSpacing = 12f;
@@ -15,14 +14,29 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
     private readonly Dictionary<Building, BuildingDisplayer> displayers = new();
     private BuildingManager buildingManager;
 
+    private void Awake()
+    {
+        // Building cards use the same explicit top-origin positioning model
+        // as ResourceDisplayerSet. Automatic layout would overwrite the
+        // card positions and preferred heights during every canvas rebuild.
+
+
+        //DisableAutomaticContentLayout();
+    }
+
     private void OnEnable()
     {
-        buildingManager = BuildingManager.Instance;
-        if (buildingManager != null)
-        {
-            buildingManager.BuildingStateAdded += OnBuildingStateAdded;
-            BindExistingStates();
-        }
+        TryBindBuildingManager();
+        GameUIRefreshManager.Instance?.Register(this);
+        RefreshAll();
+    }
+
+    private void Start()
+    {
+        // GameBootstrap creates managers in Start, so this viewer may be
+        // enabled before BuildingManager exists. Retry after all Start
+        // methods have run and make the periodic refresh self-healing.
+        TryBindBuildingManager();
         GameUIRefreshManager.Instance?.Register(this);
         RefreshAll();
     }
@@ -38,6 +52,23 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
     public void RefreshUI() => RefreshAll();
     public void RefreshLayout() => RefreshGridLayout();
 
+    private void TryBindBuildingManager()
+    {
+        BuildingManager candidate = FindObjectOfType<BuildingManager>();
+        if (candidate == null)
+            return;
+
+        if (buildingManager == candidate)
+            return;
+
+        if (buildingManager != null)
+            buildingManager.BuildingStateAdded -= OnBuildingStateAdded;
+
+        buildingManager = candidate;
+        buildingManager.BuildingStateAdded += OnBuildingStateAdded;
+        BindExistingStates();
+    }
+
     private void BindExistingStates()
     {
         foreach (BuildingState state in buildingManager.States.Values)
@@ -48,7 +79,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
     {
         if (state == null || displayers.ContainsKey(state.Definition))
             return;
-        if (!buildingManager.ShouldDisplay(state.Definition))
+        if (!ShouldDisplayCard(state.Definition))
             return;
         if (Content == null || DisplayerPrefab == null)
         {
@@ -73,6 +104,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
 
     public void RefreshAll()
     {
+        TryBindBuildingManager();
         if (buildingManager == null)
             return;
 
@@ -80,13 +112,13 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
         for (int i = 0; i < definitions.Count; i++)
         {
             Building definition = definitions[i];
-            if (buildingManager.ShouldDisplay(definition))
+            if (ShouldDisplayCard(definition))
                 OnBuildingStateAdded(buildingManager.EnsureBuilding(definition));
         }
 
         foreach (BuildingDisplayer displayer in displayers.Values)
         {
-            bool shouldDisplay = buildingManager.ShouldDisplay(displayer.Building);
+            bool shouldDisplay = ShouldDisplayCard(displayer.Building);
             if (displayer.gameObject.activeSelf != shouldDisplay)
                 displayer.gameObject.SetActive(shouldDisplay);
             displayer.Refresh();
@@ -94,7 +126,72 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
         RefreshGridLayout();
     }
 
+    private bool ShouldDisplayCard(Building building)
+    {
+        if (buildingManager.ShouldDisplay(building))
+            return true;
+
+        // BuildingManager determines whether a definition is eligible. The
+        // lower-tier hide rule is UI-specific: it must depend on the
+        // successor card actually existing and being active, not merely on
+        // the successor's prerequisites becoming true.
+        if (building == null || building.UpgradeTo == null ||
+            !buildingManager.ArePrerequisitesMet(building, out _))
+        {
+            return false;
+        }
+
+        if (buildingManager.States.TryGetValue(building, out BuildingState state) &&
+            state.Amount > ExpantaNum.Zero)
+        {
+            return true;
+        }
+
+        return !displayers.TryGetValue(building.UpgradeTo, out BuildingDisplayer successor) ||
+            !successor.gameObject.activeSelf;
+    }
+
     private void RefreshGridLayout()
+    {
+        if (Content == null)
+            return;
+
+        List<BuildingDisplayer> layoutCards = new(displayers.Count);
+        List<float> rowHeights = new();
+        foreach (BuildingDisplayer displayer in displayers.Values)
+        {
+            if (!displayer.gameObject.activeSelf)
+                continue;
+
+            RectTransform card = displayer.transform as RectTransform;
+            if (card == null)
+                continue;
+
+            rowHeights.Add(Mathf.Max(CollapsedCardHeight, displayer.PreferredHeight));
+            layoutCards.Add(displayer);
+        }
+
+        float nextRowTop = 0f;
+        for (int index = 0; index < layoutCards.Count; index++)
+        {
+            BuildingDisplayer displayer = layoutCards[index];
+            RectTransform card = displayer.transform as RectTransform;
+            card.anchorMin = new Vector2(0f, 1f);
+            card.anchorMax = new Vector2(0f, 1f);
+            card.pivot = new Vector2(0f, 1f);
+            card.anchoredPosition = new Vector2(0f, -nextRowTop);
+            nextRowTop += rowHeights[index] + GridSpacing;
+        }
+
+        float contentHeight = layoutCards.Count == 0
+            ? CollapsedCardHeight
+            : nextRowTop - GridSpacing;
+        Content.sizeDelta = new Vector2(
+            CardWidth,
+            Mathf.Max(CollapsedCardHeight, contentHeight));
+    }
+
+    private void DisableAutomaticContentLayout()
     {
         if (Content == null)
             return;
@@ -110,53 +207,5 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
         ContentSizeFitter fitter = Content.GetComponent<ContentSizeFitter>();
         if (fitter != null)
             fitter.enabled = false;
-
-        List<BuildingDisplayer> ordered = new(displayers.Values);
-        List<BuildingDisplayer> layoutCards = new(ordered.Count);
-        List<float> rowHeights = new();
-        for (int i = 0; i < ordered.Count; i++)
-        {
-            BuildingDisplayer displayer = ordered[i];
-            if (!displayer.gameObject.activeSelf)
-                continue;
-            RectTransform card = displayer.transform as RectTransform;
-            if (card == null)
-                continue;
-
-            int row = layoutCards.Count / GridColumns;
-            while (rowHeights.Count <= row)
-                rowHeights.Add(CollapsedCardHeight);
-            rowHeights[row] = Mathf.Max(rowHeights[row], displayer.PreferredHeight);
-            layoutCards.Add(displayer);
-        }
-
-        List<float> rowTopOffsets = new(rowHeights.Count);
-        float nextRowTop = 0f;
-        for (int row = 0; row < rowHeights.Count; row++)
-        {
-            rowTopOffsets.Add(nextRowTop);
-            nextRowTop += rowHeights[row] + GridSpacing;
-        }
-
-        for (int index = 0; index < layoutCards.Count; index++)
-        {
-            BuildingDisplayer displayer = layoutCards[index];
-            RectTransform card = displayer.transform as RectTransform;
-            int column = index % GridColumns;
-            int row = index / GridColumns;
-            card.anchorMin = new Vector2(0f, 1f);
-            card.anchorMax = new Vector2(0f, 1f);
-            card.pivot = new Vector2(0f, 1f);
-            card.anchoredPosition = new Vector2(
-                column * (CardWidth + GridSpacing),
-                -rowTopOffsets[row]);
-        }
-
-        float contentHeight = rowHeights.Count == 0
-            ? CollapsedCardHeight
-            : nextRowTop - GridSpacing;
-        Content.sizeDelta = new Vector2(
-            GridColumns * CardWidth + (GridColumns - 1) * GridSpacing,
-            Mathf.Max(CollapsedCardHeight, contentHeight));
     }
 }

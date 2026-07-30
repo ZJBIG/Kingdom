@@ -25,7 +25,19 @@ public class GameManager : Singleton<GameManager>
     public ExpantaNum PopulationGrowthRatePerSecond =>
         PopulationState.BaseGrowthRatePerSecond * PopulationGrowthMultiplier;
     public ExpantaNum CurrentPopulationGrowthRatePerMinute =>
-        PopulationGrowthRatePerSecond * State.FoodSatisfaction * 60d;
+        State.Population.CurrentGrowthRatePerSecond(
+            State.FoodSatisfaction,
+            PopulationGrowthRatePerSecond) * 60d;
+    public ExpantaNum CurrentPopulationDepartureRatePerMinute
+    {
+        get
+        {
+            ExpantaNum allowance = BuildingManager.Instance == null
+                ? ExpantaNum.Zero
+                : BuildingManager.Instance.SafePopulationDepartureAllowance;
+            return State.Population.CurrentDepartureRatePerSecond(allowance) * 60d;
+        }
+    }
 
     private double calendarElapsedSeconds;
 

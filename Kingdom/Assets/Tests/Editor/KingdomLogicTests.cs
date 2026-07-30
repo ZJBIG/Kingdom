@@ -122,7 +122,8 @@ public sealed class KingdomLogicTests
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(ExpantaNum.One));
+        Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(new ExpantaNum(0.8d)));
+        Assert.That(PopulationState.ProductivityGrantedPerPerson, Is.EqualTo(new ExpantaNum(2d)));
         Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(5));
     }
 
@@ -343,7 +344,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void PopulationGrowth_UsesExplicitResearchRateWithoutAcceleratingDeparture()
+    public void PopulationGrowth_UsesLogisticRateAndCapacityDependentDeparture()
     {
         PopulationState growth = new PopulationState();
         InvokePopulationMethod(growth, "AdjustPopulationCapacity", new ExpantaNum(5));
@@ -367,8 +368,8 @@ public sealed class KingdomLogicTests
             new ExpantaNum(2));
         Assert.That(
             departure.Population,
-            Is.EqualTo(ExpantaNum.One),
-            "Population research must not accelerate over-capacity departure.");
+            Is.EqualTo(ExpantaNum.Zero),
+            "Over-capacity departure should accelerate with relative excess population.");
     }
 
     [Test]
@@ -438,16 +439,16 @@ public sealed class KingdomLogicTests
             .Invoke(researchState, new object[] { ExpantaNum.Zero, false, true });
         ProgressionModifierManager.Rebuild(new List<ResearchState> { researchState });
 
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(17)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(27)));
         Assert.That(buildingManager.TryBuild(building, 2, out BuildFailure failure), Is.True);
         Assert.That(failure, Is.EqualTo(BuildFailure.None));
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(25)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(35)));
         Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(6)));
-        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(19)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(29)));
 
         buildingManager.GetState(building).SetEfficiencyForEditor(ExpantaNum.Zero);
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(25)));
-        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(19)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(35)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(29)));
     }
 
     [Test]
@@ -462,7 +463,7 @@ public sealed class KingdomLogicTests
             new ExpantaNum(2));
         Building building = CreateEconomyBuilding(
             "SelfFundingProvider",
-            productivityConsumption: 3,
+            productivityConsumption: 6,
             productivityGranted: 100,
             populationCapacity: 0);
 
@@ -485,7 +486,7 @@ public sealed class KingdomLogicTests
             new ExpantaNum(2));
         Building existing = CreateEconomyBuilding(
             "LegacyOvercommit",
-            productivityConsumption: 3,
+            productivityConsumption: 6,
             productivityGranted: 0,
             populationCapacity: 0);
         BuildingState existingState = buildingManager.EnsureBuilding(existing);
@@ -496,8 +497,8 @@ public sealed class KingdomLogicTests
             productivityGranted: 0,
             populationCapacity: 0);
 
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(2)));
-        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(4)));
+        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(6)));
         Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(
             buildingManager.TryBuild(candidate, ExpantaNum.One, out BuildFailure failure),
@@ -524,7 +525,7 @@ public sealed class KingdomLogicTests
 
         Assert.That(buildingManager.TryBuild(house, ExpantaNum.One, out _), Is.True);
         Assert.That(gameManager.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(10)));
     }
 
     [Test]
@@ -581,6 +582,10 @@ public sealed class KingdomLogicTests
 
         Assert.That(buildingManager.CanConstructNew(woodHouse), Is.False);
         Assert.That(buildingManager.CanConstructNew(stoneHouse), Is.True);
+        Assert.That(
+            buildingManager.ShouldDisplay(woodHouse),
+            Is.True,
+            "A lower-tier card with a non-zero amount must remain visible after its upgrade is unlocked.");
         Assert.That(
             buildingManager.TryBuild(
                 woodHouse,
@@ -654,9 +659,9 @@ public sealed class KingdomLogicTests
         Assert.That(
             gameManager.State.Population.PopulationCapacity,
             Is.EqualTo(new ExpantaNum(9)));
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(14)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(28)));
         gameManager.Tick(1d, buildingManager.SafePopulationDepartureAllowance);
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(291)));
+        Assert.That(gameManager.State.FoodAmount.ToDouble(), Is.EqualTo(293.8d).Within(0.000001d));
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(14)));
 
         Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
@@ -686,7 +691,7 @@ public sealed class KingdomLogicTests
             new ExpantaNum(9));
         Building consumer = CreateEconomyBuilding(
             "DepartureConsumer",
-            productivityConsumption: 12,
+            productivityConsumption: 22,
             productivityGranted: 0,
             populationCapacity: 0);
         buildingManager.EnsureBuilding(consumer).SetAmountForEditor(ExpantaNum.One);
@@ -697,9 +702,9 @@ public sealed class KingdomLogicTests
         gameManager.Tick(120d, buildingManager.SafePopulationDepartureAllowance);
 
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(12)));
-        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(12)));
-        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(12)));
-        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(24)));
+        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(22)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(
             gameManager.State.Population.PopulationChangeProgress,
             Is.EqualTo(ExpantaNum.Zero));
@@ -710,7 +715,7 @@ public sealed class KingdomLogicTests
             buildingManager.TryDeconstruct(consumer, ExpantaNum.One, out _),
             Is.True);
         gameManager.Tick(59.9d, buildingManager.SafePopulationDepartureAllowance);
-        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(12)));
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(11)));
         gameManager.Tick(0.1d, buildingManager.SafePopulationDepartureAllowance);
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(11)));
     }
@@ -739,7 +744,7 @@ public sealed class KingdomLogicTests
                 ExpantaNum.Zero);
         }
 
-        Assert.That(largeTick.Population, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(largeTick.Population, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(smallTicks.Population, Is.EqualTo(largeTick.Population));
         Assert.That(
             smallTicks.PopulationChangeProgress.ToDouble(),
@@ -763,7 +768,7 @@ public sealed class KingdomLogicTests
             ExpantaNum.Zero);
         Assert.That(
             largeTick.PopulationChangeProgress,
-            Is.EqualTo(new ExpantaNum(0.5d)));
+            Is.EqualTo(new ExpantaNum(0.1d)));
         InvokePopulationMethod(
             largeTick,
             "AdjustPopulationCapacity",

@@ -54,7 +54,8 @@ public class BuildingManager : Singleton<BuildingManager>
     private ExpantaNum CalculateRawTotalProductivity()
     {
         ExpantaNum total =
-            GameManager.Instance.State.Population.Population +
+            GameManager.Instance.State.Population.Population *
+            PopulationState.ProductivityGrantedPerPerson +
             ProgressionModifierManager.Current.ProductivityGranted;
         for (int i = 0; i < orderedStates.Count; i++)
             total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
@@ -273,6 +274,18 @@ public class BuildingManager : Singleton<BuildingManager>
         {
             return true;
         }
+
+        if (!ArePrerequisitesMet(building, out _))
+            return false;
+
+        // A zero-count chain tier remains visible until its immediate
+        // successor is actually displayed. Use the same display predicate
+        // for the successor instead of only checking its prerequisites: an
+        // unrelated research must not hide this card, and a non-zero lower
+        // tier must remain available for upgrade/deconstruction.
+        if (IsInBuildingChain(building) && building.UpgradeTo != null)
+            return !ShouldDisplay(building.UpgradeTo);
+
         return CanConstructNew(building);
     }
 

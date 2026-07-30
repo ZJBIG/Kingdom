@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ResearchManager : Singleton<ResearchManager>
 {
-    public static readonly ExpantaNum BaseResearchPower = ExpantaNum.One;
+    public static readonly ExpantaNum BaseResearchPower = new ExpantaNum(4);
 
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
     public ExpantaNum ResearchPower { get; private set; } = BaseResearchPower;

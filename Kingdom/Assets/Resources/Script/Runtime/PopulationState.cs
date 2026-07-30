@@ -3,7 +3,8 @@ using System;
 [Serializable]
 public sealed class PopulationState
 {
-    public static ExpantaNum FoodConsumptionPerPerson => ExpantaNum.One;
+    public static ExpantaNum FoodConsumptionPerPerson => new ExpantaNum(0.8d);
+    public static ExpantaNum ProductivityGrantedPerPerson => new ExpantaNum(2d);
     public static ExpantaNum BaseGrowthRatePerSecond => new ExpantaNum(1d / 60d);
     private const double SecondsPerDeparture = 60d;
     private static readonly ExpantaNum PopulationStepEpsilon =
@@ -93,6 +94,29 @@ public sealed class PopulationState
         AdvanceDeparture(deltaSeconds, departureAllowance);
     }
 
+    internal ExpantaNum CurrentGrowthRatePerSecond(
+        ExpantaNum foodSatisfaction,
+        ExpantaNum growthRatePerSecond)
+    {
+        if (population >= populationCapacity)
+            return ExpantaNum.Zero;
+        ExpantaNum satisfaction = ExpantaNum.Clamp01(foodSatisfaction);
+        if (satisfaction <= ExpantaNum.Zero)
+            return ExpantaNum.Zero;
+        return satisfaction * CalculateLogisticGrowthRate(growthRatePerSecond);
+    }
+
+    internal ExpantaNum CurrentDepartureRatePerSecond(
+        ExpantaNum departureAllowance)
+    {
+        if (population <= populationCapacity ||
+            NormalizeWhole(departureAllowance) < ExpantaNum.One)
+        {
+            return ExpantaNum.Zero;
+        }
+        return CalculateDepartureRate(departureAllowance);
+    }
+
     private static ExpantaNum NormalizeWhole(ExpantaNum value) =>
         ExpantaNum.Max(ExpantaNum.Zero, value).Floor();
 
@@ -121,13 +145,9 @@ public sealed class PopulationState
         if (satisfaction <= ExpantaNum.Zero || growthRate <= ExpantaNum.Zero)
             return;
 
-        double growthMultiplier =
-            (growthRate / BaseGrowthRatePerSecond).ToDouble();
-        if (!double.IsFinite(growthMultiplier) || growthMultiplier <= 0d)
-            return;
-        double secondsPerPopulation = 60d / growthMultiplier;
+        ExpantaNum effectiveGrowthRate = CalculateLogisticGrowthRate(growthRate);
         ExpantaNum accumulated = populationChangeProgress +
-            satisfaction * deltaSeconds / secondsPerPopulation;
+            satisfaction * deltaSeconds * effectiveGrowthRate;
         ExpantaNum possibleBirths =
             (accumulated + PopulationStepEpsilon).Floor();
         ExpantaNum births = ExpantaNum.Min(
@@ -159,8 +179,9 @@ public sealed class PopulationState
             return;
         }
 
+        ExpantaNum departureRate = CalculateDepartureRate(departureAllowance);
         ExpantaNum accumulated = populationChangeProgress +
-            deltaSeconds / SecondsPerDeparture;
+            deltaSeconds * departureRate;
         ExpantaNum departures = ExpantaNum.Min(
             ExpantaNum.Min(population - populationCapacity, safeDepartures),
             (accumulated + PopulationStepEpsilon).Floor());
@@ -192,5 +213,31 @@ public sealed class PopulationState
             return;
         populationChangeProgress = next;
         Version++;
+    }
+
+    private ExpantaNum CalculateLogisticGrowthRate(ExpantaNum growthRatePerSecond)
+    {
+        ExpantaNum logisticFactor = ExpantaNum.One -
+            ExpantaNum.Clamp01(population / populationCapacity);
+        ExpantaNum effectivePopulation = ExpantaNum.Max(
+            ExpantaNum.One,
+            population);
+        return ExpantaNum.Max(ExpantaNum.Zero, growthRatePerSecond) *
+            effectivePopulation *
+            ExpantaNum.Max(ExpantaNum.Zero, logisticFactor);
+    }
+
+    private ExpantaNum CalculateDepartureRate(ExpantaNum departureAllowance)
+    {
+        if (NormalizeWhole(departureAllowance) < ExpantaNum.One)
+            return ExpantaNum.Zero;
+        ExpantaNum excess = population - populationCapacity;
+        ExpantaNum normalizedExcess = populationCapacity <= ExpantaNum.Zero
+            ? excess
+            : excess / populationCapacity;
+        ExpantaNum departureMultiplier = ExpantaNum.One +
+            ExpantaNum.Min(new ExpantaNum(8d), normalizedExcess);
+        return new ExpantaNum(1d / SecondsPerDeparture) *
+            departureMultiplier;
     }
 }
