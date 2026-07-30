@@ -11,17 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: MetallurgicalStandards
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: MetallurgicalStandards
-  Label: "冶金标准"
-  Description: "\u7edf\u4e00\u77ff\u77f3\u54c1\u4f4d\u3001\u7089\u6e29\u3001\u5408\u91d1\u914d\u6bd4\u548c\u6210\u54c1\u68c0\u9a8c\u65b9\u6cd5\uff0c\u4f7f\u4e0d\u540c\u5de5\u574a\u751f\u4ea7\u7684\u91d1\u5c5e\u6750\u6599\u4fdd\u6301\u53ef\u9884\u6d4b\u6027\u80fd\u3002"
+  Label: "\u51B6\u91D1\u6807\u51C6"
+  Description: "\u7EDF\u4E00\u77FF\u77F3\u54C1\u4F4D\u3001\u7089\u6E29\u3001\u5408\u91D1\u914D\u6BD4\u548C\u6210\u54C1\u68C0\u9A8C\u65B9\u6CD5\uFF0C\u4F7F\u4E0D\u540C\u5DE5\u574A\u751F\u4EA7\u7684\u91D1\u5C5E\u6750\u6599\u4FDD\u6301\u53EF\u9884\u6D4B\u6027\u80FD\u3002"
   BaseCost: 180000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000003, type: 2}
-  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
-  - {fileID: 11400000, guid: f5010000000000000000000000000002, type: 2}
+  - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
+  - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
+  - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -59,5 +59,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 12.00
-  y: 21.835
+  x: 12
+  y: 19.861

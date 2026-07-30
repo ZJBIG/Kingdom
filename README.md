@@ -4,7 +4,7 @@
 
 1. `AGENTS.md`
 2. `ToDoList_Content_Next_2026-07-25.txt`
-3. `CODEX_CONTENT_EXPANSION_PROMPT.txt`
+3. `.agents/skills/kingdom-economy-simulation/SKILL.md`（涉及科技树、资源、建筑或平衡时必读）
 4. `.agents/skills/kingdom-content-expansion/SKILL.md`
 
 本包不会直接修改游戏源码或 ScriptableObject。

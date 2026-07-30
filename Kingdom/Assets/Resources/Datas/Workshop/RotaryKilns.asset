@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RotaryKilns
   Label: "\u56DE\u8F6C\u7A91"
-  Description: "\u56DE\u8F6C\u7A91\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u56DE\u8F6C\u7A91\u63D0\u4F9B\u7A33\u5B9A\u9AD8\u6E29\uFF0C\u7528\u4E8E\u63D0\u5347\u73BB\u7483\u5382\u7684\u7194\u70BC\u4E0E\u6210\u578B\u6548\u7387\u3002"
   Category: "\u52A0\u5DE5"
   SortOrder: 100
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: a503809720a528146b1350c3e5510cb1, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: cc77afd776dafa8438dc8e28049c06b3, type: 2}
+  - {fileID: 11400000, guid: fb1f28c62d8c3764ba9623d7c4b90751, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -41,7 +41,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: e01710562586ab74887a0e6b97ce1de5, type: 2}
+    Building: {fileID: 11400000, guid: eceb037f89465d9419e3a36f8a208e95, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

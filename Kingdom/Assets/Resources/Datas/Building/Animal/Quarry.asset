@@ -137,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -146,15 +146,16 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceGenerationRates:
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 2.4
+      scalar: 2
       layer: 0
       operators: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
+  - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   requiredWorkshopUpgrades: []

@@ -9,7 +9,10 @@ Offline runtime-aligned simulation; no Unity runtime was launched.
 - Research speed uses ResearchPower and runtime era effects.
 - Buildings use geometric cost growth and commit immediately after payment.
 - Food starts at +5/s; population consumes 1 food/s per person and grows toward housing capacity.
+- Population growth is base 1/min x completed-research multiplier x food satisfaction; departure remains 1/min.
 - Total productivity equals population plus fixed research and owned-building grants; construction checks pre-build available productivity.
+- Productivity-blocked building decision time: total 3630 seconds; longest continuous 530 seconds.
+- Final population growth: x2.415, 0.82/min; productivity utilization: 59.2%; territory: 974/2375.
 
 ## Animal Age
 
@@ -18,17 +21,17 @@ Offline runtime-aligned simulation; no Unity runtime was launched.
 
 ## Neolithic Age
 
-到达时间: 113.07 分钟
+到达时间: 112.9 分钟
 完成研究: 44
 
 ## Medieval Age
 
-到达时间: 418.93 分钟
+到达时间: 419.47 分钟
 完成研究: 9
 
 ## Industrial Age
 
-到达时间: 682.62 分钟
+到达时间: 683.13 分钟
 完成研究: 16
 
 原始时代最长无研究目标: 0 分钟；新石器时代: 0 分钟。

@@ -1,0 +1,13 @@
+TimeSeconds,Minute,TechLevel,Upgrade,TargetCount,Detail
+23490.0,391.5,Neolithic,"WoodHouse->StoneHouse",1,"recovery=0.8"
+23760.0,396,Neolithic,"WoodHouse->StoneHouse",2,"recovery=0.8"
+24030.0,400.5,Neolithic,"WoodHouse->StoneHouse",3,"recovery=0.8"
+24300.0,405,Neolithic,"WoodHouse->StoneHouse",4,"recovery=0.8"
+24570.0,409.5,Neolithic,"WoodHouse->StoneHouse",5,"recovery=0.8"
+24840.0,414,Neolithic,"WoodHouse->StoneHouse",6,"recovery=0.8"
+25110.0,418.5,Neolithic,"WoodHouse->StoneHouse",7,"recovery=0.8"
+25380.0,423,Neolithic,"WoodHouse->StoneHouse",8,"recovery=0.8"
+25650.0,427.5,Neolithic,"WoodHouse->StoneHouse",9,"recovery=0.8"
+25920.0,432,Neolithic,"WoodHouse->StoneHouse",10,"recovery=0.8"
+26190.0,436.5,Neolithic,"WoodHouse->StoneHouse",11,"recovery=0.8"
+26460.0,441,Neolithic,"WoodHouse->StoneHouse",12,"recovery=0.8"

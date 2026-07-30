@@ -1,0 +1,216 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: IndustrialCopperSmelter
+  m_EditorClassIdentifier: 
+  id: IndustrialCopperSmelter
+  Label: IndustrialCopperSmelter
+  Description: 
+  TechLevel: 3
+  upgradeTo: {fileID: 0}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.2
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 14
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 55
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 18
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 8
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  resourceGenerationRates:
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 3
+      layer: 0
+      operators: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2.2
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.8
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.05
+      layer: 0
+      operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
+  requiredWorkshopUpgrades: []

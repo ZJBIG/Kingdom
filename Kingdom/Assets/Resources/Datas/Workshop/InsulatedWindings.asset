@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: InsulatedWindings
+  m_EditorClassIdentifier: 
+  id: InsulatedWindings
+  Label: "\u7EDD\u7F18\u7ED5\u7EC4\u7EC4\u4EF6"
+  Description: "\u7EDD\u7F18\u7ED5\u7EC4\u964D\u4F4E\u6F0F\u7535\u4E0E\u53D1\u70ED\u635F\u8017\uFF0C\u63D0\u9AD8\u7535\u529B\u7CFB\u7EDF\u6548\u7387\u3002"
+  Category: "\u7535\u6C14"
+  SortOrder: 240
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 0156f40e5aaf07242845d796eac97906, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 7
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []

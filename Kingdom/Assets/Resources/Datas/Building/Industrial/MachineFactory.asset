@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: Machine Factory
   Description: Manufactures machinery and electronics from steel, tools, and copper.
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -40,7 +35,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 16
+    scalar: 80
     layer: 0
     operators: []
   productivityGranted:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -158,7 +153,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     second:
       sign: 0
       representation: 1
@@ -166,7 +161,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -175,7 +170,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceGenerationRates:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -183,7 +178,7 @@ MonoBehaviour:
       scalar: 1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -191,7 +186,7 @@ MonoBehaviour:
       scalar: 0.3
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
     second:
       sign: 0
       representation: 1
@@ -199,7 +194,7 @@ MonoBehaviour:
       scalar: 0.35
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -208,7 +203,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -216,7 +211,7 @@ MonoBehaviour:
       scalar: 0.8
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     second:
       sign: 0
       representation: 1
@@ -224,7 +219,7 @@ MonoBehaviour:
       scalar: 0.4
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
@@ -232,7 +227,7 @@ MonoBehaviour:
       scalar: 0.15
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -240,7 +235,7 @@ MonoBehaviour:
       scalar: 0.4
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -248,14 +243,15 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.1
+      scalar: 0.05
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: dfe60d6549eee974aaae3e840d84380f, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}

@@ -20,7 +20,8 @@ namespace Kingdom.EditorTools
                 "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
                 "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
                 "CrudeOil", "Silica", "Coke", "Glass", "IndustrialCeramic",
-                "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine"
+                "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine",
+                "Concrete", "BauxiteOre", "Aluminum"
             }, StringComparer.Ordinal);
 
         [MenuItem("Tools/Kingdom/Balance/Export Current Snapshot And Pacing")]

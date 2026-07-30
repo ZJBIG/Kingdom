@@ -79,18 +79,35 @@ public sealed class GameState
         Version++;
     }
 
-    internal void RestorePopulation(
-        ExpantaNum population,
-        ExpantaNum populationCapacity,
-        ExpantaNum growthProgress)
+    internal void RestorePopulation(ExpantaNum population)
     {
         if (Population == null)
             Population = new PopulationState();
-        Population.Restore(
-            population,
-            populationCapacity,
-            growthProgress);
+        Population.RestorePopulation(population);
         Version++;
+    }
+
+    internal void RestorePopulationChangeProgress(ExpantaNum progress)
+    {
+        int previousVersion = Population.Version;
+        Population.RestorePopulationChangeProgress(progress);
+        if (Population.Version != previousVersion)
+            Version++;
+    }
+
+    internal void AdvancePopulation(
+        double deltaSeconds,
+        ExpantaNum growthRatePerSecond,
+        ExpantaNum departureAllowance)
+    {
+        int previousVersion = Population.Version;
+        Population.AdvancePopulation(
+            deltaSeconds,
+            FoodSatisfaction,
+            growthRatePerSecond,
+            departureAllowance);
+        if (Population.Version != previousVersion)
+            Version++;
     }
 
     internal void RestoreTerritoryTotal(ExpantaNum territoryTotal)
@@ -327,14 +344,6 @@ public sealed class GameState
     {
         int previousVersion = Population.Version;
         Population.AdjustPopulationCapacity(capacityDelta);
-        if (Population.Version != previousVersion)
-            Version++;
-    }
-
-    internal void AdvancePopulationGrowth(double deltaSeconds)
-    {
-        int previousVersion = Population.Version;
-        Population.AdvanceGrowth(deltaSeconds, FoodSatisfaction);
         if (Population.Version != previousVersion)
             Version++;
     }

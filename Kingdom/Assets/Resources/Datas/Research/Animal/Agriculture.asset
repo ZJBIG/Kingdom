@@ -14,12 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Agriculture
   Label: "\u519C\u4E1A"
-  Description: "\u901a\u8fc7\u9009\u79cd\u3001\u64ad\u79cd\u3001\u8015\u4f5c\u548c\u5b9a\u671f\u6536\u83b7\u5efa\u7acb\u7a33\u5b9a\u7684\u7cae\u98df\u751f\u4ea7\uff0c\u4f7f\u805a\u843d\u4e0d\u518d\u5b8c\u5168\u4f9d\u8d56\u5b63\u8282\u6027\u91c7\u96c6\u3002"
+  Description: "\u901A\u8FC7\u9009\u79CD\u3001\u64AD\u79CD\u3001\u8015\u4F5C\u548C\u5B9A\u671F\u6536\u83B7\u5EFA\u7ACB\u7A33\u5B9A\u7684\u7CAE\u98DF\u751F\u4EA7\uFF0C\u4F7F\u805A\u843D\u4E0D\u518D\u5B8C\u5168\u4F9D\u8D56\u5B63\u8282\u6027\u91C7\u96C6\u3002
+    \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD820%\u3002"
   BaseCost: 180
   prerequisites: []
   resourceRequirements: []
-  effects: []
+  effects:
+  - Type: 17
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 0.00
-  y: 4.561
+  x: 0
+  y: 19.903

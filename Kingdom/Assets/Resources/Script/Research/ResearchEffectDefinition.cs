@@ -17,7 +17,8 @@ public enum ResearchEffectType
     BuildingResearchPowerMultiplier = 13,
     BuildingPowerProductionMultiplier = 14,
     BuildingLogisticsProductionMultiplier = 15,
-    GlobalLogisticsMultiplier = 16
+    GlobalLogisticsMultiplier = 16,
+    PopulationGrowthMultiplier = 17
 }
 
 [Serializable]

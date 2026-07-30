@@ -18,7 +18,10 @@ public sealed class C6IndustrialContentTests
         "Rubber",
         "CopperWire",
         "PrecisionParts",
-        "Engine"
+        "Engine",
+        "Concrete",
+        "BauxiteOre",
+        "Aluminum"
     };
 
     private static readonly string[] IndustrialBuildingIds =
@@ -34,7 +37,15 @@ public sealed class C6IndustrialContentTests
         "WireMill",
         "University",
         "RailHub",
-        "ArmsFactory"
+        "ArmsFactory",
+        "IndustrialCopperSmelter",
+        "IndustrialTinSmelter",
+        "IndustrialBronzeFoundry",
+        "BlastFurnace",
+        "BauxiteMine",
+        "AluminumSmelter",
+        "ConcreteWorks",
+        "CentralPowerStation"
     };
 
     [Test]
@@ -100,6 +111,29 @@ public sealed class C6IndustrialContentTests
             Assert.That(CountConsumerBuildings(legacyIndustrialResources[i]), Is.GreaterThan(0),
                 $"Industrial layer lost its use for '{legacyIndustrialResources[i]}'.");
         }
+    }
+
+    [Test]
+    public void C604_IndustrialUpgradeChainsAreExplicitAndAcyclic()
+    {
+        var expected = new Dictionary<string, string>
+        {
+            ["CopperSmelter"] = "IndustrialCopperSmelter",
+            ["TinSmelter"] = "IndustrialTinSmelter",
+            ["BronzeFoundry"] = "IndustrialBronzeFoundry",
+            ["SteelForge"] = "BlastFurnace",
+            ["SteamPlant"] = "CentralPowerStation"
+        };
+
+        foreach (var pair in expected)
+        {
+            Building source = DataBase<Building>.Find(pair.Key);
+            Building target = DataBase<Building>.Find(pair.Value);
+            Assert.That(source.UpgradeTo, Is.SameAs(target),
+                $"Building chain '{pair.Key}' must point to '{pair.Value}'.");
+        }
+
+        BuildingManager.ValidateBuildingChains(DataBase<Building>.All);
     }
 
     [Test]

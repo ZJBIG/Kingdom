@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PoweredMining
   Label: "\u52A8\u529B\u91C7\u77FF"
-  Description: "\u52A8\u529B\u91C7\u77FF\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u4F7F\u7528\u52A8\u529B\u91C7\u6398\u8BBE\u5907\u63D0\u9AD8\u7845\u7802\u91C7\u96C6\u6548\u7387\uFF0C\u51CF\u5C11\u4EBA\u5DE5\u91C7\u6398\u635F\u8017\u3002"
   Category: "\u91C7\u6398"
   SortOrder: 60
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: dfe60d6549eee974aaae3e840d84380f, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: cf7b1b5938d4b4e4898f3b16a680c0cb, type: 2}
+  - {fileID: 11400000, guid: 0d8d90cdc061bac4d986893117984891, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       scalar: 450
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 191b0a72e60f12d4ba2e236156a8f21c, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: ee2d4f115b65ae34392dd0916a5fbf1a, type: 2}
+    Building: {fileID: 11400000, guid: d59fd6fadda3c944db60f37d775efbb2, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

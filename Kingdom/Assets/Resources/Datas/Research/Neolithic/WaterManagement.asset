@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: WaterManagement
   Label: "\u6C34\u5229\u7BA1\u7406"
-  Description: "\u7edf\u7b79\u6c34\u4e95\u3001\u84c4\u6c34\u3001\u6392\u6c34\u548c\u704c\u6e89\u8def\u7ebf\uff0c\u4f7f\u751f\u6d3b\u7528\u6c34\u4e0e\u519c\u7530\u4f9b\u6c34\u5728\u5e72\u65f1\u548c\u66b4\u96e8\u671f\u95f4\u4ecd\u80fd\u7ef4\u6301\u3002"
+  Description: "\u7EDF\u7B79\u6C34\u4E95\u3001\u84C4\u6C34\u3001\u6392\u6C34\u548C\u704C\u6E89\u8DEF\u7EBF\uFF0C\u4F7F\u751F\u6D3B\u7528\u6C34\u4E0E\u519C\u7530\u4F9B\u6C34\u5728\u5E72\u65F1\u548C\u66B4\u96E8\u671F\u95F4\u4ECD\u80FD\u7EF4\u6301\u3002"
   BaseCost: 5500
   prerequisites:
-  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
-  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
+  - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
+  - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -46,7 +46,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 2
-    Building: {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
+    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -58,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7.00
-  y: 10.214
+  x: 7
+  y: 15.611

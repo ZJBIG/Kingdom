@@ -12,29 +12,26 @@ public enum BuildFailure
     ResourceInsufficient,
     SpaceInsufficient,
     ProductivityInsufficient,
-    DeconstructionUnavailable
+    DeconstructionUnavailable,
+    BuildingTierSuperseded,
+    UpgradeUnavailable
 }
 
 public class BuildingManager : Singleton<BuildingManager>
 {
     private const double DeconstructionReturnRate = 0.2d;
+    private const double UpgradeRecoveryRate = 0.8d;
+    private const int UpgradeBinarySearchLimit = 256;
     private readonly Dictionary<Building, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
+    private readonly Dictionary<Building, Building> chainPredecessors = new();
+    private readonly HashSet<Building> chainMembers = new();
+    private bool chainIndexInitialized;
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
-    public ExpantaNum TotalProductivity
-    {
-        get
-        {
-            ExpantaNum total =
-                GameManager.Instance.State.Population.Population +
-                ProgressionModifierManager.Current.ProductivityGranted;
-            for (int i = 0; i < orderedStates.Count; i++)
-                total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
-            return ExpantaNum.Max(ExpantaNum.Zero, total);
-        }
-    }
+    public ExpantaNum TotalProductivity =>
+        ExpantaNum.Max(ExpantaNum.Zero, CalculateRawTotalProductivity());
     public ExpantaNum UsedProductivity
     {
         get
@@ -47,14 +44,127 @@ public class BuildingManager : Singleton<BuildingManager>
     }
     public ExpantaNum AvailableProductivity =>
         ExpantaNum.Max(ExpantaNum.Zero, TotalProductivity - UsedProductivity);
+    public ExpantaNum SafePopulationDepartureAllowance =>
+        ExpantaNum.Max(
+            ExpantaNum.Zero,
+            CalculateRawTotalProductivity() - UsedProductivity).Floor();
     public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
     public event Action<BuildingState> BuildingStateAdded;
+
+    private ExpantaNum CalculateRawTotalProductivity()
+    {
+        ExpantaNum total =
+            GameManager.Instance.State.Population.Population +
+            ProgressionModifierManager.Current.ProductivityGranted;
+        for (int i = 0; i < orderedStates.Count; i++)
+            total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
+        return total;
+    }
 
     internal void InitializeStartingBuildings()
     {
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        RebuildBuildingChainIndex(definitions);
         for (int i = 0; i < definitions.Count; i++)
             EnsureBuilding(definitions[i]);
+    }
+
+    public static void ValidateBuildingChains(IReadOnlyList<Building> definitions)
+    {
+        if (definitions == null)
+            throw new ArgumentNullException(nameof(definitions));
+
+        var predecessors = new Dictionary<Building, Building>();
+        var definitionSet = new HashSet<Building>();
+        for (int i = 0; i < definitions.Count; i++)
+            if (definitions[i] != null)
+                definitionSet.Add(definitions[i]);
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Building source = definitions[i];
+            if (source == null || source.UpgradeTo == null)
+                continue;
+            Building target = source.UpgradeTo;
+            if (!definitionSet.Contains(target))
+                throw new InvalidOperationException(
+                    $"Building chain '{source.Id}' points outside the loaded definitions.");
+            if (source == target)
+                throw new InvalidOperationException(
+                    $"Building chain '{source.Id}' cannot upgrade to itself.");
+            ValidateChainEconomy(source);
+            ValidateChainEconomy(target);
+            if (predecessors.TryGetValue(target, out Building existing))
+                throw new InvalidOperationException(
+                    $"Building '{target.Id}' has multiple chain predecessors: " +
+                    $"'{existing.Id}' and '{source.Id}'.");
+            predecessors.Add(target, source);
+        }
+
+        var visited = new HashSet<Building>();
+        var visiting = new HashSet<Building>();
+        for (int i = 0; i < definitions.Count; i++)
+            ValidateChainNode(definitions[i], visited, visiting);
+    }
+
+    private static void ValidateChainEconomy(Building building)
+    {
+        if (!building.HasValidCostGrowth)
+            throw new InvalidOperationException(
+                $"Building chain member '{building.Id}' has an invalid cost growth multiplier.");
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+            building.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null)
+                throw new InvalidOperationException(
+                    $"Building chain member '{building.Id}' has an empty resource reference.");
+            if (requirement.Second.IsNaN ||
+                requirement.Second.IsInfinity ||
+                requirement.Second < ExpantaNum.Zero)
+            {
+                throw new InvalidOperationException(
+                    $"Building chain member '{building.Id}' has an invalid resource cost.");
+            }
+        }
+    }
+
+    private static void ValidateChainNode(
+        Building building,
+        HashSet<Building> visited,
+        HashSet<Building> visiting)
+    {
+        if (building == null || visited.Contains(building))
+            return;
+        if (!visiting.Add(building))
+            throw new InvalidOperationException(
+                $"Building chain contains a cycle at '{building.Id}'.");
+        ValidateChainNode(building.UpgradeTo, visited, visiting);
+        visiting.Remove(building);
+        visited.Add(building);
+    }
+
+    private void RebuildBuildingChainIndex(IReadOnlyList<Building> definitions)
+    {
+        ValidateBuildingChains(definitions);
+        chainPredecessors.Clear();
+        chainMembers.Clear();
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Building source = definitions[i];
+            if (source == null || source.UpgradeTo == null)
+                continue;
+            chainPredecessors.Add(source.UpgradeTo, source);
+            chainMembers.Add(source);
+            chainMembers.Add(source.UpgradeTo);
+        }
+        chainIndexInitialized = true;
+    }
+
+    private void EnsureBuildingChainIndex()
+    {
+        if (!chainIndexInitialized)
+            RebuildBuildingChainIndex(DataBase<Building>.All);
     }
 
     public BuildingState EnsureBuilding(Building building)
@@ -124,6 +234,82 @@ public class BuildingManager : Singleton<BuildingManager>
         return true;
     }
 
+    public bool IsInBuildingChain(Building building)
+    {
+        if (building == null)
+            return false;
+        EnsureBuildingChainIndex();
+        return chainMembers.Contains(building);
+    }
+
+    public bool CanConstructNew(Building building)
+    {
+        if (!ArePrerequisitesMet(building, out _))
+            return false;
+
+        EnsureBuildingChainIndex();
+        if (!chainMembers.Contains(building))
+            return true;
+
+        Building root = building;
+        while (chainPredecessors.TryGetValue(root, out Building predecessor))
+            root = predecessor;
+
+        Building highestUnlocked = root;
+        while (highestUnlocked.UpgradeTo != null &&
+               ArePrerequisitesMet(highestUnlocked.UpgradeTo, out _))
+        {
+            highestUnlocked = highestUnlocked.UpgradeTo;
+        }
+        return highestUnlocked == building;
+    }
+
+    public bool ShouldDisplay(Building building)
+    {
+        if (building == null)
+            return false;
+        if (states.TryGetValue(building, out BuildingState state) &&
+            state.Amount > ExpantaNum.Zero)
+        {
+            return true;
+        }
+        return CanConstructNew(building);
+    }
+
+    public bool TryGetUnlockedUpgradeTarget(Building source, out Building target)
+    {
+        target = source?.UpgradeTo;
+        if (target == null || !ArePrerequisitesMet(target, out _))
+        {
+            target = null;
+            return false;
+        }
+
+        EnsureBuildingChainIndex();
+        if (!chainMembers.Contains(source) || !chainMembers.Contains(target))
+        {
+            target = null;
+            return false;
+        }
+
+        Building root = source;
+        while (chainPredecessors.TryGetValue(root, out Building predecessor))
+            root = predecessor;
+        for (Building current = root; current != null; current = current.UpgradeTo)
+        {
+            if (!ArePrerequisitesMet(current, out _))
+            {
+                target = null;
+                return false;
+            }
+            if (current == target)
+                return true;
+        }
+
+        target = null;
+        return false;
+    }
+
     public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure)
     {
         if (building == null)
@@ -134,6 +320,11 @@ public class BuildingManager : Singleton<BuildingManager>
 
         if (!ArePrerequisitesMet(building, out failure))
             return false;
+        if (!CanConstructNew(building))
+        {
+            failure = BuildFailure.BuildingTierSuperseded;
+            return false;
+        }
 
         BuildingState state = EnsureBuilding(building);
         ExpantaNum amount = requestedAmount.Floor();
@@ -234,7 +425,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public ExpantaNum GetMaxBuildable(Building building, ExpantaNum requestedMaximum)
     {
-        if (!ArePrerequisitesMet(building, out _))
+        if (!CanConstructNew(building))
             return ExpantaNum.Zero;
 
         BuildingState state = EnsureBuilding(building);
@@ -266,6 +457,247 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         return ExpantaNum.Max(ExpantaNum.Zero, result);
+    }
+
+    public void GetUpgradeResourceDeltas(
+        Building source,
+        ExpantaNum requestedAmount,
+        List<Pair<Resource, ExpantaNum>> destination)
+    {
+        if (destination == null)
+            throw new ArgumentNullException(nameof(destination));
+        destination.Clear();
+        if (source == null ||
+            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetUnlockedUpgradeTarget(source, out Building target))
+        {
+            return;
+        }
+
+        BuildingState targetState = EnsureBuilding(target);
+        ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(
+            requestedAmount.Floor(),
+            sourceState.Amount);
+        if (amount < ExpantaNum.One)
+            return;
+
+        AddUpgradeResources(source.ResourceRequirements, destination);
+        AddUpgradeResources(target.ResourceRequirements, destination);
+        for (int i = 0; i < destination.Count; i++)
+        {
+            Resource resource = destination[i].First;
+            ExpantaNum sourceBaseCost = FindBaseCost(source.ResourceRequirements, resource);
+            ExpantaNum targetBaseCost = FindBaseCost(target.ResourceRequirements, resource);
+            ExpantaNum sourceCost = sourceBaseCost.GeometricSeriesCost(
+                source.CostGrowth,
+                sourceState.Amount - amount,
+                amount);
+            ExpantaNum targetCost = targetBaseCost.GeometricSeriesCost(
+                target.CostGrowth,
+                targetState.Amount,
+                amount);
+            destination[i] = new Pair<Resource, ExpantaNum>(
+                resource,
+                targetCost - sourceCost * UpgradeRecoveryRate);
+        }
+    }
+
+    public bool TryUpgrade(
+        Building source,
+        ExpantaNum requestedAmount,
+        out BuildFailure failure)
+    {
+        if (source == null ||
+            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetUnlockedUpgradeTarget(source, out Building target))
+        {
+            failure = BuildFailure.UpgradeUnavailable;
+            return false;
+        }
+
+        ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(
+            requestedAmount.Floor(),
+            sourceState.Amount);
+        if (amount < ExpantaNum.One)
+        {
+            failure = BuildFailure.InvalidAmount;
+            return false;
+        }
+
+        BuildingState targetState = EnsureBuilding(target);
+        if (!CanApplyUpgradeConstraints(sourceState, targetState, amount, out failure))
+            return false;
+
+        var resourceDeltas = new List<Pair<Resource, ExpantaNum>>();
+        GetUpgradeResourceDeltas(source, amount, resourceDeltas);
+        for (int i = 0; i < resourceDeltas.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
+            if (delta.Second.IsNaN ||
+                (delta.Second > ExpantaNum.Zero &&
+                 ResourceManager.Instance.GetAmount(delta.First) < delta.Second))
+            {
+                failure = BuildFailure.ResourceInsufficient;
+                return false;
+            }
+        }
+
+        for (int i = 0; i < resourceDeltas.Count; i++)
+            ResourceManager.Instance.AddAmount(
+                resourceDeltas[i].First,
+                -resourceDeltas[i].Second);
+
+        ExpantaNum territoryDelta =
+            (targetState.SpaceCost - sourceState.SpaceCost) * amount;
+        if (territoryDelta > ExpantaNum.Zero)
+            GameManager.Instance.CommitConstruction(territoryDelta);
+        else if (territoryDelta < ExpantaNum.Zero)
+            GameManager.Instance.RefundConstruction(-territoryDelta);
+
+        SetAmountAndRatesCore(sourceState, sourceState.Amount - amount, false);
+        SetAmountAndRatesCore(targetState, targetState.Amount + amount, false);
+        ApplyUpgradeCapacityDelta(sourceState, targetState, amount);
+        RefreshResearchPower();
+        failure = BuildFailure.None;
+        return true;
+    }
+
+    public ExpantaNum GetMaxUpgradeable(Building source, ExpantaNum requestedMaximum)
+    {
+        if (source == null ||
+            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetUnlockedUpgradeTarget(source, out Building target))
+        {
+            return ExpantaNum.Zero;
+        }
+
+        BuildingState targetState = EnsureBuilding(target);
+        ExpantaNum high = ExpantaNum.Min(
+            sourceState.Amount,
+            ExpantaNum.Max(ExpantaNum.Zero, requestedMaximum.Floor()));
+        if (high < ExpantaNum.One)
+            return ExpantaNum.Zero;
+        if (CanAffordUpgrade(sourceState, targetState, high))
+            return high;
+
+        ExpantaNum low = ExpantaNum.Zero;
+        for (int i = 0; i < UpgradeBinarySearchLimit && high - low > ExpantaNum.One; i++)
+        {
+            ExpantaNum middle = ((low + high) / 2d).Floor();
+            if (middle <= low)
+                break;
+            if (CanAffordUpgrade(sourceState, targetState, middle))
+                low = middle;
+            else
+                high = middle;
+        }
+        return low;
+    }
+
+    private bool CanAffordUpgrade(
+        BuildingState sourceState,
+        BuildingState targetState,
+        ExpantaNum amount)
+    {
+        if (!CanApplyUpgradeConstraints(sourceState, targetState, amount, out _))
+            return false;
+        var deltas = new List<Pair<Resource, ExpantaNum>>();
+        GetUpgradeResourceDeltas(sourceState.Definition, amount, deltas);
+        for (int i = 0; i < deltas.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> delta = deltas[i];
+            if (delta.Second.IsNaN ||
+                (delta.Second > ExpantaNum.Zero &&
+                 ResourceManager.Instance.GetAmount(delta.First) < delta.Second))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bool CanApplyUpgradeConstraints(
+        BuildingState sourceState,
+        BuildingState targetState,
+        ExpantaNum amount,
+        out BuildFailure failure)
+    {
+        ExpantaNum territoryDelta =
+            (targetState.SpaceCost - sourceState.SpaceCost) * amount;
+        if (territoryDelta > GameManager.Instance.State.AvailableTerritory)
+        {
+            failure = BuildFailure.SpaceInsufficient;
+            return false;
+        }
+
+        ExpantaNum preMargin = CalculateRawTotalProductivity() - UsedProductivity;
+        ExpantaNum postTotalWithoutTargetGrant =
+            CalculateRawTotalProductivity() -
+            sourceState.ProductivityGranted * amount;
+        ExpantaNum postUsed =
+            UsedProductivity -
+            sourceState.ProductivityConsumption * amount +
+            targetState.ProductivityConsumption * amount;
+        if (postTotalWithoutTargetGrant - postUsed < ExpantaNum.Min(ExpantaNum.Zero, preMargin))
+        {
+            failure = BuildFailure.ProductivityInsufficient;
+            return false;
+        }
+
+        failure = BuildFailure.None;
+        return true;
+    }
+
+    private static void AddUpgradeResources(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+        List<Pair<Resource, ExpantaNum>> destination)
+    {
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Resource resource = requirements[i].First;
+            bool found = false;
+            for (int j = 0; j < destination.Count; j++)
+            {
+                if (destination[j].First == resource)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                destination.Add(new Pair<Resource, ExpantaNum>(resource, ExpantaNum.Zero));
+        }
+    }
+
+    private static ExpantaNum FindBaseCost(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+        Resource resource)
+    {
+        for (int i = 0; i < requirements.Count; i++)
+            if (requirements[i].First == resource)
+                return requirements[i].Second;
+        return ExpantaNum.Zero;
+    }
+
+    private static void ApplyUpgradeCapacityDelta(
+        BuildingState sourceState,
+        BuildingState targetState,
+        ExpantaNum amount)
+    {
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        ExpantaNum sourceFoodCapacity =
+            sourceState.Efficiency *
+            sourceState.Definition.FoodCapacityGranted *
+            modifiers.FoodCapacityMultiplier;
+        ExpantaNum targetFoodCapacity =
+            targetState.Efficiency *
+            targetState.Definition.FoodCapacityGranted *
+            modifiers.FoodCapacityMultiplier;
+        GameManager.Instance.AdjustFoodCapacity(
+            (targetFoodCapacity - sourceFoodCapacity) * amount);
+        GameManager.Instance.AdjustPopulationCapacity(
+            (targetState.Definition.PopulationCapacityGranted -
+             sourceState.Definition.PopulationCapacityGranted) * amount);
     }
 
     internal void RefreshEfficiencies()
@@ -411,9 +843,21 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum.Clamp01(logisticsSatisfaction));
     }
 
-    private void SetAmountAndRates(BuildingState state, ExpantaNum newAmount)
+    private void SetAmountAndRates(BuildingState state, ExpantaNum newAmount) =>
+        SetAmountAndRatesCore(state, newAmount, true);
+
+    private void SetAmountAndRatesCore(
+        BuildingState state,
+        ExpantaNum newAmount,
+        bool applyCapacityDeltas)
     {
-        ApplyRateDelta(state, state.Amount, state.Efficiency, newAmount, state.Efficiency);
+        ApplyRateDelta(
+            state,
+            state.Amount,
+            state.Efficiency,
+            newAmount,
+            state.Efficiency,
+            applyCapacityDeltas);
         state.SetAmount(newAmount);
     }
 
@@ -422,7 +866,8 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum oldAmount,
         ExpantaNum oldEfficiency,
         ExpantaNum newAmount,
-        ExpantaNum newEfficiency)
+        ExpantaNum newEfficiency,
+        bool applyCapacityDeltas = true)
     {
         ExpantaNum oldScale = oldAmount * oldEfficiency;
         ExpantaNum newScale = newAmount * newEfficiency;
@@ -450,11 +895,14 @@ public class BuildingManager : Singleton<BuildingManager>
                 * productionMultiplier
                 * modifiers.GetBuildingFoodProductionMultiplier(state.Definition),
             scaleDelta * state.Definition.FoodConsumptionRate);
-        GameManager.Instance.AdjustFoodCapacity(
-            scaleDelta * state.Definition.FoodCapacityGranted
-                * modifiers.FoodCapacityMultiplier);
-        GameManager.Instance.AdjustPopulationCapacity(
-            amountDelta * state.Definition.PopulationCapacityGranted);
+        if (applyCapacityDeltas)
+        {
+            GameManager.Instance.AdjustFoodCapacity(
+                scaleDelta * state.Definition.FoodCapacityGranted
+                    * modifiers.FoodCapacityMultiplier);
+            GameManager.Instance.AdjustPopulationCapacity(
+                amountDelta * state.Definition.PopulationCapacityGranted);
+        }
         GameManager.Instance.AdjustPowerRates(
             scaleDelta * state.Definition.PowerProductionRate
                 * modifiers.PowerMultiplier
@@ -613,6 +1061,7 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
         GlobalEfficiencyFactor = ExpantaNum.One;
+        chainIndexInitialized = false;
         RefreshResearchPower();
     }
 

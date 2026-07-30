@@ -20,6 +20,7 @@ public sealed class ProgressionModifierState
     public ExpantaNum TerritoryGranted { get; internal set; } = ExpantaNum.Zero;
     public ExpantaNum MilitaryMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PowerMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum PopulationGrowthMultiplier { get; internal set; } = ExpantaNum.One;
 
     public IReadOnlyCollection<string> UnlockedSystems => unlockedSystems;
     public bool IsSystemUnlocked(string systemId) =>
@@ -178,6 +179,9 @@ public static class ProgressionModifierManager
                     break;
                 case ResearchEffectType.GlobalLogisticsMultiplier:
                     modifiers.GlobalLogisticsMultiplier *= NormalizeMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.PopulationGrowthMultiplier:
+                    modifiers.PopulationGrowthMultiplier *= NormalizeMultiplier(effect.Value);
                     break;
             }
         }

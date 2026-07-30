@@ -111,6 +111,30 @@ For each batch:
 7. report numerical before/after values;
 8. stop if the main progression is unreachable.
 
+### Static closure check
+
+Before launching Unity or running a simulation, run the repository-local static
+closure detector:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\codex\content-closure-check.ps1
+```
+
+For an industrial-only change where the first three eras are an explicitly
+verified baseline, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\codex\content-closure-check.ps1 -IndustrialBaseline
+```
+
+It reads `Assets/Resources/Datas` and `.meta` GUIDs, then applies the same
+reachability rules for research, resources, buildings and Workshop upgrades.
+It writes `data/content-closure-static.md`, prints the first blocking reason
+for each unreachable definition, and returns exit code 2 when any definition
+is unreachable. Fix the source-of-truth migration and serialized asset, then
+rerun this check until it returns 0. Do not use simulation output as a
+substitute for this closure check.
+
 Zero PlayMode tests is not a passing PlayMode validation.
 
 ## Reporting

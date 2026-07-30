@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: OilRefinery
   Description: 
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.21
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -40,7 +35,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 16
+    scalar: 80
     layer: 0
     operators: []
   productivityGranted:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 850
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -158,7 +153,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     second:
       sign: 0
       representation: 1
@@ -166,7 +161,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -175,7 +170,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceGenerationRates:
-  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     second:
       sign: 0
       representation: 1
@@ -183,7 +178,7 @@ MonoBehaviour:
       scalar: 1.2
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 191b0a72e60f12d4ba2e236156a8f21c, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
@@ -191,7 +186,7 @@ MonoBehaviour:
       scalar: 0.4
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c1119239ca1703f40aea0da3eec1211c, type: 2}
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
     second:
       sign: 0
       representation: 1
@@ -200,7 +195,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 13b2483981c33b34abd14316fd1dd94a, type: 2}
+  - first: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
     second:
       sign: 0
       representation: 1
@@ -208,7 +203,7 @@ MonoBehaviour:
       scalar: 2
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -217,6 +212,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: a503809720a528146b1350c3e5510cb1, type: 2}
-  - {fileID: 11400000, guid: 95c4a93adb768bb4d8e7978fe41bc6e8, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
+  - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
   requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 753d3f5abd876d04592e75ba88884750, type: 2}

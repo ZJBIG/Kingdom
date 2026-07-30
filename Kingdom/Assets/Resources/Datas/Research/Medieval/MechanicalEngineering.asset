@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanicalEngineering
   Label: "\u673A\u68B0\u5DE5\u7A0B"
-  Description: "\u7cfb\u7edf\u7814\u7a76\u9f7f\u8f6e\u3001\u51f8\u8f6e\u3001\u66f2\u67c4\u3001\u8f74\u627f\u548c\u52a8\u529b\u4f20\u9012\uff0c\u4f7f\u590d\u6742\u673a\u68b0\u80fd\u591f\u53ef\u9760\u5730\u653e\u5927\u5e76\u91cd\u590d\u4eba\u529b\u6216\u81ea\u7136\u52a8\u529b\u3002"
+  Description: "\u7CFB\u7EDF\u7814\u7A76\u9F7F\u8F6E\u3001\u51F8\u8F6E\u3001\u66F2\u67C4\u3001\u8F74\u627F\u548C\u52A8\u529B\u4F20\u9012\uFF0C\u4F7F\u590D\u6742\u673A\u68B0\u80FD\u591F\u53EF\u9760\u5730\u653E\u5927\u5E76\u91CD\u590D\u4EBA\u529B\u6216\u81EA\u7136\u52A8\u529B\u3002"
   BaseCost: 120000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: a1111111111111111111111111111111, type: 2}
+    Building: {fileID: 11400000, guid: d79117356935b484288c9e07b35e806e, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 11.00
-  y: 14.214
+  x: 11
+  y: 15.695

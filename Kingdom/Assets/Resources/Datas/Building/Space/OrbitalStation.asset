@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: "\u8F68\u9053\u7A7A\u95F4\u7AD9"
   Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u8FD1\u5730\u8F68\u9053\u8282\u70B9\uFF0C\u4E3A\u540E\u7EED\u661F\u533A\u63A2\u7D22\u548C\u8230\u961F\u63D0\u4F9B\u57FA\u7840\u8BBE\u65BD\u3002"
   TechLevel: 4
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.22
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 3200
     layer: 0
     operators: []
   spaceCost:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 1600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -158,7 +153,7 @@ MonoBehaviour:
       scalar: 500
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -166,7 +161,7 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     second:
       sign: 0
       representation: 1
@@ -174,7 +169,7 @@ MonoBehaviour:
       scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
     second:
       sign: 0
       representation: 1
@@ -184,7 +179,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     second:
       sign: 0
       representation: 1

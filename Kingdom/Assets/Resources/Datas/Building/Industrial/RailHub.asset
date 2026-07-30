@@ -17,17 +17,12 @@ MonoBehaviour:
   Description: Connects industrial districts and forms the first logistics throughput
     node.
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -41,7 +36,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 14
+    scalar: 70
     layer: 0
     operators: []
   productivityGranted:
@@ -143,7 +138,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -151,7 +146,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -159,7 +154,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -167,7 +162,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -177,7 +172,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     second:
       sign: 0
       representation: 1
@@ -185,7 +180,7 @@ MonoBehaviour:
       scalar: 0.3
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 191b0a72e60f12d4ba2e236156a8f21c, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
@@ -194,6 +189,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
-  - {fileID: 11400000, guid: 67724eb1e742fbf48b51ad44ac71d34c, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
+  - {fileID: 11400000, guid: c20610d6f6d6f514183d375456418970, type: 2}
   requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 91dbfa1289790ad459dee070148e8a46, type: 2}

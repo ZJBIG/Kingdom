@@ -14,20 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAgriculture
   Label: "\u5DE5\u4E1A\u519C\u4E1A"
-  Description: "\u628a\u673a\u68b0\u519c\u5177\u3001\u5316\u5b66\u6295\u5165\u3001\u89c4\u6a21\u5316\u704c\u6e89\u4e0e\u96c6\u4e2d\u50a8\u8fd0\u7ed3\u5408\u8d77\u6765\uff0c\u4ee5\u5de5\u4e1a\u65b9\u5f0f\u63d0\u9ad8\u5355\u4f4d\u52b3\u52a8\u529b\u7684\u519c\u4e1a\u4ea7\u51fa\u3002"
+  Description: "\u5c06\u6807\u51c6\u5316\u79cd\u690d\u3001\u96c6\u4e2d\u52a0\u5de5\u3001\u89c4\u6a21\u4ed3\u50a8\u548c\u5e02\u573a\u4f9b\u5e94\u8fde\u63a5\u8d77\u6765\uff0c\u4f7f\u519c\u4e1a\u4ece\u5206\u6563\u81ea\u7ed9\u8f6c\u5411\u9762\u5411\u57ce\u5e02\u4e0e\u5de5\u5382\u7684\u7a33\u5b9a\u6279\u91cf\u751f\u4ea7\u3002"
   BaseCost: 1050000
   prerequisites:
-  - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
+  - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -35,17 +35,17 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 30
       layer: 0
       operators: []
   effects:
   - Type: 2
-    Building: {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
+    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -56,7 +56,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 2
-    Building: {fileID: 11400000, guid: a42bd7bec591404f8802b499927b1bce, type: 2}
+    Building: {fileID: 11400000, guid: 39694f82da13fe04bb37d117782fa5ec, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -67,7 +67,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 2
-    Building: {fileID: 11400000, guid: a1111111111111111111111111111111, type: 2}
+    Building: {fileID: 11400000, guid: d79117356935b484288c9e07b35e806e, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -79,5 +79,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 20.00
-  y: 13.665
+  x: 20
+  y: 5.806

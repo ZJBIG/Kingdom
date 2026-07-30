@@ -14,16 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TelegraphDispatch
   Label: "\u7535\u62A5\u8C03\u5EA6"
-  Description: "\u7535\u62A5\u8C03\u5EA6\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u7535\u62A5\u8C03\u5EA6\u5E94\u7528\u5DE5\u4E1A\u5316\u5DE5\u827A\uFF0C\u63D0\u4F9B\u53EF\u9A8C\u8BC1\u7684\u6C38\u4E45\u751F\u4EA7\u6216\u57FA\u7840\u8BBE\u65BD\u6548\u679C\u3002"
   Category: "\u7269\u6D41"
-  SortOrder: 120
+  SortOrder: 180
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 4cd46b11b9f721c428c77de1fd30de62, type: 2}
-  requiredUpgrades:
-  - {fileID: 11400000, guid: d0388ea327a788142a6b074a884de62c, type: 2}
+  - {fileID: 11400000, guid: f40d04ef655d0ce4b9f8a496cfc5d874, type: 2}
+  requiredUpgrades: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,20 +30,12 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 400
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
+      scalar: 60
       layer: 0
       operators: []
   effects:
@@ -55,6 +46,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.05
       layer: 0
       operators: []

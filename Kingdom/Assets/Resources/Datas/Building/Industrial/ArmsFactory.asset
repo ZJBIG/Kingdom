@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: Arms Factory
   Description: Converts industrial materials into modern military equipment.
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -40,7 +35,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 18
+    scalar: 90
     layer: 0
     operators: []
   productivityGranted:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 500
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -158,7 +153,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -166,7 +161,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -176,7 +171,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -184,7 +179,7 @@ MonoBehaviour:
       scalar: 0.5
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -192,7 +187,7 @@ MonoBehaviour:
       scalar: 0.2
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -200,7 +195,7 @@ MonoBehaviour:
       scalar: 0.15
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
     second:
       sign: 0
       representation: 1
@@ -208,7 +203,7 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -216,7 +211,7 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 36f23d2479d20f9489b48ab3e61c9999, type: 2}
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     second:
       sign: 0
       representation: 1
@@ -225,6 +220,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: eadf8ba08147af2479e037bba70ae97b, type: 2}
-  - {fileID: 11400000, guid: 04d708fbb21007c46a68c4abe9b6a006, type: 2}
-  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 323c4afbe0c59c94bb68d1816a07b402, type: 2}
+  - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}
+  requiredWorkshopUpgrades: []

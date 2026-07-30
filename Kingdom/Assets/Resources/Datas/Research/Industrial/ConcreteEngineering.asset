@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ConcreteEngineering
+  m_EditorClassIdentifier: 
+  id: ConcreteEngineering
+  Label: "\u6DF7\u51DD\u571F\u5DE5\u7A0B"
+  Description: "\u7edf\u4e00\u9aa8\u6599\u3001\u6c34\u6ce5\u548c\u7528\u6c34\u6bd4\u4f8b\uff0c\u638c\u63e1\u6405\u62cc\u3001\u6d47\u7b51\u3001\u632f\u5b9e\u4e0e\u517b\u62a4\u6d41\u7a0b\uff0c\u5f62\u6210\u9002\u5408\u5382\u623f\u3001\u9053\u8def\u548c\u5927\u578b\u57fa\u7840\u7684\u6807\u51c6\u6df7\u51dd\u571f\u65bd\u5de5\u4f53\u7cfb\u3002"
+  BaseCost: 260000
+  prerequisites:
+  - {fileID: 11400000, guid: b7b75fb6b46ffb441ab68c0a334e385e, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 800
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 45aabba1b2f013248a6c420af5781297, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 93ee90d2ae7a9ba48b01c81b25f4ba2b, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 18
+  y: 17.07

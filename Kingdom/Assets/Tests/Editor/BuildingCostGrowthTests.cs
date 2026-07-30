@@ -75,14 +75,7 @@ public sealed class BuildingCostGrowthTests
             "RestorePopulation",
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
-        method.Invoke(
-            state,
-            new object[]
-            {
-                population,
-                population,
-                ExpantaNum.Zero
-            });
+        method.Invoke(state, new object[] { population });
     }
 
     private static void CompleteResearch(ResearchManager manager, string id)

@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: IndustrialLogistics
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: IndustrialLogistics
-  Label: "工业物流"
-  Description: "\u7edf\u4e00\u94c1\u8def\u73ed\u6b21\u3001\u4ed3\u5e93\u5468\u8f6c\u3001\u88c5\u5378\u8282\u70b9\u548c\u5de5\u5382\u914d\u9001\u8ba1\u5212\uff0c\u4f7f\u5927\u5b97\u539f\u6599\u4e0e\u6210\u54c1\u80fd\u591f\u5728\u5de5\u4e1a\u7f51\u7edc\u4e2d\u8fde\u7eed\u6d41\u52a8\u3002"
+  Label: "\u5DE5\u4E1A\u7269\u6D41"
+  Description: "\u7EDF\u4E00\u94C1\u8DEF\u73ED\u6B21\u3001\u4ED3\u5E93\u5468\u8F6C\u3001\u88C5\u5378\u8282\u70B9\u548C\u5DE5\u5382\u914D\u9001\u8BA1\u5212\uFF0C\u4F7F\u5927\u5B97\u539F\u6599\u4E0E\u6210\u54C1\u80FD\u591F\u5728\u5DE5\u4E1A\u7F51\u7EDC\u4E2D\u8FDE\u7EED\u6D41\u52A8\u3002"
   BaseCost: 360000
   prerequisites:
-  - {fileID: 11400000, guid: 4cd46b11b9f721c428c77de1fd30de62, type: 2}
-  - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
+  - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
   - Type: 16
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId:
+    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -58,6 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 24.00
-  y: 14.750
-
+  x: 24
+  y: 13.667

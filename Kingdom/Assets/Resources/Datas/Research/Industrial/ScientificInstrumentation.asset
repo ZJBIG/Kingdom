@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: ScientificInstrumentation
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: ScientificInstrumentation
-  Label: "科学仪器"
-  Description: "\u5236\u9020\u7cbe\u5bc6\u6d4b\u91cf\u3001\u5149\u5b66\u548c\u5b9e\u9a8c\u88c5\u7f6e\uff0c\u628a\u96be\u4ee5\u89c2\u5bdf\u7684\u73b0\u8c61\u8f6c\u5316\u4e3a\u53ef\u91cd\u590d\u6570\u636e\uff0c\u63d0\u5347\u7814\u7a76\u7684\u51c6\u786e\u6027\u4e0e\u8303\u56f4\u3002"
+  Label: "\u79D1\u5B66\u4EEA\u5668"
+  Description: "\u5236\u9020\u7CBE\u5BC6\u6D4B\u91CF\u3001\u5149\u5B66\u548C\u5B9E\u9A8C\u88C5\u7F6E\uFF0C\u628A\u96BE\u4EE5\u89C2\u5BDF\u7684\u73B0\u8C61\u8F6C\u5316\u4E3A\u53EF\u91CD\u590D\u6570\u636E\uFF0C\u63D0\u5347\u7814\u7A76\u7684\u51C6\u786E\u6027\u4E0E\u8303\u56F4\u3002"
   BaseCost: 450000
   prerequisites:
-  - {fileID: 11400000, guid: 3915650d9308e514c8dae362ebde15ea, type: 2}
-  - {fileID: 11400000, guid: a983adc6884e79f4ea3777d1277d713f, type: 2}
+  - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}
+  - {fileID: 11400000, guid: 01957e1170855414387b6d50f51748a6, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -44,7 +44,7 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -56,7 +56,7 @@ MonoBehaviour:
   - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId:
+    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -66,6 +66,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 22.00
-  y: 13.750
-
+  x: 16
+  y: 0

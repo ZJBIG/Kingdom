@@ -137,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -148,5 +148,5 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: 7aa0ac993e0240d09d92b5a9be2d496e, type: 2}
+  - {fileID: 11400000, guid: cb3f7149f68e72842a8bbf1292147519, type: 2}
   requiredWorkshopUpgrades: []

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: WrittenRecords
   Label: "\u6587\u5B57\u8BB0\u5F55"
-  Description: "\u7528\u56fa\u5b9a\u7b26\u53f7\u8bb0\u5f55\u6570\u91cf\u3001\u5951\u7ea6\u3001\u4e8b\u4ef6\u548c\u77e5\u8bc6\uff0c\u4f7f\u4fe1\u606f\u80fd\u591f\u8131\u79bb\u53e3\u8ff0\u8bb0\u5fc6\u957f\u671f\u4fdd\u5b58\u5e76\u51c6\u786e\u4f20\u9012\u3002"
+  Description: "\u7528\u56FA\u5B9A\u7B26\u53F7\u8BB0\u5F55\u6570\u91CF\u3001\u5951\u7EA6\u3001\u4E8B\u4EF6\u548C\u77E5\u8BC6\uFF0C\u4F7F\u4FE1\u606F\u80FD\u591F\u8131\u79BB\u53E3\u8FF0\u8BB0\u5FC6\u957F\u671F\u4FDD\u5B58\u5E76\u51C6\u786E\u4F20\u9012\u3002"
   BaseCost: 4500
   prerequisites:
-  - {fileID: 11400000, guid: 4a6f9bd1540c47e2a1db6c5e3f8b7210, type: 2}
+  - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -43,7 +43,7 @@ MonoBehaviour:
       scalar: 20
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -54,5 +54,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.00
-  y: 12.073
+  x: 6
+  y: 18.236

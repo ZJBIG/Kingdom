@@ -3,6 +3,8 @@ using System;
 [Serializable]
 public sealed class TerritoryState
 {
+    public static ExpantaNum InitialTotal => new ExpantaNum(500);
+
     private ExpantaNum total;
     private ExpantaNum used;
 
@@ -15,7 +17,7 @@ public sealed class TerritoryState
 
     internal void InitializeNew()
     {
-        total = new ExpantaNum(100);
+        total = InitialTotal;
         used = ExpantaNum.Zero;
         Version++;
     }

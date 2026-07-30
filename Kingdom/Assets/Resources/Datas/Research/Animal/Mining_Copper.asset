@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mining_Copper
   Label: "\u94DC\u77FF\u91C7\u6398"
-  Description: "\u638c\u63e1\u94dc\u77ff\u7684\u8fa8\u8bc6\u3001\u6d45\u5c42\u5f00\u91c7\u548c\u9009\u77ff\u65b9\u6cd5\uff0c\u4e3a\u94dc\u5668\u4e0e\u9752\u94dc\u5408\u91d1\u51c6\u5907\u7a33\u5b9a\u7684\u91d1\u5c5e\u539f\u6599\u3002"
+  Description: "\u638C\u63E1\u94DC\u77FF\u7684\u8FA8\u8BC6\u3001\u6D45\u5C42\u5F00\u91C7\u548C\u9009\u77FF\u65B9\u6CD5\uFF0C\u4E3A\u94DC\u5668\u4E0E\u9752\u94DC\u5408\u91D1\u51C6\u5907\u7A33\u5B9A\u7684\u91D1\u5C5E\u539F\u6599\u3002"
   BaseCost: 900
   prerequisites:
-  - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   resourceRequirements: []
   effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 2.00
-  y: 21.329
+  x: 2
+  y: 28.889

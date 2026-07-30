@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: AutomatedAssembly
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: AutomatedAssembly
-  Label: "自动化装配"
-  Description: "\u4f7f\u7528\u4e13\u7528\u673a\u68b0\u3001\u4f20\u9001\u88c5\u7f6e\u548c\u987a\u5e8f\u63a7\u5236\u91cd\u590d\u5b8c\u6210\u88c5\u914d\u5de5\u5e8f\uff0c\u51cf\u5c11\u4eba\u5de5\u5dee\u5f02\u5e76\u63d0\u9ad8\u590d\u6742\u4ea7\u54c1\u7684\u4e00\u81f4\u4ea7\u91cf\u3002"
+  Label: "\u81EA\u52A8\u5316\u88C5\u914D"
+  Description: "\u4F7F\u7528\u4E13\u7528\u673A\u68B0\u3001\u4F20\u9001\u88C5\u7F6E\u548C\u987A\u5E8F\u63A7\u5236\u91CD\u590D\u5B8C\u6210\u88C5\u914D\u5DE5\u5E8F\uFF0C\u51CF\u5C11\u4EBA\u5DE5\u5DEE\u5F02\u5E76\u63D0\u9AD8\u590D\u6742\u4EA7\u54C1\u7684\u4E00\u81F4\u4EA7\u91CF\u3002"
   BaseCost: 400000
   prerequisites:
-  - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
-  - {fileID: 11400000, guid: 5c2c36a9093babd4db12dbfcf1e8fe74, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
+  - {fileID: 11400000, guid: a2707e58d347df14b9af90bdfd7e7bef, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 3385d2d97dcc16e449b369618a8ddfa8, type: 2}
+  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
   - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId:
+    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -58,6 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 23.00
-  y: 5.750
-
+  x: 22
+  y: 12.611

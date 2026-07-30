@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: ImprovedMilling
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: ImprovedMilling
-  Label: "改良磨坊"
-  Description: "\u4f18\u5316\u6c34\u8f6e\u6216\u98ce\u529b\u4f20\u52a8\u3001\u78e8\u76d8\u95f4\u9699\u548c\u7cae\u98df\u8f93\u9001\uff0c\u4f7f\u8c37\u7269\u52a0\u5de5\u6446\u8131\u5355\u7eaf\u4eba\u529b\u5e76\u663e\u8457\u63d0\u9ad8\u541e\u5410\u91cf\u3002"
+  Label: "\u6539\u826F\u78E8\u574A"
+  Description: "\u4F18\u5316\u6C34\u8F6E\u6216\u98CE\u529B\u4F20\u52A8\u3001\u78E8\u76D8\u95F4\u9699\u548C\u7CAE\u98DF\u8F93\u9001\uFF0C\u4F7F\u8C37\u7269\u52A0\u5DE5\u6446\u8131\u5355\u7EAF\u4EBA\u529B\u5E76\u663E\u8457\u63D0\u9AD8\u541E\u5410\u91CF\u3002"
   BaseCost: 145000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000002, type: 2}
-  - {fileID: 11400000, guid: 7c2d1e8f4a6b49d3b0e5c7f912ab6384, type: 2}
+  - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
+  - {fileID: 11400000, guid: 7f8a3770a91fb8949a07818c7df70fe5, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -58,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 12.00
-  y: 7.541
+  x: 12
+  y: 17.667

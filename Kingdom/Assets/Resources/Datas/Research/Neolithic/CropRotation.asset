@@ -11,16 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: CropRotation
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: CropRotation
-  Label: "轮作制度"
-  Description: "\u5728\u4e0d\u540c\u5b63\u8282\u8f6e\u6362\u8c37\u7269\u3001\u8c46\u7c7b\u4e0e\u4f11\u8015\u5730\uff0c\u51cf\u8f7b\u571f\u58e4\u517b\u5206\u8017\u7aed\u548c\u75c5\u866b\u79ef\u7d2f\uff0c\u7a33\u5b9a\u957f\u671f\u4ea7\u91cf\u3002"
+  Label: "\u8F6E\u4F5C\u5236\u5EA6"
+  Description: "\u5728\u4E0D\u540C\u5B63\u8282\u8F6E\u6362\u8C37\u7269\u3001\u8C46\u7C7B\u4E0E\u4F11\u8015\u5730\uFF0C\u51CF\u8F7B\u571F\u58E4\u517B\u5206\u8017\u7AED\u548C\u75C5\u866B\u79EF\u7D2F\uFF0C\u7A33\u5B9A\u957F\u671F\u4EA7\u91CF\u3002
+    \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD815%\u3002"
   BaseCost: 13000
   prerequisites:
-  - {fileID: 11400000, guid: b7110000000000000000000000000000, type: 2}
-  - {fileID: 11400000, guid: 4a6f9bd1540c47e2a1db6c5e3f8b7210, type: 2}
+  - {fileID: 11400000, guid: bf4d8f1e0f33bc341a6012810cfda653, type: 2}
+  - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +29,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +37,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -56,7 +57,18 @@ MonoBehaviour:
       scalar: 1.02
       layer: 0
       operators: []
+  - Type: 17
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: PopulationGrowth_CropRotation
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 9.00
-  y: 16.954
+  x: 9
+  y: 10.903

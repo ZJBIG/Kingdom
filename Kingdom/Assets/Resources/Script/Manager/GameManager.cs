@@ -15,11 +15,17 @@ public enum TechLevel
 
 public class GameManager : Singleton<GameManager>
 {
-    private const float CalendarUpdateInterval = 10f;
+    private const double SecondsPerDay = 10d;
     private const string DefaultKingdomName = "鼠托邦";
 
     public GameState State { get; private set; } = new GameState();
     public SectorManager Sectors { get; } = new SectorManager();
+    public ExpantaNum PopulationGrowthMultiplier =>
+        ProgressionModifierManager.Current.PopulationGrowthMultiplier;
+    public ExpantaNum PopulationGrowthRatePerSecond =>
+        PopulationState.BaseGrowthRatePerSecond * PopulationGrowthMultiplier;
+    public ExpantaNum CurrentPopulationGrowthRatePerMinute =>
+        PopulationGrowthRatePerSecond * State.FoodSatisfaction * 60d;
 
     private double calendarElapsedSeconds;
 
@@ -77,16 +83,26 @@ public class GameManager : Singleton<GameManager>
 
     public void Tick(double deltaSeconds)
     {
+        Tick(deltaSeconds, ExpantaNum.Zero);
+    }
+
+    public void Tick(
+        double deltaSeconds,
+        ExpantaNum populationDepartureAllowance)
+    {
         if (deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         State.AdvanceFood(deltaSeconds);
-        State.AdvancePopulationGrowth(deltaSeconds);
+        State.AdvancePopulation(
+            deltaSeconds,
+            PopulationGrowthRatePerSecond,
+            populationDepartureAllowance);
         calendarElapsedSeconds += deltaSeconds;
-        while (calendarElapsedSeconds >= CalendarUpdateInterval)
+        while (calendarElapsedSeconds >= SecondsPerDay)
         {
             State.AdvanceCalendarStep();
-            calendarElapsedSeconds -= CalendarUpdateInterval;
+            calendarElapsedSeconds -= SecondsPerDay;
         }
     }
 
@@ -210,7 +226,7 @@ public class GameManager : Singleton<GameManager>
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 
     internal void ResetDerivedEconomy() =>
-        State.ResetDerivedEconomy(new ExpantaNum(100));
+        State.ResetDerivedEconomy(TerritoryState.InitialTotal);
 
     internal SaveManager.GameSaveData CaptureSaveData()
     {
@@ -222,8 +238,8 @@ public class GameManager : Singleton<GameManager>
             TechLevel = State.TechLevel,
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
-            PopulationCapacity = State.Population.PopulationCapacity.ToString(),
-            GrowthProgress = State.Population.GrowthProgress.ToString(),
+            PopulationChangeProgress =
+                State.Population.PopulationChangeProgress.ToString(),
             TerritoryTotal = State.TerritoryTotal.ToString(),
             AttackPower = State.AttackPower.ToString(),
             DefensePower = State.DefensePower.ToString(),
@@ -254,9 +270,7 @@ public class GameManager : Singleton<GameManager>
         if (!string.IsNullOrWhiteSpace(data.Population))
         {
             State.RestorePopulation(
-                Parse(data.Population, nameof(data.Population)),
-                Parse(data.PopulationCapacity, nameof(data.PopulationCapacity)),
-                Parse(data.GrowthProgress, nameof(data.GrowthProgress)));
+                Parse(data.Population, nameof(data.Population)));
         }
         if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
             State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
@@ -270,6 +284,17 @@ public class GameManager : Singleton<GameManager>
                 ? ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio))
                 : ExpantaNum.Zero);
         ResetCalendarAccumulator();
+    }
+
+    internal void RestorePopulationChangeProgress(
+        SaveManager.GameSaveData data)
+    {
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
+        State.RestorePopulationChangeProgress(ParseOptional(
+            data.PopulationChangeProgress,
+            ExpantaNum.Zero,
+            nameof(data.PopulationChangeProgress)));
     }
 
     internal void RestoreMilitarySaveData(SaveManager.GameSaveData data)

@@ -11,17 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: CouncilGovernance
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: CouncilGovernance
-  Label: "议事治理"
-  Description: "\u7531\u4ee3\u8868\u5171\u540c\u8bae\u5b9a\u516c\u5171\u4e8b\u52a1\u3001\u52b3\u5f79\u548c\u8d44\u6e90\u5206\u914d\uff0c\u4f7f\u805a\u843d\u51b3\u7b56\u4ece\u4e34\u65f6\u53f7\u4ee4\u8f6c\u53d8\u4e3a\u53ef\u5ef6\u7eed\u7684\u6cbb\u7406\u7a0b\u5e8f\u3002"
+  Label: "\u8BAE\u4E8B\u6CBB\u7406"
+  Description: "\u7531\u4EE3\u8868\u5171\u540C\u8BAE\u5B9A\u516C\u5171\u4E8B\u52A1\u3001\u52B3\u5F79\u548C\u8D44\u6E90\u5206\u914D\uFF0C\u4F7F\u805A\u843D\u51B3\u7B56\u4ECE\u4E34\u65F6\u53F7\u4EE4\u8F6C\u53D8\u4E3A\u53EF\u5EF6\u7EED\u7684\u6CBB\u7406\u7A0B\u5E8F\u3002"
   BaseCost: 14000
   prerequisites:
-  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
-  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
-  - {fileID: 11400000, guid: 82abb00c918e40a8bb968f0ca2b15077, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
+  - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
+  - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -59,5 +59,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7.00
-  y: 15.363
+  x: 7
+  y: 24.528

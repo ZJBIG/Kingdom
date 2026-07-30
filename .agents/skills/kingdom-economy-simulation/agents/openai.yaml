@@ -1,0 +1,7 @@
+interface:
+  display_name: "Kingdom Economy Simulation"
+  short_description: "Audit Kingdom research, resource, building, and era reachability before balance edits"
+  default_prompt: "Use $kingdom-economy-simulation to audit Kingdom progression and economy before changing data."
+
+policy:
+  allow_implicit_invocation: true

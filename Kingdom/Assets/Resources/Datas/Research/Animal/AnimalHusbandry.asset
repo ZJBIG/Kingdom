@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AnimalHusbandry
   Label: "\u52A8\u7269\u9A6F\u517B"
-  Description: "\u89c2\u5bdf\u52a8\u7269\u7684\u98df\u6027\u4e0e\u7e41\u6b96\u89c4\u5f8b\uff0c\u9010\u6b65\u5efa\u7acb\u5708\u517b\u3001\u7e41\u80b2\u548c\u53d6\u7528\u755c\u4ea7\u54c1\u7684\u65b9\u6cd5\uff0c\u4e3a\u957f\u671f\u5b9a\u5c45\u63d0\u4f9b\u53ef\u9760\u8865\u7ed9\u3002"
+  Description: "\u89C2\u5BDF\u52A8\u7269\u7684\u98DF\u6027\u4E0E\u7E41\u6B96\u89C4\u5F8B\uFF0C\u9010\u6B65\u5EFA\u7ACB\u5708\u517B\u3001\u7E41\u80B2\u548C\u53D6\u7528\u755C\u4EA7\u54C1\u7684\u65B9\u6CD5\uFF0C\u4E3A\u957F\u671F\u5B9A\u5C45\u63D0\u4F9B\u53EF\u9760\u8865\u7ED9\u3002"
   BaseCost: 240
   prerequisites: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,5 +29,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 0.00
-  y: 10.442
+  x: 0
+  y: 27.097

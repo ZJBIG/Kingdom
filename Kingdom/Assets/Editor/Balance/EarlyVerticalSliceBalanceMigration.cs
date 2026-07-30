@@ -156,6 +156,35 @@ namespace Kingdom.EditorTools
             ContentBalanceReporter.Export();
         }
 
+        [MenuItem("Tools/Kingdom/Content/Apply Housing Building Chain")]
+        public static void ApplyHousingChain()
+        {
+            Research permanentArchitecture = Find<Research>(
+                ResearchRoot,
+                "PermanentArchitecture");
+            Research urbanHousing = Find<Research>(ResearchRoot, "UrbanHousing");
+            Undo.RecordObjects(
+                new Object[] { permanentArchitecture, urbanHousing },
+                "Apply Housing Building Chain");
+
+            permanentArchitecture.Label = "石制建筑";
+            permanentArchitecture.Description =
+                "掌握稳定的石材结构与砌筑方式，解锁石屋并开启住宅建筑升级。";
+            urbanHousing.SetPrerequisitesForEditor(
+                urbanHousing.Prerequisites
+                    .Append(permanentArchitecture)
+                    .Distinct()
+                    .ToList());
+
+            EditorUtility.SetDirty(permanentArchitecture);
+            EditorUtility.SetDirty(urbanHousing);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            Debug.Log(
+                "Housing chain applied: PermanentArchitecture renamed to 石制建筑 " +
+                "and required by UrbanHousing.");
+        }
+
         private static T Find<T>(string root, string id) where T : GameDefinition
         {
             foreach (string guid in AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { root }))

@@ -17,11 +17,11 @@ MonoBehaviour:
   Description: "\u6539\u8FDB\u7089\u6E29\u63A7\u5236\u3001\u9F13\u98CE\u3001\u5408\u91D1\u914D\u6BD4\u548C\u8FDE\u7EED\u4F5C\u4E1A\u6D41\u7A0B\uFF0C\u4F7F\u91D1\u5C5E\u751F\u4EA7\u4ECE\u96F6\u6563\u624B\u827A\u53D1\u5C55\u4E3A\u7A33\u5B9A\u7684\u4E13\u4E1A\u4F53\u7CFB\u3002"
   BaseCost: 60000
   prerequisites:
-  - {fileID: 11400000, guid: b60f6ee9055bb2f40860844fbca930ab, type: 2}
-  - {fileID: 11400000, guid: 719b40f73a323184a9703dea27f21ac1, type: 2}
-  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
+  - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
+  - {fileID: 11400000, guid: 3b4ee5c3fc07b4a4099bc994f2cb1a8c, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       scalar: 1200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       scalar: 1000
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -45,7 +45,7 @@ MonoBehaviour:
       scalar: 2000
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -78,5 +78,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 1
-  x: 9
-  y: 29.4
+  x: 10
+  y: 25.611

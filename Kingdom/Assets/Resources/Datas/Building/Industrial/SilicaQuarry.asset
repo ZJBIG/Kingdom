@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: SilicaQuarry
   Description: 
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.15
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -40,7 +35,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 10
+    scalar: 50
     layer: 0
     operators: []
   productivityGranted:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 350
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -159,7 +154,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceGenerationRates:
-  - first: {fileID: 11400000, guid: c6269a3f58780b84fbec28ceb2ad3a52, type: 2}
+  - first: {fileID: 11400000, guid: 45aabba1b2f013248a6c420af5781297, type: 2}
     second:
       sign: 0
       representation: 1
@@ -169,6 +164,6 @@ MonoBehaviour:
       operators: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: f5010000000000000000000000000009, type: 2}
-  - {fileID: 11400000, guid: 68a6caa7808b8d846bd8e533a3918be3, type: 2}
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: b7b75fb6b46ffb441ab68c0a334e385e, type: 2}
   requiredWorkshopUpgrades: []

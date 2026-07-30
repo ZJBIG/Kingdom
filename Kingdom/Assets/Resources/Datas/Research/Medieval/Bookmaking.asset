@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Bookmaking
   Label: "\u4E66\u7C4D\u5236\u4F5C"
-  Description: "\u6539\u8fdb\u4e66\u5199\u6750\u6599\u3001\u88c5\u8ba2\u3001\u6284\u5f55\u548c\u4fdd\u5b58\u5de5\u827a\uff0c\u4f7f\u6cd5\u5f8b\u3001\u6280\u672f\u4e0e\u5b66\u672f\u6210\u679c\u80fd\u591f\u4ee5\u6210\u518c\u6587\u732e\u957f\u671f\u6d41\u4f20\u3002"
+  Description: "\u6539\u8FDB\u4E66\u5199\u6750\u6599\u3001\u88C5\u8BA2\u3001\u6284\u5F55\u548C\u4FDD\u5B58\u5DE5\u827A\uFF0C\u4F7F\u6CD5\u5F8B\u3001\u6280\u672F\u4E0E\u5B66\u672F\u6210\u679C\u80FD\u591F\u4EE5\u6210\u518C\u6587\u732E\u957F\u671F\u6D41\u4F20\u3002"
   BaseCost: 110000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
-  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -50,5 +50,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 11.00
-  y: 9.501
+  x: 11
+  y: 10

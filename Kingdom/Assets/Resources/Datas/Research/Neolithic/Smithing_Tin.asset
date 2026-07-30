@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Tin
   Label: "\u51B6\u70BC\u9521"
-  Description: "\u638c\u63e1\u9521\u77ff\u4f4e\u6e29\u7194\u70bc\u4e0e\u63d0\u7eaf\u65b9\u6cd5\uff0c\u4e3a\u9752\u94dc\u914d\u5236\u3001\u7cbe\u7ec6\u94f8\u4ef6\u548c\u8010\u8150\u8680\u5668\u5177\u63d0\u4f9b\u7a33\u5b9a\u6750\u6599\u3002"
+  Description: "\u638C\u63E1\u9521\u77FF\u4F4E\u6E29\u7194\u70BC\u4E0E\u63D0\u7EAF\u65B9\u6CD5\uFF0C\u4E3A\u9752\u94DC\u914D\u5236\u3001\u7CBE\u7EC6\u94F8\u4EF6\u548C\u8010\u8150\u8680\u5668\u5177\u63D0\u4F9B\u7A33\u5B9A\u6750\u6599\u3002"
   BaseCost: 12000
   prerequisites:
-  - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
+  - {fileID: 11400000, guid: 891454c3adf86bd4cb5a789500de06cc, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: f1ffd5e8f4e0f074b9951b470bbb83e2, type: 2}
+  - first: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 220
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -38,5 +38,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7.00
-  y: 28.462
+  x: 7
+  y: 29

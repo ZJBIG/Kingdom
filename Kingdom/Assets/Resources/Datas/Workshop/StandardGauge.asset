@@ -14,39 +14,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StandardGauge
   Label: "\u6807\u51C6\u8F68\u8DDD"
-  Description: "\u6807\u51C6\u8F68\u8DDD\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u6807\u51C6\u8F68\u8DDD\u5E94\u7528\u5DE5\u4E1A\u5316\u5DE5\u827A\uFF0C\u63D0\u4F9B\u53EF\u9A8C\u8BC1\u7684\u6C38\u4E45\u751F\u4EA7\u6216\u57FA\u7840\u8BBE\u65BD\u6548\u679C\u3002"
   Category: "\u7269\u6D41"
-  SortOrder: 110
+  SortOrder: 175
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
-  requiredUpgrades:
-  - {fileID: 11400000, guid: 5fbd024357b66e14f82d189f434f4a7d, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
+  requiredUpgrades: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 600
+      scalar: 80
       layer: 0
       operators: []
   effects:
-  - Type: 11
-    Building: {fileID: 11400000, guid: c6100000000000000000000000000005, type: 2}
+  - Type: 12
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.3
+      scalar: 1.05
       layer: 0
       operators: []

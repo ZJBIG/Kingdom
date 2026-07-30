@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: PowerGridEngineering
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: PowerGridEngineering
-  Label: "电网工程"
-  Description: "\u8bbe\u8ba1\u53d1\u7535\u5e76\u7f51\u3001\u53d8\u7535\u3001\u8f93\u7535\u4fdd\u62a4\u548c\u8d1f\u8f7d\u5206\u914d\uff0c\u4f7f\u7535\u529b\u80fd\u591f\u8de8\u533a\u57df\u7a33\u5b9a\u8f93\u9001\u5e76\u51cf\u5c11\u6545\u969c\u4e0e\u635f\u8017\u3002"
+  Label: "\u7535\u7F51\u5DE5\u7A0B"
+  Description: "\u8BBE\u8BA1\u53D1\u7535\u5E76\u7F51\u3001\u53D8\u7535\u3001\u8F93\u7535\u4FDD\u62A4\u548C\u8D1F\u8F7D\u5206\u914D\uFF0C\u4F7F\u7535\u529B\u80FD\u591F\u8DE8\u533A\u57DF\u7A33\u5B9A\u8F93\u9001\u5E76\u51CF\u5C11\u6545\u969C\u4E0E\u635F\u8017\u3002"
   BaseCost: 240000
   prerequisites:
-  - {fileID: 11400000, guid: 32fcf4393a54f1c41818af39b2342227, type: 2}
-  - {fileID: 11400000, guid: 1598b3a500f87a94faa75abeb182f4ef, type: 2}
+  - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
+  - {fileID: 11400000, guid: 812f449bf46164549b8d6743dd4d5aec, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
   - Type: 11
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId:
+    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -58,6 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 24.00
-  y: 21.000
-
+  x: 24
+  y: 19.597

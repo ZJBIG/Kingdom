@@ -39,8 +39,15 @@ The current milestone is gameplay content and balance:
 Use:
 
 - `kingdom-content-expansion` for gameplay, balance and progression;
+- `kingdom-economy-simulation` is mandatory for any Research, Resource, Building,
+  TechLevel, Workshop, production, consumption, economy, reachability, pacing or
+  balance task. Run the static closure check and offline simulator before changing
+  definitions.
 - `kingdom-runtime-refactor` for State/Manager/save/simulation correctness;
 - `kingdom-ui-redesign` for visual/UI work.
+
+The canonical economy skill is `.agents/skills/kingdom-economy-simulation/SKILL.md`.
+Do not use a duplicate economy skill under `Kingdom/.agents/skills`.
 
 ## Non-negotiable economy rule
 

@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="187" result="Failed(Child)" total="187" passed="171" failed="16" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:32Z" duration="0.7213855">
+  <test-suite type="TestSuite" id="1224" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="187" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:32Z" duration="0.721386" total="187" passed="171" failed="16" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1443" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="187" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:32Z" duration="0.701057" total="187" passed="171" failed="16" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="29936" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1225" name="BuildingCostGrowthTests" fullname="BuildingCostGrowthTests" classname="BuildingCostGrowthTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.187605" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1228" name="BuildingManager_ChargesGrowthAndRefundsLastBatch" fullname="BuildingCostGrowthTests.BuildingManager_ChargesGrowthAndRefundsLastBatch" methodname="BuildingManager_ChargesGrowthAndRefundsLastBatch" classname="BuildingCostGrowthTests" runstate="Runnable" seed="1495503422" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.170688" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1226" name="GeometricSeriesCost_UsesOwnedOffset" fullname="BuildingCostGrowthTests.GeometricSeriesCost_UsesOwnedOffset" methodname="GeometricSeriesCost_UsesOwnedOffset" classname="BuildingCostGrowthTests" runstate="Runnable" seed="138333443" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000565" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1227" name="MaxAffordableGeometricSeries_ReturnsExactBoundary" fullname="BuildingCostGrowthTests.MaxAffordableGeometricSeries_ReturnsExactBoundary" methodname="MaxAffordableGeometricSeries_ReturnsExactBoundary" classname="BuildingCostGrowthTests" runstate="Runnable" seed="227918011" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001546" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1229" name="BuildingVerticalSliceTests" fullname="BuildingVerticalSliceTests" classname="BuildingVerticalSliceTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.012314" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1230" name="BuildingCostGrowth_MatchesTheVerticalSliceBaseline" fullname="BuildingVerticalSliceTests.BuildingCostGrowth_MatchesTheVerticalSliceBaseline" methodname="BuildingCostGrowth_MatchesTheVerticalSliceBaseline" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="121158065" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002047" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1231" name="FoodCapacity_IsLimitedToThePlannedFoodBuildings" fullname="BuildingVerticalSliceTests.FoodCapacity_IsLimitedToThePlannedFoodBuildings" methodname="FoodCapacity_IsLimitedToThePlannedFoodBuildings" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1189443554" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000579" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1236" name="KeyBuildings_MatchTheProductionAndEraPlan" fullname="BuildingVerticalSliceTests.KeyBuildings_MatchTheProductionAndEraPlan" methodname="KeyBuildings_MatchTheProductionAndEraPlan" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1402296358" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000448" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1235" name="MedievalBuildingLayerContainsTheSixCoreBuildings" fullname="BuildingVerticalSliceTests.MedievalBuildingLayerContainsTheSixCoreBuildings" methodname="MedievalBuildingLayerContainsTheSixCoreBuildings" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="1753766088" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.005802" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1234" name="MedievalResourceLayerContainsSteelWithoutAbstractToolStocks" fullname="BuildingVerticalSliceTests.MedievalResourceLayerContainsSteelWithoutAbstractToolStocks" methodname="MedievalResourceLayerContainsSteelWithoutAbstractToolStocks" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="816129101" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000520" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1233" name="WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" fullname="BuildingVerticalSliceTests.WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" methodname="WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="318075639" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000849" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1232" name="WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity" fullname="BuildingVerticalSliceTests.WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity" methodname="WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity" classname="BuildingVerticalSliceTests" runstate="Runnable" seed="2087678892" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000255" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1237" name="C5ContentClosureAuditTests" fullname="C5ContentClosureAuditTests" classname="C5ContentClosureAuditTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.012058" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1240" name="C504_AllResearchAndBuildingStableIdsRemainUnique" fullname="C5ContentClosureAuditTests.C504_AllResearchAndBuildingStableIdsRemainUnique" methodname="C504_AllResearchAndBuildingStableIdsRemainUnique" classname="C5ContentClosureAuditTests" runstate="Runnable" seed="1553643979" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000983" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1239" name="C504_MedievalStrategicResourcesHaveSourcesAndSinks" fullname="C5ContentClosureAuditTests.C504_MedievalStrategicResourcesHaveSourcesAndSinks" methodname="C504_MedievalStrategicResourcesHaveSourcesAndSinks" classname="C5ContentClosureAuditTests" runstate="Runnable" seed="269443094" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.005640" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1238" name="C504_NewGameCanReachIndustrializationThroughTheContentGraph" fullname="C5ContentClosureAuditTests.C504_NewGameCanReachIndustrializationThroughTheContentGraph" methodname="C504_NewGameCanReachIndustrializationThroughTheContentGraph" classname="C5ContentClosureAuditTests" runstate="Runnable" seed="1117775956" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.004338" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1241" name="C6IndustrialClosureAuditTests" fullname="C6IndustrialClosureAuditTests" classname="C6IndustrialClosureAuditTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.009905" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1242" name="C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" fullname="C6IndustrialClosureAuditTests.C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" methodname="C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer" classname="C6IndustrialClosureAuditTests" runstate="Runnable" seed="75003167" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.008050" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  HighestTechLevel=Industrial; UnreachableResearch=[]; UnreachableBuildings=[LaunchCenter, OrbitalStation, Shipyard]; ResourcesWithoutSource=[Composite, RocketFuel]
+  Expected: not collection containing "Glass"
+  But was:  < "Composite", "Glass", "IndustrialCeramic", "RocketFuel" >
+]]></message>
+            <stack-trace><![CDATA[at C6IndustrialClosureAuditTests.C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer () [0x000c5] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\C6IndustrialClosureAuditTests.cs:62
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1243" name="C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" fullname="C6IndustrialClosureAuditTests.C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" methodname="C604_PowerAndLogisticsRatesRemainDerivedOutsideSaveDtos" classname="C6IndustrialClosureAuditTests" runstate="Runnable" seed="1253707001" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000819" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1244" name="C6IndustrialContentTests" fullname="C6IndustrialContentTests" classname="C6IndustrialContentTests" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.011510" total="7" passed="6" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1246" name="C601_IndustrialBuildingsExistAtIndustrialTechLevel" fullname="C6IndustrialContentTests.C601_IndustrialBuildingsExistAtIndustrialTechLevel" methodname="C601_IndustrialBuildingsExistAtIndustrialTechLevel" classname="C6IndustrialContentTests" runstate="Runnable" seed="480164078" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000539" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1250" name="C601_IndustrialBuildingsOwnTheirResearchPrerequisites" fullname="C6IndustrialContentTests.C601_IndustrialBuildingsOwnTheirResearchPrerequisites" methodname="C601_IndustrialBuildingsOwnTheirResearchPrerequisites" classname="C6IndustrialContentTests" runstate="Runnable" seed="487604850" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001382" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1251" name="C601_IndustrialResourcesHaveSourcesAndMultipleUses" fullname="C6IndustrialContentTests.C601_IndustrialResourcesHaveSourcesAndMultipleUses" methodname="C601_IndustrialResourcesHaveSourcesAndMultipleUses" classname="C6IndustrialContentTests" runstate="Runnable" seed="1538748300" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.005212" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Composite, Glass, IndustrialCeramic, RocketFuel
+  Expected: not collection containing "Glass"
+  But was:  < "Composite", "Glass", "IndustrialCeramic", "RocketFuel" >
+]]></message>
+            <stack-trace><![CDATA[at C6IndustrialContentTests.C601_IndustrialResourcesHaveSourcesAndMultipleUses () [0x0005d] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\C6IndustrialContentTests.cs:140
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1245" name="C601_IndustrialResourcesUseTheHighTechDisplaySet" fullname="C6IndustrialContentTests.C601_IndustrialResourcesUseTheHighTechDisplaySet" methodname="C601_IndustrialResourcesUseTheHighTechDisplaySet" classname="C6IndustrialContentTests" runstate="Runnable" seed="532286968" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000557" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1247" name="C602_IndustrialBuildingsDeclarePowerAndLogisticsFlows" fullname="C6IndustrialContentTests.C602_IndustrialBuildingsDeclarePowerAndLogisticsFlows" methodname="C602_IndustrialBuildingsDeclarePowerAndLogisticsFlows" classname="C6IndustrialContentTests" runstate="Runnable" seed="217846610" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000780" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1248" name="C603_IndustrialBuildingsUseProductivityAndFlowsInsteadOfFood" fullname="C6IndustrialContentTests.C603_IndustrialBuildingsUseProductivityAndFlowsInsteadOfFood" methodname="C603_IndustrialBuildingsUseProductivityAndFlowsInsteadOfFood" classname="C6IndustrialContentTests" runstate="Runnable" seed="1154744140" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001007" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1249" name="C603_IndustrialEraRetainsCoalCopperIronAndSteelUses" fullname="C6IndustrialContentTests.C603_IndustrialEraRetainsCoalCopperIronAndSteelUses" methodname="C603_IndustrialEraRetainsCoalCopperIronAndSteelUses" classname="C6IndustrialContentTests" runstate="Runnable" seed="795675159" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000474" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1252" name="ContentProgressionValidatorTests" fullname="ContentProgressionValidatorTests" classname="ContentProgressionValidatorTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.008497" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1254" name="EveryReleasedResource_HasSourceAndSink" fullname="ContentProgressionValidatorTests.EveryReleasedResource_HasSourceAndSink" methodname="EveryReleasedResource_HasSourceAndSink" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1408350180" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.003883" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Glass
+IndustrialCeramic
+  Expected: <empty>
+  But was:  < "Glass", "IndustrialCeramic" >
+]]></message>
+            <stack-trace><![CDATA[at ContentProgressionValidatorTests.EveryReleasedResource_HasSourceAndSink () [0x0004e] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\ContentProgressionValidatorTests.cs:68
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1253" name="MainProgression_ReachesMedievalWithoutInjectedResources" fullname="ContentProgressionValidatorTests.MainProgression_ReachesMedievalWithoutInjectedResources" methodname="MainProgression_ReachesMedievalWithoutInjectedResources" classname="ContentProgressionValidatorTests" runstate="Runnable" seed="1523197618" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.003420" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1255" name="ContentVerticalSliceAuditTests" fullname="ContentVerticalSliceAuditTests" classname="ContentVerticalSliceAuditTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.008173" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1256" name="AnimalAndMetalRawChains_HaveConcreteSources" fullname="ContentVerticalSliceAuditTests.AnimalAndMetalRawChains_HaveConcreteSources" methodname="AnimalAndMetalRawChains_HaveConcreteSources" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="26049613" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000636" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1258" name="BronzeFoundry_ConsumesCopperTinAndCoal" fullname="ContentVerticalSliceAuditTests.BronzeFoundry_ConsumesCopperTinAndCoal" methodname="BronzeFoundry_ConsumesCopperTinAndCoal" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="286518180" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000305" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1257" name="NeolithicProcessingChains_HaveOutputAndInputFlow" fullname="ContentVerticalSliceAuditTests.NeolithicProcessingChains_HaveOutputAndInputFlow" methodname="NeolithicProcessingChains_HaveOutputAndInputFlow" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="1849277606" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000281" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1260" name="Pottery_RequiresTheClayExtractionResearchPath" fullname="ContentVerticalSliceAuditTests.Pottery_RequiresTheClayExtractionResearchPath" methodname="Pottery_RequiresTheClayExtractionResearchPath" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="149523398" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000299" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1261" name="ProgressionAudit_AllowsTheNextEraTransitionResearch" fullname="ContentVerticalSliceAuditTests.ProgressionAudit_AllowsTheNextEraTransitionResearch" methodname="ProgressionAudit_AllowsTheNextEraTransitionResearch" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="1980341988" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.003244" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1262" name="TinOre_UsesStableIdAndCorrectDisplayLabel" fullname="ContentVerticalSliceAuditTests.TinOre_UsesStableIdAndCorrectDisplayLabel" methodname="TinOre_UsesStableIdAndCorrectDisplayLabel" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="1844396945" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001485" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1259" name="VerticalSliceTransitionResearches_AdvanceTheirTechLevels" fullname="ContentVerticalSliceAuditTests.VerticalSliceTransitionResearches_AdvanceTheirTechLevels" methodname="VerticalSliceTransitionResearches_AdvanceTheirTechLevels" classname="ContentVerticalSliceAuditTests" runstate="Runnable" seed="1393223683" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000505" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1263" name="EarlyVerticalSlicePacingTests" fullname="EarlyVerticalSlicePacingTests" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.008569" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1267" name="BronzeFoundry_DoesNotRequireItsOwnOutput" fullname="EarlyVerticalSlicePacingTests.BronzeFoundry_DoesNotRequireItsOwnOutput" methodname="BronzeFoundry_DoesNotRequireItsOwnOutput" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="292249321" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002597" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1265" name="CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom" fullname="EarlyVerticalSlicePacingTests.CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom" methodname="CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="1286480440" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000753" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1264" name="FirstTenMinutes_UsesAffordableResearchAndKnowledgeCosts" fullname="EarlyVerticalSlicePacingTests.FirstTenMinutes_UsesAffordableResearchAndKnowledgeCosts" methodname="FirstTenMinutes_UsesAffordableResearchAndKnowledgeCosts" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="45499279" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001604" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1269" name="Industrialization_ClosesTheMedievalSliceWithinTargetBudget" fullname="EarlyVerticalSlicePacingTests.Industrialization_ClosesTheMedievalSliceWithinTargetBudget" methodname="Industrialization_ClosesTheMedievalSliceWithinTargetBudget" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="401602360" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001397" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1266" name="IronMine_DoesNotRequireItsOwnOutput" fullname="EarlyVerticalSlicePacingTests.IronMine_DoesNotRequireItsOwnOutput" methodname="IronMine_DoesNotRequireItsOwnOutput" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="1508120101" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000481" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1268" name="IronSmithing_FollowsReachableBronzeChain" fullname="EarlyVerticalSlicePacingTests.IronSmithing_FollowsReachableBronzeChain" methodname="IronSmithing_FollowsReachableBronzeChain" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="1989877210" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000287" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1270" name="FirstThreeErasContentDefinitionTests" fullname="FirstThreeErasContentDefinitionTests" classname="FirstThreeErasContentDefinitionTests" runstate="Runnable" testcasecount="4" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.007042" total="4" passed="2" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1273" name="FirstThreeErasBuildingsHaveNoFoodConsumption" fullname="FirstThreeErasContentDefinitionTests.FirstThreeErasBuildingsHaveNoFoodConsumption" methodname="FirstThreeErasBuildingsHaveNoFoodConsumption" classname="FirstThreeErasContentDefinitionTests" runstate="Runnable" seed="819475335" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001622" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  HunterGathererCamp
+  Expected: 0
+  But was:  1
+]]></message>
+            <stack-trace><![CDATA[at FirstThreeErasContentDefinitionTests.FirstThreeErasBuildingsHaveNoFoodConsumption () [0x00020] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\FirstThreeErasContentDefinitionTests.cs:45
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1272" name="HousingResearchUnlocksAreContinuous" fullname="FirstThreeErasContentDefinitionTests.HousingResearchUnlocksAreContinuous" methodname="HousingResearchUnlocksAreContinuous" classname="FirstThreeErasContentDefinitionTests" runstate="Runnable" seed="15032385" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000422" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1271" name="HousingUpgradeChainIsDefined" fullname="FirstThreeErasContentDefinitionTests.HousingUpgradeChainIsDefined" methodname="HousingUpgradeChainIsDefined" classname="FirstThreeErasContentDefinitionTests" runstate="Runnable" seed="1776254567" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001766" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1274" name="NewResearchHasDescriptionRequirementsEffectsAndDefaultCoordinates" fullname="FirstThreeErasContentDefinitionTests.NewResearchHasDescriptionRequirementsEffectsAndDefaultCoordinates" methodname="NewResearchHasDescriptionRequirementsEffectsAndDefaultCoordinates" classname="FirstThreeErasContentDefinitionTests" runstate="Runnable" seed="1789741464" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002246" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  FishingTechniques
+  Expected: 0.0f
+  But was:  3.0f
+]]></message>
+            <stack-trace><![CDATA[at FirstThreeErasContentDefinitionTests.NewResearchHasDescriptionRequirementsEffectsAndDefaultCoordinates () [0x0019c] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\FirstThreeErasContentDefinitionTests.cs:61
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1275" name="FlowEfficiencyTests" fullname="FlowEfficiencyTests" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002186" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1277" name="EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" fullname="FlowEfficiencyTests.EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" methodname="EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" classname="FlowEfficiencyTests" runstate="Runnable" seed="755484035" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000423" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1276" name="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" fullname="FlowEfficiencyTests.FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" methodname="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" classname="FlowEfficiencyTests" runstate="Runnable" seed="1147855218" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000612" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1278" name="PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" fullname="FlowEfficiencyTests.PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" methodname="PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" classname="FlowEfficiencyTests" runstate="Runnable" seed="671923675" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000317" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1279" name="FoodEfficiencyTests" fullname="FoodEfficiencyTests" classname="FoodEfficiencyTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.010610" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1283" name="EffectiveEfficiency_MultipliesEveryIndependentConstraint" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesEveryIndependentConstraint" methodname="EffectiveEfficiency_MultipliesEveryIndependentConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="566739328" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000454" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1282" name="EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" methodname="EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" classname="FoodEfficiencyTests" runstate="Runnable" seed="238226064" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000498" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1284" name="EveryBuildingUsesTheSameFoodSupplyRatio" fullname="FoodEfficiencyTests.EveryBuildingUsesTheSameFoodSupplyRatio" methodname="EveryBuildingUsesTheSameFoodSupplyRatio" classname="FoodEfficiencyTests" runstate="Runnable" seed="1650213773" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000230" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1281" name="FoodSatisfaction_UsesInventoryAndPotentialFlow" fullname="FoodEfficiencyTests.FoodSatisfaction_UsesInventoryAndPotentialFlow" methodname="FoodSatisfaction_UsesInventoryAndPotentialFlow" classname="FoodEfficiencyTests" runstate="Runnable" seed="217279435" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001947" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1286" name="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" fullname="FoodEfficiencyTests.GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" methodname="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" classname="FoodEfficiencyTests" runstate="Runnable" seed="286905559" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001140" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1287" name="GameState_NoOpDerivedMutationsDoNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_NoOpDerivedMutationsDoNotIncrementVersion" methodname="GameState_NoOpDerivedMutationsDoNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="428000171" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000926" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1288" name="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_RepeatedSaveTimestampDoesNotIncrementVersion" methodname="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="1785285562" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000450" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1280" name="NewGameAndDerivedReset_PreserveFiveFoodPerSecondBaseline" fullname="FoodEfficiencyTests.NewGameAndDerivedReset_PreserveFiveFoodPerSecondBaseline" methodname="NewGameAndDerivedReset_PreserveFiveFoodPerSecondBaseline" classname="FoodEfficiencyTests" runstate="Runnable" seed="2000050166" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001003" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1285" name="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" fullname="FoodEfficiencyTests.ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" methodname="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" classname="FoodEfficiencyTests" runstate="Runnable" seed="1412827301" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000590" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1289" name="GlobalEconomyDefinitionTests" fullname="GlobalEconomyDefinitionTests" classname="GlobalEconomyDefinitionTests" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.037781" total="7" passed="4" failed="3" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1294" name="BuildingsOwnAndUseAllPrerequisites" fullname="GlobalEconomyDefinitionTests.BuildingsOwnAndUseAllPrerequisites" methodname="BuildingsOwnAndUseAllPrerequisites" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1027835595" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002527" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: property Count equal to 1
+  But was:  0
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.BuildingsOwnAndUseAllPrerequisites () [0x00049] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:90
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1295" name="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" fullname="GlobalEconomyDefinitionTests.EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" methodname="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1102399607" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001725" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: greater than or equal to 5
+  But was:  0
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable () [0x000fa] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:115
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1292" name="LegacyStoneResourceIdsMapToCurrentStableIds" fullname="GlobalEconomyDefinitionTests.LegacyStoneResourceIdsMapToCurrentStableIds" methodname="LegacyStoneResourceIdsMapToCurrentStableIds" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1471914389" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002053" asserts="0">
+          <properties />
+          <output><![CDATA[Save migration remapped legacy definitions: StoneChunk_Marble -> StoneChunk, StoneBrick_Marble -> StoneBrick, StoneCuttingWorkshop_Marble -> StoneCuttingWorkshop.
+]]></output>
+        </test-case>
+        <test-case id="1290" name="MigrationProducesThePlannedDefinitionCounts" fullname="GlobalEconomyDefinitionTests.MigrationProducesThePlannedDefinitionCounts" methodname="MigrationProducesThePlannedDefinitionCounts" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="500634158" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.008873" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: 43
+  But was:  66
+]]></message>
+            <stack-trace><![CDATA[at GlobalEconomyDefinitionTests.MigrationProducesThePlannedDefinitionCounts () [0x0002b] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\GlobalEconomyDefinitionTests.cs:22
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1296" name="ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable" fullname="GlobalEconomyDefinitionTests.ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable" methodname="ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1408180985" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.005808" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1293" name="ResearchNoLongerOwnsBuildingUnlockData" fullname="GlobalEconomyDefinitionTests.ResearchNoLongerOwnsBuildingUnlockData" methodname="ResearchNoLongerOwnsBuildingUnlockData" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="894845873" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000426" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1291" name="RetiredToolsAreAbsentAndTheirStableIdsAreNotReused" fullname="GlobalEconomyDefinitionTests.RetiredToolsAreAbsentAndTheirStableIdsAreNotReused" methodname="RetiredToolsAreAbsentAndTheirStableIdsAreNotReused" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1519138221" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.014665" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1297" name="IndustrialWorkshopAvailabilityTests" fullname="IndustrialWorkshopAvailabilityTests" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.006159" total="5" passed="3" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1300" name="AddedIndustrialResearchHasRequirementsEffectsAndNoCoordinates" fullname="IndustrialWorkshopAvailabilityTests.AddedIndustrialResearchHasRequirementsEffectsAndNoCoordinates" methodname="AddedIndustrialResearchHasRequirementsEffectsAndNoCoordinates" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="933841499" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000920" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  PowerGridEngineering
+  Expected: 0.0f
+  But was:  24.0f
+]]></message>
+            <stack-trace><![CDATA[at IndustrialWorkshopAvailabilityTests.AddedIndustrialResearchHasRequirementsEffectsAndNoCoordinates () [0x000e9] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\IndustrialWorkshopAvailabilityTests.cs:44
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1299" name="DeferredStoneToolsAreNotWorkshopDefinitions" fullname="IndustrialWorkshopAvailabilityTests.DeferredStoneToolsAreNotWorkshopDefinitions" methodname="DeferredStoneToolsAreNotWorkshopDefinitions" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1722252551" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000485" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1302" name="IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" fullname="IndustrialWorkshopAvailabilityTests.IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" methodname="IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1754569618" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001696" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  StandardGauge
+  Expected string length 5 but was 4. Strings differ at index 0.
+  Expected: "Steel"
+  But was:  "Coke"
+  -----------^
+]]></message>
+            <stack-trace><![CDATA[at IndustrialWorkshopAvailabilityTests.AssertWorkshop (System.String id, System.String firstResource, System.String secondResource, WorkshopEffectType effectType, System.String targetBuilding) [0x00048] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\IndustrialWorkshopAvailabilityTests.cs:98
+at IndustrialWorkshopAvailabilityTests.IndustrialWorkshopClosureItemsHaveRealCostsAndEffects () [0x0007b] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\IndustrialWorkshopAvailabilityTests.cs:84
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1298" name="WorkshopDefinitionsAreIndustrialOrLater" fullname="IndustrialWorkshopAvailabilityTests.WorkshopDefinitionsAreIndustrialOrLater" methodname="WorkshopDefinitionsAreIndustrialOrLater" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1086849798" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000333" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1301" name="WorkshopItemsHaveThePlannedResearchOrWorkshopPrerequisites" fullname="IndustrialWorkshopAvailabilityTests.WorkshopItemsHaveThePlannedResearchOrWorkshopPrerequisites" methodname="WorkshopItemsHaveThePlannedResearchOrWorkshopPrerequisites" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="10784302" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001215" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1303" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="68" result="Failed" site="Child" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:32Z" duration="0.299008" total="68" passed="64" failed="4" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1320" name="AdvanceFood_ClampsProductionAtFoodCapacity" fullname="KingdomLogicTests.AdvanceFood_ClampsProductionAtFoodCapacity" methodname="AdvanceFood_ClampsProductionAtFoodCapacity" classname="KingdomLogicTests" runstate="Runnable" seed="1911233599" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000626" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1319" name="AdvanceFood_UsesConsumptionRateAndClampsAtZero" fullname="KingdomLogicTests.AdvanceFood_UsesConsumptionRateAndClampsAtZero" methodname="AdvanceFood_UsesConsumptionRateAndClampsAtZero" classname="KingdomLogicTests" runstate="Runnable" seed="904256115" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.005031" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1350" name="AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" fullname="KingdomLogicTests.AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" methodname="AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" classname="KingdomLogicTests" runstate="Runnable" seed="1743263453" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000699" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1361" name="Agriculture_WithNoResourceRequirementsCanStartImmediately" fullname="KingdomLogicTests.Agriculture_WithNoResourceRequirementsCanStartImmediately" methodname="Agriculture_WithNoResourceRequirementsCanStartImmediately" classname="KingdomLogicTests" runstate="Runnable" seed="1135540847" result="Failed" label="Error" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002312" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[System.Collections.Generic.KeyNotFoundException : Research state 'Agriculture' has not been created.]]></message>
+            <stack-trace><![CDATA[  at ResearchManager.GetState (Research research) [0x00026] in D:\GitHub\Kingdom\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:59 
+  at KingdomLogicTests.Agriculture_WithNoResourceRequirementsCanStartImmediately () [0x00022] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1236 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1364" name="BuildingDefinitions_ExposeCanonicalTypedResourcePairs" fullname="KingdomLogicTests.BuildingDefinitions_ExposeCanonicalTypedResourcePairs" methodname="BuildingDefinitions_ExposeCanonicalTypedResourcePairs" classname="KingdomLogicTests" runstate="Runnable" seed="1671554900" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000812" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1366" name="BuildingDefinitions_SplitCostsFromGrantedProductionAndFood" fullname="KingdomLogicTests.BuildingDefinitions_SplitCostsFromGrantedProductionAndFood" methodname="BuildingDefinitions_SplitCostsFromGrantedProductionAndFood" classname="KingdomLogicTests" runstate="Runnable" seed="387163532" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000572" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1367" name="BuildingDisplayer_UsesHeaderHeightWhenCollapsedAndFullExpandedHeight" fullname="KingdomLogicTests.BuildingDisplayer_UsesHeaderHeightWhenCollapsedAndFullExpandedHeight" methodname="BuildingDisplayer_UsesHeaderHeightWhenCollapsedAndFullExpandedHeight" classname="KingdomLogicTests" runstate="Runnable" seed="176780663" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000429" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1369" name="BuildingManager_RejectsBuildingsAboveCurrentTechLevel" fullname="KingdomLogicTests.BuildingManager_RejectsBuildingsAboveCurrentTechLevel" methodname="BuildingManager_RejectsBuildingsAboveCurrentTechLevel" classname="KingdomLogicTests" runstate="Runnable" seed="1002036192" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001293" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1365" name="BuildingState_OwnsRuntimeValuesAndCachesParsedDefinitionNumbers" fullname="KingdomLogicTests.BuildingState_OwnsRuntimeValuesAndCachesParsedDefinitionNumbers" methodname="BuildingState_OwnsRuntimeValuesAndCachesParsedDefinitionNumbers" classname="KingdomLogicTests" runstate="Runnable" seed="746233873" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000494" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1313" name="BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" fullname="KingdomLogicTests.BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" methodname="BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" classname="KingdomLogicTests" runstate="Runnable" seed="914229617" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000607" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1318" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002665" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1314" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="1571645352" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000645" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1315" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;not-a-number&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;not-a-number&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="973379906" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000322" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1316" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;0.9&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;0.9&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="1303848340" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000165" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1317" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;-2&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;-2&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="1820758769" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000123" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="1331" name="C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood" fullname="KingdomLogicTests.C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood" methodname="C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood" classname="KingdomLogicTests" runstate="Runnable" seed="1199822040" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001265" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1332" name="C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero" fullname="KingdomLogicTests.C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero" methodname="C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero" classname="KingdomLogicTests" runstate="Runnable" seed="1193515403" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001620" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1334" name="C402_TerritoryTracksTotalUsedAndAvailableSeparately" fullname="KingdomLogicTests.C402_TerritoryTracksTotalUsedAndAvailableSeparately" methodname="C402_TerritoryTracksTotalUsedAndAvailableSeparately" classname="KingdomLogicTests" runstate="Runnable" seed="1839277735" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000631" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1335" name="C403_PopulationStateStoresDerivedCapacityAndPopulationChangeProgress" fullname="KingdomLogicTests.C403_PopulationStateStoresDerivedCapacityAndPopulationChangeProgress" methodname="C403_PopulationStateStoresDerivedCapacityAndPopulationChangeProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1007194089" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000724" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1310" name="CalendarIntToData_RejectsInvalidCalendarDimensions" fullname="KingdomLogicTests.CalendarIntToData_RejectsInvalidCalendarDimensions" methodname="CalendarIntToData_RejectsInvalidCalendarDimensions" classname="KingdomLogicTests" runstate="Runnable" seed="77648487" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000609" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1309" name="CalendarIntToData_UsesTwelveThirtyDayMonths" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001781" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1304" name="CalendarIntToData_UsesTwelveThirtyDayMonths(0,5500,1,1)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(0,5500,1,1)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="2056481232" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000523" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1305" name="CalendarIntToData_UsesTwelveThirtyDayMonths(359,5500,12,30)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(359,5500,12,30)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="607196653" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000138" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1306" name="CalendarIntToData_UsesTwelveThirtyDayMonths(360,5501,1,1)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(360,5501,1,1)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="1261172842" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000105" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1307" name="CalendarIntToData_UsesTwelveThirtyDayMonths(361,5501,1,2)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(361,5501,1,2)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="478674951" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000094" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1308" name="CalendarIntToData_UsesTwelveThirtyDayMonths(-1,5499,12,30)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(-1,5499,12,30)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="1737894930" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000089" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="1357" name="CampaignPower_RequiresBothPowerAndLogisticsFlow" fullname="KingdomLogicTests.CampaignPower_RequiresBothPowerAndLogisticsFlow" methodname="CampaignPower_RequiresBothPowerAndLogisticsFlow" classname="KingdomLogicTests" runstate="Runnable" seed="1568508241" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000793" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1356" name="CampaignProgress_ClampsAndRejectsNegativeElapsedTime" fullname="KingdomLogicTests.CampaignProgress_ClampsAndRejectsNegativeElapsedTime" methodname="CampaignProgress_ClampsAndRejectsNegativeElapsedTime" classname="KingdomLogicTests" runstate="Runnable" seed="975982515" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000719" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1355" name="CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" fullname="KingdomLogicTests.CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" methodname="CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" classname="KingdomLogicTests" runstate="Runnable" seed="1252974644" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000556" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1362" name="DataBase_FindsDefinitionsByStableId" fullname="KingdomLogicTests.DataBase_FindsDefinitionsByStableId" methodname="DataBase_FindsDefinitionsByStableId" classname="KingdomLogicTests" runstate="Runnable" seed="411474148" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000402" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1363" name="DataBase_OffersSafeLookupAndActionableMissingIdErrors" fullname="KingdomLogicTests.DataBase_OffersSafeLookupAndActionableMissingIdErrors" methodname="DataBase_OffersSafeLookupAndActionableMissingIdErrors" classname="KingdomLogicTests" runstate="Runnable" seed="2057801007" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000661" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1321" name="GameState_HoldsCanonicalNewGameValues" fullname="KingdomLogicTests.GameState_HoldsCanonicalNewGameValues" methodname="GameState_HoldsCanonicalNewGameValues" classname="KingdomLogicTests" runstate="Runnable" seed="777870976" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001225" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1330" name="GameTick_IntegratesFoodEveryTickAndCalendarSeparately" fullname="KingdomLogicTests.GameTick_IntegratesFoodEveryTickAndCalendarSeparately" methodname="GameTick_IntegratesFoodEveryTickAndCalendarSeparately" classname="KingdomLogicTests" runstate="Runnable" seed="810310983" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001193" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1339" name="HousingAddsCapacityWithoutAddingProductivity" fullname="KingdomLogicTests.HousingAddsCapacityWithoutAddingProductivity" methodname="HousingAddsCapacityWithoutAddingProductivity" classname="KingdomLogicTests" runstate="Runnable" seed="1199618785" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001488" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1341" name="HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" fullname="KingdomLogicTests.HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" methodname="HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" classname="KingdomLogicTests" runstate="Runnable" seed="369791458" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002531" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1340" name="HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" fullname="KingdomLogicTests.HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" methodname="HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" classname="KingdomLogicTests" runstate="Runnable" seed="649937257" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.006983" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1368" name="Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" fullname="KingdomLogicTests.Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" methodname="Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" classname="KingdomLogicTests" runstate="Runnable" seed="813834527" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000889" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1358" name="MilitaryState_ClampsSupplyAndNonNegativePower" fullname="KingdomLogicTests.MilitaryState_ClampsSupplyAndNonNegativePower" methodname="MilitaryState_ClampsSupplyAndNonNegativePower" classname="KingdomLogicTests" runstate="Runnable" seed="1894112075" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000762" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1342" name="OvercapacityDeparture_StopsAtProductivitySafetyLineAndRestartsFresh" fullname="KingdomLogicTests.OvercapacityDeparture_StopsAtProductivitySafetyLineAndRestartsFresh" methodname="OvercapacityDeparture_StopsAtProductivitySafetyLineAndRestartsFresh" classname="KingdomLogicTests" runstate="Runnable" seed="69415835" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001936" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1338" name="OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" fullname="KingdomLogicTests.OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" methodname="OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" classname="KingdomLogicTests" runstate="Runnable" seed="2114544862" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001470" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1312" name="Pair_PreservesLegacySerializedFieldNames" fullname="KingdomLogicTests.Pair_PreservesLegacySerializedFieldNames" methodname="Pair_PreservesLegacySerializedFieldNames" classname="KingdomLogicTests" runstate="Runnable" seed="950717925" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001247" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1311" name="Pair_ProvidesStructuralEqualityAndDictionaryLookup" fullname="KingdomLogicTests.Pair_ProvidesStructuralEqualityAndDictionaryLookup" methodname="Pair_ProvidesStructuralEqualityAndDictionaryLookup" classname="KingdomLogicTests" runstate="Runnable" seed="1911722244" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002197" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1343" name="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" fullname="KingdomLogicTests.PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" methodname="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" classname="KingdomLogicTests" runstate="Runnable" seed="279032433" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.023900" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: 0.5
+  But was:  0.50007
+]]></message>
+            <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_LargeTicksAndRegimeChangesAreDeterministic () [0x0023a] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:764
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1333" name="PopulationGrowth_UsesExplicitResearchRateWithoutAcceleratingDeparture" fullname="KingdomLogicTests.PopulationGrowth_UsesExplicitResearchRateWithoutAcceleratingDeparture" methodname="PopulationGrowth_UsesExplicitResearchRateWithoutAcceleratingDeparture" classname="KingdomLogicTests" runstate="Runnable" seed="1545399533" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000726" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1336" name="Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" fullname="KingdomLogicTests.Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" methodname="Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" classname="KingdomLogicTests" runstate="Runnable" seed="2111662242" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002599" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1337" name="ProductivityProvider_CannotFundItsOwnConstruction" fullname="KingdomLogicTests.ProductivityProvider_CannotFundItsOwnConstruction" methodname="ProductivityProvider_CannotFundItsOwnConstruction" classname="KingdomLogicTests" runstate="Runnable" seed="1545950909" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000673" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1359" name="ResearchCostPayment_IsIncrementalAndOnlyPaidOnceWithoutUi" fullname="KingdomLogicTests.ResearchCostPayment_IsIncrementalAndOnlyPaidOnceWithoutUi" methodname="ResearchCostPayment_IsIncrementalAndOnlyPaidOnceWithoutUi" classname="KingdomLogicTests" runstate="Runnable" seed="1536596415" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.002484" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1360" name="ResearchCostPayment_WithNoRequirementsStartsPaid" fullname="KingdomLogicTests.ResearchCostPayment_WithNoRequirementsStartsPaid" methodname="ResearchCostPayment_WithNoRequirementsStartsPaid" classname="KingdomLogicTests" runstate="Runnable" seed="1621980509" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000718" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1329" name="ResearchDisplayer_UsesDistinctCompletedAndSelectedOutlineColors" fullname="KingdomLogicTests.ResearchDisplayer_UsesDistinctCompletedAndSelectedOutlineColors" methodname="ResearchDisplayer_UsesDistinctCompletedAndSelectedOutlineColors" classname="KingdomLogicTests" runstate="Runnable" seed="1883403092" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.010211" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1328" name="ResearchLineView_DistinguishesSelectedResearchRelationships" fullname="KingdomLogicTests.ResearchLineView_DistinguishesSelectedResearchRelationships" methodname="ResearchLineView_DistinguishesSelectedResearchRelationships" classname="KingdomLogicTests" runstate="Runnable" seed="1761968489" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000983" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1354" name="ResearchSpeedEffect_IsDeterministicAcrossTechLevels" fullname="KingdomLogicTests.ResearchSpeedEffect_IsDeterministicAcrossTechLevels" methodname="ResearchSpeedEffect_IsDeterministicAcrossTechLevels" classname="KingdomLogicTests" runstate="Runnable" seed="956715869" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000329" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1351" name="ResearchState_OwnsProgressStatusAndParsedBaseCost" fullname="KingdomLogicTests.ResearchState_OwnsProgressStatusAndParsedBaseCost" methodname="ResearchState_OwnsProgressStatusAndParsedBaseCost" classname="KingdomLogicTests" runstate="Runnable" seed="1410478518" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.001103" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1353" name="ResearchState_RejectsInvalidBaseCostAtCreation" fullname="KingdomLogicTests.ResearchState_RejectsInvalidBaseCostAtCreation" methodname="ResearchState_RejectsInvalidBaseCostAtCreation" classname="KingdomLogicTests" runstate="Runnable" seed="451101638" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000458" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1352" name="ResearchState_WithoutPrerequisitesStartsAvailable" fullname="KingdomLogicTests.ResearchState_WithoutPrerequisitesStartsAvailable" methodname="ResearchState_WithoutPrerequisitesStartsAvailable" classname="KingdomLogicTests" runstate="Runnable" seed="555452271" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000231" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1373" name="ResearchValidator_RejectsNullAndDuplicatePrerequisites" fullname="KingdomLogicTests.ResearchValidator_RejectsNullAndDuplicatePrerequisites" methodname="ResearchValidator_RejectsNullAndDuplicatePrerequisites" classname="KingdomLogicTests" runstate="Runnable" seed="1944075107" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000518" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1372" name="ResearchValidator_ReportsCompleteCyclePath" fullname="KingdomLogicTests.ResearchValidator_ReportsCompleteCyclePath" methodname="ResearchValidator_ReportsCompleteCyclePath" classname="KingdomLogicTests" runstate="Runnable" seed="1614052187" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000640" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1325" name="ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" fullname="KingdomLogicTests.ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" methodname="ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" classname="KingdomLogicTests" runstate="Runnable" seed="384270852" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000545" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1323" name="ResourceManager_AlwaysCreatesStartingWoodStateAndProduction" fullname="KingdomLogicTests.ResourceManager_AlwaysCreatesStartingWoodStateAndProduction" methodname="ResourceManager_AlwaysCreatesStartingWoodStateAndProduction" classname="KingdomLogicTests" runstate="Runnable" seed="1587512928" result="Failed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000751" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at KingdomLogicTests.ResourceManager_AlwaysCreatesStartingWoodStateAndProduction () [0x00016] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:152
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1326" name="ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" fullname="KingdomLogicTests.ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" methodname="ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" classname="KingdomLogicTests" runstate="Runnable" seed="538060051" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000554" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1322" name="ResourceState_ExistsIndependentlyFromResourceDisplayer" fullname="KingdomLogicTests.ResourceState_ExistsIndependentlyFromResourceDisplayer" methodname="ResourceState_ExistsIndependentlyFromResourceDisplayer" classname="KingdomLogicTests" runstate="Runnable" seed="255769264" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:31Z" duration="0.000665" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1370" name="ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered" fullname="KingdomLogicTests.ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered" methodname="ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered" classname="KingdomLogicTests" runstate="Runnable" seed="1481218874" result="Passed" start-time="2026-07-29 08:02:31Z" end-time="2026-07-29 08:02:32Z" duration="0.172869" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1371" name="ResourceViewer_DoesNotCreateDisplayerForLockedIndustrialOutput" fullname="KingdomLogicTests.ResourceViewer_DoesNotCreateDisplayerForLockedIndustrialOutput" methodname="ResourceViewer_DoesNotCreateDisplayerForLockedIndustrialOutput" classname="KingdomLogicTests" runstate="Runnable" seed="2031978143" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001488" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1324" name="ResourceViewer_TreatsStartingWoodAsVisibleWithoutBuildingSources" fullname="KingdomLogicTests.ResourceViewer_TreatsStartingWoodAsVisibleWithoutBuildingSources" methodname="ResourceViewer_TreatsStartingWoodAsVisibleWithoutBuildingSources" classname="KingdomLogicTests" runstate="Runnable" seed="878937607" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000392" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1348" name="SaveApply_IsIdempotentAndRecalculatesDerivedRates" fullname="KingdomLogicTests.SaveApply_IsIdempotentAndRecalculatesDerivedRates" methodname="SaveApply_IsIdempotentAndRecalculatesDerivedRates" classname="KingdomLogicTests" runstate="Runnable" seed="1251524282" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.011018" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1347" name="SaveApply_RejectsPreviousSchemaWithoutMigration" fullname="KingdomLogicTests.SaveApply_RejectsPreviousSchemaWithoutMigration" methodname="SaveApply_RejectsPreviousSchemaWithoutMigration" classname="KingdomLogicTests" runstate="Runnable" seed="934342886" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001081" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1349" name="SaveApply_UnknownSelectedResearchIdIsActionable" fullname="KingdomLogicTests.SaveApply_UnknownSelectedResearchIdIsActionable" methodname="SaveApply_UnknownSelectedResearchIdIsActionable" classname="KingdomLogicTests" runstate="Runnable" seed="1247472917" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001677" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1344" name="SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" fullname="KingdomLogicTests.SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" methodname="SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" classname="KingdomLogicTests" runstate="Runnable" seed="1349792995" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.002961" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1345" name="SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" fullname="KingdomLogicTests.SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" methodname="SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" classname="KingdomLogicTests" runstate="Runnable" seed="2013471501" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000429" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1327" name="ToGameString_PreservesThreeSignificantDigitsForThousands" fullname="KingdomLogicTests.ToGameString_PreservesThreeSignificantDigitsForThousands" methodname="ToGameString_PreservesThreeSignificantDigitsForThousands" classname="KingdomLogicTests" runstate="Runnable" seed="1658561330" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000908" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1346" name="UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" fullname="KingdomLogicTests.UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" methodname="UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" classname="KingdomLogicTests" runstate="Runnable" seed="1711538513" result="Failed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001986" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: String containing ""Version":4"
+  But was:  "{"Version":5,"General":{"CalendarDays":7,"KingdomName":"Test","TechLevel":0,"FoodAmount":"100","Population":"","PopulationChangeProgress":"","TerritoryTotal":"","AttackPower":"","DefensePower":"","FleetPower":"","MilitaryManpower":"","SupplySatisfaction":"","PowerSatisfaction":"","LogisticsSatisfaction":"","CampaignActive":false,"CampaignTargetSectorId":"","CampaignCasualties":"","CampaignCombatRatio":"","LastSaveUnixSeconds":1},"Resources":{"GlobalEfficiencyFactor":"1","Resources":[{"ResourceId":"WoodLog","Amount":"25"}]},"Buildings":{"GlobalEfficiencyFactor":"1","Buildings":[{"BuildingId":"Farm","Amount":"2"}]},"Researches":{"GlobalEfficiencyFactor":"1","States":[],"ActiveResearchId":"","SelectedResearchId":""},"Workshop":{"PurchasedUpgradeIds":[]},"Sectors":{"States":[]}}"
+]]></message>
+            <stack-trace><![CDATA[at NUnit.Framework.StringAssert.Contains (System.String expected, System.String actual, System.String message, System.Object[] args) [0x00008] in <10b6135e63434fdba4fc6c109928ab3b>:0
+at NUnit.Framework.StringAssert.Contains (System.String expected, System.String actual) [0x00001] in <10b6135e63434fdba4fc6c109928ab3b>:0
+at KingdomLogicTests.UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences () [0x000f9] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:857
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1374" name="LongHorizonSimulationTests" fullname="LongHorizonSimulationTests" classname="LongHorizonSimulationTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.011261" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1376" name="CompetingResourceFlows_RemainFiniteAndNonNegative" fullname="LongHorizonSimulationTests.CompetingResourceFlows_RemainFiniteAndNonNegative" methodname="CompetingResourceFlows_RemainFiniteAndNonNegative" classname="LongHorizonSimulationTests" runstate="Runnable" seed="1495703255" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000600" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1381" name="FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" fullname="LongHorizonSimulationTests.FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" classname="LongHorizonSimulationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.006800" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1377" name="TenMinutes" fullname="LongHorizonSimulationTests.TenMinutes" methodname="FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" classname="LongHorizonSimulationTests" runstate="Runnable" seed="3727487" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000832" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1378" name="OneHour" fullname="LongHorizonSimulationTests.OneHour" methodname="FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" classname="LongHorizonSimulationTests" runstate="Runnable" seed="559990101" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000141" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1379" name="FourHours" fullname="LongHorizonSimulationTests.FourHours" methodname="FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" classname="LongHorizonSimulationTests" runstate="Runnable" seed="1297562900" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000441" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1380" name="OneDay" fullname="LongHorizonSimulationTests.OneDay" methodname="FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon" classname="LongHorizonSimulationTests" runstate="Runnable" seed="73626180" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001970" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="1375" name="FoodShortage_StopsAtZeroWithoutGoingNegative" fullname="LongHorizonSimulationTests.FoodShortage_StopsAtZeroWithoutGoingNegative" methodname="FoodShortage_StopsAtZeroWithoutGoingNegative" classname="LongHorizonSimulationTests" runstate="Runnable" seed="540965556" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000528" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1382" name="MobileOrientationConfigurationTests" fullname="MobileOrientationConfigurationTests" classname="MobileOrientationConfigurationTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.002041" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1383" name="ProjectSettings_EnableAutorotationForLandscapeAndPortrait" fullname="MobileOrientationConfigurationTests.ProjectSettings_EnableAutorotationForLandscapeAndPortrait" methodname="ProjectSettings_EnableAutorotationForLandscapeAndPortrait" classname="MobileOrientationConfigurationTests" runstate="Runnable" seed="679313084" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001411" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1384" name="ResearchBalanceTests" fullname="ResearchBalanceTests" classname="ResearchBalanceTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.006411" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1385" name="EarlyResearchCosts_MatchTheContentBalanceBaseline" fullname="ResearchBalanceTests.EarlyResearchCosts_MatchTheContentBalanceBaseline" methodname="EarlyResearchCosts_MatchTheContentBalanceBaseline" classname="ResearchBalanceTests" runstate="Runnable" seed="110048062" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001097" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1389" name="LaterBuildings_UseTheProductivityRebalance" fullname="ResearchBalanceTests.LaterBuildings_UseTheProductivityRebalance" methodname="LaterBuildings_UseTheProductivityRebalance" classname="ResearchBalanceTests" runstate="Runnable" seed="1843427645" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000802" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1386" name="MainResearchCosts_DoNotUseUnjustifiedExtremeNotation" fullname="ResearchBalanceTests.MainResearchCosts_DoNotUseUnjustifiedExtremeNotation" methodname="MainResearchCosts_DoNotUseUnjustifiedExtremeNotation" classname="ResearchBalanceTests" runstate="Runnable" seed="2068092961" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000231" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1388" name="PopulationGrowthResearch_UsesTheStagedMultipliers" fullname="ResearchBalanceTests.PopulationGrowthResearch_UsesTheStagedMultipliers" methodname="PopulationGrowthResearch_UsesTheStagedMultipliers" classname="ResearchBalanceTests" runstate="Runnable" seed="1851275273" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000283" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1390" name="PublishedResearch_HasAConcreteUnlockEffectOrEraTransition" fullname="ResearchBalanceTests.PublishedResearch_HasAConcreteUnlockEffectOrEraTransition" methodname="PublishedResearch_HasAConcreteUnlockEffectOrEraTransition" classname="ResearchBalanceTests" runstate="Runnable" seed="1716047541" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000501" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1387" name="VerticalSlice_ResearchEffectsAndUnlocksMatchTheContentPlan" fullname="ResearchBalanceTests.VerticalSlice_ResearchEffectsAndUnlocksMatchTheContentPlan" methodname="VerticalSlice_ResearchEffectsAndUnlocksMatchTheContentPlan" classname="ResearchBalanceTests" runstate="Runnable" seed="1982543580" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000779" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1391" name="ResearchEffectTests" fullname="ResearchEffectTests" classname="ResearchEffectTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.004021" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1392" name="Rebuild_AppliesCompletedEffectsAndIgnoresIncompleteResearch" fullname="ResearchEffectTests.Rebuild_AppliesCompletedEffectsAndIgnoresIncompleteResearch" methodname="Rebuild_AppliesCompletedEffectsAndIgnoresIncompleteResearch" classname="ResearchEffectTests" runstate="Runnable" seed="716644688" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001863" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1394" name="Rebuild_MultipliesPopulationGrowthEffects" fullname="ResearchEffectTests.Rebuild_MultipliesPopulationGrowthEffects" methodname="Rebuild_MultipliesPopulationGrowthEffects" classname="ResearchEffectTests" runstate="Runnable" seed="1837397417" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000578" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1393" name="Rebuild_MultipliesRepeatedGlobalEffects" fullname="ResearchEffectTests.Rebuild_MultipliesRepeatedGlobalEffects" methodname="Rebuild_MultipliesRepeatedGlobalEffects" classname="ResearchEffectTests" runstate="Runnable" seed="765420793" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000619" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1395" name="ResearchMedievalContentTests" fullname="ResearchMedievalContentTests" classname="ResearchMedievalContentTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.004447" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1398" name="C503_IndustrializationIsTheOnlyIndustrialEraTransition" fullname="ResearchMedievalContentTests.C503_IndustrializationIsTheOnlyIndustrialEraTransition" methodname="C503_IndustrializationIsTheOnlyIndustrialEraTransition" classname="ResearchMedievalContentTests" runstate="Runnable" seed="1091000476" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001758" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1397" name="C503_MedievalBuildingsOwnTheirResearchPrerequisites" fullname="ResearchMedievalContentTests.C503_MedievalBuildingsOwnTheirResearchPrerequisites" methodname="C503_MedievalBuildingsOwnTheirResearchPrerequisites" classname="ResearchMedievalContentTests" runstate="Runnable" seed="1576502166" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000711" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1399" name="C503_MedievalResearchDependenciesHaveNoCycles" fullname="ResearchMedievalContentTests.C503_MedievalResearchDependenciesHaveNoCycles" methodname="C503_MedievalResearchDependenciesHaveNoCycles" classname="ResearchMedievalContentTests" runstate="Runnable" seed="1059064248" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000393" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1396" name="C503_MedievalResearchLayerContainsTheNineCoreResearches" fullname="ResearchMedievalContentTests.C503_MedievalResearchLayerContainsTheNineCoreResearches" methodname="C503_MedievalResearchLayerContainsTheNineCoreResearches" classname="ResearchMedievalContentTests" runstate="Runnable" seed="2075567434" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000636" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1400" name="ResearchPowerTests" fullname="ResearchPowerTests" classname="ResearchPowerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.002080" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1402" name="CalculateResearchPower_DoesNotCreateNegativePower" fullname="ResearchPowerTests.CalculateResearchPower_DoesNotCreateNegativePower" methodname="CalculateResearchPower_DoesNotCreateNegativePower" classname="ResearchPowerTests" runstate="Runnable" seed="2048678568" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000819" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1401" name="CalculateResearchPower_UsesAmountAndEfficiency" fullname="ResearchPowerTests.CalculateResearchPower_UsesAmountAndEfficiency" methodname="CalculateResearchPower_UsesAmountAndEfficiency" classname="ResearchPowerTests" runstate="Runnable" seed="844174439" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000451" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1403" name="ResourceContinuityTests" fullname="ResourceContinuityTests" classname="ResourceContinuityTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.003960" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1405" name="FoodAndMaterialChainsRetainTheirExistingLaterUses" fullname="ResourceContinuityTests.FoodAndMaterialChainsRetainTheirExistingLaterUses" methodname="FoodAndMaterialChainsRetainTheirExistingLaterUses" classname="ResourceContinuityTests" runstate="Runnable" seed="1427808415" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000635" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1404" name="MedievalTransition_ConsumesIronAndBronzeAsStrategicMaterials" fullname="ResourceContinuityTests.MedievalTransition_ConsumesIronAndBronzeAsStrategicMaterials" methodname="MedievalTransition_ConsumesIronAndBronzeAsStrategicMaterials" classname="ResourceContinuityTests" runstate="Runnable" seed="1816972130" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000657" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1406" name="UnpublishedSpaceResourcesDoNotLeakIntoIndustrialProduction" fullname="ResourceContinuityTests.UnpublishedSpaceResourcesDoNotLeakIntoIndustrialProduction" methodname="UnpublishedSpaceResourcesDoNotLeakIntoIndustrialProduction" classname="ResourceContinuityTests" runstate="Runnable" seed="2118456357" result="Failed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000735" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at ResourceContinuityTests.UnpublishedSpaceResourcesDoNotLeakIntoIndustrialProduction () [0x00044] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\ResourceContinuityTests.cs:28
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1407" name="SafeAreaFitterTests" fullname="SafeAreaFitterTests" classname="SafeAreaFitterTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001733" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1408" name="TryCalculateAnchors_ConvertsInsetSafeAreaToNormalizedAnchors" fullname="SafeAreaFitterTests.TryCalculateAnchors_ConvertsInsetSafeAreaToNormalizedAnchors" methodname="TryCalculateAnchors_ConvertsInsetSafeAreaToNormalizedAnchors" classname="SafeAreaFitterTests" runstate="Runnable" seed="1221496638" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000774" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1409" name="TryCalculateAnchors_RejectsInvalidScreenSize" fullname="SafeAreaFitterTests.TryCalculateAnchors_RejectsInvalidScreenSize" methodname="TryCalculateAnchors_RejectsInvalidScreenSize" classname="SafeAreaFitterTests" runstate="Runnable" seed="415686947" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000205" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1410" name="SectorDefinitionTests" fullname="SectorDefinitionTests" classname="SectorDefinitionTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.006680" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1411" name="C701_InitialSectorChainContainsStableIdsAndPrerequisites" fullname="SectorDefinitionTests.C701_InitialSectorChainContainsStableIdsAndPrerequisites" methodname="C701_InitialSectorChainContainsStableIdsAndPrerequisites" classname="SectorDefinitionTests" runstate="Runnable" seed="2118208444" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001351" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1413" name="C701_SectorDefinitionsHaveNoDependencyCycles" fullname="SectorDefinitionTests.C701_SectorDefinitionsHaveNoDependencyCycles" methodname="C701_SectorDefinitionsHaveNoDependencyCycles" classname="SectorDefinitionTests" runstate="Runnable" seed="1023945770" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001222" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1412" name="C701_SectorsExposeRewardsEnemyPowerAndMapCoordinates" fullname="SectorDefinitionTests.C701_SectorsExposeRewardsEnemyPowerAndMapCoordinates" methodname="C701_SectorsExposeRewardsEnemyPowerAndMapCoordinates" classname="SectorDefinitionTests" runstate="Runnable" seed="728584985" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000749" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1414" name="C701_SectorStateStartsEmptyAndTracksProgress" fullname="SectorDefinitionTests.C701_SectorStateStartsEmptyAndTracksProgress" methodname="C701_SectorStateStartsEmptyAndTracksProgress" classname="SectorDefinitionTests" runstate="Runnable" seed="99471516" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000662" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1415" name="SectorManagerTests" fullname="SectorManagerTests" classname="SectorManagerTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.016953" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1416" name="C704_ManagerUsesStableDefinitionOrderAndPrerequisites" fullname="SectorManagerTests.C704_ManagerUsesStableDefinitionOrderAndPrerequisites" methodname="C704_ManagerUsesStableDefinitionOrderAndPrerequisites" classname="SectorManagerTests" runstate="Runnable" seed="456730542" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001113" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1418" name="C704_NonRepeatableSectorCannotBeOccupiedTwice" fullname="SectorManagerTests.C704_NonRepeatableSectorCannotBeOccupiedTwice" methodname="C704_NonRepeatableSectorCannotBeOccupiedTwice" classname="SectorManagerTests" runstate="Runnable" seed="1235164620" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000961" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1417" name="C704_SectorStateRoundTripsByStableId" fullname="SectorManagerTests.C704_SectorStateRoundTripsByStableId" methodname="C704_SectorStateRoundTripsByStableId" classname="SectorManagerTests" runstate="Runnable" seed="1278854627" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000833" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1419" name="C705_SectorRewardsUseExistingStrategicResources" fullname="SectorManagerTests.C705_SectorRewardsUseExistingStrategicResources" methodname="C705_SectorRewardsUseExistingStrategicResources" classname="SectorManagerTests" runstate="Runnable" seed="1814933120" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000622" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1421" name="C802_CampaignStateTracksTargetAndCasualties" fullname="SectorManagerTests.C802_CampaignStateTracksTargetAndCasualties" methodname="C802_CampaignStateTracksTargetAndCasualties" classname="SectorManagerTests" runstate="Runnable" seed="249024738" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000757" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1420" name="C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" fullname="SectorManagerTests.C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" methodname="C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" classname="SectorManagerTests" runstate="Runnable" seed="1242891465" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000252" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1422" name="C803_CampaignCostMathRejectsInsufficientFoodAtomically" fullname="SectorManagerTests.C803_CampaignCostMathRejectsInsufficientFoodAtomically" methodname="C803_CampaignCostMathRejectsInsufficientFoodAtomically" classname="SectorManagerTests" runstate="Runnable" seed="883416376" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001219" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1423" name="C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" fullname="SectorManagerTests.C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" methodname="C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" classname="SectorManagerTests" runstate="Runnable" seed="397712145" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001958" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1424" name="C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" fullname="SectorManagerTests.C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" methodname="C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" classname="SectorManagerTests" runstate="Runnable" seed="1705754492" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000622" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1425" name="C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" fullname="SectorManagerTests.C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" methodname="C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" classname="SectorManagerTests" runstate="Runnable" seed="1992630149" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001333" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1426" name="C806_RewardsApplyOnlyWhenCampaignCompletes" fullname="SectorManagerTests.C806_RewardsApplyOnlyWhenCampaignCompletes" methodname="C806_RewardsApplyOnlyWhenCampaignCompletes" classname="SectorManagerTests" runstate="Runnable" seed="1724337746" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000851" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1427" name="C807_GameSaveDataRoundTripsMilitaryRuntimeState" fullname="SectorManagerTests.C807_GameSaveDataRoundTripsMilitaryRuntimeState" methodname="C807_GameSaveDataRoundTripsMilitaryRuntimeState" classname="SectorManagerTests" runstate="Runnable" seed="692587288" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001693" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1428" name="C808_InactiveCampaignSaveClearsExistingCampaignState" fullname="SectorManagerTests.C808_InactiveCampaignSaveClearsExistingCampaignState" methodname="C808_InactiveCampaignSaveClearsExistingCampaignState" classname="SectorManagerTests" runstate="Runnable" seed="1920445920" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000636" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1429" name="C808_PartialSectorSaveClearsMissingSectorStates" fullname="SectorManagerTests.C808_PartialSectorSaveClearsMissingSectorStates" methodname="C808_PartialSectorSaveClearsMissingSectorStates" classname="SectorManagerTests" runstate="Runnable" seed="838305150" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000413" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1430" name="C809_MilitaryBuildingsExposeAttackDefenseAndManpowerSources" fullname="SectorManagerTests.C809_MilitaryBuildingsExposeAttackDefenseAndManpowerSources" methodname="C809_MilitaryBuildingsExposeAttackDefenseAndManpowerSources" classname="SectorManagerTests" runstate="Runnable" seed="80554372" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000459" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1431" name="C810_BuildingManagerDerivesAndRemovesMilitaryPower" fullname="SectorManagerTests.C810_BuildingManagerDerivesAndRemovesMilitaryPower" methodname="C810_BuildingManagerDerivesAndRemovesMilitaryPower" classname="SectorManagerTests" runstate="Runnable" seed="1617091081" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001267" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1432" name="SectorMapViewerTests" fullname="SectorMapViewerTests" classname="SectorMapViewerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001613" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1433" name="C703_AccessStatusRequiresOccupiedPrerequisites" fullname="SectorMapViewerTests.C703_AccessStatusRequiresOccupiedPrerequisites" methodname="C703_AccessStatusRequiresOccupiedPrerequisites" classname="SectorMapViewerTests" runstate="Runnable" seed="1795257268" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000694" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1434" name="C703_NullAndEmptyPrerequisitesAreAvailable" fullname="SectorMapViewerTests.C703_NullAndEmptyPrerequisitesAreAvailable" methodname="C703_NullAndEmptyPrerequisitesAreAvailable" classname="SectorMapViewerTests" runstate="Runnable" seed="64552573" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000201" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1435" name="SimulationBudgetTests" fullname="SimulationBudgetTests" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.008245" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1436" name="Advance_ClampsBacklogToMaximumTicksPerFrame" fullname="SimulationBudgetTests.Advance_ClampsBacklogToMaximumTicksPerFrame" methodname="Advance_ClampsBacklogToMaximumTicksPerFrame" classname="SimulationBudgetTests" runstate="Runnable" seed="1593232709" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.004551" asserts="0">
+          <properties />
+          <output><![CDATA[Simulation backlog exceeded the per-frame limit and was clamped.
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1437" name="SimulationDeterminismTests" fullname="SimulationDeterminismTests" classname="SimulationDeterminismTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001379" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1438" name="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" fullname="SimulationDeterminismTests.FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" methodname="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" classname="SimulationDeterminismTests" runstate="Runnable" seed="610139609" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000609" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1439" name="SpaceContentTests" fullname="SpaceContentTests" classname="SpaceContentTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.004905" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1441" name="C702_SpaceBuildingsUseSpacerTechLevelAndStableIds" fullname="SpaceContentTests.C702_SpaceBuildingsUseSpacerTechLevelAndStableIds" methodname="C702_SpaceBuildingsUseSpacerTechLevelAndStableIds" classname="SpaceContentTests" runstate="Runnable" seed="112638480" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000583" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1442" name="C702_SpaceResourcesHaveSourcesAndMultipleSinks" fullname="SpaceContentTests.C702_SpaceResourcesHaveSourcesAndMultipleSinks" methodname="C702_SpaceResourcesHaveSourcesAndMultipleSinks" classname="SpaceContentTests" runstate="Runnable" seed="200481378" result="Failed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.001082" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: greater than or equal to 2
+  But was:  0
+]]></message>
+            <stack-trace><![CDATA[at SpaceContentTests.C702_SpaceResourcesHaveSourcesAndMultipleSinks () [0x00056] in D:\GitHub\Kingdom\Kingdom\Assets\Tests\Editor\SpaceContentTests.cs:43
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1440" name="C702_SpaceResourcesHaveStableIdsAndSpaceCategory" fullname="SpaceContentTests.C702_SpaceResourcesHaveStableIdsAndSpaceCategory" methodname="C702_SpaceResourcesHaveStableIdsAndSpaceCategory" classname="SpaceContentTests" runstate="Runnable" seed="1177802237" result="Passed" start-time="2026-07-29 08:02:32Z" end-time="2026-07-29 08:02:32Z" duration="0.000316" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

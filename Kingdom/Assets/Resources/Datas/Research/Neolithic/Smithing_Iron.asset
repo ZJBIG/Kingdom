@@ -17,10 +17,10 @@ MonoBehaviour:
   Description: "\u5229\u7528\u66F4\u9AD8\u7089\u6E29\u8FD8\u539F\u94C1\u77FF\u5E76\u53CD\u590D\u953B\u6253\u9664\u6742\uFF0C\u83B7\u5F97\u9002\u5408\u91CD\u578B\u5DE5\u5177\u3001\u6B66\u5668\u548C\u5DE5\u7A0B\u6784\u4EF6\u7684\u94C1\u6750\u3002"
   BaseCost: 15000
   prerequisites:
-  - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
-  - {fileID: 11400000, guid: b60f6ee9055bb2f40860844fbca930ab, type: 2}
+  - {fileID: 11400000, guid: 891454c3adf86bd4cb5a789500de06cc, type: 2}
+  - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: db6d6f6d27aa55e4e84b21f45ab8e814, type: 2}
+  - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -39,5 +39,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7
-  y: 30.462
+  x: 9
+  y: 27.736

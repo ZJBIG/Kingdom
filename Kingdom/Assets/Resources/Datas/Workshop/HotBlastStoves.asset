@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: HotBlastStoves
+  m_EditorClassIdentifier: 
+  id: HotBlastStoves
+  Label: "\u70ED\u98CE\u7089\u7EC4"
+  Description: "\u70ED\u98CE\u7089\u56DE\u6536\u7089\u6C14\u9884\u70ED\u9F13\u98CE\uFF0C\u964D\u4F4E\u9AD8\u7089\u70ED\u635F\u5931\u5E76\u63D0\u9AD8\u94A2\u94C1\u4EA7\u91CF\u3002"
+  Category: "\u51B6\u91D1"
+  SortOrder: 190
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: cd1865a81bb8bcc40a9a2df220e5b7ab, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 01ffea418770c65489047c6ce085f9b5, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: c3b7f892911733247aea889f1bf878ee, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []

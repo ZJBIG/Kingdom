@@ -1,0 +1,16 @@
+FAIL:
+Normal: Neolithic reached at 37.92 minutes; expected 60-90.
+Normal: Medieval reached at 94.78 minutes; expected 300-480.
+Normal: Industrial reached at 149.15 minutes; expected 600-960.
+Normal: first research must complete in 60-120 seconds.
+Normal: at least two research items must complete by minute 10.
+Fast: Neolithic reached at 29.02 minutes; expected 45-75.
+Fast: Medieval reached at 82.87 minutes; expected 240-360.
+Fast: Industrial reached at 135.72 minutes; expected 480-600.
+Fast: first research must complete in 60-120 seconds.
+Fast: at least two research items must complete by minute 10.
+Conservative: Neolithic reached at 46.72 minutes; expected 90-120.
+Conservative: Medieval reached at 132.82 minutes; expected 480-720.
+Conservative: Industrial reached at 191.97 minutes; expected 840-1200.
+Conservative: first research must complete in 60-120 seconds.
+Conservative: at least two research items must complete by minute 10.

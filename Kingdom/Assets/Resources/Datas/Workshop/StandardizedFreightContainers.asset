@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: StandardizedFreightContainers
+  m_EditorClassIdentifier: 
+  id: StandardizedFreightContainers
+  Label: "\u6807\u51C6\u8D27\u8FD0\u96C6\u88C5\u7BB1"
+  Description: "\u6807\u51C6\u8D27\u8FD0\u96C6\u88C5\u7BB1\u51CF\u5C11\u88C5\u5378\u65F6\u95F4\uFF0C\u63D0\u9AD8\u94C1\u8DEF\u67A2\u7EBD\u7269\u6D41\u541E\u5410\u91CF\u3002"
+  Category: "\u7269\u6D41"
+  SortOrder: 310
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 633b96702afbb3c468b62a86c3b28f90, type: 2}
+  - {fileID: 11400000, guid: b8ed0f0b119e9e244a064b919eb2424a, type: 2}
+  - {fileID: 11400000, guid: 3d0e50623418ac24bb7d06edbfda9424, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 58187b2531ff0854289cf092ed0f110b, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  effects:
+  - Type: 11
+    Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []

@@ -32,6 +32,10 @@ namespace Kingdom.EditorTools
             {
                 Csv("Scenario", "HorizonSeconds", "TechLevel", "CompletedResearch",
                     "PurchasedWorkshop", "TotalBuildings", "Population",
+                    "PopulationGrowthMultiplier", "PopulationGrowthPerMinute",
+                    "TotalProductivity", "UsedProductivity", "ProductivityUtilization",
+                    "ProductivityBlockedSeconds", "LongestProductivityBlockSeconds",
+                    "TerritoryUsed", "TerritoryTotal",
                     "FoodSatisfactionAverage", "LongestDecisionGapSeconds",
                     "NeolithicAt", "MedievalAt", "IndustrialAt", "IndustrialCompleteAt",
                     "Finite", "NegativeInventory")
@@ -77,10 +81,14 @@ namespace Kingdom.EditorTools
             private double nextResearchDecision;
             private double nextBuildingDecision;
             private double population;
-            private double populationGrowthProgress;
+            private double populationCapacity;
+            private double populationChangeProgress;
             private double food = 300d;
             private double foodSatisfaction = 1d;
             private double foodSatisfactionIntegral;
+            private double productivityBlockedSeconds;
+            private double currentProductivityBlockedSeconds;
+            private double longestProductivityBlockedSeconds;
             private bool finite = true;
             private bool negativeInventory;
             private TechLevel techLevel = TechLevel.Animal;
@@ -174,6 +182,15 @@ namespace Kingdom.EditorTools
                     value.PurchasedWorkshop.ToString(Invariant),
                     value.TotalBuildings.ToString(Invariant),
                     value.Population.ToString("0.###", Invariant),
+                    value.PopulationGrowthMultiplier.ToString("0.######", Invariant),
+                    value.PopulationGrowthPerMinute.ToString("0.######", Invariant),
+                    value.TotalProductivity.ToString("0.###", Invariant),
+                    value.UsedProductivity.ToString("0.###", Invariant),
+                    value.ProductivityUtilization.ToString("0.######", Invariant),
+                    value.ProductivityBlockedSeconds.ToString("0.###", Invariant),
+                    value.LongestProductivityBlockSeconds.ToString("0.###", Invariant),
+                    value.TerritoryUsed.ToString("0.###", Invariant),
+                    value.TerritoryTotal.ToString("0.###", Invariant),
                     value.AverageFoodSatisfaction.ToString("0.######", Invariant),
                     Math.Max(
                         policy.ResearchDecisionInterval,
@@ -205,6 +222,9 @@ namespace Kingdom.EditorTools
 
             private void DecideBuilding()
             {
+                if (TryUpgradeHousing())
+                    return;
+
                 Research candidate = SelectResearch();
                 Building building = SelectBuilding(candidate);
                 if (building != null && CanBuild(building) &&
@@ -217,6 +237,37 @@ namespace Kingdom.EditorTools
                         buildingCounts[building].ToString(Invariant),
                         techLevel.ToString(), string.Empty));
                 }
+            }
+
+            private bool TryUpgradeHousing()
+            {
+                for (int i = 0; i < buildings.Count; i++)
+                {
+                    Building source = buildings[i];
+                    Building target = source.UpgradeTo;
+                    if (target == null || buildingCounts[source] <= 0 ||
+                        !AreBuildingPrerequisitesMet(target))
+                    {
+                        continue;
+                    }
+
+                    List<Pair<Resource, ExpantaNum>> cost = UpgradeCost(source, target);
+                    if (!CanAfford(cost) || !CanUpgrade(source, target))
+                        continue;
+
+                    Spend(cost);
+                    buildingCounts[source]--;
+                    buildingCounts[target]++;
+                    EventRows.Add(Csv(
+                        elapsed.ToString("0", Invariant),
+                        "BuildingUpgrade",
+                        source.Id + "->" + target.Id,
+                        buildingCounts[target].ToString(Invariant),
+                        techLevel.ToString(),
+                        "recovery=0.8"));
+                    return true;
+                }
+                return false;
             }
 
             private Research SelectResearch()
@@ -317,10 +368,14 @@ namespace Kingdom.EditorTools
             {
                 List<Building> available = buildings
                     .Where(AreBuildingPrerequisitesMet)
+                    .Where(CanConstructNew)
                     .Where(value => value.TechLevel <= TechLevel.Industrial)
                     .ToList();
 
-                Building house = available.FirstOrDefault(value => value.Id == "WoodHouse");
+                Building house = available
+                    .Where(value => D(value.PopulationCapacityGranted) > 0d)
+                    .OrderByDescending(BuildingChainDepth)
+                    .FirstOrDefault();
                 if (house != null && PopulationCapacity() <= 0d &&
                     CanBuild(house) && CanAfford(BuildCost(house)))
                     return house;
@@ -454,7 +509,10 @@ namespace Kingdom.EditorTools
                 if (candidate == null)
                     return null;
                 if (CanBuild(candidate))
+                {
+                    currentProductivityBlockedSeconds = 0d;
                     return candidate;
+                }
 
                 double requiredProductivity =
                     ProductivityUsed() + D(candidate.ProductivityConsumption);
@@ -464,6 +522,18 @@ namespace Kingdom.EditorTools
                     requiredProductivity > TotalProductivity(effects) + 0.000001d;
                 bool populationAtCapacity =
                     population + 0.000001d >= PopulationCapacity();
+                if (waitingForPopulation)
+                {
+                    productivityBlockedSeconds += policy.BuildingDecisionInterval;
+                    currentProductivityBlockedSeconds += policy.BuildingDecisionInterval;
+                    longestProductivityBlockedSeconds = Math.Max(
+                        longestProductivityBlockedSeconds,
+                        currentProductivityBlockedSeconds);
+                }
+                else
+                {
+                    currentProductivityBlockedSeconds = 0d;
+                }
                 if (waitingForPopulation && populationAtCapacity &&
                     house != null && CanBuild(house) && CanAfford(BuildCost(house)))
                     return house;
@@ -479,7 +549,7 @@ namespace Kingdom.EditorTools
 
             private bool CanBuild(Building value)
             {
-                if (!AreBuildingPrerequisitesMet(value))
+                if (!AreBuildingPrerequisitesMet(value) || !CanConstructNew(value))
                     return false;
                 double productivityAfter =
                     ProductivityUsed() + D(value.ProductivityConsumption);
@@ -488,6 +558,85 @@ namespace Kingdom.EditorTools
                     EffectSnapshot.Create(completedResearch, purchasedWorkshop);
                 return productivityAfter <= TotalProductivity(effects) + 0.000001d &&
                     territoryAfter <= TerritoryTotal() + 0.000001d;
+            }
+
+            private bool CanConstructNew(Building building)
+            {
+                Building root = building;
+                Building predecessor;
+                while ((predecessor = buildings.FirstOrDefault(value =>
+                    value.UpgradeTo == root)) != null)
+                {
+                    root = predecessor;
+                }
+
+                if (root == building && root.UpgradeTo == null)
+                    return true;
+                Building highest = root;
+                while (highest.UpgradeTo != null &&
+                       AreBuildingPrerequisitesMet(highest.UpgradeTo))
+                {
+                    highest = highest.UpgradeTo;
+                }
+                return highest == building;
+            }
+
+            private int BuildingChainDepth(Building building)
+            {
+                int depth = 0;
+                Building current = building;
+                while (buildings.Any(value => value.UpgradeTo == current))
+                {
+                    current = buildings.First(value => value.UpgradeTo == current);
+                    depth++;
+                }
+                return depth;
+            }
+
+            private bool CanUpgrade(Building source, Building target)
+            {
+                EffectSnapshot effects =
+                    EffectSnapshot.Create(completedResearch, purchasedWorkshop);
+                double preMargin = TotalProductivity(effects) - ProductivityUsed();
+                double postTotalWithoutTargetGrant =
+                    TotalProductivity(effects) - D(source.ProductivityGranted);
+                double postUsed =
+                    ProductivityUsed() -
+                    D(source.ProductivityConsumption) +
+                    D(target.ProductivityConsumption);
+                double territoryAfter =
+                    TerritoryUsed() - D(source.SpaceCost) + D(target.SpaceCost);
+                return postTotalWithoutTargetGrant - postUsed >=
+                        Math.Min(0d, preMargin) - 0.000001d &&
+                    territoryAfter <= TerritoryTotal() + 0.000001d;
+            }
+
+            private List<Pair<Resource, ExpantaNum>> UpgradeCost(
+                Building source,
+                Building target)
+            {
+                var resources = new HashSet<Resource>();
+                for (int i = 0; i < source.ResourceRequirements.Count; i++)
+                    resources.Add(source.ResourceRequirements[i].First);
+                for (int i = 0; i < target.ResourceRequirements.Count; i++)
+                    resources.Add(target.ResourceRequirements[i].First);
+
+                int sourceIndex = buildingCounts[source] - 1;
+                int targetIndex = buildingCounts[target];
+                var result = new List<Pair<Resource, ExpantaNum>>();
+                foreach (Resource resource in resources)
+                {
+                    double sourceBase = RequiredAmount(source.ResourceRequirements, resource);
+                    double targetBase = RequiredAmount(target.ResourceRequirements, resource);
+                    double sourceCost =
+                        sourceBase * Math.Pow(Math.Max(1d, D(source.CostGrowth)), sourceIndex);
+                    double targetCost =
+                        targetBase * Math.Pow(Math.Max(1d, D(target.CostGrowth)), targetIndex);
+                    result.Add(new Pair<Resource, ExpantaNum>(
+                        resource,
+                        new ExpantaNum(targetCost - sourceCost * 0.8d)));
+                }
+                return result;
             }
 
             private List<Pair<Resource, ExpantaNum>> BuildCost(Building value)
@@ -732,13 +881,73 @@ namespace Kingdom.EditorTools
 
             private void AdvancePopulation(double delta)
             {
-                if (population >= PopulationCapacity() || foodSatisfaction <= 0d)
+                double capacity = PopulationCapacity();
+                int previousRelation =
+                    ComparePopulationToCapacity(population, populationCapacity);
+                int nextRelation =
+                    ComparePopulationToCapacity(population, capacity);
+                if (previousRelation != nextRelation)
+                    populationChangeProgress = 0d;
+                populationCapacity = capacity;
+                if (Math.Abs(population - capacity) <= 0.000001d)
+                {
+                    populationChangeProgress = 0d;
                     return;
-                populationGrowthProgress += foodSatisfaction * delta / 60d;
-                if (populationGrowthProgress < 1d)
+                }
+
+                if (population < capacity)
+                {
+                    if (foodSatisfaction <= 0d)
+                        return;
+                    EffectSnapshot growthEffects =
+                        EffectSnapshot.Create(completedResearch, purchasedWorkshop);
+                    double accumulated = populationChangeProgress +
+                        Math.Clamp(foodSatisfaction, 0d, 1d) *
+                        growthEffects.PopulationGrowthMultiplier * delta / 60d;
+                    double births = Math.Min(
+                        Math.Floor(accumulated + 0.000001d),
+                        capacity - population);
+                    population += births;
+                    populationChangeProgress =
+                        population + 0.000001d >= capacity
+                            ? 0d
+                            : Math.Max(0d, accumulated - births);
                     return;
-                population += 1d;
-                populationGrowthProgress = 0d;
+                }
+
+                EffectSnapshot effects =
+                    EffectSnapshot.Create(completedResearch, purchasedWorkshop);
+                double departureAllowance = Math.Floor(Math.Max(
+                    0d,
+                    TotalProductivity(effects) - ProductivityUsed()) + 0.000001d);
+                if (departureAllowance < 1d)
+                {
+                    populationChangeProgress = 0d;
+                    return;
+                }
+
+                double departureProgress = populationChangeProgress + delta / 60d;
+                double departures = Math.Min(
+                    Math.Min(population - capacity, departureAllowance),
+                    Math.Floor(departureProgress + 0.000001d));
+                population -= departures;
+                bool blockedByCapacity = population <= capacity + 0.000001d;
+                bool blockedByProductivity =
+                    departures >= departureAllowance &&
+                    population > capacity + 0.000001d;
+                populationChangeProgress =
+                    blockedByCapacity || blockedByProductivity
+                        ? 0d
+                        : Math.Max(0d, departureProgress - departures);
+            }
+
+            private static int ComparePopulationToCapacity(
+                double currentPopulation,
+                double capacity)
+            {
+                if (currentPopulation < capacity - 0.000001d)
+                    return -1;
+                return currentPopulation > capacity + 0.000001d ? 1 : 0;
             }
 
             private double ResearchPower()
@@ -779,7 +988,7 @@ namespace Kingdom.EditorTools
             {
                 EffectSnapshot effects =
                     EffectSnapshot.Create(completedResearch, purchasedWorkshop);
-                return 100d + effects.TerritoryGranted;
+                return 500d + effects.TerritoryGranted;
             }
 
             private bool CanAfford(IReadOnlyList<Pair<Resource, ExpantaNum>> costs) =>
@@ -818,17 +1027,37 @@ namespace Kingdom.EditorTools
                 return true;
             }
 
-            private Snapshot CaptureSnapshot() => new()
+            private Snapshot CaptureSnapshot()
             {
-                Time = elapsed,
-                TechLevel = techLevel,
-                CompletedResearch = completedResearch.Count,
-                PurchasedWorkshop = purchasedWorkshop.Count,
-                TotalBuildings = buildingCounts.Values.Sum(),
-                Population = population,
-                AverageFoodSatisfaction = elapsed <= 0d
-                    ? 1d : foodSatisfactionIntegral / elapsed
-            };
+                EffectSnapshot effects =
+                    EffectSnapshot.Create(completedResearch, purchasedWorkshop);
+                double totalProductivity = TotalProductivity(effects);
+                double usedProductivity = ProductivityUsed();
+                return new Snapshot
+                {
+                    Time = elapsed,
+                    TechLevel = techLevel,
+                    CompletedResearch = completedResearch.Count,
+                    PurchasedWorkshop = purchasedWorkshop.Count,
+                    TotalBuildings = buildingCounts.Values.Sum(),
+                    Population = population,
+                    PopulationGrowthMultiplier = effects.PopulationGrowthMultiplier,
+                    PopulationGrowthPerMinute =
+                        effects.PopulationGrowthMultiplier * foodSatisfaction,
+                    TotalProductivity = totalProductivity,
+                    UsedProductivity = usedProductivity,
+                    ProductivityUtilization = totalProductivity <= 0d
+                        ? 0d
+                        : usedProductivity / totalProductivity,
+                    ProductivityBlockedSeconds = productivityBlockedSeconds,
+                    LongestProductivityBlockSeconds =
+                        longestProductivityBlockedSeconds,
+                    TerritoryUsed = TerritoryUsed(),
+                    TerritoryTotal = TerritoryTotal(),
+                    AverageFoodSatisfaction = elapsed <= 0d
+                        ? 1d : foodSatisfactionIntegral / elapsed
+                };
+            }
 
             private bool IsSnapshotTime(double time)
             {
@@ -875,6 +1104,7 @@ namespace Kingdom.EditorTools
             public double GlobalResearchMultiplier { get; private set; } = 1d;
             public double TerritoryGranted { get; private set; }
             public double ProductivityGranted { get; private set; }
+            public double PopulationGrowthMultiplier { get; private set; } = 1d;
 
             public static EffectSnapshot Create(
                 IEnumerable<Research> research,
@@ -942,6 +1172,9 @@ namespace Kingdom.EditorTools
                         break;
                     case ResearchEffectType.GlobalLogisticsMultiplier:
                         globalLogistics *= multiplier;
+                        break;
+                    case ResearchEffectType.PopulationGrowthMultiplier:
+                        PopulationGrowthMultiplier *= multiplier > 0d ? multiplier : 1d;
                         break;
                 }
             }
@@ -1046,6 +1279,15 @@ namespace Kingdom.EditorTools
             public int PurchasedWorkshop;
             public int TotalBuildings;
             public double Population;
+            public double PopulationGrowthMultiplier;
+            public double PopulationGrowthPerMinute;
+            public double TotalProductivity;
+            public double UsedProductivity;
+            public double ProductivityUtilization;
+            public double ProductivityBlockedSeconds;
+            public double LongestProductivityBlockSeconds;
+            public double TerritoryUsed;
+            public double TerritoryTotal;
             public double AverageFoodSatisfaction;
         }
 

@@ -15,6 +15,22 @@ public class FirstThreeErasContentDefinitionTests
         Assert.That(wood.UpgradeTo, Is.EqualTo(stone));
         Assert.That(stone.UpgradeTo, Is.EqualTo(town));
         Assert.That(town.UpgradeTo, Is.Null);
+        Assert.DoesNotThrow(() =>
+            BuildingManager.ValidateBuildingChains(
+                Resources.LoadAll<Building>("Datas/Building")));
+    }
+
+    [Test]
+    public void HousingResearchUnlocksAreContinuous()
+    {
+        Research permanentArchitecture =
+            DataBase<Research>.Find("PermanentArchitecture");
+        Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
+
+        Assert.That(permanentArchitecture.Label, Is.EqualTo("石制建筑"));
+        Assert.That(
+            urbanHousing.Prerequisites,
+            Does.Contain(permanentArchitecture));
     }
 
     [Test]

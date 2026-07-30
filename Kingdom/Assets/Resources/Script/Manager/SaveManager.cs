@@ -150,6 +150,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ResourceManager.Instance.RestoreSaveData(data.Resources);
         BuildingManager.Instance.RestoreSaveData(data.Buildings);
         BuildingManager.Instance.RecalculateDerivedStateFromBuildings();
+        GameManager.Instance.RestorePopulationChangeProgress(data.General);
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
         ResearchManager.Instance.RestoreSaveData(data.Researches);
@@ -293,8 +294,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public TechLevel TechLevel;
         public string FoodAmount;
         public string Population;
-        public string PopulationCapacity;
-        public string GrowthProgress;
+        public string PopulationChangeProgress;
         public string TerritoryTotal;
         public string AttackPower;
         public string DefensePower;

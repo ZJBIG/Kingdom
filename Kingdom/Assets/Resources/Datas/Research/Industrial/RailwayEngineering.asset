@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailwayEngineering
   Label: "\u94C1\u8DEF\u5DE5\u7A0B"
-  Description: "\u7efc\u5408\u8f68\u9053\u3001\u8def\u57fa\u3001\u673a\u8f66\u3001\u4fe1\u53f7\u548c\u8f66\u7ad9\u8c03\u5ea6\uff0c\u5efa\u7acb\u9002\u5408\u5927\u5b97\u8d27\u7269\u4e0e\u8fdc\u8ddd\u79bb\u8fd0\u8f93\u7684\u94c1\u8def\u7cfb\u7edf\u3002"
+  Description: "\u7cfb\u7edf\u8bbe\u8ba1\u8def\u57fa\u3001\u94a2\u8f68\u3001\u6865\u6881\u3001\u8f66\u7ad9\u548c\u673a\u8f66\u8fd0\u7528\u89c4\u5219\uff0c\u5efa\u8bbe\u53ef\u627f\u8f7d\u5927\u5b97\u8d27\u7269\u4e0e\u8fdc\u8ddd\u79bb\u5ba2\u8fd0\u7684\u94c1\u8def\u7f51\u7edc\u3002"
   BaseCost: 440000
   prerequisites:
-  - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
       scalar: 25
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -57,5 +57,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 22.00
-  y: 14.665
+  x: 22
+  y: 14.639

@@ -148,6 +148,7 @@ public static class SimulationReportWriter
             Events(result, "ResearchCompleted", "ResearchId"));
         Write(root, "BuildingConstructionTimeline.csv",
             Events(result, "BuildingCompleted", "BuildingId"));
+        Write(root, "BuildingUpgradeTimeline.csv", UpgradeEvents(result));
         Write(root, "MilestoneSummary.csv", Milestones(result.State));
     }
 
@@ -167,7 +168,23 @@ public static class SimulationReportWriter
         builder.AppendLine("- Research speed uses ResearchPower and runtime era effects.");
         builder.AppendLine("- Buildings use geometric cost growth and commit immediately after payment.");
         builder.AppendLine("- Food starts at +5/s; population consumes 1 food/s per person and grows toward housing capacity.");
+        builder.AppendLine("- Population growth is base 1/min x completed-research multiplier x food satisfaction; departure remains 1/min.");
         builder.AppendLine("- Total productivity equals population plus fixed research and owned-building grants; construction checks pre-build available productivity.");
+        TimelineSnapshot? latest = state.Timeline.LastOrDefault();
+        builder.AppendLine(
+            $"- Productivity-blocked building decision time: total " +
+            $"{state.ProductivityWaitingSeconds:0.##} seconds; longest continuous " +
+            $"{state.MaximumProductivityWaitingSeconds:0.##} seconds.");
+        if (latest != null)
+        {
+            double utilization = latest.TotalProductivity <= 0d
+                ? 0d
+                : latest.UsedProductivity / latest.TotalProductivity;
+            builder.AppendLine(
+                $"- Final population growth: x{latest.PopulationGrowthMultiplier:0.###}, " +
+                $"{latest.PopulationGrowthPerMinute:0.###}/min; productivity utilization: " +
+                $"{utilization:P1}; territory: {latest.TerritoryUsed:0.###}/{latest.TerritoryTotal:0.###}.");
+        }
 
         foreach (SimTechLevel era in new[]
                  {
@@ -220,14 +237,17 @@ public static class SimulationReportWriter
     private static string Timeline(SimulationState state)
     {
         var builder = new StringBuilder(
-            "Minute,TechLevel,ResearchPower,Population,TotalProductivity,UsedProductivity,AvailableProductivity,ActiveResearch,Resources,Buildings,ResearchCompleted\n");
+            "Minute,TechLevel,ResearchPower,Population,PopulationGrowthMultiplier,PopulationGrowthPerMinute,TotalProductivity,UsedProductivity,AvailableProductivity,ProductivityUtilization,TerritoryUsed,TerritoryTotal,ActiveResearch,Resources,Buildings,ResearchCompleted\n");
         foreach (TimelineSnapshot snapshot in state.Timeline)
         {
             builder.AppendLine(
                 $"{snapshot.Minute},{snapshot.TechLevel},{snapshot.ResearchPower:0.###}," +
-                $"{snapshot.Population:0.###},{snapshot.TotalProductivity:0.###}," +
+                $"{snapshot.Population:0.###},{snapshot.PopulationGrowthMultiplier:0.###}," +
+                $"{snapshot.PopulationGrowthPerMinute:0.###},{snapshot.TotalProductivity:0.###}," +
                 $"{snapshot.UsedProductivity:0.###}," +
                 $"{Math.Max(0,snapshot.TotalProductivity-snapshot.UsedProductivity):0.###}," +
+                $"{(snapshot.TotalProductivity<=0?0:snapshot.UsedProductivity/snapshot.TotalProductivity):0.###}," +
+                $"{snapshot.TerritoryUsed:0.###},{snapshot.TerritoryTotal:0.###}," +
                 $"{Csv(snapshot.ActiveResearch)},{Csv(snapshot.Resources)}," +
                 $"{Csv(snapshot.Buildings)},{Csv(snapshot.ResearchCompleted)}");
         }
@@ -245,6 +265,20 @@ public static class SimulationReportWriter
             builder.AppendLine(
                 $"{item.Seconds:0.0},{item.Seconds / 60d:0.##},{item.TechLevel}," +
                 $"{Csv(item.Id)},{item.Count}");
+        }
+        return builder.ToString();
+    }
+
+    private static string UpgradeEvents(SimulationResult result)
+    {
+        var builder = new StringBuilder(
+            "TimeSeconds,Minute,TechLevel,Upgrade,TargetCount,Detail\n");
+        foreach (SimulationEvent item in result.State.Events.Where(
+                     value => value.Kind == "BuildingUpgrade"))
+        {
+            builder.AppendLine(
+                $"{item.Seconds:0.0},{item.Seconds / 60d:0.##},{item.TechLevel}," +
+                $"{Csv(item.Id)},{item.Count},{Csv(item.Detail)}");
         }
         return builder.ToString();
     }

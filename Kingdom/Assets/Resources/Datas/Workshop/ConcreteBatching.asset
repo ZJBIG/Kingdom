@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ConcreteBatching
+  m_EditorClassIdentifier: 
+  id: ConcreteBatching
+  Label: "\u6DF7\u51DD\u571F\u6405\u62CC\u673A\u7EC4"
+  Description: "\u81EA\u52A8\u914D\u6599\u548C\u6405\u62CC\u7EDF\u4E00\u6DF7\u51DD\u571F\u8D28\u91CF\uFF0C\u63D0\u9AD8\u6DF7\u51DD\u571F\u5382\u4EA7\u51FA\u3002"
+  Category: "\u57FA\u7840\u8BBE\u65BD"
+  SortOrder: 230
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: f02af0f5c44df0b4082aa367be14589f, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 93ee90d2ae7a9ba48b01c81b25f4ba2b, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []

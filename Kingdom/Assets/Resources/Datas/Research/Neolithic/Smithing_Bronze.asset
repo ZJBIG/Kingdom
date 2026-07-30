@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Bronze
   Label: "\u51B6\u70BC\u9752\u94DC"
-  Description: "\u7cbe\u786e\u914d\u6bd4\u94dc\u4e0e\u9521\u5e76\u638c\u63e1\u7194\u94f8\u5de5\u827a\uff0c\u5236\u9020\u786c\u5ea6\u3001\u97e7\u6027\u548c\u6210\u578b\u80fd\u529b\u4f18\u4e8e\u7eaf\u94dc\u7684\u9752\u94dc\u5236\u54c1\u3002"
+  Description: "\u7CBE\u786E\u914D\u6BD4\u94DC\u4E0E\u9521\u5E76\u638C\u63E1\u7194\u94F8\u5DE5\u827A\uFF0C\u5236\u9020\u786C\u5EA6\u3001\u97E7\u6027\u548C\u6210\u578B\u80FD\u529B\u4F18\u4E8E\u7EAF\u94DC\u7684\u9752\u94DC\u5236\u54C1\u3002"
   BaseCost: 20000
   prerequisites:
-  - {fileID: 11400000, guid: 8487fd4809790b14ab8eeb42d2b906a2, type: 2}
-  - {fileID: 11400000, guid: 0d09b89ba4e1e4c479483a92ab621b1c, type: 2}
+  - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}
+  - {fileID: 11400000, guid: 29f44974121a6e84fa6ab64e2fc8e637, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7d8636f8f9d650b4cc23e2f67e8f5b12, type: 2}
+  - first: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -47,5 +47,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 8.00
-  y: 26.113
+  x: 8
+  y: 27.236

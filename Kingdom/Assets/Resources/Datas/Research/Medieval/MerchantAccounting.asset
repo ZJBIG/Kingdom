@@ -11,17 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: MerchantAccounting
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: MerchantAccounting
-  Label: "商账制度"
-  Description: "\u91c7\u7528\u5206\u7c7b\u8d26\u3001\u501f\u8d37\u8bb0\u5f55\u548c\u5b9a\u671f\u6838\u7b97\u8ffd\u8e2a\u8d27\u7269\u3001\u503a\u52a1\u4e0e\u5229\u6da6\uff0c\u4f7f\u8de8\u5730\u533a\u8d38\u6613\u80fd\u591f\u63a7\u5236\u98ce\u9669\u548c\u6210\u672c\u3002"
+  Label: "\u5546\u8D26\u5236\u5EA6"
+  Description: "\u91C7\u7528\u5206\u7C7B\u8D26\u3001\u501F\u8D37\u8BB0\u5F55\u548C\u5B9A\u671F\u6838\u7B97\u8FFD\u8E2A\u8D27\u7269\u3001\u503A\u52A1\u4E0E\u5229\u6DA6\uFF0C\u4F7F\u8DE8\u5730\u533A\u8D38\u6613\u80FD\u591F\u63A7\u5236\u98CE\u9669\u548C\u6210\u672C\u3002"
   BaseCost: 135000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000005, type: 2}
-  - {fileID: 11400000, guid: f5010000000000000000000000000004, type: 2}
-  - {fileID: 11400000, guid: d72b5e9c1a4f4830b6e8c2d7f915a643, type: 2}
+  - {fileID: 11400000, guid: 0b5aadb154b661e4ab853717625b8297, type: 2}
+  - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
+  - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       scalar: 350
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -59,5 +59,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 13.00
-  y: 2.673
+  x: 13
+  y: 7.556

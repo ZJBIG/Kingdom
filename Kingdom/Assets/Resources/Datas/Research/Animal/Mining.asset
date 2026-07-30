@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Mining
   Label: "\u77FF\u7269\u5F00\u91C7"
-  Description: "\u5efa\u7acb\u5bfb\u627e\u77ff\u8109\u3001\u5f00\u51ff\u5ca9\u5c42\u3001\u652f\u6491\u5751\u9053\u548c\u8fd0\u51fa\u77ff\u77f3\u7684\u57fa\u672c\u6d41\u7a0b\uff0c\u4f7f\u5730\u4e0b\u8d44\u6e90\u80fd\u591f\u88ab\u6301\u7eed\u5229\u7528\u3002"
+  Description: "\u5EFA\u7ACB\u5BFB\u627E\u77FF\u8109\u3001\u5F00\u51FF\u5CA9\u5C42\u3001\u652F\u6491\u5751\u9053\u548C\u8FD0\u51FA\u77FF\u77F3\u7684\u57FA\u672C\u6D41\u7A0B\uFF0C\u4F7F\u5730\u4E0B\u8D44\u6E90\u80FD\u591F\u88AB\u6301\u7EED\u5229\u7528\u3002"
   BaseCost: 600
   prerequisites:
-  - {fileID: 11400000, guid: a0c97025addd0c349bee9a8386f5129e, type: 2}
+  - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}
   resourceRequirements: []
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: f4b8d2e6913c47a0b5e8d7c214f9638a, type: 2}
+    Building: {fileID: 11400000, guid: 9cb1b7e87a2100d4e9dd2395989511ca, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -32,7 +32,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 9bf9289db69344a5977403d9bf822c5f, type: 2}
+    Building: {fileID: 11400000, guid: 037ef8be58a221c41badf7ec3324b539, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -43,7 +43,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 1d5fba0f9e9d4136bcb90f36fa76b3dc, type: 2}
+    Building: {fileID: 11400000, guid: a58f0978a55e659428bac68f22a46273, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -54,7 +54,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 2b272120c5154656ad1cec1fc1d38f27, type: 2}
+    Building: {fileID: 11400000, guid: 365e04bea8fa9ac4b8cf6dc678f9c59e, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -66,5 +66,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 1.00
-  y: 18.270
+  x: 1
+  y: 28.889

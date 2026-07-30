@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ContinuousCasting
+  m_EditorClassIdentifier: 
+  id: ContinuousCasting
+  Label: "\u8FDE\u94F8\u673A\u7EC4"
+  Description: "\u8FDE\u7EED\u94F8\u9020\u51CF\u5C11\u94A2\u6DB2\u8F6C\u8FD0\u548C\u51B7\u5374\u635F\u8017\uFF0C\u8FDB\u4E00\u6B65\u63D0\u9AD8\u9AD8\u7089\u4EA7\u80FD\u3002"
+  Category: "\u51B6\u91D1"
+  SortOrder: 200
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: cd1865a81bb8bcc40a9a2df220e5b7ab, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 0c8b9ec2179c4ff439a4a8613838c3bb, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: c3b7f892911733247aea889f1bf878ee, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []

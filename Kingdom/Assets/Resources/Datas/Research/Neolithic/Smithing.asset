@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing
   Label: "\u51B6\u70BC\u91D1\u5C5E"
-  Description: "\u5efa\u7acb\u77ff\u77f3\u7119\u70e7\u3001\u7194\u70bc\u3001\u94f8\u9020\u548c\u953b\u6253\u7684\u57fa\u7840\u4f53\u7cfb\uff0c\u4f7f\u591a\u79cd\u91d1\u5c5e\u80fd\u591f\u4ece\u77ff\u7269\u8f6c\u5316\u4e3a\u5b9e\u7528\u6750\u6599\u3002"
+  Description: "\u5EFA\u7ACB\u77FF\u77F3\u7119\u70E7\u3001\u7194\u70BC\u3001\u94F8\u9020\u548C\u953B\u6253\u7684\u57FA\u7840\u4F53\u7CFB\uFF0C\u4F7F\u591A\u79CD\u91D1\u5C5E\u80FD\u591F\u4ECE\u77FF\u7269\u8F6C\u5316\u4E3A\u5B9E\u7528\u6750\u6599\u3002"
   BaseCost: 8000
   prerequisites:
-  - {fileID: 11400000, guid: 3d835ccf151a1844885bdb0ba97ef942, type: 2}
-  - {fileID: 11400000, guid: 6e4a1c8b2d5f47a09c3e7b1d8f5264a9, type: 2}
+  - {fileID: 11400000, guid: 9cc2759195345d54fa1a5ea18af00e1d, type: 2}
+  - {fileID: 11400000, guid: 1bc3d805ba9fd1242bfc09f27165df9a, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -38,7 +38,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: 2b8e2c457de34c9baedb2a5a7fd8f601, type: 2}
+    Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -49,7 +49,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 4daf4e679f056ec9cafd4c7c9f1ab823, type: 2}
+    Building: {fileID: 11400000, guid: 7aaf2be48fbe76941a3d32fea47c3c29, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -60,7 +60,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 3c9f3d568ef45d8bafec3b6b8e09a712, type: 2}
+    Building: {fileID: 11400000, guid: 57f0b7d59bc08724b8aa235fa67c71f4, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -71,7 +71,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 5eb05f78a0167fda9b0d5d8e0a2bc934, type: 2}
+    Building: {fileID: 11400000, guid: d52f7b64eccd0df42a5848e9ff6c9351, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:
@@ -94,5 +94,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.00
-  y: 27.425
+  x: 6
+  y: 31.833

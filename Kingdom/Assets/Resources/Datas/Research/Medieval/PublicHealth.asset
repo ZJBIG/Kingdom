@@ -11,17 +11,18 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: PublicHealth
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: PublicHealth
-  Label: "公共卫生"
-  Description: "\u5efa\u7acb\u6e05\u6d01\u6c34\u6e90\u3001\u6c61\u7269\u5904\u7406\u3001\u9694\u79bb\u548c\u516c\u5171\u536b\u751f\u89c4\u8303\uff0c\u51cf\u5c11\u4eba\u53e3\u5bc6\u96c6\u5730\u533a\u7684\u4f20\u67d3\u4e0e\u73af\u5883\u6027\u75be\u75c5\u3002"
+  Label: "\u516C\u5171\u536B\u751F"
+  Description: "\u5EFA\u7ACB\u6E05\u6D01\u6C34\u6E90\u3001\u6C61\u7269\u5904\u7406\u3001\u9694\u79BB\u548C\u516C\u5171\u536B\u751F\u89C4\u8303\uFF0C\u51CF\u5C11\u4EBA\u53E3\u5BC6\u96C6\u5730\u533A\u7684\u4F20\u67D3\u4E0E\u73AF\u5883\u6027\u75BE\u75C5\u3002
+    \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD840%\u3002"
   BaseCost: 145000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000004, type: 2}
-  - {fileID: 11400000, guid: 7c2d1e8f4a6b49d3b0e5c7f912ab6384, type: 2}
-  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
+  - {fileID: 11400000, guid: 7f8a3770a91fb8949a07818c7df70fe5, type: 2}
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +30,7 @@ MonoBehaviour:
       scalar: 500
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +38,7 @@ MonoBehaviour:
       scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -57,7 +58,18 @@ MonoBehaviour:
       scalar: 1.02
       layer: 0
       operators: []
+  - Type: 17
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: PopulationGrowth_PublicHealth
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.4
+      layer: 0
+      operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 12.00
-  y: 1.000
+  x: 12
+  y: 11.597

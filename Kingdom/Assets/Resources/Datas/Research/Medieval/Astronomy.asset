@@ -17,11 +17,11 @@ MonoBehaviour:
   Description: "\u901A\u8FC7\u957F\u671F\u89C2\u6D4B\u6052\u661F\u3001\u884C\u661F\u548C\u65E5\u6708\u8FD0\u52A8\u6539\u8FDB\u5386\u6CD5\u4E0E\u65B9\u4F4D\u5224\u65AD\uFF0C\u4E3A\u8FDC\u884C\u3001\u6D4B\u7ED8\u548C\u5B63\u8282\u9884\u6D4B\u63D0\u4F9B\u4F9D\u636E\u3002"
   BaseCost: 150000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000004, type: 2}
-  - {fileID: 11400000, guid: 4e2e260c5d1e4dceb60c5cbba9a4b210, type: 2}
-  - {fileID: 11400000, guid: a301db9b4d2d460ab95aa1c5589d52ae, type: 2}
+  - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
+  - {fileID: 11400000, guid: aa0017c00b6db8047ab5536b9afb5dfb, type: 2}
+  - {fileID: 11400000, guid: a2e9ec936265dd449acee2900157c796, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
       scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -60,4 +60,4 @@ MonoBehaviour:
   TechLevel: 2
   AdvancesTechLevel: 0
   x: 12
-  y: 0
+  y: 5.722

@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AgriculturalMachinery
   Label: "\u519C\u4E1A\u673A\u68B0"
-  Description: "\u519C\u4E1A\u673A\u68B0\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u673A\u68B0\u5316\u8015\u4F5C\u6269\u5927\u5355\u4F4D\u52B3\u52A8\u529B\u7684\u8015\u79CD\u9762\u79EF\uFF0C\u63D0\u9AD8\u519C\u573A\u98DF\u7269\u4EA7\u91CF\u3002"
   Category: "\u519C\u4E1A"
   SortOrder: 80
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 6ccbbcc7eb396ff4582ce5ad3af2e4c9, type: 2}
+  - {fileID: 11400000, guid: 83a724b7bf27cee47a740dcda8e7b1d0, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: f758bd1d62ae3d5439f9f5eddbe8d5aa, type: 2}
+  - {fileID: 11400000, guid: 1c5b570d384b7474aa493cc9ddfb5a6c, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       scalar: 20
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: 0e70ef0604ad9c442b8a15365d32edab, type: 2}
+    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

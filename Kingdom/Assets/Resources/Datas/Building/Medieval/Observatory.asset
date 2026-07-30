@@ -11,133 +11,133 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Observatory
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: Observatory
-  Label: "天文台"
-  Description: "天文台：前三时代内容设计包中的建筑。"
+  Label: "\u5929\u6587\u53F0"
+  Description: "\u5929\u6587\u53F0\uFF1A\u524D\u4E09\u65F6\u4EE3\u5185\u5BB9\u8BBE\u8BA1\u5305\u4E2D\u7684\u5EFA\u7B51\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.24
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.24
+    layer: 0
+    operators: []
   spaceCost:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 8
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 8
+    layer: 0
+    operators: []
   productivityConsumption:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 12
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 72
+    layer: 0
+    operators: []
   productivityGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   populationCapacityGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   researchPowerGranted:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 100
+    layer: 0
+    operators: []
   foodProductionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   foodConsumptionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   foodCapacityGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   powerProductionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   powerConsumptionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   logisticsProductionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   logisticsConsumptionRate:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   fleetPowerGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   attackPowerGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   defensePowerGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   militaryManpowerGranted:
-      sign: 0
-      representation: 0
-      operatorCount: 0
-      scalar: 0
-      layer: 0
-      operators: []
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -145,7 +145,7 @@ MonoBehaviour:
       scalar: 900
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -153,7 +153,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8cd12268bef53914caaa6b50cbd95fd3, type: 2}
+  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
     second:
       sign: 0
       representation: 1
@@ -161,7 +161,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -171,7 +171,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -180,5 +180,5 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: b7230000000000000000000000000000, type: 2}
+  - {fileID: 11400000, guid: fe2b8161798c0fb40ab02929f04a3c87, type: 2}
   requiredWorkshopUpgrades: []

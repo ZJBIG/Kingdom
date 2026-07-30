@@ -16,7 +16,15 @@ public sealed class C6IndustrialClosureAuditTests
         "WireMill",
         "University",
         "RailHub",
-        "ArmsFactory"
+        "ArmsFactory",
+        "IndustrialCopperSmelter",
+        "IndustrialTinSmelter",
+        "IndustrialBronzeFoundry",
+        "BlastFurnace",
+        "BauxiteMine",
+        "AluminumSmelter",
+        "ConcreteWorks",
+        "CentralPowerStation"
     };
 
     private static readonly string[] IndustrialResourceIds =
@@ -34,7 +42,10 @@ public sealed class C6IndustrialClosureAuditTests
         "Rubber",
         "CopperWire",
         "PrecisionParts",
-        "Engine"
+        "Engine",
+        "Concrete",
+        "BauxiteOre",
+        "Aluminum"
     };
 
     [Test]

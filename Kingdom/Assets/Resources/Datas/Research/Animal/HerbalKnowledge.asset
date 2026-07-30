@@ -11,16 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
   m_Name: HerbalKnowledge
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: HerbalKnowledge
-  Label: "草药知识"
-  Description: "\u8fa8\u8ba4\u5e38\u89c1\u836f\u7528\u690d\u7269\u5e76\u603b\u7ed3\u91c7\u96c6\u3001\u5e72\u71e5\u548c\u914d\u4f0d\u65b9\u6cd5\uff0c\u4f7f\u4f24\u53e3\u5904\u7406\u548c\u5e38\u89c1\u75c5\u75c7\u62e5\u6709\u66f4\u53ef\u9760\u7684\u8349\u836f\u6765\u6e90\u3002"
+  Label: "\u8349\u836F\u77E5\u8BC6"
+  Description: "\u8FA8\u8BA4\u5E38\u89C1\u836F\u7528\u690D\u7269\u5E76\u603B\u7ED3\u91C7\u96C6\u3001\u5E72\u71E5\u548C\u914D\u4F0D\u65B9\u6CD5\uFF0C\u4F7F\u4F24\u53E3\u5904\u7406\u548C\u5E38\u89C1\u75C5\u75C7\u62E5\u6709\u66F4\u53EF\u9760\u7684\u8349\u836F\u6765\u6E90\u3002"
   BaseCost: 850
   prerequisites:
-  - {fileID: 11400000, guid: 5bdf81f7c85440d1981cf70bec955681, type: 2}
-  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
+  - {fileID: 11400000, guid: cb3f7149f68e72842a8bbf1292147519, type: 2}
+  - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 99fb240680f34c6596b44ecd3abade40, type: 2}
+  - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -50,5 +50,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 3.00
-  y: 5.517
+  x: 3
+  y: 14.264

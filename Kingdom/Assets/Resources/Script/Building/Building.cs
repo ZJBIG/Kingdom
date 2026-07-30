@@ -81,6 +81,10 @@ public class Building : GameDefinition
     public ExpantaNum MilitaryManpowerGranted => militaryManpowerGranted;
     public ExpantaNum CostGrowth =>
         costGrowth >= ExpantaNum.One ? costGrowth : new ExpantaNum(DefaultCostGrowthValue);
+    public bool HasValidCostGrowth =>
+        !costGrowth.IsNaN &&
+        !costGrowth.IsInfinity &&
+        costGrowth >= ExpantaNum.One;
 
 #if UNITY_EDITOR
     public void ConfigureEconomyForEditor(

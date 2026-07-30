@@ -39,6 +39,11 @@ public sealed class ResearchEffectTests
             },
             new ResearchEffectDefinition
             {
+                Type = ResearchEffectType.PopulationGrowthMultiplier,
+                Value = new ExpantaNum(1.2d)
+            },
+            new ResearchEffectDefinition
+            {
                 Type = ResearchEffectType.UnlockSystem,
                 SystemId = "military"
             }
@@ -66,6 +71,9 @@ public sealed class ResearchEffectTests
         Assert.That(modifiers.GlobalResearchMultiplier.ToDouble(), Is.EqualTo(2d).Within(0.000001d));
         Assert.That(modifiers.ProductivityGranted.ToDouble(), Is.EqualTo(3d).Within(0.000001d));
         Assert.That(modifiers.TerritoryGranted.ToDouble(), Is.EqualTo(4d).Within(0.000001d));
+        Assert.That(
+            modifiers.PopulationGrowthMultiplier.ToDouble(),
+            Is.EqualTo(1.2d).Within(0.000001d));
         Assert.That(modifiers.IsSystemUnlocked("military"), Is.True);
     }
 
@@ -100,6 +108,34 @@ public sealed class ResearchEffectTests
         Assert.That(
             ProgressionModifierManager.Current.GlobalResearchMultiplier.ToDouble(),
             Is.EqualTo(3d).Within(0.000001d));
+    }
+
+    [Test]
+    public void Rebuild_MultipliesPopulationGrowthEffects()
+    {
+        Research first = CreateResearch("population-growth-first");
+        first.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.PopulationGrowthMultiplier,
+                Value = new ExpantaNum(1.2d)
+            },
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.PopulationGrowthMultiplier,
+                Value = new ExpantaNum(1.25d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(first, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),
+            Is.EqualTo(1.5d).Within(0.000001d));
     }
 
     private Research CreateResearch(string id)

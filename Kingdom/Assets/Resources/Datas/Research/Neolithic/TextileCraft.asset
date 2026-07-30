@@ -17,9 +17,9 @@ MonoBehaviour:
   Description: "\u5C06\u690D\u7269\u7EA4\u7EF4\u548C\u52A8\u7269\u6BDB\u7EBA\u6210\u7EBF\u5E76\u7EC7\u6210\u5E03\u6599\uFF0C\u7528\u4E8E\u8863\u7269\u3001\u7EF3\u7D22\u3001\u888B\u5177\u548C\u66F4\u8F7B\u4FBF\u7684\u751F\u6D3B\u7528\u54C1\u3002"
   BaseCost: 1400
   prerequisites:
-  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
+  - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 99fb240680f34c6596b44ecd3abade40, type: 2}
+  - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
     second:
       sign: 0
       representation: 1
@@ -30,5 +30,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.32
-  y: 8.08
+  x: 6
+  y: 27.611

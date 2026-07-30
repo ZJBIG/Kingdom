@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Measurement
   Label: "\u5EA6\u91CF\u8861"
-  Description: "\u7edf\u4e00\u957f\u5ea6\u3001\u91cd\u91cf\u548c\u5bb9\u91cf\u5355\u4f4d\uff0c\u5e76\u5236\u4f5c\u53ef\u590d\u6838\u7684\u91cf\u5177\uff0c\u4f7f\u4ea4\u6613\u3001\u65bd\u5de5\u548c\u7269\u8d44\u7ba1\u7406\u62e5\u6709\u5171\u540c\u6807\u51c6\u3002"
+  Description: "\u7EDF\u4E00\u957F\u5EA6\u3001\u91CD\u91CF\u548C\u5BB9\u91CF\u5355\u4F4D\uFF0C\u5E76\u5236\u4F5C\u53EF\u590D\u6838\u7684\u91CF\u5177\uFF0C\u4F7F\u4EA4\u6613\u3001\u65BD\u5DE5\u548C\u7269\u8D44\u7BA1\u7406\u62E5\u6709\u5171\u540C\u6807\u51C6\u3002"
   BaseCost: 3200
   prerequisites:
-  - {fileID: 11400000, guid: c18f4a7e2b6d49f08c3a5e1d7b9264af, type: 2}
+  - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: a00b94d6daff457487d955412946cfc5, type: 2}
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 80
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
     second:
       sign: 0
       representation: 1
@@ -49,5 +49,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6.00
-  y: 10.058
+  x: 6
+  y: 17.139

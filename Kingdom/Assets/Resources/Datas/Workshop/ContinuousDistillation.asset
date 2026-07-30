@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ContinuousDistillation
+  m_EditorClassIdentifier: 
+  id: ContinuousDistillation
+  Label: "\u8FDE\u7EED\u84B8\u998F\u5854"
+  Description: "\u8FDE\u7EED\u84B8\u998F\u5854\u7A33\u5B9A\u5206\u79BB\u77F3\u6CB9\u998F\u5206\uFF0C\u63D0\u9AD8\u70BC\u6CB9\u5382\u4EA7\u51FA\u3002"
+  Category: "\u5316\u5DE5"
+  SortOrder: 290
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: ffa84ea4406091042a6053fb373b8550, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 753d3f5abd876d04592e75ba88884750, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: c3993421203b7474096a90e057f3646d, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []

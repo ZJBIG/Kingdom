@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: LogisticsManagement
   Label: "\u7269\u6D41\u7BA1\u7406"
-  Description: "\u901a\u8fc7\u5e93\u5b58\u8bb0\u5f55\u3001\u8fd0\u8f93\u6392\u7a0b\u548c\u8865\u7ed9\u4f18\u5148\u7ea7\u534f\u8c03\u591a\u5904\u4ed3\u5e93\u4e0e\u751f\u4ea7\u70b9\uff0c\u964d\u4f4e\u7f3a\u6599\u3001\u79ef\u538b\u548c\u7a7a\u8f7d\u8fd0\u8f93\u3002"
+  Description: "\u7528\u5e93\u5b58\u8d26\u76ee\u3001\u8fd0\u8f93\u8ba1\u5212\u3001\u88c5\u5378\u6807\u51c6\u548c\u9700\u6c42\u9884\u6d4b\u534f\u8c03\u539f\u6599\u4e0e\u6210\u54c1\u6d41\u52a8\uff0c\u51cf\u5c11\u505c\u5de5\u3001\u79ef\u538b\u548c\u91cd\u590d\u642c\u8fd0\u3002"
   BaseCost: 1350000
   prerequisites:
-  - {fileID: 11400000, guid: 9a6d1a12904afe844a6c3946c8037c98, type: 2}
-  - {fileID: 11400000, guid: 95c4a93adb768bb4d8e7978fe41bc6e8, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
+  - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000003, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1f2c1b4d31349ab4c8ef34f1474b275c, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -58,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 23.00
-  y: 13.262
+  x: 23
+  y: 14.681

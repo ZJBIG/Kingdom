@@ -16,12 +16,7 @@ public static class ContentDependencyAnalyzer
     [MenuItem("Codex/Content/Analyze Dependency Closure")]
     public static void AnalyzeCurrentAssets()
     {
-        DependencyAnalysisResult result = Analyze(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
-            new[] { "WoodLog" },
-            TechLevel.Animal);
+        DependencyAnalysisResult result = AnalyzeCurrentDefinitions();
 
         string report = result.FormatReport();
         string projectRoot = Directory.GetParent(Application.dataPath).Parent.FullName;
@@ -31,6 +26,28 @@ public static class ContentDependencyAnalyzer
         AssetDatabase.Refresh();
         Debug.Log(report);
         Debug.Log($"Content dependency analysis written to {outputPath}");
+    }
+
+    public static void AnalyzeFromCommandLine()
+    {
+        DependencyAnalysisResult result = AnalyzeCurrentDefinitions();
+        string report = result.FormatReport();
+        string projectRoot = Directory.GetParent(Application.dataPath).Parent.FullName;
+        string outputPath = Path.Combine(projectRoot, "data", "content-dependency-analysis.md");
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+        File.WriteAllText(outputPath, report, new UTF8Encoding(false));
+        Debug.Log(report);
+        Debug.Log($"Content dependency analysis written to {outputPath}");
+    }
+
+    private static DependencyAnalysisResult AnalyzeCurrentDefinitions()
+    {
+        return Analyze(
+            DataBase<Resource>.All,
+            DataBase<Building>.All,
+            DataBase<Research>.All,
+            new[] { "WoodLog" },
+            TechLevel.Animal);
     }
 
     public static DependencyAnalysisResult Analyze(

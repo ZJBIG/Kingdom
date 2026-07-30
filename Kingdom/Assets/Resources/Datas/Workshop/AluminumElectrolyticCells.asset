@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: AluminumElectrolyticCells
+  m_EditorClassIdentifier: 
+  id: AluminumElectrolyticCells
+  Label: "\u94DD\u7535\u89E3\u69FD\u7EC4"
+  Description: "\u7535\u89E3\u69FD\u4EE5\u7A33\u5B9A\u7535\u6D41\u5236\u53D6\u94DD\uFF0C\u63D0\u9AD8\u94DD\u51B6\u70BC\u5382\u4EA7\u80FD\u3002"
+  Category: "\u7535\u6C14"
+  SortOrder: 320
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: d92e7fb80a0bd8f4c9c561de2958b336, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 40dcf98d7f7870d48a5d74c91410104b, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []

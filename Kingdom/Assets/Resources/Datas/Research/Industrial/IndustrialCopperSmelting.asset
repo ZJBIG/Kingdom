@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: IndustrialCopperSmelting
+  m_EditorClassIdentifier: 
+  id: IndustrialCopperSmelting
+  Label: "\u5DE5\u4E1A\u94DC\u51B6\u70BC"
+  Description: "\u4f7f\u7528\u7126\u70ad\u3001\u9ad8\u6e29\u7089\u548c\u5206\u7ea7\u7cbe\u70bc\u4ece\u94dc\u77ff\u4e2d\u8fde\u7eed\u63d0\u53d6\u9ad8\u7eaf\u5ea6\u94dc\uff0c\u4e3a\u7535\u6c14\u8bbe\u5907\u3001\u7ba1\u8def\u548c\u5408\u91d1\u751f\u4ea7\u63d0\u4f9b\u6807\u51c6\u539f\u6599\u3002"
+  BaseCost: 240000
+  prerequisites:
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 17
+  y: 22.931

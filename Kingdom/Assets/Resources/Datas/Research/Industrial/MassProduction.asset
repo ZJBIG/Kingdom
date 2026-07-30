@@ -14,12 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MassProduction
   Label: "\u5927\u89C4\u6A21\u751F\u4EA7"
-  Description: "\u628a\u6807\u51c6\u96f6\u4ef6\u3001\u6d41\u6c34\u5de5\u5e8f\u548c\u6279\u91cf\u8ba1\u5212\u7ed3\u5408\u8d77\u6765\uff0c\u4ee5\u8f83\u4f4e\u5355\u4f4d\u6210\u672c\u6301\u7eed\u5236\u9020\u5927\u91cf\u540c\u89c4\u683c\u4ea7\u54c1\u3002"
+  Description: "\u628a\u4ea7\u54c1\u62c6\u5206\u4e3a\u6807\u51c6\u96f6\u4ef6\u548c\u56fa\u5b9a\u5de5\u5e8f\uff0c\u5229\u7528\u4e13\u7528\u8bbe\u5907\u3001\u6d41\u6c34\u8282\u62cd\u4e0e\u8d28\u91cf\u62bd\u68c0\u6301\u7eed\u751f\u4ea7\u5927\u91cf\u540c\u89c4\u683c\u5236\u54c1\u3002"
   BaseCost: 740000
   prerequisites:
-  - {fileID: 11400000, guid: 95c4a93adb768bb4d8e7978fe41bc6e8, type: 2}
+  - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,28 +35,12 @@ MonoBehaviour:
       scalar: 800
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7b9bc1fa8a9e72a44ac9498d274212da, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
       layer: 0
       operators: []
   effects:
@@ -65,5 +57,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 19.00
-  y: 13.262
+  x: 19
+  y: 6.764

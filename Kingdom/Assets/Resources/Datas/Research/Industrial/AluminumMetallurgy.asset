@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: AluminumMetallurgy
+  m_EditorClassIdentifier: 
+  id: AluminumMetallurgy
+  Label: "\u94DD\u51B6\u91D1"
+  Description: "\u5229\u7528\u9ad8\u8017\u80fd\u7535\u89e3\u4e0e\u7cbe\u70bc\u6d41\u7a0b\u4ece\u8f7b\u91d1\u5c5e\u77ff\u77f3\u4e2d\u5236\u53d6\u94dd\uff0c\u5e76\u638c\u63e1\u94f8\u9020\u3001\u8f67\u5236\u548c\u5408\u91d1\u5316\u65b9\u6cd5\uff0c\u4e3a\u8f7b\u8d28\u7ed3\u6784\u4ef6\u548c\u5bfc\u7535\u90e8\u4ef6\u63d0\u4f9b\u6750\u6599\u3002"
+  BaseCost: 1250000
+  prerequisites:
+  - {fileID: 11400000, guid: e6d13a2f4a457e4449be4f97f4c561c2, type: 2}
+  - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
+  - {fileID: 11400000, guid: b0371f98962797846ab85d879bd2cb16, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 800
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 40dcf98d7f7870d48a5d74c91410104b, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 26
+  y: 18.583

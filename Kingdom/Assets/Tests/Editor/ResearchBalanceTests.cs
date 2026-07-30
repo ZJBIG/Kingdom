@@ -124,6 +124,82 @@ public sealed class ResearchBalanceTests
     }
 
     [Test]
+    public void PopulationGrowthResearch_UsesTheStagedMultipliers()
+    {
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("Agriculture"),
+                ResearchEffectType.PopulationGrowthMultiplier,
+                1.2d),
+            Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("NeolithicSettlement"),
+                ResearchEffectType.PopulationGrowthMultiplier,
+                1.25d),
+            Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("CropRotation"),
+                ResearchEffectType.PopulationGrowthMultiplier,
+                1.15d),
+            Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("PublicHealth"),
+                ResearchEffectType.PopulationGrowthMultiplier,
+                1.4d),
+            Is.True);
+    }
+
+    [Test]
+    public void LaterBuildings_UseTheProductivityRebalance()
+    {
+        var expected = new Dictionary<string, double>
+        {
+            ["Academy"] = 60d,
+            ["Arsenal"] = 90d,
+            ["Barracks"] = 48d,
+            ["Castle"] = 60d,
+            ["Fortification"] = 18d,
+            ["Library"] = 36d,
+            ["Market"] = 30d,
+            ["Observatory"] = 72d,
+            ["PrintingHouse"] = 72d,
+            ["SteelForge"] = 48d,
+            ["WaterMill"] = 30d,
+            ["Caravanserai"] = 10d,
+            ["GuildHall"] = 30d,
+            ["Hospital"] = 25d,
+            ["RoyalWorkshop"] = 45d,
+            ["ArmsFactory"] = 90d,
+            ["ChemicalPlant"] = 70d,
+            ["CokeOven"] = 60d,
+            ["Glassworks"] = 60d,
+            ["MachineFactory"] = 80d,
+            ["OilDerrick"] = 50d,
+            ["OilRefinery"] = 80d,
+            ["RailHub"] = 70d,
+            ["SilicaQuarry"] = 50d,
+            ["SteamPlant"] = 60d,
+            ["University"] = 60d,
+            ["WireMill"] = 70d
+        };
+
+        foreach (KeyValuePair<string, double> item in expected)
+        {
+            Assert.That(
+                DataBase<Building>.Find(item.Key).ProductivityConsumption.ToDouble(),
+                Is.EqualTo(item.Value).Within(0.000001d),
+                $"Building '{item.Key}' productivity demand drifted.");
+        }
+
+        Assert.That(
+            DataBase<Building>.Find("TownHouse").ProductivityConsumption,
+            Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
     public void PublishedResearch_HasAConcreteUnlockEffectOrEraTransition()
     {
         foreach (Research research in DataBase<Research>.All)

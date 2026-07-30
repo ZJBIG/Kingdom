@@ -77,8 +77,11 @@ public sealed class GameHudViewer : MonoBehaviour, IGameUIRefreshable
             string foodEfficiency = state.FoodSatisfaction < ExpantaNum.One
                 ? $"   Food Limit: {state.FoodSatisfaction.ToGameString()}"
                 : string.Empty;
+            string populationGrowth =
+                GameManager.Instance.CurrentPopulationGrowthRatePerMinute.ToGameString();
             SetTextIfChanged(
                 Text_Productivity,
+                $"\u4eba\u53e3\u589e\u957f:+{populationGrowth}/min   " +
                 $"人口:{state.Population.Population.ToGameString()}/{state.Population.PopulationCapacity.ToGameString()}   " +
                 $"生产力:{BuildingManager.Instance.AvailableProductivity.ToGameString()}/{BuildingManager.Instance.TotalProductivity.ToGameString()}   " +
                 $"研究力:{researchPower}/s{foodEfficiency}");

@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: LightAlloyFrames
+  m_EditorClassIdentifier: 
+  id: LightAlloyFrames
+  Label: "\u8F7B\u5408\u91D1\u6846\u67B6"
+  Description: "\u94DD\u5408\u91D1\u6846\u67B6\u4EE5\u8F83\u4F4E\u91CD\u91CF\u63D0\u4F9B\u7ED3\u6784\u5F3A\u5EA6\uFF0C\u964D\u4F4E\u5EFA\u7B51\u5EFA\u9020\u6210\u672C\u3002"
+  Category: "\u6750\u6599"
+  SortOrder: 330
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: daf5a7bf3e3f4934fbe381ae830151be, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 4
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []

@@ -14,21 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FactoryOrganization
   Label: "\u5DE5\u5382\u7EC4\u7EC7"
-  Description: "\u6309\u7167\u5de5\u5e8f\u91cd\u6392\u5382\u623f\u3001\u5c97\u4f4d\u3001\u7269\u6599\u6d41\u548c\u8d28\u91cf\u68c0\u67e5\uff0c\u51cf\u5c11\u7b49\u5f85\u4e0e\u642c\u8fd0\uff0c\u4f7f\u591a\u4eba\u673a\u5668\u534f\u4f5c\u5f62\u6210\u8fde\u7eed\u751f\u4ea7\u3002"
+  Description: "\u6309\u5de5\u5e8f\u5212\u5206\u8f66\u95f4\u3001\u5c97\u4f4d\u548c\u7269\u6d41\u8def\u7ebf\uff0c\u5efa\u7acb\u73ed\u7ec4\u3001\u8d28\u68c0\u3001\u7ef4\u62a4\u4e0e\u751f\u4ea7\u8ba1\u5212\uff0c\u4f7f\u5927\u91cf\u5de5\u4eba\u548c\u673a\u5668\u56f4\u7ed5\u7edf\u4e00\u8282\u62cd\u534f\u540c\u3002"
   BaseCost: 1500000
   prerequisites:
-  - {fileID: 11400000, guid: 95c4a93adb768bb4d8e7978fe41bc6e8, type: 2}
-  - {fileID: 11400000, guid: 3915650d9308e514c8dae362ebde15ea, type: 2}
+  - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
+  - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 600
+      scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second:
       sign: 0
       representation: 1
@@ -36,20 +36,12 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
       layer: 0
       operators: []
   effects:
@@ -66,5 +58,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 22.00
-  y: 12.716
+  x: 19
+  y: 10.167

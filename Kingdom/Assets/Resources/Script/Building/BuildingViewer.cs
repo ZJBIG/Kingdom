@@ -6,7 +6,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
 {
     private const int GridColumns = 2;
     private const float CardWidth = 383f;
-    private const float CollapsedCardHeight = 100f;
+    private const float CollapsedCardHeight = BuildingDisplayer.HeaderHeight;
     private const float GridSpacing = 12f;
 
     [SerializeField] private RectTransform Content;
@@ -48,7 +48,7 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
     {
         if (state == null || displayers.ContainsKey(state.Definition))
             return;
-        if (!buildingManager.ArePrerequisitesMet(state.Definition, out _))
+        if (!buildingManager.ShouldDisplay(state.Definition))
             return;
         if (Content == null || DisplayerPrefab == null)
         {
@@ -80,12 +80,17 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
         for (int i = 0; i < definitions.Count; i++)
         {
             Building definition = definitions[i];
-            if (buildingManager.ArePrerequisitesMet(definition, out _))
+            if (buildingManager.ShouldDisplay(definition))
                 OnBuildingStateAdded(buildingManager.EnsureBuilding(definition));
         }
 
         foreach (BuildingDisplayer displayer in displayers.Values)
+        {
+            bool shouldDisplay = buildingManager.ShouldDisplay(displayer.Building);
+            if (displayer.gameObject.activeSelf != shouldDisplay)
+                displayer.gameObject.SetActive(shouldDisplay);
             displayer.Refresh();
+        }
         RefreshGridLayout();
     }
 
@@ -107,33 +112,49 @@ public class BuildingViewer : MonoBehaviour, IGameUIRefreshable
             fitter.enabled = false;
 
         List<BuildingDisplayer> ordered = new(displayers.Values);
-        int index = 0;
+        List<BuildingDisplayer> layoutCards = new(ordered.Count);
         List<float> rowHeights = new();
-        foreach (BuildingDisplayer displayer in ordered)
+        for (int i = 0; i < ordered.Count; i++)
         {
+            BuildingDisplayer displayer = ordered[i];
+            if (!displayer.gameObject.activeSelf)
+                continue;
             RectTransform card = displayer.transform as RectTransform;
             if (card == null)
                 continue;
 
-            int column = index % GridColumns;
-            int row = index / GridColumns;
+            int row = layoutCards.Count / GridColumns;
             while (rowHeights.Count <= row)
                 rowHeights.Add(CollapsedCardHeight);
             rowHeights[row] = Mathf.Max(rowHeights[row], displayer.PreferredHeight);
+            layoutCards.Add(displayer);
+        }
+
+        List<float> rowTopOffsets = new(rowHeights.Count);
+        float nextRowTop = 0f;
+        for (int row = 0; row < rowHeights.Count; row++)
+        {
+            rowTopOffsets.Add(nextRowTop);
+            nextRowTop += rowHeights[row] + GridSpacing;
+        }
+
+        for (int index = 0; index < layoutCards.Count; index++)
+        {
+            BuildingDisplayer displayer = layoutCards[index];
+            RectTransform card = displayer.transform as RectTransform;
+            int column = index % GridColumns;
+            int row = index / GridColumns;
             card.anchorMin = new Vector2(0f, 1f);
             card.anchorMax = new Vector2(0f, 1f);
             card.pivot = new Vector2(0f, 1f);
-            float y = 0f;
-            for (int previous = 0; previous < row; previous++)
-                y += rowHeights[previous] + GridSpacing;
-            card.anchoredPosition = new Vector2(column * (CardWidth + GridSpacing), -y);
-            index++;
+            card.anchoredPosition = new Vector2(
+                column * (CardWidth + GridSpacing),
+                -rowTopOffsets[row]);
         }
 
-        int rows = (index + GridColumns - 1) / GridColumns;
-        float contentHeight = 0f;
-        for (int row = 0; row < rows; row++)
-            contentHeight += rowHeights[row] + (row == 0 ? 0f : GridSpacing);
+        float contentHeight = rowHeights.Count == 0
+            ? CollapsedCardHeight
+            : nextRowTop - GridSpacing;
         Content.sizeDelta = new Vector2(
             GridColumns * CardWidth + (GridColumns - 1) * GridSpacing,
             Mathf.Max(CollapsedCardHeight, contentHeight));

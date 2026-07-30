@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ConveyorSystems
   Label: "\u4F20\u9001\u7CFB\u7EDF"
-  Description: "\u4F20\u9001\u7CFB\u7EDF\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u4F20\u9001\u7CFB\u7EDF\u8FDE\u63A5\u5DE5\u4F4D\u5E76\u51CF\u5C11\u642C\u8FD0\u7B49\u5F85\uFF0C\u63D0\u5347\u5168\u4F53\u5DE5\u4E1A\u5EFA\u7B51\u7684\u4EA7\u80FD\u3002"
   Category: "\u673A\u68B0"
   SortOrder: 160
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 5c2c36a9093babd4db12dbfcf1e8fe74, type: 2}
+  - {fileID: 11400000, guid: a2707e58d347df14b9af90bdfd7e7bef, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: cf7b1b5938d4b4e4898f3b16a680c0cb, type: 2}
+  - {fileID: 11400000, guid: 0d8d90cdc061bac4d986893117984891, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1

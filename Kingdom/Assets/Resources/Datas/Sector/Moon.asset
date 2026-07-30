@@ -17,14 +17,14 @@ MonoBehaviour:
   Description: A nearby lunar sector suitable for orbital construction and the first permanent off-world settlement.
   enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
   prerequisiteSectors:
-  - {fileID: 11400000, guid: c7200000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: e58bf3ff112a2434d8099d90170711df, type: 2}
   territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 25, layer: 0, operators: []}
   resourceRewards:
-  - first: {fileID: 11400000, guid: c7400000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 75, layer: 0, operators: []}
   campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
   campaignResourceCosts:
-  - first: {fileID: 11400000, guid: c7400000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
   repeatable: 0
   background: {fileID: 0}

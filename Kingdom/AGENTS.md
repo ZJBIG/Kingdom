@@ -40,6 +40,10 @@ The current sequence is:
 
 Use `kingdom-runtime-refactor` for simulation, State, Manager, save and correctness work.
 Use `kingdom-ui-redesign` for Viewer/Displayer, Canvas, Prefab, layout, navigation, theme and visual redesign work.
+Use the canonical repository skill `D:/GitHub/Kingdom/.agents/skills/kingdom-economy-simulation/SKILL.md`
+for every Research, Resource, Building, TechLevel, Workshop, production, consumption,
+reachability, pacing or balance task. Do not use this older scoped content skill as a
+replacement for the economy simulation workflow.
 
 ## Non-negotiable architecture
 

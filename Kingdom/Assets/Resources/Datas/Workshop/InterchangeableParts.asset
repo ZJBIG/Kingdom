@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterchangeableParts
   Label: "\u4E92\u6362\u96F6\u4EF6"
-  Description: "\u4E92\u6362\u96F6\u4EF6\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u4EE5\u7EDF\u4E00\u89C4\u683C\u751F\u4EA7\u53EF\u4E92\u6362\u96F6\u4EF6\uFF0C\u63D0\u9AD8\u673A\u5E8A\u5382\u7684\u4EA7\u51FA\u6548\u7387\u3002"
   Category: "\u673A\u68B0"
   SortOrder: 40
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: dfe60d6549eee974aaae3e840d84380f, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 8dd1be483d425a743902246ddb2e4b9b, type: 2}
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 6c7525e7e8c54fa3bb12d1f56d7e4a01, type: 2}
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     second:
       sign: 0
       representation: 1
@@ -41,7 +41,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: c6100000000000000000000000000002, type: 2}
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

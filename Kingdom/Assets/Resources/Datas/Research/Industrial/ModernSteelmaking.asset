@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ModernSteelmaking
+  m_EditorClassIdentifier: 
+  id: ModernSteelmaking
+  Label: "\u73B0\u4EE3\u70BC\u94A2"
+  Description: "\u5229\u7528\u7126\u70ad\u7089\u3001\u5f3a\u5236\u9f13\u98ce\u548c\u6210\u5206\u68c0\u6d4b\u5927\u6279\u91cf\u63a7\u5236\u94c1\u6c34\u4e2d\u7684\u78b3\u4e0e\u6742\u8d28\uff0c\u7a33\u5b9a\u751f\u4ea7\u9002\u5408\u8f68\u9053\u3001\u6881\u67f1\u548c\u673a\u68b0\u7684\u5de5\u4e1a\u94a2\u6750\u3002"
+  BaseCost: 420000
+  prerequisites:
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: c3b7f892911733247aea889f1bf878ee, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 22
+  y: 20.514

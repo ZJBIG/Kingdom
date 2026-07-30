@@ -14,14 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAdministration
   Label: "\u5DE5\u4E1A\u884C\u653F"
-  Description: "\u5efa\u7acb\u8de8\u5de5\u5382\u7684\u7edf\u8ba1\u3001\u9884\u7b97\u3001\u4eba\u5458\u3001\u6cd5\u89c4\u548c\u4ea7\u80fd\u8c03\u5ea6\u4f53\u7cfb\uff0c\u4f7f\u5927\u578b\u5de5\u4e1a\u7f51\u7edc\u80fd\u591f\u88ab\u7edf\u4e00\u7ba1\u7406\u3002"
+  Description: "\u901a\u8fc7\u7edf\u8ba1\u62a5\u8868\u3001\u884c\u4e1a\u89c4\u8303\u3001\u8d44\u6e90\u914d\u7ed9\u548c\u8de8\u5382\u534f\u8c03\u7ba1\u7406\u5de5\u4e1a\u4f53\u7cfb\uff0c\u4f7f\u5173\u952e\u539f\u6599\u3001\u4ea7\u80fd\u4e0e\u516c\u5171\u5de5\u7a0b\u80fd\u591f\u6309\u957f\u671f\u8ba1\u5212\u914d\u7f6e\u3002"
   BaseCost: 1800000
   prerequisites:
-  - {fileID: 11400000, guid: 4cd46b11b9f721c428c77de1fd30de62, type: 2}
-  - {fileID: 11400000, guid: 5c2c36a9093babd4db12dbfcf1e8fe74, type: 2}
-  - {fileID: 11400000, guid: eadf8ba08147af2479e037bba70ae97b, type: 2}
+  - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}
+  - {fileID: 11400000, guid: a2707e58d347df14b9af90bdfd7e7bef, type: 2}
+  - {fileID: 11400000, guid: 323c4afbe0c59c94bb68d1816a07b402, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
     second:
       sign: 0
       representation: 1
@@ -29,7 +37,23 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -62,5 +86,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 25.00
-  y: 11.994
+  x: 25
+  y: 12.125

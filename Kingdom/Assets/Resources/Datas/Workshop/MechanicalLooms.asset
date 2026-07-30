@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanicalLooms
   Label: "\u673A\u68B0\u7EC7\u673A"
-  Description: "\u673A\u68B0\u7EC7\u673A\uFF1A\u4E00\u6B21\u6027\u8D2D\u4E70\u7684\u6C38\u4E45\u6587\u660E\u5347\u7EA7\u3002"
+  Description: "\u673A\u68B0\u7EC7\u673A\u5C06\u7EBA\u7EC7\u6D41\u7A0B\u8FDE\u7EED\u5316\uFF0C\u5927\u5E45\u63D0\u9AD8\u7EC7\u5E03\u4F5C\u574A\u4EA7\u91CF\u3002"
   Category: "\u52A0\u5DE5"
   SortOrder: 90
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 9761932a6d5a29740b1dc57aefce4238, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 8814e34542100ac418fbe334c84d335f, type: 2}
+  - {fileID: 11400000, guid: 7f930336953f6ba48ad043598f0617cd, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000001, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
       operators: []
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: bd51efc1e4d6487caf3dd86ef99a333b, type: 2}
+    Building: {fileID: 11400000, guid: 35a4cddae79c67c45b6093cc42b84f8f, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

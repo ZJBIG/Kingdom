@@ -119,10 +119,10 @@ public sealed class KingdomPlayModeTests
             });
         typeof(GameState).GetMethod(
                 "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[]
-            {
-                new ExpantaNum(3), new ExpantaNum(10), ExpantaNum.Zero
-            });
+            .Invoke(gameManager.State, new object[] { new ExpantaNum(3) });
+        typeof(GameState).GetMethod(
+                "AdjustPopulationCapacity", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[] { new ExpantaNum(10) });
         BuildingState farm =
             buildingManager.EnsureBuilding(DataBase<Building>.Find("Farm"));
         farm.SetAmountForEditor(1);

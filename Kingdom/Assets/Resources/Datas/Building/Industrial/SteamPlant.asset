@@ -17,17 +17,12 @@ MonoBehaviour:
   Description: Burns coal to provide the industrial power source used by later flow
     systems.
   TechLevel: 3
+  upgradeTo: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -41,7 +36,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 12
+    scalar: 60
     layer: 0
     operators: []
   productivityGranted:
@@ -90,7 +85,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 100
+    scalar: 120
     layer: 0
     operators: []
   powerConsumptionRate:
@@ -102,16 +97,16 @@ MonoBehaviour:
     operators: []
   logisticsProductionRate:
     sign: 0
-    representation: 1
+    representation: 0
     operatorCount: 0
-    scalar: 50
+    scalar: 0
     layer: 0
     operators: []
   logisticsConsumptionRate:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
-    scalar: 0
+    scalar: 4
     layer: 0
     operators: []
   fleetPowerGranted:
@@ -143,7 +138,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -151,7 +146,7 @@ MonoBehaviour:
       scalar: 500
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
@@ -159,7 +154,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -169,7 +164,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -178,6 +173,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: f5010000000000000000000000000009, type: 2}
-  - {fileID: 11400000, guid: b17ef79351de8c943a50503573200687, type: 2}
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: 8f7371e9f4e0b9c43951b26016d33b95, type: 2}
   requiredWorkshopUpgrades: []

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CoalMining
   Label: "\u7164\u70AD\u5F00\u91C7"
-  Description: "\u8bc6\u522b\u7164\u5c42\u5e76\u6539\u8fdb\u901a\u98ce\u3001\u6392\u6c34\u548c\u8fd0\u8f93\u65b9\u5f0f\uff0c\u4e3a\u9ad8\u6e29\u7a91\u7089\u3001\u51b6\u70bc\u4e0e\u540e\u7eed\u52a8\u529b\u8bbe\u5907\u63d0\u4f9b\u96c6\u4e2d\u71c3\u6599\u3002"
+  Description: "\u8BC6\u522B\u7164\u5C42\u5E76\u6539\u8FDB\u901A\u98CE\u3001\u6392\u6C34\u548C\u8FD0\u8F93\u65B9\u5F0F\uFF0C\u4E3A\u9AD8\u6E29\u7A91\u7089\u3001\u51B6\u70BC\u4E0E\u540E\u7EED\u52A8\u529B\u8BBE\u5907\u63D0\u4F9B\u96C6\u4E2D\u71C3\u6599\u3002"
   BaseCost: 1800
   prerequisites:
-  - {fileID: 11400000, guid: 2dc4a94a1ecd75e4f85e41cd90455892, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 220
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 08c50d67b71459740b828057df0c2a7f, type: 2}
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
     second:
       sign: 0
       representation: 1
@@ -38,5 +38,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 2.00
-  y: 18.934
+  x: 2
+  y: 27.792

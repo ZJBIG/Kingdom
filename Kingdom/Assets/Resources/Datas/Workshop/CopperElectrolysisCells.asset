@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: CopperElectrolysisCells
+  m_EditorClassIdentifier: 
+  id: CopperElectrolysisCells
+  Label: "\u94DC\u7535\u89E3\u7CBE\u70BC\u69FD"
+  Description: "\u7535\u89E3\u7CBE\u70BC\u53BB\u9664\u94DC\u4E2D\u6742\u8D28\uFF0C\u63D0\u9AD8\u5DE5\u4E1A\u94DC\u7194\u7089\u7684\u6709\u6548\u4EA7\u51FA\u3002"
+  Category: "\u51B6\u91D1"
+  SortOrder: 210
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
+  - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
+      layer: 0
+      operators: []

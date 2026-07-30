@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Copper
   Label: "\u51B6\u70BC\u94DC"
-  Description: "\u901a\u8fc7\u7119\u70e7\u3001\u7194\u70bc\u548c\u953b\u6253\u4ece\u94dc\u77ff\u4e2d\u63d0\u53d6\u53ef\u7528\u91d1\u5c5e\uff0c\u5236\u9020\u65e9\u671f\u91d1\u5c5e\u5de5\u5177\u3001\u5668\u76bf\u548c\u88c5\u9970\u6784\u4ef6\u3002"
+  Description: "\u901A\u8FC7\u7119\u70E7\u3001\u7194\u70BC\u548C\u953B\u6253\u4ECE\u94DC\u77FF\u4E2D\u63D0\u53D6\u53EF\u7528\u91D1\u5C5E\uFF0C\u5236\u9020\u65E9\u671F\u91D1\u5C5E\u5DE5\u5177\u3001\u5668\u76BF\u548C\u88C5\u9970\u6784\u4EF6\u3002"
   BaseCost: 10000
   prerequisites:
-  - {fileID: 11400000, guid: 8f790c81e8e72cb4d8f9aaa9b1ef319c, type: 2}
+  - {fileID: 11400000, guid: 891454c3adf86bd4cb5a789500de06cc, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: ad4f727598c266f4fa2371fbb39ce989, type: 2}
+  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
     second:
       sign: 0
       representation: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
       scalar: 240
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 11762d1081ffde24591e2d1d4ec13fbb, type: 2}
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     second:
       sign: 0
       representation: 1
@@ -38,5 +38,5 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 7.00
-  y: 29.462
+  x: 7
+  y: 30.597

@@ -5,24 +5,48 @@ using UnityEngine.UI;
 
 public class BuildingDisplayer : MonoBehaviour
 {
+    public const float HeaderHeight = 50f;
+    public const float DetailRowHeight = 56f;
+    public const float ActionRowHeight = 56f;
+
     [SerializeField] private TMP_Text Label;
     [SerializeField] private TMP_Text Description;
-    [SerializeField] private TMP_Text StatusText;
     [SerializeField] private TMP_Text Amount;
     [SerializeField] private Transform Details;
     [SerializeField] private RectTransform Construction;
     [SerializeField] private RectTransform ResourceList;
     [SerializeField] private GameObject BuildResourceReqPrefab;
+    [SerializeField] private TMP_Text PrimaryActionLabel;
 
     private BuildingState state;
     private int renderedVersion = -1;
+    private int renderedTargetVersion = -1;
     private bool requirementsBound;
     private BuildFailure lastFailure;
+    private Building upgradeTarget;
+    private readonly List<Pair<Resource, ExpantaNum>> upgradeResourceDeltas = new();
     public Building Building => state?.Definition;
     public bool IsExpanded => Details != null && Details.gameObject.activeSelf;
-    public float PreferredHeight => IsExpanded
-        ? 50f + Mathf.Max(1, Mathf.CeilToInt((Building?.ResourceRequirements.Count ?? 0) / 2f)) * 50f + 50f
-        : 100f;
+    public float PreferredHeight => CalculatePreferredHeight(
+        IsExpanded,
+        DisplayedRequirementCount);
+    private bool IsUpgradeMode => upgradeTarget != null && state.Amount > ExpantaNum.Zero;
+    private int DisplayedRequirementCount => IsUpgradeMode
+        ? upgradeResourceDeltas.Count
+        : Building?.ResourceRequirements.Count ?? 0;
+
+    public static float CalculatePreferredHeight(bool expanded, int requirementCount)
+    {
+        if (!expanded)
+            return HeaderHeight;
+
+        int requirementRows = Mathf.Max(
+            1,
+            Mathf.CeilToInt(Mathf.Max(0, requirementCount) / 2f));
+        return HeaderHeight +
+            requirementRows * DetailRowHeight +
+            ActionRowHeight;
+    }
 
     private void Awake()
     {
@@ -42,7 +66,7 @@ public class BuildingDisplayer : MonoBehaviour
                 requirementsLayout = ResourceList.gameObject.AddComponent<GridLayoutGroup>();
             requirementsLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             requirementsLayout.constraintCount = 2;
-            requirementsLayout.cellSize = new Vector2(191.5f, 50f);
+            requirementsLayout.cellSize = new Vector2(191.5f, DetailRowHeight);
         }
 
         if (Details != null)
@@ -69,8 +93,7 @@ public class BuildingDisplayer : MonoBehaviour
 
         Label.text = Building.Label;
         Description.text = Building.Description;
-        if (StatusText != null)
-            StatusText.text = string.Empty;
+        RefreshActionMode();
         BindRequirements();
         renderedVersion = -1;
         ApplyCardHeight();
@@ -94,7 +117,10 @@ public class BuildingDisplayer : MonoBehaviour
             return;
         }
 
-        if (BuildingManager.Instance.TryBuild(Building, amount, out BuildFailure failure))
+        bool succeeded = IsUpgradeMode
+            ? BuildingManager.Instance.TryUpgrade(Building, amount, out BuildFailure failure)
+            : BuildingManager.Instance.TryBuild(Building, amount, out failure);
+        if (succeeded)
             ClearFailure();
         else
             ShowFailure(failure);
@@ -127,46 +153,23 @@ public class BuildingDisplayer : MonoBehaviour
         if (state == null)
             return false;
 
-        bool changed = renderedVersion != state.Version;
+        bool actionChanged = RefreshActionMode();
+        int targetVersion = upgradeTarget == null
+            ? -1
+            : BuildingManager.Instance.GetState(upgradeTarget).Version;
+        bool changed =
+            actionChanged ||
+            renderedVersion != state.Version ||
+            renderedTargetVersion != targetVersion;
         if (changed)
         {
             Amount.text = state.Amount.ToGameString();
             RebindRequirements();
             renderedVersion = state.Version;
+            renderedTargetVersion = targetVersion;
+            ApplyCardHeight();
         }
-        if (lastFailure == BuildFailure.None && StatusText != null)
-            StatusText.text = BuildPrerequisiteStatus();
-
         return changed;
-    }
-
-    private string BuildPrerequisiteStatus()
-    {
-        var missing = new List<string>();
-        if (GameManager.Instance.State.TechLevel < Building.TechLevel)
-            missing.Add($"Era: {Building.TechLevel}");
-
-        ResearchManager researchManager = ResearchManager.Instance;
-        for (int i = 0; i < Building.RequiredResearch.Count; i++)
-        {
-            Research research = Building.RequiredResearch[i];
-            if (research == null ||
-                !researchManager.States.TryGetValue(research, out ResearchState researchState) ||
-                researchState.Status != ResearchStatus.Completed)
-                missing.Add($"Research: {research?.Label ?? "Missing definition"}");
-        }
-
-        WorkshopManager workshopManager = WorkshopManager.Instance;
-        for (int i = 0; i < Building.RequiredWorkshopUpgrades.Count; i++)
-        {
-            WorkshopUpgradeDefinition upgrade = Building.RequiredWorkshopUpgrades[i];
-            if (upgrade == null ||
-                !workshopManager.States.TryGetValue(upgrade, out WorkshopUpgradeState upgradeState) ||
-                !upgradeState.Purchased)
-                missing.Add($"Workshop: {upgrade?.Label ?? "Missing definition"}");
-        }
-
-        return missing.Count == 0 ? string.Empty : "Missing — " + string.Join("; ", missing);
     }
 
     private void ShowFailure(BuildFailure failure)
@@ -182,12 +185,11 @@ public class BuildingDisplayer : MonoBehaviour
             BuildFailure.TechnologyInsufficient => "Technology level insufficient.",
             BuildFailure.ResearchPrerequisiteIncomplete => "Required research is incomplete.",
             BuildFailure.WorkshopPrerequisiteIncomplete => "Required workshop upgrade is incomplete.",
+            BuildFailure.BuildingTierSuperseded => "该层级已被更高级建筑取代，只能升级或拆除。",
+            BuildFailure.UpgradeUnavailable => "当前没有可用的建筑升级。",
             _ => string.Empty
         };
-
-        if (StatusText != null)
-            StatusText.text = message;
-        else if (Description != null && !string.IsNullOrEmpty(message))
+        if (Description != null && !string.IsNullOrEmpty(message))
             Description.text = Building.Description + "\n" + message;
     }
 
@@ -196,9 +198,7 @@ public class BuildingDisplayer : MonoBehaviour
         if (lastFailure == BuildFailure.None)
             return;
         lastFailure = BuildFailure.None;
-        if (StatusText != null)
-            StatusText.text = string.Empty;
-        else if (Description != null)
+        if (Description != null)
             Description.text = Building.Description;
     }
 
@@ -218,7 +218,14 @@ public class BuildingDisplayer : MonoBehaviour
 
         ExpantaNum nextAmount = ExpantaNum.One;
         ExpantaNum owned = state?.Amount ?? ExpantaNum.Zero;
-        int requirementCount = Building.ResourceRequirements.Count;
+        if (IsUpgradeMode)
+            BuildingManager.Instance.GetUpgradeResourceDeltas(
+                Building,
+                nextAmount,
+                upgradeResourceDeltas);
+        else
+            upgradeResourceDeltas.Clear();
+        int requirementCount = DisplayedRequirementCount;
         bool reuse = ResourceList.childCount == requirementCount;
         if (!reuse)
         {
@@ -227,20 +234,56 @@ public class BuildingDisplayer : MonoBehaviour
         }
 
         int index = 0;
-        foreach (Pair<Resource, ExpantaNum> requirement in Building.ResourceRequirements)
+        if (IsUpgradeMode)
         {
-            ExpantaNum cost = requirement.Second.GeometricSeriesCost(
-                Building.CostGrowth,
-                owned,
-                nextAmount);
-            GameObject go = reuse
-                ? ResourceList.GetChild(index).gameObject
-                : Instantiate(BuildResourceReqPrefab, ResourceList, false);
-            ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
-            if (view != null)
-                view.Bind(requirement.First, cost);
-            index++;
+            for (int i = 0; i < upgradeResourceDeltas.Count; i++)
+            {
+                GameObject go = reuse
+                    ? ResourceList.GetChild(index).gameObject
+                    : Instantiate(BuildResourceReqPrefab, ResourceList, false);
+                ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
+                if (view != null)
+                    view.BindUpgradeDelta(
+                        upgradeResourceDeltas[i].First,
+                        upgradeResourceDeltas[i].Second);
+                index++;
+            }
         }
+        else
+        {
+            foreach (Pair<Resource, ExpantaNum> requirement in Building.ResourceRequirements)
+            {
+                ExpantaNum cost = requirement.Second.GeometricSeriesCost(
+                    Building.CostGrowth,
+                    owned,
+                    nextAmount);
+                GameObject go = reuse
+                    ? ResourceList.GetChild(index).gameObject
+                    : Instantiate(BuildResourceReqPrefab, ResourceList, false);
+                ResourceRequirementView view = go.GetComponent<ResourceRequirementView>();
+                if (view != null)
+                    view.Bind(requirement.First, cost);
+                index++;
+            }
+        }
+    }
+
+    private bool RefreshActionMode()
+    {
+        Building previousTarget = upgradeTarget;
+        upgradeTarget = null;
+        if (state != null && state.Amount > ExpantaNum.Zero)
+            BuildingManager.Instance.TryGetUnlockedUpgradeTarget(Building, out upgradeTarget);
+
+        if (PrimaryActionLabel != null)
+            PrimaryActionLabel.text = upgradeTarget == null
+                ? "建造"
+                : "升级为" + upgradeTarget.Label;
+        if (previousTarget == upgradeTarget)
+            return false;
+
+        renderedTargetVersion = -1;
+        return true;
     }
 
     private void ApplyCardHeight()
@@ -258,14 +301,17 @@ public class BuildingDisplayer : MonoBehaviour
         rectTransform.pivot = new Vector2(0.5f, 1f);
 
         float requirementHeight = Mathf.Max(
-            50f,
-            Mathf.Max(1, Mathf.CeilToInt((Building?.ResourceRequirements.Count ?? 0) / 2f)) * 50f);
+            DetailRowHeight,
+            Mathf.Max(
+                1,
+                Mathf.CeilToInt(DisplayedRequirementCount / 2f)) *
+                DetailRowHeight);
         if (ResourceList != null)
         {
             ResourceList.anchorMin = new Vector2(0.5f, 1f);
             ResourceList.anchorMax = new Vector2(0.5f, 1f);
             ResourceList.pivot = new Vector2(0.5f, 1f);
-            ResourceList.anchoredPosition = new Vector2(0f, -25f);
+            ResourceList.anchoredPosition = Vector2.zero;
             ResourceList.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
                 IsExpanded ? requirementHeight : 0f);
@@ -289,14 +335,18 @@ public class BuildingDisplayer : MonoBehaviour
             Construction.pivot = new Vector2(0.5f, 1f);
             Construction.anchoredPosition = new Vector2(
                 0f,
-                -(25f + (IsExpanded ? requirementHeight : 0f)));
+                -(IsExpanded ? requirementHeight : 0f));
             Construction.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 383f);
-            Construction.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 50f);
+            Construction.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                ActionRowHeight);
         }
 
         rectTransform.sizeDelta = new Vector2(
             rectTransform.sizeDelta.x,
-            IsExpanded ? 50f + requirementHeight + 50f : 100f);
+            IsExpanded
+                ? HeaderHeight + requirementHeight + ActionRowHeight
+                : HeaderHeight);
     }
 
     private void SetDetailsVisible(bool visible)

@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TradeRoutes
   Label: "\u8D38\u6613\u8DEF\u7EBF"
-  Description: "\u52d8\u5b9a\u5b89\u5168\u8def\u7ebf\u3001\u9a7f\u7ad9\u3001\u5e02\u573a\u548c\u62a4\u8fd0\u5236\u5ea6\uff0c\u628a\u5206\u6563\u5730\u533a\u8fde\u63a5\u4e3a\u7a33\u5b9a\u7684\u5546\u54c1\u4e0e\u539f\u6599\u4ea4\u6362\u7f51\u7edc\u3002"
+  Description: "\u52D8\u5B9A\u5B89\u5168\u8DEF\u7EBF\u3001\u9A7F\u7AD9\u3001\u5E02\u573A\u548C\u62A4\u8FD0\u5236\u5EA6\uFF0C\u628A\u5206\u6563\u5730\u533A\u8FDE\u63A5\u4E3A\u7A33\u5B9A\u7684\u5546\u54C1\u4E0E\u539F\u6599\u4EA4\u6362\u7F51\u7EDC\u3002"
   BaseCost: 130000
   prerequisites:
-  - {fileID: 11400000, guid: f5010000000000000000000000000001, type: 2}
-  - {fileID: 11400000, guid: f5010000000000000000000000000002, type: 2}
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
+  - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 73fee56e899d16340a4dc584fe5ba535, type: 2}
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
       representation: 1
@@ -50,5 +50,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 12.00
-  y: 14.317
+  x: 12
+  y: 14.722

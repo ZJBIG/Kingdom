@@ -117,13 +117,13 @@ public sealed class KingdomLogicTests
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(ExpantaNum.One));
-        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(4));
+        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(5));
     }
 
     [Test]
@@ -284,6 +284,13 @@ public sealed class KingdomLogicTests
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
         Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(400)));
 
+        gameManager.Tick(35d);
+        Assert.That(gameManager.State.CalendarDays, Is.EqualTo(4));
+        gameManager.Tick(4.9d);
+        Assert.That(gameManager.State.CalendarDays, Is.EqualTo(4));
+        gameManager.Tick(0.1d);
+        Assert.That(gameManager.State.CalendarDays, Is.EqualTo(5));
+
     }
 
     [Test]
@@ -305,9 +312,9 @@ public sealed class KingdomLogicTests
 
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
-        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
     }
 
@@ -315,19 +322,53 @@ public sealed class KingdomLogicTests
     public void C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero()
     {
         PopulationState population = new PopulationState();
+        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(15));
+        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(16));
         InvokePopulationMethod(
             population,
-            "Restore",
-            new ExpantaNum(15),
-            new ExpantaNum(15),
+            "AdvancePopulation",
+            60d,
+            ExpantaNum.Zero,
             ExpantaNum.Zero);
-        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(1));
-        InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.Zero);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
-        Assert.That(population.GrowthProgress, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(population.PopulationChangeProgress, Is.EqualTo(ExpantaNum.Zero));
 
-        InvokePopulationMethod(population, "AdvanceGrowth", 60d, ExpantaNum.One);
+        InvokePopulationMethod(
+            population,
+            "AdvancePopulation",
+            60d,
+            ExpantaNum.One,
+            ExpantaNum.Zero);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(16)));
+    }
+
+    [Test]
+    public void PopulationGrowth_UsesExplicitResearchRateWithoutAcceleratingDeparture()
+    {
+        PopulationState growth = new PopulationState();
+        InvokePopulationMethod(growth, "AdjustPopulationCapacity", new ExpantaNum(5));
+        InvokePopulationMethod(
+            growth,
+            "AdvancePopulation",
+            40d,
+            ExpantaNum.One,
+            PopulationState.BaseGrowthRatePerSecond * 1.5d,
+            ExpantaNum.Zero);
+        Assert.That(growth.Population, Is.EqualTo(ExpantaNum.One));
+
+        PopulationState departure = new PopulationState();
+        InvokePopulationMethod(departure, "RestorePopulation", new ExpantaNum(2));
+        InvokePopulationMethod(
+            departure,
+            "AdvancePopulation",
+            60d,
+            ExpantaNum.One,
+            PopulationState.BaseGrowthRatePerSecond * 100d,
+            new ExpantaNum(2));
+        Assert.That(
+            departure.Population,
+            Is.EqualTo(ExpantaNum.One),
+            "Population research must not accelerate over-capacity departure.");
     }
 
     [Test]
@@ -336,28 +377,30 @@ public sealed class KingdomLogicTests
         TerritoryState territory = new TerritoryState();
 
         InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(30));
-        Assert.That(territory.TerritoryTotal, Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(territory.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(30)));
-        Assert.That(territory.AvailableTerritory, Is.EqualTo(new ExpantaNum(70)));
+        Assert.That(territory.AvailableTerritory, Is.EqualTo(new ExpantaNum(470)));
 
         InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(-10));
         Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(20)));
     }
 
     [Test]
-    public void C403_PopulationStateOnlyStoresPopulationCapacityAndGrowth()
+    public void C403_PopulationStateStoresDerivedCapacityAndPopulationChangeProgress()
     {
         PopulationState population = new PopulationState();
+        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(15));
+        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(20));
         InvokePopulationMethod(
             population,
-            "Restore",
-            new ExpantaNum(15),
-            new ExpantaNum(20),
+            "RestorePopulationChangeProgress",
             new ExpantaNum(0.25d));
 
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
-        Assert.That(population.GrowthProgress, Is.EqualTo(new ExpantaNum(0.25d)));
+        Assert.That(
+            population.PopulationChangeProgress,
+            Is.EqualTo(new ExpantaNum(0.25d)));
     }
 
     [Test]
@@ -369,9 +412,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             gameManager.State,
             "RestorePopulation",
-            new ExpantaNum(10),
-            new ExpantaNum(10),
-            ExpantaNum.Zero);
+            new ExpantaNum(10));
         Building building = CreateEconomyBuilding(
             "ProductivityProvider",
             productivityConsumption: 3,
@@ -418,9 +459,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             gameManager.State,
             "RestorePopulation",
-            new ExpantaNum(2),
-            new ExpantaNum(2),
-            ExpantaNum.Zero);
+            new ExpantaNum(2));
         Building building = CreateEconomyBuilding(
             "SelfFundingProvider",
             productivityConsumption: 3,
@@ -443,9 +482,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             gameManager.State,
             "RestorePopulation",
-            new ExpantaNum(2),
-            new ExpantaNum(2),
-            ExpantaNum.Zero);
+            new ExpantaNum(2));
         Building existing = CreateEconomyBuilding(
             "LegacyOvercommit",
             productivityConsumption: 3,
@@ -478,9 +515,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             gameManager.State,
             "RestorePopulation",
-            new ExpantaNum(5),
-            new ExpantaNum(5),
-            ExpantaNum.Zero);
+            new ExpantaNum(5));
         Building house = CreateEconomyBuilding(
             "TestHouse",
             productivityConsumption: 0,
@@ -488,8 +523,254 @@ public sealed class KingdomLogicTests
             populationCapacity: 5);
 
         Assert.That(buildingManager.TryBuild(house, ExpantaNum.One, out _), Is.True);
-        Assert.That(gameManager.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(gameManager.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(5)));
+    }
+
+    [Test]
+    public void HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce()
+    {
+        GameManager gameManager =
+            CreateManager<GameManager>("HousingUpgrade-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("HousingUpgrade-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("HousingUpgrade-ResearchManager");
+        if (researchManager.TotalResearchCount == 0)
+        {
+            typeof(ResearchManager).GetMethod(
+                    "Initialize",
+                    BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(researchManager, null);
+        }
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("HousingUpgrade-ResourceManager");
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+        Building stoneHouse = DataBase<Building>.Find("StoneHouse");
+        Research permanentArchitecture =
+            DataBase<Research>.Find("PermanentArchitecture");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Resource stoneBrick = DataBase<Resource>.Find("StoneBrick");
+        Resource clay = DataBase<Resource>.Find("Clay");
+
+        resourceManager.SetAmount(wood, new ExpantaNum(1000));
+        resourceManager.SetAmount(stoneBrick, new ExpantaNum(1000));
+        resourceManager.SetAmount(clay, new ExpantaNum(1000));
+        Assert.That(
+            buildingManager.TryBuild(woodHouse, ExpantaNum.One, out _),
+            Is.True);
+        Assert.That(
+            gameManager.State.Population.PopulationCapacity,
+            Is.EqualTo(new ExpantaNum(5)));
+
+        InvokeGameStateMethod(
+            gameManager.State,
+            "AdvanceTechLevel",
+            TechLevel.Neolithic);
+        ResearchState architectureState =
+            researchManager.GetState(permanentArchitecture);
+        typeof(ResearchState).GetMethod(
+                "Restore",
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool) },
+                null)
+            .Invoke(
+                architectureState,
+                new object[] { ExpantaNum.Zero, true, true });
+
+        Assert.That(buildingManager.CanConstructNew(woodHouse), Is.False);
+        Assert.That(buildingManager.CanConstructNew(stoneHouse), Is.True);
+        Assert.That(
+            buildingManager.TryBuild(
+                woodHouse,
+                ExpantaNum.One,
+                out BuildFailure supersededFailure),
+            Is.False);
+        Assert.That(
+            supersededFailure,
+            Is.EqualTo(BuildFailure.BuildingTierSuperseded));
+
+        var quote = new List<Pair<Resource, ExpantaNum>>();
+        buildingManager.GetUpgradeResourceDeltas(
+            woodHouse,
+            ExpantaNum.One,
+            quote);
+        Assert.That(
+            quote.Find(pair => pair.First == wood).Second.ToDouble(),
+            Is.EqualTo(-4d).Within(0.000001d));
+        Assert.That(
+            quote.Find(pair => pair.First == stoneBrick).Second.ToDouble(),
+            Is.EqualTo(160d).Within(0.000001d));
+        Assert.That(
+            quote.Find(pair => pair.First == clay).Second.ToDouble(),
+            Is.EqualTo(80d).Within(0.000001d));
+
+        Assert.That(
+            buildingManager.TryUpgrade(
+                woodHouse,
+                ExpantaNum.One,
+                out BuildFailure failure),
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.GetState(woodHouse).Amount, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(buildingManager.GetState(stoneHouse).Amount, Is.EqualTo(ExpantaNum.One));
+        Assert.That(
+            gameManager.State.Population.PopulationCapacity,
+            Is.EqualTo(new ExpantaNum(14)));
+        Assert.That(gameManager.State.TerritoryUsed, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(924)));
+        Assert.That(resourceManager.GetAmount(stoneBrick), Is.EqualTo(new ExpantaNum(840)));
+        Assert.That(resourceManager.GetAmount(clay), Is.EqualTo(new ExpantaNum(920)));
+        Assert.That(buildingManager.ShouldDisplay(woodHouse), Is.False);
+        Assert.That(buildingManager.ShouldDisplay(stoneHouse), Is.True);
+    }
+
+    [Test]
+    public void HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet()
+    {
+        GameManager gameManager = CreateManager<GameManager>("HousingRatchet-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("HousingRatchet-BuildingManager");
+        Building baseHousing = CreateEconomyBuilding(
+            "BaseHousing",
+            productivityConsumption: 0,
+            productivityGranted: 0,
+            populationCapacity: 9);
+        Building removableHousing = CreateEconomyBuilding(
+            "RemovableHousing",
+            productivityConsumption: 0,
+            productivityGranted: 0,
+            populationCapacity: 5);
+
+        Assert.That(buildingManager.TryBuild(baseHousing, ExpantaNum.One, out _), Is.True);
+        Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
+        InvokeGameStateMethod(gameManager.State, "RestorePopulation", new ExpantaNum(14));
+
+        Assert.That(
+            buildingManager.TryDeconstruct(removableHousing, ExpantaNum.One, out _),
+            Is.True);
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(14)));
+        Assert.That(
+            gameManager.State.Population.PopulationCapacity,
+            Is.EqualTo(new ExpantaNum(9)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(14)));
+        gameManager.Tick(1d, buildingManager.SafePopulationDepartureAllowance);
+        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(291)));
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(14)));
+
+        Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
+        Assert.That(
+            gameManager.State.Population.PopulationCapacity,
+            Is.EqualTo(new ExpantaNum(14)));
+        Assert.That(
+            buildingManager.TryDeconstruct(removableHousing, ExpantaNum.One, out _),
+            Is.True);
+        Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(14)));
+        Assert.That(
+            gameManager.State.Population.PopulationCapacity,
+            Is.EqualTo(new ExpantaNum(14)));
+    }
+
+    [Test]
+    public void OvercapacityDeparture_StopsAtProductivitySafetyLineAndRestartsFresh()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Departure-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("Departure-BuildingManager");
+        InvokeGameStateMethod(gameManager.State, "RestorePopulation", new ExpantaNum(14));
+        InvokeGameStateMethod(
+            gameManager.State,
+            "AdjustPopulationCapacity",
+            new ExpantaNum(9));
+        Building consumer = CreateEconomyBuilding(
+            "DepartureConsumer",
+            productivityConsumption: 12,
+            productivityGranted: 0,
+            populationCapacity: 0);
+        buildingManager.EnsureBuilding(consumer).SetAmountForEditor(ExpantaNum.One);
+
+        Assert.That(
+            buildingManager.SafePopulationDepartureAllowance,
+            Is.EqualTo(new ExpantaNum(2)));
+        gameManager.Tick(120d, buildingManager.SafePopulationDepartureAllowance);
+
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(12)));
+        Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(12)));
+        Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(12)));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(
+            gameManager.State.Population.PopulationChangeProgress,
+            Is.EqualTo(ExpantaNum.Zero));
+
+        gameManager.Tick(60d, buildingManager.SafePopulationDepartureAllowance);
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(12)));
+        Assert.That(
+            buildingManager.TryDeconstruct(consumer, ExpantaNum.One, out _),
+            Is.True);
+        gameManager.Tick(59.9d, buildingManager.SafePopulationDepartureAllowance);
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(12)));
+        gameManager.Tick(0.1d, buildingManager.SafePopulationDepartureAllowance);
+        Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(11)));
+    }
+
+    [Test]
+    public void PopulationChange_LargeTicksAndRegimeChangesAreDeterministic()
+    {
+        PopulationState largeTick = new PopulationState();
+        InvokePopulationMethod(largeTick, "AdjustPopulationCapacity", new ExpantaNum(5));
+        InvokePopulationMethod(
+            largeTick,
+            "AdvancePopulation",
+            180d,
+            ExpantaNum.One,
+            ExpantaNum.Zero);
+
+        PopulationState smallTicks = new PopulationState();
+        InvokePopulationMethod(smallTicks, "AdjustPopulationCapacity", new ExpantaNum(5));
+        for (int i = 0; i < 1800; i++)
+        {
+            InvokePopulationMethod(
+                smallTicks,
+                "AdvancePopulation",
+                0.1d,
+                ExpantaNum.One,
+                ExpantaNum.Zero);
+        }
+
+        Assert.That(largeTick.Population, Is.EqualTo(new ExpantaNum(3)));
+        Assert.That(smallTicks.Population, Is.EqualTo(largeTick.Population));
+        Assert.That(
+            smallTicks.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(largeTick.PopulationChangeProgress.ToDouble())
+                .Within(0.001d));
+
+        PopulationState thirtyFps = AdvancePopulationAtFixedStep(30, 60d);
+        PopulationState sixtyFps = AdvancePopulationAtFixedStep(60, 60d);
+        Assert.That(thirtyFps.Population, Is.EqualTo(new ExpantaNum(1)));
+        Assert.That(sixtyFps.Population, Is.EqualTo(thirtyFps.Population));
+        Assert.That(
+            sixtyFps.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(thirtyFps.PopulationChangeProgress.ToDouble())
+                .Within(0.000001d));
+
+        InvokePopulationMethod(
+            largeTick,
+            "AdvancePopulation",
+            30d,
+            ExpantaNum.One,
+            ExpantaNum.Zero);
+        Assert.That(
+            largeTick.PopulationChangeProgress,
+            Is.EqualTo(new ExpantaNum(0.5d)));
+        InvokePopulationMethod(
+            largeTick,
+            "AdjustPopulationCapacity",
+            new ExpantaNum(-5));
+        Assert.That(
+            largeTick.PopulationChangeProgress,
+            Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -625,9 +906,12 @@ public sealed class KingdomLogicTests
         Assert.That(buildingManager.GetState(farm).Amount, Is.EqualTo(firstBuildingAmount));
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(21)));
         Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
-        Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(17)));
-        Assert.That(GameManager.Instance.State.TerritoryTotal, Is.EqualTo(new ExpantaNum(120)));
-        Assert.That(GameManager.Instance.State.TerritoryUsed, Is.EqualTo(new ExpantaNum(8)));
+        Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(
+            GameManager.Instance.State.Population.PopulationChangeProgress,
+            Is.EqualTo(new ExpantaNum(0.25d)));
+        Assert.That(GameManager.Instance.State.TerritoryTotal, Is.EqualTo(new ExpantaNum(520)));
+        Assert.That(GameManager.Instance.State.TerritoryUsed, Is.EqualTo(new ExpantaNum(14)));
     }
 
     [Test]
@@ -661,9 +945,8 @@ public sealed class KingdomLogicTests
                 TechLevel = TechLevel.Animal,
                 FoodAmount = "10000",
                 Population = "17",
-                PopulationCapacity = "20",
-                GrowthProgress = "0.25",
-                TerritoryTotal = "120",
+                PopulationChangeProgress = "0.25",
+                TerritoryTotal = "520",
                 LastSaveUnixSeconds = 1
             },
             Resources = new SaveManager.ResourceSaveData
@@ -682,6 +965,11 @@ public sealed class KingdomLogicTests
                     new SaveManager.BuildingStateSaveData
                     {
                          BuildingId = "Farm",
+                         Amount = "2"
+                    },
+                    new SaveManager.BuildingStateSaveData
+                    {
+                         BuildingId = "WoodHouse",
                          Amount = "2"
                     }
                 }
@@ -715,11 +1003,51 @@ public sealed class KingdomLogicTests
 
     private static void InvokePopulationMethod(PopulationState state, string methodName, params object[] arguments)
     {
+        if (methodName == "AdvancePopulation" && arguments.Length == 3)
+        {
+            arguments = new[]
+            {
+                arguments[0],
+                arguments[1],
+                (object)PopulationState.BaseGrowthRatePerSecond,
+                arguments[2]
+            };
+        }
         MethodInfo method = typeof(PopulationState).GetMethod(
             methodName,
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
         method.Invoke(state, arguments);
+    }
+
+    private static PopulationState AdvancePopulationAtFixedStep(
+        int framesPerSecond,
+        double durationSeconds)
+    {
+        var state = new PopulationState();
+        InvokePopulationMethod(
+            state,
+            "AdjustPopulationCapacity",
+            new ExpantaNum(5));
+        MethodInfo method = typeof(PopulationState).GetMethod(
+            "AdvancePopulation",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        int steps = (int)Math.Round(durationSeconds * framesPerSecond);
+        double deltaSeconds = 1d / framesPerSecond;
+        for (int i = 0; i < steps; i++)
+        {
+            method.Invoke(
+                state,
+                new object[]
+                {
+                    deltaSeconds,
+                    ExpantaNum.One,
+                    PopulationState.BaseGrowthRatePerSecond,
+                    ExpantaNum.Zero
+                });
+        }
+        return state;
     }
 
     private static void InvokeMilitaryMethod(MilitaryState state, string methodName, params object[] arguments)
@@ -978,6 +1306,29 @@ public sealed class KingdomLogicTests
         Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
         Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(8)));
         Assert.That(farm.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void BuildingDisplayer_UsesHeaderHeightWhenCollapsedAndFullExpandedHeight()
+    {
+        Assert.That(
+            BuildingDisplayer.CalculatePreferredHeight(false, 0),
+            Is.EqualTo(BuildingDisplayer.HeaderHeight));
+        Assert.That(
+            BuildingDisplayer.CalculatePreferredHeight(false, 5),
+            Is.EqualTo(BuildingDisplayer.HeaderHeight));
+        Assert.That(
+            BuildingDisplayer.CalculatePreferredHeight(true, 1),
+            Is.EqualTo(
+                BuildingDisplayer.HeaderHeight +
+                BuildingDisplayer.DetailRowHeight +
+                BuildingDisplayer.ActionRowHeight));
+        Assert.That(
+            BuildingDisplayer.CalculatePreferredHeight(true, 3),
+            Is.EqualTo(
+                BuildingDisplayer.HeaderHeight +
+                BuildingDisplayer.DetailRowHeight * 2f +
+                BuildingDisplayer.ActionRowHeight));
     }
 
     [Test]

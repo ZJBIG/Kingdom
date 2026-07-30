@@ -16,17 +16,12 @@ MonoBehaviour:
   Label: Scribe Hut
   Description: A workshop where scribes preserve knowledge and accelerate research.
   TechLevel: 1
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -142,7 +137,7 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e8ba6bb96974cef4a8877378f6aa2eec, type: 2}
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
@@ -150,7 +145,7 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 1cb24afc717993a4eac10f33d2a219af, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -158,7 +153,7 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8c9b1bf6c75b4392ad971ea448e6572f, type: 2}
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
@@ -166,7 +161,7 @@ MonoBehaviour:
       scalar: 20
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
     second:
       sign: 0
       representation: 1
@@ -177,7 +172,7 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: e94c1a7b5d2f4680a3e6c9f124b758ad, type: 2}
-  - {fileID: 11400000, guid: a1e320f1f8a04854a0ca04a2051d9a36, type: 2}
-  - {fileID: 11400000, guid: 847d1b289d2a4cfb93e9ecd111b77b6a, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
+  - {fileID: 11400000, guid: f57101c91500a944591bf18155308c0f, type: 2}
+  - {fileID: 11400000, guid: f59c74b9676612747ab1874878527f7e, type: 2}
   requiredWorkshopUpgrades: []

@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TreeCultivate
   Label: "\u690D\u6811"
-  Description: "\u6709\u8ba1\u5212\u5730\u683d\u79cd\u3001\u4fee\u679d\u548c\u66f4\u65b0\u6797\u6728\uff0c\u4f7f\u6728\u6750\u3001\u71c3\u6599\u4e0e\u90e8\u5206\u98df\u7269\u6765\u6e90\u80fd\u591f\u5728\u805a\u843d\u5468\u8fb9\u6301\u7eed\u518d\u751f\u3002"
+  Description: "\u6709\u8BA1\u5212\u5730\u683D\u79CD\u3001\u4FEE\u679D\u548C\u66F4\u65B0\u6797\u6728\uFF0C\u4F7F\u6728\u6750\u3001\u71C3\u6599\u4E0E\u90E8\u5206\u98DF\u7269\u6765\u6E90\u80FD\u591F\u5728\u805A\u843D\u5468\u8FB9\u6301\u7EED\u518D\u751F\u3002"
   BaseCost: 750
   prerequisites:
-  - {fileID: 11400000, guid: 84e1d62ffdd260c49894b66ae3a4b16b, type: 2}
+  - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   resourceRequirements: []
   effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 1.00
-  y: 14.173
+  x: 1
+  y: 14.764

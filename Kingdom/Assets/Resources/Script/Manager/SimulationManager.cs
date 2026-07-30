@@ -87,7 +87,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
         BuildingManager.Instance.PrepareTickResourceSatisfaction(deltaSeconds);
         BuildingManager.Instance.RefreshEfficiencies();
-        GameManager.Instance.Tick(deltaSeconds);
+        GameManager.Instance.Tick(
+            deltaSeconds,
+            BuildingManager.Instance.SafePopulationDepartureAllowance);
         ResourceManager.Instance.Tick(deltaSeconds);
         ResearchManager.Instance.Tick(deltaSeconds);
     }

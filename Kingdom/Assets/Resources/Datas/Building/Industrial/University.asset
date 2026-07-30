@@ -17,17 +17,12 @@ MonoBehaviour:
   Description: Concentrates advanced research using machinery, electronics, and chemical
     instruments.
   TechLevel: 3
+  upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
     representation: 1
     operatorCount: 0
     scalar: 1.2
-    layer: 0
-    operators: []
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 200
     layer: 0
     operators: []
   spaceCost:
@@ -41,7 +36,7 @@ MonoBehaviour:
     sign: 0
     representation: 1
     operatorCount: 0
-    scalar: 12
+    scalar: 60
     layer: 0
     operators: []
   productivityGranted:
@@ -143,23 +138,31 @@ MonoBehaviour:
     layer: 0
     operators: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: b0b392cf2ff15fe4a824a514cf15e2f2, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 700
+      scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e0a15a415f04ea24ba979339ddd7604f, type: 2}
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 80
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c6010000000000000000000000000002, type: 2}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
     second:
       sign: 0
       representation: 1
@@ -167,17 +170,10 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: fb6918034a7f45948e025ac1f8457c14, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: a983adc6884e79f4ea3777d1277d713f, type: 2}
-  - {fileID: 11400000, guid: 3915650d9308e514c8dae362ebde15ea, type: 2}
+  - {fileID: 11400000, guid: 01957e1170855414387b6d50f51748a6, type: 2}
+  - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}
   requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: fb1f28c62d8c3764ba9623d7c4b90751, type: 2}
