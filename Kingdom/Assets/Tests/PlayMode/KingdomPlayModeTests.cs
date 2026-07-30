@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
@@ -306,6 +307,28 @@ public sealed class KingdomPlayModeTests
 
         Assert.That(gameManager.State, Is.Not.Null);
         Assert.That(state.Progress, Is.GreaterThan(before));
+    }
+
+    [UnityTest]
+    public IEnumerator ResearchQueue_PaymentClickThenQueueClick()
+    {
+        FindOrCreateManager<GameManager>("PlayMode-ResearchQueue");
+        ResourceManager resourceManager =
+            FindOrCreateManager<ResourceManager>("PlayMode-ResearchQueue");
+        FindOrCreateManager<BuildingManager>("PlayMode-ResearchQueue");
+        ResearchManager researchManager =
+            FindOrCreateManager<ResearchManager>("PlayMode-ResearchQueue");
+        yield return null;
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 1000);
+        Research active = DataBase<Research>.Find("Agriculture");
+        Research queued = DataBase<Research>.Find("ControlledFire");
+
+        Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
+        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.PaidOnly));
+        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
     }
 
     [UnityTest]

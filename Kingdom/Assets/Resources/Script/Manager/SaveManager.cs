@@ -178,7 +178,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         if (data == null)
             throw new InvalidDataException("Save JSON is empty or invalid.");
-        if (data.Version != SaveFormat.CurrentVersion)
+        if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
             throw new InvalidDataException("Save schema is not current.");
 
         ResetRuntimeStateForLoad();
@@ -247,7 +247,7 @@ public sealed class SaveManager : Singleton<SaveManager>
                 return false;
             }
 
-            if (data.Version != SaveFormat.CurrentVersion)
+            if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
             {
                 Debug.LogError(
                     $"Invalid Kingdom save '{path}': unsupported Version '{data.Version}', " +
@@ -386,6 +386,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public List<ResearchStateSaveData> States;
         public string ActiveResearchId;
         public string SelectedResearchId;
+        public List<string> QueuedResearchIds;
     }
 
     [Serializable]

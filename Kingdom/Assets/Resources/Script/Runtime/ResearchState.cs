@@ -7,6 +7,7 @@ public enum ResearchStatus
     Available,
     WaitingResources,
     Researching,
+    Queued,
     Completed
 }
 

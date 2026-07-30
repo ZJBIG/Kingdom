@@ -1,6 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+public enum ResearchActionResult
+{
+    Invalid,
+    PaidOnly,
+    Started,
+    Queued,
+    Cancelled,
+    AlreadyActive,
+    AlreadyQueued,
+    Completed,
+    Blocked,
+    InsufficientResources
+}
 
 public class ResearchManager : Singleton<ResearchManager>
 {
@@ -12,13 +27,16 @@ public class ResearchManager : Singleton<ResearchManager>
     private readonly Dictionary<Research, ResearchState> states = new();
     private readonly Dictionary<TechLevel, int> researchCountByTech = new();
     private readonly List<ResearchState> orderedStates = new();
+    private readonly Queue<ResearchState> researchQueue = new();
 
     public IReadOnlyDictionary<Research, ResearchState> States => states;
     public IReadOnlyDictionary<TechLevel, int> ResearchCountByTech => researchCountByTech;
     public ResearchState ActiveResearch { get; private set; }
+    public IReadOnlyList<ResearchState> ResearchQueue => researchQueue.ToList();
     public int TotalResearchCount => orderedStates.Count;
     public string SelectedResearchId { get; private set; } = string.Empty;
     public event Action<ResearchState> ResearchStateAdded;
+    public event Action ResearchQueueChanged;
     internal IReadOnlyList<ResearchState> OrderedStatesForProgression => orderedStates;
 
     public int TotalFinishedResearchCount
@@ -74,18 +92,101 @@ public class ResearchManager : Singleton<ResearchManager>
 
         if (ActiveResearch == state)
             return true;
+        return TryStartResearchNow(state);
+    }
 
-        if (ActiveResearch != null)
+    public ResearchActionResult HandleResearchAction(Research research)
+    {
+        if (research == null || !states.TryGetValue(research, out ResearchState state))
+            return ResearchActionResult.Invalid;
+        if (state.Status == ResearchStatus.Completed)
+            return ResearchActionResult.Completed;
+        if (ActiveResearch == state)
+            return ResearchActionResult.AlreadyActive;
+        if (IsQueued(research))
+            return RemoveQueuedResearch(research)
+                ? ResearchActionResult.Cancelled
+                : ResearchActionResult.AlreadyQueued;
+        if (!CanAccessResearch(research))
+            return ResearchActionResult.Blocked;
+
+        if (!state.CostPaid)
         {
-            ActiveResearch.SetStatus(
-                ArePrerequisitesCompleted(ActiveResearch.Definition)
-                    ? ResearchStatus.Available
-                    : ResearchStatus.Locked);
+            TryPayResearchCost(state);
+            return ResearchActionResult.PaidOnly;
         }
 
-        ActiveResearch = state;
-        state.SetStatus(ResearchStatus.Researching);
+        if (ArePrerequisitesCompleted(research))
+        {
+            if (TryStartResearchNow(state))
+                return ResearchActionResult.Started;
+            EnqueueState(state);
+            return ResearchActionResult.Queued;
+        }
+
+        List<ResearchState> batch = BuildPrerequisiteBatch(state);
+        if (!TryPayResearchBatch(batch))
+            return ResearchActionResult.InsufficientResources;
+        for (int i = 0; i < batch.Count; i++)
+            EnqueueState(batch[i]);
+        TryStartNextQueuedResearch();
+        return IsQueued(research) || ActiveResearch == state
+            ? ResearchActionResult.Queued
+            : ResearchActionResult.Blocked;
+    }
+
+    public bool IsQueued(Research research) =>
+        research != null && researchQueue.Any(state => state.Definition == research);
+
+    public bool EnqueueResearch(Research research)
+    {
+        if (research == null || !states.TryGetValue(research, out ResearchState state) ||
+            state.Status == ResearchStatus.Completed || ActiveResearch == state ||
+            IsQueued(research) || !state.CostPaid)
+            return false;
+        EnqueueState(state);
+        TryStartNextQueuedResearch();
         return true;
+    }
+
+    public bool RemoveQueuedResearch(Research research)
+    {
+        if (research == null || !IsQueued(research))
+            return false;
+        List<ResearchState> remaining = researchQueue
+            .Where(state => state.Definition != research)
+            .ToList();
+        researchQueue.Clear();
+        for (int i = 0; i < remaining.Count; i++)
+            researchQueue.Enqueue(remaining[i]);
+        ResearchState state = states[research];
+        state.SetStatus(ArePrerequisitesCompleted(research)
+            ? ResearchStatus.Available
+            : ResearchStatus.Locked);
+        ResearchQueueChanged?.Invoke();
+        return true;
+    }
+
+    public void TryStartNextQueuedResearch()
+    {
+        if (ActiveResearch != null)
+            return;
+        List<ResearchState> pending = researchQueue.ToList();
+        for (int i = 0; i < pending.Count; i++)
+        {
+            ResearchState state = pending[i];
+            if (state.Status == ResearchStatus.Completed)
+            {
+                RemoveQueuedState(state);
+                continue;
+            }
+            if (!state.CostPaid || !CanAccessResearch(state.Definition) ||
+                !ArePrerequisitesCompleted(state.Definition))
+                continue;
+            RemoveQueuedState(state);
+            TryStartResearchNow(state);
+            return;
+        }
     }
 
     public void SetSelectedResearch(Research research)
@@ -180,6 +281,115 @@ public class ResearchManager : Singleton<ResearchManager>
         return fullyPaid;
     }
 
+    private bool TryPayResearchBatch(IReadOnlyList<ResearchState> batch)
+    {
+        var outstanding = new Dictionary<Resource, ExpantaNum>();
+        for (int i = 0; i < batch.Count; i++)
+        {
+            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+                batch[i].Definition.ResourceRequirements;
+            for (int j = 0; j < requirements.Count; j++)
+            {
+                Pair<Resource, ExpantaNum> requirement = requirements[j];
+                ExpantaNum remaining = ExpantaNum.Max(
+                    ExpantaNum.Zero,
+                    requirement.Second - batch[i].GetPaidResourceCost(requirement.First));
+                if (remaining <= ExpantaNum.Zero)
+                    continue;
+                outstanding[requirement.First] = outstanding.TryGetValue(
+                    requirement.First,
+                    out ExpantaNum current)
+                    ? current + remaining
+                    : remaining;
+            }
+        }
+
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
+        {
+            ResourceState resource = ResourceManager.Instance.EnsureResource(entry.Key);
+            if (resource.Amount < entry.Value)
+                return false;
+        }
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
+            ResourceManager.Instance.AddAmount(entry.Key, -entry.Value);
+
+        for (int i = 0; i < batch.Count; i++)
+        {
+            ResearchState state = batch[i];
+            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+                state.Definition.ResourceRequirements;
+            for (int j = 0; j < requirements.Count; j++)
+                state.SetPaidResourceCost(requirements[j].First, requirements[j].Second);
+            state.SetCostPaid(true);
+        }
+        return true;
+    }
+
+    private List<ResearchState> BuildPrerequisiteBatch(ResearchState target)
+    {
+        var result = new List<ResearchState>();
+        AppendPrerequisiteBatch(
+            target,
+            new HashSet<Research>(),
+            new HashSet<Research>(),
+            result);
+        return result;
+    }
+
+    private void AppendPrerequisiteBatch(
+        ResearchState state,
+        HashSet<Research> visiting,
+        HashSet<Research> included,
+        List<ResearchState> result)
+    {
+        if (state.Status == ResearchStatus.Completed || IsQueued(state.Definition) ||
+            ActiveResearch == state || !included.Add(state.Definition))
+            return;
+        if (!visiting.Add(state.Definition))
+            throw new InvalidOperationException(
+                $"Research prerequisite cycle detected at '{state.Definition.Id}'.");
+        IReadOnlyList<Research> prerequisites = state.Definition.Prerequisites;
+        if (prerequisites != null)
+            for (int i = 0; i < prerequisites.Count; i++)
+                AppendPrerequisiteBatch(
+                    states[prerequisites[i]], visiting, included, result);
+        visiting.Remove(state.Definition);
+        result.Add(state);
+    }
+
+    private void EnqueueState(ResearchState state)
+    {
+        if (state == null || state.Status == ResearchStatus.Completed ||
+            state == ActiveResearch || IsQueued(state.Definition))
+            return;
+        state.SetStatus(ResearchStatus.Queued);
+        researchQueue.Enqueue(state);
+        ResearchQueueChanged?.Invoke();
+    }
+
+    private void RemoveQueuedState(ResearchState state)
+    {
+        List<ResearchState> remaining = researchQueue
+            .Where(value => value != state)
+            .ToList();
+        researchQueue.Clear();
+        for (int i = 0; i < remaining.Count; i++)
+            researchQueue.Enqueue(remaining[i]);
+        ResearchQueueChanged?.Invoke();
+    }
+
+    private bool TryStartResearchNow(ResearchState state)
+    {
+        if (state == null || ActiveResearch != null ||
+            state.Status == ResearchStatus.Completed || !state.CostPaid ||
+            !CanAccessResearch(state.Definition) ||
+            !ArePrerequisitesCompleted(state.Definition))
+            return false;
+        ActiveResearch = state;
+        state.SetStatus(ResearchStatus.Researching);
+        return true;
+    }
+
     private void CompleteCurrentResearch(ResearchState current)
     {
         current.SetProgress(current.BaseCost);
@@ -195,6 +405,7 @@ public class ResearchManager : Singleton<ResearchManager>
             previousModifiers,
             ProgressionModifierManager.Current);
         RefreshAvailabilityStatuses();
+        TryStartNextQueuedResearch();
     }
 
     private void RefreshAvailabilityStatuses()
@@ -203,6 +414,8 @@ public class ResearchManager : Singleton<ResearchManager>
         {
             ResearchState state = orderedStates[i];
             if (state.Status == ResearchStatus.Completed)
+                continue;
+            if (state.Status == ResearchStatus.Queued)
                 continue;
             state.SetStatus(ArePrerequisitesCompleted(state.Definition)
                 ? ResearchStatus.Available
@@ -276,6 +489,9 @@ public class ResearchManager : Singleton<ResearchManager>
             States = new List<SaveManager.ResearchStateSaveData>(orderedStates.Count),
             ActiveResearchId = ActiveResearch?.Definition.Id,
             SelectedResearchId = SelectedResearchId,
+            QueuedResearchIds = researchQueue
+                .Select(state => state.Definition.Id)
+                .ToList(),
             GlobalEfficiencyFactor = GlobalEfficiencyFactor.ToString()
         };
 
@@ -298,6 +514,7 @@ public class ResearchManager : Singleton<ResearchManager>
     internal void ResetForLoad()
     {
         ActiveResearch = null;
+        researchQueue.Clear();
         SelectedResearchId = string.Empty;
         GlobalEfficiencyFactor = ExpantaNum.One;
         for (int i = 0; i < orderedStates.Count; i++)
@@ -334,6 +551,7 @@ public class ResearchManager : Singleton<ResearchManager>
             ProgressionModifierManager.Current);
         RebuildResearchPower(buildingManager?.OrderedStates);
         RefreshAvailabilityStatuses();
+        researchQueue.Clear();
         if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
         {
             ResearchState state = GetState(DataBase<Research>.Find(data.ActiveResearchId));
@@ -343,6 +561,22 @@ public class ResearchManager : Singleton<ResearchManager>
                 state.SetStatus(state.CostPaid
                     ? ResearchStatus.Researching
                     : ResearchStatus.WaitingResources);
+            }
+        }
+
+        if (data.QueuedResearchIds != null)
+        {
+            HashSet<Research> restoredQueue = new();
+            for (int i = 0; i < data.QueuedResearchIds.Count; i++)
+            {
+                string id = data.QueuedResearchIds[i];
+                if (string.IsNullOrWhiteSpace(id) ||
+                    !DataBase<Research>.TryFind(id, out Research queued) ||
+                    !states.TryGetValue(queued, out ResearchState queuedState) ||
+                    queuedState.Status == ResearchStatus.Completed ||
+                    queuedState == ActiveResearch || !restoredQueue.Add(queued))
+                    continue;
+                EnqueueState(queuedState);
             }
         }
 
@@ -360,6 +594,7 @@ public class ResearchManager : Singleton<ResearchManager>
             nameof(ResearchManager),
             nameof(data.GlobalEfficiencyFactor),
             ExpantaNum.One);
+        TryStartNextQueuedResearch();
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);

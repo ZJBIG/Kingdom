@@ -26,6 +26,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     private Research selectedResearch;
     private Research requirementsForResearch;
     private int selectedVersion = -1;
+    private string actionMessage = string.Empty;
 
     public Research CurSelect
     {
@@ -75,12 +76,21 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     private void OnDisable()
     {
         if (researchManager != null)
+        {
             researchManager.ResearchStateAdded -= OnResearchStateAdded;
+            researchManager.ResearchQueueChanged -= OnResearchQueueChanged;
+        }
         GameUIRefreshManager.Instance?.Unregister(this);
         researchManager = null;
     }
 
     public void RefreshUI() => RefreshAll();
+
+    private void OnResearchQueueChanged()
+    {
+        selectedVersion = -1;
+        RefreshAll();
+    }
 
     private void TryBindResearchManager()
     {
@@ -91,6 +101,8 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
 
         researchManager.ResearchStateAdded -= OnResearchStateAdded;
         researchManager.ResearchStateAdded += OnResearchStateAdded;
+        researchManager.ResearchQueueChanged -= OnResearchQueueChanged;
+        researchManager.ResearchQueueChanged += OnResearchQueueChanged;
         BindExistingStates();
         RestoreSelection();
     }
@@ -99,30 +111,21 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     {
         if (selectedResearch == null)
             return;
-        ResearchState state = SelectedState;
-        if (state == null)
-            return;
-        if (!ResearchManager.Instance.CanAccessResearch(selectedResearch) ||
-            !ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
+        ResearchActionResult result =
+            ResearchManager.Instance.HandleResearchAction(selectedResearch);
+        actionMessage = result switch
         {
-            RefreshAll();
-            return;
-        }
-        if (!state.CostPaid && selectedResearch.HasPositiveResourceRequirement)
-        {
-            if (!ResearchManager.TryPayResearchCost(state))
-            {
-                RefreshAll();
-                return;
-            }
-        }
-        if (state.Status == ResearchStatus.Completed ||
-            !ResearchManager.Instance.CanAccessResearch(selectedResearch))
-        {
-            return;
-        }
-
-        ResearchManager.Instance.StartResearch(selectedResearch);
+            ResearchActionResult.PaidOnly => "Resources paid. Click again to start or queue.",
+            ResearchActionResult.Started => "Research started.",
+            ResearchActionResult.Queued => "Research queued.",
+            ResearchActionResult.Cancelled => "Research removed from queue.",
+            ResearchActionResult.InsufficientResources =>
+                "Queue failed: the complete prerequisite batch was not affordable.",
+            ResearchActionResult.AlreadyActive => "Research is already active.",
+            ResearchActionResult.Completed => "Research is already completed.",
+            ResearchActionResult.Blocked => "Research is not currently accessible.",
+            _ => string.Empty
+        };
         RefreshAll();
     }
 
@@ -275,7 +278,14 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             double progress = state.ProgressRatio.ToDouble() * 100d;
             string desc = selectedResearch.Description ?? "No description";
             if (BaseInfo != null)
-                BaseInfo.text = $"{label}\n{techLevelDesc}\n{progress:F2}%\n{desc}";
+            {
+                BaseInfo.text = $"{label}\n{techLevelDesc}\n{progress:F2}%\n{desc}" +
+                    (string.IsNullOrWhiteSpace(actionMessage)
+                        ? string.Empty
+                        : $"\n{actionMessage}") +
+                    $"\n\n{QueueSummary()}";
+                actionMessage = string.Empty;
+            }
         }
 
         PositionResourceListAfterBaseInfo();
@@ -300,10 +310,33 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             Mathf.Max(428f, requiredHeight));
     }
 
+    private string QueueSummary()
+    {
+        if (researchManager == null)
+            return "Research queue unavailable";
+        List<string> lines = new();
+        if (researchManager.ActiveResearch != null)
+            lines.Add($"Active: {researchManager.ActiveResearch.Definition.Label}");
+        IReadOnlyList<ResearchState> queue = researchManager.ResearchQueue;
+        for (int i = 0; i < queue.Count; i++)
+            lines.Add($"Queue {i + 1}: {queue[i].Definition.Label}");
+        return lines.Count == 0
+            ? "Research queue: empty"
+            : "Research queue:\n" + string.Join("\n", lines);
+    }
+
     private string ButtonText(ResearchState state)
     {
+        if (state.Status == ResearchStatus.Completed)
+            return "Research completed";
+        if (state.Status == ResearchStatus.Researching)
+            return "Researching";
+        if (state.Status == ResearchStatus.Queued)
+            return "Cancel queue";
         if (!ResearchManager.Instance.CanAccessResearch(selectedResearch))
             return "技术等级过低";
+        if (state.CostPaid && !ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
+            return "Queue prerequisites";
         if (!ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
             return "前置研究未完成";
         if (!state.CostPaid)

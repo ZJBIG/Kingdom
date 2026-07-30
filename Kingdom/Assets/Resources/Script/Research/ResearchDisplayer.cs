@@ -46,7 +46,7 @@ public class ResearchDisplayer : MonoBehaviour
         viewer = GetComponentInParent<ResearchViewer>(true);
     }
 
-    public void StartResearch() => ResearchManager.Instance.StartResearch(Research);
+    public void StartResearch() => viewer?.DoInvest();
 
     public void SetSelect() => viewer?.SelectResearch(Research);
 

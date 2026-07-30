@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -124,7 +125,7 @@ public sealed class KingdomLogicTests
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(new ExpantaNum(0.8d)));
         Assert.That(PopulationState.ProductivityGrantedPerPerson, Is.EqualTo(new ExpantaNum(2d)));
-        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(5));
+        Assert.That(SaveFormat.CurrentVersion, Is.EqualTo(6));
     }
 
     [Test]
@@ -871,12 +872,12 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void SaveApply_RejectsPreviousSchemaWithoutMigration()
+    public void SaveApply_RejectsUnsupportedSchema()
     {
         SaveManager saveManager = CreateManager<SaveManager>("Save-Version-SaveManager");
         var data = new SaveManager.KingdomSaveData
         {
-            Version = SaveFormat.CurrentVersion - 1
+            Version = SaveFormat.CurrentVersion - 2
         };
 
         TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
@@ -1229,6 +1230,84 @@ public sealed class KingdomLogicTests
         Assert.That(state.CostPaid, Is.True);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(state.CostPaid, Is.True);
+    }
+
+    [Test]
+    public void ResearchAction_PaysFirstAndStartsOnlyOnSecondClick()
+    {
+        CreateManager<GameManager>("ResearchAction-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAction-ResourceManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("ResearchAction-ResearchManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Research research = DataBase<Research>.Find("ControlledFire");
+        resourceManager.SetAmount(wood, 1000);
+
+        Assert.That(
+            researchManager.HandleResearchAction(research),
+            Is.EqualTo(ResearchActionResult.PaidOnly));
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.GetState(research).CostPaid, Is.True);
+
+        Assert.That(
+            researchManager.HandleResearchAction(research),
+            Is.EqualTo(ResearchActionResult.Started));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(research));
+    }
+
+    [Test]
+    public void ResearchAction_AddsPaidResearchToQueueWhenAnotherResearchIsActive()
+    {
+        CreateManager<GameManager>("ResearchQueue-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchQueue-ResourceManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("ResearchQueue-ResearchManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 1000);
+
+        Research active = DataBase<Research>.Find("Agriculture");
+        Research queued = DataBase<Research>.Find("ControlledFire");
+        Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
+        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.PaidOnly));
+        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.ResearchQueue.Select(state => state.Definition), Has.Member(queued));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
+    }
+
+    [Test]
+    public void ResearchAction_AutoQueuesPrerequisitesInTopologicalOrder()
+    {
+        CreateManager<GameManager>("ResearchPrerequisite-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchPrerequisite-ResourceManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("ResearchPrerequisite-ResearchManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Research target = DataBase<Research>.Find("StoneCutting");
+        Research prerequisite = DataBase<Research>.Find("Quarry");
+        resourceManager.SetAmount(wood, 1000);
+
+        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.PaidOnly));
+        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(prerequisite));
+        Assert.That(researchManager.ResearchQueue.Select(state => state.Definition), Has.Member(target));
+        Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.True);
+    }
+
+    [Test]
+    public void ResearchAction_AutoQueuePaymentIsAtomicWhenPrerequisitesAreUnaffordable()
+    {
+        CreateManager<GameManager>("ResearchAtomic-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAtomic-ResourceManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("ResearchAtomic-ResearchManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Research target = DataBase<Research>.Find("StoneCutting");
+        resourceManager.SetAmount(wood, 500);
+
+        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.PaidOnly));
+        resourceManager.SetAmount(wood, 0);
+        Assert.That(
+            researchManager.HandleResearchAction(target),
+            Is.EqualTo(ResearchActionResult.InsufficientResources));
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.ResearchQueue, Is.Empty);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
