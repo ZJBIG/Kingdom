@@ -14,15 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BronzeCastingMolds
   Label: "\u5DE5\u4E1A\u9752\u94DC\u94F8\u6A21\u7EC4"
-  Description: "\u6807\u51C6\u5316\u94F8\u6A21\u7A33\u5B9A\u9752\u94DC\u4EF6\u5C3A\u5BF8\uFF0C\u63D0\u9AD8\u5DE5\u4E1A\u9752\u94DC\u7194\u7089\u4EA7\u91CF\u3002"
+  Description: "\u53EF\u91CD\u590D\u88C5\u914D\u7684\u91D1\u5C5E\u6A21\u5177\u3001\u6D47\u53E3\u548C\u8131\u6A21\u8BBE\u5907\u3002"
   Category: "\u51B6\u91D1"
-  SortOrder: 220
+  SortOrder: 208
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 180f05612eeab984fa3c39bd3524083c, type: 2}
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 0d8d90cdc061bac4d986893117984891, type: 2}
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
   resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     second:
       sign: 0
@@ -31,12 +39,12 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 60
       layer: 0
       operators: []
   effects:
@@ -47,6 +55,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.25
       layer: 0
       operators: []

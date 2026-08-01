@@ -13,19 +13,18 @@ MonoBehaviour:
   m_Name: Smithing_Bronze
   m_EditorClassIdentifier: 
   id: Smithing_Bronze
-  Label: "\u51B6\u70BC\u9752\u94DC"
-  Description: "\u7CBE\u786E\u914D\u6BD4\u94DC\u4E0E\u9521\u5E76\u638C\u63E1\u7194\u94F8\u5DE5\u827A\uFF0C\u5236\u9020\u786C\u5EA6\u3001\u97E7\u6027\u548C\u6210\u578B\u80FD\u529B\u4F18\u4E8E\u7EAF\u94DC\u7684\u9752\u94DC\u5236\u54C1\u3002"
-  BaseCost: 20000
+  Label: "\u9752\u94DC\u51B6\u70BC\u4E0E\u5668\u5177"
+  Description: "\u638C\u63E1\u94DC\u9521\u5408\u91D1\u914D\u6BD4\u3001\u94F8\u9020\u548C\u5668\u5177\u6807\u51C6\uFF0C\u4F7F\u9752\u94DC\u6210\u4E3A\u7A33\u5B9A\u7684\u5DE5\u5177\u3001\u6B66\u5668\u4E0E\u5EFA\u7B51\u6750\u6599\u3002"
+  BaseCost: 21000
   prerequisites:
   - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}
-  - {fileID: 11400000, guid: 29f44974121a6e84fa6ab64e2fc8e637, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 180
+      scalar: 126
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
@@ -33,7 +32,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 180
+      scalar: 126
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
@@ -41,10 +40,29 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 210
       layer: 0
       operators: []
-  effects: []
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 175
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_BronzeImplements
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
   x: 8

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Shipyard
   m_EditorClassIdentifier: 
   id: Shipyard
-  Label: "星舰船坞"
-  Description: "利用复合材料、机械和电子设备建造远征舰船，形成可持续扩张的太空舰队。"
+  Label: "\u661F\u8230\u8239\u575E"
+  Description: "\u5229\u7528\u590D\u5408\u6750\u6599\u3001\u673A\u68B0\u548C\u7535\u5B50\u8BBE\u5907\u5EFA\u9020\u8FDC\u5F81\u8230\u8239\uFF0C\u5F62\u6210\u53EF\u6301\u7EED\u6269\u5F20\u7684\u592A\u7A7A\u8230\u961F\u3002"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -150,7 +150,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 800
+      scalar: 1100
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
@@ -169,20 +169,20 @@ MonoBehaviour:
       scalar: 600
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
       layer: 0
       operators: []
   resourceGenerationRates: []

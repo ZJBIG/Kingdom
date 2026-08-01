@@ -14,21 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HighPressureTurbines
   Label: "\u9AD8\u538B\u6C7D\u8F6E\u673A"
-  Description: "\u9AD8\u538B\u6C7D\u8F6E\u673A\u63D0\u9AD8\u84B8\u6C7D\u81A8\u80C0\u6548\u7387\uFF0C\u4F7F\u4E2D\u592E\u706B\u529B\u7535\u7AD9\u4EA7\u751F\u66F4\u591A\u7535\u529B\u3002"
+  Description: "\u7531\u591A\u7EA7\u53F6\u7247\u3001\u8F6C\u8F74\u548C\u9AD8\u538B\u7F38\u7EC4\u6210\u7684\u5927\u53D1\u7535\u6838\u5FC3\u8BBE\u5907\u3002"
   Category: "\u52A8\u529B"
-  SortOrder: 280
+  SortOrder: 270
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: b0371f98962797846ab85d879bd2cb16, type: 2}
+  - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: 01ffea418770c65489047c6ce085f9b5, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 700
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
@@ -36,25 +37,25 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 180
+      scalar: 220
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 160
       layer: 0
       operators: []
   effects:
-  - Type: 10
+  - Type: 0
     Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.2
+      scalar: 1.25
       layer: 0
       operators: []

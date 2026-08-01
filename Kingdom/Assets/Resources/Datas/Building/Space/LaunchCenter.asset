@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LaunchCenter
   m_EditorClassIdentifier: 
   id: LaunchCenter
-  Label: "发射中心"
-  Description: "整合火箭装配、燃料储存、测控和发射设施，把人员与设备送入近地轨道。"
+  Label: "\u53D1\u5C04\u4E2D\u5FC3"
+  Description: "\u6574\u5408\u706B\u7BAD\u88C5\u914D\u3001\u71C3\u6599\u50A8\u5B58\u3001\u6D4B\u63A7\u548C\u53D1\u5C04\u8BBE\u65BD\uFF0C\u628A\u4EBA\u5458\u4E0E\u8BBE\u5907\u9001\u5165\u8FD1\u5730\u8F68\u9053\u3002"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -150,7 +150,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 650
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
@@ -169,20 +169,20 @@ MonoBehaviour:
       scalar: 300
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
       layer: 0
       operators: []
   resourceGenerationRates: []

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Arsenal
   m_EditorClassIdentifier: 
   id: Arsenal
-  Label: "军械库"
-  Description: "在兵营体系上增加武器储备、维修和统一配发，使军队获得更强战力并为军工厂升级做好准备。"
+  Label: "\u519B\u68B0\u5E93"
+  Description: "\u5728\u5175\u8425\u4F53\u7CFB\u4E0A\u589E\u52A0\u6B66\u5668\u50A8\u5907\u3001\u7EF4\u4FEE\u548C\u7EDF\u4E00\u914D\u53D1\uFF0C\u4F7F\u519B\u961F\u83B7\u5F97\u66F4\u5F3A\u6218\u529B\u5E76\u4E3A\u519B\u5DE5\u5382\u5347\u7EA7\u505A\u597D\u51C6\u5907\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 70dd159874cad3f4ba18b95696149157, type: 2}
   costGrowth:
@@ -188,5 +188,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: d27435eb86ab2d749985306044292125, type: 2}
+  - {fileID: 11400000, guid: d7dbffc4539166743984a2d49effb8a6, type: 2}
+  - {fileID: 11400000, guid: c4a53e8660f722743a8eef041c2d204d, type: 2}
+  - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
   requiredWorkshopUpgrades: []

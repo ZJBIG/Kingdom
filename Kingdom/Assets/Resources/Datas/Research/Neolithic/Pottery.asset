@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Pottery
   m_EditorClassIdentifier: 
   id: Pottery
-  Label: "\u9676\u5668\u5236\u4F5C"
-  Description: "\u638C\u63E1\u9ECF\u571F\u6DD8\u6D17\u3001\u6210\u578B\u3001\u5E72\u71E5\u548C\u70E7\u5236\u6D41\u7A0B\uFF0C\u5236\u9020\u9002\u5408\u50A8\u7CAE\u3001\u53D6\u6C34\u3001\u70F9\u996A\u4E0E\u8FD0\u8F93\u7684\u8010\u7528\u5BB9\u5668\u3002"
-  BaseCost: 1200
+  Label: "\u9676\u5668\u4E0E\u7A91\u7089"
+  Description: "\u6574\u5408\u9676\u5668\u6210\u578B\u3001\u70E7\u5236\u548C\u7A91\u7089\u6548\u7387\u6539\u8FDB\uFF0C\u4E3A\u50A8\u85CF\u3001\u5EFA\u7B51\u548C\u540E\u7EED\u9AD8\u6E29\u5DE5\u827A\u63D0\u4F9B\u8010\u7528\u5BB9\u5668\u3002"
+  BaseCost: 1800
   prerequisites:
-  - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
+  - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}
   - {fileID: 11400000, guid: aaca627f761546a439f07f67a025864c, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
@@ -25,10 +25,37 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 50
+      scalar: 235
       layer: 0
       operators: []
-  effects: []
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 105
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_KilnEfficiency
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
   x: 6

@@ -14,22 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AluminumBusbars
   Label: "\u94DD\u5236\u6BCD\u7EBF\u6392"
-  Description: "\u94DD\u5236\u6BCD\u7EBF\u964D\u4F4E\u8F93\u7535\u7EBF\u8DEF\u91CD\u91CF\u4E0E\u635F\u8017\uFF0C\u63D0\u9AD8\u7535\u529B\u7CFB\u7EDF\u6548\u7387\u3002"
+  Description: "\u7528\u4E8E\u5927\u53D1\u7535\u8BBE\u5907\u7684\u8F7B\u8D28\u5927\u622A\u9762\u5BFC\u7535\u7EC4\u4EF6\u3002"
   Category: "\u7535\u6C14"
-  SortOrder: 340
+  SortOrder: 330
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
-  - {fileID: 11400000, guid: b0371f98962797846ab85d879bd2cb16, type: 2}
+  - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: daf5a7bf3e3f4934fbe381ae830151be, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 250
+      scalar: 450
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
@@ -40,14 +40,22 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
   effects:
-  - Type: 7
-    Building: {fileID: 0}
+  - Type: 0
+    Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.1
+      scalar: 1.15
       layer: 0
       operators: []

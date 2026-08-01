@@ -1233,7 +1233,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchAction_PaysFirstAndStartsOnlyOnSecondClick()
+    public void ResearchAction_QueuesUnpaidOnFirstClickAndPaysThroughPaymentApi()
     {
         CreateManager<GameManager>("ResearchAction-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAction-ResourceManager");
@@ -1244,14 +1244,14 @@ public sealed class KingdomLogicTests
 
         Assert.That(
             researchManager.HandleResearchAction(research),
-            Is.EqualTo(ResearchActionResult.PaidOnly));
+            Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
         Assert.That(researchManager.ActiveResearch, Is.Null);
-        Assert.That(researchManager.GetState(research).CostPaid, Is.True);
-
+        Assert.That(researchManager.GetState(research).CostPaid, Is.False);
         Assert.That(
-            researchManager.HandleResearchAction(research),
-            Is.EqualTo(ResearchActionResult.Started));
+            researchManager.PayResearchCost(research),
+            Is.EqualTo(ResearchPaymentResult.Paid));
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(research));
+        Assert.That(researchManager.GetState(research).CostPaid, Is.True);
     }
 
     [Test]
@@ -1266,10 +1266,13 @@ public sealed class KingdomLogicTests
         Research active = DataBase<Research>.Find("Agriculture");
         Research queued = DataBase<Research>.Find("ControlledFire");
         Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
-        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.PaidOnly));
         Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
         Assert.That(researchManager.ResearchQueue.Select(state => state.Definition), Has.Member(queued));
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
+        Assert.That(researchManager.GetState(queued).CostPaid, Is.False);
+        Assert.That(researchManager.PayResearchCost(queued), Is.EqualTo(ResearchPaymentResult.Paid));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
+        Assert.That(researchManager.IsQueued(queued), Is.True);
     }
 
     [Test]
@@ -1283,15 +1286,15 @@ public sealed class KingdomLogicTests
         Research prerequisite = DataBase<Research>.Find("Quarry");
         resourceManager.SetAmount(wood, 1000);
 
-        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.PaidOnly));
-        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.Queued));
-        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(prerequisite));
+        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.IsQueued(prerequisite), Is.True);
         Assert.That(researchManager.ResearchQueue.Select(state => state.Definition), Has.Member(target));
-        Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.True);
+        Assert.That(researchManager.GetState(target).CostPaid, Is.False);
     }
 
     [Test]
-    public void ResearchAction_AutoQueuePaymentIsAtomicWhenPrerequisitesAreUnaffordable()
+    public void ResearchAction_QueuesWithoutPaymentWhenResourcesAreUnavailable()
     {
         CreateManager<GameManager>("ResearchAtomic-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAtomic-ResourceManager");
@@ -1300,14 +1303,36 @@ public sealed class KingdomLogicTests
         Research target = DataBase<Research>.Find("StoneCutting");
         resourceManager.SetAmount(wood, 500);
 
-        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.PaidOnly));
         resourceManager.SetAmount(wood, 0);
         Assert.That(
             researchManager.HandleResearchAction(target),
-            Is.EqualTo(ResearchActionResult.InsufficientResources));
+            Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
         Assert.That(researchManager.ActiveResearch, Is.Null);
-        Assert.That(researchManager.ResearchQueue, Is.Empty);
+        Assert.That(researchManager.ResearchQueue, Is.Not.Empty);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void CancellingQueuedPrerequisiteAlsoCancelsQueuedDependents()
+    {
+        CreateManager<GameManager>("ResearchCancelChain-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchCancelChain-ResourceManager");
+        ResearchManager researchManager = CreateManager<ResearchManager>("ResearchCancelChain-ResearchManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 1000);
+
+        Research active = DataBase<Research>.Find("Agriculture");
+        Research prerequisite = DataBase<Research>.Find("Quarry");
+        Research target = DataBase<Research>.Find("StoneCutting");
+        Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
+        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.IsQueued(prerequisite), Is.True);
+        Assert.That(researchManager.IsQueued(target), Is.True);
+
+        Assert.That(researchManager.RemoveQueuedResearch(prerequisite), Is.True);
+        Assert.That(researchManager.IsQueued(prerequisite), Is.False);
+        Assert.That(researchManager.IsQueued(target), Is.False);
+        Assert.That(researchManager.GetState(target).Status, Is.EqualTo(ResearchStatus.Locked));
     }
 
     [Test]

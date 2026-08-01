@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Lumberyard
   m_EditorClassIdentifier: 
   id: Lumberyard
-  Label: "伐木场"
-  Description: "集中砍伐、晾晒和堆放木材，为住房、工具、燃料与后续建筑提供稳定木料。"
+  Label: "\u4F10\u6728\u573A"
+  Description: "\u96C6\u4E2D\u780D\u4F10\u3001\u667E\u6652\u548C\u5806\u653E\u6728\u6750\uFF0C\u4E3A\u4F4F\u623F\u3001\u5DE5\u5177\u3001\u71C3\u6599\u4E0E\u540E\u7EED\u5EFA\u7B51\u63D0\u4F9B\u7A33\u5B9A\u6728\u6599\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -164,6 +164,6 @@ MonoBehaviour:
       operators: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: 523b36772de2fec40a9d56f52f87fe74, type: 2}
+  - {fileID: 11400000, guid: bec2d144304deca4daeffbabf40a32ea, type: 2}
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
   requiredWorkshopUpgrades: []

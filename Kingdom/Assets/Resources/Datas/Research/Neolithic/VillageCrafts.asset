@@ -15,11 +15,11 @@ MonoBehaviour:
   id: VillageCrafts
   Label: "\u6751\u843D\u624B\u5DE5\u4E1A"
   Description: "\u628A\u9676\u5668\u3001\u6728\u4F5C\u3001\u7EBA\u7EC7\u548C\u91D1\u5C5E\u52A0\u5DE5\u7EC4\u7EC7\u4E3A\u4E13\u4E1A\u5DE5\u79CD\uFF0C\u901A\u8FC7\u56FA\u5B9A\u4F5C\u574A\u548C\u5206\u5DE5\u63D0\u9AD8\u5236\u54C1\u8D28\u91CF\u4E0E\u4EA7\u91CF\u3002"
-  BaseCost: 11500
+  BaseCost: 12000
   prerequisites:
   - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
   - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}
-  - {fileID: 11400000, guid: 9cc2759195345d54fa1a5ea18af00e1d, type: 2}
+  - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     second:

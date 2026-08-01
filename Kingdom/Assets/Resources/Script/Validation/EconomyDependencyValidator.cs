@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 public static class EconomyDependencyValidator
 {
@@ -174,14 +175,14 @@ public static class EconomyDependencyValidator
         }
         while (changed);
 
+        var blockedDefinitions = new List<string>();
         for (int i = 0; i < researches.Count; i++)
         {
             Research research = researches[i];
             if (research != null && research.TechLevel <= TechLevel.Industrial &&
                 !completedResearch.Contains(research))
             {
-                error = DescribeBlockedResearch(research, completedResearch, resources);
-                return false;
+                blockedDefinitions.Add(DescribeBlockedResearch(research, completedResearch, resources));
             }
         }
         for (int i = 0; i < upgrades.Count; i++)
@@ -190,8 +191,7 @@ public static class EconomyDependencyValidator
             if (upgrade != null && upgrade.TechLevel <= TechLevel.Industrial &&
                 !purchasedUpgrades.Contains(upgrade))
             {
-                error = DescribeBlockedUpgrade(upgrade, completedResearch, purchasedUpgrades, resources);
-                return false;
+                blockedDefinitions.Add(DescribeBlockedUpgrade(upgrade, completedResearch, purchasedUpgrades, resources));
             }
         }
         for (int i = 0; i < buildings.Count; i++)
@@ -200,10 +200,15 @@ public static class EconomyDependencyValidator
             if (building != null && building.TechLevel <= TechLevel.Industrial &&
                 !availableBuildings.Contains(building))
             {
-                error = DescribeBlockedBuilding(
-                    building, completedResearch, purchasedUpgrades, resources);
-                return false;
+                blockedDefinitions.Add(DescribeBlockedBuilding(
+                    building, completedResearch, purchasedUpgrades, resources));
             }
+        }
+
+        if (blockedDefinitions.Count > 0)
+        {
+            error = "Unreachable content definitions:\n" + string.Join("\n", blockedDefinitions);
+            return false;
         }
 
         error = string.Empty;
@@ -232,12 +237,48 @@ public static class EconomyDependencyValidator
         Research value, HashSet<Research> research, HashSet<Resource> resources)
     {
         for (int i = 0; i < value.Prerequisites.Count; i++)
-            if (!research.Contains(value.Prerequisites[i]))
-                return $"{value.Id} -> requires {value.Prerequisites[i].Id} -> research is unreachable";
+            if (value.Prerequisites[i] == null || !research.Contains(value.Prerequisites[i]))
+            {
+                var trace = new StringBuilder();
+                AppendResearchTrace(value, research, new HashSet<Research>(), trace, string.Empty);
+                return trace.ToString();
+            }
         Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
         return missing == null
             ? $"{value.Id} -> era transition is unreachable"
             : $"{value.Id} -> costs {missing.Id} -> no reachable producer";
+    }
+
+    private static void AppendResearchTrace(
+        Research value,
+        HashSet<Research> reachable,
+        HashSet<Research> visiting,
+        StringBuilder trace,
+        string indent)
+    {
+        if (value == null)
+            return;
+        if (!visiting.Add(value))
+        {
+            trace.Append(indent).Append(value.Id).Append(" -> dependency cycle detected\n");
+            return;
+        }
+
+        for (int i = 0; i < value.Prerequisites.Count; i++)
+        {
+            Research prerequisite = value.Prerequisites[i];
+            if (prerequisite == null || reachable.Contains(prerequisite))
+                continue;
+
+            trace.Append(indent)
+                .Append(value.Id)
+                .Append(" -> requires ")
+                .Append(prerequisite == null ? "<null>" : prerequisite.Id)
+                .Append(" -> research is unreachable\n");
+            AppendResearchTrace(prerequisite, reachable, visiting, trace, indent + "  ");
+        }
+
+        visiting.Remove(value);
     }
 
     private static string DescribeBlockedUpgrade(

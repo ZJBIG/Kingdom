@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Caravanserai
   m_EditorClassIdentifier: 
   id: Caravanserai
-  Label: "商旅驿站"
-  Description: "整合市场交易、商队住宿、仓储、牲畜补给和货物转运，承担城市的商业与区域物流职能。"
+  Label: "\u5546\u65C5\u9A7F\u7AD9"
+  Description: "\u6574\u5408\u5E02\u573A\u4EA4\u6613\u3001\u5546\u961F\u4F4F\u5BBF\u3001\u4ED3\u50A8\u3001\u7272\u755C\u8865\u7ED9\u548C\u8D27\u7269\u8F6C\u8FD0\uFF0C\u627F\u62C5\u57CE\u5E02\u7684\u5546\u4E1A\u4E0E\u533A\u57DF\u7269\u6D41\u804C\u80FD\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
   costGrowth:
@@ -54,7 +54,7 @@ MonoBehaviour:
     operators: []
   researchPowerGranted:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
     scalar: 5
     layer: 0
@@ -180,5 +180,5 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: 5163edd1731e43040a5ca51145f0cf3d, type: 2}
+  - {fileID: 11400000, guid: 0b5aadb154b661e4ab853717625b8297, type: 2}
   requiredWorkshopUpgrades: []

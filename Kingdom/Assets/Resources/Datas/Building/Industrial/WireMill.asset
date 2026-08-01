@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: WireMill
   m_EditorClassIdentifier: 
   id: WireMill
-  Label: "电线厂"
-  Description: "将铜锭拉拔、退火并包覆为标准电线，为电网、电机和电子设备提供导体。"
+  Label: "\u7535\u6C14\u5236\u9020\u5382"
+  Description: "\u4EE5\u62C9\u4E1D\u3001\u7EDD\u7F18\u3001\u7ED5\u7EC4\u548C\u88C5\u914D\u5DE5\u5E8F\u751F\u4EA7\u94DC\u7EBF\u4E0E\u57FA\u7840\u7535\u5B50\u5143\u4EF6\uFF0C\u662F\u7535\u6C14\u5DE5\u4E1A\u7684\u96C6\u4E2D\u5236\u9020\u8282\u70B9\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -166,7 +167,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.5
+      scalar: 1.4
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.35
       layer: 0
       operators: []
   resourceConsumptionRates:
@@ -186,12 +195,12 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.05
+      scalar: 0.1
       layer: 0
       operators: []
   requiredResearch:

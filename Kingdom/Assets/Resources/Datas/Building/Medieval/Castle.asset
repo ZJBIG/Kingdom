@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Castle
   m_EditorClassIdentifier: 
   id: Castle
-  Label: "城堡"
-  Description: "在瞭望与预警体系上整合城墙、守军、仓储和指挥设施，为城市提供完整而持久的防御核心。"
+  Label: "\u57CE\u5821"
+  Description: "\u5728\u77AD\u671B\u4E0E\u9884\u8B66\u4F53\u7CFB\u4E0A\u6574\u5408\u57CE\u5899\u3001\u5B88\u519B\u3001\u4ED3\u50A8\u548C\u6307\u6325\u8BBE\u65BD\uFF0C\u4E3A\u57CE\u5E02\u63D0\u4F9B\u5B8C\u6574\u800C\u6301\u4E45\u7684\u9632\u5FA1\u6838\u5FC3\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -172,5 +172,5 @@ MonoBehaviour:
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:
-  - {fileID: 11400000, guid: b33163bdc0ef2be498e6b72fabe84928, type: 2}
+  - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}
   requiredWorkshopUpgrades: []

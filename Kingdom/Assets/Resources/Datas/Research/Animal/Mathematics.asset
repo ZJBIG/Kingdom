@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: Mathematics
   m_EditorClassIdentifier: 
   id: Mathematics
-  Label: "\u6570\u5B66"
-  Description: "\u4ECE\u8BA1\u6570\u3001\u5206\u7EC4\u548C\u6BD4\u8F83\u4E2D\u5F62\u6210\u62BD\u8C61\u6570\u91CF\u6982\u5FF5\uFF0C\u4E3A\u6D4B\u91CF\u3001\u5386\u6CD5\u3001\u5E93\u5B58\u8BB0\u5F55\u548C\u540E\u7EED\u5DE5\u7A0B\u8BA1\u7B97\u5960\u5B9A\u57FA\u7840\u3002"
-  BaseCost: 1000
+  Label: "\u5B9E\u7528\u6570\u5B66"
+  Description: "\u628A\u7B97\u672F\u3001\u6BD4\u4F8B\u3001\u957F\u5EA6\u548C\u57FA\u7840\u51E0\u4F55\u7EDF\u4E00\u4E3A\u670D\u52A1\u4E8E\u751F\u4EA7\u3001\u6D4B\u91CF\u4E0E\u7EC4\u7EC7\u7BA1\u7406\u7684\u5B9E\u7528\u6570\u5B66\u3002"
+  BaseCost: 1700
   prerequisites:
-  - {fileID: 11400000, guid: cb3f7149f68e72842a8bbf1292147519, type: 2}
+  - {fileID: 11400000, guid: 69fe973ac1d24cc488e9591eaaba0d12, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 80
+      scalar: 98
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
@@ -32,7 +32,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 40
+      scalar: 49
       layer: 0
       operators: []
   effects:
@@ -44,7 +44,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.25
+      scalar: 1.3375
       layer: 0
       operators: []
   TechLevel: 0

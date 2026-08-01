@@ -15,11 +15,11 @@ MonoBehaviour:
   id: CharcoalMaking
   Label: "\u70E7\u70AD\u6280\u672F"
   Description: "\u901A\u8FC7\u9650\u6C27\u5806\u70E7\u628A\u6728\u6750\u8F6C\u5316\u4E3A\u9AD8\u70ED\u503C\u6728\u70AD\uFF0C\u4E3A\u7A91\u7089\u3001\u91D1\u5C5E\u51B6\u70BC\u548C\u7CBE\u7EC6\u52A0\u5DE5\u63D0\u4F9B\u66F4\u7A33\u5B9A\u7684\u9AD8\u6E29\u71C3\u6599\u3002"
-  BaseCost: 4000
+  BaseCost: 6000
   prerequisites:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}
-  - {fileID: 11400000, guid: 1bc3d805ba9fd1242bfc09f27165df9a, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:

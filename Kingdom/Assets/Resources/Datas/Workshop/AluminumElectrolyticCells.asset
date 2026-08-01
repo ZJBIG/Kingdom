@@ -14,21 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AluminumElectrolyticCells
   Label: "\u94DD\u7535\u89E3\u69FD\u7EC4"
-  Description: "\u7535\u89E3\u69FD\u4EE5\u7A33\u5B9A\u7535\u6D41\u5236\u53D6\u94DD\uFF0C\u63D0\u9AD8\u94DD\u51B6\u70BC\u5382\u4EA7\u80FD\u3002"
-  Category: "\u7535\u6C14"
-  SortOrder: 320
+  Description: "\u7531\u8010\u706B\u69FD\u4F53\u3001\u78B3\u9633\u6781\u548C\u5927\u7535\u6D41\u6BCD\u7EBF\u6784\u6210\u7684\u70BC\u94DD\u8BBE\u5907\u3002"
+  Category: "\u51B6\u91D1"
+  SortOrder: 310
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: d92e7fb80a0bd8f4c9c561de2958b336, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 700
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
@@ -36,7 +36,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 300
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
@@ -44,7 +44,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 200
       layer: 0
       operators: []
   effects:
@@ -55,6 +55,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.2
+      scalar: 1.25
       layer: 0
       operators: []

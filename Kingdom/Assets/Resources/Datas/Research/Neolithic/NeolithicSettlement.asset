@@ -18,8 +18,8 @@ MonoBehaviour:
     \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD825%\u3002"
   BaseCost: 4400
   prerequisites:
-  - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
+  - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}
   - {fileID: 11400000, guid: aaca627f761546a439f07f67a025864c, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}

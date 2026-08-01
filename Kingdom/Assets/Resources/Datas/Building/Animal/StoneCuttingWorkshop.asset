@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: StoneCuttingWorkshop
   m_EditorClassIdentifier: 
   id: StoneCuttingWorkshop
-  Label: "切石工坊"
-  Description: "将粗石切削成规整石材，使其能够用于耐久建筑、道路和更复杂的工程。"
+  Label: "\u5207\u77F3\u5DE5\u574A"
+  Description: "\u5C06\u7C97\u77F3\u5207\u524A\u6210\u89C4\u6574\u77F3\u6750\uFF0C\u4F7F\u5176\u80FD\u591F\u7528\u4E8E\u8010\u4E45\u5EFA\u7B51\u3001\u9053\u8DEF\u548C\u66F4\u590D\u6742\u7684\u5DE5\u7A0B\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -173,5 +173,4 @@ MonoBehaviour:
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
-  - {fileID: 11400000, guid: 9cc2759195345d54fa1a5ea18af00e1d, type: 2}
   requiredWorkshopUpgrades: []

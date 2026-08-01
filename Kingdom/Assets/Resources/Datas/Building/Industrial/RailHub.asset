@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: RailHub
   m_EditorClassIdentifier: 
   id: RailHub
-  Label: Rail Hub
-  Description: Connects industrial districts and forms the first logistics throughput
-    node.
+  Label: "\u94C1\u8DEF\u67A2\u7EBD"
+  Description: "\u901A\u8FC7\u94C1\u8DEF\u7AD9\u573A\u3001\u4ED3\u5E93\u3001\u7535\u62A5\u4FE1\u53F7\u548C\u8C03\u5EA6\u8BBE\u65BD\u7EC4\u7EC7\u5927\u5B97\u8D27\u7269\u8FD0\u8F93\uFF0C\u4E0D\u518D\u4F9D\u8D56\u5185\u71C3\u673A\u7814\u7A76\u89E3\u9501\u3002"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -41,7 +40,7 @@ MonoBehaviour:
     operators: []
   productivityGranted:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
     scalar: 45
     layer: 0
@@ -55,7 +54,7 @@ MonoBehaviour:
     operators: []
   researchPowerGranted:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
     scalar: 5
     layer: 0
@@ -172,7 +171,7 @@ MonoBehaviour:
       operators: []
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     second:
       sign: 0
       representation: 1
@@ -190,6 +189,5 @@ MonoBehaviour:
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
-  - {fileID: 11400000, guid: c20610d6f6d6f514183d375456418970, type: 2}
-  requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: 91dbfa1289790ad459dee070148e8a46, type: 2}
+  - {fileID: 11400000, guid: f40d04ef655d0ce4b9f8a496cfc5d874, type: 2}
+  requiredWorkshopUpgrades: []

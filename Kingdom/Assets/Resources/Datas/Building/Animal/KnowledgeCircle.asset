@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: KnowledgeCircle
   m_EditorClassIdentifier: 
   id: KnowledgeCircle
-  Label: "知识圈"
-  Description: "由经验丰富的成员记录天象、动植物和工具用法，把零散经验转化为最早的研究力。"
+  Label: "\u77E5\u8BC6\u5708"
+  Description: "\u7531\u7ECF\u9A8C\u4E30\u5BCC\u7684\u6210\u5458\u8BB0\u5F55\u5929\u8C61\u3001\u52A8\u690D\u7269\u548C\u5DE5\u5177\u7528\u6CD5\uFF0C\u628A\u96F6\u6563\u7ECF\u9A8C\u8F6C\u5316\u4E3A\u6700\u65E9\u7684\u7814\u7A76\u529B\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 11400000, guid: 704f8c01123417d4e815763f95a5c807, type: 2}
   costGrowth:

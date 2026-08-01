@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: HotBlastStoves
   m_EditorClassIdentifier: 
   id: HotBlastStoves
-  Label: "\u70ED\u98CE\u7089\u7EC4"
-  Description: "\u70ED\u98CE\u7089\u56DE\u6536\u7089\u6C14\u9884\u70ED\u9F13\u98CE\uFF0C\u964D\u4F4E\u9AD8\u7089\u70ED\u635F\u5931\u5E76\u63D0\u9AD8\u94A2\u94C1\u4EA7\u91CF\u3002"
+  Label: "\u70ED\u98CE\u8FDE\u94F8\u673A\u7EC4"
+  Description: "\u7531\u70ED\u98CE\u7089\u3001\u9F13\u98CE\u7BA1\u3001\u7ED3\u6676\u5668\u3001\u5F15\u952D\u8F8A\u548C\u5207\u5272\u8BBE\u5907\u7EC4\u6210\u7684\u94A2\u94C1\u751F\u4EA7\u7EBF\u3002"
   Category: "\u51B6\u91D1"
   SortOrder: 190
   TechLevel: 3
@@ -28,15 +28,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
+      scalar: 600
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
@@ -44,7 +36,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 80
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
       layer: 0
       operators: []
   effects:
@@ -55,6 +55,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.35
       layer: 0
       operators: []

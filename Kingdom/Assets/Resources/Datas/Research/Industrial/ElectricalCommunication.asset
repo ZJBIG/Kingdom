@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ElectricalCommunication
   m_EditorClassIdentifier: 
   id: ElectricalCommunication
-  Label: "\u7535\u6C14\u901A\u4FE1"
-  Description: "\u5229\u7528\u7535\u4fe1\u53f7\u3001\u7ebf\u8def\u548c\u4e2d\u7ee7\u8bbe\u5907\u8fdc\u8ddd\u79bb\u4f20\u9012\u7f16\u7801\u4fe1\u606f\uff0c\u4f7f\u8f66\u7ad9\u3001\u5de5\u5382\u4e0e\u7ba1\u7406\u673a\u6784\u80fd\u591f\u5feb\u901f\u4ea4\u6362\u6307\u4ee4\u548c\u8fd0\u884c\u72b6\u6001\u3002"
-  BaseCost: 450000
+  Label: "\u7535\u62A5\u4E0E\u94C1\u8DEF\u8C03\u5EA6"
+  Description: "\u5229\u7528\u7535\u62A5\u3001\u7EE7\u7535\u5668\u548C\u533A\u6BB5\u4FE1\u53F7\u8FDB\u884C\u8FDC\u8DDD\u79BB\u901A\u4FE1\u4E0E\u94C1\u8DEF\u8C03\u5EA6\u3002"
+  BaseCost: 650000
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
   - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
@@ -25,7 +25,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 350
+      scalar: 525
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
@@ -33,7 +33,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 231
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
@@ -41,7 +41,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 70
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 84
       layer: 0
       operators: []
   effects:
@@ -65,6 +73,17 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.05
+      layer: 0
+      operators: []
+  - Type: 16
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.15
       layer: 0
       operators: []
   TechLevel: 3

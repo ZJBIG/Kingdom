@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PrecisionTooling
   m_EditorClassIdentifier: 
   id: PrecisionTooling
-  Label: "\u7CBE\u5BC6\u52A0\u5DE5"
-  Description: "\u7CBE\u5BC6\u5200\u5177\u548C\u91CF\u5177\u63D0\u5347\u52A0\u5DE5\u7CBE\u5EA6\uFF0C\u8FDB\u4E00\u6B65\u964D\u4F4E\u5EFA\u7B51\u5EFA\u9020\u6210\u672C\u3002"
+  Label: "\u7CBE\u5BC6\u673A\u5E8A\u7EC4"
+  Description: "\u7531\u8F66\u5E8A\u3001\u94E3\u5E8A\u3001\u91CF\u5177\u548C\u5939\u5177\u7EC4\u6210\u7684\u7CBE\u5BC6\u52A0\u5DE5\u8BBE\u5907\u3002"
   Category: "\u673A\u68B0"
   SortOrder: 50
   TechLevel: 3
@@ -56,13 +56,13 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 4
-    Building: {fileID: 0}
+  - Type: 0
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.1
+      scalar: 1.2
       layer: 0
       operators: []

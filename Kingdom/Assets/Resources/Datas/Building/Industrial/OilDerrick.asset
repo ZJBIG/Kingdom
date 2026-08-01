@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: OilDerrick
   m_EditorClassIdentifier: 
   id: OilDerrick
-  Label: "石油钻井"
-  Description: "钻入地下油层并抽取原油，为炼油、化工和液体燃料体系提供基础资源。"
+  Label: "\u77F3\u6CB9\u94BB\u4E95"
+  Description: "\u94BB\u5165\u5730\u4E0B\u6CB9\u5C42\u5E76\u62BD\u53D6\u539F\u6CB9\uFF0C\u4E3A\u70BC\u6CB9\u3001\u5316\u5DE5\u548C\u6DB2\u4F53\u71C3\u6599\u4F53\u7CFB\u63D0\u4F9B\u57FA\u7840\u8D44\u6E90\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

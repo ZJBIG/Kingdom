@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: AluminumSmelter
   m_EditorClassIdentifier: 
   id: AluminumSmelter
-  Label: "铝冶炼厂"
-  Description: "消耗大量电力从铝土矿中提炼铝，生产轻质且耐腐蚀的工业金属。"
+  Label: "\u94DD\u51B6\u70BC\u5382"
+  Description: "\u6D88\u8017\u5927\u91CF\u7535\u529B\u4ECE\u94DD\u571F\u77FF\u4E2D\u63D0\u70BC\u94DD\uFF0C\u751F\u4EA7\u8F7B\u8D28\u4E14\u8010\u8150\u8680\u7684\u5DE5\u4E1A\u91D1\u5C5E\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -196,5 +197,5 @@ MonoBehaviour:
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
-  - {fileID: 11400000, guid: b0371f98962797846ab85d879bd2cb16, type: 2}
+  - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredWorkshopUpgrades: []

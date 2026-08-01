@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialChemistry
   Label: "\u5DE5\u4E1A\u5316\u5B66"
-  Description: "\u628a\u9178\u78b1\u53cd\u5e94\u3001\u84b8\u998f\u3001\u50ac\u5316\u548c\u7eaf\u5ea6\u63a7\u5236\u8f6c\u5316\u4e3a\u8fde\u7eed\u5de5\u827a\uff0c\u89c4\u6a21\u5236\u9020\u71c3\u6599\u3001\u80a5\u6599\u3001\u6eb6\u5242\u4e0e\u5de5\u4e1a\u4e2d\u95f4\u4f53\u3002"
-  BaseCost: 180000
+  Description: "\u5EFA\u7ACB\u77F3\u6CB9\u3001\u7164\u5316\u5DE5\u3001\u7845\u9178\u76D0\u548C\u57FA\u7840\u5316\u5B66\u53CD\u5E94\u4F53\u7CFB\uFF0C\u4E3A\u71C3\u6599\u3001\u6A61\u80F6\u3001\u73BB\u7483\u3001\u9676\u74F7\u4E0E\u6DF7\u51DD\u571F\u63D0\u4F9B\u6280\u672F\u57FA\u7840\u3002"
+  BaseCost: 240000
   prerequisites:
   - {fileID: 11400000, guid: b4d2844ad346b0a40877184e732dd675, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
@@ -25,7 +25,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 350
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
@@ -33,15 +33,23 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 210
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 140
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
       layer: 0
       operators: []
   effects:
@@ -54,6 +62,17 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: eceb037f89465d9419e3a36f8a208e95, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.05
       layer: 0
       operators: []
   TechLevel: 3

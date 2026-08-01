@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Glassworks
   m_EditorClassIdentifier: 
   id: Glassworks
-  Label: "玻璃厂"
-  Description: "熔化并精炼硅砂，生产建筑、实验仪器和精密设备所需的玻璃。"
+  Label: "\u7845\u9178\u76D0\u5DE5\u5382"
+  Description: "\u5229\u7528\u77F3\u6599\u4E0E\u7126\u70AD\u6279\u91CF\u751F\u4EA7\u73BB\u7483\u548C\u5DE5\u4E1A\u9676\u74F7\uFF0C\u53D6\u6D88\u4EC5\u4E3A\u73BB\u7483\u670D\u52A1\u7684\u72EC\u7ACB\u7845\u7802\u8D44\u6E90\u94FE\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -166,7 +167,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1
+      scalar: 1.2
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
@@ -174,11 +175,11 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.2
+      scalar: 0.4
       layer: 0
       operators: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: 45aabba1b2f013248a6c420af5781297, type: 2}
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     second:
       sign: 0
       representation: 1
@@ -186,23 +187,15 @@ MonoBehaviour:
       scalar: 1.5
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.4
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.2
+      scalar: 0.5
       layer: 0
       operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: b7b75fb6b46ffb441ab68c0a334e385e, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
   requiredWorkshopUpgrades: []

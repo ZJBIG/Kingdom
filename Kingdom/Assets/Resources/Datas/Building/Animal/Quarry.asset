@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Quarry
   m_EditorClassIdentifier: 
   id: Quarry
-  Label: "采石场"
-  Description: "从裸露岩层中采出粗石，持续供应石器、道路和石质建筑的原料。"
+  Label: "\u91C7\u77F3\u573A"
+  Description: "\u4ECE\u88F8\u9732\u5CA9\u5C42\u4E2D\u91C7\u51FA\u7C97\u77F3\uFF0C\u6301\u7EED\u4F9B\u5E94\u77F3\u5668\u3001\u9053\u8DEF\u548C\u77F3\u8D28\u5EFA\u7B51\u7684\u539F\u6599\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -157,5 +157,4 @@ MonoBehaviour:
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}
-  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   requiredWorkshopUpgrades: []

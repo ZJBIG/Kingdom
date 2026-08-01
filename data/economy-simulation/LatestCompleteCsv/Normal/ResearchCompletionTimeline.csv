@@ -1,0 +1,8 @@
+TimeSeconds,Minute,TechLevel,ResearchId,Count
+78.0,1.3,Animal,"ControlledFire",0
+618.0,10.3,Animal,"Quarry",0
+1024.0,17.07,Animal,"AnimalHusbandry",0
+1351.0,22.52,Animal,"ClayExtraction",0
+1740.0,29,Animal,"Agriculture",0
+2741.0,45.68,Animal,"HerbalKnowledge",0
+4080.0,68,Animal,"KnowledgeSharing",0

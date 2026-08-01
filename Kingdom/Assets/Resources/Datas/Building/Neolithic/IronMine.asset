@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IronMine
   m_EditorClassIdentifier: 
   id: IronMine
-  Label: "铁矿井"
-  Description: "开采铁矿石，为铁器、钢材和重型建筑的生产提供基础矿料。"
+  Label: "\u94C1\u77FF\u4E95"
+  Description: "\u5F00\u91C7\u94C1\u77FF\u77F3\uFF0C\u4E3A\u94C1\u5668\u3001\u94A2\u6750\u548C\u91CD\u578B\u5EFA\u7B51\u7684\u751F\u4EA7\u63D0\u4F9B\u57FA\u7840\u77FF\u6599\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -166,5 +166,4 @@ MonoBehaviour:
   requiredResearch:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
-  - {fileID: 11400000, guid: 3fa12ccc27b02d84485997afd86f5bcd, type: 2}
   requiredWorkshopUpgrades: []

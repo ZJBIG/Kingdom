@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CouncilHall
   m_EditorClassIdentifier: 
   id: CouncilHall
-  Label: "议事厅"
-  Description: "集中处理议事、账目和劳役分配，使聚落获得更高的生产组织能力与研究效率。"
+  Label: "\u8BAE\u4E8B\u5385"
+  Description: "\u96C6\u4E2D\u5904\u7406\u8BAE\u4E8B\u3001\u8D26\u76EE\u548C\u52B3\u5F79\u5206\u914D\uFF0C\u4F7F\u805A\u843D\u83B7\u5F97\u66F4\u9AD8\u7684\u751F\u4EA7\u7EC4\u7EC7\u80FD\u529B\u4E0E\u7814\u7A76\u6548\u7387\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 558ee4fc36f27a04795913bd2246b9e8, type: 2}
   costGrowth:

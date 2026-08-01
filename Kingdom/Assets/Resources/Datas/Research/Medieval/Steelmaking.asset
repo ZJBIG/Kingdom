@@ -13,19 +13,20 @@ MonoBehaviour:
   m_Name: Steelmaking
   m_EditorClassIdentifier: 
   id: Steelmaking
-  Label: "\u70BC\u94A2\u672F"
-  Description: "\u63A7\u5236\u78B3\u542B\u91CF\u3001\u7089\u6E29\u548C\u953B\u9020\u8FC7\u7A0B\uFF0C\u628A\u751F\u94C1\u52A0\u5DE5\u6210\u517C\u5177\u5F3A\u5EA6\u4E0E\u97E7\u6027\u7684\u94A2\u6750\uFF0C\u7528\u4E8E\u5DE5\u5177\u3001\u6B66\u5668\u548C\u673A\u68B0\u3002"
-  BaseCost: 100000
+  Label: "\u70BC\u94A2\u4E0E\u51B6\u91D1\u6807\u51C6"
+  Description: "\u6574\u5408\u7089\u6E29\u63A7\u5236\u3001\u70BC\u94A2\u3001\u5408\u91D1\u914D\u6BD4\u3001\u8D28\u91CF\u68C0\u9A8C\u548C\u51B6\u91D1\u6807\u51C6\uFF0C\u5EFA\u7ACB\u7A33\u5B9A\u7684\u94A2\u94C1\u751F\u4EA7\u4F53\u7CFB\u3002"
+  BaseCost: 210000
   prerequisites:
+  - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
   - {fileID: 11400000, guid: 3b4ee5c3fc07b4a4099bc994f2cb1a8c, type: 2}
-  - {fileID: 11400000, guid: c68cc69ccff5fc9489567e36dce84768, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 300
+      scalar: 210
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
@@ -33,7 +34,31 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 1820
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 70
       layer: 0
       operators: []
   effects:
@@ -46,6 +71,39 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.15
+      layer: 0
+      operators: []
+  - Type: 8
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - Type: 7
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_MetallurgicalStandards
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
       layer: 0
       operators: []
   TechLevel: 2

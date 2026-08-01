@@ -17,7 +17,6 @@ MonoBehaviour:
   Description: "\u8FA8\u8BA4\u5E38\u89C1\u836F\u7528\u690D\u7269\u5E76\u603B\u7ED3\u91C7\u96C6\u3001\u5E72\u71E5\u548C\u914D\u4F0D\u65B9\u6CD5\uFF0C\u4F7F\u4F24\u53E3\u5904\u7406\u548C\u5E38\u89C1\u75C5\u75C7\u62E5\u6709\u66F4\u53EF\u9760\u7684\u8349\u836F\u6765\u6E90\u3002"
   BaseCost: 850
   prerequisites:
-  - {fileID: 11400000, guid: cb3f7149f68e72842a8bbf1292147519, type: 2}
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}

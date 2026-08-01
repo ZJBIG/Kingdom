@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrganizedDefense
   Label: "\u7EC4\u7EC7\u9632\u536B"
   Description: "\u8BBE\u7F6E\u8B66\u6212\u3001\u96C6\u5408\u548C\u8F6E\u73ED\u5236\u5EA6\uFF0C\u7EDF\u4E00\u6B66\u5668\u4F7F\u7528\u4E0E\u9632\u5B88\u4F4D\u7F6E\uFF0C\u4F7F\u805A\u843D\u80FD\u591F\u5E94\u5BF9\u6709\u7EC4\u7EC7\u7684\u88AD\u51FB\u3002"
-  BaseCost: 2200
+  BaseCost: 2400
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
   - {fileID: 11400000, guid: ac8a396eefdc1a84a85671ed54c38311, type: 2}

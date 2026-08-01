@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CoalMine
   m_EditorClassIdentifier: 
   id: CoalMine
-  Label: "煤矿井"
-  Description: "从煤层持续开采煤炭，为冶炼、供热和早期动力设备提供高密度燃料。"
+  Label: "\u7164\u77FF\u4E95"
+  Description: "\u4ECE\u7164\u5C42\u6301\u7EED\u5F00\u91C7\u7164\u70AD\uFF0C\u4E3A\u51B6\u70BC\u3001\u4F9B\u70ED\u548C\u65E9\u671F\u52A8\u529B\u8BBE\u5907\u63D0\u4F9B\u9AD8\u5BC6\u5EA6\u71C3\u6599\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -166,5 +166,4 @@ MonoBehaviour:
   requiredResearch:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
-  - {fileID: 11400000, guid: 1bc3d805ba9fd1242bfc09f27165df9a, type: 2}
   requiredWorkshopUpgrades: []

@@ -13,18 +13,27 @@ MonoBehaviour:
   m_Name: StoneTools
   m_EditorClassIdentifier: 
   id: StoneTools
-  Label: "\u6253\u5236\u77F3\u5668"
-  Description: "\u6539\u8FDB\u77F3\u5668\u7684\u6253\u5236\u3001\u78E8\u5236\u3001\u5203\u53E3\u4FEE\u6574\u548C\u88C5\u67C4\u65B9\u6CD5\uFF0C\u63D0\u9AD8\u91C7\u96C6\u3001\u72E9\u730E\u3001\u6728\u4F5C\u4E0E\u5EFA\u9020\u7684\u6548\u7387\u3002"
-  BaseCost: 300
+  Label: "\u77F3\u6599\u52A0\u5DE5"
+  Description: "\u6539\u8FDB\u77F3\u6599\u6572\u51FB\u3001\u5207\u5272\u3001\u6253\u78E8\u4E0E\u88C5\u67C4\u65B9\u6CD5\uFF0C\u628A\u91C7\u77F3\u3001\u5207\u77F3\u548C\u65E9\u671F\u5EFA\u9020\u6574\u5408\u4E3A\u4E00\u5957\u7A33\u5B9A\u5DE5\u827A\u3002"
+  BaseCost: 700
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}
+  - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 30
+      scalar: 427
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 35
       layer: 0
       operators: []
   effects:
@@ -36,7 +45,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.25
+      scalar: 1.35
       layer: 0
       operators: []
   - Type: 1
@@ -47,7 +56,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.2
+      scalar: 1.296
       layer: 0
       operators: []
   - Type: 5

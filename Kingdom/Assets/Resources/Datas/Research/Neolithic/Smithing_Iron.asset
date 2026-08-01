@@ -15,10 +15,10 @@ MonoBehaviour:
   id: Smithing_Iron
   Label: "\u51B6\u70BC\u94C1"
   Description: "\u5229\u7528\u66F4\u9AD8\u7089\u6E29\u8FD8\u539F\u94C1\u77FF\u5E76\u53CD\u590D\u953B\u6253\u9664\u6742\uFF0C\u83B7\u5F97\u9002\u5408\u91CD\u578B\u5DE5\u5177\u3001\u6B66\u5668\u548C\u5DE5\u7A0B\u6784\u4EF6\u7684\u94C1\u6750\u3002"
-  BaseCost: 15000
+  BaseCost: 19000
   prerequisites:
-  - {fileID: 11400000, guid: 891454c3adf86bd4cb5a789500de06cc, type: 2}
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
     second:

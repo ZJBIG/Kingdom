@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Gunpowder
   m_EditorClassIdentifier: 
   id: Gunpowder
-  Label: "\u706B\u836F"
-  Description: "\u638C\u63E1\u785D\u77F3\u3001\u786B\u548C\u6728\u70AD\u7684\u914D\u6BD4\u3001\u7814\u78E8\u4E0E\u5B89\u5168\u50A8\u5B58\uFF0C\u83B7\u5F97\u53EF\u7528\u4E8E\u7206\u7834\u3001\u4FE1\u53F7\u548C\u706B\u5668\u7684\u9AD8\u80FD\u6DF7\u5408\u7269\u3002"
-  BaseCost: 180000
+  Label: "\u706B\u836F\u4E0E\u519B\u68B0"
+  Description: "\u638C\u63E1\u706B\u836F\u914D\u5236\u3001\u50A8\u5B58\u548C\u6B66\u5668\u89C4\u683C\uFF0C\u540C\u65F6\u5EFA\u7ACB\u96C6\u4E2D\u519B\u68B0\u5E93\u5B58\u4E0E\u7EF4\u4FEE\u4F53\u7CFB\u3002"
+  BaseCost: 270000
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
   - {fileID: 11400000, guid: c4a53e8660f722743a8eef041c2d204d, type: 2}
@@ -25,7 +25,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 800
+      scalar: 1260
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
@@ -33,7 +33,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 560
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 280
       layer: 0
       operators: []
   effects:
@@ -46,6 +54,17 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.75
+      layer: 0
+      operators: []
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_Arsenal
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
       layer: 0
       operators: []
   TechLevel: 2

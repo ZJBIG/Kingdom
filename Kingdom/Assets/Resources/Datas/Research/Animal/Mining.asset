@@ -13,12 +13,28 @@ MonoBehaviour:
   m_Name: Mining
   m_EditorClassIdentifier: 
   id: Mining
-  Label: "\u77FF\u7269\u5F00\u91C7"
-  Description: "\u5EFA\u7ACB\u5BFB\u627E\u77FF\u8109\u3001\u5F00\u51FF\u5CA9\u5C42\u3001\u652F\u6491\u5751\u9053\u548C\u8FD0\u51FA\u77FF\u77F3\u7684\u57FA\u672C\u6D41\u7A0B\uFF0C\u4F7F\u5730\u4E0B\u8D44\u6E90\u80FD\u591F\u88AB\u6301\u7EED\u5229\u7528\u3002"
-  BaseCost: 600
+  Label: "\u7EFC\u5408\u91C7\u77FF"
+  Description: "\u6574\u5408\u77FF\u8109\u8BC6\u522B\u3001\u7164\u4E0E\u91D1\u5C5E\u77FF\u5F00\u91C7\u3001\u6D4B\u91CF\u52D8\u63A2\u548C\u77FF\u77F3\u9664\u6742\uFF0C\u7EDF\u4E00\u89E3\u9501\u65E9\u671F\u77FF\u4E1A\u4F53\u7CFB\u3002"
+  BaseCost: 1800
   prerequisites:
-  - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}
-  resourceRequirements: []
+  - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 364
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 164
+      layer: 0
+      operators: []
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 9cb1b7e87a2100d4e9dd2395989511ca, type: 2}
@@ -28,7 +44,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.242
       layer: 0
       operators: []
   - Type: 1
@@ -39,7 +55,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.242
       layer: 0
       operators: []
   - Type: 1
@@ -50,7 +66,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.242
       layer: 0
       operators: []
   - Type: 1
@@ -61,7 +77,40 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.242
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 7aaf2be48fbe76941a3d32fea47c3c29, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: 57f0b7d59bc08724b8aa235fa67c71f4, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
       layer: 0
       operators: []
   TechLevel: 0

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Calendar
   m_EditorClassIdentifier: 
   id: Calendar
-  Label: "\u5386\u6CD5"
-  Description: "\u4EE5\u65E5\u5F71\u3001\u6708\u76F8\u548C\u5B63\u8282\u5FAA\u73AF\u6821\u51C6\u65F6\u95F4\uFF0C\u5E2E\u52A9\u805A\u843D\u5B89\u6392\u64AD\u79CD\u3001\u6536\u83B7\u3001\u8FC1\u5F99\u4E0E\u7269\u8D44\u50A8\u5907\u3002"
-  BaseCost: 1400
+  Label: "\u5386\u6CD5\u4E0E\u89C2\u661F"
+  Description: "\u4F9D\u636E\u5929\u8C61\u548C\u5B63\u8282\u5468\u671F\u5EFA\u7ACB\u5386\u6CD5\uFF0C\u6539\u8FDB\u64AD\u79CD\u3001\u653E\u7267\u3001\u704C\u6E89\u4E0E\u957F\u671F\u65F6\u95F4\u8BB0\u5F55\u3002"
+  BaseCost: 1900
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}
   resourceRequirements:
@@ -24,7 +24,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 80
+      scalar: 126
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
@@ -32,12 +32,34 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 30
+      scalar: 63
       layer: 0
       operators: []
   effects:
   - Type: 2
     Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.21
+      layer: 0
+      operators: []
+  - Type: 2
+    Building: {fileID: 11400000, guid: 39694f82da13fe04bb37d117782fa5ec, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 2
+    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
     Resource: {fileID: 0}
     SystemId: 
     Value:

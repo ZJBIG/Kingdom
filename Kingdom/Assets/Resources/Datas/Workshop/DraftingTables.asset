@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DraftingTables
   Label: "\u5236\u56FE\u53F0"
-  Description: "\u6807\u51C6\u5316\u5DE5\u7A0B\u5236\u56FE\u4E0E\u65BD\u5DE5\u653E\u6837\uFF0C\u964D\u4F4E\u6240\u6709\u5EFA\u7B51\u7684\u5EFA\u9020\u6210\u672C\u3002"
+  Description: "\u5E26\u6BD4\u4F8B\u5C3A\u3001\u5706\u89C4\u548C\u6807\u51C6\u56FE\u7EB8\u5939\u5177\u7684\u5DE5\u7A0B\u5236\u56FE\u8BBE\u5907\u3002"
   Category: "\u57FA\u7840\u8BBE\u65BD"
   SortOrder: 10
   TechLevel: 3
@@ -27,23 +27,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 500
+      scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
+      scalar: 80
       layer: 0
       operators: []
   effects:
@@ -54,6 +46,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.1
+      scalar: 1.08
       layer: 0
       operators: []

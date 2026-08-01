@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Watchtower
   m_EditorClassIdentifier: 
   id: Watchtower
-  Label: "瞭望塔"
-  Description: "以固定守卫、信号系统和高处视野强化预警；后续可在城堡建筑学支持下扩建为城市防御核心。"
+  Label: "\u77AD\u671B\u5854"
+  Description: "\u4EE5\u56FA\u5B9A\u5B88\u536B\u3001\u4FE1\u53F7\u7CFB\u7EDF\u548C\u9AD8\u5904\u89C6\u91CE\u5F3A\u5316\u9884\u8B66\uFF1B\u540E\u7EED\u53EF\u5728\u57CE\u5821\u5EFA\u7B51\u5B66\u652F\u6301\u4E0B\u6269\u5EFA\u4E3A\u57CE\u5E02\u9632\u5FA1\u6838\u5FC3\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 633497d11724899468f5fc03127f87fa, type: 2}
   costGrowth:

@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: BlastFurnace
   m_EditorClassIdentifier: 
   id: BlastFurnace
-  Label: "高炉"
-  Description: "在高温连续炉中冶炼铁矿并控制成分，大规模生产工业钢材。"
+  Label: "\u9AD8\u7089"
+  Description: "\u5728\u9AD8\u6E29\u8FDE\u7EED\u7089\u4E2D\u51B6\u70BC\u94C1\u77FF\u5E76\u63A7\u5236\u6210\u5206\uFF0C\u5927\u89C4\u6A21\u751F\u4EA7\u5DE5\u4E1A\u94A2\u6750\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -192,14 +193,6 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.2
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.05
       layer: 0
       operators: []
   requiredResearch:

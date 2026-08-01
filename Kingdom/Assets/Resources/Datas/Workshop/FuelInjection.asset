@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: FuelInjection
   m_EditorClassIdentifier: 
   id: FuelInjection
-  Label: "\u71C3\u6CB9\u55B7\u5C04\u5668"
-  Description: "\u71C3\u6CB9\u55B7\u5C04\u7CBE\u786E\u63A7\u5236\u71C3\u6599\u4F9B\u7ED9\uFF0C\u63D0\u9AD8\u5DE5\u4E1A\u7CFB\u7EDF\u7684\u7EFC\u5408\u4EA7\u80FD\u3002"
-  Category: "\u52A8\u529B"
-  SortOrder: 260
+  Label: "\u5185\u71C3\u673A\u7EC4\u4EF6"
+  Description: "\u5305\u542B\u8F74\u627F\u3001\u55B7\u6CB9\u6CF5\u3001\u55B7\u5634\u548C\u8C03\u538B\u90E8\u4EF6\u7684\u53D1\u52A8\u673A\u6838\u5FC3\u5668\u4EF6\u3002"
+  Category: "\u673A\u68B0"
+  SortOrder: 240
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: eb85636560abbc04285e589ab69d2b53, type: 2}
+  - {fileID: 11400000, guid: c20610d6f6d6f514183d375456418970, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 7762bac6cbfb7cd4fa422eed9a652026, type: 2}
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 400
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
@@ -47,14 +47,22 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
   effects:
-  - Type: 8
-    Building: {fileID: 0}
+  - Type: 0
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.08
+      scalar: 1.25
       layer: 0
       operators: []

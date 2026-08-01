@@ -14,16 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StandardizedFreightContainers
   Label: "\u6807\u51C6\u8D27\u8FD0\u96C6\u88C5\u7BB1"
-  Description: "\u6807\u51C6\u8D27\u8FD0\u96C6\u88C5\u7BB1\u51CF\u5C11\u88C5\u5378\u65F6\u95F4\uFF0C\u63D0\u9AD8\u94C1\u8DEF\u67A2\u7EBD\u7269\u6D41\u541E\u5410\u91CF\u3002"
+  Description: "\u53EF\u91CD\u590D\u88C5\u5378\u3001\u5806\u53E0\u548C\u5C01\u88C5\u7684\u5927\u5B97\u8D27\u8FD0\u5BB9\u5668\u3002"
   Category: "\u7269\u6D41"
-  SortOrder: 310
+  SortOrder: 300
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: 633b96702afbb3c468b62a86c3b28f90, type: 2}
-  - {fileID: 11400000, guid: b8ed0f0b119e9e244a064b919eb2424a, type: 2}
-  - {fileID: 11400000, guid: 3d0e50623418ac24bb7d06edbfda9424, type: 2}
+  - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 58187b2531ff0854289cf092ed0f110b, type: 2}
+  - {fileID: 11400000, guid: 7f930336953f6ba48ad043598f0617cd, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
@@ -33,7 +31,7 @@ MonoBehaviour:
       scalar: 500
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
     second:
       sign: 0
       representation: 1
@@ -41,9 +39,17 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
   effects:
-  - Type: 11
-    Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
+  - Type: 12
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     Value:
       sign: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: VillageOrganization
   Label: "\u805A\u843D\u7EC4\u7EC7"
   Description: "\u5212\u5206\u5C45\u4F4F\u3001\u50A8\u85CF\u3001\u751F\u4EA7\u548C\u516C\u5171\u533A\u57DF\uFF0C\u5E76\u5EFA\u7ACB\u4EFB\u52A1\u5206\u6D3E\u4E0E\u7269\u8D44\u534F\u8C03\u65B9\u5F0F\uFF0C\u4F7F\u6269\u5927\u540E\u7684\u805A\u843D\u4FDD\u6301\u79E9\u5E8F\u3002"
-  BaseCost: 2000
+  BaseCost: 2200
   prerequisites:
   - {fileID: 11400000, guid: 69fe973ac1d24cc488e9591eaaba0d12, type: 2}
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

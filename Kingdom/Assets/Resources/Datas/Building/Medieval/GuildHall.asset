@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: GuildHall
   m_EditorClassIdentifier: 
   id: GuildHall
-  Label: "行会大厅"
-  Description: "协调工匠训练、行业规范和订单分配，同时提高生产效率与技术传播速度。"
+  Label: "\u884C\u4F1A\u5927\u5385"
+  Description: "\u534F\u8C03\u5DE5\u5320\u8BAD\u7EC3\u3001\u884C\u4E1A\u89C4\u8303\u548C\u8BA2\u5355\u5206\u914D\uFF0C\u540C\u65F6\u63D0\u9AD8\u751F\u4EA7\u6548\u7387\u4E0E\u6280\u672F\u4F20\u64AD\u901F\u5EA6\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:

@@ -13,18 +13,19 @@ MonoBehaviour:
   m_Name: MassProduction
   m_EditorClassIdentifier: 
   id: MassProduction
-  Label: "\u5927\u89C4\u6A21\u751F\u4EA7"
-  Description: "\u628a\u4ea7\u54c1\u62c6\u5206\u4e3a\u6807\u51c6\u96f6\u4ef6\u548c\u56fa\u5b9a\u5de5\u5e8f\uff0c\u5229\u7528\u4e13\u7528\u8bbe\u5907\u3001\u6d41\u6c34\u8282\u62cd\u4e0e\u8d28\u91cf\u62bd\u68c0\u6301\u7eed\u751f\u4ea7\u5927\u91cf\u540c\u89c4\u683c\u5236\u54c1\u3002"
-  BaseCost: 740000
+  Label: "\u6D41\u6C34\u7EBF\u751F\u4EA7"
+  Description: "\u5C06\u6807\u51C6\u5316\u90E8\u4EF6\u3001\u4F20\u9001\u7CFB\u7EDF\u3001\u5DE5\u4F4D\u5206\u89E3\u548C\u81EA\u52A8\u88C5\u914D\u6574\u5408\u4E3A\u6210\u719F\u7684\u6D41\u6C34\u7EBF\u751F\u4EA7\u65B9\u5F0F\u3002"
+  BaseCost: 900000
   prerequisites:
-  - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
+  - {fileID: 11400000, guid: a2707e58d347df14b9af90bdfd7e7bef, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 250
+      scalar: 350
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
@@ -32,7 +33,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 800
+      scalar: 560
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
@@ -40,7 +41,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 70
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 56
       layer: 0
       operators: []
   effects:
@@ -52,7 +61,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.25
+      scalar: 1.4375
       layer: 0
       operators: []
   TechLevel: 3

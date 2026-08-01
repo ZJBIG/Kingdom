@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WeavingWorkshop
   m_EditorClassIdentifier: 
   id: WeavingWorkshop
-  Label: "纺织工坊"
-  Description: "将植物纤维纺成线并织成布料，供应服装、储物、住房和工具制作。"
+  Label: "\u7EBA\u7EC7\u5DE5\u574A"
+  Description: "\u5C06\u690D\u7269\u7EA4\u7EF4\u7EBA\u6210\u7EBF\u5E76\u7EC7\u6210\u5E03\u6599\uFF0C\u4F9B\u5E94\u670D\u88C5\u3001\u50A8\u7269\u3001\u4F4F\u623F\u548C\u5DE5\u5177\u5236\u4F5C\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

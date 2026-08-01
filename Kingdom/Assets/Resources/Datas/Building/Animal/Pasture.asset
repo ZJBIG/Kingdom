@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Pasture
   m_EditorClassIdentifier: 
   id: Pasture
-  Label: "牧场"
-  Description: "圈定草场并集中放牧，稳定获得畜产品和食物，是后续牲畜围场的基础形态。"
+  Label: "\u7267\u573A"
+  Description: "\u5708\u5B9A\u8349\u573A\u5E76\u96C6\u4E2D\u653E\u7267\uFF0C\u7A33\u5B9A\u83B7\u5F97\u755C\u4EA7\u54C1\u548C\u98DF\u7269\uFF0C\u662F\u540E\u7EED\u7272\u755C\u56F4\u573A\u7684\u57FA\u7840\u5F62\u6001\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 11400000, guid: 9968e902b2866134396af64bcf810d2e, type: 2}
   costGrowth:

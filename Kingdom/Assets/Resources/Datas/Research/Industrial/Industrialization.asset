@@ -20,7 +20,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
   - {fileID: 11400000, guid: 0b5aadb154b661e4ab853717625b8297, type: 2}
-  - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
@@ -28,14 +27,6 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1000
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
       layer: 0
       operators: []
   effects:

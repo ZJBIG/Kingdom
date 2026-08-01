@@ -13,33 +13,35 @@ MonoBehaviour:
   m_Name: PressurizedReactors
   m_EditorClassIdentifier: 
   id: PressurizedReactors
-  Label: "\u52A0\u538B\u53CD\u5E94\u91DC"
-  Description: "\u52A0\u538B\u53CD\u5E94\u91DC\u6539\u5584\u5316\u5B66\u53CD\u5E94\u6761\u4EF6\uFF0C\u63D0\u9AD8\u5316\u5DE5\u5382\u4EA7\u80FD\u3002"
+  Label: "\u50AC\u5316\u9AD8\u538B\u53CD\u5E94\u5668"
+  Description: "\u96C6\u6210\u50AC\u5316\u5E8A\u3001\u8010\u538B\u91DC\u3001\u6362\u70ED\u5668\u548C\u8FC7\u7A0B\u4EEA\u8868\u7684\u5316\u5DE5\u53CD\u5E94\u8BBE\u5907\u3002"
   Category: "\u5316\u5DE5"
-  SortOrder: 300
+  SortOrder: 290
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: ffa84ea4406091042a6053fb373b8550, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
+  - {fileID: 11400000, guid: d2f78c059dca49546b8ea16a89b1f296, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 753d3f5abd876d04592e75ba88884750, type: 2}
+  - {fileID: 11400000, guid: fb1f28c62d8c3764ba9623d7c4b90751, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 350
+      scalar: 550
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 120
+      scalar: 150
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
@@ -55,6 +57,6 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.35
       layer: 0
       operators: []

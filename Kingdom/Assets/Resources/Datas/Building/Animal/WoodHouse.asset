@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WoodHouse
   m_EditorClassIdentifier: 
   id: WoodHouse
-  Label: "木屋"
-  Description: "用木框和简易围护建造基础住宅，为少量居民提供固定居所。"
+  Label: "\u6728\u5C4B"
+  Description: "\u7528\u6728\u6846\u548C\u7B80\u6613\u56F4\u62A4\u5EFA\u9020\u57FA\u7840\u4F4F\u5B85\uFF0C\u4E3A\u5C11\u91CF\u5C45\u6C11\u63D0\u4F9B\u56FA\u5B9A\u5C45\u6240\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 11400000, guid: 27844ae5e4c0d004fbfebb2d1cb1f802, type: 2}
   costGrowth:

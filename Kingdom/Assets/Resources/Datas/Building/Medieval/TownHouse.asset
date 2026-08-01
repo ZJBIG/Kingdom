@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TownHouse
   m_EditorClassIdentifier: 
   id: TownHouse
-  Label: "城镇住宅"
-  Description: "采用多层结构和紧凑街区布局，在有限空间内提供更高的人口容量。"
+  Label: "\u57CE\u9547\u4F4F\u5B85"
+  Description: "\u91C7\u7528\u591A\u5C42\u7ED3\u6784\u548C\u7D27\u51D1\u8857\u533A\u5E03\u5C40\uFF0C\u5728\u6709\u9650\u7A7A\u95F4\u5185\u63D0\u4F9B\u66F4\u9AD8\u7684\u4EBA\u53E3\u5BB9\u91CF\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 0}
   costGrowth:

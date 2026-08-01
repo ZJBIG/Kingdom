@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: CentralPowerStation
   m_EditorClassIdentifier: 
   id: CentralPowerStation
-  Label: "中央发电站"
-  Description: "以集中锅炉和大型发电机组持续供电，并通过电网向整个工业区分配能源。"
+  Label: "\u4E2D\u592E\u53D1\u7535\u7AD9"
+  Description: "\u4EE5\u96C6\u4E2D\u9505\u7089\u548C\u5927\u578B\u53D1\u7535\u673A\u7EC4\u6301\u7EED\u4F9B\u7535\uFF0C\u5E76\u901A\u8FC7\u7535\u7F51\u5411\u6574\u4E2A\u5DE5\u4E1A\u533A\u5206\u914D\u80FD\u6E90\u3002"
+  TechLevel: 0
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -194,15 +195,6 @@ MonoBehaviour:
       scalar: 0.12
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.05
-      layer: 0
-      operators: []
   requiredResearch:
-  - {fileID: 11400000, guid: b0371f98962797846ab85d879bd2cb16, type: 2}
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredWorkshopUpgrades: []

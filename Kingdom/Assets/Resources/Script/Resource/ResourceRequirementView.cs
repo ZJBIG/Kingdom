@@ -50,6 +50,30 @@ public sealed class ResourceRequirementView : MonoBehaviour
                 : $"{resource.Label}{(isRefund ? "（返还）" : string.Empty)}  {amount.ToGameString()}";
             Amount.color = isRefund ? RefundColor : normalAmountColor;
         }
+
+        ResizeTextBoxes();
+    }
+
+    private void ResizeTextBoxes()
+    {
+        RectTransform row = transform as RectTransform;
+        if (row == null)
+            return;
+
+        float rowHeight = 50f;
+        if (Label != null)
+            rowHeight = Mathf.Max(rowHeight, Label.GetPreferredValues(
+                Label.text, Label.rectTransform.rect.width, 0f).y + 8f);
+        if (Amount != null)
+            rowHeight = Mathf.Max(rowHeight, Amount.GetPreferredValues(
+                Amount.text, Amount.rectTransform.rect.width, 0f).y + 8f);
+
+        row.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rowHeight);
+        if (Label != null)
+            Label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rowHeight);
+        if (Amount != null)
+            Amount.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rowHeight);
+        LayoutRebuilder.MarkLayoutForRebuild(row);
     }
 
     private void CaptureColors()

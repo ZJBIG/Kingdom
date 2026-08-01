@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: VillageWorkshop
   m_EditorClassIdentifier: 
   id: VillageWorkshop
-  Label: "村落工坊"
-  Description: "设置固定工位并集中常用工具，使村落能够更高效地完成日常制造与维修。"
+  Label: "\u6751\u843D\u5DE5\u574A"
+  Description: "\u8BBE\u7F6E\u56FA\u5B9A\u5DE5\u4F4D\u5E76\u96C6\u4E2D\u5E38\u7528\u5DE5\u5177\uFF0C\u4F7F\u6751\u843D\u80FD\u591F\u66F4\u9AD8\u6548\u5730\u5B8C\u6210\u65E5\u5E38\u5236\u9020\u4E0E\u7EF4\u4FEE\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: f6da34800653e5e4babde58b9f782fe0, type: 2}
   costGrowth:

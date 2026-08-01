@@ -310,7 +310,7 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator ResearchQueue_PaymentClickThenQueueClick()
+    public IEnumerator ResearchQueue_QueuesUnpaidAndPaysThroughPaymentApi()
     {
         FindOrCreateManager<GameManager>("PlayMode-ResearchQueue");
         ResourceManager resourceManager =
@@ -326,8 +326,10 @@ public sealed class KingdomPlayModeTests
         Research queued = DataBase<Research>.Find("ControlledFire");
 
         Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
-        Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.PaidOnly));
         Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
+        Assert.That(researchManager.GetState(queued).CostPaid, Is.False);
+        Assert.That(researchManager.PayResearchCost(queued), Is.EqualTo(ResearchPaymentResult.Paid));
         Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
     }
 

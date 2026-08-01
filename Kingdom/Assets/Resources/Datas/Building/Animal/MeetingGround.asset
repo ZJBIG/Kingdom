@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MeetingGround
   m_EditorClassIdentifier: 
   id: MeetingGround
-  Label: "议事空地"
-  Description: "供部落议事、分配劳力与传授经验，提升整体生产组织和早期知识积累。"
+  Label: "\u8BAE\u4E8B\u7A7A\u5730"
+  Description: "\u4F9B\u90E8\u843D\u8BAE\u4E8B\u3001\u5206\u914D\u52B3\u529B\u4E0E\u4F20\u6388\u7ECF\u9A8C\uFF0C\u63D0\u5347\u6574\u4F53\u751F\u4EA7\u7EC4\u7EC7\u548C\u65E9\u671F\u77E5\u8BC6\u79EF\u7D2F\u3002"
   TechLevel: 0
   upgradeTo: {fileID: 11400000, guid: e993bff0627f9c34d96aab21fc1d69e7, type: 2}
   costGrowth:

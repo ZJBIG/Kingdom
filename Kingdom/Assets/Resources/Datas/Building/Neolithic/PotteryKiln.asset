@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PotteryKiln
   m_EditorClassIdentifier: 
   id: PotteryKiln
-  Label: "陶窑"
-  Description: "以高温烧制黏土，生产耐久陶器，用于储粮、运输和早期建筑。"
+  Label: "\u9676\u7A91"
+  Description: "\u4EE5\u9AD8\u6E29\u70E7\u5236\u9ECF\u571F\uFF0C\u751F\u4EA7\u8010\u4E45\u9676\u5668\uFF0C\u7528\u4E8E\u50A8\u7CAE\u3001\u8FD0\u8F93\u548C\u65E9\u671F\u5EFA\u7B51\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

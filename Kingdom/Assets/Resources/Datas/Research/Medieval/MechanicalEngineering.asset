@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanicalEngineering
   Label: "\u673A\u68B0\u5DE5\u7A0B"
-  Description: "\u7CFB\u7EDF\u7814\u7A76\u9F7F\u8F6E\u3001\u51F8\u8F6E\u3001\u66F2\u67C4\u3001\u8F74\u627F\u548C\u52A8\u529B\u4F20\u9012\uFF0C\u4F7F\u590D\u6742\u673A\u68B0\u80FD\u591F\u53EF\u9760\u5730\u653E\u5927\u5E76\u91CD\u590D\u4EBA\u529B\u6216\u81EA\u7136\u52A8\u529B\u3002"
-  BaseCost: 120000
+  Description: "\u7CFB\u7EDF\u7814\u7A76\u9F7F\u8F6E\u3001\u66F2\u67C4\u3001\u6C34\u8F6E\u3001\u78E8\u574A\u548C\u52A8\u529B\u4F20\u9012\uFF0C\u628A\u6539\u826F\u78E8\u574A\u5E76\u5165\u901A\u7528\u673A\u68B0\u5DE5\u7A0B\u3002"
+  BaseCost: 155000
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:
@@ -24,7 +24,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 200
+      scalar: 350
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
@@ -32,7 +32,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 50
+      scalar: 161
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 420
       layer: 0
       operators: []
   effects:
@@ -45,6 +53,17 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.25
+      layer: 0
+      operators: []
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: FirstThreeEras_ImprovedMilling
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
       layer: 0
       operators: []
   TechLevel: 2

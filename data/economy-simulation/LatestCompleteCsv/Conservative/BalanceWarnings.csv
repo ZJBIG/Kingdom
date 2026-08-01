@@ -1,0 +1,11 @@
+Type,Object,Reason,Severity,Suggestion
+"Building wait exceeds ten minutes","Arsenal","Construction inputs 1950 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","Castle","Construction inputs 4700 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","CentralPowerStation","Construction inputs 2400 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","LaunchCenter","Construction inputs 2800 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalStation","Construction inputs 3650 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","RoyalWorkshop","Construction inputs 2100 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","Shipyard","Construction inputs 5300 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Pacing failure","Neolithic","The run did not reach Neolithic within 24 hours.","High","Repair the Animal main line."
+"Pacing failure","Medieval","The run did not reach Medieval within 24 hours.","High","Repair ResearchPower and the Neolithic main line."
+"Progress drought","Animal","Longest interval without an active research target was 1371 minutes.","High","Move an affordable action or ResearchPower source earlier."

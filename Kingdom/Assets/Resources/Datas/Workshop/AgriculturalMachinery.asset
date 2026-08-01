@@ -14,15 +14,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AgriculturalMachinery
   Label: "\u519C\u4E1A\u673A\u68B0"
-  Description: "\u673A\u68B0\u5316\u8015\u4F5C\u6269\u5927\u5355\u4F4D\u52B3\u52A8\u529B\u7684\u8015\u79CD\u9762\u79EF\uFF0C\u63D0\u9AD8\u519C\u573A\u98DF\u7269\u4EA7\u91CF\u3002"
+  Description: "\u7531\u53D1\u52A8\u673A\u3001\u4F20\u52A8\u673A\u6784\u548C\u4E13\u7528\u519C\u5177\u7EC4\u6210\u7684\u8015\u4F5C\u4E0E\u6536\u83B7\u8BBE\u5907\u3002"
   Category: "\u519C\u4E1A"
   SortOrder: 80
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: 83a724b7bf27cee47a740dcda8e7b1d0, type: 2}
   requiredUpgrades:
-  - {fileID: 11400000, guid: 1c5b570d384b7474aa493cc9ddfb5a6c, type: 2}
+  - {fileID: 11400000, guid: afc2f399530a83d49abcb3275befed44, type: 2}
   resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 60
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
   - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     second:
       sign: 0
@@ -31,25 +55,29 @@ MonoBehaviour:
       scalar: 120
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 20
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 80
-      layer: 0
-      operators: []
   effects:
-  - Type: 1
+  - Type: 0
     Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.3
+      layer: 0
+      operators: []
+  - Type: 0
+    Building: {fileID: 11400000, guid: 39694f82da13fe04bb37d117782fa5ec, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.3
+      layer: 0
+      operators: []
+  - Type: 0
+    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

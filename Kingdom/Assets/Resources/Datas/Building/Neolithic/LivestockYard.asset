@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LivestockYard
   m_EditorClassIdentifier: 
   id: LivestockYard
-  Label: "牲畜围场"
-  Description: "以围栏、饲料和固定棚舍集中饲养牲畜，大幅提高畜产品与食物的稳定产量。"
+  Label: "\u7272\u755C\u56F4\u573A"
+  Description: "\u4EE5\u56F4\u680F\u3001\u9972\u6599\u548C\u56FA\u5B9A\u68DA\u820D\u96C6\u4E2D\u9972\u517B\u7272\u755C\uFF0C\u5927\u5E45\u63D0\u9AD8\u755C\u4EA7\u54C1\u4E0E\u98DF\u7269\u7684\u7A33\u5B9A\u4EA7\u91CF\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:

@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: PowerGridEngineering
   m_EditorClassIdentifier: 
   id: PowerGridEngineering
-  Label: "\u7535\u7F51\u5DE5\u7A0B"
-  Description: "\u8BBE\u8BA1\u53D1\u7535\u5E76\u7F51\u3001\u53D8\u7535\u3001\u8F93\u7535\u4FDD\u62A4\u548C\u8D1F\u8F7D\u5206\u914D\uFF0C\u4F7F\u7535\u529B\u80FD\u591F\u8DE8\u533A\u57DF\u7A33\u5B9A\u8F93\u9001\u5E76\u51CF\u5C11\u6545\u969C\u4E0E\u635F\u8017\u3002"
-  BaseCost: 240000
+  Label: "\u7535\u529B\u7CFB\u7EDF\u5DE5\u7A0B"
+  Description: "\u7EDF\u4E00\u7535\u6C14\u5316\u3001\u7535\u7F51\u8C03\u5EA6\u548C\u96C6\u4E2D\u5F0F\u53D1\u7535\uFF0C\u89E3\u9501\u4E2D\u592E\u53D1\u7535\u7AD9\u5E76\u63D0\u9AD8\u5168\u5C40\u4F9B\u7535\u80FD\u529B\u3002"
+  BaseCost: 900000
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
-  - {fileID: 11400000, guid: 812f449bf46164549b8d6743dd4d5aec, type: 2}
+  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 250
+      scalar: 805
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
@@ -33,7 +33,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 120
+      scalar: 399
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
@@ -41,7 +41,39 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 80
+      scalar: 56
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 175
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 105
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 175
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 630
       layer: 0
       operators: []
   effects:
@@ -53,10 +85,21 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.15
+      scalar: 1.4375
+      layer: 0
+      operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
       layer: 0
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 24
-  y: 19.597
+  x: 23.3
+  y: 20.2

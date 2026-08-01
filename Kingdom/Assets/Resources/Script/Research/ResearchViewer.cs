@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -17,6 +16,7 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     [SerializeField] private TMP_Text BaseInfo;
     [SerializeField] private RectTransform ResourceList;
     [SerializeField] private TMP_Text DoInvestButton;
+    [SerializeField] private GameObject AffordResource;
     [SerializeField] private Slider ProgressPercentage;
 
     private readonly Dictionary<Research, ResearchDisplayer> displayers = new();
@@ -115,17 +115,37 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             ResearchManager.Instance.HandleResearchAction(selectedResearch);
         actionMessage = result switch
         {
-            ResearchActionResult.PaidOnly => "Resources paid. Click again to start or queue.",
-            ResearchActionResult.Started => "Research started.",
-            ResearchActionResult.Queued => "Research queued.",
-            ResearchActionResult.Cancelled => "Research removed from queue.",
-            ResearchActionResult.InsufficientResources =>
-                "Queue failed: the complete prerequisite batch was not affordable.",
-            ResearchActionResult.AlreadyActive => "Research is already active.",
-            ResearchActionResult.Completed => "Research is already completed.",
-            ResearchActionResult.Blocked => "Research is not currently accessible.",
+            ResearchActionResult.PaidOnly => "资源已支付。",
+            ResearchActionResult.Started => "研究已开始。",
+            ResearchActionResult.Queued => "已加入研究队列。",
+            ResearchActionResult.QueuedWaitingResources => "已加入队列，等待资源。",
+            ResearchActionResult.Cancelled => "已取消排队。",
+            ResearchActionResult.AlreadyQueued => "研究已经在队列中。",
+            ResearchActionResult.InsufficientResources => "研究资源不足。",
+            ResearchActionResult.AlreadyActive => "研究正在进行中。",
+            ResearchActionResult.Completed => "研究已经完成。",
+            ResearchActionResult.Blocked => "当前无法进行此研究。",
+            ResearchActionResult.Invalid => "研究项目无效。",
             _ => string.Empty
         };
+        RefreshAll();
+    }
+
+    public void AffordResourceAction()
+    {
+        if (selectedResearch == null || researchManager == null)
+            return;
+
+        ResearchPaymentResult result = researchManager.PayResearchCost(selectedResearch);
+        actionMessage = result switch
+        {
+            ResearchPaymentResult.Paid => "资源已支付。",
+            ResearchPaymentResult.AlreadyPaid => "资源已经支付。",
+            ResearchPaymentResult.InsufficientResources => "研究资源不足。",
+            ResearchPaymentResult.Completed => "研究已经完成。",
+            _ => "研究项目无效。"
+        };
+        selectedVersion = -1;
         RefreshAll();
     }
 
@@ -257,9 +277,12 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
                 DoInvestButton.text = string.Empty;
             if (ProgressPercentage != null)
                 ProgressPercentage.value = 0f;
+            if (AffordResource != null)
+                AffordResource.SetActive(false);
             if (BaseInfo != null)
                 BaseInfo.text = string.Empty;
             RebuildRequirementRows(null);
+            PositionResourceListAfterBaseInfo();
             return;
         }
 
@@ -269,14 +292,17 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
 
         if (DoInvestButton != null)
             DoInvestButton.text = ButtonText(state);
+        if (AffordResource != null)
+            AffordResource.SetActive(
+                state.Status != ResearchStatus.Completed && !state.CostPaid);
         if (ProgressPercentage != null)
             ProgressPercentage.value = (float)state.ProgressRatio.ToDouble();
         if (BaseInfo != null)
         {
-            string label = selectedResearch.Label ?? "Unknown research";
-            string techLevelDesc = selectedResearch.TechLevel.GetDescription() ?? "No tech level";
+            string label = selectedResearch.Label ?? "未知研究";
+            string techLevelDesc = selectedResearch.TechLevel.GetDescription() ?? "未知时代";
             double progress = state.ProgressRatio.ToDouble() * 100d;
-            string desc = selectedResearch.Description ?? "No description";
+            string desc = selectedResearch.Description ?? "暂无研究说明";
             if (BaseInfo != null)
             {
                 BaseInfo.text = $"{label}\n{techLevelDesc}\n{progress:F2}%\n{desc}" +
@@ -288,23 +314,38 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             }
         }
 
-        PositionResourceListAfterBaseInfo();
         RebuildRequirementRows(selectedResearch);
+        PositionResourceListAfterBaseInfo();
     }
 
     private void PositionResourceListAfterBaseInfo()
     {
-        if (BaseInfo == null || ResourceList == null)
+        if (BaseInfo == null)
             return;
 
+        RectTransform detailContent = BaseInfo.rectTransform;
+        float contentWidth = detailContent.rect.width;
         float preferredHeight = BaseInfo.GetPreferredValues(
             BaseInfo.text,
-            BaseInfo.rectTransform.rect.width,
+            contentWidth,
             0f).y;
-        ResourceList.anchoredPosition = new Vector2(0f, -preferredHeight - 20f);
 
-        RectTransform detailContent = BaseInfo.rectTransform;
-        float requiredHeight = preferredHeight + 20f + ResourceList.rect.height;
+        float resourceListHeight = 0f;
+        if (ResourceList != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(ResourceList);
+            resourceListHeight = LayoutUtility.GetPreferredHeight(ResourceList);
+            if (resourceListHeight <= 0f)
+                resourceListHeight = ResourceList.rect.height;
+
+            ResourceList.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                resourceListHeight);
+            ResourceList.anchoredPosition = new Vector2(0f, -preferredHeight - 20f);
+        }
+
+        float requiredHeight = preferredHeight +
+            (ResourceList == null ? 0f : 20f + resourceListHeight);
         detailContent.SetSizeWithCurrentAnchors(
             RectTransform.Axis.Vertical,
             Mathf.Max(428f, requiredHeight));
@@ -313,43 +354,35 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
     private string QueueSummary()
     {
         if (researchManager == null)
-            return "Research queue unavailable";
+            return "研究队列不可用";
         List<string> lines = new();
         if (researchManager.ActiveResearch != null)
-            lines.Add($"Active: {researchManager.ActiveResearch.Definition.Label}");
+            lines.Add($"当前研究：{researchManager.ActiveResearch.Definition.Label}");
         IReadOnlyList<ResearchState> queue = researchManager.ResearchQueue;
         for (int i = 0; i < queue.Count; i++)
-            lines.Add($"Queue {i + 1}: {queue[i].Definition.Label}");
+        {
+            ResearchState state = queue[i];
+            string status = state.Status == ResearchStatus.WaitingResources
+                ? "等待资源"
+                : "排队";
+            lines.Add($"[{i + 1}]{state.Definition.Label}-{status}");
+        }
         return lines.Count == 0
-            ? "Research queue: empty"
-            : "Research queue:\n" + string.Join("\n", lines);
+            ? "研究队列：空"
+            : "研究队列：\n" + string.Join("\n", lines);
     }
 
     private string ButtonText(ResearchState state)
     {
         if (state.Status == ResearchStatus.Completed)
-            return "Research completed";
+            return "研究已完成";
         if (state.Status == ResearchStatus.Researching)
-            return "Researching";
-        if (state.Status == ResearchStatus.Queued)
-            return "Cancel queue";
+            return "正在研究";
+        if (ResearchManager.Instance.IsQueued(selectedResearch))
+            return "取消排队";
         if (!ResearchManager.Instance.CanAccessResearch(selectedResearch))
-            return "技术等级过低";
-        if (state.CostPaid && !ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
-            return "Queue prerequisites";
-        if (!ResearchManager.Instance.ArePrerequisitesCompleted(selectedResearch))
-            return "前置研究未完成";
-        if (!state.CostPaid)
-            return "支付资源";
-        return state.Status switch
-        {
-            ResearchStatus.Completed => "项目已经完成",
-            ResearchStatus.Researching => "正在进行研究",
-            ResearchStatus.WaitingResources => "等待研究资源",
-            ResearchStatus.Locked => "需要先完成前置研究",
-            ResearchStatus.Available => "开始此项研究",
-            _ => ""
-        };
+            return "技术等级不足";
+        return "加入研究队列";
     }
 
     private void RebuildRequirementRows(Research research)
@@ -455,6 +488,5 @@ public class ResearchViewer : MonoBehaviour, IGameUIRefreshable
             SelectResearch(restored);
     }
 
-    //private static Vector2 PlacePosition(float x, float y) => new Vector2(-750f + 325f * x, -25f - 75f * y);
     private static Vector2 PlacePosition(float x, float y) => new Vector2(325f * x,- 75f * y);
 }

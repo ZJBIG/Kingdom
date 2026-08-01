@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Academy
   m_EditorClassIdentifier: 
   id: Academy
-  Label: "学院"
-  Description: "组织系统课程、学术讨论和专职研究，使零散知识发展为稳定的学术体系。"
+  Label: "\u5B66\u9662"
+  Description: "\u7EC4\u7EC7\u7CFB\u7EDF\u8BFE\u7A0B\u3001\u5B66\u672F\u8BA8\u8BBA\u548C\u4E13\u804C\u7814\u7A76\uFF0C\u4F7F\u96F6\u6563\u77E5\u8BC6\u53D1\u5C55\u4E3A\u7A33\u5B9A\u7684\u5B66\u672F\u4F53\u7CFB\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
   costGrowth:

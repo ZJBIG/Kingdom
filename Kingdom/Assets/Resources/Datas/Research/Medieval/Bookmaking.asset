@@ -13,19 +13,20 @@ MonoBehaviour:
   m_Name: Bookmaking
   m_EditorClassIdentifier: 
   id: Bookmaking
-  Label: "\u4E66\u7C4D\u5236\u4F5C"
-  Description: "\u6539\u8FDB\u4E66\u5199\u6750\u6599\u3001\u88C5\u8BA2\u3001\u6284\u5F55\u548C\u4FDD\u5B58\u5DE5\u827A\uFF0C\u4F7F\u6CD5\u5F8B\u3001\u6280\u672F\u4E0E\u5B66\u672F\u6210\u679C\u80FD\u591F\u4EE5\u6210\u518C\u6587\u732E\u957F\u671F\u6D41\u4F20\u3002"
-  BaseCost: 110000
+  Label: "\u4E66\u7C4D\u4E0E\u5370\u5237"
+  Description: "\u6574\u5408\u9020\u7EB8\u3001\u88C5\u8BA2\u3001\u6284\u5F55\u3001\u6D3B\u5B57\u6392\u7248\u548C\u673A\u68B0\u538B\u5370\uFF0C\u5927\u5E45\u964D\u4F4E\u77E5\u8BC6\u590D\u5236\u4E0E\u4F20\u64AD\u6210\u672C\u3002"
+  BaseCost: 200000
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
+  - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 105
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
@@ -33,7 +34,23 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 200
+      scalar: 560
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 245
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 630
       layer: 0
       operators: []
   effects:
@@ -45,7 +62,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.1
+      scalar: 1.265
       layer: 0
       operators: []
   TechLevel: 2

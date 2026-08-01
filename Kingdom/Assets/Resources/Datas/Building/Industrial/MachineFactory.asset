@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MachineFactory
   m_EditorClassIdentifier: 
   id: MachineFactory
-  Label: "机器制造厂"
-  Description: "把皇家工坊的熟练手工业升级为标准化机器生产，在提升整体生产力的同时制造机械设备和复杂工业部件。"
+  Label: "\u673A\u5668\u5236\u9020\u5382"
+  Description: "\u4F7F\u7528\u94A2\u6750\u3001\u94DC\u7EBF\u3001\u9752\u94DC\u548C\u6DA6\u6ED1\u5242\u751F\u4EA7\u901A\u7528\u673A\u68B0\u90E8\u4EF6\u4E0E\u5185\u71C3\u673A\uFF0C\u4E0D\u518D\u540C\u65F6\u5305\u529E\u7535\u5B50\u548C\u7CBE\u5BC6\u96F6\u4EF6\u3002"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -40,7 +40,7 @@ MonoBehaviour:
     operators: []
   productivityGranted:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
     scalar: 180
     layer: 0
@@ -178,28 +178,12 @@ MonoBehaviour:
       scalar: 1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.3
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 8bcc719837a09b64eb7f7c9fa9913aef, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.35
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.15
+      scalar: 0.2
       layer: 0
       operators: []
   resourceConsumptionRates:
@@ -211,28 +195,12 @@ MonoBehaviour:
       scalar: 0.8
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.4
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.15
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.4
+      scalar: 0.3
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
@@ -243,15 +211,14 @@ MonoBehaviour:
       scalar: 0.1
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.05
+      scalar: 0.1
       layer: 0
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
-  requiredWorkshopUpgrades:
-  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
+  requiredWorkshopUpgrades: []

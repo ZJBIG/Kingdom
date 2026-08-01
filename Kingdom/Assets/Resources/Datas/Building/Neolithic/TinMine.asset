@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TinMine
   m_EditorClassIdentifier: 
   id: TinMine
-  Label: "锡矿井"
-  Description: "从浅层矿脉开采锡矿，为青铜和其他早期合金提供关键原料。"
+  Label: "\u9521\u77FF\u4E95"
+  Description: "\u4ECE\u6D45\u5C42\u77FF\u8109\u5F00\u91C7\u9521\u77FF\uFF0C\u4E3A\u9752\u94DC\u548C\u5176\u4ED6\u65E9\u671F\u5408\u91D1\u63D0\u4F9B\u5173\u952E\u539F\u6599\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -166,5 +166,4 @@ MonoBehaviour:
   requiredResearch:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
-  - {fileID: 11400000, guid: 3000a2b6463a7eb4686c5fcf67f997d2, type: 2}
   requiredWorkshopUpgrades: []

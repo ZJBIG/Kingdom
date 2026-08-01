@@ -14,14 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BlockSignalling
   Label: "\u7535\u6C14\u95ED\u585E\u673A"
-  Description: "\u7535\u6C14\u95ED\u585E\u4FE1\u53F7\u63D0\u5347\u94C1\u8DEF\u533A\u95F4\u5229\u7528\u7387\uFF0C\u63D0\u9AD8\u7269\u6D41\u7F51\u7EDC\u6548\u7387\u3002"
+  Description: "\u7531\u8F68\u9053\u7EE7\u7535\u5668\u3001\u4FE1\u53F7\u673A\u548C\u533A\u6BB5\u8054\u9501\u6784\u6210\u7684\u94C1\u8DEF\u5B89\u5168\u8BBE\u5907\u3002"
   Category: "\u7269\u6D41"
-  SortOrder: 270
+  SortOrder: 260
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: f40d04ef655d0ce4b9f8a496cfc5d874, type: 2}
-  - {fileID: 11400000, guid: b8ed0f0b119e9e244a064b919eb2424a, type: 2}
-  - {fileID: 11400000, guid: 3d0e50623418ac24bb7d06edbfda9424, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
@@ -30,7 +29,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 150
+      scalar: 180
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
@@ -38,25 +37,25 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 250
+      scalar: 180
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 100
+      scalar: 200
       layer: 0
       operators: []
   effects:
-  - Type: 12
-    Building: {fileID: 0}
+  - Type: 0
+    Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.1
+      scalar: 1.2
       layer: 0
       operators: []
