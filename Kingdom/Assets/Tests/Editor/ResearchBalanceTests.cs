@@ -158,10 +158,6 @@ public sealed class ResearchBalanceTests
         var expected = new Dictionary<string, double>
         {
             ["Academy"] = 60d,
-            ["Arsenal"] = 90d,
-            ["Barracks"] = 48d,
-            ["Castle"] = 60d,
-            ["Fortification"] = 18d,
             ["Library"] = 36d,
             ["Market"] = 30d,
             ["Observatory"] = 72d,
@@ -172,7 +168,6 @@ public sealed class ResearchBalanceTests
             ["GuildHall"] = 30d,
             ["Hospital"] = 25d,
             ["RoyalWorkshop"] = 45d,
-            ["ArmsFactory"] = 90d,
             ["ChemicalPlant"] = 70d,
             ["CokeOven"] = 60d,
             ["Glassworks"] = 60d,

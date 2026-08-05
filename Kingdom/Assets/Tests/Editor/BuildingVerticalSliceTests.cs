@@ -82,7 +82,7 @@ public sealed class BuildingVerticalSliceTests
     {
         string[] ids =
         {
-            "WaterMill", "SteelForge", "Library", "Market", "Barracks", "Fortification"
+            "WaterMill", "SteelForge", "Library", "Market"
         };
 
         foreach (string id in ids)

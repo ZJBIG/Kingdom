@@ -25,7 +25,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 427
+      scalar: 30
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
@@ -73,4 +73,4 @@ MonoBehaviour:
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 1
-  y: 13.167
+  y: 13

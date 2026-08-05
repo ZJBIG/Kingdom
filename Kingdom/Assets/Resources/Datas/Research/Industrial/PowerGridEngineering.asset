@@ -101,5 +101,5 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 23.3
-  y: 20.2
+  x: 23
+  y: 20

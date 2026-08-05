@@ -4,6 +4,10 @@ using UnityEngine;
 public sealed class SimulationManager : Singleton<SimulationManager>
 {
     private const double OfflineStepSeconds = 60d;
+    private const double OfflineFullRateSeconds = 2d * 60d * 60d;
+    private const double OfflineReducedRateEndSeconds = 8d * 60d * 60d;
+    private const double OfflineMiddleRate = 0.60d;
+    private const double OfflineLateRate = 0.25d;
 
     [SerializeField] private float tickIntervalSeconds = 0.1f;
     [SerializeField] private int maximumTicksPerFrame = 20;
@@ -20,7 +24,21 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         if (!running)
             return;
 
-        Advance(Time.unscaledDeltaTime);
+        double frameDelta = Time.unscaledDeltaTime;
+        // Unity can report the entire editor compile/domain-reload pause as a
+        // single frame. Feeding that hitch into the real-time tick loop only
+        // creates a backlog warning and then discards the excess work. App
+        // suspension is handled by OnApplicationPause; for an editor hitch,
+        // reset the accumulator and resume from the next real frame.
+        double maximumFrameDelta = tickIntervalSeconds * maximumTicksPerFrame;
+        if (maximumFrameDelta > 0d && frameDelta > maximumFrameDelta)
+        {
+            accumulatedSeconds = 0d;
+            backlogWarningLogged = false;
+            return;
+        }
+
+        Advance(frameDelta);
     }
 
     public void SetRunning(bool value)
@@ -93,6 +111,12 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             deltaSeconds,
             BuildingManager.Instance.SafePopulationDepartureAllowance);
         ResourceManager.Instance.Tick(deltaSeconds);
+        GameManager.Instance.Sectors.TickActiveColonization(deltaSeconds, GameManager.Instance.State, ResourceManager.Instance, out _);
+        GameManager.Instance.Sectors.TickActiveCampaign(
+            deltaSeconds,
+            GameManager.Instance.State,
+            ResourceManager.Instance,
+            out _);
         ResearchManager.Instance.Tick(deltaSeconds);
     }
 
@@ -104,21 +128,52 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             return 0d;
 
         double remaining = elapsedSeconds;
+        double elapsed = 0d;
         double advanced = 0d;
         while (remaining > 0d)
         {
             double step = Math.Min(OfflineStepSeconds, remaining);
-            BuildingManager.Instance.PrepareTickResourceSatisfaction(step);
+            double effectiveStep = CalculateOfflineEffectiveSeconds(elapsed, step);
+            BuildingManager.Instance.PrepareTickResourceSatisfaction(effectiveStep);
             BuildingManager.Instance.RefreshEfficiencies();
-            GameManager.Instance.Tick(
+            GameManager.Instance.TickOffline(
                 step,
+                effectiveStep,
                 BuildingManager.Instance.SafePopulationDepartureAllowance);
-            ResourceManager.Instance.Tick(step);
-            ResearchManager.Instance.TickOffline(step);
+            ResourceManager.Instance.Tick(effectiveStep);
+            GameManager.Instance.Sectors.TickActiveColonization(effectiveStep, GameManager.Instance.State, ResourceManager.Instance, out _);
+            GameManager.Instance.Sectors.TickActiveCampaign(
+                effectiveStep,
+                GameManager.Instance.State,
+                ResourceManager.Instance,
+                out _);
+            ResearchManager.Instance.TickOffline(effectiveStep);
             remaining -= step;
+            elapsed += step;
             advanced += step;
         }
 
         return advanced;
+    }
+
+    public static double CalculateOfflineEffectiveSeconds(
+        double elapsedSeconds,
+        double requestedSeconds)
+    {
+        if (elapsedSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
+        if (requestedSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(requestedSeconds));
+        if (requestedSeconds <= 0d)
+            return 0d;
+
+        double fullRate = Math.Max(0d, OfflineFullRateSeconds - elapsedSeconds);
+        double fullSeconds = Math.Min(requestedSeconds, fullRate);
+        double remaining = requestedSeconds - fullSeconds;
+        double middleRateSeconds = Math.Max(0d, OfflineReducedRateEndSeconds -
+            Math.Max(elapsedSeconds, OfflineFullRateSeconds));
+        double middleSeconds = Math.Min(remaining, middleRateSeconds);
+        double lateSeconds = remaining - middleSeconds;
+        return fullSeconds + middleSeconds * OfflineMiddleRate + lateSeconds * OfflineLateRate;
     }
 }

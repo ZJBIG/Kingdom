@@ -23,11 +23,11 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 400
+      scalar: 200
       layer: 0
       operators: []
   effects: []
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 0
-  y: 30.361
+  y: 30

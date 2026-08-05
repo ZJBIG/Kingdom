@@ -40,8 +40,6 @@ public sealed class ResearchMedievalContentTests
             ["Steelmaking"] = new[] { "SteelForge" },
             ["Bookmaking"] = new[] { "Library" },
             ["TradeRoutes"] = new[] { "Market" },
-            ["Fortification"] = new[] { "Fortification" },
-            ["StandingArmy"] = new[] { "Barracks" }
         };
 
         foreach (KeyValuePair<string, string[]> pair in expectedUnlocks)

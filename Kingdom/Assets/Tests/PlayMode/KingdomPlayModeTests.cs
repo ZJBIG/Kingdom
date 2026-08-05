@@ -1,11 +1,14 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 public sealed class KingdomPlayModeTests
 {
@@ -20,31 +23,7 @@ public sealed class KingdomPlayModeTests
         createdObjects.Clear();
     }
 
-    [UnityTest]
-    public IEnumerator ResourceViewerDisabled_SimulationContinues()
-    {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Managers");
-        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Managers");
-        FindOrCreateManager<BuildingManager>("PlayMode-Managers");
-        FindOrCreateManager<ResearchManager>("PlayMode-Managers");
-        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Managers");
-        yield return null;
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        resourceManager.SetAmount(wood, ExpantaNum.Zero);
-        resourceManager.SetProductionRate(wood, 10);
-
-        GameObject viewerObject = new GameObject("PlayMode-ResourceViewer");
-        createdObjects.Add(viewerObject);
-        ResourceViewer viewer = viewerObject.AddComponent<ResourceViewer>();
-        viewer.enabled = false;
-
-        simulationManager.SetRunning(false);
-        simulationManager.ManualTick(1d);
-
-        Assert.That(gameManager.State, Is.Not.Null);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(10)));
-    }
 
     [UnityTest]
     public IEnumerator NewGameStartup_InitializesCoreRuntimeState()
@@ -203,111 +182,13 @@ public sealed class KingdomPlayModeTests
         Assert.That(simulationManager.IsRunning, Is.False);
     }
 
-    [UnityTest]
-    public IEnumerator MainTabSwitch_DoesNotMutateGameplayState()
-    {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Navigation-Managers");
-        yield return null;
 
-        int versionBefore = gameManager.State.Version;
-        GameObject navigationObject = new GameObject("PlayMode-Navigation");
-        createdObjects.Add(navigationObject);
-        MainNavigationViewer navigation = navigationObject.AddComponent<MainNavigationViewer>();
 
-        navigation.SetMainTab(MainTab.Building);
-        navigation.SetMainTab(MainTab.Research);
-        navigation.SetMainTab(MainTab.Resource);
 
-        Assert.That(navigation.CurrentTab, Is.EqualTo(MainTab.Resource));
-        Assert.That(gameManager.State.Version, Is.EqualTo(versionBefore));
-    }
 
-    [UnityTest]
-    public IEnumerator SettingViewerDisabled_MusicManagerContinues()
-    {
-        GameObject musicObject = new GameObject("PlayMode-MusicManager");
-        createdObjects.Add(musicObject);
-        AudioSource audioSource = musicObject.AddComponent<AudioSource>();
-        MusicManager musicManager = musicObject.AddComponent<MusicManager>();
 
-        GameObject settingObject = new GameObject("PlayMode-SettingViewer");
-        createdObjects.Add(settingObject);
-        settingObject.AddComponent<SettingViewer>();
-        settingObject.SetActive(false);
 
-        AudioClip clip = AudioClip.Create("PlayModeClip", 4410, 1, 44100, false);
-        createdObjects.Add(clip);
-        yield return null;
 
-        Assert.That(musicManager.Play(clip), Is.True);
-        Assert.That(audioSource.clip, Is.SameAs(clip));
-    }
-
-    [UnityTest]
-    public IEnumerator BuildingViewerDisabled_SimulationContinues()
-    {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Building-Managers");
-        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Building-Managers");
-        BuildingManager buildingManager = FindOrCreateManager<BuildingManager>("PlayMode-Building-Managers");
-        FindOrCreateManager<ResearchManager>("PlayMode-Building-Managers");
-        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Building-Managers");
-        yield return null;
-
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        resourceManager.SetAmount(wood, ExpantaNum.Zero);
-        Building lumberyard = DataBase<Building>.Find("Lumberyard");
-        BuildingState state = buildingManager.EnsureBuilding(lumberyard);
-        MethodInfo setAmountAndRates = typeof(BuildingManager).GetMethod(
-            "SetAmountAndRates",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setAmountAndRates, Is.Not.Null);
-        setAmountAndRates.Invoke(buildingManager, new object[] { state, ExpantaNum.One });
-
-        GameObject viewerObject = new GameObject("PlayMode-BuildingViewer");
-        createdObjects.Add(viewerObject);
-        BuildingViewer viewer = viewerObject.AddComponent<BuildingViewer>();
-        viewer.enabled = false;
-
-        simulationManager.SetRunning(false);
-        simulationManager.ManualTick(1d);
-
-        Assert.That(gameManager.State, Is.Not.Null);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(6)));
-    }
-
-    [UnityTest]
-    public IEnumerator ResearchViewerDisabled_ResearchContinues()
-    {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Research-Managers");
-        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-Research-Managers");
-        FindOrCreateManager<BuildingManager>("PlayMode-Research-Managers");
-        ResearchManager researchManager = FindOrCreateManager<ResearchManager>("PlayMode-Research-Managers");
-        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Research-Managers");
-        yield return null;
-
-        Research research = FindAvailableResearch(researchManager);
-        ResearchState state = researchManager.GetState(research);
-        for (int i = 0; i < research.ResourceRequirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
-            resourceManager.SetAmount(requirement.First, requirement.Second * 2d);
-        }
-
-        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(researchManager.StartResearch(research), Is.True);
-
-        GameObject viewerObject = new GameObject("PlayMode-ResearchViewer");
-        createdObjects.Add(viewerObject);
-        ResearchViewer viewer = viewerObject.AddComponent<ResearchViewer>();
-        viewer.enabled = false;
-
-        simulationManager.SetRunning(false);
-        ExpantaNum before = state.Progress;
-        simulationManager.ManualTick(1d);
-
-        Assert.That(gameManager.State, Is.Not.Null);
-        Assert.That(state.Progress, Is.GreaterThan(before));
-    }
 
     [UnityTest]
     public IEnumerator ResearchQueue_QueuesUnpaidAndPaysThroughPaymentApi()
@@ -334,59 +215,132 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator RepeatedEnableDisable_DoesNotDuplicateRefreshRegistration()
+    public IEnumerator ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping()
     {
-        GameUIRefreshManager manager = Object.FindObjectOfType<GameUIRefreshManager>();
-        if (manager == null)
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return new WaitForSecondsRealtime(1.25f);
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
+
+        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
+            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setPage, Is.Not.Null);
+        setPage.Invoke(root, new object[] { "Research" });
+        yield return null;
+        yield return null;
+
+        Transform viewport = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
+        Assert.That(viewport, Is.Not.Null, "ResearchGraphViewport must be generated under the isolated SafeAreaRoot.");
+        Transform content = viewport.Find("ResearchGraphContent");
+        Assert.That(content, Is.Not.Null);
+        Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
+        Assert.That(pageHost, Is.Not.Null);
+        ScrollRect outerPageScroll = pageHost.GetComponent<ScrollRect>();
+        Assert.That(outerPageScroll, Is.Not.Null);
+        Assert.That(outerPageScroll.enabled, Is.False,
+            "The legacy outer page ScrollRect must not compete with the research graph gesture.");
+
+        RectTransform viewportRect = viewport as RectTransform;
+        RectTransform contentRect = content as RectTransform;
+        Assert.That(viewportRect, Is.Not.Null);
+        Assert.That(contentRect, Is.Not.Null);
+
+        var cells = new HashSet<Vector2Int>();
+        int nodeCount = 0;
+        foreach (Transform child in content)
         {
-            GameObject managerObject = new GameObject("PlayMode-UIRefreshManager");
-            createdObjects.Add(managerObject);
-            manager = managerObject.AddComponent<GameUIRefreshManager>();
+            if (!child.name.StartsWith("ResearchNode_", System.StringComparison.Ordinal))
+                continue;
+            RectTransform node = child as RectTransform;
+            Assert.That(node, Is.Not.Null);
+            Vector2 topLeft = new Vector2(
+                node.anchoredPosition.x,
+                contentRect.rect.height - node.anchoredPosition.y - node.rect.height);
+            Assert.That(cells.Add(new Vector2Int(
+                Mathf.RoundToInt(topLeft.x), Mathf.RoundToInt(topLeft.y))), Is.True,
+                "Research nodes must not occupy the same integer grid cell.");
+            nodeCount++;
         }
 
-        GameObject probeObject = new GameObject("PlayMode-RefreshProbe");
-        createdObjects.Add(probeObject);
-        RefreshProbe probe = probeObject.AddComponent<RefreshProbe>();
-        yield return null;
+        UIResearchGraphGesture gesture = viewport.GetComponent<UIResearchGraphGesture>();
+        Assert.That(gesture, Is.Not.Null);
+        ScrollRect scroll = viewport.GetComponent<ScrollRect>();
+        Assert.That(scroll, Is.Not.Null);
+        bool verticalOverflow = contentRect.rect.height * Mathf.Abs(contentRect.localScale.y) >
+            viewportRect.rect.height + 0.5f;
+        bool horizontalOverflow = contentRect.rect.width * Mathf.Abs(contentRect.localScale.x) >
+            viewportRect.rect.width + 0.5f;
+        FieldInfo canPanVerticalField = typeof(UIResearchGraphGesture).GetField(
+            "canPanVertical", BindingFlags.Instance | BindingFlags.NonPublic);
+        FieldInfo canPanHorizontalField = typeof(UIResearchGraphGesture).GetField(
+            "canPanHorizontal", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(canPanVerticalField, Is.Not.Null);
+        Assert.That(canPanHorizontalField, Is.Not.Null);
+        bool canPanVertical = (bool)canPanVerticalField.GetValue(gesture);
+        bool canPanHorizontal = (bool)canPanHorizontalField.GetValue(gesture);
+        Assert.That(canPanVertical, Is.EqualTo(verticalOverflow));
+        Assert.That(canPanHorizontal, Is.EqualTo(horizontalOverflow));
+        bool rootSafeAreaOnly = root.transform.Find("SafeAreaRoot") != null;
+        Assert.That(rootSafeAreaOnly, Is.True);
 
-        manager.Register(probe);
-        manager.Register(probe);
-        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(1));
+        EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
+        {
+            GameObject eventSystemObject = new GameObject("PlayMode-ResearchGraph-EventSystem");
+            createdObjects.Add(eventSystemObject);
+            eventSystem = eventSystemObject.AddComponent<EventSystem>();
+        }
+        PointerEventData pointer = new PointerEventData(eventSystem)
+        {
+            button = PointerEventData.InputButton.Left,
+            position = new Vector2(500f, 600f)
+        };
+        Vector2 beforeDrag = contentRect.anchoredPosition;
+        gesture.OnInitializePotentialDrag(pointer);
+        pointer.position = new Vector2(500f, 550f);
+        gesture.OnBeginDrag(pointer);
+        pointer.position = new Vector2(500f, 750f);
+        gesture.OnDrag(pointer);
+        Vector2 afterDrag = contentRect.anchoredPosition;
+        gesture.OnEndDrag(pointer);
+        Assert.That(afterDrag.y, Is.GreaterThan(beforeDrag.y),
+            "A vertical drag in an overflowing research graph must move the graph content within its vertical range.");
+        Debug.Log($"[KingdomUI] Research pointer drag audit: before={beforeDrag}, after={afterDrag}, delta={afterDrag - beforeDrag}, verticalDragMoved={afterDrag.y > beforeDrag.y}");
 
-        probe.enabled = false;
-        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(0));
-        probe.enabled = true;
-        manager.Register(probe);
-        Assert.That(manager.RegisteredViewerCount, Is.EqualTo(1));
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        Assert.That(probe.RefreshCount, Is.GreaterThan(0));
+        Transform firstNode = null;
+        foreach (Transform child in content)
+            if (child.name.StartsWith("ResearchNode_", System.StringComparison.Ordinal))
+            {
+                firstNode = child;
+                break;
+            }
+        Assert.That(firstNode, Is.Not.Null);
+        UIResearchGraphDragForwarder forwarder = firstNode.GetComponent<UIResearchGraphDragForwarder>();
+        Assert.That(forwarder, Is.Not.Null);
+        contentRect.anchoredPosition = beforeDrag;
+        PointerEventData nodePointer = new PointerEventData(eventSystem)
+        {
+            button = PointerEventData.InputButton.Left,
+            position = new Vector2(500f, 600f)
+        };
+        forwarder.OnInitializePotentialDrag(nodePointer);
+        nodePointer.position = new Vector2(500f, 550f);
+        forwarder.OnBeginDrag(nodePointer);
+        nodePointer.position = new Vector2(500f, 750f);
+        forwarder.OnDrag(nodePointer);
+        Vector2 afterNodeDrag = contentRect.anchoredPosition;
+        forwarder.OnEndDrag(nodePointer);
+        Assert.That(afterNodeDrag.y, Is.GreaterThan(beforeDrag.y),
+            "A drag beginning on a research Button must be forwarded to the graph gesture.");
+        Debug.Log($"[KingdomUI] Research node-forwarded drag audit: before={beforeDrag}, after={afterNodeDrag}, delta={afterNodeDrag - beforeDrag}, forwardedVerticalDragMoved={afterNodeDrag.y > beforeDrag.y}");
+        Debug.Log($"[KingdomUI] Research runtime playmode audit: nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, rootSafeAreaOnly={rootSafeAreaOnly}");
+        Assert.That(nodeCount, Is.EqualTo(DataBase<Research>.All.Count));
     }
 
-    [UnityTest]
-    public IEnumerator ViewerReenabled_ImmediatelyShowsLatestState()
-    {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-Hud-Managers");
-        FindOrCreateManager<ResearchManager>("PlayMode-Hud-Managers");
-        yield return null;
 
-        MethodInfo initializeNew = typeof(GameState).GetMethod(
-            "InitializeNew",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNew, Is.Not.Null);
-        initializeNew.Invoke(gameManager.State, new object[] { "Latest State" });
 
-        GameObject hudObject = new GameObject("PlayMode-HudViewer");
-        createdObjects.Add(hudObject);
-        TextMeshProUGUI kingdomName = hudObject.AddComponent<TextMeshProUGUI>();
-        GameHudViewer hud = hudObject.AddComponent<GameHudViewer>();
-        SetPrivateField(hud, "Text_KingdomName", kingdomName);
 
-        hud.enabled = false;
-        hud.enabled = true;
-
-        Assert.That(kingdomName.text, Is.EqualTo("Latest State"));
-    }
 
     [UnityTest]
     public IEnumerator SimulationPaused_DoesNotAdvanceDuringUpdate()
@@ -433,25 +387,6 @@ public sealed class KingdomPlayModeTests
         field.SetValue(target, value);
     }
 
-    private sealed class RefreshProbe : MonoBehaviour, IGameUIRefreshable
-    {
-        public int RefreshCount { get; private set; }
-
-        private void OnEnable()
-        {
-            GameUIRefreshManager.Instance?.Register(this);
-        }
-
-        private void OnDisable()
-        {
-            GameUIRefreshManager.Instance?.Unregister(this);
-        }
-
-        public void RefreshUI()
-        {
-            RefreshCount++;
-        }
-    }
 
     private T FindOrCreateManager<T>(string name) where T : Component
     {
@@ -470,3 +405,4 @@ public sealed class KingdomPlayModeTests
         return component != null ? component : gameObject.AddComponent<T>();
     }
 }
+

@@ -3,43 +3,36 @@
 ## Repository identity
 
 - Repository: `Kingdom`
-- Audited baseline: `Kingdom3.7z`
-- Baseline date: `2026-07-24`
+- Current guidance: repository-root `AGENTS.md` and `CODEX_ECONOMY_PROMPT.md`
 - Unity Editor: `2022.3.62f2c1`
 - Primary build scene: `Assets/Scenes/SampleScene.unity`
-- Source of truth: current repository files/assets, then `ToDoList_New.txt`, then `docs/`.
-- Historical `Script.zip`, BigNumber plans and pre-Kingdom3 repository maps are not authoritative.
+- Source of truth: current repository files/assets, then root guidance and current generated reports.
+- Historical Kingdom3/Kingdom4 plans and dated handoffs are not authoritative.
 
 ## Current milestone
 
-Kingdom3 has already completed the BigNumber-to-ExpantaNum migration, serialized Pair migration, Runtime State ownership, Manager/UI ownership split, stable IDs, DataBase, Bootstrap and unified save foundation.
-
-Do not redo completed migrations.
-
-The current sequence is:
-
-1. fix per-tick resource satisfaction and food integration;
-2. harden save fallback/reload;
-3. centralize UI refresh;
-4. migrate manual layouts;
-5. add real PlayMode UI lifecycle tests;
-6. pass the UI-Ready gate and replace off-screen hiding with `SetActive`;
-7. build the UI design system and redesign screens.
+Do not redo completed numeric, state, save, or UI ownership migrations. Current
+economy work prioritizes gameplay bugs, content loops, Unity evidence, static
+closure, and practical pacing. The standalone simulator is a regression tool;
+do not extend its strategies or decision scoring unless explicitly requested.
 
 ## Read before modifying
 
-1. `ToDoList_New.txt`
-2. `docs/repository-map.md`
-3. `docs/audits/kingdom3-static-audit.md`
-4. `docs/architecture/runtime-state.md`
-5. `docs/architecture/ui-boundaries.md`
-6. `docs/architecture/serialized-pairs.md`
-7. `docs/plans/ui-ready-and-redesign.md`
-8. `docs/testing/acceptance-checklist.md`
-9. the nearest scoped `AGENTS.md` for every touched file
+1. root `AGENTS.md`
+2. `CODEX_ECONOMY_PROMPT.md`
+3. the applicable repository skill
+4. current code/assets and generated evidence
+5. the nearest scoped `AGENTS.md` for every touched file
 
 Use `kingdom-runtime-refactor` for simulation, State, Manager, save and correctness work.
 Use `kingdom-ui-redesign` for Viewer/Displayer, Canvas, Prefab, layout, navigation, theme and visual redesign work.
+For Research UI, also follow `D:/GitHub/Kingdom/.agents/skills/kingdom-ui-redesign/SKILL.md`
+and compare graph geometry and touch behavior against
+`D:/Verse/RimworldMods/#HSK/ResearchTree_SK`.
+Use one shared top-left integer-grid coordinate convention for nodes and lines;
+convert it once when placing Unity RectTransforms.
+The active CanvasScaler must be ScaleWithScreenSize at 2640x1200 and match
+width so the research viewport never becomes negative on the target layout.
 Use the canonical repository skill `D:/GitHub/Kingdom/.agents/skills/kingdom-economy-simulation/SKILL.md`
 for every Research, Resource, Building, TechLevel, Workshop, production, consumption,
 reachability, pacing or balance task. Do not use this older scoped content skill as a
@@ -52,6 +45,15 @@ replacement for the economy simulation workflow.
 - Manager = validation, transaction and State mutation.
 - `SimulationManager` = the only core gameplay clock.
 - Viewer/Displayer = bind, render, input and Manager commands only.
+- ResearchTreeSK graph nodes forward drag lifecycle events to the graph
+  gesture owner; do not rely on a parent ScrollRect to receive a drag that
+  starts on a Button. Enable each axis only from measured content overflow.
+- Any asset-coordinate fallback must log its topology rejection counts;
+  silent fallback is not acceptable for research-tree parity audits.
+- Run the targeted PlayMode audit
+  `ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping` when
+  changing graph coordinates or pointer routing; its log is the runtime
+  evidence for unique cells and measured overflow.
 - UI activation, transform position and localized text never determine gameplay.
 - Disabled UI must not stop resources, buildings, research, calendar, autosave or music.
 - Save DTOs contain stable IDs and non-derivable values only.
@@ -72,16 +74,9 @@ Compatibility wrappers or duplicate authority are prohibited.
 
 ## Current known blockers
 
-- resource satisfaction is not exact for partial per-tick inventory;
-- food is integrated inside the calendar step;
-- three main viewers own Update refresh loops;
-- HUD and MusicViewer own UI refresh coroutines;
-- resource/building layout still uses manual size calculations;
-- main/settings pages are hidden by moving to `(-10000,-10000)`;
-- there are no real PlayMode test cases;
-- `BackGround` rotation is frame-rate dependent.
-
-Do not claim P7/UI decoupling complete while any blocker remains.
+- Static closure passes, but dynamic pacing acceptance currently fails.
+- Full runtime/simulator multi-building tick parity still needs Unity evidence.
+- Do not treat dated blocker lists as current facts; rerun the relevant checks.
 
 ## Pair policy
 

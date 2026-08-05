@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Kingdom.EditorTools
 {
@@ -46,8 +44,6 @@ namespace Kingdom.EditorTools
             DeleteRetiredDefinitions();
             MoveDeferredDefinitions();
             ForceReserializeDefinitions();
-            EnsureSceneComponents();
-
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             Debug.Log(
@@ -239,6 +235,11 @@ namespace Kingdom.EditorTools
             stoneTools.SetResourceRequirementsForEditor(Pairs("WoodLog", 30));
             EditorUtility.SetDirty(stoneTools);
 
+            Research mining = Find<Research>("Mining");
+            mining.SetResourceRequirementsForEditor(
+                Pairs("WoodLog", 180, "StoneChunk", 80));
+            EditorUtility.SetDirty(mining);
+
             SetResearchEffects("StoneTools",
                 BuildingMultiplier("Quarry", 1.25),
                 BuildingMultiplier("StoneCuttingWorkshop", 1.20),
@@ -351,7 +352,7 @@ namespace Kingdom.EditorTools
             ConfigureResearch("MilitaryIndustry", "军事工业", 1200000,
                 R("MassProduction", "Electrification"),
                 P("Machinery", 250, "Chemical", 200, "PrecisionParts", 150, "Rubber", 200),
-                Military(1.15));
+                GlobalBuildingProduction(1.10));
             ConfigureResearch("LogisticsManagement", "物流管理", 1350000,
                 R("RailwayEngineering", "Standardization"),
                 P("Machinery", 300, "Electronics", 250, "Engine", 40),
@@ -439,7 +440,7 @@ namespace Kingdom.EditorTools
             ConfigureResearch("MilitaryStandardization", "军工标准化", 980000,
                 R("MilitaryIndustry", "Standardization"),
                 P("Engine", 50, "PrecisionParts", 200, "Chemical", 200, "Steel", 800),
-                Military(1.25));
+                GlobalBuildingProduction(1.10));
             ConfigureResearch("ShiftRegisters", "工业轮班制度", 260000,
                 R("IndustrialWorkshop", "FactoryOrganization"),
                 P("Pottery", 200, "Cloth", 200, "Steel", 150),
@@ -547,12 +548,6 @@ namespace Kingdom.EditorTools
             B("Market", TechLevel.Medieval, 1.20, 5, 30, 0, 0, 5, 0, 0, 0,
                 0, 0, 0, 0, P("WoodLog", 200, "StoneBrick", 100, "Cloth", 30, "Pottery", 30),
                 P(), P(), R("SmithingRevolution", "TradeRoutes", "Measurement"));
-            B("Barracks", TechLevel.Medieval, 1.20, 8, 48, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 2, P("WoodLog", 250, "StoneBrick", 250, "Steel", 50, "Bronze", 50),
-                P(), P(), R("SmithingRevolution", "StandingArmy", "Steelmaking"), 1, 0, 5);
-            B("Fortification", TechLevel.Medieval, 1.20, 12, 18, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, P("StoneBrick", 400, "Steel", 100, "Bronze", 80),
-                P(), P(), R("SmithingRevolution", "Fortification", "Masonry"), 5);
 
             B("SteamPlant", TechLevel.Industrial, 1.20, 18, 60, 0, 0, 0, 0, 0, 0,
                 120, 0, 0, 0, P("StoneBrick", 500, "Steel", 250, "Coal", 400),
@@ -594,14 +589,10 @@ namespace Kingdom.EditorTools
                 0, 8, 100, 0, P("Machinery", 180, "Electronics", 120, "Steel", 300, "Engine", 30),
                 P(), P("RefinedFuel", .3, "Lubricant", .05),
                 R("RailwayEngineering", "CombustionEngines"));
-            B("University", TechLevel.Industrial, 1.20, 12, 60, 0, 0, 250, 0, 0, 0,
-                0, 10, 0, 0, P("Machinery", 100, "Chemical", 80, "Electronics", 100, "Glass", 150),
-                P(), P(), R("ModernUniversity", "ScientificMethod"), 0, 5);
-            B("ArmsFactory", TechLevel.Industrial, 1.20, 22, 90, 0, 0, 0, 0, 0, 0,
-                0, 35, 0, 10, P("Steel", 500, "Machinery", 180, "Chemical", 120, "Electronics", 80),
-                P(), P("Steel", .5, "Machinery", .2, "Chemical", .15, "PrecisionParts", .1,
-                    "Electronics", .1, "RefinedFuel", .1),
-                R("MilitaryIndustry", "MassProduction"), 2, 20);
+              B("University", TechLevel.Industrial, 1.20, 12, 60, 0, 0, 250, 0, 0, 0,
+                  0, 10, 0, 0, P("Machinery", 100, "Chemical", 80, "Electronics", 100, "Glass", 150),
+                  P(), P("Electronics", .02, "Glass", .05),
+                  R("ModernUniversity", "ScientificMethod"), 0, 5);
 
             B("IndustrialCopperSmelter", TechLevel.Industrial, 1.20, 14, 55, 0, 0, 0, 0, 0, 0,
                 0, 18, 0, 0, P("StoneBrick", 300, "Steel", 300, "Machinery", 80,
@@ -863,77 +854,6 @@ namespace Kingdom.EditorTools
             }
         }
 
-        private static void EnsureSceneComponents()
-        {
-            const string scenePath = "Assets/Scenes/SampleScene.unity";
-            var scene = EditorSceneManager.OpenScene(scenePath);
-            GameObject manager = GameObject.Find("Manager");
-            if (manager == null)
-                throw new MissingReferenceException("SampleScene has no Manager object.");
-            if (manager.GetComponent<WorkshopManager>() == null)
-                manager.AddComponent<WorkshopManager>();
-
-            MainNavigationViewer navigation = UnityEngine.Object.FindObjectOfType<MainNavigationViewer>(true);
-            if (navigation == null)
-                throw new MissingReferenceException("SampleScene has no MainNavigationViewer.");
-
-            var navigationObject = new SerializedObject(navigation);
-            SerializedProperty workshopProperty = navigationObject.FindProperty("WorkshopViewer");
-            RectTransform workshopRoot = workshopProperty.objectReferenceValue as RectTransform;
-            if (workshopRoot == null)
-            {
-                RectTransform researchRoot =
-                    navigationObject.FindProperty("ResearchViewer").objectReferenceValue as RectTransform;
-                Transform parent = researchRoot != null ? researchRoot.parent : navigation.transform;
-
-                var rootObject = new GameObject(
-                    "WorkshopViewer", typeof(RectTransform), typeof(Image),
-                    typeof(ScrollRect), typeof(WorkshopViewer));
-                workshopRoot = rootObject.GetComponent<RectTransform>();
-                workshopRoot.SetParent(parent, false);
-                workshopRoot.anchorMin = Vector2.zero;
-                workshopRoot.anchorMax = Vector2.one;
-                workshopRoot.offsetMin = Vector2.zero;
-                workshopRoot.offsetMax = Vector2.zero;
-                rootObject.GetComponent<Image>().color = new Color(0.035f, 0.04f, 0.05f, 0.96f);
-
-                var viewportObject = new GameObject(
-                    "Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
-                RectTransform viewport = viewportObject.GetComponent<RectTransform>();
-                viewport.SetParent(workshopRoot, false);
-                viewport.anchorMin = Vector2.zero;
-                viewport.anchorMax = Vector2.one;
-                viewport.offsetMin = new Vector2(16f, 16f);
-                viewport.offsetMax = new Vector2(-16f, -16f);
-                viewportObject.GetComponent<Image>().color = Color.clear;
-
-                var contentObject = new GameObject("Content", typeof(RectTransform));
-                RectTransform content = contentObject.GetComponent<RectTransform>();
-                content.SetParent(viewport, false);
-                content.anchorMin = new Vector2(0f, 1f);
-                content.anchorMax = Vector2.one;
-                content.pivot = new Vector2(0.5f, 1f);
-                content.offsetMin = Vector2.zero;
-                content.offsetMax = Vector2.zero;
-
-                ScrollRect scrollRect = rootObject.GetComponent<ScrollRect>();
-                scrollRect.viewport = viewport;
-                scrollRect.content = content;
-                scrollRect.horizontal = false;
-                scrollRect.vertical = true;
-
-                var viewerObject = new SerializedObject(rootObject.GetComponent<WorkshopViewer>());
-                viewerObject.FindProperty("Content").objectReferenceValue = content;
-                viewerObject.ApplyModifiedPropertiesWithoutUndo();
-
-                workshopProperty.objectReferenceValue = workshopRoot;
-                navigationObject.ApplyModifiedPropertiesWithoutUndo();
-                rootObject.SetActive(false);
-            }
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-        }
-
         private static void ForceReserializeDefinitions()
         {
             var paths = new List<string>();
@@ -1086,8 +1006,6 @@ namespace Kingdom.EditorTools
             RE(ResearchEffectType.GlobalLogisticsMultiplier, value);
         private static ResearchEffectDefinition Power(double value) =>
             RE(ResearchEffectType.PowerMultiplier, value);
-        private static ResearchEffectDefinition Military(double value) =>
-            RE(ResearchEffectType.MilitaryMultiplier, value);
         private static ResearchEffectDefinition Territory(double value) =>
             RE(ResearchEffectType.TerritoryGranted, value);
         private static ResearchEffectDefinition Productivity(double value) =>
@@ -1213,7 +1131,7 @@ namespace Kingdom.EditorTools
                 id);
             resource.Label = label;
             resource.Description = description;
-            resource.DisplayerSet = Resource.Set.UltraTechSet;
+            resource.DisplayerSet = Resource.Set.IndustrialEraSet;
             resource.Color = Color.white;
             EditorUtility.SetDirty(resource);
         }

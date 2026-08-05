@@ -62,6 +62,21 @@ public sealed class ProgressionModifierState
     internal void AddResourceProductionMultiplier(Resource resource, ExpantaNum value) =>
         AddMultiplier(resourceProductionMultipliers, resource, value);
 
+    internal void AddGlobalResearchMultiplier(ExpantaNum value) =>
+        GlobalResearchMultiplier = AdditiveMultiplier(GlobalResearchMultiplier, value);
+    internal void AddGlobalConstructionMultiplier(ExpantaNum value) =>
+        GlobalConstructionMultiplier = AdditiveMultiplier(GlobalConstructionMultiplier, value);
+    internal void AddGlobalBuildingProductionMultiplier(ExpantaNum value) =>
+        GlobalBuildingProductionMultiplier = AdditiveMultiplier(GlobalBuildingProductionMultiplier, value);
+    internal void AddGlobalLogisticsMultiplier(ExpantaNum value) =>
+        GlobalLogisticsMultiplier = AdditiveMultiplier(GlobalLogisticsMultiplier, value);
+    internal void AddMilitaryMultiplier(ExpantaNum value) =>
+        MilitaryMultiplier = AdditiveMultiplier(MilitaryMultiplier, value);
+    internal void AddPowerMultiplier(ExpantaNum value) =>
+        PowerMultiplier = AdditiveMultiplier(PowerMultiplier, value);
+    internal void AddPopulationGrowthMultiplier(ExpantaNum value) =>
+        PopulationGrowthMultiplier = AdditiveMultiplier(PopulationGrowthMultiplier, value);
+
     internal void AddUnlockedSystem(string systemId)
     {
         if (!string.IsNullOrWhiteSpace(systemId))
@@ -80,9 +95,18 @@ public sealed class ProgressionModifierState
         if (ReferenceEquals(key, null) || value <= ExpantaNum.Zero || value.IsNaN)
             return;
         values[key] = values.TryGetValue(key, out ExpantaNum current)
-            ? current * value
+            ? AdditiveMultiplier(current, value)
             : value;
     }
+
+    private static ExpantaNum AdditiveMultiplier(ExpantaNum current, ExpantaNum value)
+    {
+        ExpantaNum normalized = NormalizeMultiplier(value);
+        return ExpantaNum.Max(ExpantaNum.One, current + (normalized - ExpantaNum.One));
+    }
+
+    private static ExpantaNum NormalizeMultiplier(ExpantaNum value) =>
+        value > ExpantaNum.Zero && !value.IsNaN ? value : ExpantaNum.One;
 }
 
 public static class ProgressionModifierManager
@@ -101,7 +125,10 @@ public static class ProgressionModifierManager
                 ResearchState state = researchStates[i];
                 if (state?.Status != ResearchStatus.Completed)
                     continue;
-                ApplyResearchEffects(rebuilt, state.Definition.Effects);
+                ApplyResearchEffects(
+                    rebuilt,
+                    state.Definition.Effects,
+                    state.Definition.TechLevel >= TechLevel.Spacer);
             }
         }
         if (workshopStates != null)
@@ -111,7 +138,10 @@ public static class ProgressionModifierManager
                 WorkshopUpgradeState state = workshopStates[i];
                 if (state == null || !state.Purchased)
                     continue;
-                ApplyWorkshopEffects(rebuilt, state.Definition.Effects);
+                ApplyWorkshopEffects(
+                    rebuilt,
+                    state.Definition.Effects,
+                    state.Definition.TechLevel >= TechLevel.Spacer);
             }
         }
         Current = rebuilt;
@@ -119,7 +149,8 @@ public static class ProgressionModifierManager
 
     private static void ApplyResearchEffects(
         ProgressionModifierState modifiers,
-        IReadOnlyList<ResearchEffectDefinition> effects)
+        IReadOnlyList<ResearchEffectDefinition> effects,
+        bool allowCombatEffects)
     {
         if (effects == null)
             return;
@@ -142,13 +173,16 @@ public static class ProgressionModifierManager
                     modifiers.AddResourceProductionMultiplier(effect.Resource, effect.Value);
                     break;
                 case ResearchEffectType.GlobalResearchMultiplier:
-                    modifiers.GlobalResearchMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddGlobalResearchMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.GlobalConstructionMultiplier:
-                    modifiers.GlobalConstructionMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddGlobalConstructionMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.FoodCapacityMultiplier:
-                    modifiers.FoodCapacityMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.FoodCapacityMultiplier *=
+                        effect.Value > ExpantaNum.Zero && !effect.Value.IsNaN
+                            ? effect.Value
+                            : ExpantaNum.One;
                     break;
                 case ResearchEffectType.ProductivityGranted:
                     modifiers.ProductivityGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.Value);
@@ -160,13 +194,14 @@ public static class ProgressionModifierManager
                     modifiers.AddUnlockedSystem(effect.SystemId);
                     break;
                 case ResearchEffectType.MilitaryMultiplier:
-                    modifiers.MilitaryMultiplier *= NormalizeMultiplier(effect.Value);
+                    if (allowCombatEffects)
+                        modifiers.AddMilitaryMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.PowerMultiplier:
-                    modifiers.PowerMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddPowerMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.GlobalBuildingProductionMultiplier:
-                    modifiers.GlobalBuildingProductionMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddGlobalBuildingProductionMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.BuildingResearchPowerMultiplier:
                     modifiers.AddBuildingResearchPowerMultiplier(effect.Building, effect.Value);
@@ -178,10 +213,10 @@ public static class ProgressionModifierManager
                     modifiers.AddBuildingLogisticsProductionMultiplier(effect.Building, effect.Value);
                     break;
                 case ResearchEffectType.GlobalLogisticsMultiplier:
-                    modifiers.GlobalLogisticsMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddGlobalLogisticsMultiplier(effect.Value);
                     break;
                 case ResearchEffectType.PopulationGrowthMultiplier:
-                    modifiers.PopulationGrowthMultiplier *= NormalizeMultiplier(effect.Value);
+                    modifiers.AddPopulationGrowthMultiplier(effect.Value);
                     break;
             }
         }
@@ -189,7 +224,8 @@ public static class ProgressionModifierManager
 
     private static void ApplyWorkshopEffects(
         ProgressionModifierState modifiers,
-        IReadOnlyList<WorkshopEffectDefinition> effects)
+        IReadOnlyList<WorkshopEffectDefinition> effects,
+        bool allowCombatEffects)
     {
         if (effects == null)
             return;
@@ -199,10 +235,9 @@ public static class ProgressionModifierManager
             WorkshopEffectDefinition effect = effects[i];
             if (effect == null)
                 continue;
-            effect.ApplyTo(modifiers);
+            if (allowCombatEffects || effect.Type != WorkshopEffectType.MilitaryMultiplier)
+                effect.ApplyTo(modifiers);
         }
     }
 
-    private static ExpantaNum NormalizeMultiplier(ExpantaNum value) =>
-        value > ExpantaNum.Zero && !value.IsNaN ? value : ExpantaNum.One;
 }

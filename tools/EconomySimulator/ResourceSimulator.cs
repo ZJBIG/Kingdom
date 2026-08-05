@@ -11,12 +11,16 @@ public static class ResourceSimulator
         double deltaSeconds)
     {
         var net=new Dictionary<string,double>(StringComparer.OrdinalIgnoreCase){["WoodLog"]=1}; Add(s.Resources,"WoodLog",deltaSeconds); double foodIn=5,foodOut=s.Population*0.8d,powerIn=0,powerOut=0,logIn=0,logOut=0;
-        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=Efficiency(s,d,buildings,deltaSeconds);double foodMultiplier=1;foreach(var fx in CompletedEffects(s,defs,2,d.Id))foodMultiplier*=fx.Value;foreach(var p in d.Generation)Add(net,p.Key,p.Value*n*e);foreach(var p in d.Consumption)Add(net,p.Key,-p.Value*n*e);foodIn+=d.FoodProduction*n*e*foodMultiplier;foodOut+=d.FoodConsumption*n;powerIn+=d.PowerProduction*n*e;powerOut+=d.PowerConsumption*n;logIn+=d.LogisticsProduction*n*e;logOut+=d.LogisticsConsumption*n;}
-        s.PowerSatisfaction=powerOut<=0?1:Math.Clamp(powerIn/powerOut,0,1);s.LogisticsSatisfaction=logOut<=0?1:Math.Clamp(logIn/logOut,0,1); double foodSat=foodOut<=0?1:Math.Clamp((s.Food+foodIn*deltaSeconds)/(foodOut*deltaSeconds),0,1);
+        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=Efficiency(s,d,buildings,deltaSeconds);double foodMultiplier=EffectMultiplier(s,SimEffectKind.BuildingFoodProductionMultiplier,d.Id);foreach(var p in d.Generation)Add(net,p.Key,p.Value*n*e);foreach(var p in d.Consumption)Add(net,p.Key,-p.Value*n*e);foodIn+=d.FoodProduction*n*e*foodMultiplier;foodOut+=d.FoodConsumption*n;powerIn+=d.PowerProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingPowerProductionMultiplier,d.Id);powerOut+=d.PowerConsumption*n;logIn+=d.LogisticsProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingLogisticsProductionMultiplier,d.Id);logOut+=d.LogisticsConsumption*n;}
+        powerIn*=EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
+        logIn*=EffectMultiplier(s,SimEffectKind.GlobalLogisticsMultiplier,"");
+        s.PowerSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(powerIn,powerOut);s.LogisticsSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(logIn,logOut); double foodSat=EconomySimulationParity.CalculateSatisfaction(s.Food,foodIn,foodOut,deltaSeconds);
         s.FoodSatisfaction=foodSat;
-        double globalProduction=1;foreach(var e in CompletedEffects(s,defs,12,""))globalProduction*=e.Value;
-        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=Efficiency(s,d,buildings,deltaSeconds)*s.PowerSatisfaction*s.LogisticsSatisfaction*foodSat;double buildingProduction=globalProduction;foreach(var fx in CompletedEffects(s,defs,1,d.Id))buildingProduction*=fx.Value;foreach(var p in d.Generation){double resourceProduction=1;foreach(var fx in CompletedEffects(s,defs,3,p.Key))resourceProduction*=fx.Value;Add(s.Resources,p.Key,p.Value*n*e*buildingProduction*resourceProduction*deltaSeconds);}foreach(var p in d.Consumption)Add(s.Resources,p.Key,-p.Value*n*e*deltaSeconds);}
-        s.Food=Math.Clamp(s.Food+(foodIn-foodOut)*deltaSeconds,0,s.FoodCapacity);
+        double globalProduction=EffectMultiplier(s,SimEffectKind.GlobalBuildingProductionMultiplier,"");
+        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=EconomySimulationParity.CalculateEffectiveEfficiency(1d,Efficiency(s,d,buildings,deltaSeconds),foodSat,d.PowerConsumption>0?s.PowerSatisfaction:1d,d.LogisticsConsumption>0?s.LogisticsSatisfaction:1d);double buildingProduction=globalProduction*EffectMultiplier(s,SimEffectKind.BuildingProductionMultiplier,d.Id);foreach(var p in d.Generation){double resourceProduction=EffectMultiplier(s,SimEffectKind.ResourceProductionMultiplier,p.Key);Add(s.Resources,p.Key,p.Value*n*e*buildingProduction*resourceProduction*deltaSeconds);}foreach(var p in d.Consumption)Add(s.Resources,p.Key,-p.Value*n*e*deltaSeconds);}
+        double foodCapacityMultiplier=EffectMultiplier(s,SimEffectKind.FoodCapacityMultiplier,"");
+        s.FoodCapacity=Math.Max(500d,500d+buildings.Sum(x=>s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.FoodCapacity))*foodCapacityMultiplier);
+        s.Food=Math.Min(s.FoodCapacity,EconomySimulationParity.AdvanceStockpile(s.Food,foodIn,foodOut,deltaSeconds));
         double populationCapacity=buildings.Sum(x=>
             s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.PopulationCapacity));
         double departureAllowance=Math.Floor(Math.Max(
@@ -102,12 +106,20 @@ public static class ResourceSimulator
     private static int Compare(double population,double capacity)=>
         population<capacity-1e-9?-1:population>capacity+1e-9?1:0;
     private static double Efficiency(SimulationState s,Definition d,IReadOnlyList<Definition> all,double deltaSeconds){double e=1;foreach(var p in d.Consumption){double demand=p.Value*s.Buildings.GetValueOrDefault(d.Id);if(demand>0)e=Math.Min(e,(s.Resources.GetValueOrDefault(p.Key)+p.Value*deltaSeconds)/(demand*deltaSeconds));}return Math.Clamp(e,0,1);}
-    private static IEnumerable<SimEffect> CompletedEffects(SimulationState s,IReadOnlyList<Definition> all,int type,string target)=>s.ActiveEffects.Where(e=>e.Type==type&&(string.IsNullOrEmpty(e.Target)||e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));
+    private static IEnumerable<SimEffect> CompletedEffects(SimulationState s,SimEffectKind kind,string target)=>s.ActiveEffects.Where(e=>e.Kind==kind&&(string.IsNullOrEmpty(e.Target)||e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));
+    private static double EffectMultiplier(SimulationState s,SimEffectKind kind,string target)
+    {
+        double result=1d;
+        foreach(SimEffect effect in CompletedEffects(s,kind,target))
+            result=Math.Max(1d,result+(effect.Value>0d?effect.Value:1d)-1d);
+        return result;
+    }
     public static double PopulationGrowthMultiplier(SimulationState s)
     {
         double result=1d;
-        foreach(SimEffect effect in s.ActiveEffects.Where(x=>x.Type==17))
-            result*=effect.Value>0d?effect.Value:1d;
+        foreach(SimEffect effect in s.ActiveEffects.Where(
+                    x=>x.Kind==SimEffectKind.PopulationGrowthMultiplier))
+            result=Math.Max(1d,result+(effect.Value>0d?effect.Value:1d)-1d);
         return result;
     }
     public static double PopulationGrowthRatePerMinute(SimulationState s)

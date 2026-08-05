@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kingdom UI redesign"
+  short_description: "Rebuild Kingdom Unity UI and ResearchTreeSK-style research graphs"
+  default_prompt: "Use $kingdom-ui-redesign to implement and verify a Huawei P40 Pro landscape UI change."

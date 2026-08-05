@@ -57,6 +57,71 @@ public class ResourceManager : Singleton<ResourceManager>
         ResourceStateChanged?.Invoke(state);
     }
 
+    /// <summary>
+    /// Applies a group of resource debits as one state transaction. Every
+    /// balance is checked before any balance is changed, then change events
+    /// are raised only after the complete debit has been committed.
+    /// </summary>
+    internal bool TryApplyAtomicPayment(IReadOnlyDictionary<Resource, ExpantaNum> costs)
+    {
+        return TryApplyAtomicPayment(costs, null);
+    }
+
+    /// <summary>
+    /// Applies a payment and commits related domain state before publishing
+    /// resource-change events. This prevents a refresh/reentrant callback from
+    /// observing resources deducted while the research is still unpaid.
+    /// </summary>
+    internal bool TryApplyAtomicPayment(
+        IReadOnlyDictionary<Resource, ExpantaNum> costs,
+        Action commitState)
+    {
+        if (costs == null)
+            throw new ArgumentNullException(nameof(costs));
+
+        var entries = new List<KeyValuePair<Resource, ExpantaNum>>(costs.Count);
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+        {
+            if (entry.Key == null || entry.Value <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum amount = states.TryGetValue(entry.Key, out ResourceState state)
+                ? state.Amount
+                : ExpantaNum.Zero;
+            if (amount < entry.Value)
+                return false;
+
+            entries.Add(entry);
+        }
+
+        var previousAmounts = new List<ExpantaNum>(entries.Count);
+        for (int i = 0; i < entries.Count; i++)
+        {
+            KeyValuePair<Resource, ExpantaNum> entry = entries[i];
+            ResourceState state = states[entry.Key];
+            previousAmounts.Add(state.Amount);
+            state.SetAmount(state.Amount - entry.Value);
+        }
+
+        try
+        {
+            commitState?.Invoke();
+        }
+        catch
+        {
+            for (int i = 0; i < entries.Count; i++)
+                states[entries[i].Key].SetAmount(previousAmounts[i]);
+            throw;
+        }
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            ResourceState state = states[entries[i].Key];
+            ResourceStateChanged?.Invoke(state);
+        }
+        return true;
+    }
+
     public void SetAmount(Resource resource, ExpantaNum amount) => EnsureResource(resource).SetAmount(amount);
     public void SetProductionRate(Resource resource, ExpantaNum rate) => EnsureResource(resource).SetProductionRate(rate);
     public void SetConsumptionRate(Resource resource, ExpantaNum rate) => EnsureResource(resource).SetConsumptionRate(rate);

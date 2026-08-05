@@ -424,6 +424,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string SectorId;
         public bool Unlocked;
         public bool Occupied;
+        public bool ColonizationActive;
         public string CampaignProgress;
         public int VisitCount;
     }

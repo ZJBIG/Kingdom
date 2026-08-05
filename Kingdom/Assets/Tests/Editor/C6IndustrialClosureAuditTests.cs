@@ -16,7 +16,6 @@ public sealed class C6IndustrialClosureAuditTests
         "WireMill",
         "University",
         "RailHub",
-        "ArmsFactory",
         "IndustrialCopperSmelter",
         "IndustrialTinSmelter",
         "IndustrialBronzeFoundry",

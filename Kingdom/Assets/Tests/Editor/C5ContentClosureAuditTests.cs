@@ -22,8 +22,6 @@ public sealed class C5ContentClosureAuditTests
         "SteelForge",
         "Library",
         "Market",
-        "Barracks",
-        "Fortification"
     };
 
     [Test]

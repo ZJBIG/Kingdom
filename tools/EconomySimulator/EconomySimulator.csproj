@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants>ECONOMY_SIMULATOR</DefineConstants>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Kingdom/Assets/Resources/Script/Validation/BuildingTransactionRules.cs"
+             Link="EconomySimulationParity.cs" />
+    <Compile Include="EconomySnapshot.cs" />
+    <Compile Include="UnityAssetSnapshotReader.cs" />
+    <Compile Include="SimulationStrategy.cs" />
+    <Compile Include="WorkshopSimulator.cs" />
+    <Compile Include="SimulatorSelfTests.cs" />
+    <Compile Include="EconomySimulator.cs" />
+    <Compile Include="ResourceSimulator.cs" />
+    <Compile Include="ResearchSimulator.cs" />
+    <Compile Include="BuildingSimulator.cs" />
+    <Compile Include="SimulationReportWriter.cs" />
+  </ItemGroup>
+</Project>

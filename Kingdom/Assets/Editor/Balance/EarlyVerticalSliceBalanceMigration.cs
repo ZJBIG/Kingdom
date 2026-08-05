@@ -99,7 +99,7 @@ namespace Kingdom.EditorTools
             quarryResearch.SetResourceRequirementsForEditor(
                 new List<Pair<Resource, ExpantaNum>>
                 {
-                    new(woodLog, new ExpantaNum(400d))
+                    new(woodLog, new ExpantaNum(200d))
                 });
             neolithicSettlement.BaseCost = "4400";
             industrialization.BaseCost = "270000";

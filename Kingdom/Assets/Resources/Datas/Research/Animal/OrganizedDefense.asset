@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: OrganizedDefense
   m_EditorClassIdentifier: 
   id: OrganizedDefense
-  Label: "\u7EC4\u7EC7\u9632\u536B"
-  Description: "\u8BBE\u7F6E\u8B66\u6212\u3001\u96C6\u5408\u548C\u8F6E\u73ED\u5236\u5EA6\uFF0C\u7EDF\u4E00\u6B66\u5668\u4F7F\u7528\u4E0E\u9632\u5B88\u4F4D\u7F6E\uFF0C\u4F7F\u805A\u843D\u80FD\u591F\u5E94\u5BF9\u6709\u7EC4\u7EC7\u7684\u88AD\u51FB\u3002"
+  Label: "\u7EC4\u7EC7\u534F\u4F5C"
+  Description: "\u5EFA\u7ACB\u8B66\u6212\u3001\u96C6\u5408\u548C\u8F6E\u73ED\u5236\u5EA6\uFF0C\u8BA9\u805A\u843D\u66F4\u9AD8\u6548\u5730\u5206\u914D\u52B3\u52A8\u529B\u3002"
   BaseCost: 2400
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
@@ -37,18 +37,18 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 5
+  - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: UnlockBuilding_LookoutPost
+    SystemId: 
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.02
+      scalar: 1.03
       layer: 0
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 5
-  y: 6.083
+  y: 6

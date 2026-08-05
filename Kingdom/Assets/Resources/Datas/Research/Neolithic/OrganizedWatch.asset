@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: OrganizedWatch
   m_EditorClassIdentifier: 
   id: OrganizedWatch
-  Label: "\u5B88\u671B\u5236\u5EA6"
-  Description: "\u5EFA\u7ACB\u56FA\u5B9A\u54E8\u4F4D\u3001\u5DE1\u903B\u8DEF\u7EBF\u548C\u62A5\u8B66\u4FE1\u53F7\uFF0C\u4F7F\u5A01\u80C1\u80FD\u591F\u5728\u63A5\u8FD1\u805A\u843D\u524D\u88AB\u53D1\u73B0\u5E76\u8FC5\u901F\u4F20\u9012\u3002"
+  Label: "\u5DE5\u4F5C\u6D41\u7BA1\u7406"
+  Description: "\u5EFA\u7ACB\u56FA\u5B9A\u73ED\u6B21\u3001\u4FE1\u606F\u4F20\u9012\u548C\u4EFB\u52A1\u6392\u7A0B\uFF0C\u51CF\u5C11\u7B49\u5F85\u5E76\u63D0\u9AD8\u65E5\u5E38\u4EA7\u51FA\u3002"
   BaseCost: 17000
   prerequisites:
   - {fileID: 11400000, guid: 1578ecedcc4ad3344bf78130018ac2f9, type: 2}
@@ -45,18 +45,18 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 5
+  - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: UnlockBuilding_Watchtower
+    SystemId: 
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.02
+      scalar: 1.04
       layer: 0
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
   x: 9
-  y: 25.708
+  y: 26

@@ -6,34 +6,34 @@ public static class ResearchSimulator
 {
     public static void TrySelect(
         SimulationState s,
-        IReadOnlyList<Definition> defs,
-        IReadOnlyList<Definition> buildings,
-        Route route)
+        EconomySnapshot snapshot,
+        ISimulationStrategy strategy)
     {
         if(s.ActiveResearch!=null)
             return;
-        int decisionInterval = route switch
-        {
-            Route.Fast => 1,
-            Route.Normal => 180,
-            _ => 300
-        };
-        if (s.Tick % decisionInterval != 0)
+        if (s.Tick % strategy.ResearchDecisionInterval != 0)
             return;
-        var d=defs
+        Definition[] candidates=snapshot.Research
             .Where(x=>!s.CompletedResearch.Contains(x.Id))
             .Where(x=>(!x.AdvancesTechLevel&&x.TechLevel<=s.TechLevel)||
                 (x.AdvancesTechLevel&&(int)x.TechLevel==(int)s.TechLevel+1))
             .Where(x=>x.Prerequisites.All(s.CompletedResearch.Contains))
-            .Where(x=>CostsHaveAvailableSources(s,x,buildings))
-            .OrderByDescending(x=>x.AdvancesTechLevel)
-            .ThenBy(x=>x.BaseCost)
+            .Where(x=>CostsHaveAvailableSources(s,x,snapshot.Buildings))
+            .OrderByDescending(x=>strategy.ScoreResearch(x,s,snapshot))
             .ThenBy(x=>x.Id,StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
+            .ToArray();
+        Definition? d=candidates.FirstOrDefault();
         if(d==null)
+        {
+            s.TraceDecision(strategy.Route,"Research","Blocked","",
+                "no prerequisite-complete research with an available production chain");
             return;
-        s.ActiveResearch=new ResearchTask{Definition=d,StartedSeconds=s.Seconds};
+        }
+        s.ActiveResearch=new ResearchTask{
+            Definition=d,StartedSeconds=s.Seconds,Route=strategy.Route};
         s.MarkAction("ResearchSelected",d.Id);
+        s.TraceDecision(strategy.Route,"Research","Selected",d.Id,
+            $"score={strategy.ScoreResearch(d,s,snapshot):0.###}");
     }
 
     private static bool CostsHaveAvailableSources(
@@ -48,6 +48,7 @@ public static class ResearchSimulator
             bool sourceAvailable = buildings.Any(building =>
                 building.TechLevel <= state.TechLevel &&
                 building.RequiredResearch.All(state.CompletedResearch.Contains) &&
+                building.RequiredWorkshop.All(state.PurchasedWorkshop.Contains) &&
                 building.Generation.ContainsKey(resource));
             if (!sourceAvailable)
                 return false;
@@ -67,32 +68,32 @@ public static class ResearchSimulator
             s.ResearchWaitingSeconds+=deltaSeconds;
             return;
         }
-        bool paid=true;
-        foreach(var p in t.Definition.ResourceRequirements)
+        if(!t.CostPaid)
         {
-            double rem=p.Value-t.Paid.GetValueOrDefault(p.Key);
-            double pay=Math.Min(rem,Math.Max(0,ResourceSimulator.Get(s,p.Key)));
-            if(pay>0)
+            if(!ResourceSimulator.CanPay(s,t.Definition.ResourceRequirements))
             {
-                ResourceSimulator.Add(s.Resources,p.Key,-pay);
-                t.Paid[p.Key]=t.Paid.GetValueOrDefault(p.Key)+pay;
+                s.ResearchWaitingSeconds+=deltaSeconds;
+                s.TraceDecision(t.Route,"Research","Waiting",t.Definition.Id,
+                    "complete resource cost is not yet affordable");
+                return;
             }
-            if(t.Paid.GetValueOrDefault(p.Key)+1e-9<p.Value)
-                paid=false;
+            ResourceSimulator.Pay(s,t.Definition.ResourceRequirements);
+            t.CostPaid=true;
+            s.TraceDecision(t.Route,"Research","Paid",t.Definition.Id,
+                "complete resource cost paid atomically");
         }
-        if(!paid)
-        {
-            s.ResearchWaitingSeconds+=deltaSeconds;
-            return;
-        }
-        double speed=ResearchPower(s,all.Where(x=>x.Kind=="Building").ToList(),all)*
-            EraEffect(s.TechLevel,t.Definition.TechLevel)*deltaSeconds;
+        double speed=ResearchPower(s,all.Where(
+                x=>x.Kind==DefinitionKind.Building).ToArray(),all)*
+            EconomySimulationParity.ResearchSpeedEffect(
+                (int)s.TechLevel,(int)t.Definition.TechLevel)*deltaSeconds;
         t.Progress+=speed;
         if(t.Progress<t.Definition.BaseCost)
             return;
         s.CompletedResearch.Add(t.Definition.Id);
         s.ActiveEffects.AddRange(t.Definition.Effects);
         s.MarkAction("ResearchCompleted",t.Definition.Id);
+        s.TraceDecision(t.Route,"Research","Completed",t.Definition.Id,
+            $"elapsed={s.Seconds-t.StartedSeconds:0.###}s");
         if(t.Definition.AdvancesTechLevel)
         {
             s.TechLevel=t.Definition.TechLevel;
@@ -106,19 +107,25 @@ public static class ResearchSimulator
         IReadOnlyList<Definition> buildings,
         IReadOnlyList<Definition> all)
     {
-        double rp=1;
+        double rp=4;
         foreach(var b in buildings)
         {
             double mult=1;
-            foreach(var e in CompletedEffects(s,13,b.Id))
-                mult*=e.Value;
+            foreach(var e in CompletedEffects(
+                         s,SimEffectKind.BuildingResearchPowerMultiplier,b.Id))
+                mult=AdditiveMultiplier(mult,e.Value);
             rp+=s.Buildings.GetValueOrDefault(b.Id)*b.ResearchPower*mult;
         }
         double global=1;
-        foreach(var e in CompletedEffects(s,4,""))
-            global*=e.Value;
+        foreach(var e in CompletedEffects(s,SimEffectKind.GlobalResearchMultiplier,""))
+            global=AdditiveMultiplier(global,e.Value);
         return rp*global;
     }
-    private static IEnumerable<SimEffect> CompletedEffects(SimulationState s,int type,string target){return s.ActiveEffects.Where(e=>e.Type==type&&(string.IsNullOrEmpty(e.Target)||e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));}
-    private static double EraEffect(SimTechLevel current,SimTechLevel target)=>current==target?1:1/(Math.Abs((int)target-(int)current)+.5);
+    private static double AdditiveMultiplier(double current,double value) =>
+        Math.Max(1d,current+(value>0d?value:1d)-1d);
+    private static IEnumerable<SimEffect> CompletedEffects(
+        SimulationState s,SimEffectKind kind,string target) =>
+        s.ActiveEffects.Where(e=>e.Kind==kind&&
+            (string.IsNullOrEmpty(e.Target)||
+             e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));
 }

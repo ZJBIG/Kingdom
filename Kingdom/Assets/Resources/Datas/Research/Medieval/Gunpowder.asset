@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Gunpowder
   m_EditorClassIdentifier: 
   id: Gunpowder
-  Label: "\u706B\u836F\u4E0E\u519B\u68B0"
-  Description: "\u638C\u63E1\u706B\u836F\u914D\u5236\u3001\u50A8\u5B58\u548C\u6B66\u5668\u89C4\u683C\uFF0C\u540C\u65F6\u5EFA\u7ACB\u96C6\u4E2D\u519B\u68B0\u5E93\u5B58\u4E0E\u7EF4\u4FEE\u4F53\u7CFB\u3002"
+  Label: "\u5316\u5B66\u5DE5\u827A\u4E0E\u6807\u51C6"
+  Description: "\u63A8\u8FDB\u5316\u5B66\u6750\u6599\u7684\u914D\u5236\u3001\u50A8\u5B58\u548C\u6807\u51C6\u5316\uFF0C\u63D0\u5347\u5DE5\u574A\u4EA7\u51FA\u7684\u7A33\u5B9A\u6027\u3002"
   BaseCost: 270000
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
@@ -45,29 +45,18 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 10
+  - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: gunpowder
+    SystemId: 
     Value:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 1.75
-      layer: 0
-      operators: []
-  - Type: 5
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    SystemId: UnlockBuilding_Arsenal
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
+      scalar: 1.07
       layer: 0
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
   x: 13
-  y: 23.403
+  y: 23

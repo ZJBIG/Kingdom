@@ -1,7 +1,7 @@
 interface:
   display_name: "Kingdom Economy Simulation"
-  short_description: "Audit Kingdom research, resource, building, and era reachability before balance edits"
-  default_prompt: "Use $kingdom-economy-simulation to audit Kingdom progression and economy before changing data."
+  short_description: "Validate Kingdom gameplay economy, content closure, parity, and pacing"
+  default_prompt: "Use $kingdom-economy-simulation and CODEX_ECONOMY_PROMPT.md. Prioritize reproducible gameplay bugs and content loops; validate strict Resource/Building/Research/Workshop input, runtime parity, closure, Unity behavior, and relevant pacing regressions before changing economy data."
 
 policy:
   allow_implicit_invocation: true

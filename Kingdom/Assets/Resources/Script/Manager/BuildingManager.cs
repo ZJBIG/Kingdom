@@ -926,14 +926,17 @@ public class BuildingManager : Singleton<BuildingManager>
                 * modifiers.GlobalLogisticsMultiplier
                 * modifiers.GetBuildingLogisticsProductionMultiplier(state.Definition),
             scaleDelta * state.Definition.LogisticsConsumptionRate);
-        GameManager.Instance.AdjustFleetPower(
-            scaleDelta * state.Definition.FleetPowerGranted);
-        GameManager.Instance.AdjustAttackPower(
-            scaleDelta * state.Definition.AttackPowerGranted);
-        GameManager.Instance.AdjustDefensePower(
-            scaleDelta * state.Definition.DefensePowerGranted);
-        GameManager.Instance.AdjustMilitaryManpower(
-            scaleDelta * state.Definition.MilitaryManpowerGranted);
+        if (state.Definition.TechLevel >= TechLevel.Spacer)
+        {
+            GameManager.Instance.AdjustFleetPower(
+                scaleDelta * state.Definition.FleetPowerGranted);
+            GameManager.Instance.AdjustAttackPower(
+                scaleDelta * state.Definition.AttackPowerGranted);
+            GameManager.Instance.AdjustDefensePower(
+                scaleDelta * state.Definition.DefensePowerGranted);
+            GameManager.Instance.AdjustMilitaryManpower(
+                scaleDelta * state.Definition.MilitaryManpowerGranted);
+        }
     }
 
     internal void ApplyProgressionModifierChange(

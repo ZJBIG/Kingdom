@@ -17,4 +17,4 @@ MonoBehaviour:
   Description: "\u7ECF\u8FC7\u70E7\u5236\u7684\u8010\u7528\u5668\u7269\uFF0C\u7528\u4E8E\u98DF\u7269\u50A8\u5B58\u3001\u5EFA\u7B51\u548C\u65E9\u671F\u6587\u4E66\u3002"
   Sprite: {fileID: 21300000, guid: 5692bd3c12bb48dba27b2e333730f13e, type: 3}
   Color: {r: 0.75, g: 0.45, b: 0.25, a: 1}
-  DisplayerSet: 2
+  DisplayerSet: 1

@@ -27,8 +27,9 @@ public sealed class ResourceContinuityTests
         Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.15d), Is.False);
         Assert.That(HasBuildingRequirement("LaunchCenter", "RocketFuel"), Is.True);
         Assert.That(HasBuildingRequirement("Shipyard", "Composite"), Is.True);
-        Assert.That(HasCampaignCost("Moon", "RocketFuel", 1d), Is.True);
-        Assert.That(HasCampaignCost("Mars", "Composite", 1d), Is.True);
+        Assert.That(HasColonizationCost("Moon", "RocketFuel", 1d), Is.True);
+        Assert.That(HasColonizationCost("Mars", "Composite", 1d), Is.True);
+        Assert.That(HasCampaignCost("AlphaCentauri", "RocketFuel", 5d), Is.True);
     }
 
     private static bool HasRequirement(Research research, string resourceId, double amount)
@@ -92,6 +93,18 @@ public sealed class ResourceContinuityTests
                 return true;
         }
 
+        return false;
+    }
+
+    private static bool HasColonizationCost(string sectorId, string resourceId, double amount)
+    {
+        SectorDefinition sector = DataBase<SectorDefinition>.Find(sectorId);
+        for (int i = 0; i < sector.ColonizationResourceCosts.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = sector.ColonizationResourceCosts[i];
+            if (pair.First != null && pair.First.Id == resourceId && pair.Second.ToDouble() == amount)
+                return true;
+        }
         return false;
     }
 }

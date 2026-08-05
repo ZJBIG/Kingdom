@@ -1,38 +1,41 @@
 # Economy Simulation Report - Normal
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
+Strict snapshot: 37 resources, 63 buildings, 79 research, 29 Workshop upgrades.
 
 ## Rules
 
 - Fixed one-second ticks with integer minute snapshots.
-- Research is selected first; resource costs are paid progressively before progress begins.
+- Research resource costs are paid atomically before progress begins, matching ResearchManager.
+- Workshop unlocks, prerequisite chains, costs and effects are included.
+- Strategy decisions are emitted to DecisionTrace.csv with deduplicated reasons.
 - Research speed uses ResearchPower and runtime era effects.
 - Buildings use geometric cost growth and commit immediately after payment.
-- Food starts at +5/s; population consumes 1 food/s per person and grows toward housing capacity.
+- Food starts at +5/s; population consumes 0.8 food/s per person and grows toward housing capacity.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
-- Total productivity equals population plus fixed research and owned-building grants; construction checks pre-build available productivity.
-- Productivity-blocked building decision time: total 2520 seconds; longest continuous 540 seconds.
-- Final population growth: x1.725, 0/min; productivity utilization: 58.3%; territory: 912/2375.
+- Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
+- Productivity-blocked building decision time: total 90 seconds; longest continuous 45 seconds.
+- Final population growth: x1.6, 0/min; productivity utilization: 39.9%; territory: 649/2325.
 
 ## Animal Age
 
 到达时间: 0 分钟
-完成研究: 9
+完成研究: 11
 
 ## Neolithic Age
 
-到达时间: 184.5 分钟
-完成研究: 43
+到达时间: 92.92 分钟
+完成研究: 3
 
 ## Medieval Age
 
-到达时间: 837.27 分钟
-完成研究: 9
+到达时间: 356.45 分钟
+完成研究: 23
 
 ## Industrial Age
 
-到达时间: 1213.72 分钟
-完成研究: 10
+到达时间: 618.1 分钟
+完成研究: 3
 
 原始时代最长无研究目标: 2 分钟；新石器时代: 2 分钟。
 
@@ -43,8 +46,6 @@ Offline runtime-aligned simulation; no Unity runtime was launched.
 - Iron: single producer
 - IronOre: single producer
 - PlantFiber: single producer
-- Pottery: single producer
-- Silica: single producer
 - StoneChunk: single producer
 - TinOre: single producer
 - WoodLog: single producer

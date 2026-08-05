@@ -52,7 +52,7 @@ public static class BalanceAnalysis
             }
         }
 
-        foreach (Definition item in research)
+        foreach (Definition item in research.Where(x => x.TechLevel <= SimTechLevel.Industrial))
         {
             foreach (string resource in item.ResourceRequirements.Keys)
             {
@@ -136,35 +136,44 @@ public static class SimulationReportWriter
 {
     public static void Write(
         string root,
-        IReadOnlyList<Definition> definitions,
+        EconomySnapshot snapshot,
         SimulationResult result)
     {
         Directory.CreateDirectory(root);
-        Write(root, "EconomySimulationReport.md", Markdown(result));
+        Write(root, "EconomySimulationReport.md", Markdown(snapshot, result));
         Write(root, "SimulationTimeline.csv", Timeline(result.State));
         Write(root, "BalanceWarnings.csv", Warnings(result.Warnings));
-        Write(root, "ResourceFlowByEra.csv", Flows(definitions, result));
+        Write(root, "ResourceFlowByEra.csv", Flows(snapshot.All, result));
         Write(root, "ResearchCompletionTimeline.csv",
             Events(result, "ResearchCompleted", "ResearchId"));
         Write(root, "BuildingConstructionTimeline.csv",
             Events(result, "BuildingCompleted", "BuildingId"));
         Write(root, "BuildingUpgradeTimeline.csv", UpgradeEvents(result));
+        Write(root, "WorkshopPurchaseTimeline.csv",
+            Events(result, "WorkshopPurchased", "WorkshopId"));
+        Write(root, "DecisionTrace.csv", Decisions(result.State));
         Write(root, "MilestoneSummary.csv", Milestones(result.State));
     }
 
     private static void Write(string root, string name, string content) =>
         File.WriteAllText(Path.Combine(root, name), content, new UTF8Encoding(false));
 
-    private static string Markdown(SimulationResult result)
+    private static string Markdown(EconomySnapshot snapshot, SimulationResult result)
     {
         SimulationState state = result.State;
         var builder = new StringBuilder($"# Economy Simulation Report - {result.Route}\n\n");
         builder.AppendLine("Offline runtime-aligned simulation; no Unity runtime was launched.");
+        builder.AppendLine(
+            $"Strict snapshot: {snapshot.Resources.Count} resources, " +
+            $"{snapshot.Buildings.Count} buildings, {snapshot.Research.Count} research, " +
+            $"{snapshot.Workshops.Count} Workshop upgrades.");
         builder.AppendLine();
         builder.AppendLine("## Rules");
         builder.AppendLine();
         builder.AppendLine("- Fixed one-second ticks with integer minute snapshots.");
-        builder.AppendLine("- Research is selected first; resource costs are paid progressively before progress begins.");
+        builder.AppendLine("- Research resource costs are paid atomically before progress begins, matching ResearchManager.");
+        builder.AppendLine("- Workshop unlocks, prerequisite chains, costs and effects are included.");
+        builder.AppendLine("- Strategy decisions are emitted to DecisionTrace.csv with deduplicated reasons.");
         builder.AppendLine("- Research speed uses ResearchPower and runtime era effects.");
         builder.AppendLine("- Buildings use geometric cost growth and commit immediately after payment.");
         builder.AppendLine("- Food starts at +5/s; population consumes 0.8 food/s per person and grows toward housing capacity.");
@@ -237,7 +246,7 @@ public static class SimulationReportWriter
     private static string Timeline(SimulationState state)
     {
         var builder = new StringBuilder(
-            "Minute,TechLevel,ResearchPower,Population,PopulationGrowthMultiplier,PopulationGrowthPerMinute,TotalProductivity,UsedProductivity,AvailableProductivity,ProductivityUtilization,TerritoryUsed,TerritoryTotal,ActiveResearch,Resources,Buildings,ResearchCompleted\n");
+            "Minute,TechLevel,ResearchPower,Population,PopulationGrowthMultiplier,PopulationGrowthPerMinute,TotalProductivity,UsedProductivity,AvailableProductivity,ProductivityUtilization,TerritoryUsed,TerritoryTotal,ActiveResearch,Resources,Buildings,ResearchCompleted,WorkshopPurchased\n");
         foreach (TimelineSnapshot snapshot in state.Timeline)
         {
             builder.AppendLine(
@@ -249,7 +258,8 @@ public static class SimulationReportWriter
                 $"{(snapshot.TotalProductivity<=0?0:snapshot.UsedProductivity/snapshot.TotalProductivity):0.###}," +
                 $"{snapshot.TerritoryUsed:0.###},{snapshot.TerritoryTotal:0.###}," +
                 $"{Csv(snapshot.ActiveResearch)},{Csv(snapshot.Resources)}," +
-                $"{Csv(snapshot.Buildings)},{Csv(snapshot.ResearchCompleted)}");
+                $"{Csv(snapshot.Buildings)},{Csv(snapshot.ResearchCompleted)}," +
+                $"{Csv(snapshot.WorkshopPurchased)}");
         }
         return builder.ToString();
     }
@@ -283,6 +293,20 @@ public static class SimulationReportWriter
         return builder.ToString();
     }
 
+    private static string Decisions(SimulationState state)
+    {
+        var builder = new StringBuilder(
+            "FirstSeconds,LastSeconds,Route,Subsystem,Outcome,Candidate,RepeatCount,Reason\n");
+        foreach (SimulationDecision decision in state.Decisions)
+        {
+            builder.AppendLine(
+                $"{decision.FirstSeconds:0.###},{decision.LastSeconds:0.###}," +
+                $"{decision.Route},{Csv(decision.Subsystem)},{Csv(decision.Outcome)}," +
+                $"{Csv(decision.Candidate)},{decision.RepeatCount},{Csv(decision.Reason)}");
+        }
+        return builder.ToString();
+    }
+
     private static string Flows(
         IReadOnlyList<Definition> definitions,
         SimulationResult result)
@@ -293,14 +317,14 @@ public static class SimulationReportWriter
                      .Where(x => x <= SimTechLevel.Industrial))
         {
             foreach (string resource in definitions
-                         .Where(x => x.Kind == "Resource")
+                         .Where(x => x.Kind == DefinitionKind.Resource)
                          .Select(x => x.Id)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 double production = 0d;
                 double consumption = 0d;
                 foreach (Definition building in definitions.Where(x =>
-                             x.Kind == "Building" && x.TechLevel <= era))
+                             x.Kind == DefinitionKind.Building && x.TechLevel <= era))
                 {
                     int count = result.State.Buildings.GetValueOrDefault(building.Id);
                     production += building.Generation.GetValueOrDefault(resource) * count;

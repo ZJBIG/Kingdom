@@ -11,7 +11,7 @@ public sealed class EarlyVerticalSlicePacingTests
         Assert.That(quarry.ResourceRequirements[0].First.Id, Is.EqualTo("WoodLog"));
         Assert.That(
             quarry.ResourceRequirements[0].Second.ToDouble(),
-            Is.EqualTo(400d).Within(0.000001d));
+            Is.EqualTo(200d).Within(0.000001d));
 
         Building knowledge = DataBase<Building>.Find("KnowledgeCircle");
         Assert.That(knowledge.RequiredResearch.Select(x => x.Id),

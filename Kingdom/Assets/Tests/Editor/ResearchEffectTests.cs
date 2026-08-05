@@ -78,7 +78,7 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
-    public void Rebuild_MultipliesRepeatedGlobalEffects()
+    public void Rebuild_AddsRepeatedGlobalEffectsWithoutCompounding()
     {
         Research first = CreateResearch("research-first");
         first.SetEffectsForEditor(new List<ResearchEffectDefinition>
@@ -107,11 +107,11 @@ public sealed class ResearchEffectTests
 
         Assert.That(
             ProgressionModifierManager.Current.GlobalResearchMultiplier.ToDouble(),
-            Is.EqualTo(3d).Within(0.000001d));
+            Is.EqualTo(2.5d).Within(0.000001d));
     }
 
     [Test]
-    public void Rebuild_MultipliesPopulationGrowthEffects()
+    public void Rebuild_AddsPopulationGrowthEffectsWithoutCompounding()
     {
         Research first = CreateResearch("population-growth-first");
         first.SetEffectsForEditor(new List<ResearchEffectDefinition>
@@ -135,7 +135,7 @@ public sealed class ResearchEffectTests
 
         Assert.That(
             ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),
-            Is.EqualTo(1.5d).Within(0.000001d));
+            Is.EqualTo(1.45d).Within(0.000001d));
     }
 
     private Research CreateResearch(string id)

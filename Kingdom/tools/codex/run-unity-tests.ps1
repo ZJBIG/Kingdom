@@ -4,7 +4,8 @@ param(
     [string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "../..")).Path,
     [string]$UnityPath,
     [string]$ResultsPath,
-    [string]$LogPath
+    [string]$LogPath,
+    [int]$TimeoutSeconds = 600
 )
 $ErrorActionPreference = "Stop"
 if (-not $UnityPath) {
@@ -18,6 +19,8 @@ if (-not $LogPath) {
 }
 New-Item -ItemType Directory -Force (Split-Path $ResultsPath) | Out-Null
 New-Item -ItemType Directory -Force (Split-Path $LogPath) | Out-Null
+Remove-Item -LiteralPath $ResultsPath -Force -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $LogPath -Force -ErrorAction SilentlyContinue
 
 $arguments = @(
     "-batchmode",
@@ -28,9 +31,17 @@ $arguments = @(
     "-testResults", $ResultsPath,
     "-logFile", $LogPath
 )
-$process = Start-Process -FilePath $UnityPath -ArgumentList $arguments -Wait -PassThru -NoNewWindow
-if ($process.ExitCode -ne 0 -or -not (Test-Path $ResultsPath)) {
-    Write-Error "Unity $Platform tests failed or produced no XML. ExitCode=$($process.ExitCode). Log=$LogPath"
+$process = Start-Process -FilePath $UnityPath -ArgumentList $arguments `
+    -PassThru -WindowStyle Hidden
+$completed = $process.WaitForExit($TimeoutSeconds * 1000)
+if (-not $completed) {
+    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    Write-Error "Unity $Platform tests timed out after $TimeoutSeconds seconds. Log=$LogPath"
+    exit 1
+}
+$unityExitCode = $process.ExitCode
+if ($unityExitCode -ne 0 -or -not (Test-Path $ResultsPath)) {
+    Write-Error "Unity $Platform tests failed or produced no XML. ExitCode=$unityExitCode. Log=$LogPath"
     exit 1
 }
 

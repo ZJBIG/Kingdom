@@ -24,7 +24,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 364
+      scalar: 180
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
@@ -32,7 +32,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 164
+      scalar: 80
       layer: 0
       operators: []
   effects:
@@ -116,4 +116,4 @@ MonoBehaviour:
   TechLevel: 0
   AdvancesTechLevel: 0
   x: 1
-  y: 28.889
+  y: 29

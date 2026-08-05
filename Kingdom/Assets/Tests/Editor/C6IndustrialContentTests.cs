@@ -37,7 +37,6 @@ public sealed class C6IndustrialContentTests
         "WireMill",
         "University",
         "RailHub",
-        "ArmsFactory",
         "IndustrialCopperSmelter",
         "IndustrialTinSmelter",
         "IndustrialBronzeFoundry",
@@ -55,7 +54,7 @@ public sealed class C6IndustrialContentTests
         {
             Resource resource = DataBase<Resource>.Find(IndustrialResourceIds[i]);
             Assert.That(resource, Is.Not.Null);
-            Assert.That(resource.DisplayerSet, Is.EqualTo(Resource.Set.UltraTechSet));
+            Assert.That(resource.DisplayerSet, Is.EqualTo(Resource.Set.IndustrialEraSet));
         }
     }
 
@@ -79,8 +78,6 @@ public sealed class C6IndustrialContentTests
         Assert.That(DataBase<Building>.Find("MachineFactory").PowerConsumptionRate,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("RailHub").LogisticsProductionRate,
-            Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("ArmsFactory").LogisticsConsumptionRate,
             Is.GreaterThan(ExpantaNum.Zero));
     }
 

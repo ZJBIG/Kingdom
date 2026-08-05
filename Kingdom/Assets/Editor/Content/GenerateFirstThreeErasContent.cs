@@ -166,7 +166,7 @@ public static class GenerateFirstThreeErasContent
         ["HerbalKnowledge"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.03) },
         ["FoodPreservation"] = new[] { Global(ResearchEffectType.FoodCapacityMultiplier, 1.10) },
         ["VillageOrganization"] = new[] { Global(ResearchEffectType.ProductivityGranted, 10) },
-        ["OrganizedDefense"] = new[] { Global(ResearchEffectType.MilitaryMultiplier, 1.10) },
+        ["OrganizedDefense"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.03) },
         ["CharcoalMaking"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.02) },
         ["PermanentArchitecture"] = new[] { Global(ResearchEffectType.GlobalConstructionMultiplier, 1.05) },
         ["AnimalFodder"] = new[] { BuildingFood("Pasture", 1.20) },
@@ -175,7 +175,7 @@ public static class GenerateFirstThreeErasContent
         ["VillageCrafts"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.05) },
         ["CropRotation"] = new[] { BuildingFood("Farm", 1.20), BuildingFood("Pasture", 1.10), Global(ResearchEffectType.PopulationGrowthMultiplier, 1.15) },
         ["CouncilGovernance"] = new[] { Global(ResearchEffectType.GlobalResearchMultiplier, 1.05) },
-        ["OrganizedWatch"] = new[] { Global(ResearchEffectType.MilitaryMultiplier, 1.10) },
+        ["OrganizedWatch"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.04) },
         ["BronzeImplements"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.15), Global(ResearchEffectType.GlobalConstructionMultiplier, 1.05) },
         ["UrbanHousing"] = new[] { Global(ResearchEffectType.GlobalConstructionMultiplier, 1.05) },
         ["GuildSystem"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.05) },
@@ -187,8 +187,8 @@ public static class GenerateFirstThreeErasContent
         ["RoadEngineering"] = new[] { Global(ResearchEffectType.GlobalLogisticsMultiplier, 1.10) },
         ["MechanicalPrinting"] = new[] { BuildingResearch("PrintingHouse", 1.20) },
         ["MetallurgicalStandards"] = new[] { BuildingProduction("SteelForge", 1.25) },
-        ["CastleArchitecture"] = new[] { Global(ResearchEffectType.MilitaryMultiplier, 1.10) },
-        ["ArsenalOrganization"] = new[] { Global(ResearchEffectType.MilitaryMultiplier, 1.15) }
+        ["CastleArchitecture"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.05) },
+        ["ArsenalOrganization"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.10) }
     };
 
     private static EffectSpec Global(ResearchEffectType type, double value) => new EffectSpec { Type = type, Value = value };

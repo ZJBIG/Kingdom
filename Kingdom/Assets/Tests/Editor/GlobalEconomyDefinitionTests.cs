@@ -21,7 +21,7 @@ public sealed class GlobalEconomyDefinitionTests
         Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(52));
         Assert.That(DataBase<Building>.All.Count, Is.EqualTo(43));
         Assert.That(DataBase<Research>.All.Count, Is.EqualTo(61));
-        Assert.That(DataBase<WorkshopUpgradeDefinition>.All.Count, Is.EqualTo(18));
+        Assert.That(DataBase<WorkshopUpgradeDefinition>.All.Count, Is.EqualTo(29));
 
         int releasedBuildings = 0;
         foreach (Building building in DataBase<Building>.All)

@@ -264,9 +264,25 @@ public class ResearchManager : Singleton<ResearchManager>
             : ArePrerequisitesCompleted(research)
                 ? ResearchStatus.Available
                 : ResearchStatus.Locked);
-        TryStartNextQueuedResearch();
+        TryStartExactPaidResearch(state);
         ResearchQueueChanged?.Invoke();
         return ResearchPaymentResult.Paid;
+    }
+
+    private void TryStartExactPaidResearch(ResearchState state)
+    {
+        // Payment is deliberately scoped to this exact research. Do not walk
+        // or process the prerequisite queue from the payment button.
+        if (state == null || ActiveResearch != null || researchQueue.Count == 0 ||
+            researchQueue.Peek() != state || !state.CostPaid ||
+            !CanAccessResearch(state.Definition) ||
+            !ArePrerequisitesCompleted(state.Definition))
+        {
+            return;
+        }
+
+        RemoveQueuedState(state);
+        TryStartResearchNow(state);
     }
 
     public bool IsResearchCompleted(string researchId)
@@ -343,63 +359,19 @@ public class ResearchManager : Singleton<ResearchManager>
                 : remaining;
         }
 
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
-            if (ResourceManager.Instance.EnsureResource(entry.Key).Amount < entry.Value)
-                return false;
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
-        {
-            ResourceManager.Instance.AddAmount(entry.Key, -entry.Value);
-            state.SetPaidResourceCost(
-                entry.Key,
-                state.GetPaidResourceCost(entry.Key) + entry.Value);
-        }
-
-        state.SetCostPaid(true);
-        return true;
-    }
-
-    private bool TryPayResearchBatch(IReadOnlyList<ResearchState> batch)
-    {
-        var outstanding = new Dictionary<Resource, ExpantaNum>();
-        for (int i = 0; i < batch.Count; i++)
-        {
-            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
-                batch[i].Definition.ResourceRequirements;
-            for (int j = 0; j < requirements.Count; j++)
+        return ResourceManager.Instance.TryApplyAtomicPayment(
+            outstanding,
+            () =>
             {
-                Pair<Resource, ExpantaNum> requirement = requirements[j];
-                ExpantaNum remaining = ExpantaNum.Max(
-                    ExpantaNum.Zero,
-                    requirement.Second - batch[i].GetPaidResourceCost(requirement.First));
-                if (remaining <= ExpantaNum.Zero)
-                    continue;
-                outstanding[requirement.First] = outstanding.TryGetValue(
-                    requirement.First,
-                    out ExpantaNum current)
-                    ? current + remaining
-                    : remaining;
-            }
-        }
+                foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
+                {
+                    state.SetPaidResourceCost(
+                        entry.Key,
+                        state.GetPaidResourceCost(entry.Key) + entry.Value);
+                }
 
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
-        {
-            ResourceState resource = ResourceManager.Instance.EnsureResource(entry.Key);
-            if (resource.Amount < entry.Value)
-                return false;
-        }
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
-            ResourceManager.Instance.AddAmount(entry.Key, -entry.Value);
-
-        for (int i = 0; i < batch.Count; i++)
-        {
-            ResearchState state = batch[i];
-            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
-                state.Definition.ResourceRequirements;
-            for (int j = 0; j < requirements.Count; j++)
-                state.SetPaidResourceCost(requirements[j].First, requirements[j].Second);
-            state.SetCostPaid(true);
-        }
-        return true;
+                state.SetCostPaid(true);
+            });
     }
 
     private List<ResearchState> BuildPrerequisiteBatch(ResearchState target)

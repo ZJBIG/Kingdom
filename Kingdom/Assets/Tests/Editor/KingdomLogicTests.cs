@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -129,7 +129,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResourceState_ExistsIndependentlyFromResourceDisplayer()
+    public void ResourceState_ExistsIndependentlyFromResourceUI()
     {
         Resource resource = ScriptableObject.CreateInstance<Resource>();
         resource.name = "TestResource";
@@ -156,18 +156,6 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResourceViewer_TreatsStartingWoodAsVisibleWithoutBuildingSources()
-    {
-        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
-        MethodInfo method = typeof(ResourceViewer).GetMethod(
-            "IsResourceManufacturable",
-            BindingFlags.Static | BindingFlags.NonPublic);
-
-        Assert.That(method, Is.Not.Null);
-        Assert.That((bool)method.Invoke(null, new object[] { wood }), Is.True);
-    }
-
-    [Test]
     public void ResourceAdvance_UsesElapsedSecondsAndClampsAtZero()
     {
         Assert.That(ResourceManager.AdvanceAmount(100, 8, 3, 2), Is.EqualTo(new ExpantaNum(110)));
@@ -189,85 +177,6 @@ public sealed class KingdomLogicTests
     public void ToGameString_PreservesThreeSignificantDigitsForThousands()
     {
         Assert.That(new ExpantaNum(1220).ToGameString(), Is.EqualTo("1.22K"));
-    }
-
-    [Test]
-    public void ResearchLineView_DistinguishesSelectedResearchRelationships()
-    {
-        Research prerequisite = CreateResearch("LinePrerequisite");
-        Research target = CreateResearch("LineTarget");
-        Research unrelated = CreateResearch("LineUnrelated");
-
-        Assert.That(
-            ResearchLineView.GetColor(
-                null,
-                prerequisite,
-                target,
-                ResearchStatus.Locked),
-            Is.EqualTo(ResearchLineView.UnselectedColor));
-        Assert.That(
-            ResearchLineView.GetColor(
-                target,
-                prerequisite,
-                target,
-                ResearchStatus.Available),
-            Is.EqualTo(ResearchLineView.IncompletePrerequisiteColor));
-        Assert.That(
-            ResearchLineView.GetColor(
-                target,
-                prerequisite,
-                target,
-                ResearchStatus.Completed),
-            Is.EqualTo(ResearchLineView.CompletedPrerequisiteColor));
-        Assert.That(
-            ResearchLineView.GetColor(
-                prerequisite,
-                prerequisite,
-                target,
-                ResearchStatus.Locked),
-            Is.EqualTo(ResearchLineView.AvailableSuccessorColor));
-        Assert.That(
-            ResearchLineView.GetColor(
-                prerequisite,
-                prerequisite,
-                target,
-                ResearchStatus.Completed),
-            Is.EqualTo(ResearchLineView.AvailableSuccessorColor));
-        Assert.That(
-            ResearchLineView.GetColor(
-                unrelated,
-                prerequisite,
-                target,
-                ResearchStatus.Completed),
-            Is.EqualTo(ResearchLineView.UnselectedColor));
-
-        Research transitivePrerequisite = CreateResearch("LineTransitivePrerequisite");
-        Assert.That(
-            ResearchLineView.GetColor(
-                transitivePrerequisite,
-                prerequisite,
-                target,
-                ResearchStatus.Completed),
-            Is.EqualTo(ResearchLineView.UnselectedColor));
-    }
-
-    [Test]
-    public void ResearchDisplayer_UsesDistinctCompletedAndSelectedOutlineColors()
-    {
-        Color selected = ResearchDisplayer.GetOutlineColor(
-            true,
-            ResearchStatus.Completed);
-        Color completed = ResearchDisplayer.GetOutlineColor(
-            false,
-            ResearchStatus.Completed);
-        Color inactive = ResearchDisplayer.GetOutlineColor(
-            false,
-            ResearchStatus.Available);
-
-        Assert.That(selected, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineSel));
-        Assert.That(completed, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineCompleted));
-        Assert.That(inactive, Is.EqualTo(ResearchDisplayer.DisplayerFrame.OutlineUnsel));
-        Assert.That(completed, Is.Not.EqualTo(selected));
     }
 
     [Test]
@@ -1206,7 +1115,7 @@ public sealed class KingdomLogicTests
 
         resourceManager.SetAmount(wood, 499);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(499)));
         Assert.That(state.CostPaid, Is.False);
 
         resourceManager.SetAmount(wood, 1);
@@ -1230,6 +1139,62 @@ public sealed class KingdomLogicTests
         Assert.That(state.CostPaid, Is.True);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(state.CostPaid, Is.True);
+    }
+
+    [Test]
+    public void ResearchCostPayment_IsAtomicAcrossMultipleResources()
+    {
+        var managerObject = new GameObject("ResourceManager-AtomicResearch-Test");
+        createdObjects.Add(managerObject);
+        ResourceManager resourceManager = managerObject.AddComponent<ResourceManager>();
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Resource stone = DataBase<Resource>.Find("StoneChunk");
+        Research research = DataBase<Research>.Find("Arithmetic");
+        var state = new ResearchState(research);
+
+        resourceManager.SetAmount(wood, 60);
+        resourceManager.SetAmount(stone, 29);
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(29)));
+        Assert.That(state.CostPaid, Is.False);
+
+        resourceManager.SetAmount(stone, 30);
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.CostPaid, Is.True);
+    }
+
+    [Test]
+    public void PayResearchCost_OnlyPaysTheSpecifiedResearch()
+    {
+        CreateManager<GameManager>("ResearchSinglePayment-GameManager");
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResearchSinglePayment-ResourceManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("ResearchSinglePayment-ResearchManager");
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Research prerequisite = DataBase<Research>.Find("ControlledFire");
+        Research target = DataBase<Research>.Find("ClayExtraction");
+        resourceManager.SetAmount(wood, 40);
+
+        Assert.That(
+            researchManager.HandleResearchAction(target),
+            Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
+        Assert.That(researchManager.ResearchQueue[0].Definition, Is.SameAs(prerequisite));
+        Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.False);
+
+        Assert.That(
+            researchManager.PayResearchCost(target),
+            Is.EqualTo(ResearchPaymentResult.Paid));
+
+        Assert.That(researchManager.GetState(target).CostPaid, Is.True);
+        Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.False);
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -1418,29 +1383,6 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void BuildingDisplayer_UsesHeaderHeightWhenCollapsedAndFullExpandedHeight()
-    {
-        Assert.That(
-            BuildingDisplayer.CalculatePreferredHeight(false, 0),
-            Is.EqualTo(BuildingDisplayer.HeaderHeight));
-        Assert.That(
-            BuildingDisplayer.CalculatePreferredHeight(false, 5),
-            Is.EqualTo(BuildingDisplayer.HeaderHeight));
-        Assert.That(
-            BuildingDisplayer.CalculatePreferredHeight(true, 1),
-            Is.EqualTo(
-                BuildingDisplayer.HeaderHeight +
-                BuildingDisplayer.DetailRowHeight +
-                BuildingDisplayer.ActionRowHeight));
-        Assert.That(
-            BuildingDisplayer.CalculatePreferredHeight(true, 3),
-            Is.EqualTo(
-                BuildingDisplayer.HeaderHeight +
-                BuildingDisplayer.DetailRowHeight * 2f +
-                BuildingDisplayer.ActionRowHeight));
-    }
-
-    [Test]
     public void Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered()
     {
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceManager");
@@ -1480,90 +1422,6 @@ public sealed class KingdomLogicTests
         Assert.That(
             buildingManager.GetMaxBuildable(medievalBuilding, ExpantaNum.One),
             Is.EqualTo(ExpantaNum.Zero));
-    }
-
-    [Test]
-    public void ResourceViewer_BindsExistingStatesWhenOpenedAfterResourcesWereDiscovered()
-    {
-        CreateManager<GameManager>("ResourceViewer-GameManager");
-        CreateManager<BuildingManager>("ResourceViewer-BuildingManager");
-        CreateManager<ResearchManager>("ResourceViewer-ResearchManager");
-        CreateManager<WorkshopManager>("ResourceViewer-WorkshopManager");
-        ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceManager");
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        resourceManager.EnsureResource(wood);
-
-        GameObject setObject = new GameObject(
-            wood.DisplayerSet.ToString(),
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(ResourceDisplayerSet));
-        createdObjects.Add(setObject);
-        ResourceDisplayerSet set = setObject.GetComponent<ResourceDisplayerSet>();
-        set.Content = new GameObject("Content", typeof(RectTransform)).transform;
-        createdObjects.Add(set.Content.gameObject);
-        set.Content.SetParent(setObject.transform, false);
-
-        GameObject viewerObject = new GameObject("ResourceViewer", typeof(RectTransform));
-        createdObjects.Add(viewerObject);
-        viewerObject.SetActive(false);
-        setObject.transform.SetParent(viewerObject.transform, false);
-        ResourceViewer viewer = viewerObject.AddComponent<ResourceViewer>();
-        GameObject displayerPrefab =
-            Resources.Load<GameObject>("UI/Resource/ResourceDisplayer");
-        Assert.That(displayerPrefab, Is.Not.Null);
-        typeof(ResourceViewer)
-            .GetField("DisplayerPrefab", BindingFlags.Instance | BindingFlags.NonPublic)
-            .SetValue(viewer, displayerPrefab);
-        viewerObject.SetActive(true);
-        typeof(ResourceViewer)
-            .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(viewer, null);
-        viewer.RefreshAll();
-
-        Assert.That(set.Displayers.ContainsKey(wood), Is.True);
-    }
-
-    [Test]
-    public void ResourceViewer_DoesNotCreateDisplayerForLockedIndustrialOutput()
-    {
-        CreateManager<GameManager>("ResourceViewer-Locked-GameManager");
-        CreateManager<BuildingManager>("ResourceViewer-Locked-BuildingManager");
-        CreateManager<ResearchManager>("ResourceViewer-Locked-ResearchManager");
-        CreateManager<WorkshopManager>("ResourceViewer-Locked-WorkshopManager");
-        ResourceManager resourceManager = CreateManager<ResourceManager>("ResourceViewer-Locked-ResourceManager");
-        Resource electronics = DataBase<Resource>.Find("Electronics");
-        resourceManager.EnsureResource(electronics);
-
-        GameObject setObject = new GameObject(
-            electronics.DisplayerSet.ToString(),
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(ResourceDisplayerSet));
-        createdObjects.Add(setObject);
-        ResourceDisplayerSet set = setObject.GetComponent<ResourceDisplayerSet>();
-        set.Content = new GameObject("Content", typeof(RectTransform)).transform;
-        createdObjects.Add(set.Content.gameObject);
-        set.Content.SetParent(setObject.transform, false);
-
-        GameObject viewerObject = new GameObject("ResourceViewer-Locked", typeof(RectTransform));
-        createdObjects.Add(viewerObject);
-        viewerObject.SetActive(false);
-        setObject.transform.SetParent(viewerObject.transform, false);
-        ResourceViewer viewer = viewerObject.AddComponent<ResourceViewer>();
-        GameObject displayerPrefab = Resources.Load<GameObject>("UI/Resource/ResourceDisplayer");
-        Assert.That(displayerPrefab, Is.Not.Null);
-        typeof(ResourceViewer)
-            .GetField("DisplayerPrefab", BindingFlags.Instance | BindingFlags.NonPublic)
-            .SetValue(viewer, displayerPrefab);
-        viewerObject.SetActive(true);
-        typeof(ResourceViewer)
-            .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(viewer, null);
-        viewer.RefreshAll();
-
-        Assert.That(set.Displayers.ContainsKey(electronics), Is.False);
-        Assert.That(setObject.activeSelf, Is.False);
     }
 
     [Test]
@@ -1653,3 +1511,6 @@ public sealed class KingdomLogicTests
         public Pair<int, string> value;
     }
 }
+
+
+

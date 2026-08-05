@@ -170,7 +170,23 @@ MonoBehaviour:
       layer: 0
       operators: []
   resourceGenerationRates: []
-  resourceConsumptionRates: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.02
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.05
+      layer: 0
+      operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 01957e1170855414387b6d50f51748a6, type: 2}
   - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}

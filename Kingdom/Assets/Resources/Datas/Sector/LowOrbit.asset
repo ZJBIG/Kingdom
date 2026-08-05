@@ -15,10 +15,16 @@ MonoBehaviour:
   id: LowOrbit
   Label: Low Orbit
   Description: The first orbital region, providing a safe launch corridor and a foothold beyond Earth.
+  starSystemId: Sol
+  domain: 0
   enemyPower: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   prerequisiteSectors: []
   territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
   resourceRewards: []
+  colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
+  colonizationResourceCosts: []
+  campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  campaignResourceCosts: []
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

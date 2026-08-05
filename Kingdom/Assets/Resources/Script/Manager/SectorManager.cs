@@ -16,7 +16,11 @@ public enum SectorOperationFailure
     CampaignInProgress,
     InvalidDelta,
     InsufficientCampaignSupply,
-    InvalidCampaignCost
+    InvalidCampaignCost,
+    CampaignNotAllowedInHomeSystem,
+    ColonizationNotAllowedInInterstellarSystem,
+    InterstellarSystemLocked,
+    ColonizationInProgress
 }
 
 public sealed class SectorCampaignPreview
@@ -57,6 +61,9 @@ public sealed class SectorCampaignPreview
 public sealed class SectorManager
 {
     private const string LaunchCenterId = "LaunchCenter";
+    public const string InterstellarNavigationSystemId = "interstellar-navigation";
+    public const string DeepSpaceFleetSystemId = "deep-space-fleet";
+    public const string FirstContactSystemId = "first-contact";
 
     private readonly Dictionary<SectorDefinition, SectorState> states = new();
     private readonly List<SectorState> orderedStates = new();
@@ -203,6 +210,13 @@ public sealed class SectorManager
             return false;
         }
 
+        if (!definition.IsHomeSystem &&
+            !ProgressionModifierManager.Current.IsSystemUnlocked(FirstContactSystemId))
+        {
+            failure = SectorOperationFailure.InterstellarSystemLocked;
+            return false;
+        }
+
         state.SetUnlocked(true);
         failure = SectorOperationFailure.None;
         return true;
@@ -226,7 +240,12 @@ public sealed class SectorManager
             failure = SectorOperationFailure.AlreadyOccupied;
             return false;
         }
-        if (definition.EnemyPower > ExpantaNum.Zero && state.CampaignProgress < ExpantaNum.One)
+        if (definition.IsHomeSystem && state.CampaignProgress < ExpantaNum.One)
+        {
+            failure = SectorOperationFailure.CampaignRequired;
+            return false;
+        }
+        if (!definition.IsHomeSystem && state.CampaignProgress < ExpantaNum.One)
         {
             failure = SectorOperationFailure.CampaignRequired;
             return false;
@@ -250,15 +269,12 @@ public sealed class SectorManager
         GameState runtimeState,
         out SectorOperationFailure failure)
     {
-        ResourceManager resourceManager = null;
-        if (definition != null && definition.CampaignResourceCosts != null &&
-            definition.CampaignResourceCosts.Count > 0)
-            resourceManager = ResourceManager.Instance;
+        ResourceManager resourceManager = ResourceManager.Instance;
         return TryAdvanceCampaign(
             definition,
             deltaSeconds,
             runtimeState,
-            ResourceManager.Instance,
+            resourceManager,
             out failure);
     }
 
@@ -278,6 +294,16 @@ public sealed class SectorManager
         if (runtimeState == null)
         {
             failure = SectorOperationFailure.InvalidDelta;
+            return false;
+        }
+        if (definition.IsHomeSystem)
+        {
+            failure = SectorOperationFailure.CampaignNotAllowedInHomeSystem;
+            return false;
+        }
+        if (!ProgressionModifierManager.Current.IsSystemUnlocked(DeepSpaceFleetSystemId))
+        {
+            failure = SectorOperationFailure.InterstellarSystemLocked;
             return false;
         }
         if (deltaSeconds < 0d)
@@ -326,15 +352,6 @@ public sealed class SectorManager
             return false;
         }
 
-        if (definition.EnemyPower <= ExpantaNum.Zero)
-        {
-            ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
-            state.SetCampaignProgress(ExpantaNum.One);
-            CompleteOccupation(definition, state, runtimeState);
-            failure = SectorOperationFailure.None;
-            return true;
-        }
-
         runtimeState.BeginCampaign(definition.Id);
         ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
         ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
@@ -357,10 +374,134 @@ public sealed class SectorManager
         if (nextProgress >= ExpantaNum.One)
         {
             state.SetCampaignProgress(ExpantaNum.One);
-            CompleteOccupation(definition, state, runtimeState);
+            runtimeState.CompleteCampaign();
         }
 
         failure = SectorOperationFailure.None;
+        return true;
+    }
+
+    public bool TryAdvanceColonization(
+        SectorDefinition definition,
+        double deltaSeconds,
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        out SectorOperationFailure failure)
+    {
+        EnsureInitialized();
+        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        {
+            failure = SectorOperationFailure.UnknownSector;
+            return false;
+        }
+        if (!definition.IsHomeSystem)
+        {
+            failure = SectorOperationFailure.ColonizationNotAllowedInInterstellarSystem;
+            return false;
+        }
+        if (runtimeState == null || deltaSeconds < 0d)
+        {
+            failure = SectorOperationFailure.InvalidDelta;
+            return false;
+        }
+        if (!state.Unlocked)
+        {
+            failure = SectorOperationFailure.NotUnlocked;
+            return false;
+        }
+        if (state.Occupied)
+        {
+            failure = SectorOperationFailure.AlreadyOccupied;
+            return false;
+        }
+        if (runtimeState.Campaign.Active)
+        {
+            failure = SectorOperationFailure.ColonizationInProgress;
+            return false;
+        }
+        if (!TryCalculateCosts(
+                definition.ColonizationFoodPerMinute,
+                definition.ColonizationResourceCosts,
+                deltaSeconds,
+                resourceManager,
+                out ExpantaNum foodCost,
+                out List<Pair<Resource, ExpantaNum>> resourceCosts,
+                out failure))
+            return false;
+        if (runtimeState.FoodAmount < foodCost || !HasResourceCosts(resourceManager, resourceCosts))
+        {
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
+        }
+
+        state.SetColonizationActive(true);
+        ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
+        state.SetCampaignProgress(state.CampaignProgress + deltaSeconds / 60d);
+        if (state.CampaignProgress >= ExpantaNum.One)
+        {
+            state.SetCampaignProgress(ExpantaNum.One);
+            CompleteOccupation(definition, state, runtimeState);
+        }
+        failure = SectorOperationFailure.None;
+        return true;
+    }
+
+    public bool TickActiveCampaign(
+        double deltaSeconds,
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        out SectorOperationFailure failure)
+    {
+        failure = SectorOperationFailure.None;
+        if (runtimeState == null || !runtimeState.Campaign.Active)
+            return false;
+        SectorDefinition target = null;
+        for (int i = 0; i < orderedStates.Count; i++)
+            if (string.Equals(orderedStates[i].Definition.Id, runtimeState.Campaign.TargetSectorId, StringComparison.OrdinalIgnoreCase))
+            {
+                target = orderedStates[i].Definition;
+                break;
+            }
+        if (target == null || target.IsHomeSystem)
+        {
+            runtimeState.CompleteCampaign();
+            failure = SectorOperationFailure.CampaignNotAllowedInHomeSystem;
+            return false;
+        }
+        return TryAdvanceCampaign(target, deltaSeconds, runtimeState, resourceManager, out failure);
+    }
+
+    public bool CancelCampaign(GameState runtimeState)
+    {
+        if (runtimeState == null || !runtimeState.Campaign.Active)
+            return false;
+        runtimeState.CompleteCampaign();
+        return true;
+    }
+
+    public bool TickActiveColonization(double deltaSeconds, GameState runtimeState, ResourceManager resourceManager, out SectorOperationFailure failure)
+    {
+        failure = SectorOperationFailure.None;
+        if (runtimeState == null || deltaSeconds < 0d)
+        {
+            failure = SectorOperationFailure.InvalidDelta;
+            return false;
+        }
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            SectorState state = orderedStates[i];
+            if (state.ColonizationActive)
+                return TryAdvanceColonization(state.Definition, deltaSeconds, runtimeState, resourceManager, out failure);
+        }
+        return false;
+    }
+
+    public bool CancelColonization(SectorDefinition definition)
+    {
+        EnsureInitialized();
+        if (definition == null || !states.TryGetValue(definition, out SectorState state) || !state.ColonizationActive)
+            return false;
+        state.SetColonizationActive(false);
         return true;
     }
 
@@ -386,6 +527,7 @@ public sealed class SectorManager
                 SectorId = state.Definition.Id,
                 Unlocked = state.Unlocked,
                 Occupied = state.Occupied,
+                ColonizationActive = state.ColonizationActive,
                 CampaignProgress = state.CampaignProgress.ToString(),
                 VisitCount = state.VisitCount
             });
@@ -417,7 +559,7 @@ public sealed class SectorManager
             if (!ExpantaNum.TryParse(saved.CampaignProgress, out ExpantaNum progress))
                 throw new InvalidOperationException(
                     $"Invalid sector save value '{saved.CampaignProgress}' for ID '{saved.SectorId}'.");
-            state.Restore(saved.Unlocked, saved.Occupied, progress, saved.VisitCount);
+            state.Restore(saved.Unlocked, saved.Occupied, saved.ColonizationActive, progress, saved.VisitCount);
         }
     }
 
@@ -483,16 +625,34 @@ public sealed class SectorManager
         out List<Pair<Resource, ExpantaNum>> resourceCosts,
         out SectorOperationFailure failure)
     {
+        return TryCalculateCosts(
+            definition.CampaignFoodPerMinute,
+            definition.CampaignResourceCosts,
+            deltaSeconds,
+            resourceManager,
+            out foodCost,
+            out resourceCosts,
+            out failure);
+    }
+
+    private static bool TryCalculateCosts(
+        ExpantaNum foodPerMinute,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> configured,
+        double deltaSeconds,
+        ResourceManager resourceManager,
+        out ExpantaNum foodCost,
+        out List<Pair<Resource, ExpantaNum>> resourceCosts,
+        out SectorOperationFailure failure)
+    {
         foodCost = ExpantaNum.Max(ExpantaNum.Zero,
-            definition.CampaignFoodPerMinute * deltaSeconds / 60d);
+            foodPerMinute * deltaSeconds / 60d);
         resourceCosts = new List<Pair<Resource, ExpantaNum>>();
-        if (definition.CampaignFoodPerMinute.IsNaN || definition.CampaignFoodPerMinute < ExpantaNum.Zero)
+        if (foodPerMinute.IsNaN || foodPerMinute < ExpantaNum.Zero)
         {
             failure = SectorOperationFailure.InvalidCampaignCost;
             return false;
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> configured = definition.CampaignResourceCosts;
         if (configured != null)
         {
             for (int i = 0; i < configured.Count; i++)
@@ -553,6 +713,7 @@ public sealed class SectorManager
         GameState runtimeState)
     {
         state.SetOccupied(true);
+        state.SetColonizationActive(false);
         state.SetVisitCount(state.VisitCount + 1);
         runtimeState.CompleteCampaign();
         rewardApplier(definition);

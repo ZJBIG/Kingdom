@@ -41,6 +41,7 @@
 ExportedObj/
 .consulo/
 *.csproj
+!tools/EconomySimulator/EconomySimulator.csproj
 *.unityproj
 *.sln
 *.suo

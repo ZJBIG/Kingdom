@@ -1,2 +1,10 @@
-// UI lifecycle coverage belongs to the PlayMode assembly.
-// See Assets/Tests/PlayMode/KingdomPlayModeTests.cs.
+using NUnit.Framework;
+
+public sealed class KingdomUiLifecycleTests
+{
+    [Test]
+    public void NewUiLifecycleTestAssemblyRemainsAvailable()
+    {
+        Assert.That(typeof(KingdomUIRoot), Is.Not.Null);
+    }
+}

@@ -333,18 +333,12 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void C809_MilitaryBuildingsExposeAttackDefenseAndManpowerSources()
+    public void C809_PreSpaceMilitaryBuildingsAreRemoved()
     {
-        Building barracks = DataBase<Building>.Find("Barracks");
-        Building fortification = DataBase<Building>.Find("Fortification");
-        Building armsFactory = DataBase<Building>.Find("ArmsFactory");
-
-        Assert.That(barracks.AttackPowerGranted, Is.EqualTo(new ExpantaNum(2)));
-        Assert.That(barracks.DefensePowerGranted, Is.EqualTo(new ExpantaNum(1)));
-        Assert.That(barracks.MilitaryManpowerGranted, Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(fortification.DefensePowerGranted, Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(armsFactory.AttackPowerGranted, Is.EqualTo(new ExpantaNum(10)));
-        Assert.That(armsFactory.DefensePowerGranted, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(DataBase<Building>.Contains("Barracks"), Is.False);
+        Assert.That(DataBase<Building>.Contains("Castle"), Is.False);
+        Assert.That(DataBase<Building>.Contains("Arsenal"), Is.False);
+        Assert.That(DataBase<Building>.Contains("ArmsFactory"), Is.False);
     }
 
     [Test]
@@ -358,17 +352,17 @@ public sealed class SectorManagerTests
             GameManager gameManager = gameObject.AddComponent<GameManager>();
             resourceObject.AddComponent<ResourceManager>();
             BuildingManager buildingManager = buildingObject.AddComponent<BuildingManager>();
-            Building barracks = DataBase<Building>.Find("Barracks");
-            BuildingState state = buildingManager.EnsureBuilding(barracks);
+            Building library = DataBase<Building>.Find("Library");
+            BuildingState state = buildingManager.EnsureBuilding(library);
             var method = typeof(BuildingManager).GetMethod(
                 "SetAmountAndRates",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null);
 
             method.Invoke(buildingManager, new object[] { state, new ExpantaNum(1) });
-            Assert.That(gameManager.State.AttackPower, Is.EqualTo(new ExpantaNum(2)));
-            Assert.That(gameManager.State.DefensePower, Is.EqualTo(new ExpantaNum(1)));
-            Assert.That(gameManager.State.MilitaryManpower, Is.EqualTo(new ExpantaNum(5)));
+            Assert.That(gameManager.State.AttackPower, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.State.DefensePower, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.State.MilitaryManpower, Is.EqualTo(ExpantaNum.Zero));
 
             method.Invoke(buildingManager, new object[] { state, ExpantaNum.Zero });
             Assert.That(gameManager.State.AttackPower, Is.EqualTo(ExpantaNum.Zero));

@@ -5,52 +5,74 @@ description: Mandatory Kingdom analysis workflow for technology trees, research 
 
 # Kingdom economy simulation
 
-Use this skill for any Kingdom request involving technology trees, research reachability, resource loops, building production or costs, era progression, population economy, balance, pacing, bottlenecks, simulators, or balance reports.
-
 ## Mandatory order
 
-1. Inspect `git status` and preserve all existing user changes.
-2. Read the current runtime rules in `Kingdom/Assets/Resources/Script`, the relevant `AGENTS.md`, and the actual `Assets/Resources/Datas` definitions.
-3. Run the static closure check before editing data:
+1. Inspect `git status` and preserve existing work.
+2. Read `CODEX_ECONOMY_PROMPT.md`, the nearest `AGENTS.md`, current runtime
+   rules, and actual definition assets.
+3. Run the static closure check before editing economy data:
 
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\tools\codex\content-closure-check.ps1
    ```
 
-4. Run or update the standalone simulator under `tools/EconomySimulator/`. Do not launch Unity for the analysis pass. The simulator must model current `GameBootstrap` and runtime rules, including starting resources, starting research and TechLevel, prerequisite research, research resource costs, resource production/consumption, clamped inventory, construction costs, geometric cost growth, multiple buildings, and player strategy.
-5. Emit evidence before proposing or applying balance changes. At minimum produce `EconomySimulationReport.md`, `SimulationTimeline.csv`, and `BalanceWarnings.csv`; for staged balance work preserve Before/After snapshots.
-6. Classify each blocker as an unreachable definition graph, resource producer deadlock, resource shortage, construction wait, research wait, player strategy/expansion choice, or simulator mismatch.
-7. Only after analysis, modify the minimum allowed fields. Never change IDs, GUIDs, coordinates, descriptions, unrelated effects, or `.meta` files without explicit authorization.
-8. Re-run the same closure and simulation checks after edits. Do not claim reachability or pacing from static inspection alone.
+4. Build and self-test the standalone simulator:
 
-## Graphs that must be checked together
+   ```powershell
+   dotnet build .\tools\EconomySimulator\EconomySimulator.csproj --no-restore
+   dotnet run --project .\tools\EconomySimulator\EconomySimulator.csproj --no-build -- --self-test
+   ```
 
-- Research prerequisite graph: detect cycles and unreachable research.
-- Research resource graph: trace each cost to reachable producers.
-- Building required-research graph: trace every required building unlock.
-- Resource producer graph: include producer research and construction costs.
+5. Run the existing simulator regression and inspect `PacingAcceptance.txt`,
+   Workshop purchases, warnings, and milestone summaries when pacing is affected.
+6. Classify failures as definition graph, producer deadlock, resource shortage,
+   construction wait, research wait, Workshop wait, input mismatch, gameplay bug,
+   or runtime parity mismatch.
+7. Change only the minimum authorized source fields.
+8. Re-run the same checks, Unity compilation, EditMode, relevant PlayMode, and Console.
 
-For every failure, print the complete trace:
+## Simulator contract
 
-```text
-Research -> required resource -> producer building -> required research -> Research
-```
+- Input is a strict typed snapshot of Resource, Building, Research, and Workshop
+  assets resolved through `.meta` GUIDs.
+- Missing IDs, `.meta` files, unresolved GUIDs, duplicate per-kind IDs, and
+  duplicate resource pairs are hard failures; never silently omit definitions.
+- Workshop unlocks, research/workshop prerequisites, resource costs, purchases,
+  and effects must be modeled.
+- Research costs are atomic: progress starts only after the complete remaining
+  cost can be paid, matching current `ResearchManager`.
+- Use current runtime constants and parity formulas. Do not copy values from dated audits.
+- Treat the current route strategies and decision traces as frozen diagnostics.
+  Do not extend scoring, route AI, or trace features unless explicitly requested.
+- Simulation output is balance evidence, not Unity runtime acceptance.
 
-Do not fix a single reported research by deleting a prerequisite before checking all four graphs.
+## Required outputs
 
-## Simulation requirements
+Each route must emit:
 
-- Use the real runtime tick and formulas when known; use seconds internally when runtime uses seconds and aggregate reports in minutes.
-- Apply production satisfaction and resource clamping exactly as runtime does.
-- Pay research costs progressively if runtime does so; do not treat them as a free start-time check.
-- Treat one-minute reports as output aggregation, not permission to omit sub-tick behavior.
-- Compare Normal, Fast, and Conservative routes when pacing is under investigation.
-- Report era-entry and completion time, research completion, first/second core-building time, minimum stockpiles, zero-resource duration, research/building wait time, and bottlenecks.
-- Detect negative resource flow, unique producer bottlenecks, multiplier combinations, research pacing anomalies, and buildings whose costs exceed current production capacity.
+- `EconomySimulationReport.md`
+- `SimulationTimeline.csv`
+- `BalanceWarnings.csv`
+- `MilestoneSummary.csv`
+- `WorkshopPurchaseTimeline.csv`
+- research/building/upgrade timelines
 
-## Required closeout
+The root output must include `PacingAcceptance.txt`. Never rewrite FAIL as PASS
+without a fresh run satisfying every gate.
 
-Report changed files and field-level before/after values, dependency changes, simulation results, unresolved blockers, and validation limits. If Unity was not run, state exactly:
+## Validation boundaries
+
+- Static closure and dynamic pacing are separate gates.
+- Self-tests and parity tests must pass before balance tuning.
+- Zero PlayMode tests is not acceptance.
+- Never change IDs, GUIDs, coordinates, descriptions, unrelated effects, or
+  `.meta` files without explicit authorization.
+- Food remains the only capped stockpile.
+
+Report changed files, field-level before/after values, dependencies, closure,
+simulation results, tests, unresolved blockers, and validation limits.
+
+If Unity was not run, state exactly:
 
 ```text
 未执行真实 Unity 编译。

@@ -118,6 +118,29 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    internal void TickOffline(
+        double calendarSeconds,
+        double simulationSeconds,
+        ExpantaNum populationDepartureAllowance)
+    {
+        if (calendarSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(calendarSeconds));
+        if (simulationSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
+
+        State.AdvanceFood(simulationSeconds);
+        State.AdvancePopulation(
+            simulationSeconds,
+            PopulationGrowthRatePerSecond,
+            populationDepartureAllowance);
+        calendarElapsedSeconds += calendarSeconds;
+        while (calendarElapsedSeconds >= SecondsPerDay)
+        {
+            State.AdvanceCalendarStep();
+            calendarElapsedSeconds -= SecondsPerDay;
+        }
+    }
+
     public static ExpantaNum AdvanceFood(
         ExpantaNum current,
         ExpantaNum productionRate,

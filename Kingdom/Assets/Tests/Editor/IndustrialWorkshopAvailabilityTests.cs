@@ -84,6 +84,34 @@ public class IndustrialWorkshopAvailabilityTests
         AssertWorkshop("StandardGauge", "Steel", "Coke", WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub");
     }
 
+    [Test]
+    public void CokeOvenOptimizationBoostsCokeOutput()
+    {
+        WorkshopUpgradeDefinition definition =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/CokeOvenOptimization");
+        Assert.That(definition, Is.Not.Null);
+        Assert.That(definition.TechLevel, Is.EqualTo(TechLevel.Industrial));
+        bool requiresCoking = false;
+        for (int i = 0; i < definition.RequiredResearch.Count; i++)
+            requiresCoking |= definition.RequiredResearch[i] != null && definition.RequiredResearch[i].Id == "Coking";
+        Assert.That(requiresCoking, Is.True);
+        Assert.That(definition.ResourceRequirements.Count, Is.EqualTo(3));
+
+        bool found = false;
+        for (int i = 0; i < definition.Effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = definition.Effects[i];
+            if (effect.Type == WorkshopEffectType.ResourceProductionMultiplier &&
+                effect.Resource != null && effect.Resource.Id == "Coke")
+            {
+                Assert.That(effect.Value.ToDouble(), Is.EqualTo(1.5d).Within(0.0001d));
+                found = true;
+            }
+        }
+
+        Assert.That(found, Is.True);
+    }
+
     private static void AssertWorkshop(
         string id,
         string firstResource,

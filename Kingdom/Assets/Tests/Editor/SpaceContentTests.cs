@@ -11,8 +11,8 @@ public sealed class SpaceContentTests
 
         Assert.That(rocketFuel.Id, Is.EqualTo("RocketFuel"));
         Assert.That(composite.Id, Is.EqualTo("Composite"));
-        Assert.That(rocketFuel.DisplayerSet, Is.EqualTo(Resource.Set.SpaceSet));
-        Assert.That(composite.DisplayerSet, Is.EqualTo(Resource.Set.SpaceSet));
+        Assert.That(rocketFuel.DisplayerSet, Is.EqualTo(Resource.Set.SpaceEraSet));
+        Assert.That(composite.DisplayerSet, Is.EqualTo(Resource.Set.SpaceEraSet));
     }
 
     [Test]

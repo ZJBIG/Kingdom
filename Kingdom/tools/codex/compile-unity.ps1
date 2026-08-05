@@ -1,13 +1,15 @@
 param(
     [string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "../..")).Path,
     [string]$UnityPath,
-    [string]$LogPath = (Join-Path $ProjectPath "Logs/codex-compile.log")
+    [string]$LogPath = (Join-Path $ProjectPath "Logs/codex-compile.log"),
+    [int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = "Stop"
 if (-not $UnityPath) {
     $UnityPath = & (Join-Path $PSScriptRoot "find-unity.ps1") -ProjectPath $ProjectPath
 }
 New-Item -ItemType Directory -Force (Split-Path $LogPath) | Out-Null
+Remove-Item -LiteralPath $LogPath -Force -ErrorAction SilentlyContinue
 
 $arguments = @(
     "-batchmode",
@@ -16,11 +18,19 @@ $arguments = @(
     "-projectPath", $ProjectPath,
     "-logFile", $LogPath
 )
-$process = Start-Process -FilePath $UnityPath -ArgumentList $arguments -Wait -PassThru -NoNewWindow
-$log = if (Test-Path $LogPath) { Get-Content $LogPath -Raw } else { "" }
-$compileErrors = $log -match "error CS\d+|Compilation failed|Scripts have compiler errors|Aborting batchmode due to failure"
-if ($process.ExitCode -ne 0 -or $compileErrors) {
-    Write-Error "Unity compile failed. ExitCode=$($process.ExitCode). Log=$LogPath"
+$process = Start-Process -FilePath $UnityPath -ArgumentList $arguments `
+    -PassThru -WindowStyle Hidden
+$completed = $process.WaitForExit($TimeoutSeconds * 1000)
+if (-not $completed) {
+    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    Write-Error "Unity compile timed out after $TimeoutSeconds seconds. Log=$LogPath"
     exit 1
 }
-Write-Host "Unity compile passed. ExitCode=$($process.ExitCode). Log=$LogPath"
+$unityExitCode = $process.ExitCode
+$log = if (Test-Path $LogPath) { Get-Content $LogPath -Raw } else { "" }
+$compileErrors = $log -match "error CS\d+|Compilation failed|Scripts have compiler errors|Aborting batchmode due to failure"
+if ($unityExitCode -ne 0 -or $compileErrors) {
+    Write-Error "Unity compile failed. ExitCode=$unityExitCode. Log=$LogPath"
+    exit 1
+}
+Write-Host "Unity compile passed. ExitCode=$unityExitCode. Log=$LogPath"
