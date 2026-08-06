@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2000002}
   - component: {fileID: 2000003}
+  - component: {fileID: 2000004}
   m_Layer: 5
   m_Name: KingdomUIResearchLine
   m_TagString: Untagged
@@ -60,3 +61,11 @@ MonoBehaviour:
   m_FillAmount: 1
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2000004
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000001}
+  m_CullTransparentMesh: 1

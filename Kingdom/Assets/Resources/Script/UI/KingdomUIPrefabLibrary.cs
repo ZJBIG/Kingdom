@@ -17,20 +17,22 @@ public static class KingdomUIPrefabLibrary
     public const string ResourceCard = "KingdomUIResourceCard";
     public const string BuildingCard = "KingdomUIBuildingCard";
     public const string ResearchCard = "KingdomUIResearchCard";
+    public const string TextRow = "KingdomUITextRow";
     public const string ResearchNode = "KingdomUIResearchNode";
     public const string ResearchLine = "KingdomUIResearchLine";
     public const string ResearchGraph = "KingdomUIResearchGraph";
     public const string ResearchToolbar = "KingdomUIResearchToolbar";
     public const string ResearchEraBand = "KingdomUIResearchEraBand";
     public const string RequirementRow = "KingdomUIRequirementRow";
+    public const string FlowRow = "KingdomUIFlowRow";
     public const string DetailPanel = "KingdomUIDetailPanel";
     public const string QuantityControls = "KingdomUIQuantityControls";
     public const string MusicTrack = "KingdomUIMusicTrack";
 
     public static readonly string[] AllReusablePrefabs =
     {
-        Root, Page, ResourceCard, BuildingCard, ResearchCard,
-        ResearchNode, ResearchLine, ResearchGraph, ResearchToolbar, ResearchEraBand, RequirementRow,
+        Root, Page, ResourceCard, BuildingCard, ResearchCard, TextRow,
+        ResearchNode, ResearchLine, ResearchGraph, ResearchToolbar, ResearchEraBand, RequirementRow, FlowRow,
         DetailPanel, QuantityControls, MusicTrack
     };
 

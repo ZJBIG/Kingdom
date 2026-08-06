@@ -23,18 +23,23 @@ public sealed partial class KingdomUIRoot
     private const float ResearchTopPadding = ResearchTopPaddingRows * ResearchGridY;
     private const float ResearchCurveRadius = 10f;
     private const float ResearchLineThickness = 4f;
+    private const float ResearchConnectorOverlap = 2f;
     private const float ResearchArrowThickness = 16f;
     // ResearchTreeSK's StartLine/EndArrow use half of the horizontal gap
     // (NodeMargins.x / 2) for their node-side segments. Preserve that
     // convention after enlarging the Kingdom touch card.
     private const float ResearchNodeMarginHalf = 25f;
     private enum ResearchCurveType { LeftTop, LeftBottom, RightTop, RightBottom }
-    private static readonly Color ResearchFocusWhite = Color.white;
-    private static readonly Color ResearchArrowColor = new(50f / 255f, 50f / 255f, 50f / 255f, 1f);
+    private static readonly Color ResearchFocusWhite = new Color(1f, 1f, 1f, 1f);
+    // Keep the idle graph subdued so the selected closure reads immediately.
+    private static readonly Color ResearchOutlineNormal = new Color(.28f, .30f, .30f, 1f);
+    private static readonly Color ResearchArrowColor = new Color(.22f, .24f, .24f, 1f);
+    private static readonly Color ResearchFocusSurface = new Color(.30f, .36f, .36f, 1f);
     private static readonly Dictionary<string, Sprite> researchTreeSprites = new();
     private readonly Dictionary<Pair<Research, Research>, List<Image>> researchTreeLinkVisuals = new();
     private readonly Dictionary<string, Image> researchSharedLineVisuals = new();
-    private readonly Dictionary<Research, Outline> researchTreeOutlines = new();
+    private readonly Dictionary<Research, Image[]> researchTreeOutlines = new();
+    private RectTransform researchGraphLineLayer;
     private int researchTreeMaximumRow;
     private bool researchTreeUsesAssetGrid;
     private int researchTopologyDuplicateCount;
@@ -95,15 +100,15 @@ public sealed partial class KingdomUIRoot
         lastAppliedResearchSearchQuery = null;
         nextRowTop = 980f;
         // DataRows is only the page slot. The graph viewport and its drag
-        // surface come from a project prefab so opening the tab does not
-        // assemble the same component tree repeatedly.
-        GameObject graphObject = KingdomUIPrefabLibrary.Instantiate(
-            KingdomUIPrefabLibrary.ResearchGraph, parent);
-        if (graphObject == null)
+        // surface are authored in the scene shell. Only repeated graph
+        // content is created below.
+        Transform authoredGraph = parent.Find("ResearchGraphViewport");
+        if (authoredGraph == null)
         {
-            Debug.LogError("[KingdomUI] Missing reusable ResearchGraph prefab; research page was not built");
+            Debug.LogError("[KingdomUI] Scene is missing ResearchGraphViewport; fixed research UI will not be generated at runtime.");
             return;
         }
+        GameObject graphObject = authoredGraph.gameObject;
         graphObject.name = "ResearchGraphViewport";
         researchGraphViewport = graphObject.GetComponent<RectTransform>();
         researchGraphViewport.anchorMin = Vector2.zero;
@@ -144,6 +149,20 @@ public sealed partial class KingdomUIRoot
         // Keep the reference grid spacing exact. The ScrollRect must only
         // scroll when this measured graph actually exceeds its viewport.
         researchGraphContent.sizeDelta = new Vector2(contentWidth, contentHeight);
+        Transform authoredLineLayer = researchGraphContent.Find("ResearchGraphLineLayer");
+        if (authoredLineLayer == null)
+        {
+            GameObject lineLayerObject = new GameObject("ResearchGraphLineLayer", typeof(RectTransform));
+            authoredLineLayer = lineLayerObject.transform;
+            authoredLineLayer.SetParent(researchGraphContent, false);
+        }
+        researchGraphLineLayer = authoredLineLayer as RectTransform;
+        researchGraphLineLayer.anchorMin = Vector2.zero;
+        researchGraphLineLayer.anchorMax = Vector2.zero;
+        researchGraphLineLayer.pivot = Vector2.zero;
+        researchGraphLineLayer.anchoredPosition = Vector2.zero;
+        researchGraphLineLayer.sizeDelta = researchGraphContent.sizeDelta;
+        researchGraphLineLayer.SetAsLastSibling();
         // RectTransform.rect is used below to convert the ResearchTreeSK
         // top-left coordinates into Unity's bottom-left coordinates. Force
         // the layout now, before any connector is created; otherwise the
@@ -422,13 +441,13 @@ public sealed partial class KingdomUIRoot
 
     private void CreateResearchTreeOverlay(RectTransform viewport)
     {
-        GameObject toolbarObject = KingdomUIPrefabLibrary.Instantiate(
-            KingdomUIPrefabLibrary.ResearchToolbar, viewport);
-        if (toolbarObject == null)
+        Transform authoredToolbar = viewport.Find("ResearchTreeToolbar");
+        if (authoredToolbar == null)
         {
-            Debug.LogError("[KingdomUI] Missing reusable ResearchToolbar prefab");
+            Debug.LogError("[KingdomUI] Scene is missing ResearchTreeToolbar; fixed research UI will not be generated at runtime.");
             return;
         }
+        GameObject toolbarObject = authoredToolbar.gameObject;
         RectTransform toolbar = toolbarObject.GetComponent<RectTransform>();
         toolbar.name = "ResearchTreeToolbar";
         toolbar.anchorMin = new Vector2(0, 1);
@@ -493,35 +512,6 @@ public sealed partial class KingdomUIRoot
         queueRect.anchorMax = Vector2.one;
         queueRect.offsetMin = new Vector2(580, 0);
         queueRect.offsetMax = new Vector2(-18, 0);
-        toolbar.SetAsLastSibling();
-    }
-
-    private void CreateResearchTreeOverlayLegacy(RectTransform viewport)
-    {
-        RectTransform toolbar = Rect("ResearchTreeToolbar", viewport, new Vector2(0, 1), Vector2.one,
-            new Vector2(16, -82), new Vector2(-16, -12));
-        PanelRect("Surface", toolbar, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero,
-            new Color(.08f, .10f, .10f, .97f));
-        Label("Title", toolbar, "研究树", 24, TextPrimary, new Vector2(0, 0), new Vector2(0, 1),
-            new Vector2(18, 0), new Vector2(150, 0));
-
-        RectTransform searchRect = Rect("Search", toolbar, new Vector2(0, .5f), new Vector2(0, .5f),
-            new Vector2(168, -25), new Vector2(550, 25));
-        Image searchSurface = searchRect.gameObject.AddComponent<Image>();
-        searchSurface.color = new Color(.15f, .18f, .18f, 1f);
-        researchTreeSearchField = searchRect.gameObject.AddComponent<TMP_InputField>();
-        researchTreeSearchField.targetGraphic = searchSurface;
-        TMP_Text searchText = Label("Text", searchRect, string.Empty, 20, TextPrimary,
-            Vector2.zero, Vector2.one, new Vector2(16, 0), new Vector2(-16, 0));
-        TMP_Text placeholder = Label("Placeholder", searchRect, "搜索研究项目", 20, TextSecondary,
-            Vector2.zero, Vector2.one, new Vector2(16, 0), new Vector2(-16, 0));
-        researchTreeSearchField.textComponent = searchText;
-        researchTreeSearchField.placeholder = placeholder;
-        researchTreeSearchField.textViewport = searchRect;
-        researchTreeSearchField.onValueChanged.AddListener(_ => ApplyResearchTreeSearch());
-
-        researchTreeQueueLabel = Label("Queue", toolbar, "研究队列：空", 20, TextSecondary,
-            new Vector2(0, 0), Vector2.one, new Vector2(580, 0), new Vector2(-18, 0));
         toolbar.SetAsLastSibling();
     }
 
@@ -1192,10 +1182,10 @@ public sealed partial class KingdomUIRoot
         // piece is a short 4x20 overlay, not a shortened full-cell line.
         float pixelY = ResearchTopPadding + (overCurve
             ? y * ResearchGridY - ResearchCurveRadius - ResearchLineThickness * .5f
-            : y * ResearchGridY + ResearchCurveRadius);
+            : y * ResearchGridY + ResearchCurveRadius - ResearchConnectorOverlap);
         float pixelHeight = overCurve
             ? ResearchCurveRadius * 2f
-            : ResearchGridY - ResearchCurveRadius * 2f;
+            : ResearchGridY - ResearchCurveRadius * 2f + ResearchConnectorOverlap * 2f;
         CreateResearchLinePart(content, (overCurve ? "VO:" : "V:") + x + ":" + y,
             new Rect(pixelX, pixelY, ResearchLineThickness, pixelHeight),
             LoadResearchTreeSprite("ResearchTree/ResearchLineVertical"), linkKey, color);
@@ -1206,7 +1196,7 @@ public sealed partial class KingdomUIRoot
     {
         float pixelX = startLine
             ? x * ResearchGridX - ResearchNodeMarginHalf
-            : x * ResearchGridX + (overCurve ? -ResearchCurveRadius : ResearchCurveRadius);
+            : x * ResearchGridX + (overCurve ? -ResearchCurveRadius : ResearchCurveRadius - ResearchConnectorOverlap);
         float pixelY = ResearchTopPadding + y * ResearchGridY - ResearchLineThickness * .5f;
         float pixelWidth;
         if (startLine)
@@ -1222,7 +1212,7 @@ public sealed partial class KingdomUIRoot
         }
         else
         {
-            pixelWidth = ResearchGridX - ResearchCurveRadius * 2f - ResearchLineThickness;
+            pixelWidth = ResearchGridX - ResearchCurveRadius * 2f - ResearchLineThickness + ResearchConnectorOverlap * 2f;
         }
         CreateResearchLinePart(content, (startLine ? "S:" : overCurve ? "HO:" : "H:") + x + ":" + y,
             new Rect(pixelX, pixelY, pixelWidth, ResearchLineThickness),
@@ -1263,8 +1253,9 @@ public sealed partial class KingdomUIRoot
     {
         if (!researchSharedLineVisuals.TryGetValue(key, out Image image))
         {
+            RectTransform lineParent = researchGraphLineLayer != null ? researchGraphLineLayer : content;
             GameObject lineObject = KingdomUIPrefabLibrary.Instantiate(
-                KingdomUIPrefabLibrary.ResearchLine, content);
+                KingdomUIPrefabLibrary.ResearchLine, lineParent);
             if (lineObject == null)
             {
                 Debug.LogError("[KingdomUI] Missing reusable ResearchLine prefab; connector was skipped");
@@ -1346,33 +1337,55 @@ public sealed partial class KingdomUIRoot
         node.sizeDelta = new Vector2(ResearchNodeWidth, ResearchNodeHeight);
         Image surface = node.GetComponent<Image>();
         if (surface == null)
-            surface = nodeObject.AddComponent<Image>();
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored Image: " + research.Id);
+            Destroy(nodeObject);
+            return;
+        }
         surface.color = status == ResearchStatus.Locked ?
             new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f);
         Button button = node.GetComponent<Button>();
         if (button == null)
-            button = nodeObject.AddComponent<Button>();
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored Button: " + research.Id);
+            Destroy(nodeObject);
+            return;
+        }
         button.targetGraphic = surface;
-        button.transition = Selectable.Transition.ColorTint;
+        // Research selection is rendered by RefreshResearchTreeVisuals;
+        // ColorTint would overwrite the focused surface immediately after
+        // the click and erase the intended P2 contrast.
+        button.transition = Selectable.Transition.None;
         ApplyButtonColors(button, surface.color);
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => ShowResearchDetails(research));
+        // Keep a defensive runtime fallback for stale Unity prefab imports.
+        // The authored prefab contains this component; this branch only
+        // prevents an old cached asset from deleting every research node.
         if (node.GetComponent<UIResearchGraphDragForwarder>() == null)
-            nodeObject.AddComponent<UIResearchGraphDragForwarder>();
+            node.gameObject.AddComponent<UIResearchGraphDragForwarder>();
         researchTreeNodes[research] = button;
-        Outline outline = node.GetComponent<Outline>();
+        Image[] outline = CreateResearchNodeBorder(node);
         if (outline == null)
-            outline = nodeObject.AddComponent<Outline>();
-        outline.effectDistance = new Vector2(3f, -3f);
-        outline.effectColor = Color.clear;
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored SelectionBorder: " + research.Id);
+            Destroy(nodeObject);
+            return;
+        }
         researchTreeOutlines[research] = outline;
 
         RectTransform frameRect = node.Find("EraFrame") as RectTransform;
         if (frameRect == null)
-            frameRect = Rect("EraFrame", node, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing EraFrame: " + research.Id);
+            return;
+        }
         Image frame = frameRect.GetComponent<Image>();
         if (frame == null)
-            frame = frameRect.gameObject.AddComponent<Image>();
+        {
+            Debug.LogError("[KingdomUI] ResearchNode EraFrame is missing Image: " + research.Id);
+            return;
+        }
         frame.sprite = LoadResearchTreeSprite(GetResearchEraTextureName(research.TechLevel));
         frame.color = Color.white;
         frame.preserveAspect = false;
@@ -1382,10 +1395,16 @@ public sealed partial class KingdomUIRoot
         // a full-size progress track would cover P2 even at 0%.
         RectTransform progressRect = frameRect.Find("ProgressFill") as RectTransform;
         if (progressRect == null)
-            progressRect = Rect("ProgressFill", frameRect, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing ProgressFill: " + research.Id);
+            return;
+        }
         Image progress = progressRect.GetComponent<Image>();
         if (progress == null)
-            progress = progressRect.gameObject.AddComponent<Image>();
+        {
+            Debug.LogError("[KingdomUI] ResearchNode ProgressFill is missing Image: " + research.Id);
+            return;
+        }
         progress.sprite = LoadResearchTreeSprite(GetResearchProgressTextureName(research.TechLevel));
         progress.type = Image.Type.Filled;
         progress.fillMethod = Image.FillMethod.Horizontal;
@@ -1403,61 +1422,71 @@ public sealed partial class KingdomUIRoot
         // This keeps Chinese glyph resolution and material setup identical to
         // the working resource/building/research-detail labels.
         string nodeTitle = string.IsNullOrEmpty(research.Label) ? research.Id : research.Label;
-        TMP_Text titleLabel = ResearchNodeLabel("Label", node, nodeTitle, 24, Color.white,
-            new Vector2(0f, .28f), new Vector2(1f, .74f),
-            new Vector2(8, 0), new Vector2(-8, 0));
+        TMP_Text titleLabel = ResearchNodeLabel("Label", node, nodeTitle, 24, Color.white);
+        if (titleLabel == null)
+            return;
         titleLabel.color = Color.white;
         titleLabel.alignment = TextAlignmentOptions.Center;
         titleLabel.enableWordWrapping = false;
         titleLabel.overflowMode = TextOverflowModes.Overflow;
         titleLabel.raycastTarget = false;
         titleLabel.enabled = true;
-        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? research.BaseCost : state.BaseCost.ToGameString(), 12,
-            TextSecondary, new Vector2(.27f, .06f), new Vector2(.62f, .34f), new Vector2(8, 0), new Vector2(-2, 0));
+        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? research.BaseCost : state.BaseCost.ToGameString(), 12, TextSecondary);
         costLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 12,
-            TextSecondary, new Vector2(.62f, .06f), new Vector2(1, .34f), new Vector2(2, 0), new Vector2(-8, 0));
+        TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 12, TextSecondary);
         progressLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(status), 12, accent, new Vector2(.27f, .74f),
-            new Vector2(1f, .98f), new Vector2(8, 0), new Vector2(-8, -1));
+        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(status), 12, accent);
         stateLabel.alignment = TextAlignmentOptions.Center;
         // The title is intentionally the last visual child. Era/progress
         // sprites must never cover the research name.
         titleLabel.transform.SetAsLastSibling();
         UITouchTooltip tooltip = node.GetComponent<UITouchTooltip>();
         if (tooltip == null)
-            tooltip = node.gameObject.AddComponent<UITouchTooltip>();
+        {
+            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored tooltip: " + research.Id);
+            return;
+        }
         tooltip.SetTooltip(research.Description);
     }
 
-    private static TMP_Text ResearchNodeLabel(string name, Transform parent, string text, int size,
-        Color color, Vector2 min, Vector2 max, Vector2 offsetMin, Vector2 offsetMax)
+    private static Image[] CreateResearchNodeBorder(RectTransform node)
+    {
+        if (node == null)
+            return null;
+        Transform border = node.Find("SelectionBorder");
+        if (border == null)
+            return null;
+        border.SetSiblingIndex(Mathf.Min(1, node.childCount - 1));
+        Image[] bars =
+        {
+            border.Find("Top")?.GetComponent<Image>(),
+            border.Find("Bottom")?.GetComponent<Image>(),
+            border.Find("Left")?.GetComponent<Image>(),
+            border.Find("Right")?.GetComponent<Image>()
+        };
+        for (int i = 0; i < bars.Length; i++)
+        {
+            if (bars[i] == null)
+                return null;
+            bars[i].color = ResearchOutlineNormal;
+            bars[i].raycastTarget = false;
+        }
+        return bars;
+    }
+
+    private static TMP_Text ResearchNodeLabel(string name, Transform parent, string text, int size, Color color)
     {
         RectTransform rect = parent.Find(name) as RectTransform;
         if (rect == null)
         {
             Debug.LogError("[KingdomUI] ResearchNode prefab is missing label: " + name);
-            rect = Rect(name, parent, min, max, offsetMin, offsetMax);
+            return null;
         }
-        // The prefab may retain an old fixed size from the legacy layout.
-        // Reapply the authored anchors and offsets so text stays inside the
-        // 205x50 node instead of overflowing into neighbouring nodes.
-        rect.anchorMin = min;
-        rect.anchorMax = max;
-        // Clear legacy prefab geometry before applying the margins. The old
-        // prefab stored a 200x50 sizeDelta on every label; with stretched
-        // anchors that size leaks outside the 205x50 node and makes labels
-        // look left-shifted or appear in the neighbouring node.
-        rect.sizeDelta = Vector2.zero;
-        rect.anchoredPosition = Vector2.zero;
-        rect.offsetMin = offsetMin;
-        rect.offsetMax = offsetMax;
-        rect.localScale = Vector3.one;
         TextMeshProUGUI label = rect.GetComponent<TextMeshProUGUI>();
         if (label == null)
         {
             Debug.LogError("[KingdomUI] ResearchNode prefab label has no TMP component: " + name);
-            label = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            return null;
         }
         label.text = text;
         label.fontSize = size;
@@ -1579,17 +1608,22 @@ public sealed partial class KingdomUIRoot
             Color accent = status == ResearchStatus.Completed ? Positive :
                 status == ResearchStatus.Available ? Copper :
                 status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
-                    new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+                new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+            bool focused = focusedIds.Contains(research.Id);
 
             Image surface = button.targetGraphic as Image;
             if (surface != null)
-                surface.color = status == ResearchStatus.Locked ?
+                surface.color = focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
                     new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f);
-            if (researchTreeOutlines.TryGetValue(research, out Outline outline) && outline != null)
+            if (researchTreeOutlines.TryGetValue(research, out Image[] outline) && outline != null)
             {
-                outline.effectColor = focusedIds.Contains(research.Id)
-                    ? ResearchFocusWhite
-                    : Color.clear;
+                for (int i = 0; i < outline.Length; i++)
+                {
+                    if (outline[i] == null)
+                        continue;
+                    outline[i].color = focused ? ResearchFocusWhite : ResearchOutlineNormal;
+                    outline[i].enabled = true;
+                }
             }
             Transform progress = button.transform.Find("EraFrame/ProgressFill");
             if (progress != null && progress.TryGetComponent(out Image progressImage))
@@ -1645,6 +1679,21 @@ public sealed partial class KingdomUIRoot
                 continue;
             bool focused = focusedLineVisuals.Contains(visual);
             visual.color = focused ? ResearchFocusWhite : ResearchArrowColor;
+            visual.canvasRenderer.SetAlpha(1f);
+        }
+        if (researchGraphLineLayer != null)
+        {
+            int siblingIndex = 0;
+            foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
+            {
+                if (pair.Value != null && !focusedLineVisuals.Contains(pair.Value))
+                    pair.Value.transform.SetSiblingIndex(siblingIndex++);
+            }
+            foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
+            {
+                if (pair.Value != null && focusedLineVisuals.Contains(pair.Value))
+                    pair.Value.transform.SetSiblingIndex(siblingIndex++);
+            }
         }
         RefreshResearchQueueLabel();
         ApplyResearchTreeSearch();

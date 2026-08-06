@@ -34,12 +34,145 @@ internal static class KingdomUIPrefabAssetGenerator
     private static void GenerateMissingTemplates()
     {
         bool changed = false;
+        // Existing ResearchNode assets are intentionally not re-saved during
+        // editor startup. Unity can retain a stale in-memory prefab object
+        // with a missing component and write it back during an automatic
+        // migration. The checked-in asset is already authored and validated;
+        // only create it when the asset is genuinely absent.
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchNode, CreateResearchNodeTemplate);
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchLine, CreateResearchLineTemplate);
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchGraph, CreateResearchGraphTemplate);
+        // The row/card generator owns the data-driven list templates. Run it
+        // before validating the shared prefab registry so startup validation
+        // cannot report a transient missing TextRow/FlowRow asset.
+        KingdomUIRepeatedPrefabGenerator.GenerateAllForBatch();
         if (changed)
             AssetDatabase.SaveAssets();
         ValidateReusablePrefabAssets();
+    }
+
+    private static bool EnsureResearchNodePrefab()
+    {
+        string path = Folder + "/" + KingdomUIPrefabLibrary.ResearchNode + ".prefab";
+        if (!File.Exists(path))
+        {
+            GameObject template = CreateResearchNodeTemplate();
+            PrefabUtility.SaveAsPrefabAsset(template, path);
+            Object.DestroyImmediate(template);
+            Debug.Log("[KingdomUI] Reusable UI prefab generated: " + path);
+            return true;
+        }
+
+        GameObject root = PrefabUtility.LoadPrefabContents(path);
+        bool changed = false;
+        try
+        {
+            int removedMissingScripts = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(root);
+            if (removedMissingScripts > 0)
+            {
+                changed = true;
+                Debug.Log("[KingdomUI] Removed missing scripts from ResearchNode prefab: " + removedMissingScripts);
+            }
+            changed |= EnsureComponent<Image>(root);
+            Button button = EnsureComponent<Button>(root, ref changed);
+            changed |= EnsureComponent<Outline>(root);
+            changed |= EnsureComponent<UIResearchGraphDragForwarder>(root);
+            changed |= EnsureComponent<UITouchTooltip>(root);
+
+            Image surface = root.GetComponent<Image>();
+            if (button != null && button.targetGraphic == null)
+            {
+                button.targetGraphic = surface;
+                changed = true;
+            }
+
+            RectTransform rootRect = root.transform as RectTransform;
+            if (rootRect != null && rootRect.sizeDelta == Vector2.zero)
+            {
+                rootRect.sizeDelta = new Vector2(205f, 50f);
+                changed = true;
+            }
+
+            RectTransform frame = EnsureChild(rootRect, "EraFrame", ref changed);
+            if (frame != null)
+            {
+                changed |= EnsureComponent<Image>(frame.gameObject);
+                Image frameImage = frame.GetComponent<Image>();
+                if (frameImage != null && frameImage.raycastTarget)
+                {
+                    frameImage.raycastTarget = false;
+                    changed = true;
+                }
+                RectTransform progress = EnsureChild(frame, "ProgressFill", ref changed);
+                if (progress != null)
+                {
+                    changed |= EnsureComponent<Image>(progress.gameObject);
+                    Image progressImage = progress.GetComponent<Image>();
+                    if (progressImage != null && (progressImage.type != Image.Type.Filled || progressImage.raycastTarget))
+                    {
+                        progressImage.type = Image.Type.Filled;
+                        progressImage.fillMethod = Image.FillMethod.Horizontal;
+                        progressImage.fillOrigin = 0;
+                        progressImage.fillAmount = 0f;
+                        progressImage.raycastTarget = false;
+                        changed = true;
+                    }
+                }
+            }
+
+            int remainingMissingScripts = GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(root);
+            if (remainingMissingScripts > 0)
+            {
+                Debug.LogError("[KingdomUI] Refusing to save ResearchNode prefab with missing scripts: " + remainingMissingScripts);
+                return false;
+            }
+
+            if (changed)
+            {
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log("[KingdomUI] Reusable ResearchNode prefab migrated: " + path);
+            }
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
+        return changed;
+    }
+
+    private static bool EnsureComponent<T>(GameObject target) where T : Component
+    {
+        bool changed = false;
+        EnsureComponent<T>(target, ref changed);
+        return changed;
+    }
+
+    private static T EnsureComponent<T>(GameObject target, ref bool changed) where T : Component
+    {
+        T component = target.GetComponent<T>();
+        if (component != null)
+            return component;
+        changed = true;
+        return target.AddComponent<T>();
+    }
+
+    private static RectTransform EnsureChild(RectTransform parent, string name, ref bool changed)
+    {
+        if (parent == null)
+            return null;
+        Transform existing = parent.Find(name);
+        if (existing is RectTransform existingRect)
+            return existingRect;
+
+        RectTransform child = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
+        child.SetParent(parent, false);
+        child.anchorMin = Vector2.zero;
+        child.anchorMax = Vector2.one;
+        child.offsetMin = Vector2.zero;
+        child.offsetMax = Vector2.zero;
+        changed = true;
+        return child;
     }
 
     private static void ValidateReusablePrefabAssets()

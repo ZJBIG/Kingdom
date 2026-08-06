@@ -18,187 +18,14 @@ public sealed partial class KingdomUIRoot
     private void BuildMusicPage(RectTransform parent)
     {
         Transform existing = parent.Find("MusicSurface");
-        if (existing != null && musicPageBuilt)
-            return;
-        if (existing != null)
-            Destroy(existing.gameObject);
-
-        musicTrackButtons.Clear();
-        musicPageBuilt = true;
-        RectTransform surface = Rect("MusicSurface", parent, Vector2.zero, Vector2.one,
-            new Vector2(18, 18), new Vector2(-18, -18));
-        PanelRect("Surface", surface, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        Label("Heading", surface, "MUSIC PLAYER", 32, Copper, new Vector2(0, 1), Vector2.one,
-            new Vector2(28, -64), new Vector2(-28, -18));
-
-        // Keep the control panel compact while leaving enough vertical room
-        // for the always-visible time slider and the two setting sliders.
-        RectTransform controls = Rect("Controls", surface, new Vector2(0, 1), new Vector2(1, 1),
-            new Vector2(28, -349), new Vector2(-28, -31));
-        PanelRect("Surface", controls, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, PanelRaised);
-        musicCurrentLabel = Label("Current", controls, "NOW PLAYING", 24, TextPrimary,
-            new Vector2(0, 1), new Vector2(.40f, 1), new Vector2(24, -58), new Vector2(-12, -18));
-        musicTimeLabel = Label("Time", controls, "00:00 / 00:00", 22, TextSecondary,
-            new Vector2(.42f, 1), new Vector2(1, 1), new Vector2(12, -58), new Vector2(-24, -18));
-        musicTimeLabel.alignment = TextAlignmentOptions.MidlineRight;
-
-        Label("TimeSeekLabel", controls, "TIME / SEEK", 16, TextSecondary,
-            new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -116), new Vector2(260, -92));
-        musicProgressSeekHandler = SeekMusicFromSlider;
-        musicProgressSlider = CreateMusicSlider("TimeSeek", controls,
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(24, -152), new Vector2(-24, -130),
-            0f, 0f, false, musicProgressSeekHandler);
-        AddPointerState(musicProgressSlider, () => musicProgressDragging = true,
-            () => musicProgressDragging = false);
-
-        Color musicButton = new(.11f, .15f, .15f, 1f);
-        musicPlayPauseButton = Button("PlayPause", controls, "PAUSE", Positive,
-            Vector2.zero, Vector2.zero, new Vector2(24, 24), new Vector2(220, 72), ToggleMusicPlayback);
-        musicPlayPauseButton.transition = Selectable.Transition.None;
-        Button previousButton = Button("Previous", controls, "PREV", musicButton,
-            Vector2.zero, Vector2.zero, new Vector2(232, 24), new Vector2(428, 72),
-            () => PlayRelativeMusicTrack(-1));
-        Button nextButton = Button("Next", controls, "NEXT", musicButton,
-            Vector2.zero, Vector2.zero, new Vector2(440, 24), new Vector2(636, 72),
-            () => PlayRelativeMusicTrack(1));
-        Button stopButton = Button("Stop", controls, "STOP", Error,
-            Vector2.zero, Vector2.zero, new Vector2(648, 24), new Vector2(844, 72), StopMusicPlayback);
-
-        musicVolumeValueLabel = Label("VolumeValue", controls, "音量 100%", 18, TextPrimary,
-            new Vector2(0f, 0f), new Vector2(.48f, 0f), new Vector2(24, 128), new Vector2(-12, 152));
-        musicVolumeSlider = CreateMusicSlider("Volume", controls,
-            new Vector2(0f, 0f), new Vector2(.48f, 0f), new Vector2(24, 92), new Vector2(-12, 116),
-            0f, 1f, false,
-            value => { MusicManager manager = FindMusicManager(); if (manager != null) manager.SetVolume(value); });
-
-        musicGapValueLabel = Label("GapValue", controls, "音乐间隙 5.00", 18, TextPrimary,
-            new Vector2(.52f, 0f), new Vector2(1f, 0f), new Vector2(12, 128), new Vector2(-24, 152));
-        musicGapSlider = CreateMusicSlider("Gap", controls,
-            new Vector2(.52f, 0f), new Vector2(1f, 0f), new Vector2(12, 92), new Vector2(-24, 116),
-            0f, 30f, false,
-            value => { MusicManager manager = FindMusicManager(); if (manager != null) manager.SetGapSeconds(value); });
-        AddPointerState(musicVolumeSlider, null, null);
-        AddPointerState(musicGapSlider, null, null);
-
-        ConfigureMusicButtonText(musicPlayPauseButton, "PAUSE");
-        ConfigureMusicButtonText(previousButton, "PREV");
-        ConfigureMusicButtonText(nextButton, "NEXT");
-        ConfigureMusicButtonText(stopButton, "STOP");
-        ConfigureMusicText(controls.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "TIME / SEEK");
-        ConfigureMusicText(musicVolumeValueLabel, "音量 100%");
-        ConfigureMusicText(musicGapValueLabel, "音乐间隙 5.00");
-        EnsureMusicValueLabelVisible(musicVolumeValueLabel);
-        EnsureMusicValueLabelVisible(musicGapValueLabel);
-        ConfigureMusicText(musicCurrentLabel, "NOW PLAYING");
-        BringMusicTextToFront(musicTimeLabel);
-        BringMusicTextToFront(musicVolumeValueLabel);
-        BringMusicTextToFront(musicGapValueLabel);
-        BringMusicTextToFront(musicCurrentLabel);
-
-        MusicManager manager = FindMusicManager();
-        if (manager != null && manager.Tracks.Count == 0)
-            manager.RebuildCatalog();
-        List<MusicManager.MusicTrack> displayTracks = BuildMusicDisplayTracks(manager);
-        Label("ListHeading", surface, "MUSIC LIST", 26, Copper, new Vector2(0, 1), Vector2.one,
-            new Vector2(28, -397), new Vector2(-28, -359));
-        RectTransform listViewport = Rect("TrackListViewport", surface, new Vector2(0, 0), new Vector2(1, 1),
-            new Vector2(28, 24), new Vector2(-28, -431));
-        PanelRect("Surface", listViewport, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        listViewport.gameObject.AddComponent<RectMask2D>();
-        musicListScroll = listViewport.gameObject.AddComponent<ScrollRect>();
-        musicListScroll.viewport = listViewport;
-        musicListScroll.horizontal = false;
-        musicListScroll.vertical = true;
-        musicListScroll.inertia = true;
-        musicListScroll.movementType = ScrollRect.MovementType.Clamped;
-        musicListScroll.scrollSensitivity = 24f;
-        listViewport.gameObject.AddComponent<UIMusicListDragForwarder>();
-        RectTransform trackContent = Rect("TrackList", listViewport, new Vector2(0, 1), new Vector2(1, 1),
-            Vector2.zero, Vector2.zero);
-        trackContent.pivot = new Vector2(.5f, 1f);
-        trackContent.sizeDelta = Vector2.zero;
-        musicListScroll.content = trackContent;
-        musicTrackList = trackContent;
-        if (displayTracks.Count == 0)
+        if (existing != null && existing.Find("Controls") != null &&
+            existing.Find("TrackListViewport") != null)
         {
-            Label("Empty", musicTrackList, "NO MUSIC FOUND", 24, TextSecondary,
-                new Vector2(0, 1), Vector2.one, new Vector2(18, -64), new Vector2(-18, 0));
-            nextRowTop = 0f;
-            Canvas.ForceUpdateCanvases();
-            Debug.Log($"[KingdomUI] Music list built: tracks=0, viewport={listViewport.rect.size}, content={musicTrackList.rect.size}");
+            BuildAuthoredMusicPage(existing as RectTransform);
             return;
         }
-
-        float contentHeight = 0f;
-        for (int i = 0; i < displayTracks.Count; i++)
-        {
-            MusicManager.MusicTrack track = displayTracks[i];
-            GameObject rowObject = KingdomUIPrefabLibrary.Instantiate(
-                KingdomUIPrefabLibrary.MusicTrack, musicTrackList);
-            if (rowObject == null)
-            {
-                Debug.LogWarning("[KingdomUI] MusicTrack prefab unavailable; using runtime row: " + track.Id);
-                rowObject = new GameObject("KingdomUIMusicTrack_" + track.Id, typeof(RectTransform));
-                rowObject.transform.SetParent(musicTrackList, false);
-            }
-            rowObject.SetActive(true);
-            RectTransform rowRect = rowObject.GetComponent<RectTransform>();
-            // A newly-instantiated prefab can report a stale rect until the
-            // first canvas rebuild. The prefab's serialized sizeDelta is the
-            // source of truth for the row height in that first frame.
-            float rowHeight = rowRect.rect.height;
-            if (rowHeight <= 1f)
-                rowHeight = rowRect.sizeDelta.y;
-            if (rowHeight <= 1f)
-            {
-                RectTransform template = KingdomUIPrefabLibrary.Load(
-                    KingdomUIPrefabLibrary.MusicTrack)?.GetComponent<RectTransform>();
-                rowHeight = template == null ? 56f : template.sizeDelta.y;
-            }
-            rowHeight = Mathf.Max(1f, rowHeight);
-            rowRect.anchorMin = new Vector2(0f, 1f);
-            rowRect.anchorMax = new Vector2(1f, 1f);
-            rowRect.pivot = new Vector2(.5f, 1f);
-            rowRect.sizeDelta = new Vector2(0f, rowHeight);
-            rowRect.anchoredPosition = new Vector2(0f, -contentHeight);
-            Image rowSurface = rowObject.GetComponent<Image>();
-            if (rowSurface == null)
-                rowSurface = rowObject.AddComponent<Image>();
-            rowSurface.color = i % 2 == 0
-                ? new Color(.18f, .22f, .22f, 1f)
-                : new Color(.14f, .18f, .18f, 1f);
-            Button row = rowObject.GetComponent<Button>();
-            if (row == null)
-                row = rowObject.AddComponent<Button>();
-            row.targetGraphic = rowSurface;
-            ApplyButtonColors(row, rowSurface.color);
-            row.onClick.AddListener(() => manager?.PlayTrack(track));
-            ConfigureMusicTrackColumn(rowObject, "Label", track.Label,
-                new Vector2(0f, 0f), new Vector2(.58f, 1f),
-                new Vector2(12f, 4f), new Vector2(-8f, -4f),
-                TextAlignmentOptions.MidlineLeft);
-            float length = track.Clip == null ? 0f : track.Clip.length;
-            ConfigureMusicTrackColumn(rowObject, "Length",
-                FormatMusicTime(length), new Vector2(.58f, 0f), new Vector2(.78f, 1f),
-                new Vector2(0f, 4f), new Vector2(0f, -4f),
-                TextAlignmentOptions.Center);
-            ConfigureMusicTrackColumn(rowObject, "Type", track.Category,
-                new Vector2(.78f, 0f), new Vector2(1f, 1f),
-                new Vector2(8f, 4f), new Vector2(-12f, -4f),
-                TextAlignmentOptions.MidlineRight);
-            row.gameObject.AddComponent<UIPageScrollDragForwarder>();
-            musicTrackButtons[track.Id] = row;
-            contentHeight += rowHeight;
-        }
-        trackContent.sizeDelta = new Vector2(0f, Mathf.Max(120f, contentHeight));
-        trackContent.anchoredPosition = Vector2.zero;
-        trackContent.SetAsLastSibling();
-        nextRowTop = 0f;
-        Canvas.ForceUpdateCanvases();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(trackContent);
-        musicListScroll.StopMovement();
-        musicListScroll.verticalNormalizedPosition = 1f;
-        Debug.Log($"[KingdomUI] Music list built: tracks={displayTracks.Count}, rows={musicTrackButtons.Count}, viewport={listViewport.rect.size}, content={trackContent.rect.size}, verticalRange={Mathf.Max(0f, trackContent.rect.height - listViewport.rect.height):0.00}");
+        musicPageBuilt = false;
+        Debug.LogError("[KingdomUI] Authored MusicSurface is missing Controls or TrackListViewport; fixed music UI will not be generated at runtime.");
     }
 
     private static List<MusicManager.MusicTrack> BuildMusicDisplayTracks(MusicManager manager)
@@ -252,26 +79,16 @@ public sealed partial class KingdomUIRoot
         Transform child = rowObject.transform.Find(name);
         TMP_Text label = child == null ? null : child.GetComponent<TMP_Text>();
         if (label == null)
-            label = Label(name, rowObject.transform, string.Empty, 22, TextPrimary,
-                anchorMin, anchorMax, offsetMin, offsetMax);
-        RectTransform rect = label.rectTransform;
-        rect.anchorMin = anchorMin;
-        rect.anchorMax = anchorMax;
-        rect.sizeDelta = Vector2.zero;
-        rect.anchoredPosition = Vector2.zero;
-        rect.offsetMin = offsetMin;
-        rect.offsetMax = offsetMax;
-        rect.localScale = Vector3.one;
+        {
+            Debug.LogError("[KingdomUI] MusicTrack prefab is missing its authored column: " + name);
+            return null;
+        }
         label.text = text ?? string.Empty;
-        label.color = TextPrimary;
-        label.fontSize = 22;
-        label.alignment = alignment;
-        label.enableWordWrapping = false;
-        label.overflowMode = TextOverflowModes.Ellipsis;
+        // Geometry, font size and alignment belong to KingdomUIMusicTrack.prefab.
+        // The presenter supplies only the current row data.
         label.raycastTarget = false;
         label.enabled = true;
         label.gameObject.SetActive(true);
-        label.transform.SetAsLastSibling();
         return label;
     }
 
@@ -307,40 +124,6 @@ public sealed partial class KingdomUIRoot
         label.overflowMode = TextOverflowModes.Overflow;
         label.enableWordWrapping = false;
         BringMusicTextToFront(label);
-    }
-
-    private Slider CreateMusicSlider(string name, Transform parent, Vector2 offsetMin, Vector2 offsetMax,
-        float min, float max, bool wholeNumbers, UnityEngine.Events.UnityAction<float> changed)
-    {
-        return CreateMusicSlider(name, parent, Vector2.zero, Vector2.zero,
-            offsetMin, offsetMax, min, max, wholeNumbers, changed);
-    }
-
-    private Slider CreateMusicSlider(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax,
-        Vector2 offsetMin, Vector2 offsetMax, float min, float max, bool wholeNumbers,
-        UnityEngine.Events.UnityAction<float> changed)
-    {
-        RectTransform rect = Rect(name, parent, anchorMin, anchorMax, offsetMin, offsetMax);
-        Image background = rect.gameObject.AddComponent<Image>();
-        background.color = new Color(.08f, .10f, .10f, 1f);
-        Slider slider = rect.gameObject.AddComponent<Slider>();
-        slider.interactable = true;
-        slider.minValue = min;
-        slider.maxValue = max;
-        slider.wholeNumbers = wholeNumbers;
-        slider.direction = Slider.Direction.LeftToRight;
-        RectTransform fill = Rect("Fill", rect, Vector2.zero, new Vector2(0, 1), Vector2.zero, Vector2.zero);
-        Image fillImage = fill.gameObject.AddComponent<Image>();
-        fillImage.color = Positive;
-        fillImage.raycastTarget = false;
-        RectTransform handle = Rect("Handle", rect, Vector2.zero, new Vector2(0, 1), Vector2.zero, new Vector2(20, 0));
-        Image handleImage = handle.gameObject.AddComponent<Image>();
-        handleImage.color = TextPrimary;
-        slider.fillRect = fill;
-        slider.handleRect = handle;
-        slider.targetGraphic = handleImage;
-        slider.onValueChanged.AddListener(changed);
-        return slider;
     }
 
     private void AddPointerState(Slider slider, UnityEngine.Events.UnityAction down,
@@ -434,7 +217,6 @@ public sealed partial class KingdomUIRoot
         }
         if (musicProgressSlider != null)
         {
-            musicProgressRefreshing = true;
             if (musicProgressSeekHandler == null)
                 musicProgressSeekHandler = SeekMusicFromSlider;
             // This also clears a listener captured by an older hot-reloaded
@@ -450,7 +232,6 @@ public sealed partial class KingdomUIRoot
             finally
             {
                 musicProgressSlider.onValueChanged.AddListener(musicProgressSeekHandler);
-                musicProgressRefreshing = false;
             }
         }
         if (musicVolumeSlider != null) musicVolumeSlider.SetValueWithoutNotify(manager.Volume);
@@ -481,7 +262,7 @@ public sealed partial class KingdomUIRoot
                     ? Copper
                     : rowIndex % 2 == 0
                         ? new Color(.18f, .22f, .22f, 1f)
-                        : new Color(.14f, .18f, .18f, 1f);
+                        : new Color(.10f, .13f, .13f, 1f);
             }
         }
     }

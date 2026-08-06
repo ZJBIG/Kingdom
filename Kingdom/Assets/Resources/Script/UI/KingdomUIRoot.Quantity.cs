@@ -33,57 +33,13 @@ public sealed partial class KingdomUIRoot
     private void BuildBuildingQuantityControls(Transform parent)
     {
         Transform existing = parent.Find("BuildingQuantityControls");
-        if (existing != null)
+        if (existing == null)
         {
-            buildingQuantityControls = existing as RectTransform;
-            RepairBuildingQuantityControls(buildingQuantityControls);
+            Debug.LogError("[KingdomUI] Authored BuildingQuantityControls is missing; fixed quantity UI will not be generated at runtime.");
             return;
         }
-
-        RectTransform controls = Rect("BuildingQuantityControls", parent,
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(180, -88), new Vector2(-20, -28));
-        buildingQuantityControls = controls;
-        buildingPageTitle = Label("BuildingPageTitle", parent, "建筑", 36, TextPrimary,
-            new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -88), new Vector2(170, -28));
-        buildingPageTitle.alignment = TextAlignmentOptions.MidlineLeft;
-        buildingPageTitle.text = "\u5efa\u7b51";
-        buildingPageTitle.gameObject.SetActive(false);
-        PanelRect("Surface", controls, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        Label("Caption", controls, "数量", 30, TextPrimary,
-            new Vector2(0, 0), new Vector2(.09f, 1), new Vector2(12, 0), new Vector2(-8, 0));
-
-        AddBuildingQuantityButton(controls, BuildingQuantityMode.One, "x1", .10f, .28f);
-        AddBuildingQuantityButton(controls, BuildingQuantityMode.Ten, "x10", .30f, .48f);
-        AddBuildingQuantityButton(controls, BuildingQuantityMode.Max, "xMax", .50f, .68f);
-        AddBuildingQuantityButton(controls, BuildingQuantityMode.Custom, "Custom", .70f, .84f);
-
-        RectTransform inputRect = Rect("CustomQuantityInput", controls,
-            new Vector2(.86f, .10f), new Vector2(.99f, .90f), Vector2.zero, Vector2.zero);
-        Image inputSurface = inputRect.gameObject.AddComponent<Image>();
-        inputSurface.color = PanelRaised;
-        customQuantityInput = inputRect.gameObject.AddComponent<TMP_InputField>();
-        customQuantityInput.contentType = TMP_InputField.ContentType.IntegerNumber;
-        customQuantityInput.lineType = TMP_InputField.LineType.SingleLine;
-        customQuantityInput.caretWidth = 3;
-        customQuantityInput.caretBlinkRate = 0.8f;
-        customQuantityInput.selectionColor = Copper;
-        customQuantityInput.shouldHideMobileInput = false;
-        TMP_Text inputText = Label("Text", inputRect, string.Empty, 30, TextPrimary,
-            Vector2.zero, Vector2.one, new Vector2(12, 0), new Vector2(-12, 0));
-        TMP_Text inputPlaceholder = Label("Placeholder", inputRect, "请输入数量", 24, TextSecondary,
-            Vector2.zero, Vector2.one, new Vector2(12, 0), new Vector2(-12, 0));
-        customQuantityInput.textComponent = inputText;
-        customQuantityInput.placeholder = inputPlaceholder;
-        customQuantityInput.textViewport = inputRect;
-        customQuantityInput.text = string.Empty;
-        customQuantityInput.onValueChanged.AddListener(value =>
-        {
-            if (ExpantaNum.TryParse(value, out ExpantaNum parsed) && parsed.IsFinite && parsed >= ExpantaNum.One)
-                customBuildingQuantity = parsed.Floor();
-        });
-        customQuantityInput.onSelect.AddListener(_ => SelectBuildingQuantityMode(BuildingQuantityMode.Custom));
-        customQuantityInput.onEndEdit.AddListener(_ => NormalizeCustomQuantityInput());
-        UpdateBuildingQuantityButtonColors();
+        buildingQuantityControls = existing as RectTransform;
+        RepairBuildingQuantityControls(buildingQuantityControls);
     }
 
     private void RepairBuildingQuantityControls(RectTransform controls)
@@ -92,8 +48,8 @@ public sealed partial class KingdomUIRoot
         buildingPageTitle = controls.parent.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
         if (buildingPageTitle == null)
         {
-            buildingPageTitle = Label("BuildingPageTitle", controls.parent, "建筑", 36, TextPrimary,
-                new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -88), new Vector2(170, -28));
+            Debug.LogError("[KingdomUI] Authored BuildingPageTitle is missing from the scene shell.");
+            return;
         }
         buildingPageTitle.alignment = TextAlignmentOptions.MidlineLeft;
         buildingPageTitle.fontSize = 36;
@@ -107,7 +63,21 @@ public sealed partial class KingdomUIRoot
 
         customQuantityInput = controls.Find("CustomQuantityInput")?.GetComponent<TMP_InputField>();
         if (customQuantityInput != null)
+        {
             customQuantityInput.textViewport = customQuantityInput.transform as RectTransform;
+            customQuantityInput.textComponent = customQuantityInput.transform.Find("Text")?.GetComponent<TMP_Text>();
+            customQuantityInput.placeholder = customQuantityInput.transform.Find("Placeholder")?.GetComponent<TMP_Text>();
+            customQuantityInput.onValueChanged.RemoveAllListeners();
+            customQuantityInput.onValueChanged.AddListener(value =>
+            {
+                if (ExpantaNum.TryParse(value, out ExpantaNum parsed) && parsed.IsFinite && parsed >= ExpantaNum.One)
+                    customBuildingQuantity = parsed.Floor();
+            });
+            customQuantityInput.onSelect.RemoveAllListeners();
+            customQuantityInput.onSelect.AddListener(_ => SelectBuildingQuantityMode(BuildingQuantityMode.Custom));
+            customQuantityInput.onEndEdit.RemoveAllListeners();
+            customQuantityInput.onEndEdit.AddListener(_ => NormalizeCustomQuantityInput());
+        }
         UpdateBuildingQuantityButtonColors();
     }
 
@@ -116,14 +86,18 @@ public sealed partial class KingdomUIRoot
         Button button = parent.Find("Quantity_" + mode)?.GetComponent<Button>();
         if (button == null)
         {
-            AddBuildingQuantityButton(parent, mode, label, .10f, .28f);
-            button = parent.Find("Quantity_" + mode)?.GetComponent<Button>();
+            Debug.LogError("[KingdomUI] Authored quantity button is missing: Quantity_" + mode);
+            return;
         }
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => SelectBuildingQuantityMode(mode));
 
         TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
         if (buttonText == null)
-            buttonText = Label("Text", button.transform, label, 32, TextPrimary,
-                Vector2.zero, Vector2.one, new Vector2(12, 4), new Vector2(-12, -4));
+        {
+            Debug.LogError("[KingdomUI] Authored quantity button has no text: Quantity_" + mode);
+            return;
+        }
         buttonText.text = label;
         buttonText.enabled = true;
         buttonText.gameObject.SetActive(true);
@@ -151,33 +125,6 @@ public sealed partial class KingdomUIRoot
         if (customBuildingQuantity < ExpantaNum.One)
             customBuildingQuantity = ExpantaNum.One;
         customQuantityInput.text = customBuildingQuantity.ToString();
-    }
-
-    private void AddBuildingQuantityButton(RectTransform parent, BuildingQuantityMode mode, string label, float minX, float maxX)
-    {
-        Button button = Button("Quantity_" + mode, parent, label, PanelRaised,
-            new Vector2(minX, .10f), new Vector2(maxX, .90f), Vector2.zero, Vector2.zero,
-            () => SelectBuildingQuantityMode(mode));
-        TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
-        if (buttonText == null)
-            buttonText = Label("Text", button.transform, label, 32, TextPrimary,
-                Vector2.zero, Vector2.one, new Vector2(12, 4), new Vector2(-12, -4));
-        if (buttonText != null)
-        {
-            buttonText.enabled = true;
-            buttonText.gameObject.SetActive(true);
-            buttonText.text = label;
-            buttonText.fontSize = 32;
-            buttonText.color = TextPrimary;
-            buttonText.alignment = TextAlignmentOptions.MidlineLeft;
-            buttonText.enableWordWrapping = false;
-            buttonText.overflowMode = TextOverflowModes.Overflow;
-            buttonText.raycastTarget = false;
-            if (sharedFontAsset != null)
-                buttonText.font = sharedFontAsset;
-            buttonText.transform.SetAsLastSibling();
-        }
-        buildingQuantityButtons[mode] = button;
     }
 
     private void SelectBuildingQuantityMode(BuildingQuantityMode mode)

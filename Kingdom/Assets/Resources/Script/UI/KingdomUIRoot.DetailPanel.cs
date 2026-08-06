@@ -318,23 +318,44 @@ public sealed partial class KingdomUIRoot
             if (flowHost != null)
             {
                 flowHost.gameObject.SetActive(false);
-                for (int i = flowHost.childCount - 1; i >= 0; i--)
-                    Destroy(flowHost.GetChild(i).gameObject);
+                // Keep the authored FlowContent/Heading hierarchy. Only
+                // remove rows generated for the previously selected item.
+                RectTransform authoredFlowContent = flowHost.Find("FlowContent") as RectTransform;
+                if (authoredFlowContent != null)
+                    for (int i = authoredFlowContent.childCount - 1; i >= 0; i--)
+                        if (authoredFlowContent.GetChild(i).name.StartsWith("Flow_"))
+                            Destroy(authoredFlowContent.GetChild(i).gameObject);
+                flowContent = authoredFlowContent;
             }
             if (requirementHost == null || content == null)
                 return;
             requirementHost.gameObject.SetActive(false);
             for (int i = content.childCount - 1; i >= 0; i--)
-                Destroy(content.GetChild(i).gameObject);
+            {
+                Transform child = content.GetChild(i);
+                if (child.name.StartsWith("Requirement_"))
+                    Destroy(child.gameObject);
+            }
         }
     
         private void ShowBuildingRequirements(IReadOnlyList<Pair<Resource, ExpantaNum>> requirements, string heading = "建筑需求")
         {
             if (requirementHost == null)
                 return;
-            RectTransform content = requirementContent == null ? requirementHost : requirementContent;
+            RectTransform content = requirementContent;
+            if (content == null)
+            {
+                Debug.LogError("[KingdomUI] Authored RequirementContent is missing; requirement rows will not be generated.");
+                return;
+            }
+            // Keep authored Heading/None children. Only runtime-generated
+            // requirement rows are disposable.
             for (int i = content.childCount - 1; i >= 0; i--)
-                Destroy(content.GetChild(i).gameObject);
+            {
+                Transform child = content.GetChild(i);
+                if (child.name.StartsWith("Requirement_"))
+                    Destroy(child.gameObject);
+            }
             requirementHost.gameObject.SetActive(true);
             heading = heading.Contains("研究") || heading.Contains("鐮旂┒") ? "研究支付需求" : "建筑建造需求";
             int validCount = 0;
@@ -344,27 +365,53 @@ public sealed partial class KingdomUIRoot
                         validCount++;
             const float requirementRowStep = 88f;
             const float requirementHeaderHeight = 88f;
-            content.sizeDelta = new Vector2(0, requirementHeaderHeight + validCount * requirementRowStep);
-            Label("Heading", content, heading, 24, Copper, new Vector2(0, 1), Vector2.one,
-                new Vector2(18, -38), new Vector2(-18, -4));
-            if (requirements == null || requirements.Count == 0)
+            // The first row starts at -156 and the authored row is 72px high;
+            // reserve that full top offset plus row height so the last row is
+            // inside the content rect instead of being clipped at the bottom.
+            const float requirementContentBottomPadding = 52f;
+            content.sizeDelta = new Vector2(0, requirementHeaderHeight +
+                requirementContentBottomPadding + validCount * requirementRowStep);
+            TMP_Text headingLabel = content.Find("Heading")?.GetComponent<TMP_Text>();
+            if (headingLabel == null)
             {
-                Label("None", content, "暂无支付需求", 22, TextSecondary, Vector2.zero, Vector2.one,
-                    new Vector2(18, -92), new Vector2(-18, -20));
+                Debug.LogError("[KingdomUI] Authored RequirementContent is missing Heading.");
                 return;
             }
+            headingLabel.text = heading;
+            headingLabel.gameObject.SetActive(true);
+            if (requirements == null || requirements.Count == 0)
+            {
+                TMP_Text emptyLabel = content.Find("None")?.GetComponent<TMP_Text>();
+                if (emptyLabel == null)
+                {
+                    Debug.LogError("[KingdomUI] Authored RequirementContent is missing None state.");
+                    return;
+                }
+                emptyLabel.gameObject.SetActive(true);
+                return;
+            }
+            content.Find("None")?.gameObject.SetActive(false);
             for (int i = 0; i < requirements.Count; i++)
             {
                 Pair<Resource, ExpantaNum> requirement = requirements[i];
                 if (requirement.First == null)
                     continue;
-                RectTransform row = Rect("Requirement_" + i, content, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -156 - i * requirementRowStep), new Vector2(0, -88 - i * requirementRowStep));
-                RectTransform iconRect = Rect("Texture", row, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(12, -24), new Vector2(60, 24));
-                Image icon = iconRect.gameObject.AddComponent<Image>(); icon.sprite = requirement.First.Sprite; icon.color = requirement.First.Color; icon.preserveAspect = true; icon.raycastTarget = false;
-                TMP_Text rowLabel = Label("Label", row, requirement.First.Label, 22, TextPrimary, Vector2.zero, new Vector2(.65f, 1), new Vector2(76, 0), new Vector2(-8, 0));
-                TMP_Text rowAmount = Label("Amount", row, FormatRequirementAmount(requirement), 24, TextPrimary, new Vector2(.65f, 0), Vector2.one, new Vector2(8, 0), new Vector2(-16, 0));
-                rowLabel.raycastTarget = false;
-                rowAmount.raycastTarget = false;
+                GameObject row = InstantiateAuthoredDetailRow(KingdomUIPrefabLibrary.RequirementRow,
+                    content, "Requirement_" + i, -156f - i * requirementRowStep);
+                if (row == null)
+                    continue;
+                Transform iconTransform = row.transform.Find("Icon");
+                Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
+                if (icon == null)
+                {
+                    Debug.LogError("[KingdomUI] RequirementRow prefab is missing authored Icon Image.");
+                    continue;
+                }
+                icon.sprite = requirement.First.Sprite;
+                icon.color = requirement.First.Color;
+                icon.preserveAspect = true;
+                SetRowText(row, "Label", requirement.First.Label);
+                SetRowText(row, "Amount", FormatRequirementAmount(requirement));
             }
         }
 
@@ -483,7 +530,7 @@ public sealed partial class KingdomUIRoot
             if (measuredContent != null)
             {
                 int rowCount = Mathf.Max(0, requirementCount);
-                measuredContent.sizeDelta = new Vector2(0f, 88f + rowCount * 88f);
+                measuredContent.sizeDelta = new Vector2(0f, 140f + rowCount * 88f);
                 Canvas.ForceUpdateCanvases();
             }
             if (requirementGesture != null)
@@ -498,14 +545,29 @@ public sealed partial class KingdomUIRoot
         {
             if (flowHost == null)
                 return;
-            for (int i = flowHost.childCount - 1; i >= 0; i--)
-                Destroy(flowHost.GetChild(i).gameObject);
-            flowContent = Rect("FlowContent", flowHost, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+            flowContent = flowHost.Find("FlowContent") as RectTransform;
+            if (flowContent == null)
+            {
+                Debug.LogError("[KingdomUI] Authored FlowContent is missing; flow rows will not be generated.");
+                return;
+            }
+            for (int i = flowContent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = flowContent.GetChild(i);
+                if (child.name.StartsWith("Flow_"))
+                    Destroy(child.gameObject);
+            }
             flowContent.pivot = new Vector2(.5f, 1f);
             flowContent.sizeDelta = new Vector2(0, Mathf.Max(86f, (CountFlows(output) + CountFlows(input)) * 62f + 76f));
             flowScroll.content = flowContent;
             flowHost.gameObject.SetActive(true);
-            Label("Heading", flowContent, "产出 / 消耗", 22, Copper, new Vector2(0, 1), Vector2.one, new Vector2(0, -32), new Vector2(0, -2));
+            TMP_Text flowHeading = flowContent.Find("Heading")?.GetComponent<TMP_Text>();
+            if (flowHeading == null)
+            {
+                Debug.LogError("[KingdomUI] Authored FlowContent is missing Heading.");
+                return;
+            }
+            flowHeading.gameObject.SetActive(true);
             int rowIndex = 0;
             rowIndex = AddFlowRows(flowContent, output, rowIndex, Positive, false);
             AddFlowRows(flowContent, input, rowIndex, Error, true);
@@ -571,13 +633,22 @@ public sealed partial class KingdomUIRoot
                 Pair<Resource, ExpantaNum> flow = flows[i];
                 if (flow.First == null)
                     continue;
-                RectTransform row = Rect("Flow_" + index, host, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -98 - index * 62), new Vector2(0, -42 - index * 62));
-                RectTransform iconRect = Rect("Texture", row, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(8, -22), new Vector2(52, 22));
-                Image icon = iconRect.gameObject.AddComponent<Image>(); icon.sprite = flow.First.Sprite; icon.color = flow.First.Color; icon.preserveAspect = true;
-                TMP_Text flowLabel = Label("Label", row, flow.First.Label, 21, TextPrimary, Vector2.zero, new Vector2(.62f, 1), new Vector2(66, 0), new Vector2(-8, 0));
-                TMP_Text flowAmount = Label("Amount", row, FormatFlowAmount(flow, consumption), 22, tint, new Vector2(.62f, 0), Vector2.one, new Vector2(8, 0), new Vector2(-12, 0));
-                flowLabel.raycastTarget = false;
-                flowAmount.raycastTarget = false;
+                GameObject row = InstantiateAuthoredDetailRow(KingdomUIPrefabLibrary.FlowRow,
+                    host, "Flow_" + index, -98f - index * 62f);
+                if (row == null)
+                    continue;
+                Transform iconTransform = row.transform.Find("Icon");
+                Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
+                if (icon == null)
+                {
+                    Debug.LogError("[KingdomUI] FlowRow prefab is missing authored Icon Image.");
+                    continue;
+                }
+                icon.sprite = flow.First.Sprite;
+                icon.color = flow.First.Color;
+                icon.preserveAspect = true;
+                SetRowText(row, "Label", flow.First.Label);
+                SetRowText(row, "Amount", FormatFlowAmount(flow, consumption), tint);
                 index++;
             }
             return index;

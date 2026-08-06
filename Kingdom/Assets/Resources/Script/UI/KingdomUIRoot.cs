@@ -74,6 +74,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<string, RectTransform> pages = new();
     private readonly Dictionary<Building, TMP_Text> buildingAmountLabels = new();
     private readonly Dictionary<Building, Image> buildingDeconstructSurfaces = new();
+    private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<Building, Button> buildingActionButtons = new();
     private readonly Dictionary<Building, bool> buildingActionUpgradeModes = new();
     private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
@@ -95,7 +96,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text musicGapValueLabel;
     private RectTransform musicTrackList;
     private bool musicProgressDragging;
-    private bool musicProgressRefreshing;
     private bool musicPageBuilt;
 
     private void Awake()
@@ -197,20 +197,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             tooltipPanel.gameObject.SetActive(false);
     }
 
-    private void BuildTooltipLayer()
-    {
-        tooltipPanel = Rect("Tooltip", safeArea, new Vector2(.12f, .18f), new Vector2(.88f, .42f),
-            Vector2.zero, Vector2.zero);
-        Image surface = tooltipPanel.gameObject.AddComponent<Image>();
-        surface.color = new Color(.04f, .05f, .05f, .97f);
-        surface.raycastTarget = false;
-        tooltipText = Label("Text", tooltipPanel, string.Empty, 24, TextPrimary,
-            Vector2.zero, Vector2.one, new Vector2(24, 18), new Vector2(-24, -18));
-        tooltipText.alignment = TextAlignmentOptions.TopLeft;
-        tooltipPanel.SetAsLastSibling();
-        tooltipPanel.gameObject.SetActive(false);
-    }
-
     private void RebuildCurrentPage()
     {
         if (!string.IsNullOrEmpty(populatedPage))
@@ -236,23 +222,15 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void BuildVisibleShell()
     {
-        safeArea = transform.Find("SafeAreaRoot") as RectTransform;
-        if (safeArea == null)
-            safeArea = Rect("SafeAreaRoot", transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-
-        for (int i = safeArea.childCount - 1; i >= 0; i--)
-            Destroy(safeArea.GetChild(i).gameObject);
-
-        SafeAreaFitter fitter = safeArea.GetComponent<SafeAreaFitter>();
-        if (fitter == null)
+        bool authoredShell = TryBindAuthoredShell();
+        if (!authoredShell)
+        {
+            Debug.LogError("[KingdomUI] Authored scene shell is incomplete. Open Tools/Kingdom/UI/Generate Authored Scene Shell; fixed UI will not be generated at runtime.");
+            return;
+        }
+        if (safeArea.GetComponent<SafeAreaFitter>() == null)
             safeArea.gameObject.AddComponent<SafeAreaFitter>();
-
-        PanelRect("Background", safeArea, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Background);
-        BuildTopBar();
-        BuildNavigation();
-        BuildContent();
-        BuildFooter();
-        BuildTooltipLayer();
+        Debug.Log("[KingdomUI] Authored scene shell bound; fixed UI was not rebuilt at runtime.");
         EnsureRuntimeCanvasGeometry();
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[KingdomUI] Panel alignment: navigation={GetRectSize(leftNavigation)}, detail={GetRectSize(detailPanel)}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
@@ -354,141 +332,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
     }
 
-    private void BuildTopBar()
-    {
-        RectTransform bar = Rect("TopStatusBar", safeArea, new Vector2(0, 1), Vector2.one,
-            new Vector2(0, -TopBar), Vector2.zero);
-        PanelRect("Surface", bar, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        topKingdomTitle = Label("Title", bar, "王国", 34, TextPrimary,
-            new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(36, -28), new Vector2(560, 38));
-        topStatus = Label("Status", bar, "食物：0/0（0/s）    人口：0/0（0/min）    领土：0/0\n科技水平：未知    当前研究：无    日历：????/??/??", 32, TextSecondary,
-            new Vector2(0, .5f), new Vector2(1, .5f), new Vector2(540, -54), new Vector2(-740, 54));
-        Button("Notice", bar, "通知", PanelRaised, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-730, -40), new Vector2(-520, 40));
-        Button("Settings", bar, "设置", Copper, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-500, -40), new Vector2(-28, 40));
-    }
-
-    private void BuildNavigation()
-    {
-        RectTransform nav = Rect("LeftNavigation", safeArea, Vector2.zero, new Vector2(0, 1),
-            Vector2.zero, new Vector2(Nav, -TopBar));
-        leftNavigation = nav;
-        PanelRect("Surface", nav, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        Label("Caption", nav, "文明管理", 18, TextSecondary, new Vector2(0, 1), Vector2.one, new Vector2(28, -78), new Vector2(-18, -28));
-        string[] names = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
-        for (int i = 0; i < names.Length; i++)
-        {
-            string page = names[i];
-            Button("Nav_" + page, nav, PageLabel(page), i == 0 ? Copper : PanelRaised,
-                new Vector2(0, 1), new Vector2(1, 1), new Vector2(20, -150 - i * 116), new Vector2(-20, -62 - i * 116),
-                () => SetPage(page));
-        }
-    }
-
-    private void BuildContent()
-    {
-        RectTransform body = Rect("Content", safeArea, Vector2.zero, Vector2.one,
-            new Vector2(Nav + 18, Footer + 18), new Vector2(-Detail - 18, -TopBar - 18));
-        PanelRect("Surface", body, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(.075f, .095f, .10f, 1));
-        pageTitle = Label("PageTitle", body, PageLabel("Overview"), 32, TextPrimary, new Vector2(0, 1), Vector2.one, new Vector2(34, -88), new Vector2(-34, -28));
-        pageHost = Rect("PageHost", body, Vector2.zero, Vector2.one, new Vector2(32, 24), new Vector2(-32, -108));
-        Image pageViewportGraphic = pageHost.gameObject.AddComponent<Image>();
-        pageViewportGraphic.color = new Color(0f, 0f, 0f, 0f);
-        pageViewportGraphic.raycastTarget = true;
-        pageHost.gameObject.AddComponent<RectMask2D>();
-        pageScroll = pageHost.gameObject.AddComponent<ScrollRect>();
-        pageScroll.viewport = pageHost;
-        pageScroll.horizontal = false;
-        pageScroll.vertical = true;
-        pageScroll.movementType = ScrollRect.MovementType.Clamped;
-        pageScroll.scrollSensitivity = 2f;
-
-        string[] names = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
-        foreach (string name in names)
-        {
-            RectTransform page = Rect(name, pageHost, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            page.anchorMin = new Vector2(0, 1); page.anchorMax = new Vector2(1, 1); page.pivot = new Vector2(.5f, 1); page.sizeDelta = new Vector2(0, 1400);
-            pages[name] = page;
-            TMP_Text pageHeading = Label("Heading", page, PageLabel(name), 26, Copper,
-                new Vector2(0, 1), Vector2.one, new Vector2(20, -58), new Vector2(-20, -16));
-            pageHeading.gameObject.SetActive(false);
-            if (name == "Overview")
-            {
-                Card("PrimaryCard", page, new Vector2(0, .52f), new Vector2(1, .95f), new Vector2(20, 0), new Vector2(-20, 0),
-                    "文明状态\n\n王国已准备就绪。请从左侧导航选择资源、建筑、研究或时代页面。");
-                Card("SecondaryCard", page, new Vector2(0, .05f), new Vector2(1, .46f), new Vector2(20, 0), new Vector2(-20, 0),
-                    "当前行动\n\n暂无阻塞提醒。点击列表项目查看详细信息。");
-            }
-        }
-        BuildBuildingQuantityControls(body);
-        RectTransform detail = Rect("DetailPanel", safeArea, new Vector2(1, 0), Vector2.one,
-            new Vector2(-Detail, 0), new Vector2(-18, -TopBar));
-        detailPanel = detail;
-        PanelRect("Surface", detail, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        Label("Accent", detail, "详细信息", 18, Copper, new Vector2(0, 1), Vector2.one, new Vector2(34, -76), new Vector2(-34, -28));
-        detailBody = Label("Body", detail, "请选择项目查看需求、产出和下一步操作。", 24, TextSecondary, Vector2.zero, Vector2.one, new Vector2(34, 540), new Vector2(-34, -110));
-        flowHost = Rect("BuildingOutput", detail, Vector2.zero, new Vector2(1, 0), new Vector2(34, 350), new Vector2(-34, 530));
-        Image flowViewportGraphic = flowHost.gameObject.AddComponent<Image>();
-        flowViewportGraphic.color = new Color(0f, 0f, 0f, 0f);
-        flowViewportGraphic.raycastTarget = true;
-        flowHost.gameObject.AddComponent<RectMask2D>();
-        flowScroll = flowHost.gameObject.AddComponent<ScrollRect>();
-        flowScroll.viewport = flowHost;
-        flowScroll.horizontal = false;
-        flowScroll.vertical = true;
-        flowScroll.movementType = ScrollRect.MovementType.Clamped;
-        flowScroll.scrollSensitivity = 2f;
-        flowHost.gameObject.SetActive(false);
-        requirementHost = Rect("BuildingRequirements", detail, Vector2.zero, new Vector2(1, 0), new Vector2(34, 110), new Vector2(-34, 330));
-        Image requirementViewportGraphic = requirementHost.gameObject.AddComponent<Image>();
-        requirementViewportGraphic.color = new Color(0f, 0f, 0f, 0f);
-        requirementViewportGraphic.raycastTarget = true;
-        requirementHost.gameObject.AddComponent<RectMask2D>();
-        requirementScroll = requirementHost.gameObject.AddComponent<ScrollRect>();
-        requirementScroll.viewport = requirementHost;
-        requirementScroll.horizontal = false;
-        requirementScroll.vertical = true;
-        requirementScroll.movementType = ScrollRect.MovementType.Clamped;
-        requirementScroll.inertia = true;
-        requirementScroll.decelerationRate = 0.135f;
-        requirementScroll.scrollSensitivity = 24f;
-        requirementContent = Rect("RequirementContent", requirementHost, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
-        requirementContent.pivot = new Vector2(.5f, 1f);
-        requirementScroll.content = requirementContent;
-        // The detail list uses Unity's native ScrollRect. The former custom
-        // polling gesture could consume the same touch once in Update and
-        // once in OnDrag, which made long requirement lists feel sticky.
-        requirementScroll.enabled = true;
-        if (!requirementScrollDiagnosticAttached)
-        {
-            requirementScrollDiagnosticAttached = true;
-            requirementScroll.onValueChanged.AddListener(_ =>
-            {
-                if (requirementScrollMovementLogged || requirementScroll == null || requirementScroll.content == null)
-                    return;
-                if (Mathf.Abs(requirementScroll.content.anchoredPosition.y) > 1f)
-                {
-                    requirementScrollMovementLogged = true;
-                    Debug.Log($"[KingdomUI] Requirement native scroll moved: position={requirementScroll.content.anchoredPosition}, rangeY={Mathf.Max(0f, requirementScroll.content.rect.height - requirementScroll.viewport.rect.height):0.0}");
-                }
-            });
-        }
-        requirementGesture = requirementHost.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
-        requirementGesture.Initialize(requirementHost, requirementContent);
-        requirementGesture.enabled = false;
-        requirementHost.gameObject.SetActive(false);
-        detailPaymentButton = Button("Payment", detail, "支付资源", Positive,
-            new Vector2(0, 0), new Vector2(1, 0), new Vector2(34, 96), new Vector2(-34, 160));
-        detailPaymentButton.gameObject.SetActive(false);
-        detailActionButton = Button("Action", detail, "SELECT", Copper, new Vector2(0, 0), new Vector2(1, 0), new Vector2(34, 28), new Vector2(-34, 92));
-        detailActionButton.gameObject.SetActive(false);
-    }
-
-    private void BuildFooter()
-    {
-        RectTransform footer = Rect("NotificationBar", safeArea, new Vector2(0, 0), new Vector2(1, 0), new Vector2(Nav + 18, 18), new Vector2(-Detail - 18, Footer));
-        PanelRect("Surface", footer, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
-        Label("Text", footer, "SYSTEM READY     •     TOUCH A SECTION TO CONTINUE", 20, TextSecondary, Vector2.zero, Vector2.one, new Vector2(28, 0), new Vector2(-28, 0));
-    }
+    // Legacy runtime shell builder retained as historical reference only.
+    // The authored prefab is now the sole source of fixed layout.
 
     private void SetPage(string name)
     {
@@ -562,16 +407,26 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (pageTitle != null)
             pageTitle.gameObject.SetActive(name != "Buildings");
         Transform old = page.Find("DataRows");
-        bool reuseResearchPage = name == "Research" && researchTreePageBuilt && old != null;
-        if (old != null && !reuseResearchPage)
+        if (old == null)
         {
-            Destroy(old.gameObject);
-            if (name == "Music")
-                musicPageBuilt = false;
+            Debug.LogError("[KingdomUI] Authored DataRows host is missing for page: " + name);
+            return;
         }
-        RectTransform rows = reuseResearchPage
-            ? old as RectTransform
-            : Rect("DataRows", page, new Vector2(0, .12f), new Vector2(1, .86f), new Vector2(34, 0), new Vector2(-34, 0));
+        bool reuseResearchPage = name == "Research" && researchTreePageBuilt && old != null;
+        bool reuseAuthoredResearchPage = name == "Research" && old != null && old.Find("ResearchGraphViewport") != null;
+        bool reuseAuthoredMusicPage = name == "Music" && old != null && old.Find("MusicSurface") != null;
+        // DataRows is a fixed child of the authored page Prefab. The optional
+        // marker component may be stale in an older serialized Prefab, so the
+        // scene-owned object itself is the authoritative host check.
+        bool authoredRowsHost = old != null;
+        if (!reuseResearchPage && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage && !authoredRowsHost)
+        {
+            Debug.LogError("[KingdomUI] Page DataRows is not an authored layout host: " + name);
+            return;
+        }
+        if (authoredRowsHost && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage)
+            ClearAuthoredRowsHost(old);
+        RectTransform rows = old as RectTransform;
         nextRowTop = 0f;
         switch (name)
         {
@@ -583,6 +438,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             case "Buildings":
                 buildingAmountLabels.Clear();
                 buildingDeconstructSurfaces.Clear();
+                buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
                 buildingActionUpgradeModes.Clear();
                 AddBuildingRows(rows);
@@ -600,8 +456,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 BuildMusicPage(rows);
                 break;
             default:
-                Label("State", rows, "Live definitions will appear here when this system has content to display.", 22, TextSecondary,
-                    Vector2.zero, Vector2.one, new Vector2(18, 18), new Vector2(-18, -18));
                 break;
         }
         float rowsHeight = Mathf.Max(86f, nextRowTop);
@@ -651,6 +505,12 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Canvas.ForceUpdateCanvases();
             researchGraphGesture.RefreshLayoutBounds(true);
         }
+    }
+
+    private static void ClearAuthoredRowsHost(Transform host)
+    {
+        for (int i = host.childCount - 1; i >= 0; i--)
+            Destroy(host.GetChild(i).gameObject);
     }
 
 }

@@ -106,8 +106,11 @@ public sealed partial class KingdomUIRoot
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
                         pair.Value.text = state.Amount.ToGameString();
-                        if (buildingDeconstructSurfaces.TryGetValue(pair.Key, out Image deconstructSurface) && deconstructSurface != null)
-                            deconstructSurface.color = state.Amount > ExpantaNum.Zero ? Error : Panel;
+                        bool hasBuildingAmount = state.Amount > ExpantaNum.Zero;
+                        if (buildingDeconstructButtons.TryGetValue(pair.Key, out Button deconstructButton) && deconstructButton != null)
+                            SetBuildingActionButtonState(deconstructButton, hasBuildingAmount);
+                        else if (buildingDeconstructSurfaces.TryGetValue(pair.Key, out Image deconstructSurface) && deconstructSurface != null)
+                            deconstructSurface.color = hasBuildingAmount ? Error : Panel;
                         if (buildingActionButtons.TryGetValue(pair.Key, out Button actionButton) && actionButton != null &&
                             buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade))
                         {
