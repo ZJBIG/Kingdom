@@ -264,25 +264,10 @@ public class ResearchManager : Singleton<ResearchManager>
             : ArePrerequisitesCompleted(research)
                 ? ResearchStatus.Available
                 : ResearchStatus.Locked);
-        TryStartExactPaidResearch(state);
+        // Payment is a transaction for this one research item only. It must
+        // never start or reorder research; the queue action owns scheduling.
         ResearchQueueChanged?.Invoke();
         return ResearchPaymentResult.Paid;
-    }
-
-    private void TryStartExactPaidResearch(ResearchState state)
-    {
-        // Payment is deliberately scoped to this exact research. Do not walk
-        // or process the prerequisite queue from the payment button.
-        if (state == null || ActiveResearch != null || researchQueue.Count == 0 ||
-            researchQueue.Peek() != state || !state.CostPaid ||
-            !CanAccessResearch(state.Definition) ||
-            !ArePrerequisitesCompleted(state.Definition))
-        {
-            return;
-        }
-
-        RemoveQueuedState(state);
-        TryStartResearchNow(state);
     }
 
     public bool IsResearchCompleted(string researchId)

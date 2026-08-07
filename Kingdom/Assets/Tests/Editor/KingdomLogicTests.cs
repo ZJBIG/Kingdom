@@ -1215,8 +1215,12 @@ public sealed class KingdomLogicTests
         Assert.That(
             researchManager.PayResearchCost(research),
             Is.EqualTo(ResearchPaymentResult.Paid));
-        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(research));
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.IsQueued(research), Is.True);
         Assert.That(researchManager.GetState(research).CostPaid, Is.True);
+
+        researchManager.TryStartNextQueuedResearch();
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(research));
     }
 
     [Test]

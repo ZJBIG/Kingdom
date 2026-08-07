@@ -65,6 +65,18 @@ public sealed partial class KingdomUIRoot
                 ? (isDeconstruct ? Error : Copper)
                 : Panel;
         }
+        button.transition = Selectable.Transition.ColorTint;
+        ColorBlock colors = button.colors;
+        // Keep the state color in the Image while using the ColorBlock only
+        // as interaction feedback. This prevents the prefab's white default
+        // from erasing the orange/red/disabled button palette.
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(.92f, .92f, .92f, 1f);
+        colors.pressedColor = new Color(.58f, .58f, .58f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.disabledColor = new Color(.68f, .70f, .69f, .92f);
+        colors.colorMultiplier = 1f;
+        button.colors = colors;
         Outline outline = button.GetComponent<Outline>();
         if (outline == null)
             outline = button.gameObject.AddComponent<Outline>();

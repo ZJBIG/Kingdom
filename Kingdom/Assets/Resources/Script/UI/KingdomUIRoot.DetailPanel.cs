@@ -21,9 +21,14 @@ public sealed partial class KingdomUIRoot
             selectedResource = null;
             detailBody.text = title + "\n\n" + description + "\n\nID: " + id;
             HideBuildingRequirements();
-            HideResearchPaymentButton();
-            if (detailActionButton != null)
-                detailActionButton.gameObject.SetActive(false);
+        HideResearchPaymentButton();
+        if (detailActionButton != null)
+            detailActionButton.gameObject.SetActive(false);
+        // Generic/workshop details do not go through the requirement
+        // presenter. Reapply the body layout after the body was moved under
+        // DetailScrollContent, otherwise it keeps the authored panel-space
+        // offsets and can be clipped by the unified viewport.
+        LayoutResourceDetailsBody();
         }
     
         private bool ShouldDisplayBuilding(Building definition)
@@ -228,6 +233,8 @@ public sealed partial class KingdomUIRoot
                 600f);
             body.offsetMin = new Vector2(34f, -100f - bodyHeight);
             body.offsetMax = new Vector2(-34f, -100f);
+            if (detailScrollContent != null)
+                detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, 124f + bodyHeight));
             Canvas.ForceUpdateCanvases();
         }
     
@@ -256,7 +263,7 @@ public sealed partial class KingdomUIRoot
                 research.ResourceRequirements == null ? 0 : research.ResourceRequirements.Count,
                 keepScrollPosition ? (float?)savedRequirementScrollPosition : null);
             ConfigureResearchPaymentButton(research, state);
-            ConfigureActionButton("研究 / 加入队列", () => ResearchAction(research));
+            ConfigureActionButton("加入研究队列", () => ResearchAction(research));
         }
 
         private void RefreshSelectedResearchDetails(Research research)
@@ -275,7 +282,7 @@ public sealed partial class KingdomUIRoot
             }
 
             ConfigureResearchPaymentButton(research, state);
-            ConfigureActionButton("研究 / 加入队列", () => ResearchAction(research));
+            ConfigureActionButton("加入研究队列", () => ResearchAction(research));
         }
 
         private static string GetResearchQueueActionLabel(Research research, ResearchState state)
@@ -336,6 +343,12 @@ public sealed partial class KingdomUIRoot
                 if (child.name.StartsWith("Requirement_"))
                     Destroy(child.gameObject);
             }
+            if (detailScrollContent != null && detailScrollViewport != null)
+            {
+                detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(1f, detailScrollViewport.rect.height));
+                if (detailScroll != null)
+                    detailScroll.verticalNormalizedPosition = 1f;
+            }
         }
     
         private void ShowBuildingRequirements(IReadOnlyList<Pair<Resource, ExpantaNum>> requirements, string heading = "建筑需求")
@@ -364,21 +377,21 @@ public sealed partial class KingdomUIRoot
                     if (requirements[i] != null && requirements[i].First != null)
                         validCount++;
             const float requirementRowStep = 88f;
-            const float requirementHeaderHeight = 88f;
-            // The first row starts at -156 and the authored row is 72px high;
-            // reserve that full top offset plus row height so the last row is
-            // inside the content rect instead of being clipped at the bottom.
-            const float requirementContentBottomPadding = 52f;
-            content.sizeDelta = new Vector2(0, requirementHeaderHeight +
-                requirementContentBottomPadding + validCount * requirementRowStep);
+            // The white section title is part of Body. The old orange
+            // RequirementContent/Heading duplicated it and also consumed a
+            // large blank header band above the first row.
+            const float firstRowTop = -2f;
+            const float requirementContentBottomPadding = 18f;
+            content.sizeDelta = new Vector2(0, requirementContentBottomPadding +
+                72f + validCount * requirementRowStep);
             TMP_Text headingLabel = content.Find("Heading")?.GetComponent<TMP_Text>();
             if (headingLabel == null)
             {
                 Debug.LogError("[KingdomUI] Authored RequirementContent is missing Heading.");
                 return;
             }
-            headingLabel.text = heading;
-            headingLabel.gameObject.SetActive(true);
+            headingLabel.text = string.Empty;
+            headingLabel.gameObject.SetActive(false);
             if (requirements == null || requirements.Count == 0)
             {
                 TMP_Text emptyLabel = content.Find("None")?.GetComponent<TMP_Text>();
@@ -397,7 +410,7 @@ public sealed partial class KingdomUIRoot
                 if (requirement.First == null)
                     continue;
                 GameObject row = InstantiateAuthoredDetailRow(KingdomUIPrefabLibrary.RequirementRow,
-                    content, "Requirement_" + i, -156f - i * requirementRowStep);
+                    content, "Requirement_" + i, firstRowTop - i * requirementRowStep);
                 if (row == null)
                     continue;
                 Transform iconTransform = row.transform.Find("Icon");
@@ -463,18 +476,28 @@ public sealed partial class KingdomUIRoot
                 return;
             if (requirementGesture == null)
             {
-                requirementGesture = requirementHost.GetComponent<UIDetailRequirementScrollGesture>();
+                requirementGesture = detailScrollViewport == null
+                    ? null
+                    : detailScrollViewport.GetComponent<UIDetailRequirementScrollGesture>();
                 if (requirementGesture == null)
-                    requirementGesture = requirementHost.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
-                requirementGesture.Initialize(requirementHost, requirementContent);
+                    requirementGesture = detailScrollViewport == null
+                        ? null
+                        : detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
+                if (requirementGesture == null)
+                {
+                    Debug.LogError("[KingdomUI] DetailScrollViewport is missing; requirement drag owner was not created.");
+                    return;
+                }
+                requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
                 Debug.Log("[KingdomUI] Requirement gesture attached during detail layout");
             }
-            // A late layout pass must not resurrect the legacy gesture or
-            // disable the native ScrollRect. Keep one owner for the list.
+            // A late layout pass must not resurrect the nested ScrollRect.
+            // The custom gesture remains the single owner for row-started
+            // drags and moves the unified detail content.
             if (requirementScroll != null)
-                requirementScroll.enabled = true;
+                requirementScroll.enabled = false;
             if (requirementGesture != null)
-                requirementGesture.enabled = false;
+                requirementGesture.enabled = true;
             RectTransform body = detailBody.rectTransform;
             body.anchorMin = new Vector2(0, 1);
             body.anchorMax = new Vector2(1, 1);
@@ -485,7 +508,10 @@ public sealed partial class KingdomUIRoot
             body.offsetMin = new Vector2(34f, -100f - bodyHeight);
             body.offsetMax = new Vector2(-34f, -100f);
     
-            float sectionTop = 100f + bodyHeight + 18f;
+            // Body already contains the white "研究支付需求" line. Start
+            // the requirement content directly below it; the old orange
+            // Heading is hidden and must not leave another header gap.
+            float sectionTop = 100f + bodyHeight + 2f;
             bool hasFlows = flowHost != null && flowHost.gameObject.activeSelf &&
                 flowContent != null && flowContent.childCount > 1;
             if (hasFlows)
@@ -506,8 +532,7 @@ public sealed partial class KingdomUIRoot
                 flowHost.gameObject.SetActive(false);
             }
 
-            RectTransform detailRect = body.parent as RectTransform;
-            float detailHeight = detailRect == null ? 0f : detailRect.rect.height;
+            float detailHeight = detailScrollViewport == null ? 0f : detailScrollViewport.rect.height;
             const float bottomActionReserve = 182f;
             float availableRequirementHeight = detailHeight > 0f
                 ? detailHeight - sectionTop - bottomActionReserve
@@ -530,13 +555,28 @@ public sealed partial class KingdomUIRoot
             if (measuredContent != null)
             {
                 int rowCount = Mathf.Max(0, requirementCount);
-                measuredContent.sizeDelta = new Vector2(0f, 140f + rowCount * 88f);
+                measuredContent.sizeDelta = new Vector2(0f, 90f + rowCount * 88f);
                 Canvas.ForceUpdateCanvases();
             }
             if (requirementGesture != null)
                 requirementGesture.SetNormalizedPosition(preservedScrollPosition.HasValue
                     ? Mathf.Clamp01(preservedScrollPosition.Value)
                     : 1f);
+            if (detailScrollContent != null)
+            {
+                // The outer scroll must include the actual row content, not
+                // only the visible requirement window. Otherwise the rows
+                // render but there is no movement range to drag through.
+                float requirementContentHeight = requirementContent == null
+                    ? requirementHeight
+                    : Mathf.Max(requirementHeight, requirementContent.rect.height);
+                float contentHeight = Mathf.Max(detailHeight, sectionTop + requirementContentHeight + 24f);
+                detailScrollContent.sizeDelta = new Vector2(0f, contentHeight);
+            }
+            if (detailScroll != null)
+                detailScroll.verticalNormalizedPosition = preservedScrollPosition.HasValue
+                    ? Mathf.Clamp01(preservedScrollPosition.Value)
+                    : 1f;
             Debug.Log($"[KingdomUI] Requirement scroll bounds: viewport={requirementHost.rect.size}, content={requirementContent.rect.size}, rangeY={Mathf.Max(0f, requirementContent.rect.height - requirementHost.rect.height)}, sectionTop={sectionTop:0.0}, detailHeight={detailHeight:0.0}, active={requirementHost.gameObject.activeSelf}, nativeScroll={requirementScroll != null && requirementScroll.enabled}, customGestureEnabled={requirementGesture != null && requirementGesture.enabled}");
             Canvas.ForceUpdateCanvases();
         }
@@ -672,7 +712,14 @@ public sealed partial class KingdomUIRoot
                 return;
             detailActionButton.gameObject.SetActive(true);
             detailActionButton.onClick.RemoveAllListeners();
-            detailActionButton.onClick.AddListener(action);
+            bool isBuildingAction = detailIsBuilding;
+            detailActionButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(isBuildingAction
+                    ? UIButtonSoundManager.Sound.Purchase
+                    : UIButtonSoundManager.Sound.Detail);
+                action();
+            });
             TMP_Text text = detailActionButton.GetComponentInChildren<TMP_Text>(true);
             if (text != null)
                 text.text = detailIsBuilding

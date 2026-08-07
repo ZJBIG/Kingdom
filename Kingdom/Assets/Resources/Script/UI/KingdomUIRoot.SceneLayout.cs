@@ -146,7 +146,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             row.targetGraphic = surfaceImage;
-            row.transition = Selectable.Transition.None;
+            row.transition = Selectable.Transition.ColorTint;
             ApplyButtonColors(row, surfaceImage.color);
             row.onClick.AddListener(() => manager?.PlayTrack(track));
             ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.58f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
@@ -227,6 +227,7 @@ public sealed partial class KingdomUIRoot
         requirementContent = requirementHost == null ? null : requirementHost.Find("RequirementContent") as RectTransform;
         detailPaymentButton = detailPanel.Find("Payment")?.GetComponent<Button>();
         detailActionButton = detailPanel.Find("Action")?.GetComponent<Button>();
+        ConfigureDetailScroll();
         buildingQuantityControls = content.Find("BuildingQuantityControls") as RectTransform;
         buildingPageTitle = content.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
@@ -235,22 +236,128 @@ public sealed partial class KingdomUIRoot
         // These are stable scene-owned objects. Their interaction components
         // are repaired only when a scene author accidentally removes one.
         EnsureAuthoredViewport(pageHost, pageScroll, true);
-        EnsureAuthoredViewport(flowHost, flowScroll, false);
-        EnsureAuthoredViewport(requirementHost, requirementScroll, true);
-        if (requirementScroll != null && requirementContent != null)
-            requirementScroll.content = requirementContent;
-        if (flowScroll != null && flowContent != null)
-            flowScroll.content = flowContent;
+        if (requirementScroll != null)
+            requirementScroll.enabled = false;
+        if (flowScroll != null)
+            flowScroll.enabled = false;
+        if (requirementHost != null && requirementHost.GetComponent<RectMask2D>() != null)
+            requirementHost.GetComponent<RectMask2D>().enabled = false;
+        if (flowHost != null && flowHost.GetComponent<RectMask2D>() != null)
+            flowHost.GetComponent<RectMask2D>().enabled = false;
+        Debug.Log($"[KingdomUI] Detail scroll configured: owner=DetailScrollViewport, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, nestedRequirementScroll={requirementScroll != null && requirementScroll.enabled}, nestedFlowScroll={flowScroll != null && flowScroll.enabled}");
         if (requirementHost != null && requirementContent != null)
         {
-            requirementGesture = requirementHost.GetComponent<UIDetailRequirementScrollGesture>();
+            // The requirement rows are nested under the unified content, but
+            // the host itself is not guaranteed to be the raycast target.
+            // Own the gesture on the transparent, raycastable viewport so a
+            // drag starting on an icon or TMP label always reaches it.
+            requirementGesture = detailScrollViewport.GetComponent<UIDetailRequirementScrollGesture>();
             if (requirementGesture == null)
-                requirementGesture = requirementHost.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
-            requirementGesture.Initialize(requirementHost, requirementContent);
-            requirementGesture.enabled = false;
+                requirementGesture = detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
+            requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
+            // The custom gesture is the single owner. ScrollRect would win
+            // ExecuteHierarchy on the same viewport and leave row-started
+            // drags dependent on component ordering.
+            if (detailScroll != null)
+                detailScroll.enabled = false;
+            requirementGesture.enabled = true;
         }
 
         return true;
+    }
+
+    private void ConfigureDetailScroll()
+    {
+        if (detailPanel == null)
+            return;
+        detailScrollViewport = detailPanel.Find("DetailScrollViewport") as RectTransform;
+        if (detailScrollViewport == null)
+        {
+            GameObject viewportObject = new GameObject("DetailScrollViewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            detailScrollViewport = viewportObject.GetComponent<RectTransform>();
+            detailScrollViewport.SetParent(detailPanel, false);
+        }
+        detailScrollViewport.anchorMin = Vector2.zero;
+        detailScrollViewport.anchorMax = Vector2.one;
+        detailScrollViewport.offsetMin = Vector2.zero;
+        detailScrollViewport.offsetMax = new Vector2(0f, -182f);
+        PlaceDetailScrollViewportInFrontOfBackground();
+        Image viewportImage = detailScrollViewport.GetComponent<Image>();
+        viewportImage.color = new Color(0f, 0f, 0f, 0f);
+        viewportImage.raycastTarget = true;
+
+        detailScrollContent = detailScrollViewport.Find("DetailScrollContent") as RectTransform;
+        if (detailScrollContent == null)
+        {
+            GameObject contentObject = new GameObject("DetailScrollContent", typeof(RectTransform));
+            detailScrollContent = contentObject.GetComponent<RectTransform>();
+            detailScrollContent.SetParent(detailScrollViewport, false);
+        }
+        detailScrollContent.anchorMin = new Vector2(0f, 1f);
+        detailScrollContent.anchorMax = new Vector2(1f, 1f);
+        detailScrollContent.pivot = new Vector2(.5f, 1f);
+        detailScrollContent.anchoredPosition = Vector2.zero;
+        detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(1f, detailScrollViewport.rect.height));
+        ReparentDetailElement(detailBody == null ? null : detailBody.transform, detailScrollContent);
+        ReparentDetailElement(flowHost, detailScrollContent);
+        ReparentDetailElement(requirementHost, detailScrollContent);
+
+        detailScroll = detailScrollViewport.GetComponent<ScrollRect>();
+        detailScroll.viewport = detailScrollViewport;
+        detailScroll.content = detailScrollContent;
+        detailScroll.horizontal = false;
+        detailScroll.vertical = true;
+        detailScroll.movementType = ScrollRect.MovementType.Clamped;
+        detailScroll.inertia = true;
+    }
+
+    private static void ReparentDetailElement(Transform element, RectTransform parent)
+    {
+        if (element == null || parent == null || element.parent == parent)
+            return;
+        element.SetParent(parent, false);
+    }
+
+    private void PlaceDetailScrollViewportInFrontOfBackground()
+    {
+        if (detailPanel == null || detailScrollViewport == null)
+            return;
+
+        int backgroundIndex = -1;
+        foreach (string backgroundName in new[] { "Surface", "Accent" })
+        {
+            Transform background = detailPanel.Find(backgroundName);
+            if (background != null)
+                backgroundIndex = Mathf.Max(backgroundIndex, background.GetSiblingIndex());
+        }
+
+        int targetIndex = Mathf.Clamp(backgroundIndex + 1, 0, detailPanel.childCount - 1);
+        detailScrollViewport.SetSiblingIndex(targetIndex);
+        Debug.Log($"[KingdomUI] Detail scroll layer order: backgroundIndex={backgroundIndex}, viewportIndex={detailScrollViewport.GetSiblingIndex()}");
+    }
+
+    private void RefreshDetailScrollGeometry()
+    {
+        if (detailScrollViewport == null || detailScrollContent == null)
+            return;
+
+        float viewportHeight = detailScrollViewport.rect.height;
+        if (viewportHeight <= 0f)
+            return;
+
+        // ConfigureDetailScroll runs during Awake, before the safe-area and
+        // side-panel geometry exists. Repair the initial negative/zero
+        // content height once the real viewport has been measured.
+        float contentHeight = Mathf.Max(viewportHeight, detailScrollContent.rect.height);
+        detailScrollContent.sizeDelta = new Vector2(0f, contentHeight);
+        if (detailScroll != null)
+        {
+            detailScroll.viewport = detailScrollViewport;
+            detailScroll.content = detailScrollContent;
+            detailScroll.horizontal = false;
+            detailScroll.vertical = true;
+        }
+        Debug.Log($"[KingdomUI] Detail scroll geometry repaired: viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}");
     }
 
     private static void EnsureAuthoredViewport(RectTransform viewport, ScrollRect scroll,

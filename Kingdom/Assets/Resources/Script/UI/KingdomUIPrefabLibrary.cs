@@ -54,10 +54,7 @@ public static class KingdomUIPrefabLibrary
         return loadedCount;
     }
 
-    public static int PreloadAll()
-    {
-        return Preload(AllReusablePrefabs);
-    }
+    public static int PreloadAll() => Preload(AllReusablePrefabs);
 
     public static GameObject Instantiate(string prefabName, Transform parent)
     {

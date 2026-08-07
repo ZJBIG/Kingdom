@@ -193,7 +193,7 @@ public sealed class KingdomPlayModeTests
     [UnityTest]
     public IEnumerator ResearchQueue_QueuesUnpaidAndPaysThroughPaymentApi()
     {
-        FindOrCreateManager<GameManager>("PlayMode-ResearchQueue");
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-ResearchQueue");
         ResourceManager resourceManager =
             FindOrCreateManager<ResourceManager>("PlayMode-ResearchQueue");
         FindOrCreateManager<BuildingManager>("PlayMode-ResearchQueue");
@@ -201,17 +201,29 @@ public sealed class KingdomPlayModeTests
             FindOrCreateManager<ResearchManager>("PlayMode-ResearchQueue");
         yield return null;
 
+        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
+            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNewGame, Is.Not.Null);
+        initializeNewGame.Invoke(gameManager, null);
+        MethodInfo resetResearch = typeof(ResearchManager).GetMethod(
+            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(resetResearch, Is.Not.Null);
+        resetResearch.Invoke(researchManager, null);
+
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 1000);
         Research active = DataBase<Research>.Find("Agriculture");
         Research queued = DataBase<Research>.Find("ControlledFire");
 
+        Assert.That(researchManager.PayResearchCost(active), Is.EqualTo(ResearchPaymentResult.Paid));
         Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
         Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
         Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
         Assert.That(researchManager.GetState(queued).CostPaid, Is.False);
         Assert.That(researchManager.PayResearchCost(queued), Is.EqualTo(ResearchPaymentResult.Paid));
         Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
+        Assert.That(researchManager.ActiveResearch, Is.Not.Null);
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
     }
 
     [UnityTest]
@@ -231,9 +243,31 @@ public sealed class KingdomPlayModeTests
         yield return null;
 
         Transform viewport = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
-        Assert.That(viewport, Is.Not.Null, "ResearchGraphViewport must be generated under the isolated SafeAreaRoot.");
+        Assert.That(viewport, Is.Not.Null, "ResearchGraphViewport must be authored under the isolated SafeAreaRoot.");
         Transform content = viewport.Find("ResearchGraphContent");
         Assert.That(content, Is.Not.Null);
+        Assert.That(content.Find("ResearchGraphLineLayer"), Is.Not.Null,
+            "ResearchGraphLineLayer must be authored in the scene shell.");
+        Assert.That(content.Find("ResearchGraphDragSurface"), Is.Not.Null,
+            "ResearchGraphDragSurface must be authored in the scene shell.");
+        Transform toolbar = viewport.Find("ResearchTreeToolbar");
+        Assert.That(toolbar, Is.Not.Null, "ResearchTreeToolbar must remain beside the research tree.");
+        RectTransform toolbarRect = toolbar as RectTransform;
+        Assert.That(toolbarRect.anchorMin.y, Is.EqualTo(1f).Within(.001f));
+        Assert.That(toolbarRect.anchorMax.y, Is.EqualTo(1f).Within(.001f));
+        Assert.That(toolbarRect.offsetMin.y, Is.EqualTo(-82f).Within(.1f));
+        Assert.That(toolbarRect.offsetMax.y, Is.EqualTo(-12f).Within(.1f),
+            "The toolbar must remain a top strip and must not become a full-screen input mask.");
+        Transform search = toolbar.Find("Search");
+        Assert.That(search, Is.Not.Null);
+        Assert.That(search.gameObject.activeSelf, Is.False,
+            "The research search control must be removed from the active UI.");
+        TMP_Text queueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
+        Assert.That(queueLabel, Is.Not.Null,
+            "ResearchTreeToolbar/Queue must display the current research queue.");
+        Assert.That((queueLabel.transform as RectTransform).offsetMin.x,
+            Is.EqualTo(168f).Within(.1f),
+            "The queue must replace the search field in the reference red-box area.");
         Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
         Assert.That(pageHost, Is.Not.Null);
         ScrollRect outerPageScroll = pageHost.GetComponent<ScrollRect>();
@@ -336,6 +370,92 @@ public sealed class KingdomPlayModeTests
         Debug.Log($"[KingdomUI] Research node-forwarded drag audit: before={beforeDrag}, after={afterNodeDrag}, delta={afterNodeDrag - beforeDrag}, forwardedVerticalDragMoved={afterNodeDrag.y > beforeDrag.y}");
         Debug.Log($"[KingdomUI] Research runtime playmode audit: nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, rootSafeAreaOnly={rootSafeAreaOnly}");
         Assert.That(nodeCount, Is.EqualTo(DataBase<Research>.All.Count));
+    }
+
+    [UnityTest]
+    public IEnumerator DetailPanel_UsesSingleScrollOwnerAndCenteredResearchLabels()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return new WaitForSecondsRealtime(1.25f);
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null, "KingdomUIRoot was not created after loading SampleScene.");
+        Transform detailPanel = root.transform.Find("SafeAreaRoot/DetailPanel");
+        Assert.That(detailPanel, Is.Not.Null, "SafeAreaRoot/DetailPanel is missing under KingdomUIRoot.");
+
+        Transform detailViewport = detailPanel.Find("DetailScrollViewport");
+        Transform detailContent = detailViewport == null ? null : detailViewport.Find("DetailScrollContent");
+        Assert.That(detailViewport, Is.Not.Null, "DetailPanel must expose one runtime scroll viewport.");
+        Assert.That(detailContent, Is.Not.Null, "DetailScrollContent is missing under DetailScrollViewport.");
+        Assert.That((detailViewport as RectTransform).rect.height, Is.GreaterThan(0f),
+            "DetailScrollViewport must have a positive runtime height.");
+        Assert.That((detailContent as RectTransform).rect.height, Is.GreaterThan(0f),
+            "DetailScrollContent must be repaired after the initial layout pass.");
+        ScrollRect detailScroll = detailViewport.GetComponent<ScrollRect>();
+        Assert.That(detailScroll, Is.Not.Null);
+        Assert.That(detailScroll.enabled, Is.True);
+        Assert.That(detailScroll.content, Is.SameAs(detailContent));
+        Transform surface = detailPanel.Find("Surface");
+        Transform accent = detailPanel.Find("Accent");
+        if (surface != null)
+            Assert.That(surface.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
+        if (accent != null)
+            Assert.That(accent.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
+
+        Transform requirements = detailContent.Find("BuildingRequirements");
+        Transform flows = detailContent.Find("BuildingOutput");
+        Assert.That(requirements, Is.Not.Null, "BuildingRequirements is missing under DetailScrollContent.");
+        Assert.That(flows, Is.Not.Null, "BuildingOutput is missing under DetailScrollContent.");
+        Assert.That(requirements.parent, Is.SameAs(detailContent));
+        Assert.That(flows.parent, Is.SameAs(detailContent));
+        Assert.That(requirements.GetComponent<ScrollRect>().enabled, Is.False);
+        Assert.That(flows.GetComponent<ScrollRect>().enabled, Is.False);
+        Assert.That(requirements.GetComponent<RectMask2D>().enabled, Is.False);
+        Assert.That(flows.GetComponent<RectMask2D>().enabled, Is.False);
+
+        Transform bodyTransform = detailContent.Find("Body");
+        Assert.That(bodyTransform, Is.Not.Null, "Detail body is missing under DetailScrollContent.");
+        MethodInfo showDetails = typeof(KingdomUIRoot).GetMethod(
+            "ShowDetails", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(showDetails, Is.Not.Null);
+        showDetails.Invoke(root, new object[] { "Runtime detail", "Visible body", "detail-test" });
+        yield return null;
+        TMP_Text bodyText = bodyTransform.GetComponent<TMP_Text>();
+        Assert.That(bodyText.text, Does.Contain("Runtime detail"));
+        Assert.That(bodyText.rectTransform.rect.height, Is.GreaterThan(0f),
+            "Detail body must retain a visible rect after being reparented.");
+
+        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
+            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setPage, Is.Not.Null);
+        setPage.Invoke(root, new object[] { "Research" });
+        yield return null;
+        yield return null;
+
+        Transform researchViewport = root.transform.Find(
+            "SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
+        Transform researchContent = researchViewport == null
+            ? null
+            : researchViewport.Find("ResearchGraphContent");
+        Transform firstNode = null;
+        if (researchContent != null)
+            foreach (Transform child in researchContent)
+                if (child.name.StartsWith("ResearchNode_", System.StringComparison.Ordinal))
+                {
+                    firstNode = child;
+                    break;
+                }
+        Assert.That(firstNode, Is.Not.Null);
+        foreach (string labelName in new[] { "Label", "Cost", "Progress", "State" })
+        {
+            TMP_Text label = firstNode.Find(labelName)?.GetComponent<TMP_Text>();
+            Assert.That(label, Is.Not.Null, "Research node label is missing: " + labelName);
+            Assert.That(label.alignment, Is.EqualTo(TextAlignmentOptions.Center));
+            Assert.That(label.rectTransform.pivot.x, Is.EqualTo(.5f).Within(.001f));
+            Assert.That(label.rectTransform.anchorMin.x, Is.LessThan(label.rectTransform.anchorMax.x));
+            Assert.That(label.rectTransform.anchorMin.x, Is.GreaterThanOrEqualTo(0f));
+            Assert.That(label.rectTransform.anchorMax.x, Is.LessThanOrEqualTo(1f));
+        }
     }
 
 

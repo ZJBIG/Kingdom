@@ -22,6 +22,7 @@ public sealed partial class KingdomUIRoot
     {
         EnsureRuntimeCanvasGeometry();
         RefreshLiveCardValues();
+        RefreshResearchQueueToolbar();
         RefreshBuildingQuantityHeader();
         bool researchGraphDragging = researchGraphGesture != null && researchGraphGesture.IsDragging;
         if (!researchGraphDragging)
@@ -46,14 +47,8 @@ public sealed partial class KingdomUIRoot
             return;
         GameManager gameManager = FindObjectOfType<GameManager>();
         GameState state = gameManager == null ? null : gameManager.State;
-        if (state == null)
-        {
-            topKingdomTitle.text = "王国";
-            topStatus.text = "食物：0/0（0/s）    人口：0/0（0/min）    领土：0/0\n科技水平：未知    当前研究：无    日历：????/??/??";
-            return;
-        }
 
-        topKingdomTitle.text = "王国 / " + state.KingdomName;
+        topKingdomTitle.text = state.KingdomName;
         ExpantaNum populationChange = ExpantaNum.Zero;
         if (gameManager != null)
         {
@@ -86,23 +81,29 @@ public sealed partial class KingdomUIRoot
         ResearchManager researchManager = FindObjectOfType<ResearchManager>();
         ResearchState activeResearch = researchManager == null ? null : researchManager.ActiveResearch;
         Research activeDefinition = activeResearch == null ? null : activeResearch.Definition;
-        string currentResearch = activeDefinition == null ? "无" : activeDefinition.Label;
+
+        ResearchState defState = null;
+        if (activeDefinition)
+            defState = researchManager.GetState(activeDefinition);       
+        string currentResearch = activeDefinition == null ? "无" 
+            : (activeDefinition.Label+ (defState!= null? $"[{ResearchProgressText(defState, defState.Status)}]":""));
+
+
         bool calendarKnown = researchManager != null && researchManager.IsResearchCompleted("Calendar");
         string calendar = calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??";
+        string researchPower = researchManager == null ? "0" : researchManager.ResearchPower.ToGameString();
         topStatus.text = "食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
             "    人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/min）" +
             "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString() +
-            "\n科技水平：" + state.TechLevel.GetDescription() + "    当前研究：" + currentResearch + "    日历：" + calendar;
+            "\n科技水平：" + state.TechLevel.GetDescription() + "    当前研究：" + currentResearch + "    日历：" + calendar +
+            "    研究力：" + researchPower + "/s";
     }
 
     private void RefreshLiveCardValues()
     {
         if (BuildingManager.Instance != null)
-        {
             foreach (KeyValuePair<Building, TMP_Text> pair in buildingAmountLabels)
-            {
                 if (pair.Value != null)
-                {
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
                         pair.Value.text = state.Amount.ToGameString();
@@ -117,13 +118,8 @@ public sealed partial class KingdomUIRoot
                             SetBuildingActionButtonText(actionButton, upgrade ? "\u5347\u7ea7" : "\u5efa\u9020");
                             SetBuildingActionButtonState(actionButton, CanPerformBuildingAction(pair.Key, upgrade));
                         }
-                    }
                     else
-                    {
                         pair.Value.text = "0";
-                    }
-                }
-            }
         }
         if (ResourceManager.Instance == null)
             return;

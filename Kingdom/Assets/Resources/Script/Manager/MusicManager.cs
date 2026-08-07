@@ -271,3 +271,96 @@ public class MusicManager : Singleton<MusicManager>
         }
     }
 }
+
+/// <summary>
+/// Short UI feedback sounds kept beside the audio services. Clips are
+/// generated at runtime so they do not enter or alter the music catalog.
+/// </summary>
+public sealed class UIButtonSoundManager : MonoBehaviour
+{
+    public enum Sound
+    {
+        Detail,
+        Purchase,
+        Sell
+    }
+
+    private const int SampleRate = 44100;
+    private const float OutputVolume = .42f;
+    private AudioSource source;
+    private AudioClip detailClip;
+    private AudioClip purchaseClip;
+    private AudioClip sellClip;
+
+    public static void Play(Sound sound)
+    {
+        UIButtonSoundManager manager = FindObjectOfType<UIButtonSoundManager>();
+        if (manager == null)
+            manager = new GameObject("UIButtonSoundManager").AddComponent<UIButtonSoundManager>();
+        manager.PlayInternal(sound);
+    }
+
+    private void Awake()
+    {
+        source = GetComponent<AudioSource>();
+        if (source == null)
+            source = gameObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
+        source.volume = OutputVolume;
+        detailClip = CreateTone("UI_Detail", 720f, .065f, .42f);
+        purchaseClip = CreateTwoTone("UI_Purchase", 430f, 650f, .12f, .46f);
+        sellClip = CreateTwoTone("UI_Sell", 560f, 300f, .13f, .44f);
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void PlayInternal(Sound sound)
+    {
+        if (source == null)
+            return;
+        AudioClip clip = sound switch
+        {
+            Sound.Purchase => purchaseClip,
+            Sound.Sell => sellClip,
+            _ => detailClip
+        };
+        if (clip != null)
+            source.PlayOneShot(clip);
+    }
+
+    private static AudioClip CreateTone(string name, float frequency, float duration, float amplitude)
+    {
+        int sampleCount = Mathf.Max(1, Mathf.RoundToInt(SampleRate * duration));
+        float[] samples = new float[sampleCount];
+        for (int i = 0; i < sampleCount; i++)
+        {
+            float t = i / (float)SampleRate;
+            float envelope = Mathf.Min(1f, i / (SampleRate * .008f)) *
+                Mathf.Min(1f, (sampleCount - i) / (SampleRate * .018f));
+            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * amplitude * envelope;
+        }
+        AudioClip clip = AudioClip.Create(name, sampleCount, 1, SampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private static AudioClip CreateTwoTone(string name, float startFrequency, float endFrequency,
+        float duration, float amplitude)
+    {
+        int sampleCount = Mathf.Max(1, Mathf.RoundToInt(SampleRate * duration));
+        float[] samples = new float[sampleCount];
+        for (int i = 0; i < sampleCount; i++)
+        {
+            float progress = i / (float)Mathf.Max(1, sampleCount - 1);
+            float frequency = Mathf.Lerp(startFrequency, endFrequency, progress);
+            float t = i / (float)SampleRate;
+            float envelope = Mathf.Min(1f, i / (SampleRate * .008f)) *
+                Mathf.Min(1f, (sampleCount - i) / (SampleRate * .022f));
+            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * amplitude * envelope;
+        }
+        AudioClip clip = AudioClip.Create(name, sampleCount, 1, SampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+}

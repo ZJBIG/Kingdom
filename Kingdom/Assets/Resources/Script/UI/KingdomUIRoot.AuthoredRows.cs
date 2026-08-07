@@ -12,8 +12,8 @@ public sealed partial class KingdomUIRoot
 {
     // Keep the alternating list treatment in one place so Resource, Workshop,
     // Building and Music rows remain visually consistent.
-    private static readonly Color ListRowEven = new Color(.18f, .22f, .22f, 1f);
-    private static readonly Color ListRowOdd = new Color(.10f, .13f, .13f, 1f);
+    private static readonly Color ListRowEven = new Color(.25f, .28f, .28f, 1f);
+    private static readonly Color ListRowOdd = new Color(.08f, .10f, .10f, 1f);
 
     private static void ApplyListRowStyle(GameObject row, int index)
     {
@@ -30,9 +30,10 @@ public sealed partial class KingdomUIRoot
         if (button != null)
         {
             button.targetGraphic = surface;
-            // The row background is authored by the presenter. Unity's
-            // ColorTint must not replace the alternating surface on hover.
-            button.transition = Selectable.Transition.None;
+            // Keep the alternating normal color while restoring a visible
+            // hover/pressed state for touch and mouse feedback.
+            button.transition = Selectable.Transition.ColorTint;
+            ApplyButtonColors(button, surface.color);
         }
     }
 
@@ -41,11 +42,13 @@ public sealed partial class KingdomUIRoot
         if (button == null)
             return;
         ColorBlock colors = button.colors;
-        colors.normalColor = normal;
-        colors.highlightedColor = Color.Lerp(normal, Color.white, .14f);
-        colors.pressedColor = Color.Lerp(normal, Color.black, .16f);
+        // Image.color owns the alternating row palette. A white normal tint
+        // prevents Unity from multiplying that palette a second time.
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(.90f, .90f, .90f, 1f);
+        colors.pressedColor = new Color(.54f, .54f, .54f, 1f);
         colors.selectedColor = colors.highlightedColor;
-        colors.disabledColor = new Color(normal.r, normal.g, normal.b, .45f);
+        colors.disabledColor = new Color(.62f, .64f, .63f, .90f);
         button.colors = colors;
     }
 
@@ -84,7 +87,11 @@ public sealed partial class KingdomUIRoot
             Button button = RequireRowButton(row);
             if (button == null)
                 continue;
-            button.onClick.AddListener(() => ShowResourceDetails(resource));
+            button.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                ShowResourceDetails(resource);
+            });
             resourceAmountLabels[resource] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
             resourceChangeLabels[resource] = row.transform.Find("ChangeRate")?.GetComponent<TMP_Text>();
         }
@@ -112,7 +119,11 @@ public sealed partial class KingdomUIRoot
             Button cardButton = RequireRowButton(row);
             if (cardButton == null)
                 continue;
-            cardButton.onClick.AddListener(() => ShowBuildingDetails(building));
+            cardButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                ShowBuildingDetails(building);
+            });
 
             bool canUpgrade = BuildingManager.Instance != null &&
                 BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
@@ -122,7 +133,11 @@ public sealed partial class KingdomUIRoot
                 continue;
             SetBuildingActionButtonText(buildButton, canUpgrade ? "升级" : "建造");
             buildButton.onClick.RemoveAllListeners();
-            buildButton.onClick.AddListener(() => PerformBuildingAction(building, canUpgrade));
+            buildButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
+                PerformBuildingAction(building, canUpgrade);
+            });
             buildButton.interactable = CanPerformBuildingAction(building, canUpgrade);
             SetBuildingActionButtonState(buildButton, buildButton.interactable);
             buildingActionButtons[building] = buildButton;
@@ -133,7 +148,11 @@ public sealed partial class KingdomUIRoot
                 buildingState.Amount > ExpantaNum.Zero;
             SetBuildingActionButtonText(deconstructButton, "拆除");
             deconstructButton.onClick.RemoveAllListeners();
-            deconstructButton.onClick.AddListener(() => DeconstructBuilding(building));
+            deconstructButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Sell);
+                DeconstructBuilding(building);
+            });
             deconstructButton.interactable = hasAmount;
             SetBuildingActionButtonState(deconstructButton, hasAmount);
             buildingDeconstructSurfaces[building] = deconstructButton.targetGraphic as Image;
@@ -168,7 +187,11 @@ public sealed partial class KingdomUIRoot
             Button button = RequireRowButton(row);
             if (button == null)
                 continue;
-            button.onClick.AddListener(() => ShowResearchDetails(research));
+            button.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                ShowResearchDetails(research);
+            });
         }
         Debug.Log($"[KingdomUI] Authored research rows: visible={visible}, rowsRect={parent.rect.size}");
     }
@@ -192,7 +215,11 @@ public sealed partial class KingdomUIRoot
             Button button = RequireRowButton(row);
             if (button == null)
                 continue;
-            button.onClick.AddListener(() => ShowDetails(definition.Label, definition.Description, definition.Id));
+            button.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                ShowDetails(definition.Label, definition.Description, definition.Id);
+            });
         }
         Debug.Log($"[KingdomUI] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
     }

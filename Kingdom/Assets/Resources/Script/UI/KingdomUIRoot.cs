@@ -40,6 +40,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text buildingPageTitle;
     private TMP_Text detailBody;
     private RectTransform detailPanel;
+    private RectTransform detailScrollViewport;
+    private RectTransform detailScrollContent;
+    private ScrollRect detailScroll;
     private RectTransform requirementHost;
     private RectTransform requirementContent;
     private ScrollRect requirementScroll;
@@ -317,6 +320,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
 
         Canvas.ForceUpdateCanvases();
+        RefreshDetailScrollGeometry();
         if (!runtimeGeometryDiagnosticLogged && (root.rect.width <= 0f || root.rect.height <= 0f || safeArea == null || safeArea.rect.height <= 0f))
         {
             runtimeGeometryDiagnosticLogged = true;
