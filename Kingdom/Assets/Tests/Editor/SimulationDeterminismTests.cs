@@ -80,7 +80,7 @@ public sealed class SimulationDeterminismTests
         double resource = ResourceManager.CalculateSatisfaction(
             new ExpantaNum(2d), new ExpantaNum(3d),
             new ExpantaNum(10d), .5d).ToDouble();
-        double food = GameManager.CalculateFoodSatisfaction(
+        double food = HappinessFormula.CalculateFoodAvailability(
             new ExpantaNum(2d), new ExpantaNum(3d),
             new ExpantaNum(10d), .5d).ToDouble();
         double flow = GameManager.CalculateFlowSatisfaction(

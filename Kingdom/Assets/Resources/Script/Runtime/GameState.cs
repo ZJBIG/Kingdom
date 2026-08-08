@@ -22,7 +22,22 @@ public sealed class GameState
         FoodConsumptionRate + FoodPopulationConsumptionRate;
     public ExpantaNum FoodNetRate =>
         FoodProductionRate - FoodTotalConsumptionRate;
-    public ExpantaNum FoodSatisfaction { get; private set; }
+    public ExpantaNum FoodSurplusPerPerson =>
+        HappinessFormula.CalculateSurplusPerPerson(
+            FoodNetRate,
+            Population?.Population ?? ExpantaNum.Zero);
+    public ExpantaNum HappinessScore =>
+        HappinessFormula.CalculateScore(FoodSurplusPerPerson);
+    public ExpantaNum FoodAvailability { get; private set; }
+    public ExpantaNum HappinessMultiplier =>
+        HappinessFormula.CalculateMultiplier(
+            FoodNetRate,
+            Population?.Population ?? ExpantaNum.Zero,
+            FoodAvailability);
+    public ExpantaNum HappinessConstraintMultiplier =>
+        HappinessFormula.CalculateConstraintMultiplier(HappinessMultiplier);
+    public ExpantaNum HappinessRewardMultiplier =>
+        HappinessFormula.CalculateRewardMultiplier(HappinessMultiplier);
     public ExpantaNum PowerProductionRate { get; private set; }
     public ExpantaNum PowerConsumptionRate { get; private set; }
     public ExpantaNum PowerSatisfaction { get; private set; }
@@ -55,7 +70,7 @@ public sealed class GameState
         FoodCapacity = new ExpantaNum(500);
         FoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
-        FoodSatisfaction = ExpantaNum.One;
+        FoodAvailability = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
         PowerConsumptionRate = ExpantaNum.Zero;
         PowerSatisfaction = ExpantaNum.One;
@@ -81,7 +96,7 @@ public sealed class GameState
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = techLevel;
         FoodAmount = ExpantaNum.Max(ExpantaNum.Zero, foodAmount);
-        FoodSatisfaction = ExpantaNum.One;
+        FoodAvailability = ExpantaNum.One;
         FoodCapacity = ExpantaNum.Max(FoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
         Version++;
@@ -111,7 +126,7 @@ public sealed class GameState
         int previousVersion = Population.Version;
         Population.AdvancePopulation(
             deltaSeconds,
-            FoodSatisfaction,
+            HappinessMultiplier,
             growthRatePerSecond,
             departureAllowance);
         if (Population.Version != previousVersion)
@@ -170,7 +185,7 @@ public sealed class GameState
     {
         FoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
-        FoodSatisfaction = ExpantaNum.One;
+        FoodAvailability = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
         PowerConsumptionRate = ExpantaNum.Zero;
         PowerSatisfaction = ExpantaNum.One;
@@ -356,13 +371,13 @@ public sealed class GameState
             Version++;
     }
 
-    internal void SetFoodSatisfaction(ExpantaNum value)
+    internal void SetFoodAvailability(ExpantaNum value)
     {
         ExpantaNum normalized = ExpantaNum.Clamp01(value);
-        if (FoodSatisfaction == normalized)
+        if (FoodAvailability == normalized)
             return;
 
-        FoodSatisfaction = normalized;
+        FoodAvailability = normalized;
         Version++;
     }
 

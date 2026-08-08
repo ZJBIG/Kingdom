@@ -36,6 +36,12 @@ public static class SimulatorSelfTests
             "Satisfaction parity formula failed.");
         Require(Math.Abs(EconomySimulationParity.ResearchSpeedEffect(0, 2) - .4d)
             < 1e-9d, "Research speed parity formula failed.");
+        double lowHappiness = ResourceSimulator.CalculateHappinessMultiplier(-10d, 10d, 0.5d);
+        double highHappiness = ResourceSimulator.CalculateHappinessMultiplier(1000000d, 10d, 1d);
+        Require(Math.Abs(lowHappiness - 0.5d) < 1e-9d,
+            "Happiness must own the food deficit penalty.");
+        Require(highHappiness > lowHappiness && highHappiness < 1.5d,
+            "Happiness curve must be increasing and bounded.");
 
         VerifyAtomicResearchPayment();
         VerifyWorkshopPurchaseAndEffect();

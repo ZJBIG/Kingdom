@@ -23,17 +23,14 @@ public static class KingdomUIPrefabLibrary
     public const string ResearchGraph = "KingdomUIResearchGraph";
     public const string ResearchToolbar = "KingdomUIResearchToolbar";
     public const string ResearchEraBand = "KingdomUIResearchEraBand";
-    public const string RequirementRow = "KingdomUIRequirementRow";
-    public const string FlowRow = "KingdomUIFlowRow";
-    public const string DetailPanel = "KingdomUIDetailPanel";
     public const string QuantityControls = "KingdomUIQuantityControls";
     public const string MusicTrack = "KingdomUIMusicTrack";
 
     public static readonly string[] AllReusablePrefabs =
     {
         Root, Page, ResourceCard, BuildingCard, ResearchCard, TextRow,
-        ResearchNode, ResearchLine, ResearchGraph, ResearchToolbar, ResearchEraBand, RequirementRow, FlowRow,
-        DetailPanel, QuantityControls, MusicTrack
+        ResearchNode, ResearchLine, ResearchGraph, ResearchToolbar, ResearchEraBand,
+        QuantityControls, MusicTrack
     };
 
     public static GameObject Load(string prefabName)

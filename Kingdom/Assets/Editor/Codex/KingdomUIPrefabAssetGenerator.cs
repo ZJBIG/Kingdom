@@ -42,9 +42,8 @@ internal static class KingdomUIPrefabAssetGenerator
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchNode, CreateResearchNodeTemplate);
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchLine, CreateResearchLineTemplate);
         changed |= SaveIfMissing(KingdomUIPrefabLibrary.ResearchGraph, CreateResearchGraphTemplate);
-        // The row/card generator owns the data-driven list templates. Run it
-        // before validating the shared prefab registry so startup validation
-        // cannot report a transient missing TextRow/FlowRow asset.
+        // The row/card generator owns the remaining data-driven list
+        // templates. Run it before validating the shared prefab registry.
         KingdomUIRepeatedPrefabGenerator.GenerateAllForBatch();
         if (changed)
             AssetDatabase.SaveAssets();

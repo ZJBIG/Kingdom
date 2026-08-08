@@ -230,7 +230,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void C401_PopulationGrowthStopsWhenFoodSatisfactionIsZero()
+    public void C401_PopulationGrowthStopsWhenHappinessMultiplierIsZero()
     {
         PopulationState population = new PopulationState();
         InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(15));

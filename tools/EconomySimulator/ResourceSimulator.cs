@@ -12,12 +12,16 @@ public static class ResourceSimulator
     {
         var net=new Dictionary<string,double>(StringComparer.OrdinalIgnoreCase){["WoodLog"]=1}; Add(s.Resources,"WoodLog",deltaSeconds); double foodIn=5,foodOut=s.Population*0.8d,powerIn=0,powerOut=0,logIn=0,logOut=0;
         foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=Efficiency(s,d,buildings,deltaSeconds);double foodMultiplier=EffectMultiplier(s,SimEffectKind.BuildingFoodProductionMultiplier,d.Id);foreach(var p in d.Generation)Add(net,p.Key,p.Value*n*e);foreach(var p in d.Consumption)Add(net,p.Key,-p.Value*n*e);foodIn+=d.FoodProduction*n*e*foodMultiplier;foodOut+=d.FoodConsumption*n;powerIn+=d.PowerProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingPowerProductionMultiplier,d.Id);powerOut+=d.PowerConsumption*n;logIn+=d.LogisticsProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingLogisticsProductionMultiplier,d.Id);logOut+=d.LogisticsConsumption*n;}
-        powerIn*=EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
-        logIn*=EffectMultiplier(s,SimEffectKind.GlobalLogisticsMultiplier,"");
-        s.PowerSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(powerIn,powerOut);s.LogisticsSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(logIn,logOut); double foodSat=EconomySimulationParity.CalculateSatisfaction(s.Food,foodIn,foodOut,deltaSeconds);
-        s.FoodSatisfaction=foodSat;
+        double foodAvailability=EconomySimulationParity.CalculateSatisfaction(s.Food,foodIn,foodOut,deltaSeconds);
+        double happinessMultiplier=CalculateHappinessMultiplier(foodIn-foodOut,s.Population,foodAvailability);
+        double happinessReward=Math.Max(1d,happinessMultiplier);
+        double happinessConstraint=Math.Min(1d,happinessMultiplier);
+        powerIn*=happinessReward*EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
+        logIn*=happinessReward*EffectMultiplier(s,SimEffectKind.GlobalLogisticsMultiplier,"");
+        s.FoodAvailability=foodAvailability;s.HappinessMultiplier=happinessMultiplier;
+        s.PowerSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(powerIn,powerOut);s.LogisticsSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(logIn,logOut);
         double globalProduction=EffectMultiplier(s,SimEffectKind.GlobalBuildingProductionMultiplier,"");
-        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=EconomySimulationParity.CalculateEffectiveEfficiency(1d,Efficiency(s,d,buildings,deltaSeconds),foodSat,d.PowerConsumption>0?s.PowerSatisfaction:1d,d.LogisticsConsumption>0?s.LogisticsSatisfaction:1d);double buildingProduction=globalProduction*EffectMultiplier(s,SimEffectKind.BuildingProductionMultiplier,d.Id);foreach(var p in d.Generation){double resourceProduction=EffectMultiplier(s,SimEffectKind.ResourceProductionMultiplier,p.Key);Add(s.Resources,p.Key,p.Value*n*e*buildingProduction*resourceProduction*deltaSeconds);}foreach(var p in d.Consumption)Add(s.Resources,p.Key,-p.Value*n*e*deltaSeconds);}
+        foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=EconomySimulationParity.CalculateEffectiveEfficiency(1d,Efficiency(s,d,buildings,deltaSeconds),happinessConstraint,d.PowerConsumption>0?s.PowerSatisfaction:1d,d.LogisticsConsumption>0?s.LogisticsSatisfaction:1d);double buildingProduction=globalProduction*EffectMultiplier(s,SimEffectKind.BuildingProductionMultiplier,d.Id);foreach(var p in d.Generation){double resourceProduction=EffectMultiplier(s,SimEffectKind.ResourceProductionMultiplier,p.Key);Add(s.Resources,p.Key,p.Value*n*e*buildingProduction*resourceProduction*happinessReward*deltaSeconds);}foreach(var p in d.Consumption)Add(s.Resources,p.Key,-p.Value*n*e*deltaSeconds);}
         double foodCapacityMultiplier=EffectMultiplier(s,SimEffectKind.FoodCapacityMultiplier,"");
         s.FoodCapacity=Math.Max(500d,500d+buildings.Sum(x=>s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.FoodCapacity))*foodCapacityMultiplier);
         s.Food=Math.Min(s.FoodCapacity,EconomySimulationParity.AdvanceStockpile(s.Food,foodIn,foodOut,deltaSeconds));
@@ -30,7 +34,7 @@ public static class ResourceSimulator
         AdvancePopulation(
             s,
             populationCapacity,
-            foodSat,
+            happinessMultiplier,
             PopulationGrowthMultiplier(s),
             departureAllowance,
             deltaSeconds);
@@ -40,7 +44,7 @@ public static class ResourceSimulator
     public static void AdvancePopulation(
         SimulationState s,
         double populationCapacity,
-        double foodSatisfaction,
+        double happinessMultiplier,
         double growthMultiplier,
         double departureAllowance,
         double deltaSeconds)
@@ -58,7 +62,7 @@ public static class ResourceSimulator
         }
         if(s.Population<populationCapacity)
         {
-            if(foodSatisfaction<=0)
+            if(happinessMultiplier<=0)
                 return;
             double occupancy=populationCapacity<=0d
                 ?1d
@@ -67,7 +71,7 @@ public static class ResourceSimulator
             double logisticRate=Math.Max(0d,growthMultiplier)/60d*
                 effectivePopulation*(1d-occupancy);
             double accumulated=s.PopulationChangeProgress+
-                Math.Clamp(foodSatisfaction,0,1)*logisticRate*deltaSeconds;
+                Math.Max(0d,happinessMultiplier)*logisticRate*deltaSeconds;
             double births=Math.Min(
                 Math.Floor(accumulated+1e-9),
                 populationCapacity-s.Population);
@@ -122,14 +126,53 @@ public static class ResourceSimulator
             result=Math.Max(1d,result+(effect.Value>0d?effect.Value:1d)-1d);
         return result;
     }
+
+    public static double CalculateHappinessMultiplier(
+        double foodNetRate,
+        double population,
+        double foodAvailability=1d)
+    {
+        double availability=Math.Clamp(foodAvailability,0d,1d);
+        if(availability<1d)
+            return availability;
+        double surplusPerPerson = Math.Max(0d, foodNetRate) /
+            Math.Max(1d, population);
+        double score = Math.Log10(1d + surplusPerPerson);
+        if (double.IsNaN(score) || score < 0d)
+            return 1d;
+        return 1d + 0.5d * score / (score + 1d);
+    }
+
+    public static double CalculateFoodNetRate(
+        SimulationState s,
+        IReadOnlyList<Definition> buildings,
+        double deltaSeconds)
+    {
+        double foodIn = 5d;
+        double foodOut = s.Population * 0.8d;
+        foreach (Definition d in buildings)
+        {
+            int n = s.Buildings.GetValueOrDefault(d.Id);
+            if (n <= 0)
+                continue;
+            double efficiency = Efficiency(s, d, buildings, deltaSeconds);
+            double foodMultiplier = EffectMultiplier(
+                s,
+                SimEffectKind.BuildingFoodProductionMultiplier,
+                d.Id);
+            foodIn += d.FoodProduction * n * efficiency * foodMultiplier;
+            foodOut += d.FoodConsumption * n;
+        }
+        return foodIn - foodOut;
+    }
     public static double PopulationGrowthRatePerMinute(SimulationState s)
     {
-        if(s.Population>=s.PopulationCapacity || s.FoodSatisfaction<=0d)
+        if(s.Population>=s.PopulationCapacity || s.HappinessMultiplier<=0d)
             return 0d;
         double occupancy=s.PopulationCapacity<=0d
             ?1d
             :Math.Clamp(s.Population/s.PopulationCapacity,0d,1d);
-        return Math.Clamp(s.FoodSatisfaction,0d,1d)*
+        return Math.Max(0d,s.HappinessMultiplier)*
             Math.Max(1d,s.Population)*
             PopulationGrowthMultiplier(s)*(1d-occupancy);
     }

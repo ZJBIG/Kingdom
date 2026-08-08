@@ -50,7 +50,7 @@ public sealed class SimulationState
     public long Tick;
     public double Seconds;
     public SimTechLevel TechLevel=SimTechLevel.Animal;
-    public double Food=300, FoodCapacity=500, FoodSatisfaction=1, PowerSatisfaction=1, LogisticsSatisfaction=1;
+    public double Food=300, FoodCapacity=500, FoodAvailability=1, HappinessMultiplier=1, PowerSatisfaction=1, LogisticsSatisfaction=1;
     public double Population, PopulationCapacity, PopulationChangeProgress;
     public readonly Dictionary<string,double> Resources=new(StringComparer.OrdinalIgnoreCase){["WoodLog"]=0};
     public readonly Dictionary<string,int> Buildings=new(StringComparer.OrdinalIgnoreCase); public readonly HashSet<string> CompletedResearch=new(StringComparer.OrdinalIgnoreCase); public readonly List<SimEffect> ActiveEffects=new();

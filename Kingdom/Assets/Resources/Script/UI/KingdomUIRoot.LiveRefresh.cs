@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,12 +34,86 @@ public sealed partial class KingdomUIRoot
             RefreshSelectedBuildingDetails(selectedBuilding);
         else if (!researchGraphDragging && selectedResearchNode != null && populatedPage == "Research")
             RefreshSelectedResearchDetails(selectedResearchNode);
+        RefreshDevelopmentGuidance();
         // Top status is presentation-only. Refresh it last so malformed or
         // incomplete saved numeric data cannot stop research-tree input and
         // visual updates from running in the same frame.
         RefreshTopStatus();
         if (populatedPage == "Music")
             RefreshMusicPage();
+    }
+
+    private void BuildDevelopmentGuidance(RectTransform page)
+    {
+        if (page == null)
+            return;
+        developmentGuidanceText = page.Find("PrimaryCard/Text")?.GetComponent<TMP_Text>();
+        if (developmentGuidanceText == null)
+        {
+            Debug.LogError("[KingdomUI] Overview PrimaryCard/Text is missing; development guidance cannot render.");
+            return;
+        }
+        developmentGuidanceText.enabled = true;
+        developmentGuidanceText.gameObject.SetActive(true);
+        developmentGuidanceText.alignment = TextAlignmentOptions.TopLeft;
+        developmentGuidanceText.fontSize = 24f;
+        developmentGuidanceText.enableWordWrapping = true;
+        Canvas.ForceUpdateCanvases();
+        Vector2 initialRect = developmentGuidanceText.rectTransform.rect.size;
+        if (initialRect.x > 0f && initialRect.y > 0f)
+            RefreshDevelopmentGuidance();
+        else
+            Debug.Log($"[KingdomUI] Development guidance binding deferred until layout: rect={initialRect}");
+    }
+
+    private void RefreshDevelopmentGuidance()
+    {
+        if (developmentGuidanceText == null)
+            return;
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        try
+        {
+            developmentGuidanceSnapshot = DevelopmentGuidance.Build(
+                gameManager,
+                FindObjectOfType<ResearchManager>(),
+                FindObjectOfType<ResourceManager>(),
+                FindObjectOfType<BuildingManager>(),
+                FindObjectOfType<WorkshopManager>());
+        }
+        catch (Exception exception)
+        {
+            // Guidance is presentation-only. A partially restored manager
+            // must never stop the Overview text from rendering.
+            if (!developmentGuidanceErrorLogged)
+            {
+                developmentGuidanceErrorLogged = true;
+                Debug.LogException(exception);
+            }
+            developmentGuidanceText.text = "当前发展指引\n\n正在读取王国状态，请稍候。";
+            developmentGuidanceText.color = TextPrimary;
+            return;
+        }
+        DevelopmentGuidanceSnapshot snapshot = developmentGuidanceSnapshot;
+        StringBuilder body = new StringBuilder();
+        if (!string.IsNullOrEmpty(snapshot.EraText))
+            body.Append(snapshot.EraText).Append("  |  ");
+        body.Append(snapshot.Title ?? string.Empty).Append("\n\n");
+        body.Append(snapshot.Body ?? string.Empty);
+        IReadOnlyList<string> blockers = snapshot.Blockers ?? Array.Empty<string>();
+        for (int i = 0; i < blockers.Count && i < 3; i++)
+            body.Append("\n- ").Append(blockers[i]);
+        developmentGuidanceText.text = body.ToString();
+        developmentGuidanceText.color = TextPrimary;
+        Canvas.ForceUpdateCanvases();
+        if (!developmentGuidanceRuntimeGeometryLogged)
+        {
+            Vector2 rect = developmentGuidanceText.rectTransform.rect.size;
+            if (rect.x > 0f && rect.y > 0f)
+            {
+                developmentGuidanceRuntimeGeometryLogged = true;
+                Debug.Log($"[KingdomUI] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
+            }
+        }
     }
 
     private void RefreshTopStatus()
@@ -88,15 +163,21 @@ public sealed partial class KingdomUIRoot
         string currentResearch = activeDefinition == null ? "无" 
             : (activeDefinition.Label+ (defState!= null? $"[{ResearchProgressText(defState, defState.Status)}]":""));
 
-
+        
         bool calendarKnown = researchManager != null && researchManager.IsResearchCompleted("Calendar");
         string calendar = calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??";
         string researchPower = researchManager == null ? "0" : researchManager.ResearchPower.ToGameString();
-        topStatus.text = "食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
-            "    人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/min）" +
-            "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString() +
-            "\n科技水平：" + state.TechLevel.GetDescription() + "    当前研究：" + currentResearch + "    日历：" + calendar +
-            "    研究力：" + researchPower + "/s";
+        topStatus.text = 
+        "科技水平：" + state.TechLevel.GetDescription() +
+        "    当前研究：" + currentResearch +
+        "    日期：" + calendar +
+        "    研究力：" + researchPower + "/s" +
+        "\n食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
+        "    生产力：" + BuildingManager.Instance.AvailableProductivity.ToGameString() + "/" + BuildingManager.Instance.TotalProductivity.ToGameString() +
+        "    幸福度：" + state.HappinessScore.ToGameString() + $"({state.HappinessMultiplier.ToGameString()}x）" +
+        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/min）" +
+        "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString();
+            
     }
 
     private void RefreshLiveCardValues()

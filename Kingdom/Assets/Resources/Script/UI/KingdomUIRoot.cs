@@ -45,11 +45,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private ScrollRect detailScroll;
     private RectTransform requirementHost;
     private RectTransform requirementContent;
-    private ScrollRect requirementScroll;
     private UIDetailRequirementScrollGesture requirementGesture;
     private RectTransform flowHost;
     private RectTransform flowContent;
-    private ScrollRect flowScroll;
     private Button detailActionButton;
     private Button detailPaymentButton;
     private RectTransform tooltipPanel;
@@ -67,8 +65,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool topStatusDataErrorLogged;
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
-    private bool requirementScrollDiagnosticAttached;
-    private bool requirementScrollMovementLogged;
     private BuildingQuantityMode buildingQuantityMode = BuildingQuantityMode.One;
     private ExpantaNum customBuildingQuantity = ExpantaNum.One;
     private TMP_InputField customQuantityInput;
@@ -100,6 +96,10 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private RectTransform musicTrackList;
     private bool musicProgressDragging;
     private bool musicPageBuilt;
+    private TMP_Text developmentGuidanceText;
+    private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
+    private bool developmentGuidanceErrorLogged;
+    private bool developmentGuidanceRuntimeGeometryLogged;
 
     private void Awake()
     {
@@ -233,7 +233,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         if (safeArea.GetComponent<SafeAreaFitter>() == null)
             safeArea.gameObject.AddComponent<SafeAreaFitter>();
-        Debug.Log("[KingdomUI] Authored scene shell bound; fixed UI was not rebuilt at runtime.");
+        Debug.Log("[KingdomUI] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.");
         EnsureRuntimeCanvasGeometry();
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[KingdomUI] Panel alignment: navigation={GetRectSize(leftNavigation)}, detail={GetRectSize(detailPanel)}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
@@ -517,4 +517,175 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Destroy(host.GetChild(i).gameObject);
     }
 
+}
+
+public enum DevelopmentGuidanceStatus
+{
+    Progressing,
+    WaitingResources,
+    Stabilize,
+    Available,
+    Workshop,
+    Complete
+}
+
+public sealed class DevelopmentGuidanceSnapshot
+{
+    public DevelopmentGuidanceStatus Status { get; internal set; }
+    public string Title { get; internal set; } = string.Empty;
+    public string Body { get; internal set; } = string.Empty;
+    public string EraText { get; internal set; } = string.Empty;
+    public IReadOnlyList<string> Blockers { get; internal set; } = Array.Empty<string>();
+}
+
+public static class DevelopmentGuidance
+{
+    public static DevelopmentGuidanceSnapshot Build(
+        GameManager gameManager,
+        ResearchManager researchManager,
+        ResourceManager resourceManager,
+        BuildingManager buildingManager,
+        WorkshopManager workshopManager)
+    {
+        GameState gameState = gameManager == null ? null : gameManager.State;
+        DevelopmentGuidanceSnapshot snapshot = new DevelopmentGuidanceSnapshot
+        {
+            Status = DevelopmentGuidanceStatus.Complete,
+            EraText = gameState == null ? "时代未知" : gameState.TechLevel.GetDescription(),
+            Title = "当前时代已稳定",
+            Body = "继续扩张生产链，或查看研究树寻找下一阶段目标。"
+        };
+
+        if (researchManager != null && researchManager.ActiveResearch != null)
+        {
+            ResearchState active = researchManager.ActiveResearch;
+            Research research = active.Definition;
+            snapshot.Title = research.Label;
+            if (active.Status == ResearchStatus.WaitingResources)
+            {
+                snapshot.Status = DevelopmentGuidanceStatus.WaitingResources;
+                snapshot.Body = "研究等待资源支付，先补齐以下资源。";
+                snapshot.Blockers = FindResearchResourceBlockers(active, resourceManager);
+            }
+            else
+            {
+                snapshot.Status = DevelopmentGuidanceStatus.Progressing;
+                snapshot.Body = "研究正在推进，保持研究力与资源供应即可。";
+                snapshot.Blockers = new[]
+                {
+                    "进度 " + (active.ProgressRatio * 100).ToGameString() + "%"
+                };
+            }
+            return snapshot;
+        }
+
+        if (gameState != null)
+        {
+            if (gameState.HappinessMultiplier < ExpantaNum.One)
+                return BuildStabilitySnapshot(gameState, "幸福度不足", "先提高食物净产出，避免人口与生产效率继续下降。", gameState.FoodNetRate);
+            if (gameState.PowerSatisfaction < ExpantaNum.One)
+                return BuildStabilitySnapshot(gameState, "电力供应不足", "先补充电力生产，避免工业建筑效率下降。", gameState.PowerProductionRate - gameState.PowerConsumptionRate);
+            if (gameState.LogisticsSatisfaction < ExpantaNum.One)
+                return BuildStabilitySnapshot(gameState, "物流能力不足", "先补充物流生产，避免后续产业链被运输能力卡住。", gameState.LogisticsProductionRate - gameState.LogisticsConsumptionRate);
+        }
+
+        if (researchManager != null)
+        {
+            IReadOnlyList<Research> definitions = DataBase<Research>.All;
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                Research research = definitions[i];
+                if (research == null)
+                    continue;
+                // The UI can be built during the same frame that the
+                // ResearchManager singleton is still creating its states.
+                // Do not turn that normal initialization window into a fatal
+                // KeyNotFoundException; GetState remains strict for callers
+                // that require an initialized state.
+                if (!researchManager.States.TryGetValue(research, out ResearchState state))
+                    continue;
+                if (state.Status != ResearchStatus.Available)
+                    continue;
+                snapshot.Status = DevelopmentGuidanceStatus.Available;
+                snapshot.Title = "开始研究：" + research.Label;
+                snapshot.Body = string.IsNullOrWhiteSpace(research.Description)
+                    ? "这是当前研究树中最靠前的可用节点。"
+                    : research.Description;
+                snapshot.Blockers = new[] { "研究力 " + researchManager.ResearchPower.ToGameString() + "/s" };
+                return snapshot;
+            }
+        }
+
+        if (buildingManager != null)
+        {
+            IReadOnlyList<Building> definitions = DataBase<Building>.All;
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                Building building = definitions[i];
+                if (building != null && buildingManager.CanConstructNew(building))
+                {
+                    snapshot.Status = DevelopmentGuidanceStatus.Available;
+                    snapshot.Title = "建设：" + building.Label;
+                    snapshot.Body = "当前有可建设的建筑，扩展生产链或研究能力。";
+                    snapshot.Blockers = Array.Empty<string>();
+                    return snapshot;
+                }
+            }
+        }
+
+        if (workshopManager != null && workshopManager.IsSystemUnlocked)
+        {
+            IReadOnlyList<WorkshopUpgradeDefinition> definitions = DataBase<WorkshopUpgradeDefinition>.All;
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                WorkshopUpgradeDefinition definition = definitions[i];
+                if (definition == null || workshopManager.IsPurchased(definition) || !workshopManager.ArePrerequisitesMet(definition))
+                    continue;
+                snapshot.Status = DevelopmentGuidanceStatus.Workshop;
+                snapshot.Title = "Workshop：" + definition.Label;
+                snapshot.Body = "已有可用的 Workshop 升级，查看其资源需求与效果。";
+                snapshot.Blockers = Array.Empty<string>();
+                return snapshot;
+            }
+        }
+
+        return snapshot;
+    }
+
+    private static DevelopmentGuidanceSnapshot BuildStabilitySnapshot(
+        GameState gameState,
+        string title,
+        string body,
+        ExpantaNum netRate)
+    {
+        return new DevelopmentGuidanceSnapshot
+        {
+            Status = DevelopmentGuidanceStatus.Stabilize,
+            Title = title,
+            Body = body,
+            Blockers = new[] { "净变化 " + (netRate >= ExpantaNum.Zero ? "+" : "") + netRate.ToGameString() + "/s" },
+            EraText = gameState == null ? string.Empty : gameState.TechLevel.GetDescription()
+        };
+    }
+
+    private static IReadOnlyList<string> FindResearchResourceBlockers(
+        ResearchState state,
+        ResourceManager resourceManager)
+    {
+        List<string> blockers = new List<string>();
+        if (state == null || resourceManager == null || state.Definition.ResourceRequirements == null)
+            return blockers;
+        for (int i = 0; i < state.Definition.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = state.Definition.ResourceRequirements[i];
+            if (requirement == null || requirement.First == null)
+                continue;
+            ExpantaNum remaining = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                requirement.Second - state.GetPaidResourceCost(requirement.First) - resourceManager.GetAmount(requirement.First));
+            if (remaining > ExpantaNum.Zero)
+                blockers.Add(requirement.First.Label + " 缺少 " + remaining.ToGameString());
+        }
+        return blockers;
+    }
 }

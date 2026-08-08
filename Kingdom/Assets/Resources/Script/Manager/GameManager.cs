@@ -26,7 +26,7 @@ public class GameManager : Singleton<GameManager>
         PopulationState.BaseGrowthRatePerSecond * PopulationGrowthMultiplier;
     public ExpantaNum CurrentPopulationGrowthRatePerMinute =>
         State.Population.CurrentGrowthRatePerSecond(
-            State.FoodSatisfaction,
+            State.HappinessMultiplier,
             PopulationGrowthRatePerSecond) * 60d;
     public ExpantaNum CurrentPopulationDepartureRatePerMinute
     {
@@ -165,24 +165,6 @@ public class GameManager : Singleton<GameManager>
             ExpantaNum.Max(ExpantaNum.Zero, capacity));
     }
 
-    public static ExpantaNum CalculateFoodSatisfaction(
-        ExpantaNum currentInventory,
-        ExpantaNum potentialProductionRate,
-        ExpantaNum potentialConsumptionRate,
-        double deltaSeconds)
-    {
-        if (deltaSeconds < 0d)
-            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
-
-        ExpantaNum available = ExpantaNum.Max(ExpantaNum.Zero, currentInventory) +
-            ExpantaNum.Max(ExpantaNum.Zero, potentialProductionRate) * deltaSeconds;
-        ExpantaNum demand = ExpantaNum.Max(ExpantaNum.Zero, potentialConsumptionRate) * deltaSeconds;
-        if (demand <= ExpantaNum.Zero)
-            return ExpantaNum.One;
-
-        return ExpantaNum.Clamp01(available / demand);
-    }
-
     public static ExpantaNum CalculateFlowSatisfaction(
         ExpantaNum potentialProductionRate,
         ExpantaNum potentialConsumptionRate)
@@ -194,7 +176,7 @@ public class GameManager : Singleton<GameManager>
         return ExpantaNum.Clamp01(production / demand);
     }
 
-    internal void PrepareFoodSatisfaction(
+    internal void PrepareHappiness(
         ExpantaNum potentialProductionRate,
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
@@ -202,7 +184,7 @@ public class GameManager : Singleton<GameManager>
         potentialProductionRate += GameState.BaseFoodProductionRate;
         potentialConsumptionRate +=
             State.Population.Population * PopulationState.FoodConsumptionPerPerson;
-        State.SetFoodSatisfaction(CalculateFoodSatisfaction(
+        State.SetFoodAvailability(HappinessFormula.CalculateFoodAvailability(
             State.FoodAmount,
             potentialProductionRate,
             potentialConsumptionRate,

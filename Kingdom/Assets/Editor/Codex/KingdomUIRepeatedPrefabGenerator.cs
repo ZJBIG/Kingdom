@@ -54,14 +54,6 @@ internal static class KingdomUIRepeatedPrefabGenerator
             new[] { new RectSpec("Label", 0f, 0f, .58f, 1f, 12f, 4f, -8f, -4f),
                 new RectSpec("Length", .58f, 0f, .78f, 1f, 0f, 4f, 0f, -4f),
                 new RectSpec("Type", .78f, 0f, 1f, 1f, 8f, 4f, -12f, -4f) }, true);
-        EnsureDetailRow("KingdomUIRequirementRow.prefab", 72f,
-            new RectSpec("Icon", 0f, .5f, 0f, .5f, 12f, -24f, 60f, 24f),
-            new RectSpec("Label", 0f, 0f, .65f, 1f, 76f, 0f, -8f, 0f),
-            new RectSpec("Amount", .65f, 0f, 1f, 1f, 8f, 0f, -16f, 0f));
-        EnsureDetailRow("KingdomUIFlowRow.prefab", 56f,
-            new RectSpec("Icon", 0f, .5f, 0f, .5f, 8f, -22f, 52f, 22f),
-            new RectSpec("Label", 0f, 0f, .62f, 1f, 66f, 0f, -8f, 0f),
-            new RectSpec("Amount", .62f, 0f, 1f, 1f, 8f, 0f, -12f, 0f));
         EnsureTextRow();
         AssetDatabase.SaveAssets();
     }
@@ -76,20 +68,24 @@ internal static class KingdomUIRepeatedPrefabGenerator
             return;
         try
         {
-            string[] pages = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
-            for (int i = 0; i < pages.Length; i++)
-            {
-                Transform rows = root.transform.Find("SafeAreaRoot/Content/PageHost/" + pages[i] + "/DataRows");
-                if (rows == null)
-                    continue;
-                GameObjectUtility.RemoveMonoBehavioursWithMissingScript(rows.gameObject);
-            }
+            RemoveMissingScriptsRecursively(root);
             PrefabUtility.SaveAsPrefabAsset(root, rootPath);
         }
         finally
         {
             PrefabUtility.UnloadPrefabContents(root);
         }
+    }
+
+    private static int RemoveMissingScriptsRecursively(GameObject root)
+    {
+        if (root == null)
+            return 0;
+        int removed = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(root);
+        Transform transform = root.transform;
+        for (int i = 0; i < transform.childCount; i++)
+            removed += RemoveMissingScriptsRecursively(transform.GetChild(i).gameObject);
+        return removed;
     }
 
     private static void EnsureCard(string file, float height, string[] children, RectSpec[] layout, bool rootButton)
@@ -174,38 +170,6 @@ internal static class KingdomUIRepeatedPrefabGenerator
             if (loadedPrefabContents && root != null)
                 PrefabUtility.UnloadPrefabContents(root);
             else if (root != null)
-                Object.DestroyImmediate(root);
-        }
-    }
-
-    private static void EnsureDetailRow(string file, float height, RectSpec iconSpec,
-        RectSpec labelSpec, RectSpec amountSpec)
-    {
-        string path = Root + file;
-        bool loadedPrefabContents = File.Exists(path);
-        GameObject root = loadedPrefabContents ? PrefabUtility.LoadPrefabContents(path) :
-            new GameObject(Path.GetFileNameWithoutExtension(file), typeof(RectTransform));
-        try
-        {
-            RectTransform rootRect = root.GetComponent<RectTransform>();
-            rootRect.anchorMin = new Vector2(0f, 1f);
-            rootRect.anchorMax = new Vector2(1f, 1f);
-            rootRect.pivot = new Vector2(.5f, 1f);
-            rootRect.sizeDelta = new Vector2(0f, height);
-            LayoutElement layout = root.GetComponent<LayoutElement>() ?? root.AddComponent<LayoutElement>();
-            layout.preferredHeight = height;
-            EnsureIconChild(root.transform, iconSpec);
-            EnsureTextChild(root.transform, labelSpec.Name, labelSpec.MinX, labelSpec.MinY,
-                labelSpec.MaxX, labelSpec.MaxY, labelSpec.Left, labelSpec.Bottom, labelSpec.Right, labelSpec.Top);
-            EnsureTextChild(root.transform, amountSpec.Name, amountSpec.MinX, amountSpec.MinY,
-                amountSpec.MaxX, amountSpec.MaxY, amountSpec.Left, amountSpec.Bottom, amountSpec.Right, amountSpec.Top);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-        }
-        finally
-        {
-            if (loadedPrefabContents)
-                PrefabUtility.UnloadPrefabContents(root);
-            else
                 Object.DestroyImmediate(root);
         }
     }

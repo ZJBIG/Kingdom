@@ -19,15 +19,15 @@ public sealed class FoodEfficiencyTests
     }
 
     [Test]
-    public void FoodSatisfaction_UsesInventoryAndPotentialFlow()
+    public void FoodAvailability_UsesInventoryAndPotentialFlow()
     {
-        Assert.That(GameManager.CalculateFoodSatisfaction(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(GameManager.CalculateFoodSatisfaction(5, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
-        Assert.That(GameManager.CalculateFoodSatisfaction(0, 5, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
-        Assert.That(GameManager.CalculateFoodSatisfaction(0, 10, 10, 1), Is.EqualTo(ExpantaNum.One));
-        Assert.That(GameManager.CalculateFoodSatisfaction(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(5, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 5, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 10, 10, 1), Is.EqualTo(ExpantaNum.One));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
         Assert.Throws<System.ArgumentOutOfRangeException>(
-            () => GameManager.CalculateFoodSatisfaction(0, 0, 1, -1));
+            () => HappinessFormula.CalculateFoodAvailability(0, 0, 1, -1));
     }
 
     [Test]
@@ -58,7 +58,7 @@ public sealed class FoodEfficiencyTests
     public void EveryBuildingUsesTheSameFoodSupplyRatio()
     {
         Assert.That(
-            BuildingManager.CalculateFoodConstraint(0.4d),
+            HappinessFormula.CalculateConstraintMultiplier(0.4d),
             Is.EqualTo(new ExpantaNum(0.4d)));
     }
 

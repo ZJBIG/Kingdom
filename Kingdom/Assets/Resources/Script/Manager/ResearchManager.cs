@@ -301,6 +301,7 @@ public class ResearchManager : Singleton<ResearchManager>
             GameManager.Instance.State.TechLevel,
             current.Definition.TechLevel) * GlobalEfficiencyFactor *
             ResearchPower * ProgressionModifierManager.Current.GlobalResearchMultiplier;
+        speed *= GameManager.Instance.State.HappinessMultiplier;
         current.SetProgress(AdvanceResearchProgress(
             current.Progress,
             speed,

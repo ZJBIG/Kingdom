@@ -15,7 +15,7 @@ Strict snapshot: 37 resources, 63 buildings, 79 research, 29 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Productivity-blocked building decision time: total 0 seconds; longest continuous 0 seconds.
-- Final population growth: x1.6, 0/min; productivity utilization: 32.4%; territory: 420/2325.
+- Final population growth: x1.6, 0/min; productivity utilization: 32.4%; territory: 414/2325.
 
 ## Animal Age
 
@@ -24,20 +24,20 @@ Strict snapshot: 37 resources, 63 buildings, 79 research, 29 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 83.92 分钟
+到达时间: 81.88 分钟
 完成研究: 3
 
 ## Medieval Age
 
-到达时间: 404.02 分钟
+到达时间: 503.33 分钟
 完成研究: 23
 
 ## Industrial Age
 
-到达时间: 882.3 分钟
+到达时间: 1131.55 分钟
 完成研究: 3
 
-原始时代最长无研究目标: 4 分钟；新石器时代: 1 分钟。
+原始时代最长无研究目标: 4 分钟；新石器时代: 3 分钟。
 
 ## Bottlenecks
 

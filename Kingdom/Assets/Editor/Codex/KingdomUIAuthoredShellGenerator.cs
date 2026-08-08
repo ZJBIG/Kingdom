@@ -42,12 +42,14 @@ internal static class KingdomUIAuthoredShellGenerator
         bool hasOrdinaryPageHost = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") != null;
         bool hasResearchViewport = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport") != null;
         bool hasResearchToolbar = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchTreeToolbar") != null;
+        bool hasResearchLineLayer = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchGraphContent/ResearchGraphLineLayer") != null;
         bool hasMusicSurface = root.transform.Find("SafeAreaRoot/Content/PageHost/Music/DataRows/MusicSurface/Controls") != null;
         bool hasQuantityControls = root.transform.Find("SafeAreaRoot/Content/BuildingQuantityControls") != null;
-        bool hasFlowHeading = root.transform.Find("SafeAreaRoot/DetailPanel/BuildingOutput/FlowContent/Heading") != null;
-        bool hasRequirementHeading = root.transform.Find("SafeAreaRoot/DetailPanel/BuildingRequirements/RequirementContent/Heading") != null;
-        if (hasOrdinaryPageHost && hasResearchViewport && hasResearchToolbar && hasMusicSurface &&
-            hasQuantityControls && hasFlowHeading && hasRequirementHeading)
+        bool hasLegacyDetailChildren = root.transform.Find("SafeAreaRoot/DetailPanel/Body") != null ||
+            root.transform.Find("SafeAreaRoot/DetailPanel/BuildingOutput") != null ||
+            root.transform.Find("SafeAreaRoot/DetailPanel/BuildingRequirements") != null;
+        if (hasOrdinaryPageHost && hasResearchViewport && hasResearchToolbar && hasResearchLineLayer && hasMusicSurface &&
+            hasQuantityControls && !hasLegacyDetailChildren)
             return;
         Generate();
     }
@@ -131,7 +133,7 @@ internal static class KingdomUIAuthoredShellGenerator
             }
             if (names[i] == "Overview")
             {
-                Card("PrimaryCard", page, new Vector2(0, .52f), new Vector2(1, .95f), new Vector2(20, 0), new Vector2(-20, 0), "文明状态\n\n王国已准备就绪。请从左侧导航选择页面。");
+                Card("PrimaryCard", page, new Vector2(0, .52f), new Vector2(1, .95f), new Vector2(20, 0), new Vector2(-20, 0), "当前发展指引\n\n正在读取王国状态，请先检查当前研究、资源和生产链。");
                 Card("SecondaryCard", page, new Vector2(0, .05f), new Vector2(1, .46f), new Vector2(20, 0), new Vector2(-20, 0), "当前行动\n\n暂无阻塞提醒。");
             }
         }
@@ -180,6 +182,10 @@ internal static class KingdomUIAuthoredShellGenerator
 
         RectTransform detail = Rect("DetailPanel", safeArea, new Vector2(1, 0), Vector2.one, new Vector2(-640, 0), new Vector2(-18, -132));
         PanelRect("Surface", detail, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
+#if false
+        bool legacyDetailAuthoringEnabled = false;
+        if (legacyDetailAuthoringEnabled)
+        {
         Label("Accent", detail, "详细信息", 18, Copper, new Vector2(0, 1), Vector2.one, new Vector2(34, -76), new Vector2(-34, -28));
         Label("Body", detail, "请选择项目查看需求、产出和下一步操作。", 24, TextSecondary, Vector2.zero, Vector2.one, new Vector2(34, 540), new Vector2(-34, -110));
         StaticScrollViewport("BuildingOutput", detail, new Vector2(0, 0), new Vector2(1, 0), new Vector2(34, 350), new Vector2(-34, 530), "FlowContent");
@@ -196,6 +202,8 @@ internal static class KingdomUIAuthoredShellGenerator
         Button("Payment", detail, "支付资源", Positive, new Vector2(0, 0), new Vector2(1, 0), new Vector2(34, 96), new Vector2(-34, 160)).gameObject.SetActive(false);
         Button("Action", detail, "SELECT", Copper, new Vector2(0, 0), new Vector2(1, 0), new Vector2(34, 28), new Vector2(-34, 92)).gameObject.SetActive(false);
 
+        }
+#endif
         RectTransform footer = Rect("NotificationBar", safeArea, new Vector2(0, 0), new Vector2(1, 0), new Vector2(288, 18), new Vector2(-658, 110));
         PanelRect("Surface", footer, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
         Label("Text", footer, "SYSTEM READY     ·     TOUCH A SECTION TO CONTINUE", 20, TextSecondary, Vector2.zero, Vector2.one, new Vector2(28, 0), new Vector2(-28, 0));
@@ -286,6 +294,9 @@ internal static class KingdomUIAuthoredShellGenerator
         Image dragImage = dragSurface.gameObject.AddComponent<Image>();
         dragImage.color = Color.clear;
         dragImage.raycastTarget = true;
+        RectTransform lineLayer = Rect("ResearchGraphLineLayer", content, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+        lineLayer.pivot = Vector2.zero;
+        lineLayer.sizeDelta = Vector2.one;
         scroll.content = content;
         viewport.gameObject.AddComponent<UIResearchGraphGesture>();
 

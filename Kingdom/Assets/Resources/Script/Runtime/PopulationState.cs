@@ -73,7 +73,7 @@ public sealed class PopulationState
 
     internal void AdvancePopulation(
         double deltaSeconds,
-        ExpantaNum foodSatisfaction,
+        ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond,
         ExpantaNum departureAllowance)
     {
@@ -87,7 +87,7 @@ public sealed class PopulationState
 
         if (population < populationCapacity)
         {
-            AdvanceGrowth(deltaSeconds, foodSatisfaction, growthRatePerSecond);
+            AdvanceGrowth(deltaSeconds, happinessMultiplier, growthRatePerSecond);
             return;
         }
 
@@ -95,12 +95,12 @@ public sealed class PopulationState
     }
 
     internal ExpantaNum CurrentGrowthRatePerSecond(
-        ExpantaNum foodSatisfaction,
+        ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond)
     {
         if (population >= populationCapacity)
             return ExpantaNum.Zero;
-        ExpantaNum satisfaction = ExpantaNum.Clamp01(foodSatisfaction);
+        ExpantaNum satisfaction = ExpantaNum.Max(ExpantaNum.Zero, happinessMultiplier);
         if (satisfaction <= ExpantaNum.Zero)
             return ExpantaNum.Zero;
         return satisfaction * CalculateLogisticGrowthRate(growthRatePerSecond);
@@ -135,10 +135,10 @@ public sealed class PopulationState
 
     private void AdvanceGrowth(
         double deltaSeconds,
-        ExpantaNum foodSatisfaction,
+        ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond)
     {
-        ExpantaNum satisfaction = ExpantaNum.Clamp01(foodSatisfaction);
+        ExpantaNum satisfaction = ExpantaNum.Max(ExpantaNum.Zero, happinessMultiplier);
         ExpantaNum growthRate = ExpantaNum.Max(
             ExpantaNum.Zero,
             growthRatePerSecond);

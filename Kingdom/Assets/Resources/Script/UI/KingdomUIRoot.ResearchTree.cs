@@ -1353,11 +1353,11 @@ public sealed partial class KingdomUIRoot
         titleLabel.overflowMode = TextOverflowModes.Overflow;
         titleLabel.raycastTarget = false;
         titleLabel.enabled = true;
-        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? research.BaseCost : state.BaseCost.ToGameString(), 12, TextSecondary);
+        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? research.BaseCost : state.BaseCost.ToGameString(), 20, TextSecondary);
         costLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 12, TextSecondary);
+        TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
         progressLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(status), 12, accent);
+        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(status), 20, accent);
         stateLabel.alignment = TextAlignmentOptions.Center;
         // The title is intentionally the last visual child. Era/progress
         // sprites must never cover the research name.
@@ -1427,8 +1427,8 @@ public sealed partial class KingdomUIRoot
     private static void ConfigureResearchNodeLabelRect(RectTransform rect, string name)
     {
         bool title = name == "Label";
-        float left = title ? 0f : name == "Cost" ? .04f : name == "Progress" ? .34f : .67f;
-        float right = title ? 1f : name == "Cost" ? .33f : name == "Progress" ? .66f : .96f;
+        float left = title ? 0f : name == "Cost" ? -.02f : name == "Progress" ? .27f : .67f;
+        float right = title ? 1f : name == "Cost" ? .26f : name == "Progress" ? .66f : 1f;
         rect.anchorMin = new Vector2(left, title ? .34f : 0f);
         rect.anchorMax = new Vector2(right, title ? 1f : .34f);
         rect.offsetMin = new Vector2(title ? 8f : 2f, title ? 0f : 1f);

@@ -762,6 +762,8 @@ public class BuildingManager : Singleton<BuildingManager>
                 ExpantaNum productionMultiplier =
                     modifiers.GetBuildingProductionMultiplier(state.Definition) *
                     modifiers.GlobalBuildingProductionMultiplier;
+                ExpantaNum happinessMultiplier =
+                    GameManager.Instance.State.HappinessRewardMultiplier;
                 ExpantaNum foodProductionMultiplier =
                     modifiers.GetBuildingFoodProductionMultiplier(state.Definition);
 
@@ -770,11 +772,13 @@ public class BuildingManager : Singleton<BuildingManager>
                 potentialFoodConsumption += potentialScale * state.Definition.FoodConsumptionRate;
                 potentialPowerProduction += actualScale * state.Definition.PowerProductionRate
                     * modifiers.PowerMultiplier
-                    * modifiers.GetBuildingPowerProductionMultiplier(state.Definition);
+                    * modifiers.GetBuildingPowerProductionMultiplier(state.Definition)
+                    * happinessMultiplier;
                 potentialPowerConsumption += potentialScale * state.Definition.PowerConsumptionRate;
                 potentialLogisticsProduction += actualScale * state.Definition.LogisticsProductionRate
                     * modifiers.GlobalLogisticsMultiplier
-                    * modifiers.GetBuildingLogisticsProductionMultiplier(state.Definition);
+                    * modifiers.GetBuildingLogisticsProductionMultiplier(state.Definition)
+                    * happinessMultiplier;
                 potentialLogisticsConsumption +=
                     potentialScale * state.Definition.LogisticsConsumptionRate;
 
@@ -786,7 +790,7 @@ public class BuildingManager : Singleton<BuildingManager>
                         (potentialScale - actualScale) * consumption[j].Second);
             }
 
-            GameManager.Instance.PrepareFoodSatisfaction(
+            GameManager.Instance.PrepareHappiness(
                 potentialFoodProduction,
                 potentialFoodConsumption,
                 deltaSeconds);
@@ -815,28 +819,25 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum logisticsSatisfaction = building.LogisticsConsumptionRate > ExpantaNum.Zero
             ? GameManager.Instance.State.LogisticsSatisfaction
             : ExpantaNum.One;
-        ExpantaNum foodSatisfaction = CalculateFoodConstraint(
-            GameManager.Instance.State.FoodSatisfaction);
+        ExpantaNum happinessConstraint =
+            GameManager.Instance.State.HappinessConstraintMultiplier;
         return CalculateEffectiveEfficiency(
             GlobalEfficiencyFactor,
             resourceSatisfaction,
-            foodSatisfaction,
+            happinessConstraint,
             powerSatisfaction,
             logisticsSatisfaction);
     }
 
-    public static ExpantaNum CalculateFoodConstraint(ExpantaNum foodSatisfaction) =>
-        ExpantaNum.Clamp01(foodSatisfaction);
-
     public static ExpantaNum CalculateEffectiveEfficiency(
         ExpantaNum globalEfficiency,
         ExpantaNum resourceSatisfaction,
-        ExpantaNum foodSatisfaction)
+        ExpantaNum happinessConstraint)
     {
         return CalculateEffectiveEfficiency(
             globalEfficiency,
             resourceSatisfaction,
-            foodSatisfaction,
+            happinessConstraint,
             ExpantaNum.One,
             ExpantaNum.One);
     }
@@ -844,14 +845,14 @@ public class BuildingManager : Singleton<BuildingManager>
     public static ExpantaNum CalculateEffectiveEfficiency(
         ExpantaNum globalEfficiency,
         ExpantaNum resourceSatisfaction,
-        ExpantaNum foodSatisfaction,
+        ExpantaNum happinessConstraint,
         ExpantaNum powerSatisfaction,
         ExpantaNum logisticsSatisfaction)
     {
         return ExpantaNum.Clamp01(
             globalEfficiency *
             ExpantaNum.Clamp01(resourceSatisfaction) *
-            ExpantaNum.Clamp01(foodSatisfaction) *
+            ExpantaNum.Clamp01(happinessConstraint) *
             ExpantaNum.Clamp01(powerSatisfaction) *
             ExpantaNum.Clamp01(logisticsSatisfaction));
     }

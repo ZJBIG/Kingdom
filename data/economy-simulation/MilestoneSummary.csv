@@ -1,8 +1,8 @@
 Milestone,TimeSeconds,Minute
 Animal,0,0
-Neolithic,5575,92.917
-Medieval,21387,356.45
-Industrial,37086,618.1
+Neolithic,5796,96.6
+Medieval,36109,601.817
+Industrial,59579,992.983
 Snapshot10m,600,10
 Snapshot60m,3600,60
 Snapshot240m,14400,240

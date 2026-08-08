@@ -113,7 +113,7 @@ public sealed class KingdomPlayModeTests
 
         Assert.That(farm.Efficiency, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(gameManager.State.FoodSatisfaction, Is.EqualTo(ExpantaNum.One));
+        Assert.That(gameManager.State.HappinessMultiplier, Is.GreaterThanOrEqualTo(ExpantaNum.One));
     }
 
     [UnityTest]
@@ -180,6 +180,35 @@ public sealed class KingdomPlayModeTests
         applicationPause.Invoke(simulationManager, new object[] { true });
         applicationPause.Invoke(simulationManager, new object[] { false });
         Assert.That(simulationManager.IsRunning, Is.False);
+    }
+
+
+    [UnityTest]
+    public IEnumerator OverviewDevelopmentGuidance_IsReadOnlyAndUnique()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return new WaitForSecondsRealtime(1.25f);
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null);
+        Transform primaryCard = root.transform.Find(
+            "SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
+        Assert.That(primaryCard, Is.Not.Null, "Overview must contain its authored PrimaryCard.");
+        TMP_Text body = primaryCard.Find("Text")?.GetComponent<TMP_Text>();
+        Assert.That(body, Is.Not.Null);
+        Assert.That(body.text, Is.Not.Empty);
+        Assert.That(body.rectTransform.rect.height, Is.GreaterThan(0f),
+            "Development guidance Body must not have a negative or zero height.");
+
+        SimulationManager simulation = Object.FindObjectOfType<SimulationManager>();
+        GameManager game = Object.FindObjectOfType<GameManager>();
+        Assert.That(simulation, Is.Not.Null);
+        Assert.That(game, Is.Not.Null);
+        simulation.SetRunning(false);
+        int versionBeforeRefresh = game.State.Version;
+        yield return new WaitForSecondsRealtime(.2f);
+        Assert.That(game.State.Version, Is.EqualTo(versionBeforeRefresh),
+            "Refreshing guidance must not mutate GameState.");
     }
 
 
@@ -383,7 +412,9 @@ public sealed class KingdomPlayModeTests
         Transform detailPanel = root.transform.Find("SafeAreaRoot/DetailPanel");
         Assert.That(detailPanel, Is.Not.Null, "SafeAreaRoot/DetailPanel is missing under KingdomUIRoot.");
 
-        Transform detailViewport = detailPanel.Find("DetailScrollViewport");
+        Transform detailUI = detailPanel.Find("DetailUI");
+        Assert.That(detailUI, Is.Not.Null, "DetailUI runtime root is missing under DetailPanel.");
+        Transform detailViewport = detailUI.Find("DetailScrollViewport");
         Transform detailContent = detailViewport == null ? null : detailViewport.Find("DetailScrollContent");
         Assert.That(detailViewport, Is.Not.Null, "DetailPanel must expose one runtime scroll viewport.");
         Assert.That(detailContent, Is.Not.Null, "DetailScrollContent is missing under DetailScrollViewport.");
@@ -393,14 +424,12 @@ public sealed class KingdomPlayModeTests
             "DetailScrollContent must be repaired after the initial layout pass.");
         ScrollRect detailScroll = detailViewport.GetComponent<ScrollRect>();
         Assert.That(detailScroll, Is.Not.Null);
-        Assert.That(detailScroll.enabled, Is.True);
+        Assert.That(detailScroll.enabled, Is.False,
+            "The native ScrollRect is a geometry owner only; DetailUIInteraction owns dragging.");
         Assert.That(detailScroll.content, Is.SameAs(detailContent));
-        Transform surface = detailPanel.Find("Surface");
-        Transform accent = detailPanel.Find("Accent");
-        if (surface != null)
-            Assert.That(surface.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
-        if (accent != null)
-            Assert.That(accent.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
+        Transform header = detailUI.Find("Header");
+        Assert.That(header, Is.Not.Null);
+        Assert.That(header.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
 
         Transform requirements = detailContent.Find("BuildingRequirements");
         Transform flows = detailContent.Find("BuildingOutput");
@@ -408,10 +437,14 @@ public sealed class KingdomPlayModeTests
         Assert.That(flows, Is.Not.Null, "BuildingOutput is missing under DetailScrollContent.");
         Assert.That(requirements.parent, Is.SameAs(detailContent));
         Assert.That(flows.parent, Is.SameAs(detailContent));
-        Assert.That(requirements.GetComponent<ScrollRect>().enabled, Is.False);
-        Assert.That(flows.GetComponent<ScrollRect>().enabled, Is.False);
-        Assert.That(requirements.GetComponent<RectMask2D>().enabled, Is.False);
-        Assert.That(flows.GetComponent<RectMask2D>().enabled, Is.False);
+        Assert.That(requirements.GetComponent<ScrollRect>(), Is.Null,
+            "Requirements must not contain a nested ScrollRect.");
+        Assert.That(flows.GetComponent<ScrollRect>(), Is.Null,
+            "Flows must not contain a nested ScrollRect.");
+        Assert.That(requirements.GetComponent<RectMask2D>(), Is.Null,
+            "Requirements must not contain a nested mask.");
+        Assert.That(flows.GetComponent<RectMask2D>(), Is.Null,
+            "Flows must not contain a nested mask.");
 
         Transform bodyTransform = detailContent.Find("Body");
         Assert.That(bodyTransform, Is.Not.Null, "Detail body is missing under DetailScrollContent.");

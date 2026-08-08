@@ -189,8 +189,9 @@ public class ResourceManager : Singleton<ResourceManager>
 
     internal void BeginTick()
     {
+        ExpantaNum happinessMultiplier = GetHappinessRewardMultiplier();
         for (int i = 0; i < orderedStates.Count; i++)
-            orderedStates[i].BeginTick();
+            orderedStates[i].BeginTick(happinessMultiplier);
     }
 
     internal void AdjustTickPotentialProduction(Resource resource, ExpantaNum delta)
@@ -214,16 +215,23 @@ public class ResourceManager : Singleton<ResourceManager>
 
     public void Tick(double deltaSeconds)
     {
+        ExpantaNum happinessMultiplier = GetHappinessRewardMultiplier();
         for (int i = 0; i < orderedStates.Count; i++)
         {
             ResourceState state = orderedStates[i];
             state.SetAmount(AdvanceAmount(
                 state.Amount,
-                state.ProductionRate,
+                state.ProductionRate * happinessMultiplier,
                 state.ConsumptionRate,
                 deltaSeconds));
         }
 
+    }
+
+    private static ExpantaNum GetHappinessRewardMultiplier()
+    {
+        GameManager gameManager = GameManager.Instance;
+        return gameManager?.State?.HappinessRewardMultiplier ?? ExpantaNum.One;
     }
 
     private void InsertOrdered(ResourceState state)

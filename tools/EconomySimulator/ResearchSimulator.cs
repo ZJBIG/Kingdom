@@ -85,7 +85,14 @@ public static class ResearchSimulator
         double speed=ResearchPower(s,all.Where(
                 x=>x.Kind==DefinitionKind.Building).ToArray(),all)*
             EconomySimulationParity.ResearchSpeedEffect(
-                (int)s.TechLevel,(int)t.Definition.TechLevel)*deltaSeconds;
+                (int)s.TechLevel,(int)t.Definition.TechLevel)*
+            ResourceSimulator.CalculateHappinessMultiplier(
+                ResourceSimulator.CalculateFoodNetRate(
+                    s,
+                    all.Where(x=>x.Kind==DefinitionKind.Building).ToArray(),
+                    deltaSeconds),
+                s.Population,
+                s.FoodAvailability)*deltaSeconds;
         t.Progress+=speed;
         if(t.Progress<t.Definition.BaseCost)
             return;

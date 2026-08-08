@@ -41,12 +41,13 @@ public sealed class ResourceState
         SetProductionRate(ExpantaNum.Zero);
         SetConsumptionRate(ExpantaNum.Zero);
         SetEfficiency(ExpantaNum.One);
-        BeginTick();
+        BeginTick(ExpantaNum.One);
     }
 
-    internal void BeginTick()
+    internal void BeginTick(ExpantaNum productionMultiplier)
     {
-        tickPotentialProductionRate = productionRate;
+        tickPotentialProductionRate = productionRate *
+            ExpantaNum.Max(ExpantaNum.One, productionMultiplier);
         tickPotentialConsumptionRate = consumptionRate;
         tickSatisfaction = ExpantaNum.One;
         hasTickSatisfaction = false;
