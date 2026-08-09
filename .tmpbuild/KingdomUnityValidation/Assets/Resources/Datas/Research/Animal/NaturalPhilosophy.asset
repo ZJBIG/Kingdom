@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: NaturalPhilosophy
+  m_EditorClassIdentifier: 
+  id: NaturalPhilosophy
+  Label: "\u81EA\u7136\u54F2\u5B66"
+  Description: "\u901A\u8FC7\u7CFB\u7EDF\u89C2\u5BDF\u3001\u5206\u7C7B\u3001\u6BD4\u8F83\u548C\u56E0\u679C\u63A8\u6D4B\u89E3\u91CA\u81EA\u7136\u73B0\u8C61\uFF0C\u628A\u8349\u836F\u3001\u5929\u8C61\u3001\u6750\u6599\u4E0E\u751F\u7269\u7ECF\u9A8C\u6574\u7406\u4E3A\u53EF\u8BA8\u8BBA\u7684\u77E5\u8BC6\u4F53\u7CFB\u3002"
+  BaseCost: 2800
+  prerequisites:
+  - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}
+  - {fileID: 11400000, guid: 79e477959af987c4f8d85bb6608e0009, type: 2}
+  - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 40
+      layer: 0
+      operators: []
+  effects:
+  - Type: 13
+    Building: {fileID: 11400000, guid: 3825ecb63e62e434e9515a413cdda5b5, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  - Type: 13
+    Building: {fileID: 11400000, guid: 993b9a61d8cb26646b5a0c64ff934266, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  - Type: 13
+    Building: {fileID: 11400000, guid: 704f8c01123417d4e815763f95a5c807, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.08
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 4
+  y: 14

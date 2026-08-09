@@ -1,0 +1,184 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: CharcoalKiln
+  m_EditorClassIdentifier: 
+  id: CharcoalKiln
+  Label: "\u70AD\u7A91"
+  Description: "\u5728\u7F3A\u6C27\u7A91\u4F53\u4E2D\u70AD\u5316\u6728\u6750\uFF0C\u751F\u4EA7\u9002\u5408\u51B6\u70BC\u548C\u9AD8\u6E29\u52A0\u5DE5\u7684\u6728\u70AD\u3002"
+  TechLevel: 1
+  upgradeTo: {fileID: 0}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.16
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 4
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 5
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  resourceGenerationRates:
+  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.8
+      layer: 0
+      operators: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2
+      layer: 0
+      operators: []
+  requiredResearch:
+  - {fileID: 11400000, guid: ac51a609475a42542b09c5557ae95f8a, type: 2}
+  requiredWorkshopUpgrades: []

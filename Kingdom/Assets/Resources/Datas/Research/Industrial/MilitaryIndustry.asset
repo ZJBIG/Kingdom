@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MilitaryIndustry
   m_EditorClassIdentifier: 
   id: MilitaryIndustry
-  Label: "\u5DE5\u4E1A\u6807\u51C6\u5316"
-  Description: "\u6574\u5408\u5DE5\u4E1A\u6807\u51C6\u3001\u6D41\u7A0B\u548C\u8D28\u91CF\u63A7\u5236\uFF0C\u5C06\u5927\u89C4\u6A21\u751F\u4EA7\u6269\u5C55\u5230\u5404\u7C7B\u6C11\u7528\u5DE5\u4E1A\u3002"
+  Label: "\u519B\u5DE5\u4F53\u7CFB"
+  Description: "\u6574\u5408\u94A2\u6750\u3001\u673A\u68B0\u4E0E\u5316\u5B66\u5DE5\u4E1A\uFF0C\u5EFA\u7ACB\u9762\u5411\u592A\u7A7A\u8230\u961F\u7684\u5927\u89C4\u6A21\u519B\u5DE5\u5236\u9020\u4F53\u7CFB\u3002"
   BaseCost: 1350000
   prerequisites:
   - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}
@@ -65,7 +65,6 @@ MonoBehaviour:
   - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -73,7 +72,15 @@ MonoBehaviour:
       scalar: 1.1
       layer: 0
       operators: []
+  - Type: 1
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 24
-  y: 7

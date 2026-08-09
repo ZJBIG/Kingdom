@@ -35,7 +35,7 @@ MonoBehaviour:
       scalar: 100
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
@@ -44,10 +44,9 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 9
+  - Type: 18
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: industrial-workshop
     Value:
       sign: 0
       representation: 1
@@ -57,5 +56,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 15
-  y: 13

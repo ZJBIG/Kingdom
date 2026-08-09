@@ -64,7 +64,6 @@ MonoBehaviour:
   - Type: 1
     Building: {fileID: 11400000, guid: 93ee90d2ae7a9ba48b01c81b25f4ba2b, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -75,7 +74,6 @@ MonoBehaviour:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -86,7 +84,6 @@ MonoBehaviour:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -96,5 +93,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 18
-  y: 17

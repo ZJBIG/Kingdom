@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: IndustrialMetalSmelting
+  m_EditorClassIdentifier: 
+  id: IndustrialMetalSmelting
+  Label: "\u5DE5\u4E1A\u6709\u8272\u91D1\u5C5E\u51B6\u70BC"
+  Description: "\u7EDF\u4E00\u5DE5\u4E1A\u7089\u4F53\u540C\u65F6\u51B6\u70BC\u94DC\u77FF\u4E0E\u9521\u77FF\uFF0C\u51CF\u5C11\u91CD\u590D\u5EFA\u7B51\u5E76\u4E3A\u9752\u94DC\u94F8\u9020\u63D0\u4F9B\u539F\u6599\u3002"
+  BaseCost: 360000
+  prerequisites:
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 350
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 301
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 294
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 294
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 280
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 154
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0

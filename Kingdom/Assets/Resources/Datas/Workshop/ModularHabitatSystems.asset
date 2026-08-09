@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ModularHabitatSystems
+  m_EditorClassIdentifier: 
+  id: ModularHabitatSystems
+  Label: "模块化空间舱"
+  Description: "用标准化陶瓷隔热层、铝合金骨架和电子控制模块提高轨道空间站的扩建效率。"
+  Category: "航天"
+  SortOrder: 420
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: e6b4c8d2f0a19375be46d9c1a7f20583, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 700
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 350
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 320
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 0a489615492d2dc4bb0a82376c76c3e8, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.25
+      layer: 0
+      operators: []

@@ -21,7 +21,7 @@ public class IndustrialWorkshopAvailabilityTests
     }
 
     [Test]
-    public void AddedIndustrialResearchHasRequirementsEffectsAndNoCoordinates()
+    public void AddedIndustrialResearchHasRequirementsAndEffects()
     {
         string[] ids =
         {
@@ -41,8 +41,6 @@ public class IndustrialWorkshopAvailabilityTests
             Assert.That(research.Description, Is.Not.Empty, ids[i]);
             Assert.That(research.ResourceRequirements.Count, Is.GreaterThan(0), ids[i]);
             Assert.That(research.Effects.Count, Is.GreaterThan(0), ids[i]);
-            Assert.That(research.x, Is.EqualTo(0f), ids[i]);
-            Assert.That(research.y, Is.EqualTo(0f), ids[i]);
         }
     }
 
@@ -110,6 +108,53 @@ public class IndustrialWorkshopAvailabilityTests
         }
 
         Assert.That(found, Is.True);
+    }
+
+    [Test]
+    public void DeepOilDrillingAddsARealResearchAndWorkshopProgression()
+    {
+        Research research = Resources.Load<Research>("Datas/Research/Industrial/DeepOilDrilling");
+        Assert.That(research, Is.Not.Null, "深层石油钻探研究必须存在。");
+        Assert.That(research.ResourceRequirements.Count, Is.EqualTo(4));
+        Assert.That(research.Prerequisites, Has.Some.Matches<Research>(x =>
+            x != null && x.Id == "IndustrialChemistry"));
+        Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(x =>
+            x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
+            x.Building != null && x.Building.Id == "OilDerrick" &&
+            x.Value.ToDouble() >= 1.25d));
+
+        WorkshopUpgradeDefinition workshop =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/RotaryDrillingHeads");
+        Assert.That(workshop, Is.Not.Null, "旋转钻头组工坊必须存在。");
+        Assert.That(workshop.ResourceRequirements.Count, Is.EqualTo(4));
+        Assert.That(workshop.RequiredResearch, Has.Some.Matches<Research>(x =>
+            x != null && x.Id == "DeepOilDrilling"));
+        Assert.That(workshop.RequiredUpgrades, Has.Some.Matches<WorkshopUpgradeDefinition>(x =>
+            x != null && x.Id == "ChemicalCatalysts"));
+        Assert.That(workshop.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
+            x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
+            x.Building != null && x.Building.Id == "OilDerrick" &&
+            x.Value.ToDouble() >= 1.20d));
+
+        Research explosivesResearch =
+            Resources.Load<Research>("Datas/Research/Industrial/IndustrialExplosives");
+        Assert.That(explosivesResearch, Is.Not.Null, "工业炸药工艺研究必须存在。");
+        Assert.That(explosivesResearch.ResourceRequirements.Count, Is.EqualTo(4));
+        Assert.That(explosivesResearch.Effects, Has.Some.Matches<ResearchEffectDefinition>(x =>
+            x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
+            x.Building != null && x.Building.Id == "ChemicalPlant" &&
+            x.Value.ToDouble() >= 1.25d));
+
+        WorkshopUpgradeDefinition blasting =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/ControlledBlasting");
+        Assert.That(blasting, Is.Not.Null, "精确爆破工艺工坊必须存在。");
+        Assert.That(blasting.ResourceRequirements.Count, Is.EqualTo(4));
+        Assert.That(blasting.Effects.Count, Is.EqualTo(3));
+        foreach (string buildingId in new[] { "BauxiteMine", "RareMetalMine", "OilDerrick" })
+            Assert.That(blasting.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
+                x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
+                x.Building != null && x.Building.Id == buildingId &&
+                x.Value.ToDouble() >= 1.15d), buildingId);
     }
 
     private static void AssertWorkshop(

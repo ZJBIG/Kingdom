@@ -39,6 +39,7 @@ public sealed class PreSpacerCombatRemovalTests
         AssertGlobalMultiplier("StandingArmy", 1.06d);
         AssertGlobalMultiplier("Gunpowder", 1.07d);
         AssertGlobalMultiplier("MilitaryIndustry", 1.10d);
+        AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory", 1.20d);
     }
 
     [Test]
@@ -54,6 +55,16 @@ public sealed class PreSpacerCombatRemovalTests
         Assert.That(research, Is.Not.Null, id);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == ResearchEffectType.GlobalBuildingProductionMultiplier &&
+            effect.Value.ToDouble() == expected));
+    }
+
+    private static void AssertBuildingMultiplier(string researchId, string buildingId, double expected)
+    {
+        Research research = DataBase<Research>.Find(researchId);
+        Assert.That(research, Is.Not.Null, researchId);
+        Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
+            effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
+            effect.Building != null && effect.Building.Id == buildingId &&
             effect.Value.ToDouble() == expected));
     }
 }

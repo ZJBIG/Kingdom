@@ -15,7 +15,7 @@ MonoBehaviour:
   id: FeudalAdministration
   Label: "\u5C01\u5EFA\u884C\u653F"
   Description: "\u5EFA\u7ACB\u5206\u7EA7\u5C01\u5730\u3001\u8D4B\u7A0E\u767B\u8BB0\u548C\u5730\u65B9\u5B98\u7F72\u4F53\u7CFB\uFF0C\u4F7F\u5206\u6563\u9886\u5730\u80FD\u591F\u5728\u7A33\u5B9A\u6743\u8D23\u5173\u7CFB\u4E0B\u88AB\u6301\u7EED\u6CBB\u7406\u3002"
-  BaseCost: 80000
+  BaseCost: 50000
   prerequisites: []
   resourceRequirements:
   - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
@@ -38,7 +38,6 @@ MonoBehaviour:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -46,18 +45,5 @@ MonoBehaviour:
       scalar: 25
       layer: 0
       operators: []
-  - Type: 9
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    SystemId: feudal-administration
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1
-      layer: 0
-      operators: []
   TechLevel: 2
   AdvancesTechLevel: 1
-  x: 10
-  y: 16

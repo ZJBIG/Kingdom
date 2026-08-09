@@ -15,6 +15,7 @@ public sealed partial class KingdomUIRoot
     {
         public Building Building;
         public ExpantaNum Rate;
+        public bool Active;
     }
 
     private void ShowDetails(string title, string description, string id)
@@ -219,10 +220,14 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("库存: " + amount.ToGameString());
         text.AppendLine(("产出: +" + production.ToGameString()).Colorize(Positive));
         for (int i = 0; i < producers.Count; i++)
-            text.AppendLine("       --" + producers[i].Building.Label + ": " + ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
+            text.AppendLine("       --" + producers[i].Building.Label +
+                (producers[i].Active ? string.Empty : "（待建造）") + ": " +
+                ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
         text.AppendLine(("消耗: -" + consumption.ToGameString()).Colorize(Error));
         for (int i = 0; i < consumers.Count; i++)
-            text.AppendLine("       --" + consumers[i].Building.Label + ": " + ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
+            text.AppendLine("       --" + consumers[i].Building.Label +
+                (consumers[i].Active ? string.Empty : "（待建造）") + ": " +
+                ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
         text.AppendLine(("净变化: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
         detailBody.text = text.ToString();
         detailBody.richText = true;
@@ -241,7 +246,11 @@ public sealed partial class KingdomUIRoot
         {
             Building building = entry.Key;
             BuildingState state = entry.Value;
-            if (building == null || state == null || state.Amount <= ExpantaNum.Zero)
+            if (building == null || state == null)
+                continue;
+
+            bool active = state.Amount > ExpantaNum.Zero;
+            if (!active && !BuildingManager.Instance.ArePrerequisitesMet(building, out _))
                 continue;
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> flows = production
@@ -257,19 +266,29 @@ public sealed partial class KingdomUIRoot
             if (rate <= ExpantaNum.Zero)
                 continue;
 
-            rate *= state.Amount * state.Efficiency;
-            if (production)
+            if (active)
             {
-                rate *= modifiers.GetBuildingProductionMultiplier(building);
-                rate *= modifiers.GlobalBuildingProductionMultiplier;
-                rate *= modifiers.GetResourceProductionMultiplier(resource);
+                rate *= state.Amount * state.Efficiency;
+                if (production)
+                {
+                    rate *= modifiers.GetBuildingProductionMultiplier(building);
+                    rate *= modifiers.GlobalBuildingProductionMultiplier;
+                    rate *= modifiers.GetResourceProductionMultiplier(resource);
+                }
             }
-            if (rate > ExpantaNum.Zero)
-                result.Add(new ResourceBuildingFlow { Building = building, Rate = rate });
+            result.Add(new ResourceBuildingFlow
+            {
+                Building = building,
+                Rate = rate,
+                Active = active
+            });
         }
 
         result.Sort((left, right) =>
         {
+            int byActive = right.Active.CompareTo(left.Active);
+            if (byActive != 0)
+                return byActive;
             int byRate = right.Rate.CompareTo(left.Rate);
             return byRate != 0
                 ? byRate

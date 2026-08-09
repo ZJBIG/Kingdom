@@ -65,6 +65,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool topStatusDataErrorLogged;
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
+    private bool detailGeometryLogged;
+    private Vector2 lastDetailViewportSize;
+    private Vector2 lastDetailContentSize;
     private BuildingQuantityMode buildingQuantityMode = BuildingQuantityMode.One;
     private ExpantaNum customBuildingQuantity = ExpantaNum.One;
     private TMP_InputField customQuantityInput;
@@ -458,6 +461,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 break;
             case "Music":
                 BuildMusicPage(rows);
+                break;
+            case "Sectors":
+                BuildSectorRows(rows);
                 break;
             default:
                 break;

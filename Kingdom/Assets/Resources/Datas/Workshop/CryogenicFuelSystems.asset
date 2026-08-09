@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: CryogenicFuelSystems
+  m_EditorClassIdentifier: 
+  id: CryogenicFuelSystems
+  Label: "低温推进剂系统"
+  Description: "通过低温储存、精确输送和回收技术提高火箭燃料的有效产出。"
+  Category: "航天"
+  SortOrder: 440
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: e6b4c8d2f0a19375be46d9c1a7f20583, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 200
+      layer: 0
+      operators: []
+  effects:
+  - Type: 2
+    Building: {fileID: 0}
+    Resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.3
+      layer: 0
+      operators: []

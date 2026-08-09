@@ -41,7 +41,7 @@ public static class EconomyDependencyValidator
                 continue;
             if (upgrade.RequiredResearch.Count == 0 && upgrade.RequiredUpgrades.Count == 0)
             {
-                error = $"Workshop upgrade '{upgrade.Id}' has no prerequisite.";
+                error = $"工坊升级“{upgrade.Id}”缺少前置条件。";
                 return false;
             }
             for (int j = 0; j < upgrade.RequiredUpgrades.Count; j++)
@@ -49,12 +49,12 @@ public static class EconomyDependencyValidator
                 WorkshopUpgradeDefinition prerequisite = upgrade.RequiredUpgrades[j];
                 if (prerequisite == null || !known.Contains(prerequisite))
                 {
-                    error = $"Workshop upgrade '{upgrade.Id}' has an invalid workshop prerequisite.";
+                    error = $"工坊升级“{upgrade.Id}”包含无效的工坊前置条件。";
                     return false;
                 }
                 if (ReferenceEquals(upgrade, prerequisite))
                 {
-                    error = $"Workshop upgrade '{upgrade.Id}' requires itself.";
+                    error = $"工坊升级“{upgrade.Id}”不能要求自身作为前置。";
                     return false;
                 }
             }
@@ -85,7 +85,7 @@ public static class EconomyDependencyValidator
         }
         if (!visiting.Add(current))
         {
-            error = $"Workshop prerequisite cycle includes '{current.Id}'.";
+            error = $"工坊前置条件存在循环，涉及“{current.Id}”。";
             return true;
         }
         for (int i = 0; i < current.RequiredUpgrades.Count; i++)
@@ -207,7 +207,7 @@ public static class EconomyDependencyValidator
 
         if (blockedDefinitions.Count > 0)
         {
-            error = "Unreachable content definitions:\n" + string.Join("\n", blockedDefinitions);
+            error = "存在无法到达的内容定义：\n" + string.Join("\n", blockedDefinitions);
             return false;
         }
 
@@ -223,14 +223,14 @@ public static class EconomyDependencyValidator
     {
         for (int i = 0; i < building.RequiredResearch.Count; i++)
             if (!research.Contains(building.RequiredResearch[i]))
-                return $"{building.Id} -> requires {building.RequiredResearch[i].Id} -> research is unreachable";
+                return $"{building.Id} -> 需要研究 {building.RequiredResearch[i].Id} -> 研究不可达";
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
             if (!upgrades.Contains(building.RequiredWorkshopUpgrades[i]))
-                return $"{building.Id} -> requires {building.RequiredWorkshopUpgrades[i].Id} -> workshop upgrade is unreachable";
+                return $"{building.Id} -> 需要工坊升级 {building.RequiredWorkshopUpgrades[i].Id} -> 工坊升级不可达";
         Resource missing = FirstMissingCost(building.ResourceRequirements, resources);
         return missing == null
-            ? $"{building.Id} -> era is unreachable"
-            : $"{building.Id} -> costs {missing.Id} -> no reachable producer";
+            ? $"{building.Id} -> 所属时代不可达"
+            : $"{building.Id} -> 需要 {missing.Id} -> 没有可达的生产者";
     }
 
     private static string DescribeBlockedResearch(
@@ -245,8 +245,8 @@ public static class EconomyDependencyValidator
             }
         Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
         return missing == null
-            ? $"{value.Id} -> era transition is unreachable"
-            : $"{value.Id} -> costs {missing.Id} -> no reachable producer";
+            ? $"{value.Id} -> 时代跃迁不可达"
+            : $"{value.Id} -> 需要 {missing.Id} -> 没有可达的生产者";
     }
 
     private static void AppendResearchTrace(
@@ -260,7 +260,7 @@ public static class EconomyDependencyValidator
             return;
         if (!visiting.Add(value))
         {
-            trace.Append(indent).Append(value.Id).Append(" -> dependency cycle detected\n");
+            trace.Append(indent).Append(value.Id).Append(" -> 检测到依赖循环\n");
             return;
         }
 
@@ -272,9 +272,9 @@ public static class EconomyDependencyValidator
 
             trace.Append(indent)
                 .Append(value.Id)
-                .Append(" -> requires ")
+                .Append(" -> 需要 ")
                 .Append(prerequisite == null ? "<null>" : prerequisite.Id)
-                .Append(" -> research is unreachable\n");
+                .Append(" -> 研究不可达\n");
             AppendResearchTrace(prerequisite, reachable, visiting, trace, indent + "  ");
         }
 
@@ -289,14 +289,14 @@ public static class EconomyDependencyValidator
     {
         for (int i = 0; i < value.RequiredResearch.Count; i++)
             if (!research.Contains(value.RequiredResearch[i]))
-                return $"{value.Id} -> requires {value.RequiredResearch[i].Id} -> research is unreachable";
+                return $"{value.Id} -> 需要研究 {value.RequiredResearch[i].Id} -> 研究不可达";
         for (int i = 0; i < value.RequiredUpgrades.Count; i++)
             if (!upgrades.Contains(value.RequiredUpgrades[i]))
-                return $"{value.Id} -> requires {value.RequiredUpgrades[i].Id} -> workshop upgrade is unreachable";
+                return $"{value.Id} -> 需要工坊升级 {value.RequiredUpgrades[i].Id} -> 工坊升级不可达";
         Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
         return missing == null
-            ? $"{value.Id} -> industrial-workshop is not unlocked"
-            : $"{value.Id} -> costs {missing.Id} -> no reachable producer";
+            ? $"{value.Id} -> 工业工坊系统尚未解锁"
+            : $"{value.Id} -> 需要 {missing.Id} -> 没有可达的生产者";
     }
 
     private static Resource FirstMissingCost(
@@ -346,12 +346,12 @@ public static class EconomyDependencyValidator
                 Research value = building.RequiredResearch[j];
                 if (value == null)
                 {
-                    error = $"Building '{building.Id}' has a null research prerequisite.";
+                    error = $"建筑“{building.Id}”包含空的研究前置条件。";
                     return false;
                 }
                 if (!research.Add(value))
                 {
-                    error = $"Building '{building.Id}' has duplicate research prerequisite '{value.Id}'.";
+                    error = $"建筑“{building.Id}”重复声明研究前置条件“{value.Id}”。";
                     return false;
                 }
             }
@@ -361,12 +361,12 @@ public static class EconomyDependencyValidator
                 WorkshopUpgradeDefinition value = building.RequiredWorkshopUpgrades[j];
                 if (value == null)
                 {
-                    error = $"Building '{building.Id}' has a null workshop prerequisite.";
+                    error = $"建筑“{building.Id}”包含空的工坊前置条件。";
                     return false;
                 }
                 if (!upgrades.Add(value))
                 {
-                    error = $"Building '{building.Id}' has duplicate workshop prerequisite '{value.Id}'.";
+                    error = $"建筑“{building.Id}”重复声明工坊前置条件“{value.Id}”。";
                     return false;
                 }
             }
@@ -436,7 +436,7 @@ public static class EconomyDependencyValidator
             for (int i = Math.Max(0, start); i < path.Count; i++)
                 ids.Add(path[i].Id);
             ids.Add(current.Id);
-            error = "Production recipe cycle: " + string.Join(" -> ", ids);
+            error = "生产配方存在循环依赖：" + string.Join(" -> ", ids);
             return true;
         }
 
@@ -488,7 +488,7 @@ public static class EconomyDependencyValidator
                 Resource resource = building.ResourceRequirements[j].First;
                 if (OnlyProducerIs(producers, resource, building))
                 {
-                    error = $"{building.Id} -> costs {resource.Id} -> produced only by {building.Id}";
+                    error = $"{building.Id} -> 需要 {resource.Id} -> 该资源只能由自身生产";
                     return false;
                 }
             }
@@ -500,8 +500,8 @@ public static class EconomyDependencyValidator
                     Resource resource = upgrade.ResourceRequirements[j].First;
                     if (OnlyProducerIs(producers, resource, building))
                     {
-                        error = $"{building.Id} -> requires {upgrade.Id} -> costs {resource.Id} " +
-                            $"-> produced only by {building.Id}";
+                        error = $"{building.Id} -> 需要工坊升级 {upgrade.Id} -> 消耗 {resource.Id} " +
+                            $"-> 该资源只能由自身生产";
                         return false;
                     }
                 }
@@ -514,8 +514,8 @@ public static class EconomyDependencyValidator
                     Resource resource = research.ResourceRequirements[j].First;
                     if (OnlyProducerIs(producers, resource, building))
                     {
-                        error = $"{building.Id} -> requires {research.Id} -> costs {resource.Id} " +
-                            $"-> produced only by {building.Id}";
+                        error = $"{building.Id} -> 需要研究 {research.Id} -> 消耗 {resource.Id} " +
+                            $"-> 该资源只能由自身生产";
                         return false;
                     }
                 }

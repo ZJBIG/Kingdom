@@ -88,7 +88,6 @@ MonoBehaviour:
   - Type: 11
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -99,7 +98,6 @@ MonoBehaviour:
   - Type: 1
     Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -109,5 +107,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 23
-  y: 20

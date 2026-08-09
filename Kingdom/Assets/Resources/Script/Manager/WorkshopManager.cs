@@ -16,7 +16,6 @@ public enum WorkshopPurchaseFailure
 
 public sealed class WorkshopManager : Singleton<WorkshopManager>
 {
-    public const string WorkshopSystemId = "industrial-workshop";
     private readonly Dictionary<WorkshopUpgradeDefinition, WorkshopUpgradeState> states = new();
     private readonly List<WorkshopUpgradeState> orderedStates = new();
 
@@ -36,7 +35,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     }
 
     public bool IsSystemUnlocked =>
-        ProgressionModifierManager.Current.IsSystemUnlocked(WorkshopSystemId);
+        ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop);
 
     public bool IsPurchased(WorkshopUpgradeDefinition definition) =>
         definition != null && states.TryGetValue(definition, out WorkshopUpgradeState state) && state.Purchased;

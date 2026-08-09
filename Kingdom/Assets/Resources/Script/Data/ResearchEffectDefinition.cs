@@ -10,7 +10,6 @@ public enum ResearchEffectType
     FoodCapacityMultiplier = 6,
     ProductivityGranted = 7,
     TerritoryGranted = 8,
-    UnlockSystem = 9,
     MilitaryMultiplier = 10,
     PowerMultiplier = 11,
     GlobalBuildingProductionMultiplier = 12,
@@ -18,7 +17,20 @@ public enum ResearchEffectType
     BuildingPowerProductionMultiplier = 14,
     BuildingLogisticsProductionMultiplier = 15,
     GlobalLogisticsMultiplier = 16,
-    PopulationGrowthMultiplier = 17
+    PopulationGrowthMultiplier = 17,
+    UnlockIndustrialWorkshop = 18,
+    UnlockFirstContact = 19,
+    UnlockDeepSpaceFleet = 20,
+    UnlockInterstellarNavigation = 21
+}
+
+public enum ResearchSystem
+{
+    None = 0,
+    IndustrialWorkshop = 1,
+    FirstContact = 2,
+    DeepSpaceFleet = 3,
+    InterstellarNavigation = 4
 }
 
 [Serializable]
@@ -27,6 +39,5 @@ public sealed class ResearchEffectDefinition
     public ResearchEffectType Type;
     public Building Building;
     public Resource Resource;
-    public string SystemId;
     public ExpantaNum Value = ExpantaNum.One;
 }

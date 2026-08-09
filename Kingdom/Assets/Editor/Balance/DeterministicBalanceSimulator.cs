@@ -342,8 +342,7 @@ namespace Kingdom.EditorTools
             {
                 bool systemUnlocked = completedResearch.Any(value =>
                     value.Effects.Any(effect =>
-                        effect.Type == ResearchEffectType.UnlockSystem &&
-                        effect.SystemId == WorkshopManager.WorkshopSystemId));
+                        effect.Type == ResearchEffectType.UnlockIndustrialWorkshop));
                 if (!systemUnlocked)
                     return;
 

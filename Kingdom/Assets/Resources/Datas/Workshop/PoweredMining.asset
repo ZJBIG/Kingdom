@@ -62,26 +62,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 0
-    Building: {fileID: 11400000, guid: a58f0978a55e659428bac68f22a46273, type: 2}
-    Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.2
-      layer: 0
-      operators: []
-  - Type: 0
-    Building: {fileID: 11400000, guid: 365e04bea8fa9ac4b8cf6dc678f9c59e, type: 2}
-    Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.2
-      layer: 0
-      operators: []
-  - Type: 0
     Building: {fileID: 11400000, guid: 79c6c80f9f097f540a55b1fad92135bd, type: 2}
     Resource: {fileID: 0}
     Value:

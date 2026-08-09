@@ -1,0 +1,191 @@
+﻿Kingdom UI audit 2026-08-08T14:59:58.1606368+08:00
+
+=== Viewer Update loops ===
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:13: private void Update()
+Assets\Resources\Script\UI\SafeAreaFitter.cs:20: private void Update() => ApplyIfChanged(false);
+Assets\Resources\Script\UI\UIResearchGraphGesture.cs:173: private void Update()
+
+=== UI refresh coroutines ===
+Assets\Resources\Script\UI\KingdomUIRoot.cs:241: researchTreeWarmupCoroutine = StartCoroutine(WarmResearchTreePage());
+Assets\Resources\Script\UI\UITouchTooltip.cs:20: holdRoutine = StartCoroutine(ShowAfterHold());
+
+=== Manual dynamic heights ===
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:247: rect.sizeDelta = new Vector2(0f, layout.preferredHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:274: rect.sizeDelta = new Vector2(0f, layout.preferredHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:136: scaler.referenceResolution = new Vector2(2640f, 1200f);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:287: root.sizeDelta = new Vector2(Screen.width, Screen.height);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:359: titleRect.offsetMax = new Vector2(230f, -28f);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:487: rows.sizeDelta = new Vector2(0, rowsHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:492: page.sizeDelta = new Vector2(0, name == "Research" || name == "Music"
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:303: detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, 24f + bodyHeight));
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:419: detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(1f, detailScrollViewport.rect.height));
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:455: content.sizeDelta = new Vector2(0, requirementContentBottomPadding +
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:631: measuredContent.sizeDelta = new Vector2(0f, 90f + rowCount * 88f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:646: detailScrollContent.sizeDelta = new Vector2(0f, contentHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:693: flowContent.sizeDelta = new Vector2(0f, 52f + flowCount * 88f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:65: detailScrollContent.sizeDelta = new Vector2(0f, 1f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:85: flowContent.sizeDelta = new Vector2(0f, 86f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:92: flowHeadingRect.sizeDelta = new Vector2(0f, 38f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:102: requirementContent.sizeDelta = new Vector2(0f, 90f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:109: headingRect.sizeDelta = new Vector2(0f, 38f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:119: noneRect.sizeDelta = new Vector2(0f, 42f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:226: rect.sizeDelta = new Vector2(0f, 72f);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:238: iconRect.sizeDelta = new Vector2(48f, 48f);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:158: researchGraphContent.sizeDelta = new Vector2(contentWidth, contentHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:170: researchGraphLineLayer.sizeDelta = researchGraphContent.sizeDelta;
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:975: band.sizeDelta = new Vector2(maxX[i] - minX[i], content.sizeDelta.y);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1196: part.sizeDelta = rect.size;
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1259: node.sizeDelta = new Vector2(ResearchNodeWidth, ResearchNodeHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:127: float rowHeight = Mathf.Max(1f, rowRect.sizeDelta.y);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:131: rowRect.sizeDelta = new Vector2(0f, rowHeight);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:165: content.sizeDelta = new Vector2(0f, Mathf.Max(120f, contentHeight));
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:255: detailScrollContent.sizeDelta = new Vector2(0f, contentHeight);
+
+=== Off-screen hiding ===
+Assets\Resources\Script\UI\KingdomUIRoot.cs:11: [DefaultExecutionOrder(-10000)]
+
+=== Hidden parents ===
+Assets\Resources\Script\UI\KingdomUIRoot.cs:382: buildingPageTitle.transform.SetParent(pageHost.parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:159: rect.SetParent(parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:171: go.transform.SetParent(parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:195: go.transform.SetParent(parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:202: labelObject.transform.SetParent(go.transform, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:221: row.transform.SetParent(parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:233: iconObject.transform.SetParent(row.transform, false);
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:23: titleRect.SetParent(buildingQuantityControls.transform.parent, false);
+
+=== Scene searches ===
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:73: GameManager gameManager = FindObjectOfType<GameManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:78: FindObjectOfType<ResearchManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:79: FindObjectOfType<ResourceManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:80: FindObjectOfType<BuildingManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:81: FindObjectOfType<WorkshopManager>());
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:123: GameManager gameManager = FindObjectOfType<GameManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:156: ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.Music.cs:15: return FindObjectOfType<MusicManager>();
+
+=== GetComponent in UI refresh/layout ===
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:22: Image surface = row.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:29: Button button = row.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:78: Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:95: resourceAmountLabels[resource] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:96: resourceChangeLabels[resource] = row.transform.Find("ChangeRate")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:160: buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:235: RectTransform rect = row.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:236: LayoutElement layout = row.GetComponent<LayoutElement>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:263: RectTransform rect = row.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:264: LayoutElement layout = row.GetComponent<LayoutElement>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:284: TMP_Text text = child == null ? null : child.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:301: Button button = row.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:310: Button button = child == null ? null : child.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.cs:132: CanvasScaler scaler = GetComponent<CanvasScaler>();
+Assets\Resources\Script\UI\KingdomUIRoot.cs:234: if (safeArea.GetComponent<SafeAreaFitter>() == null)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:457: TMP_Text headingLabel = content.Find("Heading")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:467: TMP_Text emptyLabel = content.Find("None")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:487: Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:522: TMP_Text amount = row.Find("Amount")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:523: TMP_Text label = row.Find("Label")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:554: : detailScrollViewport.GetComponent<UIDetailRequirementScrollGesture>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:695: TMP_Text flowHeading = flowContent.Find("Heading")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:735: TMP_Text label = row?.Find("Label")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:736: TMP_Text amount = row?.Find("Amount")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:772: Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:158: RectTransform rect = go.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:172: RectTransform rect = go.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:196: Image image = go.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:199: Button button = go.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:203: RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:222: RectTransform rect = row.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:228: Image background = row.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:234: RectTransform iconRect = iconObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:240: iconObject.GetComponent<Image>().raycastTarget = false;
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:50: developmentGuidanceText = page.Find("PrimaryCard/Text")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.Music.cs:80: TMP_Text label = child == null ? null : child.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.Music.cs:310: private ScrollRect Owner => GetComponent<ScrollRect>();
+Assets\Resources\Script\UI\KingdomUIRoot.PageRows.cs:80: Outline outline = button.GetComponent<Outline>();
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:48: buildingPageTitle = controls.parent.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:64: customQuantityInput = controls.Find("CustomQuantityInput")?.GetComponent<TMP_InputField>();
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:68: customQuantityInput.textComponent = customQuantityInput.transform.Find("Text")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:69: customQuantityInput.placeholder = customQuantityInput.transform.Find("Placeholder")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.Quantity.cs:86: Button button = parent.Find("Quantity_" + mode)?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:109: researchGraphViewport = graphObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:115: Image viewportImage = researchGraphViewport.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:130: ScrollRect graphScroll = researchGraphViewport.GetComponent<ScrollRect>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:187: Image dragSurfaceImage = dragSurface.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:210: researchGraphGesture = researchGraphViewport.GetComponent<UIResearchGraphGesture>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:311: if (button.GetComponent<UIResearchGraphDragForwarder>() == null)
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:357: TMP_Text label = labelTransform == null ? null : labelTransform.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:358: Text legacyLabel = labelTransform == null ? null : labelTransform.GetComponent<Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:470: researchTreeQueueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:969: RectTransform band = bandObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:976: Image image = band.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:982: TMP_Text title = band.Find("Title").GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1187: RectTransform part = lineObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1197: image = part.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1238: RectTransform node = nodeObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1260: Image surface = node.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1269: Button button = node.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1284: if (node.GetComponent<UIResearchGraphDragForwarder>() == null)
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1305: Image frame = frameRect.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1324: Image progress = progressRect.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1365: UITouchTooltip tooltip = node.GetComponent<UITouchTooltip>();
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1384: border.Find("Top")?.GetComponent<Image>(),
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1385: border.Find("Bottom")?.GetComponent<Image>(),
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1386: border.Find("Left")?.GetComponent<Image>(),
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1387: border.Find("Right")?.GetComponent<Image>()
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1407: TextMeshProUGUI label = rect.GetComponent<TextMeshProUGUI>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:23: musicCurrentLabel = controls?.Find("Current")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:24: musicTimeLabel = controls?.Find("Time")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:25: musicProgressSlider = controls?.Find("TimeSeek")?.GetComponent<Slider>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:26: musicPlayPauseButton = controls?.Find("PlayPause")?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:27: musicVolumeSlider = controls?.Find("Volume")?.GetComponent<Slider>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:28: musicGapSlider = controls?.Find("Gap")?.GetComponent<Slider>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:29: musicVolumeValueLabel = controls?.Find("VolumeValue")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:30: musicGapValueLabel = controls?.Find("GapValue")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:49: Button previous = controls?.Find("Previous")?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:50: Button next = controls?.Find("Next")?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:51: Button stop = controls?.Find("Stop")?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:55: ConfigureMusicText(controls?.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "TIME / SEEK");
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:91: if (slider == null || slider.GetComponent<EventTrigger>() != null)
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:100: musicListScroll = viewport.GetComponent<ScrollRect>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:126: RectTransform rowRect = rowObject.GetComponent<RectTransform>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:133: Image surfaceImage = rowObject.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:141: Button row = rowObject.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:155: if (rowObject.GetComponent<UIPageScrollDragForwarder>() == null)
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:187: pageTitle = content == null ? null : content.Find("PageTitle")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:202: Button navigationButton = leftNavigation.Find("Nav_" + pageNames[i])?.GetComponent<Button>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:217: pageScroll = pageHost.GetComponent<ScrollRect>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:225: topKingdomTitle = safeArea.Find("TopStatusBar/Title")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:226: topStatus = safeArea.Find("TopStatusBar/Status")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:230: buildingPageTitle = content.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:232: tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:271: Image image = viewport.GetComponent<Image>();
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:275: if (viewport.GetComponent<RectMask2D>() == null)
+Assets\Resources\Script\UI\UIResearchGraphGesture.cs:47: scrollRect = viewport == null ? null : viewport.GetComponent<ScrollRect>();
+
+=== Destroy/Instantiate requirement rows ===
+Assets\Resources\Script\UI\KingdomUIPrefabLibrary.cs:56: public static GameObject Instantiate(string prefabName, Transform parent)
+Assets\Resources\Script\UI\KingdomUIPrefabLibrary.cs:59: return prefab == null ? null : Object.Instantiate(prefab, parent, false);
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:229: GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:240: Destroy(row);
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:257: GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
+Assets\Resources\Script\UI\KingdomUIRoot.AuthoredRows.cs:268: Destroy(row);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:517: Destroy(host.GetChild(i).gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:405: Destroy(runtimeFlowContent.GetChild(i).gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:415: Destroy(child.gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:440: Destroy(child.gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:689: Destroy(child.gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:23: Destroy(legacy.gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:962: GameObject bandObject = KingdomUIPrefabLibrary.Instantiate(
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1179: GameObject lineObject = KingdomUIPrefabLibrary.Instantiate(
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1230: GameObject nodeObject = KingdomUIPrefabLibrary.Instantiate(
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1242: Destroy(nodeObject);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1264: Destroy(nodeObject);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1273: Destroy(nodeObject);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1294: Destroy(nodeObject);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:116: Destroy(content.GetChild(i).gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:123: GameObject rowObject = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.MusicTrack, content);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:137: Destroy(rowObject);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:145: Destroy(rowObject);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:158: Destroy(rowObject);
+

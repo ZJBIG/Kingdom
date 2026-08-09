@@ -25,23 +25,28 @@ public sealed class EarlyVerticalSlicePacingTests
     {
         AssertRate("Quarry", "StoneChunk", 2.4d);
         AssertRate("FiberGatheringCamp", "PlantFiber", 1.2d);
-        AssertRate("CopperMine", "CopperOre", 3d);
-        AssertRate("TinMine", "TinOre", 3d);
-        AssertRate("IronMine", "IronOre", 3.6d);
-        AssertRate("CopperSmelter", "Copper", 1.2d);
+        AssertRate("MetalMine", "CopperOre", 1d);
+        AssertRate("MetalMine", "TinOre", .8d);
+        AssertRate("MetalMine", "IronOre", .8d);
+        AssertRate("MetalSmelter", "Copper", .8d);
+        AssertRate("MetalSmelter", "Tin", .8d);
+        AssertRate("MetalSmelter", "Iron", .8d);
         AssertRate("BronzeFoundry", "Bronze", 1.2d);
     }
 
     [Test]
-    public void IronMine_DoesNotRequireItsOwnOutput()
+    public void MetalMine_DoesNotRequireItsOwnOutputs()
     {
-        Building mine = DataBase<Building>.Find("IronMine");
+        Building mine = DataBase<Building>.Find("MetalMine");
         Assert.That(
-            mine.ResourceRequirements.Any(pair => pair.First.Id == "IronOre"),
+            mine.ResourceRequirements.Any(pair =>
+                pair.First.Id == "CopperOre" ||
+                pair.First.Id == "TinOre" ||
+                pair.First.Id == "IronOre"),
             Is.False);
         Assert.That(
             mine.ResourceRequirements.Any(pair => pair.First.Id == "Bronze"),
-            Is.True);
+            Is.False);
     }
 
     [Test]

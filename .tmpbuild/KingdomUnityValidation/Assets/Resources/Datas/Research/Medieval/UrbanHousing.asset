@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: UrbanHousing
+  m_EditorClassIdentifier: 
+  id: UrbanHousing
+  Label: "\u57CE\u5E02\u4F4F\u5B85"
+  Description: "\u4EE5\u8857\u533A\u3001\u6392\u6C34\u3001\u6D88\u9632\u548C\u591A\u5C42\u7ED3\u6784\u89C4\u5212\u9AD8\u5BC6\u5EA6\u4F4F\u5B85\uFF0C\u4F7F\u57CE\u5E02\u80FD\u591F\u5BB9\u7EB3\u66F4\u591A\u4EBA\u53E3\u800C\u4E0D\u8FC5\u901F\u5931\u5E8F\u3002"
+  BaseCost: 135000
+  prerequisites:
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
+  - {fileID: 11400000, guid: 02a6c8e569a2099439b6c1001288c3e3, type: 2}
+  - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 900
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    SystemId: UnlockBuilding_TownHouse
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.02
+      layer: 0
+      operators: []
+  TechLevel: 2
+  AdvancesTechLevel: 0
+  x: 12
+  y: 23

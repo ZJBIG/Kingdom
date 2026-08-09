@@ -37,6 +37,27 @@ state and freshly generated evidence outrank dated audits.
 - New buildings need reachable inputs, geometric cost growth, a defined role,
   and a first-copy payback target.
 - Old resources should remain useful in later eras.
+- Every new resource must follow the long-term resource loop: one reachable
+  source, at least two meaningful sinks or one strategic sink, a visible unlock
+  path, and a role that remains useful after its first era.
+- High-tech resources must be consumed by high-tech research, Workshops,
+  buildings, and late campaigns. Do not create a resource that is only a
+  construction fee or a one-time research requirement.
+- Late production should deliberately reuse earlier resources. A valid
+  advanced chain may combine an advanced structural resource with nickel,
+  titanium alloy, composite, chemical materials, electronics, glass, rubber,
+  cloth, or other earlier inputs so that old industries retain strategic value.
+- Space and later-era buildings should use advanced structural materials in
+  their construction and maintenance. Higher-tier Workshops should also pay
+  those materials before granting multipliers.
+- Interstellar warfare and territory expansion are long, supply-heavy
+  operations. Campaigns should consume food, logistics-linked resources, fuel,
+  and appropriate advanced materials over time, while successful late campaigns
+  must provide rewards large enough to justify the sustained investment; do not
+  leave late rewards at trivial hundreds or low thousands.
+- PhantomAlloy and PhantomWeave are examples of acceptable late resources:
+  they must be produced from existing advanced and earlier materials and then
+  consumed by deep-space structures, Workshops, research, or campaigns.
 
 ## Delivery order
 

@@ -19,14 +19,10 @@ public sealed class BuildingVerticalSliceTests
             ["WoodHouse"] = 1.18d,
             ["KnowledgeCircle"] = 1.20d,
             ["CoalMine"] = 1.14d,
-            ["CopperMine"] = 1.15d,
-            ["TinMine"] = 1.15d,
-            ["IronMine"] = 1.15d,
-            ["PotteryKiln"] = 1.16d,
+            ["MetalMine"] = 1.15d,
+            ["CeramicKiln"] = 1.16d,
             ["WeavingWorkshop"] = 1.16d,
-            ["CopperSmelter"] = 1.17d,
-            ["TinSmelter"] = 1.17d,
-            ["IronSmelter"] = 1.17d,
+            ["MetalSmelter"] = 1.17d,
             ["BronzeFoundry"] = 1.18d,
             ["Granary"] = 1.18d,
             ["ScribeHut"] = 1.20d
@@ -44,7 +40,7 @@ public sealed class BuildingVerticalSliceTests
     public void FoodCapacity_IsLimitedToThePlannedFoodBuildings()
     {
         Assert.That(DataBase<Building>.Find("Granary").FoodCapacityGranted.ToDouble(), Is.EqualTo(1000d));
-        Assert.That(DataBase<Building>.Find("PotteryKiln").FoodCapacityGranted.ToDouble(), Is.EqualTo(250d));
+        Assert.That(DataBase<Building>.Find("CeramicKiln").FoodCapacityGranted.ToDouble(), Is.EqualTo(250d));
         Assert.That(DataBase<Building>.Find("WoodHouse").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("KnowledgeCircle").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
     }

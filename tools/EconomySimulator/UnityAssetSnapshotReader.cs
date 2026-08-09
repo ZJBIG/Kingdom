@@ -266,8 +266,6 @@ public static class UnityAssetSnapshotReader
                     ? double.Parse(valueMatch.Groups[1].Value,
                         CultureInfo.InvariantCulture)
                     : 1d,
-                SystemId = Regex.Match(body,
-                    @"(?m)^\s*SystemId:\s*(.*?)\s*$").Groups[1].Value
             };
             Match building = Regex.Match(body,
                 @"Building:\s*\{[^}]*guid:\s*([0-9a-f]+)",

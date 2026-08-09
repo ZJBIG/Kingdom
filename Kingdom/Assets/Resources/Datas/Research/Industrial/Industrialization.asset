@@ -30,21 +30,9 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 9
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    SystemId: industrialization
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1
-      layer: 0
-      operators: []
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -55,7 +43,6 @@ MonoBehaviour:
   - Type: 7
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -65,5 +52,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 1
-  x: 14
-  y: 16

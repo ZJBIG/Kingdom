@@ -111,19 +111,13 @@ namespace Kingdom.EditorTools
 
             SetGenerationRate("Quarry", "StoneChunk", 2.4d);
             SetGenerationRate("FiberGatheringCamp", "PlantFiber", 1.2d);
-            SetGenerationRate("CopperMine", "CopperOre", 3d);
-            SetGenerationRate("TinMine", "TinOre", 3d);
-            SetGenerationRate("IronMine", "IronOre", 3.6d);
-            SetGenerationRate("CopperSmelter", "Copper", 1.2d);
+            SetGenerationRate("MetalMine", "CopperOre", 1d);
+            SetGenerationRate("MetalMine", "TinOre", .8d);
+            SetGenerationRate("MetalMine", "IronOre", .8d);
+            SetGenerationRate("MetalSmelter", "Copper", .8d);
+            SetGenerationRate("MetalSmelter", "Tin", .8d);
+            SetGenerationRate("MetalSmelter", "Iron", .8d);
             SetGenerationRate("BronzeFoundry", "Bronze", 1.2d);
-            SetBuildingCosts(
-                "IronMine",
-                new List<Pair<Resource, ExpantaNum>>
-                {
-                    new(woodLog, new ExpantaNum(220d)),
-                    new(stoneChunk, new ExpantaNum(200d)),
-                    new(bronze, new ExpantaNum(1.2d))
-                });
             SetBuildingCosts(
                 "BronzeFoundry",
                 new List<Pair<Resource, ExpantaNum>>

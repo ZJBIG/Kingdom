@@ -48,7 +48,6 @@ MonoBehaviour:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: UnlockBuilding_MeetingGround
     Value:
       sign: 0
       representation: 1
@@ -58,5 +57,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 4
-  y: 8

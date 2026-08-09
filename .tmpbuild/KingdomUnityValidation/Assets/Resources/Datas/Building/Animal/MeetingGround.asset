@@ -1,0 +1,168 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: MeetingGround
+  m_EditorClassIdentifier: 
+  id: MeetingGround
+  Label: "\u8BAE\u4E8B\u7A7A\u5730"
+  Description: "\u4F9B\u90E8\u843D\u8BAE\u4E8B\u3001\u5206\u914D\u52B3\u529B\u4E0E\u4F20\u6388\u7ECF\u9A8C\uFF0C\u63D0\u5347\u6574\u4F53\u751F\u4EA7\u7EC4\u7EC7\u548C\u65E9\u671F\u77E5\u8BC6\u79EF\u7D2F\u3002"
+  TechLevel: 0
+  upgradeTo: {fileID: 11400000, guid: e993bff0627f9c34d96aab21fc1d69e7, type: 2}
+  costGrowth:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.2
+    layer: 0
+    operators: []
+  spaceCost:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 4
+    layer: 0
+    operators: []
+  productivityConsumption:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 3
+    layer: 0
+    operators: []
+  productivityGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 15
+    layer: 0
+    operators: []
+  populationCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  researchPowerGranted:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 1.5
+    layer: 0
+    operators: []
+  foodProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  foodCapacityGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  powerConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsProductionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  logisticsConsumptionRate:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  fleetPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  attackPowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  defensePowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  militaryManpowerGranted:
+    sign: 0
+    representation: 0
+    operatorCount: 0
+    scalar: 0
+    layer: 0
+    operators: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 240
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 50
+      layer: 0
+      operators: []
+  resourceGenerationRates: []
+  resourceConsumptionRates: []
+  requiredResearch:
+  - {fileID: 11400000, guid: ac8a396eefdc1a84a85671ed54c38311, type: 2}
+  requiredWorkshopUpgrades: []

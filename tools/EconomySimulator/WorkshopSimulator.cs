@@ -5,8 +5,6 @@ namespace Kingdom.EconomySimulation;
 
 public static class WorkshopSimulator
 {
-    public const string WorkshopSystemId = "industrial-workshop";
-
     public static void Decide(
         SimulationState state,
         EconomySnapshot snapshot,
@@ -51,7 +49,5 @@ public static class WorkshopSimulator
 
     public static bool IsSystemUnlocked(SimulationState state) =>
         state.ActiveEffects.Any(x =>
-            x.Kind == SimEffectKind.UnlockSystem &&
-            string.Equals(x.SystemId, WorkshopSystemId,
-                StringComparison.OrdinalIgnoreCase));
+            x.Kind == SimEffectKind.UnlockIndustrialWorkshop);
 }

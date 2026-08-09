@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: InsulatedWindings
+  m_EditorClassIdentifier: 
+  id: InsulatedWindings
+  Label: "\u7EDD\u7F18\u7ED5\u7EC4\u7EC4\u4EF6"
+  Description: "\u7531\u6807\u51C6\u7EBF\u5708\u3001\u7EDD\u7F18\u5C42\u548C\u63A5\u7EBF\u7AEF\u7EC4\u6210\u7684\u7535\u673A\u4E0E\u53D1\u7535\u8BBE\u5907\u7EC4\u4EF6\u3002"
+  Category: "\u7535\u6C14"
+  SortOrder: 220
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 350
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 116d35601a1dec544838b03dbdf70894, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []
+  - Type: 0
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.12
+      layer: 0
+      operators: []

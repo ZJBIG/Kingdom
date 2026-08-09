@@ -17,12 +17,18 @@ MonoBehaviour:
   Description: The first orbital region, providing a safe launch corridor and a foothold beyond Earth.
   starSystemId: Sol
   domain: 0
-  enemyPower: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 40, layer: 0, operators: []}
   prerequisiteSectors: []
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  resourceRewards: []
+  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+  resourceRewards:
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1000, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
   colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  colonizationResourceCosts: []
+  colonizationResourceCosts:
+  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
   campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 0, layer: 0, operators: []}
   campaignResourceCosts: []
   repeatable: 0

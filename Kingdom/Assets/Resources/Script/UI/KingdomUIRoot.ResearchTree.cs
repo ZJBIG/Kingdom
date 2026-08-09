@@ -41,7 +41,6 @@ public sealed partial class KingdomUIRoot
     private readonly Dictionary<Research, Image[]> researchTreeOutlines = new();
     private RectTransform researchGraphLineLayer;
     private int researchTreeMaximumRow;
-    private bool researchTreeUsesAssetGrid;
     private int researchTopologyDuplicateCount;
     private int researchTopologyBackwardsEdgeCount;
     private int researchTopologyInversionCount;
@@ -266,7 +265,7 @@ public sealed partial class KingdomUIRoot
             maxColumn = Mathf.Max(maxColumn, cell.x);
             maxRow = Mathf.Max(maxRow, cell.y);
         }
-        Debug.Log($"[KingdomUI] Research grid layout: nodes={occupied.Count}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, intermediateNodeCrossings={intermediateNodeCrossingCount}, maxGrid=({maxColumn},{maxRow}), grid={ResearchGridX}x{ResearchGridY}, layoutSource={(researchTreeUsesAssetGrid ? "asset-integer-fallback" : "topology-integer-grid")}, authoredXYUsed={researchTreeUsesAssetGrid}");
+        Debug.Log($"[KingdomUI] Research grid layout: nodes={occupied.Count}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, intermediateNodeCrossings={intermediateNodeCrossingCount}, maxGrid=({maxColumn},{maxRow}), grid={ResearchGridX}x{ResearchGridY}, layoutSource=topology-integer-grid");
     }
 
     private void LogRuntimeResearchNodeLayout()
@@ -514,19 +513,10 @@ public sealed partial class KingdomUIRoot
     {
         Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
         bool topologyUsable = IsTopologyResearchLayoutUsable(definitions, topologyPositions);
-        // Inversions are a topology diagnostic, not a reason to read the
-        // deprecated authored x/y fields. Falling back to those fields was
-        // the source of the visibly disconnected and crossed glass tubes.
-        researchTreeUsesAssetGrid = false;
-        Debug.Log($"[KingdomUI] Research topology decision: accepted={topologyUsable}, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}, authoredXYUsed=false");
-        Debug.Log("[KingdomUI] Research layout source=topology-integer-grid; authored x/y ignored");
+        // 布局只由研究前置关系生成，拓扑诊断不再依赖资产坐标。
+        Debug.Log($"[KingdomUI] Research topology decision: accepted={topologyUsable}, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}, layoutSource=topology-integer-grid");
         return topologyPositions;
     }
-
-    private Dictionary<Research, Vector2> CreateIntegerAssetResearchPositions(IReadOnlyList<Research> definitions)=>
-        // Kept as a compatibility entry point for older editor code. It must
-        // still use the relationship-derived layout and never inspect x/y.
-        CreateTopologyResearchTreePositions(definitions);
 
     private bool IsTopologyResearchLayoutUsable(IReadOnlyList<Research> definitions,IReadOnlyDictionary<Research, Vector2> positions)
     {
@@ -593,8 +583,7 @@ public sealed partial class KingdomUIRoot
         // is not sufficient for this project: nodes from different eras can
         // otherwise occupy the same visual region.  Era blocks are therefore
         // allocated from left to right, while prerequisite depth still wins
-        // whenever a cross-era edge needs more columns.  Authored x/y never
-        // participates in this calculation.
+        // whenever a cross-era edge needs more columns.
         var ordered = new List<Research>();
         var known = new HashSet<Research>();
         for (int i = 0; i < definitions.Count; i++)

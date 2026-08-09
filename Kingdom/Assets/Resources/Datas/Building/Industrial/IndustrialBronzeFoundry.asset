@@ -15,7 +15,7 @@ MonoBehaviour:
   id: IndustrialBronzeFoundry
   Label: "\u5DE5\u4E1A\u9752\u94DC\u94F8\u9020\u7089"
   Description: "\u4F7F\u7528\u52A8\u529B\u8BBE\u5907\u7CBE\u786E\u63A7\u5236\u94DC\u9521\u914D\u6BD4\u4E0E\u7089\u6E29\uFF0C\u4EE5\u66F4\u9AD8\u6548\u7387\u8FDE\u7EED\u751F\u4EA7\u9752\u94DC\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

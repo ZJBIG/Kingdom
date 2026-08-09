@@ -8,26 +8,27 @@ public sealed class GlobalEconomyDefinitionTests
 {
     private static readonly string[] ReleasedResourceIds =
     {
-        "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Pottery",
+        "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Ceramic",
         "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
         "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
-        "CrudeOil", "Silica", "Coke", "Glass", "IndustrialCeramic",
-        "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine"
+        "CrudeOil", "Silica", "Coke", "Glass", "Ceramic",
+        "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine",
+        "Concrete", "BauxiteOre", "Aluminum", "Explosives"
     };
 
     [Test]
     public void MigrationProducesThePlannedDefinitionCounts()
     {
         Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(52));
-        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(43));
-        Assert.That(DataBase<Research>.All.Count, Is.EqualTo(61));
-        Assert.That(DataBase<WorkshopUpgradeDefinition>.All.Count, Is.EqualTo(29));
+        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(58));
+        Assert.That(DataBase<Research>.All.Count, Is.EqualTo(81));
+        Assert.That(DataBase<WorkshopUpgradeDefinition>.All.Count, Is.EqualTo(32));
 
         int releasedBuildings = 0;
         foreach (Building building in DataBase<Building>.All)
             if (building.TechLevel <= TechLevel.Industrial)
                 releasedBuildings++;
-        Assert.That(releasedBuildings, Is.EqualTo(40));
+        Assert.That(releasedBuildings, Is.EqualTo(55));
     }
 
     [Test]
@@ -113,6 +114,64 @@ public sealed class GlobalEconomyDefinitionTests
         foreach (Building building in DataBase<Building>.All)
             buildingGates += building.RequiredWorkshopUpgrades.Count;
         Assert.That(buildingGates, Is.GreaterThanOrEqualTo(5));
+    }
+
+    [Test]
+    public void EveryResearchAndWorkshopEffectHasAValidTarget()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                Assert.That(effect, Is.Not.Null, research.Id);
+                Assert.That(effect.Value.IsNaN, Is.False, research.Id);
+                Assert.That(effect.Value, Is.GreaterThan(ExpantaNum.Zero), research.Id);
+
+                switch (effect.Type)
+                {
+                    case ResearchEffectType.BuildingProductionMultiplier:
+                    case ResearchEffectType.BuildingFoodProductionMultiplier:
+                    case ResearchEffectType.BuildingResearchPowerMultiplier:
+                    case ResearchEffectType.BuildingPowerProductionMultiplier:
+                    case ResearchEffectType.BuildingLogisticsProductionMultiplier:
+                        Assert.That(effect.Building, Is.Not.Null,
+                            $"研究 {research.Id} 的建筑效果缺少目标建筑。");
+                        break;
+                    case ResearchEffectType.ResourceProductionMultiplier:
+                        Assert.That(effect.Resource, Is.Not.Null,
+                            $"研究 {research.Id} 的资源效果缺少目标资源。");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        foreach (WorkshopUpgradeDefinition upgrade in DataBase<WorkshopUpgradeDefinition>.All)
+        {
+            foreach (WorkshopEffectDefinition effect in upgrade.Effects)
+            {
+                Assert.That(effect, Is.Not.Null, upgrade.Id);
+                Assert.That(effect.Value.IsNaN, Is.False, upgrade.Id);
+                Assert.That(effect.Value, Is.GreaterThan(ExpantaNum.Zero), upgrade.Id);
+
+                switch (effect.Type)
+                {
+                    case WorkshopEffectType.BuildingProductionMultiplier:
+                    case WorkshopEffectType.BuildingFoodProductionMultiplier:
+                    case WorkshopEffectType.BuildingResearchPowerMultiplier:
+                    case WorkshopEffectType.BuildingPowerProductionMultiplier:
+                    case WorkshopEffectType.BuildingLogisticsProductionMultiplier:
+                        Assert.That(effect.Building, Is.Not.Null,
+                            $"工坊 {upgrade.Id} 的建筑效果缺少目标建筑。");
+                        break;
+                    case WorkshopEffectType.ResourceProductionMultiplier:
+                        Assert.That(effect.Resource, Is.Not.Null,
+                            $"工坊 {upgrade.Id} 的资源效果缺少目标资源。");
+                        break;
+                }
+            }
+        }
     }
 
     [Test]

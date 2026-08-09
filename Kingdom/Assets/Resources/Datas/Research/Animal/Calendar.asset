@@ -39,7 +39,6 @@ MonoBehaviour:
   - Type: 2
     Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -50,7 +49,6 @@ MonoBehaviour:
   - Type: 2
     Building: {fileID: 11400000, guid: 39694f82da13fe04bb37d117782fa5ec, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -61,7 +59,6 @@ MonoBehaviour:
   - Type: 2
     Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -71,5 +68,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 4
-  y: 11

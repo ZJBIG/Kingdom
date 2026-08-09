@@ -15,7 +15,7 @@ MonoBehaviour:
   id: CokeOven
   Label: "\u7126\u7089"
   Description: "\u5728\u9694\u7EDD\u7A7A\u6C14\u7684\u7089\u5BA4\u4E2D\u9AD8\u6E29\u5E72\u998F\u7164\u70AD\uFF0C\u751F\u4EA7\u9002\u5408\u9AD8\u7089\u548C\u5316\u5DE5\u6D41\u7A0B\u4F7F\u7528\u7684\u7126\u70AD\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

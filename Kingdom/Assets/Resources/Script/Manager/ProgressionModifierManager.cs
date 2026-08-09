@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 public sealed class ProgressionModifierState
@@ -9,7 +8,7 @@ public sealed class ProgressionModifierState
     private readonly Dictionary<Building, ExpantaNum> buildingPowerProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingLogisticsProductionMultipliers = new();
     private readonly Dictionary<Resource, ExpantaNum> resourceProductionMultipliers = new();
-    private readonly HashSet<string> unlockedSystems = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<ResearchSystem> unlockedSystems = new();
 
     public ExpantaNum GlobalResearchMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum GlobalConstructionMultiplier { get; internal set; } = ExpantaNum.One;
@@ -22,9 +21,9 @@ public sealed class ProgressionModifierState
     public ExpantaNum PowerMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PopulationGrowthMultiplier { get; internal set; } = ExpantaNum.One;
 
-    public IReadOnlyCollection<string> UnlockedSystems => unlockedSystems;
-    public bool IsSystemUnlocked(string systemId) =>
-        !string.IsNullOrWhiteSpace(systemId) && unlockedSystems.Contains(systemId);
+    public IReadOnlyCollection<ResearchSystem> UnlockedSystems => unlockedSystems;
+    public bool IsSystemUnlocked(ResearchSystem system) =>
+        system != ResearchSystem.None && unlockedSystems.Contains(system);
 
     public ExpantaNum GetBuildingProductionMultiplier(Building building) =>
         GetMultiplier(buildingProductionMultipliers, building);
@@ -77,10 +76,10 @@ public sealed class ProgressionModifierState
     internal void AddPopulationGrowthMultiplier(ExpantaNum value) =>
         PopulationGrowthMultiplier = AdditiveMultiplier(PopulationGrowthMultiplier, value);
 
-    internal void AddUnlockedSystem(string systemId)
+    internal void AddUnlockedSystem(ResearchSystem system)
     {
-        if (!string.IsNullOrWhiteSpace(systemId))
-            unlockedSystems.Add(systemId);
+        if (system != ResearchSystem.None)
+            unlockedSystems.Add(system);
     }
 
     private static ExpantaNum GetMultiplier<T>(Dictionary<T, ExpantaNum> values, T key)
@@ -190,8 +189,17 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.TerritoryGranted:
                     modifiers.TerritoryGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.Value);
                     break;
-                case ResearchEffectType.UnlockSystem:
-                    modifiers.AddUnlockedSystem(effect.SystemId);
+                case ResearchEffectType.UnlockIndustrialWorkshop:
+                    modifiers.AddUnlockedSystem(ResearchSystem.IndustrialWorkshop);
+                    break;
+                case ResearchEffectType.UnlockFirstContact:
+                    modifiers.AddUnlockedSystem(ResearchSystem.FirstContact);
+                    break;
+                case ResearchEffectType.UnlockDeepSpaceFleet:
+                    modifiers.AddUnlockedSystem(ResearchSystem.DeepSpaceFleet);
+                    break;
+                case ResearchEffectType.UnlockInterstellarNavigation:
+                    modifiers.AddUnlockedSystem(ResearchSystem.InterstellarNavigation);
                     break;
                 case ResearchEffectType.MilitaryMultiplier:
                     if (allowCombatEffects)

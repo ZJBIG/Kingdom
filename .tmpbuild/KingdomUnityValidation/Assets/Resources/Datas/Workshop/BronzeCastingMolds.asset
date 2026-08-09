@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: BronzeCastingMolds
+  m_EditorClassIdentifier: 
+  id: BronzeCastingMolds
+  Label: "\u5DE5\u4E1A\u9752\u94DC\u94F8\u6A21\u7EC4"
+  Description: "\u53EF\u91CD\u590D\u88C5\u914D\u7684\u91D1\u5C5E\u6A21\u5177\u3001\u6D47\u53E3\u548C\u8131\u6A21\u8BBE\u5907\u3002"
+  Category: "\u51B6\u91D1"
+  SortOrder: 208
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 60
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: d2f4d9e2b10195842ad6e1e89e47c256, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.25
+      layer: 0
+      operators: []

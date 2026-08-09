@@ -36,7 +36,7 @@ MonoBehaviour:
       scalar: 70
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
@@ -72,7 +72,6 @@ MonoBehaviour:
   - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -83,7 +82,6 @@ MonoBehaviour:
   - Type: 13
     Building: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -93,5 +91,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 3
   AdvancesTechLevel: 0
-  x: 15
-  y: 1

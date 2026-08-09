@@ -21,7 +21,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
@@ -57,7 +57,6 @@ MonoBehaviour:
   - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -67,5 +66,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 2
   AdvancesTechLevel: 0
-  x: 11
-  y: 10

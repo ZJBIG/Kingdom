@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: ControlledFire
+  m_EditorClassIdentifier: 
+  id: ControlledFire
+  Label: "\u63A7\u5236\u706B\u79CD"
+  Description: "\u638C\u63E1\u4FDD\u5B58\u706B\u79CD\u3001\u63A7\u5236\u71C3\u70E7\u548C\u5B89\u5168\u7528\u706B\u7684\u65B9\u6CD5\uFF0C\u4F7F\u719F\u98DF\u3001\u53D6\u6696\u3001\u7167\u660E\u4E0E\u9A71\u517D\u6210\u4E3A\u7A33\u5B9A\u80FD\u529B\u3002"
+  BaseCost: 60
+  prerequisites: []
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 20
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 8aed9d11d0c52e249b74c6a48112f51b, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  TechLevel: 0
+  AdvancesTechLevel: 0
+  x: 0
+  y: 13

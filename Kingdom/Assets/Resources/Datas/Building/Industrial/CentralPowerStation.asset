@@ -15,7 +15,7 @@ MonoBehaviour:
   id: CentralPowerStation
   Label: "\u4E2D\u592E\u53D1\u7535\u7AD9"
   Description: "\u4EE5\u96C6\u4E2D\u9505\u7089\u548C\u5927\u578B\u53D1\u7535\u673A\u7EC4\u6301\u7EED\u4F9B\u7535\uFF0C\u5E76\u901A\u8FC7\u7535\u7F51\u5411\u6574\u4E2A\u5DE5\u4E1A\u533A\u5206\u914D\u80FD\u6E90\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

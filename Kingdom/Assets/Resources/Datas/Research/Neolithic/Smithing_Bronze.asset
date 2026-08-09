@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Smithing_Bronze
   m_EditorClassIdentifier: 
   id: Smithing_Bronze
-  Label: "\u9752\u94DC\u51B6\u70BC\u4E0E\u5668\u5177"
-  Description: "\u638C\u63E1\u94DC\u9521\u5408\u91D1\u914D\u6BD4\u3001\u94F8\u9020\u548C\u5668\u5177\u6807\u51C6\uFF0C\u4F7F\u9752\u94DC\u6210\u4E3A\u7A33\u5B9A\u7684\u5DE5\u5177\u3001\u6B66\u5668\u4E0E\u5EFA\u7B51\u6750\u6599\u3002"
+  Label: "\u9752\u94DC\u5408\u91D1\u4E0E\u5668\u5177\u5236\u9020"
+  Description: "\u638C\u63E1\u94DC\u9521\u5408\u91D1\u914D\u6BD4\u3001\u94F8\u9020\u548C\u5668\u5177\u6807\u51C6\uFF0C\u7A33\u5B9A\u751F\u4EA7\u9752\u94DC\u5DE5\u5177\u3001\u6B66\u5668\u4E0E\u5EFA\u7B51\u90E8\u4EF6\u3002"
   BaseCost: 21000
   prerequisites:
   - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}
@@ -55,7 +55,6 @@ MonoBehaviour:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: FirstThreeEras_BronzeImplements
     Value:
       sign: 0
       representation: 1
@@ -65,5 +64,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 8
-  y: 27

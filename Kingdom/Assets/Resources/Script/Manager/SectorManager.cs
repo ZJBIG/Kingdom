@@ -16,6 +16,7 @@ public enum SectorOperationFailure
     CampaignInProgress,
     InvalidDelta,
     InsufficientCampaignSupply,
+    InsufficientExplorationPower,
     InvalidCampaignCost,
     CampaignNotAllowedInHomeSystem,
     ColonizationNotAllowedInInterstellarSystem,
@@ -30,6 +31,7 @@ public sealed class SectorCampaignPreview
     public ExpantaNum CurrentProgress { get; }
     public ExpantaNum EffectivePower { get; }
     public ExpantaNum CombatRatio { get; }
+    public ExpantaNum FleetSurvivalFactor { get; }
     public ExpantaNum ProgressPerMinute { get; }
     public ExpantaNum CasualtiesPerMinute { get; }
     public ExpantaNum FoodCostPerMinute { get; }
@@ -41,6 +43,7 @@ public sealed class SectorCampaignPreview
         ExpantaNum currentProgress,
         ExpantaNum effectivePower,
         ExpantaNum combatRatio,
+        ExpantaNum fleetSurvivalFactor,
         ExpantaNum progressPerMinute,
         ExpantaNum casualtiesPerMinute,
         ExpantaNum foodCostPerMinute,
@@ -51,6 +54,7 @@ public sealed class SectorCampaignPreview
         CurrentProgress = currentProgress;
         EffectivePower = effectivePower;
         CombatRatio = combatRatio;
+        FleetSurvivalFactor = fleetSurvivalFactor;
         ProgressPerMinute = progressPerMinute;
         CasualtiesPerMinute = casualtiesPerMinute;
         FoodCostPerMinute = foodCostPerMinute;
@@ -61,9 +65,6 @@ public sealed class SectorCampaignPreview
 public sealed class SectorManager
 {
     private const string LaunchCenterId = "LaunchCenter";
-    public const string InterstellarNavigationSystemId = "interstellar-navigation";
-    public const string DeepSpaceFleetSystemId = "deep-space-fleet";
-    public const string FirstContactSystemId = "first-contact";
 
     private readonly Dictionary<SectorDefinition, SectorState> states = new();
     private readonly List<SectorState> orderedStates = new();
@@ -127,6 +128,7 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
+                ExpantaNum.Zero,
                 Array.Empty<Pair<Resource, ExpantaNum>>());
 
         ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
@@ -138,8 +140,15 @@ public sealed class SectorManager
             runtimeState.LogisticsSatisfaction,
             ProgressionModifierManager.Current.MilitaryMultiplier);
         ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
+        ExpantaNum fleetSurvivalFactor = CampaignManager.CalculateFleetSurvivalFactor(
+            runtimeState.DefensePower,
+            definition.EnemyPower);
         ExpantaNum progressPerMinute = CampaignManager.CalculateProgressRate(combatRatio);
-        ExpantaNum casualtiesPerMinute = CampaignManager.CalculateCasualtyAmount(combatRatio, 60d);
+        ExpantaNum casualtiesPerMinute = CampaignManager.CalculateCasualtyAmount(
+            combatRatio,
+            runtimeState.DefensePower,
+            definition.EnemyPower,
+            60d);
         ExpantaNum foodCostPerMinute = ExpantaNum.Max(ExpantaNum.Zero, definition.CampaignFoodPerMinute);
         IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts = definition.CampaignResourceCosts ??
             Array.Empty<Pair<Resource, ExpantaNum>>();
@@ -158,6 +167,7 @@ public sealed class SectorManager
             state.CampaignProgress,
             effectivePower,
             combatRatio,
+            fleetSurvivalFactor,
             progressPerMinute,
             casualtiesPerMinute,
             foodCostPerMinute,
@@ -211,7 +221,7 @@ public sealed class SectorManager
         }
 
         if (!definition.IsHomeSystem &&
-            !ProgressionModifierManager.Current.IsSystemUnlocked(FirstContactSystemId))
+            !ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.FirstContact))
         {
             failure = SectorOperationFailure.InterstellarSystemLocked;
             return false;
@@ -301,7 +311,7 @@ public sealed class SectorManager
             failure = SectorOperationFailure.CampaignNotAllowedInHomeSystem;
             return false;
         }
-        if (!ProgressionModifierManager.Current.IsSystemUnlocked(DeepSpaceFleetSystemId))
+        if (!ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.DeepSpaceFleet))
         {
             failure = SectorOperationFailure.InterstellarSystemLocked;
             return false;
@@ -367,7 +377,11 @@ public sealed class SectorManager
             state.CampaignProgress,
             combatRatio,
             deltaSeconds);
-        ExpantaNum casualties = CampaignManager.CalculateCasualtyAmount(combatRatio, deltaSeconds);
+        ExpantaNum casualties = CampaignManager.CalculateCasualtyAmount(
+            combatRatio,
+            runtimeState.DefensePower,
+            definition.EnemyPower,
+            deltaSeconds);
         state.SetCampaignProgress(nextProgress);
         runtimeState.RecordCampaignCombat(combatRatio, casualties);
 
@@ -417,6 +431,13 @@ public sealed class SectorManager
         if (runtimeState.Campaign.Active)
         {
             failure = SectorOperationFailure.ColonizationInProgress;
+            return false;
+        }
+        ExpantaNum explorationPower = ExpantaNum.Max(ExpantaNum.Zero, definition.EnemyPower);
+        if (runtimeState.AttackPower < explorationPower ||
+            runtimeState.DefensePower < explorationPower)
+        {
+            failure = SectorOperationFailure.InsufficientExplorationPower;
             return false;
         }
         if (!TryCalculateCosts(

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FirstContact
   m_EditorClassIdentifier: 
   id: FirstContact
-  Label: First Contact
-  Description: Decode the first coherent signal from Alpha Centauri and reveal its frontier sector.
+  Label: "首次接触"
+  Description: "解码来自半人马座的第一条完整信号，建立人类与星际文明的正式接触。"
   BaseCost: 6000000
   prerequisites:
   - {fileID: 11400000, guid: 7a2e5c9d4f1b48e6b3c8d0a7f5e2c914, type: 2}
@@ -28,10 +28,9 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 9
+  - Type: 19
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    SystemId: first-contact
     Value:
       sign: 0
       representation: 1
@@ -41,5 +40,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 4
   AdvancesTechLevel: 0
-  x: 9
-  y: 1

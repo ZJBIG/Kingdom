@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: RotaryDrillingHeads
+  m_EditorClassIdentifier: 
+  id: RotaryDrillingHeads
+  Label: "\u65CB\u8F6C\u94BB\u5934\u7EC4"
+  Description: "\u8010\u78E8\u5408\u91D1\u94BB\u5934\u548C\u6CE5\u6D46\u5FAA\u73AF\u7CFB\u7EDF\u63D0\u9AD8\u6DF1\u5C42\u6CB9\u4E95\u7684\u8FDE\u7EED\u4EA7\u91CF\u3002"
+  Category: "\u91C7\u6398"
+  SortOrder: 75
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: c4d5cc57cb9d419a8daa5724db6afe60, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 4f8a6c2d9b1e47a5b3c7d0e6f2a9c814, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 350
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 1c2f783b746a45a4b9fa8a5568a039b6, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.20
+      layer: 0
+      operators: []

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: MechanizedProduction
+  m_EditorClassIdentifier: 
+  id: MechanizedProduction
+  Label: "\u673A\u68B0\u5316\u751F\u4EA7"
+  Description: "\u4EE5\u84B8\u6C7D\u673A\u6216\u7535\u52A8\u673A\u9A71\u52A8\u673A\u5E8A\u548C\u751F\u4EA7\u8BBE\u5907\uFF0C\u5C06\u91CD\u590D\u52B3\u52A8\u4EA4\u7ED9\u673A\u68B0\u5E76\u63D0\u9AD8\u52A0\u5DE5\u901F\u5EA6\u3001\u529B\u91CF\u4E0E\u7A33\u5B9A\u6027\u3002"
+  BaseCost: 420000
+  prerequisites:
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 300
+      layer: 0
+      operators: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
+    Resource: {fileID: 0}
+    SystemId: 
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.2
+      layer: 0
+      operators: []
+  TechLevel: 3
+  AdvancesTechLevel: 0
+  x: 21
+  y: 16

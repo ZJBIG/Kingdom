@@ -27,8 +27,16 @@ MonoBehaviour:
       scalar: 50
       layer: 0
       operators: []
-  effects: []
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 35a4cddae79c67c45b6093cc42b84f8f, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.25
+      layer: 0
+      operators: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 6
-  y: 28

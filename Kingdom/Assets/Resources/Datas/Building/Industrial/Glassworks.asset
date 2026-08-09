@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Glassworks
   Label: "\u7845\u9178\u76D0\u5DE5\u5382"
   Description: "\u5229\u7528\u77F3\u6599\u4E0E\u7126\u70AD\u6279\u91CF\u751F\u4EA7\u73BB\u7483\u548C\u5DE5\u4E1A\u9676\u74F7\uFF0C\u53D6\u6D88\u4EC5\u4E3A\u73BB\u7483\u670D\u52A1\u7684\u72EC\u7ACB\u7845\u7802\u8D44\u6E90\u94FE\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -153,7 +153,7 @@ MonoBehaviour:
       scalar: 250
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 83b1e6c4df34e054682e354c30de1261, type: 2}
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1

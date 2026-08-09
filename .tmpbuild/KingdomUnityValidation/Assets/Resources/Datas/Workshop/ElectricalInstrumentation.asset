@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ElectricalInstrumentation
+  m_EditorClassIdentifier: 
+  id: ElectricalInstrumentation
+  Label: "\u7535\u6C14\u4EEA\u8868"
+  Description: "\u6D4B\u91CF\u7535\u538B\u3001\u7535\u6D41\u3001\u8F6C\u901F\u3001\u6E29\u5EA6\u4E0E\u538B\u529B\u7684\u5DE5\u4E1A\u4EEA\u8868\u7EC4\u3002"
+  Category: "\u7535\u6C14"
+  SortOrder: 150
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: fb1f28c62d8c3764ba9623d7c4b90751, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 80
+      layer: 0
+      operators: []
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []
+  - Type: 0
+    Building: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.1
+      layer: 0
+      operators: []

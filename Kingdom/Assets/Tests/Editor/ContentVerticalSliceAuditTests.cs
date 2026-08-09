@@ -9,16 +9,25 @@ public sealed class ContentVerticalSliceAuditTests
         Assert.That(HasGeneration("FiberGatheringCamp", "PlantFiber"), Is.True);
         Assert.That(DataBase<Building>.Contains("StoneToolWorkshop"), Is.False);
         Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
-        Assert.That(HasGeneration("CopperMine", "CopperOre"), Is.True);
-        Assert.That(HasGeneration("TinMine", "TinOre"), Is.True);
-        Assert.That(HasGeneration("IronMine", "IronOre"), Is.True);
+        Assert.That(HasGeneration("MetalMine", "CopperOre"), Is.True);
+        Assert.That(HasGeneration("MetalMine", "TinOre"), Is.True);
+        Assert.That(HasGeneration("MetalMine", "IronOre"), Is.True);
+        Assert.That(DataBase<Building>.Contains("CopperMine"), Is.False);
+        Assert.That(DataBase<Building>.Contains("TinMine"), Is.False);
+        Assert.That(DataBase<Building>.Contains("IronMine"), Is.False);
+        Assert.That(DataBase<Building>.Contains("CopperSmelter"), Is.False);
+        Assert.That(DataBase<Building>.Contains("TinSmelter"), Is.False);
+        Assert.That(DataBase<Building>.Contains("IronSmelter"), Is.False);
+        Assert.That(DataBase<Building>.Contains("IndustrialCopperSmelter"), Is.False);
+        Assert.That(DataBase<Building>.Contains("IndustrialTinSmelter"), Is.False);
+        Assert.That(DataBase<Research>.Contains("IndustrialCopperSmelting"), Is.False);
     }
 
     [Test]
     public void NeolithicProcessingChains_HaveOutputAndInputFlow()
     {
-        Assert.That(HasGeneration("PotteryKiln", "Pottery"), Is.True);
-        Assert.That(HasConsumption("PotteryKiln", "Clay"), Is.True);
+        Assert.That(HasGeneration("CeramicKiln", "Ceramic"), Is.True);
+        Assert.That(HasConsumption("CeramicKiln", "Clay"), Is.True);
         Assert.That(HasGeneration("WeavingWorkshop", "Cloth"), Is.True);
         Assert.That(HasConsumption("WeavingWorkshop", "PlantFiber"), Is.True);
     }
@@ -50,9 +59,9 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     [Test]
-    public void Pottery_RequiresTheClayExtractionResearchPath()
+    public void CeramicFiring_RequiresTheClayExtractionResearchPath()
     {
-        Research pottery = DataBase<Research>.Find("Pottery");
+        Research pottery = DataBase<Research>.Find("CeramicFiring");
 
         Assert.That(HasPrerequisite(pottery, "StoneTools"), Is.True);
         Assert.That(HasPrerequisite(pottery, "ClayExtraction"), Is.True);

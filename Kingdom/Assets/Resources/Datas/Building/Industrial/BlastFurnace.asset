@@ -15,7 +15,7 @@ MonoBehaviour:
   id: BlastFurnace
   Label: "\u9AD8\u7089"
   Description: "\u5728\u9AD8\u6E29\u8FDE\u7EED\u7089\u4E2D\u51B6\u70BC\u94C1\u77FF\u5E76\u63A7\u5236\u6210\u5206\uFF0C\u5927\u89C4\u6A21\u751F\u4EA7\u5DE5\u4E1A\u94A2\u6750\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

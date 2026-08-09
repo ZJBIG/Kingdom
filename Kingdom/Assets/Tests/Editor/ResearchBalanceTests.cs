@@ -17,12 +17,11 @@ public sealed class ResearchBalanceTests
             ["ForagingGroups"] = 450d,
             ["Mining"] = 600d,
             ["TreeCultivate"] = 750d,
-            ["Mining_Copper"] = 900d,
             ["StoneCutting"] = 900d,
             ["Mathematics"] = 1000d,
             ["Calendar"] = 1400d,
             ["KnowledgeSharing"] = 1500d,
-            ["Pottery"] = 1200d,
+            ["Ceramic"] = 1200d,
             ["TextileCraft"] = 1400d,
             ["CoalMining"] = 1800d,
             ["NeolithicSettlement"] = 4400d,
@@ -32,10 +31,7 @@ public sealed class ResearchBalanceTests
             ["WaterManagement"] = 5500d,
             ["Masonry"] = 6500d,
             ["Smithing"] = 8000d,
-            ["Mining_Tin"] = 9000d,
             ["Smithing_Copper"] = 10000d,
-            ["Mining_Iron"] = 12000d,
-            ["Smithing_Tin"] = 12000d,
             ["Smithing_Iron"] = 15000d,
             ["Smithing_Bronze"] = 20000d,
             ["SmithingRevolution"] = 60000d
@@ -87,7 +83,7 @@ public sealed class ResearchBalanceTests
                 smithing,
                 ResearchEffectType.BuildingProductionMultiplier,
                 1.1d,
-                "CopperSmelter"),
+                "MetalSmelter"),
             Is.True);
         Assert.That(HasEffect(waterManagement, ResearchEffectType.BuildingFoodProductionMultiplier, 1.5d), Is.True);
         Building knowledgeCircle = DataBase<Building>.Find("KnowledgeCircle");
@@ -150,6 +146,29 @@ public sealed class ResearchBalanceTests
                 ResearchEffectType.PopulationGrowthMultiplier,
                 1.4d),
             Is.True);
+    }
+
+    [Test]
+    public void IntegratedFurnaces_ImprovesMetalSmelter()
+    {
+        WorkshopUpgradeDefinition upgrade =
+            DataBase<WorkshopUpgradeDefinition>.Find("IntegratedFurnaces");
+        bool found = false;
+        for (int i = 0; i < upgrade.Effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = upgrade.Effects[i];
+            if (effect != null &&
+                effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
+                effect.Building != null &&
+                effect.Building.Id == "MetalSmelter" &&
+                effect.Value.ToDouble() >= 1.25d)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        Assert.That(found, Is.True, "一体化冶炉必须提升多金属冶炼炉产出。");
     }
 
     [Test]

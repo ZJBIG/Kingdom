@@ -44,8 +44,7 @@ public sealed class ResearchEffectTests
             },
             new ResearchEffectDefinition
             {
-                Type = ResearchEffectType.UnlockSystem,
-                SystemId = "military"
+                Type = ResearchEffectType.UnlockIndustrialWorkshop
             }
         });
 
@@ -74,7 +73,7 @@ public sealed class ResearchEffectTests
         Assert.That(
             modifiers.PopulationGrowthMultiplier.ToDouble(),
             Is.EqualTo(1.2d).Within(0.000001d));
-        Assert.That(modifiers.IsSystemUnlocked("military"), Is.True);
+        Assert.That(modifiers.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop), Is.True);
     }
 
     [Test]

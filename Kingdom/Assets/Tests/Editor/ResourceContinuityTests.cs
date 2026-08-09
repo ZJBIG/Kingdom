@@ -14,22 +14,21 @@ public sealed class ResourceContinuityTests
     [Test]
     public void FoodAndMaterialChainsRetainTheirExistingLaterUses()
     {
-        Assert.That(HasBuildingRequirement("Granary", "Pottery"), Is.True);
+        Assert.That(HasBuildingRequirement("Granary", "Ceramic"), Is.True);
         Assert.That(HasBuildingRequirement("ScribeHut", "Cloth"), Is.True);
-        Assert.That(HasBuildingRequirement("CopperSmelter", "StoneBrick"), Is.True);
-        Assert.That(HasBuildingRequirement("IronSmelter", "StoneBrick"), Is.True);
+        Assert.That(HasBuildingRequirement("MetalSmelter", "StoneBrick"), Is.True);
     }
 
     [Test]
-    public void UnpublishedSpaceResourcesDoNotLeakIntoIndustrialProduction()
+    public void SpaceResourcesHaveIndustrialSourcesBeforeSpaceConstruction()
     {
-        Assert.That(HasGenerationRate("ChemicalPlant", "RocketFuel", 0.25d), Is.False);
-        Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.15d), Is.False);
+        Assert.That(HasGenerationRate("ChemicalPlant", "RocketFuel", 0.25d), Is.True);
+        Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.15d), Is.True);
         Assert.That(HasBuildingRequirement("LaunchCenter", "RocketFuel"), Is.True);
         Assert.That(HasBuildingRequirement("Shipyard", "Composite"), Is.True);
         Assert.That(HasColonizationCost("Moon", "RocketFuel", 1d), Is.True);
         Assert.That(HasColonizationCost("Mars", "Composite", 1d), Is.True);
-        Assert.That(HasCampaignCost("AlphaCentauri", "RocketFuel", 5d), Is.True);
+        Assert.That(HasCampaignCost("AlphaCentauri", "RocketFuel", 25d), Is.True);
     }
 
     private static bool HasRequirement(Research research, string resourceId, double amount)

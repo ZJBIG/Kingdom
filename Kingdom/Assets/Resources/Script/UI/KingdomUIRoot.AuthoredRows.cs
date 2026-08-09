@@ -56,11 +56,19 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
+        var orderedDefinitions = new List<Resource>();
         for (int i = 0; i < definitions.Count; i++)
         {
             Resource resource = definitions[i];
             if (resource == null || !IsResourceVisible(resource))
                 continue;
+            orderedDefinitions.Add(resource);
+        }
+
+        orderedDefinitions.Sort(CompareResourceRows);
+        for (int i = 0; i < orderedDefinitions.Count; i++)
+        {
+            Resource resource = orderedDefinitions[i];
             ResourceState state = null;
             ResourceManager.Instance?.States.TryGetValue(resource, out state);
             string amount = state == null ? "0" : state.Amount.ToGameString();
@@ -96,6 +104,20 @@ public sealed partial class KingdomUIRoot
             resourceChangeLabels[resource] = row.transform.Find("ChangeRate")?.GetComponent<TMP_Text>();
         }
         Debug.Log($"[KingdomUI] Authored resource rows: visible={visible}, rowsRect={parent.rect.size}");
+    }
+
+    private static int CompareResourceRows(Resource left, Resource right)
+    {
+        int setComparison = left.DisplayerSet.CompareTo(right.DisplayerSet);
+        if (setComparison != 0)
+            return setComparison;
+
+        int labelComparison = string.CompareOrdinal(
+            string.IsNullOrEmpty(left.Label) ? left.Id : left.Label,
+            string.IsNullOrEmpty(right.Label) ? right.Id : right.Label);
+        return labelComparison != 0
+            ? labelComparison
+            : string.CompareOrdinal(left.Id, right.Id);
     }
 
     private void BuildAuthoredBuildingRows(RectTransform parent)

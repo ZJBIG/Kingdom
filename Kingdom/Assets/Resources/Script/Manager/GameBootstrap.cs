@@ -63,7 +63,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         catch (Exception exception)
         {
             throw new InvalidOperationException(
-                $"Failed to initialize {typeof(T).Name} definitions.", exception);
+                $"初始化 {typeof(T).Name} 定义失败。", exception);
         }
     }
 }

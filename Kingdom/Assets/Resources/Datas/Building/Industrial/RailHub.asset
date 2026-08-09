@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailHub
   Label: "\u94C1\u8DEF\u67A2\u7EBD"
-  Description: "\u901A\u8FC7\u94C1\u8DEF\u7AD9\u573A\u3001\u4ED3\u5E93\u3001\u7535\u62A5\u4FE1\u53F7\u548C\u8C03\u5EA6\u8BBE\u65BD\u7EC4\u7EC7\u5927\u5B97\u8D27\u7269\u8FD0\u8F93\uFF0C\u4E0D\u518D\u4F9D\u8D56\u5185\u71C3\u673A\u7814\u7A76\u89E3\u9501\u3002"
+  Description: "\u901A\u8FC7\u94C1\u8DEF\u7AD9\u573A\u3001\u4ED3\u5E93\u3001\u7535\u62A5\u4FE1\u53F7\u548C\u8C03\u5EA6\u8BBE\u65BD\u7EC4\u7EC7\u5927\u5B97\u8D27\u7269\u8FD0\u8F93\uFF0C\u6301\u7EED\u4F7F\u7528\u673A\u68B0\u8BBE\u5907\u3001\u71C3\u6CB9\u3001\u6DA6\u6ED1\u5242\u548C\u53D1\u52A8\u673A\u7EF4\u6301\u94C1\u8DEF\u8FD0\u8F6C\u3002"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -185,6 +185,22 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 0.05
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.05
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.08
       layer: 0
       operators: []
   requiredResearch:

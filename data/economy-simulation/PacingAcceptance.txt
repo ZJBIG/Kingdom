@@ -1,8 +1,8 @@
 FAIL:
 Normal: Neolithic reached at 96.6 minutes; expected 60-90.
-Normal: Medieval reached at 601.82 minutes; expected 300-480.
-Normal: Industrial reached at 992.98 minutes; expected 600-960.
 Fast: Neolithic reached at 97.15 minutes; expected 45-75.
-Fast: Medieval reached at 471.12 minutes; expected 240-360.
-Fast: Industrial reached at 722.95 minutes; expected 480-600.
+Fast: Medieval reached at 187.58 minutes; expected 240-360.
+Fast: Industrial reached at 425.42 minutes; expected 480-600.
 Conservative: Neolithic reached at 81.88 minutes; expected 90-120.
+Conservative: Medieval reached at 308.47 minutes; expected 480-720.
+Conservative: Industrial reached at 823.42 minutes; expected 840-1200.

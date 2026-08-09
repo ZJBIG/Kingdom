@@ -1,0 +1,181 @@
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Building batch-operation controls and quantity normalization.
+/// This partial contains no gameplay rules; it only selects the amount passed
+/// to BuildingManager.
+/// </summary>
+public sealed partial class KingdomUIRoot
+{
+    private void RefreshBuildingQuantityHeader()
+    {
+        if (buildingPageTitle == null || buildingQuantityControls == null)
+            return;
+        bool visible = populatedPage == "Buildings";
+        buildingPageTitle.text = "建筑";
+        buildingPageTitle.text = "\u5efa\u7b51";
+        buildingPageTitle.enabled = true;
+        buildingPageTitle.gameObject.SetActive(visible);
+        RectTransform titleRect = buildingPageTitle.rectTransform;
+        titleRect.SetParent(buildingQuantityControls.transform.parent, false);
+        titleRect.anchorMin = new Vector2(0f, 1f);
+        titleRect.anchorMax = new Vector2(0f, 1f);
+        titleRect.pivot = new Vector2(0f, 1f);
+        titleRect.offsetMin = new Vector2(34f, -88f);
+        titleRect.offsetMax = new Vector2(170f, -28f);
+        buildingPageTitle.transform.SetAsLastSibling();
+        buildingQuantityControls.gameObject.SetActive(visible);
+    }
+
+    private void BuildBuildingQuantityControls(Transform parent)
+    {
+        Transform existing = parent.Find("BuildingQuantityControls");
+        if (existing == null)
+        {
+            Debug.LogError("[KingdomUI] Authored BuildingQuantityControls is missing; fixed quantity UI will not be generated at runtime.");
+            return;
+        }
+        buildingQuantityControls = existing as RectTransform;
+        RepairBuildingQuantityControls(buildingQuantityControls);
+    }
+
+    private void RepairBuildingQuantityControls(RectTransform controls)
+    {
+        buildingQuantityButtons.Clear();
+        buildingPageTitle = controls.parent.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
+        if (buildingPageTitle == null)
+        {
+            Debug.LogError("[KingdomUI] Authored BuildingPageTitle is missing from the scene shell.");
+            return;
+        }
+        buildingPageTitle.alignment = TextAlignmentOptions.MidlineLeft;
+        buildingPageTitle.fontSize = 36;
+        buildingPageTitle.text = "\u5efa\u7b51";
+        buildingPageTitle.enabled = true;
+
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.One, "x1");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Ten, "x10");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Max, "xMax");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Custom, "Custom");
+
+        customQuantityInput = controls.Find("CustomQuantityInput")?.GetComponent<TMP_InputField>();
+        if (customQuantityInput != null)
+        {
+            customQuantityInput.textViewport = customQuantityInput.transform as RectTransform;
+            customQuantityInput.textComponent = customQuantityInput.transform.Find("Text")?.GetComponent<TMP_Text>();
+            customQuantityInput.placeholder = customQuantityInput.transform.Find("Placeholder")?.GetComponent<TMP_Text>();
+            customQuantityInput.onValueChanged.RemoveAllListeners();
+            customQuantityInput.onValueChanged.AddListener(value =>
+            {
+                if (ExpantaNum.TryParse(value, out ExpantaNum parsed) && parsed.IsFinite && parsed >= ExpantaNum.One)
+                    customBuildingQuantity = parsed.Floor();
+            });
+            customQuantityInput.onSelect.RemoveAllListeners();
+            customQuantityInput.onSelect.AddListener(_ => SelectBuildingQuantityMode(BuildingQuantityMode.Custom));
+            customQuantityInput.onEndEdit.RemoveAllListeners();
+            customQuantityInput.onEndEdit.AddListener(_ => NormalizeCustomQuantityInput());
+        }
+        UpdateBuildingQuantityButtonColors();
+    }
+
+    private void AddOrRepairBuildingQuantityButton(RectTransform parent, BuildingQuantityMode mode, string label)
+    {
+        Button button = parent.Find("Quantity_" + mode)?.GetComponent<Button>();
+        if (button == null)
+        {
+            Debug.LogError("[KingdomUI] Authored quantity button is missing: Quantity_" + mode);
+            return;
+        }
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => SelectBuildingQuantityMode(mode));
+
+        TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
+        if (buttonText == null)
+        {
+            Debug.LogError("[KingdomUI] Authored quantity button has no text: Quantity_" + mode);
+            return;
+        }
+        buttonText.text = label;
+        buttonText.enabled = true;
+        buttonText.gameObject.SetActive(true);
+        buttonText.fontSize = 32;
+        buttonText.color = TextPrimary;
+        buttonText.alignment = TextAlignmentOptions.MidlineLeft;
+        buttonText.enableWordWrapping = false;
+        buttonText.overflowMode = TextOverflowModes.Overflow;
+        buttonText.raycastTarget = false;
+        if (sharedFontAsset != null)
+            buttonText.font = sharedFontAsset;
+        buttonText.transform.SetAsLastSibling();
+        button.transform.SetAsLastSibling();
+        buildingQuantityButtons[mode] = button;
+    }
+
+    private void NormalizeCustomQuantityInput()
+    {
+        if (customQuantityInput == null)
+            return;
+        if (!ExpantaNum.TryParse(customQuantityInput.text, out ExpantaNum parsed) ||
+            !parsed.IsFinite || parsed < ExpantaNum.One)
+            parsed = ExpantaNum.One;
+        customBuildingQuantity = parsed.Floor();
+        if (customBuildingQuantity < ExpantaNum.One)
+            customBuildingQuantity = ExpantaNum.One;
+        customQuantityInput.text = customBuildingQuantity.ToString();
+    }
+
+    private void SelectBuildingQuantityMode(BuildingQuantityMode mode)
+    {
+        buildingQuantityMode = mode;
+        UpdateBuildingQuantityButtonColors();
+    }
+
+    private void UpdateBuildingQuantityButtonColors()
+    {
+        foreach (KeyValuePair<BuildingQuantityMode, Button> pair in buildingQuantityButtons)
+        {
+            Image image = pair.Value.targetGraphic as Image;
+            if (image != null)
+                image.color = pair.Key == buildingQuantityMode ? Copper : PanelRaised;
+        }
+    }
+
+    private ExpantaNum GetSelectedBuildingQuantity(Building building, bool upgrade, bool deconstruct)
+    {
+        switch (buildingQuantityMode)
+        {
+            case BuildingQuantityMode.Ten:
+                return new ExpantaNum(10);
+            case BuildingQuantityMode.Max:
+                if (deconstruct)
+                {
+                    if (BuildingManager.Instance.States.TryGetValue(building, out BuildingState maxState))
+                        return maxState.Amount;
+                    return ExpantaNum.Zero;
+                }
+                return upgrade
+                    ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
+                    : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
+            case BuildingQuantityMode.Custom:
+                ExpantaNum maximum;
+                if (deconstruct)
+                {
+                    maximum = BuildingManager.Instance.States.TryGetValue(building, out BuildingState customState)
+                        ? customState.Amount
+                        : ExpantaNum.Zero;
+                }
+                else
+                {
+                    maximum = upgrade
+                        ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
+                        : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
+                }
+                return customBuildingQuantity >= maximum ? maximum : customBuildingQuantity;
+            default:
+                return ExpantaNum.One;
+        }
+    }
+}

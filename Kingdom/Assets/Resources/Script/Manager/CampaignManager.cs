@@ -49,6 +49,16 @@ public static class CampaignManager
         return ExpantaNum.Max(ExpantaNum.Zero, effectivePlayerPower) / normalizedEnemyPower;
     }
 
+    public static ExpantaNum CalculateFleetSurvivalFactor(
+        ExpantaNum defensePower,
+        ExpantaNum enemyPower)
+    {
+        ExpantaNum normalizedEnemyPower = ExpantaNum.Max(ExpantaNum.One, enemyPower);
+        ExpantaNum defenseRatio = ExpantaNum.Clamp01(
+            ExpantaNum.Max(ExpantaNum.Zero, defensePower) / normalizedEnemyPower);
+        return new ExpantaNum(0.35d) + defenseRatio * new ExpantaNum(0.65d);
+    }
+
     public static ExpantaNum CalculateProgressRate(ExpantaNum combatRatio)
     {
         ExpantaNum ratio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
@@ -90,5 +100,17 @@ public static class CampaignManager
         if (deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         return CalculateCasualtyRate(combatRatio) * deltaSeconds / 60d;
+    }
+
+    public static ExpantaNum CalculateCasualtyAmount(
+        ExpantaNum combatRatio,
+        ExpantaNum defensePower,
+        ExpantaNum enemyPower,
+        double deltaSeconds)
+    {
+        if (deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        ExpantaNum survivalFactor = CalculateFleetSurvivalFactor(defensePower, enemyPower);
+        return CalculateCasualtyRate(combatRatio) / survivalFactor * deltaSeconds / 60d;
     }
 }

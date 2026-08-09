@@ -48,7 +48,7 @@ public class FirstThreeErasContentDefinitionTests
     }
 
     [Test]
-    public void NewResearchHasDescriptionRequirementsEffectsAndDefaultCoordinates()
+    public void NewResearchHasDescriptionRequirementsAndEffects()
     {
         string[] ids = { "FishingTechniques", "Woodworking", "HerbalKnowledge", "FoodPreservation", "VillageOrganization", "OrganizedDefense", "CharcoalMaking", "PermanentArchitecture", "AnimalFodder", "KilnEfficiency", "IrrigationEngineering", "VillageCrafts", "CropRotation", "CouncilGovernance", "OrganizedWatch", "BronzeImplements", "UrbanHousing", "GuildSystem", "ScholasticInstitutions", "MerchantAccounting", "ImprovedMilling", "PublicHealth", "Astronomy", "RoadEngineering", "MechanicalPrinting", "MetallurgicalStandards", "CastleArchitecture", "ArsenalOrganization" };
         for (int i = 0; i < ids.Length; i++)
@@ -58,8 +58,6 @@ public class FirstThreeErasContentDefinitionTests
             Assert.That(research.Description, Is.Not.Empty, ids[i]);
             Assert.That(research.ResourceRequirements.Count, Is.GreaterThan(0), ids[i]);
             Assert.That(research.Effects.Count, Is.GreaterThan(0), ids[i]);
-            Assert.That(research.x, Is.EqualTo(0f), ids[i]);
-            Assert.That(research.y, Is.EqualTo(0f), ids[i]);
         }
     }
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: ConcreteWorks
   Label: "\u6DF7\u51DD\u571F\u5382"
   Description: "\u5C06\u77F3\u6599\u3001\u5316\u5DE5\u80F6\u7ED3\u6750\u6599\u548C\u673A\u68B0\u6405\u62CC\u7ED3\u5408\uFF0C\u6301\u7EED\u751F\u4EA7\u5927\u578B\u5DE5\u4E1A\u5EFA\u7B51\u6240\u9700\u7684\u6DF7\u51DD\u571F\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0

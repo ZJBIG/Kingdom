@@ -1,0 +1,209 @@
+﻿Kingdom repository audit 2026-08-08T14:59:58.1520566+08:00
+Project: D:\GitHub\Kingdom\Kingdom
+
+=== BigNumber references / \bBigNumber\b ===
+(none)
+
+=== Legacy Pair<Resource,string> / Pair\s*<\s*Resource\s*,\s*string\s*> ===
+(none)
+
+=== Canonical Pair<Resource,ExpantaNum> / Pair\s*<\s*Resource\s*,\s*ExpantaNum\s*> ===
+Assets\Resources\Script\Data\Building.cs:49: private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
+Assets\Resources\Script\Data\Building.cs:51: private List<Pair<Resource, ExpantaNum>> resourceGenerationRates = new();
+Assets\Resources\Script\Data\Building.cs:53: private List<Pair<Resource, ExpantaNum>> resourceConsumptionRates = new();
+Assets\Resources\Script\Data\Building.cs:60: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
+Assets\Resources\Script\Data\Building.cs:61: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceGenerationRates => resourceGenerationRates;
+Assets\Resources\Script\Data\Building.cs:62: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates => resourceConsumptionRates;
+Assets\Resources\Script\Data\Building.cs:107: List<Pair<Resource, ExpantaNum>> requirements,
+Assets\Resources\Script\Data\Building.cs:108: List<Pair<Resource, ExpantaNum>> generation,
+Assets\Resources\Script\Data\Building.cs:109: List<Pair<Resource, ExpantaNum>> consumption)
+Assets\Resources\Script\Data\Building.cs:127: resourceRequirements = requirements ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\Building.cs:128: resourceGenerationRates = generation ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\Building.cs:129: resourceConsumptionRates = consumption ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\Research.cs:13: private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
+Assets\Resources\Script\Data\Research.cs:17: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
+Assets\Resources\Script\Data\Research.cs:38: List<Pair<Resource, ExpantaNum>> values) =>
+Assets\Resources\Script\Data\Research.cs:39: resourceRequirements = values ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\SectorDefinition.cs:22: [SerializeField] private List<Pair<Resource, ExpantaNum>> resourceRewards = new();
+Assets\Resources\Script\Data\SectorDefinition.cs:24: [SerializeField] private List<Pair<Resource, ExpantaNum>> colonizationResourceCosts = new();
+Assets\Resources\Script\Data\SectorDefinition.cs:26: [SerializeField] private List<Pair<Resource, ExpantaNum>> campaignResourceCosts = new();
+Assets\Resources\Script\Data\SectorDefinition.cs:39: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards => resourceRewards;
+Assets\Resources\Script\Data\SectorDefinition.cs:41: public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceCosts => colonizationResourceCosts;
+Assets\Resources\Script\Data\SectorDefinition.cs:43: public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceCosts => campaignResourceCosts;
+Assets\Resources\Script\Data\SectorDefinition.cs:54: public void SetRewardsForEditor(ExpantaNum territory, List<Pair<Resource, ExpantaNum>> resources)
+Assets\Resources\Script\Data\SectorDefinition.cs:57: resourceRewards = resources ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\SectorDefinition.cs:68: List<Pair<Resource, ExpantaNum>> resources)
+Assets\Resources\Script\Data\SectorDefinition.cs:71: colonizationResourceCosts = resources ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\SectorDefinition.cs:76: List<Pair<Resource, ExpantaNum>> resources)
+Assets\Resources\Script\Data\SectorDefinition.cs:79: campaignResourceCosts = resources ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Data\WorkshopUpgradeDefinition.cs:17: [SerializeField] private List<Pair<Resource, ExpantaNum>> resourceRequirements = new();
+Assets\Resources\Script\Data\WorkshopUpgradeDefinition.cs:22: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => resourceRequirements;
+Assets\Resources\Script\Data\WorkshopUpgradeDefinition.cs:29: List<Pair<Resource, ExpantaNum>> requirements,
+Assets\Resources\Script\Data\WorkshopUpgradeDefinition.cs:34: resourceRequirements = requirements ?? new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Manager\BuildingManager.cs:115: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+Assets\Resources\Script\Manager\BuildingManager.cs:119: Pair<Resource, ExpantaNum> requirement = requirements[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:364: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+Assets\Resources\Script\Manager\BuildingManager.cs:367: Pair<Resource, ExpantaNum> pair = requirements[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:381: Pair<Resource, ExpantaNum> pair = requirements[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:419: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+Assets\Resources\Script\Manager\BuildingManager.cs:422: Pair<Resource, ExpantaNum> pair = requirements[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:458: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+Assets\Resources\Script\Manager\BuildingManager.cs:461: Pair<Resource, ExpantaNum> pair = requirements[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:478: List<Pair<Resource, ExpantaNum>> destination)
+Assets\Resources\Script\Manager\BuildingManager.cs:512: destination[i] = new Pair<Resource, ExpantaNum>(
+Assets\Resources\Script\Manager\BuildingManager.cs:544: var resourceDeltas = new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Manager\BuildingManager.cs:548: Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:617: var deltas = new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Manager\BuildingManager.cs:621: Pair<Resource, ExpantaNum> delta = deltas[i];
+Assets\Resources\Script\Manager\BuildingManager.cs:665: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+Assets\Resources\Script\Manager\BuildingManager.cs:666: List<Pair<Resource, ExpantaNum>> destination)
+Assets\Resources\Script\Manager\BuildingManager.cs:681: destination.Add(new Pair<Resource, ExpantaNum>(resource, ExpantaNum.Zero));
+Assets\Resources\Script\Manager\BuildingManager.cs:686: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+Assets\Resources\Script\Manager\BuildingManager.cs:785: IReadOnlyList<Pair<Resource, ExpantaNum>> consumption =
+Assets\Resources\Script\Manager\BuildingManager.cs:812: IReadOnlyList<Pair<Resource, ExpantaNum>> rates = building.ResourceConsumptionRates;
+Assets\Resources\Script\Manager\BuildingManager.cs:895: IReadOnlyList<Pair<Resource, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
+Assets\Resources\Script\Manager\BuildingManager.cs:903: IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = state.Definition.ResourceConsumptionRates;
+Assets\Resources\Script\Manager\BuildingManager.cs:965: IReadOnlyList<Pair<Resource, ExpantaNum>> generation =
+Assets\Resources\Script\Manager\BuildingManager.cs:969: Pair<Resource, ExpantaNum> rate = generation[j];
+Assets\Resources\Script\Manager\BuildingManager.cs:1037: private static void EnsureResources(IReadOnlyList<Pair<Resource, ExpantaNum>> pairs)
+Assets\Resources\Script\Manager\ResearchManager.cs:329: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+Assets\Resources\Script\Manager\ResearchManager.cs:333: Pair<Resource, ExpantaNum> requirement = requirements[i];
+Assets\Resources\Script\Manager\ResearchManager.cs:352: foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
+Assets\Resources\Script\Manager\ResearchManager.cs:696: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+Assets\Resources\Script\Manager\ResourceManager.cs:82: var entries = new List<KeyValuePair<Resource, ExpantaNum>>(costs.Count);
+Assets\Resources\Script\Manager\ResourceManager.cs:83: foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+Assets\Resources\Script\Manager\ResourceManager.cs:100: KeyValuePair<Resource, ExpantaNum> entry = entries[i];
+Assets\Resources\Script\Manager\SectorManager.cs:36: public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerMinute { get; }
+Assets\Resources\Script\Manager\SectorManager.cs:47: IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCostsPerMinute)
+Assets\Resources\Script\Manager\SectorManager.cs:130: Array.Empty<Pair<Resource, ExpantaNum>>());
+Assets\Resources\Script\Manager\SectorManager.cs:144: IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts = definition.CampaignResourceCosts ??
+Assets\Resources\Script\Manager\SectorManager.cs:145: Array.Empty<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Manager\SectorManager.cs:149: Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+Assets\Resources\Script\Manager\SectorManager.cs:341: out List<Pair<Resource, ExpantaNum>> resourceCosts,
+Assets\Resources\Script\Manager\SectorManager.cs:428: out List<Pair<Resource, ExpantaNum>> resourceCosts,
+Assets\Resources\Script\Manager\SectorManager.cs:594: IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+Assets\Resources\Script\Manager\SectorManager.cs:599: Pair<Resource, ExpantaNum> reward = rewards[i];
+Assets\Resources\Script\Manager\SectorManager.cs:609: IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+Assets\Resources\Script\Manager\SectorManager.cs:614: Pair<Resource, ExpantaNum> reward = rewards[i];
+Assets\Resources\Script\Manager\SectorManager.cs:625: out List<Pair<Resource, ExpantaNum>> resourceCosts,
+Assets\Resources\Script\Manager\SectorManager.cs:640: IReadOnlyList<Pair<Resource, ExpantaNum>> configured,
+Assets\Resources\Script\Manager\SectorManager.cs:644: out List<Pair<Resource, ExpantaNum>> resourceCosts,
+Assets\Resources\Script\Manager\SectorManager.cs:649: resourceCosts = new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\Manager\SectorManager.cs:660: Pair<Resource, ExpantaNum> cost = configured[i];
+Assets\Resources\Script\Manager\SectorManager.cs:666: resourceCosts.Add(new Pair<Resource, ExpantaNum>(
+Assets\Resources\Script\Manager\SectorManager.cs:683: IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+Assets\Resources\Script\Manager\SectorManager.cs:689: Pair<Resource, ExpantaNum> cost = costs[i];
+Assets\Resources\Script\Manager\SectorManager.cs:701: IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts)
+Assets\Resources\Script\Manager\WorkshopManager.cs:93: IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
+Assets\Resources\Script\Manager\WorkshopManager.cs:96: Pair<Resource, ExpantaNum> requirement = requirements[i];
+Assets\Resources\Script\Runtime\ResearchState.cs:103: foreach (KeyValuePair<Resource, ExpantaNum> entry in restoredPaidResourceCosts)
+Assets\Resources\Script\UI\KingdomUIRoot.cs:680: Pair<Resource, ExpantaNum> requirement = state.Definition.ResourceRequirements[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:48: private static List<Pair<Resource, ExpantaNum>> GetNextBuildingRequirements(
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:53: var requirements = new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:63: Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:64: requirements.Add(new Pair<Resource, ExpantaNum>(
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:71: private static List<Pair<Resource, ExpantaNum>> GetEffectiveBuildingFlows(
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:75: var flows = new List<Pair<Resource, ExpantaNum>>();
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:76: IReadOnlyList<Pair<Resource, ExpantaNum>> source = output
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:84: Pair<Resource, ExpantaNum> flow = source[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:88: flows.Add(new Pair<Resource, ExpantaNum>(flow.First, flow.Second * multiplier));
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:123: IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:124: IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:126: List<Pair<Resource, ExpantaNum>> requirements = GetNextBuildingRequirements(building, state, upgrading);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:162: List<Pair<Resource, ExpantaNum>> requirements = GetNextBuildingRequirements(building, state, upgrading);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:169: IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:170: IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:247: IReadOnlyList<Pair<Resource, ExpantaNum>> flows = production
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:253: Pair<Resource, ExpantaNum> flow = flows[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:424: private void ShowBuildingRequirements(IReadOnlyList<Pair<Resource, ExpantaNum>> requirements, string heading = "建筑需求")
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:479: Pair<Resource, ExpantaNum> requirement = requirements[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:501: private bool RefreshRequirementRows(IReadOnlyList<Pair<Resource, ExpantaNum>> requirements)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:516: Pair<Resource, ExpantaNum> requirement = requirements[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:533: private static string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:675: private void ShowBuildingFlows(IReadOnlyList<Pair<Resource, ExpantaNum>> output, IReadOnlyList<Pair<Resource, ExpantaNum>> input)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:707: private bool RefreshFlowRows(IReadOnlyList<Pair<Resource, ExpantaNum>> output,
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:708: IReadOnlyList<Pair<Resource, ExpantaNum>> input)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:725: IReadOnlyList<Pair<Resource, ExpantaNum>> flows, ref int index, bool consumption)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:731: Pair<Resource, ExpantaNum> flow = flows[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:746: private static int CountFlows(IReadOnlyList<Pair<Resource, ExpantaNum>> flows)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:757: private int AddFlowRows(RectTransform host, IReadOnlyList<Pair<Resource, ExpantaNum>> flows, int startIndex, Color tint, bool consumption)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:764: Pair<Resource, ExpantaNum> flow = flows[i];
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:788: private static string FormatFlowAmount(Pair<Resource, ExpantaNum> flow, bool consumption)=> (consumption ? "-" : "+") + flow.Second.ToGameString() + "/s";
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:858: private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:870: private static void AppendFlows(StringBuilder builder, string prefix, IReadOnlyList<Pair<Resource, ExpantaNum>> flows)
+Assets\Resources\Script\Validation\EconomyDependencyValidator.cs:303: IReadOnlyList<Pair<Resource, ExpantaNum>> costs, HashSet<Resource> resources)
+Assets\Resources\Script\Validation\EconomyDependencyValidator.cs:312: IReadOnlyList<Pair<Resource, ExpantaNum>> costs, HashSet<Resource> resources) =>
+
+=== Gameplay/UI coroutines / StartCoroutine|IEnumerator|WaitForSeconds ===
+Assets\Resources\Script\Manager\MusicManager.cs:77: autoPlayCoroutine = StartCoroutine(AutoPlayLoop());
+Assets\Resources\Script\Manager\MusicManager.cs:120: loadingCoroutine = StartCoroutine(LoadAndPlay(resourcePath));
+Assets\Resources\Script\Manager\MusicManager.cs:124: private IEnumerator LoadAndPlay(string resourcePath)
+Assets\Resources\Script\Manager\MusicManager.cs:243: private IEnumerator AutoPlayLoop()
+Assets\Resources\Script\Manager\MusicManager.cs:249: yield return new WaitForSecondsRealtime(1f);
+Assets\Resources\Script\Manager\MusicManager.cs:256: yield return new WaitForSecondsRealtime(.25f);
+Assets\Resources\Script\Manager\MusicManager.cs:260: yield return new WaitForSecondsRealtime(gapSeconds);
+Assets\Resources\Script\Manager\MusicManager.cs:267: yield return new WaitForSecondsRealtime(gapSeconds);
+Assets\Resources\Script\Manager\MusicManager.cs:270: yield return new WaitForSecondsRealtime(.25f);
+Assets\Resources\Script\Manager\SaveManager.cs:26: StartCoroutine(AutoSaveLoop());
+Assets\Resources\Script\Manager\SaveManager.cs:136: private IEnumerator AutoSaveLoop()
+Assets\Resources\Script\Manager\SaveManager.cs:141: yield return new WaitForSecondsRealtime(waitSeconds);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:241: researchTreeWarmupCoroutine = StartCoroutine(WarmResearchTreePage());
+Assets\Resources\Script\UI\KingdomUIRoot.cs:244: private IEnumerator WarmResearchTreePage()
+Assets\Resources\Script\UI\UITouchTooltip.cs:20: holdRoutine = StartCoroutine(ShowAfterHold());
+Assets\Resources\Script\UI\UITouchTooltip.cs:27: private IEnumerator ShowAfterHold()
+Assets\Resources\Script\UI\UITouchTooltip.cs:29: yield return new WaitForSecondsRealtime(HoldSeconds);
+
+=== Update methods / \bvoid\s+Update\s*\( ===
+Assets\Resources\Script\Manager\SimulationManager.cs:22: private void Update()
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:13: private void Update()
+Assets\Resources\Script\UI\SafeAreaFitter.cs:20: private void Update() => ApplyIfChanged(false);
+Assets\Resources\Script\UI\UIResearchGraphGesture.cs:173: private void Update()
+
+=== Transform.GetChild / Transform\.GetChild|\.GetChild\s*\( ===
+Assets\Resources\Script\UI\KingdomUIRoot.cs:220: Transform child = transform.GetChild(i);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:517: Destroy(host.GetChild(i).gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:404: if (runtimeFlowContent.GetChild(i).name.StartsWith("Flow_"))
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:405: Destroy(runtimeFlowContent.GetChild(i).gameObject);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:413: Transform child = content.GetChild(i);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:438: Transform child = content.GetChild(i);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailPanel.cs:687: Transform child = flowContent.GetChild(i);
+Assets\Resources\Script\UI\KingdomUIRoot.DetailUI.cs:21: Transform legacy = detailPanel.GetChild(i);
+Assets\Resources\Script\UI\KingdomUIRoot.SceneLayout.cs:116: Destroy(content.GetChild(i).gameObject);
+
+=== Off-screen hiding / OutsideTheWindows|ViewerLocalPos|-10000 ===
+Assets\Resources\Script\UI\KingdomUIRoot.cs:11: [DefaultExecutionOrder(-10000)]
+
+=== Scene searches / FindObjectOfType ===
+Assets\Resources\Script\Manager\BuildingManager.cs:222: WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
+Assets\Resources\Script\Manager\BuildingManager.cs:1146: ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+Assets\Resources\Script\Manager\MusicManager.cs:297: UIButtonSoundManager manager = FindObjectOfType<UIButtonSoundManager>();
+Assets\Resources\Script\Manager\ResearchManager.cs:77: BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+Assets\Resources\Script\Manager\ResearchManager.cs:560: BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+Assets\Resources\Script\Manager\ResearchManager.cs:585: BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+Assets\Resources\Script\Manager\ResearchManager.cs:643: WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
+Assets\Resources\Script\Manager\SectorManager.cs:583: BuildingManager buildingManager = UnityEngine.Object.FindObjectOfType<BuildingManager>();
+Assets\Resources\Script\Misc\Singleton.cs:12: instance = FindObjectOfType<T>();
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:73: GameManager gameManager = FindObjectOfType<GameManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:78: FindObjectOfType<ResearchManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:79: FindObjectOfType<ResourceManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:80: FindObjectOfType<BuildingManager>(),
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:81: FindObjectOfType<WorkshopManager>());
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:123: GameManager gameManager = FindObjectOfType<GameManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.LiveRefresh.cs:156: ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+Assets\Resources\Script\UI\KingdomUIRoot.Music.cs:15: return FindObjectOfType<MusicManager>();
+
+=== Resources.Load / Resources\.Load ===
+Assets\Resources\Script\Data\DataBase.cs:63: T[] loaded = Resources.LoadAll<T>(ResourcesPath);
+Assets\Resources\Script\Manager\MusicManager.cs:91: AudioClip[] clips = Resources.LoadAll<AudioClip>("Musics/" + category);
+Assets\Resources\Script\Manager\MusicManager.cs:126: ResourceRequest request = Resources.LoadAsync<AudioClip>(resourcePath);
+Assets\Resources\Script\UI\KingdomUIPrefabLibrary.cs:40: GameObject loaded = Resources.Load<GameObject>(RootPath + prefabName);
+Assets\Resources\Script\UI\KingdomUIRoot.cs:147: Font source = Resources.Load<Font>("Fonts/NotoSansSC-Regular");
+Assets\Resources\Script\UI\KingdomUIRoot.Music.cs:49: AudioClip[] clips = Resources.LoadAll<AudioClip>("Musics/" + category);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1686: Sprite importedSprite = Resources.Load<Sprite>("Texture/" + path);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1693: Texture2D texture = Resources.Load<Texture2D>("Texture/" + path);
+Assets\Resources\Script\UI\KingdomUIRoot.ResearchTree.cs:1710: Texture2D texture = Resources.Load<Texture2D>("Texture/ResearchTree/ResearchLineCircle");
+
+=== Reflection / System\.Reflection|GetCustomAttributes|GetField\s*\( ===
+Assets\Resources\Script\Misc\Tool.cs:67: var fieldInfo = enumType.GetField(name);
+Assets\Resources\Script\Misc\Tool.cs:71: var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+

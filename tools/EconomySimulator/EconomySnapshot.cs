@@ -22,7 +22,6 @@ public enum SimEffectKind
     FoodCapacityMultiplier = 6,
     ProductivityGranted = 7,
     TerritoryGranted = 8,
-    UnlockSystem = 9,
     MilitaryMultiplier = 10,
     PowerMultiplier = 11,
     GlobalBuildingProductionMultiplier = 12,
@@ -30,7 +29,11 @@ public enum SimEffectKind
     BuildingPowerProductionMultiplier = 14,
     BuildingLogisticsProductionMultiplier = 15,
     GlobalLogisticsMultiplier = 16,
-    PopulationGrowthMultiplier = 17
+    PopulationGrowthMultiplier = 17,
+    UnlockIndustrialWorkshop = 18,
+    UnlockFirstContact = 19,
+    UnlockDeepSpaceFleet = 20,
+    UnlockInterstellarNavigation = 21
 }
 
 public sealed class Definition
@@ -59,7 +62,7 @@ public sealed class Definition
 public sealed class SimEffect
 {
     public SimEffectKind Kind;
-    public string Target = "", SystemId = "";
+    public string Target = "";
     public double Value;
 }
 

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Smithing_Iron
   m_EditorClassIdentifier: 
   id: Smithing_Iron
-  Label: "\u51B6\u70BC\u94C1"
-  Description: "\u5229\u7528\u66F4\u9AD8\u7089\u6E29\u8FD8\u539F\u94C1\u77FF\u5E76\u53CD\u590D\u953B\u6253\u9664\u6742\uFF0C\u83B7\u5F97\u9002\u5408\u91CD\u578B\u5DE5\u5177\u3001\u6B66\u5668\u548C\u5DE5\u7A0B\u6784\u4EF6\u7684\u94C1\u6750\u3002"
+  Label: "\u94C1\u5668\u4E0E\u70BC\u94A2\u57FA\u7840"
+  Description: "\u638C\u63E1\u94C1\u77FF\u9AD8\u6E29\u8FD8\u539F\u3001\u953B\u6253\u9664\u6742\u548C\u521D\u6B65\u70BC\u94A2\u65B9\u6CD5\uFF0C\u4E3A\u94A2\u94C1\u751F\u4EA7\u3001\u91CD\u578B\u5DE5\u5177\u548C\u9632\u5FA1\u8BBE\u65BD\u63D0\u4F9B\u6750\u6599\u57FA\u7840\u3002"
   BaseCost: 19000
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
@@ -39,5 +39,3 @@ MonoBehaviour:
   effects: []
   TechLevel: 1
   AdvancesTechLevel: 0
-  x: 9
-  y: 28

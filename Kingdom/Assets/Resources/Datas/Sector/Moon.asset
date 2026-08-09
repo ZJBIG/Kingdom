@@ -17,13 +17,15 @@ MonoBehaviour:
   Description: A nearby lunar sector suitable for orbital construction and the first permanent off-world settlement.
   starSystemId: Sol
   domain: 0
-  enemyPower: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
   prerequisiteSectors:
   - {fileID: 11400000, guid: e58bf3ff112a2434d8099d90170711df, type: 2}
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 25, layer: 0, operators: []}
+  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 1500, layer: 0, operators: []}
   resourceRewards:
   - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 75, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 2500, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1000, layer: 0, operators: []}
   colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
   colonizationResourceCosts:
   - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}

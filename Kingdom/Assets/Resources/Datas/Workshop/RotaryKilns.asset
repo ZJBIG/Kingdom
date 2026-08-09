@@ -47,6 +47,14 @@ MonoBehaviour:
       scalar: 200
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 150
+      layer: 0
+      operators: []
   effects:
   - Type: 0
     Building: {fileID: 11400000, guid: eceb037f89465d9419e3a36f8a208e95, type: 2}

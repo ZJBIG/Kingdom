@@ -79,7 +79,7 @@ public static class SimulationStrategies
                     StringComparer.OrdinalIgnoreCase));
             double effectValue = research.Effects.Count * 15d;
             double systemUnlock = research.Effects.Any(x =>
-                x.Kind == SimEffectKind.UnlockSystem) ? 1000d : 0d;
+                x.Kind == SimEffectKind.UnlockIndustrialWorkshop) ? 1000d : 0d;
             double era = research.AdvancesTechLevel ? -25d : 0d;
             return unlocks * 80d + effectValue + systemUnlock + era -
                 Math.Log10(Math.Max(1d, research.BaseCost)) * 12d;

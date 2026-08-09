@@ -39,7 +39,6 @@ MonoBehaviour:
   - Type: 1
     Building: {fileID: 11400000, guid: 9cb1b7e87a2100d4e9dd2395989511ca, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -50,29 +49,6 @@ MonoBehaviour:
   - Type: 1
     Building: {fileID: 11400000, guid: 037ef8be58a221c41badf7ec3324b539, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.242
-      layer: 0
-      operators: []
-  - Type: 1
-    Building: {fileID: 11400000, guid: a58f0978a55e659428bac68f22a46273, type: 2}
-    Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.242
-      layer: 0
-      operators: []
-  - Type: 1
-    Building: {fileID: 11400000, guid: 365e04bea8fa9ac4b8cf6dc678f9c59e, type: 2}
-    Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -83,29 +59,6 @@ MonoBehaviour:
   - Type: 1
     Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
     Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
-  - Type: 1
-    Building: {fileID: 11400000, guid: 7aaf2be48fbe76941a3d32fea47c3c29, type: 2}
-    Resource: {fileID: 0}
-    SystemId: 
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
-  - Type: 1
-    Building: {fileID: 11400000, guid: 57f0b7d59bc08724b8aa235fa67c71f4, type: 2}
-    Resource: {fileID: 0}
-    SystemId: 
     Value:
       sign: 0
       representation: 1
@@ -115,5 +68,3 @@ MonoBehaviour:
       operators: []
   TechLevel: 0
   AdvancesTechLevel: 0
-  x: 1
-  y: 29

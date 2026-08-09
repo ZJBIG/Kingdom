@@ -17,13 +17,15 @@ MonoBehaviour:
   Description: A distant frontier sector reserved for later logistics, mining, and planetary engineering.
   starSystemId: Sol
   domain: 0
-  enemyPower: {sign: 0, representation: 0, operatorCount: 0, scalar: 0, layer: 0, operators: []}
+  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}
   prerequisiteSectors:
   - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 50, layer: 0, operators: []}
+  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 3000, layer: 0, operators: []}
   resourceRewards:
   - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 100, layer: 0, operators: []}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 5000, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 3000, layer: 0, operators: []}
   colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
   colonizationResourceCosts:
   - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}

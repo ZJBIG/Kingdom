@@ -16,14 +16,16 @@ public sealed class C6IndustrialClosureAuditTests
         "WireMill",
         "University",
         "RailHub",
-        "IndustrialCopperSmelter",
-        "IndustrialTinSmelter",
+        "IndustrialMetalSmelter",
         "IndustrialBronzeFoundry",
         "BlastFurnace",
         "BauxiteMine",
         "AluminumSmelter",
         "ConcreteWorks",
-        "CentralPowerStation"
+        "CentralPowerStation",
+        "NickelRefinery",
+        "RareMetalMine",
+        "TitaniumMetallurgicalComplex"
     };
 
     private static readonly string[] IndustrialResourceIds =
@@ -35,7 +37,7 @@ public sealed class C6IndustrialClosureAuditTests
         "Silica",
         "Coke",
         "Glass",
-        "IndustrialCeramic",
+        "Ceramic",
         "RefinedFuel",
         "Lubricant",
         "Rubber",
@@ -44,7 +46,8 @@ public sealed class C6IndustrialClosureAuditTests
         "Engine",
         "Concrete",
         "BauxiteOre",
-        "Aluminum"
+        "Aluminum",
+        "Explosives"
     };
 
     [Test]

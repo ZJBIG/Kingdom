@@ -194,7 +194,15 @@ MonoBehaviour:
       scalar: 1.2
       layer: 0
       operators: []
-  resourceConsumptionRates: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.15
+      layer: 0
+      operators: []
   requiredResearch:
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}
   requiredWorkshopUpgrades: []

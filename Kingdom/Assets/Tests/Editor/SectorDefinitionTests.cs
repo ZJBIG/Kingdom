@@ -29,16 +29,17 @@ public sealed class SectorDefinitionTests
         SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
         SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
 
-        Assert.That(lowOrbit.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(lowOrbit.EnemyPower, Is.EqualTo(new ExpantaNum(40)));
         Assert.That(lowOrbit.CampaignFoodPerMinute, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(lowOrbit.CampaignResourceCosts, Is.Empty);
-        Assert.That(lowOrbit.TerritoryReward, Is.EqualTo(new ExpantaNum(10)));
-        Assert.That(moon.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(moon.TerritoryReward, Is.EqualTo(new ExpantaNum(25)));
-        Assert.That(mars.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(lowOrbit.TerritoryReward, Is.EqualTo(new ExpantaNum(500)));
+        Assert.That(lowOrbit.ResourceRewards, Has.Count.EqualTo(2));
+        Assert.That(moon.EnemyPower, Is.EqualTo(new ExpantaNum(80)));
+        Assert.That(moon.TerritoryReward, Is.EqualTo(new ExpantaNum(1500)));
+        Assert.That(mars.EnemyPower, Is.EqualTo(new ExpantaNum(160)));
         Assert.That(moon.CampaignFoodPerMinute, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(mars.CampaignFoodPerMinute, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(mars.TerritoryReward, Is.EqualTo(new ExpantaNum(50)));
+        Assert.That(mars.TerritoryReward, Is.EqualTo(new ExpantaNum(3000)));
         Assert.That(mars.MapX, Is.GreaterThan(moon.MapX));
         Assert.That(DataBase<SectorDefinition>.Find("AlphaCentauri").EnemyPower, Is.GreaterThan(ExpantaNum.Zero));
     }

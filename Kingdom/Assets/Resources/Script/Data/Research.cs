@@ -29,10 +29,6 @@ public class Research : GameDefinition
 
     public TechLevel TechLevel;
     public bool AdvancesTechLevel;
-    [Header("TabPosition")]
-    public float x;
-    public float y;
-
 #if UNITY_EDITOR
     public void SetResourceRequirementsForEditor(
         List<Pair<Resource, ExpantaNum>> values) =>

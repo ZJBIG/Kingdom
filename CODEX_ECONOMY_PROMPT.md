@@ -29,6 +29,31 @@ Current locked rules:
 - Keep current simulator strategies frozen. Do not add route scoring, decision AI,
   or trace features unless explicitly requested.
 
+Resource and late-era design contract:
+
+- A resource is allowed only when it has a reachable source, a visible unlock
+  path, at least two durable sinks or one strategic sink, and a purpose that
+  survives into later eras. Do not add resources merely to label another tier.
+- Advanced resources must be used by advanced Research, Workshops, Buildings,
+  and late campaigns. Their production should consume both advanced inputs and
+  selected earlier-era inputs, so older resources remain valuable rather than
+  becoming obsolete immediately after an era transition.
+- TitaniumAlloy is a high-strength structural resource and should be used
+  throughout Space construction, high-tier Research, advanced Workshops, and
+  interstellar logistics. Nickel and other underused industrial resources should
+  feed later alloy or phase-material chains instead of remaining isolated.
+- PhantomAlloy and PhantomWeave are valid examples of post-Space materials:
+  they require a real production building and a research gate, consume existing
+  industrial/high-tech inputs, and must have multiple Space or warfare sinks.
+- Interstellar campaigns must be materially and temporally expensive. Maintain
+  ongoing food, fuel, logistics, and advanced-material costs, require adequate
+  military/logistics satisfaction for reliable progress, and provide territory
+  and resource rewards at a scale appropriate for late-game investment rather
+  than trivial hundreds or low thousands.
+- Never add ordinary-resource capacity or storage caps to solve the cost of
+  these late campaigns; use production chains, supply, logistics, territory,
+  research, and strategic resource consumption instead.
+
 UI research-tree boundary:
 
 - Research UI may read definitions and runtime state, but must not change

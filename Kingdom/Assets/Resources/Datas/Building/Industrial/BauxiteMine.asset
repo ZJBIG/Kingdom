@@ -15,7 +15,7 @@ MonoBehaviour:
   id: BauxiteMine
   Label: "\u94DD\u571F\u77FF\u573A"
   Description: "\u4F7F\u7528\u5DE5\u4E1A\u8BBE\u5907\u5F00\u91C7\u548C\u9009\u77FF\u94DD\u571F\u77FF\uFF0C\u4E3A\u94DD\u51B6\u70BC\u4F53\u7CFB\u63D0\u4F9B\u7A33\u5B9A\u77FF\u6E90\u3002"
-  TechLevel: 0
+  TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
     sign: 0
@@ -162,7 +162,15 @@ MonoBehaviour:
       scalar: 2
       layer: 0
       operators: []
-  resourceConsumptionRates: []
+  resourceConsumptionRates:
+  - first: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.10
+      layer: 0
+      operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
   requiredWorkshopUpgrades: []

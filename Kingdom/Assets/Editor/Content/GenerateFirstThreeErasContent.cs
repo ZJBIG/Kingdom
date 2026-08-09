@@ -7,7 +7,7 @@ using UnityEngine;
 
 /// <summary>
 /// Imports the 2026-07-27 first-three-eras design pack through Unity so new assets
-/// receive editor-managed GUIDs and references. It intentionally never writes Research.x/y.
+/// receive editor-managed GUIDs and references. Research layout is generated at runtime from prerequisites.
 /// </summary>
 public static class GenerateFirstThreeErasContent
 {
@@ -22,7 +22,6 @@ public static class GenerateFirstThreeErasContent
         public ResearchEffectType Type;
         public string BuildingId;
         public string ResourceId;
-        public string SystemId;
         public double Value;
     }
 
@@ -61,7 +60,7 @@ public static class GenerateFirstThreeErasContent
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log($"Imported {buildingRows.Count} first-three-eras buildings and {researchRows.Count} researches. Research coordinates were left at defaults.");
+        Debug.Log($"已导入 {buildingRows.Count} 个前三时代建筑和 {researchRows.Count} 项研究，研究布局将在运行时根据前置关系生成。");
     }
 
     private static void EnsureBuildingAsset(
@@ -121,7 +120,6 @@ public static class GenerateFirstThreeErasContent
         research.SetPrerequisitesForEditor(ResolveResearches(ArrayValue(row, "prereq"), researches));
         research.SetResourceRequirementsForEditor(Pairs(DictionaryValue(row, "resources"), resources));
         research.SetEffectsForEditor(BuildEffects(id, buildings, resources));
-        // x/y intentionally untouched for existing assets and left at the default for new assets.
         EditorUtility.SetDirty(research);
     }
 
@@ -149,7 +147,7 @@ public static class GenerateFirstThreeErasContent
         for (int i = 0; i < specs.Length; i++)
         {
             EffectSpec spec = specs[i];
-            ResearchEffectDefinition effect = new ResearchEffectDefinition { Type = spec.Type, SystemId = spec.SystemId, Value = new ExpantaNum(spec.Value) };
+            ResearchEffectDefinition effect = new ResearchEffectDefinition { Type = spec.Type, Value = new ExpantaNum(spec.Value) };
             if (spec.BuildingId != null && !buildings.TryGetValue(spec.BuildingId, out effect.Building))
                 throw new InvalidDataException($"Missing effect building '{spec.BuildingId}' for research '{id}'.");
             if (spec.ResourceId != null && !resources.TryGetValue(spec.ResourceId, out effect.Resource))
@@ -170,7 +168,7 @@ public static class GenerateFirstThreeErasContent
         ["CharcoalMaking"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.02) },
         ["PermanentArchitecture"] = new[] { Global(ResearchEffectType.GlobalConstructionMultiplier, 1.05) },
         ["AnimalFodder"] = new[] { BuildingFood("Pasture", 1.20) },
-        ["KilnEfficiency"] = new[] { BuildingProduction("PotteryKiln", 1.25) },
+        ["KilnEfficiency"] = new[] { BuildingProduction("CeramicKiln", 1.25) },
         ["IrrigationEngineering"] = new[] { BuildingFood("Farm", 1.20) },
         ["VillageCrafts"] = new[] { Global(ResearchEffectType.GlobalBuildingProductionMultiplier, 1.05) },
         ["CropRotation"] = new[] { BuildingFood("Farm", 1.20), BuildingFood("Pasture", 1.10), Global(ResearchEffectType.PopulationGrowthMultiplier, 1.15) },

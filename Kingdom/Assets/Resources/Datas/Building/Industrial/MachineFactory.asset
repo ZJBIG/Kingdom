@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MachineFactory
   Label: "\u673A\u5668\u5236\u9020\u5382"
-  Description: "\u4F7F\u7528\u94A2\u6750\u3001\u94DC\u7EBF\u3001\u9752\u94DC\u548C\u6DA6\u6ED1\u5242\u751F\u4EA7\u901A\u7528\u673A\u68B0\u90E8\u4EF6\u4E0E\u5185\u71C3\u673A\uFF0C\u4E0D\u518D\u540C\u65F6\u5305\u529E\u7535\u5B50\u548C\u7CBE\u5BC6\u96F6\u4EF6\u3002"
+  Description: "\u4F7F\u7528\u94A2\u6750\u3001\u94DC\u7EBF\u3001\u9752\u94DC\u3001\u6DA6\u6ED1\u5242\u548C\u6A61\u80F6\u751F\u4EA7\u901A\u7528\u673A\u68B0\u90E8\u4EF6\u4E0E\u5185\u71C3\u673A\uFF0C\u4E0D\u518D\u540C\u65F6\u5305\u529E\u7535\u5B50\u548C\u7CBE\u5BC6\u96F6\u4EF6\u3002"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -186,6 +186,14 @@ MonoBehaviour:
       scalar: 0.2
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.15
+      layer: 0
+      operators: []
   resourceConsumptionRates:
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
@@ -217,6 +225,22 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 0.1
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.1
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.08
       layer: 0
       operators: []
   requiredResearch:

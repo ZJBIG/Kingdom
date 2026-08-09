@@ -16,10 +16,10 @@ namespace Kingdom.EditorTools
         private static readonly HashSet<string> ReleasedResourceIds =
             new HashSet<string>(new[]
             {
-                "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Pottery",
+                "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Ceramic",
                 "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
                 "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
-                "CrudeOil", "Silica", "Coke", "Glass", "IndustrialCeramic",
+                "CrudeOil", "Silica", "Coke", "Glass", "Ceramic",
                 "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine",
                 "Concrete", "BauxiteOre", "Aluminum"
             }, StringComparer.Ordinal);
