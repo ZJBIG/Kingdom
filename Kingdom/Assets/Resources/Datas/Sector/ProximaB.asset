@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ProximaB
   Label: "比邻星前哨"
-  Description: "在半人马座航线之外建立的深空前沿哨站。只有具备稳定舰队支援、燃料补给和复合材料维护能力，才能维持这条远征航线。"
+  Description: "太阳系外第一座深空前沿哨站。远征期间持续消耗食物、火箭燃料、复合材料、钛合金和幽影材料；只有后勤满意度足够高，舰队才适合长期推进。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower:
@@ -42,6 +42,14 @@ MonoBehaviour:
       scalar: 15000
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 12000
+      layer: 0
+      operators: []
   colonizationFoodPerMinute:
     sign: 0
     representation: 1
@@ -55,6 +63,13 @@ MonoBehaviour:
     representation: 1
     operatorCount: 0
     scalar: 100
+    layer: 0
+    operators: []
+  campaignProgressMultiplier:
+    sign: 0
+    representation: 1
+    operatorCount: 0
+    scalar: 0.35
     layer: 0
     operators: []
   campaignResourceCosts:
@@ -96,6 +111,14 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 25
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 8
       layer: 0
       operators: []
   repeatable: 0

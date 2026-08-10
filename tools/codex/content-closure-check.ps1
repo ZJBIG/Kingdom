@@ -155,9 +155,24 @@ $lines = New-Object System.Collections.Generic.List[string]
 [void]$lines.Add("")
 [void]$lines.Add("TechLevel reached: $tech")
 [void]$lines.Add("Industrial baseline: $IndustrialBaseline")
-[void]$lines.Add("Research reachable (up to Industrial): $($completed.Count)/$(@($definitions | Where-Object { $_.Kind -eq 'Research' -and $_.Tech -le 3 }).Count)")
-[void]$lines.Add("Workshop reachable (up to Industrial): $($purchased.Count)/$(@($definitions | Where-Object { $_.Kind -eq 'Workshop' -and $_.Tech -le 3 }).Count)")
-[void]$lines.Add("Building reachable (up to Industrial): $(@($availableBuildings | Where-Object { $_ -in @($definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -le 3 } | ForEach-Object Id) }).Count)/$(@($definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -le 3 }).Count)")
+$industrialResearch = @($definitions | Where-Object { $_.Kind -eq 'Research' -and $_.Tech -le 3 })
+$industrialWorkshop = @($definitions | Where-Object { $_.Kind -eq 'Workshop' -and $_.Tech -le 3 })
+$industrialBuilding = @($definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -le 3 })
+$spacerResearch = @($definitions | Where-Object { $_.Kind -eq 'Research' -and $_.Tech -eq 4 })
+$spacerWorkshop = @($definitions | Where-Object { $_.Kind -eq 'Workshop' -and $_.Tech -eq 4 })
+$spacerBuilding = @($definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -eq 4 })
+$completedIndustrialResearch = @($industrialResearch | Where-Object { $completed.Contains($_.Id) })
+$purchasedIndustrialWorkshop = @($industrialWorkshop | Where-Object { $purchased.Contains($_.Id) })
+$availableIndustrialBuilding = @($industrialBuilding | Where-Object { $availableBuildings.Contains($_.Id) })
+$completedSpacerResearch = @($spacerResearch | Where-Object { $completed.Contains($_.Id) })
+$purchasedSpacerWorkshop = @($spacerWorkshop | Where-Object { $purchased.Contains($_.Id) })
+$availableSpacerBuilding = @($spacerBuilding | Where-Object { $availableBuildings.Contains($_.Id) })
+[void]$lines.Add("Research reachable (up to Industrial): $($completedIndustrialResearch.Count)/$($industrialResearch.Count)")
+[void]$lines.Add("Workshop reachable (up to Industrial): $($purchasedIndustrialWorkshop.Count)/$($industrialWorkshop.Count)")
+[void]$lines.Add("Building reachable (up to Industrial): $($availableIndustrialBuilding.Count)/$($industrialBuilding.Count)")
+[void]$lines.Add("Research reachable (Spacer): $($completedSpacerResearch.Count)/$($spacerResearch.Count)")
+[void]$lines.Add("Workshop reachable (Spacer): $($purchasedSpacerWorkshop.Count)/$($spacerWorkshop.Count)")
+[void]$lines.Add("Building reachable (Spacer): $($availableSpacerBuilding.Count)/$($spacerBuilding.Count)")
 [void]$lines.Add("Resources available: $($resources.Count)")
 [void]$lines.Add("")
 [void]$lines.Add('## Unreachable research')
@@ -174,6 +189,21 @@ foreach ($item in $definitions | Where-Object { $_.Kind -eq 'Workshop' -and $_.T
 foreach ($item in $definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -le 3 -and -not $availableBuildings.Contains($_.Id) } | Sort-Object Id) {
     [void]$lines.Add("- $($item.Id): $(First-Block $item 'Building')")
 }
+[void]$lines.Add('')
+[void]$lines.Add('## Unreachable Spacer research')
+foreach ($item in $spacerResearch | Where-Object { -not $completed.Contains($_.Id) } | Sort-Object Id) {
+    [void]$lines.Add("- $($item.Id): $(First-Block $item 'Research')")
+}
+[void]$lines.Add('')
+[void]$lines.Add('## Unreachable Spacer workshop upgrades')
+foreach ($item in $spacerWorkshop | Where-Object { -not $purchased.Contains($_.Id) } | Sort-Object Id) {
+    [void]$lines.Add("- $($item.Id): $(First-Block $item 'Workshop')")
+}
+[void]$lines.Add('')
+[void]$lines.Add('## Unreachable Spacer buildings')
+foreach ($item in $spacerBuilding | Where-Object { -not $availableBuildings.Contains($_.Id) } | Sort-Object Id) {
+    [void]$lines.Add("- $($item.Id): $(First-Block $item 'Building')")
+}
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) { $ReportPath = Join-Path $project 'data\content-closure-static.md' }
 $reportFull = [System.IO.Path]::GetFullPath($ReportPath)
@@ -182,9 +212,9 @@ New-Item -ItemType Directory -Force (Split-Path $reportFull) | Out-Null
 $lines | ForEach-Object { Write-Output $_ }
 
 $unreachable = @($definitions | Where-Object {
-    ($_.Kind -eq 'Research' -and $_.Tech -le 3 -and -not $completed.Contains($_.Id)) -or
-    ($_.Kind -eq 'Workshop' -and $_.Tech -le 3 -and -not $purchased.Contains($_.Id)) -or
-    ($_.Kind -eq 'Building' -and $_.Tech -le 3 -and -not $availableBuildings.Contains($_.Id))
+    ($_.Kind -eq 'Research' -and $_.Tech -le 4 -and -not $completed.Contains($_.Id)) -or
+    ($_.Kind -eq 'Workshop' -and $_.Tech -le 4 -and -not $purchased.Contains($_.Id)) -or
+    ($_.Kind -eq 'Building' -and $_.Tech -le 4 -and -not $availableBuildings.Contains($_.Id))
 })
 if ($unreachable.Count -gt 0) { exit 2 }
 exit 0

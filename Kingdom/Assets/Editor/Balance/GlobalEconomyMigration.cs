@@ -110,7 +110,7 @@ namespace Kingdom.EditorTools
                 "ElectricalManufacturing", "EngineManufacturing", "SyntheticFertilizers",
                 "MechanizedAgricultureSystems", "ElectricalCommunication", "CentralizedGeneration",
                 "AcademicJournals", "MilitaryStandardization", "ShiftRegisters", "StandardGauge",
-                "TelegraphDispatch", "ReinforcedConcrete", "SyntheticAmmonia"
+                "TelegraphDispatch", "ReinforcedConcrete", "SyntheticAmmonia", "AdvancedCeramicEngineering"
             };
             for (int i = 0; i < additionalIds.Length; i++)
                 LoadOrCreate<Research>($"{ResearchRoot}/Industrial/{additionalIds[i]}.asset", additionalIds[i]);
@@ -129,7 +129,7 @@ namespace Kingdom.EditorTools
             string[] additionalIds =
             {
                 "IndustrialMetalSmelter", "IndustrialBronzeFoundry",
-                "BlastFurnace", "BauxiteMine", "AluminumSmelter", "ConcreteWorks",
+                "BlastFurnace", "AluminumSmelter", "ConcreteWorks", "AdvancedCeramicsPlant",
                 "CentralPowerStation"
             };
             for (int i = 0; i < additionalIds.Length; i++)
@@ -153,8 +153,9 @@ namespace Kingdom.EditorTools
                 "StandardizedFreightContainers", "AluminumElectrolyticCells",
                 "LightAlloyFrames", "AluminumBusbars", "ReinforcedConcrete",
                 "StandardGauge", "TelegraphDispatch", "ReusableLaunchStages",
-                "ModularHabitatSystems", "AutomatedShipyardAssembly",
-                "CryogenicFuelSystems", "AdvancedCompositeLayup"
+                "ModularHabitatSystems", "AutomatedShipyardAssembly", "AdvancedCeramicFiring",
+                "CryogenicFuelSystems", "AdvancedCompositeLayup", "PhaseMaterialCalibration", "PhantomWeaveLattice",
+                "PhantomAlloyRecrystallization"
             };
             for (int i = 0; i < ids.Length; i++)
                 LoadOrCreate<WorkshopUpgradeDefinition>(
@@ -396,7 +397,7 @@ namespace Kingdom.EditorTools
             ConfigureResearch("LightMetalOres", "轻金属矿床", 480000,
                 R("ScientificMethod", "IndustrialLogistics"),
                 P("Steel", 300, "Machinery", 120, "Chemical", 80),
-                BuildingMultiplier("BauxiteMine", 1.10));
+                BuildingMultiplier("RareMetalMine", 1.10));
             ConfigureResearch("AluminumMetallurgy", "铝冶金", 1250000,
                 R("LightMetalOres", "ElectricalEngineering", "CentralizedGeneration"),
                 P("BauxiteOre", 800, "CopperWire", 300, "Ceramic", 180,
@@ -606,9 +607,6 @@ namespace Kingdom.EditorTools
                     "Coke", 300),
                 P("Steel", 3.2), P("IronOre", 2.4, "Coke", 1.2, "Chemical", .05),
                 R("ModernSteelmaking"), 0, 12);
-            B("BauxiteMine", TechLevel.Industrial, 1.15, 12, 45, 0, 0, 0, 0, 0, 0,
-                0, 4, 0, 0, P("Steel", 300, "Machinery", 100),
-                P("BauxiteOre", 2), P("Explosives", .10), R("LightMetalOres"), 0, 3);
             B("AluminumSmelter", TechLevel.Industrial, 1.20, 18, 85, 0, 0, 0, 0, 0, 0,
                 0, 100, 0, 0, P("Concrete", 500, "Steel", 400, "Machinery", 180,
                     "Ceramic", 120),
@@ -632,129 +630,129 @@ namespace Kingdom.EditorTools
 
         private static void ConfigureWorkshopUpgrades()
         {
-            W("DraftingTables", "制图台", "基础设施", 10, R("IndustrialWorkshop"),
+            W("DraftingTables", "制图台", 10, R("IndustrialWorkshop"),
                 P("WoodLog", 500, "Cloth", 150, "Bronze", 100), E(WorkshopEffectType.GlobalConstructionMultiplier, 1.10));
-            W("ShiftRegisters", "班次登记系统", "组织", 15, R("FactoryOrganization"),
+            W("ShiftRegisters", "班次登记系统", 15, R("FactoryOrganization"),
                 P("WoodLog", 120, "Cloth", 80), E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.03));
-            W("StandardGauge", "标准轨距", "物流", 175, R("RailwayEngineering"),
+            W("StandardGauge", "标准轨距", 175, R("RailwayEngineering"),
                 P("Steel", 250, "Machinery", 80), E(WorkshopEffectType.GlobalLogisticsMultiplier, 1.05));
-            W("TelegraphDispatch", "电报调度", "物流", 180, R("ElectricalCommunication"),
+            W("TelegraphDispatch", "电报调度", 180, R("ElectricalCommunication"),
                 P("CopperWire", 180, "Glass", 60), E(WorkshopEffectType.GlobalLogisticsMultiplier, 1.05));
-            W("ReinforcedBoilers", "强化锅炉", "动力", 30, R("SteamPower"),
+            W("ReinforcedBoilers", "强化锅炉", 30, R("SteamPower"),
                 P("Coal", 350, "Iron", 300),
                 EB(WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant", 1.25));
-            W("InterchangeableParts", "互换零件", "机械", 40, R("PrecisionManufacturing"),
+            W("InterchangeableParts", "互换零件", 40, R("PrecisionManufacturing"),
                 P("Steel", 400, "Copper", 250),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "MachineFactory", 1.20));
-            W("PrecisionTooling", "精密加工", "机械", 50, R("PrecisionManufacturing"),
+            W("PrecisionTooling", "精密加工", 50, R("PrecisionManufacturing"),
                 P("Steel", 600, "Bronze", 250, "CopperWire", 200, "Lubricant", 80),
                 E(WorkshopEffectType.GlobalConstructionMultiplier, 1.10));
-            W("PoweredMining", "动力采矿", "采掘", 60, R("PrecisionManufacturing"),
+            W("PoweredMining", "动力采矿", 60, R("PrecisionManufacturing"),
                 P("Machinery", 180, "Steel", 450, "Lubricant", 80),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "MetalMine", 1.2));
-            W("IntegratedFurnaces", "一体化冶炉", "冶金", 65,
+                EB(WorkshopEffectType.BuildingProductionMultiplier, "MetalMine", 1.2),
+                EB(WorkshopEffectType.BuildingProductionMultiplier, "RareMetalMine", 1.2));
+            W("IntegratedFurnaces", "一体化冶炉", 65,
                 R("IndustrialWorkshop", "Coking"),
                 P("Machinery", 120, "Steel", 300, "Lubricant", 60),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "MetalSmelter", 1.25));
-            W("ChemicalCatalysts", "化学催化剂", "化工", 70, R("IndustrialChemistry"),
+            W("ChemicalCatalysts", "化学催化剂", 70, R("IndustrialChemistry"),
                 P("Chemical", 250, "Coke", 300, "Glass", 100),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "ChemicalPlant", 1.25));
-            W("RotaryDrillingHeads", "旋转钻头组", "采掘", 75, R("DeepOilDrilling"),
+            W("RotaryDrillingHeads", "旋转钻头组", 75, R("DeepOilDrilling"),
                 P("Steel", 350, "Machinery", 150, "Chemical", 100, "CrudeOil", 250),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilDerrick", 1.20));
-            W("ControlledBlasting", "精确爆破工艺", "采掘", 85,
+            W("ControlledBlasting", "精确爆破工艺", 85,
                 R("IndustrialExplosives"),
                 P("Explosives", 400, "Steel", 300, "Machinery", 120, "Chemical", 120),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "BauxiteMine", 1.15),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "RareMetalMine", 1.15),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilDerrick", 1.15));
-            W("AgriculturalMachinery", "农业机械", "农业", 80, R("IndustrialAgriculture"),
+            W("AgriculturalMachinery", "农业机械", 80, R("IndustrialAgriculture"),
                 P("Machinery", 120, "Engine", 20, "Chemical", 80),
                 EB(WorkshopEffectType.BuildingFoodProductionMultiplier, "Farm", 1.30));
-            W("MechanicalLooms", "机械织机", "加工", 90, R("MechanizedProduction"),
+            W("MechanicalLooms", "机械织机", 90, R("MechanizedProduction"),
                 P("Machinery", 100, "Steel", 200, "Cloth", 200),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "WeavingWorkshop", 1.50));
-            W("RotaryKilns", "回转窑", "加工", 100, R("IndustrialChemistry"),
+            W("RotaryKilns", "回转窑", 100, R("IndustrialChemistry"),
                 P("Coal", 250, "Clay", 250, "Ceramic", 150),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "Glassworks", 1.35));
-            W("LaboratoryGlassware", "实验玻璃器具", "科研", 140, R("ScientificMethod"),
+            W("LaboratoryGlassware", "实验玻璃器具", 140, R("ScientificMethod"),
                 P("Chemical", 180, "Glass", 300, "Ceramic", 80),
                 E(WorkshopEffectType.GlobalResearchMultiplier, 1.15));
-            W("ElectricalInstrumentation", "电气仪表", "动力", 150, R("Electrification"),
+            W("ElectricalInstrumentation", "电气仪表", 150, R("Electrification"),
                 P("Electronics", 250, "CopperWire", 500, "Chemical", 150),
                 E(WorkshopEffectType.PowerMultiplier, 1.20),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.10));
-            W("ConveyorSystems", "传送系统", "机械", 160, R("MassProduction"),
+            W("ConveyorSystems", "传送系统", 160, R("MassProduction"),
                 P("Machinery", 300, "Steel", 250),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.15));
-            W("HotBlastStoves", "热风炉组", "冶金", 190, R("ModernSteelmaking"),
+            W("HotBlastStoves", "热风炉组", 190, R("ModernSteelmaking"),
                 P("Steel", 300, "Coke", 200, "Machinery", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "BlastFurnace", 1.15));
-            W("ContinuousCasting", "连铸机组", "冶金", 200, R("ModernSteelmaking"),
+            W("ContinuousCasting", "连铸机组", 200, R("ModernSteelmaking"),
                 P("Steel", 400, "Machinery", 120, "Ceramic", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "BlastFurnace", 1.15));
-            W("CopperElectrolysisCells", "铜电解精炼槽", "冶金", 210,
+            W("CopperElectrolysisCells", "铜电解精炼槽", 210,
                 R("IndustrialMetalSmelting", "ElectricalEngineering"),
                 P("Copper", 400, "CopperWire", 150, "Ceramic", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialMetalSmelter", 1.25));
-            W("BronzeCastingMolds", "工业青铜铸模组", "冶金", 220, R("IndustrialBronzeCasting"),
+            W("BronzeCastingMolds", "工业青铜铸模组", 220, R("IndustrialBronzeCasting"),
                 P("Bronze", 300, "Steel", 150),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialBronzeFoundry", 1.15));
-            W("ConcreteBatching", "混凝土搅拌机组", "基础设施", 230, R("ConcreteEngineering"),
+            W("ConcreteBatching", "混凝土搅拌机组", 230, R("ConcreteEngineering"),
                 P("Concrete", 300, "Machinery", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "ConcreteWorks", 1.20));
-            W("ReinforcedConcrete", "钢筋混凝土施工", "基础设施", 235, R("ConcreteEngineering"),
+            W("ReinforcedConcrete", "钢筋混凝土施工", 235, R("ConcreteEngineering"),
                 P("Concrete", 400, "Steel", 150),
                 E(WorkshopEffectType.GlobalConstructionMultiplier, 1.05));
-            W("InsulatedWindings", "绝缘绕组组件", "电气", 240, R("ElectricalManufacturing"),
+            W("InsulatedWindings", "绝缘绕组组件", 240, R("ElectricalManufacturing"),
                 P("CopperWire", 300, "Ceramic", 100, "Glass", 80),
                 E(WorkshopEffectType.PowerMultiplier, 1.10));
-            W("BallBearings", "滚珠轴承", "机械", 250, R("PrecisionManufacturing"),
+            W("BallBearings", "滚珠轴承", 250, R("PrecisionManufacturing"),
                 P("Steel", 350, "Lubricant", 100),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.08));
-            W("FuelInjection", "燃油喷射器", "动力", 260, R("EngineManufacturing"),
+            W("FuelInjection", "燃油喷射器", 260, R("EngineManufacturing"),
                 P("PrecisionParts", 100, "RefinedFuel", 150, "Steel", 120),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.08));
-            W("BlockSignalling", "电气闭塞机", "物流", 270,
+            W("BlockSignalling", "电气闭塞机", 270,
                 R("ElectricalCommunication", "StandardGauge", "TelegraphDispatch"),
                 P("Electronics", 150, "CopperWire", 250, "Machinery", 100),
                 E(WorkshopEffectType.GlobalLogisticsMultiplier, 1.10));
-            W("HighPressureTurbines", "高压汽轮机", "动力", 280, R("CentralizedGeneration"),
+            W("HighPressureTurbines", "高压汽轮机", 280, R("CentralizedGeneration"),
                 P("Steel", 500, "Machinery", 180, "Ceramic", 100),
                 EB(WorkshopEffectType.BuildingPowerProductionMultiplier, "CentralPowerStation", 1.20));
-            W("ContinuousDistillation", "连续蒸馏塔", "化工", 290, R("ProcessControl"),
+            W("ContinuousDistillation", "连续蒸馏塔", 290, R("ProcessControl"),
                 P("Steel", 300, "Glass", 150, "Chemical", 120),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilRefinery", 1.15));
-            W("PressurizedReactors", "加压反应釜", "化工", 300, R("ProcessControl"),
+            W("PressurizedReactors", "加压反应釜", 300, R("ProcessControl"),
                 P("Steel", 350, "Ceramic", 120, "Glass", 100),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "ChemicalPlant", 1.15));
-            W("StandardizedFreightContainers", "标准货运集装箱", "物流", 310,
+            W("StandardizedFreightContainers", "标准货运集装箱", 310,
                 R("IndustrialLogistics", "StandardGauge", "TelegraphDispatch"),
                 P("Steel", 500, "Machinery", 100),
                 EB(WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub", 1.15));
-            W("AluminumElectrolyticCells", "铝电解槽组", "电气", 320, R("AluminumMetallurgy"),
+            W("AluminumElectrolyticCells", "铝电解槽组", 320, R("AluminumMetallurgy"),
                 P("Aluminum", 300, "CopperWire", 150, "Ceramic", 100),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "AluminumSmelter", 1.20));
-            W("LightAlloyFrames", "轻合金框架", "材料", 330, R("AluminumMetallurgy"),
+            W("LightAlloyFrames", "轻合金框架", 330, R("AluminumMetallurgy"),
                 P("Aluminum", 300, "Steel", 100, "Machinery", 80),
                 E(WorkshopEffectType.GlobalConstructionMultiplier, 1.10));
-            W("AluminumBusbars", "铝制母线排", "电气", 340,
+            W("AluminumBusbars", "铝制母线排", 340,
                 R("AluminumMetallurgy", "CentralizedGeneration"),
                 P("Aluminum", 250, "CopperWire", 100),
                 E(WorkshopEffectType.PowerMultiplier, 1.10));
-            W("ReusableLaunchStages", "可复用发射级", "航天", 410, R("OrbitalEngineering"),
+            W("ReusableLaunchStages", "可复用发射级", 410, R("OrbitalEngineering"),
                 P("Aluminum", 500, "Engine", 180, "Ceramic", 220, "RefinedFuel", 250),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "LaunchCenter", 1.25));
-            W("ModularHabitatSystems", "模块化空间舱", "航天", 420, R("OrbitalHabitation"),
+            W("ModularHabitatSystems", "模块化空间舱", 420, R("OrbitalHabitation"),
                 P("Concrete", 700, "Aluminum", 600, "Electronics", 350, "Ceramic", 180),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OrbitalStation", 1.25));
-            W("AutomatedShipyardAssembly", "自动化船坞装配", "航天", 430, R("DeepSpaceShipbuilding"),
+            W("AutomatedShipyardAssembly", "自动化船坞装配", 430, R("DeepSpaceShipbuilding"),
                 P("Steel", 1200, "Machinery", 900, "Engine", 300, "Electronics", 500, "Lubricant", 300),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "Shipyard", 1.25));
-            W("CryogenicFuelSystems", "低温推进剂系统", "航天", 440, R("OrbitalEngineering"),
+            W("CryogenicFuelSystems", "低温推进剂系统", 440, R("OrbitalEngineering"),
                 P("RocketFuel", 300, "Aluminum", 300, "Ceramic", 150, "Lubricant", 180),
                 ER(WorkshopEffectType.ResourceProductionMultiplier, "RocketFuel", 1.30));
-            W("AdvancedCompositeLayup", "先进复合材料铺层", "航天", 450, R("DeepSpaceShipbuilding"),
+            W("AdvancedCompositeLayup", "先进复合材料铺层", 450, R("DeepSpaceShipbuilding"),
                 P("Composite", 300, "Aluminum", 500, "Ceramic", 200, "Electronics", 250),
                 ER(WorkshopEffectType.ResourceProductionMultiplier, "Composite", 1.30));
             SetWorkshopPrerequisites("AgriculturalMachinery", "DraftingTables");
@@ -919,14 +917,13 @@ namespace Kingdom.EditorTools
         }
 
         private static void W(
-            string id, string label, string category, int order,
+            string id, string label, int order,
             List<Research> research, List<Pair<Resource, ExpantaNum>> requirements,
             params WorkshopEffectDefinition[] effects)
         {
             WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
             definition.Label = label;
             definition.Description = WorkshopDescription(id, label);
-            definition.Category = category;
             definition.SortOrder = order;
             definition.TechLevel = TechLevel.Industrial;
             definition.ConfigureForEditor(
@@ -1166,7 +1163,6 @@ namespace Kingdom.EditorTools
                 id);
             resource.Label = label;
             resource.Description = description;
-            resource.DisplayerSet = Resource.Set.IndustrialEraSet;
             resource.Color = Color.white;
             EditorUtility.SetDirty(resource);
         }

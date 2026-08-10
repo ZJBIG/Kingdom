@@ -77,8 +77,16 @@ public class IndustrialWorkshopAvailabilityTests
         AssertWorkshop("ReinforcedBoilers", "Coal", "Iron", WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant");
         AssertWorkshop("InterchangeableParts", "Steel", "Copper", WorkshopEffectType.BuildingProductionMultiplier, "MachineFactory");
         AssertWorkshop("RotaryKilns", "Coal", "Clay", WorkshopEffectType.BuildingProductionMultiplier, "Glassworks");
+        WorkshopUpgradeDefinition rotaryKilns =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/RotaryKilns");
+        Assert.That(rotaryKilns.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(x =>
+            x != null && x.First != null && x.First.Id == "Ceramic" && x.Second == new ExpantaNum(150)));
+        WorkshopUpgradeDefinition copperElectrolysis =
+            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/CopperElectrolysisCells");
+        Assert.That(copperElectrolysis.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(x =>
+            x != null && x.First != null && x.First.Id == "Ceramic" && x.Second == new ExpantaNum(120)));
         AssertWorkshop("ElectricalInstrumentation", "CopperWire", "Glass", WorkshopEffectType.PowerMultiplier, null);
-        AssertWorkshop("ConveyorSystems", "Machinery", "Steel", WorkshopEffectType.GlobalBuildingProductionMultiplier, null);
+        AssertWorkshop("ConveyorSystems", "Machinery", "Steel", WorkshopEffectType.GlobalLogisticsMultiplier, null);
         AssertWorkshop("StandardGauge", "Steel", "Coke", WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub");
     }
 
@@ -149,12 +157,31 @@ public class IndustrialWorkshopAvailabilityTests
             Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/ControlledBlasting");
         Assert.That(blasting, Is.Not.Null, "精确爆破工艺工坊必须存在。");
         Assert.That(blasting.ResourceRequirements.Count, Is.EqualTo(4));
-        Assert.That(blasting.Effects.Count, Is.EqualTo(3));
-        foreach (string buildingId in new[] { "BauxiteMine", "RareMetalMine", "OilDerrick" })
+        Assert.That(blasting.Effects.Count, Is.EqualTo(2));
+        foreach (string buildingId in new[] { "RareMetalMine", "OilDerrick" })
             Assert.That(blasting.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
                 x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 x.Building != null && x.Building.Id == buildingId &&
                 x.Value.ToDouble() >= 1.15d), buildingId);
+    }
+
+    [Test]
+    public void PetroleumResearchIsTheOilDerrickUnlockAndDeepDrillingIsTheUpgrade()
+    {
+        Research extraction = Resources.Load<Research>("Datas/Research/Industrial/PetroleumExtraction");
+        Research deepDrilling = Resources.Load<Research>("Datas/Research/Industrial/DeepOilDrilling");
+        Building oilDerrick = Resources.Load<Building>("Datas/Building/Industrial/OilDerrick");
+
+        Assert.That(extraction, Is.Not.Null);
+        Assert.That(deepDrilling, Is.Not.Null);
+        Assert.That(oilDerrick, Is.Not.Null);
+        Assert.That(oilDerrick.RequiredResearch, Has.Some.Matches<Research>(x =>
+            x != null && x.Id == "PetroleumExtraction"));
+        Assert.That(extraction.Label, Does.Contain("基础"));
+        Assert.That(deepDrilling.Label, Does.Contain("增产"));
+        Assert.That(deepDrilling.Effects, Has.Some.Matches<ResearchEffectDefinition>(x =>
+            x != null && x.Building != null && x.Building.Id == "OilDerrick" &&
+            x.Type == ResearchEffectType.BuildingProductionMultiplier));
     }
 
     private static void AssertWorkshop(
@@ -167,7 +194,7 @@ public class IndustrialWorkshopAvailabilityTests
         WorkshopUpgradeDefinition definition =
             Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/" + id);
         Assert.That(definition, Is.Not.Null, id);
-        Assert.That(definition.ResourceRequirements.Count, Is.EqualTo(2), id);
+        Assert.That(definition.ResourceRequirements.Count, Is.EqualTo(id == "RotaryKilns" ? 3 : 2), id);
         Assert.That(definition.ResourceRequirements[0].First.Id, Is.EqualTo(firstResource), id);
         Assert.That(definition.ResourceRequirements[1].First.Id, Is.EqualTo(secondResource), id);
 

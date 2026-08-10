@@ -82,7 +82,7 @@ MonoBehaviour:
       layer: 0
       operators: []
   - Type: 1
-    Building: {fileID: 11400000, guid: 79c6c80f9f097f540a55b1fad92135bd, type: 2}
+    Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

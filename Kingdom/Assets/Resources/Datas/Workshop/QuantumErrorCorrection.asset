@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: QuantumErrorCorrection
+  m_EditorClassIdentifier: 
+  id: QuantumErrorCorrection
+  Label: "\u91CF\u5B50\u7EA0\u9519\u7CFB\u7EDF"
+  Description: "\u7528\u5E7D\u5F71\u6750\u6599\u548C\u4F4E\u6E29\u7535\u5B50\u5B66\u5B9E\u73B0\u9519\u8BEF\u68C0\u6D4B\u4E0E\u7EA0\u9519\uFF0C\u63D0\u9AD8\u91CF\u5B50\u8BA1\u7B97\u9635\u5217\u7684\u6709\u6548\u7814\u7A76\u4EA7\u51FA\uFF0C\u4F7F\u91CF\u5B50\u7CFB\u7EDF\u771F\u6B63\u80FD\u591F\u652F\u6491\u6DF1\u7A7A\u6D4B\u7ED8\u548C\u8FDC\u661F\u8FDC\u5F81\u3002"
+  SortOrder: 510
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 3a4b5c6d7e8f901a2b3c4d5e6f708192, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1000
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 800
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 500
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  effects:
+  - Type: 9
+    Building: {fileID: 11400000, guid: f0e1d2c3b4a5968778695a4b3c2d1e0f, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.4
+      layer: 0
+      operators: []

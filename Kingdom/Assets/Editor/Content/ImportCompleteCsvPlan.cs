@@ -40,12 +40,9 @@ public static class ImportCompleteCsvPlan
     {
         var steelmaking = AssetDatabase.LoadAssetAtPath<Research>("Assets/Resources/Datas/Research/Medieval/Steelmaking.asset");
         var feudal = AssetDatabase.LoadAssetAtPath<Research>("Assets/Resources/Datas/Research/Medieval/FeudalAdministration.asset");
-        var bauxite = AssetDatabase.LoadAssetAtPath<Building>("Assets/Resources/Datas/Building/Industrial/BauxiteMine.asset");
-        var industrialization = AssetDatabase.LoadAssetAtPath<Research>("Assets/Resources/Datas/Research/Industrial/Industrialization.asset");
         if (steelmaking != null) steelmaking.SetResourceRequirementsForEditor(steelmaking.ResourceRequirements.Where(x => x.First != null && !AssetDatabase.GetAssetPath(x.First).Replace('\\', '/').EndsWith("/Steel.asset", StringComparison.OrdinalIgnoreCase)).ToList());
         if (feudal != null) feudal.AdvancesTechLevel = true;
-        if (bauxite != null && industrialization != null) bauxite.SetRequiredResearchForEditor(new List<Research> { industrialization });
-        if (steelmaking != null) EditorUtility.SetDirty(steelmaking); if (feudal != null) EditorUtility.SetDirty(feudal); if (bauxite != null) EditorUtility.SetDirty(bauxite); AssetDatabase.SaveAssets(); AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); Debug.Log("Complete CSV closure repairs saved.");
+        if (steelmaking != null) EditorUtility.SetDirty(steelmaking); if (feudal != null) EditorUtility.SetDirty(feudal); AssetDatabase.SaveAssets(); AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); Debug.Log("Complete CSV closure repairs saved.");
     }
 
     private static List<Row> Read(string file)
@@ -71,7 +68,7 @@ public static class ImportCompleteCsvPlan
 
     private static void ApplyResource(Row x, Dictionary<string, Resource> all)
     {
-        if (!all.TryGetValue(x.G("ID"), out var a)) return; a.Label = x.G("Label"); a.Description = x.G("Description"); a.DisplayerSet = (Resource.Set)(int)N(x.G("DisplayerSet")); a.Color = new Color((float)N(x.G("Color_r")), (float)N(x.G("Color_g")), (float)N(x.G("Color_b")), (float)N(x.G("Color_a"))); EditorUtility.SetDirty(a);
+        if (!all.TryGetValue(x.G("ID"), out var a)) return; a.Label = x.G("Label"); a.Description = x.G("Description"); a.Color = new Color((float)N(x.G("Color_r")), (float)N(x.G("Color_g")), (float)N(x.G("Color_b")), (float)N(x.G("Color_a"))); EditorUtility.SetDirty(a);
     }
     private static void ApplyResearch(Row x, Dictionary<string, Research> all, Dictionary<string, Resource> res, Dictionary<string, Building> buildings, Dictionary<string, List<Row>> pre, Dictionary<string, List<Row>> costs, Dictionary<string, List<Row>> effects)
     {
@@ -87,17 +84,14 @@ public static class ImportCompleteCsvPlan
     }
     private static void ApplyWorkshop(Row x, Dictionary<string, WorkshopUpgradeDefinition> all, Dictionary<string, Research> research, Dictionary<string, Resource> res, Dictionary<string, Building> buildings, Dictionary<string, List<Row>> prereq, Dictionary<string, List<Row>> upgradePrereq, Dictionary<string, List<Row>> costs, Dictionary<string, List<Row>> effects)
     {
-        if (!all.TryGetValue(x.G("ID"), out var a)) return; var es = new List<WorkshopEffectDefinition>(); foreach (var e in Get(effects, a.Id)) { var z = new WorkshopEffectDefinition { Type = (WorkshopEffectType)(int)N(e.G("Type")), Value = new ExpantaNum(N(e.G("Value数值"))) }; if (buildings.TryGetValue(e.G("目标建筑ID"), out var b)) z.Building = b; if (res.TryGetValue(e.G("目标资源ID"), out var r)) z.Resource = r; es.Add(z); } a.Label = x.G("Label"); a.Description = x.G("Description"); a.Category = x.G("Category"); a.SortOrder = (int)N(x.G("SortOrder")); a.TechLevel = (TechLevel)(int)N(x.G("TechLevel")); a.ConfigureForEditor(ResearchRefs(Get(prereq, a.Id), "研究ID", research), WorkshopRefs(Get(upgradePrereq, a.Id), "前置器件ID", all), Pairs(Get(costs, a.Id), "资源ID", "数量", res), es); EditorUtility.SetDirty(a);
+        if (!all.TryGetValue(x.G("ID"), out var a)) return; var es = new List<WorkshopEffectDefinition>(); foreach (var e in Get(effects, a.Id)) { var z = new WorkshopEffectDefinition { Type = (WorkshopEffectType)(int)N(e.G("Type")), Value = new ExpantaNum(N(e.G("Value数值"))) }; if (buildings.TryGetValue(e.G("目标建筑ID"), out var b)) z.Building = b; if (res.TryGetValue(e.G("目标资源ID"), out var r)) z.Resource = r; es.Add(z); } a.Label = x.G("Label"); a.Description = x.G("Description"); a.SortOrder = (int)N(x.G("SortOrder")); a.TechLevel = (TechLevel)(int)N(x.G("TechLevel")); a.ConfigureForEditor(ResearchRefs(Get(prereq, a.Id), "研究ID", research), WorkshopRefs(Get(upgradePrereq, a.Id), "前置器件ID", all), Pairs(Get(costs, a.Id), "资源ID", "数量", res), es); EditorUtility.SetDirty(a);
     }
     private static void ApplyClosureRepairs(Dictionary<string, Research> research, Dictionary<string, Building> buildings, Dictionary<string, Resource> res)
     {
         if (research.TryGetValue("Steelmaking", out var steelmaking) && res.TryGetValue("Steel", out var steel))
             steelmaking.SetResourceRequirementsForEditor(steelmaking.ResourceRequirements.Where(x => x.First != null && !AssetDatabase.GetAssetPath(x.First).Replace('\\', '/').EndsWith("/Steel.asset", StringComparison.OrdinalIgnoreCase)).ToList());
-        if (buildings.TryGetValue("BauxiteMine", out var bauxite) && research.TryGetValue("Industrialization", out var industrialization))
-            bauxite.SetRequiredResearchForEditor(new List<Research> { industrialization });
         if (research.ContainsKey("Steelmaking")) EditorUtility.SetDirty(research["Steelmaking"]);
         if (research.ContainsKey("FeudalAdministration")) EditorUtility.SetDirty(research["FeudalAdministration"]);
-        if (buildings.ContainsKey("BauxiteMine")) EditorUtility.SetDirty(buildings["BauxiteMine"]);
     }
     private static void DeleteOutside<T>(List<Row> rows, ICollection<string> loaded, string key) where T : GameDefinition { var keep = new HashSet<string>(rows.Select(x => x.G(key))); foreach (var id in loaded.Where(x => !keep.Contains(x)).ToList()) foreach (var path in AssetDatabase.FindAssets("t:" + typeof(T).Name).Select(AssetDatabase.GUIDToAssetPath).Where(p => AssetDatabase.LoadAssetAtPath<T>(p)?.Id == id)) AssetDatabase.DeleteAsset(path); }
     private static void ValidateCounts(List<Row> r, List<Row> research, List<Row> buildings, List<Row> workshops) { if (r.Count != 33 || research.Count != 72 || buildings.Count != 66 || workshops.Count != 24) throw new InvalidDataException($"Unexpected final counts: {r.Count}/{research.Count}/{buildings.Count}/{workshops.Count}"); }

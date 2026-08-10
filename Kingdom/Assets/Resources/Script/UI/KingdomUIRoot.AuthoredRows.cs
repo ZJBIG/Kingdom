@@ -108,10 +108,6 @@ public sealed partial class KingdomUIRoot
 
     private static int CompareResourceRows(Resource left, Resource right)
     {
-        int setComparison = left.DisplayerSet.CompareTo(right.DisplayerSet);
-        if (setComparison != 0)
-            return setComparison;
-
         int labelComparison = string.CompareOrdinal(
             string.IsNullOrEmpty(left.Label) ? left.Id : left.Label,
             string.IsNullOrEmpty(right.Label) ? right.Id : right.Label);
@@ -232,7 +228,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             ApplyListRowStyle(row, visible - 1);
             if (!SetRowText(row, "Title", definition.Label) ||
-                !SetRowText(row, "Subtitle", definition.Id + "   /   " + definition.Category))
+                !SetRowText(row, "Subtitle", definition.Id + "   /   工坊物品"))
                 continue;
             Button button = RequireRowButton(row);
             if (button == null)

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TitaniumReductionRetorts
   Label: "\u6C2F\u5316\u8FD8\u539F\u7089\u7EC4"
-  Description: "\u96C6\u6210\u6C2F\u5316\u7089\u3001\u7CBE\u998F\u5854\u3001\u5BC6\u95ED\u8FD8\u539F\u7F50\u3001\u51B7\u51DD\u4E0E\u56DE\u6536\u8BBE\u5907\u7684\u91D1\u5C5E\u949B\u5236\u53D6\u88C5\u7F6E\u3002"
-  Category: "\u51B6\u91D1"
+  Description: "\u901A\u8FC7\u6C2F\u5316\u3001\u7CBE\u998F\u3001\u5BC6\u95ED\u8FD8\u539F\u4E0E\u6C2F\u56DE\u6536\u964D\u4F4E\u949B\u7684\u63D0\u53D6\u635F\u8017\uFF0C\u63D0\u9AD8\u949B\u51B6\u91D1\u8054\u5408\u5382\u7684\u949B\u5408\u91D1\u4EA7\u51FA\uFF0C\u4E3A\u5E7D\u5F71\u5408\u91D1\u3001\u6DF1\u7A7A\u8239\u4F53\u548C\u8F68\u9053\u5EFA\u8BBE\u63D0\u4F9B\u9AD8\u5F3A\u5EA6\u8F93\u5165\u3002"
   SortOrder: 350
   TechLevel: 3
   requiredResearch:
@@ -63,6 +62,14 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 80
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
       layer: 0
       operators: []
   effects:

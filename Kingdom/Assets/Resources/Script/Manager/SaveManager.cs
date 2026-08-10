@@ -425,7 +425,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         public bool Unlocked;
         public bool Occupied;
         public bool ColonizationActive;
+        public bool CampaignActive;
         public string CampaignProgress;
+        public string CampaignCasualties;
+        public string CampaignCombatRatio;
         public int VisitCount;
     }
 }

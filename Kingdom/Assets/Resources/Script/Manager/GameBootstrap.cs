@@ -43,6 +43,12 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         ValidateDefinitions<Research>();
         ValidateDefinitions<WorkshopUpgradeDefinition>();
         ValidateDefinitions<SectorDefinition>();
+        if (!SectorValidator.ValidateDefinitions(
+                DataBase<SectorDefinition>.All,
+                out string sectorError))
+        {
+            throw new InvalidOperationException(sectorError);
+        }
         if (!EconomyDependencyValidator.Validate(
                 DataBase<Resource>.All,
                 DataBase<Building>.All,

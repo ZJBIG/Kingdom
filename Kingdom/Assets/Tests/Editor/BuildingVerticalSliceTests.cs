@@ -68,7 +68,7 @@ public sealed class BuildingVerticalSliceTests
     {
         Resource steel = DataBase<Resource>.Find("Steel");
         Assert.That(steel, Is.Not.Null);
-        Assert.That(steel.DisplayerSet, Is.EqualTo(Resource.Set.IngotSet));
+        Assert.That(string.IsNullOrWhiteSpace(steel.Label), Is.False);
         Assert.That(DataBase<Resource>.Contains("MetalTool"), Is.False);
         Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
     }

@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: PhaseFieldContainment
   m_EditorClassIdentifier: 
   id: PhaseFieldContainment
-  Label: "相位场约束"
-  Description: "通过镍基约束环、钛合金骨架和幽影纤维场稳定器，提高幽影材料制造厂的连续生产能力。"
-  Category: "航天"
+  Label: "\u76F8\u4F4D\u573A\u7EA6\u675F"
+  Description: "\u7528\u954D\u57FA\u7EA6\u675F\u73AF\u3001\u949B\u5408\u91D1\u9AA8\u67B6\u548C\u5E7D\u5F71\u7EA4\u7EF4\u573A\u7A33\u5B9A\u5668\u63A7\u5236\u76F8\u4F4D\u6750\u6599\u53CD\u5E94\uFF0C\u63D0\u5347\u5E7D\u5F71\u6750\u6599\u5236\u9020\u5382\u7684\u8FDE\u7EED\u4EA7\u51FA\u3002"
   SortOrder: 450
   TechLevel: 4
   requiredResearch:
@@ -55,9 +54,25 @@ MonoBehaviour:
       scalar: 360
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
+      layer: 0
+      operators: []
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: 0f2e6a4b8c1d5079e3f5a7b9c2d4e6f8, type: 2}
+    Building: {fileID: 11400000, guid: b6d8f0a2c4e65193b7d9f1a3c5e8f204, type: 2}
     Resource: {fileID: 0}
     Value:
       sign: 0

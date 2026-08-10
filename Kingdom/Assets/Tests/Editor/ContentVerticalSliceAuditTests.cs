@@ -61,10 +61,10 @@ public sealed class ContentVerticalSliceAuditTests
     [Test]
     public void CeramicFiring_RequiresTheClayExtractionResearchPath()
     {
-        Research pottery = DataBase<Research>.Find("CeramicFiring");
+        Research ceramicFiring = DataBase<Research>.Find("CeramicFiring");
 
-        Assert.That(HasPrerequisite(pottery, "StoneTools"), Is.True);
-        Assert.That(HasPrerequisite(pottery, "ClayExtraction"), Is.True);
+        Assert.That(HasPrerequisite(ceramicFiring, "StoneTools"), Is.True);
+        Assert.That(HasPrerequisite(ceramicFiring, "ClayExtraction"), Is.True);
     }
 
     [Test]

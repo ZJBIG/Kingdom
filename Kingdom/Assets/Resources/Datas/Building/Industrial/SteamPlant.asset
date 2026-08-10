@@ -96,9 +96,9 @@ MonoBehaviour:
     operators: []
   logisticsProductionRate:
     sign: 0
-    representation: 0
+    representation: 1
     operatorCount: 0
-    scalar: 0
+    scalar: 30
     layer: 0
     operators: []
   logisticsConsumptionRate:

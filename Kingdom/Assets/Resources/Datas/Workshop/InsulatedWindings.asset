@@ -15,7 +15,6 @@ MonoBehaviour:
   id: InsulatedWindings
   Label: "\u7EDD\u7F18\u7ED5\u7EC4\u7EC4\u4EF6"
   Description: "\u7531\u6807\u51C6\u7EBF\u5708\u3001\u7EDD\u7F18\u5C42\u548C\u63A5\u7EBF\u7AEF\u7EC4\u6210\u7684\u7535\u673A\u4E0E\u53D1\u7535\u8BBE\u5907\u7EC4\u4EF6\u3002"
-  Category: "\u7535\u6C14"
   SortOrder: 220
   TechLevel: 3
   requiredResearch:

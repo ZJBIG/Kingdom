@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AdvancedCompositeLayup
   Label: "先进复合材料铺层"
-  Description: "通过纤维铺层、树脂固化和无损检测提高复合材料的稳定产出。"
-  Category: "航天"
+  Description: "通过纤维定向铺层、树脂固化和无损检测控制复合材料的强度与一致性，提升机器制造厂对轻质结构材料的稳定产出。"
   SortOrder: 450
   TechLevel: 4
   requiredResearch:
@@ -61,6 +60,14 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 300
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}

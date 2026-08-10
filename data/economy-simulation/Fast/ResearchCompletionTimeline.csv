@@ -41,3 +41,10 @@ TimeSeconds,Minute,TechLevel,ResearchId,Count
 27328.0,455.47,Industrial,"SteamPower",0
 28857.0,480.95,Industrial,"Coking",0
 30059.0,500.98,Industrial,"PetroleumExtraction",0
+36830.0,613.83,Industrial,"Standardization",0
+40107.0,668.45,Industrial,"Bookmaking",0
+41177.0,686.28,Industrial,"GuildSystem",0
+42167.0,702.78,Industrial,"PublicHealth",0
+43148.0,719.13,Industrial,"ScholasticInstitutions",0
+43845.0,730.75,Industrial,"ElectricalEngineering",0
+45926.0,765.43,Industrial,"PowerGridEngineering",0

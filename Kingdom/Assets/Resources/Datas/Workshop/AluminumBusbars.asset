@@ -15,7 +15,6 @@ MonoBehaviour:
   id: AluminumBusbars
   Label: "\u94DD\u5236\u6BCD\u7EBF\u6392"
   Description: "\u7528\u4E8E\u5927\u53D1\u7535\u8BBE\u5907\u7684\u8F7B\u8D28\u5927\u622A\u9762\u5BFC\u7535\u7EC4\u4EF6\u3002"
-  Category: "\u7535\u6C14"
   SortOrder: 330
   TechLevel: 3
   requiredResearch:

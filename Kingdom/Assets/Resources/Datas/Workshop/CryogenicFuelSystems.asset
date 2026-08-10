@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CryogenicFuelSystems
   Label: "低温推进剂系统"
-  Description: "通过低温储存、精确输送和回收技术提高火箭燃料的有效产出。"
-  Category: "航天"
+  Description: "通过低温储存、精确输送和回收技术减少火箭燃料损耗，提升发射中心与深空舰队的燃料利用率。"
   SortOrder: 440
   TechLevel: 4
   requiredResearch:
@@ -60,15 +59,7 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 220
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
+      scalar: 420
       layer: 0
       operators: []
   effects:

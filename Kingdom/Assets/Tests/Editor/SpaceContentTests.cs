@@ -11,8 +11,8 @@ public sealed class SpaceContentTests
 
         Assert.That(rocketFuel.Id, Is.EqualTo("RocketFuel"));
         Assert.That(composite.Id, Is.EqualTo("Composite"));
-        Assert.That(rocketFuel.DisplayerSet, Is.EqualTo(Resource.Set.SpaceEraSet));
-        Assert.That(composite.DisplayerSet, Is.EqualTo(Resource.Set.SpaceEraSet));
+        Assert.That(string.IsNullOrWhiteSpace(rocketFuel.Label), Is.False);
+        Assert.That(string.IsNullOrWhiteSpace(composite.Label), Is.False);
     }
 
     [Test]
@@ -21,13 +21,19 @@ public sealed class SpaceContentTests
         Building launchCenter = DataBase<Building>.Find("LaunchCenter");
         Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
         Building shipyard = DataBase<Building>.Find("Shipyard");
+        Building observatory = DataBase<Building>.Find("DeepSpaceObservatory");
 
         Assert.That(launchCenter.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(orbitalStation.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(shipyard.TechLevel, Is.EqualTo(TechLevel.Spacer));
+        Assert.That(observatory.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(launchCenter.Id, Is.EqualTo("LaunchCenter"));
         Assert.That(orbitalStation.Id, Is.EqualTo("OrbitalStation"));
         Assert.That(shipyard.Id, Is.EqualTo("Shipyard"));
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("Electronics")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("RocketFuel")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomWeave")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("PhaseMaterial")), Is.True);
     }
 
     [Test]
@@ -42,6 +48,31 @@ public sealed class SpaceContentTests
         Assert.That(HasRate(machineFactory.ResourceGenerationRates, composite), Is.False);
         Assert.That(CountReferences(DataBase<Building>.All, rocketFuel), Is.GreaterThanOrEqualTo(2));
         Assert.That(CountReferences(DataBase<Building>.All, composite), Is.GreaterThanOrEqualTo(2));
+    }
+
+    [Test]
+    public void C703_SpaceLogisticsWorkshopsHaveReadableChineseLabelsAndDescriptions()
+    {
+        string[] workshopIds =
+        {
+            "CryogenicFuelSystems",
+            "DeepSpaceNetworkAutomation",
+            "ModularHabitatSystems",
+            "PhaseFieldContainment",
+            "AdvancedCompositeLayup",
+            "AutomatedShipyardAssembly",
+            "ReusableLaunchStages"
+        };
+        for (int i = 0; i < workshopIds.Length; i++)
+        {
+            WorkshopUpgradeDefinition workshop =
+                DataBase<WorkshopUpgradeDefinition>.Find(workshopIds[i]);
+            Assert.That(workshop, Is.Not.Null, workshopIds[i]);
+            Assert.That(workshop.Label, Does.Not.Contain("閸"), workshopIds[i]);
+            Assert.That(workshop.Description, Does.Not.Contain("閸"), workshopIds[i]);
+            Assert.That(string.IsNullOrWhiteSpace(workshop.Label), Is.False, workshopIds[i]);
+            Assert.That(string.IsNullOrWhiteSpace(workshop.Description), Is.False, workshopIds[i]);
+        }
     }
 
     private static bool HasRate(

@@ -15,7 +15,6 @@ MonoBehaviour:
   id: LightAlloyFrames
   Label: "\u8F7B\u5408\u91D1\u6846\u67B6"
   Description: "\u4EE5\u94DD\u578B\u6750\u548C\u7CBE\u5BC6\u8FDE\u63A5\u4EF6\u5236\u6210\u7684\u8F7B\u91CF\u627F\u529B\u6846\u67B6\u3002"
-  Category: "\u673A\u68B0"
   SortOrder: 320
   TechLevel: 3
   requiredResearch:

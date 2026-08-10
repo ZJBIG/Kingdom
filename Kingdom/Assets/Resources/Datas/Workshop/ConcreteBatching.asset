@@ -15,7 +15,6 @@ MonoBehaviour:
   id: ConcreteBatching
   Label: "\u6DF7\u51DD\u571F\u6405\u62CC\u673A\u7EC4"
   Description: "\u7531\u8BA1\u91CF\u6597\u3001\u8F93\u9001\u673A\u548C\u8FDE\u7EED\u6405\u62CC\u7B52\u7EC4\u6210\u7684\u6DF7\u51DD\u571F\u8BBE\u5907\u3002"
-  Category: "\u57FA\u7840\u8BBE\u65BD"
   SortOrder: 210
   TechLevel: 3
   requiredResearch:

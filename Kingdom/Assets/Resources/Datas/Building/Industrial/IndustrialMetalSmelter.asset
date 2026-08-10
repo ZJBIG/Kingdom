@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialMetalSmelter
   Label: "\u5DE5\u4E1A\u6709\u8272\u91D1\u5C5E\u7EFC\u5408\u51B6\u70BC\u7089"
-  Description: "\u540C\u4E00\u5EA7\u673A\u68B0\u5316\u7089\u4F53\u540C\u65F6\u51B6\u70BC\u94DC\u77FF\u4E0E\u9521\u77FF\uFF0C\u4EA7\u51FA\u94DC\u952D\u548C\u9521\u952D\uFF0C\u51CF\u5C11\u91CD\u590D\u5EFA\u7B51\u3002"
+  Description: "同一座机械化炉体同时冶炼铜矿、锡矿与铁矿，产出铜锭、锡锭和铁锭，作为工业时代的统一多金属冶炼节点，减少重复建筑。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -194,6 +194,14 @@ MonoBehaviour:
       scalar: 2.4
       layer: 0
       operators: []
+  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.8
+      layer: 0
+      operators: []
   resourceConsumptionRates:
   - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
     second:
@@ -219,14 +227,15 @@ MonoBehaviour:
       scalar: 1.8
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+  - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 0.08
+      scalar: 2.4
       layer: 0
       operators: []
   requiredResearch:
   - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
+  - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   requiredWorkshopUpgrades: []

@@ -31,15 +31,18 @@ public sealed class PreSpacerCombatRemovalTests
     }
 
     [Test]
-    public void C811_ConvertedResearchUsesGlobalProductionMultipliers()
+    public void C811_ConvertedResearchUsesScopedProductionMultipliers()
     {
         AssertGlobalMultiplier("OrganizedDefense", 1.03d);
         AssertGlobalMultiplier("OrganizedWatch", 1.04d);
         AssertGlobalMultiplier("Fortification", 1.05d);
         AssertGlobalMultiplier("StandingArmy", 1.06d);
         AssertGlobalMultiplier("Gunpowder", 1.07d);
-        AssertGlobalMultiplier("MilitaryIndustry", 1.10d);
         AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory", 1.20d);
+        Assert.That(
+            DataBase<Research>.Find("MilitaryIndustry").Effects,
+            Has.None.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.GlobalBuildingProductionMultiplier));
     }
 
     [Test]

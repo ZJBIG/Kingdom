@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ReusableLaunchStages
   Label: "可复用发射级"
-  Description: "通过耐热结构、精确制导和回收维护降低发射中心的长期生产成本。"
-  Category: "航天"
+  Description: "通过耐热结构、精确制导和回收维护让发射级重复执行任务，降低发射中心的长期燃料与结构材料压力。"
   SortOrder: 410
   TechLevel: 4
   requiredResearch:

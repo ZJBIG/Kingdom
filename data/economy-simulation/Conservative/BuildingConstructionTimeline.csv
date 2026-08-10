@@ -61,7 +61,5 @@ TimeSeconds,Minute,TechLevel,BuildingId,Count
 25110.0,418.5,Medieval,"SteelForge",2
 49410.0,823.5,Industrial,"CouncilHall",3
 49680.0,828,Industrial,"CouncilHall",4
-56430.0,940.5,Industrial,"CokeOven",1
-56700.0,945,Industrial,"CokeOven",2
-58860.0,981,Industrial,"OilDerrick",1
-59130.0,985.5,Industrial,"OilDerrick",2
+85860.0,1431,Industrial,"WireMill",1
+86130.0,1435.5,Industrial,"WireMill",2

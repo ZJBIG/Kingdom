@@ -165,6 +165,15 @@ public sealed class GameState
             Version++;
     }
 
+    internal ExpantaNum RepairCampaignFleet(ExpantaNum amount)
+    {
+        int previousVersion = Campaign.Version;
+        ExpantaNum repaired = Campaign.Repair(amount);
+        if (Campaign.Version != previousVersion)
+            Version++;
+        return repaired;
+    }
+
     internal void CompleteCampaign()
     {
         int previousVersion = Campaign.Version;

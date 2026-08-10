@@ -18,6 +18,7 @@ MonoBehaviour:
   BaseCost: 9200000
   prerequisites:
   - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 420, layer: 0, operators: []}
@@ -29,6 +30,14 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 600, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 500, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: c3d4e5f60718293a4b5c6d7e8f901a2b, type: 2}

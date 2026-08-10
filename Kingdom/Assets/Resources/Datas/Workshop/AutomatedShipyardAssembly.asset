@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutomatedShipyardAssembly
   Label: "自动化船坞装配"
-  Description: "以模块化生产线、自动焊接和精密检测提高深空舰船的持续装配效率。"
-  Category: "航天"
+  Description: "通过钛合金承力结构、模块化生产线、自动焊接、密封材料和精密检测缩短星舰装配周期，提升船坞持续制造远征舰船的能力。"
   SortOrder: 430
   TechLevel: 4
   requiredResearch:
@@ -68,23 +67,15 @@ MonoBehaviour:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 450
+      scalar: 1000
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
-      scalar: 450
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
+      scalar: 180
       layer: 0
       operators: []
   effects:

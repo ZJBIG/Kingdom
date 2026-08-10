@@ -82,7 +82,7 @@ public static class SimulatorSelfTests
             "炼油厂必须消耗原油，才能保持石油加工链的输入闭合。");
         Require(!oilRefinery.Consumption.ContainsKey("Explosives"),
             "炼油厂不得消耗工业炸药，否则会与化工厂形成生产循环。");
-        foreach (string consumerId in new[] { "BauxiteMine", "RareMetalMine" })
+        foreach (string consumerId in new[] { "RareMetalMine" })
         {
             Definition consumer = snapshot.Find(consumerId, DefinitionKind.Building);
             Require(consumer.Consumption.ContainsKey("Explosives"),
@@ -98,12 +98,20 @@ public static class SimulatorSelfTests
             "工业炸药工艺研究必须提升化工厂产量。");
         Definition controlledBlasting =
             snapshot.Find("ControlledBlasting", DefinitionKind.Workshop);
-        foreach (string target in new[] { "BauxiteMine", "RareMetalMine", "OilDerrick" })
+        foreach (string target in new[] { "RareMetalMine", "OilDerrick" })
             Require(controlledBlasting.Effects.Any(x =>
                     x.Kind == SimEffectKind.BuildingProductionMultiplier &&
                     x.Target == target &&
                     x.Value >= 1.15d),
                 $"精确爆破工艺必须提升{target}产量。");
+
+        Definition poweredMining =
+            snapshot.Find("PoweredMining", DefinitionKind.Workshop);
+        Require(poweredMining.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingProductionMultiplier &&
+                x.Target == "RareMetalMine" &&
+                x.Value >= 1.2d),
+            "动力采矿必须提升统一工业矿场产量。");
 
         Require(Math.Abs(EconomySimulationParity.AdvanceStockpile(
             3d, 2d, 5d, .5d) - 1.5d) < 1e-9d,

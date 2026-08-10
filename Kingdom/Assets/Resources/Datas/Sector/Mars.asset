@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Mars
   m_EditorClassIdentifier: 
   id: Mars
-  Label: Mars
-  Description: A distant frontier sector reserved for later logistics, mining, and planetary engineering.
+  Label: "火星前沿区"
+  Description: "太阳系内的远距离开拓目标。火星拥有燃料和镍资源，但航线更长、敌方威胁更高，需要先建立可靠的轨道后勤和舰队攻防能力。"
   starSystemId: Sol
   domain: 0
   enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}

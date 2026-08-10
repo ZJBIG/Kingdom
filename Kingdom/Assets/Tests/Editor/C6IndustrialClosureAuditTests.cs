@@ -19,7 +19,6 @@ public sealed class C6IndustrialClosureAuditTests
         "IndustrialMetalSmelter",
         "IndustrialBronzeFoundry",
         "BlastFurnace",
-        "BauxiteMine",
         "AluminumSmelter",
         "ConcreteWorks",
         "CentralPowerStation",

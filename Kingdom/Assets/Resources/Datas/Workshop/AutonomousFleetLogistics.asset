@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: AutonomousFleetLogistics
+  m_EditorClassIdentifier: 
+  id: AutonomousFleetLogistics
+  Label: "\u81EA\u52A8\u5316\u8230\u961F\u540E\u52E4"
+  Description: "\u7528\u81EA\u52A8\u8C03\u5EA6\u3001\u6A21\u5757\u5316\u50A8\u8FD0\u3001\u6DA6\u6ED1\u7EF4\u62A4\u548C\u6A61\u80F6\u5BC6\u5C01\u964D\u4F4E\u6DF1\u7A7A\u7269\u6D41\u7B49\u5F85\uFF0C\u63D0\u9AD8\u540E\u52E4\u67A2\u7EBD\u7684\u7269\u6D41\u541E\u5410\u3002"
+  SortOrder: 500
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 333f1c13aad1437693a1025de304aeaa, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: d4e5f60718293a4b5c6d7e8f901a2b3c, type: 2}
+  resourceRequirements:
+  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 700
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 220
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 140
+      layer: 0
+      operators: []
+  effects:
+  - Type: 11
+    Building: {fileID: 11400000, guid: 34a5e673637c4226a22089267c8b456c, type: 2}
+    Resource: {fileID: 0}
+    Value:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 1.4
+      layer: 0
+      operators: []

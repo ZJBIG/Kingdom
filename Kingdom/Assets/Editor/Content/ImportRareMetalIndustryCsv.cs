@@ -61,7 +61,6 @@ public static class ImportRareMetalIndustryCsv
         asset.SetIdForEditor(id);
         asset.Label = row.V("Label");
         asset.Description = row.V("Description");
-        asset.DisplayerSet = (Resource.Set)Int(row.V("DisplayerSet"));
         asset.Color = new Color((float)Number(row.V("Color_r")), (float)Number(row.V("Color_g")), (float)Number(row.V("Color_b")), (float)Number(row.V("Color_a")));
         EditorUtility.SetDirty(asset);
     }
@@ -120,7 +119,6 @@ public static class ImportRareMetalIndustryCsv
         asset.SetIdForEditor(id);
         asset.Label = row.V("Label");
         asset.Description = row.V("Description");
-        asset.Category = row.V("Category");
         asset.SortOrder = Int(row.V("SortOrder"));
         asset.TechLevel = (TechLevel)Int(row.V("TechLevel"));
         List<WorkshopEffectDefinition> effects = new List<WorkshopEffectDefinition>();

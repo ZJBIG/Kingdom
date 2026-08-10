@@ -98,7 +98,7 @@ namespace Kingdom.EditorTools
         {
             var rows = new List<string>
             {
-                Csv("Id", "Label", "DisplaySet", "Description", "Path")
+                Csv("Id", "Label", "Description", "Path")
             };
             for (int i = 0; i < resources.Count; i++)
             {
@@ -108,7 +108,6 @@ namespace Kingdom.EditorTools
                 rows.Add(Csv(
                     resource.Id,
                     resource.Label,
-                    resource.DisplayerSet.ToString(),
                     resource.Description,
                     AssetDatabase.GetAssetPath(resource)));
             }
@@ -182,7 +181,7 @@ namespace Kingdom.EditorTools
         {
             var rows = new List<string>
             {
-                Csv("Id", "Label", "Category", "SortOrder", "TechLevel",
+                Csv("Id", "Label", "SortOrder", "TechLevel",
                     "RequiredResearch", "RequiredUpgrades", "ResourceRequirements",
                     "Effects", "ReferencedByBuildings", "Path")
             };
@@ -193,7 +192,7 @@ namespace Kingdom.EditorTools
                     .Where(building => building.RequiredWorkshopUpgrades.Contains(workshop))
                     .Select(building => building.Id));
                 rows.Add(Csv(
-                    workshop.Id, workshop.Label, workshop.Category,
+                    workshop.Id, workshop.Label,
                     workshop.SortOrder.ToString(Invariant), workshop.TechLevel.ToString(),
                     Ids(workshop.RequiredResearch), Ids(workshop.RequiredUpgrades),
                     Pairs(workshop.ResourceRequirements),

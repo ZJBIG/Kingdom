@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FirstContact
   Label: "首次接触"
-  Description: "解码来自半人马座的第一条完整信号，建立人类与星际文明的正式接触。"
+  Description: "用电子设备和铜质信号线路解码来自半人马座的第一条完整信号，建立人类与星际文明的正式接触。"
   BaseCost: 6000000
   prerequisites:
   - {fileID: 11400000, guid: 7a2e5c9d4f1b48e6b3c8d0a7f5e2c914, type: 2}
@@ -25,6 +25,22 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 200
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 250
       layer: 0
       operators: []
   effects:

@@ -15,7 +15,6 @@ MonoBehaviour:
   id: StandardizedFreightContainers
   Label: "\u6807\u51C6\u8D27\u8FD0\u96C6\u88C5\u7BB1"
   Description: "\u53EF\u91CD\u590D\u88C5\u5378\u3001\u5806\u53E0\u548C\u5C01\u88C5\u7684\u5927\u5B97\u8D27\u8FD0\u5BB9\u5668\u3002"
-  Category: "\u7269\u6D41"
   SortOrder: 300
   TechLevel: 3
   requiredResearch:

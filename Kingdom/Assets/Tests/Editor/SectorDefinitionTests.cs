@@ -45,12 +45,42 @@ public sealed class SectorDefinitionTests
     }
 
     [Test]
+    public void C701_AllCurrentSectorDefinitionsPassRuntimeValidation()
+    {
+        Assert.That(
+            SectorValidator.ValidateDefinitions(DataBase<SectorDefinition>.All, out string error),
+            Is.True,
+            error);
+    }
+
+    [Test]
     public void C701_SectorDefinitionsHaveNoDependencyCycles()
     {
         Assert.That(
             SectorValidator.ValidateNoCycles(DataBase<SectorDefinition>.All, out string error),
             Is.True,
             error);
+    }
+
+    [Test]
+    public void C701_AllInterstellarSectorsHaveAHomeSystemEntryRoute()
+    {
+        Assert.That(
+            SectorValidator.ValidateProgressionReachability(
+                DataBase<SectorDefinition>.All,
+                out string error),
+            Is.True,
+            error);
+    }
+
+    [Test]
+    public void C701_InterstellarNavigationResearchOwnsTheStarRouteUnlock()
+    {
+        Research navigation = DataBase<Research>.Find("InterstellarNavigation");
+        Assert.That(navigation, Is.Not.Null);
+        Assert.That(navigation.Effects, Has.Some.Matches<ResearchEffectDefinition>(
+            effect => effect != null &&
+                effect.Type == ResearchEffectType.UnlockInterstellarNavigation));
     }
 
     [Test]

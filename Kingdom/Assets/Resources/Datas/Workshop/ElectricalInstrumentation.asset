@@ -15,7 +15,6 @@ MonoBehaviour:
   id: ElectricalInstrumentation
   Label: "\u7535\u6C14\u4EEA\u8868"
   Description: "\u6D4B\u91CF\u7535\u538B\u3001\u7535\u6D41\u3001\u8F6C\u901F\u3001\u6E29\u5EA6\u4E0E\u538B\u529B\u7684\u5DE5\u4E1A\u4EEA\u8868\u7EC4\u3002"
-  Category: "\u7535\u6C14"
   SortOrder: 150
   TechLevel: 3
   requiredResearch:

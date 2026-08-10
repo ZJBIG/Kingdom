@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: IndustrialChemistry
   m_EditorClassIdentifier: 
   id: IndustrialChemistry
-  Label: "\u5DE5\u4E1A\u5316\u5B66"
-  Description: "\u5EFA\u7ACB\u77F3\u6CB9\u3001\u7164\u5316\u5DE5\u3001\u7845\u9178\u76D0\u548C\u57FA\u7840\u5316\u5B66\u53CD\u5E94\u4F53\u7CFB\uFF0C\u4E3A\u71C3\u6599\u3001\u6A61\u80F6\u3001\u73BB\u7483\u3001\u9676\u74F7\u4E0E\u6DF7\u51DD\u571F\u63D0\u4F9B\u6280\u672F\u57FA\u7840\u3002"
+  Label: "工业化学"
+  Description: "建立石油、煤化工、基础反应和精馏体系，解锁化学品、橡胶、玻璃、陶瓷与混凝土等跨时代材料链。"
   BaseCost: 240000
   prerequisites:
   - {fileID: 11400000, guid: b4d2844ad346b0a40877184e732dd675, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   resourceRequirements:
   - first: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
     second:

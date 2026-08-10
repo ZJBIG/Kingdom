@@ -15,7 +15,6 @@ MonoBehaviour:
   id: ContinuousDistillation
   Label: "\u8FDE\u7EED\u84B8\u998F\u5854"
   Description: "\u7531\u5854\u677F\u3001\u518D\u6CB8\u5668\u548C\u51B7\u51DD\u5668\u7EC4\u6210\u7684\u8FDE\u7EED\u5206\u998F\u8BBE\u5907\u3002"
-  Category: "\u5316\u5DE5"
   SortOrder: 280
   TechLevel: 3
   requiredResearch:

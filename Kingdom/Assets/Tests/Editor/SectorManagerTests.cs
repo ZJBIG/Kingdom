@@ -1,8 +1,193 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
 public sealed class SectorManagerTests
 {
+    [Test]
+    public void AllSectorDefinitionsHaveExecutableLabelsRewardsAndCosts()
+    {
+        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
+        Assert.That(sectors, Is.Not.Empty);
+        for (int i = 0; i < sectors.Count; i++)
+        {
+            SectorDefinition sector = sectors[i];
+            Assert.That(sector, Is.Not.Null);
+            Assert.That(sector.Label, Is.Not.Null.And.Not.Empty, sector.Id);
+            Assert.That(sector.Description, Is.Not.Null.And.Not.Empty, sector.Id);
+            Assert.That(sector.EnemyPower.IsNaN, Is.False, sector.Id);
+            Assert.That(sector.EnemyPower, Is.GreaterThanOrEqualTo(ExpantaNum.Zero), sector.Id);
+            Assert.That(sector.TerritoryReward.IsNaN, Is.False, sector.Id);
+            Assert.That(sector.TerritoryReward, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+            Assert.That(sector.ResourceRewards, Is.Not.Null, sector.Id);
+            Assert.That(sector.ResourceRewards.Count, Is.GreaterThan(0), sector.Id);
+            for (int rewardIndex = 0; rewardIndex < sector.ResourceRewards.Count; rewardIndex++)
+            {
+                Pair<Resource, ExpantaNum> reward = sector.ResourceRewards[rewardIndex];
+                Assert.That(reward.First, Is.Not.Null, sector.Id);
+                Assert.That(reward.Second, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+            }
+
+            if (sector.IsHomeSystem)
+            {
+                Assert.That(sector.ColonizationFoodPerMinute, Is.GreaterThanOrEqualTo(ExpantaNum.Zero), sector.Id);
+                Assert.That(sector.ColonizationResourceCosts, Is.Not.Null, sector.Id);
+            }
+            else
+            {
+                Assert.That(sector.EnemyPower, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+                Assert.That(sector.CampaignFoodPerMinute, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+                Assert.That(sector.CampaignResourceCosts, Is.Not.Null.And.Not.Empty, sector.Id);
+                Assert.That(sector.CampaignProgressMultiplier, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+            }
+        }
+    }
+
+    [Test]
+    public void HomeExplorationPreviewShowsPowerAndSupplyBeforeStarting()
+    {
+        GameObject resourceObject = new GameObject("Sector-Exploration-Preview-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+            for (int i = 0; i < lowOrbit.ColonizationResourceCosts.Count; i++)
+                resourceManager.SetAmount(
+                    lowOrbit.ColonizationResourceCosts[i].First,
+                    lowOrbit.ColonizationResourceCosts[i].Second);
+
+            GameState runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+            InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(100));
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+
+            SectorExplorationPreview preview = manager.GetExplorationPreview(
+                lowOrbit,
+                runtimeState,
+                resourceManager);
+
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(preview.HasSupply, Is.True);
+            Assert.That(preview.ExplorationPower, Is.EqualTo(new ExpantaNum(100)));
+            Assert.That(preview.RequiredPower, Is.EqualTo(new ExpantaNum(40)));
+            Assert.That(preview.EstimatedMinutesRemaining, Is.EqualTo(ExpantaNum.One));
+            Assert.That(preview.ProgressPerMinute, Is.EqualTo(ExpantaNum.One));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void SiriusResourceBeltIsAHighCostHighValueSpacerCampaign()
+    {
+        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(sector, Is.Not.Null);
+        Assert.That(sector.Domain, Is.EqualTo(SectorDefinition.SectorDomain.Interstellar));
+        Assert.That(sector.StarSystemId, Is.EqualTo("Sirius"));
+        Assert.That(sector.EnemyPower, Is.GreaterThan(new ExpantaNum(5000d)));
+        Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(100000d)));
+        Assert.That(HasResourceReward(sector, "PhantomAlloy"), Is.True);
+        Assert.That(HasResourceReward(sector, "PhantomWeave"), Is.True);
+        Assert.That(HasResourceReward(sector, "PhaseMaterial"), Is.True);
+        Assert.That(HasCampaignCost(sector, "RocketFuel"), Is.True);
+        Assert.That(HasCampaignCost(sector, "TitaniumAlloy"), Is.True);
+        Assert.That(HasCampaignCost(sector, "PhaseMaterial"), Is.True);
+    }
+
+    [Test]
+    public void TauCetiFoundryReturnsAdvancedMaterialsForItsIndustrialOutpostCost()
+    {
+        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+
+        Assert.That(sector, Is.Not.Null);
+        Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(30000d)));
+        Assert.That(HasResourceReward(sector, "Electronics"), Is.True);
+        Assert.That(HasResourceReward(sector, "PhantomAlloy"), Is.True);
+        Assert.That(HasResourceReward(sector, "PhantomWeave"), Is.True);
+        Assert.That(HasCampaignCost(sector, "PhantomAlloy"), Is.True);
+        Assert.That(HasCampaignCost(sector, "PhantomWeave"), Is.True);
+    }
+
+    [Test]
+    public void ProximaReturnsTitaniumForTheNextInterstellarBuildout()
+    {
+        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+
+        Assert.That(sector, Is.Not.Null);
+        Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(40000d)));
+        Assert.That(HasResourceReward(sector, "TitaniumAlloy"), Is.True);
+        Assert.That(HasCampaignCost(sector, "PhantomAlloy"), Is.True);
+        Assert.That(HasCampaignCost(sector, "PhantomWeave"), Is.True);
+    }
+
+    [Test]
+    public void InterstellarCampaignsUseTieredLongRangeProgressMultipliers()
+    {
+        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(proxima.CampaignProgressMultiplier.ToDouble(), Is.EqualTo(0.35d).Within(0.000001d));
+        Assert.That(tau.CampaignProgressMultiplier.ToDouble(), Is.EqualTo(0.30d).Within(0.000001d));
+        Assert.That(sirius.CampaignProgressMultiplier.ToDouble(), Is.EqualTo(0.20d).Within(0.000001d));
+        Assert.That(proxima.CampaignProgressMultiplier, Is.GreaterThan(tau.CampaignProgressMultiplier));
+        Assert.That(tau.CampaignProgressMultiplier, Is.GreaterThan(sirius.CampaignProgressMultiplier));
+        Assert.That(
+            CampaignManager.AdvanceProgress(
+                ExpantaNum.Zero,
+                new ExpantaNum(1.5d),
+                60d,
+                new ExpantaNum(0.20d)).ToDouble(),
+            Is.EqualTo(0.125d).Within(0.000001d));
+    }
+
+    [Test]
+    public void InterstellarCampaignsConsumeNickelForFleetStructuralMaintenance()
+    {
+        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(FindCampaignCost(alpha, "Nickel").ToDouble(), Is.EqualTo(4d).Within(0.000001d));
+        Assert.That(FindCampaignCost(proxima, "Nickel").ToDouble(), Is.EqualTo(8d).Within(0.000001d));
+        Assert.That(FindCampaignCost(tau, "Nickel").ToDouble(), Is.EqualTo(12d).Within(0.000001d));
+        Assert.That(FindCampaignCost(sirius, "Nickel").ToDouble(), Is.EqualTo(18d).Within(0.000001d));
+    }
+
+    private static ExpantaNum FindCampaignCost(SectorDefinition sector, string resourceId)
+    {
+        for (int i = 0; i < sector.CampaignResourceCosts.Count; i++)
+            if (sector.CampaignResourceCosts[i].First != null &&
+                sector.CampaignResourceCosts[i].First.Id == resourceId)
+                return sector.CampaignResourceCosts[i].Second;
+        return ExpantaNum.Zero;
+    }
+
+    private static bool HasResourceReward(SectorDefinition sector, string resourceId)
+    {
+        for (int i = 0; i < sector.ResourceRewards.Count; i++)
+            if (sector.ResourceRewards[i].First != null &&
+                sector.ResourceRewards[i].First.Id == resourceId &&
+                sector.ResourceRewards[i].Second > ExpantaNum.Zero)
+                return true;
+        return false;
+    }
+
+    private static bool HasCampaignCost(SectorDefinition sector, string resourceId)
+    {
+        for (int i = 0; i < sector.CampaignResourceCosts.Count; i++)
+            if (sector.CampaignResourceCosts[i].First != null &&
+                sector.CampaignResourceCosts[i].First.Id == resourceId &&
+                sector.CampaignResourceCosts[i].Second > ExpantaNum.Zero)
+                return true;
+        return false;
+    }
+
     [Test]
     public void C704_ManagerUsesStableDefinitionOrderAndPrerequisites()
     {
@@ -57,6 +242,97 @@ public sealed class SectorManagerTests
 
         Assert.That(advanced, Is.False);
         Assert.That(failure, Is.EqualTo(SectorOperationFailure.CampaignNotAllowedInHomeSystem));
+    }
+
+    [Test]
+    public void C813_ZeroDeltaStartsHomeExplorationWithoutAdvancingProgress()
+    {
+        GameObject resourceObject = new GameObject("C813-Exploration-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+            for (int i = 0; i < lowOrbit.ColonizationResourceCosts.Count; i++)
+                resourceManager.SetAmount(
+                    lowOrbit.ColonizationResourceCosts[i].First,
+                    lowOrbit.ColonizationResourceCosts[i].Second);
+
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            manager.GetState(lowOrbit).SetUnlockedForEditor(true);
+            GameState runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+            InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(100));
+
+            Assert.That(manager.TryAdvanceColonization(
+                lowOrbit, 0d, runtimeState, resourceManager, out SectorOperationFailure failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(manager.GetState(lowOrbit).ColonizationActive, Is.True);
+            Assert.That(manager.GetState(lowOrbit).CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void C814_CancelledOperationsDecayHomeExplorationSlowerThanInterstellarCampaigns()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorState home = manager.GetState(DataBase<SectorDefinition>.Find("LowOrbit"));
+        SectorState interstellar = manager.GetState(DataBase<SectorDefinition>.Find("ProximaB"));
+        home.SetUnlockedForEditor(true);
+        interstellar.SetUnlockedForEditor(true);
+        home.SetCampaignProgressForEditor(new ExpantaNum(0.5d));
+        interstellar.SetCampaignProgressForEditor(new ExpantaNum(0.5d));
+
+        manager.TickActiveColonization(600d, new GameState(), null, out _);
+        manager.TickActiveCampaign(600d, new GameState(), null, out _);
+
+        Assert.That(home.CampaignProgress.ToDouble(), Is.EqualTo(0.45d).Within(0.000001d));
+        Assert.That(interstellar.CampaignProgress.ToDouble(), Is.EqualTo(0.30d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 本星系可以同时启动并推进多个星区探索()
+    {
+        GameObject resourceObject = new GameObject("并行探索资源管理器");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            resourceManager.SetAmount(DataBase<Resource>.Find("RefinedFuel"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
+
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+            SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+            manager.GetState(lowOrbit).SetUnlockedForEditor(true);
+            manager.GetState(moon).SetUnlockedForEditor(true);
+            GameState runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(1000));
+            InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(1000));
+
+            Assert.That(manager.TryAdvanceColonization(
+                lowOrbit, 0d, runtimeState, resourceManager, out SectorOperationFailure lowFailure), Is.True);
+            Assert.That(lowFailure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(manager.TryAdvanceColonization(
+                moon, 0d, runtimeState, resourceManager, out SectorOperationFailure moonFailure), Is.True);
+            Assert.That(moonFailure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(manager.GetState(lowOrbit).ColonizationActive, Is.True);
+            Assert.That(manager.GetState(moon).ColonizationActive, Is.True);
+
+            Assert.That(manager.TickActiveColonization(60d, runtimeState, resourceManager, out SectorOperationFailure tickFailure), Is.True);
+            Assert.That(tickFailure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(manager.GetState(lowOrbit).CampaignProgress, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(manager.GetState(moon).CampaignProgress, Is.GreaterThan(ExpantaNum.Zero));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
     }
 
     [Test]
@@ -177,6 +453,7 @@ public sealed class SectorManagerTests
         Assert.That(preview.CombatRatio.ToDouble(), Is.EqualTo(1.5d).Within(0.000001d));
         Assert.That(preview.FleetSurvivalFactor.ToDouble(), Is.EqualTo(0.35d).Within(0.000001d));
         Assert.That(preview.ProgressPerMinute.ToDouble(), Is.EqualTo(0.625d).Within(0.000001d));
+        Assert.That(preview.EstimatedMinutesRemaining.ToDouble(), Is.EqualTo(1.6d).Within(0.000001d));
         Assert.That(preview.CasualtiesPerMinute, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(preview.FoodCostPerMinute, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(preview.ResourceCostsPerMinute, Has.Count.EqualTo(1));
@@ -438,6 +715,86 @@ public sealed class SectorManagerTests
             Object.DestroyImmediate(resourceObject);
             Object.DestroyImmediate(gameObject);
         }
+    }
+
+    [Test]
+    public void C811_CampaignCasualtiesReduceReadinessAndRepairConsumesStrategicSupply()
+    {
+        ExpantaNum readyPower = CampaignManager.CalculateEffectivePower(
+            new ExpantaNum(100),
+            new ExpantaNum(100),
+            new ExpantaNum(100),
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.Zero);
+        ExpantaNum damagedPower = CampaignManager.CalculateEffectivePower(
+            new ExpantaNum(100),
+            new ExpantaNum(100),
+            new ExpantaNum(100),
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            new ExpantaNum(50));
+        Assert.That(damagedPower, Is.LessThan(readyPower));
+        Assert.That(CampaignManager.CalculateFleetReadiness(
+            new ExpantaNum(100), new ExpantaNum(50)).ToDouble(), Is.EqualTo(2d / 3d).Within(0.000001d));
+
+        GameObject resourceObject = new GameObject("C811-Repair-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            resourceManager.SetAmount(DataBase<Resource>.Find("TitaniumAlloy"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<Resource>.Find("PhantomWeave"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
+
+            GameState runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "BeginCampaign", "ProximaB");
+            InvokeGameStateMethod(runtimeState, "RecordCampaignCombat", new ExpantaNum(0.8d), new ExpantaNum(10));
+            SectorManager manager = new SectorManager(_ => { });
+
+            bool repaired = manager.TryRepairFleet(
+                runtimeState,
+                resourceManager,
+                new ExpantaNum(5),
+                out ExpantaNum repairedAmount,
+                out SectorOperationFailure failure);
+
+            Assert.That(repaired, Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(repairedAmount, Is.EqualTo(new ExpantaNum(5)));
+            Assert.That(runtimeState.Campaign.Casualties, Is.EqualTo(new ExpantaNum(5)));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")), Is.EqualTo(new ExpantaNum(10)));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave")), Is.EqualTo(new ExpantaNum(5)));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel")), Is.EqualTo(new ExpantaNum(2.5d)));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void C812_CampaignPreviewExposesSupplyAndLogisticsSatisfaction()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        var runtimeState = new GameState();
+        InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+        InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(100));
+        InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", new ExpantaNum(0.75d));
+        InvokeGameStateMethod(runtimeState, "SetPowerSatisfaction", new ExpantaNum(0.5d));
+        InvokeGameStateMethod(runtimeState, "SetLogisticsSatisfaction", new ExpantaNum(0.25d));
+
+        SectorCampaignPreview preview = manager.GetCampaignPreview(moon, runtimeState, null);
+
+        Assert.That(preview.SupplySatisfaction, Is.EqualTo(new ExpantaNum(0.75d)));
+        Assert.That(preview.PowerSatisfaction, Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(preview.LogisticsSatisfaction, Is.EqualTo(new ExpantaNum(0.25d)));
+        Assert.That(preview.ProgressPerMinute, Is.EqualTo(ExpantaNum.Zero));
     }
 
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)

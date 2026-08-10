@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: RareMetalMine
   m_EditorClassIdentifier: 
   id: RareMetalMine
-  Label: "\u7A00\u6709\u91D1\u5C5E\u77FF\u573A"
-  Description: "\u5728\u590D\u5408\u7A00\u6709\u91D1\u5C5E\u77FF\u5E8A\u4E0A\u8FDB\u884C\u6DF1\u5C42\u5F00\u91C7\uFF0C\u5E76\u901A\u8FC7\u7834\u788E\u3001\u91CD\u9009\u3001\u78C1\u9009\u548C\u6D6E\u9009\u6D41\u7A0B\uFF0C\u5C06\u6DF7\u5408\u77FF\u77F3\u5206\u79BB\u6210\u949B\u7CBE\u77FF\u4E0E\u954D\u7CBE\u77FF\u3002"
+  Label: "工业多金属矿场"
+  Description: "一座工业多金属矿场同时承担铝土、铜、锡、铁、钛和镍矿物的开采。它以钻探、爆破和重型分选设备替代分散矿场，常用矿物保持稳定供应，钛与镍以较低产率进入后续高级冶金链。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth:
@@ -192,6 +192,38 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 1.2
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 2
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.45
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.35
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 0.35
       layer: 0
       operators: []
   resourceConsumptionRates:

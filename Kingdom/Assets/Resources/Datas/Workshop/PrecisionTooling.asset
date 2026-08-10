@@ -15,7 +15,6 @@ MonoBehaviour:
   id: PrecisionTooling
   Label: "\u7CBE\u5BC6\u673A\u5E8A\u7EC4"
   Description: "\u7531\u8F66\u5E8A\u3001\u94E3\u5E8A\u3001\u91CF\u5177\u548C\u5939\u5177\u7EC4\u6210\u7684\u7CBE\u5BC6\u52A0\u5DE5\u8BBE\u5907\u3002"
-  Category: "\u673A\u68B0"
   SortOrder: 50
   TechLevel: 3
   requiredResearch:

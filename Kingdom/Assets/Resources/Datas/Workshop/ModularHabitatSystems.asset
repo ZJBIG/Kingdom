@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModularHabitatSystems
   Label: "模块化空间舱"
-  Description: "用标准化陶瓷隔热层、铝合金骨架和电子控制模块提高轨道空间站的扩建效率。"
-  Category: "航天"
+  Description: "用陶瓷隔热层、橡胶密封件、布料内衬、铝合金骨架和电子控制模块把轨道空间站拆分为可替换舱段，降低扩建成本并提高长期居住与补给能力。"
   SortOrder: 420
   TechLevel: 4
   requiredResearch:
@@ -77,6 +76,22 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 400
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 180
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 160
       layer: 0
       operators: []
   effects:

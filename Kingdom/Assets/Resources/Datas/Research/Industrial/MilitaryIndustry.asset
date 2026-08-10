@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MilitaryIndustry
   m_EditorClassIdentifier: 
   id: MilitaryIndustry
-  Label: "\u519B\u5DE5\u4F53\u7CFB"
-  Description: "\u6574\u5408\u94A2\u6750\u3001\u673A\u68B0\u4E0E\u5316\u5B66\u5DE5\u4E1A\uFF0C\u5EFA\u7ACB\u9762\u5411\u592A\u7A7A\u8230\u961F\u7684\u5927\u89C4\u6A21\u519B\u5DE5\u5236\u9020\u4F53\u7CFB\u3002"
+  Label: "军工体系"
+  Description: "整合钢材、机械、化工和电子制造，建立能够持续生产舰队装备与防御设施的军工体系，为 Spacer 舰队建设提供基础。"
   BaseCost: 1350000
   prerequisites:
   - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}
@@ -62,16 +62,6 @@ MonoBehaviour:
       layer: 0
       operators: []
   effects:
-  - Type: 12
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
   - Type: 1
     Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}

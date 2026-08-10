@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Moon
   m_EditorClassIdentifier: 
   id: Moon
-  Label: Moon
-  Description: A nearby lunar sector suitable for orbital construction and the first permanent off-world settlement.
+  Label: "月球轨道区"
+  Description: "距离母星最近的长期轨道基地。完成探索后可获得复合材料和钛资源，为轨道空间站、发射设施和后续深空航线提供建设基础。"
   starSystemId: Sol
   domain: 0
   enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}

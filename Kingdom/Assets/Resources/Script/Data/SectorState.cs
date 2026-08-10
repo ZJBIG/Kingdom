@@ -6,14 +6,20 @@ public sealed class SectorState
     private bool unlocked;
     private bool occupied;
     private bool colonizationActive;
+    private bool campaignActive;
     private ExpantaNum campaignProgress;
+    private ExpantaNum campaignCasualties;
+    private ExpantaNum campaignCombatRatio;
     private int visitCount;
 
     public SectorDefinition Definition { get; }
     public bool Unlocked => unlocked;
     public bool Occupied => occupied;
     public bool ColonizationActive => colonizationActive;
+    public bool CampaignActive => campaignActive;
     public ExpantaNum CampaignProgress => campaignProgress;
+    public ExpantaNum CampaignCasualties => campaignCasualties;
+    public ExpantaNum CampaignCombatRatio => campaignCombatRatio;
     public int VisitCount => visitCount;
     public int Version { get; private set; }
 
@@ -26,8 +32,13 @@ public sealed class SectorState
     internal void SetUnlocked(bool value) => Change(ref unlocked, value);
     internal void SetOccupied(bool value) => Change(ref occupied, value);
     internal void SetColonizationActive(bool value) => Change(ref colonizationActive, value);
+    internal void SetCampaignActive(bool value) => Change(ref campaignActive, value);
     internal void SetCampaignProgress(ExpantaNum value) =>
         Change(ref campaignProgress, ExpantaNum.Clamp01(value));
+    internal void SetCampaignCasualties(ExpantaNum value) =>
+        Change(ref campaignCasualties, ExpantaNum.Max(ExpantaNum.Zero, value));
+    internal void SetCampaignCombatRatio(ExpantaNum value) =>
+        Change(ref campaignCombatRatio, ExpantaNum.Max(ExpantaNum.Zero, value));
     internal void SetVisitCount(int value) => Change(ref visitCount, Math.Max(0, value));
 
     internal void ResetForLoad()
@@ -35,16 +46,30 @@ public sealed class SectorState
         SetUnlocked(false);
         SetOccupied(false);
         SetColonizationActive(false);
+        SetCampaignActive(false);
         SetCampaignProgress(ExpantaNum.Zero);
+        SetCampaignCasualties(ExpantaNum.Zero);
+        SetCampaignCombatRatio(ExpantaNum.Zero);
         SetVisitCount(0);
     }
 
-    internal void Restore(bool restoredUnlocked, bool restoredOccupied, bool restoredColonizationActive, ExpantaNum progress, int visits)
+    internal void Restore(
+        bool restoredUnlocked,
+        bool restoredOccupied,
+        bool restoredColonizationActive,
+        bool restoredCampaignActive,
+        ExpantaNum progress,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        int visits)
     {
         SetUnlocked(restoredUnlocked);
         SetOccupied(restoredOccupied && restoredUnlocked);
         SetColonizationActive(restoredColonizationActive && restoredUnlocked && !restoredOccupied);
+        SetCampaignActive(restoredCampaignActive && restoredUnlocked && !restoredOccupied);
         SetCampaignProgress(progress);
+        SetCampaignCasualties(casualties);
+        SetCampaignCombatRatio(combatRatio);
         SetVisitCount(visits);
     }
 
@@ -52,6 +77,8 @@ public sealed class SectorState
     public void SetUnlockedForEditor(bool value) => SetUnlocked(value);
     public void SetOccupiedForEditor(bool value) => SetOccupied(value);
     public void SetCampaignProgressForEditor(ExpantaNum value) => SetCampaignProgress(value);
+    public void SetCampaignActiveForEditor(bool value) => SetCampaignActive(value);
+    public void SetCampaignCasualtiesForEditor(ExpantaNum value) => SetCampaignCasualties(value);
     public void SetVisitCountForEditor(int value) => SetVisitCount(value);
 #endif
 

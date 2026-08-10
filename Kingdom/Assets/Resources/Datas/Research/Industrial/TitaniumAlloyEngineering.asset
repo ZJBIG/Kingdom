@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TitaniumAlloyEngineering
   m_EditorClassIdentifier: 
   id: TitaniumAlloyEngineering
-  Label: "\u949B\u5408\u91D1\u5DE5\u7A0B"
-  Description: "\u7814\u7A76\u949B\u7684\u771F\u7A7A\u7194\u70BC\u3001\u6210\u5206\u63A7\u5236\u3001\u70ED\u5904\u7406\u548C\u953B\u9020\u6280\u672F\uFF0C\u7A33\u5B9A\u751F\u4EA7\u9002\u7528\u4E8E\u9AD8\u8D1F\u8377\u8F7B\u91CF\u5316\u7ED3\u6784\u7684\u949B\u5408\u91D1\u3002"
+  Label: "钛合金工程"
+  Description: "掌握真空熔炼、成分控制、热处理和锻造技术，把钛精矿转化为适用于高负荷轻量结构的钛合金，支撑后续 Spacer 建设。"
   BaseCost: 2700000
   prerequisites:
   - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}

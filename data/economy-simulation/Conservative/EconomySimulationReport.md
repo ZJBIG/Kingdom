@@ -1,7 +1,7 @@
 # Economy Simulation Report - Conservative
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 39 resources, 61 buildings, 86 research, 40 Workshop upgrades.
+Strict snapshot: 40 resources, 65 buildings, 91 research, 48 Workshop upgrades.
 
 ## Rules
 
@@ -15,7 +15,7 @@ Strict snapshot: 39 resources, 61 buildings, 86 research, 40 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Productivity-blocked building decision time: total 0 seconds; longest continuous 0 seconds.
-- Final population growth: x1.6, 0/min; productivity utilization: 33.1%; territory: 364/2325.
+- Final population growth: x2, 0/min; productivity utilization: 41.3%; territory: 400/2325.
 
 ## Animal Age
 
@@ -35,19 +35,15 @@ Strict snapshot: 39 resources, 61 buildings, 86 research, 40 Workshop upgrades.
 ## Industrial Age
 
 到达时间: 823.42 分钟
-完成研究: 4
+完成研究: 10
 
 原始时代最长无研究目标: 4 分钟；新石器时代: 4 分钟。
 
 ## Bottlenecks
 
 - Clay: single producer
-- CopperOre: single producer
-- Iron: single producer
-- IronOre: single producer
 - PlantFiber: single producer
 - StoneChunk: single producer
-- TinOre: single producer
 - WoodLog: single producer
 
 ## Warnings

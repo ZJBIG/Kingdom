@@ -15,7 +15,6 @@ MonoBehaviour:
   id: LaboratoryGlassware
   Label: "\u5B9E\u9A8C\u73BB\u7483\u5668\u5177"
   Description: "\u7528\u4E8E\u5B9A\u91CF\u3001\u52A0\u70ED\u3001\u51B7\u51DD\u548C\u53CD\u5E94\u89C2\u5BDF\u7684\u6807\u51C6\u5B9E\u9A8C\u5668\u5177\u3002"
-  Category: "\u79D1\u7814"
   SortOrder: 140
   TechLevel: 3
   requiredResearch:

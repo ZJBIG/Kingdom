@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CopperElectrolysisCells
   Label: "\u94DC\u7535\u89E3\u7CBE\u70BC\u69FD"
-  Description: "\u7531\u7535\u89E3\u69FD\u3001\u7535\u6781\u677F\u548C\u6574\u6D41\u4F9B\u7535\u7EC4\u4EF6\u6784\u6210\u7684\u94DC\u7CBE\u70BC\u8BBE\u5907\u3002"
-  Category: "\u51B6\u91D1"
+  Description: "\u7528\u9676\u74F7\u9694\u819C\u3001\u7535\u6781\u677F\u548C\u6574\u6D41\u8BBE\u5907\u5C06\u94DC\u4ECE\u6742\u8D28\u4E2D\u7535\u89E3\u5206\u79BB\uFF0C\u63D0\u5347\u5DE5\u4E1A\u6709\u8272\u91D1\u5C5E\u7EFC\u5408\u51B6\u70BC\u7089\u7684\u94DC\u4EA7\u51FA\uFF0C\u5E76\u4F7F\u9676\u74F7\u5728\u7535\u6C14\u5316\u5DE5\u827A\u4E2D\u4FDD\u6301\u957F\u671F\u9700\u6C42\u3002"
   SortOrder: 205
   TechLevel: 3
   requiredResearch:
@@ -46,6 +45,14 @@ MonoBehaviour:
       representation: 1
       operatorCount: 0
       scalar: 100
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 120
       layer: 0
       operators: []
   effects:

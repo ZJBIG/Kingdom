@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: RareMetalResourceDevelopment
   m_EditorClassIdentifier: 
   id: RareMetalResourceDevelopment
-  Label: "\u7A00\u6709\u91D1\u5C5E\u8D44\u6E90\u5F00\u53D1"
-  Description: "\u7814\u7A76\u590D\u5408\u7A00\u6709\u91D1\u5C5E\u77FF\u5E8A\u7684\u5730\u8D28\u7279\u5F81\u3001\u6DF1\u5C42\u5F00\u91C7\u4E0E\u91CD\u77FF\u7269\u5206\u9009\u6280\u672F\uFF0C\u5EFA\u7ACB\u949B\u7CBE\u77FF\u548C\u954D\u7CBE\u77FF\u7684\u7A33\u5B9A\u4F9B\u5E94\u4F53\u7CFB\u3002"
+  Label: "稀有金属资源开发"
+  Description: "研究复合稀有金属矿床的深层开采与重矿物分选，建立钛精矿和镍精矿供应，为钛合金与高温合金链铺路。"
   BaseCost: 1250000
   prerequisites:
   - {fileID: 11400000, guid: d2f78c059dca49546b8ea16a89b1f296, type: 2}

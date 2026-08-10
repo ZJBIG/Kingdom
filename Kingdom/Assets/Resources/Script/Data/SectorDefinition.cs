@@ -24,6 +24,7 @@ public sealed class SectorDefinition : GameDefinition
     [SerializeField] private List<Pair<Resource, ExpantaNum>> colonizationResourceCosts = new();
     [SerializeField] private ExpantaNum campaignFoodPerMinute = new ExpantaNum(1);
     [SerializeField] private List<Pair<Resource, ExpantaNum>> campaignResourceCosts = new();
+    [SerializeField] private ExpantaNum campaignProgressMultiplier = ExpantaNum.One;
     [SerializeField] private bool repeatable;
     [SerializeField] private Sprite background;
     [SerializeField] private Sprite icon;
@@ -41,6 +42,7 @@ public sealed class SectorDefinition : GameDefinition
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceCosts => colonizationResourceCosts;
     public ExpantaNum CampaignFoodPerMinute => campaignFoodPerMinute;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceCosts => campaignResourceCosts;
+    public ExpantaNum CampaignProgressMultiplier => ExpantaNum.Clamp01(campaignProgressMultiplier);
     public bool Repeatable => repeatable;
     public Sprite Background => background;
     public Sprite Icon => icon;

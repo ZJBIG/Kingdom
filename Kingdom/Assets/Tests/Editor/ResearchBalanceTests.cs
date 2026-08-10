@@ -1,8 +1,21 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 
 public sealed class ResearchBalanceTests
 {
+    [Test]
+    public void 研究定义不再携带布局坐标或系统路由字段()
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        Assert.That(typeof(Research).GetField("x", flags), Is.Null);
+        Assert.That(typeof(Research).GetField("y", flags), Is.Null);
+        Assert.That(typeof(Research).GetField("X", flags), Is.Null);
+        Assert.That(typeof(Research).GetField("Y", flags), Is.Null);
+        Assert.That(typeof(ResearchEffectDefinition).GetField("SystemID", flags), Is.Null);
+        Assert.That(typeof(ResearchEffectDefinition).GetField("systemID", flags), Is.Null);
+    }
+
     [Test]
     public void EarlyResearchCosts_MatchTheContentBalanceBaseline()
     {
@@ -230,6 +243,23 @@ public sealed class ResearchBalanceTests
                 Is.True,
                 $"Published research '{research.Id}' is a prerequisite-only node with no gameplay effect.");
         }
+    }
+
+    [Test]
+    public void IndustrialFactoryResearchesHaveDistinctPlayerFacingRoles()
+    {
+        Research organization = DataBase<Research>.Find("FactoryOrganization");
+        Research massProduction = DataBase<Research>.Find("MassProduction");
+        Research precision = DataBase<Research>.Find("PrecisionManufacturing");
+
+        Assert.That(organization.Description, Does.Contain("工业行政体系"));
+        Assert.That(organization.Description, Does.Contain("建设效率"));
+        Assert.That(massProduction.Description, Does.Contain("批量生产速度"));
+        Assert.That(precision.Description, Does.Contain("机器工厂"));
+        Assert.That(HasEffect(organization, ResearchEffectType.GlobalBuildingProductionMultiplier, 1.21d), Is.False);
+        Assert.That(HasEffect(organization, ResearchEffectType.GlobalConstructionMultiplier, 1.2d), Is.True);
+        Assert.That(HasEffect(massProduction, ResearchEffectType.GlobalBuildingProductionMultiplier, 1.4375d), Is.True);
+        Assert.That(HasEffect(precision, ResearchEffectType.BuildingProductionMultiplier, 1.12d, "MachineFactory"), Is.True);
     }
 
     private static bool IsRequiredByBuilding(Research research)

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AlphaCentauri
   m_EditorClassIdentifier: 
   id: AlphaCentauri
-  Label: Alpha Centauri Frontier
-  Description: The first confirmed inhabited frontier beyond Sol. Establish a foothold through sustained interstellar campaign.
+  Label: "半人马座前沿区"
+  Description: "太阳系外首个确认存在文明活动的前沿星区。这里不是一次性突袭目标，必须依靠持续的舰队补给、燃料和先进材料投入，才能建立稳定据点。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 900, layer: 0, operators: []}
@@ -38,6 +38,8 @@ MonoBehaviour:
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
   - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
     second: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
+  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

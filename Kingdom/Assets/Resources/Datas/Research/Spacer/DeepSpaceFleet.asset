@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpaceFleet
   Label: "深空舰队"
-  Description: "建立远征舰队、补给链和指挥体系，支持跨星区行动。"
+  Description: "建立具备远征能力的舰队、化学推进剂补给链和指挥体系，解锁远星战役；舰队推进会持续消耗食物、燃料、物流能力和高级材料。"
   BaseCost: 4000000
   prerequisites:
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
@@ -46,6 +46,14 @@ MonoBehaviour:
       layer: 0
       operators: []
   - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    second:
+      sign: 0
+      representation: 1
+      operatorCount: 0
+      scalar: 600
+      layer: 0
+      operators: []
+  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     second:
       sign: 0
       representation: 1

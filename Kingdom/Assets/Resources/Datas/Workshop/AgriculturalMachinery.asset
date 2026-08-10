@@ -15,7 +15,6 @@ MonoBehaviour:
   id: AgriculturalMachinery
   Label: "\u519C\u4E1A\u673A\u68B0"
   Description: "\u7531\u53D1\u52A8\u673A\u3001\u4F20\u52A8\u673A\u6784\u548C\u4E13\u7528\u519C\u5177\u7EC4\u6210\u7684\u8015\u4F5C\u4E0E\u6536\u83B7\u8BBE\u5907\u3002"
-  Category: "\u519C\u4E1A"
   SortOrder: 80
   TechLevel: 3
   requiredResearch:

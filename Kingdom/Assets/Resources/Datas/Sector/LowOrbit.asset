@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LowOrbit
   m_EditorClassIdentifier: 
   id: LowOrbit
-  Label: Low Orbit
-  Description: The first orbital region, providing a safe launch corridor and a foothold beyond Earth.
+  Label: "近地轨道区"
+  Description: "王国迈出地表后的第一个轨道区域。通过本星系探索夺取发射走廊和电子元件资源；这里属于探索目标，不开启星区战役。"
   starSystemId: Sol
   domain: 0
   enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 40, layer: 0, operators: []}

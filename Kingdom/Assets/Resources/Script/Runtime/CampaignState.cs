@@ -44,12 +44,24 @@ public sealed class CampaignState
         Version++;
     }
 
+    internal ExpantaNum Repair(ExpantaNum amount)
+    {
+        ExpantaNum requested = ExpantaNum.Max(ExpantaNum.Zero, amount);
+        ExpantaNum repaired = ExpantaNum.Min(requested, Casualties);
+        if (repaired <= ExpantaNum.Zero)
+            return ExpantaNum.Zero;
+        Casualties -= repaired;
+        Version++;
+        return repaired;
+    }
+
     internal void Complete()
     {
         if (!Active && string.IsNullOrEmpty(TargetSectorId))
             return;
         Active = false;
         TargetSectorId = string.Empty;
+        Casualties = ExpantaNum.Zero;
         CombatRatio = ExpantaNum.Zero;
         Version++;
     }

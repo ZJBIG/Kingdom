@@ -13,29 +13,12 @@ MonoBehaviour:
   m_Name: PowerGridEngineering
   m_EditorClassIdentifier: 
   id: PowerGridEngineering
-  Label: "\u7535\u529B\u7CFB\u7EDF\u5DE5\u7A0B"
-  Description: "\u7EDF\u4E00\u7535\u6C14\u5316\u3001\u7535\u7F51\u8C03\u5EA6\u548C\u96C6\u4E2D\u5F0F\u53D1\u7535\uFF0C\u89E3\u9501\u4E2D\u592E\u53D1\u7535\u7AD9\u5E76\u63D0\u9AD8\u5168\u5C40\u4F9B\u7535\u80FD\u529B\u3002"
+  Label: "电网工程"
+  Description: "统一发电、输电和负载调度，解锁中央发电站并提升全局供电能力，为电解冶金、电子制造和轨道设施提供能源基础。"
   BaseCost: 900000
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
-  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 805
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 399
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     second:
       sign: 0
@@ -44,44 +27,12 @@ MonoBehaviour:
       scalar: 56
       layer: 0
       operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 175
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 105
-      layer: 0
-      operators: []
   - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     second:
       sign: 0
       representation: 1
       operatorCount: 0
       scalar: 175
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 630
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1320
       layer: 0
       operators: []
   effects:

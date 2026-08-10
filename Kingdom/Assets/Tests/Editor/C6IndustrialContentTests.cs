@@ -41,7 +41,6 @@ public sealed class C6IndustrialContentTests
         "IndustrialMetalSmelter",
         "IndustrialBronzeFoundry",
         "BlastFurnace",
-        "BauxiteMine",
         "AluminumSmelter",
         "ConcreteWorks",
         "CentralPowerStation",
@@ -51,13 +50,14 @@ public sealed class C6IndustrialContentTests
     };
 
     [Test]
-    public void C601_IndustrialResourcesUseTheHighTechDisplaySet()
+    public void C601_IndustrialResourcesHavePlayerFacingMetadata()
     {
         for (int i = 0; i < IndustrialResourceIds.Length; i++)
         {
             Resource resource = DataBase<Resource>.Find(IndustrialResourceIds[i]);
             Assert.That(resource, Is.Not.Null);
-            Assert.That(resource.DisplayerSet, Is.EqualTo(Resource.Set.IndustrialEraSet));
+            Assert.That(string.IsNullOrWhiteSpace(resource.Label), Is.False);
+            Assert.That(string.IsNullOrWhiteSpace(resource.Description), Is.False);
         }
     }
 
@@ -78,6 +78,8 @@ public sealed class C6IndustrialContentTests
     {
         Assert.That(DataBase<Building>.Find("SteamPlant").PowerProductionRate,
             Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<Building>.Find("SteamPlant").LogisticsProductionRate,
+            Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("MachineFactory").PowerConsumptionRate,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("RailHub").LogisticsProductionRate,
@@ -85,13 +87,78 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C605_IndustrialMetalSmelterProducesBothCopperAndTin()
+    public void C602_IndustrialChemistryFollowsThePowerGridFoundation()
+    {
+        Research chemistry = DataBase<Research>.Find("IndustrialChemistry");
+        Research powerGrid = DataBase<Research>.Find("PowerGridEngineering");
+
+        Assert.That(chemistry, Is.Not.Null);
+        Assert.That(powerGrid, Is.Not.Null);
+        Assert.That(chemistry.Prerequisites, Does.Contain(powerGrid));
+
+        Research electrical = DataBase<Research>.Find("ElectricalEngineering");
+        Research standardization = DataBase<Research>.Find("Standardization");
+        Assert.That(electrical, Is.Not.Null);
+        Assert.That(standardization, Is.Not.Null);
+        Assert.That(ContainsResearch(electrical.Prerequisites, chemistry), Is.False);
+        Assert.That(ContainsResearch(standardization.Prerequisites, chemistry), Is.False);
+
+        Assert.That(DataBase<Building>.Find("OilDerrick").RequiredResearch,
+            Does.Contain(powerGrid));
+        Assert.That(DataBase<Building>.Find("CokeOven").RequiredResearch,
+            Does.Contain(powerGrid));
+        Assert.That(DataBase<Building>.Find("IndustrialMetalSmelter").RequiredResearch,
+            Does.Contain(powerGrid));
+
+        Building powerStation = DataBase<Building>.Find("CentralPowerStation");
+        Assert.That(ContainsResource(powerStation.ResourceRequirements, "Steel"), Is.True);
+        Assert.That(ContainsResource(powerStation.ResourceRequirements, "Ceramic"), Is.True);
+        Assert.That(ContainsResource(powerStation.ResourceRequirements, "Coal"), Is.True);
+        Assert.That(ContainsResource(powerStation.ResourceRequirements, "Machinery"), Is.False);
+        Assert.That(ContainsResource(powerStation.ResourceRequirements, "CopperWire"), Is.False);
+        Assert.That(ContainsResource(powerStation.ResourceConsumptionRates, "Lubricant"), Is.False);
+        Assert.That(powerStation.LogisticsConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void C605_IndustrialMetalSmelterProducesCopperTinAndIron()
     {
         Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Copper"), Is.EqualTo(3d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Tin"), Is.EqualTo(2.4d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "CopperOre"), Is.EqualTo(2.2d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "TinOre"), Is.EqualTo(1.8d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceGenerationRates, "Iron"), Is.EqualTo(1.8d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceConsumptionRates, "IronOre"), Is.EqualTo(2.4d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceConsumptionRates, "Steel"), Is.EqualTo(0d).Within(0.0001d));
+    }
+
+    [Test]
+    public void C612_IndustrialMultiMetalMineRecoversCommonOres()
+    {
+        Building mine = DataBase<Building>.Find("RareMetalMine");
+        Assert.That(mine.Label, Does.Contain("多金属"));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "BauxiteOre"), Is.EqualTo(2d).Within(0.0001d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "CopperOre"), Is.EqualTo(0.45d).Within(0.0001d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "TinOre"), Is.EqualTo(0.35d).Within(0.0001d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "IronOre"), Is.EqualTo(0.35d).Within(0.0001d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "TitaniumConcentrate"), Is.EqualTo(1.6d).Within(0.0001d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "NickelConcentrate"), Is.EqualTo(1.2d).Within(0.0001d));
+    }
+
+    [Test]
+    public void C613_PoweredMiningImprovesTheUnifiedIndustrialMine()
+    {
+        WorkshopUpgradeDefinition workshop = DataBase<WorkshopUpgradeDefinition>.Find("PoweredMining");
+        Assert.That(workshop, Is.Not.Null);
+        Assert.That(HasBuildingEffect(workshop, "RareMetalMine", 1.2d), Is.True);
+    }
+
+    [Test]
+    public void C614_SeparateBauxiteMineWasRemovedAfterUnifiedMineMigration()
+    {
+        Assert.That(DataBase<Building>.Find("BauxiteMine"), Is.Null);
+        Assert.That(DataBase<Building>.Find("RareMetalMine"), Is.Not.Null);
     }
 
     [Test]
@@ -239,10 +306,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C608_NewIndustrialResourcesHavePlayerFacingMetadata()
     {
-        AssertResourceMetadata("Concrete", Resource.Set.IndustrialEraSet);
-        AssertResourceMetadata("Explosives", Resource.Set.IndustrialEraSet);
-        AssertResourceMetadata("BauxiteOre", Resource.Set.MineralSet);
-        AssertResourceMetadata("Aluminum", Resource.Set.IngotSet);
+        AssertResourceMetadata("Concrete");
+        AssertResourceMetadata("Explosives");
+        AssertResourceMetadata("BauxiteOre");
+        AssertResourceMetadata("Aluminum");
     }
 
     [Test]
@@ -309,7 +376,36 @@ public sealed class C6IndustrialContentTests
         return 0d;
     }
 
-    private static void AssertResourceMetadata(string resourceId, Resource.Set expectedSet)
+    private static bool HasBuildingEffect(
+        WorkshopUpgradeDefinition workshop,
+        string buildingId,
+        double minimumMultiplier)
+    {
+        for (int i = 0; i < workshop.Effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = workshop.Effects[i];
+            if (effect != null &&
+                effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
+                effect.Building != null && effect.Building.Id == buildingId &&
+                effect.Value.ToDouble() >= minimumMultiplier)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool ContainsResearch(
+        System.Collections.Generic.IReadOnlyList<Research> prerequisites,
+        Research target)
+    {
+        if (prerequisites == null || target == null)
+            return false;
+        for (int i = 0; i < prerequisites.Count; i++)
+            if (prerequisites[i] == target)
+                return true;
+        return false;
+    }
+
+    private static void AssertResourceMetadata(string resourceId)
     {
         Resource resource = DataBase<Resource>.Find(resourceId);
         Assert.That(resource, Is.Not.Null, $"资源“{resourceId}”必须存在。");
@@ -317,8 +413,6 @@ public sealed class C6IndustrialContentTests
             $"资源“{resourceId}”必须有中文名称。");
         Assert.That(string.IsNullOrWhiteSpace(resource.Description), Is.False,
             $"资源“{resourceId}”必须有中文描述。");
-        Assert.That(resource.DisplayerSet, Is.EqualTo(expectedSet),
-            $"资源“{resourceId}”的 UI 分类不正确。");
         Assert.That(resource.Sprite, Is.Not.Null,
             $"资源“{resourceId}”必须有 UI 图标。");
     }

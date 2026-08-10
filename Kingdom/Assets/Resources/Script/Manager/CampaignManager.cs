@@ -18,7 +18,8 @@ public static class CampaignManager
             supplySatisfaction,
             ExpantaNum.One,
             ExpantaNum.One,
-            militaryMultiplier);
+            militaryMultiplier,
+            ExpantaNum.Zero);
 
     public static ExpantaNum CalculateEffectivePower(
         ExpantaNum attackPower,
@@ -28,6 +29,25 @@ public static class CampaignManager
         ExpantaNum powerSatisfaction,
         ExpantaNum logisticsSatisfaction,
         ExpantaNum militaryMultiplier)
+        => CalculateEffectivePower(
+            attackPower,
+            fleetPower,
+            militaryManpower,
+            supplySatisfaction,
+            powerSatisfaction,
+            logisticsSatisfaction,
+            militaryMultiplier,
+            ExpantaNum.Zero);
+
+    public static ExpantaNum CalculateEffectivePower(
+        ExpantaNum attackPower,
+        ExpantaNum fleetPower,
+        ExpantaNum militaryManpower,
+        ExpantaNum supplySatisfaction,
+        ExpantaNum powerSatisfaction,
+        ExpantaNum logisticsSatisfaction,
+        ExpantaNum militaryMultiplier,
+        ExpantaNum casualties)
     {
         ExpantaNum basePower = ExpantaNum.Max(ExpantaNum.Zero, attackPower) +
             ExpantaNum.Max(ExpantaNum.Zero, fleetPower);
@@ -36,9 +56,19 @@ public static class CampaignManager
 
         ExpantaNum manpowerFactor = ExpantaNum.Clamp01(
             ExpantaNum.Max(ExpantaNum.Zero, militaryManpower) / basePower);
-        return basePower * manpowerFactor * ExpantaNum.Clamp01(supplySatisfaction) *
+        ExpantaNum readiness = CalculateFleetReadiness(fleetPower, casualties);
+        return basePower * manpowerFactor * readiness * ExpantaNum.Clamp01(supplySatisfaction) *
             ExpantaNum.Clamp01(powerSatisfaction) * ExpantaNum.Clamp01(logisticsSatisfaction) *
             ExpantaNum.Max(ExpantaNum.Zero, militaryMultiplier);
+    }
+
+    public static ExpantaNum CalculateFleetReadiness(
+        ExpantaNum fleetPower,
+        ExpantaNum casualties)
+    {
+        ExpantaNum safeFleetPower = ExpantaNum.Max(ExpantaNum.One, fleetPower);
+        ExpantaNum safeCasualties = ExpantaNum.Max(ExpantaNum.Zero, casualties);
+        return ExpantaNum.One / (ExpantaNum.One + safeCasualties / safeFleetPower);
     }
 
     public static ExpantaNum CalculateCombatRatio(ExpantaNum effectivePlayerPower, ExpantaNum enemyPower)
@@ -86,13 +116,21 @@ public static class CampaignManager
         ExpantaNum currentProgress,
         ExpantaNum combatRatio,
         double deltaSeconds)
+        => AdvanceProgress(currentProgress, combatRatio, deltaSeconds, ExpantaNum.One);
+
+    public static ExpantaNum AdvanceProgress(
+        ExpantaNum currentProgress,
+        ExpantaNum combatRatio,
+        double deltaSeconds,
+        ExpantaNum progressMultiplier)
     {
         if (deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ExpantaNum progress = ExpantaNum.Clamp01(currentProgress);
         return ExpantaNum.Clamp01(
-            progress + CalculateProgressRate(combatRatio) * deltaSeconds / 60d);
+            progress + CalculateProgressRate(combatRatio) *
+            ExpantaNum.Clamp01(progressMultiplier) * deltaSeconds / 60d);
     }
 
     public static ExpantaNum CalculateCasualtyAmount(ExpantaNum combatRatio, double deltaSeconds)
