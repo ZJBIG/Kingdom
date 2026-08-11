@@ -17,166 +17,34 @@ MonoBehaviour:
   Description: "\u6574\u5408\u5E02\u573A\u4EA4\u6613\u3001\u5546\u961F\u4F4F\u5BBF\u3001\u4ED3\u50A8\u3001\u7272\u755C\u8865\u7ED9\u548C\u8D27\u7269\u8F6C\u8FD0\uFF0C\u627F\u62C5\u57CE\u5E02\u7684\u5546\u4E1A\u4E0E\u533A\u57DF\u7269\u6D41\u804C\u80FD\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
-  costGrowth:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1.2
-    layer: 0
-    operators: []
-  spaceCost:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 8
-    layer: 0
-    operators: []
-  productivityConsumption:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 10
-    layer: 0
-    operators: []
-  productivityGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 30
-    layer: 0
-    operators: []
-  populationCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  researchPowerGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 5
-    layer: 0
-    operators: []
-  foodProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  logisticsProductionRate:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 25
-    layer: 0
-    operators: []
-  logisticsConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  fleetPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  attackPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  defensePowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  militaryManpowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
+  costGrowth: "1.2"
+  spaceCost: "8"
+  productivityConsumption: "10"
+  productivityGranted: "30"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "0"
+  logisticsProductionRate: "25"
+  logisticsConsumptionRate: "0"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+    amount: "100"
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:

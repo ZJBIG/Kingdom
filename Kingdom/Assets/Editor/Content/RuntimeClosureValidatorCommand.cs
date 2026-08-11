@@ -12,7 +12,7 @@ public static class RuntimeClosureValidatorCommand
             IReadOnlyList<Resource> resources = DataBase<Resource>.All;
             IReadOnlyList<Building> buildings = DataBase<Building>.All;
             IReadOnlyList<Research> researches = DataBase<Research>.All;
-            IReadOnlyList<WorkshopUpgradeDefinition> upgrades = DataBase<WorkshopUpgradeDefinition>.All;
+            IReadOnlyList<WorkshopUpgrade> upgrades = DataBase<WorkshopUpgrade>.All;
             Debug.Log($"Runtime closure input: resources={resources.Count}, buildings={buildings.Count}, research={researches.Count}, workshops={upgrades.Count}");
             if (!EconomyDependencyValidator.Validate(resources, buildings, researches, upgrades, out string error))
                 throw new InvalidOperationException(error);

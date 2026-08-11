@@ -20,7 +20,7 @@ namespace Kingdom.EditorTools
             IReadOnlyList<Resource> resources,
             IReadOnlyList<Building> buildings,
             IReadOnlyList<Research> researches,
-            IReadOnlyList<WorkshopUpgradeDefinition> workshops)
+            IReadOnlyList<WorkshopUpgrade> workshops)
         {
             var policies = new[]
             {
@@ -32,7 +32,7 @@ namespace Kingdom.EditorTools
             {
                 Csv("Scenario", "HorizonSeconds", "TechLevel", "CompletedResearch",
                     "PurchasedWorkshop", "TotalBuildings", "Population",
-                    "PopulationGrowthMultiplier", "PopulationGrowthPerMinute",
+                    "PopulationGrowthMultiplier", "PopulationGrowthPerSecond",
                     "TotalProductivity", "UsedProductivity", "ProductivityUtilization",
                     "ProductivityBlockedSeconds", "LongestProductivityBlockSeconds",
                     "TerritoryUsed", "TerritoryTotal",
@@ -66,12 +66,12 @@ namespace Kingdom.EditorTools
             private readonly IReadOnlyList<Resource> resources;
             private readonly IReadOnlyList<Building> buildings;
             private readonly IReadOnlyList<Research> researches;
-            private readonly IReadOnlyList<WorkshopUpgradeDefinition> workshops;
+            private readonly IReadOnlyList<WorkshopUpgrade> workshops;
             private readonly Dictionary<Resource, double> inventory = new();
             private readonly Dictionary<Building, int> buildingCounts = new();
             private readonly Dictionary<Building, double> buildingEfficiency = new();
             private readonly HashSet<Research> completedResearch = new();
-            private readonly HashSet<WorkshopUpgradeDefinition> purchasedWorkshop = new();
+            private readonly HashSet<WorkshopUpgrade> purchasedWorkshop = new();
             private readonly Dictionary<string, double> milestoneTimes =
                 new(StringComparer.Ordinal);
             private readonly List<Snapshot> snapshots = new();
@@ -98,7 +98,7 @@ namespace Kingdom.EditorTools
                 IReadOnlyList<Resource> resources,
                 IReadOnlyList<Building> buildings,
                 IReadOnlyList<Research> researches,
-                IReadOnlyList<WorkshopUpgradeDefinition> workshops)
+                IReadOnlyList<WorkshopUpgrade> workshops)
             {
                 this.policy = policy;
                 this.resources = resources;
@@ -183,7 +183,7 @@ namespace Kingdom.EditorTools
                     value.TotalBuildings.ToString(Invariant),
                     value.Population.ToString("0.###", Invariant),
                     value.PopulationGrowthMultiplier.ToString("0.######", Invariant),
-                    value.PopulationGrowthPerMinute.ToString("0.######", Invariant),
+                    value.PopulationGrowthPerSecond.ToString("0.######", Invariant),
                     value.TotalProductivity.ToString("0.###", Invariant),
                     value.UsedProductivity.ToString("0.###", Invariant),
                     value.ProductivityUtilization.ToString("0.######", Invariant),
@@ -346,7 +346,7 @@ namespace Kingdom.EditorTools
                 if (!systemUnlocked)
                     return;
 
-                WorkshopUpgradeDefinition next = workshops
+                WorkshopUpgrade next = workshops
                     .Where(value => !purchasedWorkshop.Contains(value) &&
                         value.TechLevel >= TechLevel.Industrial &&
                         value.RequiredResearch.All(completedResearch.Contains) &&
@@ -436,9 +436,7 @@ namespace Kingdom.EditorTools
                 return building.Id switch
                 {
                     "KnowledgeCircle" => 3,
-                    "MeetingGround" => 3,
                     "ScribeHut" => 4,
-                    "CouncilHall" => 3,
                     _ => 3
                 };
             }
@@ -1041,8 +1039,8 @@ namespace Kingdom.EditorTools
                     TotalBuildings = buildingCounts.Values.Sum(),
                     Population = population,
                     PopulationGrowthMultiplier = effects.PopulationGrowthMultiplier,
-                    PopulationGrowthPerMinute =
-                        effects.PopulationGrowthMultiplier * foodSatisfaction,
+                    PopulationGrowthPerSecond =
+                        effects.PopulationGrowthMultiplier * foodSatisfaction / 60d,
                     TotalProductivity = totalProductivity,
                     UsedProductivity = usedProductivity,
                     ProductivityUtilization = totalProductivity <= 0d
@@ -1107,13 +1105,13 @@ namespace Kingdom.EditorTools
 
             public static EffectSnapshot Create(
                 IEnumerable<Research> research,
-                IEnumerable<WorkshopUpgradeDefinition> workshops)
+                IEnumerable<WorkshopUpgrade> workshops)
             {
                 var result = new EffectSnapshot();
                 foreach (Research value in research)
                     for (int i = 0; i < value.Effects.Count; i++)
                         result.Apply(value.Effects[i]);
-                foreach (WorkshopUpgradeDefinition value in workshops)
+                foreach (WorkshopUpgrade value in workshops)
                     for (int i = 0; i < value.Effects.Count; i++)
                         result.Apply(value.Effects[i]);
                 return result;
@@ -1279,7 +1277,7 @@ namespace Kingdom.EditorTools
             public int TotalBuildings;
             public double Population;
             public double PopulationGrowthMultiplier;
-            public double PopulationGrowthPerMinute;
+            public double PopulationGrowthPerSecond;
             public double TotalProductivity;
             public double UsedProductivity;
             public double ProductivityUtilization;

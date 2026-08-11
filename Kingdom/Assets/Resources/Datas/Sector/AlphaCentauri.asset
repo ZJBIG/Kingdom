@@ -17,29 +17,49 @@ MonoBehaviour:
   Description: "太阳系外首个确认存在文明活动的前沿星区。这里不是一次性突袭目标，必须依靠持续的舰队补给、燃料和先进材料投入，才能建立稳定据点。"
   starSystemId: AlphaCentauri
   domain: 1
-  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 900, layer: 0, operators: []}
+  enemyPower: "900"
   prerequisiteSectors:
   - {fileID: 11400000, guid: 1820cea6c13ab3840b299c478d24406f, type: 2}
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 10000, layer: 0, operators: []}
+  territoryReward: "100000"
   resourceRewards:
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 5000, layer: 0, operators: []}
-  colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  colonizationResourceCosts: []
-  campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 60, layer: 0, operators: []}
-  campaignResourceCosts:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 25, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 10, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 8, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 3, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 4, layer: 0, operators: []}
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "50000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "35000"
+  occupiedResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "0.55"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.45"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "0.22"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "0.18"
+  colonizationFoodPerSecond: "0"
+  colonizationResourceRatesPerSecond: []
+  campaignFoodPerSecond: "2"
+  campaignResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "0.8"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "0.8"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "1.6666666667"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "0.6666666667"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.5333333333"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "0.2666666667"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "0.2"
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "0.2666666667"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "0.05"
+  - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    amount: "0.2666666667"
+  campaignProgressMultiplier: "0.015"
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

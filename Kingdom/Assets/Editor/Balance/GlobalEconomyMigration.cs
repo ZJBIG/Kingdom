@@ -25,6 +25,12 @@ namespace Kingdom.EditorTools
         [MenuItem("Tools/Kingdom/Balance/Apply Global Economy Migration")]
         public static void Run()
         {
+            Debug.LogWarning(
+                "全局经济迁移器已停用：当前内容资产已经完成工业时代与太空时代迁移，" +
+                "旧迁移器会重新生成已淘汰资源和建筑。请直接编辑当前资产或使用专用迁移脚本。", null);
+            return;
+
+#pragma warning disable CS0162
             EnsureFolders();
             CreateIndustrialResources();
             CreateIndustrialResearchSkeletons();
@@ -49,7 +55,8 @@ namespace Kingdom.EditorTools
             Debug.Log(
                 $"Global economy migration complete. Resources={Count<Resource>()}, " +
                 $"Buildings={Count<Building>()}, Research={Count<Research>()}, " +
-                $"Workshop={Count<WorkshopUpgradeDefinition>()}.");
+                $"Workshop={Count<WorkshopUpgrade>()}.");
+#pragma warning restore CS0162
         }
 
         public static void RunFromCommandLine()
@@ -93,7 +100,7 @@ namespace Kingdom.EditorTools
                 "SteamPower", "IndustrialWorkshop", "PetroleumExtraction",
                 "SilicaProcessing", "Coking", "IndustrialChemistry",
                 "ElectricalEngineering", "PrecisionManufacturing",
-                "MechanizedProduction", "RailwayEngineering", "ModernUniversity",
+                "RailwayEngineering", "ModernUniversity",
                 "Standardization", "MassProduction", "Electrification",
                 "ScientificMethod", "IndustrialAgriculture", "MilitaryIndustry",
                 "LogisticsManagement", "FactoryOrganization", "CombustionEngines",
@@ -106,7 +113,7 @@ namespace Kingdom.EditorTools
             {
                 "IndustrialMetalSmelting", "IndustrialBronzeCasting",
                 "DeepOilDrilling", "IndustrialExplosives",
-                "ModernSteelmaking", "LightMetalOres", "AluminumMetallurgy", "ConcreteEngineering",
+                "LightMetalOres", "AluminumMetallurgy", "ConcreteEngineering",
                 "ElectricalManufacturing", "EngineManufacturing", "SyntheticFertilizers",
                 "MechanizedAgricultureSystems", "ElectricalCommunication", "CentralizedGeneration",
                 "AcademicJournals", "MilitaryStandardization", "ShiftRegisters", "StandardGauge",
@@ -128,9 +135,8 @@ namespace Kingdom.EditorTools
 
             string[] additionalIds =
             {
-                "IndustrialMetalSmelter", "IndustrialBronzeFoundry",
-                "BlastFurnace", "AluminumSmelter", "ConcreteWorks", "AdvancedCeramicsPlant",
-                "CentralPowerStation"
+                "IndustrialMetalSmelter", "AluminumSmelter", "ConcreteWorks", "AdvancedCeramicsPlant",
+                "CentralPowerStation", "IndustrialHabitationComplex"
             };
             for (int i = 0; i < additionalIds.Length; i++)
                 LoadOrCreate<Building>($"{BuildingRoot}/Industrial/{additionalIds[i]}.asset", additionalIds[i]);
@@ -147,7 +153,7 @@ namespace Kingdom.EditorTools
                 "ChemicalCatalysts", "AgriculturalMachinery", "MechanicalLooms",
                 "RotaryKilns", "LaboratoryGlassware", "ElectricalInstrumentation",
                 "ConveyorSystems", "HotBlastStoves", "ContinuousCasting",
-                "CopperElectrolysisCells", "BronzeCastingMolds", "ConcreteBatching",
+                "ConcreteBatching",
                 "InsulatedWindings", "BallBearings", "FuelInjection", "BlockSignalling",
                 "HighPressureTurbines", "ContinuousDistillation", "PressurizedReactors",
                 "StandardizedFreightContainers", "AluminumElectrolyticCells",
@@ -158,7 +164,7 @@ namespace Kingdom.EditorTools
                 "PhantomAlloyRecrystallization"
             };
             for (int i = 0; i < ids.Length; i++)
-                LoadOrCreate<WorkshopUpgradeDefinition>(
+                LoadOrCreate<WorkshopUpgrade>(
                     $"{WorkshopRoot}/{ids[i]}.asset",
                     ids[i]);
         }
@@ -256,11 +262,21 @@ namespace Kingdom.EditorTools
                 BuildingMultiplier("MetalMine", 1.15));
             SetResearchEffects("Smithing",
                 BuildingMultiplier("MetalSmelter", 1.10),
-                BuildingMultiplier("BronzeFoundry", 1.10),
                 GlobalConstruction(1.05));
+            SetResearchEffects("ClayExtraction",
+                BuildingMultiplier("ClayPit", 1.20));
+            SetResearchEffects("Quarry",
+                BuildingMultiplier("Quarry", 1.25));
+            SetResearchEffects("FoodStorage",
+                RE(ResearchEffectType.FoodCapacityMultiplier, 1.10));
+            SetResearchEffects("Smithing_Iron",
+                GlobalBuildingProduction(1.04));
             SetResearchEffects("ControlledFire",
                 BuildingFoodMultiplier("HunterGathererCamp", 1.10),
                 BuildingMultiplier("CeramicKiln", 1.10));
+            SetResearchEffects("CeramicFiring",
+                GlobalConstruction(1.02),
+                Deconstruction(0.10));
             SetResearchEffects("Agriculture", PopulationGrowth(1.20));
             SetResearchEffects(
                 "NeolithicSettlement",
@@ -268,6 +284,9 @@ namespace Kingdom.EditorTools
                 Productivity(100),
                 PopulationGrowth(1.25));
             SetResearchEffects("SmithingRevolution", Territory(500), Productivity(300));
+            SetResearchEffects("UrbanHousing",
+                GlobalConstruction(1.02),
+                Deconstruction(0.25));
         }
 
         private static void ConfigureAllResearch()
@@ -284,7 +303,8 @@ namespace Kingdom.EditorTools
             industrialization.SetEffectsForEditor(new List<ResearchEffectDefinition>
             {
                 Territory(1000),
-                Productivity(800)
+                Productivity(800),
+                Deconstruction(0.50)
             });
             industrialization.TechLevel = TechLevel.Industrial;
             industrialization.AdvancesTechLevel = true;
@@ -325,12 +345,8 @@ namespace Kingdom.EditorTools
                 R("IndustrialChemistry", "ElectricalEngineering"),
                 P("Steel", 500, "CopperWire", 200, "Lubricant", 80),
                 GlobalConstruction(1.05));
-            ConfigureResearch("MechanizedProduction", "机械化生产", 360000,
-                R("PrecisionManufacturing"),
-                P("Steel", 500, "Coke", 300),
-                BuildingMultiplier("MachineFactory", 1.20));
             ConfigureResearch("RailwayEngineering", "铁路工程", 440000,
-                R("MechanizedProduction"),
+                R("PrecisionManufacturing"),
                 P("Machinery", 150, "Engine", 25, "Steel", 600),
                 GlobalLogistics(1.05));
             ConfigureResearch("ModernUniversity", "现代大学", 520000,
@@ -357,7 +373,7 @@ namespace Kingdom.EditorTools
                 R("MassProduction"),
                 P("Machinery", 300, "Chemical", 200, "Engine", 30),
                 BuildingFoodMultiplier("Farm", 1.50),
-                BuildingFoodMultiplier("Pasture", 1.50),
+                BuildingFoodMultiplier("PlantingField", 1.50),
                 BuildingFoodMultiplier("WaterMill", 1.50));
             ConfigureResearch("MilitaryIndustry", "军事工业", 1200000,
                 R("MassProduction", "Electrification"),
@@ -372,7 +388,7 @@ namespace Kingdom.EditorTools
                 P("Machinery", 400, "Electronics", 200, "Cloth", 300),
                 GlobalBuildingProduction(1.10));
             ConfigureResearch("CombustionEngines", "内燃机", 1650000,
-                R("MechanizedProduction", "IndustrialChemistry"),
+                R("PrecisionManufacturing", "IndustrialChemistry"),
                 P("Engine", 100, "RefinedFuel", 500, "Lubricant", 150),
                 BuildingMultiplier("RailHub", 1.25),
                 GlobalBuildingProduction(1.10));
@@ -389,11 +405,7 @@ namespace Kingdom.EditorTools
             ConfigureResearch("IndustrialBronzeCasting", "工业青铜铸造", 330000,
                 R("IndustrialMetalSmelting", "Standardization"),
                 P("Copper", 400, "Tin", 220, "Steel", 150),
-                BuildingMultiplier("IndustrialBronzeFoundry", 1.10));
-            ConfigureResearch("ModernSteelmaking", "现代炼钢", 420000,
-                R("Coking", "MechanizedProduction"),
-                P("Steel", 300, "Coke", 500, "Machinery", 100),
-                BuildingMultiplier("BlastFurnace", 1.10));
+                BuildingMultiplier("IndustrialMetalSmelter", 1.10));
             ConfigureResearch("LightMetalOres", "轻金属矿床", 480000,
                 R("ScientificMethod", "IndustrialLogistics"),
                 P("Steel", 300, "Machinery", 120, "Chemical", 80),
@@ -421,12 +433,12 @@ namespace Kingdom.EditorTools
                 R("IndustrialChemistry", "IndustrialAgriculture"),
                 P("Chemical", 350, "Coke", 200, "Glass", 100),
                 BuildingFoodMultiplier("Farm", 1.20),
-                BuildingFoodMultiplier("Pasture", 1.20));
+                BuildingFoodMultiplier("PlantingField", 1.20));
             ConfigureResearch("MechanizedAgricultureSystems", "农业机械化体系", 780000,
                 R("SyntheticFertilizers", "EngineManufacturing", "IndustrialAgriculture"),
                 P("Machinery", 250, "Engine", 40, "Steel", 400, "RefinedFuel", 250),
                 BuildingFoodMultiplier("Farm", 1.25),
-                BuildingFoodMultiplier("Pasture", 1.25),
+                BuildingFoodMultiplier("PlantingField", 1.25),
                 BuildingFoodMultiplier("WaterMill", 1.20));
             ConfigureResearch("ElectricalCommunication", "电气通信", 450000,
                 R("ElectricalEngineering", "RailwayEngineering"),
@@ -434,7 +446,7 @@ namespace Kingdom.EditorTools
                 BuildingMultiplier("RailHub", 1.10),
                 BuildingMultiplier("University", 1.05));
             ConfigureResearch("CentralizedGeneration", "集中式发电", 1100000,
-                R("PowerGridEngineering", "MechanizedProduction", "ConcreteEngineering"),
+                R("PowerGridEngineering", "PrecisionManufacturing", "ConcreteEngineering"),
                 P("Machinery", 450, "CopperWire", 400, "Ceramic", 250,
                     "Concrete", 900),
                 BuildingMultiplier("CentralPowerStation", 1.10));
@@ -469,7 +481,7 @@ namespace Kingdom.EditorTools
                 R("SyntheticFertilizers", "ProcessControl"),
                 P("Chemical", 300, "Coke", 200, "Glass", 100),
                 BuildingFoodMultiplier("Farm", 1.15),
-                BuildingFoodMultiplier("Pasture", 1.15));
+                BuildingFoodMultiplier("PlantingField", 1.15));
         }
 
         private static void ConfigureAllBuildings()
@@ -480,9 +492,6 @@ namespace Kingdom.EditorTools
                 0, 0, 0, 0, P("WoodLog", 30), P(), P(), R("ForagingGroups"));
             B("Farm", TechLevel.Animal, 1.14, 4, 3, 0, 0, 0, 8, 0, 0,
                 0, 0, 0, 0, P("WoodLog", 50), P(), P(), R("Agriculture"));
-            B("Pasture", TechLevel.Animal, 1.15, 5, 4, 0, 0, 0, 6, 1, 0,
-                0, 0, 0, 0, P("WoodLog", 100), P(), P(),
-                R("AnimalHusbandry", "Agriculture"));
             B("Lumberyard", TechLevel.Animal, 1.13, 6, 4, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, P("WoodLog", 120, "StoneChunk", 50),
                 P("WoodLog", 5), P(), R("TreeCultivate", "StoneTools"));
@@ -493,7 +502,7 @@ namespace Kingdom.EditorTools
                 0, 0, 0, 0, P("WoodLog", 80), P("Clay", 1.5), P(),
                 R("ControlledFire", "ClayExtraction"));
             B("FiberGatheringCamp", TechLevel.Animal, 1.14, 3, 3, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, P("WoodLog", 60), P("PlantFiber", 1.5), P(),
+                0, 0, 0, 0, P("WoodLog", 60), P("Biomass", 1.5), P(),
                 R("Agriculture", "ForagingGroups"));
             B("StoneCuttingWorkshop", TechLevel.Animal, 1.15, 5, 5, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, P("WoodLog", 100, "StoneChunk", 100),
@@ -514,17 +523,13 @@ namespace Kingdom.EditorTools
                 0, 0, 0, 0, P("Clay", 50, "WoodLog", 50), P("Ceramic", 1),
                 P("Clay", 1, "WoodLog", .2), R("NeolithicSettlement", "CeramicFiring", "ClayExtraction"));
             B("WeavingWorkshop", TechLevel.Neolithic, 1.16, 4, 5, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, P("PlantFiber", 50, "WoodLog", 40), P("Cloth", 1),
-                P("PlantFiber", 1), R("NeolithicSettlement", "TextileCraft", "Agriculture"));
+                0, 0, 0, 0, P("Biomass", 50, "WoodLog", 40), P("Cloth", 1),
+                P("Biomass", 1), R("NeolithicSettlement", "TextileCraft", "Agriculture"));
             B("MetalSmelter", TechLevel.Neolithic, 1.17, 8, 10, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, P("WoodLog", 100, "StoneBrick", 80),
-                P("Copper", .8, "Tin", .8, "Iron", .8),
+                P("Copper", .8, "Tin", .8, "Iron", .8, "Bronze", .6),
                 P("CopperOre", 1, "TinOre", 1, "IronOre", 1, "Coal", 1.5),
                 R("Smithing_Copper"));
-            B("BronzeFoundry", TechLevel.Neolithic, 1.18, 12, 16, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, P("WoodLog", 120, "StoneBrick", 150), P("Bronze", 1),
-                P("Copper", 1, "Tin", .5, "Coal", .5),
-                R("Smithing_Copper", "Smithing_Bronze"));
             B("Granary", TechLevel.Neolithic, 1.18, 4, 2, 0, 0, 0, 0, 0, 1000,
                 0, 0, 0, 0, P("WoodLog", 150, "StoneBrick", 100, "Ceramic", 30),
                 P(), P(), R("FoodStorage", "CeramicFiring"));
@@ -594,19 +599,10 @@ namespace Kingdom.EditorTools
             B("IndustrialMetalSmelter", TechLevel.Industrial, 1.20, 18, 65, 0, 0, 0, 0, 0, 0,
                 0, 22, 0, 0, P("StoneBrick", 400, "Steel", 400, "Machinery", 100,
                     "Coke", 200, "Bronze", 130),
-                P("Copper", 3, "Tin", 2.4),
-                P("CopperOre", 2.2, "TinOre", 1.8, "Coke", 1.35, "Chemical", .08),
+                P("Copper", 3, "Tin", 2.4, "Iron", 1.8, "Bronze", 2.5, "Steel", 3.2),
+                P("CopperOre", 2.2, "TinOre", 1.8, "IronOre", 2.4,
+                    "Coke", 1.35, "Chemical", .08, "Copper", 1.6, "Tin", .8),
                 R("IndustrialMetalSmelting"), 0, 10);
-            B("IndustrialBronzeFoundry", TechLevel.Industrial, 1.20, 16, 65, 0, 0, 0, 0, 0, 0,
-                0, 20, 0, 0, P("StoneBrick", 300, "Steel", 350, "Machinery", 100,
-                    "Copper", 200, "Tin", 120),
-                P("Bronze", 2.5), P("Copper", 1.6, "Tin", .8, "Coke", .45),
-                R("IndustrialBronzeCasting"), 0, 9);
-            B("BlastFurnace", TechLevel.Industrial, 1.20, 20, 80, 0, 0, 0, 0, 0, 0,
-                0, 25, 0, 0, P("StoneBrick", 700, "Steel", 500, "Machinery", 150,
-                    "Coke", 300),
-                P("Steel", 3.2), P("IronOre", 2.4, "Coke", 1.2, "Chemical", .05),
-                R("ModernSteelmaking"), 0, 12);
             B("AluminumSmelter", TechLevel.Industrial, 1.20, 18, 85, 0, 0, 0, 0, 0, 0,
                 0, 100, 0, 0, P("Concrete", 500, "Steel", 400, "Machinery", 180,
                     "Ceramic", 120),
@@ -621,11 +617,16 @@ namespace Kingdom.EditorTools
                     "CopperWire", 250, "Ceramic", 100),
                 P(), P("Coke", 3, "Lubricant", .12, "Chemical", .05),
                 R("CentralizedGeneration", "PowerGridEngineering"), 0, 15);
+            B("IndustrialHabitationComplex", TechLevel.Industrial, 1.22, 42, 160, 0, 240, 0, 0, 0, 0,
+                0, 0, 0, 0, P("Concrete", 1400, "Steel", 900, "Glass", 500,
+                    "Ceramic", 250, "Electronics", 200),
+                P(), P("Electronics", .03, "Ceramic", .02),
+                R("Industrialization"));
 
             LinkBuildingUpgrade("MetalSmelter", "IndustrialMetalSmelter");
-            LinkBuildingUpgrade("BronzeFoundry", "IndustrialBronzeFoundry");
-            LinkBuildingUpgrade("SteelForge", "BlastFurnace");
+            LinkBuildingUpgrade("SteelForge", "IndustrialMetalSmelter");
             LinkBuildingUpgrade("SteamPlant", "CentralPowerStation");
+            LinkBuildingUpgrade("IndustrialHabitationComplex", "OrbitalHabitatMegastructure");
         }
 
         private static void ConfigureWorkshopUpgrades()
@@ -651,10 +652,10 @@ namespace Kingdom.EditorTools
                 P("Machinery", 180, "Steel", 450, "Lubricant", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "MetalMine", 1.2),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "RareMetalMine", 1.2));
-            W("IntegratedFurnaces", "一体化冶炉", 65,
-                R("IndustrialWorkshop", "Coking"),
-                P("Machinery", 120, "Steel", 300, "Lubricant", 60),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "MetalSmelter", 1.25));
+            W("IntegratedFurnaces", "综合金属精炼炉组", 215,
+                R("IndustrialWorkshop", "IndustrialMetalSmelting", "Coking", "ElectricalEngineering"),
+                P("Steel", 450, "Bronze", 300, "Machinery", 200, "CopperWire", 200, "Chemical", 100, "Ceramic", 120, "Lubricant", 60),
+                EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialMetalSmelter", 1.25));
             W("ChemicalCatalysts", "化学催化剂", 70, R("IndustrialChemistry"),
                 P("Chemical", 250, "Coke", 300, "Glass", 100),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "ChemicalPlant", 1.25));
@@ -663,13 +664,13 @@ namespace Kingdom.EditorTools
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilDerrick", 1.20));
             W("ControlledBlasting", "精确爆破工艺", 85,
                 R("IndustrialExplosives"),
-                P("Explosives", 400, "Steel", 300, "Machinery", 120, "Chemical", 120),
+                P("Steel", 300, "Machinery", 120, "Chemical", 120),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "RareMetalMine", 1.15),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilDerrick", 1.15));
             W("AgriculturalMachinery", "农业机械", 80, R("IndustrialAgriculture"),
                 P("Machinery", 120, "Engine", 20, "Chemical", 80),
                 EB(WorkshopEffectType.BuildingFoodProductionMultiplier, "Farm", 1.30));
-            W("MechanicalLooms", "机械织机", 90, R("MechanizedProduction"),
+            W("MechanicalLooms", "机械织机", 90, R("PrecisionManufacturing"),
                 P("Machinery", 100, "Steel", 200, "Cloth", 200),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "WeavingWorkshop", 1.50));
             W("RotaryKilns", "回转窑", 100, R("IndustrialChemistry"),
@@ -685,19 +686,12 @@ namespace Kingdom.EditorTools
             W("ConveyorSystems", "传送系统", 160, R("MassProduction"),
                 P("Machinery", 300, "Steel", 250),
                 E(WorkshopEffectType.GlobalBuildingProductionMultiplier, 1.15));
-            W("HotBlastStoves", "热风炉组", 190, R("ModernSteelmaking"),
+            W("HotBlastStoves", "热风炉组", 190, R("IndustrialMetalSmelting"),
                 P("Steel", 300, "Coke", 200, "Machinery", 80),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "BlastFurnace", 1.15));
-            W("ContinuousCasting", "连铸机组", 200, R("ModernSteelmaking"),
+                EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialMetalSmelter", 1.15));
+            W("ContinuousCasting", "连铸机组", 200, R("IndustrialMetalSmelting"),
                 P("Steel", 400, "Machinery", 120, "Ceramic", 80),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "BlastFurnace", 1.15));
-            W("CopperElectrolysisCells", "铜电解精炼槽", 210,
-                R("IndustrialMetalSmelting", "ElectricalEngineering"),
-                P("Copper", 400, "CopperWire", 150, "Ceramic", 80),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialMetalSmelter", 1.25));
-            W("BronzeCastingMolds", "工业青铜铸模组", 220, R("IndustrialBronzeCasting"),
-                P("Bronze", 300, "Steel", 150),
-                EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialBronzeFoundry", 1.15));
+                EB(WorkshopEffectType.BuildingProductionMultiplier, "IndustrialMetalSmelter", 1.15));
             W("ConcreteBatching", "混凝土搅拌机组", 230, R("ConcreteEngineering"),
                 P("Concrete", 300, "Machinery", 80),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "ConcreteWorks", 1.20));
@@ -762,7 +756,7 @@ namespace Kingdom.EditorTools
             SetWorkshopPrerequisites("InterchangeableParts", "PrecisionTooling");
             SetWorkshopPrerequisites("MechanicalLooms", "ConveyorSystems");
             SetWorkshopPrerequisites("PoweredMining", "InterchangeableParts");
-            SetWorkshopPrerequisites("IntegratedFurnaces", "PoweredMining");
+            SetWorkshopPrerequisites("IntegratedFurnaces", "PoweredMining", "PrecisionTooling", "ElectricalInstrumentation");
             SetWorkshopPrerequisites("RotaryDrillingHeads", "ChemicalCatalysts");
             SetWorkshopPrerequisites("ControlledBlasting", "RotaryDrillingHeads");
             SetWorkshopPrerequisites("PrecisionTooling", "DraftingTables");
@@ -770,8 +764,6 @@ namespace Kingdom.EditorTools
             SetWorkshopPrerequisites("RotaryKilns", "LaboratoryGlassware");
             SetWorkshopPrerequisites("HotBlastStoves", "ReinforcedBoilers");
             SetWorkshopPrerequisites("ContinuousCasting", "HotBlastStoves");
-            SetWorkshopPrerequisites("CopperElectrolysisCells", "ElectricalInstrumentation");
-            SetWorkshopPrerequisites("BronzeCastingMolds", "InterchangeableParts");
             SetWorkshopPrerequisites("ConcreteBatching", "RotaryKilns");
             SetWorkshopPrerequisites("InsulatedWindings", "ElectricalInstrumentation");
             SetWorkshopPrerequisites("BallBearings", "PrecisionTooling");
@@ -781,7 +773,7 @@ namespace Kingdom.EditorTools
             SetWorkshopPrerequisites("ContinuousDistillation", "ChemicalCatalysts");
             SetWorkshopPrerequisites("PressurizedReactors", "ChemicalCatalysts");
             SetWorkshopPrerequisites("StandardizedFreightContainers", "StandardGauge");
-            SetWorkshopPrerequisites("AluminumElectrolyticCells", "CopperElectrolysisCells");
+            SetWorkshopPrerequisites("AluminumElectrolyticCells", "IntegratedFurnaces");
             SetWorkshopPrerequisites("LightAlloyFrames", "AluminumElectrolyticCells");
             SetWorkshopPrerequisites("AluminumBusbars", "AluminumElectrolyticCells");
             SetWorkshopPrerequisites("ModularHabitatSystems", "ReusableLaunchStages");
@@ -804,7 +796,7 @@ namespace Kingdom.EditorTools
             List<Research> research,
             List<Pair<Resource, ExpantaNum>> requirements)
         {
-            WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
+            WorkshopUpgrade definition = Find<WorkshopUpgrade>(id);
             definition.ConfigureForEditor(
                 research,
                 definition.RequiredUpgrades.ToList(),
@@ -815,10 +807,10 @@ namespace Kingdom.EditorTools
 
         private static void SetWorkshopPrerequisites(string id, params string[] prerequisiteIds)
         {
-            WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
-            var prerequisites = new List<WorkshopUpgradeDefinition>();
+            WorkshopUpgrade definition = Find<WorkshopUpgrade>(id);
+            var prerequisites = new List<WorkshopUpgrade>();
             for (int i = 0; i < prerequisiteIds.Length; i++)
-                prerequisites.Add(Find<WorkshopUpgradeDefinition>(prerequisiteIds[i]));
+                prerequisites.Add(Find<WorkshopUpgrade>(prerequisiteIds[i]));
             definition.ConfigureForEditor(
                 definition.RequiredResearch.ToList(),
                 prerequisites,
@@ -845,8 +837,6 @@ namespace Kingdom.EditorTools
 
         private static void NormalizeDefinitionFolders()
         {
-            MoveDefinitionIfNeeded<Building>(
-                "Pasture", $"{BuildingRoot}/Animal/Pasture.asset");
         }
 
         private static void MoveDefinitionIfNeeded<T>(string id, string target)
@@ -884,7 +874,7 @@ namespace Kingdom.EditorTools
             paths.AddRange(LoadAll<Resource>().Select(AssetDatabase.GetAssetPath));
             paths.AddRange(LoadAll<Building>().Select(AssetDatabase.GetAssetPath));
             paths.AddRange(LoadAll<Research>().Select(AssetDatabase.GetAssetPath));
-            paths.AddRange(LoadAll<WorkshopUpgradeDefinition>().Select(AssetDatabase.GetAssetPath));
+            paths.AddRange(LoadAll<WorkshopUpgrade>().Select(AssetDatabase.GetAssetPath));
             AssetDatabase.ForceReserializeAssets(paths);
         }
 
@@ -912,7 +902,7 @@ namespace Kingdom.EditorTools
                 requirements, generation, consumption);
             building.SetRequiredResearchForEditor(requiredResearch);
             building.SetRequiredWorkshopUpgradesForEditor(
-                new List<WorkshopUpgradeDefinition>());
+                new List<WorkshopUpgrade>());
             EditorUtility.SetDirty(building);
         }
 
@@ -921,14 +911,14 @@ namespace Kingdom.EditorTools
             List<Research> research, List<Pair<Resource, ExpantaNum>> requirements,
             params WorkshopEffectDefinition[] effects)
         {
-            WorkshopUpgradeDefinition definition = Find<WorkshopUpgradeDefinition>(id);
+            WorkshopUpgrade definition = Find<WorkshopUpgrade>(id);
             definition.Label = label;
             definition.Description = WorkshopDescription(id, label);
             definition.SortOrder = order;
             definition.TechLevel = TechLevel.Industrial;
             definition.ConfigureForEditor(
                 research,
-                new List<WorkshopUpgradeDefinition>(),
+                new List<WorkshopUpgrade>(),
                 requirements,
                 effects.ToList());
             EditorUtility.SetDirty(definition);
@@ -954,8 +944,6 @@ namespace Kingdom.EditorTools
                 ["ConveyorSystems"] = "传送系统连接工位并减少搬运等待，提升全体工业建筑的产能。",
                 ["HotBlastStoves"] = "热风炉回收炉气预热鼓风，降低高炉热损失并提高钢铁产量。",
                 ["ContinuousCasting"] = "连续铸造减少钢液转运和冷却损耗，进一步提高高炉产能。",
-                ["CopperElectrolysisCells"] = "电解精炼去除铜中杂质，提高工业铜熔炉的有效产出。",
-                ["BronzeCastingMolds"] = "标准化铸模稳定青铜件尺寸，提高工业青铜熔炉产量。",
                 ["ConcreteBatching"] = "自动配料和搅拌统一混凝土质量，提高混凝土厂产出。",
                 ["ReinforcedConcrete"] = "钢筋混凝土提高结构强度和耐久性，降低大型建筑的建造成本。",
                 ["InsulatedWindings"] = "绝缘绕组降低漏电与发热损耗，提高电力系统效率。",
@@ -996,7 +984,7 @@ namespace Kingdom.EditorTools
         {
             Building building = Find<Building>(buildingId);
             building.SetRequiredWorkshopUpgradesForEditor(
-                upgradeIds.Select(Find<WorkshopUpgradeDefinition>).ToList());
+                upgradeIds.Select(Find<WorkshopUpgrade>).ToList());
             EditorUtility.SetDirty(building);
         }
 
@@ -1037,6 +1025,8 @@ namespace Kingdom.EditorTools
             RE(ResearchEffectType.ProductivityGranted, value);
         private static ResearchEffectDefinition PopulationGrowth(double value) =>
             RE(ResearchEffectType.PopulationGrowthMultiplier, value);
+        private static ResearchEffectDefinition Deconstruction(double value) =>
+            RE(ResearchEffectType.DeconstructionReturnRate, value);
         private static ResearchEffectDefinition Unlock(ResearchEffectType type) =>
             new ResearchEffectDefinition
             {

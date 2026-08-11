@@ -15,36 +15,18 @@ MonoBehaviour:
   id: StandingArmy
   Label: "\u6807\u51C6\u5316\u5DE5\u4F5C\u6D41"
   Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u57F9\u8BAD\u3001\u6392\u73ED\u548C\u8865\u7ED9\u5236\u5EA6\uFF0C\u4F7F\u52B3\u52A8\u529B\u80FD\u6301\u7EED\u53C2\u4E0E\u751F\u4EA7\u3002"
-  BaseCost: 150000
+  BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "200"
   effects:
   - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.06
-      layer: 0
-      operators: []
+    value: "1.06"
   TechLevel: 2
   AdvancesTechLevel: 0

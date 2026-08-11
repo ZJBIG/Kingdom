@@ -15,17 +15,15 @@ MonoBehaviour:
   id: Quarry
   Label: "\u91C7\u77F3\u573A"
   Description: "\u9009\u62E9\u5408\u9002\u5CA9\u5C42\u5E76\u89C4\u5212\u91C7\u6398\u9762\u3001\u5761\u9053\u548C\u8FD0\u8F93\u8DEF\u7EBF\uFF0C\u4E3A\u5EFA\u7B51\u4E0E\u9053\u8DEF\u6301\u7EED\u4F9B\u5E94\u89C4\u683C\u8F83\u7A33\u5B9A\u7684\u77F3\u6599\u3002\u7814\u7A76\u5B8C\u6210\u540E\u89E3\u9501\u91C7\u77F3\u573A\u3002"
-  BaseCost: 120
+  BaseCost: "120"
   prerequisites: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  effects: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "200"
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 55ff9d0b55ccc5f4fabbf225a236add2, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"
   TechLevel: 0
   AdvancesTechLevel: 0

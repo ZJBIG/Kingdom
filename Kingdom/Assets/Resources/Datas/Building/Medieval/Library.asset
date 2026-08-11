@@ -17,158 +17,32 @@ MonoBehaviour:
   Description: "\u96C6\u4E2D\u6536\u85CF\u3001\u5206\u7C7B\u548C\u6284\u5F55\u4E66\u7C4D\uFF0C\u4F7F\u77E5\u8BC6\u80FD\u591F\u957F\u671F\u4FDD\u5B58\uFF0C\u5E76\u7A33\u5B9A\u8F6C\u5316\u4E3A\u7814\u7A76\u529B\u3002"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: dc6457aada3ab7c4fa8517340f6ad101, type: 2}
-  costGrowth:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1.22
-    layer: 0
-    operators: []
-  spaceCost:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 6
-    layer: 0
-    operators: []
-  productivityConsumption:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 36
-    layer: 0
-    operators: []
-  productivityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  populationCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  researchPowerGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 25
-    layer: 0
-    operators: []
-  foodProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  logisticsProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  logisticsConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  fleetPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  attackPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  defensePowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  militaryManpowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
+  costGrowth: "1.22"
+  spaceCost: "6"
+  productivityConsumption: "36"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "25"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "0"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "0"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 50
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 30
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "50"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "30"
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:

@@ -16,11 +16,11 @@ namespace Kingdom.EditorTools
         private static readonly HashSet<string> ReleasedResourceIds =
             new HashSet<string>(new[]
             {
-                "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Ceramic",
+                "WoodLog", "StoneChunk", "StoneBrick", "Clay", "Biomass", "Ceramic",
                 "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
                 "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
-                "CrudeOil", "Silica", "Coke", "Glass", "Ceramic",
-                "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine",
+                "CrudeOil", "Coke", "Glass",
+                "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "Engine",
                 "Concrete", "BauxiteOre", "Aluminum"
             }, StringComparer.Ordinal);
 
@@ -38,7 +38,7 @@ namespace Kingdom.EditorTools
             List<Resource> allResourceAssets = LoadAllAssets<Resource>();
             List<Building> buildings = LoadAll<Building>();
             List<Research> researches = LoadAll<Research>();
-            List<WorkshopUpgradeDefinition> workshops = LoadAll<WorkshopUpgradeDefinition>();
+            List<WorkshopUpgrade> workshops = LoadAll<WorkshopUpgrade>();
 
             WriteResources(Path.Combine(dataRoot, "current_resources.csv"), resources);
             WriteResourceInventory(
@@ -177,7 +177,7 @@ namespace Kingdom.EditorTools
         }
 
         private static void WriteWorkshops(
-            string path, IReadOnlyList<WorkshopUpgradeDefinition> workshops)
+            string path, IReadOnlyList<WorkshopUpgrade> workshops)
         {
             var rows = new List<string>
             {
@@ -187,7 +187,7 @@ namespace Kingdom.EditorTools
             };
             for (int i = 0; i < workshops.Count; i++)
             {
-                WorkshopUpgradeDefinition workshop = workshops[i];
+                WorkshopUpgrade workshop = workshops[i];
                 string referencedBy = string.Join("; ", LoadAll<Building>()
                     .Where(building => building.RequiredWorkshopUpgrades.Contains(workshop))
                     .Select(building => building.Id));
@@ -234,7 +234,7 @@ namespace Kingdom.EditorTools
             IReadOnlyList<Resource> resources,
             IReadOnlyList<Building> buildings,
             IReadOnlyList<Research> researches,
-            IReadOnlyList<WorkshopUpgradeDefinition> workshops)
+            IReadOnlyList<WorkshopUpgrade> workshops)
         {
             var rows = new List<string>
             {

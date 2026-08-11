@@ -27,7 +27,7 @@ public sealed partial class KingdomUIRoot
         detailIsBuilding = false;
         selectedBuilding = null;
         selectedResource = null;
-        detailBody.text = title + "\n\n" + description + "\n\nID: " + id;
+        detailBody.text = title + "\n\n" + description + "\n\n标识：" + id;
         HideBuildingRequirements();
         HideResearchPaymentButton();
         if (detailActionButton != null)
@@ -447,7 +447,7 @@ public sealed partial class KingdomUIRoot
         RectTransform content = requirementContent;
         if (content == null)
         {
-            Debug.LogError("[KingdomUI] Authored RequirementContent is missing; requirement rows will not be generated.");
+            Debug.LogError("[王国界面] Authored RequirementContent is missing; requirement rows will not be generated.");
             return;
         }
         // Keep authored Heading/None children. Only runtime-generated
@@ -476,7 +476,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text headingLabel = content.Find("Heading")?.GetComponent<TMP_Text>();
         if (headingLabel == null)
         {
-            Debug.LogError("[KingdomUI] Authored RequirementContent is missing Heading.");
+            Debug.LogError("[王国界面] Authored RequirementContent is missing Heading.");
             return;
         }
         headingLabel.text = heading;
@@ -486,7 +486,7 @@ public sealed partial class KingdomUIRoot
             TMP_Text emptyLabel = content.Find("None")?.GetComponent<TMP_Text>();
             if (emptyLabel == null)
             {
-                Debug.LogError("[KingdomUI] Authored RequirementContent is missing None state.");
+                Debug.LogError("[王国界面] Authored RequirementContent is missing None state.");
                 return;
             }
             emptyLabel.gameObject.SetActive(true);
@@ -506,7 +506,7 @@ public sealed partial class KingdomUIRoot
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
             if (icon == null)
             {
-                Debug.LogError("[KingdomUI] Runtime requirement row is missing Icon Image.");
+                Debug.LogError("[王国界面] Runtime requirement row is missing Icon Image.");
                 continue;
             }
             icon.sprite = requirement.First.Sprite;
@@ -577,11 +577,11 @@ public sealed partial class KingdomUIRoot
                     : detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
             if (requirementGesture == null)
             {
-                Debug.LogError("[KingdomUI] DetailScrollViewport is missing; requirement drag owner was not created.");
+                Debug.LogError("[王国界面] DetailScrollViewport is missing; requirement drag owner was not created.");
                 return;
             }
             requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
-            Debug.Log("[KingdomUI] Requirement gesture attached during detail layout");
+            Debug.Log("[王国界面] Requirement gesture attached during detail layout");
         }
         // A late layout pass must not resurrect the nested ScrollRect.
         // The custom gesture remains the single owner for row-started
@@ -674,7 +674,7 @@ public sealed partial class KingdomUIRoot
             float outerRangeY = detailScrollViewport == null || detailScrollContent == null
             ? 0f
             : Mathf.Max(0f, detailScrollContent.rect.height - detailScrollViewport.rect.height);
-        Debug.Log($"[KingdomUI] Detail content bounds: viewport={(detailScrollViewport == null ? Vector2.zero : detailScrollViewport.rect.size)}, content={(detailScrollContent == null ? Vector2.zero : detailScrollContent.rect.size)}, rangeY={outerRangeY:0.0}, flowSection={(flowHost == null ? Vector2.zero : flowHost.rect.size)}, requirementSection={requirementHost.rect.size}, requirementRows={requirementCount}, active={requirementHost.gameObject.activeSelf}, customGestureEnabled={requirementGesture != null && requirementGesture.enabled}");
+        Debug.Log($"[王国界面] Detail content bounds: viewport={(detailScrollViewport == null ? Vector2.zero : detailScrollViewport.rect.size)}, content={(detailScrollContent == null ? Vector2.zero : detailScrollContent.rect.size)}, rangeY={outerRangeY:0.0}, flowSection={(flowHost == null ? Vector2.zero : flowHost.rect.size)}, requirementSection={requirementHost.rect.size}, requirementRows={requirementCount}, active={requirementHost.gameObject.activeSelf}, customGestureEnabled={requirementGesture != null && requirementGesture.enabled}");
         Canvas.ForceUpdateCanvases();
     }
 
@@ -698,7 +698,7 @@ public sealed partial class KingdomUIRoot
         flowContent = flowHost.Find("FlowContent") as RectTransform;
         if (flowContent == null)
         {
-            Debug.LogError("[KingdomUI] Authored FlowContent is missing; flow rows will not be generated.");
+            Debug.LogError("[王国界面] Authored FlowContent is missing; flow rows will not be generated.");
             return;
         }
         for (int i = flowContent.childCount - 1; i >= 0; i--)
@@ -714,7 +714,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text flowHeading = flowContent.Find("Heading")?.GetComponent<TMP_Text>();
         if (flowHeading == null)
         {
-            Debug.LogError("[KingdomUI] Authored FlowContent is missing Heading.");
+            Debug.LogError("[王国界面] Authored FlowContent is missing Heading.");
             return;
         }
         flowHeading.gameObject.SetActive(true);
@@ -791,7 +791,7 @@ public sealed partial class KingdomUIRoot
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
             if (icon == null)
             {
-                Debug.LogError("[KingdomUI] Runtime flow row is missing Icon Image.");
+                Debug.LogError("[王国界面] Runtime flow row is missing Icon Image.");
                 continue;
             }
             icon.sprite = flow.First.Sprite;
@@ -839,7 +839,7 @@ public sealed partial class KingdomUIRoot
         if (research == null || ResearchManager.Instance == null)
             return;
         ResearchPaymentResult result = ResearchManager.Instance.PayResearchCost(research);
-        Debug.Log($"[KingdomUI] Research payment: id={research.Id}, result={result}");
+            Debug.Log($"[界面] 研究支付：id={research.Id}，结果={result.GetDescription()}");
         ShowResearchDetails(research);
     }
 
@@ -847,7 +847,7 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("Building", "BuildingManager is not initialized.", building.Id);
+            ShowDetails("建筑", "建筑管理器尚未初始化。", building.Id);
             return;
         }
         if (BuildingManager.Instance.States.TryGetValue(building, out BuildingState state) &&
@@ -865,20 +865,20 @@ public sealed partial class KingdomUIRoot
     {
         if (ResearchManager.Instance == null)
         {
-            ShowDetails("Research", "ResearchManager is not initialized.", research.Id);
+            ShowDetails("研究", "研究管理器尚未初始化。", research.Id);
             return;
         }
         ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
         ShowResearchDetails(research);
         if (detailBody != null)
-            detailBody.text += "\n\nAction result: " + result;
+            detailBody.text += "\n\n执行结果：" + result;
     }
 
     private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
     {
         if (costs == null || costs.Count == 0)
         {
-            builder.AppendLine("  None");
+            builder.AppendLine("  无");
             return;
         }
         for (int i = 0; i < costs.Count; i++)
@@ -917,7 +917,7 @@ public sealed partial class KingdomUIRoot
         return true;
     }
 
-    private static bool WorkshopPrerequisitesMet(WorkshopUpgradeDefinition definition)
+    private static bool WorkshopPrerequisitesMet(WorkshopUpgrade definition)
     {
         if (definition.RequiredResearch != null && definition.RequiredResearch.Count > 0)
         {
@@ -1008,7 +1008,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         pointerId = eventData.pointerId;
         movementSamples = 0;
         movementPathLength = 0f;
-        Debug.Log($"[KingdomUI] Requirement pointer down: pointer={pointerId}, position={eventData.position}, viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+        Debug.Log($"[王国界面] Requirement pointer down: pointer={pointerId}, position={eventData.position}, viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -1019,7 +1019,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (!loggedDrag)
         {
             loggedDrag = true;
-            Debug.Log($"[KingdomUI] Requirement drag started: viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+            Debug.Log($"[王国界面] Requirement drag started: viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
         }
         eventData.Use();
     }
@@ -1044,7 +1044,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             if (!loggedMovement)
             {
                 loggedMovement = true;
-                Debug.Log($"[KingdomUI] Requirement drag moved: deltaY={deltaY:0.00}, position={content.anchoredPosition}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+                Debug.Log($"[王国界面] Requirement drag moved: deltaY={deltaY:0.00}, position={content.anchoredPosition}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
             }
         }
         eventData.Use();
@@ -1065,7 +1065,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             return;
         if (dragging)
             eventData.eligibleForClick = false;
-        Debug.Log($"[KingdomUI] Requirement drag ended: samples={movementSamples}, pathY={movementPathLength:0.00}, position={content.anchoredPosition}");
+        Debug.Log($"[王国界面] Requirement drag ended: samples={movementSamples}, pathY={movementPathLength:0.00}, position={content.anchoredPosition}");
         ResetPointer();
     }
 

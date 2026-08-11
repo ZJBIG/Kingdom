@@ -21,38 +21,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
   requiredUpgrades: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "100"
   effects:
   - Type: 2
     Building: {fileID: 0}
     Resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.5
-      layer: 0
-      operators: []
+    value: "1.5"

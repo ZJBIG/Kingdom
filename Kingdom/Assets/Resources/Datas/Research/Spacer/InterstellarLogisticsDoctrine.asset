@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: InterstellarLogisticsDoctrine
+  m_EditorClassIdentifier: 
+  id: InterstellarLogisticsDoctrine
+  Label: "\u661f\u9645\u540e\u52e4\u5b66\u8bf4"
+  Description: "\u5c06\u949b\u5408\u91d1\u7ed3\u6784\u3001\u590d\u5408\u6750\u6599\u3001\u5e7d\u5f71\u5408\u91d1\u4e0e\u76f8\u4f4d\u6750\u6599\u7edf\u4e00\u7eb3\u5165\u661f\u9645\u8fd0\u8f93\u4e0e\u8865\u7ed9\u6807\u51c6\uff0c\u663e\u8457\u63d0\u5347\u6df1\u7a7a\u8230\u961f\u7684\u540e\u52e4\u541e\u5410\u3002"
+  BaseCost: "9500000"
+  prerequisites:
+  - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
+  - {fileID: 11400000, guid: c7d5e1f9a3b24860b4c6d8e2f1a93750, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "2600"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "1800"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "900"
+  effects:
+  - Type: 16
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.35"
+  - Type: 25
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.15"
+  TechLevel: 4
+  AdvancesTechLevel: 0

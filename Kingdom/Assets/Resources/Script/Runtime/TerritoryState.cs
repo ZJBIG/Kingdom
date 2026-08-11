@@ -32,7 +32,7 @@ public sealed class TerritoryState
     internal void AddTotal(ExpantaNum delta)
     {
         if (delta.IsNaN || delta < ExpantaNum.Zero)
-            throw new ArgumentOutOfRangeException(nameof(delta), "Territory reward must be a non-negative number.");
+            throw new ArgumentOutOfRangeException(nameof(delta), "领土奖励必须是非负数。");
         if (delta == ExpantaNum.Zero)
             return;
         total += delta;

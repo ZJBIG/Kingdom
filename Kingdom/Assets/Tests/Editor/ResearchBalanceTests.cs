@@ -17,6 +17,27 @@ public sealed class ResearchBalanceTests
     }
 
     [Test]
+    public void 通用机械化生产研究不得与军工体系重复机器工厂倍率()
+    {
+        Assert.That(DataBase<Research>.Find("MechanizedProduction"), Is.Null);
+
+        Research militaryIndustry = DataBase<Research>.Find("MilitaryIndustry");
+        bool hasMachineFactoryEffect = false;
+        for (int i = 0; i < militaryIndustry.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = militaryIndustry.Effects[i];
+            if (effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
+                effect.Building != null && effect.Building.Id == "MachineFactory")
+            {
+                hasMachineFactoryEffect = true;
+                break;
+            }
+        }
+
+        Assert.That(hasMachineFactoryEffect, Is.True);
+    }
+
+    [Test]
     public void EarlyResearchCosts_MatchTheContentBalanceBaseline()
     {
         var expectedCosts = new Dictionary<string, double>
@@ -159,13 +180,103 @@ public sealed class ResearchBalanceTests
                 ResearchEffectType.PopulationGrowthMultiplier,
                 1.4d),
             Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("HerbalKnowledge"),
+                ResearchEffectType.PopulationProductivityMultiplier,
+                1.1d),
+            Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("PublicHealth"),
+                ResearchEffectType.PopulationProductivityMultiplier,
+                1.25d),
+            Is.True);
+        Assert.That(
+            HasEffect(
+                DataBase<Research>.Find("ModernMedicine"),
+                ResearchEffectType.PopulationProductivityMultiplier,
+                1.35d),
+            Is.True);
+        Research precisionMedicine = DataBase<Research>.Find("PrecisionMedicine");
+        Assert.That(precisionMedicine, Is.Not.Null);
+        Assert.That(precisionMedicine.TechLevel, Is.EqualTo(TechLevel.Spacer));
+        Assert.That(
+            HasEffect(
+                precisionMedicine,
+                ResearchEffectType.PopulationProductivityMultiplier,
+                1.5d),
+            Is.True);
+        Assert.That(HasResourceRequirementById(precisionMedicine, "Biomass"), Is.True);
+        Assert.That(HasResourceRequirementById(precisionMedicine, "TitaniumAlloy"), Is.True);
+    }
+
+    [Test]
+    public void 太空医学理论必须连接实体工坊()
+    {
+        Research theory = DataBase<Research>.Find("PrecisionMedicine");
+        WorkshopUpgrade implementation = DataBase<WorkshopUpgrade>.Find("RemoteSurgicalSystems");
+
+        Assert.That(theory, Is.Not.Null);
+        Assert.That(implementation, Is.Not.Null);
+        Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("ModernMedicine"));
+        Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("BioregenerativeLifeSupport"));
+        Assert.That(implementation.RequiredResearch,
+            Has.Some.Property("Id").EqualTo("PrecisionMedicine"));
+        Assert.That(implementation.Effects, Has.Some.Property("Type").EqualTo(
+            WorkshopEffectType.BuildingResearchPowerMultiplier));
+    }
+
+    [Test]
+    public void IndustrialResearchEffectsMatchTargetBuildingSystems()
+    {
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("CombustionEngines"),
+            ResearchEffectType.BuildingLogisticsProductionMultiplier,
+            1.25d,
+            "RailHub"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("CombustionEngines"),
+            ResearchEffectType.BuildingProductionMultiplier,
+            1.12d,
+            "MachineFactory"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("ElectricalCommunication"),
+            ResearchEffectType.BuildingLogisticsProductionMultiplier,
+            1.1d,
+            "RailHub"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("ElectricalCommunication"),
+            ResearchEffectType.BuildingResearchPowerMultiplier,
+            1.05d,
+            "University"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("PowerGridEngineering"),
+            ResearchEffectType.BuildingPowerProductionMultiplier,
+            1.1d,
+            "CentralPowerStation"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("MechanicalEngineering"),
+            ResearchEffectType.BuildingFoodProductionMultiplier,
+            1.25d,
+            "IrrigationWorks"), Is.True);
+        Assert.That(HasEffect(
+            DataBase<Research>.Find("IndustrialAgriculture"),
+            ResearchEffectType.BuildingProductionMultiplier,
+            2.4d,
+            "PlantingField"), Is.True);
+        Assert.That(HasResourceEffect(
+            DataBase<Research>.Find("TitaniumAlloyEngineering"),
+            ResearchEffectType.ResourceProductionMultiplier,
+            1.15d,
+            "TitaniumAlloy"), Is.True);
     }
 
     [Test]
     public void IntegratedFurnaces_ImprovesMetalSmelter()
     {
-        WorkshopUpgradeDefinition upgrade =
-            DataBase<WorkshopUpgradeDefinition>.Find("IntegratedFurnaces");
+        WorkshopUpgrade upgrade =
+            DataBase<WorkshopUpgrade>.Find("IntegratedFurnaces");
         bool found = false;
         for (int i = 0; i < upgrade.Effects.Count; i++)
         {
@@ -197,9 +308,6 @@ public sealed class ResearchBalanceTests
             ["SteelForge"] = 48d,
             ["WaterMill"] = 30d,
             ["Caravanserai"] = 10d,
-            ["GuildHall"] = 30d,
-            ["Hospital"] = 25d,
-            ["RoyalWorkshop"] = 45d,
             ["ChemicalPlant"] = 70d,
             ["CokeOven"] = 60d,
             ["Glassworks"] = 60d,
@@ -207,7 +315,6 @@ public sealed class ResearchBalanceTests
             ["OilDerrick"] = 50d,
             ["OilRefinery"] = 80d,
             ["RailHub"] = 70d,
-            ["SilicaQuarry"] = 50d,
             ["SteamPlant"] = 60d,
             ["University"] = 60d,
             ["WireMill"] = 70d
@@ -297,6 +404,38 @@ public sealed class ResearchBalanceTests
                 effect.Building != null &&
                 effect.Building.Id == buildingId)
                 return true;
+        }
+        return false;
+    }
+
+    private static bool HasResourceEffect(
+        Research research,
+        ResearchEffectType type,
+        double value,
+        string resourceId)
+    {
+        if (research == null)
+            return false;
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Type == type &&
+                effect.Value.ToDouble() == value &&
+                effect.Resource != null && effect.Resource.Id == resourceId)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasResourceRequirementById(Research research, string resourceId)
+    {
+        if (research == null)
+            return false;
+        for (int i = 0; i < research.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = research.ResourceRequirements[i];
+            if (pair.First != null && pair.First.Id == resourceId)
+                return pair.Second > ExpantaNum.Zero;
         }
         return false;
     }

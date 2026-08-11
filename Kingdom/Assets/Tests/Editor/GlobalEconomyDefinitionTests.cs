@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
@@ -8,27 +9,102 @@ public sealed class GlobalEconomyDefinitionTests
 {
     private static readonly string[] ReleasedResourceIds =
     {
-        "WoodLog", "StoneChunk", "StoneBrick", "Clay", "PlantFiber", "Ceramic",
+        "WoodLog", "StoneChunk", "StoneBrick", "Clay", "Biomass", "Ceramic",
         "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
         "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
-        "CrudeOil", "Silica", "Coke", "Glass", "Ceramic",
-        "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "PrecisionParts", "Engine",
+        "CrudeOil", "Coke", "Glass", "Ceramic",
+        "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "Engine",
         "Concrete", "BauxiteOre", "Aluminum", "Explosives"
     };
 
     [Test]
     public void MigrationProducesThePlannedDefinitionCounts()
     {
-        Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(52));
-        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(58));
-        Assert.That(DataBase<Research>.All.Count, Is.EqualTo(81));
-        Assert.That(DataBase<WorkshopUpgradeDefinition>.All.Count, Is.EqualTo(32));
+        Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(40));
+        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(69));
+        Assert.That(DataBase<Research>.All.Count, Is.EqualTo(106));
+        Assert.That(DataBase<WorkshopUpgrade>.All.Count, Is.EqualTo(58));
 
         int releasedBuildings = 0;
         foreach (Building building in DataBase<Building>.All)
             if (building.TechLevel <= TechLevel.Industrial)
                 releasedBuildings++;
-        Assert.That(releasedBuildings, Is.EqualTo(55));
+        Assert.That(releasedBuildings, Is.EqualTo(52));
+    }
+
+    [Test]
+    public void 定义序列化字段必须使用字符串数值且统一采用每秒变化率()
+    {
+        Type[] definitionTypes =
+        {
+            typeof(ResourceAmountDefinition),
+            typeof(Building),
+            typeof(Research),
+            typeof(ResearchEffectDefinition),
+            typeof(WorkshopUpgrade),
+            typeof(WorkshopEffectDefinition),
+            typeof(SectorDefinition)
+        };
+        const BindingFlags flags =
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        foreach (Type definitionType in definitionTypes)
+        {
+            foreach (FieldInfo field in definitionType.GetFields(flags))
+            {
+                Assert.That(field.Name, Does.Not.Contain("PerMinute"), definitionType.Name);
+                Assert.That(field.Name, Does.Not.Contain("perMinute"), definitionType.Name);
+                Assert.That(field.Name, Does.Not.Contain("Minute"), definitionType.Name);
+                Assert.That(field.Name, Does.Not.Contain("minute"), definitionType.Name);
+                bool serialized = field.IsPublic || field.GetCustomAttributes(false).Any(attribute =>
+                    attribute.GetType().Name == "SerializeField");
+                if (serialized)
+                    Assert.That(field.FieldType, Is.Not.EqualTo(typeof(ExpantaNum)), field.Name);
+            }
+
+            foreach (PropertyInfo property in definitionType.GetProperties(flags))
+            {
+                Assert.That(property.Name, Does.Not.Contain("PerMinute"), definitionType.Name);
+                Assert.That(property.Name, Does.Not.Contain("perMinute"), definitionType.Name);
+                Assert.That(property.Name, Does.Not.Contain("Minute"), definitionType.Name);
+                Assert.That(property.Name, Does.Not.Contain("minute"), definitionType.Name);
+            }
+        }
+    }
+
+    [Test]
+    public void 所有效果必须填写与效果类型匹配的目标()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            if (research == null || research.Effects == null)
+                continue;
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                if (effect == null)
+                    continue;
+                if (ResearchEffectNeedsBuilding(effect.Type))
+                    Assert.That(effect.Building, Is.Not.Null, research.Id);
+                if (effect.Type == ResearchEffectType.ResourceProductionMultiplier)
+                    Assert.That(effect.Resource, Is.Not.Null, research.Id);
+            }
+        }
+
+        foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+        {
+            if (workshop == null || workshop.Effects == null)
+                continue;
+            foreach (WorkshopEffectDefinition effect in workshop.Effects)
+            {
+                if (effect == null)
+                    continue;
+                if (WorkshopEffectNeedsBuilding(effect.Type))
+                    Assert.That(effect.Building, Is.Not.Null, workshop.Id);
+                if (effect.Type == WorkshopEffectType.ResourceProductionMultiplier ||
+                    effect.Type == WorkshopEffectType.OccupiedResourceProductionMultiplier)
+                    Assert.That(effect.Resource, Is.Not.Null, workshop.Id);
+            }
+        }
     }
 
     [Test]
@@ -40,6 +116,24 @@ public sealed class GlobalEconomyDefinitionTests
         Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
         Assert.That(AssetDatabase.FindAssets("StoneTool t:Resource"), Is.Empty);
         Assert.That(AssetDatabase.FindAssets("MetalTool t:Resource"), Is.Empty);
+    }
+
+    private static bool ResearchEffectNeedsBuilding(ResearchEffectType type)
+    {
+        return type == ResearchEffectType.BuildingProductionMultiplier ||
+            type == ResearchEffectType.BuildingFoodProductionMultiplier ||
+            type == ResearchEffectType.BuildingResearchPowerMultiplier ||
+            type == ResearchEffectType.BuildingPowerProductionMultiplier ||
+            type == ResearchEffectType.BuildingLogisticsProductionMultiplier;
+    }
+
+    private static bool WorkshopEffectNeedsBuilding(WorkshopEffectType type)
+    {
+        return type == WorkshopEffectType.BuildingProductionMultiplier ||
+            type == WorkshopEffectType.BuildingFoodProductionMultiplier ||
+            type == WorkshopEffectType.BuildingResearchPowerMultiplier ||
+            type == WorkshopEffectType.BuildingPowerProductionMultiplier ||
+            type == WorkshopEffectType.BuildingLogisticsProductionMultiplier;
     }
 
     [Test]
@@ -83,9 +177,6 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void BuildingsOwnAndUseAllPrerequisites()
     {
-        Building pasture = DataBase<Building>.Find("Pasture");
-        Assert.That(pasture.RequiredResearch, Has.Count.EqualTo(2));
-
         Building oilRefinery = DataBase<Building>.Find("OilRefinery");
         Assert.That(oilRefinery.RequiredResearch, Has.Count.EqualTo(2));
         Assert.That(oilRefinery.RequiredWorkshopUpgrades, Has.Count.EqualTo(1));
@@ -101,7 +192,7 @@ public sealed class GlobalEconomyDefinitionTests
     public void EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable()
     {
         int buildingGates = 0;
-        foreach (WorkshopUpgradeDefinition upgrade in DataBase<WorkshopUpgradeDefinition>.All)
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
         {
             Assert.That(upgrade.Effects, Is.Not.Empty, upgrade.Id);
             Assert.That(
@@ -117,10 +208,40 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
+    public void 生产力建筑必须同时承担明确的独立功能()
+    {
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (building.ProductivityGranted <= ExpantaNum.Zero)
+                continue;
+
+            bool hasIndependentFunction =
+                building.ResourceGenerationRates.Count > 0 ||
+                building.PopulationCapacityGranted > ExpantaNum.Zero ||
+                building.ResearchPowerGranted > ExpantaNum.Zero ||
+                building.FoodProductionRate > ExpantaNum.Zero ||
+                building.FoodCapacityGranted > ExpantaNum.Zero ||
+                building.PowerProductionRate > ExpantaNum.Zero ||
+                building.LogisticsProductionRate > ExpantaNum.Zero ||
+                building.FleetPowerGranted > ExpantaNum.Zero ||
+                building.AttackPowerGranted > ExpantaNum.Zero ||
+                building.DefensePowerGranted > ExpantaNum.Zero ||
+                building.MilitaryManpowerGranted > ExpantaNum.Zero;
+
+            Assert.That(
+                hasIndependentFunction,
+                Is.True,
+                $"建筑 {building.Id} 不能只提供生产力，还必须有明确的资源、能源、人口、物流或战略用途。");
+        }
+    }
+
+    [Test]
     public void EveryResearchAndWorkshopEffectHasAValidTarget()
     {
         foreach (Research research in DataBase<Research>.All)
         {
+            Assert.That(research.Effects, Is.Not.Null, research.Id);
+            Assert.That(research.Effects, Is.Not.Empty, research.Id);
             foreach (ResearchEffectDefinition effect in research.Effects)
             {
                 Assert.That(effect, Is.Not.Null, research.Id);
@@ -147,8 +268,10 @@ public sealed class GlobalEconomyDefinitionTests
             }
         }
 
-        foreach (WorkshopUpgradeDefinition upgrade in DataBase<WorkshopUpgradeDefinition>.All)
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
         {
+            Assert.That(upgrade.Effects, Is.Not.Null, upgrade.Id);
+            Assert.That(upgrade.Effects, Is.Not.Empty, upgrade.Id);
             foreach (WorkshopEffectDefinition effect in upgrade.Effects)
             {
                 Assert.That(effect, Is.Not.Null, upgrade.Id);
@@ -175,6 +298,79 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
+    public void 每个研究不能重复声明同一效果目标()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                Assert.That(effect, Is.Not.Null, research.Id);
+                string buildingId = effect.Building == null ? "" : effect.Building.Id;
+                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
+                string key = effect.Type + "|" + buildingId + "|" + resourceId;
+                Assert.That(
+                    keys.Add(key),
+                    Is.True,
+                    $"研究 {research.Id} 重复声明了效果目标 {key}。");
+            }
+        }
+    }
+
+    [Test]
+    public void 每个工坊不能重复声明同一效果目标()
+    {
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (WorkshopEffectDefinition effect in upgrade.Effects)
+            {
+                Assert.That(effect, Is.Not.Null, upgrade.Id);
+                string buildingId = effect.Building == null ? "" : effect.Building.Id;
+                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
+                string key = effect.Type + "|" + buildingId + "|" + resourceId;
+                Assert.That(
+                    keys.Add(key),
+                    Is.True,
+                    $"工坊 {upgrade.Id} 重复声明了效果目标 {key}。");
+            }
+        }
+    }
+
+    [Test]
+    public void 研究与工坊不能复制完全相同的效果()
+    {
+        var researchKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (Research research in DataBase<Research>.All)
+        {
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                string buildingId = effect.Building == null ? "" : effect.Building.Id;
+                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
+                researchKeys.Add(
+                    effect.Type + "|" + buildingId + "|" + resourceId + "|" +
+                    effect.Value.ToString());
+            }
+        }
+
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        {
+            foreach (WorkshopEffectDefinition effect in upgrade.Effects)
+            {
+                string buildingId = effect.Building == null ? "" : effect.Building.Id;
+                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
+                string key =
+                    effect.Type + "|" + buildingId + "|" + resourceId + "|" +
+                    effect.Value.ToString();
+                Assert.That(
+                    researchKeys.Contains(key),
+                    Is.False,
+                    $"研究与工坊重复实现了同一效果 {key}，应保留理论与实物的职责边界。");
+            }
+        }
+    }
+
+    [Test]
     public void ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable()
     {
         foreach (string id in ReleasedResourceIds)
@@ -184,7 +380,7 @@ public sealed class GlobalEconomyDefinitionTests
             DataBase<Resource>.All,
             DataBase<Building>.All,
             DataBase<Research>.All,
-            DataBase<WorkshopUpgradeDefinition>.All,
+            DataBase<WorkshopUpgrade>.All,
             out string error), Is.True, error);
     }
 

@@ -12,7 +12,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
                 instance = FindObjectOfType<T>();
 
             if (instance == null)
-                throw new InvalidOperationException($"{typeof(T).Name} is missing from the scene.");
+                throw new InvalidOperationException($"场景中缺少{typeof(T).Name}对象。");
 
             return instance;
         }

@@ -17,150 +17,30 @@ MonoBehaviour:
   Description: "\u4EE5\u5E72\u71E5\u3001\u718F\u5236\u3001\u5206\u7C7B\u548C\u9632\u9F20\u8BBE\u65BD\u96C6\u4E2D\u4FDD\u5B58\u7CAE\u98DF\uFF1B\u5728\u6269\u5927\u50A8\u91CF\u7684\u540C\u65F6\u4FDD\u7559\u65E9\u671F\u98DF\u7269\u52A0\u5DE5\u80FD\u529B\u3002"
   TechLevel: 1
   upgradeTo: {fileID: 0}
-  costGrowth:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1.18
-    layer: 0
-    operators: []
-  spaceCost:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 4
-    layer: 0
-    operators: []
-  productivityConsumption:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 2
-    layer: 0
-    operators: []
-  productivityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  populationCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  researchPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodProductionRate:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 2
-    layer: 0
-    operators: []
-  foodConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodCapacityGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1000
-    layer: 0
-    operators: []
-  powerProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  logisticsProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  logisticsConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  fleetPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  attackPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  defensePowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  militaryManpowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
+  costGrowth: "1.18"
+  spaceCost: "4"
+  productivityConsumption: "2"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "2"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "1000"
+  powerProductionRate: "0"
+  powerConsumptionRate: "0"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "0"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 30
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "150"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "30"
   resourceGenerationRates: []
   resourceConsumptionRates: []
   requiredResearch:

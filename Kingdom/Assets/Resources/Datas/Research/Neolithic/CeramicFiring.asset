@@ -15,45 +15,25 @@ MonoBehaviour:
   id: CeramicFiring
   Label: "\u9676\u74F7\u70E7\u5236"
   Description: "\u638C\u63E1\u9AD8\u6E29\u70E7\u5236\u548C\u9676\u74F7\u914D\u65B9\uFF0C\u4F7F\u65E9\u671F\u9676\u74F7\u80FD\u5728\u540E\u7EED\u5DE5\u4E1A\u4E2D\u5347\u7EA7\u4E3A\u8010\u70ED\u548C\u9694\u70ED\u6750\u6599\u3002"
-  BaseCost: 1800
+  BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}
   - {fileID: 11400000, guid: aaca627f761546a439f07f67a025864c, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 235
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 105
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 140
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "235"
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "105"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "140"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.02"
+  - Type: 22
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.1"
   TechLevel: 1
   AdvancesTechLevel: 0

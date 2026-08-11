@@ -15,45 +15,21 @@ MonoBehaviour:
   id: Gunpowder
   Label: "\u5316\u5B66\u5DE5\u827A\u4E0E\u6807\u51C6"
   Description: "\u63A8\u8FDB\u5316\u5B66\u6750\u6599\u7684\u914D\u5236\u3001\u50A8\u5B58\u548C\u6807\u51C6\u5316\uFF0C\u63D0\u5347\u5DE5\u574A\u4EA7\u51FA\u7684\u7A33\u5B9A\u6027\u3002"
-  BaseCost: 270000
+  BaseCost: "270000"
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
   - {fileID: 11400000, guid: c4a53e8660f722743a8eef041c2d204d, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1260
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 560
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 280
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "1260"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "560"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "280"
   effects:
   - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.07
-      layer: 0
-      operators: []
+    value: "1.07"
   TechLevel: 2
   AdvancesTechLevel: 0

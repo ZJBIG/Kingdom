@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: IndustrialHabitationComplex
+  m_EditorClassIdentifier: 
+  id: IndustrialHabitationComplex
+  Label: "工业居住综合体"
+  Description: "将钢结构、混凝土骨架、玻璃幕墙和陶瓷隔热整合为大规模城市住宅，为工业人口提供稳定而高密度的居住空间。"
+  TechLevel: 3
+  upgradeTo: {fileID: 11400000, guid: 6a0c5e8b2d4f7a913b6d8f0a2c4e6519, type: 2}
+  costGrowth: "1.22"
+  spaceCost: "42"
+  productivityConsumption: "160"
+  productivityGranted: "0"
+  populationCapacityGranted: "240"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "0"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "0"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "1400"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "200"
+  resourceGenerationRates: []
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.03"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "0.02"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "0.02"
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "0.03"
+  requiredResearch:
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: e5c1a7f3b9d24860a4d6e8f2c1b93750, type: 2}
+  requiredWorkshopUpgrades: []

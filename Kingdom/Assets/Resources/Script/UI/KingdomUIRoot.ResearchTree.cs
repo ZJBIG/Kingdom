@@ -82,13 +82,13 @@ public sealed partial class KingdomUIRoot
             if (LoadResearchTreeSprite(ResearchTreeWarmupSprites[i]) != null)
                 loaded++;
         }
-        Debug.Log($"[KingdomUI] Research tree cache warmed: prefabs={prefabCount}/{KingdomUIPrefabLibrary.AllReusablePrefabs.Length}, sprites={loaded}/{ResearchTreeWarmupSprites.Length}");
+        Debug.Log($"[王国界面] Research tree cache warmed: prefabs={prefabCount}/{KingdomUIPrefabLibrary.AllReusablePrefabs.Length}, sprites={loaded}/{ResearchTreeWarmupSprites.Length}");
     }
 
     private void BuildResearchTreePage(RectTransform parent)
     {
         float buildStartTime = Time.realtimeSinceStartup;
-        Debug.Log($"[KingdomUI] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v8 parent={parent} parentRect={parent.rect.size}");
+        Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v8 parent={parent} parentRect={parent.rect.size}");
         researchTreeNodes.Clear();
         researchTreeLinkVisuals.Clear();
         researchSharedLineVisuals.Clear();
@@ -100,7 +100,7 @@ public sealed partial class KingdomUIRoot
         Transform authoredGraph = parent.Find("ResearchGraphViewport");
         if (authoredGraph == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing ResearchGraphViewport; fixed research UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Scene is missing ResearchGraphViewport; fixed research UI will not be generated at runtime.");
             return;
         }
         GameObject graphObject = authoredGraph.gameObject;
@@ -136,7 +136,7 @@ public sealed partial class KingdomUIRoot
         researchGraphContent = researchGraphViewport.Find("ResearchGraphContent") as RectTransform;
         if (researchGraphContent == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing ResearchGraphContent; research graph will not be generated.");
+            Debug.LogError("[王国界面] Scene is missing ResearchGraphContent; research graph will not be generated.");
             return;
         }
         researchGraphContent.pivot = Vector2.zero;
@@ -158,7 +158,7 @@ public sealed partial class KingdomUIRoot
         Transform authoredLineLayer = researchGraphContent.Find("ResearchGraphLineLayer");
         if (authoredLineLayer == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing ResearchGraphLineLayer; code will not create a static graph UI layer at runtime.");
+            Debug.LogError("[王国界面] Scene is missing ResearchGraphLineLayer; code will not create a static graph UI layer at runtime.");
             return;
         }
         researchGraphLineLayer = authoredLineLayer as RectTransform;
@@ -168,7 +168,7 @@ public sealed partial class KingdomUIRoot
         researchGraphLineLayer.anchoredPosition = Vector2.zero;
         researchGraphLineLayer.sizeDelta = researchGraphContent.sizeDelta;
         researchGraphLineLayer.SetAsLastSibling();
-        Debug.Log("[KingdomUI] Research static shell source=scene: viewport, content, lineLayer, dragSurface, toolbar; runtime creates only data-driven repeated nodes, links and era bands.");
+        Debug.Log("[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface, toolbar; runtime creates only data-driven repeated nodes, links and era bands.");
         // RectTransform.rect is used below to convert the ResearchTreeSK
         // top-left coordinates into Unity's bottom-left coordinates. Force
         // the layout now, before any connector is created; otherwise the
@@ -180,7 +180,7 @@ public sealed partial class KingdomUIRoot
         RectTransform dragSurface = researchGraphContent.Find("ResearchGraphDragSurface") as RectTransform;
         if (dragSurface == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing ResearchGraphDragSurface; graph panning is disabled.");
+            Debug.LogError("[王国界面] Scene is missing ResearchGraphDragSurface; graph panning is disabled.");
             return;
         }
         Image dragSurfaceImage = dragSurface.GetComponent<Image>();
@@ -191,7 +191,7 @@ public sealed partial class KingdomUIRoot
         // era textures on each node. It does not stretch an era texture into
         // a full-height column behind the graph.
         CreateResearchTreeLinks(researchGraphContent, definitions, positions);
-        Debug.Log($"[KingdomUI] Research graph routes: links={researchTreeLinkVisuals.Count}, sharedBusSegments={researchSharedLineVisuals.Count}");
+        Debug.Log($"[王国界面] Research graph routes: links={researchTreeLinkVisuals.Count}, sharedBusSegments={researchSharedLineVisuals.Count}");
         for (int i = 0; i < definitions.Count; i++)
         {
             Research research = definitions[i];
@@ -209,7 +209,7 @@ public sealed partial class KingdomUIRoot
         researchGraphGesture = researchGraphViewport.GetComponent<UIResearchGraphGesture>();
         if (researchGraphGesture == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing authored UIResearchGraphGesture; graph panning will not be generated at runtime.");
+            Debug.LogError("[王国界面] Scene is missing authored UIResearchGraphGesture; graph panning will not be generated at runtime.");
             return;
         }
         Canvas.ForceUpdateCanvases();
@@ -218,7 +218,7 @@ public sealed partial class KingdomUIRoot
         RefreshResearchTreeVisuals();
         if (selectedResearchNode != null)
             ShowResearchDetails(selectedResearchNode);
-        Debug.Log($"[KingdomUI] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
+        Debug.Log($"[王国界面] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
     }
 
     private void LogResearchGridLayout(IReadOnlyList<Research> definitions,
@@ -247,7 +247,7 @@ public sealed partial class KingdomUIRoot
                 {
                     backwardsEdgeCount++;
                     if (backwardsEdgeCount <= 40)
-                        Debug.LogError($"[KingdomUI] Backward research edge: prerequisite={prerequisite.Id}@{GetResearchGridPosition(prerequisitePosition)} target={research.Id}@{grid}");
+                        Debug.LogError($"[王国界面] Backward research edge: prerequisite={prerequisite.Id}@{GetResearchGridPosition(prerequisitePosition)} target={research.Id}@{grid}");
                 }
                 else
                 {
@@ -265,7 +265,7 @@ public sealed partial class KingdomUIRoot
             maxColumn = Mathf.Max(maxColumn, cell.x);
             maxRow = Mathf.Max(maxRow, cell.y);
         }
-        Debug.Log($"[KingdomUI] Research grid layout: nodes={occupied.Count}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, intermediateNodeCrossings={intermediateNodeCrossingCount}, maxGrid=({maxColumn},{maxRow}), grid={ResearchGridX}x{ResearchGridY}, layoutSource=topology-integer-grid");
+        Debug.Log($"[王国界面] Research grid layout: nodes={occupied.Count}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, intermediateNodeCrossings={intermediateNodeCrossingCount}, maxGrid=({maxColumn},{maxRow}), grid={ResearchGridX}x{ResearchGridY}, layoutSource=topology-integer-grid");
     }
 
     private void LogRuntimeResearchNodeLayout()
@@ -287,7 +287,7 @@ public sealed partial class KingdomUIRoot
             maxX = Mathf.Max(maxX, position.x);
             maxY = Mathf.Max(maxY, position.y);
         }
-        Debug.Log($"[KingdomUI] Research runtime node rects: nodes={researchTreeNodes.Count}, uniquePositions={actualCells.Count}, range=({minX},{minY})-({maxX},{maxY}), content={researchGraphContent.rect.size}");
+        Debug.Log($"[王国界面] Research runtime node rects: nodes={researchTreeNodes.Count}, uniquePositions={actualCells.Count}, range=({minX},{minY})-({maxX},{maxY}), content={researchGraphContent.rect.size}");
     }
 
     private void ValidateRuntimeResearchGraph(IReadOnlyList<Research> definitions)
@@ -340,9 +340,9 @@ public sealed partial class KingdomUIRoot
         bool valid = duplicateCount == 0 && backwardsEdgeCount == 0 && missingNodeCount == 0 &&
             missingDragForwarderCount == 0 &&
             positiveBounds && dragSurfacePresent;
-        Debug.Log($"[KingdomUI] Research graph runtime validation: valid={valid}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, missingNodes={missingNodeCount}, missingDragForwarders={missingDragForwarderCount}, positiveBounds={positiveBounds}, dragSurface={dragSurfacePresent}");
+        Debug.Log($"[王国界面] Research graph runtime validation: valid={valid}, duplicates={duplicateCount}, backwardsEdges={backwardsEdgeCount}, missingNodes={missingNodeCount}, missingDragForwarders={missingDragForwarderCount}, positiveBounds={positiveBounds}, dragSurface={dragSurfacePresent}");
         if (!valid)
-            Debug.LogError("[KingdomUI] Research graph runtime validation failed; see counts above.");
+            Debug.LogError("[王国界面] Research graph runtime validation failed; see counts above.");
     }
 
     private void LogResearchVisualDiagnostics()
@@ -357,7 +357,7 @@ public sealed partial class KingdomUIRoot
             Text legacyLabel = labelTransform == null ? null : labelTransform.GetComponent<Text>();
             if (label == null && legacyLabel == null)
             {
-                Debug.LogError($"[KingdomUI] Research visual: missing label node={pair.Key?.Id}");
+                Debug.LogError($"[王国界面] Research visual: missing label node={pair.Key?.Id}");
                 continue;
             }
             int visibleCharacters = 0;
@@ -394,7 +394,7 @@ public sealed partial class KingdomUIRoot
                 canvasCulled = legacyLabel.canvasRenderer != null && legacyLabel.canvasRenderer.cull;
             }
             if (loggedLabels++ < 3)
-                Debug.Log($"[KingdomUI] Research visual label: id={pair.Key?.Id}, text='{labelText}', active={labelActive}, font={fontName}, rect={labelSize}, visible={visibleCharacters}, color={labelColor}, vertices={vertexCount}, culled={canvasCulled}");
+                Debug.Log($"[王国界面] Research visual label: id={pair.Key?.Id}, text='{labelText}', active={labelActive}, font={fontName}, rect={labelSize}, visible={visibleCharacters}, color={labelColor}, vertices={vertexCount}, culled={canvasCulled}");
         }
 
         int loggedArrows = 0;
@@ -424,14 +424,14 @@ public sealed partial class KingdomUIRoot
                         Mathf.Abs(arrowRight - nodeTopLeft.x) > .5f)
                         misalignedArrows++;
                     if (loggedArrows < 3)
-                        Debug.Log($"[KingdomUI] Research visual end arrow alignment: key={pair.Key}, arrowRight={arrowRight:0.##}, nodeLeft={nodeTopLeft.x:0.##}, arrowCenterY={arrowCenter:0.##}, nodeCenterY={nodeCenter:0.##}");
+                        Debug.Log($"[王国界面] Research visual end arrow alignment: key={pair.Key}, arrowRight={arrowRight:0.##}, nodeLeft={nodeTopLeft.x:0.##}, arrowCenterY={arrowCenter:0.##}, nodeCenterY={nodeCenter:0.##}");
                     break;
                 }
             }
             if (loggedArrows++ < 3)
-                Debug.Log($"[KingdomUI] Research visual end arrow: key={pair.Key}, local={rect.anchoredPosition}, size={rect.rect.size}, targetNodeCenterYGrid={rect.anchoredPosition.y + rect.rect.height * .5f}");
+                Debug.Log($"[王国界面] Research visual end arrow: key={pair.Key}, local={rect.anchoredPosition}, size={rect.rect.size}, targetNodeCenterYGrid={rect.anchoredPosition.y + rect.rect.height * .5f}");
         }
-        Debug.Log($"[KingdomUI] Research visual diagnostics: labelsChecked={researchTreeNodes.Count}, endArrowsChecked={loggedArrows}, misalignedEndArrows={misalignedArrows}");
+        Debug.Log($"[王国界面] Research visual diagnostics: labelsChecked={researchTreeNodes.Count}, endArrowsChecked={loggedArrows}, misalignedEndArrows={misalignedArrows}");
     }
 
     private Vector2 GetNodeTopLeftPosition(RectTransform node)
@@ -456,20 +456,20 @@ public sealed partial class KingdomUIRoot
         Transform authoredToolbar = viewport.Find("ResearchTreeToolbar");
         if (authoredToolbar == null)
         {
-            Debug.LogError("[KingdomUI] Scene is missing ResearchTreeToolbar; fixed research UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Scene is missing ResearchTreeToolbar; fixed research UI will not be generated at runtime.");
             return;
         }
         RectTransform toolbar = authoredToolbar as RectTransform;
         if (toolbar == null)
         {
-            Debug.LogError("[KingdomUI] Authored ResearchTreeToolbar has no RectTransform.");
+            Debug.LogError("[王国界面] Authored ResearchTreeToolbar has no RectTransform.");
             return;
         }
 
         researchTreeQueueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
         if (researchTreeQueueLabel == null)
         {
-            Debug.LogError("[KingdomUI] Authored ResearchTreeToolbar is missing Queue.");
+            Debug.LogError("[王国界面] Authored ResearchTreeToolbar is missing Queue.");
             return;
         }
         toolbar.SetAsLastSibling();
@@ -505,7 +505,7 @@ public sealed partial class KingdomUIRoot
         if (researchTreeQueueLabel.text != text)
         {
             researchTreeQueueLabel.text = text;
-            Debug.Log("[KingdomUI] Research queue toolbar: " + text);
+            Debug.Log("[王国界面] Research queue toolbar: " + text);
         }
     }
 
@@ -514,7 +514,7 @@ public sealed partial class KingdomUIRoot
         Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
         bool topologyUsable = IsTopologyResearchLayoutUsable(definitions, topologyPositions);
         // 布局只由研究前置关系生成，拓扑诊断不再依赖资产坐标。
-        Debug.Log($"[KingdomUI] Research topology decision: accepted={topologyUsable}, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}, layoutSource=topology-integer-grid");
+        Debug.Log($"[王国界面] Research topology decision: accepted={topologyUsable}, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}, layoutSource=topology-integer-grid");
         return topologyPositions;
     }
 
@@ -661,7 +661,7 @@ public sealed partial class KingdomUIRoot
                 eraEnd = Mathf.Max(eraEnd, researchColumn);
             }
             previousEraEnd = eraEnd;
-            Debug.Log($"[KingdomUI] Research era block: era={(TechLevel)era}, nodes={eraNodes.Count}, columns={eraStart}-{eraEnd}");
+            Debug.Log($"[王国界面] Research era block: era={(TechLevel)era}, nodes={eraNodes.Count}, columns={eraStart}-{eraEnd}");
         }
 
         RepairResearchRowsToAvoidNodeCrossing(ordered, known, column, row, occupied);
@@ -678,7 +678,7 @@ public sealed partial class KingdomUIRoot
             maximumColumn = Mathf.Max(maximumColumn, grid.x);
         }
         researchTreeMaximumRow = maximumRow;
-        Debug.Log($"[KingdomUI] Research graph topology candidate: nodes={gridPositions.Count}, layers={maximumColumn + 1}, rows={maximumRow + 1}, cycles={cycleNodes.Count}");
+        Debug.Log($"[王国界面] Research graph topology candidate: nodes={gridPositions.Count}, layers={maximumColumn + 1}, rows={maximumRow + 1}, cycles={cycleNodes.Count}");
 
         var positions = new Dictionary<Research, Vector2>();
         foreach (KeyValuePair<Research, Vector2Int> entry in gridPositions)
@@ -952,7 +952,7 @@ public sealed partial class KingdomUIRoot
                 KingdomUIPrefabLibrary.ResearchEraBand, content);
             if (bandObject == null)
             {
-                Debug.LogError("[KingdomUI] Missing reusable ResearchEraBand prefab");
+                Debug.LogError("[王国界面] Missing reusable ResearchEraBand prefab");
                 continue;
             }
             RectTransform band = bandObject.GetComponent<RectTransform>();
@@ -1169,7 +1169,7 @@ public sealed partial class KingdomUIRoot
                 KingdomUIPrefabLibrary.ResearchLine, lineParent);
             if (lineObject == null)
             {
-                Debug.LogError("[KingdomUI] Missing reusable ResearchLine prefab; connector was skipped");
+                Debug.LogError("[王国界面] Missing reusable ResearchLine prefab; connector was skipped");
                 return null;
             }
             lineObject.name = "ResearchLinePart_" + key;
@@ -1220,14 +1220,14 @@ public sealed partial class KingdomUIRoot
             KingdomUIPrefabLibrary.ResearchNode, content);
         if (nodeObject == null)
         {
-            Debug.LogError("[KingdomUI] Missing reusable ResearchNode prefab; node was skipped: " + research.Id);
+            Debug.LogError("[王国界面] Missing reusable ResearchNode prefab; node was skipped: " + research.Id);
             return;
         }
         nodeObject.name = "ResearchNode_" + research.Id;
         RectTransform node = nodeObject.GetComponent<RectTransform>();
         if (node == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab has no RectTransform: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab has no RectTransform: " + research.Id);
             Destroy(nodeObject);
             return;
         }
@@ -1249,7 +1249,7 @@ public sealed partial class KingdomUIRoot
         Image surface = node.GetComponent<Image>();
         if (surface == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored Image: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored Image: " + research.Id);
             Destroy(nodeObject);
             return;
         }
@@ -1258,7 +1258,7 @@ public sealed partial class KingdomUIRoot
         Button button = node.GetComponent<Button>();
         if (button == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored Button: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored Button: " + research.Id);
             Destroy(nodeObject);
             return;
         }
@@ -1272,14 +1272,14 @@ public sealed partial class KingdomUIRoot
         button.onClick.AddListener(() => ShowResearchDetails(research));
         if (node.GetComponent<UIResearchGraphDragForwarder>() == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored drag forwarder: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored drag forwarder: " + research.Id);
             return;
         }
         researchTreeNodes[research] = button;
         Image[] outline = CreateResearchNodeBorder(node);
         if (outline == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored SelectionBorder: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored SelectionBorder: " + research.Id);
             Destroy(nodeObject);
             return;
         }
@@ -1288,13 +1288,13 @@ public sealed partial class KingdomUIRoot
         RectTransform frameRect = node.Find("EraFrame") as RectTransform;
         if (frameRect == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing EraFrame: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing EraFrame: " + research.Id);
             return;
         }
         Image frame = frameRect.GetComponent<Image>();
         if (frame == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode EraFrame is missing Image: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode EraFrame is missing Image: " + research.Id);
             return;
         }
         frame.sprite = LoadResearchTreeSprite(GetResearchEraTextureName(research.TechLevel));
@@ -1307,13 +1307,13 @@ public sealed partial class KingdomUIRoot
         RectTransform progressRect = frameRect.Find("ProgressFill") as RectTransform;
         if (progressRect == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing ProgressFill: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing ProgressFill: " + research.Id);
             return;
         }
         Image progress = progressRect.GetComponent<Image>();
         if (progress == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode ProgressFill is missing Image: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode ProgressFill is missing Image: " + research.Id);
             return;
         }
         progress.sprite = LoadResearchTreeSprite(GetResearchProgressTextureName(research.TechLevel));
@@ -1342,7 +1342,7 @@ public sealed partial class KingdomUIRoot
         titleLabel.overflowMode = TextOverflowModes.Overflow;
         titleLabel.raycastTarget = false;
         titleLabel.enabled = true;
-        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? research.BaseCost : state.BaseCost.ToGameString(), 20, TextSecondary);
+        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
         costLabel.alignment = TextAlignmentOptions.Center;
         TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
         progressLabel.alignment = TextAlignmentOptions.Center;
@@ -1354,7 +1354,7 @@ public sealed partial class KingdomUIRoot
         UITouchTooltip tooltip = node.GetComponent<UITouchTooltip>();
         if (tooltip == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing its authored tooltip: " + research.Id);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing its authored tooltip: " + research.Id);
             return;
         }
         tooltip.SetTooltip(research.Description);
@@ -1390,13 +1390,13 @@ public sealed partial class KingdomUIRoot
         RectTransform rect = parent.Find(name) as RectTransform;
         if (rect == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab is missing label: " + name);
+            Debug.LogError("[王国界面] ResearchNode prefab is missing label: " + name);
             return null;
         }
         TextMeshProUGUI label = rect.GetComponent<TextMeshProUGUI>();
         if (label == null)
         {
-            Debug.LogError("[KingdomUI] ResearchNode prefab label has no TMP component: " + name);
+            Debug.LogError("[王国界面] ResearchNode prefab label has no TMP component: " + name);
             return null;
         }
         label.text = text;
@@ -1514,9 +1514,9 @@ public sealed partial class KingdomUIRoot
                     focusedLabels.Add(node.Key.Id);
             focusedLabels.Sort(StringComparer.Ordinal);
             lastLoggedResearchClosureTarget = selectedResearchNode.Id;
-            Debug.Log($"[KingdomUI] Research selection closure target={selectedResearchNode.Id}, nodes={string.Join(",", focusedLabels)}");
+            Debug.Log($"[王国界面] 研究选择闭包目标={selectedResearchNode.Id}，节点={string.Join(",", focusedLabels)}");
             if (string.Equals(selectedResearchNode.Id, "ModernUniversity", StringComparison.Ordinal))
-                Debug.Log($"[KingdomUI] ModernUniversity closure check: InterstellarNavigationIncluded={focusedIds.Contains("InterstellarNavigation")}");
+                Debug.Log($"[王国界面] 现代大学闭包检查：是否包含星际导航={focusedIds.Contains("InterstellarNavigation")}");
         }
         foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
         {
@@ -1561,7 +1561,7 @@ public sealed partial class KingdomUIRoot
                 if (!researchProgressVisualLogged)
                 {
                     researchProgressVisualLogged = true;
-                    Debug.Log($"[KingdomUI] Research progress visual: id={research.Id}, fill={progressImage.fillAmount:0.000}, color={progressImage.color}, alpha={progressImage.color.a:0.000}, active={progress.gameObject.activeSelf}, sibling={progress.GetSiblingIndex()}");
+                    Debug.Log($"[王国界面] Research progress visual: id={research.Id}, fill={progressImage.fillAmount:0.000}, color={progressImage.color}, alpha={progressImage.color.a:0.000}, active={progress.gameObject.activeSelf}, sibling={progress.GetSiblingIndex()}");
                 }
             }
             Transform stateLabel = button.transform.Find("State");
@@ -1572,7 +1572,7 @@ public sealed partial class KingdomUIRoot
             }
             Transform costLabel = button.transform.Find("Cost");
             if (costLabel != null && costLabel.TryGetComponent(out TMP_Text costText))
-                costText.text = state == null ? research.BaseCost : state.BaseCost.ToGameString();
+                costText.text = state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString();
             Transform progressLabel = button.transform.Find("Progress");
             if (progressLabel != null && progressLabel.TryGetComponent(out TMP_Text progressText))
                 progressText.text = ResearchProgressText(state, status);
@@ -1649,6 +1649,15 @@ public sealed partial class KingdomUIRoot
         return (state.ProgressRatio.ToDouble() * 100d).ToString("0.0") + "%";
     }
 
+    private static string FormatResearchBaseCost(Research research)
+    {
+        if (research == null || string.IsNullOrWhiteSpace(research.BaseCost))
+            return ExpantaNum.Zero.ToGameString();
+        return ExpantaNum.TryParse(research.BaseCost, out ExpantaNum cost)
+            ? cost.ToGameString()
+            : research.BaseCost;
+    }
+
     private static float ResearchProgressFillAmount(ResearchState state, ResearchStatus status)
     {
         if (status == ResearchStatus.Completed)
@@ -1682,7 +1691,7 @@ public sealed partial class KingdomUIRoot
         Texture2D texture = Resources.Load<Texture2D>("Texture/" + path);
         if (texture == null)
         {
-            Debug.LogWarning($"[KingdomUI] ResearchTree sprite missing: Resources/Texture/{path}");
+            Debug.LogWarning($"[王国界面] ResearchTree sprite missing: Resources/Texture/{path}");
             return null;
         }
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),

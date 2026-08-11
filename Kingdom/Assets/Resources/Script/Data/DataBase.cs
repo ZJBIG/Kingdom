@@ -38,7 +38,7 @@ public static class DataBase<T> where T : GameDefinition
             return definition;
 
         throw new KeyNotFoundException(
-            $"{typeof(T).Name} definition with Id '{id ?? "<null>"}' was not found in Resources/{ResourcesPath}.");
+            $"未在 Resources/{ResourcesPath} 中找到编号为“{id ?? "<空>"}”的{typeof(T).Name}定义。");
     }
 
     public static bool TryFind(string id, out T definition)
@@ -74,13 +74,13 @@ public static class DataBase<T> where T : GameDefinition
             if (id.Length == 0)
             {
                 throw new InvalidOperationException(
-                    $"{typeof(T).Name} asset '{definition.name}' has an empty stable Id.");
+                    $"{typeof(T).Name}资产“{definition.name}”缺少稳定编号。");
             }
 
             if (index.TryGetValue(id, out T existing))
             {
                 throw new InvalidOperationException(
-                    $"Duplicate {typeof(T).Name} Id '{id}' on assets '{existing.name}' and '{definition.name}'.");
+                    $"发现重复的{typeof(T).Name}编号“{id}”：资源“{existing.name}”与“{definition.name}”冲突。");
             }
 
             index.Add(id, definition);

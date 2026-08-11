@@ -65,14 +65,46 @@ public sealed class SpaceContentTests
         };
         for (int i = 0; i < workshopIds.Length; i++)
         {
-            WorkshopUpgradeDefinition workshop =
-                DataBase<WorkshopUpgradeDefinition>.Find(workshopIds[i]);
+            WorkshopUpgrade workshop =
+                DataBase<WorkshopUpgrade>.Find(workshopIds[i]);
             Assert.That(workshop, Is.Not.Null, workshopIds[i]);
             Assert.That(workshop.Label, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(workshop.Description, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(string.IsNullOrWhiteSpace(workshop.Label), Is.False, workshopIds[i]);
             Assert.That(string.IsNullOrWhiteSpace(workshop.Description), Is.False, workshopIds[i]);
         }
+    }
+
+    [Test]
+    public void 太空居住与支援设施必须持续消耗食品而不是绕过补给()
+    {
+        string[] suppliedBuildingIds =
+        {
+            "OrbitalHabitatMegastructure",
+            "OrbitalLogisticsHub",
+            "OrbitalStation",
+            "DeepSpaceRelay",
+            "DeepSpaceObservatory",
+            "LaunchCenter",
+            "Shipyard",
+            "PhantomMaterialsFabricator",
+            "PhaseMaterialSynthesisArray",
+            "QuantumComputingArray"
+        };
+
+        for (int i = 0; i < suppliedBuildingIds.Length; i++)
+        {
+            Building building = DataBase<Building>.Find(suppliedBuildingIds[i]);
+            Assert.That(building, Is.Not.Null, suppliedBuildingIds[i]);
+            Assert.That(building.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero), suppliedBuildingIds[i]);
+        }
+
+        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+        Assert.That(solarArray.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(solarArray.SpaceCost, Is.GreaterThanOrEqualTo(new ExpantaNum(420d)));
+        Assert.That(solarArray.ProductivityConsumption, Is.GreaterThanOrEqualTo(new ExpantaNum(500d)));
+        Assert.That(solarArray.PowerProductionRate, Is.GreaterThanOrEqualTo(new ExpantaNum(360d)));
+        Assert.That(solarArray.LogisticsConsumptionRate, Is.GreaterThanOrEqualTo(new ExpantaNum(8d)));
     }
 
     private static bool HasRate(

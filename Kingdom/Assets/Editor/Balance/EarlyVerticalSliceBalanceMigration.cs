@@ -110,24 +110,14 @@ namespace Kingdom.EditorTools
                     .ToList());
 
             SetGenerationRate("Quarry", "StoneChunk", 2.4d);
-            SetGenerationRate("FiberGatheringCamp", "PlantFiber", 1.2d);
+            SetGenerationRate("FiberGatheringCamp", "Biomass", 1.2d);
             SetGenerationRate("MetalMine", "CopperOre", 1d);
             SetGenerationRate("MetalMine", "TinOre", .8d);
             SetGenerationRate("MetalMine", "IronOre", .8d);
             SetGenerationRate("MetalSmelter", "Copper", .8d);
             SetGenerationRate("MetalSmelter", "Tin", .8d);
             SetGenerationRate("MetalSmelter", "Iron", .8d);
-            SetGenerationRate("BronzeFoundry", "Bronze", 1.2d);
-            SetBuildingCosts(
-                "BronzeFoundry",
-                new List<Pair<Resource, ExpantaNum>>
-                {
-                    new(woodLog, new ExpantaNum(120d)),
-                    new(stoneBrick, new ExpantaNum(150d)),
-                    new(copper, new ExpantaNum(1d)),
-                    new(tin, new ExpantaNum(0.5d)),
-                    new(coal, new ExpantaNum(0.5d))
-                });
+            SetGenerationRate("MetalSmelter", "Bronze", .6d);
 
             EditorUtility.SetDirty(knowledgeCircle);
             EditorUtility.SetDirty(knowledgeSharing);

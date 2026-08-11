@@ -15,79 +15,35 @@ MonoBehaviour:
   id: PrecisionManufacturing
   Label: "\u7CBE\u5BC6\u7535\u6C14\u5236\u9020"
   Description: "\u4EE5\u7CBE\u5BC6\u673A\u5E8A\u3001\u7535\u6C14\u5236\u9020\u548C\u5148\u8FDB\u6750\u6599\u52A0\u5DE5\u4E3A\u6838\u5FC3\uFF0C\u4E13\u95E8\u63D0\u5347\u673A\u5668\u5DE5\u5382\u548C\u7535\u5B50\u8BBE\u5907\u7684\u7CBE\u5EA6\uFF0C\u4E0D\u7B49\u540C\u4E8E\u6D41\u6C34\u7EBF\u6269\u4EA7\u3002"
-  BaseCost: 520000
+  BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
   - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 560
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 350
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 56
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 228
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 210
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 105
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "560"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "350"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "56"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "228"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "210"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "105"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   - Type: 1
     Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.12
-      layer: 0
-      operators: []
+    value: "1.12"
+  - Type: 1
+    Building: {fileID: 11400000, guid: a7b8c9d0e1f24356a7b8c9d0e1f24356, type: 2}
+    Resource: {fileID: 0}
+    value: "1.15"
   TechLevel: 3
   AdvancesTechLevel: 0

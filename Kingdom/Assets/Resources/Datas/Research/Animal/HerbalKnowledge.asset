@@ -15,36 +15,22 @@ MonoBehaviour:
   id: HerbalKnowledge
   Label: "\u8349\u836F\u77E5\u8BC6"
   Description: "\u8FA8\u8BA4\u5E38\u89C1\u836F\u7528\u690D\u7269\u5E76\u603B\u7ED3\u91C7\u96C6\u3001\u5E72\u71E5\u548C\u914D\u4F0D\u65B9\u6CD5\uFF0C\u4F7F\u4F24\u53E3\u5904\u7406\u548C\u5E38\u89C1\u75C5\u75C7\u62E5\u6709\u66F4\u53EF\u9760\u7684\u8349\u836F\u6765\u6E90\u3002"
-  BaseCost: 850
+  BaseCost: "850"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 40
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "40"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.02"
+  - Type: 28
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.1"
   TechLevel: 0
   AdvancesTechLevel: 0

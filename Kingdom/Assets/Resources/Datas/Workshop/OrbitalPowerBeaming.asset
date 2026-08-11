@@ -13,62 +13,34 @@ MonoBehaviour:
   m_Name: OrbitalPowerBeaming
   m_EditorClassIdentifier: 
   id: OrbitalPowerBeaming
-  Label: "\u8F68\u9053\u80FD\u91CF\u4F20\u8F93"
-  Description: "\u901A\u8FC7\u9AD8\u6548\u5149\u4F0F\u9635\u5217\u3001\u80FD\u91CF\u8F6C\u6362\u548C\u5B9A\u5411\u4F20\u8F93\u6280\u672F\uFF0C\u63D0\u9AD8\u8F68\u9053\u592A\u9633\u80FD\u9635\u5217\u7684\u7A33\u5B9A\u4F9B\u7535\u80FD\u529B\u3002"
+  Label: "定向能量束流终端"
+  Description: "把高效光伏阵列、能量转换器、锡基焊接接点与定向输电终端装配成可运行的实体系统，将轨道能量传输理论落实为稳定的空间电力设备。"
   SortOrder: 430
   TechLevel: 4
   requiredResearch:
-  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
   requiredUpgrades: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 650
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 240
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 260
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: "650"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "240"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "260"
+  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+    amount: "260"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "3000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "2600"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "2200"
   effects:
-  - Type: 0
+  - Type: 10
     Building: {fileID: 11400000, guid: a1b2c3d4e5f60718293a4b5c6d7e8f90, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.25
-      layer: 0
-      operators: []
+    value: "1.25"

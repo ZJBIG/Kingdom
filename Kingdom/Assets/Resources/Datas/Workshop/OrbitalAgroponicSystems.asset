@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: OrbitalAgroponicSystems
+  m_EditorClassIdentifier: 
+  id: OrbitalAgroponicSystems
+  Label: "轨道营养液种植系统"
+  Description: "将营养液循环、玻璃种植舱、陶瓷过滤膜、电子光照控制和生物质培育模块装配到轨道居住区，把轨道农业生态学落实为可持续的食物与生物质生产设备。"
+  SortOrder: 585
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 176f45e4409e4631b6c9041f641c7eaf, type: 2}
+  - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 8c2e6a0d4f7b9135a0c5e8b2d6f1a479, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "4200"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "2200"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "1800"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "240"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
+    Resource: {fileID: 0}
+    value: "1.30"
+  - Type: 1
+    Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"
+  - Type: 3
+    Building: {fileID: 0}
+    Resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    value: "1.25"

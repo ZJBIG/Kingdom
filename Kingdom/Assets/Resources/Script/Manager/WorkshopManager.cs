@@ -16,16 +16,16 @@ public enum WorkshopPurchaseFailure
 
 public sealed class WorkshopManager : Singleton<WorkshopManager>
 {
-    private readonly Dictionary<WorkshopUpgradeDefinition, WorkshopUpgradeState> states = new();
+    private readonly Dictionary<WorkshopUpgrade, WorkshopUpgradeState> states = new();
     private readonly List<WorkshopUpgradeState> orderedStates = new();
 
-    public IReadOnlyDictionary<WorkshopUpgradeDefinition, WorkshopUpgradeState> States => states;
+    public IReadOnlyDictionary<WorkshopUpgrade, WorkshopUpgradeState> States => states;
     internal IReadOnlyList<WorkshopUpgradeState> OrderedStates => orderedStates;
     public event Action<WorkshopUpgradeState> UpgradeStateChanged;
 
     protected override void Initialize()
     {
-        IReadOnlyList<WorkshopUpgradeDefinition> definitions = DataBase<WorkshopUpgradeDefinition>.All;
+        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
             var state = new WorkshopUpgradeState(definitions[i]);
@@ -37,10 +37,10 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     public bool IsSystemUnlocked =>
         ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop);
 
-    public bool IsPurchased(WorkshopUpgradeDefinition definition) =>
+    public bool IsPurchased(WorkshopUpgrade definition) =>
         definition != null && states.TryGetValue(definition, out WorkshopUpgradeState state) && state.Purchased;
 
-    public bool ArePrerequisitesMet(WorkshopUpgradeDefinition definition)
+    public bool ArePrerequisitesMet(WorkshopUpgrade definition)
     {
         if (definition == null)
             return false;
@@ -54,7 +54,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     }
 
     public bool TryPurchase(
-        WorkshopUpgradeDefinition definition,
+        WorkshopUpgrade definition,
         out WorkshopPurchaseFailure failure)
     {
         if (definition == null || !states.TryGetValue(definition, out WorkshopUpgradeState state))
@@ -128,11 +128,11 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         {
             for (int i = 0; i < data.PurchasedUpgradeIds.Count; i++)
             {
-                if (!DataBase<WorkshopUpgradeDefinition>.TryFind(
+                if (!DataBase<WorkshopUpgrade>.TryFind(
                         data.PurchasedUpgradeIds[i],
-                        out WorkshopUpgradeDefinition definition))
+                        out WorkshopUpgrade definition))
                 {
-                    Debug.LogWarning($"Ignoring retired workshop upgrade '{data.PurchasedUpgradeIds[i]}'.");
+                    Debug.LogWarning($"忽略已退役的工坊升级“{data.PurchasedUpgradeIds[i]}”。");
                     continue;
                 }
                 states[definition].SetPurchased(true);

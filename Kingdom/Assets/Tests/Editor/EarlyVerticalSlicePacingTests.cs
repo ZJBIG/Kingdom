@@ -24,14 +24,14 @@ public sealed class EarlyVerticalSlicePacingTests
     public void CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom()
     {
         AssertRate("Quarry", "StoneChunk", 2.4d);
-        AssertRate("FiberGatheringCamp", "PlantFiber", 1.2d);
+        AssertRate("FiberGatheringCamp", "Biomass", 1.2d);
         AssertRate("MetalMine", "CopperOre", 1d);
         AssertRate("MetalMine", "TinOre", .8d);
         AssertRate("MetalMine", "IronOre", .8d);
         AssertRate("MetalSmelter", "Copper", .8d);
         AssertRate("MetalSmelter", "Tin", .8d);
         AssertRate("MetalSmelter", "Iron", .8d);
-        AssertRate("BronzeFoundry", "Bronze", 1.2d);
+        AssertRate("MetalSmelter", "Bronze", .6d);
     }
 
     [Test]
@@ -50,15 +50,15 @@ public sealed class EarlyVerticalSlicePacingTests
     }
 
     [Test]
-    public void BronzeFoundry_DoesNotRequireItsOwnOutput()
+    public void MetalSmelter_DoesNotRequireItsOwnOutput()
     {
-        Building foundry = DataBase<Building>.Find("BronzeFoundry");
+        Building foundry = DataBase<Building>.Find("MetalSmelter");
         Assert.That(
             foundry.ResourceRequirements.Any(pair => pair.First.Id == "Bronze"),
             Is.False);
         Assert.That(
             foundry.ResourceRequirements.Select(pair => pair.First.Id),
-            Does.Contain("Copper").And.Contain("Tin"));
+            Does.Contain("CopperOre").And.Contain("TinOre"));
     }
 
     [Test]

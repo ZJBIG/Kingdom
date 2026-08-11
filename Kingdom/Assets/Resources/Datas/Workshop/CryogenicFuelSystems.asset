@@ -14,62 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CryogenicFuelSystems
   Label: "低温推进剂系统"
-  Description: "通过低温储存、精确输送和回收技术减少火箭燃料损耗，提升发射中心与深空舰队的燃料利用率。"
+  Description: "通过低温储存、精确输送、化学钝化与密封回收技术减少火箭燃料损耗，提升发射中心与深空舰队的燃料利用率。"
   SortOrder: 440
   TechLevel: 4
   requiredResearch:
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: e6b4c8d2f0a19375be46d9c1a7f20583, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 420
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "150"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "420"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "220"
   effects:
   - Type: 2
     Building: {fileID: 0}
     Resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.3
-      layer: 0
-      operators: []
+    value: "1.3"

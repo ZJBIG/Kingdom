@@ -22,62 +22,22 @@ MonoBehaviour:
   requiredUpgrades:
   - {fileID: 11400000, guid: 4f6a8c2e1d3b5079a6c8e0f2b4d7a901, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 320
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 650
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 800
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 460
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 260
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 520
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "320"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "650"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "800"
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "460"
+  - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    amount: "260"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "520"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "180"
   effects:
   - Type: 2
     Building: {fileID: 0}
     Resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.25
-      layer: 0
-      operators: []
+    value: "1.25"

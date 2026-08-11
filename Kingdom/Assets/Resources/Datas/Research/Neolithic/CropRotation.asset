@@ -16,55 +16,25 @@ MonoBehaviour:
   Label: "\u8F6E\u4F5C\u5236\u5EA6"
   Description: "\u5728\u4E0D\u540C\u5B63\u8282\u8F6E\u6362\u8C37\u7269\u3001\u8C46\u7C7B\u4E0E\u4F11\u8015\u5730\uFF0C\u51CF\u8F7B\u571F\u58E4\u517B\u5206\u8017\u7AED\u548C\u75C5\u866B\u79EF\u7D2F\uFF0C\u7A33\u5B9A\u957F\u671F\u4EA7\u91CF\u3002
     \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD815%\u3002"
-  BaseCost: 13000
+  BaseCost: "13000"
   prerequisites:
   - {fileID: 11400000, guid: bf4d8f1e0f33bc341a6012810cfda653, type: 2}
   - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "200"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.02"
   - Type: 17
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 1
   AdvancesTechLevel: 0

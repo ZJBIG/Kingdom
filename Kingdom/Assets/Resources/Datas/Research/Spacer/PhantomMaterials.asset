@@ -15,85 +15,33 @@ MonoBehaviour:
   id: PhantomMaterials
   Label: "幽影材料工程"
   Description: "将钛合金、复合材料、镍和相位稳定化技术结合，建立幽影合金与幽影纤维的深空材料工业，为量子设备、舰船和远星战役提供高级材料。"
-  BaseCost: 6500000
+  BaseCost: "6500000"
   prerequisites:
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 900
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 650
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 450
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 400
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 350
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "650"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "450"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "400"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "350"
+  - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "220"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 0f2e6a4b8c1d5079e3f5a7b9c2d4e6f8, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 4
   AdvancesTechLevel: 0

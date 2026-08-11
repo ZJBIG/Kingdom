@@ -17,118 +17,55 @@ MonoBehaviour:
   Description: "沿另一条星际航线建立的工业前哨。敌方压力低于比邻星前线，但仍需持续投入食物、电子元件、火箭燃料和钛合金，才能换取大规模工业资源与领土回报。"
   starSystemId: TauCeti
   domain: 1
-  enemyPower:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1800
-    layer: 0
-    operators: []
+  enemyPower: "1800"
   prerequisiteSectors:
   - {fileID: 11400000, guid: 9c31a5f4b27d4e4a9e1a7f8c2d6b3e10, type: 2}
-  territoryReward:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 35000
-    layer: 0
-    operators: []
+  territoryReward: "220000"
   resourceRewards:
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 12000
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 6000
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 4000
-      layer: 0
-      operators: []
-  colonizationFoodPerMinute:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  colonizationResourceCosts: []
-  campaignFoodPerMinute:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 80
-    layer: 0
-    operators: []
-  campaignProgressMultiplier:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 0.30
-    layer: 0
-    operators: []
-  campaignResourceCosts:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 30
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 16
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 12
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 16
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 20
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 12
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "50000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "30000"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "20000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "35000"
+  occupiedResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "0.70"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.85"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "0.60"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "0.25"
+  colonizationFoodPerSecond: "0"
+  colonizationResourceRatesPerSecond: []
+  campaignFoodPerSecond: "3"
+  campaignProgressMultiplier: "0.006"
+  campaignResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "1.8"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "1.2"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "2"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "1.0666666667"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.8"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "1.0666666667"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "1.3333333333"
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "0.8"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "0.15"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "0.5333333333"
+  - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    amount: "0.8"
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

@@ -1,1 +1,11 @@
 Type,Object,Reason,Severity,Suggestion
+"Building wait exceeds ten minutes","OrbitalCarbonizationComplex","Construction inputs 25710 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalCryogenicPropellantArray","Construction inputs 77000 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalForestryHarvestingArray","Construction inputs 21870 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalHabitatMegastructure","Construction inputs 31300 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalLogisticsHub","Construction inputs 18200 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalResourceExtractionArray","Construction inputs 99900 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalStation","Construction inputs 23520 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalTextileFabricationArray","Construction inputs 38200 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","OrbitalVacuumMetallurgyArray","Construction inputs 108300 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."
+"Building wait exceeds ten minutes","Shipyard","Construction inputs 28800 exceed ten minutes of active aggregate production.","High","Adjust first-copy cost or unlock a producer earlier."

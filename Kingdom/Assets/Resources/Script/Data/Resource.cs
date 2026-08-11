@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Create", menuName = "Data/Resource", order = 0)]
+[CreateAssetMenu(fileName = "创建资源", menuName = "数据/资源", order = 0)]
 public class Resource : GameDefinition
 {
     public string Label;

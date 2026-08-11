@@ -31,7 +31,7 @@ public sealed class TimelineSnapshot
     public double TotalProductivity;
     public double UsedProductivity;
     public double PopulationGrowthMultiplier;
-    public double PopulationGrowthPerMinute;
+    public double PopulationGrowthPerSecond;
     public double TerritoryTotal;
     public double TerritoryUsed;
     public string Resources = "", Buildings = "", ResearchCompleted = "", ActiveResearch = "";
@@ -200,7 +200,7 @@ public static class EconomySimulator
             TotalProductivity=BuildingSimulator.TotalProductivity(s,buildings),
             UsedProductivity=BuildingSimulator.UsedProductivity(s,buildings),
             PopulationGrowthMultiplier=ResourceSimulator.PopulationGrowthMultiplier(s),
-            PopulationGrowthPerMinute=ResourceSimulator.PopulationGrowthRatePerMinute(s),
+            PopulationGrowthPerSecond=ResourceSimulator.PopulationGrowthRatePerSecond(s),
             TerritoryTotal=BuildingSimulator.TotalTerritory(s),
             TerritoryUsed=BuildingSimulator.UsedTerritory(s,buildings),
             Resources=string.Join(";",s.Resources.OrderBy(x=>x.Key).Select(x=>$"{x.Key}={x.Value:0.##}")),

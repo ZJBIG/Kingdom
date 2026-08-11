@@ -17,21 +17,35 @@ MonoBehaviour:
   Description: "距离母星最近的长期轨道基地。完成探索后可获得复合材料和钛资源，为轨道空间站、发射设施和后续深空航线提供建设基础。"
   starSystemId: Sol
   domain: 0
-  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 80, layer: 0, operators: []}
+  enemyPower: "80"
   prerequisiteSectors:
   - {fileID: 11400000, guid: e58bf3ff112a2434d8099d90170711df, type: 2}
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 1500, layer: 0, operators: []}
+  territoryReward: "12000"
   resourceRewards:
-  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 2500, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1000, layer: 0, operators: []}
-  colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
-  colonizationResourceCosts:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  campaignResourceCosts: []
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "6000"
+  occupiedResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.18"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "0.12"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.08"
+  colonizationFoodPerSecond: "1.3333333333"
+  colonizationResourceRatesPerSecond:
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.4166666667"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "0.25"
+    - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+      amount: "0.3333333333"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.1666666667"
+  colonizationDurationSeconds: "3600"
+  campaignFoodPerSecond: "0"
+  campaignResourceRatesPerSecond: []
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

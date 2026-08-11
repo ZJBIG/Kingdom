@@ -2,12 +2,12 @@
 
 TechLevel reached: 4
 Industrial baseline: False
-Research reachable (up to Industrial): 79/79
+Research reachable (up to Industrial): 80/80
 Workshop reachable (up to Industrial): 33/33
-Building reachable (up to Industrial): 55/55
-Research reachable (Spacer): 12/12
-Workshop reachable (Spacer): 15/15
-Building reachable (Spacer): 10/10
+Building reachable (up to Industrial): 52/52
+Research reachable (Spacer): 26/26
+Workshop reachable (Spacer): 25/25
+Building reachable (Spacer): 17/17
 Resources available: 40
 
 ## Unreachable research

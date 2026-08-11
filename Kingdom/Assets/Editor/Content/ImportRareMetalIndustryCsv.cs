@@ -30,10 +30,10 @@ public static class ImportRareMetalIndustryCsv
         Dictionary<string, Resource> resources = Load<Resource>();
         Dictionary<string, Research> researches = Load<Research>();
         Dictionary<string, Building> buildings = Load<Building>();
-        Dictionary<string, WorkshopUpgradeDefinition> workshops = Load<WorkshopUpgradeDefinition>();
+        Dictionary<string, WorkshopUpgrade> workshops = Load<WorkshopUpgrade>();
         // The repository already contains this complete device as PoweredMining.
         // Preserve that stable ID and resolve the CSV's planning alias without creating a duplicate device.
-        if (!workshops.ContainsKey("SteamRockDrills") && workshops.TryGetValue("PoweredMining", out WorkshopUpgradeDefinition steamRockDrills))
+        if (!workshops.ContainsKey("SteamRockDrills") && workshops.TryGetValue("PoweredMining", out WorkshopUpgrade steamRockDrills))
             workshops.Add("SteamRockDrills", steamRockDrills);
 
         List<Row> resourceRows = Read("01_新增资源完整表.csv");
@@ -92,7 +92,7 @@ public static class ImportRareMetalIndustryCsv
         EditorUtility.SetDirty(asset);
     }
 
-    private static void EnsureBuilding(Row row, Dictionary<string, Building> all, Dictionary<string, Research> researches, Dictionary<string, Resource> resources, Dictionary<string, WorkshopUpgradeDefinition> workshops)
+    private static void EnsureBuilding(Row row, Dictionary<string, Building> all, Dictionary<string, Research> researches, Dictionary<string, Resource> resources, Dictionary<string, WorkshopUpgrade> workshops)
     {
         string id = row.V("ID");
         Building asset = GetOrCreate(all, id, BuildingRoot + "/Industrial");
@@ -112,10 +112,10 @@ public static class ImportRareMetalIndustryCsv
         EditorUtility.SetDirty(asset);
     }
 
-    private static void EnsureWorkshop(Row row, Dictionary<string, WorkshopUpgradeDefinition> all, Dictionary<string, Research> researches, Dictionary<string, Resource> resources, Dictionary<string, Building> buildings)
+    private static void EnsureWorkshop(Row row, Dictionary<string, WorkshopUpgrade> all, Dictionary<string, Research> researches, Dictionary<string, Resource> resources, Dictionary<string, Building> buildings)
     {
         string id = row.V("ID");
-        WorkshopUpgradeDefinition asset = GetOrCreate(all, id, WorkshopRoot);
+        WorkshopUpgrade asset = GetOrCreate(all, id, WorkshopRoot);
         asset.SetIdForEditor(id);
         asset.Label = row.V("Label");
         asset.Description = row.V("Description");
@@ -137,7 +137,7 @@ public static class ImportRareMetalIndustryCsv
 
     private static Resource Require(Dictionary<string, Resource> all, string id) => all.TryGetValue(id, out Resource value) ? value : throw new InvalidDataException($"Missing resource '{id}'.");
     private static List<Research> ResolveResearches(IEnumerable<string> ids, Dictionary<string, Research> all) => ids.Select(id => all.TryGetValue(id, out Research value) ? value : throw new InvalidDataException($"Missing research '{id}'.")).ToList();
-    private static List<WorkshopUpgradeDefinition> ResolveWorkshops(IEnumerable<string> ids, Dictionary<string, WorkshopUpgradeDefinition> all) => ids.Select(id => all.TryGetValue(id, out WorkshopUpgradeDefinition value) ? value : throw new InvalidDataException($"Missing workshop '{id}'.")).ToList();
+    private static List<WorkshopUpgrade> ResolveWorkshops(IEnumerable<string> ids, Dictionary<string, WorkshopUpgrade> all) => ids.Select(id => all.TryGetValue(id, out WorkshopUpgrade value) ? value : throw new InvalidDataException($"Missing workshop '{id}'.")).ToList();
 
     private static IEnumerable<string> Ids(string value) => string.IsNullOrWhiteSpace(value) ? Enumerable.Empty<string>() : value.Split(new[] { '；', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(StripId);
     private static string StripId(string value) { int index = value.IndexOf('（'); return (index < 0 ? value : value.Substring(0, index)).Trim(); }
@@ -174,6 +174,6 @@ public static class ImportRareMetalIndustryCsv
     private static Resource GetOrCreate(Dictionary<string, Resource> all, string id, string folder) { if (all.TryGetValue(id, out Resource value)) return value; EnsureFolder(folder); value = ScriptableObject.CreateInstance<Resource>(); AssetDatabase.CreateAsset(value, AssetDatabase.GenerateUniqueAssetPath(folder + "/" + id + ".asset")); all[id] = value; return value; }
     private static Building GetOrCreate(Dictionary<string, Building> all, string id, string folder) { if (all.TryGetValue(id, out Building value)) return value; EnsureFolder(folder); value = ScriptableObject.CreateInstance<Building>(); AssetDatabase.CreateAsset(value, AssetDatabase.GenerateUniqueAssetPath(folder + "/" + id + ".asset")); all[id] = value; return value; }
     private static Research GetOrCreate(Dictionary<string, Research> all, string id, string folder) { if (all.TryGetValue(id, out Research value)) return value; EnsureFolder(folder); value = ScriptableObject.CreateInstance<Research>(); AssetDatabase.CreateAsset(value, AssetDatabase.GenerateUniqueAssetPath(folder + "/" + id + ".asset")); all[id] = value; return value; }
-    private static WorkshopUpgradeDefinition GetOrCreate(Dictionary<string, WorkshopUpgradeDefinition> all, string id, string folder) { if (all.TryGetValue(id, out WorkshopUpgradeDefinition value)) return value; EnsureFolder(folder); value = ScriptableObject.CreateInstance<WorkshopUpgradeDefinition>(); AssetDatabase.CreateAsset(value, AssetDatabase.GenerateUniqueAssetPath(folder + "/" + id + ".asset")); all[id] = value; return value; }
+    private static WorkshopUpgrade GetOrCreate(Dictionary<string, WorkshopUpgrade> all, string id, string folder) { if (all.TryGetValue(id, out WorkshopUpgrade value)) return value; EnsureFolder(folder); value = ScriptableObject.CreateInstance<WorkshopUpgrade>(); AssetDatabase.CreateAsset(value, AssetDatabase.GenerateUniqueAssetPath(folder + "/" + id + ".asset")); all[id] = value; return value; }
     private static void EnsureFolder(string path) { string[] parts = path.Split('/'); string current = parts[0]; for (int i = 1; i < parts.Length; i++) { string next = current + "/" + parts[i]; if (!AssetDatabase.IsValidFolder(next)) AssetDatabase.CreateFolder(current, parts[i]); current = next; } }
 }

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: InterstellarOccupationAdministration
+  m_EditorClassIdentifier: 
+  id: InterstellarOccupationAdministration
+  Label: "\u661f\u9645\u5360\u9886\u884c\u653f\u4f53\u7cfb"
+  Description: "\u5c06\u6df1\u7a7a\u6218\u533a\u7684\u8865\u7ed9\u8282\u70b9\u3001\u9a7b\u519b\u7f51\u7edc\u3001\u8d44\u6e90\u7a0e\u6536\u4e0e\u9886\u5730\u6cbb\u7406\u7edf\u4e00\u7eb3\u5165\u661f\u9645\u884c\u653f\uff0c\u5c06\u6218\u5f79\u80dc\u5229\u8f6c\u5316\u4e3a\u53ef\u957f\u671f\u4f7f\u7528\u7684\u6df1\u7a7a\u9886\u571f\u3002"
+  BaseCost: "18000000"
+  prerequisites:
+  - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
+  - {fileID: 11400000, guid: 9b7e3d1f5a2c4e6b8d0f1a3c5e7b9d24, type: 2}
+  - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "36000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "6500"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "4800"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "3500"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "2500"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "2200"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "3000"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "1800"
+  effects:
+  - Type: 8
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "50000"
+  - Type: 24
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.20"
+  TechLevel: 4
+  AdvancesTechLevel: 0

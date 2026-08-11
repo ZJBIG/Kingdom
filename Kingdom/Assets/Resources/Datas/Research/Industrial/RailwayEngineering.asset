@@ -15,63 +15,27 @@ MonoBehaviour:
   id: RailwayEngineering
   Label: "\u94C1\u8DEF\u5DE5\u7A0B"
   Description: "\u7EDF\u4E00\u8DEF\u8F68\u3001\u6807\u51C6\u8F68\u8DDD\u3001\u8F66\u7AD9\u548C\u8F66\u8F86\u8C03\u5EA6\u7684\u57FA\u7840\u89C4\u8303\uFF0C\u5F62\u6210\u53EF\u9760\u7684\u5927\u5B97\u8FD0\u8F93\u7F51\u7EDC\u3002"
-  BaseCost: 560000
+  BaseCost: "560000"
   prerequisites:
-  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
-  - {fileID: 11400000, guid: cd1865a81bb8bcc40a9a2df220e5b7ab, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 105
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 18
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 840
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 210
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "105"
+  - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    amount: "18"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "840"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "210"
   effects:
   - Type: 16
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   - Type: 15
     Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.3
-      layer: 0
-      operators: []
+    value: "1.3"
   TechLevel: 3
   AdvancesTechLevel: 0

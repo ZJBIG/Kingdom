@@ -44,6 +44,11 @@ public sealed class ResearchEffectTests
             },
             new ResearchEffectDefinition
             {
+                Type = ResearchEffectType.PopulationProductivityMultiplier,
+                Value = new ExpantaNum(1.3d)
+            },
+            new ResearchEffectDefinition
+            {
                 Type = ResearchEffectType.UnlockIndustrialWorkshop
             }
         });
@@ -73,6 +78,9 @@ public sealed class ResearchEffectTests
         Assert.That(
             modifiers.PopulationGrowthMultiplier.ToDouble(),
             Is.EqualTo(1.2d).Within(0.000001d));
+        Assert.That(
+            modifiers.PopulationProductivityMultiplier.ToDouble(),
+            Is.EqualTo(1.3d).Within(0.000001d));
         Assert.That(modifiers.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop), Is.True);
     }
 
@@ -137,6 +145,378 @@ public sealed class ResearchEffectTests
             Is.EqualTo(1.45d).Within(0.000001d));
     }
 
+    [Test]
+    public void Rebuild_AppliesOccupiedResourceProductionTheory()
+    {
+        Research administration = CreateResearch("occupation-administration");
+        administration.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.OccupiedResourceProductionMultiplier,
+                Value = new ExpantaNum(1.2d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(administration, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.OccupiedResourceProductionMultiplier.ToDouble(),
+            Is.EqualTo(1.2d).Within(0.000001d));
+    }
+
+    [Test]
+    public void Rebuild_AppliesCampaignProgressTheory()
+    {
+        Research doctrine = CreateResearch("campaign-doctrine");
+        doctrine.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.CampaignProgressMultiplier,
+                Value = new ExpantaNum(1.15d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(doctrine, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.CampaignProgressMultiplier.ToDouble(),
+            Is.EqualTo(1.15d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 轨道能源与深空物流效果必须作用于目标建筑()
+    {
+        Research powerTheory = Resources.Load<Research>(
+            "Datas/Research/Spacer/OrbitalPowerTransmission");
+        Research logisticsTheory = Resources.Load<Research>(
+            "Datas/Research/Spacer/OrbitalLogisticsInfrastructure");
+        WorkshopUpgrade powerWorkshop = Resources.Load<WorkshopUpgrade>(
+            "Datas/Workshop/OrbitalPowerBeaming");
+        WorkshopUpgrade logisticsWorkshop = Resources.Load<WorkshopUpgrade>(
+            "Datas/Workshop/DeepSpaceNetworkAutomation");
+        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+        Building logisticsHub = DataBase<Building>.Find("OrbitalLogisticsHub");
+        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+
+        Assert.That(powerTheory, Is.Not.Null);
+        Assert.That(logisticsTheory, Is.Not.Null);
+        Assert.That(powerWorkshop, Is.Not.Null);
+        Assert.That(logisticsWorkshop, Is.Not.Null);
+        Assert.That(solarArray, Is.Not.Null);
+        Assert.That(logisticsHub, Is.Not.Null);
+        Assert.That(deepSpaceRelay, Is.Not.Null);
+
+        WorkshopUpgradeState powerWorkshopState = new WorkshopUpgradeState(powerWorkshop);
+        WorkshopUpgradeState logisticsWorkshopState = new WorkshopUpgradeState(logisticsWorkshop);
+        typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(powerWorkshopState, new object[] { true });
+        typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(logisticsWorkshopState, new object[] { true });
+
+        ProgressionModifierManager.Rebuild(
+            new List<ResearchState>
+            {
+                CreateState(powerTheory, true),
+                CreateState(logisticsTheory, true)
+            },
+            new[] { powerWorkshopState, logisticsWorkshopState });
+
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        Assert.That(
+            modifiers.GetBuildingPowerProductionMultiplier(solarArray).ToDouble(),
+            Is.EqualTo(1.35d).Within(0.000001d));
+        Assert.That(
+            modifiers.PowerMultiplier.ToDouble(),
+            Is.EqualTo(1.25d).Within(0.000001d));
+        Assert.That(
+            modifiers.GetBuildingLogisticsProductionMultiplier(logisticsHub).ToDouble(),
+            Is.EqualTo(1.5d).Within(0.000001d));
+        Assert.That(
+            modifiers.GetBuildingLogisticsProductionMultiplier(deepSpaceRelay).ToDouble(),
+            Is.EqualTo(1.2d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 工业研究倍率必须进入建筑资源生产结算()
+    {
+        CreateManager<GameManager>("工业研究倍率-游戏管理器");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("工业研究倍率-资源管理器");
+        CreateManager<BuildingManager>("工业研究倍率-建筑管理器");
+
+        Research deepDrilling = DataBase<Research>.Find("DeepOilDrilling");
+        Building oilDerrick = DataBase<Building>.Find("OilDerrick");
+        Resource crudeOil = DataBase<Resource>.Find("CrudeOil");
+        Assert.That(deepDrilling, Is.Not.Null);
+        Assert.That(oilDerrick, Is.Not.Null);
+        Assert.That(crudeOil, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(deepDrilling, true)
+        });
+
+        MethodInfo applyRateDelta = typeof(BuildingManager).GetMethod(
+            "ApplyRateDelta",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(applyRateDelta, Is.Not.Null);
+        applyRateDelta.Invoke(
+            null,
+            new object[]
+            {
+                new BuildingState(oilDerrick),
+                ExpantaNum.Zero,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                true
+            });
+
+        Assert.That(
+            resourceManager.GetState(crudeOil).ProductionRate.ToDouble(),
+            Is.EqualTo(3.75d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 太空研究与工坊倍率必须进入电力和物流结算()
+    {
+        CreateManager<GameManager>("太空倍率-游戏管理器");
+        CreateManager<ResourceManager>("太空倍率-资源管理器");
+        CreateManager<BuildingManager>("太空倍率-建筑管理器");
+
+        Research powerTheory = DataBase<Research>.Find("OrbitalPowerTransmission");
+        Research logisticsTheory = DataBase<Research>.Find("OrbitalLogisticsInfrastructure");
+        WorkshopUpgrade powerWorkshop = DataBase<WorkshopUpgrade>.Find("OrbitalPowerBeaming");
+        WorkshopUpgrade logisticsWorkshop = DataBase<WorkshopUpgrade>.Find("DeepSpaceNetworkAutomation");
+        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+
+        Assert.That(powerTheory, Is.Not.Null);
+        Assert.That(logisticsTheory, Is.Not.Null);
+        Assert.That(powerWorkshop, Is.Not.Null);
+        Assert.That(logisticsWorkshop, Is.Not.Null);
+        Assert.That(solarArray, Is.Not.Null);
+        Assert.That(deepSpaceRelay, Is.Not.Null);
+
+        WorkshopUpgradeState powerWorkshopState = new WorkshopUpgradeState(powerWorkshop);
+        WorkshopUpgradeState logisticsWorkshopState = new WorkshopUpgradeState(logisticsWorkshop);
+        typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(powerWorkshopState, new object[] { true });
+        typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(logisticsWorkshopState, new object[] { true });
+
+        ProgressionModifierManager.Rebuild(
+            new List<ResearchState>
+            {
+                CreateState(powerTheory, true),
+                CreateState(logisticsTheory, true)
+            },
+            new[] { powerWorkshopState, logisticsWorkshopState });
+
+        MethodInfo applyRateDelta = typeof(BuildingManager).GetMethod(
+            "ApplyRateDelta",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(applyRateDelta, Is.Not.Null);
+
+        applyRateDelta.Invoke(
+            null,
+            new object[]
+            {
+                new BuildingState(solarArray),
+                ExpantaNum.Zero,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                true
+            });
+        applyRateDelta.Invoke(
+            null,
+            new object[]
+            {
+                new BuildingState(deepSpaceRelay),
+                ExpantaNum.Zero,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                ExpantaNum.One,
+                true
+            });
+
+        Assert.That(
+            GameManager.Instance.State.PowerProductionRate.ToDouble(),
+            Is.EqualTo(607.5d).Within(0.000001d));
+        Assert.That(
+            GameManager.Instance.State.LogisticsProductionRate.ToDouble(),
+            Is.EqualTo(30d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 星际补给链理论与自动化补给模块会降低持续补给倍率()
+    {
+        Research theory = Resources.Load<Research>(
+            "Datas/Research/Spacer/InterstellarSupplyChainTheory");
+        WorkshopUpgrade modules = Resources.Load<WorkshopUpgrade>(
+            "Datas/Workshop/AutomatedFleetResupplyModules");
+        Assert.That(theory, Is.Not.Null);
+        Assert.That(modules, Is.Not.Null);
+
+        ResearchState theoryState = CreateState(theory, true);
+        WorkshopUpgradeState modulesState = new WorkshopUpgradeState(modules);
+        typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(modulesState, new object[] { true });
+
+        ProgressionModifierManager.Rebuild(
+            new List<ResearchState> { theoryState },
+            new[] { modulesState });
+
+        Assert.That(
+            ProgressionModifierManager.Current.CampaignSupplyCostMultiplier.ToDouble(),
+            Is.EqualTo(0.88d * 0.90d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 舰队损伤控制理论会降低实际战损倍率()
+    {
+        Research theory = CreateResearch("fleet-damage-control");
+        theory.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.CampaignCasualtyMultiplier,
+                Value = new ExpantaNum(0.90d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(theory, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.CampaignCasualtyMultiplier.ToDouble(),
+            Is.EqualTo(0.90d).Within(0.000001d));
+        Assert.That(
+            CampaignManager.CalculateCasualtyAmount(
+                new ExpantaNum(0.8d),
+                60d,
+                ProgressionModifierManager.Current.CampaignCasualtyMultiplier),
+            Is.EqualTo(CampaignManager.CalculateCasualtyAmount(
+                new ExpantaNum(0.8d), 60d) * new ExpantaNum(0.90d)));
+    }
+
+    [Test]
+    public void Rebuild_UsesTheHighestCompletedDeconstructionReturnRate()
+    {
+        Research early = CreateResearch("deconstruction-early");
+        early.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.DeconstructionReturnRate,
+                Value = new ExpantaNum(0.10d)
+            }
+        });
+        Research late = CreateResearch("deconstruction-late");
+        late.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.DeconstructionReturnRate,
+                Value = new ExpantaNum(0.90d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(early, true),
+            CreateState(late, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.90d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 已完成研究才会提升真实拆除返还率()
+    {
+        Research industrialization = DataBase<Research>.Find("Industrialization");
+        Research orbitalHabitation = DataBase<Research>.Find("OrbitalHabitation");
+        Assert.That(industrialization, Is.Not.Null);
+        Assert.That(orbitalHabitation, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>());
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.05d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(industrialization, false),
+            CreateState(orbitalHabitation, false)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.05d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(industrialization, true),
+            CreateState(orbitalHabitation, false)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.50d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(industrialization, true),
+            CreateState(orbitalHabitation, true)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.90d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 轨道居住研究完成后才会提升人口增长倍率()
+    {
+        Research orbitalHabitation = DataBase<Research>.Find("OrbitalHabitation");
+        Assert.That(orbitalHabitation, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(orbitalHabitation, false)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(orbitalHabitation, true)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),
+            Is.EqualTo(1.25d).Within(0.000001d));
+    }
+
     private Research CreateResearch(string id)
     {
         Research research = CreateDefinition<Research>(id);
@@ -165,5 +545,12 @@ public sealed class ResearchEffectTests
         if (definition is GameDefinition gameDefinition)
             gameDefinition.SetIdForEditor(id);
         return definition;
+    }
+
+    private T CreateManager<T>(string name) where T : Component
+    {
+        GameObject gameObject = new GameObject(name);
+        createdObjects.Add(gameObject);
+        return gameObject.AddComponent<T>();
     }
 }

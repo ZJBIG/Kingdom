@@ -13,48 +13,36 @@ MonoBehaviour:
   m_Name: IntegratedFurnaces
   m_EditorClassIdentifier: 
   id: IntegratedFurnaces
-  Label: "\u4E00\u4F53\u5316\u51B6\u7089"
-  Description: "\u7528\u8FDE\u7EED\u52A0\u6599\u548C\u5206\u533A\u7089\u6E29\u63D0\u9AD8\u591A\u91D1\u5C5E\u51B6\u70BC\u6548\u7387\u3002"
-  SortOrder: 235
+  Label: "\u7EFC\u5408\u91D1\u5C5E\u7CBE\u70BC\u7089\u7EC4"
+  Description: "\u5C06\u8FDE\u7EED\u52A0\u6599\u3001\u5206\u533A\u7089\u6E29\u3001\u9752\u94DC\u6807\u51C6\u94F8\u9020\u548C\u94DC\u7535\u89E3\u7CBE\u70BC\u7EDF\u4E00\u5230\u591A\u91D1\u5C5E\u51B6\u70BC\u6D41\u7A0B\uFF0C\u63D0\u9AD8\u5DE5\u4E1A\u91D1\u5C5E\u7194\u7089\u7684\u8FDE\u7EED\u4EA7\u51FA\u3002"
+  SortOrder: 215
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: 786ea0ba62febff4f9a2957b88ba39c2, type: 2}
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 60
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "450"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "60"
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.25
-      layer: 0
-      operators: []
+    value: "1.25"

@@ -15,56 +15,26 @@ MonoBehaviour:
   id: Mining
   Label: "\u7EFC\u5408\u91C7\u77FF"
   Description: "\u6574\u5408\u77FF\u8109\u8BC6\u522B\u3001\u7164\u4E0E\u91D1\u5C5E\u77FF\u5F00\u91C7\u3001\u6D4B\u91CF\u52D8\u63A2\u548C\u77FF\u77F3\u9664\u6742\uFF0C\u7EDF\u4E00\u89E3\u9501\u65E9\u671F\u77FF\u4E1A\u4F53\u7CFB\u3002"
-  BaseCost: 1800
+  BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 80
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    amount: "80"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 9cb1b7e87a2100d4e9dd2395989511ca, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.242
-      layer: 0
-      operators: []
+    value: "1.242"
   - Type: 1
     Building: {fileID: 11400000, guid: 037ef8be58a221c41badf7ec3324b539, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.242
-      layer: 0
-      operators: []
+    value: "1.242"
   - Type: 1
     Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
+    value: "1.1"
   TechLevel: 0
   AdvancesTechLevel: 0

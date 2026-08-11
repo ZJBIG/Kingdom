@@ -129,7 +129,7 @@ public class MusicManager : Singleton<MusicManager>
         loadingCoroutine = null;
         if (clip == null)
         {
-            Debug.LogWarning("Missing music clip " + resourcePath + ".");
+            Debug.LogWarning("缺少音乐片段：" + resourcePath + "。");
             yield break;
         }
         Play(clip);

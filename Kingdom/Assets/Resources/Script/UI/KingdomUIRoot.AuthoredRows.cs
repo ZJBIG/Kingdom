@@ -22,7 +22,7 @@ public sealed partial class KingdomUIRoot
         Image surface = row.GetComponent<Image>();
         if (surface == null)
         {
-            Debug.LogError("[KingdomUI] Authored list row is missing its root Image: " + row.name);
+            Debug.LogError("[王国界面] Authored list row is missing its root Image: " + row.name);
             return;
         }
         surface.color = index % 2 == 0 ? ListRowEven : ListRowOdd;
@@ -86,7 +86,7 @@ public sealed partial class KingdomUIRoot
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
             if (icon == null)
             {
-                Debug.LogError("[KingdomUI] ResourceCard prefab is missing authored Icon Image.");
+                Debug.LogError("[王国界面] ResourceCard prefab is missing authored Icon Image.");
                 continue;
             }
             icon.sprite = resource.Sprite;
@@ -103,7 +103,7 @@ public sealed partial class KingdomUIRoot
             resourceAmountLabels[resource] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
             resourceChangeLabels[resource] = row.transform.Find("ChangeRate")?.GetComponent<TMP_Text>();
         }
-        Debug.Log($"[KingdomUI] Authored resource rows: visible={visible}, rowsRect={parent.rect.size}");
+        Debug.Log($"[王国界面] Authored resource rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
     private static int CompareResourceRows(Resource left, Resource right)
@@ -177,7 +177,7 @@ public sealed partial class KingdomUIRoot
             buildingDeconstructButtons[building] = deconstructButton;
             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
         }
-        Debug.Log($"[KingdomUI] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
+        Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
     private void BuildAuthoredResearchRows(RectTransform parent)
@@ -197,7 +197,7 @@ public sealed partial class KingdomUIRoot
             if (row == null)
                 continue;
             if (!SetRowText(row, "Label", research.Label) ||
-                !SetRowText(row, "Era", research.TechLevel.ToString()) ||
+                !SetRowText(row, "Era", research.TechLevel.GetDescription()) ||
                 !SetRowText(row, "Percentage", percent, Copper) ||
                 !SetRowText(row, "State", ResearchStateLabel(status),
                     status == ResearchStatus.Completed ? Positive : TextSecondary))
@@ -211,16 +211,16 @@ public sealed partial class KingdomUIRoot
                 ShowResearchDetails(research);
             });
         }
-        Debug.Log($"[KingdomUI] Authored research rows: visible={visible}, rowsRect={parent.rect.size}");
+        Debug.Log($"[王国界面] Authored research rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
     private void BuildAuthoredWorkshopRows(RectTransform parent)
     {
         int visible = 0;
-        IReadOnlyList<WorkshopUpgradeDefinition> definitions = DataBase<WorkshopUpgradeDefinition>.All;
+        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            WorkshopUpgradeDefinition definition = definitions[i];
+            WorkshopUpgrade definition = definitions[i];
             if (definition == null || !WorkshopPrerequisitesMet(definition))
                 continue;
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.TextRow, parent, visible++);
@@ -239,7 +239,7 @@ public sealed partial class KingdomUIRoot
                 ShowDetails(definition.Label, definition.Description, definition.Id);
             });
         }
-        Debug.Log($"[KingdomUI] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
+        Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
     private GameObject InstantiateAuthoredRow(string prefab, RectTransform parent, int index)
@@ -247,14 +247,14 @@ public sealed partial class KingdomUIRoot
         GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
         if (row == null)
         {
-            Debug.LogError("[KingdomUI] Required authored row prefab is unavailable: " + prefab);
+            Debug.LogError("[王国界面] Required authored row prefab is unavailable: " + prefab);
             return null;
         }
         RectTransform rect = row.GetComponent<RectTransform>();
         LayoutElement layout = row.GetComponent<LayoutElement>();
         if (rect == null || layout == null || layout.preferredHeight <= 1f)
         {
-            Debug.LogError("[KingdomUI] Authored row prefab LayoutElement is incomplete: " + prefab);
+            Debug.LogError("[王国界面] Authored row prefab LayoutElement is incomplete: " + prefab);
             Destroy(row);
             return null;
         }
@@ -275,14 +275,14 @@ public sealed partial class KingdomUIRoot
         GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
         if (row == null)
         {
-            Debug.LogError("[KingdomUI] Required authored detail-row prefab is unavailable: " + prefab);
+            Debug.LogError("[王国界面] Required authored detail-row prefab is unavailable: " + prefab);
             return null;
         }
         RectTransform rect = row.GetComponent<RectTransform>();
         LayoutElement layout = row.GetComponent<LayoutElement>();
         if (rect == null || layout == null || layout.preferredHeight <= 1f)
         {
-            Debug.LogError("[KingdomUI] Authored detail-row prefab is missing LayoutElement: " + prefab);
+            Debug.LogError("[王国界面] Authored detail-row prefab is missing LayoutElement: " + prefab);
             Destroy(row);
             return null;
         }
@@ -302,7 +302,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text text = child == null ? null : child.GetComponent<TMP_Text>();
         if (text == null)
         {
-            Debug.LogError("[KingdomUI] Authored row is missing text child: " + childName);
+            Debug.LogError("[王国界面] Authored row is missing text child: " + childName);
             return false;
         }
         text.text = value ?? string.Empty;
@@ -318,7 +318,7 @@ public sealed partial class KingdomUIRoot
     {
         Button button = row.GetComponent<Button>();
         if (button == null)
-            Debug.LogError("[KingdomUI] Authored row is missing its root Button: " + row.name);
+            Debug.LogError("[王国界面] Authored row is missing its root Button: " + row.name);
         return button;
     }
 
@@ -327,7 +327,7 @@ public sealed partial class KingdomUIRoot
         Transform child = row.transform.Find(childName);
         Button button = child == null ? null : child.GetComponent<Button>();
         if (button == null)
-            Debug.LogError("[KingdomUI] Authored building card is missing Button: " + childName);
+            Debug.LogError("[王国界面] Authored building card is missing Button: " + childName);
         return button;
     }
 }

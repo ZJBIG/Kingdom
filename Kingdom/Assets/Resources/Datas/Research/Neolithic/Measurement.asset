@@ -15,36 +15,18 @@ MonoBehaviour:
   id: Measurement
   Label: "\u5EA6\u91CF\u8861"
   Description: "\u7EDF\u4E00\u957F\u5EA6\u3001\u91CD\u91CF\u548C\u5BB9\u91CF\u5355\u4F4D\uFF0C\u5E76\u5236\u4F5C\u53EF\u590D\u6838\u7684\u91CF\u5177\uFF0C\u4F7F\u4EA4\u6613\u3001\u65BD\u5DE5\u548C\u7269\u8D44\u7BA1\u7406\u62E5\u6709\u5171\u540C\u6807\u51C6\u3002"
-  BaseCost: 3200
+  BaseCost: "3200"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 80
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 60
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "80"
+  - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    amount: "60"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
+    value: "1.1"
   TechLevel: 1
   AdvancesTechLevel: 0

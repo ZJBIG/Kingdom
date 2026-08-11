@@ -15,81 +15,37 @@ MonoBehaviour:
   id: ConcreteEngineering
   Label: "\u94A2\u7B4B\u6DF7\u51DD\u571F\u5DE5\u7A0B"
   Description: "\u6574\u5408\u6DF7\u51DD\u571F\u914D\u5236\u3001\u673A\u68B0\u6405\u62CC\u3001\u94A2\u7B4B\u9AA8\u67B6\u4E0E\u5927\u8DE8\u5EA6\u7ED3\u6784\uFF0C\u4E3A\u5927\u578B\u5DE5\u4E1A\u5EFA\u7B51\u63D0\u4F9B\u957F\u671F\u57FA\u7840\u6750\u6599\u3002"
-  BaseCost: 460000
+  BaseCost: "460000"
   prerequisites:
   - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
-  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 560
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 84
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 280
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 105
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 226
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "560"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "84"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "280"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "105"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "226"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 93ee90d2ae7a9ba48b01c81b25f4ba2b, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
+    value: "1.1"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+    Resource: {fileID: 0}
+    value: "1.1"
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
+    value: "150"
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 3
   AdvancesTechLevel: 0

@@ -45,7 +45,7 @@ public class ResourceManager : Singleton<ResourceManager>
             throw new ArgumentNullException(nameof(resource));
         if (states.TryGetValue(resource, out ResourceState state))
             return state;
-        throw new KeyNotFoundException($"Resource state '{resource.Id}' has not been created.");
+        throw new KeyNotFoundException($"资源状态“{resource.Id}”尚未创建。");
     }
 
     public ExpantaNum GetAmount(Resource resource) => GetState(resource).Amount;
@@ -291,7 +291,7 @@ public class ResourceManager : Singleton<ResourceManager>
                         RetiredDefinitionMigration.LogOnce();
                     else
                         UnityEngine.Debug.LogWarning(
-                            $"Ignoring unknown resource '{data.ResourceId}' while loading.");
+                            $"加载时忽略未知资源“{data.ResourceId}”。");
                     continue;
                 }
                 ResourceState state = EnsureResource(resource);
@@ -331,6 +331,6 @@ public class ResourceManager : Singleton<ResourceManager>
             return value;
         if (string.IsNullOrEmpty(raw))
             return fallback;
-        throw new FormatException($"Invalid ExpantaNum '{raw}' for {owner}.{field}.");
+            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 }

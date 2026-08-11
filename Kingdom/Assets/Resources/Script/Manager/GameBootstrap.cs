@@ -41,7 +41,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         ValidateDefinitions<Resource>();
         ValidateDefinitions<Building>();
         ValidateDefinitions<Research>();
-        ValidateDefinitions<WorkshopUpgradeDefinition>();
+        ValidateDefinitions<WorkshopUpgrade>();
         ValidateDefinitions<SectorDefinition>();
         if (!SectorValidator.ValidateDefinitions(
                 DataBase<SectorDefinition>.All,
@@ -53,7 +53,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
                 DataBase<Resource>.All,
                 DataBase<Building>.All,
                 DataBase<Research>.All,
-                DataBase<WorkshopUpgradeDefinition>.All,
+                DataBase<WorkshopUpgrade>.All,
                 out string error))
         {
             throw new InvalidOperationException(error);

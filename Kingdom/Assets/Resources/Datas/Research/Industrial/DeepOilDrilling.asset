@@ -15,52 +15,26 @@ MonoBehaviour:
   id: DeepOilDrilling
   Label: "\u6DF1\u5C42\u77F3\u6CB9\u589E\u4EA7"
   Description: "\u5728\u77F3\u6CB9\u94BB\u4E95\u5DF2\u5EFA\u7ACB\u540E\uFF0C\u7528\u6DF1\u4E95\u94BB\u5934\u3001\u56FA\u4E95\u5957\u7BA1\u548C\u9AD8\u538B\u6CF5\u9001\u5F00\u53D1\u66F4\u6DF1\u6CB9\u5C42\uFF0C\u63D0\u9AD8\u77F3\u6CB9\u94BB\u4E95\u7684\u4EA7\u80FD\u3002"
-  BaseCost: 420000
+  BaseCost: "420000"
   prerequisites:
   - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
+    amount: "300"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 1c2f783b746a45a4b9fa8a5568a039b6, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.25
-      layer: 0
-      operators: []
+    value: "1.25"
+  - Type: 1
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678907, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"
   TechLevel: 3
   AdvancesTechLevel: 0

@@ -10,7 +10,7 @@ public sealed class ContentProgressionValidatorTests
         "StoneChunk",
         "StoneBrick",
         "Clay",
-        "PlantFiber",
+        "Biomass",
         "Ceramic",
         "Cloth",
         "Coal",
@@ -26,14 +26,12 @@ public sealed class ContentProgressionValidatorTests
         "Machinery",
         "Electronics",
         "CrudeOil",
-        "Silica",
         "Coke",
         "Glass",
         "RefinedFuel",
         "Lubricant",
         "Rubber",
         "CopperWire",
-        "PrecisionParts",
         "Engine"
     };
 

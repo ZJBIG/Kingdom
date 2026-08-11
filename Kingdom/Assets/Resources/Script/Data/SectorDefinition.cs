@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Create", menuName = "Data/Sector", order = 0)]
+[CreateAssetMenu(fileName = "创建星区", menuName = "数据/星区", order = 0)]
 public sealed class SectorDefinition : GameDefinition
 {
     public const string HomeSystemId = "Sol";
@@ -16,15 +16,18 @@ public sealed class SectorDefinition : GameDefinition
     public string Description;
     [SerializeField] private string starSystemId = HomeSystemId;
     [SerializeField] private SectorDomain domain = SectorDomain.HomeSystem;
-    [SerializeField] private ExpantaNum enemyPower;
+    [SerializeField] private string enemyPower = "0";
     [SerializeField] private List<SectorDefinition> prerequisiteSectors = new();
-    [SerializeField] private ExpantaNum territoryReward;
-    [SerializeField] private List<Pair<Resource, ExpantaNum>> resourceRewards = new();
-    [SerializeField] private ExpantaNum colonizationFoodPerMinute = new ExpantaNum(1);
-    [SerializeField] private List<Pair<Resource, ExpantaNum>> colonizationResourceCosts = new();
-    [SerializeField] private ExpantaNum campaignFoodPerMinute = new ExpantaNum(1);
-    [SerializeField] private List<Pair<Resource, ExpantaNum>> campaignResourceCosts = new();
-    [SerializeField] private ExpantaNum campaignProgressMultiplier = ExpantaNum.One;
+    [SerializeField] private string territoryReward = "0";
+    [SerializeField] private List<ResourceAmountDefinition> resourceRewards = new();
+    [SerializeField] private List<ResourceAmountDefinition> occupiedResourceRatesPerSecond = new();
+    [SerializeField] private string colonizationFoodPerSecond = "1";
+    [SerializeField] private List<ResourceAmountDefinition> colonizationResourceRatesPerSecond = new();
+    // 领地开拓持续时间统一使用秒，避免资源速率与行动时间混用单位。
+    [SerializeField] private string colonizationDurationSeconds = "60";
+    [SerializeField] private string campaignFoodPerSecond = "1";
+    [SerializeField] private List<ResourceAmountDefinition> campaignResourceRatesPerSecond = new();
+    [SerializeField] private string campaignProgressMultiplier = "1";
     [SerializeField] private bool repeatable;
     [SerializeField] private Sprite background;
     [SerializeField] private Sprite icon;
@@ -37,11 +40,16 @@ public sealed class SectorDefinition : GameDefinition
     public bool IsHomeSystem => domain == SectorDomain.HomeSystem;
     public IReadOnlyList<SectorDefinition> PrerequisiteSectors => prerequisiteSectors;
     public ExpantaNum TerritoryReward => territoryReward;
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards => resourceRewards;
-    public ExpantaNum ColonizationFoodPerMinute => colonizationFoodPerMinute;
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceCosts => colonizationResourceCosts;
-    public ExpantaNum CampaignFoodPerMinute => campaignFoodPerMinute;
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceCosts => campaignResourceCosts;
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards => ResourceAmountDefinitionList.ToPairs(resourceRewards);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> OccupiedResourceRatesPerSecond =>
+        ResourceAmountDefinitionList.ToPairs(occupiedResourceRatesPerSecond);
+    public ExpantaNum ColonizationFoodPerSecond => colonizationFoodPerSecond;
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceRatesPerSecond =>
+        ResourceAmountDefinitionList.ToPairs(colonizationResourceRatesPerSecond);
+    public ExpantaNum ColonizationDurationSeconds => ExpantaNum.Max(ExpantaNum.One, colonizationDurationSeconds);
+    public ExpantaNum CampaignFoodPerSecond => campaignFoodPerSecond;
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceRatesPerSecond =>
+        ResourceAmountDefinitionList.ToPairs(campaignResourceRatesPerSecond);
     public ExpantaNum CampaignProgressMultiplier => ExpantaNum.Clamp01(campaignProgressMultiplier);
     public bool Repeatable => repeatable;
     public Sprite Background => background;
@@ -55,9 +63,12 @@ public sealed class SectorDefinition : GameDefinition
 
     public void SetRewardsForEditor(ExpantaNum territory, List<Pair<Resource, ExpantaNum>> resources)
     {
-        territoryReward = ExpantaNum.Max(ExpantaNum.Zero, territory);
-        resourceRewards = resources ?? new List<Pair<Resource, ExpantaNum>>();
+        territoryReward = ExpantaNum.Max(ExpantaNum.Zero, territory).ToString();
+        resourceRewards = ResourceAmountDefinitionList.FromPairs(resources);
     }
+
+    public void SetOccupiedResourceRatesForEditor(List<Pair<Resource, ExpantaNum>> resourcesPerSecond) =>
+        occupiedResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
 
     public void SetLocationForEditor(string systemId, SectorDomain sectorDomain)
     {
@@ -66,19 +77,21 @@ public sealed class SectorDefinition : GameDefinition
     }
 
     public void SetColonizationCostsForEditor(
-        ExpantaNum foodPerMinute,
-        List<Pair<Resource, ExpantaNum>> resources)
+        ExpantaNum foodPerSecond,
+        List<Pair<Resource, ExpantaNum>> resourcesPerSecond)
     {
-        colonizationFoodPerMinute = ExpantaNum.Max(ExpantaNum.Zero, foodPerMinute);
-        colonizationResourceCosts = resources ?? new List<Pair<Resource, ExpantaNum>>();
+        colonizationFoodPerSecond = ExpantaNum.Max(ExpantaNum.Zero, foodPerSecond).ToString();
+        colonizationResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
     }
 
     public void SetCampaignCostsForEditor(
-        ExpantaNum foodPerMinute,
-        List<Pair<Resource, ExpantaNum>> resources)
+        ExpantaNum foodPerSecond,
+        List<Pair<Resource, ExpantaNum>> resourcesPerSecond)
     {
-        campaignFoodPerMinute = ExpantaNum.Max(ExpantaNum.Zero, foodPerMinute);
-        campaignResourceCosts = resources ?? new List<Pair<Resource, ExpantaNum>>();
+        campaignFoodPerSecond = ExpantaNum.Max(ExpantaNum.Zero, foodPerSecond).ToString();
+        campaignResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
     }
+
 #endif
+
 }

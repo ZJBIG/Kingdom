@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: MechanizedCoalMine
+  m_EditorClassIdentifier: 
+  id: MechanizedCoalMine
+  Label: "机械化煤矿"
+  Description: "以蒸汽提升机、深井通风和重型采掘设备扩大煤层开采规模，为焦炭、蒸汽动力与工业冶金提供稳定的高密度燃料；井下爆破作业持续消耗工业炸药。"
+  TechLevel: 3
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.2"
+  spaceCost: "22"
+  productivityConsumption: "130"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "30"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "7"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "1300"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "450"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "1000"
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "900"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "8"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    amount: "0.08"
+  requiredResearch:
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: 1f9f47242f7e43b49f0ba7fa1bf1c076, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 786ea0ba62febff4f9a2957b88ba39c2, type: 2}
+  - {fileID: 11400000, guid: 56d044b0fdd943c1af204e64e7fa9a62, type: 2}

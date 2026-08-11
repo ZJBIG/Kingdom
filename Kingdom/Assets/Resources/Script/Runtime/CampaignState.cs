@@ -23,7 +23,7 @@ public sealed class CampaignState
     internal void Begin(string sectorId)
     {
         if (string.IsNullOrWhiteSpace(sectorId))
-            throw new ArgumentException("Campaign target ID is required.", nameof(sectorId));
+            throw new ArgumentException("远征目标星区编号不能为空。", nameof(sectorId));
         if (Active && string.Equals(TargetSectorId, sectorId, StringComparison.OrdinalIgnoreCase))
             return;
         Active = true;
@@ -66,6 +66,19 @@ public sealed class CampaignState
         Version++;
     }
 
+    internal void Cancel()
+    {
+        if (!Active && string.IsNullOrEmpty(TargetSectorId))
+            return;
+        Active = false;
+        if (Casualties <= ExpantaNum.Zero)
+        {
+            TargetSectorId = string.Empty;
+            CombatRatio = ExpantaNum.Zero;
+        }
+        Version++;
+    }
+
     internal void ResetForLoad() => InitializeNew();
 
     internal void Restore(
@@ -74,7 +87,8 @@ public sealed class CampaignState
         ExpantaNum casualties,
         ExpantaNum combatRatio)
     {
-        if (!active || string.IsNullOrWhiteSpace(targetSectorId))
+        if (string.IsNullOrWhiteSpace(targetSectorId) ||
+            (!active && casualties <= ExpantaNum.Zero))
         {
             ResetForLoad();
             return;

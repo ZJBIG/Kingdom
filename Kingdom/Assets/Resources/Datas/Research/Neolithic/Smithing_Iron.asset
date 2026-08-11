@@ -15,27 +15,19 @@ MonoBehaviour:
   id: Smithing_Iron
   Label: "\u94C1\u5668\u4E0E\u70BC\u94A2\u57FA\u7840"
   Description: "\u638C\u63E1\u94C1\u77FF\u9AD8\u6E29\u8FD8\u539F\u3001\u953B\u6253\u9664\u6742\u548C\u521D\u6B65\u70BC\u94A2\u65B9\u6CD5\uFF0C\u4E3A\u94A2\u94C1\u751F\u4EA7\u3001\u91CD\u578B\u5DE5\u5177\u548C\u9632\u5FA1\u8BBE\u65BD\u63D0\u4F9B\u6750\u6599\u57FA\u7840\u3002"
-  BaseCost: 19000
+  BaseCost: "19000"
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 420
-      layer: 0
-      operators: []
-  effects: []
+  - resource: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "420"
+  effects:
+  - Type: 12
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.04"
   TechLevel: 1
   AdvancesTechLevel: 0

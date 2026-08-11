@@ -149,7 +149,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.False);
         Assert.That(failure, Is.EqualTo(BuildFailure.WorkshopPrerequisiteIncomplete));
 
-        WorkshopUpgradeDefinition upgrade = refinery.RequiredWorkshopUpgrades[0];
+        WorkshopUpgrade upgrade = refinery.RequiredWorkshopUpgrades[0];
         typeof(WorkshopUpgradeState).GetMethod(
                 "SetPurchased", BindingFlags.Instance | BindingFlags.NonPublic)
             .Invoke(workshopManager.States[upgrade], new object[] { true });

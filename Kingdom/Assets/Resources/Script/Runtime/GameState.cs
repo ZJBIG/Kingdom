@@ -182,6 +182,14 @@ public sealed class GameState
             Version++;
     }
 
+    internal void CancelCampaign()
+    {
+        int previousVersion = Campaign.Version;
+        Campaign.Cancel();
+        if (Campaign.Version != previousVersion)
+            Version++;
+    }
+
     internal void AdjustTerritoryTotal(ExpantaNum delta)
     {
         int previousVersion = Territory.Version;

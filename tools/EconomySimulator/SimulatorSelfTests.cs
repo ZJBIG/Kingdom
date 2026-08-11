@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kingdom.EconomySimulation;
@@ -12,6 +13,8 @@ public static class SimulatorSelfTests
         Require(snapshot.Research.Count > 0, "没有加载研究定义。");
         Require(snapshot.Workshops.Count > 0, "没有加载工坊升级定义。");
 
+        VerifyDefinitionReferenceKinds(snapshot);
+
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
                 x.Kind == SimEffectKind.UnlockIndustrialWorkshop),
@@ -21,17 +24,55 @@ public static class SimulatorSelfTests
         Require(boilers.Kind == DefinitionKind.Workshop,
             "强化锅炉没有被识别为工坊定义。");
         Require(boilers.Effects.Any(x =>
-                x.Kind == SimEffectKind.BuildingProductionMultiplier &&
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
                 x.Target == "SteamPlant"),
             "强化锅炉的工坊效果映射错误：" +
             string.Join(";", boilers.Effects.Select(x =>
                 $"{x.Kind}:{x.Target}:{x.Value}")));
 
+        Require(snapshot.Find("AluminumBusbars", DefinitionKind.Workshop).Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
+                x.Target == "CentralPowerStation"),
+            "铝母线必须提升中央电站发电产出。");
+        Require(snapshot.Find("ElectricalInstrumentation", DefinitionKind.Workshop).Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
+                x.Target == "CentralPowerStation") &&
+                snapshot.Find("ElectricalInstrumentation", DefinitionKind.Workshop).Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingResearchPowerMultiplier &&
+                x.Target == "University"),
+            "电气仪表必须分别提升中央电站发电和大学研究力。");
+        Require(snapshot.Find("HighPressureTurbines", DefinitionKind.Workshop).Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
+                x.Target == "CentralPowerStation"),
+            "高压涡轮必须提升中央电站发电产出。");
+        Require(snapshot.Find("AluminumElectrolyticCells", DefinitionKind.Workshop)
+                    .ResourceRequirements.ContainsKey("BauxiteOre") &&
+                snapshot.Find("NickelLeachingElectrowinningSystem", DefinitionKind.Workshop)
+                    .ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                snapshot.Find("TitaniumReductionRetorts", DefinitionKind.Workshop)
+                    .ResourceRequirements.ContainsKey("TitaniumConcentrate"),
+            "铝土矿、镍精矿和钛精矿必须进入对应的冶金实物工坊。");
+        Require(snapshot.Find("BlockSignalling", DefinitionKind.Workshop).Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier &&
+                x.Target == "RailHub"),
+            "区间信号必须提升铁路枢纽物流产出。");
+        Definition agriculturalMachinery =
+            snapshot.Find("AgriculturalMachinery", DefinitionKind.Workshop);
+        Require(agriculturalMachinery.Effects.Count(x =>
+                    x.Kind == SimEffectKind.BuildingFoodProductionMultiplier) == 2 &&
+                agriculturalMachinery.Effects.Count(x =>
+                    x.Kind == SimEffectKind.BuildingProductionMultiplier &&
+                    x.Target == "PlantingField") == 1,
+            "农业机械必须提升农场、牧场、灌溉设施的食物产出，并支持纤维采集工业化。");
+
+        VerifyWorkshopTargetCapabilities(snapshot);
+        VerifyResearchTargetCapabilities(snapshot);
+
         Definition integratedFurnaces =
             snapshot.Find("IntegratedFurnaces", DefinitionKind.Workshop);
         Require(integratedFurnaces.Effects.Any(x =>
                 x.Kind == SimEffectKind.BuildingProductionMultiplier &&
-                x.Target == "MetalSmelter" &&
+                x.Target == "IndustrialMetalSmelter" &&
                 x.Value >= 1.25d),
             "一体化冶炼炉必须提升多金属冶炼炉产出。");
 
@@ -45,12 +86,55 @@ public static class SimulatorSelfTests
         Require(metalSmelter.Consumption.ContainsKey("CopperOre") &&
                 metalSmelter.Consumption.ContainsKey("TinOre"),
             "工业综合冶炼炉必须同时消耗铜矿和锡矿。");
+        Definition earlyMetalSmelter =
+            snapshot.Find("MetalSmelter", DefinitionKind.Building);
+        Require(!snapshot.All.Any(x => x.Id == "BronzeFoundry") &&
+                earlyMetalSmelter.Generation.TryGetValue("Bronze", out double bronzeRate) &&
+                bronzeRate > 0d,
+            "早期多金属冶炼炉必须直接生产青铜，旧青铜铸造炉不得残留。");
         Definition metalResearch =
             snapshot.Find("IndustrialMetalSmelting", DefinitionKind.Research);
         Require(metalResearch.Effects.Any(x =>
                 x.Kind == SimEffectKind.BuildingProductionMultiplier &&
                 x.Target == "IndustrialMetalSmelter"),
             "工业有色金属冶炼研究必须作用于统一冶炼建筑。");
+        Require(!snapshot.All.Any(x => x.Id == "ModernSteelmaking"),
+            "重复的现代炼钢研究不得残留。");
+
+        Definition phaseArray =
+            snapshot.Find("PhaseMaterialSynthesisArray", DefinitionKind.Building);
+        Require(phaseArray.Generation.TryGetValue("PhaseMaterial", out double phaseRate) &&
+                phaseRate > 0d &&
+                phaseArray.Consumption.ContainsKey("PhantomAlloy") &&
+                phaseArray.Consumption.ContainsKey("PhantomWeave") &&
+                phaseArray.Consumption.ContainsKey("TitaniumAlloy"),
+            "相位材料合成阵列必须用高阶材料生产相位材料。");
+        Require(snapshot.Find("DeepSpaceRelay", DefinitionKind.Building)
+                    .Consumption.ContainsKey("PhaseMaterial") &&
+                snapshot.Find("QuantumComputingArray", DefinitionKind.Building)
+                    .Consumption.ContainsKey("PhaseMaterial") &&
+                snapshot.Find("PhaseFieldNavigation", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "相位材料必须同时支撑深空设施、量子计算和相位航行研究。");
+        Require(snapshot.Find("InterstellarOccupationAdministration", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("TitaniumAlloy") &&
+                snapshot.Find("InterstellarOccupationAdministration", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "星际占领行政研究必须消耗钛合金和相位材料。");
+
+        Definition[] spaceBuildings = snapshot.Buildings
+            .Where(x => x.TechLevel == SimTechLevel.Spacer)
+            .ToArray();
+        string[] advancedSpaceResources =
+            { "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial" };
+        Require(spaceBuildings.Length > 0 &&
+                spaceBuildings.All(x => advancedSpaceResources.Any(resource =>
+                    x.ResourceRequirements.ContainsKey(resource))) &&
+                spaceBuildings.All(x => advancedSpaceResources.Any(resource =>
+                    x.Consumption.ContainsKey(resource))) &&
+                advancedSpaceResources.All(resource =>
+                    spaceBuildings.Count(x => x.Consumption.ContainsKey(resource)) >= 2),
+            "太空建筑建造和维护都必须使用高级材料，并为每种高级材料保留多个建筑维护去向。" );
 
         Definition deepOilDrilling =
             snapshot.Find("DeepOilDrilling", DefinitionKind.Research);
@@ -74,20 +158,24 @@ public static class SimulatorSelfTests
             "化工厂必须生产工业炸药。");
         Definition oilDerrick =
             snapshot.Find("OilDerrick", DefinitionKind.Building);
-        Require(!oilDerrick.Consumption.ContainsKey("Explosives"),
-            "石油井不得消耗工业炸药，否则会与化工厂形成生产环。");
+        Require(oilDerrick.Consumption.ContainsKey("Explosives"),
+            "石油井必须持续消耗工业炸药进行深层钻井爆破。");
         Definition oilRefinery =
             snapshot.Find("OilRefinery", DefinitionKind.Building);
         Require(oilRefinery.Consumption.ContainsKey("CrudeOil"),
             "炼油厂必须消耗原油，才能保持石油加工链的输入闭合。");
         Require(!oilRefinery.Consumption.ContainsKey("Explosives"),
             "炼油厂不得消耗工业炸药，否则会与化工厂形成生产循环。");
-        foreach (string consumerId in new[] { "RareMetalMine" })
+        foreach (string consumerId in new[] { "RareMetalMine", "OilDerrick" })
         {
             Definition consumer = snapshot.Find(consumerId, DefinitionKind.Building);
             Require(consumer.Consumption.ContainsKey("Explosives"),
                 $"{consumerId}必须消耗工业炸药。");
         }
+
+        foreach (Definition building in snapshot.Buildings)
+            Require(!building.ResourceRequirements.ContainsKey("Explosives"),
+                $"{building.Id}不得把工业炸药作为建筑建造材料。");
 
         Definition explosivesResearch =
             snapshot.Find("IndustrialExplosives", DefinitionKind.Research);
@@ -112,6 +200,182 @@ public static class SimulatorSelfTests
                 x.Target == "RareMetalMine" &&
                 x.Value >= 1.2d),
             "动力采矿必须提升统一工业矿场产量。");
+
+        Definition supplyDoctrine =
+            snapshot.Find("InterstellarSupplyDoctrine", DefinitionKind.Workshop);
+        Require(supplyDoctrine.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignSupplyCostMultiplier &&
+                x.Value <= 0.9d),
+            "星际补给标准化模块必须降低星际战役持续补给成本，而不是重复提供后勤枢纽倍率：" +
+            string.Join(";", supplyDoctrine.Effects.Select(x =>
+                $"{x.Kind}:{x.Target}:{x.Value}")));
+
+        Definition networkAutomation =
+            snapshot.Find("DeepSpaceNetworkAutomation", DefinitionKind.Workshop);
+        Require(networkAutomation.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier &&
+                x.Target == "DeepSpaceRelay" &&
+                x.Value >= 1.2d) &&
+                !networkAutomation.Effects.Any(x =>
+                    x.Kind == SimEffectKind.BuildingProductionMultiplier &&
+                    x.Target == "DeepSpaceRelay"),
+            "深空网络自动化必须只提升深空中继站的物流产出。");
+
+        Definition launchStages =
+            snapshot.Find("ReusableLaunchStages", DefinitionKind.Workshop);
+        Require(launchStages.Effects.Any(x =>
+                x.Kind == SimEffectKind.FleetRepairCostMultiplier &&
+                x.Target == "" &&
+                x.Value <= .85d),
+            "可复用发射级必须降低远征舰队的维修消耗。");
+
+        Definition combatLogistics =
+            snapshot.Find("InterstellarCombatLogistics", DefinitionKind.Research);
+        Require(combatLogistics.Effects.Any(x =>
+                x.Kind == SimEffectKind.FleetRepairCostMultiplier &&
+                x.Target == "" &&
+                x.Value <= .85d),
+            "星际战斗后勤研究必须提供维修资源调度效率。" );
+
+        Definition damageControlTheory =
+            snapshot.Find("FleetDamageControlTheory", DefinitionKind.Research);
+        Require(damageControlTheory.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignCasualtyMultiplier &&
+                x.Value <= .9d) &&
+                damageControlTheory.ResourceRequirements.ContainsKey("TitaniumAlloy") &&
+                damageControlTheory.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "舰队损伤控制理论必须降低战损并使用高级材料。" );
+
+        Definition adaptiveArmor =
+            snapshot.Find("AdaptiveArmorRepairSystems", DefinitionKind.Workshop);
+        Require(adaptiveArmor.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignCasualtyMultiplier &&
+                x.Value <= .9d) &&
+                adaptiveArmor.ResourceRequirements.ContainsKey("PhantomWeave") &&
+                adaptiveArmor.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "自适应装甲维修系统必须把高级材料转化为战损控制能力。" );
+
+        Definition habitatSystems =
+            snapshot.Find("ModularHabitatSystems", DefinitionKind.Workshop);
+        Require(habitatSystems.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier &&
+                x.Target == "OrbitalStation" &&
+                x.Value >= 1.25d),
+            "模块化空间站必须提升轨道空间站的物流产出。");
+
+        Definition powerBeaming =
+            snapshot.Find("OrbitalPowerBeaming", DefinitionKind.Workshop);
+        Require(powerBeaming.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
+                x.Target == "OrbitalSolarArray" &&
+                x.Value >= 1.25d),
+            "轨道能量束必须提供真实的全局电力效率增益。");
+
+        Require(powerBeaming.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingPowerProductionMultiplier &&
+                x.Target == "OrbitalSolarArray" &&
+                x.Value >= 1.25d),
+            "轨道能量束必须提升轨道太阳能阵列的电力产出。");
+
+        Definition shipyardAssembly =
+            snapshot.Find("AutomatedShipyardAssembly", DefinitionKind.Workshop);
+        Require(shipyardAssembly.Effects.Any(x =>
+                x.Kind == SimEffectKind.MilitaryMultiplier &&
+                x.Target == "" &&
+                x.Value >= 1.2d),
+            "自动化船坞装配必须提供真实的星际军事增益。");
+
+        Require(shipyardAssembly.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingConstructionMultiplier &&
+                x.Target == "Shipyard" &&
+                x.Value >= 1.15d),
+            "自动化船坞装配必须降低船坞的施工材料成本。");
+
+        Definition phaseContainment =
+            snapshot.Find("PhaseFieldContainment", DefinitionKind.Workshop);
+        Require(phaseContainment.Effects.Any(x =>
+                x.Kind == SimEffectKind.BuildingProductionMultiplier &&
+                x.Target == "PhantomMaterialsFabricator" &&
+                x.Value >= 1.15d),
+            "相位场约束必须提升幽影材料制造厂的连续产出。" );
+
+        Definition interstellarSupply =
+            snapshot.Find("InterstellarCombatSupplySystems", DefinitionKind.Workshop);
+        Require(interstellarSupply.Effects.Any(x =>
+                x.Kind == SimEffectKind.MilitaryMultiplier && x.Value >= 1.15d) &&
+                interstellarSupply.Effects.Any(x =>
+                    x.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier &&
+                    x.Target == "OrbitalLogisticsHub" && x.Value >= 1.25d) &&
+                interstellarSupply.Effects.Any(x =>
+                    x.Kind == SimEffectKind.FleetRepairCostMultiplier && x.Value <= .8d) &&
+                interstellarSupply.ResourceRequirements.ContainsKey("TitaniumAlloy") &&
+                interstellarSupply.ResourceRequirements.ContainsKey("PhantomWeave") &&
+                interstellarSupply.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "星际战斗补给系统必须同时使用高级材料并专精军事、轨道后勤枢纽和维修支援。");
+
+        Definition occupationAdministration =
+            snapshot.Find("InterstellarOccupationAdministration", DefinitionKind.Research);
+        Require(occupationAdministration.Effects.Any(x =>
+                x.Kind == SimEffectKind.OccupiedResourceProductionMultiplier &&
+                x.Value >= 1.15d),
+            "星际占领行政研究必须提高已占领星区的持续产出。" );
+
+        Definition logisticsDoctrine =
+            snapshot.Find("InterstellarLogisticsDoctrine", DefinitionKind.Research);
+        Require(logisticsDoctrine.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignProgressMultiplier &&
+                x.Value >= 1.15d),
+            "星际后勤学说必须提供战役推进理论。" );
+
+        Definition supplyChainTheory =
+            snapshot.Find("InterstellarSupplyChainTheory", DefinitionKind.Research);
+        Require(supplyChainTheory.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignSupplyCostMultiplier &&
+                x.Value <= .9d) &&
+                supplyChainTheory.ResourceRequirements.ContainsKey("TitaniumAlloy") &&
+                supplyChainTheory.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "星际补给链理论必须降低远征持续补给消耗并使用高级材料。" );
+
+        Definition resupplyModules =
+            snapshot.Find("AutomatedFleetResupplyModules", DefinitionKind.Workshop);
+        Require(resupplyModules.Effects.Any(x =>
+                x.Kind == SimEffectKind.CampaignSupplyCostMultiplier &&
+                x.Value <= .9d) &&
+                resupplyModules.ResourceRequirements.ContainsKey("PhantomWeave") &&
+                resupplyModules.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "自动化舰队补给模块必须把高级材料转化为持续补给节约。" );
+
+        Definition occupationGovernance =
+            snapshot.Find("InterstellarOccupationGovernance", DefinitionKind.Workshop);
+        Require(occupationGovernance.Effects.Any(x =>
+                x.Kind == SimEffectKind.TerritoryGranted && x.Value >= 30000d) &&
+                occupationGovernance.Effects.Any(x =>
+                    x.Kind == SimEffectKind.OccupiedResourceProductionMultiplier &&
+                    x.Value >= 1.2d) &&
+                occupationGovernance.ResourceRequirements.ContainsKey("TitaniumAlloy") &&
+                occupationGovernance.ResourceRequirements.ContainsKey("PhaseMaterial"),
+            "星际占领治理工程必须把高级材料转化为长期领土收益。");
+
+        Definition orbitalStation =
+            snapshot.Find("OrbitalStation", DefinitionKind.Building);
+        Require(orbitalStation.SpaceCost >= 420d &&
+                orbitalStation.ProductivityConsumption >= 520d &&
+                orbitalStation.PowerConsumption >= 80d &&
+                orbitalStation.LogisticsConsumption >= 18d &&
+                orbitalStation.Consumption.TryGetValue("TitaniumAlloy", out double stationTitaniumMaintenance) &&
+                stationTitaniumMaintenance >= .04d,
+            "轨道空间站必须承担与其综合能力匹配的空间和生产力成本。");
+
+        Definition orbitalSolarArray =
+            snapshot.Find("OrbitalSolarArray", DefinitionKind.Building);
+        Require(orbitalSolarArray.SpaceCost >= 420d &&
+                orbitalSolarArray.ProductivityConsumption >= 500d &&
+                orbitalSolarArray.PowerProduction >= 360d &&
+                orbitalSolarArray.LogisticsConsumption >= 8d &&
+                orbitalSolarArray.Consumption.TryGetValue(
+                    "TitaniumAlloy", out double solarTitaniumMaintenance) &&
+                solarTitaniumMaintenance >= .04d,
+            "轨道太阳能阵列必须持续消耗钛合金维护大型轨道结构。");
 
         Require(Math.Abs(EconomySimulationParity.AdvanceStockpile(
             3d, 2d, 5d, .5d) - 1.5d) < 1e-9d,
@@ -170,6 +434,152 @@ public static class SimulatorSelfTests
             new[] { definition }, 1d);
         Require(state.ActiveResearch.CostPaid && state.Resources["WoodLog"] == 0d,
             "研究费用没有原子提交。");
+    }
+
+    private static void VerifyWorkshopTargetCapabilities(EconomySnapshot snapshot)
+    {
+        foreach (Definition workshop in snapshot.Workshops)
+        {
+            foreach (SimEffect effect in workshop.Effects)
+            {
+                if (string.IsNullOrWhiteSpace(effect.Target))
+                    continue;
+                bool targetsBuilding = effect.Kind == SimEffectKind.BuildingProductionMultiplier ||
+                    effect.Kind == SimEffectKind.BuildingFoodProductionMultiplier ||
+                    effect.Kind == SimEffectKind.BuildingResearchPowerMultiplier ||
+                    effect.Kind == SimEffectKind.BuildingPowerProductionMultiplier ||
+                    effect.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier;
+                if (!targetsBuilding)
+                    continue;
+                Definition building = snapshot.Find(effect.Target, DefinitionKind.Building);
+                bool valid = effect.Kind switch
+                {
+                    SimEffectKind.BuildingProductionMultiplier => building.Generation.Count > 0,
+                    SimEffectKind.BuildingFoodProductionMultiplier => building.FoodProduction > 0d,
+                    SimEffectKind.BuildingResearchPowerMultiplier => building.ResearchPower > 0d,
+                    SimEffectKind.BuildingPowerProductionMultiplier => building.PowerProduction > 0d,
+                    SimEffectKind.BuildingLogisticsProductionMultiplier => building.LogisticsProduction > 0d,
+                    _ => true
+                };
+                Require(valid,
+                    $"工坊 {workshop.Id} 的 {effect.Kind} 指向不具备对应能力的建筑 {building.Id}。");
+            }
+        }
+    }
+
+    private static void VerifyResearchTargetCapabilities(EconomySnapshot snapshot)
+    {
+        foreach (Definition research in snapshot.Research)
+        {
+            foreach (SimEffect effect in research.Effects)
+            {
+                if (!IsBuildingTargetEffect(effect.Kind) ||
+                    string.IsNullOrWhiteSpace(effect.Target))
+                    continue;
+                Definition building = snapshot.Find(effect.Target, DefinitionKind.Building);
+                bool valid = effect.Kind switch
+                {
+                    SimEffectKind.BuildingProductionMultiplier => building.Generation.Count > 0,
+                    SimEffectKind.BuildingFoodProductionMultiplier => building.FoodProduction > 0d,
+                    SimEffectKind.BuildingResearchPowerMultiplier => building.ResearchPower > 0d,
+                    SimEffectKind.BuildingPowerProductionMultiplier => building.PowerProduction > 0d,
+                    SimEffectKind.BuildingLogisticsProductionMultiplier => building.LogisticsProduction > 0d,
+                    _ => true
+                };
+                Require(valid,
+                    $"研究 {research.Id} 的 {effect.Kind} 指向不具备对应能力的建筑 {building.Id}。");
+            }
+        }
+    }
+
+    private static void VerifyDefinitionReferenceKinds(EconomySnapshot snapshot)
+    {
+        foreach (Definition definition in snapshot.All)
+        {
+            if (definition.Kind == DefinitionKind.Building)
+            {
+                VerifyReferenceList(snapshot, definition, "RequiredResearch",
+                    definition.RequiredResearch, DefinitionKind.Research);
+                VerifyReferenceList(snapshot, definition, "RequiredWorkshop",
+                    definition.RequiredWorkshop, DefinitionKind.Workshop);
+                VerifyResourceList(snapshot, definition, definition.ResourceRequirements);
+                if (!string.IsNullOrWhiteSpace(definition.UpgradeTo))
+                    VerifyReference(snapshot, definition, "UpgradeTo",
+                        definition.UpgradeTo, DefinitionKind.Building);
+            }
+            else if (definition.Kind == DefinitionKind.Research)
+            {
+                VerifyReferenceList(snapshot, definition, "Prerequisites",
+                    definition.Prerequisites, DefinitionKind.Research);
+                VerifyResourceList(snapshot, definition, definition.ResourceRequirements);
+            }
+            else if (definition.Kind == DefinitionKind.Workshop)
+            {
+                VerifyReferenceList(snapshot, definition, "RequiredResearch",
+                    definition.RequiredResearch, DefinitionKind.Research);
+                VerifyReferenceList(snapshot, definition, "RequiredUpgrades",
+                    definition.RequiredUpgrades, DefinitionKind.Workshop);
+                VerifyResourceList(snapshot, definition, definition.ResourceRequirements);
+            }
+
+            foreach (SimEffect effect in definition.Effects)
+            {
+                DefinitionKind? expected = effect.Kind == SimEffectKind.ResourceProductionMultiplier
+                    ? DefinitionKind.Resource
+                    : IsBuildingTargetEffect(effect.Kind)
+                        ? DefinitionKind.Building
+                        : null;
+                if (expected.HasValue && !string.IsNullOrWhiteSpace(effect.Target))
+                    VerifyReference(snapshot, definition, effect.Kind.ToString(),
+                        effect.Target, expected.Value);
+            }
+        }
+    }
+
+    private static bool IsBuildingTargetEffect(SimEffectKind kind) =>
+        kind == SimEffectKind.BuildingProductionMultiplier ||
+        kind == SimEffectKind.BuildingFoodProductionMultiplier ||
+        kind == SimEffectKind.BuildingResearchPowerMultiplier ||
+        kind == SimEffectKind.BuildingPowerProductionMultiplier ||
+        kind == SimEffectKind.BuildingLogisticsProductionMultiplier;
+
+    private static void VerifyReferenceList(
+        EconomySnapshot snapshot,
+        Definition owner,
+        string field,
+        IEnumerable<string> ids,
+        DefinitionKind expected)
+    {
+        foreach (string id in ids)
+            VerifyReference(snapshot, owner, field, id, expected);
+    }
+
+    private static void VerifyResourceList(
+        EconomySnapshot snapshot,
+        Definition owner,
+        IReadOnlyDictionary<string, double> resources)
+    {
+        foreach (string id in resources.Keys)
+            VerifyReference(snapshot, owner, "ResourceRequirements", id,
+                DefinitionKind.Resource);
+    }
+
+    private static void VerifyReference(
+        EconomySnapshot snapshot,
+        Definition owner,
+        string field,
+        string id,
+        DefinitionKind expected)
+    {
+        try
+        {
+            snapshot.Find(id, expected);
+        }
+        catch (Exception)
+        {
+            Require(false,
+                $"{owner.Kind}/{owner.Id}.{field} 引用了错误类型的定义 {id}，期望 {expected}。");
+        }
     }
 
     private static void VerifyWorkshopPurchaseAndEffect()

@@ -7,7 +7,6 @@ public sealed class C6IndustrialClosureAuditTests
     {
         "SteamPlant",
         "OilDerrick",
-        "SilicaQuarry",
         "CokeOven",
         "Glassworks",
         "MachineFactory",
@@ -17,13 +16,12 @@ public sealed class C6IndustrialClosureAuditTests
         "University",
         "RailHub",
         "IndustrialMetalSmelter",
-        "IndustrialBronzeFoundry",
-        "BlastFurnace",
         "AluminumSmelter",
         "ConcreteWorks",
         "CentralPowerStation",
         "NickelRefinery",
         "RareMetalMine",
+        "MechanizedTextileMill",
         "TitaniumMetallurgicalComplex"
     };
 
@@ -33,7 +31,6 @@ public sealed class C6IndustrialClosureAuditTests
         "Chemical",
         "Electronics",
         "CrudeOil",
-        "Silica",
         "Coke",
         "Glass",
         "Ceramic",
@@ -41,7 +38,6 @@ public sealed class C6IndustrialClosureAuditTests
         "Lubricant",
         "Rubber",
         "CopperWire",
-        "PrecisionParts",
         "Engine",
         "Concrete",
         "BauxiteOre",

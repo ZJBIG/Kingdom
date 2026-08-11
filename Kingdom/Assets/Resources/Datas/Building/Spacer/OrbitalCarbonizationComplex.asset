@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: OrbitalCarbonizationComplex
+  m_EditorClassIdentifier: 
+  id: OrbitalCarbonizationComplex
+  Label: "\u8F68\u9053\u70AD\u5316\u590D\u5408\u4F53"
+  Description: "\u5C06\u5927\u578B\u5BC6\u95ED\u70AD\u5316\u7089\u3001\u539F\u6728\u9884\u5904\u7406\u4E0E\u7126\u70AD\u5206\u9009\u7EC4\u6210\u8F68\u9053\u5DE5\u4E1A\u590D\u5408\u4F53\uFF0C\u4E3A\u9AD8\u6E29\u519C\u4E1A\u3001\u51B6\u91D1\u4E0E\u6DF1\u7A7A\u5316\u5DE5\u63D0\u4F9B\u6301\u7EED\u7126\u70AD\u3002"
+  TechLevel: 4
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.24"
+  spaceCost: "380"
+  productivityConsumption: "520"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "1"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "115"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "28"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "30"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "3200"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "16000"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "2200"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "550"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "160"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "18"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "26"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.08"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "0.025"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "0.012"
+  requiredResearch:
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 4f8a6c2d9b1e47a5b3c7d0e6f2a9c814, type: 2}
+  - {fileID: 11400000, guid: f4a1c9e27b5d4086a3c1e9f2d7b50418, type: 2}

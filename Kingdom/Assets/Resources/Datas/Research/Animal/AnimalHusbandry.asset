@@ -14,18 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AnimalHusbandry
   Label: "\u52A8\u7269\u9A6F\u517B"
-  Description: "\u89C2\u5BDF\u52A8\u7269\u7684\u98DF\u6027\u4E0E\u7E41\u6B96\u89C4\u5F8B\uFF0C\u9010\u6B65\u5EFA\u7ACB\u5708\u517B\u3001\u7E41\u80B2\u548C\u53D6\u7528\u755C\u4EA7\u54C1\u7684\u65B9\u6CD5\uFF0C\u4E3A\u957F\u671F\u5B9A\u5C45\u63D0\u4F9B\u53EF\u9760\u8865\u7ED9\u3002\u7814\u7A76\u5B8C\u6210\u540E\u89E3\u9501\u7267\u573A\u3002"
-  BaseCost: 240
+  Description: "\u7814\u7A76\u52A8\u7269\u7E41\u80B2\u3001\u9972\u517B\u4E0E\u996E\u98DF\u89C4\u5F8B\uFF0C\u5C06\u4F20\u7EDF\u755C\u7267\u77E5\u8BC6\u8F6C\u5316\u4E3A\u5BF9\u4EBA\u53E3\u52B3\u52A8\u6548\u7387\u7684\u7406\u8BBA\u652F\u6301\u3002"
+  BaseCost: "240"
   prerequisites: []
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 80
-      layer: 0
-      operators: []
-  effects: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "80"
+  effects:
+  - Type: 28
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.08"
   TechLevel: 0
   AdvancesTechLevel: 0

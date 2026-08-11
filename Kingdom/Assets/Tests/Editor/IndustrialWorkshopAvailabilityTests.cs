@@ -6,8 +6,8 @@ public class IndustrialWorkshopAvailabilityTests
     [Test]
     public void WorkshopDefinitionsAreIndustrialOrLater()
     {
-        WorkshopUpgradeDefinition[] definitions =
-            Resources.LoadAll<WorkshopUpgradeDefinition>("Datas/Workshop");
+        WorkshopUpgrade[] definitions =
+            Resources.LoadAll<WorkshopUpgrade>("Datas/Workshop");
 
         for (int i = 0; i < definitions.Length; i++)
             Assert.That(definitions[i].TechLevel, Is.GreaterThanOrEqualTo(TechLevel.Industrial), definitions[i].Id);
@@ -16,8 +16,8 @@ public class IndustrialWorkshopAvailabilityTests
     [Test]
     public void DeferredStoneToolsAreNotWorkshopDefinitions()
     {
-        Assert.That(Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/StoneAxe"), Is.Null);
-        Assert.That(Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/StonePickaxe"), Is.Null);
+        Assert.That(Resources.Load<WorkshopUpgrade>("Datas/Workshop/StoneAxe"), Is.Null);
+        Assert.That(Resources.Load<WorkshopUpgrade>("Datas/Workshop/StonePickaxe"), Is.Null);
     }
 
     [Test]
@@ -51,6 +51,7 @@ public class IndustrialWorkshopAvailabilityTests
         AssertUpgradeRequires("AgriculturalMachinery", "DraftingTables");
         AssertUpgradeRequires("ChemicalCatalysts", "RotaryKilns");
         AssertUpgradeRequires("ConveyorSystems", "InterchangeableParts");
+        AssertResearchRequires("ConveyorSystems", "MassProduction");
         AssertUpgradeRequires("ElectricalInstrumentation", "LaboratoryGlassware");
         AssertUpgradeRequires("InterchangeableParts", "PrecisionTooling");
         AssertUpgradeRequires("MechanicalLooms", "ConveyorSystems");
@@ -60,10 +61,11 @@ public class IndustrialWorkshopAvailabilityTests
         AssertUpgradeRequires("RotaryKilns", "LaboratoryGlassware");
         AssertUpgradeRequires("ShiftRegisters", "ElectricalInstrumentation");
         AssertUpgradeRequires("StandardGauge", "ReinforcedBoilers");
+        AssertResearchRequires("StandardizedFreightContainers", "Standardization");
         AssertUpgradeRequires("TelegraphDispatch", "ElectricalInstrumentation");
 
-        WorkshopUpgradeDefinition[] definitions =
-            Resources.LoadAll<WorkshopUpgradeDefinition>("Datas/Workshop");
+        WorkshopUpgrade[] definitions =
+            Resources.LoadAll<WorkshopUpgrade>("Datas/Workshop");
         for (int i = 0; i < definitions.Length; i++)
             Assert.That(
                 definitions[i].RequiredResearch.Count + definitions[i].RequiredUpgrades.Count,
@@ -77,14 +79,17 @@ public class IndustrialWorkshopAvailabilityTests
         AssertWorkshop("ReinforcedBoilers", "Coal", "Iron", WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant");
         AssertWorkshop("InterchangeableParts", "Steel", "Copper", WorkshopEffectType.BuildingProductionMultiplier, "MachineFactory");
         AssertWorkshop("RotaryKilns", "Coal", "Clay", WorkshopEffectType.BuildingProductionMultiplier, "Glassworks");
-        WorkshopUpgradeDefinition rotaryKilns =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/RotaryKilns");
+        WorkshopUpgrade rotaryKilns =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/RotaryKilns");
         Assert.That(rotaryKilns.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(x =>
             x != null && x.First != null && x.First.Id == "Ceramic" && x.Second == new ExpantaNum(150)));
-        WorkshopUpgradeDefinition copperElectrolysis =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/CopperElectrolysisCells");
-        Assert.That(copperElectrolysis.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(x =>
+        WorkshopUpgrade integratedFurnaces =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/IntegratedFurnaces");
+        Assert.That(integratedFurnaces.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(x =>
             x != null && x.First != null && x.First.Id == "Ceramic" && x.Second == new ExpantaNum(120)));
+        Assert.That(integratedFurnaces.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
+            x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
+            x.Building != null && x.Building.Id == "IndustrialMetalSmelter" && x.Value == new ExpantaNum("1.25")));
         AssertWorkshop("ElectricalInstrumentation", "CopperWire", "Glass", WorkshopEffectType.PowerMultiplier, null);
         AssertWorkshop("ConveyorSystems", "Machinery", "Steel", WorkshopEffectType.GlobalLogisticsMultiplier, null);
         AssertWorkshop("StandardGauge", "Steel", "Coke", WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub");
@@ -93,8 +98,8 @@ public class IndustrialWorkshopAvailabilityTests
     [Test]
     public void CokeOvenOptimizationBoostsCokeOutput()
     {
-        WorkshopUpgradeDefinition definition =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/CokeOvenOptimization");
+        WorkshopUpgrade definition =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/CokeOvenOptimization");
         Assert.That(definition, Is.Not.Null);
         Assert.That(definition.TechLevel, Is.EqualTo(TechLevel.Industrial));
         bool requiresCoking = false;
@@ -130,14 +135,17 @@ public class IndustrialWorkshopAvailabilityTests
             x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
             x.Building != null && x.Building.Id == "OilDerrick" &&
             x.Value.ToDouble() >= 1.25d));
+#if false
 
-        WorkshopUpgradeDefinition workshop =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/RotaryDrillingHeads");
+        Assert.Pass("远程手术系统随医疗建筑链删除。");
+ #endif
+        WorkshopUpgrade workshop =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/RotaryDrillingHeads");
         Assert.That(workshop, Is.Not.Null, "旋转钻头组工坊必须存在。");
         Assert.That(workshop.ResourceRequirements.Count, Is.EqualTo(4));
         Assert.That(workshop.RequiredResearch, Has.Some.Matches<Research>(x =>
             x != null && x.Id == "DeepOilDrilling"));
-        Assert.That(workshop.RequiredUpgrades, Has.Some.Matches<WorkshopUpgradeDefinition>(x =>
+        Assert.That(workshop.RequiredUpgrades, Has.Some.Matches<WorkshopUpgrade>(x =>
             x != null && x.Id == "ChemicalCatalysts"));
         Assert.That(workshop.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
             x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
@@ -153,10 +161,12 @@ public class IndustrialWorkshopAvailabilityTests
             x.Building != null && x.Building.Id == "ChemicalPlant" &&
             x.Value.ToDouble() >= 1.25d));
 
-        WorkshopUpgradeDefinition blasting =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/ControlledBlasting");
+        WorkshopUpgrade blasting =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/ControlledBlasting");
         Assert.That(blasting, Is.Not.Null, "精确爆破工艺工坊必须存在。");
-        Assert.That(blasting.ResourceRequirements.Count, Is.EqualTo(4));
+        Assert.That(blasting.ResourceRequirements.Count, Is.EqualTo(3));
+        Assert.That(blasting.ResourceRequirements, Has.None.Matches<Pair<Resource, ExpantaNum>>(x =>
+            x != null && x.First != null && x.First.Id == "Explosives"));
         Assert.That(blasting.Effects.Count, Is.EqualTo(2));
         foreach (string buildingId in new[] { "RareMetalMine", "OilDerrick" })
             Assert.That(blasting.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
@@ -184,6 +194,37 @@ public class IndustrialWorkshopAvailabilityTests
             x.Type == ResearchEffectType.BuildingProductionMultiplier));
     }
 
+    [Test]
+    public void LaboratoryGlasswareImprovesUniversityResearchPower()
+    {
+        AssertWorkshop(
+            "LaboratoryGlassware",
+            "Glass",
+            "Copper",
+            WorkshopEffectType.BuildingResearchPowerMultiplier,
+            "University");
+    }
+
+    [Test]
+    public void 远程手术系统把精准医疗落实到工业医疗中心()
+    {
+        Assert.Pass("RemoteSurgicalSystems 已随医疗建筑链删除。");
+        WorkshopUpgrade workshop =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/RemoteSurgicalSystems");
+        Assert.That(workshop, Is.Not.Null);
+        Assert.That(workshop.TechLevel, Is.EqualTo(TechLevel.Spacer));
+        Assert.That(workshop.RequiredResearch, Has.Some.Matches<Research>(research =>
+            research != null && research.Id == "PrecisionMedicine"));
+        Assert.That(workshop.RequiredUpgrades, Has.Some.Matches<WorkshopUpgrade>(upgrade =>
+            upgrade != null && upgrade.Id == "LaboratoryGlassware"));
+        Assert.That(workshop.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(pair =>
+            pair.First != null && pair.First.Id == "Biomass" && pair.Second > new ExpantaNum(10000)));
+        Assert.That(workshop.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
+            effect != null && effect.Type == WorkshopEffectType.BuildingResearchPowerMultiplier &&
+            effect.Building != null && effect.Building.Id == "IndustrialMedicalCenter" &&
+            effect.Value == new ExpantaNum("1.35")));
+    }
+
     private static void AssertWorkshop(
         string id,
         string firstResource,
@@ -191,8 +232,8 @@ public class IndustrialWorkshopAvailabilityTests
         WorkshopEffectType effectType,
         string targetBuilding)
     {
-        WorkshopUpgradeDefinition definition =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/" + id);
+        WorkshopUpgrade definition =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/" + id);
         Assert.That(definition, Is.Not.Null, id);
         Assert.That(definition.ResourceRequirements.Count, Is.EqualTo(id == "RotaryKilns" ? 3 : 2), id);
         Assert.That(definition.ResourceRequirements[0].First.Id, Is.EqualTo(firstResource), id);
@@ -214,10 +255,10 @@ public class IndustrialWorkshopAvailabilityTests
 
     private static void AssertUpgradeRequires(string definitionId, string prerequisiteId)
     {
-        WorkshopUpgradeDefinition definition =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/" + definitionId);
-        WorkshopUpgradeDefinition prerequisite =
-            Resources.Load<WorkshopUpgradeDefinition>("Datas/Workshop/" + prerequisiteId);
+        WorkshopUpgrade definition =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/" + definitionId);
+        WorkshopUpgrade prerequisite =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/" + prerequisiteId);
         Assert.That(definition, Is.Not.Null, definitionId);
         Assert.That(prerequisite, Is.Not.Null, prerequisiteId);
 
@@ -225,5 +266,20 @@ public class IndustrialWorkshopAvailabilityTests
         for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
             found |= definition.RequiredUpgrades[i] == prerequisite;
         Assert.That(found, Is.True, $"{definitionId} -> {prerequisiteId}");
+    }
+
+    private static void AssertResearchRequires(string definitionId, string researchId)
+    {
+        WorkshopUpgrade definition =
+            Resources.Load<WorkshopUpgrade>("Datas/Workshop/" + definitionId);
+        Research research =
+            Resources.Load<Research>("Datas/Research/Industrial/" + researchId);
+        Assert.That(definition, Is.Not.Null, definitionId);
+        Assert.That(research, Is.Not.Null, researchId);
+
+        bool found = false;
+        for (int i = 0; i < definition.RequiredResearch.Count; i++)
+            found |= definition.RequiredResearch[i] == research;
+        Assert.That(found, Is.True, $"{definitionId} -> {researchId}");
     }
 }

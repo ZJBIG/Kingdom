@@ -15,61 +15,27 @@ MonoBehaviour:
   id: DeepSpaceSurvey
   Label: "\u6DF1\u7A7A\u6D4B\u7ED8"
   Description: "\u5C06\u91CF\u5B50\u7B97\u529B\u4E0E\u661F\u7CFB\u6D4B\u7ED8\u7ED3\u5408\uFF0C\u5F62\u6210\u504F\u91CD\u63A2\u7D22\u548C\u4FA6\u5BDF\u7684\u6DF1\u7A7A\u8DEF\u7EBF\uFF0C\u8BA9\u8230\u961F\u63D0\u524D\u8BC6\u522B\u672C\u661F\u7CFB\u5371\u9669\u5E76\u89C4\u5212\u822A\u7EBF\u3002"
-  BaseCost: 6500000
+  BaseCost: "6500000"
   prerequisites:
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 900
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 650
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 900
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 350
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "1100"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "650"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "900"
   effects:
-  - Type: 10
+  - Type: 13
+    Building: {fileID: 11400000, guid: 9f6e4d2c1b0a9876543210fedcba9876, type: 2}
+    Resource: {fileID: 0}
+    value: "1.20"
+  - Type: 29
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.25"
   TechLevel: 4
   AdvancesTechLevel: 0

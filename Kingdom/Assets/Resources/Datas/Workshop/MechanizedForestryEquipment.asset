@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: MechanizedForestryEquipment
+  m_EditorClassIdentifier: 
+  id: MechanizedForestryEquipment
+  Label: "\u673A\u68B0\u5316\u6797\u4E1A\u88C5\u5907"
+  Description: "\u5C06\u6797\u6728\u6536\u5272\u673A\u3001\u8FD0\u6750\u7CFB\u7EDF\u548C\u5BC6\u95ED\u5E72\u998F\u8BBE\u5907\u5236\u9020\u6210\u53EF\u8FDE\u7EED\u8FD0\u884C\u7684\u5DE5\u4E1A\u88C5\u5907\u3002"
+  SortOrder: 146
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: c1c2d3e4f5674890b1c2d3e4f5678903, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  requiredUpgrades: []
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "500"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: a1c2d3e4f5674890b1c2d3e4f5678901, type: 2}
+    Resource: {fileID: 0}
+    value: "1.5"
+  - Type: 0
+    Building: {fileID: 11400000, guid: d1c2d3e4f5674890b1c2d3e4f5678904, type: 2}
+    Resource: {fileID: 0}
+    value: "1.4"
+  - Type: 0
+    Building: {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8f91, type: 2}
+    Resource: {fileID: 0}
+    value: "1.3"

@@ -14,196 +14,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailHub
   Label: "\u94C1\u8DEF\u67A2\u7EBD"
-  Description: "\u901A\u8FC7\u94C1\u8DEF\u7AD9\u573A\u3001\u4ED3\u5E93\u3001\u7535\u62A5\u4FE1\u53F7\u548C\u8C03\u5EA6\u8BBE\u65BD\u7EC4\u7EC7\u5927\u5B97\u8D27\u7269\u8FD0\u8F93\uFF0C\u6301\u7EED\u4F7F\u7528\u673A\u68B0\u8BBE\u5907\u3001\u71C3\u6CB9\u3001\u6DA6\u6ED1\u5242\u548C\u53D1\u52A8\u673A\u7EF4\u6301\u94C1\u8DEF\u8FD0\u8F6C\u3002"
+  Description: "\u901A\u8FC7\u94C1\u8DEF\u7AD9\u573A\u3001\u4ED3\u5E93\u3001\u7535\u62A5\u4FE1\u53F7\u548C\u8C03\u5EA6\u8BBE\u65BD\u7EC4\u7EC7\u5927\u5B97\u8D27\u7269\u8FD0\u8F93\uFF0C\u6301\u7EED\u4F7F\u7528\u673A\u68B0\u8BBE\u5907\u3001\u71C3\u6CB9\u3001\u6DA6\u6ED1\u5242\u548C\u53D1\u52A8\u673A\u7EF4\u6301\u94C1\u8DEF\u8FD0\u8F6C\u3002\uFF1B\u94C1\u8DEF\u67A2\u7EBD\u8FD8\u4F1A\u6301\u7EED\u4F7F\u7528\u5C11\u91CF\u70B8\u836F\u8FDB\u884C\u96A7\u9053\u3001\u8DEF\u5811\u4E0E\u8DEF\u57FA\u7684\u63A7\u5236\u7206\u7834\u3002"
   TechLevel: 3
   upgradeTo: {fileID: 0}
-  costGrowth:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 1.2
-    layer: 0
-    operators: []
-  spaceCost:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 25
-    layer: 0
-    operators: []
-  productivityConsumption:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 70
-    layer: 0
-    operators: []
-  productivityGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 45
-    layer: 0
-    operators: []
-  populationCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  researchPowerGranted:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 5
-    layer: 0
-    operators: []
-  foodProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  foodCapacityGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerProductionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  powerConsumptionRate:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 8
-    layer: 0
-    operators: []
-  logisticsProductionRate:
-    sign: 0
-    representation: 1
-    operatorCount: 0
-    scalar: 100
-    layer: 0
-    operators: []
-  logisticsConsumptionRate:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  fleetPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  attackPowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  defensePowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
-  militaryManpowerGranted:
-    sign: 0
-    representation: 0
-    operatorCount: 0
-    scalar: 0
-    layer: 0
-    operators: []
+  costGrowth: "1.2"
+  spaceCost: "25"
+  productivityConsumption: "70"
+  productivityGranted: "45"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "8"
+  logisticsProductionRate: "100"
+  logisticsConsumptionRate: "0"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 30
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    amount: "30"
   resourceGenerationRates: []
   resourceConsumptionRates:
-  - first: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.3
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.05
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.05
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 0.08
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "0.3"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "0.05"
+  - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
+    amount: "0.05"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "0.08"
+  - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    amount: "0.03"
   requiredResearch:
   - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
   - {fileID: 11400000, guid: f40d04ef655d0ce4b9f8a496cfc5d874, type: 2}
+  - {fileID: 11400000, guid: 1f9f47242f7e43b49f0ba7fa1bf1c076, type: 2}
   requiredWorkshopUpgrades: []

@@ -7,6 +7,7 @@ public sealed class ProgressionModifierState
     private readonly Dictionary<Building, ExpantaNum> buildingResearchPowerMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingPowerProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingLogisticsProductionMultipliers = new();
+    private readonly Dictionary<Building, ExpantaNum> buildingConstructionMultipliers = new();
     private readonly Dictionary<Resource, ExpantaNum> resourceProductionMultipliers = new();
     private readonly HashSet<ResearchSystem> unlockedSystems = new();
 
@@ -20,6 +21,14 @@ public sealed class ProgressionModifierState
     public ExpantaNum MilitaryMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PowerMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PopulationGrowthMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum PopulationProductivityMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum ExplorationPowerMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum FleetRepairCostMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum OccupiedResourceProductionMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum CampaignProgressMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum CampaignSupplyCostMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum CampaignCasualtyMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum DeconstructionReturnRate { get; internal set; } = new ExpantaNum(0.05d);
 
     public IReadOnlyCollection<ResearchSystem> UnlockedSystems => unlockedSystems;
     public bool IsSystemUnlocked(ResearchSystem system) =>
@@ -40,6 +49,9 @@ public sealed class ProgressionModifierState
     public ExpantaNum GetBuildingLogisticsProductionMultiplier(Building building) =>
         GetMultiplier(buildingLogisticsProductionMultipliers, building);
 
+    public ExpantaNum GetBuildingConstructionMultiplier(Building building) =>
+        GetMultiplier(buildingConstructionMultipliers, building);
+
     public ExpantaNum GetResourceProductionMultiplier(Resource resource) =>
         GetMultiplier(resourceProductionMultipliers, resource);
 
@@ -58,6 +70,9 @@ public sealed class ProgressionModifierState
     internal void AddBuildingLogisticsProductionMultiplier(Building building, ExpantaNum value) =>
         AddMultiplier(buildingLogisticsProductionMultipliers, building, value);
 
+    internal void AddBuildingConstructionMultiplier(Building building, ExpantaNum value) =>
+        AddMultiplier(buildingConstructionMultipliers, building, value);
+
     internal void AddResourceProductionMultiplier(Resource resource, ExpantaNum value) =>
         AddMultiplier(resourceProductionMultipliers, resource, value);
 
@@ -69,12 +84,39 @@ public sealed class ProgressionModifierState
         GlobalBuildingProductionMultiplier = AdditiveMultiplier(GlobalBuildingProductionMultiplier, value);
     internal void AddGlobalLogisticsMultiplier(ExpantaNum value) =>
         GlobalLogisticsMultiplier = AdditiveMultiplier(GlobalLogisticsMultiplier, value);
+    internal void AddFleetRepairCostMultiplier(ExpantaNum value) =>
+        FleetRepairCostMultiplier *= NormalizeMultiplier(value);
     internal void AddMilitaryMultiplier(ExpantaNum value) =>
         MilitaryMultiplier = AdditiveMultiplier(MilitaryMultiplier, value);
     internal void AddPowerMultiplier(ExpantaNum value) =>
         PowerMultiplier = AdditiveMultiplier(PowerMultiplier, value);
     internal void AddPopulationGrowthMultiplier(ExpantaNum value) =>
         PopulationGrowthMultiplier = AdditiveMultiplier(PopulationGrowthMultiplier, value);
+    internal void AddPopulationProductivityMultiplier(ExpantaNum value) =>
+        PopulationProductivityMultiplier =
+            AdditiveMultiplier(PopulationProductivityMultiplier, value);
+    internal void AddExplorationPowerMultiplier(ExpantaNum value) =>
+        ExplorationPowerMultiplier =
+            AdditiveMultiplier(ExplorationPowerMultiplier, value);
+    internal void AddOccupiedResourceProductionMultiplier(ExpantaNum value) =>
+        OccupiedResourceProductionMultiplier =
+            AdditiveMultiplier(OccupiedResourceProductionMultiplier, value);
+    internal void AddCampaignProgressMultiplier(ExpantaNum value) =>
+        CampaignProgressMultiplier =
+            AdditiveMultiplier(CampaignProgressMultiplier, value);
+    internal void AddCampaignSupplyCostMultiplier(ExpantaNum value) =>
+        CampaignSupplyCostMultiplier *= NormalizeMultiplier(value);
+    internal void AddCampaignCasualtyMultiplier(ExpantaNum value) =>
+        CampaignCasualtyMultiplier *= NormalizeMultiplier(value);
+
+    internal void SetDeconstructionReturnRate(ExpantaNum value)
+    {
+        if (value.IsNaN || value.IsInfinity)
+            return;
+        DeconstructionReturnRate = ExpantaNum.Max(
+            DeconstructionReturnRate,
+            ExpantaNum.Clamp(value, ExpantaNum.Zero, ExpantaNum.One));
+    }
 
     internal void AddUnlockedSystem(ResearchSystem system)
     {
@@ -177,6 +219,9 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.GlobalConstructionMultiplier:
                     modifiers.AddGlobalConstructionMultiplier(effect.Value);
                     break;
+                case ResearchEffectType.BuildingConstructionMultiplier:
+                    modifiers.AddBuildingConstructionMultiplier(effect.Building, effect.Value);
+                    break;
                 case ResearchEffectType.FoodCapacityMultiplier:
                     modifiers.FoodCapacityMultiplier *=
                         effect.Value > ExpantaNum.Zero && !effect.Value.IsNaN
@@ -223,8 +268,32 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.GlobalLogisticsMultiplier:
                     modifiers.AddGlobalLogisticsMultiplier(effect.Value);
                     break;
+                case ResearchEffectType.FleetRepairCostMultiplier:
+                    modifiers.AddFleetRepairCostMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.OccupiedResourceProductionMultiplier:
+                    modifiers.AddOccupiedResourceProductionMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.CampaignProgressMultiplier:
+                    modifiers.AddCampaignProgressMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.CampaignSupplyCostMultiplier:
+                    modifiers.AddCampaignSupplyCostMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.CampaignCasualtyMultiplier:
+                    modifiers.AddCampaignCasualtyMultiplier(effect.Value);
+                    break;
                 case ResearchEffectType.PopulationGrowthMultiplier:
                     modifiers.AddPopulationGrowthMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.PopulationProductivityMultiplier:
+                    modifiers.AddPopulationProductivityMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.ExplorationPowerMultiplier:
+                    modifiers.AddExplorationPowerMultiplier(effect.Value);
+                    break;
+                case ResearchEffectType.DeconstructionReturnRate:
+                    modifiers.SetDeconstructionReturnRate(effect.Value);
                     break;
             }
         }

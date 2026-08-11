@@ -1,8 +1,40 @@
 FAIL:
-Normal: Neolithic reached at 96.6 minutes; expected 60-90.
-Fast: Neolithic reached at 97.15 minutes; expected 45-75.
-Fast: Medieval reached at 187.58 minutes; expected 240-360.
-Fast: Industrial reached at 425.42 minutes; expected 480-600.
-Conservative: Neolithic reached at 81.88 minutes; expected 90-120.
-Conservative: Medieval reached at 308.47 minutes; expected 480-720.
-Conservative: Industrial reached at 823.42 minutes; expected 840-1200.
+Normal: Neolithic reached at 139.22 minutes; expected 60-90.
+Normal: Medieval reached at 659.53 minutes; expected 300-480.
+Normal: Industrial reached at -0.02 minutes; expected 600-960.
+Normal: Building wait exceeds ten minutes DeepSpaceRelay: Construction inputs 15560 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalCarbonizationComplex: Construction inputs 25710 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalCryogenicPropellantArray: Construction inputs 77000 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalForestryHarvestingArray: Construction inputs 21870 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalHabitatMegastructure: Construction inputs 31300 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalLogisticsHub: Construction inputs 18200 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalResourceExtractionArray: Construction inputs 99900 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalStation: Construction inputs 23520 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalTextileFabricationArray: Construction inputs 38200 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes OrbitalVacuumMetallurgyArray: Construction inputs 108300 exceed ten minutes of active aggregate production.
+Normal: Building wait exceeds ten minutes Shipyard: Construction inputs 28800 exceed ten minutes of active aggregate production.
+Fast: Neolithic reached at 128.68 minutes; expected 45-75.
+Fast: Industrial reached at 1158.53 minutes; expected 480-600.
+Fast: Building wait exceeds ten minutes OrbitalCarbonizationComplex: Construction inputs 25710 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalCryogenicPropellantArray: Construction inputs 77000 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalForestryHarvestingArray: Construction inputs 21870 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalHabitatMegastructure: Construction inputs 31300 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalLogisticsHub: Construction inputs 18200 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalResourceExtractionArray: Construction inputs 99900 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalStation: Construction inputs 23520 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalTextileFabricationArray: Construction inputs 38200 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes OrbitalVacuumMetallurgyArray: Construction inputs 108300 exceed ten minutes of active aggregate production.
+Fast: Building wait exceeds ten minutes Shipyard: Construction inputs 28800 exceed ten minutes of active aggregate production.
+Conservative: Neolithic reached at 84.62 minutes; expected 90-120.
+Conservative: Industrial reached at -0.02 minutes; expected 840-1200.
+Conservative: Building wait exceeds ten minutes DeepSpaceRelay: Construction inputs 15560 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalCarbonizationComplex: Construction inputs 25710 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalCryogenicPropellantArray: Construction inputs 77000 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalForestryHarvestingArray: Construction inputs 21870 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalHabitatMegastructure: Construction inputs 31300 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalLogisticsHub: Construction inputs 18200 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalResourceExtractionArray: Construction inputs 99900 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalStation: Construction inputs 23520 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalTextileFabricationArray: Construction inputs 38200 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes OrbitalVacuumMetallurgyArray: Construction inputs 108300 exceed ten minutes of active aggregate production.
+Conservative: Building wait exceeds ten minutes Shipyard: Construction inputs 28800 exceed ten minutes of active aggregate production.

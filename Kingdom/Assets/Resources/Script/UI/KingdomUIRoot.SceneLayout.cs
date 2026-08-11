@@ -17,7 +17,7 @@ public sealed partial class KingdomUIRoot
         if (controls == null || surface.Find("TrackListViewport") == null)
         {
             musicPageBuilt = false;
-            Debug.LogError("[KingdomUI] Authored MusicSurface is incomplete; fixed music controls/list are not created at runtime.");
+            Debug.LogError("[王国界面] Authored MusicSurface is incomplete; fixed music controls/list are not created at runtime.");
             return;
         }
         musicCurrentLabel = controls?.Find("Current")?.GetComponent<TMP_Text>();
@@ -52,7 +52,7 @@ public sealed partial class KingdomUIRoot
         if (previous != null) { previous.onClick.RemoveAllListeners(); previous.onClick.AddListener(() => PlayRelativeMusicTrack(-1)); ConfigureMusicButtonText(previous, "上一首"); }
         if (next != null) { next.onClick.RemoveAllListeners(); next.onClick.AddListener(() => PlayRelativeMusicTrack(1)); ConfigureMusicButtonText(next, "下一首"); }
         if (stop != null) { stop.onClick.RemoveAllListeners(); stop.onClick.AddListener(StopMusicPlayback); ConfigureMusicButtonText(stop, "停止"); }
-        ConfigureMusicText(controls?.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "TIME / SEEK");
+        ConfigureMusicText(controls?.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "时间 / 定位");
         ConfigureMusicText(musicVolumeValueLabel, "音量 100%");
         ConfigureMusicText(musicGapValueLabel, "音乐间隙 5.00");
         ConfigureMusicText(musicCurrentLabel, "正在播放");
@@ -107,7 +107,7 @@ public sealed partial class KingdomUIRoot
         RectTransform content = viewport.Find("TrackList") as RectTransform;
         if (content == null)
         {
-            Debug.LogError("[KingdomUI] Authored Music TrackList content is missing from TrackListViewport.");
+            Debug.LogError("[王国界面] Authored Music TrackList content is missing from TrackListViewport.");
             return;
         }
         musicListScroll.content = content;
@@ -133,7 +133,7 @@ public sealed partial class KingdomUIRoot
             Image surfaceImage = rowObject.GetComponent<Image>();
             if (surfaceImage == null)
             {
-                Debug.LogError("[KingdomUI] MusicTrack prefab is missing its authored row Image: " + track.Id);
+                Debug.LogError("[王国界面] MusicTrack prefab is missing its authored row Image: " + track.Id);
                 Destroy(rowObject);
                 continue;
             }
@@ -141,7 +141,7 @@ public sealed partial class KingdomUIRoot
             Button row = rowObject.GetComponent<Button>();
             if (row == null)
             {
-                Debug.LogError("[KingdomUI] MusicTrack prefab is missing its authored Button: " + track.Id);
+                Debug.LogError("[王国界面] MusicTrack prefab is missing its authored Button: " + track.Id);
                 Destroy(rowObject);
                 continue;
             }
@@ -154,7 +154,7 @@ public sealed partial class KingdomUIRoot
             ConfigureMusicTrackColumn(rowObject, "Type", track.Category, new Vector2(.78f, 0), Vector2.one, new Vector2(8, 4), new Vector2(-12, -4), TextAlignmentOptions.MidlineRight);
             if (rowObject.GetComponent<UIPageScrollDragForwarder>() == null)
             {
-                Debug.LogError("[KingdomUI] MusicTrack prefab is missing its authored drag forwarder: " + track.Id);
+                Debug.LogError("[王国界面] MusicTrack prefab is missing its authored drag forwarder: " + track.Id);
                 Destroy(rowObject);
                 continue;
             }
@@ -234,7 +234,7 @@ public sealed partial class KingdomUIRoot
         // These are stable scene-owned objects. Their interaction components
         // are repaired only when a scene author accidentally removes one.
         EnsureAuthoredViewport(pageHost, pageScroll, true);
-        Debug.Log("[KingdomUI] Detail UI v2 bound; legacy detail hierarchy is inactive.");
+        Debug.Log("[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.");
 
         return true;
     }
@@ -269,7 +269,7 @@ public sealed partial class KingdomUIRoot
             detailGeometryLogged = true;
             lastDetailViewportSize = viewportSize;
             lastDetailContentSize = contentSize;
-            Debug.Log($"[KingdomUI] Detail UI v2 geometry: viewport={viewportSize}, content={contentSize}");
+            Debug.Log($"[王国界面] Detail UI v2 geometry: viewport={viewportSize}, content={contentSize}");
         }
     }
 

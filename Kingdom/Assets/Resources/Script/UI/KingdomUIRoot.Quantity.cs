@@ -35,7 +35,7 @@ public sealed partial class KingdomUIRoot
         Transform existing = parent.Find("BuildingQuantityControls");
         if (existing == null)
         {
-            Debug.LogError("[KingdomUI] Authored BuildingQuantityControls is missing; fixed quantity UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing; fixed quantity UI will not be generated at runtime.");
             return;
         }
         buildingQuantityControls = existing as RectTransform;
@@ -48,7 +48,7 @@ public sealed partial class KingdomUIRoot
         buildingPageTitle = controls.parent.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
         if (buildingPageTitle == null)
         {
-            Debug.LogError("[KingdomUI] Authored BuildingPageTitle is missing from the scene shell.");
+            Debug.LogError("[王国界面] 场景外壳缺少已配置的建筑页面标题。");
             return;
         }
         buildingPageTitle.alignment = TextAlignmentOptions.MidlineLeft;
@@ -56,10 +56,10 @@ public sealed partial class KingdomUIRoot
         buildingPageTitle.text = "\u5efa\u7b51";
         buildingPageTitle.enabled = true;
 
-        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.One, "x1");
-        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Ten, "x10");
-        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Max, "xMax");
-        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Custom, "Custom");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.One, "1个");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Ten, "10个");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Max, "最大");
+        AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Custom, "自定义");
 
         customQuantityInput = controls.Find("CustomQuantityInput")?.GetComponent<TMP_InputField>();
         if (customQuantityInput != null)
@@ -86,7 +86,7 @@ public sealed partial class KingdomUIRoot
         Button button = parent.Find("Quantity_" + mode)?.GetComponent<Button>();
         if (button == null)
         {
-            Debug.LogError("[KingdomUI] Authored quantity button is missing: Quantity_" + mode);
+            Debug.LogError("[王国界面] Authored quantity button is missing: Quantity_" + mode);
             return;
         }
         button.onClick.RemoveAllListeners();
@@ -95,7 +95,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
         if (buttonText == null)
         {
-            Debug.LogError("[KingdomUI] Authored quantity button has no text: Quantity_" + mode);
+            Debug.LogError("[王国界面] Authored quantity button has no text: Quantity_" + mode);
             return;
         }
         buttonText.text = label;

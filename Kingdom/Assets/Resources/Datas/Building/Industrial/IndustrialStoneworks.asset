@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: IndustrialStoneworks
+  m_EditorClassIdentifier: 
+  id: IndustrialStoneworks
+  Label: "工业石材联合厂"
+  Description: "将深井采石、破碎筛分和自动切石线整合为一体，同时供应工程石块与标准石砖；重型钻机和锯切设备持续消耗润滑剂与工业炸药。"
+  TechLevel: 3
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.2"
+  spaceCost: "20"
+  productivityConsumption: "125"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "28"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "6"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    amount: "1800"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "450"
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "700"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    amount: "12"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "5"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "0.08"
+  - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    amount: "0.06"
+  requiredResearch:
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 786ea0ba62febff4f9a2957b88ba39c2, type: 2}
+  - {fileID: 11400000, guid: 14b5973cf44e9ae418087a64601755ea, type: 2}

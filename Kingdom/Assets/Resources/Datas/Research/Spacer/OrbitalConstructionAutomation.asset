@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrbitalConstructionAutomation
+  m_EditorClassIdentifier: 
+  id: OrbitalConstructionAutomation
+  Label: "轨道建造自动化"
+  Description: "研究轨道预制件、自动装配与远程施工调度，使大型空间设施的建设从一次性发射工程转变为可重复扩张的工业流程。"
+  BaseCost: "9200000"
+  prerequisites:
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  - {fileID: 11400000, guid: e5c1a7f3b9d24860a4d6e8f2c1b93750, type: 2}
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "5200"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "3600"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "1900"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "1400"
+  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
+    amount: "10000"
+  effects:
+  - Type: 5
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.35"
+  - Type: 30
+    Building: {fileID: 11400000, guid: 6a0c5e8b2d4f7a913b6d8f0a2c4e6519, type: 2}
+    Resource: {fileID: 0}
+    value: "1.2"
+  - Type: 30
+    Building: {fileID: 11400000, guid: 0a489615492d2dc4bb0a82376c76c3e8, type: 2}
+    Resource: {fileID: 0}
+    value: "1.15"
+  - Type: 30
+    Building: {fileID: 11400000, guid: 34a5e673637c4226a22089267c8b456c, type: 2}
+    Resource: {fileID: 0}
+    value: "1.15"
+  TechLevel: 4
+  AdvancesTechLevel: 0

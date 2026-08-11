@@ -145,6 +145,26 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void 普通资源不应拥有独立容量上限()
+    {
+        string[] resourceStateMembers = typeof(ResourceState)
+            .GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Select(member => member.Name)
+            .ToArray();
+        string[] resourceMembers = typeof(Resource)
+            .GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Select(member => member.Name)
+            .ToArray();
+
+        Assert.That(resourceStateMembers.Any(name =>
+            name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            name.IndexOf("MaxAmount", StringComparison.OrdinalIgnoreCase) >= 0), Is.False);
+        Assert.That(resourceMembers.Any(name =>
+            name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            name.IndexOf("MaxAmount", StringComparison.OrdinalIgnoreCase) >= 0), Is.False);
+    }
+
+    [Test]
     public void ResourceManager_AlwaysCreatesStartingWoodStateAndProduction()
     {
         ResourceManager resourceManager =
@@ -1041,10 +1061,10 @@ public sealed class KingdomLogicTests
     public void CampaignProgress_UsesDeterministicRatioBandsAndSoftcap()
     {
         Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(0.69d)), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(0.85d)).ToDouble(), Is.EqualTo(0.125d).Within(0.000001d));
-        Assert.That(CampaignManager.CalculateProgressRate(ExpantaNum.One).ToDouble(), Is.EqualTo(0.25d).Within(0.000001d));
-        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(2d)), Is.EqualTo(ExpantaNum.One));
-        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(100d)) < new ExpantaNum(2d), Is.True);
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(0.85d)).ToDouble(), Is.EqualTo(0.125d / 60d).Within(0.000001d));
+        Assert.That(CampaignManager.CalculateProgressRate(ExpantaNum.One).ToDouble(), Is.EqualTo(0.25d / 60d).Within(0.000001d));
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(2d)).ToDouble(), Is.EqualTo(1d / 60d).Within(0.000001d));
+        Assert.That(CampaignManager.CalculateProgressRate(new ExpantaNum(100d)) < new ExpantaNum(2d / 60d), Is.True);
     }
 
     [Test]
@@ -1088,6 +1108,31 @@ public sealed class KingdomLogicTests
         Assert.That(full, Is.EqualTo(new ExpantaNum(20)));
         Assert.That(noPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(noLogistics, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void CampaignPower_IntermediateLogisticsSatisfactionScalesEffectivePower()
+    {
+        ExpantaNum halfLogistics = CampaignManager.CalculateEffectivePower(
+            new ExpantaNum(10),
+            new ExpantaNum(10),
+            new ExpantaNum(20),
+            ExpantaNum.One,
+            ExpantaNum.One,
+            new ExpantaNum(0.5d),
+            ExpantaNum.One);
+        ExpantaNum quarterLogistics = CampaignManager.CalculateEffectivePower(
+            new ExpantaNum(10),
+            new ExpantaNum(10),
+            new ExpantaNum(20),
+            ExpantaNum.One,
+            ExpantaNum.One,
+            new ExpantaNum(0.25d),
+            ExpantaNum.One);
+
+        Assert.That(halfLogistics.ToDouble(), Is.EqualTo(10d).Within(0.000001d));
+        Assert.That(quarterLogistics.ToDouble(), Is.EqualTo(5d).Within(0.000001d));
+        Assert.That(halfLogistics, Is.GreaterThan(quarterLogistics));
     }
 
     [Test]
@@ -1441,7 +1486,7 @@ public sealed class KingdomLogicTests
         bool valid = ResearchValidator.ValidateNoCycles(new[] { a, b, c }, out string error);
 
         Assert.That(valid, Is.False);
-        Assert.That(error, Is.EqualTo("Research dependency cycle: A -> B -> C -> A"));
+        Assert.That(error, Is.EqualTo("研究依赖循环：A -> B -> C -> A"));
     }
 
     [Test]

@@ -15,44 +15,20 @@ MonoBehaviour:
   id: IndustrialWorkshop
   Label: "\u5DE5\u4E1A\u5DE5\u574A"
   Description: "\u4EE5\u52A8\u529B\u673A\u68B0\u3001\u4F20\u52A8\u8F74\u3001\u6807\u51C6\u673A\u5E8A\u548C\u4E13\u7528\u5DE5\u4F4D\u6539\u9020\u4F20\u7EDF\u4F5C\u574A\uFF0C\u4F7F\u5207\u524A\u3001\u94BB\u5B54\u3001\u953B\u538B\u4E0E\u88C5\u914D\u80FD\u591F\u8FDE\u7EED\u800C\u91CD\u590D\u5730\u8FDB\u884C\u3002"
-  BaseCost: 90000
+  BaseCost: "90000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "100"
   effects:
   - Type: 18
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1
-      layer: 0
-      operators: []
+    value: "1"
   TechLevel: 3
   AdvancesTechLevel: 0

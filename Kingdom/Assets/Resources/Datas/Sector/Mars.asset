@@ -17,23 +17,35 @@ MonoBehaviour:
   Description: "太阳系内的远距离开拓目标。火星拥有燃料和镍资源，但航线更长、敌方威胁更高，需要先建立可靠的轨道后勤和舰队攻防能力。"
   starSystemId: Sol
   domain: 0
-  enemyPower: {sign: 0, representation: 1, operatorCount: 0, scalar: 160, layer: 0, operators: []}
+  enemyPower: "160"
   prerequisiteSectors:
   - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
-  territoryReward: {sign: 0, representation: 1, operatorCount: 0, scalar: 3000, layer: 0, operators: []}
+  territoryReward: "100000"
   resourceRewards:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 5000, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 3000, layer: 0, operators: []}
-  colonizationFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 5, layer: 0, operators: []}
-  colonizationResourceCosts:
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 2, layer: 0, operators: []}
-  - first: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    second: {sign: 0, representation: 1, operatorCount: 0, scalar: 1, layer: 0, operators: []}
-  campaignFoodPerMinute: {sign: 0, representation: 1, operatorCount: 0, scalar: 0, layer: 0, operators: []}
-  campaignResourceCosts: []
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "10000"
+  occupiedResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+    amount: "0.25"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "0.12"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.10"
+  colonizationFoodPerSecond: "2.3333333333"
+  colonizationResourceRatesPerSecond:
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.75"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "0.5833333333"
+    - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+      amount: "0.75"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.4166666667"
+  colonizationDurationSeconds: "7200"
+  campaignFoodPerSecond: "0"
+  campaignResourceRatesPerSecond: []
   repeatable: 0
   background: {fileID: 0}
   icon: {fileID: 0}

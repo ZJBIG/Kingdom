@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: PlantingField
+  m_EditorClassIdentifier: 
+  id: PlantingField
+  Label: "种植田"
+  Description: "将纤维作物与粮食作物纳入轮作、灌溉和机械化种植体系，同时稳定产出食物与生物质，为工业城市和轨道居住设施提供长期农业供给。"
+  TechLevel: 3
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.2"
+  spaceCost: "16"
+  productivityConsumption: "55"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "48"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "8"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "3"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "2000"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "18"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "0.25"
+  requiredResearch:
+  - {fileID: 11400000, guid: 83a724b7bf27cee47a740dcda8e7b1d0, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: c8074fca28250114eaada386b57981b7, type: 2}

@@ -24,18 +24,18 @@ public class GameManager : Singleton<GameManager>
         ProgressionModifierManager.Current.PopulationGrowthMultiplier;
     public ExpantaNum PopulationGrowthRatePerSecond =>
         PopulationState.BaseGrowthRatePerSecond * PopulationGrowthMultiplier;
-    public ExpantaNum CurrentPopulationGrowthRatePerMinute =>
+    public ExpantaNum CurrentPopulationGrowthRatePerSecond =>
         State.Population.CurrentGrowthRatePerSecond(
             State.HappinessMultiplier,
-            PopulationGrowthRatePerSecond) * 60d;
-    public ExpantaNum CurrentPopulationDepartureRatePerMinute
+            PopulationGrowthRatePerSecond);
+    public ExpantaNum CurrentPopulationDepartureRatePerSecond
     {
         get
         {
             ExpantaNum allowance = BuildingManager.Instance == null
                 ? ExpantaNum.Zero
                 : BuildingManager.Instance.SafePopulationDepartureAllowance;
-            return State.Population.CurrentDepartureRatePerSecond(allowance) * 60d;
+            return State.Population.CurrentDepartureRatePerSecond(allowance);
         }
     }
 
@@ -296,12 +296,8 @@ public class GameManager : Singleton<GameManager>
         State.RestoreCampaign(
             data.CampaignActive,
             data.CampaignTargetSectorId,
-            data.CampaignActive
-                ? ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties))
-                : ExpantaNum.Zero,
-            data.CampaignActive
-                ? ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio))
-                : ExpantaNum.Zero);
+            ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
+            ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
         ResetCalendarAccumulator();
     }
 
@@ -339,7 +335,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (ExpantaNum.TryParse(raw, out ExpantaNum value))
             return value;
-        throw new FormatException($"Invalid ExpantaNum '{raw}' for GameState.{field}.");
+        throw new FormatException($"GameState.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 
     private static ExpantaNum ParseOptional(string raw, ExpantaNum fallback, string field)

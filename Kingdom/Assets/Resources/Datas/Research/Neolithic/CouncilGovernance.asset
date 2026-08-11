@@ -15,46 +15,22 @@ MonoBehaviour:
   id: CouncilGovernance
   Label: "\u8BAE\u4E8B\u6CBB\u7406"
   Description: "\u7531\u4EE3\u8868\u5171\u540C\u8BAE\u5B9A\u516C\u5171\u4E8B\u52A1\u3001\u52B3\u5F79\u548C\u8D44\u6E90\u5206\u914D\uFF0C\u4F7F\u805A\u843D\u51B3\u7B56\u4ECE\u4E34\u65F6\u53F7\u4EE4\u8F6C\u53D8\u4E3A\u53EF\u5EF6\u7EED\u7684\u6CBB\u7406\u7A0B\u5E8F\u3002"
-  BaseCost: 14000
+  BaseCost: "14000"
   prerequisites:
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 350
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "200"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "150"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "350"
   effects:
-  - Type: 5
+  - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.05"
   TechLevel: 1
   AdvancesTechLevel: 0

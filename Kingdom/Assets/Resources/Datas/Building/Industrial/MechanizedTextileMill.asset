@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
+  m_Name: MechanizedTextileMill
+  m_EditorClassIdentifier: 
+  id: MechanizedTextileMill
+  Label: "\u673A\u68B0\u5316\u7EBA\u7EC7\u5382"
+  Description: "\u4EE5\u52A8\u529B\u7EC7\u673A\u3001\u8FDE\u7EED\u4F9B\u6599\u548C\u96C6\u4E2D\u5377\u5E03\u7CFB\u7EDF\u5C06\u57FA\u7840\u690D\u7269\u7EA4\u7EF4\u8F6C\u5316\u4E3A\u5927\u6279\u5E03\u6599\uFF0C\u4E3A\u5DE5\u4E1A\u4F4F\u5B85\u3001\u8F68\u9053\u751F\u6D3B\u548C\u540E\u52E4\u63D0\u4F9B\u6301\u7EED\u4F9B\u5E94\u3002"
+  TechLevel: 3
+  upgradeTo: {fileID: 11400000, guid: e1f2a3b4c56789d0e1f2a3b4c56789d0, type: 2}
+  costGrowth: "1.2"
+  spaceCost: "18"
+  productivityConsumption: "120"
+  productivityGranted: "0"
+  populationCapacityGranted: "0"
+  researchPowerGranted: "0"
+  foodProductionRate: "0"
+  foodConsumptionRate: "0"
+  foodCapacityGranted: "0"
+  powerProductionRate: "0"
+  powerConsumptionRate: "28"
+  logisticsProductionRate: "0"
+  logisticsConsumptionRate: "6"
+  fleetPowerGranted: "0"
+  attackPowerGranted: "0"
+  defensePowerGranted: "0"
+  militaryManpowerGranted: "0"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "80"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "10"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "4"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "0.12"
+  requiredResearch:
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: e2cf8f857e49fd940b8bb3449e4db98e, type: 2}

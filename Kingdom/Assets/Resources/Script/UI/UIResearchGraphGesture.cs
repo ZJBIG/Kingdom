@@ -66,7 +66,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         measuredViewportSize = Vector2.zero;
         measuredContentSize = Vector2.zero;
         measuredScale = -1f;
-        Debug.Log($"[KingdomUI] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport={GetSize(viewport)}, content={GetSize(content)}, dragOwner=UIResearchGraphGesture, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
+        Debug.Log($"[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport={GetSize(viewport)}, content={GetSize(content)}, dragOwner=UIResearchGraphGesture, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
     }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
@@ -82,7 +82,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         if (!hasLoggedPotentialDrag)
         {
             hasLoggedPotentialDrag = true;
-            Debug.Log($"[KingdomUI] Research graph potential drag: viewport={GetSize(viewport)}, content={GetScaledContentSize()}, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
+            Debug.Log($"[王国界面] Research graph potential drag: viewport={GetSize(viewport)}, content={GetScaledContentSize()}, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
         }
     }
 
@@ -107,7 +107,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         if (!hasLoggedBeginDrag)
         {
             hasLoggedBeginDrag = true;
-            Debug.Log($"[KingdomUI] Research graph begin drag: pointer={eventData.position}, local={lastPointerLocalPosition}, range=({Mathf.Min(0f, viewport.rect.width - GetScaledContentSize().x)},{Mathf.Min(0f, viewport.rect.height - GetScaledContentSize().y)})");
+            Debug.Log($"[王国界面] Research graph begin drag: pointer={eventData.position}, local={lastPointerLocalPosition}, range=({Mathf.Min(0f, viewport.rect.width - GetScaledContentSize().x)},{Mathf.Min(0f, viewport.rect.height - GetScaledContentSize().y)})");
         }
         // When ScrollRect is active, do not consume BeginDrag: it must receive
         // the same lifecycle event and perform the continuous movement.
@@ -268,7 +268,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
                 manualEventData.eligibleForClick = false;
                 manualEventData.Use();
             }
-            Debug.Log($"[KingdomUI] Research graph manual drag started: pointer={manualPointerId}, threshold={threshold}");
+            Debug.Log($"[王国界面] Research graph manual drag started: pointer={manualPointerId}, threshold={threshold}");
         }
         if (!dragging)
             return;
@@ -284,7 +284,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         if (!hasLoggedMotion && Vector2.Distance(content.anchoredPosition, lastLoggedPosition) > 0.5f)
         {
             hasLoggedMotion = true;
-            Debug.Log($"[KingdomUI] Research graph moved by manual pointer: position={content.anchoredPosition}, bounds={GetScaledContentSize()} vs {viewport.rect.size}");
+            Debug.Log($"[王国界面] Research graph moved by manual pointer: position={content.anchoredPosition}, bounds={GetScaledContentSize()} vs {viewport.rect.size}");
         }
     }
 
@@ -344,7 +344,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             Vector2.Distance(content.anchoredPosition, lastLoggedPosition) > 0.5f)
         {
             hasLoggedMotion = true;
-            Debug.Log($"[KingdomUI] Research graph moved by UIResearchGraphGesture: position={content.anchoredPosition}, bounds={GetScaledContentSize()} vs {viewport.rect.size}");
+            Debug.Log($"[王国界面] Research graph moved by UIResearchGraphGesture: position={content.anchoredPosition}, bounds={GetScaledContentSize()} vs {viewport.rect.size}");
         }
     }
 
@@ -363,7 +363,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         measuredViewportSize = viewportSize;
         measuredContentSize = contentSize;
         measuredScale = content.localScale.x;
-        Debug.Log($"[KingdomUI] Research graph bounds: viewport={viewportSize}, content={contentSize}, scale={content.localScale.x}, dragOwner=UIResearchGraphGesture, scrollRectPresent={scrollRect != null}");
+        Debug.Log($"[王国界面] Research graph bounds: viewport={viewportSize}, content={contentSize}, scale={content.localScale.x}, dragOwner=UIResearchGraphGesture, scrollRectPresent={scrollRect != null}");
         if (resetToTop)
         {
             SetTopLeftPosition();

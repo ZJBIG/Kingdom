@@ -52,7 +52,7 @@ internal static class RetiredDefinitionMigration
             return;
         logged = true;
         Debug.LogWarning(
-            "Save migration ignored retired definitions: " +
+            "存档迁移已忽略退役定义：" +
             "StoneTool, MetalTool, StoneToolWorkshop, Blacksmith.");
     }
 
@@ -62,7 +62,7 @@ internal static class RetiredDefinitionMigration
             return;
         legacyResourceIdsLogged = true;
         Debug.LogWarning(
-            "Save migration remapped legacy definitions: " +
+            "存档迁移已重映射旧定义：" +
             "StoneChunk_Marble -> StoneChunk, StoneBrick_Marble -> StoneBrick, " +
             "StoneCuttingWorkshop_Marble -> StoneCuttingWorkshop.");
     }

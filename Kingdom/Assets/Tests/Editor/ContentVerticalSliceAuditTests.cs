@@ -6,7 +6,7 @@ public sealed class ContentVerticalSliceAuditTests
     public void AnimalAndMetalRawChains_HaveConcreteSources()
     {
         Assert.That(HasGeneration("ClayPit", "Clay"), Is.True);
-        Assert.That(HasGeneration("FiberGatheringCamp", "PlantFiber"), Is.True);
+        Assert.That(HasGeneration("FiberGatheringCamp", "Biomass"), Is.True);
         Assert.That(DataBase<Building>.Contains("StoneToolWorkshop"), Is.False);
         Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
         Assert.That(HasGeneration("MetalMine", "CopperOre"), Is.True);
@@ -29,16 +29,16 @@ public sealed class ContentVerticalSliceAuditTests
         Assert.That(HasGeneration("CeramicKiln", "Ceramic"), Is.True);
         Assert.That(HasConsumption("CeramicKiln", "Clay"), Is.True);
         Assert.That(HasGeneration("WeavingWorkshop", "Cloth"), Is.True);
-        Assert.That(HasConsumption("WeavingWorkshop", "PlantFiber"), Is.True);
+        Assert.That(HasConsumption("WeavingWorkshop", "Biomass"), Is.True);
     }
 
     [Test]
-    public void BronzeFoundry_ConsumesCopperTinAndCoal()
+    public void MetalSmelter_ConsumesOresAndCoalAndProducesBronze()
     {
-        Assert.That(HasConsumption("BronzeFoundry", "Copper"), Is.True);
-        Assert.That(HasConsumption("BronzeFoundry", "Tin"), Is.True);
-        Assert.That(HasConsumption("BronzeFoundry", "Coal"), Is.True);
-        Assert.That(HasGeneration("BronzeFoundry", "Bronze"), Is.True);
+        Assert.That(HasConsumption("MetalSmelter", "CopperOre"), Is.True);
+        Assert.That(HasConsumption("MetalSmelter", "TinOre"), Is.True);
+        Assert.That(HasConsumption("MetalSmelter", "Coal"), Is.True);
+        Assert.That(HasGeneration("MetalSmelter", "Bronze"), Is.True);
     }
 
     [Test]

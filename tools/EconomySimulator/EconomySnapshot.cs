@@ -33,7 +33,16 @@ public enum SimEffectKind
     UnlockIndustrialWorkshop = 18,
     UnlockFirstContact = 19,
     UnlockDeepSpaceFleet = 20,
-    UnlockInterstellarNavigation = 21
+    UnlockInterstellarNavigation = 21,
+    DeconstructionReturnRate = 22,
+    FleetRepairCostMultiplier = 23,
+    OccupiedResourceProductionMultiplier = 24,
+    CampaignProgressMultiplier = 25,
+    CampaignSupplyCostMultiplier = 26,
+    CampaignCasualtyMultiplier = 27,
+    PopulationProductivityMultiplier = 28,
+    ExplorationPowerMultiplier = 29,
+    BuildingConstructionMultiplier = 30
 }
 
 public sealed class Definition

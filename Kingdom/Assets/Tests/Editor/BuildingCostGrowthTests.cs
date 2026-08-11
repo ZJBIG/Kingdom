@@ -35,6 +35,19 @@ public sealed class BuildingCostGrowthTests
     }
 
     [Test]
+    public void BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget()
+    {
+        Building branchA = CreateBuilding("BranchA");
+        Building branchB = CreateBuilding("BranchB");
+        Building sharedTarget = CreateBuilding("SharedTarget");
+        branchA.SetUpgradeToForEditor(sharedTarget);
+        branchB.SetUpgradeToForEditor(sharedTarget);
+
+        Assert.DoesNotThrow(() => BuildingManager.ValidateBuildingChains(
+            new List<Building> { branchA, branchB, sharedTarget }));
+    }
+
+    [Test]
     public void BuildingManager_ChargesGrowthAndRefundsLastBatch()
     {
         CreateManager<GameManager>("Growth-GameManager");
@@ -59,7 +72,7 @@ public sealed class BuildingCostGrowthTests
 
         Assert.That(buildingManager.TryDeconstruct(farm, ExpantaNum.One, out BuildFailure deconstructFailure), Is.True);
         Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
-        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(904.4d).Within(0.000001d));
+        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(895.85d).Within(0.000001d));
     }
 
     [Test]
@@ -86,6 +99,14 @@ public sealed class BuildingCostGrowthTests
         GameObject gameObject = new GameObject(name);
         createdObjects.Add(gameObject);
         return gameObject.AddComponent<T>();
+    }
+
+    private Building CreateBuilding(string id)
+    {
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.SetIdForEditor(id);
+        createdObjects.Add(building);
+        return building;
     }
 
     private static void RestorePopulation(GameState state, ExpantaNum population)

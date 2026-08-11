@@ -3,13 +3,19 @@ using System.Text;
 
 public static class SectorValidator
 {
+    private static readonly ExpantaNum MinimumInterstellarTerritoryReward =
+        new ExpantaNum(100000d);
+    // 战役进度的极限速度约为 multiplier / 30，远星战役至少应持续半小时。
+    private static readonly ExpantaNum MaximumInterstellarProgressMultiplier =
+        new ExpantaNum(1d / 60d);
+
     public static bool ValidateDefinitions(
         IEnumerable<SectorDefinition> sectors,
         out string error)
     {
         if (sectors == null)
         {
-            error = "Sector validation failed: definition collection is null.";
+            error = "星区验证失败：定义集合为空。";
             return false;
         }
 
@@ -19,30 +25,30 @@ public static class SectorValidator
         {
             if (sector == null)
             {
-                error = "Sector validation failed: definition collection contains null.";
+                error = "星区验证失败：定义集合包含空引用。";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(sector.Id) || !ids.Add(sector.Id))
             {
-                error = $"Sector validation failed: duplicate or empty ID '{sector.Id}'.";
+                error = $"星区验证失败：编号“{sector.Id}”重复或为空。";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(sector.Label) || string.IsNullOrWhiteSpace(sector.Description))
             {
-                error = $"Sector validation failed: '{sector.Id}' requires a label and description.";
+                error = $"星区验证失败：“{sector.Id}”缺少名称或描述。";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(sector.StarSystemId) ||
                 (sector.IsHomeSystem && sector.StarSystemId != SectorDefinition.HomeSystemId) ||
                 (!sector.IsHomeSystem && sector.StarSystemId == SectorDefinition.HomeSystemId))
             {
-                error = $"Sector validation failed: '{sector.Id}' has an invalid domain/system pair.";
+                error = $"星区验证失败：“{sector.Id}”的领域与星系配置无效。";
                 return false;
             }
             if (sector.EnemyPower.IsNaN || sector.EnemyPower < ExpantaNum.Zero ||
                 sector.TerritoryReward.IsNaN || sector.TerritoryReward <= ExpantaNum.Zero)
             {
-                error = $"Sector validation failed: '{sector.Id}' has invalid power or territory reward.";
+                error = $"星区验证失败：“{sector.Id}”的敌方强度或领土奖励无效。";
                 return false;
             }
             if (!ValidateRewards(sector, out error))
@@ -64,7 +70,7 @@ public static class SectorValidator
                     if (prerequisite == null || !known.Contains(prerequisite) ||
                         prerequisite == sector || !unique.Add(prerequisite))
                     {
-                        error = $"Sector validation failed: '{sector.Id}' has an invalid prerequisite list.";
+                        error = $"星区验证失败：“{sector.Id}”的前置星区列表无效。";
                         return false;
                     }
                 }
@@ -72,13 +78,18 @@ public static class SectorValidator
 
             if (sector.IsHomeSystem)
             {
-                if (!ValidateCosts(sector.ColonizationFoodPerMinute, sector.ColonizationResourceCosts, sector.Id, "exploration", out error))
+                if (!ValidateCosts(sector.ColonizationFoodPerSecond, sector.ColonizationResourceRatesPerSecond, sector.Id, "探索", out error))
                     return false;
             }
-            else if (!ValidateCosts(sector.CampaignFoodPerMinute, sector.CampaignResourceCosts, sector.Id, "campaign", out error) ||
-                     sector.CampaignProgressMultiplier <= ExpantaNum.Zero)
+            else if (!ValidateCosts(sector.CampaignFoodPerSecond, sector.CampaignResourceRatesPerSecond, sector.Id, "战役", out error) ||
+                     sector.CampaignProgressMultiplier <= ExpantaNum.Zero ||
+                     sector.CampaignProgressMultiplier > MaximumInterstellarProgressMultiplier)
             {
-                error = $"Sector validation failed: '{sector.Id}' has invalid campaign pacing or costs.";
+                error = $"星区验证失败：“{sector.Id}”的战役节奏或成本无效。";
+                return false;
+            }
+            else if (!ValidateInterstellarCampaignScale(sector, out error))
+            {
                 return false;
             }
         }
@@ -87,6 +98,52 @@ public static class SectorValidator
             return false;
 
         return ValidateProgressionReachability(definitions, out error);
+    }
+
+    private static bool ValidateInterstellarCampaignScale(
+        SectorDefinition sector,
+        out string error)
+    {
+        if (sector.TerritoryReward < MinimumInterstellarTerritoryReward)
+        {
+            error = $"星际战役验证失败：'{sector.Id}' 的领土回报必须至少为 100000。";
+            return false;
+        }
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs =
+            sector.CampaignResourceRatesPerSecond;
+        bool usesAdvancedResource = false;
+        if (costs != null)
+        {
+            for (int i = 0; i < costs.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> cost = costs[i];
+                if (cost.First != null && cost.Second > ExpantaNum.Zero &&
+                    IsAdvancedCampaignResource(cost.First.Id))
+                {
+                    usesAdvancedResource = true;
+                    break;
+                }
+            }
+        }
+
+        if (!usesAdvancedResource)
+        {
+            error = $"星际战役验证失败：'{sector.Id}' 必须持续消耗钛合金、复合材料或幽影/相位材料。";
+            return false;
+        }
+
+        error = null;
+        return true;
+    }
+
+    private static bool IsAdvancedCampaignResource(string resourceId)
+    {
+        return resourceId == "TitaniumAlloy" ||
+            resourceId == "Composite" ||
+            resourceId == "PhantomAlloy" ||
+            resourceId == "PhantomWeave" ||
+            resourceId == "PhaseMaterial";
     }
 
     /// <summary>
@@ -200,7 +257,7 @@ public static class SectorValidator
     {
         if (sectors == null)
         {
-            error = "Sector validation failed: definition collection is null.";
+            error = "星区验证失败：定义集合为空。";
             return false;
         }
 
@@ -222,7 +279,7 @@ public static class SectorValidator
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = sector.ResourceRewards;
         if (rewards == null || rewards.Count == 0)
         {
-            error = $"Sector validation failed: '{sector.Id}' requires at least one resource reward.";
+            error = $"星区验证失败：“{sector.Id}”至少需要一种资源奖励。";
             return false;
         }
         for (int i = 0; i < rewards.Count; i++)
@@ -230,7 +287,7 @@ public static class SectorValidator
             Pair<Resource, ExpantaNum> reward = rewards[i];
             if (reward.First == null || reward.Second.IsNaN || reward.Second <= ExpantaNum.Zero)
             {
-                error = $"Sector validation failed: '{sector.Id}' has an invalid resource reward.";
+                error = $"星区验证失败：“{sector.Id}”包含无效的资源奖励。";
                 return false;
             }
         }
@@ -239,15 +296,15 @@ public static class SectorValidator
     }
 
     private static bool ValidateCosts(
-        ExpantaNum foodPerMinute,
+        ExpantaNum foodPerSecond,
         IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
         string sectorId,
         string operation,
         out string error)
     {
-        if (foodPerMinute.IsNaN || foodPerMinute < ExpantaNum.Zero || costs == null)
+        if (foodPerSecond.IsNaN || foodPerSecond < ExpantaNum.Zero || costs == null)
         {
-            error = $"Sector validation failed: '{sectorId}' has invalid {operation} costs.";
+            error = $"星区验证失败：“{sectorId}”的{operation}成本无效。";
             return false;
         }
         for (int i = 0; i < costs.Count; i++)
@@ -255,7 +312,7 @@ public static class SectorValidator
             Pair<Resource, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second.IsNaN || cost.Second < ExpantaNum.Zero)
             {
-                error = $"Sector validation failed: '{sectorId}' has an invalid {operation} resource cost.";
+                error = $"星区验证失败：“{sectorId}”包含无效的{operation}资源成本。";
                 return false;
             }
         }
@@ -272,7 +329,7 @@ public static class SectorValidator
     {
         if (sector == null)
         {
-            error = "Sector validation failed: definition collection contains null.";
+            error = "星区验证失败：定义集合包含空引用。";
             return false;
         }
         if (visited.Contains(sector))
@@ -294,12 +351,12 @@ public static class SectorValidator
             {
                 if (prerequisite == null)
                 {
-                    error = $"Sector validation failed: '{sector.name}' contains a null prerequisite.";
+                    error = $"星区验证失败：“{sector.name}”包含空的前置星区。";
                     return false;
                 }
                 if (!uniquePrerequisites.Add(prerequisite))
                 {
-                    error = $"Sector validation failed: '{sector.name}' contains duplicate prerequisite '{prerequisite.name}'.";
+                    error = $"星区验证失败：“{sector.name}”重复引用前置星区“{prerequisite.name}”。";
                     return false;
                 }
                 if (!Visit(prerequisite, visiting, visited, path, out error))
@@ -319,7 +376,7 @@ public static class SectorValidator
         int start = path.IndexOf(repeated);
         if (start < 0)
             start = 0;
-        var builder = new StringBuilder("Sector dependency cycle: ");
+        var builder = new StringBuilder("星区依赖循环：");
         for (int i = start; i < path.Count; i++)
         {
             if (i > start)

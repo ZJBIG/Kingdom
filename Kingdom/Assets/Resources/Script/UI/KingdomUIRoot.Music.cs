@@ -25,7 +25,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
         musicPageBuilt = false;
-        Debug.LogError("[KingdomUI] Authored MusicSurface is missing Controls or TrackListViewport; fixed music UI will not be generated at runtime.");
+        Debug.LogError("[王国界面] Authored MusicSurface is missing Controls or TrackListViewport; fixed music UI will not be generated at runtime.");
     }
 
     private static List<MusicManager.MusicTrack> BuildMusicDisplayTracks(MusicManager manager)
@@ -54,8 +54,8 @@ public sealed partial class KingdomUIRoot
                 if (clip == null)
                     continue;
                 string path = "Musics/" + category + "/" + clip.name;
-                result.Add(new MusicManager.MusicTrack(category + ":" + clip.name,
-                    clip.name, category, path, clip));
+            result.Add(new MusicManager.MusicTrack(category + ":" + clip.name,
+                clip.name, MusicCategoryLabel(category), path, clip));
             }
         }
         return result;
@@ -80,7 +80,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text label = child == null ? null : child.GetComponent<TMP_Text>();
         if (label == null)
         {
-            Debug.LogError("[KingdomUI] MusicTrack prefab is missing its authored column: " + name);
+            Debug.LogError("[王国界面] MusicTrack prefab is missing its authored column: " + name);
             return null;
         }
         label.text = text ?? string.Empty;
@@ -209,10 +209,10 @@ public sealed partial class KingdomUIRoot
         float current = manager.AudioSource == null ? 0f : manager.AudioSource.time;
         float total = manager.AudioSource == null || manager.AudioSource.clip == null ? 0f : manager.AudioSource.clip.length;
         if (musicCurrentLabel != null)
-            musicCurrentLabel.text = track == null ? "NOW PLAYING" : track.Category;
+            musicCurrentLabel.text = track == null ? "正在播放" : track.Category;
         if (musicTimeLabel != null)
         {
-            string trackName = track == null ? "NO TRACK" : track.Label;
+            string trackName = track == null ? "没有曲目" : track.Label;
             musicTimeLabel.text = trackName + "  " + FormatMusicTime(current) + " / " + FormatMusicTime(total);
         }
         if (musicProgressSlider != null)
@@ -273,7 +273,7 @@ public sealed partial class KingdomUIRoot
             return;
         TMP_Text label = musicPlayPauseButton.GetComponentInChildren<TMP_Text>(true);
         if (label != null)
-            label.text = manager.IsPlaying ? "PAUSE" : "PLAY";
+            label.text = manager.IsPlaying ? "暂停" : "播放";
         Image image = musicPlayPauseButton.targetGraphic as Image;
         if (image == null)
             return;
@@ -281,6 +281,14 @@ public sealed partial class KingdomUIRoot
             ? new Color(Positive.r * .45f, Positive.g * .45f, Positive.b * .45f, 1f)
             : manager.IsPlaying ? Positive : PanelRaised;
     }
+
+    private static string MusicCategoryLabel(string category) => category switch
+    {
+        "day" => "日间",
+        "silence" => "静默",
+        "village" => "村落",
+        _ => category
+    };
 
     private static string FormatMusicTime(float seconds)
     {

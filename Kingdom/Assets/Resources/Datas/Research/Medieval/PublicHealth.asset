@@ -16,56 +16,30 @@ MonoBehaviour:
   Label: "\u516C\u5171\u536B\u751F"
   Description: "\u5EFA\u7ACB\u6E05\u6D01\u6C34\u6E90\u3001\u6C61\u7269\u5904\u7406\u3001\u9694\u79BB\u548C\u516C\u5171\u536B\u751F\u89C4\u8303\uFF0C\u51CF\u5C11\u4EBA\u53E3\u5BC6\u96C6\u5730\u533A\u7684\u4F20\u67D3\u4E0E\u73AF\u5883\u6027\u75BE\u75C5\u3002
     \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD840%\u3002"
-  BaseCost: 175000
+  BaseCost: "175000"
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
   - {fileID: 11400000, guid: bf4d8f1e0f33bc341a6012810cfda653, type: 2}
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 400
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "400"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "600"
   effects:
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.02"
   - Type: 17
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.4
-      layer: 0
-      operators: []
+    value: "1.4"
+  - Type: 28
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.25"
   TechLevel: 2
   AdvancesTechLevel: 0

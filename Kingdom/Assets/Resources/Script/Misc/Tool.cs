@@ -42,6 +42,58 @@ public struct Pair<T1, T2> : IEquatable<Pair<T1, T2>>
     public static bool operator ==(Pair<T1, T2> left, Pair<T1, T2> right) => left.Equals(right);
     public static bool operator !=(Pair<T1, T2> left, Pair<T1, T2> right) => !left.Equals(right);
 }
+
+[Serializable]
+public sealed class ResourceAmountDefinition
+{
+    [SerializeField] private Resource resource;
+    [SerializeField] private string amount = "0";
+
+    public Resource Resource => resource;
+    public ExpantaNum Amount => string.IsNullOrWhiteSpace(amount) ? ExpantaNum.Zero : amount;
+
+    public Pair<Resource, ExpantaNum> ToPair() => new Pair<Resource, ExpantaNum>(resource, Amount);
+
+    public static ResourceAmountDefinition FromPair(Pair<Resource, ExpantaNum> value) =>
+        new ResourceAmountDefinition
+        {
+            resource = value.First,
+            amount = value.Second.ToString()
+        };
+}
+
+public static class ResourceAmountDefinitionList
+{
+    public static List<Pair<Resource, ExpantaNum>> ToPairs(
+        IReadOnlyList<ResourceAmountDefinition> values)
+    {
+        List<Pair<Resource, ExpantaNum>> result = new();
+        if (values == null)
+            return result;
+
+        for (int i = 0; i < values.Count; i++)
+        {
+            if (values[i] != null)
+                result.Add(values[i].ToPair());
+        }
+
+        return result;
+    }
+
+    public static List<ResourceAmountDefinition> FromPairs(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> values)
+    {
+        List<ResourceAmountDefinition> result = new();
+        if (values == null)
+            return result;
+
+        for (int i = 0; i < values.Count; i++)
+            result.Add(ResourceAmountDefinition.FromPair(values[i]));
+
+        return result;
+    }
+}
+
 public static class Tool
 {
     private static readonly Dictionary<Type, Dictionary<string, string>> DescriptionCache = new();

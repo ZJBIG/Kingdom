@@ -36,7 +36,7 @@ public sealed class ResearchState
         if (!ExpantaNum.TryParse(definition.BaseCost, out ExpantaNum parsedCost) || parsedCost < ExpantaNum.Zero)
         {
             throw new FormatException(
-                $"Research definition '{definition.name}' has invalid BaseCost '{definition.BaseCost}'.");
+                $"研究定义“{definition.name}”的基础成本“{definition.BaseCost}”无效。");
         }
 
         BaseCost = parsedCost;

@@ -14,62 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalEngineering
   Label: "轨道工程"
-  Description: "把工业电力、内燃机和复合材料整合为近地轨道发射与测控体系。"
-  BaseCost: 1600000
+  Description: "把工业电力、内燃机、复合材料与锡基焊接接点整合为近地轨道发射与测控体系。"
+  BaseCost: "1600000"
   prerequisites:
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   - {fileID: 11400000, guid: c20610d6f6d6f514183d375456418970, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1200
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 700
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 500
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+    amount: "180"
   effects:
-  - Type: 1
-    Building: {fileID: 11400000, guid: 228adaa627a33bd4ea2b87e41c5a0445, type: 2}
+  - Type: 13
+    Building: {fileID: 11400000, guid: 9f6e4d2c1b0a9876543210fedcba9876, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 4
   AdvancesTechLevel: 0

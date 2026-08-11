@@ -111,7 +111,7 @@ public static class ResourceSimulator
         population<capacity-1e-9?-1:population>capacity+1e-9?1:0;
     private static double Efficiency(SimulationState s,Definition d,IReadOnlyList<Definition> all,double deltaSeconds){double e=1;foreach(var p in d.Consumption){double demand=p.Value*s.Buildings.GetValueOrDefault(d.Id);if(demand>0)e=Math.Min(e,(s.Resources.GetValueOrDefault(p.Key)+p.Value*deltaSeconds)/(demand*deltaSeconds));}return Math.Clamp(e,0,1);}
     private static IEnumerable<SimEffect> CompletedEffects(SimulationState s,SimEffectKind kind,string target)=>s.ActiveEffects.Where(e=>e.Kind==kind&&(string.IsNullOrEmpty(e.Target)||e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));
-    private static double EffectMultiplier(SimulationState s,SimEffectKind kind,string target)
+    internal static double EffectMultiplier(SimulationState s,SimEffectKind kind,string target)
     {
         double result=1d;
         foreach(SimEffect effect in CompletedEffects(s,kind,target))
@@ -165,7 +165,7 @@ public static class ResourceSimulator
         }
         return foodIn - foodOut;
     }
-    public static double PopulationGrowthRatePerMinute(SimulationState s)
+    public static double PopulationGrowthRatePerSecond(SimulationState s)
     {
         if(s.Population>=s.PopulationCapacity || s.HappinessMultiplier<=0d)
             return 0d;
@@ -176,7 +176,7 @@ public static class ResourceSimulator
             Math.Max(1d,s.Population)*
             PopulationGrowthMultiplier(s)*(1d-occupancy);
     }
-    public static double PopulationDepartureRatePerMinute(
+    public static double PopulationDepartureRatePerSecond(
         SimulationState s,
         double departureAllowance)
     {

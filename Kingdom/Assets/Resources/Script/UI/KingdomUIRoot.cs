@@ -126,7 +126,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         PreloadResearchTreeAssets();
 
         HideLegacyChildren();
-        Debug.Log("[KingdomUI] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface");
+        Debug.Log("[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface");
         BuildVisibleShell();
     }
 
@@ -142,7 +142,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // Matching width keeps the central page width positive on editor
         // windows while preserving the 2640x1200 target composition.
         scaler.matchWidthOrHeight = 0f;
-        Debug.Log($"[KingdomUI] Canvas configured: mode={scaler.uiScaleMode}, reference={scaler.referenceResolution}, match={scaler.matchWidthOrHeight}");
+        Debug.Log($"[王国界面] Canvas configured: mode={scaler.uiScaleMode}, reference={scaler.referenceResolution}, match={scaler.matchWidthOrHeight}");
     }
 
     private void ResolveFont()
@@ -172,7 +172,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         if (sharedFontAsset == null)
             sharedFontAsset = TMP_Settings.defaultFontAsset;
-        Debug.Log($"[KingdomUI] Font resolved: source={(source == null ? "null" : source.name)}, shared={(sharedFontAsset == null ? "null" : sharedFontAsset.name)}, default={(TMP_Settings.defaultFontAsset == null ? "null" : TMP_Settings.defaultFontAsset.name)}");
+        Debug.Log($"[王国界面] 字体解析完成：来源={(source == null ? "空" : source.name)}，共享字体={(sharedFontAsset == null ? "空" : sharedFontAsset.name)}，默认字体={(TMP_Settings.defaultFontAsset == null ? "空" : TMP_Settings.defaultFontAsset.name)}");
     }
 
     private void Start() => Invoke(nameof(RebuildCurrentPage), 0.5f);
@@ -231,15 +231,15 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         bool authoredShell = TryBindAuthoredShell();
         if (!authoredShell)
         {
-            Debug.LogError("[KingdomUI] Authored scene shell is incomplete. Open Tools/Kingdom/UI/Generate Authored Scene Shell; fixed UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Authored scene shell is incomplete. Open Tools/Kingdom/UI/Generate Authored Scene Shell; fixed UI will not be generated at runtime.");
             return;
         }
         if (safeArea.GetComponent<SafeAreaFitter>() == null)
             safeArea.gameObject.AddComponent<SafeAreaFitter>();
-        Debug.Log("[KingdomUI] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.");
+        Debug.Log("[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.");
         EnsureRuntimeCanvasGeometry();
         Canvas.ForceUpdateCanvases();
-        Debug.Log($"[KingdomUI] Panel alignment: navigation={GetRectSize(leftNavigation)}, detail={GetRectSize(detailPanel)}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
+        Debug.Log($"[王国界面] Panel alignment: navigation={GetRectSize(leftNavigation)}, detail={GetRectSize(detailPanel)}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
         SetPage("Overview");
         researchTreeWarmupCoroutine = StartCoroutine(WarmResearchTreePage());
     }
@@ -261,7 +261,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         PopulatePage("Research");
         page.gameObject.SetActive(wasActive);
         researchTreeWarmupCoroutine = null;
-        Debug.Log("[KingdomUI] Research page warmed and cached before first tab activation");
+        Debug.Log("[王国界面] Research page warmed and cached before first tab activation");
     }
 
     private static Vector2 GetRectSize(RectTransform rect) => rect == null ? Vector2.zero : rect.rect.size;
@@ -327,7 +327,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (!runtimeGeometryDiagnosticLogged && (root.rect.width <= 0f || root.rect.height <= 0f || safeArea == null || safeArea.rect.height <= 0f))
         {
             runtimeGeometryDiagnosticLogged = true;
-            Debug.Log($"[KingdomUI] Runtime geometry pending: root={root.rect.size}, safeArea={(safeArea == null ? Vector2.zero : safeArea.rect.size)}, screen={Screen.width}x{Screen.height}, rootScale={root.localScale}");
+            Debug.Log($"[王国界面] Runtime geometry pending: root={root.rect.size}, safeArea={(safeArea == null ? Vector2.zero : safeArea.rect.size)}, screen={Screen.width}x{Screen.height}, rootScale={root.localScale}");
         }
         if (!runtimeGeometryLogged && safeArea != null &&
             safeArea.rect.width > 0f && safeArea.rect.height > 0f &&
@@ -335,7 +335,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             leftNavigation.rect.height > 0f && detailPanel.rect.height > 0f)
         {
             runtimeGeometryLogged = true;
-            Debug.Log($"[KingdomUI] Runtime geometry valid: screen={Screen.width}x{Screen.height}, safeArea={safeArea.rect.size}, navigation={leftNavigation.rect.size}, detail={detailPanel.rect.size}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
+            Debug.Log($"[王国界面] Runtime geometry valid: screen={Screen.width}x{Screen.height}, safeArea={safeArea.rect.size}, navigation={leftNavigation.rect.size}, detail={detailPanel.rect.size}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
         }
     }
 
@@ -345,7 +345,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private void SetPage(string name)
     {
         if (name == "Research")
-            Debug.Log("[KingdomUI] SetPage Research");
+            Debug.Log("[王国界面] SetPage Research");
         foreach (KeyValuePair<string, RectTransform> pair in pages)
             pair.Value.gameObject.SetActive(pair.Key == name);
         if (pageTitle != null)
@@ -416,7 +416,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         Transform old = page.Find("DataRows");
         if (old == null)
         {
-            Debug.LogError("[KingdomUI] Authored DataRows host is missing for page: " + name);
+            Debug.LogError("[王国界面] Authored DataRows host is missing for page: " + name);
             return;
         }
         bool reuseResearchPage = name == "Research" && researchTreePageBuilt && old != null;
@@ -428,7 +428,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         bool authoredRowsHost = old != null;
         if (!reuseResearchPage && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage && !authoredRowsHost)
         {
-            Debug.LogError("[KingdomUI] Page DataRows is not an authored layout host: " + name);
+            Debug.LogError("[王国界面] Page DataRows is not an authored layout host: " + name);
             return;
         }
         if (authoredRowsHost && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage)
@@ -641,14 +641,14 @@ public static class DevelopmentGuidance
 
         if (workshopManager != null && workshopManager.IsSystemUnlocked)
         {
-            IReadOnlyList<WorkshopUpgradeDefinition> definitions = DataBase<WorkshopUpgradeDefinition>.All;
+            IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
-                WorkshopUpgradeDefinition definition = definitions[i];
+                WorkshopUpgrade definition = definitions[i];
                 if (definition == null || workshopManager.IsPurchased(definition) || !workshopManager.ArePrerequisitesMet(definition))
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Workshop;
-                snapshot.Title = "Workshop：" + definition.Label;
+        snapshot.Title = "工坊：" + definition.Label;
                 snapshot.Body = "已有可用的 Workshop 升级，查看其资源需求与效果。";
                 snapshot.Blockers = Array.Empty<string>();
                 return snapshot;

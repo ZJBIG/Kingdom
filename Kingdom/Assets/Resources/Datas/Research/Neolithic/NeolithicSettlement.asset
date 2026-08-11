@@ -16,74 +16,32 @@ MonoBehaviour:
   Label: "\u5B9A\u5C45\u805A\u843D"
   Description: "\u628A\u519C\u4E1A\u3001\u755C\u517B\u3001\u50A8\u85CF\u548C\u4F4F\u623F\u6574\u5408\u4E3A\u5E38\u5E74\u8FD0\u8F6C\u7684\u805A\u843D\u4F53\u7CFB\uFF0C\u4F7F\u4EBA\u53E3\u80FD\u591F\u5728\u56FA\u5B9A\u5730\u70B9\u6301\u7EED\u589E\u957F\u3002
     \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD825%\uFF0C\u5E76\u63D0\u4F9B300\u70B9\u9886\u5730\u548C100\u70B9\u751F\u4EA7\u529B\u3002"
-  BaseCost: 4400
+  BaseCost: "4400"
   prerequisites:
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}
   - {fileID: 11400000, guid: aaca627f761546a439f07f67a025864c, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
+    amount: "150"
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "100"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "100"
   effects:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
+    value: "300"
   - Type: 7
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+    value: "100"
   - Type: 17
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.25
-      layer: 0
-      operators: []
+    value: "1.25"
   TechLevel: 1
   AdvancesTechLevel: 1

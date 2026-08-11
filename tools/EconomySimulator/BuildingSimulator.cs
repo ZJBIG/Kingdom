@@ -177,7 +177,11 @@ public static class BuildingSimulator
             x=>x.Kind==SimEffectKind.ProductivityGranted).Sum(x=>Math.Max(0,x.Value));
         double infrastructure=buildings.Sum(x=>
             s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.ProductivityGranted));
-        return Math.Max(0,s.Population*2d+research+infrastructure);
+        double populationMultiplier = ResourceSimulator.EffectMultiplier(
+            s,
+            SimEffectKind.PopulationProductivityMultiplier,
+            "");
+        return Math.Max(0,s.Population*2d*populationMultiplier+research+infrastructure);
     }
     public static double UsedProductivity(SimulationState s,IReadOnlyList<Definition> buildings)=>
         Math.Max(0,buildings.Sum(x=>

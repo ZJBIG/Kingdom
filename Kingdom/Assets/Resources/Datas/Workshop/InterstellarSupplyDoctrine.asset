@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: InterstellarSupplyDoctrine
+  m_EditorClassIdentifier: 
+  id: InterstellarSupplyDoctrine
+  Label: "星际补给标准化模块"
+  Description: "\u5c06\u6df1\u7a7a\u7269\u6d41\u3001\u8230\u961f\u8865\u7ed9\u3001\u7ef4\u4fee\u9884\u7f6e\u4e0e\u524d\u6cbf\u4ed3\u50a8\u7edf\u4e00\u8c03\u5ea6\uff0c\u8ba9\u661f\u9645\u6218\u5f79\u80fd\u591f\u5728\u957f\u5468\u671f\u5185\u4fdd\u6301\u8fd0\u8f6c\u3002"
+  SortOrder: 560
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 9b7e3d1f5a2c4e6b8d0f1a3c5e7b9d24, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 0fca5243d6eb4f27a8e7b8632eba044d, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "2200"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "1000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "800"
+  - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    amount: "650"
+  effects:
+  - Type: 16
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.88"

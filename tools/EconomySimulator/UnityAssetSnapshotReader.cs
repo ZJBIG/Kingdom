@@ -30,7 +30,16 @@ public static class UnityAssetSnapshotReader
             [9] = SimEffectKind.BuildingResearchPowerMultiplier,
             [10] = SimEffectKind.BuildingPowerProductionMultiplier,
             [11] = SimEffectKind.BuildingLogisticsProductionMultiplier,
-            [12] = SimEffectKind.GlobalLogisticsMultiplier
+            [12] = SimEffectKind.GlobalLogisticsMultiplier,
+            [13] = SimEffectKind.FleetRepairCostMultiplier,
+            [14] = SimEffectKind.PopulationGrowthMultiplier,
+            [15] = SimEffectKind.OccupiedResourceProductionMultiplier,
+            [16] = SimEffectKind.CampaignSupplyCostMultiplier,
+            [17] = SimEffectKind.CampaignCasualtyMultiplier,
+            [18] = SimEffectKind.BuildingConstructionMultiplier,
+            [19] = SimEffectKind.ExplorationPowerMultiplier,
+            [29] = SimEffectKind.ExplorationPowerMultiplier,
+            [30] = SimEffectKind.BuildingConstructionMultiplier
         };
 
     public static EconomySnapshot Read(string repositoryRoot)
@@ -173,7 +182,9 @@ public static class UnityAssetSnapshotReader
         string prefix = "  " + field + ":";
         string? direct = lines.FirstOrDefault(x => x.StartsWith(
             prefix, StringComparison.Ordinal));
-        string valueText = direct == null ? "" : direct[prefix.Length..].Trim();
+        string valueText = direct == null
+            ? ""
+            : direct[prefix.Length..].Trim().Trim('"');
         if (double.TryParse(valueText,
                 NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
             return value;
@@ -222,7 +233,7 @@ public static class UnityAssetSnapshotReader
         string path)
     {
         foreach (Match match in Regex.Matches(section,
-                     @"- first:.*?guid:\s*([0-9a-f]+).*?scalar:\s*([-+0-9.eE]+)",
+                     @"- resource:.*?guid:\s*([0-9a-f]+).*?amount:\s*""?([-+0-9.eE]+)",
                      RegexOptions.Singleline | RegexOptions.IgnoreCase))
         {
             string id = Resolve(match.Groups[1].Value, guidToId, path);
@@ -258,7 +269,7 @@ public static class UnityAssetSnapshotReader
                         $"Unknown Research effect type {serializedType} in {path}");
             string body = match.Groups[2].Value;
             Match valueMatch = Regex.Match(body,
-                @"(?m)^\s*scalar:\s*([-+0-9.eE]+)");
+                @"value:\s*""?([-+0-9.eE]+)");
             var effect = new SimEffect
             {
                 Kind = kind,

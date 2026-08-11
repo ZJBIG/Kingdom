@@ -45,7 +45,7 @@ public sealed partial class KingdomUIRoot
             button.onClick.AddListener(() => ShowSectorDetails(definition, sectorManager, state, resourceManager));
         }
 
-        Debug.Log($"[KingdomUI] Sector rows: visible={visible}, rowsRect={parent.rect.size}");
+        Debug.Log($"[王国界面] Sector rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
     private static string BuildSectorSummary(
@@ -104,9 +104,9 @@ public sealed partial class KingdomUIRoot
             {
                 body.AppendLine("探索能力：" + explorationPreview.ExplorationPower.ToGameString() +
                     "/" + explorationPreview.RequiredPower.ToGameString());
-                body.AppendLine("预计剩余：" + explorationPreview.EstimatedMinutesRemaining.ToGameString() + " 分钟");
-                body.AppendLine("食物补给：" + explorationPreview.FoodCostPerMinute.ToGameString() + "/分钟");
-                body.AppendLine("战略资源补给：" + FormatResourceCosts(explorationPreview.ResourceCostsPerMinute) + "/分钟");
+                body.AppendLine("预计剩余：" + explorationPreview.EstimatedSecondsRemaining.ToGameString() + " 秒");
+                body.AppendLine("食物补给：" + explorationPreview.FoodCostPerSecond.ToGameString() + "/秒");
+                body.AppendLine("战略资源补给：" + FormatResourceCosts(explorationPreview.ResourceCostsPerSecond) + "/秒");
                 body.AppendLine(explorationPreview.HasSupply ? "当前补给：充足" : "当前补给：不足");
             }
             body.AppendLine("探索要求：攻击力 ≥ " + definition.EnemyPower.ToGameString());
@@ -118,6 +118,8 @@ public sealed partial class KingdomUIRoot
         else if (sectorManager != null)
         {
             SectorCampaignPreview preview = sectorManager.GetCampaignPreview(definition, state, resourceManager);
+            body.AppendLine("领土回报：" + definition.TerritoryReward.ToGameString());
+            body.AppendLine("占领资源回报：" + FormatResourceCosts(definition.ResourceRewards));
             body.AppendLine("战斗比率：" + preview.CombatRatio.ToGameString());
             body.AppendLine("舰队生存倍率：" + preview.FleetSurvivalFactor.ToGameString());
             body.AppendLine("舰队整备度：" + preview.FleetReadiness.ToGameString());
@@ -125,15 +127,15 @@ public sealed partial class KingdomUIRoot
             body.AppendLine("补给满意度：" + preview.SupplySatisfaction.ToGameString());
             body.AppendLine("电力满意度：" + preview.PowerSatisfaction.ToGameString());
             body.AppendLine("物流满意度：" + preview.LogisticsSatisfaction.ToGameString());
-            body.AppendLine("推进速度：" + preview.ProgressPerMinute.ToGameString() + "/分钟");
-            body.AppendLine(preview.EstimatedMinutesRemaining > ExpantaNum.Zero
-                ? "预计完成：" + preview.EstimatedMinutesRemaining.ToGameString() + " 分钟"
+                body.AppendLine("推进速度：" + preview.ProgressPerSecond.ToGameString() + "/秒");
+            body.AppendLine(preview.EstimatedSecondsRemaining > ExpantaNum.Zero
+                ? "预计完成：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒"
                 : "预计完成：无法估算（当前条件不支持推进）");
-            body.AppendLine("预计伤亡：" + preview.CasualtiesPerMinute.ToGameString() + "/分钟");
-            body.AppendLine("食物补给：" + preview.FoodCostPerMinute.ToGameString() + "/分钟");
-            body.AppendLine("战略资源补给：" + FormatResourceCosts(preview.ResourceCostsPerMinute) + "/分钟");
+            body.AppendLine("预计伤亡：" + preview.CasualtiesPerSecond.ToGameString() + "/秒");
+            body.AppendLine("食物补给：" + preview.FoodCostPerSecond.ToGameString() + "/秒");
+            body.AppendLine("战略资源补给：" + FormatResourceCosts(preview.ResourceCostsPerSecond) + "/秒");
             body.AppendLine(preview.HasSupply ? "当前补给：足够" : "当前补给：不足");
-            if (preview.ProgressPerMinute <= ExpantaNum.Zero)
+            if (preview.ProgressPerSecond <= ExpantaNum.Zero)
                 body.AppendLine("警告：当前战斗或后勤条件不足，战役不会推进，继续行动只会增加伤亡。");
             else if (preview.LogisticsSatisfaction < ExpantaNum.One ||
                 preview.SupplySatisfaction < ExpantaNum.One ||
@@ -207,7 +209,7 @@ public sealed partial class KingdomUIRoot
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryUnlock(definition, out failure))
         {
-            ShowTooltip("\u661f\u533a\u89e3\u9501\u5931\u8d25\uff1a" + failure);
+            ShowTooltip("\u661f\u533a\u89e3\u9501\u5931\u8d25\uff1a" + failure.GetDescription());
             return;
         }
 
@@ -223,7 +225,7 @@ public sealed partial class KingdomUIRoot
         if (gameManager == null || !gameManager.Sectors.TryAdvanceColonization(
                 definition, 0d, gameManager.State, resourceManager, out failure))
         {
-            ShowTooltip("\u5f00\u59cb\u63a2\u7d22\u5931\u8d25\uff1a" + failure);
+            ShowTooltip("\u5f00\u59cb\u63a2\u7d22\u5931\u8d25\uff1a" + failure.GetDescription());
             return;
         }
 
@@ -252,7 +254,7 @@ public sealed partial class KingdomUIRoot
         if (gameManager == null || !gameManager.Sectors.TryAdvanceCampaign(
                 definition, 0d, gameManager.State, resourceManager, out failure))
         {
-            ShowTooltip("\u5f00\u59cb\u6218\u5f79\u5931\u8d25\uff1a" + failure);
+            ShowTooltip("\u5f00\u59cb\u6218\u5f79\u5931\u8d25\uff1a" + failure.GetDescription());
             return;
         }
 
@@ -279,7 +281,7 @@ public sealed partial class KingdomUIRoot
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryOccupy(definition, out failure))
         {
-            ShowTooltip("\u5360\u9886\u661f\u533a\u5931\u8d25\uff1a" + failure);
+            ShowTooltip("\u5360\u9886\u661f\u533a\u5931\u8d25\uff1a" + failure.GetDescription());
             return;
         }
 
@@ -311,7 +313,7 @@ public sealed partial class KingdomUIRoot
             out SectorOperationFailure failure);
         if (!repaired)
         {
-            ShowTooltip("舰队维修失败：" + failure);
+            ShowTooltip("舰队维修失败：" + failure.GetDescription());
             return;
         }
 

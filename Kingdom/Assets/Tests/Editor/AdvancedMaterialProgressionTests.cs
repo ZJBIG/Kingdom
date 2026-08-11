@@ -35,6 +35,9 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
             DataBase<Resource>.Find("Nickel")), Is.True);
+        Assert.That(HasPositiveRate(
+            titaniumPlant.ResourceConsumptionRates,
+            ceramic), Is.True);
         Assert.That(HasResourceRequirement(
             titaniumPlant.ResourceRequirements,
             DataBase<Resource>.Find("Nickel"),
@@ -44,6 +47,10 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomAlloy, 1200d), Is.True);
         Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomWeave, 1000d), Is.True);
         Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, titaniumAlloy, 1800d), Is.True);
+        Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, phantomAlloy), Is.True);
+        Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, phantomWeave), Is.True);
+        Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, titaniumAlloy), Is.True);
+        Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, phaseMaterial), Is.False);
         Assert.That(CountBuildingSinks(phaseMaterial), Is.GreaterThanOrEqualTo(3));
     }
 
@@ -60,7 +67,7 @@ public sealed class AdvancedMaterialProgressionTests
             HasResourceRequirement("TitaniumReductionRetorts", "Nickel", 140d),
             Is.True);
         Assert.That(
-            HasBuildingEffect("PhaseFieldContainment", "PhaseMaterialSynthesisArray", 1.2d),
+            HasBuildingEffect("PhaseFieldContainment", "PhantomMaterialsFabricator", 1.25d),
             Is.True);
         Assert.That(
             HasBuildingEffect("AdvancedCeramicFiring", "AdvancedCeramicsPlant", 1.3d),
@@ -70,10 +77,49 @@ public sealed class AdvancedMaterialProgressionTests
             Is.True);
         Assert.That(HasBuildingEffect("PhaseMaterialCalibration", "PhaseMaterialSynthesisArray", 1.25d), Is.True);
         Assert.That(HasResourceRequirement("PhaseMaterialCalibration", "PhaseMaterial", 260d), Is.True);
+        Assert.That(HasResourceRequirement("AutomatedShipyardAssembly", "Composite", 700d), Is.True);
         Assert.That(HasResourceProductionEffect("PhantomWeaveLattice", "PhantomWeave", 1.25d), Is.True);
         Assert.That(HasResourceRequirement("PhantomWeaveLattice", "PhantomAlloy", 650d), Is.True);
         Assert.That(HasResourceProductionEffect("PhantomAlloyRecrystallization", "PhantomAlloy", 1.2d), Is.True);
         Assert.That(HasResourceRequirement("PhantomAlloyRecrystallization", "PhaseMaterial", 240d), Is.True);
+    }
+
+    [Test]
+    public void 高级材料研究必须强化对应生产建筑()
+    {
+        Assert.That(
+            HasResearchBuildingEffect("TitaniumAlloyEngineering", "TitaniumMetallurgicalComplex", 1.1d),
+            Is.True);
+        Assert.That(
+            HasResearchBuildingEffect("PhantomMaterials", "PhantomMaterialsFabricator", 1.15d),
+            Is.True);
+        Assert.That(
+            HasResearchBuildingEffect("PhaseMaterialEngineering", "PhaseMaterialSynthesisArray", 1.2d),
+            Is.True);
+    }
+
+    [Test]
+    public void 氯化钛冶金研究负责钛精矿纯化理论()
+    {
+        Research theory = DataBase<Research>.Find("ChlorideTitaniumMetallurgy");
+        Resource concentrate = DataBase<Resource>.Find("TitaniumConcentrate");
+
+        Assert.That(theory, Is.Not.Null);
+        Assert.That(concentrate, Is.Not.Null);
+        bool hasPurificationTheory = false;
+        for (int i = 0; i < theory.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = theory.Effects[i];
+            if (effect != null &&
+                effect.Type == ResearchEffectType.ResourceProductionMultiplier &&
+                effect.Resource == concentrate &&
+                effect.Value.ToDouble() >= 1.15d)
+            {
+                hasPurificationTheory = true;
+                break;
+            }
+        }
+        Assert.That(hasPurificationTheory, Is.True);
     }
 
     [Test]
@@ -90,6 +136,74 @@ public sealed class AdvancedMaterialProgressionTests
         }
     }
 
+    [Test]
+    public void 太空高级材料必须进入多个星区行动()
+    {
+        foreach (string resourceId in new[]
+        {
+            "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
+        })
+        {
+            Resource resource = DataBase<Resource>.Find(resourceId);
+            int sectorUses = 0;
+            foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+            {
+                if (sector == null)
+                    continue;
+                if (HasPositiveRate(sector.CampaignResourceRatesPerSecond, resource) ||
+                    HasPositiveRate(sector.ColonizationResourceRatesPerSecond, resource))
+                    sectorUses++;
+            }
+
+            Assert.That(resource, Is.Not.Null, resourceId);
+            Assert.That(
+                sectorUses,
+                Is.GreaterThanOrEqualTo(2),
+                $"高级材料 {resourceId} 必须服务至少两个星区行动，不能只承担一次性建造费用。");
+        }
+    }
+
+    [Test]
+    public void 高级材料必须跨时代生产并持续服务太空建筑()
+    {
+        Assert.That(HasSourceAtTechLevel("TitaniumAlloy", TechLevel.Industrial), Is.True);
+        Assert.That(HasSourceAtTechLevel("Composite", TechLevel.Industrial), Is.True);
+        Assert.That(HasSourceAtTechLevel("PhantomAlloy", TechLevel.Spacer), Is.True);
+        Assert.That(HasSourceAtTechLevel("PhantomWeave", TechLevel.Spacer), Is.True);
+        Assert.That(HasSourceAtTechLevel("PhaseMaterial", TechLevel.Spacer), Is.True);
+
+        foreach (string resourceId in new[] { "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial" })
+            Assert.That(HasSpacerContinuousSink(resourceId), Is.True, resourceId);
+    }
+
+    [Test]
+    public void 舰队维修材料必须拥有工业生产入口()
+    {
+        Assert.That(HasSourceAtTechLevel("Composite", TechLevel.Industrial), Is.True);
+        Assert.That(HasSourceAtTechLevel("TitaniumAlloy", TechLevel.Industrial), Is.True);
+        Assert.That(HasSourceAtTechLevel("RocketFuel", TechLevel.Industrial), Is.True);
+        Assert.That(HasSourceAtTechLevel("PhantomWeave", TechLevel.Spacer), Is.True);
+    }
+
+    [Test]
+    public void 太空高级材料必须拥有明确且无生产循环的核心工坊()
+    {
+        Assert.That(HasPositiveProductionBuilding("Composite", "MachineFactory"), Is.True);
+        Assert.That(HasPositiveProductionBuilding("PhantomAlloy", "PhantomMaterialsFabricator"), Is.True);
+        Assert.That(HasPositiveProductionBuilding("PhantomWeave", "PhantomMaterialsFabricator"), Is.True);
+        Assert.That(HasPositiveProductionBuilding("PhaseMaterial", "PhaseMaterialSynthesisArray"), Is.True);
+
+        Building machineFactory = DataBase<Building>.Find("MachineFactory");
+        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
+        Building phaseArray = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
+        Assert.That(machineFactory, Is.Not.Null);
+        Assert.That(phantomFabricator, Is.Not.Null);
+        Assert.That(phaseArray, Is.Not.Null);
+        Assert.That(HasPositiveRate(machineFactory.ResourceConsumptionRates, DataBase<Resource>.Find("Composite")), Is.False);
+        Assert.That(HasPositiveRate(phantomFabricator.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")), Is.False);
+        Assert.That(HasPositiveRate(phaseArray.ResourceConsumptionRates, DataBase<Resource>.Find("PhaseMaterial")), Is.False);
+    }
+
     private static bool HasPositiveRate(
         System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
         Resource resource)
@@ -102,6 +216,13 @@ public sealed class AdvancedMaterialProgressionTests
         return false;
     }
 
+    private static bool HasPositiveProductionBuilding(string resourceId, string buildingId)
+    {
+        Resource resource = DataBase<Resource>.Find(resourceId);
+        Building building = DataBase<Building>.Find(buildingId);
+        return resource != null && building != null && HasPositiveRate(building.ResourceGenerationRates, resource);
+    }
+
     private static int CountPositiveSources(Resource resource)
     {
         int count = 0;
@@ -109,6 +230,36 @@ public sealed class AdvancedMaterialProgressionTests
             if (HasPositiveRate(DataBase<Building>.All[i].ResourceGenerationRates, resource))
                 count++;
         return count;
+    }
+
+    private static bool HasSourceAtTechLevel(string resourceId, TechLevel techLevel)
+    {
+        Resource resource = DataBase<Resource>.Find(resourceId);
+        if (resource == null)
+            return false;
+        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        {
+            Building building = DataBase<Building>.All[i];
+            if (building.TechLevel == techLevel &&
+                HasPositiveRate(building.ResourceGenerationRates, resource))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasSpacerContinuousSink(string resourceId)
+    {
+        Resource resource = DataBase<Resource>.Find(resourceId);
+        if (resource == null)
+            return false;
+        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        {
+            Building building = DataBase<Building>.All[i];
+            if (building.TechLevel == TechLevel.Spacer &&
+                HasPositiveRate(building.ResourceConsumptionRates, resource))
+                return true;
+        }
+        return false;
     }
 
     private static int CountBuildingSinks(Resource resource)
@@ -136,15 +287,15 @@ public sealed class AdvancedMaterialProgressionTests
     private static int CountWorkshopSinks(Resource resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<WorkshopUpgradeDefinition>.All.Count; i++)
-            if (HasPositiveRate(DataBase<WorkshopUpgradeDefinition>.All[i].ResourceRequirements, resource))
+        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
+            if (HasPositiveRate(DataBase<WorkshopUpgrade>.All[i].ResourceRequirements, resource))
                 count++;
         return count;
     }
 
     private static bool HasBuildingEffect(string workshopId, string buildingId, double minimumMultiplier)
     {
-        WorkshopUpgradeDefinition workshop = DataBase<WorkshopUpgradeDefinition>.Find(workshopId);
+        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
         if (workshop == null)
             return false;
         for (int i = 0; i < workshop.Effects.Count; i++)
@@ -176,7 +327,7 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasResourceRequirement(string workshopId, string resourceId, double minimumAmount)
     {
-        WorkshopUpgradeDefinition workshop = DataBase<WorkshopUpgradeDefinition>.Find(workshopId);
+        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
         Resource resource = DataBase<Resource>.Find(resourceId);
         return workshop != null && HasResourceRequirement(workshop.ResourceRequirements, resource, minimumAmount);
     }
@@ -201,7 +352,7 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasResourceProductionEffect(string workshopId, string resourceId, double minimumMultiplier)
     {
-        WorkshopUpgradeDefinition workshop = DataBase<WorkshopUpgradeDefinition>.Find(workshopId);
+        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
         Resource resource = DataBase<Resource>.Find(resourceId);
         if (workshop == null || resource == null)
             return false;

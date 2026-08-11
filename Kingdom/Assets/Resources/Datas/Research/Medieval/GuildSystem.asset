@@ -15,46 +15,22 @@ MonoBehaviour:
   id: GuildSystem
   Label: "\u884C\u4F1A\u5236\u5EA6"
   Description: "\u4EE5\u884C\u4F1A\u89C4\u8303\u5B66\u5F92\u57F9\u517B\u3001\u4EA7\u54C1\u8D28\u91CF\u3001\u4EF7\u683C\u548C\u884C\u4E1A\u4E92\u52A9\uFF0C\u4F7F\u57CE\u5E02\u624B\u5DE5\u4E1A\u5F62\u6210\u7A33\u5B9A\u7684\u4E13\u4E1A\u7EC4\u7EC7\u3002"
-  BaseCost: 150000
+  BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   - {fileID: 11400000, guid: 0b5aadb154b661e4ab853717625b8297, type: 2}
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 250
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "250"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "250"
   effects:
-  - Type: 5
+  - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.05"
   TechLevel: 2
   AdvancesTechLevel: 0

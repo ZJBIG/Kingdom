@@ -15,45 +15,21 @@ MonoBehaviour:
   id: Fortification
   Label: "\u57FA\u7840\u8BBE\u65BD\u89C4\u5212"
   Description: "\u7EDF\u4E00\u516C\u5171\u5EFA\u8BBE\u3001\u7269\u8D44\u8C03\u5EA6\u548C\u957F\u671F\u7EF4\u62A4\uFF0C\u8BA9\u57FA\u7840\u8BBE\u65BD\u66F4\u9AD8\u6548\u5730\u652F\u6301\u751F\u4EA7\u3002"
-  BaseCost: 210000
+  BaseCost: "210000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   - {fileID: 11400000, guid: 02a6c8e569a2099439b6c1001288c3e3, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1680
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 455
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 210
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "1680"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "455"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "210"
   effects:
   - Type: 12
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   TechLevel: 2
   AdvancesTechLevel: 0

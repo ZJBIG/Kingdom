@@ -191,7 +191,7 @@ public static class SimulationReportWriter
                 : latest.UsedProductivity / latest.TotalProductivity;
             builder.AppendLine(
                 $"- Final population growth: x{latest.PopulationGrowthMultiplier:0.###}, " +
-                $"{latest.PopulationGrowthPerMinute:0.###}/min; productivity utilization: " +
+                $"{latest.PopulationGrowthPerSecond:0.###}/s; productivity utilization: " +
                 $"{utilization:P1}; territory: {latest.TerritoryUsed:0.###}/{latest.TerritoryTotal:0.###}.");
         }
 
@@ -246,13 +246,13 @@ public static class SimulationReportWriter
     private static string Timeline(SimulationState state)
     {
         var builder = new StringBuilder(
-            "Minute,TechLevel,ResearchPower,Population,PopulationGrowthMultiplier,PopulationGrowthPerMinute,TotalProductivity,UsedProductivity,AvailableProductivity,ProductivityUtilization,TerritoryUsed,TerritoryTotal,ActiveResearch,Resources,Buildings,ResearchCompleted,WorkshopPurchased\n");
+            "Minute,TechLevel,ResearchPower,Population,PopulationGrowthMultiplier,PopulationGrowthPerSecond,TotalProductivity,UsedProductivity,AvailableProductivity,ProductivityUtilization,TerritoryUsed,TerritoryTotal,ActiveResearch,Resources,Buildings,ResearchCompleted,WorkshopPurchased\n");
         foreach (TimelineSnapshot snapshot in state.Timeline)
         {
             builder.AppendLine(
                 $"{snapshot.Minute},{snapshot.TechLevel},{snapshot.ResearchPower:0.###}," +
                 $"{snapshot.Population:0.###},{snapshot.PopulationGrowthMultiplier:0.###}," +
-                $"{snapshot.PopulationGrowthPerMinute:0.###},{snapshot.TotalProductivity:0.###}," +
+                $"{snapshot.PopulationGrowthPerSecond:0.###},{snapshot.TotalProductivity:0.###}," +
                 $"{snapshot.UsedProductivity:0.###}," +
                 $"{Math.Max(0,snapshot.TotalProductivity-snapshot.UsedProductivity):0.###}," +
                 $"{(snapshot.TotalProductivity<=0?0:snapshot.UsedProductivity/snapshot.TotalProductivity):0.###}," +

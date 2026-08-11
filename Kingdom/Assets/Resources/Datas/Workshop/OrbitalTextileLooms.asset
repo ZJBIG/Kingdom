@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: OrbitalTextileLooms
+  m_EditorClassIdentifier: 
+  id: OrbitalTextileLooms
+  Label: "\u8F68\u9053\u7EBA\u7EC7\u673A\u7EC4"
+  Description: "\u5C06\u5FAE\u91CD\u529B\u5F20\u529B\u63A7\u5236\u5668\u3001\u81EA\u52A8\u5377\u5E03\u673A\u548C\u9632\u8F90\u7167\u7EA4\u7EF4\u5904\u7406\u6A21\u5757\u7EC4\u88C5\u4E3A\u53EF\u6301\u7EED\u8FD0\u884C\u7684\u8F68\u9053\u7EBA\u7EC7\u5B9E\u7269\u8BBE\u5907\u3002"
+  SortOrder: 640
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: c9d0e1f2a34567b8c9d0e1f2a34567b8, type: 2}
+  - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: e2cf8f857e49fd940b8bb3449e4db98e, type: 2}
+  - {fileID: 11400000, guid: 18082d0e47b349f0bcaeb80e50fbecae, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "2600"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "2200"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "1400"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "4000"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "800"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: e1f2a3b4c56789d0e1f2a3b4c56789d0, type: 2}
+    Resource: {fileID: 0}
+    value: "1.4"

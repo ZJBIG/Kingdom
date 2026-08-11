@@ -15,73 +15,31 @@ MonoBehaviour:
   id: ElectricalCommunication
   Label: "\u7535\u62A5\u4E0E\u94C1\u8DEF\u8C03\u5EA6"
   Description: "\u5229\u7528\u7535\u62A5\u3001\u7EE7\u7535\u5668\u548C\u533A\u6BB5\u4FE1\u53F7\u8FDB\u884C\u8FDC\u8DDD\u79BB\u901A\u4FE1\u4E0E\u94C1\u8DEF\u8C03\u5EA6\u3002"
-  BaseCost: 650000
+  BaseCost: "650000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
   - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 525
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 231
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 70
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 84
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "525"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "231"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "70"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "84"
   effects:
-  - Type: 1
+  - Type: 15
     Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
-  - Type: 1
+    value: "1.1"
+  - Type: 13
     Building: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   - Type: 16
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.15
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 3
   AdvancesTechLevel: 0

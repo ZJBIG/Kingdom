@@ -19,54 +19,36 @@ MonoBehaviour:
   TechLevel: 3
   requiredResearch:
   - {fileID: 11400000, guid: 8f7371e9f4e0b9c43951b26016d33b95, type: 2}
-  - {fileID: 11400000, guid: 5eb29120e642f764992427861a6450fa, type: 2}
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 450
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "450"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "100"
   effects:
   - Type: 0
     Building: {fileID: 11400000, guid: 9cb1b7e87a2100d4e9dd2395989511ca, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.2
-      layer: 0
-      operators: []
+    value: "1.2"
   - Type: 0
     Building: {fileID: 11400000, guid: 037ef8be58a221c41badf7ec3324b539, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.2
-      layer: 0
-      operators: []
+    value: "1.2"
   - Type: 0
     Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.2
-      layer: 0
-      operators: []
+    value: "1.2"
+  - Type: 0
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678905, type: 2}
+    Resource: {fileID: 0}
+    value: "1.2"
+  - Type: 0
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+    Resource: {fileID: 0}
+    value: "1.2"
+  - Type: 0
+    Building: {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678909, type: 2}
+    Resource: {fileID: 0}
+    value: "1.2"

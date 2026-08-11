@@ -15,36 +15,18 @@ MonoBehaviour:
   id: Standardization
   Label: "\u6807\u51C6\u5316"
   Description: "\u7EDF\u4E00\u96F6\u4EF6\u5C3A\u5BF8\u3001\u6750\u6599\u7B49\u7EA7\u3001\u56FE\u7EB8\u7B26\u53F7\u548C\u68C0\u9A8C\u65B9\u6CD5\uFF0C\u4F7F\u4E0D\u540C\u5DE5\u574A\u4E0E\u5DE5\u5382\u751F\u4EA7\u7684\u90E8\u4EF6\u80FD\u591F\u4E92\u6362\u5E76\u7A33\u5B9A\u534F\u4F5C\u3002"
-  BaseCost: 620000
+  BaseCost: "620000"
   prerequisites:
   - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "300"
   effects:
-  - Type: 5
-    Building: {fileID: 0}
+  - Type: 15
+    Building: {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
+    value: "1.15"
   TechLevel: 3
   AdvancesTechLevel: 0

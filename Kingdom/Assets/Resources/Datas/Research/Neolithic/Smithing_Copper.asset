@@ -15,74 +15,28 @@ MonoBehaviour:
   id: Smithing_Copper
   Label: "\u65E9\u671F\u591A\u91D1\u5C5E\u51B6\u70BC"
   Description: "\u7EDF\u4E00\u94DC\u3001\u9521\u3001\u94C1\u77FF\u7684\u7089\u6599\u51C6\u5907\u3001\u8FD8\u539F\u51B6\u70BC\u548C\u94F8\u952D\u65B9\u6CD5\uFF0C\u89E3\u9501\u591A\u91D1\u5C5E\u51B6\u70BC\u7089\uFF0C\u4E3A\u9752\u94DC\u548C\u94C1\u5668\u751F\u4EA7\u63D0\u4F9B\u57FA\u7840\u3002"
-  BaseCost: 15000
+  BaseCost: "15000"
   prerequisites:
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
   - {fileID: 11400000, guid: ac51a609475a42542b09c5557ae95f8a, type: 2}
   - {fileID: 11400000, guid: 355a852a35c1db04790b914df48a8ab1, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 168
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 308
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 140
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 154
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    amount: "168"
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "308"
+  - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
+    amount: "140"
+  - resource: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
+    amount: "154"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 0174520d6601b774797d0a4e40cf78d6, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
-  - Type: 1
-    Building: {fileID: 11400000, guid: d52f7b64eccd0df42a5848e9ff6c9351, type: 2}
-    Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.1
-      layer: 0
-      operators: []
+    value: "1.1"
   - Type: 5
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   TechLevel: 1
   AdvancesTechLevel: 0

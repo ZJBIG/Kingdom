@@ -44,7 +44,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
         if (buttonText == null)
         {
-            Debug.LogError("[KingdomUI] Authored building action button has no Text child: " + button.name);
+            Debug.LogError("[王国界面] Authored building action button has no Text child: " + button.name);
             return;
         }
         buttonText.text = value;
@@ -91,7 +91,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text text = button.GetComponentInChildren<TMP_Text>(true);
         if (text == null)
         {
-            Debug.LogError("[KingdomUI] Authored building action button has no Text child: " + button.name);
+            Debug.LogError("[王国界面] Authored building action button has no Text child: " + button.name);
             return;
         }
         text.color = available ? TextPrimary : TextSecondary;

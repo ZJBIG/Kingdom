@@ -10,7 +10,6 @@ public sealed class BuildingVerticalSliceTests
         {
             ["HunterGathererCamp"] = 1.15d,
             ["Farm"] = 1.14d,
-            ["Pasture"] = 1.15d,
             ["Lumberyard"] = 1.13d,
             ["Quarry"] = 1.14d,
             ["ClayPit"] = 1.14d,
@@ -23,7 +22,6 @@ public sealed class BuildingVerticalSliceTests
             ["CeramicKiln"] = 1.16d,
             ["WeavingWorkshop"] = 1.16d,
             ["MetalSmelter"] = 1.17d,
-            ["BronzeFoundry"] = 1.18d,
             ["Granary"] = 1.18d,
             ["ScribeHut"] = 1.20d
         };
@@ -99,12 +97,102 @@ public sealed class BuildingVerticalSliceTests
     public void KeyBuildings_MatchTheProductionAndEraPlan()
     {
         Building farm = DataBase<Building>.Find("Farm");
-        Building pasture = DataBase<Building>.Find("Pasture");
         Building lumberyard = DataBase<Building>.Find("Lumberyard");
 
         Assert.That(farm.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(farm.FoodProductionRate.ToDouble(), Is.EqualTo(8d));
-        Assert.That(pasture.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(lumberyard.ProductivityConsumption.ToDouble(), Is.EqualTo(4d));
+    }
+
+    [Test]
+    public void IndustrialAndSpacerHaveDedicatedHousingBuildings()
+    {
+        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
+        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+
+        Assert.That(industrial, Is.Not.Null);
+        Assert.That(industrial.TechLevel, Is.EqualTo(TechLevel.Industrial));
+        Assert.That(industrial.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(240)));
+        Assert.That(industrial.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(2));
+        Assert.That(orbital, Is.Not.Null);
+        Assert.That(orbital.TechLevel, Is.EqualTo(TechLevel.Spacer));
+        Assert.That(orbital.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(3000)));
+        Assert.That(orbital.SpaceCost, Is.EqualTo(new ExpantaNum(650)));
+        Assert.That(orbital.ResourceRequirements, Has.Count.GreaterThanOrEqualTo(7));
+        Assert.That(industrial.UpgradeTo, Is.SameAs(orbital));
+    }
+
+    [Test]
+    public void 工业住宅必须区分居住理论实体工坊与建筑落地()
+    {
+        Research theory = DataBase<Research>.Find("IndustrialHabitationEngineering");
+        WorkshopUpgrade standards = DataBase<WorkshopUpgrade>.Find("IndustrialHousingStandards");
+        Building housing = DataBase<Building>.Find("IndustrialHabitationComplex");
+
+        Assert.That(theory, Is.Not.Null);
+        Assert.That(standards, Is.Not.Null);
+        Assert.That(housing, Is.Not.Null);
+        Assert.That(HasResearchPrerequisite(theory, "UrbanHousing"), Is.True);
+        Assert.That(HasResearchPrerequisite(theory, "ConcreteEngineering"), Is.True);
+        Assert.That(HasResearchEffect(theory, ResearchEffectType.PopulationGrowthMultiplier), Is.True);
+        Assert.That(HasWorkshopResearch(standards, "IndustrialHabitationEngineering"), Is.True);
+        Assert.That(HasBuildingResearch(housing, "IndustrialHabitationEngineering"), Is.True);
+    }
+
+    [Test]
+    public void 太空住宅必须同时承担人口容量与持续运营成本()
+    {
+        Building housing = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+
+        Assert.That(housing, Is.Not.Null);
+        Assert.That(housing.PopulationCapacityGranted, Is.GreaterThan(new ExpantaNum(1000)));
+        Assert.That(housing.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(housing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(housing.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(housing.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(5));
+        bool consumesTitaniumAlloy = false;
+        for (int i = 0; i < housing.ResourceConsumptionRates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = housing.ResourceConsumptionRates[i];
+            if (pair.First != null && pair.First.Id == "TitaniumAlloy")
+            {
+                consumesTitaniumAlloy = true;
+                break;
+            }
+        }
+
+        Assert.That(consumesTitaniumAlloy, Is.True);
+    }
+
+    private static bool HasResearchPrerequisite(Research research, string id)
+    {
+        for (int i = 0; i < research.Prerequisites.Count; i++)
+            if (research.Prerequisites[i] != null && research.Prerequisites[i].Id == id)
+                return true;
+        return false;
+    }
+
+    private static bool HasResearchEffect(Research research, ResearchEffectType type)
+    {
+        for (int i = 0; i < research.Effects.Count; i++)
+            if (research.Effects[i] != null && research.Effects[i].Type == type)
+                return true;
+        return false;
+    }
+
+    private static bool HasWorkshopResearch(WorkshopUpgrade workshop, string id)
+    {
+        for (int i = 0; i < workshop.RequiredResearch.Count; i++)
+            if (workshop.RequiredResearch[i] != null && workshop.RequiredResearch[i].Id == id)
+                return true;
+        return false;
+    }
+
+    private static bool HasBuildingResearch(Building building, string id)
+    {
+        for (int i = 0; i < building.RequiredResearch.Count; i++)
+            if (building.RequiredResearch[i] != null && building.RequiredResearch[i].Id == id)
+                return true;
+        return false;
     }
 }

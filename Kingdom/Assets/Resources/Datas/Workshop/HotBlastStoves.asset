@@ -18,42 +18,18 @@ MonoBehaviour:
   SortOrder: 190
   TechLevel: 3
   requiredResearch:
-  - {fileID: 11400000, guid: cd1865a81bb8bcc40a9a2df220e5b7ab, type: 2}
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: 01ffea418770c65489047c6ce085f9b5, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 180
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 150
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "180"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "150"
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: c3b7f892911733247aea889f1bf878ee, type: 2}
+    Building: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.35
-      layer: 0
-      operators: []
+    value: "1.35"

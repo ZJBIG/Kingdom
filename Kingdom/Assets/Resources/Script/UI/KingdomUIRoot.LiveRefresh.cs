@@ -50,7 +50,7 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceText = page.Find("PrimaryCard/Text")?.GetComponent<TMP_Text>();
         if (developmentGuidanceText == null)
         {
-            Debug.LogError("[KingdomUI] Overview PrimaryCard/Text is missing; development guidance cannot render.");
+            Debug.LogError("[王国界面] Overview PrimaryCard/Text is missing; development guidance cannot render.");
             return;
         }
         developmentGuidanceText.enabled = true;
@@ -63,7 +63,7 @@ public sealed partial class KingdomUIRoot
         if (initialRect.x > 0f && initialRect.y > 0f)
             RefreshDevelopmentGuidance();
         else
-            Debug.Log($"[KingdomUI] Development guidance binding deferred until layout: rect={initialRect}");
+            Debug.Log($"[王国界面] Development guidance binding deferred until layout: rect={initialRect}");
     }
 
     private void RefreshDevelopmentGuidance()
@@ -111,7 +111,7 @@ public sealed partial class KingdomUIRoot
             if (rect.x > 0f && rect.y > 0f)
             {
                 developmentGuidanceRuntimeGeometryLogged = true;
-                Debug.Log($"[KingdomUI] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
+                Debug.Log($"[王国界面] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
             }
         }
     }
@@ -128,9 +128,9 @@ public sealed partial class KingdomUIRoot
         if (gameManager != null)
         {
             if (state.Population.Population < state.Population.PopulationCapacity)
-                populationChange = gameManager.CurrentPopulationGrowthRatePerMinute;
+                populationChange = gameManager.CurrentPopulationGrowthRatePerSecond;
             else if (state.Population.Population > state.Population.PopulationCapacity)
-                populationChange = -gameManager.CurrentPopulationDepartureRatePerMinute;
+                populationChange = -gameManager.CurrentPopulationDepartureRatePerSecond;
         }
 
         string signedPopulationChange = populationChange >= ExpantaNum.Zero
@@ -175,7 +175,7 @@ public sealed partial class KingdomUIRoot
         "\n食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
         "    生产力：" + BuildingManager.Instance.AvailableProductivity.ToGameString() + "/" + BuildingManager.Instance.TotalProductivity.ToGameString() +
         "    幸福度：" + state.HappinessScore.ToGameString() + $"({state.HappinessMultiplier.ToGameString()}x）" +
-        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/min）" +
+        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/s）" +
         "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString();
             
     }

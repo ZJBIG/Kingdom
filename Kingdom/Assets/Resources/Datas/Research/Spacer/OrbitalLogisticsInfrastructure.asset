@@ -15,46 +15,25 @@ MonoBehaviour:
   id: OrbitalLogisticsInfrastructure
   Label: "\u8F68\u9053\u540E\u52E4\u57FA\u7840"
   Description: "\u5C06\u6DF1\u7A7A\u7269\u6D41\u3001\u71C3\u6599\u50A8\u5907\u548C\u8230\u961F\u8C03\u5EA6\u7EDF\u4E00\u5316\uFF0C\u5F62\u6210\u504F\u91CD\u540E\u52E4\u548C\u6301\u7EED\u4F9B\u7ED9\u7684\u8FDC\u5F81\u8DEF\u7EBF\uFF0C\u63D0\u9AD8\u8230\u961F\u957F\u671F\u4F5C\u6218\u7684\u53EF\u9760\u6027\u3002"
-  BaseCost: 4200000
+  BaseCost: "4200000"
   prerequisites:
   - {fileID: 11400000, guid: 7a2e5c9d4f1b48e6b3c8d0a7f5e2c914, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 800
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 700
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "800"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "600"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "700"
   effects:
   - Type: 15
     Building: {fileID: 11400000, guid: 34a5e673637c4226a22089267c8b456c, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.5
-      layer: 0
-      operators: []
+    value: "1.5"
   TechLevel: 4
   AdvancesTechLevel: 0

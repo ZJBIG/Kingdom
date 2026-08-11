@@ -15,36 +15,18 @@ MonoBehaviour:
   id: SteamPower
   Label: "\u84B8\u6C7D\u52A8\u529B"
   Description: "\u5229\u7528\u9505\u7089\u4EA7\u751F\u9AD8\u538B\u84B8\u6C7D\u5E76\u9A71\u52A8\u6D3B\u585E\u6216\u65CB\u8F6C\u673A\u6784\uFF0C\u4E3A\u77FF\u4E95\u6392\u6C34\u3001\u673A\u5E8A\u3001\u8FD0\u8F93\u548C\u8FDE\u7EED\u751F\u4EA7\u63D0\u4F9B\u4E0D\u53D7\u5730\u5F62\u9650\u5236\u7684\u52A8\u529B\u3002"
-  BaseCost: 75000
+  BaseCost: "75000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 600
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "600"
   effects:
   - Type: 11
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.05
-      layer: 0
-      operators: []
+    value: "1.05"
   TechLevel: 3
   AdvancesTechLevel: 0

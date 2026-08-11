@@ -15,38 +15,20 @@ MonoBehaviour:
   id: AnimalFodder
   Label: "\u9972\u6599\u914D\u5236"
   Description: "\u6839\u636E\u4E0D\u540C\u7272\u755C\u7684\u98DF\u6027\u914D\u5236\u8349\u6599\u3001\u8C37\u7269\u548C\u526F\u4EA7\u7269\uFF0C\u51CF\u5C11\u5B63\u8282\u53D8\u5316\u5BF9\u755C\u7FA4\u751F\u957F\u4E0E\u7E41\u6B96\u7684\u5F71\u54CD\u3002"
-  BaseCost: 7000
+  BaseCost: "7000"
   prerequisites:
   - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}
   - {fileID: 11400000, guid: 748cc4d872b7300488f8cc565e5483b1, type: 2}
   - {fileID: 11400000, guid: f59c74b9676612747ab1874878527f7e, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 300
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 100
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "100"
   effects:
-  - Type: 5
-    Building: {fileID: 0}
+  - Type: 2
+    Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.2"
   TechLevel: 1
   AdvancesTechLevel: 0

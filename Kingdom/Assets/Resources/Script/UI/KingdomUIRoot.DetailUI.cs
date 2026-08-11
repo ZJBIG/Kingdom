@@ -148,7 +148,7 @@ public sealed partial class KingdomUIRoot
         requirementGesture.enabled = true;
 
         Canvas.ForceUpdateCanvases();
-        Debug.Log($"[KingdomUI] Detail UI rebuilt: legacyChildren=discarded, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, footer={DetailFooterHeight:0}");
+        Debug.Log($"[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, footer={DetailFooterHeight:0}");
         return true;
     }
 

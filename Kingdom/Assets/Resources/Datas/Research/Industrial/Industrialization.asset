@@ -15,40 +15,26 @@ MonoBehaviour:
   id: Industrialization
   Label: "工业化"
   Description: "把机械动力、专业工坊、标准材料和区域物流整合为连续生产体系，开启以工厂、能源和规模化分工为核心的工业时代。"
-  BaseCost: 270000
+  BaseCost: "270000"
   prerequisites:
   - {fileID: 11400000, guid: b0c0f8c958aba8940b50194f4a10a0f0, type: 2}
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
   - {fileID: 11400000, guid: 0b5aadb154b661e4ab853717625b8297, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1000
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "1000"
   effects:
   - Type: 8
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1000
-      layer: 0
-      operators: []
+    value: "1000"
   - Type: 7
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 800
-      layer: 0
-      operators: []
+    value: "800"
+  - Type: 22
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.5"
   TechLevel: 3
   AdvancesTechLevel: 1

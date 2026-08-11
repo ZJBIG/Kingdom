@@ -15,38 +15,20 @@ MonoBehaviour:
   id: FoodPreservation
   Label: "\u98DF\u7269\u4FDD\u5B58"
   Description: "\u5229\u7528\u667E\u6652\u3001\u718F\u5236\u3001\u76D0\u6E0D\u548C\u4F4E\u6E29\u50A8\u5B58\u5EF6\u7F13\u98DF\u7269\u8150\u8D25\uFF0C\u4F7F\u72E9\u730E\u4E0E\u6536\u83B7\u6240\u5F97\u80FD\u591F\u8DE8\u8D8A\u77ED\u7F3A\u5B63\u8282\u3002"
-  BaseCost: 1800
+  BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}
   - {fileID: 11400000, guid: e5459833b6f102d43a770cb06bb56ffa, type: 2}
   - {fileID: 11400000, guid: aaca627f761546a439f07f67a025864c, type: 2}
   resourceRequirements:
-  - first: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
-  - first: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    second:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 120
-      layer: 0
-      operators: []
+  - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
+    amount: "120"
+  - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
+    amount: "120"
   effects:
-  - Type: 5
+  - Type: 6
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    Value:
-      sign: 0
-      representation: 1
-      operatorCount: 0
-      scalar: 1.02
-      layer: 0
-      operators: []
+    value: "1.1"
   TechLevel: 0
   AdvancesTechLevel: 0

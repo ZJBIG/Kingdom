@@ -1,29 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
 public enum ResearchActionResult
 {
+    [Description("无效操作")]
     Invalid,
+    [Description("已支付研究成本")]
     PaidOnly,
+    [Description("研究已开始")]
     Started,
+    [Description("研究已排队")]
     Queued,
+    [Description("研究已排队，等待资源")]
     QueuedWaitingResources,
+    [Description("已取消排队")]
     Cancelled,
+    [Description("研究已经在进行")]
     AlreadyActive,
+    [Description("研究已经在队列中")]
     AlreadyQueued,
+    [Description("研究已完成")]
     Completed,
+    [Description("研究尚未解锁")]
     Blocked,
+    [Description("资源不足")]
     InsufficientResources
 }
 
 public enum ResearchPaymentResult
 {
+    [Description("无效操作")]
     Invalid,
+    [Description("支付成功")]
     Paid,
+    [Description("成本已经支付")]
     AlreadyPaid,
+    [Description("研究已完成")]
     Completed,
+    [Description("资源不足")]
     InsufficientResources
 }
 
@@ -84,14 +101,14 @@ public class ResearchManager : Singleton<ResearchManager>
             throw new ArgumentNullException(nameof(research));
         if (states.TryGetValue(research, out ResearchState state))
             return state;
-        throw new KeyNotFoundException($"Research state '{research.Id}' has not been created.");
+        throw new KeyNotFoundException($"研究状态“{research.Id}”尚未创建。");
     }
 
     public bool StartResearch(Research research)
     {
         if (research == null || !states.ContainsKey(research))
         {
-            Debug.LogError("Cannot start a null or uninitialized research definition.");
+            Debug.LogError("无法启动空的或尚未初始化的研究定义。");
             return false;
         }
         ResearchState state = states[research];
@@ -382,7 +399,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return;
         if (!visiting.Add(state.Definition))
             throw new InvalidOperationException(
-                $"Research prerequisite cycle detected at '{state.Definition.Id}'.");
+                $"研究“{state.Definition.Id}”检测到前置循环。");
         IReadOnlyList<Research> prerequisites = state.Definition.Prerequisites;
         if (prerequisites != null)
             for (int i = 0; i < prerequisites.Count; i++)
@@ -687,7 +704,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return value;
         if (string.IsNullOrEmpty(raw))
             return fallback;
-        throw new FormatException($"Invalid ExpantaNum '{raw}' for {owner}.{field}.");
+            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 
     private static List<SaveManager.ResearchResourceCostSaveData> CapturePaidResourceCosts(ResearchState state)

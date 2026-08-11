@@ -245,7 +245,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     {
         ExpantaNum result;
         if (!TryParse(text, out result))
-            throw new FormatException("Invalid ExpantaNum value: " + text);
+            throw new FormatException("ExpantaNum 数值无效：" + text);
 
         return result;
     }
@@ -910,7 +910,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     public static ExpantaNum Clamp(ExpantaNum value, ExpantaNum minimum, ExpantaNum maximum)
     {
         if (minimum > maximum)
-            throw new ArgumentException("minimum must not be greater than maximum.");
+            throw new ArgumentException("最小值不能大于最大值。");
         return value < minimum ? minimum : value > maximum ? maximum : value;
     }
 
@@ -1689,7 +1689,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     public int CompareTo(ExpantaNum other)
     {
         if (IsNaN || other.IsNaN)
-            throw new InvalidOperationException("NaN cannot be ordered.");
+            throw new InvalidOperationException("NaN 数值不能参与排序。");
 
         if (Equals(other))
             return 0;
@@ -1716,7 +1716,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         if (obj == null)
             return 1;
         if (!(obj is ExpantaNum))
-            throw new ArgumentException("Object must be an ExpantaNum.", nameof(obj));
+            throw new ArgumentException("对象必须是 ExpantaNum 类型。", nameof(obj));
         return CompareTo((ExpantaNum)obj);
     }
 

@@ -55,7 +55,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         LastOfflineProgressSeconds = SimulationManager.Instance.AdvanceOffline(elapsedSeconds);
         GameManager.Instance.MarkSaveTimestamp(now);
         dirty = true;
-        Debug.Log($"Applied offline progress: {LastOfflineProgressSeconds:0.##} seconds.");
+        Debug.Log($"已应用离线进度：{LastOfflineProgressSeconds:0.##} 秒。");
         return LastOfflineProgressSeconds > 0d;
     }
 
@@ -78,7 +78,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             ready = true;
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
-            Debug.Log($"Loaded Kingdom save: {SavePath}");
+            Debug.Log($"已载入 Kingdom 存档：{SavePath}");
             return true;
         }
 
@@ -87,7 +87,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             ready = true;
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
-            Debug.Log($"Main save failed; loaded Kingdom save from backup: {BackupPath}");
+            Debug.Log($"主存档保存失败，已从备份载入 Kingdom 存档：{BackupPath}");
             return true;
         }
 
@@ -97,7 +97,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ready = true;
         dirty = true;
         lastSavedStateSignature = CalculateStateSignature();
-        Debug.Log("No valid Kingdom save could be applied. Started a new game.");
+        Debug.Log("没有可应用的有效 Kingdom 存档，已开始新游戏。");
         return false;
     }
 
@@ -123,12 +123,12 @@ public sealed class SaveManager : Singleton<SaveManager>
 
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
-            Debug.Log($"Saved Kingdom data to: {SavePath}");
+            Debug.Log($"Kingdom 数据已保存至：{SavePath}");
             return true;
         }
         catch (Exception exception)
         {
-            Debug.LogError($"Failed to save Kingdom data: {exception}");
+            Debug.LogError($"保存 Kingdom 数据失败：{exception}");
             return false;
         }
     }
@@ -177,9 +177,9 @@ public sealed class SaveManager : Singleton<SaveManager>
     private void ApplySaveData(KingdomSaveData data)
     {
         if (data == null)
-            throw new InvalidDataException("Save JSON is empty or invalid.");
+            throw new InvalidDataException("存档 JSON 为空或无效。");
         if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
-            throw new InvalidDataException("Save schema is not current.");
+            throw new InvalidDataException("存档结构不是当前版本。");
 
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
@@ -217,8 +217,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             GameManager.Instance.InitializeNewGame();
             BuildingManager.Instance.InitializeStartingBuildings();
             Debug.LogError(
-                $"Failed to apply Kingdom save '{path}'. Runtime state was reset before the next candidate. " +
-                $"Details: {exception.Message}");
+                $"应用 Kingdom 存档“{path}”失败。已在尝试下一个候选存档前重置运行时状态。" +
+                $"详细信息：{exception.Message}");
             return false;
         }
     }
@@ -243,22 +243,22 @@ public sealed class SaveManager : Singleton<SaveManager>
             data = JsonUtility.FromJson<KingdomSaveData>(File.ReadAllText(path));
             if (data == null)
             {
-                Debug.LogError($"Invalid Kingdom save '{path}': JSON produced no save object.");
+                Debug.LogError($"Kingdom 存档“{path}”无效：JSON 未生成存档对象。");
                 return false;
             }
 
             if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
             {
                 Debug.LogError(
-                    $"Invalid Kingdom save '{path}': unsupported Version '{data.Version}', " +
-                    $"expected '{SaveFormat.CurrentVersion}'.");
+                    $"Kingdom 存档“{path}”无效：不支持版本“{data.Version}”，" +
+                    $"当前应为“{SaveFormat.CurrentVersion}”。");
                 return false;
             }
             return true;
         }
         catch (Exception exception)
         {
-            Debug.LogError($"Failed to read Kingdom save '{path}': {exception.Message}");
+            Debug.LogError($"读取 Kingdom 存档“{path}”失败：{exception.Message}");
             data = null;
             return false;
         }
@@ -296,10 +296,10 @@ public sealed class SaveManager : Singleton<SaveManager>
                 if (researches.TryGetValue(researchDefinitions[i], out ResearchState state))
                     Append(ref hash, state.Version);
 
-            IReadOnlyDictionary<WorkshopUpgradeDefinition, WorkshopUpgradeState> upgrades =
+            IReadOnlyDictionary<WorkshopUpgrade, WorkshopUpgradeState> upgrades =
                 WorkshopManager.Instance.States;
-            IReadOnlyList<WorkshopUpgradeDefinition> upgradeDefinitions =
-                DataBase<WorkshopUpgradeDefinition>.All;
+            IReadOnlyList<WorkshopUpgrade> upgradeDefinitions =
+                DataBase<WorkshopUpgrade>.All;
             for (int i = 0; i < upgradeDefinitions.Count; i++)
                 if (upgrades.TryGetValue(upgradeDefinitions[i], out WorkshopUpgradeState state))
                     Append(ref hash, state.Version);

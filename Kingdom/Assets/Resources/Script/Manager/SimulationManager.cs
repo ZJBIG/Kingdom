@@ -71,9 +71,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
         double tickInterval = tickIntervalSeconds;
         if (tickInterval <= 0d)
-            throw new InvalidOperationException("Simulation tick interval must be greater than zero.");
+            throw new InvalidOperationException("模拟 tick 间隔必须大于零。");
         if (maximumTicksPerFrame < 1)
-            throw new InvalidOperationException("Maximum simulation ticks per frame must be at least one.");
+            throw new InvalidOperationException("每帧最大模拟 tick 数必须至少为一。");
 
         int tickCount = 0;
         accumulatedSeconds += elapsedSeconds;
@@ -90,7 +90,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             accumulatedSeconds = maximumBacklog;
             if (!backlogWarningLogged)
             {
-                Debug.LogWarning("Simulation backlog exceeded the per-frame limit and was clamped.");
+            Debug.LogWarning("模拟积压超过每帧上限，已进行限制处理。");
                 backlogWarningLogged = true;
             }
         }
@@ -111,6 +111,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             deltaSeconds,
             BuildingManager.Instance.SafePopulationDepartureAllowance);
         ResourceManager.Instance.Tick(deltaSeconds);
+        GameManager.Instance.Sectors.TickOccupiedResourceProduction(
+            deltaSeconds,
+            ResourceManager.Instance);
         GameManager.Instance.Sectors.TickActiveColonization(deltaSeconds, GameManager.Instance.State, ResourceManager.Instance, out _);
         GameManager.Instance.Sectors.TickActiveCampaign(
             deltaSeconds,
@@ -141,6 +144,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                 effectiveStep,
                 BuildingManager.Instance.SafePopulationDepartureAllowance);
             ResourceManager.Instance.Tick(effectiveStep);
+            GameManager.Instance.Sectors.TickOccupiedResourceProduction(
+                effectiveStep,
+                ResourceManager.Instance);
             GameManager.Instance.Sectors.TickActiveColonization(effectiveStep, GameManager.Instance.State, ResourceManager.Instance, out _);
             GameManager.Instance.Sectors.TickActiveCampaign(
                 effectiveStep,

@@ -7,7 +7,7 @@ public static class ResearchValidator
     {
         if (researches == null)
         {
-            error = "Research validation failed: definition collection is null.";
+            error = "研究验证失败：定义集合为空。";
             return false;
         }
 
@@ -34,7 +34,7 @@ public static class ResearchValidator
     {
         if (research == null)
         {
-            error = "Research validation failed: definition collection contains null.";
+            error = "研究验证失败：定义集合包含空引用。";
             return false;
         }
 
@@ -58,19 +58,19 @@ public static class ResearchValidator
             {
                 if (prerequisite == null)
                 {
-                    error = $"Research validation failed: '{research.name}' contains a null prerequisite.";
+                    error = $"研究验证失败：“{research.name}”包含空的前置研究。";
                     return false;
                 }
 
                 if (prerequisite == research)
                 {
-                    error = $"Research dependency cycle: {research.name} -> {research.name}";
+                    error = $"研究依赖循环：{research.name} -> {research.name}";
                     return false;
                 }
 
                 if (!uniquePrerequisites.Add(prerequisite))
                 {
-                    error = $"Research validation failed: '{research.name}' contains duplicate prerequisite '{prerequisite.name}'.";
+                    error = $"研究验证失败：“{research.name}”重复引用前置研究“{prerequisite.name}”。";
                     return false;
                 }
 
@@ -92,7 +92,7 @@ public static class ResearchValidator
         if (start < 0)
             start = 0;
 
-        var builder = new StringBuilder("Research dependency cycle: ");
+        var builder = new StringBuilder("研究依赖循环：");
         for (int i = start; i < path.Count; i++)
         {
             if (i > start)
