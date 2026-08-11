@@ -140,6 +140,9 @@ public sealed class WorkshopEffectDefinition
             case WorkshopEffectType.CampaignCasualtyMultiplier:
                 modifiers.AddCampaignCasualtyMultiplier(multiplier);
                 break;
+            default:
+                throw new InvalidOperationException(
+                    $"工坊效果类型 {Type} 没有对应的运行时处理分支。");
         }
     }
 }

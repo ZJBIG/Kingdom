@@ -6,7 +6,7 @@ public class Building : GameDefinition
 {
     private const double DefaultCostGrowthValue = 1.15d;
     public string Label;
-    public string Description;
+    [TextArea]public string Description;
     public TechLevel TechLevel;
     [SerializeField, Tooltip("建筑升级链中的可选下一级建筑。住房升级链启用前，该字段只用于定义关系。")]
     private Building upgradeTo;

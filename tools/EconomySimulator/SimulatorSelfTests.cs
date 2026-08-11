@@ -14,6 +14,7 @@ public static class SimulatorSelfTests
         Require(snapshot.Workshops.Count > 0, "没有加载工坊升级定义。");
 
         VerifyDefinitionReferenceKinds(snapshot);
+        VerifyPopulationProductivityParity();
 
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
@@ -434,6 +435,25 @@ public static class SimulatorSelfTests
             new[] { definition }, 1d);
         Require(state.ActiveResearch.CostPaid && state.Resources["WoodLog"] == 0d,
             "研究费用没有原子提交。");
+    }
+
+    private static void VerifyPopulationProductivityParity()
+    {
+        SimulationState state = new SimulationState { Population = 5d };
+        IReadOnlyList<Definition> noBuildings = Array.Empty<Definition>();
+
+        Require(
+            Math.Abs(BuildingSimulator.TotalProductivity(state, noBuildings) - 10d) < 1e-9d,
+            "模拟器未应用医学研究时，5人口基础生产力必须为10。" );
+
+        state.ActiveEffects.Add(new SimEffect
+        {
+            Kind = SimEffectKind.PopulationProductivityMultiplier,
+            Value = 1.35d
+        });
+        Require(
+            Math.Abs(BuildingSimulator.TotalProductivity(state, noBuildings) - 13.5d) < 1e-9d,
+            "模拟器应用现代医学人口倍率后，5人口生产力必须为13.5。" );
     }
 
     private static void VerifyWorkshopTargetCapabilities(EconomySnapshot snapshot)

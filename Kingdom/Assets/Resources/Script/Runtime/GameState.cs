@@ -4,6 +4,7 @@ using System;
 public sealed class GameState
 {
     public static ExpantaNum BaseFoodProductionRate => new ExpantaNum(5);
+    public static ExpantaNum BaseFoodCapacity => new ExpantaNum(500);
 
     private const string DefaultKingdomName = "鼠托邦";
 
@@ -67,7 +68,7 @@ public sealed class GameState
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = TechLevel.Animal;
         FoodAmount = new ExpantaNum(300);
-        FoodCapacity = new ExpantaNum(500);
+        FoodCapacity = BaseFoodCapacity;
         FoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodAvailability = ExpantaNum.One;
@@ -210,7 +211,7 @@ public sealed class GameState
         LogisticsConsumptionRate = ExpantaNum.Zero;
         LogisticsSatisfaction = ExpantaNum.One;
         Military.ResetDerived();
-        FoodCapacity = ExpantaNum.Max(new ExpantaNum(500), FoodAmount);
+        FoodCapacity = ExpantaNum.Max(BaseFoodCapacity, FoodAmount);
         Population.ResetDerivedCapacity();
         Territory.ResetDerived(minimumTerritoryTotal);
         Version++;

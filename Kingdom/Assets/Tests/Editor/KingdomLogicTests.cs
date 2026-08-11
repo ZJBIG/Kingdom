@@ -459,6 +459,51 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void DeconstructionRefund_UsesDefaultAndCompletedResearchRates()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Deconstruction-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("Deconstruction-BuildingManager");
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("Deconstruction-ResourceManager");
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Assert.That(woodHouse, Is.Not.Null);
+        Assert.That(wood, Is.Not.Null);
+
+        resourceManager.SetAmount(wood, new ExpantaNum(1000));
+        ProgressionModifierManager.Rebuild(null);
+        Assert.That(buildingManager.TryBuild(woodHouse, ExpantaNum.One, out _), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(920)));
+        Assert.That(buildingManager.TryDeconstruct(woodHouse, ExpantaNum.One, out _), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(924)));
+
+        Research research = CreateResearch("DeconstructionIntegrationResearch");
+        research.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.DeconstructionReturnRate,
+                Value = new ExpantaNum(0.50d)
+            }
+        });
+        ResearchState state = new ResearchState(research);
+        typeof(ResearchState).GetMethod(
+                "Restore",
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool) },
+                null)
+            .Invoke(state, new object[] { ExpantaNum.Zero, false, true });
+        ProgressionModifierManager.Rebuild(new List<ResearchState> { state });
+
+        Assert.That(buildingManager.TryBuild(woodHouse, ExpantaNum.One, out _), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(844)));
+        Assert.That(buildingManager.TryDeconstruct(woodHouse, ExpantaNum.One, out _), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(884)));
+    }
+
+    [Test]
     public void HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce()
     {
         GameManager gameManager =

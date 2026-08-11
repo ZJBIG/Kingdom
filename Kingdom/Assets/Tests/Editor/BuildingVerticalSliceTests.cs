@@ -105,6 +105,45 @@ public sealed class BuildingVerticalSliceTests
     }
 
     [Test]
+    public void HousingChainScalesCapacityWithoutCreatingFoodCapacity()
+    {
+        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+        Building stoneHouse = DataBase<Building>.Find("StoneHouse");
+        Building townHouse = DataBase<Building>.Find("TownHouse");
+        Building industrialHousing = DataBase<Building>.Find("IndustrialHabitationComplex");
+        Building orbitalHousing = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+
+        Assert.That(woodHouse, Is.Not.Null);
+        Assert.That(stoneHouse, Is.Not.Null);
+        Assert.That(townHouse, Is.Not.Null);
+        Assert.That(industrialHousing, Is.Not.Null);
+        Assert.That(orbitalHousing, Is.Not.Null);
+        Assert.That(woodHouse.UpgradeTo, Is.SameAs(stoneHouse));
+        Assert.That(stoneHouse.UpgradeTo, Is.SameAs(townHouse));
+        Assert.That(townHouse.UpgradeTo, Is.SameAs(industrialHousing));
+        Assert.That(industrialHousing.UpgradeTo, Is.SameAs(orbitalHousing));
+        Assert.That(woodHouse.PopulationCapacityGranted,
+            Is.LessThan(stoneHouse.PopulationCapacityGranted));
+        Assert.That(stoneHouse.PopulationCapacityGranted,
+            Is.LessThan(townHouse.PopulationCapacityGranted));
+        Assert.That(townHouse.PopulationCapacityGranted,
+            Is.LessThan(industrialHousing.PopulationCapacityGranted));
+        Assert.That(industrialHousing.PopulationCapacityGranted,
+            Is.LessThan(orbitalHousing.PopulationCapacityGranted));
+        Assert.That(orbitalHousing.PopulationCapacityGranted,
+            Is.GreaterThan(industrialHousing.PopulationCapacityGranted * 10d));
+        Assert.That(woodHouse.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(stoneHouse.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(townHouse.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(industrialHousing.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(orbitalHousing.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(industrialHousing.ProductivityConsumption,
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(orbitalHousing.ProductivityConsumption,
+            Is.GreaterThan(industrialHousing.ProductivityConsumption));
+    }
+
+    [Test]
     public void IndustrialAndSpacerHaveDedicatedHousingBuildings()
     {
         Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
@@ -164,6 +203,49 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(consumesTitaniumAlloy, Is.True);
     }
 
+    [Test]
+    public void 太空住宅维护剖面必须由生态补给主导且不增加普通资源容量()
+    {
+        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
+        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+
+        Assert.That(industrial, Is.Not.Null);
+        Assert.That(orbital, Is.Not.Null);
+        Assert.That(
+            orbital.PopulationCapacityGranted,
+            Is.GreaterThan(industrial.PopulationCapacityGranted * 10d));
+        Assert.That(orbital.SpaceCost, Is.GreaterThan(industrial.SpaceCost * 10d));
+        Assert.That(
+            orbital.ProductivityConsumption,
+            Is.GreaterThan(industrial.ProductivityConsumption * 4d));
+        Assert.That(orbital.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(orbital.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(orbital.PowerConsumptionRate, Is.GreaterThan(industrial.PowerConsumptionRate));
+        Assert.That(orbital.LogisticsConsumptionRate, Is.GreaterThan(industrial.LogisticsConsumptionRate));
+        Assert.That(
+            GetResourceRate(orbital, "Biomass"),
+            Is.GreaterThan(GetResourceRate(orbital, "TitaniumAlloy") * 20d));
+    }
+
+    [Test]
+    public void 工业与太空住宅必须使用符合时代的建造材料()
+    {
+        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
+        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+
+        Assert.That(industrial, Is.Not.Null);
+        Assert.That(orbital, Is.Not.Null);
+        Assert.That(HasBuildingRequirement(industrial, "Steel"), Is.True);
+        Assert.That(HasBuildingRequirement(industrial, "Concrete"), Is.True);
+        Assert.That(HasBuildingRequirement(industrial, "Glass"), Is.True);
+        Assert.That(HasBuildingRequirement(orbital, "TitaniumAlloy"), Is.True);
+        Assert.That(HasBuildingRequirement(orbital, "Composite"), Is.True);
+        Assert.That(HasBuildingRequirement(orbital, "Biomass"), Is.True);
+        Assert.That(HasBuildingRequirement(orbital, "PhaseMaterial"), Is.True);
+        Assert.That(orbital.ResourceRequirements.Count,
+            Is.GreaterThan(industrial.ResourceRequirements.Count));
+    }
+
     private static bool HasResearchPrerequisite(Research research, string id)
     {
         for (int i = 0; i < research.Prerequisites.Count; i++)
@@ -194,5 +276,29 @@ public sealed class BuildingVerticalSliceTests
             if (building.RequiredResearch[i] != null && building.RequiredResearch[i].Id == id)
                 return true;
         return false;
+    }
+
+    private static bool HasBuildingRequirement(Building building, string id)
+    {
+        for (int i = 0; i < building.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = building.ResourceRequirements[i];
+            if (pair.First != null && pair.First.Id == id && pair.Second > ExpantaNum.Zero)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static ExpantaNum GetResourceRate(Building building, string resourceId)
+    {
+        for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = building.ResourceConsumptionRates[i];
+            if (pair.First != null && pair.First.Id == resourceId)
+                return pair.Second;
+        }
+
+        return ExpantaNum.Zero;
     }
 }

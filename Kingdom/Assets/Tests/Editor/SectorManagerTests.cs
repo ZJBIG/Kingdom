@@ -180,8 +180,8 @@ public sealed class SectorManagerTests
             Assert.That(preview.HasSupply, Is.True);
             Assert.That(preview.ExplorationPower, Is.EqualTo(new ExpantaNum(100)));
             Assert.That(preview.RequiredPower, Is.EqualTo(new ExpantaNum(40)));
-            Assert.That(preview.EstimatedSecondsRemaining, Is.EqualTo(new ExpantaNum(60d)));
-            Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.One / 60d));
+            Assert.That(preview.EstimatedSecondsRemaining, Is.EqualTo(new ExpantaNum(600d)));
+            Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.One / 600d));
         }
         finally
         {
@@ -464,6 +464,29 @@ public sealed class SectorManagerTests
         return ExpantaNum.Zero;
     }
 
+    private static ExpantaNum GetColonizationResourceTotal(
+        SectorDefinition sector,
+        string resourceId)
+    {
+        ExpantaNum rate = ExpantaNum.Zero;
+        for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
+            if (sector.ColonizationResourceRatesPerSecond[i].First != null &&
+                sector.ColonizationResourceRatesPerSecond[i].First.Id == resourceId)
+                rate += sector.ColonizationResourceRatesPerSecond[i].Second;
+        return rate * sector.ColonizationDurationSeconds;
+    }
+
+    private static ExpantaNum FindOccupiedResourceRate(
+        SectorDefinition sector,
+        string resourceId)
+    {
+        for (int i = 0; i < sector.OccupiedResourceRatesPerSecond.Count; i++)
+            if (sector.OccupiedResourceRatesPerSecond[i].First != null &&
+                sector.OccupiedResourceRatesPerSecond[i].First.Id == resourceId)
+                return sector.OccupiedResourceRatesPerSecond[i].Second;
+        return ExpantaNum.Zero;
+    }
+
     private static bool HasResourceReward(SectorDefinition sector, string resourceId)
     {
         for (int i = 0; i < sector.ResourceRewards.Count; i++)
@@ -494,6 +517,26 @@ public sealed class SectorManagerTests
                 sector.CampaignResourceRatesPerSecond[i].Second > ExpantaNum.Zero)
                 return true;
         return false;
+    }
+
+    [Test]
+    public void NearEarthSectorChainRequiresLaunchResearchAndSequentialOccupation()
+    {
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        Building launchCenter = DataBase<Building>.Find("LaunchCenter");
+        Research orbitalEngineering = DataBase<Research>.Find("OrbitalEngineering");
+
+        Assert.That(lowOrbit, Is.Not.Null);
+        Assert.That(moon, Is.Not.Null);
+        Assert.That(mars, Is.Not.Null);
+        Assert.That(launchCenter, Is.Not.Null);
+        Assert.That(orbitalEngineering, Is.Not.Null);
+        Assert.That(launchCenter.RequiredResearch, Does.Contain(orbitalEngineering));
+        Assert.That(lowOrbit.PrerequisiteSectors, Is.Empty);
+        Assert.That(moon.PrerequisiteSectors, Does.Contain(lowOrbit));
+        Assert.That(mars.PrerequisiteSectors, Does.Contain(moon));
     }
 
     [Test]
@@ -865,6 +908,52 @@ public sealed class SectorManagerTests
         Assert.That(mars.ResourceRewards[0].Second, Is.EqualTo(new ExpantaNum(18000)));
         Assert.That(mars.ResourceRewards[1].First, Is.EqualTo(nickel));
         Assert.That(mars.ResourceRewards[1].Second, Is.EqualTo(new ExpantaNum(10000)));
+    }
+
+    [Test]
+    public void 近地殖民总成本必须随阶段和回报逐级增长()
+    {
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+
+        ExpantaNum lowOrbitFood = lowOrbit.ColonizationFoodPerSecond * lowOrbit.ColonizationDurationSeconds;
+        ExpantaNum moonFood = moon.ColonizationFoodPerSecond * moon.ColonizationDurationSeconds;
+        ExpantaNum marsFood = mars.ColonizationFoodPerSecond * mars.ColonizationDurationSeconds;
+        ExpantaNum moonRocketFuel = GetColonizationResourceTotal(moon, "RocketFuel");
+        ExpantaNum marsRocketFuel = GetColonizationResourceTotal(mars, "RocketFuel");
+
+        Assert.That(lowOrbitFood, Is.EqualTo(new ExpantaNum(10d)).Within(0.000001d));
+        Assert.That(moonFood, Is.EqualTo(new ExpantaNum(4800d)).Within(0.000001d));
+        Assert.That(marsFood, Is.EqualTo(new ExpantaNum(16800d)).Within(0.000001d));
+        Assert.That(lowOrbitFood, Is.LessThan(moonFood));
+        Assert.That(moonFood, Is.LessThan(marsFood));
+        Assert.That(moonRocketFuel, Is.EqualTo(new ExpantaNum(1500d)).Within(0.000001d));
+        Assert.That(marsRocketFuel, Is.EqualTo(new ExpantaNum(5400d)).Within(0.000001d));
+        Assert.That(moonRocketFuel, Is.LessThan(marsRocketFuel));
+        Assert.That(moon.TerritoryReward, Is.GreaterThan(lowOrbit.TerritoryReward));
+        Assert.That(mars.TerritoryReward, Is.GreaterThan(moon.TerritoryReward));
+    }
+
+    [Test]
+    public void 近地星区占领产出必须按阶段承担不同战略职责()
+    {
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+
+        Assert.That(FindOccupiedResourceRate(lowOrbit, "Electronics"),
+            Is.EqualTo(new ExpantaNum(0.04d)).Within(0.000001d));
+        Assert.That(FindOccupiedResourceRate(moon, "TitaniumAlloy"),
+            Is.EqualTo(new ExpantaNum(0.18d)).Within(0.000001d));
+        Assert.That(FindOccupiedResourceRate(moon, "Composite"),
+            Is.EqualTo(new ExpantaNum(0.12d)).Within(0.000001d));
+        Assert.That(FindOccupiedResourceRate(mars, "Nickel"),
+            Is.EqualTo(new ExpantaNum(0.25d)).Within(0.000001d));
+        Assert.That(FindOccupiedResourceRate(mars, "RocketFuel"),
+            Is.EqualTo(new ExpantaNum(0.12d)).Within(0.000001d));
+        Assert.That(FindOccupiedResourceRate(mars, "Electronics"),
+            Is.GreaterThan(FindOccupiedResourceRate(moon, "Electronics")));
     }
 
     [Test]
@@ -1481,6 +1570,57 @@ public sealed class SectorManagerTests
         Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.Zero));
     }
 
+    [Test]
+    public void InterstellarCampaignsIncreaseSupplyBurdenAndTerritoryRewards()
+    {
+        SectorDefinition alphaCentauri = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDefinition proximaB = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition tauCetiFoundry = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDefinition siriusResourceBelt = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        SectorDefinition[] sectors =
+        {
+            alphaCentauri,
+            proximaB,
+            tauCetiFoundry,
+            siriusResourceBelt
+        };
+        for (int i = 0; i < sectors.Length; i++)
+        {
+            Assert.That(sectors[i], Is.Not.Null);
+            Assert.That(sectors[i].CampaignFoodPerSecond, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(sectors[i].CampaignProgressMultiplier, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(sectors[i].CampaignResourceRatesPerSecond.Count, Is.GreaterThanOrEqualTo(8));
+            for (int j = 0; j < sectors[i].CampaignResourceRatesPerSecond.Count; j++)
+                Assert.That(
+                    sectors[i].CampaignResourceRatesPerSecond[j].Second,
+                    Is.GreaterThan(ExpantaNum.Zero));
+        }
+
+        Assert.That(alphaCentauri.CampaignProgressMultiplier,
+            Is.GreaterThan(proximaB.CampaignProgressMultiplier));
+        Assert.That(proximaB.CampaignProgressMultiplier,
+            Is.GreaterThan(tauCetiFoundry.CampaignProgressMultiplier));
+        Assert.That(tauCetiFoundry.CampaignProgressMultiplier,
+            Is.GreaterThan(siriusResourceBelt.CampaignProgressMultiplier));
+        Assert.That(alphaCentauri.TerritoryReward,
+            Is.LessThan(proximaB.TerritoryReward));
+        Assert.That(proximaB.TerritoryReward,
+            Is.LessThan(tauCetiFoundry.TerritoryReward));
+        Assert.That(tauCetiFoundry.TerritoryReward,
+            Is.LessThan(siriusResourceBelt.TerritoryReward));
+
+        ExpantaNum previousSupplyRate = ExpantaNum.Zero;
+        for (int i = 0; i < sectors.Length; i++)
+        {
+            ExpantaNum totalSupplyRate = sectors[i].CampaignFoodPerSecond;
+            for (int j = 0; j < sectors[i].CampaignResourceRatesPerSecond.Count; j++)
+                totalSupplyRate += sectors[i].CampaignResourceRatesPerSecond[j].Second;
+            Assert.That(totalSupplyRate, Is.GreaterThan(previousSupplyRate));
+            previousSupplyRate = totalSupplyRate;
+        }
+    }
+
     private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
     {
         var method = typeof(GameState).GetMethod(
@@ -1527,5 +1667,21 @@ public sealed class SectorManagerTests
             System.Reflection.BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
         method.Invoke(state, arguments);
+    }
+    [Test]
+    public void 近地轨道到月球再到火星的殖民周期必须逐级延长()
+    {
+        SectorDefinition lowOrbit = Resources.Load<SectorDefinition>("Datas/Sector/LowOrbit");
+        SectorDefinition moon = Resources.Load<SectorDefinition>("Datas/Sector/Moon");
+        SectorDefinition mars = Resources.Load<SectorDefinition>("Datas/Sector/Mars");
+
+        Assert.That(lowOrbit, Is.Not.Null);
+        Assert.That(moon, Is.Not.Null);
+        Assert.That(mars, Is.Not.Null);
+        Assert.That(lowOrbit.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(600d)));
+        Assert.That(moon.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(3600d)));
+        Assert.That(mars.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(7200d)));
+        Assert.That(lowOrbit.ColonizationDurationSeconds, Is.LessThan(moon.ColonizationDurationSeconds));
+        Assert.That(moon.ColonizationDurationSeconds, Is.LessThan(mars.ColonizationDurationSeconds));
     }
 }

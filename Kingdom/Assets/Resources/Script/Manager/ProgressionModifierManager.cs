@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public sealed class ProgressionModifierState
@@ -295,6 +296,9 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.DeconstructionReturnRate:
                     modifiers.SetDeconstructionReturnRate(effect.Value);
                     break;
+                default:
+                    throw new InvalidOperationException(
+                        $"研究效果类型 {effect.Type} 没有对应的运行时处理分支。");
             }
         }
     }

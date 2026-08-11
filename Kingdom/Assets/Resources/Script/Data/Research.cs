@@ -5,7 +5,7 @@ using UnityEngine;
 public class Research : GameDefinition
 {
     public string Label;
-    public string Description;
+    [TextArea]public string Description;
     public string BaseCost;
     [SerializeField] private List<Research> prerequisites = new();
     public IReadOnlyList<Research> Prerequisites => prerequisites;

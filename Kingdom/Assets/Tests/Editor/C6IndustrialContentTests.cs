@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 public sealed class C6IndustrialContentTests
@@ -387,6 +388,39 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void IndustrialResearchAndWorkshopEffectsKeepDifferentRoles()
+    {
+        AssertResearchWorkshopValuesDiffer(
+            "MechanizedForestry", "MechanizedForestryEquipment", "MechanizedLumberyard");
+        AssertResearchWorkshopValuesDiffer(
+            "RareMetalResourceDevelopment", "HeavyMineralSeparationSystem", "RareMetalMine");
+        AssertResearchWorkshopValuesDiffer(
+            "AdvancedCeramicEngineering", "AdvancedCeramicFiring", "AdvancedCeramicsPlant");
+        AssertResearchWorkshopValuesDiffer(
+            "IndustrialAgriculture", "AgriculturalMachinery", "PlantingField");
+    }
+
+    [Test]
+    public void IndustrialResearchGraphRetainsMeaningfulBranches()
+    {
+        Research[] industrialResearch = DataBase<Research>.All
+            .Where(research => research != null && research.TechLevel == TechLevel.Industrial)
+            .ToArray();
+
+        int rootCount = industrialResearch.Count(research =>
+            research.Prerequisites == null || research.Prerequisites.Count == 0);
+        int branchingCount = industrialResearch.Count(research =>
+            industrialResearch.Count(next =>
+                next.Prerequisites != null && next.Prerequisites.Contains(research)) >= 2);
+
+        Assert.That(rootCount, Is.GreaterThanOrEqualTo(1));
+        Assert.That(branchingCount, Is.GreaterThanOrEqualTo(5));
+        Assert.That(industrialResearch.Any(research => research.Id == "Industrialization"), Is.True);
+        Assert.That(industrialResearch.Any(research => research.Id == "IndustrialAgriculture"), Is.True);
+        Assert.That(industrialResearch.Any(research => research.Id == "IndustrialChemistry"), Is.True);
+    }
+
+    [Test]
     public void AgriculturalMachineryImprovesFoodBuildings()
     {
         Assert.That(HasTypedBuildingEffect("AgriculturalMachinery", "Farm",
@@ -417,26 +451,46 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void 工业医疗中心必须是医院升级并持续使用医疗耗材()
+    public void 医疗建筑删除后医学研究仍保留人口生产力效果()
     {
-        Assert.Pass("医院建筑链已删除，医学研究改由研究效果承担。");
-        Building hospital = null;
+        Building hospital = DataBase<Building>.Find("Hospital");
         Building medicalCenter = DataBase<Building>.Find("IndustrialMedicalCenter");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
 
-        Assert.That(hospital, Is.Not.Null, "医院必须存在。");
-        Assert.That(medicalCenter, Is.Not.Null, "工业医疗中心必须存在。");
-        Assert.That(hospital.UpgradeTo, Is.EqualTo(medicalCenter),
-            "工业医疗中心必须作为医院的工业时代升级建筑。");
-        Assert.That(medicalCenter.RequiredResearch,
-            Has.Some.Property("Id").EqualTo("ModernMedicine"),
-            "工业医疗中心必须由现代医学研究解锁。");
-        Assert.That(FindRate(medicalCenter.ResourceConsumptionRates, "Chemical"),
-            Is.GreaterThan(0d), "工业医疗中心必须持续消耗化学品。");
-        Assert.That(FindRate(medicalCenter.ResourceConsumptionRates, "Biomass"),
-            Is.GreaterThan(0d), "工业医疗中心必须持续消耗生物质耗材。");
-        Assert.That(FindRate(medicalCenter.ResourceConsumptionRates, "Biomass"),
-            Is.GreaterThan(FindRate(medicalCenter.ResourceConsumptionRates, "Electronics")),
-            "基础医疗耗材的持续用量应高于电子设备用量。");
+        Assert.That(hospital, Is.Null);
+        Assert.That(medicalCenter, Is.Null);
+        Assert.That(modernMedicine, Is.Not.Null);
+        Assert.That(modernMedicine.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
+            effect != null &&
+            effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
+            effect.Value == new ExpantaNum("1.35")));
+    }
+
+    [Test]
+    public void 无明确生产职责的退休建筑与工坊不得重新出现()
+    {
+        string[] retiredBuildingIds =
+        {
+            "CraftShelter",
+            "HealerHut",
+            "MeetingGround",
+            "Pasture",
+            "GuildHall",
+            "Hospital",
+            "IndustrialMedicalCenter",
+            "RoyalWorkshop",
+            "VillageWorkshop",
+            "LivestockYard",
+            "BronzeFoundry",
+            "IndustrialBronzeFoundry",
+            "BlastFurnace",
+            "CouncilHall"
+        };
+
+        for (int i = 0; i < retiredBuildingIds.Length; i++)
+            Assert.That(DataBase<Building>.Find(retiredBuildingIds[i]), Is.Null, retiredBuildingIds[i]);
+
+        Assert.That(DataBase<WorkshopUpgrade>.Find("RemoteSurgicalSystems"), Is.Null);
     }
 
     [Test]
@@ -517,6 +571,37 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void IndustrialBaseReplacementsCarryIndustrialOperatingBurden()
+    {
+        string[,] chains =
+        {
+            { "Lumberyard", "MechanizedLumberyard" },
+            { "Quarry", "IndustrialStoneworks" },
+            { "CoalMine", "MechanizedCoalMine" },
+            { "MetalMine", "RareMetalMine" },
+            { "ClayPit", "IndustrialClayProcessingWorks" },
+            { "CeramicKiln", "AdvancedCeramicsPlant" },
+            { "FiberGatheringCamp", "PlantingField" },
+            { "IrrigationWorks", "PlantingField" }
+        };
+
+        for (int i = 0; i < chains.GetLength(0); i++)
+        {
+            Building lower = DataBase<Building>.Find(chains[i, 0]);
+            Building upper = DataBase<Building>.Find(chains[i, 1]);
+
+            Assert.That(lower, Is.Not.Null, $"找不到基础建筑 {chains[i, 0]}。");
+            Assert.That(upper, Is.Not.Null, $"找不到工业上位建筑 {chains[i, 1]}。");
+            Assert.That(upper.TechLevel, Is.EqualTo(TechLevel.Industrial));
+            Assert.That(upper.SpaceCost, Is.GreaterThan(lower.SpaceCost),
+                $"上位建筑 {chains[i, 1]} 的土地需求必须高于 {chains[i, 0]}。");
+            Assert.That(upper.ProductivityConsumption,
+                Is.GreaterThan(lower.ProductivityConsumption),
+                $"上位建筑 {chains[i, 1]} 的生产力需求必须高于 {chains[i, 0]}。");
+        }
+    }
+
+    [Test]
     public void C607_IndustrialProductionGraphHasNoRecipeCycle()
     {
         string error;
@@ -579,11 +664,6 @@ public sealed class C6IndustrialContentTests
         Assert.That(looms.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
             effect != null && effect.Building == upper &&
             effect.Type == WorkshopEffectType.BuildingProductionMultiplier));
-    }
-
-    [Test]
-    public void 工业畜牧综合体必须作为畜牧围场的工业上位替代()
-    {
     }
 
     [Test]
@@ -838,6 +918,46 @@ public sealed class C6IndustrialContentTests
                 return true;
         }
         return false;
+    }
+
+    private static void AssertResearchWorkshopValuesDiffer(
+        string researchId,
+        string workshopId,
+        string buildingId)
+    {
+        Research research = DataBase<Research>.Find(researchId);
+        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
+        Assert.That(research, Is.Not.Null, researchId);
+        Assert.That(workshop, Is.Not.Null, workshopId);
+
+        ResearchEffectDefinition researchEffect = null;
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Building != null && effect.Building.Id == buildingId)
+            {
+                researchEffect = effect;
+                break;
+            }
+        }
+
+        WorkshopEffectDefinition workshopEffect = null;
+        for (int i = 0; i < workshop.Effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = workshop.Effects[i];
+            if (effect != null && effect.Building != null && effect.Building.Id == buildingId)
+            {
+                workshopEffect = effect;
+                break;
+            }
+        }
+
+        Assert.That(researchEffect, Is.Not.Null,
+            $"研究 {researchId} 必须作用于 {buildingId}。");
+        Assert.That(workshopEffect, Is.Not.Null,
+            $"工坊 {workshopId} 必须作用于 {buildingId}。");
+        Assert.That(researchEffect.Value, Is.Not.EqualTo(workshopEffect.Value),
+            $"研究 {researchId} 与工坊 {workshopId} 不应复制完全相同的数值效果。");
     }
 
     private static bool ContainsResearch(

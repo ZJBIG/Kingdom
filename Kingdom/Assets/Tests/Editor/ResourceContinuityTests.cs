@@ -4,6 +4,21 @@ using NUnit.Framework;
 public sealed class ResourceContinuityTests
 {
     [Test]
+    public void 资源变化率统一按秒结算()
+    {
+        ExpantaNum result = ResourceManager.AdvanceAmount(
+            new ExpantaNum(10),
+            new ExpantaNum(3),
+            new ExpantaNum(1),
+            2d);
+
+        Assert.That(
+            result.ToDouble(),
+            Is.EqualTo(14d).Within(1e-9),
+            "资源变化率必须按每秒数值乘以经过秒数结算，不得隐式按分钟换算。");
+    }
+
+    [Test]
     public void 铝土矿必须进入铝冶金研究与后续冶炼链()
     {
         Research aluminumMetallurgy = DataBase<Research>.Find("AluminumMetallurgy");
@@ -208,6 +223,25 @@ public sealed class ResourceContinuityTests
             GetResearchAmount(habitation, "TitaniumAlloy") * 4d));
         Assert.That(GetWorkshopAmount(lifeSupport, "Biomass"), Is.GreaterThan(
             GetWorkshopAmount(lifeSupport, "TitaniumAlloy") * 4d));
+    }
+
+    [Test]
+    public void FullOrbitalHabitatRequiresARealFoodProductionBase()
+    {
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Building plantingField = DataBase<Building>.Find("PlantingField");
+
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(plantingField, Is.Not.Null);
+        ExpantaNum habitatFoodDemand =
+            habitat.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson +
+            habitat.FoodConsumptionRate;
+        ExpantaNum unmodifiedFieldCount =
+            habitatFoodDemand / plantingField.FoodProductionRate;
+
+        Assert.That(habitatFoodDemand, Is.EqualTo(new ExpantaNum(2408d)));
+        Assert.That(unmodifiedFieldCount, Is.GreaterThanOrEqualTo(new ExpantaNum(50d)));
+        Assert.That(plantingField.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]

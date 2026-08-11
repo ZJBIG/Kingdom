@@ -5,6 +5,26 @@ using NUnit.Framework;
 public sealed class ResearchBalanceTests
 {
     [Test]
+    public void 已发布研究与工坊不得拥有空Effect()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            Assert.That(research, Is.Not.Null);
+            Assert.That(research.Effects, Is.Not.Null.And.Not.Empty, research.Id);
+            for (int i = 0; i < research.Effects.Count; i++)
+                Assert.That(research.Effects[i], Is.Not.Null, research.Id);
+        }
+
+        foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+        {
+            Assert.That(workshop, Is.Not.Null);
+            Assert.That(workshop.Effects, Is.Not.Null.And.Not.Empty, workshop.Id);
+            for (int i = 0; i < workshop.Effects.Count; i++)
+                Assert.That(workshop.Effects[i], Is.Not.Null, workshop.Id);
+        }
+    }
+
+    [Test]
     public void 研究定义不再携带布局坐标或系统路由字段()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -212,19 +232,79 @@ public sealed class ResearchBalanceTests
     }
 
     [Test]
-    public void 太空医学理论必须连接实体工坊()
+    public void 太空医学理论保留人口生产力效果而不依赖已删除工坊()
     {
         Research theory = DataBase<Research>.Find("PrecisionMedicine");
         WorkshopUpgrade implementation = DataBase<WorkshopUpgrade>.Find("RemoteSurgicalSystems");
 
         Assert.That(theory, Is.Not.Null);
-        Assert.That(implementation, Is.Not.Null);
+        Assert.That(implementation, Is.Null);
         Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("ModernMedicine"));
         Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("BioregenerativeLifeSupport"));
-        Assert.That(implementation.RequiredResearch,
-            Has.Some.Property("Id").EqualTo("PrecisionMedicine"));
-        Assert.That(implementation.Effects, Has.Some.Property("Type").EqualTo(
-            WorkshopEffectType.BuildingResearchPowerMultiplier));
+        Assert.That(theory.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
+            effect != null &&
+            effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
+            effect.Value == new ExpantaNum("1.5")));
+    }
+
+    [Test]
+    public void 医学研究必须按时代递进提升人口劳动力()
+    {
+        Research herbalKnowledge = DataBase<Research>.Find("HerbalKnowledge");
+        Research publicHealth = DataBase<Research>.Find("PublicHealth");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        Research precisionMedicine = DataBase<Research>.Find("PrecisionMedicine");
+
+        Assert.That(herbalKnowledge, Is.Not.Null);
+        Assert.That(publicHealth, Is.Not.Null);
+        Assert.That(modernMedicine, Is.Not.Null);
+        Assert.That(precisionMedicine, Is.Not.Null);
+        Assert.That(herbalKnowledge.TechLevel, Is.LessThan(publicHealth.TechLevel));
+        Assert.That(publicHealth.TechLevel, Is.LessThan(modernMedicine.TechLevel));
+        Assert.That(modernMedicine.TechLevel, Is.LessThan(precisionMedicine.TechLevel));
+        Assert.That(
+            GetPopulationProductivity(herbalKnowledge),
+            Is.EqualTo(1.1d).Within(0.000001d));
+        Assert.That(
+            GetPopulationProductivity(publicHealth),
+            Is.EqualTo(1.25d).Within(0.000001d));
+        Assert.That(
+            GetPopulationProductivity(modernMedicine),
+            Is.EqualTo(1.35d).Within(0.000001d));
+        Assert.That(
+            GetPopulationProductivity(precisionMedicine),
+            Is.EqualTo(1.5d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 医学研究成本与资源门槛必须随时代递进()
+    {
+        Research herbalKnowledge = DataBase<Research>.Find("HerbalKnowledge");
+        Research publicHealth = DataBase<Research>.Find("PublicHealth");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        Research lifeSupport = DataBase<Research>.Find("BioregenerativeLifeSupport");
+        Research precisionMedicine = DataBase<Research>.Find("PrecisionMedicine");
+
+        Assert.That(herbalKnowledge, Is.Not.Null);
+        Assert.That(publicHealth, Is.Not.Null);
+        Assert.That(modernMedicine, Is.Not.Null);
+        Assert.That(lifeSupport, Is.Not.Null);
+        Assert.That(precisionMedicine, Is.Not.Null);
+        Assert.That(ExpantaNum.TryParse(herbalKnowledge.BaseCost, out ExpantaNum herbalCost), Is.True);
+        Assert.That(ExpantaNum.TryParse(publicHealth.BaseCost, out ExpantaNum publicHealthCost), Is.True);
+        Assert.That(ExpantaNum.TryParse(modernMedicine.BaseCost, out ExpantaNum modernCost), Is.True);
+        Assert.That(ExpantaNum.TryParse(lifeSupport.BaseCost, out ExpantaNum lifeSupportCost), Is.True);
+        Assert.That(ExpantaNum.TryParse(precisionMedicine.BaseCost, out ExpantaNum precisionCost), Is.True);
+        Assert.That(publicHealthCost, Is.GreaterThan(herbalCost));
+        Assert.That(modernCost, Is.GreaterThan(publicHealthCost));
+        Assert.That(lifeSupportCost, Is.GreaterThan(modernCost));
+        Assert.That(precisionCost, Is.GreaterThan(lifeSupportCost));
+        Assert.That(HasResourceRequirementById(modernMedicine, "Ceramic"), Is.True);
+        Assert.That(HasResourceRequirementById(modernMedicine, "Electronics"), Is.True);
+        Assert.That(HasResourceRequirementById(lifeSupport, "Biomass"), Is.True);
+        Assert.That(HasResourceRequirementById(lifeSupport, "PhaseMaterial"), Is.True);
+        Assert.That(HasResourceRequirementById(precisionMedicine, "Biomass"), Is.True);
+        Assert.That(HasResourceRequirementById(precisionMedicine, "TitaniumAlloy"), Is.True);
     }
 
     [Test]
@@ -388,6 +468,18 @@ public sealed class ResearchBalanceTests
                 return true;
         }
         return false;
+    }
+
+    private static double GetPopulationProductivity(Research research)
+    {
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Type == ResearchEffectType.PopulationProductivityMultiplier)
+                return effect.Value.ToDouble();
+        }
+
+        return 0d;
     }
 
     private static bool HasEffect(

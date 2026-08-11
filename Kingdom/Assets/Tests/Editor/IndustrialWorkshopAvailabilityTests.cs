@@ -135,10 +135,6 @@ public class IndustrialWorkshopAvailabilityTests
             x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
             x.Building != null && x.Building.Id == "OilDerrick" &&
             x.Value.ToDouble() >= 1.25d));
-#if false
-
-        Assert.Pass("远程手术系统随医疗建筑链删除。");
- #endif
         WorkshopUpgrade workshop =
             Resources.Load<WorkshopUpgrade>("Datas/Workshop/RotaryDrillingHeads");
         Assert.That(workshop, Is.Not.Null, "旋转钻头组工坊必须存在。");
@@ -203,26 +199,6 @@ public class IndustrialWorkshopAvailabilityTests
             "Copper",
             WorkshopEffectType.BuildingResearchPowerMultiplier,
             "University");
-    }
-
-    [Test]
-    public void 远程手术系统把精准医疗落实到工业医疗中心()
-    {
-        Assert.Pass("RemoteSurgicalSystems 已随医疗建筑链删除。");
-        WorkshopUpgrade workshop =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/RemoteSurgicalSystems");
-        Assert.That(workshop, Is.Not.Null);
-        Assert.That(workshop.TechLevel, Is.EqualTo(TechLevel.Spacer));
-        Assert.That(workshop.RequiredResearch, Has.Some.Matches<Research>(research =>
-            research != null && research.Id == "PrecisionMedicine"));
-        Assert.That(workshop.RequiredUpgrades, Has.Some.Matches<WorkshopUpgrade>(upgrade =>
-            upgrade != null && upgrade.Id == "LaboratoryGlassware"));
-        Assert.That(workshop.ResourceRequirements, Has.Some.Matches<Pair<Resource, ExpantaNum>>(pair =>
-            pair.First != null && pair.First.Id == "Biomass" && pair.Second > new ExpantaNum(10000)));
-        Assert.That(workshop.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Type == WorkshopEffectType.BuildingResearchPowerMultiplier &&
-            effect.Building != null && effect.Building.Id == "IndustrialMedicalCenter" &&
-            effect.Value == new ExpantaNum("1.35")));
     }
 
     private static void AssertWorkshop(

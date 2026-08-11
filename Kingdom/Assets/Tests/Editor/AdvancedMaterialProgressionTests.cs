@@ -137,6 +137,85 @@ public sealed class AdvancedMaterialProgressionTests
     }
 
     [Test]
+    public void SpacerAdvancedMaterialsHaveSpacerResearchWorkshopAndBuildingSinks()
+    {
+        foreach (string resourceId in new[]
+        {
+            "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
+        })
+        {
+            Resource resource = DataBase<Resource>.Find(resourceId);
+            Assert.That(resource, Is.Not.Null, resourceId);
+            Assert.That(CountSpacerBuildingSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
+            Assert.That(CountSpacerResearchSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
+            Assert.That(CountSpacerWorkshopSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
+        }
+    }
+
+    [Test]
+    public void 轨道冶金产物必须进入深空结构与持续工艺()
+    {
+        Building vacuumMetallurgy = DataBase<Building>.Find("OrbitalVacuumMetallurgyArray");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Building logistics = DataBase<Building>.Find("OrbitalLogisticsHub");
+        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
+
+        Assert.That(vacuumMetallurgy, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(logistics, Is.Not.Null);
+        Assert.That(deepSpaceRelay, Is.Not.Null);
+        Assert.That(phaseSynthesis, Is.Not.Null);
+        Assert.That(
+            HasPositiveRate(vacuumMetallurgy.ResourceGenerationRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            Is.True);
+        Assert.That(
+            HasPositiveRate(vacuumMetallurgy.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            Is.True);
+        Assert.That(
+            HasPositiveRate(habitat.ResourceConsumptionRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            Is.True);
+        Assert.That(
+            HasPositiveRate(logistics.ResourceConsumptionRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            Is.True);
+        Assert.That(
+            HasPositiveRate(deepSpaceRelay.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            Is.True);
+        Assert.That(
+            HasPositiveRate(phaseSynthesis.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            Is.True);
+    }
+
+    [Test]
+    public void 幽影织物与相位材料必须保持不同的太空职责()
+    {
+        Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
+        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
+        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
+        Building textileArray = DataBase<Building>.Find("OrbitalTextileFabricationArray");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
+        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+        Building quantumArray = DataBase<Building>.Find("QuantumComputingArray");
+
+        Assert.That(phantomWeave, Is.Not.Null);
+        Assert.That(phaseMaterial, Is.Not.Null);
+        Assert.That(phantomFabricator, Is.Not.Null);
+        Assert.That(textileArray, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(phaseSynthesis, Is.Not.Null);
+        Assert.That(deepSpaceRelay, Is.Not.Null);
+        Assert.That(quantumArray, Is.Not.Null);
+        Assert.That(HasPositiveRate(phantomFabricator.ResourceGenerationRates, phantomWeave), Is.True);
+        Assert.That(HasPositiveRate(textileArray.ResourceConsumptionRates, phantomWeave), Is.True);
+        Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, phantomWeave), Is.True);
+        Assert.That(HasPositiveRate(phaseSynthesis.ResourceGenerationRates, phaseMaterial), Is.True);
+        Assert.That(HasPositiveRate(deepSpaceRelay.ResourceConsumptionRates, phaseMaterial), Is.True);
+        Assert.That(HasPositiveRate(quantumArray.ResourceConsumptionRates, phaseMaterial), Is.True);
+        Assert.That(HasPositiveRate(phantomFabricator.ResourceGenerationRates, phaseMaterial), Is.False);
+    }
+
+    [Test]
     public void 太空高级材料必须进入多个星区行动()
     {
         foreach (string resourceId in new[]
@@ -161,6 +240,30 @@ public sealed class AdvancedMaterialProgressionTests
                 Is.GreaterThanOrEqualTo(2),
                 $"高级材料 {resourceId} 必须服务至少两个星区行动，不能只承担一次性建造费用。");
         }
+    }
+
+    [Test]
+    public void 相位材料只能服务星际时代星区行动()
+    {
+        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
+        Assert.That(phaseMaterial, Is.Not.Null);
+
+        int interstellarUses = 0;
+        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        {
+            if (sector == null ||
+                (!HasPositiveRate(sector.CampaignResourceRatesPerSecond, phaseMaterial) &&
+                 !HasPositiveRate(sector.ColonizationResourceRatesPerSecond, phaseMaterial)))
+                continue;
+
+            Assert.That(
+                sector.Domain,
+                Is.EqualTo(SectorDefinition.SectorDomain.Interstellar),
+                $"PhaseMaterial 不应提前进入近地轨道、月球或火星行动：{sector.Id}");
+            interstellarUses++;
+        }
+
+        Assert.That(interstellarUses, Is.GreaterThanOrEqualTo(2));
     }
 
     [Test]
@@ -290,6 +393,49 @@ public sealed class AdvancedMaterialProgressionTests
         for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
             if (HasPositiveRate(DataBase<WorkshopUpgrade>.All[i].ResourceRequirements, resource))
                 count++;
+        return count;
+    }
+
+    private static int CountSpacerBuildingSinks(Resource resource)
+    {
+        int count = 0;
+        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        {
+            Building building = DataBase<Building>.All[i];
+            if (building.TechLevel == TechLevel.Spacer &&
+                (HasPositiveRate(building.ResourceRequirements, resource) ||
+                 HasPositiveRate(building.ResourceConsumptionRates, resource)))
+                count++;
+        }
+
+        return count;
+    }
+
+    private static int CountSpacerResearchSinks(Resource resource)
+    {
+        int count = 0;
+        for (int i = 0; i < DataBase<Research>.All.Count; i++)
+        {
+            Research research = DataBase<Research>.All[i];
+            if (research.TechLevel == TechLevel.Spacer &&
+                HasPositiveRate(research.ResourceRequirements, resource))
+                count++;
+        }
+
+        return count;
+    }
+
+    private static int CountSpacerWorkshopSinks(Resource resource)
+    {
+        int count = 0;
+        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
+        {
+            WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All[i];
+            if (workshop.TechLevel == TechLevel.Spacer &&
+                HasPositiveRate(workshop.ResourceRequirements, resource))
+                count++;
+        }
+
         return count;
     }
 

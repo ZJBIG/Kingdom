@@ -9,12 +9,13 @@ public sealed class GlobalEconomyDefinitionTests
 {
     private static readonly string[] ReleasedResourceIds =
     {
-        "WoodLog", "StoneChunk", "StoneBrick", "Clay", "Biomass", "Ceramic",
-        "Cloth", "Coal", "CopperOre", "Copper", "TinOre", "Tin", "IronOre",
-        "Iron", "Bronze", "Steel", "Chemical", "Machinery", "Electronics",
-        "CrudeOil", "Coke", "Glass", "Ceramic",
-        "RefinedFuel", "Lubricant", "Rubber", "CopperWire", "Engine",
-        "Concrete", "BauxiteOre", "Aluminum", "Explosives"
+        "Biomass", "Clay", "Cloth", "StoneBrick", "StoneChunk", "WoodLog",
+        "Ceramic", "Chemical", "Coke", "Concrete", "CopperWire", "CrudeOil",
+        "Electronics", "Engine", "Explosives", "Glass", "Lubricant", "Machinery",
+        "RefinedFuel", "Rubber", "Aluminum", "Bronze", "Copper", "Iron",
+        "Nickel", "Steel", "Tin", "TitaniumAlloy", "BauxiteOre", "Coal",
+        "CopperOre", "IronOre", "NickelConcentrate", "TinOre", "TitaniumConcentrate",
+        "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial", "RocketFuel"
     };
 
     [Test]
@@ -30,6 +31,36 @@ public sealed class GlobalEconomyDefinitionTests
             if (building.TechLevel <= TechLevel.Industrial)
                 releasedBuildings++;
         Assert.That(releasedBuildings, Is.EqualTo(52));
+    }
+
+    [Test]
+    public void DefinitionNumericEditorFieldsRemainStringBacked()
+    {
+        Type[] definitionTypes =
+        {
+            typeof(Building),
+            typeof(Research),
+            typeof(ResearchEffectDefinition),
+            typeof(WorkshopUpgrade),
+            typeof(WorkshopEffectDefinition),
+            typeof(SectorDefinition),
+            typeof(ResourceAmountDefinition)
+        };
+
+        foreach (Type definitionType in definitionTypes)
+        {
+            FieldInfo[] fields = definitionType.GetFields(
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic);
+            foreach (FieldInfo field in fields)
+            {
+                Assert.That(
+                    field.FieldType,
+                    Is.Not.EqualTo(typeof(ExpantaNum)),
+                    $"{definitionType.Name}.{field.Name} 不得直接序列化 ExpantaNum；编辑字段应使用 String。" );
+            }
+        }
     }
 
     [Test]
@@ -122,6 +153,7 @@ public sealed class GlobalEconomyDefinitionTests
     {
         return type == ResearchEffectType.BuildingProductionMultiplier ||
             type == ResearchEffectType.BuildingFoodProductionMultiplier ||
+            type == ResearchEffectType.BuildingConstructionMultiplier ||
             type == ResearchEffectType.BuildingResearchPowerMultiplier ||
             type == ResearchEffectType.BuildingPowerProductionMultiplier ||
             type == ResearchEffectType.BuildingLogisticsProductionMultiplier;
@@ -131,6 +163,7 @@ public sealed class GlobalEconomyDefinitionTests
     {
         return type == WorkshopEffectType.BuildingProductionMultiplier ||
             type == WorkshopEffectType.BuildingFoodProductionMultiplier ||
+            type == WorkshopEffectType.BuildingConstructionMultiplier ||
             type == WorkshopEffectType.BuildingResearchPowerMultiplier ||
             type == WorkshopEffectType.BuildingPowerProductionMultiplier ||
             type == WorkshopEffectType.BuildingLogisticsProductionMultiplier;
@@ -236,6 +269,57 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
+    public void 每个建筑都必须承担明确的独立职责()
+    {
+        foreach (Building building in DataBase<Building>.All)
+        {
+            bool hasIndependentFunction =
+                building.ResourceGenerationRates.Count > 0 ||
+                building.PopulationCapacityGranted > ExpantaNum.Zero ||
+                building.ResearchPowerGranted > ExpantaNum.Zero ||
+                building.FoodProductionRate > ExpantaNum.Zero ||
+                building.FoodCapacityGranted > ExpantaNum.Zero ||
+                building.PowerProductionRate > ExpantaNum.Zero ||
+                building.LogisticsProductionRate > ExpantaNum.Zero ||
+                building.FleetPowerGranted > ExpantaNum.Zero ||
+                building.AttackPowerGranted > ExpantaNum.Zero ||
+                building.DefensePowerGranted > ExpantaNum.Zero ||
+                building.MilitaryManpowerGranted > ExpantaNum.Zero;
+
+            Assert.That(
+                hasIndependentFunction,
+                Is.True,
+                $"建筑 {building.Id} 没有独立的资源、人口、研究、食物、能源、物流或军事职责。");
+        }
+    }
+
+    [Test]
+    public void 建筑不能重复声明完全相同的资源产出()
+    {
+        var signatures = new HashSet<string>(StringComparer.Ordinal);
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (building == null || building.ResourceGenerationRates == null ||
+                building.ResourceGenerationRates.Count == 0)
+                continue;
+
+            var parts = new List<string>();
+            foreach (Pair<Resource, ExpantaNum> pair in building.ResourceGenerationRates)
+            {
+                if (pair == null || pair.First == null || pair.Second <= ExpantaNum.Zero)
+                    continue;
+                parts.Add(pair.First.Id + "=" + pair.Second.ToString());
+            }
+
+            string signature = string.Join("|", parts.OrderBy(value => value, StringComparer.Ordinal));
+            Assert.That(
+                signatures.Add(signature),
+                Is.True,
+                $"建筑 {building.Id} 与另一个建筑重复声明了完全相同的资源产出 {signature}。");
+        }
+    }
+
+    [Test]
     public void EveryResearchAndWorkshopEffectHasAValidTarget()
     {
         foreach (Research research in DataBase<Research>.All)
@@ -252,6 +336,7 @@ public sealed class GlobalEconomyDefinitionTests
                 {
                     case ResearchEffectType.BuildingProductionMultiplier:
                     case ResearchEffectType.BuildingFoodProductionMultiplier:
+                    case ResearchEffectType.BuildingConstructionMultiplier:
                     case ResearchEffectType.BuildingResearchPowerMultiplier:
                     case ResearchEffectType.BuildingPowerProductionMultiplier:
                     case ResearchEffectType.BuildingLogisticsProductionMultiplier:
@@ -282,6 +367,7 @@ public sealed class GlobalEconomyDefinitionTests
                 {
                     case WorkshopEffectType.BuildingProductionMultiplier:
                     case WorkshopEffectType.BuildingFoodProductionMultiplier:
+                    case WorkshopEffectType.BuildingConstructionMultiplier:
                     case WorkshopEffectType.BuildingResearchPowerMultiplier:
                     case WorkshopEffectType.BuildingPowerProductionMultiplier:
                     case WorkshopEffectType.BuildingLogisticsProductionMultiplier:
@@ -371,6 +457,109 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
+    public void 所有效果类型都必须有运行时支持分支()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                Assert.That(
+                    Enum.IsDefined(typeof(ResearchEffectType), effect.Type),
+                    Is.True,
+                    $"Research {research.Id} 使用了未定义的 Effect 类型 {effect.Type}。");
+                Assert.That(
+                    IsSupportedResearchEffect(effect.Type),
+                    Is.True,
+                    $"ResearchEffectType.{effect.Type} 没有对应的运行时处理分支。");
+            }
+        }
+
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        {
+            foreach (WorkshopEffectDefinition effect in upgrade.Effects)
+            {
+                Assert.That(
+                    Enum.IsDefined(typeof(WorkshopEffectType), effect.Type),
+                    Is.True,
+                    $"Workshop {upgrade.Id} 使用了未定义的 Effect 类型 {effect.Type}。");
+                Assert.That(
+                    IsSupportedWorkshopEffect(effect.Type),
+                    Is.True,
+                    $"WorkshopEffectType.{effect.Type} 没有对应的运行时处理分支。");
+            }
+        }
+    }
+
+    private static bool IsSupportedResearchEffect(ResearchEffectType type)
+    {
+        switch (type)
+        {
+            case ResearchEffectType.BuildingProductionMultiplier:
+            case ResearchEffectType.BuildingFoodProductionMultiplier:
+            case ResearchEffectType.ResourceProductionMultiplier:
+            case ResearchEffectType.GlobalResearchMultiplier:
+            case ResearchEffectType.GlobalConstructionMultiplier:
+            case ResearchEffectType.FoodCapacityMultiplier:
+            case ResearchEffectType.ProductivityGranted:
+            case ResearchEffectType.TerritoryGranted:
+            case ResearchEffectType.MilitaryMultiplier:
+            case ResearchEffectType.PowerMultiplier:
+            case ResearchEffectType.GlobalBuildingProductionMultiplier:
+            case ResearchEffectType.BuildingResearchPowerMultiplier:
+            case ResearchEffectType.BuildingPowerProductionMultiplier:
+            case ResearchEffectType.BuildingLogisticsProductionMultiplier:
+            case ResearchEffectType.GlobalLogisticsMultiplier:
+            case ResearchEffectType.PopulationGrowthMultiplier:
+            case ResearchEffectType.DeconstructionReturnRate:
+            case ResearchEffectType.UnlockIndustrialWorkshop:
+            case ResearchEffectType.UnlockFirstContact:
+            case ResearchEffectType.UnlockDeepSpaceFleet:
+            case ResearchEffectType.UnlockInterstellarNavigation:
+            case ResearchEffectType.FleetRepairCostMultiplier:
+            case ResearchEffectType.OccupiedResourceProductionMultiplier:
+            case ResearchEffectType.CampaignProgressMultiplier:
+            case ResearchEffectType.CampaignSupplyCostMultiplier:
+            case ResearchEffectType.CampaignCasualtyMultiplier:
+            case ResearchEffectType.PopulationProductivityMultiplier:
+            case ResearchEffectType.ExplorationPowerMultiplier:
+            case ResearchEffectType.BuildingConstructionMultiplier:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static bool IsSupportedWorkshopEffect(WorkshopEffectType type)
+    {
+        switch (type)
+        {
+            case WorkshopEffectType.BuildingProductionMultiplier:
+            case WorkshopEffectType.BuildingFoodProductionMultiplier:
+            case WorkshopEffectType.ResourceProductionMultiplier:
+            case WorkshopEffectType.GlobalResearchMultiplier:
+            case WorkshopEffectType.GlobalConstructionMultiplier:
+            case WorkshopEffectType.TerritoryGranted:
+            case WorkshopEffectType.MilitaryMultiplier:
+            case WorkshopEffectType.PowerMultiplier:
+            case WorkshopEffectType.GlobalBuildingProductionMultiplier:
+            case WorkshopEffectType.BuildingResearchPowerMultiplier:
+            case WorkshopEffectType.BuildingPowerProductionMultiplier:
+            case WorkshopEffectType.BuildingLogisticsProductionMultiplier:
+            case WorkshopEffectType.GlobalLogisticsMultiplier:
+            case WorkshopEffectType.FleetRepairCostMultiplier:
+            case WorkshopEffectType.PopulationGrowthMultiplier:
+            case WorkshopEffectType.OccupiedResourceProductionMultiplier:
+            case WorkshopEffectType.CampaignSupplyCostMultiplier:
+            case WorkshopEffectType.CampaignCasualtyMultiplier:
+            case WorkshopEffectType.BuildingConstructionMultiplier:
+            case WorkshopEffectType.ExplorationPowerMultiplier:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    [Test]
     public void ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable()
     {
         foreach (string id in ReleasedResourceIds)
@@ -382,6 +571,62 @@ public sealed class GlobalEconomyDefinitionTests
             DataBase<Research>.All,
             DataBase<WorkshopUpgrade>.All,
             out string error), Is.True, error);
+    }
+
+    [Test]
+    public void 所有资源都必须有来源和多个真实消费节点()
+    {
+        foreach (string id in ReleasedResourceIds)
+        {
+            Resource resource = DataBase<Resource>.Find(id);
+            int sourceCount = 0;
+            int sinkCount = 0;
+
+            foreach (Building building in DataBase<Building>.All)
+            {
+                if (building == null)
+                    continue;
+                if (HasPositiveResourcePair(building.ResourceGenerationRates, resource))
+                    sourceCount++;
+                if (HasPositiveResourcePair(building.ResourceRequirements, resource) ||
+                    HasPositiveResourcePair(building.ResourceConsumptionRates, resource))
+                    sinkCount++;
+            }
+
+            foreach (Research research in DataBase<Research>.All)
+                if (research != null && HasPositiveResourcePair(research.ResourceRequirements, resource))
+                    sinkCount++;
+
+            foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+                if (workshop != null && HasPositiveResourcePair(workshop.ResourceRequirements, resource))
+                    sinkCount++;
+
+            foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+            {
+                if (sector == null)
+                    continue;
+                if (HasPositiveResourcePair(sector.CampaignResourceRatesPerSecond, resource) ||
+                    HasPositiveResourcePair(sector.ColonizationResourceRatesPerSecond, resource))
+                    sinkCount++;
+            }
+
+            Assert.That(sourceCount, Is.GreaterThanOrEqualTo(1),
+                $"资源 {id} 没有可达的生产来源。");
+            Assert.That(sinkCount, Is.GreaterThanOrEqualTo(2),
+                $"资源 {id} 少于两个真实消费节点，不能承担长期产业作用。");
+        }
+    }
+
+    private static bool HasPositiveResourcePair(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        Resource resource)
+    {
+        if (pairs == null || resource == null)
+            return false;
+        foreach (Pair<Resource, ExpantaNum> pair in pairs)
+            if (pair != null && pair.First == resource && pair.Second > ExpantaNum.Zero)
+                return true;
+        return false;
     }
 
     private static void AssertUnique<T>(IReadOnlyList<T> values, string context) where T : class

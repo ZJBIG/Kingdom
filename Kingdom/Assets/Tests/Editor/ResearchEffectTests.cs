@@ -118,6 +118,162 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
+    public void CompletedMedicalResearchAccumulatesPopulationProductivityAcrossEras()
+    {
+        Research herbalKnowledge = DataBase<Research>.Find("HerbalKnowledge");
+        Research publicHealth = DataBase<Research>.Find("PublicHealth");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        Research precisionMedicine = DataBase<Research>.Find("PrecisionMedicine");
+
+        Assert.That(herbalKnowledge, Is.Not.Null);
+        Assert.That(publicHealth, Is.Not.Null);
+        Assert.That(modernMedicine, Is.Not.Null);
+        Assert.That(precisionMedicine, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(herbalKnowledge, true),
+            CreateState(publicHealth, true),
+            CreateState(modernMedicine, true),
+            CreateState(precisionMedicine, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current.PopulationProductivityMultiplier.ToDouble(),
+            Is.EqualTo(2.2d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 已完成医学研究会进入建筑管理器的人口实际生产力()
+    {
+        GameManager gameManager = CreateManager<GameManager>("医学生产力-游戏管理器");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("医学生产力-建筑管理器");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        Assert.That(modernMedicine, Is.Not.Null);
+
+        MethodInfo restorePopulation = typeof(GameState).GetMethod(
+            "RestorePopulation",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(restorePopulation, Is.Not.Null);
+        restorePopulation.Invoke(gameManager.State, new object[] { new ExpantaNum(5d) });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(modernMedicine, false)
+        });
+        Assert.That(
+            buildingManager.TotalProductivity.ToDouble(),
+            Is.EqualTo(10d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(modernMedicine, true)
+        });
+        Assert.That(
+            buildingManager.TotalProductivity.ToDouble(),
+            Is.EqualTo(13.5d).Within(0.000001d));
+    }
+
+    [Test]
+    public void 医学人口生产力会改变真实建筑建造门槛()
+    {
+        GameManager gameManager = CreateManager<GameManager>("医学建造门槛-游戏管理器");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("医学建造门槛-建筑管理器");
+        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        Building laborBuilding = CreateDefinition<Building>("医学劳动力门槛测试建筑");
+        laborBuilding.TechLevel = TechLevel.Animal;
+        laborBuilding.ConfigureEconomyForEditor(
+            new ExpantaNum(1.15d),
+            ExpantaNum.Zero,
+            new ExpantaNum(12d),
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>());
+
+        MethodInfo restorePopulation = typeof(GameState).GetMethod(
+            "RestorePopulation",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(modernMedicine, Is.Not.Null);
+        Assert.That(restorePopulation, Is.Not.Null);
+        restorePopulation.Invoke(gameManager.State, new object[] { new ExpantaNum(5d) });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(modernMedicine, false)
+        });
+        Assert.That(
+            buildingManager.TryBuild(laborBuilding, ExpantaNum.One, out BuildFailure incompleteFailure),
+            Is.False);
+        Assert.That(incompleteFailure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(modernMedicine, true)
+        });
+        Assert.That(
+            buildingManager.TryBuild(laborBuilding, ExpantaNum.One, out BuildFailure completedFailure),
+            Is.True);
+        Assert.That(completedFailure, Is.EqualTo(BuildFailure.None));
+    }
+
+    [Test]
+    public void CompletedFoodCapacityResearchChangesBaseAndBuildingCapacityOnce()
+    {
+        CreateManager<GameManager>("粮食容量-游戏管理器");
+        CreateManager<ResourceManager>("粮食容量-资源管理器");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("粮食容量-建筑管理器");
+
+        Research foodPreservation = DataBase<Research>.Find("FoodPreservation");
+        Building granary = DataBase<Building>.Find("Granary");
+        Assert.That(foodPreservation, Is.Not.Null);
+        Assert.That(granary, Is.Not.Null);
+
+        BuildingState granaryState = buildingManager.EnsureBuilding(granary);
+        granaryState.SetAmountForEditor(ExpantaNum.One);
+
+        ProgressionModifierState previous = new ProgressionModifierState();
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(foodPreservation, true)
+        });
+        ApplyProgressionModifierChange(
+            buildingManager,
+            previous,
+            ProgressionModifierManager.Current);
+
+        Assert.That(
+            GameManager.Instance.State.FoodCapacity.ToDouble(),
+            Is.EqualTo(650d).Within(0.000001d));
+
+        ProgressionModifierState completed = ProgressionModifierManager.Current;
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(foodPreservation, true)
+        });
+        ApplyProgressionModifierChange(
+            buildingManager,
+            completed,
+            ProgressionModifierManager.Current);
+
+        Assert.That(
+            GameManager.Instance.State.FoodCapacity.ToDouble(),
+            Is.EqualTo(650d).Within(0.000001d));
+    }
+
+    [Test]
     public void Rebuild_AddsPopulationGrowthEffectsWithoutCompounding()
     {
         Research first = CreateResearch("population-growth-first");
@@ -456,8 +612,12 @@ public sealed class ResearchEffectTests
     [Test]
     public void 已完成研究才会提升真实拆除返还率()
     {
+        Research stoneTools = DataBase<Research>.Find("StoneTools");
+        Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
         Research industrialization = DataBase<Research>.Find("Industrialization");
         Research orbitalHabitation = DataBase<Research>.Find("OrbitalHabitation");
+        Assert.That(stoneTools, Is.Not.Null);
+        Assert.That(urbanHousing, Is.Not.Null);
         Assert.That(industrialization, Is.Not.Null);
         Assert.That(orbitalHabitation, Is.Not.Null);
 
@@ -465,6 +625,28 @@ public sealed class ResearchEffectTests
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
             Is.EqualTo(0.05d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(stoneTools, true),
+            CreateState(urbanHousing, false),
+            CreateState(industrialization, false),
+            CreateState(orbitalHabitation, false)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.10d).Within(0.000001d));
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(stoneTools, true),
+            CreateState(urbanHousing, true),
+            CreateState(industrialization, false),
+            CreateState(orbitalHabitation, false)
+        });
+        Assert.That(
+            ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
+            Is.EqualTo(0.25d).Within(0.000001d));
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
@@ -522,6 +704,18 @@ public sealed class ResearchEffectTests
         Research research = CreateDefinition<Research>(id);
         research.BaseCost = "100";
         return research;
+    }
+
+    private static void ApplyProgressionModifierChange(
+        BuildingManager buildingManager,
+        ProgressionModifierState previous,
+        ProgressionModifierState current)
+    {
+        MethodInfo method = typeof(BuildingManager).GetMethod(
+            "ApplyProgressionModifierChange",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(buildingManager, new object[] { previous, current });
     }
 
     private ResearchState CreateState(Research research, bool completed)

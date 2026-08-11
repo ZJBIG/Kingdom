@@ -51,12 +51,6 @@ MonoBehaviour:
     amount: "1800"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "600"
-  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "16000"
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
-    amount: "12000"
-  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "10000"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "18"

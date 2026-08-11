@@ -4,7 +4,7 @@ using UnityEngine;
 public class Resource : GameDefinition
 {
     public string Label;
-    public string Description;
+    [TextArea] public string Description;
     public Sprite Sprite;
     public Color Color = Color.white;
 }

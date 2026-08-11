@@ -121,6 +121,10 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(FindRate(retort.ResourceConsumptionRates, "WoodLog") * 2d));
         Assert.That(ContainsResource(carbonizationComplex.ResourceRequirements, "TitaniumAlloy"), Is.True);
         Assert.That(ContainsResource(carbonizationComplex.ResourceRequirements, "Composite"), Is.True);
+        Assert.That(ContainsResource(carbonizationComplex.ResourceRequirements, "WoodLog"), Is.False);
+        Assert.That(ContainsResource(carbonizationComplex.ResourceRequirements, "Concrete"), Is.True);
+        Assert.That(FindRate(carbonizationComplex.ResourceConsumptionRates, "WoodLog"),
+            Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(HasBuildingResourceConsumption("OrbitalForestryHarvestingArray", "PhantomWeave"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalForestryHarvestingArray", "PhaseMaterial"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCarbonizationComplex", "PhantomAlloy"), Is.True);
@@ -483,13 +487,18 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Lubricant"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Concrete"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Machinery"), Is.True);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "Electronics"), Is.True);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "Ceramic"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "TitaniumAlloy"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Composite"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "PhantomAlloy"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "PhaseMaterial"), Is.True);
-        Assert.That(ContainsResource(upper.ResourceRequirements, "BauxiteOre"), Is.True);
-        Assert.That(ContainsResource(upper.ResourceRequirements, "NickelConcentrate"), Is.True);
-        Assert.That(ContainsResource(upper.ResourceRequirements, "TitaniumConcentrate"), Is.True);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "CopperOre"), Is.False);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "TinOre"), Is.False);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "IronOre"), Is.False);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "BauxiteOre"), Is.False);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "NickelConcentrate"), Is.False);
+        Assert.That(ContainsResource(upper.ResourceRequirements, "TitaniumConcentrate"), Is.False);
         Assert.That(upper.SpaceCost, Is.GreaterThan(lower.SpaceCost));
         Assert.That(upper.ProductivityConsumption, Is.GreaterThan(lower.ProductivityConsumption));
         Assert.That(theory.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
@@ -498,6 +507,188 @@ public sealed class SpaceProgressionTests
         Assert.That(systems.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
             effect != null && effect.Building == upper &&
             effect.Type == WorkshopEffectType.BuildingProductionMultiplier));
+    }
+
+    [Test]
+    public void 轨道采出资源必须接入明确的下游冶金节点()
+    {
+        Building extraction = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        Assert.That(extraction, Is.Not.Null);
+
+        string[,] downstreamRoutes =
+        {
+            { "TitaniumConcentrate", "OrbitalVacuumMetallurgyArray" },
+            { "NickelConcentrate", "OrbitalVacuumMetallurgyArray" },
+            { "BauxiteOre", "AluminumSmelter" },
+            { "CopperOre", "IndustrialMetalSmelter" },
+            { "TinOre", "IndustrialMetalSmelter" },
+            { "IronOre", "IndustrialMetalSmelter" }
+        };
+
+        for (int i = 0; i < downstreamRoutes.GetLength(0); i++)
+        {
+            string resourceId = downstreamRoutes[i, 0];
+            string buildingId = downstreamRoutes[i, 1];
+            Building downstream = DataBase<Building>.Find(buildingId);
+            Assert.That(
+                FindRate(extraction.ResourceGenerationRates, resourceId),
+                Is.GreaterThan(ExpantaNum.Zero),
+                $"轨道阵列必须产出 {resourceId}。");
+            Assert.That(downstream, Is.Not.Null, buildingId);
+            Assert.That(
+                FindRate(downstream.ResourceConsumptionRates, resourceId),
+                Is.GreaterThan(ExpantaNum.Zero),
+                $"{resourceId} 必须进入 {buildingId} 的持续冶金消耗。");
+        }
+    }
+
+    [Test]
+    public void 轨道真空冶金阵列不应使用采出精矿作为建造材料()
+    {
+        Building metallurgy = DataBase<Building>.Find("OrbitalVacuumMetallurgyArray");
+        Assert.That(metallurgy, Is.Not.Null);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Concrete"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Machinery"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Ceramic"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "TitaniumAlloy"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Composite"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "PhantomAlloy"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "PhaseMaterial"), Is.True);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "TitaniumConcentrate"), Is.False);
+        Assert.That(ContainsResource(metallurgy.ResourceRequirements, "NickelConcentrate"), Is.False);
+        Assert.That(HasBuildingResourceConsumption("OrbitalVacuumMetallurgyArray", "TitaniumConcentrate"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalVacuumMetallurgyArray", "NickelConcentrate"), Is.True);
+    }
+
+    [Test]
+    public void 轨道工业设施不得把原矿或精矿作为建造材料()
+    {
+        string[] orbitalIndustrialBuildings =
+        {
+            "OrbitalResourceExtractionArray",
+            "OrbitalVacuumMetallurgyArray",
+            "OrbitalCarbonizationComplex"
+        };
+        string[] rawExtractionResources =
+        {
+            "CopperOre",
+            "TinOre",
+            "IronOre",
+            "BauxiteOre",
+            "NickelConcentrate",
+            "TitaniumConcentrate"
+        };
+
+        for (int buildingIndex = 0; buildingIndex < orbitalIndustrialBuildings.Length; buildingIndex++)
+        {
+            Building building = DataBase<Building>.Find(orbitalIndustrialBuildings[buildingIndex]);
+            Assert.That(building, Is.Not.Null, orbitalIndustrialBuildings[buildingIndex]);
+            for (int resourceIndex = 0; resourceIndex < rawExtractionResources.Length; resourceIndex++)
+                Assert.That(
+                    ContainsResource(building.ResourceRequirements, rawExtractionResources[resourceIndex]),
+                    Is.False,
+                    $"{building.Id} 不应使用采出原矿或精矿建造。");
+        }
+    }
+
+    [Test]
+    public void Spacer高级材料必须都有来源和长期战略消耗()
+    {
+        Building titaniumWorks = DataBase<Building>.Find("TitaniumMetallurgicalComplex");
+        Building machineFactory = DataBase<Building>.Find("MachineFactory");
+        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
+        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
+        Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
+        Building textileArray = DataBase<Building>.Find("OrbitalTextileFabricationArray");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Research occupationAdministration =
+            DataBase<Research>.Find("InterstellarOccupationAdministration");
+
+        Assert.That(titaniumWorks, Is.Not.Null);
+        Assert.That(machineFactory, Is.Not.Null);
+        Assert.That(phantomFabricator, Is.Not.Null);
+        Assert.That(phaseSynthesis, Is.Not.Null);
+        Assert.That(orbitalStation, Is.Not.Null);
+        Assert.That(textileArray, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(occupationAdministration, Is.Not.Null);
+
+        Assert.That(FindRate(titaniumWorks.ResourceGenerationRates, "TitaniumAlloy"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(machineFactory.ResourceGenerationRates, "Composite"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(phantomFabricator.ResourceGenerationRates, "PhantomAlloy"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(phantomFabricator.ResourceGenerationRates, "PhantomWeave"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(phaseSynthesis.ResourceGenerationRates, "PhaseMaterial"),
+            Is.GreaterThan(ExpantaNum.Zero));
+
+        Assert.That(ContainsResource(orbitalStation.ResourceRequirements, "TitaniumAlloy"), Is.True);
+        Assert.That(ContainsResource(orbitalStation.ResourceRequirements, "Composite"), Is.True);
+        Assert.That(ContainsResource(textileArray.ResourceRequirements, "PhantomWeave"), Is.True);
+        Assert.That(ContainsResource(habitat.ResourceRequirements, "PhaseMaterial"), Is.True);
+        Assert.That(HasResourceRequirement(occupationAdministration, "PhantomAlloy"), Is.True);
+        Assert.That(HasResourceRequirement(occupationAdministration, "PhaseMaterial"), Is.True);
+    }
+
+    [Test]
+    public void IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse()
+    {
+        Building coalMine = DataBase<Building>.Find("CoalMine");
+        Building mechanizedCoalMine = DataBase<Building>.Find("MechanizedCoalMine");
+        Building cokeOven = DataBase<Building>.Find("CokeOven");
+        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
+        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+
+        Assert.That(coalMine, Is.Not.Null);
+        Assert.That(mechanizedCoalMine, Is.Not.Null);
+        Assert.That(cokeOven, Is.Not.Null);
+        Assert.That(retort, Is.Not.Null);
+        Assert.That(chemicalPlant, Is.Not.Null);
+        Assert.That(FindRate(mechanizedCoalMine.ResourceGenerationRates, "Coal"),
+            Is.GreaterThan(FindRate(coalMine.ResourceGenerationRates, "Coal") * 4d));
+        Assert.That(coalMine.UpgradeTo, Is.EqualTo(mechanizedCoalMine));
+        Assert.That(ContainsResource(mechanizedCoalMine.ResourceRequirements, "Coke"), Is.True);
+        Assert.That(ContainsResource(mechanizedCoalMine.ResourceRequirements, "Concrete"), Is.True);
+        Assert.That(FindRate(mechanizedCoalMine.ResourceConsumptionRates, "Explosives"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(cokeOven.ResourceConsumptionRates, "Coal"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(cokeOven.ResourceGenerationRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(retort.ResourceConsumptionRates, "WoodLog"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(retort.ResourceGenerationRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "Coal"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Chemical"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Explosives"),
+            Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void 炸药必须作为采掘与土木设备的持续消耗而不是战争建造费()
+    {
+        string[] extractionConsumers =
+        {
+            "MechanizedCoalMine",
+            "IndustrialStoneworks",
+            "IndustrialClayProcessingWorks",
+            "IndustrialOilExtractionComplex",
+            "OrbitalResourceExtractionArray"
+        };
+
+        for (int i = 0; i < extractionConsumers.Length; i++)
+            Assert.That(HasBuildingResourceConsumption(extractionConsumers[i], "Explosives"), Is.True,
+                $"建筑 {extractionConsumers[i]} 应持续消耗炸药。");
+
+        Assert.That(HasBuildingResourceConsumption("DeepSpaceRelay", "Explosives"), Is.False);
+        Assert.That(HasBuildingResourceConsumption("DeepSpaceObservatory", "Explosives"), Is.False);
     }
 
     [Test]
@@ -642,6 +833,39 @@ public sealed class SpaceProgressionTests
                 Is.GreaterThan(ExpantaNum.Zero),
                 building.Id);
         }
+    }
+
+    [Test]
+    public void OrbitalEcologyUsesPlantingFieldForFoodAndBiomassWithoutFoodCapacity()
+    {
+        Building plantingField = DataBase<Building>.Find("PlantingField");
+        Building station = DataBase<Building>.Find("OrbitalStation");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Research agroecology = DataBase<Research>.Find("OrbitalAgroecology");
+        WorkshopUpgrade agroponics = DataBase<WorkshopUpgrade>.Find("OrbitalAgroponicSystems");
+
+        Assert.That(plantingField, Is.Not.Null);
+        Assert.That(station, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(agroecology, Is.Not.Null);
+        Assert.That(agroponics, Is.Not.Null);
+        Assert.That(plantingField.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(plantingField.ResourceGenerationRates, "Biomass"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(plantingField.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(station.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(habitat.FoodConsumptionRate, Is.GreaterThan(station.FoodConsumptionRate));
+        Assert.That(FindRate(station.ResourceConsumptionRates, "Biomass"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(habitat.ResourceConsumptionRates, "Biomass"),
+            Is.GreaterThan(FindRate(station.ResourceConsumptionRates, "Biomass")));
+        Assert.That(habitat.PopulationCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(habitat.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(agroecology.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
+            effect != null && effect.Type == ResearchEffectType.ResourceProductionMultiplier &&
+            effect.Resource != null && effect.Resource.Id == "Biomass"));
+        Assert.That(agroponics.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
+            effect != null && effect.Building == plantingField));
     }
 
     [Test]
@@ -1728,5 +1952,43 @@ public sealed class SpaceProgressionTests
             if (workshop.Effects[i] != null && workshop.Effects[i].Type == type)
                 return true;
         return false;
+    }
+
+    [Test]
+    public void 太空工业设施必须形成焦炭化工与爆破的持续运营闭环()
+    {
+        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        Building cokeOven = DataBase<Building>.Find("CokeOven");
+        Building carbonization = DataBase<Building>.Find("OrbitalCarbonizationComplex");
+        Building extraction = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        Building metallurgy = DataBase<Building>.Find("OrbitalVacuumMetallurgyArray");
+
+        Assert.That(chemicalPlant, Is.Not.Null);
+        Assert.That(cokeOven, Is.Not.Null);
+        Assert.That(carbonization, Is.Not.Null);
+        Assert.That(extraction, Is.Not.Null);
+        Assert.That(metallurgy, Is.Not.Null);
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Chemical"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Explosives"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(cokeOven.ResourceGenerationRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(carbonization.ResourceGenerationRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(carbonization.ResourceConsumptionRates, "WoodLog"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(ContainsResource(carbonization.ResourceRequirements, "WoodLog"), Is.False);
+        Assert.That(ContainsResource(carbonization.ResourceRequirements, "Concrete"), Is.True);
+        Assert.That(ContainsResource(carbonization.ResourceRequirements, "Composite"), Is.True);
+        Assert.That(ContainsResource(carbonization.ResourceRequirements, "PhaseMaterial"), Is.True);
+        Assert.That(FindRate(extraction.ResourceConsumptionRates, "Explosives"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(extraction.ResourceConsumptionRates, "Lubricant"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(metallurgy.ResourceConsumptionRates, "Coke"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindRate(metallurgy.ResourceConsumptionRates, "Chemical"),
+            Is.GreaterThan(ExpantaNum.Zero));
     }
 }

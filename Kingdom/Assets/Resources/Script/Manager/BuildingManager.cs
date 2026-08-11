@@ -970,6 +970,11 @@ public class BuildingManager : Singleton<BuildingManager>
         if (previous == null || current == null)
             return;
 
+        // FoodCapacityMultiplier 同时作用于基础粮食容量和容量建筑，研究或工坊完成时只结算差值。
+        GameManager.Instance.AdjustFoodCapacity(
+            GameState.BaseFoodCapacity *
+            (current.FoodCapacityMultiplier - previous.FoodCapacityMultiplier));
+
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
