@@ -48,6 +48,36 @@ public sealed class BuildingCostGrowthTests
     }
 
     [Test]
+    public void BuildingChainIndex_PreservesAllSharedTargetPredecessors()
+    {
+        Building branchA = CreateBuilding("IndexedBranchA");
+        Building branchB = CreateBuilding("IndexedBranchB");
+        Building sharedTarget = CreateBuilding("IndexedSharedTarget");
+        branchA.SetUpgradeToForEditor(sharedTarget);
+        branchB.SetUpgradeToForEditor(sharedTarget);
+
+        BuildingManager manager = CreateManager<BuildingManager>("SharedTarget-ChainManager");
+        MethodInfo rebuild = typeof(BuildingManager).GetMethod(
+            "RebuildBuildingChainIndex",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(rebuild, Is.Not.Null);
+        rebuild.Invoke(manager, new object[] {
+            new List<Building> { branchA, branchB, sharedTarget }
+        });
+
+        FieldInfo predecessorsField = typeof(BuildingManager).GetField(
+            "chainPredecessors",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(predecessorsField, Is.Not.Null);
+        var predecessors = (Dictionary<Building, List<Building>>)predecessorsField.GetValue(manager);
+        Assert.That(predecessors[sharedTarget], Has.Count.EqualTo(2));
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(branchA, out Building target), Is.True);
+        Assert.That(target, Is.SameAs(sharedTarget));
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(branchB, out target), Is.True);
+        Assert.That(target, Is.SameAs(sharedTarget));
+    }
+
+    [Test]
     public void BuildingManager_ChargesGrowthAndRefundsLastBatch()
     {
         CreateManager<GameManager>("Growth-GameManager");

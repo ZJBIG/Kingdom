@@ -260,7 +260,7 @@ public sealed partial class KingdomUIRoot
             for (int i = 0; i < flows.Count; i++)
             {
                 Pair<Resource, ExpantaNum> flow = flows[i];
-                if (flow != null && flow.First == resource)
+                if (flow.First == resource)
                     rate += flow.Second;
             }
             if (rate <= ExpantaNum.Zero)
@@ -393,9 +393,14 @@ public sealed partial class KingdomUIRoot
         detailPaymentButton.gameObject.SetActive(true);
         detailPaymentButton.onClick.RemoveAllListeners();
         detailPaymentButton.onClick.AddListener(() => PayResearchResources(research));
-        detailPaymentButton.interactable = state == null ||
-            (state.Status != ResearchStatus.Completed && !state.CostPaid);
+        string paymentBlocker = string.Empty;
+        bool canPay = ResearchManager.Instance != null &&
+            ResearchManager.Instance.CanPayResearchCost(research, out paymentBlocker);
+        detailPaymentButton.interactable = state != null &&
+            state.Status != ResearchStatus.Completed && !state.CostPaid && canPay;
         TMP_Text text = detailPaymentButton.GetComponentInChildren<TMP_Text>(true);
+        if (text != null && !canPay && !string.IsNullOrEmpty(paymentBlocker))
+            text.text = paymentBlocker;
         if (text != null)
             text.text = state != null && state.CostPaid ? "资源已支付" : "支付资源";
     }
@@ -533,7 +538,7 @@ public sealed partial class KingdomUIRoot
             for (int i = 0; i < requirements.Count; i++)
             {
                 Pair<Resource, ExpantaNum> requirement = requirements[i];
-                if (requirement == null || requirement.First == null)
+                if (requirement.First == null)
                     continue;
                 Transform row = requirementContent.Find("Requirement_" + i);
                 if (row == null)
@@ -551,12 +556,23 @@ public sealed partial class KingdomUIRoot
 
     private static string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
     {
+        if (requirement.First == null)
+            return string.Empty;
+
         ExpantaNum owned = ExpantaNum.Zero;
-        if (requirement != null && requirement.First != null && ResourceManager.Instance != null &&
-            ResourceManager.Instance.States.TryGetValue(requirement.First, out ResourceState resourceState))
+        ExpantaNum paid = ExpantaNum.Zero;
+        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        if (resourceManager != null && resourceManager.States.TryGetValue(requirement.First, out ResourceState resourceState))
             owned = resourceState.Amount;
 
-        return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
+        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        if (researchManager != null && researchManager.SelectedResearchId != null &&
+            DataBase<Research>.TryFind(researchManager.SelectedResearchId, out Research selected) &&
+            researchManager.States.TryGetValue(selected, out ResearchState researchState))
+            paid = researchState.GetPaidResourceCost(requirement.First);
+
+        return paid.ToGameString() + " / " + requirement.Second.ToGameString() +
+            " (" + owned.ToGameString() + ")";
     }
 
     private void PlaceRequirementsAfterDescription(
@@ -748,7 +764,7 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < flows.Count; i++)
         {
             Pair<Resource, ExpantaNum> flow = flows[i];
-            if (flow == null || flow.First == null)
+            if (flow.First == null)
                 continue;
             Transform row = host.Find("Flow_" + index);
             TMP_Text label = row?.Find("Label")?.GetComponent<TMP_Text>();

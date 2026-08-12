@@ -17,6 +17,7 @@ MonoBehaviour:
   Description: "把工业电力、内燃机、复合材料与锡基焊接接点整合为近地轨道发射与测控体系。"
   BaseCost: "1600000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}
   - {fileID: 11400000, guid: c20610d6f6d6f514183d375456418970, type: 2}
   resourceRequirements:

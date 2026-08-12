@@ -17,6 +17,7 @@ MonoBehaviour:
   Description: "用远程采掘无人机、稀有金属分选和轨道回收系统扩大稀有金属矿场产能，把工业矿产链延伸到近地资源带。"
   BaseCost: "8200000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   resourceRequirements:

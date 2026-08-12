@@ -1,7 +1,8 @@
 # Static content closure report
 
 TechLevel reached: 4
-Industrial baseline: False
+Industrial baseline mode: False
+Industrial closure complete: True
 Research reachable (up to Industrial): 80/80
 Workshop reachable (up to Industrial): 33/33
 Building reachable (up to Industrial): 52/52

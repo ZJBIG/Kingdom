@@ -42,22 +42,18 @@ public sealed partial class KingdomUIRoot
         // UI-side fallback for the first frame after a domain reload. The
         // manager normally owns this catalog, but the list should not render
         // empty merely because its Awake order has not completed yet.
-        string[] categories = { "day", "silence", "village" };
-        for (int i = 0; i < categories.Length; i++)
+        AudioClip[] clips = Resources.LoadAll<AudioClip>("Musics");
+        System.Array.Sort(clips, (left, right) => string.Compare(left.name, right.name, System.StringComparison.OrdinalIgnoreCase));
+        for (int i = 0; i < clips.Length; i++)
         {
-            string category = categories[i];
-            AudioClip[] clips = Resources.LoadAll<AudioClip>("Musics/" + category);
-            System.Array.Sort(clips, (left, right) => string.Compare(left.name, right.name, System.StringComparison.OrdinalIgnoreCase));
-            for (int j = 0; j < clips.Length; j++)
-            {
-                AudioClip clip = clips[j];
-                if (clip == null)
-                    continue;
-                string path = "Musics/" + category + "/" + clip.name;
-            result.Add(new MusicManager.MusicTrack(category + ":" + clip.name,
-                clip.name, MusicCategoryLabel(category), path, clip));
-            }
+            AudioClip clip = clips[i];
+            if (clip == null || clip.length <= 0f)
+                continue;
+            string path = "Musics/" + clip.name;
+            result.Add(new MusicManager.MusicTrack(clip.name,
+                MusicManager.DisplayNameFor(clip.name), "All Music", path, clip));
         }
+        result.Sort((left, right) => string.Compare(left.Label, right.Label, System.StringComparison.OrdinalIgnoreCase));
         return result;
     }
 

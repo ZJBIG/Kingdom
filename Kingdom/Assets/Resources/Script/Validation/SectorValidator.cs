@@ -261,13 +261,26 @@ public static class SectorValidator
             return false;
         }
 
-        var visiting = new HashSet<SectorDefinition>();
+        var cycles = new Dictionary<string, string>();
         var visited = new HashSet<SectorDefinition>();
+        var visiting = new HashSet<SectorDefinition>();
         var path = new List<SectorDefinition>();
         foreach (SectorDefinition sector in sectors)
         {
-            if (!Visit(sector, visiting, visited, path, out error))
+            if (!Visit(sector, visiting, visited, path, cycles, out error))
                 return false;
+        }
+
+        if (cycles.Count > 0)
+        {
+            var cycleMessages = new List<string>(cycles.Values);
+            cycleMessages.Sort(System.StringComparer.Ordinal);
+            error = "鏄熷尯渚濊禆寰幆锛氭娴嬪埌澶氭潯鐙珛寰幆\\n - " +
+                string.Join(System.Environment.NewLine + " - ", cycleMessages);
+            error = "\u661f\u533a\u4f9d\u8d56\u5faa\u73af\uff1a\u68c0\u6d4b\u5230\u591a\u6761\u72ec\u7acb\u5faa\u73af" +
+                System.Environment.NewLine + " - " +
+                string.Join(System.Environment.NewLine + " - ", cycleMessages);
+            return false;
         }
 
         error = null;
@@ -325,22 +338,26 @@ public static class SectorValidator
         HashSet<SectorDefinition> visiting,
         HashSet<SectorDefinition> visited,
         List<SectorDefinition> path,
+        Dictionary<string, string> cycles,
         out string error)
     {
+        if (sector != null && visited.Contains(sector))
+        {
+            error = null;
+            return true;
+        }
         if (sector == null)
         {
             error = "星区验证失败：定义集合包含空引用。";
             return false;
         }
-        if (visited.Contains(sector))
-        {
-            error = null;
-            return true;
-        }
         if (!visiting.Add(sector))
         {
-            error = BuildCycleError(path, sector);
-            return false;
+            string cycleKey = BuildCycleKey(path, sector);
+            if (!cycles.ContainsKey(cycleKey))
+                cycles.Add(cycleKey, BuildCycleDisplayError(path, sector));
+            error = null;
+            return true;
         }
 
         path.Add(sector);
@@ -359,7 +376,7 @@ public static class SectorValidator
                     error = $"星区验证失败：“{sector.name}”重复引用前置星区“{prerequisite.name}”。";
                     return false;
                 }
-                if (!Visit(prerequisite, visiting, visited, path, out error))
+                if (!Visit(prerequisite, visiting, visited, path, cycles, out error))
                     return false;
             }
         }
@@ -369,6 +386,56 @@ public static class SectorValidator
         visited.Add(sector);
         error = null;
         return true;
+    }
+
+    private static string BuildCycleKey(List<SectorDefinition> path, SectorDefinition repeated)
+    {
+        int start = path.IndexOf(repeated);
+        if (start < 0)
+            start = 0;
+
+        var ids = new List<string>();
+        for (int i = start; i < path.Count; i++)
+            ids.Add(path[i].Id);
+        ids.Add(repeated.Id);
+
+        int cycleLength = ids.Count - 1;
+        string best = null;
+        for (int offset = 0; offset < cycleLength; offset++)
+        {
+            var candidate = new StringBuilder();
+            for (int i = 0; i < cycleLength; i++)
+            {
+                if (i > 0)
+                    candidate.Append(" -> ");
+                candidate.Append(ids[(offset + i) % cycleLength]);
+            }
+            candidate.Append(" -> ");
+            candidate.Append(ids[offset]);
+
+            string candidateText = candidate.ToString();
+            if (best == null || string.CompareOrdinal(candidateText, best) < 0)
+                best = candidateText;
+        }
+        return best;
+    }
+
+    private static string BuildCycleDisplayError(List<SectorDefinition> path, SectorDefinition repeated)
+    {
+        int start = path.IndexOf(repeated);
+        if (start < 0)
+            start = 0;
+
+        var builder = new StringBuilder("\u661f\u533a\u4f9d\u8d56\u5faa\u73af\uff1a");
+        for (int i = start; i < path.Count; i++)
+        {
+            if (i > start)
+                builder.Append(" -> ");
+            builder.Append(path[i].Id);
+        }
+        builder.Append(" -> ");
+        builder.Append(repeated.Id);
+        return builder.ToString();
     }
 
     private static string BuildCycleError(List<SectorDefinition> path, SectorDefinition repeated)
@@ -381,10 +448,10 @@ public static class SectorValidator
         {
             if (i > start)
                 builder.Append(" -> ");
-            builder.Append(path[i].name);
+            builder.Append(path[i].Id);
         }
         builder.Append(" -> ");
-        builder.Append(repeated.name);
+        builder.Append(repeated.Id);
         return builder.ToString();
     }
 }

@@ -16,7 +16,19 @@ public class ResourceManager : Singleton<ResourceManager>
 
     protected override void Initialize()
     {
+        EnsureAllResourceStates();
         EnsureStartingResource();
+    }
+
+    private void EnsureAllResourceStates()
+    {
+        IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Resource resource = definitions[i];
+            if (resource != null)
+                EnsureResource(resource);
+        }
     }
 
     public static bool IsStartingResource(Resource resource) =>
@@ -85,9 +97,11 @@ public class ResourceManager : Singleton<ResourceManager>
             if (entry.Key == null || entry.Value <= ExpantaNum.Zero)
                 continue;
 
-            ExpantaNum amount = states.TryGetValue(entry.Key, out ResourceState state)
-                ? state.Amount
-                : ExpantaNum.Zero;
+            // A research-only resource may not be referenced by any Building
+            // definition. Ensure its runtime state exists before checking the
+            // transaction, otherwise it is incorrectly treated as zero.
+            ResourceState state = EnsureResource(entry.Key);
+            ExpantaNum amount = state.Amount;
             if (amount < entry.Value)
                 return false;
 

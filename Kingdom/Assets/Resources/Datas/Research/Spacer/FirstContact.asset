@@ -17,6 +17,7 @@ MonoBehaviour:
   Description: "用电子设备和铜质信号线路解码来自半人马座的第一条完整信号，建立人类与星际文明的正式接触。"
   BaseCost: "6000000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 7a2e5c9d4f1b48e6b3c8d0a7f5e2c914, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}

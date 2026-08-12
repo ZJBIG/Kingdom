@@ -20,7 +20,7 @@ MonoBehaviour:
   costGrowth: "1.2"
   spaceCost: "8"
   productivityConsumption: "10"
-  productivityGranted: "30"
+  productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"
   foodProductionRate: "0"

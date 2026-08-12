@@ -5,6 +5,119 @@ using NUnit.Framework;
 public sealed class ResearchBalanceTests
 {
     [Test]
+    public void 高级材料消耗必须先完成对应材料研究()
+    {
+        Research phantomMaterials = DataBase<Research>.Find("PhantomMaterials");
+        Research phaseMaterialEngineering = DataBase<Research>.Find("PhaseMaterialEngineering");
+        Research titaniumAlloyEngineering = DataBase<Research>.Find("TitaniumAlloyEngineering");
+        Assert.That(phantomMaterials, Is.Not.Null);
+        Assert.That(phaseMaterialEngineering, Is.Not.Null);
+        Assert.That(titaniumAlloyEngineering, Is.Not.Null);
+        Assert.That(ContainsResearch(phaseMaterialEngineering.Prerequisites, phantomMaterials), Is.True,
+            "PhaseMaterialEngineering 必须以后置的 PhantomMaterials 为前置，不能跳过暗影材料研究");
+
+        foreach (Research research in DataBase<Research>.All)
+        {
+            for (int i = 0; i < research.ResourceRequirements.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+                if (requirement == null || requirement.First == null)
+                    continue;
+
+                if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
+                    Assert.That(ContainsResearch(research.Prerequisites, phantomMaterials), Is.True, research.Id);
+                if (requirement.First.Id == "PhaseMaterial")
+                    Assert.That(ContainsResearch(research.Prerequisites, phaseMaterialEngineering), Is.True, research.Id);
+                if (requirement.First.Id == "TitaniumAlloy" && research != titaniumAlloyEngineering)
+                    Assert.That(ContainsResearch(research.Prerequisites, titaniumAlloyEngineering), Is.True, research.Id);
+            }
+        }
+
+        foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+        {
+            for (int i = 0; i < workshop.ResourceRequirements.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> requirement = workshop.ResourceRequirements[i];
+                if (requirement == null || requirement.First == null)
+                    continue;
+
+                if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
+                    Assert.That(ContainsResearch(workshop.RequiredResearch, phantomMaterials), Is.True, workshop.Id);
+                if (requirement.First.Id == "PhaseMaterial")
+                    Assert.That(ContainsResearch(workshop.RequiredResearch, phaseMaterialEngineering), Is.True, workshop.Id);
+                if (requirement.First.Id == "TitaniumAlloy")
+                    Assert.That(ContainsResearch(workshop.RequiredResearch, titaniumAlloyEngineering), Is.True, workshop.Id);
+            }
+        }
+
+        foreach (Building building in DataBase<Building>.All)
+        {
+            AssertBuildingMaterialPrerequisites(building, building.ResourceRequirements, phantomMaterials, phaseMaterialEngineering, titaniumAlloyEngineering);
+            AssertBuildingMaterialPrerequisites(building, building.ResourceGenerationRates, phantomMaterials, phaseMaterialEngineering, titaniumAlloyEngineering);
+            AssertBuildingMaterialPrerequisites(building, building.ResourceConsumptionRates, phantomMaterials, phaseMaterialEngineering, titaniumAlloyEngineering);
+        }
+    }
+
+    [Test]
+    public void 高级材料研究保持时代顺序()
+    {
+        Research titanium = DataBase<Research>.Find("TitaniumAlloyEngineering");
+        Research phantom = DataBase<Research>.Find("PhantomMaterials");
+        Research phase = DataBase<Research>.Find("PhaseMaterialEngineering");
+
+        Assert.That(titanium, Is.Not.Null);
+        Assert.That(phantom, Is.Not.Null);
+        Assert.That(phase, Is.Not.Null);
+        Assert.That((int)phantom.TechLevel, Is.GreaterThan((int)titanium.TechLevel));
+        Assert.That((int)phase.TechLevel, Is.GreaterThanOrEqualTo((int)phantom.TechLevel));
+        Assert.That(ContainsResearch(phantom.Prerequisites, titanium), Is.True);
+        Assert.That(ContainsResearch(phase.Prerequisites, phantom), Is.True);
+    }
+
+    private static void AssertBuildingMaterialPrerequisites(
+        Building building,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+        Research phantomMaterials,
+        Research phaseMaterialEngineering,
+        Research titaniumAlloyEngineering)
+    {
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement == null || requirement.First == null)
+                continue;
+
+            if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
+                Assert.That(ContainsResearch(building.RequiredResearch, phantomMaterials), Is.True, building.Id);
+            if (requirement.First.Id == "PhaseMaterial")
+                Assert.That(ContainsResearch(building.RequiredResearch, phaseMaterialEngineering), Is.True, building.Id);
+            if (requirement.First.Id == "TitaniumAlloy")
+                Assert.That(ContainsResearch(building.RequiredResearch, titaniumAlloyEngineering), Is.True, building.Id);
+        }
+    }
+
+    private static bool ContainsResource(IReadOnlyList<Pair<Resource, ExpantaNum>> rates, string resourceId)
+    {
+        if (rates == null)
+            return false;
+        for (int i = 0; i < rates.Count; i++)
+            if (rates[i] != null && rates[i].First != null && rates[i].First.Id == resourceId)
+                return true;
+        return false;
+    }
+
+    private static bool ContainsResearch(IReadOnlyList<Research> prerequisites, Research target)
+    {
+        if (prerequisites == null || target == null)
+            return false;
+        for (int i = 0; i < prerequisites.Count; i++)
+            if (prerequisites[i] == target ||
+                (prerequisites[i] != null && prerequisites[i].Id == target.Id))
+                return true;
+        return false;
+    }
+
+    [Test]
     public void 已发布研究与工坊不得拥有空Effect()
     {
         foreach (Research research in DataBase<Research>.All)

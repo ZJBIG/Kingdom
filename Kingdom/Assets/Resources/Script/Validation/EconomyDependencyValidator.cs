@@ -177,13 +177,18 @@ public static class EconomyDependencyValidator
         while (changed);
 
         var blockedDefinitions = new List<string>();
+        var tracedResearch = new HashSet<Research>();
         for (int i = 0; i < researches.Count; i++)
         {
             Research research = researches[i];
             if (research != null && research.TechLevel <= TechLevel.Industrial &&
                 !completedResearch.Contains(research))
             {
-                blockedDefinitions.Add(DescribeBlockedResearch(research, completedResearch, resources));
+                blockedDefinitions.Add(DescribeBlockedResearch(
+                    research,
+                    completedResearch,
+                    resources,
+                    tracedResearch));
             }
         }
         for (int i = 0; i < upgrades.Count; i++)
@@ -235,13 +240,24 @@ public static class EconomyDependencyValidator
     }
 
     private static string DescribeBlockedResearch(
-        Research value, HashSet<Research> research, HashSet<Resource> resources)
+        Research value,
+        HashSet<Research> research,
+        HashSet<Resource> resources,
+        HashSet<Research> tracedResearch)
     {
         for (int i = 0; i < value.Prerequisites.Count; i++)
             if (value.Prerequisites[i] == null || !research.Contains(value.Prerequisites[i]))
             {
+                if (tracedResearch.Contains(value))
+                    return $"{value.Id} -> 共享前置诊断已展开";
                 var trace = new StringBuilder();
-                AppendResearchTrace(value, research, new HashSet<Research>(), trace, string.Empty);
+                AppendResearchTrace(
+                    value,
+                    research,
+                    new HashSet<Research>(),
+                    tracedResearch,
+                    trace,
+                    string.Empty);
                 return trace.ToString();
             }
         Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
@@ -254,6 +270,7 @@ public static class EconomyDependencyValidator
         Research value,
         HashSet<Research> reachable,
         HashSet<Research> visiting,
+        HashSet<Research> visited,
         StringBuilder trace,
         string indent)
     {
@@ -262,6 +279,11 @@ public static class EconomyDependencyValidator
         if (!visiting.Add(value))
         {
             trace.Append(indent).Append(value.Id).Append(" -> 检测到依赖循环\n");
+            return;
+        }
+        if (visited.Contains(value))
+        {
+            visiting.Remove(value);
             return;
         }
 
@@ -276,10 +298,17 @@ public static class EconomyDependencyValidator
                 .Append(" -> 需要 ")
                 .Append(prerequisite == null ? "<null>" : prerequisite.Id)
                 .Append(" -> 研究不可达\n");
-            AppendResearchTrace(prerequisite, reachable, visiting, trace, indent + "  ");
+            AppendResearchTrace(
+                prerequisite,
+                reachable,
+                visiting,
+                visited,
+                trace,
+                indent + "  ");
         }
 
         visiting.Remove(value);
+        visited.Add(value);
     }
 
     private static string DescribeBlockedUpgrade(
@@ -406,20 +435,28 @@ public static class EconomyDependencyValidator
         }
 
         var cycles = new HashSet<string>(StringComparer.Ordinal);
+        var visited = new HashSet<Resource>();
         foreach (Resource resource in graph.Keys)
             FindProductionCycles(
                 resource,
                 graph,
                 new HashSet<Resource>(),
                 new List<Resource>(),
-                cycles);
+                cycles,
+                visited);
 
-        if (cycles.Count > 0)
+        var blockedCycles = new List<string>();
+        foreach (string cycle in cycles)
         {
-            var orderedCycles = new List<string>(cycles);
-            orderedCycles.Sort(StringComparer.Ordinal);
+            if (!IsBootstrappableCycle(cycle, resources, buildings))
+                blockedCycles.Add(cycle);
+        }
+
+        if (blockedCycles.Count > 0)
+        {
+            blockedCycles.Sort(StringComparer.Ordinal);
             error = "\u751F\u4EA7\u914D\u65B9\u5B58\u5728\u5FAA\u73AF\u4F9D\u8D56\uFF1A" + Environment.NewLine +
-                " - " + string.Join(Environment.NewLine + " - ", orderedCycles);
+                " - " + string.Join(Environment.NewLine + " - ", blockedCycles);
             return false;
         }
 
@@ -436,6 +473,64 @@ public static class EconomyDependencyValidator
 
         error = string.Empty;
         return true;
+    }
+
+    private static bool IsBootstrappableCycle(
+        string cycle,
+        IReadOnlyList<Resource> resources,
+        IReadOnlyList<Building> buildings)
+    {
+        string[] ids = cycle.Split(new[] { " -> " }, StringSplitOptions.RemoveEmptyEntries);
+        var cycleResources = new HashSet<Resource>();
+        for (int i = 0; i < ids.Length - 1; i++)
+        {
+            for (int resourceIndex = 0; resourceIndex < resources.Count; resourceIndex++)
+            {
+                Resource resource = resources[resourceIndex];
+                if (resource != null && resource.Id == ids[i])
+                {
+                    cycleResources.Add(resource);
+                    break;
+                }
+            }
+        }
+
+        if (cycleResources.Count == 0)
+            return false;
+
+        for (int buildingIndex = 0; buildingIndex < buildings.Count; buildingIndex++)
+        {
+            Building building = buildings[buildingIndex];
+            if (building == null || !GeneratesAny(building, cycleResources))
+                continue;
+
+            bool hasExternalInput = building.ResourceConsumptionRates.Count == 0;
+            for (int inputIndex = 0;
+                 inputIndex < building.ResourceConsumptionRates.Count && !hasExternalInput;
+                 inputIndex++)
+            {
+                Resource input = building.ResourceConsumptionRates[inputIndex].First;
+                if (input == null || !cycleResources.Contains(input))
+                    hasExternalInput = true;
+            }
+
+            if (hasExternalInput)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool GeneratesAny(Building building, HashSet<Resource> resources)
+    {
+        for (int outputIndex = 0; outputIndex < building.ResourceGenerationRates.Count; outputIndex++)
+        {
+            Resource output = building.ResourceGenerationRates[outputIndex].First;
+            if (output != null && resources.Contains(output))
+                return true;
+        }
+
+        return false;
     }
 
     /*
@@ -471,8 +566,11 @@ public static class EconomyDependencyValidator
         Dictionary<Resource, List<Resource>> graph,
         HashSet<Resource> pathSet,
         List<Resource> path,
-        HashSet<string> cycles)
+        HashSet<string> cycles,
+        HashSet<Resource> visited)
     {
+        if (visited.Contains(current))
+            return;
         if (pathSet.Contains(current))
         {
             int cycleStart = path.IndexOf(current);
@@ -480,14 +578,14 @@ public static class EconomyDependencyValidator
                 cycles.Add(CanonicalizeCycle(path, cycleStart));
             return;
         }
-
         pathSet.Add(current);
         path.Add(current);
         List<Resource> outputs = graph[current];
         for (int i = 0; i < outputs.Count; i++)
-            FindProductionCycles(outputs[i], graph, pathSet, path, cycles);
+            FindProductionCycles(outputs[i], graph, pathSet, path, cycles, visited);
         path.RemoveAt(path.Count - 1);
         pathSet.Remove(current);
+        visited.Add(current);
     }
 
     private static string CanonicalizeCycle(List<Resource> path, int startIndex)

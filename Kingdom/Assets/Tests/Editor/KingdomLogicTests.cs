@@ -1204,8 +1204,8 @@ public sealed class KingdomLogicTests
         var state = new ResearchState(research);
 
         resourceManager.SetAmount(wood, 499);
-        Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(499)));
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.CostPaid, Is.False);
 
         resourceManager.SetAmount(wood, 1);
@@ -1216,6 +1216,17 @@ public sealed class KingdomLogicTests
         resourceManager.AddAmount(wood, 100);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+    }
+
+    [Test]
+    public void ResourceManager_RegistersAllDefinitionsForResearchPaymentAndDisplay()
+    {
+        ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchResourceState-Test");
+
+        foreach (Resource resource in DataBase<Resource>.All)
+        {
+            Assert.That(resourceManager.States.ContainsKey(resource), Is.True, resource.Id);
+        }
     }
 
     [Test]
@@ -1232,7 +1243,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchCostPayment_IsAtomicAcrossMultipleResources()
+    public void ResearchCostPayment_PaysAvailableResourcesIndependently()
     {
         var managerObject = new GameObject("ResourceManager-AtomicResearch-Test");
         createdObjects.Add(managerObject);
@@ -1245,12 +1256,12 @@ public sealed class KingdomLogicTests
 
         resourceManager.SetAmount(wood, 60);
         resourceManager.SetAmount(stone, 29);
-        Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(29)));
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.CostPaid, Is.False);
 
-        resourceManager.SetAmount(stone, 30);
+        resourceManager.SetAmount(stone, 1);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));

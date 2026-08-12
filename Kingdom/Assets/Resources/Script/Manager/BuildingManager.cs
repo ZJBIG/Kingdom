@@ -252,7 +252,10 @@ public class BuildingManager : Singleton<BuildingManager>
         if (!chainMembers.Contains(building))
             return true;
 
-        if (!HasUnlockedChainPath(building, new HashSet<Building>()))
+        if (!HasUnlockedChainPath(
+                building,
+                new HashSet<Building>(),
+                new HashSet<Building>()))
             return false;
 
         // 当前建筑的直接升级目标一旦可用，就只显示/建造更高阶目标。
@@ -300,14 +303,20 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        return HasUnlockedChainPath(source, new HashSet<Building>());
+        return HasUnlockedChainPath(
+            source,
+            new HashSet<Building>(),
+            new HashSet<Building>());
     }
 
     private bool HasUnlockedChainPath(
         Building building,
-        HashSet<Building> visiting)
+        HashSet<Building> visiting,
+        HashSet<Building> visited)
     {
         if (building == null || !ArePrerequisitesMet(building, out _))
+            return false;
+        if (visited.Contains(building))
             return false;
         if (!visiting.Add(building))
             return false;
@@ -320,7 +329,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         for (int i = 0; i < predecessors.Count; i++)
         {
-            if (HasUnlockedChainPath(predecessors[i], visiting))
+            if (HasUnlockedChainPath(predecessors[i], visiting, visited))
             {
                 visiting.Remove(building);
                 return true;
@@ -328,6 +337,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         visiting.Remove(building);
+        visited.Add(building);
         return false;
     }
 

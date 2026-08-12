@@ -33,5 +33,10 @@ TimeSeconds,Minute,TechLevel,ResearchId,Count
 31024.0,517.07,Neolithic,"OrganizedWatch",0
 32820.0,547,Neolithic,"Smithing_Iron",0
 39572.0,659.53,Neolithic,"FeudalAdministration",0
-58168.0,969.47,Medieval,"Steelmaking",0
-72189.0,1203.15,Medieval,"MechanicalEngineering",0
+41205.0,686.75,Medieval,"Steelmaking",0
+42704.0,711.73,Medieval,"MechanicalEngineering",0
+45430.0,757.17,Medieval,"Industrialization",0
+52200.0,870,Industrial,"IndustrialWorkshop",0
+60340.0,1005.67,Industrial,"PetroleumExtraction",0
+66030.0,1100.5,Industrial,"SteamPower",0
+76420.0,1273.67,Industrial,"Coking",0

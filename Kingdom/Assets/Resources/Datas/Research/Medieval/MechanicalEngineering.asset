@@ -15,7 +15,7 @@ MonoBehaviour:
   id: MechanicalEngineering
   Label: "\u673A\u68B0\u5DE5\u7A0B"
   Description: "\u7CFB\u7EDF\u7814\u7A76\u9F7F\u8F6E\u3001\u66F2\u67C4\u3001\u6C34\u8F6E\u3001\u78E8\u574A\u548C\u52A8\u529B\u4F20\u9012\uFF0C\u628A\u6539\u826F\u78E8\u574A\u5E76\u5165\u901A\u7528\u673A\u68B0\u5DE5\u7A0B\u3002"
-  BaseCost: "155000"
+  BaseCost: "13392"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:

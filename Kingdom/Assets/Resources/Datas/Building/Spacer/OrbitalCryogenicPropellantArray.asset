@@ -70,9 +70,12 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "0.01"
   requiredResearch:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: 333f1c13aad1437693a1025de304aeaa, type: 2}
   - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   requiredWorkshopUpgrades:
   - {fileID: 11400000, guid: b9e7c3a1d5f20486ae39c7b1f8d5260a, type: 2}
   - {fileID: 11400000, guid: f4a1c9e27b5d4086a3c1e9f2d7b50418, type: 2}

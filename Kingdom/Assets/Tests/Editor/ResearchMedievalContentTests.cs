@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 public sealed class ResearchMedievalContentTests
@@ -58,7 +59,10 @@ public sealed class ResearchMedievalContentTests
 
         Assert.That(industrialization.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(industrialization.AdvancesTechLevel, Is.True);
-        Assert.That(industrialization.Prerequisites, Has.Count.EqualTo(4));
+        Assert.That(industrialization.Prerequisites, Has.Count.EqualTo(2));
+        Assert.That(
+            industrialization.Prerequisites.Select(research => research.Id),
+            Is.EquivalentTo(new[] { "MechanicalEngineering", "Steelmaking" }));
         Assert.That(industrialization.Effects, Has.Count.EqualTo(3));
         Assert.That(
             industrialization.Effects,

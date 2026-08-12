@@ -17,6 +17,7 @@ MonoBehaviour:
   Description: "利用铜质信号线路、电子导航设备、火箭燃料和钛合金结构绘制太阳系外稳定航线，解锁第一片星际前沿区域。"
   BaseCost: "2500000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}

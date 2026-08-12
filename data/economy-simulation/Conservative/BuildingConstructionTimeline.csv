@@ -39,5 +39,5 @@ TimeSeconds,Minute,TechLevel,BuildingId,Count
 13230.0,220.5,Neolithic,"Smokehouse",2
 19980.0,333,Neolithic,"MetalSmelter",1
 20250.0,337.5,Neolithic,"MetalSmelter",2
-61290.0,1021.5,Medieval,"SteelForge",1
-61560.0,1026,Medieval,"SteelForge",2
+41040.0,684,Medieval,"SteelForge",1
+41310.0,688.5,Medieval,"SteelForge",2

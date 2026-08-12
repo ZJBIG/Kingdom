@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -24,6 +25,24 @@ public sealed class SectorDefinitionTests
     }
 
     [Test]
+    public void C701_InterstellarBranchesKeepTheProximaBPrerequisite()
+    {
+        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(proxima.PrerequisiteSectors, Has.Count.EqualTo(1));
+        Assert.That(proxima.PrerequisiteSectors[0].Id, Is.EqualTo(alpha.Id));
+        Assert.That(tau.PrerequisiteSectors, Has.Count.EqualTo(1));
+        Assert.That(tau.PrerequisiteSectors[0].Id, Is.EqualTo(proxima.Id));
+        Assert.That(sirius.PrerequisiteSectors, Has.Count.EqualTo(1));
+        Assert.That(sirius.PrerequisiteSectors[0].Id, Is.EqualTo(proxima.Id));
+        Assert.That(tau.EnemyPower, Is.GreaterThan(proxima.EnemyPower));
+        Assert.That(tau.EnemyPower, Is.LessThan(sirius.EnemyPower));
+    }
+
+    [Test]
     public void C701_SectorsExposeRewardsEnemyPowerAndMapCoordinates()
     {
         SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
@@ -43,6 +62,53 @@ public sealed class SectorDefinitionTests
         Assert.That(mars.TerritoryReward, Is.EqualTo(new ExpantaNum(100000)));
         Assert.That(mars.MapX, Is.GreaterThan(moon.MapX));
         Assert.That(DataBase<SectorDefinition>.Find("AlphaCentauri").EnemyPower, Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void InterstellarCampaignsProvideMeaningfulTerritoryScale()
+    {
+        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        {
+            if (sector == null || sector.IsHomeSystem)
+                continue;
+
+            Assert.That(
+                sector.TerritoryReward,
+                Is.GreaterThanOrEqualTo(new ExpantaNum(100000)),
+                $"星际战役星区“{sector.Id}”的领土奖励不能停留在早期探索规模。");
+            Assert.That(
+                sector.CampaignFoodPerSecond,
+                Is.GreaterThan(ExpantaNum.Zero),
+                $"星际战役星区“{sector.Id}”必须持续消耗 Food。");
+            Assert.That(
+                sector.CampaignResourceRatesPerSecond,
+                Has.Count.GreaterThanOrEqualTo(5),
+                $"星际战役星区“{sector.Id}”必须有多种持续后勤消耗。");
+        }
+    }
+
+    [Test]
+    public void InterstellarCampaignRatesArePositivePerSecondValues()
+    {
+        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        {
+            if (sector == null || sector.IsHomeSystem)
+                continue;
+
+            Assert.That(
+                sector.CampaignProgressMultiplier,
+                Is.GreaterThan(ExpantaNum.Zero),
+                $"星际战役星区“{sector.Id}”必须声明正的推进倍率。");
+            foreach (Pair<Resource, ExpantaNum> pair in sector.CampaignResourceRatesPerSecond)
+            {
+                Assert.That(pair, Is.Not.Null, sector.Id);
+                Assert.That(pair.First, Is.Not.Null, sector.Id);
+                Assert.That(
+                    pair.Second,
+                    Is.GreaterThan(ExpantaNum.Zero),
+                    $"星际战役星区“{sector.Id}”包含非正的每秒资源消耗。");
+            }
+        }
     }
 
     [Test]
@@ -144,6 +210,43 @@ public sealed class SectorDefinitionTests
             error);
     }
 
+    [Test]
+    public void C701_SectorCycleValidationReportsAllIndependentCycles()
+    {
+        SectorDefinition a = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorDefinition b = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorDefinition c = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorDefinition d = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorDefinition e = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        try
+        {
+            a.SetIdForEditor("A");
+            b.SetIdForEditor("B");
+            c.SetIdForEditor("C");
+            d.SetIdForEditor("D");
+            e.SetIdForEditor("E");
+            a.SetPrerequisitesForEditor(new List<SectorDefinition> { b });
+            b.SetPrerequisitesForEditor(new List<SectorDefinition> { c });
+            c.SetPrerequisitesForEditor(new List<SectorDefinition> { a });
+            d.SetPrerequisitesForEditor(new List<SectorDefinition> { e });
+            e.SetPrerequisitesForEditor(new List<SectorDefinition> { d });
+
+            Assert.That(
+                SectorValidator.ValidateNoCycles(new[] { a, b, c, d, e }, out string error),
+                Is.False);
+            Assert.That(error, Does.Contain("A -> B -> C -> A"));
+            Assert.That(error, Does.Contain("D -> E -> D"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(a);
+            UnityEngine.Object.DestroyImmediate(b);
+            UnityEngine.Object.DestroyImmediate(c);
+            UnityEngine.Object.DestroyImmediate(d);
+            UnityEngine.Object.DestroyImmediate(e);
+        }
+    }
+
     private static ExpantaNum FindColonizationRate(SectorDefinition sector, string resourceId)
     {
         for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
@@ -243,6 +346,47 @@ public sealed class SectorDefinitionTests
 
             Assert.That(idealCompletionSeconds, Is.GreaterThanOrEqualTo(new ExpantaNum(3600d)), sector.Id);
         }
+    }
+
+    [Test]
+    public void 星际战役按星区层级递进使用高级材料()
+    {
+        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(CountAdvancedMaterials(alpha.CampaignResourceRatesPerSecond), Is.GreaterThanOrEqualTo(2));
+        foreach (SectorDefinition sector in new[] { proxima, tau, sirius })
+        {
+            Assert.That(CountAdvancedMaterials(sector.OccupiedResourceRatesPerSecond), Is.GreaterThanOrEqualTo(2), sector.Id);
+            Assert.That(CountAdvancedMaterials(sector.CampaignResourceRatesPerSecond), Is.GreaterThanOrEqualTo(3), sector.Id);
+            Assert.That(FindCampaignRate(sector, "PhaseMaterial"), Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+        }
+
+        Assert.That(proxima.CampaignProgressMultiplier, Is.GreaterThan(tau.CampaignProgressMultiplier));
+        Assert.That(tau.CampaignProgressMultiplier, Is.GreaterThan(sirius.CampaignProgressMultiplier));
+        Assert.That(alpha.TerritoryReward, Is.LessThan(proxima.TerritoryReward));
+        Assert.That(proxima.TerritoryReward, Is.LessThan(sirius.TerritoryReward));
+    }
+
+    private static int CountAdvancedMaterials(IReadOnlyList<Pair<Resource, ExpantaNum>> rates)
+    {
+        if (rates == null)
+            return 0;
+        int count = 0;
+        for (int i = 0; i < rates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = rates[i];
+            if (pair != null && pair.First != null && pair.Second > ExpantaNum.Zero &&
+                (pair.First.Id == "TitaniumAlloy" ||
+                 pair.First.Id == "Composite" ||
+                 pair.First.Id == "PhantomAlloy" ||
+                 pair.First.Id == "PhantomWeave" ||
+                 pair.First.Id == "PhaseMaterial"))
+                count++;
+        }
+        return count;
     }
 
     private static ExpantaNum FindCampaignRate(SectorDefinition sector, string resourceId)

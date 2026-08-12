@@ -55,6 +55,42 @@ public sealed class AdvancedMaterialProgressionTests
     }
 
     [Test]
+    public void 炸药必须保持工业流程持续消耗而非星际战役成本()
+    {
+        Resource explosives = DataBase<Resource>.Find("Explosives");
+        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        Assert.That(explosives, Is.Not.Null);
+        Assert.That(chemicalPlant, Is.Not.Null);
+        Assert.That(HasPositiveRate(chemicalPlant.ResourceGenerationRates, explosives), Is.True);
+
+        int continuousConsumers = 0;
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (!HasPositiveRate(building.ResourceConsumptionRates, explosives))
+                continue;
+
+            continuousConsumers++;
+            Assert.That(
+                building.TechLevel,
+                Is.GreaterThanOrEqualTo(TechLevel.Industrial),
+                building.Id);
+        }
+        Assert.That(continuousConsumers, Is.GreaterThanOrEqualTo(7));
+
+        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        {
+            Assert.That(
+                HasPositiveRate(sector.CampaignResourceRatesPerSecond, explosives),
+                Is.False,
+                sector.Id);
+            Assert.That(
+                HasPositiveRate(sector.ColonizationResourceRatesPerSecond, explosives),
+                Is.False,
+                sector.Id);
+        }
+    }
+
+    [Test]
     public void AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings()
     {
         Assert.That(
@@ -147,6 +183,7 @@ public sealed class AdvancedMaterialProgressionTests
             Resource resource = DataBase<Resource>.Find(resourceId);
             Assert.That(resource, Is.Not.Null, resourceId);
             Assert.That(CountSpacerBuildingSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
+            Assert.That(CountSpacerContinuousBuildingSinks(resource), Is.GreaterThanOrEqualTo(2), resourceId);
             Assert.That(CountSpacerResearchSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
             Assert.That(CountSpacerWorkshopSinks(resource), Is.GreaterThanOrEqualTo(1), resourceId);
         }
@@ -307,6 +344,33 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(HasPositiveRate(phaseArray.ResourceConsumptionRates, DataBase<Resource>.Find("PhaseMaterial")), Is.False);
     }
 
+    [Test]
+    public void 太空设施必须持续维护生态与后勤()
+    {
+        Resource biomass = DataBase<Resource>.Find("Biomass");
+        Resource titaniumAlloy = DataBase<Resource>.Find("TitaniumAlloy");
+        Resource composite = DataBase<Resource>.Find("Composite");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Building station = DataBase<Building>.Find("OrbitalStation");
+        Building logisticsHub = DataBase<Building>.Find("OrbitalLogisticsHub");
+
+        Assert.That(biomass, Is.Not.Null);
+        Assert.That(titaniumAlloy, Is.Not.Null);
+        Assert.That(composite, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(station, Is.Not.Null);
+        Assert.That(logisticsHub, Is.Not.Null);
+        Assert.That(habitat.PopulationCapacityGranted.ToDouble(), Is.GreaterThanOrEqualTo(3000d));
+        Assert.That(habitat.FoodConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(8d));
+        Assert.That(habitat.PowerConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(140d));
+        Assert.That(habitat.LogisticsConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(36d));
+        Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, biomass), Is.True);
+        Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, titaniumAlloy), Is.True);
+        Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, composite), Is.True);
+        Assert.That(HasPositiveRate(station.ResourceConsumptionRates, biomass), Is.True);
+        Assert.That(HasPositiveRate(logisticsHub.ResourceConsumptionRates, biomass), Is.True);
+    }
+
     private static bool HasPositiveRate(
         System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
         Resource resource)
@@ -405,6 +469,20 @@ public sealed class AdvancedMaterialProgressionTests
             if (building.TechLevel == TechLevel.Spacer &&
                 (HasPositiveRate(building.ResourceRequirements, resource) ||
                  HasPositiveRate(building.ResourceConsumptionRates, resource)))
+                count++;
+        }
+
+        return count;
+    }
+
+    private static int CountSpacerContinuousBuildingSinks(Resource resource)
+    {
+        int count = 0;
+        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        {
+            Building building = DataBase<Building>.All[i];
+            if (building.TechLevel == TechLevel.Spacer &&
+                HasPositiveRate(building.ResourceConsumptionRates, resource))
                 count++;
         }
 

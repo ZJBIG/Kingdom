@@ -15,7 +15,7 @@ Strict snapshot: 40 resources, 69 buildings, 106 research, 58 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Productivity-blocked building decision time: total 0 seconds; longest continuous 0 seconds.
-- Final population growth: x1.6, 0/s; productivity utilization: 31.7%; territory: 206/1325.
+- Final population growth: x1.6, 0/s; productivity utilization: 15.9%; territory: 206/2325.
 
 ## Animal Age
 
@@ -30,12 +30,12 @@ Strict snapshot: 40 resources, 69 buildings, 106 research, 58 Workshop upgrades.
 ## Medieval Age
 
 到达时间: 647.17 分钟
-完成研究: 2
+完成研究: 3
 
 ## Industrial Age
 
-到达时间: 不可达
-完成研究: 0
+到达时间: 771.88 分钟
+完成研究: 4
 
 原始时代最长无研究目标: 4 分钟；新石器时代: 4 分钟。
 
@@ -46,15 +46,15 @@ None
 ## Warnings
 
 - **High Building wait exceeds ten minutes** DeepSpaceRelay: Construction inputs 15560 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalCarbonizationComplex: Construction inputs 25710 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
+- **High Building wait exceeds ten minutes** OrbitalCarbonizationComplex: Construction inputs 27710 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalCryogenicPropellantArray: Construction inputs 77000 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalForestryHarvestingArray: Construction inputs 21870 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalHabitatMegastructure: Construction inputs 31300 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalLogisticsHub: Construction inputs 18200 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalResourceExtractionArray: Construction inputs 99900 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
+- **High Building wait exceeds ten minutes** OrbitalResourceExtractionArray: Construction inputs 61900 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalStation: Construction inputs 23520 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** OrbitalTextileFabricationArray: Construction inputs 38200 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalVacuumMetallurgyArray: Construction inputs 108300 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
+- **High Building wait exceeds ten minutes** OrbitalVacuumMetallurgyArray: Construction inputs 78300 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** Shipyard: Construction inputs 28800 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
 
 ## Validation boundary

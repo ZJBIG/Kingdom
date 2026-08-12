@@ -17,8 +17,10 @@ MonoBehaviour:
   Description: "研究轨道环境中的光照、营养液、微生物循环与作物群落，建立能够长期补充生物质并支撑居住区食物供给的闭环农业理论。"
   BaseCost: "18000000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
   - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
     amount: "30000"

@@ -684,7 +684,7 @@ public static class DevelopmentGuidance
         for (int i = 0; i < state.Definition.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = state.Definition.ResourceRequirements[i];
-            if (requirement == null || requirement.First == null)
+            if (requirement.First == null)
                 continue;
             ExpantaNum remaining = ExpantaNum.Max(
                 ExpantaNum.Zero,

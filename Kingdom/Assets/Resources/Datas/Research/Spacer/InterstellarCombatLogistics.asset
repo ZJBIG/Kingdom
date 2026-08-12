@@ -17,8 +17,11 @@ MonoBehaviour:
   Description: "\u5c06\u6df1\u7a7a\u8230\u961f\u7684\u4f5c\u6218\u6307\u6325\u3001\u8865\u7ed9\u8282\u70b9\u4e0e\u91cd\u578b\u7ef4\u4fee\u7f51\u7edc\u7edf\u4e00\u8c03\u5ea6\uff0c\u8ba9\u9ad8\u5f3a\u5ea6\u661f\u9645\u6218\u4e89\u80fd\u5728\u5b8c\u6574\u540e\u52e4\u652f\u6491\u4e0b\u6301\u7eed\u63a8\u8fdb\u3002"
   BaseCost: "12000000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: 9b7e3d1f5a2c4e6b8d0f1a3c5e7b9d24, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "3200"

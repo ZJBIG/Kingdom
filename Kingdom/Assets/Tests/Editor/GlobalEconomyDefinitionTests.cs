@@ -7,6 +7,21 @@ using UnityEditor;
 
 public sealed class GlobalEconomyDefinitionTests
 {
+    [Test]
+    public void ProductivityGrantsAreReservedForPopulationBuildings()
+    {
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (building.ProductivityGranted <= ExpantaNum.Zero)
+                continue;
+
+            Assert.That(
+                building.PopulationCapacityGranted,
+                Is.GreaterThan(ExpantaNum.Zero),
+                $"建筑 {building.Id} 不能在没有人口容量的情况下直接提供生产力。");
+        }
+    }
+
     private static readonly string[] ReleasedResourceIds =
     {
         "Biomass", "Clay", "Cloth", "StoneBrick", "StoneChunk", "WoodLog",
@@ -69,6 +84,7 @@ public sealed class GlobalEconomyDefinitionTests
         Type[] definitionTypes =
         {
             typeof(ResourceAmountDefinition),
+            typeof(Resource),
             typeof(Building),
             typeof(Research),
             typeof(ResearchEffectDefinition),
@@ -615,6 +631,19 @@ public sealed class GlobalEconomyDefinitionTests
             Assert.That(sinkCount, Is.GreaterThanOrEqualTo(2),
                 $"资源 {id} 少于两个真实消费节点，不能承担长期产业作用。");
         }
+    }
+
+    [Test]
+    public void 字符串数值字段必须支持ExpantaNum隐式转换()
+    {
+        ResearchEffectDefinition researchEffect = new ResearchEffectDefinition();
+        WorkshopEffectDefinition workshopEffect = new WorkshopEffectDefinition();
+
+        researchEffect.Value = "1.25";
+        workshopEffect.Value = "2.5";
+
+        Assert.That(researchEffect.Value.ToDouble(), Is.EqualTo(1.25d).Within(0.000001d));
+        Assert.That(workshopEffect.Value.ToDouble(), Is.EqualTo(2.5d).Within(0.000001d));
     }
 
     private static bool HasPositiveResourcePair(

@@ -5,6 +5,34 @@ using UnityEngine;
 public sealed class SpaceProgressionTests
 {
     [Test]
+    public void CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations()
+    {
+        string[] buildingIds =
+        {
+            "OrbitalStation",
+            "OrbitalHabitatMegastructure",
+            "OrbitalLogisticsHub",
+            "Shipyard"
+        };
+
+        for (int i = 0; i < buildingIds.Length; i++)
+        {
+            Building building = DataBase<Building>.Find(buildingIds[i]);
+            Assert.That(building, Is.Not.Null, buildingIds[i]);
+            Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Spacer));
+            Assert.That(building.SpaceCost, Is.GreaterThanOrEqualTo(new ExpantaNum(400d)));
+            Assert.That(building.ProductivityConsumption,
+                Is.GreaterThanOrEqualTo(new ExpantaNum(500d)));
+            Assert.That(building.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(building.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(ContainsResource(building.ResourceRequirements, "TitaniumAlloy"), Is.True);
+            Assert.That(ContainsResource(building.ResourceRequirements, "Composite"), Is.True);
+            Assert.That(HasBuildingResourceConsumption(building.Id, "TitaniumAlloy"), Is.True);
+            Assert.That(HasBuildingResourceConsumption(building.Id, "Composite"), Is.True);
+        }
+    }
+
+    [Test]
     public void ResearchPowerBuildingsFormOneContinuousUpgradeChain()
     {
         string[] chainIds =

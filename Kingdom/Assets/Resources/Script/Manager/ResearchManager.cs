@@ -36,6 +36,8 @@ public enum ResearchPaymentResult
     Invalid,
     [Description("支付成功")]
     Paid,
+    [Description("部分支付")]
+    PartiallyPaid,
     [Description("成本已经支付")]
     AlreadyPaid,
     [Description("研究已完成")]
@@ -263,6 +265,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return ResearchPaymentResult.AlreadyPaid;
         if (!TryPayResearchCost(state))
         {
+            LogResearchPaymentBlockers(state);
             bool isQueueHead = IsQueued(research) &&
                 researchQueue.Peek().Definition == research;
             state.SetStatus(isQueueHead
@@ -284,7 +287,74 @@ public class ResearchManager : Singleton<ResearchManager>
         // Payment is a transaction for this one research item only. It must
         // never start or reorder research; the queue action owns scheduling.
         ResearchQueueChanged?.Invoke();
-        return ResearchPaymentResult.Paid;
+        return state.CostPaid
+            ? ResearchPaymentResult.Paid
+            : ResearchPaymentResult.PartiallyPaid;
+    }
+
+    public bool CanPayResearchCost(Research research, out string blocker)
+    {
+        blocker = string.Empty;
+        if (research == null || !states.TryGetValue(research, out ResearchState state))
+        {
+            blocker = "研究未初始化";
+            return false;
+        }
+        if (state.Status == ResearchStatus.Completed || state.CostPaid)
+            return true;
+
+        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        if (resourceManager == null)
+        {
+            blocker = "资源管理器未初始化";
+            return false;
+        }
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
+        bool anyPayableResource = false;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null)
+            {
+                blocker = "研究存在无效资源需求";
+                return false;
+            }
+            if (requirement.Second <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum remaining = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                requirement.Second - state.GetPaidResourceCost(requirement.First));
+            ExpantaNum available = resourceManager.GetAmount(requirement.First);
+            if (remaining > ExpantaNum.Zero && available > ExpantaNum.Zero)
+                anyPayableResource = true;
+        }
+        return anyPayableResource;
+    }
+
+    private static void LogResearchPaymentBlockers(ResearchState state)
+    {
+        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        if (state == null || resourceManager == null)
+            return;
+
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum remaining = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                requirement.Second - state.GetPaidResourceCost(requirement.First));
+            ExpantaNum available = resourceManager.GetAmount(requirement.First);
+            if (available < remaining)
+            {
+                Debug.LogWarning($"[ResearchManager] Atomic payment blocked: research={state.Definition.Id}, resource={requirement.First.Id}, required={remaining.ToGameString()}, available={available.ToGameString()}");
+            }
+        }
     }
 
     public bool IsResearchCompleted(string researchId)
@@ -344,37 +414,58 @@ public class ResearchManager : Singleton<ResearchManager>
             return true;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
-        var outstanding = new Dictionary<Resource, ExpantaNum>();
+        var payable = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = requirements[i];
-            if (requirement.Second <= ExpantaNum.Zero)
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
 
             ExpantaNum paid = state.GetPaidResourceCost(requirement.First);
             ExpantaNum remaining = ExpantaNum.Max(ExpantaNum.Zero, requirement.Second - paid);
             if (remaining <= ExpantaNum.Zero)
                 continue;
-            outstanding[requirement.First] = outstanding.TryGetValue(
+            ExpantaNum available = ResourceManager.Instance.GetAmount(requirement.First);
+            ExpantaNum payment = ExpantaNum.Min(remaining, available);
+            if (payment <= ExpantaNum.Zero)
+                continue;
+            payable[requirement.First] = payable.TryGetValue(
                 requirement.First,
                 out ExpantaNum current)
-                ? current + remaining
-                : remaining;
+                ? current + payment
+                : payment;
         }
 
+        if (payable.Count == 0)
+            return false;
+
         return ResourceManager.Instance.TryApplyAtomicPayment(
-            outstanding,
+            payable,
             () =>
             {
-                foreach (KeyValuePair<Resource, ExpantaNum> entry in outstanding)
+                foreach (KeyValuePair<Resource, ExpantaNum> entry in payable)
                 {
                     state.SetPaidResourceCost(
                         entry.Key,
                         state.GetPaidResourceCost(entry.Key) + entry.Value);
                 }
 
-                state.SetCostPaid(true);
+                state.SetCostPaid(AreAllResourceCostsPaid(state));
             });
+    }
+
+    private static bool AreAllResourceCostsPaid(ResearchState state)
+    {
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+            if (state.GetPaidResourceCost(requirement.First) < requirement.Second)
+                return false;
+        }
+        return true;
     }
 
     private List<ResearchState> BuildPrerequisiteBatch(ResearchState target)

@@ -17,9 +17,11 @@ MonoBehaviour:
   Description: "研究轨道预制件、自动装配与远程施工调度，使大型空间设施的建设从一次性发射工程转变为可重复扩张的工业流程。"
   BaseCost: "9200000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: e5c1a7f3b9d24860a4d6e8f2c1b93750, type: 2}
   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "5200"

@@ -18,7 +18,10 @@ MonoBehaviour:
   SortOrder: 560
   TechLevel: 4
   requiredResearch:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 9b7e3d1f5a2c4e6b8d0f1a3c5e7b9d24, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   requiredUpgrades:
   - {fileID: 11400000, guid: 0fca5243d6eb4f27a8e7b8632eba044d, type: 2}
   resourceRequirements:

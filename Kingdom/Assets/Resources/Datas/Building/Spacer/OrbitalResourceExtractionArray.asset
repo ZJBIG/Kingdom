@@ -74,8 +74,11 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "0.02"
   requiredResearch:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c7d5e1f9a3b24860b4c6d8e2f1a93750, type: 2}
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
   requiredWorkshopUpgrades:
   - {fileID: 11400000, guid: d8e6f2a4b1c94790a5d3e7f9c2b61804, type: 2}
   - {fileID: 11400000, guid: 87b224b4b2ec1194ba05499fdda3f64c, type: 2}

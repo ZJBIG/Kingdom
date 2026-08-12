@@ -154,7 +154,7 @@ $lines = New-Object System.Collections.Generic.List[string]
 [void]$lines.Add('# Static content closure report')
 [void]$lines.Add("")
 [void]$lines.Add("TechLevel reached: $tech")
-[void]$lines.Add("Industrial baseline: $IndustrialBaseline")
+[void]$lines.Add("Industrial baseline mode: $IndustrialBaseline")
 $industrialResearch = @($definitions | Where-Object { $_.Kind -eq 'Research' -and $_.Tech -le 3 })
 $industrialWorkshop = @($definitions | Where-Object { $_.Kind -eq 'Workshop' -and $_.Tech -le 3 })
 $industrialBuilding = @($definitions | Where-Object { $_.Kind -eq 'Building' -and $_.Tech -le 3 })
@@ -167,6 +167,11 @@ $availableIndustrialBuilding = @($industrialBuilding | Where-Object { $available
 $completedSpacerResearch = @($spacerResearch | Where-Object { $completed.Contains($_.Id) })
 $purchasedSpacerWorkshop = @($spacerWorkshop | Where-Object { $purchased.Contains($_.Id) })
 $availableSpacerBuilding = @($spacerBuilding | Where-Object { $availableBuildings.Contains($_.Id) })
+$industrialClosureComplete =
+    ($completedIndustrialResearch.Count -eq $industrialResearch.Count) -and
+    ($purchasedIndustrialWorkshop.Count -eq $industrialWorkshop.Count) -and
+    ($availableIndustrialBuilding.Count -eq $industrialBuilding.Count)
+[void]$lines.Add("Industrial closure complete: $industrialClosureComplete")
 [void]$lines.Add("Research reachable (up to Industrial): $($completedIndustrialResearch.Count)/$($industrialResearch.Count)")
 [void]$lines.Add("Workshop reachable (up to Industrial): $($purchasedIndustrialWorkshop.Count)/$($industrialWorkshop.Count)")
 [void]$lines.Add("Building reachable (up to Industrial): $($availableIndustrialBuilding.Count)/$($industrialBuilding.Count)")

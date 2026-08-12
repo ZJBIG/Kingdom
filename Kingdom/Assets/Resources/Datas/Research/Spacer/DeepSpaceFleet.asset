@@ -17,6 +17,7 @@ MonoBehaviour:
   Description: "建立具备远征能力的舰队、化学推进剂补给链和指挥体系，解锁远星战役；舰队推进会持续消耗食物、燃料、物流能力和高级材料。"
   BaseCost: "4000000"
   prerequisites:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: 323c4afbe0c59c94bb68d1816a07b402, type: 2}
   - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}

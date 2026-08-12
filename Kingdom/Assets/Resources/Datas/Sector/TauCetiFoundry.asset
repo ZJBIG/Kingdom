@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TauCetiFoundry
   Label: "鲸鱼座工业前哨"
-  Description: "沿另一条星际航线建立的工业前哨。敌方压力低于比邻星前线，但仍需持续投入食物、电子元件、火箭燃料和钛合金，才能换取大规模工业资源与领土回报。"
+  Description: "沿另一条星际航线建立的工业前哨。敌方压力高于比邻星前线但低于天狼资源带，仍需持续投入食物、电子元件、火箭燃料和钛合金，才能换取大规模工业资源与领土回报。"
   starSystemId: TauCeti
   domain: 1
-  enemyPower: "1800"
+  enemyPower: "4200"
   prerequisiteSectors:
-  - {fileID: 11400000, guid: 9c31a5f4b27d4e4a9e1a7f8c2d6b3e10, type: 2}
+  - {fileID: 11400000, guid: e5f60718293a4b5c6d7e8f901a2b3c4d, type: 2}
   territoryReward: "220000"
   resourceRewards:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}

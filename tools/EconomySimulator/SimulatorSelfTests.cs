@@ -15,6 +15,7 @@ public static class SimulatorSelfTests
 
         VerifyDefinitionReferenceKinds(snapshot);
         VerifyPopulationProductivityParity();
+        VerifyResourceRatesUseSeconds();
 
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
@@ -405,6 +406,23 @@ public static class SimulatorSelfTests
                 strategy.WorkshopDecisionInterval > 0,
                 $"模拟路线的决策间隔无效：{route}。");
         }
+    }
+
+    private static void VerifyResourceRatesUseSeconds()
+    {
+        Definition producer = new()
+        {
+            Id = "RateContractProducer",
+            Kind = DefinitionKind.Building,
+            FoodConsumption = 5d
+        };
+        producer.Generation["RateContractResource"] = 2d;
+
+        SimulationState state = new();
+        state.Buildings[producer.Id] = 1;
+        ResourceSimulator.Tick(state, new[] { producer }, new[] { producer }, 1d);
+        Require(Math.Abs(state.Resources.GetValueOrDefault("RateContractResource") - 2d) < 1e-9,
+            "资源生产率必须按每秒结算，不能按每分钟结算。");
     }
 
     private static void VerifyAtomicResearchPayment()

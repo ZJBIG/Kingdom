@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
+using UnityEngine;
 
 public sealed class C6IndustrialContentTests
 {
@@ -252,6 +255,26 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C612_AllUnifiedMineOutputsRetainDownstreamUses()
+    {
+        string[] outputIds =
+        {
+            "BauxiteOre",
+            "CopperOre",
+            "TinOre",
+            "IronOre",
+            "TitaniumConcentrate",
+            "NickelConcentrate"
+        };
+
+        for (int i = 0; i < outputIds.Length; i++)
+        {
+            Assert.That(CountConsumerUses(outputIds[i]), Is.GreaterThan(0),
+                $"统一多金属矿产出 {outputIds[i]} 必须存在后续建筑、研究或工坊用途。");
+        }
+    }
+
+    [Test]
     public void 工业机械化煤矿替代基础煤矿并持续消耗炸药()
     {
         Building coalMine = DataBase<Building>.Find("CoalMine");
@@ -437,6 +460,19 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void PlantingFieldMustOutproduceIrrigationWorksInBothAgriculturalOutputs()
+    {
+        Building field = DataBase<Building>.Find("PlantingField");
+        Building irrigation = DataBase<Building>.Find("IrrigationWorks");
+
+        Assert.That(field, Is.Not.Null);
+        Assert.That(irrigation, Is.Not.Null);
+        Assert.That(field.FoodProductionRate, Is.GreaterThan(irrigation.FoodProductionRate));
+        Assert.That(FindRate(field.ResourceGenerationRates, "Biomass"),
+            Is.GreaterThan(FindRate(irrigation.ResourceGenerationRates, "Biomass")));
+    }
+
+    [Test]
     public void 种植田必须在农业理论和农业机械工坊都完成后建造()
     {
         Building field = DataBase<Building>.Find("PlantingField");
@@ -526,6 +562,38 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C603_IndustrialAndSpacerBuildingsHaveAnExplicitGameplayRole()
+    {
+        IReadOnlyList<Building> buildings = DataBase<Building>.All;
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            Building building = buildings[i];
+            if (building == null || building.TechLevel < TechLevel.Industrial)
+                continue;
+
+            bool hasRole = building.ResourceGenerationRates.Count > 0 ||
+                building.ResourceConsumptionRates.Count > 0 ||
+                building.PowerProductionRate > ExpantaNum.Zero ||
+                building.PowerConsumptionRate > ExpantaNum.Zero ||
+                building.LogisticsProductionRate > ExpantaNum.Zero ||
+                building.LogisticsConsumptionRate > ExpantaNum.Zero ||
+                building.PopulationCapacityGranted > ExpantaNum.Zero ||
+                building.ResearchPowerGranted > ExpantaNum.Zero ||
+                building.FoodProductionRate > ExpantaNum.Zero ||
+                building.FoodConsumptionRate > ExpantaNum.Zero ||
+                building.FleetPowerGranted > ExpantaNum.Zero ||
+                building.AttackPowerGranted > ExpantaNum.Zero ||
+                building.DefensePowerGranted > ExpantaNum.Zero ||
+                building.MilitaryManpowerGranted > ExpantaNum.Zero;
+
+            Assert.That(
+                hasRole,
+                Is.True,
+                $"工业及太空建筑“{building.Id}”必须声明生产、维护、人口、研究或战略职责。");
+        }
+    }
+
+    [Test]
     public void C603_IndustrialEraRetainsCoalCopperIronAndSteelUses()
     {
         var legacyIndustrialResources = new[] { "Coal", "Copper", "Iron", "Steel" };
@@ -534,6 +602,37 @@ public sealed class C6IndustrialContentTests
             Assert.That(CountConsumerBuildings(legacyIndustrialResources[i]), Is.GreaterThan(0),
                 $"Industrial layer lost its use for '{legacyIndustrialResources[i]}'.");
         }
+    }
+
+    [Test]
+    public void C603_IndustrialEnergyChainRetainsContinuousSourcesAndSinks()
+    {
+        Building cokeOven = DataBase<Building>.Find("CokeOven");
+        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
+        Building mechanizedLumberyard = DataBase<Building>.Find("MechanizedLumberyard");
+        Building mechanizedCoalMine = DataBase<Building>.Find("MechanizedCoalMine");
+
+        Assert.That(cokeOven, Is.Not.Null);
+        Assert.That(retort, Is.Not.Null);
+        Assert.That(mechanizedLumberyard, Is.Not.Null);
+        Assert.That(mechanizedCoalMine, Is.Not.Null);
+        Assert.That(FindRate(cokeOven.ResourceConsumptionRates, "Coal"), Is.GreaterThan(0d));
+        Assert.That(FindRate(retort.ResourceConsumptionRates, "WoodLog"), Is.GreaterThan(0d));
+        Assert.That(FindRate(mechanizedLumberyard.ResourceGenerationRates, "WoodLog"),
+            Is.GreaterThan(0d));
+        Assert.That(FindRate(mechanizedCoalMine.ResourceGenerationRates, "Coal"),
+            Is.GreaterThan(0d));
+
+        bool cokeHasContinuousSink = DataBase<Building>.All.Any(building =>
+            FindRate(building.ResourceConsumptionRates, "Coke") > 0d);
+        bool coalHasContinuousSink = DataBase<Building>.All.Any(building =>
+            FindRate(building.ResourceConsumptionRates, "Coal") > 0d);
+        bool woodHasContinuousSink = DataBase<Building>.All.Any(building =>
+            FindRate(building.ResourceConsumptionRates, "WoodLog") > 0d);
+
+        Assert.That(cokeHasContinuousSink, Is.True, "焦炭必须有持续消费建筑。");
+        Assert.That(coalHasContinuousSink, Is.True, "煤炭必须有持续消费建筑。");
+        Assert.That(woodHasContinuousSink, Is.True, "木材必须有持续消费建筑。");
     }
 
     [Test]
@@ -613,6 +712,16 @@ public sealed class C6IndustrialContentTests
             out error);
 
         Assert.That(valid, Is.True, error);
+    }
+
+    [Test]
+    public void C608_PrecisionManufacturingDoesNotRequireDownstreamGlass()
+    {
+        Research precision = DataBase<Research>.Find("PrecisionManufacturing");
+
+        Assert.That(ContainsResource(precision.ResourceRequirements, "Glass"), Is.False);
+        Assert.That(ContainsResource(precision.ResourceRequirements, "CopperWire"), Is.True);
+        Assert.That(ContainsResource(precision.ResourceRequirements, "Lubricant"), Is.True);
     }
 
     [Test]
@@ -982,5 +1091,73 @@ public sealed class C6IndustrialContentTests
             $"资源“{resourceId}”必须有中文描述。");
         Assert.That(resource.Sprite, Is.Not.Null,
             $"资源“{resourceId}”必须有 UI 图标。");
+    }
+
+    [Test]
+    public void 生产循环验证必须一次性报告所有独立循环()
+    {
+        Resource[] resources =
+        {
+            CreateTestResource("CycleA"), CreateTestResource("CycleB"), CreateTestResource("CycleC"),
+            CreateTestResource("CycleD"), CreateTestResource("CycleE")
+        };
+        Building[] buildings =
+        {
+            CreateCycleBuilding("CycleAB", resources[0], resources[1]),
+            CreateCycleBuilding("CycleBC", resources[1], resources[2]),
+            CreateCycleBuilding("CycleCA", resources[2], resources[0]),
+            CreateCycleBuilding("CycleDE", resources[3], resources[4]),
+            CreateCycleBuilding("CycleED", resources[4], resources[3])
+        };
+
+        try
+        {
+            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
+                "ValidateProductionGraph",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(validator, Is.Not.Null);
+            object[] arguments = { resources, buildings, null };
+            bool valid = (bool)validator.Invoke(null, arguments);
+            string error = arguments[2] as string;
+
+            Assert.That(valid, Is.False);
+            Assert.That(error, Does.Contain("CycleA -> CycleB -> CycleC -> CycleA"));
+            Assert.That(error, Does.Contain("CycleD -> CycleE -> CycleD"));
+        }
+        finally
+        {
+            for (int i = 0; i < buildings.Length; i++)
+                UnityEngine.Object.DestroyImmediate(buildings[i]);
+            for (int i = 0; i < resources.Length; i++)
+                UnityEngine.Object.DestroyImmediate(resources[i]);
+        }
+    }
+
+    private static Resource CreateTestResource(string id)
+    {
+        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        resource.SetIdForEditor(id);
+        return resource;
+    }
+
+    private static Building CreateCycleBuilding(string id, Resource input, Resource output)
+    {
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.SetIdForEditor(id);
+        building.ConfigureEconomyForEditor(
+            new ExpantaNum("1.15"), ExpantaNum.One, ExpantaNum.One, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(output, ExpantaNum.One)
+            },
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(input, ExpantaNum.One)
+            });
+        return building;
     }
 }
