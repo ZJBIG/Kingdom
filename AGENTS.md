@@ -75,6 +75,22 @@ Food is the only capped stockpile.
 
 Do not add capacity, MaxAmount or storage buildings for ordinary resources. Use geometric costs, production chains, research, productivity, territory, power, logistics and combat as progression gates. Do not reintroduce workforce.
 
+## Long-term content decisions
+
+- Before adding content, check whether an existing Research, Workshop, Building
+  or Resource can take the role. Prefer completing missing connections between
+  existing definitions over adding parallel content.
+- After entering Spacer, do not add an orbital replacement factory for each
+  industrial resource. Keep lower-era industry valuable through building
+  upgrades, Workshops, Research and higher efficiency.
+- Sector long-term output must not replace player-built advanced production.
+  Sectors primarily provide territory, raw materials, one-time loot and limited
+  strategic resource flows rather than becoming the unlimited main source of
+  advanced processed materials.
+- Whenever population capacity increases, estimate
+  `PopulationCapacity * FoodConsumptionPerPerson` at full load and verify that
+  a reasonable number of same-era Food producers can support it.
+
 ## Content quality gates
 
 A new Resource requires:

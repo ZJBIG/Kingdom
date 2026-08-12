@@ -58,7 +58,7 @@ public sealed class PreSpacerCombatRemovalTests
         Assert.That(research, Is.Not.Null, id);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == ResearchEffectType.GlobalBuildingProductionMultiplier &&
-            effect.Value.ToDouble() == expected));
+            effect.NumericValue.ToDouble() == expected));
     }
 
     private static void AssertBuildingMultiplier(string researchId, string buildingId, double expected)
@@ -68,6 +68,6 @@ public sealed class PreSpacerCombatRemovalTests
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building != null && effect.Building.Id == buildingId &&
-            effect.Value.ToDouble() == expected));
+            effect.NumericValue.ToDouble() == expected));
     }
 }

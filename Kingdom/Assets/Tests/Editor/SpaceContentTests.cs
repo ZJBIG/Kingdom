@@ -44,8 +44,9 @@ public sealed class SpaceContentTests
         Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
         Building machineFactory = DataBase<Building>.Find("MachineFactory");
 
-        Assert.That(HasRate(chemicalPlant.ResourceGenerationRates, rocketFuel), Is.False);
-        Assert.That(HasRate(machineFactory.ResourceGenerationRates, composite), Is.False);
+        Assert.That(HasRate(chemicalPlant.ResourceGenerationRates, rocketFuel), Is.True);
+        Assert.That(FindRate(machineFactory.ResourceGenerationRates, composite),
+            Is.EqualTo(0.45d).Within(0.000001d));
         Assert.That(CountReferences(DataBase<Building>.All, rocketFuel), Is.GreaterThanOrEqualTo(2));
         Assert.That(CountReferences(DataBase<Building>.All, composite), Is.GreaterThanOrEqualTo(2));
     }
@@ -115,6 +116,16 @@ public sealed class SpaceContentTests
             if (pairs[i].First == resource && pairs[i].Second > ExpantaNum.Zero)
                 return true;
         return false;
+    }
+
+    private static double FindRate(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
+        Resource resource)
+    {
+        for (int i = 0; i < rates.Count; i++)
+            if (rates[i].First == resource)
+                return rates[i].Second.ToDouble();
+        return 0d;
     }
 
     private static int CountReferences(

@@ -32,7 +32,7 @@ MonoBehaviour:
   - Type: 0
     Building: {fileID: 11400000, guid: 116d35601a1dec544838b03dbdf70894, type: 2}
     Resource: {fileID: 0}
-    value: "1.2"
+    value: "1.25"
   - Type: 0
     Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}

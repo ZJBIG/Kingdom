@@ -10,9 +10,10 @@ public static class BuildingSimulator
         ISimulationStrategy strategy)
     {
         IReadOnlyList<Definition> defs=snapshot.Buildings;
-        int gap=strategy.BuildingDecisionInterval;
-        if(s.Tick%gap!=0)
+        if(!s.ShouldDecide(ref s.LastBuildingDecisionSeconds,
+                strategy.BuildingDecisionInterval))
             return;
+        double gap = strategy.BuildingDecisionInterval;
         if(TryUpgrade(s,defs))
         {
             s.CurrentProductivityWaitingSeconds=0d;
@@ -20,13 +21,8 @@ public static class BuildingSimulator
                 s.Events[^1].Id,"eligible upgrade chain selected");
             return;
         }
-        var unlocked=defs
-            .Where(x=>x.TechLevel<=s.TechLevel)
-            .Where(x=>x.RequiredResearch.All(s.CompletedResearch.Contains))
-            .Where(x=>x.RequiredWorkshop.All(s.PurchasedWorkshop.Contains))
-            .Where(x=>CanConstructNew(s,x,defs))
-            .Where(x=>x.Generation.Count>0||x.ResearchPower>0||x.FoodProduction>0||
-                x.ProductivityGranted>0||x.PopulationCapacity>0)
+        Definition[] unlockedDefinitions = GetCandidates(s, defs);
+        var unlocked=unlockedDefinitions
             .Select(d=>new{D=d,N=s.Buildings.GetValueOrDefault(d.Id)})
             .Where(x=>x.N<strategy.BuildingLimit(x.D))
             .Where(x=>ResourceSimulator.CanPay(s,ScaledCost(x.D,x.N)))
@@ -68,7 +64,7 @@ public static class BuildingSimulator
             {
                 s.CurrentProductivityWaitingSeconds=0d;
             }
-            string reason=unlocked.Count==0
+            string reason=unlockedDefinitions.Length==0
                 ?"no unlocked and affordable useful building"
                 :available.Count==0
                     ?"productivity or territory is insufficient"
@@ -85,16 +81,44 @@ public static class BuildingSimulator
         s.TraceDecision(strategy.Route,"Building","Constructed",cand.D.Id,
             $"score={strategy.ScoreBuilding(cand.D,cand.N):0.###}; count={cand.N+1}");
     }
+
+    private static Definition[] GetCandidates(
+        SimulationState state,
+        IReadOnlyList<Definition> definitions)
+    {
+        if (state.CachedBuildingCandidates != null &&
+            state.CachedBuildingRevision == state.DefinitionRevision)
+            return state.CachedBuildingCandidates;
+
+        state.CachedBuildingCandidates = definitions
+            .Where(x=>x.TechLevel<=state.TechLevel)
+            .Where(x=>x.RequiredResearch.All(state.CompletedResearch.Contains))
+            .Where(x=>x.RequiredWorkshop.All(state.PurchasedWorkshop.Contains))
+            .Where(x=>CanConstructNew(state,x,definitions))
+            .Where(x=>x.Generation.Count>0||x.ResearchPower>0||x.FoodProduction>0||
+                x.ProductivityGranted>0||x.PopulationCapacity>0)
+            .ToArray();
+        state.CachedBuildingRevision = state.DefinitionRevision;
+        return state.CachedBuildingCandidates;
+    }
     private static bool TryUpgrade(SimulationState s,IReadOnlyList<Definition> defs)
     {
-        foreach(var source in defs.Where(x=>!string.IsNullOrEmpty(x.UpgradeTo)))
+        if (!s.UpgradePairsInitialized)
+        {
+            var byId = defs.ToDictionary(x => x.Id,
+                StringComparer.OrdinalIgnoreCase);
+            foreach (Definition source in defs)
+                if (!string.IsNullOrEmpty(source.UpgradeTo) &&
+                    byId.TryGetValue(source.UpgradeTo, out Definition? target))
+                    s.UpgradePairs.Add((source, target));
+            s.UpgradePairsInitialized = true;
+        }
+        foreach ((Definition source, Definition target) in s.UpgradePairs)
         {
             int sourceCount=s.Buildings.GetValueOrDefault(source.Id);
             if(sourceCount<=0)
                 continue;
-            var target=defs.FirstOrDefault(x=>
-                string.Equals(x.Id,source.UpgradeTo,StringComparison.OrdinalIgnoreCase));
-            if(target==null||target.TechLevel>s.TechLevel||
+            if(target.TechLevel>s.TechLevel||
                 !target.RequiredResearch.All(s.CompletedResearch.Contains)||
                 !target.RequiredWorkshop.All(s.PurchasedWorkshop.Contains))
                 continue;

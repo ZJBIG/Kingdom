@@ -345,8 +345,8 @@ public sealed class GlobalEconomyDefinitionTests
             foreach (ResearchEffectDefinition effect in research.Effects)
             {
                 Assert.That(effect, Is.Not.Null, research.Id);
-                Assert.That(effect.Value.IsNaN, Is.False, research.Id);
-                Assert.That(effect.Value, Is.GreaterThan(ExpantaNum.Zero), research.Id);
+            Assert.That(effect.NumericValue.IsNaN, Is.False, research.Id);
+                Assert.That(effect.NumericValue, Is.GreaterThan(ExpantaNum.Zero), research.Id);
 
                 switch (effect.Type)
                 {
@@ -376,8 +376,8 @@ public sealed class GlobalEconomyDefinitionTests
             foreach (WorkshopEffectDefinition effect in upgrade.Effects)
             {
                 Assert.That(effect, Is.Not.Null, upgrade.Id);
-                Assert.That(effect.Value.IsNaN, Is.False, upgrade.Id);
-                Assert.That(effect.Value, Is.GreaterThan(ExpantaNum.Zero), upgrade.Id);
+            Assert.That(effect.NumericValue.IsNaN, Is.False, upgrade.Id);
+                Assert.That(effect.NumericValue, Is.GreaterThan(ExpantaNum.Zero), upgrade.Id);
 
                 switch (effect.Type)
                 {
@@ -451,7 +451,7 @@ public sealed class GlobalEconomyDefinitionTests
                 string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
                 researchKeys.Add(
                     effect.Type + "|" + buildingId + "|" + resourceId + "|" +
-                    effect.Value.ToString());
+                    effect.NumericValue.ToString());
             }
         }
 
@@ -463,7 +463,7 @@ public sealed class GlobalEconomyDefinitionTests
                 string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
                 string key =
                     effect.Type + "|" + buildingId + "|" + resourceId + "|" +
-                    effect.Value.ToString();
+                    effect.NumericValue.ToString();
                 Assert.That(
                     researchKeys.Contains(key),
                     Is.False,

@@ -19,8 +19,8 @@ MonoBehaviour:
   domain: 1
   enemyPower: "900"
   prerequisiteSectors:
-  - {fileID: 11400000, guid: 1820cea6c13ab3840b299c478d24406f, type: 2}
-  territoryReward: "100000"
+  - {fileID: 11400000, guid: 9a7b6c5d4e3f20191827364554637281, type: 2}
+  territoryReward: "700000"
   resourceRewards:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "50000"

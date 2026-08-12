@@ -54,6 +54,24 @@ Resource and late-era design contract:
   these late campaigns; use production chains, supply, logistics, territory,
   research, and strategic resource consumption instead.
 
+Long-term content decisions:
+
+- Before adding content, first check whether an existing Research, Workshop,
+  Building, or Resource can take the role. Prefer completing missing links
+  between existing definitions over adding parallel content.
+- After entering Spacer, do not create a simple orbital replacement factory
+  for every industrial resource. Lower-era industry must continue serving
+  later-era demand through upgraded buildings, Workshops, Research, and higher
+  efficiency.
+- Sector long-term output must not visibly replace player-built advanced
+  production chains. Sectors should primarily provide territory, raw materials,
+  one-time loot, and limited strategic resource flows, not unlimited advanced
+  processed materials.
+- Any population-capacity increase must be checked with
+  `PopulationCapacity * FoodConsumptionPerPerson` at full load, and the same
+  era must have a reasonable number of Food producers able to support that
+  demand.
+
 UI research-tree boundary:
 
 - Research UI may read definitions and runtime state, but must not change

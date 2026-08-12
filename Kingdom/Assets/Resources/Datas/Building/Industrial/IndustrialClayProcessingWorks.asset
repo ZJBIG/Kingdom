@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: IndustrialClayProcessingWorks
   m_EditorClassIdentifier: 
   id: IndustrialClayProcessingWorks
-  Label: "宸ヤ笟黏土处理厂"
+  Label: "工业黏土处理厂"
   Description: "以机械剥离、分级洗选和定向爆破开采深层黏土，持续为工业陶瓷与跨时代建筑提供稳定原料。"
   TechLevel: 3
   upgradeTo: {fileID: 0}

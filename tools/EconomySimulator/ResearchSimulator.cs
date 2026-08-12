@@ -11,7 +11,8 @@ public static class ResearchSimulator
     {
         if(s.ActiveResearch!=null)
             return;
-        if (s.Tick % strategy.ResearchDecisionInterval != 0)
+        if (!s.ShouldDecide(ref s.LastResearchDecisionSeconds,
+                strategy.ResearchDecisionInterval))
             return;
         Definition[] candidates=snapshot.Research
             .Where(x=>!s.CompletedResearch.Contains(x.Id))
@@ -60,7 +61,8 @@ public static class ResearchSimulator
         SimulationState s,
         IReadOnlyList<Definition> defs,
         IReadOnlyList<Definition> all,
-        double deltaSeconds)
+        double deltaSeconds,
+        IReadOnlyList<Definition>? activeBuildings = null)
     {
         var t=s.ActiveResearch;
         if(t==null)
@@ -82,14 +84,15 @@ public static class ResearchSimulator
             s.TraceDecision(t.Route,"Research","Paid",t.Definition.Id,
                 "complete resource cost paid atomically");
         }
-        double speed=ResearchPower(s,all.Where(
-                x=>x.Kind==DefinitionKind.Building).ToArray(),all)*
+        IReadOnlyList<Definition> buildings = activeBuildings ?? all.Where(
+                x=>x.Kind==DefinitionKind.Building).ToArray();
+        double speed=ResearchPower(s,buildings,all)*
             EconomySimulationParity.ResearchSpeedEffect(
                 (int)s.TechLevel,(int)t.Definition.TechLevel)*
             ResourceSimulator.CalculateHappinessMultiplier(
                 ResourceSimulator.CalculateFoodNetRate(
                     s,
-                    all.Where(x=>x.Kind==DefinitionKind.Building).ToArray(),
+                    buildings,
                     deltaSeconds),
                 s.Population,
                 s.FoodAvailability)*deltaSeconds;

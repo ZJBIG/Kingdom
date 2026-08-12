@@ -50,9 +50,11 @@ public sealed class ResearchEffectDefinition
     public Resource Resource;
     [UnityEngine.SerializeField] private string value = "1";
 
-    public ExpantaNum Value
+    public string Value
     {
         get => value;
-        set => this.value = value.ToString();
+        set => this.value = value ?? "0";
     }
+
+    public ExpantaNum NumericValue => value;
 }

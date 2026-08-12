@@ -10,7 +10,8 @@ public static class WorkshopSimulator
         EconomySnapshot snapshot,
         ISimulationStrategy strategy)
     {
-        if (state.Tick % strategy.WorkshopDecisionInterval != 0)
+        if (!state.ShouldDecide(ref state.LastWorkshopDecisionSeconds,
+                strategy.WorkshopDecisionInterval))
             return;
         if (!IsSystemUnlocked(state))
         {
@@ -19,7 +20,10 @@ public static class WorkshopSimulator
             return;
         }
 
-        Definition[] unlocked = snapshot.Workshops
+        Definition[] unlocked = state.CachedWorkshopCandidates != null &&
+            state.CachedWorkshopRevision == state.DefinitionRevision
+            ? state.CachedWorkshopCandidates
+            : snapshot.Workshops
             .Where(x => !state.PurchasedWorkshop.Contains(x.Id))
             .Where(x => x.TechLevel <= state.TechLevel)
             .Where(x => x.RequiredResearch.All(state.CompletedResearch.Contains))
@@ -27,6 +31,8 @@ public static class WorkshopSimulator
             .OrderByDescending(x => strategy.ScoreWorkshop(x, state))
             .ThenBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
             .ToArray();
+        state.CachedWorkshopCandidates = unlocked;
+        state.CachedWorkshopRevision = state.DefinitionRevision;
         Definition? candidate = unlocked.FirstOrDefault(x =>
             ResourceSimulator.CanPay(state, x.ResourceRequirements));
         if (candidate == null)

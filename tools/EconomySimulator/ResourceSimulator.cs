@@ -109,7 +109,36 @@ public static class ResourceSimulator
     }
     private static int Compare(double population,double capacity)=>
         population<capacity-1e-9?-1:population>capacity+1e-9?1:0;
-    private static double Efficiency(SimulationState s,Definition d,IReadOnlyList<Definition> all,double deltaSeconds){double e=1;foreach(var p in d.Consumption){double demand=p.Value*s.Buildings.GetValueOrDefault(d.Id);if(demand>0)e=Math.Min(e,(s.Resources.GetValueOrDefault(p.Key)+p.Value*deltaSeconds)/(demand*deltaSeconds));}return Math.Clamp(e,0,1);}
+    private static double Efficiency(
+        SimulationState s,
+        Definition d,
+        IReadOnlyList<Definition> all,
+        double deltaSeconds)
+    {
+        double efficiency = 1d;
+        int count = s.Buildings.GetValueOrDefault(d.Id);
+        foreach (var pair in d.Consumption)
+        {
+            double perSecond = pair.Value;
+            double demand = perSecond * count;
+            if (perSecond <= 0d || demand <= 0d)
+                continue;
+
+            // 这里仍是独立模拟器的 double 快照，不是游戏运行时的 ExpantaNum。
+            // demand 或 demand * deltaSeconds 溢出后，不能再计算 Infinity / Infinity。
+            // 生产补偿恒等于 perSecond / (perSecond * count)，直接化简为 1 / count。
+            double inventory = s.Resources.GetValueOrDefault(pair.Key);
+            double inventoryRatio = double.IsFinite(demand) &&
+                double.IsFinite(deltaSeconds) &&
+                demand <= double.MaxValue / Math.Max(1d, deltaSeconds)
+                ? inventory / Math.Max(1d, demand * deltaSeconds)
+                : 0d;
+            double productionRatio = 1d / Math.Max(1, count);
+            double available = inventoryRatio + productionRatio;
+            efficiency = Math.Min(efficiency, Math.Clamp(available, 0d, 1d));
+        }
+        return efficiency;
+    }
     private static IEnumerable<SimEffect> CompletedEffects(SimulationState s,SimEffectKind kind,string target)=>s.ActiveEffects.Where(e=>e.Kind==kind&&(string.IsNullOrEmpty(e.Target)||e.Target.Equals(target,StringComparison.OrdinalIgnoreCase)));
     internal static double EffectMultiplier(SimulationState s,SimEffectKind kind,string target)
     {
@@ -192,5 +221,27 @@ public static class ResourceSimulator
     public static double Get(SimulationState s,string id)=>s.Resources.GetValueOrDefault(id);
     public static bool CanPay(SimulationState s,IDictionary<string,double> cost)=>cost.All(p=>Get(s,p.Key)+1e-9>=p.Value);
     public static void Pay(SimulationState s,IDictionary<string,double> cost){foreach(var p in cost)Add(s.Resources,p.Key,-p.Value);}
-    public static void Add(Dictionary<string,double> d,string k,double v){d[k]=d.GetValueOrDefault(k)+v;}
+    public static void Add(Dictionary<string,double> d,string k,double v)
+    {
+        if(double.IsNaN(v))
+            throw new InvalidOperationException($"资源变化量不是有效数字：{k}。 ");
+        double current=d.GetValueOrDefault(k);
+        if(v>0d && (double.IsPositiveInfinity(current)||
+            current>double.MaxValue-v))
+        {
+            d[k]=double.MaxValue;
+            return;
+        }
+        if(v<0d && double.IsPositiveInfinity(current))
+        {
+            d[k]=double.MaxValue;
+            return;
+        }
+        double next=current+v;
+        if(double.IsPositiveInfinity(next))
+            next=double.MaxValue;
+        if(double.IsNaN(next))
+            throw new InvalidOperationException($"资源变化后不是有效数字：{k}。 ");
+        d[k]=next;
+    }
 }

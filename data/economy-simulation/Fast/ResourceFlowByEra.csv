@@ -123,7 +123,7 @@ Industrial,"Aluminum",0,0,0
 Industrial,"BauxiteOre",0,0,0
 Industrial,"Biomass",6,4,2
 Industrial,"Bronze",2.4,0,2.4
-Industrial,"Ceramic",4,0,4
+Industrial,"Ceramic",4,0.4,3.6
 Industrial,"Chemical",0,0,0
 Industrial,"Clay",6,4,2
 Industrial,"Cloth",4,0,4
@@ -131,13 +131,13 @@ Industrial,"Coal",9.2,10,-0.8
 Industrial,"Coke",0,0,0
 Industrial,"Composite",0,0,0
 Industrial,"Concrete",0,0,0
-Industrial,"Copper",3.2,0,3.2
+Industrial,"Copper",3.2,4.8,-1.6
 Industrial,"CopperOre",4,4,0
-Industrial,"CopperWire",0,0,0
-Industrial,"CrudeOil",0,0,0
-Industrial,"Electronics",0,0,0
+Industrial,"CopperWire",5.6,0,5.6
+Industrial,"CrudeOil",12,0,12
+Industrial,"Electronics",1.4,0,1.4
 Industrial,"Engine",0,0,0
-Industrial,"Explosives",0,0,0
+Industrial,"Explosives",0,0.32,-0.32
 Industrial,"Glass",0,0,0
 Industrial,"Iron",3.2,4,-0.8
 Industrial,"IronOre",3.2,4,-0.8
@@ -154,7 +154,7 @@ Industrial,"Rubber",0,0,0
 Industrial,"Steel",4,0,4
 Industrial,"StoneBrick",4,0,4
 Industrial,"StoneChunk",8,8,0
-Industrial,"Tin",3.2,0,3.2
+Industrial,"Tin",3.2,0.4,2.8
 Industrial,"TinOre",3.2,4,-0.8
 Industrial,"TitaniumAlloy",0,0,0
 Industrial,"TitaniumConcentrate",0,0,0

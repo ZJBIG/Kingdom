@@ -89,7 +89,7 @@ public class IndustrialWorkshopAvailabilityTests
             x != null && x.First != null && x.First.Id == "Ceramic" && x.Second == new ExpantaNum(120)));
         Assert.That(integratedFurnaces.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
             x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
-            x.Building != null && x.Building.Id == "IndustrialMetalSmelter" && x.Value == new ExpantaNum("1.25")));
+            x.Building != null && x.Building.Id == "IndustrialMetalSmelter" && x.NumericValue == new ExpantaNum("1.25")));
         AssertWorkshop("ElectricalInstrumentation", "CopperWire", "Glass", WorkshopEffectType.PowerMultiplier, null);
         AssertWorkshop("ConveyorSystems", "Machinery", "Steel", WorkshopEffectType.GlobalLogisticsMultiplier, null);
         AssertWorkshop("StandardGauge", "Steel", "Coke", WorkshopEffectType.BuildingLogisticsProductionMultiplier, "RailHub");
@@ -115,7 +115,7 @@ public class IndustrialWorkshopAvailabilityTests
             if (effect.Type == WorkshopEffectType.ResourceProductionMultiplier &&
                 effect.Resource != null && effect.Resource.Id == "Coke")
             {
-                Assert.That(effect.Value.ToDouble(), Is.EqualTo(1.5d).Within(0.0001d));
+                Assert.That(effect.NumericValue.ToDouble(), Is.EqualTo(1.5d).Within(0.0001d));
                 found = true;
             }
         }
@@ -134,7 +134,7 @@ public class IndustrialWorkshopAvailabilityTests
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(x =>
             x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
             x.Building != null && x.Building.Id == "OilDerrick" &&
-            x.Value.ToDouble() >= 1.25d));
+            x.NumericValue.ToDouble() >= 1.25d));
         WorkshopUpgrade workshop =
             Resources.Load<WorkshopUpgrade>("Datas/Workshop/RotaryDrillingHeads");
         Assert.That(workshop, Is.Not.Null, "旋转钻头组工坊必须存在。");
@@ -146,7 +146,7 @@ public class IndustrialWorkshopAvailabilityTests
         Assert.That(workshop.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
             x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
             x.Building != null && x.Building.Id == "OilDerrick" &&
-            x.Value.ToDouble() >= 1.20d));
+            x.NumericValue.ToDouble() >= 1.20d));
 
         Research explosivesResearch =
             Resources.Load<Research>("Datas/Research/Industrial/IndustrialExplosives");
@@ -155,7 +155,7 @@ public class IndustrialWorkshopAvailabilityTests
         Assert.That(explosivesResearch.Effects, Has.Some.Matches<ResearchEffectDefinition>(x =>
             x != null && x.Type == ResearchEffectType.BuildingProductionMultiplier &&
             x.Building != null && x.Building.Id == "ChemicalPlant" &&
-            x.Value.ToDouble() >= 1.25d));
+            x.NumericValue.ToDouble() >= 1.25d));
 
         WorkshopUpgrade blasting =
             Resources.Load<WorkshopUpgrade>("Datas/Workshop/ControlledBlasting");
@@ -168,7 +168,7 @@ public class IndustrialWorkshopAvailabilityTests
             Assert.That(blasting.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
                 x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 x.Building != null && x.Building.Id == buildingId &&
-                x.Value.ToDouble() >= 1.15d), buildingId);
+            x.NumericValue.ToDouble() >= 1.15d), buildingId);
     }
 
     [Test]

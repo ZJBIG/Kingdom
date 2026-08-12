@@ -144,6 +144,23 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
+    public void DefinitionEffectValues_UseEditableStringsAndRuntimeNumericViews()
+    {
+        Assert.That(
+            typeof(ResearchEffectDefinition).GetProperty(nameof(ResearchEffectDefinition.Value)).PropertyType,
+            Is.EqualTo(typeof(string)));
+        Assert.That(
+            typeof(WorkshopEffectDefinition).GetProperty(nameof(WorkshopEffectDefinition.Value)).PropertyType,
+            Is.EqualTo(typeof(string)));
+        Assert.That(
+            typeof(ResearchEffectDefinition).GetProperty(nameof(ResearchEffectDefinition.NumericValue)).PropertyType,
+            Is.EqualTo(typeof(ExpantaNum)));
+        Assert.That(
+            typeof(WorkshopEffectDefinition).GetProperty(nameof(WorkshopEffectDefinition.NumericValue)).PropertyType,
+            Is.EqualTo(typeof(ExpantaNum)));
+    }
+
+    [Test]
     public void 已完成医学研究会进入建筑管理器的人口实际生产力()
     {
         GameManager gameManager = CreateManager<GameManager>("医学生产力-游戏管理器");

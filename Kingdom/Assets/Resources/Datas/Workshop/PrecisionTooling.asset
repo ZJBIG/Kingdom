@@ -34,4 +34,4 @@ MonoBehaviour:
   - Type: 0
     Building: {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
     Resource: {fileID: 0}
-    value: "1.2"
+    value: "1.25"

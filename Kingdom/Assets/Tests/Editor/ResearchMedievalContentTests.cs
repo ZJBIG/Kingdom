@@ -68,7 +68,7 @@ public sealed class ResearchMedievalContentTests
             industrialization.Effects,
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
                 effect.Type == ResearchEffectType.ProductivityGranted &&
-                effect.Value == new ExpantaNum(800)));
+                effect.NumericValue == new ExpantaNum(800)));
     }
 
     [Test]

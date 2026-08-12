@@ -2977,6 +2977,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     }
 
     public static implicit operator ExpantaNum(string value) => Parse(value);
+    public static implicit operator string(ExpantaNum value) => value.ToString();
     public static implicit operator ExpantaNum(double value) => new ExpantaNum(value);
     public static implicit operator ExpantaNum(float value) => new ExpantaNum(value);
     public static implicit operator ExpantaNum(int value) => new ExpantaNum(value);

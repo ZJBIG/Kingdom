@@ -66,17 +66,19 @@ public sealed class WorkshopEffectDefinition
     public Resource Resource;
     [SerializeField] private string value = "1";
 
-    public ExpantaNum Value
+    public string Value
     {
         get => value;
-        set => this.value = value.ToString();
+        set => this.value = value ?? "0";
     }
+
+    public ExpantaNum NumericValue => value;
 
     internal void ApplyTo(ProgressionModifierState modifiers)
     {
         if (modifiers == null)
             return;
-        ExpantaNum numericValue = Value;
+        ExpantaNum numericValue = NumericValue;
         ExpantaNum multiplier = numericValue > ExpantaNum.Zero && !numericValue.IsNaN ? numericValue : ExpantaNum.One;
         switch (Type)
         {

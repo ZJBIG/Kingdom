@@ -126,3 +126,9 @@ public static class Tool
         return description;
     }
 }
+
+public static class ExpantaNumStringExtensions
+{
+    public static double ToDouble(this string value) =>
+        string.IsNullOrWhiteSpace(value) ? 0d : new ExpantaNum(value).ToDouble();
+}

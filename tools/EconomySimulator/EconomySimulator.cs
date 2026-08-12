@@ -57,6 +57,8 @@ public sealed class SimulationState
     public readonly HashSet<string> PurchasedWorkshop = new(StringComparer.OrdinalIgnoreCase);
     public readonly List<SimulationEvent> Events=new();
     public readonly List<SimulationDecision> Decisions = new();
+    private readonly Dictionary<string,int> LastDecisionIndex =
+        new(StringComparer.OrdinalIgnoreCase);
     public readonly List<TimelineSnapshot> Timeline=new();
     public readonly Dictionary<string,double> EraReachedSeconds=new(StringComparer.OrdinalIgnoreCase){["Animal"]=0};
     public readonly Dictionary<string,double> Minimums=new(StringComparer.OrdinalIgnoreCase);
@@ -64,10 +66,23 @@ public sealed class SimulationState
     public double ProductivityWaitingSeconds, CurrentProductivityWaitingSeconds;
     public double MaximumProductivityWaitingSeconds, ZeroSeconds;
     public double LastActionSeconds, MaximumNoActionSeconds;
+    public double LastResearchDecisionSeconds = double.NegativeInfinity;
+    public double LastBuildingDecisionSeconds = double.NegativeInfinity;
+    public double LastWorkshopDecisionSeconds = double.NegativeInfinity;
+    public int DefinitionRevision;
+    public int CachedBuildingRevision = -1;
+    public Definition[]? CachedBuildingCandidates;
+    public int CachedWorkshopRevision = -1;
+    public Definition[]? CachedWorkshopCandidates;
+    public bool UpgradePairsInitialized;
+    public readonly List<(Definition Source, Definition Target)> UpgradePairs = new();
     public ResearchTask? ActiveResearch;
 
     public void MarkAction(string kind, string id)
     {
+        if (kind is "ResearchCompleted" or "WorkshopPurchased" or
+            "BuildingCompleted" or "BuildingUpgrade")
+            DefinitionRevision++;
         MaximumNoActionSeconds = Math.Max(MaximumNoActionSeconds, Seconds - LastActionSeconds);
         LastActionSeconds = Seconds;
         Events.Add(new SimulationEvent
@@ -79,6 +94,14 @@ public sealed class SimulationState
         });
     }
 
+    public bool ShouldDecide(ref double lastDecisionSeconds, int intervalSeconds)
+    {
+        if (Seconds + 1e-9d < lastDecisionSeconds + intervalSeconds)
+            return false;
+        lastDecisionSeconds = Seconds;
+        return true;
+    }
+
     public void TraceDecision(
         Route route,
         string subsystem,
@@ -86,8 +109,14 @@ public sealed class SimulationState
         string candidate,
         string reason)
     {
-        SimulationDecision? previous = Decisions.LastOrDefault(x =>
-            x.Route == route && x.Subsystem == subsystem);
+        SimulationDecision? previous = null;
+        if (LastDecisionIndex.TryGetValue(subsystem, out int previousIndex) &&
+            previousIndex >= 0 && previousIndex < Decisions.Count)
+        {
+            SimulationDecision previousDecision = Decisions[previousIndex];
+            if (previousDecision.Route == route)
+                previous = previousDecision;
+        }
         if (previous != null && previous.Outcome == outcome &&
             previous.Candidate == candidate && previous.Reason == reason)
         {
@@ -105,6 +134,7 @@ public sealed class SimulationState
             Candidate = candidate,
             Reason = reason
         });
+        LastDecisionIndex[subsystem] = Decisions.Count - 1;
     }
 }
 public sealed class BalanceWarning { public string Type="", Object="", Reason="", Severity="", Suggestion=""; }
@@ -117,7 +147,24 @@ public sealed class SimulationResult
 public static class EconomySimulator
 {
     public const double TickSeconds=1d;
-    public const double DefaultHorizonSeconds=24d*60d*60d;
+    public const double MedievalStepSeconds=10d;
+    public const double IndustrialStepSeconds=60d;
+    public const double SpacerStepSeconds=120d;
+    public const double UltraStepSeconds=180d;
+    public const double ArchotechStepSeconds=300d;
+    public const int DefaultHorizonDays=30;
+    public const double DefaultHorizonSeconds=DefaultHorizonDays*24d*60d*60d;
+    public const int ReportSnapshotIntervalSeconds=600;
+
+    public static double StepSeconds(SimTechLevel techLevel) => techLevel switch
+    {
+        SimTechLevel.Industrial => IndustrialStepSeconds,
+        SimTechLevel.Spacer => SpacerStepSeconds,
+        SimTechLevel.Ultra => UltraStepSeconds,
+        SimTechLevel.Archotech => ArchotechStepSeconds,
+        SimTechLevel.Medieval => MedievalStepSeconds,
+        _ => TickSeconds
+    };
     public static int Main(string[] args)
     {
         string root=FindRoot(args.Length>0 && args[0] != "--self-test"
@@ -161,22 +208,38 @@ public static class EconomySimulator
         var r=new SimulationResult(s,strategy.Route);
         IReadOnlyList<Definition> b=snapshot.Buildings;
         IReadOnlyList<Definition> q=snapshot.Research;
-        long totalTicks=(long)Math.Ceiling(horizon/TickSeconds);
-        for(long tick=0;tick<=totalTicks;tick++)
+        var activeBuildings=new List<Definition>();
+        int activeBuildingsRevision = -1;
+        while(s.Seconds<=horizon+1e-9)
         {
-            s.Tick=tick;
-            s.Seconds=tick*TickSeconds;
-            ResourceSimulator.Tick(s,b,snapshot.All,TickSeconds);
-            ResearchSimulator.Tick(s,q,snapshot.All,TickSeconds);
+            s.Tick=(long)Math.Round(s.Seconds);
+            double stepSeconds=Math.Min(StepSeconds(s.TechLevel),
+                Math.Max(0d,horizon-s.Seconds));
+            ResourceSimulator.Tick(s,activeBuildings,snapshot.All,stepSeconds);
+            ResearchSimulator.Tick(s,q,snapshot.All,stepSeconds,activeBuildings);
+            if (s.Resources.Any(x => !double.IsFinite(x.Value)))
+                throw new InvalidOperationException(
+                    $"模拟在 {s.Seconds:0.###} 秒产生非有限资源值：" +
+                    string.Join(",", s.Resources.Where(x => !double.IsFinite(x.Value))
+                        .Select(x => x.Key)));
             WorkshopSimulator.Decide(s,snapshot,strategy);
             BuildingSimulator.Decide(s,snapshot,strategy);
+            if (activeBuildingsRevision != s.DefinitionRevision)
+            {
+                RefreshActiveBuildings(s,b,activeBuildings);
+                activeBuildingsRevision = s.DefinitionRevision;
+            }
             ResearchSimulator.TrySelect(s,snapshot,strategy);
-            if(tick%(long)(60d/TickSeconds)==0)
-                Snapshot(s,b,snapshot.All);
+            if(s.Tick % ReportSnapshotIntervalSeconds == 0)
+                Snapshot(s,activeBuildings,snapshot.All);
+            if(stepSeconds<=0d)
+                break;
+            s.Seconds+=stepSeconds;
         }
         s.MaximumNoActionSeconds=Math.Max(s.MaximumNoActionSeconds,s.Seconds-s.LastActionSeconds);
         BalanceAnalysis.Analyze(r,snapshot.All,b,q);
-        r.Notes.Add("Internal clock: fixed one-second ticks; reports aggregate to minutes.");
+        r.Notes.Add($"Internal clock: one-second Animal/Neolithic ticks, ten-second Medieval ticks, sixty-second Industrial ticks, one-hundred-twenty-second Spacer ticks, one-hundred-eighty-second Ultra ticks and three-hundred-second Archotech ticks; rates remain per-second. Observation horizon is {DefaultHorizonDays} days; reports sample every {ReportSnapshotIntervalSeconds / 60} minutes.");
+        r.Notes.Add("The standalone double-based simulator saturates only at double.MaxValue to prevent overflow from becoming NaN; this is not a gameplay stockpile cap.");
         r.Notes.Add("Research waits until its complete resource cost can be paid atomically, matching ResearchManager.");
         r.Notes.Add("Workshop unlocks, prerequisites, costs and effects are simulated.");
         r.Notes.Add("Research speed is ResearchPower x global multiplier x runtime era effect.");
@@ -210,6 +273,17 @@ public static class EconomySimulator
             ,WorkshopPurchased=string.Join(";",s.PurchasedWorkshop.OrderBy(
                 x=>x,StringComparer.OrdinalIgnoreCase))
         });
+    }
+
+    private static void RefreshActiveBuildings(
+        SimulationState state,
+        IReadOnlyList<Definition> definitions,
+        List<Definition> active)
+    {
+        active.Clear();
+        foreach (Definition definition in definitions)
+            if (state.Buildings.GetValueOrDefault(definition.Id) > 0)
+                active.Add(definition);
     }
     private static string FindRoot(string c){string p=Path.GetFullPath(c);while(Directory.Exists(p)){if(Directory.Exists(Path.Combine(p,"Kingdom","Assets","Resources","Datas")))return p;var d=Directory.GetParent(p);if(d==null)break;p=d.FullName;}throw new DirectoryNotFoundException("Kingdom root not found from "+c);}
 }

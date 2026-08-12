@@ -16,6 +16,14 @@ public static class SimulatorSelfTests
         VerifyDefinitionReferenceKinds(snapshot);
         VerifyPopulationProductivityParity();
         VerifyResourceRatesUseSeconds();
+        VerifyAdaptiveStepsPreserveRates();
+        VerifyAdaptiveStepSchedule();
+        VerifyDecisionIntervalsUseElapsedSeconds();
+        VerifyLongObservationHorizon();
+        VerifyDoubleOverflowDoesNotBecomeNaN();
+        VerifyActiveBuildingCacheParity(snapshot);
+        VerifyUpgradePairs(snapshot);
+        VerifyExtremeConsumptionEfficiency();
 
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
@@ -361,7 +369,10 @@ public static class SimulatorSelfTests
         Definition orbitalStation =
             snapshot.Find("OrbitalStation", DefinitionKind.Building);
         Require(orbitalStation.SpaceCost >= 420d &&
-                orbitalStation.ProductivityConsumption >= 520d &&
+                orbitalStation.ProductivityConsumption >= 600d &&
+                orbitalStation.ProductivityGranted == 0d &&
+                orbitalStation.ResearchPower >= 100d &&
+                orbitalStation.LogisticsProduction >= 80d &&
                 orbitalStation.PowerConsumption >= 80d &&
                 orbitalStation.LogisticsConsumption >= 18d &&
                 orbitalStation.Consumption.TryGetValue("TitaniumAlloy", out double stationTitaniumMaintenance) &&
@@ -423,6 +434,141 @@ public static class SimulatorSelfTests
         ResourceSimulator.Tick(state, new[] { producer }, new[] { producer }, 1d);
         Require(Math.Abs(state.Resources.GetValueOrDefault("RateContractResource") - 2d) < 1e-9,
             "资源生产率必须按每秒结算，不能按每分钟结算。");
+    }
+
+    private static void VerifyAdaptiveStepSchedule()
+    {
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Animal)-1d)<1e-9d,
+            "低阶模拟步长必须保持一秒。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Medieval)-10d)<1e-9d,
+            "中世纪长等待段应使用十秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Industrial)-60d)<1e-9d,
+            "工业时代应使用六十秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Spacer)-120d)<1e-9d,
+            "太空时代应使用一百二十秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Ultra)-180d)<1e-9d,
+            "Ultra时代应使用一百八十秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Archotech)-300d)<1e-9d,
+            "Archotech时代应使用三百秒模拟步长。 ");
+    }
+
+    private static void VerifyAdaptiveStepsPreserveRates()
+    {
+        foreach (double seconds in new[]
+                 {
+                     EconomySimulator.IndustrialStepSeconds,
+                     EconomySimulator.SpacerStepSeconds,
+                     EconomySimulator.UltraStepSeconds,
+                     EconomySimulator.ArchotechStepSeconds
+                 })
+        {
+            Definition producer = new()
+            {
+                Id = $"AdaptiveRateProducer{seconds:0}",
+                Kind = DefinitionKind.Building,
+                FoodConsumption = 5d
+            };
+            producer.Generation["WoodLog"] = 2d;
+            SimulationState state = new();
+            state.Buildings[producer.Id] = 1;
+            ResourceSimulator.Tick(state, new[] { producer },
+                new[] { producer }, seconds);
+            double expected = 3d * seconds;
+            double actual = state.Resources.GetValueOrDefault("WoodLog");
+            Require(Math.Abs(actual - expected) < 1e-9,
+                $"高阶步长 {seconds:0} 秒破坏了资源每秒结算契约：实际 {actual:0.###}，预期 {expected:0.###}。");
+        }
+    }
+
+    private static void VerifyDecisionIntervalsUseElapsedSeconds()
+    {
+        SimulationState state = new();
+        double lastDecision = double.NegativeInfinity;
+        Require(state.ShouldDecide(ref lastDecision, 45),
+            "第一次模拟决策必须立即执行。");
+        state.Seconds = 60d;
+        Require(state.ShouldDecide(ref lastDecision, 45),
+            "跨过决策间隔的长步长必须执行一次决策。");
+        state.Seconds = 100d;
+        Require(!state.ShouldDecide(ref lastDecision, 45),
+            "未达到下一次决策间隔时不应重复决策。");
+        state.Seconds = 105d;
+        Require(state.ShouldDecide(ref lastDecision, 45),
+            "经过完整决策间隔后必须再次决策。");
+    }
+
+    private static void VerifyLongObservationHorizon()
+    {
+        Require(EconomySimulator.DefaultHorizonDays >= 30,
+            "高阶经济模拟的上线观察窗口必须至少覆盖三十天。 ");
+        Require(Math.Abs(EconomySimulator.DefaultHorizonSeconds -
+                EconomySimulator.DefaultHorizonDays * 24d * 60d * 60d) < 1e-9d,
+            "上线观察窗口的天数与秒数必须保持一致。 ");
+    }
+
+    private static void VerifyDoubleOverflowDoesNotBecomeNaN()
+    {
+        var resources = new Dictionary<string, double>();
+        ResourceSimulator.Add(resources, "OverflowProbe", double.MaxValue);
+        ResourceSimulator.Add(resources, "OverflowProbe", double.MaxValue);
+        Require(resources["OverflowProbe"] == double.MaxValue,
+            "模拟器资源溢出必须饱和，不能产生 Infinity。 ");
+        ResourceSimulator.Add(resources, "OverflowProbe", -1d);
+        Require(double.IsFinite(resources["OverflowProbe"]) &&
+                resources["OverflowProbe"] == double.MaxValue,
+            "饱和资源继续扣除时不能传播 NaN。 ");
+    }
+
+    private static void VerifyActiveBuildingCacheParity(EconomySnapshot snapshot)
+    {
+        var state = new SimulationState();
+        Definition? first = snapshot.Buildings.FirstOrDefault(x =>
+            x.Generation.Count > 0 || x.FoodProduction > 0d);
+        Require(first != null, "必须存在可用于活跃建筑缓存测试的生产建筑。 ");
+        state.Buildings[first!.Id] = 1;
+        var active = snapshot.Buildings.Where(x =>
+            state.Buildings.GetValueOrDefault(x.Id) > 0).ToArray();
+        ResourceSimulator.Tick(state, active, snapshot.All, 60d);
+        Require(state.Resources.Values.All(double.IsFinite),
+            "活跃建筑缓存结算不得产生非有限资源值。 ");
+    }
+
+    private static void VerifyUpgradePairs(EconomySnapshot snapshot)
+    {
+        SimulationState state = new();
+        var byId = snapshot.Buildings.ToDictionary(x => x.Id,
+            StringComparer.OrdinalIgnoreCase);
+        foreach (Definition source in snapshot.Buildings.Where(x =>
+                     !string.IsNullOrEmpty(x.UpgradeTo)))
+        {
+            Require(byId.ContainsKey(source.UpgradeTo),
+                $"建筑升级目标不存在：{source.Id}->{source.UpgradeTo}。 ");
+            state.UpgradePairs.Add((source, byId[source.UpgradeTo]));
+        }
+        Require(state.UpgradePairs.Count > 0 &&
+                state.UpgradePairs.All(x =>
+                    string.Equals(x.Source.UpgradeTo, x.Target.Id,
+                        StringComparison.OrdinalIgnoreCase)),
+            "建筑升级边缓存必须保留所有有效升级目标。 ");
+    }
+
+    private static void VerifyExtremeConsumptionEfficiency()
+    {
+        Definition definition = new()
+        {
+            Id = "ExtremeConsumptionProbe",
+            Kind = DefinitionKind.Building,
+            FoodConsumption = 1d
+        };
+        definition.Consumption["CrudeOil"] = double.MaxValue;
+        definition.Generation["Electronics"] = 1d;
+        SimulationState state = new();
+        state.Buildings[definition.Id] = 2;
+        state.Resources["CrudeOil"] = double.MaxValue;
+        ResourceSimulator.Tick(state, new[] { definition },
+            new[] { definition }, 300d);
+        Require(state.Resources.Values.All(double.IsFinite),
+            "极大资源需求在长步长下不得产生 NaN 或 Infinity。 ");
     }
 
     private static void VerifyAtomicResearchPayment()

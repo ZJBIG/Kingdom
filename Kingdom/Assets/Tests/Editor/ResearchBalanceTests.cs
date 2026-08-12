@@ -357,7 +357,7 @@ public sealed class ResearchBalanceTests
         Assert.That(theory.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
-            effect.Value == new ExpantaNum("1.5")));
+            effect.NumericValue == new ExpantaNum("1.5")));
     }
 
     [Test]
@@ -478,7 +478,7 @@ public sealed class ResearchBalanceTests
                 effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 effect.Building != null &&
                 effect.Building.Id == "MetalSmelter" &&
-                effect.Value.ToDouble() >= 1.25d)
+                effect.NumericValue.ToDouble() >= 1.25d)
             {
                 found = true;
                 break;
@@ -577,7 +577,7 @@ public sealed class ResearchBalanceTests
         {
             ResearchEffectDefinition effect = research.Effects[i];
             if (effect != null && effect.Type == type &&
-                effect.Value.ToDouble() == value)
+                effect.NumericValue.ToDouble() == value)
                 return true;
         }
         return false;
@@ -589,7 +589,7 @@ public sealed class ResearchBalanceTests
         {
             ResearchEffectDefinition effect = research.Effects[i];
             if (effect != null && effect.Type == ResearchEffectType.PopulationProductivityMultiplier)
-                return effect.Value.ToDouble();
+                return effect.NumericValue.ToDouble();
         }
 
         return 0d;
@@ -605,7 +605,7 @@ public sealed class ResearchBalanceTests
         {
             ResearchEffectDefinition effect = research.Effects[i];
             if (effect != null && effect.Type == type &&
-                effect.Value.ToDouble() == value &&
+                effect.NumericValue.ToDouble() == value &&
                 effect.Building != null &&
                 effect.Building.Id == buildingId)
                 return true;
@@ -625,7 +625,7 @@ public sealed class ResearchBalanceTests
         {
             ResearchEffectDefinition effect = research.Effects[i];
             if (effect != null && effect.Type == type &&
-                effect.Value.ToDouble() == value &&
+                effect.NumericValue.ToDouble() == value &&
                 effect.Resource != null && effect.Resource.Id == resourceId)
                 return true;
         }

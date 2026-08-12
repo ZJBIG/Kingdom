@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "种植田"
   Description: "将纤维作物与粮食作物纳入轮作、灌溉和机械化种植体系，同时稳定产出食物与生物质，为工业城市和轨道居住设施提供长期农业供给。"
   TechLevel: 3
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 7a4b2c1d9e8f6071528394a5b6c7d8e9, type: 2}
   costGrowth: "1.2"
   spaceCost: "16"
   productivityConsumption: "55"

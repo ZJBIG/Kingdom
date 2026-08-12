@@ -105,6 +105,39 @@ public sealed class SpaceProgressionTests
     }
 
     [Test]
+    public void 高级材料研究与工坊必须先经过对应理论研究()
+    {
+        Research phantomMaterials = DataBase<Research>.Find("PhantomMaterials");
+        Research phaseMaterialEngineering = DataBase<Research>.Find("PhaseMaterialEngineering");
+        Research[] spacerResearch = DataBase<Research>.All
+            .Where(research => research != null && research.TechLevel == TechLevel.Spacer)
+            .ToArray();
+        WorkshopUpgrade[] spacerWorkshops = DataBase<WorkshopUpgrade>.All
+            .Where(workshop => workshop != null && workshop.TechLevel == TechLevel.Spacer)
+            .ToArray();
+
+        for (int i = 0; i < spacerResearch.Length; i++)
+        {
+            Research research = spacerResearch[i];
+            if (HasResourceRequirement(research, "PhaseMaterial"))
+                Assert.That(HasPrerequisite(research, phaseMaterialEngineering.Id), Is.True, research.Id);
+            if (HasResourceRequirement(research, "PhantomAlloy") ||
+                HasResourceRequirement(research, "PhantomWeave"))
+                Assert.That(HasPrerequisite(research, phantomMaterials.Id), Is.True, research.Id);
+        }
+
+        for (int i = 0; i < spacerWorkshops.Length; i++)
+        {
+            WorkshopUpgrade workshop = spacerWorkshops[i];
+            if (HasWorkshopResourceRequirement(workshop, "PhaseMaterial"))
+                Assert.That(HasWorkshopResearch(workshop, phaseMaterialEngineering.Id), Is.True, workshop.Id);
+            if (HasWorkshopResourceRequirement(workshop, "PhantomAlloy") ||
+                HasWorkshopResourceRequirement(workshop, "PhantomWeave"))
+                Assert.That(HasWorkshopResearch(workshop, phantomMaterials.Id), Is.True, workshop.Id);
+        }
+    }
+
+    [Test]
     public void SpacerResearchGraphMustRetainMeaningfulBranches()
     {
         Research[] spacerResearch = DataBase<Research>.All
@@ -170,6 +203,56 @@ public sealed class SpaceProgressionTests
         Assert.That(forestryEquipment.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
             effect != null && effect.Building == forestryArray &&
             effect.Type == WorkshopEffectType.BuildingProductionMultiplier));
+    }
+
+    [Test]
+    public void 每个太空建筑都必须使用高级结构材料建造并持续维护()
+    {
+        Building[] spacerBuildings = DataBase<Building>.All
+            .Where(building => building != null && building.TechLevel == TechLevel.Spacer)
+            .ToArray();
+
+        Assert.That(spacerBuildings.Length, Is.GreaterThanOrEqualTo(17));
+        string[] structuralMaterials =
+        {
+            "TitaniumAlloy",
+            "Composite",
+            "PhantomAlloy",
+            "PhantomWeave",
+            "PhaseMaterial"
+        };
+
+        for (int i = 0; i < spacerBuildings.Length; i++)
+        {
+            Building building = spacerBuildings[i];
+            bool hasStructuralConstruction = structuralMaterials.Any(resourceId =>
+                HasBuildingResourceRequirement(building.Id, resourceId));
+            bool hasStructuralMaintenance = structuralMaterials.Any(resourceId =>
+                HasBuildingResourceConsumption(building.Id, resourceId));
+
+            Assert.That(hasStructuralConstruction, Is.True,
+                $"太空建筑 {building.Id} 缺少高级结构材料建造成本。");
+            Assert.That(hasStructuralMaintenance, Is.True,
+                $"太空建筑 {building.Id} 缺少高级结构材料持续维护消耗。");
+        }
+    }
+
+    [Test]
+    public void OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance()
+    {
+        Building forestry = DataBase<Building>.Find("OrbitalForestryHarvestingArray");
+        Building carbonization = DataBase<Building>.Find("OrbitalCarbonizationComplex");
+
+        Assert.That(forestry, Is.Not.Null);
+        Assert.That(carbonization, Is.Not.Null);
+        Assert.That(HasBuildingResourceConsumption("OrbitalForestryHarvestingArray", "TitaniumAlloy"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalForestryHarvestingArray", "Composite"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalCarbonizationComplex", "TitaniumAlloy"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalCarbonizationComplex", "Composite"), Is.True);
+        Assert.That(GetBuildingResourceConsumption("OrbitalForestryHarvestingArray", "TitaniumAlloy"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(GetBuildingResourceConsumption("OrbitalCarbonizationComplex", "Composite"),
+            Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -435,11 +518,11 @@ public sealed class SpaceProgressionTests
         Assert.That(theory.Effects.Any(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.CampaignSupplyCostMultiplier &&
-            effect.Value <= new ExpantaNum(0.9d)), Is.True);
+            effect.NumericValue <= new ExpantaNum(0.9d)), Is.True);
         Assert.That(modules.Effects.Any(effect =>
             effect != null &&
             effect.Type == WorkshopEffectType.CampaignSupplyCostMultiplier &&
-            effect.Value <= new ExpantaNum(0.9d)), Is.True);
+            effect.NumericValue <= new ExpantaNum(0.9d)), Is.True);
         Assert.That(HasPrerequisite(theory, "InterstellarLogisticsDoctrine"), Is.True);
         Assert.That(HasPrerequisite(theory, "InterstellarCombatLogistics"), Is.True);
         Assert.That(modules.RequiredResearch.Any(research => research != null &&
@@ -472,10 +555,10 @@ public sealed class SpaceProgressionTests
         Assert.That(systems, Is.Not.Null);
         Assert.That(theory.Effects.Any(effect => effect != null &&
             effect.Type == ResearchEffectType.CampaignCasualtyMultiplier &&
-            effect.Value <= new ExpantaNum(0.9d)), Is.True);
+            effect.NumericValue <= new ExpantaNum(0.9d)), Is.True);
         Assert.That(systems.Effects.Any(effect => effect != null &&
             effect.Type == WorkshopEffectType.CampaignCasualtyMultiplier &&
-            effect.Value <= new ExpantaNum(0.9d)), Is.True);
+            effect.NumericValue <= new ExpantaNum(0.9d)), Is.True);
         Assert.That(HasPrerequisite(theory, "InterstellarCombatLogistics"), Is.True);
         Assert.That(systems.RequiredResearch.Any(research => research != null &&
             research.Id == "FleetDamageControlTheory"), Is.True);
@@ -513,6 +596,7 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "TitaniumConcentrate") * 8d));
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Explosives"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Lubricant"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Composite"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Concrete"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Machinery"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Electronics"), Is.True);
@@ -689,7 +773,7 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindRate(retort.ResourceGenerationRates, "Coke"),
             Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "Coal"),
+        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "CrudeOil"),
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "Coke"),
             Is.GreaterThan(ExpantaNum.Zero));
@@ -771,7 +855,7 @@ public sealed class SpaceProgressionTests
         Assert.That(assembly, Is.Not.Null);
         Assert.That(shipyard.RequiredWorkshopUpgrades, Does.Contain(assembly));
         Assert.That(assembly.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Building == shipyard && effect.Value.ToDouble() > 1d));
+            effect != null && effect.Building == shipyard && effect.NumericValue.ToDouble() > 1d));
     }
 
     [Test]
@@ -784,7 +868,7 @@ public sealed class SpaceProgressionTests
         Assert.That(logistics, Is.Not.Null);
         Assert.That(hub.RequiredWorkshopUpgrades, Does.Contain(logistics));
         Assert.That(logistics.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Building == hub && effect.Value.ToDouble() > 1d));
+            effect != null && effect.Building == hub && effect.NumericValue.ToDouble() > 1d));
     }
 
     [Test]
@@ -864,20 +948,31 @@ public sealed class SpaceProgressionTests
     }
 
     [Test]
-    public void OrbitalEcologyUsesPlantingFieldForFoodAndBiomassWithoutFoodCapacity()
+    public void OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity()
     {
         Building plantingField = DataBase<Building>.Find("PlantingField");
+        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
         Building station = DataBase<Building>.Find("OrbitalStation");
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
         Research agroecology = DataBase<Research>.Find("OrbitalAgroecology");
         WorkshopUpgrade agroponics = DataBase<WorkshopUpgrade>.Find("OrbitalAgroponicSystems");
 
         Assert.That(plantingField, Is.Not.Null);
+        Assert.That(agroecologyArray, Is.Not.Null);
         Assert.That(station, Is.Not.Null);
         Assert.That(habitat, Is.Not.Null);
         Assert.That(agroecology, Is.Not.Null);
         Assert.That(agroponics, Is.Not.Null);
         Assert.That(plantingField.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(plantingField.UpgradeTo, Is.EqualTo(agroecologyArray));
+        Assert.That(agroecologyArray.FoodProductionRate, Is.EqualTo(new ExpantaNum(720d)));
+        Assert.That(FindRate(agroecologyArray.ResourceGenerationRates, "Biomass"),
+            Is.EqualTo(180d).Within(0.000001d));
+        Assert.That(agroecologyArray.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(agroecologyArray.PowerConsumptionRate, Is.EqualTo(new ExpantaNum(210d)));
+        Assert.That(agroecologyArray.LogisticsConsumptionRate, Is.EqualTo(new ExpantaNum(36d)));
+        Assert.That(agroecologyArray.RequiredResearch, Does.Contain(agroecology));
+        Assert.That(agroecologyArray.RequiredWorkshopUpgrades, Does.Contain(agroponics));
         Assert.That(FindRate(plantingField.ResourceGenerationRates, "Biomass"),
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(plantingField.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
@@ -903,10 +998,16 @@ public sealed class SpaceProgressionTests
         Assert.That(station, Is.Not.Null);
         Assert.That(station.SpaceCost.ToDouble(), Is.GreaterThanOrEqualTo(420d));
         Assert.That(station.ProductivityConsumption.ToDouble(), Is.GreaterThanOrEqualTo(520d));
+        Assert.That(station.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(station.ResearchPowerGranted, Is.EqualTo(new ExpantaNum(120)));
+        Assert.That(station.LogisticsProductionRate, Is.EqualTo(new ExpantaNum(90)));
+        Assert.That(station.FleetPowerGranted, Is.EqualTo(new ExpantaNum(70)));
+        Assert.That(station.DefensePowerGranted, Is.EqualTo(new ExpantaNum(100)));
         Assert.That(station.PowerConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(80d));
         Assert.That(station.LogisticsConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(18d));
         Assert.That(HasBuildingResourceConsumption("OrbitalStation", "TitaniumAlloy"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalStation", "PhantomWeave"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalStation", "PhaseMaterial"), Is.True);
         Assert.That(HasBuildingResourceRequirement("OrbitalStation", "Biomass"), Is.True);
         Assert.That(GetBuildingResourceRequirement("OrbitalStation", "PhaseMaterial"),
             Is.GreaterThanOrEqualTo(new ExpantaNum(600)));
@@ -930,6 +1031,24 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(GetBuildingResourceConsumption("OrbitalStation", "TitaniumAlloy") * 20d));
         Assert.That(GetBuildingResourceRequirement("OrbitalStation", "Biomass"),
             Is.GreaterThan(GetBuildingResourceRequirement("OrbitalStation", "TitaniumAlloy") * 4d));
+    }
+
+    [Test]
+    public void ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration()
+    {
+        Building university = DataBase<Building>.Find("University");
+        Building observatory = DataBase<Building>.Find("DeepSpaceObservatory");
+        Building quantum = DataBase<Building>.Find("QuantumComputingArray");
+
+        Assert.That(university, Is.Not.Null);
+        Assert.That(observatory, Is.Not.Null);
+        Assert.That(quantum, Is.Not.Null);
+        Assert.That(university.UpgradeTo, Is.EqualTo(quantum));
+        Assert.That(observatory.UpgradeTo, Is.Null);
+        Assert.That(quantum.ResearchPowerGranted, Is.GreaterThan(observatory.ResearchPowerGranted));
+        Assert.That(observatory.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(observatory.AttackPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(observatory.DefensePowerGranted, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -965,9 +1084,9 @@ public sealed class SpaceProgressionTests
             .Second;
         ExpantaNum clothPreparationSeconds =
             GetBuildingResourceRequirement("OrbitalStation", "Cloth") /
-            (clothRate * loomEffect.Value);
+            (clothRate * loomEffect.NumericValue);
 
-        Assert.That(loomEffect.Value, Is.GreaterThanOrEqualTo(new ExpantaNum(1.5d)));
+        Assert.That(loomEffect.NumericValue, Is.GreaterThanOrEqualTo(new ExpantaNum(1.5d)));
         Assert.That(clothPreparationSeconds, Is.LessThanOrEqualTo(new ExpantaNum(4000d)));
     }
 
@@ -1090,6 +1209,8 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("OrbitalSolarArray", "CopperWire"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalSolarArray", "Electronics"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalSolarArray", "Glass"), Is.True);
+        Assert.That(HasBuildingResourceRequirement("LaunchCenter", "Composite"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("LaunchCenter", "Composite"), Is.True);
         Assert.That(
             GetBuildingResourceConsumption("OrbitalSolarArray", "Electronics"),
             Is.EqualTo(0.08d).Within(0.000001d));
@@ -1203,6 +1324,11 @@ public sealed class SpaceProgressionTests
         Assert.That(HasWorkshopResourceRequirement(automation, "Rubber"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(automation, "Lubricant"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(combat, "Nickel"), Is.True);
+        Assert.That(HasWorkshopResourceRequirement(standardization, "TitaniumAlloy"), Is.True);
+        Assert.That(HasWorkshopResourceRequirement(standardization, "PhantomAlloy"), Is.True);
+        Assert.That(HasWorkshopResourceRequirement(standardization, "PhantomWeave"), Is.True);
+        Assert.That(HasWorkshopResourceRequirement(standardization, "PhaseMaterial"), Is.True);
+        Assert.That(GetWorkshopResourceRequirement(standardization, "PhantomAlloy"), Is.GreaterThan(1000d));
     }
 
     [Test]
@@ -1477,6 +1603,8 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("DeepSpaceObservatory", "Glass"), Is.True);
         Assert.That(HasBuildingResourceConsumption("DeepSpaceObservatory", "TitaniumAlloy"), Is.True);
         Assert.That(HasBuildingResourceConsumption("DeepSpaceObservatory", "Ceramic"), Is.True);
+        Assert.That(HasBuildingResourceRequirement("DeepSpaceObservatory", "Composite"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("DeepSpaceObservatory", "Composite"), Is.True);
         Assert.That(GetBuildingResourceRequirement("DeepSpaceObservatory", "Glass"), Is.GreaterThan(
             GetBuildingResourceRequirement("DeepSpaceObservatory", "PhantomWeave") * 5d));
         Assert.That(HasBuildingResourceConsumption("LaunchCenter", "Engine"), Is.True);
@@ -1670,6 +1798,7 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "Chemical"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "Electronics"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "TitaniumAlloy"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "Composite"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "PhantomAlloy"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCryogenicPropellantArray", "PhaseMaterial"), Is.True);
         Assert.That(ContainsResource(orbital.ResourceRequirements, "RefinedFuel"), Is.True);

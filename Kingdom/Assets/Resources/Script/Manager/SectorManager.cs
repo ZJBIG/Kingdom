@@ -133,6 +133,7 @@ public sealed class SectorExplorationPreview
         ExpantaNum currentProgress,
         ExpantaNum explorationPower,
         ExpantaNum requiredPower,
+        ExpantaNum colonizationDurationSeconds,
         ExpantaNum foodCostPerSecond,
         IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond)
     {
@@ -142,7 +143,8 @@ public sealed class SectorExplorationPreview
         CurrentProgress = currentProgress;
         ExplorationPower = explorationPower;
         RequiredPower = requiredPower;
-        ProgressPerSecond = ExpantaNum.One / 60d;
+        ExpantaNum duration = ExpantaNum.Max(ExpantaNum.One, colonizationDurationSeconds);
+        ProgressPerSecond = ExpantaNum.One / duration;
         EstimatedSecondsRemaining = ExpantaNum.Max(
             ExpantaNum.Zero,
             ExpantaNum.One - ExpantaNum.Clamp01(currentProgress)) / ProgressPerSecond;
@@ -301,6 +303,7 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
+                ExpantaNum.One,
                 ExpantaNum.Zero,
                 Array.Empty<Pair<Resource, ExpantaNum>>());
 
@@ -331,6 +334,7 @@ public sealed class SectorManager
             state.CampaignProgress,
             explorationPower,
             requiredPower,
+            definition.ColonizationDurationSeconds,
             foodCostPerSecond,
             resourceCosts);
     }

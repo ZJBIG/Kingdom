@@ -5,6 +5,186 @@ using UnityEngine;
 public sealed class SectorManagerTests
 {
     [Test]
+    public void SiriusResourceBeltUsesReadableChineseLabel()
+    {
+        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(sector, Is.Not.Null);
+        Assert.That(sector.Label, Is.EqualTo("天狼资源带"));
+        Assert.That(sector.Description, Does.Not.Contain("鍗"));
+    }
+
+    [Test]
+    public void SiriusResourceBeltRequiresTauCetiIndustrialOutpost()
+    {
+        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+
+        Assert.That(sirius, Is.Not.Null);
+        Assert.That(tau, Is.Not.Null);
+        Assert.That(sirius.PrerequisiteSectors, Does.Contain(tau));
+    }
+
+    [Test]
+    public void InterstellarSectorChainRemainsSequential()
+    {
+        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(alpha, Is.Not.Null);
+        Assert.That(proxima, Is.Not.Null);
+        Assert.That(tau, Is.Not.Null);
+        Assert.That(sirius, Is.Not.Null);
+        Assert.That(proxima.PrerequisiteSectors, Does.Contain(alpha));
+        Assert.That(tau.PrerequisiteSectors, Does.Contain(proxima));
+        Assert.That(sirius.PrerequisiteSectors, Does.Contain(tau));
+    }
+
+    [Test]
+    public void SolarSystemChainIncludesAsteroidBeltAndJovianSystemBeforeAlpha()
+    {
+        SectorDefinition mars = Resources.Load<SectorDefinition>("Datas/Sector/Mars");
+        SectorDefinition asteroid = Resources.Load<SectorDefinition>("Datas/Sector/MainAsteroidBelt");
+        SectorDefinition jovian = Resources.Load<SectorDefinition>("Datas/Sector/JovianSystem");
+        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+
+        Assert.That(mars, Is.Not.Null);
+        Assert.That(asteroid, Is.Not.Null);
+        Assert.That(jovian, Is.Not.Null);
+        Assert.That(alpha, Is.Not.Null);
+        Assert.That(asteroid.PrerequisiteSectors, Does.Contain(mars));
+        Assert.That(jovian.PrerequisiteSectors, Does.Contain(asteroid));
+        Assert.That(alpha.PrerequisiteSectors, Does.Contain(jovian));
+        Assert.That(asteroid.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
+        Assert.That(jovian.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
+        Assert.That(asteroid.EnemyPower, Is.EqualTo(new ExpantaNum(300d)));
+        Assert.That(jovian.EnemyPower, Is.EqualTo(new ExpantaNum(500d)));
+        Assert.That(asteroid.TerritoryReward, Is.EqualTo(new ExpantaNum(200000d)));
+        Assert.That(jovian.TerritoryReward, Is.EqualTo(new ExpantaNum(400000d)));
+        Assert.That(HasResourceReward(asteroid, "TitaniumConcentrate"), Is.True);
+        Assert.That(HasResourceReward(asteroid, "NickelConcentrate"), Is.True);
+        Assert.That(HasResourceReward(jovian, "RocketFuel"), Is.True);
+        Assert.That(HasResourceReward(jovian, "Nickel"), Is.True);
+        Assert.That(HasPositiveRate(asteroid.OccupiedResourceRatesPerSecond,
+            DataBase<Resource>.Find("TitaniumConcentrate")), Is.True);
+        Assert.That(HasPositiveRate(jovian.OccupiedResourceRatesPerSecond,
+            DataBase<Resource>.Find("RocketFuel")), Is.True);
+    }
+
+    [Test]
+    public void InterstellarAccessUnlocksOneOccupiedPrerequisiteAtATime()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(manager.CanAccess(proxima), Is.False);
+        Assert.That(manager.CanAccess(tau), Is.False);
+        Assert.That(manager.CanAccess(sirius), Is.False);
+
+        manager.GetState(alpha).SetOccupiedForEditor(true);
+        Assert.That(manager.CanAccess(proxima), Is.True);
+        Assert.That(manager.CanAccess(tau), Is.False);
+
+        manager.GetState(proxima).SetOccupiedForEditor(true);
+        Assert.That(manager.CanAccess(tau), Is.True);
+        Assert.That(manager.CanAccess(sirius), Is.False);
+
+        manager.GetState(tau).SetOccupiedForEditor(true);
+        Assert.That(manager.CanAccess(sirius), Is.True);
+    }
+
+    [Test]
+    public void AllSectorPrerequisitesFormAnAcyclicDefinitionGraph()
+    {
+        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
+        var marks = new Dictionary<SectorDefinition, int>();
+        for (int i = 0; i < sectors.Count; i++)
+            Assert.That(VisitSectorPrerequisites(sectors[i], marks), Is.False,
+                $"星区前置关系存在循环：{sectors[i].Id}。");
+    }
+
+    private static bool VisitSectorPrerequisites(
+        SectorDefinition sector,
+        Dictionary<SectorDefinition, int> marks)
+    {
+        if (sector == null)
+            return false;
+        if (marks.TryGetValue(sector, out int mark))
+            return mark == 1;
+
+        marks[sector] = 1;
+        IReadOnlyList<SectorDefinition> prerequisites = sector.PrerequisiteSectors;
+        if (prerequisites != null)
+        {
+            for (int i = 0; i < prerequisites.Count; i++)
+            {
+                SectorDefinition prerequisite = prerequisites[i];
+                if (prerequisite != null &&
+                    VisitSectorPrerequisites(prerequisite, marks))
+                    return true;
+            }
+        }
+
+        marks[sector] = 2;
+        return false;
+    }
+
+    [Test]
+    public void InterstellarSectorsUseCampaignSupplyInsteadOfColonization()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        GameState runtimeState = new GameState();
+        SectorDefinition[] sectors =
+        {
+            DataBase<SectorDefinition>.Find("AlphaCentauri"),
+            DataBase<SectorDefinition>.Find("ProximaB"),
+            DataBase<SectorDefinition>.Find("TauCetiFoundry"),
+            DataBase<SectorDefinition>.Find("SiriusResourceBelt")
+        };
+
+        for (int i = 0; i < sectors.Length; i++)
+        {
+            SectorDefinition sector = sectors[i];
+            Assert.That(sector.IsHomeSystem, Is.False, sector.Id);
+            Assert.That(sector.ColonizationFoodPerSecond,
+                Is.EqualTo(ExpantaNum.Zero), sector.Id);
+            Assert.That(sector.CampaignFoodPerSecond,
+                Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+            Assert.That(sector.CampaignResourceRatesPerSecond,
+                Is.Not.Empty, sector.Id);
+
+            bool advanced = manager.TryAdvanceColonization(
+                sector, 1d, runtimeState, null,
+                out SectorOperationFailure failure);
+            Assert.That(advanced, Is.False, sector.Id);
+            Assert.That(failure, Is.EqualTo(
+                SectorOperationFailure.ColonizationNotAllowedInInterstellarSystem),
+                sector.Id);
+        }
+    }
+
+    [Test]
+    public void SiriusCampaignConsumesAdvancedStructuralMaterials()
+    {
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(sirius, Is.Not.Null);
+        Assert.That(FindCampaignCost(sirius, "PhantomAlloy"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindCampaignCost(sirius, "PhantomWeave"),
+            Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindCampaignCost(sirius, "PhaseMaterial"),
+            Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
     public void 占领星区会按每秒产出资源并支持离线结算入口()
     {
         GameObject resourceObject = new GameObject("Sector-Occupied-Production-ResourceManager");
@@ -182,6 +362,8 @@ public sealed class SectorManagerTests
             Assert.That(preview.RequiredPower, Is.EqualTo(new ExpantaNum(40)));
             Assert.That(preview.EstimatedSecondsRemaining, Is.EqualTo(new ExpantaNum(600d)));
             Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.One / 600d));
+            Assert.That(preview.ProgressPerSecond * lowOrbit.ColonizationDurationSeconds,
+                Is.EqualTo(ExpantaNum.One));
         }
         finally
         {
@@ -245,6 +427,26 @@ public sealed class SectorManagerTests
         Assert.That(HasCampaignCost(sector, "Composite"), Is.True);
         Assert.That(HasCampaignCost(sector, "PhantomWeave"), Is.True);
         Assert.That(HasCampaignCost(sector, "Machinery"), Is.True);
+    }
+
+    [Test]
+    public void InterstellarTerritoryRewardsScaleWithEnemyPowerAndAdvancedSectorOutputStaysLimited()
+    {
+        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+
+        Assert.That(alpha.TerritoryReward, Is.EqualTo(new ExpantaNum(700000d)));
+        Assert.That(proxima.TerritoryReward, Is.EqualTo(new ExpantaNum(1500000d)));
+        Assert.That(tau.TerritoryReward, Is.EqualTo(new ExpantaNum(3000000d)));
+        Assert.That(sirius.TerritoryReward, Is.EqualTo(new ExpantaNum(7000000d)));
+        Assert.That(FindOccupiedResourceRate(sirius, "PhaseMaterial"),
+            Is.EqualTo(new ExpantaNum(0.02d)));
+        Assert.That(FindOccupiedResourceRate(sirius, "PhantomAlloy"),
+            Is.EqualTo(new ExpantaNum(0.12d)));
+        Assert.That(FindOccupiedResourceRate(sirius, "PhantomWeave"),
+            Is.EqualTo(new ExpantaNum(0.10d)));
     }
 
     [Test]
@@ -314,6 +516,7 @@ public sealed class SectorManagerTests
         Assert.That(FindCampaignCost(proxima, "RocketFuel"), Is.GreaterThanOrEqualTo(new ExpantaNum(160d / 60d)));
         Assert.That(FindCampaignCost(tau, "RocketFuel"), Is.GreaterThanOrEqualTo(new ExpantaNum(120d / 60d)));
         Assert.That(FindCampaignCost(sirius, "RocketFuel"), Is.GreaterThanOrEqualTo(new ExpantaNum(220d / 60d)));
+        Assert.That(FindCampaignCost(tau, "RocketFuel"), Is.GreaterThan(FindCampaignCost(proxima, "RocketFuel")));
         Assert.That(FindCampaignCost(alpha, "Engine"), Is.GreaterThanOrEqualTo(new ExpantaNum(16d / 60d)));
         Assert.That(FindCampaignCost(proxima, "Engine"), Is.GreaterThanOrEqualTo(new ExpantaNum(32d / 60d)));
         Assert.That(FindCampaignCost(tau, "Engine"), Is.GreaterThanOrEqualTo(new ExpantaNum(48d / 60d)));
@@ -551,6 +754,38 @@ public sealed class SectorManagerTests
         Assert.That(manager.OrderedStates[2].Definition.Id, Is.EqualTo("Moon"));
         Assert.That(manager.CanAccess(DataBase<SectorDefinition>.Find("LowOrbit")), Is.True);
         Assert.That(manager.CanAccess(DataBase<SectorDefinition>.Find("Moon")), Is.False);
+    }
+
+    [Test]
+    public void SiriusRequiresOccupiedTauCetiBeforeAccess()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(tau, Is.Not.Null);
+        Assert.That(sirius, Is.Not.Null);
+        Assert.That(manager.CanAccess(sirius), Is.False,
+            "Tau Ceti 未占领时不应开放天狼资源带。");
+
+        manager.GetState(tau).SetOccupiedForEditor(true);
+
+        Assert.That(manager.CanAccess(sirius), Is.True,
+            "Tau Ceti 占领后应开放天狼资源带访问。");
+    }
+
+    [Test]
+    public void SiriusUnlockReportsMissingTauCetiPrerequisite()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+
+        Assert.That(sirius, Is.Not.Null);
+        Assert.That(manager.TryUnlock(sirius, out SectorOperationFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(SectorOperationFailure.PrerequisiteNotOccupied));
+        Assert.That(manager.GetState(sirius).Unlocked, Is.False);
     }
 
     [Test]
@@ -1610,9 +1845,16 @@ public sealed class SectorManagerTests
         Assert.That(tauCetiFoundry.TerritoryReward,
             Is.LessThan(siriusResourceBelt.TerritoryReward));
 
+        ExpantaNum previousFoodRate = ExpantaNum.Zero;
         ExpantaNum previousSupplyRate = ExpantaNum.Zero;
         for (int i = 0; i < sectors.Length; i++)
         {
+            Assert.That(
+                sectors[i].CampaignFoodPerSecond,
+                Is.GreaterThan(previousFoodRate),
+                $"星际战役 {sectors[i].Id} 的 Food 消耗必须随航线递进。");
+            previousFoodRate = sectors[i].CampaignFoodPerSecond;
+
             ExpantaNum totalSupplyRate = sectors[i].CampaignFoodPerSecond;
             for (int j = 0; j < sectors[i].CampaignResourceRatesPerSecond.Count; j++)
                 totalSupplyRate += sectors[i].CampaignResourceRatesPerSecond[j].Second;
@@ -1683,5 +1925,21 @@ public sealed class SectorManagerTests
         Assert.That(mars.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(7200d)));
         Assert.That(lowOrbit.ColonizationDurationSeconds, Is.LessThan(moon.ColonizationDurationSeconds));
         Assert.That(moon.ColonizationDurationSeconds, Is.LessThan(mars.ColonizationDurationSeconds));
+    }
+    private static bool HasPositiveRate(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
+        Resource resource)
+    {
+        if (resource == null)
+            return false;
+
+        for (int i = 0; i < rates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = rates[i];
+            if (pair.First == resource && pair.Second > ExpantaNum.Zero)
+                return true;
+        }
+
+        return false;
     }
 }

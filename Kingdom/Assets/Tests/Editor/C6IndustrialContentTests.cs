@@ -84,7 +84,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(DataBase<Building>.Find("SteamPlant").PowerProductionRate,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("SteamPlant").LogisticsProductionRate,
-            Is.GreaterThan(ExpantaNum.Zero));
+            Is.EqualTo(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("MachineFactory").PowerConsumptionRate,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("RailHub").LogisticsProductionRate,
@@ -105,13 +105,13 @@ public sealed class C6IndustrialContentTests
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building != null &&
             effect.Building.Id == "ChemicalPlant" &&
-            effect.Value.ToDouble() >= 1.10d));
+            effect.NumericValue.ToDouble() >= 1.10d));
         Assert.That(chemistry.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building != null &&
             effect.Building.Id == "Glassworks" &&
-            effect.Value.ToDouble() >= 1.05d));
+            effect.NumericValue.ToDouble() >= 1.05d));
 
         Research electrical = DataBase<Research>.Find("ElectricalEngineering");
         Research standardization = DataBase<Research>.Find("Standardization");
@@ -127,7 +127,7 @@ public sealed class C6IndustrialContentTests
                 effect.Type == ResearchEffectType.BuildingLogisticsProductionMultiplier &&
                 effect.Building != null &&
                 effect.Building.Id == "RailHub" &&
-                effect.Value.ToDouble() >= 1.15d)
+            effect.NumericValue.ToDouble() >= 1.15d)
             {
                 standardizationImprovesRailHub = true;
                 break;
@@ -150,6 +150,21 @@ public sealed class C6IndustrialContentTests
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "CopperWire"), Is.False);
         Assert.That(ContainsResource(powerStation.ResourceConsumptionRates, "Lubricant"), Is.False);
         Assert.That(powerStation.LogisticsConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void ChemicalPlantConsumesCrudeOilAndCokeForIndustrialChemistry()
+    {
+        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        Assert.That(chemicalPlant, Is.Not.Null);
+        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "CrudeOil"),
+            Is.EqualTo(1.5d).Within(0.0001d));
+        Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "Coke"),
+            Is.EqualTo(0.3d).Within(0.0001d));
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Chemical"),
+            Is.GreaterThan(0d));
+        Assert.That(FindRate(chemicalPlant.ResourceGenerationRates, "Explosives"),
+            Is.GreaterThan(0d));
     }
 
     [Test]
@@ -217,12 +232,12 @@ public sealed class C6IndustrialContentTests
             effect != null &&
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building == mine &&
-            effect.Value.ToDouble() >= 1.1d));
+            effect.NumericValue.ToDouble() >= 1.1d));
         Assert.That(separation.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
             effect != null &&
             effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
             effect.Building == mine &&
-            effect.Value.ToDouble() >= 1.25d));
+            effect.NumericValue.ToDouble() >= 1.25d));
     }
 
     [Test]
@@ -303,7 +318,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(FindRate(stoneworks.ResourceConsumptionRates, "Explosives"), Is.EqualTo(0.06d).Within(0.0001d));
         Assert.That(DataBase<Research>.Find("ConcreteEngineering").Effects,
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
-                effect != null && effect.Building == stoneworks && effect.Value.ToDouble() >= 1.1d));
+                effect != null && effect.Building == stoneworks && effect.NumericValue.ToDouble() >= 1.1d));
     }
 
     [Test]
@@ -359,7 +374,9 @@ public sealed class C6IndustrialContentTests
         Assert.That(FindRate(complex.ResourceGenerationRates, "RefinedFuel"), Is.EqualTo(4d).Within(0.0001d));
         Assert.That(FindRate(complex.ResourceGenerationRates, "Lubricant"), Is.EqualTo(1.3d).Within(0.0001d));
         Assert.That(FindRate(complex.ResourceGenerationRates, "Rubber"), Is.EqualTo(1d).Within(0.0001d));
+        Assert.That(FindRate(complex.ResourceGenerationRates, "Chemical"), Is.EqualTo(0.6d).Within(0.0001d));
         Assert.That(FindRate(complex.ResourceConsumptionRates, "CrudeOil"), Is.EqualTo(7d).Within(0.0001d));
+        Assert.That(FindRate(complex.ResourceConsumptionRates, "Chemical"), Is.EqualTo(0d).Within(0.0001d));
         Assert.That(complex.RequiredResearch, Does.Contain(DataBase<Research>.Find("IndustrialChemistry")));
         Assert.That(complex.RequiredWorkshopUpgrades,
             Does.Contain(DataBase<WorkshopUpgrade>.Find("ContinuousDistillation")));
@@ -380,6 +397,16 @@ public sealed class C6IndustrialContentTests
         Assert.That(FindRate(factory.ResourceGenerationRates, "Engine"), Is.GreaterThan(0d));
         Assert.That(FindRate(factory.ResourceConsumptionRates, "Rubber"),
             Is.EqualTo(0.1d).Within(0.0001d), "机器制造厂应消耗橡胶来生产发动机。");
+    }
+
+    [Test]
+    public void SpacerDemandReusesIndustrialWorkshopEfficiencyChains()
+    {
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("PressurizedReactors"), "ChemicalPlant", 1.35d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("ContinuousDistillation"), "IntegratedPetrochemicalComplex", 1.30d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("InsulatedWindings"), "WireMill", 1.25d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("PrecisionTooling"), "MachineFactory", 1.25d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("FuelInjection"), "MachineFactory", 1.25d), Is.True);
     }
 
     [Test]
@@ -499,7 +526,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(modernMedicine.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
-            effect.Value == new ExpantaNum("1.35")));
+            effect.NumericValue == new ExpantaNum("1.35")));
     }
 
     [Test]
@@ -725,6 +752,34 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C610_IndustrialEntryResearchDoesNotLoopThroughItsOutputBuildings()
+    {
+        Research precision = DataBase<Research>.Find("PrecisionManufacturing");
+        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
+        Research metal = DataBase<Research>.Find("IndustrialMetalSmelting");
+        Research workshop = DataBase<Research>.Find("IndustrialWorkshop");
+
+        Assert.That(precision, Is.Not.Null);
+        Assert.That(concrete, Is.Not.Null);
+        Assert.That(metal, Is.Not.Null);
+        Assert.That(workshop, Is.Not.Null);
+        Assert.That(precision.Prerequisites,
+            Has.None.Matches<Research>(item => item != null && item.Id == concrete.Id));
+        Assert.That(precision.Prerequisites,
+            Has.None.Matches<Research>(item => item != null && item.Id == metal.Id));
+        Assert.That(precision.Prerequisites,
+            Has.Some.Matches<Research>(item => item != null && item.Id == workshop.Id));
+        Assert.That(metal.Prerequisites,
+            Has.Some.Matches<Research>(item => item != null && item.Id == workshop.Id));
+        Assert.That(DataBase<Building>.Find("MachineFactory").RequiredResearch,
+            Has.Some.Matches<Research>(item => item != null && item.Id == precision.Id));
+        Assert.That(DataBase<Building>.Find("ConcreteWorks").RequiredResearch,
+            Has.Some.Matches<Research>(item => item != null && item.Id == concrete.Id));
+        Assert.That(DataBase<Building>.Find("IndustrialMetalSmelter").RequiredResearch,
+            Has.Some.Matches<Research>(item => item != null && item.Id == metal.Id));
+    }
+
+    [Test]
     public void C601_IndustrialBuildingsOwnTheirResearchPrerequisites()
     {
         Research industrialization = DataBase<Research>.Find("Industrialization");
@@ -913,7 +968,7 @@ public sealed class C6IndustrialContentTests
             Is.GreaterThan(FindRate(cokeOven.ResourceGenerationRates, "Coke") * 3d));
         Assert.That(coking.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null && effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
-            effect.Building == retort && effect.Value.ToDouble() >= 1.1d));
+            effect.Building == retort && effect.NumericValue.ToDouble() >= 1.1d));
     }
 
     [Test]
@@ -926,7 +981,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(furnaces, Is.Not.Null);
         Assert.That(smelter.RequiredWorkshopUpgrades, Does.Contain(furnaces));
         Assert.That(furnaces.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Building == smelter && effect.Value.ToDouble() > 1d));
+            effect != null && effect.Building == smelter && effect.NumericValue.ToDouble() > 1d));
     }
 
     [Test]
@@ -939,7 +994,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(rotaryKilns, Is.Not.Null);
         Assert.That(glassworks.RequiredWorkshopUpgrades, Does.Contain(rotaryKilns));
         Assert.That(rotaryKilns.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Building == glassworks && effect.Value.ToDouble() > 1d));
+            effect != null && effect.Building == glassworks && effect.NumericValue.ToDouble() > 1d));
     }
 
     [Test]
@@ -952,7 +1007,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(precisionTooling, Is.Not.Null);
         Assert.That(machineFactory.RequiredWorkshopUpgrades, Does.Contain(precisionTooling));
         Assert.That(precisionTooling.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
-            effect != null && effect.Building == machineFactory && effect.Value.ToDouble() > 1d));
+            effect != null && effect.Building == machineFactory && effect.NumericValue.ToDouble() > 1d));
     }
 
     private static int CountConsumerUses(string resourceId)
@@ -1004,7 +1059,7 @@ public sealed class C6IndustrialContentTests
             if (effect != null &&
                 effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 effect.Building != null && effect.Building.Id == buildingId &&
-                effect.Value.ToDouble() >= minimumMultiplier)
+                effect.NumericValue.ToDouble() >= minimumMultiplier)
                 return true;
         }
         return false;
@@ -1065,7 +1120,7 @@ public sealed class C6IndustrialContentTests
             $"研究 {researchId} 必须作用于 {buildingId}。");
         Assert.That(workshopEffect, Is.Not.Null,
             $"工坊 {workshopId} 必须作用于 {buildingId}。");
-        Assert.That(researchEffect.Value, Is.Not.EqualTo(workshopEffect.Value),
+        Assert.That(researchEffect.NumericValue, Is.Not.EqualTo(workshopEffect.NumericValue),
             $"研究 {researchId} 与工坊 {workshopId} 不应复制完全相同的数值效果。");
     }
 

@@ -170,7 +170,8 @@ public static class SimulationReportWriter
         builder.AppendLine();
         builder.AppendLine("## Rules");
         builder.AppendLine();
-        builder.AppendLine("- Fixed one-second ticks with integer minute snapshots.");
+        builder.AppendLine("- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, sixty seconds in Industrial, one-hundred-twenty seconds in Spacer, one-hundred-eighty seconds in Ultra, and three-hundred seconds in Archotech; snapshots remain ten-minute aligned.");
+        builder.AppendLine($"- Each route runs for a {EconomySimulator.DefaultHorizonDays}-day observation horizon so late-era construction, workshops and supply chains are visible; reports sample every {EconomySimulator.ReportSnapshotIntervalSeconds / 60} minutes.");
         builder.AppendLine("- Research resource costs are paid atomically before progress begins, matching ResearchManager.");
         builder.AppendLine("- Workshop unlocks, prerequisite chains, costs and effects are included.");
         builder.AppendLine("- Strategy decisions are emitted to DecisionTrace.csv with deduplicated reasons.");
@@ -367,7 +368,7 @@ public static class SimulationReportWriter
             double seconds = state.EraReachedSeconds.GetValueOrDefault(era.ToString(), -1d);
             builder.AppendLine($"{era},{seconds:0.###},{(seconds < 0d ? -1d : seconds / 60d):0.###}");
         }
-        foreach (int minute in new[] { 10, 60, 240, 720, 1440 })
+        foreach (int minute in new[] { 10, 60, 240, 720, 1440, 10080, 43200 })
         {
             TimelineSnapshot? snapshot = state.Timeline.LastOrDefault(x => x.Minute <= minute);
             builder.AppendLine(

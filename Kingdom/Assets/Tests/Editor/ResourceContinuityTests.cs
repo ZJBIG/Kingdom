@@ -53,11 +53,12 @@ public sealed class ResourceContinuityTests
     public void 太空资源必须在太空建造前拥有工业来源()
     {
         Assert.That(HasGenerationRate("ChemicalPlant", "RocketFuel", 0.25d), Is.True);
-        Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.15d), Is.True);
+        Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.45d), Is.True);
         Assert.That(HasBuildingRequirement("LaunchCenter", "RocketFuel"), Is.True);
         Assert.That(HasBuildingRequirement("Shipyard", "Composite"), Is.True);
         Assert.That(HasColonizationCost("Moon", "RocketFuel", 25d / 60d), Is.True);
         Assert.That(HasColonizationCost("Mars", "Composite", 45d / 60d), Is.True);
+        Assert.That(HasColonizationCost("Mars", "TitaniumAlloy", 0.3333333333d), Is.True);
         Assert.That(HasCampaignCost("AlphaCentauri", "RocketFuel", 100d / 60d), Is.True);
     }
 
@@ -226,22 +227,23 @@ public sealed class ResourceContinuityTests
     }
 
     [Test]
-    public void FullOrbitalHabitatRequiresARealFoodProductionBase()
+    public void FullOrbitalHabitatCanBeSupportedByOrbitalAgriculture()
     {
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building plantingField = DataBase<Building>.Find("PlantingField");
+        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
 
         Assert.That(habitat, Is.Not.Null);
-        Assert.That(plantingField, Is.Not.Null);
+        Assert.That(agroecologyArray, Is.Not.Null);
         ExpantaNum habitatFoodDemand =
             habitat.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson +
             habitat.FoodConsumptionRate;
-        ExpantaNum unmodifiedFieldCount =
-            habitatFoodDemand / plantingField.FoodProductionRate;
+        ExpantaNum unmodifiedArrayCount =
+            habitatFoodDemand / agroecologyArray.FoodProductionRate;
 
         Assert.That(habitatFoodDemand, Is.EqualTo(new ExpantaNum(2408d)));
-        Assert.That(unmodifiedFieldCount, Is.GreaterThanOrEqualTo(new ExpantaNum(50d)));
-        Assert.That(plantingField.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(unmodifiedArrayCount, Is.GreaterThanOrEqualTo(new ExpantaNum(3d)));
+        Assert.That(unmodifiedArrayCount, Is.LessThanOrEqualTo(new ExpantaNum(4d)));
+        Assert.That(agroecologyArray.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]

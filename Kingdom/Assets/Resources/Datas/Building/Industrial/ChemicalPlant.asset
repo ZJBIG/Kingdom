@@ -45,16 +45,16 @@ MonoBehaviour:
     amount: "100"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    amount: "1"
+    amount: "1.5"
   - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
     amount: "0.35"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "0.25"
   resourceConsumptionRates:
-  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    amount: "0.8"
+  - resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
+    amount: "1.5"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    amount: "0.4"
+    amount: "0.3"
   requiredResearch:
   - {fileID: 11400000, guid: b4d2844ad346b0a40877184e732dd675, type: 2}
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}

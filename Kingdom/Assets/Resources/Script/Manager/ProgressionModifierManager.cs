@@ -206,34 +206,34 @@ public static class ProgressionModifierManager
             switch (effect.Type)
             {
                 case ResearchEffectType.BuildingProductionMultiplier:
-                    modifiers.AddBuildingProductionMultiplier(effect.Building, effect.Value);
+                modifiers.AddBuildingProductionMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.BuildingFoodProductionMultiplier:
-                    modifiers.AddBuildingFoodProductionMultiplier(effect.Building, effect.Value);
+                modifiers.AddBuildingFoodProductionMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.ResourceProductionMultiplier:
-                    modifiers.AddResourceProductionMultiplier(effect.Resource, effect.Value);
+                modifiers.AddResourceProductionMultiplier(effect.Resource, effect.NumericValue);
                     break;
                 case ResearchEffectType.GlobalResearchMultiplier:
-                    modifiers.AddGlobalResearchMultiplier(effect.Value);
+                modifiers.AddGlobalResearchMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.GlobalConstructionMultiplier:
-                    modifiers.AddGlobalConstructionMultiplier(effect.Value);
+                modifiers.AddGlobalConstructionMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.BuildingConstructionMultiplier:
-                    modifiers.AddBuildingConstructionMultiplier(effect.Building, effect.Value);
+                modifiers.AddBuildingConstructionMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.FoodCapacityMultiplier:
                     modifiers.FoodCapacityMultiplier *=
-                        effect.Value > ExpantaNum.Zero && !effect.Value.IsNaN
-                            ? effect.Value
+                        effect.NumericValue > ExpantaNum.Zero && !effect.NumericValue.IsNaN
+                            ? effect.NumericValue
                             : ExpantaNum.One;
                     break;
                 case ResearchEffectType.ProductivityGranted:
-                    modifiers.ProductivityGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.Value);
+                    modifiers.ProductivityGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.NumericValue);
                     break;
                 case ResearchEffectType.TerritoryGranted:
-                    modifiers.TerritoryGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.Value);
+                    modifiers.TerritoryGranted += ExpantaNum.Max(ExpantaNum.Zero, effect.NumericValue);
                     break;
                 case ResearchEffectType.UnlockIndustrialWorkshop:
                     modifiers.AddUnlockedSystem(ResearchSystem.IndustrialWorkshop);
@@ -249,52 +249,52 @@ public static class ProgressionModifierManager
                     break;
                 case ResearchEffectType.MilitaryMultiplier:
                     if (allowCombatEffects)
-                        modifiers.AddMilitaryMultiplier(effect.Value);
+                        modifiers.AddMilitaryMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.PowerMultiplier:
-                    modifiers.AddPowerMultiplier(effect.Value);
+                    modifiers.AddPowerMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.GlobalBuildingProductionMultiplier:
-                    modifiers.AddGlobalBuildingProductionMultiplier(effect.Value);
+                    modifiers.AddGlobalBuildingProductionMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.BuildingResearchPowerMultiplier:
-                    modifiers.AddBuildingResearchPowerMultiplier(effect.Building, effect.Value);
+                    modifiers.AddBuildingResearchPowerMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.BuildingPowerProductionMultiplier:
-                    modifiers.AddBuildingPowerProductionMultiplier(effect.Building, effect.Value);
+                    modifiers.AddBuildingPowerProductionMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.BuildingLogisticsProductionMultiplier:
-                    modifiers.AddBuildingLogisticsProductionMultiplier(effect.Building, effect.Value);
+                    modifiers.AddBuildingLogisticsProductionMultiplier(effect.Building, effect.NumericValue);
                     break;
                 case ResearchEffectType.GlobalLogisticsMultiplier:
-                    modifiers.AddGlobalLogisticsMultiplier(effect.Value);
+                    modifiers.AddGlobalLogisticsMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.FleetRepairCostMultiplier:
-                    modifiers.AddFleetRepairCostMultiplier(effect.Value);
+                    modifiers.AddFleetRepairCostMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.OccupiedResourceProductionMultiplier:
-                    modifiers.AddOccupiedResourceProductionMultiplier(effect.Value);
+                    modifiers.AddOccupiedResourceProductionMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.CampaignProgressMultiplier:
-                    modifiers.AddCampaignProgressMultiplier(effect.Value);
+                    modifiers.AddCampaignProgressMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.CampaignSupplyCostMultiplier:
-                    modifiers.AddCampaignSupplyCostMultiplier(effect.Value);
+                    modifiers.AddCampaignSupplyCostMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.CampaignCasualtyMultiplier:
-                    modifiers.AddCampaignCasualtyMultiplier(effect.Value);
+                    modifiers.AddCampaignCasualtyMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.PopulationGrowthMultiplier:
-                    modifiers.AddPopulationGrowthMultiplier(effect.Value);
+                    modifiers.AddPopulationGrowthMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.PopulationProductivityMultiplier:
-                    modifiers.AddPopulationProductivityMultiplier(effect.Value);
+                    modifiers.AddPopulationProductivityMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.ExplorationPowerMultiplier:
-                    modifiers.AddExplorationPowerMultiplier(effect.Value);
+                    modifiers.AddExplorationPowerMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.DeconstructionReturnRate:
-                    modifiers.SetDeconstructionReturnRate(effect.Value);
+                    modifiers.SetDeconstructionReturnRate(effect.NumericValue);
                     break;
                 default:
                     throw new InvalidOperationException(

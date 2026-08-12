@@ -13,35 +13,34 @@ MonoBehaviour:
   m_Name: TitaniumAlloyEngineering
   m_EditorClassIdentifier: 
   id: TitaniumAlloyEngineering
-  Label: "钛合金工程"
-  Description: "掌握真空熔炼、成分控制、热处理和锻造技术，把钛精矿转化为适用于高负荷轻量结构的钛合金，支撑后续 Spacer 建设。"
-  BaseCost: "2700000"
+  Label: "\u949B\u5408\u91D1\u5DE5\u7A0B"
+  Description: "\u638C\u63E1\u771F\u7A7A\u7194\u70BC\u3001\u6210\u5206\u63A7\u5236\u3001\u70ED\u5904\u7406\u548C\u953B\u9020\u6280\u672F\uFF0C\u628A\u949B\u7CBE\u77FF\u8F6C\u5316\u4E3A\u9002\u7528\u4E8E\u9AD8\u8D1F\u8377\u8F7B\u91CF\u7ED3\u6784\u7684\u949B\u5408\u91D1\uFF0C\u652F\u6491\u540E\u7EED
+    Spacer \u5EFA\u8BBE\u3002"
+  BaseCost: 2700000
   prerequisites:
   - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}
   - {fileID: 11400000, guid: 39204e5f263df23488706e9c0aa740d9, type: 2}
   - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}
   resourceRequirements:
-  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "140"
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "210"
+    amount: 210
   - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    amount: "70"
+    amount: 70
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "175"
+    amount: 175
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "140"
+    amount: 140
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "105"
+    amount: 105
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 30afe5eba41c80e40ad21a0e658f9170, type: 2}
     Resource: {fileID: 0}
-    value: "1.1"
+    value: 1.1
   - Type: 3
     Building: {fileID: 0}
     Resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    value: "1.15"
+    value: 1.15
   TechLevel: 3
   AdvancesTechLevel: 0

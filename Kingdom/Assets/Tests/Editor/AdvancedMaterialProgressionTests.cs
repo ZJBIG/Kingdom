@@ -149,7 +149,7 @@ public sealed class AdvancedMaterialProgressionTests
             if (effect != null &&
                 effect.Type == ResearchEffectType.ResourceProductionMultiplier &&
                 effect.Resource == concentrate &&
-                effect.Value.ToDouble() >= 1.15d)
+                effect.NumericValue.ToDouble() >= 1.15d)
             {
                 hasPurificationTheory = true;
                 break;
@@ -529,7 +529,7 @@ public sealed class AdvancedMaterialProgressionTests
                 effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 effect.Building != null &&
                 effect.Building.Id == buildingId &&
-                effect.Value.ToDouble() >= minimumMultiplier)
+                effect.NumericValue.ToDouble() >= minimumMultiplier)
                 return true;
         }
         return false;
@@ -568,7 +568,7 @@ public sealed class AdvancedMaterialProgressionTests
                 effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
                 effect.Building != null &&
                 effect.Building.Id == buildingId &&
-                effect.Value.ToDouble() >= minimumMultiplier)
+                effect.NumericValue.ToDouble() >= minimumMultiplier)
                 return true;
         }
         return false;
@@ -586,7 +586,7 @@ public sealed class AdvancedMaterialProgressionTests
             if (effect != null &&
                 effect.Type == WorkshopEffectType.ResourceProductionMultiplier &&
                 effect.Resource == resource &&
-                effect.Value.ToDouble() >= minimumMultiplier)
+                effect.NumericValue.ToDouble() >= minimumMultiplier)
                 return true;
         }
         return false;
