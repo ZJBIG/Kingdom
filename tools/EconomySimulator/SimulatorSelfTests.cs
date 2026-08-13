@@ -34,6 +34,7 @@ public static class SimulatorSelfTests
         VerifySpacerAdvancedMaterialGateCosts(snapshot);
         VerifyExtremeConsumptionEfficiency();
         VerifyConstructionWaitUsesResourceUnits();
+        VerifyConstructionMultiplierParity();
 
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
@@ -857,6 +858,42 @@ public static class SimulatorSelfTests
 
         Require(resource == "TitaniumAlloy" && Math.Abs(seconds - 1000d) < 1e-9d,
             "Construction wait must be calculated per resource, not by summing incompatible resource units.");
+    }
+
+    private static void VerifyConstructionMultiplierParity()
+    {
+        var building = new Definition
+        {
+            Id = "ConstructionMultiplierProbe",
+            Kind = DefinitionKind.Building,
+            TechLevel = SimTechLevel.Animal,
+            CostGrowth = 1d
+        };
+        building.ResourceRequirements["WoodLog"] = 100d;
+        building.Generation["WoodLog"] = 1d;
+
+        SimulationState state = new()
+        {
+            Seconds = 60d,
+            TechLevel = SimTechLevel.Animal
+        };
+        state.Resources["WoodLog"] = 50d;
+        state.ActiveEffects.Add(new SimEffect
+        {
+            Kind = SimEffectKind.GlobalConstructionMultiplier,
+            Value = 2d
+        });
+
+        EconomySnapshot snapshot = new(new[] { building });
+        BuildingSimulator.Decide(
+            state,
+            snapshot,
+            SimulationStrategies.Create(Route.Normal));
+
+        Require(state.Buildings.GetValueOrDefault(building.Id) == 1,
+            "Building construction multiplier must affect simulator affordability.");
+        Require(Math.Abs(state.Resources["WoodLog"] - 0d) < 1e-9d,
+            "Simulator must pay the multiplier-adjusted construction cost exactly once.");
     }
 
     private static void VerifyAtomicResearchPayment()

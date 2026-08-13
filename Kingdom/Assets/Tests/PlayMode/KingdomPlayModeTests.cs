@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 public sealed class KingdomPlayModeTests
 {
@@ -253,6 +255,97 @@ public sealed class KingdomPlayModeTests
         Assert.That(researchManager.ResearchQueue.Any(state => state.Definition == queued), Is.True);
         Assert.That(researchManager.ActiveResearch, Is.Not.Null);
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
+    }
+
+    [UnityTest]
+    public IEnumerator EraTransitions_CompleteInOrderAndExposeNextEraContent()
+    {
+        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-EraChain-Managers");
+        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-EraChain-Managers");
+        BuildingManager buildingManager = FindOrCreateManager<BuildingManager>("PlayMode-EraChain-Managers");
+        ResearchManager researchManager = FindOrCreateManager<ResearchManager>("PlayMode-EraChain-Managers");
+        WorkshopManager workshopManager = FindOrCreateManager<WorkshopManager>("PlayMode-EraChain-Managers");
+        yield return null;
+
+        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
+            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNewGame, Is.Not.Null);
+        initializeNewGame.Invoke(gameManager, null);
+
+        typeof(ResearchManager).GetMethod(
+            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(researchManager, null);
+        typeof(WorkshopManager).GetMethod(
+            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(workshopManager, null);
+        GrantResearchTestResources(resourceManager);
+
+        Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
+        var transitions = new[]
+        {
+            new { Id = "NeolithicSettlement", Target = TechLevel.Neolithic },
+            new { Id = "FeudalAdministration", Target = TechLevel.Medieval },
+            new { Id = "Industrialization", Target = TechLevel.Industrial },
+            new { Id = "InterstellarNavigation", Target = TechLevel.Spacer }
+        };
+
+        for (int i = 0; i < transitions.Length; i++)
+        {
+            Research transition = DataBase<Research>.Find(transitions[i].Id);
+            Assert.That(transition, Is.Not.Null);
+            Assert.That(transition.AdvancesTechLevel, Is.True);
+            Assert.That(transition.TechLevel, Is.EqualTo(transitions[i].Target));
+            CompleteResearchPrerequisites(
+                gameManager,
+                researchManager,
+                resourceManager,
+                transition,
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            Assert.That(researchManager.CanAccessResearch(transition), Is.True,
+                "Transition should be accessible from the preceding era: " + transition.Id);
+
+            CompleteResearchThroughRuntime(gameManager, researchManager, resourceManager, transition);
+            Assert.That(researchManager.IsResearchCompleted(transition.Id), Is.True);
+            Assert.That(gameManager.State.TechLevel, Is.EqualTo(transitions[i].Target),
+                "Completed transition must update the authoritative TechLevel.");
+
+            Research nextResearch = DataBase<Research>.All.FirstOrDefault(value =>
+                value != null && value.TechLevel == transitions[i].Target &&
+                !value.AdvancesTechLevel &&
+                researchManager.CanAccessResearch(value) &&
+                researchManager.ArePrerequisitesCompleted(value));
+            Assert.That(nextResearch, Is.Not.Null,
+                "No next-era Research is accessible after " + transition.Id);
+
+            Building nextBuilding = DataBase<Building>.All.FirstOrDefault(value =>
+                value != null && value.TechLevel == transitions[i].Target &&
+                buildingManager.ArePrerequisitesMet(value, out _) &&
+                buildingManager.CanConstructNew(value));
+            Assert.That(nextBuilding, Is.Not.Null,
+                "No next-era Building is accessible after " + transition.Id);
+
+            if (transitions[i].Target != TechLevel.Industrial &&
+                transitions[i].Target != TechLevel.Spacer)
+                continue;
+
+            if (transitions[i].Target == TechLevel.Industrial)
+            {
+                Research workshopTheory = DataBase<Research>.Find("IndustrialWorkshop");
+                Assert.That(workshopTheory, Is.Not.Null);
+                CompleteResearchThroughRuntime(gameManager, researchManager, resourceManager, workshopTheory);
+                Assert.That(workshopManager.IsSystemUnlocked, Is.True,
+                    "IndustrialWorkshop must unlock the Workshop system at runtime.");
+            }
+
+            WorkshopUpgrade nextWorkshop = DataBase<WorkshopUpgrade>.All.FirstOrDefault(value =>
+                value != null && value.TechLevel == transitions[i].Target &&
+                workshopManager.ArePrerequisitesMet(value) &&
+                value.RequiredUpgrades.Count == 0);
+            Assert.That(nextWorkshop, Is.Not.Null,
+                "No next-era Workshop is accessible after " + transition.Id);
+            Assert.That(workshopManager.TryPurchase(nextWorkshop, out WorkshopPurchaseFailure failure), Is.True,
+                "Next-era Workshop purchase failed: " + failure);
+        }
     }
 
     [UnityTest]
@@ -529,6 +622,98 @@ public sealed class KingdomPlayModeTests
 
         Assert.Fail("No unfinished research without prerequisites is available for the PlayMode test.");
         return null;
+    }
+
+    private static void GrantResearchTestResources(ResourceManager resourceManager)
+    {
+        ExpantaNum testAmount = new ExpantaNum("1e100000");
+        foreach (Resource resource in DataBase<Resource>.All)
+            resourceManager.SetAmount(resource, testAmount);
+    }
+
+    private static void CompleteResearchThroughRuntime(
+        GameManager gameManager,
+        ResearchManager researchManager,
+        ResourceManager resourceManager,
+        Research target)
+    {
+        ResearchActionResult action = researchManager.HandleResearchAction(target);
+        Assert.That(action, Is.Not.EqualTo(ResearchActionResult.Invalid));
+        Assert.That(action, Is.Not.EqualTo(ResearchActionResult.Blocked),
+            "Research was blocked before its runtime prerequisite batch could start: " + target.Id);
+
+        for (int guard = 0; guard < 10000 && !researchManager.IsResearchCompleted(target.Id); guard++)
+        {
+            if (researchManager.ActiveResearch == null && researchManager.ResearchQueue.Count > 0)
+            {
+                Research queued = researchManager.ResearchQueue[0].Definition;
+                Assert.That(researchManager.PayResearchCost(queued), Is.EqualTo(ResearchPaymentResult.Paid),
+                    "Research payment did not complete atomically for " + queued.Id);
+                Dictionary<Resource, ExpantaNum> amountsAfterPayment =
+                    SnapshotResourceAmounts(resourceManager);
+                Assert.That(researchManager.PayResearchCost(queued), Is.EqualTo(ResearchPaymentResult.AlreadyPaid),
+                    "A second payment request must not charge the same research again: " + queued.Id);
+                AssertResourceAmountsEqual(amountsAfterPayment, resourceManager);
+                researchManager.TryStartNextQueuedResearch();
+            }
+
+            if (researchManager.ActiveResearch != null)
+                researchManager.Tick(1000000d);
+            else if (researchManager.ResearchQueue.Count == 0)
+                break;
+        }
+
+        Assert.That(researchManager.IsResearchCompleted(target.Id), Is.True,
+            "Research did not complete through the runtime clock: " + target.Id);
+        Assert.That(gameManager.State.TechLevel, Is.GreaterThanOrEqualTo(target.TechLevel));
+    }
+
+    private static void CompleteResearchPrerequisites(
+        GameManager gameManager,
+        ResearchManager researchManager,
+        ResourceManager resourceManager,
+        Research target,
+        HashSet<string> visiting)
+    {
+        if (target == null || researchManager.IsResearchCompleted(target.Id))
+            return;
+        Assert.That(visiting.Add(target.Id), Is.True,
+            "Research prerequisite cycle detected at " + target.Id);
+
+        for (int i = 0; i < target.Prerequisites.Count; i++)
+        {
+            Research prerequisite = target.Prerequisites[i];
+            CompleteResearchPrerequisites(
+                gameManager,
+                researchManager,
+                resourceManager,
+                prerequisite,
+                visiting);
+            CompleteResearchThroughRuntime(
+                gameManager,
+                researchManager,
+                resourceManager,
+                prerequisite);
+        }
+
+        visiting.Remove(target.Id);
+    }
+
+    private static Dictionary<Resource, ExpantaNum> SnapshotResourceAmounts(ResourceManager resourceManager)
+    {
+        var result = new Dictionary<Resource, ExpantaNum>();
+        foreach (Resource resource in DataBase<Resource>.All)
+            result[resource] = resourceManager.GetAmount(resource);
+        return result;
+    }
+
+    private static void AssertResourceAmountsEqual(
+        Dictionary<Resource, ExpantaNum> expected,
+        ResourceManager resourceManager)
+    {
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in expected)
+            Assert.That(resourceManager.GetAmount(entry.Key), Is.EqualTo(entry.Value),
+                "Resource changed during a second payment attempt: " + entry.Key.Id);
     }
 
     private static void SetPrivateField(object target, string name, object value)

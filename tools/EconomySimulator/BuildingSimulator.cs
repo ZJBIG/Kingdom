@@ -25,7 +25,7 @@ public static class BuildingSimulator
         var unlocked=unlockedDefinitions
             .Select(d=>new{D=d,N=s.Buildings.GetValueOrDefault(d.Id)})
             .Where(x=>x.N<strategy.BuildingLimit(x.D))
-            .Where(x=>ResourceSimulator.CanPay(s,ScaledCost(x.D,x.N)))
+            .Where(x=>ResourceSimulator.CanPay(s,ScaledCost(s,x.D,x.N)))
             .ToList();
         var available=unlocked
             .Where(x=>x.D.ProductivityConsumption<=AvailableProductivity(s,defs)+1e-9)
@@ -84,7 +84,7 @@ public static class BuildingSimulator
             return;
         }
         s.CurrentProductivityWaitingSeconds=0d;
-        var cost=ScaledCost(cand.D,cand.N);
+        var cost=ScaledCost(s,cand.D,cand.N);
         ResourceSimulator.Pay(s,cost);
         s.Buildings[cand.D.Id]=cand.N+1;
         s.MarkAction("BuildingCompleted",cand.D.Id);
@@ -134,7 +134,7 @@ public static class BuildingSimulator
                 !target.RequiredResearch.All(s.CompletedResearch.Contains)||
                 !target.RequiredWorkshop.All(s.PurchasedWorkshop.Contains))
                 continue;
-            var cost=UpgradeCost(source,target,sourceCount,s.Buildings.GetValueOrDefault(target.Id));
+            var cost=UpgradeCost(s,source,target,sourceCount,s.Buildings.GetValueOrDefault(target.Id));
             if(!ResourceSimulator.CanPay(s,cost)||
                 !CanUpgradeProductivity(s,defs,source,target)||
                 !CanUpgradeTerritory(s,defs,source,target))
@@ -150,20 +150,22 @@ public static class BuildingSimulator
         }
         return false;
     }
-    private static Dictionary<string,double> UpgradeCost(Definition source,Definition target,int sourceCount,int targetCount)
+    private static Dictionary<string,double> UpgradeCost(
+        SimulationState state,
+        Definition source,
+        Definition target,
+        int sourceCount,
+        int targetCount)
     {
         var result=new Dictionary<string,double>(StringComparer.OrdinalIgnoreCase);
         foreach(string resource in source.ResourceRequirements.Keys.Concat(target.ResourceRequirements.Keys).Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            double sourceCost=source.ResourceRequirements.GetValueOrDefault(resource)*
-                Math.Pow(Math.Max(1d,source.CostGrowth),sourceCount-1);
-            double targetCost=target.ResourceRequirements.GetValueOrDefault(resource)*
-                Math.Pow(Math.Max(1d,target.CostGrowth),targetCount);
             result[resource]=EconomySimulationParity.UpgradeCostDelta(
                 source.ResourceRequirements.GetValueOrDefault(resource),
                 source.CostGrowth,sourceCount,
                 target.ResourceRequirements.GetValueOrDefault(resource),
-                target.CostGrowth,targetCount,.8d);
+                target.CostGrowth,targetCount,.8d) *
+                ConstructionCostMultiplier(state, target);
         }
         return result;
     }
@@ -209,15 +211,36 @@ public static class BuildingSimulator
         // the player can establish the production chain and upgrade later.
         int owned = s.Buildings.GetValueOrDefault(highest.Id);
         bool higherTierBuildable =
-            ResourceSimulator.CanPay(s, ScaledCost(highest, owned)) &&
+            ResourceSimulator.CanPay(s, ScaledCost(s, highest, owned)) &&
             highest.ProductivityConsumption <= AvailableProductivity(s, defs) + 1e-9 &&
             highest.SpaceCost <= AvailableTerritory(s, defs) + 1e-9;
         return !higherTierBuildable;
     }
-    private static Dictionary<string,double> ScaledCost(Definition d,int owned)=>
+    private static Dictionary<string,double> ScaledCost(
+        SimulationState state,
+        Definition d,
+        int owned)=>
         d.ResourceRequirements.ToDictionary(x=>x.Key,x=>
             EconomySimulationParity.GeometricUnitCost(
-                x.Value,d.CostGrowth,owned),StringComparer.OrdinalIgnoreCase);
+                x.Value,d.CostGrowth,owned) *
+            ConstructionCostMultiplier(state, d),StringComparer.OrdinalIgnoreCase);
+
+    private static double ConstructionCostMultiplier(
+        SimulationState state,
+        Definition building)
+    {
+        double efficiency = ResourceSimulator.EffectMultiplier(
+                state,
+                SimEffectKind.GlobalConstructionMultiplier,
+                "") *
+            ResourceSimulator.EffectMultiplier(
+                state,
+                SimEffectKind.BuildingConstructionMultiplier,
+                building.Id);
+        return !double.IsFinite(efficiency) || efficiency <= 0d
+            ? 1d
+            : 1d / efficiency;
+    }
 
     private static string CandidateDiagnostic(
         SimulationState state,
