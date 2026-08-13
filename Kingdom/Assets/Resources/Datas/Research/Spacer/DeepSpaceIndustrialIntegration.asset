@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: DeepSpaceIndustrialIntegration
+  m_EditorClassIdentifier: 
+  id: DeepSpaceIndustrialIntegration
+  Label: "深空工业整合"
+  Description: "统一轨道冶金、推进剂、焦化与船舶装配的工艺接口和批次调度，使现有深空工业建筑能够更高效地协同生产。"
+  BaseCost: "7800000"
+  prerequisites:
+  - {fileID: 11400000, guid: f0a1b2c3d4e5968778695a4b3c2d1e0f, type: 2}
+  - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
+  - {fileID: 11400000, guid: c4d5e6f7a8b9012c3d4e5f60718293a4, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "14000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "11000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "9000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "7000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "2500"
+  effects:
+  - Type: 12
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.08"
+  TechLevel: 4
+  AdvancesTechLevel: 0

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: DeepSpaceNavigationReliability
+  m_EditorClassIdentifier: 
+  id: DeepSpaceNavigationReliability
+  Label: "深空导航可靠性"
+  Description: "建立深空时钟同步、航线冗余和远距离误差校正标准，提高深空远征在复杂航线中的战役推进效率。"
+  BaseCost: "4800000"
+  prerequisites:
+  - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
+  - {fileID: 11400000, guid: 4e7f1a9c2b5d6e8f901a3c5e7b9d2f40, type: 2}
+  - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "8000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "5000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "900"
+  effects:
+  - Type: 25
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.08"
+  TechLevel: 4
+  AdvancesTechLevel: 0

@@ -1,7 +1,7 @@
 # Economy Simulation Report - Fast
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
+Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Rules
 

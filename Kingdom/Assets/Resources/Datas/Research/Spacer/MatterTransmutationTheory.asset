@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: MatterTransmutationTheory
+  m_EditorClassIdentifier: 
+  id: MatterTransmutationTheory
+  Label: "物质嬗变理论"
+  Description: "研究高能场约束、同位素筛选与材料微观重组的实验方法，改进深空材料加工设备的工艺稳定性并提高现有建筑生产效率；不直接实现资源互换、反物质或湮灭能源。"
+  BaseCost: "16000000"
+  prerequisites:
+  - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
+  - {fileID: 11400000, guid: 2f3e4d5c6b7a8091f2e3d4c5b6a79801, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "14000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "4500"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "3500"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "5000"
+  effects:
+  - Type: 12
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.05"
+  TechLevel: 4
+  AdvancesTechLevel: 0

@@ -1,7 +1,7 @@
 # Economy Simulation Report - Conservative
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
+Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Rules
 
@@ -42,7 +42,7 @@ Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
 ## Spacer Age
 
 到达时间: 8941.17 分钟
-完成研究: 7
+完成研究: 8
 
 原始时代最长无研究目标: 1 分钟；新石器时代: 2 分钟。
 

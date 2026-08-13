@@ -32,4 +32,5 @@ TimeSeconds,Minute,TechLevel,WorkshopId,Count
 252912.0,4215.2,Industrial,"AluminumBusbars",1
 253512.0,4225.2,Industrial,"VacuumArcFurnace",1
 259512.0,4325.2,Spacer,"OrbitalThermalManagement",1
+266712.0,4445.2,Spacer,"OrbitalCarbonizationProcessControl",1
 279312.0,4655.2,Spacer,"ReusableLaunchStages",1

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AdvancedCompositeLayup
   Label: "先进复合材料铺层"
-  Description: "通过纤维定向铺层、树脂固化和无损检测控制复合材料的强度与一致性，提升机器制造厂对轻质结构材料的稳定产出。"
+  Description: "通过纤维定向铺层、树脂固化和无损检测控制复合材料的强度与一致性，提高 Composite 资源的整体生产效率；该工艺会作用于所有已接入的 Composite 生产来源。"
   SortOrder: 450
   TechLevel: 4
   requiredResearch:

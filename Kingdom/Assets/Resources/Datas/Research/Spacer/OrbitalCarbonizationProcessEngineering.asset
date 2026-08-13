@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrbitalCarbonizationProcessEngineering
+  m_EditorClassIdentifier: 
+  id: OrbitalCarbonizationProcessEngineering
+  Label: "轨道碳化流程工程"
+  Description: "研究轨道焦化设施的连续进料、炉温曲线与气氛控制，使 OrbitalCarbonizationComplex 能在微重力和真空环境下维持更稳定的焦化生产。"
+  BaseCost: "3600000"
+  prerequisites:
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
+    amount: "900"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "700"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "500"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "260"
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: f2a3b4c5d6e708192a4b5c6d7e8f9012, type: 2}
+    Resource: {fileID: 0}
+    value: "1.12"
+  TechLevel: 4
+  AdvancesTechLevel: 0

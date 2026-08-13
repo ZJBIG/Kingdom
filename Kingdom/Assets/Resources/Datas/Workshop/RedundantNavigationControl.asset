@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: RedundantNavigationControl
+  m_EditorClassIdentifier: 
+  id: RedundantNavigationControl
+  Label: "冗余导航控制器"
+  Description: "通过相位导航冗余、量子钟校准和航线误差监测，降低深空远征中的战役损失率。"
+  SortOrder: 690
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 91e2d3c4b5a60718293a4e5f6b7c8d90, type: 2}
+  - {fileID: 11400000, guid: 4e7f1a9c2b5d6e8f901a3c5e7b9d2f40, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 4f6a8c2e1d3b5079a6c8e0f2b4d7a901, type: 2}
+  - {fileID: 11400000, guid: d4e5f60718293a4b5c6d7e8f901a2b3c, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "8000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "1800"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "1600"
+  effects:
+  - Type: 17
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.92"
