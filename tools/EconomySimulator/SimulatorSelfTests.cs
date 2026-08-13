@@ -24,7 +24,16 @@ public static class SimulatorSelfTests
         VerifyActiveBuildingCacheParity(snapshot);
         VerifyUtilityBuildingCandidates();
         VerifyUpgradePairs(snapshot);
+        VerifyCokeOvenCandidate(snapshot);
+        VerifyIndustrialSourceEntryPoints(snapshot);
+        VerifyIndustrialConstructionGateCosts(snapshot);
+        VerifyIndustrializationPacingGate(snapshot);
+        VerifyIndustrialMetalSinks(snapshot);
+        VerifyLegacyMetalSurplusDiagnostic();
+        VerifyConstructionSinkSuppressesExplosionDiagnostic();
+        VerifySpacerAdvancedMaterialGateCosts(snapshot);
         VerifyExtremeConsumptionEfficiency();
+        VerifyConstructionWaitUsesResourceUnits();
 
         Definition unlock = snapshot.Find("IndustrialWorkshop", DefinitionKind.Research);
         Require(unlock.Effects.Any(x =>
@@ -97,6 +106,9 @@ public static class SimulatorSelfTests
         Require(metalSmelter.Consumption.ContainsKey("CopperOre") &&
                 metalSmelter.Consumption.ContainsKey("TinOre"),
             "工业综合冶炼炉必须同时消耗铜矿和锡矿。");
+        Require(metalSmelter.Generation.TryGetValue("Bronze", out double industrialBronzeRate) &&
+                Math.Abs(industrialBronzeRate - 2.5d) < 1e-9d,
+            "IndustrialMetalSmelter Bronze output must remain 2.5/s, matching the Unity definition test.");
         Definition earlyMetalSmelter =
             snapshot.Find("MetalSmelter", DefinitionKind.Building);
         Require(!snapshot.All.Any(x => x.Id == "BronzeFoundry") &&
@@ -135,7 +147,9 @@ public static class SimulatorSelfTests
 
         Definition interstellarNavigation =
             snapshot.Find("InterstellarNavigation", DefinitionKind.Research);
-        Require(interstellarNavigation.ResourceRequirements.TryGetValue("RocketFuel", out double navigationFuel) &&
+        Require(interstellarNavigation.AdvancesTechLevel &&
+                interstellarNavigation.TechLevel == SimTechLevel.Spacer &&
+                interstellarNavigation.ResourceRequirements.TryGetValue("RocketFuel", out double navigationFuel) &&
                 Math.Abs(navigationFuel - 250d) < 1e-9d &&
                 snapshot.Find("ChemicalPlant", DefinitionKind.Building)
                     .Generation.TryGetValue("RocketFuel", out double rocketFuelRate) &&
@@ -458,14 +472,14 @@ public static class SimulatorSelfTests
             "低阶模拟步长必须保持一秒。 ");
         Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Medieval)-10d)<1e-9d,
             "中世纪长等待段应使用十秒模拟步长。 ");
-        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Industrial)-60d)<1e-9d,
-            "工业时代应使用六十秒模拟步长。 ");
-        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Spacer)-120d)<1e-9d,
-            "太空时代应使用一百二十秒模拟步长。 ");
-        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Ultra)-180d)<1e-9d,
-            "Ultra时代应使用一百八十秒模拟步长。 ");
-        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Archotech)-300d)<1e-9d,
-            "Archotech时代应使用三百秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Industrial)-600d)<1e-9d,
+            "工业时代应使用六百秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Spacer)-1800d)<1e-9d,
+            "太空时代应使用一千八百秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Ultra)-1800d)<1e-9d,
+            "Ultra时代应使用一千八百秒模拟步长。 ");
+        Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Archotech)-1800d)<1e-9d,
+            "Archotech时代应使用一千八百秒模拟步长。 ");
     }
 
     private static void VerifyAdaptiveStepsPreserveRates()
@@ -589,6 +603,223 @@ public static class SimulatorSelfTests
             "仅提供电力的建筑必须进入建筑候选集，不能因没有普通资源产出而被过滤。");
     }
 
+    private static void VerifyCokeOvenCandidate(EconomySnapshot snapshot)
+    {
+        Definition cokeOven = snapshot.Find("CokeOven", DefinitionKind.Building);
+        Require(cokeOven.RequiredResearch.Count == 2 &&
+                cokeOven.RequiredResearch.All(x =>
+                    x is "SteamPower" or "Coking"),
+            "焦炉只能依赖蒸汽动力和炼焦研究，不得等待电网研究后才可建造。");
+        Require(cokeOven.ProductivityConsumption <= 20d,
+            "CokeOven entry productivity must remain affordable for Industrial source establishment.");
+        Require(snapshot.Find("OilDerrick", DefinitionKind.Building)
+                    .RequiredResearch.Contains("IndustrialChemistry"),
+            "石油钻井必须在工业化学之后开放，避免在焦炭生产前吞噬工业生产力。");
+        Require(!snapshot.Find("AluminumMetallurgy", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("BauxiteOre"),
+            "铝工业研究不得先消耗由同一研究链解锁的铝土矿，否则会形成原料自锁。");
+        Require(snapshot.Find("TitaniumAlloyEngineering", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !snapshot.Find("TitaniumAlloyEngineering", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("Nickel"),
+            "钛合金工程必须使用镍精矿，不能跳过镍精炼链消耗已经枯竭的原始镍。");
+        Require(snapshot.Find("PhantomMaterials", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !snapshot.Find("PhantomMaterials", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("Nickel"),
+            "幽影材料工程必须使用镍精矿，不能在 Spacer 阶段重新跳回原始镍。");
+        Definition phantomFabricator = snapshot.Find("PhantomMaterialsFabricator", DefinitionKind.Building);
+        Require(phantomFabricator.Generation.ContainsKey("PhantomAlloy") &&
+                phantomFabricator.Generation.ContainsKey("PhantomWeave") &&
+                phantomFabricator.ProductivityConsumption <= 20d &&
+                phantomFabricator.ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !phantomFabricator.ResourceRequirements.ContainsKey("Nickel") &&
+                phantomFabricator.Consumption.ContainsKey("NickelConcentrate") &&
+                !phantomFabricator.Consumption.ContainsKey("Nickel"),
+            "幽影材料制造厂必须作为可进入的幽影材料来源，并使用镍精矿而非原始镍。");
+        Require(snapshot.Find("PhaseMaterialEngineering", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !snapshot.Find("PhaseMaterialEngineering", DefinitionKind.Research)
+                    .ResourceRequirements.ContainsKey("Nickel"),
+            "相位材料工程必须使用镍精矿，不能重新依赖已被精炼链消耗的原始镍。");
+        Definition phaseArray = snapshot.Find("PhaseMaterialSynthesisArray", DefinitionKind.Building);
+        Require(phaseArray.Generation.ContainsKey("PhaseMaterial") &&
+                phaseArray.ProductivityConsumption <= 20d &&
+                phaseArray.ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !phaseArray.ResourceRequirements.ContainsKey("Nickel") &&
+                phaseArray.Consumption.ContainsKey("NickelConcentrate") &&
+                !phaseArray.Consumption.ContainsKey("Nickel"),
+            "相位材料合成阵列必须作为可进入的相位材料来源，并使用镍精矿而非原始镍。");
+        Require(phaseArray.ResourceRequirements.GetValueOrDefault("PhantomWeave") <= 240d,
+            "PhaseMaterialSynthesisArray first-copy PhantomWeave gate must remain below the demonstrated multi-hour stall.");
+        Require(phaseArray.ResourceRequirements.GetValueOrDefault("PhantomAlloy") <= 240d,
+            "PhaseMaterialSynthesisArray first-copy PhantomAlloy gate must remain below the demonstrated multi-hour stall.");
+        SimulationState state = new()
+        {
+            TechLevel = SimTechLevel.Industrial,
+            Population = 100d
+        };
+        foreach (string research in new[] { "SteamPower", "Coking", "Industrialization" })
+            state.CompletedResearch.Add(research);
+        state.PurchasedWorkshop.Add("CokeOvenOptimization");
+        foreach ((string resource, double amount) in cokeOven.ResourceRequirements)
+            state.Resources[resource] = amount;
+
+        BuildingSimulator.Decide(state, snapshot, SimulationStrategies.Create(Route.Normal));
+
+        Require(state.Buildings.GetValueOrDefault(cokeOven.Id) == 1,
+            "焦炉在工业时代前置研究完成且建造资源充足时必须进入可建候选，否则焦炭链会被模拟器错误阻断。");
+    }
+
+    private static void VerifyIndustrialSourceEntryPoints(EconomySnapshot snapshot)
+    {
+        Definition rareMine = snapshot.Find("RareMetalMine", DefinitionKind.Building);
+        Require(rareMine.Generation.ContainsKey("BauxiteOre") &&
+                rareMine.Generation.ContainsKey("NickelConcentrate") &&
+                rareMine.Generation.ContainsKey("TitaniumConcentrate") &&
+                rareMine.ProductivityConsumption <= 20d,
+            "工业多金属矿场必须作为可进入的铝土、镍精矿和钛精矿来源，首座矿场不能被过高生产力门槛锁死。");
+        Definition aluminumSmelter = snapshot.Find("AluminumSmelter", DefinitionKind.Building);
+        Require(aluminumSmelter.Generation.ContainsKey("Aluminum") &&
+                aluminumSmelter.ProductivityConsumption <= 20d,
+            "铝冶炼厂必须作为可进入的铝来源，首座冶炼厂不能被过高生产力门槛锁死。");
+        Definition titaniumComplex = snapshot.Find("TitaniumMetallurgicalComplex", DefinitionKind.Building);
+        Require(titaniumComplex.Generation.ContainsKey("TitaniumAlloy") &&
+                titaniumComplex.ProductivityConsumption <= 20d &&
+                !titaniumComplex.RequiredResearch.Contains("InterstellarNavigation") &&
+                titaniumComplex.ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                !titaniumComplex.ResourceRequirements.ContainsKey("Nickel") &&
+                titaniumComplex.Consumption.ContainsKey("NickelConcentrate") &&
+                !titaniumComplex.Consumption.ContainsKey("Nickel"),
+            "钛冶金联合厂必须作为工业时代可进入的钛合金来源，不能依赖由钛合金解锁的星际导航。");
+    }
+
+    private static void VerifySpacerAdvancedMaterialGateCosts(EconomySnapshot snapshot)
+    {
+        Definition phantomFabricator =
+            snapshot.Find("PhantomMaterialsFabricator", DefinitionKind.Building);
+        Require(phantomFabricator.Generation.TryGetValue("PhantomAlloy", out double phantomAlloyRate) &&
+                Math.Abs(phantomAlloyRate - 0.06d) < 1e-9d &&
+                phantomFabricator.Generation.TryGetValue("PhantomWeave", out double phantomWeaveRate) &&
+                Math.Abs(phantomWeaveRate - 0.04d) < 1e-9d,
+            "Phantom materials source rates must remain PhantomAlloy 0.06/s and PhantomWeave 0.04/s.");
+
+        foreach ((string id, string resource) in new[]
+                 {
+                     ("OrbitalCarbonizationComplex", "PhantomAlloy"),
+                     ("OrbitalForestryHarvestingArray", "PhantomWeave"),
+                     ("OrbitalSolarArray", "PhantomWeave"),
+                     ("OrbitalStation", "PhantomWeave"),
+                     ("PhaseMaterialSynthesisArray", "PhantomAlloy"),
+                     ("PhaseMaterialSynthesisArray", "PhantomWeave")
+                 })
+        {
+            Definition building = snapshot.Find(id, DefinitionKind.Building);
+            Require(building.ResourceRequirements.GetValueOrDefault(resource) <= 240d,
+                $"{id} {resource} first-copy gate must remain within the demonstrated source-entry envelope.");
+        }
+    }
+
+    private static void VerifyIndustrializationPacingGate(EconomySnapshot snapshot)
+    {
+        Definition industrialization =
+            snapshot.Find("Industrialization", DefinitionKind.Research);
+        Require(industrialization.BaseCost >= 200000d,
+            "Industrialization must retain a substantial research cost so the Industrial era is not entered by an anomalously cheap transition node.");
+    }
+
+    private static void VerifyIndustrialConstructionGateCosts(EconomySnapshot snapshot)
+    {
+        Require(snapshot.Find("IndustrialOilExtractionComplex", DefinitionKind.Building)
+                    .ResourceRequirements.GetValueOrDefault("Machinery") <= 480d,
+            "IndustrialOilExtractionComplex must not impose a first-copy Machinery wait above the Industrial gate target.");
+        Require(snapshot.Find("IntegratedPetrochemicalComplex", DefinitionKind.Building)
+                    .ResourceRequirements.GetValueOrDefault("Machinery") <= 500d,
+            "IntegratedPetrochemicalComplex must not impose a first-copy Machinery wait above the Industrial gate target.");
+    }
+
+    private static void VerifyIndustrialMetalSinks(EconomySnapshot snapshot)
+    {
+        Definition machineFactory = snapshot.Find("MachineFactory", DefinitionKind.Building);
+        Definition wireMill = snapshot.Find("WireMill", DefinitionKind.Building);
+        Require(machineFactory.Consumption.GetValueOrDefault("Bronze") >= 0.5d,
+            "MachineFactory must retain a meaningful Bronze sink for Industrial metal output.");
+        Require(wireMill.Consumption.GetValueOrDefault("Tin") >= 0.5d,
+            "WireMill must retain a meaningful Tin sink for Industrial metal output.");
+    }
+
+    private static void VerifyLegacyMetalSurplusDiagnostic()
+    {
+        Definition producer = new()
+        {
+            Id = "LegacyMetalProducerProbe",
+            Kind = DefinitionKind.Building
+        };
+        producer.Generation["Bronze"] = 2.5d;
+        Definition sink = new()
+        {
+            Id = "LegacyMetalSinkProbe",
+            Kind = DefinitionKind.Building
+        };
+        sink.Consumption["Bronze"] = 0.5d;
+
+        SimulationState state = new();
+        state.Buildings[producer.Id] = 14;
+        state.Buildings[sink.Id] = 2;
+        var result = new SimulationResult(state, Route.Normal);
+        BalanceAnalysis.Analyze(
+            result,
+            new[] { producer, sink },
+            new[] { producer, sink },
+            Array.Empty<Definition>());
+
+        Require(result.Warnings.Any(x =>
+                x.Type == "Legacy metal surplus" &&
+                x.Object == "Bronze" &&
+                x.Severity == "Info"),
+            "Legacy metal surplus must remain visible when a sink exists but consumes less than ten percent of active production.");
+    }
+
+    private static void VerifyConstructionSinkSuppressesExplosionDiagnostic()
+    {
+        Definition producer = new()
+        {
+            Id = "ConstructionSinkProducerProbe",
+            Kind = DefinitionKind.Building
+        };
+        producer.Generation["Glass"] = 12d;
+        producer.Consumption["Silica"] = 1d;
+
+        Definition activeSink = new()
+        {
+            Id = "ConstructionSinkActiveProbe",
+            Kind = DefinitionKind.Building
+        };
+        activeSink.Consumption["Glass"] = 0.1d;
+
+        Definition constructionSink = new()
+        {
+            Id = "ConstructionSinkTargetProbe",
+            Kind = DefinitionKind.Building
+        };
+        constructionSink.ResourceRequirements["Glass"] = 1000d;
+
+        SimulationState state = new();
+        state.Buildings[producer.Id] = 1;
+        state.Buildings[activeSink.Id] = 1;
+        var result = new SimulationResult(state, Route.Normal);
+        BalanceAnalysis.Analyze(
+            result,
+            new[] { producer, activeSink, constructionSink },
+            new[] { producer, activeSink, constructionSink },
+            Array.Empty<Definition>());
+
+        Require(!result.Warnings.Any(x =>
+                x.Type == "Economy explosion" &&
+                x.Object == "Glass"),
+            "A resource with a legitimate construction sink must not be reported as an unsunk economy explosion.");
+    }
+
     private static void VerifyExtremeConsumptionEfficiency()
     {
         Definition definition = new()
@@ -606,6 +837,26 @@ public static class SimulatorSelfTests
             new[] { definition }, 300d);
         Require(state.Resources.Values.All(double.IsFinite),
             "极大资源需求在长步长下不得产生 NaN 或 Infinity。 ");
+    }
+
+    private static void VerifyConstructionWaitUsesResourceUnits()
+    {
+        Definition glassworks = new() { Id = "GlassworksProbe", Kind = DefinitionKind.Building };
+        glassworks.Generation["Glass"] = 100d;
+        Definition alloyPlant = new() { Id = "AlloyPlantProbe", Kind = DefinitionKind.Building };
+        alloyPlant.Generation["TitaniumAlloy"] = 1d;
+        Definition target = new() { Id = "MultiMaterialProbe", Kind = DefinitionKind.Building };
+        target.ResourceRequirements["Glass"] = 1000d;
+        target.ResourceRequirements["TitaniumAlloy"] = 1000d;
+
+        SimulationState state = new();
+        state.Buildings[glassworks.Id] = 1;
+        state.Buildings[alloyPlant.Id] = 1;
+        (string resource, double seconds) = BalanceAnalysis.SlowestConstructionWait(
+            state, new[] { glassworks, alloyPlant }, target);
+
+        Require(resource == "TitaniumAlloy" && Math.Abs(seconds - 1000d) < 1e-9d,
+            "Construction wait must be calculated per resource, not by summing incompatible resource units.");
     }
 
     private static void VerifyAtomicResearchPayment()
@@ -684,8 +935,14 @@ public static class SimulatorSelfTests
                 };
                 Require(valid,
                     $"工坊 {workshop.Id} 的 {effect.Kind} 指向不具备对应能力的建筑 {building.Id}。");
-            }
+                }
         }
+
+        Definition orbitalCarbonization = snapshot.Find(
+            "OrbitalCarbonizationComplex", DefinitionKind.Building);
+        Require(orbitalCarbonization.ResourceRequirements.GetValueOrDefault("Concrete") <= 1200d,
+            "OrbitalCarbonizationComplex Concrete first-copy gate must stay within the neighboring Orbital building scale.");
+
     }
 
     private static void VerifyResearchTargetCapabilities(EconomySnapshot snapshot)

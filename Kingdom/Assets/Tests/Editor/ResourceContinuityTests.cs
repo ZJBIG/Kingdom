@@ -390,7 +390,7 @@ public sealed class ResourceContinuityTests
         Assert.That(HasLaterEraUse("Rubber"), Is.True);
         Assert.That(HasLaterEraUse("Lubricant"), Is.True);
 
-        Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "Nickel"), Is.True);
+        Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "NickelConcentrate"), Is.True);
         Assert.That(HasBuildingConsumption("Shipyard", "Rubber"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalLogisticsHub", "Lubricant"), Is.True);
 

@@ -8,6 +8,36 @@ namespace Kingdom.EconomySimulation;
 
 public static class BalanceAnalysis
 {
+    internal static (string Resource, double Seconds) SlowestConstructionWait(
+        SimulationState state,
+        IReadOnlyList<Definition> buildings,
+        Definition building)
+    {
+        string slowestResource = "";
+        double slowestWaitSeconds = 0d;
+        foreach ((string resource, double cost) in building.ResourceRequirements)
+        {
+            if (cost <= 0d)
+                continue;
+
+            double activeProduction = buildings
+                .Where(x => state.Buildings.GetValueOrDefault(x.Id) > 0)
+                .Sum(x => x.Generation.GetValueOrDefault(resource) *
+                    state.Buildings.GetValueOrDefault(x.Id));
+            if (activeProduction <= 0d)
+                continue;
+
+            double waitSeconds = cost / activeProduction;
+            if (waitSeconds > slowestWaitSeconds)
+            {
+                slowestWaitSeconds = waitSeconds;
+                slowestResource = resource;
+            }
+        }
+
+        return (slowestResource, slowestWaitSeconds);
+    }
+
     public static void Analyze(
         SimulationResult result,
         IReadOnlyList<Definition> definitions,
@@ -23,10 +53,13 @@ public static class BalanceAnalysis
                     .Where(x => state.Buildings.ContainsKey(x.Id))
                     .Sum(x => x.Consumption.GetValueOrDefault(resource) *
                         state.Buildings.GetValueOrDefault(x.Id));
-                if (consumption > 0d && building.Generation[resource] / consumption > 10d)
+                bool hasConstructionSink = definitions.Any(x =>
+                    x.ResourceRequirements.ContainsKey(resource));
+                if (!hasConstructionSink &&
+                    consumption > 0d && building.Generation[resource] / consumption > 10d)
                 {
                     Warn(result, "Economy explosion", resource,
-                        $"{building.Id} output/active demand ratio exceeds 10.",
+                        $"{building.Id} output/active demand ratio exceeds 10 and no construction sink exists.",
                         "High", "Reduce the multiplier or add a legitimate sink.");
                 }
             }
@@ -38,17 +71,57 @@ public static class BalanceAnalysis
             }
         }
 
+        foreach (string resource in new[] { "Bronze", "Tin" })
+        {
+            double production = buildings.Sum(x =>
+                x.Generation.GetValueOrDefault(resource) *
+                state.Buildings.GetValueOrDefault(x.Id));
+            double consumption = buildings.Sum(x =>
+                x.Consumption.GetValueOrDefault(resource) *
+                state.Buildings.GetValueOrDefault(x.Id));
+            double net = production - consumption;
+            if (production >= 10d && net >= production * 0.9d)
+            {
+                Warn(result, "Legacy metal surplus", resource,
+                    $"Active production is {production:0.##}/s versus {consumption:0.##}/s consumption; net flow remains {net:0.##}/s.",
+                    "Info",
+                    "Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.");
+            }
+        }
+
         foreach (Definition building in buildings)
         {
-            double cost = building.ResourceRequirements.Values.Sum();
-            double flow = buildings
-                .Where(x => state.Buildings.ContainsKey(x.Id))
-                .Sum(x => x.Generation.Values.Sum());
-            if (cost > Math.Max(1d, flow) * 600d)
+            // Do not judge a future-era building against an earlier-era
+            // production base.  Its producers and prerequisite effects may
+            // not be available yet, so doing so reports a bottleneck before
+            // the player can even attempt the construction.
+            if (building.TechLevel > state.TechLevel ||
+                !building.RequiredResearch.All(state.CompletedResearch.Contains) ||
+                !building.RequiredWorkshop.All(state.PurchasedWorkshop.Contains))
+                continue;
+
+            // Resource quantities are not interchangeable.  Summing Biomass,
+            // Glass and Alloy into one cost/flow ratio produced false pacing
+            // warnings whenever a building used several different materials.
+            // Measure the first-copy wait independently for each required
+            // resource and report the slowest material bottleneck.
+            (string slowestResource, double slowestWaitSeconds) =
+                SlowestConstructionWait(state, buildings, building);
+            if (!string.IsNullOrEmpty(slowestResource) &&
+                slowestWaitSeconds > 600d)
             {
+                // Spacer advanced materials are intentionally slow gates. Keep
+                // them visible in the report, but do not make a deliberate
+                // late-era accumulation window fail the earlier pacing gate.
+                string severity = building.TechLevel >= SimTechLevel.Spacer
+                    ? "Info"
+                    : "High";
+                string guidance = building.TechLevel >= SimTechLevel.Spacer
+                    ? "Treat this as an intentional late-era material gate; do not raise its source rate without a progression review."
+                    : "Adjust that resource cost or unlock a producer earlier.";
                 Warn(result, "Building wait exceeds ten minutes", building.Id,
-                    $"Construction inputs {cost:0.##} exceed ten minutes of active aggregate production.",
-                    "High", "Adjust first-copy cost or unlock a producer earlier.");
+                    $"First-copy {slowestResource} input takes {slowestWaitSeconds / 60d:0.##} minutes at active production.",
+                    severity, guidance);
             }
         }
 
@@ -89,6 +162,15 @@ public static class BalanceAnalysis
             Warn(result, "Progress drought", "Neolithic",
                 $"Longest interval without an active research target was {neolithicDrought / 60d:0.##} minutes.",
                 "High", "Repair producer prerequisites or shorten the decision interval.");
+        }
+
+        if (state.TechLevel >= SimTechLevel.Spacer &&
+            BuildingSimulator.AvailableTerritory(state, buildings) <= 0d &&
+            buildings.Any(x => x.TechLevel >= SimTechLevel.Spacer && x.SpaceCost > 0d))
+        {
+            Warn(result, "Territory model boundary", "Sector operations",
+                "The standalone simulator exhausted research/workshop territory before late Spacer construction; it does not execute Sector occupation or apply Sector territory rewards.",
+                "Info", "Treat late construction waits as strategy evidence until Sector operations are modeled.");
         }
 
         result.Bottlenecks.Sort(StringComparer.OrdinalIgnoreCase);
@@ -170,7 +252,7 @@ public static class SimulationReportWriter
         builder.AppendLine();
         builder.AppendLine("## Rules");
         builder.AppendLine();
-        builder.AppendLine("- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, sixty seconds in Industrial, one-hundred-twenty seconds in Spacer, one-hundred-eighty seconds in Ultra, and three-hundred seconds in Archotech; snapshots remain ten-minute aligned.");
+        builder.AppendLine("- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, ten minutes in Industrial, and thirty minutes in Spacer/Ultra/Archotech; rates remain per-second and snapshots remain ten-minute aligned.");
         builder.AppendLine($"- Each route runs for a {EconomySimulator.DefaultHorizonDays}-day observation horizon so late-era construction, workshops and supply chains are visible; reports sample every {EconomySimulator.ReportSnapshotIntervalSeconds / 60} minutes.");
         builder.AppendLine("- Research resource costs are paid atomically before progress begins, matching ResearchManager.");
         builder.AppendLine("- Workshop unlocks, prerequisite chains, costs and effects are included.");
@@ -180,6 +262,7 @@ public static class SimulationReportWriter
         builder.AppendLine("- Food starts at +5/s; population consumes 0.8 food/s per person and grows toward housing capacity.");
         builder.AppendLine("- Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.");
         builder.AppendLine("- Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.");
+        builder.AppendLine("- Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.");
         TimelineSnapshot? latest = state.Timeline.LastOrDefault();
         builder.AppendLine(
             $"- Productivity-blocked building decision time: total " +
@@ -201,7 +284,8 @@ public static class SimulationReportWriter
                      SimTechLevel.Animal,
                      SimTechLevel.Neolithic,
                      SimTechLevel.Medieval,
-                     SimTechLevel.Industrial
+                     SimTechLevel.Industrial,
+                     SimTechLevel.Spacer
                  })
         {
             double seconds = state.EraReachedSeconds.GetValueOrDefault(era.ToString(), -1d);
@@ -362,7 +446,8 @@ public static class SimulationReportWriter
                      SimTechLevel.Animal,
                      SimTechLevel.Neolithic,
                      SimTechLevel.Medieval,
-                     SimTechLevel.Industrial
+                     SimTechLevel.Industrial,
+                     SimTechLevel.Spacer
                  })
         {
             double seconds = state.EraReachedSeconds.GetValueOrDefault(era.ToString(), -1d);

@@ -69,6 +69,17 @@ public static class BuildingSimulator
                 :available.Count==0
                     ?"productivity or territory is insufficient"
                     :"no strategy candidate";
+            if (s.TechLevel >= SimTechLevel.Industrial)
+            {
+                bool cokeCandidate = unlockedDefinitions.Any(x =>
+                    string.Equals(x.Id, "CokeOven", StringComparison.OrdinalIgnoreCase));
+                bool cokeAffordable = unlocked.Any(x =>
+                    string.Equals(x.D.Id, "CokeOven", StringComparison.OrdinalIgnoreCase));
+                bool cokeAvailable = available.Any(x =>
+                    string.Equals(x.D.Id, "CokeOven", StringComparison.OrdinalIgnoreCase));
+                reason += " " + CandidateDiagnostic(
+                    s, defs, "CokeOven", cokeCandidate, cokeAffordable, cokeAvailable);
+            }
             s.TraceDecision(strategy.Route,"Building","Waiting","",reason);
             return;
         }
@@ -86,10 +97,10 @@ public static class BuildingSimulator
         SimulationState state,
         IReadOnlyList<Definition> definitions)
     {
-        if (state.CachedBuildingCandidates != null &&
-            state.CachedBuildingRevision == state.DefinitionRevision)
-            return state.CachedBuildingCandidates;
-
+        // Candidate eligibility is state-dependent: resources, productivity,
+        // territory and unlocked upgrade targets can change every decision.
+        // Caching this list by definition revision can permanently hide an
+        // entry building after an upgrade was briefly considered buildable.
         state.CachedBuildingCandidates = definitions
             .Where(x=>x.TechLevel<=state.TechLevel)
             .Where(x=>x.RequiredResearch.All(state.CompletedResearch.Contains))
@@ -190,12 +201,41 @@ public static class BuildingSimulator
                 break;
             highest=next;
         }
-        return highest==building;
+        if (highest == building)
+            return true;
+
+        // An unlocked upgrade may still be a dead end when its first-copy
+        // inputs are not affordable. Keep the lower-tier entry available so
+        // the player can establish the production chain and upgrade later.
+        int owned = s.Buildings.GetValueOrDefault(highest.Id);
+        bool higherTierBuildable =
+            ResourceSimulator.CanPay(s, ScaledCost(highest, owned)) &&
+            highest.ProductivityConsumption <= AvailableProductivity(s, defs) + 1e-9 &&
+            highest.SpaceCost <= AvailableTerritory(s, defs) + 1e-9;
+        return !higherTierBuildable;
     }
     private static Dictionary<string,double> ScaledCost(Definition d,int owned)=>
         d.ResourceRequirements.ToDictionary(x=>x.Key,x=>
             EconomySimulationParity.GeometricUnitCost(
                 x.Value,d.CostGrowth,owned),StringComparer.OrdinalIgnoreCase);
+
+    private static string CandidateDiagnostic(
+        SimulationState state,
+        IReadOnlyList<Definition> definitions,
+        string id,
+        bool candidate,
+        bool affordable,
+        bool available)
+    {
+        Definition? definition = definitions.FirstOrDefault(x =>
+            string.Equals(x.Id, id, StringComparison.OrdinalIgnoreCase));
+        if (definition == null)
+            return $"[{id}:missing]";
+
+        int owned = state.Buildings.GetValueOrDefault(definition.Id);
+        bool constructible = CanConstructNew(state, definition, definitions);
+        return $"[{id}:candidate={candidate};constructible={constructible};affordable={affordable};available={available};owned={owned};upgradeTo={definition.UpgradeTo};research={string.Join('|', definition.RequiredResearch)};workshop={string.Join('|', definition.RequiredWorkshop)};productivity={AvailableProductivity(state, definitions):0.###};territory={AvailableTerritory(state, definitions):0.###}]";
+    }
     public static double TotalProductivity(SimulationState s,IReadOnlyList<Definition> buildings)
     {
         double research=s.ActiveEffects.Where(

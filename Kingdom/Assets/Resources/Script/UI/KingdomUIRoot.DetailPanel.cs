@@ -46,15 +46,19 @@ public sealed partial class KingdomUIRoot
         return BuildingPrerequisitesMet(definition);
     }
 
-    private static List<Pair<Resource, ExpantaNum>> GetNextBuildingRequirements(
+    private List<Pair<Resource, ExpantaNum>> GetNextBuildingRequirements(
         Building building,
         BuildingState state,
         bool upgrading)
     {
         var requirements = new List<Pair<Resource, ExpantaNum>>();
+        ExpantaNum quantity = GetSelectedBuildingQuantity(building, upgrading, false);
+        if (quantity < ExpantaNum.One)
+            return requirements;
+
         if (upgrading)
         {
-            BuildingManager.Instance.GetUpgradeResourceDeltas(building, ExpantaNum.One, requirements);
+            BuildingManager.Instance.GetUpgradeResourceDeltas(building, quantity, requirements);
             return requirements;
         }
 
@@ -64,7 +68,7 @@ public sealed partial class KingdomUIRoot
             Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
             requirements.Add(new Pair<Resource, ExpantaNum>(
                 requirement.First,
-                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, ExpantaNum.One)));
+                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, quantity)));
         }
         return requirements;
     }
@@ -554,7 +558,7 @@ public sealed partial class KingdomUIRoot
         return updated == validCount;
     }
 
-    private static string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
+    private string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
     {
         if (requirement.First == null)
             return string.Empty;
@@ -570,6 +574,9 @@ public sealed partial class KingdomUIRoot
             DataBase<Research>.TryFind(researchManager.SelectedResearchId, out Research selected) &&
             researchManager.States.TryGetValue(selected, out ResearchState researchState))
             paid = researchState.GetPaidResourceCost(requirement.First);
+
+        if (detailIsBuilding)
+            return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
 
         return paid.ToGameString() + " / " + requirement.Second.ToGameString() +
             " (" + owned.ToGameString() + ")";
@@ -638,9 +645,7 @@ public sealed partial class KingdomUIRoot
             sectionTop += flowHeight + 8f;
         }
         else if (flowHost != null)
-        {
             flowHost.gameObject.SetActive(false);
-        }
 
         float detailHeight = detailScrollViewport == null ? 0f : detailScrollViewport.rect.height;
         // Requirements are the next normal section in the same outer
@@ -997,7 +1002,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
         if (range <= 0.001f)
             return 1f;
-        return Mathf.Clamp01((content.anchoredPosition.y + range) / range);
+        // DetailScrollContent uses a top anchor and top pivot. In this
+        // coordinate system y=0 is the top and y=range is the bottom.
+        return Mathf.Clamp01(1f - content.anchoredPosition.y / range);
     }
 
     public void SetNormalizedPosition(float value)
@@ -1005,7 +1012,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (viewport == null || content == null)
             return;
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
-        content.anchoredPosition = new Vector2(0f, -range * Mathf.Clamp01(1f - value));
+        content.anchoredPosition = new Vector2(0f, range * (1f - Mathf.Clamp01(value)));
         ClampContent();
     }
 
@@ -1053,6 +1060,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (Mathf.Abs(deltaY) > 0.001f)
         {
             dragging = true;
+            // Screen coordinates use a bottom-left origin, so a finger
+            // moving up produces a positive deltaY. The top-anchored
+            // content follows that delta toward its positive scroll range.
             content.anchoredPosition += new Vector2(0f, deltaY);
             ClampContent();
             movementSamples++;
@@ -1102,7 +1112,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
         Vector2 position = content.anchoredPosition;
         position.x = 0f;
-        position.y = Mathf.Clamp(position.y, -range, 0f);
+        position.y = Mathf.Clamp(position.y, 0f, range);
         content.anchoredPosition = position;
     }
 

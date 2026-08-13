@@ -19,7 +19,7 @@ MonoBehaviour:
   upgradeTo: {fileID: 11400000, guid: f3a4b5c6d7e8091a2b3c4d5e6f708192, type: 2}
   costGrowth: "1.22"
   spaceCost: "28"
-  productivityConsumption: "120"
+  productivityConsumption: "12"
   productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"
@@ -47,7 +47,7 @@ MonoBehaviour:
     amount: "200"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "120"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
     amount: "180"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
@@ -61,11 +61,10 @@ MonoBehaviour:
     amount: "0.35"
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "0.12"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
     amount: "0.18"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "0.10"
   requiredResearch:
-  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}
   requiredWorkshopUpgrades: []

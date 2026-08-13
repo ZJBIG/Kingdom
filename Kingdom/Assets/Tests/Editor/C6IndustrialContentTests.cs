@@ -298,7 +298,7 @@ public sealed class C6IndustrialContentTests
         Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Copper"), Is.EqualTo(3d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Tin"), Is.EqualTo(2.4d).Within(0.0001d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Bronze"), Is.EqualTo(0.6d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceGenerationRates, "Bronze"), Is.EqualTo(2.5d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Steel"), Is.EqualTo(3.2d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "CopperOre"), Is.EqualTo(2.2d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "TinOre"), Is.EqualTo(1.8d).Within(0.0001d));

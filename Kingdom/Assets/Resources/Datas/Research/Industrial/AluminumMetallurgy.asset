@@ -34,8 +34,6 @@ MonoBehaviour:
     amount: "84"
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
     amount: "1200"
-  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "800"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 40dcf98d7f7870d48a5d74c91410104b, type: 2}

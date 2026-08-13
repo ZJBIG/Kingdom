@@ -820,7 +820,7 @@ public sealed class SectorManager
             failure = SectorOperationFailure.InvalidRepairAmount;
             return false;
         }
-        if (requestedAmount <= ExpantaNum.Zero)
+        if (!requestedAmount.IsFinite || requestedAmount <= ExpantaNum.Zero)
         {
             failure = SectorOperationFailure.InvalidRepairAmount;
             return false;
@@ -908,7 +908,8 @@ public sealed class SectorManager
         out SectorOperationFailure failure)
     {
         repairedAmount = ExpantaNum.Zero;
-        if (state == null || runtimeState == null || resourceManager == null || requestedAmount <= ExpantaNum.Zero)
+        if (state == null || runtimeState == null || resourceManager == null ||
+            !requestedAmount.IsFinite || requestedAmount <= ExpantaNum.Zero)
         {
             failure = SectorOperationFailure.InvalidRepairAmount;
             return false;
@@ -1208,7 +1209,12 @@ public sealed class SectorManager
         for (int i = 0; i < data.States.Count; i++)
         {
             SaveManager.SectorStateSaveData saved = data.States[i];
-            SectorDefinition definition = DataBase<SectorDefinition>.Find(saved.SectorId);
+            if (saved == null ||
+                !DataBase<SectorDefinition>.TryFind(saved.SectorId, out SectorDefinition definition) ||
+                definition == null ||
+                !states.ContainsKey(definition))
+                throw new InvalidOperationException(
+                    $"Unknown sector in save data: '{saved?.SectorId}'.");
             if (!restoredSectors.Add(definition))
                 throw new InvalidOperationException(
                     $"存档中的区域状态重复包含“{definition.Id}”。");

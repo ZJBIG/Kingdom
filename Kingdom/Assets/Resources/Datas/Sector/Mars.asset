@@ -28,11 +28,11 @@ MonoBehaviour:
     amount: "10000"
   occupiedResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    amount: "0.25"
+    amount: "0.18"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "0.12"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.10"
+    amount: "0.07"
   colonizationFoodPerSecond: "2.3333333333"
   colonizationResourceRatesPerSecond:
     - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}

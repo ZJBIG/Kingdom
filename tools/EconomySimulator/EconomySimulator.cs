@@ -148,10 +148,10 @@ public static class EconomySimulator
 {
     public const double TickSeconds=1d;
     public const double MedievalStepSeconds=10d;
-    public const double IndustrialStepSeconds=60d;
-    public const double SpacerStepSeconds=120d;
-    public const double UltraStepSeconds=180d;
-    public const double ArchotechStepSeconds=300d;
+    public const double IndustrialStepSeconds=600d;
+    public const double SpacerStepSeconds=1800d;
+    public const double UltraStepSeconds=1800d;
+    public const double ArchotechStepSeconds=1800d;
     public const int DefaultHorizonDays=30;
     public const double DefaultHorizonSeconds=DefaultHorizonDays*24d*60d*60d;
     public const int ReportSnapshotIntervalSeconds=600;
@@ -238,7 +238,7 @@ public static class EconomySimulator
         }
         s.MaximumNoActionSeconds=Math.Max(s.MaximumNoActionSeconds,s.Seconds-s.LastActionSeconds);
         BalanceAnalysis.Analyze(r,snapshot.All,b,q);
-        r.Notes.Add($"Internal clock: one-second Animal/Neolithic ticks, ten-second Medieval ticks, sixty-second Industrial ticks, one-hundred-twenty-second Spacer ticks, one-hundred-eighty-second Ultra ticks and three-hundred-second Archotech ticks; rates remain per-second. Observation horizon is {DefaultHorizonDays} days; reports sample every {ReportSnapshotIntervalSeconds / 60} minutes.");
+        r.Notes.Add($"Internal clock: one-second Animal/Neolithic ticks, ten-second Medieval ticks, ten-minute Industrial ticks and thirty-minute Spacer/Ultra/Archotech ticks; rates remain per-second and are multiplied by the complete step. Observation horizon is {DefaultHorizonDays} days; reports sample every {ReportSnapshotIntervalSeconds / 60} minutes.");
         r.Notes.Add("The standalone double-based simulator saturates only at double.MaxValue to prevent overflow from becoming NaN; this is not a gameplay stockpile cap.");
         r.Notes.Add("Research waits until its complete resource cost can be paid atomically, matching ResearchManager.");
         r.Notes.Add("Workshop unlocks, prerequisites, costs and effects are simulated.");

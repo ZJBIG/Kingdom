@@ -71,7 +71,11 @@ public sealed partial class KingdomUIRoot
             customQuantityInput.onValueChanged.AddListener(value =>
             {
                 if (ExpantaNum.TryParse(value, out ExpantaNum parsed) && parsed.IsFinite && parsed >= ExpantaNum.One)
+                {
                     customBuildingQuantity = parsed.Floor();
+                    RefreshSelectedBuildingDetails(selectedBuilding);
+                    RefreshLiveCardValues();
+                }
             });
             customQuantityInput.onSelect.RemoveAllListeners();
             customQuantityInput.onSelect.AddListener(_ => SelectBuildingQuantityMode(BuildingQuantityMode.Custom));
@@ -131,6 +135,8 @@ public sealed partial class KingdomUIRoot
     {
         buildingQuantityMode = mode;
         UpdateBuildingQuantityButtonColors();
+        RefreshSelectedBuildingDetails(selectedBuilding);
+        RefreshLiveCardValues();
     }
 
     private void UpdateBuildingQuantityButtonColors()

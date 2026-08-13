@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public sealed class SectorManagerTests
 {
@@ -97,6 +99,40 @@ public sealed class SectorManagerTests
 
         manager.GetState(tau).SetOccupiedForEditor(true);
         Assert.That(manager.CanAccess(sirius), Is.True);
+    }
+
+    [Test]
+    public void OccupyAppliesRewardExactlyOnceAfterCampaignCompletion()
+    {
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        int applied = 0;
+        var manager = new SectorManager(_ => applied++);
+        manager.InitializeDefinitions();
+        SectorState state = manager.GetState(lowOrbit);
+        state.SetUnlockedForEditor(true);
+        state.SetCampaignProgressForEditor(ExpantaNum.One);
+
+        Assert.That(manager.TryOccupy(lowOrbit, out SectorOperationFailure failure), Is.True);
+        Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+        Assert.That(state.Occupied, Is.True);
+        Assert.That(state.VisitCount, Is.EqualTo(1));
+        Assert.That(applied, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void OccupyRollsBackStateWhenRewardApplicationFails()
+    {
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        var manager = new SectorManager(_ => throw new InvalidOperationException("reward probe"));
+        manager.InitializeDefinitions();
+        SectorState state = manager.GetState(lowOrbit);
+        state.SetUnlockedForEditor(true);
+        state.SetCampaignProgressForEditor(ExpantaNum.One);
+
+        Assert.Throws<InvalidOperationException>(
+            () => manager.TryOccupy(lowOrbit, out _));
+        Assert.That(state.Occupied, Is.False);
+        Assert.That(state.VisitCount, Is.EqualTo(0));
     }
 
     [Test]
@@ -1617,6 +1653,33 @@ public sealed class SectorManagerTests
     }
 
     [Test]
+    public void C808c_UnknownSectorStateIsRejectedBeforeExistingStateIsCleared()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorState moonState = manager.GetState(moon);
+        moonState.SetUnlockedForEditor(true);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            manager.RestoreSaveData(new SaveManager.SectorSaveData
+            {
+                States = new List<SaveManager.SectorStateSaveData>
+                {
+                    new SaveManager.SectorStateSaveData
+                    {
+                        SectorId = "MissingSector",
+                        CampaignProgress = "0",
+                        CampaignCasualties = "0",
+                        CampaignCombatRatio = "0"
+                    }
+                }
+            }));
+
+        Assert.That(moonState.Unlocked, Is.True);
+    }
+
+    [Test]
     public void C808d_ContradictorySectorFlagsAreRejected()
     {
         var manager = new SectorManager(_ => { });
@@ -2006,6 +2069,16 @@ public sealed class SectorManagerTests
             GameState runtimeState = new GameState();
             InvokeGameStateMethod(runtimeState, "BeginCampaign", sector.Id);
             InvokeGameStateMethod(runtimeState, "RecordCampaignCombat", new ExpantaNum(0.8d), new ExpantaNum(10));
+
+            Assert.That(manager.TryRepairFleet(
+                sector,
+                runtimeState,
+                resourceManager,
+                ExpantaNum.NaN,
+                out ExpantaNum invalidRepairAmount,
+                out SectorOperationFailure invalidRepairFailure), Is.False);
+            Assert.That(invalidRepairAmount, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(invalidRepairFailure, Is.EqualTo(SectorOperationFailure.InvalidRepairAmount));
 
             Assert.That(manager.TryRepairFleet(
                 sector,

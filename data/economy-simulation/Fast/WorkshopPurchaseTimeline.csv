@@ -1,3 +1,5 @@
 TimeSeconds,Minute,TechLevel,WorkshopId,Count
-40204.0,670.07,Industrial,"DraftingTables",1
-56104.0,935.07,Industrial,"CokeOvenOptimization",1
+60788.0,1013.13,Industrial,"DraftingTables",1
+77588.0,1293.13,Industrial,"CokeOvenOptimization",1
+130988.0,2183.13,Industrial,"ReinforcedBoilers",1
+147188.0,2453.13,Industrial,"PrecisionTooling",1

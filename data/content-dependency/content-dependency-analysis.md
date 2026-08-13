@@ -2,358 +2,110 @@
 ================================
 UNREACHABLE RESEARCH
 ================================
-
-Research: RailwayEngineering
-Blocked reason:
-Missing prerequisite: MechanizedProduction
-
-Research: MassProduction
-Blocked reason:
-Missing prerequisite: MechanizedProduction
-
-Research: SyntheticFertilizers
-Blocked reason:
-Missing prerequisite: IndustrialChemistry
-
-Research: PrecisionManufacturing
-Blocked reason:
-Missing prerequisite: ElectricalEngineering
-
-Research: ModernUniversity
-Blocked reason:
-Missing prerequisite: ScientificMethod
-
-Research: Bookmaking
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: FactoryOrganization
-Blocked reason:
-Missing prerequisite: Standardization
-
-Research: Fortification
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: StandingArmy
-Blocked reason:
-Missing prerequisite: Fortification
-
-Research: CombustionEngines
-Blocked reason:
-Missing prerequisite: MechanizedProduction
-
-Research: AluminumMetallurgy
-Blocked reason:
-Missing prerequisite: ScientificInstrumentation
-
-Research: PublicHealth
-Blocked reason:
-Missing prerequisite: Bookmaking
-
-Research: IndustrialChemistry
-Blocked reason:
-Missing prerequisite: PetroleumExtraction
-
-Research: ModernSteelmaking
-Blocked reason:
-Missing prerequisite: Coking
-
-Research: MilitaryIndustry
-Blocked reason:
-Missing prerequisite: MassProduction
-
-Research: MechanizedProduction
-Blocked reason:
-Missing prerequisite: PrecisionManufacturing
-
-Research: ScientificMethod
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Research: PetroleumExtraction
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Research: IndustrialAgriculture
-Blocked reason:
-Missing prerequisite: MassProduction
-
-Research: Coking
-Blocked reason:
-Missing prerequisite: SteamPower
-
-Research: TradeRoutes
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: Steelmaking
-Blocked reason:
-TechLevel condition: 2
-
-Research: PowerGridEngineering
-Blocked reason:
-Missing prerequisite: ElectricalEngineering
-
-Research: ElectricalCommunication
-Blocked reason:
-Missing prerequisite: ElectricalEngineering
-
-Research: GuildSystem
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: MechanicalEngineering
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: ConcreteEngineering
-Blocked reason:
-Missing prerequisite: IndustrialChemistry
-
-Research: SteamPower
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Research: FeudalAdministration
-Blocked reason:
-TechLevel condition: 2
-
-Research: LogisticsManagement
-Blocked reason:
-Missing prerequisite: RailwayEngineering
-
-Research: UrbanHousing
-Blocked reason:
-Missing prerequisite: FeudalAdministration
-
-Research: ElectricalEngineering
-Blocked reason:
-Missing prerequisite: IndustrialChemistry
-
-Research: Gunpowder
-Blocked reason:
-Missing prerequisite: Steelmaking
-
-Research: IndustrialWorkshop
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Research: Industrialization
-Blocked reason:
-Missing prerequisite: MechanicalEngineering
-
-Research: ScientificInstrumentation
-Blocked reason:
-Missing prerequisite: ScientificMethod
-
-Research: ScholasticInstitutions
-Blocked reason:
-Missing prerequisite: Bookmaking
-
-Research: Standardization
-Blocked reason:
-Missing prerequisite: IndustrialWorkshop
-
-Research: IndustrialCopperSmelting
-Blocked reason:
-Missing prerequisite: Coking
+None
 
 ================================
 UNREACHABLE BUILDINGS
 ================================
+None
 
-Building: IndustrialTinSmelter
-Blocked reason:
-Missing prerequisite: IndustrialCopperSmelting
-
-Building: Glassworks
-Blocked reason:
-Missing prerequisite: IndustrialChemistry
-
-Building: BauxiteMine
-Blocked reason:
-Missing prerequisite: AluminumMetallurgy
-
-Building: OilRefinery
-Blocked reason:
-Missing prerequisite: IndustrialChemistry
-
-Building: RailHub
-Blocked reason:
-Missing prerequisite: RailwayEngineering
-
-Building: SteelForge
-Blocked reason:
-Missing prerequisite: Steelmaking
-
-Building: OrbitalStation
-Blocked reason:
-Missing resource: Steel
-Required producer: SteelForge
-Producer blocked by: Steelmaking
-Required producer: BlastFurnace
-Producer blocked by: ModernSteelmaking
-
-Building: Shipyard
-Blocked reason:
-Missing resource: Steel
-Required producer: SteelForge
-Producer blocked by: Steelmaking
-Required producer: BlastFurnace
-Producer blocked by: ModernSteelmaking
-
-Building: ArmsFactory
-Blocked reason:
-Missing prerequisite: MilitaryIndustry
-
-Building: GuildHall
-Blocked reason:
-Missing prerequisite: GuildSystem
-
-Building: AluminumSmelter
-Blocked reason:
-Missing prerequisite: AluminumMetallurgy
-
-Building: WireMill
-Blocked reason:
-Missing prerequisite: ElectricalEngineering
-
-Building: Castle
-Blocked reason:
-Missing prerequisite: Fortification
-
-Building: IndustrialBronzeFoundry
-Blocked reason:
-Missing prerequisite: IndustrialCopperSmelting
-
-Building: ConcreteWorks
-Blocked reason:
-Missing prerequisite: ConcreteEngineering
-
-Building: LaunchCenter
-Blocked reason:
-Missing resource: Steel
-Required producer: SteelForge
-Producer blocked by: Steelmaking
-Required producer: BlastFurnace
-Producer blocked by: ModernSteelmaking
-
-Building: OilDerrick
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Building: Caravanserai
-Blocked reason:
-Missing prerequisite: TradeRoutes
-
-Building: SteamPlant
-Blocked reason:
-Missing prerequisite: Industrialization
-
-Building: CokeOven
-Blocked reason:
-Missing prerequisite: SteamPower
-
-Building: RoyalWorkshop
-Blocked reason:
-Missing prerequisite: GuildSystem
-
-Building: TownHouse
-Blocked reason:
-Missing prerequisite: UrbanHousing
-
-Building: MachineFactory
-Blocked reason:
-Missing prerequisite: PrecisionManufacturing
-
-Building: ChemicalPlant
-Blocked reason:
-Missing prerequisite: PetroleumExtraction
-
-Building: University
-Blocked reason:
-Missing prerequisite: ModernUniversity
-
-Building: Academy
-Blocked reason:
-Missing prerequisite: ScholasticInstitutions
-
-Building: IndustrialCopperSmelter
-Blocked reason:
-Missing prerequisite: IndustrialCopperSmelting
-
-Building: Arsenal
-Blocked reason:
-Missing prerequisite: Gunpowder
-
-Building: Hospital
-Blocked reason:
-Missing prerequisite: PublicHealth
-
-Building: Barracks
-Blocked reason:
-Missing prerequisite: StandingArmy
-
-Building: CentralPowerStation
-Blocked reason:
-Missing prerequisite: PowerGridEngineering
-
-Building: Library
-Blocked reason:
-Missing prerequisite: Bookmaking
-
-Building: BlastFurnace
-Blocked reason:
-Missing prerequisite: ModernSteelmaking
+================================
+RESOURCE SOURCE/SINK AUDIT
+================================
+Aluminum: sources=1; sinks=21
+BauxiteOre: sources=2; sinks=6
+Biomass: sources=3; sinks=33
+Bronze: sources=2; sinks=25
+Ceramic: sources=3; sinks=85
+Chemical: sources=2; sinks=44
+Clay: sources=2; sinks=20
+Cloth: sources=3; sinks=28
+Coal: sources=3; sinks=17
+Coke: sources=3; sinks=42
+Composite: sources=1; sinks=61
+Concrete: sources=1; sinks=32
+Copper: sources=2; sinks=8
+CopperOre: sources=3; sinks=4
+CopperWire: sources=1; sinks=27
+CrudeOil: sources=2; sinks=5
+Electronics: sources=1; sinks=94
+Engine: sources=1; sinks=17
+Explosives: sources=2; sinks=8
+Glass: sources=1; sinks=28
+Iron: sources=2; sinks=6
+IronOre: sources=3; sinks=4
+Lubricant: sources=2; sinks=23
+Machinery: sources=1; sinks=80
+Nickel: sources=1; sinks=12
+NickelConcentrate: sources=2; sinks=18
+PhantomAlloy: sources=1; sinks=39
+PhantomWeave: sources=1; sinks=42
+PhaseMaterial: sources=1; sinks=50
+RefinedFuel: sources=2; sinks=12
+RocketFuel: sources=2; sinks=16
+Rubber: sources=2; sinks=26
+Steel: sources=2; sinks=101
+StoneBrick: sources=2; sinks=38
+StoneChunk: sources=1; sinks=19
+Tin: sources=2; sinks=6
+TinOre: sources=3; sinks=4
+TitaniumAlloy: sources=2; sinks=82
+TitaniumConcentrate: sources=2; sinks=9
+WoodLog: sources=3; sinks=58
 
 ================================
 RESOURCE DEADLOCKS
 ================================
-AluminumMetallurgy -> requires BauxiteOre -> producer BauxiteMine requires AluminumMetallurgy
-ModernSteelmaking -> requires Steel -> producer BlastFurnace requires ModernSteelmaking
+None
 
 ================================
 RESEARCH CYCLES
 ================================
 None
 
+================================
+SECTOR PRODUCTION LIMIT (20% OF DOMESTIC MAX)
+================================
+None
+
+================================
+POWER / LOGISTICS FLOW AUDIT (ONE COPY PER BUILDING)
+================================
+Power: production=780; consumption=3515; net=-2735
+Logistics: production=380; consumption=805; net=-425
+Violations: None
+
+================================
+INTERSTELLAR CAMPAIGN AUDIT
+================================
+Violations: None
+
+================================
+HIGH-TIER RESOURCE SOURCE/SINK AUDIT
+================================
+Violations: None
+
+================================
+SOLAR SYSTEM SECTOR PROGRESSION AUDIT
+================================
+Violations: None
+
+================================
+SECTOR TERRITORY REWARD AUDIT
+================================
+Violations: None
+
 Summary
-Definitions: 169
-Research definitions: 72
-Building definitions: 65
-Research reachable: NO
-Building reachable: NO
-Resource deadlock: FOUND
+Definitions: 273
+Research definitions: 106
+Building definitions: 69
+Research reachable: ALL
+Building reachable: ALL
+Resource deadlock: None
 Research cycle: None
-Highest TechLevel: 1
+Highest TechLevel: 4
 
 ================================
 REPAIR SUGGESTIONS
 ================================
-
-Problem:
-AluminumMetallurgy -> requires BauxiteOre -> producer BauxiteMine requires AluminumMetallurgy
-
-Possible fixes:
-Option A: Remove the blocking resource from the research or construction cost.
-Option B: Change the producer requiredResearch or constructionCost.
-Option C: Add an alternative producer reachable before the blocked node.
-
-Problem:
-ModernSteelmaking -> requires Steel -> producer BlastFurnace requires ModernSteelmaking
-
-Possible fixes:
-Option A: Remove the blocking resource from the research or construction cost.
-Option B: Change the producer requiredResearch or constructionCost.
-Option C: Add an alternative producer reachable before the blocked node.
-
-Summary
-Definitions: 169
-Research definitions: 72
-Building definitions: 65
-Research reachable: NO
-Building reachable: NO
-Resource deadlock: FOUND
-Research cycle: None
-Highest TechLevel: 1
+None

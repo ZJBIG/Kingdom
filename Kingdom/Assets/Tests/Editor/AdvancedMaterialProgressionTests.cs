@@ -34,18 +34,18 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(phasePlant.ResourceConsumptionRates.Count, Is.GreaterThanOrEqualTo(5));
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
-            DataBase<Resource>.Find("Nickel")), Is.True);
+            DataBase<Resource>.Find("NickelConcentrate")), Is.True);
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
             ceramic), Is.True);
         Assert.That(HasResourceRequirement(
             titaniumPlant.ResourceRequirements,
-            DataBase<Resource>.Find("Nickel"),
+            DataBase<Resource>.Find("NickelConcentrate"),
             180d), Is.True);
         Assert.That(HasResourceRequirement(ceramicPlant.ResourceRequirements, ceramic, 420d), Is.True);
         Assert.That(HasResourceRequirement(phantomPlant.ResourceRequirements, ceramic, 260d), Is.True);
-        Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomAlloy, 1200d), Is.True);
-        Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomWeave, 1000d), Is.True);
+        Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomAlloy, 240d), Is.True);
+        Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, phantomWeave, 240d), Is.True);
         Assert.That(HasResourceRequirement(phasePlant.ResourceRequirements, titaniumAlloy, 1800d), Is.True);
         Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, phantomAlloy), Is.True);
         Assert.That(HasPositiveRate(phasePlant.ResourceConsumptionRates, phantomWeave), Is.True);

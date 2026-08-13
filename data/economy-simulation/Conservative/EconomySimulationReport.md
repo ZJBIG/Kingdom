@@ -5,7 +5,7 @@ Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
 
 ## Rules
 
-- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, sixty seconds in Industrial, one-hundred-twenty seconds in Spacer, one-hundred-eighty seconds in Ultra, and three-hundred seconds in Archotech; snapshots remain ten-minute aligned.
+- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, ten minutes in Industrial, and thirty minutes in Spacer/Ultra/Archotech; rates remain per-second and snapshots remain ten-minute aligned.
 - Each route runs for a 30-day observation horizon so late-era construction, workshops and supply chains are visible; reports sample every 10 minutes.
 - Research resource costs are paid atomically before progress begins, matching ResearchManager.
 - Workshop unlocks, prerequisite chains, costs and effects are included.
@@ -15,8 +15,9 @@ Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
 - Food starts at +5/s; population consumes 0.8 food/s per person and grows toward housing capacity.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
-- Productivity-blocked building decision time: total 0 seconds; longest continuous 0 seconds.
-- Final population growth: x1.6, 0/s; productivity utilization: 37.7%; territory: 268/2325.
+- Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
+- Productivity-blocked building decision time: total 316440 seconds; longest continuous 293760 seconds.
+- Final population growth: x2.65, 0/s; productivity utilization: 99.9%; territory: 2595/2725.
 
 ## Animal Age
 
@@ -25,38 +26,42 @@ Strict snapshot: 40 resources, 70 buildings, 106 research, 58 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 80.6 分钟
+到达时间: 64.58 分钟
 完成研究: 23
 
 ## Medieval Age
 
-到达时间: 556.52 分钟
+到达时间: 442.82 分钟
 完成研究: 3
 
 ## Industrial Age
 
-到达时间: 672.87 分钟
-完成研究: 10
+到达时间: 1131 分钟
+完成研究: 44
 
-原始时代最长无研究目标: 1 分钟；新石器时代: 0 分钟。
+## Spacer Age
+
+到达时间: 7931.17 分钟
+完成研究: 7
+
+原始时代最长无研究目标: 1 分钟；新石器时代: 2 分钟。
 
 ## Bottlenecks
 
-- Explosives: single producer
+- Aluminum: single producer
+- CopperWire: single producer
+- Electronics: single producer
+- Engine: single producer
+- Glass: single producer
+- Machinery: single producer
 
 ## Warnings
 
-- **High Building wait exceeds ten minutes** OrbitalAgroecologyArray: Construction inputs 47550 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalCarbonizationComplex: Construction inputs 27710 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalCryogenicPropellantArray: Construction inputs 46200 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalForestryHarvestingArray: Construction inputs 21870 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalHabitatMegastructure: Construction inputs 31300 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalLogisticsHub: Construction inputs 18200 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalResourceExtractionArray: Construction inputs 37140 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalStation: Construction inputs 23520 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalTextileFabricationArray: Construction inputs 38200 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** OrbitalVacuumMetallurgyArray: Construction inputs 46980 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** Shipyard: Construction inputs 28800 exceed ten minutes of active aggregate production. Suggestion: Adjust first-copy cost or unlock a producer earlier.
+- **Info Legacy metal surplus** Bronze: Active production is 53.7/s versus 1/s consumption; net flow remains 52.7/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **Info Legacy metal surplus** Tin: Active production is 52/s versus 1/s consumption; net flow remains 51/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **High Building wait exceeds ten minutes** IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
+- **High Building wait exceeds ten minutes** IntegratedPetrochemicalComplex: First-copy Electronics input takes 11.9 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
+- **Info Building wait exceeds ten minutes** PhantomMaterialsFabricator: First-copy TitaniumAlloy input takes 22.22 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
 
 ## Validation boundary
 

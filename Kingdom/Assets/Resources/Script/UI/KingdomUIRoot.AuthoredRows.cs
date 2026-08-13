@@ -149,7 +149,10 @@ public sealed partial class KingdomUIRoot
             Button deconstructButton = RequireChildButton(row, "DeconstructButton");
             if (buildButton == null || deconstructButton == null)
                 continue;
-            SetBuildingActionButtonText(buildButton, canUpgrade ? "升级" : "建造");
+            ExpantaNum buildQuantity = GetSelectedBuildingQuantity(building, canUpgrade, false);
+            SetBuildingActionButtonText(
+                buildButton,
+                (canUpgrade ? "\u5347\u7ea7x" : "\u5efa\u9020x") + buildQuantity.ToGameString());
             buildButton.onClick.RemoveAllListeners();
             buildButton.onClick.AddListener(() =>
             {
@@ -164,7 +167,10 @@ public sealed partial class KingdomUIRoot
             bool hasAmount = BuildingManager.Instance != null &&
                 BuildingManager.Instance.States.TryGetValue(building, out BuildingState buildingState) &&
                 buildingState.Amount > ExpantaNum.Zero;
-            SetBuildingActionButtonText(deconstructButton, "拆除");
+            ExpantaNum deconstructQuantity = GetSelectedBuildingQuantity(building, false, true);
+            SetBuildingActionButtonText(
+                deconstructButton,
+                "\u62c6\u9664x" + deconstructQuantity.ToGameString());
             deconstructButton.onClick.RemoveAllListeners();
             deconstructButton.onClick.AddListener(() =>
             {

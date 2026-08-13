@@ -50,7 +50,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "1.2"
   - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
-    amount: "0.1"
+    amount: "0.5"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "0.1"
   requiredResearch:

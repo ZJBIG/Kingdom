@@ -38,7 +38,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "1600"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "650"
+    amount: "480"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     amount: "800"
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}

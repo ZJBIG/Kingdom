@@ -19,7 +19,7 @@ MonoBehaviour:
   upgradeTo: {fileID: 0}
   costGrowth: "1.24"
   spaceCost: "360"
-  productivityConsumption: "560"
+  productivityConsumption: "12"
   productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"
@@ -41,7 +41,7 @@ MonoBehaviour:
     amount: "500"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "300"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
     amount: "300"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "450"
@@ -67,7 +67,7 @@ MonoBehaviour:
     amount: "0.3"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "0.04"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
     amount: "0.15"
   - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
     amount: "0.08"

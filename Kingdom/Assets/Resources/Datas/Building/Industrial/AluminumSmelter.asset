@@ -19,7 +19,7 @@ MonoBehaviour:
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"
   spaceCost: "18"
-  productivityConsumption: "85"
+  productivityConsumption: "12"
   productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"
