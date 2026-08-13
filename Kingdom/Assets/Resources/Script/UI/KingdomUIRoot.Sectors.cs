@@ -105,8 +105,8 @@ public sealed partial class KingdomUIRoot
                 body.AppendLine("探索能力：" + explorationPreview.ExplorationPower.ToGameString() +
                     "/" + explorationPreview.RequiredPower.ToGameString());
                 body.AppendLine("预计剩余：" + explorationPreview.EstimatedSecondsRemaining.ToGameString() + " 秒");
-                body.AppendLine("食物补给：" + explorationPreview.FoodCostPerSecond.ToGameString() + "/秒");
-                body.AppendLine("战略资源补给：" + FormatResourceCosts(explorationPreview.ResourceCostsPerSecond) + "/秒");
+                body.AppendLine("食物补给：" + explorationPreview.FoodCostPerSecond.ToGameString() + "/s");
+                body.AppendLine("战略资源补给：" + FormatResourceCosts(explorationPreview.ResourceCostsPerSecond) + "/s");
                 body.AppendLine(explorationPreview.HasSupply ? "当前补给：充足" : "当前补给：不足");
             }
             body.AppendLine("探索要求：攻击力 ≥ " + definition.EnemyPower.ToGameString());
@@ -127,13 +127,13 @@ public sealed partial class KingdomUIRoot
             body.AppendLine("补给满意度：" + preview.SupplySatisfaction.ToGameString());
             body.AppendLine("电力满意度：" + preview.PowerSatisfaction.ToGameString());
             body.AppendLine("物流满意度：" + preview.LogisticsSatisfaction.ToGameString());
-                body.AppendLine("推进速度：" + preview.ProgressPerSecond.ToGameString() + "/秒");
+                body.AppendLine("推进速度：" + preview.ProgressPerSecond.ToGameString() + "/s");
             body.AppendLine(preview.EstimatedSecondsRemaining > ExpantaNum.Zero
                 ? "预计完成：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒"
                 : "预计完成：无法估算（当前条件不支持推进）");
-            body.AppendLine("预计伤亡：" + preview.CasualtiesPerSecond.ToGameString() + "/秒");
-            body.AppendLine("食物补给：" + preview.FoodCostPerSecond.ToGameString() + "/秒");
-            body.AppendLine("战略资源补给：" + FormatResourceCosts(preview.ResourceCostsPerSecond) + "/秒");
+            body.AppendLine("预计伤亡：" + preview.CasualtiesPerSecond.ToGameString() + "/s");
+            body.AppendLine("食物补给：" + preview.FoodCostPerSecond.ToGameString() + "/s");
+            body.AppendLine("战略资源补给：" + FormatResourceCosts(preview.ResourceCostsPerSecond) + "/s");
             body.AppendLine(preview.HasSupply ? "当前补给：足够" : "当前补给：不足");
             if (preview.ProgressPerSecond <= ExpantaNum.Zero)
                 body.AppendLine("警告：当前战斗或后勤条件不足，战役不会推进，继续行动只会增加伤亡。");
