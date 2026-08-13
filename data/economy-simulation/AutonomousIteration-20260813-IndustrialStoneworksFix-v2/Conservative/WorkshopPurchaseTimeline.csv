@@ -1,0 +1,11 @@
+TimeSeconds,Minute,TechLevel,WorkshopId,Count
+41850.0,697.5,Industrial,"DraftingTables",1
+70650.0,1177.5,Industrial,"CokeOvenOptimization",1
+232050.0,3867.5,Industrial,"ReinforcedBoilers",1
+247950.0,4132.5,Industrial,"PrecisionTooling",1
+248250.0,4137.5,Industrial,"PoweredMining",1
+248550.0,4142.5,Industrial,"RotaryKilns",1
+252750.0,4212.5,Industrial,"HotBlastStoves",1
+259350.0,4322.5,Industrial,"ConcreteBatching",1
+264450.0,4407.5,Industrial,"RotaryDrillingHeads",1
+264750.0,4412.5,Industrial,"ControlledBlasting",1

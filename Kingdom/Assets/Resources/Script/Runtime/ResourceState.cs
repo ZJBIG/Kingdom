@@ -30,10 +30,15 @@ public sealed class ResourceState
         tickPotentialConsumptionRate = ExpantaNum.Zero;
     }
 
-    internal void SetAmount(ExpantaNum value) => Change(ref amount, ExpantaNum.Max(ExpantaNum.Zero, value));
-    internal void SetProductionRate(ExpantaNum value) => Change(ref productionRate, ExpantaNum.Max(ExpantaNum.Zero, value));
-    internal void SetConsumptionRate(ExpantaNum value) => Change(ref consumptionRate, ExpantaNum.Max(ExpantaNum.Zero, value));
-    internal void SetEfficiency(ExpantaNum value) => Change(ref efficiency, ExpantaNum.Clamp01(value));
+    internal void SetAmount(ExpantaNum value) => Change(ref amount, NormalizeFiniteNonNegative(value, nameof(value)));
+    internal void SetProductionRate(ExpantaNum value) => Change(ref productionRate, NormalizeFiniteNonNegative(value, nameof(value)));
+    internal void SetConsumptionRate(ExpantaNum value) => Change(ref consumptionRate, NormalizeFiniteNonNegative(value, nameof(value)));
+    internal void SetEfficiency(ExpantaNum value)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        Change(ref efficiency, ExpantaNum.Clamp01(value));
+    }
 
     internal void ResetForLoad()
     {
@@ -61,7 +66,7 @@ public sealed class ResourceState
 
     internal void CalculateTickSatisfaction(double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         tickSatisfaction = ResourceManager.CalculateSatisfaction(
@@ -88,5 +93,12 @@ public sealed class ResourceState
 
         field = value;
         Version++;
+    }
+
+    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
+        return ExpantaNum.Max(ExpantaNum.Zero, value);
     }
 }

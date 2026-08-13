@@ -33,16 +33,23 @@ public sealed class PopulationState
 
     internal void RestorePopulation(ExpantaNum restoredPopulation)
     {
-        population = NormalizeWhole(restoredPopulation);
+        EnsureFinite(restoredPopulation, nameof(restoredPopulation));
+        if (restoredPopulation < ExpantaNum.Zero ||
+            restoredPopulation != restoredPopulation.Floor())
+            throw new ArgumentOutOfRangeException(nameof(restoredPopulation));
+        population = restoredPopulation;
         populationChangeProgress = ExpantaNum.Zero;
         Version++;
     }
 
     internal void RestorePopulationChangeProgress(ExpantaNum restoredProgress)
     {
+        EnsureFinite(restoredProgress, nameof(restoredProgress));
+        if (restoredProgress < ExpantaNum.Zero || restoredProgress > ExpantaNum.One)
+            throw new ArgumentOutOfRangeException(nameof(restoredProgress));
         ExpantaNum next = population == populationCapacity
             ? ExpantaNum.Zero
-            : NormalizeProgress(restoredProgress);
+            : restoredProgress;
         if (populationChangeProgress == next)
             return;
         populationChangeProgress = next;
@@ -51,6 +58,7 @@ public sealed class PopulationState
 
     internal void AdjustPopulationCapacity(ExpantaNum delta)
     {
+        EnsureFinite(delta, nameof(delta));
         int previousRelation = ComparePopulationToCapacity();
         ExpantaNum next = NormalizeWhole(populationCapacity + delta);
         if (populationCapacity == next)
@@ -71,14 +79,34 @@ public sealed class PopulationState
         Version++;
     }
 
+    internal void RestoreCapacityExact(
+        ExpantaNum restoredCapacity,
+        ExpantaNum restoredProgress)
+    {
+        EnsureFinite(restoredCapacity, nameof(restoredCapacity));
+        EnsureFinite(restoredProgress, nameof(restoredProgress));
+        ExpantaNum nextCapacity = NormalizeWhole(restoredCapacity);
+        ExpantaNum nextProgress = population == nextCapacity
+            ? ExpantaNum.Zero
+            : NormalizeProgress(restoredProgress);
+        if (populationCapacity == nextCapacity && populationChangeProgress == nextProgress)
+            return;
+        populationCapacity = nextCapacity;
+        populationChangeProgress = nextProgress;
+        Version++;
+    }
+
     internal void AdvancePopulation(
         double deltaSeconds,
         ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond,
         ExpantaNum departureAllowance)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
+        EnsureFinite(growthRatePerSecond, nameof(growthRatePerSecond));
+        EnsureFinite(departureAllowance, nameof(departureAllowance));
         if (population == populationCapacity)
         {
             SetPopulationChangeProgress(ExpantaNum.Zero);
@@ -98,6 +126,8 @@ public sealed class PopulationState
         ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond)
     {
+        EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
+        EnsureFinite(growthRatePerSecond, nameof(growthRatePerSecond));
         if (population >= populationCapacity)
             return ExpantaNum.Zero;
         ExpantaNum satisfaction = ExpantaNum.Max(ExpantaNum.Zero, happinessMultiplier);
@@ -109,6 +139,7 @@ public sealed class PopulationState
     internal ExpantaNum CurrentDepartureRatePerSecond(
         ExpantaNum departureAllowance)
     {
+        EnsureFinite(departureAllowance, nameof(departureAllowance));
         if (population <= populationCapacity ||
             NormalizeWhole(departureAllowance) < ExpantaNum.One)
         {
@@ -119,6 +150,12 @@ public sealed class PopulationState
 
     private static ExpantaNum NormalizeWhole(ExpantaNum value) =>
         ExpantaNum.Max(ExpantaNum.Zero, value).Floor();
+
+    private static void EnsureFinite(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
+    }
 
     private static ExpantaNum NormalizeProgress(ExpantaNum value)
     {

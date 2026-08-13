@@ -64,7 +64,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         long currentTime,
         double maximumSeconds)
     {
-        if (maximumSeconds < 0d)
+        if (double.IsNaN(maximumSeconds) || double.IsInfinity(maximumSeconds) || maximumSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(maximumSeconds));
         if (savedAt <= 0L || currentTime <= savedAt)
             return 0d;
@@ -197,6 +197,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
+        GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
     }
 
     private bool TryLoadCandidate(string path, out KingdomSaveData data)
@@ -227,8 +228,11 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         ResourceManager.Instance.ResetForLoad();
         BuildingManager.Instance.ResetForLoad();
-        ResearchManager.Instance.ResetForLoad();
+        // Research reset rebuilds the shared progression modifiers. Clear
+        // Workshop purchases first so a failed/corrupt load cannot leave
+        // stale Workshop effects active in the subsequent new game.
         WorkshopManager.Instance.ResetForLoad();
+        ResearchManager.Instance.ResetForLoad();
         GameManager.Instance.Sectors.ResetForLoad();
     }
 

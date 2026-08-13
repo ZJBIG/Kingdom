@@ -155,6 +155,32 @@ public sealed class SectorExplorationPreview
 
 public sealed class SectorManager
 {
+    private sealed class SectorSnapshot
+    {
+        public SectorState State;
+        public bool Unlocked;
+        public bool Occupied;
+        public bool ColonizationActive;
+        public bool CampaignActive;
+        public ExpantaNum Progress;
+        public ExpantaNum Casualties;
+        public ExpantaNum CombatRatio;
+        public int VisitCount;
+    }
+
+    private sealed class SectorRestoreData
+    {
+        public SectorDefinition Definition;
+        public bool Unlocked;
+        public bool Occupied;
+        public bool ColonizationActive;
+        public bool CampaignActive;
+        public ExpantaNum Progress;
+        public ExpantaNum Casualties;
+        public ExpantaNum CombatRatio;
+        public int VisitCount;
+    }
+
     private const string LaunchCenterId = "LaunchCenter";
 
     private readonly Dictionary<SectorDefinition, SectorState> states = new();
@@ -430,9 +456,20 @@ public sealed class SectorManager
             return false;
         }
 
+        bool previousOccupied = state.Occupied;
+        int previousVisitCount = state.VisitCount;
         state.SetOccupied(true);
         state.SetVisitCount(state.VisitCount + 1);
-        rewardApplier(definition);
+        try
+        {
+            rewardApplier(definition);
+        }
+        catch
+        {
+            state.SetOccupied(previousOccupied);
+            state.SetVisitCount(previousVisitCount);
+            throw;
+        }
         failure = SectorOperationFailure.None;
         return true;
     }
@@ -481,7 +518,7 @@ public sealed class SectorManager
             failure = SectorOperationFailure.InterstellarSystemLocked;
             return false;
         }
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
         {
             failure = SectorOperationFailure.InvalidDelta;
             return false;
@@ -538,10 +575,60 @@ public sealed class SectorManager
         }
 
         bool ownsLegacyCampaignSlot = !runtimeState.Campaign.Active;
-        if (ownsLegacyCampaignSlot)
-            runtimeState.BeginCampaign(definition.Id);
-        state.SetCampaignActive(true);
-        ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
+        bool previousCampaignActive = runtimeState.Campaign.Active;
+        string previousCampaignTarget = runtimeState.Campaign.TargetSectorId;
+        ExpantaNum previousCampaignCasualties = runtimeState.Campaign.Casualties;
+        ExpantaNum previousCampaignCombatRatio = runtimeState.Campaign.CombatRatio;
+        ExpantaNum previousSectorProgress = state.CampaignProgress;
+        ExpantaNum previousSectorCasualties = state.CampaignCasualties;
+        ExpantaNum previousSectorCombatRatio = state.CampaignCombatRatio;
+        bool previousSectorOccupied = state.Occupied;
+        int previousSectorVisitCount = state.VisitCount;
+        bool previousSectorCampaignActive = state.CampaignActive;
+        if (!TryConsumeCampaignCosts(
+                runtimeState,
+                resourceManager,
+                foodCost,
+                resourceCosts,
+                () =>
+                {
+                    if (ownsLegacyCampaignSlot)
+                        runtimeState.BeginCampaign(definition.Id);
+                    state.SetCampaignActive(true);
+                    CommitCampaignAdvance(definition, state, deltaSeconds, runtimeState);
+                },
+                () =>
+                {
+                    runtimeState.RestoreCampaignExact(
+                        previousCampaignActive,
+                        previousCampaignTarget,
+                        previousCampaignCasualties,
+                        previousCampaignCombatRatio);
+                    state.RestoreExact(
+                        state.Unlocked,
+                        previousSectorOccupied,
+                        state.ColonizationActive,
+                        previousSectorCampaignActive,
+                        previousSectorProgress,
+                        previousSectorCasualties,
+                        previousSectorCombatRatio,
+                        previousSectorVisitCount);
+                }))
+        {
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
+        }
+
+        failure = SectorOperationFailure.None;
+        return true;
+    }
+
+    private bool CommitCampaignAdvance(
+        SectorDefinition definition,
+        SectorState state,
+        double deltaSeconds,
+        GameState runtimeState)
+    {
         ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
             runtimeState.AttackPower,
             runtimeState.FleetPower,
@@ -571,21 +658,19 @@ public sealed class SectorManager
             string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
             runtimeState.RecordCampaignCombat(combatRatio, casualties);
 
-        if (nextProgress >= ExpantaNum.One)
-        {
-            state.SetCampaignProgress(ExpantaNum.One);
-            state.SetCampaignActive(false);
-            state.SetCampaignCasualties(ExpantaNum.Zero);
-            state.SetCampaignCombatRatio(ExpantaNum.Zero);
-            state.SetOccupied(true);
-            state.SetVisitCount(state.VisitCount + 1);
-            if (runtimeState.Campaign.Active &&
-                string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
-                runtimeState.CompleteCampaign();
-            rewardApplier(definition);
-        }
+        if (nextProgress < ExpantaNum.One)
+            return true;
 
-        failure = SectorOperationFailure.None;
+        state.SetCampaignProgress(ExpantaNum.One);
+        state.SetCampaignActive(false);
+        state.SetCampaignCasualties(ExpantaNum.Zero);
+        state.SetCampaignCombatRatio(ExpantaNum.Zero);
+        state.SetOccupied(true);
+        state.SetVisitCount(state.VisitCount + 1);
+        if (runtimeState.Campaign.Active &&
+            string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
+            runtimeState.CompleteCampaign();
+        rewardApplier(definition);
         return true;
     }
 
@@ -607,7 +692,7 @@ public sealed class SectorManager
             failure = SectorOperationFailure.ColonizationNotAllowedInInterstellarSystem;
             return false;
         }
-        if (runtimeState == null || deltaSeconds < 0d)
+        if (runtimeState == null || double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
         {
             failure = SectorOperationFailure.InvalidDelta;
             return false;
@@ -650,15 +735,54 @@ public sealed class SectorManager
             return false;
         }
 
-        state.SetColonizationActive(true);
-        ConsumeCampaignCosts(runtimeState, resourceManager, foodCost, resourceCosts);
-        state.SetCampaignProgress(
-            state.CampaignProgress +
-            deltaSeconds / definition.ColonizationDurationSeconds);
-        if (state.CampaignProgress >= ExpantaNum.One)
+        bool previousColonizationActive = state.ColonizationActive;
+        ExpantaNum previousColonizationProgress = state.CampaignProgress;
+        bool previousColonizationOccupied = state.Occupied;
+        int previousColonizationVisitCount = state.VisitCount;
+        bool previousSectorCampaignActive = state.CampaignActive;
+        ExpantaNum previousSectorCasualties = state.CampaignCasualties;
+        ExpantaNum previousSectorCombatRatio = state.CampaignCombatRatio;
+        bool previousCampaignActive = runtimeState.Campaign.Active;
+        string previousCampaignTarget = runtimeState.Campaign.TargetSectorId;
+        ExpantaNum previousCampaignCasualties = runtimeState.Campaign.Casualties;
+        ExpantaNum previousCampaignCombatRatio = runtimeState.Campaign.CombatRatio;
+        if (!TryConsumeCampaignCosts(
+                runtimeState,
+                resourceManager,
+                foodCost,
+                resourceCosts,
+                () =>
+                {
+                    state.SetColonizationActive(true);
+                    state.SetCampaignProgress(
+                        state.CampaignProgress +
+                        deltaSeconds / definition.ColonizationDurationSeconds);
+                    if (state.CampaignProgress >= ExpantaNum.One)
+                    {
+                        state.SetCampaignProgress(ExpantaNum.One);
+                        CompleteOccupation(definition, state, runtimeState);
+                    }
+                },
+                () =>
+                {
+                    runtimeState.RestoreCampaignExact(
+                        previousCampaignActive,
+                        previousCampaignTarget,
+                        previousCampaignCasualties,
+                        previousCampaignCombatRatio);
+                    state.RestoreExact(
+                        state.Unlocked,
+                        previousColonizationOccupied,
+                        previousColonizationActive,
+                        previousSectorCampaignActive,
+                        previousColonizationProgress,
+                        previousSectorCasualties,
+                        previousSectorCombatRatio,
+                        previousColonizationVisitCount);
+                }))
         {
-            state.SetCampaignProgress(ExpantaNum.One);
-            CompleteOccupation(definition, state, runtimeState);
+            failure = SectorOperationFailure.InsufficientCampaignSupply;
+            return false;
         }
         failure = SectorOperationFailure.None;
         return true;
@@ -728,22 +852,47 @@ public sealed class SectorManager
             return false;
         }
 
-        for (int i = 0; i < costs.Count; i++)
-            resourceManager.AddAmount(costs[i].First, -costs[i].Second);
-        repairedAmount = runtimeState.RepairCampaignFleet(targetAmount);
-        for (int i = 0; i < orderedStates.Count; i++)
+        var payment = AggregateCosts(costs);
+        ExpantaNum committedRepairAmount = targetAmount;
+        bool previousCampaignActive = runtimeState.Campaign.Active;
+        string previousCampaignTarget = runtimeState.Campaign.TargetSectorId;
+        ExpantaNum previousCampaignCasualties = runtimeState.Campaign.Casualties;
+        ExpantaNum previousCampaignCombatRatio = runtimeState.Campaign.CombatRatio;
+        var previousSectorSnapshots = CaptureSectorSnapshots();
+        if (!resourceManager.TryApplyAtomicPayment(payment, () =>
         {
-            SectorState state = orderedStates[i];
-            if (string.Equals(
-                    state.Definition.Id,
-                    runtimeState.Campaign.TargetSectorId,
-                    StringComparison.OrdinalIgnoreCase))
+            committedRepairAmount = runtimeState.RepairCampaignFleet(targetAmount);
+            for (int i = 0; i < orderedStates.Count; i++)
             {
-                state.SetCampaignCasualties(
-                    ExpantaNum.Max(ExpantaNum.Zero, state.CampaignCasualties - repairedAmount));
-                break;
+                SectorState state = orderedStates[i];
+                if (string.Equals(
+                        state.Definition.Id,
+                        runtimeState.Campaign.TargetSectorId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    state.SetCampaignCasualties(
+                        ExpantaNum.Max(ExpantaNum.Zero, state.CampaignCasualties - committedRepairAmount));
+                    break;
+                }
             }
+            if (!runtimeState.Campaign.Active &&
+                runtimeState.Campaign.Casualties <= ExpantaNum.Zero)
+                runtimeState.CompleteCampaign();
+        }, () =>
+        {
+            runtimeState.RestoreCampaignExact(
+                previousCampaignActive,
+                previousCampaignTarget,
+                previousCampaignCasualties,
+                previousCampaignCombatRatio);
+            RestoreSectorSnapshots(previousSectorSnapshots);
+        }))
+        {
+            repairedAmount = ExpantaNum.Zero;
+            failure = SectorOperationFailure.InsufficientFleetRepairSupply;
+            return false;
         }
+        repairedAmount = committedRepairAmount;
         failure = repairedAmount > ExpantaNum.Zero
             ? SectorOperationFailure.None
             : SectorOperationFailure.NoFleetDamage;
@@ -805,13 +954,50 @@ public sealed class SectorManager
             failure = SectorOperationFailure.InsufficientFleetRepairSupply;
             return false;
         }
-        for (int i = 0; i < costs.Count; i++)
-            resourceManager.AddAmount(costs[i].First, -costs[i].Second);
-        repairedAmount = runtimeState.RepairCampaignFleet(targetAmount);
-        state.SetCampaignCasualties(state.CampaignCasualties - repairedAmount);
-        if (!runtimeState.Campaign.Active &&
-            runtimeState.Campaign.Casualties <= ExpantaNum.Zero)
-            runtimeState.CompleteCampaign();
+        var payment = AggregateCosts(costs);
+        ExpantaNum committedRepairAmount = targetAmount;
+        bool previousCampaignActive = runtimeState.Campaign.Active;
+        string previousCampaignTarget = runtimeState.Campaign.TargetSectorId;
+        ExpantaNum previousCampaignCasualties = runtimeState.Campaign.Casualties;
+        ExpantaNum previousCampaignCombatRatio = runtimeState.Campaign.CombatRatio;
+        bool previousSectorCampaignActive = state.CampaignActive;
+        ExpantaNum previousSectorCasualties = state.CampaignCasualties;
+        bool previousSectorOccupied = state.Occupied;
+        bool previousSectorColonizationActive = state.ColonizationActive;
+        ExpantaNum previousSectorProgress = state.CampaignProgress;
+        ExpantaNum previousSectorCombatRatio = state.CampaignCombatRatio;
+        int previousSectorVisitCount = state.VisitCount;
+        if (!resourceManager.TryApplyAtomicPayment(payment, () =>
+        {
+            committedRepairAmount = runtimeState.RepairCampaignFleet(targetAmount);
+            state.SetCampaignCasualties(state.CampaignCasualties - committedRepairAmount);
+            if (!runtimeState.Campaign.Active &&
+                runtimeState.Campaign.Casualties <= ExpantaNum.Zero)
+                runtimeState.CompleteCampaign();
+        }, () =>
+        {
+            runtimeState.RestoreCampaignExact(
+                previousCampaignActive,
+                previousCampaignTarget,
+                previousCampaignCasualties,
+                previousCampaignCombatRatio);
+            state.SetCampaignActive(previousSectorCampaignActive);
+            state.SetCampaignCasualties(previousSectorCasualties);
+            state.RestoreExact(
+                state.Unlocked,
+                previousSectorOccupied,
+                previousSectorColonizationActive,
+                previousSectorCampaignActive,
+                previousSectorProgress,
+                previousSectorCasualties,
+                previousSectorCombatRatio,
+                previousSectorVisitCount);
+        }))
+        {
+            failure = SectorOperationFailure.InsufficientFleetRepairSupply;
+            return false;
+        }
+        repairedAmount = committedRepairAmount;
         failure = SectorOperationFailure.None;
         return true;
     }
@@ -895,7 +1081,7 @@ public sealed class SectorManager
     public bool TickActiveColonization(double deltaSeconds, GameState runtimeState, ResourceManager resourceManager, out SectorOperationFailure failure)
     {
         failure = SectorOperationFailure.None;
-        if (runtimeState == null || deltaSeconds < 0d)
+        if (runtimeState == null || double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
         {
             failure = SectorOperationFailure.InvalidDelta;
             return false;
@@ -924,7 +1110,7 @@ public sealed class SectorManager
 
     public bool TickOccupiedResourceProduction(double deltaSeconds, ResourceManager resourceManager)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         if (resourceManager == null)
             return false;
@@ -1017,14 +1203,15 @@ public sealed class SectorManager
         if (data?.States == null)
             return;
 
-        for (int i = 0; i < orderedStates.Count; i++)
-            orderedStates[i].ResetForLoad();
-
+        var restoredSectors = new HashSet<SectorDefinition>();
+        var restoredData = new List<SectorRestoreData>(data.States.Count);
         for (int i = 0; i < data.States.Count; i++)
         {
             SaveManager.SectorStateSaveData saved = data.States[i];
             SectorDefinition definition = DataBase<SectorDefinition>.Find(saved.SectorId);
-            SectorState state = GetState(definition);
+            if (!restoredSectors.Add(definition))
+                throw new InvalidOperationException(
+                    $"存档中的区域状态重复包含“{definition.Id}”。");
             if (!ExpantaNum.TryParse(saved.CampaignProgress, out ExpantaNum progress))
                 throw new InvalidOperationException(
                     $"星区存档值“{saved.CampaignProgress}”无效，编号为“{saved.SectorId}”。");
@@ -1034,7 +1221,8 @@ public sealed class SectorManager
             ExpantaNum combatRatio = string.IsNullOrWhiteSpace(saved.CampaignCombatRatio)
                 ? ExpantaNum.Zero
                 : ParseSectorNumber(saved.CampaignCombatRatio, saved.SectorId, "CampaignCombatRatio");
-            state.Restore(
+            ValidateRestoredState(
+                saved.SectorId,
                 saved.Unlocked,
                 saved.Occupied,
                 saved.ColonizationActive,
@@ -1043,7 +1231,65 @@ public sealed class SectorManager
                 casualties,
                 combatRatio,
                 saved.VisitCount);
+            restoredData.Add(new SectorRestoreData
+            {
+                Definition = definition,
+                Unlocked = saved.Unlocked,
+                Occupied = saved.Occupied,
+                ColonizationActive = saved.ColonizationActive,
+                CampaignActive = saved.CampaignActive,
+                Progress = progress,
+                Casualties = casualties,
+                CombatRatio = combatRatio,
+                VisitCount = saved.VisitCount
+            });
         }
+
+        for (int i = 0; i < orderedStates.Count; i++)
+            orderedStates[i].ResetForLoad();
+        for (int i = 0; i < restoredData.Count; i++)
+        {
+            SectorRestoreData restored = restoredData[i];
+            GetState(restored.Definition).Restore(
+                restored.Unlocked,
+                restored.Occupied,
+                restored.ColonizationActive,
+                restored.CampaignActive,
+                restored.Progress,
+                restored.Casualties,
+                restored.CombatRatio,
+                restored.VisitCount);
+        }
+    }
+
+    internal void ValidateCampaignState(GameState runtimeState)
+    {
+        EnsureInitialized();
+        if (runtimeState == null)
+            throw new ArgumentNullException(nameof(runtimeState));
+
+        CampaignState campaign = runtimeState.Campaign;
+        if (campaign == null)
+            throw new InvalidOperationException("全局战役状态缺失。");
+        if (string.IsNullOrWhiteSpace(campaign.TargetSectorId))
+        {
+            if (campaign.Active || campaign.Casualties > ExpantaNum.Zero)
+                throw new InvalidOperationException("全局战役状态缺少目标星区。");
+            return;
+        }
+        if (!DataBase<SectorDefinition>.TryFind(campaign.TargetSectorId, out SectorDefinition definition) ||
+            !states.TryGetValue(definition, out SectorState state))
+            throw new InvalidOperationException(
+                $"全局战役目标星区“{campaign.TargetSectorId}”不存在。");
+        if (state.CampaignCasualties != campaign.Casualties)
+            throw new InvalidOperationException(
+                $"全局战役与星区“{definition.Id}”的伤亡数据不一致。");
+        if (campaign.Active && (!state.Unlocked || state.Occupied || !state.CampaignActive))
+            throw new InvalidOperationException(
+                $"全局战役与星区“{definition.Id}”的活动状态不一致。");
+        if (!campaign.Active && campaign.Casualties > ExpantaNum.Zero && state.CampaignActive)
+            throw new InvalidOperationException(
+                $"已取消的全局战役不能让星区“{definition.Id}”继续处于活动状态。");
     }
 
     internal void AppendStateSignature(ref long hash)
@@ -1095,15 +1341,48 @@ public sealed class SectorManager
 
     private static void ApplyRewards(SectorDefinition definition)
     {
-        GameManager.Instance.AdjustTerritoryTotal(definition.TerritoryReward);
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
-        if (rewards == null)
-            return;
-        for (int i = 0; i < rewards.Count; i++)
+        var aggregated = new Dictionary<Resource, ExpantaNum>();
+        for (int i = 0; rewards != null && i < rewards.Count; i++)
         {
             Pair<Resource, ExpantaNum> reward = rewards[i];
-            if (reward.Second > ExpantaNum.Zero)
-                ResourceManager.Instance.AddAmount(reward.First, reward.Second);
+            if (reward.Second <= ExpantaNum.Zero)
+                continue;
+            ExpantaNum total = aggregated.TryGetValue(reward.First, out ExpantaNum current)
+                ? current + reward.Second
+                : reward.Second;
+            if (!total.IsFinite)
+                throw new InvalidOperationException($"Sector reward total is not finite: {reward.First.Id}");
+            aggregated[reward.First] = total;
+        }
+
+        // Preflight all writes before changing any balance. ValidateRewards
+        // normally guarantees this, but this guard keeps the default applier
+        // atomic if an asset is modified at runtime or a duplicate reward
+        // overflows during aggregation.
+        if (definition.TerritoryReward.IsNaN || definition.TerritoryReward < ExpantaNum.Zero)
+            throw new InvalidOperationException("Sector territory reward is invalid.");
+        foreach (KeyValuePair<Resource, ExpantaNum> reward in aggregated)
+        {
+            if (reward.Key == null || !reward.Value.IsFinite || reward.Value < ExpantaNum.Zero)
+                throw new InvalidOperationException("Sector resource reward is invalid.");
+        }
+
+        GameManager gameManager = GameManager.Instance;
+        ResourceManager resourceManager = ResourceManager.Instance;
+        ExpantaNum previousTerritory = gameManager.State.TerritoryTotal;
+        if (aggregated.Count == 0)
+        {
+            gameManager.AdjustTerritoryTotal(definition.TerritoryReward);
+            return;
+        }
+
+        if (!resourceManager.TryApplyAtomicChanges(
+                aggregated,
+                () => gameManager.AdjustTerritoryTotal(definition.TerritoryReward),
+                () => gameManager.State.RestoreTerritoryTotal(previousTerritory)))
+        {
+            throw new InvalidOperationException("Unable to apply sector resource rewards atomically.");
         }
     }
 
@@ -1154,6 +1433,43 @@ public sealed class SectorManager
             $"星区存档字段“{sectorId}.{field}”的值“{raw}”无效。");
     }
 
+    private static void ValidateRestoredState(
+        string sectorId,
+        bool unlocked,
+        bool occupied,
+        bool colonizationActive,
+        bool campaignActive,
+        ExpantaNum progress,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        int visitCount)
+    {
+        if (!progress.IsFinite || progress < ExpantaNum.Zero || progress > ExpantaNum.One)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的 CampaignProgress 必须是 0 到 1 之间的有限值。");
+        if (!casualties.IsFinite || casualties < ExpantaNum.Zero)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的 CampaignCasualties 必须是非负有限值。");
+        if (!combatRatio.IsFinite || combatRatio < ExpantaNum.Zero)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的 CampaignCombatRatio 必须是非负有限值。");
+        if (visitCount < 0)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的 VisitCount 不能为负数。");
+        if (occupied && !unlocked)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”不能在未解锁时处于占领状态。");
+        if (colonizationActive && (!unlocked || occupied))
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的殖民状态与解锁/占领状态矛盾。");
+        if (campaignActive && (!unlocked || occupied))
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”的战役状态与解锁/占领状态矛盾。");
+        if (colonizationActive && campaignActive)
+            throw new InvalidOperationException(
+                $"星区“{sectorId}”不能同时进行殖民和战役。");
+    }
+
     private static bool TryCalculateCosts(
         ExpantaNum foodPerSecond,
         IReadOnlyList<Pair<Resource, ExpantaNum>> configuredRatesPerSecond,
@@ -1197,33 +1513,142 @@ public sealed class SectorManager
         return true;
     }
 
+    private static Dictionary<Resource, ExpantaNum> AggregateCosts(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    {
+        var aggregate = new Dictionary<Resource, ExpantaNum>();
+        if (costs == null)
+            return aggregate;
+        for (int i = 0; i < costs.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> cost = costs[i];
+            if (cost.First == null || !cost.Second.IsFinite || cost.Second <= ExpantaNum.Zero)
+                continue;
+            aggregate[cost.First] = aggregate.TryGetValue(cost.First, out ExpantaNum current)
+                ? current + cost.Second
+                : cost.Second;
+        }
+        return aggregate;
+    }
+
+    private List<SectorSnapshot> CaptureSectorSnapshots()
+    {
+        var snapshots = new List<SectorSnapshot>(orderedStates.Count);
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            SectorState state = orderedStates[i];
+            snapshots.Add(new SectorSnapshot
+            {
+                State = state,
+                Unlocked = state.Unlocked,
+                Occupied = state.Occupied,
+                ColonizationActive = state.ColonizationActive,
+                CampaignActive = state.CampaignActive,
+                Progress = state.CampaignProgress,
+                Casualties = state.CampaignCasualties,
+                CombatRatio = state.CampaignCombatRatio,
+                VisitCount = state.VisitCount
+            });
+        }
+        return snapshots;
+    }
+
+    private static void RestoreSectorSnapshots(IReadOnlyList<SectorSnapshot> snapshots)
+    {
+        if (snapshots == null)
+            return;
+        for (int i = 0; i < snapshots.Count; i++)
+        {
+            SectorSnapshot snapshot = snapshots[i];
+            snapshot.State.RestoreExact(
+                snapshot.Unlocked,
+                snapshot.Occupied,
+                snapshot.ColonizationActive,
+                snapshot.CampaignActive,
+                snapshot.Progress,
+                snapshot.Casualties,
+                snapshot.CombatRatio,
+                snapshot.VisitCount);
+        }
+    }
+
     private static bool HasResourceCosts(
         ResourceManager resourceManager,
         IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
     {
         if (costs == null || costs.Count == 0)
             return true;
-        for (int i = 0; i < costs.Count; i++)
+        if (resourceManager == null)
+            return false;
+        foreach (KeyValuePair<Resource, ExpantaNum> cost in AggregateCosts(costs))
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
-            if (!resourceManager.States.TryGetValue(cost.First, out ResourceState state) ||
-                state.Amount < cost.Second)
+            if (!resourceManager.States.TryGetValue(cost.Key, out ResourceState state) ||
+                state.Amount < cost.Value)
                 return false;
         }
         return true;
     }
 
-    private static void ConsumeCampaignCosts(
+    private static bool TryConsumeCampaignCosts(
         GameState runtimeState,
         ResourceManager resourceManager,
         ExpantaNum foodCost,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts)
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts,
+        Action commitState,
+        Action rollbackState)
     {
-        runtimeState.TryConsumeFood(foodCost);
-        if (resourceCosts == null)
-            return;
-        for (int i = 0; i < resourceCosts.Count; i++)
-            resourceManager.AddAmount(resourceCosts[i].First, -resourceCosts[i].Second);
+        if (runtimeState == null || runtimeState.FoodAmount < foodCost)
+            return false;
+        Dictionary<Resource, ExpantaNum> payment = AggregateCosts(resourceCosts);
+        ExpantaNum previousFoodAmount = runtimeState.FoodAmount;
+        ExpantaNum previousFoodCapacity = runtimeState.FoodCapacity;
+        if (payment.Count == 0)
+        {
+            if (!runtimeState.TryConsumeFood(foodCost))
+                return false;
+            try
+            {
+                commitState?.Invoke();
+                return true;
+            }
+            catch (Exception commitException)
+            {
+                Exception rollbackException = null;
+                try
+                {
+                    try
+                    {
+                        rollbackState?.Invoke();
+                    }
+                    catch (Exception exception)
+                    {
+                        rollbackException = exception;
+                    }
+                }
+                finally
+                {
+                    runtimeState.RestoreFoodExact(previousFoodAmount, previousFoodCapacity);
+                }
+                if (rollbackException != null)
+                    Debug.LogException(rollbackException);
+                throw commitException;
+            }
+        }
+        if (resourceManager == null || !HasResourceCosts(resourceManager, resourceCosts))
+            return false;
+        return resourceManager.TryApplyAtomicPayment(
+            payment,
+            () =>
+            {
+                if (!runtimeState.TryConsumeFood(foodCost))
+                    throw new InvalidOperationException("Food payment became unavailable during sector transaction.");
+                commitState?.Invoke();
+            },
+            () =>
+            {
+                try { rollbackState?.Invoke(); }
+                finally { runtimeState.RestoreFoodExact(previousFoodAmount, previousFoodCapacity); }
+            });
     }
 
     private void CompleteOccupation(

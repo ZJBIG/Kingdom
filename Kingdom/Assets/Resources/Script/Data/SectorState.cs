@@ -63,14 +63,71 @@ public sealed class SectorState
         ExpantaNum combatRatio,
         int visits)
     {
+        ValidateRestoredValues(
+            restoredUnlocked,
+            restoredOccupied,
+            restoredColonizationActive,
+            restoredCampaignActive,
+            progress,
+            casualties,
+            combatRatio,
+            visits);
         SetUnlocked(restoredUnlocked);
-        SetOccupied(restoredOccupied && restoredUnlocked);
-        SetColonizationActive(restoredColonizationActive && restoredUnlocked && !restoredOccupied);
-        SetCampaignActive(restoredCampaignActive && restoredUnlocked && !restoredOccupied);
+        SetOccupied(restoredOccupied);
+        SetColonizationActive(restoredColonizationActive);
+        SetCampaignActive(restoredCampaignActive);
         SetCampaignProgress(progress);
         SetCampaignCasualties(casualties);
         SetCampaignCombatRatio(combatRatio);
         SetVisitCount(visits);
+    }
+
+    internal void RestoreExact(
+        bool restoredUnlocked,
+        bool restoredOccupied,
+        bool restoredColonizationActive,
+        bool restoredCampaignActive,
+        ExpantaNum progress,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        int visits)
+    {
+        SetUnlocked(restoredUnlocked);
+        SetOccupied(restoredOccupied);
+        SetColonizationActive(restoredColonizationActive);
+        SetCampaignActive(restoredCampaignActive);
+        SetCampaignProgress(progress);
+        SetCampaignCasualties(casualties);
+        SetCampaignCombatRatio(combatRatio);
+        SetVisitCount(visits);
+    }
+
+    private static void ValidateRestoredValues(
+        bool restoredUnlocked,
+        bool restoredOccupied,
+        bool restoredColonizationActive,
+        bool restoredCampaignActive,
+        ExpantaNum progress,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        int visits)
+    {
+        if (!progress.IsFinite || progress < ExpantaNum.Zero || progress > ExpantaNum.One)
+            throw new ArgumentOutOfRangeException(nameof(progress));
+        if (!casualties.IsFinite || casualties < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(casualties));
+        if (!combatRatio.IsFinite || combatRatio < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(combatRatio));
+        if (visits < 0)
+            throw new ArgumentOutOfRangeException(nameof(visits));
+        if (restoredOccupied && !restoredUnlocked)
+            throw new InvalidOperationException("A sector cannot be occupied before it is unlocked.");
+        if (restoredColonizationActive && (!restoredUnlocked || restoredOccupied))
+            throw new InvalidOperationException("A sector cannot colonize while locked or occupied.");
+        if (restoredCampaignActive && (!restoredUnlocked || restoredOccupied))
+            throw new InvalidOperationException("A sector cannot campaign while locked or occupied.");
+        if (restoredColonizationActive && restoredCampaignActive)
+            throw new InvalidOperationException("A sector cannot colonize and campaign simultaneously.");
     }
 
 #if UNITY_EDITOR

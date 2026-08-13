@@ -27,7 +27,7 @@ public static class HappinessFormula
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new System.ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ExpantaNum available = ExpantaNum.Max(ExpantaNum.Zero, currentInventory) +

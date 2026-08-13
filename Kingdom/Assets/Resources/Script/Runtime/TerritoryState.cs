@@ -24,14 +24,18 @@ public sealed class TerritoryState
 
     internal void RestoreTotal(ExpantaNum restoredTotal)
     {
-        total = ExpantaNum.Max(ExpantaNum.Zero, restoredTotal);
-        used = ExpantaNum.Min(used, total);
+        if (!restoredTotal.IsFinite || restoredTotal < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(restoredTotal));
+        if (used > restoredTotal)
+            throw new InvalidOperationException(
+                "Territory used cannot exceed the restored territory total.");
+        total = restoredTotal;
         Version++;
     }
 
     internal void AddTotal(ExpantaNum delta)
     {
-        if (delta.IsNaN || delta < ExpantaNum.Zero)
+        if (!delta.IsFinite || delta < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException(nameof(delta), "领土奖励必须是非负数。");
         if (delta == ExpantaNum.Zero)
             return;
@@ -51,10 +55,29 @@ public sealed class TerritoryState
 
     internal void AdjustUsed(ExpantaNum delta)
     {
+        if (!delta.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(delta));
         ExpantaNum next = ExpantaNum.Clamp(used + delta, ExpantaNum.Zero, total);
         if (used == next)
             return;
         used = next;
         Version++;
+    }
+
+    internal void RestoreUsed(ExpantaNum restoredUsed)
+    {
+        if (!restoredUsed.IsFinite || restoredUsed < ExpantaNum.Zero || restoredUsed > total)
+            throw new ArgumentOutOfRangeException(nameof(restoredUsed));
+        if (used == restoredUsed)
+            return;
+        used = restoredUsed;
+        Version++;
+    }
+
+    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
+        return ExpantaNum.Max(ExpantaNum.Zero, value);
     }
 }

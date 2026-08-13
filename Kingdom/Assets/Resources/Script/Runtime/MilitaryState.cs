@@ -45,6 +45,8 @@ public sealed class MilitaryState
 
     internal void SetSupplySatisfaction(ExpantaNum value)
     {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(value));
         ExpantaNum normalized = ExpantaNum.Clamp01(value);
         if (supplySatisfaction == normalized)
             return;
@@ -59,21 +61,34 @@ public sealed class MilitaryState
         ExpantaNum restoredMilitaryManpower,
         ExpantaNum restoredSupplySatisfaction)
     {
-        attackPower = ExpantaNum.Max(ExpantaNum.Zero, restoredAttackPower);
-        defensePower = ExpantaNum.Max(ExpantaNum.Zero, restoredDefensePower);
-        fleetPower = ExpantaNum.Max(ExpantaNum.Zero, restoredFleetPower);
-        militaryManpower = ExpantaNum.Max(ExpantaNum.Zero, restoredMilitaryManpower);
-        supplySatisfaction = ExpantaNum.Clamp01(restoredSupplySatisfaction);
+        if (!restoredSupplySatisfaction.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(restoredSupplySatisfaction));
+        if (restoredSupplySatisfaction < ExpantaNum.Zero || restoredSupplySatisfaction > ExpantaNum.One)
+            throw new ArgumentOutOfRangeException(nameof(restoredSupplySatisfaction));
+        attackPower = NormalizeFiniteNonNegative(restoredAttackPower, nameof(restoredAttackPower));
+        defensePower = NormalizeFiniteNonNegative(restoredDefensePower, nameof(restoredDefensePower));
+        fleetPower = NormalizeFiniteNonNegative(restoredFleetPower, nameof(restoredFleetPower));
+        militaryManpower = NormalizeFiniteNonNegative(restoredMilitaryManpower, nameof(restoredMilitaryManpower));
+        supplySatisfaction = restoredSupplySatisfaction;
         Version++;
     }
 
     private bool AdjustNonNegative(ref ExpantaNum field, ExpantaNum delta)
     {
+        if (!delta.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(delta));
         ExpantaNum next = ExpantaNum.Max(ExpantaNum.Zero, field + delta);
         if (field == next)
             return false;
         field = next;
         Version++;
         return true;
+    }
+
+    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
+        return ExpantaNum.Max(ExpantaNum.Zero, value);
     }
 }

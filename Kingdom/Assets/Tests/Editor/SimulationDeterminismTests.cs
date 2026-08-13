@@ -64,6 +64,19 @@ public sealed class SimulationDeterminismTests
     }
 
     [Test]
+    public void OfflineEffectiveTime_RejectsNonFiniteInputs()
+    {
+        Assert.Throws<System.ArgumentOutOfRangeException>(
+            () => SimulationManager.CalculateOfflineEffectiveSeconds(double.NaN, 1d));
+        Assert.Throws<System.ArgumentOutOfRangeException>(
+            () => SimulationManager.CalculateOfflineEffectiveSeconds(double.PositiveInfinity, 1d));
+        Assert.Throws<System.ArgumentOutOfRangeException>(
+            () => SimulationManager.CalculateOfflineEffectiveSeconds(1d, double.NaN));
+        Assert.Throws<System.ArgumentOutOfRangeException>(
+            () => SimulationManager.CalculateOfflineEffectiveSeconds(1d, double.PositiveInfinity));
+    }
+
+    [Test]
     public void SimulatorScalarStockpileRuleMatchesRuntimeRule()
     {
         double expected = ResourceManager.AdvanceAmount(

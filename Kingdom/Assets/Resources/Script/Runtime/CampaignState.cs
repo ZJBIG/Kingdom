@@ -35,6 +35,8 @@ public sealed class CampaignState
 
     internal void RecordCombat(ExpantaNum combatRatio, ExpantaNum casualties)
     {
+        if (!combatRatio.IsFinite || !casualties.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(casualties));
         ExpantaNum normalizedRatio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
         ExpantaNum normalizedCasualties = ExpantaNum.Max(ExpantaNum.Zero, casualties);
         if (CombatRatio == normalizedRatio && normalizedCasualties == ExpantaNum.Zero)
@@ -46,6 +48,8 @@ public sealed class CampaignState
 
     internal ExpantaNum Repair(ExpantaNum amount)
     {
+        if (!amount.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(amount));
         ExpantaNum requested = ExpantaNum.Max(ExpantaNum.Zero, amount);
         ExpantaNum repaired = ExpantaNum.Min(requested, Casualties);
         if (repaired <= ExpantaNum.Zero)
@@ -87,15 +91,40 @@ public sealed class CampaignState
         ExpantaNum casualties,
         ExpantaNum combatRatio)
     {
-        if (string.IsNullOrWhiteSpace(targetSectorId) ||
-            (!active && casualties <= ExpantaNum.Zero))
+        // A cancelled campaign can retain casualties and its target so the
+        // player can repair the fleet before resuming. Do not reactivate it
+        // merely because the save contains those repairable casualties.
+        if (!casualties.IsFinite || !combatRatio.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(casualties));
+        if (casualties < ExpantaNum.Zero || combatRatio < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(casualties));
+        if (active && string.IsNullOrWhiteSpace(targetSectorId))
+            throw new InvalidOperationException("An active campaign must have a target sector.");
+        if (string.IsNullOrWhiteSpace(targetSectorId) &&
+            (casualties > ExpantaNum.Zero || combatRatio > ExpantaNum.Zero))
+            throw new InvalidOperationException("A campaign with combat history must retain its target sector.");
+        if (string.IsNullOrWhiteSpace(targetSectorId))
         {
             ResetForLoad();
             return;
         }
-
-        Active = true;
+        Active = active;
         TargetSectorId = targetSectorId;
+        Casualties = casualties;
+        CombatRatio = combatRatio;
+        Version++;
+    }
+
+    internal void RestoreExact(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio)
+    {
+        if (!casualties.IsFinite || !combatRatio.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(casualties));
+        Active = active;
+        TargetSectorId = targetSectorId ?? string.Empty;
         Casualties = ExpantaNum.Max(ExpantaNum.Zero, casualties);
         CombatRatio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
         Version++;

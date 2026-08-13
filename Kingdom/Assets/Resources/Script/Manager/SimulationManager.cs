@@ -66,7 +66,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     public void Advance(double elapsedSeconds)
     {
-        if (elapsedSeconds < 0d)
+        if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
 
         double tickInterval = tickIntervalSeconds;
@@ -102,7 +102,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     public void ManualTick(double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         BuildingManager.Instance.PrepareTickResourceSatisfaction(deltaSeconds);
@@ -125,7 +125,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     public double AdvanceOffline(double elapsedSeconds)
     {
-        if (elapsedSeconds < 0d)
+        if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
         if (elapsedSeconds <= 0d)
             return 0d;
@@ -166,9 +166,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         double elapsedSeconds,
         double requestedSeconds)
     {
-        if (elapsedSeconds < 0d)
+        if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(elapsedSeconds));
-        if (requestedSeconds < 0d)
+        if (double.IsNaN(requestedSeconds) || double.IsInfinity(requestedSeconds) || requestedSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(requestedSeconds));
         if (requestedSeconds <= 0d)
             return 0d;

@@ -1,11 +1,22 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
     public const string StartingResourceId = "WoodLog";
 
-    public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
+    private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
+    public ExpantaNum GlobalEfficiencyFactor
+    {
+        get => globalEfficiencyFactor;
+        set
+        {
+            if (!value.IsFinite || value < ExpantaNum.Zero)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            globalEfficiencyFactor = value;
+        }
+    }
 
     private readonly Dictionary<Resource, ResourceState> states = new();
     private readonly List<ResourceState> orderedStates = new();
@@ -45,7 +56,7 @@ public class ResourceManager : Singleton<ResourceManager>
         var state = new ResourceState(resource);
         states.Add(resource, state);
         InsertOrdered(state);
-        ResourceStateAdded?.Invoke(state);
+        Publish(ResourceStateAdded, state);
         return state;
     }
 
@@ -66,7 +77,7 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         ResourceState state = EnsureResource(resource);
         state.SetAmount(state.Amount + delta);
-        ResourceStateChanged?.Invoke(state);
+        Publish(ResourceStateChanged, state);
     }
 
     /// <summary>
@@ -74,7 +85,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// balance is checked before any balance is changed, then change events
     /// are raised only after the complete debit has been committed.
     /// </summary>
-    internal bool TryApplyAtomicPayment(IReadOnlyDictionary<Resource, ExpantaNum> costs)
+    public bool TryApplyAtomicPayment(IReadOnlyDictionary<Resource, ExpantaNum> costs)
     {
         return TryApplyAtomicPayment(costs, null);
     }
@@ -84,56 +95,146 @@ public class ResourceManager : Singleton<ResourceManager>
     /// resource-change events. This prevents a refresh/reentrant callback from
     /// observing resources deducted while the research is still unpaid.
     /// </summary>
-    internal bool TryApplyAtomicPayment(
+    public bool TryApplyAtomicPayment(
         IReadOnlyDictionary<Resource, ExpantaNum> costs,
-        Action commitState)
+        Action commitState,
+        Action rollbackState = null)
     {
         if (costs == null)
             throw new ArgumentNullException(nameof(costs));
 
-        var entries = new List<KeyValuePair<Resource, ExpantaNum>>(costs.Count);
+        var deltas = new Dictionary<Resource, ExpantaNum>(costs.Count);
         foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
         {
-            if (entry.Key == null || entry.Value <= ExpantaNum.Zero)
-                continue;
+            if (entry.Key == null || !entry.Value.IsFinite ||
+                entry.Value <= ExpantaNum.Zero)
+                return false;
+            deltas[entry.Key] = -entry.Value;
+        }
+        return TryApplyAtomicChanges(deltas, commitState, rollbackState);
+    }
 
-            // A research-only resource may not be referenced by any Building
-            // definition. Ensure its runtime state exists before checking the
-            // transaction, otherwise it is incorrectly treated as zero.
-            ResourceState state = EnsureResource(entry.Key);
-            ExpantaNum amount = state.Amount;
-            if (amount < entry.Value)
+    public bool TryApplyAtomicChanges(
+        IReadOnlyDictionary<Resource, ExpantaNum> deltas,
+        Action commitState = null,
+        Action rollbackState = null)
+    {
+        if (deltas == null)
+            throw new ArgumentNullException(nameof(deltas));
+
+        var entries = new List<KeyValuePair<Resource, ExpantaNum>>(deltas.Count);
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in deltas)
+        {
+            if (entry.Key == null || !entry.Value.IsFinite)
                 return false;
 
             entries.Add(entry);
         }
 
-        var previousAmounts = new List<ExpantaNum>(entries.Count);
+        // Validate every entry before EnsureResource can add any runtime
+        // state. A rejected transaction must not mutate the state registry.
         for (int i = 0; i < entries.Count; i++)
         {
             KeyValuePair<Resource, ExpantaNum> entry = entries[i];
-            ResourceState state = states[entry.Key];
-            previousAmounts.Add(state.Amount);
-            state.SetAmount(state.Amount - entry.Value);
+            ResourceState state = states.TryGetValue(entry.Key, out ResourceState existing)
+                ? existing
+                : null;
+            if (entry.Value < ExpantaNum.Zero &&
+                (state == null ? ExpantaNum.Zero : state.Amount) < -entry.Value)
+                return false;
         }
+
+        // Register states silently until the domain commit succeeds. A
+        // failed transaction must not leak a new state or publish an
+        // Added notification that observers cannot undo.
+        var addedStates = new List<ResourceState>();
+        for (int i = 0; i < entries.Count; i++)
+        {
+            Resource resource = entries[i].Key;
+            if (states.ContainsKey(resource))
+                continue;
+
+            ResourceState state = new ResourceState(resource);
+            states.Add(resource, state);
+            InsertOrdered(state);
+            addedStates.Add(state);
+        }
+
+        var previousAmounts = new List<ExpantaNum>(entries.Count);
+        for (int i = 0; i < entries.Count; i++)
+            previousAmounts.Add(states[entries[i].Key].Amount);
 
         try
         {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                KeyValuePair<Resource, ExpantaNum> entry = entries[i];
+                ResourceState state = states[entry.Key];
+                state.SetAmount(state.Amount + entry.Value);
+            }
+
             commitState?.Invoke();
         }
-        catch
+        catch (Exception)
         {
-            for (int i = 0; i < entries.Count; i++)
-                states[entries[i].Key].SetAmount(previousAmounts[i]);
+            Exception rollbackException = null;
+            try
+            {
+                try
+                {
+                    rollbackState?.Invoke();
+                }
+                catch (Exception exception)
+                {
+                    rollbackException = exception;
+                }
+            }
+            finally
+            {
+                for (int i = 0; i < entries.Count; i++)
+                    states[entries[i].Key].SetAmount(previousAmounts[i]);
+
+                for (int i = addedStates.Count - 1; i >= 0; i--)
+                {
+                    ResourceState state = addedStates[i];
+                    states.Remove(state.Definition);
+                    orderedStates.Remove(state);
+                }
+            }
+            if (rollbackException != null)
+                Debug.LogException(rollbackException);
             throw;
         }
 
+        for (int i = 0; i < addedStates.Count; i++)
+            Publish(ResourceStateAdded, addedStates[i]);
         for (int i = 0; i < entries.Count; i++)
         {
             ResourceState state = states[entries[i].Key];
-            ResourceStateChanged?.Invoke(state);
+            Publish(ResourceStateChanged, state);
         }
         return true;
+    }
+
+    private static void Publish(Action<ResourceState> handlers, ResourceState state)
+    {
+        if (handlers == null)
+            return;
+        Delegate[] invocationList = handlers.GetInvocationList();
+        for (int i = 0; i < invocationList.Length; i++)
+        {
+            try
+            {
+                ((Action<ResourceState>)invocationList[i]).Invoke(state);
+            }
+            catch (Exception exception)
+            {
+                // Notifications are observers, not part of the committed
+                // economy transaction. One broken UI listener must not make
+                // a successful payment appear to fail or trigger a refund.
+                Debug.LogException(exception);
+            }
+        }
     }
 
     public void SetAmount(Resource resource, ExpantaNum amount) => EnsureResource(resource).SetAmount(amount);
@@ -175,7 +276,7 @@ public class ResourceManager : Singleton<ResourceManager>
         ExpantaNum consumptionRate,
         double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         return ExpantaNum.Max(
@@ -189,7 +290,7 @@ public class ResourceManager : Singleton<ResourceManager>
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ExpantaNum available = ExpantaNum.Max(ExpantaNum.Zero, currentInventory) +
@@ -229,6 +330,8 @@ public class ResourceManager : Singleton<ResourceManager>
 
     public void Tick(double deltaSeconds)
     {
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         ExpantaNum happinessMultiplier = GetHappinessRewardMultiplier();
         for (int i = 0; i < orderedStates.Count; i++)
         {
@@ -294,6 +397,8 @@ public class ResourceManager : Singleton<ResourceManager>
 
         if (saveData.Resources != null)
         {
+            var restoredResources = new HashSet<Resource>();
+            var restoredAmounts = new Dictionary<Resource, ExpantaNum>();
             for (int i = 0; i < saveData.Resources.Count; i++)
             {
                 SaveManager.ResourceStateSaveData data = saveData.Resources[i];
@@ -304,20 +409,39 @@ public class ResourceManager : Singleton<ResourceManager>
                     if (RetiredDefinitionMigration.IsRetired(data.ResourceId))
                         RetiredDefinitionMigration.LogOnce();
                     else
-                        UnityEngine.Debug.LogWarning(
-                            $"加载时忽略未知资源“{data.ResourceId}”。");
+                        throw new InvalidOperationException(
+                            $"存档包含未知资源编号“{data.ResourceId}”。");
                     continue;
                 }
-                ResourceState state = EnsureResource(resource);
-                state.SetAmount(Parse(data.Amount, resource.Id, nameof(data.Amount)));
+                if (!restoredResources.Add(resource))
+                    throw new InvalidOperationException(
+                        $"存档中的资源状态重复包含“{resource.Id}”。");
+                ExpantaNum amount = Parse(data.Amount, resource.Id, nameof(data.Amount));
+                if (amount < ExpantaNum.Zero)
+                    throw new InvalidOperationException(
+                        $"Resource amount cannot be negative: {resource.Id}");
+                restoredAmounts.Add(resource, amount);
             }
-        }
 
-        GlobalEfficiencyFactor = Parse(
-            saveData.GlobalEfficiencyFactor,
-            nameof(ResourceManager),
-            nameof(saveData.GlobalEfficiencyFactor),
-            ExpantaNum.One);
+            ExpantaNum restoredGlobalEfficiencyFactor = Parse(
+                saveData.GlobalEfficiencyFactor,
+                nameof(ResourceManager),
+                nameof(saveData.GlobalEfficiencyFactor),
+                ExpantaNum.One);
+            if (restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
+                throw new InvalidOperationException("Resource global efficiency cannot be negative.");
+            foreach (KeyValuePair<Resource, ExpantaNum> entry in restoredAmounts)
+                EnsureResource(entry.Key).SetAmount(entry.Value);
+            GlobalEfficiencyFactor = restoredGlobalEfficiencyFactor;
+        }
+        else
+        {
+            GlobalEfficiencyFactor = Parse(
+                saveData.GlobalEfficiencyFactor,
+                nameof(ResourceManager),
+                nameof(saveData.GlobalEfficiencyFactor),
+                ExpantaNum.One);
+        }
 
         EnsureStartingResource();
     }

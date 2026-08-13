@@ -118,7 +118,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     public bool IsZero => representation == ZeroRepresentation ||
                           (representation == ScalarRepresentation && scalar == 0d);
     public bool IsNaN => representation == ScalarRepresentation && double.IsNaN(scalar);
-    public bool IsInfinity => representation == ScalarRepresentation && double.IsPositiveInfinity(scalar);
+    public bool IsInfinity => representation == ScalarRepresentation && double.IsInfinity(scalar);
     public bool IsFinite => !IsNaN && !IsInfinity;
 
     public static readonly ExpantaNum Zero = default;

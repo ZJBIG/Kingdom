@@ -22,8 +22,13 @@ public sealed class BuildingState
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
     }
 
-    internal void SetAmount(ExpantaNum value) => Change(ref amount, ExpantaNum.Max(ExpantaNum.Zero, value));
-    internal void SetEfficiency(ExpantaNum value) => Change(ref efficiency, ExpantaNum.Clamp01(value));
+    internal void SetAmount(ExpantaNum value) => Change(ref amount, NormalizeFiniteNonNegative(value, nameof(value)));
+    internal void SetEfficiency(ExpantaNum value)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        Change(ref efficiency, ExpantaNum.Clamp01(value));
+    }
 
 #if UNITY_EDITOR
     public void SetAmountForEditor(ExpantaNum value) => SetAmount(value);
@@ -55,5 +60,12 @@ public sealed class BuildingState
             return;
         field = value;
         Version++;
+    }
+
+    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
+        return ExpantaNum.Max(ExpantaNum.Zero, value);
     }
 }

@@ -7,6 +7,131 @@ using UnityEngine;
 
 public sealed class C6IndustrialContentTests
 {
+    [Test]
+    public void WorkshopPrerequisiteCyclesAreRejected()
+    {
+        WorkshopUpgrade first = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        WorkshopUpgrade second = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        first.SetIdForEditor("CycleWorkshopA");
+        second.SetIdForEditor("CycleWorkshopB");
+        first.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { second },
+            new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+        second.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { first },
+            new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+
+        try
+        {
+            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
+                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(validator, Is.Not.Null);
+            object[] arguments = { new[] { first, second }, null };
+            bool valid = (bool)validator.Invoke(null, arguments);
+            Assert.That(valid, Is.False);
+            Assert.That(arguments[1] as string, Does.Contain("CycleWorkshopA"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(first);
+            UnityEngine.Object.DestroyImmediate(second);
+        }
+    }
+
+    [Test]
+    public void WorkshopPrerequisiteNullAndDuplicateEntriesAreRejected()
+    {
+        WorkshopUpgrade upgrade = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        WorkshopUpgrade prerequisite = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        Research research = ScriptableObject.CreateInstance<Research>();
+        upgrade.SetIdForEditor("InvalidWorkshop");
+        prerequisite.SetIdForEditor("WorkshopPrerequisite");
+        research.SetIdForEditor("WorkshopResearch");
+
+        try
+        {
+            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
+                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(validator, Is.Not.Null);
+
+            upgrade.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { null },
+                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            object[] nullArguments = { new[] { upgrade, prerequisite }, null };
+            Assert.That((bool)validator.Invoke(null, nullArguments), Is.False);
+
+            prerequisite.ConfigureForEditor(new List<Research> { research }, new List<WorkshopUpgrade>(),
+                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            upgrade.ConfigureForEditor(new List<Research>(),
+                new List<WorkshopUpgrade> { prerequisite, prerequisite },
+                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            object[] duplicateArguments = { new[] { upgrade, prerequisite }, null };
+            Assert.That((bool)validator.Invoke(null, duplicateArguments), Is.False);
+            Assert.That(duplicateArguments[1] as string, Does.Contain("重复"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(upgrade);
+            UnityEngine.Object.DestroyImmediate(prerequisite);
+            UnityEngine.Object.DestroyImmediate(research);
+        }
+    }
+
+    [Test]
+    public void WorkshopResearchPrerequisiteNullAndDuplicateEntriesAreRejected()
+    {
+        WorkshopUpgrade upgrade = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        Research first = ScriptableObject.CreateInstance<Research>();
+        upgrade.SetIdForEditor("InvalidResearchPrerequisites");
+        first.SetIdForEditor("ResearchPrerequisiteA");
+
+        try
+        {
+            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
+                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(validator, Is.Not.Null);
+
+            upgrade.ConfigureForEditor(new List<Research> { null }, new List<WorkshopUpgrade>(),
+                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            object[] nullArguments = { new[] { upgrade }, null };
+            Assert.That((bool)validator.Invoke(null, nullArguments), Is.False);
+
+            upgrade.ConfigureForEditor(new List<Research> { first, first }, new List<WorkshopUpgrade>(),
+                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            object[] duplicateArguments = { new[] { upgrade }, null };
+            Assert.That((bool)validator.Invoke(null, duplicateArguments), Is.False);
+            Assert.That(duplicateArguments[1] as string, Does.Contain("重复"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(upgrade);
+            UnityEngine.Object.DestroyImmediate(first);
+        }
+    }
+
+    [Test]
+    public void EconomyDependencyValidationRejectsResearchCycles()
+    {
+        Research first = ScriptableObject.CreateInstance<Research>();
+        Research second = ScriptableObject.CreateInstance<Research>();
+        first.SetIdForEditor("EconomyCycleResearchA");
+        second.SetIdForEditor("EconomyCycleResearchB");
+        first.SetPrerequisitesForEditor(new List<Research> { second });
+        second.SetPrerequisitesForEditor(new List<Research> { first });
+
+        try
+        {
+            bool valid = EconomyDependencyValidator.Validate(
+                new List<Resource>(), new List<Building>(),
+                new List<Research> { first, second },
+                new List<WorkshopUpgrade>(), out string error);
+            Assert.That(valid, Is.False);
+            Assert.That(error, Does.Contain("EconomyCycleResearchA"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(first);
+            UnityEngine.Object.DestroyImmediate(second);
+        }
+    }
+
     private static readonly string[] IndustrialResourceIds =
     {
         "Machinery",

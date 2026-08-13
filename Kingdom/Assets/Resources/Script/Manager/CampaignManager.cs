@@ -124,7 +124,7 @@ public static class CampaignManager
         double deltaSeconds,
         ExpantaNum progressMultiplier)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ExpantaNum progress = ExpantaNum.Clamp01(currentProgress);
@@ -141,7 +141,7 @@ public static class CampaignManager
         double deltaSeconds,
         ExpantaNum casualtyMultiplier)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         return CalculateCasualtyRate(combatRatio) *
             ExpantaNum.Max(ExpantaNum.Zero, casualtyMultiplier) * deltaSeconds;
@@ -166,7 +166,7 @@ public static class CampaignManager
         double deltaSeconds,
         ExpantaNum casualtyMultiplier)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         ExpantaNum survivalFactor = CalculateFleetSurvivalFactor(defensePower, enemyPower);
         return CalculateCasualtyRate(combatRatio) /

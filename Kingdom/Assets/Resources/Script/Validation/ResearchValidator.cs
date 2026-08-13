@@ -64,13 +64,14 @@ public static class ResearchValidator
 
                 if (prerequisite == research)
                 {
-                    error = $"研究依赖循环：{research.name} -> {research.name}";
+                    string label = DisplayName(research);
+                    error = $"研究依赖循环：{label} -> {label}";
                     return false;
                 }
 
                 if (!uniquePrerequisites.Add(prerequisite))
                 {
-                    error = $"研究验证失败：“{research.name}”重复引用前置研究“{prerequisite.name}”。";
+                    error = $"研究验证失败：“{DisplayName(research)}”重复引用前置研究“{DisplayName(prerequisite)}”。";
                     return false;
                 }
 
@@ -97,11 +98,22 @@ public static class ResearchValidator
         {
             if (i > start)
                 builder.Append(" -> ");
-            builder.Append(path[i].name);
+            builder.Append(DisplayName(path[i]));
         }
 
         builder.Append(" -> ");
-        builder.Append(repeated.name);
+        builder.Append(DisplayName(repeated));
         return builder.ToString();
+    }
+
+    private static string DisplayName(Research research)
+    {
+        if (research == null)
+            return "<null>";
+        if (!string.IsNullOrWhiteSpace(research.Id))
+            return research.Id;
+        if (!string.IsNullOrWhiteSpace(research.name))
+            return research.name;
+        return "<unnamed>";
     }
 }

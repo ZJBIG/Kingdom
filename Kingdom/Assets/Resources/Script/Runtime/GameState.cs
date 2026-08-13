@@ -96,9 +96,11 @@ public sealed class GameState
         CalendarDays = calendarDays;
         KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = techLevel;
-        FoodAmount = ExpantaNum.Max(ExpantaNum.Zero, foodAmount);
+        FoodAmount = NormalizeFiniteNonNegative(foodAmount, nameof(foodAmount));
         FoodAvailability = ExpantaNum.One;
-        FoodCapacity = ExpantaNum.Max(FoodCapacity, FoodAmount);
+        // Capacity is derived and is not serialized. Rebuild it from the
+        // canonical baseline instead of inheriting a previous runtime.
+        FoodCapacity = ExpantaNum.Max(BaseFoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
         Version++;
     }
@@ -238,6 +240,8 @@ public sealed class GameState
 
     internal void AdjustFoodRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
+        EnsureFinite(productionDelta, nameof(productionDelta));
+        EnsureFinite(consumptionDelta, nameof(consumptionDelta));
         ExpantaNum newProductionRate = ExpantaNum.Max(
             ExpantaNum.Zero,
             FoodProductionRate + productionDelta);
@@ -255,6 +259,7 @@ public sealed class GameState
 
     internal void AdjustFoodCapacity(ExpantaNum capacityDelta)
     {
+        EnsureFinite(capacityDelta, nameof(capacityDelta));
         ExpantaNum newCapacity = ExpantaNum.Max(new ExpantaNum(1), FoodCapacity + capacityDelta);
         ExpantaNum newAmount = ExpantaNum.Min(FoodAmount, newCapacity);
         if (FoodCapacity == newCapacity && FoodAmount == newAmount)
@@ -267,6 +272,7 @@ public sealed class GameState
 
     internal bool TryConsumeFood(ExpantaNum amount)
     {
+        EnsureFinite(amount, nameof(amount));
         ExpantaNum cost = ExpantaNum.Max(ExpantaNum.Zero, amount);
         if (FoodAmount < cost)
             return false;
@@ -277,8 +283,46 @@ public sealed class GameState
         return true;
     }
 
+    internal void RefundFood(ExpantaNum amount)
+    {
+        EnsureFinite(amount, nameof(amount));
+        ExpantaNum refund = ExpantaNum.Max(ExpantaNum.Zero, amount);
+        if (refund <= ExpantaNum.Zero)
+            return;
+        ExpantaNum restored = ExpantaNum.Min(FoodCapacity, FoodAmount + refund);
+        if (restored == FoodAmount)
+            return;
+        FoodAmount = restored;
+        Version++;
+    }
+
+    internal void RestoreFoodExact(ExpantaNum amount, ExpantaNum capacity)
+    {
+        EnsureFinite(amount, nameof(amount));
+        EnsureFinite(capacity, nameof(capacity));
+        if (amount < ExpantaNum.Zero || capacity < ExpantaNum.One || amount > capacity)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        if (FoodAmount == amount && FoodCapacity == capacity)
+            return;
+        FoodAmount = amount;
+        FoodCapacity = capacity;
+        Version++;
+    }
+
+    internal void RestoreCampaignExact(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio)
+    {
+        Campaign.RestoreExact(active, targetSectorId, casualties, combatRatio);
+        Version++;
+    }
+
     internal void AdjustPowerRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
+        EnsureFinite(productionDelta, nameof(productionDelta));
+        EnsureFinite(consumptionDelta, nameof(consumptionDelta));
         ExpantaNum newProductionRate = ExpantaNum.Max(
             ExpantaNum.Zero,
             PowerProductionRate + productionDelta);
@@ -296,6 +340,8 @@ public sealed class GameState
 
     internal void AdjustLogisticsRates(ExpantaNum productionDelta, ExpantaNum consumptionDelta)
     {
+        EnsureFinite(productionDelta, nameof(productionDelta));
+        EnsureFinite(consumptionDelta, nameof(consumptionDelta));
         ExpantaNum newProductionRate = ExpantaNum.Max(
             ExpantaNum.Zero,
             LogisticsProductionRate + productionDelta);
@@ -345,6 +391,7 @@ public sealed class GameState
 
     internal void SetPowerSatisfaction(ExpantaNum value)
     {
+        EnsureFinite(value, nameof(value));
         ExpantaNum normalized = ExpantaNum.Clamp01(value);
         if (PowerSatisfaction == normalized)
             return;
@@ -354,6 +401,7 @@ public sealed class GameState
 
     internal void SetLogisticsSatisfaction(ExpantaNum value)
     {
+        EnsureFinite(value, nameof(value));
         ExpantaNum normalized = ExpantaNum.Clamp01(value);
         if (LogisticsSatisfaction == normalized)
             return;
@@ -370,14 +418,20 @@ public sealed class GameState
         ExpantaNum powerSatisfaction,
         ExpantaNum logisticsSatisfaction)
     {
+        EnsureFinite(powerSatisfaction, nameof(powerSatisfaction));
+        EnsureFinite(logisticsSatisfaction, nameof(logisticsSatisfaction));
+        if (powerSatisfaction < ExpantaNum.Zero || powerSatisfaction > ExpantaNum.One)
+            throw new ArgumentOutOfRangeException(nameof(powerSatisfaction));
+        if (logisticsSatisfaction < ExpantaNum.Zero || logisticsSatisfaction > ExpantaNum.One)
+            throw new ArgumentOutOfRangeException(nameof(logisticsSatisfaction));
         Military.Restore(
             attackPower,
             defensePower,
             fleetPower,
             militaryManpower,
             supplySatisfaction);
-        PowerSatisfaction = ExpantaNum.Clamp01(powerSatisfaction);
-        LogisticsSatisfaction = ExpantaNum.Clamp01(logisticsSatisfaction);
+        PowerSatisfaction = powerSatisfaction;
+        LogisticsSatisfaction = logisticsSatisfaction;
         Version++;
     }
 
@@ -391,6 +445,7 @@ public sealed class GameState
 
     internal void SetFoodAvailability(ExpantaNum value)
     {
+        EnsureFinite(value, nameof(value));
         ExpantaNum normalized = ExpantaNum.Clamp01(value);
         if (FoodAvailability == normalized)
             return;
@@ -419,11 +474,37 @@ public sealed class GameState
         Version++;
     }
 
+    internal void RestoreTerritoryUsed(ExpantaNum restoredUsed)
+    {
+        Territory.RestoreUsed(restoredUsed);
+        Version++;
+    }
+
+    internal void RestorePopulationCapacityExact(
+        ExpantaNum restoredCapacity,
+        ExpantaNum restoredProgress)
+    {
+        Population.RestoreCapacityExact(restoredCapacity, restoredProgress);
+        Version++;
+    }
+
     internal void MarkSaved(long unixSeconds)
     {
         if (LastSaveUnixSeconds == unixSeconds)
             return;
         LastSaveUnixSeconds = unixSeconds;
         Version++;
+    }
+
+    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
+    {
+        EnsureFinite(value, parameterName);
+        return ExpantaNum.Max(ExpantaNum.Zero, value);
+    }
+
+    private static void EnsureFinite(ExpantaNum value, string parameterName)
+    {
+        if (!value.IsFinite)
+            throw new ArgumentOutOfRangeException(parameterName);
     }
 }

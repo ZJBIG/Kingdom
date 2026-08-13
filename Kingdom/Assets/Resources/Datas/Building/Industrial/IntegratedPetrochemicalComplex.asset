@@ -56,6 +56,8 @@ MonoBehaviour:
     amount: "1"
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     amount: "0.6"
+  - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    amount: "0.8"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}
     amount: "7"

@@ -96,6 +96,7 @@ public static class BuildingSimulator
             .Where(x=>x.RequiredWorkshop.All(state.PurchasedWorkshop.Contains))
             .Where(x=>CanConstructNew(state,x,definitions))
             .Where(x=>x.Generation.Count>0||x.ResearchPower>0||x.FoodProduction>0||
+                x.PowerProduction>0||x.LogisticsProduction>0||
                 x.ProductivityGranted>0||x.PopulationCapacity>0)
             .ToArray();
         state.CachedBuildingRevision = state.DefinitionRevision;

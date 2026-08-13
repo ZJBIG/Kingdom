@@ -67,6 +67,11 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             failure = WorkshopPurchaseFailure.SystemLocked;
             return false;
         }
+        if (definition.TechLevel > GameManager.Instance.State.TechLevel)
+        {
+            failure = WorkshopPurchaseFailure.TechnologyInsufficient;
+            return false;
+        }
         if (state.Purchased)
         {
             failure = WorkshopPurchaseFailure.AlreadyPurchased;
@@ -90,20 +95,39 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
+        var costs = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = requirements[i];
-            if (ResourceManager.Instance.GetAmount(requirement.First) < requirement.Second)
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
             {
-                failure = WorkshopPurchaseFailure.ResourceInsufficient;
-                return false;
+                if (requirement.First == null)
+                {
+                    failure = WorkshopPurchaseFailure.InvalidDefinition;
+                    return false;
+                }
+                continue;
             }
-        }
-        for (int i = 0; i < requirements.Count; i++)
-            ResourceManager.Instance.AddAmount(requirements[i].First, -requirements[i].Second);
 
-        state.SetPurchased(true);
-        RebuildProgression();
+            costs[requirement.First] = costs.TryGetValue(
+                requirement.First, out ExpantaNum current)
+                ? current + requirement.Second
+                : requirement.Second;
+        }
+
+        bool paid = ResourceManager.Instance.TryApplyAtomicPayment(
+            costs,
+            () =>
+            {
+                state.SetPurchased(true);
+                RebuildProgression();
+            });
+        if (!paid)
+        {
+            failure = WorkshopPurchaseFailure.ResourceInsufficient;
+            return false;
+        }
+
         UpgradeStateChanged?.Invoke(state);
         failure = WorkshopPurchaseFailure.None;
         return true;
@@ -123,20 +147,48 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     internal void RestoreSaveData(SaveManager.WorkshopSaveData data)
     {
-        ResetForLoad();
-        if (data?.PurchasedUpgradeIds != null)
+        if (data?.PurchasedUpgradeIds == null)
         {
-            for (int i = 0; i < data.PurchasedUpgradeIds.Count; i++)
+            ResetForLoad();
+            RebuildProgression();
+            return;
+        }
+
+        var purchased = new HashSet<WorkshopUpgrade>();
+        for (int i = 0; i < data.PurchasedUpgradeIds.Count; i++)
+        {
+            string id = data.PurchasedUpgradeIds[i];
+            if (string.IsNullOrWhiteSpace(id) ||
+                !DataBase<WorkshopUpgrade>.TryFind(id, out WorkshopUpgrade definition))
+                throw new InvalidOperationException(
+                    $"存档中的工坊升级 ID 无效：“{id}”。");
+            if (!purchased.Add(definition))
+                throw new InvalidOperationException(
+                    $"存档中的工坊升级重复包含“{definition.Id}”。");
+            if (definition.TechLevel > GameManager.Instance.State.TechLevel)
+                throw new InvalidOperationException(
+                    $"存档中的工坊升级“{definition.Id}”超出当前科技时代。");
+            for (int j = 0; j < definition.RequiredResearch.Count; j++)
             {
-                if (!DataBase<WorkshopUpgrade>.TryFind(
-                        data.PurchasedUpgradeIds[i],
-                        out WorkshopUpgrade definition))
-                {
-                    Debug.LogWarning($"忽略已退役的工坊升级“{data.PurchasedUpgradeIds[i]}”。");
-                    continue;
-                }
-                states[definition].SetPurchased(true);
+                Research prerequisite = definition.RequiredResearch[j];
+                if (prerequisite == null ||
+                    !ResearchManager.Instance.IsResearchCompleted(prerequisite.Id))
+                    throw new InvalidOperationException(
+                        $"存档中的工坊升级“{definition.Id}”缺少研究前置。");
             }
+            for (int j = 0; j < definition.RequiredUpgrades.Count; j++)
+            {
+                WorkshopUpgrade prerequisite = definition.RequiredUpgrades[j];
+                if (prerequisite == null || !purchased.Contains(prerequisite))
+                    throw new InvalidOperationException(
+                        $"存档中的工坊升级“{definition.Id}”缺少工坊前置。");
+            }
+        }
+
+        ResetForLoad();
+        foreach (WorkshopUpgrade definition in purchased)
+        {
+            states[definition].SetPurchased(true);
         }
         RebuildProgression();
     }

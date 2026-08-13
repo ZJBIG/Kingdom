@@ -13,6 +13,8 @@ public static class EconomyDependencyValidator
     {
         if (!ValidateBuildingPrerequisites(buildings, out error))
             return false;
+        if (!ResearchValidator.ValidateNoCycles(researches, out error))
+            return false;
         if (!ValidateWorkshopPrerequisites(upgrades, out error))
             return false;
         if (!ValidateProductionGraph(resources, buildings, out error))
@@ -31,8 +33,15 @@ public static class EconomyDependencyValidator
     {
         var known = new HashSet<WorkshopUpgrade>();
         for (int i = 0; i < upgrades.Count; i++)
-            if (upgrades[i] != null)
-                known.Add(upgrades[i]);
+        {
+            WorkshopUpgrade upgrade = upgrades[i];
+            if (upgrade == null)
+            {
+                error = "工坊升级定义集合包含空引用。";
+                return false;
+            }
+            known.Add(upgrade);
+        }
 
         for (int i = 0; i < upgrades.Count; i++)
         {
@@ -44,12 +53,33 @@ public static class EconomyDependencyValidator
                 error = $"工坊升级“{upgrade.Id}”缺少前置条件。";
                 return false;
             }
+            var uniqueResearch = new HashSet<Research>();
+            for (int j = 0; j < upgrade.RequiredResearch.Count; j++)
+            {
+                Research prerequisite = upgrade.RequiredResearch[j];
+                if (prerequisite == null)
+                {
+                    error = $"工坊升级“{upgrade.Id}”包含无效的研究前置条件。";
+                    return false;
+                }
+                if (!uniqueResearch.Add(prerequisite))
+                {
+                    error = $"工坊升级“{upgrade.Id}”重复声明研究前置条件“{prerequisite.Id}”。";
+                    return false;
+                }
+            }
+            var uniqueUpgrades = new HashSet<WorkshopUpgrade>();
             for (int j = 0; j < upgrade.RequiredUpgrades.Count; j++)
             {
                 WorkshopUpgrade prerequisite = upgrade.RequiredUpgrades[j];
                 if (prerequisite == null || !known.Contains(prerequisite))
                 {
                     error = $"工坊升级“{upgrade.Id}”包含无效的工坊前置条件。";
+                    return false;
+                }
+                if (!uniqueUpgrades.Add(prerequisite))
+                {
+                    error = $"工坊升级“{upgrade.Id}”重复声明工坊前置条件“{prerequisite.Id}”。";
                     return false;
                 }
                 if (ReferenceEquals(upgrade, prerequisite))
@@ -86,8 +116,7 @@ public static class EconomyDependencyValidator
         if (!visiting.Add(current))
         {
             error = $"工坊前置条件存在循环，涉及“{current.Id}”。";
-            var ids = new List<string>();
-            return false;
+            return true;
         }
         for (int i = 0; i < current.RequiredUpgrades.Count; i++)
         {

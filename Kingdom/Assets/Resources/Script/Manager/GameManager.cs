@@ -102,7 +102,7 @@ public class GameManager : Singleton<GameManager>
         double deltaSeconds,
         ExpantaNum populationDepartureAllowance)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         State.AdvanceFood(deltaSeconds);
@@ -123,9 +123,9 @@ public class GameManager : Singleton<GameManager>
         double simulationSeconds,
         ExpantaNum populationDepartureAllowance)
     {
-        if (calendarSeconds < 0d)
+        if (double.IsNaN(calendarSeconds) || double.IsInfinity(calendarSeconds) || calendarSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(calendarSeconds));
-        if (simulationSeconds < 0d)
+        if (double.IsNaN(simulationSeconds) || double.IsInfinity(simulationSeconds) || simulationSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
 
         State.AdvanceFood(simulationSeconds);
@@ -155,7 +155,7 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum capacity,
         double deltaSeconds)
     {
-        if (deltaSeconds < 0)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         return ExpantaNum.Min(
@@ -279,6 +279,13 @@ public class GameManager : Singleton<GameManager>
     {
         if (data == null)
             throw new ArgumentNullException(nameof(data));
+        ValidateSaveData(data);
+        if (data.CampaignActive && string.IsNullOrWhiteSpace(data.CampaignTargetSectorId))
+            throw new System.IO.InvalidDataException("活动战役存档缺少目标星区编号。");
+        if (!string.IsNullOrWhiteSpace(data.CampaignTargetSectorId) &&
+            !DataBase<SectorDefinition>.TryFind(data.CampaignTargetSectorId, out _))
+            throw new System.IO.InvalidDataException(
+                $"存档包含未知战役目标星区“{data.CampaignTargetSectorId}”。");
 
         State.RestoreCore(
             data.CalendarDays,
@@ -299,6 +306,61 @@ public class GameManager : Singleton<GameManager>
             ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
             ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
         ResetCalendarAccumulator();
+    }
+
+    private static void ValidateSaveData(SaveManager.GameSaveData data)
+    {
+        if (data.CalendarDays < 0)
+            throw new System.IO.InvalidDataException("存档的 CalendarDays 不能为负数。");
+        if (!Enum.IsDefined(typeof(TechLevel), data.TechLevel))
+            throw new System.IO.InvalidDataException(
+                $"存档包含未知时代值“{(int)data.TechLevel}”。");
+
+        ValidateNonNegative(Parse(data.FoodAmount, nameof(data.FoodAmount)), nameof(data.FoodAmount));
+        ValidateOptionalNonNegative(data.Population, nameof(data.Population));
+        ValidateOptionalNonNegative(data.TerritoryTotal, nameof(data.TerritoryTotal));
+        ValidateOptionalNonNegative(data.AttackPower, nameof(data.AttackPower));
+        ValidateOptionalNonNegative(data.DefensePower, nameof(data.DefensePower));
+        ValidateOptionalNonNegative(data.FleetPower, nameof(data.FleetPower));
+        ValidateOptionalNonNegative(data.MilitaryManpower, nameof(data.MilitaryManpower));
+        ValidateOptionalUnitInterval(data.PopulationChangeProgress, nameof(data.PopulationChangeProgress));
+        ValidateOptionalUnitInterval(data.SupplySatisfaction, nameof(data.SupplySatisfaction));
+        ValidateOptionalUnitInterval(data.PowerSatisfaction, nameof(data.PowerSatisfaction));
+        ValidateOptionalUnitInterval(data.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction));
+        ValidateOptionalNonNegative(data.CampaignCasualties, nameof(data.CampaignCasualties));
+        ValidateOptionalNonNegative(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio));
+        if (data.LastSaveUnixSeconds < 0L)
+            throw new System.IO.InvalidDataException("存档的 LastSaveUnixSeconds 不能为负数。");
+        if (string.IsNullOrWhiteSpace(data.CampaignTargetSectorId) &&
+            (!string.IsNullOrWhiteSpace(data.CampaignCasualties) &&
+             Parse(data.CampaignCasualties, nameof(data.CampaignCasualties)) > ExpantaNum.Zero ||
+             !string.IsNullOrWhiteSpace(data.CampaignCombatRatio) &&
+             Parse(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio)) > ExpantaNum.Zero))
+            throw new System.IO.InvalidDataException("无目标战役存档不能保留伤亡或战斗比。");
+    }
+
+    private static void ValidateOptionalNonNegative(string raw, string field)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return;
+        ValidateNonNegative(Parse(raw, field), field);
+    }
+
+    private static void ValidateOptionalUnitInterval(string raw, string field)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return;
+        ExpantaNum value = Parse(raw, field);
+        if (!value.IsFinite || value < ExpantaNum.Zero || value > ExpantaNum.One)
+            throw new System.IO.InvalidDataException(
+                $"存档的 {field} 必须是 0 到 1 之间的有限值。");
+    }
+
+    private static void ValidateNonNegative(ExpantaNum value, string field)
+    {
+        if (!value.IsFinite || value < ExpantaNum.Zero)
+            throw new System.IO.InvalidDataException(
+                $"存档的 {field} 必须是非负有限值。");
     }
 
     internal void RestorePopulationChangeProgress(

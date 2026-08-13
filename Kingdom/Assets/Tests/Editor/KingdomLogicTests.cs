@@ -91,6 +91,28 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void GameState_RestoresPopulationCapacityAndProgressExactly()
+    {
+        var state = new GameState();
+        InvokeGameStateMethod(state, "AdjustPopulationCapacity", new ExpantaNum(10));
+        InvokeGameStateMethod(state, "RestorePopulationChangeProgress", new ExpantaNum(0.35d));
+
+        MethodInfo restore = typeof(GameState).GetMethod(
+            "RestorePopulationCapacityExact",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(restore, Is.Not.Null);
+
+        restore.Invoke(
+            state,
+            new object[] { new ExpantaNum(25), new ExpantaNum(0.6d) });
+
+        Assert.That(state.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(25)));
+        Assert.That(
+            state.Population.PopulationChangeProgress,
+            Is.EqualTo(new ExpantaNum(0.6d)));
+    }
+
+    [Test]
     public void AdvanceFood_UsesConsumptionRateAndClampsAtZero()
     {
         Assert.That(GameManager.AdvanceFood(100, 5, 3, 10), Is.EqualTo(new ExpantaNum(120)));
@@ -181,6 +203,8 @@ public sealed class KingdomLogicTests
         Assert.That(ResourceManager.AdvanceAmount(100, 8, 3, 2), Is.EqualTo(new ExpantaNum(110)));
         Assert.That(ResourceManager.AdvanceAmount(5, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.AdvanceAmount(0, 0, 0, -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.AdvanceAmount(0, 0, 0, double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.AdvanceAmount(0, 0, 0, double.PositiveInfinity));
     }
 
     [Test]
@@ -191,6 +215,8 @@ public sealed class KingdomLogicTests
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 10, 0), Is.EqualTo(ExpantaNum.One));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.CalculateSatisfaction(0, 0, 10, double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.CalculateSatisfaction(0, 0, 10, double.PositiveInfinity));
     }
 
     [Test]
@@ -860,6 +886,64 @@ public sealed class KingdomLogicTests
         StringAssert.Contains("not current", exception.InnerException.Message);
     }
 
+    [TestCase(-1)]
+    [TestCase(999)]
+    public void SaveApply_RejectsInvalidCalendarOrTechLevel(int calendarDays)
+    {
+        CreateManager<GameManager>("Save-InvalidCore-GameManager");
+        CreateManager<ResourceManager>("Save-InvalidCore-ResourceManager");
+        CreateManager<BuildingManager>("Save-InvalidCore-BuildingManager");
+        CreateManager<ResearchManager>("Save-InvalidCore-ResearchManager");
+        CreateManager<WorkshopManager>("Save-InvalidCore-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-InvalidCore-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.CalendarDays = calendarDays < 0 ? calendarDays : 3;
+        if (calendarDays >= 0)
+            data.General.TechLevel = (TechLevel)calendarDays;
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<System.IO.InvalidDataException>());
+    }
+
+    [Test]
+    public void SaveApply_RejectsNegativeCoreEconomyAndOutOfRangeSatisfaction()
+    {
+        CreateManager<GameManager>("Save-InvalidValues-GameManager");
+        CreateManager<ResourceManager>("Save-InvalidValues-ResourceManager");
+        CreateManager<BuildingManager>("Save-InvalidValues-BuildingManager");
+        CreateManager<ResearchManager>("Save-InvalidValues-ResearchManager");
+        CreateManager<WorkshopManager>("Save-InvalidValues-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-InvalidValues-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.Population = "-1";
+        data.General.PowerSatisfaction = "1.1";
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<System.IO.InvalidDataException>());
+    }
+
+    [Test]
+    public void SaveApply_RejectsPopulationProgressOutsideUnitInterval()
+    {
+        CreateManager<GameManager>("Save-InvalidProgress-GameManager");
+        CreateManager<ResourceManager>("Save-InvalidProgress-ResourceManager");
+        CreateManager<BuildingManager>("Save-InvalidProgress-BuildingManager");
+        CreateManager<ResearchManager>("Save-InvalidProgress-ResearchManager");
+        CreateManager<WorkshopManager>("Save-InvalidProgress-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-InvalidProgress-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.PopulationChangeProgress = "1.25";
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<System.IO.InvalidDataException>());
+    }
+
     [Test]
     public void SaveApply_IsIdempotentAndRecalculatesDerivedRates()
     {
@@ -911,6 +995,462 @@ public sealed class KingdomLogicTests
             () => InvokeApplySaveData(saveManager, data));
         Assert.That(exception.InnerException, Is.TypeOf<KeyNotFoundException>());
         StringAssert.Contains("missing-research-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveReset_ClearsWorkshopEffectsBeforeResearchModifierRebuild()
+    {
+        CreateManager<GameManager>("Save-Reset-GameManager");
+        CreateManager<ResourceManager>("Save-Reset-ResourceManager");
+        CreateManager<BuildingManager>("Save-Reset-BuildingManager");
+        CreateManager<ResearchManager>("Save-Reset-ResearchManager");
+        WorkshopManager workshopManager =
+            CreateManager<WorkshopManager>("Save-Reset-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-Reset-SaveManager");
+
+        WorkshopUpgrade definition = DataBase<WorkshopUpgrade>.Find("CokeOvenOptimization");
+        WorkshopUpgradeState state = workshopManager.States[definition];
+        MethodInfo setPurchased = typeof(WorkshopUpgradeState).GetMethod(
+            "SetPurchased",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        setPurchased.Invoke(state, new object[] { true });
+        ProgressionModifierManager.Rebuild(null, new[] { state });
+
+        Assert.That(
+            ProgressionModifierManager.Current.GetResourceProductionMultiplier(
+                DataBase<Resource>.Find("Coke")),
+            Is.GreaterThan(ExpantaNum.One));
+
+        MethodInfo reset = typeof(SaveManager).GetMethod(
+            "ResetRuntimeStateForLoad",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        reset.Invoke(null, null);
+
+        Assert.That(state.Purchased, Is.False);
+        Assert.That(
+            ProgressionModifierManager.Current.GetResourceProductionMultiplier(
+                DataBase<Resource>.Find("Coke")),
+            Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void SaveApply_RejectsCompletedResearchWithIncompletePrerequisite()
+    {
+        CreateManager<GameManager>("Save-Completed-GameManager");
+        CreateManager<ResourceManager>("Save-Completed-ResourceManager");
+        CreateManager<BuildingManager>("Save-Completed-BuildingManager");
+        CreateManager<ResearchManager>("Save-Completed-ResearchManager");
+        CreateManager<WorkshopManager>("Save-Completed-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-Completed-SaveManager");
+
+        Research target = DataBase<Research>.Find("StoneTools");
+        Research prerequisite = target.Prerequisites[0];
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = target.BaseCost,
+                Completed = true,
+                CostPaid = true,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(target.Id, exception.InnerException.Message);
+        Assert.That(
+            DataBase<Research>.Find(prerequisite.Id),
+            Is.SameAs(prerequisite));
+    }
+
+    [Test]
+    public void SaveApply_RejectsResearchProgressOutsideDefinitionCost()
+    {
+        CreateManager<GameManager>("Save-ResearchProgressRange-GameManager");
+        CreateManager<ResourceManager>("Save-ResearchProgressRange-ResourceManager");
+        CreateManager<BuildingManager>("Save-ResearchProgressRange-BuildingManager");
+        CreateManager<ResearchManager>("Save-ResearchProgressRange-ResearchManager");
+        CreateManager<WorkshopManager>("Save-ResearchProgressRange-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-ResearchProgressRange-SaveManager");
+
+        Research research = DataBase<Research>.Find("ControlledFire");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = research.BaseCost + ExpantaNum.One,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(research.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsCompletedResearchWithUnpaidCosts()
+    {
+        CreateManager<GameManager>("Save-CompletedUnpaid-GameManager");
+        CreateManager<ResourceManager>("Save-CompletedUnpaid-ResourceManager");
+        CreateManager<BuildingManager>("Save-CompletedUnpaid-BuildingManager");
+        CreateManager<ResearchManager>("Save-CompletedUnpaid-ResearchManager");
+        CreateManager<WorkshopManager>("Save-CompletedUnpaid-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-CompletedUnpaid-SaveManager");
+
+        Research research = DataBase<Research>.All
+            .FirstOrDefault(candidate => candidate.ResourceRequirements.Any(
+                pair => pair.Second > ExpantaNum.Zero));
+        Assert.That(research, Is.Not.Null);
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = research.BaseCost,
+                Completed = true,
+                CostPaid = true,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(research.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsResearchQueueWithUnmetPrerequisiteOrder()
+    {
+        CreateManager<GameManager>("Save-Queue-GameManager");
+        CreateManager<ResourceManager>("Save-Queue-ResourceManager");
+        CreateManager<BuildingManager>("Save-Queue-BuildingManager");
+        CreateManager<ResearchManager>("Save-Queue-ResearchManager");
+        CreateManager<WorkshopManager>("Save-Queue-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-Queue-SaveManager");
+
+        Research target = DataBase<Research>.Find("StoneTools");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.QueuedResearchIds = new List<string> { target.Id };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(target.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsUnknownResearchQueueId()
+    {
+        CreateManager<GameManager>("Save-UnknownQueue-GameManager");
+        CreateManager<ResourceManager>("Save-UnknownQueue-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnknownQueue-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnknownQueue-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnknownQueue-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnknownQueue-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.QueuedResearchIds = new List<string> { "missing-research-id" };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("missing-research-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsDuplicateResearchStateId()
+    {
+        CreateManager<GameManager>("Save-DuplicateResearch-GameManager");
+        CreateManager<ResourceManager>("Save-DuplicateResearch-ResourceManager");
+        CreateManager<BuildingManager>("Save-DuplicateResearch-BuildingManager");
+        CreateManager<ResearchManager>("Save-DuplicateResearch-ResearchManager");
+        CreateManager<WorkshopManager>("Save-DuplicateResearch-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-DuplicateResearch-SaveManager");
+
+        Research research = DataBase<Research>.Find("ControlledFire");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = "1",
+                CostPaid = false,
+                Completed = false,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            },
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = "2",
+                CostPaid = false,
+                Completed = false,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(research.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsNegativeResearchResourcePayment()
+    {
+        CreateManager<GameManager>("Save-NegativeResearchPayment-GameManager");
+        CreateManager<ResourceManager>("Save-NegativeResearchPayment-ResourceManager");
+        CreateManager<BuildingManager>("Save-NegativeResearchPayment-BuildingManager");
+        CreateManager<ResearchManager>("Save-NegativeResearchPayment-ResearchManager");
+        CreateManager<WorkshopManager>("Save-NegativeResearchPayment-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-NegativeResearchPayment-SaveManager");
+
+        Research research = DataBase<Research>.All
+            .FirstOrDefault(candidate => candidate.ResourceRequirements.Count > 0);
+        Assert.That(research, Is.Not.Null);
+        Resource resource = research.ResourceRequirements[0].First;
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = "0",
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>
+                {
+                    new SaveManager.ResearchResourceCostSaveData
+                    {
+                        ResourceId = resource.Id,
+                        Amount = "-1"
+                    }
+                }
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(resource.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsResearchPaymentForUnrequiredResource()
+    {
+        CreateManager<GameManager>("Save-UnrequiredResearchPayment-GameManager");
+        CreateManager<ResourceManager>("Save-UnrequiredResearchPayment-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnrequiredResearchPayment-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnrequiredResearchPayment-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnrequiredResearchPayment-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnrequiredResearchPayment-SaveManager");
+
+        Research research = DataBase<Research>.All
+            .FirstOrDefault(candidate => candidate.ResourceRequirements.Count > 0);
+        Assert.That(research, Is.Not.Null);
+        Resource unrelated = DataBase<Resource>.All
+            .FirstOrDefault(resource => !research.ResourceRequirements.Any(pair => pair.First == resource));
+        Assert.That(unrelated, Is.Not.Null);
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = "0",
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>
+                {
+                    new SaveManager.ResearchResourceCostSaveData
+                    {
+                        ResourceId = unrelated.Id,
+                        Amount = "1"
+                    }
+                }
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(unrelated.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsDuplicateResourceStateId()
+    {
+        CreateManager<GameManager>("Save-DuplicateResource-GameManager");
+        CreateManager<ResourceManager>("Save-DuplicateResource-ResourceManager");
+        CreateManager<BuildingManager>("Save-DuplicateResource-BuildingManager");
+        CreateManager<ResearchManager>("Save-DuplicateResource-ResearchManager");
+        CreateManager<WorkshopManager>("Save-DuplicateResource-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-DuplicateResource-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Resources.Resources = new List<SaveManager.ResourceStateSaveData>
+        {
+            new SaveManager.ResourceStateSaveData { ResourceId = "WoodLog", Amount = "1" },
+            new SaveManager.ResourceStateSaveData { ResourceId = "WoodLog", Amount = "2" }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("WoodLog", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsDuplicateBuildingStateId()
+    {
+        CreateManager<GameManager>("Save-DuplicateBuilding-GameManager");
+        CreateManager<ResourceManager>("Save-DuplicateBuilding-ResourceManager");
+        CreateManager<BuildingManager>("Save-DuplicateBuilding-BuildingManager");
+        CreateManager<ResearchManager>("Save-DuplicateBuilding-ResearchManager");
+        CreateManager<WorkshopManager>("Save-DuplicateBuilding-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-DuplicateBuilding-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Buildings.Buildings = new List<SaveManager.BuildingStateSaveData>
+        {
+            new SaveManager.BuildingStateSaveData { BuildingId = "Farm", Amount = "1" },
+            new SaveManager.BuildingStateSaveData { BuildingId = "Farm", Amount = "2" }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("Farm", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsUnknownResourceStateId()
+    {
+        CreateManager<GameManager>("Save-UnknownResource-GameManager");
+        CreateManager<ResourceManager>("Save-UnknownResource-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnknownResource-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnknownResource-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnknownResource-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnknownResource-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Resources.Resources = new List<SaveManager.ResourceStateSaveData>
+        {
+            new SaveManager.ResourceStateSaveData
+            {
+                ResourceId = "missing-resource-id",
+                Amount = "1"
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("missing-resource-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsUnknownBuildingStateId()
+    {
+        CreateManager<GameManager>("Save-UnknownBuilding-GameManager");
+        CreateManager<ResourceManager>("Save-UnknownBuilding-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnknownBuilding-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnknownBuilding-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnknownBuilding-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnknownBuilding-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Buildings.Buildings = new List<SaveManager.BuildingStateSaveData>
+        {
+            new SaveManager.BuildingStateSaveData
+            {
+                BuildingId = "missing-building-id",
+                Amount = "1"
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("missing-building-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsUnknownWorkshopUpgradeId()
+    {
+        CreateManager<GameManager>("Save-UnknownWorkshop-GameManager");
+        CreateManager<ResourceManager>("Save-UnknownWorkshop-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnknownWorkshop-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnknownWorkshop-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnknownWorkshop-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnknownWorkshop-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Workshop = new SaveManager.WorkshopSaveData
+        {
+            PurchasedUpgradeIds = new List<string> { "missing-workshop-id" }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("missing-workshop-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsActiveCampaignWithoutMatchingSectorState()
+    {
+        CreateManager<GameManager>("Save-CampaignMismatch-GameManager");
+        CreateManager<ResourceManager>("Save-CampaignMismatch-ResourceManager");
+        CreateManager<BuildingManager>("Save-CampaignMismatch-BuildingManager");
+        CreateManager<ResearchManager>("Save-CampaignMismatch-ResearchManager");
+        CreateManager<WorkshopManager>("Save-CampaignMismatch-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-CampaignMismatch-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.CampaignActive = true;
+        data.General.CampaignTargetSectorId = "Moon";
+        data.General.CampaignCasualties = "2";
+        data.Sectors = new SaveManager.SectorSaveData
+        {
+            States = new List<SaveManager.SectorStateSaveData>()
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains("Moon", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsWorkshopUpgradeMissingPrerequisite()
+    {
+        CreateManager<GameManager>("Save-MissingWorkshopPrerequisite-GameManager");
+        CreateManager<ResourceManager>("Save-MissingWorkshopPrerequisite-ResourceManager");
+        CreateManager<BuildingManager>("Save-MissingWorkshopPrerequisite-BuildingManager");
+        CreateManager<ResearchManager>("Save-MissingWorkshopPrerequisite-ResearchManager");
+        CreateManager<WorkshopManager>("Save-MissingWorkshopPrerequisite-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-MissingWorkshopPrerequisite-SaveManager");
+
+        WorkshopUpgrade dependent = DataBase<WorkshopUpgrade>.All
+            .FirstOrDefault(upgrade => upgrade.RequiredUpgrades.Count > 0);
+        Assert.That(dependent, Is.Not.Null);
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Workshop = new SaveManager.WorkshopSaveData
+        {
+            PurchasedUpgradeIds = new List<string> { dependent.Id }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(dependent.Id, exception.InnerException.Message);
     }
 
     private static SaveManager.KingdomSaveData CreateRepresentativeSaveData()
@@ -1048,12 +1588,24 @@ public sealed class KingdomLogicTests
         method.Invoke(state, arguments);
     }
 
+    private static void InvokeResearchStateMethod(ResearchState state, string methodName, params object[] arguments)
+    {
+        MethodInfo method = typeof(ResearchState).GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        method.Invoke(state, arguments);
+    }
+
     [Test]
     public void AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost()
     {
         Assert.That(ResearchManager.AdvanceResearchProgress(0, 10, 100, 0.5), Is.EqualTo(new ExpantaNum(5)));
         Assert.That(ResearchManager.AdvanceResearchProgress(90, 10, 95, 1), Is.EqualTo(new ExpantaNum(95)));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(0, 1, 10, -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(ExpantaNum.NaN, 1, 10, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(0, ExpantaNum.NegativeInfinity, 10, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(0, 1, ExpantaNum.PositiveInfinity, 1));
     }
 
     [Test]
@@ -1082,6 +1634,46 @@ public sealed class KingdomLogicTests
         research.BaseCost = "100";
 
         Assert.That(new ResearchState(research).Status, Is.EqualTo(ResearchStatus.Available));
+    }
+
+    [Test]
+    public void ResearchState_RestoreRecomputesPaymentFromSavedResourceLedger()
+    {
+        Research research = CreateResearch("RestorePaymentLedger");
+        research.BaseCost = "100";
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        research.SetResourceRequirementsForEditor(
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(wood, new ExpantaNum(100))
+            });
+        ResearchState state = new ResearchState(research);
+        MethodInfo restore = typeof(ResearchState).GetMethod(
+            "Restore",
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            new[]
+            {
+                typeof(ExpantaNum),
+                typeof(bool),
+                typeof(bool),
+                typeof(IReadOnlyDictionary<Resource, ExpantaNum>)
+            },
+            null);
+        Assert.That(restore, Is.Not.Null);
+
+        restore.Invoke(
+            state,
+            new object[]
+            {
+                new ExpantaNum(10),
+                true,
+                false,
+                new Dictionary<Resource, ExpantaNum>()
+            });
+
+        Assert.That(state.CostPaid, Is.False);
+        Assert.That(state.GetPaidResourceCost(wood), Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -1243,6 +1835,200 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void ResourceAtomicPayment_RejectsInvalidCostsWithoutMutation()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-InvalidAtomicPayment-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+
+        Assert.That(resourceManager.TryApplyAtomicPayment(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(double.NaN)
+            }), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+
+        Assert.That(resourceManager.TryApplyAtomicPayment(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(double.PositiveInfinity)
+            }), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+    }
+
+    [Test]
+    public void ExpantaNumAndResourceState_RejectBothInfinitySigns()
+    {
+        Assert.That(new ExpantaNum(double.PositiveInfinity).IsFinite, Is.False);
+        Assert.That(new ExpantaNum(double.NegativeInfinity).IsFinite, Is.False);
+
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-NonFiniteState-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => resourceManager.SetAmount(wood, ExpantaNum.PositiveInfinity));
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => resourceManager.SetAmount(wood, ExpantaNum.NegativeInfinity));
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => resourceManager.SetProductionRate(wood, ExpantaNum.NaN));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void RuntimeStateBoundaries_RejectNonFiniteValues()
+    {
+        GameState gameState = new GameState();
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeGameStateMethod(gameState, "RestoreCore", 0, "Test", TechLevel.Animal,
+                ExpantaNum.NaN, 0L));
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeGameStateMethod(gameState, "AdjustFoodRates",
+                ExpantaNum.PositiveInfinity, ExpantaNum.Zero));
+
+        PopulationState population = new PopulationState();
+        Assert.Throws<TargetInvocationException>(
+            () => InvokePopulationMethod(population, "RestorePopulation", ExpantaNum.NaN));
+
+        TerritoryState territory = new TerritoryState();
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeTerritoryMethod(territory, "AddTotal", ExpantaNum.NegativeInfinity));
+
+        MilitaryState military = new MilitaryState();
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeMilitaryMethod(military, "AdjustFleetPower", ExpantaNum.PositiveInfinity));
+
+        Research research = DataBase<Research>.Find("Arithmetic");
+        ResearchState researchState = new ResearchState(research);
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeResearchStateMethod(researchState, "SetProgress", ExpantaNum.NaN));
+        Assert.Throws<TargetInvocationException>(
+            () => InvokeResearchStateMethod(researchState, "SetPaidResourceCost",
+                DataBase<Resource>.Find("WoodLog"), ExpantaNum.NegativeInfinity));
+
+        ResourceManager resourceManager = CreateManager<ResourceManager>("GlobalFactor-ResourceManager-Test");
+        ResearchManager researchManager = CreateManager<ResearchManager>("GlobalFactor-ResearchManager-Test");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("GlobalFactor-BuildingManager-Test");
+        Assert.Throws<ArgumentOutOfRangeException>(() => resourceManager.GlobalEfficiencyFactor = ExpantaNum.NaN);
+        Assert.Throws<ArgumentOutOfRangeException>(() => researchManager.GlobalEfficiencyFactor = ExpantaNum.PositiveInfinity);
+        Assert.Throws<ArgumentOutOfRangeException>(() => buildingManager.GlobalEfficiencyFactor = ExpantaNum.NegativeInfinity);
+    }
+
+    [Test]
+    public void ResourceAtomicChanges_CombinesRefundAndDebitWithoutPartialMutation()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-AtomicChanges-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Resource stone = DataBase<Resource>.Find("StoneChunk");
+        resourceManager.SetAmount(wood, 100);
+        resourceManager.SetAmount(stone, 10);
+
+        Assert.That(resourceManager.TryApplyAtomicChanges(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(-60),
+                [stone] = new ExpantaNum(-25)
+            }), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(10)));
+
+        Assert.That(resourceManager.TryApplyAtomicChanges(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(-60),
+                [stone] = new ExpantaNum(25)
+            }), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(40)));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(35)));
+    }
+
+    [Test]
+    public void ResourceAtomicChanges_RollsBackWhenDomainCommitThrows()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-AtomicCommitRollback-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            resourceManager.TryApplyAtomicChanges(
+                new Dictionary<Resource, ExpantaNum>
+                {
+                    [wood] = new ExpantaNum(-40)
+                },
+                () => throw new InvalidOperationException("test commit failure")));
+
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+    }
+
+    [Test]
+    public void ResourceAtomicChanges_RollsBackExternalDomainCompensationWhenCommitThrows()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-CrossDomainRollback-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+        GameState state = new GameState();
+        ExpantaNum initialUsed = state.TerritoryUsed;
+
+        Assert.Throws<InvalidOperationException>(() =>
+            resourceManager.TryApplyAtomicPayment(
+                new Dictionary<Resource, ExpantaNum>
+                {
+                    [wood] = new ExpantaNum(40)
+                },
+                () =>
+                {
+                    InvokeGameStateMethod(state, "CommitConstruction", new ExpantaNum(12));
+                    throw new InvalidOperationException("test cross-domain commit failure");
+                },
+                () => InvokeGameStateMethod(state, "RefundConstruction", new ExpantaNum(12))));
+
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(state.TerritoryUsed, Is.EqualTo(initialUsed));
+    }
+
+    [Test]
+    public void ResourceAtomicChanges_ObserverFailureDoesNotUndoCommittedPayment()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-ObserverFailure-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+        resourceManager.ResourceStateChanged += _ =>
+            throw new InvalidOperationException("test observer failure");
+
+        Assert.That(resourceManager.TryApplyAtomicPayment(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(40)
+            }), Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+    }
+
+    [Test]
+    public void ResourceAtomicChanges_PreservesCommitFailureWhenRollbackAlsoThrows()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-RollbackFailure-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
+            resourceManager.TryApplyAtomicPayment(
+                new Dictionary<Resource, ExpantaNum>
+                {
+                    [wood] = new ExpantaNum(40)
+                },
+                () => throw new InvalidOperationException("commit failure"),
+                () => throw new ApplicationException("rollback failure")));
+
+        Assert.That(exception.Message, Is.EqualTo("commit failure"));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+    }
+
+    [Test]
     public void ResearchCostPayment_PaysAvailableResourcesIndependently()
     {
         var managerObject = new GameObject("ResourceManager-AtomicResearch-Test");
@@ -1346,6 +2132,33 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void RestoreResearchSave_ClearsPreviousActiveResearchWhenSaveHasNone()
+    {
+        CreateManager<GameManager>("ResearchRestoreActiveClear-GameManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("ResearchRestoreActiveClear-ResearchManager");
+        Research active = DataBase<Research>.Find("Agriculture");
+        Assert.That(researchManager.StartResearch(active), Is.True);
+        Assert.That(researchManager.ActiveResearch, Is.Not.Null);
+
+        SaveManager.ResearchSaveData data = new SaveManager.ResearchSaveData
+        {
+            GlobalEfficiencyFactor = "1",
+            States = new List<SaveManager.ResearchStateSaveData>(),
+            QueuedResearchIds = new List<string>(),
+            SelectedResearchId = string.Empty
+        };
+        MethodInfo restore = typeof(ResearchManager).GetMethod(
+            "RestoreSaveData",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(restore, Is.Not.Null);
+        restore.Invoke(researchManager, new object[] { data });
+
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.ResearchQueue, Is.Empty);
+    }
+
+    [Test]
     public void ResearchAction_AutoQueuesPrerequisitesInTopologicalOrder()
     {
         CreateManager<GameManager>("ResearchPrerequisite-GameManager");
@@ -1380,6 +2193,21 @@ public sealed class KingdomLogicTests
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.ResearchQueue, Is.Not.Empty);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void EnqueueResearch_RejectsLockedResearchInsteadOfBlockingQueue()
+    {
+        CreateManager<GameManager>("ResearchDirectQueue-GameManager");
+        CreateManager<ResourceManager>("ResearchDirectQueue-ResourceManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("ResearchDirectQueue-ResearchManager");
+
+        Research target = DataBase<Research>.Find("StoneTools");
+        Assert.That(target.Prerequisites, Is.Not.Empty);
+        Assert.That(researchManager.EnqueueResearch(target), Is.False);
+        Assert.That(researchManager.ResearchQueue, Is.Empty);
+        Assert.That(researchManager.ActiveResearch, Is.Null);
     }
 
     [Test]

@@ -1124,6 +1124,23 @@ public sealed class SectorManagerTests
     }
 
     [Test]
+    public void SectorOccupy_RestoresStateWhenRewardApplicationFails()
+    {
+        var manager = new SectorManager(_ =>
+            throw new System.InvalidOperationException("test reward failure"));
+        manager.InitializeDefinitions();
+        SectorState state = manager.GetState(DataBase<SectorDefinition>.Find("LowOrbit"));
+        state.SetUnlockedForEditor(true);
+        state.SetVisitCountForEditor(2);
+
+        Assert.Throws<System.InvalidOperationException>(() =>
+            manager.TryOccupy(state.Definition, out _));
+
+        Assert.That(state.Occupied, Is.False);
+        Assert.That(state.VisitCount, Is.EqualTo(2));
+    }
+
+    [Test]
     public void C705_SectorRewardsUseExistingStrategicResources()
     {
         SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
@@ -1530,6 +1547,102 @@ public sealed class SectorManagerTests
     }
 
     [Test]
+    public void C808b_DuplicateSectorStateIdsAreRejected()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        var duplicateStates = new List<SaveManager.SectorStateSaveData>
+        {
+            new SaveManager.SectorStateSaveData
+            {
+                SectorId = moon.Id,
+                CampaignProgress = "0",
+                CampaignCasualties = "0",
+                CampaignCombatRatio = "0"
+            },
+            new SaveManager.SectorStateSaveData
+            {
+                SectorId = moon.Id,
+                CampaignProgress = "1",
+                CampaignCasualties = "0",
+                CampaignCombatRatio = "0"
+            }
+        };
+
+        Assert.Throws<System.InvalidOperationException>(() =>
+            manager.RestoreSaveData(new SaveManager.SectorSaveData
+            {
+                States = duplicateStates
+            }));
+    }
+
+    [Test]
+    public void C808c_InvalidSectorStateIsRejectedBeforeAnyStateIsApplied()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        SectorState moonState = manager.GetState(moon);
+        moonState.SetUnlockedForEditor(true);
+
+        Assert.Throws<System.InvalidOperationException>(() =>
+            manager.RestoreSaveData(new SaveManager.SectorSaveData
+            {
+                States = new List<SaveManager.SectorStateSaveData>
+                {
+                    new SaveManager.SectorStateSaveData
+                    {
+                        SectorId = moon.Id,
+                        Unlocked = true,
+                        CampaignProgress = "0.25",
+                        CampaignCasualties = "0",
+                        CampaignCombatRatio = "0",
+                        VisitCount = 2
+                    },
+                    new SaveManager.SectorStateSaveData
+                    {
+                        SectorId = lowOrbit.Id,
+                        CampaignProgress = "0",
+                        CampaignCasualties = "0",
+                        CampaignCombatRatio = "0",
+                        VisitCount = -1
+                    }
+                }
+            }));
+
+        Assert.That(moonState.Unlocked, Is.True);
+        Assert.That(moonState.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void C808d_ContradictorySectorFlagsAreRejected()
+    {
+        var manager = new SectorManager(_ => { });
+        manager.InitializeDefinitions();
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+
+        Assert.Throws<System.InvalidOperationException>(() =>
+            manager.RestoreSaveData(new SaveManager.SectorSaveData
+            {
+                States = new List<SaveManager.SectorStateSaveData>
+                {
+                    new SaveManager.SectorStateSaveData
+                    {
+                        SectorId = moon.Id,
+                        Unlocked = true,
+                        Occupied = true,
+                        ColonizationActive = true,
+                        CampaignProgress = "0",
+                        CampaignCasualties = "0",
+                        CampaignCombatRatio = "0"
+                    }
+                }
+            }));
+    }
+
+    [Test]
     public void C809_PreSpaceMilitaryBuildingsAreRemoved()
     {
         Assert.That(DataBase<Building>.Contains("Barracks"), Is.False);
@@ -1628,6 +1741,134 @@ public sealed class SectorManagerTests
             Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("Composite")), Is.EqualTo(new ExpantaNum(5)));
             Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave")), Is.EqualTo(new ExpantaNum(5)));
             Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel")), Is.EqualTo(new ExpantaNum(2.5d)));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void C808e_CancelledCampaignSaveRemainsInactiveWhileRetainingCasualties()
+    {
+        GameObject gameObject = new GameObject("C808e-GameManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            InvokeGameStateMethod(gameManager.State, "RestoreCampaign", false, "ProximaB",
+                new ExpantaNum(10), new ExpantaNum(0.8d));
+
+            Assert.That(gameManager.State.Campaign.Active, Is.False);
+            Assert.That(gameManager.State.Campaign.TargetSectorId, Is.EqualTo("ProximaB"));
+            Assert.That(gameManager.State.Campaign.Casualties, Is.EqualTo(new ExpantaNum(10)));
+            Assert.That(gameManager.State.Campaign.CombatRatio, Is.EqualTo(new ExpantaNum(0.8d)));
+        }
+        finally
+        {
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
+    [Test]
+    public void C808f_ActiveCampaignSaveRequiresKnownTarget()
+    {
+        GameObject gameObject = new GameObject("C808f-GameManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            System.Reflection.TargetInvocationException exception =
+                Assert.Throws<System.Reflection.TargetInvocationException>(() =>
+                InvokeGameManagerMethod(
+                    gameManager,
+                    "RestoreSaveData",
+                    new SaveManager.GameSaveData
+                    {
+                        FoodAmount = "300",
+                        CampaignActive = true,
+                        CampaignTargetSectorId = "missing-sector-id"
+                    }));
+
+            Assert.That(exception.InnerException, Is.TypeOf<System.IO.InvalidDataException>());
+            StringAssert.Contains("missing-sector-id", exception.InnerException.Message);
+        }
+        finally
+        {
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
+    [Test]
+    public void CampaignRewardFailureRollsBackPaymentAndCompletionState()
+    {
+        GameObject resourceObject = new GameObject("Campaign-Reward-Rollback-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
+
+            var manager = new SectorManager(_ =>
+                throw new System.InvalidOperationException("test reward failure"));
+            manager.InitializeDefinitions();
+            SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+            SectorState state = manager.GetState(moon);
+            state.SetUnlockedForEditor(true);
+            var runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+            InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(100));
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                manager.TryAdvanceCampaign(
+                    moon,
+                    240d,
+                    runtimeState,
+                    resourceManager,
+                    out _));
+
+            Assert.That(runtimeState.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+            Assert.That(resourceManager.GetAmount(rocketFuel), Is.EqualTo(new ExpantaNum(10)));
+            Assert.That(state.Occupied, Is.False);
+            Assert.That(state.CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(state.CampaignCasualties, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(state.CampaignActive, Is.False);
+            Assert.That(runtimeState.Campaign.Active, Is.False);
+            Assert.That(runtimeState.Campaign.TargetSectorId, Is.Empty);
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity()
+    {
+        GameObject resourceObject = new GameObject("Campaign-Food-Capacity-Rollback-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
+            var runtimeState = new GameState();
+            var manager = new SectorManager(_ =>
+            {
+                InvokeGameStateMethod(runtimeState, "AdjustFoodCapacity", new ExpantaNum(-400));
+                throw new System.InvalidOperationException("test food-capacity failure");
+            });
+            manager.InitializeDefinitions();
+            SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
+            SectorState state = manager.GetState(moon);
+            state.SetUnlockedForEditor(true);
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100));
+            InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(100));
+
+            Assert.Throws<System.InvalidOperationException>(() =>
+                manager.TryAdvanceCampaign(moon, 240d, runtimeState, resourceManager, out _));
+
+            Assert.That(runtimeState.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
+            Assert.That(runtimeState.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
+            Assert.That(resourceManager.GetAmount(rocketFuel), Is.EqualTo(new ExpantaNum(10)));
+            Assert.That(state.Occupied, Is.False);
         }
         finally
         {

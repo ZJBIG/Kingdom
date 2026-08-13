@@ -22,6 +22,7 @@ public static class SimulatorSelfTests
         VerifyLongObservationHorizon();
         VerifyDoubleOverflowDoesNotBecomeNaN();
         VerifyActiveBuildingCacheParity(snapshot);
+        VerifyUtilityBuildingCandidates();
         VerifyUpgradePairs(snapshot);
         VerifyExtremeConsumptionEfficiency();
 
@@ -131,6 +132,21 @@ public static class SimulatorSelfTests
                 snapshot.Find("InterstellarOccupationAdministration", DefinitionKind.Research)
                     .ResourceRequirements.ContainsKey("PhaseMaterial"),
             "星际占领行政研究必须消耗钛合金和相位材料。");
+
+        Definition interstellarNavigation =
+            snapshot.Find("InterstellarNavigation", DefinitionKind.Research);
+        Require(interstellarNavigation.ResourceRequirements.TryGetValue("RocketFuel", out double navigationFuel) &&
+                Math.Abs(navigationFuel - 250d) < 1e-9d &&
+                snapshot.Find("ChemicalPlant", DefinitionKind.Building)
+                    .Generation.TryGetValue("RocketFuel", out double rocketFuelRate) &&
+                rocketFuelRate > 0d,
+            "InterstellarNavigation must use RocketFuel with an Industrial-era ChemicalPlant source.");
+        Require(snapshot.Find("IndustrialStoneworks", DefinitionKind.Building)
+                    .ResourceRequirements.TryGetValue("StoneBrick", out double stoneworksBrickCost) &&
+                Math.Abs(stoneworksBrickCost - 3000d) < 1e-9d &&
+                !snapshot.Find("IndustrialStoneworks", DefinitionKind.Building)
+                    .ResourceRequirements.ContainsKey("StoneChunk"),
+            "IndustrialStoneworks must use a single reachable StoneBrick cost and not self-require StoneChunk.");
 
         Definition[] spaceBuildings = snapshot.Buildings
             .Where(x => x.TechLevel == SimTechLevel.Spacer)
@@ -550,6 +566,27 @@ public static class SimulatorSelfTests
                     string.Equals(x.Source.UpgradeTo, x.Target.Id,
                         StringComparison.OrdinalIgnoreCase)),
             "建筑升级边缓存必须保留所有有效升级目标。 ");
+    }
+
+    private static void VerifyUtilityBuildingCandidates()
+    {
+        Definition powerPlant = new()
+        {
+            Id = "UtilityPowerPlantProbe",
+            Kind = DefinitionKind.Building,
+            TechLevel = SimTechLevel.Industrial,
+            PowerProduction = 10d
+        };
+        EconomySnapshot snapshot = new(new[] { powerPlant });
+        SimulationState state = new() { TechLevel = SimTechLevel.Industrial };
+
+        BuildingSimulator.Decide(
+            state,
+            snapshot,
+            SimulationStrategies.Create(Route.Normal));
+
+        Require(state.Buildings.GetValueOrDefault(powerPlant.Id) == 1,
+            "仅提供电力的建筑必须进入建筑候选集，不能因没有普通资源产出而被过滤。");
     }
 
     private static void VerifyExtremeConsumptionEfficiency()

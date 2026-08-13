@@ -29,6 +29,6 @@ MonoBehaviour:
   - Type: 2
     Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
     Resource: {fileID: 0}
-    value: "1.1"
+    value: "1.2"
   TechLevel: 0
   AdvancesTechLevel: 0
