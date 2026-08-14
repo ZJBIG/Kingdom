@@ -79,6 +79,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<Building, Button> buildingActionButtons = new();
     private readonly Dictionary<Building, bool> buildingActionUpgradeModes = new();
+    private string lastBuildingDisplaySignature;
     private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
     private readonly Dictionary<Resource, TMP_Text> resourceChangeLabels = new();
     private RectTransform researchGraphViewport;
@@ -103,6 +104,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
+    private string lastDevelopmentGuidanceSignature;
 
     private void Awake()
     {

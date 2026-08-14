@@ -35,7 +35,10 @@ public class GameManager : Singleton<GameManager>
             ExpantaNum allowance = BuildingManager.Instance == null
                 ? ExpantaNum.Zero
                 : BuildingManager.Instance.SafePopulationDepartureAllowance;
-            return State.Population.CurrentDepartureRatePerSecond(allowance);
+            return State.Population.CurrentDepartureRatePerSecond(
+                allowance,
+                State.HappinessMultiplier,
+                CanPopulationLeaveForFoodShortage());
         }
     }
 
@@ -109,7 +112,8 @@ public class GameManager : Singleton<GameManager>
         State.AdvancePopulation(
             deltaSeconds,
             PopulationGrowthRatePerSecond,
-            populationDepartureAllowance);
+            populationDepartureAllowance,
+            CanPopulationLeaveForFoodShortage());
         calendarElapsedSeconds += deltaSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {
@@ -132,7 +136,8 @@ public class GameManager : Singleton<GameManager>
         State.AdvancePopulation(
             simulationSeconds,
             PopulationGrowthRatePerSecond,
-            populationDepartureAllowance);
+            populationDepartureAllowance,
+            CanPopulationLeaveForFoodShortage());
         calendarElapsedSeconds += calendarSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {
@@ -140,6 +145,9 @@ public class GameManager : Singleton<GameManager>
             calendarElapsedSeconds -= SecondsPerDay;
         }
     }
+
+    private bool CanPopulationLeaveForFoodShortage() =>
+        State.FoodAmount <= ExpantaNum.Zero && State.FoodNetRate < ExpantaNum.Zero;
 
     public static ExpantaNum AdvanceFood(
         ExpantaNum current,

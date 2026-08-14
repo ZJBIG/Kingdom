@@ -11,6 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: RocketFuel
+  TechLevel: 4
   m_EditorClassIdentifier: 
   id: RocketFuel
   Label: "\u706B\u7BAD\u71C3\u6599"

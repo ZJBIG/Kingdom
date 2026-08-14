@@ -32,6 +32,10 @@ public sealed class TimelineSnapshot
     public double UsedProductivity;
     public double PopulationGrowthMultiplier;
     public double PopulationGrowthPerSecond;
+    public double PowerProductionPerSecond;
+    public double PowerConsumptionPerSecond;
+    public double LogisticsProductionPerSecond;
+    public double LogisticsConsumptionPerSecond;
     public double TerritoryTotal;
     public double TerritoryUsed;
     public string Resources = "", Buildings = "", ResearchCompleted = "", ActiveResearch = "";
@@ -51,6 +55,8 @@ public sealed class SimulationState
     public double Seconds;
     public SimTechLevel TechLevel=SimTechLevel.Animal;
     public double Food=300, FoodCapacity=500, FoodAvailability=1, HappinessMultiplier=1, PowerSatisfaction=1, LogisticsSatisfaction=1;
+    public double PowerProductionPerSecond, PowerConsumptionPerSecond;
+    public double LogisticsProductionPerSecond, LogisticsConsumptionPerSecond;
     public double Population, PopulationCapacity, PopulationChangeProgress;
     public readonly Dictionary<string,double> Resources=new(StringComparer.OrdinalIgnoreCase){["WoodLog"]=0};
     public readonly Dictionary<string,int> Buildings=new(StringComparer.OrdinalIgnoreCase); public readonly HashSet<string> CompletedResearch=new(StringComparer.OrdinalIgnoreCase); public readonly List<SimEffect> ActiveEffects=new();
@@ -264,6 +270,10 @@ public static class EconomySimulator
             UsedProductivity=BuildingSimulator.UsedProductivity(s,buildings),
             PopulationGrowthMultiplier=ResourceSimulator.PopulationGrowthMultiplier(s),
             PopulationGrowthPerSecond=ResourceSimulator.PopulationGrowthRatePerSecond(s),
+            PowerProductionPerSecond=s.PowerProductionPerSecond,
+            PowerConsumptionPerSecond=s.PowerConsumptionPerSecond,
+            LogisticsProductionPerSecond=s.LogisticsProductionPerSecond,
+            LogisticsConsumptionPerSecond=s.LogisticsConsumptionPerSecond,
             TerritoryTotal=BuildingSimulator.TotalTerritory(s),
             TerritoryUsed=BuildingSimulator.UsedTerritory(s,buildings),
             Resources=string.Join(";",s.Resources.OrderBy(x=>x.Key).Select(x=>$"{x.Key}={x.Value:0.##}")),

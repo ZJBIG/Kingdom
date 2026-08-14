@@ -1153,6 +1153,7 @@ namespace Kingdom.EditorTools
                 id);
             resource.Label = label;
             resource.Description = description;
+            resource.TechLevel = TechLevel.Industrial;
             resource.Color = Color.white;
             EditorUtility.SetDirty(resource);
         }

@@ -19,22 +19,39 @@ public sealed partial class KingdomUIRoot
         RefreshUI();
     }
 
+    private void RefreshBuildingDisplayMembership()
+    {
+        if (populatedPage != "Buildings" || BuildingManager.Instance == null)
+            return;
+
+        string signature = BuildBuildingDisplaySignature();
+        if (lastBuildingDisplaySignature == null)
+        {
+            lastBuildingDisplaySignature = signature;
+            return;
+        }
+        if (lastBuildingDisplaySignature == signature)
+            return;
+
+        // 升级完成后，旧层级可能变为零数量；只在显示成员变化时重建列表。
+        lastBuildingDisplaySignature = signature;
+        PopulatePage("Buildings");
+    }
+
     public void RefreshUI()
     {
-        EnsureRuntimeCanvasGeometry();
         RefreshLiveCardValues();
-        RefreshResearchQueueToolbar();
+        RefreshBuildingDisplayMembership();
         RefreshBuildingQuantityHeader();
         bool researchGraphDragging = researchGraphGesture != null && researchGraphGesture.IsDragging;
-        if (!researchGraphDragging)
-            RefreshResearchTreeVisuals();
         if (selectedResource != null)
             RefreshResourceDetails(selectedResource);
         else if (selectedBuilding != null)
             RefreshSelectedBuildingDetails(selectedBuilding);
-        else if (!researchGraphDragging && selectedResearchNode != null && populatedPage == "Research")
-            RefreshSelectedResearchDetails(selectedResearchNode);
-        RefreshDevelopmentGuidance();
+        else if (!researchGraphDragging && populatedPage == "Research")
+            RefreshResearchDynamicUI();
+        if (populatedPage == "Overview")
+            RefreshDevelopmentGuidance();
         // Top status is presentation-only. Refresh it last so malformed or
         // incomplete saved numeric data cannot stop research-tree input and
         // visual updates from running in the same frame.
@@ -102,9 +119,12 @@ public sealed partial class KingdomUIRoot
         IReadOnlyList<string> blockers = snapshot.Blockers ?? Array.Empty<string>();
         for (int i = 0; i < blockers.Count && i < 3; i++)
             body.Append("\n- ").Append(blockers[i]);
-        developmentGuidanceText.text = body.ToString();
-        developmentGuidanceText.color = TextPrimary;
-        Canvas.ForceUpdateCanvases();
+        string renderedBody = body.ToString();
+        if (developmentGuidanceText.text != renderedBody)
+        {
+            developmentGuidanceText.text = renderedBody;
+            developmentGuidanceText.color = TextPrimary;
+        }
         if (!developmentGuidanceRuntimeGeometryLogged)
         {
             Vector2 rect = developmentGuidanceText.rectTransform.rect.size;

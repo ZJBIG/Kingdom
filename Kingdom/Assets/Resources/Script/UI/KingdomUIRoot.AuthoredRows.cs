@@ -108,11 +108,9 @@ public sealed partial class KingdomUIRoot
 
     private static int CompareResourceRows(Resource left, Resource right)
     {
-        int labelComparison = string.CompareOrdinal(
-            string.IsNullOrEmpty(left.Label) ? left.Id : left.Label,
-            string.IsNullOrEmpty(right.Label) ? right.Id : right.Label);
-        return labelComparison != 0
-            ? labelComparison
+        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
+        return techComparison != 0
+            ? techComparison
             : string.CompareOrdinal(left.Id, right.Id);
     }
 
@@ -120,11 +118,18 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        var orderedDefinitions = new List<Building>();
         for (int i = 0; i < definitions.Count; i++)
         {
             Building building = definitions[i];
             if (building == null || !ShouldDisplayBuilding(building))
                 continue;
+            orderedDefinitions.Add(building);
+        }
+        orderedDefinitions.Sort(CompareBuildingRows);
+        for (int i = 0; i < orderedDefinitions.Count; i++)
+        {
+            Building building = orderedDefinitions[i];
             string amount = "0";
             if (BuildingManager.Instance != null && BuildingManager.Instance.States.TryGetValue(building, out BuildingState state))
                 amount = state.Amount.ToGameString();
@@ -186,6 +191,27 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
+    private string BuildBuildingDisplaySignature()
+    {
+        var signature = new System.Text.StringBuilder();
+        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Building building = definitions[i];
+            if (building != null && ShouldDisplayBuilding(building))
+                signature.Append(building.Id).Append(';');
+        }
+        return signature.ToString();
+    }
+
+    private static int CompareBuildingRows(Building left, Building right)
+    {
+        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
+        return techComparison != 0
+            ? techComparison
+            : string.CompareOrdinal(left.Id, right.Id);
+    }
+
     private void BuildAuthoredResearchRows(RectTransform parent)
     {
         int visible = 0;
@@ -224,11 +250,18 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
+        var orderedDefinitions = new List<WorkshopUpgrade>();
         for (int i = 0; i < definitions.Count; i++)
         {
             WorkshopUpgrade definition = definitions[i];
             if (definition == null || !WorkshopPrerequisitesMet(definition))
                 continue;
+            orderedDefinitions.Add(definition);
+        }
+        orderedDefinitions.Sort(CompareWorkshopRows);
+        for (int i = 0; i < orderedDefinitions.Count; i++)
+        {
+            WorkshopUpgrade definition = orderedDefinitions[i];
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.TextRow, parent, visible++);
             if (row == null)
                 continue;
@@ -246,6 +279,14 @@ public sealed partial class KingdomUIRoot
             });
         }
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
+    }
+
+    private static int CompareWorkshopRows(WorkshopUpgrade left, WorkshopUpgrade right)
+    {
+        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
+        return techComparison != 0
+            ? techComparison
+            : string.CompareOrdinal(left.Id, right.Id);
     }
 
     private GameObject InstantiateAuthoredRow(string prefab, RectTransform parent, int index)

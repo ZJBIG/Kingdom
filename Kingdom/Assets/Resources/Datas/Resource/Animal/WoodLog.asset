@@ -11,6 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: WoodLog
+  TechLevel: 0
   m_EditorClassIdentifier: 
   id: WoodLog
   Label: "\u539F\u6728"

@@ -103,20 +103,19 @@ public sealed partial class KingdomUIRoot
         selectedBuilding = building;
         selectedResource = null;
         detailIsBuilding = true;
-        string amount = "0";
         BuildingState state = BuildingManager.Instance != null &&
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
             ? existing
             : null;
-        if (state != null)
-            amount = state.Amount.ToGameString();
         StringBuilder text = new();
         text.AppendLine(building.Label);
         text.AppendLine();
         text.AppendLine(building.Description);
         text.AppendLine();
-        text.AppendLine("数量: " + amount);
+        text.AppendLine("数量: " + (state == null ? "0" : state.Amount.ToGameString()));
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
+        text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
+        text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
         detailBody.text = text.ToString();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
@@ -138,14 +137,15 @@ public sealed partial class KingdomUIRoot
 
     private void SetBuildingDetailBody(Building building, BuildingState state)
     {
-        string amount = state == null ? "0" : state.Amount.ToGameString();
         StringBuilder text = new();
         text.AppendLine(building.Label);
         text.AppendLine();
         text.AppendLine(building.Description);
         text.AppendLine();
-        text.AppendLine("数量: " + amount);
+        text.AppendLine("数量: " + (state == null ? "0" : state.Amount.ToGameString()));
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
+        text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
+        text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
         detailBody.text = text.ToString();
     }
 
@@ -349,7 +349,10 @@ public sealed partial class KingdomUIRoot
         // The payment title is authored by the requirement section below;
         // keep it out of Body so it cannot be duplicated or appear as a
         // stray top line while the sections are being measured.
-        detailBody.text = "研究说明\n\n" + research.Description;
+        detailBody.text = $"{research.Label}"+"\n"+
+            $"技术等级: {research.TechLevel.GetDescription()}"+"\n"+
+            $"研究点需求: {state.BaseCost.ToGameString()}"+"\n\n"+
+            research.Description;
         HideBuildingRequirements();
         ShowBuildingRequirements(research.ResourceRequirements, "研究支付需求");
         PlaceRequirementsAfterDescription(
@@ -358,6 +361,7 @@ public sealed partial class KingdomUIRoot
             0);
         ConfigureResearchPaymentButton(research, state);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        CaptureResearchRefreshSignatures();
     }
 
     private void RefreshSelectedResearchDetails(Research research)
@@ -620,7 +624,12 @@ public sealed partial class KingdomUIRoot
         // Body is an authored DetailPanel child. Keep only a small
         // baseline after the final information line so the authored
         // requirement panel can sit directly beneath it.
-        float bodyHeight = Mathf.Clamp(detailBody.GetPreferredValues(detailBody.text, width, 1000f).y, 96f, 390f);
+        // TMP's preferred height ends at the final glyph line. Keep a real
+        // baseline gap before the next authored section; without it, short
+        // building descriptions can let the first requirement card visually
+        // crowd the final "生产力需求" line.
+        float preferredBodyHeight = detailBody.GetPreferredValues(detailBody.text, width, 1000f).y;
+        float bodyHeight = Mathf.Max(96f, preferredBodyHeight + 18f);
         body.offsetMin = new Vector2(34f, -bodyHeight);
         body.offsetMax = new Vector2(-34f, 0f);
 

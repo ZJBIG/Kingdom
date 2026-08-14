@@ -300,7 +300,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void PopulationGrowth_UsesLogisticRateAndCapacityDependentDeparture()
+    public void PopulationGrowth_UsesLogisticRateAndFoodGatedDeparture()
     {
         PopulationState growth = new PopulationState();
         InvokePopulationMethod(growth, "AdjustPopulationCapacity", new ExpantaNum(5));
@@ -324,8 +324,8 @@ public sealed class KingdomLogicTests
             new ExpantaNum(2));
         Assert.That(
             departure.Population,
-            Is.EqualTo(ExpantaNum.Zero),
-            "Over-capacity departure should accelerate with relative excess population.");
+            Is.EqualTo(new ExpantaNum(2)),
+            "Housing over-capacity alone must not make population leave.");
     }
 
     [Test]
@@ -455,7 +455,7 @@ public sealed class KingdomLogicTests
 
         Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(4)));
         Assert.That(buildingManager.UsedProductivity, Is.EqualTo(new ExpantaNum(6)));
-        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(-2)));
         Assert.That(
             buildingManager.TryBuild(candidate, ExpantaNum.One, out BuildFailure failure),
             Is.False);
@@ -719,6 +719,45 @@ public sealed class KingdomLogicTests
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(11)));
         gameManager.Tick(0.1d, buildingManager.SafePopulationDepartureAllowance);
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(11)));
+    }
+
+    [Test]
+    public void FoodShortageSlowlyReducesPopulationWithoutGoingNegative()
+    {
+        PopulationState population = new PopulationState();
+        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(5));
+        InvokePopulationMethod(
+            population,
+            "AdjustPopulationCapacity",
+            new ExpantaNum(100));
+
+        InvokePopulationMethod(
+            population,
+            "AdvancePopulation",
+            3600d,
+            new ExpantaNum(0.5d),
+            ExpantaNum.Zero);
+        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(5)),
+            "A negative food rate while inventory remains available must not remove population.");
+
+        InvokePopulationMethod(
+            population,
+            "AdvancePopulation",
+            3600d,
+            new ExpantaNum(0.5d),
+            ExpantaNum.Zero,
+            true);
+
+        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(3)));
+        InvokePopulationMethod(
+            population,
+            "AdvancePopulation",
+            3600d * 10d,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            true);
+        Assert.That(population.Population, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(population.Population, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -1530,8 +1569,13 @@ public sealed class KingdomLogicTests
                 arguments[0],
                 arguments[1],
                 (object)PopulationState.BaseGrowthRatePerSecond,
-                arguments[2]
+                arguments[2],
+                false
             };
+        }
+        else if (methodName == "AdvancePopulation" && arguments.Length == 4)
+        {
+            arguments = new[] { arguments[0], arguments[1], arguments[2], arguments[3], (object)false };
         }
         MethodInfo method = typeof(PopulationState).GetMethod(
             methodName,
@@ -1564,7 +1608,8 @@ public sealed class KingdomLogicTests
                     deltaSeconds,
                     ExpantaNum.One,
                     PopulationState.BaseGrowthRatePerSecond,
-                    ExpantaNum.Zero
+                    ExpantaNum.Zero,
+                    false
                 });
         }
         return state;

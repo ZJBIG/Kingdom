@@ -188,13 +188,16 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             return;
         }
 
-        float scale = Mathf.Clamp(content.localScale.x * (distance / previousDistance), MinScale, MaxScale);
-        content.localScale = new Vector3(scale, scale, 1f);
-        Canvas.ForceUpdateCanvases();
-        if (scrollRect != null)
-            scrollRect.StopMovement();
-        RefreshOverflowState();
-        ClampContentPosition();
+        float previousScale = content.localScale.x;
+        float scale = Mathf.Clamp(previousScale * (distance / previousDistance), MinScale, MaxScale);
+        if (Mathf.Abs(scale - previousScale) > 0.001f)
+        {
+            content.localScale = new Vector3(scale, scale, 1f);
+            if (scrollRect != null)
+                scrollRect.StopMovement();
+            RefreshOverflowState();
+            ClampContentPosition();
+        }
         previousDistance = distance;
     }
 

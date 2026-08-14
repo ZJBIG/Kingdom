@@ -266,7 +266,6 @@ internal static class KingdomUIAuthoredShellGenerator
         listScroll.inertia = true;
         listScroll.movementType = ScrollRect.MovementType.Clamped;
         listScroll.scrollSensitivity = 24f;
-        viewport.gameObject.AddComponent<UIMusicListDragForwarder>();
         RectTransform content = Rect("TrackList", viewport, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
         content.pivot = new Vector2(.5f, 1f);
         listScroll.content = content;

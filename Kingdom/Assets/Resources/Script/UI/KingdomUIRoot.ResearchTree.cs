@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,6 +50,144 @@ public sealed partial class KingdomUIRoot
     private TMP_Text researchTreeQueueLabel;
     private UIResearchGraphGesture researchGraphGesture;
     private bool researchProgressVisualLogged;
+    private string lastResearchNodeStateSignature;
+    private string lastResearchDetailSignature;
+    private string lastResearchQueueSignature;
+    private string lastResearchBusSignature;
+    private string lastSelectedResearchId;
+    private string lastActiveResearchId;
+
+    private void RefreshResearchDynamicUI()
+    {
+        if (!researchTreePageBuilt || ResearchManager.Instance == null)
+            return;
+
+        RestoreResearchTreeSelection();
+        string nodeSignature = BuildResearchNodeStateSignature();
+        string queueSignature = BuildResearchQueueSignature();
+        string busSignature = BuildResearchBusSignature();
+        string detailSignature = BuildResearchDetailSignature();
+        bool nodesChanged = !string.Equals(lastResearchNodeStateSignature, nodeSignature, StringComparison.Ordinal);
+        bool queueChanged = !string.Equals(lastResearchQueueSignature, queueSignature, StringComparison.Ordinal);
+        bool busChanged = !string.Equals(lastResearchBusSignature, busSignature, StringComparison.Ordinal);
+        bool detailsChanged = !string.Equals(lastResearchDetailSignature, detailSignature, StringComparison.Ordinal);
+        bool selectionChanged = !string.Equals(lastSelectedResearchId, selectedResearchNode?.Id ?? string.Empty, StringComparison.Ordinal);
+        bool activeChanged = !string.Equals(lastActiveResearchId, ResearchManager.Instance.ActiveResearch?.Definition?.Id ?? string.Empty, StringComparison.Ordinal);
+        busChanged |= selectionChanged || activeChanged;
+
+        if (nodesChanged || busChanged)
+            RefreshResearchTreeVisuals(busChanged);
+        if (queueChanged)
+            RefreshResearchQueueToolbar();
+
+        if (detailsChanged && selectedResearchNode != null)
+            RefreshSelectedResearchDetails(selectedResearchNode);
+
+        CaptureResearchRefreshSignatures();
+    }
+
+    private void CaptureResearchRefreshSignatures()
+    {
+        if (ResearchManager.Instance == null)
+            return;
+        lastResearchNodeStateSignature = BuildResearchNodeStateSignature();
+        lastResearchQueueSignature = BuildResearchQueueSignature();
+        lastResearchBusSignature = BuildResearchBusSignature();
+        lastResearchDetailSignature = BuildResearchDetailSignature();
+        lastSelectedResearchId = selectedResearchNode?.Id ?? string.Empty;
+        lastActiveResearchId = ResearchManager.Instance.ActiveResearch?.Definition?.Id ?? string.Empty;
+    }
+
+    private string BuildResearchNodeStateSignature()
+    {
+        ResearchManager manager = ResearchManager.Instance;
+        var signature = new StringBuilder(researchTreeNodes.Count * 48);
+        foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
+        {
+            Research research = pair.Key;
+            if (research == null)
+                continue;
+            manager.States.TryGetValue(research, out ResearchState state);
+            ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
+            signature.Append(research.Id).Append(':').Append((int)status).Append(':')
+                .Append(manager.IsQueued(research) ? '1' : '0').Append(':')
+                .Append(manager.ActiveResearch?.Definition == research ? '1' : '0').Append(':')
+                .Append(state != null && state.CostPaid ? '1' : '0').Append(':')
+                .Append(QuantizedResearchProgress(state)).Append(';');
+        }
+        return signature.ToString();
+    }
+
+    private string BuildResearchQueueSignature()
+    {
+        ResearchManager manager = ResearchManager.Instance;
+        var signature = new StringBuilder();
+        signature.Append(manager.ActiveResearch?.Definition?.Id ?? string.Empty).Append('|');
+        IReadOnlyList<ResearchState> queue = manager.ResearchQueue;
+        for (int i = 0; i < queue.Count; i++)
+        {
+            ResearchState state = queue[i];
+            signature.Append(i).Append(':').Append(state?.Definition?.Id ?? string.Empty).Append(':')
+                .Append(state == null ? -1 : (int)state.Status).Append('|');
+        }
+        return signature.ToString();
+    }
+
+    private string BuildResearchBusSignature()
+    {
+        HashSet<string> focusedIds = CollectSelectedResearchPrerequisiteIds();
+        var ids = new List<string>(focusedIds);
+        ids.Sort(StringComparer.Ordinal);
+        var signature = new StringBuilder(selectedResearchNode?.Id ?? string.Empty);
+        for (int i = 0; i < ids.Count; i++)
+        {
+            string id = ids[i];
+            signature.Append('|').Append(id);
+            if (DataBase<Research>.TryFind(id, out Research research) &&
+                ResearchManager.Instance.States.TryGetValue(research, out ResearchState state))
+                signature.Append(':').Append((int)state.Status);
+        }
+        return signature.ToString();
+    }
+
+    private string BuildResearchDetailSignature()
+    {
+        Research research = selectedResearchNode;
+        if (research == null || ResearchManager.Instance == null)
+            return string.Empty;
+        ResearchManager manager = ResearchManager.Instance;
+        manager.States.TryGetValue(research, out ResearchState state);
+        var signature = new StringBuilder(research.Id).Append(':')
+            .Append(state == null ? -1 : (int)state.Status).Append(':')
+            .Append(QuantizedResearchProgress(state)).Append(':')
+            .Append(state != null && state.CostPaid ? '1' : '0');
+        IReadOnlyList<ResearchState> queue = manager.ResearchQueue;
+        for (int i = 0; i < queue.Count; i++)
+            if (queue[i]?.Definition == research)
+                signature.Append(":queue=").Append(i);
+        if (manager.ActiveResearch?.Definition == research)
+            signature.Append(":active");
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
+        if (requirements != null && ResourceManager.Instance != null)
+            for (int i = 0; i < requirements.Count; i++)
+            {
+                Resource resource = requirements[i].First;
+                if (resource == null)
+                    continue;
+                signature.Append('|').Append(resource.Id).Append('=');
+                signature.Append(ResourceManager.Instance.GetAmount(resource).ToGameString());
+                if (state != null)
+                    signature.Append('/').Append(state.GetPaidResourceCost(resource).ToGameString());
+            }
+        return signature.ToString();
+    }
+
+    private static int QuantizedResearchProgress(ResearchState state)
+    {
+        if (state == null)
+            return 0;
+        return Mathf.RoundToInt(Mathf.Clamp01((float)state.ProgressRatio.ToDouble()) * 1000f);
+    }
 
     private static readonly string[] ResearchTreeWarmupSprites =
     {
@@ -216,6 +355,7 @@ public sealed partial class KingdomUIRoot
         researchGraphGesture.Initialize(researchGraphViewport, researchGraphContent);
         researchTreePageBuilt = true;
         RefreshResearchTreeVisuals();
+        RefreshResearchQueueToolbar();
         if (selectedResearchNode != null)
             ShowResearchDetails(selectedResearchNode);
         Debug.Log($"[王国界面] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
@@ -444,11 +584,22 @@ public sealed partial class KingdomUIRoot
 
     private void RestoreResearchTreeSelection()
     {
-        if (selectedResearchNode != null || ResearchManager.Instance == null ||
-            string.IsNullOrWhiteSpace(ResearchManager.Instance.SelectedResearchId))
+        if (ResearchManager.Instance == null)
             return;
-        if (DataBase<Research>.TryFind(ResearchManager.Instance.SelectedResearchId, out Research selected))
-            selectedResearchNode = selected;
+        string selectedId = ResearchManager.Instance.SelectedResearchId;
+        if (string.IsNullOrWhiteSpace(selectedId))
+            return;
+        if (DataBase<Research>.TryFind(selectedId, out Research selected))
+        {
+            if (selectedResearchNode == null ||
+                !string.Equals(selectedResearchNode.Id, selected.Id, StringComparison.Ordinal))
+                selectedResearchNode = selected;
+        }
+        else
+        {
+            Debug.LogWarning("[王国界面] 研究选择已失效，忽略不存在的研究资产: " + selectedId);
+            selectedResearchNode = null;
+        }
     }
 
     private void BindAuthoredResearchTreeOverlay(RectTransform viewport)
@@ -1502,7 +1653,7 @@ public sealed partial class KingdomUIRoot
             CollectPrerequisiteClosure(research.Prerequisites[i], focused);
     }
 
-    private void RefreshResearchTreeVisuals()
+    private void RefreshResearchTreeVisuals(bool refreshBus = true)
     {
         HashSet<string> focusedIds = CollectSelectedResearchPrerequisiteIds();
         if (selectedResearchNode != null &&
@@ -1537,8 +1688,8 @@ public sealed partial class KingdomUIRoot
 
             Image surface = button.targetGraphic as Image;
             if (surface != null)
-                surface.color = focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
-                    new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f);
+                SetColorIfChanged(surface, focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
+                    new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f));
             if (researchTreeOutlines.TryGetValue(research, out Image[] outline) && outline != null)
             {
                 for (int i = 0; i < outline.Length; i++)
@@ -1552,8 +1703,10 @@ public sealed partial class KingdomUIRoot
             Transform progress = button.transform.Find("EraFrame/ProgressFill");
             if (progress != null && progress.TryGetComponent(out Image progressImage))
             {
-                progressImage.fillAmount = ResearchProgressFillAmount(state, status);
-                progressImage.color = Color.white;
+                float fill = ResearchProgressFillAmount(state, status);
+                if (Mathf.Abs(progressImage.fillAmount - fill) > 0.0001f)
+                    progressImage.fillAmount = fill;
+                SetColorIfChanged(progressImage, Color.white);
                 progressImage.canvasRenderer.SetAlpha(1f);
                 progressImage.enabled = true;
                 progress.gameObject.SetActive(true);
@@ -1567,59 +1720,69 @@ public sealed partial class KingdomUIRoot
             Transform stateLabel = button.transform.Find("State");
             if (stateLabel != null && stateLabel.TryGetComponent(out TMP_Text stateText))
             {
-                stateText.text = ResearchStateLabel(status);
-                stateText.color = accent;
+                SetTextIfChanged(stateText, ResearchStateLabel(status));
+                SetColorIfChanged(stateText, accent);
             }
             Transform costLabel = button.transform.Find("Cost");
             if (costLabel != null && costLabel.TryGetComponent(out TMP_Text costText))
-                costText.text = state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString();
+                SetTextIfChanged(costText, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString());
             Transform progressLabel = button.transform.Find("Progress");
             if (progressLabel != null && progressLabel.TryGetComponent(out TMP_Text progressText))
-                progressText.text = ResearchProgressText(state, status);
+                SetTextIfChanged(progressText, ResearchProgressText(state, status));
             Transform label = button.transform.Find("Label");
             if (label != null && label.TryGetComponent(out TMP_Text researchLabel))
-                researchLabel.color = status == ResearchStatus.Completed ? Color.white : TextPrimary;
+                SetColorIfChanged(researchLabel, status == ResearchStatus.Completed ? Color.white : TextPrimary);
             if (label != null && label.TryGetComponent(out Text legacyResearchLabel))
-                legacyResearchLabel.color = status == ResearchStatus.Completed ? Color.white : TextPrimary;
+                SetColorIfChanged(legacyResearchLabel, status == ResearchStatus.Completed ? Color.white : TextPrimary);
             if (stateLabel != null && stateLabel.TryGetComponent(out TMP_Text refreshedStateText))
-                refreshedStateText.color = status == ResearchStatus.Completed ? Color.white : accent;
+                SetColorIfChanged(refreshedStateText, status == ResearchStatus.Completed ? Color.white : accent);
         }
 
-        var focusedLineVisuals = new HashSet<Image>();
-        foreach (KeyValuePair<Pair<Research, Research>, List<Image>> pair in researchTreeLinkVisuals)
+        if (refreshBus)
         {
-            bool focused = IsResearchInSelectedPrerequisitePath(pair.Key.First, pair.Key.Second);
-            if (!focused)
-                continue;
-            for (int i = 0; i < pair.Value.Count; i++)
-                if (pair.Value[i] != null)
-                    focusedLineVisuals.Add(pair.Value[i]);
-        }
+            var focusedLineVisuals = new HashSet<Image>();
+            foreach (KeyValuePair<Pair<Research, Research>, List<Image>> pair in researchTreeLinkVisuals)
+            {
+                bool focused = IsResearchInSelectedPrerequisitePath(pair.Key.First, pair.Key.Second);
+                if (!focused)
+                    continue;
+                for (int i = 0; i < pair.Value.Count; i++)
+                    if (pair.Value[i] != null)
+                        focusedLineVisuals.Add(pair.Value[i]);
+            }
 
-        foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
-        {
-            Image visual = pair.Value;
-            if (visual == null)
-                continue;
-            bool focused = focusedLineVisuals.Contains(visual);
-            visual.color = focused ? ResearchFocusWhite : ResearchArrowColor;
-            visual.canvasRenderer.SetAlpha(1f);
-        }
-        if (researchGraphLineLayer != null)
-        {
-            int siblingIndex = 0;
             foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
             {
-                if (pair.Value != null && !focusedLineVisuals.Contains(pair.Value))
-                    pair.Value.transform.SetSiblingIndex(siblingIndex++);
+                Image visual = pair.Value;
+                if (visual == null)
+                    continue;
+                bool focused = focusedLineVisuals.Contains(visual);
+                visual.color = focused ? ResearchFocusWhite : ResearchArrowColor;
+                visual.canvasRenderer.SetAlpha(1f);
             }
-            foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
+            if (researchGraphLineLayer != null)
             {
-                if (pair.Value != null && focusedLineVisuals.Contains(pair.Value))
-                    pair.Value.transform.SetSiblingIndex(siblingIndex++);
+                int siblingIndex = 0;
+                foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
+                    if (pair.Value != null && !focusedLineVisuals.Contains(pair.Value))
+                        pair.Value.transform.SetSiblingIndex(siblingIndex++);
+                foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
+                    if (pair.Value != null && focusedLineVisuals.Contains(pair.Value))
+                        pair.Value.transform.SetSiblingIndex(siblingIndex++);
             }
         }
-        RefreshResearchQueueToolbar();
+    }
+
+    private static void SetTextIfChanged(TMP_Text text, string value)
+    {
+        if (text != null && text.text != value)
+            text.text = value;
+    }
+
+    private static void SetColorIfChanged(Graphic graphic, Color value)
+    {
+        if (graphic != null && graphic.color != value)
+            graphic.color = value;
     }
 
     private static string GetResearchTextureName(TechLevel techLevel)

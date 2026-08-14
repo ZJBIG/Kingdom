@@ -7,6 +7,7 @@ public sealed class PopulationState
     public static ExpantaNum ProductivityGrantedPerPerson => new ExpantaNum(2d);
     public static ExpantaNum BaseGrowthRatePerSecond => new ExpantaNum(1d / 60d);
     private const double SecondsPerDeparture = 60d;
+    private const double SecondsPerFoodShortageDeparture = 3600d;
     private static readonly ExpantaNum PopulationStepEpsilon =
         new ExpantaNum(1e-9d);
     private static readonly ExpantaNum PopulationRemainderEpsilon =
@@ -100,13 +101,20 @@ public sealed class PopulationState
         double deltaSeconds,
         ExpantaNum happinessMultiplier,
         ExpantaNum growthRatePerSecond,
-        ExpantaNum departureAllowance)
+        ExpantaNum departureAllowance,
+        bool foodShortageDepartureAllowed)
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
         EnsureFinite(growthRatePerSecond, nameof(growthRatePerSecond));
         EnsureFinite(departureAllowance, nameof(departureAllowance));
+        if (foodShortageDepartureAllowed)
+        {
+            AdvanceFoodShortageDeparture(deltaSeconds, happinessMultiplier);
+            return;
+        }
+
         if (population == populationCapacity)
         {
             SetPopulationChangeProgress(ExpantaNum.Zero);
@@ -119,7 +127,7 @@ public sealed class PopulationState
             return;
         }
 
-        AdvanceDeparture(deltaSeconds, departureAllowance);
+        SetPopulationChangeProgress(ExpantaNum.Zero);
     }
 
     internal ExpantaNum CurrentGrowthRatePerSecond(
@@ -140,12 +148,19 @@ public sealed class PopulationState
         ExpantaNum departureAllowance)
     {
         EnsureFinite(departureAllowance, nameof(departureAllowance));
-        if (population <= populationCapacity ||
-            NormalizeWhole(departureAllowance) < ExpantaNum.One)
-        {
-            return ExpantaNum.Zero;
-        }
-        return CalculateDepartureRate(departureAllowance);
+        // 人口离开必须由 GameManager 根据食物库存和 Food/s 显式授权。
+        return ExpantaNum.Zero;
+    }
+
+    internal ExpantaNum CurrentDepartureRatePerSecond(
+        ExpantaNum departureAllowance,
+        ExpantaNum happinessMultiplier,
+        bool foodShortageDepartureAllowed)
+    {
+        EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
+        if (foodShortageDepartureAllowed)
+            return CalculateFoodShortageDepartureRate(happinessMultiplier);
+        return ExpantaNum.Zero;
     }
 
     private static ExpantaNum NormalizeWhole(ExpantaNum value) =>
@@ -234,6 +249,31 @@ public sealed class PopulationState
                 : accumulated - departures);
     }
 
+    private void AdvanceFoodShortageDeparture(
+        double deltaSeconds,
+        ExpantaNum happinessMultiplier)
+    {
+        if (population <= ExpantaNum.Zero)
+        {
+            SetPopulation(ExpantaNum.Zero);
+            SetPopulationChangeProgress(ExpantaNum.Zero);
+            return;
+        }
+
+        ExpantaNum accumulated = populationChangeProgress +
+            CalculateFoodShortageDepartureRate(happinessMultiplier) * deltaSeconds;
+        ExpantaNum departures = ExpantaNum.Min(
+            population,
+            (accumulated + PopulationStepEpsilon).Floor());
+        if (departures > ExpantaNum.Zero)
+            SetPopulation(population - departures);
+
+        SetPopulationChangeProgress(
+            population <= ExpantaNum.Zero
+                ? ExpantaNum.Zero
+                : accumulated - departures);
+    }
+
     private void SetPopulation(ExpantaNum value)
     {
         ExpantaNum next = NormalizeWhole(value);
@@ -276,5 +316,16 @@ public sealed class PopulationState
             ExpantaNum.Min(new ExpantaNum(8d), normalizedExcess);
         return new ExpantaNum(1d / SecondsPerDeparture) *
             departureMultiplier;
+    }
+
+    private ExpantaNum CalculateFoodShortageDepartureRate(
+        ExpantaNum happinessMultiplier)
+    {
+        if (population <= ExpantaNum.Zero)
+            return ExpantaNum.Zero;
+        ExpantaNum shortage = ExpantaNum.Clamp01(
+            ExpantaNum.One - happinessMultiplier);
+        return shortage * ExpantaNum.Max(ExpantaNum.One, population) /
+            new ExpantaNum(SecondsPerFoodShortageDeparture);
     }
 }

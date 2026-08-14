@@ -1,0 +1,13 @@
+Milestone,TimeSeconds,Minute
+Animal,0,0
+Neolithic,3875,64.583
+Medieval,23807,396.783
+Industrial,65728,1095.467
+Spacer,483338,8055.633
+Snapshot10m,600,10
+Snapshot60m,3600,60
+Snapshot240m,14400,240
+Snapshot720m,23400,390
+Snapshot1440m,23400,390
+Snapshot10080m,23400,390
+Snapshot43200m,2592000,43200

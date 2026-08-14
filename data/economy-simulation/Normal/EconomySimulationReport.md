@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 3870 seconds; longest continuous 765 seconds.
-- Final population growth: x2.65, 0/s; productivity utilization: 85.6%; territory: 2725/2725.
+- Productivity-blocked building decision time: total 187380 seconds; longest continuous 184365 seconds.
+- Final population growth: x1.6, 51.296/s; productivity utilization: 105.8%; territory: 666/2475.
 
 ## Animal Age
 
@@ -26,50 +26,34 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 84.55 分钟
+到达时间: 75.43 分钟
 完成研究: 23
 
 ## Medieval Age
 
-到达时间: 317.35 分钟
+到达时间: 237.73 分钟
 完成研究: 3
 
 ## Industrial Age
 
-到达时间: 566.37 分钟
-完成研究: 44
+到达时间: 528.08 分钟
+完成研究: 17
 
 ## Spacer Age
 
-到达时间: 3646.53 分钟
-完成研究: 9
+到达时间: 不可达
+完成研究: 0
 
 原始时代最长无研究目标: 0 分钟；新石器时代: 0 分钟。
 
 ## Bottlenecks
 
 - Aluminum: single producer
-- Composite: single producer
 - CopperWire: single producer
-- Electronics: single producer
-- Engine: single producer
-- Glass: single producer
-- Machinery: single producer
 
 ## Warnings
 
-- **Info Legacy metal surplus** Bronze: Active production is 16.8/s versus 0.5/s consumption; net flow remains 16.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **Info Legacy metal surplus** Tin: Active production is 16.8/s versus 1.5/s consumption; net flow remains 15.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **High Building wait exceeds ten minutes** IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** IndustrialStoneworks: First-copy StoneBrick input takes 16.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
-- **Info Building wait exceeds ten minutes** LaunchCenter: First-copy Composite input takes 18.52 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** OrbitalCarbonizationComplex: First-copy PhantomAlloy input takes 66.67 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** OrbitalForestryHarvestingArray: First-copy PhantomWeave input takes 100 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** OrbitalSolarArray: First-copy PhantomWeave input takes 100 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** OrbitalStation: First-copy PhantomAlloy input takes 111.11 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** PhantomMaterialsFabricator: First-copy TitaniumAlloy input takes 22.22 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Building wait exceeds ten minutes** PhaseMaterialSynthesisArray: First-copy PhantomWeave input takes 100 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
-- **Info Territory model boundary** Sector operations: The standalone simulator exhausted research/workshop territory before late Spacer construction; it does not execute Sector occupation or apply Sector territory rewards. Suggestion: Treat late construction waits as strategy evidence until Sector operations are modeled.
+None
 
 ## Validation boundary
 

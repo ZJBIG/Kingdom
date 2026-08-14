@@ -278,14 +278,6 @@ public sealed partial class KingdomUIRoot
             : manager.IsPlaying ? Positive : PanelRaised;
     }
 
-    private static string MusicCategoryLabel(string category) => category switch
-    {
-        "day" => "日间",
-        "silence" => "静默",
-        "village" => "村落",
-        _ => category
-    };
-
     private static string FormatMusicTime(float seconds)
     {
         int whole = Mathf.Max(0, Mathf.FloorToInt(seconds));
@@ -300,36 +292,5 @@ public sealed partial class KingdomUIRoot
         float length = manager.AudioSource.clip.length;
         if (length > 0f && !float.IsNaN(length) && !float.IsInfinity(length))
             manager.SeekNormalized(Mathf.Clamp01(value / length));
-    }
-}
-
-/// <summary>
-/// Gives the music list's blank viewport area the same drag ownership as its
-/// rows. This is needed because a ScrollRect alone does not reliably receive
-/// a drag that starts on a child Button or on the viewport Image.
-/// </summary>
-public sealed class UIMusicListDragForwarder : MonoBehaviour,
-    IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
-{
-    private ScrollRect Owner => GetComponent<ScrollRect>();
-
-    public void OnInitializePotentialDrag(PointerEventData eventData)
-    {
-        Owner?.OnInitializePotentialDrag(eventData);
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        Owner?.OnBeginDrag(eventData);
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        Owner?.OnDrag(eventData);
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        Owner?.OnEndDrag(eventData);
     }
 }

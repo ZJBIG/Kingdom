@@ -15,6 +15,7 @@ public static class SimulatorSelfTests
 
         VerifyDefinitionReferenceKinds(snapshot);
         VerifyPopulationProductivityParity();
+        VerifyFoodShortagePopulationAndProductivityDeficit();
         VerifyResourceRatesUseSeconds();
         VerifyAdaptiveStepsPreserveRates();
         VerifyAdaptiveStepSchedule();
@@ -431,6 +432,9 @@ public static class SimulatorSelfTests
             < 1e-9d, "研究速度同步公式校验失败。");
         double lowHappiness = ResourceSimulator.CalculateHappinessMultiplier(-10d, 10d, 0.5d);
         double highHappiness = ResourceSimulator.CalculateHappinessMultiplier(1000000d, 10d, 1d);
+        double deficitHappiness = ResourceSimulator.CalculateHappinessMultiplier(-100d, 10d, 1d);
+        Require(Math.Abs(deficitHappiness - (1d / 11d)) < 1e-9d,
+            "负 Food 净产出在库存尚可时仍必须降低幸福度。");
         Require(Math.Abs(lowHappiness - 0.5d) < 1e-9d,
             "幸福度必须负责食物短缺惩罚。");
         Require(highHappiness > lowHappiness && highHappiness < 1.5d,
@@ -943,6 +947,40 @@ public static class SimulatorSelfTests
         Require(
             Math.Abs(BuildingSimulator.TotalProductivity(state, noBuildings) - 13.5d) < 1e-9d,
             "模拟器应用现代医学人口倍率后，5人口生产力必须为13.5。" );
+    }
+
+    private static void VerifyFoodShortagePopulationAndProductivityDeficit()
+    {
+        double unhappy = ResourceSimulator.CalculateHappinessMultiplier(-10d, 10d);
+        Require(unhappy < 1d && unhappy > 0d,
+            "Negative food net rate must lower happiness without producing a negative multiplier.");
+
+        var state = new SimulationState
+        {
+            Population = 10d,
+            PopulationCapacity = 10d,
+            HappinessMultiplier = unhappy
+        };
+        ResourceSimulator.AdvancePopulation(
+            state, 10d, unhappy, 1d, 0d, 3600d, false);
+        Require(Math.Abs(state.Population - 10d) < 1e-9,
+            "Negative food net rate with food still available must not remove population.");
+        ResourceSimulator.AdvancePopulation(
+            state, 10d, unhappy, 1d, 0d, 3600d, true);
+        Require(state.Population < 10d && state.Population >= 0d,
+            "Food shortage must slowly reduce population without going below zero.");
+
+        var buildings = new List<Definition>
+        {
+            new Definition { Id = "Housing", PopulationCapacity = 10d },
+            new Definition { Id = "Industry", ProductivityConsumption = 30d }
+        };
+        state.Buildings["Housing"] = 1;
+        state.Buildings["Industry"] = 1;
+        Require(BuildingSimulator.AvailableProductivity(state, buildings) < 0d,
+            "Available productivity must preserve a negative deficit.");
+        Require(BuildingSimulator.AvailableProductivity(state, buildings) <= 0d,
+            "Negative available productivity must remain non-positive.");
     }
 
     private static void VerifyWorkshopTargetCapabilities(EconomySnapshot snapshot)

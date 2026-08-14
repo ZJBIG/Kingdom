@@ -61,6 +61,7 @@ public static class ImportRareMetalIndustryCsv
         asset.SetIdForEditor(id);
         asset.Label = row.V("Label");
         asset.Description = row.V("Description");
+        asset.TechLevel = TechLevel.Industrial;
         asset.Color = new Color((float)Number(row.V("Color_r")), (float)Number(row.V("Color_g")), (float)Number(row.V("Color_b")), (float)Number(row.V("Color_a")));
         EditorUtility.SetDirty(asset);
     }

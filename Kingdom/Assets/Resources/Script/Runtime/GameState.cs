@@ -125,14 +125,16 @@ public sealed class GameState
     internal void AdvancePopulation(
         double deltaSeconds,
         ExpantaNum growthRatePerSecond,
-        ExpantaNum departureAllowance)
+        ExpantaNum departureAllowance,
+        bool foodShortageDepartureAllowed)
     {
         int previousVersion = Population.Version;
         Population.AdvancePopulation(
             deltaSeconds,
             HappinessMultiplier,
             growthRatePerSecond,
-            departureAllowance);
+            departureAllowance,
+            foodShortageDepartureAllowed);
         if (Population.Version != previousVersion)
             Version++;
     }

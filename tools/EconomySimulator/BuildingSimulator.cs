@@ -275,7 +275,7 @@ public static class BuildingSimulator
         Math.Max(0,buildings.Sum(x=>
             s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.ProductivityConsumption)));
     public static double AvailableProductivity(SimulationState s,IReadOnlyList<Definition> buildings)=>
-        Math.Max(0,TotalProductivity(s,buildings)-UsedProductivity(s,buildings));
+        TotalProductivity(s,buildings)-UsedProductivity(s,buildings);
     public static double TotalTerritory(SimulationState s)=>
         500d+s.ActiveEffects.Where(
             x=>x.Kind==SimEffectKind.TerritoryGranted).Sum(x=>Math.Max(0,x.Value));

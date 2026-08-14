@@ -1,10 +1,10 @@
 FAIL:
-Normal: Industrial reached at 566.37 minutes; expected 600-960.
-Normal: Building wait exceeds ten minutes IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production.
-Normal: Building wait exceeds ten minutes IndustrialStoneworks: First-copy StoneBrick input takes 16.67 minutes at active production.
-Fast: Neolithic reached at 77.65 minutes; expected 45-75.
-Fast: Industrial reached at 915.13 minutes; expected 480-600.
+Normal: Medieval reached at 237.73 minutes; expected 300-480.
+Normal: Industrial reached at 528.08 minutes; expected 600-960.
+Fast: Medieval reached at 182.93 minutes; expected 240-360.
 Conservative: Neolithic reached at 64.58 minutes; expected 90-120.
-Conservative: Medieval reached at 396.78 minutes; expected 480-720.
+Conservative: Medieval reached at 310.23 minutes; expected 480-720.
+Conservative: Industrial reached at 700.25 minutes; expected 840-1200.
 Conservative: Building wait exceeds ten minutes IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production.
+Conservative: Building wait exceeds ten minutes IndustrialStoneworks: First-copy StoneBrick input takes 25 minutes at active production.
 Conservative: Building wait exceeds ten minutes IntegratedPetrochemicalComplex: First-copy Electronics input takes 11.9 minutes at active production.

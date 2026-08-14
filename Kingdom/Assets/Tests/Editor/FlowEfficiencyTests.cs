@@ -56,13 +56,13 @@ public sealed class FlowEfficiencyTests
     }
 
     [Test]
-    public void HappinessDoesNotPenalizeExistingFoodDeficit()
+    public void HappinessPenalizesNegativeFoodNetRateEvenWhenInventoryIsAvailable()
     {
         ExpantaNum result = HappinessFormula.CalculateMultiplier(
             new ExpantaNum(-100),
             new ExpantaNum(10));
 
-        Assert.That(result, Is.EqualTo(ExpantaNum.One));
+        Assert.That(result, Is.EqualTo(new ExpantaNum(1d / 11d)));
     }
 
     [Test]

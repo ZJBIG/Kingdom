@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 41570 seconds; longest continuous 41050 seconds.
-- Final population growth: x1.6, 0/s; productivity utilization: 98.2%; territory: 744/2325.
+- Productivity-blocked building decision time: total 42310 seconds; longest continuous 41240 seconds.
+- Final population growth: x1.6, 50.7/s; productivity utilization: 105.3%; territory: 756/2475.
 
 ## Animal Age
 
@@ -26,18 +26,18 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 77.65 分钟
+到达时间: 73.27 分钟
 完成研究: 4
 
 ## Medieval Age
 
-到达时间: 279.45 分钟
+到达时间: 182.93 分钟
 完成研究: 22
 
 ## Industrial Age
 
-到达时间: 915.13 分钟
-完成研究: 13
+到达时间: 549.28 分钟
+完成研究: 17
 
 ## Spacer Age
 
@@ -48,7 +48,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Bottlenecks
 
-None
+- Aluminum: single producer
+- CopperWire: single producer
 
 ## Warnings
 

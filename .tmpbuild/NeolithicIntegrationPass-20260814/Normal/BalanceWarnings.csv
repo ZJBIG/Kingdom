@@ -1,0 +1,2 @@
+Type,Object,Reason,Severity,Suggestion
+"Building wait exceeds ten minutes","IndustrialStoneworks","First-copy StoneBrick input takes 16.67 minutes at active production.","High","Adjust that resource cost or unlock a producer earlier."

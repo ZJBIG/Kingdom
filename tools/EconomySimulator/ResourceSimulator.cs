@@ -4,6 +4,7 @@ using System.Linq;
 namespace Kingdom.EconomySimulation;
 public static class ResourceSimulator
 {
+    private const double SecondsPerFoodShortageDeparture=3600d;
     public static void Tick(
         SimulationState s,
         IReadOnlyList<Definition> buildings,
@@ -22,6 +23,10 @@ public static class ResourceSimulator
         double happinessConstraint=Math.Min(1d,happinessMultiplier);
         powerIn*=happinessReward*EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
         logIn*=happinessReward*EffectMultiplier(s,SimEffectKind.GlobalLogisticsMultiplier,"");
+        s.PowerProductionPerSecond=powerIn;
+        s.PowerConsumptionPerSecond=powerOut;
+        s.LogisticsProductionPerSecond=logIn;
+        s.LogisticsConsumptionPerSecond=logOut;
         s.FoodAvailability=foodAvailability;s.HappinessMultiplier=happinessMultiplier;
         s.PowerSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(powerIn,powerOut);s.LogisticsSatisfaction=EconomySimulationParity.CalculateFlowSatisfaction(logIn,logOut);
         double globalProduction=EffectMultiplier(s,SimEffectKind.GlobalBuildingProductionMultiplier,"");
@@ -29,6 +34,7 @@ public static class ResourceSimulator
         double foodCapacityMultiplier=EffectMultiplier(s,SimEffectKind.FoodCapacityMultiplier,"");
         s.FoodCapacity=Math.Max(500d,500d+buildings.Sum(x=>s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.FoodCapacity))*foodCapacityMultiplier);
         s.Food=Math.Min(s.FoodCapacity,EconomySimulationParity.AdvanceStockpile(s.Food,foodIn,foodOut,deltaSeconds));
+        bool foodShortageDepartureAllowed=s.Food<=1e-9 && foodIn-foodOut<0d;
         double populationCapacity=buildings.Sum(x=>
             s.Buildings.GetValueOrDefault(x.Id)*Math.Max(0,x.PopulationCapacity));
         double departureAllowance=Math.Floor(Math.Max(
@@ -41,7 +47,8 @@ public static class ResourceSimulator
             happinessMultiplier,
             PopulationGrowthMultiplier(s),
             departureAllowance,
-            deltaSeconds);
+            deltaSeconds,
+            foodShortageDepartureAllowed);
         foreach(var k in s.Resources.Keys.ToList()){s.Resources[k]=Math.Max(0,s.Resources[k]);s.Minimums[k]=Math.Min(s.Minimums.GetValueOrDefault(k,double.MaxValue),s.Resources[k]);}
         if(s.Resources.Values.Any(x=>x<=1e-9))s.ZeroSeconds+=deltaSeconds;
     }
@@ -51,7 +58,8 @@ public static class ResourceSimulator
         double happinessMultiplier,
         double growthMultiplier,
         double departureAllowance,
-        double deltaSeconds)
+        double deltaSeconds,
+        bool foodShortageDepartureAllowed)
     {
         populationCapacity=Math.Max(0,Math.Floor(populationCapacity+1e-9));
         int previousRelation=Compare(s.Population,s.PopulationCapacity);
@@ -59,6 +67,11 @@ public static class ResourceSimulator
         if(previousRelation!=nextRelation)
             s.PopulationChangeProgress=0;
         s.PopulationCapacity=populationCapacity;
+        if(foodShortageDepartureAllowed)
+        {
+            AdvanceFoodShortageDeparture(s,deltaSeconds);
+            return;
+        }
         if(Math.Abs(s.Population-populationCapacity)<=1e-9)
         {
             s.PopulationChangeProgress=0;
@@ -86,30 +99,7 @@ public static class ResourceSimulator
             return;
         }
 
-        double safeDepartures=Math.Floor(Math.Max(0,departureAllowance)+1e-9);
-        if(safeDepartures<1)
-        {
-            s.PopulationChangeProgress=0;
-            return;
-        }
-
-        double excess=s.Population-populationCapacity;
-        double normalizedExcess=populationCapacity<=0d
-            ?excess
-            :excess/populationCapacity;
-        double departureMultiplier=1d+Math.Min(8d,Math.Max(0d,normalizedExcess));
-        double departureProgress=s.PopulationChangeProgress+
-            deltaSeconds/60d*departureMultiplier;
-        double departures=Math.Min(
-            Math.Min(s.Population-populationCapacity,safeDepartures),
-            Math.Floor(departureProgress+1e-9));
-        s.Population-=departures;
-        bool blockedByCapacity=s.Population<=populationCapacity+1e-9;
-        bool blockedByProductivity=
-            departures>=safeDepartures&&s.Population>populationCapacity+1e-9;
-        s.PopulationChangeProgress=blockedByCapacity||blockedByProductivity
-            ?0
-            :Math.Max(0,departureProgress-departures);
+        s.PopulationChangeProgress=0;
     }
     private static int Compare(double population,double capacity)=>
         population<capacity-1e-9?-1:population>capacity+1e-9?1:0;
@@ -169,8 +159,10 @@ public static class ResourceSimulator
         double availability=Math.Clamp(foodAvailability,0d,1d);
         if(availability<1d)
             return availability;
-        double surplusPerPerson = Math.Max(0d, foodNetRate) /
-            Math.Max(1d, population);
+        double safePopulation=Math.Max(1d,population);
+        if(foodNetRate<0d)
+            return Math.Clamp(1d/(1d+(-foodNetRate/safePopulation)),0d,1d);
+        double surplusPerPerson = foodNetRate / safePopulation;
         double score = Math.Log10(1d + surplusPerPerson);
         if (double.IsNaN(score) || score < 0d)
             return 1d;
@@ -218,14 +210,32 @@ public static class ResourceSimulator
         SimulationState s,
         double departureAllowance)
     {
-        if(s.Population<=s.PopulationCapacity ||
-            Math.Floor(Math.Max(0d,departureAllowance)+1e-9)<1d)
+        return 0d;
+    }
+    private static void AdvanceFoodShortageDeparture(
+        SimulationState s,double deltaSeconds)
+    {
+        if(s.Population<=0d)
+        {
+            s.Population=0d;
+            s.PopulationChangeProgress=0d;
+            return;
+        }
+        double rate=FoodShortageDepartureRatePerSecond(s);
+        double accumulated=s.PopulationChangeProgress+rate*deltaSeconds;
+        double departures=Math.Min(s.Population,Math.Floor(accumulated+1e-9d));
+        s.Population-=departures;
+        s.Population=Math.Max(0d,s.Population);
+        s.PopulationChangeProgress=s.Population<=0d
+            ?0d:accumulated-departures;
+    }
+    private static double FoodShortageDepartureRatePerSecond(SimulationState s)
+    {
+        if(s.Population<=0d)
             return 0d;
-        double excess=s.Population-s.PopulationCapacity;
-        double normalizedExcess=s.PopulationCapacity<=0d
-            ?excess
-            :excess/s.PopulationCapacity;
-        return 1d+Math.Min(8d,Math.Max(0d,normalizedExcess));
+        return Math.Clamp(1d-s.HappinessMultiplier,0d,1d)*
+        (s.Population<=0d ? 0d : Math.Max(1d,s.Population)) /
+            SecondsPerFoodShortageDeparture;
     }
     public static double Get(SimulationState s,string id)=>s.Resources.GetValueOrDefault(id);
     public static bool CanPay(SimulationState s,IDictionary<string,double> cost)=>cost.All(p=>Get(s,p.Key)+1e-9>=p.Value);

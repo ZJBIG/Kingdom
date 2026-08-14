@@ -43,7 +43,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
     public ExpantaNum AvailableProductivity =>
-        ExpantaNum.Max(ExpantaNum.Zero, TotalProductivity - UsedProductivity);
+        TotalProductivity - UsedProductivity;
     public ExpantaNum SafePopulationDepartureAllowance =>
         ExpantaNum.Max(
             ExpantaNum.Zero,
