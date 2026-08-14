@@ -106,7 +106,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         BuildingManager.Instance.PrepareTickResourceSatisfaction(deltaSeconds);
-        BuildingManager.Instance.RefreshEfficiencies();
+        // PrepareTickResourceSatisfaction already performs the final
+        // efficiency convergence and refreshes ResearchPower. Repeating the
+        // full building scan here only duplicated work every simulation tick.
         GameManager.Instance.Tick(
             deltaSeconds,
             BuildingManager.Instance.SafePopulationDepartureAllowance);
@@ -138,7 +140,6 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             double step = Math.Min(OfflineStepSeconds, remaining);
             double effectiveStep = CalculateOfflineEffectiveSeconds(elapsed, step);
             BuildingManager.Instance.PrepareTickResourceSatisfaction(effectiveStep);
-            BuildingManager.Instance.RefreshEfficiencies();
             GameManager.Instance.TickOffline(
                 step,
                 effectiveStep,

@@ -67,11 +67,26 @@ public class ResearchManager : Singleton<ResearchManager>
     private readonly Dictionary<TechLevel, int> researchCountByTech = new();
     private readonly List<ResearchState> orderedStates = new();
     private readonly Queue<ResearchState> researchQueue = new();
+    private readonly List<ResearchState> researchQueueSnapshot = new();
+    private bool researchQueueSnapshotDirty = true;
 
     public IReadOnlyDictionary<Research, ResearchState> States => states;
     public IReadOnlyDictionary<TechLevel, int> ResearchCountByTech => researchCountByTech;
     public ResearchState ActiveResearch { get; private set; }
-    public IReadOnlyList<ResearchState> ResearchQueue => researchQueue.ToList();
+    public IReadOnlyList<ResearchState> ResearchQueue
+    {
+        get
+        {
+            if (researchQueueSnapshotDirty)
+            {
+                researchQueueSnapshot.Clear();
+                foreach (ResearchState state in researchQueue)
+                    researchQueueSnapshot.Add(state);
+                researchQueueSnapshotDirty = false;
+            }
+            return researchQueueSnapshot;
+        }
+    }
     public int TotalResearchCount => orderedStates.Count;
     public string SelectedResearchId { get; private set; } = string.Empty;
     public event Action<ResearchState> ResearchStateAdded;
@@ -208,8 +223,10 @@ public class ResearchManager : Singleton<ResearchManager>
             .Where(state => !cancelled.Contains(state.Definition))
             .ToList();
         researchQueue.Clear();
+        researchQueueSnapshotDirty = true;
         for (int i = 0; i < remaining.Count; i++)
             researchQueue.Enqueue(remaining[i]);
+        researchQueueSnapshotDirty = true;
 
         foreach (Research cancelledResearch in cancelled)
         {
@@ -518,6 +535,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return;
         state.SetStatus(ResearchStatus.Queued);
         researchQueue.Enqueue(state);
+        researchQueueSnapshotDirty = true;
         ResearchQueueChanged?.Invoke();
     }
 
@@ -527,8 +545,10 @@ public class ResearchManager : Singleton<ResearchManager>
             .Where(value => value != state)
             .ToList();
         researchQueue.Clear();
+        researchQueueSnapshotDirty = true;
         for (int i = 0; i < remaining.Count; i++)
             researchQueue.Enqueue(remaining[i]);
+        researchQueueSnapshotDirty = true;
         ResearchQueueChanged?.Invoke();
     }
 
@@ -675,6 +695,7 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         ActiveResearch = null;
         researchQueue.Clear();
+        researchQueueSnapshotDirty = true;
         SelectedResearchId = string.Empty;
         GlobalEfficiencyFactor = ExpantaNum.One;
         for (int i = 0; i < orderedStates.Count; i++)
@@ -695,6 +716,7 @@ public class ResearchManager : Singleton<ResearchManager>
         // Clear transient scheduling pointers only after validation succeeds.
         ActiveResearch = null;
         researchQueue.Clear();
+        researchQueueSnapshotDirty = true;
         SelectedResearchId = string.Empty;
 
         if (data.States != null)

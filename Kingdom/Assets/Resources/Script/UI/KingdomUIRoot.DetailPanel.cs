@@ -102,6 +102,8 @@ public sealed partial class KingdomUIRoot
         detailBody.fontSize = 30f;
         selectedBuilding = building;
         selectedResource = null;
+        lastSelectedBuildingVersion = -1;
+        lastSelectedBuildingResourceVersion = -1;
         detailIsBuilding = true;
         BuildingState state = BuildingManager.Instance != null &&
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
@@ -190,6 +192,7 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = null;
         selectedBuilding = null;
         selectedResource = resource;
+        lastSelectedResourceVersion = -1;
         detailIsBuilding = false;
         detailBuildingUpgrade = false;
         HideBuildingRequirements();

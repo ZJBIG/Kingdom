@@ -62,6 +62,17 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Resource selectedResource;
     private static TMP_FontAsset sharedFontAsset;
     private float liveRefreshTimer;
+    // Live refresh runs ten times per second; avoid global scene searches on
+    // every presentation tick.
+    private GameManager gameManagerCache;
+    private ResearchManager researchManagerCache;
+    private ResourceManager resourceManagerCache;
+    private BuildingManager buildingManagerCache;
+    private WorkshopManager workshopManagerCache;
+    private int lastSelectedResourceVersion = -1;
+    private int lastSelectedBuildingVersion = -1;
+    private bool lastSelectedBuildingUpgrade;
+    private int lastSelectedBuildingResourceVersion = -1;
     private bool topStatusDataErrorLogged;
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
@@ -78,6 +89,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<Building, Image> buildingDeconstructSurfaces = new();
     private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<Building, Button> buildingActionButtons = new();
+    private readonly Dictionary<Button, TMP_Text> buildingActionButtonTexts = new();
     private readonly Dictionary<Building, bool> buildingActionUpgradeModes = new();
     private string lastBuildingDisplaySignature;
     private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
