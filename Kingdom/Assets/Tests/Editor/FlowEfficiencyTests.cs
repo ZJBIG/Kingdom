@@ -81,6 +81,38 @@ public sealed class FlowEfficiencyTests
     }
 
     [Test]
+    public void MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable()
+    {
+        ExpantaNum healthy = HappinessFormula.CalculateMultiplier(
+            new ExpantaNum(90),
+            new ExpantaNum(10),
+            ExpantaNum.One,
+            new ExpantaNum(0.08d));
+        ExpantaNum shortage = HappinessFormula.CalculateMultiplier(
+            new ExpantaNum(90),
+            new ExpantaNum(10),
+            new ExpantaNum(0.5d),
+            new ExpantaNum(0.08d));
+
+        Assert.That(healthy, Is.GreaterThan(
+            HappinessFormula.CalculateMultiplier(new ExpantaNum(90), new ExpantaNum(10))));
+        Assert.That(shortage, Is.EqualTo(new ExpantaNum(0.5d)));
+    }
+
+    [Test]
+    public void MedicalHappinessBonusSharesTheExistingUpperBound()
+    {
+        ExpantaNum result = HappinessFormula.CalculateMultiplier(
+            new ExpantaNum("1e100000"),
+            new ExpantaNum(10),
+            ExpantaNum.One,
+            new ExpantaNum(0.5d));
+
+        Assert.That(result, Is.LessThanOrEqualTo(
+            ExpantaNum.One + HappinessFormula.MaximumBonus));
+    }
+
+    [Test]
     public void FoodAvailabilityAndHappinessFieldsReplaceLegacyFoodState()
     {
         Assert.That(typeof(GameState).GetProperty("FoodSatisfaction"), Is.Null);

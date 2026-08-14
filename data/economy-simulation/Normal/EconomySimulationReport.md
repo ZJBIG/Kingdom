@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 4815 seconds; longest continuous 1035 seconds.
-- Final population growth: x2.65, 0/s; productivity utilization: 80.4%; territory: 2724/2725.
+- Productivity-blocked building decision time: total 3870 seconds; longest continuous 765 seconds.
+- Final population growth: x2.65, 0/s; productivity utilization: 85.6%; territory: 2725/2725.
 
 ## Animal Age
 
@@ -31,17 +31,17 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Medieval Age
 
-到达时间: 332.02 分钟
+到达时间: 317.35 分钟
 完成研究: 3
 
 ## Industrial Age
 
-到达时间: 545.03 分钟
+到达时间: 566.37 分钟
 完成研究: 44
 
 ## Spacer Age
 
-到达时间: 4315.2 分钟
+到达时间: 3646.53 分钟
 完成研究: 9
 
 原始时代最长无研究目标: 0 分钟；新石器时代: 0 分钟。
@@ -58,8 +58,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Warnings
 
-- **Info Legacy metal surplus** Bronze: Active production is 21.8/s versus 0.5/s consumption; net flow remains 21.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **Info Legacy metal surplus** Tin: Active production is 21.6/s versus 1.5/s consumption; net flow remains 20.1/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **Info Legacy metal surplus** Bronze: Active production is 16.8/s versus 0.5/s consumption; net flow remains 16.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **Info Legacy metal surplus** Tin: Active production is 16.8/s versus 1.5/s consumption; net flow remains 15.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
 - **High Building wait exceeds ten minutes** IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
 - **High Building wait exceeds ten minutes** IndustrialStoneworks: First-copy StoneBrick input takes 16.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
 - **Info Building wait exceeds ten minutes** LaunchCenter: First-copy Composite input takes 18.52 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
@@ -69,6 +69,7 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - **Info Building wait exceeds ten minutes** OrbitalStation: First-copy PhantomAlloy input takes 111.11 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
 - **Info Building wait exceeds ten minutes** PhantomMaterialsFabricator: First-copy TitaniumAlloy input takes 22.22 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
 - **Info Building wait exceeds ten minutes** PhaseMaterialSynthesisArray: First-copy PhantomWeave input takes 100 minutes at active production. Suggestion: Treat this as an intentional late-era material gate; do not raise its source rate without a progression review.
+- **Info Territory model boundary** Sector operations: The standalone simulator exhausted research/workshop territory before late Spacer construction; it does not execute Sector occupation or apply Sector territory rewards. Suggestion: Treat late construction waits as strategy evidence until Sector operations are modeled.
 
 ## Validation boundary
 

@@ -34,7 +34,8 @@ public sealed class GameState
         HappinessFormula.CalculateMultiplier(
             FoodNetRate,
             Population?.Population ?? ExpantaNum.Zero,
-            FoodAvailability);
+            FoodAvailability,
+            ProgressionModifierManager.Current.HappinessBonus);
     public ExpantaNum HappinessConstraintMultiplier =>
         HappinessFormula.CalculateConstraintMultiplier(HappinessMultiplier);
     public ExpantaNum HappinessRewardMultiplier =>

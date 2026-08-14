@@ -137,6 +137,11 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(townHouse.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(industrialHousing.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(orbitalHousing.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(woodHouse.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(stoneHouse.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(townHouse.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(industrialHousing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(orbitalHousing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(industrialHousing.ProductivityConsumption,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(orbitalHousing.ProductivityConsumption,
@@ -159,6 +164,22 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(orbital.SpaceCost, Is.EqualTo(new ExpantaNum(650)));
         Assert.That(orbital.ResourceRequirements, Has.Count.GreaterThanOrEqualTo(7));
         Assert.That(industrial.UpgradeTo, Is.SameAs(orbital));
+    }
+
+    [Test]
+    public void IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood()
+    {
+        Building railHub = DataBase<Building>.Find("RailHub");
+        Building orbitalHub = DataBase<Building>.Find("OrbitalLogisticsHub");
+
+        Assert.That(railHub, Is.Not.Null);
+        Assert.That(orbitalHub, Is.Not.Null);
+        Assert.That(railHub.FoodCapacityGranted, Is.EqualTo(new ExpantaNum(2500)));
+        Assert.That(orbitalHub.FoodCapacityGranted, Is.EqualTo(new ExpantaNum(30000)));
+        Assert.That(railHub.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(orbitalHub.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(railHub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(orbitalHub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -185,7 +206,7 @@ public sealed class BuildingVerticalSliceTests
 
         Assert.That(housing, Is.Not.Null);
         Assert.That(housing.PopulationCapacityGranted, Is.GreaterThan(new ExpantaNum(1000)));
-        Assert.That(housing.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(housing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(housing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(housing.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(housing.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(5));
@@ -218,7 +239,7 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(
             orbital.ProductivityConsumption,
             Is.GreaterThan(industrial.ProductivityConsumption * 4d));
-        Assert.That(orbital.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(orbital.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(orbital.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(orbital.PowerConsumptionRate, Is.GreaterThan(industrial.PowerConsumptionRate));
         Assert.That(orbital.LogisticsConsumptionRate, Is.GreaterThan(industrial.LogisticsConsumptionRate));

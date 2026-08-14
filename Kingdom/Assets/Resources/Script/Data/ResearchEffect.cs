@@ -30,7 +30,8 @@ public enum ResearchEffectType
     CampaignCasualtyMultiplier = 27,
     PopulationProductivityMultiplier = 28,
     ExplorationPowerMultiplier = 29,
-    BuildingConstructionMultiplier = 30
+    BuildingConstructionMultiplier = 30,
+    HappinessBonus = 31
 }
 
 public enum ResearchSystem

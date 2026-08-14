@@ -23,7 +23,7 @@ MonoBehaviour:
   productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"
-  foodProductionRate: "1.5"
+  foodProductionRate: "2.5"
   foodConsumptionRate: "0"
   foodCapacityGranted: "400"
   powerProductionRate: "0"

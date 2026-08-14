@@ -42,7 +42,7 @@ public static class HappinessFormula
     /// <summary>
     /// Applies the food-shortage constraint first, then a logarithmic score
     /// followed by a bounded saturation curve for food surplus. The result is
-    /// monotonic and remains in [0, 1 + MaximumBonus).
+    /// monotonic and remains in [0, 1 + MaximumBonus].
     /// </summary>
     public static ExpantaNum CalculateMultiplier(
         ExpantaNum foodNetRate,
@@ -53,6 +53,17 @@ public static class HappinessFormula
         ExpantaNum foodNetRate,
         ExpantaNum population,
         ExpantaNum foodAvailability)
+        => CalculateMultiplier(
+            foodNetRate,
+            population,
+            foodAvailability,
+            ExpantaNum.Zero);
+
+    public static ExpantaNum CalculateMultiplier(
+        ExpantaNum foodNetRate,
+        ExpantaNum population,
+        ExpantaNum foodAvailability,
+        ExpantaNum happinessBonus)
     {
         ExpantaNum availability = ExpantaNum.Clamp01(foodAvailability);
         if (availability < ExpantaNum.One)
@@ -64,7 +75,14 @@ public static class HappinessFormula
             return ExpantaNum.One;
 
         ExpantaNum saturation = score / (score + HalfSaturationScore);
-        return ExpantaNum.One + MaximumBonus * ExpantaNum.Clamp01(saturation);
+        ExpantaNum baseMultiplier =
+            ExpantaNum.One + MaximumBonus * ExpantaNum.Clamp01(saturation);
+        ExpantaNum safeBonus = happinessBonus.IsNaN || happinessBonus.IsInfinity
+            ? ExpantaNum.Zero
+            : ExpantaNum.Max(ExpantaNum.Zero, happinessBonus);
+        return ExpantaNum.Min(
+            ExpantaNum.One + MaximumBonus,
+            baseMultiplier + safeBonus);
     }
 
     public static ExpantaNum CalculateConstraintMultiplier(ExpantaNum multiplier) =>

@@ -21,7 +21,7 @@ MonoBehaviour:
   spaceCost: "3"
   productivityConsumption: "0"
   productivityGranted: "0"
-  populationCapacityGranted: "14"
+  populationCapacityGranted: "12"
   researchPowerGranted: "0"
   foodProductionRate: "0"
   foodConsumptionRate: "0"

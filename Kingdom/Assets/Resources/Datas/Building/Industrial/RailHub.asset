@@ -25,7 +25,7 @@ MonoBehaviour:
   researchPowerGranted: "0"
   foodProductionRate: "0"
   foodConsumptionRate: "0"
-  foodCapacityGranted: "0"
+  foodCapacityGranted: "2500"
   powerProductionRate: "0"
   powerConsumptionRate: "8"
   logisticsProductionRate: "100"

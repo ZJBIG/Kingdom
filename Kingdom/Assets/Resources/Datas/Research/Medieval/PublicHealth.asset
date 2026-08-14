@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PublicHealth
   Label: "\u516C\u5171\u536B\u751F"
-  Description: "\u5EFA\u7ACB\u6E05\u6D01\u6C34\u6E90\u3001\u6C61\u7269\u5904\u7406\u3001\u9694\u79BB\u548C\u516C\u5171\u536B\u751F\u89C4\u8303\uFF0C\u51CF\u5C11\u4EBA\u53E3\u5BC6\u96C6\u5730\u533A\u7684\u4F20\u67D3\u4E0E\u73AF\u5883\u6027\u75BE\u75C5\u3002
-    \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD840%\u3002"
+  Description: "建立清洁水源、污物处理、隔离和公共卫生规范，降低人口密集地区的传染与环境性疾病；同时提高人口增长速度40%、人口劳动生产力25%，并使整体建设效率提高2%。"
   BaseCost: "175000"
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
@@ -41,5 +40,9 @@ MonoBehaviour:
     Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.25"
+  - Type: 31
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.04"
   TechLevel: 2
   AdvancesTechLevel: 0

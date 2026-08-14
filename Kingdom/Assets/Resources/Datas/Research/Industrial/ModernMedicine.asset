@@ -33,5 +33,9 @@ MonoBehaviour:
     Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.35"
+  - Type: 31
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.06"
   TechLevel: 3
   AdvancesTechLevel: 0

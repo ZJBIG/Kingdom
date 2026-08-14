@@ -977,7 +977,7 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(plantingField.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(station.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(habitat.FoodConsumptionRate, Is.GreaterThan(station.FoodConsumptionRate));
+        Assert.That(habitat.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(FindRate(station.ResourceConsumptionRates, "Biomass"),
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindRate(habitat.ResourceConsumptionRates, "Biomass"),

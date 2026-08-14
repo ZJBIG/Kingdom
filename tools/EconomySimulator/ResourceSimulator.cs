@@ -13,7 +13,11 @@ public static class ResourceSimulator
         var net=new Dictionary<string,double>(StringComparer.OrdinalIgnoreCase){["WoodLog"]=1}; Add(s.Resources,"WoodLog",deltaSeconds); double foodIn=5,foodOut=s.Population*0.8d,powerIn=0,powerOut=0,logIn=0,logOut=0;
         foreach(var d in buildings){int n=s.Buildings.GetValueOrDefault(d.Id);if(n<=0)continue;double e=Efficiency(s,d,buildings,deltaSeconds);double foodMultiplier=EffectMultiplier(s,SimEffectKind.BuildingFoodProductionMultiplier,d.Id);foreach(var p in d.Generation)Add(net,p.Key,p.Value*n*e);foreach(var p in d.Consumption)Add(net,p.Key,-p.Value*n*e);foodIn+=d.FoodProduction*n*e*foodMultiplier;foodOut+=d.FoodConsumption*n;powerIn+=d.PowerProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingPowerProductionMultiplier,d.Id);powerOut+=d.PowerConsumption*n;logIn+=d.LogisticsProduction*n*e*EffectMultiplier(s,SimEffectKind.BuildingLogisticsProductionMultiplier,d.Id);logOut+=d.LogisticsConsumption*n;}
         double foodAvailability=EconomySimulationParity.CalculateSatisfaction(s.Food,foodIn,foodOut,deltaSeconds);
-        double happinessMultiplier=CalculateHappinessMultiplier(foodIn-foodOut,s.Population,foodAvailability);
+        double happinessBonus = s.ActiveEffects.Where(
+            x => x.Kind == SimEffectKind.HappinessBonus)
+            .Sum(x => Math.Max(0d, x.Value));
+        double happinessMultiplier = CalculateHappinessMultiplier(
+            foodIn-foodOut, s.Population, foodAvailability, happinessBonus);
         double happinessReward=Math.Max(1d,happinessMultiplier);
         double happinessConstraint=Math.Min(1d,happinessMultiplier);
         powerIn*=happinessReward*EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
@@ -159,7 +163,8 @@ public static class ResourceSimulator
     public static double CalculateHappinessMultiplier(
         double foodNetRate,
         double population,
-        double foodAvailability=1d)
+        double foodAvailability=1d,
+        double happinessBonus=0d)
     {
         double availability=Math.Clamp(foodAvailability,0d,1d);
         if(availability<1d)
@@ -169,7 +174,11 @@ public static class ResourceSimulator
         double score = Math.Log10(1d + surplusPerPerson);
         if (double.IsNaN(score) || score < 0d)
             return 1d;
-        return 1d + 0.5d * score / (score + 1d);
+        double baseMultiplier = 1d + 0.5d * score / (score + 1d);
+        double safeBonus = double.IsNaN(happinessBonus) || double.IsInfinity(happinessBonus)
+            ? 0d
+            : Math.Max(0d, happinessBonus);
+        return Math.Min(1.5d, baseMultiplier + safeBonus);
     }
 
     public static double CalculateFoodNetRate(

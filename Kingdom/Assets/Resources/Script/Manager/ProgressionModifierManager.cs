@@ -23,6 +23,7 @@ public sealed class ProgressionModifierState
     public ExpantaNum PowerMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PopulationGrowthMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum PopulationProductivityMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum HappinessBonus { get; internal set; } = ExpantaNum.Zero;
     public ExpantaNum ExplorationPowerMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum FleetRepairCostMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum OccupiedResourceProductionMultiplier { get; internal set; } = ExpantaNum.One;
@@ -96,6 +97,10 @@ public sealed class ProgressionModifierState
     internal void AddPopulationProductivityMultiplier(ExpantaNum value) =>
         PopulationProductivityMultiplier =
             AdditiveMultiplier(PopulationProductivityMultiplier, value);
+    internal void AddHappinessBonus(ExpantaNum value) =>
+        HappinessBonus += value > ExpantaNum.Zero && !value.IsNaN && !value.IsInfinity
+            ? value
+            : ExpantaNum.Zero;
     internal void AddExplorationPowerMultiplier(ExpantaNum value) =>
         ExplorationPowerMultiplier =
             AdditiveMultiplier(ExplorationPowerMultiplier, value);
@@ -289,6 +294,9 @@ public static class ProgressionModifierManager
                     break;
                 case ResearchEffectType.PopulationProductivityMultiplier:
                     modifiers.AddPopulationProductivityMultiplier(effect.NumericValue);
+                    break;
+                case ResearchEffectType.HappinessBonus:
+                    modifiers.AddHappinessBonus(effect.NumericValue);
                     break;
                 case ResearchEffectType.ExplorationPowerMultiplier:
                     modifiers.AddExplorationPowerMultiplier(effect.NumericValue);

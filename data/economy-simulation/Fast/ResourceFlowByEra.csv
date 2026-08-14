@@ -134,10 +134,10 @@ Industrial,"Concrete",0,0,0
 Industrial,"Copper",3.2,4.8,-1.6
 Industrial,"CopperOre",4,4,0
 Industrial,"CopperWire",5.6,0,5.6
-Industrial,"CrudeOil",9,3.5,5.5
+Industrial,"CrudeOil",3,3.5,-0.5
 Industrial,"Electronics",1.4,0,1.4
 Industrial,"Engine",0,0,0
-Industrial,"Explosives",0.35,0.24,0.11
+Industrial,"Explosives",0.35,0.08,0.27
 Industrial,"Glass",0,0,0
 Industrial,"Iron",3.2,4,-0.8
 Industrial,"IronOre",3.2,4,-0.8

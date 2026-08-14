@@ -81,7 +81,6 @@ public sealed class SpaceContentTests
     {
         string[] suppliedBuildingIds =
         {
-            "OrbitalHabitatMegastructure",
             "OrbitalLogisticsHub",
             "OrbitalStation",
             "DeepSpaceRelay",

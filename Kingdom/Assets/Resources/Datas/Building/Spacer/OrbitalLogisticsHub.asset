@@ -20,6 +20,7 @@ MonoBehaviour:
   spaceCost: "560"
   productivityConsumption: "640"
   foodConsumptionRate: "7.5"
+  foodCapacityGranted: "30000"
   powerConsumptionRate: "120"
   logisticsProductionRate: "140"
   logisticsConsumptionRate: "32"

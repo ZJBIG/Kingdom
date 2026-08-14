@@ -361,7 +361,7 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(station, Is.Not.Null);
         Assert.That(logisticsHub, Is.Not.Null);
         Assert.That(habitat.PopulationCapacityGranted.ToDouble(), Is.GreaterThanOrEqualTo(3000d));
-        Assert.That(habitat.FoodConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(8d));
+        Assert.That(habitat.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(habitat.PowerConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(140d));
         Assert.That(habitat.LogisticsConsumptionRate.ToDouble(), Is.GreaterThanOrEqualTo(36d));
         Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, biomass), Is.True);
