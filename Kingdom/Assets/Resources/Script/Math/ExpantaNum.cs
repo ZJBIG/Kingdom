@@ -123,6 +123,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
     public static readonly ExpantaNum Zero = default;
     public static readonly ExpantaNum One = new ExpantaNum(1d);
+    public static readonly ExpantaNum MinusOne = new ExpantaNum(-1d);
     public static readonly ExpantaNum Ten = new ExpantaNum(10d);
     public static readonly ExpantaNum NaN = new ExpantaNum(double.NaN);
     public static readonly ExpantaNum PositiveInfinity = new ExpantaNum(double.PositiveInfinity);
@@ -742,7 +743,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
             return NaN;
         return Log10() / newBase.Log10();
     }
-
+    public static ExpantaNum Log(ExpantaNum value, ExpantaNum newBase) => value.Log(newBase);
     private ExpantaNum PowInteger(long exponent)
     {
         if (IsNaN)
@@ -826,7 +827,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         result.sign = negativeResult && !result.IsZero;
         return result;
     }
-
+    public static ExpantaNum Pow(ExpantaNum baseValue, ExpantaNum exponent) => baseValue.Pow(exponent);
     public ExpantaNum Root(ExpantaNum degree)
     {
         if (degree.IsZero || degree.IsNaN)

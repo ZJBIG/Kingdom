@@ -200,7 +200,7 @@ internal static class KingdomUIRepeatedPrefabGenerator
         rect.offsetMax = new Vector2(right, top);
         TextMeshProUGUI text = child.GetComponent<TextMeshProUGUI>() ?? child.AddComponent<TextMeshProUGUI>();
         text.color = TextPrimary;
-        text.fontSize = 24f;
+        text.fontSize = 34f;
         text.alignment = TextAlignmentOptions.MidlineLeft;
         text.enableWordWrapping = false;
         text.raycastTarget = false;
@@ -224,7 +224,7 @@ internal static class KingdomUIRepeatedPrefabGenerator
             rect.offsetMax = new Vector2(-8f, -4f);
             TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
             text.color = TextPrimary;
-            text.fontSize = 30f;
+            text.fontSize = 34f;
             text.alignment = TextAlignmentOptions.Center;
             text.raycastTarget = false;
         }

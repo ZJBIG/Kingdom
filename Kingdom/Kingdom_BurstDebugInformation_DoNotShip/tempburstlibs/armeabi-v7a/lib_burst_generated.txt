@@ -11,7 +11,7 @@ Library: D:\GitHub\Kingdom\Kingdom\Temp\BurstOutput\tempburstlibs\armeabi-v7a\li
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\GitHub\Kingdom\Kingdom\Temp\Burst
---key-folder=D:/Unity/Hub/Editor/2022.3.62f2c1/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=D:/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=D:\GitHub\Kingdom\Kingdom\Library\Burst
 --output=D:\GitHub\Kingdom\Kingdom\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -28,7 +28,7 @@ Library: D:\GitHub\Kingdom\Kingdom\Temp\BurstOutput\tempburstlibs\armeabi-v7a\li
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\GitHub\Kingdom\Kingdom\Temp\Burst
---key-folder=D:/Unity/Hub/Editor/2022.3.62f2c1/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=D:/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=D:\GitHub\Kingdom\Kingdom\Library\Burst
 --output=D:\GitHub\Kingdom\Kingdom\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
