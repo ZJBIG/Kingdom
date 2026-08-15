@@ -24,7 +24,7 @@ public sealed partial class KingdomUIRoot
     private const float ResearchTopPadding = ResearchTopPaddingRows * ResearchGridY;
     private const float ResearchCurveRadius = 10f;
     private const float ResearchLineThickness = 4f;
-    private const float ResearchConnectorOverlap = 2f;
+    private const float ResearchConnectorOverlap = 1f;
     private const float ResearchArrowThickness = 16f;
     // ResearchTreeSK's StartLine/EndArrow use half of the horizontal gap
     // (NodeMargins.x / 2) for their node-side segments. Preserve that
@@ -1203,17 +1203,19 @@ public sealed partial class KingdomUIRoot
                         linkKey, color, true);
             }
         }
+        else
+        {
+            CreateResearchHorizontalLine(content, from.x + 1, to.y + .5f,
+                linkKey, color, true);
+        }
 
         if (dx > 0)
         {
             if (dy > 0)
-                // The target-side corner shares the target column with the
-                // end arrow. Using to.x + 1 moves it one complete grid cell
-                // to the right, so the corner can never meet the arrow.
-                CreateResearchCurve(content, to.x, to.y + .5f,
+                CreateResearchCurve(content, from.x + 1, to.y + .5f,
                     ResearchCurveType.LeftBottom, linkKey, color);
             else if (dy < 0)
-                CreateResearchCurve(content, to.x, to.y + .5f,
+                CreateResearchCurve(content, from.x + 1, to.y + .5f,
                     ResearchCurveType.LeftTop, linkKey, color);
             else
                 CreateResearchHorizontalLine(content, to.x, to.y + .5f,
@@ -1243,7 +1245,7 @@ public sealed partial class KingdomUIRoot
         // ResearchTreeSK has two different classes here. The over-curve
         // piece is a short 4x20 overlay, not a shortened full-cell line.
         float pixelY = ResearchTopPadding + (overCurve
-            ? y * ResearchGridY - ResearchCurveRadius - ResearchLineThickness * .5f
+            ? y * ResearchGridY - ResearchCurveRadius
             : y * ResearchGridY + ResearchCurveRadius - ResearchConnectorOverlap);
         float pixelHeight = overCurve
             ? ResearchCurveRadius * 2f
@@ -1265,7 +1267,7 @@ public sealed partial class KingdomUIRoot
         {
             // Exact ResearchTreeSK.StartLine width. LineThickness is the
             // rectangle height, not part of its horizontal extent.
-            pixelWidth = ResearchNodeMarginHalf - ResearchCurveRadius;
+            pixelWidth = ResearchNodeMarginHalf - ResearchCurveRadius + ResearchConnectorOverlap;
         }
         else if (overCurve)
         {
@@ -1274,7 +1276,7 @@ public sealed partial class KingdomUIRoot
         }
         else
         {
-            pixelWidth = ResearchGridX - ResearchCurveRadius * 2f - ResearchLineThickness + ResearchConnectorOverlap * 2f;
+            pixelWidth = ResearchGridX - ResearchCurveRadius * 2f + ResearchConnectorOverlap * 2f;
         }
         CreateResearchLinePart(content, (startLine ? "S:" : overCurve ? "HO:" : "H:") + x + ":" + y,
             new Rect(pixelX, pixelY, pixelWidth, ResearchLineThickness),
@@ -1284,15 +1286,11 @@ public sealed partial class KingdomUIRoot
     private void CreateResearchEndArrow(RectTransform content, float x, float y,
         Pair<Research, Research> linkKey, Color color)
     {
-        // Work from the target node rectangle, rather than mixing a raw grid
-        // coordinate with the graph padding. This makes the invariant
-        // explicit: the arrow tip is exactly at the target card's left edge
-        // and its centre is exactly at the target card's vertical centre.
-        float targetLeft = ResearchGraphPaddingX + x * ResearchGridX;
-        float targetTop = ResearchGraphPaddingY + ResearchTopPadding + (y - .5f) * ResearchGridY;
-        float pixelWidth = ResearchNodeMarginHalf - ResearchCurveRadius;
-        float pixelX = targetLeft - pixelWidth;
-        float pixelY = targetTop + (ResearchNodeHeight - ResearchArrowThickness) * .5f;
+        // Exact ResearchTreeSK.EndArrow rectangle. With NodeMargins.x=50,
+        // the 16px arrow ends at the target card's 25px left inset.
+        float pixelWidth = ResearchNodeMarginHalf - ResearchCurveRadius + ResearchConnectorOverlap;
+        float pixelX = x * ResearchGridX + ResearchCurveRadius - ResearchConnectorOverlap;
+        float pixelY = ResearchTopPadding + y * ResearchGridY - ResearchArrowThickness * .5f;
         CreateResearchLinePart(content, "E:" + x + ":" + y,
             new Rect(pixelX, pixelY, pixelWidth, ResearchArrowThickness),
             LoadResearchTreeSprite("ResearchTree/ResearchLineEnd"), linkKey, color);
