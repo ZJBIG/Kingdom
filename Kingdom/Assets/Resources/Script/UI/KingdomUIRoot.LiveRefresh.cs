@@ -12,12 +12,125 @@ public sealed partial class KingdomUIRoot
 {
     private void Update()
     {
+#if UNITY_EDITOR
+        float frameMilliseconds = Time.unscaledDeltaTime * 1000f;
+        bool scrolling = IsPageScrolling();
+        int touchCount = Input.touchCount;
+        UpdatePerfTouchGesture(touchCount, frameMilliseconds);
+        frameStatsLogCooldown = Mathf.Max(0f, frameStatsLogCooldown - Time.unscaledDeltaTime);
+        frameSampleCount++;
+        long allocatedBytes = GC.GetAllocatedBytesForCurrentThread();
+        frameAllocationCounterAvailable |= allocatedBytes > 0L;
+        if (lastFrameAllocatedBytes == 0L)
+            lastFrameAllocatedBytes = allocatedBytes;
+        else
+            frameAllocatedBytes += Math.Max(0L, allocatedBytes - lastFrameAllocatedBytes);
+        lastFrameAllocatedBytes = allocatedBytes;
+        frameTotalMilliseconds += frameMilliseconds;
+        frameMaximumMilliseconds = Mathf.Max(frameMaximumMilliseconds, frameMilliseconds);
+        if (frameMilliseconds >= 20f)
+            slowFrameCount++;
+        if (frameMilliseconds >= 50f)
+        {
+            // Keep rare long-frame evidence in the same low-volume log as the
+            // rolling counters. This makes a real-device hitch attributable
+            // to input/page state instead of only appearing as a max value
+            // several seconds later.
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] LongFrame frame={frameMilliseconds:F2}ms " +
+                $"touchCount={touchCount} scrolling={scrolling} page={populatedPage} " +
+                $"gc=({GC.CollectionCount(0)},{GC.CollectionCount(1)},{GC.CollectionCount(2)})");
+        }
+        if (touchCount > 0)
+            touchFrameCount++;
+        maximumTouchCount = Mathf.Max(maximumTouchCount, touchCount);
+        if (scrolling)
+            dragFrameCount++;
+        if (frameStatsLogCooldown <= 0f)
+        {
+            float averageMilliseconds = frameSampleCount == 0 ? 0f : frameTotalMilliseconds / frameSampleCount;
+            int gc0Delta = GC.CollectionCount(0) - lastGc0Count;
+            int gc1Delta = GC.CollectionCount(1) - lastGc1Count;
+            int gc2Delta = GC.CollectionCount(2) - lastGc2Count;
+            string allocatedKilobytes = frameAllocationCounterAvailable
+                ? (frameAllocatedBytes / 1024L).ToString()
+                : "NA";
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] FrameStats samples={frameSampleCount} avg={averageMilliseconds:F2}ms " +
+                $"max={frameMaximumMilliseconds:F2}ms slow20={slowFrameCount} " +
+                $"touchFrames={touchFrameCount} maxTouch={maximumTouchCount} dragFrames={dragFrameCount} " +
+                $"gc0={gc0Delta} gc1={gc1Delta} gc2={gc2Delta} allocKB={allocatedKilobytes} " +
+                $"queueEvents={researchQueueEventCount} page={populatedPage}");
+            frameStatsLogCooldown = 5f;
+            frameSampleCount = 0;
+            frameTotalMilliseconds = 0f;
+            frameMaximumMilliseconds = 0f;
+            slowFrameCount = 0;
+            touchFrameCount = 0;
+            maximumTouchCount = 0;
+            dragFrameCount = 0;
+            lastGc0Count += gc0Delta;
+            lastGc1Count += gc1Delta;
+            lastGc2Count += gc2Delta;
+            frameAllocatedBytes = 0L;
+            researchQueueEventCount = 0;
+        }
+#endif
         liveRefreshTimer += Time.unscaledDeltaTime;
+        developmentGuidanceRefreshTimer += Time.unscaledDeltaTime;
+        scrollingLiveValueRefreshTimer += Time.unscaledDeltaTime;
+        topStatusRefreshTimer += Time.unscaledDeltaTime;
+        researchDynamicSignatureRefreshTimer += Time.unscaledDeltaTime;
+        researchQueuePollTimer += Time.unscaledDeltaTime;
+        buildingStructureRefreshTimer += Time.unscaledDeltaTime;
+        eraPageRefreshTimer += Time.unscaledDeltaTime;
+#if UNITY_EDITOR
+        uiSlowRefreshLogCooldown = Mathf.Max(0f, uiSlowRefreshLogCooldown - Time.unscaledDeltaTime);
+        uiStatsLogCooldown = Mathf.Max(0f, uiStatsLogCooldown - Time.unscaledDeltaTime);
+#endif
         if (liveRefreshTimer < 0.1f)
             return;
         liveRefreshTimer = 0f;
         RefreshUI();
     }
+
+#if UNITY_EDITOR
+    private void UpdatePerfTouchGesture(int touchCount, float frameMilliseconds)
+    {
+        if (touchCount > 0)
+        {
+            Vector2 position = Input.GetTouch(0).position;
+            if (!perfTouchGestureActive)
+            {
+                perfTouchGestureActive = true;
+                perfTouchGestureStartTime = Time.realtimeSinceStartup;
+                perfTouchGestureSamples = 0;
+                perfTouchGestureDistance = 0f;
+                perfTouchGestureLastPosition = position;
+                perfTouchGestureMaximumFrameMilliseconds = 0f;
+                perfTouchGestureSlowFrameCount = 0;
+            }
+
+            perfTouchGestureSamples++;
+            perfTouchGestureDistance += Vector2.Distance(perfTouchGestureLastPosition, position);
+            perfTouchGestureLastPosition = position;
+            perfTouchGestureMaximumFrameMilliseconds = Mathf.Max(perfTouchGestureMaximumFrameMilliseconds, frameMilliseconds);
+            if (frameMilliseconds >= 20f)
+                perfTouchGestureSlowFrameCount++;
+            return;
+        }
+
+        if (!perfTouchGestureActive)
+            return;
+
+        float durationMilliseconds = (Time.realtimeSinceStartup - perfTouchGestureStartTime) * 1000f;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] TouchGesture duration={durationMilliseconds:F1}ms samples={perfTouchGestureSamples} " +
+            $"distance={perfTouchGestureDistance:F1}px maxFrame={perfTouchGestureMaximumFrameMilliseconds:F2}ms " +
+            $"slow20={perfTouchGestureSlowFrameCount} page={populatedPage}");
+        perfTouchGestureActive = false;
+    }
+#endif
 
     private void RefreshBuildingDisplayMembership()
     {
@@ -40,41 +153,167 @@ public sealed partial class KingdomUIRoot
 
     public void RefreshUI()
     {
+#if UNITY_EDITOR
+        float refreshStart = Time.realtimeSinceStartup;
+#endif
         CacheRuntimeManagers();
-        bool uiScrolling = IsUiScrolling();
-        if (!uiScrolling)
+        bool pageScrolling = IsPageScrolling();
+        PollResearchQueueVisualIfDue();
+        if (pageScrolling)
+            // Do not perform the first full research signature scan on the
+            // release frame. Let the graph settle, then scan after a quiet
+            // interval so touch movement and layout are not coupled.
+            researchDynamicSignatureRefreshTimer = 0f;
+
+        // Text-only refreshes keep running while the user is sliding. The
+        // previous blanket skip-everything-while-scrolling gate is what
+        // froze the top status bar, the detail dataflow and the live card
+        // values during a drag or fling.
+        // Live cards perform many ExpantaNum formatting operations. Keep the
+        // top bar at the normal cadence, but throttle card/detail formatting
+        // during a touch drag so Canvas work cannot compete with movement.
+        // Card/detail text is presentation-only and is expensive because it
+        // formats many ExpantaNum values. Four updates per second are enough
+        // for live values and keep the main thread available for touch motion,
+        // even if the platform does not report dragging velocity reliably.
+        bool refreshScrolledValues = scrollingLiveValueRefreshTimer >= 0.25f;
+        if (refreshScrolledValues)
         {
+#if UNITY_EDITOR
+            long liveValuesAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+#endif
             RefreshLiveCardValues();
+#if UNITY_EDITOR
+            uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
+            uiRefreshMaximumAllocatedBytes = Math.Max(uiRefreshMaximumAllocatedBytes, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
+#endif
+            scrollingLiveValueRefreshTimer = 0f;
+        }
+        // The top bar is presentation-only and formats several ExpantaNum
+        // values. Keep it live during a drag, but avoid rebuilding all those
+        // strings at the 10 Hz simulation/UI cadence.
+        if (topStatusRefreshTimer >= 0.25f)
+        {
+#if UNITY_EDITOR
+            long topStatusAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+#endif
+            RefreshTopStatus();
+#if UNITY_EDITOR
+            uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
+            uiRefreshMaximumAllocatedBytes = Math.Max(uiRefreshMaximumAllocatedBytes, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
+#endif
+            topStatusRefreshTimer = 0f;
+        }
+        if (populatedPage == "Research" && researchQueueUiDirty)
+        {
+            RefreshResearchQueueToolbar();
+            researchQueueUiDirty = false;
+        }
+        if (populatedPage == "Overview" &&
+            (developmentGuidanceSnapshot == null || developmentGuidanceRefreshTimer >= 1f))
+        {
+            RefreshDevelopmentGuidance();
+            developmentGuidanceRefreshTimer = 0f;
+        }
+        if (!pageScrolling && populatedPage == "Era" && eraPageRefreshTimer >= 1f)
+        {
+            RefreshEraPageIfChanged();
+            eraPageRefreshTimer = 0f;
+        }
+        if (refreshScrolledValues && selectedResource != null && ShouldRefreshSelectedResource())
+            RefreshResourceDetails(selectedResource);
+        else if (refreshScrolledValues && selectedBuilding != null && ShouldRefreshSelectedBuilding())
+            RefreshSelectedBuildingDetails(selectedBuilding);
+        else if (!pageScrolling && populatedPage == "Research")
+        {
+            // Graph panning must not pause the presentation clock. Refreshing
+            // text/colors does not rebuild graph geometry, so it is safe while
+            // the gesture owns the pointer and keeps the queue/progress live.
+            RefreshResearchDynamicUI();
+        }
+        else if (pageScrolling && populatedPage == "Research" && refreshScrolledValues)
+        {
+            // Preserve live progress while graph panning, without rebuilding
+            // signatures or recoloring all 79 nodes per frame. Queue changes
+            // are already handled by the event and 250 ms signature poll
+            // above; rebuilding the same queue string here caused avoidable
+            // allocations during every drag.
+            RefreshActiveResearchProgressVisual(ResearchManager.Instance);
+        }
+        if (populatedPage == "Music")
+            RefreshMusicPage();
+
+        // Structural refreshes rebuild page rows or re-parent controls; they
+        // must not run mid-scroll or they reset the user's scroll position
+        // while the gesture is still active.
+        bool refreshBuildingStructure = !pageScrolling && buildingStructureRefreshTimer >= 0.5f;
+        if (refreshBuildingStructure)
+        {
             RefreshBuildingDisplayMembership();
             RefreshBuildingQuantityHeader();
+            buildingStructureRefreshTimer = 0f;
         }
-        bool researchGraphDragging = researchGraphGesture != null && researchGraphGesture.IsDragging;
-        if (!uiScrolling && selectedResource != null && ShouldRefreshSelectedResource())
-            RefreshResourceDetails(selectedResource);
-        else if (!uiScrolling && selectedBuilding != null && ShouldRefreshSelectedBuilding())
-            RefreshSelectedBuildingDetails(selectedBuilding);
-        else if (!researchGraphDragging && populatedPage == "Research")
-            RefreshResearchDynamicUI();
-        if (!uiScrolling && populatedPage == "Overview")
-            RefreshDevelopmentGuidance();
-        // Top status is presentation-only. Refresh it last so malformed or
-        // incomplete saved numeric data cannot stop research-tree input and
-        // visual updates from running in the same frame.
-        if (!uiScrolling)
-            RefreshTopStatus();
-        if (!uiScrolling && populatedPage == "Music")
-            RefreshMusicPage();
+
+#if UNITY_EDITOR
+        float refreshElapsed = Time.realtimeSinceStartup - refreshStart;
+        float refreshMilliseconds = refreshElapsed * 1000f;
+        uiRefreshSampleCount++;
+        uiRefreshTotalMilliseconds += refreshMilliseconds;
+        uiRefreshMaximumMilliseconds = Mathf.Max(uiRefreshMaximumMilliseconds, refreshMilliseconds);
+        if (uiStatsLogCooldown <= 0f)
+        {
+            uiStatsLogCooldown = 5f;
+            float averageMilliseconds = uiRefreshSampleCount == 0
+                ? 0f
+                : uiRefreshTotalMilliseconds / uiRefreshSampleCount;
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] RefreshUIStats samples={uiRefreshSampleCount} " +
+                $"avg={averageMilliseconds:F2}ms max={uiRefreshMaximumMilliseconds:F2}ms page={populatedPage}");
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] RefreshUIAlloc samples={uiRefreshSampleCount} " +
+                $"totalKB={uiRefreshAllocatedBytes / 1024L} maxKB={uiRefreshMaximumAllocatedBytes / 1024L} page={populatedPage}");
+            uiRefreshSampleCount = 0;
+            uiRefreshTotalMilliseconds = 0f;
+            uiRefreshMaximumMilliseconds = 0f;
+            uiRefreshAllocatedBytes = 0L;
+            uiRefreshMaximumAllocatedBytes = 0L;
+        }
+        if (uiSlowRefreshLogCooldown <= 0f && refreshElapsed >= 0.01f)
+        {
+            uiSlowRefreshLogCooldown = 1f;
+            string message = $"[KingdomPerf] RefreshUI {refreshElapsed * 1000f:F1}ms page={populatedPage}";
+            Debug.Log(message);
+            KingdomEditorPerfLog.Write(message);
+        }
+#endif
+
     }
 
-    private bool IsUiScrolling()
+    private void RefreshEraPageIfChanged()
     {
-        if (researchGraphGesture != null && researchGraphGesture.IsDragging)
-            return true;
-        if (pageScroll != null && pageScroll.velocity.sqrMagnitude > 0.01f)
+        if (gameManagerCache == null || gameManagerCache.State == null ||
+            gameManagerCache.State.Version == eraPageStateVersion)
+            return;
+
+        float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
+        PopulatePage("Era");
+        Canvas.ForceUpdateCanvases();
+        if (pageScroll != null)
+            pageScroll.verticalNormalizedPosition = normalizedPosition;
+    }
+
+    private bool IsPageScrolling()
+    {
+        if (UIPageScrollDragForwarder.IsRecentlyDragged ||
+            pageScroll != null && pageScroll.velocity.sqrMagnitude > 0.01f)
             return true;
         if (detailScroll != null && detailScroll.velocity.sqrMagnitude > 0.01f)
             return true;
         if (musicListScroll != null && musicListScroll.velocity.sqrMagnitude > 0.01f)
+            return true;
+        if (researchGraphGesture != null && researchGraphGesture.IsDragging)
+            return true;
+        if (requirementGesture != null && requirementGesture.IsDragging)
             return true;
         return false;
     }
@@ -82,10 +321,67 @@ public sealed partial class KingdomUIRoot
     private void CacheRuntimeManagers()
     {
         if (gameManagerCache == null) gameManagerCache = FindObjectOfType<GameManager>();
-        if (researchManagerCache == null) researchManagerCache = FindObjectOfType<ResearchManager>();
+        if (researchManagerCache == null)
+            researchManagerCache = FindObjectOfType<ResearchManager>();
+        if (researchQueueEventSource != researchManagerCache)
+        {
+            if (researchQueueEventSource != null)
+                researchQueueEventSource.ResearchQueueChanged -= MarkResearchQueueUiDirty;
+            researchQueueEventSource = researchManagerCache;
+            if (researchQueueEventSource != null)
+            {
+                researchQueueEventSource.ResearchQueueChanged += MarkResearchQueueUiDirty;
+                researchQueueEventSubscribed = true;
+                researchQueueUiDirty = true;
+                lastResearchQueuePollSignature = null;
+            }
+            else
+                researchQueueEventSubscribed = false;
+        }
         if (resourceManagerCache == null) resourceManagerCache = FindObjectOfType<ResourceManager>();
         if (buildingManagerCache == null) buildingManagerCache = FindObjectOfType<BuildingManager>();
         if (workshopManagerCache == null) workshopManagerCache = FindObjectOfType<WorkshopManager>();
+    }
+
+    private void MarkResearchQueueUiDirty()
+    {
+        researchQueueUiDirty = true;
+        researchDynamicUiDirty = true;
+#if UNITY_EDITOR
+        researchQueueEventCount++;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchQueueEvent subscribed={researchQueueEventSubscribed} " +
+            $"queueCount={(researchManagerCache == null ? -1 : researchManagerCache.ResearchQueue.Count)}");
+#endif
+    }
+
+    private void PollResearchQueueVisualIfDue()
+    {
+        if (populatedPage != "Research" || researchManagerCache == null ||
+            researchQueuePollTimer < 0.25f)
+            return;
+
+        researchQueuePollTimer = 0f;
+        string signature = BuildResearchQueueSignature();
+        if (string.Equals(lastResearchQueuePollSignature, signature, StringComparison.Ordinal))
+            return;
+
+        // The event is the fast path, but older ResearchManager actions and
+        // external state changes do not all raise it. Keep a cheap queue-only
+        // fallback so the toolbar cannot remain stale until the next page
+        // rebuild. This avoids the 79-node structural scan.
+        lastResearchQueuePollSignature = signature;
+        researchQueueUiDirty = true;
+        RefreshResearchQueueToolbar();
+        researchQueueUiDirty = false;
+    }
+
+    private void OnDestroy()
+    {
+        if (researchQueueEventSource != null)
+            researchQueueEventSource.ResearchQueueChanged -= MarkResearchQueueUiDirty;
+        researchQueueEventSource = null;
+        researchQueueEventSubscribed = false;
     }
 
     private bool ShouldRefreshSelectedResource()
@@ -210,7 +506,7 @@ public sealed partial class KingdomUIRoot
         GameManager gameManager = gameManagerCache;
         GameState state = gameManager == null ? null : gameManager.State;
 
-        topKingdomTitle.text = state.KingdomName;
+        SetTextIfChanged(topKingdomTitle, state.KingdomName);
         ExpantaNum populationChange = ExpantaNum.Zero;
         if (gameManager != null)
         {
@@ -246,30 +542,44 @@ public sealed partial class KingdomUIRoot
 
         ResearchState defState = null;
         if (activeDefinition)
-            defState = researchManager.GetState(activeDefinition);       
-        string currentResearch = activeDefinition == null ? "无" 
-            : (activeDefinition.Label+ (defState!= null? $"[{ResearchProgressText(defState, defState.Status)}]":""));
+            defState = researchManager.GetState(activeDefinition);
+        string currentResearch = activeDefinition == null ? "无"
+            : (activeDefinition.Label + (defState != null ? $"[{ResearchProgressText(defState, defState.Status)}]" : ""));
 
-        
+
         bool calendarKnown = researchManager != null && researchManager.IsResearchCompleted("Calendar");
         string calendar = calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??";
         string researchPower = researchManager == null ? "0" : researchManager.ResearchPower.ToGameString();
-        topStatus.text =
+        // AvailableProductivity calculates TotalProductivity internally. Read
+        // the two values once here so the 10 Hz top-bar refresh does not scan
+        // every building twice for the same frame.
+        BuildingManager buildingManager = buildingManagerCache;
+        ExpantaNum totalProductivity = buildingManager == null
+            ? ExpantaNum.Zero
+            : buildingManager.TotalProductivity;
+        ExpantaNum availableProductivity = buildingManager == null
+            ? ExpantaNum.Zero
+            : totalProductivity - buildingManager.UsedProductivity;
+        string topStatusText =
         "科技水平：" + state.TechLevel.GetDescription() +
         "    当前研究：" + currentResearch +
         "    日期：" + calendar +
-        "    研究力：" + researchPower + "/s" +
         "\n食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
-        "    生产力：" + BuildingManager.Instance.AvailableProductivity.ToGameString() + "/" + BuildingManager.Instance.TotalProductivity.ToGameString() +
+        "    生产力：" + availableProductivity.ToGameString() + "/" + totalProductivity.ToGameString() +
         "    幸福度：" + state.HappinessScore.ToGameString() + $"({state.HappinessMultiplier.ToGameString()}x）" +
         "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/s）" +
-        "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString();
-            
+        "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString() +
+        "    研究力：" + researchPower + "/s";
+        SetTextIfChanged(topStatus, topStatusText);
     }
 
     private void RefreshLiveCardValues()
     {
-        if (BuildingManager.Instance != null)
+        // These dictionaries contain rows from pages that are not currently
+        // visible. Formatting every building/resource on every live tick
+        // creates avoidable ExpantaNum strings and TMP dirties, especially
+        // while the research graph owns a touch gesture.
+        if (populatedPage == "Buildings" && BuildingManager.Instance != null)
             foreach (KeyValuePair<Building, TMP_Text> pair in buildingAmountLabels)
                 if (pair.Value != null)
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
@@ -294,10 +604,10 @@ public sealed partial class KingdomUIRoot
                                 GetSelectedBuildingQuantity(pair.Key, upgrade, false).ToGameString());
                             SetBuildingActionButtonState(actionButton, CanPerformBuildingAction(pair.Key, upgrade));
                         }
-                    else
-                        SetTextIfChanged(pair.Value, "0");
-        }
-        if (ResourceManager.Instance == null)
+                        else
+                            SetTextIfChanged(pair.Value, "0");
+                    }
+        if (populatedPage != "Resources" || ResourceManager.Instance == null)
             return;
         foreach (KeyValuePair<Resource, TMP_Text> pair in resourceAmountLabels)
         {

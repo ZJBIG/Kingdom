@@ -19,14 +19,19 @@ public enum BuildFailure
 
 public class BuildingManager : Singleton<BuildingManager>
 {
-    private const double DeconstructionReturnRate = 0.2d;
     private const double UpgradeRecoveryRate = 0.8d;
     private const int UpgradeBinarySearchLimit = 256;
     private readonly Dictionary<Building, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
-    private readonly Dictionary<Building, Building> chainPredecessors = new();
+    // 一个升级目标可以由多个分支汇聚而来，因此这里必须保留全部前置建筑。
+    private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
     private readonly HashSet<Building> chainMembers = new();
     private bool chainIndexInitialized;
+    // FindObjectOfType scans the whole scene and is far too expensive to run
+    // on every prerequisite check; ArePrerequisitesMet is called from UI
+    // refresh paths dozens of times per frame.
+    private WorkshopManager cachedWorkshopManager;
+    private ResearchManager cachedResearchManager;
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
@@ -43,19 +48,30 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
     public ExpantaNum AvailableProductivity =>
-        ExpantaNum.Max(ExpantaNum.Zero, TotalProductivity - UsedProductivity);
+        TotalProductivity - UsedProductivity;
     public ExpantaNum SafePopulationDepartureAllowance =>
         ExpantaNum.Max(
             ExpantaNum.Zero,
             CalculateRawTotalProductivity() - UsedProductivity).Floor();
-    public ExpantaNum GlobalEfficiencyFactor { get; set; } = ExpantaNum.One;
+    private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
+    public ExpantaNum GlobalEfficiencyFactor
+    {
+        get => globalEfficiencyFactor;
+        set
+        {
+            if (!value.IsFinite || value < ExpantaNum.Zero)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            globalEfficiencyFactor = value;
+        }
+    }
     public event Action<BuildingState> BuildingStateAdded;
 
     private ExpantaNum CalculateRawTotalProductivity()
     {
         ExpantaNum total =
             GameManager.Instance.State.Population.Population *
-            PopulationState.ProductivityGrantedPerPerson +
+            PopulationState.ProductivityGrantedPerPerson *
+            ProgressionModifierManager.Current.PopulationProductivityMultiplier +
             ProgressionModifierManager.Current.ProductivityGranted;
         for (int i = 0; i < orderedStates.Count; i++)
             total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
@@ -75,7 +91,6 @@ public class BuildingManager : Singleton<BuildingManager>
         if (definitions == null)
             throw new ArgumentNullException(nameof(definitions));
 
-        var predecessors = new Dictionary<Building, Building>();
         var definitionSet = new HashSet<Building>();
         for (int i = 0; i < definitions.Count; i++)
             if (definitions[i] != null)
@@ -88,17 +103,12 @@ public class BuildingManager : Singleton<BuildingManager>
             Building target = source.UpgradeTo;
             if (!definitionSet.Contains(target))
                 throw new InvalidOperationException(
-                    $"Building chain '{source.Id}' points outside the loaded definitions.");
+                    $"建筑升级链“{source.Id}”指向了未加载的定义。");
             if (source == target)
                 throw new InvalidOperationException(
-                    $"Building chain '{source.Id}' cannot upgrade to itself.");
+                    $"建筑升级链“{source.Id}”不能升级到自身。");
             ValidateChainEconomy(source);
             ValidateChainEconomy(target);
-            if (predecessors.TryGetValue(target, out Building existing))
-                throw new InvalidOperationException(
-                    $"Building '{target.Id}' has multiple chain predecessors: " +
-                    $"'{existing.Id}' and '{source.Id}'.");
-            predecessors.Add(target, source);
         }
 
         var visited = new HashSet<Building>();
@@ -111,7 +121,7 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (!building.HasValidCostGrowth)
             throw new InvalidOperationException(
-                $"Building chain member '{building.Id}' has an invalid cost growth multiplier.");
+                $"建筑升级链成员“{building.Id}”的成本增长倍率无效。");
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
             building.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
@@ -119,13 +129,13 @@ public class BuildingManager : Singleton<BuildingManager>
             Pair<Resource, ExpantaNum> requirement = requirements[i];
             if (requirement.First == null)
                 throw new InvalidOperationException(
-                    $"Building chain member '{building.Id}' has an empty resource reference.");
+                    $"建筑升级链成员“{building.Id}”的资源引用为空。");
             if (requirement.Second.IsNaN ||
                 requirement.Second.IsInfinity ||
                 requirement.Second < ExpantaNum.Zero)
             {
                 throw new InvalidOperationException(
-                    $"Building chain member '{building.Id}' has an invalid resource cost.");
+                $"建筑升级链成员“{building.Id}”的资源成本无效。");
             }
         }
     }
@@ -139,7 +149,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return;
         if (!visiting.Add(building))
             throw new InvalidOperationException(
-                $"Building chain contains a cycle at '{building.Id}'.");
+                $"建筑升级链在“{building.Id}”处形成循环依赖。");
         ValidateChainNode(building.UpgradeTo, visited, visiting);
         visiting.Remove(building);
         visited.Add(building);
@@ -155,7 +165,12 @@ public class BuildingManager : Singleton<BuildingManager>
             Building source = definitions[i];
             if (source == null || source.UpgradeTo == null)
                 continue;
-            chainPredecessors.Add(source.UpgradeTo, source);
+            if (!chainPredecessors.TryGetValue(source.UpgradeTo, out List<Building> predecessors))
+            {
+                predecessors = new List<Building>();
+                chainPredecessors.Add(source.UpgradeTo, predecessors);
+            }
+            predecessors.Add(source);
             chainMembers.Add(source);
             chainMembers.Add(source.UpgradeTo);
         }
@@ -192,7 +207,7 @@ public class BuildingManager : Singleton<BuildingManager>
             throw new ArgumentNullException(nameof(building));
         if (states.TryGetValue(building, out BuildingState state))
             return state;
-        throw new KeyNotFoundException($"Building state '{building.Id}' has not been created.");
+        throw new KeyNotFoundException($"建筑状态“{building.Id}”尚未创建。");
     }
 
     public bool ArePrerequisitesMet(Building building, out BuildFailure failure)
@@ -219,11 +234,13 @@ public class BuildingManager : Singleton<BuildingManager>
             }
         }
 
-        WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
-        IReadOnlyList<WorkshopUpgradeDefinition> requiredUpgrades = building.RequiredWorkshopUpgrades;
+        WorkshopManager workshop = cachedWorkshopManager;
+        if (workshop == null)
+            workshop = cachedWorkshopManager = FindObjectOfType<WorkshopManager>();
+        IReadOnlyList<WorkshopUpgrade> requiredUpgrades = building.RequiredWorkshopUpgrades;
         for (int i = 0; i < requiredUpgrades.Count; i++)
         {
-            WorkshopUpgradeDefinition upgrade = requiredUpgrades[i];
+            WorkshopUpgrade upgrade = requiredUpgrades[i];
             if (workshop == null || upgrade == null || !workshop.IsPurchased(upgrade))
             {
                 failure = BuildFailure.WorkshopPrerequisiteIncomplete;
@@ -252,17 +269,15 @@ public class BuildingManager : Singleton<BuildingManager>
         if (!chainMembers.Contains(building))
             return true;
 
-        Building root = building;
-        while (chainPredecessors.TryGetValue(root, out Building predecessor))
-            root = predecessor;
+        if (!HasUnlockedChainPath(
+                building,
+                new HashSet<Building>(),
+                new HashSet<Building>()))
+            return false;
 
-        Building highestUnlocked = root;
-        while (highestUnlocked.UpgradeTo != null &&
-               ArePrerequisitesMet(highestUnlocked.UpgradeTo, out _))
-        {
-            highestUnlocked = highestUnlocked.UpgradeTo;
-        }
-        return highestUnlocked == building;
+        // 当前建筑的直接升级目标一旦可用，就只显示/建造更高阶目标。
+        return building.UpgradeTo == null ||
+            !ArePrerequisitesMet(building.UpgradeTo, out _);
     }
 
     public bool ShouldDisplay(Building building)
@@ -305,21 +320,41 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        Building root = source;
-        while (chainPredecessors.TryGetValue(root, out Building predecessor))
-            root = predecessor;
-        for (Building current = root; current != null; current = current.UpgradeTo)
+        return HasUnlockedChainPath(
+            source,
+            new HashSet<Building>(),
+            new HashSet<Building>());
+    }
+
+    private bool HasUnlockedChainPath(
+        Building building,
+        HashSet<Building> visiting,
+        HashSet<Building> visited)
+    {
+        if (building == null || !ArePrerequisitesMet(building, out _))
+            return false;
+        if (visited.Contains(building))
+            return false;
+        if (!visiting.Add(building))
+            return false;
+        if (!chainPredecessors.TryGetValue(building, out List<Building> predecessors) ||
+            predecessors.Count == 0)
         {
-            if (!ArePrerequisitesMet(current, out _))
-            {
-                target = null;
-                return false;
-            }
-            if (current == target)
-                return true;
+            visiting.Remove(building);
+            return true;
         }
 
-        target = null;
+        for (int i = 0; i < predecessors.Count; i++)
+        {
+            if (HasUnlockedChainPath(predecessors[i], visiting, visited))
+            {
+                visiting.Remove(building);
+                return true;
+            }
+        }
+
+        visiting.Remove(building);
+        visited.Add(building);
         return false;
     }
 
@@ -362,33 +397,66 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        var costs = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
-            ExpantaNum totalCost = pair.Second.GeometricSeriesCost(
-                building.CostGrowth,
-                state.Amount,
-                amount);
-            if (totalCost.IsNaN || ResourceManager.Instance.GetAmount(pair.First) < totalCost)
+            if (pair.First == null)
             {
                 failure = BuildFailure.ResourceInsufficient;
                 return false;
             }
-        }
-
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
             ExpantaNum totalCost = pair.Second.GeometricSeriesCost(
                 building.CostGrowth,
                 state.Amount,
                 amount);
-            ResourceManager.Instance.AddAmount(pair.First, -totalCost);
+            totalCost *= GetConstructionCostMultiplier(building);
+            if (totalCost.IsNaN || totalCost < ExpantaNum.Zero)
+            {
+                failure = BuildFailure.ResourceInsufficient;
+                return false;
+            }
+            costs[pair.First] = costs.TryGetValue(pair.First, out ExpantaNum current)
+                ? current + totalCost
+                : totalCost;
         }
 
-        GameManager.Instance.CommitConstruction(requiredSpace);
-        SetAmountAndRates(state, state.Amount + amount);
-        RefreshResearchPower();
+        ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
+        ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
+        ExpantaNum previousTerritoryUsed = GameManager.Instance.State.TerritoryUsed;
+        ExpantaNum previousPopulationCapacity =
+            GameManager.Instance.State.Population.PopulationCapacity;
+        ExpantaNum previousPopulationProgress =
+            GameManager.Instance.State.Population.PopulationChangeProgress;
+        ExpantaNum previousAmount = state.Amount;
+
+        bool paid = ResourceManager.Instance.TryApplyAtomicPayment(
+            costs,
+            () =>
+            {
+                GameManager.Instance.CommitConstruction(requiredSpace);
+                SetAmountAndRates(state, state.Amount + amount);
+                RefreshResearchPower();
+            },
+            () =>
+            {
+                GameManager.Instance.RefundConstruction(requiredSpace);
+                SetAmountAndRates(state, previousAmount);
+                RefreshResearchPower();
+                GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
+                GameManager.Instance.State.RestorePopulationCapacityExact(
+                    previousPopulationCapacity,
+                    previousPopulationProgress);
+                GameManager.Instance.State.RestoreFoodExact(
+                    previousFoodAmount,
+                    previousFoodCapacity);
+            });
+        if (!paid)
+        {
+            failure = BuildFailure.ResourceInsufficient;
+            return false;
+        }
+
         failure = BuildFailure.None;
         return true;
     }
@@ -417,6 +485,15 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
+        ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
+        ExpantaNum previousTerritoryUsed = GameManager.Instance.State.TerritoryUsed;
+        ExpantaNum previousPopulationCapacity =
+            GameManager.Instance.State.Population.PopulationCapacity;
+        ExpantaNum previousPopulationProgress =
+            GameManager.Instance.State.Population.PopulationChangeProgress;
+        ExpantaNum previousAmount = state.Amount;
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
@@ -424,14 +501,38 @@ public class BuildingManager : Singleton<BuildingManager>
                 building.CostGrowth,
                 state.Amount - amount,
                 amount);
-            ResourceManager.Instance.AddAmount(
-                pair.First,
-                refund * DeconstructionReturnRate);
+            refund *= GetConstructionCostMultiplier(building);
+            ExpantaNum delta = refund * ProgressionModifierManager.Current.DeconstructionReturnRate;
+            resourceChanges[pair.First] = resourceChanges.TryGetValue(pair.First, out ExpantaNum current)
+                ? current + delta
+                : delta;
         }
 
-        GameManager.Instance.RefundConstruction(state.SpaceCost * amount);
-        SetAmountAndRates(state, state.Amount - amount);
-        RefreshResearchPower();
+        if (!ResourceManager.Instance.TryApplyAtomicChanges(
+                resourceChanges,
+                () =>
+                {
+                    GameManager.Instance.RefundConstruction(state.SpaceCost * amount);
+                    SetAmountAndRates(state, state.Amount - amount);
+                    RefreshResearchPower();
+                },
+                () =>
+                {
+                    GameManager.Instance.CommitConstruction(state.SpaceCost * amount);
+                    SetAmountAndRates(state, previousAmount);
+                    RefreshResearchPower();
+                    GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
+                    GameManager.Instance.State.RestorePopulationCapacityExact(
+                        previousPopulationCapacity,
+                        previousPopulationProgress);
+                    GameManager.Instance.State.RestoreFoodExact(
+                        previousFoodAmount,
+                        previousFoodCapacity);
+                }))
+        {
+            failure = BuildFailure.DeconstructionUnavailable;
+            return false;
+        }
         failure = BuildFailure.None;
         return true;
     }
@@ -464,7 +565,7 @@ public class BuildingManager : Singleton<BuildingManager>
             result = ExpantaNum.Min(
                 result,
                 ResourceManager.Instance.GetAmount(pair.First).MaxAffordableGeometricSeries(
-                    pair.Second,
+                    pair.Second * GetConstructionCostMultiplier(building),
                     building.CostGrowth,
                     state.Amount));
         }
@@ -509,6 +610,8 @@ public class BuildingManager : Singleton<BuildingManager>
                 target.CostGrowth,
                 targetState.Amount,
                 amount);
+            sourceCost *= GetConstructionCostMultiplier(source);
+            targetCost *= GetConstructionCostMultiplier(target);
             destination[i] = new Pair<Resource, ExpantaNum>(
                 resource,
                 targetCost - sourceCost * UpgradeRecoveryRate);
@@ -555,22 +658,65 @@ public class BuildingManager : Singleton<BuildingManager>
             }
         }
 
-        for (int i = 0; i < resourceDeltas.Count; i++)
-            ResourceManager.Instance.AddAmount(
-                resourceDeltas[i].First,
-                -resourceDeltas[i].Second);
-
         ExpantaNum territoryDelta =
             (targetState.SpaceCost - sourceState.SpaceCost) * amount;
-        if (territoryDelta > ExpantaNum.Zero)
-            GameManager.Instance.CommitConstruction(territoryDelta);
-        else if (territoryDelta < ExpantaNum.Zero)
-            GameManager.Instance.RefundConstruction(-territoryDelta);
-
-        SetAmountAndRatesCore(sourceState, sourceState.Amount - amount, false);
-        SetAmountAndRatesCore(targetState, targetState.Amount + amount, false);
-        ApplyUpgradeCapacityDelta(sourceState, targetState, amount);
-        RefreshResearchPower();
+        ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
+        ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
+        ExpantaNum previousTerritoryUsed = GameManager.Instance.State.TerritoryUsed;
+        ExpantaNum previousPopulationCapacity =
+            GameManager.Instance.State.Population.PopulationCapacity;
+        ExpantaNum previousPopulationProgress =
+            GameManager.Instance.State.Population.PopulationChangeProgress;
+        ExpantaNum previousSourceAmount = sourceState.Amount;
+        ExpantaNum previousTargetAmount = targetState.Amount;
+        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        for (int i = 0; i < resourceDeltas.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
+            if (delta.First == null || !delta.Second.IsFinite)
+            {
+                failure = BuildFailure.ResourceInsufficient;
+                return false;
+            }
+            resourceChanges[delta.First] = resourceChanges.TryGetValue(delta.First, out ExpantaNum current)
+                ? current - delta.Second
+                : -delta.Second;
+        }
+        if (!ResourceManager.Instance.TryApplyAtomicChanges(
+                resourceChanges,
+                () =>
+                {
+                    if (territoryDelta > ExpantaNum.Zero)
+                        GameManager.Instance.CommitConstruction(territoryDelta);
+                    else if (territoryDelta < ExpantaNum.Zero)
+                        GameManager.Instance.RefundConstruction(-territoryDelta);
+                    SetAmountAndRatesCore(sourceState, sourceState.Amount - amount, false);
+                    SetAmountAndRatesCore(targetState, targetState.Amount + amount, false);
+                    ApplyUpgradeCapacityDelta(sourceState, targetState, amount);
+                    RefreshResearchPower();
+                },
+                () =>
+                {
+                    if (territoryDelta > ExpantaNum.Zero)
+                        GameManager.Instance.RefundConstruction(territoryDelta);
+                    else if (territoryDelta < ExpantaNum.Zero)
+                        GameManager.Instance.CommitConstruction(-territoryDelta);
+                    SetAmountAndRatesCore(sourceState, previousSourceAmount, false);
+                    SetAmountAndRatesCore(targetState, previousTargetAmount, false);
+                    ApplyUpgradeCapacityDelta(targetState, sourceState, amount);
+                    RefreshResearchPower();
+                    GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
+                    GameManager.Instance.State.RestorePopulationCapacityExact(
+                        previousPopulationCapacity,
+                        previousPopulationProgress);
+                    GameManager.Instance.State.RestoreFoodExact(
+                        previousFoodAmount,
+                        previousFoodCapacity);
+                }))
+        {
+            failure = BuildFailure.ResourceInsufficient;
+            return false;
+        }
         failure = BuildFailure.None;
         return true;
     }
@@ -692,6 +838,16 @@ public class BuildingManager : Singleton<BuildingManager>
         return ExpantaNum.Zero;
     }
 
+    private static ExpantaNum GetConstructionCostMultiplier(Building building)
+    {
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        ExpantaNum efficiency = modifiers.GlobalConstructionMultiplier *
+            modifiers.GetBuildingConstructionMultiplier(building);
+        if (efficiency <= ExpantaNum.Zero || efficiency.IsNaN || efficiency.IsInfinity)
+            return ExpantaNum.One;
+        return ExpantaNum.One / efficiency;
+    }
+
     private static void ApplyUpgradeCapacityDelta(
         BuildingState sourceState,
         BuildingState targetState,
@@ -725,6 +881,12 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
+            // An unbuilt definition contributes no rates and cannot affect
+            // any satisfaction result. Avoid evaluating every modifier and
+            // resource list for the large inactive tail of the definition
+            // list on every convergence pass.
+            if (state.Amount <= ExpantaNum.Zero)
+                continue;
             ExpantaNum efficiency = CalculateEfficiency(state.Definition);
             if (efficiency == state.Efficiency)
                 continue;
@@ -737,7 +899,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     internal void PrepareTickResourceSatisfaction(double deltaSeconds)
     {
-        if (deltaSeconds < 0d)
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ResourceManager resourceManager = ResourceManager.Instance;
@@ -755,6 +917,8 @@ public class BuildingManager : Singleton<BuildingManager>
             for (int i = 0; i < orderedStates.Count; i++)
             {
                 BuildingState state = orderedStates[i];
+                if (state.Amount <= ExpantaNum.Zero)
+                    continue;
                 ExpantaNum potentialScale =
                     state.Amount * ExpantaNum.Clamp01(GlobalEfficiencyFactor);
                 ExpantaNum actualScale = state.Amount * state.Efficiency;
@@ -947,6 +1111,11 @@ public class BuildingManager : Singleton<BuildingManager>
         if (previous == null || current == null)
             return;
 
+        // FoodCapacityMultiplier 同时作用于基础粮食容量和容量建筑，研究或工坊完成时只结算差值。
+        GameManager.Instance.AdjustFoodCapacity(
+            GameState.BaseFoodCapacity *
+            (current.FoodCapacityMultiplier - previous.FoodCapacityMultiplier));
+
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
@@ -1110,6 +1279,8 @@ public class BuildingManager : Singleton<BuildingManager>
 
         if (data.Buildings != null)
         {
+            var restoredBuildings = new HashSet<Building>();
+            var restoredAmounts = new Dictionary<Building, ExpantaNum>();
             for (int i = 0; i < data.Buildings.Count; i++)
             {
                 SaveManager.BuildingStateSaveData saved = data.Buildings[i];
@@ -1120,20 +1291,39 @@ public class BuildingManager : Singleton<BuildingManager>
                     if (RetiredDefinitionMigration.IsRetired(saved.BuildingId))
                         RetiredDefinitionMigration.LogOnce();
                     else
-                        Debug.LogWarning($"Ignoring unknown building '{saved.BuildingId}' while loading.");
+                        throw new InvalidOperationException(
+                            $"存档包含未知建筑编号“{saved.BuildingId}”。");
                     continue;
                 }
-                BuildingState state = EnsureBuilding(definition);
+                if (!restoredBuildings.Add(definition))
+                    throw new InvalidOperationException(
+                        $"存档中的建筑状态重复包含“{definition.Id}”。");
                 ExpantaNum amount = Parse(saved.Amount, saved.BuildingId, nameof(saved.Amount));
-                state.Restore(amount);
+                if (amount < ExpantaNum.Zero)
+                    throw new InvalidOperationException(
+                        $"Building amount cannot be negative: {definition.Id}");
+                restoredAmounts.Add(definition, amount);
             }
-        }
 
-        GlobalEfficiencyFactor = Parse(
-            data.GlobalEfficiencyFactor,
-            nameof(BuildingManager),
-            nameof(data.GlobalEfficiencyFactor),
-            ExpantaNum.One);
+            ExpantaNum restoredGlobalEfficiencyFactor = Parse(
+                data.GlobalEfficiencyFactor,
+                nameof(BuildingManager),
+                nameof(data.GlobalEfficiencyFactor),
+                ExpantaNum.One);
+            if (restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
+                throw new InvalidOperationException("Building global efficiency cannot be negative.");
+            foreach (KeyValuePair<Building, ExpantaNum> entry in restoredAmounts)
+                EnsureBuilding(entry.Key).Restore(entry.Value);
+            GlobalEfficiencyFactor = restoredGlobalEfficiencyFactor;
+        }
+        else
+        {
+            GlobalEfficiencyFactor = Parse(
+                data.GlobalEfficiencyFactor,
+                nameof(BuildingManager),
+                nameof(data.GlobalEfficiencyFactor),
+                ExpantaNum.One);
+        }
         RefreshResearchPower();
     }
 
@@ -1143,7 +1333,9 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private void RefreshResearchPower()
     {
-        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        ResearchManager researchManager = cachedResearchManager;
+        if (researchManager == null)
+            researchManager = cachedResearchManager = FindObjectOfType<ResearchManager>();
         researchManager?.RebuildResearchPower(orderedStates);
     }
 
@@ -1157,7 +1349,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return value;
         if (string.IsNullOrEmpty(raw))
             return fallback;
-        throw new FormatException($"Invalid ExpantaNum '{raw}' for {owner}.{field}.");
+            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 
 }

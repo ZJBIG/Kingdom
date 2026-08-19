@@ -15,13 +15,16 @@ MonoBehaviour:
   id: FeudalAdministration
   Label: "\u5C01\u5EFA\u884C\u653F"
   Description: "\u5EFA\u7ACB\u5206\u7EA7\u5C01\u5730\u3001\u8D4B\u7A0E\u767B\u8BB0\u548C\u5730\u65B9\u5B98\u7F72\u4F53\u7CFB\uFF0C\u4F7F\u5206\u6563\u9886\u5730\u80FD\u591F\u5728\u7A33\u5B9A\u6743\u8D23\u5173\u7CFB\u4E0B\u88AB\u6301\u7EED\u6CBB\u7406\u3002"
-  BaseCost: "30000"
-  prerequisites: []
+  BaseCost: "130000"
+  prerequisites:
+  - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
+  - {fileID: 11400000, guid: 3b4ee5c3fc07b4a4099bc994f2cb1a8c, type: 2}
+  - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    amount: "250"
+    amount: "5000"
   - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    amount: "100"
+    amount: "2000"
   effects:
   - Type: 8
     Building: {fileID: 0}

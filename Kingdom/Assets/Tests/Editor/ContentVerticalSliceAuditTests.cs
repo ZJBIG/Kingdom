@@ -45,7 +45,7 @@ public sealed class ContentVerticalSliceAuditTests
     public void VerticalSliceTransitionResearches_AdvanceTheirTechLevels()
     {
         Research neolithic = DataBase<Research>.Find("NeolithicSettlement");
-        Research medieval = DataBase<Research>.Find("SmithingRevolution");
+        Research medieval = DataBase<Research>.Find("FeudalAdministration");
 
         Assert.That(neolithic.AdvancesTechLevel, Is.True);
         Assert.That(neolithic.TechLevel, Is.EqualTo(TechLevel.Neolithic));

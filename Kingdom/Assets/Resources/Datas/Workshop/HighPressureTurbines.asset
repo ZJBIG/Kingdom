@@ -24,11 +24,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "700"
+    amount: "14000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "220"
+    amount: "4400"
   - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
-    amount: "160"
+    amount: "3200"
   effects:
   - Type: 10
     Building: {fileID: 11400000, guid: ea4acdccc79f3e84db5660c9901c86fa, type: 2}

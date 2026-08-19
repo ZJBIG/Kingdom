@@ -36,7 +36,6 @@ public class MusicManager : Singleton<MusicManager>
     private readonly List<Pair<string, int>> musicTypes = new();
     private readonly List<MusicTrack> tracks = new();
     private Coroutine loadingCoroutine;
-    private Coroutine autoPlayCoroutine;
     private bool manualStop;
     private float volume = 1f;
     private float gapSeconds = 5f;
@@ -77,7 +76,7 @@ public class MusicManager : Singleton<MusicManager>
 
     private void Start()
     {
-        autoPlayCoroutine = StartCoroutine(AutoPlayLoop());
+        StartCoroutine(AutoPlayLoop());
     }
 
     public void RebuildCatalog()

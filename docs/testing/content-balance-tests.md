@@ -17,7 +17,7 @@
 - 原始主线可完成
 - NeolithicSettlement 可完成
 - 新石器资源链可建立
-- SmithingRevolution 可完成
+- FeudalAdministration 可完成
 - Medieval 可进入
 
 失败时打印完整阻断路径。

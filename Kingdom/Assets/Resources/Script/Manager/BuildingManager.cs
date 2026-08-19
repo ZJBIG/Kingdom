@@ -27,6 +27,11 @@ public class BuildingManager : Singleton<BuildingManager>
     private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
     private readonly HashSet<Building> chainMembers = new();
     private bool chainIndexInitialized;
+    // FindObjectOfType scans the whole scene and is far too expensive to run
+    // on every prerequisite check; ArePrerequisitesMet is called from UI
+    // refresh paths dozens of times per frame.
+    private WorkshopManager cachedWorkshopManager;
+    private ResearchManager cachedResearchManager;
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
@@ -229,7 +234,9 @@ public class BuildingManager : Singleton<BuildingManager>
             }
         }
 
-        WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
+        WorkshopManager workshop = cachedWorkshopManager;
+        if (workshop == null)
+            workshop = cachedWorkshopManager = FindObjectOfType<WorkshopManager>();
         IReadOnlyList<WorkshopUpgrade> requiredUpgrades = building.RequiredWorkshopUpgrades;
         for (int i = 0; i < requiredUpgrades.Count; i++)
         {
@@ -874,6 +881,12 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
+            // An unbuilt definition contributes no rates and cannot affect
+            // any satisfaction result. Avoid evaluating every modifier and
+            // resource list for the large inactive tail of the definition
+            // list on every convergence pass.
+            if (state.Amount <= ExpantaNum.Zero)
+                continue;
             ExpantaNum efficiency = CalculateEfficiency(state.Definition);
             if (efficiency == state.Efficiency)
                 continue;
@@ -904,6 +917,8 @@ public class BuildingManager : Singleton<BuildingManager>
             for (int i = 0; i < orderedStates.Count; i++)
             {
                 BuildingState state = orderedStates[i];
+                if (state.Amount <= ExpantaNum.Zero)
+                    continue;
                 ExpantaNum potentialScale =
                     state.Amount * ExpantaNum.Clamp01(GlobalEfficiencyFactor);
                 ExpantaNum actualScale = state.Amount * state.Efficiency;
@@ -1318,7 +1333,9 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private void RefreshResearchPower()
     {
-        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        ResearchManager researchManager = cachedResearchManager;
+        if (researchManager == null)
+            researchManager = cachedResearchManager = FindObjectOfType<ResearchManager>();
         researchManager?.RebuildResearchPower(orderedStates);
     }
 

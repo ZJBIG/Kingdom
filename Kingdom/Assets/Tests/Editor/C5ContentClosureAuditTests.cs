@@ -18,10 +18,11 @@ public sealed class C5ContentClosureAuditTests
 
     private static readonly string[] C5BuildingIds =
     {
-        "WaterMill",
+        "Academy",
+        "Caravanserai",
         "SteelForge",
         "Library",
-        "Market",
+        "TownHouse",
     };
 
     [Test]

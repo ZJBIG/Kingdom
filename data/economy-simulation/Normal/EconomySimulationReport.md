@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 187380 seconds; longest continuous 184365 seconds.
-- Final population growth: x1.6, 51.296/s; productivity utilization: 105.8%; territory: 666/2475.
+- Productivity-blocked building decision time: total 177120 seconds; longest continuous 1800 seconds.
+- Final population growth: x2, 224.602/s; productivity utilization: 188.2%; territory: 1002/2325.
 
 ## Animal Age
 
@@ -26,18 +26,18 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 75.43 分钟
+到达时间: 76.32 分钟
 完成研究: 23
 
 ## Medieval Age
 
-到达时间: 237.73 分钟
+到达时间: 317.63 分钟
 完成研究: 3
 
 ## Industrial Age
 
-到达时间: 528.08 分钟
-完成研究: 17
+到达时间: 826.32 分钟
+完成研究: 20
 
 ## Spacer Age
 
@@ -53,7 +53,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Warnings
 
-None
+- **Info Legacy metal surplus** Bronze: Active production is 17.5/s versus 1.5/s consumption; net flow remains 16/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **Info Legacy metal surplus** Tin: Active production is 16.8/s versus 1.5/s consumption; net flow remains 15.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
 
 ## Validation boundary
 

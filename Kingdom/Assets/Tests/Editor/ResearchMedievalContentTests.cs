@@ -37,10 +37,10 @@ public sealed class ResearchMedievalContentTests
     {
         var expectedUnlocks = new Dictionary<string, string[]>
         {
-            ["MechanicalEngineering"] = new[] { "WaterMill" },
+            ["ScholasticInstitutions"] = new[] { "Academy" },
             ["Steelmaking"] = new[] { "SteelForge" },
             ["Bookmaking"] = new[] { "Library" },
-            ["TradeRoutes"] = new[] { "Market" },
+            ["TradeRoutes"] = new[] { "Caravanserai" },
         };
 
         foreach (KeyValuePair<string, string[]> pair in expectedUnlocks)

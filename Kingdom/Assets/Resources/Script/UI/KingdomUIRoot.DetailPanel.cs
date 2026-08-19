@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -317,17 +317,24 @@ public sealed partial class KingdomUIRoot
         body.anchorMin = new Vector2(0, 1);
         body.anchorMax = new Vector2(1, 1);
         body.pivot = new Vector2(.5f, 1f);
-        Canvas.ForceUpdateCanvases();
         float width = GetMeasuredDetailTextWidth(body);
         float bodyHeight = Mathf.Clamp(
             detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f,
             96f,
             1400f);
+        // The body height only changes when the line count changes; ordinary
+        // value refreshes keep the same height. Skip the two full-canvas
+        // immediate layout passes unless the height actually changed, otherwise
+        // selecting a resource forces Canvas layout about 10 times per second.
+        bool heightChanged = Mathf.Abs(bodyHeight - body.rect.height) > 1f;
+        if (heightChanged)
+            Canvas.ForceUpdateCanvases();
         body.offsetMin = new Vector2(34f, -bodyHeight);
         body.offsetMax = new Vector2(-34f, 0f);
         if (detailScrollContent != null)
             detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, 24f + bodyHeight));
-        Canvas.ForceUpdateCanvases();
+        if (heightChanged)
+            Canvas.ForceUpdateCanvases();
     }
 
     private void ShowResearchDetails(Research research, bool preserveScrollPosition = false)
@@ -342,6 +349,10 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = research;
         ResearchManager.Instance?.SetSelectedResearch(research);
         RefreshResearchTreeVisuals();
+        // A queue action can open this detail presenter immediately after
+        // changing ResearchManager. Update the toolbar in the same UI path
+        // instead of waiting for the periodic live-refresh tick.
+        RefreshResearchQueueToolbar();
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
@@ -572,11 +583,15 @@ public sealed partial class KingdomUIRoot
 
         ExpantaNum owned = ExpantaNum.Zero;
         ExpantaNum paid = ExpantaNum.Zero;
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        ResourceManager resourceManager = resourceManagerCache;
+        if (resourceManager == null)
+            resourceManager = resourceManagerCache = FindObjectOfType<ResourceManager>();
         if (resourceManager != null && resourceManager.States.TryGetValue(requirement.First, out ResourceState resourceState))
             owned = resourceState.Amount;
 
-        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        ResearchManager researchManager = researchManagerCache;
+        if (researchManager == null)
+            researchManager = researchManagerCache = FindObjectOfType<ResearchManager>();
         if (researchManager != null && researchManager.SelectedResearchId != null &&
             DataBase<Research>.TryFind(researchManager.SelectedResearchId, out Research selected) &&
             researchManager.States.TryGetValue(selected, out ResearchState researchState))
@@ -865,6 +880,12 @@ public sealed partial class KingdomUIRoot
             text.text = detailIsBuilding
                 ? (detailBuildingUpgrade ? "升级 1 个" : "建造 1 个")
                 : label;
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchActionButton active={detailActionButton.gameObject.activeSelf} " +
+            $"interactable={detailActionButton.interactable} label={label} " +
+            $"research={(selectedResearchNode == null ? string.Empty : selectedResearchNode.Id)}");
+#endif
     }
 
     private void PayResearchResources(Research research)
@@ -874,6 +895,8 @@ public sealed partial class KingdomUIRoot
         ResearchPaymentResult result = ResearchManager.Instance.PayResearchCost(research);
             Debug.Log($"[界面] 研究支付：id={research.Id}，结果={result.GetDescription()}");
         ShowResearchDetails(research);
+        RefreshResearchQueueToolbar();
+        researchQueueUiDirty = false;
     }
 
     private void BuildOne(Building building)
@@ -902,9 +925,17 @@ public sealed partial class KingdomUIRoot
             return;
         }
         ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchActionInvoked id={research.Id} result={result} " +
+            $"active={(ResearchManager.Instance.ActiveResearch?.Definition == research)} " +
+            $"queueCount={ResearchManager.Instance.ResearchQueue.Count}");
+#endif
         ShowResearchDetails(research);
+        RefreshResearchQueueToolbar();
+        researchQueueUiDirty = false;
         if (detailBody != null)
-            detailBody.text += "\n\n执行结果：" + result;
+            detailBody.text += "\n\n执行结果：" + result.GetDescription();
     }
 
     private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
@@ -992,6 +1023,8 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
     private bool loggedDrag;
     private bool loggedMovement;
 
+    public bool IsDragging => dragging;
+
     public void Initialize(RectTransform targetViewport, RectTransform targetContent)
     {
         viewport = targetViewport;
@@ -1051,6 +1084,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (!pointerHeld || eventData.pointerId != pointerId)
             return;
         dragging = true;
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write($"[KingdomPerf] DetailDrag begin pointer={eventData.pointerId} touchCount={Input.touchCount}");
+#endif
         if (!loggedDrag)
         {
             loggedDrag = true;
@@ -1104,6 +1140,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (dragging)
             eventData.eligibleForClick = false;
         Debug.Log($"[王国界面] Requirement drag ended: samples={movementSamples}, pathY={movementPathLength:0.00}, position={content.anchoredPosition}");
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write($"[KingdomPerf] DetailDrag end samples={movementSamples} pathY={movementPathLength:0.00} touchCount={Input.touchCount}");
+#endif
         ResetPointer();
     }
 
@@ -1125,7 +1164,12 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         Vector2 position = content.anchoredPosition;
         position.x = 0f;
         position.y = Mathf.Clamp(position.y, 0f, range);
-        content.anchoredPosition = position;
+        // Only write when the value actually changes. Assigning the same
+        // anchoredPosition every LateUpdate frame dirties the RectTransform
+        // and forces a Canvas layout pass each frame, which is a sustained
+        // CPU cost even when nothing moved.
+        if (content.anchoredPosition != position)
+            content.anchoredPosition = position;
     }
 
     private void ResetPointer()

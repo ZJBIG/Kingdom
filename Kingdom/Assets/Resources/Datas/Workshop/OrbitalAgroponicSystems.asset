@@ -26,21 +26,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8c2e6a0d4f7b9135a0c5e8b2d6f1a479, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "18000"
+    amount: "1800000"
   - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    amount: "6000"
+    amount: "120000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "4200"
+    amount: "84000"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "2200"
+    amount: "44000"
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
-    amount: "1800"
+    amount: "36000"
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    amount: "1200"
+    amount: "6000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "700"
+    amount: "3500"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "240"
+    amount: "1200"
   effects:
   - Type: 0
     Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}

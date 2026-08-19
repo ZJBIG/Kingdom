@@ -33,12 +33,14 @@ public sealed class ResourceContinuityTests
     }
 
     [Test]
-    public void 中世纪转型研究必须消耗铁与青铜战略材料()
+    public void 中世纪转型研究必须拥有冶炼前置并消耗石砖与布料()
     {
-        Research transition = DataBase<Research>.Find("SmithingRevolution");
+        Research transition = DataBase<Research>.Find("FeudalAdministration");
 
-        Assert.That(HasPositiveRequirement(transition, "Iron"), Is.True);
-        Assert.That(HasPositiveRequirement(transition, "Bronze"), Is.True);
+        Assert.That(transition.Prerequisites.Select(research => research.Id),
+            Is.EquivalentTo(new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" }));
+        Assert.That(HasPositiveRequirement(transition, "StoneBrick"), Is.True);
+        Assert.That(HasPositiveRequirement(transition, "Cloth"), Is.True);
     }
 
     [Test]

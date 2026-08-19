@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -15,6 +15,7 @@ public sealed partial class KingdomUIRoot
     {
         public Building Building;
         public ExpantaNum Rate;
+        public bool Active;
     }
 
     private void ShowDetails(string title, string description, string id)
@@ -26,7 +27,7 @@ public sealed partial class KingdomUIRoot
         detailIsBuilding = false;
         selectedBuilding = null;
         selectedResource = null;
-        detailBody.text = title + "\n\n" + description + "\n\nID: " + id;
+        detailBody.text = title + "\n\n" + description + "\n\n标识：" + id;
         HideBuildingRequirements();
         HideResearchPaymentButton();
         if (detailActionButton != null)
@@ -45,15 +46,19 @@ public sealed partial class KingdomUIRoot
         return BuildingPrerequisitesMet(definition);
     }
 
-    private static List<Pair<Resource, ExpantaNum>> GetNextBuildingRequirements(
+    private List<Pair<Resource, ExpantaNum>> GetNextBuildingRequirements(
         Building building,
         BuildingState state,
         bool upgrading)
     {
         var requirements = new List<Pair<Resource, ExpantaNum>>();
+        ExpantaNum quantity = GetSelectedBuildingQuantity(building, upgrading, false);
+        if (quantity < ExpantaNum.One)
+            return requirements;
+
         if (upgrading)
         {
-            BuildingManager.Instance.GetUpgradeResourceDeltas(building, ExpantaNum.One, requirements);
+            BuildingManager.Instance.GetUpgradeResourceDeltas(building, quantity, requirements);
             return requirements;
         }
 
@@ -63,7 +68,7 @@ public sealed partial class KingdomUIRoot
             Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
             requirements.Add(new Pair<Resource, ExpantaNum>(
                 requirement.First,
-                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, ExpantaNum.One)));
+                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, quantity)));
         }
         return requirements;
     }
@@ -97,21 +102,22 @@ public sealed partial class KingdomUIRoot
         detailBody.fontSize = 30f;
         selectedBuilding = building;
         selectedResource = null;
+        lastSelectedBuildingVersion = -1;
+        lastSelectedBuildingResourceVersion = -1;
         detailIsBuilding = true;
-        string amount = "0";
         BuildingState state = BuildingManager.Instance != null &&
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
             ? existing
             : null;
-        if (state != null)
-            amount = state.Amount.ToGameString();
         StringBuilder text = new();
         text.AppendLine(building.Label);
         text.AppendLine();
         text.AppendLine(building.Description);
         text.AppendLine();
-        text.AppendLine("数量: " + amount);
+        text.AppendLine("数量: " + (state == null ? "0" : state.Amount.ToGameString()));
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
+        text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
+        text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
         detailBody.text = text.ToString();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
@@ -133,14 +139,15 @@ public sealed partial class KingdomUIRoot
 
     private void SetBuildingDetailBody(Building building, BuildingState state)
     {
-        string amount = state == null ? "0" : state.Amount.ToGameString();
         StringBuilder text = new();
         text.AppendLine(building.Label);
         text.AppendLine();
         text.AppendLine(building.Description);
         text.AppendLine();
-        text.AppendLine("数量: " + amount);
+        text.AppendLine("数量: " + (state == null ? "0" : state.Amount.ToGameString()));
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
+        text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
+        text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
         detailBody.text = text.ToString();
     }
 
@@ -185,6 +192,7 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = null;
         selectedBuilding = null;
         selectedResource = resource;
+        lastSelectedResourceVersion = -1;
         detailIsBuilding = false;
         detailBuildingUpgrade = false;
         HideBuildingRequirements();
@@ -219,10 +227,14 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("库存: " + amount.ToGameString());
         text.AppendLine(("产出: +" + production.ToGameString()).Colorize(Positive));
         for (int i = 0; i < producers.Count; i++)
-            text.AppendLine("       --" + producers[i].Building.Label + ": " + ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
+            text.AppendLine("       --" + producers[i].Building.Label +
+                (producers[i].Active ? string.Empty : "（待建造）") + ": " +
+                ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
         text.AppendLine(("消耗: -" + consumption.ToGameString()).Colorize(Error));
         for (int i = 0; i < consumers.Count; i++)
-            text.AppendLine("       --" + consumers[i].Building.Label + ": " + ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
+            text.AppendLine("       --" + consumers[i].Building.Label +
+                (consumers[i].Active ? string.Empty : "（待建造）") + ": " +
+                ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
         text.AppendLine(("净变化: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
         detailBody.text = text.ToString();
         detailBody.richText = true;
@@ -241,7 +253,11 @@ public sealed partial class KingdomUIRoot
         {
             Building building = entry.Key;
             BuildingState state = entry.Value;
-            if (building == null || state == null || state.Amount <= ExpantaNum.Zero)
+            if (building == null || state == null)
+                continue;
+
+            bool active = state.Amount > ExpantaNum.Zero;
+            if (!active && !BuildingManager.Instance.ArePrerequisitesMet(building, out _))
                 continue;
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> flows = production
@@ -251,25 +267,35 @@ public sealed partial class KingdomUIRoot
             for (int i = 0; i < flows.Count; i++)
             {
                 Pair<Resource, ExpantaNum> flow = flows[i];
-                if (flow != null && flow.First == resource)
+                if (flow.First == resource)
                     rate += flow.Second;
             }
             if (rate <= ExpantaNum.Zero)
                 continue;
 
-            rate *= state.Amount * state.Efficiency;
-            if (production)
+            if (active)
             {
-                rate *= modifiers.GetBuildingProductionMultiplier(building);
-                rate *= modifiers.GlobalBuildingProductionMultiplier;
-                rate *= modifiers.GetResourceProductionMultiplier(resource);
+                rate *= state.Amount * state.Efficiency;
+                if (production)
+                {
+                    rate *= modifiers.GetBuildingProductionMultiplier(building);
+                    rate *= modifiers.GlobalBuildingProductionMultiplier;
+                    rate *= modifiers.GetResourceProductionMultiplier(resource);
+                }
             }
-            if (rate > ExpantaNum.Zero)
-                result.Add(new ResourceBuildingFlow { Building = building, Rate = rate });
+            result.Add(new ResourceBuildingFlow
+            {
+                Building = building,
+                Rate = rate,
+                Active = active
+            });
         }
 
         result.Sort((left, right) =>
         {
+            int byActive = right.Active.CompareTo(left.Active);
+            if (byActive != 0)
+                return byActive;
             int byRate = right.Rate.CompareTo(left.Rate);
             return byRate != 0
                 ? byRate
@@ -291,17 +317,24 @@ public sealed partial class KingdomUIRoot
         body.anchorMin = new Vector2(0, 1);
         body.anchorMax = new Vector2(1, 1);
         body.pivot = new Vector2(.5f, 1f);
-        Canvas.ForceUpdateCanvases();
         float width = GetMeasuredDetailTextWidth(body);
         float bodyHeight = Mathf.Clamp(
             detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f,
             96f,
             1400f);
+        // The body height only changes when the line count changes; ordinary
+        // value refreshes keep the same height. Skip the two full-canvas
+        // immediate layout passes unless the height actually changed, otherwise
+        // selecting a resource forces Canvas layout about 10 times per second.
+        bool heightChanged = Mathf.Abs(bodyHeight - body.rect.height) > 1f;
+        if (heightChanged)
+            Canvas.ForceUpdateCanvases();
         body.offsetMin = new Vector2(34f, -bodyHeight);
         body.offsetMax = new Vector2(-34f, 0f);
         if (detailScrollContent != null)
             detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, 24f + bodyHeight));
-        Canvas.ForceUpdateCanvases();
+        if (heightChanged)
+            Canvas.ForceUpdateCanvases();
     }
 
     private void ShowResearchDetails(Research research, bool preserveScrollPosition = false)
@@ -316,6 +349,10 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = research;
         ResearchManager.Instance?.SetSelectedResearch(research);
         RefreshResearchTreeVisuals();
+        // A queue action can open this detail presenter immediately after
+        // changing ResearchManager. Update the toolbar in the same UI path
+        // instead of waiting for the periodic live-refresh tick.
+        RefreshResearchQueueToolbar();
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
@@ -326,7 +363,10 @@ public sealed partial class KingdomUIRoot
         // The payment title is authored by the requirement section below;
         // keep it out of Body so it cannot be duplicated or appear as a
         // stray top line while the sections are being measured.
-        detailBody.text = "研究说明\n\n" + research.Description;
+        detailBody.text = $"{research.Label}"+"\n"+
+            $"技术等级: {research.TechLevel.GetDescription()}"+"\n"+
+            $"研究点需求: {state.BaseCost.ToGameString()}"+"\n\n"+
+            research.Description;
         HideBuildingRequirements();
         ShowBuildingRequirements(research.ResourceRequirements, "研究支付需求");
         PlaceRequirementsAfterDescription(
@@ -335,6 +375,7 @@ public sealed partial class KingdomUIRoot
             0);
         ConfigureResearchPaymentButton(research, state);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        CaptureResearchRefreshSignatures();
     }
 
     private void RefreshSelectedResearchDetails(Research research)
@@ -374,9 +415,14 @@ public sealed partial class KingdomUIRoot
         detailPaymentButton.gameObject.SetActive(true);
         detailPaymentButton.onClick.RemoveAllListeners();
         detailPaymentButton.onClick.AddListener(() => PayResearchResources(research));
-        detailPaymentButton.interactable = state == null ||
-            (state.Status != ResearchStatus.Completed && !state.CostPaid);
+        string paymentBlocker = string.Empty;
+        bool canPay = ResearchManager.Instance != null &&
+            ResearchManager.Instance.CanPayResearchCost(research, out paymentBlocker);
+        detailPaymentButton.interactable = state != null &&
+            state.Status != ResearchStatus.Completed && !state.CostPaid && canPay;
         TMP_Text text = detailPaymentButton.GetComponentInChildren<TMP_Text>(true);
+        if (text != null && !canPay && !string.IsNullOrEmpty(paymentBlocker))
+            text.text = paymentBlocker;
         if (text != null)
             text.text = state != null && state.CostPaid ? "资源已支付" : "支付资源";
     }
@@ -428,7 +474,7 @@ public sealed partial class KingdomUIRoot
         RectTransform content = requirementContent;
         if (content == null)
         {
-            Debug.LogError("[KingdomUI] Authored RequirementContent is missing; requirement rows will not be generated.");
+            Debug.LogError("[王国界面] Authored RequirementContent is missing; requirement rows will not be generated.");
             return;
         }
         // Keep authored Heading/None children. Only runtime-generated
@@ -457,7 +503,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text headingLabel = content.Find("Heading")?.GetComponent<TMP_Text>();
         if (headingLabel == null)
         {
-            Debug.LogError("[KingdomUI] Authored RequirementContent is missing Heading.");
+            Debug.LogError("[王国界面] Authored RequirementContent is missing Heading.");
             return;
         }
         headingLabel.text = heading;
@@ -467,7 +513,7 @@ public sealed partial class KingdomUIRoot
             TMP_Text emptyLabel = content.Find("None")?.GetComponent<TMP_Text>();
             if (emptyLabel == null)
             {
-                Debug.LogError("[KingdomUI] Authored RequirementContent is missing None state.");
+                Debug.LogError("[王国界面] Authored RequirementContent is missing None state.");
                 return;
             }
             emptyLabel.gameObject.SetActive(true);
@@ -487,7 +533,7 @@ public sealed partial class KingdomUIRoot
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
             if (icon == null)
             {
-                Debug.LogError("[KingdomUI] Runtime requirement row is missing Icon Image.");
+                Debug.LogError("[王国界面] Runtime requirement row is missing Icon Image.");
                 continue;
             }
             icon.sprite = requirement.First.Sprite;
@@ -514,7 +560,7 @@ public sealed partial class KingdomUIRoot
             for (int i = 0; i < requirements.Count; i++)
             {
                 Pair<Resource, ExpantaNum> requirement = requirements[i];
-                if (requirement == null || requirement.First == null)
+                if (requirement.First == null)
                     continue;
                 Transform row = requirementContent.Find("Requirement_" + i);
                 if (row == null)
@@ -530,14 +576,32 @@ public sealed partial class KingdomUIRoot
         return updated == validCount;
     }
 
-    private static string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
+    private string FormatRequirementAmount(Pair<Resource, ExpantaNum> requirement)
     {
+        if (requirement.First == null)
+            return string.Empty;
+
         ExpantaNum owned = ExpantaNum.Zero;
-        if (requirement != null && requirement.First != null && ResourceManager.Instance != null &&
-            ResourceManager.Instance.States.TryGetValue(requirement.First, out ResourceState resourceState))
+        ExpantaNum paid = ExpantaNum.Zero;
+        ResourceManager resourceManager = resourceManagerCache;
+        if (resourceManager == null)
+            resourceManager = resourceManagerCache = FindObjectOfType<ResourceManager>();
+        if (resourceManager != null && resourceManager.States.TryGetValue(requirement.First, out ResourceState resourceState))
             owned = resourceState.Amount;
 
-        return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
+        ResearchManager researchManager = researchManagerCache;
+        if (researchManager == null)
+            researchManager = researchManagerCache = FindObjectOfType<ResearchManager>();
+        if (researchManager != null && researchManager.SelectedResearchId != null &&
+            DataBase<Research>.TryFind(researchManager.SelectedResearchId, out Research selected) &&
+            researchManager.States.TryGetValue(selected, out ResearchState researchState))
+            paid = researchState.GetPaidResourceCost(requirement.First);
+
+        if (detailIsBuilding)
+            return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
+
+        return paid.ToGameString() + " / " + requirement.Second.ToGameString() +
+            " (" + owned.ToGameString() + ")";
     }
 
     private void PlaceRequirementsAfterDescription(
@@ -558,11 +622,11 @@ public sealed partial class KingdomUIRoot
                     : detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
             if (requirementGesture == null)
             {
-                Debug.LogError("[KingdomUI] DetailScrollViewport is missing; requirement drag owner was not created.");
+                Debug.LogError("[王国界面] DetailScrollViewport is missing; requirement drag owner was not created.");
                 return;
             }
             requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
-            Debug.Log("[KingdomUI] Requirement gesture attached during detail layout");
+            Debug.Log("[王国界面] Requirement gesture attached during detail layout");
         }
         // A late layout pass must not resurrect the nested ScrollRect.
         // The custom gesture remains the single owner for row-started
@@ -578,7 +642,12 @@ public sealed partial class KingdomUIRoot
         // Body is an authored DetailPanel child. Keep only a small
         // baseline after the final information line so the authored
         // requirement panel can sit directly beneath it.
-        float bodyHeight = Mathf.Clamp(detailBody.GetPreferredValues(detailBody.text, width, 1000f).y, 96f, 390f);
+        // TMP's preferred height ends at the final glyph line. Keep a real
+        // baseline gap before the next authored section; without it, short
+        // building descriptions can let the first requirement card visually
+        // crowd the final "生产力需求" line.
+        float preferredBodyHeight = detailBody.GetPreferredValues(detailBody.text, width, 1000f).y;
+        float bodyHeight = Mathf.Max(96f, preferredBodyHeight + 18f);
         body.offsetMin = new Vector2(34f, -bodyHeight);
         body.offsetMax = new Vector2(-34f, 0f);
 
@@ -603,9 +672,7 @@ public sealed partial class KingdomUIRoot
             sectionTop += flowHeight + 8f;
         }
         else if (flowHost != null)
-        {
             flowHost.gameObject.SetActive(false);
-        }
 
         float detailHeight = detailScrollViewport == null ? 0f : detailScrollViewport.rect.height;
         // Requirements are the next normal section in the same outer
@@ -655,7 +722,7 @@ public sealed partial class KingdomUIRoot
             float outerRangeY = detailScrollViewport == null || detailScrollContent == null
             ? 0f
             : Mathf.Max(0f, detailScrollContent.rect.height - detailScrollViewport.rect.height);
-        Debug.Log($"[KingdomUI] Detail content bounds: viewport={(detailScrollViewport == null ? Vector2.zero : detailScrollViewport.rect.size)}, content={(detailScrollContent == null ? Vector2.zero : detailScrollContent.rect.size)}, rangeY={outerRangeY:0.0}, flowSection={(flowHost == null ? Vector2.zero : flowHost.rect.size)}, requirementSection={requirementHost.rect.size}, requirementRows={requirementCount}, active={requirementHost.gameObject.activeSelf}, customGestureEnabled={requirementGesture != null && requirementGesture.enabled}");
+        Debug.Log($"[王国界面] Detail content bounds: viewport={(detailScrollViewport == null ? Vector2.zero : detailScrollViewport.rect.size)}, content={(detailScrollContent == null ? Vector2.zero : detailScrollContent.rect.size)}, rangeY={outerRangeY:0.0}, flowSection={(flowHost == null ? Vector2.zero : flowHost.rect.size)}, requirementSection={requirementHost.rect.size}, requirementRows={requirementCount}, active={requirementHost.gameObject.activeSelf}, customGestureEnabled={requirementGesture != null && requirementGesture.enabled}");
         Canvas.ForceUpdateCanvases();
     }
 
@@ -679,7 +746,7 @@ public sealed partial class KingdomUIRoot
         flowContent = flowHost.Find("FlowContent") as RectTransform;
         if (flowContent == null)
         {
-            Debug.LogError("[KingdomUI] Authored FlowContent is missing; flow rows will not be generated.");
+            Debug.LogError("[王国界面] Authored FlowContent is missing; flow rows will not be generated.");
             return;
         }
         for (int i = flowContent.childCount - 1; i >= 0; i--)
@@ -695,7 +762,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text flowHeading = flowContent.Find("Heading")?.GetComponent<TMP_Text>();
         if (flowHeading == null)
         {
-            Debug.LogError("[KingdomUI] Authored FlowContent is missing Heading.");
+            Debug.LogError("[王国界面] Authored FlowContent is missing Heading.");
             return;
         }
         flowHeading.gameObject.SetActive(true);
@@ -729,7 +796,7 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < flows.Count; i++)
         {
             Pair<Resource, ExpantaNum> flow = flows[i];
-            if (flow == null || flow.First == null)
+            if (flow.First == null)
                 continue;
             Transform row = host.Find("Flow_" + index);
             TMP_Text label = row?.Find("Label")?.GetComponent<TMP_Text>();
@@ -772,7 +839,7 @@ public sealed partial class KingdomUIRoot
             Image icon = iconTransform == null ? null : iconTransform.GetComponent<Image>();
             if (icon == null)
             {
-                Debug.LogError("[KingdomUI] Runtime flow row is missing Icon Image.");
+                Debug.LogError("[王国界面] Runtime flow row is missing Icon Image.");
                 continue;
             }
             icon.sprite = flow.First.Sprite;
@@ -820,7 +887,7 @@ public sealed partial class KingdomUIRoot
         if (research == null || ResearchManager.Instance == null)
             return;
         ResearchPaymentResult result = ResearchManager.Instance.PayResearchCost(research);
-        Debug.Log($"[KingdomUI] Research payment: id={research.Id}, result={result}");
+            Debug.Log($"[界面] 研究支付：id={research.Id}，结果={result.GetDescription()}");
         ShowResearchDetails(research);
     }
 
@@ -828,7 +895,7 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("Building", "BuildingManager is not initialized.", building.Id);
+            ShowDetails("建筑", "建筑管理器尚未初始化。", building.Id);
             return;
         }
         if (BuildingManager.Instance.States.TryGetValue(building, out BuildingState state) &&
@@ -846,20 +913,20 @@ public sealed partial class KingdomUIRoot
     {
         if (ResearchManager.Instance == null)
         {
-            ShowDetails("Research", "ResearchManager is not initialized.", research.Id);
+            ShowDetails("研究", "研究管理器尚未初始化。", research.Id);
             return;
         }
         ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
         ShowResearchDetails(research);
         if (detailBody != null)
-            detailBody.text += "\n\nAction result: " + result;
+            detailBody.text += "\n\n执行结果：" + result;
     }
 
     private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
     {
         if (costs == null || costs.Count == 0)
         {
-            builder.AppendLine("  None");
+            builder.AppendLine("  无");
             return;
         }
         for (int i = 0; i < costs.Count; i++)
@@ -898,7 +965,7 @@ public sealed partial class KingdomUIRoot
         return true;
     }
 
-    private static bool WorkshopPrerequisitesMet(WorkshopUpgradeDefinition definition)
+    private static bool WorkshopPrerequisitesMet(WorkshopUpgrade definition)
     {
         if (definition.RequiredResearch != null && definition.RequiredResearch.Count > 0)
         {
@@ -962,7 +1029,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
         if (range <= 0.001f)
             return 1f;
-        return Mathf.Clamp01((content.anchoredPosition.y + range) / range);
+        // DetailScrollContent uses a top anchor and top pivot. In this
+        // coordinate system y=0 is the top and y=range is the bottom.
+        return Mathf.Clamp01(1f - content.anchoredPosition.y / range);
     }
 
     public void SetNormalizedPosition(float value)
@@ -970,7 +1039,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (viewport == null || content == null)
             return;
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
-        content.anchoredPosition = new Vector2(0f, -range * Mathf.Clamp01(1f - value));
+        content.anchoredPosition = new Vector2(0f, range * (1f - Mathf.Clamp01(value)));
         ClampContent();
     }
 
@@ -989,7 +1058,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         pointerId = eventData.pointerId;
         movementSamples = 0;
         movementPathLength = 0f;
-        Debug.Log($"[KingdomUI] Requirement pointer down: pointer={pointerId}, position={eventData.position}, viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+        Debug.Log($"[王国界面] Requirement pointer down: pointer={pointerId}, position={eventData.position}, viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -1000,7 +1069,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (!loggedDrag)
         {
             loggedDrag = true;
-            Debug.Log($"[KingdomUI] Requirement drag started: viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+            Debug.Log($"[王国界面] Requirement drag started: viewport={viewport.rect.size}, content={content.rect.size}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
         }
         eventData.Use();
     }
@@ -1018,6 +1087,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (Mathf.Abs(deltaY) > 0.001f)
         {
             dragging = true;
+            // Screen coordinates use a bottom-left origin, so a finger
+            // moving up produces a positive deltaY. The top-anchored
+            // content follows that delta toward its positive scroll range.
             content.anchoredPosition += new Vector2(0f, deltaY);
             ClampContent();
             movementSamples++;
@@ -1025,7 +1097,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             if (!loggedMovement)
             {
                 loggedMovement = true;
-                Debug.Log($"[KingdomUI] Requirement drag moved: deltaY={deltaY:0.00}, position={content.anchoredPosition}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
+                Debug.Log($"[王国界面] Requirement drag moved: deltaY={deltaY:0.00}, position={content.anchoredPosition}, rangeY={Mathf.Max(0f, content.rect.height - viewport.rect.height)}");
             }
         }
         eventData.Use();
@@ -1046,7 +1118,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             return;
         if (dragging)
             eventData.eligibleForClick = false;
-        Debug.Log($"[KingdomUI] Requirement drag ended: samples={movementSamples}, pathY={movementPathLength:0.00}, position={content.anchoredPosition}");
+        Debug.Log($"[王国界面] Requirement drag ended: samples={movementSamples}, pathY={movementPathLength:0.00}, position={content.anchoredPosition}");
         ResetPointer();
     }
 
@@ -1067,8 +1139,13 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         float range = Mathf.Max(0f, content.rect.height - viewport.rect.height);
         Vector2 position = content.anchoredPosition;
         position.x = 0f;
-        position.y = Mathf.Clamp(position.y, -range, 0f);
-        content.anchoredPosition = position;
+        position.y = Mathf.Clamp(position.y, 0f, range);
+        // Only write when the value actually changes. Assigning the same
+        // anchoredPosition every LateUpdate frame dirties the RectTransform
+        // and forces a Canvas layout pass each frame, which is a sustained
+        // CPU cost even when nothing moved.
+        if (content.anchoredPosition != position)
+            content.anchoredPosition = position;
     }
 
     private void ResetPointer()

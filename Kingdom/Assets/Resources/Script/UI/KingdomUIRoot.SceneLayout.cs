@@ -284,9 +284,34 @@ public sealed partial class KingdomUIRoot
         image.raycastTarget = raycast;
         if (viewport.GetComponent<RectMask2D>() == null)
             viewport.gameObject.AddComponent<RectMask2D>();
+        EnsureNestedCanvas(viewport);
         scroll.viewport = viewport;
         scroll.horizontal = false;
         scroll.vertical = true;
         scroll.movementType = ScrollRect.MovementType.Clamped;
+    }
+
+    private static void EnsureNestedCanvas(RectTransform owner)
+    {
+        if (owner == null)
+            return;
+        Canvas canvas = owner.GetComponent<Canvas>();
+        bool addedCanvas = false;
+        if (canvas == null)
+        {
+            canvas = owner.gameObject.AddComponent<Canvas>();
+            addedCanvas = true;
+        }
+        // A nested canvas isolates scrolling redraws from the top bar,
+        // navigation and detail panel while preserving the parent's sorting.
+        canvas.overrideSorting = false;
+        canvas.pixelPerfect = false;
+        bool addedRaycaster = owner.GetComponent<GraphicRaycaster>() == null;
+        if (addedRaycaster)
+            owner.gameObject.AddComponent<GraphicRaycaster>();
+#if UNITY_EDITOR
+        if (addedCanvas || addedRaycaster || owner.name == "ResearchGraphContent")
+            KingdomEditorPerfLog.Write($"[KingdomPerf] CanvasIsolation owner={owner.name} canvas={addedCanvas} raycaster={addedRaycaster}");
+#endif
     }
 }

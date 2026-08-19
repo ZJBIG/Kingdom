@@ -349,6 +349,37 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator EraPage_RendersCurrentNextEraProgressAndGoal()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return new WaitForSecondsRealtime(1.25f);
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
+
+        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
+            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setPage, Is.Not.Null);
+        setPage.Invoke(root, new object[] { "Era" });
+        yield return null;
+        yield return null;
+
+        Transform rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows");
+        Assert.That(rows, Is.Not.Null, "Era/DataRows must exist under the isolated runtime UI.");
+        Assert.That(rows.childCount, Is.GreaterThan(0), "Era page must not remain an empty DataRows container.");
+
+        TMP_Text[] texts = rows.GetComponentsInChildren<TMP_Text>(true);
+        Assert.That(texts.Any(text => text.text == "时代进度"), Is.True,
+            "Era page must display a progress section.");
+        Assert.That(texts.Any(text => text.text == "时代目标"), Is.True,
+            "Era page must display the active era goal.");
+        Assert.That(texts.Any(text => text.text == "当前任务"), Is.True,
+            "Era page must display the next actionable task.");
+        Assert.That(texts.Any(text => text.text.Contains("下一时代") || text.text.Contains("当前内容的最后时代")), Is.True,
+            "Era page must identify the next era or the terminal state.");
+    }
+
+    [UnityTest]
     public IEnumerator ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
@@ -366,6 +397,10 @@ public sealed class KingdomPlayModeTests
 
         Transform viewport = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
         Assert.That(viewport, Is.Not.Null, "ResearchGraphViewport must be authored under the isolated SafeAreaRoot.");
+        Assert.That(viewport.GetComponent<Canvas>(), Is.Not.Null,
+            "ResearchGraphViewport must isolate graph redraws in a nested Canvas.");
+        Assert.That(viewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
+            "The isolated research Canvas must retain touch raycasting.");
         Transform content = viewport.Find("ResearchGraphContent");
         Assert.That(content, Is.Not.Null);
         Assert.That(content.Find("ResearchGraphLineLayer"), Is.Not.Null,
@@ -383,15 +418,19 @@ public sealed class KingdomPlayModeTests
         Transform search = toolbar.Find("Search");
         Assert.That(search, Is.Not.Null);
         Assert.That(search.gameObject.activeSelf, Is.False,
-            "The research search control must be removed from the active UI.");
+            "The retired research search control must be removed from the active UI.");
         TMP_Text queueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
         Assert.That(queueLabel, Is.Not.Null,
             "ResearchTreeToolbar/Queue must display the current research queue.");
+        Assert.That(queueLabel.enableWordWrapping, Is.True,
+            "Research queue text must enable TMP word wrapping.");
         Assert.That((queueLabel.transform as RectTransform).offsetMin.x,
             Is.EqualTo(168f).Within(.1f),
             "The queue must replace the search field in the reference red-box area.");
         Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
         Assert.That(pageHost, Is.Not.Null);
+        Assert.That(pageHost.GetComponent<Canvas>(), Is.Not.Null,
+            "The page viewport must isolate scroll redraws from fixed UI.");
         ScrollRect outerPageScroll = pageHost.GetComponent<ScrollRect>();
         Assert.That(outerPageScroll, Is.Not.Null);
         Assert.That(outerPageScroll.enabled, Is.False,
@@ -511,6 +550,10 @@ public sealed class KingdomPlayModeTests
         Transform detailContent = detailViewport == null ? null : detailViewport.Find("DetailScrollContent");
         Assert.That(detailViewport, Is.Not.Null, "DetailPanel must expose one runtime scroll viewport.");
         Assert.That(detailContent, Is.Not.Null, "DetailScrollContent is missing under DetailScrollViewport.");
+        Assert.That(detailViewport.GetComponent<Canvas>(), Is.Not.Null,
+            "Detail scrolling must use an isolated nested Canvas.");
+        Assert.That(detailViewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
+            "The isolated detail Canvas must retain touch raycasting.");
         Assert.That((detailViewport as RectTransform).rect.height, Is.GreaterThan(0f),
             "DetailScrollViewport must have a positive runtime height.");
         Assert.That((detailContent as RectTransform).rect.height, Is.GreaterThan(0f),

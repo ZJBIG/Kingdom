@@ -549,8 +549,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("HousingUpgrade-ResourceManager");
         Building woodHouse = DataBase<Building>.Find("WoodHouse");
         Building stoneHouse = DataBase<Building>.Find("StoneHouse");
-        Research permanentArchitecture =
-            DataBase<Research>.Find("PermanentArchitecture");
+        Research masonry = DataBase<Research>.Find("Masonry");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         Resource stoneBrick = DataBase<Resource>.Find("StoneBrick");
         Resource clay = DataBase<Resource>.Find("Clay");
@@ -569,8 +568,7 @@ public sealed class KingdomLogicTests
             gameManager.State,
             "AdvanceTechLevel",
             TechLevel.Neolithic);
-        ResearchState architectureState =
-            researchManager.GetState(permanentArchitecture);
+        ResearchState architectureState = researchManager.GetState(masonry);
         typeof(ResearchState).GetMethod(
                 "Restore",
                 BindingFlags.Instance | BindingFlags.NonPublic,

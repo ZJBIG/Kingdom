@@ -510,7 +510,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C614_SeparateBauxiteMineWasRemovedAfterUnifiedMineMigration()
     {
-        Assert.That(DataBase<Building>.Find("BauxiteMine"), Is.Null);
+        Assert.That(
+            DataBase<Building>.TryFind("BauxiteMine", out Building bauxiteMine),
+            Is.False);
+        Assert.That(bauxiteMine, Is.Null);
         Assert.That(DataBase<Building>.Find("RareMetalMine"), Is.Not.Null);
     }
 
@@ -641,10 +644,13 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 医疗建筑删除后医学研究仍保留人口生产力效果()
     {
-        Building hospital = DataBase<Building>.Find("Hospital");
-        Building medicalCenter = DataBase<Building>.Find("IndustrialMedicalCenter");
+        bool hospitalExists = DataBase<Building>.TryFind("Hospital", out Building hospital);
+        bool medicalCenterExists = DataBase<Building>.TryFind(
+            "IndustrialMedicalCenter", out Building medicalCenter);
         Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
 
+        Assert.That(hospitalExists, Is.False);
+        Assert.That(medicalCenterExists, Is.False);
         Assert.That(hospital, Is.Null);
         Assert.That(medicalCenter, Is.Null);
         Assert.That(modernMedicine, Is.Not.Null);
@@ -676,9 +682,16 @@ public sealed class C6IndustrialContentTests
         };
 
         for (int i = 0; i < retiredBuildingIds.Length; i++)
-            Assert.That(DataBase<Building>.Find(retiredBuildingIds[i]), Is.Null, retiredBuildingIds[i]);
+        {
+            bool exists = DataBase<Building>.TryFind(retiredBuildingIds[i], out Building retired);
+            Assert.That(exists, Is.False, retiredBuildingIds[i]);
+            Assert.That(retired, Is.Null, retiredBuildingIds[i]);
+        }
 
-        Assert.That(DataBase<WorkshopUpgrade>.Find("RemoteSurgicalSystems"), Is.Null);
+        Assert.That(
+            DataBase<WorkshopUpgrade>.TryFind("RemoteSurgicalSystems", out WorkshopUpgrade retiredUpgrade),
+            Is.False);
+        Assert.That(retiredUpgrade, Is.Null);
     }
 
     [Test]

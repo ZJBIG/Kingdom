@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 42310 seconds; longest continuous 41240 seconds.
-- Final population growth: x1.6, 50.7/s; productivity utilization: 105.3%; territory: 756/2475.
+- Productivity-blocked building decision time: total 37160 seconds; longest continuous 20430 seconds.
+- Final population growth: x2.4, 1126.123/s; productivity utilization: 136.0%; territory: 2723/2725.
 
 ## Animal Age
 
@@ -26,18 +26,18 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 73.27 分钟
-完成研究: 4
+到达时间: 79.12 分钟
+完成研究: 23
 
 ## Medieval Age
 
-到达时间: 182.93 分钟
-完成研究: 22
+到达时间: 399.73 分钟
+完成研究: 3
 
 ## Industrial Age
 
-到达时间: 549.28 分钟
-完成研究: 17
+到达时间: 679.75 分钟
+完成研究: 33
 
 ## Spacer Age
 
@@ -50,10 +50,17 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 - Aluminum: single producer
 - CopperWire: single producer
+- Electronics: single producer
+- Engine: single producer
+- Glass: single producer
+- Machinery: single producer
 
 ## Warnings
 
-None
+- **Info Legacy metal surplus** Bronze: Active production is 20.6/s versus 2/s consumption; net flow remains 18.6/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **Info Legacy metal surplus** Tin: Active production is 20/s versus 2/s consumption; net flow remains 18/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **High Building wait exceeds ten minutes** IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
+- **High Building wait exceeds ten minutes** IndustrialStoneworks: First-copy StoneBrick input takes 12.5 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
 
 ## Validation boundary
 

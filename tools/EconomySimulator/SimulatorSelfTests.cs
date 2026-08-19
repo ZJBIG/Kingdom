@@ -152,7 +152,7 @@ public static class SimulatorSelfTests
         Require(interstellarNavigation.AdvancesTechLevel &&
                 interstellarNavigation.TechLevel == SimTechLevel.Spacer &&
                 interstellarNavigation.ResourceRequirements.TryGetValue("RocketFuel", out double navigationFuel) &&
-                Math.Abs(navigationFuel - 250d) < 1e-9d &&
+                Math.Abs(navigationFuel - 1250d) < 1e-9d &&
                 snapshot.Find("ChemicalPlant", DefinitionKind.Building)
                     .Generation.TryGetValue("RocketFuel", out double rocketFuelRate) &&
                 rocketFuelRate > 0d,

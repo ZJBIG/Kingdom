@@ -8,7 +8,6 @@ public sealed class BuildingVerticalSliceTests
     {
         var expected = new Dictionary<string, double>
         {
-            ["HunterGathererCamp"] = 1.15d,
             ["Farm"] = 1.14d,
             ["Lumberyard"] = 1.13d,
             ["Quarry"] = 1.14d,
@@ -76,7 +75,7 @@ public sealed class BuildingVerticalSliceTests
     {
         string[] ids =
         {
-            "WaterMill", "SteelForge", "Library", "Market"
+            "Academy", "Caravanserai", "SteelForge", "Library", "TownHouse"
         };
 
         foreach (string id in ids)
@@ -88,7 +87,6 @@ public sealed class BuildingVerticalSliceTests
         }
 
         Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
-        Assert.That(DataBase<Building>.Find("WaterMill").FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("SteelForge").ResourceGenerationRates, Has.Count.EqualTo(1));
         Assert.That(DataBase<Building>.Find("Library").ResearchPowerGranted, Is.EqualTo(new ExpantaNum(25)));
     }

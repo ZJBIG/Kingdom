@@ -11,30 +11,25 @@ public sealed class UIResearchGraphDragForwarder : MonoBehaviour,
     IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     private UIResearchGraphGesture Owner => GetComponentInParent<UIResearchGraphGesture>();
-    private ScrollRect ScrollOwner => GetComponentInParent<ScrollRect>();
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         Owner?.OnInitializePotentialDrag(eventData);
-        ScrollOwner?.OnInitializePotentialDrag(eventData);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         Owner?.OnBeginDrag(eventData);
-        ScrollOwner?.OnBeginDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         Owner?.OnDrag(eventData);
-        ScrollOwner?.OnDrag(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         Owner?.OnEndDrag(eventData);
-        ScrollOwner?.OnEndDrag(eventData);
     }
 
     public void OnPointerDown(PointerEventData eventData) => Owner?.OnPointerDown(eventData);

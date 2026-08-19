@@ -44,6 +44,24 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
     {
         viewport = graphViewport;
         content = graphContent;
+        Canvas graphCanvas = content == null ? null : content.GetComponent<Canvas>();
+        bool addedGraphCanvas = false;
+        if (content != null && graphCanvas == null)
+        {
+            graphCanvas = content.gameObject.AddComponent<Canvas>();
+            addedGraphCanvas = true;
+        }
+        if (graphCanvas != null)
+        {
+            graphCanvas.overrideSorting = false;
+            graphCanvas.pixelPerfect = false;
+        }
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] CanvasIsolation owner=ResearchGraphContent " +
+            $"canvas={(graphCanvas != null)} addedCanvas={addedGraphCanvas} " +
+            "raycaster=False reason=parent-viewport-raycaster");
+#endif
         scrollRect = viewport == null ? null : viewport.GetComponent<ScrollRect>();
         if (scrollRect != null)
         {
@@ -104,6 +122,9 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         // a dead zone and makes dragging feel intermittent.
         dragging = true;
         lastPointerLocalPosition = GetLocalPointerPosition(eventData);
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchDrag begin pointer={eventData.pointerId} touchCount={Input.touchCount}");
+#endif
         if (!hasLoggedBeginDrag)
         {
             hasLoggedBeginDrag = true;
@@ -272,6 +293,9 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
                 manualEventData.Use();
             }
             Debug.Log($"[王国界面] Research graph manual drag started: pointer={manualPointerId}, threshold={threshold}");
+#if UNITY_EDITOR
+            KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchDrag manualBegin pointer={manualPointerId} touchCount={Input.touchCount}");
+#endif
         }
         if (!dragging)
             return;
@@ -331,6 +355,9 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         manualPointerId = int.MinValue;
         manualEventData = null;
         manualDistance = 0f;
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchDrag end touchCount={Input.touchCount}");
+#endif
     }
 
     private void LateUpdate()
@@ -400,9 +427,14 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         Vector2 scaledContentSize = GetScaledContentSize();
         float minX = Mathf.Min(0f, viewportSize.x - scaledContentSize.x);
         float minY = Mathf.Min(0f, viewportSize.y - scaledContentSize.y);
-        content.anchoredPosition = new Vector2(
+        Vector2 clamped = new Vector2(
             Mathf.Clamp(content.anchoredPosition.x, minX, 0f),
             Mathf.Clamp(content.anchoredPosition.y, minY, 0f));
+        // Avoid dirtying the RectTransform every frame with a no-op write.
+        // ScrollRect also calls this while a drag settles; repeated identical
+        // assignments force a Canvas layout pass each frame.
+        if (content.anchoredPosition != clamped)
+            content.anchoredPosition = clamped;
     }
 
     private void RefreshOverflowState()

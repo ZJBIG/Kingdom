@@ -20,9 +20,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8f7371e9f4e0b9c43951b26016d33b95, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    amount: "800"
+    amount: "16000"
   - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
-    amount: "400"
+    amount: "8000"
   effects:
   - Type: 1
     Building: {fileID: 11400000, guid: 69e0d172a5110b742b05783b56241e74, type: 2}

@@ -67,7 +67,16 @@ public class ResearchManager : Singleton<ResearchManager>
     private readonly Dictionary<TechLevel, int> researchCountByTech = new();
     private readonly List<ResearchState> orderedStates = new();
     private readonly Queue<ResearchState> researchQueue = new();
+    // Research-tree presentation asks whether each node is queued on every
+    // refresh. Keep membership separately so that check is O(1), instead of
+    // scanning the queue once per node and allocating a LINQ enumerator.
+    private readonly HashSet<Research> queuedResearches = new();
+    // The queue head is checked every simulation tick while it waits for
+    // resources. Reuse this transaction buffer so an unpaid head does not
+    // allocate a dictionary on every 100 ms tick.
+    private static readonly Dictionary<Resource, ExpantaNum> researchPaymentBuffer = new();
     private readonly List<ResearchState> researchQueueSnapshot = new();
+    private static ResourceManager cachedResourceManager;
     private bool researchQueueSnapshotDirty = true;
 
     public IReadOnlyDictionary<Research, ResearchState> States => states;
@@ -184,7 +193,7 @@ public class ResearchManager : Singleton<ResearchManager>
     }
 
     public bool IsQueued(Research research) =>
-        research != null && researchQueue.Any(state => state.Definition == research);
+        research != null && queuedResearches.Contains(research);
 
     public bool EnqueueResearch(Research research)
     {
@@ -223,9 +232,13 @@ public class ResearchManager : Singleton<ResearchManager>
             .Where(state => !cancelled.Contains(state.Definition))
             .ToList();
         researchQueue.Clear();
+        queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
         for (int i = 0; i < remaining.Count; i++)
+        {
             researchQueue.Enqueue(remaining[i]);
+            queuedResearches.Add(remaining[i].Definition);
+        }
         researchQueueSnapshotDirty = true;
 
         foreach (Research cancelledResearch in cancelled)
@@ -268,8 +281,14 @@ public class ResearchManager : Singleton<ResearchManager>
 
         if (!state.CostPaid)
         {
-            state.SetStatus(ResearchStatus.WaitingResources);
-            ResearchQueueChanged?.Invoke();
+            // Only raise the event on an actual status transition; the previous
+            // code fired ResearchQueueChanged on every simulation tick while
+            // the head was waiting, even when nothing had changed.
+            if (state.Status != ResearchStatus.WaitingResources)
+            {
+                state.SetStatus(ResearchStatus.WaitingResources);
+                ResearchQueueChanged?.Invoke();
+            }
             return;
         }
 
@@ -331,7 +350,9 @@ public class ResearchManager : Singleton<ResearchManager>
         if (state.Status == ResearchStatus.Completed || state.CostPaid)
             return true;
 
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        ResourceManager resourceManager = cachedResourceManager;
+        if (resourceManager == null)
+            resourceManager = cachedResourceManager = FindObjectOfType<ResourceManager>();
         if (resourceManager == null)
         {
             blocker = "资源管理器未初始化";
@@ -363,7 +384,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
     private static void LogResearchPaymentBlockers(ResearchState state)
     {
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        ResourceManager resourceManager = cachedResourceManager;
         if (state == null || resourceManager == null)
             return;
 
@@ -400,7 +421,19 @@ public class ResearchManager : Singleton<ResearchManager>
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         if (ActiveResearch == null)
+        {
+            // Auto-pay the queue head as resources become available. A queued
+            // research used to sit at "waiting for resources" forever until the
+            // player found the payment button, blocking fully-paid items behind
+            // it even though the stockpile already covered part of the cost.
+            if (researchQueue.Count > 0)
+            {
+                ResearchState head = researchQueue.Peek();
+                if (head != null && !head.CostPaid && TryPayResearchCost(head))
+                    ResearchQueueChanged?.Invoke();
+            }
             TryStartNextQueuedResearch();
+        }
         ResearchState current = ActiveResearch;
         if (current == null)
             return;
@@ -442,7 +475,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return true;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = state.Definition.ResourceRequirements;
-        var payable = new Dictionary<Resource, ExpantaNum>();
+        researchPaymentBuffer.Clear();
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = requirements[i];
@@ -457,21 +490,21 @@ public class ResearchManager : Singleton<ResearchManager>
             ExpantaNum payment = ExpantaNum.Min(remaining, available);
             if (payment <= ExpantaNum.Zero)
                 continue;
-            payable[requirement.First] = payable.TryGetValue(
+            researchPaymentBuffer[requirement.First] = researchPaymentBuffer.TryGetValue(
                 requirement.First,
                 out ExpantaNum current)
                 ? current + payment
                 : payment;
         }
 
-        if (payable.Count == 0)
+        if (researchPaymentBuffer.Count == 0)
             return false;
 
         return ResourceManager.Instance.TryApplyAtomicPayment(
-            payable,
+            researchPaymentBuffer,
             () =>
             {
-                foreach (KeyValuePair<Resource, ExpantaNum> entry in payable)
+                foreach (KeyValuePair<Resource, ExpantaNum> entry in researchPaymentBuffer)
                 {
                     state.SetPaidResourceCost(
                         entry.Key,
@@ -535,6 +568,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return;
         state.SetStatus(ResearchStatus.Queued);
         researchQueue.Enqueue(state);
+        queuedResearches.Add(state.Definition);
         researchQueueSnapshotDirty = true;
         ResearchQueueChanged?.Invoke();
     }
@@ -545,9 +579,13 @@ public class ResearchManager : Singleton<ResearchManager>
             .Where(value => value != state)
             .ToList();
         researchQueue.Clear();
+        queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
         for (int i = 0; i < remaining.Count; i++)
+        {
             researchQueue.Enqueue(remaining[i]);
+            queuedResearches.Add(remaining[i].Definition);
+        }
         researchQueueSnapshotDirty = true;
         ResearchQueueChanged?.Invoke();
     }
@@ -566,6 +604,9 @@ public class ResearchManager : Singleton<ResearchManager>
 
     private void CompleteCurrentResearch(ResearchState current)
     {
+#if UNITY_EDITOR
+        float completionStart = Time.realtimeSinceStartup;
+#endif
         current.SetProgress(current.BaseCost);
         current.SetStatus(ResearchStatus.Completed);
         ActiveResearch = null;
@@ -573,14 +614,37 @@ public class ResearchManager : Singleton<ResearchManager>
         if (current.Definition.AdvancesTechLevel)
             GameManager.Instance.AdvanceTechLevel(current.Definition.TechLevel);
 
+#if UNITY_EDITOR
+        float stateTransitionEnd = Time.realtimeSinceStartup;
+#endif
         ProgressionModifierState previousModifiers = ProgressionModifierManager.Current;
         RebuildProgressionModifiers();
+#if UNITY_EDITOR
+        float rebuildEnd = Time.realtimeSinceStartup;
+#endif
         BuildingManager.Instance.ApplyProgressionModifierChange(
             previousModifiers,
             ProgressionModifierManager.Current);
+#if UNITY_EDITOR
+        float buildingApplyEnd = Time.realtimeSinceStartup;
+#endif
         RefreshAvailabilityStatuses();
+#if UNITY_EDITOR
+        float availabilityEnd = Time.realtimeSinceStartup;
+#endif
         TryStartNextQueuedResearch();
         ResearchQueueChanged?.Invoke();
+#if UNITY_EDITOR
+        float completionEnd = Time.realtimeSinceStartup;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchCompletion id={current.Definition.Id} " +
+            $"stateMs={(stateTransitionEnd - completionStart) * 1000f:0.0} " +
+            $"rebuildMs={(rebuildEnd - stateTransitionEnd) * 1000f:0.0} " +
+            $"buildingApplyMs={(buildingApplyEnd - rebuildEnd) * 1000f:0.0} " +
+            $"availabilityMs={(availabilityEnd - buildingApplyEnd) * 1000f:0.0} " +
+            $"queueMs={(completionEnd - availabilityEnd) * 1000f:0.0} " +
+            $"totalMs={(completionEnd - completionStart) * 1000f:0.0}");
+#endif
     }
 
     private void RefreshAvailabilityStatuses()
@@ -695,6 +759,7 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         ActiveResearch = null;
         researchQueue.Clear();
+        queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
         SelectedResearchId = string.Empty;
         GlobalEfficiencyFactor = ExpantaNum.One;
@@ -716,6 +781,7 @@ public class ResearchManager : Singleton<ResearchManager>
         // Clear transient scheduling pointers only after validation succeeds.
         ActiveResearch = null;
         researchQueue.Clear();
+        queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
         SelectedResearchId = string.Empty;
 

@@ -50,6 +50,7 @@ public sealed partial class KingdomUIRoot
         viewportImage.color = new Color(0f, 0f, 0f, 0f);
         viewportImage.raycastTarget = true;
         detailScrollViewport.gameObject.AddComponent<RectMask2D>();
+        EnsureNestedCanvas(detailScrollViewport);
         detailScroll = detailScrollViewport.gameObject.AddComponent<ScrollRect>();
         detailScroll.horizontal = false;
         detailScroll.vertical = true;

@@ -19,28 +19,117 @@ public sealed partial class KingdomUIRoot
         RefreshUI();
     }
 
+    private void RefreshBuildingDisplayMembership()
+    {
+        if (populatedPage != "Buildings" || BuildingManager.Instance == null)
+            return;
+
+        string signature = BuildBuildingDisplaySignature();
+        if (lastBuildingDisplaySignature == null)
+        {
+            lastBuildingDisplaySignature = signature;
+            return;
+        }
+        if (lastBuildingDisplaySignature == signature)
+            return;
+
+        // 升级完成后，旧层级可能变为零数量；只在显示成员变化时重建列表。
+        lastBuildingDisplaySignature = signature;
+        PopulatePage("Buildings");
+    }
+
     public void RefreshUI()
     {
-        EnsureRuntimeCanvasGeometry();
+        CacheRuntimeManagers();
+        bool pageScrolling = IsPageScrolling();
+
+        // Text-only refreshes keep running while the user is sliding. The
+        // previous blanket skip-everything-while-scrolling gate is what
+        // froze the top status bar, the detail dataflow and the live card
+        // values during a drag or fling.
         RefreshLiveCardValues();
-        RefreshResearchQueueToolbar();
-        RefreshBuildingQuantityHeader();
-        bool researchGraphDragging = researchGraphGesture != null && researchGraphGesture.IsDragging;
-        if (!researchGraphDragging)
-            RefreshResearchTreeVisuals();
-        if (selectedResource != null)
-            RefreshResourceDetails(selectedResource);
-        else if (selectedBuilding != null)
-            RefreshSelectedBuildingDetails(selectedBuilding);
-        else if (!researchGraphDragging && selectedResearchNode != null && populatedPage == "Research")
-            RefreshSelectedResearchDetails(selectedResearchNode);
-        RefreshDevelopmentGuidance();
-        // Top status is presentation-only. Refresh it last so malformed or
-        // incomplete saved numeric data cannot stop research-tree input and
-        // visual updates from running in the same frame.
         RefreshTopStatus();
+        if (populatedPage == "Overview")
+            RefreshDevelopmentGuidance();
+        if (selectedResource != null && ShouldRefreshSelectedResource())
+            RefreshResourceDetails(selectedResource);
+        else if (selectedBuilding != null && ShouldRefreshSelectedBuilding())
+            RefreshSelectedBuildingDetails(selectedBuilding);
+        else if (populatedPage == "Research")
+        {
+            // Graph panning must not pause the presentation clock. Refreshing
+            // text/colors does not rebuild graph geometry, so it is safe while
+            // the gesture owns the pointer and keeps the queue/progress live.
+            RefreshResearchDynamicUI();
+        }
         if (populatedPage == "Music")
             RefreshMusicPage();
+
+        // Structural refreshes rebuild page rows or re-parent controls; they
+        // must not run mid-scroll or they reset the user's scroll position
+        // while the gesture is still active.
+        if (!pageScrolling)
+        {
+            RefreshBuildingDisplayMembership();
+            RefreshBuildingQuantityHeader();
+        }
+    }
+
+    private bool IsPageScrolling()
+    {
+        if (pageScroll != null && pageScroll.velocity.sqrMagnitude > 0.01f)
+            return true;
+        if (detailScroll != null && detailScroll.velocity.sqrMagnitude > 0.01f)
+            return true;
+        if (musicListScroll != null && musicListScroll.velocity.sqrMagnitude > 0.01f)
+            return true;
+        return false;
+    }
+
+    private void CacheRuntimeManagers()
+    {
+        if (gameManagerCache == null) gameManagerCache = FindObjectOfType<GameManager>();
+        if (researchManagerCache == null) researchManagerCache = FindObjectOfType<ResearchManager>();
+        if (resourceManagerCache == null) resourceManagerCache = FindObjectOfType<ResourceManager>();
+        if (buildingManagerCache == null) buildingManagerCache = FindObjectOfType<BuildingManager>();
+        if (workshopManagerCache == null) workshopManagerCache = FindObjectOfType<WorkshopManager>();
+    }
+
+    private bool ShouldRefreshSelectedResource()
+    {
+        if (selectedResource == null) return false;
+        int version = -1;
+        if (resourceManagerCache != null && resourceManagerCache.States.TryGetValue(selectedResource, out ResourceState state))
+            version = state.Version;
+        if (version == lastSelectedResourceVersion) return false;
+        lastSelectedResourceVersion = version;
+        return true;
+    }
+
+    private bool ShouldRefreshSelectedBuilding()
+    {
+        if (selectedBuilding == null) return false;
+        int version = -1;
+        BuildingState state = null;
+        if (buildingManagerCache != null && buildingManagerCache.States.TryGetValue(selectedBuilding, out state))
+            version = state.Version;
+        bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
+            buildingManagerCache != null && buildingManagerCache.TryGetUnlockedUpgradeTarget(selectedBuilding, out _);
+        int resourceVersion = 0;
+        if (resourceManagerCache != null)
+            for (int i = 0; i < selectedBuilding.ResourceRequirements.Count; i++)
+            {
+                Resource resource = selectedBuilding.ResourceRequirements[i].First;
+                if (resource != null && resourceManagerCache.States.TryGetValue(resource, out ResourceState resourceState))
+                    resourceVersion = unchecked(resourceVersion * 31 + resourceState.Version);
+            }
+        if (version == lastSelectedBuildingVersion && upgrading == lastSelectedBuildingUpgrade &&
+            resourceVersion == lastSelectedBuildingResourceVersion)
+            return false;
+        lastSelectedBuildingVersion = version;
+        lastSelectedBuildingUpgrade = upgrading;
+        lastSelectedBuildingResourceVersion = resourceVersion;
+        return true;
     }
 
     private void BuildDevelopmentGuidance(RectTransform page)
@@ -50,7 +139,7 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceText = page.Find("PrimaryCard/Text")?.GetComponent<TMP_Text>();
         if (developmentGuidanceText == null)
         {
-            Debug.LogError("[KingdomUI] Overview PrimaryCard/Text is missing; development guidance cannot render.");
+            Debug.LogError("[王国界面] Overview PrimaryCard/Text is missing; development guidance cannot render.");
             return;
         }
         developmentGuidanceText.enabled = true;
@@ -63,22 +152,23 @@ public sealed partial class KingdomUIRoot
         if (initialRect.x > 0f && initialRect.y > 0f)
             RefreshDevelopmentGuidance();
         else
-            Debug.Log($"[KingdomUI] Development guidance binding deferred until layout: rect={initialRect}");
+            Debug.Log($"[王国界面] Development guidance binding deferred until layout: rect={initialRect}");
     }
 
     private void RefreshDevelopmentGuidance()
     {
         if (developmentGuidanceText == null)
             return;
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         try
         {
             developmentGuidanceSnapshot = DevelopmentGuidance.Build(
                 gameManager,
-                FindObjectOfType<ResearchManager>(),
-                FindObjectOfType<ResourceManager>(),
-                FindObjectOfType<BuildingManager>(),
-                FindObjectOfType<WorkshopManager>());
+                researchManagerCache,
+                resourceManagerCache,
+                buildingManagerCache,
+                workshopManagerCache);
         }
         catch (Exception exception)
         {
@@ -102,16 +192,19 @@ public sealed partial class KingdomUIRoot
         IReadOnlyList<string> blockers = snapshot.Blockers ?? Array.Empty<string>();
         for (int i = 0; i < blockers.Count && i < 3; i++)
             body.Append("\n- ").Append(blockers[i]);
-        developmentGuidanceText.text = body.ToString();
-        developmentGuidanceText.color = TextPrimary;
-        Canvas.ForceUpdateCanvases();
+        string renderedBody = body.ToString();
+        if (developmentGuidanceText.text != renderedBody)
+        {
+            developmentGuidanceText.text = renderedBody;
+            developmentGuidanceText.color = TextPrimary;
+        }
         if (!developmentGuidanceRuntimeGeometryLogged)
         {
             Vector2 rect = developmentGuidanceText.rectTransform.rect.size;
             if (rect.x > 0f && rect.y > 0f)
             {
                 developmentGuidanceRuntimeGeometryLogged = true;
-                Debug.Log($"[KingdomUI] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
+                Debug.Log($"[王国界面] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
             }
         }
     }
@@ -120,7 +213,8 @@ public sealed partial class KingdomUIRoot
     {
         if (topKingdomTitle == null || topStatus == null)
             return;
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         GameState state = gameManager == null ? null : gameManager.State;
 
         topKingdomTitle.text = state.KingdomName;
@@ -128,9 +222,9 @@ public sealed partial class KingdomUIRoot
         if (gameManager != null)
         {
             if (state.Population.Population < state.Population.PopulationCapacity)
-                populationChange = gameManager.CurrentPopulationGrowthRatePerMinute;
+                populationChange = gameManager.CurrentPopulationGrowthRatePerSecond;
             else if (state.Population.Population > state.Population.PopulationCapacity)
-                populationChange = -gameManager.CurrentPopulationDepartureRatePerMinute;
+                populationChange = -gameManager.CurrentPopulationDepartureRatePerSecond;
         }
 
         string signedPopulationChange = populationChange >= ExpantaNum.Zero
@@ -153,7 +247,7 @@ public sealed partial class KingdomUIRoot
                 Debug.LogException(exception);
             }
         }
-        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        ResearchManager researchManager = researchManagerCache;
         ResearchState activeResearch = researchManager == null ? null : researchManager.ActiveResearch;
         Research activeDefinition = activeResearch == null ? null : activeResearch.Definition;
 
@@ -167,15 +261,25 @@ public sealed partial class KingdomUIRoot
         bool calendarKnown = researchManager != null && researchManager.IsResearchCompleted("Calendar");
         string calendar = calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??";
         string researchPower = researchManager == null ? "0" : researchManager.ResearchPower.ToGameString();
-        topStatus.text = 
+        // AvailableProductivity calculates TotalProductivity internally. Read
+        // the two values once here so the 10 Hz top-bar refresh does not scan
+        // every building twice for the same frame.
+        BuildingManager buildingManager = buildingManagerCache;
+        ExpantaNum totalProductivity = buildingManager == null
+            ? ExpantaNum.Zero
+            : buildingManager.TotalProductivity;
+        ExpantaNum availableProductivity = buildingManager == null
+            ? ExpantaNum.Zero
+            : totalProductivity - buildingManager.UsedProductivity;
+        topStatus.text =
         "科技水平：" + state.TechLevel.GetDescription() +
         "    当前研究：" + currentResearch +
         "    日期：" + calendar +
         "    研究力：" + researchPower + "/s" +
         "\n食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
-        "    生产力：" + BuildingManager.Instance.AvailableProductivity.ToGameString() + "/" + BuildingManager.Instance.TotalProductivity.ToGameString() +
+        "    生产力：" + availableProductivity.ToGameString() + "/" + totalProductivity.ToGameString() +
         "    幸福度：" + state.HappinessScore.ToGameString() + $"({state.HappinessMultiplier.ToGameString()}x）" +
-        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/min）" +
+        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/s）" +
         "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString();
             
     }
@@ -187,20 +291,28 @@ public sealed partial class KingdomUIRoot
                 if (pair.Value != null)
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
-                        pair.Value.text = state.Amount.ToGameString();
+                        SetTextIfChanged(pair.Value, state.Amount.ToGameString());
                         bool hasBuildingAmount = state.Amount > ExpantaNum.Zero;
                         if (buildingDeconstructButtons.TryGetValue(pair.Key, out Button deconstructButton) && deconstructButton != null)
+                        {
+                            SetBuildingActionButtonText(
+                                deconstructButton,
+                                "\u62c6\u9664x" + GetSelectedBuildingQuantity(pair.Key, false, true).ToGameString());
                             SetBuildingActionButtonState(deconstructButton, hasBuildingAmount);
+                        }
                         else if (buildingDeconstructSurfaces.TryGetValue(pair.Key, out Image deconstructSurface) && deconstructSurface != null)
-                            deconstructSurface.color = hasBuildingAmount ? Error : Panel;
+                            SetColorIfChanged(deconstructSurface, hasBuildingAmount ? Error : Panel);
                         if (buildingActionButtons.TryGetValue(pair.Key, out Button actionButton) && actionButton != null &&
                             buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade))
                         {
-                            SetBuildingActionButtonText(actionButton, upgrade ? "\u5347\u7ea7" : "\u5efa\u9020");
+                            SetBuildingActionButtonText(
+                                actionButton,
+                                (upgrade ? "\u5347\u7ea7x" : "\u5efa\u9020x") +
+                                GetSelectedBuildingQuantity(pair.Key, upgrade, false).ToGameString());
                             SetBuildingActionButtonState(actionButton, CanPerformBuildingAction(pair.Key, upgrade));
                         }
                     else
-                        pair.Value.text = "0";
+                        SetTextIfChanged(pair.Value, "0");
         }
         if (ResourceManager.Instance == null)
             return;
@@ -209,12 +321,12 @@ public sealed partial class KingdomUIRoot
             if (!ResourceManager.Instance.States.TryGetValue(pair.Key, out ResourceState state))
                 continue;
             if (pair.Value != null)
-                pair.Value.text = state.Amount.ToGameString();
+                SetTextIfChanged(pair.Value, state.Amount.ToGameString());
             if (resourceChangeLabels.TryGetValue(pair.Key, out TMP_Text changeLabel) && changeLabel != null)
             {
                 ExpantaNum net = state.ProductionRate - state.ConsumptionRate;
-                changeLabel.text = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
-                changeLabel.color = net >= ExpantaNum.Zero ? Positive : Error;
+                SetTextIfChanged(changeLabel, (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s");
+                SetColorIfChanged(changeLabel, net >= ExpantaNum.Zero ? Positive : Error);
             }
         }
     }

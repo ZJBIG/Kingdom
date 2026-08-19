@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
@@ -177,31 +178,25 @@ public sealed class ResearchBalanceTests
         {
             ["ControlledFire"] = 60d,
             ["Quarry"] = 120d,
-            ["Agriculture"] = 180d,
+            ["Agriculture"] = 300d,
             ["AnimalHusbandry"] = 240d,
             ["ClayExtraction"] = 240d,
-            ["StoneTools"] = 300d,
-            ["ForagingGroups"] = 450d,
-            ["Mining"] = 600d,
-            ["TreeCultivate"] = 750d,
-            ["StoneCutting"] = 900d,
-            ["Mathematics"] = 1000d,
-            ["Calendar"] = 1400d,
-            ["KnowledgeSharing"] = 1500d,
-            ["Ceramic"] = 1200d,
-            ["TextileCraft"] = 1400d,
-            ["CoalMining"] = 1800d,
-            ["NeolithicSettlement"] = 4400d,
+            ["StoneTools"] = 700d,
+            ["Mining"] = 1800d,
+            ["Mathematics"] = 1700d,
+            ["Calendar"] = 1900d,
+            ["KnowledgeSharing"] = 1200d,
+            ["CeramicFiring"] = 1800d,
+            ["TextileCraft"] = 1600d,
+            ["NeolithicSettlement"] = 1600d,
             ["Measurement"] = 3200d,
-            ["FoodStorage"] = 3500d,
-            ["WrittenRecords"] = 4500d,
-            ["WaterManagement"] = 5500d,
-            ["Masonry"] = 6500d,
-            ["Smithing"] = 8000d,
-            ["Smithing_Copper"] = 10000d,
-            ["Smithing_Iron"] = 15000d,
+            ["FoodStorage"] = 4200d,
+            ["WrittenRecords"] = 6500d,
+            ["Masonry"] = 8500d,
+            ["Smithing_Copper"] = 15000d,
+            ["Smithing_Iron"] = 19000d,
             ["Smithing_Bronze"] = 20000d,
-            ["SmithingRevolution"] = 60000d
+            ["FeudalAdministration"] = 130000d
         };
 
         foreach (KeyValuePair<string, double> expected in expectedCosts)
@@ -221,10 +216,12 @@ public sealed class ResearchBalanceTests
     [Test]
     public void MainResearchCosts_DoNotUseUnjustifiedExtremeNotation()
     {
-        Research transition = DataBase<Research>.Find("SmithingRevolution");
-        Assert.That(transition.BaseCost, Is.EqualTo("60000"));
+        Research transition = DataBase<Research>.Find("FeudalAdministration");
+        Assert.That(transition.BaseCost, Is.EqualTo("130000"));
         Assert.That(transition.TechLevel, Is.EqualTo(TechLevel.Medieval));
         Assert.That(transition.AdvancesTechLevel, Is.True);
+        Assert.That(transition.Prerequisites.Select(research => research.Id),
+            Is.EquivalentTo(new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" }));
     }
 
     [Test]
@@ -234,7 +231,6 @@ public sealed class ResearchBalanceTests
         Research calendar = DataBase<Research>.Find("Calendar");
         Research knowledgeSharing = DataBase<Research>.Find("KnowledgeSharing");
         Research controlledFire = DataBase<Research>.Find("ControlledFire");
-        Research foragingGroups = DataBase<Research>.Find("ForagingGroups");
         Research mining = DataBase<Research>.Find("Mining");
         Research measurement = DataBase<Research>.Find("Measurement");
         Research smithing = DataBase<Research>.Find("Smithing");
@@ -272,17 +268,6 @@ public sealed class ResearchBalanceTests
                 knowledgeSharing,
                 ResearchEffectType.GlobalResearchMultiplier,
                 1.15d),
-            Is.True);
-        Building hunterGatherer = DataBase<Building>.Find("HunterGathererCamp");
-        Assert.That(
-            hunterGatherer.RequiredResearch,
-            Is.EquivalentTo(new[] { controlledFire }));
-        Assert.That(
-            HasEffect(
-                foragingGroups,
-                ResearchEffectType.BuildingFoodProductionMultiplier,
-                1.25d,
-                "HunterGathererCamp"),
             Is.True);
     }
 
@@ -348,9 +333,11 @@ public sealed class ResearchBalanceTests
     public void 太空医学理论保留人口生产力效果而不依赖已删除工坊()
     {
         Research theory = DataBase<Research>.Find("PrecisionMedicine");
-        WorkshopUpgrade implementation = DataBase<WorkshopUpgrade>.Find("RemoteSurgicalSystems");
+        bool implementationExists = DataBase<WorkshopUpgrade>.TryFind(
+            "RemoteSurgicalSystems", out WorkshopUpgrade implementation);
 
         Assert.That(theory, Is.Not.Null);
+        Assert.That(implementationExists, Is.False);
         Assert.That(implementation, Is.Null);
         Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("ModernMedicine"));
         Assert.That(theory.Prerequisites, Has.Some.Property("Id").EqualTo("BioregenerativeLifeSupport"));
@@ -495,11 +482,7 @@ public sealed class ResearchBalanceTests
         {
             ["Academy"] = 60d,
             ["Library"] = 36d,
-            ["Market"] = 30d,
-            ["Observatory"] = 72d,
-            ["PrintingHouse"] = 72d,
             ["SteelForge"] = 48d,
-            ["WaterMill"] = 30d,
             ["Caravanserai"] = 10d,
             ["ChemicalPlant"] = 70d,
             ["CokeOven"] = 60d,

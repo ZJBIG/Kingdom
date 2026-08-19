@@ -23,13 +23,13 @@ MonoBehaviour:
   requiredUpgrades: []
   resourceRequirements:
   - resource: {fileID: 11400000, guid: d5085a4208d952c429cf95c74db2b01f, type: 2}
-    amount: "1200"
+    amount: "24000"
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "900"
+    amount: "18000"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    amount: "700"
+    amount: "14000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "500"
+    amount: "10000"
   effects:
   - Type: 0
     Building: {fileID: 11400000, guid: a1c2d3e4f5674890b1c2d3e4f5678901, type: 2}

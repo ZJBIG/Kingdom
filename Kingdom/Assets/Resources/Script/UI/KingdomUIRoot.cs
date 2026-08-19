@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,10 +61,57 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Resource selectedResource;
     private static TMP_FontAsset sharedFontAsset;
     private float liveRefreshTimer;
+    private float topStatusRefreshTimer;
+    private float developmentGuidanceRefreshTimer;
+    private float scrollingLiveValueRefreshTimer;
+    private float buildingStructureRefreshTimer;
+#if UNITY_EDITOR
+    private float uiSlowRefreshLogCooldown;
+    private float uiStatsLogCooldown = 5f;
+    private int uiRefreshSampleCount;
+    private float uiRefreshTotalMilliseconds;
+    private float uiRefreshMaximumMilliseconds;
+    private long uiRefreshAllocatedBytes;
+    private long uiRefreshMaximumAllocatedBytes;
+    private float frameStatsLogCooldown = 5f;
+    private int frameSampleCount;
+    private float frameTotalMilliseconds;
+    private float frameMaximumMilliseconds;
+    private int slowFrameCount;
+    private int touchFrameCount;
+    private int maximumTouchCount;
+    private int dragFrameCount;
+    private int lastGc0Count;
+    private int lastGc1Count;
+    private int lastGc2Count;
+    private long lastFrameAllocatedBytes;
+    private long frameAllocatedBytes;
+    private bool frameAllocationCounterAvailable;
+    private bool perfTouchGestureActive;
+    private float perfTouchGestureStartTime;
+    private int perfTouchGestureSamples;
+    private float perfTouchGestureDistance;
+    private Vector2 perfTouchGestureLastPosition;
+    private float perfTouchGestureMaximumFrameMilliseconds;
+    private int perfTouchGestureSlowFrameCount;
+#endif
     // Live refresh runs ten times per second; avoid global scene searches on
     // every presentation tick.
     private GameManager gameManagerCache;
     private ResearchManager researchManagerCache;
+    private ResearchManager researchQueueEventSource;
+    private bool researchQueueEventSubscribed;
+    private bool researchQueueUiDirty;
+    private float researchQueuePollTimer;
+    private string lastResearchQueuePollSignature;
+    private bool researchDynamicUiDirty = true;
+    private float researchDynamicSignatureRefreshTimer = 1f;
+#if UNITY_EDITOR
+    private int researchQueueEventCount;
+    private bool researchQueueVisualDiagnosticLogged;
+#endif
+    private string lastResearchQueueLayoutText;
+    private float lastResearchQueueLayoutWidth = -1f;
     private ResourceManager resourceManagerCache;
     private BuildingManager buildingManagerCache;
     private WorkshopManager workshopManagerCache;
@@ -76,6 +122,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool topStatusDataErrorLogged;
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
+    private float runtimeGeometryRetryTimer;
     private bool detailGeometryLogged;
     private Vector2 lastDetailViewportSize;
     private Vector2 lastDetailContentSize;
@@ -117,9 +164,14 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
     private string lastDevelopmentGuidanceSignature;
+    private int eraPageStateVersion = -1;
+    private float eraPageRefreshTimer;
 
     private void Awake()
     {
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write("[KingdomPerf] SessionStart ui=live-refresh-canvas-isolation-queue-events");
+#endif
         RectTransform root = transform as RectTransform;
         transform.localScale = Vector3.one;
         if (root != null)
@@ -161,6 +213,11 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void ResolveFont()
     {
+        if (sharedFontAsset != null)
+        {
+            Debug.Log($"[王国界面] 复用共享字体：{sharedFontAsset.name}");
+            return;
+        }
         Font source = Resources.Load<Font>("Fonts/NotoSansSC-Regular");
         sharedSourceFont = source;
         if (source != null)
@@ -197,8 +254,19 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // pass after Awake. Re-measure until the runtime hierarchy has a real
         // rectangle; this also repairs old scene instances without rebuilding
         // any page content or resetting a user's scroll position.
-        if (!runtimeGeometryLogged)
-            EnsureRuntimeCanvasGeometry();
+        if (runtimeGeometryLogged)
+            return;
+
+        // A failed first layout must not turn into a ForceUpdateCanvases call
+        // every frame. That path dirties the whole Canvas hierarchy and can
+        // keep allocating indefinitely on an editor/device whose safe-area
+        // values settle late. Retry at a bounded cadence until the first
+        // valid geometry is observed.
+        runtimeGeometryRetryTimer -= Time.unscaledDeltaTime;
+        if (runtimeGeometryRetryTimer > 0f)
+            return;
+        runtimeGeometryRetryTimer = 0.25f;
+        EnsureRuntimeCanvasGeometry();
     }
 
     public void ShowTooltip(string message)
@@ -469,6 +537,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                     BuildResearchTreePage(rows);
                 else
                     RefreshResearchTreeVisuals();
+                break;
+            case "Era":
+                BuildEraPage(rows);
                 break;
             case "Workshop":
                 AddWorkshopRows(rows);

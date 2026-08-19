@@ -22,15 +22,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
-    amount: "210"
+    amount: "2100"
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
-    amount: "1820"
+    amount: "18200"
   - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
-    amount: "1120"
+    amount: "11200"
   - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    amount: "1400"
+    amount: "14000"
   - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    amount: "70"
+    amount: "700"
   effects:
   - Type: 3
     Building: {fileID: 0}
