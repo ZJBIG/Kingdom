@@ -59,6 +59,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool detailIsBuilding;
     private Building selectedBuilding;
     private Resource selectedResource;
+    private WorkshopUpgrade selectedWorkshop;
     private static TMP_FontAsset sharedFontAsset;
     private float liveRefreshTimer;
     private float topStatusRefreshTimer;
@@ -108,6 +109,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private float researchDynamicSignatureRefreshTimer = 1f;
 #if UNITY_EDITOR
     private int researchQueueEventCount;
+    private float researchQueueEventLogCooldown;
     private bool researchQueueVisualDiagnosticLogged;
 #endif
     private string lastResearchQueueLayoutText;
@@ -115,6 +117,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private ResourceManager resourceManagerCache;
     private BuildingManager buildingManagerCache;
     private WorkshopManager workshopManagerCache;
+    private WorkshopManager workshopEventSource;
+    private bool workshopRowsUiDirty;
     private int lastSelectedResourceVersion = -1;
     private int lastSelectedBuildingVersion = -1;
     private bool lastSelectedBuildingUpgrade;
@@ -123,6 +127,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
     private float runtimeGeometryRetryTimer;
+    private int runtimeGeometryRetryCount;
     private bool detailGeometryLogged;
     private Vector2 lastDetailViewportSize;
     private Vector2 lastDetailContentSize;
@@ -164,7 +169,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
     private string lastDevelopmentGuidanceSignature;
-    private int eraPageStateVersion = -1;
+    private string eraPageStateSignature;
     private float eraPageRefreshTimer;
 
     private void Awake()
@@ -257,6 +262,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (runtimeGeometryLogged)
             return;
 
+        if (runtimeGeometryRetryCount >= 8)
+            return;
+
         // A failed first layout must not turn into a ForceUpdateCanvases call
         // every frame. That path dirties the whole Canvas hierarchy and can
         // keep allocating indefinitely on an editor/device whose safe-area
@@ -266,6 +274,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (runtimeGeometryRetryTimer > 0f)
             return;
         runtimeGeometryRetryTimer = 0.25f;
+        runtimeGeometryRetryCount++;
         EnsureRuntimeCanvasGeometry();
     }
 

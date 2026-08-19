@@ -196,6 +196,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.RestoreMilitarySaveData(data.General);
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
+        BuildingManager.Instance.RefreshBuildingChainAvailability();
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
     }

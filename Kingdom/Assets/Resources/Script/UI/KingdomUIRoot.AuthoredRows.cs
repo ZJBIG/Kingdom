@@ -254,7 +254,9 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < definitions.Count; i++)
         {
             WorkshopUpgrade definition = definitions[i];
-            if (definition == null || !WorkshopPrerequisitesMet(definition))
+            if (definition == null || WorkshopManager.Instance == null ||
+                WorkshopManager.Instance.IsPurchased(definition) ||
+                !WorkshopPrerequisitesMet(definition))
                 continue;
             orderedDefinitions.Add(definition);
         }
@@ -275,7 +277,7 @@ public sealed partial class KingdomUIRoot
             button.onClick.AddListener(() =>
             {
                 UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
-                ShowDetails(definition.Label, definition.Description, definition.Id);
+                ShowWorkshopDetails(definition);
             });
         }
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");

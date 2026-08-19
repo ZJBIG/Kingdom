@@ -128,6 +128,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             return false;
         }
 
+        BuildingManager.Instance.RefreshBuildingChainAvailability();
         UpgradeStateChanged?.Invoke(state);
         failure = WorkshopPurchaseFailure.None;
         return true;

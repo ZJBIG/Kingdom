@@ -27,6 +27,7 @@ public sealed partial class KingdomUIRoot
         detailIsBuilding = false;
         selectedBuilding = null;
         selectedResource = null;
+        selectedWorkshop = null;
         detailBody.text = title + "\n\n" + description + "\n\n标识：" + id;
         HideBuildingRequirements();
         HideResearchPaymentButton();
@@ -102,6 +103,7 @@ public sealed partial class KingdomUIRoot
         detailBody.fontSize = 30f;
         selectedBuilding = building;
         selectedResource = null;
+        selectedWorkshop = null;
         lastSelectedBuildingVersion = -1;
         lastSelectedBuildingResourceVersion = -1;
         detailIsBuilding = true;
@@ -175,7 +177,14 @@ public sealed partial class KingdomUIRoot
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
         IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
-        if (!RefreshFlowRows(output, input))
+#if UNITY_EDITOR
+        float flowRefreshStart = Time.realtimeSinceStartup;
+#endif
+        bool flowRefreshed = RefreshFlowRows(output, input);
+#if UNITY_EDITOR
+        RecordUiBranch("dataflow", (Time.realtimeSinceStartup - flowRefreshStart) * 1000f);
+#endif
+        if (!flowRefreshed)
         {
             ShowBuildingDetails(building);
             return;
@@ -192,6 +201,7 @@ public sealed partial class KingdomUIRoot
         selectedResearchNode = null;
         selectedBuilding = null;
         selectedResource = resource;
+        selectedWorkshop = null;
         lastSelectedResourceVersion = -1;
         detailIsBuilding = false;
         detailBuildingUpgrade = false;
@@ -357,6 +367,7 @@ public sealed partial class KingdomUIRoot
         detailIsBuilding = false;
         selectedBuilding = null;
         selectedResource = null;
+        selectedWorkshop = null;
         ResearchState state = null;
         if (ResearchManager.Instance != null)
             ResearchManager.Instance.States.TryGetValue(research, out state);
@@ -378,6 +389,102 @@ public sealed partial class KingdomUIRoot
         CaptureResearchRefreshSignatures();
     }
 
+    private void ShowWorkshopDetails(WorkshopUpgrade definition)
+    {
+        if (detailBody == null || definition == null)
+            return;
+
+        detailBody.fontSize = 30f;
+        detailBuildingUpgrade = false;
+        detailIsBuilding = false;
+        selectedBuilding = null;
+        selectedResource = null;
+        selectedWorkshop = definition;
+        StringBuilder text = new();
+        text.AppendLine(definition.Label);
+        text.AppendLine();
+        text.AppendLine("技术等级: " + definition.TechLevel.GetDescription());
+        text.AppendLine();
+        text.AppendLine(definition.Description);
+        text.AppendLine();
+        text.AppendLine("效果");
+        AppendWorkshopEffects(text, definition.Effects);
+        detailBody.text = text.ToString();
+
+        HideBuildingRequirements();
+        ShowBuildingRequirements(definition.ResourceRequirements, "工坊支付需求");
+        PlaceRequirementsAfterDescription(
+            definition.ResourceRequirements == null ? 0 : definition.ResourceRequirements.Count,
+            null,
+            0);
+        ConfigureWorkshopPaymentButton(definition);
+        if (detailActionButton != null)
+            detailActionButton.gameObject.SetActive(false);
+    }
+
+    private static void AppendWorkshopEffects(
+        StringBuilder builder,
+        IReadOnlyList<WorkshopEffectDefinition> effects)
+    {
+        if (effects == null || effects.Count == 0)
+        {
+            builder.AppendLine("  无");
+            return;
+        }
+        for (int i = 0; i < effects.Count; i++)
+        {
+            WorkshopEffectDefinition effect = effects[i];
+            if (effect == null)
+                continue;
+            string target = effect.Building != null ? effect.Building.Label :
+                effect.Resource != null ? effect.Resource.Label : "全局";
+            builder.AppendLine("  " + effect.Type + " / " + target + ": " + effect.Value);
+        }
+    }
+
+    private void ConfigureWorkshopPaymentButton(WorkshopUpgrade definition)
+    {
+        if (detailPaymentButton == null)
+            return;
+        detailPaymentButton.gameObject.SetActive(true);
+        detailPaymentButton.onClick.RemoveAllListeners();
+        detailPaymentButton.onClick.AddListener(() => PayWorkshopUpgrade(definition));
+        bool purchased = WorkshopManager.Instance != null && WorkshopManager.Instance.IsPurchased(definition);
+        bool canPurchase = WorkshopManager.Instance != null &&
+            WorkshopManager.Instance.IsSystemUnlocked &&
+            WorkshopPrerequisitesMet(definition) &&
+            GameManager.Instance != null && GameManager.Instance.State.TechLevel >= definition.TechLevel &&
+            HasWorkshopResources(definition.ResourceRequirements);
+        detailPaymentButton.interactable = !purchased && canPurchase;
+        TMP_Text text = detailPaymentButton.GetComponentInChildren<TMP_Text>(true);
+        if (text != null)
+            text.text = purchased ? "已购买" : "购买工坊升级";
+    }
+
+    private static bool HasWorkshopResources(IReadOnlyList<Pair<Resource, ExpantaNum>> requirements)
+    {
+        if (ResourceManager.Instance == null)
+            return false;
+        for (int i = 0; requirements != null && i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null || ResourceManager.Instance.GetAmount(requirement.First) < requirement.Second)
+                return false;
+        }
+        return true;
+    }
+
+    private void PayWorkshopUpgrade(WorkshopUpgrade definition)
+    {
+        if (definition == null || WorkshopManager.Instance == null)
+            return;
+        bool purchased = WorkshopManager.Instance.TryPurchase(definition, out WorkshopPurchaseFailure failure);
+        Debug.Log("[界面] 工坊支付：id=" + definition.Id + "，结果=" + failure);
+        if (purchased && populatedPage == "Workshop")
+            RefreshWorkshopRows();
+        ShowWorkshopDetails(definition);
+    }
+
     private void RefreshSelectedResearchDetails(Research research)
     {
         if (research == null || detailBody == null)
@@ -395,6 +502,17 @@ public sealed partial class KingdomUIRoot
 
         ConfigureResearchPaymentButton(research, state);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+    }
+
+    private void RefreshResearchDetailLiveValues(Research research)
+    {
+        if (research == null || detailBody == null)
+            return;
+
+        // During a drag only the live payment amounts need refreshing. Keep
+        // the authored text, listeners and layout untouched so the gesture
+        // does not compete with a full detail rebuild.
+        RefreshRequirementRows(research.ResourceRequirements);
     }
 
     private static string GetResearchQueueActionLabel(Research research, ResearchState state)
@@ -569,8 +687,8 @@ public sealed partial class KingdomUIRoot
                 TMP_Text label = row.Find("Label")?.GetComponent<TMP_Text>();
                 if (amount == null || label == null)
                     return false;
-                label.text = requirement.First.Label;
-                amount.text = FormatRequirementAmount(requirement);
+                SetTextIfChanged(label, requirement.First.Label);
+                SetTextIfChanged(amount, FormatRequirementAmount(requirement));
                 updated++;
             }
         return updated == validCount;
@@ -598,6 +716,9 @@ public sealed partial class KingdomUIRoot
             paid = researchState.GetPaidResourceCost(requirement.First);
 
         if (detailIsBuilding)
+            return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
+
+        if (selectedWorkshop != null)
             return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
 
         return paid.ToGameString() + " / " + requirement.Second.ToGameString() +
@@ -803,8 +924,8 @@ public sealed partial class KingdomUIRoot
             TMP_Text amount = row?.Find("Amount")?.GetComponent<TMP_Text>();
             if (row == null || label == null || amount == null)
                 return false;
-            label.text = flow.First.Label;
-            amount.text = FormatFlowAmount(flow, consumption);
+            SetTextIfChanged(label, flow.First.Label);
+            SetTextIfChanged(amount, FormatFlowAmount(flow, consumption));
             index++;
         }
         return true;

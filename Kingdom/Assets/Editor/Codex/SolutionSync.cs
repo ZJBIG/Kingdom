@@ -1,5 +1,8 @@
 #if UNITY_EDITOR
 using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -16,7 +19,29 @@ namespace Kingdom.EditorTools
                 throwOnError: true);
             var generator = (ProjectGeneration)Activator.CreateInstance(generatorType);
             generator.Sync();
+            NormalizeSolution();
             Debug.Log("Kingdom solution and C# projects synchronized.");
+        }
+
+        private static void NormalizeSolution()
+        {
+            string solutionPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Kingdom.sln");
+            string solution = File.ReadAllText(solutionPath);
+
+            var playerProjectGuids = Regex.Matches(
+                    solution,
+                    @"Project\([^\r\n]*\) = [^\r\n]*\.Player\.csproj"", ""\{([^\}]+)\}""\r?\nEndProject\r?\n")
+                .Cast<Match>()
+                .Select(match => match.Groups[1].Value)
+                .ToArray();
+            solution = Regex.Replace(
+                solution,
+                @"Project\([^\r\n]*\) = [^\r\n]*\.Player\.csproj"", ""\{[^\}]+\}""\r?\nEndProject\r?\n",
+                string.Empty);
+            foreach (string guid in playerProjectGuids)
+                solution = Regex.Replace(solution, @"^.*" + Regex.Escape(guid) + @".*(?:\r?\n|$)", string.Empty, RegexOptions.Multiline);
+
+            File.WriteAllText(solutionPath, solution);
         }
     }
 }

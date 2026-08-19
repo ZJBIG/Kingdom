@@ -25,6 +25,16 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     private int perfTickSampleCount;
     private float perfTickTotalMilliseconds;
     private float perfTickMaximumMilliseconds;
+    private float perfBuildingTotalMilliseconds;
+    private float perfBuildingMaximumMilliseconds;
+    private float perfGameTotalMilliseconds;
+    private float perfGameMaximumMilliseconds;
+    private float perfResourceTotalMilliseconds;
+    private float perfResourceMaximumMilliseconds;
+    private float perfSectorTotalMilliseconds;
+    private float perfSectorMaximumMilliseconds;
+    private float perfResearchTotalMilliseconds;
+    private float perfResearchMaximumMilliseconds;
     private long perfTickAllocatedBytes;
     private bool perfTickAllocationCounterAvailable;
     private ProfilerRecorder gcAllocRecorder;
@@ -195,6 +205,21 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         perfTickSampleCount++;
         perfTickTotalMilliseconds += tickMilliseconds;
         perfTickMaximumMilliseconds = Mathf.Max(perfTickMaximumMilliseconds, tickMilliseconds);
+        float buildingMilliseconds = (buildingEnd - tickStart) * 1000f;
+        float gameMilliseconds = (gameEnd - buildingEnd) * 1000f;
+        float resourceMilliseconds = (resourceEnd - gameEnd) * 1000f;
+        float sectorMilliseconds = (sectorEnd - resourceEnd) * 1000f;
+        float researchMilliseconds = (tickEnd - sectorEnd) * 1000f;
+        perfBuildingTotalMilliseconds += buildingMilliseconds;
+        perfBuildingMaximumMilliseconds = Mathf.Max(perfBuildingMaximumMilliseconds, buildingMilliseconds);
+        perfGameTotalMilliseconds += gameMilliseconds;
+        perfGameMaximumMilliseconds = Mathf.Max(perfGameMaximumMilliseconds, gameMilliseconds);
+        perfResourceTotalMilliseconds += resourceMilliseconds;
+        perfResourceMaximumMilliseconds = Mathf.Max(perfResourceMaximumMilliseconds, resourceMilliseconds);
+        perfSectorTotalMilliseconds += sectorMilliseconds;
+        perfSectorMaximumMilliseconds = Mathf.Max(perfSectorMaximumMilliseconds, sectorMilliseconds);
+        perfResearchTotalMilliseconds += researchMilliseconds;
+        perfResearchMaximumMilliseconds = Mathf.Max(perfResearchMaximumMilliseconds, researchMilliseconds);
         if (perfStatsLogCooldown <= 0f)
         {
             perfStatsLogCooldown = 5f;
@@ -204,27 +229,42 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             KingdomEditorPerfLog.Write(
                 $"[KingdomPerf] ManualTickStats samples={perfTickSampleCount} " +
                 $"avg={averageMilliseconds:F2}ms max={perfTickMaximumMilliseconds:F2}ms " +
+                $"buildingAvg={perfBuildingTotalMilliseconds / perfTickSampleCount:F2}ms buildingMax={perfBuildingMaximumMilliseconds:F2}ms " +
+                $"gameAvg={perfGameTotalMilliseconds / perfTickSampleCount:F2}ms gameMax={perfGameMaximumMilliseconds:F2}ms " +
+                $"resourceAvg={perfResourceTotalMilliseconds / perfTickSampleCount:F2}ms resourceMax={perfResourceMaximumMilliseconds:F2}ms " +
+                $"sectorsAvg={perfSectorTotalMilliseconds / perfTickSampleCount:F2}ms sectorsMax={perfSectorMaximumMilliseconds:F2}ms " +
+                $"researchAvg={perfResearchTotalMilliseconds / perfTickSampleCount:F2}ms researchMax={perfResearchMaximumMilliseconds:F2}ms " +
                 $"allocKB={(perfTickAllocationCounterAvailable ? (perfTickAllocatedBytes / 1024L).ToString() : "NA")}");
             perfTickSampleCount = 0;
             perfTickTotalMilliseconds = 0f;
             perfTickMaximumMilliseconds = 0f;
+            perfBuildingTotalMilliseconds = 0f;
+            perfBuildingMaximumMilliseconds = 0f;
+            perfGameTotalMilliseconds = 0f;
+            perfGameMaximumMilliseconds = 0f;
+            perfResourceTotalMilliseconds = 0f;
+            perfResourceMaximumMilliseconds = 0f;
+            perfSectorTotalMilliseconds = 0f;
+            perfSectorMaximumMilliseconds = 0f;
+            perfResearchTotalMilliseconds = 0f;
+            perfResearchMaximumMilliseconds = 0f;
             perfTickAllocatedBytes = 0L;
         }
         if (slowTickLogCooldown <= 0f && tickEnd - tickStart >= 0.02f)
         {
             slowTickLogCooldown = 1f;
             Debug.Log($"[KingdomPerf] ManualTick {((tickEnd - tickStart) * 1000f):F1}ms: " +
-                      $"building={(buildingEnd - tickStart) * 1000f:F1}ms, " +
-                      $"game={(gameEnd - buildingEnd) * 1000f:F1}ms, " +
-                      $"resource={(resourceEnd - gameEnd) * 1000f:F1}ms, " +
-                      $"sectors={(sectorEnd - resourceEnd) * 1000f:F1}ms, " +
-                      $"research={(tickEnd - sectorEnd) * 1000f:F1}ms");
+                      $"building={buildingMilliseconds:F1}ms, " +
+                      $"game={gameMilliseconds:F1}ms, " +
+                      $"resource={resourceMilliseconds:F1}ms, " +
+                      $"sectors={sectorMilliseconds:F1}ms, " +
+                      $"research={researchMilliseconds:F1}ms");
             KingdomEditorPerfLog.Write($"[KingdomPerf] ManualTick {((tickEnd - tickStart) * 1000f):F1}ms: " +
-                                       $"building={(buildingEnd - tickStart) * 1000f:F1}ms, " +
-                                       $"game={(gameEnd - buildingEnd) * 1000f:F1}ms, " +
-                                       $"resource={(resourceEnd - gameEnd) * 1000f:F1}ms, " +
-                                       $"sectors={(sectorEnd - resourceEnd) * 1000f:F1}ms, " +
-                                       $"research={(tickEnd - sectorEnd) * 1000f:F1}ms");
+                                       $"building={buildingMilliseconds:F1}ms, " +
+                                       $"game={gameMilliseconds:F1}ms, " +
+                                       $"resource={resourceMilliseconds:F1}ms, " +
+                                       $"sectors={sectorMilliseconds:F1}ms, " +
+                                       $"research={researchMilliseconds:F1}ms");
         }
 #endif
     }
@@ -290,9 +330,18 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 }
 
 #if UNITY_EDITOR
-internal static class KingdomEditorPerfLog
+public static class KingdomEditorPerfLog
 {
     private static string path;
+    private static readonly System.Text.StringBuilder pending = new();
+    private static double nextFlushTime;
+    private static bool flushRequested;
+
+    static KingdomEditorPerfLog()
+    {
+        UnityEditor.EditorApplication.update += FlushIfDue;
+        UnityEditor.EditorApplication.quitting += Flush;
+    }
 
     public static void Write(string message)
     {
@@ -305,13 +354,40 @@ internal static class KingdomEditorPerfLog
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
             }
 
-            File.AppendAllText(
-                path,
-                DateTime.Now.ToString("O") + " " + message + Environment.NewLine);
+            pending.Append(DateTime.Now.ToString("O"))
+                .Append(' ')
+                .Append(message)
+                .Append(Environment.NewLine);
+            flushRequested |= pending.Length >= 8192;
         }
         catch (Exception exception)
         {
             Debug.LogWarning($"[KingdomPerf] Could not write project log: {exception.Message}");
+        }
+    }
+
+    private static void FlushIfDue()
+    {
+        double now = UnityEditor.EditorApplication.timeSinceStartup;
+        if (!flushRequested && now < nextFlushTime)
+            return;
+        nextFlushTime = now + 0.5d;
+        Flush();
+    }
+
+    private static void Flush()
+    {
+        if (pending.Length == 0 || string.IsNullOrEmpty(path))
+            return;
+        try
+        {
+            File.AppendAllText(path, pending.ToString());
+            pending.Clear();
+            flushRequested = false;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning($"[KingdomPerf] Could not flush project log: {exception.Message}");
         }
     }
 }

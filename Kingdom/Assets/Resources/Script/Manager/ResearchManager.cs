@@ -180,8 +180,9 @@ public class ResearchManager : Singleton<ResearchManager>
 
         List<ResearchState> batch = BuildPrerequisiteBatch(state);
         for (int i = 0; i < batch.Count; i++)
-            EnqueueState(batch[i]);
-        TryStartNextQueuedResearch();
+            EnqueueState(batch[i], false);
+        TryStartNextQueuedResearch(false);
+        ResearchQueueChanged?.Invoke();
         if (ActiveResearch == state)
             return ResearchActionResult.Started;
         return IsQueued(research)
@@ -202,8 +203,9 @@ public class ResearchManager : Singleton<ResearchManager>
             IsQueued(research) || !CanAccessResearch(research) ||
             !ArePrerequisitesCompleted(research))
             return false;
-        EnqueueState(state);
-        TryStartNextQueuedResearch();
+        EnqueueState(state, false);
+        TryStartNextQueuedResearch(false);
+        ResearchQueueChanged?.Invoke();
         return true;
     }
 
@@ -267,10 +269,15 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public void TryStartNextQueuedResearch()
     {
+        TryStartNextQueuedResearch(true);
+    }
+
+    private void TryStartNextQueuedResearch(bool notifyQueueChanged)
+    {
         if (ActiveResearch != null)
             return;
         while (researchQueue.Count > 0 && researchQueue.Peek().Status == ResearchStatus.Completed)
-            RemoveQueuedState(researchQueue.Peek());
+            RemoveQueuedState(researchQueue.Peek(), notifyQueueChanged);
         if (researchQueue.Count == 0)
             return;
 
@@ -287,14 +294,18 @@ public class ResearchManager : Singleton<ResearchManager>
             if (state.Status != ResearchStatus.WaitingResources)
             {
                 state.SetStatus(ResearchStatus.WaitingResources);
-                ResearchQueueChanged?.Invoke();
+                if (notifyQueueChanged)
+                    ResearchQueueChanged?.Invoke();
             }
             return;
         }
 
-        RemoveQueuedState(state);
+        RemoveQueuedState(state, notifyQueueChanged);
         if (TryStartResearchNow(state))
-            ResearchQueueChanged?.Invoke();
+        {
+            if (notifyQueueChanged)
+                ResearchQueueChanged?.Invoke();
+        }
     }
 
     public void SetSelectedResearch(Research research)
@@ -422,6 +433,13 @@ public class ResearchManager : Singleton<ResearchManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         if (ActiveResearch == null)
         {
+            ResearchState beforeHead = researchQueue.Count > 0
+                ? researchQueue.Peek()
+                : null;
+            ResearchStatus beforeHeadStatus = beforeHead == null
+                ? ResearchStatus.Locked
+                : beforeHead.Status;
+            bool queueChanged = false;
             // Auto-pay the queue head as resources become available. A queued
             // research used to sit at "waiting for resources" forever until the
             // player found the payment button, blocking fully-paid items behind
@@ -430,9 +448,16 @@ public class ResearchManager : Singleton<ResearchManager>
             {
                 ResearchState head = researchQueue.Peek();
                 if (head != null && !head.CostPaid && TryPayResearchCost(head))
-                    ResearchQueueChanged?.Invoke();
+                    queueChanged = true;
             }
-            TryStartNextQueuedResearch();
+            TryStartNextQueuedResearch(false);
+            ResearchState afterHead = researchQueue.Count > 0
+                ? researchQueue.Peek()
+                : null;
+            if (beforeHead != afterHead ||
+                beforeHeadStatus != (afterHead == null ? ResearchStatus.Locked : afterHead.Status) ||
+                queueChanged)
+                ResearchQueueChanged?.Invoke();
         }
         ResearchState current = ActiveResearch;
         if (current == null)
@@ -561,7 +586,7 @@ public class ResearchManager : Singleton<ResearchManager>
         result.Add(state);
     }
 
-    private void EnqueueState(ResearchState state)
+    private void EnqueueState(ResearchState state, bool notifyQueueChanged = true)
     {
         if (state == null || state.Status == ResearchStatus.Completed ||
             state == ActiveResearch || IsQueued(state.Definition))
@@ -570,10 +595,11 @@ public class ResearchManager : Singleton<ResearchManager>
         researchQueue.Enqueue(state);
         queuedResearches.Add(state.Definition);
         researchQueueSnapshotDirty = true;
-        ResearchQueueChanged?.Invoke();
+        if (notifyQueueChanged)
+            ResearchQueueChanged?.Invoke();
     }
 
-    private void RemoveQueuedState(ResearchState state)
+    private void RemoveQueuedState(ResearchState state, bool notifyQueueChanged = true)
     {
         List<ResearchState> remaining = researchQueue
             .Where(value => value != state)
@@ -587,7 +613,8 @@ public class ResearchManager : Singleton<ResearchManager>
             queuedResearches.Add(remaining[i].Definition);
         }
         researchQueueSnapshotDirty = true;
-        ResearchQueueChanged?.Invoke();
+        if (notifyQueueChanged)
+            ResearchQueueChanged?.Invoke();
     }
 
     private bool TryStartResearchNow(ResearchState state)
@@ -625,6 +652,7 @@ public class ResearchManager : Singleton<ResearchManager>
         BuildingManager.Instance.ApplyProgressionModifierChange(
             previousModifiers,
             ProgressionModifierManager.Current);
+        BuildingManager.Instance.RefreshBuildingChainAvailability();
 #if UNITY_EDITOR
         float buildingApplyEnd = Time.realtimeSinceStartup;
 #endif
@@ -632,7 +660,10 @@ public class ResearchManager : Singleton<ResearchManager>
 #if UNITY_EDITOR
         float availabilityEnd = Time.realtimeSinceStartup;
 #endif
-        TryStartNextQueuedResearch();
+        // A completion can remove the finished head and start the next item.
+        // Publish one queue change after the whole transition instead of one
+        // notification for each internal queue mutation.
+        TryStartNextQueuedResearch(false);
         ResearchQueueChanged?.Invoke();
 #if UNITY_EDITOR
         float completionEnd = Time.realtimeSinceStartup;
@@ -770,6 +801,15 @@ public class ResearchManager : Singleton<ResearchManager>
         RebuildResearchPower(buildingManager?.OrderedStates);
     }
 
+#if UNITY_EDITOR
+    public void ResetForPerformanceTest()
+    {
+        ResetForLoad();
+        RefreshAvailabilityStatuses();
+        ResearchQueueChanged?.Invoke();
+    }
+#endif
+
     internal void RestoreSaveData(SaveManager.ResearchSaveData data)
     {
         if (data == null)
@@ -833,9 +873,7 @@ public class ResearchManager : Singleton<ResearchManager>
             List<ResearchState> restoredQueue =
                 ValidateRestoredResearchQueue(data.QueuedResearchIds);
             for (int i = 0; i < restoredQueue.Count; i++)
-            {
-                EnqueueState(restoredQueue[i]);
-            }
+                EnqueueState(restoredQueue[i], false);
         }
 
         if (string.IsNullOrWhiteSpace(data.SelectedResearchId))
@@ -852,7 +890,9 @@ public class ResearchManager : Singleton<ResearchManager>
             nameof(ResearchManager),
             nameof(data.GlobalEfficiencyFactor),
             ExpantaNum.One);
-        TryStartNextQueuedResearch();
+        TryStartNextQueuedResearch(false);
+        if (researchQueue.Count > 0)
+            ResearchQueueChanged?.Invoke();
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);
@@ -1054,35 +1094,6 @@ public class ResearchManager : Singleton<ResearchManager>
         return result;
     }
 
- #if false
-    private static IReadOnlyDictionary<Resource, ExpantaNum> RestorePaidResourceCosts(
-        Research definition,
-        List<SaveManager.ResearchResourceCostSaveData> savedCosts)
-    {
-        var result = new Dictionary<Resource, ExpantaNum>();
-        if (savedCosts == null)
-            return result;
-
-        for (int i = 0; i < savedCosts.Count; i++)
-        {
-            SaveManager.ResearchResourceCostSaveData saved = savedCosts[i];
-            string resourceId =
-                RetiredDefinitionMigration.NormalizeResourceId(saved.ResourceId);
-            Resource resource = DataBase<Resource>.Find(resourceId);
-            if (result.ContainsKey(resource))
-                throw new InvalidOperationException(
-                    $"瀛樻。涓殑鐮旂┒璧勬簮鏀粯閲嶅鍖呭惈鈥渰resource.Id}鈥濄€?);
-                throw new InvalidOperationException($"Duplicate paid resource cost: {resource.Id}");
-            ExpantaNum amount = Parse(saved.Amount, saved.ResourceId, nameof(saved.Amount));
-            if (amount < ExpantaNum.Zero)
-                throw new InvalidOperationException(
-                    $"瀛樻。涓殑鐮旂┒璧勬簮鏀粯涓嶈兘涓鸿礋鏁帮細鈥渰saved.ResourceId}鈥濄€?);
-                throw new InvalidOperationException($"Paid resource cost cannot be negative: {saved.ResourceId}");
-            result.Add(resource, amount);
-        }
-        return result;
-    }
- #endif
 
     private static IReadOnlyDictionary<Resource, ExpantaNum> RestorePaidResourceCosts(
         Research definition,

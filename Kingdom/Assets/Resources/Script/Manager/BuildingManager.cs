@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public enum BuildFailure
 {
@@ -50,9 +49,7 @@ public class BuildingManager : Singleton<BuildingManager>
     public ExpantaNum AvailableProductivity =>
         TotalProductivity - UsedProductivity;
     public ExpantaNum SafePopulationDepartureAllowance =>
-        ExpantaNum.Max(
-            ExpantaNum.Zero,
-            CalculateRawTotalProductivity() - UsedProductivity).Floor();
+        ExpantaNum.Max(ExpantaNum.Zero, CalculateRawTotalProductivity() - UsedProductivity).Floor();
     private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
     public ExpantaNum GlobalEfficiencyFactor
     {
@@ -133,10 +130,7 @@ public class BuildingManager : Singleton<BuildingManager>
             if (requirement.Second.IsNaN ||
                 requirement.Second.IsInfinity ||
                 requirement.Second < ExpantaNum.Zero)
-            {
-                throw new InvalidOperationException(
-                $"建筑升级链成员“{building.Id}”的资源成本无效。");
-            }
+                throw new InvalidOperationException($"建筑升级链成员“{building.Id}”的资源成本无效。");
         }
     }
 
@@ -250,6 +244,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         failure = BuildFailure.None;
         return true;
+
     }
 
     public bool IsInBuildingChain(Building building)
@@ -262,100 +257,112 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public bool CanConstructNew(Building building)
     {
-        if (!ArePrerequisitesMet(building, out _))
-            return false;
+        return ArePrerequisitesMet(building, out _) &&
+            IsHighestUnlockedChainTier(building);
+    }
 
+    private bool IsHighestUnlockedChainTier(Building building)
+    {
         EnsureBuildingChainIndex();
         if (!chainMembers.Contains(building))
             return true;
 
-        if (!HasUnlockedChainPath(
-                building,
-                new HashSet<Building>(),
-                new HashSet<Building>()))
-            return false;
+        Building highest = building;
+        while (highest.UpgradeTo != null &&
+               ArePrerequisitesMet(highest.UpgradeTo, out _))
+            highest = highest.UpgradeTo;
+        return highest == building;
+    }
 
-        // 当前建筑的直接升级目标一旦可用，就只显示/建造更高阶目标。
-        return building.UpgradeTo == null ||
-            !ArePrerequisitesMet(building.UpgradeTo, out _);
+    public void RefreshBuildingChainAvailability()
+    {
+        EnsureBuildingChainIndex();
+        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Building root = definitions[i];
+            if (root == null ||
+                !chainMembers.Contains(root) ||
+                chainPredecessors.ContainsKey(root))
+                continue;
+            RemoveZeroIntermediateStates(root);
+        }
+    }
+
+    private void RemoveZeroIntermediateStates(Building root)
+    {
+        if (!ArePrerequisitesMet(root, out _))
+            return;
+
+        Building highest = root;
+        while (highest.UpgradeTo != null &&
+               ArePrerequisitesMet(highest.UpgradeTo, out _))
+            highest = highest.UpgradeTo;
+        if (highest == root)
+            return;
+
+        var lowerTiers = new List<Building>();
+        Building current = root;
+        while (current != null && current != highest)
+        {
+            lowerTiers.Add(current);
+            current = current.UpgradeTo;
+        }
+
+        for (int i = 0; i < lowerTiers.Count; i++)
+            RemoveZeroBuildingState(lowerTiers[i]);
+    }
+
+    private void RemoveZeroBuildingState(Building building)
+    {
+        if (!states.TryGetValue(building, out BuildingState state) ||
+            state.Amount > ExpantaNum.Zero)
+            return;
+        states.Remove(building);
+        orderedStates.Remove(state);
     }
 
     public bool ShouldDisplay(Building building)
     {
         if (building == null)
             return false;
-        if (states.TryGetValue(building, out BuildingState state) &&
-            state.Amount > ExpantaNum.Zero)
-        {
+
+        if (states.TryGetValue(building, out BuildingState state) && state.Amount > ExpantaNum.Zero)
             return true;
-        }
 
         if (!ArePrerequisitesMet(building, out _))
             return false;
 
-        // A zero-count chain tier remains visible until its immediate
-        // successor is actually displayed. Use the same display predicate
-        // for the successor instead of only checking its prerequisites: an
-        // unrelated research must not hide this card, and a non-zero lower
-        // tier must remain available for upgrade/deconstruction.
-        if (IsInBuildingChain(building) && building.UpgradeTo != null)
-            return !ShouldDisplay(building.UpgradeTo);
-
         return CanConstructNew(building);
+
     }
 
     public bool TryGetUnlockedUpgradeTarget(Building source, out Building target)
     {
-        target = source?.UpgradeTo;
-        if (target == null || !ArePrerequisitesMet(target, out _))
+        target = null;
+        if (source == null ||
+            !states.TryGetValue(source, out BuildingState sourceState) ||
+            sourceState.Amount < ExpantaNum.One)
         {
-            target = null;
             return false;
         }
 
         EnsureBuildingChainIndex();
-        if (!chainMembers.Contains(source) || !chainMembers.Contains(target))
+        if (!chainMembers.Contains(source))
         {
-            target = null;
             return false;
         }
 
-        return HasUnlockedChainPath(
-            source,
-            new HashSet<Building>(),
-            new HashSet<Building>());
-    }
-
-    private bool HasUnlockedChainPath(
-        Building building,
-        HashSet<Building> visiting,
-        HashSet<Building> visited)
-    {
-        if (building == null || !ArePrerequisitesMet(building, out _))
-            return false;
-        if (visited.Contains(building))
-            return false;
-        if (!visiting.Add(building))
-            return false;
-        if (!chainPredecessors.TryGetValue(building, out List<Building> predecessors) ||
-            predecessors.Count == 0)
+        Building candidate = source.UpgradeTo;
+        while (candidate != null)
         {
-            visiting.Remove(building);
-            return true;
+            if (!ArePrerequisitesMet(candidate, out _))
+                break;
+            target = candidate;
+            candidate = candidate.UpgradeTo;
         }
 
-        for (int i = 0; i < predecessors.Count; i++)
-        {
-            if (HasUnlockedChainPath(predecessors[i], visiting, visited))
-            {
-                visiting.Remove(building);
-                return true;
-            }
-        }
-
-        visiting.Remove(building);
-        visited.Add(building);
-        return false;
+        return target != null;
     }
 
     public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure)
@@ -548,7 +555,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return ExpantaNum.Zero;
 
         if (state.SpaceCost > ExpantaNum.Zero)
-                result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableTerritory / state.SpaceCost).Floor());
+            result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableTerritory / state.SpaceCost).Floor());
         if (state.ProductivityConsumption > ExpantaNum.Zero)
         {
             result = ExpantaNum.Min(
@@ -1349,7 +1356,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return value;
         if (string.IsNullOrEmpty(raw))
             return fallback;
-            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
+        throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 
 }

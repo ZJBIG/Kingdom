@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,7 +48,7 @@ public sealed partial class KingdomUIRoot
             AddEraTextRow(parent, "时代进度", "100%  |  当前内容已完成", Positive, null);
             AddEraTextRow(parent, "下一步", "继续扩张生产链，或在研究页查看尚未完成的研究。", TextPrimary,
                 () => SetPage("Research"));
-            eraPageStateVersion = state.Version;
+            eraPageStateSignature = BuildEraPageStateSignature(state, transition);
             return;
         }
 
@@ -133,7 +134,34 @@ public sealed partial class KingdomUIRoot
             null);
 
         Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(blocker == null ? "none" : blocker.Title)}");
-        eraPageStateVersion = state.Version;
+        eraPageStateSignature = BuildEraPageStateSignature(state, transition);
+    }
+
+    private string BuildEraPageStateSignature(GameState state, Research transition = null)
+    {
+        if (state == null)
+            return string.Empty;
+        transition ??= FindEraTransition((TechLevel)((int)state.TechLevel + 1));
+        var signature = new StringBuilder(96);
+        signature.Append((int)state.TechLevel).Append('|').Append(transition?.Id ?? string.Empty);
+        if (transition == null)
+            return signature.ToString();
+
+        for (int i = 0; i < transition.Prerequisites.Count; i++)
+        {
+            Research prerequisite = transition.Prerequisites[i];
+            bool met = prerequisite != null && researchManagerCache != null &&
+                researchManagerCache.IsResearchCompleted(prerequisite.Id);
+            signature.Append('|').Append(prerequisite?.Id ?? string.Empty).Append(':').Append(met ? '1' : '0');
+        }
+        for (int i = 0; i < transition.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
+            bool met = requirement.First != null && resourceManagerCache != null &&
+                resourceManagerCache.GetAmount(requirement.First) >= requirement.Second;
+            signature.Append('|').Append(requirement.First?.Id ?? string.Empty).Append(':').Append(met ? '1' : '0');
+        }
+        return signature.ToString();
     }
 
     private List<EraGoalCondition> BuildEraConditions(Research transition)

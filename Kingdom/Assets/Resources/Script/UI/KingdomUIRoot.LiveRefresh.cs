@@ -87,6 +87,7 @@ public sealed partial class KingdomUIRoot
 #if UNITY_EDITOR
         uiSlowRefreshLogCooldown = Mathf.Max(0f, uiSlowRefreshLogCooldown - Time.unscaledDeltaTime);
         uiStatsLogCooldown = Mathf.Max(0f, uiStatsLogCooldown - Time.unscaledDeltaTime);
+        researchQueueEventLogCooldown = Mathf.Max(0f, researchQueueEventLogCooldown - Time.unscaledDeltaTime);
 #endif
         if (liveRefreshTimer < 0.1f)
             return;
@@ -132,6 +133,86 @@ public sealed partial class KingdomUIRoot
     }
 #endif
 
+#if UNITY_EDITOR
+    private int uiTopSampleCount;
+    private int uiDetailSampleCount;
+    private int uiDataFlowSampleCount;
+    private int uiLiveCardsSampleCount;
+    private int uiQueueSampleCount;
+    private float uiTopTotalMilliseconds;
+    private float uiTopMaximumMilliseconds;
+    private float uiDetailTotalMilliseconds;
+    private float uiDetailMaximumMilliseconds;
+    private float uiDataFlowTotalMilliseconds;
+    private float uiDataFlowMaximumMilliseconds;
+    private float uiLiveCardsTotalMilliseconds;
+    private float uiLiveCardsMaximumMilliseconds;
+    private float uiQueueTotalMilliseconds;
+    private float uiQueueMaximumMilliseconds;
+
+    private void RecordUiBranch(string branch, float milliseconds)
+    {
+        switch (branch)
+        {
+            case "top":
+                uiTopSampleCount++;
+                uiTopTotalMilliseconds += milliseconds;
+                uiTopMaximumMilliseconds = Mathf.Max(uiTopMaximumMilliseconds, milliseconds);
+                break;
+            case "detail":
+                uiDetailSampleCount++;
+                uiDetailTotalMilliseconds += milliseconds;
+                uiDetailMaximumMilliseconds = Mathf.Max(uiDetailMaximumMilliseconds, milliseconds);
+                break;
+            case "dataflow":
+                uiDataFlowSampleCount++;
+                uiDataFlowTotalMilliseconds += milliseconds;
+                uiDataFlowMaximumMilliseconds = Mathf.Max(uiDataFlowMaximumMilliseconds, milliseconds);
+                break;
+            case "liveCards":
+                uiLiveCardsSampleCount++;
+                uiLiveCardsTotalMilliseconds += milliseconds;
+                uiLiveCardsMaximumMilliseconds = Mathf.Max(uiLiveCardsMaximumMilliseconds, milliseconds);
+                break;
+            case "queue":
+                uiQueueSampleCount++;
+                uiQueueTotalMilliseconds += milliseconds;
+                uiQueueMaximumMilliseconds = Mathf.Max(uiQueueMaximumMilliseconds, milliseconds);
+                break;
+        }
+    }
+
+    private void LogUiBranchStats()
+    {
+        if (uiTopSampleCount + uiDetailSampleCount + uiDataFlowSampleCount +
+            uiLiveCardsSampleCount + uiQueueSampleCount <= 0)
+            return;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] RefreshUIBranches " +
+            $"top={uiTopSampleCount}:{(uiTopSampleCount == 0 ? 0f : uiTopTotalMilliseconds / uiTopSampleCount):F2}/{uiTopMaximumMilliseconds:F2}ms " +
+            $"detail={uiDetailSampleCount}:{(uiDetailSampleCount == 0 ? 0f : uiDetailTotalMilliseconds / uiDetailSampleCount):F2}/{uiDetailMaximumMilliseconds:F2}ms " +
+            $"dataflow={uiDataFlowSampleCount}:{(uiDataFlowSampleCount == 0 ? 0f : uiDataFlowTotalMilliseconds / uiDataFlowSampleCount):F2}/{uiDataFlowMaximumMilliseconds:F2}ms " +
+            $"liveCards={uiLiveCardsSampleCount}:{(uiLiveCardsSampleCount == 0 ? 0f : uiLiveCardsTotalMilliseconds / uiLiveCardsSampleCount):F2}/{uiLiveCardsMaximumMilliseconds:F2}ms " +
+            $"queue={uiQueueSampleCount}:{(uiQueueSampleCount == 0 ? 0f : uiQueueTotalMilliseconds / uiQueueSampleCount):F2}/{uiQueueMaximumMilliseconds:F2}ms " +
+            $"page={populatedPage}");
+        uiTopSampleCount = 0;
+        uiDetailSampleCount = 0;
+        uiDataFlowSampleCount = 0;
+        uiLiveCardsSampleCount = 0;
+        uiQueueSampleCount = 0;
+        uiTopTotalMilliseconds = 0f;
+        uiTopMaximumMilliseconds = 0f;
+        uiDetailTotalMilliseconds = 0f;
+        uiDetailMaximumMilliseconds = 0f;
+        uiDataFlowTotalMilliseconds = 0f;
+        uiDataFlowMaximumMilliseconds = 0f;
+        uiLiveCardsTotalMilliseconds = 0f;
+        uiLiveCardsMaximumMilliseconds = 0f;
+        uiQueueTotalMilliseconds = 0f;
+        uiQueueMaximumMilliseconds = 0f;
+    }
+#endif
+
     private void RefreshBuildingDisplayMembership()
     {
         if (populatedPage != "Buildings" || BuildingManager.Instance == null)
@@ -148,7 +229,11 @@ public sealed partial class KingdomUIRoot
 
         // 升级完成后，旧层级可能变为零数量；只在显示成员变化时重建列表。
         lastBuildingDisplaySignature = signature;
+        float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
         PopulatePage("Buildings");
+        Canvas.ForceUpdateCanvases();
+        if (pageScroll != null)
+            pageScroll.verticalNormalizedPosition = normalizedPosition;
     }
 
     public void RefreshUI()
@@ -180,12 +265,14 @@ public sealed partial class KingdomUIRoot
         if (refreshScrolledValues)
         {
 #if UNITY_EDITOR
+            float branchStart = Time.realtimeSinceStartup;
             long liveValuesAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
 #endif
             RefreshLiveCardValues();
 #if UNITY_EDITOR
             uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
             uiRefreshMaximumAllocatedBytes = Math.Max(uiRefreshMaximumAllocatedBytes, GC.GetAllocatedBytesForCurrentThread() - liveValuesAllocatedStart);
+            RecordUiBranch("liveCards", (Time.realtimeSinceStartup - branchStart) * 1000f);
 #endif
             scrollingLiveValueRefreshTimer = 0f;
         }
@@ -195,18 +282,26 @@ public sealed partial class KingdomUIRoot
         if (topStatusRefreshTimer >= 0.25f)
         {
 #if UNITY_EDITOR
+            float branchStart = Time.realtimeSinceStartup;
             long topStatusAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
 #endif
             RefreshTopStatus();
 #if UNITY_EDITOR
             uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
             uiRefreshMaximumAllocatedBytes = Math.Max(uiRefreshMaximumAllocatedBytes, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
+            RecordUiBranch("top", (Time.realtimeSinceStartup - branchStart) * 1000f);
 #endif
             topStatusRefreshTimer = 0f;
         }
         if (populatedPage == "Research" && researchQueueUiDirty)
         {
+#if UNITY_EDITOR
+            float branchStart = Time.realtimeSinceStartup;
+#endif
             RefreshResearchQueueToolbar();
+#if UNITY_EDITOR
+            RecordUiBranch("queue", (Time.realtimeSinceStartup - branchStart) * 1000f);
+#endif
             researchQueueUiDirty = false;
         }
         if (populatedPage == "Overview" &&
@@ -221,9 +316,30 @@ public sealed partial class KingdomUIRoot
             eraPageRefreshTimer = 0f;
         }
         if (refreshScrolledValues && selectedResource != null && ShouldRefreshSelectedResource())
+        {
+#if UNITY_EDITOR
+            float branchStart = Time.realtimeSinceStartup;
+#endif
             RefreshResourceDetails(selectedResource);
+#if UNITY_EDITOR
+            RecordUiBranch("detail", (Time.realtimeSinceStartup - branchStart) * 1000f);
+#endif
+        }
         else if (refreshScrolledValues && selectedBuilding != null && ShouldRefreshSelectedBuilding())
+        {
+#if UNITY_EDITOR
+            float branchStart = Time.realtimeSinceStartup;
+#endif
             RefreshSelectedBuildingDetails(selectedBuilding);
+#if UNITY_EDITOR
+            RecordUiBranch("detail", (Time.realtimeSinceStartup - branchStart) * 1000f);
+#endif
+        }
+        else if (refreshScrolledValues && selectedWorkshop != null)
+        {
+            RefreshRequirementRows(selectedWorkshop.ResourceRequirements);
+            ConfigureWorkshopPaymentButton(selectedWorkshop);
+        }
         else if (!pageScrolling && populatedPage == "Research")
         {
             // Graph panning must not pause the presentation clock. Refreshing
@@ -239,6 +355,16 @@ public sealed partial class KingdomUIRoot
             // above; rebuilding the same queue string here caused avoidable
             // allocations during every drag.
             RefreshActiveResearchProgressVisual(ResearchManager.Instance);
+            if (selectedResearchNode != null)
+            {
+#if UNITY_EDITOR
+                float branchStart = Time.realtimeSinceStartup;
+#endif
+                RefreshResearchDetailLiveValues(selectedResearchNode);
+#if UNITY_EDITOR
+                RecordUiBranch("detail", (Time.realtimeSinceStartup - branchStart) * 1000f);
+#endif
+            }
         }
         if (populatedPage == "Music")
             RefreshMusicPage();
@@ -253,6 +379,8 @@ public sealed partial class KingdomUIRoot
             RefreshBuildingQuantityHeader();
             buildingStructureRefreshTimer = 0f;
         }
+        if (!pageScrolling && workshopRowsUiDirty && populatedPage == "Workshop")
+            RefreshWorkshopRows();
 
 #if UNITY_EDITOR
         float refreshElapsed = Time.realtimeSinceStartup - refreshStart;
@@ -272,6 +400,7 @@ public sealed partial class KingdomUIRoot
             KingdomEditorPerfLog.Write(
                 $"[KingdomPerf] RefreshUIAlloc samples={uiRefreshSampleCount} " +
                 $"totalKB={uiRefreshAllocatedBytes / 1024L} maxKB={uiRefreshMaximumAllocatedBytes / 1024L} page={populatedPage}");
+            LogUiBranchStats();
             uiRefreshSampleCount = 0;
             uiRefreshTotalMilliseconds = 0f;
             uiRefreshMaximumMilliseconds = 0f;
@@ -292,7 +421,10 @@ public sealed partial class KingdomUIRoot
     private void RefreshEraPageIfChanged()
     {
         if (gameManagerCache == null || gameManagerCache.State == null ||
-            gameManagerCache.State.Version == eraPageStateVersion)
+            string.Equals(
+                BuildEraPageStateSignature(gameManagerCache.State),
+                eraPageStateSignature,
+                StringComparison.Ordinal))
             return;
 
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
@@ -341,6 +473,14 @@ public sealed partial class KingdomUIRoot
         if (resourceManagerCache == null) resourceManagerCache = FindObjectOfType<ResourceManager>();
         if (buildingManagerCache == null) buildingManagerCache = FindObjectOfType<BuildingManager>();
         if (workshopManagerCache == null) workshopManagerCache = FindObjectOfType<WorkshopManager>();
+        if (workshopEventSource != workshopManagerCache)
+        {
+            if (workshopEventSource != null)
+                workshopEventSource.UpgradeStateChanged -= MarkWorkshopRowsUiDirty;
+            workshopEventSource = workshopManagerCache;
+            if (workshopEventSource != null)
+                workshopEventSource.UpgradeStateChanged += MarkWorkshopRowsUiDirty;
+        }
     }
 
     private void MarkResearchQueueUiDirty()
@@ -349,9 +489,13 @@ public sealed partial class KingdomUIRoot
         researchDynamicUiDirty = true;
 #if UNITY_EDITOR
         researchQueueEventCount++;
-        KingdomEditorPerfLog.Write(
-            $"[KingdomPerf] ResearchQueueEvent subscribed={researchQueueEventSubscribed} " +
-            $"queueCount={(researchManagerCache == null ? -1 : researchManagerCache.ResearchQueue.Count)}");
+        if (researchQueueEventLogCooldown <= 0f)
+        {
+            researchQueueEventLogCooldown = 0.25f;
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] ResearchQueueEvent subscribed={researchQueueEventSubscribed} " +
+                $"queueCount={(researchManagerCache == null ? -1 : researchManagerCache.ResearchQueue.Count)}");
+        }
 #endif
     }
 
@@ -382,6 +526,26 @@ public sealed partial class KingdomUIRoot
             researchQueueEventSource.ResearchQueueChanged -= MarkResearchQueueUiDirty;
         researchQueueEventSource = null;
         researchQueueEventSubscribed = false;
+        if (workshopEventSource != null)
+            workshopEventSource.UpgradeStateChanged -= MarkWorkshopRowsUiDirty;
+        workshopEventSource = null;
+    }
+
+    private void MarkWorkshopRowsUiDirty(WorkshopUpgradeState state)
+    {
+        workshopRowsUiDirty = true;
+    }
+
+    private void RefreshWorkshopRows()
+    {
+        if (populatedPage != "Workshop")
+            return;
+        float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
+        PopulatePage("Workshop");
+        Canvas.ForceUpdateCanvases();
+        if (pageScroll != null)
+            pageScroll.verticalNormalizedPosition = normalizedPosition;
+        workshopRowsUiDirty = false;
     }
 
     private bool ShouldRefreshSelectedResource()

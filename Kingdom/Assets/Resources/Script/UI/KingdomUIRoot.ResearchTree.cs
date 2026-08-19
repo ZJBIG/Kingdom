@@ -327,6 +327,9 @@ public sealed partial class KingdomUIRoot
         researchGraphViewport.offsetMin = Vector2.zero;
         researchGraphViewport.offsetMax = Vector2.zero;
         EnsureNestedCanvas(researchGraphViewport);
+        // Keep the viewport clip present even if a scene author removes it.
+        if (researchGraphViewport.GetComponent<RectMask2D>() == null)
+            researchGraphViewport.gameObject.AddComponent<RectMask2D>();
 
         Image viewportImage = researchGraphViewport.GetComponent<Image>();
         Sprite background = LoadResearchTreeSprite("ResearchTree/ResearchTreeBackground");
@@ -364,7 +367,17 @@ public sealed partial class KingdomUIRoot
         researchGraphContent.anchoredPosition = Vector2.zero;
         graphScroll.content = researchGraphContent;
         IReadOnlyList<Research> definitions = DataBase<Research>.All;
+        float positionsStartTime = Time.realtimeSinceStartup;
         Dictionary<Research, Vector2> positions = CreateResearchTreePositions(definitions);
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=positions elapsedMs={(Time.realtimeSinceStartup - positionsStartTime) * 1000f:0.0} definitions={definitions.Count}");
+#endif
+        // Topology/layout analysis is synchronous. Return one frame before
+        // creating thousands of connector Graphics so its cost cannot merge
+        // with the first render/layout frame of the research page.
+        yield return null;
+        if (researchGraphContent == null)
+            yield break;
         float contentWidth = ResearchGraphPaddingX * 2f + ResearchNodeWidth;
         float contentHeight = ResearchTopPadding + ResearchGraphPaddingY * 2f + ResearchNodeHeight;
         foreach (Vector2 position in positions.Values)
@@ -383,6 +396,20 @@ public sealed partial class KingdomUIRoot
             yield break;
         }
         researchGraphLineLayer = authoredLineLayer as RectTransform;
+        if (researchGraphLineLayer != null)
+        {
+            Canvas lineCanvas = researchGraphLineLayer.GetComponent<Canvas>();
+            bool addedLineCanvas = lineCanvas == null;
+            if (lineCanvas == null)
+                lineCanvas = researchGraphLineLayer.gameObject.AddComponent<Canvas>();
+            lineCanvas.overrideSorting = false;
+            lineCanvas.pixelPerfect = false;
+#if UNITY_EDITOR
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] CanvasIsolation owner=ResearchGraphLineLayer " +
+                $"canvas=True addedCanvas={addedLineCanvas} raycaster=False");
+#endif
+        }
         researchGraphLineLayer.anchorMin = Vector2.zero;
         researchGraphLineLayer.anchorMax = Vector2.zero;
         researchGraphLineLayer.pivot = Vector2.zero;
@@ -424,7 +451,7 @@ public sealed partial class KingdomUIRoot
             Research research = definitions[i];
             if (research != null && positions.TryGetValue(research, out Vector2 position))
                 CreateResearchTreeNode(researchGraphContent, research, position);
-            if ((i + 1) % 8 == 0)
+            if ((i + 1) % 4 == 0)
                 yield return null;
         }
         Canvas.ForceUpdateCanvases();
@@ -706,39 +733,6 @@ public sealed partial class KingdomUIRoot
             if (loggedArrows++ < 3)
                 Debug.Log($"[王国界面] Research visual end arrow: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, local={rect.anchoredPosition}, size={rect.rect.size}");
         }
-#if false
-        foreach (KeyValuePair<string, Image> pair in researchSharedLineVisuals)
-        {
-            if (!pair.Key.StartsWith("E:", StringComparison.Ordinal) || pair.Value == null)
-                continue;
-            RectTransform rect = pair.Value.rectTransform;
-            string[] keyParts = pair.Key.Split(':');
-            if (keyParts.Length == 3 &&
-                float.TryParse(keyParts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float targetX) &&
-                float.TryParse(keyParts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float targetYEdge))
-            {
-                Vector2Int targetGrid = new(Mathf.RoundToInt(targetX), Mathf.RoundToInt(targetYEdge - .5f));
-                if (nodeRectByGrid.TryGetValue(targetGrid, out RectTransform nodeRect))
-                {
-                    Vector2 nodeTopLeft = GetNodeTopLeftPosition(nodeRect);
-                    float arrowTop = researchGraphContent.rect.height - rect.anchoredPosition.y - rect.rect.height;
-                    float arrowCenter = arrowTop + rect.rect.height * .5f;
-                    float nodeCenter = nodeTopLeft.y + nodeRect.rect.height * .5f;
-                    float arrowRight = rect.anchoredPosition.x + rect.rect.width;
-                    if (Mathf.Abs(arrowCenter - nodeCenter) > .5f ||
-                        Mathf.Abs(arrowRight - nodeTopLeft.x) > .5f)
-                        misalignedArrows++;
-                    if (loggedArrows < 3)
-                        Debug.Log($"[王国界面] Research visual end arrow alignment: key={pair.Key}, arrowRight={arrowRight:0.##}, nodeLeft={nodeTopLeft.x:0.##}, arrowCenterY={arrowCenter:0.##}, nodeCenterY={nodeCenter:0.##}");
-                }
-            }
-            if (loggedArrows++ < 3)
-                Debug.Log($"[王国界面] Research visual end arrow: key={pair.Key}, local={rect.anchoredPosition}, size={rect.rect.size}, targetNodeCenterYGrid={rect.anchoredPosition.y + rect.rect.height * .5f}");
-        }
-        Debug.Log($"[王国界面] Research visual diagnostics: labelsChecked={researchTreeNodes.Count}, endArrowsChecked={loggedArrows}, misalignedEndArrows={misalignedArrows}");
-    }
-
-#endif
     }
 
     private Vector2 GetNodeTopLeftPosition(RectTransform node)
@@ -849,11 +843,6 @@ public sealed partial class KingdomUIRoot
             layoutEntries.Add((i + 1) + "." + state.Definition.Label + $"[{stateLabel}]");
         }
 
-#if false
-        string text = entries.Count == 0 ? "研究队列：空" : "研究队列：\n" + string.Join("\n", entries);
-        // The legacy assignment above is intentionally disabled; it created
-        // a mojibake literal before being overwritten on every refresh.
-#endif
         // Use explicit Unicode escapes here because this source file contains
         // older mojibake literals. The queue header must contain a real line
         // break before entries so TMP can wrap and measure the queue.
@@ -1398,7 +1387,7 @@ public sealed partial class KingdomUIRoot
                 Vector2Int to = GetResearchGridPosition(toPosition);
                 CreateReferenceResearchEdge(content, from, to, prerequisite, target);
                 edgeCount++;
-                if (edgeCount % 8 == 0)
+                if (edgeCount % 2 == 0)
                     yield return null;
             }
         }
@@ -1591,6 +1580,9 @@ public sealed partial class KingdomUIRoot
             image.color = color;
             image.preserveAspect = false;
             image.raycastTarget = false;
+            // Connectors must participate in the viewport RectMask2D; setting
+            // this false lets lines escape into the navigation/detail panels.
+            image.maskable = true;
             researchSharedLineVisuals[key] = image;
         }
         AddResearchTreeLinkVisual(linkKey, image);
@@ -2019,9 +2011,8 @@ public sealed partial class KingdomUIRoot
                 visual.canvasRenderer.SetAlpha(1f);
             }
 
-            // Reorder only when the bus focus set changes, never on the live
-            // progress refresh path. Ordinary buses go first; highlighted
-            // buses go last so their pixels remain visible at crossings.
+            // Ordinary buses go first; highlighted buses go last so their
+            // pixels remain visible at crossings.
             if (researchGraphLineLayer != null)
             {
                 int siblingIndex = 0;
@@ -2033,6 +2024,19 @@ public sealed partial class KingdomUIRoot
                         pair.Value.transform.SetSiblingIndex(siblingIndex++);
             }
         }
+    }
+
+    public bool SetResearchGraphLinesVisibleForPerfTest(bool visible)
+    {
+        if (researchGraphLineLayer == null)
+            return false;
+        researchGraphLineLayer.gameObject.SetActive(visible);
+#if UNITY_EDITOR
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchGraphLines visible={visible} " +
+            $"parts={researchSharedLineVisuals.Count} links={researchTreeLinkVisuals.Count}");
+#endif
+        return true;
     }
 
     private void RefreshActiveResearchProgressVisual(ResearchManager manager)

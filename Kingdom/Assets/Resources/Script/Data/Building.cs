@@ -8,7 +8,7 @@ public class Building : GameDefinition
     public string Label;
     [TextArea]public string Description;
     public TechLevel TechLevel;
-    [SerializeField, Tooltip("建筑升级链中的可选下一级建筑。住房升级链启用前，该字段只用于定义关系。")]
+    [SerializeField, Tooltip("建筑升级链中的可选下一级建筑。")]
     private Building upgradeTo;
     [SerializeField, Tooltip("每增加一座建筑，材料成本按此倍率增长。")]
     private string costGrowth = DefaultCostGrowthValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -29,15 +29,15 @@ public class Building : GameDefinition
     private string foodConsumptionRate = "0";
     [SerializeField, Tooltip("每个建筑提供的食物储存容量。")]
     private string foodCapacityGranted = "0";
-    [SerializeField, Tooltip("每个建筑每秒提供的电力流量；不是库存。")]
+    [SerializeField, Tooltip("每个建筑每秒提供的电力流量。")]
     private string powerProductionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒消耗的电力流量；不是库存。")]
+    [SerializeField, Tooltip("每个建筑每秒消耗的电力流量。")]
     private string powerConsumptionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒提供的物流吞吐；不是库存。")]
+    [SerializeField, Tooltip("每个建筑每秒提供的物流吞吐。")]
     private string logisticsProductionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒消耗的物流吞吐；不是库存。")]
+    [SerializeField, Tooltip("每个建筑每秒消耗的物流吞吐。")]
     private string logisticsConsumptionRate = "0";
-    [SerializeField, Tooltip("每个建筑提供的有效舰队力量；不是资源库存。")]
+    [SerializeField, Tooltip("每个建筑提供的有效舰队力量。")]
     private string fleetPowerGranted = "0";
     [SerializeField]
     private string attackPowerGranted = "0";

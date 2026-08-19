@@ -93,6 +93,7 @@ $uiSamples = New-Object System.Collections.Generic.List[double]
 $tickStats = New-Object System.Collections.Generic.List[psobject]
 $uiStats = New-Object System.Collections.Generic.List[psobject]
 $uiAllocStats = New-Object System.Collections.Generic.List[psobject]
+$uiBranchStats = New-Object System.Collections.Generic.List[psobject]
 $frameStats = New-Object System.Collections.Generic.List[psobject]
 $touchSlowWindows = New-Object System.Collections.Generic.List[psobject]
 $memorySamples = New-Object System.Collections.Generic.List[double]
@@ -111,6 +112,7 @@ $researchBuildPhases = New-Object System.Collections.Generic.List[psobject]
 $errors = New-Object System.Collections.Generic.List[string]
 $slowEvents = New-Object System.Collections.Generic.List[psobject]
 $longFrames = New-Object System.Collections.Generic.List[psobject]
+$testLines = New-Object System.Collections.Generic.List[string]
 
 for ($i = $startLine; $i -lt $lines.Count; $i++) {
     $line = $lines[$i]
@@ -121,6 +123,10 @@ for ($i = $startLine; $i -lt $lines.Count; $i++) {
             $lineTime = [datetime]::Parse($stampMatch.Groups['stamp'].Value)
             if ($lineTime -lt $Since) { continue }
         }
+    }
+
+    if ($line -match '\[KingdomPerf\] Test(?:InjectResources|ResearchAcceleration|QueuePrepared|FastResearch)') {
+        [void]$testLines.Add($line.Trim())
     }
 
     $longFrameMatch = [regex]::Match($line, 'LongFrame\s+frame=(?<frame>[0-9]+(?:\.[0-9]+)?)ms\s+touchCount=(?<touch>[0-9]+)\s+scrolling=(?<scrolling>\w+)\s+page=(?<page>\S+)\s+gc=\((?<gc0>[0-9]+),(?<gc1>[0-9]+),(?<gc2>[0-9]+)\)')
@@ -147,12 +153,22 @@ for ($i = $startLine; $i -lt $lines.Count; $i++) {
         }
     }
 
-    $tickStatsMatch = [regex]::Match($line, 'ManualTickStats\s+samples=(?<samples>[0-9]+)\s+avg=(?<avg>[0-9]+(?:\.[0-9]+)?)ms\s+max=(?<max>[0-9]+(?:\.[0-9]+)?)ms(?:\s+allocKB=(?<allocKB>NA|[0-9]+))?')
+    $tickStatsMatch = [regex]::Match($line, 'ManualTickStats\s+samples=(?<samples>[0-9]+)\s+avg=(?<avg>[0-9]+(?:\.[0-9]+)?)ms\s+max=(?<max>[0-9]+(?:\.[0-9]+)?)ms(?:\s+buildingAvg=(?<buildingAvg>[0-9]+(?:\.[0-9]+)?)ms\s+buildingMax=(?<buildingMax>[0-9]+(?:\.[0-9]+)?)ms\s+gameAvg=(?<gameAvg>[0-9]+(?:\.[0-9]+)?)ms\s+gameMax=(?<gameMax>[0-9]+(?:\.[0-9]+)?)ms\s+resourceAvg=(?<resourceAvg>[0-9]+(?:\.[0-9]+)?)ms\s+resourceMax=(?<resourceMax>[0-9]+(?:\.[0-9]+)?)ms\s+sectorsAvg=(?<sectorsAvg>[0-9]+(?:\.[0-9]+)?)ms\s+sectorsMax=(?<sectorsMax>[0-9]+(?:\.[0-9]+)?)ms\s+researchAvg=(?<researchAvg>[0-9]+(?:\.[0-9]+)?)ms\s+researchMax=(?<researchMax>[0-9]+(?:\.[0-9]+)?)ms)?(?:\s+allocKB=(?<allocKB>NA|[0-9]+))?')
     if ($tickStatsMatch.Success) {
         [void]$tickStats.Add([pscustomobject]@{
             Samples = [int]$tickStatsMatch.Groups['samples'].Value
             Average = [double]$tickStatsMatch.Groups['avg'].Value
             Maximum = [double]$tickStatsMatch.Groups['max'].Value
+            BuildingAverage = if ($tickStatsMatch.Groups['buildingAvg'].Success) { [double]$tickStatsMatch.Groups['buildingAvg'].Value } else { $null }
+            BuildingMaximum = if ($tickStatsMatch.Groups['buildingMax'].Success) { [double]$tickStatsMatch.Groups['buildingMax'].Value } else { $null }
+            GameAverage = if ($tickStatsMatch.Groups['gameAvg'].Success) { [double]$tickStatsMatch.Groups['gameAvg'].Value } else { $null }
+            GameMaximum = if ($tickStatsMatch.Groups['gameMax'].Success) { [double]$tickStatsMatch.Groups['gameMax'].Value } else { $null }
+            ResourceAverage = if ($tickStatsMatch.Groups['resourceAvg'].Success) { [double]$tickStatsMatch.Groups['resourceAvg'].Value } else { $null }
+            ResourceMaximum = if ($tickStatsMatch.Groups['resourceMax'].Success) { [double]$tickStatsMatch.Groups['resourceMax'].Value } else { $null }
+            SectorsAverage = if ($tickStatsMatch.Groups['sectorsAvg'].Success) { [double]$tickStatsMatch.Groups['sectorsAvg'].Value } else { $null }
+            SectorsMaximum = if ($tickStatsMatch.Groups['sectorsMax'].Success) { [double]$tickStatsMatch.Groups['sectorsMax'].Value } else { $null }
+            ResearchAverage = if ($tickStatsMatch.Groups['researchAvg'].Success) { [double]$tickStatsMatch.Groups['researchAvg'].Value } else { $null }
+            ResearchMaximum = if ($tickStatsMatch.Groups['researchMax'].Success) { [double]$tickStatsMatch.Groups['researchMax'].Value } else { $null }
             AllocatedKB = if (!$tickStatsMatch.Groups['allocKB'].Success -or $tickStatsMatch.Groups['allocKB'].Value -eq 'NA') { $null } else { [long]$tickStatsMatch.Groups['allocKB'].Value }
             Text = $line.Trim()
         })
@@ -185,6 +201,29 @@ for ($i = $startLine; $i -lt $lines.Count; $i++) {
             TotalKB = [long]$uiAllocMatch.Groups['total'].Value
             MaximumKB = [long]$uiAllocMatch.Groups['max'].Value
             Page = $uiAllocMatch.Groups['page'].Value
+            Text = $line.Trim()
+        })
+    }
+
+    $uiBranchMatch = [regex]::Match($line, 'RefreshUIBranches\s+top=(?<topCount>[0-9]+):(?<topAvg>[0-9]+(?:\.[0-9]+)?)\/(?<topMax>[0-9]+(?:\.[0-9]+)?)ms\s+detail=(?<detailCount>[0-9]+):(?<detailAvg>[0-9]+(?:\.[0-9]+)?)\/(?<detailMax>[0-9]+(?:\.[0-9]+)?)ms\s+dataflow=(?<flowCount>[0-9]+):(?<flowAvg>[0-9]+(?:\.[0-9]+)?)\/(?<flowMax>[0-9]+(?:\.[0-9]+)?)ms\s+liveCards=(?<cardsCount>[0-9]+):(?<cardsAvg>[0-9]+(?:\.[0-9]+)?)\/(?<cardsMax>[0-9]+(?:\.[0-9]+)?)ms\s+queue=(?<queueCount>[0-9]+):(?<queueAvg>[0-9]+(?:\.[0-9]+)?)\/(?<queueMax>[0-9]+(?:\.[0-9]+)?)ms\s+page=(?<page>\S+)')
+    if ($uiBranchMatch.Success) {
+        [void]$uiBranchStats.Add([pscustomobject]@{
+            TopCount = [int]$uiBranchMatch.Groups['topCount'].Value
+            TopAverage = [double]$uiBranchMatch.Groups['topAvg'].Value
+            TopMaximum = [double]$uiBranchMatch.Groups['topMax'].Value
+            DetailCount = [int]$uiBranchMatch.Groups['detailCount'].Value
+            DetailAverage = [double]$uiBranchMatch.Groups['detailAvg'].Value
+            DetailMaximum = [double]$uiBranchMatch.Groups['detailMax'].Value
+            DataFlowCount = [int]$uiBranchMatch.Groups['flowCount'].Value
+            DataFlowAverage = [double]$uiBranchMatch.Groups['flowAvg'].Value
+            DataFlowMaximum = [double]$uiBranchMatch.Groups['flowMax'].Value
+            LiveCardsCount = [int]$uiBranchMatch.Groups['cardsCount'].Value
+            LiveCardsAverage = [double]$uiBranchMatch.Groups['cardsAvg'].Value
+            LiveCardsMaximum = [double]$uiBranchMatch.Groups['cardsMax'].Value
+            QueueCount = [int]$uiBranchMatch.Groups['queueCount'].Value
+            QueueAverage = [double]$uiBranchMatch.Groups['queueAvg'].Value
+            QueueMaximum = [double]$uiBranchMatch.Groups['queueMax'].Value
+            Page = $uiBranchMatch.Groups['page'].Value
             Text = $line.Trim()
         })
     }
@@ -301,6 +340,7 @@ $report = [pscustomobject]@{
     TickStats = @($tickStats)
     UiStats = @($uiStats)
     UiAllocStats = @($uiAllocStats)
+    UiBranchStats = @($uiBranchStats)
     FrameStats = @($frameStats)
     TouchSlowWindows = @($touchSlowWindows)
     MemoryMB = Get-NumberStats $memorySamples.ToArray()
@@ -319,6 +359,7 @@ $report = [pscustomobject]@{
     SlowEventCount = $slowEvents.Count
     SlowEvents = @($slowEvents | Select-Object -First 20)
     LongFrames = @($longFrames)
+    TestLines = @($testLines)
     ErrorCount = $errors.Count
     Errors = @($errors | Select-Object -Unique -First 20)
 }
@@ -371,7 +412,15 @@ if ($AsJson) {
     if ($report.TickStats.Count -gt 0) {
         $latestTickStats = $report.TickStats[-1]
         $tickAllocText = if ($null -eq $latestTickStats.AllocatedKB) { 'NA' } else { [string]$latestTickStats.AllocatedKB }
-        [void]$renderedLines.Add(("ManualTickStats latest: samples={0}, avg={1}ms, max={2}ms, allocKB={3}" -f $latestTickStats.Samples, $latestTickStats.Average, $latestTickStats.Maximum, $tickAllocText))
+        $stageText = if ($null -ne $latestTickStats.BuildingAverage) {
+            ", stages(building={0}/{1}ms game={2}/{3}ms resource={4}/{5}ms sectors={6}/{7}ms research={8}/{9}ms)" -f `
+                $latestTickStats.BuildingAverage, $latestTickStats.BuildingMaximum,
+                $latestTickStats.GameAverage, $latestTickStats.GameMaximum,
+                $latestTickStats.ResourceAverage, $latestTickStats.ResourceMaximum,
+                $latestTickStats.SectorsAverage, $latestTickStats.SectorsMaximum,
+                $latestTickStats.ResearchAverage, $latestTickStats.ResearchMaximum
+        } else { '' }
+        [void]$renderedLines.Add(("ManualTickStats latest: samples={0}, avg={1}ms, max={2}ms{3}, allocKB={4}" -f $latestTickStats.Samples, $latestTickStats.Average, $latestTickStats.Maximum, $stageText, $tickAllocText))
     }
     if ($report.UiStats.Count -gt 0) {
         $latestUiStats = $report.UiStats[-1]
@@ -380,6 +429,17 @@ if ($AsJson) {
     if ($report.UiAllocStats.Count -gt 0) {
         $latestUiAlloc = $report.UiAllocStats[-1]
         [void]$renderedLines.Add("RefreshUIAlloc latest: samples=$($latestUiAlloc.Samples), total=$($latestUiAlloc.TotalKB)KB, max=$($latestUiAlloc.MaximumKB)KB, page=$($latestUiAlloc.Page)")
+    }
+    if ($report.UiBranchStats.Count -gt 0) {
+        $latestBranches = $report.UiBranchStats[-1]
+        [void]$renderedLines.Add(
+            ("RefreshUIBranches latest: top={0}:{1}/{2}ms detail={3}:{4}/{5}ms dataflow={6}:{7}/{8}ms liveCards={9}:{10}/{11}ms queue={12}:{13}/{14}ms page={15}" -f
+                $latestBranches.TopCount, $latestBranches.TopAverage, $latestBranches.TopMaximum,
+                $latestBranches.DetailCount, $latestBranches.DetailAverage, $latestBranches.DetailMaximum,
+                $latestBranches.DataFlowCount, $latestBranches.DataFlowAverage, $latestBranches.DataFlowMaximum,
+                $latestBranches.LiveCardsCount, $latestBranches.LiveCardsAverage, $latestBranches.LiveCardsMaximum,
+                $latestBranches.QueueCount, $latestBranches.QueueAverage, $latestBranches.QueueMaximum,
+                $latestBranches.Page))
     }
     if ($report.FrameStats.Count -gt 0) {
         $latestFrame = $report.FrameStats[-1]
@@ -392,7 +452,17 @@ if ($AsJson) {
             # LongFrame stores absolute collection counters. A non-zero value
             # is not itself a collection caused by this frame; use the
             # following FrameStats window's gc delta for that claim.
-            $cause = if ($frame.TouchCount -gt 0 -or $frame.Scrolling) { 'input-correlated' } else { 'unattributed' }
+            # A half-second+ frame with no input is already outside normal
+            # gameplay cadence. Keep it separate from input/logic hitches;
+            # the runtime counters below determine whether game code also
+            # reported work during the same window.
+            $cause = if ($frame.Milliseconds -ge 500 -and $frame.TouchCount -eq 0 -and -not $frame.Scrolling) {
+                'editor-pause-candidate'
+            } elseif ($frame.TouchCount -gt 0 -or $frame.Scrolling) {
+                'input-correlated'
+            } else {
+                'unattributed'
+            }
             [void]$renderedLines.Add("  frame=$($frame.Milliseconds)ms cause=$cause touch=$($frame.TouchCount) scrolling=$($frame.Scrolling) page=$($frame.Page) gc=($($frame.Gc0),$($frame.Gc1),$($frame.Gc2)) line=$($frame.Line)")
         }
     }
@@ -425,6 +495,10 @@ if ($AsJson) {
         [void]$renderedLines.Add('Touch gestures: none (no real Input.touchCount gesture was captured in the selected log range)')
     }
     [void]$renderedLines.Add("researchQueueLogCount=$($report.QueueLogCount), queueLayoutLogs=$($report.QueueLayoutLogCount), canvasIsolation=$($report.CanvasIsolationCount), pageDrags=$($report.PageDragCount), researchDrags=$($report.ResearchDragCount), detailDrags=$($report.DetailDragCount), slowEventCount=$($report.SlowEventCount), errorCount=$($report.ErrorCount)")
+    [void]$renderedLines.Add("testToolEvents=$($report.TestLines.Count)")
+    if ($report.TestLines.Count -gt 0) {
+        [void]$renderedLines.Add("  $($report.TestLines[-1])")
+    }
     if ($report.DragInputEvidence.Count -gt 0) {
         $touchDragEvidence = @($report.DragInputEvidence | Where-Object { $_.Source -eq 'touch' }).Count
         $simulatedDragEvidence = @($report.DragInputEvidence | Where-Object { $_.Source -eq 'mouse-or-simulator' }).Count
