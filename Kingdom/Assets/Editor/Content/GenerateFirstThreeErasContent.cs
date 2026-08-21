@@ -21,7 +21,7 @@ public static class GenerateFirstThreeErasContent
     {
         public ResearchEffectType Type;
         public string BuildingId;
-        public string ResourceId;
+        public string ResourceId = null;
         public double Value;
     }
 

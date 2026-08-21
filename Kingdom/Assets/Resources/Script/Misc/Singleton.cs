@@ -22,7 +22,10 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
     {
         if (instance != null && instance != this)
         {
-            Destroy(gameObject);
+            if (Application.isPlaying)
+                Destroy(gameObject);
+            else
+                DestroyImmediate(gameObject);
             return;
         }
 

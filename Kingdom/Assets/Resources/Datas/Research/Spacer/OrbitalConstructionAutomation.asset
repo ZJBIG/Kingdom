@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalConstructionAutomation
   Label: "轨道建造自动化"
   Description: "研究轨道预制件、自动装配与远程施工调度，使大型空间设施的建设从一次性发射工程转变为可重复扩张的工业流程。"
-  BaseCost: "9200000"
+  BaseCost: "12000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
@@ -52,10 +52,6 @@ MonoBehaviour:
     value: "1.2"
   - Type: 30
     Building: {fileID: 11400000, guid: 0a489615492d2dc4bb0a82376c76c3e8, type: 2}
-    Resource: {fileID: 0}
-    value: "1.15"
-  - Type: 30
-    Building: {fileID: 11400000, guid: 34a5e673637c4226a22089267c8b456c, type: 2}
     Resource: {fileID: 0}
     value: "1.15"
   TechLevel: 4

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: FleetDamageControlTheory
   Label: "\u8230\u961f\u635f\u4f24\u63a7\u5236\u7406\u8bba"
   Description: "\u7814\u7a76\u6df1\u7a7a\u4f5c\u6218\u4e2d\u7684\u5206\u5c42\u9694\u79bb\u3001\u5e94\u6025\u7ef4\u4fee\u4e0e\u635f\u7ba1\u9694\u79bb\u539f\u5219\uff0c\u8ba9\u8230\u961f\u5728\u6301\u7eed\u8fdc\u5f81\u4e2d\u627f\u53d7\u66f4\u5c11\u4e0d\u53ef\u9006\u635f\u5931\u3002"
-  BaseCost: "15500000"
+  BaseCost: "17000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b6f9e2d1c4a7485fb3e6d8f1029ac741, type: 2}

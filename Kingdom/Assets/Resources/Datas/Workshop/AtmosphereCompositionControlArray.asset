@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: AtmosphereCompositionControlArray
+  m_EditorClassIdentifier: 
+  id: AtmosphereCompositionControlArray
+  Label: "\u5927\u6c14\u6210\u5206\u63a7\u5236\u9635\u5217"
+  Description: "\u4f7f\u7528\u6c14\u4f53\u5206\u79bb\u5668\u3001\u78b3\u5faa\u73af\u5438\u6536\u5854\u548c\u6c27\u6c14\u914d\u6bd4\u4f20\u611f\u5668\u7ec4\u6210\u63a7\u5236\u9635\u5217\uff0c\u5c06\u884c\u661f\u5927\u6c14\u5de5\u7a0b\u7406\u8bba\u843d\u5b9e\u5230\u8f68\u9053\u519c\u4e1a\u751f\u4ea7\uff0c\u7a33\u5b9a\u751f\u7269\u8d44\u6e90\u7684\u6301\u7eed\u4f9b\u5e94\u3002"
+  SortOrder: 640
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 2738495a6b7c8d9e0f1a2b3c4d5e6f70, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 18082d0e47b349f0bcaeb80e50fbecae, type: 2}
+  - {fileID: 11400000, guid: 4d8f2a6c1e3b5a7c9d0f2e4b6a8c1d35, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "50000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "40000"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "125000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "15000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "15000"
+  effects:
+  - Type: 1
+    Building: {fileID: 11400000, guid: 7a4b2c1d9e8f6071528394a5b6c7d8e9, type: 2}
+    Resource: {fileID: 0}
+    value: "1.20"

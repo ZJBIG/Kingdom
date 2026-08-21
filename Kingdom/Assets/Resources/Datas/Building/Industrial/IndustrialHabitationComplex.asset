@@ -29,7 +29,7 @@ MonoBehaviour:
   powerProductionRate: "0"
   powerConsumptionRate: "0"
   logisticsProductionRate: "0"
-  logisticsConsumptionRate: "0"
+  logisticsConsumptionRate: "10"
   fleetPowerGranted: "0"
   attackPowerGranted: "0"
   defensePowerGranted: "0"

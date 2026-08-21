@@ -65,6 +65,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private float topStatusRefreshTimer;
     private float developmentGuidanceRefreshTimer;
     private float scrollingLiveValueRefreshTimer;
+    private float researchDetailLiveRefreshTimer;
     private float buildingStructureRefreshTimer;
 #if UNITY_EDITOR
     private float uiSlowRefreshLogCooldown;
@@ -545,7 +546,12 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 if (!researchTreePageBuilt)
                     BuildResearchTreePage(rows);
                 else
-                    RefreshResearchTreeVisuals();
+                    // The graph's bus colors/order are already cached. On a
+                    // tab switch, refresh node state immediately and let the
+                    // normal research dirty/signature path update buses on
+                    // the next UI cycle instead of sorting 2735 Images in
+                    // the SetPage frame.
+                    RefreshResearchTreeVisuals(false);
                 break;
             case "Era":
                 BuildEraPage(rows);

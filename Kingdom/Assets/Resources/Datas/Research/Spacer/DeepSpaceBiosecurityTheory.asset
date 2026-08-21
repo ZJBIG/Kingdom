@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: DeepSpaceBiosecurityTheory
+  m_EditorClassIdentifier: 
+  id: DeepSpaceBiosecurityTheory
+  Label: "\u6df1\u7a7a\u751f\u7269\u5b89\u5168\u7406\u8bba"
+  Description: "\u7814\u7a76\u6df1\u7a7a\u5c01\u95ed\u73af\u5883\u4e2d\u7684\u6c61\u67d3\u4f20\u64ad\u3001\u6837\u672c\u9694\u79bb\u4e0e\u68c0\u75ab\u5236\u5ea6\uff0c\u5efa\u7acb\u8de8\u8231\u6bb5\u751f\u7269\u98ce\u9669\u8bc4\u4f30\u65b9\u6cd5\uff0c\u4fdd\u62a4\u592a\u7a7a\u5c45\u6c11\u7684\u5065\u5eb7\u548c\u957f\u671f\u52b3\u52a8\u80fd\u529b\u3002"
+  BaseCost: "10000000"
+  prerequisites:
+  - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+  - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "24000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "80000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: "10000"
+  effects:
+  - Type: 28
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.12"
+  TechLevel: 4
+  AdvancesTechLevel: 0

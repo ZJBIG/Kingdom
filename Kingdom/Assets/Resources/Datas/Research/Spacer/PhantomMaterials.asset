@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhantomMaterials
   Label: "幽影材料工程"
   Description: "将钛合金、复合材料、镍和相位稳定化技术结合，建立幽影合金与幽影纤维的深空材料工业，为量子设备、舰船和远星战役提供高级材料。"
-  BaseCost: "6500000"
+  BaseCost: "10000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}

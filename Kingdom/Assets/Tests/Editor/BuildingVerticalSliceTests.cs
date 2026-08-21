@@ -83,7 +83,8 @@ public sealed class BuildingVerticalSliceTests
             Building building = DataBase<Building>.Find(id);
             Assert.That(building, Is.Not.Null, $"Missing medieval building '{id}'.");
             Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Medieval));
-            Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
+            if (id != "TownHouse")
+                Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
         }
 
         Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
@@ -168,7 +169,7 @@ public sealed class BuildingVerticalSliceTests
     public void IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood()
     {
         Building railHub = DataBase<Building>.Find("RailHub");
-        Building orbitalHub = DataBase<Building>.Find("OrbitalLogisticsHub");
+        Building orbitalHub = DataBase<Building>.Find("OrbitalStation");
 
         Assert.That(railHub, Is.Not.Null);
         Assert.That(orbitalHub, Is.Not.Null);

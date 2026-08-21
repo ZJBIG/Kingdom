@@ -1,5 +1,2 @@
 Type,Object,Reason,Severity,Suggestion
-"Legacy metal surplus","Bronze","Active production is 20.6/s versus 2/s consumption; net flow remains 18.6/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
-"Legacy metal surplus","Tin","Active production is 20/s versus 2/s consumption; net flow remains 18/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
-"Building wait exceeds ten minutes","IndustrialHabitationComplex","First-copy Concrete input takes 11.67 minutes at active production.","High","Adjust that resource cost or unlock a producer earlier."
-"Building wait exceeds ten minutes","IndustrialStoneworks","First-copy StoneBrick input takes 12.5 minutes at active production.","High","Adjust that resource cost or unlock a producer earlier."
+"Pacing failure","Medieval","The run did not reach Medieval within 24 hours.","High","Repair ResearchPower and the Neolithic main line."

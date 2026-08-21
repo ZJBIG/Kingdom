@@ -14,82 +14,93 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalStation
   Label: "\u8F68\u9053\u7A7A\u95F4\u7AD9"
-  Description: "\u5728\u8FD1\u5730\u8F68\u9053\u5EFA\u7ACB\u957F\u671F\u8FD0\u884C\u7684\u8865\u7ED9\u3001\u7814\u7A76\u548C\u4E2D\u8F6C\u8282\u70B9\uFF0C\u4E3A\u6DF1\u7A7A\u6D3B\u52A8\u63D0\u4F9B\u57FA\u7840\u8BBE\u65BD\u3002"
+  Description: "\u7EDF\u4E00\u96C6\u6210\u8F68\u9053\u8865\u7ED9\u3001\u7814\u7A76\u4E2D\u8F6C\u3001\u6DF1\u7A7A\u540E\u52E4\u4E0E\u8230\u961F\u7269\u6D41\u7684\u8F68\u9053\u7A7A\u95F4\u7AD9\uFF0C\u76F4\u63A5\u63D0\u4F9B\u540E\u52E4\u541E\u5410\u3001\u8230\u961F\u652F\u63F4\u4E0E\u7269\u6D41\u8C03\u5EA6\u3002"
   TechLevel: 4
   upgradeTo: {fileID: 0}
-  costGrowth: "1.22"
-  spaceCost: "420"
-  productivityConsumption: "620"
-  productivityGranted: "0"
-  populationCapacityGranted: "0"
-  researchPowerGranted: "120"
-  foodProductionRate: "0"
-  foodConsumptionRate: "2.5"
-  foodCapacityGranted: "0"
-  powerProductionRate: "0"
-  powerConsumptionRate: "80"
-  logisticsProductionRate: "90"
-  logisticsConsumptionRate: "18"
-  fleetPowerGranted: "70"
-  attackPowerGranted: "40"
-  defensePowerGranted: "100"
-  militaryManpowerGranted: "100"
+  costGrowth: 1.22
+  spaceCost: 760
+  productivityConsumption: 1260
+  productivityGranted: 0
+  populationCapacityGranted: 0
+  researchPowerGranted: 0
+  foodProductionRate: 0
+  foodConsumptionRate: 10
+  foodCapacityGranted: 30000
+  powerProductionRate: 0
+  powerConsumptionRate: 200
+  logisticsProductionRate: 230
+  logisticsConsumptionRate: 50
+  fleetPowerGranted: 150
+  attackPowerGranted: 40
+  defensePowerGranted: 100
+  militaryManpowerGranted: 100
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "1600"
+    amount: 1600
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "700"
+    amount: 700
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "600"
+    amount: 1300
   - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
-    amount: "400"
+    amount: 400
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "350"
+    amount: 350
   - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
-    amount: "1200"
+    amount: 2200
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "320"
+    amount: 1520
   - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    amount: "1000"
+    amount: 1000
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    amount: "400"
+    amount: 400
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: 2600
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    amount: "240"
+    amount: 240
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "700"
+    amount: 700
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "9000"
+    amount: 21000
   - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    amount: "6000"
+    amount: 6000
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "800"
+    amount: 800
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: 700
   resourceGenerationRates: []
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
-    amount: "0.05"
+    amount: 0.05
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    amount: "0.04"
+    amount: 0.07
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.08"
+    amount: 0.08
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    amount: "0.03"
+    amount: 0.05
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.02"
+    amount: 0.02
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "0.04"
+    amount: 0.12
   - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    amount: "0.04"
+    amount: 0.04
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "2.4"
+    amount: 2.62
   - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    amount: "1.2"
-  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    amount: "1.5"
+    amount: 1.2
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "0.08"
+    amount: 0.08
+  - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
+    amount: 1.5
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: 0.25
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: 0.06
   requiredResearch:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
   - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
   - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
-  requiredWorkshopUpgrades: []
+  - {fileID: 11400000, guid: 333f1c13aad1437693a1025de304aeaa, type: 2}
+  requiredWorkshopUpgrades:
+  - {fileID: 11400000, guid: 0fca5243d6eb4f27a8e7b8632eba044d, type: 2}
+  - {fileID: 11400000, guid: 91dbfa1289790ad459dee070148e8a46, type: 2}

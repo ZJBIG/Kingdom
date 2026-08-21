@@ -36,6 +36,6 @@ MonoBehaviour:
     amount: "2000"
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: f3a4b5c6d7e8091a2b3c4d5e6f708192, type: 2}
+    Building: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
     Resource: {fileID: 0}
     value: "1.24"

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: InterstellarRouteControlTheory
+  m_EditorClassIdentifier: 
+  id: InterstellarRouteControlTheory
+  Label: "\u661f\u9645\u822a\u8def\u7ba1\u5236\u7406\u8bba"
+  Description: "\u7814\u7A76\u661F\u9645\u822A\u8DEF\u65F6\u9699\u3001\u8F68\u9053\u6CCA\u4F4D\u51B2\u7A81\u3001\u5408\u540C\u7ED3\u7B97\u4E0E\u7269\u6D41\u4FE1\u7528\uFF0C\u5EFA\u7ACB\u9762\u5411\u957F\u8DDD\u79BB\u8D27\u8FD0\u4E0E\u8230\u961F\u7684\u822A\u8DEF\u8C03\u5EA6\u5236\u5EA6\u3002"
+  BaseCost: "21000000"
+  prerequisites:
+  - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
+  - {fileID: 11400000, guid: 8e9f0a1b2c3d4e5f60718293a4b5c6d8, type: 2}
+  - {fileID: 11400000, guid: d4a6c8e0f2b54791ac3d5e7f9b1026c8, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "36000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "30000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "30000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "22000"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "18000"
+  effects:
+  - Type: 16
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.08"
+  TechLevel: 4
+  AdvancesTechLevel: 0

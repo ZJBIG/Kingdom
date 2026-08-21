@@ -36,13 +36,13 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "1500"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "28000"
+    amount: "84000"
   - resource: {fileID: 11400000, guid: deca0ec7bdfb0de42832c9aba829fa12, type: 2}
-    amount: "400000"
+    amount: "4000000"
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "80000"
+    amount: "800000"
   effects:
   - Type: 0
-    Building: {fileID: 11400000, guid: e1f2a3b4c56789d0e1f2a3b4c56789d0, type: 2}
+    Building: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
     Resource: {fileID: 0}
     value: "1.4"

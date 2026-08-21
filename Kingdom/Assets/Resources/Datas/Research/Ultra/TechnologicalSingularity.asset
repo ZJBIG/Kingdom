@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: TechnologicalSingularity
+  m_EditorClassIdentifier: 
+  id: TechnologicalSingularity
+  Label: "技术奇点"
+  Description: "汇聚稳定量子计算、相位航行、高能材料重构与跨星区知识协同，突破太空文明的工程与认知上限，使文明进入极致时代。"
+  BaseCost: "55000000"
+  prerequisites:
+  - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
+  - {fileID: 11400000, guid: 4e7f1a9c2b5d6e8f901a3c5e7b9d2f40, type: 2}
+  - {fileID: 11400000, guid: 9c0d1e2f30415263748596a7b8c9d0e1, type: 2}
+  - {fileID: 11400000, guid: 6d7e8f901a2b3c4d5e6f708192a3b4c5, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "64000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "48000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "28000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "20000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "16000"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "14000"
+  effects: []
+  TechLevel: 5
+  AdvancesTechLevel: 1

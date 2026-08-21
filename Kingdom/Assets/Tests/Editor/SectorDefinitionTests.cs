@@ -37,7 +37,7 @@ public sealed class SectorDefinitionTests
         Assert.That(tau.PrerequisiteSectors, Has.Count.EqualTo(1));
         Assert.That(tau.PrerequisiteSectors[0].Id, Is.EqualTo(proxima.Id));
         Assert.That(sirius.PrerequisiteSectors, Has.Count.EqualTo(1));
-        Assert.That(sirius.PrerequisiteSectors[0].Id, Is.EqualTo(proxima.Id));
+        Assert.That(sirius.PrerequisiteSectors[0].Id, Is.EqualTo(tau.Id));
         Assert.That(tau.EnemyPower, Is.GreaterThan(proxima.EnemyPower));
         Assert.That(tau.EnemyPower, Is.LessThan(sirius.EnemyPower));
     }
@@ -118,7 +118,7 @@ public sealed class SectorDefinitionTests
 
         Assert.That(alpha.CampaignFoodPerSecond, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(alpha.CampaignResourceRatesPerSecond, Has.Count.GreaterThan(0));
-        Assert.That(alpha.CampaignResourceRatesPerSecond[0].Second.ToDouble(), Is.EqualTo(100d / 60d).Within(0.000001d));
+        Assert.That(alpha.CampaignResourceRatesPerSecond[0].Second.ToDouble(), Is.EqualTo(0.8d).Within(0.000001d));
     }
 
     [Test]

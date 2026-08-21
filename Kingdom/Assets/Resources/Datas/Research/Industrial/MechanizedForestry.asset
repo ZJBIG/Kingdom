@@ -38,7 +38,7 @@ MonoBehaviour:
     Resource: {fileID: 0}
     value: "1.2"
   - Type: 1
-    Building: {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8f91, type: 2}
+    Building: {fileID: 11400000, guid: 7a4b2c1d9e8f6071528394a5b6c7d8e9, type: 2}
     Resource: {fileID: 0}
     value: "1.15"
   TechLevel: 3

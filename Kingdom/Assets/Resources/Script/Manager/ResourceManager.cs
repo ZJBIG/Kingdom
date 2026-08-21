@@ -71,7 +71,7 @@ public class ResourceManager : Singleton<ResourceManager>
         throw new KeyNotFoundException($"资源状态“{resource.Id}”尚未创建。");
     }
 
-    public ExpantaNum GetAmount(Resource resource) => GetState(resource).Amount;
+    public ExpantaNum GetAmount(Resource resource) => EnsureResource(resource).Amount;
 
     public void AddAmount(Resource resource, ExpantaNum delta)
     {

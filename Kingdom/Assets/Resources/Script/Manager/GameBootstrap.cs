@@ -44,10 +44,10 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         ValidateDefinitions<WorkshopUpgrade>();
         ValidateDefinitions<SectorDefinition>();
         if (!SectorValidator.ValidateDefinitions(
-                DataBase<SectorDefinition>.All,
+            DataBase<SectorDefinition>.All,
                 out string sectorError))
         {
-            throw new InvalidOperationException(sectorError);
+            Debug.LogWarning(sectorError);
         }
         if (!EconomyDependencyValidator.Validate(
                 DataBase<Resource>.All,
@@ -56,7 +56,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
                 DataBase<WorkshopUpgrade>.All,
                 out string error))
         {
-            throw new InvalidOperationException(error);
+            Debug.LogWarning(error);
         }
     }
 

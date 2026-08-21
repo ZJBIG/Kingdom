@@ -34,11 +34,11 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
     amount: "6000"
   - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
-    amount: "32000"
+    amount: "96000"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "4500"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "20000"
+    amount: "60000"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "3500"
   effects:
@@ -47,7 +47,7 @@ MonoBehaviour:
     Resource: {fileID: 0}
     value: "1.15"
   - Type: 11
-    Building: {fileID: 11400000, guid: 34a5e673637c4226a22089267c8b456c, type: 2}
+    Building: {fileID: 11400000, guid: 0a489615492d2dc4bb0a82376c76c3e8, type: 2}
     Resource: {fileID: 0}
     value: "1.25"
   - Type: 13

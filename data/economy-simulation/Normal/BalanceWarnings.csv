@@ -1,3 +1,2 @@
 Type,Object,Reason,Severity,Suggestion
-"Legacy metal surplus","Bronze","Active production is 17.5/s versus 1.5/s consumption; net flow remains 16/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
-"Legacy metal surplus","Tin","Active production is 16.8/s versus 1.5/s consumption; net flow remains 15.3/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
+"Pacing failure","Medieval","The run did not reach Medieval within 24 hours.","High","Repair ResearchPower and the Neolithic main line."

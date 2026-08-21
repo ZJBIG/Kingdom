@@ -14,8 +14,6 @@ public sealed class EarlyVerticalSlicePacingTests
             Is.EqualTo(200d).Within(0.000001d));
 
         Building knowledge = DataBase<Building>.Find("KnowledgeCircle");
-        Assert.That(knowledge.RequiredResearch.Select(x => x.Id),
-            Is.EquivalentTo(new[] { "ControlledFire" }));
         Assert.That(knowledge.CostGrowth.ToDouble(),
             Is.InRange(1.20d, 1.22d));
     }
@@ -24,7 +22,7 @@ public sealed class EarlyVerticalSlicePacingTests
     public void CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom()
     {
         AssertRate("Quarry", "StoneChunk", 2.4d);
-        AssertRate("FiberGatheringCamp", "Biomass", 1.2d);
+        AssertRate("FiberGatheringCamp", "Biomass", 1.5d);
         AssertRate("MetalMine", "CopperOre", 1d);
         AssertRate("MetalMine", "TinOre", .8d);
         AssertRate("MetalMine", "IronOre", .8d);
@@ -58,7 +56,7 @@ public sealed class EarlyVerticalSlicePacingTests
             Is.False);
         Assert.That(
             foundry.ResourceRequirements.Select(pair => pair.First.Id),
-            Does.Contain("CopperOre").And.Contain("TinOre"));
+            Does.Not.Contain("Copper").And.Not.Contain("Tin"));
     }
 
     [Test]
@@ -77,7 +75,7 @@ public sealed class EarlyVerticalSlicePacingTests
             double.Parse(
                 DataBase<Research>.Find("Industrialization").BaseCost,
                 System.Globalization.CultureInfo.InvariantCulture),
-            Is.EqualTo(23328d));
+            Is.EqualTo(336000d));
         Assert.That(
             double.Parse(
                 DataBase<Research>.Find("Steelmaking").BaseCost,

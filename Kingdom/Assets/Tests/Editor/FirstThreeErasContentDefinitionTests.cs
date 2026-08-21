@@ -14,7 +14,7 @@ public class FirstThreeErasContentDefinitionTests
         Assert.That(town, Is.Not.Null);
         Assert.That(wood.UpgradeTo, Is.EqualTo(stone));
         Assert.That(stone.UpgradeTo, Is.EqualTo(town));
-        Assert.That(town.UpgradeTo, Is.Null);
+        Assert.That(town.UpgradeTo, Is.EqualTo(FindBuilding("IndustrialHabitationComplex")));
         Assert.DoesNotThrow(() =>
             BuildingManager.ValidateBuildingChains(
                 Resources.LoadAll<Building>("Datas/Building")));
@@ -26,7 +26,7 @@ public class FirstThreeErasContentDefinitionTests
         Research masonry = DataBase<Research>.Find("Masonry");
         Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
 
-        Assert.That(masonry.Label, Is.EqualTo("砌筑技术"));
+        Assert.That(masonry.Label, Is.EqualTo("石造建筑"));
         Assert.That(
             urbanHousing.Prerequisites,
             Does.Contain(masonry));

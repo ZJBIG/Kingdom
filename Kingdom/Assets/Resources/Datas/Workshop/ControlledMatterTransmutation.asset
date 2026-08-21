@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ControlledMatterTransmutation
   m_EditorClassIdentifier: 
   id: ControlledMatterTransmutation
-  Label: "受控物质嬗变装置"
-  Description: "由高能场约束腔、同位素分选器和材料重组单元组成，将物质嬗变实验流程固化为工业设备标准，提高深空建筑的整体生产效率。"
+  Label: "受控材料重构装置"
+  Description: "由高能场约束腔、材料分选器和结构重组单元组成，将高能材料重构流程固化为工业设备标准，提高深空建筑的整体生产效率。"
   SortOrder: 760
   TechLevel: 4
   requiredResearch:
@@ -25,9 +25,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3a4b5c6d7e8f9012a3b4c5d6e7f8091a, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "600000"
+    amount: "1800000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "440000"
+    amount: "1320000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "100000"
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}

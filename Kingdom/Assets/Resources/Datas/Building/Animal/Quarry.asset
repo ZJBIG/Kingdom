@@ -39,7 +39,7 @@ MonoBehaviour:
     amount: "120"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
-    amount: "2"
+    amount: "2.4"
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: 84ad03c430938004c95f62faa737c752, type: 2}

@@ -36,7 +36,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "4000"
   - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    amount: "13000"
+    amount: "39000"
   effects:
   - Type: 16
     Building: {fileID: 0}

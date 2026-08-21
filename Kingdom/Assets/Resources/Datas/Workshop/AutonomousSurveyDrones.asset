@@ -18,28 +18,18 @@ MonoBehaviour:
   SortOrder: 530
   TechLevel: 4
   requiredResearch:
-  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
-  - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
   - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
-  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
-  requiredUpgrades:
-  - {fileID: 11400000, guid: 3a4b5c6d7e8f901a2b3c4d5e6f708192, type: 2}
+  requiredUpgrades: []
   resourceRequirements:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "6000"
+    amount: "22500"
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    amount: "4000"
+    amount: "7000"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "20000"
+    amount: "6000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
-    amount: "12000"
-  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "900"
-  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "100000"
-  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    amount: "50000"
+    amount: "4500"
   effects:
   - Type: 9
     Building: {fileID: 11400000, guid: 9f6e4d2c1b0a9876543210fedcba9876, type: 2}

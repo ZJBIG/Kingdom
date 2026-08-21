@@ -15,24 +15,27 @@ MonoBehaviour:
   id: DeepSpaceFleet
   Label: "深空舰队"
   Description: "建立具备远征能力的舰队、化学推进剂补给链和指挥体系，解锁远星战役；舰队推进会持续消耗食物、燃料、物流能力和高级材料。"
-  BaseCost: "4000000"
+  BaseCost: "7500000"
   prerequisites:
-  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
-  - {fileID: 11400000, guid: 323c4afbe0c59c94bb68d1816a07b402, type: 2}
+  - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
+  - {fileID: 11400000, guid: 333f1c13aad1437693a1025de304aeaa, type: 2}
   - {fileID: 11400000, guid: 36c4ed2ac1bc87046b4e53fe5fe3ea5f, type: 2}
+  - {fileID: 11400000, guid: 323c4afbe0c59c94bb68d1816a07b402, type: 2}
   resourceRequirements:
-  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "1200000"
-  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-    amount: "2000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "1500"
+    amount: "10000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "7000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "20000"
   - resource: {fileID: 11400000, guid: 28d8840d779dbfc46988c80bb4226e24, type: 2}
     amount: "12000"
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "12000"
   effects:
   - Type: 20

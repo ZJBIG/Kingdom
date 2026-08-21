@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public sealed class KingdomPerfTestTools : EditorWindow
 {
     private const string TestAmount = "1e1000";
     private const string TestResearchMultiplier = "1e1000";
+    private const int QueueTestTargetCount = 64;
     private static bool researchGraphLinesVisible = true;
 
     [MenuItem("Tools/Kingdom/Performance Test Tools")]
@@ -127,13 +129,18 @@ public sealed class KingdomPerfTestTools : EditorWindow
         // EnqueueResearch intentionally accepts only a research whose
         // prerequisites are already completed.  Use the same action path as
         // the player so prerequisite batches are added when needed.
-        for (int pass = 0; pass < 8 && researches.ResearchQueue.Count < 8; pass++)
+        for (int pass = 0; pass < candidates.Count && researches.ResearchQueue.Count < QueueTestTargetCount; pass++)
         {
             foreach (Research research in candidates)
             {
-                if (researches.ResearchQueue.Count >= 8)
+                if (researches.ResearchQueue.Count >= QueueTestTargetCount)
                     break;
                 if (research == null)
+                    continue;
+                // HandleResearchAction toggles an already queued item. The
+                // stress tool must preserve earlier entries while making
+                // additional passes for prerequisite batches.
+                if (researches.IsQueued(research))
                     continue;
                 ResearchActionResult result = researches.HandleResearchAction(research);
                 if (result == ResearchActionResult.Started ||
@@ -142,8 +149,17 @@ public sealed class KingdomPerfTestTools : EditorWindow
                     queued++;
             }
         }
-        Debug.Log($"[KingdomPerfTest] QueuePrepared reset=True added={queued} queueCount={researches.ResearchQueue.Count}");
-        KingdomEditorPerfLog.Write($"[KingdomPerf] TestQueuePrepared reset=True added={queued} queueCount={researches.ResearchQueue.Count}");
+        IReadOnlyList<ResearchState> queueSnapshot = researches.ResearchQueue;
+        var queueIds = new StringBuilder();
+        for (int i = 0; i < queueSnapshot.Count; i++)
+        {
+            if (i > 0)
+                queueIds.Append(',');
+            queueIds.Append(queueSnapshot[i]?.Definition?.Id ?? "<null>");
+        }
+        string activeId = researches.ActiveResearch?.Definition?.Id ?? "<none>";
+        Debug.Log($"[KingdomPerfTest] QueuePrepared reset=True added={queued} active={activeId} queueCount={queueSnapshot.Count} queueIds={queueIds}");
+        KingdomEditorPerfLog.Write($"[KingdomPerf] TestQueuePrepared reset=True added={queued} active={activeId} queueCount={queueSnapshot.Count} queueIds={queueIds}");
     }
 
     private static void ToggleResearchGraphLines()

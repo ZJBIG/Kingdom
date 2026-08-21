@@ -26,7 +26,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c7a4e1f9d2b6485aa0e3c6f8179bd542, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
-    amount: "1800000"
+    amount: "18000000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "22500"
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
@@ -38,7 +38,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "9000"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "44000"
+    amount: "132000"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "5000"
   effects:
@@ -48,5 +48,5 @@ MonoBehaviour:
     value: "30000"
   - Type: 15
     Building: {fileID: 0}
-    Resource: {fileID: 0}
+    Resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     value: "1.25"

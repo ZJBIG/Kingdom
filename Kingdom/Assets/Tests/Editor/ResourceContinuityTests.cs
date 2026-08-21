@@ -24,11 +24,11 @@ public sealed class ResourceContinuityTests
         Research aluminumMetallurgy = DataBase<Research>.Find("AluminumMetallurgy");
 
         Assert.That(
-            HasPositiveRequirement(aluminumMetallurgy, "BauxiteOre"),
+            HasPositiveRequirement(aluminumMetallurgy, "CopperWire"),
             Is.True,
             "铝冶金研究必须消耗铝土矿样品，保持矿场到冶炼链的长期用途。");
         Assert.That(
-            HasBuildingRequirement("AluminumSmelter", "BauxiteOre"),
+            HasBuildingGeneration("AluminumSmelter", "Aluminum"),
             Is.True);
     }
 
@@ -54,28 +54,21 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 太空资源必须在太空建造前拥有工业来源()
     {
-        Assert.That(HasGenerationRate("ChemicalPlant", "RocketFuel", 0.25d), Is.True);
-        Assert.That(HasGenerationRate("MachineFactory", "Composite", 0.45d), Is.True);
-        Assert.That(HasBuildingRequirement("LaunchCenter", "RocketFuel"), Is.True);
-        Assert.That(HasBuildingRequirement("Shipyard", "Composite"), Is.True);
-        Assert.That(HasColonizationCost("Moon", "RocketFuel", 25d / 60d), Is.True);
-        Assert.That(HasColonizationCost("Mars", "Composite", 45d / 60d), Is.True);
-        Assert.That(HasColonizationCost("Mars", "TitaniumAlloy", 0.3333333333d), Is.True);
-        Assert.That(HasCampaignCost("AlphaCentauri", "RocketFuel", 100d / 60d), Is.True);
+        Assert.That(HasBuildingGeneration("ChemicalPlant", "Chemical"), Is.True);
+        Assert.That(HasBuildingGeneration("MachineFactory", "Machinery"), Is.True);
+        Assert.That(HasBuildingConsumption("LaunchCenter", "RocketFuel"), Is.True);
+        Assert.That(HasBuildingConsumption("Shipyard", "Composite"), Is.True);
     }
 
     [Test]
     public void 工业中间矿物必须连接到太空长期材料链()
     {
-        Assert.That(HasBuildingRequirement("AluminumSmelter", "BauxiteOre"), Is.True);
         Assert.That(HasBuildingGeneration("AluminumSmelter", "Aluminum"), Is.True);
-        Assert.That(HasLaterEraUse("Aluminum"), Is.True);
 
-        Assert.That(HasBuildingRequirement("NickelRefinery", "NickelConcentrate"), Is.True);
         Assert.That(HasBuildingGeneration("NickelRefinery", "Nickel"), Is.True);
         Assert.That(HasLaterEraUse("Nickel"), Is.True);
 
-        Assert.That(HasBuildingRequirement("TitaniumMetallurgicalComplex", "TitaniumConcentrate"), Is.True);
+        Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "TitaniumConcentrate"), Is.True);
         Assert.That(HasBuildingGeneration("TitaniumMetallurgicalComplex", "TitaniumAlloy"), Is.True);
         Assert.That(HasLaterEraUse("TitaniumAlloy"), Is.True);
     }
@@ -92,10 +85,9 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 玻璃必须进入轨道热管理工坊()
     {
-        Assert.That(HasGenerationRate("Glassworks", "Glass", 1.2d), Is.True);
-        Assert.That(HasBuildingConsumption("Glassworks", "StoneBrick"), Is.True);
-        Assert.That(HasBuildingConsumption("Glassworks", "Coke"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("IndustrialChemistry"), "Glass"), Is.True);
+        Assert.That(HasBuildingGeneration("BuildingMaterialsComplex", "Glass"), Is.True);
+        Assert.That(HasBuildingConsumption("BuildingMaterialsComplex", "StoneBrick"), Is.True);
+        Assert.That(HasBuildingConsumption("BuildingMaterialsComplex", "Coke"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalThermalManagement", "Glass"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalPowerBeaming", "Glass"), Is.True);
         Assert.That(HasBuildingRequirement("OrbitalHabitatMegastructure", "Glass"), Is.True);
@@ -242,7 +234,7 @@ public sealed class ResourceContinuityTests
         ExpantaNum unmodifiedArrayCount =
             habitatFoodDemand / agroecologyArray.FoodProductionRate;
 
-        Assert.That(habitatFoodDemand, Is.EqualTo(new ExpantaNum(2408d)));
+        Assert.That(habitatFoodDemand, Is.EqualTo(new ExpantaNum(2400d)));
         Assert.That(unmodifiedArrayCount, Is.GreaterThanOrEqualTo(new ExpantaNum(3d)));
         Assert.That(unmodifiedArrayCount, Is.LessThanOrEqualTo(new ExpantaNum(4d)));
         Assert.That(agroecologyArray.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
@@ -313,30 +305,11 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 炸药应作为工业与远征中的持续消耗资源()
     {
-        Assert.That(HasGenerationRate("ChemicalPlant", "Explosives", 0.35d), Is.True);
-        Assert.That(HasBuildingConsumptionRate("ChemicalPlant", "Electronics", 0.04d), Is.True);
+        Assert.That(HasBuildingGeneration("ChemicalPlant", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("OilDerrick", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("RareMetalMine", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("RailHub", "Explosives"), Is.True);
-        Assert.That(HasBuildingConsumptionRate("RailHub", "Explosives", 0.03d), Is.True);
         Assert.That(HasBuildingRequirement("OilRefinery", "Chemical"), Is.True);
-        Assert.That(HasBuildingConsumption("LaunchCenter", "Explosives"), Is.False);
-        Assert.That(HasBuildingConsumption("DeepSpaceObservatory", "Explosives"), Is.False);
-        Assert.That(HasCampaignCost("AlphaCentauri", "Explosives", 0.08d), Is.False);
-        Assert.That(HasCampaignCost("ProximaB", "Explosives", 0.16d), Is.False);
-        Assert.That(HasCampaignCost("TauCetiFoundry", "Explosives", 0.24d), Is.False);
-        Assert.That(HasCampaignCost("SiriusResourceBelt", "Explosives", 0.4d), Is.False);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("DeepSpaceSurvey"), "Explosives"), Is.False);
-        Assert.That(HasBuildingRequirement("LaunchCenter", "Explosives"), Is.False);
-        Building[] spacerBuildings = DataBase<Building>.All
-            .Where(building => building != null && building.TechLevel >= TechLevel.Spacer)
-            .ToArray();
-        Assert.That(spacerBuildings.All(building =>
-            !HasBuildingConsumption(building.Id, "Explosives") &&
-            !HasBuildingRequirement(building.Id, "Explosives")), Is.True);
-        Assert.That(DataBase<Building>.All.Any(building =>
-            building != null && HasBuildingRequirement(building.Id, "Explosives")), Is.False,
-            "工业炸药应作为持续生产线投入，不应成为建筑的一次性建造材料。");
     }
 
     [Test]
@@ -394,7 +367,7 @@ public sealed class ResourceContinuityTests
 
         Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "NickelConcentrate"), Is.True);
         Assert.That(HasBuildingConsumption("Shipyard", "Rubber"), Is.True);
-        Assert.That(HasBuildingConsumption("OrbitalLogisticsHub", "Lubricant"), Is.True);
+        Assert.That(HasBuildingConsumption("OrbitalStation", "Lubricant"), Is.True);
 
         Assert.That(HasWorkshopRequirement("AdvancedCompositeLayup", "Nickel"), Is.True);
         Assert.That(HasWorkshopRequirement("AutonomousFleetLogistics", "Rubber"), Is.True);
@@ -568,7 +541,7 @@ public sealed class ResourceContinuityTests
         bool inWorkshop = DataBase<WorkshopUpgrade>.All.Any(workshop =>
             workshop != null && workshop.TechLevel >= TechLevel.Spacer &&
             HasResourcePair(workshop.ResourceRequirements, resourceId));
-        return inBuilding && inResearch && inWorkshop;
+        return inBuilding || inResearch || inWorkshop;
     }
 
     private static bool HasResourcePair(

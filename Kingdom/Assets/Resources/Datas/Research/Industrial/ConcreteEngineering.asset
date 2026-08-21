@@ -32,7 +32,7 @@ MonoBehaviour:
     amount: "4520"
   effects:
   - Type: 1
-    Building: {fileID: 11400000, guid: 93ee90d2ae7a9ba48b01c81b25f4ba2b, type: 2}
+    Building: {fileID: 11400000, guid: eceb037f89465d9419e3a36f8a208e95, type: 2}
     Resource: {fileID: 0}
     value: "1.1"
   - Type: 1

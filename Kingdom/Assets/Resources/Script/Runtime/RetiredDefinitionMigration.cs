@@ -9,6 +9,7 @@ internal static class RetiredDefinitionMigration
     };
     private static bool logged;
     private static bool legacyResourceIdsLogged;
+    private static bool legacyBuildingIdsLogged;
 
     public static string NormalizeResourceId(string id)
     {
@@ -27,6 +28,11 @@ internal static class RetiredDefinitionMigration
 
     public static string NormalizeBuildingId(string id)
     {
+        if (string.Equals(id, "Glassworks", StringComparison.Ordinal))
+        {
+            LogLegacyBuildingIdsOnce();
+            return "BuildingMaterialsComplex";
+        }
         if (string.Equals(
                 id,
                 "StoneCuttingWorkshop_Marble",
@@ -65,5 +71,14 @@ internal static class RetiredDefinitionMigration
             "存档迁移已重映射旧定义：" +
             "StoneChunk_Marble -> StoneChunk, StoneBrick_Marble -> StoneBrick, " +
             "StoneCuttingWorkshop_Marble -> StoneCuttingWorkshop.");
+    }
+
+    private static void LogLegacyBuildingIdsOnce()
+    {
+        if (legacyBuildingIdsLogged)
+            return;
+        legacyBuildingIdsLogged = true;
+        Debug.LogWarning(
+            "存档迁移已重映射旧建筑定义：Glassworks -> BuildingMaterialsComplex。");
     }
 }

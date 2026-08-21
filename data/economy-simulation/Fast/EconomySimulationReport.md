@@ -1,7 +1,7 @@
 # Economy Simulation Report - Fast
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
+Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 
 ## Rules
 
@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 37160 seconds; longest continuous 20430 seconds.
-- Final population growth: x2.4, 1126.123/s; productivity utilization: 136.0%; territory: 2723/2725.
+- Productivity-blocked building decision time: total 770 seconds; longest continuous 250 seconds.
+- Final population growth: x1.6, 0/s; productivity utilization: 36.7%; territory: 799/800.
 
 ## Animal Age
 
@@ -27,17 +27,17 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 ## Neolithic Age
 
 到达时间: 79.12 分钟
-完成研究: 23
+完成研究: 16
 
 ## Medieval Age
 
-到达时间: 399.73 分钟
-完成研究: 3
+到达时间: 不可达
+完成研究: 0
 
 ## Industrial Age
 
-到达时间: 679.75 分钟
-完成研究: 33
+到达时间: 不可达
+完成研究: 0
 
 ## Spacer Age
 
@@ -48,19 +48,11 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Bottlenecks
 
-- Aluminum: single producer
-- CopperWire: single producer
-- Electronics: single producer
-- Engine: single producer
-- Glass: single producer
-- Machinery: single producer
+None
 
 ## Warnings
 
-- **Info Legacy metal surplus** Bronze: Active production is 20.6/s versus 2/s consumption; net flow remains 18.6/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **Info Legacy metal surplus** Tin: Active production is 20/s versus 2/s consumption; net flow remains 18/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **High Building wait exceeds ten minutes** IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
-- **High Building wait exceeds ten minutes** IndustrialStoneworks: First-copy StoneBrick input takes 12.5 minutes at active production. Suggestion: Adjust that resource cost or unlock a producer earlier.
+- **High Pacing failure** Medieval: The run did not reach Medieval within 24 hours. Suggestion: Repair ResearchPower and the Neolithic main line.
 
 ## Validation boundary
 

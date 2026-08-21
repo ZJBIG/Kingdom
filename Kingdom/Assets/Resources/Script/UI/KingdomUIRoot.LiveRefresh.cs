@@ -79,6 +79,7 @@ public sealed partial class KingdomUIRoot
         liveRefreshTimer += Time.unscaledDeltaTime;
         developmentGuidanceRefreshTimer += Time.unscaledDeltaTime;
         scrollingLiveValueRefreshTimer += Time.unscaledDeltaTime;
+        researchDetailLiveRefreshTimer += Time.unscaledDeltaTime;
         topStatusRefreshTimer += Time.unscaledDeltaTime;
         researchDynamicSignatureRefreshTimer += Time.unscaledDeltaTime;
         researchQueuePollTimer += Time.unscaledDeltaTime;
@@ -293,7 +294,8 @@ public sealed partial class KingdomUIRoot
 #endif
             topStatusRefreshTimer = 0f;
         }
-        if (populatedPage == "Research" && researchQueueUiDirty)
+        if (populatedPage == "Research" &&
+            (researchQueueUiDirty || researchQueueLayoutPending && !pageScrolling))
         {
 #if UNITY_EDITOR
             float branchStart = Time.realtimeSinceStartup;
@@ -302,6 +304,9 @@ public sealed partial class KingdomUIRoot
 #if UNITY_EDITOR
             RecordUiBranch("queue", (Time.realtimeSinceStartup - branchStart) * 1000f);
 #endif
+            // Layout may remain pending while the page is moving, but the
+            // queue text itself has already been refreshed. Do not turn the
+            // pending-height flag into a per-frame text rebuild.
             researchQueueUiDirty = false;
         }
         if (populatedPage == "Overview" &&
@@ -346,6 +351,11 @@ public sealed partial class KingdomUIRoot
             // text/colors does not rebuild graph geometry, so it is safe while
             // the gesture owns the pointer and keeps the queue/progress live.
             RefreshResearchDynamicUI();
+            if (researchDetailLiveRefreshTimer >= 0.75f && selectedResearchNode != null)
+            {
+                RefreshResearchDetailLiveValues(selectedResearchNode);
+                researchDetailLiveRefreshTimer = 0f;
+            }
         }
         else if (pageScrolling && populatedPage == "Research" && refreshScrolledValues)
         {
@@ -355,12 +365,15 @@ public sealed partial class KingdomUIRoot
             // above; rebuilding the same queue string here caused avoidable
             // allocations during every drag.
             RefreshActiveResearchProgressVisual(ResearchManager.Instance);
-            if (selectedResearchNode != null)
+            if (selectedResearchNode != null &&
+                researchDetailLiveRefreshTimer >= 0.75f &&
+                (researchGraphGesture == null || !researchGraphGesture.IsDragging))
             {
 #if UNITY_EDITOR
                 float branchStart = Time.realtimeSinceStartup;
 #endif
                 RefreshResearchDetailLiveValues(selectedResearchNode);
+                researchDetailLiveRefreshTimer = 0f;
 #if UNITY_EDITOR
                 RecordUiBranch("detail", (Time.realtimeSinceStartup - branchStart) * 1000f);
 #endif
@@ -516,6 +529,10 @@ public sealed partial class KingdomUIRoot
         // rebuild. This avoids the 79-node structural scan.
         lastResearchQueuePollSignature = signature;
         researchQueueUiDirty = true;
+        // Polling is also the fallback for queue mutations that bypass the
+        // manager event. Mark the graph dirty so queued/active node visuals
+        // converge on the same refresh, not only the toolbar text.
+        researchDynamicUiDirty = true;
         RefreshResearchQueueToolbar();
         researchQueueUiDirty = false;
     }

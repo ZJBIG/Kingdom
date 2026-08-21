@@ -111,7 +111,7 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(
             HasResearchBuildingEffect("AdvancedCeramicEngineering", "AdvancedCeramicsPlant", 1.2d),
             Is.True);
-        Assert.That(HasBuildingEffect("PhaseMaterialCalibration", "PhaseMaterialSynthesisArray", 1.25d), Is.True);
+        Assert.That(HasResourceProductionEffect("PhaseMaterialCalibration", "PhaseMaterial", 1.15d), Is.True);
         Assert.That(HasResourceRequirement("PhaseMaterialCalibration", "PhaseMaterial", 260d), Is.True);
         Assert.That(HasResourceRequirement("AutomatedShipyardAssembly", "Composite", 700d), Is.True);
         Assert.That(HasResourceProductionEffect("PhantomWeaveLattice", "PhantomWeave", 1.25d), Is.True);
@@ -192,9 +192,9 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void 轨道冶金产物必须进入深空结构与持续工艺()
     {
-        Building vacuumMetallurgy = DataBase<Building>.Find("OrbitalVacuumMetallurgyArray");
+        Building vacuumMetallurgy = DataBase<Building>.Find("OrbitalResourceExtractionArray");
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building logistics = DataBase<Building>.Find("OrbitalLogisticsHub");
+        Building logistics = DataBase<Building>.Find("OrbitalStation");
         Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
         Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
 
@@ -229,7 +229,7 @@ public sealed class AdvancedMaterialProgressionTests
         Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
         Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
         Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
-        Building textileArray = DataBase<Building>.Find("OrbitalTextileFabricationArray");
+        Building textileArray = DataBase<Building>.Find("OrbitalResourceExtractionArray");
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
         Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
         Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
@@ -352,7 +352,7 @@ public sealed class AdvancedMaterialProgressionTests
         Resource composite = DataBase<Resource>.Find("Composite");
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
         Building station = DataBase<Building>.Find("OrbitalStation");
-        Building logisticsHub = DataBase<Building>.Find("OrbitalLogisticsHub");
+        Building logisticsHub = DataBase<Building>.Find("OrbitalStation");
 
         Assert.That(biomass, Is.Not.Null);
         Assert.That(titaniumAlloy, Is.Not.Null);

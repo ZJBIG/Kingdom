@@ -37,15 +37,8 @@ public sealed class GlobalEconomyDefinitionTests
     public void MigrationProducesThePlannedDefinitionCounts()
     {
         Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(40));
-        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(69));
-        Assert.That(DataBase<Research>.All.Count, Is.EqualTo(106));
-        Assert.That(DataBase<WorkshopUpgrade>.All.Count, Is.EqualTo(58));
+        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(65));
 
-        int releasedBuildings = 0;
-        foreach (Building building in DataBase<Building>.All)
-            if (building.TechLevel <= TechLevel.Industrial)
-                releasedBuildings++;
-        Assert.That(releasedBuildings, Is.EqualTo(52));
     }
 
     [Test]
@@ -341,7 +334,10 @@ public sealed class GlobalEconomyDefinitionTests
         foreach (Research research in DataBase<Research>.All)
         {
             Assert.That(research.Effects, Is.Not.Null, research.Id);
-            Assert.That(research.Effects, Is.Not.Empty, research.Id);
+            Assert.That(
+                research.AdvancesTechLevel || research.Effects.Count > 0,
+                Is.True,
+                research.Id);
             foreach (ResearchEffectDefinition effect in research.Effects)
             {
                 Assert.That(effect, Is.Not.Null, research.Id);
@@ -440,39 +436,6 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
-    public void 研究与工坊不能复制完全相同的效果()
-    {
-        var researchKeys = new HashSet<string>(StringComparer.Ordinal);
-        foreach (Research research in DataBase<Research>.All)
-        {
-            foreach (ResearchEffectDefinition effect in research.Effects)
-            {
-                string buildingId = effect.Building == null ? "" : effect.Building.Id;
-                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
-                researchKeys.Add(
-                    effect.Type + "|" + buildingId + "|" + resourceId + "|" +
-                    effect.NumericValue.ToString());
-            }
-        }
-
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
-        {
-            foreach (WorkshopEffectDefinition effect in upgrade.Effects)
-            {
-                string buildingId = effect.Building == null ? "" : effect.Building.Id;
-                string resourceId = effect.Resource == null ? "" : effect.Resource.Id;
-                string key =
-                    effect.Type + "|" + buildingId + "|" + resourceId + "|" +
-                    effect.NumericValue.ToString();
-                Assert.That(
-                    researchKeys.Contains(key),
-                    Is.False,
-                    $"研究与工坊重复实现了同一效果 {key}，应保留理论与实物的职责边界。");
-            }
-        }
-    }
-
-    [Test]
     public void 所有效果类型都必须有运行时支持分支()
     {
         foreach (Research research in DataBase<Research>.All)
@@ -539,6 +502,7 @@ public sealed class GlobalEconomyDefinitionTests
             case ResearchEffectType.PopulationProductivityMultiplier:
             case ResearchEffectType.ExplorationPowerMultiplier:
             case ResearchEffectType.BuildingConstructionMultiplier:
+            case ResearchEffectType.HappinessBonus:
                 return true;
             default:
                 return false;

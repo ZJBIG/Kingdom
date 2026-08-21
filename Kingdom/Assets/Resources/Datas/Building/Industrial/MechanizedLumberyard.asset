@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "\u673A\u68B0\u5316\u6797\u573A"
   Description: "\u4EE5\u91CD\u578B\u6536\u5272\u673A\u3001\u8FD0\u6750\u8F66\u961F\u548C\u96C6\u4E2D\u70D8\u5E72\u7AD9\u66FF\u4EE3\u5206\u6563\u4F10\u6728\uFF0C\u9AD8\u5F3A\u5EA6\u8F93\u51FA\u539F\u6728\uFF0C\u5E76\u4EE5\u7126\u70AD\u7EF4\u6301\u91CD\u578B\u673A\u68B0\u8FD0\u8F6C\u3002"
   TechLevel: 3
-  upgradeTo: {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8f91, type: 2}
+  upgradeTo: {fileID: 11400000, guid: 7a4b2c1d9e8f6071528394a5b6c7d8e9, type: 2}
   costGrowth: "1.2"
   spaceCost: "24"
   productivityConsumption: "140"

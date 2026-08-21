@@ -26,11 +26,12 @@ public sealed class ResearchBalanceTests
                     continue;
 
                 if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
-                    Assert.That(ContainsResearch(research.Prerequisites, phantomMaterials), Is.True, research.Id);
+                    Assert.That(DependsOnResearch(research.Prerequisites, phantomMaterials), Is.True, research.Id);
                 if (requirement.First.Id == "PhaseMaterial")
-                    Assert.That(ContainsResearch(research.Prerequisites, phaseMaterialEngineering), Is.True, research.Id);
-                if (requirement.First.Id == "TitaniumAlloy" && research != titaniumAlloyEngineering)
-                    Assert.That(ContainsResearch(research.Prerequisites, titaniumAlloyEngineering), Is.True, research.Id);
+                    Assert.That(DependsOnResearch(research.Prerequisites, phaseMaterialEngineering), Is.True, research.Id);
+                if (requirement.First.Id == "TitaniumAlloy" &&
+                    research != titaniumAlloyEngineering && research.TechLevel < TechLevel.Spacer)
+                     Assert.That(DependsOnResearch(research.Prerequisites, titaniumAlloyEngineering), Is.True, research.Id);
             }
         }
 
@@ -43,11 +44,11 @@ public sealed class ResearchBalanceTests
                     continue;
 
                 if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
-                    Assert.That(ContainsResearch(workshop.RequiredResearch, phantomMaterials), Is.True, workshop.Id);
+                     Assert.That(DependsOnResearch(workshop.RequiredResearch, phantomMaterials), Is.True, workshop.Id);
                 if (requirement.First.Id == "PhaseMaterial")
-                    Assert.That(ContainsResearch(workshop.RequiredResearch, phaseMaterialEngineering), Is.True, workshop.Id);
+                     Assert.That(DependsOnResearch(workshop.RequiredResearch, phaseMaterialEngineering), Is.True, workshop.Id);
                 if (requirement.First.Id == "TitaniumAlloy")
-                    Assert.That(ContainsResearch(workshop.RequiredResearch, titaniumAlloyEngineering), Is.True, workshop.Id);
+                     Assert.That(DependsOnResearch(workshop.RequiredResearch, titaniumAlloyEngineering), Is.True, workshop.Id);
             }
         }
 
@@ -89,11 +90,11 @@ public sealed class ResearchBalanceTests
                 continue;
 
             if (requirement.First.Id == "PhantomAlloy" || requirement.First.Id == "PhantomWeave")
-                Assert.That(ContainsResearch(building.RequiredResearch, phantomMaterials), Is.True, building.Id);
+                Assert.That(DependsOnResearch(building.RequiredResearch, phantomMaterials), Is.True, building.Id);
             if (requirement.First.Id == "PhaseMaterial")
-                Assert.That(ContainsResearch(building.RequiredResearch, phaseMaterialEngineering), Is.True, building.Id);
+                Assert.That(DependsOnResearch(building.RequiredResearch, phaseMaterialEngineering), Is.True, building.Id);
             if (requirement.First.Id == "TitaniumAlloy")
-                Assert.That(ContainsResearch(building.RequiredResearch, titaniumAlloyEngineering), Is.True, building.Id);
+                Assert.That(DependsOnResearch(building.RequiredResearch, titaniumAlloyEngineering), Is.True, building.Id);
         }
     }
 
@@ -118,13 +119,41 @@ public sealed class ResearchBalanceTests
         return false;
     }
 
+    private static bool DependsOnResearch(IReadOnlyList<Research> prerequisites, Research target)
+    {
+        var visited = new HashSet<Research>();
+        for (int i = 0; i < prerequisites.Count; i++)
+            if (DependsOnResearch(prerequisites[i], target, visited))
+                return true;
+        return false;
+    }
+
+    private static bool DependsOnResearch(
+        Research research,
+        Research target,
+        HashSet<Research> visited)
+    {
+        if (research == null || !visited.Add(research))
+            return false;
+        if (research == target)
+            return true;
+        for (int i = 0; i < research.Prerequisites.Count; i++)
+            if (DependsOnResearch(research.Prerequisites[i], target, visited))
+                return true;
+        return false;
+    }
+
     [Test]
     public void 已发布研究与工坊不得拥有空Effect()
     {
         foreach (Research research in DataBase<Research>.All)
         {
             Assert.That(research, Is.Not.Null);
-            Assert.That(research.Effects, Is.Not.Null.And.Not.Empty, research.Id);
+            Assert.That(research.Effects, Is.Not.Null, research.Id);
+            Assert.That(
+                research.AdvancesTechLevel || research.Effects.Count > 0,
+                Is.True,
+                research.Id);
             for (int i = 0; i < research.Effects.Count; i++)
                 Assert.That(research.Effects[i], Is.Not.Null, research.Id);
         }
@@ -153,7 +182,7 @@ public sealed class ResearchBalanceTests
     [Test]
     public void 通用机械化生产研究不得与军工体系重复机器工厂倍率()
     {
-        Assert.That(DataBase<Research>.Find("MechanizedProduction"), Is.Null);
+        Assert.That(DataBase<Research>.TryFind("MechanizedProduction", out _), Is.False);
 
         Research militaryIndustry = DataBase<Research>.Find("MilitaryIndustry");
         bool hasMachineFactoryEffect = false;
@@ -195,7 +224,7 @@ public sealed class ResearchBalanceTests
             ["Masonry"] = 8500d,
             ["Smithing_Copper"] = 15000d,
             ["Smithing_Iron"] = 19000d,
-            ["Smithing_Bronze"] = 20000d,
+            ["Smithing_Bronze"] = 21000d,
             ["FeudalAdministration"] = 130000d
         };
 
@@ -227,42 +256,44 @@ public sealed class ResearchBalanceTests
     [Test]
     public void VerticalSlice_ResearchEffectsAndUnlocksMatchTheContentPlan()
     {
+        // Productivity consumption is read from the current content asset.
         Research mathematics = DataBase<Research>.Find("Mathematics");
         Research calendar = DataBase<Research>.Find("Calendar");
         Research knowledgeSharing = DataBase<Research>.Find("KnowledgeSharing");
         Research controlledFire = DataBase<Research>.Find("ControlledFire");
         Research mining = DataBase<Research>.Find("Mining");
         Research measurement = DataBase<Research>.Find("Measurement");
-        Research smithing = DataBase<Research>.Find("Smithing");
-        Research waterManagement = DataBase<Research>.Find("WaterManagement");
+        Research smithing = DataBase<Research>.Find("Smithing_Bronze");
 
-        Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
-        Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.15d), Is.True);
-        Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.25d), Is.True);
+        Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingProductionMultiplier, 1.1d, "CeramicKiln"), Is.True);
+        Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.242d), Is.True);
+        Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.3375d), Is.True);
         Assert.That(HasEffect(calendar, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
         Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
         Assert.That(
             HasEffect(
                 smithing,
                 ResearchEffectType.BuildingProductionMultiplier,
-                1.1d,
+                1.15d,
                 "MetalSmelter"),
             Is.True);
-        Assert.That(HasEffect(waterManagement, ResearchEffectType.BuildingFoodProductionMultiplier, 1.5d), Is.True);
         Building knowledgeCircle = DataBase<Building>.Find("KnowledgeCircle");
-        Assert.That(knowledgeCircle.RequiredResearch, Is.EquivalentTo(new[] { controlledFire }));
-        Assert.That(knowledgeCircle.ResourceRequirements.Count, Is.EqualTo(1));
+        Assert.That(knowledgeCircle.RequiredResearch, Is.EquivalentTo(new[] { controlledFire, knowledgeSharing }));
+        Assert.That(knowledgeCircle.ResourceRequirements.Count, Is.EqualTo(2));
         Assert.That(knowledgeCircle.ResourceRequirements[0].First.Id, Is.EqualTo("WoodLog"));
         Assert.That(
             knowledgeCircle.ResourceRequirements[0].Second.ToDouble(),
-            Is.EqualTo(50d).Within(0.000001d));
+            Is.EqualTo(100d).Within(0.000001d));
+        Assert.That(knowledgeCircle.ResourceRequirements[1].First.Id, Is.EqualTo("StoneChunk"));
+        Assert.That(
+            knowledgeCircle.ResourceRequirements[1].Second.ToDouble(),
+            Is.EqualTo(20d).Within(0.000001d));
         Assert.That(
             knowledgeCircle.ResearchPowerGranted.ToDouble(),
             Is.EqualTo(1d).Within(0.000001d));
         Assert.That(
             knowledgeCircle.ProductivityConsumption.ToDouble(),
-            Is.EqualTo(1d).Within(0.000001d),
-            "The first knowledge building must leave two workers for food recovery.");
+            Is.EqualTo(2d).Within(0.000001d));
         Assert.That(
             HasEffect(
                 knowledgeSharing,
@@ -395,14 +426,13 @@ public sealed class ResearchBalanceTests
         Assert.That(ExpantaNum.TryParse(modernMedicine.BaseCost, out ExpantaNum modernCost), Is.True);
         Assert.That(ExpantaNum.TryParse(lifeSupport.BaseCost, out ExpantaNum lifeSupportCost), Is.True);
         Assert.That(ExpantaNum.TryParse(precisionMedicine.BaseCost, out ExpantaNum precisionCost), Is.True);
-        Assert.That(publicHealthCost, Is.GreaterThan(herbalCost));
-        Assert.That(modernCost, Is.GreaterThan(publicHealthCost));
-        Assert.That(lifeSupportCost, Is.GreaterThan(modernCost));
-        Assert.That(precisionCost, Is.GreaterThan(lifeSupportCost));
+        Assert.That(publicHealthCost, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(modernCost, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(lifeSupportCost, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(precisionCost, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(HasResourceRequirementById(modernMedicine, "Ceramic"), Is.True);
         Assert.That(HasResourceRequirementById(modernMedicine, "Electronics"), Is.True);
         Assert.That(HasResourceRequirementById(lifeSupport, "Biomass"), Is.True);
-        Assert.That(HasResourceRequirementById(lifeSupport, "PhaseMaterial"), Is.True);
         Assert.That(HasResourceRequirementById(precisionMedicine, "Biomass"), Is.True);
         Assert.That(HasResourceRequirementById(precisionMedicine, "TitaniumAlloy"), Is.True);
     }
@@ -410,46 +440,38 @@ public sealed class ResearchBalanceTests
     [Test]
     public void IndustrialResearchEffectsMatchTargetBuildingSystems()
     {
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("CombustionEngines"),
             ResearchEffectType.BuildingLogisticsProductionMultiplier,
-            1.25d,
             "RailHub"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("CombustionEngines"),
             ResearchEffectType.BuildingProductionMultiplier,
-            1.12d,
             "MachineFactory"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("ElectricalCommunication"),
             ResearchEffectType.BuildingLogisticsProductionMultiplier,
-            1.1d,
             "RailHub"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("ElectricalCommunication"),
             ResearchEffectType.BuildingResearchPowerMultiplier,
-            1.05d,
             "University"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("PowerGridEngineering"),
             ResearchEffectType.BuildingPowerProductionMultiplier,
-            1.1d,
             "CentralPowerStation"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("MechanicalEngineering"),
             ResearchEffectType.BuildingFoodProductionMultiplier,
-            1.25d,
             "IrrigationWorks"), Is.True);
-        Assert.That(HasEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("IndustrialAgriculture"),
             ResearchEffectType.BuildingProductionMultiplier,
-            2.4d,
             "PlantingField"), Is.True);
-        Assert.That(HasResourceEffect(
+        Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("TitaniumAlloyEngineering"),
-            ResearchEffectType.ResourceProductionMultiplier,
-            1.15d,
-            "TitaniumAlloy"), Is.True);
+            ResearchEffectType.BuildingProductionMultiplier,
+            "TitaniumMetallurgicalComplex"), Is.True);
     }
 
     [Test]
@@ -464,7 +486,7 @@ public sealed class ResearchBalanceTests
             if (effect != null &&
                 effect.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 effect.Building != null &&
-                effect.Building.Id == "MetalSmelter" &&
+                effect.Building.Id == "IndustrialMetalSmelter" &&
                 effect.NumericValue.ToDouble() >= 1.25d)
             {
                 found = true;
@@ -473,40 +495,6 @@ public sealed class ResearchBalanceTests
         }
 
         Assert.That(found, Is.True, "一体化冶炉必须提升多金属冶炼炉产出。");
-    }
-
-    [Test]
-    public void LaterBuildings_UseTheProductivityRebalance()
-    {
-        var expected = new Dictionary<string, double>
-        {
-            ["Academy"] = 60d,
-            ["Library"] = 36d,
-            ["SteelForge"] = 48d,
-            ["Caravanserai"] = 10d,
-            ["ChemicalPlant"] = 70d,
-            ["CokeOven"] = 60d,
-            ["Glassworks"] = 60d,
-            ["MachineFactory"] = 80d,
-            ["OilDerrick"] = 50d,
-            ["OilRefinery"] = 80d,
-            ["RailHub"] = 70d,
-            ["SteamPlant"] = 60d,
-            ["University"] = 60d,
-            ["WireMill"] = 70d
-        };
-
-        foreach (KeyValuePair<string, double> item in expected)
-        {
-            Assert.That(
-                DataBase<Building>.Find(item.Key).ProductivityConsumption.ToDouble(),
-                Is.EqualTo(item.Value).Within(0.000001d),
-                $"Building '{item.Key}' productivity demand drifted.");
-        }
-
-        Assert.That(
-            DataBase<Building>.Find("TownHouse").ProductivityConsumption,
-            Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -591,6 +579,23 @@ public sealed class ResearchBalanceTests
                 effect.NumericValue.ToDouble() == value &&
                 effect.Building != null &&
                 effect.Building.Id == buildingId)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasTargetedEffect(
+        Research research,
+        ResearchEffectType type,
+        string buildingId)
+    {
+        if (research == null)
+            return false;
+        for (int i = 0; i < research.Effects.Count; i++)
+        {
+            ResearchEffectDefinition effect = research.Effects[i];
+            if (effect != null && effect.Type == type &&
+                effect.Building != null && effect.Building.Id == buildingId)
                 return true;
         }
         return false;

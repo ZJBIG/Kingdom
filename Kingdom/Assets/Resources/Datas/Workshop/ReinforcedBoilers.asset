@@ -22,11 +22,11 @@ MonoBehaviour:
   requiredUpgrades: []
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "200000"
+    amount: "2000000"
   - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    amount: "72000"
+    amount: "720000"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
-    amount: "80000"
+    amount: "240000"
   effects:
   - Type: 10
     Building: {fileID: 11400000, guid: 29d1aa19cfbd6344185c5efe3457374d, type: 2}

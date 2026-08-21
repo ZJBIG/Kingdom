@@ -1,9 +1,10 @@
 FAIL:
+Normal: Medieval reached at -0.02 minutes; expected 300-480.
+Normal: Industrial reached at -0.02 minutes; expected 600-960.
+Normal: Pacing failure Medieval: The run did not reach Medieval within 24 hours.
 Fast: Neolithic reached at 79.12 minutes; expected 45-75.
-Fast: Medieval reached at 399.73 minutes; expected 240-360.
-Fast: Industrial reached at 679.75 minutes; expected 480-600.
-Fast: Building wait exceeds ten minutes IndustrialHabitationComplex: First-copy Concrete input takes 11.67 minutes at active production.
-Fast: Building wait exceeds ten minutes IndustrialStoneworks: First-copy StoneBrick input takes 12.5 minutes at active production.
+Fast: Medieval reached at -0.02 minutes; expected 240-360.
+Fast: Industrial reached at -0.02 minutes; expected 480-600.
+Fast: Pacing failure Medieval: The run did not reach Medieval within 24 hours.
 Conservative: Neolithic reached at 64.58 minutes; expected 90-120.
-Conservative: Medieval reached at 416.52 minutes; expected 480-720.
-Conservative: Building wait exceeds ten minutes IntegratedPetrochemicalComplex: First-copy Electronics input takes 11.9 minutes at active production.
+Conservative: Medieval reached at 426.32 minutes; expected 480-720.

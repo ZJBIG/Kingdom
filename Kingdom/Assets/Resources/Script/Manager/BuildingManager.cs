@@ -22,15 +22,24 @@ public class BuildingManager : Singleton<BuildingManager>
     private const int UpgradeBinarySearchLimit = 256;
     private readonly Dictionary<Building, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
+    private readonly List<BuildingState> activeBuildingStates = new();
+    private readonly HashSet<BuildingState> activeBuildingStateSet = new();
     // 一个升级目标可以由多个分支汇聚而来，因此这里必须保留全部前置建筑。
     private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
     private readonly HashSet<Building> chainMembers = new();
+    private readonly HashSet<Building> chainRoots = new();
     private bool chainIndexInitialized;
     // FindObjectOfType scans the whole scene and is far too expensive to run
     // on every prerequisite check; ArePrerequisitesMet is called from UI
     // refresh paths dozens of times per frame.
     private WorkshopManager cachedWorkshopManager;
     private ResearchManager cachedResearchManager;
+#if UNITY_EDITOR
+    private float efficiencyConvergenceLogCooldown;
+#endif
+    internal int LastEfficiencyPassCount { get; private set; }
+    internal int LastActiveBuildingCount { get; private set; }
+    internal int ResearchPowerRebuildCount { get; private set; }
 
     public IReadOnlyDictionary<Building, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
@@ -51,6 +60,7 @@ public class BuildingManager : Singleton<BuildingManager>
     public ExpantaNum SafePopulationDepartureAllowance =>
         ExpantaNum.Max(ExpantaNum.Zero, CalculateRawTotalProductivity() - UsedProductivity).Floor();
     private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
+    private bool researchPowerDirty = true;
     public ExpantaNum GlobalEfficiencyFactor
     {
         get => globalEfficiencyFactor;
@@ -58,7 +68,10 @@ public class BuildingManager : Singleton<BuildingManager>
         {
             if (!value.IsFinite || value < ExpantaNum.Zero)
                 throw new ArgumentOutOfRangeException(nameof(value));
+            if (globalEfficiencyFactor == value)
+                return;
             globalEfficiencyFactor = value;
+            researchPowerDirty = true;
         }
     }
     public event Action<BuildingState> BuildingStateAdded;
@@ -154,6 +167,7 @@ public class BuildingManager : Singleton<BuildingManager>
         ValidateBuildingChains(definitions);
         chainPredecessors.Clear();
         chainMembers.Clear();
+        chainRoots.Clear();
         for (int i = 0; i < definitions.Count; i++)
         {
             Building source = definitions[i];
@@ -168,6 +182,9 @@ public class BuildingManager : Singleton<BuildingManager>
             chainMembers.Add(source);
             chainMembers.Add(source.UpgradeTo);
         }
+        foreach (Building member in chainMembers)
+            if (!chainPredecessors.ContainsKey(member))
+                chainRoots.Add(member);
         chainIndexInitialized = true;
     }
 
@@ -277,14 +294,8 @@ public class BuildingManager : Singleton<BuildingManager>
     public void RefreshBuildingChainAvailability()
     {
         EnsureBuildingChainIndex();
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
-        for (int i = 0; i < definitions.Count; i++)
+        foreach (Building root in chainRoots)
         {
-            Building root = definitions[i];
-            if (root == null ||
-                !chainMembers.Contains(root) ||
-                chainPredecessors.ContainsKey(root))
-                continue;
             RemoveZeroIntermediateStates(root);
         }
     }
@@ -899,6 +910,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 continue;
             ApplyRateDelta(state, state.Amount, state.Efficiency, state.Amount, efficiency);
             state.SetEfficiency(efficiency);
+            researchPowerDirty = true;
             changed = true;
         }
         return changed;
@@ -911,9 +923,16 @@ public class BuildingManager : Singleton<BuildingManager>
 
         ResourceManager resourceManager = ResourceManager.Instance;
         ResetEfficienciesForTick();
-        int maximumPasses = Math.Max(1, orderedStates.Count + 1);
+        int activeBuildingCount = activeBuildingStates.Count;
+        // Zero-amount definitions are skipped by every convergence pass and
+        // cannot add another dependency step. Do not let the inactive tail
+        // inflate the worst-case pass count on every simulation tick.
+        int maximumPasses = Math.Max(1, activeBuildingCount + 1);
+        int passesUsed = 0;
+        bool converged = false;
         for (int pass = 0; pass < maximumPasses; pass++)
         {
+            passesUsed = pass + 1;
             resourceManager.BeginTick();
             ExpantaNum potentialFoodProduction = ExpantaNum.Zero;
             ExpantaNum potentialFoodConsumption = ExpantaNum.Zero;
@@ -921,11 +940,9 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum potentialPowerConsumption = ExpantaNum.Zero;
             ExpantaNum potentialLogisticsProduction = ExpantaNum.Zero;
             ExpantaNum potentialLogisticsConsumption = ExpantaNum.Zero;
-            for (int i = 0; i < orderedStates.Count; i++)
+            for (int i = 0; i < activeBuildingStates.Count; i++)
             {
-                BuildingState state = orderedStates[i];
-                if (state.Amount <= ExpantaNum.Zero)
-                    continue;
+                BuildingState state = activeBuildingStates[i];
                 ExpantaNum potentialScale =
                     state.Amount * ExpantaNum.Clamp01(GlobalEfficiencyFactor);
                 ExpantaNum actualScale = state.Amount * state.Efficiency;
@@ -972,8 +989,24 @@ public class BuildingManager : Singleton<BuildingManager>
                 potentialLogisticsConsumption);
             resourceManager.CalculateTickSatisfaction(deltaSeconds);
             if (!RefreshEfficienciesCore())
+            {
+                converged = true;
                 break;
+            }
         }
+        LastEfficiencyPassCount = passesUsed;
+        LastActiveBuildingCount = activeBuildingCount;
+#if UNITY_EDITOR
+        if (!converged && efficiencyConvergenceLogCooldown <= 0f)
+        {
+            efficiencyConvergenceLogCooldown = 1f;
+            KingdomEditorPerfLog.Write(
+                $"[KingdomPerf] EfficiencyConvergenceLimit passes={passesUsed} " +
+                $"limit={maximumPasses} states={orderedStates.Count}");
+        }
+        efficiencyConvergenceLogCooldown = Math.Max(
+            0f, efficiencyConvergenceLogCooldown - (float)deltaSeconds);
+#endif
         RefreshResearchPower();
     }
 
@@ -1044,6 +1077,41 @@ public class BuildingManager : Singleton<BuildingManager>
             state.Efficiency,
             applyCapacityDeltas);
         state.SetAmount(newAmount);
+        UpdateActiveBuildingIndex(state, state.Amount);
+        researchPowerDirty = true;
+    }
+
+    private void UpdateActiveBuildingIndex(BuildingState state, ExpantaNum amount)
+    {
+        if (state == null)
+            return;
+        bool shouldBeActive = amount > ExpantaNum.Zero;
+        if (shouldBeActive)
+        {
+            if (activeBuildingStateSet.Add(state))
+            {
+                int low = 0;
+                int high = activeBuildingStates.Count;
+                while (low < high)
+                {
+                    int middle = low + (high - low) / 2;
+                    int comparison = string.Compare(
+                        activeBuildingStates[middle].Definition.Id,
+                        state.Definition.Id,
+                        StringComparison.OrdinalIgnoreCase);
+                    if (comparison < 0)
+                        low = middle + 1;
+                    else
+                        high = middle;
+                }
+                activeBuildingStates.Insert(low, state);
+            }
+            return;
+        }
+
+        if (!activeBuildingStateSet.Remove(state))
+            return;
+        activeBuildingStates.Remove(state);
     }
 
     private static void ApplyRateDelta(
@@ -1118,6 +1186,8 @@ public class BuildingManager : Singleton<BuildingManager>
         if (previous == null || current == null)
             return;
 
+        researchPowerDirty = true;
+
         // FoodCapacityMultiplier 同时作用于基础粮食容量和容量建筑，研究或工坊完成时只结算差值。
         GameManager.Instance.AdjustFoodCapacity(
             GameState.BaseFoodCapacity *
@@ -1188,9 +1258,9 @@ public class BuildingManager : Singleton<BuildingManager>
     private void ResetEfficienciesForTick()
     {
         ExpantaNum startingEfficiency = ExpantaNum.Clamp01(GlobalEfficiencyFactor);
-        for (int i = 0; i < orderedStates.Count; i++)
+        for (int i = 0; i < activeBuildingStates.Count; i++)
         {
-            BuildingState state = orderedStates[i];
+            BuildingState state = activeBuildingStates[i];
             if (state.Efficiency == startingEfficiency)
                 continue;
             ApplyRateDelta(
@@ -1200,6 +1270,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 state.Amount,
                 startingEfficiency);
             state.SetEfficiency(startingEfficiency);
+            researchPowerDirty = true;
         }
     }
 
@@ -1237,6 +1308,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     internal void RecalculateDerivedStateFromBuildings()
     {
+        researchPowerDirty = true;
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
@@ -1246,11 +1318,15 @@ public class BuildingManager : Singleton<BuildingManager>
             GameManager.Instance.CommitConstruction(state.SpaceCost * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }
+        RebuildActiveBuildingIndex();
         RefreshResearchPower();
     }
 
     internal void ResetForLoad()
     {
+        researchPowerDirty = true;
+        activeBuildingStates.Clear();
+        activeBuildingStateSet.Clear();
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].ResetForLoad();
         GlobalEfficiencyFactor = ExpantaNum.One;
@@ -1283,6 +1359,8 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (data == null)
             return;
+
+        researchPowerDirty = true;
 
         if (data.Buildings != null)
         {
@@ -1331,6 +1409,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 nameof(data.GlobalEfficiencyFactor),
                 ExpantaNum.One);
         }
+        RebuildActiveBuildingIndex();
         RefreshResearchPower();
     }
 
@@ -1340,10 +1419,31 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private void RefreshResearchPower()
     {
+        if (!researchPowerDirty)
+            return;
         ResearchManager researchManager = cachedResearchManager;
         if (researchManager == null)
             researchManager = cachedResearchManager = FindObjectOfType<ResearchManager>();
-        researchManager?.RebuildResearchPower(orderedStates);
+        if (researchManager == null)
+            return;
+        researchManager.RebuildResearchPower(activeBuildingStates);
+        ResearchPowerRebuildCount++;
+        researchPowerDirty = false;
+    }
+
+    private void RebuildActiveBuildingIndex()
+    {
+        activeBuildingStates.Clear();
+        activeBuildingStateSet.Clear();
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            BuildingState state = orderedStates[i];
+            if (state.Amount > ExpantaNum.Zero)
+            {
+                activeBuildingStates.Add(state);
+                activeBuildingStateSet.Add(state);
+            }
+        }
     }
 
     private static ExpantaNum Parse(

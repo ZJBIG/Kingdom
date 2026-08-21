@@ -1,7 +1,7 @@
 # Economy Simulation Report - Normal
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
+Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 
 ## Rules
 
@@ -16,8 +16,8 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 - Population growth uses a logistic occupancy factor; over-capacity departure accelerates with relative excess and remains productivity-gated.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
-- Productivity-blocked building decision time: total 177120 seconds; longest continuous 1800 seconds.
-- Final population growth: x2, 224.602/s; productivity utilization: 188.2%; territory: 1002/2325.
+- Productivity-blocked building decision time: total 315 seconds; longest continuous 90 seconds.
+- Final population growth: x1.6, 91.905/s; productivity utilization: 70.8%; territory: 285/800.
 
 ## Animal Age
 
@@ -27,17 +27,17 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 ## Neolithic Age
 
 到达时间: 76.32 分钟
-完成研究: 23
+完成研究: 16
 
 ## Medieval Age
 
-到达时间: 317.63 分钟
-完成研究: 3
+到达时间: 不可达
+完成研究: 0
 
 ## Industrial Age
 
-到达时间: 826.32 分钟
-完成研究: 20
+到达时间: 不可达
+完成研究: 0
 
 ## Spacer Age
 
@@ -48,13 +48,11 @@ Strict snapshot: 40 resources, 71 buildings, 113 research, 65 Workshop upgrades.
 
 ## Bottlenecks
 
-- Aluminum: single producer
-- CopperWire: single producer
+None
 
 ## Warnings
 
-- **Info Legacy metal surplus** Bronze: Active production is 17.5/s versus 1.5/s consumption; net flow remains 16/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
-- **Info Legacy metal surplus** Tin: Active production is 16.8/s versus 1.5/s consumption; net flow remains 15.3/s. Suggestion: Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates.
+- **High Pacing failure** Medieval: The run did not reach Medieval within 24 hours. Suggestion: Repair ResearchPower and the Neolithic main line.
 
 ## Validation boundary
 

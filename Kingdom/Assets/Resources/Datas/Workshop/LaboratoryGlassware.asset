@@ -22,9 +22,9 @@ MonoBehaviour:
   requiredUpgrades: []
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
-    amount: "6000"
+    amount: "18000"
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
-    amount: "1600"
+    amount: "16000"
   effects:
   - Type: 9
     Building: {fileID: 11400000, guid: 90fb7b8f48c5728499f5935878656473, type: 2}

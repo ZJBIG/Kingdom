@@ -21,8 +21,6 @@ MonoBehaviour:
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "12000"
-  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
-    amount: "2400"
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     amount: "2000"
   - resource: {fileID: 11400000, guid: fea41a5d90eee6d42889456bd49f5ec5, type: 2}

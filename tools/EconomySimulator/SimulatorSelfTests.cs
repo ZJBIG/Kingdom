@@ -347,7 +347,7 @@ public static class SimulatorSelfTests
                 x.Kind == SimEffectKind.MilitaryMultiplier && x.Value >= 1.15d) &&
                 interstellarSupply.Effects.Any(x =>
                     x.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier &&
-                    x.Target == "OrbitalLogisticsHub" && x.Value >= 1.25d) &&
+                    x.Target == "OrbitalStation" && x.Value >= 1.25d) &&
                 interstellarSupply.Effects.Any(x =>
                     x.Kind == SimEffectKind.FleetRepairCostMultiplier && x.Value <= .8d) &&
                 interstellarSupply.ResourceRequirements.ContainsKey("TitaniumAlloy") &&
@@ -712,7 +712,7 @@ public static class SimulatorSelfTests
         foreach ((string id, string resource) in new[]
                  {
                      ("OrbitalCarbonizationComplex", "PhantomAlloy"),
-                     ("OrbitalForestryHarvestingArray", "PhantomWeave"),
+                     ("OrbitalResourceExtractionArray", "PhantomWeave"),
                      ("OrbitalSolarArray", "PhantomWeave"),
                      ("OrbitalStation", "PhantomWeave"),
                      ("PhaseMaterialSynthesisArray", "PhantomAlloy"),

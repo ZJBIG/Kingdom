@@ -18,6 +18,9 @@ public sealed partial class KingdomUIRoot
         public bool Active;
     }
 
+    private readonly Dictionary<Resource, TMP_Text> detailRequirementLabels = new();
+    private readonly Dictionary<Resource, TMP_Text> detailRequirementAmounts = new();
+
     private void ShowDetails(string title, string description, string id)
     {
         if (detailBody == null)
@@ -235,16 +238,19 @@ public sealed partial class KingdomUIRoot
         text.AppendLine();
 
         text.AppendLine("库存: " + amount.ToGameString());
-        text.AppendLine(("产出: +" + production.ToGameString()).Colorize(Positive));
+
+        text.AppendLine(("产出: +" + production.ToGameString() + "/s").Colorize(Positive));
         for (int i = 0; i < producers.Count; i++)
             text.AppendLine("       --" + producers[i].Building.Label +
                 (producers[i].Active ? string.Empty : "（待建造）") + ": " +
                 ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
-        text.AppendLine(("消耗: -" + consumption.ToGameString()).Colorize(Error));
+
+        text.AppendLine(("消耗: -" + consumption.ToGameString() + "/s").Colorize(Error));
         for (int i = 0; i < consumers.Count; i++)
             text.AppendLine("       --" + consumers[i].Building.Label +
                 (consumers[i].Active ? string.Empty : "（待建造）") + ": " +
                 ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
+
         text.AppendLine(("净变化: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
         detailBody.text = text.ToString();
         detailBody.richText = true;
@@ -450,11 +456,7 @@ public sealed partial class KingdomUIRoot
         detailPaymentButton.onClick.RemoveAllListeners();
         detailPaymentButton.onClick.AddListener(() => PayWorkshopUpgrade(definition));
         bool purchased = WorkshopManager.Instance != null && WorkshopManager.Instance.IsPurchased(definition);
-        bool canPurchase = WorkshopManager.Instance != null &&
-            WorkshopManager.Instance.IsSystemUnlocked &&
-            WorkshopPrerequisitesMet(definition) &&
-            GameManager.Instance != null && GameManager.Instance.State.TechLevel >= definition.TechLevel &&
-            HasWorkshopResources(definition.ResourceRequirements);
+        bool canPurchase = CanPurchaseWorkshop(definition);
         detailPaymentButton.interactable = !purchased && canPurchase;
         TMP_Text text = detailPaymentButton.GetComponentInChildren<TMP_Text>(true);
         if (text != null)
@@ -472,6 +474,27 @@ public sealed partial class KingdomUIRoot
                 return false;
         }
         return true;
+    }
+
+    private static bool CanPurchaseWorkshop(WorkshopUpgrade definition)
+    {
+        return definition != null && WorkshopManager.Instance != null &&
+            WorkshopManager.Instance.IsSystemUnlocked &&
+            !WorkshopManager.Instance.IsPurchased(definition) &&
+            WorkshopPrerequisitesMet(definition) &&
+            GameManager.Instance != null && GameManager.Instance.State.TechLevel >= definition.TechLevel &&
+            HasWorkshopResources(definition.ResourceRequirements);
+    }
+
+    private void PurchaseWorkshopFromRow(WorkshopUpgrade definition)
+    {
+        if (definition == null || WorkshopManager.Instance == null)
+            return;
+        bool purchased = WorkshopManager.Instance.TryPurchase(
+            definition, out WorkshopPurchaseFailure failure);
+        Debug.Log("[界面] 工坊行购买：id=" + definition.Id + "，结果=" + failure);
+        if (purchased && populatedPage == "Workshop")
+            RefreshWorkshopRows();
     }
 
     private void PayWorkshopUpgrade(WorkshopUpgrade definition)
@@ -572,6 +595,8 @@ public sealed partial class KingdomUIRoot
         if (requirementHost == null || content == null)
             return;
         requirementHost.gameObject.SetActive(false);
+        detailRequirementLabels.Clear();
+        detailRequirementAmounts.Clear();
         for (int i = content.childCount - 1; i >= 0; i--)
         {
             Transform child = content.GetChild(i);
@@ -597,6 +622,8 @@ public sealed partial class KingdomUIRoot
         }
         // Keep authored Heading/None children. Only runtime-generated
         // requirement rows are disposable.
+        detailRequirementLabels.Clear();
+        detailRequirementAmounts.Clear();
         for (int i = content.childCount - 1; i >= 0; i--)
         {
             Transform child = content.GetChild(i);
@@ -657,8 +684,14 @@ public sealed partial class KingdomUIRoot
             icon.sprite = requirement.First.Sprite;
             icon.color = requirement.First.Color;
             icon.preserveAspect = true;
-            SetRowText(row, "Label", requirement.First.Label);
-            SetRowText(row, "Amount", FormatRequirementAmount(requirement));
+            TMP_Text label = row.transform.Find("Label")?.GetComponent<TMP_Text>();
+            TMP_Text amount = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
+            if (label == null || amount == null)
+                continue;
+            SetTextIfChanged(label, requirement.First.Label);
+            SetTextIfChanged(amount, FormatRequirementAmount(requirement));
+            detailRequirementLabels[requirement.First] = label;
+            detailRequirementAmounts[requirement.First] = amount;
         }
     }
 
@@ -680,11 +713,9 @@ public sealed partial class KingdomUIRoot
                 Pair<Resource, ExpantaNum> requirement = requirements[i];
                 if (requirement.First == null)
                     continue;
-                Transform row = requirementContent.Find("Requirement_" + i);
-                if (row == null)
+                if (!detailRequirementAmounts.TryGetValue(requirement.First, out TMP_Text amount) ||
+                    !detailRequirementLabels.TryGetValue(requirement.First, out TMP_Text label))
                     return false;
-                TMP_Text amount = row.Find("Amount")?.GetComponent<TMP_Text>();
-                TMP_Text label = row.Find("Label")?.GetComponent<TMP_Text>();
                 if (amount == null || label == null)
                     return false;
                 SetTextIfChanged(label, requirement.First.Label);
@@ -710,8 +741,8 @@ public sealed partial class KingdomUIRoot
         ResearchManager researchManager = researchManagerCache;
         if (researchManager == null)
             researchManager = researchManagerCache = FindObjectOfType<ResearchManager>();
-        if (researchManager != null && researchManager.SelectedResearchId != null &&
-            DataBase<Research>.TryFind(researchManager.SelectedResearchId, out Research selected) &&
+        Research selected = selectedResearchNode;
+        if (researchManager != null && selected != null &&
             researchManager.States.TryGetValue(selected, out ResearchState researchState))
             paid = researchState.GetPaidResourceCost(requirement.First);
 

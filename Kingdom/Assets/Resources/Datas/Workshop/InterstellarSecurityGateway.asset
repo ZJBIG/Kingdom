@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: InterstellarSecurityGateway
+  m_EditorClassIdentifier: 
+  id: InterstellarSecurityGateway
+  Label: "\u661f\u9645\u5b89\u5168\u7f51\u5173"
+  Description: "\u4f7f\u7528\u91cf\u5b50\u5bc6\u94a5\u6a21\u5757\u3001\u591a\u91cd\u8eab\u4efd\u9a8c\u8bc1\u5668\u548c\u9694\u79bb\u7f51\u6865\u7ec4\u6210\u5b89\u5168\u7f51\u5173\uff0c\u5c06\u661f\u9645\u7f51\u7edc\u5b89\u5168\u7406\u8bba\u843d\u5b9e\u5230\u6df1\u7a7a\u4e2d\u7ee7\u7ad9\uff0c\u63d0\u5347\u7269\u6d41\u6307\u4ee4\u7684\u5b8c\u6574\u6027\u4e0e\u8fdc\u7a0b\u6062\u590d\u80fd\u529b\u3002"
+  SortOrder: 680
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: 6b7c8d9e0f1a2b3c4d5e6f708192a3b4, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: d4e5f60718293a4b5c6d7e8f901a2b3c, type: 2}
+  - {fileID: 11400000, guid: 8e9f0a1b2c3d4e5f60718293a4b5c6d7, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "50000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "40000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "35000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "25000"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "20000"
+  effects:
+  - Type: 11
+    Building: {fileID: 11400000, guid: c3d4e5f60718293a4b5c6d7e8f901a2b, type: 2}
+    Resource: {fileID: 0}
+    value: "1.18"

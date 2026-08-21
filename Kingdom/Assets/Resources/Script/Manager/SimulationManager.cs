@@ -234,6 +234,10 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                 $"resourceAvg={perfResourceTotalMilliseconds / perfTickSampleCount:F2}ms resourceMax={perfResourceMaximumMilliseconds:F2}ms " +
                 $"sectorsAvg={perfSectorTotalMilliseconds / perfTickSampleCount:F2}ms sectorsMax={perfSectorMaximumMilliseconds:F2}ms " +
                 $"researchAvg={perfResearchTotalMilliseconds / perfTickSampleCount:F2}ms researchMax={perfResearchMaximumMilliseconds:F2}ms " +
+                $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount} " +
+                $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}/" +
+                $"{BuildingManager.Instance.LastActiveBuildingCount + 1} " +
+                $"researchPowerRebuilds={BuildingManager.Instance.ResearchPowerRebuildCount} " +
                 $"allocKB={(perfTickAllocationCounterAvailable ? (perfTickAllocatedBytes / 1024L).ToString() : "NA")}");
             perfTickSampleCount = 0;
             perfTickTotalMilliseconds = 0f;
@@ -258,13 +262,17 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                       $"game={gameMilliseconds:F1}ms, " +
                       $"resource={resourceMilliseconds:F1}ms, " +
                       $"sectors={sectorMilliseconds:F1}ms, " +
-                      $"research={researchMilliseconds:F1}ms");
+                      $"research={researchMilliseconds:F1}ms, " +
+                      $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount}, " +
+                      $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}");
             KingdomEditorPerfLog.Write($"[KingdomPerf] ManualTick {((tickEnd - tickStart) * 1000f):F1}ms: " +
                                        $"building={buildingMilliseconds:F1}ms, " +
                                        $"game={gameMilliseconds:F1}ms, " +
                                        $"resource={resourceMilliseconds:F1}ms, " +
                                        $"sectors={sectorMilliseconds:F1}ms, " +
-                                       $"research={researchMilliseconds:F1}ms");
+                                       $"research={researchMilliseconds:F1}ms, " +
+                                       $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount}, " +
+                                       $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}");
         }
 #endif
     }

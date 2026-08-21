@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: InterstellarCausalCoordination
+  m_EditorClassIdentifier: 
+  id: InterstellarCausalCoordination
+  Label: "\u661f\u9645\u6218\u5f79\u65f6\u5e8f\u7406\u8bba"
+  Description: "\u7814\u7a76\u661f\u533a\u5ef6\u8fdf\u3001\u547d\u4ee4\u6ede\u540e\u4e0e\u6218\u5f79\u9636\u6bb5\u4e4b\u95f4\u7684\u65f6\u95f4\u5173\u7cfb\uff0c\u5efa\u7acb\u53ef\u5bb9\u5fcd\u4fe1\u606f\u4e0d\u540c\u6b65\u7684\u884c\u52a8\u7a97\u53e3\u548c\u8fdb\u5ea6\u5236\u5ea6\uff0c\u4f7f\u8fdc\u5f81\u3001\u8865\u7ed9\u4e0e\u5360\u9886\u884c\u52a8\u80fd\u591f\u7a33\u5b9a\u63a8\u8fdb\u3002"
+  BaseCost: "40000000"
+  prerequisites:
+  - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}
+  - {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f60718293a4b5c6d, type: 2}
+  - {fileID: 11400000, guid: 6d7e8f901a2b3c4d5e6f708192a3b4c5, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "9000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "28000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "80000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "36000"
+  effects:
+  - Type: 25
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.12"
+  TechLevel: 4
+  AdvancesTechLevel: 0

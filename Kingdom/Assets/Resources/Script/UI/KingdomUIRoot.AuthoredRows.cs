@@ -264,21 +264,47 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             WorkshopUpgrade definition = orderedDefinitions[i];
-            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.TextRow, parent, visible++);
+            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
             if (row == null)
                 continue;
             ApplyListRowStyle(row, visible - 1);
-            if (!SetRowText(row, "Title", definition.Label) ||
-                !SetRowText(row, "Subtitle", definition.Id + "   /   工坊物品"))
+            Transform techLevel = row.transform.Find("Amount");
+            if (techLevel != null)
+                techLevel.name = "TechLevel";
+            if (!SetRowText(row, "Label", definition.Label) ||
+                !SetRowText(row, "TechLevel", definition.TechLevel.GetDescription()))
                 continue;
-            Button button = RequireRowButton(row);
-            if (button == null)
+            Button cardButton = RequireRowButton(row);
+            Button purchaseButton = RequireChildButton(row, "BuildButton");
+            Button deconstructButton = RequireChildButton(row, "DeconstructButton");
+            if (cardButton == null || purchaseButton == null || deconstructButton == null)
                 continue;
-            button.onClick.AddListener(() =>
+            cardButton.onClick.AddListener(() =>
             {
                 UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
                 ShowWorkshopDetails(definition);
             });
+            RectTransform purchaseRect = purchaseButton.transform as RectTransform;
+            RectTransform deconstructRect = deconstructButton.transform as RectTransform;
+            if (purchaseRect != null && deconstructRect != null)
+            {
+                purchaseRect.anchorMin = deconstructRect.anchorMin;
+                purchaseRect.anchorMax = deconstructRect.anchorMax;
+                purchaseRect.pivot = deconstructRect.pivot;
+                purchaseRect.anchoredPosition = deconstructRect.anchoredPosition;
+                purchaseRect.sizeDelta = deconstructRect.sizeDelta;
+            }
+            purchaseButton.gameObject.name = "PurchaseButton";
+            deconstructButton.gameObject.SetActive(false);
+            SetBuildingActionButtonText(purchaseButton, "购买");
+            purchaseButton.onClick.RemoveAllListeners();
+            purchaseButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
+                PurchaseWorkshopFromRow(definition);
+            });
+            purchaseButton.interactable = CanPurchaseWorkshop(definition);
+            SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
         }
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
     }
