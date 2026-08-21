@@ -44,7 +44,7 @@ public static class UnityAssetSnapshotReader
 
     public static EconomySnapshot Read(string repositoryRoot)
     {
-        string data = Path.Combine(repositoryRoot, "Kingdom", "Assets", "Resources", "Datas");
+        string data = Path.Combine(repositoryRoot, "Assets", "Resources", "Datas");
         var raw = new List<Raw>();
         foreach ((DefinitionKind kind, string folder) in new[]
         {

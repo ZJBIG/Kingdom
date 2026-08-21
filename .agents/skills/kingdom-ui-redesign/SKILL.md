@@ -14,9 +14,10 @@ the Huawei P40 Pro landscape composition. A fixed-pixel CanvasScaler is not
 acceptable because it can make the page between the navigation and detail
 panels have a negative width, invalidating every graph and drag measurement.
 
-Use `D:/Verse/RimworldMods/#HSK/ResearchTree_SK` and its `ResearchTreeSK.dll`
-or checked-in `ResearchTreeSK.il` as the authoritative visual and interaction
-reference. Preserve `NodeSize=(205,50)`, `NodeMargins=(50,10)`,
+Use the repository-local `ResearchTreeSK.il` as the authoritative visual and
+interaction reference. Any external ResearchTree_SK checkout is optional and
+must never be required by the workflow. Preserve `NodeSize=(205,50)`,
+`NodeMargins=(50,10)`,
 `NodeFullSize=(255,60)`, `CurveRadius=10`, `LineThickness=4`, and
 `ArrowThickness=16`; reuse its line, curve, arrow, era, and progress textures.
 

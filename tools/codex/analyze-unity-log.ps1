@@ -33,7 +33,6 @@ function Resolve-LogPath {
     # Prefer the project-owned perf log. Unity's global Editor.log may exist
     # but be locked or unreadable by the current user, which must not prevent
     # diagnosis of the explicitly instrumented project session.
-    $candidates += (Join-Path (Get-Location) 'Kingdom\Temp\KingdomPerf.log')
     $candidates += (Join-Path (Get-Location) 'Temp\KingdomPerf.log')
     if (-not [string]::IsNullOrWhiteSpace($env:UNITY_EDITOR_LOG)) {
         $candidates += $env:UNITY_EDITOR_LOG

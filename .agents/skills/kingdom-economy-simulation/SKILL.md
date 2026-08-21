@@ -8,7 +8,7 @@ description: Mandatory Kingdom analysis workflow for technology trees, research 
 ## Mandatory order
 
 1. Inspect `git status` and preserve existing work.
-2. Read `CODEX_ECONOMY_PROMPT.md`, the nearest `AGENTS.md`, current runtime
+2. Read `.codex/prompts/CODEX_ECONOMY_PROMPT.md`, the nearest `AGENTS.md`, current runtime
    rules, and actual definition assets.
 3. Run the static closure check before editing economy data:
 
@@ -25,6 +25,11 @@ description: Mandatory Kingdom analysis workflow for technology trees, research 
 
 5. Run the existing simulator regression and inspect `PacingAcceptance.txt`,
    Workshop purchases, warnings, and milestone summaries when pacing is affected.
+   Retain only `data/content-closure-static.md`, the current root report and
+   the Fast/Normal/Conservative outputs. Dated iteration, round-audit,
+   baseline, and before/after snapshot directories are historical artifacts
+   and must not be treated as current evidence; they belong under
+   `.codex/archive/`.
 6. Classify failures as definition graph, producer deadlock, resource shortage,
    construction wait, research wait, Workshop wait, input mismatch, gameplay bug,
    or runtime parity mismatch.

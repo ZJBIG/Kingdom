@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$ProjectRoot=(Join-Path $PSScriptRoot '..\..\Kingdom'),[string]$OutputPath=(Join-Path $PSScriptRoot '..\..\data\content-dependency\content-dependency-analysis.md'))
+param([string]$ProjectRoot=(Join-Path $PSScriptRoot '..\..'),[string]$OutputPath=(Join-Path $PSScriptRoot '..\..\data\content-dependency\content-dependency-analysis.md'))
 $ErrorActionPreference='Stop'; $assetRoot=Join-Path $ProjectRoot 'Assets\Resources\Datas'; $guidToId=@{}; $defs=@{}
 function LoadDefs([string]$kind){foreach($f in Get-ChildItem (Join-Path $assetRoot $kind) -Recurse -Filter '*.asset'){$t=Get-Content $f.FullName -Raw;$i=[regex]::Match($t,'(?m)^[ \t]*id:\s*(\S+)\s*$');$m=Get-Content ($f.FullName+'.meta') -Raw;$g=[regex]::Match($m,'(?m)^guid:\s*(\S+)\s*$');if($i.Success -and $g.Success){$script:guidToId[$g.Groups[1].Value]=$i.Groups[1].Value;$script:defs[$i.Groups[1].Value]=[pscustomobject]@{Id=$i.Groups[1].Value;Kind=$kind;Text=$t}}}}
 LoadDefs 'Resource';LoadDefs 'Building';LoadDefs 'Research';LoadDefs 'Workshop'

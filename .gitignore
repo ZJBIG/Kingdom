@@ -12,6 +12,12 @@
 [Uu]ser[Ss]ettings/
 *.log
 
+# Codex archive and local build intermediates are recoverable workspace data,
+# not current repository evidence.
+/.codex/archive/
+!/.codex/archive/README.md
+/.tmpbuild/
+
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
 *.blend1.meta

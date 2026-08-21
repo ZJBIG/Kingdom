@@ -11,11 +11,6 @@ if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
 }
 $project = (Resolve-Path $ProjectRoot).Path
 $assetsRoot = Join-Path $project 'Assets'
-if (-not (Test-Path (Join-Path $assetsRoot 'Resources\Datas')) -and
-    (Test-Path (Join-Path $project 'Kingdom\Assets\Resources\Datas'))) {
-    $project = (Resolve-Path (Join-Path $project 'Kingdom')).Path
-    $assetsRoot = Join-Path $project 'Assets'
-}
 if (-not (Test-Path (Join-Path $assetsRoot 'Resources\Datas'))) {
     throw "Unity Assets/Resources/Datas was not found under $project"
 }

@@ -16,12 +16,14 @@ consumption, reachability, pacing, or balance work, also use the canonical
 
 ## Read first
 
-1. `CODEX_ECONOMY_PROMPT.md`
+1. `.codex/prompts/CODEX_ECONOMY_PROMPT.md`
 2. `docs/balance/no-resource-caps.md`
 3. `docs/balance/balance-model.md`
 4. `docs/content/progression-roadmap.md`
 5. `docs/testing/content-balance-tests.md`
-6. current code, assets, closure report, and simulation reports
+6. current code, assets, `data/content-closure-static.md`, and only the current
+   root/Fast/Normal/Conservative simulation outputs; ignore dated historical
+   iteration, audit, baseline, and before/after snapshot reports
 
 Do not require missing historical TODO or proposed CSV files. Current repository
 state and freshly generated evidence outrank dated audits.

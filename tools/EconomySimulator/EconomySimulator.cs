@@ -295,7 +295,7 @@ public static class EconomySimulator
             if (state.Buildings.GetValueOrDefault(definition.Id) > 0)
                 active.Add(definition);
     }
-    private static string FindRoot(string c){string p=Path.GetFullPath(c);while(Directory.Exists(p)){if(Directory.Exists(Path.Combine(p,"Kingdom","Assets","Resources","Datas")))return p;var d=Directory.GetParent(p);if(d==null)break;p=d.FullName;}throw new DirectoryNotFoundException("Kingdom root not found from "+c);}
+    private static string FindRoot(string c){string p=Path.GetFullPath(c);while(Directory.Exists(p)){if(Directory.Exists(Path.Combine(p,"Assets","Resources","Datas")))return p;var d=Directory.GetParent(p);if(d==null)break;p=d.FullName;}throw new DirectoryNotFoundException("Kingdom root not found from "+c);}
 }
 
 public static class PacingAcceptance

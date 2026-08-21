@@ -1,7 +1,0 @@
-Type,Object,Reason,Severity,Suggestion
-"Legacy metal surplus","Bronze","Active production is 41.2/s versus 1/s consumption; net flow remains 40.2/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
-"Legacy metal surplus","Tin","Active production is 40/s versus 1/s consumption; net flow remains 39/s.","Info","Review durable Industrial/Spacer sinks or active building mix; do not raise Phantom material source rates."
-"Building wait exceeds ten minutes","IndustrialHabitationComplex","First-copy Concrete input takes 11.67 minutes at active production.","High","Adjust that resource cost or unlock a producer earlier."
-"Building wait exceeds ten minutes","IntegratedPetrochemicalComplex","First-copy Electronics input takes 11.9 minutes at active production.","High","Adjust that resource cost or unlock a producer earlier."
-"Building wait exceeds ten minutes","PhantomMaterialsFabricator","First-copy TitaniumAlloy input takes 22.22 minutes at active production.","Info","Treat this as an intentional late-era material gate; do not raise its source rate without a progression review."
-"Territory model boundary","Sector operations","The standalone simulator exhausted research/workshop territory before late Spacer construction; it does not execute Sector occupation or apply Sector territory rewards.","Info","Treat late construction waits as strategy evidence until Sector operations are modeled."

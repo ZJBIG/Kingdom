@@ -8,7 +8,11 @@
 - Unity Editor: `2022.3.62f2c1`
 - Primary scene: `Assets/Scenes/SampleScene.unity`
 - Target device: Huawei P40 Pro, landscape mobile build
-- Source of truth: current repository, then `CODEX_ECONOMY_PROMPT.md`, then current generated reports and `docs/`.
+- Source of truth: current repository, then `.codex/prompts/CODEX_ECONOMY_PROMPT.md`, then current generated reports and `docs/`.
+- Codex layout: keep the discovery entry `AGENTS.md`, project skills under
+  `.agents/skills/`, and executable project helpers under `tools/codex/`.
+  Store Codex-only prompts, archive metadata, and recoverable historical
+  outputs under `.codex/`.
 
 Historical Kingdom3/Kingdom4 audits are context only and must not override current code.
 
@@ -26,7 +30,7 @@ The current milestone is playable content and gameplay correctness:
 
 ## Required reading for content work
 
-1. `CODEX_ECONOMY_PROMPT.md`
+1. `.codex/prompts/CODEX_ECONOMY_PROMPT.md`
 2. `.agents/skills/kingdom-content-expansion/SKILL.md`
 3. `.agents/skills/kingdom-economy-simulation/SKILL.md`
 4. `docs/balance/no-resource-caps.md`
@@ -34,6 +38,14 @@ The current milestone is playable content and gameplay correctness:
 6. `docs/content/progression-roadmap.md`
 7. `docs/testing/content-balance-tests.md`
 8. current closure and simulation reports
+
+Current evidence is limited to `data/content-closure-static.md`, the files
+directly under `data/economy-simulation`, its `Fast`, `Normal`, and
+`Conservative` subdirectories, and `TestResults/Latest-Test-Errors.txt`.
+Anything under `.codex/archive/` is recoverable historical material and must
+not be cited as current evidence. Dated iteration, round-audit, baseline,
+before/after snapshot directories, old exports, logs, and build intermediates
+are historical artifacts.
 9. the nearest scoped `AGENTS.md`
 
 Use:
@@ -43,7 +55,10 @@ Use:
   TechLevel, Workshop, production, consumption, economy, reachability, pacing or
   balance task. Run the static closure check and offline simulator before changing
   definitions.
-- `kingdom-runtime-refactor` for State/Manager/save/simulation correctness;
+- the nearest scoped `AGENTS.md` plus `docs/architecture/runtime-state.md`,
+  `docs/architecture/serialized-pairs.md`, and
+  `docs/architecture/ui-boundaries.md` for State/Manager/save/simulation
+  correctness;
 - `kingdom-ui-redesign` for visual/UI work.
 
 For Research UI work, `kingdom-ui-redesign` is the source of truth for the
@@ -67,7 +82,7 @@ The active CanvasScaler is part of that contract: ScaleWithScreenSize,
 2640x1200 reference resolution, Match Width; ConstantPixelSize is forbidden.
 
 The canonical economy skill is `.agents/skills/kingdom-economy-simulation/SKILL.md`.
-Do not use a duplicate economy skill under `Kingdom/.agents/skills`.
+Do not use a duplicate economy skill under `.agents/skills`.
 
 ## Non-negotiable economy rule
 
@@ -151,6 +166,11 @@ Each batch must include:
 - relevant PlayMode tests;
 - Console inspection;
 - numerical pacing report.
+
+Keep generated evidence bounded: retain only the current summary outputs and
+the latest `TestResults/Latest-Test-Errors.txt`. Move older test exports,
+dated simulation snapshots, logs, and build intermediates to
+`.codex/archive/`; do not permanently delete them during routine cleanup.
 
 The existing PlayMode report contains zero test cases and is not evidence of PlayMode acceptance.
 

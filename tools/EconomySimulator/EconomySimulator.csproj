@@ -10,7 +10,7 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../Kingdom/Assets/Resources/Script/Validation/BuildingTransactionRules.cs"
+    <Compile Include="../../Assets/Resources/Script/Validation/BuildingTransactionRules.cs"
              Link="EconomySimulationParity.cs" />
     <Compile Include="EconomySnapshot.cs" />
     <Compile Include="UnityAssetSnapshotReader.cs" />
