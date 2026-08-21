@@ -30,7 +30,6 @@ RectTransform:
   m_Children:
   - {fileID: 4000011}
   - {fileID: 4000020}
-  - {fileID: 4000061}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -259,12 +258,12 @@ GameObject:
   - component: {fileID: 4000062}
   - component: {fileID: 2211160056399221510}
   m_Layer: 5
-  m_Name: Queue
+  m_Name: LegacyQueueRemoved
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4000061
 RectTransform:
   m_ObjectHideFlags: 0

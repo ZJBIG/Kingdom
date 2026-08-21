@@ -30,6 +30,22 @@ public sealed partial class KingdomUIRoot
         };
     }
 
+    private static string ResearchStateLabel(Research research, ResearchStatus status)
+    {
+        string runtimeState = ResearchStateLabel(status);
+        if (status == ResearchStatus.Completed ||
+            status == ResearchStatus.Researching ||
+            status == ResearchStatus.Queued ||
+            status == ResearchStatus.WaitingResources)
+            return runtimeState;
+        if (research != null && research.AdvancesTechLevel)
+            return "时代进步";
+        if (research != null && GameManager.Instance != null &&
+            research.TechLevel > GameManager.Instance.State.TechLevel)
+            return "未解锁";
+        return "可研究";
+    }
+
     private bool IsResourceVisible(Resource resource)
     {
         if (ResourceManager.Instance == null)

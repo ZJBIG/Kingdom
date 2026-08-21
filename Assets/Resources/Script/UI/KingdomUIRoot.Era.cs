@@ -99,7 +99,7 @@ public sealed partial class KingdomUIRoot
             EraGoalCondition condition = conditions[i];
             AddEraTextRow(
                 parent,
-                (condition.Met ? "✓ " : "○ ") + condition.Title,
+                (condition.Met ? "[x] " : "[ ] ") + condition.Title,
                 condition.Detail,
                 condition.Met ? Positive : Error,
                 condition.Navigate);
@@ -179,7 +179,7 @@ public sealed partial class KingdomUIRoot
             string researchDetail = met ? "已完成" : "尚未完成";
             if (!met && researchManagerCache != null &&
                 researchManagerCache.States.TryGetValue(prerequisite, out ResearchState prerequisiteState))
-                researchDetail = ResearchStateLabel(prerequisiteState.Status);
+                researchDetail = ResearchStateLabel(prerequisite, prerequisiteState.Status);
             result.Add(new EraGoalCondition
             {
                 Title = "研究：" + prerequisite.Label,

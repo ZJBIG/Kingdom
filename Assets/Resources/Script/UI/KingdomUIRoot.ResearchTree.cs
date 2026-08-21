@@ -117,8 +117,6 @@ public sealed partial class KingdomUIRoot
     }
     private readonly Dictionary<Research, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
     private readonly HashSet<Image> focusedResearchLineVisuals = new();
-    private readonly List<string> researchQueueEntries = new();
-    private readonly List<string> researchQueueLayoutEntries = new();
     private int lastResearchLineOrderHash;
     private bool researchLineOrderHashValid;
     private RectTransform researchGraphLineLayer;
@@ -128,9 +126,6 @@ public sealed partial class KingdomUIRoot
     private int researchTopologyInversionCount;
     private Research selectedResearchNode;
     private string lastLoggedResearchClosureTarget;
-    private TMP_Text researchTreeQueueLabel;
-    private bool researchQueueLayoutPending;
-    private readonly Dictionary<Research, string> researchQueueWrappedLabels = new();
     private UIResearchGraphGesture researchGraphGesture;
     private bool researchProgressVisualLogged;
     private bool researchTreeBuildInProgress;
@@ -176,6 +171,8 @@ public sealed partial class KingdomUIRoot
             RefreshResearchTreeVisuals(busChanged);
         if (queueChanged)
             RefreshResearchQueueToolbar();
+        else if (selectionChanged)
+            RefreshResearchQueueSelectionVisuals();
 
         if (detailsChanged && selectedResearchNode != null)
             RefreshSelectedResearchDetails(selectedResearchNode);
@@ -853,6 +850,7 @@ public sealed partial class KingdomUIRoot
         }
         search.gameObject.SetActive(false);
 
+        #if false
         researchTreeQueueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
         if (researchTreeQueueLabel == null)
         {
@@ -878,12 +876,15 @@ public sealed partial class KingdomUIRoot
         Vector2 queueOffsetMin = queueRect.offsetMin;
         queueOffsetMin.x = 168f;
         queueRect.offsetMin = queueOffsetMin;
+        #endif
         toolbar.SetAsLastSibling();
+        SetupResearchQueueGraphic(toolbar);
 #if UNITY_EDITOR
-        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchQueueLayout wrap={researchTreeQueueLabel.enableWordWrapping} width={queueRect.rect.width:0.0} height={queueRect.rect.height:0.0}");
+        KingdomEditorPerfLog.Write("[KingdomPerf] ResearchQueueLayout implementation=graphic-prefab-horizontal-drag");
 #endif
     }
 
+    #if false
     private void RefreshResearchQueueToolbar()
     {
         if (researchTreeQueueLabel == null)
@@ -978,8 +979,16 @@ public sealed partial class KingdomUIRoot
                 $"[KingdomPerf] ResearchQueueRefreshSlow durationMs={queueRefreshMs:0.0} " +
                 $"entries={entries.Count} scrolling={pageScrolling} layoutPending={researchQueueLayoutPending}");
 #endif
+        RefreshResearchQueueGraphic();
     }
 
+    #endif
+    private void RefreshResearchQueueToolbar()
+    {
+        RefreshResearchQueueGraphic();
+    }
+
+    #if false
     private static string AddQueueWrapOpportunities(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -1007,6 +1016,7 @@ public sealed partial class KingdomUIRoot
         return wrapped;
     }
 
+    #endif
     private Dictionary<Research, Vector2> CreateResearchTreePositions(IReadOnlyList<Research> definitions)
     {
         Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
@@ -1857,7 +1867,7 @@ public sealed partial class KingdomUIRoot
         costLabel.alignment = TextAlignmentOptions.Center;
         TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
         progressLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(status), 20, accent);
+        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20, accent);
         stateLabel.alignment = TextAlignmentOptions.Center;
         // The title is intentionally the last visual child. Era/progress
         // sprites must never cover the research name.
@@ -2116,7 +2126,7 @@ public sealed partial class KingdomUIRoot
             TMP_Text stateText = visualReferences?.StateText;
             if (stateText != null)
             {
-                SetTextIfChanged(stateText, ResearchStateLabel(status));
+                SetTextIfChanged(stateText, ResearchStateLabel(research, status));
                 SetColorIfChanged(stateText, accent);
             }
             TMP_Text costText = visualReferences?.CostText;

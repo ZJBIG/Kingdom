@@ -45,11 +45,12 @@ internal static class KingdomUIAuthoredShellGenerator
         bool hasResearchLineLayer = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchGraphContent/ResearchGraphLineLayer") != null;
         bool hasMusicSurface = root.transform.Find("SafeAreaRoot/Content/PageHost/Music/DataRows/MusicSurface/Controls") != null;
         bool hasQuantityControls = root.transform.Find("SafeAreaRoot/Content/BuildingQuantityControls") != null;
+        bool hasResearchQueueViewport = root.transform.Find("SafeAreaRoot/Content/ResearchQueueViewport") != null;
         bool hasLegacyDetailChildren = root.transform.Find("SafeAreaRoot/DetailPanel/Body") != null ||
             root.transform.Find("SafeAreaRoot/DetailPanel/BuildingOutput") != null ||
             root.transform.Find("SafeAreaRoot/DetailPanel/BuildingRequirements") != null;
         if (hasOrdinaryPageHost && hasResearchViewport && hasResearchToolbar && hasResearchLineLayer && hasMusicSurface &&
-            hasQuantityControls && !hasLegacyDetailChildren)
+            hasQuantityControls && hasResearchQueueViewport && !hasLegacyDetailChildren)
             return;
         Generate();
     }
@@ -162,6 +163,7 @@ internal static class KingdomUIAuthoredShellGenerator
             new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -88), new Vector2(170, -28)).gameObject.SetActive(false);
         RectTransform quantity = Rect("BuildingQuantityControls", body, new Vector2(0, 1), new Vector2(1, 1),
             new Vector2(180, -88), new Vector2(-20, -28));
+        BuildResearchQueueSurface(body);
         PanelRect("Surface", quantity, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
         Label("Caption", quantity, "数量", 30, TextPrimary, Vector2.zero, new Vector2(.09f, 1), new Vector2(12, 0), new Vector2(-8, 0));
         QuantityButton(quantity, "Quantity_One", "x1", .10f, .28f);
@@ -314,6 +316,29 @@ internal static class KingdomUIAuthoredShellGenerator
                 toolbar.offsetMax = new Vector2(-16, -12);
             }
         }
+    }
+
+    private static void BuildResearchQueueSurface(RectTransform parent)
+    {
+        if (parent == null || parent.Find("ResearchQueueViewport") != null)
+            return;
+        RectTransform viewport = Rect("ResearchQueueViewport", parent,
+            new Vector2(0f, 1f), new Vector2(1f, 1f),
+            new Vector2(180f, -100f), new Vector2(-20f, -16f));
+        Image image = viewport.gameObject.AddComponent<Image>();
+        image.color = Color.clear;
+        image.raycastTarget = true;
+        viewport.gameObject.AddComponent<RectMask2D>();
+        ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
+        scroll.viewport = viewport;
+        scroll.horizontal = true;
+        scroll.vertical = false;
+        scroll.inertia = false;
+        scroll.movementType = ScrollRect.MovementType.Clamped;
+        RectTransform content = Rect("ResearchQueueContent", viewport,
+            Vector2.zero, new Vector2(0f, 1f), Vector2.zero, new Vector2(0f, -4f));
+        content.pivot = new Vector2(0f, .5f);
+        scroll.content = content;
     }
 
     private static Slider MusicSlider(string name, Transform parent, Vector2 min, Vector2 max,

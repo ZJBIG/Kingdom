@@ -73,12 +73,6 @@ public class ResearchManager : Singleton<ResearchManager>
     // refresh. Keep membership separately so that check is O(1), instead of
     // scanning the queue once per node and allocating a LINQ enumerator.
     private readonly HashSet<Research> queuedResearches = new();
-    private ResearchState lastPaymentAttemptHead;
-    private int lastPaymentAttemptSignature;
-    private bool lastPaymentAttemptSignatureValid;
-    // The queue head is checked every simulation tick while it waits for
-    // resources. Reuse this transaction buffer so an unpaid head does not
-    // allocate a dictionary on every 100 ms tick.
     private static readonly Dictionary<Resource, ExpantaNum> researchPaymentBuffer = new();
     private readonly List<ResearchState> researchQueueSnapshot = new();
     private static ResourceManager cachedResourceManager;
@@ -175,6 +169,8 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (research == null || !states.TryGetValue(research, out ResearchState state))
             return ResearchActionResult.Invalid;
+        if (!CanAccessResearch(research))
+            return ResearchActionResult.Blocked;
         if (state.Status == ResearchStatus.Completed)
             return ResearchActionResult.Completed;
         if (ActiveResearch == state)
@@ -331,6 +327,8 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (research == null || !states.TryGetValue(research, out ResearchState state))
             return ResearchPaymentResult.Invalid;
+        if (!CanAccessResearch(research))
+            return ResearchPaymentResult.Invalid;
         if (state.Status == ResearchStatus.Completed)
             return ResearchPaymentResult.Completed;
         if (state.CostPaid)
@@ -370,6 +368,11 @@ public class ResearchManager : Singleton<ResearchManager>
         if (research == null || !states.TryGetValue(research, out ResearchState state))
         {
             blocker = "研究未初始化";
+            return false;
+        }
+        if (!CanAccessResearch(research))
+        {
+            blocker = "Research is not unlocked";
             return false;
         }
         if (state.Status == ResearchStatus.Completed || state.CostPaid)
@@ -461,8 +464,7 @@ public class ResearchManager : Singleton<ResearchManager>
             if (researchQueue.Count > 0)
             {
                 ResearchState head = researchQueue.Peek();
-                if (head != null && !head.CostPaid &&
-                    ShouldAttemptResearchPayment(head) && TryPayResearchCost(head))
+                if (head != null && !head.CostPaid && TryPayResearchCost(head))
                     queueChanged = true;
             }
             TryStartNextQueuedResearch(false);
@@ -505,34 +507,6 @@ public class ResearchManager : Singleton<ResearchManager>
     internal void TickOffline(double deltaSeconds)
     {
         Tick(deltaSeconds);
-    }
-
-    private bool ShouldAttemptResearchPayment(ResearchState state)
-    {
-        unchecked
-        {
-            int signature = 17;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
-                state.Definition.ResourceRequirements;
-            for (int i = 0; i < requirements.Count; i++)
-            {
-                Resource resource = requirements[i].First;
-                if (resource == null)
-                    continue;
-                signature = signature * 31 +
-                    ResourceManager.Instance.GetState(resource).Version;
-            }
-
-            if (lastPaymentAttemptSignatureValid &&
-                lastPaymentAttemptHead == state &&
-                lastPaymentAttemptSignature == signature)
-                return false;
-
-            lastPaymentAttemptHead = state;
-            lastPaymentAttemptSignature = signature;
-            lastPaymentAttemptSignatureValid = true;
-            return true;
-        }
     }
 
     public static bool TryPayResearchCost(ResearchState state)
@@ -835,8 +809,6 @@ public class ResearchManager : Singleton<ResearchManager>
     internal void ResetForLoad()
     {
         ActiveResearch = null;
-        lastPaymentAttemptHead = null;
-        lastPaymentAttemptSignatureValid = false;
         researchQueue.Clear();
         queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
@@ -868,8 +840,6 @@ public class ResearchManager : Singleton<ResearchManager>
         // The save is the complete source of truth for research scheduling.
         // Clear transient scheduling pointers only after validation succeeds.
         ActiveResearch = null;
-        lastPaymentAttemptHead = null;
-        lastPaymentAttemptSignatureValid = false;
         researchQueue.Clear();
         queuedResearches.Clear();
         researchQueueSnapshotDirty = true;

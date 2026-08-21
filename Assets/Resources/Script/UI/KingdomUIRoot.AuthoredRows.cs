@@ -231,7 +231,7 @@ public sealed partial class KingdomUIRoot
             if (!SetRowText(row, "Label", research.Label) ||
                 !SetRowText(row, "Era", research.TechLevel.GetDescription()) ||
                 !SetRowText(row, "Percentage", percent, Copper) ||
-                !SetRowText(row, "State", ResearchStateLabel(status),
+                !SetRowText(row, "State", ResearchStateLabel(research, status),
                     status == ResearchStatus.Completed ? Positive : TextSecondary))
                 continue;
             Button button = RequireRowButton(row);

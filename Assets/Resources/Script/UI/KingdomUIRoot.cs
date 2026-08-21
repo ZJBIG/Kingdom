@@ -111,10 +111,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 #if UNITY_EDITOR
     private int researchQueueEventCount;
     private float researchQueueEventLogCooldown;
-    private bool researchQueueVisualDiagnosticLogged;
 #endif
-    private string lastResearchQueueLayoutText;
-    private float lastResearchQueueLayoutWidth = -1f;
     private ResourceManager resourceManagerCache;
     private BuildingManager buildingManagerCache;
     private WorkshopManager workshopManagerCache;
@@ -499,6 +496,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     {
         if (!pages.TryGetValue(name, out RectTransform page))
             return;
+        if (researchQueueViewport != null)
+            researchQueueViewport.gameObject.SetActive(name == "Research");
         if (buildingQuantityControls != null)
             buildingQuantityControls.gameObject.SetActive(name == "Buildings");
         if (buildingPageTitle != null)

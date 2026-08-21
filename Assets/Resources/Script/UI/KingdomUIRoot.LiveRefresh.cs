@@ -295,7 +295,7 @@ public sealed partial class KingdomUIRoot
             topStatusRefreshTimer = 0f;
         }
         if (populatedPage == "Research" &&
-            (researchQueueUiDirty || researchQueueLayoutPending && !pageScrolling))
+            researchQueueUiDirty)
         {
 #if UNITY_EDITOR
             float branchStart = Time.realtimeSinceStartup;

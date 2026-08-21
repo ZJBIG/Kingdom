@@ -441,11 +441,26 @@ public sealed class KingdomPlayModeTests
         if (search != null)
             Assert.That(search.gameObject.activeSelf, Is.False,
                 "The retired research search control must remain an inactive placeholder.");
-        TMP_Text queueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
-        Assert.That(queueLabel, Is.Not.Null,
-            "ResearchTreeToolbar/Queue must display the current research queue.");
-        Assert.That(queueLabel.enableWordWrapping, Is.True,
-            "Research queue text must enable TMP word wrapping.");
+        Transform queueViewport = root.transform.Find("SafeAreaRoot/Content/ResearchQueueViewport");
+        Assert.That(queueViewport, Is.Not.Null,
+            "SafeAreaRoot/Content/ResearchQueueViewport must display the graphic research queue.");
+        Transform quantityControls = root.transform.Find("SafeAreaRoot/Content/BuildingQuantityControls");
+        Assert.That(quantityControls, Is.Not.Null);
+        Assert.That(queueViewport.parent, Is.SameAs(quantityControls.parent),
+            "The research queue must share the BuildingQuantityControls parent.");
+        ScrollRect queueScroll = queueViewport.GetComponent<ScrollRect>();
+        Assert.That(queueScroll, Is.Not.Null,
+            "The graphic research queue must use a ScrollRect for its drag surface.");
+        Assert.That(queueScroll.horizontal, Is.True);
+        Assert.That(queueScroll.vertical, Is.False);
+        Assert.That(queueScroll.movementType, Is.EqualTo(ScrollRect.MovementType.Clamped));
+        RectTransform queueContent = queueViewport.Find("ResearchQueueContent") as RectTransform;
+        Assert.That(queueContent, Is.Not.Null,
+            "The graphic research queue content is missing.");
+        Assert.That(queueScroll.content, Is.SameAs(queueContent));
+        Assert.That(queueViewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
+            "The queue viewport must retain an active raycaster for node Buttons.");
+        Assert.That(queueContent.anchoredPosition.y, Is.EqualTo(0f).Within(.01f));
         Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
         Assert.That(pageHost, Is.Not.Null);
         Assert.That(pageHost.GetComponent<Canvas>(), Is.Not.Null,
