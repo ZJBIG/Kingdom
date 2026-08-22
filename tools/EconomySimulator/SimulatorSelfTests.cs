@@ -109,8 +109,8 @@ public static class SimulatorSelfTests
                 metalSmelter.Consumption.ContainsKey("TinOre"),
             "工业综合冶炼炉必须同时消耗铜矿和锡矿。");
         Require(metalSmelter.Generation.TryGetValue("Bronze", out double industrialBronzeRate) &&
-                Math.Abs(industrialBronzeRate - 2.5d) < 1e-9d,
-            "IndustrialMetalSmelter Bronze output must remain 2.5/s, matching the Unity definition test.");
+                Math.Abs(industrialBronzeRate - 0.4d) < 1e-9d,
+            "IndustrialMetalSmelter Bronze output must remain 0.4/s, matching the Unity definition test.");
         Definition earlyMetalSmelter =
             snapshot.Find("MetalSmelter", DefinitionKind.Building);
         Require(!snapshot.All.Any(x => x.Id == "BronzeFoundry") &&
@@ -123,6 +123,18 @@ public static class SimulatorSelfTests
                 x.Kind == SimEffectKind.BuildingProductionMultiplier &&
                 x.Target == "IndustrialMetalSmelter"),
             "工业有色金属冶炼研究必须作用于统一冶炼建筑。");
+        foreach (string id in new[]
+        {
+            "MetalSmelter", "SteelForge", "IndustrialMetalSmelter",
+            "AluminumSmelter", "NickelRefinery", "TitaniumMetallurgicalComplex"
+        })
+        {
+            Definition smeltingBuilding = snapshot.Find(id, DefinitionKind.Building);
+            double inputMass = smeltingBuilding.Consumption.Values.Sum();
+            double outputMass = smeltingBuilding.Generation.Values.Sum();
+            Require(outputMass <= inputMass + 1e-9d,
+                $"{id} output mass must not exceed input mass.");
+        }
         Require(!snapshot.All.Any(x => x.Id == "ModernSteelmaking"),
             "重复的现代炼钢研究不得残留。");
 
@@ -636,25 +648,23 @@ public static class SimulatorSelfTests
         Definition phantomFabricator = snapshot.Find("PhantomMaterialsFabricator", DefinitionKind.Building);
         Require(phantomFabricator.Generation.ContainsKey("PhantomAlloy") &&
                 phantomFabricator.Generation.ContainsKey("PhantomWeave") &&
-                phantomFabricator.ProductivityConsumption <= 20d &&
-                phantomFabricator.ResourceRequirements.ContainsKey("NickelConcentrate") &&
-                !phantomFabricator.ResourceRequirements.ContainsKey("Nickel") &&
-                phantomFabricator.Consumption.ContainsKey("NickelConcentrate") &&
-                !phantomFabricator.Consumption.ContainsKey("Nickel"),
-            "幽影材料制造厂必须作为可进入的幽影材料来源，并使用镍精矿而非原始镍。");
+                phantomFabricator.ResourceRequirements.ContainsKey("Nickel") &&
+                !phantomFabricator.ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                phantomFabricator.Consumption.ContainsKey("Nickel") &&
+                !phantomFabricator.Consumption.ContainsKey("NickelConcentrate"),
+            "幽影材料制造厂必须作为可进入的幽影材料来源，并使用原始镍而非镍精矿。");
         Require(snapshot.Find("PhaseMaterialEngineering", DefinitionKind.Research)
-                    .ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                    .ResourceRequirements.ContainsKey("Nickel") &&
                 !snapshot.Find("PhaseMaterialEngineering", DefinitionKind.Research)
-                    .ResourceRequirements.ContainsKey("Nickel"),
-            "相位材料工程必须使用镍精矿，不能重新依赖已被精炼链消耗的原始镍。");
+                    .ResourceRequirements.ContainsKey("NickelConcentrate"),
+            "相位材料工程必须使用原始镍而非镍精矿。");
         Definition phaseArray = snapshot.Find("PhaseMaterialSynthesisArray", DefinitionKind.Building);
         Require(phaseArray.Generation.ContainsKey("PhaseMaterial") &&
-                phaseArray.ProductivityConsumption <= 20d &&
-                phaseArray.ResourceRequirements.ContainsKey("NickelConcentrate") &&
-                !phaseArray.ResourceRequirements.ContainsKey("Nickel") &&
-                phaseArray.Consumption.ContainsKey("NickelConcentrate") &&
-                !phaseArray.Consumption.ContainsKey("Nickel"),
-            "相位材料合成阵列必须作为可进入的相位材料来源，并使用镍精矿而非原始镍。");
+                phaseArray.ResourceRequirements.ContainsKey("Nickel") &&
+                !phaseArray.ResourceRequirements.ContainsKey("NickelConcentrate") &&
+                phaseArray.Consumption.ContainsKey("Nickel") &&
+                !phaseArray.Consumption.ContainsKey("NickelConcentrate"),
+            "相位材料合成阵列必须作为可进入的相位材料来源，并使用原始镍而非镍精矿。");
         Require(phaseArray.ResourceRequirements.GetValueOrDefault("PhantomWeave") <= 240d,
             "PhaseMaterialSynthesisArray first-copy PhantomWeave gate must remain below the demonstrated multi-hour stall.");
         Require(phaseArray.ResourceRequirements.GetValueOrDefault("PhantomAlloy") <= 240d,

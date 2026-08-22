@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,11 +10,23 @@ public sealed partial class KingdomUIRoot
     private RectTransform researchQueueContent;
     private ScrollRect researchQueueScroll;
     private readonly List<GameObject> researchQueueVisuals = new();
+    // Queue mutations are common player actions. Keep the maximum number of
+    // node/connector objects bounded instead of repeatedly Destroying and
+    // Instantiating UI prefabs during a queue transition.
+    private readonly List<GameObject> researchQueueNodePool = new();
+    private readonly List<GameObject> researchQueueConnectorPool = new();
+    private readonly List<Research> researchQueueDefinitionBuffer = new();
+    private readonly List<Research> researchQueueDefinitionOrder = new();
+    private int researchQueueGraphicRefreshCount;
+    private int researchQueueGraphicRebuildCount;
     private sealed class ResearchQueueNodeVisualReferences
     {
         public Research Research;
         public Image Surface;
         public Image[] Outline;
+        public Image ProgressImage;
+        public TMP_Text ProgressText;
+        public int StateVersion;
     }
     private readonly Dictionary<Research, ResearchQueueNodeVisualReferences> researchQueueNodeVisualReferences = new();
 
@@ -44,9 +57,10 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Authored ResearchQueueViewport has no Image.");
             return;
         }
+        if (researchQueueViewport.GetComponent<GraphicRaycaster>() == null)
+            researchQueueViewport.gameObject.AddComponent<GraphicRaycaster>();
         viewportImage.color = Color.clear;
         viewportImage.raycastTarget = true;
-        EnsureNestedCanvas(researchQueueViewport);
         researchQueueScroll = researchQueueViewport.GetComponent<ScrollRect>();
         if (researchQueueScroll == null)
         {
@@ -77,13 +91,11 @@ public sealed partial class KingdomUIRoot
         if (researchQueueViewport == null || researchQueueContent == null || ResearchManager.Instance == null)
             return;
 
-        for (int i = 0; i < researchQueueVisuals.Count; i++)
-            if (researchQueueVisuals[i] != null)
-                Destroy(researchQueueVisuals[i]);
-        researchQueueVisuals.Clear();
-        researchQueueNodeVisualReferences.Clear();
+        researchQueueGraphicRefreshCount++;
+        float refreshStart = Time.realtimeSinceStartup;
 
-        List<Research> definitions = new();
+        List<Research> definitions = researchQueueDefinitionBuffer;
+        definitions.Clear();
         Research active = ResearchManager.Instance.ActiveResearch?.Definition;
         if (active != null)
             definitions.Add(active);
@@ -91,6 +103,33 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < queued.Count; i++)
             if (queued[i]?.Definition != null)
                 definitions.Add(queued[i].Definition);
+
+        if (QueueDefinitionsMatch(definitions))
+        {
+            for (int i = 0; i < definitions.Count; i++)
+                RefreshResearchQueueNodeVisual(definitions[i], researchQueueNodeVisualReferences[definitions[i]]);
+#if UNITY_EDITOR
+            float refreshMs = (Time.realtimeSinceStartup - refreshStart) * 1000f;
+            if (refreshMs >= 5f)
+                KingdomEditorPerfLog.Write(
+                    $"[KingdomPerf] ResearchQueueGraphic refreshMs={refreshMs:0.0} " +
+                    $"rebuild=False definitions={definitions.Count} visuals={researchQueueVisuals.Count} " +
+                    $"contentChildren={researchQueueContent.childCount} refreshes={researchQueueGraphicRefreshCount} " +
+                    $"rebuilds={researchQueueGraphicRebuildCount}");
+#endif
+            return;
+        }
+
+        int deactivatedVisuals = researchQueueVisuals.Count;
+        for (int i = 0; i < researchQueueNodePool.Count; i++)
+            if (researchQueueNodePool[i] != null)
+                researchQueueNodePool[i].SetActive(false);
+        for (int i = 0; i < researchQueueConnectorPool.Count; i++)
+            if (researchQueueConnectorPool[i] != null)
+                researchQueueConnectorPool[i].SetActive(false);
+        researchQueueVisuals.Clear();
+        researchQueueNodeVisualReferences.Clear();
+        researchQueueGraphicRebuildCount++;
 
         float queueHeight = Mathf.Max(ResearchNodeHeight + 4f, researchQueueViewport.rect.height);
         float chainWidth = ResearchGraphPaddingX * 2f + Mathf.Max(1, definitions.Count) * ResearchGridX;
@@ -109,19 +148,44 @@ public sealed partial class KingdomUIRoot
                 CreateResearchQueueConnector(x - ResearchGridX + ResearchNodeWidth,
                     queueHeight * .5f + ResearchQueueVerticalOffset);
         }
+        researchQueueDefinitionOrder.Clear();
+        researchQueueDefinitionOrder.AddRange(definitions);
         researchQueueScroll.viewport = researchQueueViewport;
         researchQueueScroll.content = researchQueueContent;
         researchQueueScroll.horizontal = true;
         researchQueueScroll.vertical = false;
         researchQueueScroll.movementType = ScrollRect.MovementType.Clamped;
         researchQueueScroll.StopMovement();
+#if UNITY_EDITOR
+        float rebuildMs = (Time.realtimeSinceStartup - refreshStart) * 1000f;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] ResearchQueueGraphic refreshMs={rebuildMs:0.0} rebuild=True " +
+            $"definitions={definitions.Count} deactivated={deactivatedVisuals} " +
+            $"active={researchQueueVisuals.Count} nodePool={researchQueueNodePool.Count} " +
+            $"connectorPool={researchQueueConnectorPool.Count} contentChildren={researchQueueContent.childCount} " +
+            $"refreshes={researchQueueGraphicRefreshCount} rebuilds={researchQueueGraphicRebuildCount}");
+#endif
+    }
+
+    private bool QueueDefinitionsMatch(IReadOnlyList<Research> definitions)
+    {
+        if (definitions == null || definitions.Count != researchQueueNodeVisualReferences.Count)
+            return false;
+        for (int i = 0; i < definitions.Count; i++)
+            if (!researchQueueNodeVisualReferences.ContainsKey(definitions[i]) ||
+                i >= researchQueueDefinitionOrder.Count ||
+                researchQueueDefinitionOrder[i] != definitions[i])
+                return false;
+        return true;
     }
 
     private void CreateResearchQueueNode(Research research, Vector2 position)
     {
-        GameObject nodeObject = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.ResearchNode, researchQueueContent);
+        GameObject nodeObject = GetResearchQueueNodeObject();
         if (nodeObject == null)
             return;
+        nodeObject.transform.SetParent(researchQueueContent, false);
+        nodeObject.SetActive(true);
         researchQueueVisuals.Add(nodeObject);
         nodeObject.name = "ResearchQueueNode_" + research.Id;
         RectTransform node = nodeObject.GetComponent<RectTransform>();
@@ -152,13 +216,6 @@ public sealed partial class KingdomUIRoot
             node.gameObject.AddComponent<UIPageScrollDragForwarder>();
         Image[] outline = CreateResearchNodeBorder(node);
         ApplyResearchQueueSelectionVisual(research, surface, outline, status);
-        researchQueueNodeVisualReferences[research] = new ResearchQueueNodeVisualReferences
-        {
-            Research = research,
-            Surface = surface,
-            Outline = outline
-        };
-
         RectTransform frameRect = node.Find("EraFrame") as RectTransform;
         Image frame = frameRect == null ? null : frameRect.GetComponent<Image>();
         if (frame != null)
@@ -180,7 +237,70 @@ public sealed partial class KingdomUIRoot
         }
         ResearchNodeLabel("Label", node, research.Label ?? research.Id, 24, TextPrimary);
         ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
-        ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
+        TMP_Text progressText = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
+        ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20,
+            status == ResearchStatus.Completed ? Color.white : accent);
+        researchQueueNodeVisualReferences[research] = new ResearchQueueNodeVisualReferences
+        {
+            Research = research,
+            Surface = surface,
+            Outline = outline,
+            ProgressImage = progress,
+            ProgressText = progressText,
+            StateVersion = state == null ? -1 : state.Version
+        };
+    }
+
+    private void RefreshActiveResearchQueueProgressVisual(ResearchManager manager)
+    {
+        ResearchState state = manager == null ? null : manager.ActiveResearch;
+        Research research = state?.Definition;
+        if (research == null ||
+            !researchQueueNodeVisualReferences.TryGetValue(research, out ResearchQueueNodeVisualReferences visual) ||
+            visual == null)
+            return;
+
+        ResearchStatus status = state.Status;
+        if (visual.ProgressImage != null)
+        {
+            float fill = ResearchProgressFillAmount(state, status);
+            if (Mathf.Abs(visual.ProgressImage.fillAmount - fill) > 0.0001f)
+                visual.ProgressImage.fillAmount = fill;
+        }
+        if (visual.ProgressText != null)
+            SetTextIfChanged(visual.ProgressText, ResearchProgressText(state, status));
+    }
+
+    private void RefreshResearchQueueNodeVisual(
+        Research research,
+        ResearchQueueNodeVisualReferences visual)
+    {
+        if (research == null || visual == null || visual.Surface == null ||
+            ResearchManager.Instance == null)
+            return;
+        ResearchManager.Instance.States.TryGetValue(research, out ResearchState state);
+        ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
+        Color accent = status == ResearchStatus.Completed ? Positive :
+            status == ResearchStatus.Available ? Copper :
+            status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
+            new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+        ApplyResearchQueueSelectionVisual(research, visual.Surface, visual.Outline, status);
+
+        int stateVersion = state == null ? -1 : state.Version;
+        if (visual.StateVersion == stateVersion)
+            return;
+        visual.StateVersion = stateVersion;
+
+        Transform node = visual.Surface.transform;
+        if (visual.ProgressImage != null)
+        {
+            float fill = ResearchProgressFillAmount(state, status);
+            if (Mathf.Abs(visual.ProgressImage.fillAmount - fill) > 0.0001f)
+                visual.ProgressImage.fillAmount = fill;
+        }
+        ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
+        if (visual.ProgressText != null)
+            SetTextIfChanged(visual.ProgressText, ResearchProgressText(state, status));
         ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20,
             status == ResearchStatus.Completed ? Color.white : accent);
     }
@@ -230,16 +350,59 @@ public sealed partial class KingdomUIRoot
 
     private void CreateResearchQueueConnector(float x, float y)
     {
-        GameObject lineObject = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.ResearchLine, researchQueueContent);
-        GameObject arrowObject = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.ResearchLine, researchQueueContent);
+        GameObject lineObject = GetResearchQueueConnectorObject();
+        if (lineObject != null)
+            lineObject.SetActive(true);
+        GameObject arrowObject = GetResearchQueueConnectorObject();
         if (lineObject == null || arrowObject == null)
+        {
+            if (lineObject != null)
+                lineObject.SetActive(false);
             return;
+        }
+        lineObject.transform.SetParent(researchQueueContent, false);
+        arrowObject.transform.SetParent(researchQueueContent, false);
+        arrowObject.SetActive(true);
         researchQueueVisuals.Add(lineObject);
         researchQueueVisuals.Add(arrowObject);
         ConfigureQueueLine(lineObject.GetComponent<RectTransform>(), x, y, ResearchGridX - ResearchNodeWidth - 12f,
             LoadResearchTreeSprite("ResearchTree/ResearchLineHorizontal"));
         ConfigureQueueArrow(arrowObject.GetComponent<RectTransform>(), x + ResearchGridX - ResearchNodeWidth - 16f, y,
             LoadResearchTreeSprite("ResearchTree/ResearchLineEnd"));
+    }
+
+    private GameObject GetResearchQueueNodeObject()
+    {
+        for (int i = 0; i < researchQueueNodePool.Count; i++)
+        {
+            GameObject pooled = researchQueueNodePool[i];
+            if (pooled != null && !pooled.activeSelf)
+                return pooled;
+        }
+
+        GameObject created = KingdomUIPrefabLibrary.Instantiate(
+            KingdomUIPrefabLibrary.ResearchNode,
+            researchQueueContent);
+        if (created != null)
+            researchQueueNodePool.Add(created);
+        return created;
+    }
+
+    private GameObject GetResearchQueueConnectorObject()
+    {
+        for (int i = 0; i < researchQueueConnectorPool.Count; i++)
+        {
+            GameObject pooled = researchQueueConnectorPool[i];
+            if (pooled != null && !pooled.activeSelf)
+                return pooled;
+        }
+
+        GameObject created = KingdomUIPrefabLibrary.Instantiate(
+            KingdomUIPrefabLibrary.ResearchLine,
+            researchQueueContent);
+        if (created != null)
+            researchQueueConnectorPool.Add(created);
+        return created;
     }
 
     private static void ConfigureQueueLine(RectTransform rect, float x, float y, float width, Sprite sprite)

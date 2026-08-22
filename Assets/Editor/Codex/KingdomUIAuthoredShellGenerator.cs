@@ -96,11 +96,21 @@ internal static class KingdomUIAuthoredShellGenerator
         RectTransform nav = Rect("LeftNavigation", safeArea, Vector2.zero, new Vector2(0, 1), Vector2.zero, new Vector2(270, -132));
         PanelRect("Surface", nav, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Panel);
         Label("Caption", nav, "文明管理", 18, TextSecondary, new Vector2(0, 1), Vector2.one, new Vector2(28, -78), new Vector2(-18, -28));
+        RectTransform navButtons = Rect("NavigationButtons", nav, new Vector2(0, 1), new Vector2(1, 1), new Vector2(20, -150), new Vector2(-20, 0));
+        VerticalLayoutGroup navLayout = navButtons.gameObject.AddComponent<VerticalLayoutGroup>();
+        navLayout.spacing = 28f;
+        navLayout.childAlignment = TextAnchor.UpperLeft;
+        navLayout.childControlWidth = true;
+        navLayout.childControlHeight = false;
+        navLayout.childForceExpandWidth = true;
+        navLayout.childForceExpandHeight = false;
+        ContentSizeFitter navFitter = navButtons.gameObject.AddComponent<ContentSizeFitter>();
+        navFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         string[] names = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
         string[] labels = { "概览", "资源", "建筑", "研究", "时代", "工坊", "音乐", "星区" };
         for (int i = 0; i < names.Length; i++)
-            Button("Nav_" + names[i], nav, labels[i], i == 0 ? Copper : PanelRaised,
-                new Vector2(0, 1), new Vector2(1, 1), new Vector2(20, -150 - i * 116), new Vector2(-20, -62 - i * 116));
+            Button("Nav_" + names[i], navButtons, labels[i], i == 0 ? Copper : PanelRaised,
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
         RectTransform body = Rect("Content", safeArea, Vector2.zero, Vector2.one,
             new Vector2(288, 110), new Vector2(-658, -150));
@@ -159,8 +169,6 @@ internal static class KingdomUIAuthoredShellGenerator
         }
         BuildResearchSurface(researchRows);
 
-        Label("BuildingPageTitle", body, "建筑", 36, TextPrimary,
-            new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -88), new Vector2(170, -28)).gameObject.SetActive(false);
         RectTransform quantity = Rect("BuildingQuantityControls", body, new Vector2(0, 1), new Vector2(1, 1),
             new Vector2(180, -88), new Vector2(-20, -28));
         BuildResearchQueueSurface(body);

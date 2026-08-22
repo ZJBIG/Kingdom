@@ -64,6 +64,51 @@ public sealed class ResourceAmountDefinition
 
 public static class ResourceAmountDefinitionList
 {
+    public static void MergeOpposingPairs(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> generation,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> consumption,
+        ref List<Pair<Resource, ExpantaNum>> mergedGeneration,
+        ref List<Pair<Resource, ExpantaNum>> mergedConsumption)
+    {
+        if (mergedGeneration != null && mergedConsumption != null)
+            return;
+
+        var netRates = new Dictionary<Resource, ExpantaNum>();
+        AddRates(netRates, generation, false);
+        AddRates(netRates, consumption, true);
+
+        mergedGeneration = new List<Pair<Resource, ExpantaNum>>();
+        mergedConsumption = new List<Pair<Resource, ExpantaNum>>();
+        foreach (KeyValuePair<Resource, ExpantaNum> rate in netRates)
+        {
+            if (rate.Key == null || rate.Value == ExpantaNum.Zero)
+                continue;
+            if (rate.Value > ExpantaNum.Zero)
+                mergedGeneration.Add(new Pair<Resource, ExpantaNum>(rate.Key, rate.Value));
+            else
+                mergedConsumption.Add(new Pair<Resource, ExpantaNum>(
+                    rate.Key, rate.Value.Abs()));
+        }
+    }
+
+    private static void AddRates(
+        Dictionary<Resource, ExpantaNum> netRates,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
+        bool subtract)
+    {
+        if (rates == null)
+            return;
+        for (int i = 0; i < rates.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> rate = rates[i];
+            if (rate.First == null)
+                continue;
+            ExpantaNum amount = subtract ? -rate.Second : rate.Second;
+            netRates.TryGetValue(rate.First, out ExpantaNum current);
+            netRates[rate.First] = current + amount;
+        }
+    }
+
     public static List<Pair<Resource, ExpantaNum>> ToPairs(
         IReadOnlyList<ResourceAmountDefinition> values)
     {
@@ -78,6 +123,15 @@ public static class ResourceAmountDefinitionList
         }
 
         return result;
+    }
+
+    public static IReadOnlyList<Pair<Resource, ExpantaNum>> ToPairs(
+        IReadOnlyList<ResourceAmountDefinition> values,
+        ref List<Pair<Resource, ExpantaNum>> cache)
+    {
+        if (cache == null)
+            cache = ToPairs(values);
+        return cache;
     }
 
     public static List<ResourceAmountDefinition> FromPairs(

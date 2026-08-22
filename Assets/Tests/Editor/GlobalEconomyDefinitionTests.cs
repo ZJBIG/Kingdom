@@ -4,9 +4,78 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 public sealed class GlobalEconomyDefinitionTests
 {
+    [Test]
+    public void ResourcePairDefinitionViewsReuseTheirCachedLists()
+    {
+        Building building = DataBase<Building>.All.First(value => value != null);
+        Research research = DataBase<Research>.All.First(value => value != null);
+        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All.First(value => value != null);
+        SectorDefinition sector = DataBase<SectorDefinition>.All.First(value => value != null);
+
+        Assert.That(ReferenceEquals(building.ResourceRequirements, building.ResourceRequirements), Is.True);
+        Assert.That(ReferenceEquals(building.ResourceGenerationRates, building.ResourceGenerationRates), Is.True);
+        Assert.That(ReferenceEquals(building.ResourceConsumptionRates, building.ResourceConsumptionRates), Is.True);
+        Assert.That(ReferenceEquals(research.ResourceRequirements, research.ResourceRequirements), Is.True);
+        Assert.That(ReferenceEquals(workshop.ResourceRequirements, workshop.ResourceRequirements), Is.True);
+        Assert.That(ReferenceEquals(sector.ResourceRewards, sector.ResourceRewards), Is.True);
+        Assert.That(ReferenceEquals(sector.OccupiedResourceRatesPerSecond, sector.OccupiedResourceRatesPerSecond), Is.True);
+        Assert.That(ReferenceEquals(sector.ColonizationResourceRatesPerSecond, sector.ColonizationResourceRatesPerSecond), Is.True);
+        Assert.That(ReferenceEquals(sector.CampaignResourceRatesPerSecond, sector.CampaignResourceRatesPerSecond), Is.True);
+    }
+
+    [Test]
+    public void EditorReconfigurationInvalidatesResourcePairCaches()
+    {
+        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        Research research = ScriptableObject.CreateInstance<Research>();
+        WorkshopUpgrade workshop = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        SectorDefinition sector = ScriptableObject.CreateInstance<SectorDefinition>();
+        Building building = ScriptableObject.CreateInstance<Building>();
+        try
+        {
+            Pair<Resource, ExpantaNum> first = new(resource, new ExpantaNum("1"));
+            Pair<Resource, ExpantaNum> second = new(resource, new ExpantaNum("2"));
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> researchBefore = research.ResourceRequirements;
+            research.SetResourceRequirementsForEditor(new List<Pair<Resource, ExpantaNum>> { first });
+            Assert.That(ReferenceEquals(researchBefore, research.ResourceRequirements), Is.False);
+            Assert.That(research.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> workshopBefore = workshop.ResourceRequirements;
+            workshop.ConfigureForEditor(null, null,
+                new List<Pair<Resource, ExpantaNum>> { first }, null);
+            Assert.That(ReferenceEquals(workshopBefore, workshop.ResourceRequirements), Is.False);
+            Assert.That(workshop.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> sectorBefore = sector.OccupiedResourceRatesPerSecond;
+            sector.SetOccupiedResourceRatesForEditor(new List<Pair<Resource, ExpantaNum>> { second });
+            Assert.That(ReferenceEquals(sectorBefore, sector.OccupiedResourceRatesPerSecond), Is.False);
+            Assert.That(sector.OccupiedResourceRatesPerSecond[0].Second, Is.EqualTo(new ExpantaNum("2")));
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> buildingBefore = building.ResourceRequirements;
+            building.ConfigureEconomyForEditor(
+                ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+                new List<Pair<Resource, ExpantaNum>> { first }, null, null);
+            Assert.That(ReferenceEquals(buildingBefore, building.ResourceRequirements), Is.False);
+            Assert.That(building.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(resource);
+            UnityEngine.Object.DestroyImmediate(research);
+            UnityEngine.Object.DestroyImmediate(workshop);
+            UnityEngine.Object.DestroyImmediate(sector);
+            UnityEngine.Object.DestroyImmediate(building);
+        }
+    }
+
     [Test]
     public void ProductivityGrantsAreReservedForPopulationBuildings()
     {

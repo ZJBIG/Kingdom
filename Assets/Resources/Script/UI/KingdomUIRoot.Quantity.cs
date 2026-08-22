@@ -12,21 +12,10 @@ public sealed partial class KingdomUIRoot
 {
     private void RefreshBuildingQuantityHeader()
     {
-        if (buildingPageTitle == null || buildingQuantityControls == null)
+        if (buildingQuantityControls == null)
             return;
         bool visible = populatedPage == "Buildings";
-        buildingPageTitle.text = "建筑";
-        buildingPageTitle.text = "\u5efa\u7b51";
-        buildingPageTitle.enabled = true;
-        buildingPageTitle.gameObject.SetActive(visible);
-        RectTransform titleRect = buildingPageTitle.rectTransform;
-        titleRect.SetParent(buildingQuantityControls.transform.parent, false);
-        titleRect.anchorMin = new Vector2(0f, 1f);
-        titleRect.anchorMax = new Vector2(0f, 1f);
-        titleRect.pivot = new Vector2(0f, 1f);
-        titleRect.offsetMin = new Vector2(34f, -88f);
-        titleRect.offsetMax = new Vector2(170f, -28f);
-        buildingPageTitle.transform.SetAsLastSibling();
+        TMP_Text buildingPageTitle = pageTitle;
         buildingQuantityControls.gameObject.SetActive(visible);
     }
 
@@ -45,16 +34,16 @@ public sealed partial class KingdomUIRoot
     private void RepairBuildingQuantityControls(RectTransform controls)
     {
         buildingQuantityButtons.Clear();
-        buildingPageTitle = controls.parent.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
-        if (buildingPageTitle == null)
+        pageTitle = controls.parent.Find("PageTitle")?.GetComponent<TMP_Text>();
+        if (pageTitle == null)
         {
             Debug.LogError("[王国界面] 场景外壳缺少已配置的建筑页面标题。");
             return;
         }
-        buildingPageTitle.alignment = TextAlignmentOptions.MidlineLeft;
-        buildingPageTitle.fontSize = 36;
-        buildingPageTitle.text = "\u5efa\u7b51";
-        buildingPageTitle.enabled = true;
+        pageTitle.alignment = TextAlignmentOptions.MidlineLeft;
+        pageTitle.fontSize = 36;
+        pageTitle.text = "\u5efa\u7b51";
+        pageTitle.enabled = true;
 
         AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.One, "1个");
         AddOrRepairBuildingQuantityButton(controls, BuildingQuantityMode.Ten, "10个");
@@ -162,9 +151,9 @@ public sealed partial class KingdomUIRoot
                         return maxState.Amount;
                     return ExpantaNum.Zero;
                 }
-                return upgrade
+                return EnsureMinimumBuildQuantity(upgrade
                     ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
-                    : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
+                    : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity));
             case BuildingQuantityMode.Custom:
                 ExpantaNum maximum;
                 if (deconstruct)
@@ -179,9 +168,15 @@ public sealed partial class KingdomUIRoot
                         ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
                         : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
                 }
-                return customBuildingQuantity >= maximum ? maximum : customBuildingQuantity;
+                ExpantaNum selected = customBuildingQuantity >= maximum
+                    ? maximum
+                    : customBuildingQuantity;
+                return deconstruct ? selected : EnsureMinimumBuildQuantity(selected);
             default:
                 return ExpantaNum.One;
         }
     }
+
+    private static ExpantaNum EnsureMinimumBuildQuantity(ExpantaNum amount) =>
+        amount < ExpantaNum.One ? ExpantaNum.One : amount;
 }

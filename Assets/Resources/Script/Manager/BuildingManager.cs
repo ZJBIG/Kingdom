@@ -78,11 +78,13 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private ExpantaNum CalculateRawTotalProductivity()
     {
+        GameState gameState = GameManager.Instance.State;
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum total =
-            GameManager.Instance.State.Population.Population *
+            gameState.Population.Population *
             PopulationState.ProductivityGrantedPerPerson *
-            ProgressionModifierManager.Current.PopulationProductivityMultiplier +
-            ProgressionModifierManager.Current.ProductivityGranted;
+            modifiers.PopulationProductivityMultiplier +
+            modifiers.ProductivityGranted;
         for (int i = 0; i < orderedStates.Count; i++)
             total += orderedStates[i].Amount * orderedStates[i].ProductivityGranted;
         return total;
@@ -100,6 +102,8 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (definitions == null)
             throw new ArgumentNullException(nameof(definitions));
+
+        ValidateMergedResourceFlows(definitions);
 
         var definitionSet = new HashSet<Building>();
         for (int i = 0; i < definitions.Count; i++)
@@ -125,6 +129,36 @@ public class BuildingManager : Singleton<BuildingManager>
         var visiting = new HashSet<Building>();
         for (int i = 0; i < definitions.Count; i++)
             ValidateChainNode(definitions[i], visited, visiting);
+    }
+
+    public static void ValidateMergedResourceFlows(IReadOnlyList<Building> definitions)
+    {
+        if (definitions == null)
+            throw new ArgumentNullException(nameof(definitions));
+
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Building building = definitions[i];
+            if (building == null)
+                continue;
+            for (int generationIndex = 0;
+                 generationIndex < building.ResourceGenerationRates.Count;
+                 generationIndex++)
+            {
+                Pair<Resource, ExpantaNum> generated =
+                    building.ResourceGenerationRates[generationIndex];
+                for (int consumptionIndex = 0;
+                     consumptionIndex < building.ResourceConsumptionRates.Count;
+                     consumptionIndex++)
+                {
+                    Pair<Resource, ExpantaNum> consumed =
+                        building.ResourceConsumptionRates[consumptionIndex];
+                    if (generated.First == consumed.First)
+                        throw new InvalidOperationException(
+                            $"建筑“{building.Id}”的资源“{generated.First.Id}”生产/消费未合并。");
+                }
+            }
+        }
     }
 
     private static void ValidateChainEconomy(Building building)
@@ -940,18 +974,18 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum potentialPowerConsumption = ExpantaNum.Zero;
             ExpantaNum potentialLogisticsProduction = ExpantaNum.Zero;
             ExpantaNum potentialLogisticsConsumption = ExpantaNum.Zero;
+            ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+            ExpantaNum potentialEfficiencyScale = ExpantaNum.Clamp01(GlobalEfficiencyFactor);
+            ExpantaNum happinessMultiplier = GameManager.Instance.State.HappinessRewardMultiplier;
             for (int i = 0; i < activeBuildingStates.Count; i++)
             {
                 BuildingState state = activeBuildingStates[i];
                 ExpantaNum potentialScale =
-                    state.Amount * ExpantaNum.Clamp01(GlobalEfficiencyFactor);
+                    state.Amount * potentialEfficiencyScale;
                 ExpantaNum actualScale = state.Amount * state.Efficiency;
-                ProgressionModifierState modifiers = ProgressionModifierManager.Current;
                 ExpantaNum productionMultiplier =
                     modifiers.GetBuildingProductionMultiplier(state.Definition) *
                     modifiers.GlobalBuildingProductionMultiplier;
-                ExpantaNum happinessMultiplier =
-                    GameManager.Instance.State.HappinessRewardMultiplier;
                 ExpantaNum foodProductionMultiplier =
                     modifiers.GetBuildingFoodProductionMultiplier(state.Definition);
 
@@ -975,7 +1009,8 @@ public class BuildingManager : Singleton<BuildingManager>
                 for (int j = 0; j < consumption.Count; j++)
                     resourceManager.AdjustTickPotentialConsumption(
                         consumption[j].First,
-                        (potentialScale - actualScale) * consumption[j].Second);
+                        (potentialScale - actualScale) * consumption[j].Second
+                        * productionMultiplier);
             }
 
             GameManager.Instance.PrepareHappiness(
@@ -1012,19 +1047,20 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private ExpantaNum CalculateEfficiency(Building building)
     {
+        ResourceManager resourceManager = ResourceManager.Instance;
+        GameState gameState = GameManager.Instance.State;
         ExpantaNum resourceSatisfaction = ExpantaNum.One;
         IReadOnlyList<Pair<Resource, ExpantaNum>> rates = building.ResourceConsumptionRates;
         for (int i = 0; i < rates.Count; i++)
-            resourceSatisfaction *= ResourceManager.Instance.GetTickSatisfaction(rates[i].First);
+            resourceSatisfaction *= resourceManager.GetTickSatisfaction(rates[i].First);
 
         ExpantaNum powerSatisfaction = building.PowerConsumptionRate > ExpantaNum.Zero
-            ? GameManager.Instance.State.PowerSatisfaction
+            ? gameState.PowerSatisfaction
             : ExpantaNum.One;
         ExpantaNum logisticsSatisfaction = building.LogisticsConsumptionRate > ExpantaNum.Zero
-            ? GameManager.Instance.State.LogisticsSatisfaction
+            ? gameState.LogisticsSatisfaction
             : ExpantaNum.One;
-        ExpantaNum happinessConstraint =
-            GameManager.Instance.State.HappinessConstraintMultiplier;
+        ExpantaNum happinessConstraint = gameState.HappinessConstraintMultiplier;
         return CalculateEffectiveEfficiency(
             GlobalEfficiencyFactor,
             resourceSatisfaction,
@@ -1141,7 +1177,9 @@ public class BuildingManager : Singleton<BuildingManager>
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = state.Definition.ResourceConsumptionRates;
         for (int i = 0; i < consumption.Count; i++)
-            ResourceManager.Instance.AdjustConsumptionRate(consumption[i].First, scaleDelta * consumption[i].Second);
+            ResourceManager.Instance.AdjustConsumptionRate(
+                consumption[i].First,
+                scaleDelta * consumption[i].Second * productionMultiplier);
 
         GameManager.Instance.AdjustFoodRates(
             scaleDelta * state.Definition.FoodProductionRate
@@ -1221,6 +1259,14 @@ public class BuildingManager : Singleton<BuildingManager>
                     rate.First,
                     scale * rate.Second * (newMultiplier - oldMultiplier));
             }
+
+            IReadOnlyList<Pair<Resource, ExpantaNum>> consumption =
+                building.ResourceConsumptionRates;
+            for (int j = 0; j < consumption.Count; j++)
+                ResourceManager.Instance.AdjustConsumptionRate(
+                    consumption[j].First,
+                    scale * consumption[j].Second
+                    * (newBuildingMultiplier - oldBuildingMultiplier));
 
             ExpantaNum oldFoodMultiplier =
                 oldBuildingMultiplier * previous.GetBuildingFoodProductionMultiplier(building);

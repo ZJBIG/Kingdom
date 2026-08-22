@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,14 +13,21 @@ public sealed class WorkshopUpgrade : GameDefinition
     [SerializeField] private List<Research> requiredResearch = new();
     [SerializeField] private List<WorkshopUpgrade> requiredUpgrades = new();
     [SerializeField] private List<ResourceAmountDefinition> resourceRequirements = new();
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceRequirementsCache;
     [SerializeField] private List<WorkshopEffectDefinition> effects = new();
 
     public IReadOnlyList<Research> RequiredResearch => requiredResearch;
     public IReadOnlyList<WorkshopUpgrade> RequiredUpgrades => requiredUpgrades;
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => ResourceAmountDefinitionList.ToPairs(resourceRequirements);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements =>
+        ResourceAmountDefinitionList.ToPairs(resourceRequirements, ref resourceRequirementsCache);
     public IReadOnlyList<WorkshopEffectDefinition> Effects => effects;
 
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        resourceRequirementsCache = null;
+    }
+
     public void ConfigureForEditor(
         List<Research> research,
         List<WorkshopUpgrade> upgrades,
@@ -29,6 +37,7 @@ public sealed class WorkshopUpgrade : GameDefinition
         requiredResearch = research ?? new List<Research>();
         requiredUpgrades = upgrades ?? new List<WorkshopUpgrade>();
         resourceRequirements = ResourceAmountDefinitionList.FromPairs(requirements);
+        resourceRequirementsCache = null;
         effects = upgradeEffects ?? new List<WorkshopEffectDefinition>();
     }
 #endif
@@ -36,25 +45,45 @@ public sealed class WorkshopUpgrade : GameDefinition
 
 public enum WorkshopEffectType
 {
+    [Description("建筑生产效率")]
     BuildingProductionMultiplier,
+    [Description("建筑食物生产效率")]
     BuildingFoodProductionMultiplier,
+    [Description("资源生产效率")]
     ResourceProductionMultiplier,
+    [Description("全局研究效率")]
     GlobalResearchMultiplier,
+    [Description("全局建造效率")]
     GlobalConstructionMultiplier,
+    [Description("领土增加")]
     TerritoryGranted,
+    [Description("军事能力")]
     MilitaryMultiplier,
+    [Description("全局电力效率")]
     PowerMultiplier,
+    [Description("全局建筑生产效率")]
     GlobalBuildingProductionMultiplier,
+    [Description("建筑研究效率")]
     BuildingResearchPowerMultiplier,
+    [Description("建筑电力产出")]
     BuildingPowerProductionMultiplier,
+    [Description("建筑物流产出")]
     BuildingLogisticsProductionMultiplier,
+    [Description("全局物流效率")]
     GlobalLogisticsMultiplier,
+    [Description("舰队维修成本")]
     FleetRepairCostMultiplier,
+    [Description("人口增长")]
     PopulationGrowthMultiplier,
+    [Description("占领资源产出")]
     OccupiedResourceProductionMultiplier,
+    [Description("远征补给成本")]
     CampaignSupplyCostMultiplier,
+    [Description("远征伤亡")]
     CampaignCasualtyMultiplier,
+    [Description("建筑建造效率")]
     BuildingConstructionMultiplier,
+    [Description("探索能力")]
     ExplorationPowerMultiplier
 }
 

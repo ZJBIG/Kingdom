@@ -51,15 +51,34 @@ public class Building : GameDefinition
     private List<ResourceAmountDefinition> resourceGenerationRates = new();
     [SerializeField]
     private List<ResourceAmountDefinition> resourceConsumptionRates = new();
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceRequirementsCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceGenerationRatesCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceConsumptionRatesCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> rawResourceGenerationRatesCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> rawResourceConsumptionRatesCache;
     [Header("前置条件")]
     [SerializeField]
     private List<Research> requiredResearch = new();
     [SerializeField]
     private List<WorkshopUpgrade> requiredWorkshopUpgrades = new();
 
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => ResourceAmountDefinitionList.ToPairs(resourceRequirements);
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceGenerationRates => ResourceAmountDefinitionList.ToPairs(resourceGenerationRates);
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates => ResourceAmountDefinitionList.ToPairs(resourceConsumptionRates);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => ResourceAmountDefinitionList.ToPairs(resourceRequirements, ref resourceRequirementsCache);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceGenerationRates
+    {
+        get
+        {
+            EnsureMergedResourceRates();
+            return resourceGenerationRatesCache;
+        }
+    }
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceConsumptionRates
+    {
+        get
+        {
+            EnsureMergedResourceRates();
+            return resourceConsumptionRatesCache;
+        }
+    }
     public IReadOnlyList<Research> RequiredResearch => requiredResearch;
     public IReadOnlyList<WorkshopUpgrade> RequiredWorkshopUpgrades => requiredWorkshopUpgrades;
     public Building UpgradeTo => upgradeTo;
@@ -88,6 +107,15 @@ public class Building : GameDefinition
         CostGrowth >= ExpantaNum.One;
 
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        resourceRequirementsCache = null;
+        resourceGenerationRatesCache = null;
+        resourceConsumptionRatesCache = null;
+        rawResourceGenerationRatesCache = null;
+        rawResourceConsumptionRatesCache = null;
+    }
+
     public void ConfigureEconomyForEditor(
         ExpantaNum growth,
         ExpantaNum territory,
@@ -128,6 +156,11 @@ public class Building : GameDefinition
         resourceRequirements = ResourceAmountDefinitionList.FromPairs(requirements);
         resourceGenerationRates = ResourceAmountDefinitionList.FromPairs(generation);
         resourceConsumptionRates = ResourceAmountDefinitionList.FromPairs(consumption);
+        resourceRequirementsCache = null;
+        resourceGenerationRatesCache = null;
+        resourceConsumptionRatesCache = null;
+        rawResourceGenerationRatesCache = null;
+        rawResourceConsumptionRatesCache = null;
     }
 
     public void SetRequiredResearchForEditor(List<Research> values) =>
@@ -152,5 +185,21 @@ public class Building : GameDefinition
         logisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, consumption).ToString();
     }
 #endif
+
+    private void EnsureMergedResourceRates()
+    {
+        if (resourceGenerationRatesCache != null && resourceConsumptionRatesCache != null)
+            return;
+
+        ResourceAmountDefinitionList.ToPairs(
+            resourceGenerationRates, ref rawResourceGenerationRatesCache);
+        ResourceAmountDefinitionList.ToPairs(
+            resourceConsumptionRates, ref rawResourceConsumptionRatesCache);
+        ResourceAmountDefinitionList.MergeOpposingPairs(
+            rawResourceGenerationRatesCache,
+            rawResourceConsumptionRatesCache,
+            ref resourceGenerationRatesCache,
+            ref resourceConsumptionRatesCache);
+    }
 
 }

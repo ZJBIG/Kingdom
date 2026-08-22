@@ -7,12 +7,19 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private readonly Dictionary<string, Button> musicTrackButtons = new();
-    private Button musicPlayPauseButton;
+    private readonly Dictionary<string, Sprite> musicIconCache = new();
+    private MusicManager musicManagerCache;
+    private Button musicGlobalPauseButton;
     private ScrollRect musicListScroll;
+    private float lastMusicProgressMaxValue = -1f;
+    private float lastMusicVolume = float.NaN;
+    private float lastMusicGap = float.NaN;
 
-    private static MusicManager FindMusicManager()
+    private MusicManager FindMusicManager()
     {
-        return FindObjectOfType<MusicManager>();
+        if (musicManagerCache == null)
+            musicManagerCache = FindObjectOfType<MusicManager>();
+        return musicManagerCache;
     }
 
     private void BuildMusicPage(RectTransform parent)
@@ -57,15 +64,37 @@ public sealed partial class KingdomUIRoot
         return result;
     }
 
-    private static void ConfigureMusicButtonText(Button button, string text)
+    private void ConfigureMusicTrackIcon(Button button, string iconName)
     {
-        if (button == null) return;
-        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
-        if (label == null) return;
-        ConfigureMusicText(label, text);
-        label.fontSize = 24;
-        label.alignment = TextAlignmentOptions.Center;
-        label.enableWordWrapping = false;
+        if (button == null)
+            return;
+        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
+        if (image == null)
+            return;
+        image.sprite = LoadMusicIcon(iconName);
+        image.type = Image.Type.Simple;
+        image.preserveAspect = true;
+        image.color = Color.white;
+        button.targetGraphic = image;
+    }
+
+    private Sprite LoadMusicIcon(string iconName)
+    {
+        if (musicIconCache.TryGetValue(iconName, out Sprite cached))
+            return cached;
+        string path = "UI/Kingdom/MusicIcons/" + iconName;
+        Sprite sprite = Resources.Load<Sprite>(path);
+        if (sprite == null)
+        {
+            Texture2D texture = Resources.Load<Texture2D>(path);
+            if (texture != null)
+                sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(.5f, .5f), 100f);
+        }
+        musicIconCache[iconName] = sprite;
+        if (sprite == null)
+            Debug.LogError("[王国界面] Music icon could not be loaded: " + path);
+        return sprite;
     }
 
     private static TMP_Text ConfigureMusicTrackColumn(GameObject rowObject, string name, string text,
@@ -107,21 +136,6 @@ public sealed partial class KingdomUIRoot
              label.transform.SetAsLastSibling();
     }
 
-    private static void EnsureMusicValueLabelVisible(TMP_Text label)
-    {
-        if (label == null)
-            return;
-        label.enabled = true;
-        label.gameObject.SetActive(true);
-        label.raycastTarget = false;
-        label.color = TextPrimary;
-        label.canvasRenderer.SetAlpha(1f);
-        label.alignment = TextAlignmentOptions.MidlineLeft;
-        label.overflowMode = TextOverflowModes.Overflow;
-        label.enableWordWrapping = false;
-        BringMusicTextToFront(label);
-    }
-
     private void AddPointerState(Slider slider, UnityEngine.Events.UnityAction down,
         UnityEngine.Events.UnityAction up)
     {
@@ -146,19 +160,43 @@ public sealed partial class KingdomUIRoot
             pageScroll.enabled = enabled && populatedPage != "Music";
     }
 
-    private void ToggleMusicPlayback()
-    {
-        MusicManager manager = FindMusicManager();
-        if (manager == null) return;
-        if (manager.IsPlaying) manager.Pause();
-        else if (manager.IsPaused) manager.Resume();
-        else manager.PlayRandom();
-    }
-
     private void StopMusicPlayback()
     {
         MusicManager manager = FindMusicManager();
         if (manager != null) manager.Stop();
+    }
+
+    private void ToggleGlobalMusicPause()
+    {
+        MusicManager manager = FindMusicManager();
+        if (manager == null)
+            return;
+        if (manager.IsPermanentlyStopped)
+            manager.PlayRandom();
+        else
+            manager.Stop();
+    }
+
+    private void ToggleMusicTrack(MusicManager.MusicTrack track)
+    {
+        MusicManager manager = FindMusicManager();
+        if (manager == null || track == null)
+            return;
+        if (manager.CurrentTrack != null && manager.CurrentTrack.Id == track.Id)
+        {
+            if (manager.IsPlaying)
+                manager.Pause();
+            else if (manager.IsPaused)
+                manager.Stop();
+            else if (manager.IsPermanentlyStopped)
+                manager.PlayTrack(track);
+            else
+                manager.PlayTrack(track);
+            RefreshMusicTrackIcons(manager);
+            return;
+        }
+        manager.PlayTrack(track);
+        RefreshMusicTrackIcons(manager);
     }
 
     private void PlayRelativeMusicTrack(int direction)
@@ -188,94 +226,108 @@ public sealed partial class KingdomUIRoot
     {
         MusicManager manager = FindMusicManager();
         if (manager == null || !musicPageBuilt) return;
-        if (musicTrackButtons.Count == 0 && manager.Tracks.Count > 0)
-        {
-            RectTransform musicSurface = musicTrackList;
-            while (musicSurface != null && musicSurface.name != "MusicSurface")
-                musicSurface = musicSurface.parent as RectTransform;
-            RectTransform pageHost = musicSurface == null ? null : musicSurface.parent as RectTransform;
-            if (pageHost != null)
-            {
-                musicPageBuilt = false;
-                BuildMusicPage(pageHost);
-                return;
-            }
-        }
         MusicManager.MusicTrack track = manager.CurrentTrack;
         float current = manager.AudioSource == null ? 0f : manager.AudioSource.time;
         float total = manager.AudioSource == null || manager.AudioSource.clip == null ? 0f : manager.AudioSource.clip.length;
-        if (musicCurrentLabel != null)
-            musicCurrentLabel.text = track == null ? "正在播放" : track.Category;
+        SetTextIfChanged(musicCurrentLabel, track == null ? "正在播放" : track.Category);
         if (musicTimeLabel != null)
         {
             string trackName = track == null ? "没有曲目" : track.Label;
-            musicTimeLabel.text = trackName + "  " + FormatMusicTime(current) + " / " + FormatMusicTime(total);
+            SetTextIfChanged(musicTimeLabel,
+                trackName + "  " + FormatMusicTime(current) + " / " + FormatMusicTime(total));
         }
         if (musicProgressSlider != null)
         {
-            if (musicProgressSeekHandler == null)
-                musicProgressSeekHandler = SeekMusicFromSlider;
-            // This also clears a listener captured by an older hot-reloaded
-            // UI instance, which otherwise survives and seeks during maxValue
-            // assignment.
-            musicProgressSlider.onValueChanged.RemoveAllListeners();
-            try
+            // The listener is bound once when the authored music page is
+            // created. Rebinding it every 100 ms allocates a new delegate and
+            // UnityEvent bookkeeping entry, which creates avoidable GC spikes
+            // during a long session.
+            if (!Mathf.Approximately(lastMusicProgressMaxValue, total))
             {
                 musicProgressSlider.maxValue = total;
-                if (!musicProgressDragging)
-                    musicProgressSlider.SetValueWithoutNotify(Mathf.Clamp(current, 0f, total));
+                lastMusicProgressMaxValue = total;
             }
-            finally
+            if (!musicProgressDragging)
             {
-                musicProgressSlider.onValueChanged.AddListener(musicProgressSeekHandler);
+                float value = Mathf.Clamp(current, 0f, total);
+                if (!Mathf.Approximately(musicProgressSlider.value, value))
+                    musicProgressSlider.SetValueWithoutNotify(value);
             }
         }
-        if (musicVolumeSlider != null) musicVolumeSlider.SetValueWithoutNotify(manager.Volume);
+        if (musicVolumeSlider != null &&
+            !Mathf.Approximately(musicVolumeSlider.value, manager.Volume))
+            musicVolumeSlider.SetValueWithoutNotify(manager.Volume);
         float gap = Mathf.Clamp(manager.GapSeconds, 0f, 30f);
         if (manager.GapSeconds > 30f)
             manager.SetGapSeconds(gap);
-        if (musicGapSlider != null) musicGapSlider.SetValueWithoutNotify(gap);
-        if (musicVolumeValueLabel != null)
+        if (musicGapSlider != null &&
+            !Mathf.Approximately(musicGapSlider.value, gap))
+            musicGapSlider.SetValueWithoutNotify(gap);
+        if (musicVolumeValueLabel != null &&
+            !Mathf.Approximately(lastMusicVolume, manager.Volume))
         {
-            musicVolumeValueLabel.text = "音量 " + manager.Volume.ToString("0.00");
-            EnsureMusicValueLabelVisible(musicVolumeValueLabel);
+            SetTextIfChanged(musicVolumeValueLabel, "音量 " + manager.Volume.ToString("0.00"));
+            lastMusicVolume = manager.Volume;
         }
-        if (musicGapValueLabel != null)
+        if (musicGapValueLabel != null &&
+            !Mathf.Approximately(lastMusicGap, gap))
         {
-            musicGapValueLabel.text = "音乐间隙 " + gap.ToString("0.00");
-            EnsureMusicValueLabelVisible(musicGapValueLabel);
+            SetTextIfChanged(musicGapValueLabel, "音乐间隙 " + gap.ToString("0.00"));
+            lastMusicGap = gap;
         }
-        SetMusicPauseButtonVisual(manager);
+        RefreshMusicGlobalPauseVisual(manager);
+        RefreshMusicTrackIcons(manager, track);
+    }
+
+    private void RefreshMusicTrackIcons(MusicManager manager, MusicManager.MusicTrack currentTrack = null)
+    {
+        if (manager == null)
+            return;
+        currentTrack ??= manager.CurrentTrack;
         foreach (KeyValuePair<string, Button> pair in musicTrackButtons)
         {
             if (pair.Value == null) continue;
-            Image image = pair.Value.targetGraphic as Image;
+            Image image = pair.Value.transform.parent == null
+                ? null
+                : pair.Value.transform.parent.GetComponent<Image>();
             if (image != null)
             {
-                bool selected = track != null && pair.Key == track.Id;
-                int rowIndex = pair.Value.transform.GetSiblingIndex();
-                image.color = selected
+                bool selected = currentTrack != null && pair.Key == currentTrack.Id;
+                Transform rowTransform = pair.Value.transform.parent;
+                int rowIndex = rowTransform == null ? 0 : rowTransform.GetSiblingIndex();
+                Color color = selected
                     ? Copper
                     : rowIndex % 2 == 0
                         ? new Color(.18f, .22f, .22f, 1f)
                         : new Color(.10f, .13f, .13f, 1f);
+                if (image.color != color)
+                    image.color = color;
+                Image playPauseImage = pair.Value.targetGraphic as Image;
+                if (playPauseImage != null)
+                {
+                    string iconName = selected && manager.IsPermanentlyStopped
+                        ? "stop"
+                        : selected && manager.IsPlaying
+                            ? "pause"
+                            : "play";
+                    Sprite icon = LoadMusicIcon(iconName);
+                    if (playPauseImage.sprite != icon)
+                        playPauseImage.sprite = icon;
+                }
             }
         }
     }
 
-    private void SetMusicPauseButtonVisual(MusicManager manager)
+    private void RefreshMusicGlobalPauseVisual(MusicManager manager)
     {
-        if (musicPlayPauseButton == null || manager == null)
+        if (musicGlobalPauseButton == null || manager == null)
             return;
-        TMP_Text label = musicPlayPauseButton.GetComponentInChildren<TMP_Text>(true);
-        if (label != null)
-            label.text = manager.IsPlaying ? "暂停" : "播放";
-        Image image = musicPlayPauseButton.targetGraphic as Image;
+        Image image = musicGlobalPauseButton.targetGraphic as Image;
         if (image == null)
             return;
-        image.color = manager.IsPaused
-            ? new Color(Positive.r * .45f, Positive.g * .45f, Positive.b * .45f, 1f)
-            : manager.IsPlaying ? Positive : PanelRaised;
+        Color color = manager.IsPermanentlyStopped ? Error : Color.white;
+        if (image.color != color)
+            image.color = color;
     }
 
     private static string FormatMusicTime(float seconds)

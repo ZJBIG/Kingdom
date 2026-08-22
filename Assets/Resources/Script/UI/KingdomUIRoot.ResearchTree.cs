@@ -114,9 +114,12 @@ public sealed partial class KingdomUIRoot
         public TMP_Text ProgressText;
         public TMP_Text LabelText;
         public Text LegacyLabel;
+        public int StateVersion = -1;
     }
     private readonly Dictionary<Research, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
     private readonly HashSet<Image> focusedResearchLineVisuals = new();
+    private readonly HashSet<string> selectedResearchPrerequisiteIdBuffer =
+        new(StringComparer.Ordinal);
     private int lastResearchLineOrderHash;
     private bool researchLineOrderHashValid;
     private RectTransform researchGraphLineLayer;
@@ -144,6 +147,7 @@ public sealed partial class KingdomUIRoot
         RestoreResearchTreeSelection();
         ResearchManager manager = ResearchManager.Instance;
         RefreshActiveResearchProgressVisual(manager);
+        RefreshActiveResearchQueueProgressVisual(manager);
         // Progress fill is intentionally refreshed every UI cycle. Structural
         // signatures are only needed after a queue/state or selection event;
         // rebuilding 79-node signatures on an unchanged page creates
@@ -237,8 +241,11 @@ public sealed partial class KingdomUIRoot
         ResearchManager manager = ResearchManager.Instance;
         var signature = new StringBuilder();
         ResearchState active = manager.ActiveResearch;
+        // This signature controls structural queue refreshes. Progress is
+        // updated on the active queue node independently, so normal research
+        // progress must not rebuild every queued node.
         signature.Append(active?.Definition?.Id ?? string.Empty).Append(':')
-            .Append(active == null ? -1 : QuantizedResearchProgress(active)).Append('|');
+            .Append(active == null ? -1 : (int)active.Status).Append('|');
         IReadOnlyList<ResearchState> queue = manager.ResearchQueue;
         for (int i = 0; i < queue.Count; i++)
         {
@@ -353,6 +360,7 @@ public sealed partial class KingdomUIRoot
     {
         float buildStartTime = Time.realtimeSinceStartup;
         Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v8 parent={parent} parentRect={parent.rect.size}");
+        researchTreePageBuilt = false;
         researchTreeNodes.Clear();
         researchTreeLinkVisuals.Clear();
         researchTreeLinkVisualSets.Clear();
@@ -368,6 +376,7 @@ public sealed partial class KingdomUIRoot
         if (authoredGraph == null)
         {
             Debug.LogError("[王国界面] Scene is missing ResearchGraphViewport; fixed research UI will not be generated at runtime.");
+            AbortResearchTreeBuild();
             yield break;
         }
         GameObject graphObject = authoredGraph.gameObject;
@@ -416,6 +425,17 @@ public sealed partial class KingdomUIRoot
         if (researchGraphContent == null)
         {
             Debug.LogError("[王国界面] Scene is missing ResearchGraphContent; research graph will not be generated.");
+            AbortResearchTreeBuild();
+            yield break;
+        }
+        ClearResearchGeneratedVisuals();
+        // Destroy is deferred until the end of the frame. Give an interrupted
+        // build one frame to release old generated children before retrying
+        // the same authored graph shell.
+        yield return null;
+        if (researchGraphContent == null)
+        {
+            AbortResearchTreeBuild();
             yield break;
         }
         // The graph contains thousands of line Graphics. Keep that subtree
@@ -436,7 +456,10 @@ public sealed partial class KingdomUIRoot
         // with the first render/layout frame of the research page.
         yield return null;
         if (researchGraphContent == null)
+        {
+            AbortResearchTreeBuild();
             yield break;
+        }
         float contentWidth = ResearchGraphPaddingX * 2f + ResearchNodeWidth;
         float contentHeight = ResearchTopPadding + ResearchGraphPaddingY * 2f + ResearchNodeHeight;
         foreach (Vector2 position in positions.Values)
@@ -452,6 +475,7 @@ public sealed partial class KingdomUIRoot
         if (authoredLineLayer == null)
         {
             Debug.LogError("[王国界面] Scene is missing ResearchGraphLineLayer; code will not create a static graph UI layer at runtime.");
+            AbortResearchTreeBuild();
             yield break;
         }
         researchGraphLineLayer = authoredLineLayer as RectTransform;
@@ -488,6 +512,7 @@ public sealed partial class KingdomUIRoot
         if (dragSurface == null)
         {
             Debug.LogError("[王国界面] Scene is missing ResearchGraphDragSurface; graph panning is disabled.");
+            AbortResearchTreeBuild();
             yield break;
         }
         Image dragSurfaceImage = dragSurface.GetComponent<Image>();
@@ -527,6 +552,7 @@ public sealed partial class KingdomUIRoot
         if (researchGraphGesture == null)
         {
             Debug.LogError("[王国界面] Scene is missing authored UIResearchGraphGesture; graph panning will not be generated at runtime.");
+            AbortResearchTreeBuild();
             yield break;
         }
         Canvas.ForceUpdateCanvases();
@@ -546,6 +572,42 @@ public sealed partial class KingdomUIRoot
         if (selectedResearchNode != null)
             ShowResearchDetails(selectedResearchNode);
         Debug.Log($"[王国界面] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
+    }
+
+    private void AbortResearchTreeBuild()
+    {
+        researchTreePageBuilt = false;
+        researchTreeBuildInProgress = false;
+        ClearResearchGeneratedVisuals();
+    }
+
+    private void ClearResearchGeneratedVisuals()
+    {
+        if (researchGraphContent != null)
+        {
+            for (int i = researchGraphContent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = researchGraphContent.GetChild(i);
+                if (child.name != "ResearchGraphDragSurface" &&
+                    child.name != "ResearchGraphLineLayer")
+                    Destroy(child.gameObject);
+            }
+        }
+
+        if (researchGraphLineLayer != null)
+        {
+            for (int i = researchGraphLineLayer.childCount - 1; i >= 0; i--)
+                Destroy(researchGraphLineLayer.GetChild(i).gameObject);
+        }
+
+        researchTreeNodes.Clear();
+        researchTreeLinkVisuals.Clear();
+        researchTreeLinkVisualSets.Clear();
+        researchSharedLineVisuals.Clear();
+        researchArrowVisuals.Clear();
+        researchNodeVisualReferences.Clear();
+        focusedResearchLineVisuals.Clear();
+        researchLineOrderHashValid = false;
     }
 
     private System.Collections.IEnumerator CompleteResearchTreeDiagnostics(
@@ -877,7 +939,6 @@ public sealed partial class KingdomUIRoot
         queueOffsetMin.x = 168f;
         queueRect.offsetMin = queueOffsetMin;
         #endif
-        toolbar.SetAsLastSibling();
         SetupResearchQueueGraphic(toolbar);
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write("[KingdomPerf] ResearchQueueLayout implementation=graphic-prefab-horizontal-drag");
@@ -986,6 +1047,8 @@ public sealed partial class KingdomUIRoot
     private void RefreshResearchQueueToolbar()
     {
         RefreshResearchQueueGraphic();
+        if (researchTreePageBuilt && ResearchManager.Instance != null)
+            lastResearchQueueSignature = BuildResearchQueueSignature();
     }
 
     #if false
@@ -1882,7 +1945,8 @@ public sealed partial class KingdomUIRoot
             CostText = costLabel,
             ProgressText = progressLabel,
             LabelText = titleLabel,
-            LegacyLabel = titleLabel.GetComponent<Text>()
+            LegacyLabel = titleLabel.GetComponent<Text>(),
+            StateVersion = state == null ? -1 : state.Version
         };
         UITouchTooltip tooltip = node.GetComponent<UITouchTooltip>();
         if (tooltip == null)
@@ -1942,6 +2006,7 @@ public sealed partial class KingdomUIRoot
         if (label.font != null && label.font.material != null)
             label.fontSharedMaterial = label.font.material;
         label.raycastTarget = false;
+        label.maskable = true;
         ConfigureResearchNodeLabelRect(rect, name);
         return label;
     }
@@ -2023,7 +2088,8 @@ public sealed partial class KingdomUIRoot
 
     private HashSet<string> CollectSelectedResearchPrerequisiteIds()
     {
-        var focused = new HashSet<string>(StringComparer.Ordinal);
+        HashSet<string> focused = selectedResearchPrerequisiteIdBuffer;
+        focused.Clear();
         CollectPrerequisiteIdClosure(selectedResearchNode, focused);
         return focused;
     }
@@ -2084,6 +2150,11 @@ public sealed partial class KingdomUIRoot
             researchNodeVisualReferences.TryGetValue(
                 research,
                 out ResearchNodeVisualReferences visualReferences);
+            int stateVersion = state == null ? -1 : state.Version;
+            bool stateChanged = visualReferences == null ||
+                visualReferences.StateVersion != stateVersion;
+            if (visualReferences != null)
+                visualReferences.StateVersion = stateVersion;
             Image surface = visualReferences?.Surface ?? button.targetGraphic as Image;
             if (surface != null)
                 SetColorIfChanged(surface, focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
@@ -2101,7 +2172,7 @@ public sealed partial class KingdomUIRoot
             }
             RectTransform progress = visualReferences?.ProgressRect;
             Image progressImage = visualReferences?.ProgressImage;
-            if (progress != null && progressImage != null)
+            if (stateChanged && progress != null && progressImage != null)
             {
                 float fill = ResearchProgressFillAmount(state, status);
                 if (Mathf.Abs(progressImage.fillAmount - fill) > 0.0001f)
@@ -2124,16 +2195,15 @@ public sealed partial class KingdomUIRoot
                 }
             }
             TMP_Text stateText = visualReferences?.StateText;
-            if (stateText != null)
-            {
+            if (stateChanged && stateText != null)
                 SetTextIfChanged(stateText, ResearchStateLabel(research, status));
+            if (stateText != null)
                 SetColorIfChanged(stateText, accent);
-            }
             TMP_Text costText = visualReferences?.CostText;
-            if (costText != null)
+            if (stateChanged && costText != null)
                 SetTextIfChanged(costText, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString());
             TMP_Text progressText = visualReferences?.ProgressText;
-            if (progressText != null)
+            if (stateChanged && progressText != null)
                 SetTextIfChanged(progressText, ResearchProgressText(state, status));
             TMP_Text researchLabel = visualReferences?.LabelText;
             if (researchLabel != null)

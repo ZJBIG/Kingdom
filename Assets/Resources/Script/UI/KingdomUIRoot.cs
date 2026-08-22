@@ -36,7 +36,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private RectTransform pageHost;
     private ScrollRect pageScroll;
     private TMP_Text pageTitle;
-    private TMP_Text buildingPageTitle;
     private TMP_Text detailBody;
     private RectTransform detailPanel;
     private RectTransform detailScrollViewport;
@@ -105,6 +104,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool researchQueueEventSubscribed;
     private bool researchQueueUiDirty;
     private float researchQueuePollTimer;
+    private float navigationVisibilityRefreshTimer = 1f;
     private string lastResearchQueuePollSignature;
     private bool researchDynamicUiDirty = true;
     private float researchDynamicSignatureRefreshTimer = 1f;
@@ -136,6 +136,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<BuildingQuantityMode, Button> buildingQuantityButtons = new();
     private readonly Dictionary<string, RectTransform> pages = new();
     private readonly Dictionary<Building, TMP_Text> buildingAmountLabels = new();
+    private readonly Dictionary<Building, TMP_Text> buildingEffectLabels = new();
     private readonly Dictionary<Building, Image> buildingDeconstructSurfaces = new();
     private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<Building, Button> buildingActionButtons = new();
@@ -151,6 +152,11 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Coroutine researchTreeWarmupCoroutine;
     private string populatedPage;
     private float nextRowTop;
+    private bool resourceRowsBuilt;
+    private bool buildingRowsBuilt;
+    private bool eraRowsBuilt;
+    private bool workshopRowsBuilt;
+    private bool sectorRowsBuilt;
     private TMP_Text musicCurrentLabel;
     private TMP_Text musicTimeLabel;
     private Slider musicProgressSlider;
@@ -436,44 +442,66 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (name == "Research")
             Debug.Log("[王国界面] SetPage Research");
         foreach (KeyValuePair<string, RectTransform> pair in pages)
-            pair.Value.gameObject.SetActive(pair.Key == name);
+        {
+            bool shouldBeActive = pair.Key == name;
+            if (pair.Value.gameObject.activeSelf != shouldBeActive)
+                pair.Value.gameObject.SetActive(shouldBeActive);
+        }
         if (pageTitle != null)
         {
-            pageTitle.text = PageLabel(name);
-            pageTitle.fontSize = 36;
-            pageTitle.enabled = true;
-            pageTitle.gameObject.SetActive(true);
+            string label = PageLabel(name);
+            if (pageTitle.text != label)
+                pageTitle.text = label;
+            if (pageTitle.fontSize != 36)
+                pageTitle.fontSize = 36;
+            if (!pageTitle.enabled)
+                pageTitle.enabled = true;
+            if (!pageTitle.gameObject.activeSelf)
+                pageTitle.gameObject.SetActive(true);
             RectTransform titleRect = pageTitle.rectTransform;
-            titleRect.anchorMin = new Vector2(0f, 1f);
-            titleRect.anchorMax = new Vector2(0f, 1f);
-            titleRect.pivot = new Vector2(0f, 1f);
-            titleRect.offsetMin = new Vector2(34f, -88f);
-            titleRect.offsetMax = new Vector2(230f, -28f);
-            pageTitle.alignment = TextAlignmentOptions.MidlineLeft;
-            pageTitle.transform.SetAsLastSibling();
+            if (titleRect.anchorMin != new Vector2(0f, 1f) ||
+                titleRect.anchorMax != new Vector2(0f, 1f) ||
+                titleRect.pivot != new Vector2(0f, 1f) ||
+                titleRect.offsetMin != new Vector2(34f, -88f) ||
+                titleRect.offsetMax != new Vector2(230f, -28f))
+            {
+                titleRect.anchorMin = new Vector2(0f, 1f);
+                titleRect.anchorMax = new Vector2(0f, 1f);
+                titleRect.pivot = new Vector2(0f, 1f);
+                titleRect.offsetMin = new Vector2(34f, -88f);
+                titleRect.offsetMax = new Vector2(230f, -28f);
+            }
+            if (pageTitle.alignment != TextAlignmentOptions.MidlineLeft)
+                pageTitle.alignment = TextAlignmentOptions.MidlineLeft;
+            if (titleRect.parent != null &&
+                titleRect.GetSiblingIndex() != titleRect.parent.childCount - 1)
+                titleRect.SetAsLastSibling();
         }
         if (pageScroll != null)
         {
-            pageScroll.content = pages[name];
-            pageScroll.verticalNormalizedPosition = 1f;
+            if (pageScroll.content != pages[name])
+                pageScroll.content = pages[name];
+            if (pageScroll.verticalNormalizedPosition != 1f)
+                pageScroll.verticalNormalizedPosition = 1f;
         }
         populatedPage = name;
-        // The page slot is laid out by the parent Canvas.  Force that pass
-        // before creating the research viewport so its ScrollRect measures
-        // the real visible area instead of the zero/negative Awake-time rect.
-        Canvas.ForceUpdateCanvases();
+        // The page slot is laid out by the parent Canvas before the first
+        // generated page is created. Once a page has been built, forcing a
+        // complete Canvas rebuild on every tab switch needlessly walks the
+        // cached research graph and all of its connector Graphics.
+        bool pageHasCachedLayout = name == "Research"
+            ? researchTreePageBuilt
+            : name == "Music"
+                ? musicPageBuilt
+                : name == "Overview" || AreAuthoredRowsBuilt(name);
+        bool pageNeedsInitialLayout = !pageHasCachedLayout;
+        bool pageGeometryUnavailable = pageHost == null ||
+            pageHost.rect.width <= 1f || pageHost.rect.height <= 1f;
+        if (pageNeedsInitialLayout || pageGeometryUnavailable)
+            Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
             BuildBuildingQuantityControls(pageHost.parent);
         PopulatePage(name);
-        if (name == "Buildings" && buildingPageTitle != null)
-        {
-            buildingPageTitle.text = "建筑";
-            buildingPageTitle.enabled = true;
-            buildingPageTitle.gameObject.SetActive(true);
-            buildingPageTitle.text = "\u5efa\u7b51";
-            buildingPageTitle.transform.SetParent(pageHost.parent, false);
-            buildingPageTitle.transform.SetAsLastSibling();
-        }
     }
 
     private static string PageLabel(string name)
@@ -497,20 +525,30 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         if (!pages.TryGetValue(name, out RectTransform page))
             return;
         if (researchQueueViewport != null)
-            researchQueueViewport.gameObject.SetActive(name == "Research");
+        {
+            bool shouldBeActive = name == "Research";
+            if (researchQueueViewport.gameObject.activeSelf != shouldBeActive)
+                researchQueueViewport.gameObject.SetActive(shouldBeActive);
+        }
         if (buildingQuantityControls != null)
-            buildingQuantityControls.gameObject.SetActive(name == "Buildings");
-        if (buildingPageTitle != null)
-            buildingPageTitle.gameObject.SetActive(name == "Buildings");
-        if (pageTitle != null)
-            pageTitle.gameObject.SetActive(name != "Buildings");
+        {
+            bool shouldBeActive = name == "Buildings";
+            if (buildingQuantityControls.gameObject.activeSelf != shouldBeActive)
+                buildingQuantityControls.gameObject.SetActive(shouldBeActive);
+        }
         Transform old = page.Find("DataRows");
         if (old == null)
         {
             Debug.LogError("[王国界面] Authored DataRows host is missing for page: " + name);
             return;
         }
-        bool reuseResearchPage = name == "Research" && researchTreePageBuilt && old != null;
+        bool researchTreeWasBuilt = researchTreePageBuilt;
+        bool pageWasBuilt = name == "Research"
+            ? researchTreeWasBuilt
+            : name == "Music"
+                ? musicPageBuilt
+                : AreAuthoredRowsBuilt(name);
+        bool reuseResearchPage = name == "Research" && researchTreeWasBuilt && old != null;
         bool reuseAuthoredResearchPage = name == "Research" && old != null && old.Find("ResearchGraphViewport") != null;
         bool reuseAuthoredMusicPage = name == "Music" && old != null && old.Find("MusicSurface") != null;
         // DataRows is a fixed child of the authored page Prefab. The optional
@@ -522,24 +560,31 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Debug.LogError("[王国界面] Page DataRows is not an authored layout host: " + name);
             return;
         }
-        if (authoredRowsHost && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage)
+        if (authoredRowsHost && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage &&
+            !AreAuthoredRowsBuilt(name))
             ClearAuthoredRowsHost(old);
         RectTransform rows = old as RectTransform;
-        nextRowTop = 0f;
+        if (!pageWasBuilt)
+            nextRowTop = 0f;
         switch (name)
         {
             case "Resources":
+                if (resourceRowsBuilt) break;
                 resourceAmountLabels.Clear();
                 resourceChangeLabels.Clear();
                 AddResourceRows(rows);
+                resourceRowsBuilt = true;
                 break;
             case "Buildings":
+                if (buildingRowsBuilt) break;
                 buildingAmountLabels.Clear();
+                buildingEffectLabels.Clear();
                 buildingDeconstructSurfaces.Clear();
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
                 buildingActionUpgradeModes.Clear();
                 AddBuildingRows(rows);
+                buildingRowsBuilt = true;
                 break;
             case "Research":
                 if (!researchTreePageBuilt)
@@ -553,66 +598,82 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                     RefreshResearchTreeVisuals(false);
                 break;
             case "Era":
+                if (eraRowsBuilt) break;
                 BuildEraPage(rows);
+                eraRowsBuilt = true;
                 break;
             case "Workshop":
+                if (workshopRowsBuilt) break;
                 AddWorkshopRows(rows);
+                workshopRowsBuilt = true;
                 break;
             case "Music":
                 BuildMusicPage(rows);
                 break;
             case "Sectors":
+                if (sectorRowsBuilt) break;
                 BuildSectorRows(rows);
+                sectorRowsBuilt = true;
                 break;
             default:
                 break;
         }
-        float rowsHeight = Mathf.Max(86f, nextRowTop);
-        if (name == "Research")
+        if (!pageWasBuilt)
         {
-            // DataRows is the research ScrollRect viewport, not the graph's
-            // content. Keep it inside the visible page area so the inner
-            // ScrollRect owns the complete vertical drag range.
-            Canvas.ForceUpdateCanvases();
-            float visibleHeight = pageHost == null ? 720f : pageHost.rect.height;
-            rowsHeight = Mathf.Max(240f, visibleHeight);
+            float rowsHeight = Mathf.Max(86f, nextRowTop);
+            if (name == "Research")
+            {
+                // DataRows is the research ScrollRect viewport, not the graph's
+                // content. Keep it inside the visible page area so the inner
+                // ScrollRect owns the complete vertical drag range.
+                if (!researchTreeWasBuilt)
+                    Canvas.ForceUpdateCanvases();
+                float visibleHeight = pageHost == null ? 720f : pageHost.rect.height;
+                rowsHeight = Mathf.Max(240f, visibleHeight);
+            }
+            else if (name == "Music")
+            {
+                // Music controls stay in the page viewport; the track list has
+                // its own ScrollRect below them so TIME / SEEK remains visible.
+                Canvas.ForceUpdateCanvases();
+                float visibleHeight = pageHost == null ? 720f : pageHost.rect.height;
+                rowsHeight = Mathf.Max(240f, visibleHeight);
+            }
+
+            rows.anchorMin = new Vector2(0, 1);
+            rows.anchorMax = new Vector2(1, 1);
+            rows.pivot = new Vector2(.5f, 1);
+            rows.anchoredPosition = new Vector2(0, name == "Research" || name == "Music" ? 0f : -82f);
+            rows.sizeDelta = new Vector2(0, rowsHeight);
+            // The research graph owns the pan/zoom. Its viewport must be the
+            // visible page window, not the old 1400px page canvas; otherwise
+            // the inner ScrollRect measures a rectangle larger than the
+            // screen and loses the expected vertical drag range.
+            page.sizeDelta = new Vector2(0, name == "Research" || name == "Music"
+                ? rowsHeight
+                : Mathf.Max(1400f, rowsHeight + 180f));
         }
-        else if (name == "Music")
-        {
-            // Music controls stay in the page viewport; the track list has
-            // its own ScrollRect below them so TIME / SEEK remains visible.
-            Canvas.ForceUpdateCanvases();
-            float visibleHeight = pageHost == null ? 720f : pageHost.rect.height;
-            rowsHeight = Mathf.Max(240f, visibleHeight);
-        }
-        rows.anchorMin = new Vector2(0, 1);
-        rows.anchorMax = new Vector2(1, 1);
-        rows.pivot = new Vector2(.5f, 1);
-        rows.anchoredPosition = new Vector2(0, name == "Research" || name == "Music" ? 0f : -82f);
-        rows.sizeDelta = new Vector2(0, rowsHeight);
-        // The research graph owns the pan/zoom. Its viewport must be the
-        // visible page window, not the old 1400px page canvas; otherwise the
-        // inner ScrollRect measures a rectangle larger than the screen and
-        // loses the expected vertical drag range.
-        page.sizeDelta = new Vector2(0, name == "Research" || name == "Music"
-            ? rowsHeight
-            : Mathf.Max(1400f, rowsHeight + 180f));
         if (pageScroll != null && pageScroll.content == page)
         {
             pageScroll.StopMovement();
             // Research owns its own two-axis graph ScrollRect. Disable the
             // outer ScrollRect completely so it cannot consume the same touch
             // drag before the graph receives it.
-            pageScroll.enabled = name != "Research" && name != "Music";
-            pageScroll.vertical = name != "Research" && name != "Music";
-            Canvas.ForceUpdateCanvases();
+            bool outerScrollEnabled = name != "Research" && name != "Music";
+            if (pageScroll.enabled != outerScrollEnabled)
+                pageScroll.enabled = outerScrollEnabled;
+            if (pageScroll.vertical != outerScrollEnabled)
+                pageScroll.vertical = outerScrollEnabled;
+            if (name != "Research" || !researchTreeWasBuilt)
+                Canvas.ForceUpdateCanvases();
             if (pageScroll.enabled)
                 pageScroll.verticalNormalizedPosition = 1f;
         }
         if (name == "Research" && researchGraphGesture != null)
         {
-            Canvas.ForceUpdateCanvases();
-            researchGraphGesture.RefreshLayoutBounds(true);
+            if (!researchTreeWasBuilt)
+                Canvas.ForceUpdateCanvases();
+            researchGraphGesture.RefreshLayoutBounds(!researchTreeWasBuilt);
         }
     }
 
@@ -620,6 +681,19 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     {
         for (int i = host.childCount - 1; i >= 0; i--)
             Destroy(host.GetChild(i).gameObject);
+    }
+
+    private bool AreAuthoredRowsBuilt(string name)
+    {
+        return name switch
+        {
+            "Resources" => resourceRowsBuilt,
+            "Buildings" => buildingRowsBuilt,
+            "Era" => eraRowsBuilt,
+            "Workshop" => workshopRowsBuilt,
+            "Sectors" => sectorRowsBuilt,
+            _ => false
+        };
     }
 
 }

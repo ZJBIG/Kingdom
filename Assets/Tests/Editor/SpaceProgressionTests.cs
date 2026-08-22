@@ -604,7 +604,7 @@ public sealed class SpaceProgressionTests
         Assert.That(FindRate(upper.ResourceGenerationRates, "IronOre"),
             Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "IronOre") * 8d));
         Assert.That(FindRate(upper.ResourceGenerationRates, "TitaniumConcentrate"),
-            Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "TitaniumConcentrate") * 8d));
+            Is.EqualTo(9d).Within(0.0001d));
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Explosives"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Lubricant"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Composite"), Is.True);
@@ -640,8 +640,8 @@ public sealed class SpaceProgressionTests
 
         string[,] downstreamRoutes =
         {
-            { "TitaniumConcentrate", "OrbitalResourceExtractionArray" },
-            { "NickelConcentrate", "OrbitalResourceExtractionArray" },
+            { "TitaniumConcentrate", "TitaniumMetallurgicalComplex" },
+            { "NickelConcentrate", "NickelRefinery" },
             { "BauxiteOre", "AluminumSmelter" },
             { "CopperOre", "IndustrialMetalSmelter" },
             { "TinOre", "IndustrialMetalSmelter" },
@@ -679,8 +679,8 @@ public sealed class SpaceProgressionTests
         Assert.That(ContainsResource(metallurgy.ResourceRequirements, "PhaseMaterial"), Is.True);
         Assert.That(ContainsResource(metallurgy.ResourceRequirements, "TitaniumConcentrate"), Is.False);
         Assert.That(ContainsResource(metallurgy.ResourceRequirements, "NickelConcentrate"), Is.False);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "TitaniumConcentrate"), Is.True);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "NickelConcentrate"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "TitaniumConcentrate"), Is.False);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "NickelConcentrate"), Is.False);
     }
 
     [Test]
@@ -1751,8 +1751,8 @@ public sealed class SpaceProgressionTests
         Assert.That(orbital.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(FindRate(orbital.ResourceGenerationRates, "TitaniumAlloy"),
             Is.GreaterThan(FindRate(industrial.ResourceGenerationRates, "TitaniumAlloy") * 8d));
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "TitaniumConcentrate"), Is.True);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "NickelConcentrate"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "TitaniumConcentrate"), Is.False);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "NickelConcentrate"), Is.False);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Coke"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Chemical"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhantomAlloy"), Is.True);

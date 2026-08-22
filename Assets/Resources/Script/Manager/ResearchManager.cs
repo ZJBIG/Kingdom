@@ -169,10 +169,10 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (research == null || !states.TryGetValue(research, out ResearchState state))
             return ResearchActionResult.Invalid;
-        if (!CanAccessResearch(research))
-            return ResearchActionResult.Blocked;
         if (state.Status == ResearchStatus.Completed)
             return ResearchActionResult.Completed;
+        if (!CanAccessResearch(research))
+            return ResearchActionResult.Blocked;
         if (ActiveResearch == state)
             return ResearchActionResult.AlreadyActive;
         if (IsQueued(research))
@@ -1064,6 +1064,7 @@ public class ResearchManager : Singleton<ResearchManager>
         if (buildingStates == null)
             return total;
 
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         for (int i = 0; i < buildingStates.Count; i++)
         {
             BuildingState state = buildingStates[i];
@@ -1073,8 +1074,7 @@ public class ResearchManager : Singleton<ResearchManager>
             ExpantaNum contribution = state.Definition.ResearchPowerGranted
                 * state.Amount
                 * ExpantaNum.Clamp01(state.Efficiency)
-                * ProgressionModifierManager.Current
-                    .GetBuildingResearchPowerMultiplier(state.Definition);
+                * modifiers.GetBuildingResearchPowerMultiplier(state.Definition);
             if (!contribution.IsNaN && contribution > ExpantaNum.Zero)
                 total += contribution;
         }
@@ -1126,7 +1126,8 @@ public class ResearchManager : Singleton<ResearchManager>
         for (int i = 0; i < savedCosts.Count; i++)
         {
             SaveManager.ResearchResourceCostSaveData saved = savedCosts[i];
-            string resourceId = RetiredDefinitionMigration.NormalizeResourceId(saved.ResourceId);
+            string resourceId = RetiredDefinitionMigration.NormalizeResearchResourceId(
+                definition.Id, saved.ResourceId);
             Resource resource = DataBase<Resource>.Find(resourceId);
             if (result.ContainsKey(resource))
                 throw new InvalidOperationException($"Duplicate paid resource cost: {resource.Id}");

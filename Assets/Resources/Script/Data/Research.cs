@@ -11,10 +11,11 @@ public class Research : GameDefinition
     public IReadOnlyList<Research> Prerequisites => prerequisites;
     [SerializeField]
     private List<ResourceAmountDefinition> resourceRequirements = new();
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceRequirementsCache;
     [SerializeField]
     private List<ResearchEffectDefinition> effects = new();
 
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => ResourceAmountDefinitionList.ToPairs(resourceRequirements);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRequirements => ResourceAmountDefinitionList.ToPairs(resourceRequirements, ref resourceRequirementsCache);
     public IReadOnlyList<ResearchEffectDefinition> Effects => effects;
     public bool HasPositiveResourceRequirement
     {
@@ -30,9 +31,17 @@ public class Research : GameDefinition
     public TechLevel TechLevel;
     public bool AdvancesTechLevel;
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        resourceRequirementsCache = null;
+    }
+
     public void SetResourceRequirementsForEditor(
-        List<Pair<Resource, ExpantaNum>> values) =>
+        List<Pair<Resource, ExpantaNum>> values)
+    {
         resourceRequirements = ResourceAmountDefinitionList.FromPairs(values);
+        resourceRequirementsCache = null;
+    }
 
     public void SetEffectsForEditor(List<ResearchEffectDefinition> values)
     {

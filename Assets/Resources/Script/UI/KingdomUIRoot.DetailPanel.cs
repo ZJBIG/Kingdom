@@ -99,10 +99,14 @@ public sealed partial class KingdomUIRoot
         return flows;
     }
 
-    private void ShowBuildingDetails(Building building)
+    private void ShowBuildingDetails(Building building, bool preserveScrollPosition = false)
     {
         if (detailBody == null || building == null)
             return;
+        float? preservedScrollPosition = preserveScrollPosition &&
+            selectedBuilding == building && requirementGesture != null
+            ? requirementGesture.GetNormalizedPosition()
+            : null;
         detailBody.fontSize = 30f;
         selectedBuilding = building;
         selectedResource = null;
@@ -138,7 +142,7 @@ public sealed partial class KingdomUIRoot
         ShowBuildingRequirements(requirements, "建筑建造需求");
         PlaceRequirementsAfterDescription(
             requirements == null ? 0 : requirements.Count,
-            null,
+            preservedScrollPosition,
             CountFlows(output) + CountFlows(input));
     }
 
@@ -174,7 +178,7 @@ public sealed partial class KingdomUIRoot
         List<Pair<Resource, ExpantaNum>> requirements = GetNextBuildingRequirements(building, state, upgrading);
         if (detailBuildingUpgrade != upgrading || !RefreshRequirementRows(requirements))
         {
-            ShowBuildingDetails(building);
+            ShowBuildingDetails(building, true);
             return;
         }
 
@@ -189,7 +193,7 @@ public sealed partial class KingdomUIRoot
 #endif
         if (!flowRefreshed)
         {
-            ShowBuildingDetails(building);
+            ShowBuildingDetails(building, true);
             return;
         }
 
@@ -444,7 +448,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             string target = effect.Building != null ? effect.Building.Label :
                 effect.Resource != null ? effect.Resource.Label : "全局";
-            builder.AppendLine("  " + effect.Type + " / " + target + ": " + effect.Value);
+            builder.AppendLine("  " + effect.Type.GetDescription() + " / " + target + ": " + effect.Value);
         }
     }
 

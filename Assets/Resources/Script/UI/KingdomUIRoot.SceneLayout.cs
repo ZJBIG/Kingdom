@@ -23,13 +23,18 @@ public sealed partial class KingdomUIRoot
         musicCurrentLabel = controls?.Find("Current")?.GetComponent<TMP_Text>();
         musicTimeLabel = controls?.Find("Time")?.GetComponent<TMP_Text>();
         musicProgressSlider = controls?.Find("TimeSeek")?.GetComponent<Slider>();
-        musicPlayPauseButton = controls?.Find("PlayPause")?.GetComponent<Button>();
+        Transform topPlayPause = controls?.Find("PlayPause");
+        if (topPlayPause != null)
+            topPlayPause.gameObject.SetActive(false);
         musicVolumeSlider = controls?.Find("Volume")?.GetComponent<Slider>();
         musicGapSlider = controls?.Find("Gap")?.GetComponent<Slider>();
         musicVolumeValueLabel = controls?.Find("VolumeValue")?.GetComponent<TMP_Text>();
         musicGapValueLabel = controls?.Find("GapValue")?.GetComponent<TMP_Text>();
         if (musicProgressSlider != null)
         {
+            lastMusicProgressMaxValue = -1f;
+            lastMusicVolume = float.NaN;
+            lastMusicGap = float.NaN;
             musicProgressSeekHandler = SeekMusicFromSlider;
             musicProgressSlider.onValueChanged.RemoveAllListeners();
             musicProgressSlider.onValueChanged.AddListener(musicProgressSeekHandler);
@@ -40,18 +45,13 @@ public sealed partial class KingdomUIRoot
             AddPointerStateIfMissing(musicVolumeSlider, null, null);
         if (musicGapSlider != null)
             AddPointerStateIfMissing(musicGapSlider, null, null);
-        if (musicPlayPauseButton != null)
-        {
-            musicPlayPauseButton.onClick.RemoveAllListeners();
-            musicPlayPauseButton.onClick.AddListener(ToggleMusicPlayback);
-            ConfigureMusicButtonText(musicPlayPauseButton, "暂停");
-        }
         Button previous = controls?.Find("Previous")?.GetComponent<Button>();
         Button next = controls?.Find("Next")?.GetComponent<Button>();
-        Button stop = controls?.Find("Stop")?.GetComponent<Button>();
-        if (previous != null) { previous.onClick.RemoveAllListeners(); previous.onClick.AddListener(() => PlayRelativeMusicTrack(-1)); ConfigureMusicButtonText(previous, "上一首"); }
-        if (next != null) { next.onClick.RemoveAllListeners(); next.onClick.AddListener(() => PlayRelativeMusicTrack(1)); ConfigureMusicButtonText(next, "下一首"); }
-        if (stop != null) { stop.onClick.RemoveAllListeners(); stop.onClick.AddListener(StopMusicPlayback); ConfigureMusicButtonText(stop, "停止"); }
+        Button pause = controls?.Find("Pause")?.GetComponent<Button>();
+        if (previous != null) { previous.onClick.RemoveAllListeners(); previous.onClick.AddListener(() => PlayRelativeMusicTrack(-1)); }
+        if (next != null) { next.onClick.RemoveAllListeners(); next.onClick.AddListener(() => PlayRelativeMusicTrack(1)); }
+        musicGlobalPauseButton = pause;
+        if (pause != null) { pause.onClick.RemoveAllListeners(); pause.onClick.AddListener(ToggleGlobalMusicPause); }
         ConfigureMusicText(controls?.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "时间 / 定位");
         ConfigureMusicText(musicVolumeValueLabel, "音量 100%");
         ConfigureMusicText(musicGapValueLabel, "音乐间隙 5.00");
@@ -145,20 +145,35 @@ public sealed partial class KingdomUIRoot
                 Destroy(rowObject);
                 continue;
             }
-            row.targetGraphic = surfaceImage;
-            row.transition = Selectable.Transition.ColorTint;
-            ApplyButtonColors(row, surfaceImage.color);
-            row.onClick.AddListener(() => manager?.PlayTrack(track));
-            ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.58f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
-            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.Clip == null ? 0f : track.Clip.length), new Vector2(.58f, 0), new Vector2(.78f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
-            ConfigureMusicTrackColumn(rowObject, "Type", track.Category, new Vector2(.78f, 0), Vector2.one, new Vector2(8, 4), new Vector2(-12, -4), TextAlignmentOptions.MidlineRight);
+            row.enabled = false;
+            row.interactable = false;
+            row.targetGraphic = null;
+            surfaceImage.raycastTarget = false;
+            ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.64f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
+            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.Clip == null ? 0f : track.Clip.length), new Vector2(.64f, 0), new Vector2(.82f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
+            Transform playPauseTransform = rowObject.transform.Find("PlayPause") ?? rowObject.transform.Find("Type");
+            if (playPauseTransform == null)
+            {
+                Debug.LogError("[王国界面] MusicTrack prefab is missing its PlayPause column: " + track.Id);
+                Destroy(rowObject);
+                continue;
+            }
+            playPauseTransform.name = "PlayPause";
+            Image playPauseImage = playPauseTransform.GetComponent<Image>() ??
+                playPauseTransform.gameObject.AddComponent<Image>();
+            Button playPause = playPauseTransform.GetComponent<Button>() ??
+                playPauseTransform.gameObject.AddComponent<Button>();
+            playPause.targetGraphic = playPauseImage;
+            ConfigureMusicTrackIcon(playPause, "play");
+            playPause.onClick.RemoveAllListeners();
+            playPause.onClick.AddListener(() => ToggleMusicTrack(track));
             if (rowObject.GetComponent<UIPageScrollDragForwarder>() == null)
             {
                 Debug.LogError("[王国界面] MusicTrack prefab is missing its authored drag forwarder: " + track.Id);
                 Destroy(rowObject);
                 continue;
             }
-            musicTrackButtons[track.Id] = row;
+            musicTrackButtons[track.Id] = playPause;
             contentHeight += rowHeight;
         }
         content.pivot = new Vector2(.5f, 1f);
@@ -199,7 +214,7 @@ public sealed partial class KingdomUIRoot
             if (page == null)
                 return false;
             pages[pageNames[i]] = page;
-            Button navigationButton = leftNavigation.Find("Nav_" + pageNames[i])?.GetComponent<Button>();
+            Button navigationButton = FindNavigationButton(pageNames[i]);
             if (navigationButton != null)
             {
                 string pageName = pageNames[i];
@@ -207,6 +222,8 @@ public sealed partial class KingdomUIRoot
                 navigationButton.onClick.AddListener(() => SetPage(pageName));
             }
         }
+        EnsureNavigationLayout();
+        RefreshNavigationVisibility();
 
         // Bind the Overview summary while the authored shell is being
         // attached.  This keeps the preview informative even before the
@@ -227,7 +244,6 @@ public sealed partial class KingdomUIRoot
         if (!BuildDetailUI())
             return false;
         buildingQuantityControls = content.Find("BuildingQuantityControls") as RectTransform;
-        buildingPageTitle = content.Find("BuildingPageTitle")?.GetComponent<TMP_Text>();
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
 
@@ -237,6 +253,50 @@ public sealed partial class KingdomUIRoot
         Debug.Log("[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.");
 
         return true;
+    }
+
+    private void RefreshNavigationVisibility()
+    {
+        if (leftNavigation == null)
+            return;
+
+        bool workshopUnlocked = WorkshopManager.Instance != null &&
+            WorkshopManager.Instance.IsSystemUnlocked;
+        bool sectorsUnlocked = ProgressionModifierManager.Current.IsSystemUnlocked(
+            ResearchSystem.FirstContact) &&
+            ProgressionModifierManager.Current.IsSystemUnlocked(
+                ResearchSystem.InterstellarNavigation);
+
+        SetNavigationButtonVisible("Overview", true);
+        SetNavigationButtonVisible("Resources", true);
+        SetNavigationButtonVisible("Buildings", true);
+        SetNavigationButtonVisible("Research", true);
+        SetNavigationButtonVisible("Era", true);
+        SetNavigationButtonVisible("Workshop", workshopUnlocked);
+        SetNavigationButtonVisible("Music", true);
+        SetNavigationButtonVisible("Sectors", sectorsUnlocked);
+    }
+
+    private void EnsureNavigationLayout()
+    {
+        Transform existing = leftNavigation.Find("NavigationButtons");
+        if (existing == null || existing.GetComponent<VerticalLayoutGroup>() == null)
+            Debug.LogError("[王国界面] Authored NavigationButtons with VerticalLayoutGroup is missing.");
+    }
+
+    private void SetNavigationButtonVisible(string pageName, bool visible)
+    {
+        Transform button = FindNavigationButton(pageName)?.transform;
+        if (button != null && button.gameObject.activeSelf != visible)
+            button.gameObject.SetActive(visible);
+    }
+
+    private Button FindNavigationButton(string pageName)
+    {
+        Transform button = leftNavigation.Find("NavigationButtons/Nav_" + pageName);
+        if (button == null)
+            button = leftNavigation.Find("Nav_" + pageName);
+        return button == null ? null : button.GetComponent<Button>();
     }
 
     private void RefreshDetailScrollGeometry()

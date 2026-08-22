@@ -45,7 +45,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
     amount: "0.8"
   - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    amount: "0.6"
+    amount: "0.4"
   - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
     amount: "0.8"
   resourceConsumptionRates:

@@ -131,13 +131,17 @@ public sealed partial class KingdomUIRoot
         {
             Building building = orderedDefinitions[i];
             string amount = "0";
-            if (BuildingManager.Instance != null && BuildingManager.Instance.States.TryGetValue(building, out BuildingState state))
+            BuildingState state = null;
+            if (BuildingManager.Instance != null && BuildingManager.Instance.States.TryGetValue(building, out state))
                 amount = state.Amount.ToGameString();
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
             if (row == null)
                 continue;
             ApplyListRowStyle(row, visible - 1);
-            if (!SetRowText(row, "Label", building.Label) || !SetRowText(row, "Amount", amount))
+            if (!SetRowText(row, "Label", building.Label) ||
+                !SetRowText(row, "TechLevel", building.TechLevel.GetDescription()) ||
+                !SetRowText(row, "Amount", amount) ||
+                !SetRowText(row, "Effect", FormatBuildingEfficiency(state), TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
             if (cardButton == null)
@@ -187,8 +191,16 @@ public sealed partial class KingdomUIRoot
             buildingDeconstructSurfaces[building] = deconstructButton.targetGraphic as Image;
             buildingDeconstructButtons[building] = deconstructButton;
             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
+            buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
         }
         Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
+    }
+
+    private static string FormatBuildingEfficiency(BuildingState state)
+    {
+        if (state == null || state.Amount <= ExpantaNum.Zero)
+            return "—";
+        return (ExpantaNum.Clamp01(state.Efficiency) * 100).ToGameString() + "%";
     }
 
     private string BuildBuildingDisplaySignature()
@@ -268,9 +280,13 @@ public sealed partial class KingdomUIRoot
             if (row == null)
                 continue;
             ApplyListRowStyle(row, visible - 1);
-            Transform techLevel = row.transform.Find("Amount");
-            if (techLevel != null)
-                techLevel.name = "TechLevel";
+            Transform techLevel = row.transform.Find("TechLevel");
+            if (techLevel == null)
+            {
+                techLevel = row.transform.Find("Amount");
+                if (techLevel != null)
+                    techLevel.name = "TechLevel";
+            }
             if (!SetRowText(row, "Label", definition.Label) ||
                 !SetRowText(row, "TechLevel", definition.TechLevel.GetDescription()))
                 continue;

@@ -295,13 +295,49 @@ public sealed class C6IndustrialContentTests
         Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Copper"), Is.EqualTo(3d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Tin"), Is.EqualTo(2.4d).Within(0.0001d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Bronze"), Is.EqualTo(2.5d).Within(0.0001d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Steel"), Is.EqualTo(3.2d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceGenerationRates, "Bronze"), Is.EqualTo(0.4d).Within(0.0001d));
+        Assert.That(FindRate(smelter.ResourceGenerationRates, "Steel"), Is.EqualTo(0.6d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "CopperOre"), Is.EqualTo(3.8d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "TinOre"), Is.EqualTo(2.6d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Iron"), Is.EqualTo(1.8d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "IronOre"), Is.EqualTo(2.4d).Within(0.0001d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "Steel"), Is.EqualTo(0d).Within(0.0001d));
+    }
+
+    [Test]
+    public void MetallurgicalBuildings_ConserveMaterialMass()
+    {
+        string[] buildingIds =
+        {
+            "MetalSmelter", "SteelForge", "IndustrialMetalSmelter",
+            "AluminumSmelter", "NickelRefinery", "TitaniumMetallurgicalComplex"
+        };
+
+        foreach (string buildingId in buildingIds)
+        {
+            Building building = DataBase<Building>.Find(buildingId);
+            double input = building.ResourceConsumptionRates.Sum(x => x.Second.ToDouble());
+            double output = building.ResourceGenerationRates.Sum(x => x.Second.ToDouble());
+
+            Assert.That(output, Is.LessThanOrEqualTo(input + 0.0001d),
+                $"{buildingId} 产出总质量 {output} 不得超过输入总质量 {input}");
+        }
+
+        Building early = DataBase<Building>.Find("MetalSmelter");
+        Assert.That(FindRate(early.ResourceGenerationRates, "Copper") +
+            FindRate(early.ResourceGenerationRates, "Bronze") / 2d,
+            Is.LessThanOrEqualTo(FindRate(early.ResourceConsumptionRates, "CopperOre") + 0.0001d));
+        Assert.That(FindRate(early.ResourceGenerationRates, "Tin") +
+            FindRate(early.ResourceGenerationRates, "Bronze") / 2d,
+            Is.LessThanOrEqualTo(FindRate(early.ResourceConsumptionRates, "TinOre") + 0.0001d));
+
+        Building industrial = DataBase<Building>.Find("IndustrialMetalSmelter");
+        Assert.That(FindRate(industrial.ResourceGenerationRates, "Tin") +
+            FindRate(industrial.ResourceGenerationRates, "Bronze") / 2d,
+            Is.LessThanOrEqualTo(FindRate(industrial.ResourceConsumptionRates, "TinOre") + 0.0001d));
+        Assert.That(FindRate(industrial.ResourceGenerationRates, "Iron") +
+            FindRate(industrial.ResourceGenerationRates, "Steel"),
+            Is.LessThanOrEqualTo(FindRate(industrial.ResourceConsumptionRates, "IronOre") + 0.0001d));
     }
 
     [Test]

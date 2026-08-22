@@ -33,6 +33,10 @@ public sealed class SectorDefinition : GameDefinition
     [SerializeField] private Sprite icon;
     [SerializeField] private float mapX;
     [SerializeField] private float mapY;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceRewardsCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> occupiedResourceRatesCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> colonizationResourceRatesCache;
+    [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> campaignResourceRatesCache;
 
     public ExpantaNum EnemyPower => enemyPower;
     public string StarSystemId => string.IsNullOrWhiteSpace(starSystemId) ? HomeSystemId : starSystemId;
@@ -40,16 +44,17 @@ public sealed class SectorDefinition : GameDefinition
     public bool IsHomeSystem => domain == SectorDomain.HomeSystem;
     public IReadOnlyList<SectorDefinition> PrerequisiteSectors => prerequisiteSectors;
     public ExpantaNum TerritoryReward => territoryReward;
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards => ResourceAmountDefinitionList.ToPairs(resourceRewards);
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceRewards =>
+        ResourceAmountDefinitionList.ToPairs(resourceRewards, ref resourceRewardsCache);
     public IReadOnlyList<Pair<Resource, ExpantaNum>> OccupiedResourceRatesPerSecond =>
-        ResourceAmountDefinitionList.ToPairs(occupiedResourceRatesPerSecond);
+        ResourceAmountDefinitionList.ToPairs(occupiedResourceRatesPerSecond, ref occupiedResourceRatesCache);
     public ExpantaNum ColonizationFoodPerSecond => colonizationFoodPerSecond;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceRatesPerSecond =>
-        ResourceAmountDefinitionList.ToPairs(colonizationResourceRatesPerSecond);
+        ResourceAmountDefinitionList.ToPairs(colonizationResourceRatesPerSecond, ref colonizationResourceRatesCache);
     public ExpantaNum ColonizationDurationSeconds => ExpantaNum.Max(ExpantaNum.One, colonizationDurationSeconds);
     public ExpantaNum CampaignFoodPerSecond => campaignFoodPerSecond;
     public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceRatesPerSecond =>
-        ResourceAmountDefinitionList.ToPairs(campaignResourceRatesPerSecond);
+        ResourceAmountDefinitionList.ToPairs(campaignResourceRatesPerSecond, ref campaignResourceRatesCache);
     public ExpantaNum CampaignProgressMultiplier => ExpantaNum.Clamp01(campaignProgressMultiplier);
     public bool Repeatable => repeatable;
     public Sprite Background => background;
@@ -58,6 +63,14 @@ public sealed class SectorDefinition : GameDefinition
     public float MapY => mapY;
 
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        resourceRewardsCache = null;
+        occupiedResourceRatesCache = null;
+        colonizationResourceRatesCache = null;
+        campaignResourceRatesCache = null;
+    }
+
     public void SetPrerequisitesForEditor(List<SectorDefinition> values) =>
         prerequisiteSectors = values ?? new List<SectorDefinition>();
 
@@ -65,10 +78,14 @@ public sealed class SectorDefinition : GameDefinition
     {
         territoryReward = ExpantaNum.Max(ExpantaNum.Zero, territory).ToString();
         resourceRewards = ResourceAmountDefinitionList.FromPairs(resources);
+        resourceRewardsCache = null;
     }
 
-    public void SetOccupiedResourceRatesForEditor(List<Pair<Resource, ExpantaNum>> resourcesPerSecond) =>
+    public void SetOccupiedResourceRatesForEditor(List<Pair<Resource, ExpantaNum>> resourcesPerSecond)
+    {
         occupiedResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
+        occupiedResourceRatesCache = null;
+    }
 
     public void SetLocationForEditor(string systemId, SectorDomain sectorDomain)
     {
@@ -82,6 +99,7 @@ public sealed class SectorDefinition : GameDefinition
     {
         colonizationFoodPerSecond = ExpantaNum.Max(ExpantaNum.Zero, foodPerSecond).ToString();
         colonizationResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
+        colonizationResourceRatesCache = null;
     }
 
     public void SetCampaignCostsForEditor(
@@ -90,6 +108,7 @@ public sealed class SectorDefinition : GameDefinition
     {
         campaignFoodPerSecond = ExpantaNum.Max(ExpantaNum.Zero, foodPerSecond).ToString();
         campaignResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
+        campaignResourceRatesCache = null;
     }
 
 #endif

@@ -20,6 +20,16 @@ public class ResourceManager : Singleton<ResourceManager>
 
     private readonly Dictionary<Resource, ResourceState> states = new();
     private readonly List<ResourceState> orderedStates = new();
+    private sealed class TransactionWorkspace
+    {
+        public readonly Dictionary<Resource, ExpantaNum> Deltas = new();
+        public readonly List<KeyValuePair<Resource, ExpantaNum>> Entries = new();
+        public readonly List<ResourceState> AddedStates = new();
+        public readonly List<ExpantaNum> PreviousAmounts = new();
+        public bool InUse;
+    }
+    private readonly List<TransactionWorkspace> transactionWorkspaces =
+        new() { new TransactionWorkspace() };
 
     public IReadOnlyDictionary<Resource, ResourceState> States => states;
     public event Action<ResourceState> ResourceStateAdded;
@@ -76,6 +86,8 @@ public class ResourceManager : Singleton<ResourceManager>
     public void AddAmount(Resource resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
+        if (delta == ExpantaNum.Zero)
+            return;
         state.SetAmount(state.Amount + delta);
         Publish(ResourceStateChanged, state);
     }
@@ -103,15 +115,23 @@ public class ResourceManager : Singleton<ResourceManager>
         if (costs == null)
             throw new ArgumentNullException(nameof(costs));
 
-        var deltas = new Dictionary<Resource, ExpantaNum>(costs.Count);
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+        TransactionWorkspace workspace = AcquireTransactionWorkspace();
+        try
         {
-            if (entry.Key == null || !entry.Value.IsFinite ||
-                entry.Value <= ExpantaNum.Zero)
-                return false;
-            deltas[entry.Key] = -entry.Value;
+            workspace.Deltas.Clear();
+            foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+            {
+                if (entry.Key == null || !entry.Value.IsFinite ||
+                    entry.Value <= ExpantaNum.Zero)
+                    return false;
+                workspace.Deltas[entry.Key] = -entry.Value;
+            }
+            return ApplyAtomicChanges(workspace.Deltas, commitState, rollbackState, workspace);
         }
-        return TryApplyAtomicChanges(deltas, commitState, rollbackState);
+        finally
+        {
+            ReleaseTransactionWorkspace(workspace);
+        }
     }
 
     public bool TryApplyAtomicChanges(
@@ -122,7 +142,29 @@ public class ResourceManager : Singleton<ResourceManager>
         if (deltas == null)
             throw new ArgumentNullException(nameof(deltas));
 
-        var entries = new List<KeyValuePair<Resource, ExpantaNum>>(deltas.Count);
+        TransactionWorkspace workspace = AcquireTransactionWorkspace();
+        try
+        {
+            return ApplyAtomicChanges(deltas, commitState, rollbackState, workspace);
+        }
+        finally
+        {
+            ReleaseTransactionWorkspace(workspace);
+        }
+    }
+
+    private bool ApplyAtomicChanges(
+        IReadOnlyDictionary<Resource, ExpantaNum> deltas,
+        Action commitState,
+        Action rollbackState,
+        TransactionWorkspace workspace)
+    {
+        List<KeyValuePair<Resource, ExpantaNum>> entries = workspace.Entries;
+        List<ResourceState> addedStates = workspace.AddedStates;
+        List<ExpantaNum> previousAmounts = workspace.PreviousAmounts;
+        entries.Clear();
+        addedStates.Clear();
+        previousAmounts.Clear();
         foreach (KeyValuePair<Resource, ExpantaNum> entry in deltas)
         {
             if (entry.Key == null || !entry.Value.IsFinite)
@@ -147,7 +189,6 @@ public class ResourceManager : Singleton<ResourceManager>
         // Register states silently until the domain commit succeeds. A
         // failed transaction must not leak a new state or publish an
         // Added notification that observers cannot undo.
-        var addedStates = new List<ResourceState>();
         for (int i = 0; i < entries.Count; i++)
         {
             Resource resource = entries[i].Key;
@@ -160,7 +201,6 @@ public class ResourceManager : Singleton<ResourceManager>
             addedStates.Add(state);
         }
 
-        var previousAmounts = new List<ExpantaNum>(entries.Count);
         for (int i = 0; i < entries.Count; i++)
             previousAmounts.Add(states[entries[i].Key].Amount);
 
@@ -214,6 +254,28 @@ public class ResourceManager : Singleton<ResourceManager>
             Publish(ResourceStateChanged, state);
         }
         return true;
+    }
+
+    private TransactionWorkspace AcquireTransactionWorkspace()
+    {
+        for (int i = 0; i < transactionWorkspaces.Count; i++)
+        {
+            TransactionWorkspace workspace = transactionWorkspaces[i];
+            if (workspace.InUse)
+                continue;
+            workspace.InUse = true;
+            return workspace;
+        }
+
+        TransactionWorkspace created = new();
+        created.InUse = true;
+        transactionWorkspaces.Add(created);
+        return created;
+    }
+
+    private static void ReleaseTransactionWorkspace(TransactionWorkspace workspace)
+    {
+        workspace.InUse = false;
     }
 
     private static void Publish(Action<ResourceState> handlers, ResourceState state)

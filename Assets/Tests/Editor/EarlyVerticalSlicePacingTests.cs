@@ -29,7 +29,7 @@ public sealed class EarlyVerticalSlicePacingTests
         AssertRate("MetalSmelter", "Copper", .8d);
         AssertRate("MetalSmelter", "Tin", .8d);
         AssertRate("MetalSmelter", "Iron", .8d);
-        AssertRate("MetalSmelter", "Bronze", .6d);
+        AssertRate("MetalSmelter", "Bronze", .4d);
     }
 
     [Test]

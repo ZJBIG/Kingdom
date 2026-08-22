@@ -83,6 +83,7 @@ public sealed partial class KingdomUIRoot
         topStatusRefreshTimer += Time.unscaledDeltaTime;
         researchDynamicSignatureRefreshTimer += Time.unscaledDeltaTime;
         researchQueuePollTimer += Time.unscaledDeltaTime;
+        navigationVisibilityRefreshTimer += Time.unscaledDeltaTime;
         buildingStructureRefreshTimer += Time.unscaledDeltaTime;
         eraPageRefreshTimer += Time.unscaledDeltaTime;
 #if UNITY_EDITOR
@@ -231,6 +232,7 @@ public sealed partial class KingdomUIRoot
         // 升级完成后，旧层级可能变为零数量；只在显示成员变化时重建列表。
         lastBuildingDisplaySignature = signature;
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
+        buildingRowsBuilt = false;
         PopulatePage("Buildings");
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
@@ -243,6 +245,11 @@ public sealed partial class KingdomUIRoot
         float refreshStart = Time.realtimeSinceStartup;
 #endif
         CacheRuntimeManagers();
+        if (navigationVisibilityRefreshTimer >= 1f)
+        {
+            navigationVisibilityRefreshTimer = 0f;
+            RefreshNavigationVisibility();
+        }
         bool pageScrolling = IsPageScrolling();
         PollResearchQueueVisualIfDue();
         if (pageScrolling)
@@ -278,9 +285,10 @@ public sealed partial class KingdomUIRoot
             scrollingLiveValueRefreshTimer = 0f;
         }
         // The top bar is presentation-only and formats several ExpantaNum
-        // values. Keep it live during a drag, but avoid rebuilding all those
-        // strings at the 10 Hz simulation/UI cadence.
-        if (topStatusRefreshTimer >= 0.25f)
+        // values, including a scan of building productivity. Two updates per
+        // second are sufficient for presentation and avoid repeating that
+        // work at the 10 Hz simulation/UI cadence.
+        if (topStatusRefreshTimer >= 0.5f)
         {
 #if UNITY_EDITOR
             float branchStart = Time.realtimeSinceStartup;
@@ -310,7 +318,7 @@ public sealed partial class KingdomUIRoot
             researchQueueUiDirty = false;
         }
         if (populatedPage == "Overview" &&
-            (developmentGuidanceSnapshot == null || developmentGuidanceRefreshTimer >= 1f))
+            (developmentGuidanceSnapshot == null || developmentGuidanceRefreshTimer >= 2f))
         {
             RefreshDevelopmentGuidance();
             developmentGuidanceRefreshTimer = 0f;
@@ -441,6 +449,7 @@ public sealed partial class KingdomUIRoot
             return;
 
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
+        eraRowsBuilt = false;
         PopulatePage("Era");
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
@@ -515,7 +524,7 @@ public sealed partial class KingdomUIRoot
     private void PollResearchQueueVisualIfDue()
     {
         if (populatedPage != "Research" || researchManagerCache == null ||
-            researchQueuePollTimer < 0.25f)
+            researchQueuePollTimer < 1f)
             return;
 
         researchQueuePollTimer = 0f;
@@ -533,8 +542,10 @@ public sealed partial class KingdomUIRoot
         // manager event. Mark the graph dirty so queued/active node visuals
         // converge on the same refresh, not only the toolbar text.
         researchDynamicUiDirty = true;
-        RefreshResearchQueueToolbar();
-        researchQueueUiDirty = false;
+        // Do not refresh here. RefreshUI processes the dirty flag below and
+        // coalesces event and polling notifications into one queue refresh.
+        // Calling the graphic immediately caused the same queue mutation to
+        // rebuild the Destroy/Instantiate visuals twice in one UI cycle.
     }
 
     private void OnDestroy()
@@ -558,6 +569,7 @@ public sealed partial class KingdomUIRoot
         if (populatedPage != "Workshop")
             return;
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
+        workshopRowsBuilt = false;
         PopulatePage("Workshop");
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
@@ -766,6 +778,8 @@ public sealed partial class KingdomUIRoot
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
                         SetTextIfChanged(pair.Value, state.Amount.ToGameString());
+                        if (buildingEffectLabels.TryGetValue(pair.Key, out TMP_Text effectLabel) && effectLabel != null)
+                            SetTextIfChanged(effectLabel, FormatBuildingEfficiency(state));
                         bool hasBuildingAmount = state.Amount > ExpantaNum.Zero;
                         if (buildingDeconstructButtons.TryGetValue(pair.Key, out Button deconstructButton) && deconstructButton != null)
                         {

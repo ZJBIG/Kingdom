@@ -26,6 +26,14 @@ internal static class RetiredDefinitionMigration
         return id;
     }
 
+    public static string NormalizeResearchResourceId(string researchId, string resourceId)
+    {
+        if (string.Equals(researchId, "PhaseMaterialEngineering", StringComparison.Ordinal) &&
+            string.Equals(resourceId, "NickelConcentrate", StringComparison.Ordinal))
+            return "Nickel";
+        return NormalizeResourceId(resourceId);
+    }
+
     public static string NormalizeBuildingId(string id)
     {
         if (string.Equals(id, "Glassworks", StringComparison.Ordinal))

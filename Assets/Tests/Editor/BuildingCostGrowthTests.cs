@@ -48,6 +48,13 @@ public sealed class BuildingCostGrowthTests
     }
 
     [Test]
+    public void AllBuildings_MergeEqualProducerAndConsumerResources()
+    {
+        Assert.DoesNotThrow(() => BuildingManager.ValidateMergedResourceFlows(
+            DataBase<Building>.All));
+    }
+
+    [Test]
     public void BuildingChainIndex_PreservesAllSharedTargetPredecessors()
     {
         Building branchA = CreateBuilding("IndexedBranchA");

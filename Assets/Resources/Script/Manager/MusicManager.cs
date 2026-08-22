@@ -48,6 +48,7 @@ public class MusicManager : Singleton<MusicManager>
     public MusicTrack CurrentTrack { get; private set; }
     public float Volume => volume;
     public float GapSeconds => gapSeconds;
+    public bool IsPermanentlyStopped => manualStop;
     public bool IsPlaying => AudioSource != null && AudioSource.isPlaying;
     public bool IsPaused => AudioSource != null && AudioSource.clip != null &&
         !AudioSource.isPlaying && AudioSource.time > 0f;
