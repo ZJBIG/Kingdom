@@ -26,6 +26,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         _ = BuildingManager.Instance;
         _ = ResearchManager.Instance;
         _ = WorkshopManager.Instance;
+        TutorialManager.Ensure();
         GameManager.Instance.Sectors.InitializeDefinitions();
 
         bool loadedExistingGame = SaveManager.Instance.LoadOrCreateGame();

@@ -1395,8 +1395,8 @@ public sealed class SpaceProgressionTests
         Assert.That(HasWorkshopResourceRequirement(systems, "Glass"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(systems, "Chemical"), Is.True);
         Assert.That(HasResourceEffect(systems, "Biomass"), Is.True);
-        Assert.That(HasWorkshopBuildingEffectType(
-            systems, "PlantingField", WorkshopEffectType.BuildingFoodProductionMultiplier), Is.True);
+        Assert.That(systems.Effects.Any(effect => effect != null &&
+            effect.Type == WorkshopEffectType.GlobalFoodProductionMultiplier), Is.True);
         Assert.That(HasWorkshopBuildingEffectType(
             systems, "PlantingField", WorkshopEffectType.BuildingProductionMultiplier), Is.True);
         Assert.That(GetWorkshopResourceRequirement(systems, "Biomass"), Is.GreaterThan(

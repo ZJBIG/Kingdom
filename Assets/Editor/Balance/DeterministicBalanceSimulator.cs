@@ -831,10 +831,9 @@ namespace Kingdom.EditorTools
                     Building building = buildings[i];
                     result += buildingCounts[building] * buildingEfficiency[building] *
                         D(building.FoodProductionRate) *
-                        effects.BuildingProductionMultiplier(building) *
-                        effects.BuildingFoodMultiplier(building);
+                        effects.BuildingProductionMultiplier(building);
                 }
-                return result;
+                return result * effects.GlobalFoodProductionMultiplier;
             }
 
             private double FoodProductionPotential()
@@ -853,10 +852,9 @@ namespace Kingdom.EditorTools
                     Building building = buildings[i];
                     result += buildingCounts[building] *
                         D(building.FoodProductionRate) *
-                        effects.BuildingProductionMultiplier(building) *
-                        effects.BuildingFoodMultiplier(building);
+                        effects.BuildingProductionMultiplier(building);
                 }
-                return result;
+                return result * effects.GlobalFoodProductionMultiplier;
             }
 
             private double FlowProduction(Func<Building, double> selector)
@@ -1090,7 +1088,6 @@ namespace Kingdom.EditorTools
         private sealed class EffectSnapshot
         {
             private readonly Dictionary<Building, double> buildingProduction = new();
-            private readonly Dictionary<Building, double> buildingFood = new();
             private readonly Dictionary<Building, double> buildingResearch = new();
             private readonly Dictionary<Building, double> buildingPower = new();
             private readonly Dictionary<Building, double> buildingLogistics = new();
@@ -1098,6 +1095,7 @@ namespace Kingdom.EditorTools
             private double globalBuilding = 1d;
             private double globalPower = 1d;
             private double globalLogistics = 1d;
+            private double globalFoodProduction = 1d;
             public double GlobalResearchMultiplier { get; private set; } = 1d;
             public double TerritoryGranted { get; private set; }
             public double ProductivityGranted { get; private set; }
@@ -1119,7 +1117,7 @@ namespace Kingdom.EditorTools
 
             public double BuildingProductionMultiplier(Building value) =>
                 globalBuilding * Get(buildingProduction, value);
-            public double BuildingFoodMultiplier(Building value) => Get(buildingFood, value);
+            public double GlobalFoodProductionMultiplier => globalFoodProduction;
             public double BuildingResearchMultiplier(Building value) => Get(buildingResearch, value);
             public double PowerMultiplier(Building value) => globalPower * Get(buildingPower, value);
             public double LogisticsMultiplier(Building value) =>
@@ -1137,9 +1135,6 @@ namespace Kingdom.EditorTools
                     case ResearchEffectType.BuildingProductionMultiplier:
                         Multiply(buildingProduction, effect.Building, multiplier);
                         break;
-                    case ResearchEffectType.BuildingFoodProductionMultiplier:
-                        Multiply(buildingFood, effect.Building, multiplier);
-                        break;
                     case ResearchEffectType.ResourceProductionMultiplier:
                         Multiply(resourceProduction, effect.Resource, multiplier);
                         break;
@@ -1154,6 +1149,9 @@ namespace Kingdom.EditorTools
                         break;
                     case ResearchEffectType.GlobalBuildingProductionMultiplier:
                         globalBuilding *= multiplier;
+                        break;
+                    case ResearchEffectType.GlobalFoodProductionMultiplier:
+                        globalFoodProduction *= multiplier;
                         break;
                     case ResearchEffectType.BuildingResearchPowerMultiplier:
                         Multiply(buildingResearch, effect.Building, multiplier);
@@ -1186,9 +1184,6 @@ namespace Kingdom.EditorTools
                     case WorkshopEffectType.BuildingProductionMultiplier:
                         Multiply(buildingProduction, effect.Building, multiplier);
                         break;
-                    case WorkshopEffectType.BuildingFoodProductionMultiplier:
-                        Multiply(buildingFood, effect.Building, multiplier);
-                        break;
                     case WorkshopEffectType.ResourceProductionMultiplier:
                         Multiply(resourceProduction, effect.Resource, multiplier);
                         break;
@@ -1200,6 +1195,9 @@ namespace Kingdom.EditorTools
                         break;
                     case WorkshopEffectType.GlobalBuildingProductionMultiplier:
                         globalBuilding *= multiplier;
+                        break;
+                    case WorkshopEffectType.GlobalFoodProductionMultiplier:
+                        globalFoodProduction *= multiplier;
                         break;
                     case WorkshopEffectType.BuildingResearchPowerMultiplier:
                         Multiply(buildingResearch, effect.Building, multiplier);

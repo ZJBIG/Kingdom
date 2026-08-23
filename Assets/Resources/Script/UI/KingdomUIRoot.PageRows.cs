@@ -9,14 +9,6 @@ using UnityEngine.UI;
 /// </summary>
 public sealed partial class KingdomUIRoot
 {
-    private void AddBuildingRows(RectTransform parent) => BuildAuthoredBuildingRows(parent);
-
-    private void AddWorkshopRows(RectTransform parent) => BuildAuthoredWorkshopRows(parent);
-
-    private void AddResearchRows(RectTransform parent) => BuildAuthoredResearchRows(parent);
-
-    private void AddResourceRows(RectTransform parent) => BuildAuthoredResourceRows(parent);
-
     private static string ResearchStateLabel(ResearchStatus status)
     {
         return status switch

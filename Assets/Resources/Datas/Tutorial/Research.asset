@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6c3d4b5f708192837465a0b1c2d3e4, type: 3}
+  m_Name: Research
+  m_EditorClassIdentifier: 
+  Id: research
+  Title: 用研究打开下一步
+  Description: 选择一项可用研究，查看它连接的建筑、生产链或时代目标。
+  NarrativeText: 废墟中仍保存着失落的知识。每项研究，都是鼠族找回过去并打开未来的一把钥匙。
+  Kind: 4
+  NextStepId: production-chain
+  RewardId: 
+  TriggerCondition: game-state
+  CompletionCondition: research-complete
+  NavigationPage: Research

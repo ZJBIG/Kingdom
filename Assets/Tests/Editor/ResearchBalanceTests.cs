@@ -268,7 +268,7 @@ public sealed class ResearchBalanceTests
         Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingProductionMultiplier, 1.1d, "CeramicKiln"), Is.True);
         Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.242d), Is.True);
         Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.3375d), Is.True);
-        Assert.That(HasEffect(calendar, ResearchEffectType.BuildingFoodProductionMultiplier, 1.1d), Is.True);
+        Assert.That(HasEffect(calendar, ResearchEffectType.GlobalFoodProductionMultiplier, 1.1d), Is.True);
         Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
         Assert.That(
             HasEffect(
@@ -460,10 +460,10 @@ public sealed class ResearchBalanceTests
             DataBase<Research>.Find("PowerGridEngineering"),
             ResearchEffectType.BuildingPowerProductionMultiplier,
             "CentralPowerStation"), Is.True);
-        Assert.That(HasTargetedEffect(
+        Assert.That(HasEffect(
             DataBase<Research>.Find("MechanicalEngineering"),
-            ResearchEffectType.BuildingFoodProductionMultiplier,
-            "IrrigationWorks"), Is.True);
+            ResearchEffectType.GlobalFoodProductionMultiplier,
+            1.25d), Is.True);
         Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("IndustrialAgriculture"),
             ResearchEffectType.BuildingProductionMultiplier,

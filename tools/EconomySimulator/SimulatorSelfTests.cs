@@ -16,6 +16,7 @@ public static class SimulatorSelfTests
         VerifyDefinitionReferenceKinds(snapshot);
         VerifyPopulationProductivityParity();
         VerifyFoodShortagePopulationAndProductivityDeficit();
+        VerifyGlobalFoodMultiplierUsesMultiplication();
         VerifyResourceRatesUseSeconds();
         VerifyAdaptiveStepsPreserveRates();
         VerifyAdaptiveStepSchedule();
@@ -81,7 +82,7 @@ public static class SimulatorSelfTests
         Definition agriculturalMachinery =
             snapshot.Find("AgriculturalMachinery", DefinitionKind.Workshop);
         Require(agriculturalMachinery.Effects.Count(x =>
-                    x.Kind == SimEffectKind.BuildingFoodProductionMultiplier) == 2 &&
+                    x.Kind == SimEffectKind.GlobalFoodProductionMultiplier) == 2 &&
                 agriculturalMachinery.Effects.Count(x =>
                     x.Kind == SimEffectKind.BuildingProductionMultiplier &&
                     x.Target == "PlantingField") == 1,
@@ -959,6 +960,26 @@ public static class SimulatorSelfTests
             "模拟器应用现代医学人口倍率后，5人口生产力必须为13.5。" );
     }
 
+    private static void VerifyGlobalFoodMultiplierUsesMultiplication()
+    {
+        SimulationState state = new();
+        state.ActiveEffects.Add(new SimEffect
+        {
+            Kind = SimEffectKind.GlobalFoodProductionMultiplier,
+            Value = 1.2d
+        });
+        state.ActiveEffects.Add(new SimEffect
+        {
+            Kind = SimEffectKind.GlobalFoodProductionMultiplier,
+            Value = 1.3d
+        });
+        Require(Math.Abs(ResourceSimulator.EffectMultiplier(
+            state,
+            SimEffectKind.GlobalFoodProductionMultiplier,
+            "") - 1.56d) < 1e-9d,
+            "Global food production multipliers must multiply rather than add.");
+    }
+
     private static void VerifyFoodShortagePopulationAndProductivityDeficit()
     {
         double unhappy = ResourceSimulator.CalculateHappinessMultiplier(-10d, 10d);
@@ -1002,7 +1023,6 @@ public static class SimulatorSelfTests
                 if (string.IsNullOrWhiteSpace(effect.Target))
                     continue;
                 bool targetsBuilding = effect.Kind == SimEffectKind.BuildingProductionMultiplier ||
-                    effect.Kind == SimEffectKind.BuildingFoodProductionMultiplier ||
                     effect.Kind == SimEffectKind.BuildingResearchPowerMultiplier ||
                     effect.Kind == SimEffectKind.BuildingPowerProductionMultiplier ||
                     effect.Kind == SimEffectKind.BuildingLogisticsProductionMultiplier;
@@ -1012,7 +1032,6 @@ public static class SimulatorSelfTests
                 bool valid = effect.Kind switch
                 {
                     SimEffectKind.BuildingProductionMultiplier => building.Generation.Count > 0,
-                    SimEffectKind.BuildingFoodProductionMultiplier => building.FoodProduction > 0d,
                     SimEffectKind.BuildingResearchPowerMultiplier => building.ResearchPower > 0d,
                     SimEffectKind.BuildingPowerProductionMultiplier => building.PowerProduction > 0d,
                     SimEffectKind.BuildingLogisticsProductionMultiplier => building.LogisticsProduction > 0d,
@@ -1043,7 +1062,6 @@ public static class SimulatorSelfTests
                 bool valid = effect.Kind switch
                 {
                     SimEffectKind.BuildingProductionMultiplier => building.Generation.Count > 0,
-                    SimEffectKind.BuildingFoodProductionMultiplier => building.FoodProduction > 0d,
                     SimEffectKind.BuildingResearchPowerMultiplier => building.ResearchPower > 0d,
                     SimEffectKind.BuildingPowerProductionMultiplier => building.PowerProduction > 0d,
                     SimEffectKind.BuildingLogisticsProductionMultiplier => building.LogisticsProduction > 0d,
@@ -1101,7 +1119,6 @@ public static class SimulatorSelfTests
 
     private static bool IsBuildingTargetEffect(SimEffectKind kind) =>
         kind == SimEffectKind.BuildingProductionMultiplier ||
-        kind == SimEffectKind.BuildingFoodProductionMultiplier ||
         kind == SimEffectKind.BuildingResearchPowerMultiplier ||
         kind == SimEffectKind.BuildingPowerProductionMultiplier ||
         kind == SimEffectKind.BuildingLogisticsProductionMultiplier;

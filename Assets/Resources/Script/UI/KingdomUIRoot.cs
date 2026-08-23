@@ -50,7 +50,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Button detailPaymentButton;
     private RectTransform tooltipPanel;
     private TMP_Text tooltipText;
-    private string detailActionLabel;
     private TMP_Text topKingdomTitle;
     private TMP_Text topStatus;
     private RectTransform buildingQuantityControls;
@@ -169,6 +168,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool musicProgressDragging;
     private bool musicPageBuilt;
     private TMP_Text developmentGuidanceText;
+    private Button developmentGuidanceButton;
+    private TutorialSnapshot tutorialSnapshot;
     private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
@@ -572,7 +573,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 if (resourceRowsBuilt) break;
                 resourceAmountLabels.Clear();
                 resourceChangeLabels.Clear();
-                AddResourceRows(rows);
+                BuildAuthoredResourceRows(rows);
                 resourceRowsBuilt = true;
                 break;
             case "Buildings":
@@ -583,7 +584,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
                 buildingActionUpgradeModes.Clear();
-                AddBuildingRows(rows);
+                BuildAuthoredBuildingRows(rows);
                 buildingRowsBuilt = true;
                 break;
             case "Research":
@@ -604,7 +605,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 break;
             case "Workshop":
                 if (workshopRowsBuilt) break;
-                AddWorkshopRows(rows);
+                BuildAuthoredWorkshopRows(rows);
                 workshopRowsBuilt = true;
                 break;
             case "Music":

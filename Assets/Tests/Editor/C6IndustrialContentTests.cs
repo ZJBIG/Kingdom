@@ -638,10 +638,44 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void AgriculturalMachineryImprovesFoodBuildings()
     {
-        Assert.That(HasTypedBuildingEffect("AgriculturalMachinery", "Farm",
-            WorkshopEffectType.BuildingFoodProductionMultiplier), Is.True);
-        Assert.That(HasTypedBuildingEffect("AgriculturalMachinery", "IrrigationWorks",
-            WorkshopEffectType.BuildingFoodProductionMultiplier), Is.True);
+        Assert.That(DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery").Effects.Any(
+            effect => effect.Type == WorkshopEffectType.GlobalFoodProductionMultiplier), Is.True);
+    }
+
+    [Test]
+    public void IndustrialFoodProcessWorkshopsUseDistinctGlobalRolesAndEntryAccess()
+    {
+        WorkshopUpgrade first = DataBase<WorkshopUpgrade>.Find(
+            "IndustrialFoodProcessEngineering");
+        WorkshopUpgrade second = DataBase<WorkshopUpgrade>.Find(
+            "EnzymaticConversionSystems");
+        WorkshopUpgrade third = DataBase<WorkshopUpgrade>.Find(
+            "ContinuousCultureBioreactors");
+        Research industrialWorkshop = DataBase<Research>.Find("IndustrialWorkshop");
+
+        Assert.That(first, Is.Not.Null);
+        Assert.That(second, Is.Not.Null);
+        Assert.That(third, Is.Not.Null);
+        Assert.That(first.RequiredResearch, Does.Contain(industrialWorkshop));
+        Assert.That(first.RequiredUpgrades, Is.Empty);
+        Assert.That(second.RequiredUpgrades, Does.Contain(first));
+        Assert.That(third.RequiredUpgrades, Does.Contain(second));
+
+        WorkshopUpgrade[] upgrades = { first, second, third };
+        for (int i = 0; i < upgrades.Length; i++)
+        {
+            Assert.That(upgrades[i].Effects, Has.Count.EqualTo(1));
+            WorkshopEffectDefinition effect = upgrades[i].Effects[0];
+            Assert.That(effect.Type, Is.EqualTo(
+                WorkshopEffectType.GlobalFoodProductionMultiplier));
+            Assert.That(effect.Building, Is.Null);
+            Assert.That(upgrades[i].ResourceRequirements, Has.Count.GreaterThanOrEqualTo(3));
+        }
+
+        Assert.That(first.Label, Is.Not.EqualTo(second.Label));
+        Assert.That(first.Label, Is.Not.EqualTo(third.Label));
+        Assert.That(second.Label, Is.Not.EqualTo(third.Label));
+        Assert.That(1.5d * 1.25d * 1.25d, Is.EqualTo(2.34375d).Within(0.000001d));
     }
 
     [Test]

@@ -244,6 +244,25 @@ Assert-Contains "Assets/Resources/Script/UI/KingdomUIRoot.Music.cs" `
 Assert-Contains "Assets/Resources/Script/Manager/MusicManager.cs" `
     'IsPermanentlyStopped' `
     "music manager exposes the permanent stop state"
+Assert-Contains "Assets/Resources/Script/Manager/MusicManager.cs" `
+    'playbackRequestVersion' `
+    "manual track changes invalidate stale auto-advance requests"
+Assert-Contains "Assets/Resources/Script/Manager/MusicManager.cs" `
+    'reachedEnd' `
+    "music auto-advance requires the clip to reach its actual end"
+Assert-Contains "Assets/Resources/Script/Manager/MusicManager.cs" `
+    'requestVersion == playbackRequestVersion' `
+    "music auto-advance verifies no newer manual action occurred"
+$musicMetaFiles = Get-ChildItem (Join-Path $ProjectPath "Assets/Resources/Musics") -Filter "*.meta"
+if ($musicMetaFiles.Count -eq 0) { throw "FAIL: no music import settings found" }
+foreach ($meta in $musicMetaFiles) {
+    $settings = Get-Content -LiteralPath $meta.FullName -Raw
+    if ($settings -notmatch '(?m)^    loadType: 2$' -or
+        $settings -notmatch '(?m)^  loadInBackground: 1$') {
+        throw "FAIL: music asset is not streamed/background-loaded: $($meta.Name)"
+    }
+}
+Write-Host "PASS: music assets use streaming background loading"
 Assert-Contains "Assets/Resources/Script/UI/KingdomUIRoot.Music.cs" `
     'selected && manager\.IsPermanentlyStopped' `
     "music rows display the stop icon after permanent pause"

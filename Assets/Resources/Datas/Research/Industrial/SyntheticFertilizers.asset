@@ -28,8 +28,8 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
     amount: "2800"
   effects:
-  - Type: 2
-    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.38"
   TechLevel: 3

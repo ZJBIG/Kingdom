@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ContinuousCultureBioreactors
+  m_EditorClassIdentifier: 
+  id: ContinuousCultureBioreactors
+  Label: "\u8FDE\u7EED\u57F9\u517B\u751F\u7269\u53CD\u5E94\u5668"
+  Description: "\u7528\u8FDE\u7EED\u57F9\u517B\u53CD\u5E94\u5668\u63D0\u9AD8\u98DF\u7269\u751F\u4EA7\u7684\u7A33\u5B9A\u6027\u548C\u5229\u7528\u7387\uFF0C\u4E0D\u65B0\u589E\u519C\u4E1A\u5EFA\u7B51\u3002"
+  SortOrder: 86
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: b3c8e1f6a4d209758c7e0b1d2f3a4568, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "14000"
+  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "6000"
+  effects:
+  - Type: 20
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.25"

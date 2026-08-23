@@ -33,7 +33,11 @@ public sealed partial class KingdomUIRoot
             AddEraTextRow(parent, "时代目标", "时代定义正在加载……", TextSecondary, null);
             return;
         }
-        Research transition = FindEraTransition(nextEra);
+        EraGoalEvaluation eraGoal = EraGoalEvaluator.Evaluate(
+            state.TechLevel,
+            researchManagerCache,
+            resourceManagerCache);
+        Research transition = eraGoal.Transition;
         AddEraTextRow(
             parent,
             state.TechLevel.GetDescription(),
@@ -43,16 +47,44 @@ public sealed partial class KingdomUIRoot
             Copper,
             null);
 
+        TutorialManager tutorialManager = TutorialManager.Current;
+        if (tutorialManager != null)
+        {
+            TutorialSnapshot tutorial = tutorialManager.Evaluate();
+            AddEraTextRow(
+                parent,
+                "文明复兴阶段",
+                tutorial.CivilizationContext,
+                TextSecondary,
+                null);
+            AddEraTextRow(
+                parent,
+                "引导目标",
+                tutorial.CurrentGoal + "\n" +
+                (string.IsNullOrWhiteSpace(tutorial.NarrativeText)
+                    ? string.Empty
+                    : tutorial.NarrativeText + "\n") +
+                tutorial.GoalDescription,
+                TextPrimary,
+                null);
+            AddEraTextRow(
+                parent,
+                "引导推荐行动",
+                tutorial.RecommendedAction,
+                Copper,
+                () => NavigateToTutorialPage(tutorial.NavigationPage));
+        }
+
         if (transition == null)
         {
             AddEraTextRow(parent, "时代进度", "100%  |  当前内容已完成", Positive, null);
             AddEraTextRow(parent, "下一步", "继续扩张生产链，或在研究页查看尚未完成的研究。", TextPrimary,
                 () => SetPage("Research"));
-            eraPageStateSignature = BuildEraPageStateSignature(state, transition);
+            eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
             return;
         }
 
-        List<EraGoalCondition> conditions = BuildEraConditions(transition);
+        List<EraGoalCondition> conditions = BuildEraConditions(eraGoal);
         int completed = 0;
         for (int i = 0; i < conditions.Count; i++)
             if (conditions[i].Met)
@@ -134,111 +166,107 @@ public sealed partial class KingdomUIRoot
             null);
 
         Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(blocker == null ? "none" : blocker.Title)}");
-        eraPageStateSignature = BuildEraPageStateSignature(state, transition);
+        eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
     }
 
-    private string BuildEraPageStateSignature(GameState state, Research transition = null)
+    private string BuildEraPageStateSignature(
+        GameState state,
+        EraGoalEvaluation eraGoal = null)
     {
         if (state == null)
             return string.Empty;
-        transition ??= FindEraTransition((TechLevel)((int)state.TechLevel + 1));
+        eraGoal ??= EraGoalEvaluator.Evaluate(
+            state.TechLevel,
+            researchManagerCache,
+            resourceManagerCache);
+        Research transition = eraGoal.Transition;
         var signature = new StringBuilder(96);
         signature.Append((int)state.TechLevel).Append('|').Append(transition?.Id ?? string.Empty);
+        if (TutorialManager.Current != null)
+            signature.Append("|tutorial=").Append(TutorialManager.Current.Version);
         if (transition == null)
             return signature.ToString();
 
-        for (int i = 0; i < transition.Prerequisites.Count; i++)
+        for (int i = 0; i < eraGoal.Conditions.Count; i++)
         {
-            Research prerequisite = transition.Prerequisites[i];
-            bool met = prerequisite != null && researchManagerCache != null &&
-                researchManagerCache.IsResearchCompleted(prerequisite.Id);
-            signature.Append('|').Append(prerequisite?.Id ?? string.Empty).Append(':').Append(met ? '1' : '0');
-        }
-        for (int i = 0; i < transition.ResourceRequirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
-            bool met = requirement.First != null && resourceManagerCache != null &&
-                resourceManagerCache.GetAmount(requirement.First) >= requirement.Second;
-            signature.Append('|').Append(requirement.First?.Id ?? string.Empty).Append(':').Append(met ? '1' : '0');
+            EraGoalConditionEvaluation condition = eraGoal.Conditions[i];
+            signature.Append('|').Append(condition.Kind).Append(':');
+            if (condition.Kind == EraGoalConditionKind.PrerequisiteResearch)
+            {
+                signature.Append(condition.Research?.Id ?? string.Empty)
+                    .Append(':').Append(condition.ResearchState?.Version ?? 0)
+                    .Append(':').Append(condition.Met ? '1' : '0');
+            }
+            else
+            {
+                signature.Append(condition.Resource?.Id ?? string.Empty)
+                    .Append(':').Append(condition.AvailableAmount)
+                    .Append(':').Append(condition.PaidAmount)
+                    .Append(':').Append(condition.RemainingAmount)
+                    .Append(':').Append(condition.ProductionRate)
+                    .Append(':').Append(condition.ConsumptionRate)
+                    .Append(':').Append(condition.Met ? '1' : '0');
+            }
         }
         return signature.ToString();
     }
 
-    private List<EraGoalCondition> BuildEraConditions(Research transition)
+    private List<EraGoalCondition> BuildEraConditions(EraGoalEvaluation eraGoal)
     {
         var result = new List<EraGoalCondition>();
-        if (transition == null)
+        if (eraGoal == null || eraGoal.Transition == null)
             return result;
 
-        for (int i = 0; i < transition.Prerequisites.Count; i++)
+        for (int i = 0; i < eraGoal.Conditions.Count; i++)
         {
-            Research prerequisite = transition.Prerequisites[i];
-            if (prerequisite == null)
-                continue;
-            bool met = researchManagerCache != null && researchManagerCache.IsResearchCompleted(prerequisite.Id);
-            string researchDetail = met ? "已完成" : "尚未完成";
-            if (!met && researchManagerCache != null &&
-                researchManagerCache.States.TryGetValue(prerequisite, out ResearchState prerequisiteState))
-                researchDetail = ResearchStateLabel(prerequisite, prerequisiteState.Status);
-            result.Add(new EraGoalCondition
+            EraGoalConditionEvaluation evaluation = eraGoal.Conditions[i];
+            if (evaluation.Kind == EraGoalConditionKind.PrerequisiteResearch)
             {
-                Title = "研究：" + prerequisite.Label,
-                Detail = researchDetail,
-                Met = met,
-                Navigate = () =>
+                Research prerequisite = evaluation.Research;
+                ResearchState prerequisiteState = evaluation.ResearchState;
+                result.Add(new EraGoalCondition
                 {
-                    SetPage("Research");
-                    ShowResearchDetails(prerequisite);
-                }
-            });
-        }
-
-        for (int i = 0; i < transition.ResourceRequirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
-            if (requirement.First == null)
-                continue;
-            ExpantaNum amount = resourceManagerCache == null
-                ? ExpantaNum.Zero
-                : resourceManagerCache.GetAmount(requirement.First);
-            ExpantaNum required = ExpantaNum.Max(ExpantaNum.Zero, requirement.Second);
-            bool met = amount >= required;
-            Resource resource = requirement.First;
-            string resourceDetail = amount.ToGameString() + " / " + required.ToGameString();
-            if (!met && resourceManagerCache != null &&
-                resourceManagerCache.States.TryGetValue(resource, out ResourceState resourceState))
-            {
-                ExpantaNum netRate = resourceState.ProductionRate - resourceState.ConsumptionRate;
-                resourceDetail += netRate > ExpantaNum.Zero
-                    ? "  |  净产出 +" + netRate.ToGameString() + "/s"
-                    : "  |  当前无净产出";
+                    Title = "研究：" + prerequisite.Label,
+                    Detail = evaluation.Met
+                        ? "已完成"
+                        : ResearchStateLabel(
+                            prerequisite,
+                            prerequisiteState == null
+                                ? ResearchStatus.Locked
+                                : prerequisiteState.Status),
+                    Met = evaluation.Met,
+                    Navigate = () =>
+                    {
+                        SetPage("Research");
+                        ShowResearchDetails(prerequisite);
+                    }
+                });
             }
-            result.Add(new EraGoalCondition
+            else
             {
-                Title = "资源：" + resource.Label,
-                Detail = resourceDetail,
-                Met = met,
-                Navigate = () =>
+                Resource resource = evaluation.Resource;
+                string resourceDetail = "剩余需求 " +
+                    evaluation.RemainingAmount.ToGameString() +
+                    "  |  可用 " + evaluation.AvailableAmount.ToGameString();
+                ExpantaNum netRate = evaluation.ProductionRate - evaluation.ConsumptionRate;
+                if (!evaluation.Met)
                 {
-                    SetPage("Resources");
-                    ShowResourceDetails(resource);
+                    resourceDetail += netRate > ExpantaNum.Zero
+                        ? "  |  净产出 +" + netRate.ToGameString() + "/s"
+                        : "  |  当前无净产出";
                 }
-            });
-        }
-        return result;
-    }
-
-    private static Research FindEraTransition(TechLevel target)
-    {
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
-        Research result = null;
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            Research candidate = definitions[i];
-            if (candidate == null || !candidate.AdvancesTechLevel || candidate.TechLevel != target)
-                continue;
-            if (result == null || string.CompareOrdinal(candidate.Id, result.Id) < 0)
-                result = candidate;
+                result.Add(new EraGoalCondition
+                {
+                    Title = "资源：" + resource.Label,
+                    Detail = resourceDetail,
+                    Met = evaluation.Met,
+                    Navigate = () =>
+                    {
+                        SetPage("Resources");
+                        ShowResourceDetails(resource);
+                    }
+                });
+            }
         }
         return result;
     }
@@ -264,5 +292,13 @@ public sealed partial class KingdomUIRoot
                 });
         }
         return row;
+    }
+
+    private void NavigateToTutorialPage(string pageName)
+    {
+        if (string.IsNullOrWhiteSpace(pageName) || pageName == "Era" ||
+            !pages.ContainsKey(pageName))
+            return;
+        SetPage(pageName);
     }
 }

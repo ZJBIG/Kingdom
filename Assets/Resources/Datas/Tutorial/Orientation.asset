@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6c3d4b5f708192837465a0b1c2d3e4, type: 3}
+  m_Name: Orientation
+  m_EditorClassIdentifier: 
+  Id: orientation
+  Title: 建立一个不断发展的王国
+  Description: 先观察王国的时代、人口和核心资源。资源会持续变化，所有发展都从这里开始。
+  NarrativeText: 鼠族文明曾经中断，如今只剩下最初的火种。先让它稳定地燃烧起来。
+  Kind: 0
+  NextStepId: resources
+  RewardId: 
+  TriggerCondition: game-state
+  CompletionCondition: calendar-days>=1
+  NavigationPage: Overview

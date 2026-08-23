@@ -26,8 +26,8 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     amount: "4200"
   effects:
-  - Type: 2
-    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.25"
   - Type: 5

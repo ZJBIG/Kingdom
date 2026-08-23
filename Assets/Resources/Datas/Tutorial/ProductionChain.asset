@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6c3d4b5f708192837465a0b1c2d3e4, type: 3}
+  m_Name: ProductionChain
+  m_EditorClassIdentifier: 
+  Id: production-chain
+  Title: 连接生产链
+  Description: 观察原材料、加工资源和高级建筑之间的关系，优先解决当前真正的资源阻碍。
+  NarrativeText: 一个文明不能只会采集。鼠族必须重新学会把原料加工成更有价值的东西。
+  Kind: 5
+  NextStepId: era-goal
+  RewardId: 
+  TriggerCondition: game-state
+  CompletionCondition: production-chain-owned
+  NavigationPage: Buildings

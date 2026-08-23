@@ -13,7 +13,10 @@ public sealed class GameState
     public TechLevel TechLevel { get; private set; }
     public ExpantaNum FoodAmount { get; private set; }
     public ExpantaNum FoodCapacity { get; private set; }
-    public ExpantaNum FoodProductionRate { get; private set; }
+    private ExpantaNum unscaledFoodProductionRate;
+    public ExpantaNum FoodProductionRate =>
+        unscaledFoodProductionRate *
+        ProgressionModifierManager.Current.GlobalFoodProductionMultiplier;
     public ExpantaNum FoodConsumptionRate { get; private set; }
     public ExpantaNum FoodPopulationConsumptionRate =>
         Population == null
@@ -70,7 +73,7 @@ public sealed class GameState
         TechLevel = TechLevel.Animal;
         FoodAmount = new ExpantaNum(300);
         FoodCapacity = BaseFoodCapacity;
-        FoodProductionRate = BaseFoodProductionRate;
+        unscaledFoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodAvailability = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
@@ -206,7 +209,7 @@ public sealed class GameState
 
     internal void ResetDerivedEconomy(ExpantaNum minimumTerritoryTotal)
     {
-        FoodProductionRate = BaseFoodProductionRate;
+        unscaledFoodProductionRate = BaseFoodProductionRate;
         FoodConsumptionRate = ExpantaNum.Zero;
         FoodAvailability = ExpantaNum.One;
         PowerProductionRate = ExpantaNum.Zero;
@@ -247,15 +250,15 @@ public sealed class GameState
         EnsureFinite(consumptionDelta, nameof(consumptionDelta));
         ExpantaNum newProductionRate = ExpantaNum.Max(
             ExpantaNum.Zero,
-            FoodProductionRate + productionDelta);
+            unscaledFoodProductionRate + productionDelta);
         ExpantaNum newConsumptionRate = ExpantaNum.Max(
             ExpantaNum.Zero,
             FoodConsumptionRate + consumptionDelta);
-        if (FoodProductionRate == newProductionRate &&
+        if (unscaledFoodProductionRate == newProductionRate &&
             FoodConsumptionRate == newConsumptionRate)
             return;
 
-        FoodProductionRate = newProductionRate;
+        unscaledFoodProductionRate = newProductionRate;
         FoodConsumptionRate = newConsumptionRate;
         Version++;
     }

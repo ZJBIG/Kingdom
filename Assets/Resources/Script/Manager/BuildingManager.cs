@@ -986,11 +986,8 @@ public class BuildingManager : Singleton<BuildingManager>
                 ExpantaNum productionMultiplier =
                     modifiers.GetBuildingProductionMultiplier(state.Definition) *
                     modifiers.GlobalBuildingProductionMultiplier;
-                ExpantaNum foodProductionMultiplier =
-                    modifiers.GetBuildingFoodProductionMultiplier(state.Definition);
-
                 potentialFoodProduction += potentialScale * state.Definition.FoodProductionRate
-                    * productionMultiplier * foodProductionMultiplier;
+                    * productionMultiplier;
                 potentialFoodConsumption += potentialScale * state.Definition.FoodConsumptionRate;
                 potentialPowerProduction += actualScale * state.Definition.PowerProductionRate
                     * modifiers.PowerMultiplier
@@ -1183,8 +1180,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         GameManager.Instance.AdjustFoodRates(
             scaleDelta * state.Definition.FoodProductionRate
-                * productionMultiplier
-                * modifiers.GetBuildingFoodProductionMultiplier(state.Definition),
+                * productionMultiplier,
             scaleDelta * state.Definition.FoodConsumptionRate);
         if (applyCapacityDeltas)
         {
@@ -1268,13 +1264,6 @@ public class BuildingManager : Singleton<BuildingManager>
                     scale * consumption[j].Second
                     * (newBuildingMultiplier - oldBuildingMultiplier));
 
-            ExpantaNum oldFoodMultiplier =
-                oldBuildingMultiplier * previous.GetBuildingFoodProductionMultiplier(building);
-            ExpantaNum newFoodMultiplier =
-                newBuildingMultiplier * current.GetBuildingFoodProductionMultiplier(building);
-            GameManager.Instance.AdjustFoodRates(
-                scale * building.FoodProductionRate * (newFoodMultiplier - oldFoodMultiplier),
-                ExpantaNum.Zero);
             GameManager.Instance.AdjustFoodCapacity(
                 scale * building.FoodCapacityGranted
                 * (current.FoodCapacityMultiplier - previous.FoodCapacityMultiplier));

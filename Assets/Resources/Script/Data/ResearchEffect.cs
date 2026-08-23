@@ -3,7 +3,6 @@ using System;
 public enum ResearchEffectType
 {
     BuildingProductionMultiplier = 1,
-    BuildingFoodProductionMultiplier = 2,
     ResourceProductionMultiplier = 3,
     GlobalResearchMultiplier = 4,
     GlobalConstructionMultiplier = 5,
@@ -31,7 +30,8 @@ public enum ResearchEffectType
     PopulationProductivityMultiplier = 28,
     ExplorationPowerMultiplier = 29,
     BuildingConstructionMultiplier = 30,
-    HappinessBonus = 31
+    HappinessBonus = 31,
+    GlobalFoodProductionMultiplier = 32
 }
 
 public enum ResearchSystem

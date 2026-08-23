@@ -191,7 +191,7 @@ public static class GenerateFirstThreeErasContent
     };
 
     private static EffectSpec Global(ResearchEffectType type, double value) => new EffectSpec { Type = type, Value = value };
-    private static EffectSpec BuildingFood(string id, double value) => new EffectSpec { Type = ResearchEffectType.BuildingFoodProductionMultiplier, BuildingId = id, Value = value };
+    private static EffectSpec BuildingFood(string id, double value) => new EffectSpec { Type = ResearchEffectType.GlobalFoodProductionMultiplier, Value = value };
     private static EffectSpec BuildingProduction(string id, double value) => new EffectSpec { Type = ResearchEffectType.BuildingProductionMultiplier, BuildingId = id, Value = value };
     private static EffectSpec BuildingResearch(string id, double value) => new EffectSpec { Type = ResearchEffectType.BuildingResearchPowerMultiplier, BuildingId = id, Value = value };
 

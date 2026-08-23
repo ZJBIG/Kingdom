@@ -628,7 +628,21 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceText.gameObject.SetActive(true);
         developmentGuidanceText.alignment = TextAlignmentOptions.TopLeft;
         developmentGuidanceText.fontSize = 24f;
+        developmentGuidanceText.enableAutoSizing = true;
+        developmentGuidanceText.fontSizeMin = 14f;
+        developmentGuidanceText.fontSizeMax = 24f;
         developmentGuidanceText.enableWordWrapping = true;
+        developmentGuidanceButton = page.GetComponent<Button>();
+        if (developmentGuidanceButton == null)
+            developmentGuidanceButton = page.gameObject.AddComponent<Button>();
+        Image guidanceHitSurface = page.GetComponent<Image>();
+        if (guidanceHitSurface == null)
+            guidanceHitSurface = page.gameObject.AddComponent<Image>();
+        guidanceHitSurface.color = Color.clear;
+        guidanceHitSurface.raycastTarget = true;
+        developmentGuidanceButton.targetGraphic = guidanceHitSurface;
+        developmentGuidanceButton.transition = Selectable.Transition.None;
+        developmentGuidanceButton.interactable = false;
         Canvas.ForceUpdateCanvases();
         Vector2 initialRect = developmentGuidanceText.rectTransform.rect.size;
         if (initialRect.x > 0f && initialRect.y > 0f)
@@ -642,6 +656,46 @@ public sealed partial class KingdomUIRoot
         if (developmentGuidanceText == null)
             return;
         CacheRuntimeManagers();
+        TutorialManager tutorialManager = TutorialManager.Current;
+        if (tutorialManager != null)
+        {
+            try
+            {
+                tutorialSnapshot = tutorialManager.Evaluate();
+                StringBuilder onboarding = new StringBuilder();
+                onboarding.Append("当前时代：").Append(tutorialSnapshot.CurrentEra).Append("\n");
+                onboarding.Append("文明复兴：").Append(tutorialSnapshot.CivilizationContext).Append("\n");
+                onboarding.Append("人口：").Append(tutorialSnapshot.PopulationText)
+                    .Append("  食物：").Append(tutorialSnapshot.FoodText)
+                    .Append("  ").Append(tutorialSnapshot.CoreResourceText).Append("\n");
+                onboarding.Append("当前目标：").Append(tutorialSnapshot.CurrentGoal).Append("\n");
+                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NarrativeText))
+                    onboarding.Append(tutorialSnapshot.NarrativeText).Append("\n");
+                onboarding.Append(tutorialSnapshot.GoalDescription).Append("\n");
+                onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
+                onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
+                onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
+                developmentGuidanceText.text = onboarding.ToString();
+                developmentGuidanceText.color = TextPrimary;
+                if (developmentGuidanceButton != null)
+                {
+                    developmentGuidanceButton.onClick.RemoveAllListeners();
+                    string destination = tutorialSnapshot.NavigationPage;
+                    developmentGuidanceButton.interactable = pages.ContainsKey(destination);
+                    if (developmentGuidanceButton.interactable)
+                        developmentGuidanceButton.onClick.AddListener(() => SetPage(destination));
+                }
+                return;
+            }
+            catch (Exception exception)
+            {
+                if (!developmentGuidanceErrorLogged)
+                {
+                    developmentGuidanceErrorLogged = true;
+                    Debug.LogException(exception);
+                }
+            }
+        }
         GameManager gameManager = gameManagerCache;
         try
         {

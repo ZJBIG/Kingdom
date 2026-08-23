@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public sealed class ProgressionModifierState
 {
     private readonly Dictionary<Building, ExpantaNum> buildingProductionMultipliers = new();
-    private readonly Dictionary<Building, ExpantaNum> buildingFoodProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingResearchPowerMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingPowerProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingLogisticsProductionMultipliers = new();
@@ -16,6 +15,7 @@ public sealed class ProgressionModifierState
     public ExpantaNum GlobalConstructionMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum GlobalBuildingProductionMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum GlobalLogisticsMultiplier { get; internal set; } = ExpantaNum.One;
+    public ExpantaNum GlobalFoodProductionMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum FoodCapacityMultiplier { get; internal set; } = ExpantaNum.One;
     public ExpantaNum ProductivityGranted { get; internal set; } = ExpantaNum.Zero;
     public ExpantaNum TerritoryGranted { get; internal set; } = ExpantaNum.Zero;
@@ -39,8 +39,6 @@ public sealed class ProgressionModifierState
     public ExpantaNum GetBuildingProductionMultiplier(Building building) =>
         GetMultiplier(buildingProductionMultipliers, building);
 
-    public ExpantaNum GetBuildingFoodProductionMultiplier(Building building) =>
-        GetMultiplier(buildingFoodProductionMultipliers, building);
 
     public ExpantaNum GetBuildingResearchPowerMultiplier(Building building) =>
         GetMultiplier(buildingResearchPowerMultipliers, building);
@@ -60,8 +58,6 @@ public sealed class ProgressionModifierState
     internal void AddBuildingProductionMultiplier(Building building, ExpantaNum value) =>
         AddMultiplier(buildingProductionMultipliers, building, value);
 
-    internal void AddBuildingFoodProductionMultiplier(Building building, ExpantaNum value) =>
-        AddMultiplier(buildingFoodProductionMultipliers, building, value);
 
     internal void AddBuildingResearchPowerMultiplier(Building building, ExpantaNum value) =>
         AddMultiplier(buildingResearchPowerMultipliers, building, value);
@@ -86,6 +82,8 @@ public sealed class ProgressionModifierState
         GlobalBuildingProductionMultiplier = AdditiveMultiplier(GlobalBuildingProductionMultiplier, value);
     internal void AddGlobalLogisticsMultiplier(ExpantaNum value) =>
         GlobalLogisticsMultiplier = AdditiveMultiplier(GlobalLogisticsMultiplier, value);
+    internal void MultiplyGlobalFoodProductionMultiplier(ExpantaNum value) =>
+        GlobalFoodProductionMultiplier *= NormalizeMultiplier(value);
     internal void AddFleetRepairCostMultiplier(ExpantaNum value) =>
         FleetRepairCostMultiplier *= NormalizeMultiplier(value);
     internal void AddMilitaryMultiplier(ExpantaNum value) =>
@@ -213,8 +211,8 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.BuildingProductionMultiplier:
                 modifiers.AddBuildingProductionMultiplier(effect.Building, effect.NumericValue);
                     break;
-                case ResearchEffectType.BuildingFoodProductionMultiplier:
-                modifiers.AddBuildingFoodProductionMultiplier(effect.Building, effect.NumericValue);
+                case ResearchEffectType.GlobalFoodProductionMultiplier:
+                    modifiers.MultiplyGlobalFoodProductionMultiplier(effect.NumericValue);
                     break;
                 case ResearchEffectType.ResourceProductionMultiplier:
                 modifiers.AddResourceProductionMultiplier(effect.Resource, effect.NumericValue);

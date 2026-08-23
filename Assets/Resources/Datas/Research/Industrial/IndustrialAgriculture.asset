@@ -31,20 +31,20 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
     amount: "3500"
   effects:
-  - Type: 2
-    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.875"
-  - Type: 2
-    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.8"
   - Type: 1
     Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
     Resource: {fileID: 0}
     value: "2.4"
-  - Type: 2
-    Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.8"
   TechLevel: 3

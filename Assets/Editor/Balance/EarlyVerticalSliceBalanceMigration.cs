@@ -90,8 +90,7 @@ namespace Kingdom.EditorTools
                 {
                     new()
                     {
-                        Type = ResearchEffectType.BuildingFoodProductionMultiplier,
-                        Building = hunterGatherer,
+                        Type = ResearchEffectType.GlobalFoodProductionMultiplier,
                         Value = new ExpantaNum(1.25d)
                     }
                 });

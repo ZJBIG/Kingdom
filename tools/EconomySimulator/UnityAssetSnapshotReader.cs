@@ -19,7 +19,7 @@ public static class UnityAssetSnapshotReader
         new Dictionary<int, SimEffectKind>
         {
             [0] = SimEffectKind.BuildingProductionMultiplier,
-            [1] = SimEffectKind.BuildingFoodProductionMultiplier,
+            [20] = SimEffectKind.GlobalFoodProductionMultiplier,
             [2] = SimEffectKind.ResourceProductionMultiplier,
             [3] = SimEffectKind.GlobalResearchMultiplier,
             [4] = SimEffectKind.GlobalConstructionMultiplier,

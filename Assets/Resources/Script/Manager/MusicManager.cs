@@ -41,6 +41,8 @@ public class MusicManager : Singleton<MusicManager>
     private float gapSeconds = 5f;
     private int lastRandomIndex = -1;
     private int loadVersion;
+    private int playbackRequestVersion;
+    private bool autoAdvanceEligible;
 
     public IReadOnlyList<Pair<string, int>> MusicTypes => musicTypes;
     public IReadOnlyList<MusicTrack> Tracks => tracks;
@@ -169,6 +171,8 @@ public class MusicManager : Singleton<MusicManager>
         if (AudioSource == null || string.IsNullOrEmpty(resourcePath))
             return false;
         manualStop = false;
+        playbackRequestVersion++;
+        autoAdvanceEligible = true;
         CancelPendingLoad();
         loadingCoroutine = StartCoroutine(LoadAndPlay(resourcePath, ++loadVersion));
         return true;
@@ -206,6 +210,8 @@ public class MusicManager : Singleton<MusicManager>
         if (AudioSource == null || clip == null)
             return false;
         manualStop = false;
+        playbackRequestVersion++;
+        autoAdvanceEligible = true;
         CancelPendingLoad();
         AudioSource.clip = clip;
         AudioSource.volume = volume;
@@ -225,7 +231,10 @@ public class MusicManager : Singleton<MusicManager>
     public void Pause()
     {
         if (AudioSource != null && AudioSource.isPlaying)
+        {
+            autoAdvanceEligible = false;
             AudioSource.Pause();
+        }
     }
 
     public void Resume()
@@ -233,6 +242,7 @@ public class MusicManager : Singleton<MusicManager>
         if (AudioSource != null && AudioSource.clip != null)
         {
             manualStop = false;
+            autoAdvanceEligible = true;
             AudioSource.UnPause();
         }
     }
@@ -240,6 +250,8 @@ public class MusicManager : Singleton<MusicManager>
     public void Stop()
     {
         manualStop = true;
+        playbackRequestVersion++;
+        autoAdvanceEligible = false;
         CancelPendingLoad();
         if (AudioSource != null)
             AudioSource.Stop();
@@ -263,6 +275,7 @@ public class MusicManager : Singleton<MusicManager>
         if (length <= 0f || float.IsNaN(length) || float.IsInfinity(length) ||
             float.IsNaN(normalized) || float.IsInfinity(normalized))
             return;
+        autoAdvanceEligible = false;
         AudioSource.time = Mathf.Clamp01(normalized) * Mathf.Max(0f, length - 0.01f);
     }
 
@@ -312,10 +325,20 @@ public class MusicManager : Singleton<MusicManager>
             }
             else if (!AudioSource.isPlaying && AudioSource.clip != null && !manualStop)
             {
-                AudioSource.clip = null;
-                if (gapSeconds > 0f)
-                    yield return new WaitForSecondsRealtime(gapSeconds);
-                PlayRandom();
+                float length = AudioSource.clip.length;
+                bool reachedEnd = length > 0f && AudioSource.time >= length - 0.05f;
+                if (autoAdvanceEligible && reachedEnd)
+                {
+                    autoAdvanceEligible = false;
+                    int requestVersion = playbackRequestVersion;
+                    if (gapSeconds > 0f)
+                        yield return new WaitForSecondsRealtime(gapSeconds);
+                    if (requestVersion == playbackRequestVersion &&
+                        !manualStop)
+                    {
+                        PlayRandom();
+                    }
+                }
             }
             yield return new WaitForSecondsRealtime(.25f);
         }

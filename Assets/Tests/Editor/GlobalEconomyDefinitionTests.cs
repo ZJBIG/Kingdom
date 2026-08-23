@@ -230,7 +230,6 @@ public sealed class GlobalEconomyDefinitionTests
     private static bool ResearchEffectNeedsBuilding(ResearchEffectType type)
     {
         return type == ResearchEffectType.BuildingProductionMultiplier ||
-            type == ResearchEffectType.BuildingFoodProductionMultiplier ||
             type == ResearchEffectType.BuildingConstructionMultiplier ||
             type == ResearchEffectType.BuildingResearchPowerMultiplier ||
             type == ResearchEffectType.BuildingPowerProductionMultiplier ||
@@ -240,7 +239,6 @@ public sealed class GlobalEconomyDefinitionTests
     private static bool WorkshopEffectNeedsBuilding(WorkshopEffectType type)
     {
         return type == WorkshopEffectType.BuildingProductionMultiplier ||
-            type == WorkshopEffectType.BuildingFoodProductionMultiplier ||
             type == WorkshopEffectType.BuildingConstructionMultiplier ||
             type == WorkshopEffectType.BuildingResearchPowerMultiplier ||
             type == WorkshopEffectType.BuildingPowerProductionMultiplier ||
@@ -416,7 +414,6 @@ public sealed class GlobalEconomyDefinitionTests
                 switch (effect.Type)
                 {
                     case ResearchEffectType.BuildingProductionMultiplier:
-                    case ResearchEffectType.BuildingFoodProductionMultiplier:
                     case ResearchEffectType.BuildingConstructionMultiplier:
                     case ResearchEffectType.BuildingResearchPowerMultiplier:
                     case ResearchEffectType.BuildingPowerProductionMultiplier:
@@ -447,7 +444,6 @@ public sealed class GlobalEconomyDefinitionTests
                 switch (effect.Type)
                 {
                     case WorkshopEffectType.BuildingProductionMultiplier:
-                    case WorkshopEffectType.BuildingFoodProductionMultiplier:
                     case WorkshopEffectType.BuildingConstructionMultiplier:
                     case WorkshopEffectType.BuildingResearchPowerMultiplier:
                     case WorkshopEffectType.BuildingPowerProductionMultiplier:
@@ -543,7 +539,6 @@ public sealed class GlobalEconomyDefinitionTests
         switch (type)
         {
             case ResearchEffectType.BuildingProductionMultiplier:
-            case ResearchEffectType.BuildingFoodProductionMultiplier:
             case ResearchEffectType.ResourceProductionMultiplier:
             case ResearchEffectType.GlobalResearchMultiplier:
             case ResearchEffectType.GlobalConstructionMultiplier:
@@ -572,6 +567,7 @@ public sealed class GlobalEconomyDefinitionTests
             case ResearchEffectType.ExplorationPowerMultiplier:
             case ResearchEffectType.BuildingConstructionMultiplier:
             case ResearchEffectType.HappinessBonus:
+            case ResearchEffectType.GlobalFoodProductionMultiplier:
                 return true;
             default:
                 return false;
@@ -583,7 +579,6 @@ public sealed class GlobalEconomyDefinitionTests
         switch (type)
         {
             case WorkshopEffectType.BuildingProductionMultiplier:
-            case WorkshopEffectType.BuildingFoodProductionMultiplier:
             case WorkshopEffectType.ResourceProductionMultiplier:
             case WorkshopEffectType.GlobalResearchMultiplier:
             case WorkshopEffectType.GlobalConstructionMultiplier:
@@ -602,6 +597,7 @@ public sealed class GlobalEconomyDefinitionTests
             case WorkshopEffectType.CampaignCasualtyMultiplier:
             case WorkshopEffectType.BuildingConstructionMultiplier:
             case WorkshopEffectType.ExplorationPowerMultiplier:
+            case WorkshopEffectType.GlobalFoodProductionMultiplier:
                 return true;
             default:
                 return false;

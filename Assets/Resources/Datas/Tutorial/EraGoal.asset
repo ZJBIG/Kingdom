@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6c3d4b5f708192837465a0b1c2d3e4, type: 3}
+  m_Name: EraGoal
+  m_EditorClassIdentifier: 
+  Id: era-goal
+  Title: 看懂下一时代
+  Description: 时代推进由关键研究和真实条件共同决定。查看每个条件的当前值、阻碍和入口。
+  NarrativeText: 当知识、人口和生产重新连接，鼠族就能迈向下一个文明阶段。
+  Kind: 6
+  NextStepId: long-term
+  RewardId: 
+  TriggerCondition: game-state
+  CompletionCondition: era-reached
+  NavigationPage: Era

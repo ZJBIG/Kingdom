@@ -94,6 +94,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
+        TutorialManager.Ensure().ResetForNewGame();
         ready = true;
         dirty = true;
         lastSavedStateSignature = CalculateStateSignature();
@@ -170,7 +171,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             Buildings = BuildingManager.Instance.CaptureSaveData(),
             Researches = ResearchManager.Instance.CaptureSaveData(),
             Workshop = WorkshopManager.Instance.CaptureSaveData(),
-            Sectors = GameManager.Instance.Sectors.CaptureSaveData()
+            Sectors = GameManager.Instance.Sectors.CaptureSaveData(),
+            Tutorial = TutorialManager.Ensure().CaptureSaveData()
         };
     }
 
@@ -199,6 +201,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RefreshBuildingChainAvailability();
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
+        TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
     }
 
     private bool TryLoadCandidate(string path, out KingdomSaveData data)
@@ -218,6 +221,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             ResetRuntimeStateForLoad();
             GameManager.Instance.InitializeNewGame();
             BuildingManager.Instance.InitializeStartingBuildings();
+            TutorialManager.Ensure().ResetForNewGame();
             Debug.LogError(
                 $"应用 Kingdom 存档“{path}”失败。已在尝试下一个候选存档前重置运行时状态。" +
                 $"详细信息：{exception.Message}");
@@ -311,6 +315,10 @@ public sealed class SaveManager : Singleton<SaveManager>
 
             GameManager.Instance.Sectors.AppendStateSignature(ref hash);
 
+            TutorialManager tutorial = TutorialManager.Current;
+            if (tutorial != null)
+                Append(ref hash, tutorial.Version);
+
             return hash;
         }
     }
@@ -330,6 +338,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public ResearchSaveData Researches;
         public WorkshopSaveData Workshop;
         public SectorSaveData Sectors;
+        public TutorialSaveData Tutorial;
     }
 
     [Serializable]
@@ -421,6 +430,13 @@ public sealed class SaveManager : Singleton<SaveManager>
     public sealed class SectorSaveData
     {
         public List<SectorStateSaveData> States;
+    }
+
+    [Serializable]
+    public sealed class TutorialSaveData
+    {
+        public string ActiveStepId;
+        public List<string> CompletedStepIds;
     }
 
     [Serializable]

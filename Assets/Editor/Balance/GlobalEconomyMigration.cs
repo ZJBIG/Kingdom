@@ -665,7 +665,7 @@ namespace Kingdom.EditorTools
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "OilDerrick", 1.15));
             W("AgriculturalMachinery", "农业机械", 80, R("IndustrialAgriculture"),
                 P("Machinery", 120, "Engine", 20, "Chemical", 80),
-                EB(WorkshopEffectType.BuildingFoodProductionMultiplier, "Farm", 1.30));
+                E(WorkshopEffectType.GlobalFoodProductionMultiplier, 1.30));
             W("MechanicalLooms", "机械织机", 90, R("PrecisionManufacturing"),
                 P("Machinery", 100, "Steel", 200, "Cloth", 200),
                 EB(WorkshopEffectType.BuildingProductionMultiplier, "WeavingWorkshop", 1.50));
@@ -1004,7 +1004,7 @@ namespace Kingdom.EditorTools
         private static ResearchEffectDefinition BuildingMultiplier(string id, double value) =>
             RE(ResearchEffectType.BuildingProductionMultiplier, value, building: Find<Building>(id));
         private static ResearchEffectDefinition BuildingFoodMultiplier(string id, double value) =>
-            RE(ResearchEffectType.BuildingFoodProductionMultiplier, value, building: Find<Building>(id));
+            RE(ResearchEffectType.GlobalFoodProductionMultiplier, value);
         private static ResearchEffectDefinition GlobalResearch(double value) =>
             RE(ResearchEffectType.GlobalResearchMultiplier, value);
         private static ResearchEffectDefinition GlobalConstruction(double value) =>

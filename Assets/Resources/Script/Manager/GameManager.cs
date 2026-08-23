@@ -189,7 +189,9 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum potentialConsumptionRate,
         double deltaSeconds)
     {
-        potentialProductionRate += GameState.BaseFoodProductionRate;
+        potentialProductionRate =
+            (potentialProductionRate + GameState.BaseFoodProductionRate) *
+            ProgressionModifierManager.Current.GlobalFoodProductionMultiplier;
         potentialConsumptionRate +=
             State.Population.Population * PopulationState.FoodConsumptionPerPerson;
         State.SetFoodAvailability(HappinessFormula.CalculateFoodAvailability(

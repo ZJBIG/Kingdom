@@ -24,12 +24,12 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 3583e10cfbef82d47b5a78f192cc80b7, type: 2}
     amount: "63"
   effects:
-  - Type: 2
-    Building: {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.21"
-  - Type: 2
-    Building: {fileID: 11400000, guid: 7391bb32facaa204885c0c80312a491b, type: 2}
+  - Type: 32
+    Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.1"
   TechLevel: 0
