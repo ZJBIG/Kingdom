@@ -10,7 +10,9 @@ public sealed class UIResearchGraphDragForwarder : MonoBehaviour,
     IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler,
     IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    private UIResearchGraphGesture Owner => GetComponentInParent<UIResearchGraphGesture>();
+    private UIResearchGraphGesture owner;
+    private UIResearchGraphGesture Owner =>
+        owner != null ? owner : owner = GetComponentInParent<UIResearchGraphGesture>();
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
@@ -32,7 +34,20 @@ public sealed class UIResearchGraphDragForwarder : MonoBehaviour,
         Owner?.OnEndDrag(eventData);
     }
 
-    public void OnPointerDown(PointerEventData eventData) => Owner?.OnPointerDown(eventData);
-    public void OnPointerUp(PointerEventData eventData) => Owner?.OnPointerUp(eventData);
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        owner = null;
+        Owner?.OnPointerDown(eventData);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        Owner?.OnPointerUp(eventData);
+        owner = null;
+    }
+
     public void OnPointerExit(PointerEventData eventData) => Owner?.OnPointerExit(eventData);
+
+    private void OnDisable() => owner = null;
+    private void OnTransformParentChanged() => owner = null;
 }

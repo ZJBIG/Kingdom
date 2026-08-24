@@ -49,12 +49,7 @@ public sealed partial class KingdomUIRoot
 
     private void SetBuildingActionButtonText(Button button, string value)
     {
-        if (!buildingActionButtonTexts.TryGetValue(button, out TMP_Text buttonText) || buttonText == null)
-        {
-            buttonText = button.GetComponentInChildren<TMP_Text>(true);
-            if (buttonText != null)
-                buildingActionButtonTexts[button] = buttonText;
-        }
+        TMP_Text buttonText = GetBuildingActionButtonText(button);
         if (buttonText == null)
         {
             Debug.LogError("[王国界面] Authored building action button has no Text child: " + button.name);
@@ -68,18 +63,27 @@ public sealed partial class KingdomUIRoot
         buttonText.raycastTarget = false;
     }
 
-    private static void SetBuildingActionButtonState(Button button, bool available)
+    private TMP_Text GetBuildingActionButtonText(Button button)
+    {
+        if (!buildingActionButtonTexts.TryGetValue(button, out TMP_Text text) || text == null)
+        {
+            text = button.GetComponentInChildren<TMP_Text>(true);
+            if (text != null)
+                buildingActionButtonTexts[button] = text;
+        }
+        return text;
+    }
+
+    private void SetBuildingActionButtonState(Button button, bool available)
     {
         if (button.interactable != available)
             button.interactable = available;
+        bool isDeconstruct = button.name == "DeconstructButton";
         Image surface = button.targetGraphic as Image;
         if (surface != null)
-        {
-            bool isDeconstruct = button.name == "DeconstructButton";
             SetColorIfChanged(surface, available
                 ? (isDeconstruct ? Error : Copper)
                 : Panel);
-        }
         button.transition = Selectable.Transition.ColorTint;
         ColorBlock colors = button.colors;
         // Keep the state color in the Image while using the ColorBlock only
@@ -92,18 +96,21 @@ public sealed partial class KingdomUIRoot
         colors.disabledColor = new Color(.68f, .70f, .69f, .92f);
         colors.colorMultiplier = 1f;
         button.colors = colors;
-        Outline outline = button.GetComponent<Outline>();
-        if (outline == null)
-            outline = button.gameObject.AddComponent<Outline>();
+        if (!buildingActionButtonOutlines.TryGetValue(button, out Outline outline) || outline == null)
+        {
+            outline = button.GetComponent<Outline>();
+            if (outline == null)
+                outline = button.gameObject.AddComponent<Outline>();
+            buildingActionButtonOutlines[button] = outline;
+        }
         outline.enabled = true;
         outline.useGraphicAlpha = false;
         outline.effectDistance = new Vector2(1.5f, 1.5f);
-        bool deconstruct = button.name == "DeconstructButton";
-        Color activeBorder = deconstruct
+        Color activeBorder = isDeconstruct
             ? new Color(1f, .62f, .55f, 1f)
             : new Color(1f, .82f, .48f, 1f);
         outline.effectColor = available ? activeBorder : new Color(.72f, .76f, .74f, .95f);
-        TMP_Text text = button.GetComponentInChildren<TMP_Text>(true);
+        TMP_Text text = GetBuildingActionButtonText(button);
         if (text == null)
         {
             Debug.LogError("[王国界面] Authored building action button has no Text child: " + button.name);
@@ -112,11 +119,10 @@ public sealed partial class KingdomUIRoot
         text.color = available ? TextPrimary : TextSecondary;
     }
 
-    private bool CanPerformBuildingAction(Building building, bool upgrade)
+    private bool CanPerformBuildingAction(Building building, bool upgrade, ExpantaNum amount)
     {
         if (BuildingManager.Instance == null)
             return false;
-        ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
         if (amount < ExpantaNum.One)
             return false;
         ExpantaNum maximum = upgrade

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CokeOvenOptimization
   Label: "\u7126\u7089\u6D41\u7A0B\u4F18\u5316"
-  Description: "\u901A\u8FC7\u9884\u70ED\u3001\u5BC6\u5C01\u548C\u5206\u9980\u56DE\u6536\uFF0C\u63D0\u9AD8\u7126\u7089\u7684\u7126\u70AD\u4EA7\u51FA\u3002"
+  Description: "通过预热、密封和副产物回收，提高焦炉的焦炭产出。"
   SortOrder: 115
   TechLevel: 3
   requiredResearch:

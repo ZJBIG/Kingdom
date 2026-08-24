@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: QuantumComputingArray
   Label: "\u91CF\u5B50\u8BA1\u7B97\u9635\u5217"
-  Description: "\u4EE5\u5E7D\u5F71\u5408\u91D1\u3001\u5E7D\u5F71\u7EA4\u7EF4\u548C\u94B9\u5408\u91D1\u6784\u6210\u4F4E\u6E29\u91CF\u5B50\u8BA1\u7B97\u7CFB\u7EDF\uFF0C\u4E3A\u6781\u81F4\u65F6\u4EE3\u63D0\u4F9B\u7814\u7A76\u80FD\u529B\u3002"
+  Description: "以幽影合金、幽影纤维和钛合金构成低温量子计算系统，为深空测绘、星际理论与后续极致时代提供研究能力。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: 7f8e9d0c1b2a34567890abcdef123456, type: 2}
   costGrowth: "1.28"

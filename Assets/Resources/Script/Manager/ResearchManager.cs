@@ -372,7 +372,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
         if (!CanAccessResearch(research))
         {
-            blocker = "Research is not unlocked";
+            blocker = "研究尚未解锁";
             return false;
         }
         if (state.Status == ResearchStatus.Completed || state.CostPaid)
@@ -388,7 +388,6 @@ public class ResearchManager : Singleton<ResearchManager>
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
-        bool anyPayableResource = false;
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = requirements[i];
@@ -403,11 +402,19 @@ public class ResearchManager : Singleton<ResearchManager>
             ExpantaNum remaining = ExpantaNum.Max(
                 ExpantaNum.Zero,
                 requirement.Second - state.GetPaidResourceCost(requirement.First));
+            if (remaining <= ExpantaNum.Zero)
+                continue;
             ExpantaNum available = resourceManager.GetAmount(requirement.First);
-            if (remaining > ExpantaNum.Zero && available > ExpantaNum.Zero)
-                anyPayableResource = true;
+            if (available < remaining)
+            {
+                string label = string.IsNullOrEmpty(requirement.First.Label)
+                    ? requirement.First.Id
+                    : requirement.First.Label;
+                blocker = "资源不足：" + label;
+                return false;
+            }
         }
-        return anyPayableResource;
+        return true;
     }
 
     private static void LogResearchPaymentBlockers(ResearchState state)
@@ -457,10 +464,8 @@ public class ResearchManager : Singleton<ResearchManager>
                 ? ResearchStatus.Locked
                 : beforeHead.Status;
             bool queueChanged = false;
-            // Auto-pay the queue head as resources become available. A queued
-            // research used to sit at "waiting for resources" forever until the
-            // player found the payment button, blocking fully-paid items behind
-            // it even though the stockpile already covered part of the cost.
+            // Auto-pay the queue head once the complete remaining cost is
+            // available. Payment must never consume a partial stockpile.
             if (researchQueue.Count > 0)
             {
                 ResearchState head = researchQueue.Peek();
@@ -528,19 +533,18 @@ public class ResearchManager : Singleton<ResearchManager>
             ExpantaNum remaining = ExpantaNum.Max(ExpantaNum.Zero, requirement.Second - paid);
             if (remaining <= ExpantaNum.Zero)
                 continue;
-            ExpantaNum available = ResourceManager.Instance.GetAmount(requirement.First);
-            ExpantaNum payment = ExpantaNum.Min(remaining, available);
-            if (payment <= ExpantaNum.Zero)
-                continue;
             researchPaymentBuffer[requirement.First] = researchPaymentBuffer.TryGetValue(
                 requirement.First,
                 out ExpantaNum current)
-                ? current + payment
-                : payment;
+                ? current + remaining
+                : remaining;
         }
 
         if (researchPaymentBuffer.Count == 0)
-            return false;
+        {
+            state.SetCostPaid(AreAllResourceCostsPaid(state));
+            return state.CostPaid;
+        }
 
         return ResourceManager.Instance.TryApplyAtomicPayment(
             researchPaymentBuffer,

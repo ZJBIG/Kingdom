@@ -129,6 +129,8 @@ public sealed partial class KingdomUIRoot
         footer.offsetMin = new Vector2(20f, 12f);
         footer.offsetMax = new Vector2(-20f, 12f + DetailFooterHeight);
 
+        detailPaymentButtonText = null;
+        detailActionButtonText = null;
         detailPaymentButton = CreateButton("Payment", footer, "支付资源", new Color(.28f, .22f, .12f, 1f));
         detailPaymentButton.gameObject.SetActive(false);
         detailActionButton = CreateButton("Action", footer, "执行", new Color(.18f, .31f, .27f, 1f));

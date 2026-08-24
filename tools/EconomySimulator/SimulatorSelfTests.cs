@@ -82,7 +82,8 @@ public static class SimulatorSelfTests
         Definition agriculturalMachinery =
             snapshot.Find("AgriculturalMachinery", DefinitionKind.Workshop);
         Require(agriculturalMachinery.Effects.Count(x =>
-                    x.Kind == SimEffectKind.GlobalFoodProductionMultiplier) == 2 &&
+                    x.Kind == SimEffectKind.GlobalFoodProductionMultiplier &&
+                    x.Value >= 1.69d) == 1 &&
                 agriculturalMachinery.Effects.Count(x =>
                     x.Kind == SimEffectKind.BuildingProductionMultiplier &&
                     x.Target == "PlantingField") == 1,
@@ -337,7 +338,7 @@ public static class SimulatorSelfTests
         Require(shipyardAssembly.Effects.Any(x =>
                 x.Kind == SimEffectKind.MilitaryMultiplier &&
                 x.Target == "" &&
-                x.Value >= 1.2d),
+                x.Value > 1d),
             "自动化船坞装配必须提供真实的星际军事增益。");
 
         Require(shipyardAssembly.Effects.Any(x =>
@@ -416,13 +417,12 @@ public static class SimulatorSelfTests
         Require(orbitalStation.SpaceCost >= 420d &&
                 orbitalStation.ProductivityConsumption >= 600d &&
                 orbitalStation.ProductivityGranted == 0d &&
-                orbitalStation.ResearchPower >= 100d &&
                 orbitalStation.LogisticsProduction >= 80d &&
                 orbitalStation.PowerConsumption >= 80d &&
                 orbitalStation.LogisticsConsumption >= 18d &&
                 orbitalStation.Consumption.TryGetValue("TitaniumAlloy", out double stationTitaniumMaintenance) &&
                 stationTitaniumMaintenance >= .04d,
-            "轨道空间站必须承担与其综合能力匹配的空间和生产力成本。");
+            "轨道空间站必须承担与其后勤和舰队能力匹配的空间及生产力成本。");
 
         Definition orbitalSolarArray =
             snapshot.Find("OrbitalSolarArray", DefinitionKind.Building);

@@ -1,10 +1,12 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 
 public sealed class KingdomOnboardingPlayModeTests
 {
@@ -40,6 +42,15 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
+        TutorialManager tutorial = TutorialManager.Ensure();
+        MethodInfo restoreTutorial = typeof(TutorialManager).GetMethod(
+            "RestoreSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(restoreTutorial, Is.Not.Null);
+        restoreTutorial.Invoke(tutorial, new object[]
+        {
+            new SaveManager.TutorialSaveData { ActiveStepId = "era-goal" },
+            TechLevel.Animal
+        });
         MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
             "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(setPage, Is.Not.Null);
@@ -55,5 +66,16 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(rendered, Does.Contain("引导目标"));
         Assert.That(rendered, Does.Contain("引导推荐行动"));
         Assert.That(rendered, Does.Contain("文明复兴阶段"));
+        Assert.That(rendered, Does.Contain("本时代能力"));
+
+        FieldInfo eraRowsField = typeof(KingdomUIRoot).GetField(
+            "eraTextRows", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(eraRowsField, Is.Not.Null);
+        var eraRows = eraRowsField.GetValue(root) as List<GameObject>;
+        Assert.That(eraRows, Has.Count.GreaterThan(3));
+        Button tutorialAction = eraRows[3].GetComponent<Button>();
+        Assert.That(tutorialAction, Is.Not.Null);
+        Assert.That(tutorialAction.interactable, Is.False,
+            "An Era tutorial action must not expose a clickable no-op while already on Era.");
     }
 }

@@ -35,6 +35,7 @@ public class MusicManager : Singleton<MusicManager>
 
     private readonly List<Pair<string, int>> musicTypes = new();
     private readonly List<MusicTrack> tracks = new();
+    private readonly WaitForSecondsRealtime autoPlayPollDelay = new(.25f);
     private Coroutine loadingCoroutine;
     private bool manualStop;
     private float volume = 1f;
@@ -46,6 +47,7 @@ public class MusicManager : Singleton<MusicManager>
 
     public IReadOnlyList<Pair<string, int>> MusicTypes => musicTypes;
     public IReadOnlyList<MusicTrack> Tracks => tracks;
+    public int CatalogVersion { get; private set; }
     public AudioSource AudioSource { get; private set; }
     public MusicTrack CurrentTrack { get; private set; }
     public float Volume => volume;
@@ -91,6 +93,7 @@ public class MusicManager : Singleton<MusicManager>
         AddAllTracks();
 
         CurrentTrack = previous == null ? null : FindTrack(previous.Id);
+        CatalogVersion++;
         Debug.Log("[MusicManager] Catalog rebuilt: " + tracks.Count + " valid tracks.");
     }
 
@@ -310,7 +313,7 @@ public class MusicManager : Singleton<MusicManager>
         {
             if (AudioSource == null || loadingCoroutine != null)
             {
-                yield return new WaitForSecondsRealtime(.25f);
+                yield return autoPlayPollDelay;
                 continue;
             }
 
@@ -340,7 +343,7 @@ public class MusicManager : Singleton<MusicManager>
                     }
                 }
             }
-            yield return new WaitForSecondsRealtime(.25f);
+            yield return autoPlayPollDelay;
         }
     }
 }
@@ -354,6 +357,7 @@ public sealed class UIButtonSoundManager : MonoBehaviour
 
     private const int SampleRate = 44100;
     private const float OutputVolume = .42f;
+    private static UIButtonSoundManager cachedManager;
     private AudioSource source;
     private AudioClip detailClip;
     private AudioClip purchaseClip;
@@ -361,9 +365,14 @@ public sealed class UIButtonSoundManager : MonoBehaviour
 
     public static void Play(Sound sound)
     {
-        UIButtonSoundManager manager = FindObjectOfType<UIButtonSoundManager>();
+        UIButtonSoundManager manager = cachedManager;
         if (manager == null)
-            manager = new GameObject("UIButtonSoundManager").AddComponent<UIButtonSoundManager>();
+        {
+            manager = FindObjectOfType<UIButtonSoundManager>();
+            if (manager == null)
+                manager = new GameObject("UIButtonSoundManager").AddComponent<UIButtonSoundManager>();
+            cachedManager = manager;
+        }
         manager.PlayInternal(sound);
     }
 

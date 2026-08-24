@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: resources
   Title: 理解资源来源
-  Description: 查看木材等核心资源的数量和净产出，确认王国已经拥有可持续的资源来源。
-  NarrativeText: 复兴不能只靠勇气。鼠族要先找回持续获取食物和木材的能力。
+  Description: 查看原木等核心资源的数量和净产出，确认王国已经拥有可持续的资源来源。
+  NarrativeText: 复兴不能只靠勇气。鼠族要先找回持续获取食物和原木的能力。
   Kind: 1
   NextStepId: building
   RewardId: 

@@ -48,6 +48,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private RectTransform flowContent;
     private Button detailActionButton;
     private Button detailPaymentButton;
+    private TMP_Text detailActionButtonText;
+    private TMP_Text detailPaymentButtonText;
     private RectTransform tooltipPanel;
     private TMP_Text tooltipText;
     private TMP_Text topKingdomTitle;
@@ -140,12 +142,14 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<Building, Button> buildingActionButtons = new();
     private readonly Dictionary<Button, TMP_Text> buildingActionButtonTexts = new();
+    private readonly Dictionary<Button, Outline> buildingActionButtonOutlines = new();
     private readonly Dictionary<Building, bool> buildingActionUpgradeModes = new();
     private string lastBuildingDisplaySignature;
     private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
     private readonly Dictionary<Resource, TMP_Text> resourceChangeLabels = new();
     private RectTransform researchGraphViewport;
     private RectTransform researchGraphContent;
+    private CanvasGroup researchPageVisibilityGroup;
     private readonly Dictionary<Research, Button> researchTreeNodes = new();
     private bool researchTreePageBuilt;
     private Coroutine researchTreeWarmupCoroutine;
@@ -154,6 +158,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool resourceRowsBuilt;
     private bool buildingRowsBuilt;
     private bool eraRowsBuilt;
+    private readonly List<GameObject> workshopRows = new();
     private bool workshopRowsBuilt;
     private bool sectorRowsBuilt;
     private TMP_Text musicCurrentLabel;
@@ -180,7 +185,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private void Awake()
     {
 #if UNITY_EDITOR
-        KingdomEditorPerfLog.Write("[KingdomPerf] SessionStart ui=live-refresh-canvas-isolation-queue-events");
+        KingdomEditorPerfLog.Write("[KingdomPerf] SessionStart ui=research-connector-batch-v1-canvas-group-frame-budget-era-single-force");
 #endif
         RectTransform root = transform as RectTransform;
         transform.localScale = Vector3.one;
@@ -440,14 +445,26 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void SetPage(string name)
     {
+#if UNITY_EDITOR
+        float pageSwitchStartTime = Time.realtimeSinceStartup;
+#endif
         if (name == "Research")
             Debug.Log("[王国界面] SetPage Research");
         foreach (KeyValuePair<string, RectTransform> pair in pages)
         {
             bool shouldBeActive = pair.Key == name;
+            if (pair.Key == "Research")
+            {
+                SetResearchPageVisible(pair.Value, shouldBeActive);
+                continue;
+            }
             if (pair.Value.gameObject.activeSelf != shouldBeActive)
                 pair.Value.gameObject.SetActive(shouldBeActive);
         }
+#if UNITY_EDITOR
+        float pageVisibilityDurationMs =
+            (Time.realtimeSinceStartup - pageSwitchStartTime) * 1000f;
+#endif
         if (pageTitle != null)
         {
             string label = PageLabel(name);
@@ -486,6 +503,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 pageScroll.verticalNormalizedPosition = 1f;
         }
         populatedPage = name;
+        TutorialManager.Current?.RecordPageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
         // generated page is created. Once a page has been built, forcing a
         // complete Canvas rebuild on every tab switch needlessly walks the
@@ -502,7 +520,49 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
             BuildBuildingQuantityControls(pageHost.parent);
+#if UNITY_EDITOR
+        float populateStartTime = Time.realtimeSinceStartup;
+#endif
         PopulatePage(name);
+#if UNITY_EDITOR
+        float populateDurationMs = (Time.realtimeSinceStartup - populateStartTime) * 1000f;
+        float pageSwitchDurationMs = (Time.realtimeSinceStartup - pageSwitchStartTime) * 1000f;
+        KingdomEditorPerfLog.Write(
+            $"[KingdomPerf] PageSwitch page={name} durationMs={pageSwitchDurationMs:0.0} " +
+            $"visibilityMs={pageVisibilityDurationMs:0.0} populateMs={populateDurationMs:0.0} " +
+            "researchVisibility=canvas-group");
+#endif
+    }
+
+    private void SetResearchPageVisible(RectTransform page, bool visible)
+    {
+        if (page == null)
+            return;
+
+        // The cached research graph contains thousands of Graphics. Toggling
+        // the page GameObject invokes OnDisable/OnEnable across that complete
+        // hierarchy on every tab switch. Keep the hierarchy alive and gate its
+        // rendering and input at the page root instead.
+        if (!page.gameObject.activeSelf)
+            page.gameObject.SetActive(true);
+        if (researchPageVisibilityGroup == null ||
+            researchPageVisibilityGroup.transform != page)
+        {
+            researchPageVisibilityGroup = page.GetComponent<CanvasGroup>();
+            if (researchPageVisibilityGroup == null)
+                researchPageVisibilityGroup = page.gameObject.AddComponent<CanvasGroup>();
+            researchPageVisibilityGroup.ignoreParentGroups = false;
+        }
+
+        float targetAlpha = visible ? 1f : 0f;
+        if (!Mathf.Approximately(researchPageVisibilityGroup.alpha, targetAlpha))
+            researchPageVisibilityGroup.alpha = targetAlpha;
+        if (researchPageVisibilityGroup.interactable != visible)
+            researchPageVisibilityGroup.interactable = visible;
+        if (researchPageVisibilityGroup.blocksRaycasts != visible)
+            researchPageVisibilityGroup.blocksRaycasts = visible;
+        if (researchGraphGesture != null && researchGraphGesture.enabled != visible)
+            researchGraphGesture.enabled = visible;
     }
 
     private static string PageLabel(string name)
@@ -521,7 +581,10 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         };
     }
 
-    private void PopulatePage(string name)
+    private void PopulatePage(
+        string name,
+        bool refreshEraRows = false,
+        EraGoalEvaluation preparedEraGoal = null)
     {
         if (!pages.TryGetValue(name, out RectTransform page))
             return;
@@ -561,11 +624,12 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Debug.LogError("[王国界面] Page DataRows is not an authored layout host: " + name);
             return;
         }
+        bool reuseWorkshopRows = name == "Workshop" && workshopRows.Count > 0;
         if (authoredRowsHost && !reuseAuthoredResearchPage && !reuseAuthoredMusicPage &&
-            !AreAuthoredRowsBuilt(name))
+            !reuseWorkshopRows && !AreAuthoredRowsBuilt(name))
             ClearAuthoredRowsHost(old);
         RectTransform rows = old as RectTransform;
-        if (!pageWasBuilt)
+        if (!pageWasBuilt || refreshEraRows)
             nextRowTop = 0f;
         switch (name)
         {
@@ -583,6 +647,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 buildingDeconstructSurfaces.Clear();
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
+                buildingActionButtonTexts.Clear();
+                buildingActionButtonOutlines.Clear();
                 buildingActionUpgradeModes.Clear();
                 BuildAuthoredBuildingRows(rows);
                 buildingRowsBuilt = true;
@@ -591,20 +657,25 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 if (!researchTreePageBuilt)
                     BuildResearchTreePage(rows);
                 else
-                    // The graph's bus colors/order are already cached. On a
-                    // tab switch, refresh node state immediately and let the
-                    // normal research dirty/signature path update buses on
-                    // the next UI cycle instead of sorting 2735 Images in
-                    // the SetPage frame.
-                    RefreshResearchTreeVisuals(false);
+                {
+                    // A cached graph may have changed while hidden, but an
+                    // unchanged tab switch must not dirty every node Graphic.
+                    // Reuse the normal signatures so only changed state is
+                    // applied before the page becomes interactive.
+                    researchDynamicUiDirty = true;
+                    researchDynamicSignatureRefreshTimer = 0.5f;
+                    RefreshResearchDynamicUI();
+                }
                 break;
             case "Era":
-                if (eraRowsBuilt) break;
-                BuildEraPage(rows);
+                if (eraRowsBuilt && !refreshEraRows) break;
+                BuildEraPage(rows, preparedEraGoal);
                 eraRowsBuilt = true;
                 break;
             case "Workshop":
                 if (workshopRowsBuilt) break;
+                buildingActionButtonTexts.Clear();
+                buildingActionButtonOutlines.Clear();
                 BuildAuthoredWorkshopRows(rows);
                 workshopRowsBuilt = true;
                 break;
@@ -619,7 +690,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             default:
                 break;
         }
-        if (!pageWasBuilt)
+        if (!pageWasBuilt || refreshEraRows)
         {
             float rowsHeight = Mathf.Max(86f, nextRowTop);
             if (name == "Research")

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: QuantumComputing
   Label: "\u91CF\u5B50\u8BA1\u7B97"
-  Description: "\u5EFA\u7ACB\u53EF\u7A33\u5B9A\u8FD0\u884C\u7684\u91CF\u5B50\u8BA1\u7B97\u4F53\u7CFB\uFF0C\u4E3A\u6781\u81F4\u65F6\u4EE3\u6240\u9700\u7684\u5927\u89C4\u6A21\u8BA1\u7B97\u4E0E\u7406\u8BBA\u9A8C\u8BC1\u5960\u5B9A\u57FA\u7840\u3002"
+  Description: "建立可稳定运行的量子计算体系，支撑深空测绘、星际理论协同与极致时代所需的大规模计算和理论验证。"
   BaseCost: "20000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

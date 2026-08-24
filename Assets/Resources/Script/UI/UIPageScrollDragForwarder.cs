@@ -13,6 +13,7 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
     private static int activeDragCount;
     private static float lastDragEndTime = float.NegativeInfinity;
     private bool dragActive;
+    private ScrollRect owner;
 
     public static bool IsAnyDragActive => activeDragCount > 0;
 
@@ -26,13 +27,18 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
     {
         get
         {
-            ScrollRect scroll = GetComponentInParent<ScrollRect>();
-            return scroll != null && scroll.gameObject != gameObject ? scroll : null;
+            if (owner == null)
+            {
+                ScrollRect scroll = GetComponentInParent<ScrollRect>();
+                owner = scroll != null && scroll.gameObject != gameObject ? scroll : null;
+            }
+            return owner;
         }
     }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
+        owner = null;
         Owner?.OnInitializePotentialDrag(eventData);
     }
 
@@ -58,12 +64,16 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
     {
         Owner?.OnEndDrag(eventData);
         ClearDragState();
+        owner = null;
     }
 
     private void OnDisable()
     {
         ClearDragState();
+        owner = null;
     }
+
+    private void OnTransformParentChanged() => owner = null;
 
     private void ClearDragState()
     {

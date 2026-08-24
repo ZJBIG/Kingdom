@@ -5,6 +5,24 @@ using UnityEngine;
 public class Building : GameDefinition
 {
     private const double DefaultCostGrowthValue = 1.15d;
+    private struct ParsedExpantaNumCache
+    {
+        private string source;
+        private ExpantaNum value;
+        private bool initialized;
+
+        public ExpantaNum Get(string current)
+        {
+            if (initialized && object.ReferenceEquals(source, current))
+                return value;
+            ExpantaNum parsed = current;
+            source = current;
+            value = parsed;
+            initialized = true;
+            return parsed;
+        }
+    }
+
     public string Label;
     [TextArea]public string Description;
     public TechLevel TechLevel;
@@ -45,6 +63,23 @@ public class Building : GameDefinition
     private string defensePowerGranted = "0";
     [SerializeField]
     private string militaryManpowerGranted = "0";
+    [System.NonSerialized] private ParsedExpantaNumCache costGrowthCache;
+    [System.NonSerialized] private ParsedExpantaNumCache spaceCostCache;
+    [System.NonSerialized] private ParsedExpantaNumCache productivityConsumptionCache;
+    [System.NonSerialized] private ParsedExpantaNumCache productivityGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache populationCapacityGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache researchPowerGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache foodProductionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache foodConsumptionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache foodCapacityGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache powerProductionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache powerConsumptionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache logisticsProductionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache logisticsConsumptionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache fleetPowerGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache attackPowerGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache defensePowerGrantedCache;
+    [System.NonSerialized] private ParsedExpantaNumCache militaryManpowerGrantedCache;
     [SerializeField]
     private List<ResourceAmountDefinition> resourceRequirements = new();
     [SerializeField]
@@ -82,23 +117,28 @@ public class Building : GameDefinition
     public IReadOnlyList<Research> RequiredResearch => requiredResearch;
     public IReadOnlyList<WorkshopUpgrade> RequiredWorkshopUpgrades => requiredWorkshopUpgrades;
     public Building UpgradeTo => upgradeTo;
-    public ExpantaNum SpaceCost => spaceCost;
-    public ExpantaNum ProductivityConsumption => productivityConsumption;
-    public ExpantaNum ProductivityGranted => productivityGranted;
-    public ExpantaNum PopulationCapacityGranted => populationCapacityGranted;
-    public ExpantaNum ResearchPowerGranted => researchPowerGranted;
-    public ExpantaNum FoodProductionRate => foodProductionRate;
-    public ExpantaNum FoodConsumptionRate => foodConsumptionRate;
-    public ExpantaNum FoodCapacityGranted => foodCapacityGranted;
-    public ExpantaNum PowerProductionRate => powerProductionRate;
-    public ExpantaNum PowerConsumptionRate => powerConsumptionRate;
-    public ExpantaNum LogisticsProductionRate => logisticsProductionRate;
-    public ExpantaNum LogisticsConsumptionRate => logisticsConsumptionRate;
-    public ExpantaNum FleetPowerGranted => fleetPowerGranted;
-    public ExpantaNum AttackPowerGranted => attackPowerGranted;
-    public ExpantaNum DefensePowerGranted => defensePowerGranted;
-    public ExpantaNum MilitaryManpowerGranted => militaryManpowerGranted;
-    private ExpantaNum costGrowthValue => costGrowth;
+    public ExpantaNum SpaceCost => spaceCostCache.Get(spaceCost);
+    public ExpantaNum ProductivityConsumption =>
+        productivityConsumptionCache.Get(productivityConsumption);
+    public ExpantaNum ProductivityGranted => productivityGrantedCache.Get(productivityGranted);
+    public ExpantaNum PopulationCapacityGranted =>
+        populationCapacityGrantedCache.Get(populationCapacityGranted);
+    public ExpantaNum ResearchPowerGranted => researchPowerGrantedCache.Get(researchPowerGranted);
+    public ExpantaNum FoodProductionRate => foodProductionRateCache.Get(foodProductionRate);
+    public ExpantaNum FoodConsumptionRate => foodConsumptionRateCache.Get(foodConsumptionRate);
+    public ExpantaNum FoodCapacityGranted => foodCapacityGrantedCache.Get(foodCapacityGranted);
+    public ExpantaNum PowerProductionRate => powerProductionRateCache.Get(powerProductionRate);
+    public ExpantaNum PowerConsumptionRate => powerConsumptionRateCache.Get(powerConsumptionRate);
+    public ExpantaNum LogisticsProductionRate =>
+        logisticsProductionRateCache.Get(logisticsProductionRate);
+    public ExpantaNum LogisticsConsumptionRate =>
+        logisticsConsumptionRateCache.Get(logisticsConsumptionRate);
+    public ExpantaNum FleetPowerGranted => fleetPowerGrantedCache.Get(fleetPowerGranted);
+    public ExpantaNum AttackPowerGranted => attackPowerGrantedCache.Get(attackPowerGranted);
+    public ExpantaNum DefensePowerGranted => defensePowerGrantedCache.Get(defensePowerGranted);
+    public ExpantaNum MilitaryManpowerGranted =>
+        militaryManpowerGrantedCache.Get(militaryManpowerGranted);
+    private ExpantaNum costGrowthValue => costGrowthCache.Get(costGrowth);
     public ExpantaNum CostGrowth =>
         costGrowthValue >= ExpantaNum.One ? costGrowthValue : new ExpantaNum(DefaultCostGrowthValue);
     public bool HasValidCostGrowth =>

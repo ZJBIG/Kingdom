@@ -18,12 +18,20 @@ public enum BuildFailure
 
 public class BuildingManager : Singleton<BuildingManager>
 {
+    private struct UpgradeProductivitySnapshot
+    {
+        public bool Initialized;
+        public ExpantaNum RawTotal;
+        public ExpantaNum Used;
+    }
+
     private const double UpgradeRecoveryRate = 0.8d;
     private const int UpgradeBinarySearchLimit = 256;
     private readonly Dictionary<Building, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
     private readonly List<BuildingState> activeBuildingStates = new();
     private readonly HashSet<BuildingState> activeBuildingStateSet = new();
+    private readonly List<Pair<Resource, ExpantaNum>> upgradeAffordabilityDeltas = new();
     // 一个升级目标可以由多个分支汇聚而来，因此这里必须保留全部前置建筑。
     private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
     private readonly HashSet<Building> chainMembers = new();
@@ -609,16 +617,29 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        ResourceManager resourceManager = null;
+        ExpantaNum constructionCostMultiplier = ExpantaNum.One;
+        ExpantaNum costGrowth = ExpantaNum.One;
+        bool constructionParametersInitialized = false;
         for (int i = 0; i < requirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> pair = requirements[i];
             if (pair.Second <= ExpantaNum.Zero)
                 continue;
+            if (resourceManager == null)
+                resourceManager = ResourceManager.Instance;
+            ExpantaNum availableAmount = resourceManager.GetAmount(pair.First);
+            if (!constructionParametersInitialized)
+            {
+                constructionCostMultiplier = GetConstructionCostMultiplier(building);
+                costGrowth = building.CostGrowth;
+                constructionParametersInitialized = true;
+            }
             result = ExpantaNum.Min(
                 result,
-                ResourceManager.Instance.GetAmount(pair.First).MaxAffordableGeometricSeries(
-                    pair.Second * GetConstructionCostMultiplier(building),
-                    building.CostGrowth,
+                availableAmount.MaxAffordableGeometricSeries(
+                    pair.Second * constructionCostMultiplier,
+                    costGrowth,
                     state.Amount));
         }
 
@@ -647,13 +668,17 @@ public class BuildingManager : Singleton<BuildingManager>
         if (amount < ExpantaNum.One)
             return;
 
-        AddUpgradeResources(source.ResourceRequirements, destination);
-        AddUpgradeResources(target.ResourceRequirements, destination);
+        IReadOnlyList<Pair<Resource, ExpantaNum>> sourceRequirements = source.ResourceRequirements;
+        IReadOnlyList<Pair<Resource, ExpantaNum>> targetRequirements = target.ResourceRequirements;
+        AddUpgradeResources(sourceRequirements, destination);
+        AddUpgradeResources(targetRequirements, destination);
+        ExpantaNum sourceCostMultiplier = ExpantaNum.One;
+        ExpantaNum targetCostMultiplier = ExpantaNum.One;
         for (int i = 0; i < destination.Count; i++)
         {
             Resource resource = destination[i].First;
-            ExpantaNum sourceBaseCost = FindBaseCost(source.ResourceRequirements, resource);
-            ExpantaNum targetBaseCost = FindBaseCost(target.ResourceRequirements, resource);
+            ExpantaNum sourceBaseCost = FindBaseCost(sourceRequirements, resource);
+            ExpantaNum targetBaseCost = FindBaseCost(targetRequirements, resource);
             ExpantaNum sourceCost = sourceBaseCost.GeometricSeriesCost(
                 source.CostGrowth,
                 sourceState.Amount - amount,
@@ -662,8 +687,13 @@ public class BuildingManager : Singleton<BuildingManager>
                 target.CostGrowth,
                 targetState.Amount,
                 amount);
-            sourceCost *= GetConstructionCostMultiplier(source);
-            targetCost *= GetConstructionCostMultiplier(target);
+            if (i == 0)
+            {
+                sourceCostMultiplier = GetConstructionCostMultiplier(source);
+                targetCostMultiplier = GetConstructionCostMultiplier(target);
+            }
+            sourceCost *= sourceCostMultiplier;
+            targetCost *= targetCostMultiplier;
             destination[i] = new Pair<Resource, ExpantaNum>(
                 resource,
                 targetCost - sourceCost * UpgradeRecoveryRate);
@@ -693,7 +723,9 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         BuildingState targetState = EnsureBuilding(target);
-        if (!CanApplyUpgradeConstraints(sourceState, targetState, amount, out failure))
+        UpgradeProductivitySnapshot productivitySnapshot = default;
+        if (!CanApplyUpgradeConstraints(
+                sourceState, targetState, amount, ref productivitySnapshot, out failure))
             return false;
 
         var resourceDeltas = new List<Pair<Resource, ExpantaNum>>();
@@ -788,7 +820,10 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum.Max(ExpantaNum.Zero, requestedMaximum.Floor()));
         if (high < ExpantaNum.One)
             return ExpantaNum.Zero;
-        if (CanAffordUpgrade(sourceState, targetState, high))
+        UpgradeProductivitySnapshot productivitySnapshot = default;
+        ResourceManager resourceManager = null;
+        if (CanAffordUpgrade(
+                sourceState, targetState, high, ref productivitySnapshot, ref resourceManager))
             return high;
 
         ExpantaNum low = ExpantaNum.Zero;
@@ -797,7 +832,8 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum middle = ((low + high) / 2d).Floor();
             if (middle <= low)
                 break;
-            if (CanAffordUpgrade(sourceState, targetState, middle))
+            if (CanAffordUpgrade(
+                    sourceState, targetState, middle, ref productivitySnapshot, ref resourceManager))
                 low = middle;
             else
                 high = middle;
@@ -808,20 +844,26 @@ public class BuildingManager : Singleton<BuildingManager>
     private bool CanAffordUpgrade(
         BuildingState sourceState,
         BuildingState targetState,
-        ExpantaNum amount)
+        ExpantaNum amount,
+        ref UpgradeProductivitySnapshot productivitySnapshot,
+        ref ResourceManager resourceManager)
     {
-        if (!CanApplyUpgradeConstraints(sourceState, targetState, amount, out _))
+        if (!CanApplyUpgradeConstraints(
+                sourceState, targetState, amount, ref productivitySnapshot, out _))
             return false;
-        var deltas = new List<Pair<Resource, ExpantaNum>>();
+        List<Pair<Resource, ExpantaNum>> deltas = upgradeAffordabilityDeltas;
         GetUpgradeResourceDeltas(sourceState.Definition, amount, deltas);
         for (int i = 0; i < deltas.Count; i++)
         {
             Pair<Resource, ExpantaNum> delta = deltas[i];
-            if (delta.Second.IsNaN ||
-                (delta.Second > ExpantaNum.Zero &&
-                 ResourceManager.Instance.GetAmount(delta.First) < delta.Second))
-            {
+            if (delta.Second.IsNaN)
                 return false;
+            if (delta.Second > ExpantaNum.Zero)
+            {
+                if (resourceManager == null)
+                    resourceManager = ResourceManager.Instance;
+                if (resourceManager.GetAmount(delta.First) < delta.Second)
+                    return false;
             }
         }
         return true;
@@ -831,6 +873,7 @@ public class BuildingManager : Singleton<BuildingManager>
         BuildingState sourceState,
         BuildingState targetState,
         ExpantaNum amount,
+        ref UpgradeProductivitySnapshot productivitySnapshot,
         out BuildFailure failure)
     {
         ExpantaNum territoryDelta =
@@ -841,12 +884,18 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        ExpantaNum preMargin = CalculateRawTotalProductivity() - UsedProductivity;
+        if (!productivitySnapshot.Initialized)
+        {
+            productivitySnapshot.RawTotal = CalculateRawTotalProductivity();
+            productivitySnapshot.Used = UsedProductivity;
+            productivitySnapshot.Initialized = true;
+        }
+        ExpantaNum preMargin = productivitySnapshot.RawTotal - productivitySnapshot.Used;
         ExpantaNum postTotalWithoutTargetGrant =
-            CalculateRawTotalProductivity() -
+            productivitySnapshot.RawTotal -
             sourceState.ProductivityGranted * amount;
         ExpantaNum postUsed =
-            UsedProductivity -
+            productivitySnapshot.Used -
             sourceState.ProductivityConsumption * amount +
             targetState.ProductivityConsumption * amount;
         if (postTotalWithoutTargetGrant - postUsed < ExpantaNum.Min(ExpantaNum.Zero, preMargin))
@@ -890,7 +939,7 @@ public class BuildingManager : Singleton<BuildingManager>
         return ExpantaNum.Zero;
     }
 
-    private static ExpantaNum GetConstructionCostMultiplier(Building building)
+    internal static ExpantaNum GetConstructionCostMultiplier(Building building)
     {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum efficiency = modifiers.GlobalConstructionMultiplier *
@@ -927,7 +976,9 @@ public class BuildingManager : Singleton<BuildingManager>
         RefreshResearchPower();
     }
 
-    private bool RefreshEfficienciesCore()
+    private bool RefreshEfficienciesCore(
+        ResourceManager resourceManager = null,
+        GameState gameState = null)
     {
         bool changed = false;
         for (int i = 0; i < orderedStates.Count; i++)
@@ -939,7 +990,12 @@ public class BuildingManager : Singleton<BuildingManager>
             // list on every convergence pass.
             if (state.Amount <= ExpantaNum.Zero)
                 continue;
-            ExpantaNum efficiency = CalculateEfficiency(state.Definition);
+            if (resourceManager == null)
+                resourceManager = ResourceManager.Instance;
+            if (gameState == null)
+                gameState = GameManager.Instance.State;
+            ExpantaNum efficiency = CalculateEfficiency(
+                state.Definition, resourceManager, gameState);
             if (efficiency == state.Efficiency)
                 continue;
             ApplyRateDelta(state, state.Amount, state.Efficiency, state.Amount, efficiency);
@@ -956,6 +1012,8 @@ public class BuildingManager : Singleton<BuildingManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         ResourceManager resourceManager = ResourceManager.Instance;
+        GameManager gameManager = null;
+        GameState gameState = null;
         ResetEfficienciesForTick();
         int activeBuildingCount = activeBuildingStates.Count;
         // Zero-amount definitions are skipped by every convergence pass and
@@ -976,7 +1034,12 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum potentialLogisticsConsumption = ExpantaNum.Zero;
             ProgressionModifierState modifiers = ProgressionModifierManager.Current;
             ExpantaNum potentialEfficiencyScale = ExpantaNum.Clamp01(GlobalEfficiencyFactor);
-            ExpantaNum happinessMultiplier = GameManager.Instance.State.HappinessRewardMultiplier;
+            if (gameManager == null)
+            {
+                gameManager = GameManager.Instance;
+                gameState = gameManager.State;
+            }
+            ExpantaNum happinessMultiplier = gameState.HappinessRewardMultiplier;
             for (int i = 0; i < activeBuildingStates.Count; i++)
             {
                 BuildingState state = activeBuildingStates[i];
@@ -1010,17 +1073,17 @@ public class BuildingManager : Singleton<BuildingManager>
                         * productionMultiplier);
             }
 
-            GameManager.Instance.PrepareHappiness(
+            gameManager.PrepareHappiness(
                 potentialFoodProduction,
                 potentialFoodConsumption,
                 deltaSeconds);
-            GameManager.Instance.PrepareFlowSatisfaction(
+            gameManager.PrepareFlowSatisfaction(
                 potentialPowerProduction,
                 potentialPowerConsumption,
                 potentialLogisticsProduction,
                 potentialLogisticsConsumption);
             resourceManager.CalculateTickSatisfaction(deltaSeconds);
-            if (!RefreshEfficienciesCore())
+            if (!RefreshEfficienciesCore(resourceManager, gameState))
             {
                 converged = true;
                 break;
@@ -1042,14 +1105,17 @@ public class BuildingManager : Singleton<BuildingManager>
         RefreshResearchPower();
     }
 
-    private ExpantaNum CalculateEfficiency(Building building)
+    private ExpantaNum CalculateEfficiency(
+        Building building,
+        ResourceManager resourceManager,
+        GameState gameState)
     {
-        ResourceManager resourceManager = ResourceManager.Instance;
-        GameState gameState = GameManager.Instance.State;
         ExpantaNum resourceSatisfaction = ExpantaNum.One;
         IReadOnlyList<Pair<Resource, ExpantaNum>> rates = building.ResourceConsumptionRates;
         for (int i = 0; i < rates.Count; i++)
-            resourceSatisfaction *= resourceManager.GetTickSatisfaction(rates[i].First);
+            resourceSatisfaction = ExpantaNum.Min(
+                resourceSatisfaction,
+                resourceManager.GetTickSatisfaction(rates[i].First));
 
         ExpantaNum powerSatisfaction = building.PowerConsumptionRate > ExpantaNum.Zero
             ? gameState.PowerSatisfaction
@@ -1165,50 +1231,60 @@ public class BuildingManager : Singleton<BuildingManager>
             modifiers.GlobalBuildingProductionMultiplier;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
+        ResourceManager resourceManager = null;
         for (int i = 0; i < generation.Count; i++)
-            ResourceManager.Instance.AdjustProductionRate(
+        {
+            if (resourceManager == null)
+                resourceManager = ResourceManager.Instance;
+            resourceManager.AdjustProductionRate(
                 generation[i].First,
                 scaleDelta * generation[i].Second
                 * productionMultiplier
                 * modifiers.GetResourceProductionMultiplier(generation[i].First));
+        }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = state.Definition.ResourceConsumptionRates;
         for (int i = 0; i < consumption.Count; i++)
-            ResourceManager.Instance.AdjustConsumptionRate(
+        {
+            if (resourceManager == null)
+                resourceManager = ResourceManager.Instance;
+            resourceManager.AdjustConsumptionRate(
                 consumption[i].First,
                 scaleDelta * consumption[i].Second * productionMultiplier);
+        }
 
-        GameManager.Instance.AdjustFoodRates(
+        GameManager gameManager = GameManager.Instance;
+        gameManager.AdjustFoodRates(
             scaleDelta * state.Definition.FoodProductionRate
                 * productionMultiplier,
             scaleDelta * state.Definition.FoodConsumptionRate);
         if (applyCapacityDeltas)
         {
-            GameManager.Instance.AdjustFoodCapacity(
+            gameManager.AdjustFoodCapacity(
                 scaleDelta * state.Definition.FoodCapacityGranted
                     * modifiers.FoodCapacityMultiplier);
-            GameManager.Instance.AdjustPopulationCapacity(
+            gameManager.AdjustPopulationCapacity(
                 amountDelta * state.Definition.PopulationCapacityGranted);
         }
-        GameManager.Instance.AdjustPowerRates(
+        gameManager.AdjustPowerRates(
             scaleDelta * state.Definition.PowerProductionRate
                 * modifiers.PowerMultiplier
                 * modifiers.GetBuildingPowerProductionMultiplier(state.Definition),
             scaleDelta * state.Definition.PowerConsumptionRate);
-        GameManager.Instance.AdjustLogisticsRates(
+        gameManager.AdjustLogisticsRates(
             scaleDelta * state.Definition.LogisticsProductionRate
                 * modifiers.GlobalLogisticsMultiplier
                 * modifiers.GetBuildingLogisticsProductionMultiplier(state.Definition),
             scaleDelta * state.Definition.LogisticsConsumptionRate);
         if (state.Definition.TechLevel >= TechLevel.Spacer)
         {
-            GameManager.Instance.AdjustFleetPower(
+            gameManager.AdjustFleetPower(
                 scaleDelta * state.Definition.FleetPowerGranted);
-            GameManager.Instance.AdjustAttackPower(
+            gameManager.AdjustAttackPower(
                 scaleDelta * state.Definition.AttackPowerGranted);
-            GameManager.Instance.AdjustDefensePower(
+            gameManager.AdjustDefensePower(
                 scaleDelta * state.Definition.DefensePowerGranted);
-            GameManager.Instance.AdjustMilitaryManpower(
+            gameManager.AdjustMilitaryManpower(
                 scaleDelta * state.Definition.MilitaryManpowerGranted);
         }
     }
@@ -1311,15 +1387,22 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private static void EnsureBuildingResources(Building building)
     {
-        EnsureResources(building.ResourceRequirements);
-        EnsureResources(building.ResourceGenerationRates);
-        EnsureResources(building.ResourceConsumptionRates);
+        ResourceManager resourceManager = null;
+        EnsureResources(building.ResourceRequirements, ref resourceManager);
+        EnsureResources(building.ResourceGenerationRates, ref resourceManager);
+        EnsureResources(building.ResourceConsumptionRates, ref resourceManager);
     }
 
-    private static void EnsureResources(IReadOnlyList<Pair<Resource, ExpantaNum>> pairs)
+    private static void EnsureResources(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        ref ResourceManager resourceManager)
     {
         for (int i = 0; i < pairs.Count; i++)
-            ResourceManager.Instance.EnsureResource(pairs[i].First);
+        {
+            if (resourceManager == null)
+                resourceManager = ResourceManager.Instance;
+            resourceManager.EnsureResource(pairs[i].First);
+        }
     }
 
     private void InsertOrdered(BuildingState state)

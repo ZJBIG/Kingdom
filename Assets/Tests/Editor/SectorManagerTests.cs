@@ -1140,6 +1140,53 @@ public sealed class SectorManagerTests
     }
 
     [Test]
+    public void 本地殖民完成不改变并行的全局星际战役()
+    {
+        GameObject resourceObject = new GameObject("本地殖民与全局战役隔离资源管理器");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+            SectorState lowOrbitState = manager.GetState(lowOrbit);
+            lowOrbitState.SetUnlockedForEditor(true);
+            lowOrbitState.SetCampaignProgressForEditor(new ExpantaNum("0.99999"));
+            for (int i = 0; i < lowOrbit.ColonizationResourceRatesPerSecond.Count; i++)
+                resourceManager.SetAmount(
+                    lowOrbit.ColonizationResourceRatesPerSecond[i].First,
+                    new ExpantaNum(100000));
+
+            GameState runtimeState = new GameState();
+            InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(1000));
+            InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(1000));
+            InvokeGameStateMethod(runtimeState, "BeginCampaign", "ProximaB");
+            InvokeGameStateMethod(
+                runtimeState,
+                "RecordCampaignCombat",
+                new ExpantaNum(0.8d),
+                new ExpantaNum(7));
+
+            Assert.That(manager.TryAdvanceColonization(
+                lowOrbit,
+                60d,
+                runtimeState,
+                resourceManager,
+                out SectorOperationFailure failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(lowOrbitState.Occupied, Is.True);
+            Assert.That(runtimeState.Campaign.Active, Is.True);
+            Assert.That(runtimeState.Campaign.TargetSectorId, Is.EqualTo("ProximaB"));
+            Assert.That(runtimeState.Campaign.Casualties, Is.EqualTo(new ExpantaNum(7)));
+            Assert.That(runtimeState.Campaign.CombatRatio, Is.EqualTo(new ExpantaNum(0.8d)));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
     public void C704_SectorStateRoundTripsByStableId()
     {
         var manager = new SectorManager(_ => { });

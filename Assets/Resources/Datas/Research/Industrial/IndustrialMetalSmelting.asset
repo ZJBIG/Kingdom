@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IndustrialMetalSmelting
   m_EditorClassIdentifier: 
   id: IndustrialMetalSmelting
-  Label: "工业有色金属冶炼"
-  Description: "建立共享炉体同时处理铜矿与锡矿的工业冶炼体系，减少重复建筑，并为青铜、导线和电子元件提供稳定金属输入。"
+  Label: "工业多金属冶炼"
+  Description: "建立共享炉体处理铜矿、锡矿与铁矿的工业冶炼体系，减少重复建筑，并为青铜、钢材、导线和电子元件提供稳定金属输入。"
   BaseCost: "360000"
   prerequisites:
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}

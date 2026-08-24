@@ -40,6 +40,17 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
 
     public bool IsDragging => dragging;
 
+    private void OnDisable()
+    {
+        previousDistance = 0f;
+        dragging = false;
+        pointerPotential = false;
+        manualPointerHeld = false;
+        manualPointerId = int.MinValue;
+        manualEventData = null;
+        manualDistance = 0f;
+    }
+
     public void Initialize(RectTransform graphViewport, RectTransform graphContent)
     {
         viewport = graphViewport;
@@ -427,13 +438,14 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         Vector2 scaledContentSize = GetScaledContentSize();
         float minX = Mathf.Min(0f, viewportSize.x - scaledContentSize.x);
         float minY = Mathf.Min(0f, viewportSize.y - scaledContentSize.y);
+        Vector2 position = content.anchoredPosition;
         Vector2 clamped = new Vector2(
-            Mathf.Clamp(content.anchoredPosition.x, minX, 0f),
-            Mathf.Clamp(content.anchoredPosition.y, minY, 0f));
+            Mathf.Clamp(position.x, minX, 0f),
+            Mathf.Clamp(position.y, minY, 0f));
         // Avoid dirtying the RectTransform every frame with a no-op write.
         // ScrollRect also calls this while a drag settles; repeated identical
         // assignments force a Canvas layout pass each frame.
-        if (content.anchoredPosition != clamped)
+        if (position != clamped)
             content.anchoredPosition = clamped;
     }
 

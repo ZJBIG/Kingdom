@@ -6,11 +6,18 @@ using UnityEngine;
 
 public sealed class TutorialManagerTests
 {
+    [TearDown]
+    public void TearDown()
+    {
+        TutorialManager[] managers = UnityEngine.Object.FindObjectsOfType<TutorialManager>();
+        for (int i = 0; i < managers.Length; i++)
+            UnityEngine.Object.DestroyImmediate(managers[i].gameObject);
+    }
+
     [Test]
     public void DefaultStepsExposeExtensibleTutorialContract()
     {
-        GameObject host = new GameObject("TutorialManager-Test");
-        TutorialManager manager = host.AddComponent<TutorialManager>();
+        TutorialManager manager = TutorialManager.Ensure();
 
         Assert.That(manager.Steps.Count, Is.EqualTo(8));
         Assert.That(manager.ActiveStepId, Is.EqualTo("orientation"));
@@ -46,7 +53,6 @@ public sealed class TutorialManagerTests
         Assert.That(runtime.NarrativeText, Is.EqualTo(authored.NarrativeText));
 
         UnityEngine.Object.DestroyImmediate(authored);
-        UnityEngine.Object.DestroyImmediate(host);
     }
 
     [Test]
@@ -113,10 +119,33 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
+    public void CompletedGoalFeedbackUsesCompletedDirectPredecessor()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "resources",
+            CompletedStepIds = new List<string> { "orientation" }
+        }, TechLevel.Animal);
+
+        TutorialStep completed = Invoke(
+            manager, "FindPreviousCompletedStep", "resources") as TutorialStep;
+        Assert.That(completed, Is.Not.Null);
+        Assert.That(completed.Id, Is.EqualTo("orientation"));
+
+        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "resources",
+            CompletedStepIds = new List<string>()
+        }, TechLevel.Animal);
+        Assert.That(Invoke(
+            manager, "FindPreviousCompletedStep", "resources"), Is.Null);
+    }
+
+    [Test]
     public void LegacySaveWithoutTutorialDataFallsBackToCurrentEraStep()
     {
-        GameObject host = new GameObject("TutorialManager-LegacySave-Test");
-        TutorialManager manager = host.AddComponent<TutorialManager>();
+        TutorialManager manager = TutorialManager.Ensure();
 
         Invoke(manager, "RestoreSaveData", null, TechLevel.Animal);
         Assert.That(manager.ActiveStepId, Is.EqualTo("orientation"));
@@ -129,8 +158,6 @@ public sealed class TutorialManagerTests
         Assert.That(manager.ActiveStepId, Is.EqualTo("era-goal"));
         Assert.That(manager.CompletedStepIds, Does.Contain("orientation"));
         Assert.That(manager.CompletedStepIds, Does.Not.Contain("unknown-step"));
-
-        UnityEngine.Object.DestroyImmediate(host);
     }
 
     [Test]
@@ -143,6 +170,32 @@ public sealed class TutorialManagerTests
             Assert.That(InvokeStatic("GetCivilizationContext", era), Is.Not.Empty,
                 "Every existing era should explain the mouse civilization revival.");
         }
+    }
+
+    [Test]
+    public void TutorialStepRequiresVisitToItsCurrentNavigationPage()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        TutorialStep orientation = null;
+        TutorialStep resources = null;
+        for (int i = 0; i < manager.Steps.Count; i++)
+        {
+            TutorialStep step = manager.Steps[i];
+            if (step.Id == "orientation")
+                orientation = step;
+            else if (step.Id == "resources")
+                resources = step;
+        }
+
+        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
+        Invoke(manager, "RecordPageVisited", "Resources");
+        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
+        Invoke(manager, "RecordPageVisited", "Overview");
+        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.True);
+        Assert.That(Invoke(manager, "HasVisitedPageForStep", resources), Is.False);
+
+        Invoke(manager, "ResetForNewGame");
+        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
     }
 
     [Test]
@@ -163,6 +216,7 @@ public sealed class TutorialManagerTests
     {
         Research definition = ScriptableObject.CreateInstance<Research>();
         definition.SetIdForEditor("TutorialResearchStatus");
+        definition.BaseCost = "1";
         ResearchState state = new ResearchState(definition);
 
         Assert.That(InvokeStatic("HasCompletedResearch",
@@ -178,7 +232,8 @@ public sealed class TutorialManagerTests
     [Test]
     public void ProductionChainRequiresMatchingOutputAndInputAcrossBuildings()
     {
-        Resource output = CreateResource("TutorialChainResource");
+        Resource intermediate = CreateResource("TutorialChainIntermediate");
+        Resource product = CreateResource("TutorialChainProduct");
         Building producer = CreateBuilding("TutorialProducer");
         Building consumer = CreateBuilding("TutorialConsumer");
         producer.ConfigureEconomyForEditor(
@@ -191,7 +246,7 @@ public sealed class TutorialManagerTests
             new List<Pair<Resource, ExpantaNum>>(),
             new List<Pair<Resource, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(output, ExpantaNum.One)
+                new Pair<Resource, ExpantaNum>(intermediate, ExpantaNum.One)
             },
             new List<Pair<Resource, ExpantaNum>>());
         consumer.ConfigureEconomyForEditor(
@@ -202,23 +257,45 @@ public sealed class TutorialManagerTests
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>(),
             new List<Pair<Resource, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(output, ExpantaNum.One)
+                new Pair<Resource, ExpantaNum>(product, ExpantaNum.One)
+            },
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(intermediate, ExpantaNum.One)
             });
 
         BuildingState producerState = new BuildingState(producer);
         BuildingState consumerState = new BuildingState(consumer);
         producerState.SetAmountForEditor(ExpantaNum.One);
         consumerState.SetAmountForEditor(ExpantaNum.One);
+        var ownedStates = new List<BuildingState> { producerState, consumerState };
 
         Assert.That(InvokeStatic("HasOwnedProductionChain",
             new List<BuildingState> { producerState }), Is.False);
         Assert.That(InvokeStatic("HasOwnedProductionChain",
-            new List<BuildingState> { producerState, consumerState }), Is.True);
+            ownedStates), Is.True);
 
-        UnityEngine.Object.DestroyImmediate(output);
+        MethodInfo findChain = typeof(TutorialManager).GetMethod(
+            "TryFindOwnedProductionChain",
+            BindingFlags.Static | BindingFlags.NonPublic,
+            null,
+            new[]
+            {
+                typeof(IEnumerable<BuildingState>),
+                typeof(Resource).MakeByRefType(),
+                typeof(Resource).MakeByRefType()
+            },
+            null);
+        Assert.That(findChain, Is.Not.Null);
+        object[] arguments = { ownedStates, null, null };
+        Assert.That(findChain.Invoke(null, arguments), Is.True);
+        Assert.That(arguments[1], Is.SameAs(intermediate));
+        Assert.That(arguments[2], Is.SameAs(product));
+
+        UnityEngine.Object.DestroyImmediate(intermediate);
+        UnityEngine.Object.DestroyImmediate(product);
         UnityEngine.Object.DestroyImmediate(producer);
         UnityEngine.Object.DestroyImmediate(consumer);
     }
@@ -266,12 +343,12 @@ public sealed class TutorialManagerTests
         return building;
     }
 
-    private static void Invoke(object target, string methodName, params object[] arguments)
+    private static object Invoke(object target, string methodName, params object[] arguments)
     {
         MethodInfo method = target.GetType().GetMethod(
             methodName, BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null, methodName + " should exist.");
-        method.Invoke(target, arguments);
+        return method.Invoke(target, arguments);
     }
 
     private static object InvokeStatic(string methodName, params object[] arguments)

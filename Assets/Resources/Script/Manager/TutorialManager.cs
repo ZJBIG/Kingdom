@@ -84,6 +84,7 @@ public sealed class TutorialSnapshot
     public string PopulationText { get; internal set; } = string.Empty;
     public string FoodText { get; internal set; } = string.Empty;
     public string CoreResourceText { get; internal set; } = string.Empty;
+    public string CompletedGoal { get; internal set; } = string.Empty;
     public string CurrentGoal { get; internal set; } = string.Empty;
     public string GoalDescription { get; internal set; } = string.Empty;
     public string NarrativeText { get; internal set; } = string.Empty;
@@ -101,19 +102,28 @@ public sealed class TutorialManager : MonoBehaviour
     private readonly List<TutorialStep> steps = new List<TutorialStep>();
     private readonly HashSet<string> completedStepIds = new HashSet<string>();
     private string activeStepId;
+    private string visitedStepId;
     private int version;
+    private GameManager cachedGameManager;
+    private ResourceManager cachedResourceManager;
+    private BuildingManager cachedBuildingManager;
+    private ResearchManager cachedResearchManager;
 
     public static TutorialManager Current => instance;
     public static TutorialManager Ensure()
     {
-        if (instance != null)
-            return instance;
-        instance = FindObjectOfType<TutorialManager>();
-        if (instance != null)
-            return instance;
-        GameObject host = new GameObject("TutorialManager");
-        instance = host.AddComponent<TutorialManager>();
-        DontDestroyOnLoad(host);
+        if (instance == null)
+        {
+            instance = FindObjectOfType<TutorialManager>();
+            if (instance == null)
+            {
+                GameObject host = new GameObject("TutorialManager");
+                instance = host.AddComponent<TutorialManager>();
+                if (Application.isPlaying)
+                    DontDestroyOnLoad(host);
+            }
+        }
+        instance.EnsureDefinitions();
         return instance;
     }
 
@@ -143,6 +153,7 @@ public sealed class TutorialManager : MonoBehaviour
     private void BuildDefaultSteps()
     {
         steps.Clear();
+        visitedStepId = null;
         TutorialStepDefinition[] authoredSteps = Resources.LoadAll<TutorialStepDefinition>("Datas/Tutorial");
         if (authoredSteps != null && authoredSteps.Length > 0)
         {
@@ -165,7 +176,7 @@ public sealed class TutorialManager : MonoBehaviour
             "先观察王国的时代、人口和核心资源。资源会持续变化，所有发展都从这里开始。",
             TutorialStepKind.Orientation, "resources"));
         steps.Add(new TutorialStep("resources", "理解资源来源",
-            "查看木材等核心资源的数量和净产出，确认王国已经拥有可持续的资源来源。",
+            "查看原木等核心资源的数量和净产出，确认王国已经拥有可持续的资源来源。",
             TutorialStepKind.Resources, "building"));
         steps.Add(new TutorialStep("building", "让建筑解决问题",
             "建造一个真实可用的建筑，观察它如何改变生产、研究力、人口容量或其他能力。",
@@ -260,16 +271,25 @@ public sealed class TutorialManager : MonoBehaviour
     public TutorialSnapshot Evaluate()
     {
         EnsureDefinitions();
-        GameManager game = FindObjectOfType<GameManager>();
-        ResourceManager resources = FindObjectOfType<ResourceManager>();
-        BuildingManager buildings = FindObjectOfType<BuildingManager>();
-        ResearchManager research = FindObjectOfType<ResearchManager>();
+        GameManager game = cachedGameManager != null
+            ? cachedGameManager
+            : cachedGameManager = FindObjectOfType<GameManager>();
+        ResourceManager resources = cachedResourceManager != null
+            ? cachedResourceManager
+            : cachedResourceManager = FindObjectOfType<ResourceManager>();
+        BuildingManager buildings = cachedBuildingManager != null
+            ? cachedBuildingManager
+            : cachedBuildingManager = FindObjectOfType<BuildingManager>();
+        ResearchManager research = cachedResearchManager != null
+            ? cachedResearchManager
+            : cachedResearchManager = FindObjectOfType<ResearchManager>();
         if (game == null || resources == null || buildings == null || research == null)
             return new TutorialSnapshot { CurrentGoal = "正在读取王国状态……" };
 
         int previousVersion = version;
         AdvanceCompletedSteps(game, resources, buildings, research);
         TutorialStep step = FindStep(activeStepId) ?? steps[steps.Count - 1];
+        TutorialStep completedStep = FindPreviousCompletedStep(step.Id);
         TutorialSnapshot snapshot = new TutorialSnapshot
         {
             StepId = step.Id,
@@ -277,6 +297,7 @@ public sealed class TutorialManager : MonoBehaviour
             CivilizationContext = GetCivilizationContext(game.State.TechLevel),
             PopulationText = game.State.Population.Population.ToGameString() + "/" + game.State.Population.PopulationCapacity.ToGameString(),
             FoodText = game.State.FoodAmount.ToGameString() + "/" + game.State.FoodCapacity.ToGameString(),
+            CompletedGoal = completedStep == null ? string.Empty : completedStep.Title,
             CurrentGoal = step.Title,
             GoalDescription = step.Description,
             NarrativeText = step.NarrativeText,
@@ -316,6 +337,19 @@ public sealed class TutorialManager : MonoBehaviour
         }
     }
 
+    internal void RecordPageVisited(string pageName)
+    {
+        EnsureDefinitions();
+        TutorialStep step = FindStep(activeStepId);
+        if (step != null &&
+            string.Equals(step.NavigationPage, pageName, StringComparison.Ordinal))
+            visitedStepId = step.Id;
+    }
+
+    private bool HasVisitedPageForStep(TutorialStep step) =>
+        step != null &&
+        string.Equals(visitedStepId, step.Id, StringComparison.Ordinal);
+
     private void AdvanceCompletedSteps(GameManager game, ResourceManager resources,
         BuildingManager buildings, ResearchManager research)
     {
@@ -324,6 +358,7 @@ public sealed class TutorialManager : MonoBehaviour
             return;
         if (completedStepIds.Contains(step.Id) ||
             !IsStepTriggered(step, game) ||
+            !HasVisitedPageForStep(step) ||
             !IsStepComplete(step, game, resources, buildings, research))
             return;
 
@@ -396,10 +431,15 @@ public sealed class TutorialManager : MonoBehaviour
         snapshot.Blocker = "暂无阻碍";
         snapshot.RecommendedAction = "查看概览，确认当前王国状态。";
         snapshot.NavigationPage = "Overview";
-        if (step.Kind == TutorialStepKind.Resources)
+        if (step.Kind == TutorialStepKind.Orientation)
+        {
+            snapshot.Blocker = "王国时间尚未推进满一天。";
+            snapshot.RecommendedAction = "让王国时间继续推进，观察人口与核心资源的变化。";
+        }
+        else if (step.Kind == TutorialStepKind.Resources)
         {
             snapshot.Blocker = "核心资源尚未形成可见库存。";
-            snapshot.RecommendedAction = "打开资源页面，查看木材的数量与净产出。";
+            snapshot.RecommendedAction = "打开资源页面，查看原木的数量与净产出。";
             snapshot.NavigationPage = "Resources";
         }
         else if (step.Kind == TutorialStepKind.Building)
@@ -412,7 +452,8 @@ public sealed class TutorialManager : MonoBehaviour
             }
             else
             {
-                snapshot.Blocker = "鼠族复兴当前缺少能解决实际问题的建筑。";
+                snapshot.Blocker = DescribeBuildingBlocker(
+                    recommendation, game, buildings, resources);
                 snapshot.RecommendedAction = "打开建筑页面，查看“" + recommendation.Label +
                     "”：" + DescribeBuildingRole(recommendation);
             }
@@ -464,7 +505,9 @@ public sealed class TutorialManager : MonoBehaviour
             string chainSummary = BuildOwnedProductionChainSummary(buildings);
             snapshot.Blocker = buildings.AvailableProductivity <= ExpantaNum.Zero
                 ? "可用生产力不足。"
-                : chainSummary;
+                : string.IsNullOrEmpty(chainSummary)
+                    ? "尚未拥有一组相连的生产与加工建筑。"
+                    : chainSummary;
             snapshot.RecommendedAction = string.IsNullOrEmpty(chainSummary)
                 ? "打开建筑页面，查看生产与消耗关系。"
                 : "打开建筑页面，继续扩展：" + chainSummary;
@@ -476,13 +519,21 @@ public sealed class TutorialManager : MonoBehaviour
             snapshot.NavigationPage = "Era";
             snapshot.Blocker = snapshot.NextEraGoal;
         }
+        if (step.Kind != TutorialStepKind.LongTerm &&
+            !HasVisitedPageForStep(step))
+        {
+            snapshot.Blocker = "尚未查看本步骤对应页面。";
+            if (step.Kind == TutorialStepKind.Population)
+                snapshot.RecommendedAction = "打开建筑页面，查看人口容量与人口变化。";
+            snapshot.NavigationPage = step.NavigationPage;
+        }
     }
 
     private static string BuildOwnedProductionChainSummary(BuildingManager buildings)
     {
         if (!TryFindOwnedProductionChain(buildings, out Resource consumed, out Resource generated))
             return string.Empty;
-        return consumed.Label + " 鈫?" + generated.Label;
+        return consumed.Label + " → " + generated.Label;
     }
 
     private static Building FindBuildingRecommendation(
@@ -543,6 +594,72 @@ public sealed class TutorialManager : MonoBehaviour
         return "提供新的发展能力。";
     }
 
+    private static string DescribeBuildingBlocker(
+        Building building,
+        GameManager game,
+        BuildingManager buildings,
+        ResourceManager resources)
+    {
+        if (building == null || game == null || buildings == null ||
+            resources == null)
+            return "当前建筑条件尚未满足。";
+
+        ExpantaNum owned = buildings.States.TryGetValue(
+            building, out BuildingState state)
+            ? state.Amount
+            : ExpantaNum.Zero;
+        string action = (owned > ExpantaNum.Zero ? "再建一座“" : "建造“") +
+            building.Label + "”还缺";
+        ExpantaNum territoryMissing = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            building.SpaceCost - game.State.AvailableTerritory);
+        if (territoryMissing > ExpantaNum.Zero)
+            return action + "领土 " + territoryMissing.ToGameString() + "。";
+
+        ExpantaNum productivityMissing = ExpantaNum.Max(
+            ExpantaNum.Zero,
+            building.ProductivityConsumption - buildings.AvailableProductivity);
+        if (productivityMissing > ExpantaNum.Zero)
+            return action + "生产力 " + productivityMissing.ToGameString() + "。";
+
+        ExpantaNum costMultiplier =
+            BuildingManager.GetConstructionCostMultiplier(building);
+        for (int i = 0; i < building.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement =
+                building.ResourceRequirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum cost = requirement.Second.GeometricSeriesCost(
+                building.CostGrowth, owned, ExpantaNum.One) * costMultiplier;
+            resources.States.TryGetValue(
+                requirement.First, out ResourceState resourceState);
+            ExpantaNum available = resourceState == null
+                ? ExpantaNum.Zero
+                : resourceState.Amount;
+            ExpantaNum missing = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                cost - available);
+            if (missing <= ExpantaNum.Zero)
+                continue;
+
+            ExpantaNum netRate = resourceState == null
+                ? ExpantaNum.Zero
+                : ResourceManager.ApplyCurrentProductionReward(
+                    resourceState.ProductionRate) - resourceState.ConsumptionRate;
+            string prefix = action + requirement.First.Label + " " +
+                missing.ToGameString();
+            return netRate > ExpantaNum.Zero
+                ? prefix + "，按当前净产出约 " +
+                    (missing / netRate).ToGameString() + " 秒。"
+                : prefix + "，当前没有正净产出。";
+        }
+
+        return "“" + building.Label +
+            "”的领土、生产力和资源已经满足；可以前往建筑页面建造。";
+    }
+
     private static Research FindResearchGuidance(ResearchManager researchManager)
     {
         if (researchManager == null)
@@ -568,8 +685,8 @@ public sealed class TutorialManager : MonoBehaviour
                 ? effect.Building.Label
                 : effect.Resource != null ? effect.Resource.Label : string.Empty;
             return string.IsNullOrEmpty(target)
-                ? "它会带来“" + effect.Type + "”效果，帮助恢复失落的文明能力。"
-                : "它会对“" + target + "”产生“" + effect.Type +
+                ? "它会带来“" + effect.Type.GetDescription() + "”效果，帮助恢复失落的文明能力。"
+                : "它会对“" + target + "”产生“" + effect.Type.GetDescription() +
                     "”效果，帮助恢复失落的文明能力。";
         }
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
@@ -647,9 +764,9 @@ public sealed class TutorialManager : MonoBehaviour
                         Pair<Resource, ExpantaNum> input = inputs[inputIndex];
                         if (input.First == output.First && input.Second > ExpantaNum.Zero)
                         {
-                            consumed = FindFirstResource(
-                                source.Definition.ResourceConsumptionRates) ?? output.First;
-                            generated = output.First;
+                            consumed = output.First;
+                            generated = FindFirstResource(
+                                target.Definition.ResourceGenerationRates) ?? output.First;
                             return true;
                         }
                     }
@@ -703,6 +820,15 @@ public sealed class TutorialManager : MonoBehaviour
         return null;
     }
 
+    private TutorialStep FindPreviousCompletedStep(string stepId)
+    {
+        for (int i = 0; i < steps.Count; i++)
+            if (steps[i].NextStepId == stepId &&
+                completedStepIds.Contains(steps[i].Id))
+                return steps[i];
+        return null;
+    }
+
     private void EnsureDefinitions()
     {
         if (steps.Count == 0)
@@ -723,6 +849,7 @@ public sealed class TutorialManager : MonoBehaviour
     {
         EnsureDefinitions();
         completedStepIds.Clear();
+        visitedStepId = null;
         if (data != null && data.CompletedStepIds != null)
             for (int i = 0; i < data.CompletedStepIds.Count; i++)
                 if (FindStep(data.CompletedStepIds[i]) != null)
@@ -730,7 +857,7 @@ public sealed class TutorialManager : MonoBehaviour
         activeStepId = FindStep(data == null ? string.Empty : data.ActiveStepId)?.Id;
         if (string.IsNullOrEmpty(activeStepId))
             activeStepId = currentEra == TechLevel.Animal
-                ? steps[0].Id
+                ? FindRootStepId()
                 : FindEraGoalOrTerminalStepId();
         version++;
     }
@@ -750,7 +877,8 @@ public sealed class TutorialManager : MonoBehaviour
     {
         EnsureDefinitions();
         completedStepIds.Clear();
-        activeStepId = steps[0].Id;
+        visitedStepId = null;
+        activeStepId = FindRootStepId();
         version++;
     }
 }

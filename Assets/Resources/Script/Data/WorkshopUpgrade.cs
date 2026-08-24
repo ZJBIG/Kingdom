@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "鍒涘缓宸ュ潑鍗囩骇", menuName = "鏁版嵁/宸ュ潑鍗囩骇", order = 0)]
+[CreateAssetMenu(fileName = "创建工坊升级", menuName = "数据/工坊升级", order = 0)]
 public sealed class WorkshopUpgrade : GameDefinition
 {
     public string Label;
@@ -45,44 +45,45 @@ public sealed class WorkshopUpgrade : GameDefinition
 
 public enum WorkshopEffectType
 {
-    [Description("寤虹瓚鐢熶骇鏁堢巼")]
+    [Description("建筑生产效率")]
     BuildingProductionMultiplier,
-    [Description("璧勬簮鐢熶骇鏁堢巼")]
+    [Description("资源生产效率")]
     ResourceProductionMultiplier = 2,
-    [Description("鍏ㄥ眬鐮旂┒鏁堢巼")]
+    [Description("全局研究效率")]
     GlobalResearchMultiplier = 3,
-    [Description("鍏ㄥ眬寤洪€犳晥鐜?)]
+    [Description("全局建造效率")]
     GlobalConstructionMultiplier = 4,
-    [Description("棰嗗湡澧炲姞")]
+    [Description("领土增加")]
     TerritoryGranted = 5,
-    [Description("鍐涗簨鑳藉姏")]
+    [Description("军事能力")]
     MilitaryMultiplier = 6,
-    [Description("鍏ㄥ眬鐢靛姏鏁堢巼")]
+    [Description("全局电力效率")]
     PowerMultiplier = 7,
-    [Description("鍏ㄥ眬寤虹瓚鐢熶骇鏁堢巼")]
+    [Description("全局建筑生产效率")]
     GlobalBuildingProductionMultiplier = 8,
-    [Description("寤虹瓚鐮旂┒鏁堢巼")]
+    [Description("建筑研究效率")]
     BuildingResearchPowerMultiplier = 9,
-    [Description("寤虹瓚鐢靛姏浜у嚭")]
+    [Description("建筑电力产出")]
     BuildingPowerProductionMultiplier = 10,
-    [Description("寤虹瓚鐗╂祦浜у嚭")]
+    [Description("建筑物流产出")]
     BuildingLogisticsProductionMultiplier = 11,
-    [Description("鍏ㄥ眬鐗╂祦鏁堢巼")]
+    [Description("全局物流效率")]
     GlobalLogisticsMultiplier = 12,
-    [Description("鑸伴槦缁翠慨鎴愭湰")]
+    [Description("舰队维修成本")]
     FleetRepairCostMultiplier = 13,
-    [Description("浜哄彛澧為暱")]
+    [Description("人口增长")]
     PopulationGrowthMultiplier = 14,
-    [Description("鍗犻璧勬簮浜у嚭")]
+    [Description("占领资源产出")]
     OccupiedResourceProductionMultiplier = 15,
-    [Description("杩滃緛琛ョ粰鎴愭湰")]
+    [Description("远征补给成本")]
     CampaignSupplyCostMultiplier = 16,
-    [Description("杩滃緛浼や骸")]
+    [Description("远征伤亡")]
     CampaignCasualtyMultiplier = 17,
-    [Description("寤虹瓚寤洪€犳晥鐜?)]
+    [Description("建筑建造效率")]
     BuildingConstructionMultiplier = 18,
-    [Description("鎺㈢储鑳藉姏")]
+    [Description("探索能力")]
     ExplorationPowerMultiplier = 19,
+    [Description("全局粮食生产效率")]
     GlobalFoodProductionMultiplier = 20
 }
 
@@ -172,7 +173,7 @@ public sealed class WorkshopEffectDefinition
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"宸ュ潑鏁堟灉绫诲瀷 {Type} 娌℃湁瀵瑰簲鐨勮繍琛屾椂澶勭悊鍒嗘敮銆?);
+                    $"工坊效果类型 {Type} 没有对应的运行时处理分支。");
         }
     }
 }

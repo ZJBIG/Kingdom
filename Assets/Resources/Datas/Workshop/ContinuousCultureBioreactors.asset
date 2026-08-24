@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ContinuousCultureBioreactors
   Label: "\u8FDE\u7EED\u57F9\u517B\u751F\u7269\u53CD\u5E94\u5668"
-  Description: "\u7528\u8FDE\u7EED\u57F9\u517B\u53CD\u5E94\u5668\u63D0\u9AD8\u98DF\u7269\u751F\u4EA7\u7684\u7A33\u5B9A\u6027\u548C\u5229\u7528\u7387\uFF0C\u4E0D\u65B0\u589E\u519C\u4E1A\u5EFA\u7B51\u3002"
+  Description: "以连续培养、无菌控制与营养循环提高食品原料的转化稳定性和整体食物产出。"
   SortOrder: 86
   TechLevel: 3
   requiredResearch:

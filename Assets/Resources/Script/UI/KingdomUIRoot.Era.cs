@@ -6,7 +6,12 @@ using UnityEngine.UI;
 
 public sealed partial class KingdomUIRoot
 {
-    private sealed class EraGoalCondition
+    private readonly List<GameObject> eraTextRows = new();
+    private readonly List<EraGoalCondition> eraGoalConditionBuffer = new();
+    private readonly StringBuilder eraPageSignatureBuilder = new(96);
+    private int eraTextRowCursor;
+
+    private struct EraGoalCondition
     {
         public string Title;
         public string Detail;
@@ -14,16 +19,20 @@ public sealed partial class KingdomUIRoot
         public Action Navigate;
     }
 
-    private void BuildEraPage(RectTransform parent)
+    private void BuildEraPage(
+        RectTransform parent,
+        EraGoalEvaluation preparedGoal = null)
     {
         if (parent == null)
             return;
+        eraTextRowCursor = 0;
 
         CacheRuntimeManagers();
         GameState state = gameManagerCache == null ? null : gameManagerCache.State;
         if (state == null)
         {
             AddEraTextRow(parent, "时代目标", "正在读取王国状态……", TextSecondary, null);
+            FinishEraTextRows();
             return;
         }
 
@@ -31,9 +40,10 @@ public sealed partial class KingdomUIRoot
         if (DataBase<Research>.All.Count == 0)
         {
             AddEraTextRow(parent, "时代目标", "时代定义正在加载……", TextSecondary, null);
+            FinishEraTextRows();
             return;
         }
-        EraGoalEvaluation eraGoal = EraGoalEvaluator.Evaluate(
+        EraGoalEvaluation eraGoal = preparedGoal ?? EraGoalEvaluator.Evaluate(
             state.TechLevel,
             researchManagerCache,
             resourceManagerCache);
@@ -51,6 +61,7 @@ public sealed partial class KingdomUIRoot
         if (tutorialManager != null)
         {
             TutorialSnapshot tutorial = tutorialManager.Evaluate();
+            bool tutorialDestinationIsCurrentPage = tutorial.NavigationPage == "Era";
             AddEraTextRow(
                 parent,
                 "文明复兴阶段",
@@ -70,10 +81,21 @@ public sealed partial class KingdomUIRoot
             AddEraTextRow(
                 parent,
                 "引导推荐行动",
-                tutorial.RecommendedAction,
+                tutorialDestinationIsCurrentPage
+                    ? "查看下方时代条件与当前主要阻碍。"
+                    : tutorial.RecommendedAction,
                 Copper,
-                () => NavigateToTutorialPage(tutorial.NavigationPage));
+                tutorialDestinationIsCurrentPage
+                    ? null
+                    : () => NavigateToTutorialPage(tutorial.NavigationPage));
         }
+
+        AddEraTextRow(
+            parent,
+            "本时代能力",
+            GetEraCapabilitySummary(state.TechLevel),
+            TextSecondary,
+            null);
 
         if (transition == null)
         {
@@ -81,14 +103,22 @@ public sealed partial class KingdomUIRoot
             AddEraTextRow(parent, "下一步", "继续扩张生产链，或在研究页查看尚未完成的研究。", TextPrimary,
                 () => SetPage("Research"));
             eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
+            FinishEraTextRows();
             return;
         }
 
         List<EraGoalCondition> conditions = BuildEraConditions(eraGoal);
         int completed = 0;
+        int blockerIndex = -1;
         for (int i = 0; i < conditions.Count; i++)
+        {
             if (conditions[i].Met)
                 completed++;
+            else if (blockerIndex < 0)
+                blockerIndex = i;
+        }
+        bool hasBlocker = blockerIndex >= 0;
+        EraGoalCondition blocker = hasBlocker ? conditions[blockerIndex] : default;
         float progress = conditions.Count == 0 ? 0f : completed / (float)conditions.Count;
         AddEraTextRow(
             parent,
@@ -103,27 +133,20 @@ public sealed partial class KingdomUIRoot
                 ShowResearchDetails(transition);
             });
 
-        EraGoalCondition nextAction = null;
-        for (int i = 0; i < conditions.Count; i++)
-            if (!conditions[i].Met)
-            {
-                nextAction = conditions[i];
-                break;
-            }
         AddEraTextRow(
             parent,
             "当前任务",
-            nextAction == null
+            !hasBlocker
                 ? "完成时代目标研究：" + transition.Label
-                : nextAction.Title + "：" + nextAction.Detail,
-            nextAction == null ? Positive : Copper,
-            nextAction == null
-                ? () =>
+                : blocker.Title + "：" + blocker.Detail,
+            hasBlocker ? Copper : Positive,
+            hasBlocker
+                ? blocker.Navigate
+                : () =>
                 {
                     SetPage("Research");
                     ShowResearchDetails(transition);
-                }
-                : nextAction.Navigate);
+                });
 
         AddEraTextRow(parent, "达成条件", "完成下列条件后即可推进时代。", TextSecondary, null);
         for (int i = 0; i < conditions.Count; i++)
@@ -137,19 +160,12 @@ public sealed partial class KingdomUIRoot
                 condition.Navigate);
         }
 
-        EraGoalCondition blocker = null;
-        for (int i = 0; i < conditions.Count; i++)
-            if (!conditions[i].Met)
-            {
-                blocker = conditions[i];
-                break;
-            }
         AddEraTextRow(
             parent,
             "当前主要阻碍",
-            blocker == null ? "所有条件已满足，等待完成时代研究。" : blocker.Title + "：" + blocker.Detail,
-            blocker == null ? Positive : Error,
-            blocker?.Navigate);
+            hasBlocker ? blocker.Title + "：" + blocker.Detail : "所有条件已满足，等待完成时代研究。",
+            hasBlocker ? Error : Positive,
+            hasBlocker ? blocker.Navigate : null);
 
         string productivity = buildingManagerCache == null
             ? "0 / 0"
@@ -165,9 +181,22 @@ public sealed partial class KingdomUIRoot
             TextPrimary,
             null);
 
-        Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(blocker == null ? "none" : blocker.Title)}");
+        Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(hasBlocker ? blocker.Title : "none")}");
         eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
+        FinishEraTextRows();
     }
+
+    private static string GetEraCapabilitySummary(TechLevel era) => era switch
+    {
+        TechLevel.Animal => "采集并加工木材、石材、黏土与纤维，建立食物、住房和知识基础。",
+        TechLevel.Neolithic => "发展灌溉储粮、陶瓷纺织、文字治理，以及铜、青铜和铁器生产。",
+        TechLevel.Medieval => "建立行政、贸易、学院、城市住宅、炼钢和标准化生产体系。",
+        TechLevel.Industrial => "形成电力与铁路物流、机械制造、石油化工、现代大学和规模化农业。",
+        TechLevel.Spacer => "建设轨道能源、居住与工业设施，发展量子计算、星际航行、舰队和星区经营。",
+        TechLevel.Ultra => "以技术奇点完成当前阶段的文明跃迁；目前没有独立建筑或工坊循环。",
+        TechLevel.Archotech => "当前为远期时代框架，尚无独立研究、建筑或工坊内容。",
+        _ => "查看研究、建筑和工坊页面了解当前能力。"
+    };
 
     private string BuildEraPageStateSignature(
         GameState state,
@@ -180,7 +209,8 @@ public sealed partial class KingdomUIRoot
             researchManagerCache,
             resourceManagerCache);
         Research transition = eraGoal.Transition;
-        var signature = new StringBuilder(96);
+        StringBuilder signature = eraPageSignatureBuilder;
+        signature.Clear();
         signature.Append((int)state.TechLevel).Append('|').Append(transition?.Id ?? string.Empty);
         if (TutorialManager.Current != null)
             signature.Append("|tutorial=").Append(TutorialManager.Current.Version);
@@ -213,7 +243,8 @@ public sealed partial class KingdomUIRoot
 
     private List<EraGoalCondition> BuildEraConditions(EraGoalEvaluation eraGoal)
     {
-        var result = new List<EraGoalCondition>();
+        List<EraGoalCondition> result = eraGoalConditionBuffer;
+        result.Clear();
         if (eraGoal == null || eraGoal.Transition == null)
             return result;
 
@@ -273,10 +304,21 @@ public sealed partial class KingdomUIRoot
 
     private GameObject AddEraTextRow(RectTransform parent, string title, string subtitle, Color color, Action navigate)
     {
-        GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.TextRow, parent, parent.childCount);
+        int index = eraTextRowCursor;
+        GameObject reusable = index < eraTextRows.Count ? eraTextRows[index] : null;
+        GameObject row = InstantiateAuthoredRow(
+            KingdomUIPrefabLibrary.TextRow,
+            parent,
+            index,
+            reusable);
         if (row == null)
             return null;
-        ApplyListRowStyle(row, parent.childCount - 1);
+        if (index < eraTextRows.Count)
+            eraTextRows[index] = row;
+        else
+            eraTextRows.Add(row);
+        eraTextRowCursor++;
+        ApplyListRowStyle(row, index);
         SetRowText(row, "Title", title, color);
         SetRowText(row, "Subtitle", subtitle, TextSecondary);
         Button button = RequireRowButton(row);
@@ -292,6 +334,16 @@ public sealed partial class KingdomUIRoot
                 });
         }
         return row;
+    }
+
+    private void FinishEraTextRows()
+    {
+        for (int i = eraTextRows.Count - 1; i >= eraTextRowCursor; i--)
+        {
+            if (eraTextRows[i] != null)
+                Destroy(eraTextRows[i]);
+            eraTextRows.RemoveAt(i);
+        }
     }
 
     private void NavigateToTutorialPage(string pageName)

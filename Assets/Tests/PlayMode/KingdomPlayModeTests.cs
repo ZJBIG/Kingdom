@@ -428,8 +428,42 @@ public sealed class KingdomPlayModeTests
             "The isolated research Canvas must retain touch raycasting.");
         content = viewport.Find("ResearchGraphContent");
         Assert.That(content, Is.Not.Null);
-        Assert.That(content.Find("ResearchGraphLineLayer"), Is.Not.Null,
+        Transform lineLayer = content.Find("ResearchGraphLineLayer");
+        Assert.That(lineLayer, Is.Not.Null,
             "ResearchGraphLineLayer must be authored in the scene shell.");
+        UIResearchConnectorBatch[] connectorBatches =
+            lineLayer.GetComponentsInChildren<UIResearchConnectorBatch>(true);
+        Assert.That(connectorBatches.Length, Is.GreaterThan(0));
+        Assert.That(connectorBatches.Length, Is.LessThanOrEqualTo(8),
+            "Four authored connector textures need at most normal/focused batch renderers.");
+        int logicalConnectorParts = connectorBatches
+            .Where(batch => !batch.DrawFocused)
+            .Sum(batch => batch.PartCount);
+        Assert.That(logicalConnectorParts, Is.GreaterThan(0));
+        int renderedConnectorVertices = 0;
+        for (int i = 0; i < connectorBatches.Length; i++)
+        {
+            Mesh connectorMesh = connectorBatches[i].canvasRenderer.GetMesh();
+            if (connectorMesh != null)
+                renderedConnectorVertices += connectorMesh.vertexCount;
+        }
+        Assert.That(renderedConnectorVertices, Is.EqualTo(logicalConnectorParts * 4),
+            "Every logical connector part must render exactly one textured quad.");
+        Assert.That(
+            lineLayer.GetComponentsInChildren<Transform>(true).Length - 1,
+            Is.LessThanOrEqualTo(10),
+            "Connector batching must not recreate one Transform per logical segment.");
+        Assert.That(
+            lineLayer.GetComponentsInChildren<Image>(true)
+                .Count(image => image.name.StartsWith(
+                    "ResearchLinePart_", StringComparison.Ordinal)),
+            Is.EqualTo(0),
+            "Legacy per-segment Images must not return.");
+        Debug.Log(
+            $"[KingdomUI] Research connector batch audit: logicalParts={logicalConnectorParts}, " +
+            $"renderedVertices={renderedConnectorVertices}, " +
+            $"batchGraphics={connectorBatches.Length}, connectorObjects=" +
+            $"{lineLayer.GetComponentsInChildren<Transform>(true).Length - 1}");
         Assert.That(content.Find("ResearchGraphDragSurface"), Is.Not.Null,
             "ResearchGraphDragSurface must be authored in the scene shell.");
         Transform toolbar = viewport.Find("ResearchTreeToolbar");
@@ -567,6 +601,30 @@ public sealed class KingdomPlayModeTests
         Debug.Log($"[KingdomUI] Research node-forwarded drag audit: before={beforeDrag}, after={afterNodeDrag}, delta={afterNodeDrag - beforeDrag}, forwardedVerticalDragMoved={afterNodeDrag.y > beforeDrag.y}");
         Debug.Log($"[KingdomUI] Research runtime playmode audit: nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, rootSafeAreaOnly={rootSafeAreaOnly}");
         Assert.That(nodeCount, Is.EqualTo(DataBase<Research>.All.Count));
+
+        Transform researchPage = root.transform.Find(
+            "SafeAreaRoot/Content/PageHost/Research");
+        Assert.That(researchPage, Is.Not.Null);
+        CanvasGroup visibility = researchPage.GetComponent<CanvasGroup>();
+        Assert.That(visibility, Is.Not.Null,
+            "The cached research hierarchy must use one root CanvasGroup for page visibility.");
+        setPage.Invoke(root, new object[] { "Overview" });
+        yield return null;
+        Assert.That(researchPage.gameObject.activeSelf, Is.True,
+            "Leaving Research must not disable thousands of cached graph objects.");
+        Assert.That(visibility.alpha, Is.EqualTo(0f).Within(0.001f));
+        Assert.That(visibility.interactable, Is.False);
+        Assert.That(visibility.blocksRaycasts, Is.False);
+        Assert.That(gesture.enabled, Is.False,
+            "A hidden persistent graph must not continue processing gestures.");
+
+        setPage.Invoke(root, new object[] { "Research" });
+        yield return null;
+        Assert.That(researchPage.gameObject.activeSelf, Is.True);
+        Assert.That(visibility.alpha, Is.EqualTo(1f).Within(0.001f));
+        Assert.That(visibility.interactable, Is.True);
+        Assert.That(visibility.blocksRaycasts, Is.True);
+        Assert.That(gesture.enabled, Is.True);
     }
 
     [UnityTest]
@@ -665,6 +723,164 @@ public sealed class KingdomPlayModeTests
             Assert.That(label.rectTransform.anchorMin.x, Is.GreaterThanOrEqualTo(0f));
             Assert.That(label.rectTransform.anchorMax.x, Is.LessThanOrEqualTo(1f));
         }
+    }
+
+    [UnityTest]
+    public IEnumerator ResourceDetailAndList_ShowOnlyRealizedHappinessAdjustedFlows()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return WaitForRuntimeUiRoot();
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager gameManager = Object.FindObjectOfType<GameManager>();
+        ResourceManager resourceManager = Object.FindObjectOfType<ResourceManager>();
+        BuildingManager buildingManager = Object.FindObjectOfType<BuildingManager>();
+        SimulationManager simulationManager = Object.FindObjectOfType<SimulationManager>();
+        Assert.That(root, Is.Not.Null);
+        Assert.That(gameManager, Is.Not.Null);
+        Assert.That(resourceManager, Is.Not.Null);
+        Assert.That(buildingManager, Is.Not.Null);
+        Assert.That(simulationManager, Is.Not.Null);
+        simulationManager.SetRunning(false);
+        typeof(GameManager).GetMethod(
+                "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager, null);
+        Assert.That(gameManager.State.HappinessRewardMultiplier, Is.GreaterThan(ExpantaNum.One));
+
+        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        resource.SetIdForEditor("PlayModeDetailFlowResource");
+        resource.Label = "Test flow resource";
+        resource.Description = "Resource detail flow regression";
+        createdObjects.Add(resource);
+
+        Building realized = CreateFlowBuilding(
+            "PlayModeRealizedProducer", "Realized producer", resource, new ExpantaNum(2d));
+        Building unbuilt = CreateFlowBuilding(
+            "PlayModeUnbuiltProducer", "Unbuilt producer", resource, new ExpantaNum(9d));
+        Building zeroEfficiency = CreateFlowBuilding(
+            "PlayModeZeroEfficiencyProducer", "Zero efficiency producer", resource, new ExpantaNum(7d));
+
+        BuildingState realizedState = buildingManager.EnsureBuilding(realized);
+        realizedState.SetAmountForEditor(new ExpantaNum(2d));
+        realizedState.SetEfficiencyForEditor(new ExpantaNum(0.5d));
+        BuildingState unbuiltState = buildingManager.EnsureBuilding(unbuilt);
+        unbuiltState.SetAmountForEditor(ExpantaNum.Zero);
+        BuildingState zeroEfficiencyState = buildingManager.EnsureBuilding(zeroEfficiency);
+        zeroEfficiencyState.SetAmountForEditor(ExpantaNum.One);
+        zeroEfficiencyState.SetEfficiencyForEditor(ExpantaNum.Zero);
+
+        resourceManager.SetAmount(resource, ExpantaNum.Zero);
+        resourceManager.SetProductionRate(resource, new ExpantaNum(2d));
+        resourceManager.SetConsumptionRate(resource, ExpantaNum.Zero);
+        ExpantaNum expectedRate = new ExpantaNum(2d) * gameManager.State.HappinessRewardMultiplier;
+
+        MethodInfo showResourceDetails = typeof(KingdomUIRoot).GetMethod(
+            "ShowResourceDetails", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(showResourceDetails, Is.Not.Null);
+        showResourceDetails.Invoke(root, new object[] { resource });
+        yield return null;
+
+        Transform bodyTransform = root.transform.Find(
+            "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body");
+        TMP_Text body = bodyTransform == null ? null : bodyTransform.GetComponent<TMP_Text>();
+        Assert.That(body, Is.Not.Null);
+        Assert.That(body.text, Does.Contain(realized.Label));
+        Assert.That(body.text, Does.Not.Contain(unbuilt.Label));
+        Assert.That(body.text, Does.Not.Contain(zeroEfficiency.Label));
+        Assert.That(body.text, Does.Contain(expectedRate.ToGameString() + "/s"));
+        ExpantaNum expectedBuildingRate = new ExpantaNum(2d) *
+            realizedState.Amount * realizedState.Efficiency *
+            ProgressionModifierManager.Current.GetBuildingProductionMultiplier(realized) *
+            ProgressionModifierManager.Current.GlobalBuildingProductionMultiplier *
+            ProgressionModifierManager.Current.GetResourceProductionMultiplier(resource) *
+            gameManager.State.HappinessRewardMultiplier;
+        string realizedLine = body.text.Split('\n')
+            .First(line => line.Contains(realized.Label));
+        Assert.That(realizedLine, Does.Contain(expectedBuildingRate.ToGameString() + "/s"));
+
+        resourceManager.Tick(1d);
+        Assert.That(resourceManager.GetAmount(resource), Is.EqualTo(expectedRate));
+
+        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
+            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setPage, Is.Not.Null);
+        setPage.Invoke(root, new object[] { "Resources" });
+        yield return null;
+        yield return null;
+
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetProductionRate(wood, ExpantaNum.One);
+        resourceManager.SetConsumptionRate(wood, ExpantaNum.Zero);
+        MethodInfo refreshCards = typeof(KingdomUIRoot).GetMethod(
+            "RefreshLiveCardValues", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(refreshCards, Is.Not.Null);
+        refreshCards.Invoke(root, null);
+        FieldInfo changeLabelsField = typeof(KingdomUIRoot).GetField(
+            "resourceChangeLabels", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(changeLabelsField, Is.Not.Null);
+        var changeLabels =
+            (Dictionary<Resource, TMP_Text>)changeLabelsField.GetValue(root);
+        Assert.That(changeLabels.TryGetValue(wood, out TMP_Text changeLabel), Is.True);
+        ExpantaNum expectedWoodRate = gameManager.State.HappinessRewardMultiplier;
+        Assert.That(changeLabel.text, Is.EqualTo("+" + expectedWoodRate.ToGameString() + "/s"));
+    }
+
+    [UnityTest]
+    public IEnumerator TopStatus_ShowsNegativePopulationNetRateDuringStarvation()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return WaitForRuntimeUiRoot();
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager gameManager = Object.FindObjectOfType<GameManager>();
+        SimulationManager simulationManager = Object.FindObjectOfType<SimulationManager>();
+        Assert.That(root, Is.Not.Null);
+        Assert.That(gameManager, Is.Not.Null);
+        Assert.That(simulationManager, Is.Not.Null);
+        simulationManager.SetRunning(false);
+
+        typeof(GameState).GetMethod(
+                "ResetDerivedEconomy", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[] { new ExpantaNum(500d) });
+        typeof(GameState).GetMethod(
+                "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[]
+            {
+                0, "Test", TechLevel.Animal, ExpantaNum.Zero, 0L
+            });
+        typeof(GameState).GetMethod(
+                "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[] { new ExpantaNum(10d) });
+        typeof(PopulationState).GetMethod(
+                "RestoreCapacityExact", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State.Population, new object[]
+            {
+                new ExpantaNum(20d), ExpantaNum.Zero
+            });
+        typeof(GameState).GetMethod(
+                "AdjustFoodRates", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(gameManager.State, new object[]
+            {
+                ExpantaNum.Zero, new ExpantaNum(20d)
+            });
+
+        Assert.That(gameManager.CurrentPopulationNetRatePerSecond, Is.LessThan(ExpantaNum.Zero));
+        MethodInfo refreshTopStatus = typeof(KingdomUIRoot).GetMethod(
+            "RefreshTopStatus", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(refreshTopStatus, Is.Not.Null);
+        refreshTopStatus.Invoke(root, null);
+        FieldInfo topStatusField = typeof(KingdomUIRoot).GetField(
+            "topStatus", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(topStatusField, Is.Not.Null);
+        TMP_Text topStatus = (TMP_Text)topStatusField.GetValue(root);
+        Assert.That(topStatus, Is.Not.Null);
+        Assert.That(
+            topStatus.text,
+            Does.Contain(gameManager.CurrentPopulationNetRatePerSecond.ToGameString() + "/s"));
+
+        ExpantaNum populationBefore = gameManager.State.Population.Population;
+        gameManager.Tick(3600d);
+        Assert.That(gameManager.State.Population.Population, Is.LessThan(populationBefore));
     }
 
 
@@ -818,6 +1034,44 @@ public sealed class KingdomPlayModeTests
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(field, Is.Not.Null, $"Missing serialized field '{name}'.");
         field.SetValue(target, value);
+    }
+
+    private Building CreateFlowBuilding(
+        string id,
+        string label,
+        Resource resource,
+        ExpantaNum productionRate)
+    {
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.SetIdForEditor(id);
+        building.Label = label;
+        building.Description = label;
+        building.TechLevel = TechLevel.Animal;
+        building.ConfigureEconomyForEditor(
+            new ExpantaNum(1.15d),
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(resource, productionRate)
+            },
+            new List<Pair<Resource, ExpantaNum>>());
+        createdObjects.Add(building);
+        return building;
     }
 
 

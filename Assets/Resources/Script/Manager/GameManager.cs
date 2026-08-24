@@ -41,6 +41,12 @@ public class GameManager : Singleton<GameManager>
                 CanPopulationLeaveForFoodShortage());
         }
     }
+    public ExpantaNum CurrentPopulationNetRatePerSecond =>
+        CanPopulationLeaveForFoodShortage()
+            ? -CurrentPopulationDepartureRatePerSecond
+            : State.Population.Population < State.Population.PopulationCapacity
+                ? CurrentPopulationGrowthRatePerSecond
+                : ExpantaNum.Zero;
 
     private double calendarElapsedSeconds;
 

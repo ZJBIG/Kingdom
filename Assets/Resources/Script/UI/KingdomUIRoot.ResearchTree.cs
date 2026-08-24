@@ -23,6 +23,7 @@ public sealed partial class KingdomUIRoot
     private const float ResearchConnectorOverlap = 1f;
     private const float ResearchArrowThickness = 16f;
     private const float ResearchNodeMarginHalf = 25f;
+    private const float ResearchBuildFrameBudgetSeconds = 0.003f;
     private enum ResearchCurveType { LeftTop, LeftBottom, RightTop, RightBottom }
     private readonly struct ResearchArrowCacheKey : IEquatable<ResearchArrowCacheKey>
     {
@@ -93,16 +94,24 @@ public sealed partial class KingdomUIRoot
     private static readonly Color ResearchArrowColor = new Color(.22f, .24f, .24f, 1f);
     private static readonly Color ResearchFocusSurface = new Color(.30f, .36f, .36f, 1f);
     private static readonly Dictionary<string, Sprite> researchTreeSprites = new();
-    private readonly Dictionary<Pair<Research, Research>, List<Image>> researchTreeLinkVisuals = new(512);
+    private readonly Dictionary<Pair<Research, Research>, List<UIResearchConnectorBatch.Part>> researchTreeLinkVisuals = new(512);
     // Keep a membership index alongside the ordered visual list. Long edges
     // can visit the same shared segment repeatedly; List.Contains would make
     // that deduplication quadratic in the number of segments on one edge.
-    private readonly Dictionary<Pair<Research, Research>, HashSet<Image>> researchTreeLinkVisualSets = new(512);
+    private readonly Dictionary<Pair<Research, Research>, HashSet<UIResearchConnectorBatch.Part>> researchTreeLinkVisualSets = new(512);
     // Current content uses roughly 3.4k shared segments. Reserve that scale
     // up front so adding a normal batch of later-era research does not cause
     // repeated dictionary growth while the graph is being built.
-    private readonly Dictionary<ResearchLineCacheKey, Image> researchSharedLineVisuals = new(4096);
-    private readonly Dictionary<ResearchArrowCacheKey, Image> researchArrowVisuals = new();
+    private readonly Dictionary<ResearchLineCacheKey, UIResearchConnectorBatch.Part> researchSharedLineVisuals = new(4096);
+    private readonly Dictionary<ResearchArrowCacheKey, UIResearchConnectorBatch.Part> researchArrowVisuals = new();
+    private sealed class ResearchConnectorTextureBatch
+    {
+        public UIResearchConnectorBatch Normal;
+        public UIResearchConnectorBatch Focused;
+    }
+    private readonly Dictionary<Texture, ResearchConnectorTextureBatch> researchConnectorBatches = new(4);
+    private RectTransform researchConnectorNormalLayer;
+    private RectTransform researchConnectorFocusedLayer;
     private sealed class ResearchNodeVisualReferences
     {
         public Image Surface;
@@ -117,11 +126,9 @@ public sealed partial class KingdomUIRoot
         public int StateVersion = -1;
     }
     private readonly Dictionary<Research, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
-    private readonly HashSet<Image> focusedResearchLineVisuals = new();
+    private readonly HashSet<UIResearchConnectorBatch.Part> focusedResearchLineVisuals = new();
     private readonly HashSet<string> selectedResearchPrerequisiteIdBuffer =
         new(StringComparer.Ordinal);
-    private int lastResearchLineOrderHash;
-    private bool researchLineOrderHashValid;
     private RectTransform researchGraphLineLayer;
     private int researchTreeMaximumRow;
     private int researchTopologyDuplicateCount;
@@ -138,6 +145,7 @@ public sealed partial class KingdomUIRoot
     private string lastResearchBusSignature;
     private string lastSelectedResearchId;
     private string lastActiveResearchId;
+    private readonly StringBuilder researchQueueSignatureBuilder = new(256);
 
     private void RefreshResearchDynamicUI()
     {
@@ -236,10 +244,11 @@ public sealed partial class KingdomUIRoot
         return signature.ToString();
     }
 
-    private string BuildResearchQueueSignature()
+    private StringBuilder BuildResearchQueueSignatureBuffer()
     {
         ResearchManager manager = ResearchManager.Instance;
-        var signature = new StringBuilder();
+        StringBuilder signature = researchQueueSignatureBuilder;
+        signature.Clear();
         ResearchState active = manager.ActiveResearch;
         // This signature controls structural queue refreshes. Progress is
         // updated on the active queue node independently, so normal research
@@ -254,7 +263,20 @@ public sealed partial class KingdomUIRoot
                 .Append(state == null ? -1 : (int)state.Status).Append(':')
                 .Append(state != null && state.CostPaid ? '1' : '0').Append('|');
         }
-        return signature.ToString();
+        return signature;
+    }
+
+    private string BuildResearchQueueSignature() =>
+        BuildResearchQueueSignatureBuffer().ToString();
+
+    private static bool SignatureEquals(StringBuilder builder, string value)
+    {
+        if (value == null || builder.Length != value.Length)
+            return false;
+        for (int i = 0; i < value.Length; i++)
+            if (builder[i] != value[i])
+                return false;
+        return true;
     }
 
     private string BuildResearchBusSignature()
@@ -359,15 +381,17 @@ public sealed partial class KingdomUIRoot
     private IEnumerator BuildResearchTreePageCoroutine(RectTransform parent)
     {
         float buildStartTime = Time.realtimeSinceStartup;
-        Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v8 parent={parent} parentRect={parent.rect.size}");
+        Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v9-batched parent={parent} parentRect={parent.rect.size}");
         researchTreePageBuilt = false;
         researchTreeNodes.Clear();
         researchTreeLinkVisuals.Clear();
         researchTreeLinkVisualSets.Clear();
         researchSharedLineVisuals.Clear();
         researchArrowVisuals.Clear();
+        researchConnectorBatches.Clear();
+        researchConnectorNormalLayer = null;
+        researchConnectorFocusedLayer = null;
         researchNodeVisualReferences.Clear();
-        researchLineOrderHashValid = false;
         nextRowTop = 980f;
         // DataRows is only the page slot. The graph viewport and its drag
         // surface are authored in the scene shell. Only repeated graph
@@ -438,9 +462,9 @@ public sealed partial class KingdomUIRoot
             AbortResearchTreeBuild();
             yield break;
         }
-        // The graph contains thousands of line Graphics. Keep that subtree
-        // in its own nested Canvas so panning does not rebuild the page's
-        // other UI batches on every touch sample.
+        // The graph contains thousands of logical connector parts. Keep their
+        // small set of batch renderers in a nested Canvas so panning does not
+        // rebuild the page's other UI batches on every touch sample.
         EnsureNestedCanvas(researchGraphContent);
         researchGraphContent.pivot = Vector2.zero;
         researchGraphContent.anchoredPosition = Vector2.zero;
@@ -452,7 +476,7 @@ public sealed partial class KingdomUIRoot
         KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=positions elapsedMs={(Time.realtimeSinceStartup - positionsStartTime) * 1000f:0.0} definitions={definitions.Count}");
 #endif
         // Topology/layout analysis is synchronous. Return one frame before
-        // creating thousands of connector Graphics so its cost cannot merge
+        // generating connector geometry so its cost cannot merge
         // with the first render/layout frame of the research page.
         yield return null;
         if (researchGraphContent == null)
@@ -526,19 +550,29 @@ public sealed partial class KingdomUIRoot
         yield return CreateResearchTreeLinks(researchGraphContent, definitions, positions);
 #if UNITY_EDITOR
         float linksDurationMs = (Time.realtimeSinceStartup - linksStartTime) * 1000f;
-        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=links elapsedMs={linksDurationMs:0.0} durationMs={linksDurationMs:0.0} links={researchTreeLinkVisuals.Count} shared={researchSharedLineVisuals.Count}");
+        KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=links elapsedMs={linksDurationMs:0.0} durationMs={linksDurationMs:0.0} links={researchTreeLinkVisuals.Count} shared={researchSharedLineVisuals.Count} batchGraphics={researchConnectorBatches.Count * 2} renderer=batch-mesh-v1");
 #endif
-        Debug.Log($"[王国界面] Research graph routes: links={researchTreeLinkVisuals.Count}, sharedBusSegments={researchSharedLineVisuals.Count}, cache=struct-half-cell");
+        Debug.Log($"[王国界面] Research graph routes: links={researchTreeLinkVisuals.Count}, sharedBusSegments={researchSharedLineVisuals.Count}, batchGraphics={researchConnectorBatches.Count * 2}, cache=struct-half-cell, renderer=batch-mesh-v1");
         float nodesStartTime = Time.realtimeSinceStartup;
+        float nodeFrameStartTime = Time.realtimeSinceStartup;
         for (int i = 0; i < definitions.Count; i++)
         {
             Research research = definitions[i];
             if (research != null && positions.TryGetValue(research, out Vector2 position))
                 CreateResearchTreeNode(researchGraphContent, research, position);
-            // Node creation touches TMP/layout state; keep one node per
-            // frame so the research page remains responsive while warming.
-            yield return null;
+            // Batch inexpensive nodes while bounding main-thread work. A
+            // fixed one-node-per-frame delay made warmup latency proportional
+            // to the definition count even when node creation was cheap.
+            if (Time.realtimeSinceStartup - nodeFrameStartTime >=
+                ResearchBuildFrameBudgetSeconds)
+            {
+                yield return null;
+                nodeFrameStartTime = Time.realtimeSinceStartup;
+            }
         }
+        // Let the final batch register with the Canvas before forcing its
+        // layout and binding the graph gesture.
+        yield return null;
         Canvas.ForceUpdateCanvases();
 #if UNITY_EDITOR
         float nodesDurationMs = (Time.realtimeSinceStartup - nodesStartTime) * 1000f;
@@ -557,6 +591,8 @@ public sealed partial class KingdomUIRoot
         }
         Canvas.ForceUpdateCanvases();
         researchGraphGesture.Initialize(researchGraphViewport, researchGraphContent);
+        researchGraphGesture.enabled = researchPageVisibilityGroup == null ||
+            researchPageVisibilityGroup.alpha > 0f;
         researchTreePageBuilt = true;
         // Defer read-only validation and TMP visual inspection by one frame;
         // they can otherwise compete with the first research-page gesture.
@@ -605,9 +641,11 @@ public sealed partial class KingdomUIRoot
         researchTreeLinkVisualSets.Clear();
         researchSharedLineVisuals.Clear();
         researchArrowVisuals.Clear();
+        researchConnectorBatches.Clear();
+        researchConnectorNormalLayer = null;
+        researchConnectorFocusedLayer = null;
         researchNodeVisualReferences.Clear();
         focusedResearchLineVisuals.Clear();
-        researchLineOrderHashValid = false;
     }
 
     private System.Collections.IEnumerator CompleteResearchTreeDiagnostics(
@@ -834,18 +872,18 @@ public sealed partial class KingdomUIRoot
 
         int loggedArrows = 0;
         int misalignedArrows = 0;
-        foreach (KeyValuePair<ResearchArrowCacheKey, Image> pair in researchArrowVisuals)
+        foreach (KeyValuePair<ResearchArrowCacheKey, UIResearchConnectorBatch.Part> pair in researchArrowVisuals)
         {
             if (pair.Value == null)
                 continue;
-            RectTransform rect = pair.Value.rectTransform;
+            Rect rect = pair.Value.LocalRect;
             if (nodeRectByGrid.TryGetValue(pair.Key.TargetGrid, out RectTransform nodeRect))
             {
                 Vector2 nodeTopLeft = GetNodeTopLeftPosition(nodeRect);
-                float arrowTop = researchGraphContent.rect.height - rect.anchoredPosition.y - rect.rect.height;
-                float arrowCenter = arrowTop + rect.rect.height * .5f;
+                float arrowTop = researchGraphContent.rect.height - rect.y - rect.height;
+                float arrowCenter = arrowTop + rect.height * .5f;
                 float nodeCenter = nodeTopLeft.y + nodeRect.rect.height * .5f;
-                float arrowRight = rect.anchoredPosition.x + rect.rect.width;
+                float arrowRight = rect.x + rect.width;
                 if (Mathf.Abs(arrowCenter - nodeCenter) > .5f ||
                     Mathf.Abs(arrowRight - nodeTopLeft.x) > .5f)
                     misalignedArrows++;
@@ -853,7 +891,7 @@ public sealed partial class KingdomUIRoot
                     Debug.Log($"[王国界面] Research visual end arrow alignment: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, arrowRight={arrowRight:0.##}, nodeLeft={nodeTopLeft.x:0.##}");
             }
             if (loggedArrows++ < 3)
-                Debug.Log($"[王国界面] Research visual end arrow: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, local={rect.anchoredPosition}, size={rect.rect.size}");
+                Debug.Log($"[王国界面] Research visual end arrow: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, local={rect.position}, size={rect.size}");
         }
     }
 
@@ -1559,7 +1597,7 @@ public sealed partial class KingdomUIRoot
         // Every part is positioned by an integer (X,Y) grid key and reused
         // for all edges that traverse that same key. Curves are quarter
         // sprites from Lines/circle.png, exactly like the reference mod.
-        int edgeCount = 0;
+        float edgeFrameStartTime = Time.realtimeSinceStartup;
         for (int i = 0; i < definitions.Count; i++)
         {
             Research target = definitions[i];
@@ -1574,13 +1612,20 @@ public sealed partial class KingdomUIRoot
                 Vector2Int from = GetResearchGridPosition(fromPosition);
                 Vector2Int to = GetResearchGridPosition(toPosition);
                 CreateReferenceResearchEdge(content, from, to, prerequisite, target);
-                edgeCount++;
-                // One authored edge creates several cached line Images.
-                // Spread that work one edge per frame instead of allowing a
-                // batch of connector geometry to form a hitch.
-                yield return null;
+                // One authored edge can create several cached line Images.
+                // Yield by elapsed work instead of by edge count so cheap
+                // shared paths are batched without allowing a long frame.
+                if (Time.realtimeSinceStartup - edgeFrameStartTime >=
+                    ResearchBuildFrameBudgetSeconds)
+                {
+                    yield return null;
+                    edgeFrameStartTime = Time.realtimeSinceStartup;
+                }
             }
         }
+        RebuildResearchConnectorBatches();
+        // Keep link and node creation on separate presentation frames.
+        yield return null;
     }
 
     private Vector2Int GetResearchGridPosition(Vector2 position)
@@ -1717,7 +1762,8 @@ public sealed partial class KingdomUIRoot
         float pixelWidth = ResearchNodeMarginHalf - ResearchCurveRadius + ResearchConnectorOverlap;
         float pixelX = x * ResearchGridX + ResearchCurveRadius - ResearchConnectorOverlap;
         float pixelY = ResearchTopPadding + y * ResearchGridY - ResearchArrowThickness * .5f;
-        Image arrow = CreateResearchLinePart(content, new ResearchLineCacheKey(6, x, y),
+        UIResearchConnectorBatch.Part arrow = CreateResearchLinePart(
+            content, new ResearchLineCacheKey(6, x, y),
             new Rect(pixelX, pixelY, pixelWidth, ResearchArrowThickness),
             LoadResearchTreeSprite("ResearchTree/ResearchLineEnd"), linkKey, color);
         if (arrow != null)
@@ -1741,51 +1787,135 @@ public sealed partial class KingdomUIRoot
             sprite, linkKey, color);
     }
 
-    private Image CreateResearchLinePart(RectTransform content, ResearchLineCacheKey key, Rect rect,
+    private UIResearchConnectorBatch.Part CreateResearchLinePart(
+        RectTransform content,
+        ResearchLineCacheKey key,
+        Rect rect,
         Sprite sprite, Pair<Research, Research> linkKey, Color color)
     {
-        if (!researchSharedLineVisuals.TryGetValue(key, out Image image))
+        if (!researchSharedLineVisuals.TryGetValue(
+                key, out UIResearchConnectorBatch.Part part))
         {
-            RectTransform lineParent = researchGraphLineLayer != null ? researchGraphLineLayer : content;
-            GameObject lineObject = KingdomUIPrefabLibrary.Instantiate(
-                KingdomUIPrefabLibrary.ResearchLine, lineParent);
-            if (lineObject == null)
-            {
-                Debug.LogError("[王国界面] Missing reusable ResearchLine prefab; connector was skipped");
-                return null;
-            }
-            lineObject.name = "ResearchLinePart_" + key.Kind + "_" + key.X2 + "_" + key.Y2;
-            RectTransform part = lineObject.GetComponent<RectTransform>();
             // rect is expressed in the graph's top-left integer-grid space;
             // convert it against the actual content height, including both
             // graph paddings and the enlarged touch node.
             float graphHeight = content.rect.height;
-            part.anchorMin = Vector2.zero;
-            part.anchorMax = Vector2.zero;
-            part.pivot = Vector2.zero;
-            part.anchoredPosition = new Vector2(rect.x, graphHeight - rect.y - rect.height);
-            part.sizeDelta = rect.size;
-            image = part.GetComponent<Image>();
-            image.sprite = sprite;
-            image.color = color;
-            image.preserveAspect = false;
-            image.raycastTarget = false;
-            // Connectors must participate in the viewport RectMask2D; setting
-            // this false lets lines escape into the navigation/detail panels.
-            image.maskable = true;
-            researchSharedLineVisuals[key] = image;
+            Rect localRect = new Rect(
+                rect.x,
+                graphHeight - rect.y - rect.height,
+                rect.width,
+                rect.height);
+            ResearchConnectorTextureBatch batch =
+                GetOrCreateResearchConnectorBatch(sprite);
+            part = batch.Normal.CreatePart(
+                localRect, sprite, color, ResearchFocusWhite);
+            researchSharedLineVisuals[key] = part;
         }
-        AddResearchTreeLinkVisual(linkKey, image);
-        return image;
+        AddResearchTreeLinkVisual(linkKey, part);
+        return part;
     }
 
-    private void AddResearchTreeLinkVisual(Pair<Research, Research> linkKey, Image visual)
+    private ResearchConnectorTextureBatch GetOrCreateResearchConnectorBatch(
+        Sprite sprite)
     {
-        if (!researchTreeLinkVisuals.TryGetValue(linkKey, out List<Image> visuals))
+        Texture texture = sprite == null ? Texture2D.whiteTexture : sprite.texture;
+        if (researchConnectorBatches.TryGetValue(
+                texture, out ResearchConnectorTextureBatch existing))
+            return existing;
+
+        EnsureResearchConnectorLayers();
+        int index = researchConnectorBatches.Count;
+        var batch = new ResearchConnectorTextureBatch
         {
-            visuals = new List<Image>();
+            Normal = CreateResearchConnectorBatch(
+                "ResearchConnectorBatch_Normal_" + index,
+                researchConnectorNormalLayer,
+                texture,
+                false),
+            Focused = CreateResearchConnectorBatch(
+                "ResearchConnectorBatch_Focused_" + index,
+                researchConnectorFocusedLayer,
+                texture,
+                true)
+        };
+        batch.Focused.SharePartsWith(batch.Normal);
+        researchConnectorBatches.Add(texture, batch);
+        return batch;
+    }
+
+    private void EnsureResearchConnectorLayers()
+    {
+        if (researchConnectorNormalLayer != null &&
+            researchConnectorFocusedLayer != null)
+            return;
+        researchConnectorNormalLayer = CreateResearchConnectorRect(
+            "ResearchConnectorNormalLayer", researchGraphLineLayer);
+        researchConnectorFocusedLayer = CreateResearchConnectorRect(
+            "ResearchConnectorFocusedLayer", researchGraphLineLayer);
+    }
+
+    private static RectTransform CreateResearchConnectorRect(
+        string name,
+        RectTransform parent)
+    {
+        GameObject owner = new GameObject(name, typeof(RectTransform));
+        owner.layer = parent.gameObject.layer;
+        RectTransform rect = owner.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.pivot = Vector2.zero;
+        return rect;
+    }
+
+    private static UIResearchConnectorBatch CreateResearchConnectorBatch(
+        string name,
+        RectTransform parent,
+        Texture texture,
+        bool focused)
+    {
+        GameObject owner = new GameObject(
+            name,
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(UIResearchConnectorBatch));
+        owner.layer = parent.gameObject.layer;
+        RectTransform rect = owner.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.pivot = Vector2.zero;
+        UIResearchConnectorBatch batch =
+            owner.GetComponent<UIResearchConnectorBatch>();
+        batch.Initialize(texture, focused);
+        return batch;
+    }
+
+    private void RebuildResearchConnectorBatches()
+    {
+        foreach (ResearchConnectorTextureBatch batch in
+                 researchConnectorBatches.Values)
+        {
+            batch.Normal.Rebuild();
+            batch.Focused.Rebuild();
+        }
+    }
+
+    private void AddResearchTreeLinkVisual(
+        Pair<Research, Research> linkKey,
+        UIResearchConnectorBatch.Part visual)
+    {
+        if (!researchTreeLinkVisuals.TryGetValue(
+                linkKey, out List<UIResearchConnectorBatch.Part> visuals))
+        {
+            visuals = new List<UIResearchConnectorBatch.Part>();
             researchTreeLinkVisuals[linkKey] = visuals;
-            researchTreeLinkVisualSets[linkKey] = new HashSet<Image>();
+            researchTreeLinkVisualSets[linkKey] =
+                new HashSet<UIResearchConnectorBatch.Part>();
         }
         if (visual != null && researchTreeLinkVisualSets[linkKey].Add(visual))
             visuals.Add(visual);
@@ -2166,8 +2296,9 @@ public sealed partial class KingdomUIRoot
                 {
                     if (outline[i] == null)
                         continue;
-                    outline[i].color = focused ? ResearchFocusWhite : ResearchOutlineNormal;
-                    outline[i].enabled = true;
+                    SetColorIfChanged(outline[i], focused ? ResearchFocusWhite : ResearchOutlineNormal);
+                    if (!outline[i].enabled)
+                        outline[i].enabled = true;
                 }
             }
             RectTransform progress = visualReferences?.ProgressRect;
@@ -2217,9 +2348,12 @@ public sealed partial class KingdomUIRoot
 
         if (refreshBus)
         {
-            HashSet<Image> focusedLineVisuals = focusedResearchLineVisuals;
+            HashSet<UIResearchConnectorBatch.Part> focusedLineVisuals =
+                focusedResearchLineVisuals;
             focusedLineVisuals.Clear();
-            foreach (KeyValuePair<Pair<Research, Research>, List<Image>> pair in researchTreeLinkVisuals)
+            foreach (KeyValuePair<Pair<Research, Research>,
+                         List<UIResearchConnectorBatch.Part>> pair in
+                     researchTreeLinkVisuals)
             {
                 bool focused = IsResearchInSelectedPrerequisitePath(
                     pair.Key.First, pair.Key.Second, focusedIds);
@@ -2230,37 +2364,31 @@ public sealed partial class KingdomUIRoot
                         focusedLineVisuals.Add(pair.Value[i]);
             }
 
-            int lineOrderHash = 17;
-            foreach (KeyValuePair<ResearchLineCacheKey, Image> pair in researchSharedLineVisuals)
+            Color32 normalColor = ResearchArrowColor;
+            Color32 focusColor = ResearchFocusWhite;
+            bool connectorMeshChanged = false;
+            foreach (KeyValuePair<ResearchLineCacheKey,
+                         UIResearchConnectorBatch.Part> pair in
+                     researchSharedLineVisuals)
             {
-                Image visual = pair.Value;
+                UIResearchConnectorBatch.Part visual = pair.Value;
                 if (visual == null)
                     continue;
                 bool focused = focusedLineVisuals.Contains(visual);
-                lineOrderHash = unchecked(lineOrderHash * 31 + (focused ? 1 : 0));
-                SetColorIfChanged(visual, focused ? ResearchFocusWhite : ResearchArrowColor);
-                if (visual.canvasRenderer.GetAlpha() < 0.999f)
-                    visual.canvasRenderer.SetAlpha(1f);
+                if (visual.Focused == focused &&
+                    visual.NormalColor.Equals(normalColor) &&
+                    visual.FocusColor.Equals(focusColor))
+                    continue;
+                visual.Focused = focused;
+                visual.NormalColor = normalColor;
+                visual.FocusColor = focusColor;
+                connectorMeshChanged = true;
             }
-
-            // Ordinary buses go first; highlighted buses go last so their
-            // pixels remain visible at crossings. Reordering is only needed
-            // when the focused membership changes; repeatedly assigning
-            // sibling indices to 2735 Images dirties the whole line Canvas.
-            bool lineOrderChanged = !researchLineOrderHashValid ||
-                lineOrderHash != lastResearchLineOrderHash;
-            if (researchGraphLineLayer != null && lineOrderChanged)
-            {
-                int siblingIndex = 0;
-                foreach (KeyValuePair<ResearchLineCacheKey, Image> pair in researchSharedLineVisuals)
-                    if (pair.Value != null && !focusedLineVisuals.Contains(pair.Value))
-                        pair.Value.transform.SetSiblingIndex(siblingIndex++);
-                foreach (KeyValuePair<ResearchLineCacheKey, Image> pair in researchSharedLineVisuals)
-                    if (pair.Value != null && focusedLineVisuals.Contains(pair.Value))
-                        pair.Value.transform.SetSiblingIndex(siblingIndex++);
-            }
-            lastResearchLineOrderHash = lineOrderHash;
-            researchLineOrderHashValid = true;
+            // Normal and focused parts use separate batch layers. This keeps
+            // the selected prerequisite closure above every ordinary bus at
+            // crossings without assigning thousands of sibling indices.
+            if (connectorMeshChanged)
+                RebuildResearchConnectorBatches();
         }
 #if UNITY_EDITOR
         float visualRefreshMs = (Time.realtimeSinceStartup - visualRefreshStart) * 1000f;
@@ -2280,7 +2408,8 @@ public sealed partial class KingdomUIRoot
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write(
             $"[KingdomPerf] ResearchGraphLines visible={visible} " +
-            $"parts={researchSharedLineVisuals.Count} links={researchTreeLinkVisuals.Count}");
+            $"parts={researchSharedLineVisuals.Count} links={researchTreeLinkVisuals.Count} " +
+            $"batchGraphics={researchConnectorBatches.Count * 2} renderer=batch-mesh-v1");
 #endif
         return true;
     }
@@ -2423,5 +2552,112 @@ public sealed partial class KingdomUIRoot
             new Rect(x, y, halfWidth, halfHeight), new Vector2(.5f, .5f), 100f);
         researchTreeSprites[key] = sprite;
         return sprite;
+    }
+}
+
+/// <summary>
+/// Draws connector quads that share one texture in a single CanvasRenderer.
+/// Geometry remains one record per ResearchTreeSK half-cell segment; only the
+/// Unity UI object representation is batched.
+/// </summary>
+public sealed class UIResearchConnectorBatch : MaskableGraphic
+{
+    internal sealed class Part
+    {
+        internal Rect LocalRect;
+        internal Vector4 Uv;
+        internal Color32 NormalColor;
+        internal Color32 FocusColor;
+        internal bool Focused;
+    }
+
+    private List<Part> parts = new();
+    private Texture texture;
+    private bool drawFocused;
+
+    public int PartCount => parts.Count;
+    public bool DrawFocused => drawFocused;
+    public override Texture mainTexture => texture == null
+        ? Texture2D.whiteTexture
+        : texture;
+
+    internal void Initialize(Texture value, bool focused)
+    {
+        texture = value == null ? Texture2D.whiteTexture : value;
+        drawFocused = focused;
+        raycastTarget = false;
+        maskable = true;
+        color = Color.white;
+        canvasRenderer.cullTransparentMesh = true;
+        canvasRenderer.SetAlpha(1f);
+        SetAllDirty();
+    }
+
+    internal Part CreatePart(
+        Rect localRect,
+        Sprite sprite,
+        Color normalColor,
+        Color focusColor)
+    {
+        Vector4 uv = sprite == null
+            ? new Vector4(0f, 0f, 1f, 1f)
+            : UnityEngine.Sprites.DataUtility.GetOuterUV(sprite);
+        var part = new Part
+        {
+            LocalRect = localRect,
+            Uv = uv,
+            NormalColor = normalColor,
+            FocusColor = focusColor
+        };
+        parts.Add(part);
+        return part;
+    }
+
+    internal void SharePartsWith(UIResearchConnectorBatch source) =>
+        parts = source.parts;
+
+    internal void Rebuild() => SetVerticesDirty();
+
+    protected override void OnPopulateMesh(VertexHelper vertexHelper)
+    {
+        vertexHelper.Clear();
+        for (int i = 0; i < parts.Count; i++)
+        {
+            Part part = parts[i];
+            if (part == null || part.Focused != drawFocused ||
+                part.LocalRect.width <= 0f || part.LocalRect.height <= 0f)
+                continue;
+
+            Rect rect = part.LocalRect;
+            Vector4 uv = part.Uv;
+            Color32 vertexColor = part.Focused
+                ? part.FocusColor
+                : part.NormalColor;
+            int firstVertex = vertexHelper.currentVertCount;
+            vertexHelper.AddVert(
+                new Vector3(rect.xMin, rect.yMin),
+                vertexColor,
+                new Vector2(uv.x, uv.y));
+            vertexHelper.AddVert(
+                new Vector3(rect.xMin, rect.yMax),
+                vertexColor,
+                new Vector2(uv.x, uv.w));
+            vertexHelper.AddVert(
+                new Vector3(rect.xMax, rect.yMax),
+                vertexColor,
+                new Vector2(uv.z, uv.w));
+            vertexHelper.AddVert(
+                new Vector3(rect.xMax, rect.yMin),
+                vertexColor,
+                new Vector2(uv.z, uv.y));
+            vertexHelper.AddTriangle(
+                firstVertex,
+                firstVertex + 1,
+                firstVertex + 2);
+            vertexHelper.AddTriangle(
+                firstVertex + 2,
+                firstVertex + 3,
+                firstVertex);
+        }
     }
 }

@@ -154,7 +154,8 @@ public static class EraGoalEvaluator
                 resourceManager.States.TryGetValue(resource, out ResourceState resourceState))
             {
                 available = resourceState.Amount;
-                productionRate = resourceState.ProductionRate;
+                productionRate = ResourceManager.ApplyCurrentProductionReward(
+                    resourceState.ProductionRate);
                 consumptionRate = resourceState.ConsumptionRate;
             }
             conditions.Add(new EraGoalConditionEvaluation(

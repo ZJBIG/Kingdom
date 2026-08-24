@@ -268,7 +268,7 @@ public sealed class ResearchBalanceTests
         Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingProductionMultiplier, 1.1d, "CeramicKiln"), Is.True);
         Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.242d), Is.True);
         Assert.That(HasEffect(mathematics, ResearchEffectType.GlobalResearchMultiplier, 1.3375d), Is.True);
-        Assert.That(HasEffect(calendar, ResearchEffectType.GlobalFoodProductionMultiplier, 1.1d), Is.True);
+        Assert.That(HasEffect(calendar, ResearchEffectType.GlobalFoodProductionMultiplier, 1.331d), Is.True);
         Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
         Assert.That(
             HasEffect(

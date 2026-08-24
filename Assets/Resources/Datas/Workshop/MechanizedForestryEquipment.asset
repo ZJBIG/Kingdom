@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanizedForestryEquipment
   Label: "\u673A\u68B0\u5316\u6797\u4E1A\u88C5\u5907"
-  Description: "\u5C06\u6797\u6728\u6536\u5272\u673A\u3001\u8FD0\u6750\u7CFB\u7EDF\u548C\u5BC6\u95ED\u5E72\u998F\u8BBE\u5907\u5236\u9020\u6210\u53EF\u8FDE\u7EED\u8FD0\u884C\u7684\u5DE5\u4E1A\u88C5\u5907\u3002"
+  Description: "将林木收割机、运材系统和密闭干馏设备制成可连续运行的工业装备，其远程控制与物料处理方案也可复用于轨道生态农业阵列。"
   SortOrder: 146
   TechLevel: 3
   requiredResearch:

@@ -189,6 +189,7 @@ public sealed class SectorManager
     private readonly List<Pair<Resource, ExpantaNum>> campaignResourceCostBuffer = new();
     private readonly Dictionary<Resource, ExpantaNum> campaignCostAggregationBuffer = new();
     private readonly Action<SectorDefinition> rewardApplier;
+    private BuildingManager buildingManagerCache;
     private bool initialized;
 
     public SectorManager() : this(ApplyRewards)
@@ -390,38 +391,28 @@ public sealed class SectorManager
         return true;
     }
 
-    public bool TryUnlock(SectorDefinition definition, out SectorOperationFailure failure)
+    public SectorOperationFailure GetUnlockFailure(SectorDefinition definition)
     {
         EnsureInitialized();
         if (definition == null || !states.TryGetValue(definition, out SectorState state))
-        {
-            failure = SectorOperationFailure.UnknownSector;
-            return false;
-        }
+            return SectorOperationFailure.UnknownSector;
         if (state.Unlocked)
-        {
-            failure = SectorOperationFailure.AlreadyUnlocked;
-            return false;
-        }
+            return SectorOperationFailure.AlreadyUnlocked;
         if (!CanAccess(definition))
-        {
-            failure = SectorOperationFailure.PrerequisiteNotOccupied;
-            return false;
-        }
+            return SectorOperationFailure.PrerequisiteNotOccupied;
         if (!HasLaunchCenter())
-        {
-            failure = SectorOperationFailure.LaunchCenterRequired;
-            return false;
-        }
-
+            return SectorOperationFailure.LaunchCenterRequired;
         if (!definition.IsHomeSystem && !IsInterstellarRouteUnlocked())
-        {
-            failure = SectorOperationFailure.InterstellarSystemLocked;
-            return false;
-        }
+            return SectorOperationFailure.InterstellarSystemLocked;
+        return SectorOperationFailure.None;
+    }
 
-        state.SetUnlocked(true);
-        failure = SectorOperationFailure.None;
+    public bool TryUnlock(SectorDefinition definition, out SectorOperationFailure failure)
+    {
+        failure = GetUnlockFailure(definition);
+        if (failure != SectorOperationFailure.None)
+            return false;
+        states[definition].SetUnlocked(true);
         return true;
     }
 
@@ -745,10 +736,6 @@ public sealed class SectorManager
         bool previousSectorCampaignActive = state.CampaignActive;
         ExpantaNum previousSectorCasualties = state.CampaignCasualties;
         ExpantaNum previousSectorCombatRatio = state.CampaignCombatRatio;
-        bool previousCampaignActive = runtimeState.Campaign.Active;
-        string previousCampaignTarget = runtimeState.Campaign.TargetSectorId;
-        ExpantaNum previousCampaignCasualties = runtimeState.Campaign.Casualties;
-        ExpantaNum previousCampaignCombatRatio = runtimeState.Campaign.CombatRatio;
         if (!TryConsumeCampaignCosts(
                 runtimeState,
                 resourceManager,
@@ -763,16 +750,11 @@ public sealed class SectorManager
                     if (state.CampaignProgress >= ExpantaNum.One)
                     {
                         state.SetCampaignProgress(ExpantaNum.One);
-                        CompleteOccupation(definition, state, runtimeState);
+                        CompleteOccupation(definition, state);
                     }
                 },
                 () =>
                 {
-                    runtimeState.RestoreCampaignExact(
-                        previousCampaignActive,
-                        previousCampaignTarget,
-                        previousCampaignCasualties,
-                        previousCampaignCombatRatio);
                     state.RestoreExact(
                         state.Unlocked,
                         previousColonizationOccupied,
@@ -1323,7 +1305,10 @@ public sealed class SectorManager
     {
         if (!DataBase<Building>.TryFind(LaunchCenterId, out Building launchCenter))
             return false;
-        BuildingManager buildingManager = UnityEngine.Object.FindObjectOfType<BuildingManager>();
+        BuildingManager buildingManager = buildingManagerCache;
+        if (buildingManager == null)
+            buildingManager = buildingManagerCache =
+                UnityEngine.Object.FindObjectOfType<BuildingManager>();
         return buildingManager != null &&
             buildingManager.States.TryGetValue(launchCenter, out BuildingState state) &&
             state.Amount >= ExpantaNum.One;
@@ -1693,13 +1678,11 @@ public sealed class SectorManager
 
     private void CompleteOccupation(
         SectorDefinition definition,
-        SectorState state,
-        GameState runtimeState)
+        SectorState state)
     {
         state.SetOccupied(true);
         state.SetColonizationActive(false);
         state.SetVisitCount(state.VisitCount + 1);
-        runtimeState.CompleteCampaign();
         rewardApplier(definition);
     }
 

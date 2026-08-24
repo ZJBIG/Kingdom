@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: EnzymaticConversionSystems
   Label: "\u9176\u6CD5\u8F6C\u5316\u7CFB\u7EDF"
-  Description: "\u5C06\u9176\u6CD5\u8F6C\u5316\u5DE5\u827A\u6269\u5C55\u5230\u98DF\u7269\u751F\u4EA7\uFF0C\u907F\u5F00\u519C\u4E1A\u8BBE\u5907\u3001\u8F93\u9001\u7CFB\u7EDF\u548C\u8F68\u9053\u79CD\u690D\u7684\u91CD\u590D\u804C\u8D23\u3002"
+  Description: "利用酶制剂、温控发酵与连续分离提高食品加工的转化效率和整体食物产出。"
   SortOrder: 84
   TechLevel: 3
   requiredResearch:

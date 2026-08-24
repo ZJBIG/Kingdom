@@ -14,6 +14,14 @@ public sealed partial class KingdomUIRoot
     private float lastMusicProgressMaxValue = -1f;
     private float lastMusicVolume = float.NaN;
     private float lastMusicGap = float.NaN;
+    private int lastMusicTimeSecond = -1;
+    private int lastMusicDurationSecond = -1;
+    private string lastMusicTimeTrackName;
+    private int lastMusicCatalogVersion = -1;
+    private string lastMusicTrackVisualId;
+    private bool lastMusicTrackVisualPlaying;
+    private bool lastMusicTrackVisualStopped;
+    private bool musicTrackVisualStateValid;
 
     private MusicManager FindMusicManager()
     {
@@ -24,11 +32,19 @@ public sealed partial class KingdomUIRoot
 
     private void BuildMusicPage(RectTransform parent)
     {
+        MusicManager manager = FindMusicManager();
+        if (musicPageBuilt &&
+            lastMusicCatalogVersion == (manager == null ? -1 : manager.CatalogVersion))
+            return;
         Transform existing = parent.Find("MusicSurface");
         if (existing != null && existing.Find("Controls") != null &&
             existing.Find("TrackListViewport") != null)
         {
+            musicTrackVisualStateValid = false;
+            lastMusicTimeSecond = -1;
             BuildAuthoredMusicPage(existing as RectTransform);
+            if (musicPageBuilt)
+                lastMusicCatalogVersion = manager == null ? -1 : manager.CatalogVersion;
             return;
         }
         musicPageBuilt = false;
@@ -233,8 +249,18 @@ public sealed partial class KingdomUIRoot
         if (musicTimeLabel != null)
         {
             string trackName = track == null ? "没有曲目" : track.Label;
-            SetTextIfChanged(musicTimeLabel,
-                trackName + "  " + FormatMusicTime(current) + " / " + FormatMusicTime(total));
+            int currentSecond = Mathf.Max(0, Mathf.FloorToInt(current));
+            int durationSecond = Mathf.Max(0, Mathf.FloorToInt(total));
+            if (lastMusicTimeSecond != currentSecond ||
+                lastMusicDurationSecond != durationSecond ||
+                lastMusicTimeTrackName != trackName)
+            {
+                SetTextIfChanged(musicTimeLabel,
+                    trackName + "  " + FormatMusicTime(current) + " / " + FormatMusicTime(total));
+                lastMusicTimeSecond = currentSecond;
+                lastMusicDurationSecond = durationSecond;
+                lastMusicTimeTrackName = trackName;
+            }
         }
         if (musicProgressSlider != null)
         {
@@ -284,6 +310,18 @@ public sealed partial class KingdomUIRoot
         if (manager == null)
             return;
         currentTrack ??= manager.CurrentTrack;
+        string currentTrackId = currentTrack == null ? null : currentTrack.Id;
+        bool isPlaying = manager.IsPlaying;
+        bool isStopped = manager.IsPermanentlyStopped;
+        if (musicTrackVisualStateValid &&
+            lastMusicTrackVisualId == currentTrackId &&
+            lastMusicTrackVisualPlaying == isPlaying &&
+            lastMusicTrackVisualStopped == isStopped)
+            return;
+        lastMusicTrackVisualId = currentTrackId;
+        lastMusicTrackVisualPlaying = isPlaying;
+        lastMusicTrackVisualStopped = isStopped;
+        musicTrackVisualStateValid = true;
         foreach (KeyValuePair<string, Button> pair in musicTrackButtons)
         {
             if (pair.Value == null) continue;
@@ -292,7 +330,7 @@ public sealed partial class KingdomUIRoot
                 : pair.Value.transform.parent.GetComponent<Image>();
             if (image != null)
             {
-                bool selected = currentTrack != null && pair.Key == currentTrack.Id;
+                bool selected = currentTrackId != null && pair.Key == currentTrackId;
                 Transform rowTransform = pair.Value.transform.parent;
                 int rowIndex = rowTransform == null ? 0 : rowTransform.GetSiblingIndex();
                 Color color = selected
@@ -305,9 +343,9 @@ public sealed partial class KingdomUIRoot
                 Image playPauseImage = pair.Value.targetGraphic as Image;
                 if (playPauseImage != null)
                 {
-                    string iconName = selected && manager.IsPermanentlyStopped
+                    string iconName = selected && isStopped
                         ? "stop"
-                        : selected && manager.IsPlaying
+                        : selected && isPlaying
                             ? "pause"
                             : "play";
                     Sprite icon = LoadMusicIcon(iconName);

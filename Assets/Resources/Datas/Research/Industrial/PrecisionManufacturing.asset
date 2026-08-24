@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PrecisionManufacturing
   Label: "\u7CBE\u5BC6\u7535\u6C14\u5236\u9020"
-  Description: "\u4EE5\u7CBE\u5BC6\u673A\u5E8A\u3001\u7535\u6C14\u5236\u9020\u548C\u5148\u8FDB\u6750\u6599\u52A0\u5DE5\u4E3A\u6838\u5FC3\uFF0C\u4E13\u95E8\u63D0\u5347\u673A\u5668\u5DE5\u5382\u548C\u7535\u5B50\u8BBE\u5907\u7684\u7CBE\u5EA6\uFF0C\u4E0D\u7B49\u540C\u4E8E\u6D41\u6C34\u7EBF\u6269\u4EA7\u3002"
+  Description: "以精密机床、电气制造和先进材料加工提高机器工厂、机械纺织与工程建设的精度和效率。"
   BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}

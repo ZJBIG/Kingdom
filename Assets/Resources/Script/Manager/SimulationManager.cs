@@ -81,11 +81,12 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 #endif
 
         double frameDelta = Time.unscaledDeltaTime;
+#if UNITY_EDITOR
         // Unity can report the entire editor compile/domain-reload pause as a
-        // single frame. Feeding that hitch into the real-time tick loop only
-        // creates a backlog warning and then discards the excess work. App
-        // suspension is handled by OnApplicationPause; for an editor hitch,
-        // reset the accumulator and resume from the next real frame.
+        // single frame. App suspension is handled by OnApplicationPause; for
+        // an editor hitch, reset the accumulator and resume from the next real
+        // frame. Player hitches must flow through Advance so their backlog is
+        // processed across later frames without exceeding the per-frame budget.
         double maximumFrameDelta = tickIntervalSeconds * maximumTicksPerFrame;
         if (maximumFrameDelta > 0d && frameDelta > maximumFrameDelta)
         {
@@ -93,6 +94,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             backlogWarningLogged = false;
             return;
         }
+#endif
 
         Advance(frameDelta);
     }
@@ -143,10 +145,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         double maximumBacklog = tickInterval * maximumTicksPerFrame;
         if (accumulatedSeconds > maximumBacklog)
         {
-            accumulatedSeconds = maximumBacklog;
             if (!backlogWarningLogged)
             {
-            Debug.LogWarning("模拟积压超过每帧上限，已进行限制处理。");
+                Debug.LogWarning("模拟积压超过单帧处理预算，将在后续帧继续结算。");
                 backlogWarningLogged = true;
             }
         }
@@ -166,31 +167,36 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         long tickAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
         perfTickAllocationCounterAvailable |= tickAllocatedStart > 0L;
 #endif
-        BuildingManager.Instance.PrepareTickResourceSatisfaction(deltaSeconds);
+        BuildingManager buildingManager = BuildingManager.Instance;
+        buildingManager.PrepareTickResourceSatisfaction(deltaSeconds);
 #if UNITY_EDITOR
         float buildingEnd = Time.realtimeSinceStartup;
 #endif
         // PrepareTickResourceSatisfaction already performs the final
         // efficiency convergence and refreshes ResearchPower. Repeating the
         // full building scan here only duplicated work every simulation tick.
-        GameManager.Instance.Tick(
+        GameManager gameManager = GameManager.Instance;
+        gameManager.Tick(
             deltaSeconds,
-            BuildingManager.Instance.SafePopulationDepartureAllowance);
+            buildingManager.SafePopulationDepartureAllowance);
 #if UNITY_EDITOR
         float gameEnd = Time.realtimeSinceStartup;
 #endif
-        ResourceManager.Instance.Tick(deltaSeconds);
+        ResourceManager resourceManager = ResourceManager.Instance;
+        resourceManager.Tick(deltaSeconds);
 #if UNITY_EDITOR
         float resourceEnd = Time.realtimeSinceStartup;
 #endif
-        GameManager.Instance.Sectors.TickOccupiedResourceProduction(
+        SectorManager sectors = gameManager.Sectors;
+        sectors.TickOccupiedResourceProduction(
             deltaSeconds,
-            ResourceManager.Instance);
-        GameManager.Instance.Sectors.TickActiveColonization(deltaSeconds, GameManager.Instance.State, ResourceManager.Instance, out _);
-        GameManager.Instance.Sectors.TickActiveCampaign(
+            resourceManager);
+        GameState gameState = gameManager.State;
+        sectors.TickActiveColonization(deltaSeconds, gameState, resourceManager, out _);
+        sectors.TickActiveCampaign(
             deltaSeconds,
-            GameManager.Instance.State,
-            ResourceManager.Instance,
+            gameState,
+            resourceManager,
             out _);
 #if UNITY_EDITOR
         float sectorEnd = Time.realtimeSinceStartup;
@@ -234,10 +240,10 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                 $"resourceAvg={perfResourceTotalMilliseconds / perfTickSampleCount:F2}ms resourceMax={perfResourceMaximumMilliseconds:F2}ms " +
                 $"sectorsAvg={perfSectorTotalMilliseconds / perfTickSampleCount:F2}ms sectorsMax={perfSectorMaximumMilliseconds:F2}ms " +
                 $"researchAvg={perfResearchTotalMilliseconds / perfTickSampleCount:F2}ms researchMax={perfResearchMaximumMilliseconds:F2}ms " +
-                $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount} " +
-                $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}/" +
-                $"{BuildingManager.Instance.LastActiveBuildingCount + 1} " +
-                $"researchPowerRebuilds={BuildingManager.Instance.ResearchPowerRebuildCount} " +
+                $"activeBuildings={buildingManager.LastActiveBuildingCount} " +
+                $"efficiencyPasses={buildingManager.LastEfficiencyPassCount}/" +
+                $"{buildingManager.LastActiveBuildingCount + 1} " +
+                $"researchPowerRebuilds={buildingManager.ResearchPowerRebuildCount} " +
                 $"allocKB={(perfTickAllocationCounterAvailable ? (perfTickAllocatedBytes / 1024L).ToString() : "NA")}");
             perfTickSampleCount = 0;
             perfTickTotalMilliseconds = 0f;
@@ -263,16 +269,16 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                       $"resource={resourceMilliseconds:F1}ms, " +
                       $"sectors={sectorMilliseconds:F1}ms, " +
                       $"research={researchMilliseconds:F1}ms, " +
-                      $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount}, " +
-                      $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}");
+                      $"activeBuildings={buildingManager.LastActiveBuildingCount}, " +
+                      $"efficiencyPasses={buildingManager.LastEfficiencyPassCount}");
             KingdomEditorPerfLog.Write($"[KingdomPerf] ManualTick {((tickEnd - tickStart) * 1000f):F1}ms: " +
                                        $"building={buildingMilliseconds:F1}ms, " +
                                        $"game={gameMilliseconds:F1}ms, " +
                                        $"resource={resourceMilliseconds:F1}ms, " +
                                        $"sectors={sectorMilliseconds:F1}ms, " +
                                        $"research={researchMilliseconds:F1}ms, " +
-                                       $"activeBuildings={BuildingManager.Instance.LastActiveBuildingCount}, " +
-                                       $"efficiencyPasses={BuildingManager.Instance.LastEfficiencyPassCount}");
+                                       $"activeBuildings={buildingManager.LastActiveBuildingCount}, " +
+                                       $"efficiencyPasses={buildingManager.LastEfficiencyPassCount}");
         }
 #endif
     }
@@ -291,20 +297,25 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         {
             double step = Math.Min(OfflineStepSeconds, remaining);
             double effectiveStep = CalculateOfflineEffectiveSeconds(elapsed, step);
-            BuildingManager.Instance.PrepareTickResourceSatisfaction(effectiveStep);
-            GameManager.Instance.TickOffline(
+            BuildingManager buildingManager = BuildingManager.Instance;
+            buildingManager.PrepareTickResourceSatisfaction(effectiveStep);
+            GameManager gameManager = GameManager.Instance;
+            gameManager.TickOffline(
                 step,
                 effectiveStep,
-                BuildingManager.Instance.SafePopulationDepartureAllowance);
-            ResourceManager.Instance.Tick(effectiveStep);
-            GameManager.Instance.Sectors.TickOccupiedResourceProduction(
+                buildingManager.SafePopulationDepartureAllowance);
+            ResourceManager resourceManager = ResourceManager.Instance;
+            resourceManager.Tick(effectiveStep);
+            SectorManager sectors = gameManager.Sectors;
+            sectors.TickOccupiedResourceProduction(
                 effectiveStep,
-                ResourceManager.Instance);
-            GameManager.Instance.Sectors.TickActiveColonization(effectiveStep, GameManager.Instance.State, ResourceManager.Instance, out _);
-            GameManager.Instance.Sectors.TickActiveCampaign(
+                resourceManager);
+            GameState gameState = gameManager.State;
+            sectors.TickActiveColonization(effectiveStep, gameState, resourceManager, out _);
+            sectors.TickActiveCampaign(
                 effectiveStep,
-                GameManager.Instance.State,
-                ResourceManager.Instance,
+                gameState,
+                resourceManager,
                 out _);
             ResearchManager.Instance.TickOffline(effectiveStep);
             remaining -= step;

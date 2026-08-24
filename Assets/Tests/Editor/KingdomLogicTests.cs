@@ -23,6 +23,7 @@ public sealed class KingdomLogicTests
         AddManagerObjects(managerObjects, UnityEngine.Object.FindObjectsOfType<WorkshopManager>());
         AddManagerObjects(managerObjects, UnityEngine.Object.FindObjectsOfType<SimulationManager>());
         AddManagerObjects(managerObjects, UnityEngine.Object.FindObjectsOfType<SaveManager>());
+        AddManagerObjects(managerObjects, UnityEngine.Object.FindObjectsOfType<TutorialManager>());
 
         foreach (GameObject managerObject in managerObjects)
             UnityEngine.Object.DestroyImmediate(managerObject);
@@ -235,6 +236,37 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void ResourceDerivedRateDelta_SnapsOnlyCancellationResidueToZero()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceRate-Cancellation-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+
+        resourceManager.SetProductionRate(wood, new ExpantaNum(1.000001d));
+        resourceManager.AdjustProductionRate(wood, new ExpantaNum(-1d));
+        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.EqualTo(ExpantaNum.Zero));
+
+        resourceManager.SetConsumptionRate(wood, new ExpantaNum(1.000001d));
+        resourceManager.AdjustConsumptionRate(wood, new ExpantaNum(-1d));
+        Assert.That(resourceManager.GetState(wood).ConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+
+        resourceManager.SetProductionRate(wood, new ExpantaNum(0.000002d));
+        resourceManager.AdjustProductionRate(wood, new ExpantaNum(-0.000001d));
+        Assert.That(
+            resourceManager.GetState(wood).ProductionRate,
+            Is.EqualTo(new ExpantaNum(0.000001d)),
+            "A legitimate small remaining rate must not be truncated.");
+
+        resourceManager.SetProductionRate(wood, new ExpantaNum(0.5d));
+        resourceManager.SetConsumptionRate(wood, ExpantaNum.One);
+        Assert.That(
+            resourceManager.GetState(wood).ProductionRate -
+            resourceManager.GetState(wood).ConsumptionRate,
+            Is.EqualTo(new ExpantaNum(-0.5d)),
+            "A real negative net rate must remain visible.");
+    }
+
+    [Test]
     public void ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick()
     {
         Assert.That(ResourceManager.CalculateSatisfaction(2, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.2)));
@@ -244,6 +276,68 @@ public sealed class KingdomLogicTests
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 10, 0), Is.EqualTo(ExpantaNum.One));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.CalculateSatisfaction(0, 0, 10, double.NaN));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResourceManager.CalculateSatisfaction(0, 0, 10, double.PositiveInfinity));
+    }
+
+    [Test]
+    public void BuildingEfficiency_UsesTheLeastSatisfiedResourceInput()
+    {
+        CreateManager<GameManager>("MultiInput-GameManager");
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("MultiInput-ResourceManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("MultiInput-BuildingManager");
+
+        Resource first = ScriptableObject.CreateInstance<Resource>();
+        first.SetIdForEditor("MultiInputFirst");
+        createdObjects.Add(first);
+        Resource second = ScriptableObject.CreateInstance<Resource>();
+        second.SetIdForEditor("MultiInputSecond");
+        createdObjects.Add(second);
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.SetIdForEditor("MultiInputConsumer");
+        building.TechLevel = TechLevel.Animal;
+        building.ConfigureEconomyForEditor(
+            new ExpantaNum(1.15d),
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(first, new ExpantaNum(10)),
+                new Pair<Resource, ExpantaNum>(second, new ExpantaNum(10))
+            });
+        createdObjects.Add(building);
+
+        Assert.That(
+            buildingManager.TryBuild(building, ExpantaNum.One, out BuildFailure failure),
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        resourceManager.SetAmount(first, new ExpantaNum(8));
+        resourceManager.SetAmount(second, new ExpantaNum(5));
+
+        MethodInfo prepare = typeof(BuildingManager).GetMethod(
+            "PrepareTickResourceSatisfaction",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(prepare, Is.Not.Null);
+        prepare.Invoke(buildingManager, new object[] { 1d });
+
+        Assert.That(
+            buildingManager.GetState(building).Efficiency.ToDouble(),
+            Is.EqualTo(0.5d).Within(0.000001d));
     }
 
     [Test]
@@ -353,6 +447,60 @@ public sealed class KingdomLogicTests
             departure.Population,
             Is.EqualTo(new ExpantaNum(2)),
             "Housing over-capacity alone must not make population leave.");
+    }
+
+    [Test]
+    public void PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth()
+    {
+        GameManager gameManager = CreateManager<GameManager>("PopulationNetRate-GameManager");
+        InvokeGameStateMethod(
+            gameManager.State,
+            "RestoreCore",
+            0,
+            "Test",
+            TechLevel.Animal,
+            ExpantaNum.Zero,
+            0L);
+        InvokeGameStateMethod(gameManager.State, "RestorePopulation", new ExpantaNum(10));
+        InvokeGameStateMethod(gameManager.State, "AdjustPopulationCapacity", new ExpantaNum(20));
+        InvokeGameStateMethod(gameManager.State, "AdjustFoodRates", ExpantaNum.Zero, new ExpantaNum(20));
+
+        Assert.That(gameManager.State.FoodNetRate, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(gameManager.CurrentPopulationGrowthRatePerSecond, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(gameManager.CurrentPopulationDepartureRatePerSecond, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(
+            gameManager.CurrentPopulationNetRatePerSecond,
+            Is.EqualTo(-gameManager.CurrentPopulationDepartureRatePerSecond));
+    }
+
+    [Test]
+    public void PopulationGrowthRate_IsMonotonicWithHappiness()
+    {
+        PopulationState population = new PopulationState();
+        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(10));
+        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(100));
+        MethodInfo currentGrowth = typeof(PopulationState).GetMethod(
+            "CurrentGrowthRatePerSecond",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(currentGrowth, Is.Not.Null);
+
+        ExpantaNum stopped = (ExpantaNum)currentGrowth.Invoke(
+            population,
+            new object[] { ExpantaNum.Zero, PopulationState.BaseGrowthRatePerSecond });
+        ExpantaNum low = (ExpantaNum)currentGrowth.Invoke(
+            population,
+            new object[] { new ExpantaNum(0.5d), PopulationState.BaseGrowthRatePerSecond });
+        ExpantaNum normal = (ExpantaNum)currentGrowth.Invoke(
+            population,
+            new object[] { ExpantaNum.One, PopulationState.BaseGrowthRatePerSecond });
+        ExpantaNum high = (ExpantaNum)currentGrowth.Invoke(
+            population,
+            new object[] { new ExpantaNum(1.5d), PopulationState.BaseGrowthRatePerSecond });
+
+        Assert.That(stopped, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(low, Is.GreaterThan(stopped));
+        Assert.That(normal, Is.GreaterThan(low));
+        Assert.That(high, Is.GreaterThan(normal));
     }
 
     [Test]
@@ -1467,6 +1615,53 @@ public sealed class KingdomLogicTests
         StringAssert.Contains(dependent.Id, exception.InnerException.Message);
     }
 
+    [Test]
+    public void WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder()
+    {
+        GameManager gameManager = CreateManager<GameManager>("WorkshopOrder-GameManager");
+        CreateManager<ResourceManager>("WorkshopOrder-ResourceManager");
+        CreateManager<BuildingManager>("WorkshopOrder-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("WorkshopOrder-ResearchManager");
+        WorkshopManager workshopManager =
+            CreateManager<WorkshopManager>("WorkshopOrder-WorkshopManager");
+        WorkshopUpgrade dependent =
+            DataBase<WorkshopUpgrade>.Find("EnzymaticConversionSystems");
+        WorkshopUpgrade prerequisite =
+            DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering");
+        Assert.That(dependent.RequiredUpgrades, Does.Contain(prerequisite));
+        InvokeGameStateMethod(
+            gameManager.State,
+            "AdvanceTechLevel",
+            TechLevel.Industrial);
+        foreach (WorkshopUpgrade upgrade in new[] { dependent, prerequisite })
+            for (int i = 0; i < upgrade.RequiredResearch.Count; i++)
+                InvokeResearchStateMethod(
+                    researchManager.GetState(upgrade.RequiredResearch[i]),
+                    "SetStatus",
+                    ResearchStatus.Completed);
+
+        MethodInfo restore = typeof(WorkshopManager).GetMethod(
+            "RestoreSaveData",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(restore, Is.Not.Null);
+        Assert.DoesNotThrow(() => restore.Invoke(
+            workshopManager,
+            new object[]
+            {
+                new SaveManager.WorkshopSaveData
+                {
+                    PurchasedUpgradeIds = new List<string>
+                    {
+                        dependent.Id,
+                        prerequisite.Id
+                    }
+                }
+            }));
+        Assert.That(workshopManager.IsPurchased(prerequisite), Is.True);
+        Assert.That(workshopManager.IsPurchased(dependent), Is.True);
+    }
+
     private static SaveManager.KingdomSaveData CreateRepresentativeSaveData()
     {
         return new SaveManager.KingdomSaveData
@@ -1805,7 +2000,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchCostPayment_IsIncrementalAndOnlyPaidOnceWithoutUi()
+    public void ResearchCostPayment_IsAtomicAndOnlyPaidOnceWithoutUi()
     {
         ResourceManager resourceManager =
             CreateManager<ResourceManager>("ResourceManager-Test");
@@ -1817,12 +2012,12 @@ public sealed class KingdomLogicTests
         resourceManager.SetAmount(wood, 29);
         Resource stone = DataBase<Resource>.Find("StoneChunk");
         resourceManager.SetAmount(stone, 35);
-        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(29)));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(35)));
         Assert.That(state.CostPaid, Is.False);
 
-        resourceManager.SetAmount(wood, 1);
+        resourceManager.AddAmount(wood, 1);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.CostPaid, Is.True);
@@ -2054,7 +2249,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ResearchCostPayment_PaysAvailableResourcesIndependently()
+    public void ResearchCostPayment_RejectsPartialMultiResourcePaymentWithoutMutation()
     {
         ResourceManager resourceManager =
             CreateManager<ResourceManager>("ResourceManager-AtomicResearch-Test");
@@ -2064,15 +2259,14 @@ public sealed class KingdomLogicTests
         Research research = DataBase<Research>.Find("Mathematics");
         var state = new ResearchState(research);
 
-        resourceManager.SetAmount(wood, 60);
-        resourceManager.SetAmount(stone, 29);
-        Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));
+        resourceManager.SetAmount(wood, 98);
+        resourceManager.SetAmount(stone, 48);
+        Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(98)));
+        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(48)));
         Assert.That(state.CostPaid, Is.False);
 
-        resourceManager.SetAmount(wood, 38);
-        resourceManager.SetAmount(stone, 20);
+        resourceManager.AddAmount(stone, 1);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));

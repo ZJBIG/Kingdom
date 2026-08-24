@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutomatedShipyardAssembly
   Label: "自动化船坞装配"
-  Description: "通过钛合金承力结构、模块化生产线、自动焊接、密封材料和精密检测缩短星舰装配周期，提升船坞持续制造远征舰船的能力。"
+  Description: "通过钛合金承力结构、模块化生产线、自动焊接、密封材料和精密检测降低船坞建造材料需求，并提升星际舰队作战能力。"
   SortOrder: 430
   TechLevel: 4
   requiredResearch:

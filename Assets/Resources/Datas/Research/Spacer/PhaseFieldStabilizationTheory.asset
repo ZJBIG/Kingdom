@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PhaseFieldStabilizationTheory
   m_EditorClassIdentifier: 
   id: PhaseFieldStabilizationTheory
-  Label: "\u76f8\u53d8\u6750\u6599\u8010\u4e45\u7406\u8bba"
-  Description: "\u7814\u7a76\u76f8\u53d8\u6750\u6599\u5728\u771f\u7a7a\u3001\u8f90\u5c04\u548c\u6781\u7aef\u6e29\u5dee\u4e0b\u7684\u7a33\u5b9a\u6761\u4ef6\uff0c\u5efa\u7acb\u76f8\u4f4d\u6821\u51c6\u3001\u7ed3\u6784\u4fdd\u6301\u4e0e\u8fdc\u7a0b\u8fd0\u8f93\u7684\u7edf\u4e00\u7406\u8bba\uff0c\u4e3a\u6df1\u7a7a\u63a2\u7d22\u548c\u540e\u7eed\u9ad8\u80fd\u5de5\u7a0b\u63d0\u4f9b\u53ef\u9760\u7684\u6750\u6599\u57fa\u7840\u3002"
+  Label: "相位材料耐久理论"
+  Description: "研究相位材料在真空、辐射和极端温差下的稳定条件，建立相位校准、结构保持与远程运输的统一理论，为深空探索和后续高能工程提供可靠的材料基础。"
   BaseCost: "44000000"
   prerequisites:
   - {fileID: 11400000, guid: 5e6f708192a3b4c5d6e7f8091a2b3c4d, type: 2}

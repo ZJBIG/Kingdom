@@ -1,7 +1,7 @@
 # Economy Simulation Report - Normal
 
 Offline runtime-aligned simulation; no Unity runtime was launched.
-Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
+Strict snapshot: 40 resources, 65 buildings, 128 research, 82 Workshop upgrades.
 
 ## Rules
 
@@ -17,7 +17,7 @@ Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 - Total productivity equals population x2 plus fixed research and owned-building grants; construction checks pre-build available productivity.
 - Sector occupation/campaigns are not simulated; territory totals therefore include research and Workshop effects only, not Sector territory rewards.
 - Productivity-blocked building decision time: total 315 seconds; longest continuous 90 seconds.
-- Final population growth: x1.6, 91.905/s; productivity utilization: 70.8%; territory: 285/800.
+- Final population growth: x1.6, 38.286/s; productivity utilization: 39.2%; territory: 285/800.
 
 ## Animal Age
 
@@ -26,7 +26,7 @@ Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 
 ## Neolithic Age
 
-到达时间: 76.32 分钟
+到达时间: 76.57 分钟
 完成研究: 16
 
 ## Medieval Age

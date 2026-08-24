@@ -34,18 +34,10 @@ MonoBehaviour:
   - Type: 32
     Building: {fileID: 0}
     Resource: {fileID: 0}
-    value: "1.875"
-  - Type: 32
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    value: "1.8"
+    value: "6.075"
   - Type: 1
     Building: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
     Resource: {fileID: 0}
     value: "2.4"
-  - Type: 32
-    Building: {fileID: 0}
-    Resource: {fileID: 0}
-    value: "1.8"
   TechLevel: 3
   AdvancesTechLevel: 0

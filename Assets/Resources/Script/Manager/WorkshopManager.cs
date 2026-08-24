@@ -177,6 +177,14 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                     throw new InvalidOperationException(
                         $"存档中的工坊升级“{definition.Id}”缺少研究前置。");
             }
+        }
+
+        // PurchasedUpgradeIds is a serialized set, not a topological list.
+        // Validate upgrade prerequisites only after every ID has been parsed;
+        // otherwise a valid save depends on the stable-ID sort order used by
+        // CaptureSaveData.
+        foreach (WorkshopUpgrade definition in purchased)
+        {
             for (int j = 0; j < definition.RequiredUpgrades.Count; j++)
             {
                 WorkshopUpgrade prerequisite = definition.RequiredUpgrades[j];

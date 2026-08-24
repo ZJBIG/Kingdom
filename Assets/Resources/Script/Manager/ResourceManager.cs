@@ -5,6 +5,8 @@ using UnityEngine;
 public class ResourceManager : Singleton<ResourceManager>
 {
     public const string StartingResourceId = "WoodLog";
+    private static readonly ExpantaNum DerivedRateCancellationTolerance =
+        new ExpantaNum(0.000001d);
 
     private ExpantaNum globalEfficiencyFactor = ExpantaNum.One;
     public ExpantaNum GlobalEfficiencyFactor
@@ -323,13 +325,26 @@ public class ResourceManager : Singleton<ResourceManager>
     public void AdjustProductionRate(Resource resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
-        state.SetProductionRate(state.ProductionRate + delta);
+        state.SetProductionRate(ApplyDerivedRateDelta(state.ProductionRate, delta));
     }
 
     public void AdjustConsumptionRate(Resource resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
-        state.SetConsumptionRate(state.ConsumptionRate + delta);
+        state.SetConsumptionRate(ApplyDerivedRateDelta(state.ConsumptionRate, delta));
+    }
+
+    private static ExpantaNum ApplyDerivedRateDelta(ExpantaNum current, ExpantaNum delta)
+    {
+        ExpantaNum next = current + delta;
+        return next.IsFinite &&
+            delta < ExpantaNum.Zero &&
+            current > DerivedRateCancellationTolerance &&
+            -delta > DerivedRateCancellationTolerance &&
+            next > ExpantaNum.Zero &&
+            next <= DerivedRateCancellationTolerance
+                ? ExpantaNum.Zero
+                : next;
     }
 
     public static ExpantaNum AdvanceAmount(
@@ -394,6 +409,8 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        if (orderedStates.Count == 0)
+            return;
         ExpantaNum happinessMultiplier = GetHappinessRewardMultiplier();
         for (int i = 0; i < orderedStates.Count; i++)
         {
@@ -407,7 +424,10 @@ public class ResourceManager : Singleton<ResourceManager>
 
     }
 
-    private static ExpantaNum GetHappinessRewardMultiplier()
+    internal static ExpantaNum ApplyCurrentProductionReward(ExpantaNum productionRate) =>
+        productionRate * GetHappinessRewardMultiplier();
+
+    internal static ExpantaNum GetHappinessRewardMultiplier()
     {
         GameManager gameManager = GameManager.Instance;
         return gameManager?.State?.HappinessRewardMultiplier ?? ExpantaNum.One;

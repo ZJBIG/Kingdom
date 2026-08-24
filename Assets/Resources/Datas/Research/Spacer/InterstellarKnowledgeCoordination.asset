@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarKnowledgeCoordination
   Label: "星际知识协同"
-  Description: "建立跨星区知识传承、实验复现、计量基准、误差溯源与数据版本协同制度，使 InterstellarTheoryNexus 能够可靠汇总并验证远方观测结果。"
+  Description: "建立跨星区知识传承、实验复现、计量基准、误差溯源与数据版本协同制度，使星际理论中枢能够可靠汇总并验证远方观测结果。"
   BaseCost: "20000000"
   prerequisites:
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}

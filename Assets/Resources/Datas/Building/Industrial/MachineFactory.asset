@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MachineFactory
   Label: "\u673A\u5668\u5236\u9020\u5382"
-  Description: "\u4F7F\u7528\u94A2\u6750\u3001\u94DC\u7EBF\u3001\u9752\u94DC\u3001\u6DA6\u6ED1\u5242\u548C\u6A61\u80F6\u751F\u4EA7\u901A\u7528\u673A\u68B0\u90E8\u4EF6\u4E0E\u5185\u71C3\u673A\uFF0C\u4E0D\u518D\u540C\u65F6\u5305\u529E\u7535\u5B50\u548C\u7CBE\u5BC6\u96F6\u4EF6\u3002"
+  Description: "使用钢材、铜线、青铜、铝、润滑剂和橡胶生产机械部件、内燃机与轻质复合材料，为工业设备和后续航天结构提供基础。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

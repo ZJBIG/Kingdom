@@ -10,6 +10,10 @@ using UnityEngine.UI;
 /// </summary>
 public sealed partial class KingdomUIRoot
 {
+    private readonly StringBuilder developmentGuidanceTextBuilder = new(512);
+    private string lastDevelopmentGuidanceNavigationPage;
+    private bool developmentGuidanceNavigationInitialized;
+
     private void Update()
     {
 #if UNITY_EDITOR
@@ -86,6 +90,7 @@ public sealed partial class KingdomUIRoot
         navigationVisibilityRefreshTimer += Time.unscaledDeltaTime;
         buildingStructureRefreshTimer += Time.unscaledDeltaTime;
         eraPageRefreshTimer += Time.unscaledDeltaTime;
+        sectorPageRefreshTimer += Time.unscaledDeltaTime;
 #if UNITY_EDITOR
         uiSlowRefreshLogCooldown = Mathf.Max(0f, uiSlowRefreshLogCooldown - Time.unscaledDeltaTime);
         uiStatsLogCooldown = Mathf.Max(0f, uiStatsLogCooldown - Time.unscaledDeltaTime);
@@ -220,21 +225,20 @@ public sealed partial class KingdomUIRoot
         if (populatedPage != "Buildings" || BuildingManager.Instance == null)
             return;
 
-        string signature = BuildBuildingDisplaySignature();
+        StringBuilder signature = BuildBuildingDisplaySignature();
         if (lastBuildingDisplaySignature == null)
         {
-            lastBuildingDisplaySignature = signature;
+            lastBuildingDisplaySignature = signature.ToString();
             return;
         }
-        if (lastBuildingDisplaySignature == signature)
+        if (SignatureEquals(signature, lastBuildingDisplaySignature))
             return;
 
         // 升级完成后，旧层级可能变为零数量；只在显示成员变化时重建列表。
-        lastBuildingDisplaySignature = signature;
+        lastBuildingDisplaySignature = signature.ToString();
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
         buildingRowsBuilt = false;
         PopulatePage("Buildings");
-        Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
             pageScroll.verticalNormalizedPosition = normalizedPosition;
     }
@@ -328,6 +332,11 @@ public sealed partial class KingdomUIRoot
             RefreshEraPageIfChanged();
             eraPageRefreshTimer = 0f;
         }
+        if (!pageScrolling && populatedPage == "Sectors" && sectorPageRefreshTimer >= 1f)
+        {
+            RefreshSectorRowSummaries();
+            sectorPageRefreshTimer = 0f;
+        }
         if (refreshScrolledValues && selectedResource != null && ShouldRefreshSelectedResource())
         {
 #if UNITY_EDITOR
@@ -351,7 +360,9 @@ public sealed partial class KingdomUIRoot
         else if (refreshScrolledValues && selectedWorkshop != null)
         {
             RefreshRequirementRows(selectedWorkshop.ResourceRequirements);
-            ConfigureWorkshopPaymentButton(selectedWorkshop);
+            ConfigureWorkshopPaymentButton(selectedWorkshop, false);
+            if (!pageScrolling && workshopRowsUiDirty && populatedPage == "Workshop")
+                SetWorkshopDetailBody(selectedWorkshop);
         }
         else if (!pageScrolling && populatedPage == "Research")
         {
@@ -441,17 +452,19 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshEraPageIfChanged()
     {
-        if (gameManagerCache == null || gameManagerCache.State == null ||
-            string.Equals(
-                BuildEraPageStateSignature(gameManagerCache.State),
-                eraPageStateSignature,
-                StringComparison.Ordinal))
+        if (gameManagerCache == null || gameManagerCache.State == null)
+            return;
+        GameState state = gameManagerCache.State;
+        EraGoalEvaluation eraGoal = EraGoalEvaluator.Evaluate(
+            state.TechLevel,
+            researchManagerCache,
+            resourceManagerCache);
+        string signature = BuildEraPageStateSignature(state, eraGoal);
+        if (string.Equals(signature, eraPageStateSignature, StringComparison.Ordinal))
             return;
 
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
-        eraRowsBuilt = false;
-        PopulatePage("Era");
-        Canvas.ForceUpdateCanvases();
+        PopulatePage("Era", true, eraGoal);
         if (pageScroll != null)
             pageScroll.verticalNormalizedPosition = normalizedPosition;
     }
@@ -509,6 +522,7 @@ public sealed partial class KingdomUIRoot
     {
         researchQueueUiDirty = true;
         researchDynamicUiDirty = true;
+        workshopRowsUiDirty = true;
 #if UNITY_EDITOR
         researchQueueEventCount++;
         if (researchQueueEventLogCooldown <= 0f)
@@ -528,15 +542,15 @@ public sealed partial class KingdomUIRoot
             return;
 
         researchQueuePollTimer = 0f;
-        string signature = BuildResearchQueueSignature();
-        if (string.Equals(lastResearchQueuePollSignature, signature, StringComparison.Ordinal))
+        StringBuilder signature = BuildResearchQueueSignatureBuffer();
+        if (SignatureEquals(signature, lastResearchQueuePollSignature))
             return;
 
         // The event is the fast path, but older ResearchManager actions and
         // external state changes do not all raise it. Keep a cheap queue-only
         // fallback so the toolbar cannot remain stale until the next page
         // rebuild. This avoids the 79-node structural scan.
-        lastResearchQueuePollSignature = signature;
+        lastResearchQueuePollSignature = signature.ToString();
         researchQueueUiDirty = true;
         // Polling is also the fallback for queue mutations that bypass the
         // manager event. Mark the graph dirty so queued/active node visuals
@@ -571,7 +585,6 @@ public sealed partial class KingdomUIRoot
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
         workshopRowsBuilt = false;
         PopulatePage("Workshop");
-        Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
             pageScroll.verticalNormalizedPosition = normalizedPosition;
         workshopRowsUiDirty = false;
@@ -661,13 +674,17 @@ public sealed partial class KingdomUIRoot
         {
             try
             {
+                tutorialManager.RecordPageVisited(populatedPage);
                 tutorialSnapshot = tutorialManager.Evaluate();
-                StringBuilder onboarding = new StringBuilder();
+                StringBuilder onboarding = developmentGuidanceTextBuilder;
+                onboarding.Clear();
                 onboarding.Append("当前时代：").Append(tutorialSnapshot.CurrentEra).Append("\n");
                 onboarding.Append("文明复兴：").Append(tutorialSnapshot.CivilizationContext).Append("\n");
                 onboarding.Append("人口：").Append(tutorialSnapshot.PopulationText)
                     .Append("  食物：").Append(tutorialSnapshot.FoodText)
                     .Append("  ").Append(tutorialSnapshot.CoreResourceText).Append("\n");
+                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.CompletedGoal))
+                    onboarding.Append("上一步已完成：").Append(tutorialSnapshot.CompletedGoal).Append("\n");
                 onboarding.Append("当前目标：").Append(tutorialSnapshot.CurrentGoal).Append("\n");
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NarrativeText))
                     onboarding.Append(tutorialSnapshot.NarrativeText).Append("\n");
@@ -675,15 +692,29 @@ public sealed partial class KingdomUIRoot
                 onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
-                developmentGuidanceText.text = onboarding.ToString();
+                if (!SignatureEquals(onboarding, developmentGuidanceText.text))
+                    developmentGuidanceText.text = onboarding.ToString();
                 developmentGuidanceText.color = TextPrimary;
                 if (developmentGuidanceButton != null)
                 {
-                    developmentGuidanceButton.onClick.RemoveAllListeners();
                     string destination = tutorialSnapshot.NavigationPage;
-                    developmentGuidanceButton.interactable = pages.ContainsKey(destination);
-                    if (developmentGuidanceButton.interactable)
-                        developmentGuidanceButton.onClick.AddListener(() => SetPage(destination));
+                    bool destinationChanged = !developmentGuidanceNavigationInitialized ||
+                        !string.Equals(lastDevelopmentGuidanceNavigationPage, destination, StringComparison.Ordinal);
+                    if (destinationChanged)
+                        developmentGuidanceButton.onClick.RemoveAllListeners();
+                    bool wasInteractable = developmentGuidanceButton.interactable;
+                    bool canNavigate = pages.ContainsKey(destination) &&
+                        !string.Equals(destination, populatedPage, StringComparison.Ordinal);
+                    developmentGuidanceButton.interactable = canNavigate;
+                    if (destinationChanged || wasInteractable != canNavigate)
+                    {
+                        if (!destinationChanged)
+                            developmentGuidanceButton.onClick.RemoveAllListeners();
+                        if (canNavigate)
+                            developmentGuidanceButton.onClick.AddListener(() => SetPage(destination));
+                        lastDevelopmentGuidanceNavigationPage = destination;
+                        developmentGuidanceNavigationInitialized = true;
+                    }
                 }
                 return;
             }
@@ -720,7 +751,8 @@ public sealed partial class KingdomUIRoot
             return;
         }
         DevelopmentGuidanceSnapshot snapshot = developmentGuidanceSnapshot;
-        StringBuilder body = new StringBuilder();
+        StringBuilder body = developmentGuidanceTextBuilder;
+        body.Clear();
         if (!string.IsNullOrEmpty(snapshot.EraText))
             body.Append(snapshot.EraText).Append("  |  ");
         body.Append(snapshot.Title ?? string.Empty).Append("\n\n");
@@ -728,10 +760,9 @@ public sealed partial class KingdomUIRoot
         IReadOnlyList<string> blockers = snapshot.Blockers ?? Array.Empty<string>();
         for (int i = 0; i < blockers.Count && i < 3; i++)
             body.Append("\n- ").Append(blockers[i]);
-        string renderedBody = body.ToString();
-        if (developmentGuidanceText.text != renderedBody)
+        if (!SignatureEquals(body, developmentGuidanceText.text))
         {
-            developmentGuidanceText.text = renderedBody;
+            developmentGuidanceText.text = body.ToString();
             developmentGuidanceText.color = TextPrimary;
         }
         if (!developmentGuidanceRuntimeGeometryLogged)
@@ -754,14 +785,9 @@ public sealed partial class KingdomUIRoot
         GameState state = gameManager == null ? null : gameManager.State;
 
         SetTextIfChanged(topKingdomTitle, state.KingdomName);
-        ExpantaNum populationChange = ExpantaNum.Zero;
-        if (gameManager != null)
-        {
-            if (state.Population.Population < state.Population.PopulationCapacity)
-                populationChange = gameManager.CurrentPopulationGrowthRatePerSecond;
-            else if (state.Population.Population > state.Population.PopulationCapacity)
-                populationChange = -gameManager.CurrentPopulationDepartureRatePerSecond;
-        }
+        ExpantaNum populationChange = gameManager == null
+            ? ExpantaNum.Zero
+            : gameManager.CurrentPopulationNetRatePerSecond;
 
         string signedPopulationChange = populationChange >= ExpantaNum.Zero
             ? "+" + populationChange.ToGameString()
@@ -847,26 +873,39 @@ public sealed partial class KingdomUIRoot
                         if (buildingActionButtons.TryGetValue(pair.Key, out Button actionButton) && actionButton != null &&
                             buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade))
                         {
+                            ExpantaNum actionQuantity = GetSelectedBuildingQuantity(pair.Key, upgrade, false);
                             SetBuildingActionButtonText(
                                 actionButton,
                                 (upgrade ? "\u5347\u7ea7x" : "\u5efa\u9020x") +
-                                GetSelectedBuildingQuantity(pair.Key, upgrade, false).ToGameString());
-                            SetBuildingActionButtonState(actionButton, CanPerformBuildingAction(pair.Key, upgrade));
+                                actionQuantity.ToGameString());
+                            SetBuildingActionButtonState(
+                                actionButton,
+                                CanPerformBuildingAction(pair.Key, upgrade, actionQuantity));
                         }
                         else
                             SetTextIfChanged(pair.Value, "0");
                     }
-        if (populatedPage != "Resources" || ResourceManager.Instance == null)
+        if (populatedPage != "Resources")
             return;
+        ResourceManager resourceManager = ResourceManager.Instance;
+        if (resourceManager == null)
+            return;
+        ExpantaNum productionRewardMultiplier = ExpantaNum.One;
+        bool productionRewardMultiplierRead = false;
         foreach (KeyValuePair<Resource, TMP_Text> pair in resourceAmountLabels)
         {
-            if (!ResourceManager.Instance.States.TryGetValue(pair.Key, out ResourceState state))
+            if (!resourceManager.States.TryGetValue(pair.Key, out ResourceState state))
                 continue;
             if (pair.Value != null)
                 SetTextIfChanged(pair.Value, state.Amount.ToGameString());
             if (resourceChangeLabels.TryGetValue(pair.Key, out TMP_Text changeLabel) && changeLabel != null)
             {
-                ExpantaNum net = state.ProductionRate - state.ConsumptionRate;
+                if (!productionRewardMultiplierRead)
+                {
+                    productionRewardMultiplier = ResourceManager.GetHappinessRewardMultiplier();
+                    productionRewardMultiplierRead = true;
+                }
+                ExpantaNum net = state.ProductionRate * productionRewardMultiplier - state.ConsumptionRate;
                 SetTextIfChanged(changeLabel, (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s");
                 SetColorIfChanged(changeLabel, net >= ExpantaNum.Zero ? Positive : Error);
             }

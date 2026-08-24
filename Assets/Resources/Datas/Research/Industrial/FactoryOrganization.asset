@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FactoryOrganization
   Label: "\u5DE5\u5382\u5236\u5EA6"
-  Description: "建立工厂组织、轮班制度、质量管理和工业行政体系，专注于建设效率与工业领地扩张，不再与流水线研究重复提供全局产能。"
+  Description: "建立工厂组织、轮班制度、质量管理和工业行政体系，提高大型工程的建设效率，并扩大可持续治理的工业领地。"
   BaseCost: "1450000"
   prerequisites:
   - {fileID: 11400000, guid: 435fc932525e9a54eb759d1efa531e92, type: 2}

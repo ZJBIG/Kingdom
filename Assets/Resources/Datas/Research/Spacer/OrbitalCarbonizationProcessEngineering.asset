@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalCarbonizationProcessEngineering
   Label: "轨道碳化流程工程"
-  Description: "研究轨道焦化设施的连续进料、炉温曲线与气氛控制，使 OrbitalCarbonizationComplex 能在微重力和真空环境下维持更稳定的焦化生产。"
+  Description: "研究轨道焦化设施的连续进料、炉温曲线与气氛控制，使轨道炭化复合体能在微重力和真空环境下维持更稳定的焦化生产。"
   BaseCost: "3600000"
   prerequisites:
   - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}

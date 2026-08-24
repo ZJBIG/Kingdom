@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MilitaryIndustry
   Label: "军工体系"
-  Description: "整合钢材、机械、化工和电子制造，建立能够持续生产舰队装备与防御设施的军工体系，为 Spacer 舰队建设提供基础。"
+  Description: "整合钢材、机械、化工和电子制造，建立能够持续生产舰队装备与防御设施的军工体系，为太空时代的舰队建设提供基础。"
   BaseCost: "1350000"
   prerequisites:
   - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}

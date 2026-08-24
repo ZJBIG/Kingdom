@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: HotBlastStoves
   m_EditorClassIdentifier: 
   id: HotBlastStoves
-  Label: "\u70ED\u98CE\u8FDE\u94F8\u673A\u7EC4"
-  Description: "\u7528\u70ED\u98CE\u9884\u70ED\u4E0E\u8FDE\u7EED\u94F8\u9020\u63D0\u9AD8\u7089\u6E29\u548C\u4F9B\u6599\u7A33\u5B9A\u6027\uFF0C\u589E\u5F3A\u9AD8\u7089\u5BF9\u7126\u70AD\u548C\u94C1\u77FF\u7684\u8F6C\u6362\u80FD\u529B\uFF0C\u8F93\u51FA\u66F4\u7A33\u5B9A\u7684\u94A2\u6750\u3002"
+  Label: "热风炉组"
+  Description: "以蓄热式热风炉预热鼓风，提高综合冶炼炉的炉温与燃料利用率，使多金属冶炼和钢材产出更加稳定。"
   SortOrder: 190
   TechLevel: 3
   requiredResearch:

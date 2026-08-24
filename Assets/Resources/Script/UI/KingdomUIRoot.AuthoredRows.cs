@@ -14,6 +14,7 @@ public sealed partial class KingdomUIRoot
     // Building and Music rows remain visually consistent.
     private static readonly Color ListRowEven = new Color(.25f, .28f, .28f, 1f);
     private static readonly Color ListRowOdd = new Color(.08f, .10f, .10f, 1f);
+    private readonly System.Text.StringBuilder buildingDisplaySignatureBuilder = new(1024);
 
     private static void ApplyListRowStyle(GameObject row, int index)
     {
@@ -72,7 +73,10 @@ public sealed partial class KingdomUIRoot
             ResourceState state = null;
             ResourceManager.Instance?.States.TryGetValue(resource, out state);
             string amount = state == null ? "0" : state.Amount.ToGameString();
-            ExpantaNum net = state == null ? ExpantaNum.Zero : state.ProductionRate - state.ConsumptionRate;
+            ExpantaNum net = state == null
+                ? ExpantaNum.Zero
+                : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate) -
+                  state.ConsumptionRate;
             string change = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.ResourceCard, parent, visible++);
             if (row == null)
@@ -168,7 +172,7 @@ public sealed partial class KingdomUIRoot
                 UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
                 PerformBuildingAction(building, canUpgrade);
             });
-            buildButton.interactable = CanPerformBuildingAction(building, canUpgrade);
+            buildButton.interactable = CanPerformBuildingAction(building, canUpgrade, buildQuantity);
             SetBuildingActionButtonState(buildButton, buildButton.interactable);
             buildingActionButtons[building] = buildButton;
             buildingActionUpgradeModes[building] = canUpgrade;
@@ -203,9 +207,10 @@ public sealed partial class KingdomUIRoot
         return (ExpantaNum.Clamp01(state.Efficiency) * 100).ToGameString() + "%";
     }
 
-    private string BuildBuildingDisplaySignature()
+    private System.Text.StringBuilder BuildBuildingDisplaySignature()
     {
-        var signature = new System.Text.StringBuilder();
+        System.Text.StringBuilder signature = buildingDisplaySignatureBuilder;
+        signature.Clear();
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
@@ -213,7 +218,7 @@ public sealed partial class KingdomUIRoot
             if (building != null && ShouldDisplayBuilding(building))
                 signature.Append(building.Id).Append(';');
         }
-        return signature.ToString();
+        return signature;
     }
 
     private static int CompareBuildingRows(Building left, Building right)
@@ -267,8 +272,7 @@ public sealed partial class KingdomUIRoot
         {
             WorkshopUpgrade definition = definitions[i];
             if (definition == null || WorkshopManager.Instance == null ||
-                WorkshopManager.Instance.IsPurchased(definition) ||
-                !WorkshopPrerequisitesMet(definition))
+                !ShouldRevealWorkshop(definition))
                 continue;
             orderedDefinitions.Add(definition);
         }
@@ -276,10 +280,20 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             WorkshopUpgrade definition = orderedDefinitions[i];
-            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
+            int index = visible;
+            GameObject reusable = index < workshopRows.Count
+                ? workshopRows[index]
+                : null;
+            GameObject row = InstantiateAuthoredRow(
+                KingdomUIPrefabLibrary.BuildingCard, parent, index, reusable);
             if (row == null)
                 continue;
-            ApplyListRowStyle(row, visible - 1);
+            if (index < workshopRows.Count)
+                workshopRows[index] = row;
+            else
+                workshopRows.Add(row);
+            visible++;
+            ApplyListRowStyle(row, index);
             Transform techLevel = row.transform.Find("TechLevel");
             if (techLevel == null)
             {
@@ -287,14 +301,24 @@ public sealed partial class KingdomUIRoot
                 if (techLevel != null)
                     techLevel.name = "TechLevel";
             }
+            bool purchased = WorkshopManager.Instance.IsPurchased(definition);
+            string availability = GetWorkshopAvailability(
+                definition, out bool canPurchase, out bool resourceBlocked);
             if (!SetRowText(row, "Label", definition.Label) ||
-                !SetRowText(row, "TechLevel", definition.TechLevel.GetDescription()))
+                !SetRowText(row, "TechLevel",
+                    definition.TechLevel.GetDescription() + " · " + availability,
+                    purchased ? Positive : canPurchase ? Copper : TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
-            Button purchaseButton = RequireChildButton(row, "BuildButton");
+            Button purchaseButton = RequireChildButton(
+                row,
+                row.transform.Find("PurchaseButton") == null
+                    ? "BuildButton"
+                    : "PurchaseButton");
             Button deconstructButton = RequireChildButton(row, "DeconstructButton");
             if (cardButton == null || purchaseButton == null || deconstructButton == null)
                 continue;
+            cardButton.onClick.RemoveAllListeners();
             cardButton.onClick.AddListener(() =>
             {
                 UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
@@ -312,17 +336,31 @@ public sealed partial class KingdomUIRoot
             }
             purchaseButton.gameObject.name = "PurchaseButton";
             deconstructButton.gameObject.SetActive(false);
-            SetBuildingActionButtonText(purchaseButton, "购买");
+            SetBuildingActionButtonText(
+                purchaseButton,
+                purchased
+                    ? "已拥有"
+                    : canPurchase
+                        ? "购买"
+                        : resourceBlocked ? "查看缺口" : "锁定");
             purchaseButton.onClick.RemoveAllListeners();
             purchaseButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
-                PurchaseWorkshopFromRow(definition);
+                UIButtonSoundManager.Play(resourceBlocked
+                    ? UIButtonSoundManager.Sound.Detail
+                    : UIButtonSoundManager.Sound.Purchase);
+                if (resourceBlocked)
+                    ShowWorkshopDetails(definition);
+                else
+                    PurchaseWorkshopFromRow(definition);
             });
-            purchaseButton.interactable = CanPurchaseWorkshop(definition);
+            purchaseButton.interactable = canPurchase || resourceBlocked;
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
         }
-        Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, rowsRect={parent.rect.size}");
+        for (int i = visible; i < workshopRows.Count; i++)
+            if (workshopRows[i] != null)
+                workshopRows[i].SetActive(false);
+        Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, pooled={workshopRows.Count}, rowsRect={parent.rect.size}");
     }
 
     private static int CompareWorkshopRows(WorkshopUpgrade left, WorkshopUpgrade right)
@@ -333,9 +371,30 @@ public sealed partial class KingdomUIRoot
             : string.CompareOrdinal(left.Id, right.Id);
     }
 
-    private GameObject InstantiateAuthoredRow(string prefab, RectTransform parent, int index)
+    private static bool ShouldRevealWorkshop(WorkshopUpgrade definition)
     {
-        GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
+        WorkshopManager manager = WorkshopManager.Instance;
+        GameManager game = GameManager.Instance;
+        if (definition == null || manager == null || game == null ||
+            definition.TechLevel > game.State.TechLevel)
+            return false;
+        if (manager.IsPurchased(definition))
+            return true;
+        for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
+        {
+            WorkshopUpgrade prerequisite = definition.RequiredUpgrades[i];
+            if (prerequisite == null || !manager.IsPurchased(prerequisite))
+                return false;
+        }
+        return true;
+    }
+
+    private GameObject InstantiateAuthoredRow(string prefab, RectTransform parent, int index,
+        GameObject reusable = null)
+    {
+        GameObject row = reusable == null
+            ? KingdomUIPrefabLibrary.Instantiate(prefab, parent)
+            : reusable;
         if (row == null)
         {
             Debug.LogError("[王国界面] Required authored row prefab is unavailable: " + prefab);
