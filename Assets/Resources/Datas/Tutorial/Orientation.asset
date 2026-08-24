@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: orientation
   Title: 建立一个不断发展的王国
-  Description: 先观察王国的时代、人口和核心资源。资源会持续变化，所有发展都从这里开始。
-  NarrativeText: 鼠族文明曾经中断，如今只剩下最初的火种。先让它稳定地燃烧起来。
+  Description: 打开概览并让王国时间推进一天；等待期间可查看资源页，观察原木和食物如何开始变化。
+  NarrativeText: 鼠族文明曾经中断，如今只剩下最初的火种。先让时间向前，让资源流动起来，复兴才有立足之处。
   Kind: 0
   NextStepId: resources
   RewardId: 

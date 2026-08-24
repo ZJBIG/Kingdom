@@ -1240,6 +1240,35 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 
 ## 22. 变更记录
 
+- 2026-08-24：清理 PageHost 无用壳层：删除各页面 Heading，删除 Overview 的 DataRows，删除 Research 的 ResearchTreeToolbar 及其运行时绑定；Overview 现在直接由 PrimaryCard/SecondaryCard 承载，其他页面继续使用各自 DataRows。`git diff --check` 通过；未执行真实 Unity 编译、PlayMode 或 P40 验收。
+
+- 2026-08-24：Overview 引导改为纯文本概述：移除运行时创建/绑定引导卡片按钮的逻辑，并禁用场景中已有的该卡片按钮；时代页及时代导航的跳转逻辑未改。同时移除 Overview 引导文本的 `fontSize`、`fontSizeMin/Max` 与自动缩放硬编码，字号改由场景 Prefab 控制。`git diff --check` 通过；需 Unity/P40 验证 Prefab 字号、长文本高度与时代按钮跳转。
+- 2026-08-24：Overview 引导卡片字号从 `24` 调整为 `30`，自动缩放上限同步为 `30`；最小字号、换行、文本内容和其他页面不变。`git diff --check` 通过；需 Unity/P40 验证实际容纳高度与长文本显示。
+- 2026-08-24：统一 Overview 工坊提示术语：从中英混用的 `Workshop` 改为与标题及其他页面一致的“工坊”；未改变提示条件、购买、前置、效果或 State。CLI 编译 0 错误、5 个既有警告；`git diff --check` 通过。
+- 2026-08-24：Overview 的 Workshop 可用提示从泛化的“查看资源需求与效果”，改为说明 Workshop 是基础建设之外的渐进发展路线；未引用存在冲突风险的定义描述，不改变购买、前置、效果或 State。`dotnet build Kingdom.Runtime.csproj --no-restore --nologo` 0 错误、5 个既有警告；`git diff --check` 通过。
+- 2026-08-24：修正 Overview 通用研究进行中提示：从“保持研究力与资源供应”改为“保持研究力，并查看完成后的建筑/生产链/时代条件解锁”；研究资源仍按现有规则在开始前原子支付，未改变研究 State、进度、成本或结算。`dotnet build Kingdom.Runtime.csproj --no-restore --nologo` 0 错误、5 个既有警告；`git diff --check` 通过。
+- 2026-08-24：对本轮 Tutorial fallback 与 Orientation 引导改动执行 `dotnet build Kingdom.Runtime.csproj --no-restore --nologo`，0 错误、5 个既有 `SectorDefinition` 序列化字段警告；`git diff --check` 通过。未执行 Unity 编译、PlayMode 或 P40 真机验收。
+- 2026-08-24：Animal 开局 Orientation 引导从仅提示“推进一天”，改为说明等待期间可查看资源页观察原木与食物变化；同样同步正式资产、fallback 描述和运行时推荐行动。未改变一天完成门槛、时间速度、页面访问门或任何经济 State。`git diff --check` 通过；首分钟真实体验仍待 Unity/PlayMode 验证。
+- 2026-08-24：补齐 `TutorialManager.BuildDefaultSteps()` fallback 的 8 个 `NarrativeText`，并同步正式资产的完成条件与导航字段；资产加载/链条校验失败时仍能显示完整的“背景—目标—行动”引导。正常资产路径、State、经济数据和推进逻辑不变。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：修正内置教程 fallback 链中 Population/ProductionChain 的导航页：从构造函数默认的 `Overview` 同步为正式资产使用的 `Buildings`，避免资产加载失败时页面访问门把玩家错误带回概览；不改变正常资产路径、步骤链、完成条件或 State。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：同步 `TutorialManager.BuildDefaultSteps()` 的 8 条 fallback 描述，使资源加载失败或教程链校验失败时仍使用与当前 Tutorial 资产相同的行动目标；仅改 fallback 文本，未改变步骤链、触发/完成条件、导航、奖励或 State。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：Overview 引导卡片在叙事文本后增加“完成方式：”标签，明确区分背景说明与当前步骤的行动目标；仅改变 UI 文本前缀，不改变内容、刷新顺序、导航、State 或教程推进逻辑。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：`TutorialManager.GetCivilizationContext()` 从各时代的泛化背景句，改为引用当前已有能力的短叙事：Animal 的食物/原木/定居、Neolithic 的灌溉/储粮/文字、Medieval 的行政/贸易/城市、Industrial 的电力/铁路/机器、Spacer 的轨道/航行/舰队，并明确 Ultra/Archotech 仍属远期框架；仅改显示文本，未新增时代、资源、研究或玩法。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：教程 8 个步骤的 `Description` 从泛化目标改为与现有完成条件和导航一致的行动说明：推进一天、查看资源、建造建筑、观察人口增长、完成研究、连接生产链、完成时代条件和继续长期目标；仅修改文本资产，未改变条件、State、导航、奖励或经济数据。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：新手引导前两步的推荐行动从“查看资源/建筑页面”改为明确说明因果：先查看原木净产出为第一座建筑准备材料，再选择能解决当前阻碍的推荐建筑；仅修改 `TutorialManager.BuildDetails()` 的显示文本，不改变推荐对象、阻断判断、导航、State 或完成条件。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：教程背景文本从八条相互独立的复兴标语，改为沿“时间与资源 → 建筑 → 人口 → 研究 → 生产链 → 时代条件 → 长期扩张”逐步承接的叙事；仅修改 8 个 Tutorial 资产的 `NarrativeText`，未改变 ID、触发条件、完成条件、导航、奖励、经济数据或 State。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
+- 2026-08-24：`GameManager.AdvanceFood()` 的默认无容量路径从每次调用解析字符串上限，改为复用静态 `UncappedFoodCeiling`；`GameState.BaseFoodProductionRate/BaseFoodCapacity` 也从属性内重复构造改为静态值。Food 上限选择、容量 Clamp、非负约束和结算顺序不变。`git diff --check` 通过；CLI 编译仍受本机 SDK 目录访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：人口 tick 的固定 `ExpantaNum` 值从属性访问/离开计算时重复构造，改为 `PopulationState` 内部静态只读值；同时把战役剩余两个 `/60d` 分支统一复用既有 `Sixty` 常量。人口增长、生产力、食物消耗、超容量离开、食物短缺离开公式及取整顺序不变。`git diff --check` 通过；CLI 编译仍受本机 SDK 目录访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：`CampaignManager` 活动战役公式中的 0.3、0.35、0.25、0.65、0.75 与 60 秒常量从每次计算重复构造，改为静态只读 `ExpantaNum` 常量；从每个战役 tick 重复创建不变数值对象变为初始化时创建一次，公式分支、运算顺序、输入输出和战役 State 不变。`git diff --check` 通过；CLI 编译仍受本机 SDK 目录访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：资源详情刷新从分别遍历全部建筑状态两次（生产者一次、消费者一次），改为一次遍历同时汇总两类流量，再分别按原速率/ID规则排序；`AddResourceBuildingFlow()` 保留原先的缩放、资源倍率、幸福度奖励和非正值过滤顺序，未改变正文、净变化或 State。静态检查通过；理论上该路径的建筑状态扫描由 2 次降为 1 次，CLI 编译仍受本机 SDK 目录访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：选中建筑详情的实时刷新从同一次刷新内重复读取 `BuildingManager.Instance` 三次，改为先解析一次并复用局部引用；从重复单例 getter/空判断变为一次解析，未改变详情刷新触发版本、升级判定、流量计算、需求行、文本或滚动状态。`git diff --check` 通过；CLI 编译仍受本机 SDK 目录访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：资源与建筑列表首次构建从每行重复读取 `ResourceManager.Instance`/`BuildingManager.Instance`，改为每次页面构建保留一个局部 Manager 引用；从重复单例 getter 与空判断变为一次解析后复用，未改变定义排序、可见性、数量、升级/拆除条件、按钮回调或 State。`git diff --check` 通过；CLI 编译仍受本机 `C:\Users\19603\AppData\Local\Microsoft SDKs` 访问拒绝阻断，Unity/PlayMode/P40 待验证。
+- 2026-08-24：修复研究页首次打开时顶部研究队列可能不同步：从页面构建期间提前消费 `researchQueueUiDirty`，改为仅在 `researchQueueViewport`、`researchQueueContent` 与 `ResearchManager.Instance` 均就绪后消费；`SetupResearchQueueGraphic()` 绑定 authored 队列后保留一次刷新请求，确保首次绑定不会丢失当前活动研究与排队研究。未改变研究状态、队列顺序、支付、研究线拓扑或模拟时钟；`git diff --check` 通过，Unity/PlayMode/P40 待验证。
+- 2026-08-24：研究教程推荐从无序遍历 `ResearchManager.States.Values` 改为按 `DataBase<Research>.All` 的稳定 ID 顺序选择首个 `Available` 研究；活动研究优先级、可用状态集合、前置、支付和完成条件不变，避免状态重建后推荐项跳变。`git diff --check` 通过，Unity/PlayMode/P40 待验证。
+- 2026-08-24：研究批量连接器补齐 Unity `Image.GenerateSimpleSprite` 的 Sprite padding 几何：从把包含透明边缘的曲线/箭头纹理整块拉伸，改为按 `DataUtility.GetPadding` 缩进绘制矩形；保留 `OuterUV`、拓扑、节点位置、批量数量和层级策略不变。布局诊断继续使用未缩进的逻辑矩形；`git diff --check` 通过，需 Unity 运行确认材质比例与曲线方向。
+- 2026-08-24：Sector 页面从行构建、详情刷新和操作回调中的重复 `FindObjectOfType` 场景扫描，改为复用既有 `CacheRuntimeManagers()` 缓存；从每次路径扫描变为首次解析后复用，未改变 SectorManager 调用、失败提示、State 或存档行为。本轮 `git diff --check` 通过；C# 编译因本机 `C:\Users\19603\AppData\Local\Microsoft SDKs` 访问被拒而未完成，Unity/PlayMode/P40 仍待验证。
+- 2026-08-24：性能批次在 `GameManager.Tick` 与 `TickOffline` 中缓存本次人口增长率和粮食短缺判定；从同一结算路径重复读取/判断改为各读取一次，未改变 State、人口、食物、日历结算顺序。`Kingdom.Runtime.csproj` 编译 0 错误、5 个既有序列化字段警告；Unity/PlayMode/P40 仍待验证。
+- 2026-08-24：研究树先恢复到最新 `HEAD` 快照，再仅修复 `UIResearchConnectorBatch` 的显式左下角尺寸契约与普通/高亮层级顺序；未改变研究线拓扑、UV、矩形公式或批量渲染策略。`git diff --check` 通过，真实 Unity 视觉验证仍待执行。
 - 2026-08-23：首次创建主审查并完成项目快照、证据边界和覆盖矩阵。
 - 2026-08-23：完成运行时、交易、存档、Sector、教程、UI、音画与测试源码静态审查；首次记录 P0=1、P1=6。
 - 2026-08-23：按用户追加要求完成 128 Research、82 Workshop、65 Building 的时代/前置/描述/效果交叉审查；新增 `ECON-P1-002`、`ECON-P2-003/004`、`ONBOARD-P2-001`、`ERA-P2-001/002`、`RESOURCE-P2-001`、`WORKSHOP-P2-002`。

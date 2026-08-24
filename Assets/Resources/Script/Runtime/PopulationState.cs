@@ -3,15 +3,22 @@ using System;
 [Serializable]
 public sealed class PopulationState
 {
-    public static ExpantaNum FoodConsumptionPerPerson => new ExpantaNum(0.8d);
-    public static ExpantaNum ProductivityGrantedPerPerson => new ExpantaNum(2d);
-    public static ExpantaNum BaseGrowthRatePerSecond => new ExpantaNum(1d / 60d);
     private const double SecondsPerDeparture = 60d;
     private const double SecondsPerFoodShortageDeparture = 3600d;
+    private static readonly ExpantaNum FoodConsumptionPerPersonValue = new ExpantaNum(0.8d);
+    private static readonly ExpantaNum ProductivityGrantedPerPersonValue = new ExpantaNum(2d);
+    private static readonly ExpantaNum BaseGrowthRatePerSecondValue = new ExpantaNum(1d / 60d);
+    private static readonly ExpantaNum Eight = new ExpantaNum(8d);
+    private static readonly ExpantaNum DepartureRatePerSecond = new ExpantaNum(1d / SecondsPerDeparture);
+    private static readonly ExpantaNum FoodShortageDepartureSeconds = new ExpantaNum(SecondsPerFoodShortageDeparture);
     private static readonly ExpantaNum PopulationStepEpsilon =
         new ExpantaNum(1e-9d);
     private static readonly ExpantaNum PopulationRemainderEpsilon =
         new ExpantaNum(1e-3d);
+
+    public static ExpantaNum FoodConsumptionPerPerson => FoodConsumptionPerPersonValue;
+    public static ExpantaNum ProductivityGrantedPerPerson => ProductivityGrantedPerPersonValue;
+    public static ExpantaNum BaseGrowthRatePerSecond => BaseGrowthRatePerSecondValue;
 
     private ExpantaNum population;
     private ExpantaNum populationCapacity;
@@ -313,9 +320,8 @@ public sealed class PopulationState
             ? excess
             : excess / populationCapacity;
         ExpantaNum departureMultiplier = ExpantaNum.One +
-            ExpantaNum.Min(new ExpantaNum(8d), normalizedExcess);
-        return new ExpantaNum(1d / SecondsPerDeparture) *
-            departureMultiplier;
+            ExpantaNum.Min(Eight, normalizedExcess);
+        return DepartureRatePerSecond * departureMultiplier;
     }
 
     private ExpantaNum CalculateFoodShortageDepartureRate(
@@ -326,6 +332,6 @@ public sealed class PopulationState
         ExpantaNum shortage = ExpantaNum.Clamp01(
             ExpantaNum.One - happinessMultiplier);
         return shortage * ExpantaNum.Max(ExpantaNum.One, population) /
-            new ExpantaNum(SecondsPerFoodShortageDeparture);
+            FoodShortageDepartureSeconds;
     }
 }

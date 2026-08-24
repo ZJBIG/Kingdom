@@ -19,6 +19,9 @@ public sealed partial class KingdomUIRoot
 
     private readonly Dictionary<Resource, TMP_Text> detailRequirementLabels = new();
     private readonly Dictionary<Resource, TMP_Text> detailRequirementAmounts = new();
+    private readonly List<Pair<Resource, ExpantaNum>> buildingRequirementBuffer = new();
+    private readonly List<Pair<Resource, ExpantaNum>> buildingOutputFlowBuffer = new();
+    private readonly List<Pair<Resource, ExpantaNum>> buildingInputFlowBuffer = new();
     private readonly List<ResourceBuildingFlow> resourceProducerFlowBuffer = new();
     private readonly List<ResourceBuildingFlow> resourceConsumerFlowBuffer = new();
     private readonly StringBuilder resourceDetailTextBuilder = new();
@@ -58,7 +61,8 @@ public sealed partial class KingdomUIRoot
         BuildingState state,
         bool upgrading)
     {
-        var requirements = new List<Pair<Resource, ExpantaNum>>();
+        List<Pair<Resource, ExpantaNum>> requirements = buildingRequirementBuffer;
+        requirements.Clear();
         ExpantaNum quantity = GetSelectedBuildingQuantity(building, upgrading, false);
         if (quantity < ExpantaNum.One)
             return requirements;
@@ -80,11 +84,14 @@ public sealed partial class KingdomUIRoot
         return requirements;
     }
 
-    private static List<Pair<Resource, ExpantaNum>> GetEffectiveBuildingFlows(
+    private List<Pair<Resource, ExpantaNum>> GetEffectiveBuildingFlows(
         Building building,
         bool output)
     {
-        var flows = new List<Pair<Resource, ExpantaNum>>();
+        List<Pair<Resource, ExpantaNum>> flows = output
+            ? buildingOutputFlowBuffer
+            : buildingInputFlowBuffer;
+        flows.Clear();
         IReadOnlyList<Pair<Resource, ExpantaNum>> source = output
             ? building.ResourceGenerationRates
             : building.ResourceConsumptionRates;
@@ -165,14 +172,15 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshSelectedBuildingDetails(Building building)
     {
-        if (building == null || detailBody == null || BuildingManager.Instance == null)
+        BuildingManager buildingManager = BuildingManager.Instance;
+        if (building == null || detailBody == null || buildingManager == null)
             return;
 
-        BuildingState state = BuildingManager.Instance.States.TryGetValue(building, out BuildingState current)
+        BuildingState state = buildingManager.States.TryGetValue(building, out BuildingState current)
             ? current
             : null;
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
-            BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
+            buildingManager.TryGetUnlockedUpgradeTarget(building, out _);
 
         // A prerequisite/upgrade transition changes the structure of the
         // detail panel. Rebuild only for that structural change; ordinary
@@ -240,8 +248,9 @@ public sealed partial class KingdomUIRoot
             : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate);
         ExpantaNum consumption = state == null ? ExpantaNum.Zero : state.ConsumptionRate;
         ExpantaNum net = production - consumption;
-        List<ResourceBuildingFlow> producers = GetResourceBuildingFlows(resource, true);
-        List<ResourceBuildingFlow> consumers = GetResourceBuildingFlows(resource, false);
+        RefreshResourceBuildingFlows(resource);
+        List<ResourceBuildingFlow> producers = resourceProducerFlowBuffer;
+        List<ResourceBuildingFlow> consumers = resourceConsumerFlowBuffer;
         StringBuilder text = resourceDetailTextBuilder;
         text.Clear();
         text.AppendLine(resource.Label);
@@ -270,17 +279,15 @@ public sealed partial class KingdomUIRoot
         LayoutResourceDetailsBody();
     }
 
-    private List<ResourceBuildingFlow> GetResourceBuildingFlows(Resource resource, bool production)
+    private void RefreshResourceBuildingFlows(Resource resource)
     {
-        List<ResourceBuildingFlow> result = production
-            ? resourceProducerFlowBuffer
-            : resourceConsumerFlowBuffer;
-        result.Clear();
+        resourceProducerFlowBuffer.Clear();
+        resourceConsumerFlowBuffer.Clear();
         if (resource == null)
-            return result;
+            return;
         BuildingManager buildingManager = BuildingManager.Instance;
         if (buildingManager == null)
-            return result;
+            return;
 
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         foreach (KeyValuePair<Building, BuildingState> entry in buildingManager.States)
@@ -293,46 +300,82 @@ public sealed partial class KingdomUIRoot
             if (state.Amount <= ExpantaNum.Zero || state.Efficiency <= ExpantaNum.Zero)
                 continue;
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> flows = production
-                ? building.ResourceGenerationRates
-                : building.ResourceConsumptionRates;
-            ExpantaNum rate = ExpantaNum.Zero;
-            for (int i = 0; i < flows.Count; i++)
+            ExpantaNum scale = state.Amount * state.Efficiency;
+            ExpantaNum productionRate = ExpantaNum.Zero;
+            IReadOnlyList<Pair<Resource, ExpantaNum>> productionFlows =
+                building.ResourceGenerationRates;
+            for (int i = 0; i < productionFlows.Count; i++)
             {
-                Pair<Resource, ExpantaNum> flow = flows[i];
+                Pair<Resource, ExpantaNum> flow = productionFlows[i];
                 if (flow.First == resource)
-                    rate += flow.Second;
+                    productionRate += flow.Second;
             }
-            if (rate <= ExpantaNum.Zero)
+
+            ExpantaNum consumptionRate = ExpantaNum.Zero;
+            IReadOnlyList<Pair<Resource, ExpantaNum>> consumptionFlows =
+                building.ResourceConsumptionRates;
+            for (int i = 0; i < consumptionFlows.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> flow = consumptionFlows[i];
+                if (flow.First == resource)
+                    consumptionRate += flow.Second;
+            }
+            if (productionRate <= ExpantaNum.Zero &&
+                consumptionRate <= ExpantaNum.Zero)
                 continue;
 
-            rate *= state.Amount * state.Efficiency;
             ExpantaNum productionMultiplier =
                 modifiers.GetBuildingProductionMultiplier(building) *
                 modifiers.GlobalBuildingProductionMultiplier;
-            rate *= productionMultiplier;
-            if (production)
-            {
-                rate *= modifiers.GetResourceProductionMultiplier(resource);
-                rate = ResourceManager.ApplyCurrentProductionReward(rate);
-            }
-            if (rate <= ExpantaNum.Zero)
-                continue;
-            result.Add(new ResourceBuildingFlow
-            {
-                Building = building,
-                Rate = rate
-            });
+            AddResourceBuildingFlow(
+                resourceProducerFlowBuffer, building, productionRate, scale,
+                productionMultiplier, resource, modifiers, true);
+            AddResourceBuildingFlow(
+                resourceConsumerFlowBuffer, building, consumptionRate, scale,
+                productionMultiplier, resource, modifiers, false);
         }
 
-        result.Sort((left, right) =>
+        SortResourceBuildingFlows(resourceProducerFlowBuffer);
+        SortResourceBuildingFlows(resourceConsumerFlowBuffer);
+    }
+
+    private static void AddResourceBuildingFlow(
+        List<ResourceBuildingFlow> result,
+        Building building,
+        ExpantaNum rate,
+        ExpantaNum scale,
+        ExpantaNum productionMultiplier,
+        Resource resource,
+        ProgressionModifierState modifiers,
+        bool production)
+    {
+        if (rate <= ExpantaNum.Zero)
+            return;
+        rate *= scale;
+        rate *= productionMultiplier;
+        if (production)
+        {
+            rate *= modifiers.GetResourceProductionMultiplier(resource);
+            rate = ResourceManager.ApplyCurrentProductionReward(rate);
+        }
+        if (rate <= ExpantaNum.Zero)
+            return;
+        result.Add(new ResourceBuildingFlow
+        {
+            Building = building,
+            Rate = rate
+        });
+    }
+
+    private static void SortResourceBuildingFlows(List<ResourceBuildingFlow> flows)
+    {
+        flows.Sort((left, right) =>
         {
             int byRate = right.Rate.CompareTo(left.Rate);
             return byRate != 0
                 ? byRate
                 : string.Compare(left.Building.Id, right.Building.Id, StringComparison.OrdinalIgnoreCase);
         });
-        return result;
     }
 
     private void LayoutResourceDetailsBody()

@@ -4,6 +4,12 @@ public static class CampaignManager
 {
     private static readonly ExpantaNum MinimumAdvanceRatio = new ExpantaNum(0.7d);
     private static readonly ExpantaNum FullAdvanceRatio = new ExpantaNum(2d);
+    private static readonly ExpantaNum PointThree = new ExpantaNum(0.3d);
+    private static readonly ExpantaNum PointThirtyFive = new ExpantaNum(0.35d);
+    private static readonly ExpantaNum PointTwentyFive = new ExpantaNum(0.25d);
+    private static readonly ExpantaNum PointSixtyFive = new ExpantaNum(0.65d);
+    private static readonly ExpantaNum PointSeventyFive = new ExpantaNum(0.75d);
+    private static readonly ExpantaNum Sixty = new ExpantaNum(60d);
 
     public static ExpantaNum CalculateEffectivePower(
         ExpantaNum attackPower,
@@ -86,7 +92,7 @@ public static class CampaignManager
         ExpantaNum normalizedEnemyPower = ExpantaNum.Max(ExpantaNum.One, enemyPower);
         ExpantaNum defenseRatio = ExpantaNum.Clamp01(
             ExpantaNum.Max(ExpantaNum.Zero, defensePower) / normalizedEnemyPower);
-        return new ExpantaNum(0.35d) + defenseRatio * new ExpantaNum(0.65d);
+        return PointThirtyFive + defenseRatio * PointSixtyFive;
     }
 
     public static ExpantaNum CalculateProgressRate(ExpantaNum combatRatio)
@@ -95,20 +101,20 @@ public static class CampaignManager
         if (ratio < MinimumAdvanceRatio)
             return ExpantaNum.Zero;
         if (ratio < ExpantaNum.One)
-            return (ratio - MinimumAdvanceRatio) / new ExpantaNum(0.3d) * new ExpantaNum(0.25d) / 60d;
+            return (ratio - MinimumAdvanceRatio) / PointThree * PointTwentyFive / Sixty;
         if (ratio < FullAdvanceRatio)
-            return (new ExpantaNum(0.25d) + (ratio - ExpantaNum.One) * new ExpantaNum(0.75d)) / 60d;
+            return (PointTwentyFive + (ratio - ExpantaNum.One) * PointSeventyFive) / Sixty;
 
-        return (ExpantaNum.One + (ratio - FullAdvanceRatio) / (ratio + FullAdvanceRatio)) / 60d;
+        return (ExpantaNum.One + (ratio - FullAdvanceRatio) / (ratio + FullAdvanceRatio)) / Sixty;
     }
 
     public static ExpantaNum CalculateCasualtyRate(ExpantaNum combatRatio)
     {
         ExpantaNum ratio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
         if (ratio < MinimumAdvanceRatio)
-            return ExpantaNum.One / 60d;
+            return ExpantaNum.One / Sixty;
         if (ratio < ExpantaNum.One)
-            return (ExpantaNum.One - ratio) / new ExpantaNum(0.3d) / 60d;
+            return (ExpantaNum.One - ratio) / PointThree / Sixty;
         return ExpantaNum.Zero;
     }
 

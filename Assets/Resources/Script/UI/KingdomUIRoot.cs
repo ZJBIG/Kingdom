@@ -173,7 +173,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool musicProgressDragging;
     private bool musicPageBuilt;
     private TMP_Text developmentGuidanceText;
-    private Button developmentGuidanceButton;
     private TutorialSnapshot tutorialSnapshot;
     private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
     private bool developmentGuidanceErrorLogged;
@@ -601,6 +600,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 buildingQuantityControls.gameObject.SetActive(shouldBeActive);
         }
         Transform old = page.Find("DataRows");
+        if (old == null && name == "Overview")
+            return;
         if (old == null)
         {
             Debug.LogError("[王国界面] Authored DataRows host is missing for page: " + name);
@@ -821,7 +822,7 @@ public static class DevelopmentGuidance
             else
             {
                 snapshot.Status = DevelopmentGuidanceStatus.Progressing;
-                snapshot.Body = "研究正在推进，保持研究力与资源供应即可。";
+                snapshot.Body = "研究正在推进，保持研究力即可；完成后查看它解锁的建筑、生产链或时代条件。";
                 snapshot.Blockers = new[]
                 {
                     "进度 " + (active.ProgressRatio * 100).ToGameString() + "%"
@@ -894,7 +895,7 @@ public static class DevelopmentGuidance
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Workshop;
         snapshot.Title = "工坊：" + definition.Label;
-                snapshot.Body = "已有可用的 Workshop 升级，查看其资源需求与效果。";
+                snapshot.Body = "已有可用的工坊升级；它提供基础建设之外的渐进发展路线，查看资源需求与效果。";
                 snapshot.Blockers = Array.Empty<string>();
                 return snapshot;
             }

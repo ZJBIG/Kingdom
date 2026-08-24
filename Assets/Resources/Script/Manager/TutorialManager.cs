@@ -173,29 +173,45 @@ public sealed class TutorialManager : MonoBehaviour
             activeStepId = string.Empty;
         }
         steps.Add(new TutorialStep("orientation", "建立一个不断发展的王国",
-            "先观察王国的时代、人口和核心资源。资源会持续变化，所有发展都从这里开始。",
-            TutorialStepKind.Orientation, "resources"));
+            "打开概览并让王国时间推进一天；等待期间可查看资源页，观察原木和食物如何开始变化。",
+            TutorialStepKind.Orientation, "resources", string.Empty, "game-state",
+            "calendar-days>=1", "Overview",
+            "鼠族文明曾经中断，如今只剩下最初的火种。先让时间向前，让资源流动起来，复兴才有立足之处。"));
         steps.Add(new TutorialStep("resources", "理解资源来源",
-            "查看原木等核心资源的数量和净产出，确认王国已经拥有可持续的资源来源。",
-            TutorialStepKind.Resources, "building"));
+            "打开资源页面，查看原木等核心资源的数量和净产出，确认建设前的资源来源。",
+            TutorialStepKind.Resources, "building", string.Empty, "game-state",
+            "resource-inventory-positive", "Resources",
+            "复兴不能只靠勇气。食物维持族群，原木支撑最初的建设；先看清来源与净产出，再决定下一步把力量投向哪里。"));
         steps.Add(new TutorialStep("building", "让建筑解决问题",
-            "建造一个真实可用的建筑，观察它如何改变生产、研究力、人口容量或其他能力。",
-            TutorialStepKind.Building, "population"));
+            "在建筑页面建造一座可用建筑，观察它如何改变生产、研究力、人口容量或其他能力。",
+            TutorialStepKind.Building, "population", string.Empty, "game-state",
+            "building-owned", "Buildings",
+            "第一座建筑不是终点，而是鼠族重新定居的证据。选择能解决当前阻碍的建筑，让土地、资源和生产力开始互相支持。"));
         steps.Add(new TutorialStep("population", "发展人口",
-            "人口需要人口容量、食物和稳定的幸福度。查看人口变化，理解人口如何转化为生产力。",
-            TutorialStepKind.Population, "research"));
+            "先提供人口容量，再维持食物和幸福度，观察人口增长并理解人口如何转化为生产力。",
+            TutorialStepKind.Population, "research", string.Empty, "game-state",
+            "population-grown", "Buildings",
+            "分散的族群开始回到火种旁。容身之处提供人口容量，食物和幸福度决定他们能否留下；人口增长后，新的生产力也会回到王国。"));
         steps.Add(new TutorialStep("research", "用研究打开下一步",
-            "选择一项可用研究，查看它连接的建筑、生产链或时代目标。",
-            TutorialStepKind.Research, "production-chain"));
+            "在研究页面选择并完成一项可用研究，查看它连接的建筑、生产链或时代目标。",
+            TutorialStepKind.Research, "production-chain", string.Empty, "game-state",
+            "research-complete", "Research",
+            "废墟中仍保存着失落的知识。研究不是孤立的清单：它会解锁建筑、改变生产方式，或把王国推向下一时代。"));
         steps.Add(new TutorialStep("production-chain", "连接生产链",
-            "观察原材料、加工资源和高级建筑之间的关系，优先解决当前真正的资源阻碍。",
-            TutorialStepKind.ProductionChain, "era-goal"));
+            "建立一组相互连接的生产与加工建筑，观察原材料如何转化为更高价值的资源。",
+            TutorialStepKind.ProductionChain, "era-goal", string.Empty, "game-state",
+            "production-chain-owned", "Buildings",
+            "一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。"));
         steps.Add(new TutorialStep("era-goal", "看懂下一时代",
-            "时代推进由关键研究和真实条件共同决定。查看每个条件的当前值、阻碍和入口。",
-            TutorialStepKind.EraGoal, "long-term"));
+            "打开时代页面，查看关键研究和真实条件的当前值、阻碍与入口，并完成它们以推进时代。",
+            TutorialStepKind.EraGoal, "long-term", string.Empty, "game-state",
+            "era-reached", "Era",
+            "当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看每个真实条件，补上最先阻断王国的那一环。"));
         steps.Add(new TutorialStep("long-term", "形成长期目标",
-            "继续完成当前时代目标，并让生产链、人口和研究共同支持王国的下一次扩张。",
-            TutorialStepKind.LongTerm, string.Empty));
+            "继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。",
+            TutorialStepKind.LongTerm, string.Empty, string.Empty, "game-state",
+            "long-term", "Era",
+            "这场复兴没有终点。让旧时代的资源继续服务于新的生产链，用人口、研究和基础设施共同支撑下一次扩张。"));
         if (string.IsNullOrEmpty(activeStepId))
             activeStepId = steps[0].Id;
     }
@@ -319,21 +335,21 @@ public sealed class TutorialManager : MonoBehaviour
         switch (era)
         {
             case TechLevel.Animal:
-                return "鼠族只保住了最初的火种，复兴从稳定生存开始。";
+                return "鼠族只保住了最初的火种，复兴要从食物、原木和第一处定居点开始。";
             case TechLevel.Neolithic:
-                return "鼠族重新定居，开始把零散族群组织成文明。";
+                return "鼠族重新定居，灌溉、储粮、陶器与文字让零散族群开始组织成文明。";
             case TechLevel.Medieval:
-                return "鼠族正在恢复制度与秩序，让更大的社会得以延续。";
+                return "鼠族正在恢复行政、贸易、城市与标准化生产，让更大的社会得以延续。";
             case TechLevel.Industrial:
-                return "鼠族重新掌握规模化生产，文明复兴进入加速阶段。";
+                return "鼠族重新掌握电力、铁路与机器制造，文明复兴进入规模化加速阶段。";
             case TechLevel.Spacer:
-                return "鼠族已经走出母星，开始把复兴带向星际。";
+                return "鼠族已经走出母星，轨道设施、航行与舰队把复兴带向星际。";
             case TechLevel.Ultra:
-                return "鼠族正在探索超越旧文明边界的力量。";
+                return "鼠族正在探索超越旧文明边界的力量；当前阶段仍应先完成既有时代的跃迁。";
             case TechLevel.Archotech:
-                return "鼠族文明开始触及远古技术留下的更深层秘密。";
+                return "鼠族文明开始触及远古技术留下的更深层秘密；这里目前仍是远期框架。";
             default:
-                return "鼠族文明正在重新寻找自己的未来。";
+                return "鼠族文明正在重新寻找自己的未来，从当前时代的真实能力继续前进。";
         }
     }
 
@@ -434,12 +450,12 @@ public sealed class TutorialManager : MonoBehaviour
         if (step.Kind == TutorialStepKind.Orientation)
         {
             snapshot.Blocker = "王国时间尚未推进满一天。";
-            snapshot.RecommendedAction = "让王国时间继续推进，观察人口与核心资源的变化。";
+            snapshot.RecommendedAction = "让王国时间继续推进，观察人口与核心资源的变化；等待期间也可查看资源页。";
         }
         else if (step.Kind == TutorialStepKind.Resources)
         {
             snapshot.Blocker = "核心资源尚未形成可见库存。";
-            snapshot.RecommendedAction = "打开资源页面，查看原木的数量与净产出。";
+            snapshot.RecommendedAction = "打开资源页面，查看原木的数量与净产出，为第一座建筑准备材料。";
             snapshot.NavigationPage = "Resources";
         }
         else if (step.Kind == TutorialStepKind.Building)
@@ -454,7 +470,7 @@ public sealed class TutorialManager : MonoBehaviour
             {
                 snapshot.Blocker = DescribeBuildingBlocker(
                     recommendation, game, buildings, resources);
-                snapshot.RecommendedAction = "打开建筑页面，查看“" + recommendation.Label +
+                snapshot.RecommendedAction = "打开建筑页面，选择能解决当前阻碍的“" + recommendation.Label +
                     "”：" + DescribeBuildingRole(recommendation);
             }
             snapshot.NavigationPage = "Buildings";
@@ -666,9 +682,15 @@ public sealed class TutorialManager : MonoBehaviour
             return null;
         if (researchManager.ActiveResearch != null)
             return researchManager.ActiveResearch.Definition;
-        foreach (ResearchState state in researchManager.States.Values)
-            if (state != null && state.Status == ResearchStatus.Available)
-                return state.Definition;
+        IReadOnlyList<Research> definitions = DataBase<Research>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Research definition = definitions[i];
+            if (definition != null &&
+                researchManager.States.TryGetValue(definition, out ResearchState state) &&
+                state != null && state.Status == ResearchStatus.Available)
+                return definition;
+        }
         return null;
     }
 

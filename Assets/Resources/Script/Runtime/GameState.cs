@@ -3,8 +3,11 @@ using System;
 [Serializable]
 public sealed class GameState
 {
-    public static ExpantaNum BaseFoodProductionRate => new ExpantaNum(5);
-    public static ExpantaNum BaseFoodCapacity => new ExpantaNum(500);
+    private static readonly ExpantaNum BaseFoodProductionRateValue = new ExpantaNum(5);
+    private static readonly ExpantaNum BaseFoodCapacityValue = new ExpantaNum(500);
+
+    public static ExpantaNum BaseFoodProductionRate => BaseFoodProductionRateValue;
+    public static ExpantaNum BaseFoodCapacity => BaseFoodCapacityValue;
 
     private const string DefaultKingdomName = "鼠托邦";
 

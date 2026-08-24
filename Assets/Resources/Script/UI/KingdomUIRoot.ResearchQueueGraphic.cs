@@ -82,6 +82,10 @@ public sealed partial class KingdomUIRoot
 
         researchQueueScroll.viewport = researchQueueViewport;
         researchQueueScroll.content = researchQueueContent;
+        // The live-refresh pass can run before this authored overlay is bound
+        // while the research page is being built. Keep one refresh pending so
+        // that first binding cannot consume the queue dirty flag too early.
+        researchQueueUiDirty = true;
         RefreshResearchQueueGraphic();
         Debug.Log("[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites");
     }

@@ -56,6 +56,7 @@ public sealed partial class KingdomUIRoot
     private void BuildAuthoredResourceRows(RectTransform parent)
     {
         int visible = 0;
+        ResourceManager resourceManager = ResourceManager.Instance;
         IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
         var orderedDefinitions = new List<Resource>();
         for (int i = 0; i < definitions.Count; i++)
@@ -71,7 +72,7 @@ public sealed partial class KingdomUIRoot
         {
             Resource resource = orderedDefinitions[i];
             ResourceState state = null;
-            ResourceManager.Instance?.States.TryGetValue(resource, out state);
+            resourceManager?.States.TryGetValue(resource, out state);
             string amount = state == null ? "0" : state.Amount.ToGameString();
             ExpantaNum net = state == null
                 ? ExpantaNum.Zero
@@ -121,6 +122,7 @@ public sealed partial class KingdomUIRoot
     private void BuildAuthoredBuildingRows(RectTransform parent)
     {
         int visible = 0;
+        BuildingManager buildingManager = BuildingManager.Instance;
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
         var orderedDefinitions = new List<Building>();
         for (int i = 0; i < definitions.Count; i++)
@@ -136,7 +138,7 @@ public sealed partial class KingdomUIRoot
             Building building = orderedDefinitions[i];
             string amount = "0";
             BuildingState state = null;
-            if (BuildingManager.Instance != null && BuildingManager.Instance.States.TryGetValue(building, out state))
+            if (buildingManager != null && buildingManager.States.TryGetValue(building, out state))
                 amount = state.Amount.ToGameString();
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
             if (row == null)
@@ -156,8 +158,8 @@ public sealed partial class KingdomUIRoot
                 ShowBuildingDetails(building);
             });
 
-            bool canUpgrade = BuildingManager.Instance != null &&
-                BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
+            bool canUpgrade = buildingManager != null &&
+                buildingManager.TryGetUnlockedUpgradeTarget(building, out _);
             Button buildButton = RequireChildButton(row, "BuildButton");
             Button deconstructButton = RequireChildButton(row, "DeconstructButton");
             if (buildButton == null || deconstructButton == null)
@@ -177,8 +179,8 @@ public sealed partial class KingdomUIRoot
             buildingActionButtons[building] = buildButton;
             buildingActionUpgradeModes[building] = canUpgrade;
 
-            bool hasAmount = BuildingManager.Instance != null &&
-                BuildingManager.Instance.States.TryGetValue(building, out BuildingState buildingState) &&
+            bool hasAmount = buildingManager != null &&
+                buildingManager.States.TryGetValue(building, out BuildingState buildingState) &&
                 buildingState.Amount > ExpantaNum.Zero;
             ExpantaNum deconstructQuantity = GetSelectedBuildingQuantity(building, false, true);
             SetBuildingActionButtonText(

@@ -579,7 +579,6 @@ public sealed partial class KingdomUIRoot
         KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=nodes elapsedMs={nodesDurationMs:0.0} durationMs={nodesDurationMs:0.0} nodes={researchTreeNodes.Count}");
 #endif
         RestoreResearchTreeSelection();
-        BindAuthoredResearchTreeOverlay(researchGraphViewport);
         // The gesture is authored on the fixed graph shell. Runtime only binds
         // data-dependent bounds; it never creates fixed UI components.
         researchGraphGesture = researchGraphViewport.GetComponent<UIResearchGraphGesture>();
@@ -876,7 +875,7 @@ public sealed partial class KingdomUIRoot
         {
             if (pair.Value == null)
                 continue;
-            Rect rect = pair.Value.LocalRect;
+            Rect rect = pair.Value.LayoutRect;
             if (nodeRectByGrid.TryGetValue(pair.Key.TargetGrid, out RectTransform nodeRect))
             {
                 Vector2 nodeTopLeft = GetNodeTopLeftPosition(nodeRect);
@@ -921,66 +920,6 @@ public sealed partial class KingdomUIRoot
             Debug.LogWarning("[王国界面] 研究选择已失效，忽略不存在的研究资产: " + selectedId);
             selectedResearchNode = null;
         }
-    }
-
-    private void BindAuthoredResearchTreeOverlay(RectTransform viewport)
-    {
-        Transform authoredToolbar = viewport.Find("ResearchTreeToolbar");
-        if (authoredToolbar == null)
-        {
-            Debug.LogError("[王国界面] Scene is missing ResearchTreeToolbar; fixed research UI will not be generated at runtime.");
-            return;
-        }
-        RectTransform toolbar = authoredToolbar as RectTransform;
-        if (toolbar == null)
-        {
-            Debug.LogError("[王国界面] Authored ResearchTreeToolbar has no RectTransform.");
-            return;
-        }
-
-        // Keep the authored search slot as an explicit inactive placeholder
-        // for scene/test compatibility. The queue owns this toolbar region;
-        // the placeholder never renders or receives input.
-        Transform search = toolbar.Find("Search");
-        if (search == null)
-        {
-            GameObject searchPlaceholder = new GameObject("Search", typeof(RectTransform));
-            searchPlaceholder.transform.SetParent(toolbar, false);
-            search = searchPlaceholder.transform;
-        }
-        search.gameObject.SetActive(false);
-
-        #if false
-        researchTreeQueueLabel = toolbar.Find("Queue")?.GetComponent<TMP_Text>();
-        if (researchTreeQueueLabel == null)
-        {
-            Debug.LogError("[王国界面] Authored ResearchTreeToolbar is missing Queue.");
-            return;
-        }
-        // Queue entries are deliberately separated by real line breaks. A
-        // delimiter without whitespace is not a reliable TMP wrap boundary,
-        // so long queues used to render as one overflowing line.
-        researchTreeQueueLabel.enableWordWrapping = true;
-        researchTreeQueueLabel.overflowMode = TextOverflowModes.Overflow;
-        researchTreeQueueLabel.alignment = TextAlignmentOptions.TopLeft;
-        RectTransform queueRect = researchTreeQueueLabel.rectTransform;
-        Canvas.ForceUpdateCanvases();
-        float initialQueueHeight = Mathf.Max(70f, queueRect.rect.height);
-        queueRect.anchorMin = new Vector2(0f, 1f);
-        queueRect.anchorMax = new Vector2(1f, 1f);
-        queueRect.pivot = new Vector2(0.5f, 1f);
-        queueRect.anchoredPosition = Vector2.zero;
-        Vector2 initialQueueSize = queueRect.sizeDelta;
-        initialQueueSize.y = initialQueueHeight;
-        queueRect.sizeDelta = initialQueueSize;
-        Vector2 queueOffsetMin = queueRect.offsetMin;
-        queueOffsetMin.x = 168f;
-        queueRect.offsetMin = queueOffsetMin;
-        #endif
-        SetupResearchQueueGraphic(toolbar);
-#if UNITY_EDITOR
-        KingdomEditorPerfLog.Write("[KingdomPerf] ResearchQueueLayout implementation=graphic-prefab-horizontal-drag");
-#endif
     }
 
     #if false
@@ -1852,6 +1791,8 @@ public sealed partial class KingdomUIRoot
             "ResearchConnectorNormalLayer", researchGraphLineLayer);
         researchConnectorFocusedLayer = CreateResearchConnectorRect(
             "ResearchConnectorFocusedLayer", researchGraphLineLayer);
+        researchConnectorNormalLayer.SetAsFirstSibling();
+        researchConnectorFocusedLayer.SetAsLastSibling();
     }
 
     private static RectTransform CreateResearchConnectorRect(
@@ -1863,10 +1804,12 @@ public sealed partial class KingdomUIRoot
         RectTransform rect = owner.GetComponent<RectTransform>();
         rect.SetParent(parent, false);
         rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
+        rect.anchorMax = Vector2.zero;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
         rect.pivot = Vector2.zero;
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = parent.rect.size;
         return rect;
     }
 
@@ -1885,10 +1828,12 @@ public sealed partial class KingdomUIRoot
         RectTransform rect = owner.GetComponent<RectTransform>();
         rect.SetParent(parent, false);
         rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
+        rect.anchorMax = Vector2.zero;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
         rect.pivot = Vector2.zero;
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = parent.rect.size;
         UIResearchConnectorBatch batch =
             owner.GetComponent<UIResearchConnectorBatch>();
         batch.Initialize(texture, focused);
@@ -2565,6 +2510,7 @@ public sealed class UIResearchConnectorBatch : MaskableGraphic
     internal sealed class Part
     {
         internal Rect LocalRect;
+        internal Rect LayoutRect;
         internal Vector4 Uv;
         internal Color32 NormalColor;
         internal Color32 FocusColor;
@@ -2599,12 +2545,32 @@ public sealed class UIResearchConnectorBatch : MaskableGraphic
         Color normalColor,
         Color focusColor)
     {
+        Rect layoutRect = localRect;
+        if (sprite != null)
+        {
+            Vector4 padding = UnityEngine.Sprites.DataUtility.GetPadding(sprite);
+            int spriteWidth = Mathf.RoundToInt(sprite.rect.width);
+            int spriteHeight = Mathf.RoundToInt(sprite.rect.height);
+            if (spriteWidth > 0 && spriteHeight > 0)
+            {
+                float xMin = padding.x / spriteWidth;
+                float yMin = padding.y / spriteHeight;
+                float xMax = (spriteWidth - padding.z) / spriteWidth;
+                float yMax = (spriteHeight - padding.w) / spriteHeight;
+                localRect = new Rect(
+                    localRect.x + localRect.width * xMin,
+                    localRect.y + localRect.height * yMin,
+                    localRect.width * (xMax - xMin),
+                    localRect.height * (yMax - yMin));
+            }
+        }
         Vector4 uv = sprite == null
             ? new Vector4(0f, 0f, 1f, 1f)
             : UnityEngine.Sprites.DataUtility.GetOuterUV(sprite);
         var part = new Part
         {
             LocalRect = localRect,
+            LayoutRect = layoutRect,
             Uv = uv,
             NormalColor = normalColor,
             FocusColor = focusColor

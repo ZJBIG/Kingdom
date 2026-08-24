@@ -623,6 +623,7 @@ public sealed class SectorManager
         double deltaSeconds,
         GameState runtimeState)
     {
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
             runtimeState.AttackPower,
             runtimeState.FleetPower,
@@ -630,7 +631,7 @@ public sealed class SectorManager
             runtimeState.SupplySatisfaction,
             runtimeState.PowerSatisfaction,
             runtimeState.LogisticsSatisfaction,
-            ProgressionModifierManager.Current.MilitaryMultiplier,
+            modifiers.MilitaryMultiplier,
             state.CampaignCasualties);
         ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
         ExpantaNum nextProgress = CampaignManager.AdvanceProgress(
@@ -638,13 +639,13 @@ public sealed class SectorManager
             combatRatio,
             deltaSeconds,
             definition.CampaignProgressMultiplier *
-                ProgressionModifierManager.Current.CampaignProgressMultiplier);
+                modifiers.CampaignProgressMultiplier);
         ExpantaNum casualties = CampaignManager.CalculateCasualtyAmount(
             combatRatio,
             runtimeState.DefensePower,
             definition.EnemyPower,
             deltaSeconds,
-            ProgressionModifierManager.Current.CampaignCasualtyMultiplier);
+            modifiers.CampaignCasualtyMultiplier);
         state.SetCampaignProgress(nextProgress);
         state.SetCampaignCombatRatio(combatRatio);
         state.SetCampaignCasualties(state.CampaignCasualties + casualties);

@@ -24,8 +24,9 @@ public sealed partial class KingdomUIRoot
             return;
 
         sectorSummaryLabels.Clear();
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
+        ResourceManager resourceManager = resourceManagerCache;
         SectorManager sectorManager = gameManager == null ? null : gameManager.Sectors;
         GameState state = gameManager == null ? null : gameManager.State;
         IReadOnlyList<SectorDefinition> definitions = DataBase<SectorDefinition>.All;
@@ -339,7 +340,8 @@ public sealed partial class KingdomUIRoot
 
     private void UnlockSector(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryUnlock(definition, out failure))
         {
@@ -353,8 +355,9 @@ public sealed partial class KingdomUIRoot
 
     private void StartColonization(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
+        ResourceManager resourceManager = resourceManagerCache;
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryAdvanceColonization(
                 definition, 0d, gameManager.State, resourceManager, out failure))
@@ -369,7 +372,8 @@ public sealed partial class KingdomUIRoot
 
     private void PauseColonization(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         if (gameManager == null || !gameManager.Sectors.CancelColonization(definition))
         {
             ShowTooltip("\u6682\u505c\u63a2\u7d22\u5931\u8d25");
@@ -382,8 +386,9 @@ public sealed partial class KingdomUIRoot
 
     private void StartCampaign(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
+        ResourceManager resourceManager = resourceManagerCache;
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryAdvanceCampaign(
                 definition, 0d, gameManager.State, resourceManager, out failure))
@@ -398,7 +403,8 @@ public sealed partial class KingdomUIRoot
 
     private void PauseCampaign(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         if (gameManager == null || !gameManager.Sectors.CancelCampaign(definition, gameManager.State))
         {
             ShowTooltip("\u6682\u505c\u6218\u5f79\u5931\u8d25");
@@ -411,7 +417,8 @@ public sealed partial class KingdomUIRoot
 
     private void OccupySector(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
         SectorOperationFailure failure = SectorOperationFailure.None;
         if (gameManager == null || !gameManager.Sectors.TryOccupy(definition, out failure))
         {
@@ -425,16 +432,18 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshSectorDetails(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
+        ResourceManager resourceManager = resourceManagerCache;
         if (gameManager != null)
             ShowSectorDetails(definition, gameManager.Sectors, gameManager.State, resourceManager);
     }
 
     private void RepairSectorFleet(SectorDefinition definition)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        ResourceManager resourceManager = FindObjectOfType<ResourceManager>();
+        CacheRuntimeManagers();
+        GameManager gameManager = gameManagerCache;
+        ResourceManager resourceManager = resourceManagerCache;
         if (gameManager == null || resourceManager == null || definition == null)
             return;
 

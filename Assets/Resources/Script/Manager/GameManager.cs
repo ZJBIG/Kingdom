@@ -17,6 +17,7 @@ public class GameManager : Singleton<GameManager>
 {
     private const double SecondsPerDay = 10d;
     private const string DefaultKingdomName = "鼠托邦";
+    private static readonly ExpantaNum UncappedFoodCeiling = new ExpantaNum("1e1000000");
 
     public GameState State { get; private set; } = new GameState();
     public SectorManager Sectors { get; } = new SectorManager();
@@ -115,11 +116,13 @@ public class GameManager : Singleton<GameManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
         State.AdvanceFood(deltaSeconds);
+        ExpantaNum populationGrowthRate = PopulationGrowthRatePerSecond;
+        bool foodShortage = CanPopulationLeaveForFoodShortage();
         State.AdvancePopulation(
             deltaSeconds,
-            PopulationGrowthRatePerSecond,
+            populationGrowthRate,
             populationDepartureAllowance,
-            CanPopulationLeaveForFoodShortage());
+            foodShortage);
         calendarElapsedSeconds += deltaSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {
@@ -139,11 +142,13 @@ public class GameManager : Singleton<GameManager>
             throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
 
         State.AdvanceFood(simulationSeconds);
+        ExpantaNum populationGrowthRate = PopulationGrowthRatePerSecond;
+        bool foodShortage = CanPopulationLeaveForFoodShortage();
         State.AdvancePopulation(
             simulationSeconds,
-            PopulationGrowthRatePerSecond,
+            populationGrowthRate,
             populationDepartureAllowance,
-            CanPopulationLeaveForFoodShortage());
+            foodShortage);
         calendarElapsedSeconds += calendarSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {
@@ -160,7 +165,7 @@ public class GameManager : Singleton<GameManager>
         ExpantaNum productionRate,
         ExpantaNum consumptionRate,
         double deltaSeconds)
-        => AdvanceFood(current, productionRate, consumptionRate, ExpantaNum.Max(current, new ExpantaNum("1e1000000")), deltaSeconds);
+        => AdvanceFood(current, productionRate, consumptionRate, ExpantaNum.Max(current, UncappedFoodCeiling), deltaSeconds);
 
     public static ExpantaNum AdvanceFood(
         ExpantaNum current,

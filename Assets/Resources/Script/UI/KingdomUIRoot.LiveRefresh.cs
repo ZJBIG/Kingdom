@@ -11,8 +11,6 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private readonly StringBuilder developmentGuidanceTextBuilder = new(512);
-    private string lastDevelopmentGuidanceNavigationPage;
-    private bool developmentGuidanceNavigationInitialized;
 
     private void Update()
     {
@@ -319,7 +317,12 @@ public sealed partial class KingdomUIRoot
             // Layout may remain pending while the page is moving, but the
             // queue text itself has already been refreshed. Do not turn the
             // pending-height flag into a per-frame text rebuild.
-            researchQueueUiDirty = false;
+            // During the first research-page build this branch can run before
+            // the authored queue graphic is bound. Keep the flag until both
+            // the graphic and its data source are ready; otherwise the first
+            // queue sync is lost and a later research click appears to fix it.
+            researchQueueUiDirty = researchQueueViewport == null ||
+                researchQueueContent == null || ResearchManager.Instance == null;
         }
         if (populatedPage == "Overview" &&
             (developmentGuidanceSnapshot == null || developmentGuidanceRefreshTimer >= 2f))
@@ -640,22 +643,14 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceText.enabled = true;
         developmentGuidanceText.gameObject.SetActive(true);
         developmentGuidanceText.alignment = TextAlignmentOptions.TopLeft;
-        developmentGuidanceText.fontSize = 24f;
-        developmentGuidanceText.enableAutoSizing = true;
-        developmentGuidanceText.fontSizeMin = 14f;
-        developmentGuidanceText.fontSizeMax = 24f;
         developmentGuidanceText.enableWordWrapping = true;
-        developmentGuidanceButton = page.GetComponent<Button>();
-        if (developmentGuidanceButton == null)
-            developmentGuidanceButton = page.gameObject.AddComponent<Button>();
-        Image guidanceHitSurface = page.GetComponent<Image>();
-        if (guidanceHitSurface == null)
-            guidanceHitSurface = page.gameObject.AddComponent<Image>();
-        guidanceHitSurface.color = Color.clear;
-        guidanceHitSurface.raycastTarget = true;
-        developmentGuidanceButton.targetGraphic = guidanceHitSurface;
-        developmentGuidanceButton.transition = Selectable.Transition.None;
-        developmentGuidanceButton.interactable = false;
+        Button guidanceButton = page.GetComponent<Button>();
+        if (guidanceButton != null)
+        {
+            guidanceButton.onClick.RemoveAllListeners();
+            guidanceButton.interactable = false;
+            guidanceButton.enabled = false;
+        }
         Canvas.ForceUpdateCanvases();
         Vector2 initialRect = developmentGuidanceText.rectTransform.rect.size;
         if (initialRect.x > 0f && initialRect.y > 0f)
@@ -688,34 +683,13 @@ public sealed partial class KingdomUIRoot
                 onboarding.Append("当前目标：").Append(tutorialSnapshot.CurrentGoal).Append("\n");
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NarrativeText))
                     onboarding.Append(tutorialSnapshot.NarrativeText).Append("\n");
-                onboarding.Append(tutorialSnapshot.GoalDescription).Append("\n");
+                onboarding.Append("完成方式：").Append(tutorialSnapshot.GoalDescription).Append("\n");
                 onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
                 if (!SignatureEquals(onboarding, developmentGuidanceText.text))
                     developmentGuidanceText.text = onboarding.ToString();
                 developmentGuidanceText.color = TextPrimary;
-                if (developmentGuidanceButton != null)
-                {
-                    string destination = tutorialSnapshot.NavigationPage;
-                    bool destinationChanged = !developmentGuidanceNavigationInitialized ||
-                        !string.Equals(lastDevelopmentGuidanceNavigationPage, destination, StringComparison.Ordinal);
-                    if (destinationChanged)
-                        developmentGuidanceButton.onClick.RemoveAllListeners();
-                    bool wasInteractable = developmentGuidanceButton.interactable;
-                    bool canNavigate = pages.ContainsKey(destination) &&
-                        !string.Equals(destination, populatedPage, StringComparison.Ordinal);
-                    developmentGuidanceButton.interactable = canNavigate;
-                    if (destinationChanged || wasInteractable != canNavigate)
-                    {
-                        if (!destinationChanged)
-                            developmentGuidanceButton.onClick.RemoveAllListeners();
-                        if (canNavigate)
-                            developmentGuidanceButton.onClick.AddListener(() => SetPage(destination));
-                        lastDevelopmentGuidanceNavigationPage = destination;
-                        developmentGuidanceNavigationInitialized = true;
-                    }
-                }
                 return;
             }
             catch (Exception exception)

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: production-chain
   Title: 连接生产链
-  Description: 观察原材料、加工资源和高级建筑之间的关系，优先解决当前真正的资源阻碍。
-  NarrativeText: 一个文明不能只会采集。鼠族必须重新学会把原料加工成更有价值的东西。
+  Description: 建立一组相互连接的生产与加工建筑，观察原材料如何转化为更高价值的资源。
+  NarrativeText: 一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。
   Kind: 5
   NextStepId: era-goal
   RewardId: 

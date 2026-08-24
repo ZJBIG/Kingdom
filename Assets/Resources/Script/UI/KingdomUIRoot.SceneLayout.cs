@@ -215,7 +215,7 @@ public sealed partial class KingdomUIRoot
                 return false;
             pages[pageNames[i]] = page;
             Button navigationButton = FindNavigationButton(pageNames[i]);
-            if (navigationButton != null)
+            if (pageNames[i] != "Overview" && navigationButton != null)
             {
                 string pageName = pageNames[i];
                 navigationButton.onClick.RemoveAllListeners();
@@ -267,7 +267,6 @@ public sealed partial class KingdomUIRoot
             ProgressionModifierManager.Current.IsSystemUnlocked(
                 ResearchSystem.InterstellarNavigation);
 
-        SetNavigationButtonVisible("Overview", true);
         SetNavigationButtonVisible("Resources", true);
         SetNavigationButtonVisible("Buildings", true);
         SetNavigationButtonVisible("Research", true);

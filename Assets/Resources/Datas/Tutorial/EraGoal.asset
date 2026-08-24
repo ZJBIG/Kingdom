@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: era-goal
   Title: 看懂下一时代
-  Description: 时代推进由关键研究和真实条件共同决定。查看每个条件的当前值、阻碍和入口。
-  NarrativeText: 当知识、人口和生产重新连接，鼠族就能迈向下一个文明阶段。
+  Description: 打开时代页面，查看关键研究和真实条件的当前值、阻碍与入口，并完成它们以推进时代。
+  NarrativeText: 当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看每个真实条件，补上最先阻断王国的那一环。
   Kind: 6
   NextStepId: long-term
   RewardId: 

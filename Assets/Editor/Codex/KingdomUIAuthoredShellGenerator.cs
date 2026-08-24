@@ -26,35 +26,6 @@ internal static class KingdomUIAuthoredShellGenerator
     [MenuItem("Tools/Kingdom/UI/Generate Authored Scene Shell")]
     private static void GenerateFromMenu() => Generate();
 
-    [InitializeOnLoadMethod]
-    private static void EnsureOnEditorLoad()
-    {
-        EditorApplication.delayCall += EnsureIfEmpty;
-    }
-
-    private static void EnsureIfEmpty()
-    {
-        if (!File.Exists(RootPath))
-            return;
-        GameObject root = AssetDatabase.LoadAssetAtPath<GameObject>(RootPath);
-        if (root == null)
-            return;
-        bool hasOrdinaryPageHost = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") != null;
-        bool hasResearchViewport = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport") != null;
-        bool hasResearchToolbar = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchTreeToolbar") != null;
-        bool hasResearchLineLayer = root.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchGraphContent/ResearchGraphLineLayer") != null;
-        bool hasMusicSurface = root.transform.Find("SafeAreaRoot/Content/PageHost/Music/DataRows/MusicSurface/Controls") != null;
-        bool hasQuantityControls = root.transform.Find("SafeAreaRoot/Content/BuildingQuantityControls") != null;
-        bool hasResearchQueueViewport = root.transform.Find("SafeAreaRoot/Content/ResearchQueueViewport") != null;
-        bool hasLegacyDetailChildren = root.transform.Find("SafeAreaRoot/DetailPanel/Body") != null ||
-            root.transform.Find("SafeAreaRoot/DetailPanel/BuildingOutput") != null ||
-            root.transform.Find("SafeAreaRoot/DetailPanel/BuildingRequirements") != null;
-        if (hasOrdinaryPageHost && hasResearchViewport && hasResearchToolbar && hasResearchLineLayer && hasMusicSurface &&
-            hasQuantityControls && hasResearchQueueViewport && !hasLegacyDetailChildren)
-            return;
-        Generate();
-    }
-
     private static void Generate()
     {
         if (!File.Exists(RootPath))
@@ -108,8 +79,8 @@ internal static class KingdomUIAuthoredShellGenerator
         navFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         string[] names = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
         string[] labels = { "概览", "资源", "建筑", "研究", "时代", "工坊", "音乐", "星区" };
-        for (int i = 0; i < names.Length; i++)
-            Button("Nav_" + names[i], navButtons, labels[i], i == 0 ? Copper : PanelRaised,
+        for (int i = 1; i < names.Length; i++)
+            Button("Nav_" + names[i], navButtons, labels[i], PanelRaised,
                 Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
         RectTransform body = Rect("Content", safeArea, Vector2.zero, Vector2.one,
@@ -134,9 +105,7 @@ internal static class KingdomUIAuthoredShellGenerator
             page.anchorMax = new Vector2(1, 1);
             page.pivot = new Vector2(.5f, 1);
             page.sizeDelta = new Vector2(0, 1400);
-            TMP_Text heading = Label("Heading", page, labels[i], 26, Copper, new Vector2(0, 1), Vector2.one, new Vector2(20, -58), new Vector2(-20, -16));
-            heading.gameObject.SetActive(false);
-            if (names[i] != "Music" && names[i] != "Research")
+            if (names[i] != "Overview")
             {
                 RectTransform rows = Rect("DataRows", page, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
                 rows.pivot = new Vector2(.5f, 1f);
@@ -149,9 +118,7 @@ internal static class KingdomUIAuthoredShellGenerator
             }
         }
         RectTransform musicPage = pageHost.Find("Music") as RectTransform;
-        RectTransform musicRows = musicPage == null
-            ? null
-            : Rect("DataRows", musicPage, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+        RectTransform musicRows = musicPage == null ? null : musicPage.Find("DataRows") as RectTransform;
         if (musicRows != null)
         {
             musicRows.pivot = new Vector2(.5f, 1f);
@@ -159,9 +126,7 @@ internal static class KingdomUIAuthoredShellGenerator
         }
         BuildMusicSurface(musicRows);
         RectTransform researchPage = pageHost.Find("Research") as RectTransform;
-        RectTransform researchRows = researchPage == null
-            ? null
-            : Rect("DataRows", researchPage, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+        RectTransform researchRows = researchPage == null ? null : researchPage.Find("DataRows") as RectTransform;
         if (researchRows != null)
         {
             researchRows.pivot = new Vector2(.5f, 1f);
@@ -309,21 +274,6 @@ internal static class KingdomUIAuthoredShellGenerator
         scroll.content = content;
         viewport.gameObject.AddComponent<UIResearchGraphGesture>();
 
-        GameObject toolbarPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/Resources/UI/Kingdom/KingdomUIResearchToolbar.prefab");
-        if (toolbarPrefab != null)
-        {
-            GameObject toolbarObject = PrefabUtility.InstantiatePrefab(toolbarPrefab, viewport) as GameObject;
-            if (toolbarObject != null)
-            {
-                toolbarObject.name = "ResearchTreeToolbar";
-                RectTransform toolbar = toolbarObject.GetComponent<RectTransform>();
-                toolbar.anchorMin = new Vector2(0, 1);
-                toolbar.anchorMax = Vector2.one;
-                toolbar.offsetMin = new Vector2(16, -82);
-                toolbar.offsetMax = new Vector2(-16, -12);
-            }
-        }
     }
 
     private static void BuildResearchQueueSurface(RectTransform parent)

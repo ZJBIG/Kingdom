@@ -492,11 +492,13 @@ public class ResearchManager : Singleton<ResearchManager>
         }
 
         current.SetStatus(ResearchStatus.Researching);
+        GameState gameState = GameManager.Instance.State;
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum speed = ResearchSpeedEffect(
-            GameManager.Instance.State.TechLevel,
+            gameState.TechLevel,
             current.Definition.TechLevel) * GlobalEfficiencyFactor *
-            ResearchPower * ProgressionModifierManager.Current.GlobalResearchMultiplier;
-        speed *= GameManager.Instance.State.HappinessMultiplier;
+            ResearchPower * modifiers.GlobalResearchMultiplier;
+        speed *= gameState.HappinessMultiplier;
         current.SetProgress(AdvanceResearchProgress(
             current.Progress,
             speed,

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: building
   Title: 让建筑解决问题
-  Description: 建造一个真实可用的建筑，观察它如何改变生产、研究力、人口容量或其他能力。
-  NarrativeText: 第一座建筑不是终点，而是鼠族重新定居的证据。让建筑解决眼前的实际问题。
+  Description: 在建筑页面建造一座可用建筑，观察它如何改变生产、研究力、人口容量或其他能力。
+  NarrativeText: 第一座建筑不是终点，而是鼠族重新定居的证据。选择能解决当前阻碍的建筑，让土地、资源和生产力开始互相支持。
   Kind: 2
   NextStepId: population
   RewardId: 

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: population
   Title: 发展人口
-  Description: 人口需要人口容量、食物和稳定的幸福度。查看人口变化，理解人口如何转化为生产力。
-  NarrativeText: 分散的族群开始回到火种旁。只有让他们吃饱并拥有容身之处，复兴才会延续。
+  Description: 先提供人口容量，再维持食物和幸福度，观察人口增长并理解人口如何转化为生产力。
+  NarrativeText: 分散的族群开始回到火种旁。容身之处提供人口容量，食物和幸福度决定他们能否留下；人口增长后，新的生产力也会回到王国。
   Kind: 3
   NextStepId: research
   RewardId: 
