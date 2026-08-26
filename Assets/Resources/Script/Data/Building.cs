@@ -203,6 +203,37 @@ public class Building : GameDefinition
         rawResourceConsumptionRatesCache = null;
     }
 
+    // Compatibility overload for editor tests authored before manpower was
+    // exposed as a building economy field. It preserves the current complete
+    // configuration path and supplies the neutral default only.
+    public void ConfigureEconomyForEditor(
+        ExpantaNum growth,
+        ExpantaNum territory,
+        ExpantaNum productivityConsumptionValue,
+        ExpantaNum productivity,
+        ExpantaNum populationCapacity,
+        ExpantaNum researchPower,
+        ExpantaNum foodProduction,
+        ExpantaNum foodConsumption,
+        ExpantaNum foodCapacity,
+        ExpantaNum powerProduction,
+        ExpantaNum powerConsumption,
+        ExpantaNum logisticsProduction,
+        ExpantaNum logisticsConsumption,
+        ExpantaNum attack,
+        ExpantaNum defense,
+        List<Pair<Resource, ExpantaNum>> requirements,
+        List<Pair<Resource, ExpantaNum>> generation,
+        List<Pair<Resource, ExpantaNum>> consumption)
+    {
+        ConfigureEconomyForEditor(
+            growth, territory, productivityConsumptionValue, productivity,
+            populationCapacity, researchPower, foodProduction, foodConsumption,
+            foodCapacity, powerProduction, powerConsumption, logisticsProduction,
+            logisticsConsumption, attack, defense, ExpantaNum.Zero,
+            requirements, generation, consumption);
+    }
+
     public void SetRequiredResearchForEditor(List<Research> values) =>
         requiredResearch = values ?? new List<Research>();
 

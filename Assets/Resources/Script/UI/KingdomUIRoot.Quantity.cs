@@ -33,7 +33,11 @@ public sealed partial class KingdomUIRoot
 
     private void RepairBuildingQuantityControls(RectTransform controls)
     {
+        if (controls == null)
+            return;
+
         buildingQuantityButtons.Clear();
+        controls.SetAsLastSibling();
         pageTitle = controls.parent.Find("PageTitle")?.GetComponent<TMP_Text>();
         if (pageTitle == null)
         {
@@ -41,7 +45,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
         pageTitle.alignment = TextAlignmentOptions.MidlineLeft;
-        pageTitle.fontSize = 36;
+        pageTitle.fontSize = 30;
         pageTitle.text = "\u5efa\u7b51";
         pageTitle.enabled = true;
 
@@ -82,6 +86,8 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Authored quantity button is missing: Quantity_" + mode);
             return;
         }
+        button.gameObject.SetActive(true);
+        button.interactable = true;
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => SelectBuildingQuantityMode(mode));
 
@@ -94,12 +100,14 @@ public sealed partial class KingdomUIRoot
         buttonText.text = label;
         buttonText.enabled = true;
         buttonText.gameObject.SetActive(true);
-        buttonText.fontSize = 32;
+        buttonText.fontSize = 30;
         buttonText.color = TextPrimary;
         buttonText.alignment = TextAlignmentOptions.MidlineLeft;
         buttonText.enableWordWrapping = false;
         buttonText.overflowMode = TextOverflowModes.Overflow;
         buttonText.raycastTarget = false;
+        if (button.targetGraphic != null)
+            button.targetGraphic.raycastTarget = true;
         if (sharedFontAsset != null)
             buttonText.font = sharedFontAsset;
         buttonText.transform.SetAsLastSibling();

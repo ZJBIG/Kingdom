@@ -345,7 +345,6 @@ public sealed class SaveManager : Singleton<SaveManager>
     public sealed class GameSaveData
     {
         public int CalendarDays;
-        public string KingdomName;
         public TechLevel TechLevel;
         public string FoodAmount;
         public string Population;

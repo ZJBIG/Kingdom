@@ -28,8 +28,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private static readonly Color Error = new(0.78f, 0.31f, 0.28f, 1f);
     private const float TopBar = 132f;
     private const float Footer = 92f;
-    private const float Nav = 270f;
     private const float Detail = 640f;
+    private const float UiFontSize = 30f;
 
     private RectTransform safeArea;
     private RectTransform leftNavigation;
@@ -52,8 +52,16 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text detailPaymentButtonText;
     private RectTransform tooltipPanel;
     private TMP_Text tooltipText;
+    private TMP_Text topFoodValue;
+    private TMP_Text topHappinessValue;
+    private TMP_Text topPopulationValue;
+    private TMP_Text topTerritoryValue;
+    private TMP_Text topResearchPowerValue;
+    private TMP_Text topPowerValue;
+    private TMP_Text topLogisticsValue;
+    private TMP_Text topCurrentResearchValue;
     private TMP_Text topKingdomTitle;
-    private TMP_Text topStatus;
+    private TMP_Text topKingdomDate;
     private RectTransform buildingQuantityControls;
     private bool detailBuildingUpgrade;
     private bool detailIsBuilding;
@@ -62,7 +70,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private WorkshopUpgrade selectedWorkshop;
     private static TMP_FontAsset sharedFontAsset;
     private float liveRefreshTimer;
-    private float topStatusRefreshTimer;
+    private float topInfoRefreshTimer;
     private float developmentGuidanceRefreshTimer;
     private float scrollingLiveValueRefreshTimer;
     private float researchDetailLiveRefreshTimer;
@@ -122,7 +130,18 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private int lastSelectedBuildingVersion = -1;
     private bool lastSelectedBuildingUpgrade;
     private int lastSelectedBuildingResourceVersion = -1;
-    private bool topStatusDataErrorLogged;
+    private readonly HashSet<string> observedCompletedResearchIds = new();
+    private bool researchCompletionObservationInitialized;
+    private readonly Dictionary<string, ExpantaNum> observedBuildingAmounts = new();
+    private bool buildingObservationInitialized;
+    private BuildingManager buildingObservationSource;
+    private ExpantaNum observedPopulationWhole;
+    private bool populationObservationInitialized;
+    private bool populationGrowthNoticeSent;
+    private readonly Dictionary<string, ExpantaNum> observedSectorProgress = new();
+    private readonly Dictionary<string, ExpantaNum> observedSectorCasualties = new();
+    private readonly HashSet<string> observedOccupiedSectorIds = new();
+    private bool sectorObservationInitialized;
     private bool runtimeGeometryLogged;
     private bool runtimeGeometryDiagnosticLogged;
     private float runtimeGeometryRetryTimer;
@@ -147,12 +166,14 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private string lastBuildingDisplaySignature;
     private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
     private readonly Dictionary<Resource, TMP_Text> resourceChangeLabels = new();
+    private readonly HashSet<string> visibleResourceIds = new(StringComparer.OrdinalIgnoreCase);
     private RectTransform researchGraphViewport;
     private RectTransform researchGraphContent;
     private CanvasGroup researchPageVisibilityGroup;
     private readonly Dictionary<Research, Button> researchTreeNodes = new();
     private bool researchTreePageBuilt;
     private Coroutine researchTreeWarmupCoroutine;
+    private Coroutine storyWarmupCoroutine;
     private string populatedPage;
     private float nextRowTop;
     private bool resourceRowsBuilt;
@@ -173,7 +194,15 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool musicProgressDragging;
     private bool musicPageBuilt;
     private TMP_Text developmentGuidanceText;
+    private Button developmentGuidanceNavigationButton;
     private TutorialSnapshot tutorialSnapshot;
+    private TutorialManager tutorialSnapshotSource;
+    private string tutorialRecentCompletionFeedback = string.Empty;
+    private string recentActionFeedback = string.Empty;
+    private readonly List<string> recentActionFeedbackEntries = new();
+    private int recentActionFeedbackVersion = -1;
+    private int observedTutorialSaveSessionVersion = -1;
+    private int tutorialFeedbackVersion = -1;
     private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
@@ -202,7 +231,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // a negative body/graph viewport during the first layout pass.
         ConfigureP40CanvasScaler();
         Canvas.ForceUpdateCanvases();
-        ResolveFont();
+        if (!ResolveFont())
+            return;
         PreloadResearchTreeAssets();
 
         HideLegacyChildren();
@@ -225,12 +255,12 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         Debug.Log($"[王国界面] Canvas configured: mode={scaler.uiScaleMode}, reference={scaler.referenceResolution}, match={scaler.matchWidthOrHeight}");
     }
 
-    private void ResolveFont()
+    private bool ResolveFont()
     {
         if (sharedFontAsset != null)
         {
             Debug.Log($"[王国界面] 复用共享字体：{sharedFontAsset.name}");
-            return;
+            return true;
         }
         Font source = Resources.Load<Font>("Fonts/NotoSansSC-Regular");
         sharedSourceFont = source;
@@ -257,7 +287,13 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         if (sharedFontAsset == null)
             sharedFontAsset = TMP_Settings.defaultFontAsset;
-        Debug.Log($"[王国界面] 字体解析完成：来源={(source == null ? "空" : source.name)}，共享字体={(sharedFontAsset == null ? "空" : sharedFontAsset.name)}，默认字体={(TMP_Settings.defaultFontAsset == null ? "空" : TMP_Settings.defaultFontAsset.name)}");
+        if (sharedFontAsset == null)
+        {
+            Debug.LogError("[王国界面] Required TMP FontAsset is unavailable; UI initialization was aborted.");
+            return false;
+        }
+        Debug.Log($"[王国界面] 字体解析完成：来源={(source == null ? "空" : source.name)}，共享字体={sharedFontAsset.name}，默认字体={(TMP_Settings.defaultFontAsset == null ? "空" : TMP_Settings.defaultFontAsset.name)}");
+        return true;
     }
 
     private void Start() => Invoke(nameof(RebuildCurrentPage), 0.5f);
@@ -331,7 +367,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         bool authoredShell = TryBindAuthoredShell();
         if (!authoredShell)
         {
-            Debug.LogError("[王国界面] Authored scene shell is incomplete. Open Tools/Kingdom/UI/Generate Authored Scene Shell; fixed UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Authored scene shell is incomplete. Restore the required static objects in KingdomUIRoot.prefab.");
             return;
         }
         if (safeArea.GetComponent<SafeAreaFitter>() == null)
@@ -341,7 +377,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[王国界面] Panel alignment: navigation={GetRectSize(leftNavigation)}, detail={GetRectSize(detailPanel)}, bottomDelta={GetRectBottom(detailPanel) - GetRectBottom(leftNavigation):0.00}, topDelta={GetRectTop(detailPanel) - GetRectTop(leftNavigation):0.00}");
         SetPage("Overview");
+        DiagnoseUiTextRendering("initial");
         researchTreeWarmupCoroutine = StartCoroutine(WarmResearchTreePage());
+        storyWarmupCoroutine = StartCoroutine(WarmStoryPage());
     }
 
     private IEnumerator WarmResearchTreePage()
@@ -360,8 +398,36 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         PopulatePage("Research");
         page.gameObject.SetActive(wasActive);
+        ConfigureOuterPageScroll(
+            string.IsNullOrEmpty(populatedPage) ? "Overview" : populatedPage,
+            true, true);
         researchTreeWarmupCoroutine = null;
         Debug.Log("[王国界面] Research page warmed and cached before first tab activation");
+    }
+
+    private IEnumerator WarmStoryPage()
+    {
+        // Build the narrative archive after the first Overview frame so its
+        // TMP/card creation is not paid by the first Story tab click.
+        yield return null;
+        if (researchTreeWarmupCoroutine != null)
+            yield return researchTreeWarmupCoroutine;
+        if (storyPageBuilt || !pages.TryGetValue("Story", out RectTransform page))
+        {
+            storyWarmupCoroutine = null;
+            yield break;
+        }
+
+        bool wasActive = page.gameObject.activeSelf;
+        page.gameObject.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        PopulatePage("Story");
+        page.gameObject.SetActive(wasActive);
+        ConfigureOuterPageScroll(
+            string.IsNullOrEmpty(populatedPage) ? "Overview" : populatedPage,
+            true, true);
+        storyWarmupCoroutine = null;
+        Debug.Log("[王国界面] Story page warmed and cached before first tab activation");
     }
 
     private static Vector2 GetRectSize(RectTransform rect) => rect == null ? Vector2.zero : rect.rect.size;
@@ -376,7 +442,11 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     {
         RectTransform root = transform as RectTransform;
         if (root == null)
+        {
+            Debug.LogError("[王国界面] Required UI root must use a RectTransform: " +
+                gameObject.name);
             return;
+        }
 
         // The scene prefab historically carried a zero-sized root override.
         // Reassert the full-screen Canvas rectangle before measuring children;
@@ -404,16 +474,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             }
         }
 
-        // Scene/P prefab overrides previously changed these anchors at edit
-        // time. Reassert the contract at runtime so both side panels always
-        // occupy the same vertical interval below the top bar.
-        if (leftNavigation != null)
-        {
-            leftNavigation.anchorMin = new Vector2(0f, 0f);
-            leftNavigation.anchorMax = new Vector2(0f, 1f);
-            leftNavigation.offsetMin = Vector2.zero;
-            leftNavigation.offsetMax = new Vector2(Nav, -TopBar);
-        }
         if (detailPanel != null)
         {
             detailPanel.anchorMin = new Vector2(1f, 0f);
@@ -469,8 +529,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             string label = PageLabel(name);
             if (pageTitle.text != label)
                 pageTitle.text = label;
-            if (pageTitle.fontSize != 36)
-                pageTitle.fontSize = 36;
+            if (pageTitle.fontSize != UiFontSize)
+                pageTitle.fontSize = UiFontSize;
             if (!pageTitle.enabled)
                 pageTitle.enabled = true;
             if (!pageTitle.gameObject.activeSelf)
@@ -494,13 +554,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 titleRect.GetSiblingIndex() != titleRect.parent.childCount - 1)
                 titleRect.SetAsLastSibling();
         }
-        if (pageScroll != null)
-        {
-            if (pageScroll.content != pages[name])
-                pageScroll.content = pages[name];
-            if (pageScroll.verticalNormalizedPosition != 1f)
-                pageScroll.verticalNormalizedPosition = 1f;
-        }
         populatedPage = name;
         TutorialManager.Current?.RecordPageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
@@ -511,14 +564,21 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             ? researchTreePageBuilt
             : name == "Music"
                 ? musicPageBuilt
+                : name == "Story"
+                    ? storyPageBuilt
                 : name == "Overview" || AreAuthoredRowsBuilt(name);
         bool pageNeedsInitialLayout = !pageHasCachedLayout;
         bool pageGeometryUnavailable = pageHost == null ||
             pageHost.rect.width <= 1f || pageHost.rect.height <= 1f;
-        if (pageNeedsInitialLayout || pageGeometryUnavailable)
+        bool storyHasMeasuredHost = name == "Story" && pageHost != null &&
+            pageHost.rect.width > 1f && pageHost.rect.height > 1f;
+        if ((!storyHasMeasuredHost && pageNeedsInitialLayout) || pageGeometryUnavailable)
             Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
+        {
             BuildBuildingQuantityControls(pageHost.parent);
+            RefreshBuildingQuantityHeader();
+        }
 #if UNITY_EDITOR
         float populateStartTime = Time.realtimeSinceStartup;
 #endif
@@ -532,6 +592,129 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             "researchVisibility=canvas-group");
 #endif
     }
+
+    private void NormalizeUiTextSizes()
+    {
+        if (safeArea == null)
+            return;
+        TMP_Text[] texts = safeArea.GetComponentsInChildren<TMP_Text>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null)
+                continue;
+            if (leftNavigation != null && text.transform.IsChildOf(leftNavigation))
+                continue;
+            if (text == topKingdomTitle || text == topKingdomDate)
+                continue;
+            if (text == musicVolumeValueLabel || text == musicGapValueLabel)
+                continue;
+            bool changed = !Mathf.Approximately(text.fontSize, UiFontSize) ||
+                !Mathf.Approximately(text.fontSizeMin, UiFontSize) ||
+                !Mathf.Approximately(text.fontSizeMax, UiFontSize) ||
+                text.enableAutoSizing;
+            if (!changed)
+                continue;
+            text.fontSize = UiFontSize;
+            text.fontSizeMin = UiFontSize;
+            text.fontSizeMax = UiFontSize;
+            text.enableAutoSizing = false;
+            text.SetVerticesDirty();
+        }
+    }
+
+#if UNITY_EDITOR
+    private void DiagnoseUiTextRendering(string reason)
+    {
+        if (safeArea == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+        TMP_Text[] texts = safeArea.GetComponentsInChildren<TMP_Text>(true);
+        int activeCount = 0;
+        int nonEmptyCount = 0;
+        int characterCount = 0;
+        int vertexCount = 0;
+        int alphaVisibleCount = 0;
+        int suspiciousCount = 0;
+        int logged = 0;
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+            if (text == null || !text.gameObject.activeInHierarchy || !text.enabled)
+                continue;
+            activeCount++;
+            text.ForceMeshUpdate(true, true);
+            int chars = text.textInfo == null ? 0 : text.textInfo.characterCount;
+            int vertices = 0;
+            if (text.textInfo != null && text.textInfo.meshInfo != null)
+            {
+                for (int meshIndex = 0; meshIndex < text.textInfo.meshInfo.Length; meshIndex++)
+                    vertices += text.textInfo.meshInfo[meshIndex].vertices == null
+                        ? 0 : text.textInfo.meshInfo[meshIndex].vertices.Length;
+            }
+            float groupAlpha = 1f;
+            string groups = "none";
+            Transform parent = text.transform.parent;
+            while (parent != null)
+            {
+                CanvasGroup group = parent.GetComponent<CanvasGroup>();
+                if (group != null)
+                {
+                    groupAlpha *= group.alpha;
+                    groups = groups == "none" ? group.name + "=" + group.alpha.ToString("0.###") :
+                        groups + "," + group.name + "=" + group.alpha.ToString("0.###");
+                }
+                parent = parent.parent;
+            }
+            if (!string.IsNullOrEmpty(text.text))
+                nonEmptyCount++;
+            characterCount += chars;
+            vertexCount += vertices;
+            float rendererAlpha = text.canvasRenderer == null ? 0f : text.canvasRenderer.GetAlpha();
+            if (rendererAlpha > 0f && groupAlpha > 0f)
+                alphaVisibleCount++;
+            bool suspicious = !string.IsNullOrEmpty(text.text) &&
+                (chars == 0 || vertices == 0 || rendererAlpha <= 0f || groupAlpha <= 0f ||
+                 text.font == null || text.fontSharedMaterial == null ||
+                 text.rectTransform.rect.width <= 0f || text.rectTransform.rect.height <= 0f);
+            if (suspicious)
+                suspiciousCount++;
+            if (logged < 12 && (!string.IsNullOrEmpty(text.text) || suspicious))
+            {
+                string shader = text.fontSharedMaterial == null || text.fontSharedMaterial.shader == null
+                    ? "null" : text.fontSharedMaterial.shader.name;
+                string atlas = text.fontSharedMaterial == null || text.fontSharedMaterial.mainTexture == null
+                    ? "null" : text.fontSharedMaterial.mainTexture.name;
+                Material renderMaterial = text.materialForRendering;
+                string renderShader = renderMaterial == null || renderMaterial.shader == null
+                    ? "null" : renderMaterial.shader.name;
+                string renderAtlas = renderMaterial == null || renderMaterial.mainTexture == null
+                    ? "null" : renderMaterial.mainTexture.name;
+                Debug.Log("[王国界面] TMP runtime diagnostic: reason=" + reason +
+                    ", name=" + text.name + ", active=" + text.gameObject.activeInHierarchy +
+                    ", enabled=" + text.enabled + ", valueLength=" + (text.text == null ? 0 : text.text.Length) +
+                    ", characterCount=" + chars + ", vertexCount=" + vertices +
+                    ", rect=" + text.rectTransform.rect.size + ", localScale=" + text.transform.lossyScale +
+                    ", rendererAlpha=" + rendererAlpha + ", groupAlpha=" + groupAlpha +
+                    ", rendererCull=" + (text.canvasRenderer != null && text.canvasRenderer.cull) +
+                    ", groups=" + groups + ", font=" + (text.font == null ? "null" : text.font.name) +
+                    ", material=" + (text.fontSharedMaterial == null ? "null" : text.fontSharedMaterial.name) +
+                    ", shader=" + shader + ", atlas=" + atlas +
+                    ", renderMaterial=" + (renderMaterial == null ? "null" : renderMaterial.name) +
+                    ", renderShader=" + renderShader + ", renderAtlas=" + renderAtlas);
+                logged++;
+            }
+        }
+        Debug.Log("[王国界面] TMP runtime diagnostic summary: reason=" + reason +
+            ", total=" + texts.Length + ", active=" + activeCount +
+            ", nonEmpty=" + nonEmptyCount + ", characters=" + characterCount +
+            ", vertices=" + vertexCount + ", alphaVisible=" + alphaVisibleCount +
+            ", suspicious=" + suspiciousCount);
+    }
+#else
+    private void DiagnoseUiTextRendering(string reason) { }
+#endif
 
     private void SetResearchPageVisible(RectTransform page, bool visible)
     {
@@ -576,6 +759,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             "Workshop" => "工坊",
             "Music" => "音乐",
             "Sectors" => "星区",
+            "Story" => "剧情",
             _ => name
         };
     }
@@ -587,6 +771,18 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     {
         if (!pages.TryGetValue(name, out RectTransform page))
             return;
+        if (name == "Story")
+        {
+            if (researchQueueViewport != null)
+                researchQueueViewport.gameObject.SetActive(false);
+            if (buildingQuantityControls != null)
+                buildingQuantityControls.gameObject.SetActive(false);
+            bool resetStoryScroll = !storyScrollInitialized;
+            BuildStoryPage(page, refreshEraRows);
+            ConfigureOuterPageScroll(name, resetStoryScroll, true);
+            storyScrollInitialized = true;
+            return;
+        }
         if (researchQueueViewport != null)
         {
             bool shouldBeActive = name == "Research";
@@ -601,7 +797,16 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         Transform old = page.Find("DataRows");
         if (old == null && name == "Overview")
+        {
+            page.anchorMin = new Vector2(0f, 1f);
+            page.anchorMax = new Vector2(1f, 1f);
+            page.pivot = new Vector2(.5f, 1f);
+            page.anchoredPosition = Vector2.zero;
+            page.sizeDelta = new Vector2(0f, Mathf.Max(
+                pageHost == null ? 0f : pageHost.rect.height, 1400f));
+            ConfigureOuterPageScroll("Overview", true, true);
             return;
+        }
         if (old == null)
         {
             Debug.LogError("[王国界面] Authored DataRows host is missing for page: " + name);
@@ -726,22 +931,14 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 ? rowsHeight
                 : Mathf.Max(1400f, rowsHeight + 180f));
         }
-        if (pageScroll != null && pageScroll.content == page)
-        {
-            pageScroll.StopMovement();
-            // Research owns its own two-axis graph ScrollRect. Disable the
-            // outer ScrollRect completely so it cannot consume the same touch
-            // drag before the graph receives it.
-            bool outerScrollEnabled = name != "Research" && name != "Music";
-            if (pageScroll.enabled != outerScrollEnabled)
-                pageScroll.enabled = outerScrollEnabled;
-            if (pageScroll.vertical != outerScrollEnabled)
-                pageScroll.vertical = outerScrollEnabled;
-            if (name != "Research" || !researchTreeWasBuilt)
-                Canvas.ForceUpdateCanvases();
-            if (pageScroll.enabled)
-                pageScroll.verticalNormalizedPosition = 1f;
-        }
+        if (!pageWasBuilt || refreshEraRows)
+            NormalizeUiTextSizes();
+        // Every normal page switch must bind the shared ScrollRect to the
+        // page that was just populated. Checking the previous content here
+        // leaves Resources/Buildings/Era visually active while the ScrollRect
+        // still drags the hidden page from the preceding tab.
+        if (pageScroll != null)
+            ConfigureOuterPageScroll(name, true, true);
         if (name == "Research" && researchGraphGesture != null)
         {
             if (!researchTreeWasBuilt)

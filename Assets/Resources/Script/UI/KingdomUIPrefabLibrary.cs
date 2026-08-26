@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,6 +39,13 @@ public static class KingdomUIPrefabLibrary
         if (Cache.TryGetValue(prefabName, out GameObject cached))
             return cached;
         GameObject loaded = Resources.Load<GameObject>(RootPath + prefabName);
+        if (loaded == null)
+        {
+            string path = RootPath + prefabName;
+            Debug.LogError("[王国界面] Required reusable UI prefab is missing: " + path);
+            throw new InvalidOperationException(
+                "Required reusable UI prefab is missing: " + path);
+        }
         Cache[prefabName] = loaded;
         return loaded;
     }
@@ -56,6 +64,6 @@ public static class KingdomUIPrefabLibrary
     public static GameObject Instantiate(string prefabName, Transform parent)
     {
         GameObject prefab = Load(prefabName);
-        return prefab == null ? null : Object.Instantiate(prefab, parent, false);
+        return UnityEngine.Object.Instantiate(prefab, parent, false);
     }
 }

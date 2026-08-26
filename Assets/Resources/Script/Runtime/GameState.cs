@@ -9,10 +9,7 @@ public sealed class GameState
     public static ExpantaNum BaseFoodProductionRate => BaseFoodProductionRateValue;
     public static ExpantaNum BaseFoodCapacity => BaseFoodCapacityValue;
 
-    private const string DefaultKingdomName = "鼠托邦";
-
     public int CalendarDays { get; private set; }
-    public string KingdomName { get; private set; }
     public TechLevel TechLevel { get; private set; }
     public ExpantaNum FoodAmount { get; private set; }
     public ExpantaNum FoodCapacity { get; private set; }
@@ -67,12 +64,11 @@ public sealed class GameState
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
 
-    public GameState() => InitializeNew(DefaultKingdomName);
+    public GameState() => InitializeNew();
 
-    internal void InitializeNew(string kingdomName)
+    internal void InitializeNew()
     {
         CalendarDays = 0;
-        KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = TechLevel.Animal;
         FoodAmount = new ExpantaNum(300);
         FoodCapacity = BaseFoodCapacity;
@@ -95,13 +91,11 @@ public sealed class GameState
 
     internal void RestoreCore(
         int calendarDays,
-        string kingdomName,
         TechLevel techLevel,
         ExpantaNum foodAmount,
         long lastSaveUnixSeconds)
     {
         CalendarDays = calendarDays;
-        KingdomName = string.IsNullOrWhiteSpace(kingdomName) ? DefaultKingdomName : kingdomName;
         TechLevel = techLevel;
         FoodAmount = NormalizeFiniteNonNegative(foodAmount, nameof(foodAmount));
         FoodAvailability = ExpantaNum.One;

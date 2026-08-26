@@ -7,6 +7,68 @@ using UnityEngine.UI;
 
 public sealed partial class KingdomUIRoot
 {
+    private string pageScrollDiagnosticSignature;
+
+    private void ConfigureOuterPageScroll(string pageName, bool resetPosition,
+        bool rebuildBounds = false)
+    {
+        if (pageScroll == null)
+        {
+            FailRequiredUiBinding("SafeAreaRoot/Content/PageHost/ScrollRect");
+            return;
+        }
+        if (pageHost == null)
+        {
+            FailRequiredUiBinding("SafeAreaRoot/Content/PageHost");
+            return;
+        }
+        if (!pages.TryGetValue(pageName, out RectTransform content) ||
+            content == null)
+        {
+            FailRequiredUiBinding("SafeAreaRoot/Content/PageHost/" + pageName);
+            return;
+        }
+
+        bool enabled = pageName != "Research" && pageName != "Music";
+        pageScroll.StopMovement();
+        pageScroll.viewport = pageHost;
+        pageScroll.content = content;
+        pageScroll.horizontal = false;
+        pageScroll.vertical = enabled;
+        pageScroll.movementType = ScrollRect.MovementType.Clamped;
+        pageScroll.enabled = enabled;
+        // The page presenters assign their final RectTransform size during
+        // PopulatePage. Only the post-build call asks for a bounds rebuild;
+        // doing this before every page population would add avoidable frame
+        // work during tab switches.
+        if (rebuildBounds && content.gameObject.activeInHierarchy)
+        {
+            Canvas.ForceUpdateCanvases();
+            if (pageName != "Story")
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+                Canvas.ForceUpdateCanvases();
+            }
+        }
+        if (resetPosition && enabled)
+            pageScroll.verticalNormalizedPosition = 1f;
+
+        Image viewportImage = pageHost.GetComponent<Image>();
+        string signature = pageName + ":enabled=" + pageScroll.enabled +
+            ":vertical=" + pageScroll.vertical +
+            ":viewport=" + pageHost.rect.size +
+            ":content=" + content.rect.size +
+            ":position=" + content.anchoredPosition +
+            ":normalized=" + pageScroll.verticalNormalizedPosition.ToString("0.###") +
+            ":raycast=" + (viewportImage != null && viewportImage.raycastTarget) +
+            ":eventSystem=" + (EventSystem.current != null);
+        if (signature != pageScrollDiagnosticSignature)
+        {
+            pageScrollDiagnosticSignature = signature;
+            Debug.Log("[王国界面] Outer page scroll diagnostic: " + signature);
+        }
+    }
+
     private void BuildAuthoredMusicPage(RectTransform surface)
     {
         if (surface == null)
@@ -20,12 +82,10 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Authored MusicSurface is incomplete; fixed music controls/list are not created at runtime.");
             return;
         }
-        musicCurrentLabel = controls?.Find("Current")?.GetComponent<TMP_Text>();
+        musicCurrentCategoryIcon = FindMusicSurfaceChild(surface, "CurrentCategoryIcon")?.GetComponent<Image>();
+        musicCurrentPlayName = FindMusicSurfaceChild(surface, "CurrentPlayName")?.GetComponent<TMP_Text>();
         musicTimeLabel = controls?.Find("Time")?.GetComponent<TMP_Text>();
         musicProgressSlider = controls?.Find("TimeSeek")?.GetComponent<Slider>();
-        Transform topPlayPause = controls?.Find("PlayPause");
-        if (topPlayPause != null)
-            topPlayPause.gameObject.SetActive(false);
         musicVolumeSlider = controls?.Find("Volume")?.GetComponent<Slider>();
         musicGapSlider = controls?.Find("Gap")?.GetComponent<Slider>();
         musicVolumeValueLabel = controls?.Find("VolumeValue")?.GetComponent<TMP_Text>();
@@ -33,8 +93,6 @@ public sealed partial class KingdomUIRoot
         if (musicProgressSlider != null)
         {
             lastMusicProgressMaxValue = -1f;
-            lastMusicVolume = float.NaN;
-            lastMusicGap = float.NaN;
             musicProgressSeekHandler = SeekMusicFromSlider;
             musicProgressSlider.onValueChanged.RemoveAllListeners();
             musicProgressSlider.onValueChanged.AddListener(musicProgressSeekHandler);
@@ -48,18 +106,19 @@ public sealed partial class KingdomUIRoot
         Button previous = controls?.Find("Previous")?.GetComponent<Button>();
         Button next = controls?.Find("Next")?.GetComponent<Button>();
         Button pause = controls?.Find("Pause")?.GetComponent<Button>();
+        Button legacyStop = controls?.Find("Stop")?.GetComponent<Button>();
+        if (pause == null && legacyStop != null)
+        {
+            legacyStop.gameObject.name = "Pause";
+            pause = legacyStop;
+        }
         if (previous != null) { previous.onClick.RemoveAllListeners(); previous.onClick.AddListener(() => PlayRelativeMusicTrack(-1)); }
         if (next != null) { next.onClick.RemoveAllListeners(); next.onClick.AddListener(() => PlayRelativeMusicTrack(1)); }
         musicGlobalPauseButton = pause;
         if (pause != null) { pause.onClick.RemoveAllListeners(); pause.onClick.AddListener(ToggleGlobalMusicPause); }
-        ConfigureMusicText(controls?.Find("TimeSeekLabel")?.GetComponent<TMP_Text>(), "时间 / 定位");
-        ConfigureMusicText(musicVolumeValueLabel, "音量 100%");
-        ConfigureMusicText(musicGapValueLabel, "音乐间隙 5.00");
-        ConfigureMusicText(musicCurrentLabel, "正在播放");
-        BringMusicTextToFront(musicTimeLabel);
-        BringMusicTextToFront(musicVolumeValueLabel);
-        BringMusicTextToFront(musicGapValueLabel);
-        BringMusicTextToFront(musicCurrentLabel);
+        ConfigureMusicControlIcon(previous, "previous");
+        ConfigureMusicControlIcon(next, "next");
+        ConfigureMusicControlIcon(pause, "play");
 
         MusicManager manager = FindMusicManager();
         if (musicVolumeSlider != null)
@@ -84,6 +143,21 @@ public sealed partial class KingdomUIRoot
             manager.RebuildCatalog();
         BuildAuthoredMusicRows(surface.Find("TrackListViewport") as RectTransform, manager);
     }
+
+    private static Transform FindMusicSurfaceChild(Transform surface, string objectName)
+    {
+        if (surface == null || string.IsNullOrEmpty(objectName))
+            return null;
+        Transform[] children = surface.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (children[i] != surface && children[i].name == objectName)
+                return children[i];
+        }
+        Debug.LogError("[王国界面] MusicSurface is missing its authored child: " + objectName);
+        return null;
+    }
+
 
     private void AddPointerStateIfMissing(Slider slider, UnityEngine.Events.UnityAction down,
         UnityEngine.Events.UnityAction up)
@@ -149,8 +223,9 @@ public sealed partial class KingdomUIRoot
             row.interactable = false;
             row.targetGraphic = null;
             surfaceImage.raycastTarget = false;
-            ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.64f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
-            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.Clip == null ? 0f : track.Clip.length), new Vector2(.64f, 0), new Vector2(.82f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
+            ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.50f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
+            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.Clip == null ? 0f : track.Clip.length), new Vector2(.50f, 0), new Vector2(.68f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
+            ConfigureMusicTrackCategoryIcon(rowObject, track.Category);
             Transform playPauseTransform = rowObject.transform.Find("PlayPause") ?? rowObject.transform.Find("Type");
             if (playPauseTransform == null)
             {
@@ -159,6 +234,14 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             playPauseTransform.name = "PlayPause";
+            RectTransform playPauseRect = playPauseTransform as RectTransform;
+            if (playPauseRect != null)
+            {
+                playPauseRect.anchorMin = new Vector2(.68f, .12f);
+                playPauseRect.anchorMax = new Vector2(.82f, .88f);
+                playPauseRect.offsetMin = new Vector2(2f, 0f);
+                playPauseRect.offsetMax = new Vector2(-2f, 0f);
+            }
             Image playPauseImage = playPauseTransform.GetComponent<Image>() ??
                 playPauseTransform.gameObject.AddComponent<Image>();
             Button playPause = playPauseTransform.GetComponent<Button>() ??
@@ -195,34 +278,43 @@ public sealed partial class KingdomUIRoot
     {
         safeArea = transform.Find("SafeAreaRoot") as RectTransform;
         if (safeArea == null)
-            return false;
+            return FailRequiredUiBinding("SafeAreaRoot");
 
         Transform content = safeArea.Find("Content");
+        if (content == null)
+            return FailRequiredUiBinding("SafeAreaRoot/Content");
         pageHost = content == null ? null : content.Find("PageHost") as RectTransform;
         pageTitle = content == null ? null : content.Find("PageTitle")?.GetComponent<TMP_Text>();
         leftNavigation = safeArea.Find("LeftNavigation") as RectTransform;
         detailPanel = safeArea.Find("DetailPanel") as RectTransform;
 
-        if (pageHost == null || pageTitle == null || leftNavigation == null || detailPanel == null)
-            return false;
+        if (pageHost == null)
+            return FailRequiredUiBinding("SafeAreaRoot/Content/PageHost");
+        if (pageTitle == null)
+            return FailRequiredUiBinding("SafeAreaRoot/Content/PageTitle (TMP_Text)");
+        if (leftNavigation == null)
+            return FailRequiredUiBinding("SafeAreaRoot/LeftNavigation");
+        if (detailPanel == null)
+            return FailRequiredUiBinding("SafeAreaRoot/DetailPanel");
 
         pages.Clear();
-        string[] pageNames = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors" };
+        string[] pageNames = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
         for (int i = 0; i < pageNames.Length; i++)
         {
             RectTransform page = pageHost.Find(pageNames[i]) as RectTransform;
             if (page == null)
-                return false;
+                return FailRequiredUiBinding("SafeAreaRoot/Content/PageHost/" + pageNames[i]);
             pages[pageNames[i]] = page;
             Button navigationButton = FindNavigationButton(pageNames[i]);
-            if (pageNames[i] != "Overview" && navigationButton != null)
+            if (navigationButton == null)
             {
-                string pageName = pageNames[i];
-                navigationButton.onClick.RemoveAllListeners();
-                navigationButton.onClick.AddListener(() => SetPage(pageName));
+                Debug.LogError("[王国界面] Static navigation button is missing: Nav_" + pageNames[i]);
+                return false;
             }
+            string pageName = pageNames[i];
+            navigationButton.onClick.RemoveAllListeners();
+            navigationButton.onClick.AddListener(() => SetPage(pageName));
         }
-        EnsureNavigationLayout();
         RefreshNavigationVisibility();
 
         // Bind the Overview summary while the authored shell is being
@@ -239,11 +331,27 @@ public sealed partial class KingdomUIRoot
         pageScroll.vertical = true;
         pageScroll.movementType = ScrollRect.MovementType.Clamped;
 
+        Transform topInfo = safeArea.Find("TopStatusBar/TopInfoShell/InfoGrid");
         topKingdomTitle = safeArea.Find("TopStatusBar/Title")?.GetComponent<TMP_Text>();
-        topStatus = safeArea.Find("TopStatusBar/Status")?.GetComponent<TMP_Text>();
+        topKingdomDate = safeArea.Find("TopStatusBar/Title/Date")?.GetComponent<TMP_Text>();
+        topFoodValue = topInfo?.Find("Food/Value")?.GetComponent<TMP_Text>();
+        topHappinessValue = topInfo?.Find("Happiness/Value")?.GetComponent<TMP_Text>();
+        topPopulationValue = topInfo?.Find("Population/Value")?.GetComponent<TMP_Text>();
+        topTerritoryValue = topInfo?.Find("Territory/Value")?.GetComponent<TMP_Text>();
+        topResearchPowerValue = topInfo?.Find("ResearchPower/Value")?.GetComponent<TMP_Text>();
+        topPowerValue = topInfo?.Find("Power/Value")?.GetComponent<TMP_Text>();
+        topLogisticsValue = topInfo?.Find("Logistics/Value")?.GetComponent<TMP_Text>();
+        topCurrentResearchValue = topInfo?.Find("CurrentResearch/Value")?.GetComponent<TMP_Text>();
         if (!BuildDetailUI())
-            return false;
+            return FailRequiredUiBinding("DetailPanel runtime binding");
         buildingQuantityControls = content.Find("BuildingQuantityControls") as RectTransform;
+        if (buildingQuantityControls == null)
+        {
+            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing under SafeAreaRoot/Content.");
+            return false;
+        }
+        BuildBuildingQuantityControls(content);
+        SetupResearchQueueGraphic(buildingQuantityControls);
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
 
@@ -253,6 +361,12 @@ public sealed partial class KingdomUIRoot
         Debug.Log("[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.");
 
         return true;
+    }
+
+    private static bool FailRequiredUiBinding(string path)
+    {
+        Debug.LogError("[王国界面] Required UI component is missing or invalid: " + path);
+        return false;
     }
 
     private void RefreshNavigationVisibility()
@@ -267,6 +381,7 @@ public sealed partial class KingdomUIRoot
             ProgressionModifierManager.Current.IsSystemUnlocked(
                 ResearchSystem.InterstellarNavigation);
 
+        SetNavigationButtonVisible("Overview", true);
         SetNavigationButtonVisible("Resources", true);
         SetNavigationButtonVisible("Buildings", true);
         SetNavigationButtonVisible("Research", true);
@@ -274,13 +389,7 @@ public sealed partial class KingdomUIRoot
         SetNavigationButtonVisible("Workshop", workshopUnlocked);
         SetNavigationButtonVisible("Music", true);
         SetNavigationButtonVisible("Sectors", sectorsUnlocked);
-    }
-
-    private void EnsureNavigationLayout()
-    {
-        Transform existing = leftNavigation.Find("NavigationButtons");
-        if (existing == null || existing.GetComponent<VerticalLayoutGroup>() == null)
-            Debug.LogError("[王国界面] Authored NavigationButtons with VerticalLayoutGroup is missing.");
+        SetNavigationButtonVisible("Story", true);
     }
 
     private void SetNavigationButtonVisible(string pageName, bool visible)

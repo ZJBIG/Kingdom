@@ -16,7 +16,6 @@ public enum TechLevel
 public class GameManager : Singleton<GameManager>
 {
     private const double SecondsPerDay = 10d;
-    private const string DefaultKingdomName = "鼠托邦";
     private static readonly ExpantaNum UncappedFoodCeiling = new ExpantaNum("1e1000000");
 
     public GameState State { get; private set; } = new GameState();
@@ -33,9 +32,10 @@ public class GameManager : Singleton<GameManager>
     {
         get
         {
-            ExpantaNum allowance = BuildingManager.Instance == null
+            BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+            ExpantaNum allowance = buildingManager == null
                 ? ExpantaNum.Zero
-                : BuildingManager.Instance.SafePopulationDepartureAllowance;
+                : buildingManager.SafePopulationDepartureAllowance;
             return State.Population.CurrentDepartureRatePerSecond(
                 allowance,
                 State.HappinessMultiplier,
@@ -62,7 +62,7 @@ public class GameManager : Singleton<GameManager>
 
     internal void InitializeNewGame()
     {
-        State.InitializeNew(DefaultKingdomName);
+        State.InitializeNew();
         Sectors.InitializeNew();
         ResetCalendarAccumulator();
         InitializeStartingResources();
@@ -274,7 +274,6 @@ public class GameManager : Singleton<GameManager>
         return new SaveManager.GameSaveData
         {
             CalendarDays = State.CalendarDays,
-            KingdomName = State.KingdomName,
             TechLevel = State.TechLevel,
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
@@ -310,7 +309,6 @@ public class GameManager : Singleton<GameManager>
 
         State.RestoreCore(
             data.CalendarDays,
-            data.KingdomName,
             data.TechLevel,
             Parse(data.FoodAmount, nameof(data.FoodAmount)),
             data.LastSaveUnixSeconds);

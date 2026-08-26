@@ -239,10 +239,13 @@ public sealed partial class KingdomUIRoot
             progress.raycastTarget = false;
             progress.color = Color.white;
         }
-        ResearchNodeLabel("Label", node, research.Label ?? research.Id, 24, TextPrimary);
-        ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
-        TMP_Text progressText = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
-        ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20,
+        RequireResearchNodeLabel("Label", node, research.Label ?? research.Id, TextPrimary);
+        RequireResearchNodeLabel("Cost", node,
+            state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(),
+            TextSecondary);
+        TMP_Text progressText = RequireResearchNodeLabel(
+            "Progress", node, ResearchProgressText(state, status), TextSecondary);
+        RequireResearchNodeLabel("State", node, ResearchStateLabel(research, status),
             status == ResearchStatus.Completed ? Color.white : accent);
         researchQueueNodeVisualReferences[research] = new ResearchQueueNodeVisualReferences
         {
@@ -302,10 +305,12 @@ public sealed partial class KingdomUIRoot
             if (Mathf.Abs(visual.ProgressImage.fillAmount - fill) > 0.0001f)
                 visual.ProgressImage.fillAmount = fill;
         }
-        ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
+        RequireResearchNodeLabel("Cost", node,
+            state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(),
+            TextSecondary);
         if (visual.ProgressText != null)
             SetTextIfChanged(visual.ProgressText, ResearchProgressText(state, status));
-        ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20,
+        RequireResearchNodeLabel("State", node, ResearchStateLabel(research, status),
             status == ResearchStatus.Completed ? Color.white : accent);
     }
 

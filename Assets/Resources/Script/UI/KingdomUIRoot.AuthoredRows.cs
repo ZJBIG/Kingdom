@@ -58,11 +58,12 @@ public sealed partial class KingdomUIRoot
         int visible = 0;
         ResourceManager resourceManager = ResourceManager.Instance;
         IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
+        CaptureVisibleResourceIds(definitions);
         var orderedDefinitions = new List<Resource>();
         for (int i = 0; i < definitions.Count; i++)
         {
             Resource resource = definitions[i];
-            if (resource == null || !IsResourceVisible(resource))
+            if (resource == null || !visibleResourceIds.Contains(resource.Id))
                 continue;
             orderedDefinitions.Add(resource);
         }
@@ -76,8 +77,9 @@ public sealed partial class KingdomUIRoot
             string amount = state == null ? "0" : state.Amount.ToGameString();
             ExpantaNum net = state == null
                 ? ExpantaNum.Zero
-                : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate) -
-                  state.ConsumptionRate;
+                : NormalizeDisplayedNetRate(
+                    ResourceManager.ApplyCurrentProductionReward(state.ProductionRate),
+                    state.ConsumptionRate);
             string change = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.ResourceCard, parent, visible++);
             if (row == null)
@@ -109,6 +111,21 @@ public sealed partial class KingdomUIRoot
             resourceChangeLabels[resource] = row.transform.Find("ChangeRate")?.GetComponent<TMP_Text>();
         }
         Debug.Log($"[王国界面] Authored resource rows: visible={visible}, rowsRect={parent.rect.size}");
+    }
+
+    private bool CaptureVisibleResourceIds(IReadOnlyList<Resource> definitions)
+    {
+        bool changed = false;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Resource resource = definitions[i];
+            if (resource == null || visibleResourceIds.Contains(resource.Id) ||
+                !IsResourceVisible(resource))
+                continue;
+            visibleResourceIds.Add(resource.Id);
+            changed = true;
+        }
+        return changed;
     }
 
     private static int CompareResourceRows(Resource left, Resource right)
@@ -418,6 +435,9 @@ public sealed partial class KingdomUIRoot
         rect.anchoredPosition = new Vector2(0f, top);
         nextRowTop += layout.preferredHeight;
         row.name = prefab + "_" + index;
+        // Row prefabs own the drag-forwarder component.  Do not add it here:
+        // page scrolling must remain authored consistently across Resources,
+        // Buildings and Era, rather than being repaired differently at runtime.
         row.SetActive(true);
         return row;
     }

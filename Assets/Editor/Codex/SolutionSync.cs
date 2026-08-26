@@ -11,6 +11,7 @@ namespace Kingdom.EditorTools
 {
     public static class SolutionSync
     {
+        [MenuItem("Tools/Kingdom/Project/Sync C# Projects")]
         public static void Run()
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);

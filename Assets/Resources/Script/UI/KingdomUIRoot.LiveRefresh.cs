@@ -82,7 +82,7 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceRefreshTimer += Time.unscaledDeltaTime;
         scrollingLiveValueRefreshTimer += Time.unscaledDeltaTime;
         researchDetailLiveRefreshTimer += Time.unscaledDeltaTime;
-        topStatusRefreshTimer += Time.unscaledDeltaTime;
+        topInfoRefreshTimer += Time.unscaledDeltaTime;
         researchDynamicSignatureRefreshTimer += Time.unscaledDeltaTime;
         researchQueuePollTimer += Time.unscaledDeltaTime;
         navigationVisibilityRefreshTimer += Time.unscaledDeltaTime;
@@ -247,6 +247,77 @@ public sealed partial class KingdomUIRoot
         float refreshStart = Time.realtimeSinceStartup;
 #endif
         CacheRuntimeManagers();
+        // Keep onboarding and story unlocks current on the page where the
+        // player acted. Overview, Era and Story render the resulting snapshot
+        // later, but the progression state must not wait for a page switch.
+        TutorialManager tutorial = TutorialManager.Current;
+        if (tutorial != null)
+        {
+            if (observedTutorialSaveSessionVersion !=
+                tutorial.SaveSessionVersion)
+            {
+                ResetRecentActionStateForNewSave();
+                observedTutorialSaveSessionVersion = tutorial.SaveSessionVersion;
+            }
+            if (recentActionFeedbackVersion >= 0 &&
+                recentActionFeedbackVersion != tutorial.SaveSessionVersion)
+                ResetRecentActionStateForNewSave();
+            if (tutorialSnapshotSource != tutorial)
+            {
+                tutorialSnapshot = null;
+                tutorialSnapshotSource = tutorial;
+                tutorialRecentCompletionFeedback = string.Empty;
+                ResetRecentActionStateForNewSave();
+                tutorialFeedbackVersion = -1;
+            }
+            tutorialSnapshot = tutorial.Evaluate();
+            if (tutorialFeedbackVersion != tutorial.Version)
+            {
+                if (recentActionFeedbackVersion >= 0 &&
+                    recentActionFeedbackVersion != tutorial.SaveSessionVersion)
+                    ClearRecentActionFeedback();
+                tutorialFeedbackVersion = tutorial.Version;
+                tutorialRecentCompletionFeedback =
+                    tutorialSnapshot.CompletedFeedback ?? string.Empty;
+            }
+            else if (!string.IsNullOrWhiteSpace(tutorialSnapshot.CompletedFeedback))
+                tutorialRecentCompletionFeedback = tutorialSnapshot.CompletedFeedback;
+        }
+        else
+        {
+            tutorialSnapshot = null;
+            tutorialSnapshotSource = null;
+            tutorialRecentCompletionFeedback = string.Empty;
+            ClearRecentActionFeedback();
+            observedTutorialSaveSessionVersion = -1;
+            tutorialFeedbackVersion = -1;
+        }
+        ObserveBuildingCompletions(buildingManagerCache);
+        ObservePopulationGrowth(gameManagerCache);
+        if (tutorial != null && gameManagerCache != null &&
+            gameManagerCache.State != null)
+        {
+            int previousStoryCount = storyObservedUnlockCount;
+            bool previousStoryEraInitialized = storyObservedEraInitialized;
+            TechLevel previousStoryEra = storyObservedEra;
+            ObserveStoryProgress(
+                gameManagerCache.State.TechLevel,
+                tutorial,
+                out int storyCount,
+                out StoryChapter latestStoryChapter);
+            bool storyProgressChanged = previousStoryCount >= 0 &&
+                storyCount > previousStoryCount;
+            bool storyEraChanged = previousStoryEraInitialized &&
+                previousStoryEra != gameManagerCache.State.TechLevel;
+            if (storyProgressChanged || storyEraChanged)
+                storyPageBuilt = false;
+            if (storyProgressChanged &&
+                latestStoryChapter != null)
+            {
+                EnqueueRecentNotice("记忆唤醒：" + latestStoryChapter.Title +
+                    "；王国的行动让一段文明经验重新变得可用。");
+            }
+        }
         if (navigationVisibilityRefreshTimer >= 1f)
         {
             navigationVisibilityRefreshTimer = 0f;
@@ -286,23 +357,10 @@ public sealed partial class KingdomUIRoot
 #endif
             scrollingLiveValueRefreshTimer = 0f;
         }
-        // The top bar is presentation-only and formats several ExpantaNum
-        // values, including a scan of building productivity. Two updates per
-        // second are sufficient for presentation and avoid repeating that
-        // work at the 10 Hz simulation/UI cadence.
-        if (topStatusRefreshTimer >= 0.5f)
+        if (topInfoRefreshTimer >= 0.5f)
         {
-#if UNITY_EDITOR
-            float branchStart = Time.realtimeSinceStartup;
-            long topStatusAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
-#endif
-            RefreshTopStatus();
-#if UNITY_EDITOR
-            uiRefreshAllocatedBytes += Math.Max(0L, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
-            uiRefreshMaximumAllocatedBytes = Math.Max(uiRefreshMaximumAllocatedBytes, GC.GetAllocatedBytesForCurrentThread() - topStatusAllocatedStart);
-            RecordUiBranch("top", (Time.realtimeSinceStartup - branchStart) * 1000f);
-#endif
-            topStatusRefreshTimer = 0f;
+            RefreshTopInfo();
+            topInfoRefreshTimer = 0f;
         }
         if (populatedPage == "Research" &&
             researchQueueUiDirty)
@@ -339,6 +397,12 @@ public sealed partial class KingdomUIRoot
         {
             RefreshSectorRowSummaries();
             sectorPageRefreshTimer = 0f;
+        }
+        if (!pageScrolling && populatedPage == "Story" &&
+            (eraPageRefreshTimer >= 1f || !storyPageBuilt))
+        {
+            RefreshStoryPageIfChanged();
+            eraPageRefreshTimer = 0f;
         }
         if (refreshScrolledValues && selectedResource != null && ShouldRefreshSelectedResource())
         {
@@ -462,6 +526,10 @@ public sealed partial class KingdomUIRoot
             state.TechLevel,
             researchManagerCache,
             resourceManagerCache);
+        // EraGoal and onboarding must advance from the same live state while
+        // the player remains on this page. Overview already evaluates the
+        // tutorial on its own refresh path; doing it here keeps the era tab
+        // from showing a stale goal after a research or population change.
         string signature = BuildEraPageStateSignature(state, eraGoal);
         if (string.Equals(signature, eraPageStateSignature, StringComparison.Ordinal))
             return;
@@ -579,6 +647,15 @@ public sealed partial class KingdomUIRoot
     private void MarkWorkshopRowsUiDirty(WorkshopUpgradeState state)
     {
         workshopRowsUiDirty = true;
+        // Workshop purchases also unlock Story chapters. Keep the story page
+        // as a presentation layer, but invalidate its cached rendering so a
+        // real purchase is visible the next time the page refreshes.
+        storyPageBuilt = false;
+        if (state != null && state.Definition != null)
+        {
+            EnqueueRecentNotice("改造完成：" + state.Definition.Label +
+                " 已让旧有生产体系承担新的文明任务；查看工坊详情确认实际效果。");
+        }
     }
 
     private void RefreshWorkshopRows()
@@ -634,7 +711,10 @@ public sealed partial class KingdomUIRoot
     {
         if (page == null)
             return;
-        developmentGuidanceText = page.Find("PrimaryCard/Text")?.GetComponent<TMP_Text>();
+        RectTransform primaryCard = page.Find("PrimaryCard") as RectTransform;
+        developmentGuidanceText = primaryCard == null
+            ? null
+            : primaryCard.Find("Text")?.GetComponent<TMP_Text>();
         if (developmentGuidanceText == null)
         {
             Debug.LogError("[王国界面] Overview PrimaryCard/Text is missing; development guidance cannot render.");
@@ -644,6 +724,27 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceText.gameObject.SetActive(true);
         developmentGuidanceText.alignment = TextAlignmentOptions.TopLeft;
         developmentGuidanceText.enableWordWrapping = true;
+        developmentGuidanceText.rectTransform.offsetMax = new Vector2(
+            developmentGuidanceText.rectTransform.offsetMax.x, -64f);
+
+        if (primaryCard != null)
+        {
+            developmentGuidanceNavigationButton = primaryCard.Find("NavigationButton")?.GetComponent<Button>();
+            if (developmentGuidanceNavigationButton == null)
+            {
+                developmentGuidanceNavigationButton = CreateButton(
+                    "NavigationButton", primaryCard, "查看", Copper);
+                RectTransform buttonRect = developmentGuidanceNavigationButton.transform as RectTransform;
+                buttonRect.anchorMin = new Vector2(0f, 0f);
+                buttonRect.anchorMax = new Vector2(1f, 0f);
+                buttonRect.pivot = new Vector2(.5f, 0f);
+                buttonRect.anchoredPosition = new Vector2(0f, 14f);
+                buttonRect.sizeDelta = new Vector2(-36f, 42f);
+                developmentGuidanceNavigationButton.gameObject.AddComponent<UIPageScrollDragForwarder>();
+            }
+            developmentGuidanceNavigationButton.onClick.RemoveAllListeners();
+            developmentGuidanceNavigationButton.interactable = false;
+        }
         Button guidanceButton = page.GetComponent<Button>();
         if (guidanceButton != null)
         {
@@ -669,20 +770,37 @@ public sealed partial class KingdomUIRoot
         {
             try
             {
-                tutorialManager.RecordPageVisited(populatedPage);
-                tutorialSnapshot = tutorialManager.Evaluate();
+                if (tutorialSnapshotSource != tutorialManager ||
+                    tutorialSnapshot == null)
+                {
+                    tutorialSnapshotSource = tutorialManager;
+                    tutorialSnapshot = tutorialManager.Evaluate();
+                    if (!string.IsNullOrWhiteSpace(tutorialSnapshot.CompletedFeedback))
+                        tutorialRecentCompletionFeedback = tutorialSnapshot.CompletedFeedback;
+                }
                 StringBuilder onboarding = developmentGuidanceTextBuilder;
                 onboarding.Clear();
                 onboarding.Append("当前时代：").Append(tutorialSnapshot.CurrentEra).Append("\n");
-                onboarding.Append("文明复兴：").Append(tutorialSnapshot.CivilizationContext).Append("\n");
                 onboarding.Append("人口：").Append(tutorialSnapshot.PopulationText)
                     .Append("  食物：").Append(tutorialSnapshot.FoodText)
                     .Append("  ").Append(tutorialSnapshot.CoreResourceText).Append("\n");
+                if (gameManagerCache != null && gameManagerCache.State != null &&
+                    gameManagerCache.State.TechLevel >= TechLevel.Industrial)
+                {
+                    GameState guidanceState = gameManagerCache.State;
+                    onboarding.Append("电力：").Append(guidanceState.PowerProductionRate.ToGameString())
+                        .Append("/s 供给 / ").Append(guidanceState.PowerConsumptionRate.ToGameString())
+                        .Append("/s 消耗  物流：").Append(guidanceState.LogisticsProductionRate.ToGameString())
+                        .Append("/s 供给 / ").Append(guidanceState.LogisticsConsumptionRate.ToGameString())
+                        .Append("/s 消耗\n");
+                }
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.CompletedGoal))
                     onboarding.Append("上一步已完成：").Append(tutorialSnapshot.CompletedGoal).Append("\n");
+                if (!string.IsNullOrWhiteSpace(tutorialRecentCompletionFeedback))
+                    onboarding.Append("刚刚改变：").Append(tutorialRecentCompletionFeedback).Append("\n");
+                if (!string.IsNullOrWhiteSpace(recentActionFeedback))
+                    onboarding.Append("刚刚发生：").Append(recentActionFeedback).Append("\n");
                 onboarding.Append("当前目标：").Append(tutorialSnapshot.CurrentGoal).Append("\n");
-                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NarrativeText))
-                    onboarding.Append(tutorialSnapshot.NarrativeText).Append("\n");
                 onboarding.Append("完成方式：").Append(tutorialSnapshot.GoalDescription).Append("\n");
                 onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
@@ -690,6 +808,7 @@ public sealed partial class KingdomUIRoot
                 if (!SignatureEquals(onboarding, developmentGuidanceText.text))
                     developmentGuidanceText.text = onboarding.ToString();
                 developmentGuidanceText.color = TextPrimary;
+                ConfigureDevelopmentGuidanceNavigation(tutorialSnapshot);
                 return;
             }
             catch (Exception exception)
@@ -750,64 +869,155 @@ public sealed partial class KingdomUIRoot
         }
     }
 
+    private void ConfigureDevelopmentGuidanceNavigation(TutorialSnapshot snapshot)
+    {
+        if (developmentGuidanceNavigationButton == null)
+            return;
+        string pageName = snapshot == null ? string.Empty : snapshot.NavigationPage;
+        bool canNavigate = !string.IsNullOrWhiteSpace(pageName) && pages.ContainsKey(pageName);
+        developmentGuidanceNavigationButton.interactable = canNavigate;
+        TMP_Text label = developmentGuidanceNavigationButton.GetComponentInChildren<TMP_Text>();
+        if (label != null)
+            label.text = pageName == "Overview" ? "查看" : "前往：" + GetPageTitle(pageName);
+        developmentGuidanceNavigationButton.onClick.RemoveAllListeners();
+        if (canNavigate)
+            developmentGuidanceNavigationButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                NavigateToTutorialTarget(snapshot);
+            });
+    }
+
+    private void NavigateToTutorialTarget(TutorialSnapshot snapshot)
+    {
+        if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.NavigationPage) ||
+            !pages.ContainsKey(snapshot.NavigationPage))
+            return;
+
+        SetPage(snapshot.NavigationPage);
+        if (string.IsNullOrWhiteSpace(snapshot.NavigationTargetId))
+            return;
+
+        if (snapshot.NavigationPage == "Research" &&
+            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research research) &&
+            research != null)
+        {
+            ShowResearchDetails(research);
+            return;
+        }
+        if (snapshot.NavigationPage == "Buildings" &&
+            DataBase<Building>.TryFind(snapshot.NavigationTargetId, out Building building) &&
+            building != null)
+        {
+            ShowBuildingDetails(building);
+            return;
+        }
+        if (snapshot.NavigationPage == "Workshop" &&
+            DataBase<WorkshopUpgrade>.TryFind(snapshot.NavigationTargetId,
+                out WorkshopUpgrade workshop) && workshop != null)
+            ShowWorkshopDetails(workshop);
+    }
+
+    private string GetPageTitle(string pageName)
+    {
+        return pageName switch
+        {
+            "Resources" => "资源",
+            "Buildings" => "建筑",
+            "Research" => "研究",
+            "Era" => "时代",
+            "Workshop" => "工坊",
+            "Sectors" => "区划",
+            "Story" => "剧情",
+            _ => pageName
+        };
+    }
+
+    private void RefreshTopInfo()
+    {
+        if (topFoodValue == null || topHappinessValue == null ||
+            topPopulationValue == null || topTerritoryValue == null ||
+            topResearchPowerValue == null || topPowerValue == null ||
+            topLogisticsValue == null || topCurrentResearchValue == null)
+            return;
+
+        CacheRuntimeManagers();
+        GameState state = gameManagerCache == null ? null : gameManagerCache.State;
+        if (state == null)
+            return;
+
+        SetTextIfChanged(
+            topKingdomDate,
+            GameManager.CalendarDataToString(state.CalendarDays));
+
+        ResearchManager researchManager = researchManagerCache;
+        ObserveResearchCompletions(researchManager);
+        string researchPower = researchManager == null
+            ? "0"
+            : researchManager.ResearchPower.ToGameString();
+        ResearchState activeResearch = researchManager == null
+            ? null
+            : researchManager.ActiveResearch;
+        string currentResearch = activeResearch == null || activeResearch.Definition == null
+            ? "无"
+            : activeResearch.Definition.Label;
+
+        SetTopInfoValue(topPowerValue,
+            state.PowerProductionRate.ToGameString() + "/" +
+            state.PowerConsumptionRate.ToGameString());
+        SetTopInfoValue(topLogisticsValue,
+            state.LogisticsProductionRate.ToGameString() + "/" +
+            state.LogisticsConsumptionRate.ToGameString());
+        SetTopInfoValue(topCurrentResearchValue, currentResearch);
+
+        SetTopInfoValue(topFoodValue,
+            state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString());
+        SetTopInfoValue(topHappinessValue, state.HappinessScore.ToGameString());
+        SetTopInfoValue(topPopulationValue,
+            state.Population.Population.ToGameString() + "/" +
+            state.Population.PopulationCapacity.ToGameString());
+        SetTopInfoValue(topTerritoryValue,
+            state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString());
+        SetTopInfoValue(topResearchPowerValue, researchPower + "/s");
+    }
+
+    private static void SetTopInfoValue(TMP_Text field, string value)
+    {
+        if (field == null)
+            return;
+        string authoredLabel = field.text;
+        int authoredSeparator = authoredLabel.IndexOf('\uFF1A');
+        if (authoredSeparator < 0)
+            authoredSeparator = authoredLabel.IndexOf(':');
+        if (authoredSeparator >= 0)
+        {
+            SetTextIfChanged(
+                field,
+                authoredLabel.Substring(0, authoredSeparator) +
+                "\uFF1A" + value);
+            return;
+        }
+        int lineBreak = authoredLabel.IndexOf('\n');
+        if (lineBreak >= 0)
+            authoredLabel = authoredLabel.Substring(0, lineBreak);
+        int separator = authoredLabel.IndexOf('：');
+        if (separator < 0)
+            separator = authoredLabel.IndexOf(':');
+        if (separator >= 0)
+            authoredLabel = authoredLabel.Substring(0, separator);
+        string display = string.IsNullOrEmpty(authoredLabel)
+            ? value
+            : authoredLabel + "：" + value;
+        SetTextIfChanged(field, display);
+    }
+
+    #if false
     private void RefreshTopStatus()
     {
-        if (topKingdomTitle == null || topStatus == null)
-            return;
-        CacheRuntimeManagers();
-        GameManager gameManager = gameManagerCache;
-        GameState state = gameManager == null ? null : gameManager.State;
-
-        SetTextIfChanged(topKingdomTitle, state.KingdomName);
-        ExpantaNum populationChange = gameManager == null
-            ? ExpantaNum.Zero
-            : gameManager.CurrentPopulationNetRatePerSecond;
-
-        string signedPopulationChange = populationChange >= ExpantaNum.Zero
-            ? "+" + populationChange.ToGameString()
-            : populationChange.ToGameString();
-        string signedFoodChange;
-        try
-        {
-            ExpantaNum foodNetRate = state.FoodNetRate;
-            signedFoodChange = foodNetRate >= ExpantaNum.Zero
-                ? "+" + foodNetRate.ToGameString()
-                : foodNetRate.ToGameString();
-        }
-        catch (NullReferenceException exception)
-        {
-            signedFoodChange = string.Empty;
-            if (!topStatusDataErrorLogged)
-            {
-                topStatusDataErrorLogged = true;
-                Debug.LogException(exception);
-            }
-        }
-        ResearchManager researchManager = researchManagerCache;
-        ResearchState activeResearch = researchManager == null ? null : researchManager.ActiveResearch;
-        Research activeDefinition = activeResearch == null ? null : activeResearch.Definition;
-
-        ResearchState defState = null;
-        if (activeDefinition)
-            defState = researchManager.GetState(activeDefinition);
         string currentResearch = activeDefinition == null ? "无"
             : (activeDefinition.Label + (defState != null ? $"[{ResearchProgressText(defState, defState.Status)}]" : ""));
 
 
-        bool calendarKnown = researchManager != null && researchManager.IsResearchCompleted("Calendar");
-        string calendar = calendarKnown ? GameManager.CalendarDataToString(state.CalendarDays) : "????/??/??";
-        string researchPower = researchManager == null ? "0" : researchManager.ResearchPower.ToGameString();
-        // AvailableProductivity calculates TotalProductivity internally. Read
-        // the two values once here so the 10 Hz top-bar refresh does not scan
-        // every building twice for the same frame.
-        BuildingManager buildingManager = buildingManagerCache;
-        ExpantaNum totalProductivity = buildingManager == null
-            ? ExpantaNum.Zero
-            : buildingManager.TotalProductivity;
-        ExpantaNum availableProductivity = buildingManager == null
-            ? ExpantaNum.Zero
-            : totalProductivity - buildingManager.UsedProductivity;
-        string topStatusText =
         "科技水平：" + state.TechLevel.GetDescription() +
         "    当前研究：" + currentResearch +
         "    日期：" + calendar +
@@ -817,7 +1027,128 @@ public sealed partial class KingdomUIRoot
         "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/s）" +
         "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString() +
         "    研究力：" + researchPower + "/s";
+        if (!string.IsNullOrEmpty(recentResearchNotice))
+            topStatusText += "\n◆ " + recentResearchNotice;
         SetTextIfChanged(topStatus, topStatusText);
+    }
+
+    #endif
+
+    private void ObserveResearchCompletions(ResearchManager manager)
+    {
+        if (manager == null)
+            return;
+
+        foreach (KeyValuePair<Research, ResearchState> entry in manager.States)
+        {
+            Research research = entry.Key;
+            ResearchState state = entry.Value;
+            if (research == null || state == null ||
+                state.Status != ResearchStatus.Completed ||
+                string.IsNullOrEmpty(research.Id))
+                continue;
+
+            bool wasObserved = observedCompletedResearchIds.Contains(research.Id);
+            observedCompletedResearchIds.Add(research.Id);
+            if (researchCompletionObservationInitialized && !wasObserved)
+            {
+                EnqueueRecentNotice(research.AdvancesTechLevel
+                    ? "文明跃迁：" + research.Label + " 完成，王国已进入" +
+                        research.TechLevel.GetDescription() + "。"
+                    : "知识完成：" + research.Label +
+                        "：" + TutorialManager.DescribeResearchRole(research));
+            }
+        }
+
+        researchCompletionObservationInitialized = true;
+    }
+
+    private void ObserveBuildingCompletions(BuildingManager manager)
+    {
+        if (buildingObservationSource != manager)
+        {
+            buildingObservationSource = manager;
+            observedBuildingAmounts.Clear();
+            buildingObservationInitialized = false;
+        }
+        if (manager == null)
+            return;
+
+        foreach (KeyValuePair<Building, BuildingState> entry in manager.States)
+        {
+            Building building = entry.Key;
+            BuildingState state = entry.Value;
+            if (building == null || state == null || string.IsNullOrEmpty(building.Id))
+                continue;
+
+            ExpantaNum amount = state.Amount;
+            if (buildingObservationInitialized &&
+                observedBuildingAmounts.TryGetValue(building.Id, out ExpantaNum previous) &&
+                amount > previous)
+            {
+                EnqueueRecentNotice("建设完成：" + building.Label +
+                    "；" + TutorialManager.DescribeBuildingRole(building));
+            }
+            observedBuildingAmounts[building.Id] = amount;
+        }
+
+        buildingObservationInitialized = true;
+    }
+
+    private void ObservePopulationGrowth(GameManager manager)
+    {
+        if (manager == null || manager.State == null ||
+            manager.State.Population == null)
+            return;
+
+        ExpantaNum wholePopulation = manager.State.Population.Population.Floor();
+        if (populationObservationInitialized && !populationGrowthNoticeSent &&
+            observedPopulationWhole <= ExpantaNum.Zero &&
+            wholePopulation > ExpantaNum.Zero)
+        {
+            EnqueueRecentNotice("人口开始增长；食物、幸福度与人口容量已经形成了可持续的族群基础。");
+            populationGrowthNoticeSent = true;
+        }
+
+        observedPopulationWhole = wholePopulation;
+        populationObservationInitialized = true;
+    }
+
+    private void EnqueueRecentNotice(string notice)
+    {
+        if (string.IsNullOrWhiteSpace(notice))
+            return;
+
+        // Keep a small ordered window so simultaneous research/building/story
+        // events do not overwrite one another, while the Overview and Story
+        // still consume the same concise feedback text.
+        string normalized = notice.Trim();
+        if (recentActionFeedbackEntries.Count >= 3)
+            recentActionFeedbackEntries.RemoveAt(0);
+        recentActionFeedbackEntries.Add(normalized);
+        recentActionFeedback = string.Join("；", recentActionFeedbackEntries);
+        recentActionFeedbackVersion = TutorialManager.Current == null
+            ? -1 : TutorialManager.Current.SaveSessionVersion;
+        developmentGuidanceRefreshTimer = Mathf.Max(
+            developmentGuidanceRefreshTimer, 2f);
+    }
+
+    private void ClearRecentActionFeedback()
+    {
+        recentActionFeedbackEntries.Clear();
+        recentActionFeedback = string.Empty;
+        recentActionFeedbackVersion = -1;
+    }
+
+    private void ResetRecentActionStateForNewSave()
+    {
+        ClearRecentActionFeedback();
+        observedBuildingAmounts.Clear();
+        buildingObservationInitialized = false;
+        buildingObservationSource = null;
+        observedPopulationWhole = ExpantaNum.Zero;
+        populationObservationInitialized = false;
+        populationGrowthNoticeSent = false;
     }
 
     private void RefreshLiveCardValues()
@@ -859,10 +1190,20 @@ public sealed partial class KingdomUIRoot
                         else
                             SetTextIfChanged(pair.Value, "0");
                     }
-        if (populatedPage != "Resources")
-            return;
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager == null)
+            return;
+        if (CaptureVisibleResourceIds(DataBase<Resource>.All))
+        {
+            resourceRowsBuilt = false;
+            if (populatedPage == "Resources")
+            {
+                resourceAmountLabels.Clear();
+                resourceChangeLabels.Clear();
+                PopulatePage("Resources");
+            }
+        }
+        if (populatedPage != "Resources")
             return;
         ExpantaNum productionRewardMultiplier = ExpantaNum.One;
         bool productionRewardMultiplierRead = false;
@@ -879,7 +1220,9 @@ public sealed partial class KingdomUIRoot
                     productionRewardMultiplier = ResourceManager.GetHappinessRewardMultiplier();
                     productionRewardMultiplierRead = true;
                 }
-                ExpantaNum net = state.ProductionRate * productionRewardMultiplier - state.ConsumptionRate;
+                ExpantaNum net = NormalizeDisplayedNetRate(
+                    state.ProductionRate * productionRewardMultiplier,
+                    state.ConsumptionRate);
                 SetTextIfChanged(changeLabel, (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s");
                 SetColorIfChanged(changeLabel, net >= ExpantaNum.Zero ? Positive : Error);
             }

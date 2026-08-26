@@ -38,7 +38,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop);
 
     public bool IsPurchased(WorkshopUpgrade definition) =>
-        definition != null && states.TryGetValue(definition, out WorkshopUpgradeState state) && state.Purchased;
+        TryGetState(definition, out WorkshopUpgradeState state) && state.Purchased;
 
     public bool ArePrerequisitesMet(WorkshopUpgrade definition)
     {
@@ -57,7 +57,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         WorkshopUpgrade definition,
         out WorkshopPurchaseFailure failure)
     {
-        if (definition == null || !states.TryGetValue(definition, out WorkshopUpgradeState state))
+        if (!TryGetState(definition, out WorkshopUpgradeState state))
         {
             failure = WorkshopPurchaseFailure.InvalidDefinition;
             return false;
@@ -134,8 +134,9 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         return true;
     }
 
-    internal SaveManager.WorkshopSaveData CaptureSaveData()
+    public SaveManager.WorkshopSaveData CaptureSaveData()
     {
+        EnsureStateIndex();
         var result = new SaveManager.WorkshopSaveData
         {
             PurchasedUpgradeIds = new List<string>()
@@ -148,6 +149,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     internal void RestoreSaveData(SaveManager.WorkshopSaveData data)
     {
+        EnsureStateIndex();
         if (data?.PurchasedUpgradeIds == null)
         {
             ResetForLoad();
@@ -197,13 +199,57 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         ResetForLoad();
         foreach (WorkshopUpgrade definition in purchased)
         {
-            states[definition].SetPurchased(true);
+            if (!TryGetState(definition, out WorkshopUpgradeState state))
+                throw new InvalidOperationException(
+                    $"工坊状态索引缺少已验证的升级“{definition.Id}”。");
+            state.SetPurchased(true);
         }
         RebuildProgression();
     }
 
+    private bool TryGetState(WorkshopUpgrade definition,
+        out WorkshopUpgradeState state)
+    {
+        state = null;
+        if (definition == null)
+            return false;
+        if (states.TryGetValue(definition, out state))
+            return true;
+
+        // Save data and Resources lookups are keyed by stable IDs. Keep
+        // runtime behavior correct if Unity returns equivalent asset
+        // instances with different object references after a reload.
+        foreach (KeyValuePair<WorkshopUpgrade, WorkshopUpgradeState> entry in states)
+        {
+            if (entry.Key != null && string.Equals(
+                entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
+                definition.Id == null ? string.Empty : definition.Id.Trim(),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                state = entry.Value;
+                return state != null;
+            }
+        }
+        return false;
+    }
+
+    private void EnsureStateIndex()
+    {
+        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            WorkshopUpgrade definition = definitions[i];
+            if (definition == null || TryGetState(definition, out _))
+                continue;
+            WorkshopUpgradeState state = new WorkshopUpgradeState(definition);
+            states.Add(definition, state);
+            orderedStates.Add(state);
+        }
+    }
+
     internal void ResetForLoad()
     {
+        EnsureStateIndex();
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].SetPurchased(false);
     }

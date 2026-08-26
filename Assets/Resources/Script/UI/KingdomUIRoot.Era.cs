@@ -57,38 +57,12 @@ public sealed partial class KingdomUIRoot
             Copper,
             null);
 
-        TutorialManager tutorialManager = TutorialManager.Current;
-        if (tutorialManager != null)
-        {
-            TutorialSnapshot tutorial = tutorialManager.Evaluate();
-            bool tutorialDestinationIsCurrentPage = tutorial.NavigationPage == "Era";
-            AddEraTextRow(
-                parent,
-                "文明复兴阶段",
-                tutorial.CivilizationContext,
-                TextSecondary,
-                null);
-            AddEraTextRow(
-                parent,
-                "引导目标",
-                tutorial.CurrentGoal + "\n" +
-                (string.IsNullOrWhiteSpace(tutorial.NarrativeText)
-                    ? string.Empty
-                    : tutorial.NarrativeText + "\n") +
-                tutorial.GoalDescription,
-                TextPrimary,
-                null);
-            AddEraTextRow(
-                parent,
-                "引导推荐行动",
-                tutorialDestinationIsCurrentPage
-                    ? "查看下方时代条件与当前主要阻碍。"
-                    : tutorial.RecommendedAction,
-                Copper,
-                tutorialDestinationIsCurrentPage
-                    ? null
-                    : () => NavigateToTutorialPage(tutorial.NavigationPage));
-        }
+        AddEraTextRow(
+            parent,
+            "当前引导",
+            "当前目标、阻碍和推荐行动统一显示在 Overview。",
+            TextSecondary,
+            pages.ContainsKey("Overview") ? () => SetPage("Overview") : null);
 
         AddEraTextRow(
             parent,
@@ -96,6 +70,10 @@ public sealed partial class KingdomUIRoot
             GetEraCapabilitySummary(state.TechLevel),
             TextSecondary,
             null);
+
+        string nextEraPromise = BuildNextEraPromise(nextEra);
+        if (!string.IsNullOrEmpty(nextEraPromise))
+            AddEraTextRow(parent, "进入后可用能力", nextEraPromise, TextPrimary, null);
 
         if (transition == null)
         {
@@ -133,21 +111,6 @@ public sealed partial class KingdomUIRoot
                 ShowResearchDetails(transition);
             });
 
-        AddEraTextRow(
-            parent,
-            "当前任务",
-            !hasBlocker
-                ? "完成时代目标研究：" + transition.Label
-                : blocker.Title + "：" + blocker.Detail,
-            hasBlocker ? Copper : Positive,
-            hasBlocker
-                ? blocker.Navigate
-                : () =>
-                {
-                    SetPage("Research");
-                    ShowResearchDetails(transition);
-                });
-
         AddEraTextRow(parent, "达成条件", "完成下列条件后即可推进时代。", TextSecondary, null);
         for (int i = 0; i < conditions.Count; i++)
         {
@@ -182,6 +145,18 @@ public sealed partial class KingdomUIRoot
             null);
 
         Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(hasBlocker ? blocker.Title : "none")}");
+        bool hasProductionChain = buildingManagerCache != null &&
+            TutorialManager.HasOwnedProductionChain(
+                buildingManagerCache.States.Values);
+        AddEraTextRow(
+            parent,
+            "\u57fa\u7840\u4ea7\u4e1a\u51c6\u5907",
+            hasProductionChain
+                ? "\u5df2\u5f62\u6210\u771f\u5b9e\u7684\u539f\u6599\u2192\u52a0\u5de5\u2192\u4ea7\u51fa\u94fe\uff0c\u53ef\u4ee5\u7ee7\u7eed\u89c2\u5bdf\u5b83\u5982\u4f55\u652f\u6491\u4e0b\u4e00\u65f6\u4ee3\u3002"
+                : "\u5c1a\u672a\u89c2\u5bdf\u5230\u8fde\u7eed\u7684\u539f\u6599\u3001\u52a0\u5de5\u4e0e\u4ea7\u51fa\u94fe\uff1b\u8fd9\u662f\u53d1\u5c55\u51c6\u5907\uff0c\u4e0d\u662f\u65b0\u7684\u65f6\u4ee3\u89c4\u5219\u3002",
+            hasProductionChain ? Positive : Copper,
+            pages.ContainsKey("Buildings") ? () => SetPage("Buildings") : null);
+
         eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
         FinishEraTextRows();
     }
@@ -197,6 +172,52 @@ public sealed partial class KingdomUIRoot
         TechLevel.Archotech => "当前为远期时代框架，尚无独立研究、建筑或工坊内容。",
         _ => "查看研究、建筑和工坊页面了解当前能力。"
     };
+
+    private static string BuildNextEraPromise(TechLevel targetEra)
+    {
+        if (!Enum.IsDefined(typeof(TechLevel), targetEra))
+            return string.Empty;
+
+        Research transition = EraGoalEvaluator.FindTransition(targetEra);
+
+        var researchNames = new List<string>();
+        IReadOnlyList<Research> researches = DataBase<Research>.All;
+        for (int i = 0; i < researches.Count && researchNames.Count < 2; i++)
+        {
+            Research research = researches[i];
+            if (research != null && research.TechLevel == targetEra &&
+                !research.AdvancesTechLevel && !string.IsNullOrEmpty(research.Label))
+                researchNames.Add(research.Label);
+        }
+
+        var buildingNames = new List<string>();
+        IReadOnlyList<Building> buildings = DataBase<Building>.All;
+        for (int i = 0; i < buildings.Count && buildingNames.Count < 2; i++)
+        {
+            Building building = buildings[i];
+            if (building != null && building.TechLevel == targetEra &&
+                !string.IsNullOrEmpty(building.Label))
+                buildingNames.Add(building.Label);
+        }
+
+        if (researchNames.Count == 0 && buildingNames.Count == 0)
+            return string.Empty;
+
+        StringBuilder promise = new StringBuilder(128);
+        if (transition != null)
+            promise.Append("关键研究“").Append(transition.Label).Append("”完成后，");
+        promise.Append("进入").Append(targetEra.GetDescription()).Append("后，");
+        if (researchNames.Count > 0)
+            promise.Append("研究可继续理解：").Append(string.Join("、", researchNames));
+        if (buildingNames.Count > 0)
+        {
+            if (researchNames.Count > 0)
+                promise.Append("；");
+            promise.Append("建设可扩展：").Append(string.Join("、", buildingNames));
+        }
+        promise.Append("。这些能力会把当前的生产与人口基础带入下一阶段。");
+        return promise.ToString();
+    }
 
     private string BuildEraPageStateSignature(
         GameState state,
@@ -214,6 +235,11 @@ public sealed partial class KingdomUIRoot
         signature.Append((int)state.TechLevel).Append('|').Append(transition?.Id ?? string.Empty);
         if (TutorialManager.Current != null)
             signature.Append("|tutorial=").Append(TutorialManager.Current.Version);
+        bool hasProductionChain = buildingManagerCache != null &&
+            TutorialManager.HasOwnedProductionChain(
+                buildingManagerCache.States.Values);
+        signature.Append("|production-chain=").Append(
+            hasProductionChain ? '1' : '0');
         if (transition == null)
             return signature.ToString();
 
@@ -346,11 +372,4 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private void NavigateToTutorialPage(string pageName)
-    {
-        if (string.IsNullOrWhiteSpace(pageName) || pageName == "Era" ||
-            !pages.ContainsKey(pageName))
-            return;
-        SetPage(pageName);
-    }
 }

@@ -36,7 +36,7 @@ public sealed partial class KingdomUIRoot
         Image headerImage = header.gameObject.AddComponent<Image>();
         headerImage.color = new Color(.13f, .16f, .17f, 1f);
         headerImage.raycastTarget = false;
-        TMP_Text headerText = CreateText("HeaderLabel", header, "详细信息", 36f,
+        TMP_Text headerText = CreateText("HeaderLabel", header, "详细信息",
             TextSecondary, TextAlignmentOptions.MidlineLeft);
         headerText.rectTransform.offsetMin = new Vector2(18f, 0f);
         headerText.rectTransform.offsetMax = new Vector2(-18f, 0f);
@@ -67,7 +67,7 @@ public sealed partial class KingdomUIRoot
         detailScroll.content = detailScrollContent;
         detailScroll.viewport = detailScrollViewport;
 
-        detailBody = CreateText("Body", detailScrollContent, string.Empty, 24f,
+        detailBody = CreateText("Body", detailScrollContent, string.Empty,
             TextPrimary, TextAlignmentOptions.TopLeft);
         detailBody.richText = true;
         detailBody.enableWordWrapping = true;
@@ -84,7 +84,7 @@ public sealed partial class KingdomUIRoot
         flowContent.anchorMax = new Vector2(1f, 1f);
         flowContent.pivot = new Vector2(.5f, 1f);
         flowContent.sizeDelta = new Vector2(0f, 86f);
-        TMP_Text flowHeading = CreateText("Heading", flowContent, "产出 / 消耗", 20f, TextSecondary,
+        TMP_Text flowHeading = CreateText("Heading", flowContent, "产出 / 消耗", TextSecondary,
             TextAlignmentOptions.TopLeft);
         RectTransform flowHeadingRect = flowHeading.rectTransform;
         flowHeadingRect.anchorMin = new Vector2(0f, 1f);
@@ -101,7 +101,7 @@ public sealed partial class KingdomUIRoot
         requirementContent.anchorMax = new Vector2(1f, 1f);
         requirementContent.pivot = new Vector2(.5f, 1f);
         requirementContent.sizeDelta = new Vector2(0f, 90f);
-        TMP_Text requirementHeading = CreateText("Heading", requirementContent, string.Empty, 20f,
+        TMP_Text requirementHeading = CreateText("Heading", requirementContent, string.Empty,
             TextSecondary, TextAlignmentOptions.TopLeft);
         RectTransform headingRect = requirementHeading.rectTransform;
         headingRect.anchorMin = new Vector2(0f, 1f);
@@ -111,7 +111,7 @@ public sealed partial class KingdomUIRoot
         headingRect.offsetMin = new Vector2(4f, 0f);
         headingRect.offsetMax = new Vector2(-4f, 0f);
         headingRect.anchoredPosition = new Vector2(0f, -4f);
-        TMP_Text none = CreateText("None", requirementContent, "无需额外资源", 22f,
+        TMP_Text none = CreateText("None", requirementContent, "无需额外资源",
             TextSecondary, TextAlignmentOptions.TopLeft);
         RectTransform noneRect = none.rectTransform;
         noneRect.anchorMin = new Vector2(0f, 1f);
@@ -167,7 +167,7 @@ public sealed partial class KingdomUIRoot
         return rect;
     }
 
-    private TMP_Text CreateText(string name, Transform parent, string value, float size,
+    private TMP_Text CreateText(string name, Transform parent, string value,
         Color color, TextAlignmentOptions alignment)
     {
         GameObject go = new GameObject(name, typeof(RectTransform));
@@ -185,7 +185,7 @@ public sealed partial class KingdomUIRoot
         TextMeshProUGUI text = go.AddComponent<TextMeshProUGUI>();
         text.font = sharedFontAsset;
         text.text = value;
-        text.fontSize = size;
+        text.fontSize = 30f;
         text.color = color;
         text.alignment = alignment;
         text.raycastTarget = false;
@@ -211,7 +211,7 @@ public sealed partial class KingdomUIRoot
         TextMeshProUGUI text = labelObject.AddComponent<TextMeshProUGUI>();
         text.font = sharedFontAsset;
         text.text = label;
-        text.fontSize = 22f;
+        text.fontSize = 30f;
         text.alignment = TextAlignmentOptions.Center;
         text.color = TextPrimary;
         text.raycastTarget = false;
@@ -242,14 +242,14 @@ public sealed partial class KingdomUIRoot
         iconRect.anchoredPosition = new Vector2(30f, 0f);
         iconObject.GetComponent<Image>().raycastTarget = false;
 
-        TMP_Text labelText = CreateText("Label", row.transform, string.Empty, 22f,
+        TMP_Text labelText = CreateText("Label", row.transform, string.Empty,
             TextPrimary, TextAlignmentOptions.MidlineLeft);
         labelText.rectTransform.anchorMin = Vector2.zero;
         labelText.rectTransform.anchorMax = new Vector2(.58f, 1f);
         labelText.rectTransform.offsetMin = new Vector2(66f, 0f);
         labelText.rectTransform.offsetMax = Vector2.zero;
 
-        TMP_Text amountText = CreateText("Amount", row.transform, string.Empty, 22f,
+        TMP_Text amountText = CreateText("Amount", row.transform, string.Empty,
             TextSecondary, TextAlignmentOptions.MidlineRight);
         amountText.rectTransform.anchorMin = new Vector2(.58f, 0f);
         amountText.rectTransform.anchorMax = Vector2.one;

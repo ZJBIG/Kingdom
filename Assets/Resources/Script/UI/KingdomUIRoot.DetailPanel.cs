@@ -30,7 +30,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null)
             return;
-        detailBody.fontSize = 24f;
+        detailBody.fontSize = 30f;
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
@@ -161,12 +161,10 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
         text.AppendLine();
         text.AppendLine("研究前置");
-        AppendResearchPrerequisites(
-            text, building.RequiredResearch, ResearchManager.Instance);
-        text.AppendLine();
+        AppendResearchPrerequisites(text, building.RequiredResearch);
         text.AppendLine("工坊前置");
-        AppendWorkshopPrerequisites(
-            text, building.RequiredWorkshopUpgrades, WorkshopManager.Instance);
+        AppendWorkshopPrerequisites(text, building.RequiredWorkshopUpgrades);
+        text.AppendLine();
         detailBody.text = text.ToString();
     }
 
@@ -247,7 +245,7 @@ public sealed partial class KingdomUIRoot
             ? ExpantaNum.Zero
             : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate);
         ExpantaNum consumption = state == null ? ExpantaNum.Zero : state.ConsumptionRate;
-        ExpantaNum net = production - consumption;
+        ExpantaNum net = NormalizeDisplayedNetRate(production, consumption);
         RefreshResourceBuildingFlows(resource);
         List<ResourceBuildingFlow> producers = resourceProducerFlowBuffer;
         List<ResourceBuildingFlow> consumers = resourceConsumerFlowBuffer;
@@ -447,12 +445,14 @@ public sealed partial class KingdomUIRoot
         text.AppendLine();
         text.AppendLine(research.Description);
         text.AppendLine();
-        text.AppendLine("直接前置研究");
-        AppendResearchPrerequisites(
-            text, research.Prerequisites, researchManager);
+        text.AppendLine("研究前置");
+        AppendResearchPrerequisites(text, research.Prerequisites);
         text.AppendLine();
         text.AppendLine("效果");
         AppendResearchEffects(text, research.Effects);
+        text.AppendLine();
+        text.AppendLine("文明复兴连接");
+        AppendResearchConnections(text, research);
         detailBody.text = text.ToString();
         HideBuildingRequirements();
         ShowBuildingRequirements(research.ResourceRequirements, "研究支付需求");
@@ -464,32 +464,6 @@ public sealed partial class KingdomUIRoot
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
         CaptureResearchRefreshSignatures();
     }
-
-    private static void AppendResearchPrerequisites(
-        StringBuilder builder,
-        IReadOnlyList<Research> prerequisites,
-        ResearchManager manager)
-    {
-        if (prerequisites == null || prerequisites.Count == 0)
-        {
-            builder.AppendLine("  无");
-            return;
-        }
-        for (int i = 0; i < prerequisites.Count; i++)
-        {
-            Research prerequisite = prerequisites[i];
-            if (prerequisite == null)
-                continue;
-            ResearchState prerequisiteState = null;
-            if (manager != null)
-                manager.States.TryGetValue(prerequisite, out prerequisiteState);
-            string status = prerequisiteState == null
-                ? "状态未知"
-                : ResearchStateLabel(prerequisiteState.Status);
-            builder.AppendLine("  " + prerequisite.Label + " / " + status);
-        }
-    }
-
     private static void AppendResearchEffects(
         StringBuilder builder,
         IReadOnlyList<ResearchEffectDefinition> effects)
@@ -509,6 +483,113 @@ public sealed partial class KingdomUIRoot
             builder.AppendLine("  " + effect.Type.GetDescription() + " / " +
                 target + ": " + effect.Value);
         }
+    }
+
+    private static void AppendResearchPrerequisites(
+        StringBuilder builder, IReadOnlyList<Research> prerequisites)
+    {
+        if (prerequisites == null || prerequisites.Count == 0)
+        {
+            builder.AppendLine("  无");
+            return;
+        }
+        for (int i = 0; i < prerequisites.Count; i++)
+        {
+            Research prerequisite = prerequisites[i];
+            if (prerequisite == null)
+            {
+                builder.AppendLine("  ○ 无效研究");
+                continue;
+            }
+            builder.AppendLine("  " + (IsResearchCompleted(prerequisite) ? "✓ " : "○ ") +
+                prerequisite.Label);
+        }
+    }
+
+    private static void AppendWorkshopPrerequisites(
+        StringBuilder builder, IReadOnlyList<WorkshopUpgrade> prerequisites)
+    {
+        if (prerequisites == null || prerequisites.Count == 0)
+        {
+            builder.AppendLine("  无");
+            return;
+        }
+        for (int i = 0; i < prerequisites.Count; i++)
+        {
+            WorkshopUpgrade prerequisite = prerequisites[i];
+            if (prerequisite == null)
+            {
+                builder.AppendLine("  ○ 无效工坊升级");
+                continue;
+            }
+            builder.AppendLine("  " + (IsWorkshopPurchased(prerequisite) ? "✓ " : "○ ") +
+                prerequisite.Label);
+        }
+    }
+
+    private static bool IsResearchCompleted(Research research)
+    {
+        ResearchManager manager = UnityEngine.Object.FindObjectOfType<ResearchManager>();
+        return research != null && manager != null && manager.IsResearchCompleted(research.Id);
+    }
+
+    private static bool IsWorkshopPurchased(WorkshopUpgrade upgrade)
+    {
+        WorkshopManager manager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
+        return upgrade != null && manager != null && manager.IsPurchased(upgrade);
+    }
+
+    private static void AppendResearchConnections(StringBuilder builder,
+        Research research)
+    {
+        if (research == null)
+            return;
+
+        bool hasConnection = false;
+        if (research.AdvancesTechLevel)
+        {
+            builder.AppendLine("  完成后推进至：" + research.TechLevel.GetDescription());
+            hasConnection = true;
+        }
+
+        int buildingCount = 0;
+        IReadOnlyList<Building> buildings = DataBase<Building>.All;
+        for (int i = 0; i < buildings.Count && buildingCount < 3; i++)
+        {
+            Building building = buildings[i];
+            if (building == null || !ContainsResearch(building.RequiredResearch, research))
+                continue;
+            builder.AppendLine("  解锁建筑方向：" + building.Label);
+            buildingCount++;
+            hasConnection = true;
+        }
+
+        int researchCount = 0;
+        IReadOnlyList<Research> researches = DataBase<Research>.All;
+        for (int i = 0; i < researches.Count && researchCount < 3; i++)
+        {
+            Research next = researches[i];
+            if (next == null || next == research ||
+                !ContainsResearch(next.Prerequisites, research))
+                continue;
+            builder.AppendLine("  研究后续方向：" + next.Label);
+            researchCount++;
+            hasConnection = true;
+        }
+
+        if (!hasConnection)
+            builder.AppendLine("  这项研究的直接效果会立即作用于王国；请结合上方效果观察变化。");
+    }
+
+    private static bool ContainsResearch(
+        IReadOnlyList<Research> values, Research target)
+    {
+        if (values == null || target == null)
+            return false;
+        for (int i = 0; i < values.Count; i++)
+            if (values[i] == target)
+                return true;
+        return false;
     }
 
     private void ShowWorkshopDetails(WorkshopUpgrade definition)
@@ -546,38 +627,13 @@ public sealed partial class KingdomUIRoot
         text.AppendLine(definition.Description);
         text.AppendLine();
         text.AppendLine("研究前置");
-        AppendResearchPrerequisites(
-            text, definition.RequiredResearch, ResearchManager.Instance);
-        text.AppendLine();
+        AppendResearchPrerequisites(text, definition.RequiredResearch);
         text.AppendLine("工坊前置");
-        AppendWorkshopPrerequisites(
-            text, definition.RequiredUpgrades, WorkshopManager.Instance);
+        AppendWorkshopPrerequisites(text, definition.RequiredUpgrades);
         text.AppendLine();
         text.AppendLine("效果");
         AppendWorkshopEffects(text, definition.Effects);
         detailBody.text = text.ToString();
-    }
-
-    private static void AppendWorkshopPrerequisites(
-        StringBuilder builder,
-        IReadOnlyList<WorkshopUpgrade> prerequisites,
-        WorkshopManager manager)
-    {
-        if (prerequisites == null || prerequisites.Count == 0)
-        {
-            builder.AppendLine("  无");
-            return;
-        }
-        for (int i = 0; i < prerequisites.Count; i++)
-        {
-            WorkshopUpgrade prerequisite = prerequisites[i];
-            if (prerequisite == null)
-                continue;
-            string status = manager != null && manager.IsPurchased(prerequisite)
-                ? "已拥有"
-                : "未拥有";
-            builder.AppendLine("  " + prerequisite.Label + " / " + status);
-        }
     }
 
     private static void AppendWorkshopEffects(
@@ -958,19 +1014,8 @@ public sealed partial class KingdomUIRoot
         if (selectedWorkshop != null)
             return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
 
-        ExpantaNum remaining = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            requirement.Second - paid);
-        ExpantaNum missing = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            remaining - owned);
-        string status = remaining <= ExpantaNum.Zero
-            ? "已支付"
-            : missing > ExpantaNum.Zero
-                ? "缺 " + missing.ToGameString()
-                : "可支付";
         return paid.ToGameString() + " / " + requirement.Second.ToGameString() +
-            " (库存 " + owned.ToGameString() + "，" + status + ")";
+            " (" + owned.ToGameString() + ")";
     }
 
     private void PlaceRequirementsAfterDescription(
@@ -1222,6 +1267,14 @@ public sealed partial class KingdomUIRoot
     }
 
     private static string FormatFlowAmount(Pair<Resource, ExpantaNum> flow, bool consumption)=> (consumption ? "-" : "+") + flow.Second.ToGameString() + "/s";
+
+    private static ExpantaNum NormalizeDisplayedNetRate(
+        ExpantaNum production, ExpantaNum consumption)
+    {
+        return production.ApproximatelyEquals(consumption)
+            ? ExpantaNum.Zero
+            : production - consumption;
+    }
 
     private void ConfigureActionButton(string label, UnityEngine.Events.UnityAction action)
     {

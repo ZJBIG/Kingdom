@@ -14,6 +14,9 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
     private static float lastDragEndTime = float.NegativeInfinity;
     private bool dragActive;
     private ScrollRect owner;
+#if UNITY_EDITOR
+    private static bool diagnosticLogged;
+#endif
 
     public static bool IsAnyDragActive => activeDragCount > 0;
 
@@ -44,6 +47,22 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        ScrollRect resolvedOwner = Owner;
+#if UNITY_EDITOR
+        if (!diagnosticLogged)
+        {
+            diagnosticLogged = true;
+            GameObject raycastObject = eventData.pointerCurrentRaycast.gameObject;
+            Debug.Log("[王国界面] Page drag diagnostic: pointer=" + eventData.pointerId +
+                ", raycast=" + (raycastObject == null ? "null" : raycastObject.name) +
+                ", owner=" + (resolvedOwner == null ? "null" : resolvedOwner.name) +
+                ", ownerEnabled=" + (resolvedOwner != null && resolvedOwner.enabled) +
+                ", content=" + (resolvedOwner == null || resolvedOwner.content == null
+                    ? "null" : resolvedOwner.content.name) +
+                ", viewport=" + (resolvedOwner == null || resolvedOwner.viewport == null
+                    ? "null" : resolvedOwner.viewport.name));
+        }
+#endif
         if (!dragActive)
         {
             dragActive = true;
@@ -52,7 +71,7 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
             KingdomEditorPerfLog.Write($"[KingdomPerf] PageDrag begin pointer={eventData.pointerId} active={activeDragCount}");
 #endif
         }
-        Owner?.OnBeginDrag(eventData);
+        resolvedOwner?.OnBeginDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)

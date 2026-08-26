@@ -16,8 +16,10 @@ public sealed partial class KingdomUIRoot
     private const float ResearchGridY = 60f;
     private const float ResearchGraphPaddingX = 25f;
     private const float ResearchGraphPaddingY = 5f;
-    private const int ResearchTopPaddingRows = 2;
+    private const int ResearchTopPaddingRows = 1;
     private const float ResearchTopPadding = ResearchTopPaddingRows * ResearchGridY;
+    private const int ResearchBottomPaddingRows = 1;
+    private const float ResearchBottomPadding = ResearchBottomPaddingRows * ResearchGridY;
     private const float ResearchCurveRadius = 10f;
     private const float ResearchLineThickness = 4f;
     private const float ResearchConnectorOverlap = 1f;
@@ -485,11 +487,13 @@ public sealed partial class KingdomUIRoot
             yield break;
         }
         float contentWidth = ResearchGraphPaddingX * 2f + ResearchNodeWidth;
-        float contentHeight = ResearchTopPadding + ResearchGraphPaddingY * 2f + ResearchNodeHeight;
+        float contentHeight = ResearchTopPadding + ResearchGraphPaddingY +
+            ResearchNodeHeight + ResearchGraphPaddingY + ResearchBottomPadding;
         foreach (Vector2 position in positions.Values)
         {
             contentWidth = Mathf.Max(contentWidth, position.x + ResearchNodeWidth + ResearchGraphPaddingX);
-            contentHeight = Mathf.Max(contentHeight, position.y + ResearchNodeHeight + ResearchGraphPaddingY);
+            contentHeight = Mathf.Max(contentHeight,
+                position.y + ResearchNodeHeight + ResearchGraphPaddingY + ResearchBottomPadding);
         }
         LogResearchGridLayout(definitions, positions);
         // Keep the reference grid spacing exact. The ScrollRect must only
@@ -1517,7 +1521,7 @@ public sealed partial class KingdomUIRoot
             band.SetAsFirstSibling();
             TMP_Text title = band.Find("Title").GetComponent<TMP_Text>();
             title.text = names[i];
-            title.fontSize = 28;
+            title.fontSize = 30;
             title.color = Copper;
             title.font = sharedFontAsset != null ? sharedFontAsset : TMP_Settings.defaultFontAsset;
             RectTransform titleRect = title.transform as RectTransform;
@@ -1992,20 +1996,47 @@ public sealed partial class KingdomUIRoot
         // This keeps Chinese glyph resolution and material setup identical to
         // the working resource/building/research-detail labels.
         string nodeTitle = string.IsNullOrEmpty(research.Label) ? research.Id : research.Label;
-        TMP_Text titleLabel = ResearchNodeLabel("Label", node, nodeTitle, 24, Color.white);
+        TMP_Text titleLabel = RequireResearchNodeLabel("Label", node, nodeTitle, Color.white);
         if (titleLabel == null)
+        {
+            researchTreeNodes.Remove(research);
+            Destroy(node.gameObject);
             return;
+        }
         titleLabel.color = Color.white;
         titleLabel.alignment = TextAlignmentOptions.Center;
         titleLabel.enableWordWrapping = false;
         titleLabel.overflowMode = TextOverflowModes.Overflow;
         titleLabel.raycastTarget = false;
         titleLabel.enabled = true;
-        TMP_Text costLabel = ResearchNodeLabel("Cost", node, state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(), 20, TextSecondary);
+        TMP_Text costLabel = RequireResearchNodeLabel(
+            "Cost", node,
+            state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString(),
+            TextSecondary);
+        if (costLabel == null)
+        {
+            researchTreeNodes.Remove(research);
+            Destroy(node.gameObject);
+            return;
+        }
         costLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text progressLabel = ResearchNodeLabel("Progress", node, ResearchProgressText(state, status), 20, TextSecondary);
+        TMP_Text progressLabel = RequireResearchNodeLabel(
+            "Progress", node, ResearchProgressText(state, status), TextSecondary);
+        if (progressLabel == null)
+        {
+            researchTreeNodes.Remove(research);
+            Destroy(node.gameObject);
+            return;
+        }
         progressLabel.alignment = TextAlignmentOptions.Center;
-        TMP_Text stateLabel = ResearchNodeLabel("State", node, ResearchStateLabel(research, status), 20, accent);
+        TMP_Text stateLabel = RequireResearchNodeLabel(
+            "State", node, ResearchStateLabel(research, status), accent);
+        if (stateLabel == null)
+        {
+            researchTreeNodes.Remove(research);
+            Destroy(node.gameObject);
+            return;
+        }
         stateLabel.alignment = TextAlignmentOptions.Center;
         // The title is intentionally the last visual child. Era/progress
         // sprites must never cover the research name.
@@ -2057,7 +2088,18 @@ public sealed partial class KingdomUIRoot
         return bars;
     }
 
-    private static TMP_Text ResearchNodeLabel(string name, Transform parent, string text, int size, Color color)
+    private static TMP_Text RequireResearchNodeLabel(
+        string name, Transform parent, string text, Color color)
+    {
+        TMP_Text label = TryResearchNodeLabel(name, parent, text, color);
+        if (label == null)
+            throw new InvalidOperationException(
+                "ResearchNode prefab is missing required TMP label: " + name);
+        return label;
+    }
+
+    private static TMP_Text TryResearchNodeLabel(
+        string name, Transform parent, string text, Color color)
     {
         RectTransform rect = parent.Find(name) as RectTransform;
         if (rect == null)
@@ -2072,13 +2114,16 @@ public sealed partial class KingdomUIRoot
             return null;
         }
         label.text = text;
-        label.fontSize = size;
+        label.fontSize = 30f;
         label.color = color;
         label.alignment = TextAlignmentOptions.Center;
         label.enableWordWrapping = false;
         label.overflowMode = TextOverflowModes.Overflow;
         label.font = sharedFontAsset != null ? sharedFontAsset : TMP_Settings.defaultFontAsset;
-        if (label.font != null && label.font.material != null)
+        if (label.font == null)
+            throw new InvalidOperationException(
+                "ResearchNode prefab label has no configured TMP font: " + name);
+        if (label.font.material != null)
             label.fontSharedMaterial = label.font.material;
         label.raycastTarget = false;
         label.maskable = true;
@@ -2096,12 +2141,6 @@ public sealed partial class KingdomUIRoot
         rect.offsetMin = new Vector2(title ? 8f : 2f, title ? 0f : 1f);
         rect.offsetMax = new Vector2(title ? -8f : -2f, title ? 0f : -1f);
         rect.pivot = new Vector2(.5f, .5f);
-    }
-
-    private static bool IsResearchCompleted(Research research)
-    {
-        return ResearchManager.Instance != null && research != null &&
-            ResearchManager.Instance.IsResearchCompleted(research.Id);
     }
 
     private static ResearchStatus GetResearchStatus(Research research)

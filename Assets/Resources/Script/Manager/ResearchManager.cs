@@ -298,6 +298,17 @@ public class ResearchManager : Singleton<ResearchManager>
 
         if (!state.CostPaid)
         {
+            // A player action should use the same automatic payment path as
+            // the simulation tick. This starts ready research immediately;
+            // TryPayResearchCost remains atomic, so insufficient resources
+            // leave both the inventory and the paid-cost state unchanged.
+            if (TryPayResearchCost(state))
+            {
+                RemoveQueuedState(state, false);
+                if (TryStartResearchNow(state) && notifyQueueChanged)
+                    ResearchQueueChanged?.Invoke();
+                return;
+            }
             // Only raise the event on an actual status transition; the previous
             // code fired ResearchQueueChanged on every simulation tick while
             // the head was waiting, even when nothing had changed.
@@ -463,22 +474,15 @@ public class ResearchManager : Singleton<ResearchManager>
             ResearchStatus beforeHeadStatus = beforeHead == null
                 ? ResearchStatus.Locked
                 : beforeHead.Status;
-            bool queueChanged = false;
-            // Auto-pay the queue head once the complete remaining cost is
-            // available. Payment must never consume a partial stockpile.
-            if (researchQueue.Count > 0)
-            {
-                ResearchState head = researchQueue.Peek();
-                if (head != null && !head.CostPaid && TryPayResearchCost(head))
-                    queueChanged = true;
-            }
+            // TryStartNextQueuedResearch owns the queue-head payment attempt.
+            // Keeping this in one path prevents a simulation tick from
+            // attempting the same transaction twice.
             TryStartNextQueuedResearch(false);
             ResearchState afterHead = researchQueue.Count > 0
                 ? researchQueue.Peek()
                 : null;
             if (beforeHead != afterHead ||
-                beforeHeadStatus != (afterHead == null ? ResearchStatus.Locked : afterHead.Status) ||
-                queueChanged)
+                beforeHeadStatus != (afterHead == null ? ResearchStatus.Locked : afterHead.Status))
                 ResearchQueueChanged?.Invoke();
         }
         ResearchState current = ActiveResearch;
@@ -548,7 +552,14 @@ public class ResearchManager : Singleton<ResearchManager>
             return state.CostPaid;
         }
 
-        return ResourceManager.Instance.TryApplyAtomicPayment(
+        ResourceManager resourceManager = cachedResourceManager;
+        if (resourceManager == null)
+            resourceManager = cachedResourceManager =
+                FindObjectOfType<ResourceManager>();
+        if (resourceManager == null)
+            return false;
+
+        return resourceManager.TryApplyAtomicPayment(
             researchPaymentBuffer,
             () =>
             {

@@ -65,6 +65,7 @@ public sealed partial class KingdomUIRoot
             return;
         SectorManager sectorManager = gameManagerCache.Sectors;
         GameState state = gameManagerCache.State;
+        ObserveSectorMilestones(sectorManager);
         foreach (KeyValuePair<SectorDefinition, TMP_Text> pair in sectorSummaryLabels)
             SetTextIfChanged(
                 pair.Value,
@@ -74,6 +75,54 @@ public sealed partial class KingdomUIRoot
                     state,
                     resourceManagerCache));
         RefreshSelectedSectorDetails(sectorManager, state, resourceManagerCache);
+    }
+
+    private void ObserveSectorMilestones(SectorManager sectorManager)
+    {
+        if (sectorManager == null)
+            return;
+
+        foreach (SectorState state in sectorManager.OrderedStates)
+        {
+            SectorDefinition definition = state == null ? null : state.Definition;
+            if (definition == null || string.IsNullOrEmpty(definition.Id))
+                continue;
+
+            string id = definition.Id;
+            ExpantaNum progress = state.CampaignProgress;
+            ExpantaNum previousCasualties = observedSectorCasualties.TryGetValue(
+                id, out ExpantaNum recordedCasualties)
+                ? recordedCasualties
+                : ExpantaNum.Zero;
+            bool wasOccupied = observedOccupiedSectorIds.Contains(id);
+            if (sectorObservationInitialized)
+            {
+                if (!wasOccupied && state.Occupied)
+                {
+                    EnqueueRecentNotice("星区纳入王国：" + definition.Label +
+                        " 已成为鼠族文明新的责任与资源来源。");
+                }
+                else if (observedSectorProgress.TryGetValue(id, out ExpantaNum previousProgress) &&
+                    previousProgress < ExpantaNum.One && progress >= ExpantaNum.One)
+                {
+                    EnqueueRecentNotice("远征完成：" + definition.Label +
+                        " 的道路已经打通，现在可以决定是否接纳这片星区。");
+                }
+                else if (previousCasualties <= ExpantaNum.Zero &&
+                    state.CampaignCasualties > ExpantaNum.Zero)
+                {
+                    EnqueueRecentNotice("战报：" + definition.Label +
+                        " 的远征出现伤亡；补给与维修是继续前进的代价。");
+                }
+            }
+
+            observedSectorProgress[id] = progress;
+            observedSectorCasualties[id] = state.CampaignCasualties;
+            if (state.Occupied)
+                observedOccupiedSectorIds.Add(id);
+        }
+
+        sectorObservationInitialized = true;
     }
 
     private string BuildSectorSummary(
@@ -426,6 +475,9 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        EnqueueRecentNotice("占领完成：" + definition.Label +
+            " 已纳入鼠族文明；领土 +" + definition.TerritoryReward.ToGameString() +
+            "，资源奖励：" + FormatResourceCosts(definition.ResourceRewards) + "。");
         ShowTooltip("\u661f\u533a\u5df2\u5360\u9886");
         RefreshSectorDetails(definition);
     }
@@ -461,6 +513,9 @@ public sealed partial class KingdomUIRoot
         }
 
         ShowTooltip("舰队已维修：" + repairedAmount.ToGameString());
+        EnqueueRecentNotice("舰队维修完成：" + definition.Label +
+            " 已修复 " + repairedAmount.ToGameString() +
+            " 点损伤，可以继续承担这场远征。");
         ShowSectorDetails(
             definition,
             gameManager.Sectors,

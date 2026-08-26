@@ -1675,7 +1675,6 @@ public sealed class SectorManagerTests
                 new SaveManager.GameSaveData
                 {
                     FoodAmount = "300",
-                    KingdomName = "Restore Test",
                     TechLevel = TechLevel.Animal,
                     CampaignActive = false,
                     CampaignTargetSectorId = string.Empty

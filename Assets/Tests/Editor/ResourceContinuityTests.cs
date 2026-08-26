@@ -102,6 +102,22 @@ public sealed class ResourceContinuityTests
     }
 
     [Test]
+    public void ChemicalPlantIsAvailableBeforeDeepOilDrilling()
+    {
+        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+
+        Assert.That(chemicalPlant, Is.Not.Null);
+        Assert.That(chemicalPlant.TechLevel, Is.EqualTo(TechLevel.Industrial));
+        Assert.That(chemicalPlant.RequiredResearch.Select(research => research.Id),
+            Is.EquivalentTo(new[] { "PetroleumExtraction", "Coking", "IndustrialChemistry" }));
+        Assert.That(chemicalPlant.RequiredResearch.Any(research => research.Id == "DeepOilDrilling"),
+            Is.False);
+        Assert.That(HasBuildingGeneration("ChemicalPlant", "Chemical"), Is.True);
+        Assert.That(HasBuildingGeneration("WireMill", "CopperWire"), Is.True);
+        Assert.That(HasBuildingGeneration("WireMill", "Electronics"), Is.True);
+    }
+
+    [Test]
     public void 工业核心资源必须延续到太空建筑研究与工坊()
     {
         string[] industrialResources =

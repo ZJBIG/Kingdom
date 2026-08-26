@@ -382,8 +382,8 @@ public sealed class KingdomPlayModeTests
             "Era page must display a progress section.");
         Assert.That(texts.Any(text => text.text == "时代目标"), Is.True,
             "Era page must display the active era goal.");
-        Assert.That(texts.Any(text => text.text == "当前任务"), Is.True,
-            "Era page must display the next actionable task.");
+        Assert.That(texts.Any(text => text.text == "当前主要阻碍"), Is.True,
+             "Era page must display the first unmet era condition as the actionable blocker.");
         Assert.That(texts.Any(text => text.text.Contains("下一时代") || text.text.Contains("当前内容的最后时代")), Is.True,
             "Era page must identify the next era or the terminal state.");
     }

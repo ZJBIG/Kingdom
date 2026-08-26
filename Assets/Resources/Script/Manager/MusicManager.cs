@@ -6,14 +6,23 @@ using UnityEngine;
 
 /// <summary>
 /// Owns the runtime music catalog and playback state. Audio assets are
-/// discovered from Resources/Musics so filenames can be descriptive without
+/// discovered from Resources/Musics/PMusic so filenames can be descriptive without
 /// requiring a code change for every new track.
 /// </summary>
 public class MusicManager : Singleton<MusicManager>
 {
     private const string VolumePreference = "Kingdom.Music.Volume";
     private const string GapPreference = "Kingdom.Music.GapSeconds";
-    private const string MusicResourceRoot = "Musics";
+    private const string MusicResourceRoot = "Musics/PMusic";
+    private static readonly string[] MusicCategories = { "Tense", "Day", "Night", "AllTime" };
+
+    public enum PlaybackState
+    {
+        Stopped,
+        Loading,
+        Playing,
+        Paused
+    }
     [Serializable]
     public sealed class MusicTrack
     {
@@ -35,32 +44,35 @@ public class MusicManager : Singleton<MusicManager>
 
     private readonly List<Pair<string, int>> musicTypes = new();
     private readonly List<MusicTrack> tracks = new();
+    private readonly List<MusicTrack> history = new();
     private readonly WaitForSecondsRealtime autoPlayPollDelay = new(.25f);
     private Coroutine loadingCoroutine;
     private bool manualStop;
     private float volume = 1f;
     private float gapSeconds = 5f;
-    private int lastRandomIndex = -1;
     private int loadVersion;
     private int playbackRequestVersion;
-    private bool autoAdvanceEligible;
+    private int historyCursor = -1;
+    private bool waitingForNext;
 
     public IReadOnlyList<Pair<string, int>> MusicTypes => musicTypes;
     public IReadOnlyList<MusicTrack> Tracks => tracks;
+    public IReadOnlyList<MusicTrack> History => history;
     public int CatalogVersion { get; private set; }
     public AudioSource AudioSource { get; private set; }
     public MusicTrack CurrentTrack { get; private set; }
+    public PlaybackState State { get; private set; } = PlaybackState.Stopped;
     public float Volume => volume;
     public float GapSeconds => gapSeconds;
-    public bool IsPermanentlyStopped => manualStop;
-    public bool IsPlaying => AudioSource != null && AudioSource.isPlaying;
-    public bool IsPaused => AudioSource != null && AudioSource.clip != null &&
-        !AudioSource.isPlaying && AudioSource.time > 0f;
+    public bool IsPermanentlyStopped => State == PlaybackState.Stopped && manualStop;
+    public bool IsPlaying => State == PlaybackState.Playing && AudioSource != null && AudioSource.isPlaying;
+    public bool IsPaused => State == PlaybackState.Paused;
     public float Progress
     {
         get
         {
-            if (AudioSource == null || AudioSource.clip == null || AudioSource.clip.length <= 0f)
+            if (AudioSource == null || AudioSource.clip == null || AudioSource.clip.length <= 0f ||
+                State == PlaybackState.Stopped || State == PlaybackState.Loading)
                 return 0f;
             return Mathf.Clamp01(AudioSource.time / AudioSource.clip.length);
         }
@@ -81,6 +93,7 @@ public class MusicManager : Singleton<MusicManager>
 
     private void Start()
     {
+        PlayRandom();
         StartCoroutine(AutoPlayLoop());
     }
 
@@ -92,32 +105,64 @@ public class MusicManager : Singleton<MusicManager>
 
         AddAllTracks();
 
+        for (int i = history.Count - 1; i >= 0; i--)
+        {
+            MusicTrack replacement = FindTrack(history[i].Id);
+            if (replacement == null)
+            {
+                history.RemoveAt(i);
+                if (historyCursor >= i)
+                    historyCursor--;
+            }
+            else
+            {
+                history[i] = replacement;
+            }
+        }
+        historyCursor = Mathf.Clamp(historyCursor, -1, history.Count - 1);
+
         CurrentTrack = previous == null ? null : FindTrack(previous.Id);
+        if (previous != null && CurrentTrack == null)
+        {
+            AudioSource?.Stop();
+            if (AudioSource != null)
+                AudioSource.clip = null;
+            State = PlaybackState.Stopped;
+        }
         CatalogVersion++;
         Debug.Log("[MusicManager] Catalog rebuilt: " + tracks.Count + " valid tracks.");
     }
 
     private void AddAllTracks()
     {
-        AudioClip[] clips = Resources.LoadAll<AudioClip>(MusicResourceRoot);
-        Array.Sort(clips, CompareClips);
-        for (int i = 0; i < clips.Length; i++)
+        int totalCount = 0;
+        for (int categoryIndex = 0; categoryIndex < MusicCategories.Length; categoryIndex++)
         {
-            AudioClip clip = clips[i];
-            if (clip == null || clip.length <= 0f || float.IsNaN(clip.length) ||
-                float.IsInfinity(clip.length))
+            string category = MusicCategories[categoryIndex];
+            string resourcePath = MusicResourceRoot + "/" + category;
+            AudioClip[] clips = Resources.LoadAll<AudioClip>(resourcePath);
+            Array.Sort(clips, CompareClips);
+            int categoryCount = 0;
+            for (int i = 0; i < clips.Length; i++)
             {
-                Debug.LogWarning("[MusicManager] Ignoring invalid clip in " + MusicResourceRoot + ".");
-                continue;
+                AudioClip clip = clips[i];
+                if (clip == null || clip.length <= 0f || float.IsNaN(clip.length) ||
+                    float.IsInfinity(clip.length))
+                {
+                    Debug.LogWarning("[MusicManager] Ignoring invalid clip in " + resourcePath + ".");
+                    continue;
+                }
+                tracks.Add(new MusicTrack(clip.name, DisplayNameFor(clip.name), category,
+                    resourcePath + "/" + clip.name, clip));
+                categoryCount++;
             }
-            tracks.Add(new MusicTrack(clip.name, DisplayNameFor(clip.name), "All Music",
-                MusicResourceRoot + "/" + clip.name, clip));
+            musicTypes.Add(new Pair<string, int>(category, categoryCount));
+            totalCount += categoryCount;
         }
         tracks.Sort((left, right) => string.Compare(left.Label, right.Label, StringComparison.OrdinalIgnoreCase));
-        int count = tracks.Count;
-        musicTypes.Add(new Pair<string, int>("all", count));
-        if (count == 0)
-            Debug.LogWarning("[MusicManager] No valid clips found in Resources/Musics.");
+        musicTypes.Insert(0, new Pair<string, int>("All", totalCount));
+        if (totalCount == 0)
+            Debug.LogWarning("[MusicManager] No valid clips found in Resources/Musics/PMusic.");
     }
 
     private static int CompareClips(AudioClip left, AudioClip right)
@@ -157,16 +202,21 @@ public class MusicManager : Singleton<MusicManager>
     {
         if (string.IsNullOrEmpty(clipName))
             return false;
-        // The type parameter remains for source compatibility with the old
-        // category-based API; all current music is stored at Resources/Musics.
-        return Play(clipName);
+        MusicTrack track = FindTrack(clipName);
+        if (track == null || (!string.IsNullOrEmpty(type) &&
+            !string.Equals(type, "All", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(type, "All Music", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(track.Category, type, StringComparison.OrdinalIgnoreCase)))
+            return false;
+        return PlayTrack(track);
     }
 
     public bool Play(string clipName)
     {
         if (string.IsNullOrEmpty(clipName))
             return false;
-        return QueuePlay(MusicResourceRoot + "/" + clipName);
+        MusicTrack track = FindTrack(clipName);
+        return PlayTrack(track);
     }
 
     public bool QueuePlay(string resourcePath)
@@ -174,90 +224,142 @@ public class MusicManager : Singleton<MusicManager>
         if (AudioSource == null || string.IsNullOrEmpty(resourcePath))
             return false;
         manualStop = false;
-        playbackRequestVersion++;
-        autoAdvanceEligible = true;
         CancelPendingLoad();
-        loadingCoroutine = StartCoroutine(LoadAndPlay(resourcePath, ++loadVersion));
+        State = PlaybackState.Loading;
+        int requestVersion = ++playbackRequestVersion;
+        loadingCoroutine = StartCoroutine(LoadAndPlay(resourcePath, ++loadVersion, requestVersion));
         return true;
     }
 
-    private IEnumerator LoadAndPlay(string resourcePath, int requestVersion)
+    private IEnumerator LoadAndPlay(string resourcePath, int requestVersion, int playbackVersion)
     {
         ResourceRequest request = Resources.LoadAsync<AudioClip>(resourcePath);
         yield return request;
         loadingCoroutine = null;
-        if (requestVersion != loadVersion || manualStop)
+        if (requestVersion != loadVersion || playbackVersion != playbackRequestVersion ||
+            manualStop || State != PlaybackState.Loading)
             yield break;
 
         AudioClip clip = request.asset as AudioClip;
         if (clip == null || clip.length <= 0f)
         {
             Debug.LogWarning("[MusicManager] Missing or invalid audio clip: " + resourcePath);
+            State = PlaybackState.Stopped;
             yield break;
         }
-        Play(clip);
+        if (!Play(clip))
+            State = PlaybackState.Stopped;
     }
 
     public bool PlayTrack(MusicTrack track)
     {
-        return track != null && track.Clip != null && Play(track.Clip);
+        return track != null && track.Clip != null && StartTrack(track, true);
     }
 
-    public bool PlayTrack(int index)
-    {
-        return index >= 0 && index < tracks.Count && PlayTrack(tracks[index]);
-    }
+    public bool PlayTrack(int index) =>
+index >= 0 && index < tracks.Count && PlayTrack(tracks[index]);
 
     public bool Play(AudioClip clip)
     {
         if (AudioSource == null || clip == null)
             return false;
-        manualStop = false;
-        playbackRequestVersion++;
-        autoAdvanceEligible = true;
-        CancelPendingLoad();
-        AudioSource.clip = clip;
-        AudioSource.volume = volume;
-        CurrentTrack = null;
+        MusicTrack track = null;
         for (int i = 0; i < tracks.Count; i++)
         {
             if (tracks[i].Clip == clip)
             {
-                CurrentTrack = tracks[i];
+                track = tracks[i];
                 break;
             }
         }
+        return track != null && StartTrack(track, true);
+    }
+
+    private bool StartTrack(MusicTrack track, bool addToHistory)
+    {
+        if (AudioSource == null || track == null || track.Clip == null)
+            return false;
+        manualStop = false;
+        waitingForNext = false;
+        playbackRequestVersion++;
+        CancelPendingLoad();
+        AudioSource.clip = track.Clip;
+        AudioSource.volume = volume;
+        CurrentTrack = track;
+        if (addToHistory)
+            AddToHistory(track);
+        State = PlaybackState.Playing;
         AudioSource.Play();
         return true;
     }
 
     public void Pause()
     {
-        if (AudioSource != null && AudioSource.isPlaying)
+        if (State == PlaybackState.Playing && AudioSource != null && AudioSource.isPlaying)
         {
-            autoAdvanceEligible = false;
             AudioSource.Pause();
+            State = PlaybackState.Paused;
         }
     }
 
     public void Resume()
     {
-        if (AudioSource != null && AudioSource.clip != null)
+        if (State == PlaybackState.Paused && AudioSource != null && AudioSource.clip != null)
         {
             manualStop = false;
-            autoAdvanceEligible = true;
             AudioSource.UnPause();
+            State = PlaybackState.Playing;
         }
     }
 
     public void Stop()
     {
         manualStop = true;
+        waitingForNext = false;
         playbackRequestVersion++;
-        autoAdvanceEligible = false;
         CancelPendingLoad();
         if (AudioSource != null)
+        {
             AudioSource.Stop();
+            AudioSource.clip = null;
+        }
+        State = PlaybackState.Stopped;
+    }
+
+    public bool PlayCurrent()
+    {
+        if (waitingForNext)
+            return NextTrack();
+        return CurrentTrack != null && StartTrack(CurrentTrack, false);
+    }
+
+    public bool PreviousTrack()
+    {
+        if (historyCursor <= 0 || historyCursor >= history.Count)
+            return false;
+        int targetCursor = historyCursor - 1;
+        if (!StartTrack(history[targetCursor], false))
+            return false;
+        historyCursor = targetCursor;
+        return true;
+    }
+
+    public bool NextTrack()
+    {
+        return PlayRandom();
+    }
+
+    private void AddToHistory(MusicTrack track)
+    {
+        if (track == null)
+            return;
+        if (historyCursor >= 0 && historyCursor < history.Count &&
+            history[historyCursor].Id == track.Id)
+            return;
+        if (historyCursor < history.Count - 1)
+            history.RemoveRange(historyCursor + 1, history.Count - historyCursor - 1);
+        history.Add(track);
+        historyCursor = history.Count - 1;
     }
 
     private void CancelPendingLoad()
@@ -278,7 +380,6 @@ public class MusicManager : Singleton<MusicManager>
         if (length <= 0f || float.IsNaN(length) || float.IsInfinity(length) ||
             float.IsNaN(normalized) || float.IsInfinity(normalized))
             return;
-        autoAdvanceEligible = false;
         AudioSource.time = Mathf.Clamp01(normalized) * Mathf.Max(0f, length - 0.01f);
     }
 
@@ -288,58 +389,68 @@ public class MusicManager : Singleton<MusicManager>
         if (AudioSource != null)
             AudioSource.volume = volume;
         PlayerPrefs.SetFloat(VolumePreference, volume);
+        PlayerPrefs.Save();
     }
 
     public void SetGapSeconds(float value)
     {
         gapSeconds = Mathf.Clamp(value, 0f, 120f);
         PlayerPrefs.SetFloat(GapPreference, gapSeconds);
+        PlayerPrefs.Save();
     }
 
     public bool PlayRandom()
     {
         if (tracks.Count == 0)
             return false;
-        int index = UnityEngine.Random.Range(0, tracks.Count);
-        if (tracks.Count > 1 && index == lastRandomIndex)
-            index = (index + 1) % tracks.Count;
-        lastRandomIndex = index;
-        return PlayTrack(index);
+        int candidateCount = 0;
+        for (int i = 0; i < tracks.Count; i++)
+        {
+            if (CurrentTrack == null || tracks[i].Id != CurrentTrack.Id)
+                candidateCount++;
+        }
+        if (candidateCount == 0)
+            return false;
+        int candidate = UnityEngine.Random.Range(0, candidateCount);
+        for (int i = 0; i < tracks.Count; i++)
+        {
+            if (CurrentTrack != null && tracks[i].Id == CurrentTrack.Id)
+                continue;
+            if (candidate-- == 0)
+                return PlayTrack(i);
+        }
+        return false;
     }
 
     private IEnumerator AutoPlayLoop()
     {
         while (true)
         {
-            if (AudioSource == null || loadingCoroutine != null)
+            if (AudioSource == null || loadingCoroutine != null || State == PlaybackState.Paused)
             {
                 yield return autoPlayPollDelay;
                 continue;
             }
 
-            if (!AudioSource.isPlaying && AudioSource.clip == null)
-            {
-                if (!manualStop)
-                {
-                    if (gapSeconds > 0f)
-                        yield return new WaitForSecondsRealtime(gapSeconds);
-                    PlayRandom();
-                }
-            }
-            else if (!AudioSource.isPlaying && AudioSource.clip != null && !manualStop)
+            if (State == PlaybackState.Playing && !AudioSource.isPlaying && AudioSource.clip != null)
             {
                 float length = AudioSource.clip.length;
-                bool reachedEnd = length > 0f && AudioSource.time >= length - 0.05f;
-                if (autoAdvanceEligible && reachedEnd)
+                int endTolerance = Mathf.Max(1, AudioSource.clip.frequency / 10);
+                bool reachedEnd = length > 0f &&
+                    (AudioSource.time >= length - 0.25f ||
+                     (AudioSource.clip.samples > 0 &&
+                      AudioSource.timeSamples >= AudioSource.clip.samples - endTolerance));
+                if (reachedEnd)
                 {
-                    autoAdvanceEligible = false;
                     int requestVersion = playbackRequestVersion;
+                    State = PlaybackState.Stopped;
+                    waitingForNext = true;
                     if (gapSeconds > 0f)
                         yield return new WaitForSecondsRealtime(gapSeconds);
                     if (requestVersion == playbackRequestVersion &&
                         !manualStop)
                     {
-                        PlayRandom();
+                        NextTrack();
                     }
                 }
             }

@@ -163,7 +163,6 @@ public sealed class KingdomLogicTests
         var state = new GameState();
 
         Assert.That(state.CalendarDays, Is.EqualTo(0));
-        Assert.That(state.KingdomName, Is.EqualTo("鼠托邦"));
         Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
         Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
@@ -453,6 +452,7 @@ public sealed class KingdomLogicTests
     public void PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth()
     {
         GameManager gameManager = CreateManager<GameManager>("PopulationNetRate-GameManager");
+        CreateManager<BuildingManager>("PopulationNetRate-BuildingManager");
         InvokeGameStateMethod(
             gameManager.State,
             "RestoreCore",
@@ -1025,7 +1025,6 @@ public sealed class KingdomLogicTests
             General = new SaveManager.GameSaveData
             {
                 CalendarDays = 7,
-                KingdomName = "Test",
                 TechLevel = TechLevel.Animal,
                 FoodAmount = "100",
                 LastSaveUnixSeconds = 1
@@ -1660,6 +1659,9 @@ public sealed class KingdomLogicTests
             }));
         Assert.That(workshopManager.IsPurchased(prerequisite), Is.True);
         Assert.That(workshopManager.IsPurchased(dependent), Is.True);
+        SaveManager.WorkshopSaveData captured = workshopManager.CaptureSaveData();
+        Assert.That(captured.PurchasedUpgradeIds, Does.Contain(prerequisite.Id));
+        Assert.That(captured.PurchasedUpgradeIds, Does.Contain(dependent.Id));
     }
 
     private static SaveManager.KingdomSaveData CreateRepresentativeSaveData()
@@ -1670,7 +1672,6 @@ public sealed class KingdomLogicTests
             General = new SaveManager.GameSaveData
             {
                 CalendarDays = 3,
-                KingdomName = "Save Test",
                 TechLevel = TechLevel.Animal,
                 FoodAmount = "10000",
                 Population = "17",

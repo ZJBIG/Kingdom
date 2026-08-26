@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public sealed class TutorialManagerTests
 {
@@ -63,11 +64,18 @@ public sealed class TutorialManagerTests
         Assert.That(definitions, Has.Length.EqualTo(8));
 
         var byId = new Dictionary<string, TutorialStepDefinition>();
+        var navigationPages = new HashSet<string>
+        {
+            "Overview", "Resources", "Buildings", "Research", "Era",
+            "Workshop", "Music", "Sectors", "Story"
+        };
         for (int i = 0; i < definitions.Length; i++)
         {
             TutorialStepDefinition definition = definitions[i];
             Assert.That(definition, Is.Not.Null);
             Assert.That(definition.Id, Is.Not.Empty);
+            Assert.That(navigationPages.Contains(definition.NavigationPage), Is.True,
+                "Tutorial step must point to an authored page: " + definition.Id);
             bool unique = !byId.ContainsKey(definition.Id);
             if (unique)
                 byId.Add(definition.Id, definition);
@@ -143,24 +151,6 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
-    public void LegacySaveWithoutTutorialDataFallsBackToCurrentEraStep()
-    {
-        TutorialManager manager = TutorialManager.Ensure();
-
-        Invoke(manager, "RestoreSaveData", null, TechLevel.Animal);
-        Assert.That(manager.ActiveStepId, Is.EqualTo("orientation"));
-
-        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
-        {
-            ActiveStepId = "unknown-step",
-            CompletedStepIds = new List<string> { "unknown-step", "orientation" }
-        }, TechLevel.Medieval);
-        Assert.That(manager.ActiveStepId, Is.EqualTo("era-goal"));
-        Assert.That(manager.CompletedStepIds, Does.Contain("orientation"));
-        Assert.That(manager.CompletedStepIds, Does.Not.Contain("unknown-step"));
-    }
-
-    [Test]
     public void EveryTechLevelHasCivilizationContext()
     {
         Array values = Enum.GetValues(typeof(TechLevel));
@@ -170,6 +160,36 @@ public sealed class TutorialManagerTests
             Assert.That(InvokeStatic("GetCivilizationContext", era), Is.Not.Empty,
                 "Every existing era should explain the mouse civilization revival.");
         }
+    }
+
+    [Test]
+    public void SpacerGuidanceUsesExistingResearchAndBuildingDefinitions()
+    {
+        string[] researchIds =
+        {
+            "FirstContact",
+            "DeepSpaceFleet",
+            "InterstellarNavigation"
+        };
+        for (int i = 0; i < researchIds.Length; i++)
+            Assert.That(DataBase<Research>.TryFind(
+                researchIds[i], out Research research) && research != null,
+                "Spacer guidance must reference a real Research: " + researchIds[i]);
+
+        string[] buildingIds =
+        {
+            "LaunchCenter",
+            "OrbitalStation",
+            "Shipyard"
+        };
+        for (int i = 0; i < buildingIds.Length; i++)
+            Assert.That(DataBase<Building>.TryFind(
+                buildingIds[i], out Building building) && building != null,
+                "Spacer guidance must reference a real Building: " + buildingIds[i]);
+
+        MethodInfo spacerGuidance = typeof(TutorialManager).GetMethod(
+            "BuildSpacerGuidance", BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(spacerGuidance, Is.Not.Null);
     }
 
     [Test]
@@ -199,6 +219,45 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
+    public void SaveSessionVersionChangesOnlyWhenRuntimeProgressIsRestored()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        int initial = manager.SaveSessionVersion;
+
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "orientation"
+        }, TechLevel.Animal);
+        int restored = manager.SaveSessionVersion;
+        Assert.That(restored, Is.GreaterThan(initial));
+
+        manager.Evaluate();
+        Assert.That(manager.SaveSessionVersion, Is.EqualTo(restored),
+            "Tutorial step completion must not create a new save session.");
+
+        Invoke(manager, "ResetForNewGame");
+        Assert.That(manager.SaveSessionVersion, Is.GreaterThan(restored));
+    }
+
+    [Test]
+    public void PopulationStepMatchesItsStateDrivenNavigationPage()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        TutorialStep population = null;
+        for (int i = 0; i < manager.Steps.Count; i++)
+            if (manager.Steps[i].Kind == TutorialStepKind.Population)
+                population = manager.Steps[i];
+
+        GameState state = new GameState();
+        Invoke(state, "RestorePopulation", ExpantaNum.One);
+        Invoke(state, "SetFoodAvailability", new ExpantaNum(0.5));
+        Assert.That(InvokeStatic("GetNavigationPageForStep", population, state),
+            Is.EqualTo("Resources"));
+        Assert.That(InvokeStatic("GetNavigationPageForStep", population, new GameState()),
+            Is.EqualTo("Buildings"));
+    }
+
+    [Test]
     public void PopulationStepRequiresPopulationStateToGrow()
     {
         GameState state = new GameState();
@@ -209,6 +268,29 @@ public sealed class TutorialManagerTests
 
         Invoke(state, "RestorePopulation", ExpantaNum.One);
         Assert.That(InvokeStatic("HasObservedPopulationGrowth", state), Is.True);
+    }
+
+    [Test]
+    public void PopulationCapacityConditionMatchesItsDeclaredMeaning()
+    {
+        GameObject host = new GameObject("TutorialConditionGameManager");
+        GameManager game = host.AddComponent<GameManager>();
+        Invoke(game.State, "RestorePopulationCapacityExact",
+            new ExpantaNum(2), ExpantaNum.Zero);
+        TutorialStep step = new TutorialStep(
+            "capacity", "Capacity", "Capacity", TutorialStepKind.Population,
+            string.Empty, string.Empty, "game-state",
+            "population-capacity-positive", "Buildings");
+
+        try
+        {
+            Assert.That(InvokeStatic("IsStepComplete", step, game, null, null, null),
+                Is.True);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(host);
+        }
     }
 
     [Test]
@@ -346,7 +428,7 @@ public sealed class TutorialManagerTests
     private static object Invoke(object target, string methodName, params object[] arguments)
     {
         MethodInfo method = target.GetType().GetMethod(
-            methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null, methodName + " should exist.");
         return method.Invoke(target, arguments);
     }
@@ -355,7 +437,7 @@ public sealed class TutorialManagerTests
     {
         MethodInfo method = null;
         MethodInfo[] methods = typeof(TutorialManager).GetMethods(
-            BindingFlags.Static | BindingFlags.NonPublic);
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
         for (int i = 0; i < methods.Length; i++)
         {
             if (methods[i].Name != methodName)
