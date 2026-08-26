@@ -16,6 +16,23 @@ public sealed partial class KingdomUIRoot
     private bool storyObservedEraInitialized;
     private readonly Dictionary<string, bool> storyChapterCollapsed =
         new Dictionary<string, bool>(StringComparer.Ordinal);
+    private readonly List<TMP_Text> storyBodyTextCache = new();
+
+    private void KeepStoryTextGeometryDrawable()
+    {
+        if (!pages.TryGetValue("Story", out RectTransform page) || page == null)
+            return;
+        if (storyBodyTextCache.Count == 0)
+            page.GetComponentsInChildren(true, storyBodyTextCache);
+        for (int i = 0; i < storyBodyTextCache.Count; i++)
+            if (storyBodyTextCache[i] != null && storyBodyTextCache[i].name == "Body")
+            {
+                storyBodyTextCache[i].alignment = TextAlignmentOptions.TopLeft;
+                storyBodyTextCache[i].enableWordWrapping = true;
+                storyBodyTextCache[i].maskable = false;
+                storyBodyTextCache[i].canvasRenderer.cull = false;
+            }
+    }
 
     private void ObserveStoryProgress(TechLevel era, TutorialManager tutorial,
         out int unlockedCount, out StoryChapter latestChapter)
@@ -104,6 +121,7 @@ public sealed partial class KingdomUIRoot
 
         storyPageStateSignature = quickSignature;
         storyPageBuilt = false;
+        storyBodyTextCache.Clear();
         ObserveStoryProgress(era, tutorial, out int unlockedCount,
             out StoryChapter latestChapter);
 
@@ -264,6 +282,10 @@ public sealed partial class KingdomUIRoot
         float bodyHeight = Mathf.Max(48f, bodyText.preferredHeight);
         bodyText.rectTransform.SetSizeWithCurrentAnchors(
             RectTransform.Axis.Vertical, bodyHeight);
+        // Story cards may extend beyond the outer ScrollRect while still
+        // needing valid TMP geometry for the next scroll position.
+        bodyText.maskable = false;
+        bodyText.canvasRenderer.cull = false;
         float height = Mathf.Max(minimumHeight,
             16f + titleHeight + 18f + bodyHeight + 16f);
         card.sizeDelta = new Vector2(-24f, height);

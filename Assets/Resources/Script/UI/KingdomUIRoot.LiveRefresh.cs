@@ -620,7 +620,7 @@ public sealed partial class KingdomUIRoot
         // The event is the fast path, but older ResearchManager actions and
         // external state changes do not all raise it. Keep a cheap queue-only
         // fallback so the toolbar cannot remain stale until the next page
-        // rebuild. This avoids the 79-node structural scan.
+        // rebuild. This avoids a full structural scan of the current tree.
         lastResearchQueuePollSignature = signature.ToString();
         researchQueueUiDirty = true;
         // Polling is also the fallback for queue mutations that bypass the
@@ -959,26 +959,36 @@ public sealed partial class KingdomUIRoot
             ? null
             : researchManager.ActiveResearch;
         string currentResearch = activeResearch == null || activeResearch.Definition == null
-            ? "无"
-            : activeResearch.Definition.Label;
+            ? "\u65e0(0%)"
+            : activeResearch.Definition.Label + "(" +
+                (activeResearch.ProgressRatio * 100).ToGameString() + "%)";
 
-        SetTopInfoValue(topPowerValue,
-            state.PowerProductionRate.ToGameString() + "/" +
-            state.PowerConsumptionRate.ToGameString());
-        SetTopInfoValue(topLogisticsValue,
-            state.LogisticsProductionRate.ToGameString() + "/" +
-            state.LogisticsConsumptionRate.ToGameString());
+        SetTopInfoValue(topPowerValue, FormatTopFlow(
+            state.PowerProductionRate, state.PowerConsumptionRate));
+        SetTopInfoValue(topLogisticsValue, FormatTopFlow(
+            state.LogisticsProductionRate, state.LogisticsConsumptionRate));
         SetTopInfoValue(topCurrentResearchValue, currentResearch);
 
         SetTopInfoValue(topFoodValue,
-            state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString());
-        SetTopInfoValue(topHappinessValue, state.HappinessScore.ToGameString());
+            state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "(" +
+            state.FoodNetRate.ToGameString(showPositiveSign: true) + "/s)");
+        SetTopInfoValue(topHappinessValue,
+            (state.HappinessMultiplier * 100).ToGameString() + "%(" +
+            state.HappinessMultiplier.ToGameString() + "x)");
         SetTopInfoValue(topPopulationValue,
             state.Population.Population.ToGameString() + "/" +
-            state.Population.PopulationCapacity.ToGameString());
+            state.Population.PopulationCapacity.ToGameString() + "(" +
+            gameManagerCache.CurrentPopulationNetRatePerSecond.ToGameString(
+                showPositiveSign: true) + "/s)");
         SetTopInfoValue(topTerritoryValue,
             state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString());
         SetTopInfoValue(topResearchPowerValue, researchPower + "/s");
+    }
+
+    private static string FormatTopFlow(ExpantaNum production, ExpantaNum consumption)
+    {
+        return (production - consumption).ToGameString(showPositiveSign: true) + "(" +
+            consumption.ToGameString() + "/" + production.ToGameString() + ")";
     }
 
     private static void SetTopInfoValue(TMP_Text field, string value)

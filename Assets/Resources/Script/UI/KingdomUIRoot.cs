@@ -300,6 +300,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (populatedPage == "Story")
+            KeepStoryTextGeometryDrawable();
         // CanvasScaler and the SafeAreaFitter can complete their first layout
         // pass after Awake. Re-measure until the runtime hierarchy has a real
         // rectangle; this also repairs old scene instances without rebuilding
@@ -604,8 +606,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             if (text == null)
                 continue;
             if (leftNavigation != null && text.transform.IsChildOf(leftNavigation))
-                continue;
-            if (text == topKingdomTitle || text == topKingdomDate)
                 continue;
             if (text == musicVolumeValueLabel || text == musicGapValueLabel)
                 continue;

@@ -80,6 +80,10 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        // The authored shell uses a small visual inset, but the queue is a
+        // horizontal-only drag surface and must start at a neutral y position.
+        researchQueueContent.anchoredPosition = new Vector2(
+            researchQueueContent.anchoredPosition.x, 0f);
         researchQueueScroll.viewport = researchQueueViewport;
         researchQueueScroll.content = researchQueueContent;
         // The live-refresh pass can run before this authored overlay is bound
@@ -135,7 +139,9 @@ public sealed partial class KingdomUIRoot
         researchQueueNodeVisualReferences.Clear();
         researchQueueGraphicRebuildCount++;
 
-        float queueHeight = Mathf.Max(ResearchNodeHeight + 4f, researchQueueViewport.rect.height);
+        // Vertical scrolling is disabled; keeping content taller than the
+        // viewport makes ScrollRect clamp its y position even when we reset it.
+        float queueHeight = Mathf.Max(1f, researchQueueViewport.rect.height);
         float chainWidth = ResearchGraphPaddingX * 2f + Mathf.Max(1, definitions.Count) * ResearchGridX;
         float width = Mathf.Max(researchQueueViewport.rect.width, chainWidth);
         researchQueueContent.sizeDelta = new Vector2(width, queueHeight);

@@ -270,7 +270,6 @@ public class GameManager : Singleton<GameManager>
 
     internal SaveManager.GameSaveData CaptureSaveData()
     {
-        State.MarkSaved(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         return new SaveManager.GameSaveData
         {
             CalendarDays = State.CalendarDays,
@@ -291,6 +290,7 @@ public class GameManager : Singleton<GameManager>
             CampaignTargetSectorId = State.Campaign.TargetSectorId,
             CampaignCasualties = State.Campaign.Casualties.ToString(),
             CampaignCombatRatio = State.Campaign.CombatRatio.ToString(),
+            CalendarElapsedSeconds = calendarElapsedSeconds,
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
     }
@@ -324,13 +324,19 @@ public class GameManager : Singleton<GameManager>
             data.CampaignTargetSectorId,
             ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
             ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
-        ResetCalendarAccumulator();
+        calendarElapsedSeconds = data.CalendarElapsedSeconds;
     }
 
     private static void ValidateSaveData(SaveManager.GameSaveData data)
     {
         if (data.CalendarDays < 0)
             throw new System.IO.InvalidDataException("存档的 CalendarDays 不能为负数。");
+        if (double.IsNaN(data.CalendarElapsedSeconds) ||
+            double.IsInfinity(data.CalendarElapsedSeconds) ||
+            data.CalendarElapsedSeconds < 0d ||
+            data.CalendarElapsedSeconds >= SecondsPerDay)
+            throw new System.IO.InvalidDataException(
+                "存档的 CalendarElapsedSeconds 必须在 0 到一天以内。");
         if (!Enum.IsDefined(typeof(TechLevel), data.TechLevel))
             throw new System.IO.InvalidDataException(
                 $"存档包含未知时代值“{(int)data.TechLevel}”。");

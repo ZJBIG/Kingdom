@@ -244,6 +244,8 @@ public static class SimulationReportWriter
     {
         SimulationState state = result.State;
         var builder = new StringBuilder($"# Economy Simulation Report - {result.Route}\n\n");
+        builder.AppendLine("> **STATUS: FROZEN DIAGNOSTIC ONLY.** This standalone output is not a reliable current gameplay, pacing, balance, or Unity acceptance report. Do not use it to tune content; use real Unity playtests and runtime evidence.");
+        builder.AppendLine();
         builder.AppendLine("Offline runtime-aligned simulation; no Unity runtime was launched.");
         builder.AppendLine(
             $"Strict snapshot: {snapshot.Resources.Count} resources, " +

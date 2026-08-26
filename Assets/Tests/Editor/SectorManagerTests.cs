@@ -8,6 +8,68 @@ using Object = UnityEngine.Object;
 public sealed class SectorManagerTests
 {
     [Test]
+    public void OccupiedSectorProductionContributesToSameTickSatisfaction()
+    {
+        GameObject gameObject = new GameObject("Sector-SameTick-GameManager");
+        GameObject resourceObject = new GameObject("Sector-SameTick-ResourceManager");
+        try
+        {
+            ProgressionModifierManager.Rebuild(null);
+            gameObject.AddComponent<GameManager>();
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+            Pair<Resource, ExpantaNum> production = lowOrbit.OccupiedResourceRatesPerSecond
+                .First(rate => rate.First != null && rate.Second > ExpantaNum.Zero);
+            resourceManager.EnsureResource(production.First);
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            manager.GetState(lowOrbit).SetOccupiedForEditor(true);
+
+            InvokeNonPublic(resourceManager, "BeginTick");
+            InvokeNonPublic(manager, "AccumulateOccupiedResourcePotential", resourceManager);
+            InvokeNonPublic(
+                resourceManager,
+                "AdjustTickPotentialConsumption",
+                production.First,
+                production.Second * 2d);
+            InvokeNonPublic(resourceManager, "CalculateTickSatisfaction", 1d);
+            ExpantaNum satisfaction = (ExpantaNum)InvokeNonPublic(
+                resourceManager,
+                "GetTickSatisfaction",
+                production.First);
+
+            Assert.That(satisfaction.ToDouble(), Is.EqualTo(0.5d).Within(1e-9d));
+        }
+        finally
+        {
+            ProgressionModifierManager.Rebuild(null);
+            Object.DestroyImmediate(resourceObject);
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
+    [Test]
+    public void SectorCompletionBillingStopsAtTheCompletionBoundary()
+    {
+        double campaignSeconds = (double)InvokeNonPublicStatic(
+            typeof(SectorManager),
+            "CalculateCampaignBillableSeconds",
+            new ExpantaNum(0.9d),
+            new ExpantaNum(2d),
+            ExpantaNum.One,
+            60d);
+        double colonizationSeconds = (double)InvokeNonPublicStatic(
+            typeof(SectorManager),
+            "CalculateColonizationBillableSeconds",
+            new ExpantaNum(0.9d),
+            new ExpantaNum(100d),
+            60d);
+
+        Assert.That(campaignSeconds, Is.EqualTo(6d).Within(1e-3d));
+        Assert.That(colonizationSeconds, Is.EqualTo(10d).Within(1e-9d));
+    }
+
+    [Test]
     public void SiriusResourceBeltUsesReadableChineseLabel()
     {
         SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
@@ -2402,5 +2464,31 @@ public sealed class SectorManagerTests
         }
 
         return false;
+    }
+
+    private static object InvokeNonPublic(
+        object target,
+        string methodName,
+        params object[] arguments)
+    {
+        var method = target.GetType().GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        return method.Invoke(target, arguments);
+    }
+
+    private static object InvokeNonPublicStatic(
+        Type type,
+        string methodName,
+        params object[] arguments)
+    {
+        var method = type.GetMethod(
+            methodName,
+            System.Reflection.BindingFlags.Static |
+            System.Reflection.BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        return method.Invoke(null, arguments);
     }
 }

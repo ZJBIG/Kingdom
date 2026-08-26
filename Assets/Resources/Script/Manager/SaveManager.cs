@@ -114,12 +114,22 @@ public sealed class SaveManager : Singleton<SaveManager>
         try
         {
             KingdomSaveData data = CaptureSaveData();
+            long saveTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            // Stamp the serialized payload before writing, but commit the
+            // runtime timestamp only after the file replacement succeeds.
+            // This prevents active play time from being counted as offline
+            // time on resume, while a failed save remains retryable.
+            StampSaveTimestamp(data, saveTimestamp);
             string json = JsonUtility.ToJson(data, true);
             Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
             File.WriteAllText(TempPath, json);
             if (File.Exists(SavePath))
                 File.Copy(SavePath, BackupPath, true);
             File.Copy(TempPath, SavePath, true);
+            // The primary save is now durable. Commit the runtime baseline
+            // before best-effort temporary-file cleanup so a cleanup failure
+            // cannot cause the next resume to replay offline time.
+            GameManager.Instance.MarkSaveTimestamp(saveTimestamp);
             File.Delete(TempPath);
 
             dirty = false;
@@ -202,6 +212,15 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
+    }
+
+    internal static void StampSaveTimestamp(KingdomSaveData data, long unixSeconds)
+    {
+        if (data == null || data.General == null)
+            throw new ArgumentNullException(nameof(data));
+        if (unixSeconds < 0L)
+            throw new ArgumentOutOfRangeException(nameof(unixSeconds));
+        data.General.LastSaveUnixSeconds = unixSeconds;
     }
 
     private bool TryLoadCandidate(string path, out KingdomSaveData data)
@@ -361,6 +380,9 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string CampaignTargetSectorId;
         public string CampaignCasualties;
         public string CampaignCombatRatio;
+        // Preserve the sub-day calendar accumulator so save/load does not
+        // silently discard up to one simulation day of calendar progress.
+        public double CalendarElapsedSeconds;
         public long LastSaveUnixSeconds;
     }
 

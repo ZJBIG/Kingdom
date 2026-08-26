@@ -544,8 +544,18 @@ public sealed class KingdomPlayModeTests
         bool canPanHorizontal = (bool)canPanHorizontalField.GetValue(gesture);
         Assert.That(canPanVertical, Is.EqualTo(verticalOverflow));
         Assert.That(canPanHorizontal, Is.EqualTo(horizontalOverflow));
-        bool rootSafeAreaOnly = root.transform.Find("SafeAreaRoot") != null;
-        Assert.That(rootSafeAreaOnly, Is.True);
+        Transform safeAreaRoot = root.transform.Find("SafeAreaRoot");
+        Assert.That(safeAreaRoot, Is.Not.Null);
+        bool legacyRootChildrenInactive = true;
+        foreach (Transform rootChild in root.transform)
+        {
+            if (rootChild == safeAreaRoot)
+                continue;
+            legacyRootChildrenInactive &= !rootChild.gameObject.activeSelf;
+            Assert.That(rootChild.gameObject.activeSelf, Is.False,
+                "Every legacy KingdomUIRoot child outside SafeAreaRoot must remain inactive: " +
+                rootChild.name);
+        }
 
         EventSystem eventSystem = Object.FindObjectOfType<EventSystem>();
         if (eventSystem == null)
@@ -560,6 +570,7 @@ public sealed class KingdomPlayModeTests
             position = new Vector2(500f, 600f)
         };
         Vector2 beforeDrag = contentRect.anchoredPosition;
+        gesture.OnPointerDown(pointer);
         gesture.OnInitializePotentialDrag(pointer);
         pointer.position = new Vector2(500f, 550f);
         gesture.OnBeginDrag(pointer);
@@ -567,6 +578,7 @@ public sealed class KingdomPlayModeTests
         gesture.OnDrag(pointer);
         Vector2 afterDrag = contentRect.anchoredPosition;
         gesture.OnEndDrag(pointer);
+        gesture.OnPointerUp(pointer);
         if (verticalOverflow)
             Assert.That(afterDrag.y, Is.GreaterThan(beforeDrag.y),
                 "A vertical drag in an overflowing research graph must move the graph content within its vertical range.");
@@ -588,6 +600,7 @@ public sealed class KingdomPlayModeTests
             button = PointerEventData.InputButton.Left,
             position = new Vector2(500f, 600f)
         };
+        forwarder.OnPointerDown(nodePointer);
         forwarder.OnInitializePotentialDrag(nodePointer);
         nodePointer.position = new Vector2(500f, 550f);
         forwarder.OnBeginDrag(nodePointer);
@@ -595,12 +608,16 @@ public sealed class KingdomPlayModeTests
         forwarder.OnDrag(nodePointer);
         Vector2 afterNodeDrag = contentRect.anchoredPosition;
         forwarder.OnEndDrag(nodePointer);
+        forwarder.OnPointerUp(nodePointer);
         if (verticalOverflow)
             Assert.That(afterNodeDrag.y, Is.GreaterThan(beforeDrag.y),
                 "A drag beginning on a research Button must be forwarded to the graph gesture.");
         Debug.Log($"[KingdomUI] Research node-forwarded drag audit: before={beforeDrag}, after={afterNodeDrag}, delta={afterNodeDrag - beforeDrag}, forwardedVerticalDragMoved={afterNodeDrag.y > beforeDrag.y}");
-        Debug.Log($"[KingdomUI] Research runtime playmode audit: nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, rootSafeAreaOnly={rootSafeAreaOnly}");
-        Assert.That(nodeCount, Is.EqualTo(DataBase<Research>.All.Count));
+        Debug.Log($"[KingdomUI] Research runtime playmode audit: expectedNodes={expectedResearchNodes}, nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, legacyRootChildrenInactive={legacyRootChildrenInactive}");
+        Assert.That(expectedResearchNodes, Is.GreaterThan(0));
+        Assert.That(nodeCount, Is.EqualTo(expectedResearchNodes));
+        Assert.That(cells.Count, Is.EqualTo(expectedResearchNodes),
+            "Every current research definition must occupy one unique integer cell.");
 
         Transform researchPage = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Research");

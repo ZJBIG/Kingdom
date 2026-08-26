@@ -137,19 +137,39 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (research == null)
             throw new ArgumentNullException(nameof(research));
-        if (states.TryGetValue(research, out ResearchState state))
+        if (TryGetStateByStableId(research, out ResearchState state))
             return state;
         throw new KeyNotFoundException($"研究状态“{research.Id}”尚未创建。");
     }
 
+    private bool TryGetStateByStableId(Research research, out ResearchState state)
+    {
+        state = null;
+        if (research == null)
+            return false;
+        if (states.TryGetValue(research, out state))
+            return true;
+        foreach (KeyValuePair<Research, ResearchState> entry in states)
+        {
+            if (entry.Key != null && string.Equals(
+                    entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
+                    research.Id == null ? string.Empty : research.Id.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                state = entry.Value;
+                return state != null;
+            }
+        }
+        return false;
+    }
+
     public bool StartResearch(Research research)
     {
-        if (research == null || !states.ContainsKey(research))
+        if (!TryGetStateByStableId(research, out ResearchState state))
         {
             Debug.LogError("无法启动空的或尚未初始化的研究定义。");
             return false;
         }
-        ResearchState state = states[research];
         if (state.Status == ResearchStatus.Completed ||
             !CanAccessResearch(research) ||
             !ArePrerequisitesCompleted(research))
@@ -167,7 +187,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public ResearchActionResult HandleResearchAction(Research research)
     {
-        if (research == null || !states.TryGetValue(research, out ResearchState state))
+        if (!TryGetStateByStableId(research, out ResearchState state))
             return ResearchActionResult.Invalid;
         if (state.Status == ResearchStatus.Completed)
             return ResearchActionResult.Completed;
@@ -202,7 +222,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public bool EnqueueResearch(Research research)
     {
-        if (research == null || !states.TryGetValue(research, out ResearchState state) ||
+        if (!TryGetStateByStableId(research, out ResearchState state) ||
             state.Status == ResearchStatus.Completed || ActiveResearch == state ||
             IsQueued(research) || !CanAccessResearch(research) ||
             !ArePrerequisitesCompleted(research))
@@ -336,7 +356,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public ResearchPaymentResult PayResearchCost(Research research)
     {
-        if (research == null || !states.TryGetValue(research, out ResearchState state))
+        if (!TryGetStateByStableId(research, out ResearchState state))
             return ResearchPaymentResult.Invalid;
         if (!CanAccessResearch(research))
             return ResearchPaymentResult.Invalid;
@@ -376,7 +396,7 @@ public class ResearchManager : Singleton<ResearchManager>
     public bool CanPayResearchCost(Research research, out string blocker)
     {
         blocker = string.Empty;
-        if (research == null || !states.TryGetValue(research, out ResearchState state))
+        if (!TryGetStateByStableId(research, out ResearchState state))
         {
             blocker = "研究未初始化";
             return false;
@@ -458,7 +478,7 @@ public class ResearchManager : Singleton<ResearchManager>
             !DataBase<Research>.TryFind(researchId, out Research research))
             return false;
 
-        return states.TryGetValue(research, out ResearchState state) &&
+        return TryGetStateByStableId(research, out ResearchState state) &&
             state.Status == ResearchStatus.Completed;
     }
 
@@ -517,7 +537,49 @@ public class ResearchManager : Singleton<ResearchManager>
 
     internal void TickOffline(double deltaSeconds)
     {
-        Tick(deltaSeconds);
+        if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+
+        double remainingSeconds = deltaSeconds;
+        while (remainingSeconds > 0d)
+        {
+            if (ActiveResearch == null)
+                TryStartNextQueuedResearch(false);
+            ResearchState current = ActiveResearch;
+            if (current == null || !current.CostPaid)
+                return;
+
+            ExpantaNum speed = CalculateResearchSpeed(current);
+            if (speed <= ExpantaNum.Zero)
+            {
+                current.SetStatus(ResearchStatus.Researching);
+                return;
+            }
+
+            ExpantaNum remainingProgress = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                current.BaseCost - current.Progress);
+            double secondsToCompletion = (remainingProgress / speed).ToDouble();
+            double step = Math.Min(
+                remainingSeconds,
+                Math.Max(0d, secondsToCompletion));
+            Tick(step);
+            remainingSeconds -= step;
+
+            if (ActiveResearch == current)
+                return;
+        }
+    }
+
+    private ExpantaNum CalculateResearchSpeed(ResearchState current)
+    {
+        GameState gameState = GameManager.Instance.State;
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        ExpantaNum speed = ResearchSpeedEffect(
+            gameState.TechLevel,
+            current.Definition.TechLevel) * GlobalEfficiencyFactor *
+            ResearchPower * modifiers.GlobalResearchMultiplier;
+        return speed * gameState.HappinessMultiplier;
     }
 
     public static bool TryPayResearchCost(ResearchState state)
@@ -614,8 +676,13 @@ public class ResearchManager : Singleton<ResearchManager>
         IReadOnlyList<Research> prerequisites = state.Definition.Prerequisites;
         if (prerequisites != null)
             for (int i = 0; i < prerequisites.Count; i++)
+            {
+                if (!TryGetStateByStableId(prerequisites[i], out ResearchState prerequisiteState))
+                    throw new InvalidOperationException(
+                        $"Missing research state: {prerequisites[i].Id}");
                 AppendPrerequisiteBatch(
-                    states[prerequisites[i]], visiting, included, result);
+                    prerequisiteState, visiting, included, result);
+            }
         visiting.Remove(state.Definition);
         result.Add(state);
     }
@@ -737,7 +804,8 @@ public class ResearchManager : Singleton<ResearchManager>
         if (prerequisites == null)
             return true;
         for (int i = 0; i < prerequisites.Count; i++)
-            if (states[prerequisites[i]].Status != ResearchStatus.Completed)
+            if (!TryGetStateByStableId(prerequisites[i], out ResearchState prerequisiteState) ||
+                prerequisiteState.Status != ResearchStatus.Completed)
                 return false;
         return true;
     }
@@ -872,12 +940,16 @@ public class ResearchManager : Singleton<ResearchManager>
                 if (!restoredResearches.Add(definition))
                     throw new InvalidOperationException(
                         $"存档中的研究状态重复包含“{definition.Id}”。");
-                ResearchState state = GetState(definition);
+                if (!TryGetStateByStableId(definition, out ResearchState state))
+                    throw new InvalidOperationException(
+                        $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{definition.Id}");
+                IReadOnlyDictionary<Resource, ExpantaNum> paidResourceCosts =
+                    RestorePaidResourceCosts(definition, saved.PaidResourceCosts);
                 state.Restore(
                     Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress)),
-                    saved.CostPaid,
+                    saved.CostPaid || AreAllResourceCostsPaid(definition, paidResourceCosts),
                     saved.Completed,
-                    RestorePaidResourceCosts(definition, saved.PaidResourceCosts));
+                    paidResourceCosts);
             }
         }
 
@@ -893,7 +965,10 @@ public class ResearchManager : Singleton<ResearchManager>
         RefreshAvailabilityStatuses();
         if (!string.IsNullOrWhiteSpace(data.ActiveResearchId))
         {
-            ResearchState state = GetState(DataBase<Research>.Find(data.ActiveResearchId));
+            Research activeDefinition = DataBase<Research>.Find(data.ActiveResearchId);
+            if (!TryGetStateByStableId(activeDefinition, out ResearchState state))
+                throw new InvalidOperationException(
+                    $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{activeDefinition.Id}");
             if (state.Status == ResearchStatus.Completed ||
                 !ArePrerequisitesCompleted(state.Definition))
                 throw new InvalidOperationException(
@@ -960,6 +1035,7 @@ public class ResearchManager : Singleton<ResearchManager>
     private void ValidateRestoreInput(SaveManager.ResearchSaveData data)
     {
         var completed = new HashSet<Research>();
+        var fullyPaid = new HashSet<Research>();
         for (int i = 0; i < orderedStates.Count; i++)
             if (orderedStates[i].Status == ResearchStatus.Completed)
                 completed.Add(orderedStates[i].Definition);
@@ -978,6 +1054,8 @@ public class ResearchManager : Singleton<ResearchManager>
                         $"Research progress is outside the valid range: {definition.Id}");
                 IReadOnlyDictionary<Resource, ExpantaNum> paidCosts =
                     RestorePaidResourceCosts(definition, saved.PaidResourceCosts);
+                if (AreAllResourceCostsPaid(definition, paidCosts))
+                    fullyPaid.Add(definition);
                 if (saved.Completed && !AreAllResourceCostsPaid(definition, paidCosts))
                     throw new InvalidOperationException(
                         $"Completed research has unpaid resource costs: {definition.Id}");
@@ -999,6 +1077,8 @@ public class ResearchManager : Singleton<ResearchManager>
             active = DataBase<Research>.Find(data.ActiveResearchId);
             if (completed.Contains(active))
                 throw new InvalidOperationException($"Active research is already completed: {active.Id}");
+            if (active.HasPositiveResourceRequirement && !fullyPaid.Contains(active))
+                throw new InvalidOperationException($"Active research has unpaid resource costs: {active.Id}");
             for (int i = 0; i < active.Prerequisites.Count; i++)
                 if (!completed.Contains(active.Prerequisites[i]))
                     throw new InvalidOperationException($"Active research prerequisite is missing: {active.Id}");
@@ -1040,7 +1120,9 @@ public class ResearchManager : Singleton<ResearchManager>
                 throw new InvalidOperationException(
                     $"存档中的研究队列包含未知研究“{id}”。");
 
-            ResearchState state = states[definition];
+            if (!TryGetStateByStableId(definition, out ResearchState state))
+                throw new InvalidOperationException(
+                    $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{definition.Id}");
             if (state.Status == ResearchStatus.Completed)
                 throw new InvalidOperationException(
                     $"存档中的研究队列包含已完成研究“{definition.Id}”。");
@@ -1055,7 +1137,9 @@ public class ResearchManager : Singleton<ResearchManager>
             for (int j = 0; j < prerequisites.Count; j++)
             {
                 Research prerequisite = prerequisites[j];
-                bool satisfied = states[prerequisite].Status == ResearchStatus.Completed ||
+                bool satisfied =
+                    (TryGetStateByStableId(prerequisite, out ResearchState prerequisiteState) &&
+                     prerequisiteState.Status == ResearchStatus.Completed) ||
                     (ActiveResearch != null && ActiveResearch.Definition == prerequisite) ||
                     queuedDefinitions.Contains(prerequisite);
                 if (!satisfied)

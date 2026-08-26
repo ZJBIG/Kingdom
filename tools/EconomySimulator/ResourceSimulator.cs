@@ -20,8 +20,8 @@ public static class ResourceSimulator
             .Sum(x => Math.Max(0d, x.Value));
         double happinessMultiplier = CalculateHappinessMultiplier(
             foodIn-foodOut, s.Population, foodAvailability, happinessBonus);
-        double happinessReward=Math.Max(1d,happinessMultiplier);
-        double happinessConstraint=Math.Min(1d,happinessMultiplier);
+        double happinessReward=Math.Max(0d,happinessMultiplier);
+        double happinessConstraint=Math.Max(0d,happinessMultiplier);
         powerIn*=happinessReward*EffectMultiplier(s,SimEffectKind.PowerMultiplier,"");
         logIn*=happinessReward*EffectMultiplier(s,SimEffectKind.GlobalLogisticsMultiplier,"");
         s.PowerProductionPerSecond=powerIn;

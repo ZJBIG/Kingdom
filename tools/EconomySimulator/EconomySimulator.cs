@@ -152,6 +152,11 @@ public sealed class SimulationResult
 
 public static class EconomySimulator
 {
+    // FROZEN: this standalone model is not a gameplay authority or a reliable
+    // balance/pacing report source. Keep the code for historical diagnostics
+    // and parity investigation only. The CLI is intentionally disabled until
+    // its rules are revalidated against the current Unity runtime.
+    public const int DisabledExitCode = 3;
     public const double TickSeconds=1d;
     public const double MedievalStepSeconds=10d;
     public const double IndustrialStepSeconds=600d;
@@ -173,37 +178,11 @@ public static class EconomySimulator
     };
     public static int Main(string[] args)
     {
-        string root=FindRoot(args.Length>0 && args[0] != "--self-test"
-            ?args[0]:Directory.GetCurrentDirectory());
-        string output=args.Length>1?Path.GetFullPath(args[1]):Path.Combine(root,"data","economy-simulation");
-        EconomySnapshot snapshot=UnityAssetSnapshotReader.Read(root);
-        SimulatorSelfTests.Run(snapshot);
-        if(args.Contains("--self-test",StringComparer.OrdinalIgnoreCase))
-        {
-            Console.WriteLine($"Simulator self-tests passed; definitions={snapshot.All.Count}; workshops={snapshot.Workshops.Count}.");
-            return 0;
-        }
-        var results=new Dictionary<Route,SimulationResult>();
-        foreach(Route route in Enum.GetValues<Route>())
-        {
-            var r=Run(snapshot,SimulationStrategies.Create(route),DefaultHorizonSeconds);
-            results[route]=r;
-            SimulationReportWriter.Write(Path.Combine(output,route.ToString()),snapshot,r);
-            if(route==Route.Normal)
-                SimulationReportWriter.Write(output,snapshot,r);
-        }
-        IReadOnlyList<string> failures=PacingAcceptance.Validate(results);
-        File.WriteAllLines(
-            Path.Combine(output,"PacingAcceptance.txt"),
-            failures.Count==0
-                ?new[]{"PASS: all vertical-slice pacing gates passed."}
-                :new[]{"FAIL:"}.Concat(failures));
-        Console.WriteLine(
-            $"Simulation complete: {output}; definitions={snapshot.All.Count}; " +
-            $"workshops={snapshot.Workshops.Count}; acceptance={(failures.Count==0?"PASS":"FAIL")}");
-        foreach(string failure in failures)
-            Console.Error.WriteLine(failure);
-        return failures.Count==0?0:2;
+        Console.Error.WriteLine(
+            "EconomySimulator is disabled: its output is frozen historical diagnostics " +
+            "and must not be used as a current gameplay, pacing, balance, or Unity report. " +
+            "Use real Unity playtests and runtime evidence instead.");
+        return DisabledExitCode;
     }
     public static SimulationResult Run(
         EconomySnapshot snapshot,

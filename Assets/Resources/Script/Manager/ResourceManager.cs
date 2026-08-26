@@ -62,7 +62,7 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
-        if (states.TryGetValue(resource, out ResourceState existing))
+        if (TryGetStateByStableId(resource, out ResourceState existing))
             return existing;
 
         var state = new ResourceState(resource);
@@ -78,9 +78,30 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
-        if (states.TryGetValue(resource, out ResourceState state))
+        if (TryGetStateByStableId(resource, out ResourceState state))
             return state;
         throw new KeyNotFoundException($"资源状态“{resource.Id}”尚未创建。");
+    }
+
+    private bool TryGetStateByStableId(Resource resource, out ResourceState state)
+    {
+        state = null;
+        if (resource == null)
+            return false;
+        if (states.TryGetValue(resource, out state))
+            return true;
+        foreach (KeyValuePair<Resource, ResourceState> entry in states)
+        {
+            if (entry.Key != null && string.Equals(
+                    entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
+                    resource.Id == null ? string.Empty : resource.Id.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                state = entry.Value;
+                return state != null;
+            }
+        }
+        return false;
     }
 
     public ExpantaNum GetAmount(Resource resource) => EnsureResource(resource).Amount;

@@ -11,10 +11,10 @@ consumption, pacing, or balance:
 2. inspect `git status` and current runtime/assets;
 3. run the static closure check;
 4. reproduce the affected gameplay behavior in code or Unity tests;
-5. run static closure and the existing simulator only when the change affects
-   reachability, production, consumption or pacing;
-6. inspect `PacingAcceptance.txt`, Workshop purchases, warnings, and milestones
-   as regression evidence rather than as the primary development target.
+5. do not run or rely on `tools/EconomySimulator` for current pacing, balance,
+   progression, or acceptance decisions. Its CLI is frozen and disabled; the
+   existing `data/economy-simulation` outputs are historical diagnostics only.
+   Use Unity runtime/PlayMode evidence and player playtests as the authority.
 
 Report retention: use `data/content-closure-static.md`, only the current
 `data/economy-simulation` root outputs and its `Fast`, `Normal`, and
@@ -27,13 +27,14 @@ Current locked rules:
 - Food is the only capped stockpile.
 - Do not reintroduce workforce; population and productivity are the player-facing systems.
 - Research resource costs are paid atomically before progress begins.
-- The simulator must load Resource, Building, Research, and Workshop definitions
-  strictly through stable IDs and `.meta` GUID resolution.
+- The frozen simulator's snapshot loader still documents the intended stable-ID
+  and `.meta` GUID contract, but it is not a current gameplay authority.
 - Workshop unlocks, prerequisites, purchases, costs, and effects are part of pacing.
 - Runtime constants come from current code, not this prompt.
 - Static reachability does not prove pacing, and simulator output does not prove Unity acceptance.
-- Keep current simulator strategies frozen. Do not add route scoring, decision AI,
-  or trace features unless explicitly requested.
+- Keep the frozen simulator strategies unchanged. Do not add route scoring,
+  decision AI, trace features, or new report generation unless explicitly
+  requested for diagnostic research.
 
 Resource and late-era design contract:
 

@@ -381,6 +381,11 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         // layout measurement/recalculation in the same frame as movement.
         if (!dragging && (!extentAdjusted || HasMeasuredBoundsChanged()))
             RefreshLayoutBounds(false);
+        else if (!dragging)
+            // Keep the exposed gesture state synchronized with the final
+            // Canvas layout even when RectTransform size changes are below
+            // the full-bounds refresh threshold.
+            RefreshOverflowState();
         if (!hasLoggedMotion && content != null &&
             Vector2.Distance(content.anchoredPosition, lastLoggedPosition) > 0.5f)
         {
@@ -455,8 +460,12 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             return;
         Vector2 viewportSize = viewport.rect.size;
         Vector2 scaledContentSize = GetScaledContentSize();
+        bool previousHorizontal = canPanHorizontal;
+        bool previousVertical = canPanVertical;
         canPanHorizontal = scaledContentSize.x > viewportSize.x + 0.5f;
         canPanVertical = scaledContentSize.y > viewportSize.y + 0.5f;
+        if (previousHorizontal != canPanHorizontal || previousVertical != canPanVertical)
+            Debug.Log($"[王国界面] Research graph overflow state: viewport={viewportSize}, content={scaledContentSize}, horizontal={canPanHorizontal}, vertical={canPanVertical}");
         if (scrollRect != null)
         {
             scrollRect.horizontal = canPanHorizontal;
@@ -475,8 +484,12 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
 
     private Vector2 GetScaledContentSize()
     {
-        float scale = content == null ? 1f : Mathf.Abs(content.localScale.x);
-        return content == null ? Vector2.zero : content.rect.size * scale;
+        if (content == null)
+            return Vector2.zero;
+        Vector3 scale = content.localScale;
+        return new Vector2(
+            content.rect.width * Mathf.Abs(scale.x),
+            content.rect.height * Mathf.Abs(scale.y));
     }
 
     private bool HasMeasuredBoundsChanged()

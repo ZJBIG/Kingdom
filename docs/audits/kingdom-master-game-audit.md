@@ -1,5 +1,10 @@
 # Kingdom 全游戏主审查与改进蓝图
 
+> **2026-08-26 evidence status:** `tools/EconomySimulator` is now frozen and
+> its CLI is disabled. All `data/economy-simulation` and `PacingAcceptance`
+> outputs in this document are historical diagnostics only; do not rerun or
+> use them as current pacing, balance, progression, or Unity acceptance proof.
+
 > 状态：静态全覆盖已经完成；性能优先批次已收敛到用户实测研究页切换卡顿消失，当前转入世界观与游戏引导的渐进改进。任务开始时采用只读单文档模式，后续用户已授权性能、编译、Android 配置及无设计分歧的文本/引导修复。
 
 ## 1. 文档目的与禁止事项
@@ -154,7 +159,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 当前证据：`Assets/Resources/Datas/**` 的直接文件与 `TechLevel` 计数；`data/content-closure-static.md` 与当前资产一致为 65/128/82；`data/economy-simulation/{,Fast,Normal,Conservative}/EconomySimulationReport.md` 均写 69/121/73。
 - 根因或设计诊断：保留的“当前”模拟输出不是由当前定义集合生成，证据链版本失配。
 - 为什么不符合 Kingdom 当前目标：玩法正确后才允许调节节奏，而当前节奏诊断不覆盖当前玩法输入。
-- 推荐的最小解决方向：未来实施批次先定位快照版本失配的来源；在不扩展策略的前提下，用当前定义重新生成严格快照并确认输入计数等于 40/65/128/82，再解释 PacingAcceptance。
+- 推荐的最小解决方向：在模拟器重新获得明确授权并完成 Unity parity 审查前，封存该证据链；不要用它调数值或解释当前玩家进程。
 - 可选方案及取舍：若当前定义尚不应纳入模拟，应显式列出排除规则并使闭包与模拟采用同一口径；代价是需证明每个排除项不属于当前纵向切片。
 - 明确不建议采用的方案：不建议直接调 Research/Building 数值让旧报告变绿；不建议扩展路线评分、决策 AI 或 trace 功能。
 - 涉及的系统、代码和资产：`Assets/Resources/Datas`、`tools/EconomySimulator`（未来定位）、`data/content-closure-static.md`、`data/economy-simulation/**`。
@@ -287,7 +292,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 风险和可能回归：实际产量会提高，可能暴露此前被错误效率掩盖的下游瓶颈；必须在行为测试通过后才重新评估节奏。
 - 工作量：S。
 - 是否可以交给实施智能体：可以，作为 Wave 1 的独立正确性批次。
-- 后续实施验收标准：0/1/多输入分别覆盖；多个满足率取最小值；普通资源和 Food 不为负；在线与离线同样结果；随后用当前 40/65/128/82 定义重跑闭包和模拟但不得用其替代 Unity 证据。
+- 后续实施验收标准：0/1/多输入分别覆盖；多个满足率取最小值；普通资源和 Food 不为负；在线与离线同样结果；以 Unity runtime/PlayMode 和玩家实玩记录验收，不依赖冻结模拟器。
 - 尚缺的验证证据：未运行真实 tick、离线恢复或 Unity 测试；多输入资产的实际玩家节奏影响待行为修复后重新测量。
 
 ### POP-P2-001 超容量人口去留在代码、测试和模拟口径间冲突
@@ -1111,7 +1116,7 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 
 ### Wave 3：行为正确后的数值节奏
 
-1. 用当前定义重跑闭包与冻结策略的模拟；先记录再调参。
+1. 先用 Unity runtime/PlayMode 建立可复现行为基线；冻结模拟器不参与调参。
 2. 调整 Food、幸福、人口、研究时长和建筑回本；处理多产物效果粒度。
 3. 对 Fast/Normal/Conservative 分别记录里程碑、资源流与失败原因，不把模拟当 Unity 验收。
 

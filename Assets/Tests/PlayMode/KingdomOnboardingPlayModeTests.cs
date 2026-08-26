@@ -708,7 +708,8 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(root, Is.Not.Null);
         TutorialManager tutorial = TutorialManager.Ensure();
         MethodInfo restoreTutorial = typeof(TutorialManager).GetMethod(
-            "RestoreSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
+            "RestoreSaveData", BindingFlags.Instance |
+                BindingFlags.Public | BindingFlags.NonPublic);
         Assert.That(restoreTutorial, Is.Not.Null);
         restoreTutorial.Invoke(tutorial, new object[]
         {

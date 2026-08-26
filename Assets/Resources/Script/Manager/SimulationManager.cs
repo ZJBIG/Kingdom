@@ -183,14 +183,14 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         float gameEnd = Time.realtimeSinceStartup;
 #endif
         ResourceManager resourceManager = ResourceManager.Instance;
-        resourceManager.Tick(deltaSeconds);
-#if UNITY_EDITOR
-        float resourceEnd = Time.realtimeSinceStartup;
-#endif
         SectorManager sectors = gameManager.Sectors;
         sectors.TickOccupiedResourceProduction(
             deltaSeconds,
             resourceManager);
+        resourceManager.Tick(deltaSeconds);
+#if UNITY_EDITOR
+        float resourceEnd = Time.realtimeSinceStartup;
+#endif
         GameState gameState = gameManager.State;
         sectors.TickActiveColonization(deltaSeconds, gameState, resourceManager, out _);
         sectors.TickActiveCampaign(
@@ -305,11 +305,11 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                 effectiveStep,
                 buildingManager.SafePopulationDepartureAllowance);
             ResourceManager resourceManager = ResourceManager.Instance;
-            resourceManager.Tick(effectiveStep);
             SectorManager sectors = gameManager.Sectors;
             sectors.TickOccupiedResourceProduction(
                 effectiveStep,
                 resourceManager);
+            resourceManager.Tick(effectiveStep);
             GameState gameState = gameManager.State;
             sectors.TickActiveColonization(effectiveStep, gameState, resourceManager, out _);
             sectors.TickActiveCampaign(

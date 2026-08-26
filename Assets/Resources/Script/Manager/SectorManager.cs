@@ -228,9 +228,32 @@ public sealed class SectorManager
         EnsureInitialized();
         if (definition == null)
             throw new ArgumentNullException(nameof(definition));
-        if (states.TryGetValue(definition, out SectorState state))
+        if (TryGetStateByStableId(definition, out SectorState state))
             return state;
         throw new KeyNotFoundException($"星区状态“{definition.Id}”尚未创建。");
+    }
+
+    private bool TryGetStateByStableId(
+        SectorDefinition definition,
+        out SectorState state)
+    {
+        state = null;
+        if (definition == null)
+            return false;
+        if (states.TryGetValue(definition, out state))
+            return true;
+        foreach (KeyValuePair<SectorDefinition, SectorState> entry in states)
+        {
+            if (entry.Key != null && string.Equals(
+                    entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
+                    definition.Id == null ? string.Empty : definition.Id.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                state = entry.Value;
+                return state != null;
+            }
+        }
+        return false;
     }
 
     public SectorCampaignPreview GetCampaignPreview(
@@ -239,7 +262,8 @@ public sealed class SectorManager
         ResourceManager resourceManager)
     {
         EnsureInitialized();
-        if (definition == null || runtimeState == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || runtimeState == null ||
+            !TryGetStateByStableId(definition, out SectorState state))
             return new SectorCampaignPreview(
                 false,
                 false,
@@ -548,9 +572,20 @@ public sealed class SectorManager
             return false;
         }
 
+        ExpantaNum combatRatio = CalculateCampaignCombatRatio(
+            definition,
+            state,
+            runtimeState);
+        double billableSeconds = CalculateCampaignBillableSeconds(
+            state.CampaignProgress,
+            combatRatio,
+            definition.CampaignProgressMultiplier *
+                ProgressionModifierManager.Current.CampaignProgressMultiplier,
+            deltaSeconds);
+
         if (!TryCalculateCampaignCosts(
                 definition,
-                deltaSeconds,
+                billableSeconds,
                 ProgressionModifierManager.Current.CampaignSupplyCostMultiplier,
                 resourceManager,
                 out ExpantaNum foodCost,
@@ -589,7 +624,7 @@ public sealed class SectorManager
                     if (ownsLegacyCampaignSlot)
                         runtimeState.BeginCampaign(definition.Id);
                     state.SetCampaignActive(true);
-                    CommitCampaignAdvance(definition, state, deltaSeconds, runtimeState);
+                    CommitCampaignAdvance(definition, state, billableSeconds, runtimeState);
                 },
                 () =>
                 {
@@ -624,16 +659,10 @@ public sealed class SectorManager
         GameState runtimeState)
     {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
-            runtimeState.AttackPower,
-            runtimeState.FleetPower,
-            runtimeState.MilitaryManpower,
-            runtimeState.SupplySatisfaction,
-            runtimeState.PowerSatisfaction,
-            runtimeState.LogisticsSatisfaction,
-            modifiers.MilitaryMultiplier,
-            state.CampaignCasualties);
-        ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
+        ExpantaNum combatRatio = CalculateCampaignCombatRatio(
+            definition,
+            state,
+            runtimeState);
         ExpantaNum nextProgress = CampaignManager.AdvanceProgress(
             state.CampaignProgress,
             combatRatio,
@@ -718,12 +747,19 @@ public sealed class SectorManager
         if (!TryCalculateCosts(
                 definition.ColonizationFoodPerSecond,
                 definition.ColonizationResourceRatesPerSecond,
-                deltaSeconds,
+                CalculateColonizationBillableSeconds(
+                    state.CampaignProgress,
+                    definition.ColonizationDurationSeconds,
+                    deltaSeconds),
                 resourceManager,
                 out ExpantaNum foodCost,
                 out List<Pair<Resource, ExpantaNum>> resourceCosts,
                 out failure))
             return false;
+        double billableSeconds = CalculateColonizationBillableSeconds(
+            state.CampaignProgress,
+            definition.ColonizationDurationSeconds,
+            deltaSeconds);
         if (runtimeState.FoodAmount < foodCost || !HasResourceCosts(resourceManager, resourceCosts))
         {
             failure = SectorOperationFailure.InsufficientCampaignSupply;
@@ -747,7 +783,7 @@ public sealed class SectorManager
                     state.SetColonizationActive(true);
                     state.SetCampaignProgress(
                         state.CampaignProgress +
-                        deltaSeconds / definition.ColonizationDurationSeconds);
+                        billableSeconds / definition.ColonizationDurationSeconds);
                     if (state.CampaignProgress >= ExpantaNum.One)
                     {
                         state.SetCampaignProgress(ExpantaNum.One);
@@ -1133,6 +1169,81 @@ public sealed class SectorManager
         return produced;
     }
 
+    internal void AccumulateOccupiedResourcePotential(ResourceManager resourceManager)
+    {
+        if (resourceManager == null)
+            return;
+
+        ExpantaNum multiplier =
+            ProgressionModifierManager.Current.OccupiedResourceProductionMultiplier;
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            SectorState state = orderedStates[i];
+            if (state == null || !state.Occupied)
+                continue;
+            IReadOnlyList<Pair<Resource, ExpantaNum>> rates =
+                state.Definition.OccupiedResourceRatesPerSecond;
+            for (int j = 0; rates != null && j < rates.Count; j++)
+            {
+                Pair<Resource, ExpantaNum> rate = rates[j];
+                if (rate.First != null && rate.Second > ExpantaNum.Zero)
+                    resourceManager.AdjustTickPotentialProduction(
+                        rate.First,
+                        rate.Second * multiplier);
+            }
+        }
+    }
+
+    internal static double CalculateCampaignBillableSeconds(
+        ExpantaNum currentProgress,
+        ExpantaNum combatRatio,
+        ExpantaNum progressMultiplier,
+        double requestedSeconds)
+    {
+        if (requestedSeconds <= 0d)
+            return 0d;
+        ExpantaNum rate = CampaignManager.CalculateProgressRate(combatRatio) *
+            ExpantaNum.Clamp01(progressMultiplier);
+        if (rate <= ExpantaNum.Zero)
+            return requestedSeconds;
+        double secondsToCompletion =
+            ((ExpantaNum.One - ExpantaNum.Clamp01(currentProgress)) / rate).ToDouble();
+        return Math.Min(requestedSeconds, Math.Max(0d, secondsToCompletion));
+    }
+
+    internal static double CalculateColonizationBillableSeconds(
+        ExpantaNum currentProgress,
+        ExpantaNum durationSeconds,
+        double requestedSeconds)
+    {
+        if (requestedSeconds <= 0d)
+            return 0d;
+        double remaining = Math.Max(
+            0d,
+            (ExpantaNum.One - ExpantaNum.Clamp01(currentProgress)).ToDouble());
+        return Math.Min(requestedSeconds, remaining * durationSeconds.ToDouble());
+    }
+
+    private static ExpantaNum CalculateCampaignCombatRatio(
+        SectorDefinition definition,
+        SectorState state,
+        GameState runtimeState)
+    {
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
+            runtimeState.AttackPower,
+            runtimeState.FleetPower,
+            runtimeState.MilitaryManpower,
+            runtimeState.SupplySatisfaction,
+            runtimeState.PowerSatisfaction,
+            runtimeState.LogisticsSatisfaction,
+            modifiers.MilitaryMultiplier,
+            state.CampaignCasualties);
+        return CampaignManager.CalculateCombatRatio(
+            effectivePower,
+            definition.EnemyPower);
+    }
+
     public bool CancelColonization(SectorDefinition definition)
     {
         EnsureInitialized();
@@ -1203,7 +1314,7 @@ public sealed class SectorManager
             if (saved == null ||
                 !DataBase<SectorDefinition>.TryFind(saved.SectorId, out SectorDefinition definition) ||
                 definition == null ||
-                !states.ContainsKey(definition))
+                !TryGetStateByStableId(definition, out _))
                 throw new InvalidOperationException(
                     $"Unknown sector in save data: '{saved?.SectorId}'.");
             if (!restoredSectors.Add(definition))
@@ -1275,7 +1386,7 @@ public sealed class SectorManager
             return;
         }
         if (!DataBase<SectorDefinition>.TryFind(campaign.TargetSectorId, out SectorDefinition definition) ||
-            !states.TryGetValue(definition, out SectorState state))
+            !TryGetStateByStableId(definition, out SectorState state))
             throw new InvalidOperationException(
                 $"全局战役目标星区“{campaign.TargetSectorId}”不存在。");
         if (state.CampaignCasualties != campaign.Casualties)

@@ -75,6 +75,28 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void GameSave_RoundTripsSubDayCalendarAccumulator()
+    {
+        GameManager manager = CreateManager<GameManager>("CalendarAccumulator-GameManager");
+        FieldInfo accumulator = typeof(GameManager).GetField(
+            "calendarElapsedSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
+        MethodInfo capture = typeof(GameManager).GetMethod(
+            "CaptureSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
+        MethodInfo restore = typeof(GameManager).GetMethod(
+            "RestoreSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(accumulator, Is.Not.Null);
+        Assert.That(capture, Is.Not.Null);
+        Assert.That(restore, Is.Not.Null);
+
+        accumulator.SetValue(manager, 3.5d);
+        SaveManager.GameSaveData data = (SaveManager.GameSaveData)capture.Invoke(manager, null);
+        accumulator.SetValue(manager, 0d);
+        restore.Invoke(manager, new object[] { data });
+
+        Assert.That((double)accumulator.GetValue(manager), Is.EqualTo(3.5d).Within(1e-9d));
+    }
+
+    [Test]
     public void Pair_ProvidesStructuralEqualityAndDictionaryLookup()
     {
         var first = new Pair<int, string>(7, "wood");
@@ -725,6 +747,33 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void Deconstruction_UsesBuildingStateWhenDefinitionInstanceIsReplaced()
+    {
+        CreateManager<GameManager>("BuildingIdentity-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("BuildingIdentity-BuildingManager");
+        CreateManager<ResourceManager>("BuildingIdentity-ResourceManager");
+        Building originalBuilding = CreateEconomyBuilding(
+            "ReplacedBuilding",
+            productivityConsumption: 0,
+            productivityGranted: 0,
+            populationCapacity: 0);
+        Building reloadedBuilding = CreateEconomyBuilding(
+            "ReplacedBuilding",
+            productivityConsumption: 0,
+            productivityGranted: 0,
+            populationCapacity: 0);
+
+        Assert.That(reloadedBuilding, Is.Not.SameAs(originalBuilding));
+        Assert.That(buildingManager.TryBuild(originalBuilding, ExpantaNum.One, out _), Is.True);
+        Assert.That(
+            buildingManager.TryDeconstruct(reloadedBuilding, ExpantaNum.One, out BuildFailure failure),
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.GetState(originalBuilding).Amount, Is.EqualTo(ExpantaNum.Zero));
+    }
+
+    [Test]
     public void HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce()
     {
         // Capacity follows the current net upgrade delta.
@@ -1083,6 +1132,30 @@ public sealed class KingdomLogicTests
         Assert.That(exception.InnerException, Is.TypeOf<InvalidDataException>());
     }
 
+    [Test]
+    public void SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume()
+    {
+        GameManager gameManager = CreateManager<GameManager>("Save-Timestamp-GameManager");
+        InvokeInstanceMethod(gameManager, "MarkSaveTimestamp", 10L);
+        SaveManager.GameSaveData captured =
+            (SaveManager.GameSaveData)InvokeInstanceMethod(gameManager, "CaptureSaveData");
+
+        Assert.That(captured.LastSaveUnixSeconds, Is.EqualTo(10));
+        Assert.That(gameManager.State.LastSaveUnixSeconds, Is.EqualTo(10));
+
+        var data = new SaveManager.KingdomSaveData
+        {
+            General = new SaveManager.GameSaveData { LastSaveUnixSeconds = 10 }
+        };
+
+        InvokeStaticMethod(typeof(SaveManager), "StampSaveTimestamp", data, 42L);
+
+        Assert.That(data.General.LastSaveUnixSeconds, Is.EqualTo(42));
+        Assert.That(
+            SaveManager.CalculateOfflineElapsedSeconds(42, 42, 3600d),
+            Is.EqualTo(0d));
+    }
+
     [TestCase(-1)]
     [TestCase(999)]
     public void SaveApply_RejectsInvalidCalendarOrTechLevel(int calendarDays)
@@ -1192,6 +1265,82 @@ public sealed class KingdomLogicTests
             () => InvokeApplySaveData(saveManager, data));
         Assert.That(exception.InnerException, Is.TypeOf<KeyNotFoundException>());
         StringAssert.Contains("missing-research-id", exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_RejectsActiveResearchWithUnpaidResourceCosts()
+    {
+        CreateManager<GameManager>("Save-UnpaidActive-GameManager");
+        CreateManager<ResourceManager>("Save-UnpaidActive-ResourceManager");
+        CreateManager<BuildingManager>("Save-UnpaidActive-BuildingManager");
+        CreateManager<ResearchManager>("Save-UnpaidActive-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UnpaidActive-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-UnpaidActive-SaveManager");
+
+        Research target = DataBase<Research>.Find("Quarry");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.ActiveResearchId = target.Id;
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = "0",
+                CostPaid = false,
+                Completed = false,
+                PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(target.Id, exception.InnerException.Message);
+    }
+
+    [Test]
+    public void SaveApply_NormalizesFullyPaidActiveResearch()
+    {
+        CreateManager<GameManager>("Save-FullyPaidActive-GameManager");
+        CreateManager<ResourceManager>("Save-FullyPaidActive-ResourceManager");
+        CreateManager<BuildingManager>("Save-FullyPaidActive-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("Save-FullyPaidActive-ResearchManager");
+        CreateManager<WorkshopManager>("Save-FullyPaidActive-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-FullyPaidActive-SaveManager");
+
+        Research target = DataBase<Research>.Find("Quarry");
+        var paid = new List<SaveManager.ResearchResourceCostSaveData>();
+        for (int i = 0; i < target.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = target.ResourceRequirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+            paid.Add(new SaveManager.ResearchResourceCostSaveData
+            {
+                ResourceId = requirement.First.Id,
+                Amount = requirement.Second.ToString()
+            });
+        }
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.ActiveResearchId = target.Id;
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = "0",
+                CostPaid = false,
+                Completed = false,
+                PaidResourceCosts = paid
+            }
+        };
+
+        Assert.DoesNotThrow(() => InvokeApplySaveData(saveManager, data));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.EqualTo(target));
+        Assert.That(researchManager.ActiveResearch.CostPaid, Is.True);
+        Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
     }
 
     [Test]
@@ -1652,8 +1801,8 @@ public sealed class KingdomLogicTests
                 {
                     PurchasedUpgradeIds = new List<string>
                     {
-                        dependent.Id,
-                        prerequisite.Id
+                        dependent.Id.ToUpperInvariant(),
+                        prerequisite.Id.ToLowerInvariant()
                     }
                 }
             }));
@@ -1729,6 +1878,24 @@ public sealed class KingdomLogicTests
             BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
         method.Invoke(state, arguments);
+    }
+
+    private static object InvokeInstanceMethod(object target, string methodName, params object[] arguments)
+    {
+        MethodInfo method = target.GetType().GetMethod(
+            methodName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        return method.Invoke(target, arguments);
+    }
+
+    private static object InvokeStaticMethod(Type type, string methodName, params object[] arguments)
+    {
+        MethodInfo method = type.GetMethod(
+            methodName,
+            BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(method, Is.Not.Null);
+        return method.Invoke(null, arguments);
     }
 
     private static void InvokePopulationMethod(PopulationState state, string methodName, params object[] arguments)

@@ -1,5 +1,7 @@
 # Economy Simulation Report - Fast
 
+> **STATUS: FROZEN DIAGNOSTIC ONLY.** Do not use this output as a current gameplay, pacing, balance, progression, or Unity acceptance report. It is not authoritative compared with real Unity runtime evidence or player playtests.
+
 Offline runtime-aligned simulation; no Unity runtime was launched.
 Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 

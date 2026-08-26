@@ -157,7 +157,8 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             return;
         }
 
-        var purchased = new HashSet<WorkshopUpgrade>();
+        var purchasedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var purchasedDefinitions = new List<WorkshopUpgrade>(data.PurchasedUpgradeIds.Count);
         for (int i = 0; i < data.PurchasedUpgradeIds.Count; i++)
         {
             string id = data.PurchasedUpgradeIds[i];
@@ -165,9 +166,16 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                 !DataBase<WorkshopUpgrade>.TryFind(id, out WorkshopUpgrade definition))
                 throw new InvalidOperationException(
                     $"存档中的工坊升级 ID 无效：“{id}”。");
-            if (!purchased.Add(definition))
+            string stableId = definition.Id.Trim();
+            if (!purchasedIds.Add(stableId))
                 throw new InvalidOperationException(
                     $"存档中的工坊升级重复包含“{definition.Id}”。");
+            purchasedDefinitions.Add(definition);
+        }
+
+        for (int i = 0; i < purchasedDefinitions.Count; i++)
+        {
+            WorkshopUpgrade definition = purchasedDefinitions[i];
             if (definition.TechLevel > GameManager.Instance.State.TechLevel)
                 throw new InvalidOperationException(
                     $"存档中的工坊升级“{definition.Id}”超出当前科技时代。");
@@ -185,23 +193,27 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         // Validate upgrade prerequisites only after every ID has been parsed;
         // otherwise a valid save depends on the stable-ID sort order used by
         // CaptureSaveData.
-        foreach (WorkshopUpgrade definition in purchased)
+        for (int i = 0; i < purchasedDefinitions.Count; i++)
         {
+            WorkshopUpgrade definition = purchasedDefinitions[i];
             for (int j = 0; j < definition.RequiredUpgrades.Count; j++)
             {
                 WorkshopUpgrade prerequisite = definition.RequiredUpgrades[j];
-                if (prerequisite == null || !purchased.Contains(prerequisite))
+                if (prerequisite == null ||
+                    string.IsNullOrWhiteSpace(prerequisite.Id) ||
+                    !purchasedIds.Contains(prerequisite.Id.Trim()))
                     throw new InvalidOperationException(
                         $"存档中的工坊升级“{definition.Id}”缺少工坊前置。");
             }
         }
 
         ResetForLoad();
-        foreach (WorkshopUpgrade definition in purchased)
+        for (int i = 0; i < purchasedDefinitions.Count; i++)
         {
-            if (!TryGetState(definition, out WorkshopUpgradeState state))
+            string id = purchasedDefinitions[i].Id;
+            if (!TryGetStateByStableId(id, out WorkshopUpgradeState state))
                 throw new InvalidOperationException(
-                    $"工坊状态索引缺少已验证的升级“{definition.Id}”。");
+                    $"工坊状态索引缺少已验证的升级“{id}”。");
             state.SetPurchased(true);
         }
         RebuildProgression();
@@ -210,11 +222,16 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     private bool TryGetState(WorkshopUpgrade definition,
         out WorkshopUpgradeState state)
     {
+        return TryGetStateByStableId(definition?.Id, out state);
+    }
+
+    private bool TryGetStateByStableId(string id,
+        out WorkshopUpgradeState state)
+    {
         state = null;
-        if (definition == null)
+        if (string.IsNullOrWhiteSpace(id))
             return false;
-        if (states.TryGetValue(definition, out state))
-            return true;
+        string stableId = id.Trim();
 
         // Save data and Resources lookups are keyed by stable IDs. Keep
         // runtime behavior correct if Unity returns equivalent asset
@@ -223,7 +240,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         {
             if (entry.Key != null && string.Equals(
                 entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
-                definition.Id == null ? string.Empty : definition.Id.Trim(),
+                stableId,
                 StringComparison.OrdinalIgnoreCase))
             {
                 state = entry.Value;
@@ -239,7 +256,8 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         for (int i = 0; i < definitions.Count; i++)
         {
             WorkshopUpgrade definition = definitions[i];
-            if (definition == null || TryGetState(definition, out _))
+            if (definition == null ||
+                TryGetStateByStableId(definition.Id, out _))
                 continue;
             WorkshopUpgradeState state = new WorkshopUpgradeState(definition);
             states.Add(definition, state);

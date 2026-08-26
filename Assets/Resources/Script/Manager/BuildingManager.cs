@@ -240,7 +240,7 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (building == null)
             throw new ArgumentNullException(nameof(building));
-        if (states.TryGetValue(building, out BuildingState existing))
+        if (TryGetStateByStableId(building, out BuildingState existing))
             return existing;
 
         var state = new BuildingState(building);
@@ -258,9 +258,30 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (building == null)
             throw new ArgumentNullException(nameof(building));
-        if (states.TryGetValue(building, out BuildingState state))
+        if (TryGetStateByStableId(building, out BuildingState state))
             return state;
         throw new KeyNotFoundException($"建筑状态“{building.Id}”尚未创建。");
+    }
+
+    private bool TryGetStateByStableId(Building building, out BuildingState state)
+    {
+        state = null;
+        if (building == null)
+            return false;
+        if (states.TryGetValue(building, out state))
+            return true;
+        foreach (KeyValuePair<Building, BuildingState> entry in states)
+        {
+            if (entry.Key != null && string.Equals(
+                    entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
+                    building.Id == null ? string.Empty : building.Id.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                state = entry.Value;
+                return state != null;
+            }
+        }
+        return false;
     }
 
     public bool ArePrerequisitesMet(Building building, out BuildFailure failure)
@@ -368,10 +389,10 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private void RemoveZeroBuildingState(Building building)
     {
-        if (!states.TryGetValue(building, out BuildingState state) ||
+        if (!TryGetStateByStableId(building, out BuildingState state) ||
             state.Amount > ExpantaNum.Zero)
             return;
-        states.Remove(building);
+        states.Remove(state.Definition);
         orderedStates.Remove(state);
     }
 
@@ -380,7 +401,7 @@ public class BuildingManager : Singleton<BuildingManager>
         if (building == null)
             return false;
 
-        if (states.TryGetValue(building, out BuildingState state) && state.Amount > ExpantaNum.Zero)
+        if (TryGetStateByStableId(building, out BuildingState state) && state.Amount > ExpantaNum.Zero)
             return true;
 
         if (!ArePrerequisitesMet(building, out _))
@@ -394,7 +415,7 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         target = null;
         if (source == null ||
-            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetStateByStableId(source, out BuildingState sourceState) ||
             sourceState.Amount < ExpantaNum.One)
         {
             return false;
@@ -531,7 +552,7 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum requestedAmount,
         out BuildFailure failure)
     {
-        if (building == null || !states.TryGetValue(building, out BuildingState state))
+        if (building == null || !TryGetStateByStableId(building, out BuildingState state))
         {
             failure = BuildFailure.DeconstructionUnavailable;
             return false;
@@ -655,7 +676,7 @@ public class BuildingManager : Singleton<BuildingManager>
             throw new ArgumentNullException(nameof(destination));
         destination.Clear();
         if (source == null ||
-            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetStateByStableId(source, out BuildingState sourceState) ||
             !TryGetUnlockedUpgradeTarget(source, out Building target))
         {
             return;
@@ -706,7 +727,7 @@ public class BuildingManager : Singleton<BuildingManager>
         out BuildFailure failure)
     {
         if (source == null ||
-            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetStateByStableId(source, out BuildingState sourceState) ||
             !TryGetUnlockedUpgradeTarget(source, out Building target))
         {
             failure = BuildFailure.UpgradeUnavailable;
@@ -808,7 +829,7 @@ public class BuildingManager : Singleton<BuildingManager>
     public ExpantaNum GetMaxUpgradeable(Building source, ExpantaNum requestedMaximum)
     {
         if (source == null ||
-            !states.TryGetValue(source, out BuildingState sourceState) ||
+            !TryGetStateByStableId(source, out BuildingState sourceState) ||
             !TryGetUnlockedUpgradeTarget(source, out Building target))
         {
             return ExpantaNum.Zero;
@@ -1039,6 +1060,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 gameManager = GameManager.Instance;
                 gameState = gameManager.State;
             }
+            gameManager.Sectors.AccumulateOccupiedResourcePotential(resourceManager);
             ExpantaNum happinessMultiplier = gameState.HappinessRewardMultiplier;
             for (int i = 0; i < activeBuildingStates.Count; i++)
             {

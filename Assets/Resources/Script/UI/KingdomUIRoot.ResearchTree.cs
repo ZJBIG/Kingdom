@@ -160,7 +160,7 @@ public sealed partial class KingdomUIRoot
         RefreshActiveResearchQueueProgressVisual(manager);
         // Progress fill is intentionally refreshed every UI cycle. Structural
         // signatures are only needed after a queue/state or selection event;
-        // rebuilding 79-node signatures on an unchanged page creates
+        // rebuilding full-tree signatures on an unchanged page creates
         // avoidable strings and hash sets indefinitely.
         if (!researchDynamicUiDirty || researchDynamicSignatureRefreshTimer < 0.5f)
             return;
@@ -413,6 +413,7 @@ public sealed partial class KingdomUIRoot
         researchGraphViewport.offsetMin = Vector2.zero;
         researchGraphViewport.offsetMax = Vector2.zero;
         EnsureNestedCanvas(researchGraphViewport);
+        EnsureResearchTreeToolbar(researchGraphViewport);
         // Keep the viewport clip present even if a scene author removes it.
         if (researchGraphViewport.GetComponent<RectMask2D>() == null)
             researchGraphViewport.gameObject.AddComponent<RectMask2D>();
@@ -527,7 +528,7 @@ public sealed partial class KingdomUIRoot
         researchGraphLineLayer.anchoredPosition = Vector2.zero;
         researchGraphLineLayer.sizeDelta = researchGraphContent.sizeDelta;
         researchGraphLineLayer.SetAsLastSibling();
-        Debug.Log("[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface, toolbar; runtime creates only data-driven repeated nodes, links and era bands.");
+        Debug.Log("[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.");
         // RectTransform.rect is used below to convert the ResearchTreeSK
         // top-left coordinates into Unity's bottom-left coordinates. Force
         // the layout now, before any connector is created; otherwise the
@@ -611,6 +612,29 @@ public sealed partial class KingdomUIRoot
         if (selectedResearchNode != null)
             ShowResearchDetails(selectedResearchNode);
         Debug.Log($"[王国界面] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
+    }
+
+    private void EnsureResearchTreeToolbar(RectTransform viewport)
+    {
+        Transform existing = viewport.Find("ResearchTreeToolbar");
+        if (existing != null)
+            return;
+
+        GameObject toolbar = KingdomUIPrefabLibrary.Instantiate(
+            KingdomUIPrefabLibrary.ResearchToolbar, viewport);
+        toolbar.name = "ResearchTreeToolbar";
+        RectTransform rect = toolbar.GetComponent<RectTransform>();
+        if (rect == null)
+            return;
+
+        // Keep the controls outside the scrolling content while pinning them
+        // to the top edge of the authored graph viewport.
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(.5f, 1f);
+        rect.offsetMin = new Vector2(0f, -96f);
+        rect.offsetMax = Vector2.zero;
+        toolbar.transform.SetAsLastSibling();
     }
 
     private void AbortResearchTreeBuild()
@@ -1064,13 +1088,16 @@ public sealed partial class KingdomUIRoot
     private Dictionary<Research, Vector2> CreateResearchTreePositions(IReadOnlyList<Research> definitions)
     {
         Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
-        bool topologyUsable = IsTopologyResearchLayoutUsable(definitions, topologyPositions);
-        // 布局只由研究前置关系生成，拓扑诊断不再依赖资产坐标。
-        Debug.Log($"[王国界面] Research topology decision: accepted={topologyUsable}, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}, layoutSource=topology-integer-grid");
+        AnalyzeTopologyResearchLayout(definitions, topologyPositions);
+        // Prerequisites are the canonical layout source. These counts diagnose
+        // its readability; there is no authored-coordinate fallback to accept
+        // or reject, so do not imply that the result selects another layout.
+        Debug.Log($"[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates={researchTopologyDuplicateCount}, backwardsEdges={researchTopologyBackwardsEdgeCount}, inversions={researchTopologyInversionCount}");
         return topologyPositions;
     }
 
-    private bool IsTopologyResearchLayoutUsable(IReadOnlyList<Research> definitions,IReadOnlyDictionary<Research, Vector2> positions)
+    private void AnalyzeTopologyResearchLayout(IReadOnlyList<Research> definitions,
+        IReadOnlyDictionary<Research, Vector2> positions)
     {
         var occupied = new HashSet<Vector2Int>();
         var edges = new List<Vector4>();
@@ -1103,9 +1130,8 @@ public sealed partial class KingdomUIRoot
             }
         }
 
-        // A topological placement is accepted only when its straight grid
-        // corridors do not invert each other. Otherwise the reference asset
-        // grid is the deterministic, already-authored ResearchTreeSK layout.
+        // Count straight-corridor inversions so runtime evidence can identify
+        // when the canonical topology needs a deterministic readability repair.
         for (int i = 0; i < edges.Count; i++)
         {
             Vector4 first = edges[i];
@@ -1124,9 +1150,6 @@ public sealed partial class KingdomUIRoot
         // Keep a genuinely compact tree compact; there is no reason to make
         // a short DAG scroll merely to manufacture an empty vertical range.
         researchTreeMaximumRow = maximumRow;
-        return researchTopologyDuplicateCount == 0 &&
-            researchTopologyBackwardsEdgeCount == 0 &&
-            researchTopologyInversionCount == 0;
     }
 
     private Dictionary<Research, Vector2> CreateTopologyResearchTreePositions(IReadOnlyList<Research> definitions)
@@ -1166,7 +1189,7 @@ public sealed partial class KingdomUIRoot
             if (eraNodes.Count == 0)
                 continue;
 
-            int eraStart = previousEraEnd + 2;
+            int eraStart = previousEraEnd < 0 ? 0 : previousEraEnd + 2;
             // Assign columns in topological order within the era.  Stable ID
             // is only the tie-breaker; assigning all columns before sorting
             // allowed a same-era prerequisite to land to the right of its

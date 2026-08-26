@@ -1,5 +1,13 @@
 # Runtime-state and simulation architecture
 
+## Evidence boundary
+
+`tools/EconomySimulator` is frozen and its CLI is intentionally disabled. Its
+standalone model is not gameplay authority and its historical outputs must not
+be used as current pacing, balance, progression, or Unity acceptance reports.
+Runtime behavior is authoritative; validate it with Unity PlayMode/runtime logs
+and player playtests.
+
 ## Current ownership
 
 - Resource, Building and Research ScriptableObjects are definitions.
@@ -14,7 +22,7 @@
 The current Kingdom3 tick foundation must be completed with a two-phase resource calculation:
 
 1. integrate food/time-independent global values;
-2. collect potential resource generation/consumption for the tick;
+2. collect building and occupied-sector potential resource generation/consumption for the tick;
 3. calculate per-resource satisfaction using inventory plus potential generation;
 4. calculate each building's actual efficiency;
 5. aggregate actual resource generation/consumption;
