@@ -108,7 +108,7 @@ public sealed partial class KingdomUIRoot
         outline.effectDistance = new Vector2(1.5f, 1.5f);
         Color activeBorder = isDeconstruct
             ? new Color(1f, .62f, .55f, 1f)
-            : new Color(1f, .82f, .48f, 1f);
+            : BuildableActionColor;
         outline.effectColor = available ? activeBorder : new Color(.72f, .76f, .74f, .95f);
         TMP_Text text = GetBuildingActionButtonText(button);
         if (text == null)
@@ -143,7 +143,7 @@ public sealed partial class KingdomUIRoot
             BuildingManager.Instance.TryUpgrade(building, amount, out _);
         else
             BuildingManager.Instance.TryBuild(building, amount, out _);
-        ShowBuildingDetails(building);
+        ShowBuildingDetails(building, true);
     }
 
     private void DeconstructBuilding(Building building)
@@ -155,6 +155,6 @@ public sealed partial class KingdomUIRoot
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
         BuildingManager.Instance.TryDeconstruct(building, amount, out _);
-        ShowBuildingDetails(building);
+        ShowBuildingDetails(building, true);
     }
 }

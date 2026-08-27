@@ -44,11 +44,8 @@ public sealed partial class KingdomUIRoot
         if (rebuildBounds && content.gameObject.activeInHierarchy)
         {
             Canvas.ForceUpdateCanvases();
-            if (pageName != "Story")
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-                Canvas.ForceUpdateCanvases();
-            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            Canvas.ForceUpdateCanvases();
         }
         if (resetPosition && enabled)
             pageScroll.verticalNormalizedPosition = 1f;
@@ -402,7 +399,23 @@ public sealed partial class KingdomUIRoot
         {
             Button button = FindNavigationButton(pageNames[i]);
             if (button != null && button.gameObject.activeInHierarchy)
-                button.interactable = !string.Equals(pageNames[i], activePage, StringComparison.Ordinal);
+            {
+                ColorBlock colors = button.colors;
+                colors.disabledColor = BuildableActionColor;
+                button.colors = colors;
+                bool selected = string.Equals(pageNames[i], activePage, StringComparison.Ordinal);
+                Graphic targetGraphic = button.targetGraphic;
+                if (targetGraphic != null && !navigationBaseColors.ContainsKey(button))
+                    navigationBaseColors.Add(button, targetGraphic.color);
+                if (targetGraphic != null)
+                    targetGraphic.color = selected
+                        ? BuildableActionColor
+                        : navigationBaseColors[button];
+                button.transition = selected
+                    ? Selectable.Transition.None
+                    : Selectable.Transition.ColorTint;
+                button.interactable = !selected;
+            }
         }
     }
 

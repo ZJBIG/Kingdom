@@ -646,7 +646,7 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator RuntimeUiTextUsesThirtyPointFont()
+    public IEnumerator RuntimeUiTextPreservesAuthoredTopBarFontSettings()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         yield return null;
@@ -658,16 +658,14 @@ public sealed class KingdomOnboardingPlayModeTests
         TMP_Text[] texts = root.transform.Find("SafeAreaRoot")
             ?.GetComponentsInChildren<TMP_Text>(true);
         Assert.That(texts, Is.Not.Null);
-        Transform leftNavigation = root.transform.Find("SafeAreaRoot/LeftNavigation");
-        for (int i = 0; i < texts.Length; i++)
-        {
-            if (texts[i] == null)
-                continue;
-            if (leftNavigation != null && texts[i].transform.IsChildOf(leftNavigation))
-                continue;
-            Assert.That(texts[i].fontSize, Is.EqualTo(30f).Within(.01f),
-                texts[i].name + " must use the 30 point runtime UI font.");
-        }
+        TMP_Text title = root.transform.Find("SafeAreaRoot/TopStatusBar/Title")
+            ?.GetComponent<TMP_Text>();
+        TMP_Text date = root.transform.Find("SafeAreaRoot/TopStatusBar/Title/Date")
+            ?.GetComponent<TMP_Text>();
+        Assert.That(title, Is.Not.Null);
+        Assert.That(date, Is.Not.Null);
+        Assert.That(title.fontSizeMin == 30f && title.fontSizeMax == 30f, Is.False);
+        Assert.That(date.fontSizeMin == 30f && date.fontSizeMax == 30f, Is.False);
     }
 
     [UnityTest]
@@ -769,11 +767,15 @@ public sealed class KingdomOnboardingPlayModeTests
         setPage.Invoke(root, new object[] { "Era" });
         yield return null;
         Assert.That(eraButton.interactable, Is.False);
+        Assert.That(eraButton.colors.disabledColor,
+            Is.EqualTo(new Color32(194, 128, 64, 255)));
         Assert.That(resourcesButton.interactable, Is.True);
 
         setPage.Invoke(root, new object[] { "Resources" });
         yield return null;
         Assert.That(resourcesButton.interactable, Is.False);
+        Assert.That(resourcesButton.colors.disabledColor,
+            Is.EqualTo(new Color32(194, 128, 64, 255)));
         Assert.That(eraButton.interactable, Is.True);
     }
 

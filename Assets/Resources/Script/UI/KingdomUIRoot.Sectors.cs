@@ -283,6 +283,9 @@ public sealed partial class KingdomUIRoot
         SectorDefinition definition = selectedSectorDefinition;
         if (definition == null || detailBody == null)
             return;
+        float preservedScrollPosition = requirementGesture == null
+            ? 1f
+            : requirementGesture.GetNormalizedPosition();
 
         string value = definition.Label + "\n\n" +
             BuildSectorDetailDescription(
@@ -292,6 +295,8 @@ public sealed partial class KingdomUIRoot
         {
             detailBody.text = value;
             LayoutResourceDetailsBody();
+            if (requirementGesture != null)
+                requirementGesture.SetNormalizedPosition(preservedScrollPosition);
         }
 
         int actionSignature = GetSectorActionSignature(

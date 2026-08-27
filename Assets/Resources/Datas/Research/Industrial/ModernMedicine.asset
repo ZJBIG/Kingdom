@@ -19,6 +19,9 @@ MonoBehaviour:
   prerequisites:
   - {fileID: 11400000, guid: 1cd97b5535bbb6b4d99b9b2bf483dfcf, type: 2}
   - {fileID: 11400000, guid: c1e5bab7941cbc2448480c7a63cc8177, type: 2}
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "60000"

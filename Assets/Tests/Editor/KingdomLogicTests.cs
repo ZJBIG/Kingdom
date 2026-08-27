@@ -241,11 +241,13 @@ public sealed class KingdomLogicTests
         Resource resource = DataBase<Resource>.Find("WoodLog");
         Assert.That(resource, Is.Not.Null);
 
-        var state = new ResourceState(resource);
+        GameObject resourceObject = new GameObject("Uncapped-Resource-Manager");
+        ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
         ExpantaNum amount = GameState.BaseFoodCapacity + new ExpantaNum(1000d);
-        state.SetAmount(amount);
+        resourceManager.SetAmount(resource, amount);
 
-        Assert.That(state.Amount, Is.EqualTo(amount));
+        Assert.That(resourceManager.GetAmount(resource), Is.EqualTo(amount));
+        UnityEngine.Object.DestroyImmediate(resourceObject);
     }
 
     [Test]

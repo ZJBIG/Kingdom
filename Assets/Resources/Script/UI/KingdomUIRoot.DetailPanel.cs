@@ -234,6 +234,9 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || resource == null || selectedResource != resource)
             return;
+        float preservedScrollPosition = requirementGesture == null
+            ? 1f
+            : requirementGesture.GetNormalizedPosition();
 
         ResourceState state = null;
         ResourceManager resourceManager = ResourceManager.Instance;
@@ -275,6 +278,8 @@ public sealed partial class KingdomUIRoot
         detailBody.richText = true;
         detailBody.fontSize = 30f;
         LayoutResourceDetailsBody();
+        if (requirementGesture != null)
+            requirementGesture.SetNormalizedPosition(preservedScrollPosition);
     }
 
     private void RefreshResourceBuildingFlows(Resource resource)
@@ -592,11 +597,16 @@ public sealed partial class KingdomUIRoot
         return false;
     }
 
-    private void ShowWorkshopDetails(WorkshopUpgrade definition)
+    private void ShowWorkshopDetails(WorkshopUpgrade definition,
+        bool preserveScrollPosition = false)
     {
         if (detailBody == null || definition == null)
             return;
 
+        float? preservedScrollPosition = preserveScrollPosition &&
+            selectedWorkshop == definition && requirementGesture != null
+            ? requirementGesture.GetNormalizedPosition()
+            : null;
         detailBody.fontSize = 30f;
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
@@ -610,7 +620,7 @@ public sealed partial class KingdomUIRoot
         ShowBuildingRequirements(definition.ResourceRequirements, "工坊支付需求");
         PlaceRequirementsAfterDescription(
             definition.ResourceRequirements == null ? 0 : definition.ResourceRequirements.Count,
-            null,
+            preservedScrollPosition,
             0);
         ConfigureWorkshopPaymentButton(definition);
         if (detailActionButton != null)
@@ -762,7 +772,7 @@ public sealed partial class KingdomUIRoot
         Debug.Log("[界面] 工坊支付：id=" + definition.Id + "，结果=" + failure);
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
-        ShowWorkshopDetails(definition);
+        ShowWorkshopDetails(definition, true);
     }
 
     private void RefreshSelectedResearchDetails(Research research)
@@ -1324,7 +1334,7 @@ public sealed partial class KingdomUIRoot
             return;
         ResearchPaymentResult result = ResearchManager.Instance.PayResearchCost(research);
             Debug.Log($"[界面] 研究支付：id={research.Id}，结果={result.GetDescription()}");
-        ShowResearchDetails(research);
+        ShowResearchDetails(research, true);
         RefreshResearchQueueToolbar();
         researchQueueUiDirty = false;
     }
@@ -1344,7 +1354,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
         bool success = BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out BuildFailure failure);
-        ShowBuildingDetails(building);
+        ShowBuildingDetails(building, true);
     }
 
     private void ResearchAction(Research research)
@@ -1361,7 +1371,7 @@ public sealed partial class KingdomUIRoot
             $"active={(ResearchManager.Instance.ActiveResearch?.Definition == research)} " +
             $"queueCount={ResearchManager.Instance.ResearchQueue.Count}");
 #endif
-        ShowResearchDetails(research);
+        ShowResearchDetails(research, true);
         RefreshResearchQueueToolbar();
         researchQueueUiDirty = false;
         if (detailBody != null)

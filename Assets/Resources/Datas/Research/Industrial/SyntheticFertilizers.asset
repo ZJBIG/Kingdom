@@ -20,6 +20,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
   - {fileID: 11400000, guid: 83a724b7bf27cee47a740dcda8e7b1d0, type: 2}
   - {fileID: 11400000, guid: d2f78c059dca49546b8ea16a89b1f296, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
     amount: "9100"

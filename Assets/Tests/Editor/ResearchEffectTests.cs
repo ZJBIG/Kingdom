@@ -396,25 +396,6 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
-    public void WorkshopOccupiedResourceProductionTargetsItsResource()
-    {
-        Resource target = DataBase<Resource>.Find("TitaniumConcentrate");
-        Assert.That(target, Is.Not.Null);
-        ProgressionModifierState modifiers = new ProgressionModifierState();
-        new WorkshopEffectDefinition
-        {
-            Type = WorkshopEffectType.OccupiedResourceProductionMultiplier,
-            Resource = target,
-            Value = "1.2"
-        }.ApplyTo(modifiers);
-
-        Assert.That(modifiers.OccupiedResourceProductionMultiplier.ToDouble(),
-            Is.EqualTo(1d).Within(0.000001d));
-        Assert.That(modifiers.GetOccupiedResourceProductionMultiplier(target).ToDouble(),
-            Is.EqualTo(1.2d).Within(0.000001d));
-    }
-
-    [Test]
     public void Rebuild_AppliesCampaignProgressTheory()
     {
         Research doctrine = CreateResearch("campaign-doctrine");

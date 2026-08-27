@@ -1220,6 +1220,178 @@ public sealed class C6IndustrialContentTests
             effect != null && effect.Building == machineFactory && effect.NumericValue.ToDouble() > 1d));
     }
 
+    [Test]
+    public void AdvancedCeramicsPlant_HasOnlySmallClayExtractionSurplus()
+    {
+        Building plant = DataBase<Building>.Find("AdvancedCeramicsPlant");
+
+        Assert.That(plant, Is.Not.Null);
+        Assert.That(FindRate(plant.ResourceGenerationRates, "Ceramic"),
+            Is.EqualTo(2.4d).Within(0.0001d));
+        Assert.That(FindRate(plant.ResourceGenerationRates, "Clay"),
+            Is.EqualTo(0.5d).Within(0.0001d));
+        Assert.That(FindRate(plant.ResourceConsumptionRates, "Clay"),
+            Is.EqualTo(0d).Within(0.0001d));
+        Assert.That(FindRate(DataBase<Building>.Find("ClayPit").ResourceGenerationRates, "Clay"),
+            Is.GreaterThan(0d));
+        Assert.That(CountConsumerUses("Clay"), Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void IndustrialResearchMaterialCosts_RequireTheirProductionEntrances()
+    {
+        Research chemicalResearch = DataBase<Research>.Find("IndustrialChemistry");
+        Research machineryResearch = DataBase<Research>.Find("PrecisionManufacturing");
+        Research coking = DataBase<Research>.Find("Coking");
+        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
+
+        Assert.That(chemicalResearch, Is.Not.Null);
+        Assert.That(machineryResearch, Is.Not.Null);
+        Assert.That(coking, Is.Not.Null);
+        Assert.That(concrete, Is.Not.Null);
+
+        for (int i = 0; i < DataBase<Research>.All.Count; i++)
+        {
+            Research research = DataBase<Research>.All[i];
+            if (research == null || research.TechLevel != TechLevel.Industrial)
+                continue;
+
+            if (ContainsResource(research.ResourceRequirements, "Chemical"))
+                Assert.That(HasResearchPrerequisiteTransitively(research, chemicalResearch), Is.True,
+                    research.Id + " consumes Chemical without IndustrialChemistry in its prerequisite closure.");
+
+            if (ContainsResource(research.ResourceRequirements, "Machinery"))
+                Assert.That(HasResearchPrerequisiteTransitively(research, machineryResearch), Is.True,
+                    research.Id + " consumes Machinery without PrecisionManufacturing in its prerequisite closure.");
+
+            if (ContainsResource(research.ResourceRequirements, "Glass"))
+            {
+                Assert.That(HasResearchPrerequisiteTransitively(research, chemicalResearch), Is.True,
+                    research.Id + " consumes Glass without IndustrialChemistry in its prerequisite closure.");
+                Assert.That(HasResearchPrerequisiteTransitively(research, coking), Is.True,
+                    research.Id + " consumes Glass without Coking in its prerequisite closure.");
+                Assert.That(HasResearchPrerequisiteTransitively(research, concrete), Is.True,
+                    research.Id + " consumes Glass without ConcreteEngineering in its prerequisite closure.");
+            }
+        }
+    }
+
+    [Test]
+    public void IndustrialWorkshopMaterialCosts_RequireTheirProductionEntrances()
+    {
+        Research chemicalResearch = DataBase<Research>.Find("IndustrialChemistry");
+        Research machineryResearch = DataBase<Research>.Find("PrecisionManufacturing");
+        Research coking = DataBase<Research>.Find("Coking");
+        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
+
+        Assert.That(chemicalResearch, Is.Not.Null);
+        Assert.That(machineryResearch, Is.Not.Null);
+        Assert.That(coking, Is.Not.Null);
+        Assert.That(concrete, Is.Not.Null);
+
+        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
+        {
+            WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All[i];
+            if (workshop == null || workshop.TechLevel != TechLevel.Industrial)
+                continue;
+
+            if (ContainsResource(workshop.ResourceRequirements, "Chemical"))
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, chemicalResearch), Is.True,
+                    workshop.Id + " consumes Chemical without IndustrialChemistry in its prerequisite closure.");
+
+            if (ContainsResource(workshop.ResourceRequirements, "Machinery"))
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, machineryResearch), Is.True,
+                    workshop.Id + " consumes Machinery without PrecisionManufacturing in its prerequisite closure.");
+
+            if (ContainsResource(workshop.ResourceRequirements, "Coke"))
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, coking), Is.True,
+                    workshop.Id + " consumes Coke without Coking in its prerequisite closure.");
+
+            if (ContainsResource(workshop.ResourceRequirements, "Glass"))
+            {
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, chemicalResearch), Is.True,
+                    workshop.Id + " consumes Glass without IndustrialChemistry in its prerequisite closure.");
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, coking), Is.True,
+                    workshop.Id + " consumes Glass without Coking in its prerequisite closure.");
+                Assert.That(HasWorkshopPrerequisiteTransitively(workshop, concrete), Is.True,
+                    workshop.Id + " consumes Glass without ConcreteEngineering in its prerequisite closure.");
+            }
+        }
+    }
+
+    [Test]
+    public void IndustrialMaterialEntrances_HaveSourcesAndSinks()
+    {
+        Assert.That(FindRate(DataBase<Building>.Find("ChemicalPlant").ResourceGenerationRates, "Chemical"),
+            Is.GreaterThan(0d));
+        Assert.That(FindRate(DataBase<Building>.Find("MachineFactory").ResourceGenerationRates, "Machinery"),
+            Is.GreaterThan(0d));
+        Assert.That(FindRate(DataBase<Building>.Find("BuildingMaterialsComplex").ResourceGenerationRates, "Glass"),
+            Is.GreaterThan(0d));
+        Assert.That(CountConsumerUses("Chemical"), Is.GreaterThan(0));
+        Assert.That(CountConsumerUses("Machinery"), Is.GreaterThan(0));
+        Assert.That(CountConsumerUses("Glass"), Is.GreaterThan(0));
+    }
+
+    private static bool HasResearchPrerequisiteTransitively(Research research, Research target)
+    {
+        return HasResearchPrerequisiteTransitively(
+            research, target, new HashSet<Research>());
+    }
+
+    private static bool HasResearchPrerequisiteTransitively(
+        Research research,
+        Research target,
+        HashSet<Research> visited)
+    {
+        if (research == null || target == null || !visited.Add(research))
+            return false;
+
+        for (int i = 0; i < research.Prerequisites.Count; i++)
+        {
+            Research prerequisite = research.Prerequisites[i];
+            if (prerequisite == target ||
+                HasResearchPrerequisiteTransitively(prerequisite, target, visited))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasWorkshopPrerequisiteTransitively(
+        WorkshopUpgrade workshop,
+        Research target)
+    {
+        return HasWorkshopPrerequisiteTransitively(
+            workshop, target, new HashSet<WorkshopUpgrade>());
+    }
+
+    private static bool HasWorkshopPrerequisiteTransitively(
+        WorkshopUpgrade workshop,
+        Research target,
+        HashSet<WorkshopUpgrade> visited)
+    {
+        if (workshop == null || target == null || !visited.Add(workshop))
+            return false;
+
+        for (int i = 0; i < workshop.RequiredResearch.Count; i++)
+        {
+            Research prerequisite = workshop.RequiredResearch[i];
+            if (prerequisite == target ||
+                HasResearchPrerequisiteTransitively(prerequisite, target))
+                return true;
+        }
+
+        for (int i = 0; i < workshop.RequiredUpgrades.Count; i++)
+        {
+            if (HasWorkshopPrerequisiteTransitively(
+                workshop.RequiredUpgrades[i], target, visited))
+                return true;
+        }
+
+        return false;
+    }
+
     private static int CountConsumerUses(string resourceId)
     {
         int count = CountConsumerBuildings(resourceId);

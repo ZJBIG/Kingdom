@@ -22,6 +22,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private static readonly Color Panel = new(0.10f, 0.13f, 0.14f, 1f);
     private static readonly Color PanelRaised = new(0.16f, 0.19f, 0.19f, 1f);
     private static readonly Color Copper = new(0.76f, 0.50f, 0.25f, 1f);
+    private static readonly Color BuildableActionColor = new Color32(194, 128, 64, 255);
     private static readonly Color TextPrimary = new(0.92f, 0.89f, 0.80f, 1f);
     private static readonly Color TextSecondary = new(0.63f, 0.69f, 0.67f, 1f);
     private static readonly Color Positive = new(0.37f, 0.72f, 0.58f, 1f);
@@ -171,6 +172,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private RectTransform researchGraphContent;
     private CanvasGroup researchPageVisibilityGroup;
     private readonly Dictionary<Research, Button> researchTreeNodes = new();
+    private readonly Dictionary<Button, Color> navigationBaseColors = new();
     private bool researchTreePageBuilt;
     private Coroutine researchTreeWarmupCoroutine;
     private Coroutine storyWarmupCoroutine;
@@ -596,34 +598,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 #endif
     }
 
-    private void NormalizeUiTextSizes()
-    {
-        if (safeArea == null)
-            return;
-        TMP_Text[] texts = safeArea.GetComponentsInChildren<TMP_Text>(true);
-        for (int i = 0; i < texts.Length; i++)
-        {
-            TMP_Text text = texts[i];
-            if (text == null)
-                continue;
-            if (leftNavigation != null && text.transform.IsChildOf(leftNavigation))
-                continue;
-            if (text == musicVolumeValueLabel || text == musicGapValueLabel)
-                continue;
-            bool changed = !Mathf.Approximately(text.fontSize, UiFontSize) ||
-                !Mathf.Approximately(text.fontSizeMin, UiFontSize) ||
-                !Mathf.Approximately(text.fontSizeMax, UiFontSize) ||
-                text.enableAutoSizing;
-            if (!changed)
-                continue;
-            text.fontSize = UiFontSize;
-            text.fontSizeMin = UiFontSize;
-            text.fontSizeMax = UiFontSize;
-            text.enableAutoSizing = false;
-            text.SetVerticesDirty();
-        }
-    }
-
 #if UNITY_EDITOR
     private void DiagnoseUiTextRendering(string reason)
     {
@@ -932,8 +906,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 ? rowsHeight
                 : Mathf.Max(1400f, rowsHeight + 180f));
         }
-        if (!pageWasBuilt || refreshEraRows)
-            NormalizeUiTextSizes();
         // Every normal page switch must bind the shared ScrollRect to the
         // page that was just populated. Checking the previous content here
         // leaves Resources/Buildings/Era visually active while the ScrollRect

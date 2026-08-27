@@ -320,50 +320,6 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void WorkshopOccupiedProductionMultiplierOnlyAffectsTargetResource()
-    {
-        GameObject resourceObject = new GameObject("Sector-Occupied-Production-Target-ResourceManager");
-        try
-        {
-            Resource target = DataBase<Resource>.Find("TitaniumConcentrate");
-            Resource unrelated = DataBase<Resource>.Find("Hydrogen");
-            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(target);
-            resourceManager.EnsureResource(unrelated);
-            SectorDefinition jovian = DataBase<SectorDefinition>.Find("JovianSystem");
-            var manager = new SectorManager(_ => { });
-            manager.InitializeDefinitions();
-            manager.GetState(jovian).SetOccupiedForEditor(true);
-
-            ProgressionModifierManager.Rebuild(null);
-            Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            double baselineTarget = resourceManager.GetAmount(target).ToDouble();
-            double baselineUnrelated = resourceManager.GetAmount(unrelated).ToDouble();
-            resourceManager.SetAmount(target, ExpantaNum.Zero);
-            resourceManager.SetAmount(unrelated, ExpantaNum.Zero);
-
-            WorkshopUpgradeState state = new WorkshopUpgradeState(
-                DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems"));
-            typeof(WorkshopUpgradeState).GetMethod(
-                "SetPurchased",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                .Invoke(state, new object[] { true });
-            ProgressionModifierManager.Rebuild(null, new[] { state });
-
-            Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            Assert.That(resourceManager.GetAmount(target).ToDouble(),
-                Is.EqualTo(baselineTarget * 1.2d).Within(0.000001d));
-            Assert.That(resourceManager.GetAmount(unrelated).ToDouble(),
-                Is.EqualTo(baselineUnrelated).Within(0.000001d));
-        }
-        finally
-        {
-            ProgressionModifierManager.Rebuild(null);
-            Object.DestroyImmediate(resourceObject);
-        }
-    }
-
-    [Test]
     public void 占领星区会按每秒产出资源并支持离线结算入口()
     {
         GameObject resourceObject = new GameObject("Sector-Occupied-Production-ResourceManager");

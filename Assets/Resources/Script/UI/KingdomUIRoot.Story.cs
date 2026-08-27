@@ -29,8 +29,6 @@ public sealed partial class KingdomUIRoot
             {
                 storyBodyTextCache[i].alignment = TextAlignmentOptions.TopLeft;
                 storyBodyTextCache[i].enableWordWrapping = true;
-                storyBodyTextCache[i].maskable = false;
-                storyBodyTextCache[i].canvasRenderer.cull = false;
             }
     }
 
@@ -284,8 +282,6 @@ public sealed partial class KingdomUIRoot
             RectTransform.Axis.Vertical, bodyHeight);
         // Story cards may extend beyond the outer ScrollRect while still
         // needing valid TMP geometry for the next scroll position.
-        bodyText.maskable = false;
-        bodyText.canvasRenderer.cull = false;
         float height = Mathf.Max(minimumHeight,
             16f + titleHeight + 18f + bodyHeight + 16f);
         card.sizeDelta = new Vector2(-24f, height);
