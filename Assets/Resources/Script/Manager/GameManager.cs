@@ -56,6 +56,8 @@ public class GameManager : Singleton<GameManager>
         if (Application.platform == RuntimePlatform.Android ||
             Application.platform == RuntimePlatform.IPhonePlayer)
         {
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
             Application.runInBackground = false;
         }
     }

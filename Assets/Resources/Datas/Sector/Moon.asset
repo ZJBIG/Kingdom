@@ -28,7 +28,7 @@ MonoBehaviour:
     amount: "6000"
   occupiedResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
-    amount: "0.18"
+    amount: "0.08"
   - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
     amount: "0.09"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}

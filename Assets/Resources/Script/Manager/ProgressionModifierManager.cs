@@ -4,11 +4,13 @@ using System.Collections.Generic;
 public sealed class ProgressionModifierState
 {
     private readonly Dictionary<Building, ExpantaNum> buildingProductionMultipliers = new();
+    private readonly Dictionary<Building, Dictionary<Resource, ExpantaNum>> buildingResourceProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingResearchPowerMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingPowerProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingLogisticsProductionMultipliers = new();
     private readonly Dictionary<Building, ExpantaNum> buildingConstructionMultipliers = new();
     private readonly Dictionary<Resource, ExpantaNum> resourceProductionMultipliers = new();
+    private readonly Dictionary<Resource, ExpantaNum> occupiedResourceProductionMultipliers = new();
     private readonly HashSet<ResearchSystem> unlockedSystems = new();
 
     public ExpantaNum GlobalResearchMultiplier { get; internal set; } = ExpantaNum.One;
@@ -39,6 +41,14 @@ public sealed class ProgressionModifierState
     public ExpantaNum GetBuildingProductionMultiplier(Building building) =>
         GetMultiplier(buildingProductionMultipliers, building);
 
+    public ExpantaNum GetBuildingResourceProductionMultiplier(Building building, Resource resource)
+    {
+        if (ReferenceEquals(building, null) || ReferenceEquals(resource, null) ||
+            !buildingResourceProductionMultipliers.TryGetValue(building, out Dictionary<Resource, ExpantaNum> resources))
+            return ExpantaNum.One;
+        return GetMultiplier(resources, resource);
+    }
+
 
     public ExpantaNum GetBuildingResearchPowerMultiplier(Building building) =>
         GetMultiplier(buildingResearchPowerMultipliers, building);
@@ -55,8 +65,28 @@ public sealed class ProgressionModifierState
     public ExpantaNum GetResourceProductionMultiplier(Resource resource) =>
         GetMultiplier(resourceProductionMultipliers, resource);
 
+    public ExpantaNum GetOccupiedResourceProductionMultiplier(Resource resource) =>
+        GetMultiplier(occupiedResourceProductionMultipliers, resource);
+
     internal void AddBuildingProductionMultiplier(Building building, ExpantaNum value) =>
         AddMultiplier(buildingProductionMultipliers, building, value);
+
+    internal void AddBuildingResourceProductionMultiplier(
+        Building building,
+        Resource resource,
+        ExpantaNum value)
+    {
+        if (ReferenceEquals(building, null) || ReferenceEquals(resource, null))
+            return;
+        if (!buildingResourceProductionMultipliers.TryGetValue(
+                building,
+                out Dictionary<Resource, ExpantaNum> resources))
+        {
+            resources = new Dictionary<Resource, ExpantaNum>();
+            buildingResourceProductionMultipliers[building] = resources;
+        }
+        AddMultiplier(resources, resource, value);
+    }
 
 
     internal void AddBuildingResearchPowerMultiplier(Building building, ExpantaNum value) =>
@@ -105,6 +135,9 @@ public sealed class ProgressionModifierState
     internal void AddOccupiedResourceProductionMultiplier(ExpantaNum value) =>
         OccupiedResourceProductionMultiplier =
             AdditiveMultiplier(OccupiedResourceProductionMultiplier, value);
+
+    internal void AddOccupiedResourceProductionMultiplier(Resource resource, ExpantaNum value) =>
+        AddMultiplier(occupiedResourceProductionMultipliers, resource, value);
     internal void AddCampaignProgressMultiplier(ExpantaNum value) =>
         CampaignProgressMultiplier =
             AdditiveMultiplier(CampaignProgressMultiplier, value);
@@ -209,7 +242,11 @@ public static class ProgressionModifierManager
             switch (effect.Type)
             {
                 case ResearchEffectType.BuildingProductionMultiplier:
-                modifiers.AddBuildingProductionMultiplier(effect.Building, effect.NumericValue);
+                    if (effect.Resource == null)
+                        modifiers.AddBuildingProductionMultiplier(effect.Building, effect.NumericValue);
+                    else
+                        modifiers.AddBuildingResourceProductionMultiplier(
+                            effect.Building, effect.Resource, effect.NumericValue);
                     break;
                 case ResearchEffectType.GlobalFoodProductionMultiplier:
                     modifiers.MultiplyGlobalFoodProductionMultiplier(effect.NumericValue);

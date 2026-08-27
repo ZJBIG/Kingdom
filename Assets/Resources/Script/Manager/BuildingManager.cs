@@ -1145,13 +1145,28 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum logisticsSatisfaction = building.LogisticsConsumptionRate > ExpantaNum.Zero
             ? gameState.LogisticsSatisfaction
             : ExpantaNum.One;
-        ExpantaNum happinessConstraint = gameState.HappinessConstraintMultiplier;
+        // Buildings that explicitly consume energy but no food are automated
+        // production and must be governed by the power flow, not by the food
+        // happiness constraint. Buildings with a food upkeep remain food
+        // constrained even when they also consume power.
+        bool foodConstraintRequired = IsFoodConstraintRequired(building);
+        ExpantaNum happinessConstraint = foodConstraintRequired
+            ? gameState.HappinessConstraintMultiplier
+            : ExpantaNum.One;
         return CalculateEffectiveEfficiency(
             GlobalEfficiencyFactor,
             resourceSatisfaction,
             happinessConstraint,
             powerSatisfaction,
             logisticsSatisfaction);
+    }
+
+    public static bool IsFoodConstraintRequired(Building building)
+    {
+        if (building == null)
+            return false;
+        return building.PowerConsumptionRate <= ExpantaNum.Zero ||
+            building.FoodConsumptionRate > ExpantaNum.Zero;
     }
 
     public static ExpantaNum CalculateEffectiveEfficiency(
@@ -1262,6 +1277,8 @@ public class BuildingManager : Singleton<BuildingManager>
                 generation[i].First,
                 scaleDelta * generation[i].Second
                 * productionMultiplier
+                * modifiers.GetBuildingResourceProductionMultiplier(
+                    state.Definition, generation[i].First)
                 * modifiers.GetResourceProductionMultiplier(generation[i].First));
         }
 
@@ -1346,9 +1363,13 @@ public class BuildingManager : Singleton<BuildingManager>
             {
                 Pair<Resource, ExpantaNum> rate = generation[j];
                 ExpantaNum oldMultiplier =
-                    oldBuildingMultiplier * previous.GetResourceProductionMultiplier(rate.First);
+                    oldBuildingMultiplier *
+                    previous.GetBuildingResourceProductionMultiplier(building, rate.First) *
+                    previous.GetResourceProductionMultiplier(rate.First);
                 ExpantaNum newMultiplier =
-                    newBuildingMultiplier * current.GetResourceProductionMultiplier(rate.First);
+                    newBuildingMultiplier *
+                    current.GetBuildingResourceProductionMultiplier(building, rate.First) *
+                    current.GetResourceProductionMultiplier(rate.First);
                 ResourceManager.Instance.AdjustProductionRate(
                     rate.First,
                     scale * rate.Second * (newMultiplier - oldMultiplier));

@@ -388,9 +388,10 @@ public class ResearchManager : Singleton<ResearchManager>
         // Payment is a transaction for this one research item only. It must
         // never start or reorder research; the queue action owns scheduling.
         ResearchQueueChanged?.Invoke();
-        return state.CostPaid
-            ? ResearchPaymentResult.Paid
-            : ResearchPaymentResult.PartiallyPaid;
+        // Payments are atomic and include every remaining resource cost, so a
+        // successful new payment can never leave a partial ledger. Keep the
+        // legacy enum member for save/API compatibility, but do not emit it.
+        return ResearchPaymentResult.Paid;
     }
 
     public bool CanPayResearchCost(Research research, out string blocker)
@@ -929,6 +930,8 @@ public class ResearchManager : Singleton<ResearchManager>
         queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
         SelectedResearchId = string.Empty;
+        for (int i = 0; i < orderedStates.Count; i++)
+            orderedStates[i].ResetForLoad();
 
         if (data.States != null)
         {
@@ -944,7 +947,10 @@ public class ResearchManager : Singleton<ResearchManager>
                     throw new InvalidOperationException(
                         $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{definition.Id}");
                 IReadOnlyDictionary<Resource, ExpantaNum> paidResourceCosts =
-                    RestorePaidResourceCosts(definition, saved.PaidResourceCosts);
+                    RestorePaidResourceCosts(
+                        definition,
+                        saved.PaidResourceCosts,
+                        data.LegacyFormat && saved.CostPaid);
                 state.Restore(
                     Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress)),
                     saved.CostPaid || AreAllResourceCostsPaid(definition, paidResourceCosts),
@@ -1034,11 +1040,11 @@ public class ResearchManager : Singleton<ResearchManager>
 
     private void ValidateRestoreInput(SaveManager.ResearchSaveData data)
     {
+        // A save is the source of truth. Do not seed validation from the
+        // current runtime state, otherwise a direct restore can inherit
+        // completed research absent from the save payload.
         var completed = new HashSet<Research>();
         var fullyPaid = new HashSet<Research>();
-        for (int i = 0; i < orderedStates.Count; i++)
-            if (orderedStates[i].Status == ResearchStatus.Completed)
-                completed.Add(orderedStates[i].Definition);
         if (data.States != null)
         {
             var seen = new HashSet<Research>();
@@ -1053,12 +1059,16 @@ public class ResearchManager : Singleton<ResearchManager>
                     throw new InvalidOperationException(
                         $"Research progress is outside the valid range: {definition.Id}");
                 IReadOnlyDictionary<Resource, ExpantaNum> paidCosts =
-                    RestorePaidResourceCosts(definition, saved.PaidResourceCosts);
+                    RestorePaidResourceCosts(
+                        definition,
+                        saved.PaidResourceCosts,
+                        data.LegacyFormat && saved.CostPaid);
                 if (AreAllResourceCostsPaid(definition, paidCosts))
                     fullyPaid.Add(definition);
-                if (saved.Completed && !AreAllResourceCostsPaid(definition, paidCosts))
+                if ((saved.CostPaid || saved.Completed) &&
+                    !AreAllResourceCostsPaid(definition, paidCosts))
                     throw new InvalidOperationException(
-                        $"Completed research has unpaid resource costs: {definition.Id}");
+                        $"Research payment ledger is incomplete: {definition.Id}");
                 if (saved.Completed)
                     completed.Add(definition);
                 else
@@ -1218,11 +1228,19 @@ public class ResearchManager : Singleton<ResearchManager>
 
     private static IReadOnlyDictionary<Resource, ExpantaNum> RestorePaidResourceCosts(
         Research definition,
-        List<SaveManager.ResearchResourceCostSaveData> savedCosts)
+        List<SaveManager.ResearchResourceCostSaveData> savedCosts,
+        bool legacyCostPaid)
     {
         var result = new Dictionary<Resource, ExpantaNum>();
         if (savedCosts == null)
+        {
+            // Saves written before the per-resource ledger was introduced
+            // only carried CostPaid. Preserve that historical full payment
+            // for compatibility, but never infer a partial payment amount.
+            if (legacyCostPaid)
+                return BuildFullHistoricalPaymentLedger(definition);
             return result;
+        }
 
         for (int i = 0; i < savedCosts.Count; i++)
         {
@@ -1243,6 +1261,25 @@ public class ResearchManager : Singleton<ResearchManager>
                 throw new InvalidOperationException(
                     $"Research payment exceeds the required cost for {definition.Id}: {resource.Id}");
             result.Add(resource, amount);
+        }
+        return result;
+    }
+
+    private static IReadOnlyDictionary<Resource, ExpantaNum> BuildFullHistoricalPaymentLedger(
+        Research definition)
+    {
+        var result = new Dictionary<Resource, ExpantaNum>();
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+            result[requirement.First] = result.TryGetValue(
+                requirement.First,
+                out ExpantaNum previous)
+                ? previous + requirement.Second
+                : requirement.Second;
         }
         return result;
     }

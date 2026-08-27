@@ -635,7 +635,9 @@ public sealed class TutorialManager : MonoBehaviour
         else if (step.Kind == TutorialStepKind.Resources)
         {
             snapshot.Blocker = "核心资源尚未形成可见库存。";
-            snapshot.RecommendedAction = "打开资源页面，查看原木的数量与净产出，为第一座建筑准备材料。";
+            snapshot.RecommendedAction = game.State.FoodNetRate <= ExpantaNum.Zero
+                ? "打开资源页面，先选择食物：优先建造能提高食物净产出的设施，避免幸福度和人口增长被饥荒拖慢。"
+                : "打开资源页面，按下一步缺口做选择：黏土优先支撑陶器与定居，纤维优先支撑布料与加工；不要同时铺开三条链。";
             snapshot.NavigationPage = "Resources";
         }
         else if (step.Kind == TutorialStepKind.Building)

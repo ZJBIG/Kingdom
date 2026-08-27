@@ -392,6 +392,20 @@ public sealed partial class KingdomUIRoot
         SetNavigationButtonVisible("Story", true);
     }
 
+    private void RefreshNavigationSelection(string activePage)
+    {
+        if (leftNavigation == null)
+            return;
+
+        string[] pageNames = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
+        for (int i = 0; i < pageNames.Length; i++)
+        {
+            Button button = FindNavigationButton(pageNames[i]);
+            if (button != null && button.gameObject.activeInHierarchy)
+                button.interactable = !string.Equals(pageNames[i], activePage, StringComparison.Ordinal);
+        }
+    }
+
     private void SetNavigationButtonVisible(string pageName, bool visible)
     {
         Transform button = FindNavigationButton(pageName)?.transform;

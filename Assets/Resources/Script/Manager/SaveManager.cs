@@ -125,7 +125,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             File.WriteAllText(TempPath, json);
             if (File.Exists(SavePath))
                 File.Copy(SavePath, BackupPath, true);
-            File.Copy(TempPath, SavePath, true);
+            CommitTempSave();
             // The primary save is now durable. Commit the runtime baseline
             // before best-effort temporary-file cleanup so a cleanup failure
             // cannot cause the next resume to replay offline time.
@@ -171,6 +171,14 @@ public sealed class SaveManager : Singleton<SaveManager>
         SaveNow(true);
     }
 
+    private void CommitTempSave()
+    {
+        if (File.Exists(SavePath))
+            File.Replace(TempPath, SavePath, null);
+        else
+            File.Move(TempPath, SavePath);
+    }
+
     private KingdomSaveData CaptureSaveData()
     {
         return new KingdomSaveData
@@ -206,6 +214,8 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.RestorePopulationChangeProgress(data.General);
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
+        if (data.Researches != null)
+            data.Researches.LegacyFormat = data.Version == 5;
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
@@ -417,6 +427,8 @@ public sealed class SaveManager : Singleton<SaveManager>
     [Serializable]
     public sealed class ResearchSaveData
     {
+        [System.NonSerialized]
+        internal bool LegacyFormat;
         public string GlobalEfficiencyFactor;
         public List<ResearchStateSaveData> States;
         public string ActiveResearchId;

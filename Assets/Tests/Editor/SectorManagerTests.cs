@@ -108,6 +108,42 @@ public sealed class SectorManagerTests
     }
 
     [Test]
+    public void InterstellarCampaignsHaveLongContinuousAdvancedSupplyLoops()
+    {
+        string[] interstellarIds =
+        {
+            "AlphaCentauri", "ProximaB", "TauCetiFoundry", "SiriusResourceBelt"
+        };
+        string[] advancedResourceIds =
+        {
+            "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
+        };
+        ExpantaNum progressRateAtStrongAdvantage =
+            CampaignManager.CalculateProgressRate(new ExpantaNum(2d));
+
+        foreach (string id in interstellarIds)
+        {
+            SectorDefinition sector = DataBase<SectorDefinition>.Find(id);
+            Assert.That(sector, Is.Not.Null, id);
+            Assert.That(sector.CampaignFoodPerSecond, Is.GreaterThan(ExpantaNum.Zero), id);
+            Assert.That(sector.CampaignProgressMultiplier, Is.GreaterThan(ExpantaNum.Zero), id);
+            Assert.That(
+                1d / (progressRateAtStrongAdvantage * sector.CampaignProgressMultiplier).ToDouble(),
+                Is.GreaterThanOrEqualTo(3600d),
+                $"{id} must remain a long-running campaign even at combat ratio 2.");
+            Assert.That(sector.TerritoryReward, Is.GreaterThanOrEqualTo(new ExpantaNum(500000d)), id);
+
+            Assert.That(
+                sector.CampaignResourceRatesPerSecond.Any(rate =>
+                    rate.First != null &&
+                    advancedResourceIds.Contains(rate.First.Id) &&
+                    rate.Second > ExpantaNum.Zero),
+                Is.True,
+                $"{id} must continuously consume an advanced material.");
+        }
+    }
+
+    [Test]
     public void SolarSystemChainIncludesAsteroidBeltAndJovianSystemBeforeAlpha()
     {
         SectorDefinition mars = Resources.Load<SectorDefinition>("Datas/Sector/Mars");
@@ -281,6 +317,50 @@ public sealed class SectorManagerTests
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindCampaignCost(sirius, "PhaseMaterial"),
             Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [Test]
+    public void WorkshopOccupiedProductionMultiplierOnlyAffectsTargetResource()
+    {
+        GameObject resourceObject = new GameObject("Sector-Occupied-Production-Target-ResourceManager");
+        try
+        {
+            Resource target = DataBase<Resource>.Find("TitaniumConcentrate");
+            Resource unrelated = DataBase<Resource>.Find("Hydrogen");
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            resourceManager.EnsureResource(target);
+            resourceManager.EnsureResource(unrelated);
+            SectorDefinition jovian = DataBase<SectorDefinition>.Find("JovianSystem");
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            manager.GetState(jovian).SetOccupiedForEditor(true);
+
+            ProgressionModifierManager.Rebuild(null);
+            Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
+            double baselineTarget = resourceManager.GetAmount(target).ToDouble();
+            double baselineUnrelated = resourceManager.GetAmount(unrelated).ToDouble();
+            resourceManager.SetAmount(target, ExpantaNum.Zero);
+            resourceManager.SetAmount(unrelated, ExpantaNum.Zero);
+
+            WorkshopUpgradeState state = new WorkshopUpgradeState(
+                DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems"));
+            typeof(WorkshopUpgradeState).GetMethod(
+                "SetPurchased",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(state, new object[] { true });
+            ProgressionModifierManager.Rebuild(null, new[] { state });
+
+            Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
+            Assert.That(resourceManager.GetAmount(target).ToDouble(),
+                Is.EqualTo(baselineTarget * 1.2d).Within(0.000001d));
+            Assert.That(resourceManager.GetAmount(unrelated).ToDouble(),
+                Is.EqualTo(baselineUnrelated).Within(0.000001d));
+        }
+        finally
+        {
+            ProgressionModifierManager.Rebuild(null);
+            Object.DestroyImmediate(resourceObject);
+        }
     }
 
     [Test]

@@ -557,6 +557,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 titleRect.SetAsLastSibling();
         }
         populatedPage = name;
+        RefreshNavigationSelection(name);
         TutorialManager.Current?.RecordPageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
         // generated page is created. Once a page has been built, forcing a

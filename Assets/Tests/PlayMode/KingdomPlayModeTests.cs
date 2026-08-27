@@ -101,7 +101,7 @@ public sealed class KingdomPlayModeTests
                 "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
             .Invoke(gameManager.State, new object[]
             {
-                0, "Test", TechLevel.Animal, ExpantaNum.Zero, 0L
+                0, TechLevel.Animal, ExpantaNum.Zero, 0L
             });
         typeof(GameState).GetMethod(
                 "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -863,7 +863,7 @@ public sealed class KingdomPlayModeTests
                 "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
             .Invoke(gameManager.State, new object[]
             {
-                0, "Test", TechLevel.Animal, ExpantaNum.Zero, 0L
+                0, TechLevel.Animal, ExpantaNum.Zero, 0L
             });
         typeof(GameState).GetMethod(
                 "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)

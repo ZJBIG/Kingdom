@@ -144,6 +144,61 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
+    public void Rebuild_BuildingProductionEffectCanTargetOneOutputResource()
+    {
+        Research research = CreateResearch("targeted-building-output");
+        Building building = CreateDefinition<Building>("multi-output-building");
+        Resource targeted = CreateDefinition<Resource>("targeted-output");
+        Resource unrelated = CreateDefinition<Resource>("unrelated-output");
+        research.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition
+            {
+                Type = ResearchEffectType.BuildingProductionMultiplier,
+                Building = building,
+                Resource = targeted,
+                Value = new ExpantaNum(1.3d)
+            }
+        });
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>
+        {
+            CreateState(research, true)
+        });
+
+        Assert.That(
+            ProgressionModifierManager.Current
+                .GetBuildingResourceProductionMultiplier(building, targeted)
+                .ToDouble(),
+            Is.EqualTo(1.3d).Within(0.000001d));
+        Assert.That(
+            ProgressionModifierManager.Current
+                .GetBuildingResourceProductionMultiplier(building, unrelated)
+                .ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d));
+        Assert.That(
+            ProgressionModifierManager.Current.GetBuildingProductionMultiplier(building).ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d));
+    }
+
+    [Test]
+    public void HappinessBonusEffectsUseAdditiveFractionValues()
+    {
+        foreach (Research research in DataBase<Research>.All)
+        {
+            if (research == null || research.Effects == null)
+                continue;
+            foreach (ResearchEffectDefinition effect in research.Effects)
+            {
+                if (effect == null || effect.Type != ResearchEffectType.HappinessBonus)
+                    continue;
+                Assert.That(effect.NumericValue, Is.GreaterThanOrEqualTo(ExpantaNum.Zero), research.Id);
+                Assert.That(effect.NumericValue, Is.LessThanOrEqualTo(HappinessFormula.MaximumBonus), research.Id);
+            }
+        }
+    }
+
+    [Test]
     public void DefinitionEffectValues_UseEditableStringsAndRuntimeNumericViews()
     {
         Assert.That(
@@ -337,6 +392,25 @@ public sealed class ResearchEffectTests
 
         Assert.That(
             ProgressionModifierManager.Current.OccupiedResourceProductionMultiplier.ToDouble(),
+            Is.EqualTo(1.2d).Within(0.000001d));
+    }
+
+    [Test]
+    public void WorkshopOccupiedResourceProductionTargetsItsResource()
+    {
+        Resource target = DataBase<Resource>.Find("TitaniumConcentrate");
+        Assert.That(target, Is.Not.Null);
+        ProgressionModifierState modifiers = new ProgressionModifierState();
+        new WorkshopEffectDefinition
+        {
+            Type = WorkshopEffectType.OccupiedResourceProductionMultiplier,
+            Resource = target,
+            Value = "1.2"
+        }.ApplyTo(modifiers);
+
+        Assert.That(modifiers.OccupiedResourceProductionMultiplier.ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d));
+        Assert.That(modifiers.GetOccupiedResourceProductionMultiplier(target).ToDouble(),
             Is.EqualTo(1.2d).Within(0.000001d));
     }
 

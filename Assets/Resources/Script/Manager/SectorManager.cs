@@ -213,7 +213,7 @@ public sealed class SectorManager
         for (int i = 0; i < definitions.Count; i++)
         {
             SectorDefinition definition = definitions[i];
-            if (definition == null || states.ContainsKey(definition))
+            if (definition == null || TryGetStateByStableId(definition, out _))
                 continue;
             SectorState state = new SectorState(definition);
             states.Add(definition, state);
@@ -349,7 +349,7 @@ public sealed class SectorManager
     {
         EnsureInitialized();
         if (definition == null || runtimeState == null ||
-            !definition.IsHomeSystem || !states.TryGetValue(definition, out SectorState state))
+            !definition.IsHomeSystem || !TryGetStateByStableId(definition, out SectorState state))
             return new SectorExplorationPreview(
                 false,
                 false,
@@ -396,7 +396,7 @@ public sealed class SectorManager
     public bool CanAccess(SectorDefinition definition)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
             return false;
         if (state.Occupied || state.Unlocked)
             return true;
@@ -407,7 +407,7 @@ public sealed class SectorManager
 
         for (int i = 0; i < prerequisites.Count; i++)
         {
-            if (!states.TryGetValue(prerequisites[i], out SectorState prerequisite) ||
+            if (!TryGetStateByStableId(prerequisites[i], out SectorState prerequisite) ||
                 !prerequisite.Occupied)
                 return false;
         }
@@ -418,7 +418,7 @@ public sealed class SectorManager
     public SectorOperationFailure GetUnlockFailure(SectorDefinition definition)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
             return SectorOperationFailure.UnknownSector;
         if (state.Unlocked)
             return SectorOperationFailure.AlreadyUnlocked;
@@ -436,14 +436,14 @@ public sealed class SectorManager
         failure = GetUnlockFailure(definition);
         if (failure != SectorOperationFailure.None)
             return false;
-        states[definition].SetUnlocked(true);
+        GetState(definition).SetUnlocked(true);
         return true;
     }
 
     public bool TryOccupy(SectorDefinition definition, out SectorOperationFailure failure)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
         {
             failure = SectorOperationFailure.UnknownSector;
             return false;
@@ -515,7 +515,7 @@ public sealed class SectorManager
         out SectorOperationFailure failure)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
         {
             failure = SectorOperationFailure.UnknownSector;
             return false;
@@ -706,7 +706,7 @@ public sealed class SectorManager
         out SectorOperationFailure failure)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
         {
             failure = SectorOperationFailure.UnknownSector;
             return false;
@@ -819,7 +819,7 @@ public sealed class SectorManager
         out SectorOperationFailure failure)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state))
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
         {
             repairedAmount = ExpantaNum.Zero;
             failure = SectorOperationFailure.UnknownSector;
@@ -1064,7 +1064,7 @@ public sealed class SectorManager
     public bool CancelCampaign(SectorDefinition definition, GameState runtimeState)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state) || !state.CampaignActive)
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state) || !state.CampaignActive)
             return false;
         if (runtimeState != null && runtimeState.Campaign.Active &&
             !string.Equals(
@@ -1156,7 +1156,8 @@ public sealed class SectorManager
                 Pair<Resource, ExpantaNum> rate = rates[j];
                 if (rate.First == null || rate.Second <= ExpantaNum.Zero)
                     continue;
-                ExpantaNum delta = rate.Second * deltaSeconds * multiplier;
+                ExpantaNum delta = rate.Second * deltaSeconds * multiplier *
+                    ProgressionModifierManager.Current.GetOccupiedResourceProductionMultiplier(rate.First);
                 occupiedProductionBuffer[rate.First] =
                     occupiedProductionBuffer.TryGetValue(rate.First, out ExpantaNum existing)
                     ? existing + delta
@@ -1189,7 +1190,8 @@ public sealed class SectorManager
                 if (rate.First != null && rate.Second > ExpantaNum.Zero)
                     resourceManager.AdjustTickPotentialProduction(
                         rate.First,
-                        rate.Second * multiplier);
+                        rate.Second * multiplier *
+                        ProgressionModifierManager.Current.GetOccupiedResourceProductionMultiplier(rate.First));
             }
         }
     }
@@ -1247,7 +1249,7 @@ public sealed class SectorManager
     public bool CancelColonization(SectorDefinition definition)
     {
         EnsureInitialized();
-        if (definition == null || !states.TryGetValue(definition, out SectorState state) || !state.ColonizationActive)
+        if (definition == null || !TryGetStateByStableId(definition, out SectorState state) || !state.ColonizationActive)
             return false;
         state.SetColonizationActive(false);
         return true;
@@ -1389,6 +1391,14 @@ public sealed class SectorManager
             !TryGetStateByStableId(definition, out SectorState state))
             throw new InvalidOperationException(
                 $"全局战役目标星区“{campaign.TargetSectorId}”不存在。");
+        if (campaign.Active && definition.IsHomeSystem)
+            throw new InvalidOperationException(
+                $"Active campaign cannot target home sector '{definition.Id}'.");
+        if (campaign.Active &&
+            (!IsInterstellarRouteUnlocked() ||
+             !ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.DeepSpaceFleet)))
+            throw new InvalidOperationException(
+                "Active campaign is missing the interstellar route or deep-space fleet unlock.");
         if (state.CampaignCasualties != campaign.Casualties)
             throw new InvalidOperationException(
                 $"全局战役与星区“{definition.Id}”的伤亡数据不一致。");

@@ -747,6 +747,37 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator CurrentNavigationPageIsNotInteractable()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return null;
+        yield return null;
+
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null);
+        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
+            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(setPage, Is.Not.Null);
+
+        Button eraButton = root.transform.Find(
+            "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Era")?.GetComponent<Button>();
+        Button resourcesButton = root.transform.Find(
+            "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Resources")?.GetComponent<Button>();
+        Assert.That(eraButton, Is.Not.Null);
+        Assert.That(resourcesButton, Is.Not.Null);
+
+        setPage.Invoke(root, new object[] { "Era" });
+        yield return null;
+        Assert.That(eraButton.interactable, Is.False);
+        Assert.That(resourcesButton.interactable, Is.True);
+
+        setPage.Invoke(root, new object[] { "Resources" });
+        yield return null;
+        Assert.That(resourcesButton.interactable, Is.False);
+        Assert.That(eraButton.interactable, Is.True);
+    }
+
+    [UnityTest]
     public IEnumerator TutorialFeedbackIsClearedWhenSaveProgressVersionChanges()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);

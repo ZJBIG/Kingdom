@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModularHabitatSystems
   Label: "模块化空间舱"
-  Description: "用陶瓷隔热层、橡胶密封件、布料内衬、铝合金骨架和电子控制模块把轨道空间站拆分为可替换舱段，降低扩建成本并提高长期居住与补给能力。"
+  Description: "通过模块化舱段与远程调度提高轨道空间站的物流吞吐，使轨道空间站的物流产出提高 25%。"
   SortOrder: 420
   TechLevel: 4
   requiredResearch:

@@ -135,7 +135,7 @@ public sealed partial class KingdomUIRoot
         if (sectorState != null && sectorState.Occupied)
             return "已占领  |  持续产出 " + FormatResourceCosts(
                 definition.OccupiedResourceRatesPerSecond,
-                ProgressionModifierManager.Current.OccupiedResourceProductionMultiplier) + "/s";
+                ProgressionModifierManager.Current) + "/s";
         string progress = sectorState == null ? "0%" : (sectorState.CampaignProgress * 100).ToGameString() + "%";
         if (definition.IsHomeSystem)
         {
@@ -218,7 +218,7 @@ public sealed partial class KingdomUIRoot
                 ? "无"
                 : FormatResourceCosts(
                     occupiedRates,
-                    ProgressionModifierManager.Current.OccupiedResourceProductionMultiplier) + "/s"));
+                    ProgressionModifierManager.Current) + "/s"));
 
         if (state == null)
         {
@@ -559,6 +559,30 @@ public sealed partial class KingdomUIRoot
             if (i > 0)
                 result.Append("、");
             Resource resource = costs[i].First;
+            result.Append(resource == null ? "未知资源" : resource.Label)
+                .Append(" ")
+                .Append((costs[i].Second * multiplier).ToGameString());
+        }
+        return result.ToString();
+    }
+
+    private string FormatResourceCosts(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        ProgressionModifierState modifiers)
+    {
+        if (costs == null || costs.Count == 0)
+            return "无";
+        StringBuilder result = sectorCostTextBuilder;
+        result.Clear();
+        for (int i = 0; i < costs.Count; i++)
+        {
+            if (i > 0)
+                result.Append("、");
+            Resource resource = costs[i].First;
+            ExpantaNum multiplier = modifiers == null
+                ? ExpantaNum.One
+                : modifiers.OccupiedResourceProductionMultiplier *
+                  modifiers.GetOccupiedResourceProductionMultiplier(resource);
             result.Append(resource == null ? "未知资源" : resource.Label)
                 .Append(" ")
                 .Append((costs[i].Second * multiplier).ToGameString());

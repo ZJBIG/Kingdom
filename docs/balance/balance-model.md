@@ -67,12 +67,12 @@ Food 是唯一有容量的库存。
 - 长期严重不足导致人口下降
 - 自动化建筑主要受能源而不是粮食影响
 
-## 6. 领土和劳动力
+## 6. 领土和生产力
 
 它们不是普通资源容量。
 
 - `TerritoryTotal - TerritoryUsed`
-- `TotalWorkforce - AssignedWorkforce`
+- `TotalProductivity - UsedProductivity`
 
 初始值必须足够小，形成实际选择。
 

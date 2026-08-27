@@ -33,6 +33,15 @@ head.
 - A missing `ResourceManager` is a failed attempt, not an exception or a fake
   payment.
 
+Legacy-save policy: if a save contains a valid `PaidResourceCosts` ledger, the
+ledger is restored as historical credit and is not recalculated from current
+costs. An older save with no ledger but an explicit `CostPaid=true` is restored
+as historically fully paid; a save with no ledger and `CostPaid=false` cannot
+recover an exact partial amount, so the loader does not invent one. The loader
+never infers or refunds a missing amount, especially not by temporarily
+exceeding Food capacity. Invalid or unknown ledger entries reject the
+candidate save and allow the normal backup fallback to run.
+
 ## UI boundary
 
 The research tree and detail panel issue research actions and display state.

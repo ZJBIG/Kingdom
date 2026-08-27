@@ -36,4 +36,8 @@ Until explicitly changed:
 - Music continues while the setting UI is closed.
 - Offline progress is not expanded during UI redesign.
 - Paid/current research is not given a newly invented refund rule.
+- Population leaves only when food is unavailable while Food/s remains negative;
+  reducing housing capacity does not retroactively remove existing population.
+  The unused capacity-departure helper is retained for a future product decision,
+  but is not part of the current runtime contract.
 - No automatic push or PR.

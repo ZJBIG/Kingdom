@@ -236,6 +236,19 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void 普通资源库存可以超过粮食容量()
+    {
+        Resource resource = DataBase<Resource>.Find("WoodLog");
+        Assert.That(resource, Is.Not.Null);
+
+        var state = new ResourceState(resource);
+        ExpantaNum amount = GameState.BaseFoodCapacity + new ExpantaNum(1000d);
+        state.SetAmount(amount);
+
+        Assert.That(state.Amount, Is.EqualTo(amount));
+    }
+
+    [Test]
     public void ResourceManager_AlwaysCreatesStartingWoodStateAndProduction()
     {
         ResourceManager resourceManager =
@@ -362,9 +375,11 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ToGameString_PreservesThreeSignificantDigitsForThousands()
+    public void ToGameString_UsesFourSignificantDigitsAndPromotesRoundedThousands()
     {
         Assert.That(new ExpantaNum(1220).ToGameString(), Is.EqualTo("1.22K"));
+        Assert.That(new ExpantaNum(999499).ToGameString(), Is.EqualTo("999.5K"));
+        Assert.That(new ExpantaNum(999950).ToGameString(), Is.EqualTo("1M"));
     }
 
     [Test]
@@ -400,7 +415,6 @@ public sealed class KingdomLogicTests
             state,
             "RestoreCore",
             3,
-            "Legacy",
             TechLevel.Animal,
             new ExpantaNum(10000),
             1L);
@@ -479,7 +493,6 @@ public sealed class KingdomLogicTests
             gameManager.State,
             "RestoreCore",
             0,
-            "Test",
             TechLevel.Animal,
             ExpantaNum.Zero,
             0L);
@@ -1341,6 +1354,72 @@ public sealed class KingdomLogicTests
         Assert.That(researchManager.ActiveResearch.Definition, Is.EqualTo(target));
         Assert.That(researchManager.ActiveResearch.CostPaid, Is.True);
         Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
+    }
+
+    [Test]
+    public void SaveApply_RestoresLegacyFullyPaidResearchWithoutLedger()
+    {
+        CreateManager<GameManager>("Save-LegacyPaid-GameManager");
+        CreateManager<ResourceManager>("Save-LegacyPaid-ResourceManager");
+        CreateManager<BuildingManager>("Save-LegacyPaid-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("Save-LegacyPaid-ResearchManager");
+        CreateManager<WorkshopManager>("Save-LegacyPaid-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-LegacyPaid-SaveManager");
+
+        Research target = DataBase<Research>.Find("Quarry");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Version = 5;
+        data.Researches.ActiveResearchId = target.Id;
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = "0",
+                CostPaid = true,
+                Completed = false,
+                // Legacy saves predate the per-resource payment ledger.
+                PaidResourceCosts = null
+            }
+        };
+
+        Assert.DoesNotThrow(() => InvokeApplySaveData(saveManager, data));
+        Assert.That(researchManager.ActiveResearch.Definition, Is.EqualTo(target));
+        Assert.That(researchManager.ActiveResearch.CostPaid, Is.True);
+        Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
+    }
+
+    [Test]
+    public void SaveApply_RejectsCurrentFullyPaidResearchWithoutLedger()
+    {
+        CreateManager<GameManager>("Save-CurrentPaidNoLedger-GameManager");
+        CreateManager<ResourceManager>("Save-CurrentPaidNoLedger-ResourceManager");
+        CreateManager<BuildingManager>("Save-CurrentPaidNoLedger-BuildingManager");
+        CreateManager<ResearchManager>("Save-CurrentPaidNoLedger-ResearchManager");
+        CreateManager<WorkshopManager>("Save-CurrentPaidNoLedger-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-CurrentPaidNoLedger-SaveManager");
+
+        Research target = DataBase<Research>.Find("Quarry");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Researches.ActiveResearchId = target.Id;
+        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = "0",
+                CostPaid = true,
+                Completed = false,
+                // Current saves must carry the exact payment ledger.
+                PaidResourceCosts = null
+            }
+        };
+
+        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
+            () => InvokeApplySaveData(saveManager, data));
+        Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+        StringAssert.Contains(target.Id, exception.InnerException.Message);
     }
 
     [Test]
@@ -2265,7 +2344,7 @@ public sealed class KingdomLogicTests
     {
         GameState gameState = new GameState();
         Assert.Throws<TargetInvocationException>(
-            () => InvokeGameStateMethod(gameState, "RestoreCore", 0, "Test", TechLevel.Animal,
+            () => InvokeGameStateMethod(gameState, "RestoreCore", 0, TechLevel.Animal,
                 ExpantaNum.NaN, 0L));
         Assert.Throws<TargetInvocationException>(
             () => InvokeGameStateMethod(gameState, "AdjustFoodRates",
@@ -2576,6 +2655,8 @@ public sealed class KingdomLogicTests
 
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.ResearchQueue, Is.Empty);
+        Assert.That(researchManager.GetState(active).Status, Is.Not.EqualTo(ResearchStatus.Researching));
+        Assert.That(researchManager.GetState(active).Progress, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]

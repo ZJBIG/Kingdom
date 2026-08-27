@@ -112,7 +112,10 @@ public sealed class WorkshopEffectDefinition
         switch (Type)
         {
             case WorkshopEffectType.BuildingProductionMultiplier:
-                modifiers.AddBuildingProductionMultiplier(Building, multiplier);
+                if (Resource == null)
+                    modifiers.AddBuildingProductionMultiplier(Building, multiplier);
+                else
+                    modifiers.AddBuildingResourceProductionMultiplier(Building, Resource, multiplier);
                 break;
             case WorkshopEffectType.GlobalFoodProductionMultiplier:
                 modifiers.MultiplyGlobalFoodProductionMultiplier(multiplier);
@@ -163,7 +166,10 @@ public sealed class WorkshopEffectDefinition
                 modifiers.AddPopulationGrowthMultiplier(multiplier);
                 break;
             case WorkshopEffectType.OccupiedResourceProductionMultiplier:
-                modifiers.AddOccupiedResourceProductionMultiplier(multiplier);
+                if (Resource == null)
+                    modifiers.AddOccupiedResourceProductionMultiplier(multiplier);
+                else
+                    modifiers.AddOccupiedResourceProductionMultiplier(Resource, multiplier);
                 break;
             case WorkshopEffectType.CampaignSupplyCostMultiplier:
                 modifiers.AddCampaignSupplyCostMultiplier(multiplier);

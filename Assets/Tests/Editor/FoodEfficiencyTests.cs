@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 public sealed class FoodEfficiencyTests
 {
@@ -42,6 +44,20 @@ public sealed class FoodEfficiencyTests
         Assert.That(
             BuildingManager.CalculateEffectiveEfficiency(2, 1, 1),
             Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint()
+    {
+        Building energyDriven = ScriptableObject.CreateInstance<Building>();
+        energyDriven.ConfigureEconomyForEditor(
+            1.15d, 0, 0, 0, 0, 0, 0, 0, 0,
+            100, 0, 0, 0, 0, 0, 0,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>());
+
+        Assert.That(BuildingManager.IsFoodConstraintRequired(energyDriven), Is.False);
     }
 
     [Test]

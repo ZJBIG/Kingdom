@@ -35,7 +35,7 @@
    - `Assets/Resources/Script/Manager/TutorialManager.cs:681-752`
 8. 当前静态内容闭合并不是该断点的原因：工业闭合为完成，工业研究/Workshop/建筑均可达：
    - `data/content-closure-static.md:4-8`
-   - 现有模拟报告仍显示 Medieval/Industrial 未达到里程碑，属于当前 pacing 诊断限制，不应被当作运行时 UI 已验收：`data/economy-simulation/MilestoneSummary.csv:1-5`、`data/economy-simulation/EconomySimulationReport.md:37-57`
+   - 历史模拟报告曾显示 Medieval/Industrial 未达到里程碑；由于模拟器已冻结且输入快照与当前资产不一致，该结果只能作为历史诊断背景，不得用于当前 pacing、平衡或运行时验收：`data/economy-simulation/MilestoneSummary.csv:1-5`、`data/economy-simulation/EconomySimulationReport.md:37-57`
 
 ## 已实施改进（不新增系统）
 
