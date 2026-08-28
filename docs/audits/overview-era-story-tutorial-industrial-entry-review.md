@@ -4,6 +4,8 @@
 范围：首次进入 `TechLevel.Industrial` 后，玩家从 Overview、Era、Story、Tutorial 获得的状态与目标提示。  
 说明：以下原始问题已按最小方案实施修复；本文件保留原证据链，并补充当前实现状态。未执行真实 Unity PlayMode 与真机验收。
 
+> 当前状态说明（2026-08-27）：本文保留原始证据链用于追溯，但旧失败清单与历史计数不代表当前验收结果。当前 Unity 结果只认 `TestResults/Latest-Test-Errors.txt`；没有更新日志时不声称运行验收通过。
+
 ## 结论
 
 原始断点是：玩家完成时代跃迁、首次进入工业时代后，教程从 `era-goal` 进入 `long-term` 时可能只显示下一时代目标，工业主线未承接。当前代码已在 `long-term` 分支优先调用 `BuildIndustrialGuidance`，工业入口会显示第一项真实工业阻碍。

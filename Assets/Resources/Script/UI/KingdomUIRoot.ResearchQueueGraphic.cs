@@ -358,7 +358,7 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < outline.Length; i++)
             if (outline[i] != null)
             {
-                outline[i].color = selected ? ResearchFocusWhite : ResearchOutlineNormal;
+                outline[i].color = GetResearchOutlineColor(research, selected);
                 outline[i].enabled = true;
             }
     }

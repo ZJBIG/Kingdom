@@ -1,15 +1,16 @@
-Kingdom Unity EditMode manual test failure archive
+Kingdom Unity EditMode manual test failure archive (historical)
 Date: 2026-08-21
 Unity: 2022.3.62f3c1, Android project target
 Source: manually copied from the Unity Test Runner by the user
-Completeness: partial failure list; no exported NUnit XML was available
+Completeness: partial failure list; no exported NUnit XML was available. This
+file is historical context only and is not the current acceptance result.
 Simulator: intentionally not run per user request
 
 SPACER / ULTRA BATCH STATUS
 Static closure after the batch:
 - TechLevel reached: 5
 - Industrial research/workshop/building: 80/80, 33/33, 50/50
-- Spacer research/workshop/building: 47/47, 46/46, 15/15
+- Spacer research/workshop/building: 47/47, 46/46, 16/16
 - Ultra research: 1/1
 - No unreachable definitions or unresolved GUID references
 
@@ -24,7 +25,12 @@ FAILURES ALREADY ADDRESSED DURING THIS REVIEW
    Resolution: era-transition research is now accepted when AdvancesTechLevel is true;
    TechnologicalSingularity does not receive a fabricated numeric multiplier.
 
-REPORTED FAILURES NOT YET RESOLVED
+REPORTED FAILURES IN THIS 2026-08-21 SNAPSHOT
+
+The following list records the state of that old capture. It must not be read
+as a current unresolved-failure list; later source and test-contract changes
+addressed or superseded these expectations. The current result is only the
+latest Unity Test Runner log at `TestResults/Latest-Test-Errors.txt`.
 1. BuildingVerticalSliceTests.MedievalBuildingLayerContainsTheSixCoreBuildings
    Expected greater than 0; actual 0. Source line 86.
 

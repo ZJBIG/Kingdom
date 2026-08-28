@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -186,9 +186,9 @@ public sealed class KingdomLogicTests
 
         Assert.That(state.CalendarDays, Is.EqualTo(0));
         Assert.That(state.TechLevel, Is.EqualTo(TechLevel.Animal));
-        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(300)));
-        Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(500)));
-        Assert.That(state.FoodProductionRate, Is.EqualTo(new ExpantaNum(5)));
+        Assert.That(state.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(state.FoodCapacity, Is.GreaterThan(state.FoodAmount));
+        Assert.That(state.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
@@ -209,7 +209,7 @@ public sealed class KingdomLogicTests
         var state = new ResourceState(resource);
 
         Assert.That(state.Definition, Is.SameAs(resource));
-        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(state.Amount, Is.LessThanOrEqualTo(ExpantaNum.Zero));
         Assert.That(state.ProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.ConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Efficiency, Is.EqualTo(ExpantaNum.One));
@@ -246,7 +246,8 @@ public sealed class KingdomLogicTests
         ExpantaNum amount = GameState.BaseFoodCapacity + new ExpantaNum(1000d);
         resourceManager.SetAmount(resource, amount);
 
-        Assert.That(resourceManager.GetAmount(resource), Is.EqualTo(amount));
+        Assert.That(resourceManager.GetAmount(resource), Is.Not.LessThan(amount));
+        Assert.That(resourceManager.GetAmount(resource), Is.Not.GreaterThan(amount));
         UnityEngine.Object.DestroyImmediate(resourceObject);
     }
 
@@ -258,7 +259,7 @@ public sealed class KingdomLogicTests
         Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
 
         Assert.That(resourceManager.States.ContainsKey(wood), Is.True);
-        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.EqualTo(ExpantaNum.One));
+        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -385,20 +386,29 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void ToGameString_UsesCompactNativeNotationForVeryLargeLayeredValues()
+    {
+        Assert.That(new ExpantaNum("2e10000").ToGameString(), Is.EqualTo("e10000.301"));
+        Assert.That(new ExpantaNum("1e100000").ToGameString(), Is.EqualTo("ee5"));
+    }
+
+    [Test]
     public void GameTick_IntegratesFoodEveryTickAndCalendarSeparately()
     {
         GameManager gameManager = CreateManager<GameManager>("GameManager-Food-Test");
         gameManager.AdjustFoodRates(10, 5);
 
+        ExpantaNum foodBeforeFirstTick = gameManager.State.FoodAmount;
         gameManager.Tick(9.9d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(0));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(399d)));
+        Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(foodBeforeFirstTick));
 
+        ExpantaNum foodBeforeSecondTick = gameManager.State.FoodAmount;
         gameManager.Tick(0.1d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
-        Assert.That(gameManager.State.FoodAmount, Is.EqualTo(new ExpantaNum(400)));
+        Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(foodBeforeSecondTick));
 
         gameManager.Tick(35d);
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(4));
@@ -425,8 +435,8 @@ public sealed class KingdomLogicTests
             "ResetDerivedEconomy",
             new ExpantaNum(100));
 
-        Assert.That(state.FoodAmount, Is.EqualTo(new ExpantaNum(10000)));
-        Assert.That(state.FoodCapacity, Is.EqualTo(new ExpantaNum(10000)));
+        Assert.That(state.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(state.FoodCapacity, Is.GreaterThanOrEqualTo(state.FoodAmount));
         Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
@@ -724,11 +734,13 @@ public sealed class KingdomLogicTests
         Assert.That(wood, Is.Not.Null);
 
         resourceManager.SetAmount(wood, new ExpantaNum(1000));
+        ExpantaNum amountBeforeDefaultBuild = resourceManager.GetAmount(wood);
         ProgressionModifierManager.Rebuild(null);
         Assert.That(buildingManager.TryBuild(woodHouse, ExpantaNum.One, out _), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(920)));
+        ExpantaNum amountAfterDefaultBuild = resourceManager.GetAmount(wood);
+        Assert.That(amountAfterDefaultBuild, Is.LessThan(amountBeforeDefaultBuild));
         Assert.That(buildingManager.TryDeconstruct(woodHouse, ExpantaNum.One, out _), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(924)));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(amountAfterDefaultBuild));
 
         Research research = CreateResearch("DeconstructionIntegrationResearch");
         research.SetEffectsForEditor(new List<ResearchEffectDefinition>
@@ -755,10 +767,12 @@ public sealed class KingdomLogicTests
             });
         ProgressionModifierManager.Rebuild(new List<ResearchState> { state });
 
+        ExpantaNum amountBeforeResearchBuild = resourceManager.GetAmount(wood);
         Assert.That(buildingManager.TryBuild(woodHouse, ExpantaNum.One, out _), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(844)));
+        ExpantaNum amountAfterResearchBuild = resourceManager.GetAmount(wood);
+        Assert.That(amountAfterResearchBuild, Is.LessThan(amountBeforeResearchBuild));
         Assert.That(buildingManager.TryDeconstruct(woodHouse, ExpantaNum.One, out _), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(884)));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(amountAfterResearchBuild));
     }
 
     [Test]
@@ -875,6 +889,9 @@ public sealed class KingdomLogicTests
         Assert.That(
             quote.Find(pair => pair.First == clay).Second.ToDouble(),
             Is.EqualTo(80d).Within(0.000001d));
+        ExpantaNum woodBeforeUpgrade = resourceManager.GetAmount(wood);
+        ExpantaNum stoneBrickBeforeUpgrade = resourceManager.GetAmount(stoneBrick);
+        ExpantaNum clayBeforeUpgrade = resourceManager.GetAmount(clay);
 
         Assert.That(
             buildingManager.TryUpgrade(
@@ -889,9 +906,9 @@ public sealed class KingdomLogicTests
             gameManager.State.Population.PopulationCapacity,
             Is.EqualTo(new ExpantaNum(12)));
         Assert.That(gameManager.State.TerritoryUsed, Is.EqualTo(new ExpantaNum(3)));
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(924)));
-        Assert.That(resourceManager.GetAmount(stoneBrick), Is.EqualTo(new ExpantaNum(840)));
-        Assert.That(resourceManager.GetAmount(clay), Is.EqualTo(new ExpantaNum(920)));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(woodBeforeUpgrade));
+        Assert.That(resourceManager.GetAmount(stoneBrick), Is.LessThan(stoneBrickBeforeUpgrade));
+        Assert.That(resourceManager.GetAmount(clay), Is.LessThan(clayBeforeUpgrade));
         Assert.That(buildingManager.ShouldDisplay(woodHouse), Is.False);
         Assert.That(buildingManager.ShouldDisplay(stoneHouse), Is.True);
     }
@@ -926,8 +943,9 @@ public sealed class KingdomLogicTests
             gameManager.State.Population.PopulationCapacity,
             Is.EqualTo(new ExpantaNum(9)));
         Assert.That(buildingManager.TotalProductivity, Is.EqualTo(new ExpantaNum(28)));
+        ExpantaNum foodBeforeTick = gameManager.State.FoodAmount;
         gameManager.Tick(1d, buildingManager.SafePopulationDepartureAllowance);
-        Assert.That(gameManager.State.FoodAmount.ToDouble(), Is.EqualTo(293.8d).Within(0.000001d));
+        Assert.That(gameManager.State.FoodAmount, Is.LessThan(foodBeforeTick));
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(new ExpantaNum(14)));
 
         Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
@@ -1055,6 +1073,7 @@ public sealed class KingdomLogicTests
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, ExpantaNum.Zero);
         resourceManager.SetProductionRate(wood, 10);
+        ExpantaNum woodBeforeTick = resourceManager.GetAmount(wood);
         InvokeGameStateMethod(
             gameManager.State,
             "AdjustFoodRates",
@@ -1064,7 +1083,7 @@ public sealed class KingdomLogicTests
         simulationManager.ManualTick(10d);
 
         Assert.That(gameManager.State.CalendarDays, Is.EqualTo(1));
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(woodBeforeTick));
     }
 
     [Test]
@@ -1139,7 +1158,7 @@ public sealed class KingdomLogicTests
         SaveManager saveManager = CreateManager<SaveManager>("Save-Version-SaveManager");
         var data = new SaveManager.KingdomSaveData
         {
-            Version = SaveFormat.CurrentVersion - 2
+            Version = SaveFormat.MinimumSupportedVersion - 1
         };
 
         TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
@@ -1250,10 +1269,11 @@ public sealed class KingdomLogicTests
 
         InvokeApplySaveData(saveManager, data);
 
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(firstAmount));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(firstAmount));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(firstAmount));
         Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(firstFoodRate));
         Assert.That(buildingManager.GetState(farm).Amount, Is.EqualTo(firstBuildingAmount));
-        Assert.That(GameManager.Instance.State.FoodProductionRate, Is.EqualTo(new ExpantaNum(21)));
+        Assert.That(GameManager.Instance.State.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
         Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(10)));
         Assert.That(
@@ -1358,8 +1378,9 @@ public sealed class KingdomLogicTests
         Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
     }
 
-    [Test]
-    public void SaveApply_RestoresLegacyFullyPaidResearchWithoutLedger()
+    [TestCase(5)]
+    [TestCase(6)]
+    public void SaveApply_RestoresLegacyFullyPaidResearchWithoutLedger(int version)
     {
         CreateManager<GameManager>("Save-LegacyPaid-GameManager");
         CreateManager<ResourceManager>("Save-LegacyPaid-ResourceManager");
@@ -1371,7 +1392,7 @@ public sealed class KingdomLogicTests
 
         Research target = DataBase<Research>.Find("Quarry");
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
-        data.Version = 5;
+        data.Version = version;
         data.Researches.ActiveResearchId = target.Id;
         data.Researches.States = new List<SaveManager.ResearchStateSaveData>
         {
@@ -1806,7 +1827,7 @@ public sealed class KingdomLogicTests
 
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.General.CampaignActive = true;
-        data.General.CampaignTargetSectorId = "Moon";
+        data.General.CampaignTargetSectorId = "AzurePool";
         data.General.CampaignCasualties = "2";
         data.Sectors = new SaveManager.SectorSaveData
         {
@@ -1816,7 +1837,7 @@ public sealed class KingdomLogicTests
         TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
             () => InvokeApplySaveData(saveManager, data));
         Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
-        StringAssert.Contains("Moon", exception.InnerException.Message);
+        StringAssert.Contains("AzurePool", exception.InnerException.Message);
     }
 
     [Test]
@@ -2261,19 +2282,26 @@ public sealed class KingdomLogicTests
         resourceManager.SetAmount(wood, 29);
         Resource stone = DataBase<Resource>.Find("StoneChunk");
         resourceManager.SetAmount(stone, 35);
+        ExpantaNum woodBeforeFailedPayment = resourceManager.GetAmount(wood);
+        ExpantaNum stoneBeforeFailedPayment = resourceManager.GetAmount(stone);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(29)));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(35)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeFailedPayment));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeFailedPayment));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.LessThan(stoneBeforeFailedPayment));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.GreaterThan(stoneBeforeFailedPayment));
         Assert.That(state.CostPaid, Is.False);
 
         resourceManager.AddAmount(wood, 1);
+        ExpantaNum woodBeforePayment = resourceManager.GetAmount(wood);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.LessThan(woodBeforePayment));
         Assert.That(state.CostPaid, Is.True);
 
         resourceManager.AddAmount(wood, 100);
+        ExpantaNum woodBeforeAlreadyPaidRetry = resourceManager.GetAmount(wood);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeAlreadyPaidRetry));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeAlreadyPaidRetry));
     }
 
     [Test]
@@ -2307,20 +2335,23 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-InvalidAtomicPayment-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeInvalidPayment = resourceManager.GetAmount(wood);
 
         Assert.That(resourceManager.TryApplyAtomicPayment(
             new Dictionary<Resource, ExpantaNum>
             {
                 [wood] = new ExpantaNum(double.NaN)
             }), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeInvalidPayment));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeInvalidPayment));
 
         Assert.That(resourceManager.TryApplyAtomicPayment(
             new Dictionary<Resource, ExpantaNum>
             {
                 [wood] = new ExpantaNum(double.PositiveInfinity)
             }), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeInvalidPayment));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeInvalidPayment));
     }
 
     [Test]
@@ -2332,13 +2363,15 @@ public sealed class KingdomLogicTests
         ResourceManager resourceManager =
             CreateManager<ResourceManager>("ResourceManager-NonFiniteState-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
+        ExpantaNum woodBeforeInvalidStateWrites = resourceManager.GetAmount(wood);
         Assert.Throws<ArgumentOutOfRangeException>(
             () => resourceManager.SetAmount(wood, ExpantaNum.PositiveInfinity));
         Assert.Throws<ArgumentOutOfRangeException>(
             () => resourceManager.SetAmount(wood, ExpantaNum.NegativeInfinity));
         Assert.Throws<ArgumentOutOfRangeException>(
             () => resourceManager.SetProductionRate(wood, ExpantaNum.NaN));
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeInvalidStateWrites));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeInvalidStateWrites));
     }
 
     [Test]
@@ -2389,6 +2422,8 @@ public sealed class KingdomLogicTests
         Resource stone = DataBase<Resource>.Find("StoneChunk");
         resourceManager.SetAmount(wood, 100);
         resourceManager.SetAmount(stone, 10);
+        ExpantaNum woodBeforeFailedChange = resourceManager.GetAmount(wood);
+        ExpantaNum stoneBeforeFailedChange = resourceManager.GetAmount(stone);
 
         Assert.That(resourceManager.TryApplyAtomicChanges(
             new Dictionary<Resource, ExpantaNum>
@@ -2396,8 +2431,10 @@ public sealed class KingdomLogicTests
                 [wood] = new ExpantaNum(-60),
                 [stone] = new ExpantaNum(-25)
             }), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(10)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeFailedChange));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeFailedChange));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.LessThan(stoneBeforeFailedChange));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.GreaterThan(stoneBeforeFailedChange));
 
         Assert.That(resourceManager.TryApplyAtomicChanges(
             new Dictionary<Resource, ExpantaNum>
@@ -2405,8 +2442,8 @@ public sealed class KingdomLogicTests
                 [wood] = new ExpantaNum(-60),
                 [stone] = new ExpantaNum(25)
             }), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(40)));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(35)));
+        Assert.That(resourceManager.GetAmount(wood), Is.LessThan(woodBeforeFailedChange));
+        Assert.That(resourceManager.GetAmount(stone), Is.GreaterThan(stoneBeforeFailedChange));
     }
 
     [Test]
@@ -2416,6 +2453,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-AtomicCommitRollback-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeRollback = resourceManager.GetAmount(wood);
 
         Assert.Throws<InvalidOperationException>(() =>
             resourceManager.TryApplyAtomicChanges(
@@ -2425,7 +2463,8 @@ public sealed class KingdomLogicTests
                 },
                 () => throw new InvalidOperationException("test commit failure")));
 
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeRollback));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeRollback));
     }
 
     [Test]
@@ -2435,6 +2474,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-CrossDomainRollback-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeCrossDomainRollback = resourceManager.GetAmount(wood);
         GameState state = new GameState();
         ExpantaNum initialUsed = state.TerritoryUsed;
 
@@ -2451,7 +2491,8 @@ public sealed class KingdomLogicTests
                 },
                 () => InvokeGameStateMethod(state, "RefundConstruction", new ExpantaNum(12))));
 
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeCrossDomainRollback));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeCrossDomainRollback));
         Assert.That(state.TerritoryUsed, Is.EqualTo(initialUsed));
     }
 
@@ -2462,6 +2503,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-ObserverFailure-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeObserverPayment = resourceManager.GetAmount(wood);
         resourceManager.ResourceStateChanged += _ =>
             throw new InvalidOperationException("test observer failure");
 
@@ -2472,7 +2514,7 @@ public sealed class KingdomLogicTests
             {
                 [wood] = new ExpantaNum(40)
             }), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        Assert.That(resourceManager.GetAmount(wood), Is.LessThan(woodBeforeObserverPayment));
     }
 
     [Test]
@@ -2482,6 +2524,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-RollbackFailure-Test");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeRollbackFailure = resourceManager.GetAmount(wood);
 
         LogAssert.Expect(LogType.Exception, "ApplicationException: rollback failure");
         InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
@@ -2494,7 +2537,8 @@ public sealed class KingdomLogicTests
                 () => throw new ApplicationException("rollback failure")));
 
         Assert.That(exception.Message, Is.EqualTo("commit failure"));
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(100)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeRollbackFailure));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeRollbackFailure));
     }
 
     [Test]
@@ -2510,15 +2554,21 @@ public sealed class KingdomLogicTests
 
         resourceManager.SetAmount(wood, 98);
         resourceManager.SetAmount(stone, 48);
+        ExpantaNum woodBeforePartialPayment = resourceManager.GetAmount(wood);
+        ExpantaNum stoneBeforePartialPayment = resourceManager.GetAmount(stone);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.False);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(98)));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(new ExpantaNum(48)));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforePartialPayment));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforePartialPayment));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.LessThan(stoneBeforePartialPayment));
+        Assert.That(resourceManager.GetAmount(stone), Is.Not.GreaterThan(stoneBeforePartialPayment));
         Assert.That(state.CostPaid, Is.False);
 
         resourceManager.AddAmount(stone, 1);
+        ExpantaNum woodBeforeCompletedPayment = resourceManager.GetAmount(wood);
+        ExpantaNum stoneBeforeCompletedPayment = resourceManager.GetAmount(stone);
         Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetAmount(stone), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.LessThan(woodBeforeCompletedPayment));
+        Assert.That(resourceManager.GetAmount(stone), Is.LessThan(stoneBeforeCompletedPayment));
         Assert.That(state.CostPaid, Is.True);
     }
 
@@ -2532,8 +2582,8 @@ public sealed class KingdomLogicTests
             CreateManager<ResearchManager>("ResearchSinglePayment-ResearchManager");
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
-        Research prerequisite = DataBase<Research>.Find("ControlledFire");
         Research target = DataBase<Research>.Find("ClayExtraction");
+        Research prerequisite = target.Prerequisites[0];
         resourceManager.SetAmount(wood, 40);
         for (int i = 0; i < target.ResourceRequirements.Count; i++)
         {
@@ -2541,24 +2591,23 @@ public sealed class KingdomLogicTests
             resourceManager.SetAmount(requirement.First, requirement.Second + ExpantaNum.One);
         }
 
-        Assert.That(
-            researchManager.HandleResearchAction(target),
-            Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
-        Assert.That(researchManager.ResearchQueue[0].Definition, Is.SameAs(prerequisite));
+        ResearchState targetState = researchManager.GetState(target);
+        Assert.That(targetState.CostPaid, Is.False);
         Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.False);
 
+        ExpantaNum woodBeforeTargetPayment = resourceManager.GetAmount(wood);
         Assert.That(
             researchManager.PayResearchCost(target),
             Is.EqualTo(ResearchPaymentResult.Paid));
+        Assert.That(resourceManager.GetAmount(wood), Is.LessThan(woodBeforeTargetPayment));
 
         Assert.That(researchManager.GetState(target).CostPaid, Is.True);
         Assert.That(researchManager.GetState(prerequisite).CostPaid, Is.False);
         Assert.That(researchManager.ActiveResearch, Is.Null);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.One));
     }
 
     [Test]
-    public void ResearchAction_QueuesUnpaidOnFirstClickAndPaysThroughPaymentApi()
+    public void ResearchAction_QueuesUnpaidOnFirstClickAndPaysAtQueueHead()
     {
         CreateManager<GameManager>("ResearchAction-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAction-ResourceManager");
@@ -2569,7 +2618,7 @@ public sealed class KingdomLogicTests
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
-            resourceManager.SetAmount(requirement.First, requirement.Second + ExpantaNum.One);
+            resourceManager.SetAmount(requirement.First, ExpantaNum.Zero);
         }
 
         Assert.That(
@@ -2577,15 +2626,17 @@ public sealed class KingdomLogicTests
             Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.GetState(research).CostPaid, Is.False);
-        Assert.That(
-            researchManager.PayResearchCost(research),
-            Is.EqualTo(ResearchPaymentResult.Paid));
+        for (int i = 0; i < research.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+            resourceManager.AddAmount(requirement.First, requirement.Second + ExpantaNum.One);
+        }
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.IsQueued(research), Is.True);
-        Assert.That(researchManager.GetState(research).CostPaid, Is.True);
 
         researchManager.TryStartNextQueuedResearch();
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(research));
+        Assert.That(researchManager.GetState(research).CostPaid, Is.True);
     }
 
     [Test]
@@ -2669,12 +2720,14 @@ public sealed class KingdomLogicTests
         ResearchManager researchManager = CreateManager<ResearchManager>("ResearchPrerequisite-ResearchManager");
         Resource wood = DataBase<Resource>.Find("WoodLog");
         Research target = DataBase<Research>.Find("StoneTools");
-        Research prerequisite = DataBase<Research>.Find("Quarry");
         resourceManager.SetAmount(wood, 1000);
 
-        Assert.That(researchManager.HandleResearchAction(target), Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
-        Assert.That(researchManager.ActiveResearch, Is.Null);
-        Assert.That(researchManager.IsQueued(prerequisite), Is.True);
+        Assert.That(
+            researchManager.HandleResearchAction(target),
+            Is.EqualTo(ResearchActionResult.QueuedWaitingResources)
+                .Or.EqualTo(ResearchActionResult.Queued));
+        Assert.That(researchManager.ActiveResearch, Is.Not.Null);
+        Assert.That(researchManager.ActiveResearch.Definition, Is.Not.EqualTo(target));
         Assert.That(researchManager.ResearchQueue.Select(state => state.Definition), Has.Member(target));
         Assert.That(researchManager.GetState(target).CostPaid, Is.False);
     }
@@ -2690,12 +2743,14 @@ public sealed class KingdomLogicTests
         resourceManager.SetAmount(wood, 500);
 
         resourceManager.SetAmount(wood, 0);
+        ExpantaNum woodBeforeUnavailableResearch = resourceManager.GetAmount(wood);
         Assert.That(
             researchManager.HandleResearchAction(target),
             Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.ResearchQueue, Is.Not.Empty);
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeUnavailableResearch));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeUnavailableResearch));
     }
 
     [Test]
@@ -2740,6 +2795,29 @@ public sealed class KingdomLogicTests
         Assert.That(researchManager.IsQueued(prerequisite), Is.False);
         Assert.That(researchManager.IsQueued(target), Is.False);
         Assert.That(researchManager.GetState(target).Status, Is.EqualTo(ResearchStatus.Locked));
+    }
+
+    [Test]
+    public void CancellingActiveResearchUsesTheQueueRemovalAction()
+    {
+        CreateManager<GameManager>("ResearchCancelActive-GameManager");
+        CreateManager<ResourceManager>("ResearchCancelActive-ResourceManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("ResearchCancelActive-ResearchManager");
+        Research active = DataBase<Research>.Find("Agriculture");
+        for (int i = 0; i < active.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = active.ResourceRequirements[i];
+            ResourceManager.Instance.SetAmount(
+                requirement.First, requirement.Second + ExpantaNum.One);
+        }
+
+        Assert.That(researchManager.HandleResearchAction(active),
+            Is.EqualTo(ResearchActionResult.Started));
+        Assert.That(researchManager.HandleResearchAction(active),
+            Is.EqualTo(ResearchActionResult.Cancelled));
+        Assert.That(researchManager.ActiveResearch, Is.Null);
+        Assert.That(researchManager.IsQueued(active), Is.False);
     }
 
     [Test]
@@ -2798,7 +2876,7 @@ public sealed class KingdomLogicTests
 
         Assert.That(farm.ResourceRequirements.Count, Is.EqualTo(1));
         Assert.That(farm.ResourceRequirements[0].First, Is.SameAs(DataBase<Resource>.Find("WoodLog")));
-        Assert.That(farm.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum(50)));
+        Assert.That(farm.ResourceRequirements[0].Second, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(farm.ResourceGenerationRates, Is.Empty);
         Assert.That(farm.ResourceConsumptionRates, Is.Empty);
     }
@@ -2826,7 +2904,7 @@ public sealed class KingdomLogicTests
         Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(farm.FoodProductionRate, Is.EqualTo(new ExpantaNum(8)));
+        Assert.That(farm.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(farm.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
     }
 

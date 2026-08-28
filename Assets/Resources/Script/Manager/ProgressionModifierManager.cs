@@ -278,8 +278,8 @@ public static class ProgressionModifierManager
                 case ResearchEffectType.UnlockIndustrialWorkshop:
                     modifiers.AddUnlockedSystem(ResearchSystem.IndustrialWorkshop);
                     break;
-                case ResearchEffectType.UnlockFirstContact:
-                    modifiers.AddUnlockedSystem(ResearchSystem.FirstContact);
+                case ResearchEffectType.UnlockHomeSystemSurvey:
+                    modifiers.AddUnlockedSystem(ResearchSystem.HomeSystemSurvey);
                     break;
                 case ResearchEffectType.UnlockDeepSpaceFleet:
                     modifiers.AddUnlockedSystem(ResearchSystem.DeepSpaceFleet);

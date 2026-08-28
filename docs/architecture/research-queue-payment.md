@@ -42,12 +42,17 @@ never infers or refunds a missing amount, especially not by temporarily
 exceeding Food capacity. Invalid or unknown ledger entries reject the
 candidate save and allow the normal backup fallback to run.
 
+The save format is currently version 7. Versions 5 and 6 are accepted as
+legacy formats because they predate the complete per-resource ledger; version 7
+requires the ledger for a fully paid research state.
+
 ## UI boundary
 
-The research tree and detail panel issue research actions and display state.
-They must not implement a second payment algorithm or subtract resources
-directly. `PayResearchCost` remains an explicit diagnostic/detail API, while
-queued research uses the automatic queue-head path above.
+The research tree and detail panel issue queue actions and display state.
+They must not implement a second payment algorithm, subtract resources
+directly, or expose a separate payment button. `PayResearchCost` may remain as
+an internal/diagnostic manager API, but the player-facing path is always the
+automatic queue-head path above.
 
 ## Regression requirements
 

@@ -14,7 +14,7 @@
 - 研究由 `ResearchManager` 按科技树和资源前置推进；时代跃迁由带有 `AdvancesTechLevel` 的研究完成，不应写成剧情按钮或过场自动赠予。
 - 建筑由 `BuildingManager` 实际建造并形成生产、消费、能源、物流、人口与领土结果；普通资源没有仓储上限，只有 Food 有容量语义。叙事不可写“仓库满了所以生产停摆”，应写成供应链、研究、建造成本或运输能力不足。
 - Workshop 是工业研究 `IndustrialWorkshop` 解锁后的购买式改良层。它通过研究/升级前置和一次性资源支付，改变生产、建造、物流、战斗或远征效率；它不是独立的时代，也不是凭空出现的新工厂。
-- Spacer 的星区由 `SectorDefinition`/`SectorManager` 管理。玩家可解锁、殖民（本地星系）、远征并占领星区；行动消耗持续 Food 与配置资源，远征受有效战力、舰队、军力、供给、能源、物流、敌方强度和伤亡影响。所谓“Battle”在叙事中应表现为持续的远征/战役压力，而非当前不存在的即时战斗场面。
+- Spacer 的星区由 `SectorDefinition`/`SectorManager` 管理。本星系探索先建立行星与轨道航行图；之后玩家才可解锁、殖民（本地星系）、远征并占领星区。行动消耗持续 Food 与配置资源，远征受有效战力、舰队、军力、供给、能源、物流、敌方强度和伤亡影响。所谓“Battle”在叙事中应表现为持续的远征/战役压力，而非当前不存在的即时战斗场面。
 - StoryManager 当前是只读档案：章节按 `RequiredEra` 解锁，少数原始时代章节还要求 TutorialStep；UI 可显示最新已解锁记忆和下一段提示，但故事本身不改变研究、资源、存档或战斗规则。
 
 ## 三、七时代主线
@@ -75,7 +75,9 @@
 
 主题：离开母星之后，文明必须学会承担距离。
 
-玩家行动：完成 FirstContact、DeepSpaceFleet、InterstellarNavigation 及轨道/深空研究；建设 LaunchCenter、OrbitalStation、Shipyard、DeepSpaceRelay、DeepSpaceObservatory、OrbitalSolarArray、OrbitalHabitatMegastructure、OrbitalResourceExtractionArray、PhantomMaterialsFabricator、PhaseMaterialSynthesisArray 等；在 Sector 页面解锁并殖民本地星系星区，随后进行星际远征和占领。
+玩家行动：完成 HomeSystemSurvey（本星系测绘），建立太阳系内的观测与航行基础；再完成 DeepSpaceFleet、InterstellarNavigation 及轨道/深空研究，建设 LaunchCenter、OrbitalStation、Shipyard、DeepSpaceRelay、DeepSpaceObservatory、OrbitalSolarArray、OrbitalHabitatMegastructure、OrbitalResourceExtractionArray、PhantomMaterialsFabricator、PhaseMaterialSynthesisArray 等；在 Sector 页面解锁并殖民本地星系星区，随后才进行星际远征和占领。
+
+遗产揭示节奏：本星系测绘只提供线索，不直接交出祖先答案；曙光环让残存的发射设施重新运转，碧池星与终焉星逐步带回可复用的材料和燃料，碎冠带与雷门环把零散发现接入工业与远航，最后在曜心触及日冕采集技术。跨出太阳系后，远征才会把这些碎片拼成更高阶的文明遗产。
 
 冲突：每条补给线都要付出持续成本。远征不是一次点击后的胜利动画：有效战力不足会停滞并承受伤亡，供给、能源和物流不足会削弱战力，舰队损伤还需要维修。星区奖励应被理解为领土、原料、一次性奖励和有限战略流量，不能取代玩家建设的高级生产链。
 
@@ -83,7 +85,7 @@
 
 真实系统对应：Spacer 研究/建筑/Workshop、星区前置关系、Colonization、CampaignProgress、CombatRatio、Casualties、Food 与资源持续消耗、占领奖励。
 
-引导承接约束：进入 Spacer 后，Tutorial 必须先引导真实 `FirstContact`、`DeepSpaceFleet`、`InterstellarNavigation`，再引导 `LaunchCenter`、`OrbitalStation`、`Shipyard` 和 `Sectors`；只有完成这段太空主线后，才回退到下一时代的 `TechnologicalSingularity` 目标。
+引导承接约束：进入 Spacer 后，Tutorial 必须先引导真实 `HomeSystemSurvey`（本星系测绘），再引导 `DeepSpaceFleet`、`InterstellarNavigation`、`LaunchCenter`、`OrbitalStation`、`Shipyard` 和 `Sectors`；只有完成这段太空主线后，才回退到下一时代的 `TechnologicalSingularity` 目标。
 
 ### 6. Ultra：已知边界上的奇点
 
@@ -124,7 +126,7 @@
 - 遗迹中的“远古技术”究竟是可复现的工程，还是只在特定社会组织与资源链中成立的失效方案？
 - 为什么最早的灾变抹去了道路、文字与名字，却留下足以被重新拼接的生产痕迹？
 - 星际边疆的警报来自敌对文明、失控遗迹，还是鼠族自身过去留下的自动防卫协议？在现有系统没有确认前，只能保持多解。
-- FirstContact 与 InterstellarNavigation 打开的不只是路线，也可能是“谁有资格代表鼠族前往远方”的制度问题；该问题应由殖民、占领治理和补给选择逐步回答。
+- HomeSystemSurvey（本星系测绘）负责建立太阳系内的观测与航行基础；InterstellarNavigation 才打开跨星系航线。它们不应在本星系探索阶段预先讲述星区占领或星际接触，后续的殖民、占领治理和补给选择再逐步回答“谁有资格代表鼠族前往远方”的制度问题。
 - TechnologicalSingularity 是恢复祖先能力的终点，还是发现“能力越大，越需要限制”的转折点？
 - Archotech 的最终答案不应由石碑替鼠族作出。真正的终局应取决于后续真实系统支持的选择：复原旧文明、维持多中心自治，或创造从未存在过的新秩序。
 
@@ -133,4 +135,4 @@
 - 新章节优先复用现有 `StoryChapter` 字段：稳定 `Id`、标题、时代、摘要、正文、`RequiredEra`，只有确有教程动作时才增加 `RequiredTutorialStepId`。
 - 章节解锁条件应引用玩家已经完成的研究、建造、Workshop、殖民/远征/占领或教程动作；若需要新的触发条件，先扩展并验证 StoryManager，再写剧本。
 - 任何“剧情奖励”必须落到已有 Manager 的明确事务中，并有对应测试；不能在 Story UI 中偷偷修改运行状态。
-- 代码、资产、叙事命名应优先使用稳定 ID（如 `IndustrialWorkshop`、`FirstContact`、`DeepSpaceFleet`、`InterstellarNavigation`、`TechnologicalSingularity`），中文文案只负责表达，不改变系统含义。
+- 代码、资产、叙事命名应优先使用稳定 ID（如 `IndustrialWorkshop`、`HomeSystemSurvey`、`DeepSpaceFleet`、`InterstellarNavigation`、`TechnologicalSingularity`），中文文案只负责表达，不改变系统含义。

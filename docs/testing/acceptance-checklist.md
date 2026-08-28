@@ -1,80 +1,30 @@
-# Kingdom3 acceptance checklist
+# 当前验收清单
 
-## Compile and static
+## 静态与编译
 
-- Unity 2022.3.62f2c1 opens the project.
-- no C# compile errors;
-- no missing script references;
-- no `BigNumber`;
-- no `Pair<Resource,string>`;
-- no `Transform.GetChild(index)`;
-- Managers contain no UI references.
+- 稳定 ID、Definition/State/Manager/UI 边界保持一致。
+- 新增或移动的 `.cs` 同步进入所有适用的 `.csproj`。
+- 无 C# 编译错误、缺失脚本引用或旧数值类型残留。
+- 普通资源无容量上限；Food 是唯一有库存容量语义的资源。
 
-## Simulation
+## 交易与存档
 
-- partial inventory produces partial efficiency in the same tick;
-- actual consumption never exceeds availability;
-- resource amount never ends below zero;
-- insertion order does not affect results;
-- food integrates every tick;
-- calendar advances independently;
-- total-time result is frame-rate independent;
-- auto-build uses `TryBuild`.
+- 研究队首自动原子支付，资源不足不部分扣款。
+- 建造、拆除、研究和工坊购买失败时不产生部分状态变更。
+- 星区建筑不读取、提交或返还 `spaceCost`；数量使用既有 `BuildingState.Amount` 保存。
+- 存档恢复后再校验星区建筑与占领状态的一致性。
 
-## Transactions
+## 页面行为
 
-- build 1, 10 and maximum charge exact costs;
-- insufficient conditions cause no partial mutation;
-- deconstruct clamps before returns;
-- research cost pays once.
+- Buildings 页过滤所有 `SectorBuilding`。
+- 未占领星区不显示或加载建筑展开内容；占领后才能展开。
+- 研究、工坊、时代详情各自只提供自己的主操作；建筑详情不提供建造/升级按钮。
+- 资源相关断言只验证结构、方向、正值或相对变化，不锁定可调整的库存、产出、消耗和成本数值。
+- 研究树和队列仅将当前正在研究的目标显示为金色 Outline。
+- 详情切换清除旧选择状态；UI 不成为权威状态来源。
 
-## Save/load
+## 证据边界
 
-- one versioned root;
-- temp + backup path;
-- main semantic failure can fall back to backup;
-- repeated Load is idempotent;
-- stable IDs only;
-- derived rates rebuild;
-- ExpantaNum round-trips.
+报告必须区分静态检查、CLI 编译、Unity Test Runner 日志和真机验收。未有对应日志时不得声称通过。
 
-## UI lifecycle
-
-- no Viewer Update refresh loops;
-- no HUD/MusicViewer refresh coroutines;
-- one bounded UI refresh manager;
-- disabled main viewers do not refresh;
-- disabled viewers do not stop simulation;
-- settings disabled does not stop music;
-- re-enabled viewer displays latest State;
-- no duplicate cards/subscriptions after repeated enable/disable.
-
-## Layout and navigation
-
-- no manual dynamic card height formulas;
-- no hidden card reparenting;
-- no off-screen page hiding;
-- main navigation uses explicit MainTab and SetActive;
-- ResearchLineView caches components;
-- Scene/Prefab references are valid.
-
-## Visual design
-
-- shared theme tokens and component states;
-- HUD/navigation/resource/building/research/settings match the same system;
-- common buttons and dialogs are reused;
-- failure reasons are explicit;
-- important state is not color-only;
-- 1920x1080, 2560x1440 and 1366x768 pass.
-
-## Performance
-
-- one gameplay simulation tick;
-- one ordinary UI refresh scheduler;
-- hidden pages produce no continuous TMP/Layout work;
-- Tick has no repeated Parse/LINQ/temp collections;
-- one-hour run has no sustained memory growth.
-
-## Evidence
-
-Record Unity executable, command, exit code, log, XML, Console, screenshots and Profiler captures. If Unity was not run, state `未执行真实 Unity 编译。`
+未执行真实 Unity 编译。未执行 Huawei P40 Pro 真机验收。

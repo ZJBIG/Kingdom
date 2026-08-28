@@ -145,7 +145,7 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < definitions.Count; i++)
         {
             Building building = definitions[i];
-            if (building == null || !ShouldDisplayBuilding(building))
+            if (building == null || building is SectorBuilding || !ShouldDisplayBuilding(building))
                 continue;
             orderedDefinitions.Add(building);
         }
@@ -234,7 +234,8 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < definitions.Count; i++)
         {
             Building building = definitions[i];
-            if (building != null && ShouldDisplayBuilding(building))
+            if (building != null && !(building is SectorBuilding) &&
+                ShouldDisplayBuilding(building))
                 signature.Append(building.Id).Append(';');
         }
         return signature;

@@ -13,7 +13,9 @@ public enum BuildFailure
     ProductivityInsufficient,
     DeconstructionUnavailable,
     BuildingTierSuperseded,
-    UpgradeUnavailable
+    UpgradeUnavailable,
+    SectorNotOccupied,
+    BuildingLimitReached
 }
 
 public class BuildingManager : Singleton<BuildingManager>
@@ -36,6 +38,7 @@ public class BuildingManager : Singleton<BuildingManager>
     private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
     private readonly HashSet<Building> chainMembers = new();
     private readonly HashSet<Building> chainRoots = new();
+    private readonly Dictionary<SectorDefinition, List<SectorBuilding>> sectorBuildingsBySector = new();
     private bool chainIndexInitialized;
     // FindObjectOfType scans the whole scene and is far too expensive to run
     // on every prerequisite check; ArePrerequisitesMet is called from UI
@@ -112,6 +115,11 @@ public class BuildingManager : Singleton<BuildingManager>
             throw new ArgumentNullException(nameof(definitions));
 
         ValidateMergedResourceFlows(definitions);
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            if (definitions[i] is SectorBuilding sectorBuilding)
+                SectorBuilding.Validate(sectorBuilding);
+        }
 
         var definitionSet = new HashSet<Building>();
         for (int i = 0; i < definitions.Count; i++)
@@ -131,6 +139,9 @@ public class BuildingManager : Singleton<BuildingManager>
                     $"建筑升级链“{source.Id}”不能升级到自身。");
             ValidateChainEconomy(source);
             ValidateChainEconomy(target);
+            if (target is SectorBuilding)
+                throw new InvalidOperationException(
+                    $"Building '{source.Id}' cannot upgrade to sector building '{target.Id}'.");
         }
 
         var visited = new HashSet<Building>();
@@ -146,26 +157,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
-            if (building == null)
-                continue;
-            for (int generationIndex = 0;
-                 generationIndex < building.ResourceGenerationRates.Count;
-                 generationIndex++)
-            {
-                Pair<Resource, ExpantaNum> generated =
-                    building.ResourceGenerationRates[generationIndex];
-                for (int consumptionIndex = 0;
-                     consumptionIndex < building.ResourceConsumptionRates.Count;
-                     consumptionIndex++)
-                {
-                    Pair<Resource, ExpantaNum> consumed =
-                        building.ResourceConsumptionRates[consumptionIndex];
-                    if (generated.First == consumed.First)
-                        throw new InvalidOperationException(
-                            $"建筑“{building.Id}”的资源“{generated.First.Id}”生产/消费未合并。");
-                }
-            }
+            definitions[i]?.ValidateResourceFlowDefinitions();
         }
     }
 
@@ -210,6 +202,7 @@ public class BuildingManager : Singleton<BuildingManager>
         chainPredecessors.Clear();
         chainMembers.Clear();
         chainRoots.Clear();
+        sectorBuildingsBySector.Clear();
         for (int i = 0; i < definitions.Count; i++)
         {
             Building source = definitions[i];
@@ -223,6 +216,19 @@ public class BuildingManager : Singleton<BuildingManager>
             predecessors.Add(source);
             chainMembers.Add(source);
             chainMembers.Add(source.UpgradeTo);
+        }
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            if (definitions[i] is not SectorBuilding sectorBuilding)
+                continue;
+            if (!sectorBuildingsBySector.TryGetValue(
+                    sectorBuilding.Sector,
+                    out List<SectorBuilding> buildings))
+            {
+                buildings = new List<SectorBuilding>();
+                sectorBuildingsBySector.Add(sectorBuilding.Sector, buildings);
+            }
+            buildings.Add(sectorBuilding);
         }
         foreach (Building member in chainMembers)
             if (!chainPredecessors.ContainsKey(member))
@@ -297,6 +303,16 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
+        if (building is SectorBuilding sectorBuilding)
+        {
+            SectorState sectorState = GameManager.Instance.Sectors.GetState(sectorBuilding.Sector);
+            if (!sectorState.Occupied)
+            {
+                failure = BuildFailure.SectorNotOccupied;
+                return false;
+            }
+        }
+
         IReadOnlyList<Research> requiredResearch = building.RequiredResearch;
         for (int i = 0; i < requiredResearch.Count; i++)
         {
@@ -339,6 +355,21 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         return ArePrerequisitesMet(building, out _) &&
             IsHighestUnlockedChainTier(building);
+    }
+
+    public bool TryGetSectorBuilding(Building building, out SectorBuilding sectorBuilding)
+    {
+        sectorBuilding = building as SectorBuilding;
+        return sectorBuilding != null;
+    }
+
+    public IReadOnlyList<SectorBuilding> GetSectorBuildings(SectorDefinition sector)
+    {
+        EnsureBuildingChainIndex();
+        return sector != null &&
+            sectorBuildingsBySector.TryGetValue(sector, out List<SectorBuilding> buildings)
+                ? buildings
+                : Array.Empty<SectorBuilding>();
     }
 
     private bool IsHighestUnlockedChainTier(Building building)
@@ -463,10 +494,21 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        ExpantaNum requiredSpace = state.SpaceCost * amount;
-        if (GameManager.Instance.State.AvailableTerritory < requiredSpace)
+        SectorBuilding sectorBuilding = building as SectorBuilding;
+        bool usesTerritory = sectorBuilding == null;
+        ExpantaNum requiredSpace = ExpantaNum.Zero;
+        if (usesTerritory)
         {
-            failure = BuildFailure.SpaceInsufficient;
+            requiredSpace = state.SpaceCost * amount;
+            if (GameManager.Instance.State.AvailableTerritory < requiredSpace)
+            {
+                failure = BuildFailure.SpaceInsufficient;
+                return false;
+            }
+        }
+        else if (state.Amount + amount > new ExpantaNum(sectorBuilding.MaxAmount))
+        {
+            failure = BuildFailure.BuildingLimitReached;
             return false;
         }
 
@@ -504,7 +546,9 @@ public class BuildingManager : Singleton<BuildingManager>
 
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
         ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
-        ExpantaNum previousTerritoryUsed = GameManager.Instance.State.TerritoryUsed;
+        ExpantaNum previousTerritoryUsed = usesTerritory
+            ? GameManager.Instance.State.TerritoryUsed
+            : ExpantaNum.Zero;
         ExpantaNum previousPopulationCapacity =
             GameManager.Instance.State.Population.PopulationCapacity;
         ExpantaNum previousPopulationProgress =
@@ -515,16 +559,19 @@ public class BuildingManager : Singleton<BuildingManager>
             costs,
             () =>
             {
-                GameManager.Instance.CommitConstruction(requiredSpace);
+                if (usesTerritory)
+                    GameManager.Instance.CommitConstruction(requiredSpace);
                 SetAmountAndRates(state, state.Amount + amount);
                 RefreshResearchPower();
             },
             () =>
             {
-                GameManager.Instance.RefundConstruction(requiredSpace);
+                if (usesTerritory)
+                    GameManager.Instance.RefundConstruction(requiredSpace);
                 SetAmountAndRates(state, previousAmount);
                 RefreshResearchPower();
-                GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
+                if (usesTerritory)
+                    GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
                 GameManager.Instance.State.RestorePopulationCapacityExact(
                     previousPopulationCapacity,
                     previousPopulationProgress);
@@ -569,7 +616,10 @@ public class BuildingManager : Singleton<BuildingManager>
         var resourceChanges = new Dictionary<Resource, ExpantaNum>();
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
         ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
-        ExpantaNum previousTerritoryUsed = GameManager.Instance.State.TerritoryUsed;
+        bool usesTerritory = !(building is SectorBuilding);
+        ExpantaNum previousTerritoryUsed = usesTerritory
+            ? GameManager.Instance.State.TerritoryUsed
+            : ExpantaNum.Zero;
         ExpantaNum previousPopulationCapacity =
             GameManager.Instance.State.Population.PopulationCapacity;
         ExpantaNum previousPopulationProgress =
@@ -593,16 +643,19 @@ public class BuildingManager : Singleton<BuildingManager>
                 resourceChanges,
                 () =>
                 {
-                    GameManager.Instance.RefundConstruction(state.SpaceCost * amount);
+                    if (usesTerritory)
+                        GameManager.Instance.RefundConstruction(state.SpaceCost * amount);
                     SetAmountAndRates(state, state.Amount - amount);
                     RefreshResearchPower();
                 },
                 () =>
                 {
-                    GameManager.Instance.CommitConstruction(state.SpaceCost * amount);
+                    if (usesTerritory)
+                        GameManager.Instance.CommitConstruction(state.SpaceCost * amount);
                     SetAmountAndRates(state, previousAmount);
                     RefreshResearchPower();
-                    GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
+                    if (usesTerritory)
+                        GameManager.Instance.State.RestoreTerritoryUsed(previousTerritoryUsed);
                     GameManager.Instance.State.RestorePopulationCapacityExact(
                         previousPopulationCapacity,
                         previousPopulationProgress);
@@ -628,8 +681,17 @@ public class BuildingManager : Singleton<BuildingManager>
         if (result < ExpantaNum.One)
             return ExpantaNum.Zero;
 
-        if (state.SpaceCost > ExpantaNum.Zero)
-            result = ExpantaNum.Min(result, (GameManager.Instance.State.AvailableTerritory / state.SpaceCost).Floor());
+        if (building is SectorBuilding sectorBuilding)
+        {
+            ExpantaNum remaining = new ExpantaNum(sectorBuilding.MaxAmount) - state.Amount;
+            result = ExpantaNum.Min(result, ExpantaNum.Max(ExpantaNum.Zero, remaining));
+        }
+        else if (state.SpaceCost > ExpantaNum.Zero)
+        {
+            result = ExpantaNum.Min(
+                result,
+                (GameManager.Instance.State.AvailableTerritory / state.SpaceCost).Floor());
+        }
         if (state.ProductivityConsumption > ExpantaNum.Zero)
         {
             result = ExpantaNum.Min(
@@ -1476,7 +1538,8 @@ public class BuildingManager : Singleton<BuildingManager>
             if (state.Amount <= ExpantaNum.Zero)
                 continue;
 
-            GameManager.Instance.CommitConstruction(state.SpaceCost * state.Amount);
+            if (state.Definition is not SectorBuilding)
+                GameManager.Instance.CommitConstruction(state.SpaceCost * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }
         RebuildActiveBuildingIndex();
@@ -1572,6 +1635,27 @@ public class BuildingManager : Singleton<BuildingManager>
         }
         RebuildActiveBuildingIndex();
         RefreshResearchPower();
+    }
+
+    internal void ValidateSectorBuildingState(SectorManager sectors)
+    {
+        if (sectors == null)
+            throw new ArgumentNullException(nameof(sectors));
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            BuildingState state = orderedStates[i];
+            if (state.Definition is not SectorBuilding sectorBuilding)
+                continue;
+            if (state.Amount > new ExpantaNum(sectorBuilding.MaxAmount))
+                throw new InvalidOperationException(
+                    $"Sector building '{sectorBuilding.Id}' exceeds its build limit.");
+            if (state.Amount > ExpantaNum.Zero &&
+                !sectors.GetState(sectorBuilding.Sector).Occupied)
+            {
+                throw new InvalidOperationException(
+                    $"Sector building '{sectorBuilding.Id}' is built before sector '{sectorBuilding.Sector.Id}' is occupied.");
+            }
+        }
     }
 
     public override void Save() => SaveManager.Instance.SaveNow(true);

@@ -398,6 +398,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
     {
         if (viewport == null || content == null)
             return;
+        Canvas.ForceUpdateCanvases();
         Vector2 viewportSize = viewport.rect.size;
         Vector2 contentSize = content.rect.size;
         if (viewportSize.x <= 1f || viewportSize.y <= 1f || contentSize.x <= 1f || contentSize.y <= 1f)

@@ -1100,7 +1100,7 @@ public sealed class TutorialManager : MonoBehaviour
 
         string[] researchPath =
         {
-            "FirstContact",
+            "HomeSystemSurvey",
             "DeepSpaceFleet",
             "InterstellarNavigation"
         };

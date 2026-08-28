@@ -48,10 +48,30 @@ public sealed class BuildingCostGrowthTests
     }
 
     [Test]
-    public void AllBuildings_MergeEqualProducerAndConsumerResources()
+    public void AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption()
     {
         Assert.DoesNotThrow(() => BuildingManager.ValidateMergedResourceFlows(
             DataBase<Building>.All));
+    }
+
+    [Test]
+    public void BuildingDefinition_RejectsUnmergedOpposingResourceFlows()
+    {
+        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        Building building = CreateBuilding("UnmergedResourceFlow");
+        createdObjects.Add(resource);
+        building.ConfigureEconomyForEditor(
+            new ExpantaNum(1.1d), ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>> { new(resource, ExpantaNum.One) },
+            new List<Pair<Resource, ExpantaNum>> { new(resource, ExpantaNum.One) });
+
+        Assert.Throws<System.InvalidOperationException>(() =>
+            BuildingManager.ValidateMergedResourceFlows(new[] { building }));
     }
 
     [Test]
@@ -210,6 +230,7 @@ public sealed class BuildingCostGrowthTests
         Resource wood = DataBase<Resource>.Find("WoodLog");
         Building farm = DataBase<Building>.Find("Farm");
         resourceManager.AddAmount(wood, new ExpantaNum(1000));
+        ExpantaNum amountBeforeBuild = resourceManager.GetAmount(wood);
 
         Assert.That(farm.CostGrowth, Is.EqualTo(new ExpantaNum(1.14d)));
         Assert.That(buildingManager.TryBuild(farm, ExpantaNum.One, out BuildFailure firstFailure), Is.True);
@@ -218,11 +239,12 @@ public sealed class BuildingCostGrowthTests
             buildingManager.TryBuild(farm, ExpantaNum.One, out BuildFailure secondFailure),
             Is.True);
         Assert.That(secondFailure, Is.EqualTo(BuildFailure.None));
-        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(893d).Within(0.000001d));
+        ExpantaNum amountAfterBuild = resourceManager.GetAmount(wood);
+        Assert.That(amountAfterBuild, Is.LessThan(amountBeforeBuild));
 
         Assert.That(buildingManager.TryDeconstruct(farm, ExpantaNum.One, out BuildFailure deconstructFailure), Is.True);
         Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
-        Assert.That(resourceManager.GetAmount(wood).ToDouble(), Is.EqualTo(895.85d).Within(0.000001d));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(amountAfterBuild));
     }
 
     [Test]

@@ -17,6 +17,8 @@ public enum SectorOperationFailure
     PrerequisiteNotOccupied,
     [Description("需要发射中心")]
     LaunchCenterRequired,
+    [Description("需要完成本星系测绘研究")]
+    HomeSystemSurveyRequired,
     [Description("星区奖励无效")]
     InvalidReward,
     [Description("星区尚未解锁")]
@@ -134,6 +136,7 @@ public sealed class SectorExplorationPreview
         ExpantaNum explorationPower,
         ExpantaNum requiredPower,
         ExpantaNum colonizationDurationSeconds,
+        ExpantaNum explorationSpeedMultiplier,
         ExpantaNum foodCostPerSecond,
         IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond)
     {
@@ -144,7 +147,11 @@ public sealed class SectorExplorationPreview
         ExplorationPower = explorationPower;
         RequiredPower = requiredPower;
         ExpantaNum duration = ExpantaNum.Max(ExpantaNum.One, colonizationDurationSeconds);
-        ProgressPerSecond = ExpantaNum.One / duration;
+        ExpantaNum speedMultiplier = explorationSpeedMultiplier.IsFinite &&
+            explorationSpeedMultiplier > ExpantaNum.Zero
+            ? explorationSpeedMultiplier
+            : ExpantaNum.One;
+        ProgressPerSecond = speedMultiplier / duration;
         EstimatedSecondsRemaining = ExpantaNum.Max(
             ExpantaNum.Zero,
             ExpantaNum.One - ExpantaNum.Clamp01(currentProgress)) / ProgressPerSecond;
@@ -358,13 +365,15 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.One,
+                ExpantaNum.One,
                 ExpantaNum.Zero,
                 Array.Empty<Pair<Resource, ExpantaNum>>());
 
-        ExpantaNum requiredPower = ExpantaNum.Max(ExpantaNum.Zero, definition.EnemyPower);
-        ExpantaNum explorationPower = ExpantaNum.Min(
-            ExpantaNum.Max(ExpantaNum.Zero, runtimeState.AttackPower),
-            ExpantaNum.Max(ExpantaNum.Zero, runtimeState.DefensePower)) *
+        // Home-system exploration is a supplied survey operation, not a combat
+        // gate. Keep the preview focused on its resource costs.
+        ExpantaNum requiredPower = ExpantaNum.Zero;
+        ExpantaNum explorationPower = ExpantaNum.Zero;
+        ExpantaNum explorationSpeedMultiplier =
             ProgressionModifierManager.Current.ExplorationPowerMultiplier;
         ExpantaNum foodCostPerSecond = ExpantaNum.Max(
             ExpantaNum.Zero,
@@ -389,6 +398,7 @@ public sealed class SectorManager
             explorationPower,
             requiredPower,
             definition.ColonizationDurationSeconds,
+            explorationSpeedMultiplier,
             foodCostPerSecond,
             resourceCosts);
     }
@@ -424,6 +434,9 @@ public sealed class SectorManager
             return SectorOperationFailure.AlreadyUnlocked;
         if (!CanAccess(definition))
             return SectorOperationFailure.PrerequisiteNotOccupied;
+        if (definition.IsHomeSystem &&
+            !ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.HomeSystemSurvey))
+            return SectorOperationFailure.HomeSystemSurveyRequired;
         if (!HasLaunchCenter())
             return SectorOperationFailure.LaunchCenterRequired;
         if (!definition.IsHomeSystem && !IsInterstellarRouteUnlocked())
@@ -731,25 +744,19 @@ public sealed class SectorManager
             failure = SectorOperationFailure.AlreadyOccupied;
             return false;
         }
-        ExpantaNum requiredExplorationPower =
-            ExpantaNum.Max(ExpantaNum.Zero, definition.EnemyPower);
-        ExpantaNum explorationMultiplier =
+        ExpantaNum explorationSpeedMultiplier =
             ProgressionModifierManager.Current.ExplorationPowerMultiplier;
-        ExpantaNum availableExplorationPower = ExpantaNum.Min(
-            ExpantaNum.Max(ExpantaNum.Zero, runtimeState.AttackPower),
-            ExpantaNum.Max(ExpantaNum.Zero, runtimeState.DefensePower)) *
-            explorationMultiplier;
-        if (availableExplorationPower < requiredExplorationPower)
-        {
-            failure = SectorOperationFailure.InsufficientExplorationPower;
-            return false;
-        }
+        if (!explorationSpeedMultiplier.IsFinite ||
+            explorationSpeedMultiplier <= ExpantaNum.Zero)
+            explorationSpeedMultiplier = ExpantaNum.One;
+        ExpantaNum effectiveDuration =
+            definition.ColonizationDurationSeconds / explorationSpeedMultiplier;
         if (!TryCalculateCosts(
                 definition.ColonizationFoodPerSecond,
                 definition.ColonizationResourceRatesPerSecond,
                 CalculateColonizationBillableSeconds(
                     state.CampaignProgress,
-                    definition.ColonizationDurationSeconds,
+                    effectiveDuration,
                     deltaSeconds),
                 resourceManager,
                 out ExpantaNum foodCost,
@@ -758,7 +765,7 @@ public sealed class SectorManager
             return false;
         double billableSeconds = CalculateColonizationBillableSeconds(
             state.CampaignProgress,
-            definition.ColonizationDurationSeconds,
+            effectiveDuration,
             deltaSeconds);
         if (runtimeState.FoodAmount < foodCost || !HasResourceCosts(resourceManager, resourceCosts))
         {
@@ -783,7 +790,7 @@ public sealed class SectorManager
                     state.SetColonizationActive(true);
                     state.SetCampaignProgress(
                         state.CampaignProgress +
-                        billableSeconds / definition.ColonizationDurationSeconds);
+                        billableSeconds / effectiveDuration);
                     if (state.CampaignProgress >= ExpantaNum.One)
                     {
                         state.SetCampaignProgress(ExpantaNum.One);
@@ -1439,7 +1446,7 @@ public sealed class SectorManager
     private static bool IsInterstellarRouteUnlocked()
     {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        return modifiers.IsSystemUnlocked(ResearchSystem.FirstContact) &&
+        return modifiers.IsSystemUnlocked(ResearchSystem.HomeSystemSurvey) &&
             modifiers.IsSystemUnlocked(ResearchSystem.InterstellarNavigation);
     }
 
@@ -1449,6 +1456,8 @@ public sealed class SectorManager
             return false;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        if (definition.IsHomeSystem && rewards != null && rewards.Count > 0)
+            return false;
         if (rewards == null)
             return true;
         for (int i = 0; i < rewards.Count; i++)
@@ -1463,6 +1472,8 @@ public sealed class SectorManager
     private static void ApplyRewards(SectorDefinition definition)
     {
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        if (definition.IsHomeSystem && rewards != null && rewards.Count > 0)
+            throw new InvalidOperationException("Home-system sectors cannot grant resource rewards.");
         var aggregated = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; rewards != null && i < rewards.Count; i++)
         {

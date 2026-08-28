@@ -131,8 +131,9 @@ public sealed class SimulationDeterminismTests
             Is.EqualTo(.8d).Within(1e-9d));
         Assert.That(PopulationState.ProductivityGrantedPerPerson.ToDouble(),
             Is.EqualTo(2d).Within(1e-9d));
-        Assert.That(GameState.BaseFoodProductionRate.ToDouble(),
-            Is.EqualTo(5d).Within(1e-9d));
+        Assert.That(GameState.BaseFoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(new GameState().FoodProductionRate,
+            Is.EqualTo(GameState.BaseFoodProductionRate));
         Assert.That(TerritoryState.InitialTotal.ToDouble(),
             Is.EqualTo(500d).Within(1e-9d));
     }

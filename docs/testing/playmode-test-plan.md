@@ -1,29 +1,22 @@
-# PlayMode UI lifecycle test plan
+# PlayMode 测试范围
 
-## Test assembly
+PlayMode 只保留能证明玩家可见行为和跨系统边界的用例，数值内容使用定义和运行时状态动态准备，不写死资源库存总量。
 
-Create a PlayMode test assembly only if the project structure requires it. Do not move runtime scripts merely to satisfy tests.
+## 必要用例
 
-## Required automated cases
+- 关闭资源、建筑、研究等页面时，模拟和研究仍继续；重新打开后显示最新状态。
+- 研究进入队首后自动支付；资源不足时等待且不发生部分扣款；详情没有独立支付按钮。
+- 内容验收不得把资源库存、建筑资源产出或消耗写成固定等值断言；只验证正值、存在性、方向、相对关系和交易前后变化。纯数学算法测试可使用独立的合成输入验证精确结果。
+- 当前研究目标在研究树和队列中为金色 Outline；其他队列元素不变。
+- 完成“本星系测绘”（稳定 ID：`HomeSystemSurvey`）后，星区入口按钮即可用并能跳转到星区页面；
+  `InterstellarNavigation` 只负责跨星系路线，不得成为本星系星区页面的前置。
+- 未占领星区不显示展开按钮，也不创建其建筑菜单；占领后按钮出现并能展开/折叠。
+- 星区建筑菜单显示动态数量和状态；建造、拆除调用 `BuildingManager`，不改本土领土使用量。
+- 星区菜单展开后行高、后续行位置及 ScrollRect 的 viewport/content 边界均为正数且不重叠。
+- 工坊详情主按钮只购买工坊升级；建筑详情不提供建造或升级按钮；时代详情按钮执行推进或详情跳转。
 
-1. `ResourceViewerDisabled_SimulationContinues`
-2. `BuildingViewerDisabled_SimulationContinues`
-3. `ResearchViewerDisabled_ResearchContinues`
-4. `SettingViewerDisabled_MusicManagerContinues`
-5. `ViewerReenabled_ImmediatelyShowsLatestState`
-6. `RepeatedEnableDisable_DoesNotDuplicateCards`
-7. `RepeatedEnableDisable_DoesNotDuplicateSubscriptions`
-8. `MainTabSwitch_DoesNotMutateGameplayState`
-9. `DisabledViewer_DoesNotRefresh`
+## 日志证据
 
-Use `SimulationManager.ManualTick` for long simulated intervals. Add one short real-frame smoke test for OnEnable/OnDisable behavior.
+星区布局记录 `[SectorBuildings]`：星区 ID、折叠/展开高度、卡片数、viewport/content 实测尺寸。资源不足、未占领和跳转失败也必须记录实际 blocker。
 
-## Manual checks
-
-- disable each page for 60 real seconds;
-- check music auto-advance with settings closed;
-- reopen every page and compare rendered values with State;
-- inspect Console;
-- inspect Profiler for TMP, Layout.Rebuild, Canvas.BuildBatch and GC Alloc.
-
-A PlayMode runner result with zero cases is a failure, not acceptance.
+PlayMode 结果只能来自 Unity Test Runner 日志；没有日志不得声称通过。不要运行冻结的 standalone economy simulator。

@@ -194,7 +194,9 @@ public class ResearchManager : Singleton<ResearchManager>
         if (!CanAccessResearch(research))
             return ResearchActionResult.Blocked;
         if (ActiveResearch == state)
-            return ResearchActionResult.AlreadyActive;
+            return RemoveQueuedResearch(research)
+                ? ResearchActionResult.Cancelled
+                : ResearchActionResult.AlreadyActive;
         if (IsQueued(research))
             return RemoveQueuedResearch(research)
                 ? ResearchActionResult.Cancelled
@@ -235,8 +237,13 @@ public class ResearchManager : Singleton<ResearchManager>
 
     public bool RemoveQueuedResearch(Research research)
     {
-        if (research == null || !IsQueued(research))
+        bool isActiveResearch = ActiveResearch != null &&
+            ActiveResearch.Definition == research;
+        if (research == null || (!isActiveResearch && !IsQueued(research)))
             return false;
+
+        if (isActiveResearch)
+            ActiveResearch = null;
 
         HashSet<Research> cancelled = researchCancellationBuffer;
         cancelled.Clear();

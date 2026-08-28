@@ -1900,7 +1900,17 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         if (representation == LayeredRepresentation)
         {
             if (layer == 1d && format != ExpantaNumFormat.HyperOperation)
+            {
+                if (scalar > 10000d)
+                {
+                    double exponentOfExponent = Math.Log10(scalar);
+                    if (Math.Abs(exponentOfExponent - Math.Round(exponentOfExponent)) <= 1e-6d)
+                        return prefix + "ee" + FormatDisplayNumber(
+                            Math.Round(exponentOfExponent), significantDigits);
+                    return prefix + "e" + scalar.ToString("0.###", CultureInfo.InvariantCulture);
+                }
                 return prefix + "1e" + FormatDisplayNumber(scalar, significantDigits);
+            }
             return prefix + Abs().ToString();
         }
         if (representation == HyperRepresentation)

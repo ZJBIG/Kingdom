@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45a0d5d64f04e8f9a1a9a768bf40c21, type: 3}
+  m_Name: EarthMoonLogisticsHub
+  m_EditorClassIdentifier: 
+  id: EarthMoonLogisticsHub
+  Label: \u5730\u6708\u7269\u6D41\u4E2D\u67A2
+  Description: \u5728\u6708\u7403\u8F68\u9053\u533A\u5EFA\u7ACB\u7684\u552F\u4E00\u7269\u6D41\u67A2\u7EBD\uFF0C\u5C06\u6708\u9762\u539F\u6750\u3001\u53D1\u5C04\u8FD0\u529B\u4E0E\u5730\u6708\u822A\u7EBF\u7EDF\u4E00\u8C03\u5EA6\uFF0C\u4E3A\u6DF1\u7A7A\u8230\u961F\u63D0\u4F9B\u6301\u7EED\u540E\u52E4\u4E0E\u9632\u5FA1\u652F\u6301\u3002
+  TechLevel: 4
+  upgradeTo: {fileID: 0}
+  costGrowth: 1.01
+  productivityConsumption: 420
+  foodConsumptionRate: 4
+  powerConsumptionRate: 180
+  logisticsProductionRate: 320
+  logisticsConsumptionRate: 80
+  fleetPowerGranted: 80
+  defensePowerGranted: 50
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: 1200
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: 900
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: 700
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: 1400
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: 600
+  resourceGenerationRates: []
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: 0.10
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: 0.12
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: 0.08
+  requiredResearch:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
+  requiredWorkshopUpgrades: []
+  sector: {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
+  maxAmount: 1

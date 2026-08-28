@@ -60,3 +60,16 @@ After the gate:
 ## Visual redesign boundary
 
 Theme, animation and Prefab redesign may not reintroduce gameplay state into UI. UITheme is definition data only. Visual feedback reads explicit result/status values rather than parsing text.
+
+## Current detail and sector boundary
+
+- Research detail queues or removes research. Queue-head payment is automatic;
+  there is no player-facing payment button.
+- Workshop detail's main button purchases the selected workshop upgrade and
+  does not reuse research detail content.
+- Building detail has no build or upgrade button. Buildings are built from the
+  building list; `SectorBuilding` is built only from the occupied sector menu.
+- Buildings page filters every `SectorBuilding`. An unoccupied sector must not
+  show the expand button or instantiate its menu content.
+- The active research target alone uses the gold Outline in both the research
+  tree and queue graphic.

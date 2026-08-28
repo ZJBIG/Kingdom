@@ -1,4 +1,5 @@
 public static class SaveFormat
 {
-    public const int CurrentVersion = 6;
+    public const int MinimumSupportedVersion = 5;
+    public const int CurrentVersion = 7;
 }

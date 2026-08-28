@@ -374,9 +374,7 @@ public sealed partial class KingdomUIRoot
         bool workshopUnlocked = WorkshopManager.Instance != null &&
             WorkshopManager.Instance.IsSystemUnlocked;
         bool sectorsUnlocked = ProgressionModifierManager.Current.IsSystemUnlocked(
-            ResearchSystem.FirstContact) &&
-            ProgressionModifierManager.Current.IsSystemUnlocked(
-                ResearchSystem.InterstellarNavigation);
+            ResearchSystem.HomeSystemSurvey);
 
         SetNavigationButtonVisible("Overview", true);
         SetNavigationButtonVisible("Resources", true);

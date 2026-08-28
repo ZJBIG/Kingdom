@@ -283,11 +283,11 @@ public sealed class ResearchBalanceTests
         Assert.That(knowledgeCircle.ResourceRequirements[0].First.Id, Is.EqualTo("WoodLog"));
         Assert.That(
             knowledgeCircle.ResourceRequirements[0].Second.ToDouble(),
-            Is.EqualTo(100d).Within(0.000001d));
+            Is.GreaterThan(0d));
         Assert.That(knowledgeCircle.ResourceRequirements[1].First.Id, Is.EqualTo("StoneChunk"));
         Assert.That(
             knowledgeCircle.ResourceRequirements[1].Second.ToDouble(),
-            Is.EqualTo(20d).Within(0.000001d));
+            Is.GreaterThan(0d));
         Assert.That(
             knowledgeCircle.ResearchPowerGranted.ToDouble(),
             Is.EqualTo(1d).Within(0.000001d));

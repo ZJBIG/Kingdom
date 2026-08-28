@@ -1,5 +1,77 @@
 # Refactor progress log
 
+## 2026-08-27 SectorBuilding and interaction-contract refresh
+
+- `SectorBuilding` is a direct `Building` subtype with only `Sector` and
+  `MaxAmount`; `EarthMoonLogisticsHub` is a single definition asset with no
+  wrapper building or serialized `spaceCost`.
+- Sector buildings are excluded from the global Buildings page and are only
+  created/loaded in the occupied sector menu. Unoccupied sectors expose no
+  expand button and do not create the menu.
+- Research at `queue[0]` is paid automatically and atomically; there is no
+  player-facing payment button. Only the active queue head is gold-outlined in
+  both the queue and research tree.
+- Detail actions are scoped: workshop detail buys only the workshop,
+  building detail has no build/upgrade action, and era detail navigates or
+  advances through its own action.
+- Home-system exploration has no one-time resource rewards; territory and
+  post-occupation continuous rates remain separate concepts.
+- Static closure is currently Spacer Research/Workshop/Building `47/47`,
+  `46/46`, `16/16`; raw building-flow audit reports 66 assets and zero
+  opposing raw resource pairs.
+- CLI solution compilation succeeded with 0 errors and 7 warnings (existing
+  Unity serialized-field/empty-source warnings). The latest available Unity
+  log (`2026-08-27 23:44:39`) records 604 total, 603 passed, 1 failed, so it is
+  not used to claim runtime acceptance.
+- A later PlayMode subset log (`2026-08-27 23:49:57`) records 32 total, 31
+  passed, 1 failed. The failure exposed version-6 save compatibility with the
+  research payment ledger; save format version 7 now accepts versions 5/6 as
+  legacy and keeps strict ledger validation for new saves. This log predates
+  that fix and is not a pass claim.
+- The subsequent log (`2026-08-27 23:56:22`) records 605 total, 604 passed,
+  1 failed because the unsupported-version test still treated newly supported
+  version 5 as invalid. The test now uses `MinimumSupportedVersion - 1`; this
+  log also predates that correction.
+
+- Era summaries now use a non-interactive row plus an internal `Detail` button.
+  The summary is single-line and truncated before the button area; only the
+  detail action navigates to research/building information. The latest source
+  change has not yet been represented by a fresh Unity log.
+- The current available log (`2026-08-28 00:20:51`) records 32 total, 31
+  passed, 1 failed in the research-tree overflow assertion. Its failure line
+  predates the current `Canvas.ForceUpdateCanvases` refresh correction, so it
+  remains evidence of the old run rather than a current pass/fail claim.
+- Resource-value assertions in the edited content tests now derive expected
+  values from live definitions or assert structural/positive relationships;
+  fixed resource amounts and rates are not used as mutable content contracts.
+- The era PlayMode audit now checks every rendered era row: the row surface is
+  non-interactive and every active internal detail action has positive bounds.
+  This is a regression guard for the overflow/direct-navigation UI defect.
+- Era detail buttons now also forward drag lifecycle events to the outer page
+  scroll owner, so starting a swipe on the button does not block page scrolling.
+
+## 2026-08-28 警告与本星系探索语义修复
+
+- `SectorDefinition` 的五个未初始化序列化字段与 `SectorBuilding.sector`
+  已补充明确默认值；`Assembly-CSharp` 空项目已登记无逻辑占位源，避免
+  `CS2008`。Runtime 与 Assembly-CSharp 单项目 CLI 编译均为 0 警告、0 错误。
+- 本星系探索不再读取或检查敌方强度、攻击力、防御力；五个本星系资产的
+  `enemyPower` 已置零，探索详情改为明确显示仅消耗持续资源。远星战役的
+  敌方强度与攻防规则未改变。
+- 本星系星区描述改为“占领后持续产出”，不再把持续产出误写成探索完成时的
+  一次性资源奖励。静态闭环与建筑资源流检查仍通过。
+- `HomeSystemSurvey` 对玩家显示为“本星系测绘”，现在同时是本星系星区页面与
+  星区解锁的真实门槛。
+  `InterstellarNavigation` 不再错误阻塞本星系入口，继续只控制跨星系路线。
+- `ExplorationPowerMultiplier` 在本星系不再作为攻防门槛，而是实际提高探索推进速度；
+  既有研究/工坊效果因此保持可感知且不改变资源奖励语义。
+
+- 本星系星区改用世界观名称：`DawnRing`（曙光环）、`AzurePool`（碧池星）、
+  `Terminus`（终焉星）、`ShardCrown`（碎冠带）、`ThunderGate`（雷门环）和
+  `HeliosCore`（曜心）。
+  资产 GUID 保持不变，ID、文件名、Label、Description、测试与引用已同步迁移；
+  描述仍明确各星区的实际位置和资源作用。
+
 ## 2026-07-24 lifecycle tests and component binding audit
 
 - Added PlayMode lifecycle tests for disabled ResourceViewer simulation continuity and refresh-scheduler unregister behavior.

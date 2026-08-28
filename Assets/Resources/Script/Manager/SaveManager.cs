@@ -198,7 +198,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         if (data == null)
             throw new InvalidDataException("存档 JSON 为空或无效。");
-        if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
+        if (!IsSupportedVersion(data.Version))
             throw new InvalidDataException("存档结构不是当前版本。");
 
         ResetRuntimeStateForLoad();
@@ -215,12 +215,13 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
         if (data.Researches != null)
-            data.Researches.LegacyFormat = data.Version == 5;
+            data.Researches.LegacyFormat = data.Version < SaveFormat.CurrentVersion;
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
+        BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
     }
 
@@ -285,7 +286,7 @@ public sealed class SaveManager : Singleton<SaveManager>
                 return false;
             }
 
-            if (data.Version != SaveFormat.CurrentVersion && data.Version != 5)
+            if (!IsSupportedVersion(data.Version))
             {
                 Debug.LogError(
                     $"Kingdom 存档“{path}”无效：不支持版本“{data.Version}”，" +
@@ -463,6 +464,12 @@ public sealed class SaveManager : Singleton<SaveManager>
     public sealed class SectorSaveData
     {
         public List<SectorStateSaveData> States;
+    }
+
+    private static bool IsSupportedVersion(int version)
+    {
+        return version >= SaveFormat.MinimumSupportedVersion &&
+            version <= SaveFormat.CurrentVersion;
     }
 
     [Serializable]

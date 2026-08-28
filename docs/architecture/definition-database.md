@@ -11,6 +11,12 @@ Building farm = DataBase<Building>.Find("Farm");
 Research agriculture = DataBase<Research>.Find("Agriculture");
 ```
 
+`SectorBuilding` is a `Building` subtype, not a wrapper around another
+building asset. It keeps the inherited building fields and adds only its
+`Sector` and `MaxAmount`. Therefore `DataBase<Building>.All` includes the same
+asset instance, while the Buildings page filters the subtype out and the
+occupied sector menu is its player-facing entry point.
+
 `Find` is appropriate when the definition is required. It throws a descriptive `KeyNotFoundException` if the ID is missing.
 
 For optional definitions:

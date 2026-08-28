@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7100000000000000000000000000001, type: 3}
+  m_Name: DawnRing
+  m_EditorClassIdentifier: 
+  id: DawnRing
+  Label: "曙光环"
+  Description: "王国离开地表后触及的第一道天穹边界。古老发射塔在薄雾上方重新点亮，电子元件沿升空走廊流入新生的空间工业。"
+  starSystemId: Sol
+  domain: 0
+  enemyPower: "0"
+  prerequisiteSectors: []
+  territoryReward: "500"
+  resourceRewards: []
+  occupiedResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.04"
+  colonizationFoodPerSecond: "0.0166666667"
+  colonizationResourceRatesPerSecond:
+  - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    amount: "0.1666666667"
+  colonizationDurationSeconds: "600"
+  campaignFoodPerSecond: "0"
+  campaignResourceRatesPerSecond: []
+  repeatable: 0
+  background: {fileID: 0}
+  icon: {fileID: 0}
+  mapX: 0
+  mapY: 0

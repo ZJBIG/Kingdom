@@ -146,6 +146,33 @@ public class Building : GameDefinition
         !CostGrowth.IsInfinity &&
         CostGrowth >= ExpantaNum.One;
 
+    public void ValidateResourceFlowDefinitions()
+    {
+        var generatedResources = new HashSet<Resource>();
+        for (int i = 0;
+             resourceGenerationRates != null && i < resourceGenerationRates.Count;
+             i++)
+        {
+            ResourceAmountDefinition rate = resourceGenerationRates[i];
+            if (rate != null && rate.Resource != null && rate.Amount > ExpantaNum.Zero)
+                generatedResources.Add(rate.Resource);
+        }
+
+        for (int i = 0;
+             resourceConsumptionRates != null && i < resourceConsumptionRates.Count;
+             i++)
+        {
+            ResourceAmountDefinition rate = resourceConsumptionRates[i];
+            if (rate == null || rate.Resource == null || rate.Amount <= ExpantaNum.Zero)
+                continue;
+            if (generatedResources.Contains(rate.Resource))
+            {
+                throw new System.InvalidOperationException(
+                    $"Building '{Id}' produces and consumes resource '{rate.Resource.Id}'. Merge the two rates into one net flow.");
+            }
+        }
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {

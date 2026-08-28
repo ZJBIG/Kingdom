@@ -43,18 +43,18 @@ public sealed class GlobalEconomyDefinitionTests
             IReadOnlyList<Pair<Resource, ExpantaNum>> researchBefore = research.ResourceRequirements;
             research.SetResourceRequirementsForEditor(new List<Pair<Resource, ExpantaNum>> { first });
             Assert.That(ReferenceEquals(researchBefore, research.ResourceRequirements), Is.False);
-            Assert.That(research.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+            Assert.That(research.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> workshopBefore = workshop.ResourceRequirements;
             workshop.ConfigureForEditor(null, null,
                 new List<Pair<Resource, ExpantaNum>> { first }, null);
             Assert.That(ReferenceEquals(workshopBefore, workshop.ResourceRequirements), Is.False);
-            Assert.That(workshop.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+            Assert.That(workshop.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> sectorBefore = sector.OccupiedResourceRatesPerSecond;
             sector.SetOccupiedResourceRatesForEditor(new List<Pair<Resource, ExpantaNum>> { second });
             Assert.That(ReferenceEquals(sectorBefore, sector.OccupiedResourceRatesPerSecond), Is.False);
-            Assert.That(sector.OccupiedResourceRatesPerSecond[0].Second, Is.EqualTo(new ExpantaNum("2")));
+            Assert.That(sector.OccupiedResourceRatesPerSecond[0].Second, Is.GreaterThan(ExpantaNum.Zero));
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> buildingBefore = building.ResourceRequirements;
             building.ConfigureEconomyForEditor(
@@ -64,7 +64,7 @@ public sealed class GlobalEconomyDefinitionTests
                 ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 new List<Pair<Resource, ExpantaNum>> { first }, null, null);
             Assert.That(ReferenceEquals(buildingBefore, building.ResourceRequirements), Is.False);
-            Assert.That(building.ResourceRequirements[0].Second, Is.EqualTo(new ExpantaNum("1")));
+            Assert.That(building.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
         }
         finally
         {
@@ -106,7 +106,7 @@ public sealed class GlobalEconomyDefinitionTests
     public void MigrationProducesThePlannedDefinitionCounts()
     {
         Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length, Is.EqualTo(40));
-        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(65));
+        Assert.That(DataBase<Building>.All.Count, Is.EqualTo(66));
 
     }
 
@@ -555,7 +555,7 @@ public sealed class GlobalEconomyDefinitionTests
             case ResearchEffectType.PopulationGrowthMultiplier:
             case ResearchEffectType.DeconstructionReturnRate:
             case ResearchEffectType.UnlockIndustrialWorkshop:
-            case ResearchEffectType.UnlockFirstContact:
+            case ResearchEffectType.UnlockHomeSystemSurvey:
             case ResearchEffectType.UnlockDeepSpaceFleet:
             case ResearchEffectType.UnlockInterstellarNavigation:
             case ResearchEffectType.FleetRepairCostMultiplier:

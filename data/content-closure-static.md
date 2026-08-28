@@ -8,7 +8,7 @@ Workshop reachable (up to Industrial): 36/36
 Building reachable (up to Industrial): 50/50
 Research reachable (Spacer): 47/47
 Workshop reachable (Spacer): 46/46
-Building reachable (Spacer): 15/15
+Building reachable (Spacer): 16/16
 Research reachable (Ultra): 1/1
 Workshop reachable (Ultra): 0/0
 Building reachable (Ultra): 0/0

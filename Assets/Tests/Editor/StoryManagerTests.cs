@@ -77,7 +77,7 @@ public sealed class StoryManagerTests
             Is.EqualTo("PrecisionManufacturing"));
         Assert.That(workshop.RequiredWorkshopId, Is.EqualTo("PrecisionTooling"));
         Assert.That(frontier.RequiresSectorAccess, Is.True);
-        Assert.That(war.RequiresCampaignProgress, Is.True);
+        Assert.That(war.RequiresSectorOccupation, Is.True);
         Assert.That(beyond.RequiresSectorOccupation, Is.True);
     }
 
@@ -347,7 +347,7 @@ public sealed class StoryManagerTests
     private static object Invoke(object target, string name, params object[] args)
     {
         MethodInfo method = target.GetType().GetMethod(
-            name, BindingFlags.Instance | BindingFlags.NonPublic);
+            name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null, name + " should exist for this test.");
         return method.Invoke(target, args);
     }

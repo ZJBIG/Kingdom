@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 public sealed class TutorialManagerTests
@@ -167,7 +168,7 @@ public sealed class TutorialManagerTests
     {
         string[] researchIds =
         {
-            "FirstContact",
+            "HomeSystemSurvey",
             "DeepSpaceFleet",
             "InterstellarNavigation"
         };
@@ -231,6 +232,8 @@ public sealed class TutorialManagerTests
         int restored = manager.SaveSessionVersion;
         Assert.That(restored, Is.GreaterThan(initial));
 
+        LogAssert.Expect(LogType.Error,
+            "[Kingdom Onboarding] Required runtime managers are missing: GameManager ResourceManager BuildingManager ResearchManager");
         manager.Evaluate();
         Assert.That(manager.SaveSessionVersion, Is.EqualTo(restored),
             "Tutorial step completion must not create a new save session.");

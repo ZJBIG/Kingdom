@@ -1,5 +1,22 @@
 # Kingdom 全游戏主审查与改进蓝图
 
+> **Current interaction contract (2026-08-27):** The rules below supersede
+> older same-topic diagnostic text in this audit. Older entries remain history,
+> not the current implementation contract.
+>
+> - Queue-head research pays atomically and automatically; research detail has
+>   no separate payment button.
+> - Only the active research target uses the gold Outline in the research tree
+>   and queue; other queued items keep their existing colors.
+> - Workshop detail only purchases the selected workshop upgrade and does not
+>   reuse research detail text.
+> - Building detail has no build or upgrade button. Ordinary buildings use the
+>   building list; `SectorBuilding` uses the occupied sector menu.
+> - Buildings filters every `SectorBuilding`; an unoccupied sector shows no
+>   expand button and does not load its menu content.
+> - Sector buildings do not participate in homeland territory `spaceCost`
+>   transactions and use the existing `BuildingState.Amount`.
+
 > **2026-08-26 evidence status:** `tools/EconomySimulator` is now frozen and
 > its CLI is disabled. All `data/economy-simulation` and `PacingAcceptance`
 > outputs in this document are historical diagnostics only; do not rerun or
@@ -85,7 +102,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 - 测试源码含 34 个 Editor 测试文件和 2 个 PlayMode 测试文件；当前静态声明计数为 555 个 `[Test]/[TestCase]` 标注与 16 个 `[UnityTest]` 方法。参数化标注数量不是实际运行用例数。
 - `TestResults/Latest-Test-Errors.txt`（生成于 2026-08-24 02:02:00 +08:00）记录 `Mode: 0`、554 total、552 passed、2 failed。失败为 `PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth` 缺少测试 `BuildingManager`，以及 `WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder` 在恢复时缺少状态字典项；该文件仍没有证明 16 个 PlayMode 方法被执行，因此不作为 PlayMode 验收。
-- `data/content-closure-static.md` 报告：40 Resource；Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50 可达；Spacer 47/47、46/46、15/15 可达；Ultra Research 1/1 可达，无 Ultra Workshop/Building。此为静态闭包 E2，不是 Unity 行为或节奏证据。
+- `data/content-closure-static.md` 报告：40 Resource；Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50 可达；Spacer 47/47、46/46、16/16 可达；Ultra Research 1/1 可达，无 Ultra Workshop/Building。此为静态闭包 E2，不是 Unity 行为或节奏证据。
 - `data/economy-simulation/PacingAcceptance.txt` 当前为 `FAIL`。Normal/Fast 在 24 小时内未到 Medieval；Conservative 在 426.32 分钟到 Medieval、1142.83 分钟到 Industrial、未到 Spacer；各路线目标窗口也有偏差。
 - 当前模拟报告声明的严格快照为 40 Resource、69 Building、121 Research、73 Workshop，而当前资产为 40/65/128/82。由此模拟与 PacingAcceptance 不能代表当前定义集合，见 `REPORT-P1-001`。
 - Normal 与根报告均在 76.32 分钟到 Neolithic 后未到 Medieval；Fast 在 79.12 分钟到 Neolithic 后未到 Medieval；Conservative 在 64.58 分钟到 Neolithic、426.32 分钟到 Medieval、1142.83 分钟到 Industrial。以上仅是过期输入快照的诊断背景，不作当前玩法结论。
@@ -127,7 +144,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 ## 6. 执行摘要
 
-当前未解决静态计数为 P0 = 1、P1 = 5；另有 1 项 P1 编译阻断已完成静态源码修复，但尚未取得 Unity 编译证据。最高风险不是“内容不够”，而是合法 Workshop 存档可能无法恢复、研究支付不原子、多输入建筑满足率公式错误、三个定义重复叠加 Food 效果、本地殖民会清空并行战役，以及模拟报告输入版本失配。它们分别阻断存档、交易、生产、经济、后期状态与可信调参，必须早于 UI 美化、节奏调参和 Ultra/Archotech 扩展。
+上述 P0/P1 数字与风险段落属于历史审计记录，不是当前未解决计数。当前已确认的交互契约见本文开头；当前运行结果只认最新 Unity 日志。
 
 内容侧的正面结论是：128 个 Research 与 82 个 Workshop 都有真实效果，所有前置不存在时代倒挂，五条主要建筑升级链把早期住房、研究、农业、物流和材料工业延续到 Spacer；满载人口的同代粮食供给静态比例也合理。主要内容风险集中在时代命名、Medieval 选择密度、多产物建筑的效果粒度、少数 Spacer Workshop 描述—效果错配，以及 Ultra/Archotech 仍为空框架。
 
@@ -135,7 +152,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 ## 7. P0/P1 优先问题
 
-当前未解决静态计数：P0 = 1；P1 = 5。`COMPILE-P1-001` 保留 P1 历史优先级，但已完成静态修复并移出未解决计数。
+历史未解决静态计数：P0 = 1；P1 = 5。`COMPILE-P1-001` 已完成静态修复；该计数不应用于当前状态判断。
 
 - `SAVE-P0-001`：Workshop 合法购买集合按稳定 ID 顺序保存，却按“前置必须先出现”恢复；含逆字典序前置的正常进度可使主存档和备份均无法应用并回退新游戏。
 - `COMPILE-P1-001`（已解决）：`WorkshopUpgrade.cs` 原有三处未闭合字符串和大面积乱码已经恢复，枚举成员及显式值未变；2026-08-24 的 Unity EditMode 已执行 554 项测试，低风险 CLI 编译也为 0 错误，证明原语法阻断已解除。完整 EditMode 仍有 2 项独立失败。
@@ -255,7 +272,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 优先级：P1
 - 证据等级：E1
 - 置信度：高
-- 玩家发生场景：玩家对一个需要多种资源或当前库存不足的研究点击支付，或让队首研究等待资源。
+- 玩家发生场景：玩家将研究加入队列；队首研究自动尝试支付，资源不足时等待。
 - 玩家可感知症状：只要任一种所需资源有余额，按钮即可执行并扣走当前可用部分；研究仍未支付完成，资源已不可用于其他选择，后续只能继续补缴。
 - 具体影响：`CanPayResearchCost()` 只检查“任意剩余成本且库存大于零”；`TryPayResearchCost()` 对每种资源取 `Min(remaining, available)` 后提交，并把结果记入 `PaidResourceCosts`。这把一次性选择变成不可撤销的分期沉没成本，也使队列、存档和不足反馈更难理解。
 - 当前证据：`Assets/Resources/Script/Manager/ResearchManager.cs:326-410`、`:512-555`；`Assets/Tests/Editor/KingdomLogicTests.cs:1808-1833` 的 `ResearchCostPayment_IsIncrementalAndOnlyPaidOnceWithoutUi` 与 `:2057-2080` 的 `ResearchCostPayment_PaysAvailableResourcesIndependently` 明确固化部分扣款。
@@ -381,12 +398,12 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 证据等级：E1
 - 置信度：高
 - 玩家发生场景：玩家选中一个尚未解锁、资源管理器未就绪或当前无法支付的研究。
-- 玩家可感知症状：修复前按钮不可用但只显示“支付资源”，自由文本描述之外也看不到直接前置或结构化效果；现在正文先列每个直接前置研究及其当前状态，再显示效果类型、目标与数值，按钮和需求行分别解释支付 blocker 与“缺 X / 可支付 / 已支付”。
+- 玩家可感知症状：修复前按钮不可用但只显示“支付资源”，自由文本描述之外也看不到直接前置或结构化效果；现在正文先列每个直接前置研究及其当前状态，再显示效果类型、目标与数值，需求行解释“缺 X / 可支付 / 已支付”，队首自动支付。
 - 具体影响：`AppendResearchPrerequisites()` 直接读取 `Research.Prerequisites` 和现有 `ResearchState.Status`；它不把前置状态错误并入支付 blocker，因为当前契约和测试允许为同时代的指定后续研究提前付款。逐项缺口仍使用 `max(0, 需求-已支付-库存)`；`AppendResearchEffects()` 仍直接读取真实效果。`RESEARCH-P1-001` 的支付规则是独立问题，本条不宣称已修复。
 - 当前证据：当前 `KingdomUIRoot.DetailPanel.cs` 的 `AppendResearchPrerequisites()`、`ConfigureResearchPaymentButton()`、`FormatRequirementAmount()` 与 `AppendResearchEffects()`；`KingdomLogicTests.PayResearchCost_OnlyPaysTheSpecifiedResearch` 明确覆盖提前支付指定后续研究的现有契约；三个 C# 项目 CLI 编译 0 错误。
 - 根因或设计诊断：原先两个相互排斥的按钮文案分支被写成连续赋值；需求行只显示已支付/需求/库存，详情正文只依赖自由文本和图形连线，没有提供移动端可读的直接前置、缺口与效果摘要。
 - 为什么不符合 Kingdom 当前目标：移动端详情必须说明禁用原因和解决途径，研究是时代推进的核心入口。
-- 推荐的最小解决方向：最小修复已完成：直接前置和效果追加在同一详情正文，按钮保留支付 blocker，完整缺口留在现有可滚动需求列表；不新增状态模型或第二个面板。
+- 推荐的最小解决方向：最小修复已完成：直接前置和效果追加在同一详情正文，完整缺口留在现有可滚动需求列表；不新增状态模型或第二个面板。
 - 可选方案及取舍：也可把全部缺口塞进按钮，但会产生过长触控标签；当前“短 blocker + 逐项列表”更适合移动端。
 - 明确不建议采用的方案：不建议只依赖颜色或 Console；不建议把英文内部 blocker 原样当最终中文产品文案。
 - 涉及的系统、代码和资产：研究详情、`Research.Prerequisites`、`Research.Effects`、`ResearchManager.CanPayResearchCost`、需求列表、ResearchNode/Queue 入口。
@@ -533,7 +550,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 玩家发生场景：新游戏进入概览、阅读教程文明语境、查看王国名称和跨时代叙事。
 - 玩家可感知症状：默认王国叫“鼠托邦”，教程反复描述“鼠族复兴”；当前产品路线图和主审查定位却说玩家管理一群人类。玩家无法判断这是鼠族文明游戏还是人类文明游戏。
 - 具体影响：身份冲突跨越默认存档值、7 个 Tutorial NarrativeText、`GetCivilizationContext()` 全时代文本与多条指导语；资源/建筑/研究主体多为通用人类工业术语，进一步放大不一致。
-- 当前证据：`Assets/Resources/Script/Manager/GameManager.cs:19`、`Runtime/GameState.cs:9`；`TutorialManager.cs:296-315` 及多处“鼠族”；`Assets/Resources/Datas/Tutorial/*.asset`；`docs/content/progression-roadmap.md` 的“玩家管理一群人类”。此前 `Research/Spacer/FirstContact.asset` 还单独写“人类与星际文明”，现已中性化为“王国与星际文明”，不借此代替产品正典决策。
+- 当前证据：`Assets/Resources/Script/Manager/GameManager.cs:19`、`Runtime/GameState.cs:9`；`TutorialManager.cs:296-315` 及多处“鼠族”；`Assets/Resources/Datas/Tutorial/*.asset`；`docs/content/progression-roadmap.md` 的“玩家管理一群人类”。此前的研究资产曾使用 `FirstContact` 命名并单独写“人类与星际文明”，现已改为 `HomeSystemSurvey`（本星系测绘）并中性化为“王国与星际文明”，不借此代替产品正典决策。
 - 根因或设计诊断：旧产品主题文本仍是运行时默认，而较新的内容路线图改成了人类文明，没有完成产品层决策与术语迁移。
 - 为什么不符合 Kingdom 当前目标：时代特色、美术、教程语气、外星战争和品牌都依赖玩家文明身份；在身份未定前继续写内容会成倍返工。
 - 推荐的最小解决方向：由用户选择“人类”或“鼠族”为唯一正典。依据当前路线图，默认建议人类；未来只迁移玩家可见名称、教程和描述，稳定 ID、存档结构与系统命名保持不变。
@@ -959,7 +976,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 | 教程方向与资源 | 日历、WoodLog 等原状态条件保留；当前另要求活动步骤对应页面已被访问 | 被动连续跳步已增加最小页面门，静态实现完成但待运行验证，见 `TUTORIAL-P2-001` | 新 Editor 断言、Tutorial PlayMode 与玩家观察 |
 | 首次建造 | WoodHouse 提供 5 人容量且不消耗生产力；Farm 提供 8 Food/s | bootstrap 结构本身简洁：住房→人口→生产力→Food；问题主要是第一步等待与反馈 | 实际按钮阻断、动画、音效、批量操作 |
 | 首次资源短缺 | UI 具备 amount、production、consumption、net 和建筑来源/去向详情 | 静态信息入口存在；多输入建筑错误满足率会让玩家无法按最小瓶颈推断结果 | Unity 刷新、数值一致性、缺口文案 |
-| 首次研究 | Research 有基础成本、资源成本、前置和效果；支付按钮显示具体 blocker，需求行逐项显示缺口 | 资源成本仍允许部分扣款；UI 反馈源码已修复但待 PlayMode/P40 验证 | 原子支付 PlayMode、失败恢复、详情长文本 |
+| 首次研究 | Research 有基础成本、资源成本、前置和效果；队首自动支付，需求行逐项显示缺口 | 自动原子支付已实现；仍待更新 Unity 日志与 P40 验证 | 原子支付 PlayMode、失败恢复、详情长文本 |
 | 前 10 分钟 | 当前允许引用的模拟输入已过期，不能据其断言当前里程碑 | 只能确认系统路径，不能给出当前真实到达时代/研究时间 | 当前定义模拟与真实 Unity 计时 |
 
 ### 9.2 逐时代内容、主题与决策变化
@@ -986,7 +1003,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 ### 10.1 可达性与定义完整性
 
-- 当前 `data/content-closure-static.md` 报告 Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50，Spacer 47/47、46/46、15/15，Ultra Research 1/1 可达；没有不可达条目。它是 E2 静态证据，不是运行时支付、生产或节奏证据。
+- 当前 `data/content-closure-static.md` 报告 Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50，Spacer 47/47、46/46、16/16，Ultra Research 1/1 可达；没有不可达条目。它是 E2 静态证据，不是运行时支付、生产或节奏证据。
 - 直接解析当前前置图没有发现 Research、Workshop 或 Building 的高时代前置倒挂。9 条跨时代 Building 效果均是旧技术支持后续设施：ControlledFire/Mining/NaturalPhilosophy/WrittenRecords、Coking/MechanizedForestry 等；本轮已为机械化林业补上轨道延续说明。
 - 128 个 Research 均有真实效果或时代推进，82 个 Workshop 均至少有一个效果。当前问题不是“空效果节点”，而是少数效果重复、粒度错误或描述不一致。
 - Food 仍是唯一允许有库存容量的资源；本审查没有建议普通资源容量、仓库、MaxAmount 或 workforce。
@@ -1022,7 +1039,7 @@ Industrial/Spacer 的建筑持续消费 WoodLog、Biomass、Cloth、Ceramic、St
 
 ### 11.2 主要问题
 
-- `UI-P2-001` 已在源码修复：研究支付 blocker 不再被覆盖，正文显示直接前置状态和结构化实际效果，需求行逐项显示缺口；仍待 PlayMode/P40 验证。
+- `UI-P2-001` 已在源码修复：研究详情显示直接前置状态和结构化实际效果，需求行逐项显示缺口，研究进入队首后自动支付；仍待更新 PlayMode/P40 验证。
 - `WORKSHOP-P2-001` 已在源码解决：已购项、已进入时代范围内的根节点与直接下一层现可渐进回看，行内显示首个真实阻碍，详情显示全部直接前置状态，刷新复用行池；仍待 Unity/P40 验证。
 - `TEST-P2-001`：ResearchTree 专项验收仍要求 79 节点，而当前内容和测试目标是 128，验收门槛自身过期。
 - `UI-P2-002`：图布局计算 `topologyUsable` 后不使用结论，资产网格 fallback 的适用性无法从日志证明。
@@ -1073,7 +1090,7 @@ Scene 配置为 30 秒自动保存、最大离线 24 小时；`SimulationManager
 
 ## 14. Sector、战役与后期内容审查
 
-当前 9 个 Sector 分为 5 个本星系探索目标（LowOrbit、Moon、Mars、MainAsteroidBelt、JovianSystem）和 4 个星际战役目标（AlphaCentauri、ProximaB、TauCetiFoundry、SiriusResourceBelt）。描述、域与成本总体形成“轨道探索→资源支点→深空战役”梯度；星际战役持续消耗 Food、RocketFuel、物流与高级材料，舰队维修也消耗 TitaniumAlloy、Composite、PhantomWeave 和 RocketFuel，符合经营系统导向。
+当前 10 个 Sector 分为 6 个本星系探索目标（DawnRing、AzurePool、Terminus、ShardCrown、ThunderGate、HeliosCore）和 4 个星际战役目标（AlphaCentauri、ProximaB、TauCetiFoundry、SiriusResourceBelt）。描述、域与成本总体形成“轨道探索→资源支点→恒星能源→深空战役”梯度；星际战役持续消耗 Food、RocketFuel、物流与高级材料，舰队维修也消耗 TitaniumAlloy、Composite、PhantomWeave 和 RocketFuel，符合经营系统导向。
 
 `SECTOR-P1-001` 使这条链尚不可验收：完成本地殖民会无条件清空共享 Campaign 状态，即使另一星际战役正在进行。该问题必须先明确是否允许殖民/战役并行，再把状态清理限定到对应 operation。当前模拟明确不模拟 Sector occupation/campaign，因此不能用其领土或后期节奏结论验收战役。
 
@@ -1282,7 +1299,7 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 - 2026-08-23：完成运行时、交易、存档、Sector、教程、UI、音画与测试源码静态审查；首次记录 P0=1、P1=6。
 - 2026-08-23：按用户追加要求完成 128 Research、82 Workshop、65 Building 的时代/前置/描述/效果交叉审查；新增 `ECON-P1-002`、`ECON-P2-003/004`、`ONBOARD-P2-001`、`ERA-P2-001/002`、`RESOURCE-P2-001`、`WORKSHOP-P2-002`。
 - 2026-08-23：用户放宽只读范围后，直接修复 25 个定义资产的 30 行名称/描述文本，记录为 `TEXT-P3-003`；该资产批次未改 ID、GUID、前置、效果或数值。
-- 2026-08-23：按同一简单文本授权恢复 `WorkshopUpgrade.cs` 的乱码与三个字符串边界，以及 `TutorialManager.cs` 的生产链箭头；未改枚举成员/值或玩法逻辑。`COMPILE-P1-001`、`TEXT-P3-002` 转为静态已解决，当前未解决计数为 P0=1、P1=5。
+- 2026-08-23（历史记录）：按同一简单文本授权恢复 `WorkshopUpgrade.cs` 的乱码与三个字符串边界，以及 `TutorialManager.cs` 的生产链箭头；未改枚举成员/值或玩法逻辑。该时点未解决计数为 P0=1、P1=5，不代表当前状态。
 - 2026-08-23：完成玩家旅程、分阶段路线图、实施简报、创意机会与对抗性边界收敛；剩余均为明确的运行/真机/产品决策项。
 - 2026-08-24：性能优先批次实施 `SIM-P2-001`：Player 不再截断超过两秒的真实积压，每帧仍最多 20 tick，并新增五倍单帧预算跨五帧排空的 EditMode 回归测试。静态差异检查通过；真实 Unity 启动因审批服务 503 未执行。低风险 CLI 编译在临时补齐被忽略的过期 `.csproj` 对既有 `EraGoalEvaluator.cs` 的漏项后通过，3 个程序集、0 错误、5 个既有序列化字段警告；临时项目文件补项随后已移除，该结果不替代 Unity 编译或 Test Runner。
 - 2026-08-24：按用户新增的荣耀 X50 打包基准检查现有 `Kingdom.apk`：Manifest 为 minSdk 22、target/compileSdk 34，但原生库仅有 `armeabi-v7a`，属于 32 位包；项目现已配置 targetSdk 35、ARM64、IL2CPP Release、自动安装位置、Android Low managed stripping 和 2.4 最大长宽比。包名、版本号、最低 SDK 与签名配置未改；必须重建后再用 `aapt2` 证明新 APK 含 `arm64-v8a`，当前旧 APK 不能作为修复完成证据。
@@ -1316,4 +1333,4 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 - 2026-08-24：Orientation 推荐行动从已在概览时仍提示“查看概览”改为“让王国时间继续推进，观察人口与核心资源的变化”；概览引导卡从允许点击并重复执行当前页 `SetPage` 改为目的地等于当前页时不可交互，其他跨页导航仍保持原行为。未改 `CalendarDays >= 1`、时间速度、步骤推进、State、存档或文明正典；三个 C# 项目 CLI 编译均为 0 错误，Runtime 仅有 5 个既有警告，Unity Test Runner/P40 待验证。
 - 2026-08-24：人口教程在尚未访问其定义页面且食物/幸福度不足时，从“blocker 要求查看步骤页、按钮却先导航到不会满足页面门的资源页”改为先导航到资产定义的建筑页并说明查看人口容量/变化；建筑页访问完成后，既有食物不足分支仍恢复导航到资源页。未改 Population 完成条件、页面访问判定、食物、幸福度、人口 State 或存档；三个 C# 项目 CLI 编译均为 0 错误，Runtime 仅有 5 个既有警告，Unity Test Runner/P40 待验证。
 - 2026-08-24：核对七个“本时代能力”摘要与当前 Research/Building/Workshop 后未发现需要改写的事实错配；另将资源教程资产、内置回退步骤和推荐行动中的“木材”统一为起始资源 `WoodLog` 在资源页的实际名称“原木”。未改资源 ID、Label、产量、教程完成条件或文明正典；三个 C# 项目 CLI 编译均为 0 错误，Runtime 仅有 5 个既有警告，Unity Test Runner/P40 待验证。
-- 2026-08-24：正典清点确认运行时默认名、七个教程 NarrativeText 与全时代语境主要采用“鼠族”，路线图采用“人类”；同时把唯一直接混入 Research 描述的 `FirstContact` 从“建立人类与星际文明的正式接触”中性化为“建立王国与星际文明的正式接触”。只改 Description，不改 Research ID/GUID、成本、前置、效果、坐标或玩法；闭包/模拟按用户要求留到最终批次，C# 与 Unity/P40 验证待本批次收口。
+- 2026-08-24：正典清点确认运行时默认名、七个教程 NarrativeText 与全时代语境主要采用“鼠族”，路线图采用“人类”；同时把当时唯一直接混入 Research 描述的旧 `FirstContact` 从“建立人类与星际文明的正式接触”中性化为“建立王国与星际文明的正式接触”。这是历史记录；当前资产已迁移为 `HomeSystemSurvey`（本星系测绘），其余成本、前置、效果、坐标与玩法保持不变。

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AlphaCentauri
   Label: "半人马座前沿区"
-  Description: "太阳系外首个确认存在文明活动的前沿星区。这里不是一次性突袭目标，必须依靠持续的舰队补给、燃料和先进材料投入，才能建立稳定据点。"
+  Description: "星海深处的古老信标指向一片曾有文明活动的边疆。穿过未知航道建立前哨，王国将第一次听见太阳系之外的回声。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower: "900"

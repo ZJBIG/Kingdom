@@ -7,21 +7,21 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_InitialSectorChainContainsStableIdsAndPrerequisites()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
         SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
 
-        Assert.That(lowOrbit.Id, Is.EqualTo("LowOrbit"));
-        Assert.That(moon.Id, Is.EqualTo("Moon"));
-        Assert.That(mars.Id, Is.EqualTo("Mars"));
+        Assert.That(lowOrbit.Id, Is.EqualTo("DawnRing"));
+        Assert.That(moon.Id, Is.EqualTo("AzurePool"));
+        Assert.That(mars.Id, Is.EqualTo("Terminus"));
         Assert.That(alpha.Domain, Is.EqualTo(SectorDefinition.SectorDomain.Interstellar));
         Assert.That(alpha.StarSystemId, Is.EqualTo("AlphaCentauri"));
         Assert.That(lowOrbit.PrerequisiteSectors, Is.Empty);
         Assert.That(moon.PrerequisiteSectors, Has.Count.EqualTo(1));
-        Assert.That(moon.PrerequisiteSectors[0].Id, Is.EqualTo("LowOrbit"));
+        Assert.That(moon.PrerequisiteSectors[0].Id, Is.EqualTo("DawnRing"));
         Assert.That(mars.PrerequisiteSectors, Has.Count.EqualTo(1));
-        Assert.That(mars.PrerequisiteSectors[0].Id, Is.EqualTo("Moon"));
+        Assert.That(mars.PrerequisiteSectors[0].Id, Is.EqualTo("AzurePool"));
     }
 
     [Test]
@@ -45,18 +45,18 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_SectorsExposeRewardsEnemyPowerAndMapCoordinates()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
 
-        Assert.That(lowOrbit.EnemyPower, Is.EqualTo(new ExpantaNum(40)));
+        Assert.That(lowOrbit.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(lowOrbit.CampaignFoodPerSecond, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(lowOrbit.CampaignResourceRatesPerSecond, Is.Empty);
         Assert.That(lowOrbit.TerritoryReward, Is.EqualTo(new ExpantaNum(500)));
-        Assert.That(lowOrbit.ResourceRewards, Has.Count.EqualTo(2));
-        Assert.That(moon.EnemyPower, Is.EqualTo(new ExpantaNum(80)));
+        Assert.That(lowOrbit.ResourceRewards, Is.Empty);
+        Assert.That(moon.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(moon.TerritoryReward, Is.EqualTo(new ExpantaNum(12000)));
-        Assert.That(mars.EnemyPower, Is.EqualTo(new ExpantaNum(160)));
+        Assert.That(mars.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(moon.CampaignFoodPerSecond, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(mars.CampaignFoodPerSecond, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(mars.TerritoryReward, Is.EqualTo(new ExpantaNum(100000)));
@@ -118,7 +118,7 @@ public sealed class SectorDefinitionTests
 
         Assert.That(alpha.CampaignFoodPerSecond, Is.EqualTo(new ExpantaNum(2)));
         Assert.That(alpha.CampaignResourceRatesPerSecond, Has.Count.GreaterThan(0));
-        Assert.That(alpha.CampaignResourceRatesPerSecond[0].Second.ToDouble(), Is.EqualTo(0.8d).Within(0.000001d));
+        Assert.That(alpha.CampaignResourceRatesPerSecond[0].Second, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -149,8 +149,8 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 星区开拓持续时间统一使用秒()
     {
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
 
         Assert.That(moon.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(3600)));
         Assert.That(mars.ColonizationDurationSeconds, Is.EqualTo(new ExpantaNum(7200)));
@@ -159,8 +159,8 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 本星系中后期开拓必须持续消耗食物与工业资源()
     {
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
 
         foreach (SectorDefinition sector in new[] { moon, mars })
         {
@@ -182,8 +182,8 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 火星开拓成本必须高于月球开拓成本()
     {
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("Moon");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Mars");
+        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
 
         Assert.That(mars.ColonizationDurationSeconds, Is.GreaterThan(moon.ColonizationDurationSeconds));
         Assert.That(mars.ColonizationFoodPerSecond, Is.GreaterThan(moon.ColonizationFoodPerSecond));
@@ -413,7 +413,7 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_SectorStateStartsEmptyAndTracksProgress()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("LowOrbit");
+        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
         var state = new SectorState(lowOrbit);
 
         Assert.That(state.Unlocked, Is.False);

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,13 +69,14 @@ public sealed partial class KingdomUIRoot
         AddEraTextRow(
             parent,
             "本时代能力",
-            GetEraCapabilitySummary(state.TechLevel),
+            "点击查看当前时代的研究与建筑详情",
             TextSecondary,
-            null);
+            GetEraContentNavigation(state.TechLevel));
 
         string nextEraPromise = BuildNextEraPromise(nextEra);
         if (!string.IsNullOrEmpty(nextEraPromise))
-            AddEraTextRow(parent, "进入后可用能力", nextEraPromise, TextPrimary, null);
+            AddEraTextRow(parent, "进入后可用能力", nextEraPromise, TextPrimary,
+                GetEraContentNavigation(nextEra));
 
         if (transition == null)
         {
@@ -173,6 +176,28 @@ public sealed partial class KingdomUIRoot
         _ => "查看研究、建筑和工坊页面了解当前能力。"
     };
 
+    private Action GetEraContentNavigation(TechLevel era)
+    {
+        Research research = DataBase<Research>.All.FirstOrDefault(value =>
+            value != null && value.TechLevel == era && !value.AdvancesTechLevel);
+        if (research != null && pages.ContainsKey("Research"))
+            return () =>
+            {
+                SetPage("Research");
+                ShowResearchDetails(research);
+            };
+
+        Building building = DataBase<Building>.All.FirstOrDefault(value =>
+            value != null && !(value is SectorBuilding) && value.TechLevel == era);
+        if (building != null && pages.ContainsKey("Buildings"))
+            return () =>
+            {
+                SetPage("Buildings");
+                ShowBuildingDetails(building);
+            };
+        return null;
+    }
+
     private static string BuildNextEraPromise(TechLevel targetEra)
     {
         if (!Enum.IsDefined(typeof(TechLevel), targetEra))
@@ -195,7 +220,8 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < buildings.Count && buildingNames.Count < 2; i++)
         {
             Building building = buildings[i];
-            if (building != null && building.TechLevel == targetEra &&
+            if (building != null && !(building is SectorBuilding) &&
+                building.TechLevel == targetEra &&
                 !string.IsNullOrEmpty(building.Label))
                 buildingNames.Add(building.Label);
         }
@@ -302,16 +328,9 @@ public sealed partial class KingdomUIRoot
             else
             {
                 Resource resource = evaluation.Resource;
-                string resourceDetail = "剩余需求 " +
-                    evaluation.RemainingAmount.ToGameString() +
-                    "  |  可用 " + evaluation.AvailableAmount.ToGameString();
-                ExpantaNum netRate = evaluation.ProductionRate - evaluation.ConsumptionRate;
-                if (!evaluation.Met)
-                {
-                    resourceDetail += netRate > ExpantaNum.Zero
-                        ? "  |  净产出 +" + netRate.ToGameString() + "/s"
-                        : "  |  当前无净产出";
-                }
+                string resourceDetail = evaluation.Met
+                    ? "已满足，点击查看资源详情"
+                    : "尚未满足，点击查看资源详情";
                 result.Add(new EraGoalCondition
                 {
                     Title = "资源：" + resource.Label,
@@ -346,20 +365,60 @@ public sealed partial class KingdomUIRoot
         eraTextRowCursor++;
         ApplyListRowStyle(row, index);
         SetRowText(row, "Title", title, color);
-        SetRowText(row, "Subtitle", subtitle, TextSecondary);
-        Button button = RequireRowButton(row);
-        if (button != null)
+        SetRowText(row, "Subtitle", CompactEraSummary(subtitle), TextSecondary);
+        TMP_Text subtitleText = row.transform.Find("Subtitle")?.GetComponent<TMP_Text>();
+        if (subtitleText != null)
         {
-            button.onClick.RemoveAllListeners();
-            button.interactable = navigate != null;
-            if (navigate != null)
-                button.onClick.AddListener(() =>
-                {
-                    UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
-                    navigate();
-                });
+            subtitleText.rectTransform.offsetMax = new Vector2(-164f, 0f);
+            subtitleText.enableWordWrapping = false;
+            subtitleText.overflowMode = TMPro.TextOverflowModes.Ellipsis;
+            subtitleText.enableAutoSizing = true;
+            subtitleText.fontSizeMin = 18f;
+            subtitleText.fontSizeMax = 30f;
         }
+
+        Button rowButton = RequireRowButton(row);
+        if (rowButton != null)
+        {
+            rowButton.onClick.RemoveAllListeners();
+            rowButton.interactable = false;
+        }
+
+        Button detailButton = row.transform.Find("Detail")?.GetComponent<Button>();
+        if (detailButton == null)
+            detailButton = CreateButton("Detail", row.transform, "详情",
+                new Color(.18f, .31f, .27f, 1f));
+        RectTransform detailRect = detailButton.transform as RectTransform;
+        detailRect.anchorMin = new Vector2(1f, .5f);
+        detailRect.anchorMax = new Vector2(1f, .5f);
+        detailRect.pivot = new Vector2(1f, .5f);
+        detailRect.sizeDelta = new Vector2(128f, 72f);
+        detailRect.anchoredPosition = new Vector2(-18f, 0f);
+        detailButton.onClick.RemoveAllListeners();
+        detailButton.gameObject.SetActive(navigate != null);
+        detailButton.interactable = navigate != null;
+        if (detailButton.GetComponent<UIPageScrollDragForwarder>() == null)
+            detailButton.gameObject.AddComponent<UIPageScrollDragForwarder>();
+        if (navigate != null)
+            detailButton.onClick.AddListener(() =>
+            {
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+                navigate();
+            });
+        Image rowImage = row.GetComponent<Image>();
+        if (rowImage != null)
+            rowImage.raycastTarget = false;
         return row;
+    }
+
+    private static string CompactEraSummary(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+        text = text.Replace('\n', ' ');
+        if (text.Length > 28)
+            text = text.Substring(0, 28);
+        return text.Length <= 56 ? text : text.Substring(0, 55) + "… 点击查看详情";
     }
 
     private void FinishEraTextRows()

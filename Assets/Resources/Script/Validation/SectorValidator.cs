@@ -290,6 +290,16 @@ public static class SectorValidator
     private static bool ValidateRewards(SectorDefinition sector, out string error)
     {
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = sector.ResourceRewards;
+        if (sector.IsHomeSystem)
+        {
+            if (rewards != null && rewards.Count > 0)
+            {
+                error = $"星区验证失败：“{sector.Id}”本星系探索不得提供资源奖励。";
+                return false;
+            }
+            error = null;
+            return true;
+        }
         if (rewards == null || rewards.Count == 0)
         {
             error = $"星区验证失败：“{sector.Id}”至少需要一种资源奖励。";

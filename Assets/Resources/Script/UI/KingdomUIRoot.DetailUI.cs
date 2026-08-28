@@ -129,22 +129,14 @@ public sealed partial class KingdomUIRoot
         footer.offsetMin = new Vector2(20f, 12f);
         footer.offsetMax = new Vector2(-20f, 12f + DetailFooterHeight);
 
-        detailPaymentButtonText = null;
         detailActionButtonText = null;
-        detailPaymentButton = CreateButton("Payment", footer, "支付资源", new Color(.28f, .22f, .12f, 1f));
-        detailPaymentButton.gameObject.SetActive(false);
         detailActionButton = CreateButton("Action", footer, "执行", new Color(.18f, .31f, .27f, 1f));
         detailActionButton.gameObject.SetActive(false);
-        RectTransform paymentRect = detailPaymentButton.transform as RectTransform;
-        paymentRect.anchorMin = Vector2.zero;
-        paymentRect.anchorMax = new Vector2(.48f, 1f);
-        paymentRect.offsetMin = Vector2.zero;
-        paymentRect.offsetMax = Vector2.zero;
         RectTransform actionRect = detailActionButton.transform as RectTransform;
-        actionRect.anchorMin = new Vector2(.52f, 0f);
+        actionRect.anchorMin = Vector2.zero;
         actionRect.anchorMax = Vector2.one;
-        actionRect.offsetMin = Vector2.zero;
-        actionRect.offsetMax = Vector2.zero;
+        actionRect.offsetMin = new Vector2(48f, 0f);
+        actionRect.offsetMax = new Vector2(-48f, 0f);
 
         requirementGesture = detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
         requirementGesture.Initialize(detailScrollViewport, detailScrollContent);

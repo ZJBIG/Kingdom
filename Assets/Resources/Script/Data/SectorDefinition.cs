@@ -28,11 +28,11 @@ public sealed class SectorDefinition : GameDefinition
     [SerializeField] private string campaignFoodPerSecond = "1";
     [SerializeField] private List<ResourceAmountDefinition> campaignResourceRatesPerSecond = new();
     [SerializeField] private string campaignProgressMultiplier = "1";
-    [SerializeField] private bool repeatable;
-    [SerializeField] private Sprite background;
-    [SerializeField] private Sprite icon;
-    [SerializeField] private float mapX;
-    [SerializeField] private float mapY;
+    [SerializeField] private bool repeatable = false;
+    [SerializeField] private Sprite background = null;
+    [SerializeField] private Sprite icon = null;
+    [SerializeField] private float mapX = 0f;
+    [SerializeField] private float mapY = 0f;
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> resourceRewardsCache;
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> occupiedResourceRatesCache;
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> colonizationResourceRatesCache;

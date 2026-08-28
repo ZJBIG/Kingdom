@@ -2303,7 +2303,7 @@ public sealed partial class KingdomUIRoot
                 {
                     if (outline[i] == null)
                         continue;
-                    SetColorIfChanged(outline[i], focused ? ResearchFocusWhite : ResearchOutlineNormal);
+                    SetColorIfChanged(outline[i], GetResearchOutlineColor(research, focused));
                     if (!outline[i].enabled)
                         outline[i].enabled = true;
                 }
@@ -2405,6 +2405,17 @@ public sealed partial class KingdomUIRoot
                 $"refreshBus={refreshBus} nodes={researchTreeNodes.Count} " +
                 $"sharedLines={researchSharedLineVisuals.Count}");
 #endif
+    }
+
+    private static Color GetResearchOutlineColor(Research research, bool focused)
+    {
+        ResearchManager manager = ResearchManager.Instance;
+        if (manager != null)
+        {
+            if (manager.ActiveResearch?.Definition == research)
+                return Copper;
+        }
+        return focused ? ResearchFocusWhite : ResearchOutlineNormal;
     }
 
     public bool SetResearchGraphLinesVisibleForPerfTest(bool visible)

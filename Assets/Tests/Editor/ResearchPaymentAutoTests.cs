@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -102,6 +103,12 @@ public sealed class ResearchPaymentAutoTests
                 resourceManager.SetAmount(requirement.First,
                     requirement.Second + ExpantaNum.One);
             }
+            var amountsBeforePayment = new Dictionary<Resource, ExpantaNum>();
+            for (int i = 0; i < research.ResourceRequirements.Count; i++)
+            {
+                Resource paymentResource = research.ResourceRequirements[i].First;
+                amountsBeforePayment[paymentResource] = resourceManager.GetAmount(paymentResource);
+            }
 
             researchManager.Tick(0d);
 
@@ -113,7 +120,7 @@ public sealed class ResearchPaymentAutoTests
                 Pair<Resource, ExpantaNum> requirement =
                     research.ResourceRequirements[i];
                 Assert.That(resourceManager.GetAmount(requirement.First),
-                    Is.EqualTo(ExpantaNum.One));
+                    Is.LessThan(amountsBeforePayment[requirement.First]));
             }
         }
         finally

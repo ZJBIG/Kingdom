@@ -39,7 +39,6 @@ public sealed partial class KingdomUIRoot
         selectedSectorDefinition = null;
         detailBody.text = title + "\n\n" + description + "\n\n标识：" + id;
         HideBuildingRequirements();
-        HideResearchPaymentButton();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
         // Generic/workshop details do not go through the requirement
@@ -119,6 +118,7 @@ public sealed partial class KingdomUIRoot
             : null;
         detailBody.fontSize = 30f;
         selectedBuilding = building;
+        selectedResearchNode = null;
         selectedResource = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
@@ -130,13 +130,12 @@ public sealed partial class KingdomUIRoot
             ? existing
             : null;
         SetBuildingDetailBody(building, state);
-        if (detailActionButton != null)
-            detailActionButton.gameObject.SetActive(false);
-        HideResearchPaymentButton();
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
             BuildingManager.Instance != null &&
             BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
         detailBuildingUpgrade = upgrading;
+        if (detailActionButton != null)
+            detailActionButton.gameObject.SetActive(false);
         IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
         IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
         ShowBuildingFlows(output, input);
@@ -207,6 +206,8 @@ public sealed partial class KingdomUIRoot
         }
 
         SetBuildingDetailBody(building, state);
+        if (detailActionButton != null)
+            detailActionButton.gameObject.SetActive(false);
     }
 
     private void ShowResourceDetails(Resource resource)
@@ -223,7 +224,6 @@ public sealed partial class KingdomUIRoot
         detailIsBuilding = false;
         detailBuildingUpgrade = false;
         HideBuildingRequirements();
-        HideResearchPaymentButton();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
 
@@ -434,6 +434,7 @@ public sealed partial class KingdomUIRoot
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
+        selectedResearchNode = null;
         selectedResource = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
@@ -465,7 +466,6 @@ public sealed partial class KingdomUIRoot
             research.ResourceRequirements == null ? 0 : research.ResourceRequirements.Count,
             keepScrollPosition ? (float?)savedRequirementScrollPosition : null,
             0);
-        ConfigureResearchPaymentButton(research, state);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
         CaptureResearchRefreshSignatures();
     }
@@ -562,7 +562,8 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < buildings.Count && buildingCount < 3; i++)
         {
             Building building = buildings[i];
-            if (building == null || !ContainsResearch(building.RequiredResearch, research))
+            if (building == null || building is SectorBuilding ||
+                !ContainsResearch(building.RequiredResearch, research))
                 continue;
             builder.AppendLine("  解锁建筑方向：" + building.Label);
             buildingCount++;
@@ -611,6 +612,7 @@ public sealed partial class KingdomUIRoot
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
+        selectedResearchNode = null;
         selectedResource = null;
         selectedWorkshop = definition;
         selectedSectorDefinition = null;
@@ -623,8 +625,6 @@ public sealed partial class KingdomUIRoot
             preservedScrollPosition,
             0);
         ConfigureWorkshopPaymentButton(definition);
-        if (detailActionButton != null)
-            detailActionButton.gameObject.SetActive(false);
     }
 
     private void SetWorkshopDetailBody(WorkshopUpgrade definition)
@@ -664,27 +664,6 @@ public sealed partial class KingdomUIRoot
                 effect.Resource != null ? effect.Resource.Label : "全局";
             builder.AppendLine("  " + effect.Type.GetDescription() + " / " + target + ": " + effect.Value);
         }
-    }
-
-    private void ConfigureWorkshopPaymentButton(WorkshopUpgrade definition, bool bindAction = true)
-    {
-        if (detailPaymentButton == null)
-            return;
-        detailPaymentButton.gameObject.SetActive(true);
-        if (bindAction)
-        {
-            detailPaymentButton.onClick.RemoveAllListeners();
-            detailPaymentButton.onClick.AddListener(() => PayWorkshopUpgrade(definition));
-        }
-        bool purchased = WorkshopManager.Instance != null && WorkshopManager.Instance.IsPurchased(definition);
-        string availability = GetWorkshopAvailability(
-            definition, out bool canPurchase, out _);
-        detailPaymentButton.interactable = canPurchase;
-        TMP_Text text = GetDetailButtonText(detailPaymentButton, ref detailPaymentButtonText);
-        if (text != null)
-            text.text = purchased
-                ? "已购买"
-                : canPurchase ? "购买工坊升级" : availability;
     }
 
     private static string GetWorkshopAvailability(
@@ -753,6 +732,20 @@ public sealed partial class KingdomUIRoot
         return "可购买";
     }
 
+    private void ConfigureWorkshopPaymentButton(WorkshopUpgrade definition, bool bindAction = true)
+    {
+        if (detailActionButton == null)
+            return;
+        bool purchased = WorkshopManager.Instance != null &&
+            WorkshopManager.Instance.IsPurchased(definition);
+        string availability = GetWorkshopAvailability(
+            definition, out bool canPurchase, out _);
+        ConfigureActionButton(
+            purchased ? "已购买" : canPurchase ? "购买工坊升级" : availability,
+            () => PayWorkshopUpgrade(definition));
+        detailActionButton.interactable = canPurchase;
+    }
+
     private void PurchaseWorkshopFromRow(WorkshopUpgrade definition)
     {
         if (definition == null || WorkshopManager.Instance == null)
@@ -790,7 +783,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        ConfigureResearchPaymentButton(research, state);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
     }
 
@@ -809,44 +801,11 @@ public sealed partial class KingdomUIRoot
     {
         if (state != null && state.Status == ResearchStatus.Completed)
             return "研究已完成";
-        if (state != null && state.Status == ResearchStatus.Researching)
-            return "研究进行中";
-        return ResearchManager.Instance != null && ResearchManager.Instance.IsQueued(research)
+        return ResearchManager.Instance != null &&
+            (ResearchManager.Instance.ActiveResearch?.Definition == research ||
+             ResearchManager.Instance.IsQueued(research))
             ? "删除研究队列"
             : "加入研究队列";
-    }
-
-    private void ConfigureResearchPaymentButton(Research research, ResearchState state)
-    {
-        if (detailPaymentButton == null)
-            return;
-        detailPaymentButton.gameObject.SetActive(true);
-        detailPaymentButton.onClick.RemoveAllListeners();
-        detailPaymentButton.onClick.AddListener(() => PayResearchResources(research));
-        string paymentBlocker = string.Empty;
-        bool canPay = ResearchManager.Instance != null &&
-            ResearchManager.Instance.CanPayResearchCost(research, out paymentBlocker);
-        detailPaymentButton.interactable = state != null &&
-            state.Status != ResearchStatus.Completed && !state.CostPaid && canPay;
-        TMP_Text text = GetDetailButtonText(detailPaymentButton, ref detailPaymentButtonText);
-        if (text != null)
-        {
-            if (state != null && state.CostPaid)
-                text.text = "资源已支付";
-            else if (!canPay && !string.IsNullOrEmpty(paymentBlocker))
-                text.text = paymentBlocker;
-            else
-                text.text = "支付资源";
-        }
-    }
-
-    private void HideResearchPaymentButton()
-    {
-        if (detailPaymentButton == null)
-            return;
-        detailPaymentButton.onClick.RemoveAllListeners();
-        detailPaymentButton.interactable = false;
-        detailPaymentButton.gameObject.SetActive(false);
     }
 
     private void HideBuildingRequirements()
@@ -1326,17 +1285,6 @@ public sealed partial class KingdomUIRoot
         if (cached == null && button != null)
             cached = button.GetComponentInChildren<TMP_Text>(true);
         return cached;
-    }
-
-    private void PayResearchResources(Research research)
-    {
-        if (research == null || ResearchManager.Instance == null)
-            return;
-        ResearchPaymentResult result = ResearchManager.Instance.PayResearchCost(research);
-            Debug.Log($"[界面] 研究支付：id={research.Id}，结果={result.GetDescription()}");
-        ShowResearchDetails(research, true);
-        RefreshResearchQueueToolbar();
-        researchQueueUiDirty = false;
     }
 
     private void BuildOne(Building building)

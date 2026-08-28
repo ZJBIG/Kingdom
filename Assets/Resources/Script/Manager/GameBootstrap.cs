@@ -41,6 +41,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
     {
         ValidateDefinitions<Resource>();
         ValidateDefinitions<Building>();
+        BuildingManager.ValidateBuildingChains(DataBase<Building>.All);
         ValidateDefinitions<Research>();
         ValidateDefinitions<WorkshopUpgrade>();
         ValidateDefinitions<SectorDefinition>();

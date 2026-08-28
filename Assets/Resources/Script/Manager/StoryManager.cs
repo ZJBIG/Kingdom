@@ -377,7 +377,15 @@ public static class StoryManager
     {
         if (string.IsNullOrEmpty(researchId))
             return true;
-        ResearchManager manager = ResearchManager.Instance;
+        ResearchManager manager;
+        try
+        {
+            manager = ResearchManager.Instance;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
         if (!DataBase<Research>.TryFind(researchId, out Research definition))
             return false;
         return manager != null && definition != null &&
@@ -391,7 +399,15 @@ public static class StoryManager
             !DataBase<Research>.TryFind(researchId, out Research definition) ||
             definition == null)
             return -1;
-        ResearchManager manager = ResearchManager.Instance;
+        ResearchManager manager;
+        try
+        {
+            manager = ResearchManager.Instance;
+        }
+        catch (InvalidOperationException)
+        {
+            return -1;
+        }
         if (manager == null || !manager.States.TryGetValue(definition,
             out ResearchState state) || state == null)
             return -1;
@@ -402,7 +418,15 @@ public static class StoryManager
     {
         if (string.IsNullOrEmpty(buildingId))
             return true;
-        BuildingManager manager = BuildingManager.Instance;
+        BuildingManager manager;
+        try
+        {
+            manager = BuildingManager.Instance;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
         if (!DataBase<Building>.TryFind(buildingId, out Building definition))
             return false;
         if (manager == null || definition == null ||
@@ -413,9 +437,16 @@ public static class StoryManager
         // Reuse the authoritative read-only prerequisite check so an old or
         // externally restored save cannot unlock a memory for a building whose
         // research or Workshop prerequisites are not actually satisfied.
-        if (GameManager.Instance == null || GameManager.Instance.State == null ||
-            ResearchManager.Instance == null)
+        try
+        {
+            if (GameManager.Instance == null || GameManager.Instance.State == null ||
+                ResearchManager.Instance == null)
+                return false;
+        }
+        catch (InvalidOperationException)
+        {
             return false;
+        }
         return manager.ArePrerequisitesMet(definition, out _);
     }
 
@@ -439,7 +470,7 @@ public static class StoryManager
 
     private static bool HasSectorAccess()
     {
-        GameManager gameManager = GameManager.Instance;
+        GameManager gameManager = UnityEngine.Object.FindObjectOfType<GameManager>();
         SectorManager sectorManager = gameManager == null ? null : gameManager.Sectors;
         if (sectorManager == null)
             return false;
@@ -486,7 +517,7 @@ public static class StoryManager
 
     private static string GetSectorProgressSignature()
     {
-        GameManager gameManager = GameManager.Instance;
+        GameManager gameManager = UnityEngine.Object.FindObjectOfType<GameManager>();
         SectorManager sectorManager = gameManager == null ? null : gameManager.Sectors;
         if (sectorManager == null)
             return "none";

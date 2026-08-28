@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ProximaB
   Label: "比邻星前哨"
-  Description: "太阳系外第一座深空前沿哨站。远征期间持续消耗食物、火箭燃料、复合材料、钛合金和幽影材料；只有后勤满意度足够高，舰队才适合长期推进。"
+  Description: "比邻星的暗红微光照亮一座孤独哨站。舰队必须把食物、燃料与先进材料送过漫长航道，才能让这颗远方世界成为可靠的补给灯塔。"
   starSystemId: AlphaCentauri
   domain: 1
   enemyPower: "3000"

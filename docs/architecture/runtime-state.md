@@ -12,6 +12,11 @@ and player playtests.
 
 - Resource, Building and Research ScriptableObjects are definitions.
 - ResourceState, BuildingState, ResearchState and GameState are mutable runtime authority.
+
+- `BuildingState.Amount` is also the authoritative count for `SectorBuilding`.
+  Sector building construction and deconstruction are gated by sector
+  occupation and `MaxAmount`, but do not read, submit, or refund homeland
+  territory `spaceCost`.
 - ResourceManager, BuildingManager and ResearchManager own State collections.
 - SimulationManager is the only gameplay clock.
 - Viewer/Displayer code is UI only.

@@ -48,9 +48,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private RectTransform flowHost;
     private RectTransform flowContent;
     private Button detailActionButton;
-    private Button detailPaymentButton;
     private TMP_Text detailActionButtonText;
-    private TMP_Text detailPaymentButtonText;
     private RectTransform tooltipPanel;
     private TMP_Text tooltipText;
     private TMP_Text topFoodValue;
@@ -1044,7 +1042,8 @@ public static class DevelopmentGuidance
             for (int i = 0; i < definitions.Count; i++)
             {
                 Building building = definitions[i];
-                if (building != null && buildingManager.CanConstructNew(building))
+                if (building != null && !(building is SectorBuilding) &&
+                    buildingManager.CanConstructNew(building))
                 {
                     snapshot.Status = DevelopmentGuidanceStatus.Available;
                     snapshot.Title = "建设：" + building.Label;

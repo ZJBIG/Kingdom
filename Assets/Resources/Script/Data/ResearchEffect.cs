@@ -37,8 +37,8 @@ public enum ResearchEffectType
     DeconstructionReturnRate = 22,
     [Description("解锁工业工坊")]
     UnlockIndustrialWorkshop = 18,
-    [Description("解锁首次接触")]
-    UnlockFirstContact = 19,
+    [Description("解锁本星系测绘")]
+    UnlockHomeSystemSurvey = 19,
     [Description("解锁深空舰队")]
     UnlockDeepSpaceFleet = 20,
     [Description("解锁星际航行")]
@@ -69,7 +69,7 @@ public enum ResearchSystem
 {
     None = 0,
     IndustrialWorkshop = 1,
-    FirstContact = 2,
+    HomeSystemSurvey = 2,
     DeepSpaceFleet = 3,
     InterstellarNavigation = 4
 }
