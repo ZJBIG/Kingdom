@@ -149,7 +149,6 @@ public sealed class SimulationResult
     public readonly SimulationState State; public readonly List<BalanceWarning> Warnings=new(); public readonly List<string> Bottlenecks=new(); public readonly List<string> Notes=new();
     public Route Route; public SimulationResult(SimulationState state, Route route){State=state;Route=route;}
 }
-
 public static class EconomySimulator
 {
     // FROZEN: this standalone model is not a gameplay authority or a reliable
@@ -275,83 +274,4 @@ public static class EconomySimulator
                 active.Add(definition);
     }
     private static string FindRoot(string c){string p=Path.GetFullPath(c);while(Directory.Exists(p)){if(Directory.Exists(Path.Combine(p,"Assets","Resources","Datas")))return p;var d=Directory.GetParent(p);if(d==null)break;p=d.FullName;}throw new DirectoryNotFoundException("Kingdom root not found from "+c);}
-}
-
-public static class PacingAcceptance
-{
-    private sealed record Window(
-        double NeolithicMin,
-        double NeolithicMax,
-        double MedievalMin,
-        double MedievalMax,
-        double CompletionMin,
-        double CompletionMax);
-
-    private static readonly IReadOnlyDictionary<Route,Window> Windows =
-        new Dictionary<Route,Window>
-        {
-            [Route.Fast]=new(45*60,75*60,4*3600,6*3600,8*3600,10*3600),
-            [Route.Normal]=new(60*60,90*60,5*3600,8*3600,10*3600,16*3600),
-            [Route.Conservative]=new(90*60,120*60,8*3600,12*3600,14*3600,20*3600)
-        };
-
-    public static IReadOnlyList<string> Validate(
-        IReadOnlyDictionary<Route,SimulationResult> results)
-    {
-        var failures=new List<string>();
-        foreach((Route route,SimulationResult result) in results)
-        {
-            SimulationState state=result.State;
-            Window window=Windows[route];
-            CheckEra(state,route,SimTechLevel.Neolithic,
-                window.NeolithicMin,window.NeolithicMax,failures);
-            CheckEra(state,route,SimTechLevel.Medieval,
-                window.MedievalMin,window.MedievalMax,failures);
-            CheckEra(state,route,SimTechLevel.Industrial,
-                window.CompletionMin,window.CompletionMax,failures);
-
-            SimulationEvent? first=state.Events
-                .Where(x=>x.Kind=="ResearchCompleted")
-                .OrderBy(x=>x.Seconds)
-                .FirstOrDefault();
-            if(first==null||first.Seconds<60d||first.Seconds>120d)
-                failures.Add($"{route}: first research must complete in 60-120 seconds.");
-
-            TimelineSnapshot? ten=state.Timeline.FirstOrDefault(x=>x.Minute==10);
-            int completedAtTen=ten==null
-                ?0
-                :ten.ResearchCompleted.Split(
-                    ';',
-                    StringSplitOptions.RemoveEmptyEntries).Length;
-            if(completedAtTen<2)
-                failures.Add($"{route}: at least two research items must complete by minute 10.");
-
-            if(BalanceAnalysis.MaximumNoResearchSeconds(
-                    state,
-                    SimTechLevel.Animal)>300d)
-                failures.Add($"{route}: Animal no-target drought exceeds five minutes.");
-            if(BalanceAnalysis.MaximumNoResearchSeconds(
-                    state,
-                    SimTechLevel.Neolithic)>600d)
-                failures.Add($"{route}: Neolithic no-target drought exceeds ten minutes.");
-            foreach(BalanceWarning warning in result.Warnings.Where(x=>x.Severity=="High"))
-                failures.Add($"{route}: {warning.Type} {warning.Object}: {warning.Reason}");
-        }
-        return failures;
-    }
-
-    private static void CheckEra(
-        SimulationState state,
-        Route route,
-        SimTechLevel era,
-        double minimum,
-        double maximum,
-        List<string> failures)
-    {
-        double seconds=state.EraReachedSeconds.GetValueOrDefault(era.ToString(),-1d);
-        if(seconds<minimum||seconds>maximum)
-            failures.Add(
-                $"{route}: {era} reached at {seconds/60d:0.##} minutes; " +
-                $"expected {minimum/60d:0.##}-{maximum/60d:0.##}.");
-    }
 }

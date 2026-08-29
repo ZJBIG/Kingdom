@@ -6,11 +6,16 @@
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+/tools/EconomySimulator/bin/
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 *.log
+
+# Local archives and Unity Burst build diagnostics are reproducible artifacts.
+/Kingdom.zip
+/Kingdom_BurstDebugInformation_DoNotShip/
 
 # Codex archive and local build intermediates are recoverable workspace data,
 # not current repository evidence.

@@ -21,6 +21,6 @@
     <Compile Include="ResourceSimulator.cs" />
     <Compile Include="ResearchSimulator.cs" />
     <Compile Include="BuildingSimulator.cs" />
-    <Compile Include="SimulationReportWriter.cs" />
+    <Compile Include="BalanceAnalysis.cs" />
   </ItemGroup>
 </Project>

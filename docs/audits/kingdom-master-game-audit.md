@@ -33,10 +33,11 @@
 > - Sector buildings do not participate in homeland territory `spaceCost`
 >   transactions and use the existing `BuildingState.Amount`.
 
-> **2026-08-26 evidence status:** `tools/EconomySimulator` is now frozen and
-> its CLI is disabled. All `data/economy-simulation` and `PacingAcceptance`
-> outputs in this document are historical diagnostics only; do not rerun or
-> use them as current pacing, balance, progression, or Unity acceptance proof.
+> **2026-08-26 evidence status:** `tools/EconomySimulator` is frozen and its
+> CLI is disabled. The generated CSV timelines and `PacingAcceptance.txt` were
+> removed as stale outputs; the remaining Markdown summaries are historical
+> diagnostics only and must not be used as current pacing, balance,
+> progression, or Unity acceptance proof.
 
 > 状态：静态全覆盖已经完成；性能优先批次已收敛到用户实测研究页切换卡顿消失，当前转入世界观与游戏引导的渐进改进。任务开始时采用只读单文档模式，后续用户已授权性能、编译、Android 配置及无设计分歧的文本/引导修复。
 
@@ -117,8 +118,8 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 测试源码含 34 个 Editor 测试文件和 2 个 PlayMode 测试文件；当前静态声明计数为 555 个 `[Test]/[TestCase]` 标注与 16 个 `[UnityTest]` 方法。参数化标注数量不是实际运行用例数。
 - `TestResults/Latest-Test-Errors.txt`（生成于 2026-08-24 02:02:00 +08:00）记录 `Mode: 0`、554 total、552 passed、2 failed。失败为 `PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth` 缺少测试 `BuildingManager`，以及 `WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder` 在恢复时缺少状态字典项；该文件仍没有证明 16 个 PlayMode 方法被执行，因此不作为 PlayMode 验收。
 - `data/content-closure-static.md` 报告：40 Resource；Industrial 及以前 Research 81/81、Workshop 37/37、Building 50/50 可达；Spacer 47/47、46/46、16/16 可达；Ultra Research 1/1 可达，无 Ultra Workshop/Building。此为静态闭包 E2，不是 Unity 行为或节奏证据。
-- `data/economy-simulation/PacingAcceptance.txt` 当前为 `FAIL`。Normal/Fast 在 24 小时内未到 Medieval；Conservative 在 426.32 分钟到 Medieval、1142.83 分钟到 Industrial、未到 Spacer；各路线目标窗口也有偏差。
-- 当前模拟报告声明的严格快照为 40 Resource、69 Building、121 Research、73 Workshop，而当前资产为 40/66/128/82。由此模拟与 PacingAcceptance 不能代表当前定义集合，见 `REPORT-P1-001`。
+- 旧版 `PacingAcceptance.txt`（已删除）记录为 `FAIL`：Normal/Fast 在 24 小时内未到 Medieval；Conservative 在 426.32 分钟到 Medieval、1142.83 分钟到 Industrial、未到 Spacer；各路线目标窗口也有偏差。
+- 旧模拟报告声明的严格快照为 40 Resource、69 Building、121 Research、73 Workshop，而当前资产为 40/66/128/82。由此旧模拟输出不能代表当前定义集合，见 `REPORT-P1-001`。
 - Normal 与根报告均在 76.32 分钟到 Neolithic 后未到 Medieval；Fast 在 79.12 分钟到 Neolithic 后未到 Medieval；Conservative 在 64.58 分钟到 Neolithic、426.32 分钟到 Medieval、1142.83 分钟到 Industrial。以上仅是过期输入快照的诊断背景，不作当前玩法结论。
 
 ## 5. 全量覆盖矩阵
@@ -173,7 +174,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - `RESEARCH-P1-001`：研究资源成本被允许分资源、分多次部分扣除，直接违反“开始前原子支付”的锁定规则。
 - `ECON-P1-001`：多输入建筑把各资源满足率相乘而不是取瓶颈最小值，系统性低估生产效率。
 - `ECON-P1-002`：Calendar、IndustrialAgriculture 和 AgriculturalMachinery 重复声明同一 Food 效果目标；运行时会重复相乘，当前定义测试源码也明确拒绝。
-- `REPORT-P1-001`：当前离线模拟/PacingAcceptance 使用的定义快照与工作树不一致，阻断当前纵向切片的可信节奏判断。
+- `REPORT-P1-001`：当前离线模拟使用的定义快照与工作树不一致，阻断当前纵向切片的可信节奏判断。
 - `SECTOR-P1-001`：本地殖民完成会无条件清空并行星际战役的全局状态。
 
 ## 8. 按系统分类的完整发现
@@ -188,7 +189,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 置信度：高
 - 玩家发生场景：不直接发生于玩家端；影响任何基于当前报告安排的早期主线与节奏修改。
 - 玩家可感知症状：若据旧快照调参，玩家可能继续遇到真实阻断或得到针对已删除/已新增定义的错误节奏修改。
-- 具体影响：当前资产有 66 Building、128 Research、82 Workshop；四份模拟摘要均声明 69/121/73。`PacingAcceptance.txt` 的 FAIL 不能归因到当前定义，Workshop 购买时间线也不能覆盖当前 82 项资产。
+- 具体影响：当前资产有 66 Building、128 Research、82 Workshop；四份模拟摘要均声明 69/121/73。旧节奏 FAIL 不能归因到当前定义，Workshop 购买时间线也不能覆盖当前 82 项资产。
 - 当前证据：`Assets/Resources/Datas/**` 的直接文件与 `TechLevel` 计数；`data/content-closure-static.md` 与当前资产一致为 66/128/82；`data/economy-simulation/{,Fast,Normal,Conservative}/EconomySimulationReport.md` 均写 69/121/73。
 - 根因或设计诊断：保留的“当前”模拟输出不是由当前定义集合生成，证据链版本失配。
 - 为什么不符合 Kingdom 当前目标：玩法正确后才允许调节节奏，而当前节奏诊断不覆盖当前玩法输入。
@@ -200,7 +201,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 风险和可能回归：重新生成会改变全部当前时间线；必须保留策略冻结及 Unity 证据边界。
 - 工作量：S～M
 - 是否可以交给实施智能体：是，作为独立 Wave 0 证据修复批次。
-- 后续实施验收标准：输入计数与当前资产一致；自测/奇偶性门通过后重新运行；PacingAcceptance 明确记录真实当前结果；不得把模拟当 Unity 验收。
+- 后续实施验收标准：输入计数与当前资产一致；自测/奇偶性门通过后重新运行；节奏报告明确记录真实当前结果；不得把模拟当 Unity 验收。
 - 尚缺的验证证据：本轮禁止重新运行快照、模拟、构建和 Unity，因此尚未确认当前输出失配发生在哪个生成步骤。
 
 ### BUILD-P2-001 锁定 Unity 补丁版本与项目序列化版本不一致
@@ -1041,7 +1042,7 @@ Industrial/Spacer 的建筑持续消费 WoodLog、Biomass、Cloth、Ceramic、St
 
 ### 10.4 节奏证据边界
 
-`PacingAcceptance=FAIL` 与静态闭包通过可以同时成立：闭包只证明定义图存在路径，节奏报告则基于 40/69/121/73 的旧快照，而当前资产是 40/66/128/82。当前既不能用 FAIL 证明主线真实不可达，也不能用闭包通过证明可玩。Wave 3 之前必须先修复行为与证据版本（`REPORT-P1-001`）。
+旧版 `PacingAcceptance=FAIL` 与静态闭包通过可以同时成立：闭包只证明定义图存在路径，节奏报告则基于 40/69/121/73 的旧快照，而当前资产是 40/66/128/82。当前既不能用旧 FAIL 证明主线真实不可达，也不能用闭包通过证明可玩。Wave 3 之前必须先修复行为与证据版本（`REPORT-P1-001`）。
 
 ## 11. UI、研究树和移动端审查
 
