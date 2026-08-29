@@ -79,4 +79,25 @@ public sealed class ResearchMedievalContentTests
             Is.True,
             error);
     }
+
+    [Test]
+    public void C503_MedievalSpecialistResearchesHaveDistinctEffectRoles()
+    {
+        Assert.That(DataBase<Research>.Find("Fortification").Effects,
+            Has.Some.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.GlobalConstructionMultiplier &&
+                effect.NumericValue == new ExpantaNum("1.05")));
+        Assert.That(DataBase<Research>.Find("GuildSystem").Effects,
+            Has.Some.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.GlobalResearchMultiplier &&
+                effect.NumericValue == new ExpantaNum("1.05")));
+        Assert.That(DataBase<Research>.Find("Gunpowder").Effects,
+            Has.Some.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.GlobalLogisticsMultiplier &&
+                effect.NumericValue == new ExpantaNum("1.07")));
+        Assert.That(DataBase<Research>.Find("StandingArmy").Effects,
+            Has.Some.Matches<ResearchEffectDefinition>(effect =>
+                effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
+                effect.NumericValue == new ExpantaNum("1.06")));
+    }
 }

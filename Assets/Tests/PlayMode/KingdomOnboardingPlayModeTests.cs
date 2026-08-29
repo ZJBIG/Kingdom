@@ -13,6 +13,18 @@ using UnityEngine.EventSystems;
 
 public sealed class KingdomOnboardingPlayModeTests
 {
+    [SetUp]
+    public void SetUp()
+    {
+        KingdomPlayModeSaveScope.Begin();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        KingdomPlayModeSaveScope.Clear();
+    }
+
     [UnityTest]
     public IEnumerator OuterPageScroll_RestoresAfterResearchWarmup()
     {

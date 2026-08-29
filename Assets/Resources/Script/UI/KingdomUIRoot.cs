@@ -558,6 +558,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         populatedPage = name;
         RefreshNavigationSelection(name);
+        RefreshOverviewNavigationToolbar();
         TutorialManager.Current?.RecordPageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
         // generated page is created. Once a page has been built, forcing a
@@ -579,7 +580,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
         {
-            BuildBuildingQuantityControls(pageHost.parent);
+            BuildBuildingQuantityControls(pageHost.parent.Find("PageTool"));
             RefreshBuildingQuantityHeader();
         }
 #if UNITY_EDITOR

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarCausalCoordination
   Label: "\u661f\u9645\u6218\u5f79\u65f6\u5e8f\u7406\u8bba"
   Description: "\u7814\u7a76\u661f\u533a\u5ef6\u8fdf\u3001\u547d\u4ee4\u6ede\u540e\u4e0e\u6218\u5f79\u9636\u6bb5\u4e4b\u95f4\u7684\u65f6\u95f4\u5173\u7cfb\uff0c\u5efa\u7acb\u53ef\u5bb9\u5fcd\u4fe1\u606f\u4e0d\u540c\u6b65\u7684\u884c\u52a8\u7a97\u53e3\u548c\u8fdb\u5ea6\u5236\u5ea6\uff0c\u4f7f\u8fdc\u5f81\u3001\u8865\u7ed9\u4e0e\u5360\u9886\u884c\u52a8\u80fd\u591f\u7a33\u5b9a\u63a8\u8fdb\u3002"
-  BaseCost: "40000000"
+  BaseCost: "2880000000"
   prerequisites:
   - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}
   - {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f60718293a4b5c6d, type: 2}

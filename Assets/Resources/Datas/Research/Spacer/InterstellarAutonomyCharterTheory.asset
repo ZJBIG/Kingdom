@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarAutonomyCharterTheory
   Label: "\u661f\u9645\u81ea\u6cbb\u5baa\u7ae0\u7406\u8bba"
   Description: "\u7814\u7a76\u591a\u661f\u533a\u793e\u4f1a\u7684\u81ea\u6cbb\u6743\u3001\u4ee3\u8868\u673a\u5236\u4e0e\u8d44\u6e90\u534f\u5546\u539f\u5219\uff0c\u5efa\u7acb\u9002\u7528\u4e8e\u6b96\u6c11\u5730\u548c\u524d\u6cbf\u7ad9\u7684\u5171\u540c\u5baa\u7ae0\uff0c\u63d0\u9ad8\u8de8\u661f\u533a\u793e\u4f1a\u7684\u7a33\u5b9a\u4e0e\u51dd\u805a\u529b\u3002"
-  BaseCost: "23000000"
+  BaseCost: "1564000000"
   prerequisites:
   - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
   - {fileID: 11400000, guid: d1e4f7a9c2b5486fa0d3e8c1b5f70942, type: 2}

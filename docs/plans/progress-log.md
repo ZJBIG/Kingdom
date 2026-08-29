@@ -137,7 +137,7 @@
 - Food now integrates every simulation Tick; calendar days use an independent elapsed-seconds accumulator.
 - Added backlog clamping to `tickInterval * maximumTicksPerFrame`; `ManualTick` remains unrestricted.
 - Added EditMode regression coverage for partial resource satisfaction and separate food/calendar progression.
-- `dotnet build Kingdom.sln --no-restore --verbosity minimal` passed with 45 existing Inspector-field warnings and 0 errors. 未执行真实 Unity 编译。
+- `dotnet build Kingdom.sln --no-restore --verbosity minimal` passed with 45 existing Inspector-field warnings and 0 errors；Unity 运行验证证据待补充。
 
 ## 2026-07-24 Repository pack and TMP binding
 

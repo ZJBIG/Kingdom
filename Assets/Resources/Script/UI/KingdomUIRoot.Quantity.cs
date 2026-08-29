@@ -38,7 +38,8 @@ public sealed partial class KingdomUIRoot
 
         buildingQuantityButtons.Clear();
         controls.SetAsLastSibling();
-        pageTitle = controls.parent.Find("PageTitle")?.GetComponent<TMP_Text>();
+        Transform content = controls.parent?.parent;
+        pageTitle = content?.Find("PageTitle")?.GetComponent<TMP_Text>();
         if (pageTitle == null)
         {
             Debug.LogError("[王国界面] 场景外壳缺少已配置的建筑页面标题。");

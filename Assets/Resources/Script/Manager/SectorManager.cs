@@ -71,6 +71,8 @@ public sealed class SectorCampaignPreview
     public ExpantaNum CasualtiesPerSecond { get; }
     public ExpantaNum FoodCostPerSecond { get; }
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerSecond { get; }
+    public bool HasOngoingSupplyCost { get; }
+    public ExpantaNum EstimatedSupplySeconds { get; }
 
 
 
@@ -89,7 +91,9 @@ public sealed class SectorCampaignPreview
         ExpantaNum progressPerSecond,
         ExpantaNum casualtiesPerSecond,
         ExpantaNum foodCostPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond)
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond,
+        bool hasOngoingSupplyCost,
+        ExpantaNum estimatedSupplySeconds)
     {
         IsValid = isValid;
         HasSupply = hasSupply;
@@ -110,6 +114,8 @@ public sealed class SectorCampaignPreview
         CasualtiesPerSecond = casualtiesPerSecond;
         FoodCostPerSecond = foodCostPerSecond;
         ResourceCostsPerSecond = resourceRatesPerSecond;
+        HasOngoingSupplyCost = hasOngoingSupplyCost;
+        EstimatedSupplySeconds = estimatedSupplySeconds;
     }
 }
 
@@ -286,18 +292,14 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
-                Array.Empty<Pair<Resource, ExpantaNum>>());
+                Array.Empty<Pair<Resource, ExpantaNum>>(),
+                false,
+                ExpantaNum.Zero);
 
-        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
-            runtimeState.AttackPower,
-            runtimeState.FleetPower,
-            runtimeState.MilitaryManpower,
-            runtimeState.SupplySatisfaction,
-            runtimeState.PowerSatisfaction,
-            runtimeState.LogisticsSatisfaction,
-            ProgressionModifierManager.Current.MilitaryMultiplier,
-            state.CampaignCasualties);
-        ExpantaNum combatRatio = CampaignManager.CalculateCombatRatio(effectivePower, definition.EnemyPower);
+        ExpantaNum combatRatio = CalculateCampaignCombatRatio(
+            definition, state, runtimeState);
+        ExpantaNum effectivePower = CalculateCampaignEffectivePower(
+            state, runtimeState);
         ExpantaNum fleetSurvivalFactor = CampaignManager.CalculateFleetSurvivalFactor(
             runtimeState.DefensePower,
             definition.EnemyPower);
@@ -330,6 +332,12 @@ public sealed class SectorManager
                 resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState) &&
                 resourceState.Amount >= cost.Second;
         }
+        ExpantaNum estimatedSupplySeconds = CalculateSupplyDuration(
+            runtimeState,
+            resourceManager,
+            foodCostPerSecond,
+            resourceCosts,
+            out bool hasOngoingSupplyCost);
 
         return new SectorCampaignPreview(
             true,
@@ -346,7 +354,9 @@ public sealed class SectorManager
             progressPerSecond,
             casualtiesPerSecond,
             foodCostPerSecond,
-            resourceCosts);
+            resourceCosts,
+            hasOngoingSupplyCost,
+            estimatedSupplySeconds);
     }
 
     public SectorExplorationPreview GetExplorationPreview(
@@ -389,7 +399,6 @@ public sealed class SectorManager
                 resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState) &&
                 resourceState.Amount >= cost.Second;
         }
-
         return new SectorExplorationPreview(
             true,
             hasSupply,
@@ -401,6 +410,44 @@ public sealed class SectorManager
             explorationSpeedMultiplier,
             foodCostPerSecond,
             resourceCosts);
+    }
+
+    private static ExpantaNum CalculateSupplyDuration(
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        ExpantaNum foodCostPerSecond,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts,
+        out bool hasOngoingSupplyCost)
+    {
+        hasOngoingSupplyCost = false;
+        ExpantaNum duration = ExpantaNum.Zero;
+        if (foodCostPerSecond > ExpantaNum.Zero)
+        {
+            duration = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                runtimeState.FoodAmount / foodCostPerSecond);
+            hasOngoingSupplyCost = true;
+        }
+
+        for (int i = 0; resourceCosts != null && i < resourceCosts.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+            if (cost.First == null || cost.Second <= ExpantaNum.Zero)
+                continue;
+            ExpantaNum amount = ExpantaNum.Zero;
+            if (resourceManager != null &&
+                resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState))
+                amount = resourceState.Amount;
+            ExpantaNum resourceDuration = ExpantaNum.Max(
+                ExpantaNum.Zero,
+                amount / cost.Second);
+            duration = hasOngoingSupplyCost
+                ? ExpantaNum.Min(duration, resourceDuration)
+                : resourceDuration;
+            hasOngoingSupplyCost = true;
+        }
+
+        return duration;
     }
 
     public bool CanAccess(SectorDefinition definition)
@@ -1238,8 +1285,16 @@ public sealed class SectorManager
         SectorState state,
         GameState runtimeState)
     {
+        return CampaignManager.CalculateCombatRatio(
+            CalculateCampaignEffectivePower(state, runtimeState),
+            definition.EnemyPower);
+    }
+
+    private static ExpantaNum CalculateCampaignEffectivePower(
+        SectorState state, GameState runtimeState)
+    {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        ExpantaNum effectivePower = CampaignManager.CalculateEffectivePower(
+        return CampaignManager.CalculateEffectivePower(
             runtimeState.AttackPower,
             runtimeState.FleetPower,
             runtimeState.MilitaryManpower,
@@ -1248,9 +1303,6 @@ public sealed class SectorManager
             runtimeState.LogisticsSatisfaction,
             modifiers.MilitaryMultiplier,
             state.CampaignCasualties);
-        return CampaignManager.CalculateCombatRatio(
-            effectivePower,
-            definition.EnemyPower);
     }
 
     public bool CancelColonization(SectorDefinition definition)
@@ -1554,7 +1606,7 @@ public sealed class SectorManager
                 cost.Second * supplyCostMultiplier * deltaSeconds));
         }
 
-        if (resourceCosts.Count > 0 && resourceManager == null)
+        if (resourceManager == null && AggregateCosts(resourceCosts).Count > 0)
         {
             failure = SectorOperationFailure.InsufficientCampaignSupply;
             return false;
@@ -1737,7 +1789,7 @@ public sealed class SectorManager
         if (costs == null || costs.Count == 0)
             return true;
         if (resourceManager == null)
-            return false;
+            return AggregateCosts(costs).Count == 0;
         foreach (KeyValuePair<Resource, ExpantaNum> cost in AggregateCosts(costs))
         {
             if (!resourceManager.States.TryGetValue(cost.Key, out ResourceState state) ||

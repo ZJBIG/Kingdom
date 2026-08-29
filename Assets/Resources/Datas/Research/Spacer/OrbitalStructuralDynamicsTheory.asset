@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalStructuralDynamicsTheory
   Label: "\u8f68\u9053\u7ed3\u6784\u52a8\u529b\u5b66\u7406\u8bba"
   Description: "\u7814\u7a76\u8f68\u9053\u5efa\u7b51\u7684\u8f7d\u8377\u4f20\u9012\u3001\u632f\u52a8\u8010\u4e45\u4e0e\u7ec4\u4ef6\u75b2\u52b3\u89c4\u5f8b\uff0c\u5efa\u7acb\u5927\u578b\u7a7a\u95f4\u8bbe\u65bd\u7684\u7ed3\u6784\u9a8c\u8bc1\u548c\u7ef4\u62a4\u539f\u5219\uff0c\u964d\u4f4e\u5efa\u9020\u9636\u6bb5\u7684\u91cd\u590d\u52a0\u56fa\u4e0e\u6750\u6599\u635f\u8017\u3002"
-  BaseCost: "8000000"
+  BaseCost: "144000000"
   prerequisites:
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}

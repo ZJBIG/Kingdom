@@ -153,7 +153,8 @@ public sealed partial class KingdomUIRoot
             bool isLatest = unlocked && chapter == latestChapter;
             bool collapsed = unlocked && !isLatest &&
                 IsStoryChapterCollapsed(chapter.Id);
-            string chapterTitle = chapter.Title + "\n" + chapter.EraLabel;
+            string chapterTitle = chapter.Title + "\n" + chapter.EraLabel +
+                "\n" + GetEraSubtitle(chapter.RequiredEra);
             string chapterBody;
             if (unlocked)
             {

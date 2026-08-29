@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceThermalExchangeTheory
   Label: "\u6df1\u7a7a\u70ed\u4ea4\u6362\u7406\u8bba"
   Description: "\u7814\u7a76\u771f\u7a7a\u8f90\u5c04\u3001\u4f4e\u6e29\u9694\u70ed\u4e0e\u9ad8\u80fd\u8f6c\u6362\u8fc7\u7a0b\u4e2d\u7684\u70ed\u91cf\u6d41\u5931\uff0c\u5efa\u7acb\u6df1\u7a7a\u8bbe\u65bd\u7684\u70ed\u7ba1\u7406\u548c\u80fd\u91cf\u56de\u6536\u539f\u7406\uff0c\u4e3a\u957f\u671f\u8f68\u9053\u8fd0\u884c\u4e0e\u540e\u7eed\u9ad8\u80fd\u5de5\u7a0b\u964d\u4f4e\u8f6c\u6362\u635f\u8017\u3002"
-  BaseCost: "11000000"
+  BaseCost: "308000000"
   prerequisites:
   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
   - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}

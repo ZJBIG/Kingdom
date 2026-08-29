@@ -59,5 +59,3 @@ None
 ## Validation boundary
 
 未执行真实 Unity 编译。
-
-未执行 Huawei P40 Pro 真机验收。

@@ -45,6 +45,25 @@ Use Unity layout components instead of manual `sizeDelta` formulas:
 
 Expanding a card toggles its Details object. Resource categories do not reparent cards into a hidden Transform.
 
+## Authored UI component rule
+
+非必要的 UI 组件必须直接放在对应的 Scene 或 Prefab 中。运行时代码只能查找
+已有组件并绑定数据、状态和事件，不得硬编码其视觉层级、尺寸、文案或通过
+`new GameObject` / `AddComponent` 生成它们。只有研究节点、连接线等真正由数据
+驱动的重复内容，或有明确兼容理由的降级路径，才允许运行时生成。
+
+`SafeAreaRoot/Content/PageTool` 是页面级固定工具的统一外层；Overview 导航工具
+与研究队列在其中保持同级。运行时只绑定已有控件，并按当前导航页控制其可见性。
+
+### Compatibility fallback
+
+The shared detail surface is a documented compatibility fallback: it is one
+essential shell used by every detail page, and may be rebuilt when an older
+root prefab has no compatible detail hierarchy. This exception does not cover
+page toolbars, buttons, labels, fixed dimensions, or repeated visual rows;
+those remain authored in the relevant Scene/Prefab or generated only as
+data-driven repeated content.
+
 ## Navigation gate
 
 Off-screen hiding remains a temporary compatibility mechanism. It can be removed only after PlayMode tests prove that disabling each Viewer does not stop simulation, music or state refresh.

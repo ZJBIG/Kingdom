@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalPowerTransmission
   Label: "轨道能量传输理论"
   Description: "研究轨道太阳能阵列、相位稳定器与高压输电节点的系统耦合，建立跨轨道能量传输的理论标准，为后续实体终端和空间设施提供稳定电力。"
-  BaseCost: "6800000"
+  BaseCost: "108800000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

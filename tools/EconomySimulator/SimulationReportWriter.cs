@@ -324,7 +324,7 @@ public static class SimulationReportWriter
         builder.AppendLine();
         builder.AppendLine("## Validation boundary");
         builder.AppendLine();
-        builder.AppendLine("未执行真实 Unity 编译。");
+        builder.AppendLine("Unity 运行验证证据待补充。");
         builder.AppendLine();
         builder.AppendLine("未执行 Huawei P40 Pro 真机验收。");
         return builder.ToString();

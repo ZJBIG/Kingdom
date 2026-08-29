@@ -3,8 +3,8 @@
 TechLevel reached: 5
 Industrial baseline mode: False
 Industrial closure complete: True
-Research reachable (up to Industrial): 80/80
-Workshop reachable (up to Industrial): 36/36
+Research reachable (up to Industrial): 81/81
+Workshop reachable (up to Industrial): 37/37
 Building reachable (up to Industrial): 50/50
 Research reachable (Spacer): 47/47
 Workshop reachable (Spacer): 46/46

@@ -17,9 +17,39 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool dirty = true;
     private long lastSavedStateSignature;
 
-    private string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+#if UNITY_EDITOR
+    private static string saveRootOverride;
+#endif
+
+    private string SaveRoot
+    {
+        get
+        {
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(saveRootOverride))
+                return saveRootOverride;
+#endif
+            return Application.persistentDataPath;
+        }
+    }
+
+    private string SavePath => Path.Combine(SaveRoot, SaveFileName);
     private string TempPath => SavePath + TempExtension;
     private string BackupPath => SavePath + BackupExtension;
+
+#if UNITY_EDITOR
+    public static void SetSaveRootOverrideForTests(string root)
+    {
+        if (string.IsNullOrWhiteSpace(root))
+            throw new ArgumentException("Save root cannot be empty.", nameof(root));
+        saveRootOverride = Path.GetFullPath(root);
+    }
+
+    public static void ClearSaveRootOverrideForTests()
+    {
+        saveRootOverride = null;
+    }
+#endif
 
     private void Start()
     {
@@ -27,6 +57,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     }
 
     public bool HasSave => File.Exists(SavePath) || File.Exists(BackupPath);
+    public bool LastLoadCreatedNewGame { get; private set; }
 
     public double LastOfflineProgressSeconds { get; private set; }
 
@@ -73,6 +104,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool LoadOrCreateGame()
     {
+        LastLoadCreatedNewGame = false;
         if (TryLoadCandidate(SavePath, out KingdomSaveData saveData))
         {
             ready = true;
@@ -95,6 +127,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
         TutorialManager.Ensure().ResetForNewGame();
+        LastLoadCreatedNewGame = true;
         ready = true;
         dirty = true;
         lastSavedStateSignature = CalculateStateSignature();

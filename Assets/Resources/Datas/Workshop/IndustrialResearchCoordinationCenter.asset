@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: IndustrialResearchCoordinationCenter
+  m_EditorClassIdentifier: 
+  id: IndustrialResearchCoordinationCenter
+  Label: "工业科研协同中心"
+  Description: "以标准化实验台、工业测量设备和成果复核流水线连接各地研究机构，将科研协同从制度提升为可持续的工业化流程，进一步提高全局研究效率。"
+  SortOrder: 470
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 4b8d2f6a1c3e5d7f9a0b2c4e6f8d1a35, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: fb1f28c62d8c3764ba9623d7c4b90751, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "24000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "16000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "8000"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "30000"
+  effects:
+  - Type: 3
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "2"

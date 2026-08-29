@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Gunpowder
   Label: "\u5316\u5B66\u5DE5\u827A\u4E0E\u6807\u51C6"
-  Description: "\u63A8\u8FDB\u5316\u5B66\u6750\u6599\u7684\u914D\u5236\u3001\u50A8\u5B58\u548C\u6807\u51C6\u5316\uFF0C\u63D0\u5347\u5DE5\u574A\u4EA7\u51FA\u7684\u7A33\u5B9A\u6027\u3002"
+  Description: "\u638C\u63E1\u706B\u836F\u3001\u519B\u9700\u6750\u6599\u4E0E\u6218\u672F\u6807\u51C6\uFF0C\u8BA9\u738B\u56FD\u5728\u51B2\u7A81\u4E2D\u62E5\u6709\u66F4\u53EF\u9760\u7684\u519B\u4E8B\u80FD\u529B\u3002"
   BaseCost: "270000"
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}
@@ -27,7 +27,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     amount: "2800"
   effects:
-  - Type: 12
+  - Type: 16
     Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.07"

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PlanetaryAtmosphereEngineering
   Label: "\u884c\u661f\u5927\u6c14\u5de5\u7a0b\u7406\u8bba"
   Description: "\u7814\u7a76\u884c\u661f\u5927\u6c14\u6210\u5206\u3001\u6e29\u5ba4\u6c14\u4f53\u5904\u7406\u4e0e\u5c01\u95ed\u751f\u6001\u7684\u4ea4\u4e92\u89c4\u5f8b\uff0c\u5efa\u7acb\u9762\u5411\u6b96\u6c11\u5730\u7684\u5927\u6c14\u8c03\u8282\u548c\u73af\u5883\u6539\u9020\u539f\u7406\uff0c\u63d0\u9ad8\u751f\u7269\u8d44\u6e90\u7684\u957f\u671f\u4f9b\u5e94\u80fd\u529b\u3002"
-  BaseCost: "14000000"
+  BaseCost: "630000000"
   prerequisites:
   - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
   - {fileID: 11400000, guid: 176f45e4409e4631b6c9041f641c7eaf, type: 2}

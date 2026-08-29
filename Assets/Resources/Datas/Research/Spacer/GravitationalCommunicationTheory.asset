@@ -15,7 +15,7 @@ MonoBehaviour:
   id: GravitationalCommunicationTheory
   Label: "引力通信理论"
   Description: "研究引力场扰动、远距离时钟同步与深空信号校准方法，将复杂通信实验纳入统一科研标准，提升全局研究效率；不直接解锁曲率航行或超光速通信。"
-  BaseCost: "14000000"
+  BaseCost: "700000000"
   prerequisites:
   - {fileID: 11400000, guid: 91e2d3c4b5a60718293a4e5f6b7c8d90, type: 2}
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}

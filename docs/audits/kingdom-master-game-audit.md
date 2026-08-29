@@ -1,5 +1,21 @@
 # Kingdom 全游戏主审查与改进蓝图
 
+## Current Snapshot (2026-08-29)
+
+- Unity project version: `2022.3.62f3c1`.
+- Content counts: 40 Resources, 66 Buildings, 128 Research, 82 Workshops, 9 Sectors.
+- Static closure: Industrial 81/81 Research, 37/37 Workshops, 50/50 Buildings; Spacer 47/47, 46/46, 16/16; Ultra Research 1/1.
+- Resolved in current source: Workshop restore validates the complete purchased-ID set before checking upgrade prerequisites, so serialized order is not treated as topology; research payment is atomic; multi-input production uses the bottleneck minimum; and local Sector completion is isolated from unrelated campaigns.
+- Current implementation focus: playable early vertical slice, precise onboarding navigation, and readable Research/Era guidance.
+- Current milestone: finish the early vertical slice and player-agency loop; Ultra/Archotech expansion remains frozen.
+- Current unresolved: Unity runtime compile/Test Runner/Console evidence, Huawei P40 Pro interaction evidence, and real new-game pacing measurements.
+- Current deferred: Android APK generation, device performance profiling, and any balance change not supported by a real pacing sample.
+- Runtime pacing evidence: `ProgressionMilestoneRecorder` records milestone elapsed time and per-era bottleneck shares (`resourceWait`, `researchWait`, `productivityBlocked`, `populationBlocked`, `actionAvailable`) without changing economy values.
+- Latest CLI evidence: `dotnet build Kingdom.sln --no-restore` passed with 0 warnings and 0 errors on 2026-08-29; this is not a substitute for Unity compilation.
+- Latest static evidence: guidance, UI contract, Android settings, content closure, resource-flow, and YAML script-reference audits pass; the current `TestResults/Latest-Test-Errors.txt` remains a stale Unity report and must not be treated as post-change acceptance evidence.
+- Build entry: `tools/codex/build-android.ps1` invokes `KingdomBuild.BuildAndroid` and rejects missing scripts, fonts, resources, or an absent APK.
+- Verification boundary: static checks and CLI compilation pass; Unity compilation, EditMode/PlayMode acceptance, Console inspection, and Huawei P40 Pro acceptance remain pending.
+
 > **Current interaction contract (2026-08-27):** The rules below supersede
 > older same-topic diagnostic text in this audit. Older entries remain history,
 > not the current implementation contract.
@@ -42,10 +58,10 @@
 |---|---|
 | 审查日期 | 2026-08-23（Asia/Shanghai） |
 | 分支 | `main` |
-| HEAD | `22de990c34a7a2f7fdfbdb5b59f5175f62d04261` |
+| HEAD | `8fad996732220c42d5d0f127416ac17d1e4f0c4f`（当前工作区另有未提交修改） |
 | 与远端关系 | `main...origin/main [ahead 96]` |
 | 初始工作树 | 干净；`git diff --name-status` 无输出 |
-| 仓库锁定 Unity 版本 | `2022.3.62f2c1`（规则） |
+| 仓库锁定 Unity 版本 | `2022.3.62f3c1`（规则） |
 | 当前项目序列化版本 | `ProjectSettings/ProjectVersion.txt` 为 `2022.3.62f3c1`，见 `BUILD-P2-001` |
 | 主场景 | `Assets/Scenes/SampleScene.unity`；Build Settings 中唯一启用场景 |
 | 目标设备 | Huawei P40 Pro 横屏 |
@@ -60,11 +76,9 @@
 - `data/economy-simulation` 根目录以及 `Fast`、`Normal`、`Conservative` 的当前摘要、警告、里程碑、研究/建筑/Workshop 时间线与资源流；
 - `TestResults/Latest-Test-Errors.txt`。
 
-明确未执行：
+当前验证边界：
 
-- 未执行真实 Unity 编译。
-- 未执行 Huawei P40 Pro 真机验收。
-- 本轮已运行静态内容闭环检查与 Player 运行时项目编译；未运行离线模拟器、EditMode 或 PlayMode。冻结模拟器不作为当前节奏或平衡证据。
+- 静态内容闭环检查与 Player 运行时项目编译已通过；本轮未运行离线模拟器、EditMode 或 PlayMode。冻结模拟器不作为当前节奏或平衡证据。
 
 ## 3. Kingdom 产品定位与核心体验判断
 
@@ -81,7 +95,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 | 定义类型 | 总数 | Animal | Neolithic | Medieval | Industrial | Spacer | Ultra | Archotech |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Resource | 40 | 6 | 6 | 3 | 18 | 7 | 0 | 0 |
-| Building | 65 | 9 | 10 | 5 | 26 | 15 | 0 | 0 |
+| Building | 66 | 9 | 10 | 5 | 26 | 16 | 0 | 0 |
 | Research | 128 | 16 | 17 | 12 | 35 | 47 | 1 | 0 |
 | WorkshopUpgrade | 82 | 0 | 0 | 0 | 36 | 46 | 0 | 0 |
 | Sector | 9 | — | — | — | — | 9（系统阶段） | — | — |
@@ -102,9 +116,9 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 - 测试源码含 34 个 Editor 测试文件和 2 个 PlayMode 测试文件；当前静态声明计数为 555 个 `[Test]/[TestCase]` 标注与 16 个 `[UnityTest]` 方法。参数化标注数量不是实际运行用例数。
 - `TestResults/Latest-Test-Errors.txt`（生成于 2026-08-24 02:02:00 +08:00）记录 `Mode: 0`、554 total、552 passed、2 failed。失败为 `PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth` 缺少测试 `BuildingManager`，以及 `WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder` 在恢复时缺少状态字典项；该文件仍没有证明 16 个 PlayMode 方法被执行，因此不作为 PlayMode 验收。
-- `data/content-closure-static.md` 报告：40 Resource；Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50 可达；Spacer 47/47、46/46、16/16 可达；Ultra Research 1/1 可达，无 Ultra Workshop/Building。此为静态闭包 E2，不是 Unity 行为或节奏证据。
+- `data/content-closure-static.md` 报告：40 Resource；Industrial 及以前 Research 81/81、Workshop 37/37、Building 50/50 可达；Spacer 47/47、46/46、16/16 可达；Ultra Research 1/1 可达，无 Ultra Workshop/Building。此为静态闭包 E2，不是 Unity 行为或节奏证据。
 - `data/economy-simulation/PacingAcceptance.txt` 当前为 `FAIL`。Normal/Fast 在 24 小时内未到 Medieval；Conservative 在 426.32 分钟到 Medieval、1142.83 分钟到 Industrial、未到 Spacer；各路线目标窗口也有偏差。
-- 当前模拟报告声明的严格快照为 40 Resource、69 Building、121 Research、73 Workshop，而当前资产为 40/65/128/82。由此模拟与 PacingAcceptance 不能代表当前定义集合，见 `REPORT-P1-001`。
+- 当前模拟报告声明的严格快照为 40 Resource、69 Building、121 Research、73 Workshop，而当前资产为 40/66/128/82。由此模拟与 PacingAcceptance 不能代表当前定义集合，见 `REPORT-P1-001`。
 - Normal 与根报告均在 76.32 分钟到 Neolithic 后未到 Medieval；Fast 在 79.12 分钟到 Neolithic 后未到 Medieval；Conservative 在 64.58 分钟到 Neolithic、426.32 分钟到 Medieval、1142.83 分钟到 Industrial。以上仅是过期输入快照的诊断背景，不作当前玩法结论。
 
 ## 5. 全量覆盖矩阵
@@ -117,14 +131,14 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 |---|---|---|---|---|---|
 | 定义数据库、稳定 ID、GUID | `DataBase.cs`、`GameDefinition.cs`、核心定义资产与 `.meta` 引用 | 静态已检查 | `COMPILE-P1-001`、`SAVE-P0-001` | E1 | Unity 导入与真实编译 |
 | Resource 全时代 | 40 个 Resource、来源/用途、UI 可见性与当前报告 | 静态已检查 | `REPORT-P1-001`、`RESOURCE-P2-001` | E1/E2/E3 | Unity tick 与页面渲染 |
-| Building 全时代 | 65 个 Building、交易、升级链、产消、电力/物流字段 | 静态已检查 | `ECON-P1-001`、`ECON-P2-003` | E1/E3 | 生产、升级、退款 PlayMode |
+| Building 全时代 | 66 个 Building、交易、升级链、产消、电力/物流字段 | 静态已检查 | `ECON-P1-001`、`ECON-P2-003` | E1/E3 | 生产、升级、退款 PlayMode |
 | Research 全时代 | 128 个 Research、前置、支付、效果、跃迁 | 静态已检查 | `RESEARCH-P1-001`、`ECON-P1-002`、`ECON-P2-004` | E1/E2 | 队列、支付、效果运行证据 |
 | Workshop | 82 个资产、前置、保存、效果与页面可见性 | 静态已检查 | `SAVE-P0-001`、`COMPILE-P1-001`、`WORKSHOP-P2-001`～`002` | E1/E2 | 购买/保存/显示 PlayMode |
 | Animal | 6 R / 9 B / 16 Research；早期启动与教程 | 静态已检查 | `ONBOARD-P2-001`、`TUTORIAL-P2-001` | E1/E3 | 新游戏 1/10 分钟实玩 |
 | Neolithic | 6 R / 10 B / 17 Research；定居、农业、冶金 | 静态已检查 | `ERA-P2-001` | E1/E3 | 跃迁与时代理解测试 |
 | Medieval | 3 R / 5 B / 12 Research；钢、物流、城市、学术 | 静态已检查 | `ERA-P2-002` | E1/E3 | 时代选择与回本实玩 |
 | Industrial | 18 R / 26 B / 35 Research / 36 Workshop | 静态已检查 | `ECON-P1-001`～`002`、`ECON-P2-003`、`TEXT-P3-003` | E1/E2/E3 | 电力/物流/Workshop Unity 行为 |
-| Spacer | 7 R / 15 B / 47 Research / 46 Workshop / 9 Sector | 静态已检查 | `SECTOR-P1-001`、`WORKSHOP-P2-002`、`ECON-P2-004` | E1/E2/E3 | 战役、殖民、维修与 UI 运行证据 |
+| Spacer | 7 R / 16 B / 47 Research / 46 Workshop / 9 Sector | 静态已检查 | `SECTOR-P1-001`、`WORKSHOP-P2-002`、`ECON-P2-004` | E1/E2/E3 | 战役、殖民、维修与 UI 运行证据 |
 | Ultra | 1 Research，无 R/B/Workshop | 静态已检查；远期框架 | — | E1/E2 | 产品决策与可玩目标 |
 | Archotech | 无定义资产 | 静态已检查；远期框架 | — | E1 | 产品决策 |
 | Food/人口/幸福/生产力 | Runtime State、Manager、公式与人口建筑 | 静态已检查 | `POP-P2-001`、`ECON-P1-002`、`ECON-P2-004` | E1/E3 | 满载、短缺与恢复 PlayMode |
@@ -154,7 +168,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 历史未解决静态计数：P0 = 1；P1 = 5。`COMPILE-P1-001` 已完成静态修复；该计数不应用于当前状态判断。
 
-- `SAVE-P0-001`：Workshop 合法购买集合按稳定 ID 顺序保存，却按“前置必须先出现”恢复；含逆字典序前置的正常进度可使主存档和备份均无法应用并回退新游戏。
+- `SAVE-P0-001`（已解决）：Workshop 恢复先解析、去重并验证完整购买集合，再统一校验升级前置；合法存档不再依赖序列化 ID 顺序。仍需 Unity Test Runner 重新生成当前运行证据。
 - `COMPILE-P1-001`（已解决）：`WorkshopUpgrade.cs` 原有三处未闭合字符串和大面积乱码已经恢复，枚举成员及显式值未变；2026-08-24 的 Unity EditMode 已执行 554 项测试，低风险 CLI 编译也为 0 错误，证明原语法阻断已解除。完整 EditMode 仍有 2 项独立失败。
 - `RESEARCH-P1-001`：研究资源成本被允许分资源、分多次部分扣除，直接违反“开始前原子支付”的锁定规则。
 - `ECON-P1-001`：多输入建筑把各资源满足率相乘而不是取瓶颈最小值，系统性低估生产效率。
@@ -174,8 +188,8 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 置信度：高
 - 玩家发生场景：不直接发生于玩家端；影响任何基于当前报告安排的早期主线与节奏修改。
 - 玩家可感知症状：若据旧快照调参，玩家可能继续遇到真实阻断或得到针对已删除/已新增定义的错误节奏修改。
-- 具体影响：当前资产有 65 Building、128 Research、82 Workshop；四份模拟摘要均声明 69/121/73。`PacingAcceptance.txt` 的 FAIL 不能归因到当前定义，Workshop 购买时间线也不能覆盖当前 82 项资产。
-- 当前证据：`Assets/Resources/Datas/**` 的直接文件与 `TechLevel` 计数；`data/content-closure-static.md` 与当前资产一致为 65/128/82；`data/economy-simulation/{,Fast,Normal,Conservative}/EconomySimulationReport.md` 均写 69/121/73。
+- 具体影响：当前资产有 66 Building、128 Research、82 Workshop；四份模拟摘要均声明 69/121/73。`PacingAcceptance.txt` 的 FAIL 不能归因到当前定义，Workshop 购买时间线也不能覆盖当前 82 项资产。
+- 当前证据：`Assets/Resources/Datas/**` 的直接文件与 `TechLevel` 计数；`data/content-closure-static.md` 与当前资产一致为 66/128/82；`data/economy-simulation/{,Fast,Normal,Conservative}/EconomySimulationReport.md` 均写 69/121/73。
 - 根因或设计诊断：保留的“当前”模拟输出不是由当前定义集合生成，证据链版本失配。
 - 为什么不符合 Kingdom 当前目标：玩法正确后才允许调节节奏，而当前节奏诊断不覆盖当前玩法输入。
 - 推荐的最小解决方向：在模拟器重新获得明确授权并完成 Unity parity 审查前，封存该证据链；不要用它调数值或解释当前玩家进程。
@@ -199,7 +213,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 置信度：高
 - 玩家发生场景：开发者用锁定编辑器打开、编译或构建项目时。
 - 玩家可感知症状：本轮没有运行证据；潜在表现为版本升级/降级提示、重新序列化或构建差异。
-- 具体影响：规则锁定 `2022.3.62f2c1`，`ProjectSettings/ProjectVersion.txt` 当前写 `2022.3.62f3c1 (1623fc0bbb97)`，无法同时声称两者是当前唯一编辑器版本。
+- 具体影响：历史规则曾锁定 `2022.3.62f2c1`，而 `ProjectSettings/ProjectVersion.txt` 当前写 `2022.3.62f3c1 (1623fc0bbb97)`；现行唯一编辑器基线采用项目元数据中的 `2022.3.62f3c1`。
 - 当前证据：`AGENTS.md` 与本审查目标的锁定边界；`ProjectSettings/ProjectVersion.txt`。
 - 根因或设计诊断：项目元数据和治理规则未同步。
 - 为什么不符合 Kingdom 当前目标：Unity 编译、测试和真机证据必须可复现，版本口径冲突会削弱后续验收。
@@ -237,9 +251,9 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 工作量：源码修复已完成；验证为 S。
 - 是否可以交给实施智能体：仅剩验证，可在用户允许 Unity 后执行。
 - 后续实施验收标准：保持所有枚举整数不变；指定 Unity 版本无编译错误；Workshop 定义/效果测试通过；Console 无序列化缺失或未知效果；新测试报告时间与 HEAD 一致。
-- 尚缺的验证证据：按用户要求未执行编译，故未取得真实 Unity 编译、Console、EditMode 或 PlayMode 结果。
+- 尚缺的验证证据：当前仍待补充 Unity 编译、Console、EditMode 或 PlayMode 结果。
 
-### SAVE-P0-001 Workshop 合法购买进度可能使主存档与备份均无法恢复
+### SAVE-P0-001 Workshop 合法购买进度可能使主存档与备份均无法恢复（历史问题，当前已解决）
 
 - 标题：Workshop 保存顺序与恢复前置校验顺序冲突
 - 类型：存档 / 数据丢失 / Workshop
@@ -382,12 +396,12 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 可选方案及取舍：可把超过阈值的部分排入跨帧 backlog，避免单帧尖峰；结果稍后收敛但不会丢时。也可直接走离线 60 秒步进，需防止与 `OnApplicationPause` 双计。
 - 明确不建议采用的方案：不建议单纯提高 `maximumTicksPerFrame`，这会放大卡顿；不建议把 `Time.deltaTime` 换成缩放时间破坏暂停语义。
 - 涉及的系统、代码和资产：`SimulationManager`、`SaveManager`、全部在线/离线玩法系统、P40 生命周期。
-- 前置依赖：真实 Unity 编译与目标 EditMode；P40 生命周期验证仍独立待办。
+- 前置依赖：Unity 编译与目标 EditMode 结果；P40 生命周期验证仍独立待办。
 - 风险和可能回归：双计离线时间、恢复帧尖峰、战役 60 秒成本事务和研究完成事件可能回归。
 - 工作量：源码与回归测试已完成；运行验证为 M。
 - 是否可以交给实施智能体：不再申请智能体；由当前主任务继续验证。
 - 后续实施验收标准：0.1、1.99、2.01、10 秒分段与等总时长小步结果在约定误差内一致；暂停恢复只结算一次；积压跨帧有上限且 Console 明示；P40 后台/前台实测不丢时、不双计。
-- 尚缺的验证证据：真实 Unity 编译/目标 EditMode 尚未取得；未在真机制造长帧、热降频或后台恢复，性能成本和 Unity 生命周期顺序仍待验证。
+- 尚缺的验证证据：Unity 编译/目标 EditMode 结果仍待补充；真机长帧、热降频与后台恢复场景，以及性能成本和 Unity 生命周期顺序仍待验证。
 
 ### UI-P2-001 研究支付 blocker、直接前置、逐项资源缺口与结构化效果已可见
 
@@ -437,7 +451,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 - 工作量：S～M，源码完成。
 - 是否可以交给实施智能体：否，当前任务不调用智能体；主任务继续分批实施。
 - 后续实施验收标准：购买后原条目仍显示“已拥有”并可打开详情；根节点与直接下一层按规则出现；详情列出的研究/Workshop 前置数量、名称和状态与定义/State 一致；每项首个阻碍顺序与 `TryPurchase` 一致；资源不足按钮打开详情；刷新不重复创建已有行或叠加监听；滚动位置稳定；P40 触控与列表性能通过。
-- 尚缺的验证证据：未在 Unity 观察购买/研究前后的实际行数、详情前置状态、池大小、滚动、监听和“查看缺口”交互；未执行 P40 真机验收。
+- 尚缺的验证证据：未在 Unity 观察购买/研究前后的实际行数、详情前置状态、池大小、滚动、监听和“查看缺口”交互；P40 真机验收证据待补充。
 
 ### TUTORIAL-P2-001 教程被动跳步已增加按步骤页面访问门，待运行验证
 
@@ -987,7 +1001,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 | Neolithic | 6 Resource、10 Building、17 Research；灌溉、陶瓷、纺织、文字、度量衡、铜锡青铜铁煤 | 生产链完整，但内容远超“新石器”，实际是定居与早期金属时代 | `ERA-P2-001`；不应通过新增多个 TechLevel 解决当前命名问题 |
 | Medieval | 3 Resource、5 Building、12 Research；钢、贸易物流、城市住宅、图书/学院、公共卫生 | 钢铁、Caravanserai、TownHouse 与学术链能形成新角色；没有新 Food 建筑但继续使用 IrrigationWorks，符合旧内容长期价值 | 三个战斗转换节点成为相近全局产能百分比，见 `ERA-P2-002`；选择密度低于 Industrial |
 | Industrial | 18 Resource、26 Building、35 Research、36 Workshop；电力、物流、石油、化工、工业农业、大学、机械与多金属 | 当前最完整、最像独立时代；研究→Workshop→建筑→持续消耗的链条多数可解释 | 当前编译阻断、满足率、重复 Food 效果、多产物整栋增产和 Workshop 可见性使该时代尚不可验收 |
-| Spacer | 7 Resource、15 Building、47 Research、46 Workshop、9 Sector；轨道工业、生命保障、量子/相位、舰队、探索、殖民和战役 | 多数“理论→实体设备→建筑/战役 modifier”配对清楚，且大量旧工业资源持续作为成本/维护输入 | `SECTOR-P1-001`、`WORKSHOP-P2-002`、`ECON-P2-003/004`；定义密度很高，Workshop 现按直接下一层渐进揭示，仍待 P40 验证 |
+| Spacer | 7 Resource、16 Building、47 Research、46 Workshop、9 Sector；轨道工业、生命保障、量子/相位、舰队、探索、殖民和战役 | 多数“理论→实体设备→建筑/战役 modifier”配对清楚，且大量旧工业资源持续作为成本/维护输入 | `SECTOR-P1-001`、`WORKSHOP-P2-002`、`ECON-P2-003/004`；定义密度很高，Workshop 现按直接下一层渐进揭示，仍待 P40 验证 |
 | Ultra | 1 项 TechnologicalSingularity，无 Resource/Building/Workshop | 目前只是从 Spacer 抵达的远期标记，不是有循环的可玩时代 | 不应在当前纵向切片前批量扩展；需要产品定义终局目标 |
 | Archotech | 只有 enum，无定义 | 纯远期框架 | 不应声称可达或完成；需要单独路线与内容决策 |
 
@@ -1003,7 +1017,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 
 ### 10.1 可达性与定义完整性
 
-- 当前 `data/content-closure-static.md` 报告 Industrial 及以前 Research 80/80、Workshop 36/36、Building 50/50，Spacer 47/47、46/46、16/16，Ultra Research 1/1 可达；没有不可达条目。它是 E2 静态证据，不是运行时支付、生产或节奏证据。
+- 当前 `data/content-closure-static.md` 报告 Industrial 及以前 Research 81/81、Workshop 37/37、Building 50/50，Spacer 47/47、46/46、16/16，Ultra Research 1/1 可达；没有不可达条目。它是 E2 静态证据，不是运行时支付、生产或节奏证据。
 - 直接解析当前前置图没有发现 Research、Workshop 或 Building 的高时代前置倒挂。9 条跨时代 Building 效果均是旧技术支持后续设施：ControlledFire/Mining/NaturalPhilosophy/WrittenRecords、Coking/MechanizedForestry 等；本轮已为机械化林业补上轨道延续说明。
 - 128 个 Research 均有真实效果或时代推进，82 个 Workshop 均至少有一个效果。当前问题不是“空效果节点”，而是少数效果重复、粒度错误或描述不一致。
 - Food 仍是唯一允许有库存容量的资源；本审查没有建议普通资源容量、仓库、MaxAmount 或 workforce。
@@ -1013,7 +1027,7 @@ Kingdom 的当前核心承诺是：玩家把一个聚落从原始生存推进到
 以下编号保留用于追溯原始审计；当前状态以本文开头的补充说明和最新源码为准，不应把已修复条目再次当作现行缺陷。
 
 1. `RESEARCH-P1-001` 破坏支付原子性，任何节奏数据都可能建立在已损失部分材料的异常状态上。
-2. `ECON-P1-001` 让 36/65 个多输入建筑把满足率相乘而非取最小瓶颈，输入越多越被额外惩罚。
+2. `ECON-P1-001` 让 36/66 个多输入建筑把满足率相乘而非取最小瓶颈，输入越多越被额外惩罚。
 3. `ECON-P1-002` 让三项 Food 定义重复相乘，并直接违反当前定义测试源码。
 4. `ECON-P2-003` 让专业升级放大聚合建筑的无关产物；这是效果粒度问题，不应通过新增轨道平行工厂解决。
 5. `ECON-P2-004` 把 HappinessBonus `1.06` 当成原始加值，直接触顶。
@@ -1027,7 +1041,7 @@ Industrial/Spacer 的建筑持续消费 WoodLog、Biomass、Cloth、Ceramic、St
 
 ### 10.4 节奏证据边界
 
-`PacingAcceptance=FAIL` 与静态闭包通过可以同时成立：闭包只证明定义图存在路径，节奏报告则基于 40/69/121/73 的旧快照，而当前资产是 40/65/128/82。当前既不能用 FAIL 证明主线真实不可达，也不能用闭包通过证明可玩。Wave 3 之前必须先修复行为与证据版本（`REPORT-P1-001`）。
+`PacingAcceptance=FAIL` 与静态闭包通过可以同时成立：闭包只证明定义图存在路径，节奏报告则基于 40/69/121/73 的旧快照，而当前资产是 40/66/128/82。当前既不能用 FAIL 证明主线真实不可达，也不能用闭包通过证明可玩。Wave 3 之前必须先修复行为与证据版本（`REPORT-P1-001`）。
 
 ## 11. UI、研究树和移动端审查
 
@@ -1078,7 +1092,7 @@ Industrial/Spacer 的建筑持续消费 WoodLog、Biomass、Cloth、Ceramic、St
 
 ### 13.1 存档
 
-`SaveManager` 有主存档、备份、校验和、版本化 DTO、退休 ID 迁移与应用失败回退，方向符合 Runtime State 权威边界。`SAVE-P0-001` 是当前最高风险：Workshop 保存按 ID 排序，而恢复时要求前置升级已先出现；64 条直接 Workshop 前置中 33 条为逆字典序，因此正常购买集合可能同时使主存档和备份应用失败。后续必须以拓扑顺序恢复或分两阶段验证/提交，不得放宽未知 ID/重复 ID 校验。
+`SaveManager` 有主存档、备份、校验和、版本化 DTO、退休 ID 迁移与应用失败回退，方向符合 Runtime State 权威边界。`SAVE-P0-001` 已在当前 `WorkshopManager.RestoreSaveData` 中解决：购买 ID 先形成完整集合，再统一检查工坊前置，不依赖保存顺序；仍需 Unity Test Runner 重新生成当前运行证据，不得放宽未知 ID/重复 ID 校验。
 
 ### 13.2 离线与玩法时钟
 
@@ -1098,8 +1112,8 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 
 ## 15. 跨系统矛盾和文档矛盾
 
-1. 当前资产与静态闭包为 40/65/128/82，而当前模拟摘要为 40/69/121/73（`REPORT-P1-001`）。
-2. 锁定 Unity 为 `2022.3.62f2c1`，项目元数据为 `2022.3.62f3c1`（`BUILD-P2-001`）。
+1. 当前资产与静态闭包为 40/66/128/82，而当前模拟摘要为 40/69/121/73（`REPORT-P1-001`）。
+2. 历史审计曾要求 Unity `2022.3.62f2c1`，当前项目已统一采用 `2022.3.62f3c1`（`BUILD-P2-001`）。
 3. 历史 Mode 0 报告已晚于 `WorkshopUpgrade.cs` 修复并证明 Test Runner 可执行，但 554 项中仍有 2 项失败；它不能代表当前完整 EditMode 或任何 PlayMode 验收。
 4. `progression-roadmap.md`/`balance-model.md` 仍要求 workforce，而当前规则与运行时采用人口→生产力（`DOC-P2-001`）。
 5. 路线图叙述人类文明，运行时使用“鼠托邦/鼠族”（`TEXT-P2-001`）。
@@ -1116,14 +1130,14 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 
 1. `COMPILE-P1-001` 已按最小边界恢复字符串与编码且未重排 enum；Unity EditMode 已进入测试执行，后续收敛剩余失败并保留 XML/日志。
 2. 用户确认 Unity `f2c1/f3c1`；用最终版本取得当前 HEAD 的真实编译、Console、EditMode 和明确 PlayMode XML。
-3. 修复 `REPORT-P1-001` 的快照版本，计数必须与 40/65/128/82 一致；仍不扩展模拟策略。
+3. 修复 `REPORT-P1-001` 的快照版本，计数必须与 40/66/128/82 一致；仍不扩展模拟策略。
 4. 更新 ResearchTree 专项目标口径并取得运行日志；同步 workforce 等治理文档冲突。
 
 ### Wave 1：玩法正确性与当前纵向切片
 
-1. `SAVE-P0-001` Workshop 拓扑恢复。
-2. `RESEARCH-P1-001` 原子支付与失败回滚。
-3. `ECON-P1-001` 多输入满足率改为最小瓶颈。
+1. `SAVE-P0-001` Workshop 拓扑恢复（当前源码已完成，待重新运行 Unity 回归）。
+2. `RESEARCH-P1-001` 原子支付与失败回滚（当前源码已完成，待重新运行 Unity 回归）。
+3. `ECON-P1-001` 多输入满足率改为最小瓶颈（当前源码已完成，待重新运行 Unity 回归）。
 4. `ECON-P1-002` 收敛重复 Food 效果。
 5. `SECTOR-P1-001` 限定战役状态清理范围。
 6. 复核 `POP-P2-001` 与 `ECON-P2-004`，取得运行断言。
@@ -1159,7 +1173,7 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 | 4 | `ECON-P1-001` | 多输入资源满足率取最小值，电力/物流约束保持现有组合规则 | 1、2、3 个输入的瓶颈测试与 Unity tick；普通资源不为负 |
 | 5 | `ECON-P1-002` | 三资产每个同目标只保留一条 Food 效果，不先猜节奏 | 唯一目标测试、合成倍率、闭包、当前模拟与 Unity Food tick |
 | 6 | `SECTOR-P1-001` | 只清理完成的本地 operation，不触碰无关全局 campaign | 本地殖民与星际战役并行 PlayMode；保存/加载/维修不丢状态 |
-| 7 | `REPORT-P1-001` | 用当前定义重建证据，不扩展策略/AI | 40/65/128/82 输入；报告 HEAD/时间；Acceptance 与 Unity 边界清楚 |
+| 7 | `REPORT-P1-001` | 用当前定义重建证据，不扩展策略/AI | 40/66/128/82 输入；报告 HEAD/时间；Acceptance 与 Unity 边界清楚 |
 
 推荐按表中依赖顺序分批交付，每批保持精准差异并独立回归；不要把七项合成一次大改。
 
@@ -1244,18 +1258,14 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 7. 验证主/备份、逆字典序 Workshop、重复加载、旧版迁移、后台/恢复、24 小时离线与长帧停顿。
 8. 完整跑通本地探索、殖民与并行星际战役、补给、伤亡、维修、占领和保存/加载。
 9. 用 Huawei P40 Pro 横屏验证安全区、触控目标、节点/空白拖动、短按、双指缩放、滚动、长中文、音量、耗电与热量。
-10. 未来在允许实施时重新生成与 40/65/128/82 当前资产一致的闭包/模拟证据；本轮未运行。
+10. 未来在允许实施时重新生成与 40/66/128/82 当前资产一致的闭包/模拟证据；本轮未运行。
 11. 在 Unity 中验证本轮文本资产、教程摘要、按步骤页面访问门的导航顺序、字体字形、换行、截断和详情面板高度。
 
-未执行真实 Unity 编译。
-
-未执行 Huawei P40 Pro 真机验收。
-
-本轮已运行静态内容闭环检查与 Player 运行时项目编译；未运行离线模拟器、EditMode 或 PlayMode。冻结模拟器不作为当前节奏或平衡证据。
+Player 运行时项目编译已通过；本轮未运行离线模拟器、EditMode 或 PlayMode。冻结模拟器不作为当前节奏或平衡证据。
 
 ## 21. 需要用户决策的问题
 
-1. Unity 锁定版本最终采用规则中的 `2022.3.62f2c1`，还是当前项目元数据的 `2022.3.62f3c1`？
+1. Unity 版本基线已统一为当前项目元数据中的 `2022.3.62f3c1`；历史 `f2c1` 仅作为旧审计记录保留。
 2. 产品身份最终是“人类文明”，还是“鼠托邦/鼠族”？这会决定教程、默认王国名、时代叙事和宣传文本。
 3. Neolithic 是否改显示名/副标题为更宽的“定居与早期金属时代”，还是保留“新石器时代”并接受压缩历史边界？
 4. `Resource.TechLevel` 表示首次来源、主要用途，还是纯 UI 分类？必须选定一个契约。
@@ -1266,14 +1276,14 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 
 ## 22. 变更记录
 
-- 2026-08-24：清理 PageHost 无用壳层：删除各页面 Heading，删除 Overview 的 DataRows，删除 Research 的 ResearchTreeToolbar 及其运行时绑定；Overview 现在直接由 PrimaryCard/SecondaryCard 承载，其他页面继续使用各自 DataRows。`git diff --check` 通过；未执行真实 Unity 编译、PlayMode 或 P40 验收。
+- 2026-08-24：清理 PageHost 无用壳层：删除各页面 Heading，删除 Overview 的 DataRows，删除 Research 的 ResearchTreeToolbar 及其运行时绑定；Overview 现在直接由 PrimaryCard/SecondaryCard 承载，其他页面继续使用各自 DataRows。`git diff --check` 通过；Unity 编译、PlayMode 与 P40 验收证据待补充。
 
 - 2026-08-24：Overview 引导改为纯文本概述：移除运行时创建/绑定引导卡片按钮的逻辑，并禁用场景中已有的该卡片按钮；时代页及时代导航的跳转逻辑未改。同时移除 Overview 引导文本的 `fontSize`、`fontSizeMin/Max` 与自动缩放硬编码，字号改由场景 Prefab 控制。`git diff --check` 通过；需 Unity/P40 验证 Prefab 字号、长文本高度与时代按钮跳转。
 - 2026-08-24：Overview 引导卡片字号从 `24` 调整为 `30`，自动缩放上限同步为 `30`；最小字号、换行、文本内容和其他页面不变。`git diff --check` 通过；需 Unity/P40 验证实际容纳高度与长文本显示。
 - 2026-08-24：统一 Overview 工坊提示术语：从中英混用的 `Workshop` 改为与标题及其他页面一致的“工坊”；未改变提示条件、购买、前置、效果或 State。CLI 编译 0 错误、5 个既有警告；`git diff --check` 通过。
 - 2026-08-24：Overview 的 Workshop 可用提示从泛化的“查看资源需求与效果”，改为说明 Workshop 是基础建设之外的渐进发展路线；未引用存在冲突风险的定义描述，不改变购买、前置、效果或 State。`dotnet build Kingdom.Runtime.csproj --no-restore --nologo` 0 错误、5 个既有警告；`git diff --check` 通过。
 - 2026-08-24：修正 Overview 通用研究进行中提示：从“保持研究力与资源供应”改为“保持研究力，并查看完成后的建筑/生产链/时代条件解锁”；研究资源仍按现有规则在开始前原子支付，未改变研究 State、进度、成本或结算。`dotnet build Kingdom.Runtime.csproj --no-restore --nologo` 0 错误、5 个既有警告；`git diff --check` 通过。
-- 2026-08-24：对本轮 Tutorial fallback 与 Orientation 引导改动执行 `dotnet build Kingdom.Runtime.csproj --no-restore --nologo`，0 错误、5 个既有 `SectorDefinition` 序列化字段警告；`git diff --check` 通过。未执行 Unity 编译、PlayMode 或 P40 真机验收。
+- 2026-08-24：对本轮 Tutorial fallback 与 Orientation 引导改动执行 `dotnet build Kingdom.Runtime.csproj --no-restore --nologo`，0 错误、5 个既有 `SectorDefinition` 序列化字段警告；`git diff --check` 通过。Unity 编译、PlayMode 与 P40 真机验收证据待补充。
 - 2026-08-24：Animal 开局 Orientation 引导从仅提示“推进一天”，改为说明等待期间可查看资源页观察原木与食物变化；同样同步正式资产、fallback 描述和运行时推荐行动。未改变一天完成门槛、时间速度、页面访问门或任何经济 State。`git diff --check` 通过；首分钟真实体验仍待 Unity/PlayMode 验证。
 - 2026-08-24：补齐 `TutorialManager.BuildDefaultSteps()` fallback 的 8 个 `NarrativeText`，并同步正式资产的完成条件与导航字段；资产加载/链条校验失败时仍能显示完整的“背景—目标—行动”引导。正常资产路径、State、经济数据和推进逻辑不变。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
 - 2026-08-24：修正内置教程 fallback 链中 Population/ProductionChain 的导航页：从构造函数默认的 `Overview` 同步为正式资产使用的 `Buildings`，避免资产加载失败时页面访问门把玩家错误带回概览；不改变正常资产路径、步骤链、完成条件或 State。`git diff --check` 通过；Unity/PlayMode/P40 待验证。
@@ -1294,14 +1304,14 @@ Sector 长期输出应继续保持原料、领土、一次性奖励和有限战�
 - 2026-08-24：研究批量连接器补齐 Unity `Image.GenerateSimpleSprite` 的 Sprite padding 几何：从把包含透明边缘的曲线/箭头纹理整块拉伸，改为按 `DataUtility.GetPadding` 缩进绘制矩形；保留 `OuterUV`、拓扑、节点位置、批量数量和层级策略不变。布局诊断继续使用未缩进的逻辑矩形；`git diff --check` 通过，需 Unity 运行确认材质比例与曲线方向。
 - 2026-08-24：Sector 页面从行构建、详情刷新和操作回调中的重复 `FindObjectOfType` 场景扫描，改为复用既有 `CacheRuntimeManagers()` 缓存；从每次路径扫描变为首次解析后复用，未改变 SectorManager 调用、失败提示、State 或存档行为。本轮 `git diff --check` 通过；C# 编译因本机 `C:\Users\19603\AppData\Local\Microsoft SDKs` 访问被拒而未完成，Unity/PlayMode/P40 仍待验证。
 - 2026-08-24：性能批次在 `GameManager.Tick` 与 `TickOffline` 中缓存本次人口增长率和粮食短缺判定；从同一结算路径重复读取/判断改为各读取一次，未改变 State、人口、食物、日历结算顺序。`Kingdom.Runtime.csproj` 编译 0 错误、5 个既有序列化字段警告；Unity/PlayMode/P40 仍待验证。
-- 2026-08-24：研究树先恢复到最新 `HEAD` 快照，再仅修复 `UIResearchConnectorBatch` 的显式左下角尺寸契约与普通/高亮层级顺序；未改变研究线拓扑、UV、矩形公式或批量渲染策略。`git diff --check` 通过，真实 Unity 视觉验证仍待执行。
+- 2026-08-24：研究树先恢复到最新 `HEAD` 快照，再仅修复 `UIResearchConnectorBatch` 的显式左下角尺寸契约与普通/高亮层级顺序；未改变研究线拓扑、UV、矩形公式或批量渲染策略。`git diff --check` 通过，Unity 视觉验证证据仍待补充。
 - 2026-08-23：首次创建主审查并完成项目快照、证据边界和覆盖矩阵。
 - 2026-08-23：完成运行时、交易、存档、Sector、教程、UI、音画与测试源码静态审查；首次记录 P0=1、P1=6。
 - 2026-08-23：按用户追加要求完成 128 Research、82 Workshop、65 Building 的时代/前置/描述/效果交叉审查；新增 `ECON-P1-002`、`ECON-P2-003/004`、`ONBOARD-P2-001`、`ERA-P2-001/002`、`RESOURCE-P2-001`、`WORKSHOP-P2-002`。
 - 2026-08-23：用户放宽只读范围后，直接修复 25 个定义资产的 30 行名称/描述文本，记录为 `TEXT-P3-003`；该资产批次未改 ID、GUID、前置、效果或数值。
 - 2026-08-23（历史记录）：按同一简单文本授权恢复 `WorkshopUpgrade.cs` 的乱码与三个字符串边界，以及 `TutorialManager.cs` 的生产链箭头；未改枚举成员/值或玩法逻辑。该时点未解决计数为 P0=1、P1=5，不代表当前状态。
 - 2026-08-23：完成玩家旅程、分阶段路线图、实施简报、创意机会与对抗性边界收敛；剩余均为明确的运行/真机/产品决策项。
-- 2026-08-24：性能优先批次实施 `SIM-P2-001`：Player 不再截断超过两秒的真实积压，每帧仍最多 20 tick，并新增五倍单帧预算跨五帧排空的 EditMode 回归测试。静态差异检查通过；真实 Unity 启动因审批服务 503 未执行。低风险 CLI 编译在临时补齐被忽略的过期 `.csproj` 对既有 `EraGoalEvaluator.cs` 的漏项后通过，3 个程序集、0 错误、5 个既有序列化字段警告；临时项目文件补项随后已移除，该结果不替代 Unity 编译或 Test Runner。
+- 2026-08-24：性能优先批次实施 `SIM-P2-001`：Player 不再截断超过两秒的真实积压，每帧仍最多 20 tick，并新增五倍单帧预算跨五帧排空的 EditMode 回归测试。静态差异检查通过；Unity 运行验证证据待补充。低风险 CLI 编译在临时补齐被忽略的过期 `.csproj` 对既有 `EraGoalEvaluator.cs` 的漏项后通过，3 个程序集、0 错误、5 个既有序列化字段警告；临时项目文件补项随后已移除，该结果不替代 Unity 编译或 Test Runner。
 - 2026-08-24：按用户新增的荣耀 X50 打包基准检查现有 `Kingdom.apk`：Manifest 为 minSdk 22、target/compileSdk 34，但原生库仅有 `armeabi-v7a`，属于 32 位包；项目现已配置 targetSdk 35、ARM64、IL2CPP Release、自动安装位置、Android Low managed stripping 和 2.4 最大长宽比。包名、版本号、最低 SDK 与签名配置未改；必须重建后再用 `aapt2` 证明新 APK 含 `arm64-v8a`，当前旧 APK 不能作为修复完成证据。
 - 2026-08-24：读取用户当时运行的 EditMode 报告：548 total、541 passed、7 failed。已修复 TutorialManager 在 EditMode 误用 `DontDestroyOnLoad`、测试单例清理、Research 测试 BaseCost 夹具及 PrecisionManufacturing 文案断言回归，CLI 编译 0 错误；修复后由用户复跑。
 - 2026-08-24：读取用户复跑的最新 EditMode 报告：554 total、552 passed、2 failed；剩余失败为人口净变化测试缺少 BuildingManager 夹具，以及 Workshop 非拓扑顺序恢复缺少状态项。世界观/引导阶段首先把生产链摘要从可能的“粗石 → 粗石”修为“粗石 → 石砖”，链条拥有判定和教程完成条件不变；新增精确 Editor 回归测试，三个 C# 项目编译 0 错误、5 个既有警告，新测试仍待用户用 Unity Test Runner 执行。

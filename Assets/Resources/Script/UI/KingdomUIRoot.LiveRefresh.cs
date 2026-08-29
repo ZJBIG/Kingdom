@@ -386,6 +386,7 @@ public sealed partial class KingdomUIRoot
             (developmentGuidanceSnapshot == null || developmentGuidanceRefreshTimer >= 2f))
         {
             RefreshDevelopmentGuidance();
+            RefreshOverviewNavigationToolbar();
             developmentGuidanceRefreshTimer = 0f;
         }
         if (!pageScrolling && populatedPage == "Era" && eraPageRefreshTimer >= 1f)
@@ -732,15 +733,8 @@ public sealed partial class KingdomUIRoot
             developmentGuidanceNavigationButton = primaryCard.Find("NavigationButton")?.GetComponent<Button>();
             if (developmentGuidanceNavigationButton == null)
             {
-                developmentGuidanceNavigationButton = CreateButton(
-                    "NavigationButton", primaryCard, "查看", Copper);
-                RectTransform buttonRect = developmentGuidanceNavigationButton.transform as RectTransform;
-                buttonRect.anchorMin = new Vector2(0f, 0f);
-                buttonRect.anchorMax = new Vector2(1f, 0f);
-                buttonRect.pivot = new Vector2(.5f, 0f);
-                buttonRect.anchoredPosition = new Vector2(0f, 14f);
-                buttonRect.sizeDelta = new Vector2(-36f, 42f);
-                developmentGuidanceNavigationButton.gameObject.AddComponent<UIPageScrollDragForwarder>();
+                Debug.LogError("[王国界面] Overview PrimaryCard is missing authored NavigationButton.");
+                return;
             }
             developmentGuidanceNavigationButton.onClick.RemoveAllListeners();
             developmentGuidanceNavigationButton.interactable = false;
@@ -801,12 +795,24 @@ public sealed partial class KingdomUIRoot
                 if (!string.IsNullOrWhiteSpace(recentActionFeedback))
                     onboarding.Append("刚刚发生：").Append(recentActionFeedback).Append("\n");
                 onboarding.Append("当前目标：").Append(tutorialSnapshot.CurrentGoal).Append("\n");
+                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.IndustrialCurrentStep))
+                {
+                    onboarding.Append("工业路线\n当前：").Append(tutorialSnapshot.IndustrialCurrentStep)
+                        .Append("\n下一步：").Append(tutorialSnapshot.IndustrialNextStep)
+                        .Append("\n之后：").Append(tutorialSnapshot.IndustrialAfterStep).Append("\n");
+                }
                 onboarding.Append("完成方式：").Append(tutorialSnapshot.GoalDescription).Append("\n");
                 onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
-                if (!SignatureEquals(onboarding, developmentGuidanceText.text))
-                    developmentGuidanceText.text = onboarding.ToString();
+                string overviewText = onboarding.ToString();
+                if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NextEraGoal))
+                    overviewText = overviewText.Replace(
+                        tutorialSnapshot.NextEraGoal,
+                        BuildOverviewEraTarget(gameManagerCache));
+                if (!string.Equals(overviewText, developmentGuidanceText.text,
+                    StringComparison.Ordinal))
+                    developmentGuidanceText.text = overviewText;
                 developmentGuidanceText.color = TextPrimary;
                 ConfigureDevelopmentGuidanceNavigation(tutorialSnapshot);
                 return;
@@ -869,6 +875,18 @@ public sealed partial class KingdomUIRoot
         }
     }
 
+    private static string BuildOverviewEraTarget(GameManager gameManager)
+    {
+        if (gameManager == null || gameManager.State == null)
+            return "\u65f6\u4ee3\u76ee\u6807\u8bf7\u67e5\u770b Era \u9875\u9762\u3002";
+
+        TechLevel targetEra = (TechLevel)((int)gameManager.State.TechLevel + 1);
+        return EraGoalEvaluator.FindTransition(targetEra) == null
+            ? "\u5f53\u524d\u5185\u5bb9\u5df2\u5230\u6700\u540e\u65f6\u4ee3\u3002"
+            : targetEra.GetDescription() +
+              "\uff08\u8be6\u7ec6\u6761\u4ef6\u8bf7\u67e5\u770b Era \u9875\u9762\uff09";
+    }
+
     private void ConfigureDevelopmentGuidanceNavigation(TutorialSnapshot snapshot)
     {
         if (developmentGuidanceNavigationButton == null)
@@ -910,6 +928,13 @@ public sealed partial class KingdomUIRoot
             building != null)
         {
             ShowBuildingDetails(building);
+            return;
+        }
+        if (snapshot.NavigationPage == "Resources" &&
+            DataBase<Resource>.TryFind(snapshot.NavigationTargetId, out Resource resource) &&
+            resource != null)
+        {
+            ShowResourceDetails(resource);
             return;
         }
         if (snapshot.NavigationPage == "Workshop" &&
@@ -964,9 +989,9 @@ public sealed partial class KingdomUIRoot
                 (activeResearch.ProgressRatio * 100).ToGameString() + "%)";
 
         SetTopInfoValue(topPowerValue, FormatTopFlow(
-            state.PowerProductionRate, state.PowerConsumptionRate));
+            state.PowerProductionRate, CalculateRawFlowDemand(usePower: true)));
         SetTopInfoValue(topLogisticsValue, FormatTopFlow(
-            state.LogisticsProductionRate, state.LogisticsConsumptionRate));
+            state.LogisticsProductionRate, CalculateRawFlowDemand(usePower: false)));
         SetTopInfoValue(topCurrentResearchValue, currentResearch);
 
         SetTopInfoValue(topFoodValue,
@@ -985,10 +1010,34 @@ public sealed partial class KingdomUIRoot
         SetTopInfoValue(topResearchPowerValue, researchPower + "/s");
     }
 
-    private static string FormatTopFlow(ExpantaNum production, ExpantaNum consumption)
+    private static string FormatTopFlow(ExpantaNum supply, ExpantaNum demand)
     {
-        return (production - consumption).ToGameString(showPositiveSign: true) + "(" +
-            consumption.ToGameString() + "/" + production.ToGameString() + ")";
+        ExpantaNum balance = supply - demand;
+        Color balanceColor = balance > ExpantaNum.Zero ? Positive :
+            balance < ExpantaNum.Zero ? Error : TextSecondary;
+        string balanceText = "<color=#" +
+            ColorUtility.ToHtmlStringRGB(balanceColor) + ">" +
+            balance.ToGameString(showPositiveSign: true) + "</color>";
+        return balanceText + "(" + demand.ToGameString() + "/" +
+            supply.ToGameString() + ")";
+    }
+
+    private static ExpantaNum CalculateRawFlowDemand(bool usePower)
+    {
+        BuildingManager manager = BuildingManager.Instance;
+        if (manager == null)
+            return ExpantaNum.Zero;
+
+        ExpantaNum demand = ExpantaNum.Zero;
+        foreach (BuildingState state in manager.States.Values)
+        {
+            if (state == null || state.Definition == null || state.Amount <= ExpantaNum.Zero)
+                continue;
+            demand += state.Amount * (usePower
+                ? state.Definition.PowerConsumptionRate
+                : state.Definition.LogisticsConsumptionRate);
+        }
+        return demand;
     }
 
     private static void SetTopInfoValue(TMP_Text field, string value)

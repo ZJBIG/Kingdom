@@ -6,7 +6,12 @@ $ErrorActionPreference = "Stop"
 New-Item -ItemType Directory -Force (Split-Path $OutputPath) | Out-Null
 
 $guidToPath = @{}
-Get-ChildItem (Join-Path $ProjectPath "Assets") -Filter *.meta -Recurse | ForEach-Object {
+$metaRoots = @(
+    (Join-Path $ProjectPath "Assets"),
+    (Join-Path $ProjectPath "Library/PackageCache"),
+    (Join-Path $ProjectPath "Packages")
+) | Where-Object { Test-Path -LiteralPath $_ }
+Get-ChildItem $metaRoots -Filter *.meta -Recurse | ForEach-Object {
     $match = Select-String -Path $_.FullName -Pattern '^guid:\s*([0-9a-fA-F]+)' | Select-Object -First 1
     if ($match) {
         $guid = $match.Matches[0].Groups[1].Value
@@ -19,15 +24,39 @@ $unresolved = [System.Collections.Generic.List[string]]::new()
 Get-ChildItem (Join-Path $ProjectPath "Assets") -Recurse -File |
     Where-Object { $_.Extension -in ".unity", ".prefab", ".asset" } |
     ForEach-Object {
-        $matches = Select-String -Path $_.FullName -Pattern 'm_Script:\s*\{fileID:\s*\d+,\s*guid:\s*([0-9a-fA-F]+)' -AllMatches
-        foreach ($line in $matches) {
-            foreach ($match in $line.Matches) {
-                $guid = $match.Groups[1].Value
-                if (-not $guidToPath.ContainsKey($guid)) {
-                    $relative = $_.FullName.Substring($ProjectPath.Length).TrimStart('\')
-                    $unresolved.Add("${relative}:$($line.LineNumber): unresolved script guid $guid")
-                }
+        $assetLines = Get-Content -LiteralPath $_.FullName
+        for ($lineIndex = 0; $lineIndex -lt $assetLines.Count; $lineIndex++) {
+            if ($assetLines[$lineIndex] -notmatch 'm_Script:\s*\{fileID:\s*\d+,\s*guid:\s*([0-9a-fA-F]+)') {
+                continue
             }
+
+            $guid = $Matches[1]
+            if ($guid -eq "0000000000000000e000000000000000") {
+                continue
+            }
+            if ($guidToPath.ContainsKey($guid)) {
+                continue
+            }
+
+            # Unity UI/TMP components are serialized with package-owned script
+            # GUIDs and intentionally have no local .meta file under Assets.
+            # Keep auditing project scripts, but do not report these package
+            # components as missing local scripts.
+            $blockEnd = $lineIndex + 1
+            while ($blockEnd -lt $assetLines.Count -and
+                $assetLines[$blockEnd] -notmatch '^--- !u!') {
+                $blockEnd++
+            }
+            $identifier = $assetLines[$lineIndex..($blockEnd - 1)] |
+                Where-Object { $_ -match 'm_EditorClassIdentifier:\s*(.+)$' } |
+                Select-Object -First 1
+            if ($identifier -and
+                ($identifier -match 'UnityEngine\.' -or $identifier -match 'TMPro::')) {
+                continue
+            }
+
+            $relative = $_.FullName.Substring($ProjectPath.Length).TrimStart('\')
+            $unresolved.Add("${relative}:$($lineIndex + 1): unresolved script guid $guid")
         }
     }
 

@@ -275,6 +275,34 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
+    public void C603_IndustrialResearchCoordinationExtendsModernUniversity()
+    {
+        Research university = DataBase<Research>.Find("ModernUniversity");
+        Research coordination = DataBase<Research>.Find("IndustrialResearchCoordination");
+        WorkshopUpgrade center = DataBase<WorkshopUpgrade>.Find("IndustrialResearchCoordinationCenter");
+
+        Assert.That(university, Is.Not.Null);
+        Assert.That(coordination, Is.Not.Null);
+        Assert.That(center, Is.Not.Null);
+        Assert.That(coordination.TechLevel, Is.EqualTo(TechLevel.Industrial));
+        Assert.That(coordination.BaseCost, Is.EqualTo("2400000"));
+        Assert.That(coordination.Prerequisites, Does.Contain(university));
+        Assert.That(coordination.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
+            effect != null &&
+            effect.Type == ResearchEffectType.GlobalResearchMultiplier &&
+            System.Math.Abs(effect.NumericValue.ToDouble() - 1.5d) <= 0.000001d));
+
+        Assert.That(center.TechLevel, Is.EqualTo(TechLevel.Industrial));
+        Assert.That(center.RequiredResearch, Does.Contain(coordination));
+        Assert.That(center.RequiredUpgrades.Select(upgrade => upgrade.Id),
+            Is.EquivalentTo(new[] { "LaboratoryGlassware", "ElectricalInstrumentation" }));
+        Assert.That(center.Effects, Has.Some.Matches<WorkshopEffectDefinition>(effect =>
+            effect != null &&
+            effect.Type == WorkshopEffectType.GlobalResearchMultiplier &&
+            System.Math.Abs(effect.NumericValue.ToDouble() - 2d) <= 0.000001d));
+    }
+
+    [Test]
     public void ChemicalPlantConsumesCrudeOilAndCokeForIndustrialChemistry()
     {
         Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");

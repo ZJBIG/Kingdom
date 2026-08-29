@@ -15,7 +15,7 @@ MonoBehaviour:
   id: QuantumComputing
   Label: "\u91CF\u5B50\u8BA1\u7B97"
   Description: "建立可稳定运行的量子计算体系，支撑深空测绘、星际理论协同与极致时代所需的大规模计算和理论验证。"
-  BaseCost: "20000000"
+  BaseCost: "1100000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 0f1e2d3c4b5a69788796a5b4c3d2e1f0, type: 2}

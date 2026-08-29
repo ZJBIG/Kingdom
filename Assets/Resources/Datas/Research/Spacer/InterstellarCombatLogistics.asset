@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarCombatLogistics
   Label: "\u661f\u9645\u6218\u6597\u540e\u52e4\u4f53\u7cfb"
   Description: "\u5C06\u6DF1\u7A7A\u8230\u961F\u7F16\u6210\u3001\u76EE\u6807\u4F18\u5148\u7EA7\u3001\u4F5C\u6218\u6307\u6325\u3001\u8865\u7ED9\u8282\u70B9\u4E0E\u91CD\u578B\u7EF4\u4FEE\u7F51\u7EDC\u7EDF\u4E00\u8C03\u5EA6\uFF0C\u8BA9\u9AD8\u5F3A\u5EA6\u661F\u9645\u6218\u4E89\u80FD\u591F\u6301\u7EED\u63A8\u8FDB\u3002"
-  BaseCost: "15000000"
+  BaseCost: "900000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}

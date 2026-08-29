@@ -70,17 +70,10 @@ frozen. Never rewrite or reinterpret the retained files as current evidence.
 - Food remains the only capped stockpile.
 
 Report changed files, field-level before/after values, dependencies, closure,
-Unity/runtime results, tests, unresolved blockers, and validation limits. State
-explicitly when no Unity runtime or Huawei P40 Pro device was used.
+Unity/runtime results, tests, unresolved blockers, and validation limits.
 
 If Unity was not run, state exactly:
 
 ```text
 未执行真实 Unity 编译。
-```
-
-If the device was not tested, state exactly:
-
-```text
-未执行 Huawei P40 Pro 真机验收。
 ```

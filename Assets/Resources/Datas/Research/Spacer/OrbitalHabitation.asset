@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalHabitation
   Label: "轨道空间站工程"
   Description: "建立可长期运行的轨道补给、研究和转运设施，为深空舰队提供稳定基地，并把轨道建设从一次性发射推进到持续运营。"
-  BaseCost: "9000000"
+  BaseCost: "162000000"
   prerequisites:
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
   - {fileID: 11400000, guid: e5c1a7f3b9d24860a4d6e8f2c1b93750, type: 2}

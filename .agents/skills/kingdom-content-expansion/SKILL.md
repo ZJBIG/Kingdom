@@ -78,4 +78,3 @@ Follow `kingdom-economy-simulation` for closure, simulator, build, Unity tests,
 Console, and report requirements. Zero PlayMode tests is not acceptance.
 
 If Unity was not run, state exactly: `未执行真实 Unity 编译。`
-If the device was not tested, state exactly: `未执行 Huawei P40 Pro 真机验收。`

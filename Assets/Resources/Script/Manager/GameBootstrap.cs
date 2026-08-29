@@ -34,6 +34,9 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         if (loadedExistingGame && SaveManager.Instance.ApplyOfflineProgress())
             SaveManager.Instance.SaveNow(true);
         SimulationManager.Instance.SetRunning(true);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        ProgressionMilestoneRecorder.Attach(gameObject, SaveManager.Instance.LastLoadCreatedNewGame);
+#endif
         completed = true;
     }
 

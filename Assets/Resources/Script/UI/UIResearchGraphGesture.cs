@@ -39,6 +39,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
     private PointerEventData manualEventData;
 
     public bool IsDragging => dragging;
+    public bool IsInitialized => viewport != null && content != null;
 
     private void OnDisable()
     {

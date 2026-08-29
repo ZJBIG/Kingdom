@@ -2,7 +2,7 @@
 
 日期：2026-08-25  
 范围：首次进入 `TechLevel.Industrial` 后，玩家从 Overview、Era、Story、Tutorial 获得的状态与目标提示。  
-说明：以下原始问题已按最小方案实施修复；本文件保留原证据链，并补充当前实现状态。未执行真实 Unity PlayMode 与真机验收。
+说明：以下原始问题已按最小方案实施修复；本文件保留原证据链，并补充当前实现状态。Unity PlayMode 与真机验收证据待补充。
 
 > 当前状态说明（2026-08-27）：本文保留原始证据链用于追溯，但旧失败清单与历史计数不代表当前验收结果。当前 Unity 结果只认 `TestResults/Latest-Test-Errors.txt`；没有更新日志时不声称运行验收通过。
 
@@ -56,5 +56,4 @@
 - Story/Tutorial 反馈已接入 live refresh，完成动作后可更新，不依赖重新加载场景。
 - 未新增 Manager、页面、资源、研究、保存字段或系统。
 
-未执行真实 Unity 编译。  
-未执行 Huawei P40 Pro 真机验收。
+Unity 编译证据待补充。

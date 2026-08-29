@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceFleet
   Label: "深空舰队"
   Description: "建立具备远征能力的舰队、化学推进剂补给链和指挥体系，解锁远星战役；舰队推进会持续消耗食物、燃料、物流能力和高级材料。"
-  BaseCost: "7500000"
+  BaseCost: "360000000"
   prerequisites:
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}

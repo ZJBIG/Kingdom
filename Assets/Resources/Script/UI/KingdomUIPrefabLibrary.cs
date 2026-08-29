@@ -22,7 +22,7 @@ public static class KingdomUIPrefabLibrary
     public const string ResearchNode = "KingdomUIResearchNode";
     public const string ResearchLine = "KingdomUIResearchLine";
     public const string ResearchGraph = "KingdomUIResearchGraph";
-    public const string ResearchToolbar = "KingdomUIResearchToolbar";
+    public const string OverviewNavigationToolbar = "KingdomUIOverviewNavigationToolbar";
     public const string ResearchEraBand = "KingdomUIResearchEraBand";
     public const string QuantityControls = "KingdomUIQuantityControls";
     public const string MusicTrack = "KingdomUIMusicTrack";
@@ -31,7 +31,7 @@ public static class KingdomUIPrefabLibrary
     public static readonly string[] AllReusablePrefabs =
     {
         Root, Page, ResourceCard, BuildingCard, ResearchCard, TextRow,
-        ResearchNode, ResearchLine, ResearchGraph, ResearchToolbar, ResearchEraBand,
+        ResearchNode, ResearchLine, ResearchGraph, OverviewNavigationToolbar, ResearchEraBand,
         QuantityControls, MusicTrack, SectorRow
     };
 

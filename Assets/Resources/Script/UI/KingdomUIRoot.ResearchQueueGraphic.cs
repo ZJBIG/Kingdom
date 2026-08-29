@@ -38,10 +38,12 @@ public sealed partial class KingdomUIRoot
         RectTransform queueHost = buildingQuantityControls == null
             ? toolbar.parent as RectTransform
             : buildingQuantityControls.parent as RectTransform;
-        Transform oldViewport = queueHost == null ? null : queueHost.Find("ResearchQueueViewport");
+        Transform pageTool = queueHost == null ? null
+            : queueHost.name == "PageTool" ? queueHost : queueHost.Find("PageTool");
+        Transform oldViewport = pageTool == null ? null : pageTool.Find("ResearchQueueViewport");
         if (oldViewport == null)
         {
-            Debug.LogError("[王国界面] Authored ResearchQueueViewport is missing under SafeAreaRoot/Content.");
+            Debug.LogError("[王国界面] Authored ResearchQueueViewport is missing under SafeAreaRoot/Content/PageTool.");
             return;
         }
         toolbar.Find("Surface")?.gameObject.SetActive(false);

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: TechnologicalSingularity
   Label: "技术奇点"
   Description: "汇聚稳定量子计算、相位航行、高能材料重构与跨星区知识协同，突破太空文明的工程与认知上限，使文明进入极致时代。"
-  BaseCost: "55000000"
+  BaseCost: "5.5e11"
   prerequisites:
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
   - {fileID: 11400000, guid: 4e7f1a9c2b5d6e8f901a3c5e7b9d2f40, type: 2}

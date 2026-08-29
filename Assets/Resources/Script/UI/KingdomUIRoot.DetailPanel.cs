@@ -164,7 +164,76 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("工坊前置");
         AppendWorkshopPrerequisites(text, building.RequiredWorkshopUpgrades);
         text.AppendLine();
+        text.AppendLine("当前状态：" + GetBuildingDetailStatus(building, state));
+        text.AppendLine();
         detailBody.text = text.ToString();
+    }
+
+    private static string GetBuildingDetailStatus(Building building, BuildingState state)
+    {
+        BuildingManager manager = BuildingManager.Instance;
+        if (building == null || manager == null || GameManager.Instance == null ||
+            GameManager.Instance.State == null)
+            return "建筑状态未初始化";
+        bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
+            manager.TryGetUnlockedUpgradeTarget(building, out _);
+        if (!manager.ArePrerequisitesMet(building, out BuildFailure prerequisiteFailure))
+        {
+            switch (prerequisiteFailure)
+            {
+                case BuildFailure.TechnologyInsufficient:
+                    return "需进入" + building.TechLevel.GetDescription();
+                case BuildFailure.SectorNotOccupied:
+                    return "需先占领所属星区";
+                case BuildFailure.ResearchPrerequisiteIncomplete:
+                    return "研究前置未完成";
+                case BuildFailure.WorkshopPrerequisiteIncomplete:
+                    return "工坊前置未完成";
+                default:
+                    return "前置条件未满足";
+            }
+        }
+        if (!upgrading && !manager.CanConstructNew(building))
+            return "已被更高等级建筑替代";
+        if (building is SectorBuilding sectorBuilding && state != null &&
+            state.Amount >= new ExpantaNum(sectorBuilding.MaxAmount))
+            return "已达到该星区建筑上限";
+        if (!(building is SectorBuilding) && state != null &&
+            GameManager.Instance.State.AvailableTerritory < state.SpaceCost)
+            return "领土不足：还需" +
+                (state.SpaceCost - GameManager.Instance.State.AvailableTerritory).ToGameString();
+        ExpantaNum productivity = state == null ? building.ProductivityConsumption : state.ProductivityConsumption;
+        if (manager.AvailableProductivity < productivity)
+            return "生产力不足：还需" +
+                (productivity - manager.AvailableProductivity).ToGameString();
+        List<Pair<Resource, ExpantaNum>> requirements = new();
+        if (upgrading)
+            manager.GetUpgradeResourceDeltas(building, ExpantaNum.One, requirements);
+        else
+        {
+            ExpantaNum owned = state == null ? ExpantaNum.Zero : state.Amount;
+            for (int i = 0; i < building.ResourceRequirements.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
+                requirements.Add(new Pair<Resource, ExpantaNum>(requirement.First,
+                    requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, ExpantaNum.One)));
+            }
+        }
+        ResourceManager resources = ResourceManager.Instance;
+        if (resources == null)
+            return "资源管理器未初始化";
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First == null)
+                return "资源需求无效";
+            resources.States.TryGetValue(requirement.First, out ResourceState resourceState);
+            ExpantaNum amount = resourceState == null ? ExpantaNum.Zero : resourceState.Amount;
+            if (amount < requirement.Second)
+                return "资源不足：" + requirement.First.Label + " 缺 " +
+                    (requirement.Second - amount).ToGameString();
+        }
+        return "可建造";
     }
 
     private void RefreshSelectedBuildingDetails(Building building)
@@ -214,6 +283,8 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || resource == null)
             return;
+
+        TutorialManager.Current?.RecordDetailViewed("Resources", resource.Id);
 
         selectedResearchNode = null;
         selectedBuilding = null;
@@ -434,7 +505,6 @@ public sealed partial class KingdomUIRoot
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
-        selectedResearchNode = null;
         selectedResource = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
@@ -454,6 +524,8 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("研究前置");
         AppendResearchPrerequisites(text, research.Prerequisites);
         text.AppendLine();
+        text.AppendLine("当前状态：" + GetResearchDetailStatus(research, state));
+        text.AppendLine();
         text.AppendLine("效果");
         AppendResearchEffects(text, research.Effects);
         text.AppendLine();
@@ -467,6 +539,8 @@ public sealed partial class KingdomUIRoot
             keepScrollPosition ? (float?)savedRequirementScrollPosition : null,
             0);
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        if (detailActionButton != null)
+            detailActionButton.interactable = IsResearchActionAvailable(research, state);
         CaptureResearchRefreshSignatures();
     }
     private static void AppendResearchEffects(
@@ -777,6 +851,8 @@ public sealed partial class KingdomUIRoot
         if (ResearchManager.Instance != null)
             ResearchManager.Instance.States.TryGetValue(research, out state);
 
+        RefreshResearchDetailStatus(research, state);
+
         if (!RefreshRequirementRows(research.ResourceRequirements))
         {
             ShowResearchDetails(research, true);
@@ -784,6 +860,27 @@ public sealed partial class KingdomUIRoot
         }
 
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        if (detailActionButton != null)
+            detailActionButton.interactable = IsResearchActionAvailable(research, state);
+    }
+
+    private void RefreshResearchDetailStatus(Research research, ResearchState state)
+    {
+        if (detailBody == null)
+            return;
+        const string marker = "\u5f53\u524d\u72b6\u6001\uff1a";
+        int markerIndex = detailBody.text.IndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+            return;
+        int lineEnd = detailBody.text.IndexOf('\n', markerIndex);
+        if (lineEnd < 0)
+            lineEnd = detailBody.text.Length;
+        string replacement = marker + GetResearchDetailStatus(research, state);
+        string currentLine = detailBody.text.Substring(markerIndex, lineEnd - markerIndex);
+        if (string.Equals(currentLine, replacement, StringComparison.Ordinal))
+            return;
+        detailBody.text = detailBody.text.Substring(0, markerIndex) + replacement +
+            detailBody.text.Substring(lineEnd);
     }
 
     private void RefreshResearchDetailLiveValues(Research research)
@@ -794,6 +891,10 @@ public sealed partial class KingdomUIRoot
         // During a drag only the live payment amounts need refreshing. Keep
         // the authored text, listeners and layout untouched so the gesture
         // does not compete with a full detail rebuild.
+        ResearchState state = null;
+        if (ResearchManager.Instance != null)
+            ResearchManager.Instance.States.TryGetValue(research, out state);
+        RefreshResearchDetailStatus(research, state);
         RefreshRequirementRows(research.ResourceRequirements);
     }
 
@@ -806,6 +907,47 @@ public sealed partial class KingdomUIRoot
              ResearchManager.Instance.IsQueued(research))
             ? "删除研究队列"
             : "加入研究队列";
+    }
+
+    private static bool IsResearchActionAvailable(Research research, ResearchState state)
+    {
+        if (research == null || state == null || state.Status == ResearchStatus.Completed)
+            return false;
+        ResearchManager manager = ResearchManager.Instance;
+        if (manager == null)
+            return false;
+        if (manager.ActiveResearch?.Definition == research || manager.IsQueued(research))
+            return true;
+        return manager.CanAccessResearch(research);
+    }
+
+    private static string GetResearchDetailStatus(Research research, ResearchState state)
+    {
+        if (research == null || state == null)
+            return "\u7814\u7a76\u72b6\u6001\u672a\u521d\u59cb\u5316";
+        if (state.Status == ResearchStatus.Completed)
+            return "\u5df2\u5b8c\u6210";
+        ResearchManager manager = ResearchManager.Instance;
+        if (manager == null || GameManager.Instance == null || GameManager.Instance.State == null)
+            return "\u7814\u7a76\u7ba1\u7406\u5668\u672a\u521d\u59cb\u5316";
+        if (manager.ActiveResearch?.Definition == research)
+            return "\u7814\u7a76\u4e2d\uff08\u70b9\u51fb\u53ef\u53d6\u6d88\uff09";
+        if (manager.IsQueued(research))
+            return state.Status == ResearchStatus.WaitingResources
+                ? "\u961f\u5217\u4e2d\uff0c\u7b49\u5f85\u8d44\u6e90"
+                : "\u961f\u5217\u4e2d\uff08\u70b9\u51fb\u53ef\u53d6\u6d88\uff09";
+        if (!manager.CanAccessResearch(research))
+            return "\u9700\u8fdb\u5165" + research.TechLevel.GetDescription();
+        IReadOnlyList<Research> prerequisites = research.Prerequisites;
+        if (prerequisites != null)
+            for (int i = 0; i < prerequisites.Count; i++)
+            {
+                Research prerequisite = prerequisites[i];
+                if (prerequisite == null || !manager.IsResearchCompleted(prerequisite.Id))
+                    return "\u9700\u5148\u5b8c\u6210\uff1a" +
+                        (prerequisite == null ? "\u65e0\u6548\u524d\u7f6e" : prerequisite.Label);
+            }
+        return "\u53ef\u52a0\u5165\u7814\u7a76\u961f\u5217\uff08\u8d44\u6e90\u4e0d\u8db3\u65f6\u4f1a\u7b49\u5f85\uff09";
     }
 
     private void HideBuildingRequirements()

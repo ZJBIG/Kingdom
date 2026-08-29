@@ -52,7 +52,7 @@ public sealed partial class KingdomUIRoot
         Research transition = eraGoal.Transition;
         AddEraTextRow(
             parent,
-            state.TechLevel.GetDescription(),
+            state.TechLevel.GetDescription() + "\n" + GetEraSubtitle(state.TechLevel),
             transition == null
                 ? "已到达当前内容的最后时代"
                 : "下一时代：" + nextEra.GetDescription(),
@@ -88,6 +88,12 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        AddEraTextRow(
+            parent,
+            "\u65f6\u4ee3\u63a8\u8fdb\u786c\u6761\u4ef6",
+            "\u53ea\u6709\u4ee5\u4e0b\u771f\u5b9e\u6761\u4ef6\u4f1a\u51b3\u5b9a\u65f6\u4ee3\u7814\u7a76\u662f\u5426\u53ef\u63a8\u8fdb",
+            TextSecondary,
+            null);
         List<EraGoalCondition> conditions = BuildEraConditions(eraGoal);
         int completed = 0;
         int blockerIndex = -1;
@@ -133,24 +139,60 @@ public sealed partial class KingdomUIRoot
             hasBlocker ? Error : Positive,
             hasBlocker ? blocker.Navigate : null);
 
-        string productivity = buildingManagerCache == null
-            ? "0 / 0"
-            : buildingManagerCache.UsedProductivity.ToGameString() + " / " + buildingManagerCache.TotalProductivity.ToGameString();
-        string researchPower = researchManagerCache == null ? "0" : researchManagerCache.ResearchPower.ToGameString();
-        AddEraTextRow(
-            parent,
-            "国家发展",
-            "人口 " + state.Population.Population.ToGameString() + " / " + state.Population.PopulationCapacity.ToGameString() +
-            "  |  食物净产出 " + (state.FoodNetRate >= ExpantaNum.Zero ? "+" : "") + state.FoodNetRate.ToGameString() + "/s\n" +
-            "生产力 " + productivity + "  |  研究力 " + researchPower + "/s\n" +
-            "领土 " + state.TerritoryUsed.ToGameString() + " / " + state.TerritoryTotal.ToGameString(),
-            TextPrimary,
-            null);
-
         Debug.Log($"[王国界面] Era page rendered: current={state.TechLevel}, next={nextEra}, transition={transition.Id}, progress={completed}/{conditions.Count}, blocker={(hasBlocker ? blocker.Title : "none")}");
         bool hasProductionChain = buildingManagerCache != null &&
             TutorialManager.HasOwnedProductionChain(
                 buildingManagerCache.States.Values);
+        bool foodReady = state.FoodNetRate > ExpantaNum.Zero;
+        bool populationReady = state.Population.PopulationCapacity > state.Population.Population;
+        bool productivityReady = buildingManagerCache != null &&
+            buildingManagerCache.AvailableProductivity > ExpantaNum.Zero;
+        bool researchReady = researchManagerCache != null &&
+            researchManagerCache.ResearchPower > ExpantaNum.Zero;
+
+        AddEraTextRow(
+            parent,
+            "\u53d1\u5c55\u51c6\u5907\u5ea6\uff08\u5efa\u8bae\uff09",
+            "\u4ee5\u4e0b\u4fe1\u606f\u4ec5\u7528\u4e8e\u9884\u5224\u8fdb\u5165\u4e0b\u4e00\u65f6\u4ee3\u540e\u662f\u5426\u4f1a\u7acb\u5373\u5361\u4f4f\uff0c\u4e0d\u4f1a\u963b\u6b62\u65f6\u4ee3\u8dc3\u8fc1",
+            TextSecondary,
+            null);
+        AddEraTextRow(
+            parent,
+            (foodReady ? "[x] " : "[ ] ") + "\u98df\u7269\u51c0\u4ea7\u51fa",
+            (state.FoodNetRate >= ExpantaNum.Zero ? "+" : "") +
+            state.FoodNetRate.ToGameString() + "/s",
+            foodReady ? Positive : Copper,
+            null);
+        AddEraTextRow(
+            parent,
+            (populationReady ? "[x] " : "[ ] ") + "\u4eba\u53e3\u5bb9\u91cf\u4f59\u91cf",
+            state.Population.Population.ToGameString() + "/" +
+            state.Population.PopulationCapacity.ToGameString(),
+            populationReady ? Positive : Copper,
+            null);
+        AddEraTextRow(
+            parent,
+            (productivityReady ? "[x] " : "[ ] ") + "\u53ef\u7528\u751f\u4ea7\u529b",
+            buildingManagerCache == null
+                ? "0"
+                : buildingManagerCache.AvailableProductivity.ToGameString(),
+            productivityReady ? Positive : Copper,
+            null);
+        AddEraTextRow(
+            parent,
+            (hasProductionChain ? "[x] " : "[ ] ") + "\u8fde\u7eed\u751f\u4ea7\u94fe",
+            hasProductionChain ? "\u5df2\u5f62\u6210\u539f\u6599\u2192\u52a0\u5de5\u2192\u4ea7\u51fa\u94fe" : "\u5c1a\u672a\u5f62\u6210\u8fde\u7eed\u751f\u4ea7\u94fe",
+            hasProductionChain ? Positive : Copper,
+            pages.ContainsKey("Buildings") ? () => SetPage("Buildings") : null);
+        AddEraTextRow(
+            parent,
+            (researchReady ? "[x] " : "[ ] ") + "\u7814\u7a76\u529b",
+            researchManagerCache == null
+                ? "0/s"
+                : researchManagerCache.ResearchPower.ToGameString() + "/s",
+            researchReady ? Positive : Copper,
+            null);
+
         AddEraTextRow(
             parent,
             "\u57fa\u7840\u4ea7\u4e1a\u51c6\u5907",
@@ -163,6 +205,18 @@ public sealed partial class KingdomUIRoot
         eraPageStateSignature = BuildEraPageStateSignature(state, eraGoal);
         FinishEraTextRows();
     }
+
+    private static string GetEraSubtitle(TechLevel era) => era switch
+    {
+        TechLevel.Animal => "\u706b\u79cd\u4e0e\u805a\u843d",
+        TechLevel.Neolithic => "\u5b9a\u5c45\u4e0e\u65e9\u671f\u91d1\u5c5e",
+        TechLevel.Medieval => "\u57ce\u5e02\u3001\u5236\u5ea6\u4e0e\u673a\u68b0\u840c\u82bd",
+        TechLevel.Industrial => "\u673a\u5668\u3001\u7535\u529b\u4e0e\u89c4\u6a21\u5316\u751f\u4ea7",
+        TechLevel.Spacer => "\u8f68\u9053\u3001\u8230\u961f\u4e0e\u661f\u533a",
+        TechLevel.Ultra => "\u6280\u672f\u5947\u70b9\uff08\u5f53\u524d\u6846\u67b6\uff09",
+        TechLevel.Archotech => "\u8fdc\u671f\u6587\u660e\u6846\u67b6",
+        _ => string.Empty
+    };
 
     private static string GetEraCapabilitySummary(TechLevel era) => era switch
     {
@@ -386,8 +440,10 @@ public sealed partial class KingdomUIRoot
 
         Button detailButton = row.transform.Find("Detail")?.GetComponent<Button>();
         if (detailButton == null)
-            detailButton = CreateButton("Detail", row.transform, "详情",
-                new Color(.18f, .31f, .27f, 1f));
+        {
+            Debug.LogError("[王国界面] Era text row is missing authored Detail button.");
+            return null;
+        }
         RectTransform detailRect = detailButton.transform as RectTransform;
         detailRect.anchorMin = new Vector2(1f, .5f);
         detailRect.anchorMax = new Vector2(1f, .5f);

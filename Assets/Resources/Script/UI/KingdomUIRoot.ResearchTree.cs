@@ -137,6 +137,9 @@ public sealed partial class KingdomUIRoot
     private int researchTopologyBackwardsEdgeCount;
     private int researchTopologyInversionCount;
     private Research selectedResearchNode;
+    private GameObject overviewNavigationToolbar;
+    private Button overviewCurrentTargetButton;
+    private string pendingOverviewResearchFocusId;
     private string lastLoggedResearchClosureTarget;
     private UIResearchGraphGesture researchGraphGesture;
     private bool researchProgressVisualLogged;
@@ -413,7 +416,6 @@ public sealed partial class KingdomUIRoot
         researchGraphViewport.offsetMin = Vector2.zero;
         researchGraphViewport.offsetMax = Vector2.zero;
         EnsureNestedCanvas(researchGraphViewport);
-        EnsureResearchTreeToolbar(researchGraphViewport);
         // Keep the viewport clip present even if a scene author removes it.
         if (researchGraphViewport.GetComponent<RectMask2D>() == null)
             researchGraphViewport.gameObject.AddComponent<RectMask2D>();
@@ -609,32 +611,45 @@ public sealed partial class KingdomUIRoot
             yield break;
         RefreshResearchTreeVisuals();
         RefreshResearchQueueToolbar();
+        RefreshOverviewNavigationToolbar();
+        if (!string.IsNullOrWhiteSpace(pendingOverviewResearchFocusId))
+        {
+            string pendingId = pendingOverviewResearchFocusId;
+            pendingOverviewResearchFocusId = null;
+            if (DataBase<Research>.TryFind(pendingId, out Research pendingResearch))
+                FocusResearchNode(pendingResearch);
+        }
         if (selectedResearchNode != null)
             ShowResearchDetails(selectedResearchNode);
         Debug.Log($"[王国界面] Research page build complete: nodes={researchTreeNodes.Count}, elapsedMs={(Time.realtimeSinceStartup - buildStartTime) * 1000f:0.0}");
     }
 
-    private void EnsureResearchTreeToolbar(RectTransform viewport)
+    private void BindOverviewNavigationToolbar(RectTransform contentHost)
     {
-        Transform existing = viewport.Find("ResearchTreeToolbar");
-        if (existing != null)
+        Transform pageTool = contentHost == null ? null : contentHost.Find("PageTool");
+        Transform existing = pageTool == null ? null : pageTool.Find("OverviewNavigationToolbar");
+        if (existing == null)
+        {
+            Debug.LogError("[王国界面] OverviewNavigationToolbar must be authored in the scene UI prefab.");
             return;
+        }
+        GameObject toolbar = existing.gameObject;
+        overviewNavigationToolbar = toolbar;
 
-        GameObject toolbar = KingdomUIPrefabLibrary.Instantiate(
-            KingdomUIPrefabLibrary.ResearchToolbar, viewport);
-        toolbar.name = "ResearchTreeToolbar";
         RectTransform rect = toolbar.GetComponent<RectTransform>();
         if (rect == null)
             return;
 
-        // Keep the controls outside the scrolling content while pinning them
-        // to the top edge of the authored graph viewport.
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(1f, 1f);
-        rect.pivot = new Vector2(.5f, 1f);
-        rect.offsetMin = new Vector2(0f, -96f);
-        rect.offsetMax = Vector2.zero;
-        toolbar.transform.SetAsLastSibling();
+        // The toolbar layout and controls are authored by the prefab. Runtime
+        // code only binds behavior to the existing controls.
+        overviewCurrentTargetButton = toolbar.transform
+            .Find("OverviewCurrentTargetButton")?.GetComponent<Button>();
+        if (overviewCurrentTargetButton == null)
+        {
+            Debug.LogError("[王国界面] Overview navigation toolbar is missing its authored navigation buttons.");
+            return;
+        }
+        RefreshOverviewNavigationToolbar();
     }
 
     private void AbortResearchTreeBuild()
@@ -1054,6 +1069,111 @@ public sealed partial class KingdomUIRoot
         RefreshResearchQueueGraphic();
         if (researchTreePageBuilt && ResearchManager.Instance != null)
             lastResearchQueueSignature = BuildResearchQueueSignature();
+    }
+
+    private void RefreshOverviewNavigationToolbar()
+    {
+        if (overviewNavigationToolbar == null || overviewCurrentTargetButton == null)
+            return;
+
+        bool visible = string.Equals(populatedPage, "Overview", StringComparison.Ordinal);
+        if (overviewNavigationToolbar.activeSelf != visible)
+            overviewNavigationToolbar.SetActive(visible);
+
+        Research tutorialTarget = null;
+        TutorialSnapshot snapshot = TutorialManager.Current?.Evaluate();
+        if (snapshot != null && snapshot.NavigationPage == "Research" &&
+            !string.IsNullOrWhiteSpace(snapshot.NavigationTargetId) &&
+            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research requested) &&
+            researchTreeNodes.ContainsKey(requested))
+            tutorialTarget = requested;
+
+        Research target = tutorialTarget;
+        TMP_Text targetLabel = overviewCurrentTargetButton.GetComponentInChildren<TMP_Text>(true);
+        if (target == null)
+        {
+            target = FindEraGoalResearchTarget();
+            if (targetLabel != null)
+                targetLabel.text = "\u65f6\u4ee3\u76ee\u6807";
+        }
+        else if (targetLabel != null)
+            targetLabel.text = "\u5f53\u524d\u76ee\u6807";
+
+        overviewCurrentTargetButton.interactable = visible && target != null;
+        overviewCurrentTargetButton.onClick.RemoveAllListeners();
+        if (target != null)
+        {
+            Research capturedTarget = target;
+            overviewCurrentTargetButton.onClick.AddListener(() => NavigateToOverviewResearch(capturedTarget));
+        }
+
+    }
+
+    private void NavigateToOverviewResearch(Research target)
+    {
+        if (target == null)
+            return;
+        pendingOverviewResearchFocusId = target.Id;
+        SetPage("Research");
+        if (researchTreePageBuilt && DataBase<Research>.TryFind(target.Id, out Research currentTarget))
+        {
+            pendingOverviewResearchFocusId = null;
+            FocusResearchNode(currentTarget);
+        }
+    }
+
+    private Research FindEraGoalResearchTarget()
+    {
+        if (GameManager.Instance == null)
+            return null;
+        EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
+            GameManager.Instance.State.TechLevel,
+            ResearchManager.Instance,
+            ResourceManager.Instance);
+        for (int i = 0; i < evaluation.Conditions.Count; i++)
+        {
+            EraGoalConditionEvaluation condition = evaluation.Conditions[i];
+            if (!condition.Met && condition.Kind == EraGoalConditionKind.PrerequisiteResearch &&
+                condition.Research != null && researchTreeNodes.ContainsKey(condition.Research))
+                return condition.Research;
+        }
+        return evaluation.Transition != null && researchTreeNodes.ContainsKey(evaluation.Transition)
+            ? evaluation.Transition
+            : null;
+    }
+
+    private void FocusResearchNode(Research research)
+    {
+        if (research == null || researchGraphViewport == null || researchGraphContent == null ||
+            !researchTreeNodes.TryGetValue(research, out Button button) || button == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+        RectTransform node = button.transform as RectTransform;
+        if (node == null)
+            return;
+        FocusResearchRect(node, research);
+    }
+
+    private void FocusResearchRect(RectTransform node, Research research)
+    {
+        if (node == null || researchGraphViewport == null || researchGraphContent == null)
+            return;
+        float scale = Mathf.Max(.001f, Mathf.Abs(researchGraphContent.localScale.x));
+        Vector2 nodeCenter = node.anchoredPosition + new Vector2(node.rect.width, node.rect.height) * .5f;
+        Vector2 desired = new Vector2(
+            researchGraphViewport.rect.width * .5f - nodeCenter.x * scale,
+            researchGraphViewport.rect.height * .5f - nodeCenter.y * scale);
+        Vector2 scaledContentSize = researchGraphContent.rect.size * scale;
+        desired.x = Mathf.Clamp(desired.x, Mathf.Min(0f, researchGraphViewport.rect.width - scaledContentSize.x), 0f);
+        desired.y = Mathf.Clamp(desired.y, Mathf.Min(0f, researchGraphViewport.rect.height - scaledContentSize.y), 0f);
+        researchGraphContent.anchoredPosition = desired;
+        researchGraphGesture?.RefreshLayoutBounds(false);
+        if (research != null)
+        {
+            ShowResearchDetails(research);
+            Debug.Log($"[王国界面] Research navigation focus: target={research.Id}, position={desired}, scale={scale:0.00}");
+        }
     }
 
     #if false

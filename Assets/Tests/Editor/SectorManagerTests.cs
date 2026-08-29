@@ -160,7 +160,7 @@ public sealed class SectorManagerTests
         Assert.That(alpha.PrerequisiteSectors, Does.Contain(asteroid));
         Assert.That(asteroid.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
         Assert.That(jovian.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
-        Assert.That(asteroid.EnemyPower, Is.EqualTo(new ExpantaNum(300d)));
+        Assert.That(asteroid.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(jovian.EnemyPower, Is.EqualTo(new ExpantaNum(500d)));
         Assert.That(asteroid.TerritoryReward, Is.EqualTo(new ExpantaNum(200000d)));
         Assert.That(jovian.TerritoryReward, Is.EqualTo(new ExpantaNum(400000d)));
@@ -496,11 +496,13 @@ public sealed class SectorManagerTests
             Assert.That(preview.HasSupply, Is.True);
             Assert.That(preview.ExplorationPower, Is.EqualTo(ExpantaNum.Zero));
             Assert.That(preview.RequiredPower, Is.EqualTo(ExpantaNum.Zero));
-            Assert.That(preview.EstimatedSecondsRemaining.ToDouble(), Is.EqualTo(600d).Within(0.2d));
-            Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.One / 600d));
-            Assert.That(
-                (preview.ProgressPerSecond * lowOrbit.ColonizationDurationSeconds).ToDouble(),
-                Is.EqualTo(1d).Within(0.001d));
+            Assert.That(preview.EstimatedSecondsRemaining.ToDouble(), Is.GreaterThan(599.8d));
+            Assert.That(preview.EstimatedSecondsRemaining.ToDouble(), Is.LessThan(600.2d));
+            Assert.That(preview.ProgressPerSecond, Is.GreaterThan(ExpantaNum.Zero));
+            double normalizedProgress =
+                (preview.ProgressPerSecond * lowOrbit.ColonizationDurationSeconds).ToDouble();
+            Assert.That(normalizedProgress, Is.GreaterThan(.999d));
+            Assert.That(normalizedProgress, Is.LessThan(1.001d));
         }
         finally
         {
@@ -1556,6 +1558,8 @@ public sealed class SectorManagerTests
             Assert.That(preview.CasualtiesPerSecond, Is.EqualTo(ExpantaNum.Zero));
             Assert.That(preview.FoodCostPerSecond, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
             Assert.That(preview.ResourceCostsPerSecond, Is.Not.Null);
+            Assert.That(preview.HasOngoingSupplyCost, Is.True);
+            Assert.That(preview.EstimatedSupplySeconds, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
             Assert.That(preview.HasSupply, Is.True);
         }
         finally
@@ -2411,7 +2415,7 @@ public sealed class SectorManagerTests
         Assert.That(preview.SupplySatisfaction, Is.EqualTo(new ExpantaNum(0.75d)));
         Assert.That(preview.PowerSatisfaction, Is.EqualTo(new ExpantaNum(0.5d)));
         Assert.That(preview.LogisticsSatisfaction, Is.EqualTo(new ExpantaNum(0.25d)));
-        Assert.That(preview.ProgressPerSecond, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(preview.ProgressPerSecond, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]

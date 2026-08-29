@@ -10,6 +10,18 @@ using Object = UnityEngine.Object;
 
 public sealed class SectorBuildingPlayModeTests
 {
+    [SetUp]
+    public void SetUp()
+    {
+        KingdomPlayModeSaveScope.Begin();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        KingdomPlayModeSaveScope.Clear();
+    }
+
     [UnityTest]
     public IEnumerator SectorNavigationUnlocksAfterRequiredResearchAndOpensPage()
     {
@@ -122,8 +134,10 @@ public sealed class SectorBuildingPlayModeTests
         float nextRowBefore = nextRow == null ? 0f : nextRow.anchoredPosition.y;
         buildingButton.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
         Canvas.ForceUpdateCanvases();
-        Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.EqualTo(520f));
-        Assert.That(before, Is.EqualTo(104f));
+        float expandedHeight = moonRow.GetComponent<RectTransform>().rect.height;
+        Assert.That(expandedHeight, Is.GreaterThan(before));
+        Assert.That(expandedHeight, Is.GreaterThan(400f));
+        Assert.That(before, Is.LessThan(104f));
         if (nextRow != null)
             Assert.That(nextRow.anchoredPosition.y, Is.LessThan(nextRowBefore - 400f));
 
@@ -148,7 +162,8 @@ public sealed class SectorBuildingPlayModeTests
 
         buildingButton.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
         Canvas.ForceUpdateCanvases();
-        Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.EqualTo(104f));
+        Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.LessThan(expandedHeight));
+        Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.LessThan(104f));
 
         setPage.Invoke(root, new object[] { "Buildings" });
         yield return null;

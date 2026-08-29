@@ -15,7 +15,7 @@ MonoBehaviour:
   id: InterstellarCybersecurityTheory
   Label: "\u661f\u9645\u7f51\u7edc\u5b89\u5168\u7406\u8bba"
   Description: "\u7814\u7a76\u8de8\u661f\u533a\u8eab\u4efd\u8ba4\u8bc1\u3001\u5bc6\u94a5\u8f6e\u6362\u4e0e\u5ef6\u8fdf\u73af\u5883\u4e0b\u7684\u901a\u4fe1\u653b\u51fb\u6a21\u5f0f\uff0c\u5efa\u7acb\u5206\u5e03\u5f0f\u4fe1\u4efb\u548c\u6570\u636e\u6062\u590d\u5236\u5ea6\uff0c\u4fdd\u62a4\u8fdc\u5f81\u7814\u7a76\u4e0e\u661f\u9645\u7269\u6d41\u4e0d\u53d7\u6076\u610f\u5e72\u6270\u3002"
-  BaseCost: "22000000"
+  BaseCost: "1320000000"
   prerequisites:
   - {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f60718293a4b5c6d, type: 2}
   - {fileID: 11400000, guid: 6d7e8f901a2b3c4d5e6f708192a3b4c5, type: 2}

@@ -31,13 +31,13 @@ public sealed class PreSpacerCombatRemovalTests
     }
 
     [Test]
-    public void C811_ConvertedResearchUsesScopedProductionMultipliers()
+    public void C811_ConvertedResearchUsesDistinctNonCombatRoles()
     {
         AssertGlobalMultiplier("OrganizedDefense", 1.03d);
         AssertGlobalMultiplier("OrganizedWatch", 1.04d);
-        AssertGlobalMultiplier("Fortification", 1.05d);
-        AssertGlobalMultiplier("StandingArmy", 1.06d);
-        AssertGlobalMultiplier("Gunpowder", 1.07d);
+        AssertEffectType("Fortification", ResearchEffectType.GlobalConstructionMultiplier, 1.05d);
+        AssertEffectType("StandingArmy", ResearchEffectType.PopulationProductivityMultiplier, 1.06d);
+        AssertEffectType("Gunpowder", ResearchEffectType.GlobalLogisticsMultiplier, 1.07d);
         AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory", 1.20d);
         Assert.That(
             DataBase<Research>.Find("MilitaryIndustry").Effects,
@@ -54,10 +54,15 @@ public sealed class PreSpacerCombatRemovalTests
 
     private static void AssertGlobalMultiplier(string id, double expected)
     {
+        AssertEffectType(id, ResearchEffectType.GlobalBuildingProductionMultiplier, expected);
+    }
+
+    private static void AssertEffectType(string id, ResearchEffectType type, double expected)
+    {
         Research research = DataBase<Research>.Find(id);
         Assert.That(research, Is.Not.Null, id);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
-            effect.Type == ResearchEffectType.GlobalBuildingProductionMultiplier &&
+            effect.Type == type &&
             effect.NumericValue.ToDouble() == expected));
     }
 

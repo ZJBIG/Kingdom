@@ -5,11 +5,29 @@ param(
     [string]$UnityPath,
     [string]$ResultsPath,
     [string]$LogPath,
+    [string]$LatestErrorsPath,
     [int]$TimeoutSeconds = 600
 )
 $ErrorActionPreference = "Stop"
 if (-not $UnityPath) {
     $UnityPath = & (Join-Path $PSScriptRoot "find-unity.ps1") -ProjectPath $ProjectPath
+}
+$editorInstancePath = Join-Path $ProjectPath "Library/EditorInstance.json"
+if (Test-Path -LiteralPath $editorInstancePath) {
+    $lockConflict = $null
+    try {
+        $editorInstance = Get-Content -LiteralPath $editorInstancePath -Raw | ConvertFrom-Json
+        $existingUnity = Get-Process -Id ([int]$editorInstance.process_id) -ErrorAction SilentlyContinue
+        if ($existingUnity -and $existingUnity.ProcessName -eq "Unity") {
+            $lockConflict = "Unity project is already open by PID $($editorInstance.process_id). Continue other work instead of waiting for the project lock."
+        }
+    }
+    catch {
+        Write-Warning "Could not inspect Unity project lock metadata: $($_.Exception.Message)"
+    }
+    if ($lockConflict) {
+        throw $lockConflict
+    }
 }
 if (-not $ResultsPath) {
     $ResultsPath = Join-Path $ProjectPath "TestResults/$Platform-results.xml"
@@ -17,10 +35,26 @@ if (-not $ResultsPath) {
 if (-not $LogPath) {
     $LogPath = Join-Path $ProjectPath "Logs/codex-$($Platform.ToLower())-tests.log"
 }
+if (-not $LatestErrorsPath) {
+    $LatestErrorsPath = Join-Path $ProjectPath "TestResults/Latest-Test-Errors.txt"
+}
 New-Item -ItemType Directory -Force (Split-Path $ResultsPath) | Out-Null
 New-Item -ItemType Directory -Force (Split-Path $LogPath) | Out-Null
+New-Item -ItemType Directory -Force (Split-Path $LatestErrorsPath) | Out-Null
 Remove-Item -LiteralPath $ResultsPath -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $LogPath -Force -ErrorAction SilentlyContinue
+
+function Write-LatestTestReport([string]$Result, [string]$Details) {
+    @(
+        "Kingdom Unity Test Runner - Latest Error Report"
+        "Generated: $(Get-Date -Format o)"
+        "Platform: $Platform"
+        "Result: $Result"
+        $Details
+    ) | Set-Content -LiteralPath $LatestErrorsPath -Encoding UTF8
+}
+
+Write-LatestTestReport "NotStarted" "Test run started; no result XML is available yet."
 
 $arguments = @(
     "-batchmode",
@@ -36,19 +70,47 @@ $process = Start-Process -FilePath $UnityPath -ArgumentList $arguments `
 $completed = $process.WaitForExit($TimeoutSeconds * 1000)
 if (-not $completed) {
     Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    Write-LatestTestReport "Failed(Timeout)" "Unity $Platform tests timed out after $TimeoutSeconds seconds. Log=$LogPath"
     Write-Error "Unity $Platform tests timed out after $TimeoutSeconds seconds. Log=$LogPath"
     exit 1
 }
 $unityExitCode = $process.ExitCode
-if ($unityExitCode -ne 0 -or -not (Test-Path $ResultsPath)) {
+if (-not (Test-Path $ResultsPath)) {
+    Write-LatestTestReport "Failed(NoXml)" "ExitCode=$unityExitCode; Unity produced no valid result XML. Log=$LogPath"
     Write-Error "Unity $Platform tests failed or produced no XML. ExitCode=$unityExitCode. Log=$LogPath"
     exit 1
 }
 
-[xml]$xml = Get-Content $ResultsPath
+try {
+    [xml]$xml = Get-Content $ResultsPath
+}
+catch {
+    Write-LatestTestReport "Failed(InvalidXml)" "Unity produced invalid result XML: $ResultsPath`n$($_.Exception.Message)"
+    Write-Error "Unity $Platform tests produced invalid XML. Results=$ResultsPath"
+    exit 1
+}
 $run = $xml.'test-run'
 $failed = [int]$run.failed
 $total = [int]$run.total
+$passed = [int]$run.passed
+$skipped = [int]$run.skipped
+$reportLines = @(
+    "Total: $total Passed:$passed Failed:$failed Skipped:$skipped"
+)
+$failureCases = @($xml.SelectNodes('//test-case[@result="Failed"]'))
+for ($i = 0; $i -lt $failureCases.Count; $i++) {
+    $failureCase = $failureCases[$i]
+    $reportLines += ""
+    $reportLines += "=== FAILURE $($i + 1) ==="
+    $reportLines += "Test: $($failureCase.fullname)"
+    if ($failureCase.failure -and $failureCase.failure.message) {
+        $reportLines += "Message: $($failureCase.failure.message)"
+    }
+    if ($failureCase.failure -and $failureCase.failure.'stack-trace') {
+        $reportLines += "StackTrace: $($failureCase.failure.'stack-trace')"
+    }
+}
+Write-LatestTestReport $(if ($failed -gt 0) { "Failed" } else { "Passed" }) ($reportLines -join [Environment]::NewLine)
 if ($total -eq 0) {
     Write-Error "Unity $Platform runner completed with zero test cases. This is not acceptance evidence. Results=$ResultsPath"
     exit 1

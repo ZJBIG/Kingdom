@@ -15,7 +15,7 @@ MonoBehaviour:
   id: MatterTransmutationTheory
   Label: "高能材料重构理论"
   Description: "研究高能场约束、同位素筛选与材料微观重组的实验方法，改进深空材料加工设备的工艺稳定性并提高现有建筑生产效率；不直接实现资源互换、反物质或湮灭能源。"
-  BaseCost: "30000000"
+  BaseCost: "2100000000"
   prerequisites:
   - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
   - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}

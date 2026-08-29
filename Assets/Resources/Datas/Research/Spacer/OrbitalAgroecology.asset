@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalAgroecology
   Label: "轨道农业生态学"
   Description: "研究轨道环境中的光照、营养液、微生物循环与作物群落，建立能够长期补充生物质并支撑居住区食物供给的闭环农业理论。"
-  BaseCost: "12500000"
+  BaseCost: "300000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}

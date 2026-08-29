@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OrbitalTextileFabrication
   Label: "\u8F68\u9053\u7EBA\u7EC7\u5236\u9020\u7406\u8BBA"
   Description: "\u7814\u7A76\u5FAE\u91CD\u529B\u73AF\u5883\u4E2D\u7684\u5F20\u529B\u63A7\u5236\u3001\u751F\u7269\u8D28\u914D\u65B9\u3001\u7EA4\u7EF4\u8010\u8F90\u7167\u5904\u7406\u548C\u5BC6\u95ED\u7EBA\u7EC7\u5DE5\u827A\uFF0C\u5EFA\u7ACB\u8F68\u9053\u957F\u671F\u5E03\u6599\u4F9B\u5E94\u7684\u7406\u8BBA\u57FA\u7840\u3002"
-  BaseCost: "16000000"
+  BaseCost: "608000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}

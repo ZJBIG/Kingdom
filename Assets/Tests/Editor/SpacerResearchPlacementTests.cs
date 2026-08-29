@@ -11,7 +11,7 @@ public sealed class SpacerResearchPlacementTests
         Assert.That(singularity, Is.Not.Null);
         Assert.That(singularity.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(singularity.AdvancesTechLevel, Is.True);
-        Assert.That(new ExpantaNum(singularity.BaseCost), Is.EqualTo(new ExpantaNum(55000000)));
+        Assert.That(new ExpantaNum(singularity.BaseCost), Is.EqualTo(new ExpantaNum("5.5e11")));
         AssertPrerequisites(singularity,
             "QuantumComputing",
             "PhaseFieldNavigation",

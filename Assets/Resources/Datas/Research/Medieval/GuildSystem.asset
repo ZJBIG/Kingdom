@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GuildSystem
   Label: "\u884C\u4F1A\u5236\u5EA6"
-  Description: "\u4EE5\u884C\u4F1A\u89C4\u8303\u5B66\u5F92\u57F9\u517B\u3001\u4EA7\u54C1\u8D28\u91CF\u3001\u4EF7\u683C\u548C\u884C\u4E1A\u4E92\u52A9\uFF0C\u4F7F\u57CE\u5E02\u624B\u5DE5\u4E1A\u5F62\u6210\u7A33\u5B9A\u7684\u4E13\u4E1A\u7EC4\u7EC7\u3002"
+  Description: "\u4EE5\u884C\u4F1A\u89C4\u8303\u5B66\u5F92\u57F9\u517B\u3001\u4EA7\u54C1\u8D28\u91CF\u548C\u884C\u4E1A\u4E92\u52A9\uFF0C\u8BA9\u5EFA\u7B51\u4E0E\u5DE5\u827A\u77E5\u8BC6\u80FD\u88AB\u7CFB\u7EDF\u5730\u4F20\u627F\u3002"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
@@ -28,7 +28,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "2500"
   effects:
-  - Type: 12
+  - Type: 4
     Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.05"

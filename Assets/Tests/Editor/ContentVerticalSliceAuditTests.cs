@@ -59,6 +59,95 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     [Test]
+    public void EraTransitionsExposeResearchAndResourceChecklist()
+    {
+        AssertPrerequisites(
+            "NeolithicSettlement",
+            new[] { "Agriculture", "AnimalHusbandry", "ClayExtraction" });
+        AssertTransitionRequirements(
+            "NeolithicSettlement",
+            new[] { "WoodLog", "StoneChunk", "Clay", "Biomass" },
+            new[] { "2000", "1200", "800", "800" });
+        AssertPrerequisites(
+            "FeudalAdministration",
+            new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" });
+        AssertTransitionRequirements(
+            "FeudalAdministration",
+            new[] { "StoneBrick", "Cloth" },
+            new[] { "5000", "2000" });
+        AssertPrerequisites(
+            "Industrialization",
+            new[] { "MechanicalEngineering", "Steelmaking" });
+        AssertTransitionRequirements(
+            "Industrialization",
+            new[] { "Steel" },
+            new[] { "50000" });
+        AssertPrerequisites(
+            "InterstellarNavigation",
+            new[] { "Industrialization", "TitaniumAlloyEngineering" });
+        AssertTransitionRequirements(
+            "InterstellarNavigation",
+            new[] { "RocketFuel", "TitaniumAlloy", "CopperWire", "Electronics" },
+            new[] { "1250", "1250", "6000", "7000" });
+        AssertPrerequisites(
+            "TechnologicalSingularity",
+            new[] { "PhaseFieldNavigation", "QuantumComputing" });
+
+        TechLevel[] currentEras =
+        {
+            TechLevel.Animal,
+            TechLevel.Neolithic,
+            TechLevel.Medieval,
+            TechLevel.Industrial,
+            TechLevel.Spacer
+        };
+        for (int i = 0; i < currentEras.Length; i++)
+        {
+            TechLevel targetEra = (TechLevel)((int)currentEras[i] + 1);
+            Research transition = EraGoalEvaluator.FindTransition(targetEra);
+            Assert.That(transition, Is.Not.Null,
+                "Missing transition research for " + targetEra + ".");
+            Assert.That(transition.AdvancesTechLevel, Is.True, transition.Id);
+            Assert.That(transition.Prerequisites, Is.Not.Empty, transition.Id);
+            Assert.That(transition.ResourceRequirements, Is.Not.Empty, transition.Id);
+
+            EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
+                currentEras[i], null, null);
+            Assert.That(evaluation.Transition, Is.SameAs(transition));
+            Assert.That(evaluation.Conditions.Count,
+                Is.GreaterThanOrEqualTo(transition.Prerequisites.Count), transition.Id);
+        }
+    }
+
+    private static void AssertTransitionRequirements(
+        string researchId, string[] resourceIds, string[] amounts)
+    {
+        Research transition = DataBase<Research>.Find(researchId);
+        Assert.That(transition, Is.Not.Null, researchId);
+        Assert.That(resourceIds.Length, Is.EqualTo(amounts.Length));
+        Assert.That(transition.ResourceRequirements.Count,
+            Is.EqualTo(resourceIds.Length), researchId);
+        for (int i = 0; i < resourceIds.Length; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
+            Assert.That(requirement.First, Is.SameAs(DataBase<Resource>.Find(resourceIds[i])),
+                researchId + " resource " + resourceIds[i]);
+            Assert.That(requirement.Second, Is.EqualTo(new ExpantaNum(amounts[i])),
+                researchId + " amount " + resourceIds[i]);
+        }
+    }
+
+    private static void AssertPrerequisites(string researchId, string[] prerequisiteIds)
+    {
+        Research transition = DataBase<Research>.Find(researchId);
+        Assert.That(transition, Is.Not.Null, researchId);
+        Assert.That(transition.Prerequisites.Count, Is.EqualTo(prerequisiteIds.Length), researchId);
+        for (int i = 0; i < prerequisiteIds.Length; i++)
+            Assert.That(HasPrerequisite(transition, prerequisiteIds[i]), Is.True,
+                researchId + " prerequisite " + prerequisiteIds[i]);
+    }
+
+    [Test]
     public void CeramicFiring_RequiresTheClayExtractionResearchPath()
     {
         Research ceramicFiring = DataBase<Research>.Find("CeramicFiring");

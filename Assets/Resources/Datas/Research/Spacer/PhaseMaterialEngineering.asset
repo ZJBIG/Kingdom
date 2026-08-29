@@ -15,7 +15,7 @@ MonoBehaviour:
   id: PhaseMaterialEngineering
   Label: "相位材料工程"
   Description: "在幽影合金与幽影纤维的基础上建立相位材料合成工艺，结合钛合金、镍和电子元件稳定高能相位结构，为相位航行与量子设施提供可靠材料。"
-  BaseCost: "10500000"
+  BaseCost: "525000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
   - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}

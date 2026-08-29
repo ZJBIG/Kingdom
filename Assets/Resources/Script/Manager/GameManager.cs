@@ -68,11 +68,18 @@ public class GameManager : Singleton<GameManager>
         Sectors.InitializeNew();
         ResetCalendarAccumulator();
         InitializeStartingResources();
+        InitializeStartingInventory();
     }
 
     internal void InitializeStartingResources()
     {
         ResourceManager.Instance.EnsureStartingResource();
+    }
+
+    private void InitializeStartingInventory()
+    {
+        Resource woodLog = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceManager.Instance.SetAmount(woodLog, new ExpantaNum(60));
     }
 
     public static (int Year, int Month, int Day) CalendarIntToData(

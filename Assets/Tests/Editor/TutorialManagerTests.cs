@@ -106,6 +106,26 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
+    public void ResourcesTutorialRequiresViewingCoreResourceDetails()
+    {
+        TutorialStepDefinition[] definitions =
+            Resources.LoadAll<TutorialStepDefinition>("Datas/Tutorial");
+        TutorialStepDefinition resources = null;
+        for (int i = 0; i < definitions.Length; i++)
+            if (definitions[i] != null && definitions[i].Id == "resources")
+            {
+                resources = definitions[i];
+                break;
+            }
+
+        Assert.That(resources, Is.Not.Null);
+        Assert.That(resources.Title, Is.EqualTo("理解库存与净产出"));
+        Assert.That(resources.CompletionCondition, Is.EqualTo("resource-detail-viewed"));
+        StringAssert.DoesNotContain("黏土", resources.Description);
+        StringAssert.DoesNotContain("纤维", resources.Description);
+    }
+
+    [Test]
     public void TutorialProgressRoundTripsThroughSaveJson()
     {
         var save = new SaveManager.KingdomSaveData
@@ -125,6 +145,29 @@ public sealed class TutorialManagerTests
         Assert.That(restored.Tutorial.ActiveStepId, Is.EqualTo("era-goal"));
         Assert.That(restored.Tutorial.CompletedStepIds,
             Is.EqualTo(new[] { "orientation", "resources" }));
+    }
+
+    [Test]
+    public void TutorialDetailViewedStateIsTransientAndDoesNotChangeSaveFormat()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "resources",
+            CompletedStepIds = new List<string> { "orientation" }
+        }, TechLevel.Animal);
+
+        Invoke(manager, "RecordDetailViewed", "Resources", "Food");
+        SaveManager.TutorialSaveData captured =
+            Invoke(manager, "CaptureSaveData") as SaveManager.TutorialSaveData;
+        Assert.That(captured, Is.Not.Null);
+        Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
+        Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
+        Assert.That(captured.CompletedStepIds, Does.Not.Contain("Food"));
+
+        string json = JsonUtility.ToJson(captured);
+        StringAssert.DoesNotContain("visitedDetail", json);
+        StringAssert.DoesNotContain("Food", json);
     }
 
     [Test]
@@ -258,6 +301,30 @@ public sealed class TutorialManagerTests
             Is.EqualTo("Resources"));
         Assert.That(InvokeStatic("GetNavigationPageForStep", population, new GameState()),
             Is.EqualTo("Buildings"));
+    }
+
+    [Test]
+    public void AnimalPopulationStepTargetsWoodHouseWhenCapacityIsZero()
+    {
+        GameObject gameObject = new GameObject("Population-Target-GameManager");
+        GameObject buildingObject = new GameObject("Population-Target-BuildingManager");
+        try
+        {
+            GameManager game = gameObject.AddComponent<GameManager>();
+            BuildingManager buildings = buildingObject.AddComponent<BuildingManager>();
+            MethodInfo targetMethod = typeof(TutorialManager).GetMethod(
+                "GetPopulationNavigationTarget",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(targetMethod, Is.Not.Null);
+
+            string target = targetMethod.Invoke(null, new object[] { game, buildings }) as string;
+            Assert.That(target, Is.EqualTo("WoodHouse"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(buildingObject);
+            UnityEngine.Object.DestroyImmediate(gameObject);
+        }
     }
 
     [Test]

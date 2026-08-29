@@ -15,7 +15,7 @@ MonoBehaviour:
   id: GravityAssistTrajectoryTheory
   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u7406\u8bba"
   Description: "\u7814\u7a76\u5929\u4f53\u5f15\u529b\u3001\u8f68\u9053\u8f6c\u79fb\u7a97\u53e3\u4e0e\u901f\u5ea6\u589e\u91cf\u7684\u5173\u7cfb\uff0c\u5efa\u7acb\u8fdc\u5f81\u822a\u7a0b\u7684\u5f15\u529b\u8f85\u52a9\u548c\u71c3\u6599\u9884\u7b97\u65b9\u6cd5\uff0c\u51cf\u5c11\u65e0\u6548\u53d8\u8f68\u5e76\u63d0\u9ad8\u8fdc\u8ddd\u79bb\u63a2\u7d22\u7684\u53ef\u6301\u7eed\u6027\u3002"
-  BaseCost: "10000000"
+  BaseCost: "380000000"
   prerequisites:
   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
   - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}

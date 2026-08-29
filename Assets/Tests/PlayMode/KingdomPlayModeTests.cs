@@ -16,6 +16,12 @@ public sealed class KingdomPlayModeTests
 {
     private readonly List<Object> createdObjects = new List<Object>();
 
+    [SetUp]
+    public void SetUp()
+    {
+        KingdomPlayModeSaveScope.Begin();
+    }
+
     [TearDown]
     public void TearDown()
     {
@@ -23,6 +29,7 @@ public sealed class KingdomPlayModeTests
             if (createdObjects[i] != null)
                 Object.DestroyImmediate(createdObjects[i]);
         createdObjects.Clear();
+        KingdomPlayModeSaveScope.Clear();
     }
 
 
@@ -50,8 +57,9 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetAmount(wood), Is.LessThanOrEqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetState(wood).ProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        Assert.That(resourceManager.GetState(wood).ProductionRate,
+            Is.EqualTo(ExpantaNum.One));
     }
 
     [UnityTest]
@@ -459,6 +467,7 @@ public sealed class KingdomPlayModeTests
         Transform viewport = null;
         Transform content = null;
         int expectedResearchNodes = DataBase<Research>.All.Count;
+        bool layoutReady = false;
         for (int frame = 0; frame < 480; frame++)
         {
             yield return null;
@@ -469,14 +478,22 @@ public sealed class KingdomPlayModeTests
                 foreach (Transform child in content)
                     if (child.name.StartsWith("ResearchNode_", StringComparison.Ordinal))
                         builtResearchNodes++;
-            if (builtResearchNodes >= expectedResearchNodes)
+            UIResearchGraphGesture gesture = viewport == null
+                ? null
+                : viewport.GetComponent<UIResearchGraphGesture>();
+            RectTransform viewportRect = viewport as RectTransform;
+            RectTransform contentRect = content as RectTransform;
+            layoutReady = gesture != null && gesture.IsInitialized &&
+                viewportRect != null && contentRect != null &&
+                viewportRect.rect.width > 1f && viewportRect.rect.height > 1f &&
+                contentRect.rect.width > 1f && contentRect.rect.height > 1f;
+            if (builtResearchNodes >= expectedResearchNodes && layoutReady)
                 break;
         }
-        // The final node is created one frame before the graph gesture binds
-        // its measured overflow state.
-        yield return null;
 
         Assert.That(viewport, Is.Not.Null, "ResearchGraphViewport must be authored under the isolated SafeAreaRoot.");
+        Assert.That(layoutReady, Is.True,
+            "ResearchGraphViewport and ResearchGraphContent must be initialized with measurable bounds before the audit continues.");
         Assert.That(viewport.GetComponent<Canvas>(), Is.Not.Null,
             "ResearchGraphViewport must isolate graph redraws in a nested Canvas.");
         Assert.That(viewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
@@ -521,22 +538,30 @@ public sealed class KingdomPlayModeTests
             $"{lineLayer.GetComponentsInChildren<Transform>(true).Length - 1}");
         Assert.That(content.Find("ResearchGraphDragSurface"), Is.Not.Null,
             "ResearchGraphDragSurface must be authored in the scene shell.");
-        Transform toolbar = viewport.Find("ResearchTreeToolbar");
-        Assert.That(toolbar, Is.Not.Null, "ResearchTreeToolbar must remain beside the research tree.");
-        RectTransform toolbarRect = toolbar as RectTransform;
-        Assert.That(toolbarRect.anchorMin.y, Is.EqualTo(1f).Within(.001f));
-        Assert.That(toolbarRect.anchorMax.y, Is.EqualTo(1f).Within(.001f));
+        Transform pageTool = root.transform.Find("SafeAreaRoot/Content/PageTool");
+        Assert.That(pageTool, Is.Not.Null, "PageTool must be authored under Content.");
+        Transform toolbar = pageTool.Find("OverviewNavigationToolbar");
+        Assert.That(toolbar, Is.Not.Null, "OverviewNavigationToolbar must be authored beside ResearchQueueViewport.");
+        Button targetNavigationButton = toolbar.Find("OverviewCurrentTargetButton")?.GetComponent<Button>();
+        Assert.That(targetNavigationButton, Is.Not.Null,
+            "Research Tree must expose a target navigation button.");
+        TMP_Text targetNavigationLabel = targetNavigationButton.GetComponentInChildren<TMP_Text>(true);
+        Assert.That(targetNavigationLabel, Is.Not.Null);
+        Assert.That(targetNavigationLabel.gameObject.activeSelf, Is.True,
+            "The authored target navigation label must remain visible after binding.");
         Transform search = toolbar.Find("Search");
         if (search != null)
             Assert.That(search.gameObject.activeSelf, Is.False,
                 "The retired research search control must remain an inactive placeholder.");
-        Transform queueViewport = root.transform.Find("SafeAreaRoot/Content/ResearchQueueViewport");
+        Transform queueViewport = pageTool.Find("ResearchQueueViewport");
         Assert.That(queueViewport, Is.Not.Null,
-            "SafeAreaRoot/Content/ResearchQueueViewport must display the graphic research queue.");
-        Transform quantityControls = root.transform.Find("SafeAreaRoot/Content/BuildingQuantityControls");
+            "PageTool/ResearchQueueViewport must display the graphic research queue.");
+        Transform quantityControls = pageTool.Find("BuildingQuantityControls");
         Assert.That(quantityControls, Is.Not.Null);
-        Assert.That(queueViewport.parent, Is.SameAs(quantityControls.parent),
-            "The research queue must share the BuildingQuantityControls parent.");
+        Assert.That(queueViewport.parent, Is.SameAs(pageTool),
+            "The research queue must be a child of PageTool.");
+        Assert.That(toolbar.parent, Is.SameAs(queueViewport.parent),
+            "OverviewNavigationToolbar and ResearchQueueViewport must be siblings under PageTool.");
         ScrollRect queueScroll = queueViewport.GetComponent<ScrollRect>();
         Assert.That(queueScroll, Is.Not.Null,
             "The graphic research queue must use a ScrollRect for its drag surface.");
@@ -559,10 +584,10 @@ public sealed class KingdomPlayModeTests
         Assert.That(outerPageScroll.enabled, Is.False,
             "The legacy outer page ScrollRect must not compete with the research graph gesture.");
 
-        RectTransform viewportRect = viewport as RectTransform;
-        RectTransform contentRect = content as RectTransform;
-        Assert.That(viewportRect, Is.Not.Null);
-        Assert.That(contentRect, Is.Not.Null);
+        RectTransform finalViewportRect = viewport as RectTransform;
+        RectTransform finalContentRect = content as RectTransform;
+        Assert.That(finalViewportRect, Is.Not.Null);
+        Assert.That(finalContentRect, Is.Not.Null);
 
         var cells = new HashSet<Vector2Int>();
         int nodeCount = 0;
@@ -574,33 +599,33 @@ public sealed class KingdomPlayModeTests
             Assert.That(node, Is.Not.Null);
             Vector2 topLeft = new Vector2(
                 node.anchoredPosition.x,
-                contentRect.rect.height - node.anchoredPosition.y - node.rect.height);
+                 finalContentRect.rect.height - node.anchoredPosition.y - node.rect.height);
             Assert.That(cells.Add(new Vector2Int(
                 Mathf.RoundToInt(topLeft.x), Mathf.RoundToInt(topLeft.y))), Is.True,
                 "Research nodes must not occupy the same integer grid cell.");
             nodeCount++;
         }
 
-        UIResearchGraphGesture gesture = viewport.GetComponent<UIResearchGraphGesture>();
-        Assert.That(gesture, Is.Not.Null);
+        UIResearchGraphGesture finalGesture = viewport.GetComponent<UIResearchGraphGesture>();
+        Assert.That(finalGesture, Is.Not.Null);
         ScrollRect scroll = viewport.GetComponent<ScrollRect>();
         Assert.That(scroll, Is.Not.Null);
         Canvas.ForceUpdateCanvases();
-        gesture.RefreshLayoutBounds(false);
+        finalGesture.RefreshLayoutBounds(false);
         Canvas.ForceUpdateCanvases();
-        gesture.RefreshLayoutBounds(false);
-        bool verticalOverflow = contentRect.rect.height * Mathf.Abs(contentRect.localScale.y) >
-            viewportRect.rect.height + 0.5f;
-        bool horizontalOverflow = contentRect.rect.width * Mathf.Abs(contentRect.localScale.x) >
-            viewportRect.rect.width + 0.5f;
+        finalGesture.RefreshLayoutBounds(false);
+        bool verticalOverflow = finalContentRect.rect.height * Mathf.Abs(finalContentRect.localScale.y) >
+            finalViewportRect.rect.height + 0.5f;
+        bool horizontalOverflow = finalContentRect.rect.width * Mathf.Abs(finalContentRect.localScale.x) >
+            finalViewportRect.rect.width + 0.5f;
         FieldInfo canPanVerticalField = typeof(UIResearchGraphGesture).GetField(
             "canPanVertical", BindingFlags.Instance | BindingFlags.NonPublic);
         FieldInfo canPanHorizontalField = typeof(UIResearchGraphGesture).GetField(
             "canPanHorizontal", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(canPanVerticalField, Is.Not.Null);
         Assert.That(canPanHorizontalField, Is.Not.Null);
-        bool canPanVertical = (bool)canPanVerticalField.GetValue(gesture);
-        bool canPanHorizontal = (bool)canPanHorizontalField.GetValue(gesture);
+        bool canPanVertical = (bool)canPanVerticalField.GetValue(finalGesture);
+        bool canPanHorizontal = (bool)canPanHorizontalField.GetValue(finalGesture);
         Assert.That(canPanVertical, Is.EqualTo(verticalOverflow));
         Assert.That(canPanHorizontal, Is.EqualTo(horizontalOverflow));
         Transform safeAreaRoot = root.transform.Find("SafeAreaRoot");
@@ -628,16 +653,16 @@ public sealed class KingdomPlayModeTests
             button = PointerEventData.InputButton.Left,
             position = new Vector2(500f, 600f)
         };
-        Vector2 beforeDrag = contentRect.anchoredPosition;
-        gesture.OnPointerDown(pointer);
-        gesture.OnInitializePotentialDrag(pointer);
+        Vector2 beforeDrag = finalContentRect.anchoredPosition;
+        finalGesture.OnPointerDown(pointer);
+        finalGesture.OnInitializePotentialDrag(pointer);
         pointer.position = new Vector2(500f, 550f);
-        gesture.OnBeginDrag(pointer);
+        finalGesture.OnBeginDrag(pointer);
         pointer.position = new Vector2(500f, 750f);
-        gesture.OnDrag(pointer);
-        Vector2 afterDrag = contentRect.anchoredPosition;
-        gesture.OnEndDrag(pointer);
-        gesture.OnPointerUp(pointer);
+        finalGesture.OnDrag(pointer);
+        Vector2 afterDrag = finalContentRect.anchoredPosition;
+        finalGesture.OnEndDrag(pointer);
+        finalGesture.OnPointerUp(pointer);
         if (verticalOverflow)
             Assert.That(afterDrag.y, Is.GreaterThan(beforeDrag.y),
                 "A vertical drag in an overflowing research graph must move the graph content within its vertical range.");
@@ -653,7 +678,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(firstNode, Is.Not.Null);
         UIResearchGraphDragForwarder forwarder = firstNode.GetComponent<UIResearchGraphDragForwarder>();
         Assert.That(forwarder, Is.Not.Null);
-        contentRect.anchoredPosition = beforeDrag;
+        finalContentRect.anchoredPosition = beforeDrag;
         PointerEventData nodePointer = new PointerEventData(eventSystem)
         {
             button = PointerEventData.InputButton.Left,
@@ -665,14 +690,14 @@ public sealed class KingdomPlayModeTests
         forwarder.OnBeginDrag(nodePointer);
         nodePointer.position = new Vector2(500f, 750f);
         forwarder.OnDrag(nodePointer);
-        Vector2 afterNodeDrag = contentRect.anchoredPosition;
+        Vector2 afterNodeDrag = finalContentRect.anchoredPosition;
         forwarder.OnEndDrag(nodePointer);
         forwarder.OnPointerUp(nodePointer);
         if (verticalOverflow)
             Assert.That(afterNodeDrag.y, Is.GreaterThan(beforeDrag.y),
                 "A drag beginning on a research Button must be forwarded to the graph gesture.");
         Debug.Log($"[KingdomUI] Research node-forwarded drag audit: before={beforeDrag}, after={afterNodeDrag}, delta={afterNodeDrag - beforeDrag}, forwardedVerticalDragMoved={afterNodeDrag.y > beforeDrag.y}");
-        Debug.Log($"[KingdomUI] Research runtime playmode audit: expectedNodes={expectedResearchNodes}, nodes={nodeCount}, uniqueCells={cells.Count}, viewport={viewportRect.rect.size}, content={contentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, legacyRootChildrenInactive={legacyRootChildrenInactive}");
+        Debug.Log($"[KingdomUI] Research runtime playmode audit: expectedNodes={expectedResearchNodes}, nodes={nodeCount}, uniqueCells={cells.Count}, viewport={finalViewportRect.rect.size}, content={finalContentRect.rect.size}, horizontalOverflow={horizontalOverflow}, verticalOverflow={verticalOverflow}, canPanHorizontal={canPanHorizontal}, canPanVertical={canPanVertical}, outerPageScrollEnabled={outerPageScroll.enabled}, legacyRootChildrenInactive={legacyRootChildrenInactive}");
         Assert.That(expectedResearchNodes, Is.GreaterThan(0));
         Assert.That(nodeCount, Is.EqualTo(expectedResearchNodes));
         Assert.That(cells.Count, Is.EqualTo(expectedResearchNodes),
@@ -691,7 +716,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(visibility.alpha, Is.EqualTo(0f).Within(0.001f));
         Assert.That(visibility.interactable, Is.False);
         Assert.That(visibility.blocksRaycasts, Is.False);
-        Assert.That(gesture.enabled, Is.False,
+        Assert.That(finalGesture.enabled, Is.False,
             "A hidden persistent graph must not continue processing gestures.");
 
         setPage.Invoke(root, new object[] { "Research" });
@@ -700,7 +725,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(visibility.alpha, Is.EqualTo(1f).Within(0.001f));
         Assert.That(visibility.interactable, Is.True);
         Assert.That(visibility.blocksRaycasts, Is.True);
-        Assert.That(gesture.enabled, Is.True);
+        Assert.That(finalGesture.enabled, Is.True);
     }
 
     [UnityTest]

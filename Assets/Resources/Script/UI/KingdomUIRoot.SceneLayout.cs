@@ -239,10 +239,14 @@ public sealed partial class KingdomUIRoot
                 playPauseRect.offsetMin = new Vector2(2f, 0f);
                 playPauseRect.offsetMax = new Vector2(-2f, 0f);
             }
-            Image playPauseImage = playPauseTransform.GetComponent<Image>() ??
-                playPauseTransform.gameObject.AddComponent<Image>();
-            Button playPause = playPauseTransform.GetComponent<Button>() ??
-                playPauseTransform.gameObject.AddComponent<Button>();
+            Image playPauseImage = playPauseTransform.GetComponent<Image>();
+            Button playPause = playPauseTransform.GetComponent<Button>();
+            if (playPauseImage == null || playPause == null)
+            {
+                Debug.LogError("[王国界面] MusicTrack prefab is missing its authored PlayPause Image/Button: " + track.Id);
+                Destroy(rowObject);
+                continue;
+            }
             playPause.targetGraphic = playPauseImage;
             ConfigureMusicTrackIcon(playPause, "play");
             playPause.onClick.RemoveAllListeners();
@@ -319,6 +323,7 @@ public sealed partial class KingdomUIRoot
         // first page-population pass and lets the live refresh replace this
         // placeholder as soon as managers finish initializing.
         BuildDevelopmentGuidance(pages["Overview"]);
+        BindOverviewNavigationToolbar(content as RectTransform);
 
         pageScroll = pageHost.GetComponent<ScrollRect>();
         if (pageScroll == null)
@@ -341,13 +346,14 @@ public sealed partial class KingdomUIRoot
         topCurrentResearchValue = topInfo?.Find("CurrentResearch/Value")?.GetComponent<TMP_Text>();
         if (!BuildDetailUI())
             return FailRequiredUiBinding("DetailPanel runtime binding");
-        buildingQuantityControls = content.Find("BuildingQuantityControls") as RectTransform;
+        Transform pageTool = content.Find("PageTool");
+        buildingQuantityControls = pageTool?.Find("BuildingQuantityControls") as RectTransform;
         if (buildingQuantityControls == null)
         {
-            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing under SafeAreaRoot/Content.");
+            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing under SafeAreaRoot/Content/PageTool.");
             return false;
         }
-        BuildBuildingQuantityControls(content);
+        BuildBuildingQuantityControls(pageTool);
         SetupResearchQueueGraphic(buildingQuantityControls);
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();

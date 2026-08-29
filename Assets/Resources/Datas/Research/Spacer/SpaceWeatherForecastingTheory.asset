@@ -15,7 +15,7 @@ MonoBehaviour:
   id: SpaceWeatherForecastingTheory
   Label: "\u7a7a\u95f4\u5929\u6c14\u9884\u6d4b\u7406\u8bba"
   Description: "\u7814\u7a76\u592a\u9633\u98ce\u3001\u78c1\u66b4\u548c\u9ad8\u80fd\u7c92\u5b50\u5bf9\u8f68\u9053\u8bbe\u65bd\u4e0e\u6df1\u7a7a\u4efb\u52a1\u7684\u5f71\u54cd\u5468\u671f\uff0c\u5efa\u7acb\u7a7a\u95f4\u5929\u6c14\u9884\u8b66\u548c\u80fd\u6e90\u8c03\u5ea6\u5236\u5ea6\uff0c\u964d\u4f4e\u7a81\u53d1\u8f90\u5c04\u5bf9\u592a\u7a7a\u5de5\u7a0b\u7684\u5e72\u6270\u3002"
-  BaseCost: "12000000"
+  BaseCost: "420000000"
   prerequisites:
   - {fileID: 11400000, guid: 2f3e4d5c6b7a8091f2e3d4c5b6a79801, type: 2}
   - {fileID: 11400000, guid: 7c8d9e0f1a2b3c4d5e6f708192a3b4c5, type: 2}

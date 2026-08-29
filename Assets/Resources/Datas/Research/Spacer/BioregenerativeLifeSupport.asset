@@ -15,7 +15,7 @@ MonoBehaviour:
   id: BioregenerativeLifeSupport
   Label: "\u751F\u7269\u518D\u751F\u751F\u547D\u4FDD\u969C"
   Description: "把生物质循环、陶瓷过滤膜和相位屏蔽整合为闭环生命保障体系，提高轨道居住区的人口增长与长期驻留能力。"
-  BaseCost: "9500000"
+  BaseCost: "285000000"
   prerequisites:
   - {fileID: 11400000, guid: c4f2b8d0e6a17395bc46d8f2a7019e3c, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

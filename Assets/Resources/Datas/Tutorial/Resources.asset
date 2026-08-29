@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Resources
   m_EditorClassIdentifier: 
   Id: resources
-  Title: 理解资源来源
-  Description: 打开资源页面，比较食物、黏土和纤维的数量与净产出，再决定前十分钟优先保障生存、定居还是加工。
-  NarrativeText: 鼠族复兴不能同时满足所有方向。食物维持族群，黏土支撑陶器与定居，纤维连接布料与加工；先看清来源与净产出，再选择当前最紧迫的一条链。
+  Title: 理解库存与净产出
+  Description: 打开资源页面，先查看食物和原木：库存决定你现在能否行动，净产出决定下一次行动需要等多久。
+  NarrativeText: 鼠族复兴不能同时满足所有方向。先看清食物与原木的库存和净产出，再决定当前最紧迫的一步。
   Kind: 1
   NextStepId: building
   RewardId: 
   TriggerCondition: game-state
-  CompletionCondition: resource-inventory-positive
+  CompletionCondition: resource-detail-viewed
   NavigationPage: Resources

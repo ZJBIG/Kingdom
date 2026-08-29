@@ -5,7 +5,7 @@
 - Repository: `Kingdom`
 - Audited baseline: `Kingdom5.7z`
 - Baseline date: `2026-07-25`
-- Unity Editor: `2022.3.62f2c1`
+- Unity Editor: `2022.3.62f3c1`
 - Primary scene: `Assets/Scenes/SampleScene.unity`
 - Target device: Huawei P40 Pro, landscape mobile build
 - Source of truth: current repository, then `.codex/prompts/CODEX_ECONOMY_PROMPT.md`, then current generated reports and `docs/`.
@@ -81,6 +81,13 @@ content movement before graph interaction is considered verified.
 The active CanvasScaler is part of that contract: ScaleWithScreenSize,
 2640x1200 reference resolution, Match Width; ConstantPixelSize is forbidden.
 
+Non-essential UI components must be authored in the relevant Scene or Prefab.
+Runtime code may find existing components and bind data, state, and events, but
+must not hard-code their visual hierarchy, dimensions, labels, or create them at
+runtime. Runtime generation is reserved for genuinely data-driven repeated
+content (such as research nodes and connector segments) or an explicitly
+documented fallback that is required for compatibility.
+
 The canonical economy skill is `.agents/skills/kingdom-economy-simulation/SKILL.md`.
 Do not use a duplicate economy skill under `.agents/skills`.
 
@@ -145,6 +152,12 @@ A new Building requires:
 - Keep old resources useful in later eras.
 - Record before/after values and simulated pacing.
 
+## Numeric assertion rules
+
+- Numeric assertions must not use exact equality by default (`Is.EqualTo`, `Assert.AreEqual`, or equivalent). Prefer relationship assertions, ranges, or tolerance-based approximate assertions.
+- Exact numeric equality is allowed only when exactness is semantically required, such as a discrete count, protocol constant, stable ID, enum/version value, or save-compatibility field. The test or an adjacent comment must make that reason clear.
+- Do not hard-code exact equality for floating-point, `ExpantaNum`, production, consumption, cost, pacing, or other calculated values merely for convenience.
+
 ## Unity and Git safety
 
 - Preserve `.meta` and GUIDs.
@@ -175,4 +188,3 @@ dated simulation snapshots, logs, and build intermediates to
 The existing PlayMode report contains zero test cases and is not evidence of PlayMode acceptance.
 
 If Unity is unavailable, state: `未执行真实 Unity 编译。`
-If no P40 Pro was used, state: `未执行 Huawei P40 Pro 真机验收。`

@@ -263,6 +263,330 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void NewGame_StartsWith60WoodLog_AndDoesNotStackOnRepeatInitialization()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("Starting-Inventory-ResourceManager");
+        GameManager gameManager =
+            CreateManager<GameManager>("Starting-Inventory-GameManager");
+        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
+            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(initializeNewGame, Is.Not.Null);
+
+        initializeNewGame.Invoke(gameManager, null);
+        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        initializeNewGame.Invoke(gameManager, null);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+    }
+
+    [TestCase("0")]
+    [TestCase("13")]
+    public void SaveApply_PreservesExistingWoodLogAmount(string amount)
+    {
+        CreateManager<GameManager>("Save-Wood-Compatibility-GameManager");
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("Save-Wood-Compatibility-ResourceManager");
+        CreateManager<BuildingManager>("Save-Wood-Compatibility-BuildingManager");
+        CreateManager<ResearchManager>("Save-Wood-Compatibility-ResearchManager");
+        CreateManager<WorkshopManager>("Save-Wood-Compatibility-WorkshopManager");
+        SaveManager saveManager =
+            CreateManager<SaveManager>("Save-Wood-Compatibility-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Resources.Resources[0].Amount = amount;
+
+        InvokeApplySaveData(saveManager, data);
+
+        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(amount)));
+    }
+
+    [TestCase("0")]
+    [TestCase("13")]
+    public void SaveLoad_ExistingWoodLogAmountDoesNotReceiveNewGameGift(string amount)
+    {
+        string root = Path.Combine(
+            Path.GetTempPath(),
+            "KingdomSaveCompatibilityTest-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("Save-Compatibility-GameManager");
+            ResourceManager resourceManager =
+                CreateManager<ResourceManager>("Save-Compatibility-ResourceManager");
+            CreateManager<BuildingManager>("Save-Compatibility-BuildingManager");
+            CreateManager<ResearchManager>("Save-Compatibility-ResearchManager");
+            CreateManager<WorkshopManager>("Save-Compatibility-WorkshopManager");
+            SaveManager saveManager =
+                CreateManager<SaveManager>("Save-Compatibility-SaveManager");
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            resourceManager.SetAmount(wood, new ExpantaNum(amount));
+            Assert.That(saveManager.SaveNow(true), Is.True);
+
+            resourceManager.SetAmount(wood, new ExpantaNum(91));
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
+            Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(amount)));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [Test]
+    public void SaveLoad_RecoversFromCorruptPrimaryUsingIsolatedBackup()
+    {
+        string root = Path.Combine(
+            Path.GetTempPath(),
+            "KingdomSaveTest-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("Save-Backup-GameManager");
+            CreateManager<ResourceManager>("Save-Backup-ResourceManager");
+            CreateManager<BuildingManager>("Save-Backup-BuildingManager");
+            CreateManager<ResearchManager>("Save-Backup-ResearchManager");
+            CreateManager<WorkshopManager>("Save-Backup-WorkshopManager");
+            SaveManager saveManager = CreateManager<SaveManager>("Save-Backup-SaveManager");
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Assert.That(saveManager.SaveNow(true), Is.True);
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            ResourceManager.Instance.SetAmount(wood, new ExpantaNum(91));
+            Assert.That(saveManager.SaveNow(true), Is.True);
+
+            string primaryPath = Path.Combine(root, "KingdomSave.json");
+            string backupPath = primaryPath + ".bak";
+            Assert.That(File.Exists(backupPath), Is.True);
+            File.WriteAllText(primaryPath, "{ invalid json");
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [Test]
+    public void SaveApply_RoundTripsAllRuntimeSectionsWithActiveResearchAndSectorState()
+    {
+        CreateManager<GameManager>("Save-FullRoundTrip-GameManager");
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("Save-FullRoundTrip-ResourceManager");
+        CreateManager<BuildingManager>("Save-FullRoundTrip-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("Save-FullRoundTrip-ResearchManager");
+        CreateManager<WorkshopManager>("Save-FullRoundTrip-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-FullRoundTrip-SaveManager");
+
+        Research target = DataBase<Research>.Find("Quarry");
+        var paid = new List<SaveManager.ResearchResourceCostSaveData>();
+        for (int i = 0; i < target.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = target.ResourceRequirements[i];
+            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                continue;
+            paid.Add(new SaveManager.ResearchResourceCostSaveData
+            {
+                ResourceId = requirement.First.Id,
+                Amount = requirement.Second.ToString()
+            });
+        }
+
+        SectorDefinition sector = DataBase<SectorDefinition>.All[0];
+        SaveManager.KingdomSaveData source = CreateRepresentativeSaveData();
+        source.General.CalendarElapsedSeconds = 12.5d;
+        source.General.AttackPower = "21";
+        source.General.DefensePower = "34";
+        source.General.FleetPower = "55";
+        source.General.MilitaryManpower = "8";
+        source.General.SupplySatisfaction = "0.75";
+        source.General.PowerSatisfaction = "0.8";
+        source.General.LogisticsSatisfaction = "0.9";
+        source.Researches.ActiveResearchId = target.Id;
+        source.Researches.States = new List<SaveManager.ResearchStateSaveData>
+        {
+            new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = target.Id,
+                Progress = "0.4",
+                CostPaid = true,
+                Completed = false,
+                PaidResourceCosts = paid
+            }
+        };
+        source.Workshop = new SaveManager.WorkshopSaveData
+        {
+            PurchasedUpgradeIds = new List<string>()
+        };
+        source.Sectors = new SaveManager.SectorSaveData
+        {
+            States = new List<SaveManager.SectorStateSaveData>
+            {
+                new SaveManager.SectorStateSaveData
+                {
+                    SectorId = sector.Id,
+                    Unlocked = true,
+                    Occupied = false,
+                    ColonizationActive = false,
+                    CampaignActive = false,
+                    CampaignProgress = "0",
+                    CampaignCasualties = "0",
+                    CampaignCombatRatio = "0",
+                    VisitCount = 7
+                }
+            }
+        };
+        source.Tutorial = new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "resources",
+            CompletedStepIds = new List<string> { "orientation" }
+        };
+
+        SaveManager.KingdomSaveData roundTripped =
+            JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(source));
+        InvokeApplySaveData(saveManager, roundTripped);
+
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(target));
+        Assert.That(researchManager.ActiveResearch.Progress, Is.EqualTo(new ExpantaNum("0.4")));
+        Assert.That(GameManager.Instance.Sectors.GetState(sector).Unlocked, Is.True);
+        Assert.That(GameManager.Instance.Sectors.GetState(sector).VisitCount, Is.EqualTo(7));
+        Assert.That(TutorialManager.Ensure().ActiveStepId, Is.EqualTo("resources"));
+        Assert.That(TutorialManager.Ensure().CompletedStepIds, Does.Contain("orientation"));
+        FieldInfo accumulator = typeof(GameManager).GetField(
+            "calendarElapsedSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That(accumulator, Is.Not.Null);
+        Assert.That((double)accumulator.GetValue(GameManager.Instance), Is.EqualTo(12.5d).Within(1e-9d));
+        Assert.That(GameManager.Instance.State.AttackPower, Is.EqualTo(new ExpantaNum(21)));
+        Assert.That(GameManager.Instance.State.DefensePower, Is.EqualTo(new ExpantaNum(34)));
+        Assert.That(GameManager.Instance.State.FleetPower, Is.EqualTo(new ExpantaNum(55)));
+        Assert.That(GameManager.Instance.State.MilitaryManpower, Is.EqualTo(new ExpantaNum(8)));
+        Assert.That(GameManager.Instance.State.SupplySatisfaction, Is.EqualTo(new ExpantaNum(0.75d)));
+        Assert.That(GameManager.Instance.State.PowerSatisfaction, Is.EqualTo(new ExpantaNum(0.8d)));
+        Assert.That(GameManager.Instance.State.LogisticsSatisfaction, Is.EqualTo(new ExpantaNum(0.9d)));
+        Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("WoodLog")), Is.EqualTo(new ExpantaNum(25)));
+    }
+
+    [Test]
+    public void SaveApply_RestoresEveryTechLevelWithoutCrossEraStateLeakage()
+    {
+        CreateManager<GameManager>("Save-AllEras-GameManager");
+        CreateManager<ResourceManager>("Save-AllEras-ResourceManager");
+        CreateManager<BuildingManager>("Save-AllEras-BuildingManager");
+        CreateManager<ResearchManager>("Save-AllEras-ResearchManager");
+        CreateManager<WorkshopManager>("Save-AllEras-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-AllEras-SaveManager");
+
+        foreach (TechLevel era in Enum.GetValues(typeof(TechLevel)))
+        {
+            SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+            data.General.TechLevel = era;
+            data.General.CalendarDays = (int)era * 10;
+            data.Tutorial = new SaveManager.TutorialSaveData
+            {
+                ActiveStepId = "missing-transient-step",
+                CompletedStepIds = new List<string> { "orientation", "missing-transient-step" }
+            };
+
+            Assert.DoesNotThrow(() => InvokeApplySaveData(
+                saveManager,
+                JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(data))));
+            Assert.That(GameManager.Instance.State.TechLevel, Is.EqualTo(era));
+            Assert.That(TutorialManager.Ensure().ActiveStepId, Is.Not.EqualTo("missing-transient-step"));
+            Assert.That(TutorialManager.Ensure().CompletedStepIds, Does.Not.Contain("missing-transient-step"));
+        }
+    }
+
+    [Test]
+    public void SaveApply_RestoresResearchQueueAndLocalSectorCampaignTogether()
+    {
+        CreateManager<GameManager>("Save-QueueCampaign-GameManager");
+        CreateManager<ResourceManager>("Save-QueueCampaign-ResourceManager");
+        CreateManager<BuildingManager>("Save-QueueCampaign-BuildingManager");
+        ResearchManager researchManager =
+            CreateManager<ResearchManager>("Save-QueueCampaign-ResearchManager");
+        CreateManager<WorkshopManager>("Save-QueueCampaign-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-QueueCampaign-SaveManager");
+
+        Research active = DataBase<Research>.Find("Agriculture");
+        Research queued = DataBase<Research>.Find("ControlledFire");
+        var states = new List<SaveManager.ResearchStateSaveData>();
+        foreach (Research research in new[] { active, queued })
+        {
+            var paid = new List<SaveManager.ResearchResourceCostSaveData>();
+            for (int i = 0; i < research.ResourceRequirements.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+                if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
+                    continue;
+                paid.Add(new SaveManager.ResearchResourceCostSaveData
+                {
+                    ResourceId = requirement.First.Id,
+                    Amount = requirement.Second.ToString()
+                });
+            }
+            states.Add(new SaveManager.ResearchStateSaveData
+            {
+                ResearchId = research.Id,
+                Progress = "0.2",
+                CostPaid = true,
+                Completed = false,
+                PaidResourceCosts = paid
+            });
+        }
+
+        SectorDefinition sector = DataBase<SectorDefinition>.All
+            .FirstOrDefault(definition => definition != null && !definition.IsHomeSystem);
+        Assert.That(sector, Is.Not.Null);
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.TechLevel = TechLevel.Neolithic;
+        data.Researches.States = states;
+        data.Researches.ActiveResearchId = active.Id;
+        data.Researches.QueuedResearchIds = new List<string> { queued.Id };
+        data.Sectors = new SaveManager.SectorSaveData
+        {
+            States = new List<SaveManager.SectorStateSaveData>
+            {
+                new SaveManager.SectorStateSaveData
+                {
+                    SectorId = sector.Id,
+                    Unlocked = true,
+                    Occupied = false,
+                    ColonizationActive = false,
+                    CampaignActive = true,
+                    CampaignProgress = "0.4",
+                    CampaignCasualties = "2",
+                    CampaignCombatRatio = "1.2",
+                    VisitCount = 3
+                }
+            }
+        };
+
+        InvokeApplySaveData(
+            saveManager,
+            JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(data)));
+
+        Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
+        Assert.That(researchManager.ResearchQueue.Select(state => state.Definition),
+            Has.Member(queued));
+        SectorState restored = GameManager.Instance.Sectors.GetState(sector);
+        Assert.That(restored.CampaignActive, Is.True);
+        Assert.That(restored.CampaignProgress, Is.EqualTo(new ExpantaNum("0.4")));
+        Assert.That(restored.CampaignCasualties, Is.EqualTo(new ExpantaNum("2")));
+    }
+
+    [Test]
     public void ResourceAdvance_UsesElapsedSecondsAndClampsAtZero()
     {
         Assert.That(ResourceManager.AdvanceAmount(100, 8, 3, 2), Is.EqualTo(new ExpantaNum(110)));
@@ -375,6 +699,48 @@ public sealed class KingdomLogicTests
         Assert.That(
             buildingManager.GetState(building).Efficiency.ToDouble(),
             Is.EqualTo(0.5d).Within(0.000001d));
+    }
+
+    [Test]
+    public void TopFlowDemand_UsesRawBuildingDemandWithoutEfficiency()
+    {
+        CreateManager<GameManager>("TopFlow-GameManager");
+        BuildingManager buildingManager =
+            CreateManager<BuildingManager>("TopFlow-BuildingManager");
+        Building building = CreateEconomyBuilding("TopFlow-Consumer", 0d, 0d, 0d);
+        building.SetPowerFlowForEditor(ExpantaNum.Zero, new ExpantaNum(7));
+        building.SetLogisticsFlowForEditor(ExpantaNum.Zero, new ExpantaNum(3));
+
+        Assert.That(buildingManager.TryBuild(building, new ExpantaNum(2), out BuildFailure failure),
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+
+        MethodInfo demand = typeof(KingdomUIRoot).GetMethod(
+            "CalculateRawFlowDemand", BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(demand, Is.Not.Null);
+        Assert.That((ExpantaNum)demand.Invoke(null, new object[] { true }),
+            Is.EqualTo(new ExpantaNum(14)));
+        Assert.That((ExpantaNum)demand.Invoke(null, new object[] { false }),
+            Is.EqualTo(new ExpantaNum(6)));
+    }
+
+    [Test]
+    public void TopFlowValue_FormatsSignedColoredBalanceBeforeDemandAndSupply()
+    {
+        MethodInfo format = typeof(KingdomUIRoot).GetMethod(
+            "FormatTopFlow", BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.That(format, Is.Not.Null);
+
+        string positive = format.Invoke(null,
+            new object[] { new ExpantaNum(8), new ExpantaNum(3) }) as string;
+        StringAssert.Contains("<color=#", positive);
+        StringAssert.Contains("+5", positive);
+        StringAssert.Contains("(3/8)", positive);
+
+        string negative = format.Invoke(null,
+            new object[] { new ExpantaNum(3), new ExpantaNum(8) }) as string;
+        StringAssert.Contains("-5", negative);
+        StringAssert.Contains("(8/3)", negative);
     }
 
     [Test]

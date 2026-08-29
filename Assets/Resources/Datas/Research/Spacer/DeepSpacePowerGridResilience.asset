@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpacePowerGridResilience
   Label: "深空电网韧性"
   Description: "研究轨道电网的负载均衡、远距离输电稳定和故障隔离，使深空工业电力系统降低传输与调度损失，提高全局供电效率。"
-  BaseCost: "12000000"
+  BaseCost: "384000000"
   prerequisites:
   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
   - {fileID: 11400000, guid: 7c8d9e0f1a2b3c4d5e6f708192a3b4c5, type: 2}

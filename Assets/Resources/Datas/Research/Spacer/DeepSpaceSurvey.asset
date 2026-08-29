@@ -15,7 +15,7 @@ MonoBehaviour:
   id: DeepSpaceSurvey
   Label: "\u6DF1\u7A7A\u6D4B\u7ED8"
   Description: "\u7ED3\u5408\u8F68\u9053\u8BA1\u7B97\u3001\u7535\u5B50\u6D4B\u7ED8\u4E0E\u6DF1\u7A7A\u822A\u7EBF\u4FA6\u5BDF\uFF0C\u8BA9\u8230\u961F\u63D0\u524D\u8BC6\u522B\u672C\u661F\u7CFB\u5371\u9669\u5E76\u89C4\u5212\u822A\u7EBF\u3002"
-  BaseCost: "7000000"
+  BaseCost: "154000000"
   prerequisites:
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}

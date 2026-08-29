@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: StandingArmy
   Label: "\u6807\u51C6\u5316\u5DE5\u4F5C\u6D41"
-  Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u57F9\u8BAD\u3001\u6392\u73ED\u548C\u8865\u7ED9\u5236\u5EA6\uFF0C\u4F7F\u52B3\u52A8\u529B\u80FD\u6301\u7EED\u53C2\u4E0E\u751F\u4EA7\u3002"
+  Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u57F9\u8BAD\u3001\u6392\u73ED\u548C\u8865\u7ED9\u5236\u5EA6\uFF0C\u8BA9\u4EBA\u53E3\u80FD\u4EE5\u66F4\u9AD8\u6548\u7387\u6301\u7EED\u53C2\u4E0E\u751F\u4EA7\u3002"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}
@@ -24,7 +24,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
     amount: "2000"
   effects:
-  - Type: 12
+  - Type: 28
     Building: {fileID: 0}
     Resource: {fileID: 0}
     value: "1.06"
