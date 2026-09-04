@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: WarBetweenStars_15
+  m_EditorClassIdentifier: 
+  id: WarBetweenStars_15
+  Title: "第十五章：远行者的补给线"
+  Summary: "离开月面之后，太阳系边缘的每一座基地都必须先证明自己能够长期补给和安全返航。"
+  Body: "月面信标稳定运行后，舰队才把航线推向太阳系更远处。偏远行星没有现成港口，船员必须把燃料、食物、维修材料和通信设备送过漫长航程。第一次登陆时，前锋发现一场小故障就足以切断整条补给线，只能依靠备用船和重复导航返回。返航途中，领航员把每次偏差记在舱壁上，供下一班船修正。\n\n这次远征没有奖章，只有一套新的航行规程：基地必须能自救，舰队必须能补给，返航必须留有余量。远方从此不再只是地图上的名字，而是每个留守家庭都要共同承担的责任。"
+  RequiredEra: 4
+  RequiredResearch:
+  - {fileID: 11400000, guid: b6f9e2d1c4a7485fb3e6d8f1029ac741, type: 2}
+  - {fileID: 11400000, guid: 91e2d3c4b5a60718293a4e5f6b7c8d90, type: 2}
+  - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
+  - {fileID: 11400000, guid: 7a2e5c9d4f1b48e6b3c8d0a7f5e2c914, type: 2}
+  - {fileID: 11400000, guid: d5a3c9e1f704286ab57d9c3e8f1026b4, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 897c359c19bc97740ba2ac9e9f5b35ae, type: 2}
+  - {fileID: 11400000, guid: 9f6e4d2c1b0a9876543210fedcba9876, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: c7a4e1f9d2b6485aa0e3c6f8179bd542, type: 2}
+  - {fileID: 11400000, guid: e7f9b1d3c5a74860ad2e4f6b8c1027d9, type: 2}
+  - {fileID: 11400000, guid: 6a7b8c9d0e1f23456789a0b1c2d3e4f5, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors:
+  - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
+  - {fileID: 11400000, guid: 1820cea6c13ab3840b299c478d24406f, type: 2}
+  RequiredTutorialStepId: 

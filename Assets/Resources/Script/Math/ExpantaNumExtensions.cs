@@ -84,7 +84,12 @@ public static class ExpantaNumExtensions
             return ExpantaNum.Zero;
 
         if (ratio == ExpantaNum.One)
-            return (currency / firstCost).Floor();
+        {
+            ExpantaNum linearCount = (currency / firstCost).Floor();
+            return linearCount.IsFinite && !linearCount.IsNegative
+                ? linearCount
+                : ExpantaNum.Zero;
+        }
 
         if (ratio < ExpantaNum.One)
         {
@@ -397,7 +402,9 @@ public static class ExpantaNumExtensions
             count = next;
         }
 
-        return count;
+        return count.IsFinite && !count.IsNegative
+            ? count.Floor()
+            : ExpantaNum.Zero;
     }
 
     private static ExpantaNum CorrectArithmeticAffordableCount(

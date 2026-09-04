@@ -34,6 +34,28 @@ public sealed class BuildingCostGrowthTests
             Is.EqualTo(new ExpantaNum(1)));
     }
 
+    [TestCase(1d)]
+    [TestCase(1.14d)]
+    [TestCase(1.15d)]
+    [TestCase(1.22d)]
+    public void MaxAffordableGeometricSeries_RemainsFiniteAtHugeCurrency(double ratio)
+    {
+        ExpantaNum currency = new ExpantaNum("1e999");
+        ExpantaNum maximum = currency.MaxAffordableGeometricSeries(1, ratio, 0);
+
+        Assert.That(maximum.IsFinite, Is.True);
+        Assert.That(maximum.IsInteger(), Is.True);
+        Assert.That(
+            new ExpantaNum(1).GeometricSeriesCost(ratio, 0, maximum),
+            Is.LessThanOrEqualTo(currency));
+        if (ratio > 1d)
+        {
+            Assert.That(
+                new ExpantaNum(1).GeometricSeriesCost(ratio, 0, maximum + ExpantaNum.One),
+                Is.GreaterThan(currency));
+        }
+    }
+
     [Test]
     public void BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget()
     {
@@ -77,6 +99,7 @@ public sealed class BuildingCostGrowthTests
     [Test]
     public void BuildingChainIndex_PreservesAllSharedTargetPredecessors()
     {
+        CreateManager<GameManager>("SharedTarget-GameManager");
         Building branchA = CreateBuilding("IndexedBranchA");
         Building branchB = CreateBuilding("IndexedBranchB");
         Building sharedTarget = CreateBuilding("IndexedSharedTarget");

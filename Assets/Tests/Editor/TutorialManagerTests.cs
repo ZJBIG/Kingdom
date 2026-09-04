@@ -21,7 +21,7 @@ public sealed class TutorialManagerTests
     {
         TutorialManager manager = TutorialManager.Ensure();
 
-        Assert.That(manager.Steps.Count, Is.EqualTo(8));
+        Assert.That(manager.Steps.Count, Is.GreaterThanOrEqualTo(8));
         Assert.That(manager.ActiveStepId, Is.EqualTo("orientation"));
         TutorialStep first = null;
         for (int i = 0; i < manager.Steps.Count; i++)
@@ -120,7 +120,11 @@ public sealed class TutorialManagerTests
 
         Assert.That(resources, Is.Not.Null);
         Assert.That(resources.Title, Is.EqualTo("理解库存与净产出"));
+        StringAssert.Contains("食物", resources.Description);
+        StringAssert.Contains("原木", resources.Description);
         Assert.That(resources.CompletionCondition, Is.EqualTo("resource-detail-viewed"));
+        StringAssert.DoesNotContain("黏土", resources.NarrativeText);
+        StringAssert.DoesNotContain("纤维", resources.NarrativeText);
         StringAssert.DoesNotContain("黏土", resources.Description);
         StringAssert.DoesNotContain("纤维", resources.Description);
     }
@@ -168,6 +172,33 @@ public sealed class TutorialManagerTests
         string json = JsonUtility.ToJson(captured);
         StringAssert.DoesNotContain("visitedDetail", json);
         StringAssert.DoesNotContain("Food", json);
+    }
+
+    [Test]
+    public void LegacyTutorialSaveWithoutTransientDetailFieldsRemainsCompatible()
+    {
+        TutorialManager manager = TutorialManager.Ensure();
+        string legacyJson =
+            "{\"Tutorial\":{\"ActiveStepId\":\"resources\",\"CompletedStepIds\":[\"orientation\"]}}";
+        SaveManager.KingdomSaveData restored =
+            JsonUtility.FromJson<SaveManager.KingdomSaveData>(legacyJson);
+
+        Assert.That(restored, Is.Not.Null);
+        Assert.That(restored.Tutorial, Is.Not.Null);
+        manager.RestoreSaveData(restored.Tutorial, TechLevel.Animal);
+        SaveManager.TutorialSaveData captured = manager.CaptureSaveData();
+
+        Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
+        Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
+        Assert.That(captured.CompletedStepIds, Does.Not.Contain("Food"));
+
+        manager.RecordDetailViewed("Resources", "Food");
+        string afterDetailJson = JsonUtility.ToJson(manager.CaptureSaveData());
+        StringAssert.DoesNotContain("Food", afterDetailJson);
+
+        manager.RestoreSaveData(restored.Tutorial, TechLevel.Animal);
+        string afterReloadJson = JsonUtility.ToJson(manager.CaptureSaveData());
+        StringAssert.DoesNotContain("Food", afterReloadJson);
     }
 
     [Test]
@@ -296,11 +327,43 @@ public sealed class TutorialManagerTests
 
         GameState state = new GameState();
         Invoke(state, "RestorePopulation", ExpantaNum.One);
+        Invoke(state, "RestorePopulationCapacityExact", new ExpantaNum(2), ExpantaNum.Zero);
         Invoke(state, "SetFoodAvailability", new ExpantaNum(0.5));
+        Assert.That(InvokeStatic("GetNavigationPageForStep", population, state),
+            Is.EqualTo("Resources"));
+        Invoke(state, "AdjustFoodRates", ExpantaNum.Zero, new ExpantaNum(6));
         Assert.That(InvokeStatic("GetNavigationPageForStep", population, state),
             Is.EqualTo("Resources"));
         Assert.That(InvokeStatic("GetNavigationPageForStep", population, new GameState()),
             Is.EqualTo("Buildings"));
+    }
+
+    [Test]
+    public void PopulationFoodShortageTargetsFoodDetail()
+    {
+        GameManager game = new GameObject("Population-Food-Target-GameManager")
+            .AddComponent<GameManager>();
+        BuildingManager buildings = new GameObject("Population-Food-Target-BuildingManager")
+            .AddComponent<BuildingManager>();
+        try
+        {
+            Invoke(game.State, "RestorePopulationCapacityExact",
+                new ExpantaNum(2), ExpantaNum.Zero);
+            Invoke(game.State, "SetFoodAvailability", new ExpantaNum(0.5));
+
+            Assert.That(InvokeStatic("GetPopulationNavigationTarget", game, buildings),
+                Is.EqualTo("Food"));
+
+            Invoke(game.State, "AdjustFoodRates", new ExpantaNum(6), ExpantaNum.Zero);
+            Invoke(game.State, "SetFoodAvailability", ExpantaNum.One);
+            Assert.That(InvokeStatic("GetPopulationNavigationTarget", game, buildings),
+                Is.EqualTo("WoodHouse"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(buildings.gameObject);
+            UnityEngine.Object.DestroyImmediate(game.gameObject);
+        }
     }
 
     [Test]

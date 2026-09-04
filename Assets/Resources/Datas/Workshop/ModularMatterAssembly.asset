@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ModularMatterAssembly
   m_EditorClassIdentifier: 
   id: ModularMatterAssembly
-  Label: "\u6a21\u5757\u5316\u6750\u6599\u88c5\u914d\u5355\u5143"
-  Description: "用标准化装配接口、材料状态标记器和远程质检系统组成模块化单元，落实材料生命周期理论，提高现有相位材料合成阵列的连续生产与拆解回收效率。"
+  Label: "模块化材料装配"
+  Description: "用标准接口与远程质检，提高相位材料装配、生产和回收效率。"
   SortOrder: 480
   TechLevel: 4
   requiredResearch:

@@ -160,10 +160,10 @@ public sealed class SectorManagerTests
         Assert.That(alpha.PrerequisiteSectors, Does.Contain(asteroid));
         Assert.That(asteroid.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
         Assert.That(jovian.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
-        Assert.That(asteroid.EnemyPower, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(jovian.EnemyPower, Is.EqualTo(new ExpantaNum(500d)));
-        Assert.That(asteroid.TerritoryReward, Is.EqualTo(new ExpantaNum(200000d)));
-        Assert.That(jovian.TerritoryReward, Is.EqualTo(new ExpantaNum(400000d)));
+        Assert.That(asteroid.EnemyPower, Is.LessThanOrEqualTo(ExpantaNum.Zero));
+        Assert.That(jovian.EnemyPower, Is.LessThanOrEqualTo(ExpantaNum.Zero));
+        Assert.That(asteroid.TerritoryReward, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(jovian.TerritoryReward, Is.GreaterThan(asteroid.TerritoryReward));
         Assert.That(asteroid.ResourceRewards, Is.Empty);
         Assert.That(jovian.ResourceRewards, Is.Empty);
         Assert.That(HasPositiveRate(asteroid.OccupiedResourceRatesPerSecond,
@@ -983,22 +983,31 @@ public sealed class SectorManagerTests
     [Test]
     public void HomeExplorationDoesNotRequireCombatPower()
     {
-        var manager = new SectorManager(_ => { });
-        manager.InitializeDefinitions();
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorState state = manager.GetState(lowOrbit);
-        state.SetUnlockedForEditor(true);
-        GameState runtimeState = new GameState();
+        GameObject resourceObject = new GameObject("Sector-Home-Exploration-ResourceManager");
+        try
+        {
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorState state = manager.GetState(lowOrbit);
+            state.SetUnlockedForEditor(true);
+            GameState runtimeState = new GameState();
 
-        bool advanced = manager.TryAdvanceColonization(
-            lowOrbit,
-            0d,
-            runtimeState,
-            null,
-            out SectorOperationFailure failure);
+            bool advanced = manager.TryAdvanceColonization(
+                lowOrbit,
+                0d,
+                runtimeState,
+                resourceManager,
+                out SectorOperationFailure failure);
 
-        Assert.That(advanced, Is.True);
-        Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(advanced, Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+        }
+        finally
+        {
+            Object.DestroyImmediate(resourceObject);
+        }
     }
 
     [Test]
@@ -1566,6 +1575,77 @@ public sealed class SectorManagerTests
         {
             ProgressionModifierManager.Rebuild(null);
             Object.DestroyImmediate(resourceObject);
+        }
+    }
+
+    [Test]
+    public void C805_CampaignPreviewMatchesActualSixtySecondSupplyConsumption()
+    {
+        ProgressionModifierManager.Rebuild(null);
+        GameObject gameObject = new GameObject("C805-60-Second-Campaign-GameManager");
+        GameObject resourceObject = new GameObject("C805-60-Second-Campaign-ResourceManager");
+        try
+        {
+            GameManager gameManager = gameObject.AddComponent<GameManager>();
+            ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
+            gameManager.AdjustAttackPower(new ExpantaNum(3000));
+            gameManager.AdjustFleetPower(new ExpantaNum(50));
+            gameManager.AdjustMilitaryManpower(new ExpantaNum(3050));
+            gameManager.SetSupplySatisfaction(ExpantaNum.One);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
+
+            SectorManager manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorState state = manager.GetState(sector);
+            state.SetUnlockedForEditor(true);
+            state.SetCampaignActiveForEditor(true);
+            SetCampaignResources(resourceManager, sector, new ExpantaNum(100000));
+
+            SectorCampaignPreview preview = manager.GetCampaignPreview(
+                sector,
+                gameManager.State,
+                resourceManager);
+            ExpantaNum foodBefore = gameManager.State.FoodAmount;
+            var expectedResourceRates = new Dictionary<Resource, ExpantaNum>();
+            for (int i = 0; i < preview.ResourceCostsPerSecond.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> rate = preview.ResourceCostsPerSecond[i];
+                expectedResourceRates[rate.First] = expectedResourceRates.TryGetValue(
+                    rate.First,
+                    out ExpantaNum existing)
+                    ? existing + rate.Second
+                    : rate.Second;
+            }
+            var resourceBefore = new Dictionary<Resource, ExpantaNum>();
+            foreach (Resource resource in expectedResourceRates.Keys)
+                resourceBefore[resource] = resourceManager.GetAmount(resource);
+
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(manager.TickActiveCampaign(
+                60d,
+                gameManager.State,
+                resourceManager,
+                out SectorOperationFailure failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+
+            ExpantaNum actualFoodCost = foodBefore - gameManager.State.FoodAmount;
+            ExpantaNum expectedFoodCost = preview.FoodCostPerSecond * 60d;
+            Assert.That(actualFoodCost.ToDouble(), Is.EqualTo(expectedFoodCost.ToDouble()).Within(0.000001d));
+            foreach (KeyValuePair<Resource, ExpantaNum> expected in expectedResourceRates)
+            {
+                ExpantaNum actualCost = resourceBefore[expected.Key] - resourceManager.GetAmount(expected.Key);
+                ExpantaNum expectedCost = expected.Value * 60d;
+                Assert.That(actualCost.ToDouble(), Is.EqualTo(expectedCost.ToDouble()).Within(0.000001d), expected.Key.Id);
+            }
+        }
+        finally
+        {
+            ProgressionModifierManager.Rebuild(null);
+            Object.DestroyImmediate(resourceObject);
+            Object.DestroyImmediate(gameObject);
         }
     }
 

@@ -25,6 +25,7 @@ namespace Kingdom.EditorTools
                 AddPaths<Resource>(paths);
                 AddPaths<Building>(paths);
                 AddPaths<Research>(paths);
+                AddPaths<StoryChapterDefinition>(paths);
                 AssetDatabase.ForceReserializeAssets(
                     paths,
                     ForceReserializeAssetsOptions.ReserializeAssets);
@@ -50,6 +51,7 @@ namespace Kingdom.EditorTools
                 ProcessType<Resource>(apply, ref count, ref changed, errors);
                 ProcessType<Building>(apply, ref count, ref changed, errors);
                 ProcessType<Research>(apply, ref count, ref changed, errors);
+                ProcessType<StoryChapterDefinition>(apply, ref count, ref changed, errors);
 
                 if (errors.Count != 0)
                     throw new InvalidOperationException(string.Join("\n", errors));

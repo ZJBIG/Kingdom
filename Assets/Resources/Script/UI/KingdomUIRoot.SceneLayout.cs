@@ -347,14 +347,16 @@ public sealed partial class KingdomUIRoot
         if (!BuildDetailUI())
             return FailRequiredUiBinding("DetailPanel runtime binding");
         Transform pageTool = content.Find("PageTool");
-        buildingQuantityControls = pageTool?.Find("BuildingQuantityControls") as RectTransform;
-        if (buildingQuantityControls == null)
+        if (!BindWorkshopFilters(pageTool))
+            return FailRequiredUiBinding("WorkshopFilters under PageTool");
+        buildingControls = pageTool?.Find("BuildingControls") as RectTransform;
+        if (buildingControls == null)
         {
-            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing under SafeAreaRoot/Content/PageTool.");
+            Debug.LogError("[王国界面] Authored BuildingControls is missing under SafeAreaRoot/Content/PageTool.");
             return false;
         }
-        BuildBuildingQuantityControls(pageTool);
-        SetupResearchQueueGraphic(buildingQuantityControls);
+        BuildBuildingControls(pageTool);
+        SetupResearchQueueGraphic(buildingControls);
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
 

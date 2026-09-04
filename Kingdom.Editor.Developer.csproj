@@ -1,0 +1,26 @@
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E54A09E0-E2D3-4C87-8D0C-4CA3E2D08A38}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Kingdom.Editor</AssemblyName>
+    <RootNamespace>Kingdom.Editor</RootNamespace>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildProjectDirectory)\Kingdom.Developer.References.props" />
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildProjectDirectory)\Kingdom.Runtime.Developer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\Editor\**\*.cs"
+             Exclude="Assets\Editor\Codex\LatestTestErrorReport.cs;Assets\Editor\KingdomPerfTestTools.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <Target Name="Build">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\codex\build-developer-assembly.ps1&quot; -Assembly Editor -Configuration &quot;$(Configuration)&quot;" />
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Build" />
+</Project>

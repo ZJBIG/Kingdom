@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalCarbonizationComplex
   Label: "\u8F68\u9053\u70AD\u5316\u590D\u5408\u4F53"
-  Description: "\u5C06\u5927\u578B\u5BC6\u95ED\u70AD\u5316\u7089\u3001\u539F\u6728\u9884\u5904\u7406\u4E0E\u7126\u70AD\u5206\u9009\u7EC4\u6210\u8F68\u9053\u5DE5\u4E1A\u590D\u5408\u4F53\uFF0C\u4E3A\u9AD8\u6E29\u519C\u4E1A\u3001\u51B6\u91D1\u4E0E\u6DF1\u7A7A\u5316\u5DE5\u63D0\u4F9B\u6301\u7EED\u7126\u70AD\u3002"
+  Description: "以密闭炭化炉处理原木，持续为冶金、农业和深空化工供应焦炭。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.24"

@@ -12,31 +12,40 @@ public sealed partial class KingdomUIRoot
 {
     private void RefreshBuildingQuantityHeader()
     {
-        if (buildingQuantityControls == null)
+        if (buildingControls == null)
             return;
         bool visible = populatedPage == "Buildings";
         TMP_Text buildingPageTitle = pageTitle;
-        buildingQuantityControls.gameObject.SetActive(visible);
+        buildingControls.gameObject.SetActive(visible);
     }
 
-    private void BuildBuildingQuantityControls(Transform parent)
+    private void BuildBuildingControls(Transform parent)
     {
-        Transform existing = parent.Find("BuildingQuantityControls");
+        Transform existing = parent.Find("BuildingControls");
         if (existing == null)
         {
-            Debug.LogError("[王国界面] Authored BuildingQuantityControls is missing; fixed quantity UI will not be generated at runtime.");
+            Debug.LogError("[王国界面] Authored BuildingControls is missing; fixed quantity UI will not be generated at runtime.");
             return;
         }
-        buildingQuantityControls = existing as RectTransform;
-        RepairBuildingQuantityControls(buildingQuantityControls);
+        buildingControls = existing as RectTransform;
+        RepairBuildingControls(buildingControls);
     }
 
-    private void RepairBuildingQuantityControls(RectTransform controls)
+    private void RepairBuildingControls(RectTransform controls)
     {
         if (controls == null)
             return;
 
         buildingQuantityButtons.Clear();
+        showBuildingDetailsToggle = controls.Find("ShowDetails")?.GetComponent<Toggle>();
+        if (showBuildingDetailsToggle == null)
+        {
+            Debug.LogError("Authored ShowDetails toggle is missing under BuildingControls.");
+            return;
+        }
+        showBuildingDetails = showBuildingDetailsToggle.isOn;
+        showBuildingDetailsToggle.onValueChanged.RemoveListener(OnShowBuildingDetailsChanged);
+        showBuildingDetailsToggle.onValueChanged.AddListener(OnShowBuildingDetailsChanged);
         controls.SetAsLastSibling();
         Transform content = controls.parent?.parent;
         pageTitle = content?.Find("PageTitle")?.GetComponent<TMP_Text>();
@@ -62,21 +71,42 @@ public sealed partial class KingdomUIRoot
             customQuantityInput.textComponent = customQuantityInput.transform.Find("Text")?.GetComponent<TMP_Text>();
             customQuantityInput.placeholder = customQuantityInput.transform.Find("Placeholder")?.GetComponent<TMP_Text>();
             customQuantityInput.onValueChanged.RemoveAllListeners();
-            customQuantityInput.onValueChanged.AddListener(value =>
-            {
-                if (ExpantaNum.TryParse(value, out ExpantaNum parsed) && parsed.IsFinite && parsed >= ExpantaNum.One)
-                {
-                    customBuildingQuantity = parsed.Floor();
-                    RefreshSelectedBuildingDetails(selectedBuilding);
-                    RefreshLiveCardValues();
-                }
-            });
+            customQuantityInput.onValueChanged.AddListener(HandleCustomQuantityInputChanged);
+            customQuantityInput.onValidateInput = (text, charIndex, addedChar) =>
+                char.IsDigit(addedChar) || addedChar == 'e' || addedChar == 'E' ||
+                addedChar == '.'
+                    ? addedChar
+                    : '\0';
             customQuantityInput.onSelect.RemoveAllListeners();
             customQuantityInput.onSelect.AddListener(_ => SelectBuildingQuantityMode(BuildingQuantityMode.Custom));
             customQuantityInput.onEndEdit.RemoveAllListeners();
             customQuantityInput.onEndEdit.AddListener(_ => NormalizeCustomQuantityInput());
         }
         UpdateBuildingQuantityButtonColors();
+    }
+
+    private void OnShowBuildingDetailsChanged(bool value)
+    {
+        if (showBuildingDetails == value)
+            return;
+        showBuildingDetails = value;
+        if (detailIsBuilding && selectedBuilding != null)
+            ShowBuildingDetails(selectedBuilding, true);
+    }
+
+    private void HandleCustomQuantityInputChanged(string value)
+    {
+        if (value.IndexOf('+') >= 0 || value.IndexOf('-') >= 0)
+        {
+            customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
+            return;
+        }
+        if (!ExpantaNum.TryParse(value, out ExpantaNum parsed) ||
+            !parsed.IsFinite || parsed < ExpantaNum.One)
+            return;
+        customBuildingQuantity = parsed.Floor();
+        RefreshSelectedBuildingDetails(selectedBuilding);
+        RefreshLiveCardValues();
     }
 
     private void AddOrRepairBuildingQuantityButton(RectTransform parent, BuildingQuantityMode mode, string label)
@@ -120,13 +150,18 @@ public sealed partial class KingdomUIRoot
     {
         if (customQuantityInput == null)
             return;
-        if (!ExpantaNum.TryParse(customQuantityInput.text, out ExpantaNum parsed) ||
+        if (customQuantityInput.text.IndexOf('+') >= 0 ||
+            customQuantityInput.text.IndexOf('-') >= 0 ||
+            !ExpantaNum.TryParse(customQuantityInput.text, out ExpantaNum parsed) ||
             !parsed.IsFinite || parsed < ExpantaNum.One)
-            parsed = ExpantaNum.One;
+        {
+            customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
+            return;
+        }
         customBuildingQuantity = parsed.Floor();
         if (customBuildingQuantity < ExpantaNum.One)
             customBuildingQuantity = ExpantaNum.One;
-        customQuantityInput.text = customBuildingQuantity.ToString();
+        customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
     }
 
     private void SelectBuildingQuantityMode(BuildingQuantityMode mode)

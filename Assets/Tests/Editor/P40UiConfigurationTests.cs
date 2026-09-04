@@ -46,6 +46,7 @@ public sealed class P40UiConfigurationTests
         GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUIOverviewNavigationToolbar");
         Assert.That(prefab, Is.Not.Null, "The Overview navigation toolbar prefab is missing.");
         AssertAuthoredButton(prefab.transform, "OverviewCurrentTargetButton");
+        AssertAuthoredButton(prefab.transform, "OverviewCurrentEraButton");
 
         GameObject root = Resources.Load<GameObject>("UI/Kingdom/KingdomUIRoot");
         Assert.That(root, Is.Not.Null, "The authored UI root prefab is missing.");
@@ -62,26 +63,19 @@ public sealed class P40UiConfigurationTests
             "OverviewNavigationToolbar and ResearchQueueViewport must be siblings under PageTool.");
         AssertAuthoredButton(toolbar, "OverviewCurrentTargetButton");
         AssertLeftCenteredButton(toolbar, "OverviewCurrentTargetButton");
-        Transform removedEraButton = prefab.transform.Find("LegacyEraNavigationRemoved");
-        Assert.That(removedEraButton, Is.Not.Null,
-            "The retired current-era navigation slot must remain isolated in the authored toolbar.");
-        Assert.That(removedEraButton.gameObject.activeSelf, Is.False,
-            "The retired current-era navigation button must not be visible.");
-        TMP_Text removedEraLabel = removedEraButton.GetComponentInChildren<TMP_Text>(true);
-        Assert.That(removedEraLabel, Is.Not.Null);
-        Assert.That(removedEraLabel.text, Is.Empty,
-            "The retired current-era navigation button must not retain a visible label.");
+        AssertAuthoredButton(toolbar, "OverviewCurrentEraButton");
+        AssertLeftCenteredButton(toolbar, "OverviewCurrentEraButton");
     }
 
     [Test]
-    public void SectorRowPrefabProvidesCompactAuthoredFields()
+    public void SectorRowPrefabKeepsOnlyItsLabelAndAction()
     {
         GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUISectorRow");
         Assert.That(prefab, Is.Not.Null, "The sector row prefab is missing.");
         Assert.That(prefab.transform.Find("Label")?.GetComponent<TMP_Text>(), Is.Not.Null);
-        Assert.That(prefab.transform.Find("Type")?.GetComponent<TMP_Text>(), Is.Not.Null);
-        Assert.That(prefab.transform.Find("Progress")?.GetComponent<TMP_Text>(), Is.Not.Null);
-        Assert.That(prefab.transform.Find("TypePattern")?.GetComponent<Image>(), Is.Not.Null);
+        Assert.That(prefab.transform.Find("Type"), Is.Null);
+        Assert.That(prefab.transform.Find("Progress"), Is.Null);
+        Assert.That(prefab.transform.Find("TypePattern"), Is.Null);
         Assert.That(prefab.transform.Find("Buildings")?.GetComponent<Button>(), Is.Not.Null);
     }
 

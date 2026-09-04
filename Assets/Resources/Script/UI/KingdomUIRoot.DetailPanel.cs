@@ -129,7 +129,10 @@ public sealed partial class KingdomUIRoot
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
             ? existing
             : null;
-        SetBuildingDetailBody(building, state);
+        if (showBuildingDetails)
+            SetCompactBuildingDetailBody(building);
+        else
+            SetBuildingDetailBody(building, state);
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
             BuildingManager.Instance != null &&
             BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
@@ -198,10 +201,11 @@ public sealed partial class KingdomUIRoot
         if (building is SectorBuilding sectorBuilding && state != null &&
             state.Amount >= new ExpantaNum(sectorBuilding.MaxAmount))
             return "已达到该星区建筑上限";
-        if (!(building is SectorBuilding) && state != null &&
-            GameManager.Instance.State.AvailableTerritory < state.SpaceCost)
+        ExpantaNum spaceCost = state == null ? building.SpaceCost : state.SpaceCost;
+        if (!(building is SectorBuilding) &&
+            GameManager.Instance.State.AvailableTerritory < spaceCost)
             return "领土不足：还需" +
-                (state.SpaceCost - GameManager.Instance.State.AvailableTerritory).ToGameString();
+                (spaceCost - GameManager.Instance.State.AvailableTerritory).ToGameString();
         ExpantaNum productivity = state == null ? building.ProductivityConsumption : state.ProductivityConsumption;
         if (manager.AvailableProductivity < productivity)
             return "生产力不足：还需" +
@@ -274,7 +278,10 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        SetBuildingDetailBody(building, state);
+        if (showBuildingDetails)
+            SetCompactBuildingDetailBody(building);
+        else
+            SetBuildingDetailBody(building, state);
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
     }
@@ -344,13 +351,38 @@ public sealed partial class KingdomUIRoot
                 ": " +
                 ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
 
-        text.AppendLine(("净变化: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
+        text.AppendLine(("净产出: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
+        text.AppendLine(GetResourceSupplyStatus(state, consumption));
         detailBody.text = text.ToString();
         detailBody.richText = true;
         detailBody.fontSize = 30f;
         LayoutResourceDetailsBody();
         if (requirementGesture != null)
             requirementGesture.SetNormalizedPosition(preservedScrollPosition);
+    }
+
+    private void SetCompactBuildingDetailBody(Building building)
+    {
+        if (detailBody == null)
+            return;
+        detailBody.text = building.Label;
+        detailBody.gameObject.SetActive(true);
+    }
+
+    private static string GetResourceSupplyStatus(ResourceState state, ExpantaNum consumption)
+    {
+        if (state == null)
+            return "当前供给状态：未初始化";
+        if (consumption <= ExpantaNum.Zero)
+            return "当前供给状态：无消耗需求";
+
+        ExpantaNum satisfaction = state.GetTickSatisfactionOrFallback();
+        if (satisfaction >= ExpantaNum.One)
+            return "当前供给状态：供给充足".Colorize(Positive);
+        if (satisfaction > ExpantaNum.Zero)
+            return ("当前供给状态：供给不足（满足度 " +
+                satisfaction.ToGameString() + "）").Colorize(Error);
+        return "当前供给状态：暂无供给".Colorize(Error);
     }
 
     private void RefreshResourceBuildingFlows(Resource resource)
@@ -517,7 +549,8 @@ public sealed partial class KingdomUIRoot
         StringBuilder text = new();
         text.AppendLine(research.Label);
         text.AppendLine("技术等级: " + research.TechLevel.GetDescription());
-        text.AppendLine("研究点需求: " + state.BaseCost.ToGameString());
+        text.AppendLine("研究点需求: " +
+            (state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString()));
         text.AppendLine();
         text.AppendLine(research.Description);
         text.AppendLine();
@@ -715,6 +748,9 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("工坊前置");
         AppendWorkshopPrerequisites(text, definition.RequiredUpgrades);
         text.AppendLine();
+        text.AppendLine("当前状态：" + GetWorkshopAvailability(
+            definition, out _));
+        text.AppendLine();
         text.AppendLine("效果");
         AppendWorkshopEffects(text, definition.Effects);
         detailBody.text = text.ToString();
@@ -742,11 +778,9 @@ public sealed partial class KingdomUIRoot
 
     private static string GetWorkshopAvailability(
         WorkshopUpgrade definition,
-        out bool canPurchase,
-        out bool resourceBlocked)
+        out bool canPurchase)
     {
         canPurchase = false;
-        resourceBlocked = false;
         WorkshopManager workshop = WorkshopManager.Instance;
         if (definition == null || workshop == null)
             return "工坊未初始化";
@@ -797,7 +831,6 @@ public sealed partial class KingdomUIRoot
                 : resourceState.Amount;
             if (amount >= requirement.Second)
                 continue;
-            resourceBlocked = true;
             return "资源不足：" + requirement.First.Label + " 缺 " +
                 (requirement.Second - amount).ToGameString();
         }
@@ -813,7 +846,7 @@ public sealed partial class KingdomUIRoot
         bool purchased = WorkshopManager.Instance != null &&
             WorkshopManager.Instance.IsPurchased(definition);
         string availability = GetWorkshopAvailability(
-            definition, out bool canPurchase, out _);
+            definition, out bool canPurchase);
         ConfigureActionButton(
             purchased ? "已购买" : canPurchase ? "购买工坊升级" : availability,
             () => PayWorkshopUpgrade(definition));
@@ -933,9 +966,12 @@ public sealed partial class KingdomUIRoot
         if (manager.ActiveResearch?.Definition == research)
             return "\u7814\u7a76\u4e2d\uff08\u70b9\u51fb\u53ef\u53d6\u6d88\uff09";
         if (manager.IsQueued(research))
-            return state.Status == ResearchStatus.WaitingResources
-                ? "\u961f\u5217\u4e2d\uff0c\u7b49\u5f85\u8d44\u6e90"
-                : "\u961f\u5217\u4e2d\uff08\u70b9\u51fb\u53ef\u53d6\u6d88\uff09";
+        {
+            if (state.Status == ResearchStatus.WaitingResources &&
+                !manager.CanPayResearchCost(research, out string queuedBlocker))
+                return "\u961f\u5217\u4e2d：" + queuedBlocker;
+            return "\u961f\u5217\u4e2d\uff08\u70b9\u51fb\u53ef\u53d6\u6d88\uff09";
+        }
         if (!manager.CanAccessResearch(research))
             return "\u9700\u8fdb\u5165" + research.TechLevel.GetDescription();
         IReadOnlyList<Research> prerequisites = research.Prerequisites;
@@ -947,6 +983,8 @@ public sealed partial class KingdomUIRoot
                     return "\u9700\u5148\u5b8c\u6210\uff1a" +
                         (prerequisite == null ? "\u65e0\u6548\u524d\u7f6e" : prerequisite.Label);
             }
+        if (!manager.CanPayResearchCost(research, out string paymentBlocker))
+            return paymentBlocker;
         return "\u53ef\u52a0\u5165\u7814\u7a76\u961f\u5217\uff08\u8d44\u6e90\u4e0d\u8db3\u65f6\u4f1a\u7b49\u5f85\uff09";
     }
 

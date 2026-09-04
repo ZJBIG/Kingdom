@@ -4,13 +4,13 @@ using UnityEngine;
 
 public enum TechLevel
 {
-    [Description("原始时代")] Animal,
-    [Description("新石器时代")] Neolithic,
-    [Description("中世纪")] Medieval,
-    [Description("工业时代")] Industrial,
-    [Description("太空时代")] Spacer,
-    [Description("极致时代")] Ultra,
-    [Description("远古科技时代")] Archotech
+    Animal,
+    StoneAge,
+    Medieval,
+    Industrial,
+    Spacer,
+    Ultra,
+    Archotech
 }
 
 public class GameManager : Singleton<GameManager>

@@ -33,7 +33,7 @@ public sealed class ResourceContinuityTests
     }
 
     [Test]
-    public void 中世纪转型研究必须拥有冶炼前置并消耗石砖与布料()
+    public void 中古时代转型研究必须拥有冶炼前置并消耗石砖与布料()
     {
         Research transition = DataBase<Research>.Find("FeudalAdministration");
 

@@ -489,7 +489,7 @@ public static class SimulatorSelfTests
         Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Animal)-1d)<1e-9d,
             "低阶模拟步长必须保持一秒。 ");
         Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Medieval)-10d)<1e-9d,
-            "中世纪长等待段应使用十秒模拟步长。 ");
+            "中古时代长等待段应使用十秒模拟步长。 ");
         Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Industrial)-600d)<1e-9d,
             "工业时代应使用六百秒模拟步长。 ");
         Require(Math.Abs(EconomySimulator.StepSeconds(SimTechLevel.Spacer)-1800d)<1e-9d,

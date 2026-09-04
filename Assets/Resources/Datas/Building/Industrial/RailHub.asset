@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: RailHub
   Label: "\u94C1\u8DEF\u67A2\u7EBD"
-  Description: "通过铁路站场、仓库、电报信号和调度设施组织大宗货物运输，持续使用机械设备、燃油、润滑剂和发动机维持铁路运转；铁路枢纽还会持续使用少量炸药进行隧道、路堑与路基的控制爆破。"
+  Description: "以铁路与调度设施组织大宗运输，持续消耗燃油和润滑剂。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

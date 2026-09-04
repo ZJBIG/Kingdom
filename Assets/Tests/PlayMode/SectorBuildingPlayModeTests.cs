@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -10,16 +12,23 @@ using Object = UnityEngine.Object;
 
 public sealed class SectorBuildingPlayModeTests
 {
+    private string saveRoot;
     [SetUp]
     public void SetUp()
     {
-        KingdomPlayModeSaveScope.Begin();
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        saveRoot = Path.Combine(projectRoot, "Temp", "KingdomSectorBuildingPlayModeTests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        SaveManager.SetSaveRootOverrideForTests(saveRoot);
     }
 
     [TearDown]
     public void TearDown()
     {
-        KingdomPlayModeSaveScope.Clear();
+        SaveManager.ClearSaveRootOverrideForTests();
+        if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
+            Directory.Delete(saveRoot, true);
+        saveRoot = null;
     }
 
     [UnityTest]
@@ -116,7 +125,9 @@ public sealed class SectorBuildingPlayModeTests
         Assert.That(rows, Is.Not.Null);
         Transform moonRow = rows.Find("SectorRow_AzurePool");
         Assert.That(moonRow, Is.Not.Null);
-        Assert.That(moonRow.Find("Buildings"), Is.Null);
+        Transform gatedBuildings = moonRow.Find("Buildings");
+        Assert.That(gatedBuildings, Is.Not.Null);
+        Assert.That(gatedBuildings.gameObject.activeSelf, Is.False);
 
         moonState.SetOccupiedForEditor(true);
         MethodInfo refresh = typeof(KingdomUIRoot).GetMethod(
@@ -137,7 +148,7 @@ public sealed class SectorBuildingPlayModeTests
         float expandedHeight = moonRow.GetComponent<RectTransform>().rect.height;
         Assert.That(expandedHeight, Is.GreaterThan(before));
         Assert.That(expandedHeight, Is.GreaterThan(400f));
-        Assert.That(before, Is.LessThan(104f));
+        Assert.That(before, Is.InRange(100f, 120f));
         if (nextRow != null)
             Assert.That(nextRow.anchoredPosition.y, Is.LessThan(nextRowBefore - 400f));
 
@@ -163,7 +174,8 @@ public sealed class SectorBuildingPlayModeTests
         buildingButton.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
         Canvas.ForceUpdateCanvases();
         Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.LessThan(expandedHeight));
-        Assert.That(moonRow.GetComponent<RectTransform>().rect.height, Is.LessThan(104f));
+        Assert.That(moonRow.GetComponent<RectTransform>().rect.height,
+            Is.InRange(103f, 105f));
 
         setPage.Invoke(root, new object[] { "Buildings" });
         yield return null;
@@ -175,8 +187,12 @@ public sealed class SectorBuildingPlayModeTests
         setPage.Invoke(root, new object[] { "Sectors" });
         refresh.Invoke(root, null);
         yield return null;
-        Assert.That(moonRow.Find("Buildings"), Is.Null);
-        Assert.That(moonRow.Find("SectorBuildingMenu"), Is.Null);
+        Transform gatedButton = moonRow.Find("Buildings");
+        Assert.That(gatedButton, Is.Not.Null);
+        Assert.That(gatedButton.gameObject.activeSelf, Is.False);
+        Transform retainedMenu = moonRow.Find("SectorBuildingMenu");
+        if (retainedMenu != null)
+            Assert.That(retainedMenu.gameObject.activeSelf, Is.False);
     }
 
     private static void PrepareBuildableSectorBuilding(GameManager game, SectorBuilding building)

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: WorkshopMemory_09
+  m_EditorClassIdentifier: 
+  id: WorkshopMemory_09
+  Title: "第九章：工坊里的第二次发明"
+  Summary: "精密制造让经验变成标准，工坊第一次能够把一次成功交给陌生的后来者。"
+  Body: "机器停摆后的第三天，年轻工匠阿栎从废弃齿轮箱里找出一枚仍能使用的铜环。她没有只把机器修好，而是用精密量具记录尺寸、材料和每一次失败。工坊把这些记录整理成统一图纸，另一座聚落因此能在半天内完成同样的修复。\n\n精密制造改变的不是一枚齿轮，而是成功被重复的方式。工匠开始互相校对工具，学徒也被允许追问旧规矩的来处。工业知识从个人手艺变成公共标准，下一座工厂终于可以站在上一座工厂的经验上继续前进，而不必重新支付同样的代价。"
+  RequiredEra: 3
+  RequiredResearch:
+  - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: d7108dfb178fc7742b642aff880bcb8c, type: 2}
+  - {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+  - {fileID: 11400000, guid: d1c2d3e4f5674890b1c2d3e4f5678904, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+
+

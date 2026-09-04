@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalStation
   Label: "\u8F68\u9053\u7A7A\u95F4\u7AD9"
-  Description: "\u7EDF\u4E00\u96C6\u6210\u8F68\u9053\u8865\u7ED9\u3001\u4EFB\u52A1\u4E2D\u8F6C\u3001\u6DF1\u7A7A\u540E\u52E4\u4E0E\u8230\u961F\u7269\u6D41\u7684\u8F68\u9053\u7A7A\u95F4\u7AD9\uFF0C\u76F4\u63A5\u63D0\u4F9B\u540E\u52E4\u541E\u5410\u3001\u8230\u961F\u652F\u63F4\u4E0E\u7269\u6D41\u8C03\u5EA6\u3002"
+  Description: "集成轨道补给与深空中转，为舰队提供后勤吞吐和物流调度。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.22

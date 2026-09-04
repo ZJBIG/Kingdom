@@ -37,9 +37,17 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
     private Vector2 manualLastLocalPosition;
     private float manualDistance;
     private PointerEventData manualEventData;
+    private bool initialized;
 
     public bool IsDragging => dragging;
-    public bool IsInitialized => viewport != null && content != null;
+    public bool IsInitialized => initialized && viewport != null && content != null;
+    public bool CanPanHorizontal => canPanHorizontal;
+    public bool CanPanVertical => canPanVertical;
+
+    private void OnEnable()
+    {
+        initialized = initialized && viewport != null && content != null;
+    }
 
     private void OnDisable()
     {
@@ -54,15 +62,13 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
 
     public void Initialize(RectTransform graphViewport, RectTransform graphContent)
     {
+        initialized = false;
         viewport = graphViewport;
         content = graphContent;
-        Canvas graphCanvas = content == null ? null : content.GetComponent<Canvas>();
-        bool addedGraphCanvas = false;
-        if (content != null && graphCanvas == null)
-        {
-            graphCanvas = content.gameObject.AddComponent<Canvas>();
-            addedGraphCanvas = true;
-        }
+        if (viewport == null || content == null)
+            return;
+
+        Canvas graphCanvas = content.GetComponent<Canvas>();
         if (graphCanvas != null)
         {
             graphCanvas.overrideSorting = false;
@@ -71,10 +77,10 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write(
             $"[KingdomPerf] CanvasIsolation owner=ResearchGraphContent " +
-            $"canvas={(graphCanvas != null)} addedCanvas={addedGraphCanvas} " +
+            $"canvas={(graphCanvas != null)} " +
             "raycaster=False reason=parent-viewport-raycaster");
 #endif
-        scrollRect = viewport == null ? null : viewport.GetComponent<ScrollRect>();
+        scrollRect = viewport.GetComponent<ScrollRect>();
         if (scrollRect != null)
         {
             // Keep ScrollRect as the measured bounds component. Single-pointer
@@ -96,6 +102,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         measuredViewportSize = Vector2.zero;
         measuredContentSize = Vector2.zero;
         measuredScale = -1f;
+        initialized = true;
         Debug.Log($"[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport={GetSize(viewport)}, content={GetSize(content)}, dragOwner=UIResearchGraphGesture, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public sealed class GameState
@@ -61,10 +62,35 @@ public sealed class GameState
     public ExpantaNum TerritoryUsed => Territory.TerritoryUsed;
     public ExpantaNum AvailableTerritory => Territory.AvailableTerritory;
     public PopulationState Population { get; private set; }
+    public StoryProgressState StoryProgress { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
 
     public GameState() => InitializeNew();
+
+    internal StoryProgressState EnsureStoryProgress()
+    {
+        if (StoryProgress == null)
+            StoryProgress = new StoryProgressState();
+        return StoryProgress;
+    }
+
+    internal void RestoreStoryProgress(IReadOnlyList<string> chapterIds)
+    {
+        EnsureStoryProgress().Restore(chapterIds);
+        Version++;
+    }
+
+    internal void ResetStoryProgress()
+    {
+        EnsureStoryProgress().Reset();
+        Version++;
+    }
+
+    internal void MarkStoryProgressChanged()
+    {
+        Version++;
+    }
 
     internal void InitializeNew()
     {
@@ -85,6 +111,7 @@ public sealed class GameState
         Campaign = new CampaignState();
         Territory = new TerritoryState();
         Population = new PopulationState();
+        StoryProgress = new StoryProgressState();
         LastSaveUnixSeconds = 0;
         Version++;
     }

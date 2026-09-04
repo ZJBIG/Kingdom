@@ -39,14 +39,21 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
         newGame = startedNewGame;
         pacingSummaryLogged = false;
         for (int i = 0; i < milestoneElapsedSeconds.Length; i++)
+        {
+            recorded[i] = false;
             milestoneElapsedSeconds[i] = -1f;
+        }
+        for (int era = 0; era < bottleneckSeconds.GetLength(0); era++)
+            for (int category = 0; category < bottleneckSeconds.GetLength(1); category++)
+                bottleneckSeconds[era, category] = 0d;
+        sampledEra = -1;
         if (newGame)
             Record("NewGameStarted");
     }
 
     public static void NotifyResourceDetailViewed()
     {
-        if (instance != null)
+        if (instance != null && instance.newGame)
             instance.Record("FirstResourceDetailViewed");
     }
 
@@ -76,8 +83,8 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
             Record("FirstResearchCompleted");
         if (TutorialManager.HasOwnedProductionChain(buildings.States.Values))
             Record("FirstProductionChain");
-        if (game.State.TechLevel >= TechLevel.Neolithic)
-            Record("NeolithicReached");
+        if (game.State.TechLevel >= TechLevel.StoneAge)
+            Record("StoneAgeReached");
         if (game.State.TechLevel >= TechLevel.Medieval)
             Record("MedievalReached");
         if (game.State.TechLevel >= TechLevel.Industrial)
@@ -117,7 +124,7 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
             "FirstResearchStarted" => 4,
             "FirstResearchCompleted" => 5,
             "FirstProductionChain" => 6,
-            "NeolithicReached" => 7,
+            "StoneAgeReached" => 7,
             "MedievalReached" => 8,
             "IndustrialReached" => 9,
             _ => -1
@@ -140,7 +147,8 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
         Debug.Log(
             $"[KingdomMilestone] {milestone} elapsed={Time.realtimeSinceStartup - sessionStartTime:0.00}s " +
             $"days={game.State.CalendarDays} population={game.State.Population.Population.ToGameString()} " +
-            $"foodNet={game.State.FoodNetRate.ToGameString()} wood={woodAmount} woodNet={woodNet} " +
+            $"food={game.State.FoodAmount.ToGameString()} foodNet={game.State.FoodNetRate.ToGameString()} " +
+            $"wood={woodAmount} woodNet={woodNet} " +
             $"productivity={buildings.UsedProductivity.ToGameString()}/{buildings.TotalProductivity.ToGameString()} " +
             $"researchPower={research.ResearchPower.ToGameString()} era={game.State.TechLevel}");
     }

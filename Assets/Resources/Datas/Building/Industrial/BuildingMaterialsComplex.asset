@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BuildingMaterialsComplex
   Label: "\u5EFA\u7B51\u6750\u6599\u8054\u5408\u5382"
-  Description: "\u5C06\u73BB\u7483\u3001\u5DE5\u4E1A\u9676\u74F7\u4E0E\u6DF7\u51DD\u571F\u751F\u4EA7\u6574\u5408\u4E3A\u4E00\u4F53\u5316\u5EFA\u7B51\u6750\u6599\u8054\u5408\u5382\uFF0C\u7EDF\u4E00\u4E3A\u5DE5\u4E1A\u5EFA\u7B51\u3001\u7535\u6C14\u8BBE\u65BD\u4E0E\u6DF1\u7A7A\u5EFA\u8BBE\u63D0\u4F9B\u6750\u6599\u3002"
+  Description: "整合玻璃、陶瓷与混凝土生产，供应工业建筑和深空建设。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.20"

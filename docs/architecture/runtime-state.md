@@ -11,7 +11,7 @@ and player playtests.
 ## Current ownership
 
 - Resource, Building and Research ScriptableObjects are definitions.
-- ResourceState, BuildingState, ResearchState and GameState are mutable runtime authority.
+- ResourceState, BuildingState, ResearchState, StoryProgressState and GameState are mutable runtime authority.
 
 - `BuildingState.Amount` is also the authoritative count for `SectorBuilding`.
   Sector building construction and deconstruction are gated by sector
@@ -21,6 +21,8 @@ and player playtests.
 - SimulationManager is the only gameplay clock.
 - Viewer/Displayer code is UI only.
 - SaveManager captures non-derivable State using stable definition IDs.
+- StoryProgressState stores only the completed chapter ID prefix and a version;
+  completion is permanent history and never grants economic effects.
 
 ## Target deterministic tick
 
@@ -69,3 +71,5 @@ No partial mutation on failure.
 ## Save invariant
 
 Save only non-derivable values. Rates, efficiency, UI state caches and indexes are rebuilt after load. Candidate save loading must be transactional so a failed main save can fall back to backup without leaving partial State.
+
+Story completion is serialized in the required `Story` segment of save format v8.

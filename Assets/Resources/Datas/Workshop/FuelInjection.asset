@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FuelInjection
   m_EditorClassIdentifier: 
   id: FuelInjection
-  Label: "\u5185\u71C3\u673A\u7EC4\u4EF6"
-  Description: "\u5305\u542B\u8F74\u627F\u3001\u55B7\u6CB9\u6CF5\u3001\u55B7\u5634\u548C\u8C03\u538B\u90E8\u4EF6\u7684\u53D1\u52A8\u673A\u6838\u5FC3\u5668\u4EF6\u3002"
+  Label: "内燃机供油组件"
+  Description: "由喷油泵、喷嘴和调压部件组成，提升发动机运行可靠性。"
   SortOrder: 240
   TechLevel: 3
   requiredResearch:

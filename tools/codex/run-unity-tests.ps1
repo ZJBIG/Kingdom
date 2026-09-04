@@ -82,7 +82,7 @@ if (-not (Test-Path $ResultsPath)) {
 }
 
 try {
-    [xml]$xml = Get-Content $ResultsPath
+    [xml]$xml = Get-Content -Encoding UTF8 $ResultsPath -Raw
 }
 catch {
     Write-LatestTestReport "Failed(InvalidXml)" "Unity produced invalid result XML: $ResultsPath`n$($_.Exception.Message)"

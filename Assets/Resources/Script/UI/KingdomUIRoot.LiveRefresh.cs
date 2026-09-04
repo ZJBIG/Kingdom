@@ -271,6 +271,8 @@ public sealed partial class KingdomUIRoot
                 tutorialFeedbackVersion = -1;
             }
             tutorialSnapshot = tutorial.Evaluate();
+            if (gameManagerCache != null && gameManagerCache.State != null)
+                StoryManager.RefreshProgress(gameManagerCache.State.TechLevel, tutorial);
             if (tutorialFeedbackVersion != tutorial.Version)
             {
                 if (recentActionFeedbackVersion >= 0 &&
@@ -312,10 +314,11 @@ public sealed partial class KingdomUIRoot
             if (storyProgressChanged || storyEraChanged)
                 storyPageBuilt = false;
             if (storyProgressChanged &&
-                latestStoryChapter != null)
+                latestStoryChapter != null &&
+                storyNotifiedChapterIds.Add(latestStoryChapter.Id))
             {
-                EnqueueRecentNotice("记忆唤醒：" + latestStoryChapter.Title +
-                    "；王国的行动让一段文明经验重新变得可用。");
+                EnqueueRecentNotice("剧情完成：" + latestStoryChapter.Title +
+                    "；王国的行动留下了一段永久的文明记忆。");
             }
         }
         if (navigationVisibilityRefreshTimer >= 1f)
@@ -468,6 +471,11 @@ public sealed partial class KingdomUIRoot
         }
         if (populatedPage == "Music")
             RefreshMusicPage();
+        if (refreshScrolledValues && populatedPage == "Workshop")
+        {
+            RefreshWorkshopPurchaseButtonStates();
+            RefreshWorkshopFilterMembershipIfChanged();
+        }
 
         // Structural refreshes rebuild page rows or re-parent controls; they
         // must not run mid-scroll or they reset the user's scroll position
@@ -723,10 +731,6 @@ public sealed partial class KingdomUIRoot
         }
         developmentGuidanceText.enabled = true;
         developmentGuidanceText.gameObject.SetActive(true);
-        developmentGuidanceText.alignment = TextAlignmentOptions.TopLeft;
-        developmentGuidanceText.enableWordWrapping = true;
-        developmentGuidanceText.rectTransform.offsetMax = new Vector2(
-            developmentGuidanceText.rectTransform.offsetMax.x, -64f);
 
         if (primaryCard != null)
         {
@@ -815,6 +819,7 @@ public sealed partial class KingdomUIRoot
                     developmentGuidanceText.text = overviewText;
                 developmentGuidanceText.color = TextPrimary;
                 ConfigureDevelopmentGuidanceNavigation(tutorialSnapshot);
+                RefreshDevelopmentGuidanceLayout();
                 return;
             }
             catch (Exception exception)
@@ -847,23 +852,33 @@ public sealed partial class KingdomUIRoot
             }
             developmentGuidanceText.text = "当前发展指引\n\n正在读取王国状态，请稍候。";
             developmentGuidanceText.color = TextPrimary;
+            RefreshDevelopmentGuidanceLayout();
             return;
         }
         DevelopmentGuidanceSnapshot snapshot = developmentGuidanceSnapshot;
         StringBuilder body = developmentGuidanceTextBuilder;
         body.Clear();
         if (!string.IsNullOrEmpty(snapshot.EraText))
-            body.Append(snapshot.EraText).Append("  |  ");
-        body.Append(snapshot.Title ?? string.Empty).Append("\n\n");
-        body.Append(snapshot.Body ?? string.Empty);
+            body.Append("当前时代：").Append(snapshot.EraText).Append("\n");
+        body.Append("当前目标：").Append(snapshot.Title ?? string.Empty).Append("\n");
         IReadOnlyList<string> blockers = snapshot.Blockers ?? Array.Empty<string>();
-        for (int i = 0; i < blockers.Count && i < 3; i++)
-            body.Append("\n- ").Append(blockers[i]);
+        body.Append("当前阻碍：");
+        if (blockers.Count == 0)
+            body.Append("暂无");
+        else
+            for (int i = 0; i < blockers.Count && i < 3; i++)
+            {
+                if (i > 0)
+                    body.Append("、");
+                body.Append(blockers[i]);
+            }
+        body.Append("\n推荐行动：").Append(snapshot.Body ?? string.Empty);
         if (!SignatureEquals(body, developmentGuidanceText.text))
         {
             developmentGuidanceText.text = body.ToString();
             developmentGuidanceText.color = TextPrimary;
         }
+        RefreshDevelopmentGuidanceLayout();
         if (!developmentGuidanceRuntimeGeometryLogged)
         {
             Vector2 rect = developmentGuidanceText.rectTransform.rect.size;
@@ -875,16 +890,26 @@ public sealed partial class KingdomUIRoot
         }
     }
 
+    private void RefreshDevelopmentGuidanceLayout()
+    {
+        RectTransform card = developmentGuidanceText == null
+            ? null
+            : developmentGuidanceText.rectTransform.parent as RectTransform;
+        if (card == null)
+            return;
+        developmentGuidanceText.ForceMeshUpdate();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card);
+    }
+
     private static string BuildOverviewEraTarget(GameManager gameManager)
     {
         if (gameManager == null || gameManager.State == null)
-            return "\u65f6\u4ee3\u76ee\u6807\u8bf7\u67e5\u770b Era \u9875\u9762\u3002";
+            return "时代目标请查看 Era 页面。";
 
         TechLevel targetEra = (TechLevel)((int)gameManager.State.TechLevel + 1);
         return EraGoalEvaluator.FindTransition(targetEra) == null
-            ? "\u5f53\u524d\u5185\u5bb9\u5df2\u5230\u6700\u540e\u65f6\u4ee3\u3002"
-            : targetEra.GetDescription() +
-              "\uff08\u8be6\u7ec6\u6761\u4ef6\u8bf7\u67e5\u770b Era \u9875\u9762\uff09";
+            ? "当前内容已到最后时代。"
+            : targetEra.GetDescription() + "（详细条件请查看 Era 页面）";
     }
 
     private void ConfigureDevelopmentGuidanceNavigation(TutorialSnapshot snapshot)
@@ -896,7 +921,10 @@ public sealed partial class KingdomUIRoot
         developmentGuidanceNavigationButton.interactable = canNavigate;
         TMP_Text label = developmentGuidanceNavigationButton.GetComponentInChildren<TMP_Text>();
         if (label != null)
-            label.text = pageName == "Overview" ? "查看" : "前往：" + GetPageTitle(pageName);
+        {
+            label.text = pageName == "Overview" ? "查看当前目标" : "前往：" + GetPageTitle(pageName);
+            label.enabled = true;
+        }
         developmentGuidanceNavigationButton.onClick.RemoveAllListeners();
         if (canNavigate)
             developmentGuidanceNavigationButton.onClick.AddListener(() =>
@@ -1070,29 +1098,6 @@ public sealed partial class KingdomUIRoot
         SetTextIfChanged(field, display);
     }
 
-    #if false
-    private void RefreshTopStatus()
-    {
-        string currentResearch = activeDefinition == null ? "无"
-            : (activeDefinition.Label + (defState != null ? $"[{ResearchProgressText(defState, defState.Status)}]" : ""));
-
-
-        "科技水平：" + state.TechLevel.GetDescription() +
-        "    当前研究：" + currentResearch +
-        "    日期：" + calendar +
-        "\n食物：" + state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "（" + signedFoodChange + "/s）" +
-        "    生产力：" + availableProductivity.ToGameString() + "/" + totalProductivity.ToGameString() +
-        "    幸福度：" + state.HappinessScore.ToGameString() + $"({state.HappinessMultiplier.ToGameString()}x）" +
-        "\n人口：" + state.Population.Population.ToGameString() + "/" + state.Population.PopulationCapacity.ToGameString() + "（" + signedPopulationChange + "/s）" +
-        "    领土：" + state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString() +
-        "    研究力：" + researchPower + "/s";
-        if (!string.IsNullOrEmpty(recentResearchNotice))
-            topStatusText += "\n◆ " + recentResearchNotice;
-        SetTextIfChanged(topStatus, topStatusText);
-    }
-
-    #endif
-
     private void ObserveResearchCompletions(ResearchManager manager)
     {
         if (manager == null)
@@ -1208,6 +1213,9 @@ public sealed partial class KingdomUIRoot
         observedPopulationWhole = ExpantaNum.Zero;
         populationObservationInitialized = false;
         populationGrowthNoticeSent = false;
+        storyNotifiedChapterIds.Clear();
+        storyObservedUnlockCount = -1;
+        storyObservedEraInitialized = false;
     }
 
     private void RefreshLiveCardValues()

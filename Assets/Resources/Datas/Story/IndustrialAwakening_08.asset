@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: IndustrialAwakening_08
+  m_EditorClassIdentifier: 
+  id: IndustrialAwakening_08
+  Title: "第八章：王国开始学习规模"
+  Summary: "工业化的第一课不是追求更大的机器，而是让整条生产链能够共同承担风险。"
+  Body: "工业化的第一课不是让机器不停，而是让供应能够相互等待。石材厂和炭化炉投入运转后，矿石、燃料与建材第一次按照同一套计划流动；任何一处短缺，都会让整座工厂停下。铁路旁的仓棚开始记录来货，检修班在夜里轮换，远方聚落也学会提前说明自己的需要。\n\n王国于是建立统一规格、交接记录和检修班次。规模不再只是更大的产量，而是让许多聚落承担同一条生产链的责任。只有当这副骨架能够稳定运转，精密机器才值得被制造出来，新的风险也才有人愿意共同面对。"
+  RequiredEra: 3
+  RequiredResearch:
+  - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
+  - {fileID: 11400000, guid: 1a64336320babdc47a1001100e678c63, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: e1c2d3e4f5674890b1c2d3e4f5678906, type: 2}
+  - {fileID: 11400000, guid: d1c2d3e4f5674890b1c2d3e4f5678904, type: 2}
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 

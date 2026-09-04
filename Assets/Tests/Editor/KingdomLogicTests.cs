@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -47,6 +48,14 @@ public sealed class KingdomLogicTests
         for (int i = 0; i < managers.Length; i++)
             if (managers[i] != null)
                 managerObjects.Add(managers[i].gameObject);
+    }
+
+    private static string CreateIsolatedSaveRoot(string prefix)
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        string root = Path.Combine(projectRoot, "Temp", prefix + "-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        return root;
     }
 
     [TestCase(0, 5500, 1, 1)]
@@ -306,10 +315,7 @@ public sealed class KingdomLogicTests
     [TestCase("13")]
     public void SaveLoad_ExistingWoodLogAmountDoesNotReceiveNewGameGift(string amount)
     {
-        string root = Path.Combine(
-            Path.GetTempPath(),
-            "KingdomSaveCompatibilityTest-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
+        string root = CreateIsolatedSaveRoot("KingdomSaveCompatibilityTest");
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
@@ -342,10 +348,7 @@ public sealed class KingdomLogicTests
     [Test]
     public void SaveLoad_RecoversFromCorruptPrimaryUsingIsolatedBackup()
     {
-        string root = Path.Combine(
-            Path.GetTempPath(),
-            "KingdomSaveTest-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
+        string root = CreateIsolatedSaveRoot("KingdomSaveTest");
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
@@ -367,8 +370,94 @@ public sealed class KingdomLogicTests
             Assert.That(File.Exists(backupPath), Is.True);
             File.WriteAllText(primaryPath, "{ invalid json");
 
+            LogAssert.Expect(
+                LogType.Error,
+                new Regex("读取 Kingdom 存档.*失败：.*", RegexOptions.Singleline));
             Assert.That(saveManager.LoadOrCreateGame(), Is.True);
             Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [Test]
+    public void SaveLoad_RecoversFromUnsupportedPrimaryUsingValidBackup()
+    {
+        string root = CreateIsolatedSaveRoot("KingdomSaveUnsupportedPrimaryTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("Save-UnsupportedPrimary-GameManager");
+            CreateManager<ResourceManager>("Save-UnsupportedPrimary-ResourceManager");
+            CreateManager<BuildingManager>("Save-UnsupportedPrimary-BuildingManager");
+            CreateManager<ResearchManager>("Save-UnsupportedPrimary-ResearchManager");
+            CreateManager<WorkshopManager>("Save-UnsupportedPrimary-WorkshopManager");
+            SaveManager saveManager = CreateManager<SaveManager>("Save-UnsupportedPrimary-SaveManager");
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Assert.That(saveManager.SaveNow(true), Is.True);
+
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            ResourceManager.Instance.SetAmount(wood, new ExpantaNum(91));
+            Assert.That(saveManager.SaveNow(true), Is.True);
+
+            string primaryPath = Path.Combine(root, "KingdomSave.json");
+            SaveManager.KingdomSaveData unsupported =
+                new SaveManager.KingdomSaveData { Version = SaveFormat.CurrentVersion + 1 };
+            File.WriteAllText(primaryPath, JsonUtility.ToJson(unsupported));
+
+            LogAssert.Expect(LogType.Error, new Regex(".*不支持版本.*", RegexOptions.Singleline));
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.GreaterThan(new ExpantaNum(59)));
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.LessThan(new ExpantaNum(61)));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [Test]
+    public void OfflineProgress_AutosaveAndSecondSettlementDoNotRegrantStartingWood()
+    {
+        string root = CreateIsolatedSaveRoot("KingdomOfflineSettlementTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("Save-OfflineSettlement-GameManager");
+            CreateManager<ResourceManager>("Save-OfflineSettlement-ResourceManager");
+            CreateManager<BuildingManager>("Save-OfflineSettlement-BuildingManager");
+            CreateManager<ResearchManager>("Save-OfflineSettlement-ResearchManager");
+            CreateManager<WorkshopManager>("Save-OfflineSettlement-WorkshopManager");
+            CreateManager<SimulationManager>("Save-OfflineSettlement-SimulationManager");
+            SaveManager saveManager = CreateManager<SaveManager>("Save-OfflineSettlement-SaveManager");
+
+            SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+            data.General.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600L;
+            File.WriteAllText(
+                Path.Combine(root, "KingdomSave.json"),
+                JsonUtility.ToJson(data));
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            ExpantaNum beforeSettlement = ResourceManager.Instance.GetAmount(wood);
+
+            Assert.That(saveManager.ApplyOfflineProgress(), Is.True);
+            ExpantaNum afterFirstSettlement = ResourceManager.Instance.GetAmount(wood);
+            Assert.That(afterFirstSettlement, Is.GreaterThan(beforeSettlement));
+            Assert.That(saveManager.SaveNow(false), Is.True);
+
+            Assert.That(saveManager.ApplyOfflineProgress(), Is.False);
+            Assert.That(saveManager.LastOfflineProgressSeconds, Is.LessThanOrEqualTo(0d));
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.Not.LessThan(afterFirstSettlement));
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.Not.GreaterThan(afterFirstSettlement));
         }
         finally
         {
@@ -406,7 +495,7 @@ public sealed class KingdomLogicTests
 
         SectorDefinition sector = DataBase<SectorDefinition>.All[0];
         SaveManager.KingdomSaveData source = CreateRepresentativeSaveData();
-        source.General.CalendarElapsedSeconds = 12.5d;
+        source.General.CalendarElapsedSeconds = 5.5d;
         source.General.AttackPower = "21";
         source.General.DefensePower = "34";
         source.General.FleetPower = "55";
@@ -467,7 +556,7 @@ public sealed class KingdomLogicTests
         FieldInfo accumulator = typeof(GameManager).GetField(
             "calendarElapsedSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(accumulator, Is.Not.Null);
-        Assert.That((double)accumulator.GetValue(GameManager.Instance), Is.EqualTo(12.5d).Within(1e-9d));
+        Assert.That((double)accumulator.GetValue(GameManager.Instance), Is.EqualTo(5.5d).Within(1e-9d));
         Assert.That(GameManager.Instance.State.AttackPower, Is.EqualTo(new ExpantaNum(21)));
         Assert.That(GameManager.Instance.State.DefensePower, Is.EqualTo(new ExpantaNum(34)));
         Assert.That(GameManager.Instance.State.FleetPower, Is.EqualTo(new ExpantaNum(55)));
@@ -550,7 +639,7 @@ public sealed class KingdomLogicTests
             .FirstOrDefault(definition => definition != null && !definition.IsHomeSystem);
         Assert.That(sector, Is.Not.Null);
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
-        data.General.TechLevel = TechLevel.Neolithic;
+        data.General.TechLevel = TechLevel.StoneAge;
         data.Researches.States = states;
         data.Researches.ActiveResearchId = active.Id;
         data.Researches.QueuedResearchIds = new List<string> { queued.Id };
@@ -705,6 +794,7 @@ public sealed class KingdomLogicTests
     public void TopFlowDemand_UsesRawBuildingDemandWithoutEfficiency()
     {
         CreateManager<GameManager>("TopFlow-GameManager");
+        CreateManager<ResourceManager>("TopFlow-ResourceManager");
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("TopFlow-BuildingManager");
         Building building = CreateEconomyBuilding("TopFlow-Consumer", 0d, 0d, 0d);
@@ -755,7 +845,61 @@ public sealed class KingdomLogicTests
     public void ToGameString_UsesCompactNativeNotationForVeryLargeLayeredValues()
     {
         Assert.That(new ExpantaNum("2e10000").ToGameString(), Is.EqualTo("e10000.301"));
+        Assert.That(new ExpantaNum("1e10000").ToGameString(), Is.EqualTo("1e10000"));
         Assert.That(new ExpantaNum("1e100000").ToGameString(), Is.EqualTo("ee5"));
+        Assert.That(new ExpantaNum("e1.64785E+159").ToGameString(), Is.EqualTo("e1.648e159"));
+        Assert.That(new ExpantaNum("eeee1.6e159").ToGameString(), Is.EqualTo("eeee1.6e159"));
+        Assert.That(new ExpantaNum("eeeeeee1.6e159").ToGameString(), Is.EqualTo("eeeeeee1.6e159"));
+        StringAssert.DoesNotContain("E+", new ExpantaNum("eeeeeee1.6e159").ToString());
+    }
+
+    [Test]
+    public void ToGameString_UsesRemainingFormatsAndHandlesSmallScientificValues()
+    {
+        ExpantaNum scientific = new ExpantaNum(999.9d);
+        Assert.That(scientific.ToGameString(format: ExpantaNumFormat.Scientific), Is.EqualTo("9.999e2"));
+        Assert.That(new ExpantaNum(-1234d).ToGameString(format: ExpantaNumFormat.Scientific), Is.EqualTo("-1.234e3"));
+        Assert.That(new ExpantaNum(1234d).ToGameString(format: ExpantaNumFormat.HyperOperation), Is.EqualTo("1234"));
+        Assert.That(new ExpantaNum(double.Epsilon).ToGameString(format: ExpantaNumFormat.Scientific), Is.EqualTo("4.941e-324"));
+        Assert.That(new ExpantaNum(5e-324d).ToGameString(format: ExpantaNumFormat.Scientific), Is.EqualTo("4.941e-324"));
+    }
+
+    [Test]
+    public void ToGameString_FiniteOutputsCanBeParsedBack()
+    {
+        AssertGameStringParses(new ExpantaNum(999.9d));
+        AssertGameStringParses(new ExpantaNum(-1234d), ExpantaNumFormat.Scientific);
+        AssertGameStringParses(new ExpantaNum(1234d), ExpantaNumFormat.HyperOperation);
+        AssertGameStringParses(new ExpantaNum("1e10000"));
+        AssertGameStringParses(new ExpantaNum("2e10000"));
+        AssertGameStringParses(new ExpantaNum("1e100000"));
+        AssertGameStringParses(new ExpantaNum("eeee1.6e159"));
+        AssertGameStringParses(new ExpantaNum("E100#2"));
+        AssertGameStringParses(new ExpantaNum(double.Epsilon), ExpantaNumFormat.Scientific);
+    }
+
+    [Test]
+    public void ToGameString_ClampsSignificantDigitsAndFormatsSigns()
+    {
+        ExpantaNum value = new ExpantaNum(1234.567d);
+        Assert.That(value.ToGameString(significantDigits: 0), Is.EqualTo("1K"));
+        Assert.That(value.ToGameString(significantDigits: 7), Is.EqualTo("1.23457K"));
+        Assert.That(value.ToGameString(showPositiveSign: true), Is.EqualTo("+1.235K"));
+        Assert.That((-value).ToGameString(), Is.EqualTo("-1.235K"));
+        Assert.That(ExpantaNum.Zero.ToGameString(showPositiveSign: true), Is.EqualTo("0"));
+    }
+
+    private static void AssertGameStringParses(
+        ExpantaNum value,
+        ExpantaNumFormat format = ExpantaNumFormat.Suffix)
+    {
+        string text = value.ToGameString(format: format);
+        ExpantaNum parsed;
+        Assert.That(ExpantaNum.TryParse(text, out parsed), Is.True,
+            "ToGameString output was not parseable: " + text);
+        Assert.That(parsed.IsFinite, Is.True);
+        Assert.That(parsed.IsNegative, Is.EqualTo(value.IsNegative));
+        Assert.That(parsed.IsZero, Is.EqualTo(value.IsZero));
     }
 
     [Test]
@@ -1207,7 +1351,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             gameManager.State,
             "AdvanceTechLevel",
-            TechLevel.Neolithic);
+            TechLevel.StoneAge);
         ResearchState architectureState = researchManager.GetState(masonry);
         var paidMasonryCosts = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < masonry.ResourceRequirements.Count; i++)
@@ -3019,7 +3163,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             GameManager.Instance.State,
             "AdvanceTechLevel",
-            TechLevel.Neolithic);
+            TechLevel.StoneAge);
         for (int i = 0; i < active.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = active.ResourceRequirements[i];
@@ -3193,7 +3337,7 @@ public sealed class KingdomLogicTests
         InvokeGameStateMethod(
             GameManager.Instance.State,
             "AdvanceTechLevel",
-            TechLevel.Neolithic);
+            TechLevel.StoneAge);
         ResourceManager resourceManager = CreateManager<ResourceManager>("Agriculture-ResourceManager");
         resourceManager.SetAmount(DataBase<Resource>.Find("WoodLog"), 29);
         ResearchManager researchManager =

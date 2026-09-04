@@ -15,10 +15,10 @@
 从新游戏开始静态推演：
 
 - 原始主线可完成
-- NeolithicSettlement 可完成
-- 新石器资源链可建立
+- StoneAgeSettlement 可完成
+- 石器资源链可建立
 - FeudalAdministration 可完成
-- Medieval 可进入
+- 中古时代可进入
 
 失败时打印完整阻断路径。
 
@@ -34,6 +34,11 @@ Unity 验收证据。不要根据这些输出调数值；优先使用真实 Unit
 和真实运行时状态，在 PlayMode/Editor 测试中记录输入、输出与日志。
 
 ## PlayMode
+
+Story regression coverage must also verify the fixed 18-chapter order, 200–300
+character bodies, automatic completion after simulation ticks, permanent
+completion history, and save/load rejection of missing, unknown, duplicate or
+skipped chapter IDs.
 
 当前已有基础 PlayMode 用例，但它们不覆盖完整的新游戏、前十分钟、页面切换、存档读写和后台恢复流程；基础用例通过不能替代这些场景的验收。
 

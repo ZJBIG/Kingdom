@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialResearchCoordinationCenter
   Label: "工业科研协同中心"
-  Description: "以标准化实验台、工业测量设备和成果复核流水线连接各地研究机构，将科研协同从制度提升为可持续的工业化流程，进一步提高全局研究效率。"
+  Description: "以标准实验与成果复核流程连接研究机构，提升全局研究效率。"
   SortOrder: 470
   TechLevel: 3
   requiredResearch:

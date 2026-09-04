@@ -24,10 +24,10 @@ MonoBehaviour:
   occupiedResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "0.04"
-  colonizationFoodPerSecond: "0.0166666667"
+  colonizationFoodPerSecond: "16.6666667"
   colonizationResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
-    amount: "0.1666666667"
+    amount: "166.6666667"
   colonizationDurationSeconds: "600"
   campaignFoodPerSecond: "0"
   campaignResourceRatesPerSecond: []

@@ -53,7 +53,7 @@ public static class SimulationStrategies
             techLevel switch
             {
                 SimTechLevel.Animal => 3d,
-                SimTechLevel.Neolithic => 20d,
+                SimTechLevel.StoneAge => 20d,
                 SimTechLevel.Medieval => 40d,
                 _ => 100d
             };

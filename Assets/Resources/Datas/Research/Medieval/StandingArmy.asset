@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: StandingArmy
   m_EditorClassIdentifier: 
   id: StandingArmy
-  Label: "\u6807\u51C6\u5316\u5DE5\u4F5C\u6D41"
-  Description: "\u5EFA\u7ACB\u7A33\u5B9A\u7684\u57F9\u8BAD\u3001\u6392\u73ED\u548C\u8865\u7ED9\u5236\u5EA6\uFF0C\u8BA9\u4EBA\u53E3\u80FD\u4EE5\u66F4\u9AD8\u6548\u7387\u6301\u7EED\u53C2\u4E0E\u751F\u4EA7\u3002"
+  Label: "常备劳动组织"
+  Description: "以长期编制、轮班与纪律化组织，提升人口参与生产的效率。"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 3e79da25cf72909418a6ba8c25b100a0, type: 2}

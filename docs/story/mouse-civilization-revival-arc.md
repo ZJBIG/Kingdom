@@ -10,12 +10,12 @@
 
 ## 二、系统与叙事的共同约束
 
-- 当前时代由 `GameManager.TechLevel` 管理，顺序固定为：原始时代、 新石器时代、中世纪、工业时代、太空时代、Ultra、Archotech。
+- 当前时代由 `GameManager.TechLevel` 管理，顺序固定为：原始时代、石器时代、中古时代、工业时代、太空时代、Ultra、Archotech。
 - 研究由 `ResearchManager` 按科技树和资源前置推进；时代跃迁由带有 `AdvancesTechLevel` 的研究完成，不应写成剧情按钮或过场自动赠予。
 - 建筑由 `BuildingManager` 实际建造并形成生产、消费、能源、物流、人口与领土结果；普通资源没有仓储上限，只有 Food 有容量语义。叙事不可写“仓库满了所以生产停摆”，应写成供应链、研究、建造成本或运输能力不足。
 - Workshop 是工业研究 `IndustrialWorkshop` 解锁后的购买式改良层。它通过研究/升级前置和一次性资源支付，改变生产、建造、物流、战斗或远征效率；它不是独立的时代，也不是凭空出现的新工厂。
 - Spacer 的星区由 `SectorDefinition`/`SectorManager` 管理。本星系探索先建立行星与轨道航行图；之后玩家才可解锁、殖民（本地星系）、远征并占领星区。行动消耗持续 Food 与配置资源，远征受有效战力、舰队、军力、供给、能源、物流、敌方强度和伤亡影响。所谓“Battle”在叙事中应表现为持续的远征/战役压力，而非当前不存在的即时战斗场面。
-- StoryManager 当前是只读档案：章节按 `RequiredEra` 解锁，少数原始时代章节还要求 TutorialStep；UI 可显示最新已解锁记忆和下一段提示，但故事本身不改变研究、资源、存档或战斗规则。
+- StoryManager 读取只读档案并把完成历史写入 `GameState.StoryProgress`：章节按 Archive 连续顺序和真实条件永久完成，少数原始时代章节还要求 TutorialStep；故事本身不改变研究、资源、建筑、星区或战斗结果。
 
 ## 三、七时代主线
 
@@ -27,23 +27,23 @@
 
 冲突：族群仍受季节、食物和脆弱居所威胁；旧文明遗迹只能提供碎片线索，不能替代当前生产。防卫是协作和准备，不写成已有完整军队。
 
-章节节奏：以短章、行动后记忆为主。先是“守住火种”，再是“建第一座能留下来的房子”，随后出现人口与知识传承，最后以研究把散落经验串成方法。对应 StoryManager 的 `prologue-ashes`、`first-fire`、`walls-and-shelter`、`the-growing-clan`、`remembered-knowledge`、`the-first-chain`；前几章可用 TutorialStep 解锁，不能要求时代跃迁。
+章节节奏：以短章、行动后记忆为主。先是“守住火种”，再是“建第一座能留下来的房子”，随后出现人口与知识传承，最后以研究把散落经验串成方法。对应 StoryManager 的 `PrologueAshes_00`、`FirstFire_01`、`WallsAndShelter_02`、`TheGrowingClan_03`、`RememberedKnowledge_04`、`TheFirstChain_05`；前几章可用 TutorialStep 解锁，不能要求时代跃迁。
 
 真实系统对应：资源生产/消费、建筑首批回本、FoodCapacity、Population/Happiness、研究前置与原始生产链。
 
-### 2. 新石器时代：把季节写进土地
+### 2. 石器时代：把季节写进土地
 
 主题：从流动的幸存者变成能承担未来的定居共同体。
 
-玩家行动：完成 NeolithicSettlement、Agriculture、FoodStorage、IrrigationEngineering、CropRotation、CeramicFiring、TextileCraft、WrittenRecords、VillageCrafts 与金属加工分支；建设 StoneHouse、Granary、IrrigationWorks、CeramicKiln、CharcoalKiln、MetalMine、MetalSmelter、ScribeHut、WeavingWorkshop 等。
+玩家行动：完成 StoneAgeSettlement、Agriculture、FoodStorage、IrrigationEngineering、CropRotation、CeramicFiring、TextileCraft、WrittenRecords、VillageCrafts 与金属加工分支；建设 StoneHouse、Granary、IrrigationWorks、CeramicKiln、CharcoalKiln、MetalMine、MetalSmelter、ScribeHut、WeavingWorkshop 等。
 
 冲突：定居带来稳定，也带来土地边界、粮食分配、知识记录和守护聚落的责任。Food 仍是唯一有容量的库存；其他物资的压力来自生产链和建造成本，不写成普通资源仓库上限。
 
-章节节奏：以“建立制度—发现代价—留下记录—准备下一次扩张”四拍推进。`neolithic-return` 是从生存转向制度的时代门槛；每个新建筑都应成为一段可见的公共承诺，而非背景装饰。
+章节节奏：以“建立制度—发现代价—留下记录—准备下一次扩张”四拍推进。`StoneAgeReturn_06` 是从生存转向制度的时代门槛；每个新建筑都应成为一段可见的公共承诺，而非背景装饰。
 
 真实系统对应：人口容量与 Food 消耗、定居建筑、陶器/纺织/煤炭/多金属链、研究解锁和领土占用。
 
-### 3. 中世纪：道路、规则与共同尺度
+### 3. 中古时代：道路、规则与共同尺度
 
 主题：让陌生聚落之间可以长期合作。
 
@@ -51,9 +51,9 @@
 
 冲突：贸易、行政、城市住房和常备防卫同时争夺资源与研究能力。规则既可能保护合作，也可能固化权力；剧情应保留争论、失败和制度修补，不把“时代跃迁”写成王冠自动授予的胜利。
 
-章节节奏：从道路和交换切入，经过学院/书籍带来的知识扩散，转入城市卫生、城防与标准化组织，最后以工业化的可行性作为悬崖。`medieval-order` 负责把“规模”转译为“治理”。
+章节节奏：从道路和交换切入，经过学院/书籍带来的知识扩散，转入城市卫生、城防与标准化组织，最后以工业化的可行性作为悬崖。`MedievalOrder_07` 负责把“规模”转译为“治理”。
 
-真实系统对应：中世纪研究树、城市/教育/贸易建筑、钢铁链、人口与 Food 约束、领土和军事准备。当前静态闭环虽覆盖至 Industrial，动态 pacing 报告仍有失败项，编剧不得把报告中的目标时长写成剧情事实。
+真实系统对应：中古时代研究树、城市/教育/贸易建筑、钢铁链、人口与 Food 约束、领土和军事准备。当前静态闭环虽覆盖至 Industrial，动态 pacing 报告仍有失败项，编剧不得把报告中的目标时长写成剧情事实。
 
 ### 4. 工业时代：让系统学会自我修正
 
@@ -63,11 +63,11 @@
 
 冲突：速度、规模、污染、能源、物流和战争准备互相牵制。玩家需要让矿山、冶炼、化工、机械、铁路和电力互相接得上；工业不是一键无限产出，而是更长的依赖链与更高的维护责任。
 
-章节节奏：`industrial-awakening` 先解释时代跃迁本身，经过工坊改良、机器规模、工厂组织和人口承诺后，`industrial-power` 让能源成为共同节奏；随后依次进入共享电网、标准材料、铁路、化工和大学。这个顺序遵循真实 Research、Building 与 Workshop 前置，避免剧情先讲尚不可执行的下一步。工业章的高潮是解锁 IndustrialWorkshop 并购买关键升级：研究、建筑、Workshop 与生产链共同完成一次可验证的改进。
+章节节奏：工业时代压缩为六个节点：`IndustrialAwakening_08` 的规模危机、`WorkshopMemory_09` 保存的修复经验、`IndustrialPower_10` 带来的能源共同约定、`IndustrialMaterials_11` 中铁路与冶炼组成的生命线、`IndustrialChemistry_12` 的事故与规矩，以及 `IndustrialFrontier_13` 把责任推向母星之外。每章都由真实的 Research、Building 或 Workshop 前置解锁，但正文只写鼠族经历的事件与代价，不把页面操作或内部 ID 写进叙事。
 
-实现约束：`industrial-awakening` 必须读取真实 `Industrialization` Research 的完成状态；它不是 TutorialStep ID。只有确实对应玩家引导动作的章节，才使用 `RequiredTutorialStepId`。
+实现约束：`IndustrialAwakening_08` 必须读取真实 `Industrialization` Research 的完成状态；它不是 TutorialStep ID。只有确实对应玩家引导动作的章节，才使用 `RequiredTutorialStepId`。
 
-工坊前置约束：`workshop-memory` 使用真实 `PrecisionTooling` Upgrade；其直接 Research 前置是 `PrecisionManufacturing`，而 `IndustrialWorkshop` 只负责解锁 Workshop 系统。剧情条件必须与 `WorkshopUpgrade.requiredResearch` 保持一致，不能用间接前置替代直接前置。
+工坊前置约束：`WorkshopMemory_09` 使用真实 `PrecisionTooling` Upgrade；其直接 Research 前置是 `PrecisionManufacturing`，而 `IndustrialWorkshop` 只负责解锁 Workshop 系统。剧情条件必须与 `WorkshopUpgrade.requiredResearch` 保持一致，不能用间接前置替代直接前置。
 
 真实系统对应：工业建筑与资源链、ResearchPower、Power/Logistics、WorkshopManager 的升级购买、几何成本增长、Titanium/Nickel 等晚期材料继续消耗早期工业输入。
 
@@ -81,7 +81,7 @@
 
 冲突：每条补给线都要付出持续成本。远征不是一次点击后的胜利动画：有效战力不足会停滞并承受伤亡，供给、能源和物流不足会削弱战力，舰队损伤还需要维修。星区奖励应被理解为领土、原料、一次性奖励和有限战略流量，不能取代玩家建设的高级生产链。
 
-章节节奏：`frontier-sectors` 先写测绘与殖民的耐心；`war-between-stars` 写供给、伤亡和撤退判断；`beyond-the-sky` 写母星与远方的相互责任。每一段都以一项真实系统动作收束：解锁、殖民进度、开始/暂停远征、修复舰队或占领，而不是凭空出现新能力。
+章节节奏：`FrontierSectors_14` 先写测绘与第一次殖民；`WarBetweenStars_15` 只在前一章完成后写第一次远征受挫、伤亡和撤退判断；`BeyondTheSky_16` 再写远征结果带回母星后的资源取舍。每一段都以一项真实系统动作收束：解锁、殖民进度、开始/暂停远征、修复舰队或占领，而不是凭空出现新能力。
 
 真实系统对应：Spacer 研究/建筑/Workshop、星区前置关系、Colonization、CampaignProgress、CombatRatio、Casualties、Food 与资源持续消耗、占领奖励。
 
@@ -91,13 +91,13 @@
 
 主题：文明开始触碰极限，但仍不知道极限是否可控。
 
-玩家行动：当前真实内容只有 Ultra 时代的 `TechnologicalSingularity` 研究定义；静态报告显示 Ultra 研究 1/1 可达，Workshop 0、建筑 0。叙事最多把它写成对既有深空理论、材料、能源、计算和社会协调的综合性研究门槛，并要求玩家以现有 Spacer 生产与研究链承担代价。
+玩家行动：当前真实内容只有 Ultra 时代的 `TechnologicalSingularity` 研究定义；静态报告显示 Ultra 研究 1/1 可达，Workshop 0、建筑 0。`TheOldBoundary_17` 将在完成这项研究并满足系外驻留条件后作为当前可达的档案终章出现。叙事最多把它写成对既有深空理论、材料、能源、计算和社会协调的综合性研究门槛，并要求玩家以现有 Spacer 生产与研究链承担代价。
 
 冲突：不是“解锁神力”，而是解释、验证与自我约束。奇点研究可以改变文明对自身能力的理解，但在当前实现中没有对应的新建筑、新 Workshop、新资源、新战斗模式或即时世界改写。
 
 章节节奏：短而克制，作为 Spacer 之后的悬念章。前半回看哪些系统已经能被可靠复用，后半留下“奇点究竟是突破还是失控前兆”的问题；不要承诺玩家已经获得时间旅行、现实编辑、意识上传或无限生产。
 
-真实系统对应：仅 `TechLevel.Ultra` 与 `TechnologicalSingularity` 研究解锁/完成状态，以及既有研究和资源支付。任何 Ultra 专属玩法都必须先有真实定义、Manager、状态和验证，再进入剧本。
+真实系统对应：仅 `TechLevel.Ultra` 与 `TechnologicalSingularity` 研究解锁/完成状态，以及既有研究、资源支付和系外星区占领。任何 Ultra 专属玩法都必须先有真实定义、Manager、状态和验证，再进入剧本。
 
 ### 7. Archotech：远古技术留下的选择题
 
@@ -107,14 +107,14 @@
 
 冲突：一份记录说祖先因傲慢毁灭，另一份说他们主动沉默以保护后来者。玩家不能靠“正确遗迹”自动得到答案；答案必须由后续真实玩法、资源取舍、远征结果或新增且经过验证的系统承载。
 
-章节节奏：`the-old-boundary` 只作为档案馆式终章/未完结卷轴。它应在 Archotech 状态可显示时呈现“边界已被看见”，而不是宣称 Archotech 内容已完成。
+章节节奏：`TheOldBoundary_17` 是当前 Ultra 阶段可达的档案馆式终章/未完结卷轴。它只呈现“边界已被看见”，不宣称 Archotech 内容已经完成。
 
-真实系统对应：当前仅有 `TechLevel.Archotech` 枚举值和 StoryManager 的终章记录。不得虚构 Archotech 研究成本、建筑效果、Workshop 树、敌人、战斗、资源或结局分支。
+真实系统对应：当前 Archotech 仍只有 `TechLevel.Archotech` 枚举值，没有可引用的研究、建筑或 Workshop。不得虚构 Archotech 研究成本、建筑效果、Workshop 树、敌人、战斗、资源或结局分支。
 
 ## 四、不可兑现的叙事边界
 
 1. 不把 Ultra 或 Archotech 写成当前已有完整玩法。尤其不得虚构 Ultra/Archotech 的建筑、Workshop、资源、战斗、时间操纵、无限生产、意识上传、现实重写或自动结局。
-2. 不把 StoryManager 当作剧情状态机。它只保存只读章节资料，并依据时代/TutorialStep 决定可读性；章节阅读不应直接授予资源、研究、建筑、领土或战斗胜利。
+2. 不把 StoryManager 当作经济或战斗系统。它读取只读章节资料，并依据真实条件按顺序写入永久完成历史；章节完成不直接授予资源、研究、建筑、领土或战斗胜利。
 3. 不把星区写成无限资源仓库或瞬间征服地图。殖民、远征、占领有不同状态与前置；星际战役需要持续供给，失败/停滞/伤亡都是真实可能性。
 4. 不写当前不存在的即时操控战斗、单位编队、外交对话树、角色技能、随机事件系统或剧情分支存档。当前 Battle 叙事应对应 CampaignManager 的确定性比值、进度、供给和伤亡。
 5. 不用剧情解释绕过经济规则：普通资源无容量上限，Food 才有容量；人口不等于可分配 workforce；资源短缺应落到实际生产、消费、研究、建造、能源、物流或远征供给。

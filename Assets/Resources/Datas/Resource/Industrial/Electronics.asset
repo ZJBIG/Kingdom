@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Electronics
   Label: "\u7535\u5B50\u5143\u4EF6"
-  Description: "\u7528\u4E8E\u5DE5\u4E1A\u7CFB\u7EDF\u63A7\u5236\u4E0E\u901A\u4FE1\u7684\u94DC\u57FA\u5143\u4EF6\u3002"
+  Description: "用于工业控制、通信与导航的电子组件，依赖铜线和精密制造。"
   Sprite: {fileID: 21300000, guid: ee28dbcad0ffa8847a47114f0b585558, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

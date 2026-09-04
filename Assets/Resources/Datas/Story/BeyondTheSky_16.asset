@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: BeyondTheSky_16
+  m_EditorClassIdentifier: 
+  id: BeyondTheSky_16
+  Title: "第十六章：贴近太阳的灯塔"
+  Summary: "穿过太阳系深处的航线后，王国开始在强烈辐射和太阳能流中建立真正的能源前哨。"
+  Body: "远方行星的补给线稳定后，探测队把航线转向太阳系深处。靠近太阳的环境会灼毁普通设备，通信也会被强烈辐射扰乱；只有轨道能源阵列、天气观测和多重维修方案同时运行，前哨才不会在下一次风暴中失去联系。值守者轮流守在舱外，把温度、辐射和电力变化写进航行日志。\n\n太阳附近的资源没有立刻变成财富。它先成为考验王国调度能力的灯塔：能源必须传回需要它的地方，风险必须被提前预报，所有成果都要留下可复用的航路。每一次回传都提醒他们，靠近太阳并不等于征服自然，而是学会在危险边缘维持彼此的生存。"
+  RequiredEra: 4
+  RequiredResearch:
+  - {fileID: 11400000, guid: d4a6c8e0f2b54791ac3d5e7f9b1026c8, type: 2}
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  - {fileID: 11400000, guid: 293a4b5c6d7e8f901a2b3c4d5e6f7081, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: a1b2c3d4e5f60718293a4b5c6d7e8f90, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: b2c3d4e5f60718293a4b5c6d7e8f901a, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors:
+  - {fileID: 11400000, guid: 1820cea6c13ab3840b299c478d24406f, type: 2}
+  - {fileID: 11400000, guid: d06dcc262d273e54e88f2b4e72492797, type: 2}
+  RequiredTutorialStepId: 
+

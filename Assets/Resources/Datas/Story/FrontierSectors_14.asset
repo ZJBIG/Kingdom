@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: FrontierSectors_14
+  m_EditorClassIdentifier: 
+  id: FrontierSectors_14
+  Title: "第十四章：月面上的第二座城"
+  Summary: "第一次离开母星不是远征的终点，而是建立近地基地、维持补给和安全返航的起点。"
+  Body: "发射中心第一次点火时，所有人都以为最难的是离开地面。真正的困难出现在月面：食物、燃料和备用零件必须按周期送达，任何一次延误都会让基地失去返航能力。远征队没有急着寻找宝藏，而是先搭起居住舱、维修台和通信信标，并为每次故障保留替换部件。\n\n月球基地证明，探索首先是一种持续的生产能力。只有把近地轨道变成可靠的前哨，王国才有资格把航线伸向更远的行星。每一支队伍带回的不只是样本，还有对下一次出发应承担多少风险的判断。"
+  RequiredEra: 4
+  RequiredResearch:
+  - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 228adaa627a33bd4ea2b87e41c5a0445, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: e6b4c8d2f0a19375be46d9c1a7f20583, type: 2}
+  RequiredUnlockedSectors:
+  - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
+  RequiredOccupiedSectors:
+  - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
+  RequiredTutorialStepId: 

@@ -9,10 +9,9 @@ using UnityEngine;
 
 public enum ExpantaNumFormat
 {
-    Suffix,
-    Scientific,
-    Engineering,
-    HyperOperation
+    Suffix = 0,
+    Scientific = 1,
+    HyperOperation = 3
 }
 
 
@@ -1816,7 +1815,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
                 builder.Append(layer.ToString("G6", CultureInfo.InvariantCulture));
                 builder.Append(' ');
             }
-            builder.Append(scalar.ToString("G6", CultureInfo.InvariantCulture));
+            builder.Append(FormatInternalNumber(scalar));
             return builder.ToString();
         }
 
@@ -1900,17 +1899,8 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         if (representation == LayeredRepresentation)
         {
             if (layer == 1d && format != ExpantaNumFormat.HyperOperation)
-            {
-                if (scalar > 10000d)
-                {
-                    double exponentOfExponent = Math.Log10(scalar);
-                    if (Math.Abs(exponentOfExponent - Math.Round(exponentOfExponent)) <= 1e-6d)
-                        return prefix + "ee" + FormatDisplayNumber(
-                            Math.Round(exponentOfExponent), significantDigits);
-                    return prefix + "e" + scalar.ToString("0.###", CultureInfo.InvariantCulture);
-                }
-                return prefix + "1e" + FormatDisplayNumber(scalar, significantDigits);
-            }
+                return prefix + FormatLayeredGameString(scalar, significantDigits);
+
             return prefix + Abs().ToString();
         }
         if (representation == HyperRepresentation)
@@ -1923,7 +1913,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         if (format == ExpantaNumFormat.Scientific)
         {
             int exponent = (int)Math.Floor(Math.Log10(magnitude));
-            double mantissa = magnitude / Math.Pow(10d, exponent);
+            double mantissa = CalculateScientificMantissa(magnitude, exponent);
             mantissa = RoundToSignificantDigits(mantissa, significantDigits);
             if (mantissa >= 10d)
             {
@@ -1932,21 +1922,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
             }
 
             return prefix + FormatDisplayNumber(mantissa, significantDigits) + "e" +
-                   exponent.ToString(CultureInfo.InvariantCulture);
-        }
-
-        if (format == ExpantaNumFormat.Engineering)
-        {
-            int exponent = (int)Math.Floor(Math.Log10(magnitude) / 3d) * 3;
-            double scaled = magnitude / Math.Pow(10d, exponent);
-            scaled = RoundToSignificantDigits(scaled, significantDigits);
-            if (scaled >= 1000d)
-            {
-                scaled /= 1000d;
-                exponent += 3;
-            }
-
-            return prefix + FormatDisplayNumber(scaled, significantDigits) + "e" +
                    exponent.ToString(CultureInfo.InvariantCulture);
         }
 
@@ -2053,6 +2028,48 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
         return result.Replace("E+", "e").Replace("E", "e");
     }
+
+    private static string FormatScientificDisplayNumber(double magnitude, int significantDigits)
+    {
+        int exponent = (int)Math.Floor(Math.Log10(magnitude));
+        double mantissa = CalculateScientificMantissa(magnitude, exponent);
+        mantissa = RoundToSignificantDigits(mantissa, significantDigits);
+        if (mantissa >= 10d)
+        {
+            mantissa /= 10d;
+            exponent++;
+        }
+
+        return FormatDisplayNumber(mantissa, significantDigits) + "e" +
+               exponent.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatLayeredGameString(double scalar, int significantDigits)
+    {
+        if (scalar <= 10000d)
+            return "1e" + scalar.ToString("0.###", CultureInfo.InvariantCulture);
+
+        double exponentOfExponent = Math.Log10(scalar);
+        if (Math.Abs(exponentOfExponent - Math.Round(exponentOfExponent)) <= 1e-6d)
+            return "ee" + FormatDisplayNumber(
+                Math.Round(exponentOfExponent), significantDigits);
+
+        if (scalar >= 1e21d)
+            return "e" + FormatScientificDisplayNumber(scalar, significantDigits);
+
+        return "e" + scalar.ToString("0.###", CultureInfo.InvariantCulture);
+    }
+
+    private static double CalculateScientificMantissa(double magnitude, int exponent)
+    {
+        double logarithmicRemainder = Math.Log(magnitude) - exponent * Math.Log(10d);
+        return Math.Exp(logarithmicRemainder);
+    }
+
+    private static string FormatInternalNumber(double value) =>
+        value.ToString("G6", CultureInfo.InvariantCulture)
+            .Replace("E+", "e")
+            .Replace("E", "e");
 
     private static double RoundToSignificantDigits(double value, int digits)
     {

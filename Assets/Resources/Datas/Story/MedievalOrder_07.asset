@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: MedievalOrder_07
+  m_EditorClassIdentifier: 
+  id: MedievalOrder_07
+  Title: "第七章：道路与秩序"
+  Summary: "当王国拥有多个聚落，规则本身也必须成为一种基础设施。"
+  Body: "贸易、学院、行政与城市住宅让鼠族第一次能够在陌生族群之间维持信任。道路连接的不只是货物，也连接了不同聚落对未来的想象。商队在关口留下印记，学者替争执的双方保存证词，城墙上的守卫则学会在收税与救济之间寻找平衡。\n\n王冠的意义从来不是权力本身，而是让更多鼠族相信，今天投入的劳动明天仍有价值。城市钟声为各地校准时间，法典替陌生人划出共同底线。鼠族仍会争执、交易和失败，但他们开始相信秩序不是束缚，而是让远方合作成为可能、也让弱小者能够申诉的桥梁。"
+  RequiredEra: 2
+  RequiredResearch:
+  - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: be5213f0e4ae52f40b3f4f81301955ca, type: 2}
+  - {fileID: 11400000, guid: dc6457aada3ab7c4fa8517340f6ad101, type: 2}
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+
+
+
+

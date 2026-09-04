@@ -17,7 +17,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool dirty = true;
     private long lastSavedStateSignature;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     private static string saveRootOverride;
 #endif
 
@@ -25,7 +25,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         get
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
             if (!string.IsNullOrEmpty(saveRootOverride))
                 return saveRootOverride;
 #endif
@@ -37,7 +37,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     private string TempPath => SavePath + TempExtension;
     private string BackupPath => SavePath + BackupExtension;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     public static void SetSaveRootOverrideForTests(string root)
     {
         if (string.IsNullOrWhiteSpace(root))
@@ -59,11 +59,17 @@ public sealed class SaveManager : Singleton<SaveManager>
     public bool HasSave => File.Exists(SavePath) || File.Exists(BackupPath);
     public bool LastLoadCreatedNewGame { get; private set; }
 
+    public static void ValidateStorySaveData(KingdomSaveData data)
+    {
+        ValidateStorySection(data, true);
+    }
+
     public double LastOfflineProgressSeconds { get; private set; }
 
     public void SetReady(bool value)
     {
         ready = value;
+        StoryManager.RefreshProgress();
         lastSavedStateSignature = CalculateStateSignature();
         dirty = value && !HasSave;
     }
@@ -127,6 +133,8 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
         TutorialManager.Ensure().ResetForNewGame();
+        StoryManager.ResetForNewGame();
+        StoryManager.RefreshProgress();
         LastLoadCreatedNewGame = true;
         ready = true;
         dirty = true;
@@ -214,6 +222,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     private KingdomSaveData CaptureSaveData()
     {
+        StoryManager.RefreshProgress();
         return new KingdomSaveData
         {
             Version = SaveFormat.CurrentVersion,
@@ -223,7 +232,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             Researches = ResearchManager.Instance.CaptureSaveData(),
             Workshop = WorkshopManager.Instance.CaptureSaveData(),
             Sectors = GameManager.Instance.Sectors.CaptureSaveData(),
-            Tutorial = TutorialManager.Ensure().CaptureSaveData()
+            Tutorial = TutorialManager.Ensure().CaptureSaveData(),
+            Story = StoryManager.CaptureSaveData()
         };
     }
 
@@ -233,6 +243,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档 JSON 为空或无效。");
         if (!IsSupportedVersion(data.Version))
             throw new InvalidDataException("存档结构不是当前版本。");
+        ValidateStorySection(data, false);
 
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
@@ -248,7 +259,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
         if (data.Researches != null)
-            data.Researches.LegacyFormat = data.Version < SaveFormat.CurrentVersion;
+            data.Researches.LegacyFormat = data.Version < 7;
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
@@ -256,6 +267,9 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
         BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
+        if (data.Story != null)
+            StoryManager.RestoreSaveData(data.Story);
+        StoryManager.RefreshProgress();
     }
 
     internal static void StampSaveTimestamp(KingdomSaveData data, long unixSeconds)
@@ -326,6 +340,7 @@ public sealed class SaveManager : Singleton<SaveManager>
                     $"当前应为“{SaveFormat.CurrentVersion}”。");
                 return false;
             }
+            ValidateStorySection(data, true);
             return true;
         }
         catch (Exception exception)
@@ -338,17 +353,37 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     private void UpdateDirtyFromStateVersions()
     {
+        StoryManager.RefreshProgress();
         long signature = CalculateStateSignature();
         if (signature != lastSavedStateSignature)
             dirty = true;
     }
 
+    private static void ValidateStorySection(KingdomSaveData data,
+        bool requireSection)
+    {
+        if (data == null)
+            throw new InvalidDataException("存档对象为空。");
+        if (data.Story == null || data.Story.CompletedChapterIds == null)
+        {
+            if (requireSection)
+                throw new InvalidDataException("存档缺少剧情完成字段。");
+            return;
+        }
+
+        TechLevel era = data.General == null
+            ? TechLevel.Animal : data.General.TechLevel;
+        StoryManager.ValidateCompletedChapterIds(
+            data.Story.CompletedChapterIds, era);
+    }
+
     private static long CalculateStateSignature()
     {
-        unchecked
-        {
-            long hash = 17;
-            Append(ref hash, GameManager.Instance.State.Version);
+            unchecked
+            {
+                long hash = 17;
+                Append(ref hash, GameManager.Instance.State.Version);
+                Append(ref hash, StoryManager.ProgressVersion);
 
             IReadOnlyDictionary<Resource, ResourceState> resources = ResourceManager.Instance.States;
             IReadOnlyList<Resource> resourceDefinitions = DataBase<Resource>.All;
@@ -402,6 +437,13 @@ public sealed class SaveManager : Singleton<SaveManager>
         public WorkshopSaveData Workshop;
         public SectorSaveData Sectors;
         public TutorialSaveData Tutorial;
+        public StorySaveData Story;
+    }
+
+    [Serializable]
+    public sealed class StorySaveData
+    {
+        public List<string> CompletedChapterIds;
     }
 
     [Serializable]

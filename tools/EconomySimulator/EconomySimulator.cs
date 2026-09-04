@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Kingdom.EconomySimulation;
 
-public enum SimTechLevel { Animal=0, Neolithic=1, Medieval=2, Industrial=3, Spacer=4, Ultra=5, Archotech=6 }
+public enum SimTechLevel { Animal=0, StoneAge=1, Medieval=2, Industrial=3, Spacer=4, Ultra=5, Archotech=6 }
 public enum Route { Normal, Fast, Conservative }
 
 public sealed class SimulationEvent
@@ -222,7 +222,7 @@ public static class EconomySimulator
         }
         s.MaximumNoActionSeconds=Math.Max(s.MaximumNoActionSeconds,s.Seconds-s.LastActionSeconds);
         BalanceAnalysis.Analyze(r,snapshot.All,b,q);
-        r.Notes.Add($"Internal clock: one-second Animal/Neolithic ticks, ten-second Medieval ticks, ten-minute Industrial ticks and thirty-minute Spacer/Ultra/Archotech ticks; rates remain per-second and are multiplied by the complete step. Observation horizon is {DefaultHorizonDays} days; reports sample every {ReportSnapshotIntervalSeconds / 60} minutes.");
+        r.Notes.Add($"Internal clock: one-second Animal/StoneAge ticks, ten-second Medieval ticks, ten-minute Industrial ticks and thirty-minute Spacer/Ultra/Archotech ticks; rates remain per-second and are multiplied by the complete step. Observation horizon is {DefaultHorizonDays} days; reports sample every {ReportSnapshotIntervalSeconds / 60} minutes.");
         r.Notes.Add("The standalone double-based simulator saturates only at double.MaxValue to prevent overflow from becoming NaN; this is not a gameplay stockpile cap.");
         r.Notes.Add("Research waits until its complete resource cost can be paid atomically, matching ResearchManager.");
         r.Notes.Add("Workshop unlocks, prerequisites, costs and effects are simulated.");

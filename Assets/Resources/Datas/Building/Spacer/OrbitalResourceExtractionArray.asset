@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalResourceExtractionArray
   Label: "\u8F68\u9053\u8D44\u6E90\u63D0\u53D6\u9635\u5217"
-  Description: "\u7EDF\u4E00\u96C6\u6210\u6DF1\u7A7A\u591A\u91D1\u5C5E\u63D0\u53D6\u3001\u771F\u7A7A\u51B6\u91D1\u3001\u81EA\u52A8\u5377\u5E03\u4E0E\u751F\u7269\u8D28\u8C03\u914D\u7684\u7EFC\u5408\u8D44\u6E90\u9635\u5217\uFF0C\u76F4\u63A5\u8F93\u51FA\u91D1\u5C5E\u539F\u6599\u3001\u949B\u5408\u91D1\u548C\u5E03\u6599\u3002"
+  Description: "整合轨道采矿、冶金与纺织流程，输出矿物、钛合金和布料。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.24

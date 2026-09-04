@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialOilExtractionComplex
   Label: "工业石油开采综合体"
-  Description: "将深井钻探、注水增产、井口分离和集中输油整合为大型油田设施，持续供应炼油与化工体系所需的原油；高压泵组和井场爆破作业需要润滑剂与工业炸药维护。"
+  Description: "整合深井钻探与输油设施，持续供应炼油和化工所需原油。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

@@ -1,0 +1,22 @@
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6A4A59AC-2A82-4D06-9E7D-1C50B229E768}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Kingdom.Runtime</AssemblyName>
+    <RootNamespace>Kingdom</RootNamespace>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildProjectDirectory)\Kingdom.Developer.References.props" />
+  <ItemGroup>
+    <Compile Include="Assets\Resources\Script\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <Target Name="Build">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\codex\build-developer-assembly.ps1&quot; -Assembly Runtime -Configuration &quot;$(Configuration)&quot;" />
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Build" />
+</Project>

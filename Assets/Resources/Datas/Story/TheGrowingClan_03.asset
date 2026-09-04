@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: TheGrowingClan_03
+  m_EditorClassIdentifier: 
+  id: TheGrowingClan_03
+  Title: "第三章：会留下的人"
+  Summary: "人口增长意味着火塘旁开始出现不属于同一代人的声音。"
+  Body: "食物充足、火塘温暖，族群才愿意把帐篷留在同一片土地上。年轻的父母在屋檐下照料幼崽，长者把寻找水源和辨认季节的本领交给他们；每个新家庭都让聚落多一双手，也多一份需要被守护的牵挂。邻家的火光在夜里彼此回应，提醒人们不必独自面对寒冷。\n\n当第一个新生儿被记入族谱，鼠族复兴才真正拥有了时间。孩子会在尚未走过的道路上长大，把今日的决定带到更远的岁月。族群于是明白，修建屋舍、耕种土地和守住火种，并不是为了炫耀繁盛，而是为了让陌生的未来仍有可以继承的家园。"
+  RequiredEra: 0
+  RequiredResearch: []
+  RequiredBuildings: []
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: population

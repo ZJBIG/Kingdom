@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Fortification
   m_EditorClassIdentifier: 
   id: Fortification
-  Label: "\u57FA\u7840\u8BBE\u65BD\u89C4\u5212"
-  Description: "\u7EDF\u4E00\u516C\u5171\u5EFA\u8BBE\u3001\u7269\u8D44\u8C03\u5EA6\u548C\u957F\u671F\u7EF4\u62A4\uFF0C\u8BA9\u57FA\u7840\u8BBE\u65BD\u66F4\u9AD8\u6548\u5730\u652F\u6301\u751F\u4EA7\u3002"
+  Label: "防御工事规划"
+  Description: "规划防御工事与公共设施，降低全局建筑的建造阻力。"
   BaseCost: "210000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

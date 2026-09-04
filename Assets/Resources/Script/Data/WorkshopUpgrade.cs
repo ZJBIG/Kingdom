@@ -44,46 +44,26 @@ public sealed class WorkshopUpgrade : GameDefinition
 }
 
 public enum WorkshopEffectType
-{
-    [Description("建筑生产效率")]
+{ 
     BuildingProductionMultiplier,
-    [Description("资源生产效率")]
     ResourceProductionMultiplier = 2,
-    [Description("全局研究效率")]
     GlobalResearchMultiplier = 3,
-    [Description("全局建造效率")]
     GlobalConstructionMultiplier = 4,
-    [Description("领土增加")]
     TerritoryGranted = 5,
-    [Description("军事能力")]
     MilitaryMultiplier = 6,
-    [Description("全局电力效率")]
     PowerMultiplier = 7,
-    [Description("全局建筑生产效率")]
     GlobalBuildingProductionMultiplier = 8,
-    [Description("建筑研究效率")]
     BuildingResearchPowerMultiplier = 9,
-    [Description("建筑电力产出")]
     BuildingPowerProductionMultiplier = 10,
-    [Description("建筑物流产出")]
     BuildingLogisticsProductionMultiplier = 11,
-    [Description("全局物流效率")]
     GlobalLogisticsMultiplier = 12,
-    [Description("舰队维修成本")]
     FleetRepairCostMultiplier = 13,
-    [Description("人口增长")]
     PopulationGrowthMultiplier = 14,
-    [Description("占领资源产出")]
     OccupiedResourceProductionMultiplier = 15,
-    [Description("远征补给成本")]
     CampaignSupplyCostMultiplier = 16,
-    [Description("远征伤亡")]
     CampaignCasualtyMultiplier = 17,
-    [Description("建筑建造效率")]
     BuildingConstructionMultiplier = 18,
-    [Description("探索能力")]
     ExplorationPowerMultiplier = 19,
-    [Description("全局粮食生产效率")]
     GlobalFoodProductionMultiplier = 20
 }
 

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ControlledBlasting
   Label: "\u7CBE\u786E\u7206\u7834\u5DE5\u827A"
-  Description: "用定向爆破、安全装药与数据化孔网设计提高铝土、稀有金属与石油采掘效率；实际爆破作业由采掘建筑持续消耗工业炸药。"
+  Description: "用定向爆破和安全装药，提高矿产与石油采掘效率。"
   SortOrder: 85
   TechLevel: 3
   requiredResearch:

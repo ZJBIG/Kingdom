@@ -15,6 +15,7 @@ public sealed partial class KingdomUIRoot
     private static readonly Color ListRowEven = new Color(.25f, .28f, .28f, 1f);
     private static readonly Color ListRowOdd = new Color(.08f, .10f, .10f, 1f);
     private readonly System.Text.StringBuilder buildingDisplaySignatureBuilder = new(1024);
+    private readonly Dictionary<WorkshopUpgrade, Button> workshopPurchaseButtons = new();
 
     private static void ApplyListRowStyle(GameObject row, int index)
     {
@@ -286,6 +287,7 @@ public sealed partial class KingdomUIRoot
     private void BuildAuthoredWorkshopRows(RectTransform parent)
     {
         int visible = 0;
+        workshopPurchaseButtons.Clear();
         IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
         var orderedDefinitions = new List<WorkshopUpgrade>();
         for (int i = 0; i < definitions.Count; i++)
@@ -323,7 +325,7 @@ public sealed partial class KingdomUIRoot
             }
             bool purchased = WorkshopManager.Instance.IsPurchased(definition);
             string availability = GetWorkshopAvailability(
-                definition, out bool canPurchase, out bool resourceBlocked);
+                definition, out bool canPurchase);
             if (!SetRowText(row, "Label", definition.Label) ||
                 !SetRowText(row, "TechLevel",
                     definition.TechLevel.GetDescription() + " · " + availability,
@@ -358,28 +360,21 @@ public sealed partial class KingdomUIRoot
             deconstructButton.gameObject.SetActive(false);
             SetBuildingActionButtonText(
                 purchaseButton,
-                purchased
-                    ? "已拥有"
-                    : canPurchase
-                        ? "购买"
-                        : resourceBlocked ? "查看缺口" : "锁定");
+                purchased ? "已拥有" : "购买");
             purchaseButton.onClick.RemoveAllListeners();
             purchaseButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(resourceBlocked
-                    ? UIButtonSoundManager.Sound.Detail
-                    : UIButtonSoundManager.Sound.Purchase);
-                if (resourceBlocked)
-                    ShowWorkshopDetails(definition);
-                else
-                    PurchaseWorkshopFromRow(definition);
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
+                PurchaseWorkshopFromRow(definition);
             });
-            purchaseButton.interactable = canPurchase || resourceBlocked;
+            purchaseButton.interactable = canPurchase;
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
+            workshopPurchaseButtons[definition] = purchaseButton;
         }
         for (int i = visible; i < workshopRows.Count; i++)
             if (workshopRows[i] != null)
                 workshopRows[i].SetActive(false);
+        CaptureWorkshopFilterMembershipSignature();
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, pooled={workshopRows.Count}, rowsRect={parent.rect.size}");
     }
 
@@ -391,22 +386,44 @@ public sealed partial class KingdomUIRoot
             : string.CompareOrdinal(left.Id, right.Id);
     }
 
-    private static bool ShouldRevealWorkshop(WorkshopUpgrade definition)
+    private bool ShouldRevealWorkshop(WorkshopUpgrade definition)
     {
         WorkshopManager manager = WorkshopManager.Instance;
         GameManager game = GameManager.Instance;
-        if (definition == null || manager == null || game == null ||
-            definition.TechLevel > game.State.TechLevel)
+        if (definition == null || manager == null || game == null)
             return false;
         if (manager.IsPurchased(definition))
-            return true;
-        for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
+            return showOwned && !affordableOnly;
+        bool unlocked = manager.IsSystemUnlocked &&
+            definition.TechLevel <= game.State.TechLevel &&
+            manager.ArePrerequisitesMet(definition);
+        if (!unlocked || !affordableOnly)
+            return unlocked;
+        GetWorkshopAvailability(definition, out bool canPurchase);
+        return canPurchase;
+    }
+
+
+    private void RefreshWorkshopPurchaseButtonStates()
+    {
+        WorkshopManager manager = WorkshopManager.Instance;
+        if (manager == null)
+            return;
+        foreach (KeyValuePair<WorkshopUpgrade, Button> pair in workshopPurchaseButtons)
         {
-            WorkshopUpgrade prerequisite = definition.RequiredUpgrades[i];
-            if (prerequisite == null || !manager.IsPurchased(prerequisite))
-                return false;
+            WorkshopUpgrade definition = pair.Key;
+            Button purchaseButton = pair.Value;
+            if (definition == null || purchaseButton == null ||
+                !purchaseButton.gameObject.activeInHierarchy)
+                continue;
+            bool purchased = manager.IsPurchased(definition);
+            GetWorkshopAvailability(definition, out bool canPurchase);
+            SetBuildingActionButtonText(
+                purchaseButton,
+                purchased ? "已拥有" : "购买");
+            purchaseButton.interactable = canPurchase;
+            SetBuildingActionButtonState(purchaseButton, canPurchase);
         }
-        return true;
     }
 
     private GameObject InstantiateAuthoredRow(string prefab, RectTransform parent, int index,

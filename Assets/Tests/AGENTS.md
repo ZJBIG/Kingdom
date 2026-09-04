@@ -11,3 +11,4 @@ These instructions apply to `Assets/Tests/**`.
 - Separate correctness and performance tests.
 - Record Unity result XML and log paths.
 - A successful PlayMode runner with zero project test cases is not acceptance evidence.
+- 禁止在新增测试中使用反射；通过公开的强类型 API 或 DTO 构造测试状态。

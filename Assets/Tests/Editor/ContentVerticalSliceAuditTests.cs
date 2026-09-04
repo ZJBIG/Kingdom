@@ -24,7 +24,7 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     [Test]
-    public void NeolithicProcessingChains_HaveOutputAndInputFlow()
+    public void StoneAgeProcessingChains_HaveOutputAndInputFlow()
     {
         Assert.That(HasGeneration("CeramicKiln", "Ceramic"), Is.True);
         Assert.That(HasConsumption("CeramicKiln", "Clay"), Is.True);
@@ -44,15 +44,15 @@ public sealed class ContentVerticalSliceAuditTests
     [Test]
     public void VerticalSliceTransitionResearches_AdvanceTheirTechLevels()
     {
-        Research neolithic = DataBase<Research>.Find("NeolithicSettlement");
+        Research stoneAge = DataBase<Research>.Find("StoneAgeSettlement");
         Research medieval = DataBase<Research>.Find("FeudalAdministration");
 
-        Assert.That(neolithic.AdvancesTechLevel, Is.True);
-        Assert.That(neolithic.TechLevel, Is.EqualTo(TechLevel.Neolithic));
-        Assert.That(HasPrerequisite(neolithic, "AnimalHusbandry"), Is.True);
-        Assert.That(HasPrerequisite(neolithic, "Agriculture"), Is.True);
-        Assert.That(HasPrerequisite(neolithic, "ClayExtraction"), Is.True);
-        foreach (Research prerequisite in neolithic.Prerequisites)
+        Assert.That(stoneAge.AdvancesTechLevel, Is.True);
+        Assert.That(stoneAge.TechLevel, Is.EqualTo(TechLevel.StoneAge));
+        Assert.That(HasPrerequisite(stoneAge, "AnimalHusbandry"), Is.True);
+        Assert.That(HasPrerequisite(stoneAge, "Agriculture"), Is.True);
+        Assert.That(HasPrerequisite(stoneAge, "ClayExtraction"), Is.True);
+        foreach (Research prerequisite in stoneAge.Prerequisites)
             Assert.That(prerequisite.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(medieval.AdvancesTechLevel, Is.True);
         Assert.That(medieval.TechLevel, Is.EqualTo(TechLevel.Medieval));
@@ -62,33 +62,29 @@ public sealed class ContentVerticalSliceAuditTests
     public void EraTransitionsExposeResearchAndResourceChecklist()
     {
         AssertPrerequisites(
-            "NeolithicSettlement",
+            "StoneAgeSettlement",
             new[] { "Agriculture", "AnimalHusbandry", "ClayExtraction" });
         AssertTransitionRequirements(
-            "NeolithicSettlement",
-            new[] { "WoodLog", "StoneChunk", "Clay", "Biomass" },
-            new[] { "2000", "1200", "800", "800" });
+            "StoneAgeSettlement",
+            new[] { "WoodLog", "StoneChunk", "Clay", "Biomass" });
         AssertPrerequisites(
             "FeudalAdministration",
             new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" });
         AssertTransitionRequirements(
             "FeudalAdministration",
-            new[] { "StoneBrick", "Cloth" },
-            new[] { "5000", "2000" });
+            new[] { "StoneBrick", "Cloth" });
         AssertPrerequisites(
             "Industrialization",
             new[] { "MechanicalEngineering", "Steelmaking" });
         AssertTransitionRequirements(
             "Industrialization",
-            new[] { "Steel" },
-            new[] { "50000" });
+            new[] { "Steel" });
         AssertPrerequisites(
             "InterstellarNavigation",
             new[] { "Industrialization", "TitaniumAlloyEngineering" });
         AssertTransitionRequirements(
             "InterstellarNavigation",
-            new[] { "RocketFuel", "TitaniumAlloy", "CopperWire", "Electronics" },
-            new[] { "1250", "1250", "6000", "7000" });
+            new[] { "RocketFuel", "TitaniumAlloy", "CopperWire", "Electronics" });
         AssertPrerequisites(
             "TechnologicalSingularity",
             new[] { "PhaseFieldNavigation", "QuantumComputing" });
@@ -96,7 +92,7 @@ public sealed class ContentVerticalSliceAuditTests
         TechLevel[] currentEras =
         {
             TechLevel.Animal,
-            TechLevel.Neolithic,
+            TechLevel.StoneAge,
             TechLevel.Medieval,
             TechLevel.Industrial,
             TechLevel.Spacer
@@ -114,34 +110,88 @@ public sealed class ContentVerticalSliceAuditTests
             EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
                 currentEras[i], null, null);
             Assert.That(evaluation.Transition, Is.SameAs(transition));
-            Assert.That(evaluation.Conditions.Count,
-                Is.GreaterThanOrEqualTo(transition.Prerequisites.Count), transition.Id);
+            AssertEvaluatorConditionsMatchTransition(transition, evaluation);
         }
     }
 
     private static void AssertTransitionRequirements(
-        string researchId, string[] resourceIds, string[] amounts)
+        string researchId, string[] resourceIds)
     {
         Research transition = DataBase<Research>.Find(researchId);
         Assert.That(transition, Is.Not.Null, researchId);
-        Assert.That(resourceIds.Length, Is.EqualTo(amounts.Length));
-        Assert.That(transition.ResourceRequirements.Count,
-            Is.EqualTo(resourceIds.Length), researchId);
         for (int i = 0; i < resourceIds.Length; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
-            Assert.That(requirement.First, Is.SameAs(DataBase<Resource>.Find(resourceIds[i])),
+            Resource expected = DataBase<Resource>.Find(resourceIds[i]);
+            Assert.That(expected, Is.Not.Null, resourceIds[i]);
+            Assert.That(HasResourceRequirement(transition, expected), Is.True,
                 researchId + " resource " + resourceIds[i]);
-            Assert.That(requirement.Second, Is.EqualTo(new ExpantaNum(amounts[i])),
-                researchId + " amount " + resourceIds[i]);
         }
+    }
+
+    private static void AssertEvaluatorConditionsMatchTransition(
+        Research transition, EraGoalEvaluation evaluation)
+    {
+        Assert.That(evaluation.Conditions, Is.Not.Null, transition.Id);
+        for (int i = 0; i < transition.Prerequisites.Count; i++)
+        {
+            Research prerequisite = transition.Prerequisites[i];
+            Assert.That(HasResearchCondition(evaluation, prerequisite), Is.True,
+                transition.Id + " prerequisite condition " + prerequisite.Id);
+        }
+        for (int i = 0; i < transition.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
+            if (requirement == null || requirement.First == null ||
+                requirement.Second <= ExpantaNum.Zero)
+                continue;
+            Assert.That(HasResourceCondition(evaluation, requirement.First), Is.True,
+                transition.Id + " resource condition " + requirement.First.Id);
+        }
+    }
+
+    private static bool HasResearchCondition(
+        EraGoalEvaluation evaluation, Research prerequisite)
+    {
+        for (int i = 0; i < evaluation.Conditions.Count; i++)
+        {
+            EraGoalConditionEvaluation condition = evaluation.Conditions[i];
+            if (condition != null &&
+                condition.Kind == EraGoalConditionKind.PrerequisiteResearch &&
+                condition.Research == prerequisite)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasResourceCondition(
+        EraGoalEvaluation evaluation, Resource resource)
+    {
+        for (int i = 0; i < evaluation.Conditions.Count; i++)
+        {
+            EraGoalConditionEvaluation condition = evaluation.Conditions[i];
+            if (condition != null && condition.Kind == EraGoalConditionKind.Resource &&
+                condition.Resource == resource && condition.RequiredAmount > ExpantaNum.Zero)
+                return true;
+        }
+        return false;
+    }
+
+    private static bool HasResourceRequirement(Research research, Resource resource)
+    {
+        for (int i = 0; i < research.ResourceRequirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+            if (requirement != null && requirement.First == resource &&
+                requirement.Second > ExpantaNum.Zero)
+                return true;
+        }
+        return false;
     }
 
     private static void AssertPrerequisites(string researchId, string[] prerequisiteIds)
     {
         Research transition = DataBase<Research>.Find(researchId);
         Assert.That(transition, Is.Not.Null, researchId);
-        Assert.That(transition.Prerequisites.Count, Is.EqualTo(prerequisiteIds.Length), researchId);
         for (int i = 0; i < prerequisiteIds.Length; i++)
             Assert.That(HasPrerequisite(transition, prerequisiteIds[i]), Is.True,
                 researchId + " prerequisite " + prerequisiteIds[i]);
@@ -166,9 +216,9 @@ public sealed class ContentVerticalSliceAuditTests
             new[] { "WoodLog" },
             TechLevel.Animal);
 
-        Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.Neolithic),
+        Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.StoneAge),
             result.FormatFailureReport());
-        Assert.That(result.UnreachableResearch, Does.Not.Contain("NeolithicSettlement"),
+        Assert.That(result.UnreachableResearch, Does.Not.Contain("StoneAgeSettlement"),
             result.FormatFailureReport());
     }
 

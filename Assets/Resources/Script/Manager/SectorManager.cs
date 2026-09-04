@@ -5,51 +5,28 @@ using UnityEngine;
 
 public enum SectorOperationFailure
 {
-    [Description("无")]
     None,
-    [Description("未知星区")]
     UnknownSector,
-    [Description("星区已经解锁")]
     AlreadyUnlocked,
-    [Description("星区已经占领")]
     AlreadyOccupied,
-    [Description("前置星区尚未占领")]
     PrerequisiteNotOccupied,
-    [Description("需要发射中心")]
     LaunchCenterRequired,
-    [Description("需要完成本星系测绘研究")]
     HomeSystemSurveyRequired,
-    [Description("星区奖励无效")]
     InvalidReward,
-    [Description("星区尚未解锁")]
     NotUnlocked,
-    [Description("尚未完成远征")]
     CampaignRequired,
-    [Description("远征正在进行")]
     CampaignInProgress,
-    [Description("时间增量无效")]
     InvalidDelta,
-    [Description("远征补给不足")]
     InsufficientCampaignSupply,
-    [Description("探索能力不足")]
     InsufficientExplorationPower,
-    [Description("远征成本无效")]
     InvalidCampaignCost,
-    [Description("本土星系不允许进行星际战役")]
     CampaignNotAllowedInHomeSystem,
-    [Description("星际星系不允许进行殖民")]
     ColonizationNotAllowedInInterstellarSystem,
-    [Description("星际星系尚未解锁")]
     InterstellarSystemLocked,
-    [Description("殖民正在进行")]
     ColonizationInProgress,
-    [Description("舰队没有受损")]
     NoFleetDamage,
-    [Description("维修数量无效")]
     InvalidRepairAmount,
-    [Description("舰队维修补给不足")]
     InsufficientFleetRepairSupply,
-    [Description("舰队仍有未维修的损伤")]
     FleetRepairRequired
 }
 
@@ -63,6 +40,8 @@ public sealed class SectorCampaignPreview
     public ExpantaNum FleetSurvivalFactor { get; }
     public ExpantaNum FleetReadiness { get; }
     public ExpantaNum CurrentCasualties { get; }
+    public ExpantaNum EstimatedRepairAmount { get; }
+    public IReadOnlyList<Pair<Resource, ExpantaNum>> FleetRepairCosts { get; }
     public ExpantaNum SupplySatisfaction { get; }
     public ExpantaNum PowerSatisfaction { get; }
     public ExpantaNum LogisticsSatisfaction { get; }
@@ -73,9 +52,6 @@ public sealed class SectorCampaignPreview
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerSecond { get; }
     public bool HasOngoingSupplyCost { get; }
     public ExpantaNum EstimatedSupplySeconds { get; }
-
-
-
     internal SectorCampaignPreview(
         bool isValid,
         bool hasSupply,
@@ -85,6 +61,8 @@ public sealed class SectorCampaignPreview
         ExpantaNum fleetSurvivalFactor,
         ExpantaNum fleetReadiness,
         ExpantaNum currentCasualties,
+        ExpantaNum estimatedRepairAmount,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> fleetRepairCosts,
         ExpantaNum supplySatisfaction,
         ExpantaNum powerSatisfaction,
         ExpantaNum logisticsSatisfaction,
@@ -103,6 +81,8 @@ public sealed class SectorCampaignPreview
         FleetSurvivalFactor = fleetSurvivalFactor;
         FleetReadiness = fleetReadiness;
         CurrentCasualties = currentCasualties;
+        EstimatedRepairAmount = estimatedRepairAmount;
+        FleetRepairCosts = fleetRepairCosts;
         SupplySatisfaction = supplySatisfaction;
         PowerSatisfaction = powerSatisfaction;
         LogisticsSatisfaction = logisticsSatisfaction;
@@ -287,6 +267,8 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
+                Array.Empty<Pair<Resource, ExpantaNum>>(),
+                ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
@@ -338,6 +320,22 @@ public sealed class SectorManager
             foodCostPerSecond,
             resourceCosts,
             out bool hasOngoingSupplyCost);
+        ExpantaNum estimatedRepairAmount = ExpantaNum.Zero;
+        IReadOnlyList<Pair<Resource, ExpantaNum>> fleetRepairCosts =
+            Array.Empty<Pair<Resource, ExpantaNum>>();
+        if (string.Equals(
+                definition.Id,
+                runtimeState.Campaign.TargetSectorId,
+                StringComparison.OrdinalIgnoreCase) &&
+            state.CampaignCasualties > ExpantaNum.Zero &&
+            runtimeState.Campaign.Casualties > ExpantaNum.Zero)
+        {
+            estimatedRepairAmount = ExpantaNum.Min(
+                state.CampaignCasualties,
+                runtimeState.Campaign.Casualties);
+            if (estimatedRepairAmount > ExpantaNum.Zero)
+                fleetRepairCosts = CalculateFleetRepairCosts(estimatedRepairAmount);
+        }
 
         return new SectorCampaignPreview(
             true,
@@ -348,6 +346,8 @@ public sealed class SectorManager
             fleetSurvivalFactor,
             fleetReadiness,
             state.CampaignCasualties,
+            estimatedRepairAmount,
+            fleetRepairCosts,
             runtimeState.SupplySatisfaction,
             runtimeState.PowerSatisfaction,
             runtimeState.LogisticsSatisfaction,
@@ -910,18 +910,7 @@ public sealed class SectorManager
         ExpantaNum targetAmount = ExpantaNum.Min(
             requestedAmount,
             runtimeState.Campaign.Casualties);
-        Resource titaniumAlloy = DataBase<Resource>.Find("TitaniumAlloy");
-        Resource composite = DataBase<Resource>.Find("Composite");
-        Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
-        Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
-        ExpantaNum repairCostMultiplier = ProgressionModifierManager.Current.FleetRepairCostMultiplier;
-        var costs = new List<Pair<Resource, ExpantaNum>>
-        {
-            new Pair<Resource, ExpantaNum>(titaniumAlloy, targetAmount * new ExpantaNum(2d) * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(composite, targetAmount * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(phantomWeave, targetAmount * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(rocketFuel, targetAmount * new ExpantaNum(0.5d) * repairCostMultiplier)
-        };
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = CalculateFleetRepairCosts(targetAmount);
         if (!HasResourceCosts(resourceManager, costs))
         {
             failure = SectorOperationFailure.InsufficientFleetRepairSupply;
@@ -1018,14 +1007,7 @@ public sealed class SectorManager
         ExpantaNum targetAmount = ExpantaNum.Min(
             requestedAmount,
             ExpantaNum.Min(state.CampaignCasualties, runtimeState.Campaign.Casualties));
-        ExpantaNum repairCostMultiplier = ProgressionModifierManager.Current.FleetRepairCostMultiplier;
-        var costs = new List<Pair<Resource, ExpantaNum>>
-        {
-            new Pair<Resource, ExpantaNum>(DataBase<Resource>.Find("TitaniumAlloy"), targetAmount * new ExpantaNum(2d) * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(DataBase<Resource>.Find("Composite"), targetAmount * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(DataBase<Resource>.Find("PhantomWeave"), targetAmount * repairCostMultiplier),
-            new Pair<Resource, ExpantaNum>(DataBase<Resource>.Find("RocketFuel"), targetAmount * new ExpantaNum(0.5d) * repairCostMultiplier)
-        };
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = CalculateFleetRepairCosts(targetAmount);
         if (!HasResourceCosts(resourceManager, costs))
         {
             failure = SectorOperationFailure.InsufficientFleetRepairSupply;
@@ -1780,6 +1762,31 @@ public sealed class SectorManager
                 snapshot.CombatRatio,
                 snapshot.VisitCount);
         }
+    }
+
+    private static IReadOnlyList<Pair<Resource, ExpantaNum>> CalculateFleetRepairCosts(
+        ExpantaNum repairAmount)
+    {
+        if (!repairAmount.IsFinite || repairAmount <= ExpantaNum.Zero)
+            return Array.Empty<Pair<Resource, ExpantaNum>>();
+
+        ExpantaNum multiplier =
+            ProgressionModifierManager.Current.FleetRepairCostMultiplier;
+        return new List<Pair<Resource, ExpantaNum>>
+        {
+            new Pair<Resource, ExpantaNum>(
+                DataBase<Resource>.Find("TitaniumAlloy"),
+                repairAmount * new ExpantaNum(2d) * multiplier),
+            new Pair<Resource, ExpantaNum>(
+                DataBase<Resource>.Find("Composite"),
+                repairAmount * multiplier),
+            new Pair<Resource, ExpantaNum>(
+                DataBase<Resource>.Find("PhantomWeave"),
+                repairAmount * multiplier),
+            new Pair<Resource, ExpantaNum>(
+                DataBase<Resource>.Find("RocketFuel"),
+                repairAmount * new ExpantaNum(0.5d) * multiplier)
+        };
     }
 
     private bool HasResourceCosts(

@@ -20,6 +20,64 @@ public enum BuildFailure
 
 public class BuildingManager : Singleton<BuildingManager>
 {
+    private const double BuildBoundaryTolerance = 1e-8d;
+
+    private static bool ExceedsBuildBoundary(
+        ExpantaNum required,
+        ExpantaNum available,
+        out ExpantaNum effectiveRequired)
+    {
+        effectiveRequired = required;
+        if (!required.IsFinite)
+            return true;
+        if (available.IsNaN)
+            return true;
+        if (available.IsInfinity)
+            return false;
+        if (required <= available)
+            return false;
+
+        if (required.ApproximatelyEquals(available, BuildBoundaryTolerance))
+        {
+            effectiveRequired = available;
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsBuildResourceCostWithinBoundary(
+        Building building,
+        BuildingState state,
+        ExpantaNum amount)
+    {
+        var costs = new Dictionary<Resource, ExpantaNum>();
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        ExpantaNum multiplier = GetConstructionCostMultiplier(building);
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = requirements[i];
+            ExpantaNum cost = pair.Second.GeometricSeriesCost(
+                building.CostGrowth,
+                state.Amount,
+                amount) * multiplier;
+            if (pair.First == null || cost.IsNaN || cost < ExpantaNum.Zero)
+                return false;
+            costs[pair.First] = costs.TryGetValue(pair.First, out ExpantaNum current)
+                ? current + cost
+                : cost;
+        }
+
+        foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+        {
+            if (ExceedsBuildBoundary(
+                    entry.Value,
+                    ResourceManager.Instance.GetAmount(entry.Key),
+                    out _))
+                return false;
+        }
+        return true;
+    }
     private struct UpgradeProductivitySnapshot
     {
         public bool Initialized;
@@ -488,7 +546,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         BuildingState state = EnsureBuilding(building);
         ExpantaNum amount = requestedAmount.Floor();
-        if (amount < ExpantaNum.One)
+        if (!amount.IsFinite || amount < ExpantaNum.One)
         {
             failure = BuildFailure.InvalidAmount;
             return false;
@@ -500,7 +558,10 @@ public class BuildingManager : Singleton<BuildingManager>
         if (usesTerritory)
         {
             requiredSpace = state.SpaceCost * amount;
-            if (GameManager.Instance.State.AvailableTerritory < requiredSpace)
+            if (ExceedsBuildBoundary(
+                    requiredSpace,
+                    GameManager.Instance.State.AvailableTerritory,
+                    out requiredSpace))
             {
                 failure = BuildFailure.SpaceInsufficient;
                 return false;
@@ -513,7 +574,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         ExpantaNum requiredProductivity = state.ProductivityConsumption * amount;
-        if (AvailableProductivity < requiredProductivity)
+        if (ExceedsBuildBoundary(requiredProductivity, AvailableProductivity, out requiredProductivity))
         {
             failure = BuildFailure.ProductivityInsufficient;
             return false;
@@ -542,6 +603,17 @@ public class BuildingManager : Singleton<BuildingManager>
             costs[pair.First] = costs.TryGetValue(pair.First, out ExpantaNum current)
                 ? current + totalCost
                 : totalCost;
+        }
+
+        foreach (Resource resource in new List<Resource>(costs.Keys))
+        {
+            ExpantaNum available = ResourceManager.Instance.GetAmount(resource);
+            if (ExceedsBuildBoundary(costs[resource], available, out ExpantaNum effectiveCost))
+            {
+                failure = BuildFailure.ResourceInsufficient;
+                return false;
+            }
+            costs[resource] = effectiveCost;
         }
 
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
@@ -726,7 +798,17 @@ public class BuildingManager : Singleton<BuildingManager>
                     state.Amount));
         }
 
-        return ExpantaNum.Max(ExpantaNum.Zero, result);
+        for (int i = 0; i < 256 && result >= ExpantaNum.One &&
+             !IsBuildResourceCostWithinBoundary(building, state, result); i++)
+        {
+            ExpantaNum next = (result - ExpantaNum.One).Floor();
+            if (next >= result)
+                break;
+            result = next;
+        }
+
+        result = ExpantaNum.Max(ExpantaNum.Zero, result);
+        return result.IsFinite ? result : ExpantaNum.Zero;
     }
 
     public void GetUpgradeResourceDeltas(

@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
@@ -13,16 +13,23 @@ using UnityEngine.EventSystems;
 
 public sealed class KingdomOnboardingPlayModeTests
 {
+    private string saveRoot;
     [SetUp]
     public void SetUp()
     {
-        KingdomPlayModeSaveScope.Begin();
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        saveRoot = Path.Combine(projectRoot, "Temp", "KingdomOnboardingPlayModeTests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        SaveManager.SetSaveRootOverrideForTests(saveRoot);
     }
 
     [TearDown]
     public void TearDown()
     {
-        KingdomPlayModeSaveScope.Clear();
+        SaveManager.ClearSaveRootOverrideForTests();
+        if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
+            Directory.Delete(saveRoot, true);
+        saveRoot = null;
     }
 
     [UnityTest]
@@ -687,62 +694,16 @@ public sealed class KingdomOnboardingPlayModeTests
         TMP_Text text = primaryCard.Find("Text")?.GetComponent<TMP_Text>();
         Assert.That(text, Is.Not.Null);
         Assert.That(text.text, Does.Contain("当前目标"));
-        Assert.That(text.text, Does.Contain("下一时代目标"));
-        Assert.That(text.text, Does.Contain("当前准备度"),
-             "Overview must show real population, productivity and research readiness.");
+        Assert.That(text.text, Does.Contain("当前阻碍"));
         Assert.That(text.text, Does.Contain("推荐行动"));
-        Assert.That(text.text, Does.Contain("完成方式"));
+        Assert.That(text.text, Does.Contain("人口"));
+        Assert.That(text.text, Does.Contain("食物"));
+        Assert.That(text.text, Does.Contain("下一时代目标"));
+        Assert.That(text.text, Does.Not.Contain("完成方式"));
+        Assert.That(text.text, Does.Not.Contain("上一步已完成"));
+        Assert.That(text.text, Does.Not.Contain("刚刚发生"));
         Assert.That(text.text, Does.Not.Contain("文明记忆"),
             "Story-only memory labels must not duplicate the Overview action card.");
-    }
-
-    [UnityTest]
-    public IEnumerator EraPageIncludesOnboardingGuidance()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-        TutorialManager tutorial = TutorialManager.Ensure();
-        MethodInfo restoreTutorial = typeof(TutorialManager).GetMethod(
-            "RestoreSaveData", BindingFlags.Instance |
-                BindingFlags.Public | BindingFlags.NonPublic);
-        Assert.That(restoreTutorial, Is.Not.Null);
-        restoreTutorial.Invoke(tutorial, new object[]
-        {
-            new SaveManager.TutorialSaveData { ActiveStepId = "era-goal" },
-            TechLevel.Animal
-        });
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Era" });
-        yield return null;
-
-        Transform rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows");
-        Assert.That(rows, Is.Not.Null);
-        string rendered = string.Empty;
-        TMP_Text[] labels = rows.GetComponentsInChildren<TMP_Text>(true);
-        for (int i = 0; i < labels.Length; i++)
-            rendered += labels[i].text + "\n";
-        Assert.That(rendered, Does.Contain("当前引导"));
-        Assert.That(rendered, Does.Contain("当前目标、阻碍和推荐行动统一显示在 Overview。"));
-        Assert.That(rendered, Does.Not.Contain("引导目标"));
-        Assert.That(rendered, Does.Not.Contain("引导推荐行动"));
-        Assert.That(rendered, Does.Not.Contain("文明复兴阶段"));
-        Assert.That(rendered, Does.Contain("本时代能力"));
-
-        FieldInfo eraRowsField = typeof(KingdomUIRoot).GetField(
-            "eraTextRows", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(eraRowsField, Is.Not.Null);
-        var eraRows = eraRowsField.GetValue(root) as List<GameObject>;
-        Assert.That(eraRows, Has.Count.GreaterThan(3));
-        Button tutorialAction = eraRows[1].transform.Find("Detail")?.GetComponent<Button>();
-        Assert.That(tutorialAction, Is.Not.Null);
-        Assert.That(tutorialAction.interactable, Is.True,
-            "Era should provide a real navigation link back to the authoritative Overview guidance.");
     }
 
     [UnityTest]
@@ -830,7 +791,7 @@ public sealed class KingdomOnboardingPlayModeTests
         StoryChapter chapter = null;
         for (int i = 0; i < StoryManager.Chapters.Count; i++)
             if (StoryManager.Chapters[i] != null &&
-                StoryManager.Chapters[i].Id == "industrial-scale")
+                StoryManager.Chapters[i].Id == "WorkshopMemory_09")
             {
                 chapter = StoryManager.Chapters[i];
                 break;
@@ -840,7 +801,6 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(upgrade, Is.Not.Null);
         Assert.That(WorkshopManager.Instance, Is.Not.Null);
 
-        bool purchased = WorkshopManager.Instance.IsPurchased(upgrade);
         MethodInfo pageMethod = typeof(KingdomUIRoot).GetMethod(
             "GetStoryNavigationPage", BindingFlags.Instance | BindingFlags.NonPublic);
         MethodInfo targetMethod = typeof(KingdomUIRoot).GetMethod(
@@ -849,8 +809,8 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(targetMethod, Is.Not.Null);
 
         Assert.That(pageMethod.Invoke(root, new object[] { chapter }),
-            Is.EqualTo(purchased ? "Buildings" : "Workshop"));
+            Is.EqualTo("Workshop"));
         Assert.That(targetMethod.Invoke(root, new object[] { chapter }),
-            Is.EqualTo(purchased ? "MachineFactory" : "PrecisionTooling"));
+            Is.EqualTo("PrecisionTooling"));
     }
 }

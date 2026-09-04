@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PrecisionManufacturing
   m_EditorClassIdentifier: 
   id: PrecisionManufacturing
-  Label: "\u7CBE\u5BC6\u7535\u6C14\u5236\u9020"
-  Description: "以精密机床、电气制造和先进材料加工提高机器工厂、机械纺织与工程建设的精度和效率。"
+  Label: "精密制造"
+  Description: "以精密机床和检验流程，提升机器制造与工业建造效率。"
   BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}

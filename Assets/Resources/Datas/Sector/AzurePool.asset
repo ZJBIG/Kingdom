@@ -29,16 +29,16 @@ MonoBehaviour:
     amount: "0.09"
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
     amount: "0.07"
-  colonizationFoodPerSecond: "1.3333333333"
+  colonizationFoodPerSecond: "1333.3333333"
   colonizationResourceRatesPerSecond:
     - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-      amount: "0.4166666667"
+      amount: "416.6666667"
     - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
-      amount: "0.25"
+      amount: "250"
     - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-      amount: "0.3333333333"
+      amount: "333.3333333"
     - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-      amount: "0.1666666667"
+      amount: "166.6666667"
   colonizationDurationSeconds: "3600"
   campaignFoodPerSecond: "0"
   campaignResourceRatesPerSecond: []

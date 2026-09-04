@@ -1,5 +1,9 @@
 # Kingdom repository instructions
 
+## Code constraints
+
+- 禁止使用反射（包括 `System.Reflection`、`BindingFlags`、运行时 `Invoke`、`Activator` 等）。新增代码和测试必须使用公开的强类型 API；历史测试中的既有反射调用不作为新增实现范例。
+
 ## Repository identity
 
 - Repository: `Kingdom`

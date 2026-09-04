@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 
 public sealed class StoryManagerTests
@@ -7,7 +6,7 @@ public sealed class StoryManagerTests
     [Test]
     public void ArchiveHasReadableProgressChapters()
     {
-        Assert.That(StoryManager.Chapters.Count, Is.GreaterThanOrEqualTo(8));
+        Assert.That(StoryManager.Chapters.Count, Is.EqualTo(18));
         var ids = new HashSet<string>();
         for (int i = 0; i < StoryManager.Chapters.Count; i++)
         {
@@ -18,42 +17,65 @@ public sealed class StoryManagerTests
             Assert.That(chapter.Title, Is.Not.Null.And.Not.Empty);
             Assert.That(chapter.EraLabel, Is.Not.Null.And.Not.Empty);
             Assert.That(chapter.Summary, Is.Not.Null.And.Not.Empty);
-            Assert.That(chapter.Body.Length, Is.GreaterThanOrEqualTo(70),
-                chapter.Id + " should explain the action and its meaning.");
+            Assert.That(chapter.Body.Trim().Length, Is.InRange(200, 300),
+                chapter.Id + " should contain a complete 200-300 character story.");
             Assert.That(chapter.Body, Does.Not.Contain("..."),
                 chapter.Id + " must not rely on truncated story text.");
         }
     }
 
     [Test]
+    public void StoryArchiveHasFixedOrderAndNoMetaNarrativeTerms()
+    {
+        string[] expected =
+        {
+            "PrologueAshes_00", "FirstFire_01", "WallsAndShelter_02",
+            "TheGrowingClan_03", "RememberedKnowledge_04", "TheFirstChain_05",
+            "StoneAgeReturn_06", "MedievalOrder_07", "IndustrialAwakening_08",
+            "WorkshopMemory_09", "IndustrialPower_10", "IndustrialMaterials_11",
+            "IndustrialChemistry_12", "IndustrialFrontier_13", "FrontierSectors_14",
+            "WarBetweenStars_15", "BeyondTheSky_16", "TheOldBoundary_17"
+        };
+        string[] forbidden = { "玩家", "页面", "菜单", "按钮", "ID", "数值", "数字", "奖励", "界面" };
+        for (int i = 0; i < expected.Length; i++)
+        {
+            Assert.That(StoryManager.Chapters[i].Id, Is.EqualTo(expected[i]));
+            string text = StoryManager.Chapters[i].Summary + StoryManager.Chapters[i].Body;
+            for (int f = 0; f < forbidden.Length; f++)
+                Assert.That(text, Does.Not.Contain(forbidden[f]));
+        }
+    }
+
+
+    [Test]
     public void TutorialProgressUnlocksActionChaptersInOrder()
     {
-        Assert.That(FindChapter("first-fire").RequiredTutorialStepId,
+        Assert.That(FindChapter("FirstFire_01").RequiredTutorialStepId,
             Is.EqualTo("resources"));
-        Assert.That(FindChapter("walls-and-shelter").RequiredTutorialStepId,
+        Assert.That(FindChapter("WallsAndShelter_02").RequiredTutorialStepId,
             Is.EqualTo("building"));
-        Assert.That(FindChapter("the-growing-clan").RequiredTutorialStepId,
+        Assert.That(FindChapter("TheGrowingClan_03").RequiredTutorialStepId,
             Is.EqualTo("population"));
-        Assert.That(FindChapter("remembered-knowledge").RequiredTutorialStepId,
+        Assert.That(FindChapter("RememberedKnowledge_04").RequiredTutorialStepId,
             Is.EqualTo("research"));
-        Assert.That(FindChapter("the-first-chain").RequiredTutorialStepId,
+        Assert.That(FindChapter("TheFirstChain_05").RequiredTutorialStepId,
             Is.EqualTo("production-chain"));
-        Assert.That(FindChapter("the-old-boundary").RequiredEra,
-            Is.EqualTo(TechLevel.Archotech));
+        Assert.That(FindChapter("TheOldBoundary_17").RequiredEra,
+            Is.EqualTo(TechLevel.Ultra));
     }
 
     [Test]
     public void TutorialCompletionIsIncludedInStoryRefreshSignature()
     {
         TutorialManager manager = TutorialManager.Ensure();
-        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             ActiveStepId = "resources",
             CompletedStepIds = new List<string>()
         }, TechLevel.Animal);
         string before = StoryManager.GetProgressSignature(TechLevel.Animal, manager);
 
-        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             ActiveStepId = "building",
             CompletedStepIds = new List<string> { "orientation", "resources" }
@@ -68,60 +90,47 @@ public sealed class StoryManagerTests
     [Test]
     public void LaterMemoriesDeclareTheirRealActionGates()
     {
-        StoryChapter workshop = FindChapter("workshop-memory");
-        StoryChapter frontier = FindChapter("frontier-sectors");
-        StoryChapter war = FindChapter("war-between-stars");
-        StoryChapter beyond = FindChapter("beyond-the-sky");
-        Assert.That(workshop.RequiresWorkshopPurchase, Is.True);
-        Assert.That(workshop.RequiredResearchId,
+        StoryChapter workshop = FindChapter("WorkshopMemory_09");
+        StoryChapter frontier = FindChapter("FrontierSectors_14");
+        StoryChapter war = FindChapter("WarBetweenStars_15");
+        StoryChapter beyond = FindChapter("BeyondTheSky_16");
+        Assert.That(workshop.RequiredWorkshopIds.Count, Is.GreaterThan(0));
+        Assert.That(FirstId(workshop.RequiredResearchIds),
             Is.EqualTo("PrecisionManufacturing"));
-        Assert.That(workshop.RequiredWorkshopId, Is.EqualTo("PrecisionTooling"));
-        Assert.That(frontier.RequiresSectorAccess, Is.True);
-        Assert.That(war.RequiresSectorOccupation, Is.True);
-        Assert.That(beyond.RequiresSectorOccupation, Is.True);
+        Assert.That(FirstId(workshop.RequiredWorkshopIds), Is.EqualTo("PrecisionTooling"));
+        Assert.That(frontier.RequiredOccupiedSectorIds.Count, Is.GreaterThan(0));
+        Assert.That(war.RequiredOccupiedSectorIds.Count, Is.GreaterThan(0));
+        Assert.That(beyond.RequiredOccupiedSectorIds.Count, Is.GreaterThan(0));
+        Assert.That(FirstId(frontier.RequiredResearchIds),
+            Is.EqualTo("HomeSystemSurvey"));
     }
 
     [Test]
     public void IndustrialMemoriesDeclareRealResearchAndBuildingGates()
     {
-        StoryChapter power = FindChapter("industrial-power");
-        StoryChapter scale = FindChapter("industrial-scale");
-        StoryChapter awakening = FindChapter("industrial-awakening");
-        StoryChapter homes = FindChapter("industrial-homes");
-        StoryChapter network = FindChapter("industrial-network");
-        StoryChapter materials = FindChapter("industrial-materials");
-        StoryChapter chemistry = FindChapter("industrial-chemistry");
-        StoryChapter grid = FindChapter("industrial-grid");
-        StoryChapter knowledge = FindChapter("industrial-knowledge");
-        StoryChapter frontier = FindChapter("industrial-frontier");
+        StoryChapter power = FindChapter("IndustrialPower_10");
+        StoryChapter awakening = FindChapter("IndustrialAwakening_08");
+        StoryChapter materials = FindChapter("IndustrialMaterials_11");
+        StoryChapter chemistry = FindChapter("IndustrialChemistry_12");
+        StoryChapter frontier = FindChapter("IndustrialFrontier_13");
 
         Assert.That(power, Is.Not.Null);
         Assert.That(awakening, Is.Not.Null);
-        Assert.That(awakening.RequiredResearchId, Is.EqualTo("Industrialization"));
-        Assert.That(awakening.RequiredBuildingId, Is.Empty);
-        Assert.That(scale, Is.Not.Null);
-        Assert.That(scale.RequiredResearchId, Is.EqualTo("PrecisionManufacturing"));
-        Assert.That(scale.RequiredBuildingId, Is.EqualTo("MachineFactory"));
-        Assert.That(power.RequiredResearchId, Is.EqualTo("SteamPower"));
-        Assert.That(power.RequiredBuildingId, Is.EqualTo("SteamPlant"));
-        Assert.That(homes, Is.Not.Null);
-        Assert.That(homes.RequiredResearchId, Is.EqualTo("IndustrialHabitationEngineering"));
-        Assert.That(homes.RequiredBuildingId, Is.EqualTo("IndustrialHabitationComplex"));
-        Assert.That(network.RequiredResearchId, Is.EqualTo("RailwayEngineering"));
-        Assert.That(network.RequiredBuildingId, Is.EqualTo("RailHub"));
+        Assert.That(FirstId(awakening.RequiredResearchIds), Is.EqualTo("Industrialization"));
+        Assert.That(awakening.RequiredBuildingIds, Has.Count.GreaterThan(0));
+        Assert.That(FirstId(power.RequiredResearchIds), Is.EqualTo("SteamPower"));
+        Assert.That(FirstId(power.RequiredBuildingIds), Is.EqualTo("SteamPlant"));
         Assert.That(materials, Is.Not.Null);
-        Assert.That(materials.RequiredResearchId, Is.EqualTo("IndustrialMetalSmelting"));
-        Assert.That(materials.RequiredBuildingId, Is.EqualTo("IndustrialMetalSmelter"));
+        Assert.That(FirstId(materials.RequiredResearchIds), Is.EqualTo("IndustrialMetalSmelting"));
+        Assert.That(FirstId(materials.RequiredBuildingIds), Is.EqualTo("IndustrialMetalSmelter"));
         Assert.That(chemistry, Is.Not.Null);
-        Assert.That(chemistry.RequiredResearchId, Is.EqualTo("IndustrialChemistry"));
-        Assert.That(chemistry.RequiredBuildingId, Is.EqualTo("ChemicalPlant"));
-        Assert.That(knowledge.RequiredResearchId, Is.EqualTo("ModernUniversity"));
-        Assert.That(knowledge.RequiredBuildingId, Is.EqualTo("University"));
-        Assert.That(grid, Is.Not.Null);
-        Assert.That(grid.RequiredResearchId, Is.EqualTo("PowerGridEngineering"));
-        Assert.That(grid.RequiredBuildingId, Is.EqualTo("CentralPowerStation"));
+        Assert.That(FirstId(chemistry.RequiredResearchIds), Is.EqualTo("IndustrialChemistry"));
+        Assert.That(FirstId(chemistry.RequiredBuildingIds), Is.EqualTo("ChemicalPlant"));
         Assert.That(frontier, Is.Not.Null);
-        Assert.That(frontier.RequiredResearchId, Is.EqualTo("TitaniumAlloyEngineering"));
+        Assert.That(FirstId(frontier.RequiredResearchIds), Is.EqualTo("TitaniumAlloyEngineering"));
+        Assert.That(frontier.RequiredResearchIds, Does.Not.Contain("OrbitalEngineering"));
+        Assert.That(frontier.RequiredBuildingIds, Does.Not.Contain("LaunchCenter"));
+        Assert.That(frontier.RequiredWorkshopIds, Does.Not.Contain("ReusableLaunchStages"));
     }
 
     [Test]
@@ -154,36 +163,34 @@ public sealed class StoryManagerTests
             if (chapter == null)
                 continue;
 
-            if (!string.IsNullOrEmpty(chapter.RequiredResearchId))
+            for (int j = 0; j < chapter.RequiredResearchIds.Count; j++)
                 Assert.That(DataBase<Research>.TryFind(
-                    chapter.RequiredResearchId, out Research research) &&
+                    chapter.RequiredResearchIds[j], out Research research) &&
                     research != null, Is.True,
                     chapter.Id + " must reference an existing Research definition.");
 
-            if (!string.IsNullOrEmpty(chapter.RequiredBuildingId))
+            for (int j = 0; j < chapter.RequiredBuildingIds.Count; j++)
                 Assert.That(DataBase<Building>.TryFind(
-                    chapter.RequiredBuildingId, out Building building) &&
+                    chapter.RequiredBuildingIds[j], out Building building) &&
                     building != null, Is.True,
                     chapter.Id + " must reference an existing Building definition.");
 
-            if (!string.IsNullOrEmpty(chapter.RequiredWorkshopId))
+            for (int j = 0; j < chapter.RequiredWorkshopIds.Count; j++)
                 Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-                    chapter.RequiredWorkshopId, out WorkshopUpgrade workshop) &&
+                    chapter.RequiredWorkshopIds[j], out WorkshopUpgrade workshop) &&
                     workshop != null, Is.True,
                     chapter.Id + " must reference an existing Workshop definition.");
         }
     }
 
     [Test]
-    public void IndustrialScaleMatchesMachineFactoryWorkshopGate()
+    public void MachineFactoryRetainsItsWorkshopGate()
     {
-        StoryChapter scale = FindChapter("industrial-scale");
-        Assert.That(scale, Is.Not.Null);
         Assert.That(DataBase<Building>.TryFind(
-            scale.RequiredBuildingId, out Building machineFactory), Is.True);
+            "MachineFactory", out Building machineFactory), Is.True);
         Assert.That(machineFactory, Is.Not.Null);
         Assert.That(DataBase<Research>.TryFind(
-            scale.RequiredResearchId, out Research manufacturing), Is.True);
+            "PrecisionManufacturing", out Research manufacturing), Is.True);
         Assert.That(machineFactory.RequiredResearch,
             Does.Contain(manufacturing),
             "Story research gate must be a real MachineFactory prerequisite.");
@@ -208,19 +215,19 @@ public sealed class StoryManagerTests
             if (chapter.RequiredEra != TechLevel.Industrial)
                 continue;
 
-            if (!string.IsNullOrEmpty(chapter.RequiredResearchId))
+            for (int j = 0; j < chapter.RequiredResearchIds.Count; j++)
                 Assert.That(DataBase<Research>.TryFind(
-                    chapter.RequiredResearchId, out Research research), Is.True,
+                    chapter.RequiredResearchIds[j], out Research research), Is.True,
                     chapter.Id + " must reference a real Research definition.");
 
-            if (!string.IsNullOrEmpty(chapter.RequiredBuildingId))
+            for (int j = 0; j < chapter.RequiredBuildingIds.Count; j++)
                 Assert.That(DataBase<Building>.TryFind(
-                    chapter.RequiredBuildingId, out Building building), Is.True,
+                    chapter.RequiredBuildingIds[j], out Building building), Is.True,
                     chapter.Id + " must reference a real Building definition.");
 
-            if (!string.IsNullOrEmpty(chapter.RequiredWorkshopId))
+            for (int j = 0; j < chapter.RequiredWorkshopIds.Count; j++)
                 Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-                    chapter.RequiredWorkshopId, out WorkshopUpgrade workshop), Is.True,
+                    chapter.RequiredWorkshopIds[j], out WorkshopUpgrade workshop), Is.True,
                     chapter.Id + " must reference a real Workshop definition.");
         }
     }
@@ -232,36 +239,36 @@ public sealed class StoryManagerTests
         {
             StoryChapter chapter = StoryManager.Chapters[i];
             if (chapter == null || chapter.RequiredEra != TechLevel.Industrial ||
-                string.IsNullOrEmpty(chapter.RequiredResearchId) ||
-                string.IsNullOrEmpty(chapter.RequiredBuildingId))
+                chapter.RequiredResearchIds.Count == 0 ||
+                chapter.RequiredBuildingIds.Count == 0)
                 continue;
 
             Assert.That(DataBase<Research>.TryFind(
-                chapter.RequiredResearchId, out Research research), Is.True,
+                chapter.RequiredResearchIds[0], out Research research), Is.True,
                 chapter.Id + " must resolve its research gate.");
             Assert.That(DataBase<Building>.TryFind(
-                chapter.RequiredBuildingId, out Building building), Is.True,
+                chapter.RequiredBuildingIds[0], out Building building), Is.True,
                 chapter.Id + " must resolve its building gate.");
             Assert.That(building.RequiredResearch, Does.Contain(research),
                 chapter.Id + " must name the real research prerequisite of " +
-                chapter.RequiredBuildingId + ".");
+                chapter.RequiredBuildingIds[0] + ".");
         }
     }
 
     [Test]
     public void WorkshopMemoryUsesTheDeclaredRealUpgrade()
     {
-        StoryChapter chapter = FindChapter("workshop-memory");
+        StoryChapter chapter = FindChapter("WorkshopMemory_09");
         Assert.That(chapter, Is.Not.Null);
-        Assert.That(chapter.RequiresWorkshopPurchase, Is.True);
-        Assert.That(chapter.RequiredResearchId,
+        Assert.That(chapter.RequiredWorkshopIds.Count, Is.GreaterThan(0));
+        Assert.That(FirstId(chapter.RequiredResearchIds),
             Is.EqualTo("PrecisionManufacturing"));
         Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-            chapter.RequiredWorkshopId, out WorkshopUpgrade workshop), Is.True);
+            FirstId(chapter.RequiredWorkshopIds), out WorkshopUpgrade workshop), Is.True);
         Assert.That(workshop, Is.Not.Null);
-        Assert.That(workshop.Id, Is.EqualTo(chapter.RequiredWorkshopId));
+        Assert.That(workshop.Id, Is.EqualTo(FirstId(chapter.RequiredWorkshopIds)));
         Assert.That(DataBase<Research>.TryFind(
-            chapter.RequiredResearchId, out Research requiredResearch), Is.True);
+            FirstId(chapter.RequiredResearchIds), out Research requiredResearch), Is.True);
         Assert.That(workshop.RequiredResearch,
             Does.Contain(requiredResearch),
             "The Story chapter must name the Workshop's direct Research prerequisite.");
@@ -272,18 +279,12 @@ public sealed class StoryManagerTests
     {
         string[] expected =
         {
-            "industrial-awakening",
-            "workshop-memory",
-            "industrial-scale",
-            "industrial-organization",
-            "industrial-power",
-            "industrial-homes",
-            "industrial-grid",
-            "industrial-materials",
-            "industrial-network",
-            "industrial-chemistry",
-            "industrial-knowledge",
-            "industrial-frontier"
+            "IndustrialAwakening_08",
+            "WorkshopMemory_09",
+            "IndustrialPower_10",
+            "IndustrialMaterials_11",
+            "IndustrialChemistry_12",
+            "IndustrialFrontier_13"
         };
         int previousIndex = -1;
         for (int i = 0; i < expected.Length; i++)
@@ -295,24 +296,20 @@ public sealed class StoryManagerTests
             previousIndex = currentIndex;
         }
 
-        StoryChapter workshop = FindChapter("workshop-memory");
-        Assert.That(workshop.RequiredResearchId,
+        StoryChapter workshop = FindChapter("WorkshopMemory_09");
+        Assert.That(FirstId(workshop.RequiredResearchIds),
             Is.EqualTo("PrecisionManufacturing"));
-        Assert.That(workshop.RequiredWorkshopId, Is.EqualTo("PrecisionTooling"));
-        Assert.That(workshop.RequiresWorkshopPurchase, Is.True);
+        Assert.That(FirstId(workshop.RequiredWorkshopIds), Is.EqualTo("PrecisionTooling"));
+        Assert.That(workshop.RequiredWorkshopIds.Count, Is.GreaterThan(0));
 
-        StoryChapter materials = FindChapter("industrial-materials");
-        Assert.That(materials.Body, Does.Contain("IntegratedFurnaces"));
-
-        StoryChapter organization = FindChapter("industrial-organization");
-        Assert.That(organization.RequiredResearchId,
-            Is.EqualTo("FactoryOrganization"));
+        StoryChapter materials = FindChapter("IndustrialMaterials_11");
+        Assert.That(materials.Body, Does.Not.Contain("IntegratedFurnaces"));
     }
 
     [Test]
     public void IndustrialHintExplainsEraBeforeFutureIndustrialAction()
     {
-        StoryChapter power = FindChapter("industrial-power");
+        StoryChapter power = FindChapter("IndustrialPower_10");
         string hint = StoryManager.GetUnlockHint(power, TechLevel.Medieval);
         Assert.That(hint, Does.Contain("工业"));
         Assert.That(hint, Does.Not.Contain("SteamPower"));
@@ -328,7 +325,7 @@ public sealed class StoryManagerTests
             CompletedStepIds = new List<string>()
         }, TechLevel.Industrial);
 
-        StoryChapter scale = FindChapter("industrial-scale");
+        StoryChapter scale = FindChapter("IndustrialPower_10");
         string hint = StoryManager.GetChapterProgressHint(
             scale, TechLevel.Industrial);
 
@@ -344,12 +341,9 @@ public sealed class StoryManagerTests
         return null;
     }
 
-    private static object Invoke(object target, string name, params object[] args)
+    private static string FirstId(IReadOnlyList<string> ids)
     {
-        MethodInfo method = target.GetType().GetMethod(
-            name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null, name + " should exist for this test.");
-        return method.Invoke(target, args);
+        return ids != null && ids.Count > 0 ? ids[0] : string.Empty;
     }
 
     private static int IndexOf(string id)

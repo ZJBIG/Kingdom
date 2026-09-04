@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: InterstellarNavigation
   m_EditorClassIdentifier: 
   id: InterstellarNavigation
-  Label: "\u661F\u7CFB\u5BFC\u822A"
-  Description: "利用铜质信号线路、电子导航设备、火箭燃料和钛合金结构绘制太阳系外稳定航线，解锁第一片星际前沿区域。"
+  Label: "星际导航"
+  Description: "利用导航设备与火箭燃料绘制太阳系外航线，解锁首个星际前沿区域。"
   BaseCost: "227500000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}

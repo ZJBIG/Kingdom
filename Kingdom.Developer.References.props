@@ -1,0 +1,25 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <UnityVersion Condition="'$(UnityVersion)' == ''">2022.3.62f3c1</UnityVersion>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == '' and '$(UNITY_EDITOR_PATH)' != ''">$(UNITY_EDITOR_PATH)</UnityEditorRoot>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == '' and Exists('D:\Unity\Hub\Editor\$(UnityVersion)\Editor')">D:\Unity\Hub\Editor\$(UnityVersion)\Editor</UnityEditorRoot>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == '' and Exists('$(ProgramFiles)\Unity\Hub\Editor\$(UnityVersion)\Editor')">$(ProgramFiles)\Unity\Hub\Editor\$(UnityVersion)\Editor</UnityEditorRoot>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(UnityEditorRoot)\Data\Managed\UnityEngine')">
+    <UnityManagedReference Include="$(UnityEditorRoot)\Data\Managed\UnityEngine\*.dll" />
+    <UnityManagedReference Include="$(UnityEditorRoot)\Data\Managed\*.dll" />
+    <Reference Include="%(UnityManagedReference.Filename)">
+      <HintPath>%(UnityManagedReference.Identity)</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <BeeReference Include="$(MSBuildThisFileDirectory)Library\Bee\artifacts\**\*.ref.dll" />
+    <Reference Include="%(BeeReference.Filename)">
+      <HintPath>%(BeeReference.Identity)</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

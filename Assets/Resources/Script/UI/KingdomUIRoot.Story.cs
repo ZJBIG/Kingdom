@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Story is a read-only narrative layer over the real progression state.
+// Story displays authored narrative over the permanent runtime completion history.
 public sealed partial class KingdomUIRoot
 {
     private bool storyPageBuilt;
@@ -14,6 +14,8 @@ public sealed partial class KingdomUIRoot
     private int storyObservedUnlockCount = -1;
     private TechLevel storyObservedEra;
     private bool storyObservedEraInitialized;
+    private readonly HashSet<string> storyNotifiedChapterIds =
+        new HashSet<string>(StringComparer.Ordinal);
     private readonly Dictionary<string, bool> storyChapterCollapsed =
         new Dictionary<string, bool>(StringComparer.Ordinal);
     private readonly List<TMP_Text> storyBodyTextCache = new();
@@ -133,10 +135,10 @@ public sealed partial class KingdomUIRoot
             PanelRaised, width, y, 190f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewState",
-            "记忆档案状态",
-            "已唤醒记忆：" + unlockedCount +
+            "剧情完成状态",
+            "已完成章节 " + unlockedCount +
             "/" + StoryManager.Chapters.Count +
-            "\n最新记忆记录王国刚刚完成的一项真实行动。",
+            "\n最新记录来自王国刚刚完成的一项真实行动。",
             Panel, width, y, 150f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewMeaning", "最新文明记忆",
@@ -164,8 +166,8 @@ public sealed partial class KingdomUIRoot
             }
             else
             {
-                chapterTitle += " · 尚未唤醒";
-                chapterBody = "这段文明记忆尚未回到王国。\n" +
+                chapterTitle += " · 尚未完成";
+                chapterBody = "这段文明记忆尚未完成。\n" +
                     StoryManager.GetChapterProgressHint(chapter, era);
             }
 
@@ -210,7 +212,7 @@ public sealed partial class KingdomUIRoot
             actionFeedback += "\n刚刚发生：" + recentActionFeedback;
         string meaning = latestChapter == null
             ? "完成资源、建筑、研究和生产链行动后，这里会记录它们对鼠族文明复兴的意义。"
-            : "最新唤醒：“" + latestChapter.Title + "”。\n完整的文明意义与正文见下方章节。";
+            : "最新完成：“" + latestChapter.Title + "”。\n完整的文明意义与正文见下方章节。";
         return meaning + actionFeedback;
     }
 
@@ -525,17 +527,17 @@ public sealed partial class KingdomUIRoot
     {
         if (chapter == null)
             return "Overview";
-        if (!string.IsNullOrEmpty(chapter.RequiredWorkshopId) ||
-            chapter.RequiresWorkshopPurchase)
+        if (chapter.RequiredWorkshopIds.Count > 0)
             return "Workshop";
-        if (!string.IsNullOrEmpty(GetBlockingWorkshopId(chapter.RequiredBuildingId)))
+        string buildingId = FirstStoryId(chapter.RequiredBuildingIds);
+        if (!string.IsNullOrEmpty(GetBlockingWorkshopId(buildingId)))
             return "Workshop";
-        if (!string.IsNullOrEmpty(chapter.RequiredBuildingId))
+        if (!string.IsNullOrEmpty(buildingId))
             return "Buildings";
-        if (!string.IsNullOrEmpty(chapter.RequiredResearchId))
+        if (chapter.RequiredResearchIds.Count > 0)
             return "Research";
-        if (chapter.RequiresSectorAccess || chapter.RequiresCampaignProgress ||
-            chapter.RequiresSectorOccupation)
+        if (chapter.RequiredUnlockedSectorIds.Count > 0 ||
+            chapter.RequiredOccupiedSectorIds.Count > 0)
             return "Sectors";
         return "Overview";
     }
@@ -544,17 +546,25 @@ public sealed partial class KingdomUIRoot
     {
         if (chapter == null)
             return string.Empty;
-        if (!string.IsNullOrEmpty(chapter.RequiredWorkshopId))
-            return chapter.RequiredWorkshopId;
+        string workshopId = FirstStoryId(chapter.RequiredWorkshopIds);
+        if (!string.IsNullOrEmpty(workshopId))
+            return workshopId;
+        string buildingId = FirstStoryId(chapter.RequiredBuildingIds);
         string blockingWorkshopId = GetBlockingWorkshopId(
-            chapter.RequiredBuildingId);
+            buildingId);
         if (!string.IsNullOrEmpty(blockingWorkshopId))
             return blockingWorkshopId;
-        if (!string.IsNullOrEmpty(chapter.RequiredBuildingId))
-            return chapter.RequiredBuildingId;
-        if (!string.IsNullOrEmpty(chapter.RequiredResearchId))
-            return chapter.RequiredResearchId;
+        if (!string.IsNullOrEmpty(buildingId))
+            return buildingId;
+        string researchId = FirstStoryId(chapter.RequiredResearchIds);
+        if (!string.IsNullOrEmpty(researchId))
+            return researchId;
         return string.Empty;
+    }
+
+    private static string FirstStoryId(IReadOnlyList<string> ids)
+    {
+        return ids != null && ids.Count > 0 ? ids[0] : string.Empty;
     }
 
     private static string GetBlockingWorkshopId(string buildingId)

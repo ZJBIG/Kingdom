@@ -53,8 +53,11 @@ ExportedObj/
 .consulo/
 *.csproj
 !tools/EconomySimulator/EconomySimulator.csproj
+!Kingdom.Runtime.Developer.csproj
+!Kingdom.Editor.Developer.csproj
 *.unityproj
 *.sln
+!Kingdom.Developer.sln
 *.suo
 *.tmp
 *.user

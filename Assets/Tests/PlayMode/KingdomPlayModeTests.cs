@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -15,11 +16,15 @@ using Object = UnityEngine.Object;
 public sealed class KingdomPlayModeTests
 {
     private readonly List<Object> createdObjects = new List<Object>();
+    private string saveRoot;
 
     [SetUp]
     public void SetUp()
     {
-        KingdomPlayModeSaveScope.Begin();
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        saveRoot = Path.Combine(projectRoot, "Temp", "KingdomPlayModeTests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        SaveManager.SetSaveRootOverrideForTests(saveRoot);
     }
 
     [TearDown]
@@ -29,7 +34,10 @@ public sealed class KingdomPlayModeTests
             if (createdObjects[i] != null)
                 Object.DestroyImmediate(createdObjects[i]);
         createdObjects.Clear();
-        KingdomPlayModeSaveScope.Clear();
+        SaveManager.ClearSaveRootOverrideForTests();
+        if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
+            Directory.Delete(saveRoot, true);
+        saveRoot = null;
     }
 
 
@@ -233,8 +241,8 @@ public sealed class KingdomPlayModeTests
         TMP_Text body = primaryCard.Find("Text")?.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Is.Not.Empty);
-        Assert.That(body.rectTransform.rect.height, Is.GreaterThan(0f),
-            "Development guidance Body must not have a negative or zero height.");
+        Assert.That(body.preferredHeight, Is.GreaterThan(0f),
+            "Development guidance Body must have measurable text content.");
 
         SimulationManager simulation = Object.FindObjectOfType<SimulationManager>();
         GameManager game = Object.FindObjectOfType<GameManager>();
@@ -316,7 +324,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
         var transitions = new[]
         {
-            new { Id = "NeolithicSettlement", Target = TechLevel.Neolithic },
+            new { Id = "StoneAgeSettlement", Target = TechLevel.StoneAge },
             new { Id = "FeudalAdministration", Target = TechLevel.Medieval },
             new { Id = "Industrialization", Target = TechLevel.Industrial },
             new { Id = "InterstellarNavigation", Target = TechLevel.Spacer }
@@ -467,6 +475,8 @@ public sealed class KingdomPlayModeTests
         Transform viewport = null;
         Transform content = null;
         int expectedResearchNodes = DataBase<Research>.All.Count;
+        Assert.That(expectedResearchNodes, Is.GreaterThanOrEqualTo(79),
+            "The research graph must retain the minimum vertical-slice node coverage.");
         bool layoutReady = false;
         for (int frame = 0; frame < 480; frame++)
         {
@@ -549,6 +559,13 @@ public sealed class KingdomPlayModeTests
         Assert.That(targetNavigationLabel, Is.Not.Null);
         Assert.That(targetNavigationLabel.gameObject.activeSelf, Is.True,
             "The authored target navigation label must remain visible after binding.");
+        Button eraNavigationButton = toolbar.Find("OverviewCurrentEraButton")?.GetComponent<Button>();
+        Assert.That(eraNavigationButton, Is.Not.Null,
+            "Research Tree must expose a current-era navigation button.");
+        TMP_Text eraNavigationLabel = eraNavigationButton.GetComponentInChildren<TMP_Text>(true);
+        Assert.That(eraNavigationLabel, Is.Not.Null);
+        Assert.That(eraNavigationLabel.gameObject.activeSelf, Is.True,
+            "The authored current-era navigation label must remain visible after binding.");
         Transform search = toolbar.Find("Search");
         if (search != null)
             Assert.That(search.gameObject.activeSelf, Is.False,
@@ -618,14 +635,8 @@ public sealed class KingdomPlayModeTests
             finalViewportRect.rect.height + 0.5f;
         bool horizontalOverflow = finalContentRect.rect.width * Mathf.Abs(finalContentRect.localScale.x) >
             finalViewportRect.rect.width + 0.5f;
-        FieldInfo canPanVerticalField = typeof(UIResearchGraphGesture).GetField(
-            "canPanVertical", BindingFlags.Instance | BindingFlags.NonPublic);
-        FieldInfo canPanHorizontalField = typeof(UIResearchGraphGesture).GetField(
-            "canPanHorizontal", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(canPanVerticalField, Is.Not.Null);
-        Assert.That(canPanHorizontalField, Is.Not.Null);
-        bool canPanVertical = (bool)canPanVerticalField.GetValue(finalGesture);
-        bool canPanHorizontal = (bool)canPanHorizontalField.GetValue(finalGesture);
+        bool canPanVertical = finalGesture.CanPanVertical;
+        bool canPanHorizontal = finalGesture.CanPanHorizontal;
         Assert.That(canPanVertical, Is.EqualTo(verticalOverflow));
         Assert.That(canPanHorizontal, Is.EqualTo(horizontalOverflow));
         Transform safeAreaRoot = root.transform.Find("SafeAreaRoot");

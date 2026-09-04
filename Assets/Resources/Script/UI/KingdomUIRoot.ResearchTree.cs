@@ -139,6 +139,7 @@ public sealed partial class KingdomUIRoot
     private Research selectedResearchNode;
     private GameObject overviewNavigationToolbar;
     private Button overviewCurrentTargetButton;
+    private Button overviewCurrentEraButton;
     private string pendingOverviewResearchFocusId;
     private string lastLoggedResearchClosureTarget;
     private UIResearchGraphGesture researchGraphGesture;
@@ -348,14 +349,14 @@ public sealed partial class KingdomUIRoot
         "ResearchTree/ResearchLineVertical",
         "ResearchTree/ResearchLineEnd",
         "ResearchTree/ResearchEraAnimal",
-        "ResearchTree/ResearchEraNeolithic",
+        "ResearchTree/ResearchEraStoneAge",
         "ResearchTree/ResearchEraMedieval",
         "ResearchTree/ResearchEraIndustrial",
         "ResearchTree/ResearchEraSpacer",
         "ResearchTree/ResearchEraUltra",
         "ResearchTree/ResearchEraArchotech",
         "ResearchTree/ProgressAnimal",
-        "ResearchTree/ProgressNeolithic",
+        "ResearchTree/ProgressStoneAge",
         "ResearchTree/ProgressMedieval",
         "ResearchTree/ProgressIndustrial",
         "ResearchTree/ProgressSpacer",
@@ -644,7 +645,9 @@ public sealed partial class KingdomUIRoot
         // code only binds behavior to the existing controls.
         overviewCurrentTargetButton = toolbar.transform
             .Find("OverviewCurrentTargetButton")?.GetComponent<Button>();
-        if (overviewCurrentTargetButton == null)
+        overviewCurrentEraButton = toolbar.transform
+            .Find("OverviewCurrentEraButton")?.GetComponent<Button>();
+        if (overviewCurrentTargetButton == null || overviewCurrentEraButton == null)
         {
             Debug.LogError("[王国界面] Overview navigation toolbar is missing its authored navigation buttons.");
             return;
@@ -867,7 +870,7 @@ public sealed partial class KingdomUIRoot
             if (label != null)
             {
                 // The diagnostic only prints the first three labels. Forcing
-                // a mesh rebuild for all 79 nodes during page entry creates a
+                // a mesh rebuild for every node during page entry creates a
                 // multi-second hitch and is unrelated to graph correctness.
                 if (loggedLabels < 3)
                 {
@@ -965,105 +968,6 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    #if false
-    private void RefreshResearchQueueToolbar()
-    {
-        if (researchTreeQueueLabel == null)
-            return;
-#if UNITY_EDITOR
-        float queueRefreshStart = Time.realtimeSinceStartup;
-#endif
-        ResearchManager manager = ResearchManager.Instance;
-        RectTransform queueRect = researchTreeQueueLabel.rectTransform;
-
-        researchQueueEntries.Clear();
-        researchQueueLayoutEntries.Clear();
-        List<string> entries = researchQueueEntries;
-        List<string> layoutEntries = researchQueueLayoutEntries;
-        if (manager.ActiveResearch?.Definition != null)
-        {
-            var def = manager.ActiveResearch.Definition;
-            var state = manager.GetState(def);
-            string label = GetResearchQueueWrappedLabel(def);
-            entries.Add(label + $"[{ResearchProgressText(state,state.Status)}]");
-            layoutEntries.Add(label);
-        }
-
-        IReadOnlyList<ResearchState> queue = manager.ResearchQueue;
-        for (int i = 0; i < queue.Count; i++)
-        {
-            ResearchState state = queue[i];
-            if (state?.Definition == null)
-                continue;
-            string stateLabel = state.Status == ResearchStatus.WaitingResources || !state.CostPaid
-                ? "等待资源"
-                : "正在排队";
-            string label = GetResearchQueueWrappedLabel(state.Definition);
-            entries.Add((i + 1) + "." + label + $"[{stateLabel}]");
-            layoutEntries.Add((i + 1) + "." + label + $"[{stateLabel}]");
-        }
-
-        // Use explicit Unicode escapes here because this source file contains
-        // older mojibake literals. The queue header must contain a real line
-        // break before entries so TMP can wrap and measure the queue.
-        string text = entries.Count == 0
-            ? "\u7814\u7a76\u961f\u5217\uFF1A\u7A7A"
-            : "\u7814\u7a76\u961f\u5217\uFF1A\n" + string.Join("\n", entries);
-        string layoutText = layoutEntries.Count == 0
-            ? "\u7814\u7a76\u961f\u5217\uFF1A\u7A7A"
-            : "\u7814\u7a76\u961f\u5217\uFF1A\n" + string.Join("\n", layoutEntries);
-        float width = Mathf.Max(1f, queueRect.rect.width);
-        bool pageScrolling = IsPageScrolling();
-        bool layoutChanged = !string.Equals(lastResearchQueueLayoutText, layoutText, StringComparison.Ordinal) ||
-            Mathf.Abs(lastResearchQueueLayoutWidth - width) > 0.5f;
-        float preferredHeight = queueRect.rect.height;
-        if (layoutChanged && !pageScrolling)
-        {
-            preferredHeight = researchTreeQueueLabel.GetPreferredValues(text, width, 4096f).y;
-            float targetHeight = Mathf.Max(70f, preferredHeight + 8f);
-            if (Mathf.Abs(queueRect.sizeDelta.y - targetHeight) > 0.5f)
-            {
-                Vector2 sizeDelta = queueRect.sizeDelta;
-                sizeDelta.y = targetHeight;
-                queueRect.sizeDelta = sizeDelta;
-            }
-            lastResearchQueueLayoutText = layoutText;
-            lastResearchQueueLayoutWidth = width;
-            researchQueueLayoutPending = false;
-        }
-        else if (layoutChanged)
-            researchQueueLayoutPending = true;
-
-        bool textChanged = researchTreeQueueLabel.text != text;
-        if (textChanged)
-        {
-            researchTreeQueueLabel.text = text;
-        }
-#if UNITY_EDITOR
-        if ((!pageScrolling && layoutChanged) || !researchQueueVisualDiagnosticLogged)
-        {
-            researchTreeQueueLabel.ForceMeshUpdate(false, false);
-            int lineCount = researchTreeQueueLabel.textInfo == null
-                ? 0
-                : researchTreeQueueLabel.textInfo.lineCount;
-            KingdomEditorPerfLog.Write(
-                $"[KingdomPerf] ResearchQueueVisual entries={entries.Count} lines={lineCount} " +
-                $"preferredHeight={preferredHeight:0.0} rectHeight={researchTreeQueueLabel.rectTransform.rect.height:0.0} " +
-                $"wrap={researchTreeQueueLabel.enableWordWrapping} width={researchTreeQueueLabel.rectTransform.rect.width:0.0}");
-            researchQueueVisualDiagnosticLogged = true;
-        }
-#endif
-#if UNITY_EDITOR
-        float queueRefreshMs = (Time.realtimeSinceStartup - queueRefreshStart) * 1000f;
-        if (queueRefreshMs >= 5f)
-            KingdomEditorPerfLog.Write(
-                $"[KingdomPerf] ResearchQueueRefreshSlow durationMs={queueRefreshMs:0.0} " +
-                $"entries={entries.Count} scrolling={pageScrolling} layoutPending={researchQueueLayoutPending}");
-#endif
-        RefreshResearchQueueGraphic();
-    }
-
-    #endif
     private void RefreshResearchQueueToolbar()
     {
         RefreshResearchQueueGraphic();
@@ -1073,7 +977,8 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshOverviewNavigationToolbar()
     {
-        if (overviewNavigationToolbar == null || overviewCurrentTargetButton == null)
+        if (overviewNavigationToolbar == null || overviewCurrentTargetButton == null ||
+            overviewCurrentEraButton == null)
             return;
 
         bool visible = string.Equals(populatedPage, "Overview", StringComparison.Ordinal);
@@ -1084,8 +989,7 @@ public sealed partial class KingdomUIRoot
         TutorialSnapshot snapshot = TutorialManager.Current?.Evaluate();
         if (snapshot != null && snapshot.NavigationPage == "Research" &&
             !string.IsNullOrWhiteSpace(snapshot.NavigationTargetId) &&
-            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research requested) &&
-            researchTreeNodes.ContainsKey(requested))
+            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research requested))
             tutorialTarget = requested;
 
         Research target = tutorialTarget;
@@ -1107,6 +1011,45 @@ public sealed partial class KingdomUIRoot
             overviewCurrentTargetButton.onClick.AddListener(() => NavigateToOverviewResearch(capturedTarget));
         }
 
+        Research eraTarget = FindCurrentEraResearchTarget();
+        TMP_Text eraLabel = overviewCurrentEraButton.GetComponentInChildren<TMP_Text>(true);
+        if (eraLabel != null)
+            eraLabel.text = "当前时代";
+        overviewCurrentEraButton.interactable = visible && eraTarget != null;
+        overviewCurrentEraButton.onClick.RemoveAllListeners();
+        if (eraTarget != null)
+        {
+            Research capturedEraTarget = eraTarget;
+            overviewCurrentEraButton.onClick.AddListener(() => NavigateToOverviewResearch(capturedEraTarget));
+        }
+
+    }
+
+    private Research FindCurrentEraResearchTarget()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.State == null)
+            return null;
+
+        TechLevel era = GameManager.Instance.State.TechLevel;
+        Research firstAvailable = null;
+        Research firstDefined = null;
+        IReadOnlyList<Research> definitions = DataBase<Research>.All;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            Research research = definitions[i];
+            if (research == null || research.TechLevel != era)
+                continue;
+            if (firstDefined == null)
+                firstDefined = research;
+            ResearchStatus status = GetResearchStatus(research);
+            if (firstAvailable == null &&
+                (status == ResearchStatus.Available ||
+                 status == ResearchStatus.Researching ||
+                 status == ResearchStatus.Queued ||
+                 status == ResearchStatus.WaitingResources))
+                firstAvailable = research;
+        }
+        return firstAvailable ?? firstDefined;
     }
 
     private void NavigateToOverviewResearch(Research target)
@@ -1134,10 +1077,10 @@ public sealed partial class KingdomUIRoot
         {
             EraGoalConditionEvaluation condition = evaluation.Conditions[i];
             if (!condition.Met && condition.Kind == EraGoalConditionKind.PrerequisiteResearch &&
-                condition.Research != null && researchTreeNodes.ContainsKey(condition.Research))
+                condition.Research != null)
                 return condition.Research;
         }
-        return evaluation.Transition != null && researchTreeNodes.ContainsKey(evaluation.Transition)
+        return evaluation.Transition != null
             ? evaluation.Transition
             : null;
     }
@@ -1176,35 +1119,6 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    #if false
-    private static string AddQueueWrapOpportunities(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        var wrapped = new StringBuilder(value.Length * 2);
-        for (int i = 0; i < value.Length; i++)
-        {
-            char character = value[i];
-            wrapped.Append(character);
-            if (!char.IsWhiteSpace(character) && i + 1 < value.Length)
-                wrapped.Append('\u200B');
-        }
-        return wrapped.ToString();
-    }
-
-    private string GetResearchQueueWrappedLabel(Research research)
-    {
-        if (research == null)
-            return string.Empty;
-        if (researchQueueWrappedLabels.TryGetValue(research, out string cached))
-            return cached;
-        string wrapped = AddQueueWrapOpportunities(research.Label);
-        researchQueueWrappedLabels[research] = wrapped;
-        return wrapped;
-    }
-
-    #endif
     private Dictionary<Research, Vector2> CreateResearchTreePositions(IReadOnlyList<Research> definitions)
     {
         Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
@@ -1614,8 +1528,8 @@ public sealed partial class KingdomUIRoot
     private void CreateResearchEraBands(RectTransform content, IReadOnlyList<Research> definitions,
         IReadOnlyDictionary<Research, Vector2> positions)
     {
-        string[] names = { "原始时代", "新石器时代", "中世纪", "工业时代", "太空时代", "极致时代", "远古科技时代" };
-        string[] textures = { "ResearchEraAnimal", "ResearchEraNeolithic", "ResearchEraMedieval", "ResearchEraIndustrial", "ResearchEraSpacer", "ResearchEraUltra", "ResearchEraArchotech" };
+        string[] names = { "原始时代", "石器时代", "中古时代", "工业时代", "太空时代", "极致时代", "远古科技时代" };
+        string[] textures = { "ResearchEraAnimal", "ResearchEraStoneAge", "ResearchEraMedieval", "ResearchEraIndustrial", "ResearchEraSpacer", "ResearchEraUltra", "ResearchEraArchotech" };
         float[] minX = new float[names.Length];
         float[] maxX = new float[names.Length];
         for (int i = 0; i < names.Length; i++)
@@ -2335,14 +2249,6 @@ public sealed partial class KingdomUIRoot
         return focused.Contains(prerequisite.Id) && focused.Contains(target.Id);
     }
 
-    private HashSet<Research> CollectSelectedResearchPrerequisites()
-    {
-        var focused = new HashSet<Research>();
-        if (selectedResearchNode != null)
-            CollectPrerequisiteClosure(selectedResearchNode, focused);
-        return focused;
-    }
-
     private HashSet<string> CollectSelectedResearchPrerequisiteIds()
     {
         HashSet<string> focused = selectedResearchPrerequisiteIdBuffer;
@@ -2358,14 +2264,6 @@ public sealed partial class KingdomUIRoot
             return;
         for (int i = 0; i < research.Prerequisites.Count; i++)
             CollectPrerequisiteIdClosure(research.Prerequisites[i], focused);
-    }
-
-    private static void CollectPrerequisiteClosure(Research research, HashSet<Research> focused)
-    {
-        if (research == null || !focused.Add(research) || research.Prerequisites == null)
-            return;
-        for (int i = 0; i < research.Prerequisites.Count; i++)
-            CollectPrerequisiteClosure(research.Prerequisites[i], focused);
     }
 
     private void RefreshResearchTreeVisuals(bool refreshBus = true)
@@ -2596,7 +2494,7 @@ public sealed partial class KingdomUIRoot
         return techLevel switch
         {
             TechLevel.Animal => "Animal",
-            TechLevel.Neolithic => "Neolithic",
+            TechLevel.StoneAge => "StoneAge",
             TechLevel.Medieval => "Medieval",
             TechLevel.Industrial => "Industrial",
             TechLevel.Spacer => "Spacer",

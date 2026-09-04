@@ -591,12 +591,12 @@ GameObject:
   - component: {fileID: 4000113}
   - component: {fileID: 4000114}
   m_Layer: 5
-  m_Name: LegacyEraNavigationRemoved
+  m_Name: OverviewCurrentEraButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4000111
 RectTransform:
   m_ObjectHideFlags: 0

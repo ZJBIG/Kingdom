@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Ceramic
   Label: "\u9676\u74F7"
-  Description: "\u9AD8\u6E29\u7ED3\u6784\u9676\u74F7\u4E0E\u7EDD\u7F18\u6750\u6599\uFF0C\u4ECE\u65E9\u671F\u50A8\u7269\u5668\u8FDB\u5316\u4E3A\u5DE5\u4E1A\u7A91\u7089\u3001\u7535\u5B50\u4EEA\u5668\u3001\u4F4E\u6E29\u63A8\u8FDB\u7CFB\u7EDF\u548C\u8F68\u9053\u5C45\u4F4F\u8231\u7684\u957F\u671F\u6750\u6599\u3002"
+  Description: "兼具耐热与绝缘性能的陶瓷，贯穿窑炉、电子设备和轨道居住设施。"
   Sprite: {fileID: 21300000, guid: e9c8047a18d052d4ba6472b0106cfc86, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

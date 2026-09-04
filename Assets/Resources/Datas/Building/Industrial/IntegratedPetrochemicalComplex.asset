@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IntegratedPetrochemicalComplex
   Label: "一体化石油化工联合体"
-  Description: "将原油预处理、连续蒸馏、催化裂化和合成橡胶装置整合为大型石化联合体，同时输出燃料、润滑剂与橡胶；高温塔器和精密阀组持续消耗化学品与电子设备。"
+  Description: "整合蒸馏、裂化与合成橡胶，持续产出燃料、润滑剂和橡胶。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.22"

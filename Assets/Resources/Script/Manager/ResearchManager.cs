@@ -6,43 +6,26 @@ using UnityEngine;
 
 public enum ResearchActionResult
 {
-    [Description("无效操作")]
     Invalid,
-    [Description("已支付研究成本")]
     PaidOnly,
-    [Description("研究已开始")]
     Started,
-    [Description("研究已排队")]
     Queued,
-    [Description("研究已排队，等待资源")]
     QueuedWaitingResources,
-    [Description("已取消排队")]
     Cancelled,
-    [Description("研究已经在进行")]
     AlreadyActive,
-    [Description("研究已经在队列中")]
     AlreadyQueued,
-    [Description("研究已完成")]
     Completed,
-    [Description("研究尚未解锁")]
     Blocked,
-    [Description("资源不足")]
     InsufficientResources
 }
 
 public enum ResearchPaymentResult
 {
-    [Description("无效操作")]
     Invalid,
-    [Description("支付成功")]
     Paid,
-    [Description("部分支付")]
     PartiallyPaid,
-    [Description("成本已经支付")]
     AlreadyPaid,
-    [Description("研究已完成")]
     Completed,
-    [Description("资源不足")]
     InsufficientResources
 }
 

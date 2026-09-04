@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Lubricant
   Label: "\u6DA6\u6ED1\u5242"
-  Description: "\u673A\u68B0\u3001\u7EBF\u7F06\u548C\u8FD0\u8F93\u8BBE\u5907\u7684\u6301\u7EED\u6D88\u8017\u54C1\u3002"
+  Description: "降低机械摩擦的工业油品，持续服务线缆、运输和重型设备。"
   Sprite: {fileID: 21300000, guid: b266652ed588a014c84e893eff410432, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

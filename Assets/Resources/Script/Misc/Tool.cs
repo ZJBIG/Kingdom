@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 [Serializable]
@@ -150,39 +149,129 @@ public static class ResourceAmountDefinitionList
 
 public static class Tool
 {
-    private static readonly Dictionary<Type, Dictionary<string, string>> DescriptionCache = new();
-
     public static string Colorize(this string s, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{s}</color>";
     public static bool NullOrEmpty(this string str) => string.IsNullOrEmpty(str);
-    public static string GetDescription(this Enum value)
+
+    // Keep enum formatting usable without the reflection-based attribute
+    // lookup that was removed for the runtime code path. Known player-facing
+    // enums below provide localized labels; other enums safely fall back to
+    // their stable member name.
+    public static string GetDescription(this Enum value) =>
+        value == null ? string.Empty : value.ToString();
+
+    public static string GetDescription(this TechLevel value) => value switch
     {
-        if (value == null)
-            throw new ArgumentNullException(nameof(value));
+        TechLevel.Animal => "原始时代",
+        TechLevel.StoneAge => "石器时代",
+        TechLevel.Medieval => "中古时代",
+        TechLevel.Industrial => "工业时代",
+        TechLevel.Spacer => "太空时代",
+        TechLevel.Ultra => "极致时代",
+        TechLevel.Archotech => "远古科技时代",
+        _ => value.ToString()
+    };
 
-        Type enumType = value.GetType();
-        string name = value.ToString();
-        if (!DescriptionCache.TryGetValue(enumType, out Dictionary<string, string> typeCache))
-        {
-            typeCache = new Dictionary<string, string>();
-            DescriptionCache.Add(enumType, typeCache);
-        }
+    public static string GetDescription(this ResearchEffectType value) => value switch
+    {
+        ResearchEffectType.BuildingProductionMultiplier => "建筑生产效率",
+        ResearchEffectType.ResourceProductionMultiplier => "资源生产效率",
+        ResearchEffectType.GlobalResearchMultiplier => "全局研究效率",
+        ResearchEffectType.GlobalConstructionMultiplier => "全局建造效率",
+        ResearchEffectType.FoodCapacityMultiplier => "粮食容量",
+        ResearchEffectType.ProductivityGranted => "生产力增加",
+        ResearchEffectType.TerritoryGranted => "领土增加",
+        ResearchEffectType.MilitaryMultiplier => "军事能力",
+        ResearchEffectType.PowerMultiplier => "全局电力效率",
+        ResearchEffectType.GlobalBuildingProductionMultiplier => "全局建筑生产效率",
+        ResearchEffectType.BuildingResearchPowerMultiplier => "建筑研究效率",
+        ResearchEffectType.BuildingPowerProductionMultiplier => "建筑电力产出",
+        ResearchEffectType.BuildingLogisticsProductionMultiplier => "建筑物流产出",
+        ResearchEffectType.GlobalLogisticsMultiplier => "全局物流效率",
+        ResearchEffectType.PopulationGrowthMultiplier => "人口增长",
+        ResearchEffectType.DeconstructionReturnRate => "拆除返还比例",
+        ResearchEffectType.UnlockIndustrialWorkshop => "解锁工业工坊",
+        ResearchEffectType.UnlockHomeSystemSurvey => "解锁本星系测绘",
+        ResearchEffectType.UnlockDeepSpaceFleet => "解锁深空舰队",
+        ResearchEffectType.UnlockInterstellarNavigation => "解锁星际航行",
+        ResearchEffectType.FleetRepairCostMultiplier => "舰队维修成本",
+        ResearchEffectType.OccupiedResourceProductionMultiplier => "占领资源产出",
+        ResearchEffectType.CampaignProgressMultiplier => "远征进度效率",
+        ResearchEffectType.CampaignSupplyCostMultiplier => "远征补给成本",
+        ResearchEffectType.CampaignCasualtyMultiplier => "远征伤亡",
+        ResearchEffectType.PopulationProductivityMultiplier => "人口生产力",
+        ResearchEffectType.ExplorationPowerMultiplier => "探索能力",
+        ResearchEffectType.BuildingConstructionMultiplier => "建筑建造效率",
+        ResearchEffectType.HappinessBonus => "幸福度加成",
+        ResearchEffectType.GlobalFoodProductionMultiplier => "全局粮食生产效率",
+        _ => value.ToString()
+    };
 
-        if (typeCache.TryGetValue(name, out string description))
-            return description;
+    public static string GetDescription(this WorkshopEffectType value) => value switch
+    {
+        WorkshopEffectType.BuildingProductionMultiplier => "建筑生产效率",
+        WorkshopEffectType.ResourceProductionMultiplier => "资源生产效率",
+        WorkshopEffectType.GlobalResearchMultiplier => "全局研究效率",
+        WorkshopEffectType.GlobalConstructionMultiplier => "全局建造效率",
+        WorkshopEffectType.GlobalFoodProductionMultiplier => "全局食物生产效率",
+        WorkshopEffectType.GlobalLogisticsMultiplier => "全局物流效率",
+        WorkshopEffectType.GlobalBuildingProductionMultiplier => "全局建筑生产效率",
+        WorkshopEffectType.BuildingConstructionMultiplier => "建筑建造效率",
+        WorkshopEffectType.BuildingResearchPowerMultiplier => "建筑研究力",
+        WorkshopEffectType.BuildingPowerProductionMultiplier => "建筑电力产出",
+        WorkshopEffectType.BuildingLogisticsProductionMultiplier => "建筑物流产出",
+        WorkshopEffectType.ExplorationPowerMultiplier => "探索能力",
+        WorkshopEffectType.TerritoryGranted => "领土增加",
+        WorkshopEffectType.MilitaryMultiplier => "军事能力",
+        WorkshopEffectType.PowerMultiplier => "全局电力效率",
+        WorkshopEffectType.FleetRepairCostMultiplier => "舰队维修成本",
+        WorkshopEffectType.PopulationGrowthMultiplier => "人口增长",
+        WorkshopEffectType.OccupiedResourceProductionMultiplier => "占领资源产出",
+        WorkshopEffectType.CampaignSupplyCostMultiplier => "远征补给成本",
+        WorkshopEffectType.CampaignCasualtyMultiplier => "远征伤亡",
+        _ => value.ToString()
+    };
 
-        var fieldInfo = enumType.GetField(name);
-        if (fieldInfo == null)
-            return name;
+    public static string GetDescription(this ResearchActionResult value) => value switch
+    {
+        ResearchActionResult.Invalid => "无效操作",
+        ResearchActionResult.PaidOnly => "已支付研究成本",
+        ResearchActionResult.Started => "研究已开始",
+        ResearchActionResult.Queued => "研究已排队",
+        ResearchActionResult.QueuedWaitingResources => "研究已排队，等待资源",
+        ResearchActionResult.Cancelled => "已取消排队",
+        ResearchActionResult.AlreadyActive => "研究已经在进行",
+        ResearchActionResult.AlreadyQueued => "研究已经在队列中",
+        ResearchActionResult.Completed => "研究已完成",
+        ResearchActionResult.Blocked => "研究尚未解锁",
+        ResearchActionResult.InsufficientResources => "资源不足",
+        _ => value.ToString()
+    };
 
-        var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
-        description = attributes.Length > 0 ? attributes[0].Description : name;
-        typeCache.Add(name, description);
-        return description;
-    }
-}
-
-public static class ExpantaNumStringExtensions
-{
-    public static double ToDouble(this string value) =>
-        string.IsNullOrWhiteSpace(value) ? 0d : new ExpantaNum(value).ToDouble();
+    public static string GetDescription(this SectorOperationFailure value) => value switch
+    {
+        SectorOperationFailure.None => "无",
+        SectorOperationFailure.UnknownSector => "未知星区",
+        SectorOperationFailure.AlreadyUnlocked => "星区已经解锁",
+        SectorOperationFailure.AlreadyOccupied => "星区已经占领",
+        SectorOperationFailure.PrerequisiteNotOccupied => "前置星区尚未占领",
+        SectorOperationFailure.LaunchCenterRequired => "需要发射中心",
+        SectorOperationFailure.HomeSystemSurveyRequired => "需要完成本星系测绘研究",
+        SectorOperationFailure.InvalidReward => "星区奖励无效",
+        SectorOperationFailure.NotUnlocked => "星区尚未解锁",
+        SectorOperationFailure.CampaignRequired => "尚未完成远征",
+        SectorOperationFailure.CampaignInProgress => "远征正在进行",
+        SectorOperationFailure.InvalidDelta => "时间增量无效",
+        SectorOperationFailure.InsufficientCampaignSupply => "远征补给不足",
+        SectorOperationFailure.InsufficientExplorationPower => "探索能力不足",
+        SectorOperationFailure.InvalidCampaignCost => "远征成本无效",
+        SectorOperationFailure.CampaignNotAllowedInHomeSystem => "本土星系不允许进行星际战役",
+        SectorOperationFailure.ColonizationNotAllowedInInterstellarSystem => "星际星系不允许进行殖民",
+        SectorOperationFailure.InterstellarSystemLocked => "星际星系尚未解锁",
+        SectorOperationFailure.ColonizationInProgress => "殖民正在进行",
+        SectorOperationFailure.NoFleetDamage => "舰队没有受损",
+        SectorOperationFailure.InvalidRepairAmount => "维修数量无效",
+        SectorOperationFailure.InsufficientFleetRepairSupply => "舰队维修补给不足",
+        SectorOperationFailure.FleetRepairRequired => "舰队仍有未维修的损伤",
+        _ => value.ToString()
+    };
 }

@@ -202,6 +202,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         float sectorEnd = Time.realtimeSinceStartup;
 #endif
         ResearchManager.Instance.Tick(deltaSeconds);
+        StoryManager.RefreshProgress(gameManager.State.TechLevel,
+            TutorialManager.Current);
 #if UNITY_EDITOR
         float tickEnd = Time.realtimeSinceStartup;
         perfTickAllocatedBytes += Math.Max(0L,
@@ -322,6 +324,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             elapsed += step;
             advanced += step;
         }
+
+        StoryManager.RefreshProgress(GameManager.Instance.State.TechLevel,
+            TutorialManager.Current);
 
         return advanced;
     }

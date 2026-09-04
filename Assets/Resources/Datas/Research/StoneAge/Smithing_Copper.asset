@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Smithing_Copper
   m_EditorClassIdentifier: 
   id: Smithing_Copper
-  Label: "\u65E9\u671F\u591A\u91D1\u5C5E\u51B6\u70BC"
-  Description: "\u7EDF\u4E00\u94DC\u3001\u9521\u3001\u94C1\u77FF\u7684\u7089\u6599\u51C6\u5907\u3001\u8FD8\u539F\u51B6\u70BC\u548C\u94F8\u952D\u65B9\u6CD5\uFF0C\u89E3\u9501\u591A\u91D1\u5C5E\u51B6\u70BC\u7089\uFF0C\u4E3A\u9752\u94DC\u548C\u94C1\u5668\u751F\u4EA7\u63D0\u4F9B\u57FA\u7840\u3002"
+  Label: "多金属冶炼基础"
+  Description: "掌握铜、锡、铁矿的还原与铸锭，建立青铜和铁器生产基础。"
   BaseCost: "15000"
   prerequisites:
   - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}

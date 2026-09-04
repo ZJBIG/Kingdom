@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: OrganizedDefense
   m_EditorClassIdentifier: 
   id: OrganizedDefense
-  Label: "\u7EC4\u7EC7\u534F\u4F5C"
-  Description: "\u5EFA\u7ACB\u8B66\u6212\u3001\u96C6\u5408\u548C\u8F6E\u73ED\u5236\u5EA6\uFF0C\u8BA9\u805A\u843D\u66F4\u9AD8\u6548\u5730\u5206\u914D\u52B3\u52A8\u529B\u3002"
+  Label: "警戒与协作"
+  Description: "建立警戒、集合与轮班制度，提升聚落公共设施的生产效率。"
   BaseCost: "2400"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

@@ -25,9 +25,7 @@ public sealed partial class KingdomUIRoot
         public Button Expand;
         public RectTransform Menu;
         public TMP_Text Label;
-        public TMP_Text Type;
-        public TMP_Text Progress;
-        public Image TypePattern;
+        public float CollapsedHeight;
         public bool Expanded;
     }
     private readonly List<SectorRowView> sectorRowViews = new();
@@ -61,30 +59,23 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             objectRow.name = "SectorRow_" + definition.Id;
+            ApplyListRowStyle(objectRow, sectorRowViews.Count);
+            objectRow.SetActive(CanDisplaySector(definition, sectors));
             SectorRowView view = new SectorRowView
             {
                 Definition = definition,
                 Row = row,
                 Layout = layout,
                 Label = row.Find("Label")?.GetComponent<TMP_Text>(),
-                Type = row.Find("Type")?.GetComponent<TMP_Text>(),
-                Progress = row.Find("Progress")?.GetComponent<TMP_Text>(),
-                TypePattern = row.Find("TypePattern")?.GetComponent<Image>()
+                CollapsedHeight = Mathf.Max(1f, layout.preferredHeight)
             };
-            if (view.Label == null || view.Type == null || view.Progress == null ||
-                view.TypePattern == null)
+            if (view.Label == null)
             {
-                Debug.LogError("[SectorBuildings] Sector row prefab is missing Label, Type, Progress, or TypePattern.");
+                Debug.LogError("[SectorBuildings] Sector row prefab is missing Label.");
                 Destroy(objectRow);
                 continue;
             }
             view.Label.text = definition.Label ?? definition.Id;
-            view.Type.text = definition.IsHomeSystem ? "本星系探索" : "远星战役";
-            view.Type.color = definition.IsHomeSystem ? Copper : new Color(.56f, .72f, .86f, 1f);
-            view.TypePattern.color = definition.IsHomeSystem
-                ? new Color(.76f, .58f, .25f, .95f)
-                : new Color(.32f, .56f, .80f, .95f);
-            view.Progress.text = BuildSectorProgress(definition, sectors);
             Transform expand = row.Find("Buildings");
             if (expand != null)
                 expand.gameObject.SetActive(false);
@@ -96,6 +87,22 @@ public sealed partial class KingdomUIRoot
             sectorRowViews.Add(view);
         }
         RefreshSectorRowsAndLayout();
+    }
+
+    private static bool CanDisplaySector(
+        SectorDefinition definition, SectorManager sectorManager)
+    {
+        if (definition == null)
+            return false;
+        IReadOnlyList<SectorDefinition> prerequisites = definition.PrerequisiteSectors;
+        for (int i = 0; prerequisites != null && i < prerequisites.Count; i++)
+        {
+            SectorDefinition prerequisite = prerequisites[i];
+            if (prerequisite == null || sectorManager == null ||
+                !sectorManager.GetState(prerequisite).Occupied)
+                return false;
+        }
+        return true;
     }
 
     private void EnsureSectorBuildingControls(SectorRowView view)
@@ -135,7 +142,7 @@ public sealed partial class KingdomUIRoot
         view.Menu.anchorMin = new Vector2(0f, 0f);
         view.Menu.anchorMax = new Vector2(1f, 0f);
         view.Menu.pivot = new Vector2(.5f, 1f);
-        view.Menu.anchoredPosition = new Vector2(0f, -82f);
+        view.Menu.anchoredPosition = new Vector2(0f, -view.CollapsedHeight);
         view.Menu.sizeDelta = new Vector2(0f, 416f);
         CreateText("Heading", view.Menu, "星区工程", Copper, TextAlignmentOptions.MidlineLeft)
             .rectTransform.offsetMin = new Vector2(28f, -58f);
@@ -204,6 +211,10 @@ public sealed partial class KingdomUIRoot
         for (int i = 0; i < sectorRowViews.Count; i++)
         {
             SectorRowView view = sectorRowViews[i];
+            bool eligible = CanDisplaySector(view.Definition, gameManagerCache?.Sectors);
+            view.Row.gameObject.SetActive(eligible);
+            if (!eligible)
+                continue;
             bool occupied = gameManagerCache != null && gameManagerCache.Sectors.GetState(view.Definition).Occupied;
             if (occupied)
                 EnsureSectorBuildingControls(view);
@@ -222,7 +233,9 @@ public sealed partial class KingdomUIRoot
                 view.Menu.gameObject.SetActive(view.Expanded && occupied);
                 RefreshSectorBuildingMenu(view);
             }
-            float height = view.Expanded && occupied ? 498f : 82f;
+            float menuHeight = view.Menu == null ? 0f : view.Menu.sizeDelta.y;
+            float height = view.CollapsedHeight +
+                (view.Expanded && occupied ? menuHeight : 0f);
             view.Layout.preferredHeight = height;
             view.Row.sizeDelta = new Vector2(0f, height);
             view.Row.anchoredPosition = new Vector2(0f, -top);
@@ -231,7 +244,10 @@ public sealed partial class KingdomUIRoot
         nextRowTop = top;
         if (sectorRowsParent == null)
             return;
-        sectorRowsParent.sizeDelta = new Vector2(0f, Mathf.Max(86f, top));
+        float minimumHeight = sectorRowViews.Count == 0
+            ? 1f
+            : sectorRowViews[0].CollapsedHeight;
+        sectorRowsParent.sizeDelta = new Vector2(0f, Mathf.Max(minimumHeight, top));
         RectTransform page = sectorRowsParent.parent as RectTransform;
         if (page != null)
             page.sizeDelta = new Vector2(0f, Mathf.Max(1400f, top + 180f));
@@ -250,7 +266,7 @@ public sealed partial class KingdomUIRoot
         {
             SectorRowView view = sectorRowViews[i];
             string message = $"[SectorBuildings] sector={view.Definition.Id} expanded={view.Expanded} " +
-                "collapsed=82 expandedHeight=498 " +
+                $"collapsed={view.CollapsedHeight} expandedHeight={view.CollapsedHeight + (view.Menu == null ? 0f : view.Menu.sizeDelta.y)} " +
                 $"cards={(view.Menu == null ? 0 : Mathf.Max(0, view.Menu.childCount - 1))} " +
                 $"viewport={viewportSize} content={contentSize}";
             if (hasPositiveBounds)
@@ -301,11 +317,6 @@ public sealed partial class KingdomUIRoot
         SectorManager sectorManager = gameManagerCache.Sectors;
         GameState state = gameManagerCache.State;
         ObserveSectorMilestones(sectorManager);
-        for (int i = 0; i < sectorRowViews.Count; i++)
-        {
-            SectorRowView view = sectorRowViews[i];
-            SetTextIfChanged(view.Progress, BuildSectorProgress(view.Definition, sectorManager));
-        }
         RefreshSelectedSectorDetails(sectorManager, state, resourceManagerCache);
         RefreshSectorRowsAndLayout();
     }
@@ -356,19 +367,6 @@ public sealed partial class KingdomUIRoot
         }
 
         sectorObservationInitialized = true;
-    }
-
-    private static string BuildSectorProgress(
-        SectorDefinition definition,
-        SectorManager sectorManager)
-    {
-        SectorState sectorState = sectorManager == null ? null : sectorManager.GetState(definition);
-        if (sectorState != null && sectorState.Occupied)
-            return "已占领";
-        ExpantaNum progress = sectorState == null
-            ? ExpantaNum.Zero
-            : sectorState.CampaignProgress * 100;
-        return progress.ToGameString() + "%";
     }
 
     private void ShowSectorDetails(
@@ -456,8 +454,9 @@ public sealed partial class KingdomUIRoot
             {
                 body.AppendLine("探索方式：仅按持续资源供给推进");
                 body.AppendLine("预计剩余：" + explorationPreview.EstimatedSecondsRemaining.ToGameString() + " 秒");
-                body.AppendLine("食物补给：" + explorationPreview.FoodCostPerSecond.ToGameString() + "/s");
-                body.AppendLine("战略资源补给：" + FormatResourceCosts(explorationPreview.ResourceCostsPerSecond) + "/s");
+                body.AppendLine("食物补给：" + FormatPerMinute(explorationPreview.FoodCostPerSecond) + "/min");
+                body.AppendLine("战略资源补给：" +
+                    FormatResourceCostsPerMinute(explorationPreview.ResourceCostsPerSecond));
                 body.AppendLine(explorationPreview.HasSupply ? "当前补给：充足" : "当前补给：不足");
                 if (!sectorState.ColonizationActive)
                 {
@@ -485,8 +484,12 @@ public sealed partial class KingdomUIRoot
                 ? "预计完成：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒"
                 : "预计完成：无法估算（当前条件不支持推进）");
             body.AppendLine("预计伤亡：" + preview.CasualtiesPerSecond.ToGameString() + "/s");
-            body.AppendLine("食物补给：" + preview.FoodCostPerSecond.ToGameString() + "/s");
-            body.AppendLine("战略资源补给：" + FormatResourceCosts(preview.ResourceCostsPerSecond) + "/s");
+            body.AppendLine("食物补给：" + FormatPerMinute(preview.FoodCostPerSecond) + "/min");
+            body.AppendLine("战略资源补给：" +
+                FormatResourceCostsPerMinute(preview.ResourceCostsPerSecond));
+            body.AppendLine(preview.EstimatedRepairAmount > ExpantaNum.Zero
+                ? "预计维修材料：" + FormatResourceCosts(preview.FleetRepairCosts)
+                : "预计维修材料：无");
             body.AppendLine(preview.HasOngoingSupplyCost
                 ? "按当前库存可维持：" + preview.EstimatedSupplySeconds.ToGameString() + " 秒"
                 : "按当前库存可维持：无限（无持续补给成本）");
@@ -823,6 +826,13 @@ public sealed partial class KingdomUIRoot
 
     private string FormatResourceCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs) =>
         FormatResourceCosts(costs, ExpantaNum.One);
+
+    private string FormatResourceCostsPerMinute(
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs) =>
+        FormatResourceCosts(costs, new ExpantaNum(60d)) + "/min";
+
+    private static string FormatPerMinute(ExpantaNum perSecond) =>
+        (perSecond * new ExpantaNum(60d)).ToGameString();
 
     private string FormatResourceCosts(
         IReadOnlyList<Pair<Resource, ExpantaNum>> costs,

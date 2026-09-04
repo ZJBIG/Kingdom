@@ -1,5 +1,88 @@
 # Refactor progress log
 
+## 2026-08-30 Todolist acceptance and current audit cleanup
+
+- Corrected two stale Editor assertions: PrecisionManufacturing no longer
+  requires a player-facing description to contain the fixed phrase
+  `机器工厂`, while the typed MachineFactory effect assertion remains; the
+  population guidance fixture now adds Food production instead of consumption
+  and expects the Animal housing target `WoodHouse`.
+- Current isolated Unity EditMode passed 644/644. The original project latest
+  PlayMode report passed 32/32; the isolated batch report had 31 passes, one
+  conditional outer-page-overflow skip, and zero failures.
+- Todolist static gates, content closure, Android settings, P40 UI contract,
+  resource-flow audit and local YAML script references all pass.
+- Research runtime evidence reports 129 nodes in 129 unique cells, positive
+  viewport/content bounds, horizontal and vertical overflow, both pan axes
+  enabled, real manual movement and inactive legacy roots.
+- Replaced the mixed historical/current master audit with a bounded current
+  status page. The previous 179781-byte audit is retained under
+  `.codex/archive/` and is not current evidence.
+
+## 2026-08-30 Android isolated build timeout
+
+- A real ARM64/IL2CPP Android build was attempted in a D-drive isolated copy.
+- Static preflight and Unity licensing passed, but the copied project froze in
+  Bee `ScriptAssemblies` compilation and stopped writing the build log.
+- The build script timed out after 1800 seconds, produced no APK, and stopped
+  the isolated Unity process. Its orphaned `bee_backend` was also stopped;
+  the user's original Unity PID 32928 remained untouched.
+
+## 2026-08-30 Sector 60-second preview regression guard
+
+- Added a fixed 60-second Editor regression test that compares campaign Food
+  and every strategic-resource deduction against the read-only preview rates.
+- The test uses a strongly typed Editor-only progression hook and does not
+  alter campaign costs, combat math, or player-buildable production.
+
+## 2026-08-30 Editor save tests use D-drive temp roots
+
+- The four `KingdomLogicTests` save/restore fixtures now create isolated
+  directories under the project-local `Temp/` folder, so repeated Editor
+  validation does not accumulate temporary archives on C:.
+
+## 2026-08-30 PlayMode temporary save roots
+
+- PlayMode save-isolation fixtures now create their per-test save directories
+  under the project-local `Temp/` folder on the D: drive instead of the
+  process-wide C: temporary directory. Each fixture still uses a unique
+  directory and removes only that directory during teardown.
+
+## 2026-08-30 Research tree acceptance guard
+
+- Kept the Research tree runtime count dynamic for all current definitions and
+  added a discrete minimum of 79 nodes to the PlayMode layout audit, preventing
+  silent regression below the vertical-slice coverage target.
+- Updated the runtime diagnostic comment to avoid treating 79 as the current
+  total; the current asset set remains the source of truth.
+
+## 2026-08-30 Compile recovery and workspace cleanup
+
+- Replaced the missing enum-description overloads with explicit, strongly typed
+  `WorkshopEffectType`, `ResearchActionResult`, and `SectorOperationFailure`
+  mappings. This removes the Unity `CS1929` errors without reflection.
+- Offline Unity Roslyn compilation of `Kingdom.Runtime` and
+  `Assembly-CSharp-Editor` completed successfully (`Exit=0`) after the fix.
+- Removed the temporary C: drive validation copies and generated reports from
+  the user Temp directory, freeing about 5.9 GB. Generic Unity cache folders
+  were intentionally preserved.
+- Moved superseded repository logs out of `Logs/` into `.codex/archive/`; the
+  current YAML-reference summary remains in place.
+
+## 2026-08-30 Validation and dead-code cleanup
+
+- Removed two `#if false` UI implementations that had no call sites: the
+  obsolete top-status refresh and the superseded research-queue toolbar body.
+- Fixed `tools/codex/run-unity-tests.ps1` to parse UTF-8 Unity result XML;
+  Chinese test names no longer cause false `InvalidXml` failures.
+- Unity validation passed PlayMode `32/32` in the original project; the
+  isolated copy passed EditMode `642/642` and PlayMode `32/32`.
+- Android/UI/YAML preflight gates passed. APK generation was attempted in an
+  isolated copy but stopped after the copied Library cache repeatedly reported
+  invalid artifact IDs during mass asset reimport. A clean copy then reached
+  Unity startup but could not write the license file because C: had no free
+  space. The original Unity process and project assets were not modified.
+
 ## 2026-08-27 SectorBuilding and interaction-contract refresh
 
 - `SectorBuilding` is a direct `Building` subtype with only `Sector` and

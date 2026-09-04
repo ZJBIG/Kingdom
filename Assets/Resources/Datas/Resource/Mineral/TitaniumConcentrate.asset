@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TitaniumConcentrate
   Label: "\u949B\u7CBE\u77FF"
-  Description: "\u4ECE\u949B\u94C1\u77FF\u3001\u91D1\u7EA2\u77F3\u7B49\u542B\u949B\u77FF\u7269\u4E2D\u5206\u9009\u5F97\u5230\u7684\u9AD8\u54C1\u4F4D\u5DE5\u4E1A\u539F\u6599\uFF0C\u662F\u6C2F\u5316\u949B\u51B6\u91D1\u548C\u949B\u5408\u91D1\u751F\u4EA7\u7684\u57FA\u7840\u3002"
+  Description: "从含钛矿物中分选出的高品位原料，是氯化钛冶金和钛合金生产基础。"
   Sprite: {fileID: 21300000, guid: ec85ceeab65511440a27afb34ed907d8, type: 3}
   Color: {r: 0.627451, g: 0.69803923, b: 0.70980394, a: 1}

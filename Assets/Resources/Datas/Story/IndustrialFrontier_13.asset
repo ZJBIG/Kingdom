@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: IndustrialFrontier_13
+  m_EditorClassIdentifier: 
+  id: IndustrialFrontier_13
+  Title: "第十三章：把第一根梁送向黑暗"
+  Summary: "钛合金和发射设施让离开母星成为工程问题，也让远方的代价第一次可以被准确计算。"
+  Body: "钛合金的第一批成品被放在车站边，没有人急着把它装进发射设施。冶炼工记录每块合金来自何处、消耗多少燃料；工匠反复测试减重、耐热和返修方案，结构师则在风洞与冷库之间寻找安全余量。所有试件都要经过拆解和复核，失败的部件也被留下供后来者比较。\n\n设施终于具备条件时，王国仍先核对食物、补给和返航余量。这不是飞向群星的号角，而是一份交给未来的工程账。鼠族拥有了离开母星的骨架，也明白远方不能成为逃避家园责任的借口。"
+  RequiredEra: 3
+  RequiredResearch:
+  - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
+  - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 30afe5eba41c80e40ad21a0e658f9170, type: 2}
+  - {fileID: 11400000, guid: 6fa66de5f487f664886c60c8b0df8de9, type: 2}
+  RequiredWorkshops:
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 

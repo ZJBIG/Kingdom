@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Biomass
   Label: "生物质"
-  Description: "由农作物、木本植物与藻类等有机原料形成的生物质，可加工为纤维、医疗耗材、生态基质与深空生命保障材料。"
+  Description: "由作物、木本植物和藻类形成的有机原料，可加工为纤维与生态材料。"
   Sprite: {fileID: 21300000, guid: 4709208185bcaa44a8a16fe8afc32ffc, type: 3}
   Color: {r: 1, g: 1, b: 1, a: 1}

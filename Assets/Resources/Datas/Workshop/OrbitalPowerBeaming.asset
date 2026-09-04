@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: OrbitalPowerBeaming
   m_EditorClassIdentifier: 
   id: OrbitalPowerBeaming
-  Label: "定向能量束流终端"
-  Description: "把高效光伏阵列、能量转换器、锡基焊接接点与定向输电终端装配成可运行的实体系统，将轨道能量传输理论落实为稳定的空间电力设备。"
+  Label: "轨道定向输电终端"
+  Description: "将光伏阵列与定向输电设备结合，稳定向轨道设施传送电力。"
   SortOrder: 430
   TechLevel: 4
   requiredResearch:

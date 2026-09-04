@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: PrologueAshes_00
+  m_EditorClassIdentifier: 
+  id: PrologueAshes_00
+  Title: "序章：灰烬中的耳语"
+  Summary: "鼠族文明没有消失，只是失去了记得自己的方式。"
+  Body: "很久以前，天穹曾被灯火照亮，鼠族在巨大的城市阴影下建立过自己的秩序。后来那场灾变夺走了道路、文字与名字。幸存者躲进荒野，把最后一点火种藏在石缝深处。\n\n如今，族群从废墟边缘醒来。你要做的不是追逐一座旧城，而是让一个能够持续成长的王国重新出现。每一块木材、每一间居所和每一次研究，都会把失落的文明拉回现实。没有任何先知会告诉他们终点在哪里，只有一代又一代鼠族，用亲手完成的工作证明文明仍然可以重新开始。"
+  RequiredEra: 0
+  RequiredResearch: []
+  RequiredBuildings: []
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+
+

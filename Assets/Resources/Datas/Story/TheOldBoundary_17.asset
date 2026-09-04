@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: TheOldBoundary_17
+  m_EditorClassIdentifier: 
+  id: TheOldBoundary_17
+  Title: "终章：星海之外的回声"
+  Summary: "抵达系外星区之后，旧文明的边界终于从传闻变成需要负责解释的真实遗迹。"
+  Body: "当第一批系外信标依次亮起，档案馆里两份互相矛盾的记录终于有了新的回声：祖先曾经来过这里，却没有留下完整答案。远征队在邻近恒星之间建立观测站，发现遗迹并不是等待被夺取的宝藏，而是一套提醒后来者谨慎使用力量的警告。治理者把观测、补给和聚落协商写进同一份长久的章程，避免任何一处星区被遗忘。\n\n鼠族走到了母星之外，却没有资格替旧文明解释全部过去。真正的终点不会由遥远声音宣布，只会在他们如何治理新星区、承担远航代价，并把选择交给后来者的过程中慢慢显出形状。每一次克制，都是对未来仍愿意相信他们的生命作出的回答。"
+  RequiredEra: 5
+  RequiredResearch:
+  - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
+  - {fileID: 11400000, guid: 6d7e8f901a2b3c4d5e6f708192a3b4c5, type: 2}
+  - {fileID: 11400000, guid: d1e4f7a9c2b5486fa0d3e8c1b5f70942, type: 2}
+  - {fileID: 11400000, guid: 12ca71b0c14f45ed83642482565c0cdd, type: 2}
+  - {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f60718293a4b5c6d, type: 2}
+  - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 7f8e9d0c1b2a34567890abcdef123456, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: e2f5a8c1d4b7496fa0e3c7b2d5f81943, type: 2}
+  - {fileID: 11400000, guid: 8e9f0a1b2c3d4e5f60718293a4b5c6d7, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors:
+  - {fileID: 11400000, guid: d06dcc262d273e54e88f2b4e72492797, type: 2}
+  - {fileID: 11400000, guid: 9c31a5f4b27d4e4a9e1a7f8c2d6b3e10, type: 2}
+  - {fileID: 11400000, guid: e5f60718293a4b5c6d7e8f901a2b3c4d, type: 2}
+  RequiredTutorialStepId: 

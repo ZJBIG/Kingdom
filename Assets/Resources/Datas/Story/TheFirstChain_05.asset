@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: TheFirstChain_05
+  m_EditorClassIdentifier: 
+  id: TheFirstChain_05
+  Title: "第五章：让事物彼此相连"
+  Summary: "原材料经过加工，才会变成能改变王国规模的东西。"
+  Body: "当一座农场的收成被另一处工坊接住，鼠族第一次看见单个工匠之外的协作。原料要按时抵达，加工要留下足够的余量，成品还要沿着熟悉的道路送到需要它的地方；每一次交接都让聚落之间多一层信任。\n\n这条规律会一直伴随鼠族：越遥远的目标，越需要让早期的产业继续发挥作用。工匠开始用相同的尺度交接材料，运输者按照季节和火候安排路线，记录者把延误与修补写进石册。每一环都可能松动，也都值得被理解和照料，王国才不会在下一场风雪里重新分散。"
+  RequiredEra: 0
+  RequiredResearch: []
+  RequiredBuildings:
+  - {fileID: 11400000, guid: f35dd5b2da5e3844f9f8a11a7dbc1230, type: 2}
+  - {fileID: 11400000, guid: 7f91de07d1abf284b826a3a6b1452983, type: 2}
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: production-chain

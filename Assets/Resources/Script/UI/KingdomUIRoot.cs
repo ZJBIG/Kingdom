@@ -61,7 +61,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text topCurrentResearchValue;
     private TMP_Text topKingdomTitle;
     private TMP_Text topKingdomDate;
-    private RectTransform buildingQuantityControls;
+    private RectTransform buildingControls;
+    private Toggle showBuildingDetailsToggle;
+    private bool showBuildingDetails;
     private bool detailBuildingUpgrade;
     private bool detailIsBuilding;
     private Building selectedBuilding;
@@ -559,6 +561,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         populatedPage = name;
         RefreshNavigationSelection(name);
         RefreshOverviewNavigationToolbar();
+        RefreshWorkshopFiltersVisibility();
         TutorialManager.Current?.RecordPageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
         // generated page is created. Once a page has been built, forcing a
@@ -580,7 +583,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         if (name == "Buildings")
         {
-            BuildBuildingQuantityControls(pageHost.parent.Find("PageTool"));
+            BuildBuildingControls(pageHost.parent.Find("PageTool"));
             RefreshBuildingQuantityHeader();
         }
 #if UNITY_EDITOR
@@ -749,8 +752,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         {
             if (researchQueueViewport != null)
                 researchQueueViewport.gameObject.SetActive(false);
-            if (buildingQuantityControls != null)
-                buildingQuantityControls.gameObject.SetActive(false);
+            if (buildingControls != null)
+                buildingControls.gameObject.SetActive(false);
             bool resetStoryScroll = !storyScrollInitialized;
             BuildStoryPage(page, refreshEraRows);
             ConfigureOuterPageScroll(name, resetStoryScroll, true);
@@ -763,11 +766,11 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             if (researchQueueViewport.gameObject.activeSelf != shouldBeActive)
                 researchQueueViewport.gameObject.SetActive(shouldBeActive);
         }
-        if (buildingQuantityControls != null)
+        if (buildingControls != null)
         {
             bool shouldBeActive = name == "Buildings";
-            if (buildingQuantityControls.gameObject.activeSelf != shouldBeActive)
-                buildingQuantityControls.gameObject.SetActive(shouldBeActive);
+            if (buildingControls.gameObject.activeSelf != shouldBeActive)
+                buildingControls.gameObject.SetActive(shouldBeActive);
         }
         Transform old = page.Find("DataRows");
         if (old == null && name == "Overview")

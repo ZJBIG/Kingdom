@@ -161,6 +161,10 @@ public sealed class ProgressionModifierState
             unlockedSystems.Add(system);
     }
 
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+    public void AddUnlockedSystemForEditor(ResearchSystem system) => AddUnlockedSystem(system);
+#endif
+
     private static ExpantaNum GetMultiplier<T>(Dictionary<T, ExpantaNum> values, T key)
     {
         return !ReferenceEquals(key, null) && values.TryGetValue(key, out ExpantaNum value)

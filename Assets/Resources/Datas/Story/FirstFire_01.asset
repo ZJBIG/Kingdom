@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: FirstFire_01
+  m_EditorClassIdentifier: 
+  id: FirstFire_01
+  Title: "第一章：守住火种"
+  Summary: "稳定的食物与木材，让鼠族重新拥有可以守望的明天。"
+  Body: "最早的记录只剩下几道刻痕：食物要被稳定地获得，木材要被持续地收集，族群才不必在下一个寒夜重新迁徙。收集者沿着熟悉的路径往返，把季节、风向和猎物留下的痕迹交给下一班伙伴。\n\n当储备渐渐充足，鼠族第一次明白，复兴不从宏伟建筑开始，而从一条愿意反复照料的生活循环开始。多出来的粮食让人们能够修补工具、照顾幼崽，也让年长者有时间教会后来者辨认树皮与火星。荒野仍会改变，但族群终于能用共同的记忆迎接下一个清晨。"
+  RequiredEra: 0
+  RequiredResearch: []
+  RequiredBuildings: []
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: resources
+

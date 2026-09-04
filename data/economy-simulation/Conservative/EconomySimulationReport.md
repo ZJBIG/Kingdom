@@ -7,7 +7,7 @@ Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 
 ## Rules
 
-- Adaptive ticks: one second in Animal/Neolithic, ten seconds in Medieval, ten minutes in Industrial, and thirty minutes in Spacer/Ultra/Archotech; rates remain per-second and snapshots remain ten-minute aligned.
+- Adaptive ticks: one second in Animal/StoneAge, ten seconds in Medieval, ten minutes in Industrial, and thirty minutes in Spacer/Ultra/Archotech; rates remain per-second and snapshots remain ten-minute aligned.
 - Each route runs for a 30-day observation horizon so late-era construction, workshops and supply chains are visible; reports sample every 10 minutes.
 - Research resource costs are paid atomically before progress begins, matching ResearchManager.
 - Workshop unlocks, prerequisite chains, costs and effects are included.
@@ -26,7 +26,7 @@ Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 到达时间: 0 分钟
 完成研究: 11
 
-## Neolithic Age
+## Stone Age
 
 到达时间: 64.58 分钟
 完成研究: 23
@@ -46,7 +46,7 @@ Strict snapshot: 40 resources, 69 buildings, 121 research, 73 Workshop upgrades.
 到达时间: 不可达
 完成研究: 0
 
-原始时代最长无研究目标: 1 分钟；新石器时代: 2 分钟。
+原始时代最长无研究目标: 1 分钟；石器时代: 2 分钟。
 
 ## Bottlenecks
 

@@ -217,7 +217,7 @@ public sealed class ResearchBalanceTests
             ["KnowledgeSharing"] = 1200d,
             ["CeramicFiring"] = 1800d,
             ["TextileCraft"] = 1600d,
-            ["NeolithicSettlement"] = 1600d,
+            ["StoneAgeSettlement"] = 1600d,
             ["Measurement"] = 3200d,
             ["FoodStorage"] = 4200d,
             ["WrittenRecords"] = 6500d,
@@ -313,7 +313,7 @@ public sealed class ResearchBalanceTests
             Is.True);
         Assert.That(
             HasEffect(
-                DataBase<Research>.Find("NeolithicSettlement"),
+                DataBase<Research>.Find("StoneAgeSettlement"),
                 ResearchEffectType.PopulationGrowthMultiplier,
                 1.25d),
             Is.True);
@@ -526,7 +526,6 @@ public sealed class ResearchBalanceTests
         Assert.That(organization.Description, Does.Contain("工业行政体系"));
         Assert.That(organization.Description, Does.Contain("建设效率"));
         Assert.That(massProduction.Description, Does.Contain("批量生产速度"));
-        Assert.That(precision.Description, Does.Contain("机器工厂"));
         Assert.That(HasEffect(organization, ResearchEffectType.GlobalBuildingProductionMultiplier, 1.21d), Is.False);
         Assert.That(HasEffect(organization, ResearchEffectType.GlobalConstructionMultiplier, 1.2d), Is.True);
         Assert.That(HasEffect(massProduction, ResearchEffectType.GlobalBuildingProductionMultiplier, 1.4375d), Is.True);

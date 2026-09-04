@@ -42,9 +42,13 @@ never infers or refunds a missing amount, especially not by temporarily
 exceeding Food capacity. Invalid or unknown ledger entries reject the
 candidate save and allow the normal backup fallback to run.
 
-The save format is currently version 7. Versions 5 and 6 are accepted as
+The save format is currently version 8. Versions 5 and 6 are accepted as
 legacy formats because they predate the complete per-resource ledger; version 7
 requires the ledger for a fully paid research state.
+
+The research ledger compatibility boundary remains version 7; the v8 bump only
+adds the required Story save segment and does not change research payment
+semantics.
 
 ## UI boundary
 

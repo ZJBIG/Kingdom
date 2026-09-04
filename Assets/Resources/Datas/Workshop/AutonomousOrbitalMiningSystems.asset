@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousOrbitalMiningSystems
   Label: "轨道自主采矿系统"
-  Description: "把重矿物分选机组、远程采掘无人机和轨道回收舱整合为稀有金属矿场的自动化扩展系统，提高钛、镍和铝土矿的持续供应能力。"
+  Description: "整合轨道无人采掘与重矿分选，提升钛、镍和铝土矿供应。"
   SortOrder: 620
   TechLevel: 4
   requiredResearch:

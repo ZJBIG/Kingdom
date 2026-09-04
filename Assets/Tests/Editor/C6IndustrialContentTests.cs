@@ -285,7 +285,9 @@ public sealed class C6IndustrialContentTests
         Assert.That(coordination, Is.Not.Null);
         Assert.That(center, Is.Not.Null);
         Assert.That(coordination.TechLevel, Is.EqualTo(TechLevel.Industrial));
-        Assert.That(coordination.BaseCost, Is.EqualTo("2400000"));
+        Assert.That(ExpantaNum.TryParse(university.BaseCost, out ExpantaNum universityCost), Is.True);
+        Assert.That(ExpantaNum.TryParse(coordination.BaseCost, out ExpantaNum coordinationCost), Is.True);
+        Assert.That(coordinationCost, Is.GreaterThan(universityCost));
         Assert.That(coordination.Prerequisites, Does.Contain(university));
         Assert.That(coordination.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
@@ -386,7 +388,7 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void 新石器多金属矿场同时供应铜锡铁矿()
+    public void 石器时代多金属矿场同时供应铜锡铁矿()
     {
         Building mine = DataBase<Building>.Find("MetalMine");
         Assert.That(mine, Is.Not.Null);

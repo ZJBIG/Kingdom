@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: IndustrialChemistry_12
+  m_EditorClassIdentifier: 
+  id: IndustrialChemistry_12
+  Title: "第十二章：事故之后的规矩"
+  Summary: "化工产业带来新材料，也迫使王国第一次把风险、废料和责任写进生产制度。"
+  Body: "化工厂的第一场事故没有摧毁城市，却让河水连续数日不能饮用。有人要求封存新工艺，有人担心停产会让更多家庭失去燃料。最后，工匠把配方、风险和废料处理方法交给学院，聚落代表共同改造蒸馏流程，并为每一批材料留下可追溯的记录。受污染的河岸被重新测量，负责清理的人也被写进轮值名单。\n\n新材料仍从旧资源中诞生，却不再只代表更快的生产。每项改良都必须回答谁来维护、谁来承担失误，以及多年以后谁仍会依赖这条道路。化学让王国更强，也提醒他们力量若没有规矩，终会把代价交给最无辜的人。"
+  RequiredEra: 3
+  RequiredResearch:
+  - {fileID: 11400000, guid: 2e63e0ad0dbfd7b41a7fe50f3fc6b93a, type: 2}
+  - {fileID: 11400000, guid: b4d2844ad346b0a40877184e732dd675, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 6fa66de5f487f664886c60c8b0df8de9, type: 2}
+  - {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: 3cf38f162552ccc489e4e9344d90869e, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+
+

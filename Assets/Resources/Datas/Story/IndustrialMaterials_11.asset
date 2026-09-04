@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: IndustrialMaterials_11
+  m_EditorClassIdentifier: 
+  id: IndustrialMaterials_11
+  Title: "第十一章：铁路尽头的炉火"
+  Summary: "铁路、冶炼和标准货运把分散的工业连接成一条真正能够远行的生命线。"
+  Body: "铁路开通后的第一个冬天，满载矿石的列车在远方停了下来。工厂里还有燃料，炉膛也足够坚固，却没有合适的材料继续生产。修路的鼠族连夜清除积雪，冶炼工把不同矿脉的样本摆上长桌，运输者则用标准货箱重新安排装卸节奏。每批材料都留下来源和去向，方便后来者在炉火熄灭前找到问题。\n\n从此，矿山、铁路和炉火不再是三件事。它们共同组成一条需要被照料的生命线；任何一环松开，最远处的聚落就会先感到寒冷。标准不是束缚，而是让陌生班组也能接手修复，让远方继续相信下一列车会抵达。"
+  RequiredEra: 3
+  RequiredResearch:
+  - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
+  - {fileID: 11400000, guid: e6640522d09d7c54f8a8d20eab954d97, type: 2}
+  - {fileID: 11400000, guid: f40d04ef655d0ce4b9f8a496cfc5d874, type: 2}
+  - {fileID: 11400000, guid: 1f9f47242f7e43b49f0ba7fa1bf1c076, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
+  - {fileID: 11400000, guid: 30677e621d2307c4688fabb22e5ff27d, type: 2}
+  - {fileID: 11400000, guid: 29d1aa19cfbd6344185c5efe3457374d, type: 2}
+  RequiredWorkshops:
+  - {fileID: 11400000, guid: 91dbfa1289790ad459dee070148e8a46, type: 2}
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Gunpowder
   m_EditorClassIdentifier: 
   id: Gunpowder
-  Label: "\u5316\u5B66\u5DE5\u827A\u4E0E\u6807\u51C6"
-  Description: "\u638C\u63E1\u706B\u836F\u3001\u519B\u9700\u6750\u6599\u4E0E\u6218\u672F\u6807\u51C6\uFF0C\u8BA9\u738B\u56FD\u5728\u51B2\u7A81\u4E2D\u62E5\u6709\u66F4\u53EF\u9760\u7684\u519B\u4E8B\u80FD\u529B\u3002"
+  Label: "火药与军需标准"
+  Description: "以火药配制和军需标准化，提升道路、铁路与远征补给效率。"
   BaseCost: "270000"
   prerequisites:
   - {fileID: 11400000, guid: ad3c12afd50c37649a14b201b32fffa8, type: 2}

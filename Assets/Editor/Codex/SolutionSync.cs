@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -15,10 +14,7 @@ namespace Kingdom.EditorTools
         public static void Run()
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-            Type generatorType = typeof(ProjectGeneration).Assembly.GetType(
-                "Microsoft.Unity.VisualStudio.Editor.LegacyStyleProjectGeneration",
-                throwOnError: true);
-            var generator = (ProjectGeneration)Activator.CreateInstance(generatorType);
+            var generator = new ProjectGeneration();
             generator.Sync();
             NormalizeSolution();
             Debug.Log("Kingdom solution and C# projects synchronized.");

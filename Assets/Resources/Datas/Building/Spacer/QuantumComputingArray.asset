@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: QuantumComputingArray
   Label: "\u91CF\u5B50\u8BA1\u7B97\u9635\u5217"
-  Description: "以幽影合金、幽影纤维和钛合金构成低温量子计算系统，为深空测绘、星际理论与后续极致时代提供研究能力。"
+  Description: "以幽影材料和钛合金构成低温量子系统，支撑深空测绘与理论研究。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: 7f8e9d0c1b2a34567890abcdef123456, type: 2}
   costGrowth: "1.28"

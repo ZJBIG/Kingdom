@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1d2c3e4f5061728394a5b6c7d8e9f0, type: 3}
+  m_Name: StoneAgeReturn_06
+  m_EditorClassIdentifier: 
+  id: StoneAgeReturn_06
+  Title: "第六章：重新定居"
+  Summary: "鼠族终于可以把迁徙路线画成村落，把季节记成历法。"
+  Body: "进入石器时代并不意味着忘记荒野，而是学会让荒野成为计划的一部分。灌溉、储粮、陶瓷、纺织与文字治理，把一次次偶然的生存经验变成可传承的制度。河岸被挖出水渠，谷物被分给守夜和耕作的人，陶土上的刻痕则提醒每个家庭记得季节。\n\n新的时代不会抹去早期积累，而是把火种交给更大的社会。村落第一次拥有固定边界，公共历法也开始记录雨水与收成。鼠族为尚未出生的人修建仓库，同时争论哪些故事值得刻在石碑上。定居让他们获得土地，也让他们承担守护土地、邻里和记忆的责任。"
+  RequiredEra: 1
+  RequiredResearch:
+  - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}
+  RequiredBuildings:
+  - {fileID: 11400000, guid: 27844ae5e4c0d004fbfebb2d1cb1f802, type: 2}
+  - {fileID: 11400000, guid: d680825d0f43bc54897cc09901119203, type: 2}
+  RequiredWorkshops: []
+  RequiredUnlockedSectors: []
+  RequiredOccupiedSectors: []
+  RequiredTutorialStepId: 
+
+
+
+

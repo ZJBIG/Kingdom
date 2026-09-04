@@ -35,9 +35,9 @@ public sealed partial class KingdomUIRoot
         if (toolbar == null)
             return;
 
-        RectTransform queueHost = buildingQuantityControls == null
+        RectTransform queueHost = buildingControls == null
             ? toolbar.parent as RectTransform
-            : buildingQuantityControls.parent as RectTransform;
+            : buildingControls.parent as RectTransform;
         Transform pageTool = queueHost == null ? null
             : queueHost.name == "PageTool" ? queueHost : queueHost.Find("PageTool");
         Transform oldViewport = pageTool == null ? null : pageTool.Find("ResearchQueueViewport");

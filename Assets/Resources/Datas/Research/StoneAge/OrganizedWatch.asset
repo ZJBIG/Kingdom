@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: OrganizedWatch
   m_EditorClassIdentifier: 
   id: OrganizedWatch
-  Label: "\u5DE5\u4F5C\u6D41\u7BA1\u7406"
-  Description: "\u5EFA\u7ACB\u56FA\u5B9A\u73ED\u6B21\u3001\u4FE1\u606F\u4F20\u9012\u548C\u4EFB\u52A1\u6392\u7A0B\uFF0C\u51CF\u5C11\u7B49\u5F85\u5E76\u63D0\u9AD8\u65E5\u5E38\u4EA7\u51FA\u3002"
+  Label: "聚落值守制度"
+  Description: "建立轮班值守与任务排程，提升聚落建筑的持续产出效率。"
   BaseCost: "17000"
   prerequisites:
   - {fileID: 11400000, guid: 1578ecedcc4ad3344bf78130018ac2f9, type: 2}

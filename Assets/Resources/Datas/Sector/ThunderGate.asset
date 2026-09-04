@@ -29,7 +29,7 @@ MonoBehaviour:
     amount: "0.16"
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "0.12"
-  colonizationFoodPerSecond: "3"
+  colonizationFoodPerSecond: "3000"
   colonizationResourceRatesPerSecond: []
   campaignFoodPerSecond: "0"
   campaignResourceRatesPerSecond: []

@@ -19,7 +19,7 @@ public sealed class EarlyVerticalSlicePacingTests
     }
 
     [Test]
-    public void CriticalNeolithicFlows_HaveConfiguredTwentyPercentHeadroom()
+    public void CriticalStoneAgeFlows_HaveConfiguredTwentyPercentHeadroom()
     {
         AssertRate("Quarry", "StoneChunk", 2.4d);
         AssertRate("FiberGatheringCamp", "Biomass", 1.5d);

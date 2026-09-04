@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhaseFieldTransitCalibration
   Label: "相位材料耐久校准设备"
-  Description: "使用相位校准器、幽影合金再结晶模块和电子控制器维持材料耐久性，将相位稳定理论落实为可重复的运输设备，降低辐射老化对深空探测任务的影响。"
+  Description: "以相位校准与耐久测试降低辐射老化，提升深空运输可靠性。"
   SortOrder: 420
   TechLevel: 4
   requiredResearch:

@@ -139,26 +139,26 @@ public static class BalanceAnalysis
             }
         }
 
-        if (!state.EraReachedSeconds.ContainsKey(nameof(SimTechLevel.Neolithic)))
-            Warn(result, "Pacing failure", "Neolithic",
-                "The run did not reach Neolithic within 24 hours.",
+        if (!state.EraReachedSeconds.ContainsKey(nameof(SimTechLevel.StoneAge)))
+            Warn(result, "Pacing failure", "StoneAge",
+                "The run did not reach StoneAge within 24 hours.",
                 "High", "Repair the Animal main line.");
         if (!state.EraReachedSeconds.ContainsKey(nameof(SimTechLevel.Medieval)))
             Warn(result, "Pacing failure", "Medieval",
                 "The run did not reach Medieval within 24 hours.",
-                "High", "Repair ResearchPower and the Neolithic main line.");
+                "High", "Repair ResearchPower and the StoneAge main line.");
         double animalDrought = MaximumNoResearchSeconds(state, SimTechLevel.Animal);
-        double neolithicDrought = MaximumNoResearchSeconds(state, SimTechLevel.Neolithic);
+        double stoneAgeDrought = MaximumNoResearchSeconds(state, SimTechLevel.StoneAge);
         if (animalDrought > 300d)
         {
             Warn(result, "Progress drought", "Animal",
                 $"Longest interval without an active research target was {animalDrought / 60d:0.##} minutes.",
                 "High", "Move an affordable action or ResearchPower source earlier.");
         }
-        if (neolithicDrought > 600d)
+        if (stoneAgeDrought > 600d)
         {
-            Warn(result, "Progress drought", "Neolithic",
-                $"Longest interval without an active research target was {neolithicDrought / 60d:0.##} minutes.",
+            Warn(result, "Progress drought", "StoneAge",
+                $"Longest interval without an active research target was {stoneAgeDrought / 60d:0.##} minutes.",
                 "High", "Repair producer prerequisites or shorten the decision interval.");
         }
 
@@ -211,4 +211,3 @@ public static class BalanceAnalysis
         });
     }
 }
-
