@@ -9,6 +9,59 @@ public sealed partial class KingdomUIRoot
 {
     private string pageScrollDiagnosticSignature;
 
+    private void SaveCurrentPagePosition()
+    {
+        if (string.IsNullOrEmpty(populatedPage))
+            return;
+
+        if (populatedPage == "Research")
+        {
+            if (researchGraphContent != null)
+            {
+                researchGraphPosition = researchGraphContent.anchoredPosition;
+                researchGraphScale = researchGraphContent.localScale.x;
+                researchGraphPositionCached = true;
+            }
+            return;
+        }
+
+        if (populatedPage == "Music")
+        {
+            if (musicListScroll != null)
+            {
+                musicListScrollPosition = musicListScroll.verticalNormalizedPosition;
+                musicListScrollPositionCached = true;
+            }
+            return;
+        }
+
+        if (pageScroll == null || pageScroll.content == null ||
+            !pages.TryGetValue(populatedPage, out RectTransform page) ||
+            pageScroll.content != page)
+            return;
+
+        pageScrollPositions[populatedPage] =
+            Mathf.Clamp01(pageScroll.verticalNormalizedPosition);
+    }
+
+    private void RestoreSpecialPagePosition(string pageName)
+    {
+        if (pageName == "Research")
+        {
+            if (researchGraphPositionCached && researchGraphContent != null)
+            {
+                researchGraphGesture?.RestoreView(
+                    researchGraphPosition, researchGraphScale);
+            }
+            return;
+        }
+
+        if (pageName == "Music" && musicListScroll != null &&
+            musicListScrollPositionCached)
+            musicListScroll.verticalNormalizedPosition =
+                Mathf.Clamp01(musicListScrollPosition);
+    }
+
     private void ConfigureOuterPageScroll(string pageName, bool resetPosition,
         bool rebuildBounds = false)
     {
@@ -47,8 +100,16 @@ public sealed partial class KingdomUIRoot
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             Canvas.ForceUpdateCanvases();
         }
-        if (resetPosition && enabled)
-            pageScroll.verticalNormalizedPosition = 1f;
+        if (enabled)
+        {
+            float position = 1f;
+            if (!resetPosition && pageScrollPositions.TryGetValue(pageName,
+                out float savedPosition))
+                position = Mathf.Clamp01(savedPosition);
+            pageScroll.verticalNormalizedPosition = position;
+            if (!pageScrollPositions.ContainsKey(pageName))
+                pageScrollPositions[pageName] = position;
+        }
 
         Image viewportImage = pageHost.GetComponent<Image>();
         string signature = pageName + ":enabled=" + pageScroll.enabled +
@@ -113,9 +174,9 @@ public sealed partial class KingdomUIRoot
         if (next != null) { next.onClick.RemoveAllListeners(); next.onClick.AddListener(() => PlayRelativeMusicTrack(1)); }
         musicGlobalPauseButton = pause;
         if (pause != null) { pause.onClick.RemoveAllListeners(); pause.onClick.AddListener(ToggleGlobalMusicPause); }
-        ConfigureMusicControlIcon(previous, "previous");
-        ConfigureMusicControlIcon(next, "next");
-        ConfigureMusicControlIcon(pause, "play");
+        ConfigureMusicIcon(previous, "previous", false);
+        ConfigureMusicIcon(next, "next", false);
+        ConfigureMusicIcon(pause, "play", false);
 
         MusicManager manager = FindMusicManager();
         if (musicVolumeSlider != null)
@@ -159,9 +220,10 @@ public sealed partial class KingdomUIRoot
     private void AddPointerStateIfMissing(Slider slider, UnityEngine.Events.UnityAction down,
         UnityEngine.Events.UnityAction up)
     {
-        if (slider == null || slider.GetComponent<EventTrigger>() != null)
+        if (slider == null || musicPointerStateSliders.Contains(slider))
             return;
         AddPointerState(slider, down, up);
+        musicPointerStateSliders.Add(slider);
     }
 
     private void BuildAuthoredMusicRows(RectTransform viewport, MusicManager manager)
@@ -221,7 +283,7 @@ public sealed partial class KingdomUIRoot
             row.targetGraphic = null;
             surfaceImage.raycastTarget = false;
             ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.50f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
-            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.Clip == null ? 0f : track.Clip.length), new Vector2(.50f, 0), new Vector2(.68f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
+            ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.DurationSeconds), new Vector2(.50f, 0), new Vector2(.68f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);
             ConfigureMusicTrackCategoryIcon(rowObject, track.Category);
             Transform playPauseTransform = rowObject.transform.Find("PlayPause") ?? rowObject.transform.Find("Type");
             if (playPauseTransform == null)
@@ -280,6 +342,10 @@ public sealed partial class KingdomUIRoot
         safeArea = transform.Find("SafeAreaRoot") as RectTransform;
         if (safeArea == null)
             return FailRequiredUiBinding("SafeAreaRoot");
+
+        unsafeAreaTicker = transform.Find("UnsafeAreaTicker")?.GetComponent<UnsafeAreaTicker>();
+        if (unsafeAreaTicker == null || !unsafeAreaTicker.IsConfigured)
+            return FailRequiredUiBinding("UnsafeAreaTicker (UnsafeAreaTicker)");
 
         Transform content = safeArea.Find("Content");
         if (content == null)

@@ -43,7 +43,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("Authored ShowDetails toggle is missing under BuildingControls.");
             return;
         }
-        showBuildingDetails = showBuildingDetailsToggle.isOn;
+        useCompactBuildingDetails = !showBuildingDetailsToggle.isOn;
         showBuildingDetailsToggle.onValueChanged.RemoveListener(OnShowBuildingDetailsChanged);
         showBuildingDetailsToggle.onValueChanged.AddListener(OnShowBuildingDetailsChanged);
         controls.SetAsLastSibling();
@@ -87,9 +87,10 @@ public sealed partial class KingdomUIRoot
 
     private void OnShowBuildingDetailsChanged(bool value)
     {
-        if (showBuildingDetails == value)
+        bool useCompact = !value;
+        if (useCompactBuildingDetails == useCompact)
             return;
-        showBuildingDetails = value;
+        useCompactBuildingDetails = useCompact;
         if (detailIsBuilding && selectedBuilding != null)
             ShowBuildingDetails(selectedBuilding, true);
     }

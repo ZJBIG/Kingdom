@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private bool storyPageBuilt;
-    private bool storyScrollInitialized;
     private string storyPageStateSignature = string.Empty;
     private string storyProgressSignature = string.Empty;
     private int storyObservedUnlockCount = -1;
@@ -167,8 +166,7 @@ public sealed partial class KingdomUIRoot
             else
             {
                 chapterTitle += " · 尚未完成";
-                chapterBody = "这段文明记忆尚未完成。\n" +
-                    StoryManager.GetChapterProgressHint(chapter, era);
+                chapterBody = "这段文明记忆尚未完成。";
             }
 
             y += CreateCard(surface, "StoryChapter_" + chapter.Id,

@@ -410,41 +410,51 @@ public sealed class KingdomPlayModeTests
         Assert.That(rows.childCount, Is.GreaterThan(0), "Era page must not remain an empty DataRows container.");
 
         TMP_Text[] texts = rows.GetComponentsInChildren<TMP_Text>(true);
-        Assert.That(texts.Any(text => text.text == "时代进度"), Is.True,
-            "Era page must display a progress section.");
-        Assert.That(texts.Any(text => text.text == "时代目标"), Is.True,
-            "Era page must display the active era goal.");
-        Assert.That(texts.Any(text => text.text == "当前主要阻碍"), Is.True,
-             "Era page must display the first unmet era condition as the actionable blocker.");
-        Assert.That(texts.Any(text => text.text.Contains("下一时代") || text.text.Contains("当前内容的最后时代")), Is.True,
+        Assert.That(texts.Any(text => text.text.Contains("时代档案")), Is.True,
+            "Era page must display an authored-style era archive header.");
+        Assert.That(texts.Any(text => text.text.Contains("下一时代跃迁")), Is.True,
+            "Era page must display the dedicated next-era transition section.");
+        Assert.That(rows.Find("EraCurrentArchive"), Is.Not.Null,
+            "Era page must group current-era identity, definition and capabilities.");
+        Assert.That(rows.Find("EraTransitionSection"), Is.Not.Null,
+            "Era page must group next-era transition information.");
+        Assert.That(rows.Find("EraRequirementSection"), Is.Not.Null,
+            "Era page must group research and resource requirements together.");
+        Assert.That(texts.Any(text => text.text == "本时代能力"), Is.True,
+            "Era page must summarize capabilities already earned in the current era.");
+        Assert.That(texts.Any(text => text.text == "进入后变化"), Is.True,
+            "Era page must summarize representative changes in the next era.");
+        Assert.That(texts.Any(text => text.text.Contains("研究前置")), Is.True,
+            "Era page must separate research prerequisites.");
+        Assert.That(texts.Any(text => text.text.Contains("资源储备")), Is.True,
+            "Era page must separate resource reserves.");
+        Assert.That(texts.Any(text => text.text == "当前首要阻碍"), Is.True,
+            "Era page must display the first unmet era condition as the actionable blocker.");
+        Assert.That(texts.Any(text => text.text.Contains("阻碍类别：")), Is.True,
+            "Era page must classify the current blocker.");
+        Assert.That(texts.Any(text => text.text.Contains("下一时代") || text.text.Contains("时代状态")), Is.True,
             "Era page must identify the next era or the terminal state.");
+        Assert.That(texts.Any(text => text.text.Contains("发展准备度") || text.text.Contains("基础产业准备")), Is.False,
+            "Era page must not duplicate Overview soft readiness guidance.");
 
-        foreach (Transform row in rows)
+        Button[] eraActions = rows.GetComponentsInChildren<Button>(true);
+        Assert.That(eraActions.Any(button => button.name == "DetailAction" && button.interactable), Is.True,
+            "Era cards must expose at least one usable detail action.");
+        Assert.That(eraActions.Any(button => button.name == "QueueAction" && button.interactable), Is.True,
+            "An incomplete transition research must expose a queue action.");
+        foreach (Button action in eraActions.Where(button => (button.name == "DetailAction" || button.name == "QueueAction") && button.gameObject.activeInHierarchy))
         {
-            Button rowButton = row.GetComponent<Button>();
-            Assert.That(rowButton, Is.Not.Null,
-                "Every era summary row must retain its authored root Button for layout consistency.");
-            Assert.That(rowButton.interactable, Is.False,
-                "Era summary rows must not navigate from the row surface.");
-            Button detail = row.Find("Detail")?.GetComponent<Button>();
-            if (detail == null || !detail.gameObject.activeSelf)
-                continue;
-            RectTransform detailRect = detail.transform as RectTransform;
-            Assert.That(detailRect, Is.Not.Null);
-            Assert.That(detailRect.rect.width, Is.GreaterThan(0f));
-            Assert.That(detailRect.rect.height, Is.GreaterThan(0f));
-            Assert.That(detail.interactable, Is.True,
-                "An active era detail action must remain usable.");
+            RectTransform actionRect = action.transform as RectTransform;
+            Assert.That(actionRect, Is.Not.Null);
+            Assert.That(actionRect.rect.width, Is.GreaterThan(0f));
+            Assert.That(actionRect.rect.height, Is.GreaterThan(0f));
         }
 
-        TMP_Text eraGoalTitle = texts.FirstOrDefault(text => text.text == "时代目标");
+        TMP_Text eraGoalTitle = texts.FirstOrDefault(text => text.text == "下一时代跃迁");
         Assert.That(eraGoalTitle, Is.Not.Null,
-            "Era goal must expose a clickable summary row.");
-        Button eraGoalRowButton = eraGoalTitle.transform.parent.GetComponent<Button>();
-        Assert.That(eraGoalRowButton, Is.Not.Null);
-        Assert.That(eraGoalRowButton.interactable, Is.False,
-            "Era summary rows must not navigate when the row itself is tapped.");
-        Button eraGoalButton = eraGoalTitle.transform.parent.Find("Detail")?.GetComponent<Button>();
+            "Era transition section must expose a visible title.");
+        Button eraGoalButton = rows.Find(
+            "EraTransitionSection/Content/EraTransitionTarget/DetailAction")?.GetComponent<Button>();
         Assert.That(eraGoalButton, Is.Not.Null);
         Assert.That(eraGoalButton.interactable, Is.True,
             "Era goal row must navigate through its detail action.");
@@ -457,6 +467,40 @@ public sealed class KingdomPlayModeTests
         Assert.That(detailAction, Is.Not.Null);
         Assert.That(detailAction.gameObject.activeSelf, Is.True,
             "Era research navigation must expose the research detail action button.");
+
+        // The transition detail action intentionally navigates to Research. Re-enter
+        // Era before inspecting its resource requirement; otherwise this stale
+        // transform reference points at an inactive page.
+        setPage.Invoke(root, new object[] { "Era" });
+        yield return null;
+        rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") as RectTransform;
+        Assert.That(rows, Is.Not.Null);
+
+        Transform resourceButtonTransform = rows.GetComponentsInChildren<Button>(true)
+            .Select(button => button.transform.parent)
+            .FirstOrDefault(parent => parent != null && parent.name.StartsWith("EraResource_", StringComparison.Ordinal));
+        if (resourceButtonTransform != null)
+        {
+            Button resourceButton = resourceButtonTransform.Find("DetailAction")?.GetComponent<Button>();
+            Assert.That(resourceButton, Is.Not.Null, "Resource requirement rows must expose a detail action.");
+            resourceButton.onClick.Invoke();
+            yield return null;
+            Assert.That(rows.gameObject.activeInHierarchy, Is.True,
+                "Resource details must update the side panel without leaving the Era page.");
+        }
+
+        Transform requirementContent = rows.Find("EraRequirementSection/Content");
+        Assert.That(requirementContent, Is.Not.Null);
+        Image[] researchRows = requirementContent.GetComponentsInChildren<Image>(true)
+            .Where(image => image.name.StartsWith("EraResearch_", StringComparison.Ordinal)).ToArray();
+        Image[] resourceRows = requirementContent.GetComponentsInChildren<Image>(true)
+            .Where(image => image.name.StartsWith("EraResource_", StringComparison.Ordinal)).ToArray();
+        for (int i = 1; i < researchRows.Length; i++)
+            Assert.That(researchRows[i].color, Is.Not.EqualTo(researchRows[i - 1].color),
+                "Research requirement rows must alternate Panel and PanelRaised backgrounds.");
+        for (int i = 1; i < resourceRows.Length; i++)
+            Assert.That(resourceRows[i].color, Is.Not.EqualTo(resourceRows[i - 1].color),
+                "Resource requirement rows must alternate Panel and PanelRaised backgrounds.");
     }
 
     [UnityTest]
@@ -573,7 +617,7 @@ public sealed class KingdomPlayModeTests
         Transform queueViewport = pageTool.Find("ResearchQueueViewport");
         Assert.That(queueViewport, Is.Not.Null,
             "PageTool/ResearchQueueViewport must display the graphic research queue.");
-        Transform quantityControls = pageTool.Find("BuildingQuantityControls");
+        Transform quantityControls = pageTool.Find("BuildingControls");
         Assert.That(quantityControls, Is.Not.Null);
         Assert.That(queueViewport.parent, Is.SameAs(pageTool),
             "The research queue must be a child of PageTool.");
@@ -644,7 +688,7 @@ public sealed class KingdomPlayModeTests
         bool legacyRootChildrenInactive = true;
         foreach (Transform rootChild in root.transform)
         {
-            if (rootChild == safeAreaRoot)
+            if (rootChild == safeAreaRoot || rootChild.name == "UnsafeAreaTicker")
                 continue;
             legacyRootChildrenInactive &= !rootChild.gameObject.activeSelf;
             Assert.That(rootChild.gameObject.activeSelf, Is.False,

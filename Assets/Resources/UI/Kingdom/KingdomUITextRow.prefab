@@ -294,6 +294,7 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_text: 详情
   m_fontAsset: {fileID: 11400000, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+  m_sharedMaterial: {fileID: 2829122849704453864, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
   m_fontSize: 32
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

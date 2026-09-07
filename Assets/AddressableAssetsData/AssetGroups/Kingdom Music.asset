@@ -1,0 +1,422 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Kingdom Music
+  m_EditorClassIdentifier: 
+  m_GroupName: Kingdom Music
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 915c7afab9dbfc64c8141fa80f215826
+  m_SerializeEntries:
+  - m_GUID: 0cf77a307c660e0499583b517559f01b
+    m_Address: music/alltime/Rimmas
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 105a0f59769766a49bd5ff8aae4db52d
+    m_Address: music/day/LovelyDay
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 126b1faee43277e43a240e83a4faf14f
+    m_Address: music/tense/Rise
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1481089910a3d994fb818f13188622cd
+    m_Address: music/day/WhatWeOnceHad
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 196e1803df683a243b4b0e1f0fd785fe
+    m_Address: music/tense/FinalStand
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21877aa5ee1966944916804233be1081
+    m_Address: music/night/Nimbostratus
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 22df5719d6200ca43871bf625d090aa1
+    m_Address: music/night/LongWayHome
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 250ed482645d8404fbad2bfba4a6985e
+    m_Address: music/alltime/Honor
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 257760232b939834690d8cf170bd79ed
+    m_Address: music/alltime/Muffalo
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3339d32619146774cad89100effd606e
+    m_Address: music/tense/TrustMe
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33da9c3c1cdfc4048905c56f2251fa7b
+    m_Address: music/tense/HoldOn
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 397d3d3384c4deb45944d918e8223fd4
+    m_Address: music/tense/ToughLife
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 43b725a803e3e6a42ab88a7338d45f68
+    m_Address: music/night/OneThousandStars
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4740f175457111e42a0cab3d597c4281
+    m_Address: music/day/AteWithoutTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 48322a59cee1d55409175351d2e06c56
+    m_Address: music/night/Solitude
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e2f8649bb9fc9b4784b07fb2d323b76
+    m_Address: music/day/Sunlight
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 66def5159c357f04bb35ba0698f4d26b
+    m_Address: music/alltime/OneCanDreamToFly
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 682c41776d136664781e9709b801c109
+    m_Address: music/day/FairGlade
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6af8c9ca64b63944faa2a1cdf4916f8a
+    m_Address: music/day/APlaceOfOurOwn
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6ce0c6741f9b39c4b8c1b6af81dae9f0
+    m_Address: music/alltime/Rimraid
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 722f5331d2f6d4949a6bc7f79437608b
+    m_Address: music/alltime/Ambition
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 746c1839cad7dc04e8a854dda9d43db4
+    m_Address: music/tense/WeWill
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76e5afe93474c6541b411464024bdff4
+    m_Address: music/alltime/Legacy
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a69a705b95b6df4a8737a5d0c082896
+    m_Address: music/alltime/EverythingsGoingToBeOkay
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e06b9c6adbb55741917d8117e831327
+    m_Address: music/day/BrightSideOfLife
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7ed21ff2821e39c48a8386c867bc66ac
+    m_Address: music/day/BackToWork
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 800e15a2ea182c8428357e882b764ba9
+    m_Address: music/tense/StayStrong
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8155a61bb7c949848bcdfe743c35fd75
+    m_Address: music/alltime/Spacekattommy
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 819ea3ad9ae02124d9b188dfd8b1601f
+    m_Address: music/tense/CarryOn
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f3cdf8823fb93a47a84c51915fcc477
+    m_Address: music/tense/Triumph
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 937abbf536e21d449a2c9270cab48809
+    m_Address: music/night/TheFallen
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 96dbdc29e63f3284f8541e85f54058b7
+    m_Address: music/tense/Outlaw
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97427809348cd374c9af0828f11ecd00
+    m_Address: music/catalog
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9a20a6b345b42c54a9db39961c2baab2
+    m_Address: music/tense/CruelWorld
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1ea0f467c38c024f80b4c248c9997d5
+    m_Address: music/day/United
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a505680e60304954991b34219755a9c2
+    m_Address: music/night/Serenity
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a8c6e0d2b89518d4587717f90838d507
+    m_Address: music/day/RusticRanching
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a9ccfad372646374e852b86505b8e276
+    m_Address: music/alltime/ProtectOurHome
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: afbf232e4e6078c46852f75bfea04f85
+    m_Address: music/tense/Valiant
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4af07633b3ffc14da9e7ca168d0d6ed
+    m_Address: music/night/NeverForgotten
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be7cc38bb6fb84442abec5a1326b7471
+    m_Address: music/night/StrangeFeeling
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c0c9bc3692d1e884d8a607d62ee93986
+    m_Address: music/tense/Delusion
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c90c1b1ebf263684aa5f18e867680e39
+    m_Address: music/night/Odyssey
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca9046cb52f9ff941ab51db7d95ea3a7
+    m_Address: music/night/Blue
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d3f76c5364499314e9b8834d88c81ae8
+    m_Address: music/alltime/OnTheRoad
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d960a4f9b99784042ab200f30c356084
+    m_Address: music/day/BackInTheSaddle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: db952cbc0fae05a49bbf138894c0fe17
+    m_Address: music/day/MyFriend
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dc9ed491acc993540ad246729f879aab
+    m_Address: music/alltime/Alive
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:alltime
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ddf77c0c86fc6a04e9c89f40de0ee1b2
+    m_Address: music/night/Passenger
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3e0ca6aa48368a499f4b870f29da7d5
+    m_Address: music/tense/LoneHunter
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e5047133ca9dea745b012f7b91f50fa2
+    m_Address: music/day/SimpleLife
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e8fcbd5cbd59d104eb556320df108372
+    m_Address: music/tense/CodeRed
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:tense
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e91f7677754a2a347b83eac04aed2dba
+    m_Address: music/night/Illusion
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f065f3072a2d7a04ab1ad9f21d030d45
+    m_Address: music/night/RememberOurPast
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6611d1c661f51e4ebeea8a3ec093e25
+    m_Address: music/night/SereneNight
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f82123dd45f14a74f8960d523eedef7c
+    m_Address: music/night/FarAway
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:night
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fd130a48006aa70488051e7d953d2be3
+    m_Address: music/day/Move
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - music
+    - music:day
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 649e55ea8fdbcc74d82acdfaebe84366, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: b2f2083b9edcdd942a26ca014fea08f0, type: 2}
+    - {fileID: 11400000, guid: c99657def0b85794b929107996747d12, type: 2}

@@ -162,9 +162,27 @@ public class BuildingManager : Singleton<BuildingManager>
     internal void InitializeStartingBuildings()
     {
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
-        RebuildBuildingChainIndex(definitions);
+        RebuildBuildingChainIndex(GetBuildingDefinitionsForIndex(definitions));
         for (int i = 0; i < definitions.Count; i++)
             EnsureBuilding(definitions[i]);
+    }
+
+    private static IReadOnlyList<Building> GetBuildingDefinitionsForIndex(
+        IReadOnlyList<Building> definitions)
+    {
+        List<Building> indexedDefinitions = new(definitions.Count + DataBase<SectorBuilding>.All.Count);
+        for (int i = 0; i < definitions.Count; i++)
+            if (definitions[i] != null)
+                indexedDefinitions.Add(definitions[i]);
+
+        IReadOnlyList<SectorBuilding> sectorBuildings = DataBase<SectorBuilding>.All;
+        for (int i = 0; i < sectorBuildings.Count; i++)
+        {
+            SectorBuilding sectorBuilding = sectorBuildings[i];
+            if (sectorBuilding != null && !indexedDefinitions.Contains(sectorBuilding))
+                indexedDefinitions.Add(sectorBuilding);
+        }
+        return indexedDefinitions;
     }
 
     public static void ValidateBuildingChains(IReadOnlyList<Building> definitions)
@@ -297,7 +315,8 @@ public class BuildingManager : Singleton<BuildingManager>
     private void EnsureBuildingChainIndex()
     {
         if (!chainIndexInitialized)
-            RebuildBuildingChainIndex(DataBase<Building>.All);
+            RebuildBuildingChainIndex(
+                GetBuildingDefinitionsForIndex(DataBase<Building>.All));
     }
 
     public BuildingState EnsureBuilding(Building building)
@@ -424,10 +443,56 @@ public class BuildingManager : Singleton<BuildingManager>
     public IReadOnlyList<SectorBuilding> GetSectorBuildings(SectorDefinition sector)
     {
         EnsureBuildingChainIndex();
-        return sector != null &&
-            sectorBuildingsBySector.TryGetValue(sector, out List<SectorBuilding> buildings)
-                ? buildings
-                : Array.Empty<SectorBuilding>();
+        if (sector == null)
+            return Array.Empty<SectorBuilding>();
+        if (sectorBuildingsBySector.TryGetValue(sector, out List<SectorBuilding> buildings) &&
+            buildings.Count > 0)
+            return buildings;
+
+        // UI callers may hold an equivalent definition instance after a scene
+        // reload. Resolve the authored stable ID instead of returning an empty
+        // menu solely because the object reference changed.
+        string sectorId = sector.Id == null ? string.Empty : sector.Id.Trim();
+        if (sectorId.Length == 0)
+            return Array.Empty<SectorBuilding>();
+        foreach (KeyValuePair<SectorDefinition, List<SectorBuilding>> entry in sectorBuildingsBySector)
+        {
+            SectorDefinition indexed = entry.Key;
+            if (indexed != null && string.Equals(indexed.Id, sectorId, StringComparison.OrdinalIgnoreCase) &&
+                entry.Value != null && entry.Value.Count > 0)
+                return entry.Value;
+        }
+        IReadOnlyList<SectorBuilding> allSectorBuildings = DataBase<SectorBuilding>.All;
+        if (allSectorBuildings.Count > 0)
+        {
+            List<SectorBuilding> matches = new();
+            for (int i = 0; i < allSectorBuildings.Count; i++)
+            {
+                SectorBuilding building = allSectorBuildings[i];
+                SectorDefinition buildingSector = building == null ? null : building.Sector;
+                if (buildingSector != null &&
+                    string.Equals(buildingSector.Id, sectorId, StringComparison.OrdinalIgnoreCase))
+                    matches.Add(building);
+            }
+            if (matches.Count > 0)
+                return matches;
+        }
+
+        // The base Building database is the authoritative merged catalog in
+        // some editor/runtime initialization orders. Include its derived
+        // SectorBuilding entries before declaring the menu empty.
+        IReadOnlyList<Building> allBuildings = DataBase<Building>.All;
+        List<SectorBuilding> baseMatches = new();
+        for (int i = 0; i < allBuildings.Count; i++)
+        {
+            if (allBuildings[i] is not SectorBuilding building || building.Sector == null)
+                continue;
+            if (string.Equals(building.Sector.Id, sectorId, StringComparison.OrdinalIgnoreCase))
+                baseMatches.Add(building);
+        }
+        if (baseMatches.Count > 0)
+            return baseMatches;
+        return Array.Empty<SectorBuilding>();
     }
 
     private bool IsHighestUnlockedChainTier(Building building)

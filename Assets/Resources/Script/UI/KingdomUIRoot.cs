@@ -33,9 +33,17 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private const float UiFontSize = 30f;
 
     private RectTransform safeArea;
+    private UnsafeAreaTicker unsafeAreaTicker;
     private RectTransform leftNavigation;
     private RectTransform pageHost;
     private ScrollRect pageScroll;
+    private readonly Dictionary<string, float> pageScrollPositions =
+        new(StringComparer.Ordinal);
+    private Vector2 researchGraphPosition;
+    private float researchGraphScale = 1f;
+    private bool researchGraphPositionCached;
+    private float musicListScrollPosition = 1f;
+    private bool musicListScrollPositionCached;
     private TMP_Text pageTitle;
     private TMP_Text detailBody;
     private RectTransform detailPanel;
@@ -63,7 +71,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text topKingdomDate;
     private RectTransform buildingControls;
     private Toggle showBuildingDetailsToggle;
-    private bool showBuildingDetails;
+    // ShowDetails toggle is on for the full detail view; this flag tracks the
+    // compact alternative used when that toggle is off.
+    private bool useCompactBuildingDetails;
     private bool detailBuildingUpgrade;
     private bool detailIsBuilding;
     private Building selectedBuilding;
@@ -184,7 +194,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly List<GameObject> workshopRows = new();
     private bool workshopRowsBuilt;
     private bool sectorRowsBuilt;
-    private TMP_Text musicCurrentLabel;
     private TMP_Text musicTimeLabel;
     private Slider musicProgressSlider;
     private UnityEngine.Events.UnityAction<float> musicProgressSeekHandler;
@@ -208,7 +217,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private DevelopmentGuidanceSnapshot developmentGuidanceSnapshot;
     private bool developmentGuidanceErrorLogged;
     private bool developmentGuidanceRuntimeGeometryLogged;
-    private string lastDevelopmentGuidanceSignature;
     private string eraPageStateSignature;
     private float eraPageRefreshTimer;
 
@@ -361,7 +369,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Transform child = transform.GetChild(i);
-            if (child.name != "SafeAreaRoot")
+            if (child.name != "SafeAreaRoot" && child.name != "UnsafeAreaTicker")
                 child.gameObject.SetActive(false);
         }
     }
@@ -376,6 +384,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
         if (safeArea.GetComponent<SafeAreaFitter>() == null)
             safeArea.gameObject.AddComponent<SafeAreaFitter>();
+        unsafeAreaTicker.Initialize(safeArea, sharedFontAsset);
+        RefreshUnsafeAreaTickerFeed();
         Debug.Log("[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.");
         EnsureRuntimeCanvasGeometry();
         Canvas.ForceUpdateCanvases();
@@ -404,7 +414,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         page.gameObject.SetActive(wasActive);
         ConfigureOuterPageScroll(
             string.IsNullOrEmpty(populatedPage) ? "Overview" : populatedPage,
-            true, true);
+            false, true);
         researchTreeWarmupCoroutine = null;
         Debug.Log("[王国界面] Research page warmed and cached before first tab activation");
     }
@@ -429,7 +439,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         page.gameObject.SetActive(wasActive);
         ConfigureOuterPageScroll(
             string.IsNullOrEmpty(populatedPage) ? "Overview" : populatedPage,
-            true, true);
+            false, true);
         storyWarmupCoroutine = null;
         Debug.Log("[王国界面] Story page warmed and cached before first tab activation");
     }
@@ -511,6 +521,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 #if UNITY_EDITOR
         float pageSwitchStartTime = Time.realtimeSinceStartup;
 #endif
+        SaveCurrentPagePosition();
         if (name == "Research")
             Debug.Log("[王国界面] SetPage Research");
         foreach (KeyValuePair<string, RectTransform> pair in pages)
@@ -590,6 +601,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         float populateStartTime = Time.realtimeSinceStartup;
 #endif
         PopulatePage(name);
+        RestoreSpecialPagePosition(name);
 #if UNITY_EDITOR
         float populateDurationMs = (Time.realtimeSinceStartup - populateStartTime) * 1000f;
         float pageSwitchDurationMs = (Time.realtimeSinceStartup - pageSwitchStartTime) * 1000f;
@@ -754,10 +766,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 researchQueueViewport.gameObject.SetActive(false);
             if (buildingControls != null)
                 buildingControls.gameObject.SetActive(false);
-            bool resetStoryScroll = !storyScrollInitialized;
             BuildStoryPage(page, refreshEraRows);
-            ConfigureOuterPageScroll(name, resetStoryScroll, true);
-            storyScrollInitialized = true;
+            ConfigureOuterPageScroll(name, false, true);
             return;
         }
         if (researchQueueViewport != null)
@@ -781,7 +791,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             page.anchoredPosition = Vector2.zero;
             page.sizeDelta = new Vector2(0f, Mathf.Max(
                 pageHost == null ? 0f : pageHost.rect.height, 1400f));
-            ConfigureOuterPageScroll("Overview", true, true);
+            ConfigureOuterPageScroll("Overview", false, true);
             return;
         }
         if (old == null)
@@ -913,7 +923,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         // leaves Resources/Buildings/Era visually active while the ScrollRect
         // still drags the hidden page from the preceding tab.
         if (pageScroll != null)
-            ConfigureOuterPageScroll(name, true, true);
+            ConfigureOuterPageScroll(name, false, true);
         if (name == "Research" && researchGraphGesture != null)
         {
             if (!researchTreeWasBuilt)

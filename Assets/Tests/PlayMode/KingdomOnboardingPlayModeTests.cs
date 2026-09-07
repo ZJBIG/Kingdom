@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
@@ -275,6 +276,16 @@ public sealed class KingdomOnboardingPlayModeTests
             Assert.That(body, Is.Not.Null, card.name + " must have a TMP Body.");
             Assert.That(body, Is.TypeOf<TextMeshProUGUI>());
             Assert.That(body.text, Is.Not.Empty);
+            string chapterId = card.name.Substring("StoryChapter_".Length);
+            StoryChapter chapter = StoryManager.Chapters.FirstOrDefault(
+                candidate => candidate != null && candidate.Id == chapterId);
+            Assert.That(chapter, Is.Not.Null, card.name);
+            if (!StoryManager.IsUnlocked(chapter, GameManager.Instance.State.TechLevel,
+                    TutorialManager.Current))
+            {
+                Assert.That(body.text, Is.EqualTo("这段文明记忆尚未完成。"), card.name);
+                Assert.That(body.text, Does.Not.Contain("先唤醒上一段"), card.name);
+            }
             Assert.That(body.gameObject.activeInHierarchy, Is.True);
             Assert.That(body.enabled, Is.True);
             Assert.That(body.font, Is.Not.Null);

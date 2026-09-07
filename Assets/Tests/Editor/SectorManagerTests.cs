@@ -847,6 +847,17 @@ public sealed class SectorManagerTests
         }
     }
 
+    private static void SetCampaignFood(GameState runtimeState, ExpantaNum amount)
+    {
+        InvokeGameStateMethod(
+            runtimeState,
+            "RestoreCore",
+            runtimeState.CalendarDays,
+            runtimeState.TechLevel,
+            amount,
+            runtimeState.LastSaveUnixSeconds);
+    }
+
     private static ExpantaNum GetColonizationResourceTotal(
         SectorDefinition sector,
         string resourceId)
@@ -1134,6 +1145,7 @@ public sealed class SectorManagerTests
             InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(100000));
             InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(100000));
             InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(100000));
+            InvokeGameStateMethod(runtimeState, "AdjustFleetPower", new ExpantaNum(100000));
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
             InvokeGameStateMethod(runtimeState, "SetPowerSatisfaction", ExpantaNum.One);
             InvokeGameStateMethod(runtimeState, "SetLogisticsSatisfaction", ExpantaNum.One);
@@ -1162,7 +1174,7 @@ public sealed class SectorManagerTests
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
             SectorDefinition sector = DataBase<SectorDefinition>.Find("AlphaCentauri");
             const double deltaSeconds = 60d;
-            ExpantaNum initialAmount = new ExpantaNum(100000d);
+            ExpantaNum initialAmount = new ExpantaNum(1000000d);
             for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             {
                 Pair<Resource, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
@@ -1182,6 +1194,7 @@ public sealed class SectorManagerTests
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
             InvokeGameStateMethod(runtimeState, "SetPowerSatisfaction", ExpantaNum.One);
             InvokeGameStateMethod(runtimeState, "SetLogisticsSatisfaction", ExpantaNum.One);
+            SetCampaignFood(runtimeState, new ExpantaNum(1000000));
             ExpantaNum foodBeforeCampaign = runtimeState.FoodAmount;
 
             Assert.That(
@@ -1266,6 +1279,7 @@ public sealed class SectorManagerTests
             manager.GetState(lowOrbit).SetUnlockedForEditor(true);
             manager.GetState(moon).SetUnlockedForEditor(true);
             GameState runtimeState = new GameState();
+            SetCampaignFood(runtimeState, new ExpantaNum(100000));
             InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(1000));
             InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(1000));
 
@@ -1480,7 +1494,7 @@ public sealed class SectorManagerTests
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
             SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
-            SetCampaignResources(resourceManager, sector, new ExpantaNum(100000));
+            SetCampaignResources(resourceManager, sector, new ExpantaNum(1000000));
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             InvokeProgressionStateMethod(ResearchSystem.HomeSystemSurvey);
@@ -1550,6 +1564,7 @@ public sealed class SectorManagerTests
         InvokeGameStateMethod(runtimeState, "AdjustFleetPower", new ExpantaNum(50));
         InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(3050));
         InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
+        SetCampaignFood(runtimeState, new ExpantaNum(1000000));
 
         GameObject resourceObject = new GameObject("C805-Campaign-ResourceManager");
         try
@@ -1592,6 +1607,7 @@ public sealed class SectorManagerTests
             gameManager.AdjustFleetPower(new ExpantaNum(50));
             gameManager.AdjustMilitaryManpower(new ExpantaNum(3050));
             gameManager.SetSupplySatisfaction(ExpantaNum.One);
+            SetCampaignFood(gameManager.State, new ExpantaNum(1000000));
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
@@ -1602,7 +1618,8 @@ public sealed class SectorManagerTests
             SectorState state = manager.GetState(sector);
             state.SetUnlockedForEditor(true);
             state.SetCampaignActiveForEditor(true);
-            SetCampaignResources(resourceManager, sector, new ExpantaNum(100000));
+            InvokeGameStateMethod(gameManager.State, "BeginCampaign", sector.Id);
+            SetCampaignResources(resourceManager, sector, new ExpantaNum(1000000));
 
             SectorCampaignPreview preview = manager.GetCampaignPreview(
                 sector,
@@ -1739,12 +1756,15 @@ public sealed class SectorManagerTests
             InvokeProgressionStateMethod(ResearchSystem.InterstellarNavigation);
             InvokeProgressionStateMethod(ResearchSystem.DeepSpaceFleet);
             SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
-            SetCampaignResources(resourceManager, moon, new ExpantaNum(100000));
-            resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
+            SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             manager.GetState(moon).SetUnlockedForEditor(true);
             var runtimeState = new GameState();
             InvokeGameStateMethod(runtimeState, "AdjustDefensePower", new ExpantaNum(80));
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
+            SetCampaignFood(runtimeState, new ExpantaNum(100000));
+            ExpantaNum foodBeforeCampaign = runtimeState.FoodAmount;
+            ExpantaNum rocketFuelBeforeCampaign = resourceManager.GetAmount(rocketFuel);
 
             bool advanced = manager.TryAdvanceCampaign(
                 moon,
@@ -1755,8 +1775,8 @@ public sealed class SectorManagerTests
 
             Assert.That(advanced, Is.True);
             Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
-            Assert.That(runtimeState.FoodAmount.ToDouble(), Is.LessThan(300d));
-            Assert.That(resourceManager.GetAmount(rocketFuel).ToDouble(), Is.LessThan(100000d));
+            Assert.That(runtimeState.FoodAmount, Is.LessThan(foodBeforeCampaign));
+            Assert.That(resourceManager.GetAmount(rocketFuel), Is.LessThan(rocketFuelBeforeCampaign));
             Assert.That(runtimeState.Campaign.Active, Is.True);
             Assert.That(runtimeState.Campaign.Casualties, Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(manager.GetState(moon).CampaignProgress, Is.EqualTo(ExpantaNum.Zero));
@@ -1805,15 +1825,16 @@ public sealed class SectorManagerTests
             InvokeProgressionStateMethod(ResearchSystem.InterstellarNavigation);
             InvokeProgressionStateMethod(ResearchSystem.DeepSpaceFleet);
             SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
-            SetCampaignResources(resourceManager, moon, new ExpantaNum(100000));
-            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000));
+            SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             SectorState state = manager.GetState(moon);
             state.SetUnlockedForEditor(true);
             var runtimeState = new GameState();
-            ExpantaNum foodBeforeFailure = runtimeState.FoodAmount;
             InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
+            SetCampaignFood(runtimeState, new ExpantaNum(1000000));
+            ExpantaNum foodBeforeFailure = runtimeState.FoodAmount;
 
             Assert.That(manager.TryAdvanceCampaign(moon, 1d, runtimeState, resourceManager, out _), Is.True);
             Assert.That(rewards, Is.EqualTo(0));
@@ -2225,16 +2246,19 @@ public sealed class SectorManagerTests
             InvokeProgressionStateMethod(ResearchSystem.InterstellarNavigation);
             InvokeProgressionStateMethod(ResearchSystem.DeepSpaceFleet);
             SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
-            SetCampaignResources(resourceManager, moon, new ExpantaNum(100000));
-            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000));
+            SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             ExpantaNum rocketFuelBeforeFailure = resourceManager.GetAmount(rocketFuel);
             SectorState state = manager.GetState(moon);
             state.SetUnlockedForEditor(true);
             var runtimeState = new GameState();
-            ExpantaNum foodBeforeFailure = runtimeState.FoodAmount;
             InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
+            SetCampaignFood(runtimeState, new ExpantaNum(1000000));
+            ExpantaNum foodBeforeFailure = runtimeState.FoodAmount;
+            // Leave only a tiny progress remainder so the low-cost 0.01s tick
+            // reaches the commit path while FoodCapacity remains intentionally low.
             state.SetCampaignProgressForEditor(new ExpantaNum("0.99999"));
 
             Assert.Throws<System.InvalidOperationException>(() =>
@@ -2284,7 +2308,7 @@ public sealed class SectorManagerTests
             InvokeProgressionStateMethod(ResearchSystem.DeepSpaceFleet);
             SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
             SetCampaignResources(resourceManager, moon, new ExpantaNum(100000));
-            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000));
+            resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             ExpantaNum rocketFuelBeforeFailure = resourceManager.GetAmount(rocketFuel);
             ExpantaNum foodBeforeFailure = runtimeState.FoodAmount;
             SectorState state = manager.GetState(moon);
@@ -2292,7 +2316,9 @@ public sealed class SectorManagerTests
             InvokeGameStateMethod(runtimeState, "AdjustAttackPower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "AdjustMilitaryManpower", new ExpantaNum(3000));
             InvokeGameStateMethod(runtimeState, "SetSupplySatisfaction", ExpantaNum.One);
-            state.SetCampaignProgressForEditor(new ExpantaNum("0.99999"));
+            // Leave only a tiny progress remainder so the low-cost 0.01s tick
+            // reaches the commit path while FoodCapacity remains intentionally low.
+            state.SetCampaignProgressForEditor(new ExpantaNum("0.999999999"));
 
             Assert.Throws<System.InvalidOperationException>(() =>
                 manager.TryAdvanceCampaign(moon, 1d, runtimeState, resourceManager, out _));

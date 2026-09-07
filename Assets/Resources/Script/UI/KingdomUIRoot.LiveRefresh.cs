@@ -805,8 +805,7 @@ public sealed partial class KingdomUIRoot
                         .Append("\n下一步：").Append(tutorialSnapshot.IndustrialNextStep)
                         .Append("\n之后：").Append(tutorialSnapshot.IndustrialAfterStep).Append("\n");
                 }
-                onboarding.Append("完成方式：").Append(tutorialSnapshot.GoalDescription).Append("\n");
-                onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
+        onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
                 string overviewText = onboarding.ToString();
@@ -999,9 +998,9 @@ public sealed partial class KingdomUIRoot
         if (state == null)
             return;
 
-        SetTextIfChanged(
-            topKingdomDate,
-            GameManager.CalendarDataToString(state.CalendarDays));
+        string currentDate = GameManager.CalendarDataToString(state.CalendarDays);
+        SetTextIfChanged(topKingdomDate, currentDate);
+        RefreshUnsafeAreaTickerFeed(state, currentDate);
 
         ResearchManager researchManager = researchManagerCache;
         ObserveResearchCompletions(researchManager);
@@ -1193,6 +1192,7 @@ public sealed partial class KingdomUIRoot
         recentActionFeedback = string.Join("；", recentActionFeedbackEntries);
         recentActionFeedbackVersion = TutorialManager.Current == null
             ? -1 : TutorialManager.Current.SaveSessionVersion;
+        RefreshUnsafeAreaTickerFeed();
         developmentGuidanceRefreshTimer = Mathf.Max(
             developmentGuidanceRefreshTimer, 2f);
     }
@@ -1202,6 +1202,28 @@ public sealed partial class KingdomUIRoot
         recentActionFeedbackEntries.Clear();
         recentActionFeedback = string.Empty;
         recentActionFeedbackVersion = -1;
+        RefreshUnsafeAreaTickerFeed();
+    }
+
+    private void RefreshUnsafeAreaTickerFeed()
+    {
+        CacheRuntimeManagers();
+        GameState state = gameManagerCache == null ? null : gameManagerCache.State;
+        string date = state == null
+            ? string.Empty
+            : GameManager.CalendarDataToString(state.CalendarDays);
+        RefreshUnsafeAreaTickerFeed(state, date);
+    }
+
+    private void RefreshUnsafeAreaTickerFeed(GameState state, string date)
+    {
+        if (unsafeAreaTicker == null)
+            return;
+
+        TechLevel era = state == null ? TechLevel.Animal : state.TechLevel;
+        // The edge ticker is ambient world news only. Gameplay feedback such as
+        // "+5 population" remains in the SafeArea "recently happened" panel.
+        unsafeAreaTicker.SetFeed(null, era, date);
     }
 
     private void ResetRecentActionStateForNewSave()

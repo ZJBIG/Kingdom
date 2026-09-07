@@ -68,6 +68,63 @@ public sealed class P40UiConfigurationTests
     }
 
     [Test]
+    public void RuntimeUiRoot_DrawsNonInteractiveBackdropOutsideSafeArea()
+    {
+        GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUIRoot");
+        Assert.That(prefab, Is.Not.Null, "KingdomUIRoot prefab must be loadable.");
+
+        Image backdrop = prefab.GetComponent<Image>();
+        Assert.That(backdrop, Is.Not.Null,
+            "KingdomUIRoot must draw a full-screen backdrop behind SafeAreaRoot.");
+        Assert.That(backdrop.raycastTarget, Is.False,
+            "The decorative backdrop must not intercept UI input.");
+        Assert.That(backdrop.color.a, Is.GreaterThan(0.99f),
+            "The backdrop must be opaque enough to hide the camera clear color.");
+        Assert.That(backdrop.color.r, Is.InRange(0.09f, 0.11f));
+        Assert.That(backdrop.color.g, Is.InRange(0.12f, 0.14f));
+        Assert.That(backdrop.color.b, Is.InRange(0.13f, 0.15f));
+    }
+
+    [Test]
+    public void RuntimeUiRoot_AuthorsNonInteractiveCivilizationTelegraphOutsideSafeArea()
+    {
+        GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUIRoot");
+        Assert.That(prefab, Is.Not.Null, "KingdomUIRoot prefab must be loadable.");
+
+        Transform ticker = prefab.transform.Find("UnsafeAreaTicker");
+        Assert.That(ticker, Is.Not.Null, "UnsafeAreaTicker must be authored at the Canvas root.");
+        Assert.That(ticker.parent, Is.SameAs(prefab.transform));
+        UnsafeAreaTicker tickerComponent = ticker.GetComponent<UnsafeAreaTicker>();
+        Assert.That(tickerComponent, Is.Not.Null);
+        Assert.That(tickerComponent.IsConfigured, Is.True,
+            "Every authored ticker reference must be bound in the prefab.");
+        Canvas tickerCanvas = ticker.GetComponent<Canvas>();
+        Assert.That(tickerCanvas, Is.Not.Null,
+            "The animated ticker must use a nested Canvas to isolate its rebuilds.");
+        Assert.That(ticker.GetComponent<GraphicRaycaster>(), Is.Null,
+            "The decorative child Canvas must not receive input.");
+        TMP_Text feed = ticker.Find("FeedViewport/FeedText")?.GetComponent<TMP_Text>();
+        Assert.That(ticker.Find("Title"), Is.Null,
+            "The narrow ticker reserves its full height for one active headline.");
+        Assert.That(feed, Is.Not.Null);
+        Assert.That(feed.font, Is.Not.Null);
+        Assert.That(feed.fontSharedMaterial, Is.Not.Null);
+        Assert.That(feed.fontSize, Is.InRange(59.9f, 60.1f));
+        Assert.That(feed.isOrthographic, Is.True);
+        Assert.That(feed.maskable, Is.True);
+        RectMask2D mask = ticker.Find("FeedViewport")?.GetComponent<RectMask2D>();
+        Assert.That(mask, Is.Not.Null);
+        Assert.That(feed.transform.IsChildOf(mask.transform), Is.True);
+
+        Graphic[] graphics = ticker.GetComponentsInChildren<Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            Assert.That(graphics[i].raycastTarget, Is.False,
+                graphics[i].name + " must remain decorative and must not intercept input.");
+        }
+    }
+
+    [Test]
     public void SectorRowPrefabKeepsOnlyItsLabelAndAction()
     {
         GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/KingdomUISectorRow");

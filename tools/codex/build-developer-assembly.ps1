@@ -4,7 +4,10 @@ param(
     [string]$Assembly,
 
     [ValidateSet("Debug", "Release")]
-    [string]$Configuration = "Debug"
+    [string]$Configuration = "Debug",
+
+    [ValidateSet("Player", "Editor")]
+    [string]$RuntimeFlavor = "Player"
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,14 +21,23 @@ if (-not (Test-Path -LiteralPath $artifactRoot)) {
 
 $responseFileName = if ($Assembly -eq "Runtime") {
     "Kingdom.Runtime.rsp"
-} else {
+}
+else {
     "Assembly-CSharp-Editor.rsp"
 }
 
-$sourceResponseFile = Get-ChildItem -LiteralPath $artifactRoot -Recurse -Filter $responseFileName |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1
-
+$responseCandidates = Get-ChildItem -LiteralPath $artifactRoot -Recurse -Filter $responseFileName |
+    Sort-Object LastWriteTime -Descending
+if ($Assembly -eq "Runtime") {
+    $requiresUnityEditor = $RuntimeFlavor -eq "Editor"
+    $sourceResponseFile = $responseCandidates | Where-Object {
+        $hasUnityEditor = Select-String -LiteralPath $_.FullName -SimpleMatch "-define:UNITY_EDITOR" -Quiet
+        $hasUnityEditor -eq $requiresUnityEditor
+    } | Select-Object -First 1
+}
+else {
+    $sourceResponseFile = $responseCandidates | Select-Object -First 1
+}
 if ($null -eq $sourceResponseFile) {
     throw "Unity compile metadata '$responseFileName' was not found. Let Unity finish compiling, then try again."
 }
@@ -62,19 +74,23 @@ $unityDotnet = Join-Path $unityEditorDirectory "Data\NetCoreRuntime\dotnet.exe"
 $compiler = Join-Path $unityEditorDirectory "Data\DotNetSdkRoslyn\csc.dll"
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 
-$assemblyName = if ($Assembly -eq "Runtime") { "Kingdom.Runtime" } else { "Kingdom.Editor" }
+$assemblyName = if ($Assembly -eq "Runtime") {
+    if ($RuntimeFlavor -eq "Editor") { "Kingdom.Runtime.Editor" } else { "Kingdom.Runtime" }
+}
+else {
+    "Kingdom.Editor"
+}
 $outputAssembly = Join-Path $outputDirectory "$assemblyName.dll"
 $referenceAssembly = Join-Path $outputDirectory "$assemblyName.ref.dll"
 $filteredResponseFile = Join-Path $outputDirectory "$assemblyName.$($Configuration.ToLowerInvariant()).rsp"
-$runtimeAssembly = Join-Path $outputDirectory "Kingdom.Runtime.dll"
+$runtimeAssembly = Join-Path $outputDirectory "Kingdom.Runtime.Editor.dll"
 
-if ($Assembly -eq "Editor" -and -not (Test-Path -LiteralPath $runtimeAssembly)) {
-    & $PSCommandPath -Assembly Runtime -Configuration $Configuration
+if ($Assembly -eq "Editor") {
+    & $PSCommandPath Runtime -Configuration $Configuration -RuntimeFlavor Editor
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
 }
-
 $filteredLines = foreach ($line in Get-Content -LiteralPath $sourceResponseFile.FullName) {
     if ($line -match "^-out:" -or $line -match "^-refout:") { continue }
     if ($line -eq "-define:UNITY_INCLUDE_TESTS") { continue }

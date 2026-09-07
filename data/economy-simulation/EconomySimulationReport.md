@@ -59,3 +59,6 @@ None
 ## Validation boundary
 
 未执行真实 Unity 编译。
+# Status and usage
+
+See `data/economy-simulation/NOTICE.md` for the canonical frozen/diagnostic status. This report remains current evidence; it must not be used as a gameplay-authoritative balance source.

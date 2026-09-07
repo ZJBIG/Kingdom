@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public sealed class PMusicAudioImporter : AssetPostprocessor
 {
-    private const string MusicPath = "Assets/Resources/Musics/PMusic/";
+    private const string MusicPath = "Assets/Musics/PMusic/";
 
     private void OnPreprocessAudio()
     {
@@ -19,5 +19,6 @@ public sealed class PMusicAudioImporter : AssetPostprocessor
         settings.compressionFormat = AudioCompressionFormat.Vorbis;
         settings.quality = 0.6f;
         importer.defaultSampleSettings = settings;
+        importer.loadInBackground = true;
     }
 }

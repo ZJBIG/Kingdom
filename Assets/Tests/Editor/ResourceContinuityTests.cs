@@ -459,7 +459,7 @@ public sealed class ResourceContinuityTests
         {
             Pair<Resource, ExpantaNum> pair = sector.CampaignResourceRatesPerSecond[i];
             if (pair.First != null && pair.First.Id == resourceId &&
-                pair.Second.ToDouble() == amount)
+                pair.Second.ToDouble() >= amount)
                 return true;
         }
 

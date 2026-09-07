@@ -129,7 +129,7 @@ public sealed partial class KingdomUIRoot
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
             ? existing
             : null;
-        if (showBuildingDetails)
+        if (useCompactBuildingDetails)
             SetCompactBuildingDetailBody(building);
         else
             SetBuildingDetailBody(building, state);
@@ -278,7 +278,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        if (showBuildingDetails)
+        if (useCompactBuildingDetails)
             SetCompactBuildingDetailBody(building);
         else
             SetBuildingDetailBody(building, state);

@@ -1,0 +1,295 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8392a044497ac554798eef6522ba0f00, type: 3}
+  m_Name: MusicCatalog
+  m_EditorClassIdentifier: 
+  entries:
+  - id: CarryOn
+    label: Carry On
+    category: Tense
+    address: music/tense/CarryOn
+    durationSeconds: 312.27274
+  - id: CodeRed
+    label: Code Red
+    category: Tense
+    address: music/tense/CodeRed
+    durationSeconds: 239.84721
+  - id: CruelWorld
+    label: Cruel World
+    category: Tense
+    address: music/tense/CruelWorld
+    durationSeconds: 197.41965
+  - id: Delusion
+    label: Delusion
+    category: Tense
+    address: music/tense/Delusion
+    durationSeconds: 273.44263
+  - id: FinalStand
+    label: Final Stand
+    category: Tense
+    address: music/tense/FinalStand
+    durationSeconds: 237.6
+  - id: HoldOn
+    label: Hold On
+    category: Tense
+    address: music/tense/HoldOn
+    durationSeconds: 197.14285
+  - id: LoneHunter
+    label: Lone Hunter
+    category: Tense
+    address: music/tense/LoneHunter
+    durationSeconds: 357.07812
+  - id: Outlaw
+    label: Outlaw
+    category: Tense
+    address: music/tense/Outlaw
+    durationSeconds: 175.96875
+  - id: Rise
+    label: Rise
+    category: Tense
+    address: music/tense/Rise
+    durationSeconds: 162.02084
+  - id: StayStrong
+    label: Stay Strong
+    category: Tense
+    address: music/tense/StayStrong
+    durationSeconds: 258.68054
+  - id: ToughLife
+    label: Tough Life
+    category: Tense
+    address: music/tense/ToughLife
+    durationSeconds: 150.86905
+  - id: Triumph
+    label: Triumph
+    category: Tense
+    address: music/tense/Triumph
+    durationSeconds: 357.9487
+  - id: TrustMe
+    label: Trust Me
+    category: Tense
+    address: music/tense/TrustMe
+    durationSeconds: 367.2125
+  - id: Valiant
+    label: Valiant
+    category: Tense
+    address: music/tense/Valiant
+    durationSeconds: 236.07144
+  - id: WeWill
+    label: We Will
+    category: Tense
+    address: music/tense/WeWill
+    durationSeconds: 164.53609
+  - id: APlaceOfOurOwn
+    label: A Place Of Our Own
+    category: Day
+    address: music/day/APlaceOfOurOwn
+    durationSeconds: 238.7991
+  - id: AteWithoutTable
+    label: Ate Without Table
+    category: Day
+    address: music/day/AteWithoutTable
+    durationSeconds: 207.22769
+  - id: BackInTheSaddle
+    label: Back In The Saddle
+    category: Day
+    address: music/day/BackInTheSaddle
+    durationSeconds: 183.75
+  - id: BackToWork
+    label: Back To Work
+    category: Day
+    address: music/day/BackToWork
+    durationSeconds: 336
+  - id: BrightSideOfLife
+    label: Bright Side Of Life
+    category: Day
+    address: music/day/BrightSideOfLife
+    durationSeconds: 225.9732
+  - id: FairGlade
+    label: Fair Glade
+    category: Day
+    address: music/day/FairGlade
+    durationSeconds: 244.44023
+  - id: LovelyDay
+    label: Lovely Day
+    category: Day
+    address: music/day/LovelyDay
+    durationSeconds: 197.41249
+  - id: Move
+    label: Move
+    category: Day
+    address: music/day/Move
+    durationSeconds: 186.78806
+  - id: MyFriend
+    label: My Friend
+    category: Day
+    address: music/day/MyFriend
+    durationSeconds: 214.65625
+  - id: RusticRanching
+    label: Rustic Ranching
+    category: Day
+    address: music/day/RusticRanching
+    durationSeconds: 247.6607
+  - id: SimpleLife
+    label: Simple Life
+    category: Day
+    address: music/day/SimpleLife
+    durationSeconds: 159.85715
+  - id: Sunlight
+    label: Sunlight
+    category: Day
+    address: music/day/Sunlight
+    durationSeconds: 271
+  - id: United
+    label: United
+    category: Day
+    address: music/day/United
+    durationSeconds: 211.2
+  - id: WhatWeOnceHad
+    label: What We Once Had
+    category: Day
+    address: music/day/WhatWeOnceHad
+    durationSeconds: 183.4866
+  - id: Blue
+    label: Blue
+    category: Night
+    address: music/night/Blue
+    durationSeconds: 248.43542
+  - id: FarAway
+    label: Far Away
+    category: Night
+    address: music/night/FarAway
+    durationSeconds: 194.82031
+  - id: Illusion
+    label: Illusion
+    category: Night
+    address: music/night/Illusion
+    durationSeconds: 192.32144
+  - id: LongWayHome
+    label: Long Way Home
+    category: Night
+    address: music/night/LongWayHome
+    durationSeconds: 285.48685
+  - id: NeverForgotten
+    label: Never Forgotten
+    category: Night
+    address: music/night/NeverForgotten
+    durationSeconds: 232.8125
+  - id: Nimbostratus
+    label: Nimbostratus
+    category: Night
+    address: music/night/Nimbostratus
+    durationSeconds: 180
+  - id: Odyssey
+    label: Odyssey
+    category: Night
+    address: music/night/Odyssey
+    durationSeconds: 274.16965
+  - id: OneThousandStars
+    label: One Thousand Stars
+    category: Night
+    address: music/night/OneThousandStars
+    durationSeconds: 165.12946
+  - id: Passenger
+    label: Passenger
+    category: Night
+    address: music/night/Passenger
+    durationSeconds: 240
+  - id: RememberOurPast
+    label: Remember Our Past
+    category: Night
+    address: music/night/RememberOurPast
+    durationSeconds: 273.15625
+  - id: SereneNight
+    label: Serene Night
+    category: Night
+    address: music/night/SereneNight
+    durationSeconds: 253.19887
+  - id: Serenity
+    label: Serenity
+    category: Night
+    address: music/night/Serenity
+    durationSeconds: 235.2634
+  - id: Solitude
+    label: Solitude
+    category: Night
+    address: music/night/Solitude
+    durationSeconds: 122.821434
+  - id: StrangeFeeling
+    label: Strange Feeling
+    category: Night
+    address: music/night/StrangeFeeling
+    durationSeconds: 66.85715
+  - id: TheFallen
+    label: The Fallen
+    category: Night
+    address: music/night/TheFallen
+    durationSeconds: 93.6
+  - id: Alive
+    label: Alive
+    category: AllTime
+    address: music/alltime/Alive
+    durationSeconds: 325.34027
+  - id: Ambition
+    label: Ambition
+    category: AllTime
+    address: music/alltime/Ambition
+    durationSeconds: 243.42856
+  - id: EverythingsGoingToBeOkay
+    label: Everythings Going To Be Okay
+    category: AllTime
+    address: music/alltime/EverythingsGoingToBeOkay
+    durationSeconds: 274.2857
+  - id: Honor
+    label: Honor
+    category: AllTime
+    address: music/alltime/Honor
+    durationSeconds: 209.5759
+  - id: Legacy
+    label: Legacy
+    category: AllTime
+    address: music/alltime/Legacy
+    durationSeconds: 276
+  - id: Muffalo
+    label: Muffalo
+    category: AllTime
+    address: music/alltime/Muffalo
+    durationSeconds: 344.8421
+  - id: OneCanDreamToFly
+    label: One Can Dream To Fly
+    category: AllTime
+    address: music/alltime/OneCanDreamToFly
+    durationSeconds: 363.01562
+  - id: OnTheRoad
+    label: On The Road
+    category: AllTime
+    address: music/alltime/OnTheRoad
+    durationSeconds: 171.13043
+  - id: ProtectOurHome
+    label: Protect Our Home
+    category: AllTime
+    address: music/alltime/ProtectOurHome
+    durationSeconds: 258.85715
+  - id: Rimmas
+    label: Rimmas
+    category: AllTime
+    address: music/alltime/Rimmas
+    durationSeconds: 293.50522
+  - id: Rimraid
+    label: Rimraid
+    category: AllTime
+    address: music/alltime/Rimraid
+    durationSeconds: 219.14131
+  - id: Spacekattommy
+    label: Spacekattommy
+    category: AllTime
+    address: music/alltime/Spacekattommy
+    durationSeconds: 172.93561

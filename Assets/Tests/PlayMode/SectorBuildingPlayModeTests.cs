@@ -106,6 +106,8 @@ public sealed class SectorBuildingPlayModeTests
         ResearchManager.Instance.ResetForPerformanceTest();
         SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
         SectorState moonState = game.Sectors.GetState(moon);
+        SectorDefinition prerequisite = DataBase<SectorDefinition>.Find("DawnRing");
+        game.Sectors.GetState(prerequisite).SetOccupiedForEditor(true);
         SectorBuilding hub = DataBase<SectorBuilding>.Find("EarthMoonLogisticsHub");
         Assert.That(hub, Is.Not.Null);
         foreach (BuildingState state in BuildingManager.Instance.States.Values)

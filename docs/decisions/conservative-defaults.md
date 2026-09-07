@@ -11,3 +11,9 @@ These defaults prevent Codex from inventing gameplay rules during UI work.
 - The visual direction begins with dark low-saturation medieval strategy styling, but final colors/fonts require user references.
 - Target baseline resolution is 1920x1080; 1366x768 and 2560x1440 are required checks.
 - Codex does not commit, push, install packages or upgrade Unity without permission.
+\n## Current UI contract
+
+The active mobile baseline is Huawei P40 Pro landscape at 2640x1200. Unity uses ScaleWithScreenSize with Match Width; older 1920x1080 and 1366x768 values are historical only.
+## Current UI contract
+
+The active mobile baseline is Huawei P40 Pro landscape at 2640x1200. Unity uses ScaleWithScreenSize with Match Width; older resolution values are historical only.

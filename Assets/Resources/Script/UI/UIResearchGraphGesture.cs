@@ -106,6 +106,17 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         Debug.Log($"[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport={GetSize(viewport)}, content={GetSize(content)}, dragOwner=UIResearchGraphGesture, horizontalScrollable={canPanHorizontal}, verticalScrollable={canPanVertical}, overflow={GetOverflowState()}");
     }
 
+    public void RestoreView(Vector2 position, float scale)
+    {
+        if (content == null)
+            return;
+
+        content.localScale = Vector3.one * Mathf.Clamp(scale, MinScale, MaxScale);
+        RefreshLayoutBounds(false);
+        content.anchoredPosition = position;
+        ClampContentPosition();
+    }
+
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         // Match ResearchTreeSK's ButtonInvisibleDraggable: the graph owns

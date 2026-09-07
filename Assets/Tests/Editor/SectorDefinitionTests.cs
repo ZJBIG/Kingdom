@@ -116,7 +116,10 @@ public sealed class SectorDefinitionTests
     {
         SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
 
-        Assert.That(alpha.CampaignFoodPerSecond, Is.EqualTo(new ExpantaNum(2)));
+        // AlphaCentauri's campaign supply was rescaled with the long-range
+        // interstellar cost table; the authored definition now exposes 2000
+        // food per second (the test previously retained the pre-rescale 2).
+        Assert.That(alpha.CampaignFoodPerSecond, Is.EqualTo(new ExpantaNum(2000)));
         Assert.That(alpha.CampaignResourceRatesPerSecond, Has.Count.GreaterThan(0));
         Assert.That(alpha.CampaignResourceRatesPerSecond[0].Second, Is.GreaterThan(ExpantaNum.Zero));
     }

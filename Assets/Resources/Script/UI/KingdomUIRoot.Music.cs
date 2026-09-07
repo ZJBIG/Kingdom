@@ -8,6 +8,7 @@ public sealed partial class KingdomUIRoot
 {
     private readonly Dictionary<string, Button> musicTrackButtons = new();
     private readonly Dictionary<string, Sprite> musicIconCache = new();
+    private readonly HashSet<Slider> musicPointerStateSliders = new();
     private MusicManager musicManagerCache;
     private Button musicGlobalPauseButton;
     private TMP_Text musicCurrentPlayName;
@@ -59,57 +60,29 @@ public sealed partial class KingdomUIRoot
             for (int i = 0; i < manager.Tracks.Count; i++)
                 result.Add(manager.Tracks[i]);
         }
-        if (result.Count > 0)
-            return result;
-
-        // UI-side fallback for the first frame after a domain reload. The
-        // manager normally owns this catalog, but the list should not render
-        // empty merely because its Awake order has not completed yet.
-        string[] categories = { "Tense", "Day", "Night", "AllTime" };
-        for (int categoryIndex = 0; categoryIndex < categories.Length; categoryIndex++)
-        {
-            string category = categories[categoryIndex];
-            AudioClip[] clips = Resources.LoadAll<AudioClip>("Musics/PMusic/" + category);
-            System.Array.Sort(clips, (left, right) => string.Compare(left.name, right.name, System.StringComparison.OrdinalIgnoreCase));
-            for (int i = 0; i < clips.Length; i++)
-            {
-                AudioClip clip = clips[i];
-                if (clip == null || clip.length <= 0f)
-                    continue;
-                string path = "Musics/PMusic/" + category + "/" + clip.name;
-                result.Add(new MusicManager.MusicTrack(clip.name,
-                    MusicManager.DisplayNameFor(clip.name), category, path, clip));
-            }
-        }
-        result.Sort((left, right) => string.Compare(left.Label, right.Label, System.StringComparison.OrdinalIgnoreCase));
+        result.Sort((left, right) =>
+            string.Compare(left.Label, right.Label, System.StringComparison.OrdinalIgnoreCase));
         return result;
+    }
+
+    private void ConfigureMusicIcon(Button button, string iconName, bool simpleImage)
+    {
+        if (button == null)
+            return;
+        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
+        if (image == null)
+            return;
+        image.sprite = LoadMusicIcon(iconName);
+        if (simpleImage)
+            image.type = Image.Type.Simple;
+        image.preserveAspect = true;
+        image.color = Color.white;
+        button.targetGraphic = image;
     }
 
     private void ConfigureMusicTrackIcon(Button button, string iconName)
     {
-        if (button == null)
-            return;
-        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
-        if (image == null)
-            return;
-        image.sprite = LoadMusicIcon(iconName);
-        image.type = Image.Type.Simple;
-        image.preserveAspect = true;
-        image.color = Color.white;
-        button.targetGraphic = image;
-    }
-
-    private void ConfigureMusicControlIcon(Button button, string iconName)
-    {
-        if (button == null)
-            return;
-        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
-        if (image == null)
-            return;
-        image.sprite = LoadMusicIcon(iconName);
-        image.preserveAspect = true;
-        image.color = Color.white;
-        button.targetGraphic = image;
+        ConfigureMusicIcon(button, iconName, true);
     }
 
     private Sprite LoadMusicIcon(string iconName)
@@ -185,39 +158,19 @@ public sealed partial class KingdomUIRoot
         categoryObject.transform.SetAsLastSibling();
     }
 
-    private static void ConfigureMusicText(TMP_Text label, string text)
-    {
-        if (label == null) return;
-        label.text = text;
-        label.color = TextPrimary;
-        label.enabled = true;
-        label.gameObject.SetActive(true);
-        label.raycastTarget = false;
-        label.overflowMode = TextOverflowModes.Ellipsis;
-        label.enableWordWrapping = false;
-        BringMusicTextToFront(label);
-    }
-
-    private static void BringMusicTextToFront(TMP_Text label)
-    {
-        if (label != null)
-             label.transform.SetAsLastSibling();
-    }
-
     private void AddPointerState(Slider slider, UnityEngine.Events.UnityAction down,
         UnityEngine.Events.UnityAction up)
     {
         if (slider == null) return;
-        EventTrigger trigger = slider.gameObject.AddComponent<EventTrigger>();
+        EventTrigger trigger = slider.GetComponent<EventTrigger>();
+        if (trigger == null)
+            trigger = slider.gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry pointerDown = new() { eventID = EventTriggerType.PointerDown };
         pointerDown.callback.AddListener(_ => { SetMusicPageScrollEnabled(false); if (down != null) down(); });
         trigger.triggers.Add(pointerDown);
         EventTrigger.Entry pointerUp = new() { eventID = EventTriggerType.PointerUp };
         pointerUp.callback.AddListener(_ => { if (up != null) up(); SetMusicPageScrollEnabled(true); });
         trigger.triggers.Add(pointerUp);
-        EventTrigger.Entry pointerExit = new() { eventID = EventTriggerType.PointerExit };
-        pointerExit.callback.AddListener(_ => { if (up != null) up(); SetMusicPageScrollEnabled(true); });
-        trigger.triggers.Add(pointerExit);
     }
 
     private void SetMusicPageScrollEnabled(bool enabled)
@@ -282,9 +235,18 @@ public sealed partial class KingdomUIRoot
     {
         MusicManager manager = FindMusicManager();
         if (manager == null || !musicPageBuilt) return;
-        MusicManager.MusicTrack track = manager.CurrentTrack;
-        float current = manager.AudioSource == null ? 0f : manager.AudioSource.time;
-        float total = manager.AudioSource == null || manager.AudioSource.clip == null ? 0f : manager.AudioSource.clip.length;
+        if (!IsPageScrolling() && manager.CatalogVersion != lastMusicCatalogVersion &&
+            musicListScroll != null)
+        {
+            float previousListPosition = musicListScroll.verticalNormalizedPosition;
+            BuildAuthoredMusicRows(musicListScroll.GetComponent<RectTransform>(), manager);
+            lastMusicCatalogVersion = manager.CatalogVersion;
+            musicListScroll.verticalNormalizedPosition = previousListPosition;
+        }
+        bool loading = manager.State == MusicManager.PlaybackState.Loading;
+        MusicManager.MusicTrack track = loading ? null : manager.CurrentTrack;
+        float current = loading || manager.AudioSource == null ? 0f : manager.AudioSource.time;
+        float total = loading || manager.AudioSource == null || manager.AudioSource.clip == null ? 0f : manager.AudioSource.clip.length;
         RefreshCurrentMusicCategoryIcon(track);
         SetTextIfChanged(musicCurrentPlayName, track == null ? string.Empty : track.Label);
         if (musicTimeLabel != null)
@@ -325,9 +287,9 @@ public sealed partial class KingdomUIRoot
             musicVolumeSlider.SetValueWithoutNotify(manager.Volume);
         SetTextIfChanged(musicVolumeValueLabel,
             "音量：" + Mathf.RoundToInt(manager.Volume * 100f) + "%");
-        float gap = Mathf.Clamp(manager.GapSeconds, 0f, 30f);
-        if (manager.GapSeconds > 30f)
-            manager.SetGapSeconds(gap);
+        float gap = Mathf.Clamp(manager.GapSeconds, 0f, MusicManager.MaxGapSeconds);
+        if (musicGapSlider != null && !Mathf.Approximately(musicGapSlider.maxValue, MusicManager.MaxGapSeconds))
+            musicGapSlider.maxValue = MusicManager.MaxGapSeconds;
         if (musicGapSlider != null &&
             !Mathf.Approximately(musicGapSlider.value, gap))
             musicGapSlider.SetValueWithoutNotify(gap);
@@ -391,9 +353,14 @@ public sealed partial class KingdomUIRoot
                 Image playPauseImage = pair.Value.targetGraphic as Image;
                 if (playPauseImage != null)
                 {
-                    string iconName = selected && isPlaying
-                            ? "pause"
-                            : "play";
+                    // A permanently stopped track remains the selected
+                    // restart target; keep the play affordance visible rather
+                    // than treating it as an ordinary unselected row.
+                    string iconName = selected && manager.IsPermanentlyStopped
+                            ? "play"
+                            : selected && isPlaying
+                                ? "pause"
+                                : "play";
                     Sprite icon = LoadMusicIcon(iconName);
                     if (playPauseImage.sprite != icon)
                         playPauseImage.sprite = icon;

@@ -73,3 +73,9 @@ No partial mutation on failure.
 Save only non-derivable values. Rates, efficiency, UI state caches and indexes are rebuilt after load. Candidate save loading must be transactional so a failed main save can fall back to backup without leaving partial State.
 
 Story completion is serialized in the required `Story` segment of save format v8.
+\n## Current implementation note
+
+The runtime tick and synchronous build/deconstruct transactions are implemented. Auto-build and command queues are future design items, not current runtime guarantees.
+## Current implementation note
+
+The runtime tick and synchronous build/deconstruct transactions are implemented. Auto-build and command queues are future design items, not current runtime guarantees.

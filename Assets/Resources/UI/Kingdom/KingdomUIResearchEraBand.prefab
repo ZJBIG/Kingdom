@@ -67,3 +67,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_EditorClassIdentifier: TMPro::TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_fontAsset: {fileID: 11400000, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+  m_sharedMaterial: {fileID: 2829122849704453864, guid: 08ad5319768e92d4a9d133b324661387, type: 2}

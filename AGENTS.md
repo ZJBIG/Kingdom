@@ -18,6 +18,13 @@
   Store Codex-only prompts, archive metadata, and recoverable historical
   outputs under `.codex/`.
 
+## Continuous handoff log
+
+- Ongoing or resumed tasks must read the current report under `.codex/handoffs/` before changing related files.
+- Every implementation task must update its handoff report before ending, recording the files and behavior changed, validation performed, remaining risks or unfinished work, and the next concrete action.
+- Continue the existing task report instead of creating disconnected reports for repeated work on the same feature.
+- Preserve user-owned worktree changes and distinguish them from changes made for the active task.
+
 Historical Kingdom3/Kingdom4 audits are context only and must not override current code.
 
 ## Current milestone
