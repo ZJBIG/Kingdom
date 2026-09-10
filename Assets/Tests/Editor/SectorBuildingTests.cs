@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 public sealed class SectorBuildingTests
 {
@@ -15,6 +17,9 @@ public sealed class SectorBuildingTests
         DestroyManagers<ResourceManager>();
         DestroyManagers<BuildingManager>();
         DestroyManagers<ResearchManager>();
+        DestroyManagers<WorkshopManager>();
+        DestroyManagers<SaveManager>();
+        DestroyManagers<TutorialManager>();
         createdObjects.Clear();
     }
 
@@ -24,6 +29,8 @@ public sealed class SectorBuildingTests
         for (int i = createdObjects.Count - 1; i >= 0; i--)
             Object.DestroyImmediate(createdObjects[i]);
         createdObjects.Clear();
+        DestroyManagers<TutorialManager>();
+        SaveManager.ClearSaveRootOverrideForTests();
     }
 
     [Test]
@@ -158,6 +165,8 @@ public sealed class SectorBuildingTests
             CreateManager<BuildingManager>("SectorBuilding-BuildingManager");
         ResearchManager researchManager =
             CreateManager<ResearchManager>("SectorBuilding-ResearchManager");
+        CreateManager<WorkshopManager>("SectorBuilding-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("SectorBuilding-SaveManager");
         SectorBuilding building = Resources.Load<SectorBuilding>(
             "Datas/Building/Spacer/EarthMoonLogisticsHub");
         SectorState moon = gameManager.Sectors.GetState(building.Sector);
@@ -202,16 +211,35 @@ public sealed class SectorBuildingTests
             Is.True);
         Assert.That(rebuildFailure, Is.EqualTo(BuildFailure.None));
 
-        SaveManager.BuildingSaveData save = (SaveManager.BuildingSaveData)InvokeInternal(
-            buildingManager, "CaptureSaveData");
-        InvokeInternal(buildingManager, "ResetForLoad");
-        InvokeInternal(buildingManager, "RestoreSaveData", save);
-        Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.One));
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        string saveRoot = Path.Combine(
+            projectRoot,
+            "Temp",
+            "SectorBuildingInvalidSave-" + System.Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(saveRoot);
+            Assert.That(saveManager.SaveNow(true), Is.True);
 
-        moon.SetOccupiedForEditor(false);
-        TargetInvocationException exception = Assert.Throws<TargetInvocationException>(() =>
-            InvokeInternal(buildingManager, "ValidateSectorBuildingState", gameManager.Sectors));
-        Assert.That(exception.InnerException, Is.TypeOf<System.InvalidOperationException>());
+            moon.SetOccupiedForEditor(false);
+            Assert.That(saveManager.SaveNow(true), Is.True);
+            LogAssert.Expect(
+                LogType.Error,
+                new Regex("Kingdom.*" + Regex.Escape(building.Id), RegexOptions.Singleline));
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True,
+                "An inconsistent sector-building primary save should fall back to its valid backup.");
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
+            Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.One));
+            Assert.That(gameManager.Sectors.GetState(building.Sector).Occupied, Is.True);
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(saveRoot))
+                Directory.Delete(saveRoot, true);
+        }
     }
 
     private T CreateManager<T>(string name) where T : Component
@@ -278,14 +306,6 @@ public sealed class SectorBuildingTests
                 requirement.First,
                 requirement.Second * costMultiplier * new ExpantaNum(2d));
         }
-    }
-
-    private static object InvokeInternal(object target, string name, params object[] arguments)
-    {
-        MethodInfo method = target.GetType().GetMethod(
-            name, BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null, name);
-        return method.Invoke(target, arguments);
     }
 
     private static bool HasPositivePair(

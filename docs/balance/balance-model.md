@@ -88,4 +88,4 @@ Food 是唯一有容量的库存。
 - 太空：1e18~1e50
 - Ultra/Archotech：再逐步进入更高层级
 
-这些只是量级方向。当前独立 EconomySimulator 已冻结，输出与 Unity 运行时和玩家实玩结果不具备可证明的一致性；不得以模拟器输出作为当前节奏、平衡或内容决策依据。最终以真实 Unity 运行时、PlayMode 回归和玩家实玩证据为准。
+这些只是量级方向。`NewEconomySimulator` 只输出快照、事件和首个差异，不能替代 Unity 运行时或玩家实玩结果；不得以 parity 输出作为当前节奏、平衡或内容决策依据。最终以真实 Unity 运行时、PlayMode 回归和玩家实玩证据为准。

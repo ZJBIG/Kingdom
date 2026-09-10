@@ -277,7 +277,7 @@ public class GameManager : Singleton<GameManager>
     internal void ResetDerivedEconomy() =>
         State.ResetDerivedEconomy(TerritoryState.InitialTotal);
 
-    internal SaveManager.GameSaveData CaptureSaveData()
+    public SaveManager.GameSaveData CaptureSaveData()
     {
         return new SaveManager.GameSaveData
         {

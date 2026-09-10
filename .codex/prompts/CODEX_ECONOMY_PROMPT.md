@@ -11,30 +11,29 @@ consumption, pacing, or balance:
 2. inspect `git status` and current runtime/assets;
 3. run the static closure check;
 4. reproduce the affected gameplay behavior in code or Unity tests;
-5. do not run or rely on `tools/EconomySimulator` for current pacing, balance,
-   progression, or acceptance decisions. Its CLI is frozen and disabled; the
-   existing `data/economy-simulation` outputs are historical diagnostics only.
-   Use Unity runtime/PlayMode evidence and player playtests as the authority.
+5. use `tools/NewEconomySimulator` only for deterministic parity facts (state,
+   events, and first differences). It does not authorize pacing, balance,
+   progression, or acceptance decisions. Use Unity runtime/PlayMode evidence
+   and player playtests as the authority.
 
-Report retention: use `data/content-closure-static.md`, only the current
-`data/economy-simulation` root outputs and its `Fast`, `Normal`, and
-`Conservative` subdirectories, plus `TestResults/Latest-Test-Errors.txt` as
-current evidence. Anything under `.codex/archive/` is recoverable historical
-material and must not be cited as current state.
+Report retention: use `data/content-closure-static.md`, current parity facts
+under `data/economy-parity/` when present, and
+`TestResults/Latest-Test-Errors.txt` as current evidence. Anything under
+`.codex/archive/` is recoverable historical material and must not be cited as
+current state.
 
 Current locked rules:
 
 - Food is the only capped stockpile.
 - Do not reintroduce workforce; population and productivity are the player-facing systems.
 - Research resource costs are paid atomically before progress begins.
-- The frozen simulator's snapshot loader still documents the intended stable-ID
-  and `.meta` GUID contract, but it is not a current gameplay authority.
+- The new simulator snapshot exporter enforces the stable-ID and `.meta` GUID
+  contract, but it is not a current gameplay authority.
 - Workshop unlocks, prerequisites, purchases, costs, and effects are part of pacing.
 - Runtime constants come from current code, not this prompt.
 - Static reachability does not prove pacing, and simulator output does not prove Unity acceptance.
-- Keep the frozen simulator strategies unchanged. Do not add route scoring,
-  decision AI, trace features, or new report generation unless explicitly
-  requested for diagnostic research.
+- Keep the new simulator deterministic. Do not add route scoring, decision AI,
+  or automatic strategy search.
 
 Resource and late-era design contract:
 

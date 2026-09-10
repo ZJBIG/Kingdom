@@ -7,12 +7,11 @@ description: Mandatory Kingdom analysis workflow for technology trees, research 
 
 ## Current evidence boundary
 
-`tools/EconomySimulator` is currently frozen and its CLI is disabled. Its
-standalone outputs under `data/economy-simulation` are historical diagnostics,
-not current pacing, balance, progression, or Unity acceptance evidence. Do not
-run it or tune content from its output unless the user explicitly reactivates
-it after a fresh Unity-parity review. Use real Unity runtime/PlayMode evidence
-and player playtests as the authority.
+`tools/NewEconomySimulator` is a deterministic parity harness. Its output under
+`data/economy-parity` is limited to snapshots, events, and first differences;
+it is not pacing, balance, progression, or Unity acceptance evidence. Do not
+tune content from it. Use real Unity runtime/PlayMode evidence and player
+playtests as the authority.
 
 ## Mandatory order
 
@@ -25,8 +24,8 @@ and player playtests as the authority.
    powershell -ExecutionPolicy Bypass -File .\tools\codex\content-closure-check.ps1
    ```
 
-4. Do not build or run the standalone simulator while it is frozen. Verify
-   affected behavior with Unity runtime/PlayMode tests instead.
+4. Run the new simulator only for deterministic parity checks, then verify
+   affected behavior with Unity runtime/PlayMode tests.
 
 5. Treat existing `PacingAcceptance.txt`, Workshop purchases, warnings, and
    milestone summaries as frozen diagnostics only; never use them to tune
@@ -39,7 +38,8 @@ and player playtests as the authority.
 
 ## Simulator contract
 
-- Input is a strict typed snapshot of Resource, Building, Research, and Workshop
+- Input is a strict typed snapshot of Resource, Building, Research, Workshop,
+  TechLevel, Sector, and runtime/save state
   assets resolved through `.meta` GUIDs.
 - Missing IDs, `.meta` files, unresolved GUIDs, duplicate per-kind IDs, and
   duplicate resource pairs are hard failures; never silently omit definitions.
@@ -48,22 +48,20 @@ and player playtests as the authority.
 - Research costs are atomic: progress starts only after the complete remaining
   cost can be paid, matching current `ResearchManager`.
 - Use current runtime constants and parity formulas. Do not copy values from dated audits.
-- Treat the current route strategies and decision traces as frozen diagnostics.
-  Do not extend scoring, route AI, or trace features unless explicitly requested.
-- Simulation output is frozen historical diagnostics, not current balance
-  evidence and not Unity runtime acceptance.
+- Simulation output is parity evidence only, not current balance evidence or
+  Unity runtime acceptance.
 
 ## Required outputs
 
-Historical route outputs may be retained for diagnostics, but no current route
-report or `PacingAcceptance.txt` should be generated while the simulator is
-frozen. Never rewrite or reinterpret the retained files as current evidence.
+Persist only snapshots, ordered events, and first-difference facts under
+`data/economy-parity/`. Do not generate route, pacing, or balance acceptance
+reports.
 
 ## Validation boundaries
 
 - Static closure and Unity runtime behavior are the active gates.
-- Self-tests and parity tests for the frozen simulator are maintenance-only and
-  do not authorize balance tuning.
+- Self-tests and parity tests are diagnostic only and do not authorize balance
+  tuning.
 - Zero PlayMode tests is not acceptance.
 - Never change IDs, GUIDs, coordinates, descriptions, unrelated effects, or
   `.meta` files without explicit authorization.

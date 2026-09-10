@@ -220,7 +220,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             File.Move(TempPath, SavePath);
     }
 
-    private KingdomSaveData CaptureSaveData()
+    public KingdomSaveData CaptureSaveData()
     {
         StoryManager.RefreshProgress();
         return new KingdomSaveData

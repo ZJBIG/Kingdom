@@ -16,7 +16,7 @@ P1-09 的调节规则仍应作为调参约束执行：先根据真实运行时�
 - 研究速度使用研究目标时代的速度因子、`ResearchPower`、幸福度与全局研究倍率（`Assets/Resources/Script/Manager/ResearchManager.cs:582-590`）。因此全局研究倍率仍是现有能力，但没有证据表明它应成为本项的默认修复手段。
 - 平衡文档将生产写为 `baseRate × amount × efficiency × researchModifiers`，并将研究成本按目标耗时和预期研究力倒推（`docs/balance/balance-model.md:21-35`），与 P1-09 的来源定位规则一致。
 - 当前静态闭包为 Industrial `81/81` research、`37/37` Workshop、`50/50` building 可达（`data/content-closure-static.md:3-15`）。
-- `data/economy-simulation/EconomySimulationReport.md:3-6` 明确声明模拟结果是冻结诊断、不是当前平衡或 Unity 验收证据；因此其中的瓶颈字段不能支持改倍率的决定。
+- 已退役的独立模拟器历史报告曾明确声明结果仅为冻结诊断，不是当前平衡或 Unity 验收证据；其中的瓶颈字段不能支持改倍率的决定。
 
 ## 验证边界
 

@@ -853,7 +853,7 @@ public class ResearchManager : Singleton<ResearchManager>
             researchCountByTech[orderedStates[i].Definition.TechLevel]++;
     }
 
-    internal SaveManager.ResearchSaveData CaptureSaveData()
+    public SaveManager.ResearchSaveData CaptureSaveData()
     {
         var data = new SaveManager.ResearchSaveData
         {

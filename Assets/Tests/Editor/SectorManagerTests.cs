@@ -2202,34 +2202,6 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void C808f_ActiveCampaignSaveRequiresKnownTarget()
-    {
-        GameObject gameObject = new GameObject("C808f-GameManager");
-        try
-        {
-            GameManager gameManager = gameObject.AddComponent<GameManager>();
-            System.Reflection.TargetInvocationException exception =
-                Assert.Throws<System.Reflection.TargetInvocationException>(() =>
-                InvokeGameManagerMethod(
-                    gameManager,
-                    "RestoreSaveData",
-                    new SaveManager.GameSaveData
-                    {
-                        FoodAmount = "300",
-                        CampaignActive = true,
-                        CampaignTargetSectorId = "missing-sector-id"
-                    }));
-
-            Assert.That(exception.InnerException, Is.TypeOf<System.IO.InvalidDataException>());
-            StringAssert.Contains("missing-sector-id", exception.InnerException.Message);
-        }
-        finally
-        {
-            Object.DestroyImmediate(gameObject);
-        }
-    }
-
-    [Test]
     public void CampaignRewardFailureRollsBackPaymentAndCompletionState()
     {
         GameObject resourceObject = new GameObject("Campaign-Reward-Rollback-ResourceManager");

@@ -14,10 +14,10 @@ $repositoryRequired = @(
     "docs/balance/balance-model.md",
     "docs/content/progression-roadmap.md",
     "docs/testing/content-balance-tests.md",
-    "tools/EconomySimulator/EconomySimulator.csproj",
-    "tools/EconomySimulator/UnityAssetSnapshotReader.cs",
-    "tools/EconomySimulator/SimulationStrategy.cs",
-    "tools/EconomySimulator/WorkshopSimulator.cs"
+    "tools/NewEconomySimulator/NewEconomySimulator.csproj",
+    "tools/NewEconomySimulator/SnapshotExporter.cs",
+    "tools/NewEconomySimulator/SimulationCore.cs",
+    "tools/NewEconomySimulator/ReportWriter.cs"
 )
 $projectRequired = @(
     "AGENTS.md",

@@ -2,11 +2,11 @@
 
 ## Evidence boundary
 
-`tools/EconomySimulator` is frozen and its CLI is intentionally disabled. Its
-standalone model is not gameplay authority and its historical outputs must not
-be used as current pacing, balance, progression, or Unity acceptance reports.
-Runtime behavior is authoritative; validate it with Unity PlayMode/runtime logs
-and player playtests.
+`tools/NewEconomySimulator` is a deterministic parity harness, not gameplay
+authority. Its reports record snapshots, events, and first differences only;
+they must not claim pacing or balance acceptance. Runtime behavior remains
+authoritative and is validated with Unity PlayMode/runtime logs and player
+playtests. Persisted parity reports belong under `data/economy-parity/`.
 
 ## Current ownership
 

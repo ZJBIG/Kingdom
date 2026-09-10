@@ -1705,7 +1705,7 @@ public class BuildingManager : Singleton<BuildingManager>
         RefreshResearchPower();
     }
 
-    internal SaveManager.BuildingSaveData CaptureSaveData()
+    public SaveManager.BuildingSaveData CaptureSaveData()
     {
         var data = new SaveManager.BuildingSaveData
         {

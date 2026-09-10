@@ -473,7 +473,7 @@ public class ResourceManager : Singleton<ResourceManager>
         orderedStates.Insert(low, state);
     }
 
-    internal SaveManager.ResourceSaveData CaptureSaveData()
+    public SaveManager.ResourceSaveData CaptureSaveData()
     {
         var saveData = new SaveManager.ResourceSaveData
         {

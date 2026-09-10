@@ -36,7 +36,7 @@ The current milestone is playable content and gameplay correctness:
 1. keep static progression closure passing;
 2. investigate reproducible gameplay bugs in runtime code and current assets;
 3. complete and validate the active era's production, research, Workshop and progression loops;
-4. keep the existing offline simulator as a regression tool, without further strategy development;
+4. keep the deterministic parity simulator as a regression tool, without strategy search;
 5. fix pacing only after the corresponding gameplay behavior is correct in Unity.
 
 ## Required reading for content work
@@ -50,9 +50,9 @@ The current milestone is playable content and gameplay correctness:
 7. `docs/testing/content-balance-tests.md`
 8. current closure and simulation reports
 
-Current evidence is limited to `data/content-closure-static.md`, the files
-directly under `data/economy-simulation`, its `Fast`, `Normal`, and
-`Conservative` subdirectories, and `TestResults/Latest-Test-Errors.txt`.
+Current evidence is limited to `data/content-closure-static.md`, current parity
+facts under `data/economy-parity/` when present, and
+`TestResults/Latest-Test-Errors.txt`.
 Anything under `.codex/archive/` is recoverable historical material and must
 not be cited as current evidence. Dated iteration, round-audit, baseline,
 before/after snapshot directories, old exports, logs, and build intermediates
@@ -151,7 +151,7 @@ A new Building requires:
 - Static closure currently passes through Industrial; preserve it.
 - Offline pacing acceptance currently fails and remains diagnostic evidence, not the development focus.
 - Full gameplay behavior still requires Unity compilation, tests and direct runtime evidence.
-- Do not extend simulator strategies, route scoring or decision-trace features unless explicitly requested.
+- Do not extend simulator strategy search, route scoring or automatic decision features.
 - Do not use dated Kingdom5 audit blocker lists as current facts.
 
 ## Number rules

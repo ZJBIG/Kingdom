@@ -10,7 +10,8 @@ source.
 - `Assets/Tests/`: EditMode and PlayMode tests.
 - `docs/`: current architecture, balance, content, testing and UI guidance.
 - `tools/codex/`: project validation, closure and Unity test helpers.
-- `tools/EconomySimulator/`: frozen diagnostic simulator only.
+- `tools/NewEconomySimulator/`: deterministic economy parity harness and validation suite.
+- `data/economy-parity/`: current simulator-vs-Unity facts when reports are persisted.
 - `.codex/`: prompts and recoverable Codex metadata.
 
 For gameplay/content changes, the current repository and the canonical

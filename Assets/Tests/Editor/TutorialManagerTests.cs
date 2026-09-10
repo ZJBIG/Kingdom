@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 public sealed class TutorialManagerTests
@@ -296,24 +295,34 @@ public sealed class TutorialManagerTests
     [Test]
     public void SaveSessionVersionChangesOnlyWhenRuntimeProgressIsRestored()
     {
-        TutorialManager manager = TutorialManager.Ensure();
-        int initial = manager.SaveSessionVersion;
-
-        manager.RestoreSaveData(new SaveManager.TutorialSaveData
+        GameObject dependencyHost = new GameObject("Tutorial-SaveSession-Dependencies");
+        dependencyHost.AddComponent<ResourceManager>();
+        dependencyHost.AddComponent<GameManager>();
+        dependencyHost.AddComponent<BuildingManager>();
+        dependencyHost.AddComponent<ResearchManager>();
+        try
         {
-            ActiveStepId = "orientation"
-        }, TechLevel.Animal);
-        int restored = manager.SaveSessionVersion;
-        Assert.That(restored, Is.GreaterThan(initial));
+            TutorialManager manager = TutorialManager.Ensure();
+            int initial = manager.SaveSessionVersion;
 
-        LogAssert.Expect(LogType.Error,
-            "[Kingdom Onboarding] Required runtime managers are missing: GameManager ResourceManager BuildingManager ResearchManager");
-        manager.Evaluate();
-        Assert.That(manager.SaveSessionVersion, Is.EqualTo(restored),
-            "Tutorial step completion must not create a new save session.");
+            manager.RestoreSaveData(new SaveManager.TutorialSaveData
+            {
+                ActiveStepId = "orientation"
+            }, TechLevel.Animal);
+            int restored = manager.SaveSessionVersion;
+            Assert.That(restored, Is.GreaterThan(initial));
 
-        Invoke(manager, "ResetForNewGame");
-        Assert.That(manager.SaveSessionVersion, Is.GreaterThan(restored));
+            manager.Evaluate();
+            Assert.That(manager.SaveSessionVersion, Is.EqualTo(restored),
+                "Tutorial step completion must not create a new save session.");
+
+            Invoke(manager, "ResetForNewGame");
+            Assert.That(manager.SaveSessionVersion, Is.GreaterThan(restored));
+        }
+        finally
+        {
+            Object.DestroyImmediate(dependencyHost);
+        }
     }
 
     [Test]
