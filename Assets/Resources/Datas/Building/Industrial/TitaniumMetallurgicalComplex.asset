@@ -19,7 +19,7 @@ MonoBehaviour:
   upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.22"
   spaceCost: "28"
-  productivityConsumption: "12"
+  productivityConsumption: "95"
   productivityGranted: "0"
   populationCapacityGranted: "0"
   researchPowerGranted: "0"

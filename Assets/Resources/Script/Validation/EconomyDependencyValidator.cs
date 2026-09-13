@@ -15,6 +15,8 @@ public static class EconomyDependencyValidator
             return false;
         if (!ResearchValidator.ValidateNoCycles(researches, out error))
             return false;
+        if (!ValidateResearchEffects(researches, out error))
+            return false;
         if (!ValidateWorkshopPrerequisites(upgrades, out error))
             return false;
         if (!ValidateProductionGraph(resources, buildings, out error))
@@ -23,6 +25,27 @@ public static class EconomyDependencyValidator
             return false;
         if (!ValidateReleasedReachability(buildings, researches, upgrades, out error))
             return false;
+        error = string.Empty;
+        return true;
+    }
+
+    // 内容质量门槛：每条科研必须至少有一个真实效果，防止空效果节点合法通过。
+    private static bool ValidateResearchEffects(
+        IReadOnlyList<Research> researches,
+        out string error)
+    {
+        for (int i = 0; i < researches.Count; i++)
+        {
+            Research research = researches[i];
+            if (research == null)
+                continue;
+            if (research.Effects == null || research.Effects.Count == 0)
+            {
+                error = $"科研“{research.Id}”没有任何效果，必须至少声明一个真实效果。";
+                return false;
+            }
+        }
+
         error = string.Empty;
         return true;
     }

@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: "以幽影材料和钛合金构成低温量子系统，支撑深空测绘与理论研究。"
   TechLevel: 4
   upgradeTo: {fileID: 11400000, guid: 7f8e9d0c1b2a34567890abcdef123456, type: 2}
-  costGrowth: "1.28"
+  costGrowth: "1.2"
   spaceCost: "600"
   productivityConsumption: "900"
   researchPowerGranted: "500"

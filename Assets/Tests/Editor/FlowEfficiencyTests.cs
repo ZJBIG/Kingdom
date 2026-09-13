@@ -62,7 +62,8 @@ public sealed class FlowEfficiencyTests
             new ExpantaNum(-100),
             new ExpantaNum(10));
 
-        Assert.That(result, Is.EqualTo(new ExpantaNum(1d / 11d)));
+        // ExpantaNum 构造值会量化尾数，与公式结果只能按容差比较。
+        Assert.That(result.ToDouble(), Is.EqualTo(1d / 11d).Within(0.000001d));
     }
 
     [Test]

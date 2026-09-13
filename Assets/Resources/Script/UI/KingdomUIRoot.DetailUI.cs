@@ -230,7 +230,7 @@ public sealed partial class KingdomUIRoot
         iconRect.anchorMin = new Vector2(0f, .5f);
         iconRect.anchorMax = new Vector2(0f, .5f);
         iconRect.pivot = new Vector2(.5f, .5f);
-        iconRect.sizeDelta = new Vector2(48f, 48f);
+        iconRect.sizeDelta = new Vector2(56f, 56f);
         iconRect.anchoredPosition = new Vector2(30f, 0f);
         iconObject.GetComponent<Image>().raycastTarget = false;
 

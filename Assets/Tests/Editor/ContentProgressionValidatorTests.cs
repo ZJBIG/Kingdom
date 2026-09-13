@@ -4,37 +4,6 @@ using NUnit.Framework;
 
 public sealed class ContentProgressionValidatorTests
 {
-    private static readonly string[] ReleasedVerticalSliceResourceIds =
-    {
-        "WoodLog",
-        "StoneChunk",
-        "StoneBrick",
-        "Clay",
-        "Biomass",
-        "Ceramic",
-        "Cloth",
-        "Coal",
-        "CopperOre",
-        "TinOre",
-        "IronOre",
-        "Copper",
-        "Tin",
-        "Iron",
-        "Bronze",
-        "Steel",
-        "Chemical",
-        "Machinery",
-        "Electronics",
-        "CrudeOil",
-        "Coke",
-        "Glass",
-        "RefinedFuel",
-        "Lubricant",
-        "Rubber",
-        "CopperWire",
-        "Engine"
-    };
-
     [Test]
     public void MainProgression_ReachesMedievalWithoutInjectedResources()
     {
@@ -52,13 +21,13 @@ public sealed class ContentProgressionValidatorTests
     [Test]
     public void EveryReleasedResource_HasSourceAndSink()
     {
+        // 不再传入硬编码清单：审计覆盖全部已定义资源，新增资源自动纳入检查。
         ProgressionAuditResult result = ContentProgressionAudit.Run(
             DataBase<Resource>.All,
             DataBase<Building>.All,
             DataBase<Research>.All,
             new[] { "WoodLog" },
-            TechLevel.Animal,
-            ReleasedVerticalSliceResourceIds);
+            TechLevel.Animal);
 
         Assert.That(result.ResourcesWithoutSource, Is.Empty,
             string.Join("\n", result.ResourcesWithoutSource));

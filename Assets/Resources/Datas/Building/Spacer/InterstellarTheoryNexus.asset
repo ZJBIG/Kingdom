@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: "量子计算阵列的后段升级，集中承载引力通信、物质嬗变和深空时间同步等研究，为当前星际阶段提供更高的长期研究产能。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
-  costGrowth: "1.3"
+  costGrowth: "1.2"
   spaceCost: "900"
   productivityConsumption: "1600"
   researchPowerGranted: "900"

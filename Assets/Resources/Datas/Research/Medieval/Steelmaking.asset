@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Steelmaking
   Label: "\u70BC\u94A2\u4E0E\u51B6\u91D1\u6807\u51C6"
   Description: "\u6574\u5408\u7089\u6E29\u63A7\u5236\u3001\u70BC\u94A2\u3001\u5408\u91D1\u914D\u6BD4\u3001\u8D28\u91CF\u68C0\u9A8C\u548C\u51B6\u91D1\u6807\u51C6\uFF0C\u5EFA\u7ACB\u7A33\u5B9A\u7684\u94A2\u94C1\u751F\u4EA7\u4F53\u7CFB\u3002"
-  BaseCost: "18144"
+  BaseCost: "181440"
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
   - {fileID: 11400000, guid: 3b4ee5c3fc07b4a4099bc994f2cb1a8c, type: 2}

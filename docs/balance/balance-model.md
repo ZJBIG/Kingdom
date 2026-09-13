@@ -89,3 +89,14 @@ Food 是唯一有容量的库存。
 - Ultra/Archotech：再逐步进入更高层级
 
 这些只是量级方向。`NewEconomySimulator` 只输出快照、事件和首个差异，不能替代 Unity 运行时或玩家实玩结果；不得以 parity 输出作为当前节奏、平衡或内容决策依据。最终以真实 Unity 运行时、PlayMode 回归和玩家实玩证据为准。
+
+## 8. 时代折算带（批次 2 静态对账推导，暂定）
+
+第 1-7 节的回本/研究带来自早期时代口径；静态对账（`CONTENTADVISE/batch2-payback-and-duration-table.md`）表明 TL3/TL4 缺少可比带。以下折算带用于后续 TL3/TL4 调参定案，**均为静态推算的暂定值，必须经 Unity 运行时与实玩校准后才能作为最终门槛**：
+
+- 回本（首份，时代折算）：原料建筑 5-15min；加工建筑 15-40min
+- 科研单条等待：10-60min
+- 时代门节点：0.5-3h，或按"门时长≈上一时代总量的 10-20%"重推
+- Spacer 尾盘（最后 4 条）合计控制在 1-2 天内
+
+已按此口径落地的首批调整：快侧四条科研（MechanicalEngineering/Steelmaking/SteamPower/IndustrialWorkshop）成本 ×10 归入 2-5min 目标带；快侧补充观察项（Farm、IrrigationWorks、CeramicKiln、Lumberyard 偏快，TL1 科研 13/16 条偏低）与 Spacer 全量重定标仍待运行时证据定案。

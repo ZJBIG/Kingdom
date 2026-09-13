@@ -80,12 +80,12 @@ public sealed class EarlyVerticalSlicePacingTests
             double.Parse(
                 DataBase<Research>.Find("Steelmaking").BaseCost,
                 System.Globalization.CultureInfo.InvariantCulture),
-            Is.EqualTo(18144d));
+            Is.EqualTo(181440d));
         Assert.That(
             double.Parse(
                 DataBase<Research>.Find("MechanicalEngineering").BaseCost,
                 System.Globalization.CultureInfo.InvariantCulture),
-            Is.EqualTo(13392d));
+            Is.EqualTo(133920d));
     }
 
     private static void AssertRate(string buildingId, string resourceId, double expected)

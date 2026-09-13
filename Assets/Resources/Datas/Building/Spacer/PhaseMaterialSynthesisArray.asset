@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: "以幽影合金和幽影纤维为核心原料，使用钛合金、镍与电子元件维持高能场约束，缓慢合成可用于相位航行与量子设施的相位材料。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
-  costGrowth: "1.26"
+  costGrowth: "1.17"
   spaceCost: "520"
   productivityConsumption: "480"
   productivityGranted: "0"
@@ -53,7 +53,7 @@ MonoBehaviour:
     amount: "4000"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
-    amount: "0.008"
+    amount: "0.08"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
     amount: "0.11"

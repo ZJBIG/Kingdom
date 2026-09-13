@@ -166,9 +166,18 @@ public sealed class SectorBuildingTests
         ResearchManager researchManager =
             CreateManager<ResearchManager>("SectorBuilding-ResearchManager");
         CreateManager<WorkshopManager>("SectorBuilding-WorkshopManager");
-        SaveManager saveManager = CreateManager<SaveManager>("SectorBuilding-SaveManager");
-        SectorBuilding building = Resources.Load<SectorBuilding>(
-            "Datas/Building/Spacer/EarthMoonLogisticsHub");
+            SaveManager saveManager = CreateManager<SaveManager>("SectorBuilding-SaveManager");
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string saveRoot = Path.Combine(
+                projectRoot,
+                "Temp",
+                "SectorBuildingInvalidSave-" + System.Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(saveRoot);
+            SaveManager.SetSaveRootOverrideForTests(saveRoot);
+            // 生产环境里 SaveNow 只在 Bootstrap（载入或新建存档）之后可用；隔离根保证从新游戏开始。
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            SectorBuilding building = Resources.Load<SectorBuilding>(
+                "Datas/Building/Spacer/EarthMoonLogisticsHub");
         SectorState moon = gameManager.Sectors.GetState(building.Sector);
 
         AdvanceToSpacer(gameManager);
@@ -181,6 +190,7 @@ public sealed class SectorBuildingTests
             Is.False);
         Assert.That(unoccupiedFailure, Is.EqualTo(BuildFailure.SectorNotOccupied));
 
+        moon.SetUnlockedForEditor(true);
         moon.SetOccupiedForEditor(true);
         ExpantaNum territoryUsed = gameManager.State.TerritoryUsed;
         ExpantaNum territoryAvailable = gameManager.State.AvailableTerritory;
@@ -211,15 +221,8 @@ public sealed class SectorBuildingTests
             Is.True);
         Assert.That(rebuildFailure, Is.EqualTo(BuildFailure.None));
 
-        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-        string saveRoot = Path.Combine(
-            projectRoot,
-            "Temp",
-            "SectorBuildingInvalidSave-" + System.Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(saveRoot);
         try
         {
-            SaveManager.SetSaveRootOverrideForTests(saveRoot);
             Assert.That(saveManager.SaveNow(true), Is.True);
 
             moon.SetOccupiedForEditor(false);
@@ -240,6 +243,16 @@ public sealed class SectorBuildingTests
             if (Directory.Exists(saveRoot))
                 Directory.Delete(saveRoot, true);
         }
+    }
+
+    [Test]
+    public void EarthMoonLogisticsHubStaysUniqueUntilCostGrowthIsFixed()
+    {
+        SectorBuilding hub = Resources.Load<SectorBuilding>(
+            "Datas/Building/Spacer/EarthMoonLogisticsHub");
+        Assert.That(hub, Is.Not.Null);
+        // costGrowth=1.01 接近线性：放开 maxAmount 会变成近平价无限复制，须先修 growth。
+        Assert.That(hub.MaxAmount, Is.EqualTo(1));
     }
 
     private T CreateManager<T>(string name) where T : Component
@@ -267,7 +280,36 @@ public sealed class SectorBuildingTests
     private static void CompleteResearch(ResearchManager manager, string id)
     {
         EnsureInitialized(manager);
-        ResearchState state = manager.GetState(DataBase<Research>.Find(id));
+        CompleteResearchWithPrerequisites(manager, DataBase<Research>.Find(id));
+    }
+
+    private static void CompleteResearchWithPrerequisites(
+        ResearchManager manager, Research research)
+    {
+        ResearchState state = manager.GetState(research);
+        if (state.Status == ResearchStatus.Completed)
+            return;
+        for (int i = 0; i < research.Prerequisites.Count; i++)
+        {
+            Research prerequisite = research.Prerequisites[i];
+            if (prerequisite != null)
+                CompleteResearchWithPrerequisites(manager, prerequisite);
+        }
+        // 完成态科研的存档必须携带完整支付台账与连贯的完成前置集，否则还原校验会拒绝该存档。
+        ResourceManager resourceManager = UnityEngine.Object.FindObjectOfType<ResourceManager>();
+        Assert.That(resourceManager, Is.Not.Null);
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+            state.Definition.ResourceRequirements;
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            if (requirement.First != null && requirement.Second > ExpantaNum.Zero)
+                resourceManager.AddAmount(requirement.First, requirement.Second);
+        }
+        Assert.That(
+            ResearchManager.TryPayResearchCost(state),
+            Is.True,
+            $"{research.Id} 的科研成本必须可支付，保存的支付台账才有效。");
         MethodInfo method = typeof(ResearchState).GetMethod(
             "SetStatus", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);

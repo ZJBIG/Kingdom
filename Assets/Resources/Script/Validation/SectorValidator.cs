@@ -5,6 +5,8 @@ public static class SectorValidator
 {
     private static readonly ExpantaNum MinimumInterstellarTerritoryReward =
         new ExpantaNum(100000d);
+    private static readonly ExpantaNum MinimumInterstellarResourceReward =
+        new ExpantaNum(1000000d);
     // 战役进度的极限速度约为 multiplier / 30，远星战役至少应持续半小时。
     private static readonly ExpantaNum MaximumInterstellarProgressMultiplier =
         new ExpantaNum(1d / 60d);
@@ -107,6 +109,23 @@ public static class SectorValidator
         if (sector.TerritoryReward < MinimumInterstellarTerritoryReward)
         {
             error = $"星际战役验证失败：'{sector.Id}' 的领土回报必须至少为 100000。";
+            return false;
+        }
+
+        // 后期战役奖励必须足以补偿长距离补给投入，防止出现琐碎奖励的合法定义。
+        ExpantaNum totalResourceReward = ExpantaNum.Zero;
+        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = sector.ResourceRewards;
+        if (rewards != null)
+        {
+            for (int i = 0; i < rewards.Count; i++)
+            {
+                if (rewards[i].First != null)
+                    totalResourceReward += rewards[i].Second;
+            }
+        }
+        if (totalResourceReward < MinimumInterstellarResourceReward)
+        {
+            error = $"星际战役验证失败：'{sector.Id}' 的资源奖励总量必须至少为 1000000。";
             return false;
         }
 
