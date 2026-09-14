@@ -91,6 +91,9 @@ mono_crash.*
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Probe fixtures are never deliverables or project skill entries.
+/outputs/probe-test-*/
+
 # TestRunner generated files
 InitTestScene*.unity*
 [Tt]est[Rr]esults/

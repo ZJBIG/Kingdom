@@ -1,9 +1,12 @@
 # Kingdom tools
 
-This directory contains non-runtime tools. Normal gameplay development usually does not require these files.
+Non-runtime tooling. Start with root `AGENTS.md` and the project-dev router before
+selecting a command. Exact parameters, write effects, isolation and validation
+choices live only in `.agents/skills/kingdom-project-dev/references/validation.md`.
 
-- `NewEconomySimulator/`: deterministic, Unity-aligned economy parity harness.
-- `content-dependency/`: offline Resource/Building/Research closure analyzer.
+- `codex/`: repository validation wrappers, content-closure entry and read-only project probe.
+- `NewEconomySimulator/`: deterministic diagnostic harness; its README documents implementation architecture, not gameplay acceptance.
+- `Assets/Editor/`: Unity-discovered editor menus, migration and validation code (outside this directory).
 
-Unity-integrated editor scripts remain under `Assets/Editor` so Unity can discover their menus. Project-specific Unity validation scripts remain under `tools/codex` because the repository guidance invokes those paths directly.
-The repository also includes `content-dependency/ContentDependencyAnalyzer.ps1` for static content dependency checks. New simulator validation is diagnostic only; Unity runtime and PlayMode evidence remain authoritative. Current parity reports, when persisted, belong under `data/economy-parity/`.
+Do not assume a tool is read-only from its name. Check its current implementation;
+fixture/self-tests do not prove real Unity parity or pacing acceptance.

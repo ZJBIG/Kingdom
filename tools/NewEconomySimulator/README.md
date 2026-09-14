@@ -29,14 +29,16 @@ The deterministic, ordinary-resource, and Food checks run through `SimulationCor
 
 ## Run
 
-The project intentionally remains a library. `Program.cs` is a .NET 10 file-based entry point, so no project-file change is required.
+Start through root `AGENTS.md` and the project-dev router. The canonical command,
+prerequisites and side effects are documented in
+`.agents/skills/kingdom-project-dev/references/validation.md`; do not keep another
+command recipe here.
 
-```powershell
-dotnet run --project .\tools\NewEconomySimulator\NewEconomySimulator.csproj
-dotnet run --project .\tools\NewEconomySimulator\NewEconomySimulator.csproj -- --json
-```
-
-The process exits with code `0` only when all five checks execute and pass. Markdown is the default output; pass `--json` for machine-readable output.
+The current csproj is a `net9.0` executable, not a library or a .NET 10 file-based
+app. `Program.cs` calls `ValidationSuite.RunCore()` and exits with `0` only when
+`report.Passed` is true. Output is Markdown by default; `--json` selects JSON and
+`--csv` takes precedence when both flags are present. Check current suite coverage
+rather than treating the historical five-check list as the total test count.
 
 ## Boundaries
 

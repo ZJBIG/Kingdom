@@ -46,4 +46,4 @@ Food 是唯一有库存上限的资源；普通资源不引入容量或仓库系
 3. Animal → StoneAge → MiddleAge → Industrial 的无作弊流程。
 4. Android ARM64 构建和 Huawei P40 Pro 横屏体验。
 
-离线模拟器仅保留历史诊断用途，不用于替代 Unity 运行时证据或调节当前经济数值。
+离线模拟器按经济技能用于确定性回归诊断，不用于策略搜索、替代 Unity 运行时证据或调节当前经济数值。

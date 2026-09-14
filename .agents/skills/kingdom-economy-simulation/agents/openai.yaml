@@ -1,7 +1,7 @@
 interface:
-  display_name: "Kingdom Economy Simulation"
-  short_description: "Validate Kingdom gameplay economy, content closure, parity, and pacing"
-  default_prompt: "Use $kingdom-economy-simulation and .codex/prompts/CODEX_ECONOMY_PROMPT.md. Prioritize reproducible gameplay bugs and content loops; validate strict Resource/Building/Research/Workshop input, runtime parity, closure, Unity behavior, and relevant pacing regressions before changing economy data."
+  display_name: "Kingdom Content and Economy"
+  short_description: "Design playable content and validate closure, transactions and runtime evidence"
+  default_prompt: "Start with AGENTS.md and .agents/skills/kingdom-project-dev/SKILL.md, then select the content/economy branch and follow this skill. Do not reload unchanged entries already read in this task."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

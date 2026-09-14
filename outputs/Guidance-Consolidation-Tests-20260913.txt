@@ -1,0 +1,761 @@
+test_actual_symlink_if_os_permits (__main__.ProjectProbeTests.test_actual_symlink_if_os_permits) ... FAIL
+test_actual_symlink_if_os_permits (__main__.ProjectProbeTests.test_actual_symlink_if_os_permits) ... ERROR
+test_cleanup_cannot_remove_unowned_directory (__main__.ProjectProbeTests.test_cleanup_cannot_remove_unowned_directory) ... ok
+test_cleanup_residue_fails_instead_of_passing (__main__.ProjectProbeTests.test_cleanup_residue_fails_instead_of_passing) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-ykg8xlj7\\docs\\architecture\\ui-boundaries.md"],"targetCount":1}
+ERROR
+test_domain_skill_frontmatter_is_checked (__main__.ProjectProbeTests.test_domain_skill_frontmatter_is_checked) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-dbi9gk3n\\AGENTS.md"],"targetCount":1}
+ERROR
+test_fingerprint_changes_with_source (__main__.ProjectProbeTests.test_fingerprint_changes_with_source) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-2jbkk5_s\\AGENTS.md"],"targetCount":1}
+ERROR
+test_fingerprint_stays_stable (__main__.ProjectProbeTests.test_fingerprint_stays_stable) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-2qokm62y\\AGENTS.md"],"targetCount":1}
+ERROR
+test_fixture_cleanup_really_removes_tree (__main__.ProjectProbeTests.test_fixture_cleanup_really_removes_tree) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-d6as817_\\isolated\\probe-test-owned\\child\\item.txt"],"targetCount":1}
+ERROR
+[safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-d6as817_\\AGENTS.md"],"targetCount":1}
+test_fixture_cleanup_really_removes_tree (__main__.ProjectProbeTests.test_fixture_cleanup_really_removes_tree) ... ERROR
+test_fixture_leak_is_reported (__main__.ProjectProbeTests.test_fixture_leak_is_reported) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-b1awqpny\\AGENTS.md"],"targetCount":1}
+ERROR
+test_generated_directories_are_excluded (__main__.ProjectProbeTests.test_generated_directories_are_excluded) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-qdnxa0zq\\AGENTS.md"],"targetCount":1}
+ERROR
+test_inventory_does_not_write (__main__.ProjectProbeTests.test_inventory_does_not_write) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-ynn044aq\\AGENTS.md"],"targetCount":1}
+ERROR
+test_link_check_precedes_target_existence (__main__.ProjectProbeTests.test_link_check_precedes_target_existence) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-kdn_u7m3\\AGENTS.md"],"targetCount":1}
+ERROR
+test_link_policy_without_os_privilege (__main__.ProjectProbeTests.test_link_policy_without_os_privilege) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-8uy7v3no\\AGENTS.md"],"targetCount":1}
+ERROR
+test_linked_output_is_rejected (__main__.ProjectProbeTests.test_linked_output_is_rejected) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-n7ul8o5v\\AGENTS.md"],"targetCount":1}
+ERROR
+test_malformed_frontmatter_fails (__main__.ProjectProbeTests.test_malformed_frontmatter_fails) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-0h_xdk4q\\AGENTS.md"],"targetCount":1}
+ERROR
+test_missing_evidence_is_not_passing (__main__.ProjectProbeTests.test_missing_evidence_is_not_passing) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-na4k7ini\\AGENTS.md"],"targetCount":1}
+ERROR
+test_missing_project_contract_fails (__main__.ProjectProbeTests.test_missing_project_contract_fails) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-70ej0ff3\\Assets\\Tests\\AGENTS.md"],"targetCount":1}
+ERROR
+[safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-70ej0ff3\\AGENTS.md"],"targetCount":1}
+test_missing_project_contract_fails (__main__.ProjectProbeTests.test_missing_project_contract_fails) ... ERROR
+test_missing_skill_reference_fails (__main__.ProjectProbeTests.test_missing_skill_reference_fails) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-smjktxd1\\.agents\\skills\\kingdom-project-dev\\references\\validation.md"],"targetCount":1}
+ERROR
+[safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-smjktxd1\\AGENTS.md"],"targetCount":1}
+test_missing_skill_reference_fails (__main__.ProjectProbeTests.test_missing_skill_reference_fails) ... ERROR
+test_oversized_file_is_not_read (__main__.ProjectProbeTests.test_oversized_file_is_not_read) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-a59a_t5p\\AGENTS.md"],"targetCount":1}
+ERROR
+test_paths_cannot_escape (__main__.ProjectProbeTests.test_paths_cannot_escape) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-xw7ot_nt\\AGENTS.md"],"targetCount":1}
+ERROR
+test_read_failure_is_visible (__main__.ProjectProbeTests.test_read_failure_is_visible) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-hmi0_jqx\\AGENTS.md"],"targetCount":1}
+ERROR
+test_retired_skill_is_rejected (__main__.ProjectProbeTests.test_retired_skill_is_rejected) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-7gdy41_1\\AGENTS.md"],"targetCount":1}
+ERROR
+test_unc_root_is_rejected_before_filesystem_access (__main__.ProjectProbeTests.test_unc_root_is_rejected_before_filesystem_access) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-0g3mhwm9\\AGENTS.md"],"targetCount":1}
+ERROR
+test_utf8_and_json_cli (__main__.ProjectProbeTests.test_utf8_and_json_cli) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-jxsl0w4a\\AGENTS.md"],"targetCount":1}
+ERROR
+test_valid_root (__main__.ProjectProbeTests.test_valid_root) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-a2zpk9ql\\AGENTS.md"],"targetCount":1}
+ERROR
+test_wrong_root_is_rejected (__main__.ProjectProbeTests.test_wrong_root_is_rejected) ... [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-_y8smt6c\\AGENTS.md"],"targetCount":1}
+ERROR
+
+======================================================================
+ERROR: test_actual_symlink_if_os_permits (__main__.ProjectProbeTests.test_actual_symlink_if_os_permits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1167, in _safe_path_unlink
+    return _orig_path_unlink(self, missing_ok=missing_ok)  # 抛 IsADirectoryError
+  File "C:\Users\19603\.workbuddy-ai\binaries\python\versions\3.13.12\Lib\pathlib\_local.py", line 746, in unlink
+    os.unlink(self)
+    ~~~~~~~~~^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1092, in _safe_remove
+    return _orig_remove(path)  # 让原生抛 EISDIR / EPERM
+PermissionError: [WinError 5] 拒绝访问。: 'D:\\GitHub\\Kingdom\\.codex\\archive\\probe-test-ov9vp7uj\\Assets\\linked-scope'
+
+======================================================================
+ERROR: test_cleanup_residue_fails_instead_of_passing (__main__.ProjectProbeTests.test_cleanup_residue_fails_instead_of_passing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_domain_skill_frontmatter_is_checked (__main__.ProjectProbeTests.test_domain_skill_frontmatter_is_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_fingerprint_changes_with_source (__main__.ProjectProbeTests.test_fingerprint_changes_with_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_fingerprint_stays_stable (__main__.ProjectProbeTests.test_fingerprint_stays_stable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_fixture_cleanup_really_removes_tree (__main__.ProjectProbeTests.test_fixture_cleanup_really_removes_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 198, in test_fixture_cleanup_really_removes_tree
+    remove_owned_fixture(owned, parent)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_fixture_cleanup_really_removes_tree (__main__.ProjectProbeTests.test_fixture_cleanup_really_removes_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_fixture_leak_is_reported (__main__.ProjectProbeTests.test_fixture_leak_is_reported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_generated_directories_are_excluded (__main__.ProjectProbeTests.test_generated_directories_are_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_inventory_does_not_write (__main__.ProjectProbeTests.test_inventory_does_not_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_link_check_precedes_target_existence (__main__.ProjectProbeTests.test_link_check_precedes_target_existence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_link_policy_without_os_privilege (__main__.ProjectProbeTests.test_link_policy_without_os_privilege)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_linked_output_is_rejected (__main__.ProjectProbeTests.test_linked_output_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_malformed_frontmatter_fails (__main__.ProjectProbeTests.test_malformed_frontmatter_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_missing_evidence_is_not_passing (__main__.ProjectProbeTests.test_missing_evidence_is_not_passing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_missing_project_contract_fails (__main__.ProjectProbeTests.test_missing_project_contract_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 136, in test_missing_project_contract_fails
+    (self.root / "Assets/Tests/AGENTS.md").unlink()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_missing_project_contract_fails (__main__.ProjectProbeTests.test_missing_project_contract_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_missing_skill_reference_fails (__main__.ProjectProbeTests.test_missing_skill_reference_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 128, in test_missing_skill_reference_fails
+    (self.root / probe.SKILL_ROOT / "references/validation.md").unlink()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_missing_skill_reference_fails (__main__.ProjectProbeTests.test_missing_skill_reference_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_oversized_file_is_not_read (__main__.ProjectProbeTests.test_oversized_file_is_not_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_paths_cannot_escape (__main__.ProjectProbeTests.test_paths_cannot_escape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_read_failure_is_visible (__main__.ProjectProbeTests.test_read_failure_is_visible)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_retired_skill_is_rejected (__main__.ProjectProbeTests.test_retired_skill_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_unc_root_is_rejected_before_filesystem_access (__main__.ProjectProbeTests.test_unc_root_is_rejected_before_filesystem_access)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_utf8_and_json_cli (__main__.ProjectProbeTests.test_utf8_and_json_cli)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_valid_root (__main__.ProjectProbeTests.test_valid_root)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+ERROR: test_wrong_root_is_rejected (__main__.ProjectProbeTests.test_wrong_root_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 39, in remove_owned_fixture
+    path.unlink()
+    ~~~~~~~~~~~^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 1168, in _safe_path_unlink
+    _try_trash(abs_path)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 967, in _try_trash
+    _check_bulk_delete_guard(abs_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 851, in _check_bulk_delete_guard
+    _exit_bulk_guard_control(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        result.stderr.strip()
+        ^^^^^^^^^^^^^^^^^^^^^
+        or "[safe-delete][SAFE_DELETE_BULK_GUARD_ERROR] exit %d" % result.returncode
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\WorkBuddyAI\resources\app.asar.unpacked\cli\vendor\shim\sitecustomize.py", line 826, in _exit_bulk_guard_control
+    raise SystemExit(1)
+SystemExit: 1
+
+======================================================================
+FAIL: test_actual_symlink_if_os_permits (__main__.ProjectProbeTests.test_actual_symlink_if_os_permits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\GitHub\Kingdom\tools\codex\test_kingdom_project_probe.py", line 234, in test_actual_symlink_if_os_permits
+    self.assertTrue(any(x["path"] == "Assets/linked-scope" for x in result["skipped"]))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 25 tests in 96.654s
+
+FAILED (failures=1, errors=27)

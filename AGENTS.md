@@ -1,201 +1,43 @@
 # Kingdom repository instructions
 
-## Code constraints
+## 项目与规则来源
 
-- 禁止使用反射（包括 `System.Reflection`、`BindingFlags`、运行时 `Invoke`、`Activator` 等）。新增代码和测试必须使用公开的强类型 API；历史测试中的既有反射调用不作为新增实现范例。
+- Unity 版本以 `ProjectSettings/ProjectVersion.txt` 为准（2022.3.62f3c1）；主场景 `Assets/Scenes/SampleScene.unity`，目标 Huawei P40 Pro 横屏。
+- 当前源码/资产决定实现事实；本文件及就近 scoped AGENTS 规定硬约束。细化流程按下表加载，历史审计和缓存不能覆盖当前事实。
+- 规范技能位于 `.agents/skills/`，可执行辅助工具位于 `tools/codex/`；`.codex/` 保存续接入口、交接和可恢复归档。
+- `.workbuddy-ai/skills/kingdom-project-dev/SKILL.md` 仅为客户端适配入口。文件存在不等于自动注册/触发已验证；没有可调用入口时直接读取规范技能，不声称已激活。
 
-## Repository identity
+## 唯一工作入口
 
-- Repository: `Kingdom`
-- Audited baseline: `Kingdom5.7z`
-- Baseline date: `2026-07-25`
-- Unity Editor: `2022.3.62f3c1`
-- Primary scene: `Assets/Scenes/SampleScene.unity`
-- Target device: Huawei P40 Pro, landscape mobile build
-- Source of truth: current repository, then `.codex/prompts/CODEX_ECONOMY_PROMPT.md`, then current generated reports and `docs/`.
-- Codex layout: keep the discovery entry `AGENTS.md`, project skills under
-  `.agents/skills/`, and executable project helpers under `tools/codex/`.
-  Store Codex-only prompts, archive metadata, and recoverable historical
-  outputs under `.codex/`.
+所有仓库任务先读本文件，再进入 `.agents/skills/kingdom-project-dev/SKILL.md` 的“按任务读取”表。该表是唯一任务路由；只加载本轮相关领域，不默认通读所有技能、架构、审计和历史交接。
 
-## Continuous handoff log
+本文件维护全局硬约束，就近 scoped AGENTS 只补充目录约束；详细规则归属见主技能 `references/guidance-maintenance.md`。README、客户端适配、旧规则文档和经济prompt只作指针，不维护第二套路由或正文。已读入口不反复加载；直接命中领域技能时，先经过主入口完成范围检查，再返回该领域。不得另建重复经济技能。
 
-- Ongoing or resumed tasks must read the current report under `.codex/handoffs/` before changing related files.
-- Every implementation task must update its handoff report before ending, recording the files and behavior changed, validation performed, remaining risks or unfinished work, and the next concrete action.
-- Continue the existing task report instead of creating disconnected reports for repeated work on the same feature.
-- Preserve user-owned worktree changes and distinguish them from changes made for the active task.
+## 不可退化的约束
 
-Historical Kingdom3/Kingdom4 audits are context only and must not override current code.
+- 禁止在新增代码和测试中使用反射，包括 `System.Reflection`、`BindingFlags`、反射式运行时 `Invoke`、`Activator`；使用公开强类型API或DTO，不照抄历史反射测试。
+- 保留 Runtime State 的唯一可变权威：Manager校验并修改State，UI只绑定和发命令；不重做BigNumber、Pair、State/Manager/UI拆分或稳定ID迁移。
+- 保留 `.meta`、GUID、稳定ID和序列化兼容，优先Editor迁移；任何授权字段外的变化必须另行确认。
+- Food是唯一可封顶库存。普通资源不得增加容量、MaxAmount、仓储或隐藏截断；不恢复workforce。合法的建筑数量限制不等于资源库存容量。
+- 建造/拆除/研究/工坊交易先全量校验再提交，失败不得部分修改；研究全额支付后才推进。库存不得为负，满足率按tick实际可用量计算。
+- 建筑成本使用几何增长，批量购买使用闭式ExpantaNum扩展；不把UI/玩法便捷API塞入数学层，不提前引入不合时代内容的极端记数法。
+- 固定UI必须创作于Scene/Prefab；运行时只绑定数据、状态和事件，不硬造固定层级、尺寸或文案。仅数据驱动重复内容与已记录的必要兼容回退例外；完整交互门槛见UI技能。
+- 数值断言默认使用关系、范围或容差。仅离散计数、协议常量、稳定ID、枚举/版本或存档兼容字段等语义上要求精确时可精确比较，并说明原因；计算值不为方便而写死相等。
 
-## Current milestone
+## 当前开发方向与验证底线
 
-Core numeric/runtime/save/UI foundations largely exist. Do not redo BigNumber, Pair, Runtime State, Manager/UI split or stable-ID migrations.
+优先修复可复现玩法问题，保持已有Industrial主线静态闭合，完成当前时代生产/研究/工坊闭环；对应行为在Unity正确后再调整节奏。基础系统已存在，不根据旧Kingdom3/4/5审计重建。
 
-The current milestone is playable content and gameplay correctness:
+- 内容/经济定义修改前运行静态闭包和离线确定性诊断，修改后重跑，并完成定义/source-sink/可达性检查、Unity编译、EditMode、相关非零PlayMode和Console；详细顺序与设计门槛见经济技能。
+- 模拟器只作确定性回归。禁止扩展策略搜索、路线评分、自动决策或自动调参；不得把fixture自测/离线报告说成真实Unity或节奏验收。
+- 编译失败、相关parity失败或主线不可达时，不进入下一内容里程碑、不盲调资产。纯技能/文档整理不需强行运行Unity。
+- 当前证据入口：`data/content-closure-static.md`、存在时的 `data/economy-parity/`、`TestResults/Latest-Test-Errors.txt`；核对时间、输入版本和实际日志，而非只看文件名。
+- 旧日期XML、pacing、基线、历史快照和 `.codex/archive/` 只作背景。不要在长期规则里固定“当前通过数/零用例/失败列表”。零项目测试、跳过关键行为或无对应日志不能验收。
+- 未执行真实Unity编译时明确写：`未执行真实 Unity 编译。`
 
-1. keep static progression closure passing;
-2. investigate reproducible gameplay bugs in runtime code and current assets;
-3. complete and validate the active era's production, research, Workshop and progression loops;
-4. keep the deterministic parity simulator as a regression tool, without strategy search;
-5. fix pacing only after the corresponding gameplay behavior is correct in Unity.
+## 工作树、交接与安全
 
-## Required reading for content work
-
-1. `.codex/prompts/CODEX_ECONOMY_PROMPT.md`
-2. `.agents/skills/kingdom-content-expansion/SKILL.md`
-3. `.agents/skills/kingdom-economy-simulation/SKILL.md`
-4. `docs/balance/no-resource-caps.md`
-5. `docs/balance/balance-model.md`
-6. `docs/content/progression-roadmap.md`
-7. `docs/testing/content-balance-tests.md`
-8. current closure and simulation reports
-
-Current evidence is limited to `data/content-closure-static.md`, current parity
-facts under `data/economy-parity/` when present, and
-`TestResults/Latest-Test-Errors.txt`.
-Anything under `.codex/archive/` is recoverable historical material and must
-not be cited as current evidence. Dated iteration, round-audit, baseline,
-before/after snapshot directories, old exports, logs, and build intermediates
-are historical artifacts.
-9. the nearest scoped `AGENTS.md`
-
-Use:
-
-- `kingdom-content-expansion` for gameplay, balance and progression;
-- `kingdom-economy-simulation` is mandatory for any Research, Resource, Building,
-  TechLevel, Workshop, production, consumption, economy, reachability, pacing or
-  balance task. Run the static closure check and offline simulator before changing
-  definitions.
-- the nearest scoped `AGENTS.md` plus `docs/architecture/runtime-state.md`,
-  `docs/architecture/serialized-pairs.md`, and
-  `docs/architecture/ui-boundaries.md` for State/Manager/save/simulation
-  correctness;
-- `kingdom-ui-redesign` for visual/UI work.
-
-For Research UI work, `kingdom-ui-redesign` is the source of truth for the
-ResearchTreeSK reference path, integer-grid layout, shared bus connectors,
-independent touch dragging (including a raycastable background drag surface),
-measured scroll bounds, and legacy UI isolation.
-The graph's integer rows use ResearchTreeSK's top-left coordinate convention;
-nodes and connector parts must share one explicit conversion to Unity's
-bottom-left RectTransform space.
-Research nodes must forward drag lifecycle events to the graph gesture owner
-so a Button cannot swallow a drag that starts on a node; short release remains
-a click. Log measured overflow per axis before claiming vertical scrolling.
-Also log the topology decision and duplicate/backward-edge/inversion counts;
-an asset-grid fallback must be explainable from those counts.
-Do not claim those behaviors from static intent alone; require runtime logs.
-The dedicated PlayMode audit is
-`ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping`; it must
-report 79 unique node cells, positive viewport/content bounds, and actual
-content movement before graph interaction is considered verified.
-The active CanvasScaler is part of that contract: ScaleWithScreenSize,
-2640x1200 reference resolution, Match Width; ConstantPixelSize is forbidden.
-
-Non-essential UI components must be authored in the relevant Scene or Prefab.
-Runtime code may find existing components and bind data, state, and events, but
-must not hard-code their visual hierarchy, dimensions, labels, or create them at
-runtime. Runtime generation is reserved for genuinely data-driven repeated
-content (such as research nodes and connector segments) or an explicitly
-documented fallback that is required for compatibility.
-
-The canonical economy skill is `.agents/skills/kingdom-economy-simulation/SKILL.md`.
-Do not use a duplicate economy skill under `.agents/skills`.
-
-## Non-negotiable economy rule
-
-Food is the only capped stockpile.
-
-Do not add capacity, MaxAmount or storage buildings for ordinary resources. Use geometric costs, production chains, research, productivity, territory, power, logistics and combat as progression gates. Do not reintroduce workforce.
-
-## Long-term content decisions
-
-- Before adding content, check whether an existing Research, Workshop, Building
-  or Resource can take the role. Prefer completing missing connections between
-  existing definitions over adding parallel content.
-- After entering Spacer, do not add an orbital replacement factory for each
-  industrial resource. Keep lower-era industry valuable through building
-  upgrades, Workshops, Research and higher efficiency.
-- Sector long-term output must not replace player-built advanced production.
-  Sectors primarily provide territory, raw materials, one-time loot and limited
-  strategic resource flows rather than becoming the unlimited main source of
-  advanced processed materials.
-- Whenever population capacity increases, estimate
-  `PopulationCapacity * FoodConsumptionPerPerson` at full load and verify that
-  a reasonable number of same-era Food producers can support it.
-
-## Content quality gates
-
-A new Resource requires:
-
-- stable ID;
-- source;
-- at least two sinks or one strategic sink;
-- reachable unlock path;
-- UI category/description;
-- validation test.
-
-A new Research requires at least one real effect.
-
-A new Building requires:
-
-- reachable construction inputs;
-- defined role;
-- first-copy payback target;
-- cost growth;
-- source/sink effect;
-- mobile-safe UI representation.
-
-## Current known blockers
-
-- Static closure currently passes through Industrial; preserve it.
-- Offline pacing acceptance currently fails and remains diagnostic evidence, not the development focus.
-- Full gameplay behavior still requires Unity compilation, tests and direct runtime evidence.
-- Do not extend simulator strategy search, route scoring or automatic decision features.
-- Do not use dated Kingdom5 audit blocker lists as current facts.
-
-## Number rules
-
-- Building material costs should use geometric growth.
-- Bulk purchases must use closed-form ExpantaNum extension functions.
-- Research costs are derived from target duration and expected ResearchPower.
-- Do not introduce extreme notation before content progression justifies it.
-- Keep old resources useful in later eras.
-- Record before/after values and simulated pacing.
-
-## Numeric assertion rules
-
-- Numeric assertions must not use exact equality by default (`Is.EqualTo`, `Assert.AreEqual`, or equivalent). Prefer relationship assertions, ranges, or tolerance-based approximate assertions.
-- Exact numeric equality is allowed only when exactness is semantically required, such as a discrete count, protocol constant, stable ID, enum/version value, or save-compatibility field. The test or an adjacent comment must make that reason clear.
-- Do not hard-code exact equality for floating-point, `ExpantaNum`, production, consumption, cost, pacing, or other calculated values merely for convenience.
-
-## Unity and Git safety
-
-- Preserve `.meta` and GUIDs.
-- Prefer Editor migrations for ScriptableObject changes.
-- Do not install packages or upgrade Unity without permission.
-- Inspect `git status`; do not discard user work.
-- Do not push, rebase, amend or force operations.
-- Do not enter a later content milestone with compile errors or unreachable main progression.
-
-## Validation
-
-Each batch must include:
-
-- definition validation;
-- resource source/sink audit;
-- progression reachability;
-- Unity compilation;
-- EditMode tests;
-- relevant PlayMode tests;
-- Console inspection;
-- numerical pacing report.
-
-Keep generated evidence bounded: retain only the current summary outputs and
-the latest `TestResults/Latest-Test-Errors.txt`. Move older test exports,
-dated simulation snapshots, logs, and build intermediates to
-`.codex/archive/`; do not permanently delete them during routine cleanup.
-
-The existing PlayMode report contains zero test cases and is not evidence of PlayMode acceptance.
-
-If Unity is unavailable, state: `未执行真实 Unity 编译。`
+1. 修改前读当前同主题 `.codex/handoffs/`，检查 `git status`，区分并保留用户与并行任务变更。
+2. 每个实施任务续写原交接：文件/行为变更、字段前后值、验证命令与结果、未解决风险、下一具体动作。新主题才建新交接；纯只读任务只回复，除非明确获准落盘。
+3. 未经授权不安装包、不升级Unity、不发布、不操作用户真实存档、不终止用户Editor；不自动commit/push/创建PR，不rebase/amend/force，不丢弃工作树。
+4. 生成证据保持有界；旧输出先可恢复归档后退出活动目录，不例行永久删除。测试fixture不得留在outputs或正式技能发现目录；清理必须验证实际目录已移除，失败立即报告。

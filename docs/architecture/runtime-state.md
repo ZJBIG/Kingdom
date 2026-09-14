@@ -2,11 +2,9 @@
 
 ## Evidence boundary
 
-`tools/NewEconomySimulator` is a deterministic parity harness, not gameplay
-authority. Its reports record snapshots, events, and first differences only;
-they must not claim pacing or balance acceptance. Runtime behavior remains
-authoritative and is validated with Unity PlayMode/runtime logs and player
-playtests. Persisted parity reports belong under `data/economy-parity/`.
+This document owns State, clock and transaction invariants. Follow
+`.agents/skills/kingdom-economy-simulation/SKILL.md` for deterministic diagnostics
+and runtime evidence gates; simulator fixtures are not Unity acceptance.
 
 ## Current ownership
 
@@ -19,26 +17,25 @@ playtests. Persisted parity reports belong under `data/economy-parity/`.
   territory `spaceCost`.
 - ResourceManager, BuildingManager and ResearchManager own State collections.
 - SimulationManager is the only gameplay clock.
-- Viewer/Displayer code is UI only.
+- `KingdomUIRoot` and any legacy Viewer/Displayer code are presentation only;
+  lifecycle ownership is documented in `docs/architecture/ui-boundaries.md`.
 - SaveManager captures non-derivable State using stable definition IDs.
 - StoryProgressState stores only the completed chapter ID prefix and a version;
   completion is permanent history and never grants economic effects.
 
-## Target deterministic tick
+## Deterministic tick
 
-The current Kingdom3 tick foundation must be completed with a two-phase resource calculation:
+Use explicit `deltaSeconds` in gameplay integration; do not derive elapsed gameplay time from UI activity.
+`SimulationManager.ManualTick` owns the implemented order. The ordered navigation
+summary lives in `docs/repository-map.md`; read the method before changing it.
+`BuildingManager.PrepareTickResourceSatisfaction` already performs bounded
+satisfaction/efficiency convergence and refreshes ResearchPower before the
+population and resource ticks. Do not restore the obsolete Kingdom3 target list
+or add a second building scan from that list.
 
-1. integrate food/time-independent global values;
-2. collect building and occupied-sector potential resource generation/consumption for the tick;
-3. calculate per-resource satisfaction using inventory plus potential generation;
-4. calculate each building's actual efficiency;
-5. aggregate actual resource generation/consumption;
-6. commit inventory changes without going below zero;
-7. advance research;
-8. advance auto-build;
-9. mark State versions.
-
-Commands such as manual build/deconstruct may execute synchronously through Manager transactions. If command queuing is introduced later, it must have a documented stable order.
+Manual build/deconstruct commands use synchronous Manager transactions.
+Auto-build and command queues are not current runtime guarantees. Introducing
+such behavior requires separate authorization and a documented stable order.
 
 ## Resource satisfaction invariant
 
@@ -52,7 +49,7 @@ satisfaction = demand <= 0 ? 1 : Clamp01(available / demand)
 
 A building's resource-limited efficiency is the minimum satisfaction of its required input resources. Actual aggregate consumption must not exceed available amount.
 
-The existing rule “inventory > 0 means full efficiency” is not acceptable.
+Do not simplify this to “inventory > 0 means full efficiency”.
 
 ## Food/calendar invariant
 
@@ -70,12 +67,6 @@ No partial mutation on failure.
 
 ## Save invariant
 
-Save only non-derivable values. Rates, efficiency, UI state caches and indexes are rebuilt after load. Candidate save loading must be transactional so a failed main save can fall back to backup without leaving partial State.
+Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. Candidate save loading must be transactional so a failed main save can fall back to backup without leaving partial State.
 
 Story completion is serialized in the required `Story` segment of save format v8.
-\n## Current implementation note
-
-The runtime tick and synchronous build/deconstruct transactions are implemented. Auto-build and command queues are future design items, not current runtime guarantees.
-## Current implementation note
-
-The runtime tick and synchronous build/deconstruct transactions are implemented. Auto-build and command queues are future design items, not current runtime guarantees.

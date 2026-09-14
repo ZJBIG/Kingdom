@@ -1,16 +1,13 @@
 # Runtime script scope
 
-These instructions apply to `Assets/Resources/Script/**`.
+These instructions apply to `Assets/Resources/Script/**` and supplement root
+`AGENTS.md`; start through the root entry and project-dev router. Global State,
+transaction, reflection, inventory, math and serialization constraints are inherited,
+not redefined here.
 
-- Preserve Runtime State as the only mutable authority.
-- Managers validate and mutate State; UI only binds and issues commands.
-- Do not reintroduce BigNumber or `Pair<Resource,string>`.
 - Avoid public writable fields; Inspector references use `[SerializeField] private`.
-- Avoid LINQ, closures, repeated Parse, reflection, repeated `GetComponent` and temporary collections in simulation hot paths.
-- No permanent per-resource/building/research gameplay coroutine.
-- Resource satisfaction must use exact per-tick availability and remain deterministic.
-- Resource and food inventories never finish below zero.
-- Build/deconstruct/research payment validate first and commit second.
-- Do not add gameplay/UI convenience APIs to ExpantaNum.
-- Preserve `.meta` files and UTF-8.
-- When touching Viewer/Displayer code, follow the UI skill and remove manual layout/refresh ownership rather than moving it elsewhere.
+- Avoid LINQ, closures, repeated Parse/GetComponent and temporary collections in simulation hot paths.
+- Use explicit `deltaSeconds`; do not create permanent per-resource/building/research gameplay coroutines.
+- Do not add BigNumber compatibility aliases or `Pair<Resource,string>` runtime APIs. Preserve the asset/runtime distinction in `docs/architecture/serialized-pairs.md`.
+- Keep source text UTF-8.
+- When touching UI code, follow the UI skill and `docs/architecture/ui-boundaries.md`; preserve centralized refresh and authored layout. Do not revive legacy Viewer migrations or perform unrelated layout/refresh refactors.

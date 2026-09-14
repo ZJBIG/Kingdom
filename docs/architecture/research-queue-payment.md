@@ -9,7 +9,7 @@ does not need to press a separate payment button for a queued research.
 The queue-head evaluation is the single owner of this attempt:
 
 ```text
-HandleResearchAction / EnqueueResearch / SimulationManager.Tick
+HandleResearchAction / EnqueueResearch / (SimulationManager.ManualTick -> ResearchManager.Tick)
     -> TryStartNextQueuedResearch
     -> TryPayResearchCost(ResearchState)
     -> ResourceManager.TryApplyAtomicPayment

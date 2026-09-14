@@ -1,0 +1,78 @@
+Kingdom 文档 / SKILL / AGENTS 合并续接结果
+2026-09-13
+
+结论
+本轮文档合并已落盘，静态规范入口检查通过；工具回归未通过，不能声称整体验收完成。
+保留接手时已有未提交改动，没有修改游戏C#、资产、GUID、依赖或真实存档，没有提交或推送。
+未执行真实 Unity 编译。
+
+一、合并后的职责
+1. 根AGENTS与两份scoped AGENTS：项目硬约束。
+2. .agents/skills/kingdom-project-dev/：开发、定位、协作、验证与交接流程。
+3. .agents/skills/kingdom-economy-simulation/：统一内容设计与经济验证；承接原content-expansion独有规则。
+4. .agents/skills/kingdom-ui-redesign/：固定层级、兼容回退、页面操作、研究图与触摸验收。
+5. docs/repository-map.md：详细文件/API地图与当前tick顺序。
+6. docs/architecture/：State、序列化、付款和UI生命周期契约。
+7. docs/testing/acceptance-checklist.md：综合验收；playmode-test-plan.md：实际行为场景。
+8. README、经济prompt、WorkBuddy入口及content-balance-tests：导航/兼容入口，不复制整套规则。
+
+二、本轮主要落盘文件
+README.md
+Assets/Resources/Script/AGENTS.md
+Assets/Tests/AGENTS.md
+docs/architecture/runtime-state.md
+docs/architecture/serialized-pairs.md
+docs/architecture/ui-boundaries.md
+docs/architecture/research-queue-payment.md
+docs/testing/acceptance-checklist.md
+docs/testing/content-balance-tests.md
+docs/testing/playmode-test-plan.md
+docs/content/progression-roadmap.md
+.agents/skills/kingdom-ui-redesign/SKILL.md
+.agents/skills/kingdom-project-dev/SKILL.md
+.agents/skills/kingdom-project-dev/references/validation.md
+.agents/skills/kingdom-economy-simulation/SKILL.md
+tools/codex/validate-guidance.ps1
+
+三、关键纠正
+- 资产金额仍使用ResourceAmountDefinition的string字段；运行时使用Pair<Resource, ExpantaNum>，不重做迁移。
+- 当前ManualTick与Building准备阶段已存在；移除旧Kingdom3目标tick和重复段落，不添加自动建造。
+- 当前UI由KingdomUIRoot刷新；Research页保留缓存，以CanvasGroup隔离显示与输入，不照旧文档全量Deactivate。
+- PageTool、共享详情兼容回退、页面操作和Outline等独有要求迁入UI技能，没有直接删掉。
+- 定义/可达性归验收清单，启动、保存、后台、剧情与页面场景归PlayMode计划；不按旧“必须新增”清单重复造测试。
+- 计算值仍用关系/范围/容差；布局测试允许实测几何，不依赖写死位置。
+- 模拟器统一为确定性诊断，不是策略搜索或节奏验收；经济技能不再回读兼容入口形成循环。
+
+四、已执行验证
+- validate-guidance.ps1：退出0，必需文件存在。
+- kingdom_project_probe.py --check-skill：1735个白名单文件，Errors=0，退出0。
+- git diff --check：通过。
+- 两个probe Python文件AST解析：通过。
+- 活动docs/技能残留引用检查：未发现已退休技能或旧project-map引用。
+- 游戏目录diff：仅两份AGENTS修改，无游戏实现/资产/依赖差异。
+以上是静态验证；不证明客户端自动触发、所有Markdown锚点或Unity行为。
+
+五、工具回归现状
+完整日志（修复前）：outputs/Guidance-Consolidation-Tests-20260913.txt
+25项测试，1 failure、27 errors（错误包含teardown重复计数）。
+主要阻断是客户端删除保护要求确认；真实链接用例另有断言失败及访问拒绝。
+已定位并修复测试自身两个缺陷：
+1. unittest默认在cleanup抛错后仍继续后续setUp，失败后不断新建fixture；改为入口failfast，并要求外部runner同样开启。
+2. 真实链接用例用unlink()清理Windows目录symlink（WinError5）；改为按lstat分派rmdir/unlink，仅删除已核验归属的链接并检查残留；链接是否创建成功改为独立断言。
+新增不创建fixture、不真实删除的纯内存ProbeHarnessTests 9项，全部通过。
+完整文件系统回归（含真实链接用例）仍未运行；控制流回归通过不等于完整回归通过。
+
+六、归档与续接
+旧outputs下64个fixture目录已完整归档到：
+.codex/archive/guidance-fixtures-20260913-2200/（移动前后逐文件SHA-256一致，未动）。
+失败测试留下的46个probe-test目录已按用户授权处理：
+先逐文件核对（1,016文件/26,598字节，全为fixture文本，无符号链接），
+打包为 .codex/archive/probe-fixture-residue-backup-20260913-2307.zip 并回读校验
+（CRC通过，1,016/1,016文件哈希与清单一致），再分批删除，46个目录全部移除（0残留）。
+核验：.codex/archive、outputs、.agents/skills 下无probe-test残留；历史归档与其他归档条目未受影响。
+记录：outputs/Probe-Fixture-Cleanup-Manifest-20260913.json（含cleanup段）。
+
+唯一持续交接：
+.codex/handoffs/2026-09-13-project-dev-skill-handoff.md
+
+下一步：在受支持执行环境中完整运行 tools/codex/test_kingdom_project_probe.py（含真实文件系统与真实链接用例），确认先前链接用例已随本次修复通过；若删除保护再次拦截，保持停跑并保留现场。不要重复创建fixture、绕过删除保护或将静态通过等同于工具回归通过。

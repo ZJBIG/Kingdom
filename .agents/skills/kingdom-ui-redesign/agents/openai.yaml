@@ -1,4 +1,7 @@
 interface:
   display_name: "Kingdom UI redesign"
-  short_description: "Rebuild Kingdom Unity UI and ResearchTreeSK-style research graphs"
-  default_prompt: "Use $kingdom-ui-redesign to implement and verify a Huawei P40 Pro landscape UI change."
+  short_description: "Implement and verify Kingdom Unity UI within the existing architecture"
+  default_prompt: "Start with AGENTS.md and .agents/skills/kingdom-project-dev/SKILL.md, then select the UI branch and follow this skill. Do not reload unchanged entries already read in this task."
+
+policy:
+  allow_implicit_invocation: false
