@@ -505,17 +505,9 @@ public class ResourceManager : Singleton<ResourceManager>
             for (int i = 0; i < saveData.Resources.Count; i++)
             {
                 SaveManager.ResourceStateSaveData data = saveData.Resources[i];
-                string resourceId =
-                    RetiredDefinitionMigration.NormalizeResourceId(data.ResourceId);
-                if (!DataBase<Resource>.TryFind(resourceId, out Resource resource))
-                {
-                    if (RetiredDefinitionMigration.IsRetired(data.ResourceId))
-                        RetiredDefinitionMigration.LogOnce();
-                    else
-                        throw new InvalidOperationException(
-                            $"存档包含未知资源编号“{data.ResourceId}”。");
-                    continue;
-                }
+                if (!DataBase<Resource>.TryFind(data.ResourceId, out Resource resource))
+                    throw new InvalidOperationException(
+                        $"存档包含未知资源编号“{data.ResourceId}”。");
                 if (!restoredResources.Add(resource))
                     throw new InvalidOperationException(
                         $"存档中的资源状态重复包含“{resource.Id}”。");

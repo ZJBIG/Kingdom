@@ -4,8 +4,12 @@ using UnityEngine;
 public sealed class ProgressionMilestoneRecorder : MonoBehaviour
 {
     private static ProgressionMilestoneRecorder instance;
-    private readonly bool[] recorded = new bool[10];
-    private readonly float[] milestoneElapsedSeconds = new float[10];
+    private readonly bool[] recorded = new bool[12];
+    private readonly float[] milestoneElapsedSeconds = new float[12];
+
+    public float FirstResearchQueuedElapsedSeconds => milestoneElapsedSeconds[10];
+    public float FirstResearchPaidElapsedSeconds => milestoneElapsedSeconds[11];
+    public float FirstResearchProgressedElapsedSeconds => milestoneElapsedSeconds[4];
     private readonly double[,] bottleneckSeconds = new double[7, 5];
     private float sessionStartTime;
     private float lastSampleTime;
@@ -57,7 +61,10 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
             instance.Record("FirstResourceDetailViewed");
     }
 
-    private void Update()
+    private void Update() => SampleNow();
+
+    // Shared by the lifecycle and diagnostics tests; observes State without advancing it.
+    public void SampleNow()
     {
         // The recorder is a first-ten-minute new-game diagnostic. An existing
         // save may already contain every milestone, so sampling it would
@@ -77,8 +84,7 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
             Record("FirstBuildingBuilt");
         if (game.State.Population.Population > ExpantaNum.Zero)
             Record("FirstPopulation");
-        if (research.ActiveResearch != null || research.ResearchQueue.Count > 0)
-            Record("FirstResearchStarted");
+        SampleResearchMilestones(research);
         if (research.TotalFinishedResearchCount > 0)
             Record("FirstResearchCompleted");
         if (TutorialManager.HasOwnedProductionChain(buildings.States.Values))
@@ -95,6 +101,34 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
         {
             pacingSummaryLogged = true;
             LogPacingSummary();
+        }
+    }
+
+    private void SampleResearchMilestones(ResearchManager research)
+    {
+        if (recorded[10] && recorded[11] && recorded[4])
+            return;
+
+        if (research.ActiveResearch != null || research.ResearchQueue.Count > 0)
+            Record("FirstResearchQueued");
+
+        // Completed states retain progress: a short research can finish between
+        // samples. CostPaid alone is insufficient because idle free research
+        // starts with CostPaid=true even before the player selects it.
+        foreach (ResearchState state in research.States.Values)
+        {
+            bool progressed = state.Progress > ExpantaNum.Zero;
+            bool selected = research.ActiveResearch == state ||
+                research.IsQueued(state.Definition) || progressed ||
+                state.Status == ResearchStatus.Completed;
+            if (selected)
+                Record("FirstResearchQueued");
+            if (!state.CostPaid)
+                continue;
+            if (selected || state.Definition.HasPositiveResourceRequirement)
+                Record("FirstResearchPaid");
+            if (progressed)
+                Record("FirstResearchProgressed");
         }
     }
 
@@ -121,12 +155,14 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
             "FirstResourceDetailViewed" => 1,
             "FirstBuildingBuilt" => 2,
             "FirstPopulation" => 3,
-            "FirstResearchStarted" => 4,
+            "FirstResearchProgressed" => 4,
             "FirstResearchCompleted" => 5,
             "FirstProductionChain" => 6,
             "StoneAgeReached" => 7,
             "MedievalReached" => 8,
             "IndustrialReached" => 9,
+            "FirstResearchQueued" => 10,
+            "FirstResearchPaid" => 11,
             _ => -1
         };
         if (index < 0 || recorded[index])
@@ -158,7 +194,7 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
         string[] names =
         {
             "FirstResourceDetailViewed", "FirstBuildingBuilt", "FirstPopulation",
-            "FirstResearchStarted", "FirstResearchCompleted", "FirstProductionChain"
+            "FirstResearchProgressed", "FirstResearchCompleted", "FirstProductionChain"
         };
         float[] targets = { 20f, 30f, 120f, 150f, 240f, 600f };
         Debug.Log("[KingdomPacing] 10-minute target summary begins.");

@@ -1,0 +1,8 @@
+detected_doc_type: 游戏音效审查报告
+target_length: 3200
+target_tone: 简洁、专业、事实与建议分离
+audience: Kingdom项目开发者
+source: 本会话已完成的只读源码审查
+research: skipped_existing_audit_reformat_only
+critic_mode: skip
+scope: 仅文档编排与导出，不新增代码或资产修改

@@ -108,12 +108,17 @@ Kingdom 下一阶段游戏策划与执行清单
   依赖：无。角色：开发 + QA。
 
 [ ] P0-02 暂停照抄 E08 三工厂章程，先修正设计与导入契约
-  当前事实：CONTENTADVISE/e08-single-source-upgrade-chain-spec.md 尚未实施，存在明确方案错误：
+  当前事实：CONTENTADVISE/e08-single-source-upgrade-chain-spec.md 尚未实施，存在明确方案错误
+    （注：CONTENTADVISE/ 已在提交 a85f0e7 删除；该目录全文恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/，用 git show a85f0e7^:<路径> 可复核）：
     a. §3 写的 Building 脚本 GUID 755e6eabd0fdcbc4c92dd540b39a0ec9 实际属于 Research.cs。
        当前 Building.cs.meta 是 c1df40775f864874083816b75d1cf5ba；不得改现有 .meta 来迎合文档。
     b. WireMill 实际同时产 CopperWire 1.4/s、Electronics 0.35/s，章程只继承后者；
        BuildingMaterialsComplex 实际产 Glass 1.2/s、Ceramic 0.4/s、Concrete 2/s，章程漏了陶瓷。
        贸然把所有老厂升级成缺副产物的新厂，存在切断原有供应链的风险。
+       2026-09-15 复核分级：CopperWire 的净产出建筑只有 WireMill 一个，且新厂不产它，
+       叠加“新层级解锁后旧层级停建”，属阻断级断链；Ceramic 另有 AdvancedCeramicsPlant 2.4/s
+       与 CeramicKiln 1.0/s，升级后是容量回退（3.4→2.4/s）而非断链。两者不可并列同风险。
+       详见 outputs/Kingdom-P0-02-E08升级链合同审定-2026-09-15.md。
     c. 章程说“2-4 座续作覆盖战役”，但按其无加成基础值，4×1.4=5.6 Electronics/s，
        低于 SiriusResourceBelt 的 11.2/s；4×0.8=3.2 Engine/s，也低于 4.8/s。
        仅就这两项基础产率分别需至少 8/6 座；未计维护、其他消费和效率下降，也未计研究/工坊加成。
@@ -419,6 +424,7 @@ B. 最近工作与现有方案
    CONTENTADVISE/WORTH-DOING.md
    CONTENTADVISE/e08-single-source-upgrade-chain-spec.md
    CONTENTADVISE/batch2-resource-sink-matrix.md
+   （以上 CONTENTADVISE/ 三项已在 a85f0e7 删除；恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/）
 C. 实际验收资料
    data/content-closure-static.md
    TestResults/Latest-Test-Errors.txt

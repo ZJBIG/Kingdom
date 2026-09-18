@@ -17,10 +17,17 @@ public sealed class KingdomPlayModeTests
 {
     private readonly List<Object> createdObjects = new List<Object>();
     private string saveRoot;
+    private readonly List<Scene> loadedScenes = new List<Scene>();
+    private TutorialManager initialTutorial;
+    private MusicManager initialMusic;
 
     [SetUp]
     public void SetUp()
     {
+        initialTutorial = Object.FindObjectOfType<TutorialManager>(true);
+        initialMusic = Object.FindObjectOfType<MusicManager>(true);
+        loadedScenes.Clear();
+        SceneManager.sceneLoaded += TrackLoadedScene;
         string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         saveRoot = Path.Combine(projectRoot, "Temp", "KingdomPlayModeTests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saveRoot);
@@ -30,6 +37,24 @@ public sealed class KingdomPlayModeTests
     [TearDown]
     public void TearDown()
     {
+        SceneManager.sceneLoaded -= TrackLoadedScene;
+        // Destroy test-loaded scene roots while the isolated save root is still
+        // active. Include roots created after sceneLoaded (for example runtime UI).
+        foreach (Scene scene in loadedScenes)
+        {
+            if (!scene.IsValid() || !scene.isLoaded)
+                continue;
+            foreach (GameObject root in scene.GetRootGameObjects())
+                Object.DestroyImmediate(root);
+        }
+        loadedScenes.Clear();
+        // These two managers may move out of SampleScene into DontDestroyOnLoad.
+        TutorialManager tutorial = Object.FindObjectOfType<TutorialManager>(true);
+        if (tutorial != null && tutorial != initialTutorial)
+            Object.DestroyImmediate(tutorial.gameObject);
+        MusicManager music = Object.FindObjectOfType<MusicManager>(true);
+        if (music != null && music != initialMusic)
+            Object.DestroyImmediate(music.gameObject);
         for (int i = createdObjects.Count - 1; i >= 0; i--)
             if (createdObjects[i] != null)
                 Object.DestroyImmediate(createdObjects[i]);
@@ -42,62 +67,179 @@ public sealed class KingdomPlayModeTests
 
 
 
+    private void TrackLoadedScene(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "SampleScene")
+            loadedScenes.Add(scene);
+    }
+
     [UnityTest]
     public IEnumerator NewGameStartup_InitializesCoreRuntimeState()
     {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-NewGame-Managers");
-        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-NewGame-Managers");
-        FindOrCreateManager<BuildingManager>("PlayMode-NewGame-Managers");
-        FindOrCreateManager<ResearchManager>("PlayMode-NewGame-Managers");
-        yield return null;
-
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
-        MethodInfo resetResources = typeof(ResourceManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(resetResources, Is.Not.Null);
-        resetResources.Invoke(resourceManager, null);
-        initializeNewGame.Invoke(gameManager, null);
+        yield return LoadIsolatedNewGame();
+        GameManager gameManager = GameManager.Instance;
+        ResourceManager resourceManager = ResourceManager.Instance;
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
+        // Era and counts are discrete contracts; startup inventory/rates may be tuned.
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(gameManager.State.Population.Population, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
+        Assert.That(resourceManager.GetAmount(wood), Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(resourceManager.GetState(wood).ProductionRate,
-            Is.EqualTo(ExpantaNum.One));
+            Is.GreaterThan(ExpantaNum.Zero));
+        foreach (BuildingState state in BuildingManager.Instance.States.Values)
+            Assert.That(state.Amount, Is.EqualTo(ExpantaNum.Zero),
+                "A new game must not grant a player-built building: " + state.Definition.Id);
+        Assert.That(ResearchManager.Instance.TotalFinishedResearchCount, Is.Zero);
     }
 
     [UnityTest]
     public IEnumerator NewGameFirstTenMinutes_SimulationSmokeRemainsStable()
     {
-        GameManager gameManager = FindOrCreateManager<GameManager>("PlayMode-TenMinute-Managers");
-        ResourceManager resourceManager = FindOrCreateManager<ResourceManager>("PlayMode-TenMinute-Managers");
-        FindOrCreateManager<BuildingManager>("PlayMode-TenMinute-Managers");
-        FindOrCreateManager<ResearchManager>("PlayMode-TenMinute-Managers");
-        SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-TenMinute-Managers");
-        yield return null;
+        yield return LoadIsolatedNewGame();
+        GameManager gameManager = GameManager.Instance;
+        ResourceManager resourceManager = ResourceManager.Instance;
+        SimulationManager simulationManager = SimulationManager.Instance;
+        int daysBefore = gameManager.State.CalendarDays;
 
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
-        initializeNewGame.Invoke(gameManager, null);
-        simulationManager.SetRunning(true);
-
+        // Keep automatic Update disabled: yielded frames must not add wall time
+        // on top of the explicitly simulated ten minutes.
         for (int i = 0; i < 6000; i++)
         {
-            simulationManager.Advance(0.1d);
+            simulationManager.ManualTick(0.1d);
             if (i % 250 == 0)
                 yield return null;
         }
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
-        Assert.That(gameManager.State.CalendarDays, Is.InRange(59, 60));
+        Assert.That(gameManager.State.CalendarDays - daysBefore, Is.InRange(59, 60));
         Assert.That(gameManager.State.FoodAmount.IsFinite, Is.True);
         Assert.That(resourceManager.GetAmount(wood).IsFinite, Is.True);
+    }
+
+    [UnityTest]
+    public IEnumerator NewGameCommands_BuildResearchAndReloadWithoutGrants()
+    {
+        yield return LoadIsolatedNewGame();
+        GameManager game = GameManager.Instance;
+        ResourceManager resources = ResourceManager.Instance;
+        BuildingManager buildings = BuildingManager.Instance;
+        ResearchManager researches = ResearchManager.Instance;
+        SimulationManager simulation = SimulationManager.Instance;
+        SaveManager saves = SaveManager.Instance;
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Building house = DataBase<Building>.Find("WoodHouse");
+        Building farm = DataBase<Building>.Find("Farm");
+        Research agriculture = DataBase<Research>.Find("Agriculture");
+        int simulatedSeconds = 0;
+        const int simulationBudget = 600; // Bounded regression, not a human pacing claim.
+
+        while (buildings.GetMaxBuildable(house, ExpantaNum.One) < ExpantaNum.One &&
+               simulatedSeconds < simulationBudget)
+        {
+            simulation.ManualTick(1d);
+            simulatedSeconds++;
+        }
+        ExpantaNum woodBeforeHouse = resources.GetAmount(wood);
+        ExpantaNum capacityBeforeHouse = game.State.Population.PopulationCapacity;
+        Assert.That(buildings.TryBuild(house, ExpantaNum.One, out BuildFailure failure),
+            Is.True, "Natural production must fund the first house. Failure=" + failure);
+        Assert.That(resources.GetAmount(wood), Is.LessThan(woodBeforeHouse));
+        Assert.That(game.State.Population.PopulationCapacity, Is.GreaterThan(capacityBeforeHouse));
+        Assert.That(buildings.GetState(house).Amount, Is.EqualTo(ExpantaNum.One),
+            "Exactly one building was commanded; this is a discrete count.");
+
+        // A locked production building must fail without charging or granting it.
+        ExpantaNum woodBeforeLockedBuild = resources.GetAmount(wood);
+        ExpantaNum territoryBeforeLockedBuild = game.State.TerritoryUsed;
+        ExpantaNum productivityBeforeLockedBuild = buildings.AvailableProductivity;
+        Assert.That(buildings.TryBuild(farm, ExpantaNum.One, out failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.ResearchPrerequisiteIncomplete));
+        Assert.That((resources.GetAmount(wood) - woodBeforeLockedBuild).Abs(),
+            Is.LessThan(new ExpantaNum(0.000001)));
+        Assert.That((game.State.TerritoryUsed - territoryBeforeLockedBuild).Abs(),
+            Is.LessThan(new ExpantaNum(0.000001)));
+        Assert.That((buildings.AvailableProductivity - productivityBeforeLockedBuild).Abs(),
+            Is.LessThan(new ExpantaNum(0.000001)));
+        if (buildings.States.TryGetValue(farm, out BuildingState lockedFarm))
+            Assert.That(lockedFarm.Amount, Is.EqualTo(ExpantaNum.Zero));
+
+        while (!researches.CanPayResearchCost(agriculture, out _) &&
+               simulatedSeconds < simulationBudget)
+        {
+            simulation.ManualTick(1d);
+            simulatedSeconds++;
+        }
+        Assert.That(researches.CanPayResearchCost(agriculture, out string blocker), Is.True, blocker);
+        var inventoryBeforeResearch = new Dictionary<Resource, ExpantaNum>();
+        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+            inventoryBeforeResearch.Add(requirement.First, resources.GetAmount(requirement.First));
+        // No tick between these observations: a payment ledger alone must not
+        // pass if the underlying inventory was never actually charged.
+        Assert.That(researches.HandleResearchAction(agriculture), Is.EqualTo(ResearchActionResult.Started));
+        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+            Assert.That((inventoryBeforeResearch[requirement.First] -
+                resources.GetAmount(requirement.First) - requirement.Second).Abs(),
+                Is.LessThan(new ExpantaNum(0.000001)),
+                "Starting research must consume its real cost: " + requirement.First.Id);
+        ResearchState research = researches.GetState(agriculture);
+        while (research.Status != ResearchStatus.Completed && simulatedSeconds < simulationBudget)
+        {
+            simulation.ManualTick(1d);
+            simulatedSeconds++;
+        }
+        Assert.That(research.CostPaid, Is.True, "Queueing alone is not payment.");
+        Assert.That(research.Progress, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(research.Status, Is.EqualTo(ResearchStatus.Completed),
+            "Agriculture must finish through paid simulation, not a forced status.");
+        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+            Assert.That((research.GetPaidResourceCost(requirement.First) - requirement.Second).Abs(),
+                Is.LessThan(new ExpantaNum(0.000001)),
+                "The payment ledger must match the actual definition: " + requirement.First.Id);
+
+        while (buildings.GetMaxBuildable(farm, ExpantaNum.One) < ExpantaNum.One &&
+               simulatedSeconds < simulationBudget)
+        {
+            simulation.ManualTick(1d);
+            simulatedSeconds++;
+        }
+        ExpantaNum woodBeforeFarm = resources.GetAmount(wood);
+        ExpantaNum foodProductionBeforeFarm = game.State.FoodProductionRate;
+        Assert.That(buildings.TryBuild(farm, ExpantaNum.One, out failure), Is.True,
+            "Paid research must unlock a naturally affordable producer. Failure=" + failure);
+        Assert.That(resources.GetAmount(wood), Is.LessThan(woodBeforeFarm));
+        simulation.ManualTick(1d);
+        Assert.That(buildings.GetState(farm).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(game.State.FoodProductionRate, Is.GreaterThan(foodProductionBeforeFarm),
+            "The new producer must add food output, not merely leave baseline gathering positive.");
+        Assert.That(game.State.Population.Population, Is.GreaterThan(ExpantaNum.Zero));
+
+        Assert.That(saves.SaveNow(true), Is.True);
+        Assert.That(saves.HasSave, Is.True);
+        ExpantaNum savedWood = resources.GetAmount(wood);
+        ExpantaNum savedPopulation = game.State.Population.Population;
+        ExpantaNum savedFood = game.State.FoodAmount;
+        // Change live state through a real tick; a no-op load must not pass.
+        simulation.ManualTick(1d);
+        Assert.That(resources.GetAmount(wood), Is.GreaterThan(savedWood));
+        Assert.That(saves.LoadOrCreateGame(), Is.True,
+            "Reload must use the isolated on-disk v9 save, not initialize a new game.");
+        Assert.That(saves.LastLoadCreatedNewGame, Is.False);
+        Assert.That((resources.GetAmount(wood) - savedWood).Abs(), Is.LessThan(new ExpantaNum(0.000001)));
+        Assert.That((game.State.Population.Population - savedPopulation).Abs(), Is.LessThan(new ExpantaNum(0.000001)));
+        Assert.That((game.State.FoodAmount - savedFood).Abs(), Is.LessThan(new ExpantaNum(0.000001)));
+        Assert.That(buildings.GetState(house).Amount, Is.EqualTo(ExpantaNum.One));
+        Assert.That(buildings.GetState(farm).Amount, Is.EqualTo(ExpantaNum.One));
+        Assert.That(researches.GetState(agriculture).Status, Is.EqualTo(ResearchStatus.Completed));
+        Assert.That(researches.GetState(agriculture).CostPaid, Is.True);
+        foreach (ResourceState state in resources.States.Values)
+        {
+            Assert.That(state.Amount.IsFinite, Is.True, state.Definition.Id);
+            Assert.That(state.Amount, Is.GreaterThanOrEqualTo(ExpantaNum.Zero), state.Definition.Id);
+        }
+        Debug.Log("[KingdomOnboarding] Real bootstrap -> house -> paid Agriculture -> farm -> " +
+            "isolated save/reload; simulated seconds=" + simulatedSeconds + "; no resource grants.");
     }
 
     [UnityTest]
@@ -249,9 +391,47 @@ public sealed class KingdomPlayModeTests
         Assert.That(simulation, Is.Not.Null);
         Assert.That(game, Is.Not.Null);
         simulation.SetRunning(false);
+        Assert.That(GameBootstrap.Instance.Completed, Is.True,
+            "The scene must complete the real bootstrap before measuring refresh.");
+        Assert.That(SaveManager.Instance.LastLoadCreatedNewGame, Is.True,
+            "This fixture must start from its isolated empty save directory.");
+        Transform overview = primaryCard.parent;
+        string stateBeforeRefresh = CaptureOverviewState();
         int versionBeforeRefresh = game.State.Version;
-        Assert.That(game.State.Version, Is.EqualTo(versionBeforeRefresh),
-            "Refreshing guidance must not mutate GameState.");
+        for (int refresh = 0; refresh < 2; refresh++)
+        {
+            // Clear presentation only: a missing/no-op refresh must now fail.
+            body.text = string.Empty;
+            root.RefreshUI();
+            Assert.That(body.text, Is.Not.Empty,
+                "The real refresh must repopulate the authored guidance text.");
+            Assert.That(game.State.Version, Is.EqualTo(versionBeforeRefresh),
+                "Refreshing guidance must not mutate GameState.");
+            Assert.That(CaptureOverviewState(), Is.EqualTo(stateBeforeRefresh),
+                "Refreshing guidance must not mutate gameplay or saved progression.");
+
+            int primaryCardCount = 0;
+            int navigationCount = 0;
+            foreach (Transform item in overview.GetComponentsInChildren<Transform>(true))
+            {
+                if (!item.gameObject.activeInHierarchy)
+                    continue;
+                if (item.name.StartsWith("PrimaryCard", StringComparison.Ordinal))
+                    primaryCardCount++;
+                if (item.parent != null &&
+                    item.parent.name.StartsWith("PrimaryCard", StringComparison.Ordinal) &&
+                    item.GetComponent<Button>() != null)
+                    navigationCount++;
+            }
+            // Exact equality is intentional for a single authored primary goal/action.
+            Assert.That(primaryCardCount, Is.EqualTo(1));
+            Assert.That(navigationCount, Is.EqualTo(1));
+            Assert.That(primaryCard.GetComponentsInChildren<TMP_Text>(true)
+                .Count(text => text.text == body.text), Is.EqualTo(1),
+                "The primary goal text must not be duplicated inside the card.");
+        }
+        Debug.Log("[KingdomUI] Overview: two real refreshes rendered guidance; " +
+            "gameplay snapshots unchanged; one primary goal and navigation action.");
     }
 
 
@@ -1063,12 +1243,59 @@ public sealed class KingdomPlayModeTests
         Assert.That(resourceManager.GetAmount(wood), Is.LessThanOrEqualTo(ExpantaNum.Zero));
     }
 
+    private static string CaptureOverviewState()
+    {
+        // Do not call SaveManager/StoryManager.CaptureSaveData here: they refresh
+        // story progress and could hide the very mutation this test must detect.
+        GameManager game = GameManager.Instance;
+        var storyIds = new List<string>(game.State.StoryProgress.CompletedChapterIds);
+        storyIds.Sort(StringComparer.Ordinal);
+        var snapshot = new SaveManager.KingdomSaveData
+        {
+            Version = SaveFormat.CurrentVersion,
+            General = game.CaptureSaveData(),
+            Resources = ResourceManager.Instance.CaptureSaveData(),
+            Buildings = BuildingManager.Instance.CaptureSaveData(),
+            Researches = ResearchManager.Instance.CaptureSaveData(),
+            Workshop = WorkshopManager.Instance.CaptureSaveData(),
+            Sectors = game.Sectors.CaptureSaveData(),
+            Tutorial = TutorialManager.Current.CaptureSaveData(),
+            Story = new SaveManager.StorySaveData { CompletedChapterIds = storyIds }
+        };
+        return JsonUtility.ToJson(snapshot);
+    }
+
+    private static IEnumerator LoadIsolatedNewGame()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return WaitForRuntimeUiRoot();
+        // Verify the scene's manager wiring explicitly before using Instance;
+        // this does not claim the yielded startup occurs at exact simulation t=0.
+        Assert.That(Object.FindObjectOfType<GameBootstrap>().Completed, Is.True);
+        Assert.That(Object.FindObjectOfType<GameManager>(), Is.Not.Null);
+        Assert.That(Object.FindObjectOfType<ResourceManager>(), Is.Not.Null);
+        Assert.That(Object.FindObjectOfType<BuildingManager>(), Is.Not.Null);
+        Assert.That(Object.FindObjectOfType<ResearchManager>(), Is.Not.Null);
+        SaveManager saves = Object.FindObjectOfType<SaveManager>();
+        SimulationManager simulation = Object.FindObjectOfType<SimulationManager>();
+        Assert.That(saves, Is.Not.Null);
+        Assert.That(simulation, Is.Not.Null);
+        Assert.That(saves.LastLoadCreatedNewGame, Is.True,
+            "The real bootstrap must create a new game in the fixture's empty save root.");
+        simulation.SetRunning(false);
+    }
+
     private static IEnumerator WaitForRuntimeUiRoot(int maxFrames = 120)
     {
         for (int frame = 0; frame < maxFrames; frame++)
         {
-            if (Object.FindObjectOfType<KingdomUIRoot>() != null)
+            GameBootstrap bootstrap = Object.FindObjectOfType<GameBootstrap>();
+            if (Object.FindObjectOfType<KingdomUIRoot>() != null &&
+                bootstrap != null && bootstrap.Completed)
+            {
+                yield return null;
                 yield break;
+            }
             yield return null;
         }
 

@@ -288,16 +288,16 @@ public sealed class KingdomLogicTests
 
     [TestCase("0")]
     [TestCase("13")]
-    public void SaveApply_PreservesExistingWoodLogAmount(string amount)
+    public void SaveApply_PreservesSavedWoodLogAmount(string amount)
     {
-        CreateManager<GameManager>("Save-Wood-Compatibility-GameManager");
+        CreateManager<GameManager>("Save-Wood-GameManager");
         ResourceManager resourceManager =
-            CreateManager<ResourceManager>("Save-Wood-Compatibility-ResourceManager");
-        CreateManager<BuildingManager>("Save-Wood-Compatibility-BuildingManager");
-        CreateManager<ResearchManager>("Save-Wood-Compatibility-ResearchManager");
-        CreateManager<WorkshopManager>("Save-Wood-Compatibility-WorkshopManager");
+            CreateManager<ResourceManager>("Save-Wood-ResourceManager");
+        CreateManager<BuildingManager>("Save-Wood-BuildingManager");
+        CreateManager<ResearchManager>("Save-Wood-ResearchManager");
+        CreateManager<WorkshopManager>("Save-Wood-WorkshopManager");
         SaveManager saveManager =
-            CreateManager<SaveManager>("Save-Wood-Compatibility-SaveManager");
+            CreateManager<SaveManager>("Save-Wood-SaveManager");
 
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Resources.Resources[0].Amount = amount;
@@ -310,20 +310,20 @@ public sealed class KingdomLogicTests
 
     [TestCase("0")]
     [TestCase("13")]
-    public void SaveLoad_ExistingWoodLogAmountDoesNotReceiveNewGameGift(string amount)
+    public void SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift(string amount)
     {
-        string root = CreateIsolatedSaveRoot("KingdomSaveCompatibilityTest");
+        string root = CreateIsolatedSaveRoot("KingdomSaveRoundTripTest");
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
-            CreateManager<GameManager>("Save-Compatibility-GameManager");
+            CreateManager<GameManager>("Save-RoundTrip-GameManager");
             ResourceManager resourceManager =
-                CreateManager<ResourceManager>("Save-Compatibility-ResourceManager");
-            CreateManager<BuildingManager>("Save-Compatibility-BuildingManager");
-            CreateManager<ResearchManager>("Save-Compatibility-ResearchManager");
-            CreateManager<WorkshopManager>("Save-Compatibility-WorkshopManager");
+                CreateManager<ResourceManager>("Save-RoundTrip-ResourceManager");
+            CreateManager<BuildingManager>("Save-RoundTrip-BuildingManager");
+            CreateManager<ResearchManager>("Save-RoundTrip-ResearchManager");
+            CreateManager<WorkshopManager>("Save-RoundTrip-WorkshopManager");
             SaveManager saveManager =
-                CreateManager<SaveManager>("Save-Compatibility-SaveManager");
+                CreateManager<SaveManager>("Save-RoundTrip-SaveManager");
 
             Assert.That(saveManager.LoadOrCreateGame(), Is.False);
             Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
@@ -343,18 +343,18 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void SaveLoad_RecoversFromCorruptPrimaryUsingIsolatedBackup()
+    public void SaveLoad_CorruptPrimaryStartsCleanNewGameWithoutBackup()
     {
         string root = CreateIsolatedSaveRoot("KingdomSaveTest");
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
-            CreateManager<GameManager>("Save-Backup-GameManager");
-            CreateManager<ResourceManager>("Save-Backup-ResourceManager");
-            CreateManager<BuildingManager>("Save-Backup-BuildingManager");
-            CreateManager<ResearchManager>("Save-Backup-ResearchManager");
-            CreateManager<WorkshopManager>("Save-Backup-WorkshopManager");
-            SaveManager saveManager = CreateManager<SaveManager>("Save-Backup-SaveManager");
+            CreateManager<GameManager>("Save-Corrupt-GameManager");
+            CreateManager<ResourceManager>("Save-Corrupt-ResourceManager");
+            CreateManager<BuildingManager>("Save-Corrupt-BuildingManager");
+            CreateManager<ResearchManager>("Save-Corrupt-ResearchManager");
+            CreateManager<WorkshopManager>("Save-Corrupt-WorkshopManager");
+            SaveManager saveManager = CreateManager<SaveManager>("Save-Corrupt-SaveManager");
 
             Assert.That(saveManager.LoadOrCreateGame(), Is.False);
             Assert.That(saveManager.SaveNow(true), Is.True);
@@ -363,14 +363,14 @@ public sealed class KingdomLogicTests
             Assert.That(saveManager.SaveNow(true), Is.True);
 
             string primaryPath = Path.Combine(root, "KingdomSave.json");
-            string backupPath = primaryPath + ".bak";
-            Assert.That(File.Exists(backupPath), Is.True);
+            Assert.That(File.Exists(primaryPath + ".bak"), Is.False);
             File.WriteAllText(primaryPath, "{ invalid json");
 
             LogAssert.Expect(
                 LogType.Error,
                 new Regex("读取 Kingdom 存档.*失败：.*", RegexOptions.Singleline));
-            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
             Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
         }
         finally
@@ -381,37 +381,31 @@ public sealed class KingdomLogicTests
         }
     }
 
-    [Test]
-    public void SaveLoad_RecoversFromUnsupportedPrimaryUsingValidBackup()
+    [TestCase(-1)]
+    [TestCase(1)]
+    public void SaveLoad_UnsupportedVersionStartsNewGame(int versionOffset)
     {
         string root = CreateIsolatedSaveRoot("KingdomSaveUnsupportedPrimaryTest");
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
-            CreateManager<GameManager>("Save-UnsupportedPrimary-GameManager");
-            CreateManager<ResourceManager>("Save-UnsupportedPrimary-ResourceManager");
-            CreateManager<BuildingManager>("Save-UnsupportedPrimary-BuildingManager");
-            CreateManager<ResearchManager>("Save-UnsupportedPrimary-ResearchManager");
-            CreateManager<WorkshopManager>("Save-UnsupportedPrimary-WorkshopManager");
-            SaveManager saveManager = CreateManager<SaveManager>("Save-UnsupportedPrimary-SaveManager");
-
-            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
-            Assert.That(saveManager.SaveNow(true), Is.True);
-
-            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
-            ResourceManager.Instance.SetAmount(wood, new ExpantaNum(91));
-            Assert.That(saveManager.SaveNow(true), Is.True);
+            CreateManager<GameManager>("Save-Unsupported-GameManager");
+            CreateManager<ResourceManager>("Save-Unsupported-ResourceManager");
+            CreateManager<BuildingManager>("Save-Unsupported-BuildingManager");
+            CreateManager<ResearchManager>("Save-Unsupported-ResearchManager");
+            CreateManager<WorkshopManager>("Save-Unsupported-WorkshopManager");
+            SaveManager saveManager = CreateManager<SaveManager>("Save-Unsupported-SaveManager");
 
             string primaryPath = Path.Combine(root, "KingdomSave.json");
-            SaveManager.KingdomSaveData unsupported =
-                new SaveManager.KingdomSaveData { Version = SaveFormat.CurrentVersion + 1 };
+            SaveManager.KingdomSaveData unsupported = CreateRepresentativeSaveData();
+            unsupported.Version = SaveFormat.CurrentVersion + versionOffset;
             File.WriteAllText(primaryPath, JsonUtility.ToJson(unsupported));
 
             LogAssert.Expect(LogType.Error, new Regex(".*不支持版本.*", RegexOptions.Singleline));
-            Assert.That(saveManager.LoadOrCreateGame(), Is.True);
-            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
-            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.GreaterThan(new ExpantaNum(59)));
-            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.LessThan(new ExpantaNum(61)));
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
         }
         finally
         {
@@ -462,6 +456,62 @@ public sealed class KingdomLogicTests
             if (Directory.Exists(root))
                 Directory.Delete(root, true);
         }
+    }
+
+    [Test]
+    public void ApplicationPause_SaveFailureSettlesOnlyThePauseIntervalOnce()
+    {
+        string root = CreateIsolatedSaveRoot("KingdomPauseSaveFailureTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("PauseFailure-GameManager");
+            CreateManager<ResourceManager>("PauseFailure-ResourceManager");
+            CreateManager<BuildingManager>("PauseFailure-BuildingManager");
+            CreateManager<ResearchManager>("PauseFailure-ResearchManager");
+            CreateManager<WorkshopManager>("PauseFailure-WorkshopManager");
+            CreateManager<SimulationManager>("PauseFailure-SimulationManager");
+            SaveManager saveManager = CreateManager<SaveManager>("PauseFailure-SaveManager");
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+
+            string blockedRoot = Path.Combine(root, "blocked-root");
+            File.WriteAllText(blockedRoot, "not a directory");
+            SaveManager.SetSaveRootOverrideForTests(blockedRoot);
+
+            LogAssert.Expect(LogType.Error, new Regex(".*Kingdom.*", RegexOptions.Singleline));
+            saveManager.HandleApplicationPauseForTests(true, 1000L);
+            LogAssert.Expect(LogType.Error, new Regex(".*Kingdom.*", RegexOptions.Singleline));
+            saveManager.HandleApplicationPauseForTests(false, 1060L);
+
+            Assert.That(saveManager.LastOfflineProgressSeconds, Is.GreaterThan(59d));
+            Assert.That(saveManager.LastOfflineProgressSeconds, Is.LessThanOrEqualTo(60d));
+
+            saveManager.HandleApplicationPauseForTests(false, 1120L);
+            Assert.That(saveManager.LastOfflineProgressSeconds, Is.EqualTo(0d));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
+    [Test]
+    public void SaveLoad_MissingRequiredSectionStartsNewGame()
+    {
+        CreateManager<GameManager>("Save-MissingSection-GameManager");
+        CreateManager<ResourceManager>("Save-MissingSection-ResourceManager");
+        CreateManager<BuildingManager>("Save-MissingSection-BuildingManager");
+        CreateManager<ResearchManager>("Save-MissingSection-ResearchManager");
+        CreateManager<WorkshopManager>("Save-MissingSection-WorkshopManager");
+        SaveManager saveManager =
+            CreateManager<SaveManager>("Save-MissingSection-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.Workshop = null;
+
+        AssertInvalidSaveStartsNewGame(saveManager, data);
     }
 
     [Test]
@@ -1660,18 +1710,6 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void SaveLoad_RejectsUnsupportedSchema()
-    {
-        SaveManager saveManager = CreateManager<SaveManager>("Save-Version-SaveManager");
-        var data = new SaveManager.KingdomSaveData
-        {
-            Version = SaveFormat.MinimumSupportedVersion - 1
-        };
-
-        AssertInvalidSaveFallsBackToBackup(saveManager, data);
-    }
-
-    [Test]
     public void SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume()
     {
         GameManager gameManager = CreateManager<GameManager>("Save-Timestamp-GameManager");
@@ -1710,7 +1748,7 @@ public sealed class KingdomLogicTests
         if (calendarDays >= 0)
             data.General.TechLevel = (TechLevel)calendarDays;
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data);
+        AssertInvalidSaveStartsNewGame(saveManager, data);
     }
 
     [Test]
@@ -1727,7 +1765,7 @@ public sealed class KingdomLogicTests
         data.General.Population = "-1";
         data.General.PowerSatisfaction = "1.1";
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data);
+        AssertInvalidSaveStartsNewGame(saveManager, data);
     }
 
     [Test]
@@ -1743,7 +1781,7 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.General.PopulationChangeProgress = "1.25";
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data);
+        AssertInvalidSaveStartsNewGame(saveManager, data);
     }
 
     [Test]
@@ -1794,7 +1832,7 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Researches.SelectedResearchId = "missing-research-id";
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-research-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "missing-research-id");
     }
 
     [Test]
@@ -1822,7 +1860,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, target.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, target.Id);
     }
 
     [Test]
@@ -1870,43 +1908,8 @@ public sealed class KingdomLogicTests
         Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
     }
 
-    [TestCase(5)]
-    [TestCase(6)]
-    public void SaveApply_RestoresLegacyFullyPaidResearchWithoutLedger(int version)
-    {
-        CreateManager<GameManager>("Save-LegacyPaid-GameManager");
-        CreateManager<ResourceManager>("Save-LegacyPaid-ResourceManager");
-        CreateManager<BuildingManager>("Save-LegacyPaid-BuildingManager");
-        ResearchManager researchManager =
-            CreateManager<ResearchManager>("Save-LegacyPaid-ResearchManager");
-        CreateManager<WorkshopManager>("Save-LegacyPaid-WorkshopManager");
-        SaveManager saveManager = CreateManager<SaveManager>("Save-LegacyPaid-SaveManager");
-
-        Research target = DataBase<Research>.Find("Quarry");
-        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
-        data.Version = version;
-        data.Researches.ActiveResearchId = target.Id;
-        data.Researches.States = new List<SaveManager.ResearchStateSaveData>
-        {
-            new SaveManager.ResearchStateSaveData
-            {
-                ResearchId = target.Id,
-                Progress = "0",
-                CostPaid = true,
-                Completed = false,
-                // Legacy saves predate the per-resource payment ledger.
-                PaidResourceCosts = null
-            }
-        };
-
-        Assert.DoesNotThrow(() => InvokeApplySaveData(saveManager, data));
-        Assert.That(researchManager.ActiveResearch.Definition, Is.EqualTo(target));
-        Assert.That(researchManager.ActiveResearch.CostPaid, Is.True);
-        Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
-    }
-
     [Test]
-    public void SaveLoad_RejectsCurrentFullyPaidResearchWithoutLedger()
+    public void SaveLoad_RejectsCurrentResearchWithoutLedger()
     {
         CreateManager<GameManager>("Save-CurrentPaidNoLedger-GameManager");
         CreateManager<ResourceManager>("Save-CurrentPaidNoLedger-ResourceManager");
@@ -1924,14 +1927,13 @@ public sealed class KingdomLogicTests
             {
                 ResearchId = target.Id,
                 Progress = "0",
-                CostPaid = true,
+                CostPaid = false,
                 Completed = false,
-                // Current saves must carry the exact payment ledger.
                 PaidResourceCosts = null
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, target.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, target.Id);
     }
 
     [Test]
@@ -1959,7 +1961,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, target.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, target.Id);
         Assert.That(
             DataBase<Research>.Find(prerequisite.Id),
             Is.SameAs(prerequisite));
@@ -1987,7 +1989,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, research.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, research.Id);
     }
 
     [Test]
@@ -2017,7 +2019,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, research.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, research.Id);
     }
 
     [Test]
@@ -2034,7 +2036,7 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Researches.QueuedResearchIds = new List<string> { target.Id };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, target.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, target.Id);
     }
 
     [Test]
@@ -2050,7 +2052,7 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Researches.QueuedResearchIds = new List<string> { "missing-research-id" };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-research-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "missing-research-id");
     }
 
     [Test]
@@ -2085,7 +2087,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, research.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, research.Id);
     }
 
     [Test]
@@ -2120,7 +2122,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, resource.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, resource.Id);
     }
 
     [Test]
@@ -2157,7 +2159,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, unrelated.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, unrelated.Id);
     }
 
     [Test]
@@ -2177,7 +2179,7 @@ public sealed class KingdomLogicTests
             new SaveManager.ResourceStateSaveData { ResourceId = "WoodLog", Amount = "2" }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "WoodLog");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "WoodLog");
     }
 
     [Test]
@@ -2197,11 +2199,14 @@ public sealed class KingdomLogicTests
             new SaveManager.BuildingStateSaveData { BuildingId = "Farm", Amount = "2" }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "Farm");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "Farm");
     }
 
-    [Test]
-    public void SaveLoad_RejectsUnknownResourceStateId()
+    [TestCase("missing-resource-id")]
+    [TestCase("StoneChunk_Marble")]
+    [TestCase("StoneBrick_Marble")]
+    [TestCase("StoneTool")]
+    public void SaveLoad_RejectsUnknownResourceStateId(string resourceId)
     {
         CreateManager<GameManager>("Save-UnknownResource-GameManager");
         CreateManager<ResourceManager>("Save-UnknownResource-ResourceManager");
@@ -2215,16 +2220,19 @@ public sealed class KingdomLogicTests
         {
             new SaveManager.ResourceStateSaveData
             {
-                ResourceId = "missing-resource-id",
+                ResourceId = resourceId,
                 Amount = "1"
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-resource-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, resourceId);
     }
 
-    [Test]
-    public void SaveLoad_RejectsUnknownBuildingStateId()
+    [TestCase("missing-building-id")]
+    [TestCase("Glassworks")]
+    [TestCase("StoneCuttingWorkshop_Marble")]
+    [TestCase("Blacksmith")]
+    public void SaveLoad_RejectsUnknownBuildingStateId(string buildingId)
     {
         CreateManager<GameManager>("Save-UnknownBuilding-GameManager");
         CreateManager<ResourceManager>("Save-UnknownBuilding-ResourceManager");
@@ -2238,12 +2246,12 @@ public sealed class KingdomLogicTests
         {
             new SaveManager.BuildingStateSaveData
             {
-                BuildingId = "missing-building-id",
+                BuildingId = buildingId,
                 Amount = "1"
             }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-building-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, buildingId);
     }
 
     [Test]
@@ -2262,7 +2270,7 @@ public sealed class KingdomLogicTests
             PurchasedUpgradeIds = new List<string> { "missing-workshop-id" }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-workshop-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "missing-workshop-id");
     }
 
     [Test]
@@ -2284,7 +2292,7 @@ public sealed class KingdomLogicTests
             States = new List<SaveManager.SectorStateSaveData>()
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "AzurePool");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "AzurePool");
     }
 
     [Test]
@@ -2301,7 +2309,7 @@ public sealed class KingdomLogicTests
         data.General.CampaignActive = true;
         data.General.CampaignTargetSectorId = "missing-sector-id";
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, "missing-sector-id");
+        AssertInvalidSaveStartsNewGame(saveManager, data, "missing-sector-id");
     }
 
     [Test]
@@ -2323,7 +2331,7 @@ public sealed class KingdomLogicTests
             PurchasedUpgradeIds = new List<string> { dependent.Id }
         };
 
-        AssertInvalidSaveFallsBackToBackup(saveManager, data, dependent.Id);
+        AssertInvalidSaveStartsNewGame(saveManager, data, dependent.Id);
     }
 
     [Test]
@@ -2420,7 +2428,26 @@ public sealed class KingdomLogicTests
             {
                 GlobalEfficiencyFactor = "1",
                 States = new List<SaveManager.ResearchStateSaveData>(),
-                SelectedResearchId = string.Empty
+                ActiveResearchId = string.Empty,
+                SelectedResearchId = string.Empty,
+                QueuedResearchIds = new List<string>()
+            },
+            Workshop = new SaveManager.WorkshopSaveData
+            {
+                PurchasedUpgradeIds = new List<string>()
+            },
+            Sectors = new SaveManager.SectorSaveData
+            {
+                States = new List<SaveManager.SectorStateSaveData>()
+            },
+            Tutorial = new SaveManager.TutorialSaveData
+            {
+                ActiveStepId = string.Empty,
+                CompletedStepIds = new List<string>()
+            },
+            Story = new SaveManager.StorySaveData
+            {
+                CompletedChapterIds = new List<string>()
             }
         };
     }
@@ -2434,7 +2461,7 @@ public sealed class KingdomLogicTests
         method.Invoke(saveManager, new object[] { data });
     }
 
-    private void AssertInvalidSaveFallsBackToBackup(
+    private void AssertInvalidSaveStartsNewGame(
         SaveManager saveManager,
         SaveManager.KingdomSaveData invalidPrimary,
         string expectedDiagnosticDetail = null)
@@ -2452,37 +2479,26 @@ public sealed class KingdomLogicTests
 
         string root = CreateIsolatedSaveRoot("KingdomInvalidSaveTest");
         string primaryPath = Path.Combine(root, "KingdomSave.json");
-        string backupPath = primaryPath + ".bak";
-        SaveManager.KingdomSaveData validBackup = CreateRepresentativeSaveData();
         invalidPrimary.Story ??= new SaveManager.StorySaveData
         {
             CompletedChapterIds = new List<string>()
         };
-        validBackup.Story = new SaveManager.StorySaveData
-        {
-            CompletedChapterIds = new List<string>()
-        };
-        SaveManager.ResourceStateSaveData backupWood = validBackup.Resources.Resources.Single(
-            state => state.ResourceId == ResourceManager.StartingResourceId);
-        backupWood.Amount = "73";
 
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
             File.WriteAllText(primaryPath, JsonUtility.ToJson(invalidPrimary));
-            File.WriteAllText(backupPath, JsonUtility.ToJson(validBackup));
 
             string diagnosticPattern = string.IsNullOrEmpty(expectedDiagnosticDetail)
                 ? "Kingdom"
                 : "Kingdom.*" + Regex.Escape(expectedDiagnosticDetail);
             LogAssert.Expect(LogType.Error, new Regex(diagnosticPattern, RegexOptions.Singleline));
 
-            Assert.That(saveManager.LoadOrCreateGame(), Is.True,
-                "A rejected primary save should fall back to the valid backup.");
-            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False,
+                "A rejected save should start a clean new game.");
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
             Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
-            // Exactness is intentional: this is a save-compatibility marker proving the backup won.
-            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(73)));
+            Assert.That(ResourceManager.Instance.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
             TutorialManager tutorial = TutorialManager.Current;
             if (tutorial != null && !createdObjects.Contains(tutorial.gameObject))
                 createdObjects.Add(tutorial.gameObject);

@@ -174,33 +174,6 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
-    public void LegacyTutorialSaveWithoutTransientDetailFieldsRemainsCompatible()
-    {
-        TutorialManager manager = TutorialManager.Ensure();
-        string legacyJson =
-            "{\"Tutorial\":{\"ActiveStepId\":\"resources\",\"CompletedStepIds\":[\"orientation\"]}}";
-        SaveManager.KingdomSaveData restored =
-            JsonUtility.FromJson<SaveManager.KingdomSaveData>(legacyJson);
-
-        Assert.That(restored, Is.Not.Null);
-        Assert.That(restored.Tutorial, Is.Not.Null);
-        manager.RestoreSaveData(restored.Tutorial, TechLevel.Animal);
-        SaveManager.TutorialSaveData captured = manager.CaptureSaveData();
-
-        Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
-        Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
-        Assert.That(captured.CompletedStepIds, Does.Not.Contain("Food"));
-
-        manager.RecordDetailViewed("Resources", "Food");
-        string afterDetailJson = JsonUtility.ToJson(manager.CaptureSaveData());
-        StringAssert.DoesNotContain("Food", afterDetailJson);
-
-        manager.RestoreSaveData(restored.Tutorial, TechLevel.Animal);
-        string afterReloadJson = JsonUtility.ToJson(manager.CaptureSaveData());
-        StringAssert.DoesNotContain("Food", afterReloadJson);
-    }
-
-    [Test]
     public void CompletedGoalFeedbackUsesCompletedDirectPredecessor()
     {
         TutorialManager manager = TutorialManager.Ensure();

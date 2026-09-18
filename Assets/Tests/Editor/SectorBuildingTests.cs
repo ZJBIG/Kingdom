@@ -231,11 +231,11 @@ public sealed class SectorBuildingTests
                 LogType.Error,
                 new Regex("Kingdom.*" + Regex.Escape(building.Id), RegexOptions.Singleline));
 
-            Assert.That(saveManager.LoadOrCreateGame(), Is.True,
-                "An inconsistent sector-building primary save should fall back to its valid backup.");
-            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
-            Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.One));
-            Assert.That(gameManager.Sectors.GetState(building.Sector).Occupied, Is.True);
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False,
+                "An inconsistent sector-building save should start a clean new game.");
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
+            Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.Zero));
+            Assert.That(gameManager.Sectors.GetState(building.Sector).Occupied, Is.False);
         }
         finally
         {

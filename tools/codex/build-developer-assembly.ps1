@@ -94,6 +94,10 @@ if ($Assembly -eq "Editor") {
 $filteredLines = foreach ($line in Get-Content -LiteralPath $sourceResponseFile.FullName) {
     if ($line -match "^-out:" -or $line -match "^-refout:") { continue }
     if ($line -eq "-define:UNITY_INCLUDE_TESTS") { continue }
+    if ($line -match '^"(?<path>Assets/.+\.cs)"$' -and
+        -not (Test-Path -LiteralPath (Join-Path $repositoryRoot $Matches.path))) {
+        continue
+    }
 
     if ($Assembly -eq "Editor") {
         if ($line -match '^"Assets/Tests/') { continue }

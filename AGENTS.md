@@ -17,7 +17,7 @@
 
 - 禁止在新增代码和测试中使用反射，包括 `System.Reflection`、`BindingFlags`、反射式运行时 `Invoke`、`Activator`；使用公开强类型API或DTO，不照抄历史反射测试。
 - 保留 Runtime State 的唯一可变权威：Manager校验并修改State，UI只绑定和发命令；不重做BigNumber、Pair、State/Manager/UI拆分或稳定ID迁移。
-- 保留 `.meta`、GUID、稳定ID和序列化兼容，优先Editor迁移；任何授权字段外的变化必须另行确认。
+- 保留 `.meta`、GUID、稳定ID和 Unity 资产序列化兼容，优先Editor迁移；任何授权字段外的变化必须另行确认。游戏存档只接受当前 v9，不保留旧版本迁移、旧 ID 映射或备份恢复代码，除非用户以后重新授权。
 - Food是唯一可封顶库存。普通资源不得增加容量、MaxAmount、仓储或隐藏截断；不恢复workforce。合法的建筑数量限制不等于资源库存容量。
 - 建造/拆除/研究/工坊交易先全量校验再提交，失败不得部分修改；研究全额支付后才推进。库存不得为负，满足率按tick实际可用量计算。
 - 建筑成本使用几何增长，批量购买使用闭式ExpantaNum扩展；不把UI/玩法便捷API塞入数学层，不提前引入不合时代内容的极端记数法。

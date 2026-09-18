@@ -33,22 +33,12 @@ head.
 - A missing `ResourceManager` is a failed attempt, not an exception or a fake
   payment.
 
-Legacy-save policy: if a save contains a valid `PaidResourceCosts` ledger, the
-ledger is restored as historical credit and is not recalculated from current
-costs. An older save with no ledger but an explicit `CostPaid=true` is restored
-as historically fully paid; a save with no ledger and `CostPaid=false` cannot
-recover an exact partial amount, so the loader does not invent one. The loader
-never infers or refunds a missing amount, especially not by temporarily
-exceeding Food capacity. Invalid or unknown ledger entries reject the
-candidate save and allow the normal backup fallback to run.
-
-The save format is currently version 8. Versions 5 and 6 are accepted as
-legacy formats because they predate the complete per-resource ledger; version 7
-requires the ledger for a fully paid research state.
-
-The research ledger compatibility boundary remains version 7; the v8 bump only
-adds the required Story save segment and does not change research payment
-semantics.
+Save format v9 requires every serialized research state to carry an explicit
+`PaidResourceCosts` list, including an empty list when nothing has been paid.
+The loader restores only exact current resource IDs and amounts. Missing,
+duplicate, unknown, negative, excessive or unrequired ledger entries reject the
+entire main save and start a new game. It does not infer historical payment,
+map retired IDs, migrate an older format or fall back to another file.
 
 ## UI boundary
 

@@ -30,6 +30,21 @@
 
 按 `docs/testing/playmode-test-plan.md` 验证新档、页面/详情、星区、剧情、保存/后台恢复和P40横屏场景。页面操作契约在 `docs/ui/page-responsibilities.md`、布局/手势门槛在UI技能维护，State与生命周期边界在 `docs/architecture/ui-boundaries.md` 维护；验收不能把UI变成状态权威。
 
+## 首局科研诊断口径
+
+- `ProgressionMilestoneRecorder` 仅记录新游戏会话；已有存档不报告首次时点。
+- `FirstResearchQueued` 表示首次观察到入队/活动研究；`FirstResearchPaid` 表示资源已足额支付（免费研究须已被选中）；`FirstResearchProgressed` 必须观察到已支付研究的正进度。
+- 十分钟摘要的 150 秒科研目标对应 `FirstResearchProgressed`，不再以缺料入队作为研究开始。入队/支付各自记录，不另设未经实测的新时间目标。
+- 这些是帧采样观察时点，不是精确交易事件时间；同一帧内完成的研究通过保留的完成进度识别。入队后在两次采样之间立即取消且未支付/推进的短暂操作不保证被记录。
+- `SampleNow()` 与生命周期共用同一只读采样路径；专项 `ProgressionMilestoneRecorderTests` 不访问存档，受控补料仅验证指标，不代表无作弊首局或真人节奏验收。
+
+## 新档行为回归（D09）
+
+- `KingdomPlayModeTests.NewGameStartup_InitializesCoreRuntimeState` 与十分钟 smoke 从隔离空目录加载 `SampleScene`，必须等待真实 `GameBootstrap.Completed`，不以调用私有初始化方法替代启动。
+- 自动模拟暂停后才手动推进；十分钟 smoke 仅验证稳定性，不能证明玩家完成操作或首局体验合格。
+- `NewGameCommands_BuildResearchAndReloadWithoutGrants` 使用自然资源与公开命令，覆盖木屋扣款/人口容量、农业真实支付与完成、农场解锁/生产、隔离 v9 保存及读回；禁止注入资源或直接改完成状态。读档前通过 tick 改变现场库存，防止空操作加载蒙混通过。
+- 600 秒是固定路线自动化回归的有界模拟预算，不是真人耗时或跨时代通关证明；UI 点击、加工链、工坊、时代门、冷启动和设备生命周期仍须分别验收。
+
 ## 证据边界
 
 报告必须区分静态检查、CLI 编译、Unity Test Runner 日志和真机验收。未有对应日志时不得声称通过。

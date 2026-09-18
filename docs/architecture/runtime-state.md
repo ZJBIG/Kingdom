@@ -67,6 +67,6 @@ No partial mutation on failure.
 
 ## Save invariant
 
-Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. Candidate save loading must be transactional so a failed main save can fall back to backup without leaving partial State.
+Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. Save format v9 is the only accepted format and every top-level segment is required. Missing, corrupt, semantically invalid, older or future saves reset all Manager State and start a new game without retaining partially applied data.
 
-Story completion is serialized in the required `Story` segment of save format v8.
+`KingdomSave.json` is the only managed save. Writes use a temporary file followed by atomic replacement; there is no backup, recovery candidate, migration or retired-ID mapping. Existing `.bak` files are ignored. Story completion is serialized in the required `Story.CompletedChapterIds` segment.

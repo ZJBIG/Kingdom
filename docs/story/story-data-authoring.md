@@ -26,4 +26,4 @@
 - 月球阶段不得引用系外星区；偏远行星阶段必须继承月球阶段；太阳系阶段必须晚于近地阶段；系外星区只能出现在最后阶段。
 - `StoryArchiveDefinition` 的编辑器校验会检查上述太空阶段的核心星区条件；新增章节也必须保持研究、建筑、工坊和星区条件可达。
 
-当前基线固定为 18 章。`StoryManager.RefreshProgress` 将真实条件按档案顺序写入 `GameState.StoryProgress`；完成记录永久保留，不发放经济奖励。存档格式 v8 必须包含 `Story.CompletedChapterIds`，且只能是按档案顺序排列的连续前缀；未知、重复、跳章、乱序或高于当前时代的记录会被拒绝。
+当前基线固定为 18 章。`StoryManager.RefreshProgress` 将真实条件按档案顺序写入 `GameState.StoryProgress`；完成记录永久保留，不发放经济奖励。存档格式 v9 必须包含 `Story.CompletedChapterIds`，且只能是按档案顺序排列的连续前缀；未知、重复、跳章、乱序或高于当前时代的记录会使整个主档失效并开始新游戏。

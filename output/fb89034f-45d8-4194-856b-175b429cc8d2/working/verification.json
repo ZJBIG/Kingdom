@@ -1,0 +1,19 @@
+{
+  "pages": 7,
+  "text_lengths": [
+    125,
+    917,
+    1089,
+    1122,
+    649,
+    988,
+    379
+  ],
+  "content_match": "pass",
+  "out_of_page_text": [],
+  "replacement_characters": false,
+  "files": {
+    ".md": 12815,
+    ".pdf": 412541
+  }
+}

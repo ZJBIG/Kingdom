@@ -92,7 +92,7 @@ Food 是唯一有容量的库存。
 
 ## 8. 时代折算带（批次 2 静态对账推导，暂定）
 
-第 1-7 节的回本/研究带来自早期时代口径；静态对账（`CONTENTADVISE/batch2-payback-and-duration-table.md`）表明 TL3/TL4 缺少可比带。以下折算带用于后续 TL3/TL4 调参定案，**均为静态推算的暂定值，必须经 Unity 运行时与实玩校准后才能作为最终门槛**：
+第 1-7 节的回本/研究带来自早期时代口径；静态对账（`CONTENTADVISE/batch2-payback-and-duration-table.md`，该文件已随 `CONTENTADVISE/` 在提交 a85f0e7 删除，恢复件见 `.codex/archive/recovered-20260915/CONTENTADVISE/`）表明 TL3/TL4 缺少可比带。以下折算带用于后续 TL3/TL4 调参定案，**均为静态推算的暂定值，必须经 Unity 运行时与实玩校准后才能作为最终门槛**：
 
 - 回本（首份，时代折算）：原料建筑 5-15min；加工建筑 15-40min
 - 科研单条等待：10-60min

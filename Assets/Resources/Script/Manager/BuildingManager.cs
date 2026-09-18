@@ -1740,17 +1740,9 @@ public class BuildingManager : Singleton<BuildingManager>
             for (int i = 0; i < data.Buildings.Count; i++)
             {
                 SaveManager.BuildingStateSaveData saved = data.Buildings[i];
-                string buildingId =
-                    RetiredDefinitionMigration.NormalizeBuildingId(saved.BuildingId);
-                if (!DataBase<Building>.TryFind(buildingId, out Building definition))
-                {
-                    if (RetiredDefinitionMigration.IsRetired(saved.BuildingId))
-                        RetiredDefinitionMigration.LogOnce();
-                    else
-                        throw new InvalidOperationException(
-                            $"存档包含未知建筑编号“{saved.BuildingId}”。");
-                    continue;
-                }
+                if (!DataBase<Building>.TryFind(saved.BuildingId, out Building definition))
+                    throw new InvalidOperationException(
+                        $"存档包含未知建筑编号“{saved.BuildingId}”。");
                 if (!restoredBuildings.Add(definition))
                     throw new InvalidOperationException(
                         $"存档中的建筑状态重复包含“{definition.Id}”。");

@@ -23,7 +23,6 @@ public enum ResearchPaymentResult
 {
     Invalid,
     Paid,
-    PartiallyPaid,
     AlreadyPaid,
     Completed,
     InsufficientResources
@@ -378,9 +377,6 @@ public class ResearchManager : Singleton<ResearchManager>
         // Payment is a transaction for this one research item only. It must
         // never start or reorder research; the queue action owns scheduling.
         ResearchQueueChanged?.Invoke();
-        // Payments are atomic and include every remaining resource cost, so a
-        // successful new payment can never leave a partial ledger. Keep the
-        // legacy enum member for save/API compatibility, but do not emit it.
         return ResearchPaymentResult.Paid;
     }
 
@@ -935,12 +931,11 @@ public class ResearchManager : Singleton<ResearchManager>
                         $"存档中的研究状态重复包含“{definition.Id}”。");
                 if (!TryGetStateByStableId(definition, out ResearchState state))
                     throw new InvalidOperationException(
-                        $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{definition.Id}");
+                        $"存档中的研究状态索引缺少：{definition.Id}");
                 IReadOnlyDictionary<Resource, ExpantaNum> paidResourceCosts =
                     RestorePaidResourceCosts(
                         definition,
-                        saved.PaidResourceCosts,
-                        data.LegacyFormat && saved.CostPaid);
+                        saved.PaidResourceCosts);
                 state.Restore(
                     Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress)),
                     saved.CostPaid || AreAllResourceCostsPaid(definition, paidResourceCosts),
@@ -964,7 +959,7 @@ public class ResearchManager : Singleton<ResearchManager>
             Research activeDefinition = DataBase<Research>.Find(data.ActiveResearchId);
             if (!TryGetStateByStableId(activeDefinition, out ResearchState state))
                 throw new InvalidOperationException(
-                    $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{activeDefinition.Id}");
+                    $"存档中的研究状态索引缺少：{activeDefinition.Id}");
             if (state.Status == ResearchStatus.Completed ||
                 !ArePrerequisitesCompleted(state.Definition))
                 throw new InvalidOperationException(
@@ -1051,8 +1046,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 IReadOnlyDictionary<Resource, ExpantaNum> paidCosts =
                     RestorePaidResourceCosts(
                         definition,
-                        saved.PaidResourceCosts,
-                        data.LegacyFormat && saved.CostPaid);
+                        saved.PaidResourceCosts);
                 if (AreAllResourceCostsPaid(definition, paidCosts))
                     fullyPaid.Add(definition);
                 if ((saved.CostPaid || saved.Completed) &&
@@ -1122,7 +1116,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
             if (!TryGetStateByStableId(definition, out ResearchState state))
                 throw new InvalidOperationException(
-                    $"瀛樻。涓殑鐮旂┒鐘舵€佺储寮曠己灏戯細{definition.Id}");
+                    $"存档中的研究状态索引缺少：{definition.Id}");
             if (state.Status == ResearchStatus.Completed)
                 throw new InvalidOperationException(
                     $"存档中的研究队列包含已完成研究“{definition.Id}”。");
@@ -1218,26 +1212,17 @@ public class ResearchManager : Singleton<ResearchManager>
 
     private static IReadOnlyDictionary<Resource, ExpantaNum> RestorePaidResourceCosts(
         Research definition,
-        List<SaveManager.ResearchResourceCostSaveData> savedCosts,
-        bool legacyCostPaid)
+        List<SaveManager.ResearchResourceCostSaveData> savedCosts)
     {
         var result = new Dictionary<Resource, ExpantaNum>();
         if (savedCosts == null)
-        {
-            // Saves written before the per-resource ledger was introduced
-            // only carried CostPaid. Preserve that historical full payment
-            // for compatibility, but never infer a partial payment amount.
-            if (legacyCostPaid)
-                return BuildFullHistoricalPaymentLedger(definition);
-            return result;
-        }
+            throw new InvalidOperationException(
+                $"Research payment ledger is missing: {definition.Id}");
 
         for (int i = 0; i < savedCosts.Count; i++)
         {
             SaveManager.ResearchResourceCostSaveData saved = savedCosts[i];
-            string resourceId = RetiredDefinitionMigration.NormalizeResearchResourceId(
-                definition.Id, saved.ResourceId);
-            Resource resource = DataBase<Resource>.Find(resourceId);
+            Resource resource = DataBase<Resource>.Find(saved.ResourceId);
             if (result.ContainsKey(resource))
                 throw new InvalidOperationException($"Duplicate paid resource cost: {resource.Id}");
             ExpantaNum amount = Parse(saved.Amount, saved.ResourceId, nameof(saved.Amount));
@@ -1251,25 +1236,6 @@ public class ResearchManager : Singleton<ResearchManager>
                 throw new InvalidOperationException(
                     $"Research payment exceeds the required cost for {definition.Id}: {resource.Id}");
             result.Add(resource, amount);
-        }
-        return result;
-    }
-
-    private static IReadOnlyDictionary<Resource, ExpantaNum> BuildFullHistoricalPaymentLedger(
-        Research definition)
-    {
-        var result = new Dictionary<Resource, ExpantaNum>();
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
-            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
-                continue;
-            result[requirement.First] = result.TryGetValue(
-                requirement.First,
-                out ExpantaNum previous)
-                ? previous + requirement.Second
-                : requirement.Second;
         }
         return result;
     }

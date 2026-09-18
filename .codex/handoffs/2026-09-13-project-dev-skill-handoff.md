@@ -126,3 +126,27 @@
 
 下一动作：后续Kingdom任务从根AGENTS进入主技能按需选择分支；在支持正常链接和清理的环境单独解决完整工具回归，并另行验证客户端新会话的自动发现。
 
+## 用户确认的备份清理 — 2026-09-15
+
+已按明确列举的6文件范围，通过环境受保护的回收站入口逐项处理；每项验证原路径消失，6项全部成功，总计1,162,160字节。未使用永久删除，未清空回收站，未禁用或绕过保护。
+
+- `.codex/archive/kingdom-guidance-before-20260913-1451.zip`
+- `.codex/archive/probe-fixture-residue-backup-20260913-2307.zip`
+- `.codex/archive/guidance-before-20260914-124959.zip`
+- `.codex/archive/probe-test-x2s7xg2c-backup-20260914.zip`
+- `.codex/archive/guidance-extra-before-20260914.zip`
+- `outputs/Kingdom-Guidance-Consolidation-20260913.txt`
+
+前文及旧报告中的“备份保留”仅代表当时状态；以上备份现已不在仓库，恢复需在回收站尚未清空时进行。最新合并报告、Verification.json、指导集成ZIP、两份失败日志与清理清单均保留；47份正式指导/工具文件与交付包哈希一致，包CRC正常。未改游戏实现/资产或其他任务产物，未新增清理报告或备份。未执行真实 Unity 编译。
+
+## 用户确认清理过程报告 — 2026-09-15
+
+用户进一步选择“本次整理的失败日志也清理”，并逐项确认以下3文件移入回收站：
+- `outputs/Guidance-Consolidation-Tests-20260913.txt`
+- `outputs/Guidance-Verification-20260914.txt`
+- `outputs/Probe-Fixture-Cleanup-Manifest-20260913.json`
+
+执行前校验路径链非链接及文件SHA-256与确认清单一致；通过受保护回收站入口逐项操作并验证，总计300,153字节，3项原路径全部消失，未清空回收站。没有新建备份或清理报告，未扩展至其他任务文件。旧报告中的失败日志路径及“保留”结论仅代表历史；完整工具回归仍未通过，不因移除日志改变结论。
+
+最新合并报告、Verification.json及指导包仍存在，指导包CRC正常。额外一致性检查未通过：当前7份指导文件与20260914包的哈希不同，分别为 `.agents/skills/kingdom-project-dev/references/acceptance-cases.md`、`AGENTS.md`、`docs/architecture/research-queue-payment.md`、`docs/architecture/runtime-state.md`、`docs/content/progression-roadmap.md`、`docs/repository-map.md`、`docs/story/story-data-authoring.md`。本次仅操作3个指定过程文件，没有修改或覆盖这7份文件，也未自动重打包；不可再声称旧包与当前工作树完全一致。未执行真实 Unity 编译。
+

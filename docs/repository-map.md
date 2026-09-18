@@ -27,7 +27,7 @@
 | 研究队列/付款 | `Manager/ResearchManager.cs`、`Runtime/ResearchState.cs` | TryStartNextQueuedResearch、TryPayResearchCost、Tick；前置、支付台账、ResearchPower |
 | 工坊购买/效果 | `Manager/WorkshopManager.cs`、`Manager/ProgressionModifierManager.cs` | TryPurchase与ResearchEffectType消费链，不以定义存在证明效果生效 |
 | 星区/殖民/战役/舰队 | `Manager/SectorManager.cs`、`Manager/CampaignManager.cs` | TryUnlock、TryOccupy、TickOccupiedResourceProduction、TickActiveColonization/Campaign；星区建筑与本土领土不同 |
-| 存档失败/备份 | `Manager/SaveManager.cs`、`Data/SaveFormat.cs` | CaptureSaveData、LoadOrCreateGame、SaveNow；候选事务与成功后时间戳提交 |
+| 存档失败/版本拒绝 | `Manager/SaveManager.cs`、`Data/SaveFormat.cs` | CaptureSaveData、LoadOrCreateGame、SaveNow；v9 主档事务、临时文件原子替换与成功后时间戳提交 |
 | 数字/舍入/费用 | `Math/ExpantaNum.cs`、`Math/ExpantaNumExtensions.cs` | 调用点、闭式公式、容差，不重建BigNumber |
 | UI页/详情/列表/研究图 | `UI/KingdomUIRoot*.cs` | 按ResearchTree、DetailPanel、DetailUI、PageRows、LiveRefresh、SceneLayout等partial定位 |
 | 触摸/滚动/安全区 | `UI/UIResearchGraphGesture.cs`、`UI/UIResearchGraphDragForwarder.cs`、`UI/UIPageScrollDragForwarder.cs`、`UI/SafeAreaFitter.cs` | 节点转发、背景射线、真实边界、页面位置；规则见UI技能 |
@@ -54,4 +54,4 @@
 
 ## 交接与旧材料
 
-按主题寻找现行handoff：内容修缮、模拟器、滚动、安全区ticker、音乐、时代档案、资源素材。`CONTENTADVISE/`和日期审计是建议/决策背景，不是当前运行验收；旧归档不能覆盖当前代码。规则整理由项目开发技能同主题handoff持续记录。
+按主题寻找现行handoff：内容修缮、模拟器、滚动、安全区ticker、音乐、时代档案、资源素材。`CONTENTADVISE/`和日期审计是建议/决策背景，不是当前运行验收；旧归档不能覆盖当前代码。规则整理由项目开发技能同主题handoff持续记录。`CONTENTADVISE/` 已在提交 a85f0e7 从活动目录删除（引用它的文档属悬空引用）；全文恢复件在 `.codex/archive/recovered-20260915/CONTENTADVISE/`，用 `git show a85f0e7^:<路径>` 可复核，不要据此重建活动目录。

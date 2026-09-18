@@ -247,34 +247,6 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
-    public void LegacyStoneResourceIdsMapToCurrentStableIds()
-    {
-        Type migrationType =
-            typeof(SaveManager).Assembly.GetType("RetiredDefinitionMigration", true);
-        MethodInfo normalize = migrationType.GetMethod(
-            "NormalizeResourceId",
-            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        MethodInfo normalizeBuilding = migrationType.GetMethod(
-            "NormalizeBuildingId",
-            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-
-        Assert.That(
-            normalize.Invoke(null, new object[] { "StoneChunk_Marble" }),
-            Is.EqualTo("StoneChunk"));
-        Assert.That(
-            normalize.Invoke(null, new object[] { "StoneBrick_Marble" }),
-            Is.EqualTo("StoneBrick"));
-        Assert.That(
-            normalize.Invoke(null, new object[] { "WoodLog" }),
-            Is.EqualTo("WoodLog"));
-        Assert.That(
-            normalizeBuilding.Invoke(
-                null,
-                new object[] { "StoneCuttingWorkshop_Marble" }),
-            Is.EqualTo("StoneCuttingWorkshop"));
-    }
-
-    [Test]
     public void ResearchNoLongerOwnsBuildingUnlockData()
     {
         const BindingFlags flags =

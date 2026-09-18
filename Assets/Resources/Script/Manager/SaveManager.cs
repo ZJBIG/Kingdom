@@ -8,7 +8,6 @@ public sealed class SaveManager : Singleton<SaveManager>
 {
     private const string SaveFileName = "KingdomSave.json";
     private const string TempExtension = ".tmp";
-    private const string BackupExtension = ".bak";
 
     [SerializeField] private float autoSaveIntervalSeconds = 30f;
     [SerializeField] private float maximumOfflineHours = 24f;
@@ -16,6 +15,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool ready;
     private bool dirty = true;
     private long lastSavedStateSignature;
+    private long applicationPausedAtUnixSeconds;
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     private static string saveRootOverride;
@@ -35,7 +35,6 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     private string SavePath => Path.Combine(SaveRoot, SaveFileName);
     private string TempPath => SavePath + TempExtension;
-    private string BackupPath => SavePath + BackupExtension;
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     public static void SetSaveRootOverrideForTests(string root)
@@ -56,12 +55,12 @@ public sealed class SaveManager : Singleton<SaveManager>
         StartCoroutine(AutoSaveLoop());
     }
 
-    public bool HasSave => File.Exists(SavePath) || File.Exists(BackupPath);
+    public bool HasSave => File.Exists(SavePath);
     public bool LastLoadCreatedNewGame { get; private set; }
 
     public static void ValidateStorySaveData(KingdomSaveData data)
     {
-        ValidateStorySection(data, true);
+        ValidateStorySection(data);
     }
 
     public double LastOfflineProgressSeconds { get; private set; }
@@ -78,9 +77,14 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool ApplyOfflineProgress()
     {
-        LastOfflineProgressSeconds = 0d;
         long savedAt = GameManager.Instance.State.LastSaveUnixSeconds;
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        return ApplyOfflineProgress(savedAt, now);
+    }
+
+    private bool ApplyOfflineProgress(long savedAt, long now)
+    {
+        LastOfflineProgressSeconds = 0d;
         double maximumSeconds = Math.Max(0d, maximumOfflineHours) * 3600d;
         double elapsedSeconds = CalculateOfflineElapsedSeconds(
             savedAt,
@@ -111,21 +115,12 @@ public sealed class SaveManager : Singleton<SaveManager>
     public bool LoadOrCreateGame()
     {
         LastLoadCreatedNewGame = false;
-        if (TryLoadCandidate(SavePath, out KingdomSaveData saveData))
+        if (TryLoadSave(SavePath))
         {
             ready = true;
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
             Debug.Log($"已载入 Kingdom 存档：{SavePath}");
-            return true;
-        }
-
-        if (TryLoadCandidate(BackupPath, out saveData))
-        {
-            ready = true;
-            dirty = false;
-            lastSavedStateSignature = CalculateStateSignature();
-            Debug.Log($"主存档保存失败，已从备份载入 Kingdom 存档：{BackupPath}");
             return true;
         }
 
@@ -164,14 +159,9 @@ public sealed class SaveManager : Singleton<SaveManager>
             string json = JsonUtility.ToJson(data, true);
             Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
             File.WriteAllText(TempPath, json);
-            if (File.Exists(SavePath))
-                File.Copy(SavePath, BackupPath, true);
             CommitTempSave();
-            // The primary save is now durable. Commit the runtime baseline
-            // before best-effort temporary-file cleanup so a cleanup failure
-            // cannot cause the next resume to replay offline time.
+            // Commit the runtime baseline only after the primary is durable.
             GameManager.Instance.MarkSaveTimestamp(saveTimestamp);
-            File.Delete(TempPath);
 
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
@@ -197,15 +187,34 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     private void OnApplicationPause(bool paused)
     {
+        HandleApplicationPause(paused, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+    }
+
+    internal void HandleApplicationPause(bool paused, long unixSeconds)
+    {
+        if (unixSeconds < 0L)
+            throw new ArgumentOutOfRangeException(nameof(unixSeconds));
+
         if (paused)
         {
+            applicationPausedAtUnixSeconds = unixSeconds;
             SaveNow(true);
             return;
         }
 
-        if (ready && ApplyOfflineProgress())
+        long pausedAt = applicationPausedAtUnixSeconds;
+        applicationPausedAtUnixSeconds = 0L;
+        LastOfflineProgressSeconds = 0d;
+        if (ready && pausedAt > 0L && ApplyOfflineProgress(pausedAt, unixSeconds))
             SaveNow(true);
     }
+
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+    public void HandleApplicationPauseForTests(bool paused, long unixSeconds)
+    {
+        HandleApplicationPause(paused, unixSeconds);
+    }
+#endif
 
     private void OnApplicationQuit()
     {
@@ -243,7 +252,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档 JSON 为空或无效。");
         if (!IsSupportedVersion(data.Version))
             throw new InvalidDataException("存档结构不是当前版本。");
-        ValidateStorySection(data, false);
+        ValidateRequiredSections(data);
 
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
@@ -258,8 +267,6 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.RestorePopulationChangeProgress(data.General);
         BuildingManager.Instance.RefreshEfficiencies();
         GameManager.Instance.RestoreMilitarySaveData(data.General);
-        if (data.Researches != null)
-            data.Researches.LegacyFormat = data.Version < 7;
         ResearchManager.Instance.RestoreSaveData(data.Researches);
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
@@ -267,8 +274,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
         BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
-        if (data.Story != null)
-            StoryManager.RestoreSaveData(data.Story);
+        StoryManager.RestoreSaveData(data.Story);
         StoryManager.RefreshProgress();
     }
 
@@ -281,26 +287,20 @@ public sealed class SaveManager : Singleton<SaveManager>
         data.General.LastSaveUnixSeconds = unixSeconds;
     }
 
-    private bool TryLoadCandidate(string path, out KingdomSaveData data)
+    private bool TryLoadSave(string path)
     {
-        data = null;
         if (!TryReadPath(path, out KingdomSaveData candidate))
             return false;
 
         try
         {
             ApplySaveData(candidate);
-            data = candidate;
             return true;
         }
         catch (Exception exception)
         {
-            ResetRuntimeStateForLoad();
-            GameManager.Instance.InitializeNewGame();
-            BuildingManager.Instance.InitializeStartingBuildings();
-            TutorialManager.Ensure().ResetForNewGame();
             Debug.LogError(
-                $"应用 Kingdom 存档“{path}”失败。已在尝试下一个候选存档前重置运行时状态。" +
+                $"应用 Kingdom 存档“{path}”失败，将开始新游戏。" +
                 $"详细信息：{exception.Message}");
             return false;
         }
@@ -340,7 +340,7 @@ public sealed class SaveManager : Singleton<SaveManager>
                     $"当前应为“{SaveFormat.CurrentVersion}”。");
                 return false;
             }
-            ValidateStorySection(data, true);
+            ValidateRequiredSections(data);
             return true;
         }
         catch (Exception exception)
@@ -359,17 +359,25 @@ public sealed class SaveManager : Singleton<SaveManager>
             dirty = true;
     }
 
-    private static void ValidateStorySection(KingdomSaveData data,
-        bool requireSection)
+    private static void ValidateRequiredSections(KingdomSaveData data)
+    {
+        if (data.General == null || data.Resources == null ||
+            data.Buildings == null || data.Researches == null ||
+            data.Workshop == null || data.Sectors == null ||
+            data.Tutorial == null || data.Story == null)
+        {
+            throw new InvalidDataException("存档缺少当前版本的必要数据段。");
+        }
+
+        ValidateStorySection(data);
+    }
+
+    private static void ValidateStorySection(KingdomSaveData data)
     {
         if (data == null)
             throw new InvalidDataException("存档对象为空。");
         if (data.Story == null || data.Story.CompletedChapterIds == null)
-        {
-            if (requireSection)
-                throw new InvalidDataException("存档缺少剧情完成字段。");
-            return;
-        }
+            throw new InvalidDataException("存档缺少剧情完成字段。");
 
         TechLevel era = data.General == null
             ? TechLevel.Animal : data.General.TechLevel;
@@ -503,8 +511,6 @@ public sealed class SaveManager : Singleton<SaveManager>
     [Serializable]
     public sealed class ResearchSaveData
     {
-        [System.NonSerialized]
-        internal bool LegacyFormat;
         public string GlobalEfficiencyFactor;
         public List<ResearchStateSaveData> States;
         public string ActiveResearchId;
@@ -543,8 +549,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     private static bool IsSupportedVersion(int version)
     {
-        return version >= SaveFormat.MinimumSupportedVersion &&
-            version <= SaveFormat.CurrentVersion;
+        return version == SaveFormat.CurrentVersion;
     }
 
     [Serializable]
