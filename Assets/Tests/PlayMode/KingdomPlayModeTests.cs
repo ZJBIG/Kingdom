@@ -764,6 +764,43 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        SaveManager save = SaveManager.Instance;
+        ResourceManager resources = ResourceManager.Instance;
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Building lumber = DataBase<Building>.Find("Lumberyard");
+        Assert.That(lumber, Is.Not.Null);
+        BuildingState state = BuildingManager.Instance.EnsureBuilding(lumber);
+        BuildingManager.Instance.SetAmountAndRatesForEditor(state, ExpantaNum.One);
+        ExpantaNum before = resources.GetAmount(wood);
+        Assert.That(save.ApplyOfflineProgressForEditor(1000, 1010), Is.True);
+        OfflineProgressSummary summary = save.LastOfflineSummary;
+        ExpantaNum after = resources.GetAmount(wood);
+        Assert.That(after, Is.GreaterThan(before));
+        root.SetPage("Overview");
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        TMP_Text body = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/PrimaryCard/Text")
+            .GetComponent<TMP_Text>();
+        Assert.That(body.text, Does.Contain("离线结算摘要"));
+        Assert.That(body.text, Does.Contain(before.ToGameString() + " → " + after.ToGameString()));
+        SimulationManager.Instance.ManualTick(1d);
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        Assert.That(save.LastOfflineSummary, Is.SameAs(summary));
+        Assert.That(body.text, Does.Contain(before.ToGameString() + " → " + after.ToGameString()),
+            "Online ticks must not overwrite the evidence of the offline settlement.");
+        save.ApplySaveDataForEditor(save.CaptureSaveData());
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        Assert.That(save.LastOfflineSummary, Is.Null);
+        Assert.That(body.text, Does.Not.Contain("离线结算摘要"));
+    }
+
+    [UnityTest]
     public IEnumerator WorkshopBenefit_AuthoredDetailsRefreshAndPreviewMatchesCommittedRates()
     {
         yield return LoadIsolatedNewGame();

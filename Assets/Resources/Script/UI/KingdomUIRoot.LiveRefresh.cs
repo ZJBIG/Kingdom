@@ -857,6 +857,7 @@ public sealed partial class KingdomUIRoot
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
                 AppendUltraProjectOverview(onboarding);
+                AppendOfflineSummary(onboarding);
                 string overviewText = onboarding.ToString();
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NextEraGoal))
                     overviewText = overviewText.Replace(
@@ -922,6 +923,7 @@ public sealed partial class KingdomUIRoot
             }
         body.Append("\n推荐行动：").Append(snapshot.Body ?? string.Empty);
         AppendUltraProjectOverview(body);
+        AppendOfflineSummary(body);
         if (!SignatureEquals(body, developmentGuidanceText.text))
         {
             developmentGuidanceText.text = body.ToString();

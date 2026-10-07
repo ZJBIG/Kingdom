@@ -12,7 +12,7 @@ Kingdom 当前动工清单
 F 三项已获用户授权，分阶段实施、验证、上传，最终合并 main：
 [x] F1 工坊当前状态收益与额外原料说明。EditMode WorkshopBenefitPreviewTests 3/3；完整 PlayMode outputs-F-playmode-r3-20261007.xml 41/41，exit 0；逐阶段提交见阶段交付。
 [x] F2 首次本星系目标推荐，保留HomeSystemSurvey与LaunchCenter真实硬条件，首据点后返回远航；新增10场景与真实Overview星区详情导航，EditMode 27/27、完整PlayMode 41/41，均exit 0。
-[ ] F3 离线前后真实差异摘要。
+[x] F3 实际离线差异摘要，复用Overview；EditMode outputs-F3-editmode-r2-20261007.xml 5/5、完整PlayMode outputs-F-playmode-r3-20261007.xml 41/41，均exit 0；保持v9与会话清空语义。
 G 单处遗迹及其余大机制：用户明确暂缓，不当作现存bug。
 
 已实现的v9、E08、工厂合并、Ultra文明工程、研究里程碑与自然资源驱动新档回归不再重复列待办。

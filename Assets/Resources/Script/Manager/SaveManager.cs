@@ -66,6 +66,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     }
 
     public double LastOfflineProgressSeconds { get; private set; }
+    public OfflineProgressSummary LastOfflineSummary { get; private set; }
 
     public void SetReady(bool value)
     {
@@ -87,6 +88,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     private bool ApplyOfflineProgress(long savedAt, long now)
     {
         LastOfflineProgressSeconds = 0d;
+        LastOfflineSummary = null;
         double maximumSeconds = Math.Max(0d, maximumOfflineHours) * 3600d;
         double elapsedSeconds = CalculateOfflineElapsedSeconds(
             savedAt,
@@ -95,7 +97,11 @@ public sealed class SaveManager : Singleton<SaveManager>
         if (elapsedSeconds <= 0d)
             return false;
 
+        OfflineProgressSummary.Snapshot before = OfflineProgressSummary.Capture();
         LastOfflineProgressSeconds = SimulationManager.Instance.AdvanceOffline(elapsedSeconds);
+        if (LastOfflineProgressSeconds > 0d)
+            LastOfflineSummary = new OfflineProgressSummary(
+                before, OfflineProgressSummary.Capture(), now - savedAt, LastOfflineProgressSeconds);
         GameManager.Instance.MarkSaveTimestamp(now);
         dirty = true;
         Debug.Log($"已应用离线进度：{LastOfflineProgressSeconds:0.##} 秒。");
@@ -116,6 +122,8 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool LoadOrCreateGame()
     {
+        LastOfflineProgressSeconds = 0d;
+        LastOfflineSummary = null;
         LastLoadCreatedNewGame = false;
         if (TryLoadSave(SavePath))
         {
@@ -207,6 +215,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         long pausedAt = applicationPausedAtUnixSeconds;
         applicationPausedAtUnixSeconds = 0L;
         LastOfflineProgressSeconds = 0d;
+        LastOfflineSummary = null;
         if (ready && pausedAt > 0L && ApplyOfflineProgress(pausedAt, unixSeconds))
             SaveNow(true);
     }
@@ -257,6 +266,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档结构不是当前版本。");
         ValidateRequiredSections(data);
 
+        LastOfflineProgressSeconds = 0d;
+        LastOfflineSummary = null;
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
@@ -295,6 +306,14 @@ public sealed class SaveManager : Singleton<SaveManager>
     }
 
 #if UNITY_EDITOR
+    public bool ApplyOfflineProgressForEditor(long savedAt, long now) =>
+        ApplyOfflineProgress(savedAt, now);
+    public void SetMaximumOfflineHoursForEditor(float hours)
+    {
+        if (float.IsNaN(hours) || float.IsInfinity(hours) || hours < 0f)
+            throw new ArgumentOutOfRangeException(nameof(hours));
+        maximumOfflineHours = hours;
+    }
     public void ApplySaveDataForEditor(KingdomSaveData data) => ApplySaveData(data);
     public static void StampSaveTimestampForEditor(KingdomSaveData data, long unixSeconds) =>
         StampSaveTimestamp(data, unixSeconds);
