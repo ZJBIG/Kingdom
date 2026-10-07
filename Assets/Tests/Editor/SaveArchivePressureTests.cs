@@ -34,6 +34,8 @@ public sealed class SaveArchivePressureTests
             Assert.That(restored.Researches, Is.Not.Null);
             Assert.That(restored.Workshop, Is.Not.Null);
             Assert.That(restored.Sectors, Is.Not.Null);
+            Assert.That(restored.UltraProject, Is.Not.Null);
+            Assert.That(restored.UltraProject.Status, Is.EqualTo(UltraProjectStatus.Locked));
             Assert.That(restored.Tutorial, Is.Not.Null);
             Assert.That(restored.Story, Is.Not.Null);
             Assert.That(restored.Story.CompletedChapterIds, Is.Not.Null);
@@ -266,6 +268,18 @@ public sealed class SaveArchivePressureTests
             Sectors = new SaveManager.SectorSaveData
             {
                 States = new List<SaveManager.SectorStateSaveData>()
+            },
+            UltraProject = new UltraProjectStateSaveData
+            {
+                ProjectId = UltraProjectState.ProjectId,
+                SaveVersion = UltraProjectState.CurrentSaveVersion,
+                Doctrine = UltraProjectDoctrine.None,
+                Status = UltraProjectStatus.Locked,
+                CurrentStage = UltraProjectStage.None,
+                StageProgress = "0",
+                CompletedStages = new List<UltraProjectStage>(),
+                LaunchFeePaid = false,
+                StateVersion = 1
             },
             Tutorial = new SaveManager.TutorialSaveData
             {

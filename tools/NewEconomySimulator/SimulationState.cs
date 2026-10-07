@@ -470,10 +470,11 @@ public sealed class SimulationState
             !baseCost.IsFinite || baseCost < ExpantaNum.Zero ||
             !growth.IsFinite || growth < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException();
-        if (quantity == 0) return ExpantaNum.Zero;
-        var first = baseCost * ExpantaNum.Pow(growth, new ExpantaNum(owned));
-        if (growth == ExpantaNum.One) return first * new ExpantaNum(quantity);
-        return first * (ExpantaNum.Pow(growth, new ExpantaNum(quantity)) - ExpantaNum.One) / (growth - ExpantaNum.One);
+        // 复用 Unity 侧唯一闭式实现，避免 ratio 接近 1 时两条数值路径漂移。
+        return baseCost.GeometricSeriesCost(
+            growth,
+            new ExpantaNum(owned),
+            new ExpantaNum(quantity));
     }
 
     public SimulationStateSummary CreateSummary() => new(

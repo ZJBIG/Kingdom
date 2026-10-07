@@ -1,12 +1,34 @@
+using System;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using System.Collections;
+using Object = UnityEngine.Object;
 
 public sealed class PageScrollPositionPlayModeTests
 {
+    private string saveRoot;
+    [SetUp]
+    public void SetUp()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        saveRoot = Path.Combine(projectRoot, "Temp", "KingdomPageScrollPlayModeTests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        SaveManager.SetSaveRootOverrideForTests(saveRoot);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        SaveManager.ClearSaveRootOverrideForTests();
+        if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
+            Directory.Delete(saveRoot, true);
+        saveRoot = null;
+    }
+
     [UnityTest]
     public IEnumerator StoryPageRestoresPositionAfterLeavingAndReturning()
     {

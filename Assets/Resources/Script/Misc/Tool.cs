@@ -15,11 +15,6 @@ public struct Pair<T1, T2> : IEquatable<Pair<T1, T2>>
         this.first = first;
         this.second = second;
     }
-    public readonly void Deconstruct(out T1 first, out T2 second)
-    {
-        first = this.first;
-        second = this.second;
-    }
 
     public readonly bool Equals(Pair<T1, T2> other) =>
         EqualityComparer<T1>.Default.Equals(first, other.first)
@@ -150,15 +145,12 @@ public static class ResourceAmountDefinitionList
 public static class Tool
 {
     public static string Colorize(this string s, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{s}</color>";
-    public static bool NullOrEmpty(this string str) => string.IsNullOrEmpty(str);
 
     // Keep enum formatting usable without the reflection-based attribute
-    // lookup that was removed for the runtime code path. Known player-facing
-    // enums below provide localized labels; other enums safely fall back to
-    // their stable member name.
-    public static string GetDescription(this Enum value) =>
-        value == null ? string.Empty : value.ToString();
-
+    // lookup that was removed for the runtime code path. Player-facing
+    // enums provide localized labels via the strong-typed overloads below;
+    // a new enum without an overload fails to compile instead of silently
+    // falling back to a member name.
     public static string GetDescription(this TechLevel value) => value switch
     {
         TechLevel.Animal => "原始时代",

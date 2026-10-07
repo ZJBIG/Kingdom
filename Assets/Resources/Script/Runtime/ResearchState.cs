@@ -86,10 +86,16 @@ public sealed class ResearchState
             : ResearchStatus.Locked);
     }
 
-    internal void Restore(ExpantaNum restoredProgress, bool restoredCostPaid, bool completed)
-    {
-        Restore(restoredProgress, restoredCostPaid, completed, null);
-    }
+#if UNITY_EDITOR
+    public void SetProgressForEditor(ExpantaNum value) => SetProgress(value);
+    public void SetStatusForEditor(ResearchStatus value) => SetStatus(value);
+    public void RestoreForEditor(
+        ExpantaNum restoredProgress,
+        bool restoredCostPaid,
+        bool completed,
+        IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts) =>
+        Restore(restoredProgress, restoredCostPaid, completed, restoredPaidResourceCosts);
+#endif
 
     internal void Restore(
         ExpantaNum restoredProgress,

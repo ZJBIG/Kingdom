@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "相位材料合成阵列"
   Description: "以幽影合金和幽影纤维为核心原料，使用钛合金、镍与电子元件维持高能场约束，缓慢合成可用于相位航行与量子设施的相位材料。"
   TechLevel: 4
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.17"
   spaceCost: "520"
   productivityConsumption: "480"

@@ -100,12 +100,12 @@ public sealed class SectorBuildingTests
         SectorDefinition sector = ScriptableObject.CreateInstance<SectorDefinition>();
         try
         {
-            SetPrivateField(building, "sector", sector);
-            SetPrivateField(building, "maxAmount", 0);
+            building.SetSectorForEditor(sector);
+            building.SetMaxAmountForEditor(0);
             Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(building));
 
-            SetPrivateField(building, "maxAmount", 1);
-            SetPrivateField(building, "spaceCost", "1");
+            building.SetMaxAmountForEditor(1);
+            building.SetSpaceCostForEditor("1");
             Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(building));
         }
         finally
@@ -143,7 +143,7 @@ public sealed class SectorBuildingTests
         try
         {
             sector.SetIdForEditor("TestSectorBuilding");
-            SetPrivateField(sector, "sector", moon);
+            sector.SetSectorForEditor(moon);
             sector.SetUpgradeToForEditor(target);
 
             Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(sector));
@@ -216,9 +216,12 @@ public sealed class SectorBuildingTests
         Assert.That(gameManager.State.TerritoryUsed, Is.EqualTo(territoryUsed));
         Assert.That(gameManager.State.AvailableTerritory, Is.EqualTo(territoryAvailable));
         AddEnoughBuildResources(resourceManager, building);
+        bool rebuilt = buildingManager.TryBuild(
+            building, ExpantaNum.One, out BuildFailure rebuildFailure);
         Assert.That(
-            buildingManager.TryBuild(building, ExpantaNum.One, out BuildFailure rebuildFailure),
-            Is.True);
+            rebuilt,
+            Is.True,
+            "Rebuild after deconstruct must succeed, but was rejected with " + rebuildFailure);
         Assert.That(rebuildFailure, Is.EqualTo(BuildFailure.None));
 
         try
@@ -271,10 +274,7 @@ public sealed class SectorBuildingTests
 
     private static void AdvanceToSpacer(GameManager gameManager)
     {
-        MethodInfo method = typeof(GameManager).GetMethod(
-            "AdvanceTechLevel", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(gameManager, new object[] { TechLevel.Spacer });
+        gameManager.AdvanceTechLevelForEditor(TechLevel.Spacer);
     }
 
     private static void CompleteResearch(ResearchManager manager, string id)
@@ -310,37 +310,25 @@ public sealed class SectorBuildingTests
             ResearchManager.TryPayResearchCost(state),
             Is.True,
             $"{research.Id} 的科研成本必须可支付，保存的支付台账才有效。");
-        MethodInfo method = typeof(ResearchState).GetMethod(
-            "SetStatus", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, new object[] { ResearchStatus.Completed });
+        state.SetStatusForEditor(ResearchStatus.Completed);
     }
 
     private static void EnsureInitialized(ResearchManager manager)
     {
         if (manager.States.Count > 0)
             return;
-        MethodInfo method = typeof(ResearchManager).GetMethod(
-            "Initialize", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(manager, null);
+        manager.InitializeForEditor();
     }
 
     private static void RestorePopulation(GameState state, ExpantaNum population)
     {
-        MethodInfo method = typeof(GameState).GetMethod(
-            "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, new object[] { population });
+        state.RestorePopulationForEditor(population);
     }
 
     private static void AddEnoughBuildResources(ResourceManager resourceManager, Building building)
     {
-        MethodInfo method = typeof(BuildingManager).GetMethod(
-            "GetConstructionCostMultiplier", BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        ExpantaNum costMultiplier = (ExpantaNum)method.Invoke(
-            null, new object[] { building });
+        ExpantaNum costMultiplier =
+            BuildingManager.GetConstructionCostMultiplierForEditor(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
@@ -361,15 +349,5 @@ public sealed class SectorBuildingTests
                 return pair.Second > ExpantaNum.Zero;
         }
         return false;
-    }
-
-    private static void SetPrivateField(object target, string name, object value)
-    {
-        FieldInfo field = target.GetType().GetField(
-            name, BindingFlags.Instance | BindingFlags.NonPublic) ??
-            target.GetType().BaseType.GetField(
-                name, BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(field, Is.Not.Null, name);
-        field.SetValue(target, value);
     }
 }

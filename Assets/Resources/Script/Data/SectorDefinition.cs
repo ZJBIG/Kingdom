@@ -6,6 +6,24 @@ public sealed class SectorDefinition : GameDefinition
 {
     public const string HomeSystemId = "Sol";
 
+    private struct ParsedExpantaNumCache
+    {
+        private string source;
+        private ExpantaNum value;
+        private bool initialized;
+
+        public ExpantaNum Get(string current)
+        {
+            if (initialized && object.ReferenceEquals(source, current))
+                return value;
+            ExpantaNum parsed = current;
+            source = current;
+            value = parsed;
+            initialized = true;
+            return parsed;
+        }
+    }
+
     public enum SectorDomain
     {
         HomeSystem,
@@ -37,8 +55,12 @@ public sealed class SectorDefinition : GameDefinition
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> occupiedResourceRatesCache;
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> colonizationResourceRatesCache;
     [System.NonSerialized] private List<Pair<Resource, ExpantaNum>> campaignResourceRatesCache;
+    [System.NonSerialized] private ParsedExpantaNumCache enemyPowerCache;
+    [System.NonSerialized] private ParsedExpantaNumCache colonizationFoodPerSecondCache;
+    [System.NonSerialized] private ParsedExpantaNumCache colonizationDurationSecondsCache;
+    [System.NonSerialized] private ParsedExpantaNumCache campaignFoodPerSecondCache;
 
-    public ExpantaNum EnemyPower => enemyPower;
+    public ExpantaNum EnemyPower => enemyPowerCache.Get(enemyPower);
     public string StarSystemId => string.IsNullOrWhiteSpace(starSystemId) ? HomeSystemId : starSystemId;
     public SectorDomain Domain => domain;
     public bool IsHomeSystem => domain == SectorDomain.HomeSystem;
@@ -48,11 +70,12 @@ public sealed class SectorDefinition : GameDefinition
         ResourceAmountDefinitionList.ToPairs(resourceRewards, ref resourceRewardsCache);
     public IReadOnlyList<Pair<Resource, ExpantaNum>> OccupiedResourceRatesPerSecond =>
         ResourceAmountDefinitionList.ToPairs(occupiedResourceRatesPerSecond, ref occupiedResourceRatesCache);
-    public ExpantaNum ColonizationFoodPerSecond => colonizationFoodPerSecond;
+    public ExpantaNum ColonizationFoodPerSecond => colonizationFoodPerSecondCache.Get(colonizationFoodPerSecond);
     public IReadOnlyList<Pair<Resource, ExpantaNum>> ColonizationResourceRatesPerSecond =>
         ResourceAmountDefinitionList.ToPairs(colonizationResourceRatesPerSecond, ref colonizationResourceRatesCache);
-    public ExpantaNum ColonizationDurationSeconds => ExpantaNum.Max(ExpantaNum.One, colonizationDurationSeconds);
-    public ExpantaNum CampaignFoodPerSecond => campaignFoodPerSecond;
+    public ExpantaNum ColonizationDurationSeconds =>
+        ExpantaNum.Max(ExpantaNum.One, colonizationDurationSecondsCache.Get(colonizationDurationSeconds));
+    public ExpantaNum CampaignFoodPerSecond => campaignFoodPerSecondCache.Get(campaignFoodPerSecond);
     public IReadOnlyList<Pair<Resource, ExpantaNum>> CampaignResourceRatesPerSecond =>
         ResourceAmountDefinitionList.ToPairs(campaignResourceRatesPerSecond, ref campaignResourceRatesCache);
     public ExpantaNum CampaignProgressMultiplier => ExpantaNum.Clamp01(campaignProgressMultiplier);

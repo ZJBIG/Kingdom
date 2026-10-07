@@ -294,8 +294,6 @@ public static class SectorValidator
         {
             var cycleMessages = new List<string>(cycles.Values);
             cycleMessages.Sort(System.StringComparer.Ordinal);
-            error = "鏄熷尯渚濊禆寰幆锛氭娴嬪埌澶氭潯鐙珛寰幆\\n - " +
-                string.Join(System.Environment.NewLine + " - ", cycleMessages);
             error = "\u661f\u533a\u4f9d\u8d56\u5faa\u73af\uff1a\u68c0\u6d4b\u5230\u591a\u6761\u72ec\u7acb\u5faa\u73af" +
                 System.Environment.NewLine + " - " +
                 string.Join(System.Environment.NewLine + " - ", cycleMessages);
@@ -456,23 +454,6 @@ public static class SectorValidator
             start = 0;
 
         var builder = new StringBuilder("\u661f\u533a\u4f9d\u8d56\u5faa\u73af\uff1a");
-        for (int i = start; i < path.Count; i++)
-        {
-            if (i > start)
-                builder.Append(" -> ");
-            builder.Append(path[i].Id);
-        }
-        builder.Append(" -> ");
-        builder.Append(repeated.Id);
-        return builder.ToString();
-    }
-
-    private static string BuildCycleError(List<SectorDefinition> path, SectorDefinition repeated)
-    {
-        int start = path.IndexOf(repeated);
-        if (start < 0)
-            start = 0;
-        var builder = new StringBuilder("星区依赖循环：");
         for (int i = start; i < path.Count; i++)
         {
             if (i > start)

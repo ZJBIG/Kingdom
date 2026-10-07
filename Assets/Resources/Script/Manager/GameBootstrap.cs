@@ -26,6 +26,7 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
         _ = BuildingManager.Instance;
         _ = ResearchManager.Instance;
         _ = WorkshopManager.Instance;
+        UIButtonSoundManager.EnsureInitialized();
         TutorialManager.Ensure();
         GameManager.Instance.Sectors.InitializeDefinitions();
 

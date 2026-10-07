@@ -319,6 +319,17 @@ public sealed partial class KingdomUIRoot
                 signature.Append(":queue=").Append(i);
         if (manager.ActiveResearch?.Definition == research)
             signature.Append(":active");
+        IReadOnlyList<Research> prerequisites = research.Prerequisites;
+        if (prerequisites != null)
+        {
+            signature.Append(":prerequisites");
+            for (int i = 0; i < prerequisites.Count; i++)
+            {
+                Research prerequisite = prerequisites[i];
+                signature.Append('|').Append(prerequisite?.Id ?? string.Empty).Append('=')
+                    .Append(prerequisite != null && manager.IsResearchCompleted(prerequisite.Id) ? '1' : '0');
+            }
+        }
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
         if (requirements != null && ResourceManager.Instance != null)
             for (int i = 0; i < requirements.Count; i++)
@@ -844,102 +855,6 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Research graph runtime validation failed; see counts above.");
     }
 
-    private void LogResearchVisualDiagnostics()
-    {
-        int loggedLabels = 0;
-        foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
-        {
-            if (pair.Value == null)
-                continue;
-            Transform labelTransform = pair.Value.transform.Find("Label");
-            TMP_Text label = labelTransform == null ? null : labelTransform.GetComponent<TMP_Text>();
-            Text legacyLabel = labelTransform == null ? null : labelTransform.GetComponent<Text>();
-            if (label == null && legacyLabel == null)
-            {
-                Debug.LogError($"[王国界面] Research visual: missing label node={pair.Key?.Id}");
-                continue;
-            }
-            int visibleCharacters = 0;
-            string labelText;
-            string fontName;
-            Vector2 labelSize;
-            bool labelActive;
-            Color labelColor;
-            int vertexCount;
-            bool canvasCulled;
-            if (label != null)
-            {
-                // The diagnostic only prints the first three labels. Forcing
-                // a mesh rebuild for every node during page entry creates a
-                // multi-second hitch and is unrelated to graph correctness.
-                if (loggedLabels < 3)
-                {
-                    label.ForceMeshUpdate();
-                    for (int characterIndex = 0; characterIndex < label.textInfo.characterCount; characterIndex++)
-                        if (label.textInfo.characterInfo[characterIndex].isVisible)
-                            visibleCharacters++;
-                }
-                labelText = label.text;
-                fontName = label.font == null ? "null" : label.font.name;
-                labelSize = label.rectTransform.rect.size;
-                labelActive = label.gameObject.activeInHierarchy;
-                labelColor = label.color;
-                vertexCount = label.canvasRenderer == null ? 0 : 1;
-                canvasCulled = label.canvasRenderer != null && label.canvasRenderer.cull;
-            }
-            else
-            {
-                labelText = legacyLabel.text;
-                visibleCharacters = string.IsNullOrEmpty(labelText) ? 0 : labelText.Length;
-                fontName = legacyLabel.font == null ? "null" : legacyLabel.font.name;
-                labelSize = legacyLabel.rectTransform.rect.size;
-                labelActive = legacyLabel.gameObject.activeInHierarchy;
-                labelColor = legacyLabel.color;
-                vertexCount = legacyLabel.cachedTextGenerator == null ? 0 : legacyLabel.cachedTextGenerator.vertexCount;
-                canvasCulled = legacyLabel.canvasRenderer != null && legacyLabel.canvasRenderer.cull;
-            }
-            if (loggedLabels++ < 3)
-                Debug.Log($"[王国界面] Research visual label: id={pair.Key?.Id}, text='{labelText}', active={labelActive}, font={fontName}, rect={labelSize}, visible={visibleCharacters}, color={labelColor}, vertices={vertexCount}, culled={canvasCulled}");
-        }
-
-        // Index node rectangles once. The previous diagnostic searched all
-        // research nodes for every arrow, creating a seconds-long page-entry
-        // hitch in the current 2735-arrow tree.
-        var nodeRectByGrid = new Dictionary<Vector2Int, RectTransform>();
-        foreach (KeyValuePair<Research, Button> nodePair in researchTreeNodes)
-        {
-            RectTransform nodeRect = nodePair.Value == null
-                ? null
-                : nodePair.Value.transform as RectTransform;
-            if (nodeRect != null)
-                nodeRectByGrid[GetResearchGridPosition(GetNodeTopLeftPosition(nodeRect))] = nodeRect;
-        }
-
-        int loggedArrows = 0;
-        int misalignedArrows = 0;
-        foreach (KeyValuePair<ResearchArrowCacheKey, UIResearchConnectorBatch.Part> pair in researchArrowVisuals)
-        {
-            if (pair.Value == null)
-                continue;
-            Rect rect = pair.Value.LayoutRect;
-            if (nodeRectByGrid.TryGetValue(pair.Key.TargetGrid, out RectTransform nodeRect))
-            {
-                Vector2 nodeTopLeft = GetNodeTopLeftPosition(nodeRect);
-                float arrowTop = researchGraphContent.rect.height - rect.y - rect.height;
-                float arrowCenter = arrowTop + rect.height * .5f;
-                float nodeCenter = nodeTopLeft.y + nodeRect.rect.height * .5f;
-                float arrowRight = rect.x + rect.width;
-                if (Mathf.Abs(arrowCenter - nodeCenter) > .5f ||
-                    Mathf.Abs(arrowRight - nodeTopLeft.x) > .5f)
-                    misalignedArrows++;
-                if (loggedArrows < 3)
-                    Debug.Log($"[王国界面] Research visual end arrow alignment: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, arrowRight={arrowRight:0.##}, nodeLeft={nodeTopLeft.x:0.##}");
-            }
-            if (loggedArrows++ < 3)
-                Debug.Log($"[王国界面] Research visual end arrow: from={pair.Key.From?.Id}, to={pair.Key.To?.Id}, local={rect.position}, size={rect.size}");
-        }
-    }
-
     private Vector2 GetNodeTopLeftPosition(RectTransform node)
     {
         if (node == null || researchGraphContent == null)
@@ -1394,63 +1309,6 @@ public sealed partial class KingdomUIRoot
         depth[research] = maximumPrerequisiteDepth + 1;
     }
 
-    private static void OrderResearchLayer(Dictionary<int, List<Research>> layers, int layer,
-        Dictionary<Research, int> row, Dictionary<Research, List<Research>> successors, bool forward)
-    {
-        if (!layers.TryGetValue(layer, out List<Research> nodes) || nodes.Count < 2)
-            return;
-        var scores = new Dictionary<Research, float>();
-        for (int i = 0; i < nodes.Count; i++)
-        {
-            Research node = nodes[i];
-            float total = 0f;
-            int count = 0;
-            if (forward && node.Prerequisites != null)
-            {
-                for (int p = 0; p < node.Prerequisites.Count; p++)
-                {
-                    Research prerequisite = node.Prerequisites[p];
-                    if (prerequisite != null && row.TryGetValue(prerequisite, out int prerequisiteRow))
-                    {
-                        total += prerequisiteRow;
-                        count++;
-                    }
-                }
-            }
-            else if (!forward && successors.TryGetValue(node, out List<Research> targets))
-            {
-                for (int t = 0; t < targets.Count; t++)
-                    if (row.TryGetValue(targets[t], out int targetRow))
-                    {
-                        total += targetRow;
-                        count++;
-                    }
-            }
-            scores[node] = count == 0 ? row[node] : total / count;
-        }
-        nodes.Sort((left, right) =>
-        {
-            int result = scores[left].CompareTo(scores[right]);
-            if (result != 0)
-                return result;
-            result = row[left].CompareTo(row[right]);
-            return result != 0 ? result : CompareResearchStable(left, right);
-        });
-        // Keep the barycentre's absolute row instead of compacting every
-        // layer to 0..N. FluffyResearchTree does the same: this preserves
-        // vertical separation between independent branches and creates a
-        // real scroll surface for a large research tree.
-        int nextRow = 0;
-        int groupOffset = Mathf.FloorToInt((nodes.Count - 1) * .5f);
-        for (int i = 0; i < nodes.Count; i++)
-        {
-            int desiredRow = Mathf.RoundToInt(scores[nodes[i]]) - groupOffset;
-            int assignedRow = Mathf.Max(nextRow, desiredRow);
-            row[nodes[i]] = assignedRow;
-            nextRow = assignedRow + 1;
-        }
-    }
-
     private static int CompareResearchStable(Research left, Research right)
     {
         int result = string.Compare(left == null ? string.Empty : left.Id,
@@ -1459,135 +1317,6 @@ public sealed partial class KingdomUIRoot
             return result;
         return string.Compare(left == null ? string.Empty : left.Label,
             right == null ? string.Empty : right.Label, StringComparison.Ordinal);
-    }
-
-    private static void ImproveResearchLayerCrossings(int layer, IReadOnlyList<Research> allResearch,
-        Dictionary<Research, int> depth, Dictionary<Research, int> row,
-        Dictionary<int, List<Research>> layers)
-    {
-        if (!layers.TryGetValue(layer, out List<Research> nodes) || nodes.Count < 2)
-            return;
-        int current = CountResearchCrossingsAtBoundary(layer - 1, allResearch, depth, row) +
-            CountResearchCrossingsAtBoundary(layer, allResearch, depth, row);
-        for (int i = 0; i < nodes.Count - 1; i++)
-        {
-            Research first = nodes[i];
-            Research second = nodes[i + 1];
-            int firstRow = row[first];
-            row[first] = row[second];
-            row[second] = firstRow;
-            int candidate = CountResearchCrossingsAtBoundary(layer - 1, allResearch, depth, row) +
-                CountResearchCrossingsAtBoundary(layer, allResearch, depth, row);
-            if (candidate <= current)
-                current = candidate;
-            else
-            {
-                row[second] = row[first];
-                row[first] = firstRow;
-            }
-        }
-    }
-
-    private static int CountResearchCrossingsAtBoundary(int boundary,
-        IReadOnlyList<Research> allResearch, Dictionary<Research, int> depth,
-        Dictionary<Research, int> row)
-    {
-        if (boundary < 0)
-            return 0;
-        var segments = new List<Vector2Int>();
-        for (int i = 0; i < allResearch.Count; i++)
-        {
-            Research target = allResearch[i];
-            if (target == null || target.Prerequisites == null ||
-                !depth.TryGetValue(target, out int targetDepth) || targetDepth - 1 != boundary + 1)
-                continue;
-            for (int p = 0; p < target.Prerequisites.Count; p++)
-            {
-                Research prerequisite = target.Prerequisites[p];
-                if (prerequisite == null || !depth.TryGetValue(prerequisite, out int prerequisiteDepth) ||
-                    prerequisiteDepth - 1 != boundary || !row.ContainsKey(prerequisite) || !row.ContainsKey(target))
-                    continue;
-                segments.Add(new Vector2Int(row[prerequisite], row[target]));
-            }
-        }
-        segments.Sort((left, right) =>
-        {
-            int result = left.x.CompareTo(right.x);
-            return result != 0 ? result : left.y.CompareTo(right.y);
-        });
-        int crossings = 0;
-        for (int i = 0; i < segments.Count; i++)
-            for (int j = i + 1; j < segments.Count; j++)
-                if (segments[i].x != segments[j].x && segments[i].y != segments[j].y &&
-                    ((segments[i].x < segments[j].x && segments[i].y > segments[j].y) ||
-                     (segments[i].x > segments[j].x && segments[i].y < segments[j].y)))
-                    crossings++;
-        return crossings;
-    }
-
-    private void CreateResearchEraBands(RectTransform content, IReadOnlyList<Research> definitions,
-        IReadOnlyDictionary<Research, Vector2> positions)
-    {
-        string[] names = { "原始时代", "石器时代", "中古时代", "工业时代", "太空时代", "极致时代", "远古科技时代" };
-        string[] textures = { "ResearchEraAnimal", "ResearchEraStoneAge", "ResearchEraMedieval", "ResearchEraIndustrial", "ResearchEraSpacer", "ResearchEraUltra", "ResearchEraArchotech" };
-        float[] minX = new float[names.Length];
-        float[] maxX = new float[names.Length];
-        for (int i = 0; i < names.Length; i++)
-        {
-            minX[i] = float.PositiveInfinity;
-            maxX[i] = float.NegativeInfinity;
-        }
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            Research research = definitions[i];
-            if (research == null || !positions.TryGetValue(research, out Vector2 position))
-                continue;
-            int era = Mathf.Clamp((int)research.TechLevel, 0, names.Length - 1);
-            minX[era] = Mathf.Min(minX[era], position.x);
-            maxX[era] = Mathf.Max(maxX[era], position.x + ResearchNodeWidth);
-        }
-        float runningX = 24f;
-        for (int i = 0; i < names.Length; i++)
-        {
-            if (float.IsInfinity(minX[i]))
-            {
-                minX[i] = runningX;
-                maxX[i] = runningX + 440f;
-            }
-            minX[i] = Mathf.Max(0f, Mathf.Min(minX[i] - 70f, runningX));
-            maxX[i] = Mathf.Max(maxX[i], minX[i] + 440f);
-            GameObject bandObject = KingdomUIPrefabLibrary.Instantiate(
-                KingdomUIPrefabLibrary.ResearchEraBand, content);
-            if (bandObject == null)
-            {
-                Debug.LogError("[王国界面] Missing reusable ResearchEraBand prefab");
-                continue;
-            }
-            RectTransform band = bandObject.GetComponent<RectTransform>();
-            band.name = "ResearchEraBand_" + i;
-            band.anchorMin = Vector2.zero;
-            band.anchorMax = Vector2.zero;
-            band.pivot = Vector2.zero;
-            band.anchoredPosition = new Vector2(minX[i], 0);
-            band.sizeDelta = new Vector2(maxX[i] - minX[i], content.sizeDelta.y);
-            Image image = band.GetComponent<Image>();
-            image.color = new Color(1f, 1f, 1f, .12f);
-            image.sprite = LoadResearchTreeSprite("ResearchTree/" + textures[i]);
-            image.preserveAspect = false;
-            image.raycastTarget = false;
-            band.SetAsFirstSibling();
-            TMP_Text title = band.Find("Title").GetComponent<TMP_Text>();
-            title.text = names[i];
-            title.fontSize = 30;
-            title.color = Copper;
-            title.font = sharedFontAsset != null ? sharedFontAsset : TMP_Settings.defaultFontAsset;
-            RectTransform titleRect = title.transform as RectTransform;
-            titleRect.anchorMin = new Vector2(0, 1);
-            titleRect.anchorMax = Vector2.one;
-            titleRect.offsetMin = new Vector2(24, -62);
-            titleRect.offsetMax = new Vector2(-24, -18);
-            runningX = maxX[i] + 16f;
-        }
     }
 
     private System.Collections.IEnumerator CreateResearchTreeLinks(RectTransform content, IReadOnlyList<Research> definitions,
@@ -1933,10 +1662,7 @@ public sealed partial class KingdomUIRoot
         if (ResearchManager.Instance != null)
             ResearchManager.Instance.States.TryGetValue(research, out state);
         ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
-        Color accent = status == ResearchStatus.Completed ? Positive :
-            status == ResearchStatus.Available ? Copper :
-            status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
-                new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+        Color accent = GetResearchStatusColor(status);
 
         GameObject nodeObject = KingdomUIPrefabLibrary.Instantiate(
             KingdomUIPrefabLibrary.ResearchNode, content);
@@ -2208,6 +1934,14 @@ public sealed partial class KingdomUIRoot
         return ResearchStatus.Locked;
     }
 
+    private static Color GetResearchStatusColor(ResearchStatus status)
+    {
+        return status == ResearchStatus.Completed ? Positive :
+            status == ResearchStatus.Available ? Copper :
+            status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
+            new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+    }
+
     private Color GetResearchLinkColor(Research prerequisite, Research target)
     {
         if (IsResearchInSelectedPrerequisitePath(prerequisite, target))
@@ -2296,10 +2030,7 @@ public sealed partial class KingdomUIRoot
             if (ResearchManager.Instance != null)
                 ResearchManager.Instance.States.TryGetValue(research, out state);
             ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
-            Color accent = status == ResearchStatus.Completed ? Positive :
-                status == ResearchStatus.Available ? Copper :
-                status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
-                new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+            Color accent = GetResearchStatusColor(status);
             bool focused = focusedIds.Contains(research.Id);
 
             researchNodeVisualReferences.TryGetValue(

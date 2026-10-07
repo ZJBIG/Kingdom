@@ -182,10 +182,29 @@ public sealed class GameState
         Version++;
     }
 
+    internal void RestoreCampaign(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        CampaignDoctrine doctrine)
+    {
+        Campaign.Restore(active, targetSectorId, casualties, combatRatio, doctrine);
+        Version++;
+    }
+
     internal void BeginCampaign(string sectorId)
     {
         int previousVersion = Campaign.Version;
         Campaign.Begin(sectorId);
+        if (Campaign.Version != previousVersion)
+            Version++;
+    }
+
+    internal void SetCampaignDoctrine(CampaignDoctrine doctrine)
+    {
+        int previousVersion = Campaign.Version;
+        Campaign.SetDoctrine(doctrine);
         if (Campaign.Version != previousVersion)
             Version++;
     }
@@ -287,6 +306,80 @@ public sealed class GameState
         Version++;
     }
 
+#if UNITY_EDITOR
+    public void RestoreCoreForEditor(
+        int calendarDays,
+        TechLevel techLevel,
+        ExpantaNum foodAmount,
+        long lastSaveUnixSeconds) =>
+        RestoreCore(calendarDays, techLevel, foodAmount, lastSaveUnixSeconds);
+    public void RestorePopulationForEditor(ExpantaNum population) =>
+        RestorePopulation(population);
+    public void RestorePopulationCapacityExactForEditor(
+        ExpantaNum restoredCapacity,
+        ExpantaNum restoredProgress) =>
+        RestorePopulationCapacityExact(restoredCapacity, restoredProgress);
+    public void ResetDerivedEconomyForEditor(ExpantaNum minimumTerritoryTotal) =>
+        ResetDerivedEconomy(minimumTerritoryTotal);
+    public void AdvanceFoodForEditor(double deltaSeconds) => AdvanceFood(deltaSeconds);
+    public void AdjustFoodRatesForEditor(
+        ExpantaNum productionDelta,
+        ExpantaNum consumptionDelta) =>
+        AdjustFoodRates(productionDelta, consumptionDelta);
+    public void AdjustFoodCapacityForEditor(ExpantaNum capacityDelta) =>
+        AdjustFoodCapacity(capacityDelta);
+    public void AdjustPowerRatesForEditor(
+        ExpantaNum productionDelta,
+        ExpantaNum consumptionDelta) =>
+        AdjustPowerRates(productionDelta, consumptionDelta);
+    public void AdjustLogisticsRatesForEditor(
+        ExpantaNum productionDelta,
+        ExpantaNum consumptionDelta) =>
+        AdjustLogisticsRates(productionDelta, consumptionDelta);
+    public void AdjustPopulationCapacityForEditor(ExpantaNum capacityDelta) =>
+        AdjustPopulationCapacity(capacityDelta);
+    public void AdjustTerritoryTotalForEditor(ExpantaNum delta) =>
+        AdjustTerritoryTotal(delta);
+    public void SetFoodAvailabilityForEditor(ExpantaNum value) =>
+        SetFoodAvailability(value);
+    public void MarkSavedForEditor(long unixSeconds) => MarkSaved(unixSeconds);
+    public void RestorePopulationChangeProgressForEditor(ExpantaNum progress) =>
+        RestorePopulationChangeProgress(progress);
+    public void AdvanceTechLevelForEditor(TechLevel target) => AdvanceTechLevel(target);
+    public void CommitConstructionForEditor(ExpantaNum spaceCost) =>
+        CommitConstruction(spaceCost);
+    public void RefundConstructionForEditor(ExpantaNum spaceCost) =>
+        RefundConstruction(spaceCost);
+    public void AdjustAttackPowerForEditor(ExpantaNum delta) =>
+        AdjustAttackPower(delta);
+    public void AdjustDefensePowerForEditor(ExpantaNum delta) =>
+        AdjustDefensePower(delta);
+    public void AdjustFleetPowerForEditor(ExpantaNum delta) =>
+        AdjustFleetPower(delta);
+    public void AdjustMilitaryManpowerForEditor(ExpantaNum delta) =>
+        AdjustMilitaryManpower(delta);
+    public void SetSupplySatisfactionForEditor(ExpantaNum value) =>
+        SetSupplySatisfaction(value);
+    public void SetPowerSatisfactionForEditor(ExpantaNum value) =>
+        SetPowerSatisfaction(value);
+    public void SetLogisticsSatisfactionForEditor(ExpantaNum value) =>
+        SetLogisticsSatisfaction(value);
+    public void BeginCampaignForEditor(string sectorId) =>
+        BeginCampaign(sectorId);
+    public void SetCampaignDoctrineForEditor(CampaignDoctrine doctrine) =>
+        SetCampaignDoctrine(doctrine);
+    public void RecordCampaignCombatForEditor(
+        ExpantaNum combatRatio,
+        ExpantaNum casualties) =>
+        RecordCampaignCombat(combatRatio, casualties);
+    public void RestoreCampaignForEditor(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio) =>
+        RestoreCampaign(active, targetSectorId, casualties, combatRatio);
+#endif
+
     internal void AdjustFoodCapacity(ExpantaNum capacityDelta)
     {
         EnsureFinite(capacityDelta, nameof(capacityDelta));
@@ -313,19 +406,6 @@ public sealed class GameState
         return true;
     }
 
-    internal void RefundFood(ExpantaNum amount)
-    {
-        EnsureFinite(amount, nameof(amount));
-        ExpantaNum refund = ExpantaNum.Max(ExpantaNum.Zero, amount);
-        if (refund <= ExpantaNum.Zero)
-            return;
-        ExpantaNum restored = ExpantaNum.Min(FoodCapacity, FoodAmount + refund);
-        if (restored == FoodAmount)
-            return;
-        FoodAmount = restored;
-        Version++;
-    }
-
     internal void RestoreFoodExact(ExpantaNum amount, ExpantaNum capacity)
     {
         EnsureFinite(amount, nameof(amount));
@@ -345,7 +425,18 @@ public sealed class GameState
         ExpantaNum casualties,
         ExpantaNum combatRatio)
     {
-        Campaign.RestoreExact(active, targetSectorId, casualties, combatRatio);
+        RestoreCampaignExact(
+            active, targetSectorId, casualties, combatRatio, CampaignDoctrine.Stable);
+    }
+
+    internal void RestoreCampaignExact(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        CampaignDoctrine doctrine)
+    {
+        Campaign.RestoreExact(active, targetSectorId, casualties, combatRatio, doctrine);
         Version++;
     }
 

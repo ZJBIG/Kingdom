@@ -414,6 +414,8 @@ public sealed class TutorialManager : MonoBehaviour
         TutorialStep completedStep = FindPreviousCompletedStep(step.Id);
         bool showCompletionFeedback = pendingCompletionFeedback;
         pendingCompletionFeedback = false;
+        EraGoalEvaluation eraGoal = EraGoalEvaluator.Evaluate(
+            game.State.TechLevel, research, resources);
         TutorialSnapshot snapshot = new TutorialSnapshot
         {
             StepId = step.Id,
@@ -425,7 +427,7 @@ public sealed class TutorialManager : MonoBehaviour
             CurrentGoal = step.Title,
             GoalDescription = step.Description,
             NarrativeText = step.NarrativeText,
-            NextEraGoal = BuildNextEraGoal(game, resources, research),
+            NextEraGoal = BuildNextEraGoal(game, research, eraGoal),
             IsComplete = step.Kind == TutorialStepKind.LongTerm
         };
         if (showCompletionFeedback && completedStep != null)
@@ -435,7 +437,7 @@ public sealed class TutorialManager : MonoBehaviour
         snapshot.CoreResourceText = coreResource == null
             ? "未知"
             : coreResource.Label + " " + resources.GetAmount(coreResource).ToGameString();
-        BuildDetails(snapshot, step, game, resources, buildings, research);
+        BuildDetails(snapshot, step, game, resources, buildings, research, eraGoal);
         if (version != previousVersion)
             SnapshotChanged?.Invoke(snapshot);
         return snapshot;
@@ -506,6 +508,10 @@ public sealed class TutorialManager : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
+    public void RecordPageVisitedForEditor(string pageName) =>
+        RecordPageVisited(pageName);
+#endif
     internal void RecordPageVisited(string pageName)
     {
         EnsureDefinitions();
@@ -544,6 +550,10 @@ public sealed class TutorialManager : MonoBehaviour
         version++;
     }
 
+#if UNITY_EDITOR
+    public bool HasVisitedPageForStepForEditor(TutorialStep step) =>
+        HasVisitedPageForStep(step);
+#endif
     private bool HasVisitedPageForStep(TutorialStep step) =>
         step != null &&
         string.Equals(visitedStepId, step.Id, StringComparison.Ordinal);
@@ -556,6 +566,11 @@ public sealed class TutorialManager : MonoBehaviour
         return game == null ? null : game.State;
     }
 
+#if UNITY_EDITOR
+    public static string GetNavigationPageForStepForEditor(
+        TutorialStep step, GameState gameState) =>
+        GetNavigationPageForStep(step, gameState);
+#endif
     private static string GetNavigationPageForStep(TutorialStep step, GameState gameState)
     {
         if (step == null)
@@ -607,6 +622,11 @@ public sealed class TutorialManager : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
+    public static bool IsStepCompleteForEditor(TutorialStep step, GameManager game,
+        ResourceManager resources, BuildingManager buildings, ResearchManager research) =>
+        IsStepComplete(step, game, resources, buildings, research);
+#endif
     private static bool IsStepComplete(TutorialStep step, GameManager game,
         ResourceManager resources, BuildingManager buildings, ResearchManager research)
     {
@@ -665,7 +685,8 @@ public sealed class TutorialManager : MonoBehaviour
     }
 
     private void BuildDetails(TutorialSnapshot snapshot, TutorialStep step, GameManager game,
-        ResourceManager resources, BuildingManager buildings, ResearchManager research)
+        ResourceManager resources, BuildingManager buildings, ResearchManager research,
+        EraGoalEvaluation eraGoal)
     {
         snapshot.Blocker = "暂无阻碍";
         snapshot.RecommendedAction = "查看概览，确认当前王国状态。";
@@ -779,7 +800,7 @@ public sealed class TutorialManager : MonoBehaviour
             if (!lacksProductivity && string.IsNullOrEmpty(chainSummary))
             {
                 bool hasChainAction = TryFindNextProductionChainAction(
-                    game, resources, buildings, research,
+                    chainRecommendation, resources, buildings, research,
                     out Building actionBuilding, out Research actionResearch,
                     out Resource actionResource, out WorkshopUpgrade actionWorkshop);
                 if (hasChainAction && actionResearch != null)
@@ -817,13 +838,13 @@ public sealed class TutorialManager : MonoBehaviour
                     // No current-era pair exists. Reuse the era evaluator so
                     // this step points to a real next blocker rather than an
                     // empty Buildings navigation.
-                    BuildEraGoalGuidance(snapshot, game, resources, research);
+                    BuildEraGoalGuidance(snapshot, eraGoal);
                 }
             }
         }
         else if (step.Kind == TutorialStepKind.EraGoal)
         {
-            BuildEraGoalGuidance(snapshot, game, resources, research);
+            BuildEraGoalGuidance(snapshot, eraGoal);
         }
         else if (step.Kind == TutorialStepKind.LongTerm)
         {
@@ -836,7 +857,7 @@ public sealed class TutorialManager : MonoBehaviour
                 industrialMainlineActive = BuildSpacerGuidance(
                     snapshot, game, research, buildings);
             if (!industrialMainlineActive)
-                BuildEraGoalGuidance(snapshot, game, resources, research);
+                BuildEraGoalGuidance(snapshot, eraGoal);
         }
         if (step.Kind != TutorialStepKind.LongTerm &&
             !HasVisitedPageForStep(step))
@@ -939,14 +960,12 @@ public sealed class TutorialManager : MonoBehaviour
     }
 
     private static void BuildEraGoalGuidance(TutorialSnapshot snapshot,
-        GameManager game, ResourceManager resources, ResearchManager research)
+        EraGoalEvaluation evaluation)
     {
         snapshot.RecommendedAction = "打开时代页面，查看下一时代的真实条件。";
         snapshot.NavigationPage = "Era";
         snapshot.NavigationTargetId = string.Empty;
 
-        EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
-            game.State.TechLevel, research, resources);
         if (evaluation.Transition == null)
         {
             snapshot.Blocker = snapshot.NextEraGoal;
@@ -993,6 +1012,101 @@ public sealed class TutorialManager : MonoBehaviour
         snapshot.NavigationTargetId = evaluation.Transition.Id;
     }
 
+    private enum GuidanceKind
+    {
+        Research,
+        Building,
+        Workshop
+    }
+
+    private readonly struct IndustrialGuidanceRow
+    {
+        public IndustrialGuidanceRow(
+            GuidanceKind kind, string id, string blockerPrefix, string blockerSuffix,
+            bool blockerUsesLabel, string actionPrefix, string actionSuffix)
+        {
+            Kind = kind;
+            Id = id;
+            BlockerPrefix = blockerPrefix;
+            BlockerSuffix = blockerSuffix;
+            BlockerUsesLabel = blockerUsesLabel;
+            ActionPrefix = actionPrefix;
+            ActionSuffix = actionSuffix;
+        }
+
+        public GuidanceKind Kind { get; }
+        public string Id { get; }
+        public string BlockerPrefix { get; }
+        public string BlockerSuffix { get; }
+        public bool BlockerUsesLabel { get; }
+        public string ActionPrefix { get; }
+        public string ActionSuffix { get; }
+    }
+
+    private static readonly IndustrialGuidanceRow[] IndustrialGuidancePath =
+    {
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialWorkshop",
+            "工业体系还缺少可重复改良的工坊：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，让旧工艺能够被反复验证和改进。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "PrecisionManufacturing",
+            "机器工厂还缺少精密制造知识：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，让工坊经验能够转化为稳定的机器生产。"),
+        new IndustrialGuidanceRow(GuidanceKind.Workshop, "MachineFactory",
+            "工业工坊已经解锁，但还没有一项真实改良。", string.Empty, false,
+            "打开 Workshop 页面，购买一项真实改良，再继续建设机器工厂。", string.Empty),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "MachineFactory",
+            "精密制造与工坊改良已经准备，但还没有“", "”把规模变成现实。", true,
+            "打开建筑页面，建造“", "”，让工业时代第一次真正运转。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "FactoryOrganization",
+            "机器工厂已经启动，但工业规模还需要统一组织：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，让工厂经验能够被制度化并复制到更大的王国。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "SteamPower",
+            "工业能源尚未建立：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，解锁蒸汽动力。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "SteamPlant",
+            "蒸汽动力已经掌握，但还没有“", "”。", true,
+            "打开建筑页面，建造“", "”，让工业生产真正运转。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialHabitationEngineering",
+            "工业城市即将吸纳更多人口：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，理解工业人口与城市的关系。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "IndustrialHabitationComplex",
+            "工业人口需要真正的居住空间：还没有“", "”。", true,
+            "打开建筑页面，建造“", "”，给每一代鼠族留下位置。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "RailwayEngineering",
+            "能源已经稳定，下一项阻碍是把原料送到工厂。", string.Empty, false,
+            "打开研究页面，完成“", "”，建立铁路物流。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "RailHub",
+            "铁路技术已经掌握，但王国还没有“", "”。", true,
+            "打开建筑页面，建造“", "”，连接分散的生产链。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialMetalSmelting",
+            "铁路已经把原料送到工厂，但还缺少稳定的标准材料。", string.Empty, false,
+            "打开研究页面，完成“", "”，建立工业冶炼链。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "IndustrialMetalSmelter",
+            "工业冶炼技术已经掌握，但还没有“", "”把矿石变成标准材料。", true,
+            "打开建筑页面，建造“", "”，观察矿石如何进入工业链。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialChemistry",
+            "物流已经连通，下一步是让旧材料承担更复杂的工业用途。", string.Empty, false,
+            "打开研究页面，完成“", "”，理解化学工业的输入与风险。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "ChemicalPlant",
+            "化学技术已经掌握，但还没有“", "”验证这条新链。", true,
+            "打开建筑页面，建造“", "”，观察材料如何重新组合。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "PowerGridEngineering",
+            "化工链已经开始运转，下一步是让能源成为全王国共享的基础设施。", string.Empty, false,
+            "打开研究页面，完成“", "”，建立共享电网。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "CentralPowerStation",
+            "电网技术已经掌握，但还没有“", "”连接整座王国。", true,
+            "打开建筑页面，建造“", "”，让能源穿过整座王国。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "ModernUniversity",
+            "共享电网已经建立，下一步是把工业经验保存成可复制的知识。", string.Empty, false,
+            "打开研究页面，完成“", "”，让知识能够传给下一代。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "University",
+            "现代知识已经准备好，但王国还没有“", "”保存与传播它。", true,
+            "打开建筑页面，建造“", "”，让每一代人都能从过去继续起步。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "TitaniumAlloyEngineering",
+            "工业体系已经能够传承知识，但还没有为星际结构准备钛合金工艺。", string.Empty, false,
+            "打开研究页面，完成“", "”，把工业材料能力连接到星际时代。")
+    };
+
     private static bool BuildIndustrialGuidance(
         TutorialSnapshot snapshot, GameManager game, ResourceManager resources,
         ResearchManager research, BuildingManager buildings)
@@ -1001,273 +1115,59 @@ public sealed class TutorialManager : MonoBehaviour
             game.State.TechLevel != TechLevel.Industrial)
             return false;
 
-        if (!HasCompletedResearchId(research, "IndustrialWorkshop"))
+        for (int i = 0; i < IndustrialGuidancePath.Length; i++)
         {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "IndustrialWorkshop", research))
-                return true;
-            string researchLabel = GetResearchLabel("IndustrialWorkshop");
-            snapshot.Blocker = "工业体系还缺少可重复改良的工坊：先完成“" + researchLabel + "”。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel +
-                "”，让旧工艺能够被反复验证和改进。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "IndustrialWorkshop";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "PrecisionManufacturing"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "PrecisionManufacturing", research))
-                return true;
-            string researchLabel = GetResearchLabel("PrecisionManufacturing");
-            snapshot.Blocker = "机器工厂还缺少精密制造知识：先完成“" + researchLabel + "”。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel +
-                "”，让工坊经验能够转化为稳定的机器生产。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "PrecisionManufacturing";
-            return true;
-        }
-        if (!HasRelevantWorkshopForBuilding(
-            "MachineFactory", research, out WorkshopUpgrade workshopTarget))
-        {
-            snapshot.Blocker = "工业工坊已经解锁，但还没有一项真实改良。";
-            snapshot.RecommendedAction = "打开 Workshop 页面，购买一项真实改良，再继续建设机器工厂。";
-            snapshot.NavigationPage = "Workshop";
-            snapshot.NavigationTargetId = workshopTarget == null
-                ? string.Empty
-                : workshopTarget.Id;
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "MachineFactory"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(
-                snapshot, "MachineFactory", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "MachineFactory", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("MachineFactory");
-            snapshot.Blocker = "精密制造与工坊改良已经准备，但还没有“" + buildingLabel +
-                "”把规模变成现实。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，让工业时代第一次真正运转。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "MachineFactory";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "FactoryOrganization"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "FactoryOrganization", research))
-                return true;
-            string researchLabel = GetResearchLabel("FactoryOrganization");
-            snapshot.Blocker = "机器工厂已经启动，但工业规模还需要统一组织：先完成“" +
-                researchLabel + "”。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel +
-                "”，让工厂经验能够被制度化并复制到更大的王国。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "FactoryOrganization";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "SteamPower"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(snapshot, "SteamPower", research))
-                return true;
-            string researchLabel = GetResearchLabel("SteamPower");
-            snapshot.Blocker = "工业能源尚未建立：先完成“" + researchLabel + "”。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，解锁蒸汽动力。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "SteamPower";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "SteamPlant"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(snapshot, "SteamPlant", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "SteamPlant", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("SteamPlant");
-            snapshot.Blocker = "蒸汽动力已经掌握，但还没有“" + buildingLabel + "”。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，让工业生产真正运转。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "SteamPlant";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "IndustrialHabitationEngineering"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "IndustrialHabitationEngineering", research))
-                return true;
-            string researchLabel = GetResearchLabel("IndustrialHabitationEngineering");
-            snapshot.Blocker = "工业城市即将吸纳更多人口：先完成“" + researchLabel + "”。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，理解工业人口与城市的关系。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "IndustrialHabitationEngineering";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "IndustrialHabitationComplex"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(
-                snapshot, "IndustrialHabitationComplex", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "IndustrialHabitationComplex", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("IndustrialHabitationComplex");
-            snapshot.Blocker = "工业人口需要真正的居住空间：还没有“" + buildingLabel + "”。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，给每一代鼠族留下位置。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "IndustrialHabitationComplex";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "RailwayEngineering"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "RailwayEngineering", research))
-                return true;
-            string researchLabel = GetResearchLabel("RailwayEngineering");
-            snapshot.Blocker = "能源已经稳定，下一项阻碍是把原料送到工厂。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，建立铁路物流。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "RailwayEngineering";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "RailHub"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(snapshot, "RailHub", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "RailHub", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("RailHub");
-            snapshot.Blocker = "铁路技术已经掌握，但王国还没有“" + buildingLabel + "”。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，连接分散的生产链。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "RailHub";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "IndustrialMetalSmelting"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "IndustrialMetalSmelting", research))
-                return true;
-            string researchLabel = GetResearchLabel("IndustrialMetalSmelting");
-            snapshot.Blocker = "铁路已经把原料送到工厂，但还缺少稳定的标准材料。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，建立工业冶炼链。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "IndustrialMetalSmelting";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "IndustrialMetalSmelter"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(
-                snapshot, "IndustrialMetalSmelter", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "IndustrialMetalSmelter", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("IndustrialMetalSmelter");
-            snapshot.Blocker = "工业冶炼技术已经掌握，但还没有“" + buildingLabel + "”把矿石变成标准材料。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，观察矿石如何进入工业链。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "IndustrialMetalSmelter";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "IndustrialChemistry"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "IndustrialChemistry", research))
-                return true;
-            string researchLabel = GetResearchLabel("IndustrialChemistry");
-            snapshot.Blocker = "物流已经连通，下一步是让旧材料承担更复杂的工业用途。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，理解化学工业的输入与风险。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "IndustrialChemistry";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "ChemicalPlant"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(snapshot, "ChemicalPlant", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "ChemicalPlant", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("ChemicalPlant");
-            snapshot.Blocker = "化学技术已经掌握，但还没有“" + buildingLabel + "”验证这条新链。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，观察材料如何重新组合。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "ChemicalPlant";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "PowerGridEngineering"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "PowerGridEngineering", research))
-                return true;
-            string researchLabel = GetResearchLabel("PowerGridEngineering");
-            snapshot.Blocker = "化工链已经开始运转，下一步是让能源成为全王国共享的基础设施。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，建立共享电网。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "PowerGridEngineering";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "CentralPowerStation"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(
-                snapshot, "CentralPowerStation", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "CentralPowerStation", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("CentralPowerStation");
-            snapshot.Blocker = "电网技术已经掌握，但还没有“" + buildingLabel + "”连接整座王国。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，让能源穿过整座王国。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "CentralPowerStation";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "ModernUniversity"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "ModernUniversity", research))
-                return true;
-            string researchLabel = GetResearchLabel("ModernUniversity");
-            snapshot.Blocker = "共享电网已经建立，下一步是把工业经验保存成可复制的知识。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel + "”，让知识能够传给下一代。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "ModernUniversity";
-            return true;
-        }
-        if (!HasOwnedBuildingId(buildings, "University"))
-        {
-            if (ApplyBuildingPrerequisiteGuidance(snapshot, "University", research))
-                return true;
-            if (ApplyIndustrialBuildingGuidance(
-                snapshot, "University", game, resources, buildings))
-                return true;
-            string buildingLabel = GetBuildingLabel("University");
-            snapshot.Blocker = "现代知识已经准备好，但王国还没有“" + buildingLabel + "”保存与传播它。";
-            snapshot.RecommendedAction = "打开建筑页面，建造“" + buildingLabel + "”，让每一代人都能从过去继续起步。";
-            snapshot.NavigationPage = "Buildings";
-            snapshot.NavigationTargetId = "University";
-            return true;
-        }
-        if (!HasCompletedResearchId(research, "TitaniumAlloyEngineering"))
-        {
-            if (ApplyResearchPrerequisiteGuidance(
-                snapshot, "TitaniumAlloyEngineering", research))
-                return true;
-            string researchLabel = GetResearchLabel("TitaniumAlloyEngineering");
-            snapshot.Blocker = "工业体系已经能够传承知识，但还没有为星际结构准备钛合金工艺。";
-            snapshot.RecommendedAction = "打开研究页面，完成“" + researchLabel +
-                "”，把工业材料能力连接到星际时代。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = "TitaniumAlloyEngineering";
+            IndustrialGuidanceRow row = IndustrialGuidancePath[i];
+            string label = string.Empty;
+            switch (row.Kind)
+            {
+                case GuidanceKind.Workshop:
+                    if (HasRelevantWorkshopForBuilding(
+                        row.Id, research, out WorkshopUpgrade workshopTarget))
+                        continue;
+                    snapshot.Blocker = row.BlockerPrefix;
+                    snapshot.RecommendedAction = row.ActionPrefix;
+                    snapshot.NavigationPage = "Workshop";
+                    snapshot.NavigationTargetId = workshopTarget == null
+                        ? string.Empty
+                        : workshopTarget.Id;
+                    return true;
+                case GuidanceKind.Research:
+                    if (HasCompletedResearchId(research, row.Id))
+                        continue;
+                    if (ApplyResearchPrerequisiteGuidance(snapshot, row.Id, research))
+                        return true;
+                    label = GetResearchLabel(row.Id);
+                    snapshot.NavigationPage = "Research";
+                    break;
+                case GuidanceKind.Building:
+                    if (HasOwnedBuildingId(buildings, row.Id))
+                        continue;
+                    if (ApplyBuildingPrerequisiteGuidance(snapshot, row.Id, research))
+                        return true;
+                    if (ApplyIndustrialBuildingGuidance(
+                        snapshot, row.Id, game, resources, buildings))
+                        return true;
+                    label = GetBuildingLabel(row.Id);
+                    snapshot.NavigationPage = "Buildings";
+                    break;
+            }
+
+            snapshot.Blocker = row.BlockerPrefix +
+                (row.BlockerUsesLabel ? label : string.Empty) + row.BlockerSuffix;
+            snapshot.RecommendedAction = row.ActionPrefix + label + row.ActionSuffix;
+            snapshot.NavigationTargetId = row.Id;
             return true;
         }
         return false;
     }
 
+#if UNITY_EDITOR
+    public static bool BuildSpacerGuidanceForEditor(
+        TutorialSnapshot snapshot, GameManager game, ResearchManager research,
+        BuildingManager buildings) =>
+        BuildSpacerGuidance(snapshot, game, research, buildings);
+#endif
     private static bool BuildSpacerGuidance(
         TutorialSnapshot snapshot, GameManager game, ResearchManager research,
         BuildingManager buildings)
@@ -1761,6 +1661,11 @@ public sealed class TutorialManager : MonoBehaviour
         return fallback;
     }
 
+#if UNITY_EDITOR
+    public static string GetPopulationNavigationTargetForEditor(
+        GameManager game, BuildingManager buildings) =>
+        GetPopulationNavigationTarget(game, buildings);
+#endif
     private static string GetPopulationNavigationTarget(GameManager game,
         BuildingManager buildings)
     {
@@ -1944,12 +1849,12 @@ public sealed class TutorialManager : MonoBehaviour
     }
 
     private static bool TryFindNextProductionChainAction(
-        GameManager game, ResourceManager resources, BuildingManager buildings,
+        Building chainRecommendation, ResourceManager resources, BuildingManager buildings,
         ResearchManager research, out Building buildingTarget,
         out Research researchTarget, out Resource resourceTarget,
         out WorkshopUpgrade workshopTarget)
     {
-        buildingTarget = FindProductionChainRecommendation(game, buildings);
+        buildingTarget = chainRecommendation;
         researchTarget = null;
         resourceTarget = null;
         workshopTarget = null;
@@ -2371,6 +2276,11 @@ public sealed class TutorialManager : MonoBehaviour
             TryFindOwnedProductionChain(buildings.States.Values, out consumed, out generated);
     }
 
+#if UNITY_EDITOR
+    public static bool TryFindOwnedProductionChainForEditor(
+        IEnumerable<BuildingState> states, out Resource consumed, out Resource generated) =>
+        TryFindOwnedProductionChain(states, out consumed, out generated);
+#endif
     private static bool TryFindOwnedProductionChain(
         IEnumerable<BuildingState> states, out Resource consumed, out Resource generated)
     {
@@ -2429,11 +2339,9 @@ public sealed class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static string BuildNextEraGoal(GameManager game, ResourceManager resources,
-        ResearchManager researchManager)
+    private static string BuildNextEraGoal(GameManager game,
+        ResearchManager researchManager, EraGoalEvaluation eraGoal)
     {
-        EraGoalEvaluation eraGoal = EraGoalEvaluator.Evaluate(
-            game.State.TechLevel, researchManager, resources);
         if (eraGoal.Transition == null)
             return "当前内容已接近终点。";
         string targetPrefix = "下一时代（" + eraGoal.TargetEra.GetDescription() + "）：";
@@ -2496,6 +2404,10 @@ public sealed class TutorialManager : MonoBehaviour
         return null;
     }
 
+#if UNITY_EDITOR
+    public TutorialStep FindPreviousCompletedStepForEditor(string stepId) =>
+        FindPreviousCompletedStep(stepId);
+#endif
     private TutorialStep FindPreviousCompletedStep(string stepId)
     {
         for (int i = 0; i < steps.Count; i++)
@@ -2553,6 +2465,9 @@ public sealed class TutorialManager : MonoBehaviour
         return steps[0].Id;
     }
 
+#if UNITY_EDITOR
+    public void ResetForNewGameForEditor() => ResetForNewGame();
+#endif
     internal void ResetForNewGame()
     {
         EnsureDefinitions();

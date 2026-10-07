@@ -123,20 +123,27 @@ public sealed partial class KingdomUIRoot
         noneRect.anchoredPosition = new Vector2(0f, -46f);
         none.gameObject.SetActive(false);
 
-        RectTransform footer = CreateRect("Footer", shell);
-        footer.anchorMin = Vector2.zero;
-        footer.anchorMax = new Vector2(1f, 0f);
-        footer.offsetMin = new Vector2(20f, 12f);
-        footer.offsetMax = new Vector2(-20f, 12f + DetailFooterHeight);
-
         detailActionButtonText = null;
-        detailActionButton = CreateButton("Action", footer, "执行", new Color(.18f, .31f, .27f, 1f));
+        GameObject footerPrefab = Resources.Load<GameObject>(
+            "UI/Kingdom/KingdomUIDetailDoctrineButton");
+        if (footerPrefab == null)
+        {
+            Debug.LogError("[王国界面] Missing authored DetailActionFooter prefab.");
+            return false;
+        }
+        GameObject footerObject = Instantiate(footerPrefab, shell, false);
+        footerObject.name = "Footer";
+        Transform actionTransform = footerObject.transform.Find("Action");
+        Transform doctrineTransform = footerObject.transform.Find("Doctrine");
+        detailActionButton = actionTransform == null ? null : actionTransform.GetComponent<Button>();
+        detailDoctrineButton = doctrineTransform == null ? null : doctrineTransform.GetComponent<Button>();
+        if (detailActionButton == null || detailDoctrineButton == null)
+        {
+            Debug.LogError("[王国界面] DetailActionFooter prefab is missing its authored buttons.");
+            return false;
+        }
         detailActionButton.gameObject.SetActive(false);
-        RectTransform actionRect = detailActionButton.transform as RectTransform;
-        actionRect.anchorMin = Vector2.zero;
-        actionRect.anchorMax = Vector2.one;
-        actionRect.offsetMin = new Vector2(48f, 0f);
-        actionRect.offsetMax = new Vector2(-48f, 0f);
+        detailDoctrineButton.gameObject.SetActive(false);
 
         requirementGesture = detailScrollViewport.gameObject.AddComponent<UIDetailRequirementScrollGesture>();
         requirementGesture.Initialize(detailScrollViewport, detailScrollContent);

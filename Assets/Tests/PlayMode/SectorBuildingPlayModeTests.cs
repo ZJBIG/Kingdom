@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.IO;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -45,15 +44,10 @@ public sealed class SectorBuildingPlayModeTests
         ResearchManager researchManager = ResearchManager.Instance;
         ResourceManager resourceManager = ResourceManager.Instance;
 
-        typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(game, null);
+        game.InitializeNewGameForEditor();
         researchManager.ResetForPerformanceTest();
         GrantResearchTestResources(resourceManager);
-        MethodInfo refreshNavigation = typeof(KingdomUIRoot).GetMethod(
-            "RefreshNavigationVisibility", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(refreshNavigation, Is.Not.Null);
-        refreshNavigation.Invoke(root, null);
+        root.RefreshNavigationVisibilityForEditor();
 
         Button sectorsButton = root.transform.Find(
             "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Sectors")?.GetComponent<Button>();
@@ -63,7 +57,7 @@ public sealed class SectorBuildingPlayModeTests
 
         CompleteResearchAndPrerequisites(game, researchManager, resourceManager,
             DataBase<Research>.Find("HomeSystemSurvey"), new HashSet<string>());
-        refreshNavigation.Invoke(root, null);
+        root.RefreshNavigationVisibilityForEditor();
         yield return null;
 
         Assert.That(researchManager.IsResearchCompleted("HomeSystemSurvey"), Is.True);
@@ -72,7 +66,7 @@ public sealed class SectorBuildingPlayModeTests
 
         CompleteResearchAndPrerequisites(game, researchManager, resourceManager,
             DataBase<Research>.Find("InterstellarNavigation"), new HashSet<string>());
-        refreshNavigation.Invoke(root, null);
+        root.RefreshNavigationVisibilityForEditor();
         yield return null;
 
         Assert.That(researchManager.IsResearchCompleted("HomeSystemSurvey"), Is.True);
@@ -100,9 +94,7 @@ public sealed class SectorBuildingPlayModeTests
         Assert.That(root, Is.Not.Null);
         GameManager game = Object.FindObjectOfType<GameManager>();
         Assert.That(game, Is.Not.Null);
-        typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(game, null);
+        game.InitializeNewGameForEditor();
         ResearchManager.Instance.ResetForPerformanceTest();
         SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
         SectorState moonState = game.Sectors.GetState(moon);
@@ -116,10 +108,7 @@ public sealed class SectorBuildingPlayModeTests
             ResourceManager.Instance.SetAmount(resource, ExpantaNum.Zero);
         moonState.SetOccupiedForEditor(false);
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Sectors" });
+        root.SetPage("Sectors");
         yield return null;
 
         Transform rows = root.transform.Find(
@@ -132,9 +121,7 @@ public sealed class SectorBuildingPlayModeTests
         Assert.That(gatedBuildings.gameObject.activeSelf, Is.False);
 
         moonState.SetOccupiedForEditor(true);
-        MethodInfo refresh = typeof(KingdomUIRoot).GetMethod(
-            "RefreshSectorRowSummaries", BindingFlags.Instance | BindingFlags.NonPublic);
-        refresh.Invoke(root, null);
+        root.RefreshSectorRowSummariesForEditor();
         yield return null;
         Transform buildingButton = moonRow.Find("Buildings");
         Assert.That(buildingButton, Is.Not.Null);
@@ -161,7 +148,7 @@ public sealed class SectorBuildingPlayModeTests
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.False);
 
         PrepareBuildableSectorBuilding(game, hub);
-        refresh.Invoke(root, null);
+        root.RefreshSectorRowSummariesForEditor();
         yield return null;
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.True);
         build.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
@@ -179,15 +166,15 @@ public sealed class SectorBuildingPlayModeTests
         Assert.That(moonRow.GetComponent<RectTransform>().rect.height,
             Is.InRange(103f, 105f));
 
-        setPage.Invoke(root, new object[] { "Buildings" });
+        root.SetPage("Buildings");
         yield return null;
         Transform buildingRows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Buildings/DataRows");
         Assert.That(buildingRows.Find("EarthMoonLogisticsHub"), Is.Null);
 
         moonState.SetOccupiedForEditor(false);
-        setPage.Invoke(root, new object[] { "Sectors" });
-        refresh.Invoke(root, null);
+        root.SetPage("Sectors");
+        root.RefreshSectorRowSummariesForEditor();
         yield return null;
         Transform gatedButton = moonRow.Find("Buildings");
         Assert.That(gatedButton, Is.Not.Null);
@@ -199,28 +186,18 @@ public sealed class SectorBuildingPlayModeTests
 
     private static void PrepareBuildableSectorBuilding(GameManager game, SectorBuilding building)
     {
-        typeof(GameManager).GetMethod(
-            "AdvanceTechLevel", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(game, new object[] { building.TechLevel });
-        typeof(GameState).GetMethod(
-            "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(game.State, new object[] { new ExpantaNum(1000d) });
+        game.AdvanceTechLevelForEditor(building.TechLevel);
+        game.State.RestorePopulationForEditor(new ExpantaNum(1000d));
 
-        MethodInfo setStatus = typeof(ResearchState).GetMethod(
-            "SetStatus", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setStatus, Is.Not.Null);
         for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
             Research required = building.RequiredResearch[i];
-            setStatus.Invoke(ResearchManager.Instance.GetState(required),
-                new object[] { ResearchStatus.Completed });
+            ResearchManager.Instance.GetState(required)
+                .SetStatusForEditor(ResearchStatus.Completed);
         }
 
-        MethodInfo getConstructionCostMultiplier = typeof(BuildingManager).GetMethod(
-            "GetConstructionCostMultiplier", BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(getConstructionCostMultiplier, Is.Not.Null);
-        ExpantaNum constructionCostMultiplier = (ExpantaNum)getConstructionCostMultiplier.Invoke(
-            null, new object[] { building });
+        ExpantaNum constructionCostMultiplier =
+            BuildingManager.GetConstructionCostMultiplierForEditor(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];

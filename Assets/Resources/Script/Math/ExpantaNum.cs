@@ -14,7 +14,6 @@ public enum ExpantaNumFormat
     HyperOperation = 3
 }
 
-
 [Serializable]
 internal struct ExpantaNumOperator : IEquatable<ExpantaNumOperator>
 {
@@ -53,7 +52,7 @@ internal struct ExpantaNumOperator : IEquatable<ExpantaNumOperator>
 /// </summary>
 /// <remarks>
 /// 常用入口包括四则运算符、比较、Floor、Pow、Parse 和 ToGameString。
-/// Tetrate 与 Pentate 仅在玩法确实需要时使用；其余特殊函数被标记为高级 API。
+/// Tetrate 仅在玩法确实需要时使用；其余特殊函数被标记为高级 API。
 /// </remarks>
 [System.Diagnostics.DebuggerDisplay("{ToString(),nq}")]
 [Serializable]
@@ -77,7 +76,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     private const double DoubleLog10Limit = 308.25471555991675d;
 
     private static readonly ExpantaNumOperator[] EmptyOperators = new ExpantaNumOperator[0];
-    private static readonly double[] FactorialTable = CreateFactorialTable();
     private static readonly double[] LanczosCoefficients =
     {
         0.99999999999980993d,
@@ -100,6 +98,12 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     {
         1d, 1e3d, 1e6d, 1e9d, 1e12d
     };
+    private static readonly Regex LayerMatchRegex =
+        new Regex(@"^J(?:\^(?<layer>\d+(?:\.\d+)?))?\s*(?<rest>.*)$", RegexOptions.IgnoreCase);
+    private static readonly Regex RepeatedOperatorRegex =
+        new Regex(@"^\(10(?<operator>\^+|\{\d+(?:\.\d+)?\})\)\^(?<count>\d+(?:\.\d+)?)\s*(?<rest>.*)$");
+    private static readonly Regex DirectOperatorRegex =
+        new Regex(@"^10(?<operator>\^+|\{\d+(?:\.\d+)?\})(?<argument>.+)$");
 
     [SerializeField] private bool sign;
     [SerializeField] private byte representation;
@@ -129,7 +133,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     public static readonly ExpantaNum NegativeInfinity = new ExpantaNum(double.NegativeInfinity);
     public static readonly ExpantaNum E = new ExpantaNum(Math.E);
     public static readonly ExpantaNum PI = new ExpantaNum(Math.PI);
-
 
     public ExpantaNum(double value)
     {
@@ -307,7 +310,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         }
 
         double parsedLayer = 0d;
-        Match layerMatch = Regex.Match(value, @"^J(?:\^(?<layer>\d+(?:\.\d+)?))?\s*(?<rest>.*)$", RegexOptions.IgnoreCase);
+        Match layerMatch = LayerMatchRegex.Match(value);
         if (layerMatch.Success)
         {
             parsedLayer = layerMatch.Groups["layer"].Success
@@ -379,9 +382,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
         while (true)
         {
-            Match repeated = Regex.Match(
-                remaining,
-                @"^\(10(?<operator>\^+|\{\d+(?:\.\d+)?\})\)\^(?<count>\d+(?:\.\d+)?)\s*(?<rest>.*)$");
+            Match repeated = RepeatedOperatorRegex.Match(remaining);
 
             if (!repeated.Success)
                 break;
@@ -392,9 +393,7 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
             remaining = repeated.Groups["rest"].Value.Trim();
         }
 
-        Match direct = Regex.Match(
-            remaining,
-            @"^10(?<operator>\^+|\{\d+(?:\.\d+)?\})(?<argument>.+)$");
+        Match direct = DirectOperatorRegex.Match(remaining);
 
         if (direct.Success)
         {
@@ -528,7 +527,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
         return false;
     }
-
 
     private static double ParseOperationToken(string token)
     {
@@ -916,7 +914,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
     public static ExpantaNum Clamp01(ExpantaNum value) => Clamp(value, Zero, One);
 
-
     private ExpantaNum Mod(ExpantaNum divisor)
     {
         if (IsNaN || divisor.IsNaN || IsInfinity || divisor.IsZero)
@@ -1011,56 +1008,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         return logarithm.IsNaN ? NaN : logarithm * Math.Log(10d);
     }
 
-    private ExpantaNum Log1P()
-    {
-        if (IsNaN)
-            return NaN;
-
-        double value;
-        if (TryToFiniteDouble(out value))
-        {
-            if (value < -1d)
-                return NaN;
-            if (value == -1d)
-                return NegativeInfinity;
-
-            return new ExpantaNum(Log1PDouble(value));
-        }
-
-        return (One + this).Ln();
-    }
-
-    private ExpantaNum ExpM1()
-    {
-        if (IsNaN)
-            return NaN;
-        if (IsInfinity)
-            return Sign ? -One : PositiveInfinity;
-
-        double value;
-        if (TryToFiniteDouble(out value))
-        {
-            if (value > Math.Log(double.MaxValue))
-                return PositiveInfinity;
-
-            return new ExpantaNum(ExpM1Double(value));
-        }
-
-        return Exp() - One;
-    }
-
-    private ExpantaNum PowM1(ExpantaNum exponent)
-    {
-        if (IsNaN || exponent.IsNaN)
-            return NaN;
-        if (exponent.IsZero)
-            return Zero;
-        if (Sign || IsZero)
-            return Pow(exponent) - One;
-
-        return (Ln() * exponent).ExpM1();
-    }
-
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public ExpantaNum Sin() => FromFiniteUnary(Math.Sin);
 
@@ -1069,27 +1016,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public ExpantaNum Tan() => FromFiniteUnary(Math.Tan);
-
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Cot()
-    {
-        ExpantaNum tangent = Tan();
-        return tangent.IsNaN || tangent.IsZero ? NaN : One / tangent;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Sec()
-    {
-        ExpantaNum cosine = Cos();
-        return cosine.IsNaN || cosine.IsZero ? NaN : One / cosine;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Csc()
-    {
-        ExpantaNum sine = Sin();
-        return sine.IsNaN || sine.IsZero ? NaN : One / sine;
-    }
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public ExpantaNum Asin()
@@ -1167,61 +1093,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         return Sign ? -One : One;
     }
 
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Asinh()
-    {
-        if (IsNaN)
-            return NaN;
-        if (IsInfinity)
-            return Sign ? NegativeInfinity : PositiveInfinity;
-
-        ExpantaNum magnitude = Abs();
-        ExpantaNum result = (magnitude + (magnitude * magnitude + One).Sqrt()).Ln();
-        return Sign ? -result : result;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Acosh()
-    {
-        if (this < One || IsNaN)
-            return NaN;
-        if (IsInfinity)
-            return PositiveInfinity;
-
-        return (this + (this - One).Sqrt() * (this + One).Sqrt()).Ln();
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Atanh()
-    {
-        if (IsNaN || this <= -One || this >= One)
-            return NaN;
-
-        return ((One + this) / (One - this)).Ln() / 2d;
-    }
-
-    /// <summary>
-    /// 计算非负整数的阶乘 n!。
-    /// 较小整数直接连乘；当数值较大时改用 Γ(n+1)，避免进行极大量的循环。
-    /// </summary>
-    /// <returns>阶乘结果；当前值不是非负整数时返回 NaN。</returns>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum Factorial()
-    {
-        if (IsNaN || Sign)
-            return NaN;
-        if (IsInfinity)
-            return PositiveInfinity;
-        if (!IsInteger())
-            return NaN;
-
-        double value;
-        if (TryToFiniteDouble(out value) && value <= 170d)
-            return new ExpantaNum(FactorialTable[(int)value]);
-
-        return (this + One).Gamma();
-    }
-
     /// <summary>
     /// 计算 Gamma 函数 Γ(x)。Gamma 函数把阶乘推广到了非整数：对于正整数 n，有 Γ(n)=(n-1)!。
     /// 普通范围采用 Lanczos 近似；超大正数先计算 log Γ(x)，再恢复数量级，以避免中间结果溢出。
@@ -1281,37 +1152,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         ExpantaNum inverse = One / this;
         return (this - 0.5d) * Ln() - this + 0.5d * Math.Log(2d * Math.PI)
                + inverse / 12d - inverse.Pow(3d) / 360d + inverse.Pow(5d) / 1260d;
-    }
-
-    /// <summary>
-    /// 计算 Lambert W 函数，即求解 w·eʷ=x 中的 w。
-    /// 它常用于把“未知数同时出现在指数和指数外部”的方程反解出来，例如指数增长、冷却时间和连续复利公式。
-    /// 实数范围内支持两个分支：0 为主分支；-1 为下分支，后者只在 -1/e≤x<0 上存在。
-    /// </summary>
-    /// <param name="branch">分支编号，只能为 0 或 -1。</param>
-    /// <returns>指定实数分支上的 Lambert W 值；超出定义域时返回 NaN。</returns>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum LambertW(int branch = 0)
-    {
-        if (branch != 0 && branch != -1)
-            throw new ArgumentOutOfRangeException(nameof(branch), "仅支持 Lambert W 的 0 分支和 -1 分支。");
-        if (IsNaN)
-            return NaN;
-        if (branch == -1 && IsZero)
-            return NegativeInfinity;
-        if (IsInfinity)
-            return !Sign && branch == 0 ? PositiveInfinity : NaN;
-
-        double value;
-        if (TryToFiniteDouble(out value))
-            return new ExpantaNum(LambertWDouble(value, branch));
-
-        if (Sign || branch == -1)
-            return NaN;
-
-        ExpantaNum l1 = Ln();
-        ExpantaNum l2 = l1.Ln();
-        return l1 - l2 + l2 / l1 + l2 * (-2d + l2) / (2d * l1 * l1);
     }
 
     /// <summary>
@@ -1382,65 +1222,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     }
 
     /// <summary>
-    /// 计算带初始载荷的 pentation。其递推关系可理解为 P(0,p)=p，P(h+1,p)=a.Tetrate(P(h,p))。
-    /// 即每增加一层，都把前一层结果当作下一次幂塔的高度。即使很小的输入也会迅速超过普通科学计数法范围。
-    /// 非整数高度使用相邻整数高度的线性近似；高度过大时压缩为高阶运算符表示，而不是逐次求值。
-    /// </summary>
-    /// <param name="height">pentation 高度。</param>
-    /// <param name="payload">可选初始载荷；省略时使用一，因此通常只需传入 height。</param>
-    /// <returns>指定高度和载荷的 pentation 结果。</returns>
-    public ExpantaNum Pentate(ExpantaNum height, ExpantaNum? payload = null)
-    {
-        ExpantaNum top = payload ?? One;
-        if (IsNaN || height.IsNaN || top.IsNaN || Sign)
-            return NaN;
-        if (height.IsInfinity)
-            return height.Sign ? NaN : CompressHyperOperation(3d, height, top);
-
-        double heightValue;
-        if (!height.TryToFiniteDouble(out heightValue))
-            return CompressHyperOperation(3d, height, top);
-        if (heightValue < 0d)
-            return NaN;
-        if (heightValue == 0d)
-            return top;
-
-        double integerHeight = Math.Floor(heightValue);
-        double fraction = heightValue - integerHeight;
-        int directSteps = (int)Math.Min(integerHeight, GetDirectPentationLimit());
-        ExpantaNum result = top;
-        double completedHeight = 0d;
-
-        for (int i = 0; i < directSteps; i++)
-        {
-            ExpantaNum next = Tetrate(result);
-            completedHeight += 1d;
-            if (next.ApproximatelyEquals(result))
-            {
-                result = next;
-                completedHeight = integerHeight;
-                break;
-            }
-
-            result = next;
-            if (result.representation >= LayeredRepresentation && completedHeight < integerHeight)
-                break;
-        }
-
-        double remaining = integerHeight - completedHeight;
-        if (remaining > 0d)
-            result = CompressHyperOperation(3d, new ExpantaNum(remaining), result);
-
-        if (fraction > 0d)
-        {
-            ExpantaNum next = Tetrate(result);
-            result = Lerp(result, next, new ExpantaNum(fraction));
-        }
-
-        return result;
-    }
-
-    /// <summary>
     /// 重复执行指定底数的对数。
     /// 它可以看作 tetration 在高度方向上的逆向移动：对 a 的幂塔取一次以 a 为底的对数，通常会降低一层高度。
     /// 非整数次数采用最后两次结果之间的线性近似。
@@ -1485,45 +1266,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         return result;
     }
 
-    /// <summary>
-    /// 估算超对数 slogₐ(x)，也就是寻找高度 h，使 a.Tetrate(h)≈x。
-    /// 普通对数回答“需要多少次乘方”，超对数回答“需要多高的幂塔”。它是 tetration 关于高度的近似反函数。
-    /// 对于高层级表示可直接读取层数；普通范围则通过反复取对数估算，因此结果是近似值。
-    /// </summary>
-    /// <param name="newBase">定义幂塔的底数，必须大于一。</param>
-    /// <returns>近似的 tetration 高度。</returns>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public ExpantaNum SuperLog(ExpantaNum newBase)
-    {
-        if (IsNaN || Sign || IsZero || newBase <= One)
-            return NaN;
-
-        if (newBase == Ten)
-        {
-            double tetrationLayers = Operator(2d);
-            if (tetrationLayers > 0d)
-                return new ExpantaNum(tetrationLayers) + GetBottomValue();
-            if (Layer > 0d)
-                return new ExpantaNum(Layer + 1d);
-        }
-
-        ExpantaNum value = this;
-        double height = 0d;
-        while (value > One && height < GetDirectLogIterationLimit())
-        {
-            value = value.Log(newBase);
-            height += 1d;
-            if (value.IsNaN)
-                return NaN;
-        }
-
-        double remainder;
-        if (value.TryToFiniteDouble(out remainder))
-            height += remainder - 1d;
-
-        return new ExpantaNum(height);
-    }
-
     private static ExpantaNum Lerp(ExpantaNum a, ExpantaNum b, ExpantaNum t) => a + (b - a) * t;
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -1535,22 +1277,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
             ? new ExpantaNum(Math.Atan2(yValue, xValue))
             : NaN;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public bool ApproximatelyEquals(ExpantaNum other, double tolerance = DefaultTolerance)
@@ -1684,7 +1410,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         value = magnitude;
         return !double.IsInfinity(value) && !double.IsNaN(value);
     }
-
 
     public int CompareTo(ExpantaNum other)
     {
@@ -1979,7 +1704,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
                exponentFallback.ToString(CultureInfo.InvariantCulture);
     }
 
-
     /// <summary>
     /// 返回便于排查数值错误的内部表示文本。
     /// 该文本会显示符号、表示类型、标量、层级以及稀疏运算符数组，不适合直接展示给玩家。
@@ -2080,7 +1804,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         return Math.Round(value * scale, 0, MidpointRounding.AwayFromZero) / scale;
     }
 
-
     private ExpantaNum FromFiniteUnary(Func<double, double> function)
     {
         double value;
@@ -2173,7 +1896,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         if (value < 0.5d)
             return Math.PI / (Math.Sin(Math.PI * value) * GammaLanczosDouble(1d - value));
 
-
         double z = value - 1d;
         double x = LanczosCoefficients[0];
         for (int i = 1; i < LanczosCoefficients.Length; i++)
@@ -2187,7 +1909,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
     {
         if (value <= 0d)
             return double.NaN;
-
 
         double z = value - 1d;
         double x = LanczosCoefficients[0];
@@ -2947,15 +2668,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
             : Math.Ceiling(scaled - 0.5d) / 1000000d;
     }
 
-    private static double[] CreateFactorialTable()
-    {
-        double[] table = new double[171];
-        table[0] = 1d;
-        for (int i = 1; i < table.Length; i++)
-            table[i] = table[i - 1] * i;
-        return table;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryGetSignedScalar(out double value)
     {
@@ -2967,41 +2679,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
 
         value = sign ? -scalar : scalar;
         return true;
-    }
-
-    private static double Log1PDouble(double value)
-    {
-        if (Math.Abs(value) > 1e-4d)
-            return Math.Log(1d + value);
-
-        double term = value;
-        double sum = 0d;
-        for (int n = 1; n <= 8; n++)
-        {
-            sum += (n & 1) == 1 ? term / n : -term / n;
-            term *= value;
-        }
-        return sum;
-    }
-
-    private static double ExpM1Double(double value)
-    {
-        if (Math.Abs(value) > 1e-4d)
-            return Math.Exp(value) - 1d;
-
-        double term = value;
-        double sum = value;
-        for (int n = 2; n <= 8; n++)
-        {
-            term *= value / n;
-            sum += term;
-        }
-        return sum;
-    }
-
-    private static ExpantaNum CreateSpecial(double special, bool negative)
-    {
-        return new ExpantaNum(negative ? -special : special);
     }
 
     public static implicit operator ExpantaNum(string value) => Parse(value);

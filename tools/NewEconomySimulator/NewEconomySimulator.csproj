@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\Assets\Resources\Script\Math\ExpantaNum.cs" Link="ExpantaNum.cs" />
+    <Compile Include="..\..\Assets\Resources\Script\Math\ExpantaNumExtensions.cs" Link="ExpantaNumExtensions.cs" />
   </ItemGroup>
 </Project>

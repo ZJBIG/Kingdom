@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "\u5EFA\u7B51\u6750\u6599\u8054\u5408\u5382"
   Description: "整合玻璃、陶瓷与混凝土生产，供应工业建筑和深空建设。"
   TechLevel: 3
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 91dcce6626f54f46b212e145f15b2aae, type: 2}
   costGrowth: "1.20"
   spaceCost: "24"
   productivityConsumption: "120"

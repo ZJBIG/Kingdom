@@ -11,6 +11,9 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private readonly StringBuilder developmentGuidanceTextBuilder = new(512);
+    private readonly StringBuilder selectedBuildingPrerequisiteSignatureBuilder = new(128);
+    private string lastSelectedBuildingPrerequisiteSignature;
+    private bool selectedBuildingPrerequisiteOnlyRefresh;
 
     private void Update()
     {
@@ -707,13 +710,58 @@ public sealed partial class KingdomUIRoot
                 if (resource != null && resourceManagerCache.States.TryGetValue(resource, out ResourceState resourceState))
                     resourceVersion = unchecked(resourceVersion * 31 + resourceState.Version);
             }
-        if (version == lastSelectedBuildingVersion && upgrading == lastSelectedBuildingUpgrade &&
-            resourceVersion == lastSelectedBuildingResourceVersion)
+        int ultraInputSignature = IsUltraProjectAccessBuilding(selectedBuilding) &&
+            GameManager.TryGetInstance(out GameManager liveGameManager)
+            ? GetUltraProjectInputSignature(liveGameManager.UltraProject) : -1;
+        int ultraStateVersion = IsUltraProjectAccessBuilding(selectedBuilding) &&
+            GameManager.TryGetInstance(out GameManager stateGameManager) &&
+            stateGameManager.UltraProject != null
+            ? stateGameManager.UltraProject.State.Version : -1;
+        StringBuilder prerequisiteSignature = BuildSelectedBuildingPrerequisiteSignature(selectedBuilding);
+        bool prerequisitesChanged = !SignatureEquals(
+            prerequisiteSignature, lastSelectedBuildingPrerequisiteSignature);
+        bool otherValuesChanged = version != lastSelectedBuildingVersion ||
+            upgrading != lastSelectedBuildingUpgrade ||
+            resourceVersion != lastSelectedBuildingResourceVersion ||
+            ultraInputSignature != lastUltraProjectInputSignature ||
+            ultraStateVersion != lastUltraProjectStateVersion;
+        if (!otherValuesChanged && !prerequisitesChanged)
             return false;
+
         lastSelectedBuildingVersion = version;
         lastSelectedBuildingUpgrade = upgrading;
         lastSelectedBuildingResourceVersion = resourceVersion;
+        lastUltraProjectStateVersion = ultraStateVersion;
+        lastUltraProjectInputSignature = ultraInputSignature;
+        if (prerequisitesChanged)
+            lastSelectedBuildingPrerequisiteSignature = prerequisiteSignature.ToString();
+        selectedBuildingPrerequisiteOnlyRefresh = prerequisitesChanged && !otherValuesChanged;
         return true;
+    }
+
+    private StringBuilder BuildSelectedBuildingPrerequisiteSignature(Building building)
+    {
+        StringBuilder signature = selectedBuildingPrerequisiteSignatureBuilder;
+        signature.Clear();
+        ResearchManager researchManager = ResearchManager.Instance;
+        IReadOnlyList<Research> researchPrerequisites = building.RequiredResearch;
+        signature.Append('R').Append(researchPrerequisites == null ? 0 : researchPrerequisites.Count).Append(':');
+        if (researchPrerequisites != null)
+            for (int i = 0; i < researchPrerequisites.Count; i++)
+            {
+                Research prerequisite = researchPrerequisites[i];
+                signature.Append(prerequisite != null && researchManager != null &&
+                    researchManager.IsResearchCompleted(prerequisite.Id) ? '1' : '0');
+            }
+
+        WorkshopManager workshopManager = WorkshopManager.Instance;
+        IReadOnlyList<WorkshopUpgrade> workshopPrerequisites = building.RequiredWorkshopUpgrades;
+        signature.Append('|').Append('W').Append(workshopPrerequisites == null ? 0 : workshopPrerequisites.Count).Append(':');
+        if (workshopPrerequisites != null)
+            for (int i = 0; i < workshopPrerequisites.Count; i++)
+                signature.Append(workshopPrerequisites[i] != null && workshopManager != null &&
+                    workshopManager.IsPurchased(workshopPrerequisites[i]) ? '1' : '0');
+        return signature;
     }
 
     private void BuildDevelopmentGuidance(RectTransform page)
@@ -808,6 +856,7 @@ public sealed partial class KingdomUIRoot
         onboarding.Append("下一时代目标：").Append(tutorialSnapshot.NextEraGoal).Append("\n");
                 onboarding.Append("当前阻碍：").Append(tutorialSnapshot.Blocker).Append("\n");
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
+                AppendUltraProjectOverview(onboarding);
                 string overviewText = onboarding.ToString();
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NextEraGoal))
                     overviewText = overviewText.Replace(
@@ -872,6 +921,7 @@ public sealed partial class KingdomUIRoot
                 body.Append(blockers[i]);
             }
         body.Append("\n推荐行动：").Append(snapshot.Body ?? string.Empty);
+        AppendUltraProjectOverview(body);
         if (!SignatureEquals(body, developmentGuidanceText.text))
         {
             developmentGuidanceText.text = body.ToString();
@@ -887,6 +937,92 @@ public sealed partial class KingdomUIRoot
                 Debug.Log($"[王国界面] Development guidance rendered after layout: rect={rect}, textLength={developmentGuidanceText.text.Length}");
             }
         }
+    }
+
+    private void AppendUltraProjectOverview(StringBuilder body)
+    {
+        GameManager gameManager = gameManagerCache;
+        UltraProjectManager manager = gameManager == null ? null : gameManager.UltraProject;
+        if (body == null || gameManager == null || gameManager.State == null ||
+            gameManager.State.TechLevel < TechLevel.Ultra || manager == null)
+            return;
+
+        UltraProjectPreview preview;
+        try
+        {
+            preview = manager.GetPreview();
+        }
+        catch (Exception exception)
+        {
+            if (!developmentGuidanceErrorLogged)
+            {
+                developmentGuidanceErrorLogged = true;
+                Debug.LogException(exception);
+            }
+            return;
+        }
+        if (preview == null)
+            return;
+
+        body.Append("\n\n文明工程：").Append(GetUltraStageLabel(preview.Stage))
+            .Append("\n状态：").Append(GetUltraStatusLabel(preview.Status));
+        if (preview.Stage != UltraProjectStage.Completed)
+            body.Append("  进度：").Append(
+                (preview.Progress * new ExpantaNum(100)).ToGameString()).Append('%');
+
+        string blocker = string.Empty;
+        string nextStep;
+        switch (preview.Status)
+        {
+            case UltraProjectStatus.Locked:
+            case UltraProjectStatus.Ready:
+                if (preview.Failure != UltraProjectOperationFailure.None)
+                    blocker = GetUltraFailureLabel(preview.Failure);
+                nextStep = preview.Failure == UltraProjectOperationFailure.None
+                    ? "前往所需巨构详情启动本阶段"
+                    : "先排除阻碍，再启动本阶段";
+                break;
+            case UltraProjectStatus.Running:
+                if (preview.SupplySatisfaction < ExpantaNum.One)
+                    blocker = "当前供给满足率 " +
+                        (preview.SupplySatisfaction * new ExpantaNum(100)).ToGameString() +
+                        "%；工程按满足率推进";
+                nextStep = preview.SupplySatisfaction < ExpantaNum.One
+                    ? "补足食物、电力、物流或高级材料以加快推进"
+                    : "维持巨构供给，等待本阶段完成";
+                break;
+            case UltraProjectStatus.Paused:
+                bool supplyRecovered =
+                    preview.Failure == UltraProjectOperationFailure.InsufficientSupply &&
+                    preview.SupplySatisfaction > ExpantaNum.Zero;
+                if (supplyRecovered)
+                    blocker = "之前供给不足；当前可按满足率渐进推进";
+                else if (preview.Failure != UltraProjectOperationFailure.None)
+                    blocker = GetUltraFailureLabel(preview.Failure);
+                else
+                    blocker = "手动暂停";
+                nextStep = supplyRecovered
+                    ? "供给已恢复，在巨构详情恢复工程"
+                    : preview.Failure == UltraProjectOperationFailure.InsufficientSupply
+                    ? "补足供给后，在巨构详情恢复工程"
+                    : "前往巨构详情恢复工程";
+                break;
+            case UltraProjectStatus.ReadyToCommit:
+                nextStep = "前往巨构详情提交阶段认证";
+                break;
+            case UltraProjectStatus.Committed:
+                nextStep = manager.IsCampaignDoctrineUnlocked
+                    ? "前往区划查看并切换远征供给姿态"
+                    : "文明工程认证已完成";
+                break;
+            default:
+                nextStep = "查看文明工程状态";
+                break;
+        }
+
+        body.Append("\n阻碍：").Append(
+            string.IsNullOrEmpty(blocker) ? "暂无" : blocker)
+            .Append("\n下一步：").Append(nextStep);
     }
 
     private void RefreshDevelopmentGuidanceLayout()
@@ -916,12 +1052,18 @@ public sealed partial class KingdomUIRoot
         if (developmentGuidanceNavigationButton == null)
             return;
         string pageName = snapshot == null ? string.Empty : snapshot.NavigationPage;
+        string targetId = snapshot == null ? string.Empty : snapshot.NavigationTargetId;
+        if (TryGetUltraOverviewNavigation(out string ultraPageName, out string ultraTargetId))
+        {
+            pageName = ultraPageName;
+            targetId = ultraTargetId;
+        }
         bool canNavigate = !string.IsNullOrWhiteSpace(pageName) && pages.ContainsKey(pageName);
         developmentGuidanceNavigationButton.interactable = canNavigate;
         TMP_Text label = developmentGuidanceNavigationButton.GetComponentInChildren<TMP_Text>();
         if (label != null)
         {
-            label.text = pageName == "Overview" ? "查看当前目标" : "前往：" + GetPageTitle(pageName);
+            label.text = pageName == "Overview" ? "查看当前目标" : "前往：" + PageLabel(pageName);
             label.enabled = true;
         }
         developmentGuidanceNavigationButton.onClick.RemoveAllListeners();
@@ -929,60 +1071,80 @@ public sealed partial class KingdomUIRoot
             developmentGuidanceNavigationButton.onClick.AddListener(() =>
             {
                 UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
-                NavigateToTutorialTarget(snapshot);
+                NavigateToTutorialTarget(snapshot, pageName, targetId);
             });
+    }
+
+    private bool TryGetUltraOverviewNavigation(out string pageName, out string targetId)
+    {
+        pageName = string.Empty;
+        targetId = string.Empty;
+        GameManager gameManager = gameManagerCache;
+        UltraProjectManager project = gameManager == null ? null : gameManager.UltraProject;
+        if (gameManager == null || gameManager.State == null || project == null ||
+            gameManager.State.TechLevel < TechLevel.Ultra)
+            return false;
+
+        if (project.State.Status == UltraProjectStatus.Committed)
+        {
+            pageName = "Sectors";
+            return pages.ContainsKey(pageName);
+        }
+
+        pageName = "Buildings";
+        targetId = project.State.CurrentStage == UltraProjectStage.None ||
+            project.State.CurrentStage == UltraProjectStage.Prototype
+            ? "PhaseEnergyArray"
+            : "AutonomousMatterFabricator";
+        return pages.ContainsKey(pageName);
     }
 
     private void NavigateToTutorialTarget(TutorialSnapshot snapshot)
     {
-        if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.NavigationPage) ||
-            !pages.ContainsKey(snapshot.NavigationPage))
+        NavigateToTutorialTarget(snapshot, null, null);
+    }
+
+    private void NavigateToTutorialTarget(
+        TutorialSnapshot snapshot, string overridePageName, string overrideTargetId)
+    {
+        string pageName = string.IsNullOrWhiteSpace(overridePageName)
+            ? snapshot == null ? string.Empty : snapshot.NavigationPage
+            : overridePageName;
+        string targetId = string.IsNullOrWhiteSpace(overrideTargetId)
+            ? snapshot == null ? string.Empty : snapshot.NavigationTargetId
+            : overrideTargetId;
+        if (string.IsNullOrWhiteSpace(pageName) || !pages.ContainsKey(pageName))
             return;
 
-        SetPage(snapshot.NavigationPage);
-        if (string.IsNullOrWhiteSpace(snapshot.NavigationTargetId))
+        SetPage(pageName);
+        if (string.IsNullOrWhiteSpace(targetId))
             return;
 
-        if (snapshot.NavigationPage == "Research" &&
-            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research research) &&
+        if (pageName == "Research" &&
+            DataBase<Research>.TryFind(targetId, out Research research) &&
             research != null)
         {
             ShowResearchDetails(research);
             return;
         }
-        if (snapshot.NavigationPage == "Buildings" &&
-            DataBase<Building>.TryFind(snapshot.NavigationTargetId, out Building building) &&
+        if (pageName == "Buildings" &&
+            DataBase<Building>.TryFind(targetId, out Building building) &&
             building != null)
         {
             ShowBuildingDetails(building);
             return;
         }
-        if (snapshot.NavigationPage == "Resources" &&
-            DataBase<Resource>.TryFind(snapshot.NavigationTargetId, out Resource resource) &&
+        if (pageName == "Resources" &&
+            DataBase<Resource>.TryFind(targetId, out Resource resource) &&
             resource != null)
         {
             ShowResourceDetails(resource);
             return;
         }
-        if (snapshot.NavigationPage == "Workshop" &&
-            DataBase<WorkshopUpgrade>.TryFind(snapshot.NavigationTargetId,
+        if (pageName == "Workshop" &&
+            DataBase<WorkshopUpgrade>.TryFind(targetId,
                 out WorkshopUpgrade workshop) && workshop != null)
             ShowWorkshopDetails(workshop);
-    }
-
-    private string GetPageTitle(string pageName)
-    {
-        return pageName switch
-        {
-            "Resources" => "资源",
-            "Buildings" => "建筑",
-            "Research" => "研究",
-            "Era" => "时代",
-            "Workshop" => "工坊",
-            "Sectors" => "区划",
-            "Story" => "剧情",
-            _ => pageName
-        };
     }
 
     private void RefreshTopInfo()
@@ -1036,6 +1198,16 @@ public sealed partial class KingdomUIRoot
             state.AvailableTerritory.ToGameString() + "/" + state.TerritoryTotal.ToGameString());
         SetTopInfoValue(topResearchPowerValue, researchPower + "/s");
     }
+
+#if UNITY_EDITOR
+    public static string FormatTopFlowForEditor(ExpantaNum supply, ExpantaNum demand) =>
+        FormatTopFlow(supply, demand);
+    public static ExpantaNum CalculateRawFlowDemandForEditor(bool usePower) =>
+        CalculateRawFlowDemand(usePower);
+    public void RefreshTopInfoForEditor() => RefreshTopInfo();
+    public void RefreshLiveCardValuesForEditor() => RefreshLiveCardValues();
+    public void EnqueueRecentNoticeForEditor(string notice) => EnqueueRecentNotice(notice);
+#endif
 
     private static string FormatTopFlow(ExpantaNum supply, ExpantaNum demand)
     {
@@ -1276,8 +1448,6 @@ public sealed partial class KingdomUIRoot
                                 actionButton,
                                 CanPerformBuildingAction(pair.Key, upgrade, actionQuantity));
                         }
-                        else
-                            SetTextIfChanged(pair.Value, "0");
                     }
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager == null)

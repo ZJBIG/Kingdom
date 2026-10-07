@@ -39,6 +39,31 @@ public sealed class PopulationState
         Version++;
     }
 
+#if UNITY_EDITOR
+    public void RestorePopulationForEditor(ExpantaNum restoredPopulation) =>
+        RestorePopulation(restoredPopulation);
+    public void RestorePopulationChangeProgressForEditor(ExpantaNum restoredProgress) =>
+        RestorePopulationChangeProgress(restoredProgress);
+    public void AdjustPopulationCapacityForEditor(ExpantaNum delta) =>
+        AdjustPopulationCapacity(delta);
+    public void AdvancePopulationForEditor(
+        double deltaSeconds,
+        ExpantaNum happinessMultiplier,
+        ExpantaNum growthRatePerSecond,
+        ExpantaNum departureAllowance,
+        bool foodShortageDepartureAllowed) =>
+        AdvancePopulation(
+            deltaSeconds,
+            happinessMultiplier,
+            growthRatePerSecond,
+            departureAllowance,
+            foodShortageDepartureAllowed);
+    public ExpantaNum CurrentGrowthRatePerSecondForEditor(
+        ExpantaNum happinessMultiplier,
+        ExpantaNum growthRatePerSecond) =>
+        CurrentGrowthRatePerSecond(happinessMultiplier, growthRatePerSecond);
+#endif
+
     internal void RestorePopulation(ExpantaNum restoredPopulation)
     {
         EnsureFinite(restoredPopulation, nameof(restoredPopulation));
@@ -152,14 +177,6 @@ public sealed class PopulationState
     }
 
     internal ExpantaNum CurrentDepartureRatePerSecond(
-        ExpantaNum departureAllowance)
-    {
-        EnsureFinite(departureAllowance, nameof(departureAllowance));
-        // 人口离开必须由 GameManager 根据食物库存和 Food/s 显式授权。
-        return ExpantaNum.Zero;
-    }
-
-    internal ExpantaNum CurrentDepartureRatePerSecond(
         ExpantaNum departureAllowance,
         ExpantaNum happinessMultiplier,
         bool foodShortageDepartureAllowed)
@@ -227,35 +244,6 @@ public sealed class PopulationState
                 : remainingProgress);
     }
 
-    private void AdvanceDeparture(
-        double deltaSeconds,
-        ExpantaNum departureAllowance)
-    {
-        ExpantaNum safeDepartures = NormalizeWhole(departureAllowance);
-        if (safeDepartures < ExpantaNum.One)
-        {
-            SetPopulationChangeProgress(ExpantaNum.Zero);
-            return;
-        }
-
-        ExpantaNum departureRate = CalculateDepartureRate(departureAllowance);
-        ExpantaNum accumulated = populationChangeProgress +
-            deltaSeconds * departureRate;
-        ExpantaNum departures = ExpantaNum.Min(
-            ExpantaNum.Min(population - populationCapacity, safeDepartures),
-            (accumulated + PopulationStepEpsilon).Floor());
-        if (departures > ExpantaNum.Zero)
-            SetPopulation(population - departures);
-
-        bool blockedByCapacity = population <= populationCapacity;
-        bool blockedByProductivity =
-            departures >= safeDepartures && population > populationCapacity;
-        SetPopulationChangeProgress(
-            blockedByCapacity || blockedByProductivity
-                ? ExpantaNum.Zero
-                : accumulated - departures);
-    }
-
     private void AdvanceFoodShortageDeparture(
         double deltaSeconds,
         ExpantaNum happinessMultiplier)
@@ -309,19 +297,6 @@ public sealed class PopulationState
         return ExpantaNum.Max(ExpantaNum.Zero, growthRatePerSecond) *
             effectivePopulation *
             ExpantaNum.Max(ExpantaNum.Zero, logisticFactor);
-    }
-
-    private ExpantaNum CalculateDepartureRate(ExpantaNum departureAllowance)
-    {
-        if (NormalizeWhole(departureAllowance) < ExpantaNum.One)
-            return ExpantaNum.Zero;
-        ExpantaNum excess = population - populationCapacity;
-        ExpantaNum normalizedExcess = populationCapacity <= ExpantaNum.Zero
-            ? excess
-            : excess / populationCapacity;
-        ExpantaNum departureMultiplier = ExpantaNum.One +
-            ExpantaNum.Min(Eight, normalizedExcess);
-        return DepartureRatePerSecond * departureMultiplier;
     }
 
     private ExpantaNum CalculateFoodShortageDepartureRate(

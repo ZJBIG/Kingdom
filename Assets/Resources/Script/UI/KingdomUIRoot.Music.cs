@@ -294,6 +294,11 @@ public sealed partial class KingdomUIRoot
             !Mathf.Approximately(musicGapSlider.value, gap))
             musicGapSlider.SetValueWithoutNotify(gap);
         SetTextIfChanged(musicGapValueLabel, "曲目间隔：" + gap.ToString("0.00") + "s");
+        if (sfxVolumeSlider != null && !Mathf.Approximately(sfxVolumeSlider.value, UIButtonSoundManager.SfxVolume))
+            sfxVolumeSlider.SetValueWithoutNotify(UIButtonSoundManager.SfxVolume);
+        SetTextIfChanged(sfxVolumeValueLabel,
+            "音效音量：" + Mathf.RoundToInt(UIButtonSoundManager.SfxVolume * 100f) + "%" +
+            (UIButtonSoundManager.SfxMuted ? "（静音）" : string.Empty));
         RefreshMusicGlobalPauseVisual(manager);
         RefreshMusicTrackIcons(manager, track);
     }

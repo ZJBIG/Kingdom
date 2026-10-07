@@ -269,6 +269,10 @@ public class Building : GameDefinition
 
     public void SetUpgradeToForEditor(Building value) => upgradeTo = value;
 
+    // Mirrors the serialized string field so a test can prove the validator
+    // rejects a non-zero territory cost on a sector building.
+    public void SetSpaceCostForEditor(string value) => spaceCost = value;
+
     public void SetResearchPowerForEditor(ExpantaNum value) =>
         researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value).ToString();
     public void SetPowerFlowForEditor(ExpantaNum production, ExpantaNum consumption)

@@ -41,6 +41,7 @@ public sealed partial class KingdomUIRoot
         HideBuildingRequirements();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
+        HideUltraDoctrineButton();
         // Generic/workshop details do not go through the requirement
         // presenter. Reapply the body layout after the body was moved under
         // DetailScrollContent, otherwise it keeps the authored panel-space
@@ -124,6 +125,8 @@ public sealed partial class KingdomUIRoot
         selectedSectorDefinition = null;
         lastSelectedBuildingVersion = -1;
         lastSelectedBuildingResourceVersion = -1;
+        lastSelectedBuildingPrerequisiteSignature = null;
+        selectedBuildingPrerequisiteOnlyRefresh = false;
         detailIsBuilding = true;
         BuildingState state = BuildingManager.Instance != null &&
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
@@ -139,15 +142,19 @@ public sealed partial class KingdomUIRoot
         detailBuildingUpgrade = upgrading;
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
+        HideUltraDoctrineButton();
         IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
         IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
         ShowBuildingFlows(output, input);
         List<Pair<Resource, ExpantaNum>> requirements = GetNextBuildingRequirements(building, state, upgrading);
+        ultraDetailRequirementCount = requirements == null ? 0 : requirements.Count;
+        ultraDetailFlowCount = CountFlows(output) + CountFlows(input);
         ShowBuildingRequirements(requirements, "建筑建造需求");
         PlaceRequirementsAfterDescription(
             requirements == null ? 0 : requirements.Count,
             preservedScrollPosition,
             CountFlows(output) + CountFlows(input));
+        ConfigureUltraProjectDetails(building);
     }
 
     private void SetBuildingDetailBody(Building building, BuildingState state)
@@ -246,6 +253,14 @@ public sealed partial class KingdomUIRoot
         if (building == null || detailBody == null || buildingManager == null)
             return;
 
+        if (selectedBuildingPrerequisiteOnlyRefresh)
+        {
+            selectedBuildingPrerequisiteOnlyRefresh = false;
+            RefreshBuildingPrerequisiteText(building);
+            return;
+        }
+        selectedBuildingPrerequisiteOnlyRefresh = false;
+
         BuildingState state = buildingManager.States.TryGetValue(building, out BuildingState current)
             ? current
             : null;
@@ -265,6 +280,8 @@ public sealed partial class KingdomUIRoot
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> output = GetEffectiveBuildingFlows(building, true);
         IReadOnlyList<Pair<Resource, ExpantaNum>> input = GetEffectiveBuildingFlows(building, false);
+        ultraDetailRequirementCount = requirements == null ? 0 : requirements.Count;
+        ultraDetailFlowCount = CountFlows(output) + CountFlows(input);
 #if UNITY_EDITOR
         float flowRefreshStart = Time.realtimeSinceStartup;
 #endif
@@ -284,7 +301,16 @@ public sealed partial class KingdomUIRoot
             SetBuildingDetailBody(building, state);
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
+        HideUltraDoctrineButton();
+        ConfigureUltraProjectDetails(building);
     }
+
+#if UNITY_EDITOR
+    public void ShowResourceDetailsForEditor(Resource resource) =>
+        ShowResourceDetails(resource);
+    public void ShowDetailsForEditor(string title, string description, string id) =>
+        ShowDetails(title, description, id);
+#endif
 
     private void ShowResourceDetails(Resource resource)
     {
@@ -304,6 +330,7 @@ public sealed partial class KingdomUIRoot
         HideBuildingRequirements();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
+        HideUltraDoctrineButton();
 
         RefreshResourceDetails(resource);
     }
@@ -641,13 +668,13 @@ public sealed partial class KingdomUIRoot
 
     private static bool IsResearchCompleted(Research research)
     {
-        ResearchManager manager = UnityEngine.Object.FindObjectOfType<ResearchManager>();
+        ResearchManager manager = ResearchManager.Instance;
         return research != null && manager != null && manager.IsResearchCompleted(research.Id);
     }
 
     private static bool IsWorkshopPurchased(WorkshopUpgrade upgrade)
     {
-        WorkshopManager manager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
+        WorkshopManager manager = WorkshopManager.Instance;
         return upgrade != null && manager != null && manager.IsPurchased(upgrade);
     }
 
@@ -860,6 +887,8 @@ public sealed partial class KingdomUIRoot
         bool purchased = WorkshopManager.Instance.TryPurchase(
             definition, out WorkshopPurchaseFailure failure);
         Debug.Log("[界面] 工坊行购买：id=" + definition.Id + "，结果=" + failure);
+        if (purchased)
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
     }
@@ -870,6 +899,8 @@ public sealed partial class KingdomUIRoot
             return;
         bool purchased = WorkshopManager.Instance.TryPurchase(definition, out WorkshopPurchaseFailure failure);
         Debug.Log("[界面] 工坊支付：id=" + definition.Id + "，结果=" + failure);
+        if (purchased)
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
         ShowWorkshopDetails(definition, true);
@@ -884,6 +915,7 @@ public sealed partial class KingdomUIRoot
         if (ResearchManager.Instance != null)
             ResearchManager.Instance.States.TryGetValue(research, out state);
 
+        RefreshResearchPrerequisiteText(research);
         RefreshResearchDetailStatus(research, state);
 
         if (!RefreshRequirementRows(research.ResourceRequirements))
@@ -895,6 +927,66 @@ public sealed partial class KingdomUIRoot
         ConfigureActionButton("加入研究队列", () => ResearchAction(research));
         if (detailActionButton != null)
             detailActionButton.interactable = IsResearchActionAvailable(research, state);
+    }
+
+    private void RefreshResearchPrerequisiteText(Research research)
+    {
+        if (detailBody == null || research == null)
+            return;
+        StringBuilder rows = new();
+        AppendResearchPrerequisites(rows, research.Prerequisites);
+        ReplaceDetailSection("研究前置\n", "\n当前状态：", rows.ToString());
+    }
+
+    private void RefreshBuildingPrerequisiteText(Building building)
+    {
+        if (detailBody == null || building == null)
+            return;
+        StringBuilder researchRows = new();
+        AppendResearchPrerequisites(researchRows, building.RequiredResearch);
+        ReplaceDetailSection("研究前置\n", "工坊前置\n", researchRows.ToString());
+
+        StringBuilder workshopRows = new();
+        AppendWorkshopPrerequisites(workshopRows, building.RequiredWorkshopUpgrades);
+        ReplaceDetailSection("工坊前置\n", "\n当前状态：", workshopRows.ToString());
+
+        BuildingState state = BuildingManager.Instance != null &&
+            BuildingManager.Instance.States.TryGetValue(building, out BuildingState current)
+            ? current
+            : null;
+        ReplaceDetailLine("当前状态：", GetBuildingDetailStatus(building, state));
+    }
+
+    private void ReplaceDetailSection(string heading, string nextHeading, string replacement)
+    {
+        if (detailBody == null || string.IsNullOrEmpty(heading) || string.IsNullOrEmpty(nextHeading))
+            return;
+        string current = detailBody.text;
+        int start = current.IndexOf(heading, StringComparison.Ordinal);
+        if (start < 0)
+            return;
+        start += heading.Length;
+        int end = current.IndexOf(nextHeading, start, StringComparison.Ordinal);
+        if (end < start || string.Equals(current.Substring(start, end - start), replacement, StringComparison.Ordinal))
+            return;
+        detailBody.text = current.Substring(0, start) + replacement + current.Substring(end);
+    }
+
+    private void ReplaceDetailLine(string marker, string value)
+    {
+        if (detailBody == null || string.IsNullOrEmpty(marker))
+            return;
+        string current = detailBody.text;
+        int start = current.IndexOf(marker, StringComparison.Ordinal);
+        if (start < 0)
+            return;
+        int end = current.IndexOf('\n', start);
+        if (end < 0)
+            end = current.Length;
+        string replacement = marker + (value ?? string.Empty);
+        if (string.Equals(current.Substring(start, end - start), replacement, StringComparison.Ordinal))
+            return;
+        detailBody.text = current.Substring(0, start) + replacement + current.Substring(end);
     }
 
     private void RefreshResearchDetailStatus(Research research, ResearchState state)
@@ -1042,7 +1134,7 @@ public sealed partial class KingdomUIRoot
                 Destroy(child.gameObject);
         }
         requirementHost.gameObject.SetActive(true);
-        heading = heading.Contains("研究") || heading.Contains("鐮旂┒") ? "研究支付需求" : "建筑建造需求";
+        heading = heading.Contains("研究") ? "研究支付需求" : "建筑建造需求";
         int validCount = 0;
         if (requirements != null)
             for (int i = 0; i < requirements.Count; i++)
@@ -1427,6 +1519,7 @@ public sealed partial class KingdomUIRoot
 
     private void ConfigureActionButton(string label, UnityEngine.Events.UnityAction action)
     {
+        HideUltraDoctrineButton();
         if (!detailIsBuilding && selectedResearchNode != null)
         {
             ResearchState researchState = null;
@@ -1442,9 +1535,8 @@ public sealed partial class KingdomUIRoot
         bool isBuildingAction = detailIsBuilding;
         detailActionButton.onClick.AddListener(() =>
         {
-            UIButtonSoundManager.Play(isBuildingAction
-                ? UIButtonSoundManager.Sound.Purchase
-                : UIButtonSoundManager.Sound.Detail);
+            if (!isBuildingAction)
+                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
             action();
         });
         TMP_Text text = GetDetailButtonText(detailActionButton, ref detailActionButtonText);
@@ -1482,6 +1574,8 @@ public sealed partial class KingdomUIRoot
             return;
         }
         bool success = BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out BuildFailure failure);
+        if (success)
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Build);
         ShowBuildingDetails(building, true);
     }
 

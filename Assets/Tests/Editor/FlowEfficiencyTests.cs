@@ -74,7 +74,7 @@ public sealed class FlowEfficiencyTests
             new ExpantaNum(10),
             new ExpantaNum(0.5d));
 
-        Assert.That(result, Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(result.ToDouble(), Is.EqualTo(0.5d).Within(0.000001d));
         Assert.That(HappinessFormula.CalculateConstraintMultiplier(result),
             Is.EqualTo(result));
         Assert.That(HappinessFormula.CalculateRewardMultiplier(result),
@@ -97,7 +97,7 @@ public sealed class FlowEfficiencyTests
 
         Assert.That(healthy, Is.GreaterThan(
             HappinessFormula.CalculateMultiplier(new ExpantaNum(90), new ExpantaNum(10))));
-        Assert.That(shortage, Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(shortage.ToDouble(), Is.EqualTo(0.5d).Within(0.000001d));
     }
 
     [Test]

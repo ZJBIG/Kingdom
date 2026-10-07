@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
@@ -49,23 +48,19 @@ public sealed class KingdomOnboardingPlayModeTests
         ScrollRect outerScroll = pageHostTransform.GetComponent<ScrollRect>();
         Assert.That(outerScroll, Is.Not.Null);
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-
-        setPage.Invoke(root, new object[] { "Research" });
+        root.SetPage("Research");
         yield return null;
         Assert.That(outerScroll.enabled, Is.False,
             "Research must keep the outer page ScrollRect disabled.");
 
-        setPage.Invoke(root, new object[] { "Overview" });
+        root.SetPage("Overview");
         yield return null;
         Assert.That(outerScroll.enabled, Is.True);
         Assert.That(outerScroll.vertical, Is.True);
         Assert.That(outerScroll.content, Is.EqualTo(
             pageHostTransform.Find("Overview")));
 
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
         Assert.That(outerScroll.enabled, Is.True);
         Assert.That(outerScroll.vertical, Is.True);
@@ -79,7 +74,7 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(storyPage.anchorMax, Is.EqualTo(new Vector2(1f, 1f)));
         Assert.That(pageHostTransform.Find("Story/StoryOverviewPage"), Is.Not.Null);
 
-        setPage.Invoke(root, new object[] { "Overview" });
+        root.SetPage("Overview");
         yield return null;
         Assert.That(outerScroll.enabled, Is.True);
         Assert.That(outerScroll.vertical, Is.True);
@@ -98,10 +93,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
 
         Transform rows = root.transform.Find(
@@ -139,10 +131,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
         Canvas.ForceUpdateCanvases();
 
@@ -255,10 +244,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
         Canvas.ForceUpdateCanvases();
 
@@ -317,24 +303,15 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
 
         RectTransform storyPage = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story") as RectTransform;
         Assert.That(storyPage, Is.Not.Null);
-        FieldInfo builtField = typeof(KingdomUIRoot).GetField(
-            "storyPageBuilt", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(builtField, Is.Not.Null);
-        builtField.SetValue(root, false);
+        root.StoryPageBuiltForEditor = false;
 
-        MethodInfo refresh = typeof(KingdomUIRoot).GetMethod(
-            "RefreshStoryPageIfChanged", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(refresh, Is.Not.Null);
-        refresh.Invoke(root, null);
+        root.RefreshStoryPageIfChangedForEditor();
 
         int activeStorySurfaces = 0;
         for (int i = 0; i < storyPage.childCount; i++)
@@ -357,26 +334,13 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
 
-        FieldInfo feedbackField = typeof(KingdomUIRoot).GetField(
-            "tutorialRecentCompletionFeedback",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        FieldInfo builtField = typeof(KingdomUIRoot).GetField(
-            "storyPageBuilt", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(feedbackField, Is.Not.Null);
-        Assert.That(builtField, Is.Not.Null);
-        feedbackField.SetValue(root, "真实行动反馈测试");
-        builtField.SetValue(root, false);
+        root.TutorialRecentCompletionFeedbackForEditor = "真实行动反馈测试";
+        root.StoryPageBuiltForEditor = false;
 
-        MethodInfo refresh = typeof(KingdomUIRoot).GetMethod(
-            "RefreshStoryPageIfChanged", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(refresh, Is.Not.Null);
-        refresh.Invoke(root, null);
+        root.RefreshStoryPageIfChangedForEditor();
         yield return null;
 
         Transform storyPage = root.transform.Find(
@@ -406,26 +370,17 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo enqueue = typeof(KingdomUIRoot).GetMethod(
-            "EnqueueRecentNotice", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo refresh = typeof(KingdomUIRoot).GetMethod(
-            "RefreshStoryPageIfChanged", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        Assert.That(enqueue, Is.Not.Null);
-        Assert.That(refresh, Is.Not.Null);
 
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
         Transform surfaceBefore = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage");
         Assert.That(surfaceBefore, Is.Not.Null);
-        enqueue.Invoke(root, new object[] { "action-feedback-a" });
-        enqueue.Invoke(root, new object[] { "action-feedback-b" });
-        enqueue.Invoke(root, new object[] { "action-feedback-c" });
-        enqueue.Invoke(root, new object[] { "action-feedback-d" });
-        refresh.Invoke(root, null);
+        root.EnqueueRecentNoticeForEditor("action-feedback-a");
+        root.EnqueueRecentNoticeForEditor("action-feedback-b");
+        root.EnqueueRecentNoticeForEditor("action-feedback-c");
+        root.EnqueueRecentNoticeForEditor("action-feedback-d");
+        root.RefreshStoryPageIfChangedForEditor();
         yield return null;
 
         Transform storyPage = root.transform.Find(
@@ -454,10 +409,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Overview" });
+        root.SetPage("Overview");
         yield return null;
         yield return null;
 
@@ -467,11 +419,32 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(outerScroll, Is.Not.Null);
         Assert.That(outerScroll.enabled, Is.True);
         Assert.That(outerScroll.content, Is.Not.Null);
+        Image background = pageHostTransform.GetComponent<Image>();
+        Assert.That(background, Is.Not.Null,
+            "The authored PageHost background must own the Overview drag hit surface.");
+        Assert.That(background.raycastTarget, Is.True,
+            "Overview background drags require a raycastable authored PageHost surface.");
 
         Canvas.ForceUpdateCanvases();
         float viewportHeight = outerScroll.viewport.rect.height;
         float contentHeight = outerScroll.content.rect.height;
         float overflow = contentHeight - viewportHeight;
+        if (overflow <= 1f)
+        {
+            // The batch runner uses a 640x480 window, which can make the
+            // authored Overview fit exactly after Canvas scaling. Shrink only
+            // this test's viewport and keep the authored content larger so the
+            // regression exercises a real background drag without adding
+            // production whitespace or rows.
+            RectTransform viewportRect = pageHostTransform as RectTransform;
+            float forcedViewportHeight = Mathf.Max(256f, viewportHeight * .5f);
+            viewportRect.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical, forcedViewportHeight);
+            Canvas.ForceUpdateCanvases();
+            viewportHeight = outerScroll.viewport.rect.height;
+            contentHeight = outerScroll.content.rect.height;
+            overflow = contentHeight - viewportHeight;
+        }
         Debug.Log("[王国界面] Outer page real-drag diagnostic: page=Overview" +
             ", enabled=" + outerScroll.enabled +
             ", viewport=" + viewportHeight +
@@ -482,10 +455,8 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(viewportHeight, Is.GreaterThan(0f));
         Assert.That(contentHeight, Is.GreaterThan(0f));
 
-        if (overflow <= 1f)
-        {
-            Assert.Ignore("No measured Overview overflow; background drag was not exercised.");
-        }
+        Assert.That(overflow, Is.GreaterThan(1f),
+            "Overview must contain its authored long-form content so this regression exercises a real overflow drag.");
 
         PointerEventData data = new(EventSystem.current)
         {
@@ -497,8 +468,7 @@ public sealed class KingdomOnboardingPlayModeTests
             eligibleForClick = true,
             delta = Vector2.zero
         };
-        GameObject hit = null;
-        hit = outerScroll.gameObject;
+        GameObject hit = outerScroll.gameObject;
         Debug.Log("[王国界面] Outer page real-drag diagnostic: hit=" +
             (hit == null ? "null" : hit.name));
 
@@ -518,6 +488,69 @@ public sealed class KingdomOnboardingPlayModeTests
             before + ", after=" + after);
         Assert.That(after, Is.Not.EqualTo(before).Within(.01f),
             "A direct Overview ScrollRect drag must move the overflowing content.");
+
+        // The same background surface must clamp at both ends instead of
+        // allowing content to escape the authored viewport.
+        outerScroll.StopMovement();
+        outerScroll.verticalNormalizedPosition = 1f;
+        yield return null;
+        data.position = new Vector2(Screen.width * .65f, Screen.height * .55f);
+        data.pressPosition = data.position;
+        data.delta = Vector2.zero;
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.initializePotentialDrag);
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.beginDragHandler);
+        data.position += Vector2.down * 2000f;
+        data.delta = Vector2.down * 2000f;
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.dragHandler);
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.endDragHandler);
+        yield return null;
+        Assert.That(outerScroll.verticalNormalizedPosition, Is.EqualTo(1f).Within(.01f),
+            "Overview background dragging past the top must remain clamped.");
+
+        outerScroll.StopMovement();
+        outerScroll.verticalNormalizedPosition = 0f;
+        yield return null;
+        data.position = new Vector2(Screen.width * .65f, Screen.height * .55f);
+        data.pressPosition = data.position;
+        data.delta = Vector2.zero;
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.initializePotentialDrag);
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.beginDragHandler);
+        data.position += Vector2.up * 2000f;
+        data.delta = Vector2.up * 2000f;
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.dragHandler);
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.endDragHandler);
+        yield return null;
+        Assert.That(outerScroll.verticalNormalizedPosition, Is.EqualTo(0f).Within(.01f),
+            "Overview background dragging past the bottom must remain clamped.");
+
+        // A short background click must not move the page.
+        outerScroll.StopMovement();
+        outerScroll.verticalNormalizedPosition = .42f;
+        yield return null;
+        float shortClickPosition = outerScroll.content.anchoredPosition.y;
+        data.position = new Vector2(Screen.width * .65f, Screen.height * .55f);
+        data.pressPosition = data.position;
+        data.delta = Vector2.zero;
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.pointerDownHandler);
+        ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.pointerUpHandler);
+        yield return null;
+        Assert.That(outerScroll.content.anchoredPosition.y,
+            Is.EqualTo(shortClickPosition).Within(.01f),
+            "A short Overview background click must not move the page.");
+
+        // Page switches must preserve the measured position and rebind the
+        // same ScrollRect to Overview when returning from Research.
+        float expectedNormalized = outerScroll.verticalNormalizedPosition;
+        root.SetPage("Research");
+        yield return null;
+        root.SetPage("Overview");
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(outerScroll.enabled, Is.True);
+        Assert.That(outerScroll.content, Is.EqualTo(pageHostTransform.Find("Overview")));
+        Assert.That(outerScroll.verticalNormalizedPosition,
+            Is.EqualTo(expectedNormalized).Within(.02f),
+            "Returning from Research must restore the Overview drag position.");
     }
 
     [UnityTest]
@@ -530,11 +563,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-
-        setPage.Invoke(root, new object[] { "Resources" });
+        root.SetPage("Resources");
         yield return null;
         Transform resourcesRows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Resources/DataRows");
@@ -544,7 +573,7 @@ public sealed class KingdomOnboardingPlayModeTests
             Is.Not.Null,
             "Resource rows must forward drag lifecycle to the shared page ScrollRect.");
 
-        setPage.Invoke(root, new object[] { "Buildings" });
+        root.SetPage("Buildings");
         yield return null;
         Transform buildingsRows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Buildings/DataRows");
@@ -561,7 +590,7 @@ public sealed class KingdomOnboardingPlayModeTests
             root.transform.Find("SafeAreaRoot/Content/PageHost/Buildings")));
         Assert.That(pageScroll.enabled, Is.True);
 
-        setPage.Invoke(root, new object[] { "Era" });
+        root.SetPage("Era");
         yield return null;
         Transform eraPage = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Era");
@@ -614,10 +643,7 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Story" });
+        root.SetPage("Story");
         yield return null;
         Canvas.ForceUpdateCanvases();
 
@@ -726,9 +752,6 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
 
         Button eraButton = root.transform.Find(
             "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Era")?.GetComponent<Button>();
@@ -737,14 +760,14 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(eraButton, Is.Not.Null);
         Assert.That(resourcesButton, Is.Not.Null);
 
-        setPage.Invoke(root, new object[] { "Era" });
+        root.SetPage("Era");
         yield return null;
         Assert.That(eraButton.interactable, Is.False);
         Assert.That(eraButton.colors.disabledColor.r,
             Is.EqualTo(194f / 255f).Within(.01f));
         Assert.That(resourcesButton.interactable, Is.True);
 
-        setPage.Invoke(root, new object[] { "Resources" });
+        root.SetPage("Resources");
         yield return null;
         Assert.That(resourcesButton.interactable, Is.False);
         Assert.That(resourcesButton.colors.disabledColor.r,
@@ -762,31 +785,18 @@ public sealed class KingdomOnboardingPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
         TutorialManager tutorial = TutorialManager.Ensure();
-        FieldInfo feedbackField = typeof(KingdomUIRoot).GetField(
-            "tutorialRecentCompletionFeedback", BindingFlags.Instance | BindingFlags.NonPublic);
-        FieldInfo versionField = typeof(KingdomUIRoot).GetField(
-            "tutorialFeedbackVersion", BindingFlags.Instance | BindingFlags.NonPublic);
-        FieldInfo actionFeedbackField = typeof(KingdomUIRoot).GetField(
-            "recentActionFeedback", BindingFlags.Instance | BindingFlags.NonPublic);
-        FieldInfo actionFeedbackVersionField = typeof(KingdomUIRoot).GetField(
-            "recentActionFeedbackVersion", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(feedbackField, Is.Not.Null);
-        Assert.That(versionField, Is.Not.Null);
-        Assert.That(actionFeedbackField, Is.Not.Null);
-        Assert.That(actionFeedbackVersionField, Is.Not.Null);
-
-        feedbackField.SetValue(root, "旧存档中的反馈");
-        versionField.SetValue(root, tutorial.Version);
-        actionFeedbackField.SetValue(root, "old-save-action-feedback");
-        actionFeedbackVersionField.SetValue(root, tutorial.SaveSessionVersion - 1);
+        root.TutorialRecentCompletionFeedbackForEditor = "旧存档中的反馈";
+        root.TutorialFeedbackVersionForEditor = tutorial.Version;
+        root.RecentActionFeedbackForEditor = "old-save-action-feedback";
+        root.RecentActionFeedbackVersionForEditor = tutorial.SaveSessionVersion - 1;
         tutorial.RestoreSaveData(
             new SaveManager.TutorialSaveData { ActiveStepId = "orientation" },
             TechLevel.Animal);
         root.RefreshUI();
 
-        Assert.That(feedbackField.GetValue(root), Is.EqualTo(string.Empty),
+        Assert.That(root.TutorialRecentCompletionFeedbackForEditor, Is.EqualTo(string.Empty),
             "Loading a new tutorial version must not display feedback from the previous save.");
-        Assert.That(actionFeedbackField.GetValue(root), Is.EqualTo(string.Empty),
+        Assert.That(root.RecentActionFeedbackForEditor, Is.EqualTo(string.Empty),
             "Loading a new tutorial version must not display action feedback from the previous save.");
     }
 
@@ -812,16 +822,9 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(upgrade, Is.Not.Null);
         Assert.That(WorkshopManager.Instance, Is.Not.Null);
 
-        MethodInfo pageMethod = typeof(KingdomUIRoot).GetMethod(
-            "GetStoryNavigationPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo targetMethod = typeof(KingdomUIRoot).GetMethod(
-            "GetStoryNavigationTarget", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(pageMethod, Is.Not.Null);
-        Assert.That(targetMethod, Is.Not.Null);
-
-        Assert.That(pageMethod.Invoke(root, new object[] { chapter }),
+        Assert.That(root.GetStoryNavigationPageForEditor(chapter),
             Is.EqualTo("Workshop"));
-        Assert.That(targetMethod.Invoke(root, new object[] { chapter }),
+        Assert.That(root.GetStoryNavigationTargetForEditor(chapter),
             Is.EqualTo("PrecisionTooling"));
     }
 }

@@ -46,7 +46,6 @@ public class ResearchManager : Singleton<ResearchManager>
     public ExpantaNum ResearchPower { get; private set; } = BaseResearchPower;
 
     private readonly Dictionary<Research, ResearchState> states = new();
-    private readonly Dictionary<TechLevel, int> researchCountByTech = new();
     private readonly List<ResearchState> orderedStates = new();
     private readonly Queue<ResearchState> researchQueue = new();
     private readonly List<ResearchState> researchQueueRebuildBuffer = new();
@@ -59,9 +58,14 @@ public class ResearchManager : Singleton<ResearchManager>
     private readonly List<ResearchState> researchQueueSnapshot = new();
     private static ResourceManager cachedResourceManager;
     private bool researchQueueSnapshotDirty = true;
+    private bool suppressCompletionAudio;
+    internal bool SuppressCompletionAudio
+    {
+        get => suppressCompletionAudio;
+        set => suppressCompletionAudio = value;
+    }
 
     public IReadOnlyDictionary<Research, ResearchState> States => states;
-    public IReadOnlyDictionary<TechLevel, int> ResearchCountByTech => researchCountByTech;
     public ResearchState ActiveResearch { get; private set; }
     public IReadOnlyList<ResearchState> ResearchQueue
     {
@@ -81,6 +85,7 @@ public class ResearchManager : Singleton<ResearchManager>
     public string SelectedResearchId { get; private set; } = string.Empty;
     public event Action<ResearchState> ResearchStateAdded;
     public event Action ResearchQueueChanged;
+    public event Action<ResearchState> ResearchCompleted;
     internal IReadOnlyList<ResearchState> OrderedStatesForProgression => orderedStates;
 
     public int TotalFinishedResearchCount
@@ -109,11 +114,18 @@ public class ResearchManager : Singleton<ResearchManager>
         }
 
         InitializeResearchStates(researches);
-        InitializeResearchCount();
         RebuildProgressionModifiers();
         BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
         RebuildResearchPower(buildingManager?.OrderedStates);
     }
+
+#if UNITY_EDITOR
+    public void InitializeForEditor() => Initialize();
+    public void ResetForLoadForEditor() => ResetForLoad();
+    public void TickOfflineForEditor(double deltaSeconds) => TickOffline(deltaSeconds);
+    public void RestoreSaveDataForEditor(SaveManager.ResearchSaveData data) =>
+        RestoreSaveData(data);
+#endif
 
     public ResearchState GetState(Research research)
     {
@@ -183,8 +195,6 @@ public class ResearchManager : Singleton<ResearchManager>
             return RemoveQueuedResearch(research)
                 ? ResearchActionResult.Cancelled
                 : ResearchActionResult.AlreadyQueued;
-        if (!CanAccessResearch(research))
-            return ResearchActionResult.Blocked;
 
         List<ResearchState> batch = BuildPrerequisiteBatch(state);
         for (int i = 0; i < batch.Count; i++)
@@ -527,9 +537,13 @@ public class ResearchManager : Singleton<ResearchManager>
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
-        double remainingSeconds = deltaSeconds;
-        while (remainingSeconds > 0d)
+        bool previousSuppression = suppressCompletionAudio;
+        suppressCompletionAudio = true;
+        try
         {
+            double remainingSeconds = deltaSeconds;
+            while (remainingSeconds > 0d)
+            {
             if (ActiveResearch == null)
                 TryStartNextQueuedResearch(false);
             ResearchState current = ActiveResearch;
@@ -553,8 +567,13 @@ public class ResearchManager : Singleton<ResearchManager>
             Tick(step);
             remainingSeconds -= step;
 
-            if (ActiveResearch == current)
-                return;
+                if (ActiveResearch == current)
+                    return;
+            }
+        }
+        finally
+        {
+            suppressCompletionAudio = previousSuppression;
         }
     }
 
@@ -756,6 +775,8 @@ public class ResearchManager : Singleton<ResearchManager>
         // notification for each internal queue mutation.
         TryStartNextQueuedResearch(false);
         ResearchQueueChanged?.Invoke();
+        if (!suppressCompletionAudio)
+            ResearchCompleted?.Invoke(current);
 #if UNITY_EDITOR
         float completionEnd = Time.realtimeSinceStartup;
         KingdomEditorPerfLog.Write(
@@ -839,14 +860,6 @@ public class ResearchManager : Singleton<ResearchManager>
             orderedStates.Add(state);
             ResearchStateAdded?.Invoke(state);
         }
-    }
-
-    private void InitializeResearchCount()
-    {
-        foreach (TechLevel techLevel in Enum.GetValues(typeof(TechLevel)))
-            researchCountByTech[techLevel] = 0;
-        for (int i = 0; i < orderedStates.Count; i++)
-            researchCountByTech[orderedStates[i].Definition.TechLevel]++;
     }
 
     public SaveManager.ResearchSaveData CaptureSaveData()

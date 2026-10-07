@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MatterStateControlTheory
   Label: "材料生命周期控制"
-  Description: "管理高级材料的装配、服役与回收，降低建设损耗并提高拆除返还。"
+  Description: "管理高级材料的装配与服役，降低建设损耗。"
   BaseCost: "4500000000"
   prerequisites:
   - {fileID: 11400000, guid: 4b5c6d7e8f901a2b3c4d5e6f708192a3, type: 2}

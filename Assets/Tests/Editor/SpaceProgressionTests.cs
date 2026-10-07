@@ -50,11 +50,14 @@ public sealed class SpaceProgressionTests
                 $"研究力建筑链断裂：{chainIds[i]} -> {chainIds[i + 1]}");
         }
 
+        string[] researchBuildingIds = chainIds
+            .Concat(new[] { "UltraComputingNexus" })
+            .ToArray();
         foreach (Building building in DataBase<Building>.All)
         {
             if (building.ResearchPowerGranted <= ExpantaNum.Zero)
                 continue;
-            Assert.That(chainIds, Does.Contain(building.Id),
+            Assert.That(researchBuildingIds, Does.Contain(building.Id),
                 $"非研究力建筑链成员仍提供研究力：{building.Id}");
         }
     }
@@ -322,7 +325,7 @@ public sealed class SpaceProgressionTests
         Assert.That(FindRate(upper.ResourceConsumptionRates, "Biomass"),
             Is.GreaterThanOrEqualTo(FindRate(lower.ResourceConsumptionRates, "Biomass") * 4d));
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhantomWeave"), Is.True);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhaseMaterial"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhaseMaterial"), Is.False);
         Assert.That(ContainsResource(upper.ResourceRequirements, "TitaniumAlloy"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Composite"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "PhantomWeave"), Is.True);
@@ -608,7 +611,7 @@ public sealed class SpaceProgressionTests
             Is.GreaterThan(0d));
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Explosives"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Lubricant"), Is.True);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Composite"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Composite"), Is.False);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Concrete"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Machinery"), Is.True);
         Assert.That(ContainsResource(upper.ResourceRequirements, "Electronics"), Is.True);
@@ -1759,7 +1762,7 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Coke"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "Chemical"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhantomAlloy"), Is.True);
-        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhaseMaterial"), Is.True);
+        Assert.That(HasBuildingResourceConsumption("OrbitalResourceExtractionArray", "PhaseMaterial"), Is.False);
         Assert.That(ContainsResource(orbital.ResourceRequirements, "TitaniumAlloy"), Is.True);
         Assert.That(ContainsResource(orbital.ResourceRequirements, "Composite"), Is.True);
         Assert.That(ContainsResource(orbital.ResourceRequirements, "PhantomAlloy"), Is.True);

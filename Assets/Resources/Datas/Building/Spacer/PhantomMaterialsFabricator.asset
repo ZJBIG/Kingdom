@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "\u5E7D\u5F71\u6750\u6599\u5236\u9020\u5382"
   Description: "将钛合金、复合材料和化工材料加工为幽影合金与幽影纤维。"
   TechLevel: 4
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: e2f3a4b5c67890d1e2f3a4b5c67890d1, type: 2}
   costGrowth: "1.24"
   spaceCost: "360"
   productivityConsumption: "480"

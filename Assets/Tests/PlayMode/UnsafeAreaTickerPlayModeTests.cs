@@ -1,13 +1,35 @@
+using System;
 using System.Collections;
+using System.IO;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 public sealed class UnsafeAreaTickerPlayModeTests
 {
+    private string saveRoot;
+    [SetUp]
+    public void SetUp()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        saveRoot = Path.Combine(projectRoot, "Temp", "KingdomUnsafeAreaTickerPlayModeTests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(saveRoot);
+        SaveManager.SetSaveRootOverrideForTests(saveRoot);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        SaveManager.ClearSaveRootOverrideForTests();
+        if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
+            Directory.Delete(saveRoot, true);
+        saveRoot = null;
+    }
+
     [UnityTest]
     public IEnumerator CivilizationTelegraph_UsesInsetWithoutInterceptingInput()
     {

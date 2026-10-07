@@ -43,9 +43,6 @@ public sealed class StoryChapter
         RequiredUnlockedSectorIds = requiredUnlockedSectorIds ?? Array.Empty<string>();
         RequiredOccupiedSectorIds = requiredOccupiedSectorIds ?? Array.Empty<string>();
     }
-
-    private static string First(IReadOnlyList<string> values) =>
-        values != null && values.Count > 0 ? values[0] : string.Empty;
 }
 
 public static class StoryManager
@@ -61,6 +58,8 @@ public static class StoryManager
         "WarBetweenStars_15", "BeyondTheSky_16", "TheOldBoundary_17"
     };
     private static readonly IReadOnlyList<StoryChapter> chapters = LoadChapters();
+    private static WorkshopManager cachedWorkshopManager;
+    private static GameManager cachedGameManager;
 
     public static IReadOnlyList<StoryChapter> Chapters => chapters;
 
@@ -349,16 +348,6 @@ public static class StoryManager
         return latest;
     }
 
-    public static StoryChapter FindNextLocked(TechLevel currentEra,
-        TutorialManager tutorial)
-    {
-        RefreshProgress(currentEra, tutorial);
-        for (int i = 0; i < chapters.Count; i++)
-            if (!IsCompleted(chapters[i]))
-                return chapters[i];
-        return null;
-    }
-
     public static int CountUnlocked(TechLevel currentEra, TutorialManager tutorial)
     {
         RefreshProgress(currentEra, tutorial);
@@ -522,7 +511,9 @@ public static class StoryManager
 
     private static bool HasWorkshopPurchase(string requiredWorkshopId = "")
     {
-        WorkshopManager manager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
+        WorkshopManager manager = cachedWorkshopManager != null
+            ? cachedWorkshopManager
+            : cachedWorkshopManager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
         if (manager == null)
             return false;
         foreach (WorkshopUpgradeState state in manager.States.Values)
@@ -535,7 +526,9 @@ public static class StoryManager
 
     private static SectorManager GetSectorManager()
     {
-        GameManager gameManager = UnityEngine.Object.FindObjectOfType<GameManager>();
+        GameManager gameManager = cachedGameManager != null
+            ? cachedGameManager
+            : cachedGameManager = UnityEngine.Object.FindObjectOfType<GameManager>();
         return gameManager == null ? null : gameManager.Sectors;
     }
 
@@ -717,7 +710,9 @@ public static class StoryManager
             }
         if (building.RequiredWorkshopUpgrades == null)
             return string.Empty;
-        WorkshopManager manager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
+        WorkshopManager manager = cachedWorkshopManager != null
+            ? cachedWorkshopManager
+            : cachedWorkshopManager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
             WorkshopUpgrade upgrade = building.RequiredWorkshopUpgrades[i];

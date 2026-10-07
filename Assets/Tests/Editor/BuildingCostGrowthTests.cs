@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -107,20 +106,10 @@ public sealed class BuildingCostGrowthTests
         branchB.SetUpgradeToForEditor(sharedTarget);
 
         BuildingManager manager = CreateManager<BuildingManager>("SharedTarget-ChainManager");
-        MethodInfo rebuild = typeof(BuildingManager).GetMethod(
-            "RebuildBuildingChainIndex",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(rebuild, Is.Not.Null);
-        rebuild.Invoke(manager, new object[] {
-            new List<Building> { branchA, branchB, sharedTarget }
-        });
+        manager.RebuildBuildingChainIndexForEditor(
+            new List<Building> { branchA, branchB, sharedTarget });
 
-        FieldInfo predecessorsField = typeof(BuildingManager).GetField(
-            "chainPredecessors",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(predecessorsField, Is.Not.Null);
-        var predecessors = (Dictionary<Building, List<Building>>)predecessorsField.GetValue(manager);
-        Assert.That(predecessors[sharedTarget], Has.Count.EqualTo(2));
+        Assert.That(manager.GetChainPredecessorCountForEditor(sharedTarget), Is.EqualTo(2));
         Assert.That(manager.TryGetUnlockedUpgradeTarget(branchA, out Building target), Is.False);
         Assert.That(target, Is.Null);
         manager.EnsureBuilding(branchA).SetAmountForEditor(ExpantaNum.One);
@@ -144,10 +133,7 @@ public sealed class BuildingCostGrowthTests
         b.SetUpgradeToForEditor(c);
         c.SetUpgradeToForEditor(d);
 
-        MethodInfo rebuild = typeof(BuildingManager).GetMethod(
-            "RebuildBuildingChainIndex",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        rebuild.Invoke(manager, new object[] { new List<Building> { a, b, c, d } });
+        manager.RebuildBuildingChainIndexForEditor(new List<Building> { a, b, c, d });
         manager.EnsureBuilding(a);
         manager.EnsureBuilding(b);
         manager.EnsureBuilding(c);
@@ -174,10 +160,7 @@ public sealed class BuildingCostGrowthTests
         x3.SetUpgradeToForEditor(x4);
         x4.TechLevel = TechLevel.Spacer;
 
-        MethodInfo rebuild = typeof(BuildingManager).GetMethod(
-            "RebuildBuildingChainIndex",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        rebuild.Invoke(manager, new object[] { new List<Building> { x1, x2, x3, x4 } });
+        manager.RebuildBuildingChainIndexForEditor(new List<Building> { x1, x2, x3, x4 });
         manager.EnsureBuilding(x1).SetAmountForEditor(ExpantaNum.One);
         manager.EnsureBuilding(x2);
         manager.EnsureBuilding(x3);
@@ -210,12 +193,8 @@ public sealed class BuildingCostGrowthTests
         x4.TechLevel = TechLevel.Animal;
         x5.TechLevel = TechLevel.Spacer;
 
-        MethodInfo rebuild = typeof(BuildingManager).GetMethod(
-            "RebuildBuildingChainIndex",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        rebuild.Invoke(manager, new object[] {
-            new List<Building> { x1, x2, x3, x4, x5 }
-        });
+        manager.RebuildBuildingChainIndexForEditor(
+            new List<Building> { x1, x2, x3, x4, x5 });
         manager.EnsureBuilding(x1).SetAmountForEditor(ExpantaNum.One);
         manager.EnsureBuilding(x2);
         manager.EnsureBuilding(x3).SetAmountForEditor(ExpantaNum.One);
@@ -247,7 +226,7 @@ public sealed class BuildingCostGrowthTests
         ResourceManager resourceManager = CreateManager<ResourceManager>("Growth-ResourceManager");
         BuildingManager buildingManager = CreateManager<BuildingManager>("Growth-BuildingManager");
         ResearchManager researchManager = CreateManager<ResearchManager>("Growth-ResearchManager");
-        RestorePopulation(GameManager.Instance.State, new ExpantaNum(20));
+        GameManager.Instance.State.RestorePopulationForEditor(new ExpantaNum(20));
         CompleteResearch(researchManager, "Agriculture");
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
@@ -304,32 +283,17 @@ public sealed class BuildingCostGrowthTests
         return building;
     }
 
-    private static void RestorePopulation(GameState state, ExpantaNum population)
-    {
-        MethodInfo method = typeof(GameState).GetMethod(
-            "RestorePopulation",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, new object[] { population });
-    }
-
     private static void CompleteResearch(ResearchManager manager, string id)
     {
         EnsureInitialized(manager);
         ResearchState state = manager.GetState(DataBase<Research>.Find(id));
-        MethodInfo method = typeof(ResearchState).GetMethod(
-            "SetStatus",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        method.Invoke(state, new object[] { ResearchStatus.Completed });
+        state.SetStatusForEditor(ResearchStatus.Completed);
     }
 
     private static void EnsureInitialized(ResearchManager manager)
     {
         if (manager.States.Count > 0)
             return;
-        MethodInfo method = typeof(ResearchManager).GetMethod(
-            "Initialize",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        method.Invoke(manager, null);
+        manager.InitializeForEditor();
     }
 }

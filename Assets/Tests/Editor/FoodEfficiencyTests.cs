@@ -11,12 +11,7 @@ public sealed class FoodEfficiencyTests
         ExpantaNum initialProduction = state.FoodProductionRate;
         Assert.That(initialProduction, Is.GreaterThan(ExpantaNum.Zero));
 
-        var reset = typeof(GameState).GetMethod(
-            "ResetDerivedEconomy",
-            System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic);
-        Assert.That(reset, Is.Not.Null);
-        reset.Invoke(state, new object[] { new ExpantaNum(100) });
+        state.ResetDerivedEconomyForEditor(new ExpantaNum(100));
 
         Assert.That(state.FoodProductionRate, Is.EqualTo(initialProduction));
     }
@@ -25,8 +20,10 @@ public sealed class FoodEfficiencyTests
     public void FoodAvailability_UsesInventoryAndPotentialFlow()
     {
         Assert.That(HappinessFormula.CalculateFoodAvailability(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(HappinessFormula.CalculateFoodAvailability(5, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
-        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 5, 10, 1), Is.EqualTo(new ExpantaNum(0.5d)));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(5, 0, 10, 1).ToDouble(),
+            Is.EqualTo(0.5d).Within(0.000001d));
+        Assert.That(HappinessFormula.CalculateFoodAvailability(0, 5, 10, 1).ToDouble(),
+            Is.EqualTo(0.5d).Within(0.000001d));
         Assert.That(HappinessFormula.CalculateFoodAvailability(0, 10, 10, 1), Is.EqualTo(ExpantaNum.One));
         Assert.That(HappinessFormula.CalculateFoodAvailability(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
         Assert.Throws<System.ArgumentOutOfRangeException>(
@@ -75,8 +72,8 @@ public sealed class FoodEfficiencyTests
     public void EveryBuildingUsesTheSameFoodSupplyRatio()
     {
         Assert.That(
-            HappinessFormula.CalculateConstraintMultiplier(0.4d),
-            Is.EqualTo(new ExpantaNum(0.4d)));
+            HappinessFormula.CalculateConstraintMultiplier(0.4d).ToDouble(),
+            Is.EqualTo(0.4d).Within(0.000001d));
     }
 
     [Test]
@@ -95,13 +92,9 @@ public sealed class FoodEfficiencyTests
     {
         GameState state = new GameState();
         int versionBefore = state.Version;
-        var method = typeof(GameState).GetMethod(
-            "AdvanceFood",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
 
         ExpantaNum foodBeforeNoOp = state.FoodAmount;
-        method.Invoke(state, new object[] { 0d });
+        state.AdvanceFoodForEditor(0d);
 
         Assert.That(state.FoodAmount, Is.Not.LessThan(foodBeforeNoOp));
         Assert.That(state.FoodAmount, Is.Not.GreaterThan(foodBeforeNoOp));
@@ -112,7 +105,7 @@ public sealed class FoodEfficiencyTests
     public void GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate()
     {
         GameState state = new GameState();
-        Invoke(state, "RestorePopulation", new ExpantaNum(3));
+        state.RestorePopulationForEditor(new ExpantaNum(3));
 
         ExpantaNum expectedPopulationConsumption =
             PopulationState.FoodConsumptionPerPerson * new ExpantaNum(3);
@@ -124,7 +117,7 @@ public sealed class FoodEfficiencyTests
             Is.EqualTo(state.FoodProductionRate - expectedPopulationConsumption));
 
         ExpantaNum foodBeforeAdvance = state.FoodAmount;
-        Invoke(state, "AdvanceFood", 1d);
+        state.AdvanceFoodForEditor(1d);
 
         Assert.That(state.FoodAmount, Is.GreaterThan(foodBeforeAdvance));
     }
@@ -134,12 +127,12 @@ public sealed class FoodEfficiencyTests
     {
         GameState state = new GameState();
         int versionBefore = state.Version;
-        Invoke(state, "AdjustFoodRates", ExpantaNum.Zero, ExpantaNum.Zero);
-        Invoke(state, "AdjustFoodCapacity", ExpantaNum.Zero);
-        Invoke(state, "AdjustPowerRates", ExpantaNum.Zero, ExpantaNum.Zero);
-        Invoke(state, "AdjustLogisticsRates", ExpantaNum.Zero, ExpantaNum.Zero);
-        Invoke(state, "AdjustPopulationCapacity", ExpantaNum.Zero);
-        Invoke(state, "AdjustTerritoryTotal", ExpantaNum.Zero);
+        state.AdjustFoodRatesForEditor(ExpantaNum.Zero, ExpantaNum.Zero);
+        state.AdjustFoodCapacityForEditor(ExpantaNum.Zero);
+        state.AdjustPowerRatesForEditor(ExpantaNum.Zero, ExpantaNum.Zero);
+        state.AdjustLogisticsRatesForEditor(ExpantaNum.Zero, ExpantaNum.Zero);
+        state.AdjustPopulationCapacityForEditor(ExpantaNum.Zero);
+        state.AdjustTerritoryTotalForEditor(ExpantaNum.Zero);
 
         Assert.That(state.Version, Is.EqualTo(versionBefore));
     }
@@ -149,20 +142,11 @@ public sealed class FoodEfficiencyTests
     {
         GameState state = new GameState();
         int versionBefore = state.Version;
-        Invoke(state, "MarkSaved", 12345L);
+        state.MarkSavedForEditor(12345L);
         int versionAfterFirstSave = state.Version;
-        Invoke(state, "MarkSaved", 12345L);
+        state.MarkSavedForEditor(12345L);
 
         Assert.That(versionAfterFirstSave, Is.EqualTo(versionBefore + 1));
         Assert.That(state.Version, Is.EqualTo(versionAfterFirstSave));
-    }
-
-    private static void Invoke(GameState state, string methodName, params object[] arguments)
-    {
-        var method = typeof(GameState).GetMethod(
-            methodName,
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null, methodName);
-        method.Invoke(state, arguments);
     }
 }

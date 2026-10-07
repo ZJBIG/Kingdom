@@ -272,6 +272,34 @@ public class BuildingManager : Singleton<BuildingManager>
         visited.Add(building);
     }
 
+#if UNITY_EDITOR
+    public void RebuildBuildingChainIndexForEditor(IReadOnlyList<Building> definitions) =>
+        RebuildBuildingChainIndex(definitions);
+    public int GetChainPredecessorCountForEditor(Building target) =>
+        chainPredecessors.TryGetValue(target, out List<Building> predecessors)
+            ? predecessors.Count
+            : 0;
+    public static ExpantaNum GetConstructionCostMultiplierForEditor(Building building) =>
+        GetConstructionCostMultiplier(building);
+    public void PrepareTickResourceSatisfactionForEditor(double deltaSeconds) =>
+        PrepareTickResourceSatisfaction(deltaSeconds);
+    public static void ApplyRateDeltaForEditor(
+        BuildingState state,
+        ExpantaNum oldAmount,
+        ExpantaNum oldEfficiency,
+        ExpantaNum newAmount,
+        ExpantaNum newEfficiency,
+        bool applyCapacityDeltas = true) =>
+        ApplyRateDelta(
+            state, oldAmount, oldEfficiency, newAmount, newEfficiency, applyCapacityDeltas);
+    public void ApplyProgressionModifierChangeForEditor(
+        ProgressionModifierState previous,
+        ProgressionModifierState current) =>
+        ApplyProgressionModifierChange(previous, current);
+    public void SetAmountAndRatesForEditor(BuildingState state, ExpantaNum newAmount) =>
+        SetAmountAndRates(state, newAmount);
+#endif
+
     private void RebuildBuildingChainIndex(IReadOnlyList<Building> definitions)
     {
         ValidateBuildingChains(definitions);
@@ -334,8 +362,6 @@ public class BuildingManager : Singleton<BuildingManager>
         BuildingStateAdded?.Invoke(state);
         return state;
     }
-
-    public void AddBuilding(Building building) => EnsureBuilding(building);
 
     public BuildingState GetState(Building building)
     {
@@ -420,24 +446,10 @@ public class BuildingManager : Singleton<BuildingManager>
 
     }
 
-    public bool IsInBuildingChain(Building building)
-    {
-        if (building == null)
-            return false;
-        EnsureBuildingChainIndex();
-        return chainMembers.Contains(building);
-    }
-
     public bool CanConstructNew(Building building)
     {
         return ArePrerequisitesMet(building, out _) &&
             IsHighestUnlockedChainTier(building);
-    }
-
-    public bool TryGetSectorBuilding(Building building, out SectorBuilding sectorBuilding)
-    {
-        sectorBuilding = building as SectorBuilding;
-        return sectorBuilding != null;
     }
 
     public IReadOnlyList<SectorBuilding> GetSectorBuildings(SectorDefinition sector)
@@ -501,11 +513,16 @@ public class BuildingManager : Singleton<BuildingManager>
         if (!chainMembers.Contains(building))
             return true;
 
+        return FindHighestUnlockedTier(building) == building;
+    }
+
+    private Building FindHighestUnlockedTier(Building building)
+    {
         Building highest = building;
         while (highest.UpgradeTo != null &&
                ArePrerequisitesMet(highest.UpgradeTo, out _))
             highest = highest.UpgradeTo;
-        return highest == building;
+        return highest;
     }
 
     public void RefreshBuildingChainAvailability()
@@ -522,10 +539,7 @@ public class BuildingManager : Singleton<BuildingManager>
         if (!ArePrerequisitesMet(root, out _))
             return;
 
-        Building highest = root;
-        while (highest.UpgradeTo != null &&
-               ArePrerequisitesMet(highest.UpgradeTo, out _))
-            highest = highest.UpgradeTo;
+        Building highest = FindHighestUnlockedTier(root);
         if (highest == root)
             return;
 
@@ -1268,6 +1282,27 @@ public class BuildingManager : Singleton<BuildingManager>
             {
                 gameManager = GameManager.Instance;
                 gameState = gameManager.State;
+            }
+            // Ultra engineering is a runtime load, not a second resource
+            // factory. Include its active power/logistics draw in the same
+            // flow convergence used by authored buildings.
+            potentialPowerConsumption += gameManager.UltraProject.GetCurrentPowerConsumptionRate();
+            potentialLogisticsConsumption += gameManager.UltraProject.GetCurrentLogisticsConsumptionRate();
+            if (gameManager.UltraProject.State.Status == UltraProjectStatus.Running &&
+                ResearchManager.TryGetInstance(out _))
+            {
+                UltraProjectPreview ultraPreview = gameManager.UltraProject.GetPreview();
+                potentialFoodConsumption += ultraPreview.FoodPerSecond;
+                IReadOnlyList<Pair<Resource, ExpantaNum>> ultraCosts =
+                    ultraPreview.ContinuousCosts;
+                for (int j = 0; j < ultraCosts.Count; j++)
+                {
+                    Pair<Resource, ExpantaNum> cost = ultraCosts[j];
+                    if (cost.First != null && cost.Second > ExpantaNum.Zero)
+                        resourceManager.AdjustTickPotentialConsumption(
+                            cost.First,
+                            cost.Second);
+                }
             }
             gameManager.Sectors.AccumulateOccupiedResourcePotential(resourceManager);
             ExpantaNum happinessMultiplier = gameState.HappinessRewardMultiplier;

@@ -163,6 +163,8 @@ public sealed class ProgressionModifierState
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
     public void AddUnlockedSystemForEditor(ResearchSystem system) => AddUnlockedSystem(system);
+    public void AddExplorationPowerMultiplierForEditor(ExpantaNum value) =>
+        AddExplorationPowerMultiplier(value);
 #endif
 
     private static ExpantaNum GetMultiplier<T>(Dictionary<T, ExpantaNum> values, T key)

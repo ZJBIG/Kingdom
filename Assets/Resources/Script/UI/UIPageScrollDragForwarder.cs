@@ -18,8 +18,6 @@ public sealed class UIPageScrollDragForwarder : MonoBehaviour,
     private static bool diagnosticLogged;
 #endif
 
-    public static bool IsAnyDragActive => activeDragCount > 0;
-
     // EndDrag is delivered before the next layout/update pass. Keep the
     // page in its scrolling state briefly so a throttled structural refresh
     // cannot rebuild rows on the same frame that releases the finger.

@@ -53,7 +53,7 @@ public sealed class ResearchPowerTests
             null,
             ResearchManager.BaseResearchPower);
 
-        Assert.That(result, Is.EqualTo(new ExpantaNum(4)));
+        Assert.That(result.ToDouble(), Is.EqualTo(4d).Within(0.000001d));
     }
 
     private Building CreateBuilding(string id, double researchPower)

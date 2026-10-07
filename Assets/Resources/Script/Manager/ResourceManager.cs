@@ -43,6 +43,19 @@ public class ResourceManager : Singleton<ResourceManager>
         EnsureStartingResource();
     }
 
+#if UNITY_EDITOR
+    public void InitializeForEditor() => Initialize();
+    public void BeginTickForEditor() => BeginTick();
+    public void AdjustTickPotentialConsumptionForEditor(
+        Resource resource,
+        ExpantaNum delta) =>
+        AdjustTickPotentialConsumption(resource, delta);
+    public void CalculateTickSatisfactionForEditor(double deltaSeconds) =>
+        CalculateTickSatisfaction(deltaSeconds);
+    public ExpantaNum GetTickSatisfactionForEditor(Resource resource) =>
+        GetTickSatisfaction(resource);
+#endif
+
     private void EnsureAllResourceStates()
     {
         IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
@@ -71,8 +84,6 @@ public class ResourceManager : Singleton<ResourceManager>
         Publish(ResourceStateAdded, state);
         return state;
     }
-
-    public void AddResource(Resource resource) => EnsureResource(resource);
 
     public ResourceState GetState(Resource resource)
     {
@@ -188,9 +199,14 @@ public class ResourceManager : Singleton<ResourceManager>
         entries.Clear();
         addedStates.Clear();
         previousAmounts.Clear();
+        HashSet<string> entryStableIds = new(StringComparer.OrdinalIgnoreCase);
         foreach (KeyValuePair<Resource, ExpantaNum> entry in deltas)
         {
             if (entry.Key == null || !entry.Value.IsFinite)
+                return false;
+
+            string stableId = entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim();
+            if (!entryStableIds.Add(stableId))
                 return false;
 
             entries.Add(entry);
@@ -204,6 +220,12 @@ public class ResourceManager : Singleton<ResourceManager>
             ResourceState state = states.TryGetValue(entry.Key, out ResourceState existing)
                 ? existing
                 : null;
+            // An alias definition that shares a stable ID with an existing
+            // state would register a second state for the same ID, so queries
+            // (by stable ID) and transactions (by object key) would disagree.
+            // Reject it instead of registering a duplicate identity.
+            if (state == null && TryGetStateByStableId(entry.Key, out _))
+                return false;
             if (entry.Value < ExpantaNum.Zero &&
                 (state == null ? ExpantaNum.Zero : state.Amount) < -entry.Value)
                 return false;
@@ -541,7 +563,7 @@ public class ResourceManager : Singleton<ResourceManager>
         EnsureStartingResource();
     }
 
-    internal ResourceState EnsureStartingResource()
+    public ResourceState EnsureStartingResource()
     {
         Resource woodLog = DataBase<Resource>.Find(StartingResourceId);
         ResourceState state = EnsureResource(woodLog);

@@ -89,6 +89,14 @@ public static class EraGoalEvaluator
         ResearchManager researchManager,
         ResourceManager resourceManager)
     {
+        // The last era has no successor: return an empty evaluation instead of
+        // producing an out-of-range TechLevel value.
+        if (currentEra == TechLevel.Archotech)
+            return new EraGoalEvaluation(
+                currentEra,
+                currentEra,
+                null,
+                new List<EraGoalConditionEvaluation>());
         TechLevel targetEra = (TechLevel)((int)currentEra + 1);
         Research transition = FindTransition(targetEra);
         var conditions = new List<EraGoalConditionEvaluation>();

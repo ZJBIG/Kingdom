@@ -15,6 +15,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     [SerializeField] private int maximumTicksPerFrame = 20;
 
     private double accumulatedSeconds;
+    private double offlineCampaignPendingCalendarSeconds;
+    private double offlineCampaignPendingSimulationSeconds;
     private bool running;
     private bool resumeAfterApplicationPause;
     private bool backlogWarningLogged;
@@ -54,6 +56,11 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         if (gcAllocRecorder.Valid)
             gcAllocRecorder.Dispose();
     }
+
+    public double AccumulatedSecondsForEditor => accumulatedSeconds;
+    public float TickIntervalSecondsForEditor => tickIntervalSeconds;
+    public int MaximumTicksPerFrameForEditor => maximumTicksPerFrame;
+    public void OnApplicationPauseForEditor(bool pauseStatus) => OnApplicationPause(pauseStatus);
 #endif
 
     private void Update()
@@ -161,6 +168,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        if (deltaSeconds > 0d)
+            FlushOfflineCampaignRemainder();
 
 #if UNITY_EDITOR
         float tickStart = Time.realtimeSinceStartup;
@@ -191,13 +200,9 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 #if UNITY_EDITOR
         float resourceEnd = Time.realtimeSinceStartup;
 #endif
+        gameManager.UltraProject.Tick(deltaSeconds);
         GameState gameState = gameManager.State;
-        sectors.TickActiveColonization(deltaSeconds, gameState, resourceManager, out _);
-        sectors.TickActiveCampaign(
-            deltaSeconds,
-            gameState,
-            resourceManager,
-            out _);
+        TickSectorOperations(sectors, deltaSeconds, gameState, resourceManager);
 #if UNITY_EDITOR
         float sectorEnd = Time.realtimeSinceStartup;
 #endif
@@ -298,28 +303,33 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         while (remaining > 0d)
         {
             double step = Math.Min(OfflineStepSeconds, remaining);
-            double effectiveStep = CalculateOfflineEffectiveSeconds(elapsed, step);
-            BuildingManager buildingManager = BuildingManager.Instance;
-            buildingManager.PrepareTickResourceSatisfaction(effectiveStep);
             GameManager gameManager = GameManager.Instance;
-            gameManager.TickOffline(
-                step,
-                effectiveStep,
-                buildingManager.SafePopulationDepartureAllowance);
-            ResourceManager resourceManager = ResourceManager.Instance;
-            SectorManager sectors = gameManager.Sectors;
-            sectors.TickOccupiedResourceProduction(
-                effectiveStep,
-                resourceManager);
-            resourceManager.Tick(effectiveStep);
-            GameState gameState = gameManager.State;
-            sectors.TickActiveColonization(effectiveStep, gameState, resourceManager, out _);
-            sectors.TickActiveCampaign(
-                effectiveStep,
-                gameState,
-                resourceManager,
-                out _);
-            ResearchManager.Instance.TickOffline(effectiveStep);
+            if (gameManager.State.Campaign.Active)
+            {
+                AdvanceOfflineCampaignWindow(
+                    step,
+                    elapsed,
+                    gameManager,
+                    ref offlineCampaignPendingCalendarSeconds,
+                    ref offlineCampaignPendingSimulationSeconds);
+            }
+            else
+            {
+                if (offlineCampaignPendingSimulationSeconds > 0d)
+                {
+                    TickOfflineSimulation(
+                        offlineCampaignPendingCalendarSeconds,
+                        offlineCampaignPendingSimulationSeconds,
+                        gameManager,
+                        useRealtimeResearchCadence: true);
+                    offlineCampaignPendingCalendarSeconds = 0d;
+                    offlineCampaignPendingSimulationSeconds = 0d;
+                }
+                TickOfflineSimulation(
+                    step,
+                    CalculateOfflineEffectiveSeconds(elapsed, step),
+                    gameManager);
+            }
             remaining -= step;
             elapsed += step;
             advanced += step;
@@ -329,6 +339,139 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             TutorialManager.Current);
 
         return advanced;
+    }
+
+    private static void TickSectorOperations(
+        SectorManager sectors,
+        double simulationSeconds,
+        GameState gameState,
+        ResourceManager resourceManager)
+    {
+        sectors.TickActiveColonization(
+            simulationSeconds,
+            gameState,
+            resourceManager,
+            out _);
+        sectors.TickActiveCampaign(
+            simulationSeconds,
+            gameState,
+            resourceManager,
+            out _);
+    }
+
+    private void FlushOfflineCampaignRemainder()
+    {
+        if (offlineCampaignPendingSimulationSeconds <= 0d)
+            return;
+
+        TickOfflineSimulation(
+            offlineCampaignPendingCalendarSeconds,
+            offlineCampaignPendingSimulationSeconds,
+            GameManager.Instance,
+            useRealtimeResearchCadence: true);
+        offlineCampaignPendingCalendarSeconds = 0d;
+        offlineCampaignPendingSimulationSeconds = 0d;
+    }
+
+    private void AdvanceOfflineCampaignWindow(
+        double calendarSeconds,
+        double elapsedSeconds,
+        GameManager gameManager,
+        ref double pendingCalendarSeconds,
+        ref double pendingSimulationSeconds)
+    {
+        double effectiveTickSeconds = tickIntervalSeconds;
+        if (double.IsNaN(effectiveTickSeconds) ||
+            double.IsInfinity(effectiveTickSeconds) ||
+            effectiveTickSeconds <= 0d)
+            throw new InvalidOperationException("模拟 tick 间隔必须大于零。");
+
+        double remainingCalendar = calendarSeconds;
+        double currentElapsed = elapsedSeconds;
+        while (remainingCalendar > 0d)
+        {
+            double rate;
+            double secondsToRateBoundary;
+            if (currentElapsed < OfflineFullRateSeconds)
+            {
+                rate = 1d;
+                secondsToRateBoundary = OfflineFullRateSeconds - currentElapsed;
+            }
+            else if (currentElapsed < OfflineReducedRateEndSeconds)
+            {
+                rate = OfflineMiddleRate;
+                secondsToRateBoundary = OfflineReducedRateEndSeconds - currentElapsed;
+            }
+            else
+            {
+                rate = OfflineLateRate;
+                secondsToRateBoundary = double.PositiveInfinity;
+            }
+
+            double simulationUntilNextTick =
+                effectiveTickSeconds - pendingSimulationSeconds;
+            double calendarUntilNextTick = simulationUntilNextTick / rate;
+            double calendarDelta = Math.Min(
+                remainingCalendar,
+                Math.Min(secondsToRateBoundary, calendarUntilNextTick));
+            bool completesTick = calendarDelta >= calendarUntilNextTick;
+            double simulationDelta = completesTick
+                ? simulationUntilNextTick
+                : calendarDelta * rate;
+            pendingCalendarSeconds += calendarDelta;
+            pendingSimulationSeconds += simulationDelta;
+            currentElapsed += calendarDelta;
+            remainingCalendar -= calendarDelta;
+
+            if (completesTick)
+            {
+                TickOfflineSimulation(
+                    pendingCalendarSeconds,
+                    effectiveTickSeconds,
+                    gameManager,
+                    useRealtimeResearchCadence: true);
+                pendingCalendarSeconds = 0d;
+                pendingSimulationSeconds = 0d;
+            }
+        }
+    }
+
+    private static void TickOfflineSimulation(
+        double calendarSeconds,
+        double simulationSeconds,
+        GameManager gameManager,
+        bool useRealtimeResearchCadence = false)
+    {
+        BuildingManager buildingManager = BuildingManager.Instance;
+        buildingManager.PrepareTickResourceSatisfaction(simulationSeconds);
+        gameManager.TickOffline(
+            calendarSeconds,
+            simulationSeconds,
+            buildingManager.SafePopulationDepartureAllowance);
+        ResourceManager resourceManager = ResourceManager.Instance;
+        SectorManager sectors = gameManager.Sectors;
+        sectors.TickOccupiedResourceProduction(simulationSeconds, resourceManager);
+        resourceManager.Tick(simulationSeconds);
+        gameManager.UltraProject.Tick(simulationSeconds);
+        TickSectorOperations(
+            sectors,
+            simulationSeconds,
+            gameManager.State,
+            resourceManager);
+        ResearchManager researchManager = ResearchManager.Instance;
+        bool previousSuppression = researchManager.SuppressCompletionAudio;
+        researchManager.SuppressCompletionAudio = true;
+        try
+        {
+            if (useRealtimeResearchCadence)
+                researchManager.Tick(simulationSeconds);
+            else
+                researchManager.TickOffline(simulationSeconds);
+        }
+        finally
+        {
+            researchManager.SuppressCompletionAudio = previousSuppression;
+        }
     }
 
     public static double CalculateOfflineEffectiveSeconds(

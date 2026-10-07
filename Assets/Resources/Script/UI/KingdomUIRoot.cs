@@ -201,6 +201,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Slider musicGapSlider;
     private TMP_Text musicVolumeValueLabel;
     private TMP_Text musicGapValueLabel;
+    private Slider sfxVolumeSlider;
+    private Button sfxMuteButton;
+    private TMP_Text sfxVolumeValueLabel;
     private RectTransform musicTrackList;
     private bool musicProgressDragging;
     private bool musicPageBuilt;
@@ -219,6 +222,31 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool developmentGuidanceRuntimeGeometryLogged;
     private string eraPageStateSignature;
     private float eraPageRefreshTimer;
+#if UNITY_EDITOR
+    public Button DetailActionButtonForEditor => detailActionButton;
+    public TMP_Text TopPopulationValueForEditor => topPopulationValue;
+    public Dictionary<Resource, TMP_Text> ResourceChangeLabelsForEditor => resourceChangeLabels;
+    public string TutorialRecentCompletionFeedbackForEditor
+    {
+        get => tutorialRecentCompletionFeedback;
+        set => tutorialRecentCompletionFeedback = value;
+    }
+    public string RecentActionFeedbackForEditor
+    {
+        get => recentActionFeedback;
+        set => recentActionFeedback = value;
+    }
+    public int RecentActionFeedbackVersionForEditor
+    {
+        get => recentActionFeedbackVersion;
+        set => recentActionFeedbackVersion = value;
+    }
+    public int TutorialFeedbackVersionForEditor
+    {
+        get => tutorialFeedbackVersion;
+        set => tutorialFeedbackVersion = value;
+    }
+#endif
 
     private void Awake()
     {
@@ -516,7 +544,12 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     // Legacy runtime shell builder retained as historical reference only.
     // The authored prefab is now the sole source of fixed layout.
 
-    private void SetPage(string name)
+    /// <summary>
+    /// Player-facing page navigation. Every internal navigation path (navigation
+    /// buttons, era cards, story actions, live refresh) funnels through here, so
+    /// it is public rather than an editor-only test hook.
+    /// </summary>
+    public void SetPage(string name)
     {
 #if UNITY_EDITOR
         float pageSwitchStartTime = Time.realtimeSinceStartup;

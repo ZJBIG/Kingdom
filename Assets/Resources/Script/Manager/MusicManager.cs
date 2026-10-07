@@ -523,48 +523,156 @@ public class MusicManager : Singleton<MusicManager>
 /// </summary>
 public sealed class UIButtonSoundManager : MonoBehaviour
 {
-    public enum Sound { Detail, Purchase, Sell }
+    public enum Sound
+    {
+        Detail,
+        Purchase,
+        Sell,
+        Build,
+        Upgrade,
+        Deconstruct,
+        WorkshopPurchase,
+        ResearchComplete,
+        EraBreakthrough
+    }
 
     private const int SampleRate = 44100;
     private const float OutputVolume = .42f;
+    private const string VolumePreference = "Kingdom.Sfx.Volume";
+    private const string MutePreference = "Kingdom.Sfx.Mute";
     private static UIButtonSoundManager cachedManager;
     private AudioSource source;
     private AudioClip detailClip;
     private AudioClip purchaseClip;
     private AudioClip sellClip;
+    private AudioClip buildClip;
+    private AudioClip upgradeClip;
+    private AudioClip deconstructClip;
+    private AudioClip researchClip;
+    private AudioClip eraClip;
+    private ResearchManager subscribedResearchManager;
+    private float volume = 1f;
+    private bool muted;
+    private bool initialized;
+
+    /// <summary>
+    /// Fired when a typed SFX request reaches the audio output path. Tests and
+    /// diagnostics can observe result feedback without inspecting AudioSource
+    /// internals or using reflection.
+    /// </summary>
+    public static event Action<Sound> PlayRequested;
+
+    public static float Volume => cachedManager == null ?
+        Mathf.Clamp01(PlayerPrefs.GetFloat(VolumePreference, 1f)) : cachedManager.volume;
+    public static bool IsMuted => cachedManager == null ?
+        PlayerPrefs.GetInt(MutePreference, 0) != 0 : cachedManager.muted;
+    public static float SfxVolume => Volume;
+    public static bool SfxMuted => IsMuted;
 
     public static void Play(Sound sound)
     {
+        EnsureManager().PlayInternal(sound);
+    }
+
+    public static void EnsureInitialized() => EnsureManager();
+
+    public static void SetVolume(float value)
+    {
+        UIButtonSoundManager manager = EnsureManager();
+        manager.volume = Mathf.Clamp01(value);
+        manager.ApplyVolume();
+        PlayerPrefs.SetFloat(VolumePreference, manager.volume);
+        PlayerPrefs.Save();
+    }
+
+    public static void SetMuted(bool value)
+    {
+        UIButtonSoundManager manager = EnsureManager();
+        manager.muted = value;
+        manager.ApplyVolume();
+        PlayerPrefs.SetInt(MutePreference, value ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static void ToggleMuted() => SetMuted(!IsMuted);
+
+    private static UIButtonSoundManager EnsureManager()
+    {
         UIButtonSoundManager manager = cachedManager;
-        if (manager == null)
+        if (manager != null)
         {
-            manager = FindObjectOfType<UIButtonSoundManager>();
-            if (manager == null)
-                manager = new GameObject("UIButtonSoundManager").AddComponent<UIButtonSoundManager>();
-            cachedManager = manager;
+            manager.InitializeAudio();
+            return manager;
         }
-        manager.PlayInternal(sound);
+        manager = FindObjectOfType<UIButtonSoundManager>();
+        if (manager == null)
+            manager = new GameObject("UIButtonSoundManager").AddComponent<UIButtonSoundManager>();
+        manager.InitializeAudio();
+        cachedManager = manager;
+        return manager;
     }
 
     private void Awake()
     {
-        source = GetComponent<AudioSource>();
-        if (source == null)
-            source = gameObject.AddComponent<AudioSource>();
-        source.playOnAwake = false;
-        source.loop = false;
-        source.spatialBlend = 0f;
-        source.volume = OutputVolume;
-        detailClip = CreateTone("UI_Detail", 720f, .065f, .42f);
-        purchaseClip = CreateTwoTone("UI_Purchase", 430f, 650f, .12f, .46f);
-        sellClip = CreateTwoTone("UI_Sell", 560f, 300f, .13f, .44f);
-        DontDestroyOnLoad(gameObject);
+        InitializeAudio();
+    }
+
+    private void InitializeAudio()
+    {
+        if (!initialized)
+        {
+            initialized = true;
+            source = GetComponent<AudioSource>();
+            if (source == null)
+                source = gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.loop = false;
+            source.spatialBlend = 0f;
+            volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolumePreference, 1f));
+            muted = PlayerPrefs.GetInt(MutePreference, 0) != 0;
+            ApplyVolume();
+            detailClip = CreateTone("UI_Detail", 720f, .065f, .42f);
+            purchaseClip = CreateTwoTone("UI_Purchase", 430f, 650f, .12f, .46f);
+            sellClip = CreateTwoTone("UI_Sell", 560f, 300f, .13f, .44f);
+            buildClip = CreateTwoTone("UI_Build", 360f, 540f, .11f, .42f);
+            upgradeClip = CreateTwoTone("UI_Upgrade", 440f, 760f, .14f, .44f);
+            deconstructClip = CreateTwoTone("UI_Deconstruct", 620f, 300f, .13f, .40f);
+            researchClip = CreateTwoTone("UI_ResearchComplete", 520f, 880f, .22f, .40f);
+            eraClip = CreateTwoTone("UI_EraBreakthrough", 420f, 980f, .30f, .46f);
+            if (Application.isPlaying)
+                DontDestroyOnLoad(gameObject);
+        }
+
+        ResearchManager manager = FindObjectOfType<ResearchManager>();
+        if (manager != subscribedResearchManager)
+        {
+            if (subscribedResearchManager != null)
+                subscribedResearchManager.ResearchCompleted -= OnResearchCompleted;
+            subscribedResearchManager = manager;
+            if (subscribedResearchManager != null)
+                subscribedResearchManager.ResearchCompleted += OnResearchCompleted;
+        }
     }
 
     private void OnDestroy()
     {
+        if (subscribedResearchManager != null)
+            subscribedResearchManager.ResearchCompleted -= OnResearchCompleted;
         if (cachedManager == this)
             cachedManager = null;
+    }
+
+    private void ApplyVolume()
+    {
+        if (source != null)
+            source.volume = muted ? 0f : volume * OutputVolume;
+    }
+
+    private void OnResearchCompleted(ResearchState state)
+    {
+        if (state == null || state.Definition == null)
+            return;
+        Play(state.Definition.AdvancesTechLevel ? Sound.EraBreakthrough : Sound.ResearchComplete);
     }
 
     private void PlayInternal(Sound sound)
@@ -575,10 +683,19 @@ public sealed class UIButtonSoundManager : MonoBehaviour
         {
             Sound.Purchase => purchaseClip,
             Sound.Sell => sellClip,
+            Sound.Build => buildClip,
+            Sound.Upgrade => upgradeClip,
+            Sound.Deconstruct => deconstructClip,
+            Sound.WorkshopPurchase => purchaseClip,
+            Sound.ResearchComplete => researchClip,
+            Sound.EraBreakthrough => eraClip,
             _ => detailClip
         };
         if (clip != null)
+        {
+            PlayRequested?.Invoke(sound);
             source.PlayOneShot(clip);
+        }
     }
 
     private static AudioClip CreateTone(string name, float frequency, float duration, float amplitude)

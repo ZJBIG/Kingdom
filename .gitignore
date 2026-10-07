@@ -55,6 +55,7 @@ ExportedObj/
 !tools/NewEconomySimulator/NewEconomySimulator.csproj
 !Kingdom.Runtime.Developer.csproj
 !Kingdom.Editor.Developer.csproj
+!Kingdom.DeveloperTests.csproj
 *.unityproj
 *.sln
 !Kingdom.Developer.sln

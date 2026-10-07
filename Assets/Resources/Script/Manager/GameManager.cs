@@ -20,6 +20,7 @@ public class GameManager : Singleton<GameManager>
 
     public GameState State { get; private set; } = new GameState();
     public SectorManager Sectors { get; } = new SectorManager();
+    public UltraProjectManager UltraProject { get; } = new UltraProjectManager();
     public ExpantaNum PopulationGrowthMultiplier =>
         ProgressionModifierManager.Current.PopulationGrowthMultiplier;
     public ExpantaNum PopulationGrowthRatePerSecond =>
@@ -32,7 +33,9 @@ public class GameManager : Singleton<GameManager>
     {
         get
         {
-            BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+            BuildingManager buildingManager = cachedBuildingManager != null
+                ? cachedBuildingManager
+                : cachedBuildingManager = FindObjectOfType<BuildingManager>();
             ExpantaNum allowance = buildingManager == null
                 ? ExpantaNum.Zero
                 : buildingManager.SafePopulationDepartureAllowance;
@@ -50,6 +53,7 @@ public class GameManager : Singleton<GameManager>
                 : ExpantaNum.Zero;
 
     private double calendarElapsedSeconds;
+    private BuildingManager cachedBuildingManager;
 
     private void Start()
     {
@@ -65,6 +69,7 @@ public class GameManager : Singleton<GameManager>
     internal void InitializeNewGame()
     {
         State.InitializeNew();
+        UltraProject.InitializeNew();
         Sectors.InitializeNew();
         ResetCalendarAccumulator();
         InitializeStartingResources();
@@ -124,20 +129,7 @@ public class GameManager : Singleton<GameManager>
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
 
-        State.AdvanceFood(deltaSeconds);
-        ExpantaNum populationGrowthRate = PopulationGrowthRatePerSecond;
-        bool foodShortage = CanPopulationLeaveForFoodShortage();
-        State.AdvancePopulation(
-            deltaSeconds,
-            populationGrowthRate,
-            populationDepartureAllowance,
-            foodShortage);
-        calendarElapsedSeconds += deltaSeconds;
-        while (calendarElapsedSeconds >= SecondsPerDay)
-        {
-            State.AdvanceCalendarStep();
-            calendarElapsedSeconds -= SecondsPerDay;
-        }
+        AdvanceSimulationCore(deltaSeconds, deltaSeconds, populationDepartureAllowance);
     }
 
     internal void TickOffline(
@@ -150,15 +142,23 @@ public class GameManager : Singleton<GameManager>
         if (double.IsNaN(simulationSeconds) || double.IsInfinity(simulationSeconds) || simulationSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
 
-        State.AdvanceFood(simulationSeconds);
+        AdvanceSimulationCore(simulationSeconds, calendarSeconds, populationDepartureAllowance);
+    }
+
+    private void AdvanceSimulationCore(
+        double simSeconds,
+        double calSeconds,
+        ExpantaNum populationDepartureAllowance)
+    {
+        State.AdvanceFood(simSeconds);
         ExpantaNum populationGrowthRate = PopulationGrowthRatePerSecond;
         bool foodShortage = CanPopulationLeaveForFoodShortage();
         State.AdvancePopulation(
-            simulationSeconds,
+            simSeconds,
             populationGrowthRate,
             populationDepartureAllowance,
             foodShortage);
-        calendarElapsedSeconds += calendarSeconds;
+        calendarElapsedSeconds += calSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {
             State.AdvanceCalendarStep();
@@ -270,6 +270,23 @@ public class GameManager : Singleton<GameManager>
 
     internal void AdvanceTechLevel(TechLevel target) => State.AdvanceTechLevel(target);
 
+#if UNITY_EDITOR
+    public void InitializeNewGameForEditor() => InitializeNewGame();
+    public void AdvanceTechLevelForEditor(TechLevel target) => AdvanceTechLevel(target);
+    public double CalendarElapsedSecondsForEditor
+    {
+        get => calendarElapsedSeconds;
+        set => calendarElapsedSeconds = value;
+    }
+    public void RestoreSaveDataForEditor(SaveManager.GameSaveData data) =>
+        RestoreSaveData(data);
+    public void MarkSaveTimestampForEditor(long unixSeconds) =>
+        MarkSaveTimestamp(unixSeconds);
+    public void ResetDerivedEconomyForEditor() => ResetDerivedEconomy();
+    public void RestoreMilitarySaveDataForEditor(SaveManager.GameSaveData data) =>
+        RestoreMilitarySaveData(data);
+#endif
+
     internal void ResetCalendarAccumulator() => calendarElapsedSeconds = 0d;
 
     internal void MarkSaveTimestamp(long unixSeconds) => State.MarkSaved(unixSeconds);
@@ -299,6 +316,7 @@ public class GameManager : Singleton<GameManager>
             CampaignTargetSectorId = State.Campaign.TargetSectorId,
             CampaignCasualties = State.Campaign.Casualties.ToString(),
             CampaignCombatRatio = State.Campaign.CombatRatio.ToString(),
+            CampaignDoctrine = State.Campaign.Doctrine,
             CalendarElapsedSeconds = calendarElapsedSeconds,
             LastSaveUnixSeconds = State.LastSaveUnixSeconds
         };
@@ -332,7 +350,8 @@ public class GameManager : Singleton<GameManager>
             data.CampaignActive,
             data.CampaignTargetSectorId,
             ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
-            ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)));
+            ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)),
+            data.CampaignDoctrine);
         calendarElapsedSeconds = data.CalendarElapsedSeconds;
     }
 
@@ -349,6 +368,9 @@ public class GameManager : Singleton<GameManager>
         if (!Enum.IsDefined(typeof(TechLevel), data.TechLevel))
             throw new System.IO.InvalidDataException(
                 $"存档包含未知时代值“{(int)data.TechLevel}”。");
+        if (!Enum.IsDefined(typeof(CampaignDoctrine), data.CampaignDoctrine))
+            throw new System.IO.InvalidDataException(
+                $"存档包含未知远征姿态值“{(int)data.CampaignDoctrine}”。");
 
         ValidateNonNegative(Parse(data.FoodAmount, nameof(data.FoodAmount)), nameof(data.FoodAmount));
         ValidateOptionalNonNegative(data.Population, nameof(data.Population));

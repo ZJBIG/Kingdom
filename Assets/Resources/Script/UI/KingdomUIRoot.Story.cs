@@ -614,6 +614,19 @@ public sealed partial class KingdomUIRoot
             ShowWorkshopDetails(workshop);
     }
 
+#if UNITY_EDITOR
+    public void RefreshStoryPageIfChangedForEditor() => RefreshStoryPageIfChanged();
+    public bool StoryPageBuiltForEditor
+    {
+        get => storyPageBuilt;
+        set => storyPageBuilt = value;
+    }
+    public string GetStoryNavigationPageForEditor(StoryChapter chapter) =>
+        GetStoryNavigationPage(chapter);
+    public string GetStoryNavigationTargetForEditor(StoryChapter chapter) =>
+        GetStoryNavigationTarget(chapter);
+#endif
+
     private void RefreshStoryPageIfChanged()
     {
         if (populatedPage != "Story" || !pages.TryGetValue("Story", out RectTransform page))

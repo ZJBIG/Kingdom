@@ -144,7 +144,11 @@ public sealed partial class KingdomUIRoot
             ? BuildingManager.Instance.TryUpgrade(building, amount, out failure)
             : BuildingManager.Instance.TryBuild(building, amount, out failure);
         ShowBuildingDetails(building, true);
-        if (!success)
+        if (success)
+            UIButtonSoundManager.Play(upgrade
+                ? UIButtonSoundManager.Sound.Upgrade
+                : UIButtonSoundManager.Sound.Build);
+        else
             ShowTooltip("建造失败：" + GetBuildFailureDescription(failure));
     }
 
@@ -156,7 +160,9 @@ public sealed partial class KingdomUIRoot
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
-        BuildingManager.Instance.TryDeconstruct(building, amount, out _);
+        bool success = BuildingManager.Instance.TryDeconstruct(building, amount, out _);
+        if (success)
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Deconstruct);
         ShowBuildingDetails(building, true);
     }
 

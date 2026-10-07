@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -201,18 +200,22 @@ public sealed class ResearchEffectTests
     [Test]
     public void DefinitionEffectValues_UseEditableStringsAndRuntimeNumericViews()
     {
-        Assert.That(
-            typeof(ResearchEffectDefinition).GetProperty(nameof(ResearchEffectDefinition.Value)).PropertyType,
-            Is.EqualTo(typeof(string)));
-        Assert.That(
-            typeof(WorkshopEffectDefinition).GetProperty(nameof(WorkshopEffectDefinition.Value)).PropertyType,
-            Is.EqualTo(typeof(string)));
-        Assert.That(
-            typeof(ResearchEffectDefinition).GetProperty(nameof(ResearchEffectDefinition.NumericValue)).PropertyType,
-            Is.EqualTo(typeof(ExpantaNum)));
-        Assert.That(
-            typeof(WorkshopEffectDefinition).GetProperty(nameof(WorkshopEffectDefinition.NumericValue)).PropertyType,
-            Is.EqualTo(typeof(ExpantaNum)));
+        // 不用反射：直接写字符串、读数值视图，既证明「可编辑字符串」与
+        // 「运行时数值视图」两侧一致，也比断言属性类型更强。
+        ResearchEffectDefinition researchEffect = new ResearchEffectDefinition();
+        researchEffect.Value = "1.25";
+        Assert.That(researchEffect.Value, Is.EqualTo("1.25"));
+        Assert.That(researchEffect.NumericValue.ToDouble(), Is.EqualTo(1.25d).Within(0.000001d));
+
+        WorkshopEffectDefinition workshopEffect = new WorkshopEffectDefinition();
+        workshopEffect.Value = "0.5";
+        Assert.That(workshopEffect.Value, Is.EqualTo("0.5"));
+        Assert.That(workshopEffect.NumericValue.ToDouble(), Is.EqualTo(0.5d).Within(0.000001d));
+
+        // 置空必须归一化为 "0"，而不是保留 null 或在读取数值视图时抛异常。
+        researchEffect.Value = null;
+        Assert.That(researchEffect.Value, Is.EqualTo("0"));
+        Assert.That(researchEffect.NumericValue.ToDouble(), Is.EqualTo(0d).Within(0.000001d));
     }
 
     [Test]
@@ -223,11 +226,7 @@ public sealed class ResearchEffectTests
         Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
         Assert.That(modernMedicine, Is.Not.Null);
 
-        MethodInfo restorePopulation = typeof(GameState).GetMethod(
-            "RestorePopulation",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(restorePopulation, Is.Not.Null);
-        restorePopulation.Invoke(gameManager.State, new object[] { new ExpantaNum(5d) });
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(5d));
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
@@ -274,12 +273,8 @@ public sealed class ResearchEffectTests
             new List<Pair<Resource, ExpantaNum>>(),
             new List<Pair<Resource, ExpantaNum>>());
 
-        MethodInfo restorePopulation = typeof(GameState).GetMethod(
-            "RestorePopulation",
-            BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(modernMedicine, Is.Not.Null);
-        Assert.That(restorePopulation, Is.Not.Null);
-        restorePopulation.Invoke(gameManager.State, new object[] { new ExpantaNum(5d) });
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(5d));
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
@@ -320,8 +315,7 @@ public sealed class ResearchEffectTests
         {
             CreateState(foodPreservation, true)
         });
-        ApplyProgressionModifierChange(
-            buildingManager,
+        buildingManager.ApplyProgressionModifierChangeForEditor(
             previous,
             ProgressionModifierManager.Current);
 
@@ -334,8 +328,7 @@ public sealed class ResearchEffectTests
         {
             CreateState(foodPreservation, true)
         });
-        ApplyProgressionModifierChange(
-            buildingManager,
+        buildingManager.ApplyProgressionModifierChangeForEditor(
             completed,
             ProgressionModifierManager.Current);
 
@@ -443,14 +436,8 @@ public sealed class ResearchEffectTests
 
         WorkshopUpgradeState powerWorkshopState = new WorkshopUpgradeState(powerWorkshop);
         WorkshopUpgradeState logisticsWorkshopState = new WorkshopUpgradeState(logisticsWorkshop);
-        typeof(WorkshopUpgradeState).GetMethod(
-            "SetPurchased",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(powerWorkshopState, new object[] { true });
-        typeof(WorkshopUpgradeState).GetMethod(
-            "SetPurchased",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(logisticsWorkshopState, new object[] { true });
+        powerWorkshopState.SetPurchasedForEditor(true);
+        logisticsWorkshopState.SetPurchasedForEditor(true);
 
         ProgressionModifierManager.Rebuild(
             new List<ResearchState>
@@ -492,21 +479,13 @@ public sealed class ResearchEffectTests
             CreateState(deepDrilling, true)
         });
 
-        MethodInfo applyRateDelta = typeof(BuildingManager).GetMethod(
-            "ApplyRateDelta",
-            BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(applyRateDelta, Is.Not.Null);
-        applyRateDelta.Invoke(
-            null,
-            new object[]
-            {
-                new BuildingState(oilDerrick),
-                ExpantaNum.Zero,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                true
-            });
+        BuildingManager.ApplyRateDeltaForEditor(
+            new BuildingState(oilDerrick),
+            ExpantaNum.Zero,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            true);
 
         Assert.That(
             ProgressionModifierManager.Current.GetBuildingProductionMultiplier(oilDerrick).ToDouble(),
@@ -536,14 +515,8 @@ public sealed class ResearchEffectTests
 
         WorkshopUpgradeState powerWorkshopState = new WorkshopUpgradeState(powerWorkshop);
         WorkshopUpgradeState logisticsWorkshopState = new WorkshopUpgradeState(logisticsWorkshop);
-        typeof(WorkshopUpgradeState).GetMethod(
-            "SetPurchased",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(powerWorkshopState, new object[] { true });
-        typeof(WorkshopUpgradeState).GetMethod(
-            "SetPurchased",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(logisticsWorkshopState, new object[] { true });
+        powerWorkshopState.SetPurchasedForEditor(true);
+        logisticsWorkshopState.SetPurchasedForEditor(true);
 
         ProgressionModifierManager.Rebuild(
             new List<ResearchState>
@@ -553,33 +526,20 @@ public sealed class ResearchEffectTests
             },
             new[] { powerWorkshopState, logisticsWorkshopState });
 
-        MethodInfo applyRateDelta = typeof(BuildingManager).GetMethod(
-            "ApplyRateDelta",
-            BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(applyRateDelta, Is.Not.Null);
-
-        applyRateDelta.Invoke(
-            null,
-            new object[]
-            {
-                new BuildingState(solarArray),
-                ExpantaNum.Zero,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                true
-            });
-        applyRateDelta.Invoke(
-            null,
-            new object[]
-            {
-                new BuildingState(deepSpaceRelay),
-                ExpantaNum.Zero,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                ExpantaNum.One,
-                true
-            });
+        BuildingManager.ApplyRateDeltaForEditor(
+            new BuildingState(solarArray),
+            ExpantaNum.Zero,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            true);
+        BuildingManager.ApplyRateDeltaForEditor(
+            new BuildingState(deepSpaceRelay),
+            ExpantaNum.Zero,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            ExpantaNum.One,
+            true);
 
         Assert.That(GameManager.Instance.State.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(GameManager.Instance.State.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
@@ -597,10 +557,7 @@ public sealed class ResearchEffectTests
 
         ResearchState theoryState = CreateState(theory, true);
         WorkshopUpgradeState modulesState = new WorkshopUpgradeState(modules);
-        typeof(WorkshopUpgradeState).GetMethod(
-            "SetPurchased",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(modulesState, new object[] { true });
+        modulesState.SetPurchasedForEditor(true);
 
         ProgressionModifierManager.Rebuild(
             new List<ResearchState> { theoryState },
@@ -763,6 +720,83 @@ public sealed class ResearchEffectTests
             Is.EqualTo(1.25d).Within(0.000001d));
     }
 
+    [Test]
+    public void 建筑研究力倍率必须实际改变目标建筑的研究力倍率()
+    {
+        // P2-04「效果实际改变状态/倍率」：效果存在、类型合法、数值非中性，都不等于
+        // 它真的改变了倍率。这里断言「生效前为中性值 → 生效后抬离中性值」，且不外溢到
+        // 非目标建筑。只断言关系，不写死可调的倍率数值。
+        Research writtenRecords = Resources.Load<Research>("Datas/Research/StoneAge/WrittenRecords");
+        Building scribeHut = DataBase<Building>.Find("ScribeHut");
+        Building library = DataBase<Building>.Find("Library");
+        Building knowledgeCircle = DataBase<Building>.Find("KnowledgeCircle");
+
+        Assert.That(writtenRecords, Is.Not.Null);
+        Assert.That(scribeHut, Is.Not.Null);
+        Assert.That(library, Is.Not.Null);
+        Assert.That(knowledgeCircle, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>());
+        Assert.That(
+            ProgressionModifierManager.Current.GetBuildingResearchPowerMultiplier(scribeHut).ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d),
+            "未完成任何研究时，建筑研究力倍率必须是中性值，否则前后比较失去意义。");
+
+        ProgressionModifierManager.Rebuild(
+            new List<ResearchState> { CreateState(writtenRecords, true) });
+
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        Assert.That(
+            modifiers.GetBuildingResearchPowerMultiplier(scribeHut).ToDouble(),
+            Is.GreaterThan(1d),
+            "WrittenRecords 的 BuildingResearchPowerMultiplier 必须真的改变 ScribeHut 的研究力倍率。");
+        Assert.That(
+            modifiers.GetBuildingResearchPowerMultiplier(library).ToDouble(),
+            Is.GreaterThan(1d),
+            "WrittenRecords 的第二个目标建筑 Library 同样必须被改变。");
+        Assert.That(
+            modifiers.GetBuildingResearchPowerMultiplier(knowledgeCircle).ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d),
+            "BuildingResearchPowerMultiplier 只能作用于效果指定的建筑，不得外溢。");
+    }
+
+    [Test]
+    public void 建筑建造成本倍率必须实际改变目标建筑的建造成本倍率()
+    {
+        Research automation = Resources.Load<Research>(
+            "Datas/Research/Spacer/OrbitalConstructionAutomation");
+        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        Building station = DataBase<Building>.Find("OrbitalStation");
+        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+
+        Assert.That(automation, Is.Not.Null);
+        Assert.That(habitat, Is.Not.Null);
+        Assert.That(station, Is.Not.Null);
+        Assert.That(solarArray, Is.Not.Null);
+
+        ProgressionModifierManager.Rebuild(new List<ResearchState>());
+        Assert.That(
+            ProgressionModifierManager.Current.GetBuildingConstructionMultiplier(habitat).ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d),
+            "未完成任何研究时，建筑建造成本倍率必须是中性值。");
+
+        ProgressionModifierManager.Rebuild(
+            new List<ResearchState> { CreateState(automation, true) });
+
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        Assert.That(
+            modifiers.GetBuildingConstructionMultiplier(habitat).ToDouble(),
+            Is.GreaterThan(1d),
+            "OrbitalConstructionAutomation 的 BuildingConstructionMultiplier 必须真的改变目标建筑的建造成本倍率。");
+        Assert.That(
+            modifiers.GetBuildingConstructionMultiplier(station).ToDouble(),
+            Is.GreaterThan(1d));
+        Assert.That(
+            modifiers.GetBuildingConstructionMultiplier(solarArray).ToDouble(),
+            Is.EqualTo(1d).Within(0.000001d),
+            "BuildingConstructionMultiplier 只能作用于效果指定的建筑，不得外溢。");
+    }
+
     private Research CreateResearch(string id)
     {
         Research research = CreateDefinition<Research>(id);
@@ -770,33 +804,15 @@ public sealed class ResearchEffectTests
         return research;
     }
 
-    private static void ApplyProgressionModifierChange(
-        BuildingManager buildingManager,
-        ProgressionModifierState previous,
-        ProgressionModifierState current)
-    {
-        MethodInfo method = typeof(BuildingManager).GetMethod(
-            "ApplyProgressionModifierChange",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(buildingManager, new object[] { previous, current });
-    }
-
     private ResearchState CreateState(Research research, bool completed)
     {
         ResearchState state = new ResearchState(research);
-        MethodInfo restore = typeof(ResearchState).GetMethod(
-            "Restore",
-            BindingFlags.Instance | BindingFlags.NonPublic,
-            null,
-            new[] { typeof(ExpantaNum), typeof(bool), typeof(bool), typeof(IReadOnlyDictionary<Resource, ExpantaNum>) },
-            null);
         var paidCosts = new Dictionary<Resource, ExpantaNum>();
         if (completed)
             foreach (Pair<Resource, ExpantaNum> requirement in research.ResourceRequirements)
                 if (requirement.First != null)
                     paidCosts[requirement.First] = requirement.Second;
-        restore.Invoke(state, new object[] { ExpantaNum.Zero, false, completed, paidCosts });
+        state.RestoreForEditor(ExpantaNum.Zero, false, completed, paidCosts);
         return state;
     }
 

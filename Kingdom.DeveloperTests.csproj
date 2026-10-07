@@ -1,0 +1,43 @@
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Compile gate for the Unity test assemblies, driven through MSBuild.
+
+    Kingdom.Runtime.Developer.csproj / Kingdom.Editor.Developer.csproj exclude
+    Assets/Tests on purpose, and run-unity-tests.ps1 needs Unity's batchmode
+    runner, which stalls on this machine. This project drives
+    tools\codex\compile-developer-tests.ps1 so the test assemblies keep a
+    reachable compile check. It compiles only; it runs no test.
+
+    These legacy projects import only Kingdom.Developer.References.props, not
+    Microsoft.Common.targets, so ProjectReference is not resolved during a
+    direct build. The Build target therefore chains the prerequisite build
+    explicitly: the gate compares test sources against the Runtime assembly the
+    first Exec just produced, never a stale one.
+
+    Usage: dotnet build Kingdom.DeveloperTests.csproj
+  -->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7A1E5C93-4B62-4F08-9D31-6C0A8B2E4F17}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Kingdom.DeveloperTests</AssemblyName>
+    <RootNamespace>Kingdom.DeveloperTests</RootNamespace>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildProjectDirectory)\Kingdom.Developer.References.props" />
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildProjectDirectory)\Kingdom.Editor.Developer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\Tests\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <Target Name="Build">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\codex\build-developer-assembly.ps1&quot; -Assembly Editor -Configuration &quot;$(Configuration)&quot;" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\tools\codex\compile-developer-tests.ps1&quot; -Target All -Configuration &quot;$(Configuration)&quot;" />
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Build" />
+</Project>

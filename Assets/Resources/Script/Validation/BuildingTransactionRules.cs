@@ -97,24 +97,6 @@ public static class EconomySimulationParity
             ? 1d
             : 1d / (Math.Abs(targetTech - currentTech) + .5d);
 
-    public static double GeometricUnitCost(
-        double baseCost,
-        double growth,
-        int owned) => Math.Max(0d, baseCost) *
-        Math.Pow(Math.Max(1d, growth), Math.Max(0, owned));
-
-    public static double UpgradeCostDelta(
-        double sourceBaseCost,
-        double sourceGrowth,
-        int sourceOwned,
-        double targetBaseCost,
-        double targetGrowth,
-        int targetOwned,
-        double recoveryRate) => Math.Max(0d,
-        GeometricUnitCost(targetBaseCost, targetGrowth, targetOwned) -
-        GeometricUnitCost(sourceBaseCost, sourceGrowth,
-            Math.Max(0, sourceOwned - 1)) * Math.Clamp(recoveryRate, 0d, 1d));
-
     private static double Clamp01(double value) => Math.Clamp(value, 0d, 1d);
 
     private static void ValidateDelta(double deltaSeconds)

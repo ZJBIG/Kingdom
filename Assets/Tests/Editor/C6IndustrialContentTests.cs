@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -21,13 +20,10 @@ public sealed class C6IndustrialContentTests
 
         try
         {
-            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
-                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(validator, Is.Not.Null);
-            object[] arguments = { new[] { first, second }, null };
-            bool valid = (bool)validator.Invoke(null, arguments);
+            bool valid = EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
+                new[] { first, second }, out string error);
             Assert.That(valid, Is.False);
-            Assert.That(arguments[1] as string, Does.Contain("CycleWorkshopA"));
+            Assert.That(error, Does.Contain("CycleWorkshopA"));
         }
         finally
         {
@@ -48,23 +44,19 @@ public sealed class C6IndustrialContentTests
 
         try
         {
-            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
-                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(validator, Is.Not.Null);
-
             upgrade.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { null },
                 new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-            object[] nullArguments = { new[] { upgrade, prerequisite }, null };
-            Assert.That((bool)validator.Invoke(null, nullArguments), Is.False);
+            Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
+                new[] { upgrade, prerequisite }, out _), Is.False);
 
             prerequisite.ConfigureForEditor(new List<Research> { research }, new List<WorkshopUpgrade>(),
                 new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
             upgrade.ConfigureForEditor(new List<Research>(),
                 new List<WorkshopUpgrade> { prerequisite, prerequisite },
                 new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-            object[] duplicateArguments = { new[] { upgrade, prerequisite }, null };
-            Assert.That((bool)validator.Invoke(null, duplicateArguments), Is.False);
-            Assert.That(duplicateArguments[1] as string, Does.Contain("重复"));
+            Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
+                new[] { upgrade, prerequisite }, out string duplicateError), Is.False);
+            Assert.That(duplicateError, Does.Contain("重复"));
         }
         finally
         {
@@ -84,20 +76,16 @@ public sealed class C6IndustrialContentTests
 
         try
         {
-            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
-                "ValidateWorkshopPrerequisites", BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(validator, Is.Not.Null);
-
             upgrade.ConfigureForEditor(new List<Research> { null }, new List<WorkshopUpgrade>(),
                 new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-            object[] nullArguments = { new[] { upgrade }, null };
-            Assert.That((bool)validator.Invoke(null, nullArguments), Is.False);
+            Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
+                new[] { upgrade }, out _), Is.False);
 
             upgrade.ConfigureForEditor(new List<Research> { first, first }, new List<WorkshopUpgrade>(),
                 new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-            object[] duplicateArguments = { new[] { upgrade }, null };
-            Assert.That((bool)validator.Invoke(null, duplicateArguments), Is.False);
-            Assert.That(duplicateArguments[1] as string, Does.Contain("重复"));
+            Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
+                new[] { upgrade }, out string duplicateError), Is.False);
+            Assert.That(duplicateError, Does.Contain("重复"));
         }
         finally
         {
@@ -1575,13 +1563,8 @@ public sealed class C6IndustrialContentTests
 
         try
         {
-            MethodInfo validator = typeof(EconomyDependencyValidator).GetMethod(
-                "ValidateProductionGraph",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(validator, Is.Not.Null);
-            object[] arguments = { resources, buildings, null };
-            bool valid = (bool)validator.Invoke(null, arguments);
-            string error = arguments[2] as string;
+            bool valid = EconomyDependencyValidator.ValidateProductionGraphForEditor(
+                resources, buildings, out string error);
 
             Assert.That(valid, Is.False);
             Assert.That(error, Does.Contain("CycleA -> CycleB -> CycleC -> CycleA"));

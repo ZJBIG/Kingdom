@@ -51,18 +51,23 @@ public sealed class ResourceState
 
     internal void BeginTick(ExpantaNum productionMultiplier)
     {
-        tickPotentialProductionRate = productionRate *
-            ExpantaNum.Max(ExpantaNum.One, productionMultiplier);
+        tickPotentialProductionRate = NormalizeFiniteNonNegative(
+            productionRate * ExpantaNum.Max(ExpantaNum.One, productionMultiplier),
+            nameof(productionMultiplier));
         tickPotentialConsumptionRate = consumptionRate;
         tickSatisfaction = ExpantaNum.One;
         hasTickSatisfaction = false;
     }
 
     internal void AdjustTickPotentialProductionRate(ExpantaNum delta) =>
-        tickPotentialProductionRate = ExpantaNum.Max(ExpantaNum.Zero, tickPotentialProductionRate + delta);
+        tickPotentialProductionRate = NormalizeFiniteNonNegative(
+            tickPotentialProductionRate + delta,
+            nameof(delta));
 
     internal void AdjustTickPotentialConsumptionRate(ExpantaNum delta) =>
-        tickPotentialConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, tickPotentialConsumptionRate + delta);
+        tickPotentialConsumptionRate = NormalizeFiniteNonNegative(
+            tickPotentialConsumptionRate + delta,
+            nameof(delta));
 
     internal void CalculateTickSatisfaction(double deltaSeconds)
     {

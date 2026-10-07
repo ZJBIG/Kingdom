@@ -38,6 +38,12 @@ public sealed class MilitaryState
         Version++;
     }
 
+#if UNITY_EDITOR
+    public bool AdjustAttackPowerForEditor(ExpantaNum delta) => AdjustAttackPower(delta);
+    public void SetSupplySatisfactionForEditor(ExpantaNum value) =>
+        SetSupplySatisfaction(value);
+#endif
+
     internal bool AdjustAttackPower(ExpantaNum delta) => AdjustNonNegative(ref attackPower, delta);
     internal bool AdjustDefensePower(ExpantaNum delta) => AdjustNonNegative(ref defensePower, delta);
     internal bool AdjustFleetPower(ExpantaNum delta) => AdjustNonNegative(ref fleetPower, delta);

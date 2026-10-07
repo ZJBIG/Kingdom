@@ -53,6 +53,10 @@ public sealed class TerritoryState
         Version++;
     }
 
+#if UNITY_EDITOR
+    public void AdjustUsedForEditor(ExpantaNum delta) => AdjustUsed(delta);
+#endif
+
     internal void AdjustUsed(ExpantaNum delta)
     {
         if (!delta.IsFinite)
@@ -72,12 +76,5 @@ public sealed class TerritoryState
             return;
         used = restoredUsed;
         Version++;
-    }
-
-    private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
-    {
-        if (!value.IsFinite)
-            throw new ArgumentOutOfRangeException(parameterName);
-        return ExpantaNum.Max(ExpantaNum.Zero, value);
     }
 }

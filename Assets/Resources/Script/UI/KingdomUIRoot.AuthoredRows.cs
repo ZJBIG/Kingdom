@@ -69,7 +69,8 @@ public sealed partial class KingdomUIRoot
             orderedDefinitions.Add(resource);
         }
 
-        orderedDefinitions.Sort(CompareResourceRows);
+        orderedDefinitions.Sort((left, right) =>
+            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             Resource resource = orderedDefinitions[i];
@@ -129,12 +130,13 @@ public sealed partial class KingdomUIRoot
         return changed;
     }
 
-    private static int CompareResourceRows(Resource left, Resource right)
+    private static int CompareAuthoredRows(
+        TechLevel leftTechLevel, string leftId, TechLevel rightTechLevel, string rightId)
     {
-        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
+        int techComparison = rightTechLevel.CompareTo(leftTechLevel);
         return techComparison != 0
             ? techComparison
-            : string.CompareOrdinal(left.Id, right.Id);
+            : string.CompareOrdinal(leftId, rightId);
     }
 
     private void BuildAuthoredBuildingRows(RectTransform parent)
@@ -150,7 +152,8 @@ public sealed partial class KingdomUIRoot
                 continue;
             orderedDefinitions.Add(building);
         }
-        orderedDefinitions.Sort(CompareBuildingRows);
+        orderedDefinitions.Sort((left, right) =>
+            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             Building building = orderedDefinitions[i];
@@ -189,7 +192,6 @@ public sealed partial class KingdomUIRoot
             buildButton.onClick.RemoveAllListeners();
             buildButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
                 PerformBuildingAction(building, canUpgrade);
             });
             buildButton.interactable = CanPerformBuildingAction(building, canUpgrade, buildQuantity);
@@ -207,7 +209,6 @@ public sealed partial class KingdomUIRoot
             deconstructButton.onClick.RemoveAllListeners();
             deconstructButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Sell);
                 DeconstructBuilding(building);
             });
             deconstructButton.interactable = hasAmount;
@@ -242,48 +243,6 @@ public sealed partial class KingdomUIRoot
         return signature;
     }
 
-    private static int CompareBuildingRows(Building left, Building right)
-    {
-        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
-        return techComparison != 0
-            ? techComparison
-            : string.CompareOrdinal(left.Id, right.Id);
-    }
-
-    private void BuildAuthoredResearchRows(RectTransform parent)
-    {
-        int visible = 0;
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            Research research = definitions[i];
-            if (research == null)
-                continue;
-            ResearchState state = null;
-            ResearchManager.Instance?.States.TryGetValue(research, out state);
-            string percent = state == null ? "0%" : (state.ProgressRatio * 100).ToGameString() + "%";
-            ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
-            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.ResearchCard, parent, visible++);
-            if (row == null)
-                continue;
-            if (!SetRowText(row, "Label", research.Label) ||
-                !SetRowText(row, "Era", research.TechLevel.GetDescription()) ||
-                !SetRowText(row, "Percentage", percent, Copper) ||
-                !SetRowText(row, "State", ResearchStateLabel(research, status),
-                    status == ResearchStatus.Completed ? Positive : TextSecondary))
-                continue;
-            Button button = RequireRowButton(row);
-            if (button == null)
-                continue;
-            button.onClick.AddListener(() =>
-            {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
-                ShowResearchDetails(research);
-            });
-        }
-        Debug.Log($"[王国界面] Authored research rows: visible={visible}, rowsRect={parent.rect.size}");
-    }
-
     private void BuildAuthoredWorkshopRows(RectTransform parent)
     {
         int visible = 0;
@@ -298,7 +257,8 @@ public sealed partial class KingdomUIRoot
                 continue;
             orderedDefinitions.Add(definition);
         }
-        orderedDefinitions.Sort(CompareWorkshopRows);
+        orderedDefinitions.Sort((left, right) =>
+            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             WorkshopUpgrade definition = orderedDefinitions[i];
@@ -364,7 +324,6 @@ public sealed partial class KingdomUIRoot
             purchaseButton.onClick.RemoveAllListeners();
             purchaseButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Purchase);
                 PurchaseWorkshopFromRow(definition);
             });
             purchaseButton.interactable = canPurchase;
@@ -376,14 +335,6 @@ public sealed partial class KingdomUIRoot
                 workshopRows[i].SetActive(false);
         CaptureWorkshopFilterMembershipSignature();
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, pooled={workshopRows.Count}, rowsRect={parent.rect.size}");
-    }
-
-    private static int CompareWorkshopRows(WorkshopUpgrade left, WorkshopUpgrade right)
-    {
-        int techComparison = right.TechLevel.CompareTo(left.TechLevel);
-        return techComparison != 0
-            ? techComparison
-            : string.CompareOrdinal(left.Id, right.Id);
     }
 
     private bool ShouldRevealWorkshop(WorkshopUpgrade definition)

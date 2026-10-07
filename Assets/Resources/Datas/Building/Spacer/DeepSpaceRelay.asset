@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpaceRelay
   Label: "深空通信中继站"
-  Description: "连接轨道空间站、星舰船坞与远征舰队的深空通信和导航节点，以钢制承力结构和电子设备维持跨星区行动所需的物流调度与舰队支援。"
+  Description: "连接轨道空间站、星舰船坞与远征舰队的深空通信和导航节点，以钢制承力结构和电子设备调度跨星区行动的物流，并为远征舰队提供支援，本身持续占用物流运力。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

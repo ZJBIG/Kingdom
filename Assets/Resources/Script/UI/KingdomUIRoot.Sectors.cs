@@ -27,6 +27,7 @@ public sealed partial class KingdomUIRoot
         public TMP_Text Label;
         public float CollapsedHeight;
         public bool Expanded;
+        public string DiagnosticSignature;
     }
     private readonly List<SectorRowView> sectorRowViews = new();
     private RectTransform sectorRowsParent;
@@ -182,8 +183,18 @@ public sealed partial class KingdomUIRoot
             PositionSectorAction(demolish, 2f);
             build.interactable = BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.One) >= ExpantaNum.One;
             demolish.interactable = state != null && state.Amount >= ExpantaNum.One;
-            build.onClick.AddListener(() => { BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out _); RebuildSectorMenu(view); });
-            demolish.onClick.AddListener(() => { BuildingManager.Instance.TryDeconstruct(building, ExpantaNum.One, out _); RebuildSectorMenu(view); });
+            build.onClick.AddListener(() =>
+            {
+                if (BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out _))
+                    UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Build);
+                RebuildSectorMenu(view);
+            });
+            demolish.onClick.AddListener(() =>
+            {
+                if (BuildingManager.Instance.TryDeconstruct(building, ExpantaNum.One, out _))
+                    UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Deconstruct);
+                RebuildSectorMenu(view);
+            });
         }
         view.Menu.gameObject.SetActive(view.Expanded);
     }
@@ -270,7 +281,16 @@ public sealed partial class KingdomUIRoot
                 $"cards={(view.Menu == null ? 0 : Mathf.Max(0, view.Menu.childCount - 1))} " +
                 $"viewport={viewportSize} content={contentSize}";
             if (hasPositiveBounds)
-                Debug.Log(message);
+            {
+                // This layout rebuild runs on a timer, so report a row only
+                // when its measured layout actually changes; logging every
+                // pass would flood the console while the page stays open.
+                if (message != view.DiagnosticSignature)
+                {
+                    view.DiagnosticSignature = message;
+                    Debug.Log(message);
+                }
+            }
             else
                 Debug.LogError(message + " bounds must be positive.");
         }
@@ -301,15 +321,6 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private int CountSectorCards()
-    {
-        int count = 0;
-        for (int i = 0; i < sectorRowViews.Count; i++)
-            if (sectorRowViews[i].Menu != null && sectorRowViews[i].Expanded)
-                count += Mathf.Max(0, sectorRowViews[i].Menu.childCount - 1);
-        return count;
-    }
-
     private void RefreshSectorRowSummaries()
     {
         if (gameManagerCache == null)
@@ -320,6 +331,10 @@ public sealed partial class KingdomUIRoot
         RefreshSelectedSectorDetails(sectorManager, state, resourceManagerCache);
         RefreshSectorRowsAndLayout();
     }
+
+#if UNITY_EDITOR
+    public void RefreshSectorRowSummariesForEditor() => RefreshSectorRowSummaries();
+#endif
 
     private void ObserveSectorMilestones(SectorManager sectorManager)
     {
@@ -402,12 +417,17 @@ public sealed partial class KingdomUIRoot
         SectorState sectorState = sectorManager == null
             ? null
             : sectorManager.GetState(definition);
-        body.AppendLine(definition.Label ?? definition.Id);
-        body.AppendLine();
         body.AppendLine(definition.Description ?? string.Empty);
         body.AppendLine();
         body.AppendLine(definition.IsHomeSystem ? "本星系探索" : "远星星区战役");
         body.AppendLine("状态：" + GetSectorStateText(sectorManager, definition));
+        if (GameManager.TryGetInstance(out GameManager gameManager) &&
+            gameManager.UltraProject != null &&
+            gameManager.UltraProject.IsCampaignDoctrineUnlocked)
+        {
+            body.AppendLine("文明工程姿态：" +
+                GetUltraDoctrineLabel(gameManager.UltraProject.State.Doctrine));
+        }
         if (sectorManager != null && sectorState != null &&
             !sectorState.Unlocked && !sectorState.Occupied)
             body.AppendLine("\u5f53\u524d\u963b\u788d\uff1a" +
@@ -567,7 +587,52 @@ public sealed partial class KingdomUIRoot
         if (resourceManager != null) signature |= 64;
         if (!sectorState.Unlocked)
             signature |= (int)sectorManager.GetUnlockFailure(definition) << 7;
+        if (resourceManager != null)
+        {
+            if (definition.IsHomeSystem)
+            {
+                AppendResourceStateVersions(
+                    ref signature,
+                    resourceManager,
+                    definition.ColonizationResourceRatesPerSecond);
+            }
+            else
+            {
+                SectorCampaignPreview preview = sectorManager.GetCampaignPreview(
+                    definition, state, resourceManager);
+                if (preview != null)
+                {
+                    AppendResourceStateVersions(
+                        ref signature,
+                        resourceManager,
+                        preview.ResourceCostsPerSecond);
+                    AppendResourceStateVersions(
+                        ref signature,
+                        resourceManager,
+                        preview.FleetRepairCosts);
+                }
+            }
+        }
+        if (GameManager.TryGetInstance(out GameManager gameManager) &&
+            gameManager.UltraProject != null)
+            signature = unchecked(signature * 31 + gameManager.UltraProject.State.Version);
         return signature;
+    }
+
+    private static void AppendResourceStateVersions(
+        ref int signature,
+        ResourceManager resourceManager,
+        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    {
+        for (int i = 0; costs != null && i < costs.Count; i++)
+        {
+            Resource resource = costs[i].First;
+            int version = -1;
+            if (resource != null && resourceManager.States.TryGetValue(
+                    resource, out ResourceState resourceState))
+                version = resourceState.Version;
+            signature = unchecked(signature * 31 + version);
+        }
     }
 
     private void ConfigureSectorAction(
@@ -582,10 +647,13 @@ public sealed partial class KingdomUIRoot
         SectorState sectorState = sectorManager.GetState(definition);
         if (sectorState == null)
             return;
+        HideUltraDoctrineButton();
         if (sectorState.Occupied)
         {
             if (detailActionButton != null)
                 detailActionButton.gameObject.SetActive(false);
+            if (!definition.IsHomeSystem)
+                ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -593,6 +661,7 @@ public sealed partial class KingdomUIRoot
         if (sectorState.CampaignProgress >= ExpantaNum.One)
         {
             ConfigureActionButton("\u5360\u9886\u661f\u533a", () => OccupySector(definition));
+            ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -600,6 +669,7 @@ public sealed partial class KingdomUIRoot
         if (sectorState.CampaignCasualties > ExpantaNum.Zero && resourceManager != null)
         {
             ConfigureActionButton("\u7ef4\u4fee\u8230\u961f", () => RepairSectorFleet(definition));
+            ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -612,6 +682,8 @@ public sealed partial class KingdomUIRoot
                 () => UnlockSector(definition));
             if (detailActionButton != null)
                 detailActionButton.interactable = canUnlock;
+            if (!definition.IsHomeSystem)
+                ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -633,6 +705,7 @@ public sealed partial class KingdomUIRoot
         if (sectorState.CampaignActive)
         {
             ConfigureActionButton("\u6682\u505c\u8fdc\u661f\u6218\u5f79", () => PauseCampaign(definition));
+            ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -656,6 +729,7 @@ public sealed partial class KingdomUIRoot
         ConfigureActionButton(campaignLabel, () => StartCampaign(definition));
         if (detailActionButton != null)
             detailActionButton.interactable = canStartCampaign;
+        ConfigureCampaignDoctrineAction(state);
     }
 
     private void UnlockSector(SectorDefinition definition)

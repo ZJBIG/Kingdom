@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 public sealed class SaveManager : Singleton<SaveManager>
@@ -241,6 +243,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             Researches = ResearchManager.Instance.CaptureSaveData(),
             Workshop = WorkshopManager.Instance.CaptureSaveData(),
             Sectors = GameManager.Instance.Sectors.CaptureSaveData(),
+            UltraProject = GameManager.Instance.UltraProject.CaptureSaveData(),
             Tutorial = TutorialManager.Ensure().CaptureSaveData(),
             Story = StoryManager.CaptureSaveData()
         };
@@ -273,6 +276,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
         BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
+        if (data.UltraProject == null)
+            GameManager.Instance.UltraProject.InitializeNew();
+        else
+            GameManager.Instance.UltraProject.RestoreSaveData(data.UltraProject);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
         StoryManager.RestoreSaveData(data.Story);
         StoryManager.RefreshProgress();
@@ -286,6 +293,13 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new ArgumentOutOfRangeException(nameof(unixSeconds));
         data.General.LastSaveUnixSeconds = unixSeconds;
     }
+
+#if UNITY_EDITOR
+    public void ApplySaveDataForEditor(KingdomSaveData data) => ApplySaveData(data);
+    public static void StampSaveTimestampForEditor(KingdomSaveData data, long unixSeconds) =>
+        StampSaveTimestamp(data, unixSeconds);
+    public static KingdomSaveData ParseSaveDataForEditor(string json) => ParseSaveData(json);
+#endif
 
     private bool TryLoadSave(string path)
     {
@@ -326,21 +340,7 @@ public sealed class SaveManager : Singleton<SaveManager>
 
         try
         {
-            data = JsonUtility.FromJson<KingdomSaveData>(File.ReadAllText(path));
-            if (data == null)
-            {
-                Debug.LogError($"Kingdom 存档“{path}”无效：JSON 未生成存档对象。");
-                return false;
-            }
-
-            if (!IsSupportedVersion(data.Version))
-            {
-                Debug.LogError(
-                    $"Kingdom 存档“{path}”无效：不支持版本“{data.Version}”，" +
-                    $"当前应为“{SaveFormat.CurrentVersion}”。");
-                return false;
-            }
-            ValidateRequiredSections(data);
+            data = ParseSaveData(File.ReadAllText(path));
             return true;
         }
         catch (Exception exception)
@@ -369,7 +369,262 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档缺少当前版本的必要数据段。");
         }
 
+        if (data.UltraProject != null)
+        {
+            UltraProjectManager.ValidateSaveDataForArchive(data.UltraProject);
+            if (data.UltraProject.Status != UltraProjectStatus.Locked &&
+                data.General.TechLevel < TechLevel.Ultra)
+            {
+                throw new InvalidDataException(
+                    "非锁定 Ultra 工程状态不能出现在 Ultra 时代之前的存档中。");
+            }
+        }
         ValidateStorySection(data);
+    }
+
+    private static void ValidateRequiredSectionKeys(string json)
+    {
+        string[] requiredKeys =
+        {
+            "General", "Resources", "Buildings", "Researches",
+                "Workshop", "Sectors", "Tutorial", "Story"
+        };
+
+        for (int i = 0; i < requiredKeys.Length; i++)
+        {
+            if (!HasTopLevelJsonMember(json, requiredKeys[i]))
+                throw new InvalidDataException("存档缺少当前版本的必要数据段。");
+        }
+    }
+
+    private static KingdomSaveData ParseSaveData(string json)
+    {
+        bool hasUltraProjectSection = HasTopLevelJsonMember(json, "UltraProject");
+        bool hasExplicitNullUltraProject = IsTopLevelJsonMemberNull(json, "UltraProject");
+        ValidateRequiredSectionKeys(json);
+        KingdomSaveData data = JsonUtility.FromJson<KingdomSaveData>(json);
+        if (data == null)
+            throw new InvalidDataException("JSON 未生成存档对象。");
+
+        // JsonUtility materializes a missing serializable object field as its
+        // default instance, so preserve the wire-level distinction.
+        if (!hasUltraProjectSection)
+            data.UltraProject = null;
+        else if (data.UltraProject == null)
+            throw new InvalidDataException(
+                "存档的 UltraProject 数据段存在但不是有效对象。");
+
+        if (!IsSupportedVersion(data.Version))
+            throw new InvalidDataException(
+                $"存档版本“{data.Version}”不受支持，当前应为“{SaveFormat.CurrentVersion}”。");
+        if (hasExplicitNullUltraProject)
+            throw new InvalidDataException("存档的 UltraProject 数据段显式为空。");
+        ValidateRequiredSections(data);
+        return data;
+    }
+
+    private static bool HasTopLevelJsonMember(string json, string key)
+    {
+        if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(key))
+            return false;
+
+        int depth = 0;
+        bool inString = false;
+        bool escaped = false;
+        for (int i = 0; i < json.Length; i++)
+        {
+            char current = json[i];
+            if (inString)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (current == '"')
+                    inString = false;
+                continue;
+            }
+
+            if (current == '"')
+            {
+                int keyStart = i + 1;
+                int keyEnd = keyStart;
+                bool keyEscaped = false;
+                for (; keyEnd < json.Length; keyEnd++)
+                {
+                    char keyCharacter = json[keyEnd];
+                    if (keyEscaped)
+                    {
+                        keyEscaped = false;
+                        continue;
+                    }
+
+                    if (keyCharacter == '\\')
+                    {
+                        keyEscaped = true;
+                        continue;
+                    }
+
+                    if (keyCharacter == '"')
+                        break;
+                }
+
+                if (keyEnd >= json.Length)
+                    return false;
+
+                int separator = keyEnd + 1;
+                while (separator < json.Length && char.IsWhiteSpace(json[separator]))
+                    separator++;
+
+                if (depth == 1 && separator < json.Length && json[separator] == ':' &&
+                    JsonStringEquals(json, keyStart, keyEnd - keyStart, key))
+                    return true;
+
+                i = keyEnd;
+                continue;
+            }
+
+            if (current == '{')
+                depth++;
+            else if (current == '}')
+                depth--;
+        }
+
+        return false;
+    }
+
+    private static bool IsTopLevelJsonMemberNull(string json, string key)
+    {
+        if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(key))
+            return false;
+
+        int depth = 0;
+        bool inString = false;
+        bool escaped = false;
+        for (int i = 0; i < json.Length; i++)
+        {
+            char current = json[i];
+            if (inString)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+                if (current == '"')
+                    inString = false;
+                continue;
+            }
+
+            if (current == '"')
+            {
+                int keyStart = i + 1;
+                int keyEnd = keyStart;
+                bool keyEscaped = false;
+                for (; keyEnd < json.Length; keyEnd++)
+                {
+                    char keyCharacter = json[keyEnd];
+                    if (keyEscaped)
+                    {
+                        keyEscaped = false;
+                        continue;
+                    }
+                    if (keyCharacter == '\\')
+                    {
+                        keyEscaped = true;
+                        continue;
+                    }
+                    if (keyCharacter == '"')
+                        break;
+                }
+                if (keyEnd >= json.Length)
+                    return false;
+
+                int valueStart = keyEnd + 1;
+                while (valueStart < json.Length && char.IsWhiteSpace(json[valueStart]))
+                    valueStart++;
+                if (depth == 1 && valueStart < json.Length && json[valueStart] == ':')
+                {
+                    valueStart++;
+                    while (valueStart < json.Length && char.IsWhiteSpace(json[valueStart]))
+                        valueStart++;
+                    if (JsonStringEquals(json, keyStart, keyEnd - keyStart, key))
+                    {
+                        return valueStart + 4 <= json.Length &&
+                            string.Equals(
+                                json.Substring(valueStart, 4),
+                                "null",
+                                StringComparison.Ordinal);
+                    }
+                }
+
+                i = keyEnd;
+                continue;
+            }
+
+            if (current == '{')
+                depth++;
+            else if (current == '}')
+                depth--;
+        }
+
+        return false;
+    }
+
+    private static bool JsonStringEquals(string json, int start, int length, string expected)
+    {
+        StringBuilder decoded = new StringBuilder(length);
+        int end = start + length;
+        for (int i = start; i < end; i++)
+        {
+            char current = json[i];
+            if (current != '\\')
+            {
+                decoded.Append(current);
+                continue;
+            }
+
+            if (++i >= end)
+                return false;
+            switch (json[i])
+            {
+                case '"': decoded.Append('"'); break;
+                case '\\': decoded.Append('\\'); break;
+                case '/': decoded.Append('/'); break;
+                case 'b': decoded.Append('\b'); break;
+                case 'f': decoded.Append('\f'); break;
+                case 'n': decoded.Append('\n'); break;
+                case 'r': decoded.Append('\r'); break;
+                case 't': decoded.Append('\t'); break;
+                case 'u':
+                    if (i + 4 >= end || !ushort.TryParse(
+                            json.Substring(i + 1, 4),
+                            NumberStyles.HexNumber,
+                            CultureInfo.InvariantCulture,
+                            out ushort codeUnit))
+                        return false;
+                    decoded.Append((char)codeUnit);
+                    i += 4;
+                    break;
+                default:
+                    return false;
+            }
+        }
+
+        return string.Equals(decoded.ToString(), expected, StringComparison.Ordinal);
     }
 
     private static void ValidateStorySection(KingdomSaveData data)
@@ -425,6 +680,8 @@ public sealed class SaveManager : Singleton<SaveManager>
             if (tutorial != null)
                 Append(ref hash, tutorial.Version);
 
+            Append(ref hash, GameManager.Instance.UltraProject.State.Version);
+
             return hash;
         }
     }
@@ -444,6 +701,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public ResearchSaveData Researches;
         public WorkshopSaveData Workshop;
         public SectorSaveData Sectors;
+        public UltraProjectStateSaveData UltraProject;
         public TutorialSaveData Tutorial;
         public StorySaveData Story;
     }
@@ -474,6 +732,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string CampaignTargetSectorId;
         public string CampaignCasualties;
         public string CampaignCombatRatio;
+        public CampaignDoctrine CampaignDoctrine;
         // Preserve the sub-day calendar accumulator so save/load does not
         // silently discard up to one simulation day of calendar progress.
         public double CalendarElapsedSeconds;

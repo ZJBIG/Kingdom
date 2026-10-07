@@ -148,6 +148,9 @@ public sealed partial class KingdomUIRoot
         musicGapSlider = controls?.Find("Gap")?.GetComponent<Slider>();
         musicVolumeValueLabel = controls?.Find("VolumeValue")?.GetComponent<TMP_Text>();
         musicGapValueLabel = controls?.Find("GapValue")?.GetComponent<TMP_Text>();
+        sfxVolumeSlider = controls?.Find("SfxVolume")?.GetComponent<Slider>();
+        sfxMuteButton = controls?.Find("SfxMute")?.GetComponent<Button>();
+        sfxVolumeValueLabel = controls?.Find("SfxVolumeValue")?.GetComponent<TMP_Text>();
         if (musicProgressSlider != null)
         {
             lastMusicProgressMaxValue = -1f;
@@ -161,6 +164,8 @@ public sealed partial class KingdomUIRoot
             AddPointerStateIfMissing(musicVolumeSlider, null, null);
         if (musicGapSlider != null)
             AddPointerStateIfMissing(musicGapSlider, null, null);
+        if (sfxVolumeSlider != null)
+            AddPointerStateIfMissing(sfxVolumeSlider, null, null);
         Button previous = controls?.Find("Previous")?.GetComponent<Button>();
         Button next = controls?.Find("Next")?.GetComponent<Button>();
         Button pause = controls?.Find("Pause")?.GetComponent<Button>();
@@ -184,8 +189,9 @@ public sealed partial class KingdomUIRoot
             musicVolumeSlider.onValueChanged.RemoveAllListeners();
             musicVolumeSlider.onValueChanged.AddListener(value =>
             {
-                if (manager != null)
-                    manager.SetVolume(value);
+                MusicManager current = FindMusicManager();
+                if (current != null)
+                    current.SetVolume(value);
             });
         }
         if (musicGapSlider != null)
@@ -193,9 +199,20 @@ public sealed partial class KingdomUIRoot
             musicGapSlider.onValueChanged.RemoveAllListeners();
             musicGapSlider.onValueChanged.AddListener(value =>
             {
-                if (manager != null)
-                    manager.SetGapSeconds(value);
+                MusicManager current = FindMusicManager();
+                if (current != null)
+                    current.SetGapSeconds(value);
             });
+        }
+        if (sfxVolumeSlider != null)
+        {
+            sfxVolumeSlider.onValueChanged.RemoveAllListeners();
+            sfxVolumeSlider.onValueChanged.AddListener(UIButtonSoundManager.SetVolume);
+        }
+        if (sfxMuteButton != null)
+        {
+            sfxMuteButton.onClick.RemoveAllListeners();
+            sfxMuteButton.onClick.AddListener(UIButtonSoundManager.ToggleMuted);
         }
         if (manager != null && manager.Tracks.Count == 0)
             manager.RebuildCatalog();
@@ -581,4 +598,8 @@ public sealed partial class KingdomUIRoot
             KingdomEditorPerfLog.Write($"[KingdomPerf] CanvasIsolation owner={owner.name} canvas={addedCanvas} raycaster={addedRaycaster}");
 #endif
     }
+
+#if UNITY_EDITOR
+    public void RefreshNavigationVisibilityForEditor() => RefreshNavigationVisibility();
+#endif
 }

@@ -209,10 +209,7 @@ public sealed partial class KingdomUIRoot
 
         ResearchManager.Instance.States.TryGetValue(research, out ResearchState state);
         ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
-        Color accent = status == ResearchStatus.Completed ? Positive :
-            status == ResearchStatus.Available ? Copper :
-            status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
-            new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+        Color accent = GetResearchStatusColor(status);
         Image surface = node.GetComponent<Image>();
         surface.color = selectedResearchNode == research
             ? ResearchFocusSurface
@@ -295,10 +292,7 @@ public sealed partial class KingdomUIRoot
             return;
         ResearchManager.Instance.States.TryGetValue(research, out ResearchState state);
         ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
-        Color accent = status == ResearchStatus.Completed ? Positive :
-            status == ResearchStatus.Available ? Copper :
-            status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
-            new Color(.38f, .68f, .86f, 1f) : TextSecondary;
+        Color accent = GetResearchStatusColor(status);
         ApplyResearchQueueSelectionVisual(research, visual.Surface, visual.Outline, status);
 
         int stateVersion = state == null ? -1 : state.Version;

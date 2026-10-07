@@ -38,7 +38,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop);
 
     public bool IsPurchased(WorkshopUpgrade definition) =>
-        TryGetState(definition, out WorkshopUpgradeState state) && state.Purchased;
+        TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state) && state.Purchased;
 
     public bool ArePrerequisitesMet(WorkshopUpgrade definition)
     {
@@ -57,7 +57,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         WorkshopUpgrade definition,
         out WorkshopPurchaseFailure failure)
     {
-        if (!TryGetState(definition, out WorkshopUpgradeState state))
+        if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
         {
             failure = WorkshopPurchaseFailure.InvalidDefinition;
             return false;
@@ -115,11 +115,17 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                 : requirement.Second;
         }
 
+        bool previousPurchased = state.Purchased;
         bool paid = ResourceManager.Instance.TryApplyAtomicPayment(
             costs,
             () =>
             {
                 state.SetPurchased(true);
+                RebuildProgression();
+            },
+            () =>
+            {
+                state.SetPurchased(previousPurchased);
                 RebuildProgression();
             });
         if (!paid)
@@ -219,12 +225,6 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         RebuildProgression();
     }
 
-    private bool TryGetState(WorkshopUpgrade definition,
-        out WorkshopUpgradeState state)
-    {
-        return TryGetStateByStableId(definition?.Id, out state);
-    }
-
     private bool TryGetStateByStableId(string id,
         out WorkshopUpgradeState state)
     {
@@ -271,6 +271,12 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         for (int i = 0; i < orderedStates.Count; i++)
             orderedStates[i].SetPurchased(false);
     }
+
+#if UNITY_EDITOR
+    public void ResetForLoadForEditor() => ResetForLoad();
+    public void RestoreSaveDataForEditor(SaveManager.WorkshopSaveData data) =>
+        RestoreSaveData(data);
+#endif
 
     internal void RebuildProgression()
     {

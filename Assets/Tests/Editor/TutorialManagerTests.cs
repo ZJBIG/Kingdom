@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -160,9 +159,8 @@ public sealed class TutorialManagerTests
             CompletedStepIds = new List<string> { "orientation" }
         }, TechLevel.Animal);
 
-        Invoke(manager, "RecordDetailViewed", "Resources", "Food");
-        SaveManager.TutorialSaveData captured =
-            Invoke(manager, "CaptureSaveData") as SaveManager.TutorialSaveData;
+        manager.RecordDetailViewed("Resources", "Food");
+        SaveManager.TutorialSaveData captured = manager.CaptureSaveData();
         Assert.That(captured, Is.Not.Null);
         Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
         Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
@@ -177,24 +175,22 @@ public sealed class TutorialManagerTests
     public void CompletedGoalFeedbackUsesCompletedDirectPredecessor()
     {
         TutorialManager manager = TutorialManager.Ensure();
-        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             ActiveStepId = "resources",
             CompletedStepIds = new List<string> { "orientation" }
         }, TechLevel.Animal);
 
-        TutorialStep completed = Invoke(
-            manager, "FindPreviousCompletedStep", "resources") as TutorialStep;
+        TutorialStep completed = manager.FindPreviousCompletedStepForEditor("resources");
         Assert.That(completed, Is.Not.Null);
         Assert.That(completed.Id, Is.EqualTo("orientation"));
 
-        Invoke(manager, "RestoreSaveData", new SaveManager.TutorialSaveData
+        manager.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             ActiveStepId = "resources",
             CompletedStepIds = new List<string>()
         }, TechLevel.Animal);
-        Assert.That(Invoke(
-            manager, "FindPreviousCompletedStep", "resources"), Is.Null);
+        Assert.That(manager.FindPreviousCompletedStepForEditor("resources"), Is.Null);
     }
 
     [Test]
@@ -204,7 +200,7 @@ public sealed class TutorialManagerTests
         for (int i = 0; i < values.Length; i++)
         {
             TechLevel era = (TechLevel)values.GetValue(i);
-            Assert.That(InvokeStatic("GetCivilizationContext", era), Is.Not.Empty,
+            Assert.That(TutorialManager.GetCivilizationContext(era), Is.Not.Empty,
                 "Every existing era should explain the mouse civilization revival.");
         }
     }
@@ -234,8 +230,8 @@ public sealed class TutorialManagerTests
                 buildingIds[i], out Building building) && building != null,
                 "Spacer guidance must reference a real Building: " + buildingIds[i]);
 
-        MethodInfo spacerGuidance = typeof(TutorialManager).GetMethod(
-            "BuildSpacerGuidance", BindingFlags.Static | BindingFlags.NonPublic);
+        Func<TutorialSnapshot, GameManager, ResearchManager, BuildingManager, bool>
+            spacerGuidance = TutorialManager.BuildSpacerGuidanceForEditor;
         Assert.That(spacerGuidance, Is.Not.Null);
     }
 
@@ -254,15 +250,15 @@ public sealed class TutorialManagerTests
                 resources = step;
         }
 
-        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
-        Invoke(manager, "RecordPageVisited", "Resources");
-        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
-        Invoke(manager, "RecordPageVisited", "Overview");
-        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.True);
-        Assert.That(Invoke(manager, "HasVisitedPageForStep", resources), Is.False);
+        Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.False);
+        manager.RecordPageVisitedForEditor("Resources");
+        Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.False);
+        manager.RecordPageVisitedForEditor("Overview");
+        Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.True);
+        Assert.That(manager.HasVisitedPageForStepForEditor(resources), Is.False);
 
-        Invoke(manager, "ResetForNewGame");
-        Assert.That(Invoke(manager, "HasVisitedPageForStep", orientation), Is.False);
+        manager.ResetForNewGameForEditor();
+        Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.False);
     }
 
     [Test]
@@ -289,7 +285,7 @@ public sealed class TutorialManagerTests
             Assert.That(manager.SaveSessionVersion, Is.EqualTo(restored),
                 "Tutorial step completion must not create a new save session.");
 
-            Invoke(manager, "ResetForNewGame");
+            manager.ResetForNewGameForEditor();
             Assert.That(manager.SaveSessionVersion, Is.GreaterThan(restored));
         }
         finally
@@ -308,15 +304,15 @@ public sealed class TutorialManagerTests
                 population = manager.Steps[i];
 
         GameState state = new GameState();
-        Invoke(state, "RestorePopulation", ExpantaNum.One);
-        Invoke(state, "RestorePopulationCapacityExact", new ExpantaNum(2), ExpantaNum.Zero);
-        Invoke(state, "SetFoodAvailability", new ExpantaNum(0.5));
-        Assert.That(InvokeStatic("GetNavigationPageForStep", population, state),
+        state.RestorePopulationForEditor(ExpantaNum.One);
+        state.RestorePopulationCapacityExactForEditor(new ExpantaNum(2), ExpantaNum.Zero);
+        state.SetFoodAvailabilityForEditor(new ExpantaNum(0.5));
+        Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, state),
             Is.EqualTo("Resources"));
-        Invoke(state, "AdjustFoodRates", ExpantaNum.Zero, new ExpantaNum(6));
-        Assert.That(InvokeStatic("GetNavigationPageForStep", population, state),
+        state.AdjustFoodRatesForEditor(ExpantaNum.Zero, new ExpantaNum(6));
+        Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, state),
             Is.EqualTo("Resources"));
-        Assert.That(InvokeStatic("GetNavigationPageForStep", population, new GameState()),
+        Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, new GameState()),
             Is.EqualTo("Buildings"));
     }
 
@@ -329,16 +325,16 @@ public sealed class TutorialManagerTests
             .AddComponent<BuildingManager>();
         try
         {
-            Invoke(game.State, "RestorePopulationCapacityExact",
+            game.State.RestorePopulationCapacityExactForEditor(
                 new ExpantaNum(2), ExpantaNum.Zero);
-            Invoke(game.State, "SetFoodAvailability", new ExpantaNum(0.5));
+            game.State.SetFoodAvailabilityForEditor(new ExpantaNum(0.5));
 
-            Assert.That(InvokeStatic("GetPopulationNavigationTarget", game, buildings),
+            Assert.That(TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings),
                 Is.EqualTo("Food"));
 
-            Invoke(game.State, "AdjustFoodRates", new ExpantaNum(6), ExpantaNum.Zero);
-            Invoke(game.State, "SetFoodAvailability", ExpantaNum.One);
-            Assert.That(InvokeStatic("GetPopulationNavigationTarget", game, buildings),
+            game.State.AdjustFoodRatesForEditor(new ExpantaNum(6), ExpantaNum.Zero);
+            game.State.SetFoodAvailabilityForEditor(ExpantaNum.One);
+            Assert.That(TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings),
                 Is.EqualTo("WoodHouse"));
         }
         finally
@@ -357,12 +353,7 @@ public sealed class TutorialManagerTests
         {
             GameManager game = gameObject.AddComponent<GameManager>();
             BuildingManager buildings = buildingObject.AddComponent<BuildingManager>();
-            MethodInfo targetMethod = typeof(TutorialManager).GetMethod(
-                "GetPopulationNavigationTarget",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(targetMethod, Is.Not.Null);
-
-            string target = targetMethod.Invoke(null, new object[] { game, buildings }) as string;
+            string target = TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings);
             Assert.That(target, Is.EqualTo("WoodHouse"));
         }
         finally
@@ -376,13 +367,13 @@ public sealed class TutorialManagerTests
     public void PopulationStepRequiresPopulationStateToGrow()
     {
         GameState state = new GameState();
-        Invoke(state, "RestorePopulationCapacityExact",
+        state.RestorePopulationCapacityExactForEditor(
             new ExpantaNum(2), ExpantaNum.Zero);
 
-        Assert.That(InvokeStatic("HasObservedPopulationGrowth", state), Is.False);
+        Assert.That(TutorialManager.HasObservedPopulationGrowth(state), Is.False);
 
-        Invoke(state, "RestorePopulation", ExpantaNum.One);
-        Assert.That(InvokeStatic("HasObservedPopulationGrowth", state), Is.True);
+        state.RestorePopulationForEditor(ExpantaNum.One);
+        Assert.That(TutorialManager.HasObservedPopulationGrowth(state), Is.True);
     }
 
     [Test]
@@ -390,7 +381,7 @@ public sealed class TutorialManagerTests
     {
         GameObject host = new GameObject("TutorialConditionGameManager");
         GameManager game = host.AddComponent<GameManager>();
-        Invoke(game.State, "RestorePopulationCapacityExact",
+        game.State.RestorePopulationCapacityExactForEditor(
             new ExpantaNum(2), ExpantaNum.Zero);
         TutorialStep step = new TutorialStep(
             "capacity", "Capacity", "Capacity", TutorialStepKind.Population,
@@ -399,7 +390,7 @@ public sealed class TutorialManagerTests
 
         try
         {
-            Assert.That(InvokeStatic("IsStepComplete", step, game, null, null, null),
+            Assert.That(TutorialManager.IsStepCompleteForEditor(step, game, null, null, null),
                 Is.True);
         }
         finally
@@ -416,11 +407,11 @@ public sealed class TutorialManagerTests
         definition.BaseCost = "1";
         ResearchState state = new ResearchState(definition);
 
-        Assert.That(InvokeStatic("HasCompletedResearch",
+        Assert.That(TutorialManager.HasCompletedResearch(
             new List<ResearchState> { state }), Is.False);
 
-        Invoke(state, "SetStatus", ResearchStatus.Completed);
-        Assert.That(InvokeStatic("HasCompletedResearch",
+        state.SetStatusForEditor(ResearchStatus.Completed);
+        Assert.That(TutorialManager.HasCompletedResearch(
             new List<ResearchState> { state }), Is.True);
 
         UnityEngine.Object.DestroyImmediate(definition);
@@ -469,27 +460,17 @@ public sealed class TutorialManagerTests
         consumerState.SetAmountForEditor(ExpantaNum.One);
         var ownedStates = new List<BuildingState> { producerState, consumerState };
 
-        Assert.That(InvokeStatic("HasOwnedProductionChain",
+        Assert.That(TutorialManager.HasOwnedProductionChain(
             new List<BuildingState> { producerState }), Is.False);
-        Assert.That(InvokeStatic("HasOwnedProductionChain",
+        Assert.That(TutorialManager.HasOwnedProductionChain(
             ownedStates), Is.True);
 
-        MethodInfo findChain = typeof(TutorialManager).GetMethod(
-            "TryFindOwnedProductionChain",
-            BindingFlags.Static | BindingFlags.NonPublic,
-            null,
-            new[]
-            {
-                typeof(IEnumerable<BuildingState>),
-                typeof(Resource).MakeByRefType(),
-                typeof(Resource).MakeByRefType()
-            },
-            null);
-        Assert.That(findChain, Is.Not.Null);
-        object[] arguments = { ownedStates, null, null };
-        Assert.That(findChain.Invoke(null, arguments), Is.True);
-        Assert.That(arguments[1], Is.SameAs(intermediate));
-        Assert.That(arguments[2], Is.SameAs(product));
+        Resource consumed = null;
+        Resource generated = null;
+        Assert.That(TutorialManager.TryFindOwnedProductionChainForEditor(
+            ownedStates, out consumed, out generated), Is.True);
+        Assert.That(consumed, Is.SameAs(intermediate));
+        Assert.That(generated, Is.SameAs(product));
 
         UnityEngine.Object.DestroyImmediate(intermediate);
         UnityEngine.Object.DestroyImmediate(product);
@@ -538,43 +519,5 @@ public sealed class TutorialManagerTests
         building.SetIdForEditor(id);
         building.Label = id;
         return building;
-    }
-
-    private static object Invoke(object target, string methodName, params object[] arguments)
-    {
-        MethodInfo method = target.GetType().GetMethod(
-            methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null, methodName + " should exist.");
-        return method.Invoke(target, arguments);
-    }
-
-    private static object InvokeStatic(string methodName, params object[] arguments)
-    {
-        MethodInfo method = null;
-        MethodInfo[] methods = typeof(TutorialManager).GetMethods(
-            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        for (int i = 0; i < methods.Length; i++)
-        {
-            if (methods[i].Name != methodName)
-                continue;
-            ParameterInfo[] parameters = methods[i].GetParameters();
-            if (parameters.Length != arguments.Length)
-                continue;
-            bool matches = true;
-            for (int j = 0; j < parameters.Length; j++)
-                if (arguments[j] != null &&
-                    !parameters[j].ParameterType.IsInstanceOfType(arguments[j]))
-                {
-                    matches = false;
-                    break;
-                }
-            if (matches)
-            {
-                method = methods[i];
-                break;
-            }
-        }
-        Assert.That(method, Is.Not.Null, methodName + " should exist.");
-        return method.Invoke(null, arguments);
     }
 }

@@ -54,14 +54,6 @@ public sealed class BuildingState
         Version++;
     }
 
-    private void Change(ref bool field, bool value)
-    {
-        if (field == value)
-            return;
-        field = value;
-        Version++;
-    }
-
     private static ExpantaNum NormalizeFiniteNonNegative(ExpantaNum value, string parameterName)
     {
         if (!value.IsFinite)

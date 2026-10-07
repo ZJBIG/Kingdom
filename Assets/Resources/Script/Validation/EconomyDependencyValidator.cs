@@ -9,7 +9,8 @@ public static class EconomyDependencyValidator
         IReadOnlyList<Building> buildings,
         IReadOnlyList<Research> researches,
         IReadOnlyList<WorkshopUpgrade> upgrades,
-        out string error)
+        out string error,
+        TechLevel validationCeiling = TechLevel.Archotech)
     {
         if (!ValidateBuildingPrerequisites(buildings, out error))
             return false;
@@ -23,7 +24,8 @@ public static class EconomyDependencyValidator
             return false;
         if (!ValidateDirectUnlockDeadlocks(buildings, researches, upgrades, out error))
             return false;
-        if (!ValidateReleasedReachability(buildings, researches, upgrades, out error))
+        if (!ValidateReleasedReachability(
+            buildings, researches, upgrades, out error, validationCeiling))
             return false;
         error = string.Empty;
         return true;
@@ -49,6 +51,13 @@ public static class EconomyDependencyValidator
         error = string.Empty;
         return true;
     }
+
+#if UNITY_EDITOR
+    public static bool ValidateWorkshopPrerequisitesForEditor(
+        IReadOnlyList<WorkshopUpgrade> upgrades,
+        out string error) =>
+        ValidateWorkshopPrerequisites(upgrades, out error);
+#endif
 
     private static bool ValidateWorkshopPrerequisites(
         IReadOnlyList<WorkshopUpgrade> upgrades,
@@ -157,7 +166,8 @@ public static class EconomyDependencyValidator
         IReadOnlyList<Building> buildings,
         IReadOnlyList<Research> researches,
         IReadOnlyList<WorkshopUpgrade> upgrades,
-        out string error)
+        out string error,
+        TechLevel validationCeiling)
     {
         var resources = new HashSet<Resource>();
         var completedResearch = new HashSet<Research>();
@@ -166,7 +176,8 @@ public static class EconomyDependencyValidator
         TechLevel techLevel = TechLevel.Animal;
 
         for (int i = 0; i < DataBase<Resource>.All.Count; i++)
-            if (DataBase<Resource>.All[i] != null && DataBase<Resource>.All[i].Id == "WoodLog")
+            if (DataBase<Resource>.All[i] != null &&
+                DataBase<Resource>.All[i].Id == ResourceManager.StartingResourceId)
                 resources.Add(DataBase<Resource>.All[i]);
 
         bool changed;
@@ -176,7 +187,7 @@ public static class EconomyDependencyValidator
             for (int i = 0; i < researches.Count; i++)
             {
                 Research research = researches[i];
-                if (research == null || research.TechLevel > TechLevel.Industrial ||
+                if (research == null || research.TechLevel > validationCeiling ||
                     completedResearch.Contains(research))
                     continue;
                 bool eraAccessible = research.TechLevel <= techLevel ||
@@ -195,7 +206,7 @@ public static class EconomyDependencyValidator
             for (int i = 0; i < upgrades.Count; i++)
             {
                 WorkshopUpgrade upgrade = upgrades[i];
-                if (upgrade == null || upgrade.TechLevel > TechLevel.Industrial ||
+                if (upgrade == null || upgrade.TechLevel > validationCeiling ||
                     purchasedUpgrades.Contains(upgrade) || !workshopSystemUnlocked)
                     continue;
                 if (!AllContained(upgrade.RequiredResearch, completedResearch) ||
@@ -209,7 +220,7 @@ public static class EconomyDependencyValidator
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building building = buildings[i];
-                if (building == null || building.TechLevel > TechLevel.Industrial ||
+                if (building == null || building.TechLevel > validationCeiling ||
                     availableBuildings.Contains(building) || building.TechLevel > techLevel)
                     continue;
                 if (!AllContained(building.RequiredResearch, completedResearch) ||
@@ -233,7 +244,7 @@ public static class EconomyDependencyValidator
         for (int i = 0; i < researches.Count; i++)
         {
             Research research = researches[i];
-            if (research != null && research.TechLevel <= TechLevel.Industrial &&
+            if (research != null && research.TechLevel <= validationCeiling &&
                 !completedResearch.Contains(research))
             {
                 blockedDefinitions.Add(DescribeBlockedResearch(
@@ -246,7 +257,7 @@ public static class EconomyDependencyValidator
         for (int i = 0; i < upgrades.Count; i++)
         {
             WorkshopUpgrade upgrade = upgrades[i];
-            if (upgrade != null && upgrade.TechLevel <= TechLevel.Industrial &&
+            if (upgrade != null && upgrade.TechLevel <= validationCeiling &&
                 !purchasedUpgrades.Contains(upgrade))
             {
                 blockedDefinitions.Add(DescribeBlockedUpgrade(upgrade, completedResearch, purchasedUpgrades, resources));
@@ -255,7 +266,7 @@ public static class EconomyDependencyValidator
         for (int i = 0; i < buildings.Count; i++)
         {
             Building building = buildings[i];
-            if (building != null && building.TechLevel <= TechLevel.Industrial &&
+            if (building != null && building.TechLevel <= validationCeiling &&
                 !availableBuildings.Contains(building))
             {
                 blockedDefinitions.Add(DescribeBlockedBuilding(
@@ -457,6 +468,14 @@ public static class EconomyDependencyValidator
         return true;
     }
 
+#if UNITY_EDITOR
+    public static bool ValidateProductionGraphForEditor(
+        IReadOnlyList<Resource> resources,
+        IReadOnlyList<Building> buildings,
+        out string error) =>
+        ValidateProductionGraph(resources, buildings, out error);
+#endif
+
     private static bool ValidateProductionGraph(
         IReadOnlyList<Resource> resources,
         IReadOnlyList<Building> buildings,
@@ -509,17 +528,6 @@ public static class EconomyDependencyValidator
             blockedCycles.Sort(StringComparer.Ordinal);
             error = "\u751F\u4EA7\u914D\u65B9\u5B58\u5728\u5FAA\u73AF\u4F9D\u8D56\uFF1A" + Environment.NewLine +
                 " - " + string.Join(Environment.NewLine + " - ", blockedCycles);
-            return false;
-        }
-
-        if (false && cycles.Count > 0)
-        {
-            var orderedCycles = new List<string>(cycles);
-            orderedCycles.Sort(StringComparer.Ordinal);
-            error = "生产配方存在循环依赖：" + Environment.NewLine +
-                " - " + string.Join(Environment.NewLine + " - ", orderedCycles);
-            error = "生产配方存在循环依赖：" + Environment.NewLine +
-                " - " + string.Join(Environment.NewLine + " - ", orderedCycles);
             return false;
         }
 
@@ -584,34 +592,6 @@ public static class EconomyDependencyValidator
 
         return false;
     }
-
-    /*
-    private static void FindProductionCycles(
-        Resource start,
-        Resource current,
-        Dictionary<Resource, List<Resource>> graph,
-        HashSet<Resource> pathSet,
-        List<Resource> path,
-        HashSet<string> cycles)
-    {
-        if (pathSet.Contains(current))
-        {
-            int cycleStart = path.IndexOf(current);
-            if (cycleStart >= 0)
-                cycles.Add(CanonicalizeCycle(path, cycleStart));
-            error = "生产配方存在循环依赖：" + string.Join(" -> ", ids);
-            return true;
-        }
-
-        path.Add(current);
-        List<Resource> outputs = graph[current];
-        for (int i = 0; i < outputs.Count; i++)
-            FindProductionCycles(start, outputs[i], graph, pathSet, path, cycles);
-        path.RemoveAt(path.Count - 1);
-        pathSet.Remove(current);
-    }
-
-    */
 
     private static void FindProductionCycles(
         Resource current,
@@ -751,7 +731,7 @@ public static class EconomyDependencyValidator
         Resource resource,
         Building building) =>
         resource != null &&
-        resource.Id != "WoodLog" &&
+        resource.Id != ResourceManager.StartingResourceId &&
         producers.TryGetValue(resource, out List<Building> values) &&
         values.Count == 1 &&
         values[0] == building;

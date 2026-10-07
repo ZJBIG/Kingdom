@@ -57,12 +57,18 @@ $editorCandidates = @()
 if ($unityEditorPath) {
     $editorCandidates += Split-Path -Parent $unityEditorPath
 }
-$editorCandidates += @(
-    "D:\Unity\Hub\Editor\$editorVersion\Editor",
-    (Join-Path ${env:ProgramFiles} "Unity\Hub\Editor\$editorVersion\Editor")
-)
+$editorCandidates += "D:\Unity\Hub\Editor\$editorVersion\Editor"
+# Join-Path throws on a null/empty -Path, so probe the env vars before using
+# them: ProgramFiles and ProgramFiles(x86) can both be undefined.
+if (-not [string]::IsNullOrWhiteSpace($env:ProgramFiles)) {
+    $editorCandidates += (Join-Path $env:ProgramFiles "Unity\Hub\Editor\$editorVersion\Editor")
+}
+if (-not [string]::IsNullOrWhiteSpace(${env:ProgramFiles(x86)})) {
+    $editorCandidates += (Join-Path ${env:ProgramFiles(x86)} "Unity\Hub\Editor\$editorVersion\Editor")
+}
 
 $unityEditorDirectory = $editorCandidates |
+    Where-Object { $_ -and $_.Trim() } |
     Where-Object { Test-Path -LiteralPath (Join-Path $_ "Data\DotNetSdkRoslyn\csc.dll") } |
     Select-Object -First 1
 
@@ -152,11 +158,22 @@ Set-Content -LiteralPath $filteredResponseFile -Value $compilerArguments -Encodi
 Push-Location $repositoryRoot
 try {
     & $unityDotnet $compiler "@$filteredResponseFile"
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-    }
+    $compilerExitCode = $LASTEXITCODE
 } finally {
     Pop-Location
+}
+
+# A swallowed native process leaves $LASTEXITCODE as $null, and `exit $null`
+# returns 0 -- so without this check the script reported success while never
+# compiling anything. Treat "no exit code" and "no output assembly" as failures.
+if ($null -eq $compilerExitCode) {
+    throw "The compiler did not actually run: its exit code could not be read. Do not treat this as a successful compile."
+}
+if ($compilerExitCode -ne 0) {
+    exit $compilerExitCode
+}
+if (-not (Test-Path -LiteralPath $outputAssembly)) {
+    throw "The compiler returned 0 but produced no assembly at $outputAssembly."
 }
 
 Write-Host "Built $assemblyName ($Configuration) without test sources: $outputAssembly"

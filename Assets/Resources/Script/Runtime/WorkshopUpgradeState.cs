@@ -19,4 +19,8 @@ public sealed class WorkshopUpgradeState
         Purchased = value;
         Version++;
     }
+
+#if UNITY_EDITOR
+    public void SetPurchasedForEditor(bool value) => SetPurchased(value);
+#endif
 }

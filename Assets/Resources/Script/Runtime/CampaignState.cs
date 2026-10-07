@@ -1,5 +1,11 @@
 using System;
 
+public enum CampaignDoctrine
+{
+    Stable = 0,
+    Surge = 1
+}
+
 [Serializable]
 public sealed class CampaignState
 {
@@ -7,6 +13,7 @@ public sealed class CampaignState
     public string TargetSectorId { get; private set; }
     public ExpantaNum Casualties { get; private set; }
     public ExpantaNum CombatRatio { get; private set; }
+    public CampaignDoctrine Doctrine { get; private set; }
     public int Version { get; private set; }
 
     public CampaignState() => InitializeNew();
@@ -17,25 +24,47 @@ public sealed class CampaignState
         TargetSectorId = string.Empty;
         Casualties = ExpantaNum.Zero;
         CombatRatio = ExpantaNum.Zero;
+        Doctrine = CampaignDoctrine.Stable;
         Version++;
     }
 
     internal void Begin(string sectorId)
     {
+        Begin(sectorId, CampaignDoctrine.Stable);
+    }
+
+    internal void Begin(string sectorId, CampaignDoctrine doctrine)
+    {
         if (string.IsNullOrWhiteSpace(sectorId))
             throw new ArgumentException("远征目标星区编号不能为空。", nameof(sectorId));
         if (Active && string.Equals(TargetSectorId, sectorId, StringComparison.OrdinalIgnoreCase))
+        {
+            SetDoctrine(doctrine);
             return;
+        }
         Active = true;
         TargetSectorId = sectorId;
         Casualties = ExpantaNum.Zero;
         CombatRatio = ExpantaNum.Zero;
+        SetDoctrine(doctrine);
+        Version++;
+    }
+
+    internal void SetDoctrine(CampaignDoctrine doctrine)
+    {
+        if (!Enum.IsDefined(typeof(CampaignDoctrine), doctrine))
+            throw new ArgumentOutOfRangeException(nameof(doctrine));
+        if (Doctrine == doctrine)
+            return;
+        Doctrine = doctrine;
         Version++;
     }
 
     internal void RecordCombat(ExpantaNum combatRatio, ExpantaNum casualties)
     {
-        if (!combatRatio.IsFinite || !casualties.IsFinite)
+        if (!combatRatio.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(combatRatio));
+        if (!casualties.IsFinite)
             throw new ArgumentOutOfRangeException(nameof(casualties));
         ExpantaNum normalizedRatio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
         ExpantaNum normalizedCasualties = ExpantaNum.Max(ExpantaNum.Zero, casualties);
@@ -91,13 +120,29 @@ public sealed class CampaignState
         ExpantaNum casualties,
         ExpantaNum combatRatio)
     {
+        Restore(active, targetSectorId, casualties, combatRatio, CampaignDoctrine.Stable);
+    }
+
+    internal void Restore(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        CampaignDoctrine doctrine)
+    {
         // A cancelled campaign can retain casualties and its target so the
         // player can repair the fleet before resuming. Do not reactivate it
         // merely because the save contains those repairable casualties.
-        if (!casualties.IsFinite || !combatRatio.IsFinite)
+        if (!casualties.IsFinite)
             throw new ArgumentOutOfRangeException(nameof(casualties));
-        if (casualties < ExpantaNum.Zero || combatRatio < ExpantaNum.Zero)
+        if (!combatRatio.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(combatRatio));
+        if (casualties < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException(nameof(casualties));
+        if (combatRatio < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(combatRatio));
+        if (!Enum.IsDefined(typeof(CampaignDoctrine), doctrine))
+            throw new ArgumentOutOfRangeException(nameof(doctrine));
         if (active && string.IsNullOrWhiteSpace(targetSectorId))
             throw new InvalidOperationException("An active campaign must have a target sector.");
         if (string.IsNullOrWhiteSpace(targetSectorId) &&
@@ -112,6 +157,7 @@ public sealed class CampaignState
         TargetSectorId = targetSectorId;
         Casualties = casualties;
         CombatRatio = combatRatio;
+        Doctrine = doctrine;
         Version++;
     }
 
@@ -121,12 +167,36 @@ public sealed class CampaignState
         ExpantaNum casualties,
         ExpantaNum combatRatio)
     {
-        if (!casualties.IsFinite || !combatRatio.IsFinite)
+        RestoreExact(active, targetSectorId, casualties, combatRatio, CampaignDoctrine.Stable);
+    }
+
+    internal void RestoreExact(
+        bool active,
+        string targetSectorId,
+        ExpantaNum casualties,
+        ExpantaNum combatRatio,
+        CampaignDoctrine doctrine)
+    {
+        if (!casualties.IsFinite)
             throw new ArgumentOutOfRangeException(nameof(casualties));
+        if (!combatRatio.IsFinite)
+            throw new ArgumentOutOfRangeException(nameof(combatRatio));
+        if (!Enum.IsDefined(typeof(CampaignDoctrine), doctrine))
+            throw new ArgumentOutOfRangeException(nameof(doctrine));
         Active = active;
         TargetSectorId = targetSectorId ?? string.Empty;
         Casualties = ExpantaNum.Max(ExpantaNum.Zero, casualties);
         CombatRatio = ExpantaNum.Max(ExpantaNum.Zero, combatRatio);
+        Doctrine = doctrine;
         Version++;
     }
+
+#if UNITY_EDITOR
+    public void BeginForEditor(string sectorId) => Begin(sectorId);
+    public void RecordCombatForEditor(
+        ExpantaNum combatRatio,
+        ExpantaNum casualties) =>
+        RecordCombat(combatRatio, casualties);
+    public void SetDoctrineForEditor(CampaignDoctrine doctrine) => SetDoctrine(doctrine);
+#endif
 }

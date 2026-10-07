@@ -16,7 +16,7 @@ MonoBehaviour:
   Label: "\u673A\u5668\u5236\u9020\u5382"
   Description: "使用钢材、铜线、青铜、铝、润滑剂和橡胶生产机械部件、内燃机与轻质复合材料，为工业设备和后续航天结构提供基础。"
   TechLevel: 3
-  upgradeTo: {fileID: 0}
+  upgradeTo: {fileID: 11400000, guid: 238504a21c41471ca4c817ede986faba, type: 2}
   costGrowth: "1.2"
   spaceCost: "20"
   productivityConsumption: "80"

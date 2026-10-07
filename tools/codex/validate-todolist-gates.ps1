@@ -20,7 +20,7 @@ Invoke-Gate (Join-Path $toolRoot "verify-yaml-references.ps1") @{ ProjectPath = 
 Invoke-Gate (Join-Path $toolRoot "content-closure-check.ps1") @{ ProjectRoot = $ProjectPath }
 Invoke-Gate (Join-Path $toolRoot "building-resource-flow-check.ps1") @{ ProjectPath = $ProjectPath }
 
-foreach ($scriptName in @("run-unity-tests.ps1", "build-android.ps1", "validate-ui-contract.ps1")) {
+foreach ($scriptName in @("run-unity-tests.ps1", "build-android.ps1", "validate-ui-contract.ps1", "compile-developer-tests.ps1")) {
     $tokens = $null
     $errors = $null
     [System.Management.Automation.Language.Parser]::ParseFile(

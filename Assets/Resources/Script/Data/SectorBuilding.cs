@@ -12,6 +12,11 @@ public class SectorBuilding : Building
     public SectorDefinition Sector => sector;
     public int MaxAmount => maxAmount;
 
+#if UNITY_EDITOR
+    public void SetSectorForEditor(SectorDefinition value) => sector = value;
+    public void SetMaxAmountForEditor(int value) => maxAmount = value;
+#endif
+
     public static void Validate(SectorBuilding building)
     {
         if (building == null)

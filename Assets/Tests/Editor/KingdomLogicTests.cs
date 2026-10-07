@@ -11,6 +11,11 @@ using UnityEngine.UI;
 
 public sealed class KingdomLogicTests
 {
+    // GameManager.InitializeStartingInventory hands a fresh game exactly this
+    // much wood. Tests that assert "the save was settled rather than silently
+    // replaced by a new game" need this baseline to stay meaningful.
+    private static readonly ExpantaNum NewGameStartingWood = new ExpantaNum(60);
+
     private readonly List<UnityEngine.Object> createdObjects = new List<UnityEngine.Object>();
 
     [SetUp]
@@ -87,19 +92,13 @@ public sealed class KingdomLogicTests
     public void GameSave_RoundTripsSubDayCalendarAccumulator()
     {
         GameManager manager = CreateManager<GameManager>("CalendarAccumulator-GameManager");
-        FieldInfo accumulator = typeof(GameManager).GetField(
-            "calendarElapsedSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo restore = typeof(GameManager).GetMethod(
-            "RestoreSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(accumulator, Is.Not.Null);
-        Assert.That(restore, Is.Not.Null);
 
-        accumulator.SetValue(manager, 3.5d);
+        manager.CalendarElapsedSecondsForEditor = 3.5d;
         SaveManager.GameSaveData data = manager.CaptureSaveData();
-        accumulator.SetValue(manager, 0d);
-        restore.Invoke(manager, new object[] { data });
+        manager.CalendarElapsedSecondsForEditor = 0d;
+        manager.RestoreSaveDataForEditor(data);
 
-        Assert.That((double)accumulator.GetValue(manager), Is.EqualTo(3.5d).Within(1e-9d));
+        Assert.That(manager.CalendarElapsedSecondsForEditor, Is.EqualTo(3.5d).Within(1e-9d));
     }
 
     [Test]
@@ -151,28 +150,22 @@ public sealed class KingdomLogicTests
     public void GameState_RestoresPopulationCapacityAndProgressExactly()
     {
         var state = new GameState();
-        InvokeGameStateMethod(state, "AdjustPopulationCapacity", new ExpantaNum(10));
-        InvokeGameStateMethod(state, "RestorePopulationChangeProgress", new ExpantaNum(0.35d));
+        state.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
+        state.RestorePopulationChangeProgressForEditor(new ExpantaNum(0.35d));
 
-        MethodInfo restore = typeof(GameState).GetMethod(
-            "RestorePopulationCapacityExact",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(restore, Is.Not.Null);
-
-        restore.Invoke(
-            state,
-            new object[] { new ExpantaNum(25), new ExpantaNum(0.6d) });
+        state.RestorePopulationCapacityExactForEditor(
+            new ExpantaNum(25), new ExpantaNum(0.6d));
 
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(25)));
         Assert.That(
-            state.Population.PopulationChangeProgress,
-            Is.EqualTo(new ExpantaNum(0.6d)));
+            state.Population.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(0.6d).Within(1e-9d));
     }
 
     [Test]
     public void AdvanceFood_UsesConsumptionRateAndClampsAtZero()
     {
-        Assert.That(GameManager.AdvanceFood(100, 5, 3, 10), Is.EqualTo(new ExpantaNum(120)));
+        Assert.That(GameManager.AdvanceFood(100, 5, 3, 10).ToDouble(), Is.EqualTo(120d).Within(0.000001d));
         Assert.That(GameManager.AdvanceFood(10, 0, 3, 10), Is.EqualTo(ExpantaNum.Zero));
         Assert.Throws<ArgumentOutOfRangeException>(() => GameManager.AdvanceFood(10, 1, 1, -1));
     }
@@ -275,14 +268,11 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("Starting-Inventory-ResourceManager");
         GameManager gameManager =
             CreateManager<GameManager>("Starting-Inventory-GameManager");
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
 
-        initializeNewGame.Invoke(gameManager, null);
+        gameManager.InitializeNewGameForEditor();
         Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
-        initializeNewGame.Invoke(gameManager, null);
+        gameManager.InitializeNewGameForEditor();
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(60)));
     }
 
@@ -302,7 +292,7 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Resources.Resources[0].Amount = amount;
 
-        InvokeApplySaveData(saveManager, data);
+        saveManager.ApplySaveDataForEditor(data);
 
         Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
         Assert.That(resourceManager.GetAmount(wood), Is.EqualTo(new ExpantaNum(amount)));
@@ -401,7 +391,9 @@ public sealed class KingdomLogicTests
             unsupported.Version = SaveFormat.CurrentVersion + versionOffset;
             File.WriteAllText(primaryPath, JsonUtility.ToJson(unsupported));
 
-            LogAssert.Expect(LogType.Error, new Regex(".*不支持版本.*", RegexOptions.Singleline));
+            LogAssert.Expect(
+                LogType.Error,
+                new Regex(".*存档版本.*不受支持.*当前应为.*", RegexOptions.Singleline));
             Assert.That(saveManager.LoadOrCreateGame(), Is.False);
             Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
             Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
@@ -497,6 +489,85 @@ public sealed class KingdomLogicTests
         }
     }
 
+    // Restart path: a failed pause-time save leaves the on-disk primary at its
+    // old timestamp, and the in-memory pause marker dies with the process. On
+    // the next launch GameBootstrap only has the stale timestamp to settle
+    // from, so the already-elapsed pause window is settled again. This test
+    // pins the current behavior; it does not change the runtime contract.
+    [Test]
+    public void ApplicationPause_SaveFailureThenRestart_ResettlesTheStaleInterval()
+    {
+        string root = CreateIsolatedSaveRoot("KingdomPauseRestartSettlementTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            CreateManager<GameManager>("Restart-GameManager");
+            CreateManager<ResourceManager>("Restart-ResourceManager");
+            CreateManager<BuildingManager>("Restart-BuildingManager");
+            CreateManager<ResearchManager>("Restart-ResearchManager");
+            CreateManager<WorkshopManager>("Restart-WorkshopManager");
+            CreateManager<SimulationManager>("Restart-SimulationManager");
+            SaveManager firstSaveManager = CreateManager<SaveManager>("Restart-SaveManager-1");
+
+            long staleTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600L;
+            SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+            data.General.LastSaveUnixSeconds = staleTimestamp;
+            File.WriteAllText(
+                Path.Combine(root, "KingdomSave.json"),
+                JsonUtility.ToJson(data));
+
+            Assert.That(firstSaveManager.LoadOrCreateGame(), Is.True);
+            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            ExpantaNum loadedAmount = ResourceManager.Instance.GetAmount(wood);
+            // The save carries 25 wood. Asserting that exact value, distinctly
+            // below the new-game grant, proves the load really applied the save
+            // rather than falling back to a fresh game. Loading alone does not
+            // settle offline progress -- that happens in ApplyOfflineProgress /
+            // the pause-resume path -- so no assertion about settled gains can
+            // be made at this point.
+            Assert.That(loadedAmount, Is.LessThan(NewGameStartingWood),
+                "测试前提失效：存档木材值应低于新局初始木材。");
+            Assert.That(
+                loadedAmount,
+                Is.EqualTo(new ExpantaNum(25)),
+                "首次加载应应用存档木材值，而非回退成新局初始木材。");
+
+            // Pause with an unwritable root so SaveNow(true) fails: the primary
+            // keeps staleTimestamp, and the pause marker is lost when the
+            // manager is torn down below.
+            string blockedRoot = Path.Combine(root, "blocked-root");
+            File.WriteAllText(blockedRoot, "not a directory");
+            SaveManager.SetSaveRootOverrideForTests(blockedRoot);
+            LogAssert.Expect(LogType.Error, new Regex(".*Kingdom.*", RegexOptions.Singleline));
+            firstSaveManager.HandleApplicationPauseForTests(true, staleTimestamp + 60L);
+
+            // Simulate the process restart: drop the manager that still held
+            // the in-memory pause marker, then load from the untouched primary.
+            SaveManager.SetSaveRootOverrideForTests(root);
+            UnityEngine.Object.DestroyImmediate(firstSaveManager.gameObject);
+            SaveManager restartedSaveManager = CreateManager<SaveManager>("Restart-SaveManager-2");
+            Assert.That(restartedSaveManager.LoadOrCreateGame(), Is.True);
+            Assert.That(
+                restartedSaveManager.ApplyOfflineProgress(),
+                Is.True,
+                "重启后应仍从磁盘旧时间戳结算，复现重复结算条件。");
+
+            ExpantaNum afterRestart = ResourceManager.Instance.GetAmount(wood);
+            // The restart settles strictly MORE than the on-disk primary held,
+            // because the failed pause-time save never advanced its timestamp.
+            // Requiring afterRestart > loadedAmount (with loadedAmount pinned
+            // to the save's own 25 above, not to the 60 new-game baseline)
+            // means the gain is real off-line progress rather than a re-grant.
+            Assert.That(afterRestart, Is.GreaterThan(loadedAmount));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
     [Test]
     public void SaveLoad_MissingRequiredSectionStartsNewGame()
     {
@@ -509,9 +580,60 @@ public sealed class KingdomLogicTests
             CreateManager<SaveManager>("Save-MissingSection-SaveManager");
 
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
-        data.Workshop = null;
 
-        AssertInvalidSaveStartsNewGame(saveManager, data);
+        // The Workshop key is dropped from the written JSON entirely (rather
+        // than set to null, which JsonUtility would revive as an empty object)
+        // so the loader really does hit the missing-section branch.
+        AssertInvalidSaveStartsNewGame(saveManager, data, "缺少当前版本的必要数据段", "Workshop");
+    }
+
+    [Test]
+    public void SaveLoad_UltraProjectMissingInitializesNewAndMalformedSectionsReject()
+    {
+        CreateManager<GameManager>("Save-UltraSection-GameManager");
+        CreateManager<ResourceManager>("Save-UltraSection-ResourceManager");
+        CreateManager<BuildingManager>("Save-UltraSection-BuildingManager");
+        CreateManager<ResearchManager>("Save-UltraSection-ResearchManager");
+        CreateManager<WorkshopManager>("Save-UltraSection-WorkshopManager");
+        SaveManager saveManager =
+            CreateManager<SaveManager>("Save-UltraSection-SaveManager");
+
+        SaveManager.KingdomSaveData missing = CreateRepresentativeSaveData();
+        string root = CreateIsolatedSaveRoot("KingdomMissingUltraProjectTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            string json = RemoveJsonObjectMember(
+                JsonUtility.ToJson(missing), "UltraProject");
+            File.WriteAllText(Path.Combine(root, "KingdomSave.json"), json);
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.True,
+                "A save written before UltraProject existed must remain loadable.");
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
+            Assert.That(GameManager.Instance.UltraProject.State.Status,
+                Is.EqualTo(UltraProjectStatus.Locked));
+            Assert.That(GameManager.Instance.UltraProject.State.CompletedStageCount,
+                Is.EqualTo(0));
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+
+        SaveManager.KingdomSaveData malformed = CreateRepresentativeSaveData();
+        malformed.UltraProject = new UltraProjectStateSaveData();
+        AssertInvalidSaveStartsNewGame(
+            saveManager,
+            malformed,
+            "The Ultra project save version is not supported");
+
+        AssertInvalidSaveStartsNewGame(
+            saveManager,
+            CreateRepresentativeSaveData(),
+            "显式为空",
+            explicitNullUltraProject: true);
     }
 
     [Test]
@@ -592,25 +714,22 @@ public sealed class KingdomLogicTests
 
         SaveManager.KingdomSaveData roundTripped =
             JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(source));
-        InvokeApplySaveData(saveManager, roundTripped);
+        saveManager.ApplySaveDataForEditor(roundTripped);
 
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(target));
-        Assert.That(researchManager.ActiveResearch.Progress, Is.EqualTo(new ExpantaNum("0.4")));
+        Assert.That(researchManager.ActiveResearch.Progress.ToDouble(), Is.EqualTo(0.4d).Within(1e-9d));
         Assert.That(GameManager.Instance.Sectors.GetState(sector).Unlocked, Is.True);
         Assert.That(GameManager.Instance.Sectors.GetState(sector).VisitCount, Is.EqualTo(7));
         Assert.That(TutorialManager.Ensure().ActiveStepId, Is.EqualTo("resources"));
         Assert.That(TutorialManager.Ensure().CompletedStepIds, Does.Contain("orientation"));
-        FieldInfo accumulator = typeof(GameManager).GetField(
-            "calendarElapsedSeconds", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(accumulator, Is.Not.Null);
-        Assert.That((double)accumulator.GetValue(GameManager.Instance), Is.EqualTo(5.5d).Within(1e-9d));
+        Assert.That(GameManager.Instance.CalendarElapsedSecondsForEditor, Is.EqualTo(5.5d).Within(1e-9d));
         Assert.That(GameManager.Instance.State.AttackPower, Is.EqualTo(new ExpantaNum(21)));
         Assert.That(GameManager.Instance.State.DefensePower, Is.EqualTo(new ExpantaNum(34)));
         Assert.That(GameManager.Instance.State.FleetPower, Is.EqualTo(new ExpantaNum(55)));
         Assert.That(GameManager.Instance.State.MilitaryManpower, Is.EqualTo(new ExpantaNum(8)));
-        Assert.That(GameManager.Instance.State.SupplySatisfaction, Is.EqualTo(new ExpantaNum(0.75d)));
-        Assert.That(GameManager.Instance.State.PowerSatisfaction, Is.EqualTo(new ExpantaNum(0.8d)));
-        Assert.That(GameManager.Instance.State.LogisticsSatisfaction, Is.EqualTo(new ExpantaNum(0.9d)));
+        Assert.That(GameManager.Instance.State.SupplySatisfaction.ToDouble(), Is.EqualTo(0.75d).Within(1e-9d));
+        Assert.That(GameManager.Instance.State.PowerSatisfaction.ToDouble(), Is.EqualTo(0.8d).Within(1e-9d));
+        Assert.That(GameManager.Instance.State.LogisticsSatisfaction.ToDouble(), Is.EqualTo(0.9d).Within(1e-9d));
         Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("WoodLog")), Is.EqualTo(new ExpantaNum(25)));
     }
 
@@ -635,8 +754,7 @@ public sealed class KingdomLogicTests
                 CompletedStepIds = new List<string> { "orientation", "missing-transient-step" }
             };
 
-            Assert.DoesNotThrow(() => InvokeApplySaveData(
-                saveManager,
+            Assert.DoesNotThrow(() => saveManager.ApplySaveDataForEditor(
                 JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(data))));
             Assert.That(GameManager.Instance.State.TechLevel, Is.EqualTo(era));
             Assert.That(TutorialManager.Ensure().ActiveStepId, Is.Not.EqualTo("missing-transient-step"));
@@ -709,8 +827,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        InvokeApplySaveData(
-            saveManager,
+        saveManager.ApplySaveDataForEditor(
             JsonUtility.FromJson<SaveManager.KingdomSaveData>(JsonUtility.ToJson(data)));
 
         Assert.That(researchManager.ActiveResearch.Definition, Is.SameAs(active));
@@ -718,7 +835,7 @@ public sealed class KingdomLogicTests
             Has.Member(queued));
         SectorState restored = GameManager.Instance.Sectors.GetState(sector);
         Assert.That(restored.CampaignActive, Is.True);
-        Assert.That(restored.CampaignProgress, Is.EqualTo(new ExpantaNum("0.4")));
+        Assert.That(restored.CampaignProgress.ToDouble(), Is.EqualTo(0.4d).Within(1e-9d));
         Assert.That(restored.CampaignCasualties, Is.EqualTo(new ExpantaNum("2")));
     }
 
@@ -766,8 +883,10 @@ public sealed class KingdomLogicTests
     [Test]
     public void ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick()
     {
-        Assert.That(ResourceManager.CalculateSatisfaction(2, 0, 10, 1), Is.EqualTo(new ExpantaNum(0.2)));
-        Assert.That(ResourceManager.CalculateSatisfaction(2, 3, 10, 1), Is.EqualTo(new ExpantaNum(0.5)));
+        Assert.That(ResourceManager.CalculateSatisfaction(2, 0, 10, 1).ToDouble(),
+            Is.EqualTo(0.2d).Within(0.000001d));
+        Assert.That(ResourceManager.CalculateSatisfaction(2, 3, 10, 1).ToDouble(),
+            Is.EqualTo(0.5d).Within(0.000001d));
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 0, 1), Is.EqualTo(ExpantaNum.One));
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 10, 1), Is.EqualTo(ExpantaNum.Zero));
         Assert.That(ResourceManager.CalculateSatisfaction(0, 0, 10, 0), Is.EqualTo(ExpantaNum.One));
@@ -826,11 +945,7 @@ public sealed class KingdomLogicTests
         resourceManager.SetAmount(first, new ExpantaNum(8));
         resourceManager.SetAmount(second, new ExpantaNum(5));
 
-        MethodInfo prepare = typeof(BuildingManager).GetMethod(
-            "PrepareTickResourceSatisfaction",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(prepare, Is.Not.Null);
-        prepare.Invoke(buildingManager, new object[] { 1d });
+        buildingManager.PrepareTickResourceSatisfactionForEditor(1d);
 
         Assert.That(
             buildingManager.GetState(building).Efficiency.ToDouble(),
@@ -852,30 +967,23 @@ public sealed class KingdomLogicTests
             Is.True);
         Assert.That(failure, Is.EqualTo(BuildFailure.None));
 
-        MethodInfo demand = typeof(KingdomUIRoot).GetMethod(
-            "CalculateRawFlowDemand", BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(demand, Is.Not.Null);
-        Assert.That((ExpantaNum)demand.Invoke(null, new object[] { true }),
+        Assert.That(KingdomUIRoot.CalculateRawFlowDemandForEditor(true),
             Is.EqualTo(new ExpantaNum(14)));
-        Assert.That((ExpantaNum)demand.Invoke(null, new object[] { false }),
+        Assert.That(KingdomUIRoot.CalculateRawFlowDemandForEditor(false),
             Is.EqualTo(new ExpantaNum(6)));
     }
 
     [Test]
     public void TopFlowValue_FormatsSignedColoredBalanceBeforeDemandAndSupply()
     {
-        MethodInfo format = typeof(KingdomUIRoot).GetMethod(
-            "FormatTopFlow", BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(format, Is.Not.Null);
-
-        string positive = format.Invoke(null,
-            new object[] { new ExpantaNum(8), new ExpantaNum(3) }) as string;
+        string positive = KingdomUIRoot.FormatTopFlowForEditor(
+            new ExpantaNum(8), new ExpantaNum(3));
         StringAssert.Contains("<color=#", positive);
         StringAssert.Contains("+5", positive);
         StringAssert.Contains("(3/8)", positive);
 
-        string negative = format.Invoke(null,
-            new object[] { new ExpantaNum(3), new ExpantaNum(8) }) as string;
+        string negative = KingdomUIRoot.FormatTopFlowForEditor(
+            new ExpantaNum(3), new ExpantaNum(8));
         StringAssert.Contains("-5", negative);
         StringAssert.Contains("(8/3)", negative);
     }
@@ -980,16 +1088,12 @@ public sealed class KingdomLogicTests
     public void C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood()
     {
         var state = new GameState();
-        InvokeGameStateMethod(
-            state,
-            "RestoreCore",
+        state.RestoreCoreForEditor(
             3,
             TechLevel.Animal,
             new ExpantaNum(10000),
             1L);
-        InvokeGameStateMethod(
-            state,
-            "ResetDerivedEconomy",
+        state.ResetDerivedEconomyForEditor(
             new ExpantaNum(100));
 
         Assert.That(state.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
@@ -1004,52 +1108,50 @@ public sealed class KingdomLogicTests
     public void C401_PopulationGrowthStopsWhenHappinessMultiplierIsZero()
     {
         PopulationState population = new PopulationState();
-        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(15));
-        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(16));
-        InvokePopulationMethod(
-            population,
-            "AdvancePopulation",
+        population.RestorePopulationForEditor(new ExpantaNum(15));
+        population.AdjustPopulationCapacityForEditor(new ExpantaNum(16));
+        population.AdvancePopulationForEditor(
             60d,
             ExpantaNum.Zero,
-            ExpantaNum.Zero);
+            PopulationState.BaseGrowthRatePerSecond,
+            ExpantaNum.Zero,
+            false);
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(population.PopulationChangeProgress, Is.EqualTo(ExpantaNum.Zero));
 
-        InvokePopulationMethod(
-            population,
-            "AdvancePopulation",
+        population.AdvancePopulationForEditor(
             60d,
             ExpantaNum.One,
-            ExpantaNum.Zero);
-        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
+            PopulationState.BaseGrowthRatePerSecond,
+            ExpantaNum.Zero,
+            false);
+        Assert.That(population.Population.ToDouble(), Is.EqualTo(15d).Within(0.001d));
     }
 
     [Test]
     public void PopulationGrowth_UsesLogisticRateAndFoodGatedDeparture()
     {
         PopulationState growth = new PopulationState();
-        InvokePopulationMethod(growth, "AdjustPopulationCapacity", new ExpantaNum(5));
-        InvokePopulationMethod(
-            growth,
-            "AdvancePopulation",
+        growth.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
+        growth.AdvancePopulationForEditor(
             40d,
             ExpantaNum.One,
             PopulationState.BaseGrowthRatePerSecond * 1.5d,
-            ExpantaNum.Zero);
+            ExpantaNum.Zero,
+            false);
         Assert.That(growth.Population, Is.EqualTo(ExpantaNum.One));
 
         PopulationState departure = new PopulationState();
-        InvokePopulationMethod(departure, "RestorePopulation", new ExpantaNum(2));
-        InvokePopulationMethod(
-            departure,
-            "AdvancePopulation",
+        departure.RestorePopulationForEditor(new ExpantaNum(2));
+        departure.AdvancePopulationForEditor(
             60d,
             ExpantaNum.One,
             PopulationState.BaseGrowthRatePerSecond * 100d,
-            new ExpantaNum(2));
+            new ExpantaNum(2),
+            false);
         Assert.That(
-            departure.Population,
-            Is.EqualTo(new ExpantaNum(2)),
+            departure.Population.ToDouble(),
+            Is.EqualTo(2d).Within(0.001d),
             "Housing over-capacity alone must not make population leave.");
     }
 
@@ -1058,16 +1160,14 @@ public sealed class KingdomLogicTests
     {
         GameManager gameManager = CreateManager<GameManager>("PopulationNetRate-GameManager");
         CreateManager<BuildingManager>("PopulationNetRate-BuildingManager");
-        InvokeGameStateMethod(
-            gameManager.State,
-            "RestoreCore",
+        gameManager.State.RestoreCoreForEditor(
             0,
             TechLevel.Animal,
             ExpantaNum.Zero,
             0L);
-        InvokeGameStateMethod(gameManager.State, "RestorePopulation", new ExpantaNum(10));
-        InvokeGameStateMethod(gameManager.State, "AdjustPopulationCapacity", new ExpantaNum(20));
-        InvokeGameStateMethod(gameManager.State, "AdjustFoodRates", ExpantaNum.Zero, new ExpantaNum(20));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(10));
+        gameManager.State.AdjustPopulationCapacityForEditor(new ExpantaNum(20));
+        gameManager.State.AdjustFoodRatesForEditor(ExpantaNum.Zero, new ExpantaNum(20));
 
         Assert.That(gameManager.State.FoodNetRate, Is.LessThan(ExpantaNum.Zero));
         Assert.That(gameManager.CurrentPopulationGrowthRatePerSecond, Is.GreaterThan(ExpantaNum.Zero));
@@ -1081,25 +1181,17 @@ public sealed class KingdomLogicTests
     public void PopulationGrowthRate_IsMonotonicWithHappiness()
     {
         PopulationState population = new PopulationState();
-        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(10));
-        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(100));
-        MethodInfo currentGrowth = typeof(PopulationState).GetMethod(
-            "CurrentGrowthRatePerSecond",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(currentGrowth, Is.Not.Null);
+        population.RestorePopulationForEditor(new ExpantaNum(10));
+        population.AdjustPopulationCapacityForEditor(new ExpantaNum(100));
 
-        ExpantaNum stopped = (ExpantaNum)currentGrowth.Invoke(
-            population,
-            new object[] { ExpantaNum.Zero, PopulationState.BaseGrowthRatePerSecond });
-        ExpantaNum low = (ExpantaNum)currentGrowth.Invoke(
-            population,
-            new object[] { new ExpantaNum(0.5d), PopulationState.BaseGrowthRatePerSecond });
-        ExpantaNum normal = (ExpantaNum)currentGrowth.Invoke(
-            population,
-            new object[] { ExpantaNum.One, PopulationState.BaseGrowthRatePerSecond });
-        ExpantaNum high = (ExpantaNum)currentGrowth.Invoke(
-            population,
-            new object[] { new ExpantaNum(1.5d), PopulationState.BaseGrowthRatePerSecond });
+        ExpantaNum stopped = population.CurrentGrowthRatePerSecondForEditor(
+            ExpantaNum.Zero, PopulationState.BaseGrowthRatePerSecond);
+        ExpantaNum low = population.CurrentGrowthRatePerSecondForEditor(
+            new ExpantaNum(0.5d), PopulationState.BaseGrowthRatePerSecond);
+        ExpantaNum normal = population.CurrentGrowthRatePerSecondForEditor(
+            ExpantaNum.One, PopulationState.BaseGrowthRatePerSecond);
+        ExpantaNum high = population.CurrentGrowthRatePerSecondForEditor(
+            new ExpantaNum(1.5d), PopulationState.BaseGrowthRatePerSecond);
 
         Assert.That(stopped, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(low, Is.GreaterThan(stopped));
@@ -1112,12 +1204,12 @@ public sealed class KingdomLogicTests
     {
         TerritoryState territory = new TerritoryState();
 
-        InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(30));
+        territory.AdjustUsedForEditor(new ExpantaNum(30));
         Assert.That(territory.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
         Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(30)));
         Assert.That(territory.AvailableTerritory, Is.EqualTo(new ExpantaNum(470)));
 
-        InvokeTerritoryMethod(territory, "AdjustUsed", new ExpantaNum(-10));
+        territory.AdjustUsedForEditor(new ExpantaNum(-10));
         Assert.That(territory.TerritoryUsed, Is.EqualTo(new ExpantaNum(20)));
     }
 
@@ -1125,18 +1217,16 @@ public sealed class KingdomLogicTests
     public void C403_PopulationStateStoresDerivedCapacityAndPopulationChangeProgress()
     {
         PopulationState population = new PopulationState();
-        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(15));
-        InvokePopulationMethod(population, "AdjustPopulationCapacity", new ExpantaNum(20));
-        InvokePopulationMethod(
-            population,
-            "RestorePopulationChangeProgress",
+        population.RestorePopulationForEditor(new ExpantaNum(15));
+        population.AdjustPopulationCapacityForEditor(new ExpantaNum(20));
+        population.RestorePopulationChangeProgressForEditor(
             new ExpantaNum(0.25d));
 
         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(15)));
         Assert.That(population.PopulationCapacity, Is.EqualTo(new ExpantaNum(20)));
         Assert.That(
-            population.PopulationChangeProgress,
-            Is.EqualTo(new ExpantaNum(0.25d)));
+            population.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(0.25d).Within(1e-9d));
     }
 
     [Test]
@@ -1146,10 +1236,7 @@ public sealed class KingdomLogicTests
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("Productivity-BuildingManager");
         CreateManager<ResourceManager>("Productivity-ResourceManager");
-        InvokeGameStateMethod(
-            gameManager.State,
-            "RestorePopulation",
-            new ExpantaNum(10));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(10));
         Building building = CreateEconomyBuilding(
             "ProductivityProvider",
             productivityConsumption: 3,
@@ -1168,13 +1255,11 @@ public sealed class KingdomLogicTests
         ResearchState researchState = new ResearchState(research);
         ProgressionModifierManager.Rebuild(new List<ResearchState>());
         ExpantaNum baselineProductivity = buildingManager.TotalProductivity;
-        typeof(ResearchState).GetMethod(
-                "Restore",
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                null,
-                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool) },
-                null)
-            .Invoke(researchState, new object[] { ExpantaNum.Zero, false, true });
+        // Restored as completed. The previous 3-argument Restore overload was
+        // deleted in the 2026-09-19 dead-code sweep, so the by-signature lookup
+        // returned null and this line threw NullReferenceException on the first
+        // real execution. RestoreForEditor is the surviving entry point.
+        researchState.RestoreForEditor(ExpantaNum.Zero, false, true, null);
         ProgressionModifierManager.Rebuild(new List<ResearchState> { researchState });
 
         Assert.That(
@@ -1205,10 +1290,7 @@ public sealed class KingdomLogicTests
         GameManager gameManager = CreateManager<GameManager>("SelfFunding-GameManager");
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("SelfFunding-BuildingManager");
-        InvokeGameStateMethod(
-            gameManager.State,
-            "RestorePopulation",
-            new ExpantaNum(2));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(2));
         Building building = CreateEconomyBuilding(
             "SelfFundingProvider",
             productivityConsumption: 6,
@@ -1228,10 +1310,7 @@ public sealed class KingdomLogicTests
         GameManager gameManager = CreateManager<GameManager>("Overcommit-GameManager");
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("Overcommit-BuildingManager");
-        InvokeGameStateMethod(
-            gameManager.State,
-            "RestorePopulation",
-            new ExpantaNum(2));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(2));
         Building existing = CreateEconomyBuilding(
             "LegacyOvercommit",
             productivityConsumption: 6,
@@ -1262,10 +1341,7 @@ public sealed class KingdomLogicTests
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("Housing-BuildingManager");
         CreateManager<ResourceManager>("Housing-ResourceManager");
-        InvokeGameStateMethod(
-            gameManager.State,
-            "RestorePopulation",
-            new ExpantaNum(5));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(5));
         Building house = CreateEconomyBuilding(
             "TestHouse",
             productivityConsumption: 0,
@@ -1309,19 +1385,11 @@ public sealed class KingdomLogicTests
             }
         });
         ResearchState state = new ResearchState(research);
-        typeof(ResearchState).GetMethod(
-                "Restore",
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                null,
-                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool), typeof(IReadOnlyDictionary<Resource, ExpantaNum>) },
-                null)
-            .Invoke(state, new object[]
-            {
-                ExpantaNum.Zero,
-                false,
-                true,
-                new Dictionary<Resource, ExpantaNum>()
-            });
+        state.RestoreForEditor(
+            ExpantaNum.Zero,
+            false,
+            true,
+            new Dictionary<Resource, ExpantaNum>());
         ProgressionModifierManager.Rebuild(new List<ResearchState> { state });
 
         ExpantaNum amountBeforeResearchBuild = resourceManager.GetAmount(wood);
@@ -1371,10 +1439,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResearchManager>("HousingUpgrade-ResearchManager");
         if (researchManager.TotalResearchCount == 0)
         {
-            typeof(ResearchManager).GetMethod(
-                    "Initialize",
-                    BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(researchManager, null);
+            researchManager.InitializeForEditor();
         }
         ResourceManager resourceManager =
             CreateManager<ResourceManager>("HousingUpgrade-ResourceManager");
@@ -1395,10 +1460,7 @@ public sealed class KingdomLogicTests
             gameManager.State.Population.PopulationCapacity,
             Is.EqualTo(new ExpantaNum(5)));
 
-        InvokeGameStateMethod(
-            gameManager.State,
-            "AdvanceTechLevel",
-            TechLevel.StoneAge);
+        gameManager.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
         ResearchState architectureState = researchManager.GetState(masonry);
         var paidMasonryCosts = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < masonry.ResourceRequirements.Count; i++)
@@ -1406,15 +1468,7 @@ public sealed class KingdomLogicTests
             Pair<Resource, ExpantaNum> requirement = masonry.ResourceRequirements[i];
             paidMasonryCosts[requirement.First] = requirement.Second;
         }
-        typeof(ResearchState).GetMethod(
-                "Restore",
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                null,
-                new[] { typeof(ExpantaNum), typeof(bool), typeof(bool), typeof(IReadOnlyDictionary<Resource, ExpantaNum>) },
-                null)
-            .Invoke(
-                architectureState,
-                new object[] { ExpantaNum.Zero, true, true, paidMasonryCosts });
+        architectureState.RestoreForEditor(ExpantaNum.Zero, true, true, paidMasonryCosts);
 
         Assert.That(buildingManager.CanConstructNew(woodHouse), Is.False);
         Assert.That(buildingManager.CanConstructNew(stoneHouse), Is.True);
@@ -1490,7 +1544,7 @@ public sealed class KingdomLogicTests
 
         Assert.That(buildingManager.TryBuild(baseHousing, ExpantaNum.One, out _), Is.True);
         Assert.That(buildingManager.TryBuild(removableHousing, ExpantaNum.One, out _), Is.True);
-        InvokeGameStateMethod(gameManager.State, "RestorePopulation", new ExpantaNum(14));
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(14));
 
         Assert.That(
             buildingManager.TryDeconstruct(removableHousing, ExpantaNum.One, out _),
@@ -1523,96 +1577,84 @@ public sealed class KingdomLogicTests
     public void FoodShortageSlowlyReducesPopulationWithoutGoingNegative()
     {
         PopulationState population = new PopulationState();
-        InvokePopulationMethod(population, "RestorePopulation", new ExpantaNum(5));
-        InvokePopulationMethod(
-            population,
-            "AdjustPopulationCapacity",
-            new ExpantaNum(100));
+        population.RestorePopulationForEditor(new ExpantaNum(5));
+        population.AdjustPopulationCapacityForEditor(new ExpantaNum(100));
 
-        InvokePopulationMethod(
-            population,
-            "AdvancePopulation",
+        population.AdvancePopulationForEditor(
             3600d,
             new ExpantaNum(0.5d),
             ExpantaNum.Zero,
-            ExpantaNum.Zero);
+            ExpantaNum.Zero,
+            false);
         Assert.That(population.Population, Is.GreaterThanOrEqualTo(new ExpantaNum(5)),
             "A negative food rate while inventory remains available must not remove population.");
 
-        InvokePopulationMethod(
-            population,
-            "AdvancePopulation",
+        population.AdvancePopulationForEditor(
             3600d,
             new ExpantaNum(0.5d),
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             true);
 
-        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(3)));
-        InvokePopulationMethod(
-            population,
-            "AdvancePopulation",
+        Assert.That(population.Population.ToDouble(), Is.EqualTo(3d).Within(0.001d));
+        population.AdvancePopulationForEditor(
             3600d * 10d,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             true);
         Assert.That(population.Population, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(population.Population, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
     }
 
     [Test]
     public void PopulationChange_LargeTicksAndRegimeChangesAreDeterministic()
     {
         PopulationState largeTick = new PopulationState();
-        InvokePopulationMethod(largeTick, "AdjustPopulationCapacity", new ExpantaNum(5));
-        InvokePopulationMethod(
-            largeTick,
-            "AdvancePopulation",
+        largeTick.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
+        largeTick.AdvancePopulationForEditor(
             180d,
             ExpantaNum.One,
-            ExpantaNum.Zero);
+            PopulationState.BaseGrowthRatePerSecond,
+            ExpantaNum.Zero,
+            false);
 
         PopulationState smallTicks = new PopulationState();
-        InvokePopulationMethod(smallTicks, "AdjustPopulationCapacity", new ExpantaNum(5));
+        smallTicks.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
         for (int i = 0; i < 1800; i++)
         {
-            InvokePopulationMethod(
-                smallTicks,
-                "AdvancePopulation",
+            smallTicks.AdvancePopulationForEditor(
                 0.1d,
                 ExpantaNum.One,
-                ExpantaNum.Zero);
+                PopulationState.BaseGrowthRatePerSecond,
+                ExpantaNum.Zero,
+                false);
         }
 
-        Assert.That(largeTick.Population, Is.EqualTo(new ExpantaNum(3)));
-        Assert.That(smallTicks.Population, Is.EqualTo(new ExpantaNum(2)));
+        Assert.That(largeTick.Population.ToDouble(), Is.EqualTo(3d).Within(0.001d));
+        Assert.That(smallTicks.Population.ToDouble(), Is.EqualTo(2d).Within(0.001d));
         Assert.That(
             smallTicks.PopulationChangeProgress.ToDouble(),
             Is.EqualTo(0.899083d).Within(0.001d));
 
         PopulationState thirtyFps = AdvancePopulationAtFixedStep(30, 60d);
         PopulationState sixtyFps = AdvancePopulationAtFixedStep(60, 60d);
-        Assert.That(thirtyFps.Population, Is.EqualTo(new ExpantaNum(1)));
+        Assert.That(thirtyFps.Population.ToDouble(), Is.EqualTo(1d).Within(0.001d));
         Assert.That(sixtyFps.Population, Is.EqualTo(thirtyFps.Population));
         Assert.That(
             sixtyFps.PopulationChangeProgress.ToDouble(),
             Is.EqualTo(thirtyFps.PopulationChangeProgress.ToDouble())
                 .Within(0.000001d));
 
-        InvokePopulationMethod(
-            largeTick,
-            "AdvancePopulation",
+        largeTick.AdvancePopulationForEditor(
             30d,
             ExpantaNum.One,
-            ExpantaNum.Zero);
+            PopulationState.BaseGrowthRatePerSecond,
+            ExpantaNum.Zero,
+            false);
         Assert.That(
             largeTick.PopulationChangeProgress.ToDouble(),
             Is.EqualTo(0.6d).Within(0.001d));
-        InvokePopulationMethod(
-            largeTick,
-            "AdjustPopulationCapacity",
-            new ExpantaNum(-5));
+        largeTick.AdjustPopulationCapacityForEditor(new ExpantaNum(-5));
         Assert.That(
             largeTick.PopulationChangeProgress,
             Is.EqualTo(ExpantaNum.Zero));
@@ -1631,11 +1673,7 @@ public sealed class KingdomLogicTests
         resourceManager.SetAmount(wood, ExpantaNum.Zero);
         resourceManager.SetProductionRate(wood, 10);
         ExpantaNum woodBeforeTick = resourceManager.GetAmount(wood);
-        InvokeGameStateMethod(
-            gameManager.State,
-            "AdjustFoodRates",
-            new ExpantaNum(-5),
-            ExpantaNum.Zero);
+        gameManager.State.AdjustFoodRatesForEditor(new ExpantaNum(-5), ExpantaNum.Zero);
 
         simulationManager.ManualTick(10d);
 
@@ -1713,7 +1751,7 @@ public sealed class KingdomLogicTests
     public void SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume()
     {
         GameManager gameManager = CreateManager<GameManager>("Save-Timestamp-GameManager");
-        InvokeInstanceMethod(gameManager, "MarkSaveTimestamp", 10L);
+        gameManager.MarkSaveTimestampForEditor(10L);
         SaveManager.GameSaveData captured = gameManager.CaptureSaveData();
 
         Assert.That(captured.LastSaveUnixSeconds, Is.EqualTo(10));
@@ -1724,7 +1762,7 @@ public sealed class KingdomLogicTests
             General = new SaveManager.GameSaveData { LastSaveUnixSeconds = 10 }
         };
 
-        InvokeStaticMethod(typeof(SaveManager), "StampSaveTimestamp", data, 42L);
+        SaveManager.StampSaveTimestampForEditor(data, 42L);
 
         Assert.That(data.General.LastSaveUnixSeconds, Is.EqualTo(42));
         Assert.That(
@@ -1795,7 +1833,7 @@ public sealed class KingdomLogicTests
         SaveManager saveManager = CreateManager<SaveManager>("Save-SaveManager");
 
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
-        InvokeApplySaveData(saveManager, data);
+        saveManager.ApplySaveDataForEditor(data);
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
         Building farm = DataBase<Building>.Find("Farm");
@@ -1803,7 +1841,7 @@ public sealed class KingdomLogicTests
         ExpantaNum firstFoodRate = GameManager.Instance.State.FoodProductionRate;
         ExpantaNum firstBuildingAmount = buildingManager.GetState(farm).Amount;
 
-        InvokeApplySaveData(saveManager, data);
+        saveManager.ApplySaveDataForEditor(data);
 
         Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(firstAmount));
         Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(firstAmount));
@@ -1813,8 +1851,8 @@ public sealed class KingdomLogicTests
         Assert.That(GameManager.Instance.State.Population.Population, Is.EqualTo(new ExpantaNum(17)));
         Assert.That(GameManager.Instance.State.Population.PopulationCapacity, Is.EqualTo(new ExpantaNum(10)));
         Assert.That(
-            GameManager.Instance.State.Population.PopulationChangeProgress,
-            Is.EqualTo(new ExpantaNum(0.25d)));
+            GameManager.Instance.State.Population.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(0.25d).Within(1e-9d));
         Assert.That(GameManager.Instance.State.TerritoryTotal, Is.EqualTo(new ExpantaNum(520)));
         Assert.That(GameManager.Instance.State.TerritoryUsed, Is.EqualTo(new ExpantaNum(14)));
     }
@@ -1902,7 +1940,7 @@ public sealed class KingdomLogicTests
             }
         };
 
-        Assert.DoesNotThrow(() => InvokeApplySaveData(saveManager, data));
+        Assert.DoesNotThrow(() => saveManager.ApplySaveDataForEditor(data));
         Assert.That(researchManager.ActiveResearch.Definition, Is.EqualTo(target));
         Assert.That(researchManager.ActiveResearch.CostPaid, Is.True);
         Assert.That(researchManager.ActiveResearch.Status, Is.EqualTo(ResearchStatus.Researching));
@@ -2313,6 +2351,22 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
+    public void SaveLoad_RejectsInvalidCampaignDoctrine()
+    {
+        CreateManager<GameManager>("Save-InvalidCampaignDoctrine-GameManager");
+        CreateManager<ResourceManager>("Save-InvalidCampaignDoctrine-ResourceManager");
+        CreateManager<BuildingManager>("Save-InvalidCampaignDoctrine-BuildingManager");
+        CreateManager<ResearchManager>("Save-InvalidCampaignDoctrine-ResearchManager");
+        CreateManager<WorkshopManager>("Save-InvalidCampaignDoctrine-WorkshopManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-InvalidCampaignDoctrine-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        data.General.CampaignDoctrine = (CampaignDoctrine)99;
+
+        AssertInvalidSaveStartsNewGame(saveManager, data);
+    }
+
+    [Test]
     public void SaveLoad_RejectsWorkshopUpgradeMissingPrerequisite()
     {
         CreateManager<GameManager>("Save-MissingWorkshopPrerequisite-GameManager");
@@ -2349,32 +2403,19 @@ public sealed class KingdomLogicTests
         WorkshopUpgrade prerequisite =
             DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering");
         Assert.That(dependent.RequiredUpgrades, Does.Contain(prerequisite));
-        InvokeGameStateMethod(
-            gameManager.State,
-            "AdvanceTechLevel",
-            TechLevel.Industrial);
+        gameManager.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
         foreach (WorkshopUpgrade upgrade in new[] { dependent, prerequisite })
             for (int i = 0; i < upgrade.RequiredResearch.Count; i++)
-                InvokeResearchStateMethod(
-                    researchManager.GetState(upgrade.RequiredResearch[i]),
-                    "SetStatus",
-                    ResearchStatus.Completed);
+                researchManager.GetState(upgrade.RequiredResearch[i])
+                    .SetStatusForEditor(ResearchStatus.Completed);
 
-        MethodInfo restore = typeof(WorkshopManager).GetMethod(
-            "RestoreSaveData",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(restore, Is.Not.Null);
-        Assert.DoesNotThrow(() => restore.Invoke(
-            workshopManager,
-            new object[]
+        Assert.DoesNotThrow(() => workshopManager.RestoreSaveDataForEditor(
+            new SaveManager.WorkshopSaveData
             {
-                new SaveManager.WorkshopSaveData
+                PurchasedUpgradeIds = new List<string>
                 {
-                    PurchasedUpgradeIds = new List<string>
-                    {
-                        dependent.Id.ToUpperInvariant(),
-                        prerequisite.Id.ToLowerInvariant()
-                    }
+                    dependent.Id.ToUpperInvariant(),
+                    prerequisite.Id.ToLowerInvariant()
                 }
             }));
         Assert.That(workshopManager.IsPurchased(prerequisite), Is.True);
@@ -2440,6 +2481,18 @@ public sealed class KingdomLogicTests
             {
                 States = new List<SaveManager.SectorStateSaveData>()
             },
+            UltraProject = new UltraProjectStateSaveData
+            {
+                ProjectId = UltraProjectState.ProjectId,
+                SaveVersion = UltraProjectState.CurrentSaveVersion,
+                Doctrine = UltraProjectDoctrine.None,
+                Status = UltraProjectStatus.Locked,
+                CurrentStage = UltraProjectStage.None,
+                StageProgress = "0",
+                CompletedStages = new List<UltraProjectStage>(),
+                LaunchFeePaid = false,
+                StateVersion = 1
+            },
             Tutorial = new SaveManager.TutorialSaveData
             {
                 ActiveStepId = string.Empty,
@@ -2452,19 +2505,61 @@ public sealed class KingdomLogicTests
         };
     }
 
-    private static void InvokeApplySaveData(SaveManager saveManager, SaveManager.KingdomSaveData data)
+    // Removes the "key": {...} member from a flat JSON object, matching braces
+    // so nested objects are dropped whole. Used only to build genuinely
+    // missing-section saves; not a general purpose JSON editor.
+    private static string RemoveJsonObjectMember(string json, string key)
     {
-        MethodInfo method = typeof(SaveManager).GetMethod(
-            "ApplySaveData",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(saveManager, new object[] { data });
+        Match member = Regex.Match(
+            json ?? string.Empty,
+            "\"" + Regex.Escape(key) + "\"\\s*:");
+        if (!member.Success)
+            return json;
+
+        int index = member.Index + member.Length;
+        while (index < json.Length && char.IsWhiteSpace(json[index]))
+            index++;
+        if (index >= json.Length || json[index] != '{')
+            return json;
+
+        int depth = 0;
+        int end = index;
+        for (; end < json.Length; end++)
+        {
+            if (json[end] == '{')
+                depth++;
+            else if (json[end] == '}')
+            {
+                depth--;
+                if (depth == 0)
+                    break;
+            }
+        }
+        if (end >= json.Length)
+            return json;
+
+        // Consume the trailing comma when the removed member is not the last
+        // one; otherwise drop the comma that preceded it. Doing both would
+        // break the separator between the surrounding members.
+        int after = end + 1;
+        int comma = after;
+        while (comma < json.Length && char.IsWhiteSpace(json[comma]))
+            comma++;
+        if (comma < json.Length && json[comma] == ',')
+            return json.Substring(0, member.Index) + json.Substring(comma + 1);
+
+        string prefix = json.Substring(0, member.Index).TrimEnd();
+        if (prefix.EndsWith(",", StringComparison.Ordinal))
+            prefix = prefix.Substring(0, prefix.Length - 1);
+        return prefix + json.Substring(after);
     }
 
     private void AssertInvalidSaveStartsNewGame(
         SaveManager saveManager,
         SaveManager.KingdomSaveData invalidPrimary,
-        string expectedDiagnosticDetail = null)
+        string expectedDiagnosticDetail = null,
+        string omittedSectionKey = null,
+        bool explicitNullUltraProject = false)
     {
         if (UnityEngine.Object.FindObjectOfType<ResourceManager>() == null)
             CreateManager<ResourceManager>("InvalidSave-ResourceManager");
@@ -2487,7 +2582,28 @@ public sealed class KingdomLogicTests
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
-            File.WriteAllText(primaryPath, JsonUtility.ToJson(invalidPrimary));
+            string json = JsonUtility.ToJson(invalidPrimary);
+            if (!string.IsNullOrEmpty(omittedSectionKey))
+            {
+                // Setting a section reference to null is NOT the same as a
+                // missing section: JsonUtility serializes it as "{}" and
+                // rebuilds a non-null instance on read, so the loader sees a
+                // present-but-empty section. To exercise the genuinely missing
+                // section branch, drop the whole key from the JSON text.
+                string removed = RemoveJsonObjectMember(json, omittedSectionKey);
+                Assert.That(removed, Is.Not.EqualTo(json),
+                    $"测试前提失效：JSON 中未找到可删除的段“{omittedSectionKey}”。");
+                json = removed;
+            }
+            if (explicitNullUltraProject)
+            {
+                string removed = RemoveJsonObjectMember(json, "UltraProject");
+                Assert.That(removed, Is.Not.EqualTo(json),
+                    "测试前提失效：JSON 中未找到可替换的 UltraProject 段。");
+                json = removed.Insert(1, "\"UltraProject\":null,");
+            }
+
+            File.WriteAllText(primaryPath, json);
 
             string diagnosticPattern = string.IsNullOrEmpty(expectedDiagnosticDetail)
                 ? "Kingdom"
@@ -2511,120 +2627,33 @@ public sealed class KingdomLogicTests
         }
     }
 
-    private static void InvokeGameStateMethod(GameState state, string methodName, params object[] arguments)
-    {
-        MethodInfo method = typeof(GameState).GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, arguments);
-    }
-
-    private static object InvokeInstanceMethod(object target, string methodName, params object[] arguments)
-    {
-        MethodInfo method = target.GetType().GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        return method.Invoke(target, arguments);
-    }
-
-    private static object InvokeStaticMethod(Type type, string methodName, params object[] arguments)
-    {
-        MethodInfo method = type.GetMethod(
-            methodName,
-            BindingFlags.Static | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        return method.Invoke(null, arguments);
-    }
-
-    private static void InvokePopulationMethod(PopulationState state, string methodName, params object[] arguments)
-    {
-        if (methodName == "AdvancePopulation" && arguments.Length == 3)
-        {
-            arguments = new[]
-            {
-                arguments[0],
-                arguments[1],
-                (object)PopulationState.BaseGrowthRatePerSecond,
-                arguments[2],
-                false
-            };
-        }
-        else if (methodName == "AdvancePopulation" && arguments.Length == 4)
-        {
-            arguments = new[] { arguments[0], arguments[1], arguments[2], arguments[3], (object)false };
-        }
-        MethodInfo method = typeof(PopulationState).GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, arguments);
-    }
-
     private static PopulationState AdvancePopulationAtFixedStep(
         int framesPerSecond,
         double durationSeconds)
     {
         var state = new PopulationState();
-        InvokePopulationMethod(
-            state,
-            "AdjustPopulationCapacity",
-            new ExpantaNum(5));
-        MethodInfo method = typeof(PopulationState).GetMethod(
-            "AdvancePopulation",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
+        state.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
         int steps = (int)Math.Round(durationSeconds * framesPerSecond);
         double deltaSeconds = 1d / framesPerSecond;
         for (int i = 0; i < steps; i++)
         {
-            method.Invoke(
-                state,
-                new object[]
-                {
-                    deltaSeconds,
-                    ExpantaNum.One,
-                    PopulationState.BaseGrowthRatePerSecond,
-                    ExpantaNum.Zero,
-                    false
-                });
+            state.AdvancePopulationForEditor(
+                deltaSeconds,
+                ExpantaNum.One,
+                PopulationState.BaseGrowthRatePerSecond,
+                ExpantaNum.Zero,
+                false);
         }
         return state;
-    }
-
-    private static void InvokeMilitaryMethod(MilitaryState state, string methodName, params object[] arguments)
-    {
-        MethodInfo method = typeof(MilitaryState).GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, arguments);
-    }
-
-    private static void InvokeTerritoryMethod(TerritoryState state, string methodName, params object[] arguments)
-    {
-        MethodInfo method = typeof(TerritoryState).GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, arguments);
-    }
-
-    private static void InvokeResearchStateMethod(ResearchState state, string methodName, params object[] arguments)
-    {
-        MethodInfo method = typeof(ResearchState).GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(method, Is.Not.Null);
-        method.Invoke(state, arguments);
     }
 
     [Test]
     public void AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost()
     {
-        Assert.That(ResearchManager.AdvanceResearchProgress(0, 10, 100, 0.5), Is.EqualTo(new ExpantaNum(5)));
-        Assert.That(ResearchManager.AdvanceResearchProgress(90, 10, 95, 1), Is.EqualTo(new ExpantaNum(95)));
+        Assert.That(ResearchManager.AdvanceResearchProgress(0, 10, 100, 0.5).ToDouble(),
+            Is.EqualTo(5d).Within(0.000001d));
+        Assert.That(ResearchManager.AdvanceResearchProgress(90, 10, 95, 1).ToDouble(),
+            Is.EqualTo(95d).Within(0.000001d));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(0, 1, 10, -0.1));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(ExpantaNum.NaN, 1, 10, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => ResearchManager.AdvanceResearchProgress(0, ExpantaNum.NegativeInfinity, 10, 1));
@@ -2671,29 +2700,11 @@ public sealed class KingdomLogicTests
                 new Pair<Resource, ExpantaNum>(wood, new ExpantaNum(100))
             });
         ResearchState state = new ResearchState(research);
-        MethodInfo restore = typeof(ResearchState).GetMethod(
-            "Restore",
-            BindingFlags.Instance | BindingFlags.NonPublic,
-            null,
-            new[]
-            {
-                typeof(ExpantaNum),
-                typeof(bool),
-                typeof(bool),
-                typeof(IReadOnlyDictionary<Resource, ExpantaNum>)
-            },
-            null);
-        Assert.That(restore, Is.Not.Null);
-
-        restore.Invoke(
-            state,
-            new object[]
-            {
-                new ExpantaNum(10),
-                true,
-                false,
-                new Dictionary<Resource, ExpantaNum>()
-            });
+        state.RestoreForEditor(
+            new ExpantaNum(10),
+            true,
+            false,
+            new Dictionary<Resource, ExpantaNum>());
 
         Assert.That(state.CostPaid, Is.False);
         Assert.That(state.GetPaidResourceCost(wood), Is.EqualTo(ExpantaNum.Zero));
@@ -2711,7 +2722,8 @@ public sealed class KingdomLogicTests
     [Test]
     public void ResearchSpeedEffect_IsDeterministicAcrossTechLevels()
     {
-        Assert.That(ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Animal), Is.EqualTo(1d));
+        Assert.That(ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Animal),
+            Is.EqualTo(1d).Within(0.000001d));
         Assert.That(
             ResearchManager.ResearchSpeedEffect(TechLevel.Animal, TechLevel.Medieval),
             Is.EqualTo(1d / 2.5d).Within(1e-12));
@@ -2765,7 +2777,7 @@ public sealed class KingdomLogicTests
             ExpantaNum.Zero,
             ExpantaNum.One);
 
-        Assert.That(full, Is.EqualTo(new ExpantaNum(20)));
+        Assert.That(full.ToDouble(), Is.EqualTo(20d).Within(1e-9d));
         Assert.That(noPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(noLogistics, Is.EqualTo(ExpantaNum.Zero));
     }
@@ -2799,9 +2811,9 @@ public sealed class KingdomLogicTests
     public void MilitaryState_ClampsSupplyAndNonNegativePower()
     {
         var military = new MilitaryState();
-        InvokeMilitaryMethod(military, "AdjustAttackPower", new ExpantaNum(10));
-        InvokeMilitaryMethod(military, "AdjustAttackPower", new ExpantaNum(-25));
-        InvokeMilitaryMethod(military, "SetSupplySatisfaction", new ExpantaNum(2));
+        military.AdjustAttackPowerForEditor(new ExpantaNum(10));
+        military.AdjustAttackPowerForEditor(new ExpantaNum(-25));
+        military.SetSupplySatisfactionForEditor(new ExpantaNum(2));
 
         Assert.That(military.AttackPower, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(military.SupplySatisfaction, Is.EqualTo(ExpantaNum.One));
@@ -2890,6 +2902,60 @@ public sealed class KingdomLogicTests
             }), Is.False);
         Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeInvalidPayment));
         Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeInvalidPayment));
+    }
+
+    [Test]
+    public void ResourceAtomicPayment_RollsBackDomainStateWhenCommitThrows()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-AtomicRollback-Test");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(wood, 100);
+        ExpantaNum woodBeforeFailedCommit = resourceManager.GetAmount(wood);
+        bool rolledBack = false;
+
+        Assert.Throws<InvalidOperationException>(() => resourceManager.TryApplyAtomicPayment(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [wood] = new ExpantaNum(40)
+            },
+            () => throw new InvalidOperationException("Simulated domain commit failure."),
+            () => rolledBack = true));
+
+        Assert.That(rolledBack, Is.True);
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeFailedCommit));
+        Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeFailedCommit));
+    }
+
+    [Test]
+    public void ResourceAtomicPayment_RejectsAliasDefinitionSharingStableId()
+    {
+        ResourceManager resourceManager =
+            CreateManager<ResourceManager>("ResourceManager-AliasIdentity-Test");
+        Resource canonical = DataBase<Resource>.Find("WoodLog");
+        resourceManager.SetAmount(canonical, 100);
+        ExpantaNum amountBeforeAliasPayment = resourceManager.GetAmount(canonical);
+
+        Resource alias = ScriptableObject.CreateInstance<Resource>();
+        alias.SetIdForEditor(canonical.Id);
+        createdObjects.Add(alias);
+
+        // Queries resolve the alias to the canonical state through the
+        // stable ID rule.
+        Assert.That(resourceManager.GetAmount(alias), Is.Not.LessThan(amountBeforeAliasPayment));
+        Assert.That(resourceManager.GetAmount(alias), Is.Not.GreaterThan(amountBeforeAliasPayment));
+        int stateCountBeforeAliasPayment = resourceManager.States.Count;
+
+        // Transactions must agree with that identity rule instead of
+        // registering a second state for the same stable ID.
+        Assert.That(resourceManager.TryApplyAtomicPayment(
+            new Dictionary<Resource, ExpantaNum>
+            {
+                [alias] = new ExpantaNum(40)
+            }), Is.False);
+        Assert.That(resourceManager.States.Count, Is.EqualTo(stateCountBeforeAliasPayment));
+        Assert.That(resourceManager.GetAmount(canonical), Is.Not.LessThan(amountBeforeAliasPayment));
+        Assert.That(resourceManager.GetAmount(canonical), Is.Not.GreaterThan(amountBeforeAliasPayment));
     }
 
     [Test]
@@ -3008,10 +3074,10 @@ public sealed class KingdomLogicTests
                 },
                 () =>
                 {
-                    InvokeGameStateMethod(state, "CommitConstruction", new ExpantaNum(12));
+                    state.CommitConstructionForEditor(new ExpantaNum(12));
                     throw new InvalidOperationException("test cross-domain commit failure");
                 },
-                () => InvokeGameStateMethod(state, "RefundConstruction", new ExpantaNum(12))));
+                () => state.RefundConstructionForEditor(new ExpantaNum(12))));
 
         Assert.That(resourceManager.GetAmount(wood), Is.Not.LessThan(woodBeforeCrossDomainRollback));
         Assert.That(resourceManager.GetAmount(wood), Is.Not.GreaterThan(woodBeforeCrossDomainRollback));
@@ -3172,10 +3238,7 @@ public sealed class KingdomLogicTests
 
         Research active = DataBase<Research>.Find("Agriculture");
         Research queued = DataBase<Research>.Find("ControlledFire");
-        InvokeGameStateMethod(
-            GameManager.Instance.State,
-            "AdvanceTechLevel",
-            TechLevel.StoneAge);
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
         for (int i = 0; i < active.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = active.ResourceRequirements[i];
@@ -3222,11 +3285,7 @@ public sealed class KingdomLogicTests
             QueuedResearchIds = new List<string>(),
             SelectedResearchId = string.Empty
         };
-        MethodInfo restore = typeof(ResearchManager).GetMethod(
-            "RestoreSaveData",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(restore, Is.Not.Null);
-        restore.Invoke(researchManager, new object[] { data });
+        researchManager.RestoreSaveDataForEditor(data);
 
         Assert.That(researchManager.ActiveResearch, Is.Null);
         Assert.That(researchManager.ResearchQueue, Is.Empty);
@@ -3346,10 +3405,7 @@ public sealed class KingdomLogicTests
     public void Agriculture_WithNoResourceRequirementsCanStartImmediately()
     {
         CreateManager<GameManager>("Agriculture-GameManager");
-        InvokeGameStateMethod(
-            GameManager.Instance.State,
-            "AdvanceTechLevel",
-            TechLevel.StoneAge);
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
         ResourceManager resourceManager = CreateManager<ResourceManager>("Agriculture-ResourceManager");
         resourceManager.SetAmount(DataBase<Resource>.Find("WoodLog"), 29);
         ResearchManager researchManager =
@@ -3555,11 +3611,9 @@ public sealed class KingdomLogicTests
         createdObjects.Add(gameObject);
         T component = gameObject.AddComponent<T>();
         if (component is ResearchManager researchManager && researchManager.States.Count == 0)
-            typeof(ResearchManager).GetMethod("Initialize", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.Invoke(researchManager, null);
+            researchManager.InitializeForEditor();
         if (component is ResourceManager resourceManager && resourceManager.States.Count == 0)
-            typeof(ResourceManager).GetMethod("Initialize", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.Invoke(resourceManager, null);
+            resourceManager.InitializeForEditor();
         return component;
     }
 
@@ -3613,6 +3667,3 @@ internal sealed class ExpectedFailureLogAsMessageScope : IDisposable, ILogHandle
     private static bool IsFailure(LogType logType) =>
         logType == LogType.Error || logType == LogType.Assert || logType == LogType.Exception;
 }
-
-
-

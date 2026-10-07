@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478091a2b3c4d5e6f789, type: 3}
+  m_Name: UltraCivilizationEngineering
+  m_EditorClassIdentifier: 
+  id: UltraCivilizationEngineering
+  label: "文明工程：相位稳态与深空连续性"
+  description: "以巨构级材料、能源、物流和食物投入，分阶段认证 Ultra 文明的稳定运行能力。"
+  techLevel: 5
+  stages:
+  - stageId: PhaseStabilityCertification
+    prerequisiteStageId: 
+    requiredResearchId: {fileID: 11400000, guid: a91c4e6d2b7f4a80b3e5d1c9f6a2e7b4, type: 2}
+    requiredBuildingId: {fileID: 11400000, guid: d2a7c5e9b1f34680ac24e8d6f0b3a795, type: 2}
+    oneTimeResourceCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "2500"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "1800"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "2400"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "1200"
+    continuousResourceCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "0.08"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.12"
+    baseDurationSeconds: "3600"
+    stablePostureMultiplier: "1"
+    rushPostureMultiplier: "1.25"
+    foodConsumptionRate: "8"
+    powerConsumptionRate: "1800"
+    logisticsConsumptionRate: "300"
+  - stageId: MatterAutonomyCertification
+    prerequisiteStageId: PhaseStabilityCertification
+    requiredResearchId: {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}
+    requiredBuildingId: {fileID: 11400000, guid: f1c8a5e2b7d34960ac4e9f1d6b0a7c23, type: 2}
+    oneTimeResourceCosts:
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "4200"
+    - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+      amount: "3600"
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "3000"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "3000"
+    continuousResourceCosts:
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.12"
+    - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+      amount: "0.10"
+    - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+      amount: "0.08"
+    baseDurationSeconds: "5400"
+    stablePostureMultiplier: "1"
+    rushPostureMultiplier: "1.35"
+    foodConsumptionRate: "16"
+    powerConsumptionRate: "3500"
+    logisticsConsumptionRate: "650"
+  - stageId: CivilizationContinuityCertification
+    prerequisiteStageId: MatterAutonomyCertification
+    requiredResearchId: {fileID: 11400000, guid: 7b9d0f2a4c6e8f1051d3b5a7c9e1f2d4, type: 2}
+    additionalRequiredResearch:
+    - {fileID: 11400000, guid: 9d0f2a4c6e8b1051d3f5a7c9e1b2d4f6, type: 2}
+    requiredBuildingId: {fileID: 11400000, guid: f1c8a5e2b7d34960ac4e9f1d6b0a7c23, type: 2}
+    oneTimeResourceCosts:
+    - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+      amount: "7000"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "6500"
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "5000"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "5200"
+    continuousResourceCosts:
+    - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+      amount: "0.18"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.16"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.20"
+    baseDurationSeconds: "7200"
+    stablePostureMultiplier: "1"
+    rushPostureMultiplier: "1.45"
+    foodConsumptionRate: "28"
+    powerConsumptionRate: "6000"
+    logisticsConsumptionRate: "1100"

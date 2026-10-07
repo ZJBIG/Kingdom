@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -362,6 +363,59 @@ public sealed class ResourceContinuityTests
                 Is.Not.Null.And.Not.Empty,
                 $"工业建筑 {building.Id} 必须有持续资源维护消耗，而不是只在建造时消耗资源。");
         }
+    }
+
+    [Test]
+    public void 每个资源都必须同时拥有来源与消费去向()
+    {
+        // P2-04「关键资源按实际定义全集检查来源/消费」。
+        // 结构性不变量：任何已声明资源都必须至少有一个产出方与一个消费方，
+        // 否则它会变成「玩家永远看不到来源」或「只能堆积、永无用途」的死资源。
+        // 只断言存在性，不断言任何具体数值，因此正常调参不会误报。
+        var missingSource = new List<string>();
+        var missingSink = new List<string>();
+
+        foreach (Resource resource in DataBase<Resource>.All)
+        {
+            if (resource == null)
+                continue;
+            string id = resource.Id;
+
+            bool hasSource =
+                DataBase<Building>.All.Any(building => building != null &&
+                    HasResourcePair(building.ResourceGenerationRates, id)) ||
+                DataBase<SectorDefinition>.All.Any(sector => sector != null &&
+                    (HasResourcePair(sector.ResourceRewards, id) ||
+                     HasResourcePair(sector.OccupiedResourceRatesPerSecond, id)));
+
+            bool hasSink =
+                DataBase<Building>.All.Any(building => building != null &&
+                    (HasResourcePair(building.ResourceConsumptionRates, id) ||
+                     HasResourcePair(building.ResourceRequirements, id))) ||
+                DataBase<Research>.All.Any(research => research != null &&
+                    HasResourcePair(research.ResourceRequirements, id)) ||
+                DataBase<WorkshopUpgrade>.All.Any(workshop => workshop != null &&
+                    HasResourcePair(workshop.ResourceRequirements, id)) ||
+                DataBase<SectorDefinition>.All.Any(sector => sector != null &&
+                    (HasResourcePair(sector.CampaignResourceRatesPerSecond, id) ||
+                     HasResourcePair(sector.ColonizationResourceRatesPerSecond, id)));
+
+            if (!hasSource)
+                missingSource.Add(id);
+            if (!hasSink)
+                missingSink.Add(id);
+        }
+
+        Assert.That(
+            missingSource,
+            Is.Empty,
+            "以下资源没有任何建筑产出或星区来源，玩家无法获得："
+                + string.Join("、", missingSource));
+        Assert.That(
+            missingSink,
+            Is.Empty,
+            "以下资源没有任何建筑/研究/工坊/战役消费去向，将成为只堆积的无效资源："
+                + string.Join("、", missingSink));
     }
 
     [Test]

@@ -133,6 +133,7 @@ public sealed class SectorState
 #if UNITY_EDITOR
     public void SetUnlockedForEditor(bool value) => SetUnlocked(value);
     public void SetOccupiedForEditor(bool value) => SetOccupied(value);
+    public void SetColonizationActiveForEditor(bool value) => SetColonizationActive(value);
     public void SetCampaignProgressForEditor(ExpantaNum value) => SetCampaignProgress(value);
     public void SetCampaignActiveForEditor(bool value) => SetCampaignActive(value);
     public void SetCampaignCasualtiesForEditor(ExpantaNum value) => SetCampaignCasualties(value);

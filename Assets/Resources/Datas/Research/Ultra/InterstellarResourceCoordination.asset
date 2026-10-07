@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: InterstellarResourceCoordination
+  m_EditorClassIdentifier: 
+  id: InterstellarResourceCoordination
+  Label: "Interstellar Resource Coordination"
+  Description: "Coordinates material allocation between established orbital industries so long-range logistics improve without introducing a separate local inventory or route system."
+  BaseCost: "3.8e12"
+  prerequisites:
+  - {fileID: 11400000, guid: f0a9c3e7b1d54682ac95e0f7d3b8c6a1, type: 2}
+  - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "70000"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "62000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "68000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "50000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "44000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "38000"
+  effects:
+  - Type: 16
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.16"
+  TechLevel: 5
+  AdvancesTechLevel: 0

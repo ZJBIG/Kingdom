@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
@@ -243,6 +242,206 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator UltraProjectExpeditionDoctrine_IsGatedAndPersistsThroughReload()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager gameManager = GameManager.Instance;
+        SaveManager saveManager = SaveManager.Instance;
+        Building phaseEnergyArray = DataBase<Building>.Find("PhaseEnergyArray");
+        Assert.That(root, Is.Not.Null);
+        Assert.That(phaseEnergyArray, Is.Not.Null);
+
+        gameManager.State.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        gameManager.UltraProject.RestoreSaveDataForEditor(
+            CreateUltraProjectSave(
+                UltraProjectDoctrine.Stable,
+                UltraProjectStatus.Ready,
+                UltraProjectStage.Prototype,
+                "0",
+                new List<UltraProjectStage>(),
+                false,
+                100));
+        // The authored list only displays buildings that are already available
+        // or owned. Seed the target row without bypassing the UI's real
+        // display predicate so this test exercises the existing detail action.
+        BuildingState phaseEnergyState = BuildingManager.Instance.EnsureBuilding(phaseEnergyArray);
+        BuildingManager.Instance.SetAmountAndRatesForEditor(
+            phaseEnergyState,
+            ExpantaNum.One);
+        root.SetPage("Buildings");
+        yield return null;
+
+        Button buildingCard = root.GetComponentsInChildren<Button>(true)
+            .FirstOrDefault(button =>
+            {
+                TMP_Text label = button.transform.Find("Label")?.GetComponent<TMP_Text>();
+                return label != null && label.text == phaseEnergyArray.Label;
+            });
+        Assert.That(buildingCard, Is.Not.Null,
+            "The authored Ultra building row must expose the existing detail action.");
+        buildingCard.onClick.Invoke();
+        yield return null;
+
+        Button doctrineButton = root.GetComponentsInChildren<Button>(true)
+            .FirstOrDefault(button => button.name == "Doctrine");
+        Assert.That(doctrineButton, Is.Not.Null);
+        Assert.That(doctrineButton.gameObject.activeSelf, Is.True);
+        Assert.That(doctrineButton.interactable, Is.False,
+            "Expedition must remain gated before the civilization engineering is committed.");
+
+        gameManager.UltraProject.RestoreSaveDataForEditor(
+            CreateUltraProjectSave(
+                UltraProjectDoctrine.Stable,
+                UltraProjectStatus.Committed,
+                UltraProjectStage.Completed,
+                "1",
+                new List<UltraProjectStage>
+                {
+                    UltraProjectStage.Prototype,
+                    UltraProjectStage.Stabilization,
+                    UltraProjectStage.Expansion
+                },
+                true,
+                101));
+        Assert.That(gameManager.UltraProject.IsCampaignDoctrineUnlocked, Is.True,
+            "A committed Ultra save must expose the campaign posture gate.");
+        root.RefreshUI();
+        // The detail presenter is throttled with the normal live-refresh
+        // cadence; allow that authored button binding to observe the commit.
+        yield return new WaitForSeconds(0.35f);
+
+        doctrineButton = root.GetComponentsInChildren<Button>(true)
+            .FirstOrDefault(button => button.name == "Doctrine");
+        TMP_Text doctrineLabel = doctrineButton.GetComponentInChildren<TMP_Text>(true);
+        Assert.That(doctrineButton.interactable, Is.True,
+            "A committed civilization engineering project must enable posture switching.");
+        Assert.That(doctrineLabel.text, Does.Contain("切换远征供给"));
+
+        doctrineButton.onClick.Invoke();
+        yield return null;
+        Assert.That(gameManager.UltraProject.State.Doctrine,
+            Is.EqualTo(UltraProjectDoctrine.Expedition));
+        Assert.That(saveManager.SaveNow(true), Is.True);
+
+        Assert.That(gameManager.UltraProject.TrySetOperationalDoctrine(
+            UltraProjectDoctrine.Stable, out _), Is.True);
+        Assert.That(saveManager.LoadOrCreateGame(), Is.True,
+            "Reload must restore the committed Ultra posture from the v9 save.");
+        Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
+        Assert.That(gameManager.UltraProject.State.Doctrine,
+            Is.EqualTo(UltraProjectDoctrine.Expedition));
+
+        SectorDefinition occupiedSector = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        Assert.That(occupiedSector, Is.Not.Null);
+        foreach (SectorDefinition prerequisite in occupiedSector.PrerequisiteSectors)
+        {
+            SectorState prerequisiteState = gameManager.Sectors.GetState(prerequisite);
+            prerequisiteState.SetUnlockedForEditor(true);
+            prerequisiteState.SetOccupiedForEditor(true);
+        }
+        SectorState occupiedSectorState = gameManager.Sectors.GetState(occupiedSector);
+        occupiedSectorState.SetUnlockedForEditor(true);
+        occupiedSectorState.SetOccupiedForEditor(true);
+        root.SetPage("Sectors");
+        yield return null;
+        Transform occupiedSectorRowTransform = root.transform.Find(
+            "SafeAreaRoot/Content/PageHost/Sectors/DataRows/SectorRow_AlphaCentauri");
+        Assert.That(occupiedSectorRowTransform, Is.Not.Null,
+            "The occupied remote sector must be present in the authored Sectors page.");
+        Button occupiedSectorRow = occupiedSectorRowTransform.GetComponent<Button>();
+        Assert.That(occupiedSectorRow, Is.Not.Null);
+        occupiedSectorRow.onClick.Invoke();
+        yield return null;
+        Button campaignDoctrineButton = root.GetComponentsInChildren<Button>(true)
+            .FirstOrDefault(button => button.name == "Doctrine");
+        Assert.That(campaignDoctrineButton, Is.Not.Null);
+        Assert.That(campaignDoctrineButton.gameObject.activeSelf, Is.True,
+            "An occupied remote sector must still expose the unlocked expedition posture control.");
+        RectTransform campaignDoctrineRect = campaignDoctrineButton.transform as RectTransform;
+        RectTransform detailFooterRect = campaignDoctrineRect.parent as RectTransform;
+        Assert.That(campaignDoctrineRect.rect.width,
+            Is.GreaterThan(detailFooterRect.rect.width * 0.7f),
+            "When it is the only available action, the doctrine button must use the single-action slot.");
+        campaignDoctrineButton.onClick.Invoke();
+        Assert.That(gameManager.State.Campaign.Doctrine, Is.EqualTo(CampaignDoctrine.Surge),
+            "The sector detail posture control must issue the campaign doctrine command.");
+    }
+
+    [UnityTest]
+    public IEnumerator UltraLockedOverview_NavigatesToPhaseEnergyArrayDetailAndRefreshesConditions()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager gameManager = GameManager.Instance;
+        Building phaseEnergyArray = DataBase<Building>.Find("PhaseEnergyArray");
+        Assert.That(root, Is.Not.Null);
+        Assert.That(phaseEnergyArray, Is.Not.Null);
+
+        gameManager.State.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        gameManager.UltraProject.RestoreSaveDataForEditor(
+            CreateUltraProjectSave(
+                UltraProjectDoctrine.None,
+                UltraProjectStatus.Locked,
+                UltraProjectStage.None,
+                "0",
+                new List<UltraProjectStage>(),
+                false,
+                200));
+        root.SetPage("Overview");
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+
+        Transform primaryCard = root.transform.Find(
+            "SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
+        TMP_Text guidance = primaryCard?.Find("Text")?.GetComponent<TMP_Text>();
+        Button navigation = primaryCard?.Find("NavigationButton")?.GetComponent<Button>();
+        Assert.That(guidance, Is.Not.Null);
+        Assert.That(guidance.text, Does.Contain("文明工程"),
+            "Ultra Overview guidance must describe the locked civilization project.");
+        Assert.That(guidance.text, Does.Contain("阻碍："));
+        Assert.That(guidance.text, Does.Contain("下一步："));
+        Assert.That(navigation, Is.Not.Null);
+        Assert.That(navigation.interactable, Is.True,
+            "A locked Ultra project must expose its authored Overview navigation action.");
+
+        navigation.onClick.Invoke();
+        yield return null;
+        yield return null;
+        Transform detailBody = root.transform.Find(
+            "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body");
+        TMP_Text detailText = detailBody?.GetComponent<TMP_Text>();
+        Assert.That(detailText, Is.Not.Null);
+        Assert.That(root.transform.Find("SafeAreaRoot/Content/PageHost/Buildings"), Is.Not.Null);
+        Assert.That(detailText.text, Does.Contain(phaseEnergyArray.Label),
+            "Overview navigation must open the PhaseEnergyArray detail target.");
+        Assert.That(detailText.text, Does.Contain("状态: 锁定"));
+        Assert.That(detailText.text, Does.Contain("阻碍:"),
+            "Locked Ultra detail must expose the current blocking condition.");
+        Assert.That(detailText.text, Does.Contain("下一步:"),
+            "Locked Ultra detail must expose the next action.");
+        string lockedDetail = detailText.text;
+
+        gameManager.UltraProject.RestoreSaveDataForEditor(
+            CreateUltraProjectSave(
+                UltraProjectDoctrine.Stable,
+                UltraProjectStatus.Ready,
+                UltraProjectStage.Prototype,
+                "0",
+                new List<UltraProjectStage>(),
+                false,
+                201));
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        Assert.That(detailText.text, Does.Contain("状态: 待启动"),
+            "Changing the civilization project conditions must refresh the open detail.");
+        Assert.That(detailText.text, Is.Not.EqualTo(lockedDetail),
+            "Ultra detail text must change when the project state changes.");
+    }
+
+    [UnityTest]
     public IEnumerator FoodProducer_RecoversAfterInventoryAndPriorEfficiencyReachZero()
     {
         GameManager gameManager =
@@ -255,18 +454,10 @@ public sealed class KingdomPlayModeTests
             FindOrCreateManager<SimulationManager>("PlayMode-FoodRecovery-Managers");
         yield return null;
 
-        typeof(GameState).GetMethod(
-                "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[]
-            {
-                0, TechLevel.Animal, ExpantaNum.Zero, 0L
-            });
-        typeof(GameState).GetMethod(
-                "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[] { new ExpantaNum(3) });
-        typeof(GameState).GetMethod(
-                "AdjustPopulationCapacity", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[] { new ExpantaNum(10) });
+        gameManager.State.RestoreCoreForEditor(
+            0, TechLevel.Animal, ExpantaNum.Zero, 0L);
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(3));
+        gameManager.State.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
         BuildingState farm =
             buildingManager.EnsureBuilding(DataBase<Building>.Find("Farm"));
         farm.SetAmountForEditor(1);
@@ -294,22 +485,11 @@ public sealed class KingdomPlayModeTests
             FindOrCreateManager<WorkshopManager>("PlayMode-Prerequisite-Managers");
         yield return null;
 
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo resetResearch = typeof(ResearchManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic);
-        MethodInfo resetWorkshop = typeof(WorkshopManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
-        Assert.That(resetResearch, Is.Not.Null);
-        Assert.That(resetWorkshop, Is.Not.Null);
-        initializeNewGame.Invoke(gameManager, null);
-        resetResearch.Invoke(researchManager, null);
-        resetWorkshop.Invoke(workshopManager, null);
+        gameManager.InitializeNewGameForEditor();
+        researchManager.ResetForLoadForEditor();
+        workshopManager.ResetForLoadForEditor();
 
-        typeof(GameState).GetMethod(
-            "AdvanceTechLevel", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[] { TechLevel.Industrial });
+        gameManager.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
 
         Building refinery = DataBase<Building>.Find("OilRefinery");
         Assert.That(refinery.RequiredResearch, Is.Not.Empty);
@@ -318,27 +498,21 @@ public sealed class KingdomPlayModeTests
         Assert.That(failure, Is.EqualTo(BuildFailure.ResearchPrerequisiteIncomplete)
             .Or.EqualTo(BuildFailure.WorkshopPrerequisiteIncomplete));
 
-        MethodInfo restoreResearch = typeof(ResearchState).GetMethod(
-            "Restore", BindingFlags.Instance | BindingFlags.NonPublic, null,
-            new[] { typeof(ExpantaNum), typeof(bool), typeof(bool), typeof(IReadOnlyDictionary<Resource, ExpantaNum>) }, null);
         for (int i = 0; i < refinery.RequiredResearch.Count; i++)
         {
             Research required = refinery.RequiredResearch[i];
             var paidCosts = new Dictionary<Resource, ExpantaNum>();
             foreach (Pair<Resource, ExpantaNum> requirement in required.ResourceRequirements)
                 paidCosts[requirement.First] = requirement.Second;
-            restoreResearch.Invoke(
-                researchManager.GetState(required),
-                new object[] { ExpantaNum.Zero, true, true, paidCosts });
+            researchManager.GetState(required).RestoreForEditor(
+                ExpantaNum.Zero, true, true, paidCosts);
         }
 
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.False);
         Assert.That(failure, Is.EqualTo(BuildFailure.WorkshopPrerequisiteIncomplete));
 
         WorkshopUpgrade upgrade = refinery.RequiredWorkshopUpgrades[0];
-        typeof(WorkshopUpgradeState).GetMethod(
-                "SetPurchased", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(workshopManager.States[upgrade], new object[] { true });
+        workshopManager.States[upgrade].SetPurchasedForEditor(true);
 
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.True);
         Assert.That(failure, Is.EqualTo(BuildFailure.None));
@@ -350,21 +524,16 @@ public sealed class KingdomPlayModeTests
         SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-PauseLifecycle");
         yield return null;
 
-        MethodInfo applicationPause = typeof(SimulationManager).GetMethod(
-            "OnApplicationPause",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(applicationPause, Is.Not.Null);
-
         simulationManager.SetRunning(true);
-        applicationPause.Invoke(simulationManager, new object[] { true });
+        simulationManager.OnApplicationPauseForEditor(true);
         Assert.That(simulationManager.IsRunning, Is.False);
 
-        applicationPause.Invoke(simulationManager, new object[] { false });
+        simulationManager.OnApplicationPauseForEditor(false);
         Assert.That(simulationManager.IsRunning, Is.True);
 
         simulationManager.SetRunning(false);
-        applicationPause.Invoke(simulationManager, new object[] { true });
-        applicationPause.Invoke(simulationManager, new object[] { false });
+        simulationManager.OnApplicationPauseForEditor(true);
+        simulationManager.OnApplicationPauseForEditor(false);
         Assert.That(simulationManager.IsRunning, Is.False);
     }
 
@@ -453,14 +622,8 @@ public sealed class KingdomPlayModeTests
             FindOrCreateManager<ResearchManager>("PlayMode-ResearchQueue");
         yield return null;
 
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
-        initializeNewGame.Invoke(gameManager, null);
-        MethodInfo resetResearch = typeof(ResearchManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(resetResearch, Is.Not.Null);
-        resetResearch.Invoke(researchManager, null);
+        gameManager.InitializeNewGameForEditor();
+        researchManager.ResetForLoadForEditor();
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetAmount(wood, 1000);
@@ -488,17 +651,10 @@ public sealed class KingdomPlayModeTests
         WorkshopManager workshopManager = FindOrCreateManager<WorkshopManager>("PlayMode-EraChain-Managers");
         yield return null;
 
-        MethodInfo initializeNewGame = typeof(GameManager).GetMethod(
-            "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(initializeNewGame, Is.Not.Null);
-        initializeNewGame.Invoke(gameManager, null);
+        gameManager.InitializeNewGameForEditor();
 
-        typeof(ResearchManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(researchManager, null);
-        typeof(WorkshopManager).GetMethod(
-            "ResetForLoad", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(workshopManager, null);
+        researchManager.ResetForLoadForEditor();
+        workshopManager.ResetForLoadForEditor();
         GrantResearchTestResources(resourceManager);
 
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
@@ -570,6 +726,104 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator AudioFeedback_RealUiAndResearchPathsEmitOnlyCommittedResults()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager gameManager = GameManager.Instance;
+        ResourceManager resourceManager = ResourceManager.Instance;
+        BuildingManager buildingManager = BuildingManager.Instance;
+        ResearchManager researchManager = ResearchManager.Instance;
+        SimulationManager simulationManager = SimulationManager.Instance;
+        Building house = DataBase<Building>.Find("WoodHouse");
+        Assert.That(root, Is.Not.Null);
+        Assert.That(house, Is.Not.Null);
+
+        var requests = new List<UIButtonSoundManager.Sound>();
+        Action<UIButtonSoundManager.Sound> observer = requests.Add;
+        UIButtonSoundManager.PlayRequested += observer;
+        try
+        {
+            int simulatedSeconds = 0;
+            simulationManager.SetRunning(false);
+            while (buildingManager.GetMaxBuildable(house, ExpantaNum.One) < ExpantaNum.One &&
+                   simulatedSeconds++ < 600)
+                simulationManager.ManualTick(1d);
+            Assert.That(buildingManager.GetMaxBuildable(house, ExpantaNum.One),
+                Is.GreaterThanOrEqualTo(ExpantaNum.One));
+
+            root.SetPage("Buildings");
+            yield return null;
+            Button houseRow = root.GetComponentsInChildren<Button>(true)
+                .FirstOrDefault(button =>
+                {
+                    TMP_Text label = button.transform.Find("Label")?.GetComponent<TMP_Text>();
+                    return label != null && label.text == house.Label;
+                });
+            Assert.That(houseRow, Is.Not.Null);
+            Transform row = houseRow.transform;
+            Button buildButton = row.Find("BuildButton")?.GetComponent<Button>();
+            Button deconstructButton = row.Find("DeconstructButton")?.GetComponent<Button>();
+            Assert.That(buildButton, Is.Not.Null);
+            Assert.That(deconstructButton, Is.Not.Null);
+
+            requests.Clear();
+            buildButton.onClick.Invoke();
+            yield return null;
+            Assert.That(requests, Is.EqualTo(new[] { UIButtonSoundManager.Sound.Build }));
+            Assert.That(buildingManager.GetState(house).Amount,
+                Is.GreaterThanOrEqualTo(ExpantaNum.One));
+
+            foreach (Pair<Resource, ExpantaNum> requirement in house.ResourceRequirements)
+                if (requirement.First != null)
+                    resourceManager.SetAmount(requirement.First, ExpantaNum.Zero);
+            root.RefreshUI();
+            yield return null;
+            row = root.GetComponentsInChildren<Button>(true)
+                .First(button =>
+                {
+                    TMP_Text label = button.transform.Find("Label")?.GetComponent<TMP_Text>();
+                    return label != null && label.text == house.Label;
+                }).transform;
+            buildButton = row.Find("BuildButton")?.GetComponent<Button>();
+            requests.Clear();
+            buildButton.onClick.Invoke();
+            yield return null;
+            Assert.That(requests, Is.Empty,
+                "A failed UI transaction must not emit a successful result sound.");
+
+            deconstructButton = row.Find("DeconstructButton")?.GetComponent<Button>();
+            requests.Clear();
+            deconstructButton.onClick.Invoke();
+            yield return null;
+            Assert.That(requests, Is.EqualTo(new[] { UIButtonSoundManager.Sound.Deconstruct }));
+
+            GrantResearchTestResources(resourceManager);
+            Research first = FindAvailableResearch(researchManager);
+            requests.Clear();
+            CompleteResearchThroughRuntime(gameManager, researchManager, resourceManager, first);
+            Assert.That(requests, Has.Count.EqualTo(1));
+            Assert.That(requests[0], Is.EqualTo(
+                first.AdvancesTechLevel
+                    ? UIButtonSoundManager.Sound.EraBreakthrough
+                    : UIButtonSoundManager.Sound.ResearchComplete));
+
+            GrantResearchTestResources(resourceManager);
+            Research offline = FindAvailableResearch(researchManager);
+            requests.Clear();
+            Assert.That(researchManager.HandleResearchAction(offline),
+                Is.Not.EqualTo(ResearchActionResult.Invalid));
+            researchManager.TickOfflineForEditor(1000000d);
+            Assert.That(requests, Is.Empty,
+                "Offline completion must not replay research result sounds.");
+        }
+        finally
+        {
+            UIButtonSoundManager.PlayRequested -= observer;
+        }
+    }
+
+    [UnityTest]
     public IEnumerator EraPage_RendersCurrentNextEraProgressAndGoal()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
@@ -578,10 +832,7 @@ public sealed class KingdomPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Era" });
+        root.SetPage("Era");
         yield return null;
         yield return null;
 
@@ -640,10 +891,7 @@ public sealed class KingdomPlayModeTests
             "Era goal row must navigate through its detail action.");
         eraGoalButton.onClick.Invoke();
         yield return null;
-        FieldInfo detailActionField = typeof(KingdomUIRoot).GetField(
-            "detailActionButton", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(detailActionField, Is.Not.Null);
-        Button detailAction = detailActionField.GetValue(root) as Button;
+        Button detailAction = root.DetailActionButtonForEditor;
         Assert.That(detailAction, Is.Not.Null);
         Assert.That(detailAction.gameObject.activeSelf, Is.True,
             "Era research navigation must expose the research detail action button.");
@@ -651,7 +899,7 @@ public sealed class KingdomPlayModeTests
         // The transition detail action intentionally navigates to Research. Re-enter
         // Era before inspecting its resource requirement; otherwise this stale
         // transform reference points at an inactive page.
-        setPage.Invoke(root, new object[] { "Era" });
+        root.SetPage("Era");
         yield return null;
         rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") as RectTransform;
         Assert.That(rows, Is.Not.Null);
@@ -692,10 +940,7 @@ public sealed class KingdomPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Research" });
+        root.SetPage("Research");
         Transform viewport = null;
         Transform content = null;
         int expectedResearchNodes = DataBase<Research>.All.Count;
@@ -944,7 +1189,7 @@ public sealed class KingdomPlayModeTests
         CanvasGroup visibility = researchPage.GetComponent<CanvasGroup>();
         Assert.That(visibility, Is.Not.Null,
             "The cached research hierarchy must use one root CanvasGroup for page visibility.");
-        setPage.Invoke(root, new object[] { "Overview" });
+        root.SetPage("Overview");
         yield return null;
         Assert.That(researchPage.gameObject.activeSelf, Is.True,
             "Leaving Research must not disable thousands of cached graph objects.");
@@ -954,7 +1199,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(finalGesture.enabled, Is.False,
             "A hidden persistent graph must not continue processing gestures.");
 
-        setPage.Invoke(root, new object[] { "Research" });
+        root.SetPage("Research");
         yield return null;
         Assert.That(researchPage.gameObject.activeSelf, Is.True);
         Assert.That(visibility.alpha, Is.EqualTo(1f).Within(0.001f));
@@ -1014,20 +1259,14 @@ public sealed class KingdomPlayModeTests
 
         Transform bodyTransform = detailContent.Find("Body");
         Assert.That(bodyTransform, Is.Not.Null, "Detail body is missing under DetailScrollContent.");
-        MethodInfo showDetails = typeof(KingdomUIRoot).GetMethod(
-            "ShowDetails", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(showDetails, Is.Not.Null);
-        showDetails.Invoke(root, new object[] { "Runtime detail", "Visible body", "detail-test" });
+        root.ShowDetailsForEditor("Runtime detail", "Visible body", "detail-test");
         yield return null;
         TMP_Text bodyText = bodyTransform.GetComponent<TMP_Text>();
         Assert.That(bodyText.text, Does.Contain("Runtime detail"));
         Assert.That(bodyText.rectTransform.rect.height, Is.GreaterThan(0f),
             "Detail body must retain a visible rect after being reparented.");
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Research" });
+        root.SetPage("Research");
         Transform researchViewport = null;
         Transform researchContent = null;
         Transform firstNode = null;
@@ -1078,9 +1317,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(buildingManager, Is.Not.Null);
         Assert.That(simulationManager, Is.Not.Null);
         simulationManager.SetRunning(false);
-        typeof(GameManager).GetMethod(
-                "InitializeNewGame", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager, null);
+        gameManager.InitializeNewGameForEditor();
         Assert.That(gameManager.State.HappinessRewardMultiplier, Is.GreaterThan(ExpantaNum.One));
 
         Resource resource = ScriptableObject.CreateInstance<Resource>();
@@ -1110,10 +1347,7 @@ public sealed class KingdomPlayModeTests
         resourceManager.SetConsumptionRate(resource, ExpantaNum.Zero);
         ExpantaNum expectedRate = new ExpantaNum(2d) * gameManager.State.HappinessRewardMultiplier;
 
-        MethodInfo showResourceDetails = typeof(KingdomUIRoot).GetMethod(
-            "ShowResourceDetails", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(showResourceDetails, Is.Not.Null);
-        showResourceDetails.Invoke(root, new object[] { resource });
+        root.ShowResourceDetailsForEditor(resource);
         yield return null;
 
         Transform bodyTransform = root.transform.Find(
@@ -1137,25 +1371,15 @@ public sealed class KingdomPlayModeTests
         resourceManager.Tick(1d);
         Assert.That(resourceManager.GetAmount(resource), Is.GreaterThan(ExpantaNum.Zero));
 
-        MethodInfo setPage = typeof(KingdomUIRoot).GetMethod(
-            "SetPage", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(setPage, Is.Not.Null);
-        setPage.Invoke(root, new object[] { "Resources" });
+        root.SetPage("Resources");
         yield return null;
         yield return null;
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
         resourceManager.SetProductionRate(wood, ExpantaNum.One);
         resourceManager.SetConsumptionRate(wood, ExpantaNum.Zero);
-        MethodInfo refreshCards = typeof(KingdomUIRoot).GetMethod(
-            "RefreshLiveCardValues", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(refreshCards, Is.Not.Null);
-        refreshCards.Invoke(root, null);
-        FieldInfo changeLabelsField = typeof(KingdomUIRoot).GetField(
-            "resourceChangeLabels", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(changeLabelsField, Is.Not.Null);
-        var changeLabels =
-            (Dictionary<Resource, TMP_Text>)changeLabelsField.GetValue(root);
+        root.RefreshLiveCardValuesForEditor();
+        var changeLabels = root.ResourceChangeLabelsForEditor;
         Assert.That(changeLabels.TryGetValue(wood, out TMP_Text changeLabel), Is.True);
         ExpantaNum expectedWoodRate = gameManager.State.HappinessRewardMultiplier;
         Assert.That(changeLabel.text, Is.EqualTo("+" + expectedWoodRate.ToGameString() + "/s"));
@@ -1175,40 +1399,18 @@ public sealed class KingdomPlayModeTests
         Assert.That(simulationManager, Is.Not.Null);
         simulationManager.SetRunning(false);
 
-        typeof(GameState).GetMethod(
-                "ResetDerivedEconomy", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[] { new ExpantaNum(500d) });
-        typeof(GameState).GetMethod(
-                "RestoreCore", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[]
-            {
-                0, TechLevel.Animal, ExpantaNum.Zero, 0L
-            });
-        typeof(GameState).GetMethod(
-                "RestorePopulation", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[] { new ExpantaNum(10d) });
-        typeof(PopulationState).GetMethod(
-                "RestoreCapacityExact", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State.Population, new object[]
-            {
-                new ExpantaNum(20d), ExpantaNum.Zero
-            });
-        typeof(GameState).GetMethod(
-                "AdjustFoodRates", BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(gameManager.State, new object[]
-            {
-                ExpantaNum.Zero, new ExpantaNum(20d)
-            });
+        gameManager.State.ResetDerivedEconomyForEditor(new ExpantaNum(500d));
+        gameManager.State.RestoreCoreForEditor(
+            0, TechLevel.Animal, ExpantaNum.Zero, 0L);
+        gameManager.State.RestorePopulationForEditor(new ExpantaNum(10d));
+        gameManager.State.RestorePopulationCapacityExactForEditor(
+            new ExpantaNum(20d), ExpantaNum.Zero);
+        gameManager.State.AdjustFoodRatesForEditor(
+            ExpantaNum.Zero, new ExpantaNum(20d));
 
         Assert.That(gameManager.CurrentPopulationNetRatePerSecond, Is.LessThan(ExpantaNum.Zero));
-        MethodInfo refreshTopInfo = typeof(KingdomUIRoot).GetMethod(
-            "RefreshTopInfo", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(refreshTopInfo, Is.Not.Null);
-        refreshTopInfo.Invoke(root, null);
-        FieldInfo topPopulationField = typeof(KingdomUIRoot).GetField(
-            "topPopulationValue", BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(topPopulationField, Is.Not.Null);
-        TMP_Text topPopulation = (TMP_Text)topPopulationField.GetValue(root);
+        root.RefreshTopInfoForEditor();
+        TMP_Text topPopulation = root.TopPopulationValueForEditor;
         Assert.That(topPopulation, Is.Not.Null);
         Assert.That(
             topPopulation.text,
@@ -1259,10 +1461,34 @@ public sealed class KingdomPlayModeTests
             Researches = ResearchManager.Instance.CaptureSaveData(),
             Workshop = WorkshopManager.Instance.CaptureSaveData(),
             Sectors = game.Sectors.CaptureSaveData(),
+            UltraProject = game.UltraProject.State.CaptureSaveData(),
             Tutorial = TutorialManager.Current.CaptureSaveData(),
             Story = new SaveManager.StorySaveData { CompletedChapterIds = storyIds }
         };
         return JsonUtility.ToJson(snapshot);
+    }
+
+    private static UltraProjectStateSaveData CreateUltraProjectSave(
+        UltraProjectDoctrine doctrine,
+        UltraProjectStatus status,
+        UltraProjectStage currentStage,
+        string progress,
+        List<UltraProjectStage> completedStages,
+        bool launchFeePaid,
+        int stateVersion = 100)
+    {
+        return new UltraProjectStateSaveData
+        {
+            ProjectId = UltraProjectState.ProjectId,
+            SaveVersion = UltraProjectState.CurrentSaveVersion,
+            Doctrine = doctrine,
+            Status = status,
+            CurrentStage = currentStage,
+            StageProgress = progress,
+            CompletedStages = completedStages,
+            LaunchFeePaid = launchFeePaid,
+            StateVersion = stateVersion
+        };
     }
 
     private static IEnumerator LoadIsolatedNewGame()
@@ -1412,15 +1638,6 @@ public sealed class KingdomPlayModeTests
         }
 
         visiting.Remove(target.Id);
-    }
-
-    private static void SetPrivateField(object target, string name, object value)
-    {
-        FieldInfo field = target.GetType().GetField(
-            name,
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        Assert.That(field, Is.Not.Null, $"Missing serialized field '{name}'.");
-        field.SetValue(target, value);
     }
 
     private Building CreateFlowBuilding(

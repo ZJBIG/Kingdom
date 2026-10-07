@@ -18,6 +18,14 @@ public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
         }
     }
 
+    public static bool TryGetInstance(out T value)
+    {
+        if (instance == null)
+            instance = FindObjectOfType<T>();
+        value = instance;
+        return value != null;
+    }
+
     protected virtual void Awake()
     {
         if (instance != null && instance != this)

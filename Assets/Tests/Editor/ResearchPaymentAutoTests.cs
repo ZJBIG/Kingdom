@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 public sealed class ResearchPaymentAutoTests
@@ -16,10 +15,7 @@ public sealed class ResearchPaymentAutoTests
         ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
         buildingObject.AddComponent<BuildingManager>();
         ResearchManager researchManager = researchObject.AddComponent<ResearchManager>();
-        typeof(ResearchManager).GetMethod(
-                "Initialize",
-                BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(researchManager, null);
+        researchManager.InitializeForEditor();
 
         try
         {
@@ -37,14 +33,8 @@ public sealed class ResearchPaymentAutoTests
             Assert.That(researchManager.EnqueueResearch(second), Is.True);
 
             ResearchState firstState = researchManager.GetState(first);
-            typeof(ResearchState).GetMethod(
-                    "SetProgress",
-                    BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(firstState, new object[] { firstState.BaseCost });
-            typeof(ResearchManager).GetMethod(
-                    "TickOffline",
-                    BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(researchManager, new object[] { 10d });
+            firstState.SetProgressForEditor(firstState.BaseCost);
+            researchManager.TickOfflineForEditor(10d);
 
             Assert.That(firstState.Status, Is.EqualTo(ResearchStatus.Completed));
             Assert.That(researchManager.GetState(second).Progress,
@@ -68,10 +58,7 @@ public sealed class ResearchPaymentAutoTests
         ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
         GameObject researchObject = new GameObject("ResearchAutoPayment-ResearchManager");
         ResearchManager researchManager = researchObject.AddComponent<ResearchManager>();
-        typeof(ResearchManager).GetMethod(
-                "Initialize",
-                BindingFlags.Instance | BindingFlags.NonPublic)
-            .Invoke(researchManager, null);
+        researchManager.InitializeForEditor();
 
         try
         {
