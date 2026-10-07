@@ -40,9 +40,16 @@ if (-not $completed) {
     exit 1
 }
 $unityExitCode = $process.ExitCode
-$log = if (Test-Path $LogPath) { Get-Content $LogPath -Raw } else { "" }
+$logExists = Test-Path -LiteralPath $LogPath -PathType Leaf
+$log = if ($logExists) { Get-Content $LogPath -Raw } else { "" }
+$logHasContent = $logExists -and -not [string]::IsNullOrWhiteSpace($log)
 $compileErrors = $log -match "error CS\d+|Compilation failed|Scripts have compiler errors|Aborting batchmode due to failure"
-if ($unityExitCode -ne 0 -or $compileErrors) {
+if ($unityExitCode -ne 0 -or -not $logHasContent -or $compileErrors) {
+    $logState = if ($logExists) { "present bytes=$((Get-Item -LiteralPath $LogPath).Length)" } else { "missing" }
+    if (-not $logHasContent) {
+        Write-Error "Unity compile failed because the Unity log is missing or empty. ExitCode=$unityExitCode. Log=$LogPath ($logState)"
+        exit 1
+    }
     Write-Error "Unity compile failed. ExitCode=$unityExitCode. Log=$LogPath"
     exit 1
 }
