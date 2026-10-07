@@ -13,6 +13,7 @@
 - F1 工坊详情按当前数量/效率/幸福加成预览购买前后生产与持续投入，复用真实叠加效果、不改权威状态。新增3项规则测试及真实按钮/刷新/扣款/速率 PlayMode；已购、无建筑、零效率覆盖。
 - F 验证：真实 Unity 编译 outputs-F-compile-20261007.log exit0；EditMode 首次35/35 XML后原生退出超时，保留失败；分组重跑 outputs-F12-editmode-r2-20261007.xml 30/30 与 outputs-F3-editmode-r2-20261007.xml 5/5，均exit0；最终完整 outputs-F-playmode-r3-20261007.xml 41/41、0失败/跳过、exit0。首轮39/41、第二轮40/41及新增断言格式失败保留。标量比较允许已有1e-6量化的一单位边界，不改数学层。
 - F 最终日志仅有 Licensing/Curl 环境噪声，无游戏级 Error/Exception/MissingReference；DeveloperTests 0错误/警告，工具反例3/3，确定性fixture诊断exit0；新meta GUID独占，UI/guidance/YAML引用检查通过。
+- F1 已上传 `496b895`；F2 新增10场景、首据点后返回远航、真实Overview导航回归，修复共享导航缺少 Sectors 分支，只打开现有详情、不改解锁。27项Tutorial测试与完整41项PlayMode均通过。
 - 下一动作：F1/F2/F3 按验证后的边界分别提交上传，整合已授权当前工作树文档，最后 main 常规快进合并并推送；E/G 暂缓，保留个人记忆、临时目录与字体变更。
 
 ## 任务与状态

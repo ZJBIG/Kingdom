@@ -726,6 +726,44 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator HomeSystemGuidance_OverviewOpensFirstReachableSector()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        GameManager game = GameManager.Instance;
+        ResearchManager research = ResearchManager.Instance;
+        game.State.AdvanceTechLevelForEditor(TechLevel.Spacer);
+        foreach (ResearchState state in research.States.Values)
+            state.SetStatusForEditor(state.Definition.Id == "DeepSpaceFleet" ||
+                state.Definition.Id == "InterstellarNavigation"
+                    ? ResearchStatus.Queued : ResearchStatus.Completed);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values));
+        BuildingManager.Instance.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+            .SetAmountForEditor(ExpantaNum.One);
+        TutorialManager.Current.RestoreSaveData(new SaveManager.TutorialSaveData
+        {
+            ActiveStepId = "long-term", CompletedStepIds = new List<string>()
+        }, TechLevel.Spacer);
+        root.SetPage("Overview");
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        Transform card = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
+        TMP_Text guidance = card.Find("Text").GetComponent<TMP_Text>();
+        SectorDefinition target = DataBase<SectorDefinition>.Find("DawnRing");
+        Assert.That(guidance.text, Does.Contain(target.Label));
+        Button navigation = card.Find("NavigationButton").GetComponent<Button>();
+        Assert.That(navigation.interactable, Is.True);
+        navigation.onClick.Invoke();
+        yield return null;
+        TMP_Text detail = root.transform.Find(
+            "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")
+            .GetComponent<TMP_Text>();
+        Assert.That(detail.text, Does.Contain(target.Label));
+        Assert.That(game.Sectors.GetState(target).Unlocked, Is.False,
+            "Opening the recommendation must not unlock or occupy its destination.");
+    }
+
+    [UnityTest]
     public IEnumerator WorkshopBenefit_AuthoredDetailsRefreshAndPreviewMatchesCommittedRates()
     {
         yield return LoadIsolatedNewGame();

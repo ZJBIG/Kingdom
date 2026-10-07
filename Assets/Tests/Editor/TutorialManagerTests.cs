@@ -235,6 +235,124 @@ public sealed class TutorialManagerTests
         Assert.That(spacerGuidance, Is.Not.Null);
     }
 
+    [TestCase(0, "Research", "HomeSystemSurvey")]
+    [TestCase(1, "Buildings", "LaunchCenter")]
+    [TestCase(2, "Research", "OrbitalEngineering")]
+    [TestCase(3, "Sectors", "DawnRing")]
+    [TestCase(4, "Research", "DeepSpaceFleet")]
+    [TestCase(5, "Research", "DeepSpaceFleet")]
+    [TestCase(6, "Research", "DeepSpaceFleet")]
+    [TestCase(7, "Sectors", "DawnRing")]
+    [TestCase(8, "Sectors", "DawnRing")]
+    [TestCase(9, "Sectors", "DawnRing")]
+    public void SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(
+        int scenario, string expectedPage, string expectedTarget)
+    {
+        GameObject host = new GameObject("Tutorial-HomeSystem-Guidance");
+        try
+        {
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            if (resources.States.Count == 0)
+                resources.InitializeForEditor();
+            GameManager game = host.AddComponent<GameManager>();
+            BuildingManager buildings = host.AddComponent<BuildingManager>();
+            ResearchManager research = host.AddComponent<ResearchManager>();
+            if (research.States.Count == 0)
+                research.InitializeForEditor();
+            game.State.AdvanceTechLevelForEditor(TechLevel.Spacer);
+            game.Sectors.InitializeDefinitions();
+            var researchStates = new List<ResearchState>();
+            foreach (KeyValuePair<Research, ResearchState> pair in research.States)
+            {
+                bool queued = pair.Key.Id == "DeepSpaceFleet" ||
+                    pair.Key.Id == "InterstellarNavigation" ||
+                    (scenario == 0 && pair.Key.Id == "HomeSystemSurvey") ||
+                    (scenario == 2 && pair.Key.Id == "OrbitalEngineering");
+                pair.Value.SetStatusForEditor(queued
+                    ? ResearchStatus.Queued : ResearchStatus.Completed);
+                researchStates.Add(pair.Value);
+            }
+            ProgressionModifierManager.Rebuild(researchStates);
+            if (scenario != 1 && scenario != 2)
+                buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+                    .SetAmountForEditor(ExpantaNum.One);
+
+            SectorState dawn = game.Sectors.GetState(
+                DataBase<SectorDefinition>.Find("DawnRing"));
+            if (scenario == 4)
+            {
+                dawn.SetUnlockedForEditor(true);
+                dawn.SetOccupiedForEditor(true);
+                dawn.SetCampaignProgressForEditor(ExpantaNum.One);
+            }
+            if (scenario == 5 || scenario == 6)
+                for (int i = 0; i < game.Sectors.OrderedStates.Count; i++)
+                {
+                    SectorState state = game.Sectors.OrderedStates[i];
+                    if (!state.Definition.IsHomeSystem)
+                        continue;
+                    bool unfinished = scenario == 5 &&
+                        (state.Definition.Id == "HeliosCore" ||
+                         state.Definition.Id == "ThunderGate");
+                    state.SetOccupiedForEditor(!unfinished);
+                    if (!unfinished)
+                    {
+                        state.SetUnlockedForEditor(true);
+                        state.SetCampaignProgressForEditor(ExpantaNum.One);
+                    }
+                }
+            if (scenario == 5)
+            {
+                SectorState active = game.Sectors.GetState(
+                    DataBase<SectorDefinition>.Find("ThunderGate"));
+                active.SetUnlockedForEditor(true);
+                active.SetColonizationActiveForEditor(true);
+                Assert.That(game.Sectors.CanAccess(
+                    DataBase<SectorDefinition>.Find("HeliosCore")), Is.True,
+                    "Additional reachable and active destinations must not delay distant-fleet guidance.");
+            }
+            if (scenario == 7 || scenario == 8)
+                dawn.SetUnlockedForEditor(true);
+            if (scenario == 8)
+                dawn.SetCampaignProgressForEditor(ExpantaNum.One);
+            if (scenario == 9)
+            {
+                dawn.SetUnlockedForEditor(true);
+                dawn.SetColonizationActiveForEditor(true);
+            }
+
+            bool dawnUnlocked = dawn.Unlocked;
+            TutorialSnapshot snapshot = new TutorialSnapshot();
+            Assert.That(TutorialManager.BuildSpacerGuidanceForEditor(
+                snapshot, game, research, buildings), Is.True);
+            // Page names and target IDs are exact navigation protocol values.
+            Assert.That(snapshot.NavigationPage, Is.EqualTo(expectedPage));
+            Assert.That(snapshot.NavigationTargetId, Is.EqualTo(expectedTarget));
+            if (scenario == 4)
+                Assert.That(game.Sectors.GetState(
+                    DataBase<SectorDefinition>.Find("AzurePool")).Occupied, Is.False,
+                    "The first home-system outpost completes this goal; others remain optional.");
+            if (expectedPage == "Sectors")
+            {
+                SectorDefinition target = DataBase<SectorDefinition>.Find(expectedTarget);
+                Assert.That(target.IsHomeSystem, Is.True);
+                Assert.That(game.Sectors.CanAccess(target), Is.True);
+                Assert.That(game.Sectors.GetUnlockFailure(target),
+                    Is.EqualTo(SectorOperationFailure.None)
+                        .Or.EqualTo(SectorOperationFailure.AlreadyUnlocked));
+            }
+            Assert.That(research.GetState(DataBase<Research>.Find("DeepSpaceFleet")).Status,
+                Is.EqualTo(ResearchStatus.Queued), "Guidance must not complete research.");
+            Assert.That(dawn.Unlocked, Is.EqualTo(dawnUnlocked),
+                "Guidance must not unlock destinations.");
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
+            ProgressionModifierManager.Rebuild(null);
+        }
+    }
+
     [Test]
     public void TutorialStepRequiresVisitToItsCurrentNavigationPage()
     {

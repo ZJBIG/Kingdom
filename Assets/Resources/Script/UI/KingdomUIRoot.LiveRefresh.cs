@@ -1141,6 +1141,14 @@ public sealed partial class KingdomUIRoot
             ShowResourceDetails(resource);
             return;
         }
+        if (pageName == "Sectors" &&
+            DataBase<SectorDefinition>.TryFind(targetId, out SectorDefinition sector) &&
+            sector != null)
+        {
+            GameManager game = GameManager.Instance;
+            ShowSectorDetails(sector, game.Sectors, game.State, ResourceManager.Instance);
+            return;
+        }
         if (pageName == "Workshop" &&
             DataBase<WorkshopUpgrade>.TryFind(targetId,
                 out WorkshopUpgrade workshop) && workshop != null)

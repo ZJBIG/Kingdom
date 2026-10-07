@@ -1184,6 +1184,8 @@ public sealed class TutorialManager : MonoBehaviour
         };
         for (int i = 0; i < researchPath.Length; i++)
         {
+            if (i == 1 && BuildHomeSystemGuidance(snapshot, game, research, buildings))
+                return true;
             string researchId = researchPath[i];
             if (HasCompletedResearchId(research, researchId))
                 continue;
@@ -1228,6 +1230,67 @@ public sealed class TutorialManager : MonoBehaviour
         }
 
         return BuildSpacerSectorGuidance(snapshot, game);
+    }
+
+    private static bool BuildHomeSystemGuidance(
+        TutorialSnapshot snapshot, GameManager game, ResearchManager research,
+        BuildingManager buildings)
+    {
+        game.Sectors.InitializeDefinitions();
+        for (int i = 0; i < game.Sectors.OrderedStates.Count; i++)
+        {
+            SectorState state = game.Sectors.OrderedStates[i];
+            if (state.Definition != null && state.Definition.IsHomeSystem && state.Occupied)
+                return false;
+        }
+        // OrderedStates uses stable IDs. Continue an existing operation before
+        // choosing the first reachable, unfinished home-system destination.
+        for (int pass = 0; pass < 2; pass++)
+        {
+            for (int i = 0; i < game.Sectors.OrderedStates.Count; i++)
+            {
+                SectorState state = game.Sectors.OrderedStates[i];
+                SectorDefinition definition = state.Definition;
+                if (definition == null || !definition.IsHomeSystem || state.Occupied ||
+                    (pass == 0 && !state.ColonizationActive) ||
+                    !game.Sectors.CanAccess(definition))
+                    continue;
+
+                SectorOperationFailure failure = game.Sectors.GetUnlockFailure(definition);
+                if (failure == SectorOperationFailure.LaunchCenterRequired)
+                {
+                    if (ApplyBuildingPrerequisiteGuidance(snapshot, "LaunchCenter", research))
+                        return true;
+                    Building launchCenter = DataBase<Building>.Find("LaunchCenter");
+                    snapshot.Blocker = DescribeBuildingBlocker(
+                        launchCenter, game, buildings, ResourceManager.Instance);
+                    snapshot.RecommendedAction = "打开建筑页面，建造“" + launchCenter.Label +
+                        "”，再开始本星系探索。";
+                    snapshot.NavigationPage = "Buildings";
+                    snapshot.NavigationTargetId = launchCenter.Id;
+                    return true;
+                }
+                if (failure != SectorOperationFailure.None &&
+                    failure != SectorOperationFailure.AlreadyUnlocked)
+                    continue;
+
+                SectorExplorationPreview preview = game.Sectors.GetExplorationPreview(
+                    definition, game.State, ResourceManager.Instance);
+                snapshot.Blocker = state.CampaignProgress >= ExpantaNum.One
+                    ? "本星系“" + definition.Label + "”的探索已经完成，可以确认占领。"
+                    : !preview.HasSupply
+                        ? "本星系“" + definition.Label + "”的探索补给不足，先补齐详情列出的持续消耗。"
+                        : state.ColonizationActive
+                            ? "本星系“" + definition.Label + "”正在殖民，继续观察补给与探索进度。"
+                            : "本星系“" + definition.Label + "”已满足探索前置，可以建立下一处据点。";
+                snapshot.RecommendedAction = "打开星区页面，查看“" + definition.Label +
+                    "”的解锁、补给与殖民状态。";
+                snapshot.NavigationPage = "Sectors";
+                snapshot.NavigationTargetId = definition.Id;
+                return true;
+            }
+        }
+        return false;
     }
 
     private static bool BuildSpacerSectorGuidance(
