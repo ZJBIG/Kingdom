@@ -15,7 +15,9 @@
 - F 最终日志仅有 Licensing/Curl 环境噪声，无游戏级 Error/Exception/MissingReference；DeveloperTests 0错误/警告，工具反例3/3，确定性fixture诊断exit0；新meta GUID独占，UI/guidance/YAML引用检查通过。
 - F1 已上传 `496b895`；F2 新增10场景、首据点后返回远航、真实Overview导航回归，修复共享导航缺少 Sectors 分支，只打开现有详情、不改解锁。27项Tutorial测试与完整41项PlayMode均通过。
 - F2 已上传 `660998a`；F3 SaveManager 实际 AdvanceOffline 前后差异，会话只读Summary，v9不变；Overview复用正文，区分完整离开/截断结算跨度，Food封顶与阻碍只描述结算结束状态。5项EditMode与真实Overview显示/快照/载入清空回归通过，完整PlayMode 41/41。
-- 下一动作：上传已验证的 F3，整合已授权当前工作树文档，最后 main 常规快进合并并推送；E/G 暂缓，保留个人记忆、临时目录与字体变更。
+- F3 已上传 `770e692`；当前 outputs/规则/既有交接/根待办整合提交 `9c13b71` 已上传。outputs正文116个本地链接通过，文本空白检查通过；仅移除12份新输出文档的额外结尾空行，旧PDF及Unity空值序列化行不改格式。
+- 2026-10-08 main 已常规快进至 `9c13b71cdbf9f60fb6b79ab9ce2701f69c783896`；远端main/codex均该SHA，fetch后main...origin/main=0/0。包括本地main原有112个未上传祖先+本轮6提交。推送曾返回ref已是目标SHA的并发锁提示，随后ls-remote/fetch确认；无force/rebase/amend。
+- 此完成确认仅文档提交并同步两分支。F1–F3已完成，没有新增未验收游戏代码；E插画/G遗迹继续按用户要求暂缓。个人记忆、临时目录、字体缓存、孤立Android.meta保留本地，不操作真实存档或外部体验。后续任务先核对远端与本地分支、保留这批明确排除内容。
 
 ## 任务与状态
 
