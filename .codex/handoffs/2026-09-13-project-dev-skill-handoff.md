@@ -116,7 +116,7 @@
 - validate-guidance退出0；真实仓库probe --check-skill扫描1736个白名单文件、Errors=0。简单内联链接检查不证明所有Markdown语法/锚点或客户端自动发现。
 - git diff --check通过；仅指导和工具契约范围变更。两个辅助审查代理分别因提供方400参数拒绝、500服务不可用失败，主代理接管；没有独立代理复审结论。
 - 专项安全审查能力本会话不可用；对技能正文、全部references/assets和相关脚本采用人工静态核对。没有引入联网、下载执行、凭据访问、提权或自动安装。存量全套测试存在已披露的创建/清理fixture副作用，继续停用；不声称安全认证。
-- 未执行真实 Unity 编译。未运行Unity游戏测试、经济closure/模拟器或设备验证。
+- 未执行真实 Unity 编译。未运行Unity游戏测试、经济closure/模拟器或完整运行期体验验证。
 
 ### 备份与交付
 
@@ -149,4 +149,3 @@
 执行前校验路径链非链接及文件SHA-256与确认清单一致；通过受保护回收站入口逐项操作并验证，总计300,153字节，3项原路径全部消失，未清空回收站。没有新建备份或清理报告，未扩展至其他任务文件。旧报告中的失败日志路径及“保留”结论仅代表历史；完整工具回归仍未通过，不因移除日志改变结论。
 
 最新合并报告、Verification.json及指导包仍存在，指导包CRC正常。额外一致性检查未通过：当前7份指导文件与20260914包的哈希不同，分别为 `.agents/skills/kingdom-project-dev/references/acceptance-cases.md`、`AGENTS.md`、`docs/architecture/research-queue-payment.md`、`docs/architecture/runtime-state.md`、`docs/content/progression-roadmap.md`、`docs/repository-map.md`、`docs/story/story-data-authoring.md`。本次仅操作3个指定过程文件，没有修改或覆盖这7份文件，也未自动重打包；不可再声称旧包与当前工作树完全一致。未执行真实 Unity 编译。
-

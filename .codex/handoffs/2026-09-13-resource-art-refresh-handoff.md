@@ -12,7 +12,7 @@ The follow-up clarity fix disables texture compression for every resource textur
 - The 44 replacement files validate as 256x256 images after direct resizing; alpha was preserved during conversion.
 - Green chroma-key backgrounds were removed before replacement.
 - `git status` confirms only the intended resource PNGs changed among this task's files; unrelated pre-existing worktree changes were preserved.
-- All 67 resource texture `.meta` files now use `textureCompression: 0` for Default, Standalone, WebGL, and Android entries.
+- All 67 resource texture `.meta` files now use `textureCompression: 0` for Default, Standalone, WebGL, and platform entries.
 - Resource card and research requirement UI icon sizes remain integer-pixel values and preserve aspect ratio.
 
 ## Remaining risks
@@ -23,4 +23,4 @@ The follow-up clarity fix disables texture compression for every resource textur
 
 ## Next action
 
-Open the resource list and research detail panel in Unity and perform a visual pass at the target UI scale; if still soft, inspect the device Canvas scale and pixel alignment before changing source art. Follow `docs/art/resource-icon-style.md` for subsequent resource work.
+Open the resource list and research detail panel in Unity and perform a visual pass at the target UI scale; if still soft, inspect the Canvas scale and pixel alignment before changing source art. Follow `docs/art/resource-icon-style.md` for subsequent resource work.

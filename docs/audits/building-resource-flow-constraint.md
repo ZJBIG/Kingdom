@@ -51,6 +51,11 @@ an overlapping production and consumption resource.
 
 ## Current validation evidence
 
+> **Historical evidence (2026-08-28 snapshot).** This section records the test
+> report status as of 2026-08-28 and is kept for traceability only; it is not a
+> statement about the current tree. For current evidence, see
+> `TestResults/Latest-Test-Errors.txt` and `data/content-closure-static.md`.
+
 The current static audit reports `BuildingAssets=66` and
 `OpposingRawResourceFlows=0`. The latest available repository test report is
 `TestResults/Latest-Test-Errors.txt` from 2026-08-28 00:20:51; it records 32

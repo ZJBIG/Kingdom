@@ -31,6 +31,5 @@ live in `docs/testing/playmode-test-plan.md`.
   because an old guide required Viewer OnEnable/OnDisable on every switch.
 - `GameUIRefreshManager`, `SetMainTab`, `CurrentTab` and `MainTabChanged` were old
   design targets, not required current APIs. Do not rebuild them from this guide.
-- Legacy Viewer/Displayer isolation follows the UI skill. A migration or refresh
-  refactor requires its own scope and behavior/performance evidence, not just a
-  documentation edit.
+- A migration or refresh refactor requires its own scope and behavior/performance
+  evidence, not just a documentation edit.

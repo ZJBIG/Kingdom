@@ -9,7 +9,7 @@
 - 接手存在 P0-04、项目指导和旧输出清理的未提交改动，全部保留。
 - P0-04 以当前 handoff 为准：严格 v9，单主档，已有 .bak 忽略；不恢复旧版迁移、备份轮换或确认弹窗。
 - 已阅读 outputs/ToDoList.txt、DeepAudit.txt、猫国比较与摘要、Ultra 20260914 正文、指导合并报告及验证摘要；旧 Ultra HTML 按结论节检索。未完整重读所有 PDF 或打开指导快照 ZIP，也不需要用旧包覆盖当前代码。
-- 独立存档复核未确认阻断缺陷，生命周期和冷启动仍缺真实 Unity/设备证据，不据静态复核声称验收通过。
+- 独立存档复核未确认阻断缺陷，生命周期和冷启动仍缺真实 Unity/运行期证据，不据静态复核声称验收通过。
 
 ## 本批实际变更
 
@@ -31,13 +31,13 @@
 - 仅对子进程补齐 `ProgramFiles=C:\Program Files` 后，原命令成功：Kingdom.Runtime.Editor 与 Kingdom.Editor 编译，0 错误、0 警告。没有修改构建脚本或安装依赖。
 - `git diff --check` 通过；新增测试为 6 项，定向检索未发现新增反射。
 - 额外测试源码编译尝试被执行保护拒绝，停止该路径，未绕过保护。因此开发程序集通过不能覆盖测试程序集编译。
-- 未执行真实 Unity 编译。未执行本批 EditMode、PlayMode、Console、设备或真人验证。Unity 占用查询未返回可用信息，不把空输出当作项目空闲证明。
+- 未执行真实 Unity 编译。未执行本批 EditMode、PlayMode、Console 或真人验证。Unity 占用查询未返回可用信息，不把空输出当作项目空闲证明。
 
 ## 后续顺序
 
 1. 环境允许时执行 `ProgressionMilestoneRecorderTests`，确认非零用例且零失败；之后与 P0-04 专项一起做全量 EditMode、相关非零 PlayMode 与 Console 验证。旧 XML 不算本轮结果。
 2. 下一代码批次 D09：修 `KingdomPlayModeTests.OverviewDevelopmentGuidance_IsReadOnlyAndUnique` 的真实刷新与唯一性断言。当前源码在读取 Version 后立即比较，仍没有中间刷新。已定位 `KingdomUIRoot.RefreshUI()` 为公开刷新入口。fixture 的 SetUp 已设置隔离存档，但 TearDown 仅销毁 createdObjects，场景加载对象是否登记仍须核对，必须在所有可能保存的对象销毁后才清除 override；本轮未修改该 PlayMode 文件。不沿用反射，不以 Ignore/Pass 消除失败。
-3. 然后 P0-02 E08 升级合同与 P0-03 实际布局诊断；不直接新增工厂或调倍率。P1-01 真人首局和 P0-05 真机门继续保留。
+3. 然后 P0-02 E08 升级合同与 P0-03 实际布局诊断；不直接新增工厂或调倍率。P1-01 真人首局继续保留，外部运行体验不形成代理待办。
 4. Ultra/Archotech、普通仓储、自动策略、新迁移器等不在本批范围。历史 outputs 不改写为当前完成状态。
 
 ## 同轮续接：D09 Overview 测试补强（实现，待运行）
@@ -76,7 +76,7 @@
 - `git diff --check` 退出 0；仅既有 CRLF 转换提示。核对实际 diff，保留原 Overview/TearDown 改动，未计作本轮新增。
 - 绝对路径 managed Python 只读源码契约检查退出 0：协程名无重复、3 项用例及启动辅助方法不含反射/直接赠资源/改完成状态，存在真实加载、手动 tick、付款库存差额、食物增量与存读入口。仅文本约束，不是 C# 编译或行为测试。
 - Unity 占用查询仅回空输出，不能确定空闲；一次经 Bash 调用 PowerShell 的查询被安全检查拒绝，已停止该路径并改用专用入口，未绕过。没有启动 Editor、构建或测试，不重试此前被保护拒绝的测试源码编译方案。
-- 未执行真实 Unity 编译。未运行新增/修改的 3 项 PlayMode、D12、P0-04、全量 EditMode、Console、缺陷注入红灯或设备/真人测试；不引用此前 Developer 编译作为本轮证明。文件内其他旧反射测试保留，不称整文件无反射。
+- 未执行真实 Unity 编译。未运行新增/修改的 3 项 PlayMode、D12、P0-04、全量 EditMode、Console、缺陷注入红灯或真人测试；不引用此前 Developer 编译作为本轮证明。文件内其他旧反射测试保留，不称整文件无反射。
 
 ### 下一动作
 
@@ -93,4 +93,3 @@
 - 独立 D09 静态复核正文曾经返回，之前任务与输出的“最终正文未取得”记录已过时；仅采纳已收到的静态结论。Explore-1 后续刷新调查再次 502 网络失败，本次没有新分析结果，由主代理接管；不把失败代理当成功。
 - 主代理定向检索自有源码的启动/刷新回调：`LatestTestErrorReport.Register` 只注册测试回调，`PMusicAudioImporter.OnPreprocessAudio` 只调整指定音乐目录导入设置；没有从这两个入口确认刷新死循环。没有调用栈，暂不能排除其它 Unity/包/系统阶段阻断。
 - 本轮没有继续修改 D04/D11，也没有以静态检查替代运行验证。
-

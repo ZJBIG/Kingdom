@@ -2,7 +2,7 @@
 
 ## 项目与规则来源
 
-- Unity 版本以 `ProjectSettings/ProjectVersion.txt` 为准（2022.3.62f3c1）；主场景 `Assets/Scenes/SampleScene.unity`，目标 Huawei P40 Pro 横屏。
+- Unity 版本以 `ProjectSettings/ProjectVersion.txt` 为准（2022.3.62f3c1）；主场景 `Assets/Scenes/SampleScene.unity`。外部运行体验由用户自行验收，代理不执行或跟踪，不构成交付门槛。
 - 当前源码/资产决定实现事实；本文件及就近 scoped AGENTS 规定硬约束。细化流程按下表加载，历史审计和缓存不能覆盖当前事实。
 - 规范技能位于 `.agents/skills/`，可执行辅助工具位于 `tools/codex/`；`.codex/` 保存续接入口、交接和可恢复归档。
 - `.workbuddy-ai/skills/kingdom-project-dev/SKILL.md` 仅为客户端适配入口。文件存在不等于自动注册/触发已验证；没有可调用入口时直接读取规范技能，不声称已激活。
@@ -34,6 +34,7 @@
 - 当前证据入口：`data/content-closure-static.md`、存在时的 `data/economy-parity/`、`TestResults/Latest-Test-Errors.txt`；核对时间、输入版本和实际日志，而非只看文件名。
 - 旧日期XML、pacing、基线、历史快照和 `.codex/archive/` 只作背景。不要在长期规则里固定“当前通过数/零用例/失败列表”。零项目测试、跳过关键行为或无对应日志不能验收。
 - 未执行真实Unity编译时明确写：`未执行真实 Unity 编译。`
+- 外部运行环境与交付形态不属于本代理的执行、跟踪或验收范围；不得把它们列为待完成门槛。
 
 ## 工作树、交接与安全
 

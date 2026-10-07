@@ -1,5 +1,19 @@
 # Refactor progress log
 
+## Current status summary
+
+- Everything below the summary is a dated historical record, not current
+  state. Do not quote old pass counts, environment details or migration
+  steps from it as current facts.
+- Current evidence entry points: `data/content-closure-static.md`,
+  `TestResults/Latest-Test-Errors.txt`, and the latest dated report under
+  `outputs/`.
+- Current known gaps (as of 2026-09-19): Unity batch-mode builds/tests still
+  hang, so compilation gates run through the two Developer csproj builds and
+  runtime behavior needs interactive Unity validation; see
+  `.codex/handoffs/2026-09-10-readonly-refactor-scan-handoff.md` for the
+  refactor batch status and blocked items.
+
 ## 2026-08-30 Todolist acceptance and current audit cleanup
 
 - Corrected two stale Editor assertions: PrecisionManufacturing no longer
@@ -10,7 +24,7 @@
 - Current isolated Unity EditMode passed 644/644. The original project latest
   PlayMode report passed 32/32; the isolated batch report had 31 passes, one
   conditional outer-page-overflow skip, and zero failures.
-- Todolist static gates, content closure, Android settings, P40 UI contract,
+- Todolist static gates, content closure, UI contract,
   resource-flow audit and local YAML script references all pass.
 - Research runtime evidence reports 129 nodes in 129 unique cells, positive
   viewport/content bounds, horizontal and vertical overflow, both pan axes
@@ -19,12 +33,12 @@
   status page. The previous 179781-byte audit is retained under
   `.codex/archive/` and is not current evidence.
 
-## 2026-08-30 Android isolated build timeout
+## 2026-08-30 isolated build timeout
 
-- A real ARM64/IL2CPP Android build was attempted in a D-drive isolated copy.
+- A real ARM64/IL2CPP build was attempted in a D-drive isolated copy.
 - Static preflight and Unity licensing passed, but the copied project froze in
   Bee `ScriptAssemblies` compilation and stopped writing the build log.
-- The build script timed out after 1800 seconds, produced no APK, and stopped
+- The build script timed out after 1800 seconds, produced no build artifact, and stopped
   the isolated Unity process. Its orphaned `bee_backend` was also stopped;
   the user's original Unity PID 32928 remained untouched.
 
@@ -77,7 +91,7 @@
   Chinese test names no longer cause false `InvalidXml` failures.
 - Unity validation passed PlayMode `32/32` in the original project; the
   isolated copy passed EditMode `642/642` and PlayMode `32/32`.
-- Android/UI/YAML preflight gates passed. APK generation was attempted in an
+- Static/UI/YAML preflight gates passed. Build artifact generation was attempted in an
   isolated copy but stopped after the copied Library cache repeatedly reported
   invalid artifact IDs during mass asset reimport. A clean copy then reached
   Unity startup but could not write the license file because C: had no free

@@ -3,7 +3,7 @@ Kingdom 下一阶段游戏策划与执行清单
 编制日期：2026-09-13
 审查基线：D:\GitHub\Kingdom，Git HEAD d0ef657；首轮开始时工作区干净，第二轮保留后来出现的既有未跟踪文件。
 修订：2026-09-13 第二轮深审；第十一节优先于首轮概述，详细证据见 outputs/DeepAudit.txt。
-文档状态：策划建议 / 待执行；两轮均未修改游戏代码、资产、数值或项目配置。
+文档状态：策划建议 / 待执行；原始两轮审查本身未修改游戏代码、资产、数值或项目配置，后续实施批次及当前事实以本文件证据账本、outputs 和交接记录为准。
 建议版本工作名：0.6「可玩闭环验证版」（仅提案，不变更当前 0.5 版本号）。
 
 一、先看结论
@@ -17,16 +17,16 @@ Kingdom 下一阶段游戏策划与执行清单
 
 执行顺序：
   M0 可信基线与方案纠错
-  → M1 新档至 Industrial 的可玩闭环 + Android 真机门
+  → M1 新档至 Industrial 的可玩闭环
   → M2 Spacer 首次探索/远征闭环
   → M3 有证据的中后期调参与少量内容补链。
 
 最先开工的五件事（第二轮深审后调整）：
-  [ ] P0-04 优先验证旧档真实加载、备份轮换失败、暂停保存失败后的离线结算（D01-D03）。
+  [ ] P0-04 优先验证暂停保存失败后的离线结算与坏主档入口（D01-D03）；v9 无备份回退，见该条当前事实。
   [ ] P0-01 当前版本重跑验收；补真实被测操作，修正科研里程碑口径（D09/D12）。
-  [ ] P0-02 E08 除脚本类型与配方，还须核对旧厂停建、定向加成与升级净收益（D05/D06）。
-  [ ] P0-03 定案生产力/物流悬案，明确科研与军事复合建筑的角色（D07）。
-  [ ] P1-01 + P0-05 完成真人首局与可安装 APK 的 P40 Pro 验收。
+  [x] P0-02 **已完成实施（乙案，2026-09-19）**；旧厂停建/定向加成/升级净收益的运行核对仍待六态回归。
+  [ ] P0-03 定案生产力/物流悬案，明确科研与军事复合建筑的角色（D07）；**B 项已定案（2026-09-18），A/C 待实测**。
+  [ ] P1-01 完成真人首局。
   注：D 编号是深审证据，不另立重复开发任务；详细复现与验收见第十一节及 DeepAudit.txt。
 
 二、扫描范围、现状与证据可信度
@@ -42,9 +42,9 @@ Kingdom 下一阶段游戏策划与执行清单
 规模盘点（当前 Git 跟踪文件）：
   - Unity 2022.3.62f3c1；主场景 Assets/Scenes/SampleScene.unity。
   - Assets 下 134 个 C#：运行时目录 75，EditMode 测试文件 40，PlayMode 测试文件 5，其他编辑器/入口 14。
-  - 66 个建筑：Animal 9 / StoneAge 10 / Medieval 5 / Industrial 26 / Spacer 16。
-  - 129 条研究：Animal 16 / StoneAge 17 / Medieval 12 / Industrial 36 / Spacer 47 / Ultra 1。
-  - 83 条 Workshop 升级；40 个 Resource 定义；10 个星区；18 个剧情章节 + 1 个档案定义。
+  - 72 个建筑：Animal 9 / StoneAge 10 / Medieval 5 / Industrial 26 / Spacer 19 / Ultra 3。
+  - 143 条研究：Animal 16 / StoneAge 17 / Medieval 12 / Industrial 36 / Spacer 47 / Ultra 15。
+  - 86 条 Workshop 升级；40 个 Resource 定义；10 个星区；18 个剧情章节 + 1 个档案定义。
   - 8 个 Tutorial 步骤资产；14 个 Prefab；1 个主场景。
   - Food 由独立库存状态表达，不包含在上述 40 个 Resource 资产数量中。
 
@@ -54,29 +54,46 @@ Kingdom 下一阶段游戏策划与执行清单
   - 科研前置队列与队首原子支付、Workshop 购买和效果重建。
   - 本星系探索、远星经营式战役、补给预览、舰队维修、占领、星区建筑。
   - 18 章顺序永久剧情、工业和 Spacer 动态引导、页面滚动位置记忆、音乐 Addressables 播放。
-  - 存档 v8、主存档/备份回退、30 秒自动保存、最长 24 小时离线窗口。
+  - 存档 v9 单一主档、30 秒自动保存、最长 24 小时离线窗口（无备份轮换；旧版本存档不迁移，见 P0-04）。
 
 当前证据账本：
   [已有报告] data/content-closure-static.md：Industrial 研究 81/81、工坊 37/37、建筑 50/50；
-             Spacer 研究 47/47、工坊 46/46、建筑 16/16；Ultra 研究 1/1，建筑/工坊为 0；资源 40。
+               Spacer 研究 47/47、工坊 46/46、建筑 19/19；Ultra 研究 15/15，工坊 3/3、建筑 3/3；资源 40。
+             （Spacer 建筑计数 16→19 是 2026-09-19 E08 乙案新增三座厂所致。）
              这证明定义图可达，不证明玩家按合理时间、合理建筑数能玩通。
-  [已核对XML] 2026-09-12 EditMode-20260912-run6.xml：661/661 通过，失败/跳过均为 0。
-              这是仓库保存的上次结果，不是本次重新执行结果。
-  [已核对XML] 2026-09-08 PlayMode-results.xml：34 项，33 通过，0 失败，1 跳过。
-              被跳过的是 OuterPageScroll_DirectDragReportsMeasuredBounds：
-              “No measured Overview overflow; background drag was not exercised.”
-              ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping 在该次报告中通过。
-              不得继续使用“PlayMode 零用例”的旧结论，也不得把 33+1 写成全项验收通过。
-  [证据缺口] 上述 PlayMode 早于 9 月 12 日经济修缮与 9 月 13 日美术更新。
+   [当前 Unity 断言] 2026-09-22 20:03:19 Unity Editor 全量 EditMode：686 项，686 通过，0 失败，0 跳过；
+            已覆盖最终综合工厂资产、Ultra 15/15 研究、3/3 建筑与 3/3 Workshop 的当前测试程序集。
+   [当前 Unity 断言] 2026-09-22 20:04:24 Unity Editor 全量 PlayMode：35 项，35 通过，0 失败，0 跳过。
+            以上两轮均在当前工作树的最终资产状态下完成；此前 680/679/1 与 686/613/73 均降为历史/中间结果。
+  [历史] 2026-09-20 00:44:59 EditMode 轮：674 项，671 通过，3 失败；三处已定位并修复，详见
+           outputs/Kingdom-EditMode三处失败根因定位与修复-2026-09-20.md。
+  [已核对] 2026-09-20 PlayMode 全量：**35/35 通过**（存档隔离缺口修复后由用户复跑）。
+  [历史] 2026-09-12 EditMode-20260912-run6.xml：661/661 通过；2026-09-08 PlayMode-results.xml：34 项
+           33 通过 1 跳过（被跳过的是 OuterPageScroll_DirectDragReportsMeasuredBounds：
+           “No measured Overview overflow; background drag was not exercised.”）。
+           **两者均早于 v9、D12、D09 与美术改动，仅作背景，不代表当前基线。**
+           不得继续使用“PlayMode 零用例”的旧结论，也不得把 33+1 写成全项验收通过。
+  [证据缺口] 最新 EditMode 全量（含 2026-09-20 三处修复与 30 处容差转换）**尚未重跑**；
+           `SectorBuildingTests` 的 `rebuildFailure` 诊断值与第十批 EditMode 失败 #2 全貌仍待该轮结果。
   [证据缺口] data 下本次只发现 content-closure-static.md，未发现当前持久化 economy-parity 事实。
               这不是游戏失败证据；模拟器不是节奏和平衡决策依据。
   [证据缺口] 未发现项目内 APK/AAB。8 月 30 日构建审查记录过 Bee 挂起、未出 APK，
-              但不能据此断言今天仍由同一原因阻塞。Android 配置完成不等于构建/真机通过。
+              但不能据此断言今天仍由同一原因阻塞；本项目任务不包含构建包交付验收。
   [本轮新证据] 第二轮已重跑静态闭包，退出码 0，计数与上列一致；独立输出 outputs/DeepAudit-Closure.txt。
                 在内存中核对 328 份定义的脚本类型、ID/GUID 及 2653 次定向类型引用，未发现相应重复/类型错误。
                 该文本结构检查不覆盖 Unity 导入行为，也不证明数值与持续供给正确。
-  [证据缺口] 两轮均未启动 Unity、未重新执行 Unity 测试、未构建 Android、未做真人试玩。
-              未执行真实 Unity 编译。
+   [本轮新证据] 2026-09-22 后期综合工厂收敛：Spacer 综合工厂静态覆盖 18 类主材料，Phantom 两类高阶材料
+                 保留专门供应链并作为综合工厂维护输入；七座后期材料厂的最终升级入口统一指向该工厂；Ultra 由单一综合工厂承担主要高级材料/物流/舰队职责。
+                本轮同时将 Spacer/Ultra 综合工厂提升为巨构级消耗与吞吐：空间、生产力、Food/Power/Logistics、建造材料和持续原料同步放大，能源/生态/科研仍保留独立能力机制。
+                Ultra 另新增三个能力工坊，分别扩展全局建筑生产、研究和物流；不新增资源生产建筑或独立运行时系统，详见 outputs/Kingdom-Ultra-R1能力工坊扩展-2026-09-22.md。
+                Ultra 再新增远征 doctrine、舰队自修和占领治理三项研究机制，详见 outputs/Kingdom-Ultra-R1深空机制扩展-2026-09-22.md。
+                Ultra 随后追加战役连续性、补给适应和伤亡控制三项研究机制，复用既有 Campaign 效果，详见 outputs/Kingdom-Ultra-R1深空战役纵深扩展-2026-09-22.md。
+                Ultra 再追加能源谐波、闭环生态和公民生产力三项巨构支撑研究，复用既有能源/Food/人口生产力效果，详见 outputs/Kingdom-Ultra-R1巨构支撑扩展-2026-09-22.md。
+                closure、资源流和可持续性检查均通过；运行期供给与等待时间仍未验收。
+  [本轮新证据] `NewEconomySimulator` 确定性回归 exit 0，JSON `passed=true`，13/13 结果通过；仅作为回归证据，
+                不替代 Unity 运行期供给、节奏或回本观察。
+   [当前证据缺口] EditMode 与 PlayMode 全量断言已通过；真实节奏/回本尚未验证，
+               代理不将测试通过扩大解释为这些结果。
 
 三、当前阶段的游戏定位与版本边界
 ------------------------------------------------------------
@@ -90,25 +107,34 @@ Kingdom 下一阶段游戏策划与执行清单
   4. 离开再回来，玩家理解离线收益、停滞原因与下一目标；不会重复结算或无提示丢失进度。
   5. 早期验收通过后，Spacer 首次殖民、远征和维修构成明确的小目标，不直接抛给玩家整个深空后盘。
 
-暂不纳入本版：Ultra/Archotech 新内容、即时战斗、外交/角色技能/随机事件大系统、
+暂不纳入本版：Archotech 与更大的 Ultra 专属系统、即时战斗、外交/角色技能/随机事件大系统、
 第二套任务系统、重置/转生系统、自动建造策略系统、模拟器路线搜索、联网商业化功能。
 这些不是“永远不做”，而是本轮没有足够证据证明比修通现有体验更值得做。
 
 四、P0：先建立可信基线，避免错误方案落地
 ------------------------------------------------------------
 [ ] P0-01 当前版本验收基线与滚动测试补证
-  玩家价值：避免“测试绿了，但手机上按钮/拖拽用不了”。
-  当前事实：有 661 项 EditMode 和 34 项历史 PlayMode，不需要重建测试体系；存在一个未执行到拖拽的跳过项。
-  下一动作：按当前源码重跑全量 EditMode、相关 PlayMode 和 Console；为拖拽构造真实有内容溢出的页面/测试夹具。
+  玩家价值：避免自动化测试通过，但页面按钮或拖拽交互不可用。
+  当前事实（2026-09-22 更新）：Unity Editor 全量 EditMode **686/686 通过**，全量 PlayMode **35/35 通过**；
+  2026-09-20 的 674 项 / 3 失败、此前 680/679/1 与 686/613/73 均降为历史或中间背景。
+  仍未完成：那个“未执行到拖拽”的跳过项（`OuterPageScroll_DirectDragReportsMeasuredBounds`）
+  在隔离修复后是否已产生真实溢出，需在新一轮结果中确认。
+  下一动作：保留当前断言证据；真实节奏/回本另行验证；拖拽专项仍按原测试门槛单独处理。
   不要在生产界面塞空白行制造滚动，也不要把 Ignore 改为无条件 Pass。
   验收：报告逐项列出总数、失败、跳过及原因；真实节点拖拽/背景拖拽产生位置变化；
         viewport/content 为正，越界被限制，短点击仍有效，旧界面不拦截事件。
-  证据：TestResults/PlayMode-results.xml；Assets/Tests/PlayMode/KingdomPlayModeTests.cs；
-        Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs。
+  证据：TestResults/Latest-Test-Errors.txt（最新一轮）；TestResults/PlayMode-results.xml（历史）；
+        Assets/Tests/PlayMode/KingdomPlayModeTests.cs；Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs。
   依赖：无。角色：开发 + QA。
 
-[ ] P0-02 暂停照抄 E08 三工厂章程，先修正设计与导入契约
-  当前事实：CONTENTADVISE/e08-single-source-upgrade-chain-spec.md 尚未实施，存在明确方案错误
+[x] P0-02 【已按乙案实施，2026-09-19】暂停照抄 E08 三工厂章程，先修正设计与导入契约
+  **状态（2026-09-20 更新）**：用户 2026-09-18 拍板**乙案（升级链换厂，即章程原案，先修完 4 项合同缺陷再实施）**；
+  2026-09-19 已完成实施：新建 `OrbitalMachiningComplex`/`OrbitalWireWorks`/`OrbitalBuildingMaterialsWorks`
+  （均 Spacer 目录、`costGrowth 1.24`），三处老厂 `upgradeTo` 各改一行指向新 guid，CopperWire 与 Ceramic 已随新厂继承。
+  2026-09-20 补修：OCC 的 `productivityConsumption` 320→360、OWW 的 280→360（满足 Spacer ≥360 不变量）。
+  **仍待运行验证**：六态回归与净流/回本校准（见 outputs/Kingdom-E08乙案实施-升级链换厂-2026-09-19.md）。
+  以下为实施前的审定记录，保留作背景：
+  当前事实（审定）：CONTENTADVISE/e08-single-source-upgrade-chain-spec.md 尚未实施，存在明确方案错误
     （注：CONTENTADVISE/ 已在提交 a85f0e7 删除；该目录全文恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/，用 git show a85f0e7^:<路径> 可复核）：
     a. §3 写的 Building 脚本 GUID 755e6eabd0fdcbc4c92dd540b39a0ec9 实际属于 Research.cs。
        当前 Building.cs.meta 是 c1df40775f864874083816b75d1cf5ba；不得改现有 .meta 来迎合文档。
@@ -135,8 +161,10 @@ Kingdom 下一阶段游戏策划与执行清单
   A 生产力：RareMetalMine/TitaniumMetallurgicalComplex 已从 12 改为 120/95，
     记录进入 Industrial 后与 Spacer 起步两组真实布局的总生产力、使用量、建筑效率及原料净流。
   B 深空中继站：DeepSpaceRelay 基础物流产 25、耗 48，同时提供舰队能力；
-    建造前后分别记录实际物流、研究/工坊倍率和战力。不能看到负净值就认定字段写反，
-    应确认它究竟是“舰队支援的物流消费者”还是“物流净供给设施”，让定位、文案、数值一致。
+    **【已定案，2026-09-18】定为「舰队支援的物流消费者」**：净 −23/s，真正的净供给者是
+    OrbitalStation(+180)/EarthMoonLogisticsHub(+240)；两处定向加成叠加后 34.5/s 仍 <48 无法转正，
+    `fleetPowerGranted 100` 佐证舰队支援定位。文案已补「本身持续占用物流运力」，**未改任何数值**。
+    仍待运行实测：建造前后实际物流、研究/工坊倍率与战力。
   C 研究建筑：比较 University 与 Spacer 研究建筑的边际 RP、建造/维护、供电/生产力和已买工坊。
     CalculateResearchPower 已应用逐建筑研究倍率；不能只比较基础 RP 就断言 University 永远支配。
   验收：每项有布局、前置、倍率、实际吞吐、瓶颈、结论；区分设计选择/数值问题/逻辑问题；
@@ -145,30 +173,20 @@ Kingdom 下一阶段游戏策划与执行清单
   依赖：P0-01。角色：数值策划 + 开发。
 
 [ ] P0-04 保存、回归与异常恢复达到可交给别人试玩的标准
-  当前事实：原子写入、备份回退、版本号 5-8 接受与离线时间戳已有实现和 EditMode 测试；
-            但第二轮发现磁盘旧档入口、恢复后的备份轮换与保存失败后的时间结算仍需优先验证，见 D01-D03。
-  下一动作：在隔离测试存档上验证前后台、杀进程重进、主档坏/备份好、两档均坏、版本升级、
+  当前事实：原子写入（主档 + .tmp 原子替换）与离线时间戳已有实现和 EditMode 测试。
+            **已按 v9 单一权威收口**：SaveFormat.CurrentVersion = 9，IsSupportedVersion 只接受 9；
+            旧版本存档不迁移、不保留旧 ID 映射、不做备份恢复（AGENTS.md 硬约束）。
+            第二轮报告里的“备份回退 / 版本号 5-8 接受 / 恢复后的备份轮换”均属已移除机制的残留描述，
+            见 D01/D02 条目下的现状更正。核实点：SaveManager.cs 全文无 backup/bak 相关标识。
+  下一动作：在隔离测试存档上验证前后台、杀进程重进、主档坏（无备份可退）、版本号不等于 9、
             科研部分支付历史、已占领星区建筑与剧情连续前缀；不以修改个人存档做实验。
-  补体验：保存失败/备份恢复须让玩家可见；两份候选都无效时明确告知并保留恢复机会，
-          避免把“没有存档”和“现有存档损坏”用同一个无提示新游戏流程处理。
+  补体验：保存失败须让玩家可见；存档无效时明确告知并保留原文件，
+          避免把“没有存档”和“现有存档无效”用同一个无提示新游戏流程处理。
   验收：不重复发起始资源、工坊效果、占领奖励或离线收益；失败加载不残留半份状态；
-        主档损坏能恢复备份；异常信息可理解；真实暂停/恢复不限于反射调用单个回调。
-  证据：SaveManager.cs:111-143、146-208、240-305；SaveFormat.cs；KingdomLogicTests.cs；SaveArchivePressureTests.cs。
+        无效存档被拒绝并回退新局（不做备份恢复）；异常信息可理解；
+        真实暂停/恢复不限于反射调用单个回调。
+  证据：SaveManager.cs:115-176、296-379；SaveFormat.cs；KingdomLogicTests.cs；SaveArchivePressureTests.cs。
   依赖：P0-01；可以与前十分钟试玩准备并行。角色：开发 + QA。
-
-[ ] P0-05 产出可安装 Android 包，并验收最近 UI/美术改动
-  当前事实：IL2CPP/ARM64、minSdk 22、targetSdk 35、横屏配置已存在；
-            KingdomUIRoot.prefab 为 ScaleWithScreenSize / 2640×1200 / Match Width。
-  下一动作：在可用构建环境复现并诊断打包，不因为旧 Bee 挂起就改玩法；不升级 Unity 或依赖包。
-  设备动作：安装/冷启动/热启动、左右横屏、安全区、列表与研究树触控、详情滚动、星区展开、
-            连续切页、音乐切换、后台恢复、30 分钟会话；所有点击区域不得被非安全区消息条拦截。
-  美术动作：核验 44 张新换资源图在资源卡/研究需求图标上的辨识度、透明边缘与像素对齐；
-            测量 67 份资源贴图 meta 关闭压缩后的实际包体和纹理内存，不凭张数猜内存。
-  验收：有 APK 路径、版本/提交、设备/系统、日志和问题单；无崩溃、黑屏、缺引用、严重卡触控；
-        常态帧时间建议先以 30fps 可用为底线，记录 P95、最慢切页、内存与长会话趋势，数值实测后定预算。
-  证据：ProjectSettings/ProjectSettings.asset；tools/codex/build-android.ps1；
-        docs/audits/p3-04-android-build-review.md（历史构建线索）；9 月 13 日资源美术 handoff。
-  依赖：当前编译/测试可用；最终包在本轮内容稳定后再验一次。角色：开发 + QA。
 
 五、P1：做成真正可玩的 Animal → Industrial 版本
 ------------------------------------------------------------
@@ -187,8 +205,22 @@ Kingdom 下一阶段游戏策划与执行清单
 
 [ ] P1-02 给三个时代门各做一条无作弊纵向流程
   1 Animal → StoneAge：Agriculture、AnimalHusbandry、ClayExtraction → StoneAgeSettlement。
+    **核对通过**：`StoneAgeSettlement` 前置正是 Agriculture、AnimalHusbandry、ClayExtraction（3 条，逐字吻合）。
   2 StoneAge → Medieval：青铜/铁器、文字记录与 FeudalAdministration 的真实前置。
+    **核对通过**：`FeudalAdministration` 前置正是 Smithing_Bronze、Smithing_Iron、WrittenRecords（3 条）。
   3 Medieval → Industrial：MechanicalEngineering、Steelmaking → Industrialization。
+    **核对通过**：`Industrialization` 前置正是 MechanicalEngineering、Steelmaking（2 条）。
+  **2026-09-20 静态前置核对：以上三条链全部正确，并补齐本文未覆盖的两个时代门**：
+  4 Industrial → Spacer：`InterstellarNavigation` 前置 = `Industrialization`、`TitaniumAlloyEngineering`（2 条）。
+  5 Spacer → Ultra：`TechnologicalSingularity` 前置 = `InterstellarKnowledgeCoordination`、
+    `MatterStateControlTheory`、`PhaseFieldNavigation`、`QuantumComputing`（4 条）。
+  **时代门语义（本轮核实，写流程时别搞错）**：推进型研究（`AdvancesTechLevel`）的 `TechLevel`
+  表示**要进入的时代**，判据 `research.TechLevel == currentTechLevel + 1`（`ResearchManager.cs:808-812`），
+  完成时调 `GameManager.AdvanceTechLevel(research.TechLevel)`（`:735-736`）；
+  非推进型研究的判据是 `currentTechLevel >= research.TechLevel`。**同一字段两种含义。**
+  各门解锁建筑数：StoneAgeSettlement 4、FeudalAdministration **0**、Industrialization 8、
+  InterstellarNavigation **0**、TechnologicalSingularity **0**（后三个是纯时代门）。
+  证据：tmp/audit-research-roles.py（只读）；ResearchManager.cs:808-812/735-736。
   每段必须包含“此前产业积累 → 当前关键取舍 → 实际支付 → 时代改变 → 新内容可用”，
   并在推进前后保存/加载，确认建筑、科研、工坊、教程、剧情状态一致。
   验收：不直接 SetStatus(Completed)、不注入巨额资源、不反射跳时代；
@@ -207,17 +239,54 @@ Kingdom 下一阶段游戏策划与执行清单
   证据：TutorialManager.cs、EraGoalEvaluator.cs、KingdomUIRoot.DetailPanel.cs、docs/ui/page-responsibilities.md。
   依赖：P1-01/P1-02 的困惑记录。角色：UX + 开发。
 
-[ ] P1-04 Food / 人口 / 幸福做一次跨时代承载核算
+[x] P1-04 Food / 人口 / 幸福做一次跨时代承载核算
+  **已按静态核算完成（2026-09-20），结论：未发现真实承载断链，不立项新增粮食建筑/容量升级。**
+  报告：outputs/Kingdom-跨时代Food承载核算-2026-09-20.md；
+  工具：tmp/audit-food-carrying-capacity.py、tmp/list-food-producers.py（均只读）。
   IndustrialAgriculture 已是 1.5，不要重新按 6.075 问题再修一遍。
-  对新住房解锁、扩人口、生产力吃紧、负食物和回归离线分别记录：
-    满载耗粮 = PopulationCapacity × FoodConsumptionPerPerson；
-    稳态净粮 = 实际食物生产 - 人口耗粮 - 建筑耗粮 - 行动耗粮。
-  下一动作：先检查现有 Farm/加工粮食/PlantingField/轨道农业以及现有工坊能否承接；
-            只有真实试玩证明缺少中间决策，才立项中古粮食建筑或工业粮食容量升级。
-  设计方向：容量升级解决缓冲时间，产能升级解决长期供需；二者不要互相替代。
-  验收：同代合理规模可养活满载人口；短暂断粮可恢复；玩家看得懂人口停止/下降原因；
-        所有非 Food 资源仍无库存容量。
-  对应旧项：E14/E18/E30/E33，改为有条件立项，而非全部马上新增。
+
+  【核算模型，以源码为准】
+    BaseFoodProductionRate = 5/s 全时代免费（GameState.cs:7）；初始 unscaledFoodProductionRate 即等于它（:101）；
+    BaseFoodCapacity = 500 免费地板（GameState.cs:8）；FoodConsumptionPerPerson = 0.8/s（PopulationState.cs:8）。
+    建筑产粮/耗粮都在基线之上累加。断粮伤害需 FoodAmount<=0 **且** FoodNetRate<0（GameManager.cs:167）
+    —— 库存吃空前不掉人，这是「短暂断粮可恢复」的机制保障。离线同走该路径，最多 24h（SaveManager.cs:13）。
+
+  【关键事实：建筑可用性是累积的，不是按时代隔离】
+    ArePrerequisitesMet（BuildingManager.cs:396-447）只判 TechLevel<=当前 && 研究完成 && 工坊已购；
+    没有「时代过期即不可建」。故中世纪可用石器时代的 IrrigationWorks(+20/s)。
+    **「中世纪无产粮建筑」是累积口径下的假象，不是断链** —— 中世纪新增的 5 座建筑（Academy/
+    Caravanserai/Library/SteelForge/TownHouse）是研究/物流/冶金/住房，粮食由上一代灌溉设施承接。
+
+  【产粮链（全库仅 6 座 foodProductionRate>0）】
+    Farm(+8) → IrrigationWorks(+20) → PlantingField(+48) → OrbitalAgroecologyArray(+720)
+    Smokehouse(+2.5) → Granary(+2)
+    逐时代「最佳可用产粮 / 覆盖单座满级住房所需座数」：
+      Animal      Farm +8/s      popCap 5     需 0 座（基线已够）
+      StoneAge    Irrig +20/s    popCap 12    需 0.23 座
+      Medieval    Irrig +20/s    popCap 40    需 1.35 座
+      Industrial  Plant +48/s    popCap 240   需 3.90 座
+      Spacer      Orbi +720/s    popCap 3000  需 3.33 座
+    每代都有「可数的几座产粮建筑供养满载住房」的解，比率稳定在 3-4 座/满级单座住房。
+
+  【食物容量阶梯（Food 仍是唯一封顶库存）】
+    基线 500 / Smokehouse +400 / CeramicKiln +250 / Granary +1000 / IrrigationWorks +200 /
+    RailHub +2500 / OrbitalStation +30000。其余资源无容量字段。
+
+  【验收核对】同代合理规模可养活满载人口：通过；短暂断粮可恢复：通过（机制保障：需吃空库存才掉人，
+    且断粮流失速率 = shortage×max(1,pop)/3600，最快 1h/倍量，非瞬间清空）；所有非 Food 资源仍无库存容量：通过
+    （FoodEfficiencyTests.EveryBuildingUsesTheSameFoodSupplyRatio:72-78 已守）。玩家看得懂停止/下降原因：归 P1-03，未核。
+
+  【带入试玩观察的唯一风险点（不足以直接立项）】
+    仅建满级住房却不配产粮建筑时，第二时代起库存只够撑几十秒到几分钟，而离线窗口 24h。
+    但该前提是「建房完全忘配粮」，实际玩法罕见；且流失是缓慢流血而非暴毙。
+    若试玩证实玩家频繁遇到「离线回来人口掉一大截且不知原因」，再考虑提高低时代 BaseFoodCapacity
+    或加人口接近容量时的食物预警（容量/UI 方向），**不是**新增产粮建筑。
+    另：Spacer 全部 foodConsumptionRate>0 的建筑都同时 powerConsumptionRate>0，按
+    IsFoodConstraintRequired(:1387-1393) 属「能源驱动豁免」，不受食物幸福约束 —— 刻意设计，
+    已由 FoodEfficiencyTests.EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint:48-59 覆盖。
+
+  下一动作：随真实试玩观察上述风险点；无静态证据支持立项。
+  对应旧项：E14/E18/E30/E33，维持「有条件立项」结论，本轮不新增。
   依赖：P0-03/P1-02。角色：数值策划。
 
 [ ] P1-05 完成第一次 Workshop 购买的教学闭环
@@ -225,19 +294,70 @@ Kingdom 下一阶段游戏策划与执行清单
   下一动作：把“解锁工坊 → 找到可购改良 → 识别前置和代价 → 购买 → 对应建筑效果变化”串成一次体验。
   若选 PrecisionTooling，必须按其实际 PrecisionManufacturing 前置与资源成本引导；
   不因想让它成为首购而暗中赠送完成或跳过高成本。首购对象由实玩时真正可负担的现有升级决定。
+  **2026-09-20 已静态缩小候选集（报告 outputs/Kingdom-工坊首购候选静态缩小-2026-09-20.md，
+  工具 tmp/audit-workshop-first-purchase.py，只读）**：
+    · 83 个工坊升级里**只有 12 个是入口点**（无 `requiredUpgrades`）；Spacer 的 5 个入口点
+      研究深度 23~26，工业档 7 个为 10~18。
+    · **`PrecisionTooling` 结构上不可能成为首购**：它要求 `requiredUpgrades = DraftingTables`，
+      故第一笔购买必然是某个入口点。其代价也偏高——合计 **3.64e6**（Bronze 1e6 / CopperWire 240000 /
+      Steel 2.4e6），是 `IndustrialFoodProcessEngineering`(9,000) 的约 **404 倍**；研究深度 15
+      深于 4 个入口点（10/10/11/11）。⇒ P1-05 担心的「想让它成为首购」在结构上不会发生，
+      但也**不能**把引导写成指向它——玩家会卡在 `DraftingTables` 上。
+    · **最浅的两个入口点**（研究深度均 10，均只要求 `IndustrialWorkshop`）：
+      `DraftingTables`（sort 10，9.6e4，全局建造成本 ×1.08）与
+      `IndustrialFoodProcessEngineering`（sort 82，**9,000**，全局食物产出 ×1.5）。
+    · **完整引导链已补齐第一段**：`Industrialization`（时代门）→ **`IndustrialWorkshop`**
+      （携带 `UnlockIndustrialWorkshop` Type 18，**唯一前置就是 `Industrialization`**，
+      即进入工业时代即可研究）→ 上述两个候选之一。这是最短完整路径。
+    · **引导设计的真实取舍（本轮不替策划决定）**：最浅最便宜的两个效果**都是全局的**
+      （不指向具体建筑），而 P1-05 要求串到「对应建筑效果变化」。
+      最便宜的**指向建筑**选项是 `LaboratoryGlassware`（3.4e4 → University 研究力 ×1.18），
+      但研究深度 16（需 Coking/ConcreteEngineering/IndustrialChemistry/ScientificMethod 四条前置）。
+      取「马上买得起」还是「买完看得见某座建筑变强」，取决于试玩中玩家先攒到哪条线的资源。
   验收：购买失败不扣部分资源，成功只生效一次；详情和产出显示一致；存读档后不丢失/重复倍率。
   依赖：P1-02/P1-03。角色：玩法策划 + UI + QA。
+  证据：outputs/Kingdom-工坊首购候选静态缩小-2026-09-20.md；tmp/audit-workshop-first-purchase.py。
 
 [ ] P1-06 让研究成为选择，先复核角色，再加新节点
+  **2026-09-20 已完成「先复核角色」（报告 outputs/Kingdom-研究角色复核-2026-09-20.md，
+  工具 tmp/audit-research-roles.py，只读）**：
+    · 分类覆盖全部 **129** 节点；**84/129（65%）是多重角色**，故分类保留角色集合不压单桶。
+    · 解析正确性已交叉验证：脚本数出 Medieval **12** / Industrial **36** / Spacer **47**，与本文记载逐字吻合。
+    · **时代门 5**：StoneAgeSettlement / FeudalAdministration / Industrialization /
+      InterstellarNavigation / TechnologicalSingularity；其中**3 个不解锁任何建筑**（纯时代门）。
+    · **开新链 19**（口径：资源首次可产 = 其最早可建生产者建筑的前置中**最深**的一个）：
+      Animal 5（Agriculture/ClayExtraction/Quarry/StoneTools/Woodworking）、
+      StoneAge 2（Smithing_Copper/StoneAgeSettlement）、Medieval 1（Steelmaking）、
+      Industrial 9（AluminumMetallurgy/Coking/ConcreteEngineering/ElectricalEngineering/
+      IndustrialChemistry/NickelHydrometallurgy/PrecisionManufacturing/RareMetalResourceDevelopment/
+      TitaniumAlloyEngineering）、**Spacer 仅 2**（PhantomMaterials/PhaseMaterialEngineering）。
+    · **解除当前约束 16**（含产能类效果）；**提高旧产业效率 117**（**129 条里 117 条含乘数**——
+      效率提升是研究绝对主体）；系统解锁 4；拆除返还 4。
+    · **叶子 10**：OrganizedDefense / AnimalFodder / CropRotation / OrganizedWatch / VillageCrafts /
+      GuildSystem / Gunpowder / SyntheticFertilizers / PrecisionMedicine / TechnologicalSingularity；
+      **10 个全部携带真实全局乘数**，符合「支线有真实价值即可作叶子，不强行延长」。
+    · **扇出领先者**（最被依赖）：TitaniumAlloyEngineering 21、IndustrialChemistry 18、
+      OrbitalEngineering 13、PhantomMaterials 12、PhaseMaterialEngineering 11、Coking 8、
+      PowerGridEngineering 7、PrecisionManufacturing 7 —— **前 8 全是材料节点，不是时代门**。
+    · **对「成为选择」的含义**：效率类占 117/129 ⇒ 默认体验是「数字变大」而非「路线分叉」；
+      材料链是骨架且是瓶颈（玩家在这些点没有选择）；Spacer 47 条里只有 2 条引入新资源，
+      其余 45 条复用工业资源 ⇒ 若要给 Spacer 增加选择感，应优先加**开新链**而非再加效率乘数。
+  （方法记录：开新链口径我改了两次——按最浅前置会把 Spacer 资源错记到工业节点，得出「Spacer 不开新链」
+    的假结论；只按最深前置又会把功劳全给通用节点。最终口径为「先定位最早可建生产者，再取其中最深前置」。）
   优先利用既有 Medieval 12 条、Industrial 36 条、Spacer 47 条研究的作用差异。
   将关键节点分成：开新链、解除当前约束、提高旧产业效率、时代门；
   支线节点只要有真实价值就可作为叶子，不因“没有后继”强行延长整棵树。
-  先处理已确认的 MatterStateControlTheory 描述/效果不一致：当前只有 Type 5 value 1.12，
-  但描述仍承诺提高拆除返还。建议优先让文案如实描述剩余效果，而不是为保文案随意加 >0.9 返还。
+  先处理已确认的 MatterStateControlTheory 描述/效果不一致：**已于 2026-09-18 修复**——
+  该研究只有 Type 5 value 1.12（建造成本降 12%），原描述承诺的「提高拆除返还」无对应 Type 22 效果，
+  文案已删去该空承诺，改为「管理高级材料的装配与服役，降低建设损耗。」
+  （不为保文案加高返还：`SetDeconstructionReturnRate` 取 Max 不叠加，`OrbitalHabitation` 已占位。）
   成本校准读取实际有效速度：基础 RP 当前为 4，并包含建筑效率、逐建筑倍率、全局倍率、
-  幸福、跨时代速度与 GlobalEfficiencyFactor；不要照抄 balance-model 中“1 + buildingRP”的简式。
+  幸福、跨时代速度与 GlobalEfficiencyFactor；**已不再需要**对照 balance-model 的简式——
+  该文档 §3 已于 2026-09-20 改写为与源码一致的加法口径。
   验收：关键研究购买前有清楚预期，完成后有实际变化；只延线经试玩证实有缺口的分支。
+        **角色复核已完成；「加新节点」仍未做，且属内容变更（需走完整内容变更门）。**
   依赖：P0-03/P1-02。角色：玩法/数值策划。
+  证据：outputs/Kingdom-研究角色复核-2026-09-20.md；tmp/audit-research-roles.py。
 
 [ ] P1-07 “离线回来”成为可解释的体验
   当前已有离线结算：前 2 小时按 100%，2-8 小时 60%，后段 25%，最多记入 24 小时窗口；
@@ -250,8 +370,9 @@ Kingdom 下一阶段游戏策划与执行清单
   依赖：P0-04。角色：UX + 开发。
 
 [ ] P1-08 固定 18 章内补叙事承接，不贸然插章改档
-  石器/中古的实际章节少于工业，但当前 Story 是严格连续前缀、存档 v8 必需段，
-  CONTENTADVISE 的“补章节”不是可以无成本直接插入的资产工作。
+  石器/中古的实际章节少于工业，但当前 Story 是严格连续前缀、存档 v9 必需段，
+  CONTENTADVISE 的“补章节”不是可以无成本直接插入的资产工作（该目录已于 a85f0e7 删除，
+  恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/）。
   本版先用现有 StoneAgeReturn_06 / MedievalOrder_07 的正文、摘要、实际行动反馈，
   补“定居的代价、制度的取舍、工业化的理由”，保持章节 ID、顺序与纯叙事职责。
   所有章节只讲已有玩法，不直接送资源、开科技或占领星区。
@@ -272,15 +393,45 @@ Kingdom 下一阶段游戏策划与执行清单
   证据：TutorialManager.cs:1271-1384；docs/content/home-system-exploration-rewards.md；SectorManager.cs。
   依赖：M1 放行；不需要从零重建 Spacer 教程。角色：玩法策划 + UI。
 
-[ ] P1-10 三大工业枢纽的跨时代补链，先利用老设施
+[x] P1-10 【静态核算已完成，2026-09-20】三大工业枢纽的跨时代补链，先利用老设施
+  **静态核算已完成：三链到 Spacer 均有明确投资理由，不立项新增内容。运行期两项未核（见下）。**
+  （标记说明：沿用 P0-02 先例——本条交付物「是否需补链」的判定已完成，残余运行期验证写入正文。）
+  报告：outputs/Kingdom-三大工业枢纽跨时代补链核算-2026-09-20.md；
+  工具：tmp/audit-hub-{chains,efficiency,demand}.py、tmp/audit-weak-resources.py（均只读）。
   目标：MachineFactory / WireMill / BuildingMaterialsComplex 到 Spacer 仍有明确投资理由。
   按“当前需求最大的中间品 → 真实净吞吐 → 上游约束 → 可负担升级”逐条处理；
   优先选择现有科研、Workshop 或有角色差异的升级，避免每种工业材料复制一座轨道工厂。
   试验时同时跟踪 Machinery/Engine/Composite、CopperWire/Electronics、Glass/Ceramic/Concrete，
   不能只看高级产物而漏掉同厂副产物；保留老链资源的持续消耗价值。
-  验收：一套标明建筑数与倍率的现实布局能够承担目标科研/建造/远征净需求；
-        不依赖星区无限产出高级加工品；建造成本几何增长、升级事务与存档回归通过。
-  依赖：P0-02/P0-03/P1-09；先完成一个瓶颈再处理下一个。角色：内容/数值策划 + 开发。
+
+  【已核实：升级链早就存在，不是缺失的补链】
+    MachineFactory→OrbitalMachiningComplex、WireMill→OrbitalWireWorks、
+    BuildingMaterialsComplex→OrbitalBuildingMaterialsWorks（均 TechLevel 3→4，costGrowth 1.2→1.24）。
+  【投资理由（1 座 Spacer 档 = 4 座工业档产出，倍率三链一致 4.00x）】
+    Spacer 档的价值是**原料替代**：用少量 TitaniumAlloy/Electronics 替换大量散装原料。
+    追平产出所需的 4 座工业建筑代价 vs 1 座 Spacer：
+      Machine: 生产力1.12x 电力1.83x 空间5.50x 原料**0.15x**
+      Wire:    生产力1.29x 电力2.50x 空间5.94x 原料**0.04x**
+      BldgMat: 生产力**1.00x** 电力2.95x 空间4.38x 原料**0.02x**
+    → 用电力与空间换取原料与运力，是清晰取舍，非「老建筑没用」也非「新建筑白送」。
+  【产品需求真实，无 DEAD END（按消费者时代拆分）】
+    Machinery 114(Spacer 60)、Engine 15(7)、Composite 76(**75 个是 Spacer**)、Electronics 125(97)、
+    Ceramic 101(47)、Concrete 30(14)、Glass 27(15)、CopperWire 29(6)。
+    Composite 是 MachineFactory 副产物却几乎纯 Spacer 需求，印证「别漏同厂副产物」。
+  【验收】不依赖星区无限产出：通过（三链 Spacer 档均为本土建筑，原料由本土链产出）；
+    建造成本几何增长：通过（1.2/1.24）。
+    未核：①「一套现实布局能否承担目标科研/建造/远征净需求」需实际布局+净需求联立，属运行期；
+          ②升级事务与存档回归需 Unity。
+  【已移交 P2-02 的独立发现】枢纽升级会掉原料（Bronze/Copper/Steel/Aluminum/Rubber/Lubricant、
+    Copper/Tin/Ceramic、StoneBrick/Coke/Chemical）。其中绝大多数被其他 Spacer 建筑/研究/工坊接走
+    （Steel 10 处、Coke 11、Chemical 13、Aluminum 15、Rubber 16、Lubricant 12、Cloth 10 处）；
+    仅 **Bronze/Copper（max era = Industrial）与 StoneChunk（StoneAge）/Clay（Medieval）** 无 Spacer+ 消费者。
+    **【2026-09-20 更正】P2-02 已完成净累积核算：Bronze/Copper 判定为「不是真的没用」**
+    （MachineFactory 仍消耗 Bronze、WireMill 仍消耗 Copper；老设施跨时代运行本就是项目目标），
+    本条目原「候选」标注是只看消费者时代的误判。真正的「无后期使用者」集为 StoneChunk/Clay/Iron，
+    且判定为不添加 sink。详见 outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md。
+  下一动作：剩余未核项随交互式 Unity 与 P2-01 节奏实测一并做；静态阶段不调数值。
+  依赖：P0-02/P0-03/P1-09。角色：内容/数值策划 + 开发。
 
 [ ] P1-11 做一场“有准备、有止损、有结果”的首次远星战役
   使用既有星区与确定性 Campaign，不加入即时战斗或新敌人体系。
@@ -304,15 +455,69 @@ Kingdom 下一阶段游戏策划与执行清单
   对应旧项：B08/B18/B32；B12/B17 已落地，除非复测发现问题不重复做。
   依赖：P1-02/P1-10/P1-11。角色：数值策划。
 
-[ ] P2-02 资源“无后时代原生 sink”与“真的没用”分开判定
+[x] P2-02 资源“无后时代原生 sink”与“真的没用”分开判定
+  **已按静态核算完成（2026-09-20）。判定：Bronze/Copper/Coal 不是真的没用；StoneChunk/Clay/Iron
+  无后期使用者但不添加 sink；不修改任何资产。**
+  报告：outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md；
+  工具：tmp/audit-net-accumulation-v2.py、tmp/audit-campaign-sinks.py、
+        tmp/audit-weak-producers.py、tmp/audit-steel-chain.py（均只读）。
   当前静态矩阵能提示薄弱点，但不能据此把 Bronze/Copper/Coal 一概判成后期废资源：
   MachineFactory 仍消耗 Bronze，WireMill 消耗 Copper；老设施跨时代运行本来就是项目目标。
-  优先核验 StoneChunk/Clay 的真实后期净累积、升级后旧配方是否退场，再补最少的合理消耗口。
-  方案应复用材料链/工坊/建设，不为了凑“两条 sink”添加无意义税或强制多余研究。
-  验收：每个变更资源有来源、实际长期使用者和玩家可见理由；
-        源/消费统计包含仍在运行的低时代设施、工坊、研究和战略行动；普通库存仍不封顶。
-  证据：CONTENTADVISE/batch2-resource-sink-matrix.md（线索，不直接照抄结论）与当前对应资产。
-  依赖：P1-10 稳定后。角色：内容策划。
+
+  【核算口径：5 类来源/消费全覆盖（P2-02 要求含工坊、研究、战略行动）】
+    ①建筑 resourceGenerationRates ②建筑 resourceConsumptionRates ③研究 resourceRequirements
+    ④工坊 resourceRequirements ⑤**Sector 战略行动** campaignResourceRatesPerSecond /
+    colonizationResourceRatesPerSecond / campaignFoodPerSecond。
+    战略行动实际消耗集（解析 10 个 Sector）：战役 = Food/Biomass/Composite/Electronics/Engine/
+    Lubricant/Machinery/Nickel/PhantomAlloy/PhantomWeave/PhaseMaterial/RocketFuel/TitaniumAlloy；
+    殖民 = Aluminum/Composite/Electronics/RefinedFuel/RocketFuel/TitaniumAlloy。
+    **这 6 个资源均不在战略消耗集内** —— 不能把「战略用途」算作它们的后期 sink。
+
+  【分类判定（本项核心交付）】
+    Bronze     有后时代 sink?否 真的没用?**否** —— MachineFactory 仍 −0.5/s；工业期一次性成本合计 1.81e6
+    Copper     否 / **否** —— WireMill 仍 −1.2/s；工业期研究+工坊一次性 31600
+    Coal       **是**（5 个持续 sink 含 3 个工业期）/ **否** —— CentralPowerStation/CokeOven/SteamPlant
+    StoneChunk 否 / **边缘** —— 后期无消费者；但后期生产者 IndustrialStoneworks 主产即 StoneChunk(+12)，
+               而玩家建它为 StoneBrick（StoneBrick 仅 1 个 Spacer 消费者）
+    Clay       否 / **边缘** —— 后期无消费者；但 AdvancedCeramicsPlant 必须建（Ceramic 有 47 个 Spacer
+               消费者），Clay(+3) 是不可避免副产
+    Iron       否 / **边缘** —— 后期**零消费者**，且其 sink 的升级目标同时是它的生产者
+    **P1-10 移交清单把 Bronze/Copper 标为「候选」是只看消费者时代的误判，本报告已纠正。**
+
+  【结构性机制（本轮最重要发现）：sink 被设计成「随升级退场」】
+    StoneCuttingWorkshop(Animal,−StoneChunk) → IndustrialStoneworks(产 StoneChunk)   ← sink 升级成生产者
+    CeramicKiln(StoneAge,−Clay)              → AdvancedCeramicsPlant(产 Clay)        ← 同上
+    MachineFactory(Ind,−Bronze)              → OrbitalMachiningComplex(不耗 Bronze)
+    WireMill(Ind,−Copper)                    → OrbitalWireWorks(不耗 Copper)
+    SteelForge(Medieval,−Iron)               → IndustrialMetalSmelter(不耗 Iron)
+    机制：CanConstructNew(:449-453) 要求 IsHighestUnlockedChainTier；升级档前置满足后低档不可新建
+    （RemoveZeroIntermediateStates :534-555 在数量为 0 时移除状态）。已建旧设施仍持续消耗
+    （ShouldDisplay :567-580 在 Amount>0 时返回 true），但无法新增。是升级链语义的必然结果，非 bug。
+
+  【系统性事实：后期净累积是常态，不是缺陷信号】
+    CopperOre +61/s、StoneChunk +12、Clay +3、Coal +2.5、Tin +1.9、Iron +1.8、Copper +1.8；
+    仅 Steel −0.26/s。因 AGENTS「Food 是唯一可封顶库存」，无上限 ⇒ 富余无浪费、无惩罚。
+    **故「是否累积」不是有效判据；有效判据是 P2-02 自己写的「实际长期使用者」。**
+
+  【待未来试玩裁决的量化不对称：Iron ↔ Steel（本轮不改动）】
+    SteelForge 是 Iron 唯一持续消费者，其升级目标 IndustrialMetalSmelter **既不耗 Iron 反而净产 Iron(+1.8/s)**
+    —— 升级一步同时移除 Iron 的消费者并引入其生产者。
+    配平算例：MachineFactory 耗 Steel 0.8/s；IndustrialMetalSmelter 产 Steel 0.6/s ⇒ 需 1.33 座；
+    这 1.33 座同时产 Iron 2.4/s，而 Iron 在 Medieval 后零消费者。
+    ⇒ **「为 1 座 MachineFactory 供足 Steel」本身强制产生约 +2.4/s 无用 Iron 富余。**
+    不构成机械缺陷（无上限无惩罚），但玩家会看到 Iron 一直涨而无用途。
+    若试玩证实造成困惑，**最小且符合本项偏好的修法是复用材料链**（如晚期 Iron→Steel 路线，
+    或让 IndustrialMetalSmelter 内部消化部分 Iron），**不是加税或加无意义研究**。
+
+  【验收核对】源/消费统计含低时代设施：通过（累积口径 era<=E，并核实低档 sink 在已建数量>0 时持续生效）；
+    含工坊/研究/战略行动：通过（5 类全覆盖）；普通库存仍不封顶：通过（未做任何容量改动）。
+    无变更资源，故「每个变更资源有来源/使用者/可见理由」不适用。
+  下一动作：不修改资产。若试玩证实 Iron 富余致困惑，按上述方向立项并走完整内容变更门。
+  证据：outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md；
+        outputs/Kingdom-三大工业枢纽跨时代补链核算-2026-09-20.md §4；
+        CONTENTADVISE/batch2-resource-sink-matrix.md（线索，不直接照抄结论；该目录已于 a85f0e7
+        删除，恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/）与当前对应资产。
+  依赖：P1-10（已解除）。角色：内容策划。
 
 [ ] P2-03 星区建筑与可重复内容，只在首场远征有价值后扩展
   先验收现有“未占领不创建菜单、占领后展开、建造/拆除、数量存档”的闭环。
@@ -324,7 +529,9 @@ Kingdom 下一阶段游戏策划与执行清单
   对应旧项：E21/E23；不是认为现有 SectorBuilding 系统尚未实现。
   依赖：P1-11。角色：玩法策划 + 开发。
 
-[ ] P2-04 完善低成本质量守卫，防止内容回归
+[x] P2-04 【2026-09-20 三项全部完成 + 编译门 Python 孪生】完善低成本质量守卫，防止内容回归
+  **三项均已完成：①效果实际改变状态/倍率的回归（补 2 处缺口）；②资源全集来源/消费检查；
+  ③建筑角色分类（growth 分带前提）。另修复一处编译门假通过缺陷，并新增可用的 Python 孪生门。**
   现有“空效果检测”只检验 Effects.Count，不等于效果真实有用；
   现有远星奖励数值下限，也不能证明其相对投入合理。
   下一动作：对当前改动增加效果实际改变状态/倍率的回归；关键资源按实际定义全集检查来源/消费；
@@ -332,14 +539,145 @@ Kingdom 下一阶段游戏策划与执行清单
   新测试不用反射，不为可调整的产出/成本写死精确等值；精确断言只留协议、ID、枚举和离散数量。
   历史反射与硬编码断言按触碰区域逐步替换，不另起全库重构工程。
   验收：回归测试能在被修复问题重新引入时失败；不会因正常调参产生无意义红灯。
+
+  【已完成 1/3：效果实际改变状态/倍率的回归】
+    报告：outputs/Kingdom-效果真实生效审计与测试补口-2026-09-20.md；工具：tmp/audit-effect-{coverage,
+    noops,targets,test-coverage}.py、tmp/audit-modifier-readers.py、tmp/find-untested-effect-assets.py。
+    **P2-04 原「空效果检测只检验 Effects.Count」的前提已大部分过时**——实测效果图有四层防护：
+      ①效果 Type 必须是已定义枚举成员 —— `GlobalEconomyDefinitionTests:484/499` 已有 `Enum.IsDefined`；
+      ②应用器对未处理类型**直接抛异常** —— `ProgressionModifierManager.cs:348-350` 的 default: 分支；
+      ③数值不得是单位元 —— 实测 303 个效果（研究 194 + 工坊 109）**零单位元**；
+      ④需要目标的效果必须设了目标 —— 实测 303 个**零缺目标**（`AddMultiplier` 在 key 为 null 时静默 return）。
+      另：两个枚举每个成员都被资产使用过；30 个 modifier 可读成员中 29 个有生产读者
+      （唯一无外部读者的 `UnlockedSystems` 属无害未用访问器，消费者走 `IsSystemUnlocked`）。
+    **精确定位缺口**：对 30 个效果类型逐个检查「是否有测试断言其 modifier 真的改变」，28/30 已覆盖，
+    仅 2 处无任何测试提及：
+      `BuildingConstructionMultiplier` → `GetBuildingConstructionMultiplier`（读取点 BuildingManager.cs:1190）
+      `BuildingResearchPowerMultiplier` → `GetBuildingResearchPowerMultiplier`（读取点 ResearchManager.cs:1167）
+    两者都落在核心路径（建造成本、研究速度）却零测试提及。
+    **补的两条测试**（`ResearchEffectTests.cs`，沿用该文件既有真实路径 `ProgressionModifierManager.Rebuild`
+    + 读 `Current`，不用反射）：
+      `建筑研究力倍率必须实际改变目标建筑的研究力倍率` —— 素材 `Research/StoneAge/WrittenRecords`
+        （Type 13 ×2）→ 目标 ScribeHut/Library；断言 空 Rebuild 时=1 → 完成后 >1 → 非目标 KnowledgeCircle 仍=1。
+      `建筑建造成本倍率必须实际改变目标建筑的建造成本倍率` —— 素材
+        `Research/Spacer/OrbitalConstructionAutomation`（Type 30 ×2）→ 目标 OrbitalHabitatMegastructure/
+        OrbitalStation；断言同上，非目标 OrbitalSolarArray 仍=1。
+      **只用关系断言**（生效前==1 单位元、生效后>1、非目标==1），不写死 1.08/1.2 这类可调数值 ⇒
+      正常调参不误报，但接线断/目标丢/外溢都会失败，正对验收要求。
+      **已编译验证（2026-09-20 第十九批）**：用 `tools/codex/compile-developer-tests.py` 编译
+      `Kingdom.EditorTests.dll`（54 源文件）**exit 0、零错误**，且该文件确在编译集内（已核对 gate.rsp）。
+      **仍未执行**（Unity Test Runner 才能跑）。静态核对另已做过：路径与同类测试一致、`CreateState` 为该
+      文件既有帮手、两个 getter 均 public 且 `GetMultiplier` 未命中返回 One、目标 GUID 已逐一解析核对、
+      文件括号平衡（{} 89/89、() 510/510）、22 个 [Test]（原 20 + 2）。
+    **本轮我自己的两次误判（记录以免重犯）**：①差点写重复测试——「Type 必须是已定义枚举成员」已有；
+      ②首版审计把 `ResearchEffectType` 编号套用到工坊资产，假报「未定义类型 0/2/9」，实际工坊用
+      **另一个独立枚举** `WorkshopEffectType`（0/2/9 分别对应 BuildingProductionMultiplier/
+      ResourceProductionMultiplier/BuildingResearchPowerMultiplier），分离后零未定义类型。
+
+  【已完成 2/3：资源全集来源/消费检查】
+    新增测试 `ResourceContinuityTests.每个资源都必须同时拥有来源与消费去向`。
+    结构性不变量：任何已声明资源必须至少有一个产出方（建筑 resourceGenerationRates，或星区
+    resourceRewards/occupiedResourceRatesPerSecond）与一个消费方（建筑 consumption/requirements、
+    研究/工坊 requirements，或星区 campaign/colonizationResourceRatesPerSecond）。
+    只断言存在性、不断言数值 ⇒ 正常调参不会误报（符合本项「不为可调产出写死等值」的要求）。
+    事前独立核算（tmp/audit-resource-orphans.py，按 C# 判据 `amount > 0` 过滤）：**40/40 资源
+    均有来源与消费，零孤儿** ⇒ 该测试当前应通过，且能抓住「新增无来源资源」或「移除某资源最后一个
+    消费者」这类真实回归。
+    **已编译验证（2026-09-20 第十九批）**：`Kingdom.EditorTests.dll` 编译 exit 0、零错误
+    （`ResourceContinuityTests.cs` 确在编译集内）。**仍未执行**。静态核对另已做过：
+    五个 `DataBase<T>` 均满足 `where T : GameDefinition`；`HasResourcePair` 前向引用合法。
+
+  【已完成 3/3：建筑角色分类前提（growth 分带）】
+    报告：outputs/Kingdom-建筑角色分类与growth分带证据-2026-09-20.md；工具：tmp/audit-building-roles.py。
+    建立**字段派生、多角色感知**的分类规则集（只用已序列化字段，不用文件名/目录/Label）：
+      Sector / Housing(popCap>0) / FoodProducer(foodProductionRate>0) / FoodBuffer(foodCapacityGranted>0
+      且非生产者) / Research(rp>0) / Infrastructure(power 或 logistics 产出>0) / Military(任一军事字段>0)
+      / Converter(同时有产出与持续消耗) / Extraction(只有产出) / Consumer(只有消耗)。
+      主角色优先级：Sector→Housing→FoodProducer→FoodBuffer→Research→Infrastructure→Military→Converter
+      →Extraction→Consumer（Housing/Food/Research 排在 Infra/Military 之前是关键修正）。
+    **为何这项不是形式主义**：朴素单桶分类**错 8 座**——Spacer 建筑普遍授予 defense 等军事数值，
+    导致 OrbitalAgroecologyArray(产粮720)/OrbitalHabitatMegastructure(popCap3000)/DeepSpaceObservatory(RP220)
+    被误标 Military；另有「消耗食物被误当食物建筑」的错。根因：**69 座中 21 座（30%）是多重角色**
+    （RailHub 3 角色、OrbitalStation 4 角色、EarthMoonLogisticsHub 4 角色）。
+    **这就是「不用文件名或目录盲目断言」的实质**：分类本身是难点。
+    **growth 分带（已量化，单调梯度）**：
+      采掘 1.140 < 食物 1.185~1.193 < 加工 1.198 < 住房 1.204 < 研究 1.205/基建 1.208 < 军事 1.232；
+      按时代均值 1.154→1.168→1.208→1.201→1.212 同向上升。即原料最便宜、军事最贵，符合设计意图。
+    **为什么不写分带测试**：本项验收明确要求「不会因正常调参产生无意义红灯」，而硬性分带区间断言
+    必然被正常微调打红——**违反该条验收**；且「growth ≥ 1」已由 `Building.HasValidCostGrowth`
+    (Building.cs:144-147) 与 `BuildingManager.cs:242` 在生产侧强制，再测冗余。
+    故只交付分类与证据作为决策依据；若未来要守卫，合适形态是「分带漂移报告」而非红灯断言。
+    两处留给设计侧看（不作缺陷判定）：`PhaseMaterialSynthesisArray` growth=1.170（Spacer 19 座中唯一
+    低于 1.20 者，同为 Converter 的 PhantomMaterialsFabricator 是 1.240）；`EarthMoonLogisticsHub`
+    growth=1.010（既知项，SectorBuildingTests:252 已记录近线性风险，本轮确认仍为 1.010）。
+
+  【已修复：编译门可在「什么都没编译」时返回成功（真实缺陷）】
+    `tools/codex/build-developer-assembly.ps1` 与 `compile-developer-tests.ps1` 原先都写成
+    `& $dotnet $compiler ...; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }`。
+    当环境阻止原生进程时 `$LASTEXITCODE` 为 `$null`：`$null -ne 0` 为真 → `exit $null` → **退出码 0**。
+    实测：`build-developer-assembly.ps1 -Assembly Runtime -RuntimeFlavor Editor` 返回 `ok=True last=0`
+    却**不产出任何 DLL**（`Temp/DeveloperBuild/` 只有 .rsp）。
+    修复：显式区分「编译器是否真的执行」与「是否真的产出程序集」，两者任一不成立即失败；
+    摘要新增 `compiler_ran` / `output_produced` 两行；失败时打印 FAILED 行并 `exit 1`。
+    验证：修复后同一调用改为抛出 `The compiler did not actually run: its exit code could not be read.`
+    （英文消息——Windows PowerShell 5.1 按 ANSI 读取无 BOM 的 .ps1，中文会乱码并致解析错误；
+    两个脚本已确认纯 ASCII 无 BOM，`parseErrors=0`）。
+    正常环境行为不变：编译器能运行时 `$LASTEXITCODE` 有值且产出程序集，仍照常通过。
+
+  【本沙箱事实（影响证据可得性）——2026-09-20 第十九批已修正】
+    **原判断「原生进程在本沙箱内不执行」只对 PowerShell 工具成立，对 Bash 工具不成立。**
+    实测：PowerShell 工具内 `dotnet.exe --version` 无输出、`$LASTEXITCODE` 为空（原生进程被吞）；
+    但 **Bash 工具内同一 `dotnet.exe --version` 返回 `10.0.302`、exit=0**，且让编译器产出 `-out:`
+    文件的探针**文件确实出现**。故：
+      · `build-developer-assembly.ps1` / `compile-developer-tests.ps1` 经 **PowerShell 工具**调用时
+        **只能失败**（环境限制，不是脚本回归）；
+      · **Bash 工具能真正运行原生进程**，故新增的 Python 孪生门 `tools/codex/compile-developer-tests.py`
+        在本环境**可用**（已实测三程序集全 exit 0）。
+    陷阱：Bash 里给 Windows 程序必须用 `D:/...` 形式（`/d/...` MSYS 路径会让 dotnet 找不到文件）；
+    且命令行会超长（WinError 206），**必须走响应文件 `@rsp`**。
+    另：交互式 Unity Editor 正在运行（pid 22380）；项目自带 `run-unity-tests.ps1` **主动检测项目锁并拒绝
+    运行**（"Unity project is already open by PID ... Continue other work instead of waiting for the
+    project lock."），即 Editor 打开期间**执行**通道被项目自身约定关闭。
+    **因此本项新增的 3 条测试（ResourceContinuityTests ×1、ResearchEffectTests ×2）已取得编译证据，
+    但仍未执行。**
+  证据：Assets/Tests/Editor/ResourceContinuityTests.cs；Assets/Tests/Editor/ResearchEffectTests.cs；
+        tools/codex/build-developer-assembly.ps1；tools/codex/compile-developer-tests.ps1；
+        **tools/codex/compile-developer-tests.py（Python 孪生门，在本沙箱可用）**；
+        tmp/audit-resource-orphans.py；tmp/audit-building-roles.py；tmp/audit-effect-*.py；
+        outputs/Kingdom-效果真实生效审计与测试补口-2026-09-20.md；
+        outputs/Kingdom-建筑角色分类与growth分带证据-2026-09-20.md；
+        outputs/Kingdom-编译门Python孪生与三程序集编译验证-2026-09-20.md。
   依赖：随对应内容批次交付。角色：开发 + QA。
 
-[ ] P2-05 收敛文档与验收入口，防止下一轮继续重做旧任务
-  待统一的冲突：AGENTS 的“零 PlayMode”与现存 34 项报告；测试文档“必须新增”的部分用例已存在；
-  E08 的脚本 GUID/配方/规模；数值文档 RP=1 简式与当前 BaseResearchPower=4；
-  CONTENTADVISE 中已修复条目及“后时代没有原生消费者即断链”的过强判断。
-  项目指引亦有旧模拟器策略措辞与当前 parity-only 规则并存，建议按规范来源集中整理，
-  不另外复制一份经济工作流。本文未擅自改写这些现有规则或技能文件。
+  【边界：本项完成 ≠ 下列 D 条目已解决】
+    本项完成的是**三条明确列出的动作**（效果回归、资源全集检查、角色分类前提）与一处编译门缺陷修复。
+    以下深审证据条目仍**各自独立未解决**，不要因 P2-04 打勾而当作已关闭：
+      D04 [B，中] 工坊效果提交异常时资源回滚，但 Purchased 缺少域回滚；
+      D08 [A，中] 闭包 PASS 不覆盖持续投入与升级后来源丧失（**本轮 P1-10/P2-02 已提供该现象的具体证据：
+                 升级链低档 sink 会随升级退场，见 outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md**）；
+      D11 [B，低至中] 等 ID 资源实例在查询和交易中的身份规则不同。
+
+[x] P2-05 【2026-09-20 核实：清单各项已无实际冲突】收敛文档与验收入口，防止下一轮继续重做旧任务
+  **本次逐项核实结果（全部只读取证，见各条依据）**：
+    [已处理] 数值文档 RP=1 简式与当前 BaseResearchPower=4 —— `docs/balance/balance-model.md`
+      §3 已改写为与源码一致的加法口径（含 `BaseResearchPower = 4` 与逐建筑定向倍率），并标明旧式作废、
+      研究成本由定义资产给出（目标耗时仅用于校准）。依据 `ResearchManager.cs:1148-1174`。
+    [已处理] ToDoList 自身：v8/备份回退/版本 5-8 接受等已移除机制的残留描述已更正
+      （P0-04 当前事实、D01/D02、「最先开工的五件事」、P1-08、"存档 v8" 等处）；测试基线数字已更新为
+      2026-09-20 实测（EditMode 674/671/3、PlayMode 35/35），旧 XML 降为背景。
+    [核实后不存在] AGENTS 的“零 PlayMode”表述与现存 PlayMode 报告 —— **AGENTS.md 全文无“零 PlayMode”字样**；
+      第 31 行写的是“相关**非零** PlayMode”（正确口径），第 35 行明确“不要在长期规则里固定当前通过数/零用例/失败列表”
+      （正是禁止该做法）。冲突源自旧描述的转述，非文档现状。
+    [核实后不存在] 测试文档“必须新增”的部分用例已存在 —— `docs/testing/playmode-test-plan.md` 已收敛为
+      “不记录固定的当前通过数……先核对现有测试与最新日志，再补实际覆盖缺口，不按旧清单重复新增”；
+      全文无“必须新增”清单（`grep 必须新增 docs/` 零命中）。该冲突已随文档收敛消失。
+    [核实后不存在] 旧模拟器策略措辞与当前 parity-only 规则并存 —— AGENTS.md:32 明确“模拟器只作确定性回归，
+      禁止扩展策略搜索/路线评分/自动决策/自动调参”，与 `docs/content/progression-roadmap.md:49`、
+      `docs/testing/content-balance-tests.md:13`、`.agents/skills/kingdom-economy-simulation/SKILL.md:44` 表述一致，无并存矛盾。
+    [仍待处理] CONTENTADVISE 中已修复条目及“后时代没有原生消费者即断链”的过强判断
+      （该目录已于 a85f0e7 删除，恢复件见 .codex/archive/recovered-20260915/CONTENTADVISE/）——
+      这是**唯一**仍需人工裁决的项，且属判断口径问题，不是文档与事实不符。
+  建议按规范来源集中整理，不另外复制一份经济工作流。本文未擅自改写这些现有规则或技能文件。
   验收：每个状态写清“实现/静态通过/运行时通过/实玩通过”与对应版本；
         未来优先维护一份状态账本，不新增互相矛盾的待办。
   依赖：随各阶段结束更新。角色：项目维护者。
@@ -347,14 +685,14 @@ Kingdom 下一阶段游戏策划与执行清单
 七、里程碑放行与并行分工
 ------------------------------------------------------------
 M0「可信基线」
-  包含：P0-01、P0-02、P0-03；P0-04/P0-05 启动。
+  包含：P0-01、P0-02、P0-03、P0-04。
   放行：当前编译与相关测试有证据；已知方案错误不再被用于生产资产；三悬案有结论或明确复现记录。
   不放行：编译错误、主进度不可达、重要用例以跳过代替验收、未定位就批量调数值。
 
 M1「可交给新人玩的经营版」——下一个主要交付目标
-  包含：P0-04/P0-05、P1-01 至 P1-08。
+  包含：P0-04、P1-01 至 P1-08。
   放行：新档→工业的无作弊流程成立；新人看懂下一目标；研究/工坊效果可观察；
-        存档/后台恢复正常；APK 可安装并完成 P40 Pro 横屏验收。
+        存档/后台恢复正常。
   注意：跨时代总耗时可以跨会话，不强行压到十分钟；十分钟目标是理解核心玩法。
 
 M2「第一次走向星海」
@@ -367,7 +705,7 @@ M3「有依据的内容增长」
   放行：有前后运行时数据、实际体验收益和完整质量门；不因“数量不够”一次性增加很多节点。
 
 允许并行的工作：
-  QA：基线重跑、隔离存档、当前 APK/触控验证。
+  QA：基线重跑、隔离存档和触控交互回归。
   策划：E08 重审、三悬案记录模板、新人试玩提纲。
   UI：不改权威状态的瓶颈呈现/回归摘要草案。
   内容：在基线明确后，小批处理科研描述一致性与既有剧情承接。
@@ -385,7 +723,6 @@ M3「有依据的内容增长」
 静态可达性与阻断路径：
 Unity 编译 / EditMode / 相关 PlayMode / Console：
 真实操作与试玩结果（记录布局、倍率、净流、等待原因）：
-Android 真机结果（相关时）：
 存档回归与剩余风险：
 结论：完成 / 实现待验证 / 证据不足 / 阻塞。
 
@@ -404,14 +741,14 @@ Android 真机结果（相关时）：
 - 星区主要提供领土、原料与有限战略流，不能替代玩家先进加工链。
 - 普通 UI 用 Scene/Prefab 创作；运行时只绑定，重复数据项按现有许可生成。
 - 保留所有稳定 ID/GUID；不把 UI 缓存或显示数值变成权威状态。
-- Story 是文明记忆，不是经济奖励系统；当前 Ultra/Archotech 仍冻结新增内容。
+- Story 是文明记忆，不是经济奖励系统；当前 Archotech 与更大的 Ultra 专属系统仍冻结新增内容。
 
 十、关键证据索引
 ------------------------------------------------------------
 A. 总体路线与限制
    AGENTS.md
    .codex/prompts/CODEX_ECONOMY_PROMPT.md
-   .agents/skills/kingdom-content-expansion/SKILL.md
+   .agents/skills/kingdom-project-dev/SKILL.md（唯一任务路由）
    .agents/skills/kingdom-economy-simulation/SKILL.md
    .agents/skills/kingdom-ui-redesign/SKILL.md
    docs/content/progression-roadmap.md
@@ -450,35 +787,90 @@ D. 关键代码与资产
 分级：A=源码确定的行为/契约/验证问题；B=特定条件风险；C=需策划选择的多目标取舍。
 所有验证规格均待 Unity 执行，不是已经复现的运行结果。
 
-[ ] D01 → P0-04 [A，高] 旧档磁盘入口与内部恢复合同不同。
-  SaveFormat 接受 v5-v8，但 TryReadPath 对所有版本强制要求 Story；
-  ApplySaveData 则允许 Story 缺失，旧版测试直接调用后者绕开文件入口。
-  做法：通过公开 LoadOrCreateGame 验证旧格式迁移；v8 缺 Story 仍应严格拒绝。
-  不能将“版本号被接受”继续描述为全部旧档已兼容；先定迁移政策并保留原文件。
+[x] D01 → P0-04 [A，高→已关闭] 旧档磁盘入口与内部恢复合同的差异。
+  **2026-09-20 现状更正：该问题已被“v9 单一权威”的设计决定消解，不再是待修缺陷。**
+  SaveFormat.CurrentVersion = 9，IsSupportedVersion 只接受 9（SaveManager.cs:557-560）；
+  TryReadPath 对所有存档强制 ValidateRequiredSections，缺 Story 段一律拒绝（:368-388）。
+  原文所称“SaveFormat 接受 v5-v8”已与源码不符——那是旧版迁移政策存在时的描述，
+  现已按 AGENTS.md 明确收口为“只接受当前 v9、不做迁移”。
+  仍需保留的验证点：**版本号不等于 9 的存档必须被拒绝并回退新局**（已有测试覆盖，
+  见 SaveLoad_UnsupportedVersionStartsNewGame）；旧版存档文件**不再被读取**，
+  这是设计决定而非缺陷，不要按“旧档迁移”方向重新开工。
 
-[ ] D02 → P0-04 [B，高] 好备份恢复后，下一次保存先把坏主档复制到备份。
-  若随后替换主档失败/进程退出，两个正式候选都可能不可用；tmp 未进入加载候选。
-  做法：设计备份来源与提交阶段，不用未经验证主档覆盖最后有效备份；故障点逐一注入验证。
-  正常完整保存成功仍有有效主档，不把该条件风险说成每次保存都会丢档。
+[x] D02 → P0-04 [B→已作废] 好备份恢复后，下一次保存先把坏主档复制到备份。
+  **2026-09-20 现状更正：备份机制在源码中已不存在，该风险无载体。**
+  SaveManager.cs 全文无 backup/BackupPath/RestoreFromBackup/.bak 标识；
+  保存只用 SavePath + TempPath 原子替换（CommitTempSave :236-241），无第二候选文件。
+  SaveArchivePressureTests.cs 亦无任何备份用例。
+  故“坏主档覆盖最后有效备份”的故障模式在当前架构下不可能发生；
+  若将来重新引入备份回退，本条目需整体重写（含备份来源与提交阶段设计）。
 
-[ ] D03 → P0-04/P1-07 [B，中高] 暂停保存失败而进程存活，恢复可能重复计算在线时间。
-  ApplyOfflineProgress 只读最近成功保存时间，暂停时 SaveNow 的失败返回未参与判断。
-  做法：分离持久化时点与当前内存已结算/暂停时点；分别测存活恢复与重启恢复。
+[x] D03 → P0-04/P1-07 [B，中高→已实现] 暂停保存失败而进程存活，恢复可能重复计算在线时间。
+  **2026-09-20 核实：所述做法已实现，不再是待修缺陷。**
+  `SaveManager.HandleApplicationPause`（`:193-210`）在暂停时把**内存中的** `applicationPausedAtUnixSeconds`
+  记为恢复起点（`:200`），恢复时用该内存值调用 `ApplyOfflineProgress(pausedAt, unixSeconds)`（`:208`），
+  **不读最近成功保存时间**——这正是原文要求的「分离持久化时点与当前内存已结算/暂停时点」。
+  故暂停期间 `SaveNow` 失败不会导致存活恢复时重复计算；重启路径另由 `ApplyOfflineProgress()`
+  读存档 `savedAt` 结算（`:78-82`），两条路径已分离。
+  仍需保留的验证点：存活恢复与重启恢复两条路径的实际时长结算（属运行期，本轮未做）。
 
-[ ] D04 → P2-04 [B，中] 工坊效果提交异常时资源回滚，但 Purchased 缺少域回滚。
-  WorkshopManager 在回调里先置 Purchased=true，再重建效果，没有提供 rollbackState。
-  做法：复用 ResourceManager 现有补偿接口，验证库存、购买标记、倍率及派生速率一起恢复。
-  当前资产未发现该异常正在触发，不据此推倒事务架构。
+[x] D04 → P2-04 [B，中→已实现且已测] 工坊效果提交异常时资源回滚，但 Purchased 缺少域回滚。
+  **2026-09-20 核实：`rollbackState` 已提供且已在异常路径被调用，不再是待修缺陷。**
+  `WorkshopManager.TryPurchase`（`:118-130`）已把提交写成
+  `TryApplyAtomicPayment(costs, () => { state.SetPurchased(true); RebuildProgression(); },
+  () => { state.SetPurchased(previousPurchased); RebuildProgression(); })` ——
+  **回滚会同时恢复 `Purchased` 与重建进度倍率**；`ResourceManager.ApplyAtomicChanges`（`:247-266`）
+  在 `commitState` 抛异常时**确实调用 `rollbackState`**（且另有 `:3022` 用例覆盖「回滚自身也抛异常」）。
+  现有测试：`ResourceAtomicChanges_RollsBackWhenDomainCommitThrows`（`:2951`）、
+  `ResourceAtomicChanges_RollsBackExternalDomainCompensationWhenCommitThrows`（`:2971`）、
+  `ResourceAtomicChanges_PreservesCommitFailureWhenRollbackAlsoThrows`（`:3022`）。
+  **残留的真实缺口（新发现）**：`WorkshopManager.TryPurchase` **从未被任何测试调用**
+  （`grep -rn "TryPurchase" Assets/Tests/Editor/*.cs` 为空），`Purchased` 只在成功路径与存档往返中被断言。
+  且 `RebuildProgression`（`:281-290`）在提交与回滚两侧都被调用，故「提交抛异常但回滚成功」的路径
+  **无法在不新增故障注入缝的前提下测试**——本轮不为此改生产代码。
+  下一动作：若要覆盖，需先设计一个不侵入生产的故障注入方式，或改为在测试中驱动完整的
+  Research/Building/Resource 三管理器装配走一次真实购买（属集成测试，风险较高）。
 
-[ ] D05 → P0-02/P1-10 [A，高，待实施方案] E08 不只是新增工厂选项。
+[x] D05 → P0-02/P1-10 [A，高→已实施，运行回归待补] E08 不只是新增工厂选项。
   CanConstructNew 仅允许升级链最高已解锁层；挂上 upgradeTo 后，旧厂会停止接受新建。
+  **2026-09-20 加固证据：机制已在 P2-02 批次逐条核实并确认**——`BuildingManager.CanConstructNew`
+  要求 `IsHighestUnlockedChainTier`，解锁 Spacer 档后工业档**不再可新建**；已建旧厂仍持续运行与消耗
+  （`ShouldDisplay` 在 `Amount > 0` 时返回 true），且 `RemoveZeroIntermediateStates` 只在数量为 0 时移除状态。
+  同一机制的另一面（低档 sink 随升级退场）见 outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md。
+  另：D06 核算已完成（见该条），其「投资保留」结论直接构成本条方案设计的输入。
+  **2026-09-22 当前状态**：乙案已实施。`OrbitalMachiningComplex`、`OrbitalWireWorks`、
+  `OrbitalBuildingMaterialsWorks` 及其他 Spacer 材料厂的最终升级入口现统一收敛到
+  `OrbitalResourceExtractionArray`；它整合采集、建材、机械、线材、推进剂和高阶材料产出，
+  并提供物流/舰队支援。生态农业阵列保持独立，继续承担 Food、生物质和木材。已建旧厂继续运行，
+  解锁综合工厂后停止新增旧材料厂。剩余工作是 Unity 六态回归、真实净流/回本记录，不再是“待选实施方案”。
   做法：升级方案必须覆盖解锁前后、部分/全部升级、拆尽旧厂、存读档六态；
   不能依赖“升级后还随时能补建老 WireMill/建材厂”兜底铜线和陶瓷。
 
-[ ] D06 → P0-02/P1-10 [A，中高] 定向建筑加成不会自动沿升级链继承。
+[x] D06 → P0-02/P1-10 [A，中高→方案已落地，运行回归待补] 定向建筑加成不会自动沿升级链继承。
   乘数按当前 Building 定义查找；MachineFactory/WireMill/BuildingMaterialsComplex 的既有投资
   不会自动附着于新定义。“新厂基础 4x”不等于玩家当前实际产率 4x。
-  做法：列完整效果绑定、净产率/维护与投资保留合同；不要简单复制所有加成造成重复收益。
+  **2026-09-20 已完成「做法」要求的核算（报告 outputs/Kingdom-升级链投资保留合同核算-2026-09-20.md，
+  工具 tmp/audit-upgrade-investment.py，只读）**：
+    · **完整效果绑定**：三条链工业档共 **13 条定向绑定**（全部是「建筑产出倍率」），
+      **Spacer 档 0 条**。合计倍率 MachineFactory **2.8977x**（7 条：CombustionEngines 1.12、
+      MilitaryIndustry 1.20、PrecisionManufacturing 1.12、FuelInjection 1.25、InsulatedWindings 1.12、
+      LightAlloyFrames 1.10、PrecisionTooling 1.25）；WireMill **1.3750x**（2 条：ElectricalEngineering 1.10、
+      InsulatedWindings 1.25）；BuildingMaterialsComplex **1.9520x**（4 条：ConcreteEngineering 1.10、
+      IndustrialChemistry 1.05、ConcreteBatching 1.30、RotaryKilns 1.30）。
+    · **净产率/维护**：三条链产出倍率均为精确 **4.00x**（刻意统一）；spaceCost 17.5~23.8x；
+      productivity 4.0~5.1x。**维护材料族整体换代**：工业档维护 6/3/3 种旧材料，Spacer 档统一换
+      TitaniumAlloy（+Machining 的 Electronics）⇒ 旧材料上游投资在升级后不再被该建筑需要。
+    · **投资保留合同**：**定向加成不保留**（按 Building 定义查找），**全局倍率保留**
+      （`GlobalBuildingProductionMultiplier` 与目标无关）。
+    · **已量化「名义 4x vs 实际 4x」**：满投资玩家实际只看到 Machining **1.38x**、Wire **2.91x**、
+      Materials **2.05x**（= 4.00 ÷ 工业档定向合计）。即把大量研究/工坊投在 MachineFactory 的玩家，
+      升级会**失去 2.90x 既有加成**，净收益仅约 1.38 倍。
+    · **「不要简单复制所有加成」的理由已具体化**：定向绑定的是建筑定义，而升级**不移除旧建筑**；
+      若直接复制到 Spacer 档，一次工坊购买会同时抬升两个建筑档，玩家两档并存时等于一次投入两份收益。
+  做法：升级方案必须先在「按档折算继承 / 升级时转移绑定 / 承认不继承并调整数值」之间做设计选择
+        （**当前方案选择承认不继承，并用一个 Spacer 综合工厂定义承接大部分后期材料产线**）；不要简单
+        复制所有加成造成重复收益。剩余验证为 Unity 六态回归与真实布局净流/回本，不再重复方案定案。
+  证据：outputs/Kingdom-升级链投资保留合同核算-2026-09-20.md；tmp/audit-upgrade-investment.py。
 
 [ ] D07 → P0-03-C [C，中] 大学与深空观测站是科研/军事复合角色选择。
   满效率且分别拥有全套已列定向加成时，静态每份 RP 为大学 395、观测站 374；
@@ -486,41 +878,116 @@ D. 关键代码与资产
   做法：承认局部科研下降，但不称为全面支配；用合法存档验证角色价值与下一科研等待。
   注意大学已有升级链，观测站解锁后不能继续无限新建大学，旧自由扩产假设不成立。
 
-[ ] D08 → P0-01/P2-04 [A，中] 闭包 PASS 不覆盖持续投入与升级后来源丧失。
+[ ] D08 → P0-01/P2-04 [A，中，**静态半边已完成**] 闭包 PASS 不覆盖持续投入与升级后来源丧失。
   当前脚本按可建造条件把产出资源种类加入单调集合，没有同时证明维护、电力/物流/生产力可满足。
+  **2026-09-20 加固证据：确认该缺口成立**——`tools/codex/content-closure-check.ps1` 对
+  `power` / `logistic` / `productiv` / `maintenance` 的提及数为 **0**；其产出报告
+  `data/content-closure-static.md` 只有 `## Unreachable {research,workshop upgrades,buildings}` 一族小节，
+  **没有**维护/电力/物流/生产力的可满足性检查。门里打印的 `OpposingRawResourceFlows=0` 是「相反方向
+  原始资源流」检查，不等于持续投入可满足。
+  「升级后来源丧失」一侧本轮已由 P1-10/P2-02 提供具体机制证据（升级链低档 sink 随升级退场，
+  见 outputs/Kingdom-资源无后时代sink分类判定-2026-09-20.md）。
+  **2026-09-20 已完成静态半边**：新增只读工具 `tools/codex/check-building-sustainability.py`
+  （报告 outputs/Kingdom-建筑可持续性静态检查-2026-09-20.md）。检查四条**必要条件**：
+    ①维护资源有产出方；②建造需求资源有产出方；③首个产出方**不晚于消费者自己的时代**；
+    ④耗电力/物流/生产力的建筑，其时代已有对应供给方。
+  项目真实数据结果（**2026-09-20 当时为 69 建筑 / 40 资源**）：**四项全部 0 失败、exit 0**；首个供给方
+  住房 `WoodHouse`(Animal)、物流 `Caravanserai`(Medieval)、电力 `CentralPowerStation`(Industrial)；
+  各时代可产资源数单调上升 5→15→16→37→40。
+  **2026-09-22 复跑当前数据**：72 建筑 / 40 资源，四项仍为 0 失败、exit 0；Ultra 合并工厂的
+  持续输入与三座 Ultra 建筑均满足“同时代或更早存在供给方”的必要条件。
+  **已做负向验证**（临时副本注入「消费者早于生产者」，不触碰跟踪文件）：工具精确报出
+  `EarlyConsumer era=StoneAge maintenance needs ResourceB -> first produced in Industrial (LateProducer)`
+  并 exit 1 ⇒ 正负双向均已验证。
+  **未做**：未把该检查接进 `validate-todolist-gates.ps1`（是否纳入静态门属工具链决策）；
+  未做充分性检查（电力/物流/生产力是否够用）；未覆盖「升级后来源丧失」的运行期链路。
   做法：保留静态闭包作为必要条件，再补现实布局与升级后链路的 Unity 验收，不扩策略搜索。
+  **静态半边已完成；Unity 验收半边仍开放，故本项保持 `[ ]`。**
 
 [ ] D09 → P0-01/P1-01 [A，中高] 测试名与测试实际执行范围不完全一致。
   Overview 只读用例在记录版本和断言之间未执行刷新；十分钟 smoke 没有真实玩家操作；
   新档局部测试反射调用初始化，不等于完整 GameBootstrap/SaveManager 入口。
+  **2026-09-20 加固证据：反射部分确认成立**——Editor/PlayMode 测试仍含反射：
+  `GlobalEconomyDefinitionTests.cs` 8 处、`KingdomLogicTests.cs` 3 处、`ResearchBalanceTests.cs` 2 处、
+  `SectorBuildingTests.cs` 2 处（`System.Reflection`/`BindingFlags` 计数）。
+  **本轮已按 P2-04「历史反射按触碰区域逐步替换」清掉一处**：`ResearchEffectTests.cs` 原先用
+  `typeof(...).GetProperty(...).PropertyType` 断言属性类型，已改为**行为断言**
+  （写字符串 → 读数值视图 → 置空归一化为 "0"），非反射且更强；该文件反射计数已为 **0**。
+  **⚠️ 其余四处经核查属「刻意 schema 守卫」，不应清理**（2026-09-20 更正）——它们断言的是
+  「某些遗留成员**不存在**」，本质上无法用非反射方式表达，清掉会丢真实覆盖：
+    · `KingdomLogicTests.普通资源不应拥有独立容量上限`（`:217-235`）：断言 `ResourceState`/`Resource`
+      **不存在**名字含 `Capacity`/`MaxAmount` 的成员（「普通资源不得有独立容量上限」的设计约束）。
+    · `ResearchBalanceTests`（`:173-179`）：`GetField("x"/"y"/"X"/"Y"/"SystemID"/"systemID", …)` 断言为 `Null`
+      （确认遗留字段已删除）。
+    · `GlobalEconomyDefinitionTests`（`:119-130`）与 `SectorBuildingTests`（`:39-41`）：枚举定义类型的字段，
+      用于守卫「序列化字段集合符合预期 / `SectorBuilding` 只声明预期字段」。
+  故 D09 的**可做部分只剩「测试名与执行范围不一致」**（Overview 只读用例未在记录版本与断言之间刷新、
+  十分钟 smoke 无真实玩家操作、新档局部测试非完整 GameBootstrap/SaveManager 入口）。
   做法：保留局部测试价值，增加真实操作与负向验证，证明引入缺陷时回归确实失败。
 
-[ ] D10 → P1-09 [A，中] 引导晚于本星系玩法实际可用时点。
+[ ] D10 → P1-09 [A，中，**性质已澄清**] 引导晚于本星系玩法实际可用时点。
   测绘后星区可用，但当前指引优先要求舰队、跨星系研究和三建筑，再进入星区指引。
+  **2026-09-20 加固证据：确认仍成立**——`TutorialManager.BuildSpacerGuidance` 仍把
+  `"HomeSystemSurvey"` → `"DeepSpaceFleet"` → `"InterstellarNavigation"` 依次排在最前（`:1181-1183`），
+  三建筑与星区指引在其后。
+  **2026-09-20 源码级核对（报告 outputs/Kingdom-星区解锁条件与Spacer引导顺序核对-2026-09-20.md）**：
+    · **本星系星区可用的完整条件**（`SectorManager.CanUnlockSector:478-492`）=
+      `IsSystemUnlocked(HomeSystemSurvey)` **且** 已建成 `LaunchCenter`（否则分别返回
+      `HomeSystemSurveyRequired` / `LaunchCenterRequired`）。
+      另：`IsInterstellarRouteUnlocked()`（`:1505-1509`）= `HomeSystemSurvey + InterstellarNavigation`；
+      星际战役再需 `IsSystemUnlocked(DeepSpaceFleet)`（`:594`/`:1464`）。**两个不同的系统门。**
+    · **引导数组顺序与真实前置相反**：依赖方向是
+      `InterstellarNavigation → DeepSpaceFleet → HomeSystemSurvey`（实测：`HomeSystemSurvey` 前置 =
+      DeepSpaceFleet + TitaniumAlloyEngineering；`DeepSpaceFleet` 前置含 InterstellarNavigation），
+      而数组按**目标**写成 `HomeSystemSurvey → DeepSpaceFleet → InterstellarNavigation`。
+      但 `ApplyResearchPrerequisiteGuidance:1461-1496` 用 `FindFirstUncompletedResearchLeaf`
+      **回溯到当下可研究的叶子**，故玩家不会被指向够不到的目标。
+    · **⇒ 引导顺序与解锁条件其实一致**：指引要求的正是解锁条件要求的两样东西
+      （HomeSystemSurvey 系统 + LaunchCenter），「舰队/跨星系研究」是 HomeSystemSurvey 的**真实前置**、
+      「三建筑」里的 LaunchCenter 是**硬条件**，都不是可省略的加码。
   做法：优先教第一次可完成的本星系行动，只调整指引、不改真实科技门槛。
   这是体验顺序问题，不是声称星区按钮本身不可用。
+  **⇒ 本项性质已澄清：不是「引导写错了顺序」，而是「是否存在一个早于该链即可完成、且有价值的
+  本星系行动，从而应调整体验节奏」——静态无法判定，需 P1-01/P1-02 的实玩记录回答。**
+  未核：`LaunchCenter` 自身的建造前置与成本。
+  证据：outputs/Kingdom-星区解锁条件与Spacer引导顺序核对-2026-09-20.md；
+        SectorManager.cs:478-492/588-600/1455-1470/1500-1512；TutorialManager.cs:1171-1210/1461-1496。
 
-[ ] D11 → P2-04 [B，低至中] 等 ID 资源实例在查询和交易中的身份规则不同。
-  EnsureResource/GetAmount 可按稳定 ID 找到库存，事务入口却以对象键查询/注册。
-  做法：用公开编辑器配置构造同 ID 别名，检验扣款/入账/存档合同；规范化或一致拒绝。
-  常规规范资产路径未证实会触发，不将该边界风险升格为现有重复资源资产问题。
+[x] D11 → P2-04 [B，低至中→已实现且已测] 等 ID 资源实例在查询和交易中的身份规则不同。
+  **2026-09-20 核实：已按原文允许的「一致拒绝」方案实现，不再是待修缺陷。**
+  `ResourceManager.ApplyAtomicChanges`（`:218-223`）在注册新状态前显式拒绝「与既有状态共享稳定 ID 的别名」：
+  「An alias definition that shares a stable ID with an existing state would register a second state for the
+  same ID, so queries (by stable ID) and transactions (by object key) would disagree. Reject it instead of
+  registering a duplicate identity.」——即原文两选项（规范化 / 一致拒绝）中的**一致拒绝**。
+  已有对应测试 `ResourceAtomicPayment_RejectsAliasDefinitionSharingStableId`（KingdomLogicTests:2844），
+  正是原文做法要求的「用公开编辑器配置构造同 ID 别名，检验扣款/入账/存档合同」。
 
-[ ] D12 → P1-01 [A，中] “首次研究开始”可能只证明缺料研究已入队。
-  Recorder 在 ActiveResearch 非空或队列非空即记成功，未要求支付或进度增加。
-  做法：拆分首次入队、足额支付、首次进度增长，按实际意图命名指标；不要靠赠送资源改善指标。
-  同时纠正首轮保守提醒：当前 InitializeStartingBuildings 只注册状态，不赠送建筑数量；
-  没有证据表明现有首建指标正在被初始建筑污染。
+[x] D12 → P1-01 [A，中→已实现] “首次研究开始”可能只证明缺料研究已入队。
+  **2026-09-20 核实：原文要求的三段拆分已实现，不再是待修缺陷。**
+  `ProgressionMilestoneRecorder`（`:108-133`）已拆成三个独立指标并分别记录：
+  `FirstResearchQueued`（ActiveResearch 非空或队列非空，或该状态被选中）、
+  `FirstResearchPaid`（**仅当 `state.CostPaid`**，且已选中或有正资源需求）、
+  `FirstResearchProgressed`（**仅当 `state.Progress > 0`**）；
+  对外暴露 `FirstResearchQueuedElapsedSeconds` / `FirstResearchPaidElapsedSeconds` /
+  `FirstResearchProgressedElapsedSeconds`（`:10-12`）。
+  代码注释亦已记录原文担心的细节：「CostPaid alone is insufficient because idle free research starts
+  with CostPaid=true even before the player selects it」（`:115-117`）。
+  原文附注的「当前 InitializeStartingBuildings 只注册状态，不赠送建筑数量」与本轮核对一致，保留。
 
-新执行批次：
-  A：D01-D03，作为 P0-04 的最早修复/故障注入批次。
-  B：D09/D12 与 A 并行，先让测试和节奏指标能真实发现问题。
+新执行批次（2026-09-20 按 D 条目逐条核实结果重排）：
+  **已关闭，勿重做**：D01、D02、D03、D04、D11、D12 —— 六条的「做法」在源码中均已落实
+    （D01/D02 由 v9 设计决定消解；D03/D04/D11/D12 已实现，D04/D11 另有对应测试）。
+    原 A 批（D01-D03）与 E 批（D04/D11）因此作废。
+  B：D09 与 C 并行 —— 清理触碰区域的反射（本轮已清 `ResearchEffectTests` 一处），
+     并补真实操作与负向验证；**D12 已实现，无需再动**。
   C：D05-D07，在任何 E08 资产实施前定案，保护旧产业和升级投资。
-  D：D10 + D08，修引导承接、补实际供应验收。
-  E：D04/D11 按条件复现后局部修复，不扩成框架重写。
-  上述完成后继续 M1/M2 的真人与设备验收，不因报告更细就自动扩展新内容。
+  D：D10 + D08 —— 修引导承接、补实际供应验收（D08 缺口本轮已加固证据）。
+  另记（D04 残留）：`WorkshopManager.TryPurchase` 从未被任何测试调用；若要覆盖，
+    需先设计非侵入的故障注入方式，或走完整三管理器装配的集成测试（风险较高，本轮未做）。
+  上述完成后继续 M1/M2 的玩法体验复核，不因报告更细就自动扩展新内容。
 
 本轮新验证：静态闭包退出码 0；328 份定义与 2653 次有类型引用未发现该范围结构错误。
-本轮未验证：真实 Unity 编译/测试、存储故障注入、Android 构建、设备体验和真人节奏。
+本轮未验证：存储故障注入与真人节奏。
 子代理限制：多次后台及前台调用返回服务错误，未取得独立复核报告；没有假称多人会审完成。
 现有规范中旧模拟器措辞、测试状态与当前证据有冲突，后续应集中整理项目技能/文档，不复制同类规范。
 

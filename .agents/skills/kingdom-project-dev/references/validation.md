@@ -28,8 +28,7 @@ python -X utf8 tools/codex/kingdom_project_probe.py --project-root . --check-ski
 | 改巡检/清理算法 | 上述检查 + 对应文件系统/边界测试（先确认副作用与授权） | 保护阻断时记录未验证，不以mock替代真实链接测试 |
 | 纯规则/State/事务/保存 | Unity 编译 + 相关 EditMode + Console | 保存事务需隔离存档测试，不能只检查编译 |
 | 定义/经济/生产/研究 | 修改前后 closure + 模拟器诊断 + 定义/source-sink + EditMode + 相关真实运行 | closure 不证明可玩性；人工 fixture 不是真实 Unity trace |
-| UI/场景/手势/生命周期 | Unity 编译 + 相关 EditMode + 非零 PlayMode + 实际交互日志 | 正 overflow、内容移动、P40 横屏设备/模拟器检查不能由静态配置替代 |
-| Android 发布 | 独立授权、构建配置检查、真实构建与设备验证 | 开发程序集通过不等于 Android 构建通过 |
+| UI/场景/手势/生命周期 | Unity 编译 + 相关 EditMode + 非零 PlayMode + 实际交互日志 | 设备体验由用户自行验收，不列入代理交付门槛 |
 
 ## 2. 现有脚本参数（PowerShell）
 
@@ -69,11 +68,52 @@ dotnet build Kingdom.Editor.Developer.csproj --no-restore
 
 这两个 Build 调用 `tools/codex/build-developer-assembly.ps1`，使用 Unity Bee rsp/编译器并写 `Temp/DeveloperBuild`，不是 Unity 测试。脚本参数：`Assembly`（必填 Runtime/Editor）、`Configuration`（Debug/Release）、`RuntimeFlavor`（Player/Editor）。缺依赖时报告缺口，不自动 restore/install。
 
+- **产物 dll 时间戳不刷新 ≠ 构建失败**：脚本用 `/deterministic`，源文件未变时 csc 跳过写盘。判定失败须看 `MSB3073` / `生成失败` / 退出码；要确认写盘可先 `touch` 一个源文件（记得 `git checkout` 还原）。
+- **`ProgramFiles` 在本机沙箱未定义**（`ProgramFiles(x86)`、`ProgramW6432` 同样是）。任何脚本对这类变量不判空就 `Join-Path` / `Test-Path -LiteralPath` 会抛 `ParameterBindingValidationException`，且脚本内的 `exit $LASTEXITCODE` 会把包装层直接带崩。此类故障**只在 Unity Editor 未运行时暴露**（列表首项来自 `Get-Process -Name Unity`，运行时会掩盖异常）。已修 `build-developer-assembly.ps1:56-72`；新增脚本勿再重复此模式。
+- **脚本输出落盘要合并全部流**：`& script.ps1 | Out-File` 只接 stdout，脚本的 `Write-Host`（信息流）会丢成空文件；写成 `& script.ps1 *>&1 | Out-File -Encoding utf8` 才能完整捕获（实测 `validate-ui-contract.ps1` / `validate-guidance.ps1` 均正常落盘）。Bash 侧调 `powershell.exe` 会被安全策略直接拒绝，必须走 PowerShell 工具。
+
+### 测试程序集编译门
+
+```text
+dotnet build Kingdom.DeveloperTests.csproj --no-restore
+```
+
+`build-developer-assembly.ps1` 主动剥离 `Assets/Tests/*`、nunit 与 TestRunner 引用，`run-unity-tests.ps1` 又依赖本机卡死的批处理 runner，测试程序集此前没有可达的编译门。该 csproj 驱动 `tools/codex/compile-developer-tests.ps1`：复用 Unity 已生成的 Bee rsp，保留测试源与测试框架引用，把过期的 `Kingdom.Runtime.ref.dll` 换成当前源码构建的 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`；**只编译，不运行任何测试**。
+
+脚本参数：`Target`（All/Editor/PlayMode，默认 All）、`Configuration`（Debug/Release）、`ProjectPath`、`UnityPath`。csproj 的 `Build` 目标先 `Exec` 一次 `build-developer-assembly.ps1 -Assembly Editor`，再跑本脚本，所以单独 build 该 csproj 即自足，且比对的是刚刚生成的 Runtime 程序集而非陈旧产物；`Kingdom.Developer.sln` 也已登记，`dotnet build Kingdom.Developer.sln` 一并覆盖。Unity 定位复用 `find-unity.ps1`；rsp 按文件名在 `Library/Bee/artifacts` 下递归取最新，不写死会变的 dag 哈希目录名。
+
+- **legacy csproj 的 `ProjectReference` 在直接 build 时不生效**：这些项目只导入 `Kingdom.Developer.References.props`，未导入 `Microsoft.Common.targets`，`ResolveProjectReferences` 不存在，构建顺序实际来自 `.sln` 的 `ProjectDependencies`。实测只 build `Kingdom.DeveloperTests.csproj` 时，引用的 Runtime/Editor 项目不会被构建（产物时间戳不动）。需要顺序保证就写进 `Build` 目标的 `Exec` 链，不要指望 `ProjectReference`。
+
+写 `Temp/DeveloperTests`（`Temp/` 已在 `.gitignore` 内）：每目标一份 `<Assembly>.compiler-output.txt`，加一份 `summary.txt`；不改动任何跟踪源码。退出码非 0 即门失败。
+
+- 覆盖范围仅“测试代码能否针对当前 Runtime 编译”，**不能替代 Unity EditMode/PlayMode 结果**，也不证明用例会通过。
+- 前置条件是 Bee 元数据存在且 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll` 已生成；缺任一项**脚本**直接抛错（csproj 的第一条 `Exec` 只覆盖 Editor 侧前置构建，不自动 restore、不安装依赖）。
+- summary 的 `sources_added_beyond_bee_snapshot` 非 0 表示 rsp 快照落后于工作树，脚本已按 `Assets/Tests/Editor|PlayMode` 目录补入并列名；长期非 0 需回 Unity 重新导入。
+- 测试编译进独立程序集，`internal` 成员在 Unity 生成的 `.ref.dll` 中被整条剥离，且项目内没有 `InternalsVisibleTo`，跨程序集不可见。测试要调用的成员必须是 `public`；此门首次运行即抓出过一处此类真实缺陷。
+
+### 离线状态沙箱（纯托管 Runtime 类型）
+
+本机 Unity `-batchmode` 在 asset database 首次刷新处卡死，EditMode 无法批处理执行。对于**不碰 UnityEngine 的纯托管类型**，可以引用当前源码构建的 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`，在普通 .NET 宿主里真实执行，取得**执行级**证据（而不是编译级）。
+
+**适用边界（已实测，不要重试）**：
+
+- 可达：`GameState` 及其协作类型（`PopulationState`、`TerritoryState`、`MilitaryState`、`CampaignState`、`StoryProgressState`、`ExpantaNum`、`HappinessFormula`、`ProgressionModifierManager`——后两者是 `static class`）。判定方法：看 `using` 列表是否只有 `System*`。
+- **不可达**：构造函数需要 `ScriptableObject` 的类型（`ResearchState`、`WorkshopUpgradeState` 等），以及所有 MonoBehaviour 派生类（Manager 层）。`ScriptableObject.CreateInstance<T>()` 在 .NET 宿主里抛 `SecurityException: ECall methods must be packaged into a system module.` 探针即可确认，不必逐个试。
+
+**NUnit 离线不可用**：本机唯一副本是 `Library/PackageCache/com.unity.ext.nunit@1.0.6/net35/unity-custom/nunit.framework.dll`（NUnit 3.5 era），在 .NET 9 上 `TypeLoadException: Could not load type 'System.Runtime.Remoting.Messaging.CallContext' from assembly 'mscorlib'`；Unity 安装目录与本地 NuGet 缓存均无可用副本，装包需授权。所以沙箱里**复现被测用例的断言序列**，并在输出里明确标注为 `[project-reproduced]`，与 harness 自写的 `[smoke]` 分组隔离。**复现不得被表述为「原测试通过」。**
+
+**易踩陷阱**：`ExpantaNum` 同时定义了 `implicit operator string` 与 `implicit operator ExpantaNum(string)`。写 `"actual=" + expantaNum` 时，C# **优先采用用户自定义运算符候选集**（候选集为空才回退预定义运算符），于是选中 `ExpantaNum operator +(ExpantaNum, ExpantaNum)`，左侧字符串被 `Parse` → `FormatException: ExpantaNum 数值无效`。拼接消息必须显式 `.ToString()`。
+
+沙箱放在 `tmp/` 等未跟踪临时目录（`tmp/StateSandbox/` 是一份现成实现，`tmp/` 整体不进版本库）；它是 scratch 证据，**不能替代** Unity EditMode/PlayMode。
+
 ### 确定性模拟器
 
 ```text
 dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-restore -- --json
 ```
+
+- **本机沙箱需先补系统目录环境变量**：`APPDATA` / `ProgramData` / `ProgramFiles(x86)` / `ProgramW6432` 未定义时，NuGet `GetRestoreSettingsTask` 会抛 `Value cannot be null. (Parameter 'path1')`（restore 与 `--no-restore` 均失败，与项目内容无关）。可先 `env APPDATA='C:\Users\<user>\AppData\Roaming' ProgramData='C:\ProgramData' 'ProgramFiles(x86)=C:\Program Files (x86)' 'ProgramW6432=C:\Program Files' dotnet build`，再直接运行 `dotnet bin/Debug/net9.0/NewEconomySimulator.dll`。
+- csproj 只链接 `Assets/Resources/Script/Math/` 下的 `ExpantaNum.cs` 与 `ExpantaNumExtensions.cs`。改动这两个文件必须重跑模拟器自测（退出码 0 且首行 `Passed: True`）；它**不覆盖** Manager / Runtime State 层改动。
 
 实际为 net9.0 可执行程序，`Program.cs` 运行 `ValidationSuite.RunCore()`，只解析 `--json` / `--csv`；不要杜撰 snapshot 输入参数。构建会产生 bin/obj；程序报告输出 stdout。当前“Unity 对比”含人工 fixture，必须与真实运行采集明确区分。永不以该结果调节数值或声称节奏验收。
 
@@ -84,7 +124,7 @@ dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-r
 - 原子支付：`ResearchPaymentAutoTests.cs`、`KingdomLogicTests.cs`。
 - 保存/星区：`SaveArchivePressureTests.cs`、`SectorBuildingTests.cs`、`SectorManagerTests.cs`。
 - 确定性/预算：`SimulationDeterminismTests.cs`、`SimulationBudgetTests.cs`。
-- UI 静态与生命周期：`P40UiConfigurationTests.cs`、`KingdomUiLifecycleTests.cs`。
+- UI 静态与生命周期：UI 配置测试、`KingdomUiLifecycleTests.cs`。
 - 研究树 PlayMode：`KingdomPlayModeTests.ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping`。
 - 滚动/教程/星区/ticker：`Assets/Tests/PlayMode/` 下同主题测试类。
 
@@ -96,7 +136,7 @@ dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-r
 
 - `apply-definition-ids.ps1`、`reserialize-definitions.ps1`：资产/序列化变更。
 - `sync-solution.ps1`：生成/修改工程文件。
-- `build-android.ps1` / `Assets/Editor/KingdomBuild.cs`：构建产物及构建设置变更。
+- `Assets/Editor/KingdomBuild.cs`：构建产物及构建设置变更。
 - 聚合 gate、UI audit、YAML audit：可能写报告、调用其他脚本；逐项检查退出码，不能仅信最后一条成功。
 - `analyze-unity-log.ps1`：某些日志被过滤，不代替原始 Console 检查。
 

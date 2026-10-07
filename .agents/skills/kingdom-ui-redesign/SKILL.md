@@ -1,6 +1,6 @@
 ---
 name: kingdom-ui-redesign
-description: Kingdom 项目主入口的UI领域分支，维护Unity布局、研究图、滚动/拖动、安全区及Huawei P40 Pro横屏验证；页面/详情语义按需读取唯一专题。用于Prefab、详情页与交互任务，纯UI不得改变经济、存档或定义ID。
+description: Kingdom 项目主入口的UI领域分支，维护Unity布局、研究图、滚动/拖动、安全区及横屏交互验证；页面/详情语义按需读取唯一专题。用于Prefab、详情页与交互任务，纯UI不得改变经济、存档或定义ID。
 ---
 
 # Kingdom UI 与研究图
@@ -50,4 +50,4 @@ description: Kingdom 项目主入口的UI领域分支，维护Unity布局、研�
 - 前置向前、拓扑诊断明确、viewport/content宽高为正、实际pan范围和内容位移、正确手势所有者与旧UI不活动。
 - 无Null/MissingReference或Prefab导入错误；按钮短触、节点拖动、背景拖动和独立缩放真实可用。
 
-静态Prefab配置、字符串检查、零项目用例或跳过关键交互不算运行验收。P40横屏、安全区和设备手感需直接证据；没有就明确未验证。未运行Unity须写“未执行真实 Unity 编译。”。命令/存档隔离与副作用参见项目开发技能验证手册。
+静态Prefab配置、字符串检查、零项目用例或跳过关键交互不算运行验收。横屏、安全区和交互手感需直接运行证据；没有就明确未验证。未运行Unity须写“未执行真实 Unity 编译。”。命令/存档隔离与副作用参见项目开发技能验证手册。

@@ -20,7 +20,7 @@
 ## 未完成验证与风险
 
 - 未执行真实 Unity 编译、PlayMode 和 Console 检查。
-- 需要在 Unity 中确认卡片高度、长文本截断、滚动范围和 Huawei P40 Pro 横屏布局。
+- 需要在 Unity 中确认卡片高度、长文本截断、滚动范围和横屏布局。
 - 需要确认 Era 卡片刷新时销毁/重建 DataRows 子节点不会影响共享 ScrollRect。
 
 ## 下一步
@@ -58,7 +58,7 @@
 - `dotnet build Kingdom.Runtime.Developer.csproj --no-restore --nologo --verbosity quiet`：0 warnings / 0 errors。
 - `dotnet build Kingdom.Editor.Developer.csproj --no-restore --nologo --verbosity quiet`：0 warnings / 0 errors。
 - `git diff --check`：通过（仅 CRLF 提示）。
-- 未执行真实 Unity 编译、EditMode/PlayMode、Console 与 Huawei P40 Pro 实机布局验证。
+- 未执行真实 Unity 编译、EditMode/PlayMode、Console 与运行期布局验证。
 
 ## 2026-09-05 文本溢出修正
 

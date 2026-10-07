@@ -13,7 +13,7 @@
 - `docs/`：架构、平衡、内容、测试契约；`tools/codex/`：辅助执行程序；`tools/NewEconomySimulator/`：确定性诊断。
 - `.agents/skills/`：项目开发主入口及内容/经济、UI两个领域分支；任务分流只在主技能维护。`.workbuddy-ai/skills/`：轻量客户端入口，不等于自动注册已验证。
 - `.codex/handoffs/`：连续交接；`.codex/prompts/`：薄续接入口；`.codex/archive/`：可恢复历史，不作当前证据。
-- `data/economy-parity/`：存在时的快照/事件/首次差异，必须核对实际输入与Unity采集来源。
+- `data/content-closure-static.md`：当前静态闭包证据入口；`data/economy-parity/` 当前不存在，若重新生成快照/事件/首次差异，必须核对实际输入与Unity采集来源。
 - 根Developer csproj/sln：Build委托仓库脚本并依赖Unity缓存，不是自足的普通.NET测试工程。
 
 ## 按症状定位

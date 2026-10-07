@@ -17,7 +17,7 @@ and runtime evidence gates; simulator fixtures are not Unity acceptance.
   territory `spaceCost`.
 - ResourceManager, BuildingManager and ResearchManager own State collections.
 - SimulationManager is the only gameplay clock.
-- `KingdomUIRoot` and any legacy Viewer/Displayer code are presentation only;
+- `KingdomUIRoot` partials are presentation only;
   lifecycle ownership is documented in `docs/architecture/ui-boundaries.md`.
 - SaveManager captures non-derivable State using stable definition IDs.
 - StoryProgressState stores only the completed chapter ID prefix and a version;
@@ -67,6 +67,6 @@ No partial mutation on failure.
 
 ## Save invariant
 
-Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. Save format v9 is the only accepted format and every top-level segment is required. Missing, corrupt, semantically invalid, older or future saves reset all Manager State and start a new game without retaining partially applied data.
+Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. Save format v9 is the only accepted format. `General`, `Resources`, `Buildings`, `Researches`, `Workshop`, `Sectors`, `Tutorial` and `Story` are required top-level sections; if any is missing or corrupt, or any section is semantically invalid, reset all Manager State and start a new game without retaining partially applied data. `UltraProject` is an optional v9 extension: if that section is absent, initialize a fresh locked Ultra project while restoring the rest of the valid save; an explicitly null or malformed present section invalidates the save. Older and future save versions remain unsupported.
 
 `KingdomSave.json` is the only managed save. Writes use a temporary file followed by atomic replacement; there is no backup, recovery candidate, migration or retired-ID mapping. Existing `.bak` files are ignored. Story completion is serialized in the required `Story.CompletedChapterIds` segment.

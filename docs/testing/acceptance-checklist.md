@@ -28,7 +28,7 @@
 
 ## 页面与生命周期
 
-按 `docs/testing/playmode-test-plan.md` 验证新档、页面/详情、星区、剧情、保存/后台恢复和P40横屏场景。页面操作契约在 `docs/ui/page-responsibilities.md`、布局/手势门槛在UI技能维护，State与生命周期边界在 `docs/architecture/ui-boundaries.md` 维护；验收不能把UI变成状态权威。
+按 `docs/testing/playmode-test-plan.md` 验证新档、页面/详情、星区、剧情和保存/后台恢复；页面操作契约在 `docs/ui/page-responsibilities.md`、布局/手势门槛在UI技能维护，State与生命周期边界在 `docs/architecture/ui-boundaries.md` 维护；验收不能把UI变成状态权威。
 
 ## 首局科研诊断口径
 
@@ -43,8 +43,8 @@
 - `KingdomPlayModeTests.NewGameStartup_InitializesCoreRuntimeState` 与十分钟 smoke 从隔离空目录加载 `SampleScene`，必须等待真实 `GameBootstrap.Completed`，不以调用私有初始化方法替代启动。
 - 自动模拟暂停后才手动推进；十分钟 smoke 仅验证稳定性，不能证明玩家完成操作或首局体验合格。
 - `NewGameCommands_BuildResearchAndReloadWithoutGrants` 使用自然资源与公开命令，覆盖木屋扣款/人口容量、农业真实支付与完成、农场解锁/生产、隔离 v9 保存及读回；禁止注入资源或直接改完成状态。读档前通过 tick 改变现场库存，防止空操作加载蒙混通过。
-- 600 秒是固定路线自动化回归的有界模拟预算，不是真人耗时或跨时代通关证明；UI 点击、加工链、工坊、时代门、冷启动和设备生命周期仍须分别验收。
+- 600 秒是固定路线自动化回归的有界模拟预算，不是真人耗时或跨时代通关证明；UI 点击、加工链、工坊、时代门和生命周期仍须分别验收。
 
 ## 证据边界
 
-报告必须区分静态检查、CLI 编译、Unity Test Runner 日志和真机验收。未有对应日志时不得声称通过。
+报告必须区分静态检查、CLI 编译和 Unity Test Runner 日志；未有对应日志时不得声称通过。

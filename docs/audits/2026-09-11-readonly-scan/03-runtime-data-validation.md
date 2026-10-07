@@ -32,7 +32,7 @@
 |---|---|---|---|
 | `Validation/EconomyDependencyValidator.cs:143-240` | Research、Workshop、Building 可达性验证在 6 处以 `TechLevel > TechLevel.Industrial` 过滤，运行时启动验证事实上止步于 Industrial；而静态闭合报告已经给出 Spacer 与 Ultra 事实。 | 将目标时代参数化，保留 Industrial 基线模式；为 Industrial、Spacer、Ultra、Archotech 分别添加验证测试。默认上限提升前先确认当前内容闭合与测试稳定。 | P1 |
 | `Data/Building.cs:141-147` | `CostGrowth` 解析后会把小于 1 或 NaN 的值替换为默认 1.15，`HasValidCostGrowth` 检查的是归一化后的值，导致非法 authored value 常被报告为有效。当前资产均大于 1，因此这是验证语义缺陷而非当前内容错误。 | 验证原始解析值；明确契约是 `> 1` 还是 `>= 1`，并添加 NaN、Infinity、0、0.99、1、1.15 等边界测试。 | P1 |
-| `Manager/GameBootstrap.cs:51-65`（影响本目录两个验证器） | `SectorValidator` 与 `EconomyDependencyValidator` 的失败只输出 warning，然后继续启动。启动验证到底是诊断工具还是发布门槛不明确。 | 明确契约：若为诊断工具，文档说明 warning 不阻塞；若为发布门槛，Editor/开发构建中区分阻断错误与提示，并在 CI 或测试中调用验证器。 | P2 |
+| `Manager/GameBootstrap.cs:51-65`（影响本目录两个验证器） | `SectorValidator` 与 `EconomyDependencyValidator` 的失败只输出 warning，然后继续启动。启动验证到底是诊断工具还是正式质量门槛不明确。 | 明确契约：若为诊断工具，文档说明 warning 不阻塞；若为正式质量门槛，Editor/开发构建中区分阻断错误与提示，并在 CI 或测试中调用验证器。 | P2 |
 | `Validation/EconomyDependencyValidator.cs:145-147` | 可达性辅助方法接收 `resources` 参数，但实际读取 `DataBase<Resource>.All` 查找 `WoodLog`，违反参数契约，并让调用方传入的列表失去意义。 | 改为使用传入的 `resources`。在当前调用图传入同一列表时可保持行为不变；随后补一个不同列表的单元测试锁定契约。 | P2 |
 | `Data/Tool.cs` 的 `ResourceAmountDefinitionList.ToPairs`、相关验证器 | 资源数量定义没有统一拒绝重复资源、NaN、Infinity、负数和空引用；`ResearchState.GetRequiredResourceCost` 会把重复项相加，可能静默改变设计意图。 | 为所有资源列表定义统一验证入口：资源 ID 非空、存在于数据库、数量有限且非负、无重复。重复语义若确需叠加，必须在定义层显式声明并测试。 | P2 |
 | `Validation/SectorValidator.cs` | 未验证 `OccupiedResourceRatesPerSecond`；奖励、殖民成本和战役成本大多检查 NaN/负数，但没有完整检查 Infinity、重复资源和空引用。 | 将 Sector 的所有资源列表纳入同一资源列表验证规则；对持续时间与进度倍率先验证原始值，再决定是否允许 clamp。 | P2 |

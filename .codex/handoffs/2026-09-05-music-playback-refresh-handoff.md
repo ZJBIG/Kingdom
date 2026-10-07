@@ -31,7 +31,7 @@
 
 ## 剩余事项
 
-- 尚未执行 Android Development Build 或 Huawei P40 Pro 真机播放验证。
+- 尚未执行运行期播放验证。
 - `TestResults/PlayMode-results.xml` 是删除测试前生成的历史结果；如 Unity 释放文件锁，可移入 `.codex/archive/`，不作为当前测试源。
 - Runtime 仍有 3 个与本任务无关的既有未使用变量/字段警告，按用户要求未修改。
 

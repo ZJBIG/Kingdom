@@ -12,7 +12,7 @@ agent_created: true
 
 1. 确认根目录有 `AGENTS.md`、`ProjectSettings/ProjectVersion.txt` 和 `Assets/Resources/Script/Manager/GameBootstrap.cs`。目录不匹配时停止并询问正确位置，不假定盘符。
 2. 读取根AGENTS、就近scope和当前同主题handoff；检查工作树与相关diff，区分既有/并行变更。同一轮已读且未变化的入口不回读，导航引用不是递归加载指令。
-3. 明确只读审计、实施或构建发布。只读任务不启动写报告、缓存或存档的检查，不“顺便修复”。
+3. 明确只读审计、实施或构建相关任务。只读任务不启动写报告、缓存或存档的检查，不“顺便修复”。
 4. 从 `docs/repository-map.md` 定位文件/API。审查自有代码、定义、Scene/Prefab、测试和工具；不把缓存、第三方和二进制素材说成逐行审计范围。
 5. 可选运行 `tools/codex/kingdom_project_probe.py`，只读stdout盘点、指定文本指纹和入口/引用校验。若未安装辅助工具，使用文件读取继续，不自动下载。
 
@@ -24,7 +24,7 @@ agent_created: true
 | UI、研究树、Prefab、滚动/拖动、安全区 | `kingdom-ui-redesign`；改变玩法/费用则同时读经济技能 |
 | Runtime/State/Manager/保存/离线结算 | 运行时scope和 `docs/architecture/runtime-state.md`、`serialized-pairs.md`、`ui-boundaries.md` |
 | 纯ExpantaNum内部实现 | 运行时scope、数学调用点和数值测试，不重建BigNumber |
-| 测试、脚本、编译、Android | 测试scope和 [验证手册](references/validation.md)；发布须独立授权 |
+| 测试、脚本、编译 | 测试scope和 [验证手册](references/validation.md)；外部运行体验与交付形态由用户自行验收，代理不执行或跟踪 |
 | 音乐、剧情、教程 | 同主题handoff、Manager与测试；剧情创作再读 `docs/story/story-data-authoring.md`；触及经济/UI再加领域技能 |
 | 产品默认、是否允许改变既有玩法 | `docs/decisions/conservative-defaults.md`；修改仍需本轮授权 |
 | Skill/AGENTS/开发文档整理与规则冲突 | [指导体系维护](references/guidance-maintenance.md)；不启动游戏构建 |

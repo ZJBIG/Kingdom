@@ -30,11 +30,18 @@
 
 ## 3. 研究
 
-`ResearchSpeed = (1 + buildingResearchPower) × globalMultiplier`
+研究力（`ResearchManager.CalculateResearchPower`，与源码同步）：
 
-研究成本必须按目标耗时倒推：
+`ResearchPower = max(0, BaseResearchPower) + Σ( ResearchPowerGranted × Amount × clamp01(Efficiency) × GetBuildingResearchPowerMultiplier(建筑) )`
 
-`cost = targetSeconds × expectedResearchPower`
+- `BaseResearchPower = 4`（`ResearchManager.cs`，常量）。
+- **加法叠加**：基础值加各建筑贡献之和；各建筑/研究的定向倍率（`GetBuildingResearchPowerMultiplier`）**逐建筑相乘后再累加**，不是先求和再乘一个全局倍率。倍率通道的叠加口径见 §2（`1 + Σ(valueᵢ − 1)`）。
+- 上面这条是与源码一致的口径。早前版本写的 `(1 + buildingResearchPower) × globalMultiplier` 是乘法结构且遗漏逐建筑倍率，**已作废**。
+
+研究成本由 `Research` 定义资产直接给定（`ResourceRequirements`），**不是**按目标耗时反推出来的：
+
+- 目标耗时只用于**校准定义资产里的成本数值**，不参与运行时计算。
+- 因此"成本 = 目标秒数 × 预期研究力"仅作调参时的估算口径，不是实现公式。
 
 建议目标：
 

@@ -31,7 +31,7 @@ Keep the asset representation separate from the runtime API:
 ## Compatibility
 
 - keep serialized fields named `first` and `second`;
-- preserve Pair equality/hash/deconstruction behavior;
+- preserve Pair equality/hash behavior;
 - do not expose mutable public fields;
 - Save DTOs use named fields, not Pair;
 - any future serialized field-type change requires an Editor migration and round-trip test.

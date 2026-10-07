@@ -1,5 +1,7 @@
 # Kingdom 当前版本主审查
 
+> **历史快照（生成于 2026-08-30）**：本文反映的是 2026-08-30 当时的工作树状态，不代表当前状态。文中固定的测试结果与测试环境细节（Unity/PID、一次性隔离路径等）仅代表当日现场。当前证据以 `TestResults/Latest-Test-Errors.txt` 与最新运行报告为准。
+
 更新时间：2026-08-30
 
 本文件只描述当前工作树。旧问题清单、过期测试结果和历史模拟结论已归档，不能再作为当前阻塞项引用。
@@ -8,11 +10,9 @@
 
 Todolist 对应的玩法功能已经在当前源码和资产中形成完整实现，当前阶段不需要继续扩充 Resource、Building、Research、Workshop、Sector 或 Ultra 内容。
 
-当前真正剩余的是外部验收证据，而不是继续堆功能：
+当前真正剩余的是运行期证据，而不是继续堆功能：
 
-- Huawei P40 Pro 真机安装、触控、长文本和性能验收；
 - 使用当前版本进行一次无作弊的新游戏节奏记录；
-- Android APK 构建工具链需要解决隔离副本 Bee 编译冻结后重跑。
 
 ## 2. 项目与内容快照
 
@@ -90,12 +90,11 @@ Todolist 对应的玩法功能已经在当前源码和资产中形成完整实�
 - 60 秒回归测试比较预览 Food/战略资源消耗与实际 Tick 扣除，使用同一运行时费率合同。
 - Sector 持续产出不替代玩家的高级工业生产链。
 
-### Batch 7：Story、存档、移动端与文档
+### Batch 7：Story、存档与文档
 
 - Story 保持只读文明记忆，不提供经济奖励，不强制跳转。
 - 教程详情访问记录是瞬时 UI 状态，不进入经济存档；已完成步骤不会倒退。
 - 存档压力测试覆盖新档、时代、活动研究、队列、已付款等待、Workshop 和 Sector 状态。
-- Android 静态配置为 IL2CPP、ARM64、minSdk 22、targetSdk 35、横屏。
 - CanvasScaler 合同为 ScaleWithScreenSize、2640x1200、Match Width。
 - `docs/content/progression-roadmap.md` 已以 Milestone A-D 描述当前推进顺序，Ultra/Archotech 保持冻结。
 
@@ -107,14 +106,11 @@ Todolist 对应的玩法功能已经在当前源码和资产中形成完整实�
 | 内容静态闭包 | 通过 |
 | 原始建筑资源流冲突 | 0 |
 | YAML 本地脚本引用 | 无未解析 GUID |
-| Android 配置 | 通过 |
-| P40 UI 静态合同 | 通过 |
 | Unity EditMode 隔离运行 | 644/644 通过，0 skipped |
 | Unity PlayMode 原项目最新报告 | 32/32 通过，0 skipped |
 | Unity PlayMode 隔离批处理 | 31 passed、1 skipped、0 failed；跳过项为无外层溢出时的拖动条件用例 |
 | Research Tree 专项运行日志 | 129 唯一节点、正尺寸、横纵溢出与真实拖动通过 |
-| Android APK | 未生成；隔离副本在 Bee `ScriptAssemblies` 阶段冻结并于 1800 秒超时 |
-| P40 Pro 真机 | 未执行，当前没有可用 ADB 设备证据 |
+| 历史隔离构建尝试 | 未生成构建产物；隔离副本在 Bee `ScriptAssemblies` 阶段冻结并于 1800 秒超时 |
 | 当前新游戏真实节奏 | 未执行完整无作弊实玩 |
 
 当前测试证据：
@@ -125,18 +121,18 @@ Todolist 对应的玩法功能已经在当前源码和资产中形成完整实�
 - `data/content-closure-static.md`
 - `Logs/codex-yaml-reference-audit.txt`
 
-## 5. Android 构建结论
+## 5. 历史隔离构建记录
 
-2026-08-30 在 D 盘隔离项目执行了真实 Android 构建：
+2026-08-30 在 D 盘隔离项目执行了一次真实构建尝试：
 
-- 静态 Android、UI 和 YAML 门禁均通过；
+- 静态配置、UI 和 YAML 门禁均通过；
 - Unity 授权成功；
 - 没有 C# 编译错误、Gradle 错误或磁盘不足信息；
 - 构建在 Bee `ScriptAssemblies` 后端启动后不再写日志；
-- 1800 秒后按脚本上限终止，未生成 APK；
+- 1800 秒后按脚本上限终止，未生成构建产物；
 - 父进程消失后残留的隔离 `bee_backend` 已停止；原项目 Unity 进程未受影响。
 
-不要把这次超时描述为 Android 构建通过，也不要把它误写成玩法代码失败。下一次构建应先清理隔离副本的 Bee 缓存或使用原项目关闭后的现有 Library，再重跑一次，不需要修改经济或 UI 功能。
+这次超时不是通过结论，也不是玩法代码失败证据。该历史记录不代表当前阻塞，不形成后续构建或外部验收待办，也不需要据此修改经济或 UI 功能。
 
 ## 6. 不可违反的规则
 
@@ -146,13 +142,11 @@ Todolist 对应的玩法功能已经在当前源码和资产中形成完整实�
 - 不运行或扩展冻结的 EconomySimulator。
 - 不用旧模拟报告调节当前数值。
 - 不新增第二套 Quest、Lore 或 Research Tree 系统。
-- Ultra / Archotech 在 Milestone A-D 和移动端验收前保持冻结。
-- 不把静态检查、无图形批处理或模拟器结果冒充 P40 真机验收。
+- Ultra / Archotech 在 Milestone A-D 和运行期观察完成前保持冻结。
+- 不把静态检查、无图形批处理或模拟器结果冒充运行期体验证据。
 
 ## 7. 下一步
 
-1. 在可用的 Android 构建环境中解决 Bee 缓存冻结并生成 ARM64 APK。
-2. 连接 Huawei P40 Pro，验证安装、启动、横屏、Research Tree 拖动、长文本和后台恢复。
-3. 使用 `ProgressionMilestoneRecorder` 完成一次当前版本无作弊新游戏实测，再根据真实瓶颈决定是否调数值。
+1. 使用 `ProgressionMilestoneRecorder` 完成一次当前版本无作弊新游戏实测，再根据真实瓶颈决定是否调数值。
 
-在完成这三项外部验收前，不继续新增大量内容。
+在完成这项运行期观察前，不继续新增大量内容。

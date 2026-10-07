@@ -121,7 +121,7 @@
 - 未来可考虑统一 `ExpantaNumExtensions.GeometricSeriesCost` 与模拟器
   `SimulationState.GeometricCost` 的双实现，以消除公式漂移风险；本轮不改代码。
 - 若 `ExpantaNumSoftcapStage` 将来被配置系统使用，可评估把公开可变字段改为只读属性或专用序列化 DTO；这是接口设计优化，不是本轮任务。
-- 当前不建议为了“清理”而删除高级未调用 API；它们的价值应由未来真实机制决定。
+- 当前不建议为了“清理”而删除高级未调用 API；它们的价值应由未来现有机制决定。
 
 ## 明确不建议动的部分及理由
 

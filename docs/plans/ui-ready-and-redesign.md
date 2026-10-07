@@ -1,5 +1,7 @@
 # Kingdom3 UI-Ready and redesign execution plan — historical
 
+> **已归档 / 已被取代**：本文件是历史计划文档，不再是当前待实施清单。`ToDoList_New.txt` 已不存在于仓库；文中描述的 Viewer/Displayer 与 GameUIRefreshManager 迁移均已完成，当前实现为 KingdomUIRoot partial 架构。当前架构以 `docs/architecture/ui-boundaries.md` 为准。
+
 > 历史计划：以下内容保留原始设计顺序，不是当前待实施清单。`ToDoList_New.txt`、新增独立刷新Manager、统一SetActive迁移等属于旧上下文，不能由本文推断仍缺实现。当前工作从根 `AGENTS.md` 经项目开发主入口进入UI分支；生命周期事实见 `docs/architecture/ui-boundaries.md`。
 
 Original context: this plan was subordinate to repository code and `ToDoList_New.txt` at the time.
