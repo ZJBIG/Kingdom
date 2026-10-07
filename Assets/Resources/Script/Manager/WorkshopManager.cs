@@ -14,6 +14,36 @@ public enum WorkshopPurchaseFailure
     ResourceInsufficient
 }
 
+public enum WorkshopBenefitRateKind
+{
+    ResourceProduction,
+    ResourceConsumption,
+    FoodProduction,
+    ResearchPower,
+    PowerProduction,
+    LogisticsProduction
+}
+
+public sealed class WorkshopBenefitRatePreview
+{
+    public Building Building { get; }
+    public Resource Resource { get; }
+    public WorkshopBenefitRateKind Kind { get; }
+    public ExpantaNum Before { get; }
+    public ExpantaNum After { get; }
+    public ExpantaNum Change => After - Before;
+
+    public WorkshopBenefitRatePreview(Building building, Resource resource,
+        WorkshopBenefitRateKind kind, ExpantaNum before, ExpantaNum after)
+    {
+        Building = building;
+        Resource = resource;
+        Kind = kind;
+        Before = before;
+        After = after;
+    }
+}
+
 public sealed class WorkshopManager : Singleton<WorkshopManager>
 {
     private readonly Dictionary<WorkshopUpgrade, WorkshopUpgradeState> states = new();
@@ -39,6 +69,85 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     public bool IsPurchased(WorkshopUpgrade definition) =>
         TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state) && state.Purchased;
+
+    public IReadOnlyList<WorkshopBenefitRatePreview> GetPurchaseBenefitPreview(WorkshopUpgrade definition)
+    {
+        if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
+            return Array.Empty<WorkshopBenefitRatePreview>();
+        ProgressionModifierState preview = ProgressionModifierManager.BuildPreview(
+            ResearchManager.Instance.OrderedStatesForProgression, orderedStates, state.Definition);
+        return CalculateBenefitPreview(BuildingManager.Instance.OrderedStates,
+            ProgressionModifierManager.Current, preview, ResourceManager.GetHappinessRewardMultiplier());
+    }
+
+    // Hold quantities and efficiencies fixed; the next tick will recalculate input satisfaction.
+    public static IReadOnlyList<WorkshopBenefitRatePreview> CalculateBenefitPreview(
+        IReadOnlyList<BuildingState> buildings, ProgressionModifierState before,
+        ProgressionModifierState after) => CalculateBenefitPreview(buildings, before, after, ExpantaNum.One);
+
+    public static IReadOnlyList<WorkshopBenefitRatePreview> CalculateBenefitPreview(
+        IReadOnlyList<BuildingState> buildings, ProgressionModifierState before,
+        ProgressionModifierState after, ExpantaNum productionRewardMultiplier)
+    {
+        var result = new List<WorkshopBenefitRatePreview>();
+        AddRate(null, null, WorkshopBenefitRateKind.ResearchPower,
+            ResearchManager.BaseResearchPower * before.GlobalResearchMultiplier,
+            ResearchManager.BaseResearchPower * after.GlobalResearchMultiplier);
+        AddRate(null, null, WorkshopBenefitRateKind.FoodProduction,
+            GameState.BaseFoodProductionRate * before.GlobalFoodProductionMultiplier,
+            GameState.BaseFoodProductionRate * after.GlobalFoodProductionMultiplier);
+        if (buildings == null)
+            return result;
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            BuildingState state = buildings[i];
+            if (state == null || state.Amount <= ExpantaNum.Zero)
+                continue;
+            Building building = state.Definition;
+            ExpantaNum scale = state.Amount * state.Efficiency;
+            ExpantaNum oldProduction = before.GetBuildingProductionMultiplier(building) *
+                before.GlobalBuildingProductionMultiplier;
+            ExpantaNum newProduction = after.GetBuildingProductionMultiplier(building) *
+                after.GlobalBuildingProductionMultiplier;
+            foreach (Pair<Resource, ExpantaNum> rate in building.ResourceGenerationRates)
+                AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceProduction,
+                    scale * rate.Second * oldProduction * productionRewardMultiplier *
+                    before.GetBuildingResourceProductionMultiplier(building, rate.First) *
+                    before.GetResourceProductionMultiplier(rate.First),
+                    scale * rate.Second * newProduction * productionRewardMultiplier *
+                    after.GetBuildingResourceProductionMultiplier(building, rate.First) *
+                    after.GetResourceProductionMultiplier(rate.First));
+            foreach (Pair<Resource, ExpantaNum> rate in building.ResourceConsumptionRates)
+                AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceConsumption,
+                    scale * rate.Second * oldProduction, scale * rate.Second * newProduction);
+            AddRate(building, null, WorkshopBenefitRateKind.FoodProduction,
+                scale * building.FoodProductionRate * oldProduction * before.GlobalFoodProductionMultiplier,
+                scale * building.FoodProductionRate * newProduction * after.GlobalFoodProductionMultiplier);
+            AddRate(building, null, WorkshopBenefitRateKind.ResearchPower,
+                scale * building.ResearchPowerGranted * before.GetBuildingResearchPowerMultiplier(building) *
+                before.GlobalResearchMultiplier,
+                scale * building.ResearchPowerGranted * after.GetBuildingResearchPowerMultiplier(building) *
+                after.GlobalResearchMultiplier);
+            AddRate(building, null, WorkshopBenefitRateKind.PowerProduction,
+                scale * building.PowerProductionRate * before.PowerMultiplier *
+                before.GetBuildingPowerProductionMultiplier(building),
+                scale * building.PowerProductionRate * after.PowerMultiplier *
+                after.GetBuildingPowerProductionMultiplier(building));
+            AddRate(building, null, WorkshopBenefitRateKind.LogisticsProduction,
+                scale * building.LogisticsProductionRate * before.GlobalLogisticsMultiplier *
+                before.GetBuildingLogisticsProductionMultiplier(building),
+                scale * building.LogisticsProductionRate * after.GlobalLogisticsMultiplier *
+                after.GetBuildingLogisticsProductionMultiplier(building));
+        }
+        return result;
+
+        void AddRate(Building building, Resource resource, WorkshopBenefitRateKind kind,
+            ExpantaNum oldRate, ExpantaNum newRate)
+        {
+            if (oldRate != newRate)
+                result.Add(new WorkshopBenefitRatePreview(building, resource, kind, oldRate, newRate));
+        }
+    }
 
     public bool ArePrerequisitesMet(WorkshopUpgrade definition)
     {

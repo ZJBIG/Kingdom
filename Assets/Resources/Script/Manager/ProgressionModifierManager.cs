@@ -201,7 +201,16 @@ public static class ProgressionModifierManager
         IReadOnlyList<ResearchState> researchStates,
         IReadOnlyList<WorkshopUpgradeState> workshopStates = null)
     {
+        Current = BuildPreview(researchStates, workshopStates);
+    }
+
+    public static ProgressionModifierState BuildPreview(
+        IReadOnlyList<ResearchState> researchStates,
+        IReadOnlyList<WorkshopUpgradeState> workshopStates = null,
+        WorkshopUpgrade candidate = null)
+    {
         var rebuilt = new ProgressionModifierState();
+        bool alreadyPurchased = false;
         if (researchStates != null)
         {
             for (int i = 0; i < researchStates.Count; i++)
@@ -222,13 +231,17 @@ public static class ProgressionModifierManager
                 WorkshopUpgradeState state = workshopStates[i];
                 if (state == null || !state.Purchased)
                     continue;
+                alreadyPurchased |= candidate != null && string.Equals(
+                    state.Definition.Id, candidate.Id, StringComparison.OrdinalIgnoreCase);
                 ApplyWorkshopEffects(
                     rebuilt,
                     state.Definition.Effects,
                     state.Definition.TechLevel >= TechLevel.Spacer);
             }
         }
-        Current = rebuilt;
+        if (candidate != null && !alreadyPurchased)
+            ApplyWorkshopEffects(rebuilt, candidate.Effects, candidate.TechLevel >= TechLevel.Spacer);
+        return rebuilt;
     }
 
     private static void ApplyResearchEffects(

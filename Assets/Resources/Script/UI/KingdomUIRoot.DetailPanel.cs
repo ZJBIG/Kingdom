@@ -780,7 +780,52 @@ public sealed partial class KingdomUIRoot
         text.AppendLine();
         text.AppendLine("效果");
         AppendWorkshopEffects(text, definition.Effects);
-        detailBody.text = text.ToString();
+        AppendWorkshopBenefitPreview(text, definition);
+        string body = text.ToString();
+        if (detailBody.text != body)
+            detailBody.text = body;
+    }
+
+    private static void AppendWorkshopBenefitPreview(StringBuilder text, WorkshopUpgrade definition)
+    {
+        WorkshopManager manager = WorkshopManager.Instance;
+        if (manager == null)
+            return;
+        text.AppendLine();
+        if (manager.IsPurchased(definition))
+        {
+            text.AppendLine("升级已生效，无需再次购买。");
+            return;
+        }
+        text.AppendLine("购买后速率预览（按当前持有数量和效率）");
+        text.AppendLine("资源产出包含当前幸福加成；持续原料不受该加成放大。");
+        IReadOnlyList<WorkshopBenefitRatePreview> rates = manager.GetPurchaseBenefitPreview(definition);
+        bool extraInputs = false;
+        for (int i = 0; i < rates.Count; i++)
+        {
+            WorkshopBenefitRatePreview rate = rates[i];
+            string target = rate.Building != null ? rate.Building.Label : "基础供给";
+            string metric = rate.Kind switch
+            {
+                WorkshopBenefitRateKind.ResourceProduction => rate.Resource.Label + "产出",
+                WorkshopBenefitRateKind.ResourceConsumption => rate.Resource.Label + "持续原料",
+                WorkshopBenefitRateKind.FoodProduction => "粮食产出",
+                WorkshopBenefitRateKind.ResearchPower => "有效研究力",
+                WorkshopBenefitRateKind.PowerProduction => "电力供给",
+                WorkshopBenefitRateKind.LogisticsProduction => "物流供给",
+                _ => string.Empty
+            };
+            extraInputs |= rate.Kind == WorkshopBenefitRateKind.ResourceConsumption && rate.Change > ExpantaNum.Zero;
+            text.Append("  ").Append(target).Append(" / ").Append(metric).Append(": ")
+                .Append(rate.Before.ToGameString()).Append(" → ").Append(rate.After.ToGameString())
+                .Append("/s（变化 ").Append(rate.Change > ExpantaNum.Zero ? "+" : string.Empty)
+                .Append(rate.Change.ToGameString()).AppendLine("/s）");
+        }
+        if (rates.Count == 0)
+            text.AppendLine("  当前没有建筑速率收益变化；作用对象及其他长期效果见上方。尚未持有的目标建筑建成后才有建筑收益。");
+        else if (!extraInputs)
+            text.AppendLine("  当前建筑的持续原料速率不增加。");
+        text.AppendLine("原料、电力和物流约束变化后会重算效率；预计增产仍需持续供应原料。");
     }
 
     private static void AppendWorkshopEffects(

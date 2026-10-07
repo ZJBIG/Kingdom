@@ -435,7 +435,7 @@ public sealed partial class KingdomUIRoot
         {
             RefreshRequirementRows(selectedWorkshop.ResourceRequirements);
             ConfigureWorkshopPaymentButton(selectedWorkshop, false);
-            if (!pageScrolling && workshopRowsUiDirty && populatedPage == "Workshop")
+            if (!pageScrolling && populatedPage == "Workshop")
                 SetWorkshopDetailBody(selectedWorkshop);
         }
         else if (!pageScrolling && populatedPage == "Research")

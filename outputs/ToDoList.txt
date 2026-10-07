@@ -10,7 +10,7 @@ Kingdom 当前动工清单
 [ ] E 插画09→00→14试制与固定Prefab接入；用户已明确暂缓。
 
 F 三项已获用户授权，分阶段实施、验证、上传，最终合并 main：
-[ ] F1 工坊当前状态收益与额外原料说明。
+[x] F1 工坊当前状态收益与额外原料说明。EditMode WorkshopBenefitPreviewTests 3/3；完整 PlayMode outputs-F-playmode-r3-20261007.xml 41/41，exit 0；逐阶段提交见阶段交付。
 [ ] F2 本星系目标推荐顺序：不能越过HomeSystemSurvey与LaunchCenter真实硬条件。
 [ ] F3 离线前后真实差异摘要。
 G 单处遗迹及其余大机制：用户明确暂缓，不当作现存bug。

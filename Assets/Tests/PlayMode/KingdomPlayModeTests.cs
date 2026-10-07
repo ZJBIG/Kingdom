@@ -726,6 +726,115 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator WorkshopBenefit_AuthoredDetailsRefreshAndPreviewMatchesCommittedRates()
+    {
+        yield return LoadIsolatedNewGame();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        ResourceManager resources = ResourceManager.Instance;
+        BuildingManager buildings = BuildingManager.Instance;
+        ResearchManager research = ResearchManager.Instance;
+        WorkshopManager workshop = WorkshopManager.Instance;
+        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("RotaryDrillingHeads");
+        Building target = DataBase<Building>.Find("OilDerrick");
+        Assert.That(root, Is.Not.Null);
+        Assert.That(candidate, Is.Not.Null);
+        Assert.That(target, Is.Not.Null);
+
+        // Controlled Industrial fixture inside an isolated new-game scene; this is UI/rate
+        // regression coverage, not evidence of reaching Industrial from natural production.
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        var completed = new List<Research>(candidate.RequiredResearch)
+        {
+            DataBase<Research>.Find("IndustrialWorkshop")
+        };
+        foreach (Research prerequisite in completed)
+        {
+            var paid = new Dictionary<Resource, ExpantaNum>();
+            foreach (Pair<Resource, ExpantaNum> cost in prerequisite.ResourceRequirements)
+                paid[cost.First] = cost.Second;
+            research.GetState(prerequisite).RestoreForEditor(ExpantaNum.Zero, false, true, paid);
+        }
+        foreach (WorkshopUpgrade prerequisite in candidate.RequiredUpgrades)
+            workshop.States[prerequisite].SetPurchasedForEditor(true);
+        ProgressionModifierState previous = ProgressionModifierManager.Current;
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
+            new List<WorkshopUpgradeState>(workshop.States.Values));
+        buildings.ApplyProgressionModifierChangeForEditor(previous, ProgressionModifierManager.Current);
+        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+            resources.SetAmount(cost.First, cost.Second * new ExpantaNum(3));
+        BuildingState building = buildings.EnsureBuilding(target);
+        buildings.SetAmountAndRatesForEditor(building, ExpantaNum.One);
+
+        var inventoryVersions = new Dictionary<Resource, int>();
+        foreach (KeyValuePair<Resource, ResourceState> entry in resources.States)
+            inventoryVersions.Add(entry.Key, entry.Value.Version);
+        int buildingVersion = building.Version;
+        int workshopVersion = workshop.States[candidate].Version;
+        ProgressionModifierState current = ProgressionModifierManager.Current;
+        IReadOnlyList<WorkshopBenefitRatePreview> preview = workshop.GetPurchaseBenefitPreview(candidate);
+        Assert.That(preview, Is.Not.Empty);
+        foreach (KeyValuePair<Resource, int> version in inventoryVersions)
+            Assert.That(resources.GetState(version.Key).Version, Is.EqualTo(version.Value),
+                "A read-only preview must not mutate resource state versions.");
+        Assert.That(building.Version, Is.EqualTo(buildingVersion));
+        Assert.That(workshop.States[candidate].Version, Is.EqualTo(workshopVersion));
+        Assert.That(ProgressionModifierManager.Current, Is.SameAs(current));
+
+        root.SetPage("Workshop");
+        yield return null;
+        Button card = root.GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
+            button.transform.Find("Label")?.GetComponent<TMP_Text>()?.text == candidate.Label);
+        Assert.That(card, Is.Not.Null, "The real authored workshop card must be present.");
+        card.onClick.Invoke();
+        yield return null;
+        TMP_Text body = root.transform.Find(
+            "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")?.GetComponent<TMP_Text>();
+        Assert.That(body, Is.Not.Null);
+        Assert.That(body.text, Does.Contain(candidate.Label));
+        foreach (WorkshopBenefitRatePreview rate in preview)
+            Assert.That(body.text, Does.Contain(rate.Before.ToGameString() + " → " + rate.After.ToGameString() + "/s"));
+        string oneBuildingText = body.text;
+        buildings.SetAmountAndRatesForEditor(building, new ExpantaNum(2));
+        root.RefreshUI();
+        yield return new WaitForSeconds(0.35f);
+        Assert.That(body.text, Is.Not.EqualTo(oneBuildingText),
+            "Open details must refresh when owned quantities change without a workshop purchase.");
+        preview = workshop.GetPurchaseBenefitPreview(candidate);
+        foreach (WorkshopBenefitRatePreview rate in preview)
+            Assert.That(body.text, Does.Contain(rate.Before.ToGameString() + " → " + rate.After.ToGameString() + "/s"));
+
+        var beforeRates = new Dictionary<Resource, Pair<ExpantaNum, ExpantaNum>>();
+        foreach (KeyValuePair<Resource, ResourceState> entry in resources.States)
+            beforeRates[entry.Key] = new Pair<ExpantaNum, ExpantaNum>(entry.Value.ProductionRate, entry.Value.ConsumptionRate);
+        var beforeCosts = new Dictionary<Resource, ExpantaNum>();
+        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+            beforeCosts[cost.First] = resources.GetAmount(cost.First);
+        Button purchase = root.GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
+            button.name == "Action" && button.gameObject.activeInHierarchy);
+        Assert.That(purchase, Is.Not.Null);
+        Assert.That(purchase.interactable, Is.True);
+        ExpantaNum reward = GameManager.Instance.State.HappinessRewardMultiplier;
+        purchase.onClick.Invoke();
+        Assert.That(workshop.IsPurchased(candidate), Is.True);
+        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+            Assert.That((beforeCosts[cost.First] - resources.GetAmount(cost.First) - cost.Second).Abs(),
+                Is.LessThan(new ExpantaNum("1e-6")), "The real purchase must charge its authored cost.");
+        foreach (WorkshopBenefitRatePreview rate in preview)
+        {
+            ResourceState state = resources.GetState(rate.Resource);
+            ExpantaNum committed = rate.Kind == WorkshopBenefitRateKind.ResourceProduction
+                ? (state.ProductionRate - beforeRates[rate.Resource].First) * reward
+                : state.ConsumptionRate - beforeRates[rate.Resource].Second;
+            // The ledger and preview use different operation orders; ExpantaNum quantizes
+            // scalar arithmetic to 1e-6, so allow one quantization unit inclusively.
+            Assert.That((committed - rate.Change).Abs(), Is.LessThanOrEqualTo(new ExpantaNum("1e-6")),
+                "Settled production includes happiness; ongoing input consumption does not. " +
+                "Committed=" + committed.ToString() + "; preview=" + rate.Change.ToString());
+        }
+        Assert.That(workshop.GetPurchaseBenefitPreview(candidate), Is.Empty);
+    }
+
+    [UnityTest]
     public IEnumerator AudioFeedback_RealUiAndResearchPathsEmitOnlyCommittedResults()
     {
         yield return LoadIsolatedNewGame();

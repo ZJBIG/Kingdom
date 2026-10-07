@@ -9,7 +9,11 @@
 - DeveloperTests 构建 0 errors/0 warnings；当前静态闭包达到 Ultra，Research 15/15、Workshop 3/3、Building 3/3；72 建筑、40资源、OpposingRawResourceFlows=0；确定性诊断总体 passed=true，仅 fixture 回归。
 - 暂存的依赖基线保留既有实现，排除字体/临时目录/个人记忆/旧文档清理；Unity 序列化空值行末既有空白不另行改资产，源码和工具 diff 空白检查通过。
 - Git 直连 TLS 曾失败，使用本机已配置系统代理（仅命令参数，证书校验保留）；提交作者使用最近本仓库作者，仅命令参数，不改全局配置。
-- 下一动作：完成 F1/F2/F3 最小实现与真实 targeted EditMode/PlayMode，逐阶段提交上传；最后检查 main 为快进合并并推送，保留其他工作树改动。
+- B–D 依赖基线/C1 已上传 `fdcfd3f`。
+- F1 工坊详情按当前数量/效率/幸福加成预览购买前后生产与持续投入，复用真实叠加效果、不改权威状态。新增3项规则测试及真实按钮/刷新/扣款/速率 PlayMode；已购、无建筑、零效率覆盖。
+- F 验证：真实 Unity 编译 outputs-F-compile-20261007.log exit0；EditMode 首次35/35 XML后原生退出超时，保留失败；分组重跑 outputs-F12-editmode-r2-20261007.xml 30/30 与 outputs-F3-editmode-r2-20261007.xml 5/5，均exit0；最终完整 outputs-F-playmode-r3-20261007.xml 41/41、0失败/跳过、exit0。首轮39/41、第二轮40/41及新增断言格式失败保留。标量比较允许已有1e-6量化的一单位边界，不改数学层。
+- F 最终日志仅有 Licensing/Curl 环境噪声，无游戏级 Error/Exception/MissingReference；DeveloperTests 0错误/警告，工具反例3/3，确定性fixture诊断exit0；新meta GUID独占，UI/guidance/YAML引用检查通过。
+- 下一动作：F1/F2/F3 按验证后的边界分别提交上传，整合已授权当前工作树文档，最后 main 常规快进合并并推送；E/G 暂缓，保留个人记忆、临时目录与字体变更。
 
 ## 任务与状态
 
