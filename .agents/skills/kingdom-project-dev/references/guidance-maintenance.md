@@ -15,16 +15,16 @@
 | State/事务/时钟/存档 | `docs/architecture/runtime-state.md` | 工程规则旧入口仅导航 |
 | Pair资产/运行时及兼容 | `docs/architecture/serialized-pairs.md` | 不新增旧类型模板 |
 | 研究队列/支付台账 | `docs/architecture/research-queue-payment.md` | UI只定义按钮语义，不复制付款算法 |
-| 产品默认 | `docs/decisions/conservative-defaults.md` | `docs/rules/kingdom-rules.md` 兼容导航 |
+| 产品默认 | `docs/decisions/conservative-defaults.md` | 不再维护旧工程规则副本 |
 | 内容/经济执行顺序与输入契约 | `kingdom-economy-simulation/SKILL.md` | 不恢复 content-expansion 平行技能 |
-| 内容质量与设计灵感边界 | 经济技能 `references/content-design.md` | kittens-game-reference-boundary 兼容导航 |
+| 内容质量与设计灵感边界 | 经济技能 `references/content-design.md` | 不再维护独立参考边界副本 |
 | 容量禁止项及允许的替代门槛 | `docs/balance/no-resource-caps.md` | 根仅保留禁止退化摘要 |
 | 数值方法与暂定目标带 | `docs/balance/balance-model.md` | 不把设计目标写成当前实测值 |
 | 当前内容方向 / 专题内容 | `docs/content/progression-roadmap.md` 及相关专题 | 不合并不同主题的设计资料 |
 | UI布局/图/手势/设备技术契约 | `kingdom-ui-redesign/SKILL.md` | 旧UI计划不构成当前实施任务 |
-| 页面职责/详情按钮/选择态 | `docs/ui/page-responsibilities.md` | detail-action-policy 兼容导航；UI技能引用 |
+| 页面职责/详情按钮/选择态 | `docs/ui/page-responsibilities.md` | UI技能只引用详细契约 |
 | UI状态所有权/刷新/生命周期 | `docs/architecture/ui-boundaries.md` | 不重复页面操作表或布局数值 |
-| 行为验收 / PlayMode场景 | `docs/testing/acceptance-checklist.md` / `playmode-test-plan.md` | content-balance-tests 兼容导航；场景可引用规则作断言，不另立规则 |
+| 行为验收 / PlayMode场景 | `docs/testing/acceptance-checklist.md` / `playmode-test-plan.md` | 场景可引用规则作断言，不另立规则 |
 | 命令/副作用/存档隔离 | 本技能 `references/validation.md` | tools/README 只索引实际工具 |
 | 协作 / 证据 / 交接 | 本技能 subagents、evidence参考和handoff-template | 只更新同主题当前handoff，不将历史复制为长期规则 |
 
@@ -34,7 +34,7 @@
 2. 按上述主题归属逐段分类：重复、独有、冲突、历史。先列迁移表，再缩减旧文件；不能以关键词相似代替语义核对。
 3. 对本轮拟改文件保留精确的修改前快照和哈希，验证备份可读。不回滚用户工作，不把已有未提交删除归为本轮成果。
 4. 将独有条款完整安置到权威位置。用源码/资产确认实现事实，保留未实现的硬约束；产品改变须另行授权。不要因文档过期重建系统。
-5. 将旧公开路径缩为兼容指针，链接到实际权威位置；历史计划只加明显的历史状态说明，保留原文。不将历史引用全局替换成当前事实。
+5. 必须保留公开旧路径时只留兼容指针；用户授权清理时，可在迁移独有内容后删除已被取代的计划、审计与无独有信息的指针，同时更新活动引用和校验依赖。历史保存在可恢复归档，不将旧引用或旧统计改写成当前事实，也不把归档设为正常开发依赖。
 6. 主入口只维护一张分流表；子技能直接命中时先完成主入口范围检查，同轮已读入口不重复加载。简单任务不强制全读参考资料。
 7. 同步必要路径清单、客户端适配、技能元数据、相关README与原handoff。不要默认新增全局Skill：Kingdom专属知识随仓库维护。
 

@@ -32,20 +32,20 @@
 
 做「某时代有无某能力」「某资源是否还有用途」这类静态核算前，先固定口径，否则会得出**假缺陷**。
 
-- **建筑可用性是累积的，不是按时代隔离**：`BuildingManager.ArePrerequisitesMet` 只判 `TechLevel <= 当前` + 研究完成 + 工坊已购，**没有「时代过期即不可建」的清理**。升级链只决定「哪一档被 UI 当代表展示」（`IsHighestUnlockedChainTier` / `FindHighestUnlockedTier`），不影响低档可建性。因此「中世纪没有产粮建筑」这类结论通常是口径错误——中世纪可用石器时代的 `IrrigationWorks`。
-- **净产出核算必须计入基线常量**：`GameState.BaseFoodProductionRate = 5/s`、`BaseFoodCapacity = 500` 全时代免费，`InitializeNew` 直接把 `unscaledFoodProductionRate` 初值设为 5，建筑产粮/耗粮都在此之上累加（`AdjustFoodRates`）。漏掉它们会让每个时代都算出假赤字。
-- **升级档的价值用「追平产出所需的低档数量」量化**，逐项对比生产力/电力/物流/空间/原料投入。旧工业枢纽到 Spacer 的产物倍率一致为 4.00x，而原料投入降至 0.02-0.15x——即用**电力与空间换原料与运力**，是取舍而非「老建筑失效」。
-- **需求侧要按消费者时代拆分**：同类产品的消费者可能全是 Spacer（如 `Composite` 76 个消费者中 75 个是 Spacer），只看总数会漏判。同时必须扫 `resourceConsumptionRates` **与** `resourceRequirements`（研究/工坊/build 成本），否则会漏掉大量真实消费者。
-- **sink 统计必须覆盖 5 类，缺一不可**：①建筑 `resourceGenerationRates`（源）②建筑 `resourceConsumptionRates`（持续消耗）③研究 `resourceRequirements`（一次性）④工坊 `resourceRequirements`（一次性）⑤**Sector 战略行动**——`campaignResourceRatesPerSecond`、`colonizationResourceRatesPerSecond`、`campaignFoodPerSecond`（战役/殖民是持续消耗，漏掉会低估后期需求）。当前战役消耗集为 Food/Biomass/Composite/Electronics/Engine/Lubricant/Machinery/Nickel/PhantomAlloy/PhantomWeave/PhaseMaterial/RocketFuel/TitaniumAlloy，殖民另加 Aluminum/RefinedFuel。
-- **弱资源的唯一持续 sink 往往是「会被升级掉」的那座建筑**：`StoneCuttingWorkshop→IndustrialStoneworks`、`CeramicKiln→AdvancedCeramicsPlant`（sink 直接升级成生产者）、`MachineFactory→OrbitalMachiningComplex`、`WireMill→OrbitalWireWorks`、`SteelForge→IndustrialMetalSmelter`（升级目标都不消耗原资源）。配合 `CanConstructNew` 要求 `IsHighestUnlockedChainTier`，**低档 sink 不可再新建**，但已建的仍持续消耗（`ShouldDisplay` 在 `Amount > 0` 时返回 true）。**这是升级链语义的必然结果，不是 bug。**
-- **「后期净累积」不是有效缺陷判据**：绝大多数原料/中间品后期都净累积（实测 `CopperOre` +61/s、`StoneChunk` +12、`Clay` +3…，仅 `Steel` 为负）。因普通资源无上限（`AGENTS.md`：Food 是唯一可封顶库存），富余不产生浪费或惩罚。有效判据是**「是否有实际长期使用者」**——`Bronze`/`Copper`/`Coal` 有（`MachineFactory`/`WireMill`/`CentralPowerStation`+`CokeOven`+`SteamPlant`），`StoneChunk`/`Clay`/`Iron` 没有。
+- **建筑可用性是累积的，不是按时代隔离**：前置校验读取时代、研究和工坊条件，不因进入下一时代自动清除旧建筑；但`CanConstructNew`要求最高已解锁链档，高档解锁后低档停建。核算须分开已有建筑与当前可新增建筑，不能只按当前时代资产目录判断供给。
+- **净产出核算必须计入基线常量**：读取当前`GameState.BaseFoodProductionRate`与`BaseFoodCapacity`，建筑产粮/耗粮在基础供给之上累加；不能沿用历史固定数值或漏算基础供给。
+- **升级档的价值用「追平产出所需的低档数量」量化**，逐项对比当前定义及真实数量、定向/全局倍率、生产力、电力、物流、空间与原料投入，不沿用旧枢纽倍数。
+- **需求侧要按消费者时代拆分**：同时核对持续`resourceConsumptionRates`与研究/工坊/建造的`resourceRequirements`，只看总消费者数会漏判跨时代用途。
+- **source/sink统计须覆盖实际系统**：建筑产出与持续消耗、建造/研究/工坊一次成本、Sector殖民/战役/维修和占领产出，以及Ultra工程的`OneTimeResourceCosts`、`ContinuousResourceCosts`及Food费用。按当前定义取资源集，不沿用历史列表；Food日常净流不含战略与工程额外支付。
+- **升级会改变持续sink**：低档停建后，已建低档仍可能持续消耗；升级目标可能改变配方或成为原资源生产者。结合当前升级链、持有量和真实费用判断，不能把这种取舍直接认作bug。
+- **「后期净累积」不是有效缺陷判据**：普通资源无上限，富余不直接产生截断损失。核对当前实际长期使用者和战略用途，不用旧布局的净速率或旧消费者名单下结论。
 - **多产出生产者造成的富余不要靠砍产出解决**：`IndustrialStoneworks`(StoneChunk+StoneBrick)、`AdvancedCeramicsPlant`(Clay+Ceramic)、`IndustrialMetalSmelter`(Copper+Tin+Iron+Steel+Bronze) 的弱产物是为**其他必需产物**而生产的副产，砍掉会破坏后者。若确需补消耗口，**复用材料链**（如晚期 Iron→Steel 路线），不加无意义税或强制多余研究。
 
 **解析 YAML 定义时的两个静默陷阱**（都会让结果变成空列表，不报错）：
 1. 段头正则用 `r"^  key:\s*$"` 配 `re.M` —— `\s` 会**吞掉换行**，导致后续取段体永不匹配。正确写法 `r"^  key:[ \t]*$"`。
 2. `resource: {guid}` 与 `amount: N` 在**相邻两行**，不能要求一条正则在一行内同时命中；须用「记住上次 guid 再回填 amount」的跨行配对。
 
-解析脚本产出「全为 0/空」时**先验证解析器本身**（用真实样本文件打印中间结果），不要先怀疑数据。可复用的只读样例：`tmp/audit-food-carrying-capacity.py`、`tmp/audit-hub-chains.py`、`tmp/audit-hub-demand.py`、`tmp/audit-weak-resources.py`。
+解析脚本产出「全为 0/空」时**先验证解析器本身**（用真实样本文件打印中间结果），不要先怀疑数据；临时审计脚本不作为规范依赖。
 
 ## 4. 战役与供给
 
@@ -58,7 +58,7 @@
 
 - 建筑成本采用几何增长；批量费用使用 `ExpantaNumExtensions.GeometricSeriesCost`，最大可买数量使用 `MaxAffordableGeometricSeries` 等当前公开闭式API，不逐座循环。
 - 拆除返还按现行交易规则计算最后N座的历史成本及返还率，保留升级/星区例外；先查BuildingManager和测试，不复制孤立公式。
-- 研究费用由目标时长和预期ResearchPower推导；首件回本、成本增长带与时代折算以 `docs/balance/balance-model.md` 为方法，静态估算必须由真实运行校准。
+- 设计研究费用时可用目标时长和预期ResearchPower估算；运行期费用读取Research定义，不按耗时反算。首件回本、成本增长带与时代折算以 `docs/balance/balance-model.md` 为方法，静态估算必须由真实运行校准。
 - 不提前使用与内容阶段不符的极端记数法；保留旧资源价值。记录字段前后、理论估计和实测节奏；fixture模拟不能替代试玩。
 - 直接复用 `Assets/Resources/Script/Data/ResearchEffect.cs`、`Assets/Tests/Editor/ContentProgressionValidatorTests.cs` 及公开强类型API。不复制旧模板重定义ResearchEffectType或修改其序列化编号。
 

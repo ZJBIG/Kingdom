@@ -78,9 +78,11 @@ dotnet build Kingdom.Editor.Developer.csproj --no-restore
 dotnet build Kingdom.DeveloperTests.csproj --no-restore
 ```
 
-`build-developer-assembly.ps1` 主动剥离 `Assets/Tests/*`、nunit 与 TestRunner 引用，`run-unity-tests.ps1` 又依赖本机卡死的批处理 runner，测试程序集此前没有可达的编译门。该 csproj 驱动 `tools/codex/compile-developer-tests.ps1`：复用 Unity 已生成的 Bee rsp，保留测试源与测试框架引用，把过期的 `Kingdom.Runtime.ref.dll` 换成当前源码构建的 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`；**只编译，不运行任何测试**。
+`build-developer-assembly.ps1` 主动剥离 `Assets/Tests/*`、nunit 与 TestRunner 引用，因此测试程序集使用独立编译门。该 csproj 驱动 `tools/codex/compile-developer-tests.ps1`：复用 Unity 已生成的 Bee rsp，保留测试源与测试框架引用，把过期的 `Kingdom.Runtime.ref.dll` 换成当前源码构建的 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`；**只编译，不运行任何测试**。
 
 脚本参数：`Target`（All/Editor/PlayMode，默认 All）、`Configuration`（Debug/Release）、`ProjectPath`、`UnityPath`。csproj 的 `Build` 目标先 `Exec` 一次 `build-developer-assembly.ps1 -Assembly Editor`，再跑本脚本，所以单独 build 该 csproj 即自足，且比对的是刚刚生成的 Runtime 程序集而非陈旧产物；`Kingdom.Developer.sln` 也已登记，`dotnet build Kingdom.Developer.sln` 一并覆盖。Unity 定位复用 `find-unity.ps1`；rsp 按文件名在 `Library/Bee/artifacts` 下递归取最新，不写死会变的 dag 哈希目录名。
+
+- **Python与PowerShell的产物检查不同**：`compile-developer-tests.py`在每次编译前删除目标DLL及refDLL，再检查新DLL存在；`compile-developer-tests.ps1`不先删除旧产物，只检查DLL存在、编译器确实运行及退出码。不能把两者都描述成保证新产物。Python汇总当前仅由产物存在构成`all_ok`，虽然记录了`compiler_exit`，却没有将退出码合入汇总判断；使用该入口仍须独立核对每项编译器退出码和新产物，不将脚本退出0单独作为通过证据。此处记录现有实现，未修改编译工具。
 
 - **legacy csproj 的 `ProjectReference` 在直接 build 时不生效**：这些项目只导入 `Kingdom.Developer.References.props`，未导入 `Microsoft.Common.targets`，`ResolveProjectReferences` 不存在，构建顺序实际来自 `.sln` 的 `ProjectDependencies`。实测只 build `Kingdom.DeveloperTests.csproj` 时，引用的 Runtime/Editor 项目不会被构建（产物时间戳不动）。需要顺序保证就写进 `Build` 目标的 `Exec` 链，不要指望 `ProjectReference`。
 
@@ -93,18 +95,18 @@ dotnet build Kingdom.DeveloperTests.csproj --no-restore
 
 ### 离线状态沙箱（纯托管 Runtime 类型）
 
-本机 Unity `-batchmode` 在 asset database 首次刷新处卡死，EditMode 无法批处理执行。对于**不碰 UnityEngine 的纯托管类型**，可以引用当前源码构建的 `Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`，在普通 .NET 宿主里真实执行，取得**执行级**证据（而不是编译级）。
+确需诊断**不调用Unity原生API的纯托管类型**时，可引用当前源码构建的`Temp/DeveloperBuild/Kingdom.Runtime.Editor.dll`在普通.NET宿主执行。不得沿用旧环境的批处理卡死结论来跳过当前真实Unity验证。
 
-**适用边界（已实测，不要重试）**：
+**适用边界**：
 
-- 可达：`GameState` 及其协作类型（`PopulationState`、`TerritoryState`、`MilitaryState`、`CampaignState`、`StoryProgressState`、`ExpantaNum`、`HappinessFormula`、`ProgressionModifierManager`——后两者是 `static class`）。判定方法：看 `using` 列表是否只有 `System*`。
-- **不可达**：构造函数需要 `ScriptableObject` 的类型（`ResearchState`、`WorkshopUpgradeState` 等），以及所有 MonoBehaviour 派生类（Manager 层）。`ScriptableObject.CreateInstance<T>()` 在 .NET 宿主里抛 `SecurityException: ECall methods must be packaged into a system module.` 探针即可确认，不必逐个试。
+- 只选择经依赖核对无需Unity原生API的状态与数学路径；不能只凭`using System`判断间接依赖也可执行。
+- `ScriptableObject.CreateInstance<T>()`及MonoBehaviour生命周期需要Unity宿主，不能在普通.NET沙箱中代替真实Manager/资产测试。
 
-**NUnit 离线不可用**：本机唯一副本是 `Library/PackageCache/com.unity.ext.nunit@1.0.6/net35/unity-custom/nunit.framework.dll`（NUnit 3.5 era），在 .NET 9 上 `TypeLoadException: Could not load type 'System.Runtime.Remoting.Messaging.CallContext' from assembly 'mscorlib'`；Unity 安装目录与本地 NuGet 缓存均无可用副本，装包需授权。所以沙箱里**复现被测用例的断言序列**，并在输出里明确标注为 `[project-reproduced]`，与 harness 自写的 `[smoke]` 分组隔离。**复现不得被表述为「原测试通过」。**
+Unity定制测试程序集不保证能在普通.NET宿主使用。若只复现原测试的断言序列，输出标记`[project-reproduced]`，与自写`[smoke]`隔离；**复现不得表述为原测试通过**，不得为此未经授权安装另一测试框架。
 
-**易踩陷阱**：`ExpantaNum` 同时定义了 `implicit operator string` 与 `implicit operator ExpantaNum(string)`。写 `"actual=" + expantaNum` 时，C# **优先采用用户自定义运算符候选集**（候选集为空才回退预定义运算符），于是选中 `ExpantaNum operator +(ExpantaNum, ExpantaNum)`，左侧字符串被 `Parse` → `FormatException: ExpantaNum 数值无效`。拼接消息必须显式 `.ToString()`。
+`ExpantaNum`有字符串双向隐式转换；拼接诊断消息时显式`.ToString()`，避免字符串被数值加法重载解析。
 
-沙箱放在 `tmp/` 等未跟踪临时目录（`tmp/StateSandbox/` 是一份现成实现，`tmp/` 整体不进版本库）；它是 scratch 证据，**不能替代** Unity EditMode/PlayMode。
+沙箱只放未跟踪临时目录，不依赖某份历史scratch实现；其结果**不能替代**Unity EditMode/PlayMode。
 
 ### 确定性模拟器
 

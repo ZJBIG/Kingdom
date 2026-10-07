@@ -13,7 +13,7 @@ description: Kingdom 内容设计与经济验证统一入口。适用于玩法�
 
 1. [内容设计与质量门槛](references/content-design.md)。
 2. `docs/balance/no-resource-caps.md`、`docs/balance/balance-model.md`。
-3. `docs/content/progression-roadmap.md`、`docs/testing/acceptance-checklist.md`；运行场景按需读 `docs/testing/playmode-test-plan.md`。`content-balance-tests.md` 仅为旧链接兼容入口，无需回读。
+3. `docs/content/progression-roadmap.md`、`docs/testing/acceptance-checklist.md`；运行场景按需读 `docs/testing/playmode-test-plan.md`。
 4. 当前closure/parity/测试摘要及其输入版本；不存在或陈旧的输出记为缺口。
 
 不要求加载历史TODO/CSV，不从旧优先级清单重建已有系统。`.codex/prompts/CODEX_ECONOMY_PROMPT.md` 只是到本技能的入口，无需从本技能再回读形成循环。

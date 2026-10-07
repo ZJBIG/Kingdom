@@ -10,6 +10,7 @@
 ## 定义与可达性
 
 - 稳定ID非空、同类型唯一；资源金额定义及其运行时Pair的Resource非空，同一列表无重复Resource，金额非负，Building costGrowth > 1。
+- 所有Building（包括SectorBuilding）的原始序列化生产/消费列表不得同时包含同一Resource的正速率；定义作者须先合并为净流，不能用运行时缓存已抵消来掩盖无效定义。`Building.ValidateResourceFlowDefinitions()`由启动建筑验证调用；`tools/codex/building-resource-flow-check.ps1`检查原始资产，`AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption`与`BuildingDefinition_RejectsUnmergedOpposingResourceFlows`覆盖合法全集及非法反例。
 - 时代跃迁研究标记正确；资源来源、用途及新增内容质量按经济技能的 `references/content-design.md` 验证。
 - 从真实新档检查当前路线图的Animal → StoneAge → MiddleAge → Industrial主线，失败时打印完整阻断路径；不能以预置时代状态冒充新档可达。
 - StoneAgeSettlement、石器资源链和FeudalAdministration是早期检查点，不是完整主线验收的终点。

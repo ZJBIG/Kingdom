@@ -1,5 +1,7 @@
 # 数学 API 未来价值评估（2026-09-11）
 
+> 历史快照：统计、行号和候选问题未按当前源码重新验收，不作为当前待办或实现事实；后续实施须先复现。
+
 ## 扫描范围与方法
 
 - 覆盖文件：
@@ -11,7 +13,7 @@
   - `docs/content/progression-roadmap.md`
   - `docs/balance/balance-model.md`
   - `docs/balance/no-resource-caps.md`
-  - `docs/testing/content-balance-tests.md`
+  - `docs/testing/acceptance-checklist.md`（原兼容入口已合并）
 - 方法：
   1. 逐个枚举 `ExpantaNumExtensions.cs` 的公开声明。
   2. 用 `rg` 在 `Assets` 与 `tools` 中统计每个 API 的调用点，排除定义文件本身。

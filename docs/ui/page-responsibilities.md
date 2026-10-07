@@ -1,6 +1,6 @@
 # 页面职责与详情操作
 
-本文件唯一维护页面入口、详情按钮及选择态语义，合并旧 detail-action-policy 与UI技能中的重复条款。布局/手势技术契约在UI技能维护，State/刷新/生命周期在 `docs/architecture/ui-boundaries.md` 维护；实际数值由当前Definition、State和Manager决定。
+本文件唯一维护页面入口、详情按钮及选择态语义。布局/手势技术契约在UI技能维护，State/刷新/生命周期在 `docs/architecture/ui-boundaries.md` 维护；实际数值由当前Definition、State和Manager决定。
 
 ## 页面入口
 
@@ -14,6 +14,8 @@
 | Sectors | 星区状态；占领后行右侧才显示“建筑”展开按钮，未占领不创建或加载建筑菜单 |
 | Resources | 资源状态和详情，不承担建造、研究或工坊购买 |
 | Story | 叙事与历史反馈，只导航到真实系统页面，不直接修改游戏状态 |
+
+Era必须明确区分真实`EraGoalEvaluation`硬条件与发展准备度建议：硬条件显示满足/未满足，建议以独立建议样式标注，不参与时代推进判定，也不使用会被误读为硬条件的勾选待办样式。
 
 ## 详情主操作
 

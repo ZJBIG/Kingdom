@@ -22,7 +22,6 @@ $repositoryRequired = @(
     "docs/balance/no-resource-caps.md",
     "docs/balance/balance-model.md",
     "docs/content/progression-roadmap.md",
-    "docs/testing/content-balance-tests.md",
     "tools/NewEconomySimulator/NewEconomySimulator.csproj",
     "tools/NewEconomySimulator/SnapshotExporter.cs",
     "tools/NewEconomySimulator/SimulationCore.cs",

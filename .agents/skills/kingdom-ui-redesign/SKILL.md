@@ -16,7 +16,7 @@ description: Kingdom 项目主入口的UI领域分支，维护Unity布局、研�
 
 ## 页面操作契约
 
-涉及页面、详情或选择态时，读取唯一契约 `docs/ui/page-responsibilities.md`。页面职责、所有详情主按钮、星区入口、研究金色Outline、选择清理和单按钮内边距仅在那里维护；`docs/ui/detail-action-policy.md` 是兼容指针，无需回读。纯图手势或安全区任务无需加载无关页面条款。
+涉及页面、详情或选择态时，读取唯一契约 `docs/ui/page-responsibilities.md`。页面职责、所有详情主按钮、星区入口、研究金色Outline、选择清理和单按钮内边距仅在那里维护。纯图手势或安全区任务无需加载无关页面条款。
 
 ## Canvas与参考
 

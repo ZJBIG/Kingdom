@@ -218,17 +218,18 @@ class GuidanceContractTests(unittest.TestCase):
         self.assertIn(f"{probe.SKILL_ROOT}/SKILL.md", text)
         self.assertLessEqual(len(text.splitlines()), 16)
 
-    def test_compatibility_documents_only_point_to_owners(self):
+    def test_consolidated_owners_preserve_product_and_design_boundaries(self):
         owners = {
-            "docs/rules/kingdom-rules.md": "docs/decisions/conservative-defaults.md",
-            "docs/ui/detail-action-policy.md": "page-responsibilities.md",
-            "docs/content/kittens-game-reference-boundary.md": "references/content-design.md",
+            "docs/decisions/conservative-defaults.md": ("不追溯移除", "退款"),
+            "docs/ui/page-responsibilities.md": ("Resource | 无主操作按钮", "EraGoalEvaluation"),
+            ".agents/skills/kingdom-economy-simulation/references/content-design.md":
+                ("设计灵感边界", "不照抄普通资源容量墙"),
         }
-        for relative, owner in owners.items():
+        for relative, markers in owners.items():
             with self.subTest(path=relative):
                 text = self.text(relative)
-                self.assertIn(owner, text)
-                self.assertLessEqual(len(text.splitlines()), 12)
+                for marker in markers:
+                    self.assertIn(marker, text)
 
     def test_unique_ui_semantics_were_preserved(self):
         text = self.text("docs/ui/page-responsibilities.md")
@@ -279,10 +280,12 @@ class GuidanceContractTests(unittest.TestCase):
                                side_effect=lambda path: b"# invalid" if path == target else real_read(path)):
             self.assertIn("Skill frontmatter is missing", probe.check_skill(self.root))
 
-    def test_historical_plan_cannot_look_like_current_entry(self):
-        text = self.text("docs/plans/ui-ready-and-redesign.md")
-        self.assertIn("historical", text.splitlines()[0])
-        self.assertIn("不是当前待实施清单", text)
+    def test_current_ui_boundaries_do_not_restore_legacy_refresh_architecture(self):
+        text = self.text("docs/architecture/ui-boundaries.md")
+        self.assertIn("KingdomUIRoot.LiveRefresh.cs", text)
+        self.assertIn("SetResearchPageVisible", text)
+        self.assertIn("Hidden does not mean interactive", text)
+        self.assertIn("Do not rebuild", text)
 
     def test_leaf_metadata_does_not_enable_implicit_invocation(self):
         for name in ("kingdom-economy-simulation", "kingdom-ui-redesign"):

@@ -1,5 +1,7 @@
 # Kingdom 全仓库只读重构扫描报告（2026-09-10）
 
+> 历史快照：统计、行号和候选问题未按当前源码重新验收，不作为当前待办或实现事实；后续实施须先复现。
+
 - 性质：**只读审计**。本报告未修改任何代码、资产或场景文件。
 - 范围：`Assets/Resources/Script`（75 文件 / 31,107 行）、`Assets/Tests`（46 文件 / 约 20k 行）、`Assets/Editor`（13 文件）、`tools/NewEconomySimulator`、`Assets/Resources/Datas` 全部内容资产、`docs/` 契约文档。
 - 方法：6 个领域并行扫描（Manager / UI / Runtime+Data+Validation / 数学+模拟器 / 测试+Editor 工具 / 内容资产+文档），全部发现经 grep 调用点交叉验证；主代理对全部 P1 结论做了独立复核（见附录 B 复核记录，其中 1 项子代理结论被推翻）。
