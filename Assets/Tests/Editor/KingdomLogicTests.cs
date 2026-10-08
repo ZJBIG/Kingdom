@@ -587,6 +587,48 @@ public sealed class KingdomLogicTests
         AssertInvalidSaveStartsNewGame(saveManager, data, "缺少当前版本的必要数据段", "Workshop");
     }
 
+    [TestCase("Resources", "Resources")]
+    [TestCase("Buildings", "Buildings")]
+    [TestCase("Researches", "States")]
+    [TestCase("Researches", "QueuedResearchIds")]
+    [TestCase("Workshop", "PurchasedUpgradeIds")]
+    [TestCase("Sectors", "States")]
+    [TestCase("Tutorial", "CompletedStepIds")]
+    public void SaveLoad_MissingRequiredNestedListRejectsSave(
+        string sectionName,
+        string listName)
+    {
+        CreateManager<GameManager>("Save-MissingEntries-GameManager");
+        CreateManager<ResourceManager>("Save-MissingEntries-ResourceManager");
+        CreateManager<BuildingManager>("Save-MissingEntries-BuildingManager");
+        CreateManager<ResearchManager>("Save-MissingEntries-ResearchManager");
+        CreateManager<WorkshopManager>("Save-MissingEntries-WorkshopManager");
+        SaveManager saveManager =
+            CreateManager<SaveManager>("Save-MissingEntries-SaveManager");
+
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        SetSaveListToEmpty(data, sectionName, listName);
+        string json = SetEmptyJsonListToNull(JsonUtility.ToJson(data), sectionName, listName);
+        string root = CreateIsolatedSaveRoot("KingdomMissingNestedListTest");
+        try
+        {
+            SaveManager.SetSaveRootOverrideForTests(root);
+            File.WriteAllText(Path.Combine(root, "KingdomSave.json"), json);
+            LogAssert.Expect(
+                LogType.Error,
+                new Regex("读取 Kingdom 存档.*失败：.*必要嵌套数据列表", RegexOptions.Singleline));
+
+            Assert.That(saveManager.LoadOrCreateGame(), Is.False);
+            Assert.That(saveManager.LastLoadCreatedNewGame, Is.True);
+        }
+        finally
+        {
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root))
+                Directory.Delete(root, true);
+        }
+    }
+
     [Test]
     public void SaveLoad_UltraProjectMissingInitializesNewAndMalformedSectionsReject()
     {
@@ -2561,6 +2603,57 @@ public sealed class KingdomLogicTests
         if (prefix.EndsWith(",", StringComparison.Ordinal))
             prefix = prefix.Substring(0, prefix.Length - 1);
         return prefix + json.Substring(after);
+    }
+
+    private static void SetSaveListToEmpty(
+        SaveManager.KingdomSaveData data,
+        string sectionName,
+        string listName)
+    {
+        switch ($"{sectionName}.{listName}")
+        {
+            case "Resources.Resources":
+                data.Resources.Resources = new List<SaveManager.ResourceStateSaveData>();
+                break;
+            case "Buildings.Buildings":
+                data.Buildings.Buildings = new List<SaveManager.BuildingStateSaveData>();
+                break;
+            case "Researches.States":
+                data.Researches.States = new List<SaveManager.ResearchStateSaveData>();
+                break;
+            case "Researches.QueuedResearchIds":
+                data.Researches.QueuedResearchIds = new List<string>();
+                break;
+            case "Workshop.PurchasedUpgradeIds":
+                data.Workshop.PurchasedUpgradeIds = new List<string>();
+                break;
+            case "Sectors.States":
+                data.Sectors.States = new List<SaveManager.SectorStateSaveData>();
+                break;
+            case "Tutorial.CompletedStepIds":
+                data.Tutorial.CompletedStepIds = new List<string>();
+                break;
+            default:
+                Assert.Fail($"Unexpected save list: {sectionName}.{listName}");
+                break;
+        }
+    }
+
+    private static string SetEmptyJsonListToNull(
+        string json,
+        string sectionName,
+        string listName)
+    {
+        string sectionMarker = $"\"{sectionName}\":{{";
+        int sectionIndex = json.IndexOf(sectionMarker, StringComparison.Ordinal);
+        Assert.That(sectionIndex, Is.GreaterThanOrEqualTo(0));
+
+        string listMarker = $"\"{listName}\":[]";
+        int listIndex = json.IndexOf(listMarker, sectionIndex, StringComparison.Ordinal);
+        Assert.That(listIndex, Is.GreaterThan(sectionIndex));
+
+        int emptyArrayIndex = json.IndexOf("[]", listIndex, StringComparison.Ordinal);
+        return json.Remove(emptyArrayIndex, 2).Insert(emptyArrayIndex, "null");
     }
 
     private void AssertInvalidSaveStartsNewGame(
