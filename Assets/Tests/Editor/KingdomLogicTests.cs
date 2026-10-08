@@ -731,6 +731,14 @@ public sealed class KingdomLogicTests
         Assert.That(GameManager.Instance.State.PowerSatisfaction.ToDouble(), Is.EqualTo(0.8d).Within(1e-9d));
         Assert.That(GameManager.Instance.State.LogisticsSatisfaction.ToDouble(), Is.EqualTo(0.9d).Within(1e-9d));
         Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("WoodLog")), Is.EqualTo(new ExpantaNum(25)));
+
+        SaveManager.KingdomSaveData captured = SaveManager.ParseSaveDataForEditor(
+            JsonUtility.ToJson(saveManager.CaptureSaveData()));
+        Assert.That(captured.Relic.Status, Is.EqualTo(RelicStatus.Discovered));
+        Assert.That(GameManager.Instance.Relic.TrySuspend(out _), Is.True);
+        saveManager.ApplySaveDataForEditor(captured);
+        Assert.That(GameManager.Instance.Relic.State.Suspended, Is.False);
+        Assert.That(GameManager.Instance.Relic.State.Route, Is.EqualTo(RelicRoute.None));
     }
 
     [Test]
@@ -2493,6 +2501,7 @@ public sealed class KingdomLogicTests
                 LaunchFeePaid = false,
                 StateVersion = 1
             },
+            Relic = new RelicState().CaptureSaveDataForEditor(),
             Tutorial = new SaveManager.TutorialSaveData
             {
                 ActiveStepId = string.Empty,

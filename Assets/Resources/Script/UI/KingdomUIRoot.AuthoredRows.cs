@@ -330,6 +330,7 @@ public sealed partial class KingdomUIRoot
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
             workshopPurchaseButtons[definition] = purchaseButton;
         }
+        AppendRelicWorkshopRow(parent, ref visible);
         for (int i = visible; i < workshopRows.Count; i++)
             if (workshopRows[i] != null)
                 workshopRows[i].SetActive(false);

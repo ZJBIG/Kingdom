@@ -551,6 +551,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     /// </summary>
     public void SetPage(string name)
     {
+        if (populatedPage != name)
+            HideRelicDetails();
 #if UNITY_EDITOR
         float pageSwitchStartTime = Time.realtimeSinceStartup;
 #endif

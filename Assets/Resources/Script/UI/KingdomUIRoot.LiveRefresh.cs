@@ -431,6 +431,11 @@ public sealed partial class KingdomUIRoot
             RecordUiBranch("detail", (Time.realtimeSinceStartup - branchStart) * 1000f);
 #endif
         }
+        else if (refreshScrolledValues && selectedSectorDefinition != null && populatedPage != "Sectors")
+        {
+            RefreshSelectedSectorDetails(GameManager.Instance.Sectors,
+                GameManager.Instance.State, ResourceManager.Instance);
+        }
         else if (refreshScrolledValues && selectedWorkshop != null)
         {
             RefreshRequirementRows(selectedWorkshop.ResourceRequirements);
@@ -478,6 +483,8 @@ public sealed partial class KingdomUIRoot
         {
             RefreshWorkshopPurchaseButtonStates();
             RefreshWorkshopFilterMembershipIfChanged();
+            if (lastRelicWorkshopSignature != GetRelicWorkshopSignature())
+                workshopRowsUiDirty = true;
         }
 
         // Structural refreshes rebuild page rows or re-parent controls; they

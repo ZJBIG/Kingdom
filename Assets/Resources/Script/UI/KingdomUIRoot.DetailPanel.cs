@@ -30,6 +30,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null)
             return;
+        HideRelicDetails();
         detailBody.fontSize = 30f;
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
@@ -113,6 +114,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || building == null)
             return;
+        HideRelicDetails();
         float? preservedScrollPosition = preserveScrollPosition &&
             selectedBuilding == building && requirementGesture != null
             ? requirementGesture.GetNormalizedPosition()
@@ -316,6 +318,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || resource == null)
             return;
+        HideRelicDetails();
 
         TutorialManager.Current?.RecordDetailViewed("Resources", resource.Id);
 
@@ -538,8 +541,17 @@ public sealed partial class KingdomUIRoot
             Canvas.ForceUpdateCanvases();
         body.offsetMin = new Vector2(34f, -bodyHeight);
         body.offsetMax = new Vector2(-34f, 0f);
+        float contentHeight = 24f + bodyHeight;
+        RectTransform relicSection = RelicActionsRectForLayout;
+        if (relicSection != null)
+        {
+            float relicHeight = RelicActionsPreferredHeight;
+            relicSection.offsetMax = new Vector2(-34f, -bodyHeight - 24f);
+            relicSection.offsetMin = new Vector2(34f, -bodyHeight - 24f - relicHeight);
+            contentHeight += relicHeight + 72f;
+        }
         if (detailScrollContent != null)
-            detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, 24f + bodyHeight));
+            detailScrollContent.sizeDelta = new Vector2(0f, Mathf.Max(detailScrollViewport.rect.height, contentHeight));
         if (heightChanged)
             Canvas.ForceUpdateCanvases();
     }
@@ -548,6 +560,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || research == null)
             return;
+        HideRelicDetails();
         detailBody.fontSize = 30f;
         bool keepScrollPosition = preserveScrollPosition && selectedResearchNode == research;
         float savedRequirementScrollPosition = keepScrollPosition && requirementGesture != null
@@ -737,6 +750,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || definition == null)
             return;
+        HideRelicDetails();
 
         float? preservedScrollPosition = preserveScrollPosition &&
             selectedWorkshop == definition && requirementGesture != null

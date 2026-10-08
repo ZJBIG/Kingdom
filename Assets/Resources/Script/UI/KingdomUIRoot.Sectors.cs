@@ -402,6 +402,7 @@ public sealed partial class KingdomUIRoot
             definition.Id);
         selectedSectorDefinition = definition;
         ConfigureSectorAction(definition, sectorManager, state, resourceManager);
+        ConfigureRelicDetails(definition);
         lastSelectedSectorActionSignature = GetSectorActionSignature(
             definition, sectorManager, state, resourceManager);
     }
@@ -562,6 +563,7 @@ public sealed partial class KingdomUIRoot
 
         int actionSignature = GetSectorActionSignature(
             definition, sectorManager, state, resourceManager);
+        ConfigureRelicDetails(definition);
         if (actionSignature == lastSelectedSectorActionSignature)
             return;
         ConfigureSectorAction(definition, sectorManager, state, resourceManager);
@@ -615,7 +617,10 @@ public sealed partial class KingdomUIRoot
         }
         if (GameManager.TryGetInstance(out GameManager gameManager) &&
             gameManager.UltraProject != null)
+        {
             signature = unchecked(signature * 31 + gameManager.UltraProject.State.Version);
+            signature = unchecked(signature * 31 + gameManager.Relic.State.Version);
+        }
         return signature;
     }
 
