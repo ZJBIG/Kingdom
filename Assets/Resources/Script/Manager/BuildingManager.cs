@@ -1304,6 +1304,12 @@ public class BuildingManager : Singleton<BuildingManager>
                             cost.Second);
                 }
             }
+            potentialPowerConsumption += gameManager.Relic.CurrentPowerConsumptionRate;
+            potentialLogisticsConsumption += gameManager.Relic.CurrentLogisticsConsumptionRate;
+            potentialFoodConsumption += gameManager.Relic.CurrentFoodConsumptionRate;
+            IReadOnlyList<Pair<Resource, ExpantaNum>> relicCosts = gameManager.Relic.GetActiveCosts();
+            for (int j = 0; j < relicCosts.Count; j++)
+                resourceManager.AdjustTickPotentialConsumption(relicCosts[j].First, relicCosts[j].Second);
             gameManager.Sectors.AccumulateOccupiedResourcePotential(resourceManager);
             ExpantaNum happinessMultiplier = gameState.HappinessRewardMultiplier;
             for (int i = 0; i < activeBuildingStates.Count; i++)

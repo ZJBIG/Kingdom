@@ -1,0 +1,162 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec4edfc2108b4a8daa7193038f22c010, type: 3}
+  m_Name: EchoFoundryRing
+  m_EditorClassIdentifier:
+  id: EchoFoundryRing
+  label: "回声铸造环"
+  description: "旧铸造环仍在等待合格维护者。修复后完成维护委托换取远征支援；拆解后通过自主制造获得相同支援。永久路线互斥，封存保留进度。每次支援只能用于一场活动星际战役，将其食物与材料补给降至85%。"
+  sector: {fileID: 11400000, guid: f60718293a4b5c6d7e8f901a2b3c4d5e, type: 2}
+  requiredResearch:
+  - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
+  - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
+  requiredBuildings:
+  - {fileID: 11400000, guid: d2a7c5e9b1f34680ac24e8d6f0b3a795, type: 2}
+  - {fileID: 11400000, guid: f1c8a5e2b7d34960ac4e9f1d6b0a7c23, type: 2}
+  investigation:
+    startupCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "300"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "400"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "1200"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "600"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "600"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "300"
+    continuousCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "0.04"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.05"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "0.15"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.08"
+    durationSeconds: "1800"
+    foodConsumptionRate: "4"
+    powerConsumptionRate: "800"
+    logisticsConsumptionRate: "150"
+  repair:
+    startupCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "1200"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "1800"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "4000"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "2400"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "2400"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "1000"
+    continuousCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.15"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "0.5"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "0.25"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "0.25"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.2"
+    durationSeconds: "1800"
+    foodConsumptionRate: "8"
+    powerConsumptionRate: "1800"
+    logisticsConsumptionRate: "350"
+  reverseEngineering:
+    startupCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "3600"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "5400"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "12000"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "6000"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "6000"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "3000"
+    continuousCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "0.15"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.2"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "0.6"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "0.3"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "0.3"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.3"
+    durationSeconds: "5400"
+    foodConsumptionRate: "12"
+    powerConsumptionRate: "2400"
+    logisticsConsumptionRate: "500"
+  commission:
+    startupCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "300"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "600"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "1000"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "600"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "600"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "400"
+    continuousCosts:
+    - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+      amount: "0.2"
+    - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+      amount: "0.5"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "2"
+    - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+      amount: "1"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "1"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "1"
+    durationSeconds: "1200"
+    foodConsumptionRate: "8"
+    powerConsumptionRate: "1600"
+    logisticsConsumptionRate: "400"
+  supportCraftCosts:
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "1200"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "7000"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "3600"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "3600"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "3200"
+  campaignSupplyMultiplier: "0.85"

@@ -21,6 +21,7 @@ public class GameManager : Singleton<GameManager>
     public GameState State { get; private set; } = new GameState();
     public SectorManager Sectors { get; } = new SectorManager();
     public UltraProjectManager UltraProject { get; } = new UltraProjectManager();
+    public RelicManager Relic { get; } = new RelicManager();
     public ExpantaNum PopulationGrowthMultiplier =>
         ProgressionModifierManager.Current.PopulationGrowthMultiplier;
     public ExpantaNum PopulationGrowthRatePerSecond =>
@@ -70,6 +71,7 @@ public class GameManager : Singleton<GameManager>
     {
         State.InitializeNew();
         UltraProject.InitializeNew();
+        Relic.InitializeNew();
         Sectors.InitializeNew();
         ResetCalendarAccumulator();
         InitializeStartingResources();

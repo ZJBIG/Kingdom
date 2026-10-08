@@ -253,6 +253,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             Workshop = WorkshopManager.Instance.CaptureSaveData(),
             Sectors = GameManager.Instance.Sectors.CaptureSaveData(),
             UltraProject = GameManager.Instance.UltraProject.CaptureSaveData(),
+            Relic = GameManager.Instance.Relic.CaptureSaveData(),
             Tutorial = TutorialManager.Ensure().CaptureSaveData(),
             Story = StoryManager.CaptureSaveData()
         };
@@ -291,6 +292,10 @@ public sealed class SaveManager : Singleton<SaveManager>
             GameManager.Instance.UltraProject.InitializeNew();
         else
             GameManager.Instance.UltraProject.RestoreSaveData(data.UltraProject);
+        if (data.Relic == null)
+            GameManager.Instance.Relic.InitializeNew();
+        else
+            GameManager.Instance.Relic.RestoreSaveData(data.Relic);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
         StoryManager.RestoreSaveData(data.Story);
         StoryManager.RefreshProgress();
@@ -398,6 +403,13 @@ public sealed class SaveManager : Singleton<SaveManager>
                     "非锁定 Ultra 工程状态不能出现在 Ultra 时代之前的存档中。");
             }
         }
+        if (data.Relic != null)
+        {
+            RelicManager.ValidateSaveDataForArchive(data.Relic);
+            if (data.Relic.Status != RelicStatus.Discovered &&
+                data.General.TechLevel < TechLevel.Ultra)
+                throw new InvalidDataException("遗迹调查不能出现在 Ultra 时代之前的存档中。");
+        }
         ValidateStorySection(data);
     }
 
@@ -420,6 +432,8 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         bool hasUltraProjectSection = HasTopLevelJsonMember(json, "UltraProject");
         bool hasExplicitNullUltraProject = IsTopLevelJsonMemberNull(json, "UltraProject");
+        bool hasRelicSection = HasTopLevelJsonMember(json, "Relic");
+        bool hasExplicitNullRelic = IsTopLevelJsonMemberNull(json, "Relic");
         ValidateRequiredSectionKeys(json);
         KingdomSaveData data = JsonUtility.FromJson<KingdomSaveData>(json);
         if (data == null)
@@ -432,6 +446,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         else if (data.UltraProject == null)
             throw new InvalidDataException(
                 "存档的 UltraProject 数据段存在但不是有效对象。");
+        if (!hasRelicSection)
+            data.Relic = null;
+        else if (data.Relic == null || hasExplicitNullRelic)
+            throw new InvalidDataException("存档的 Relic 数据段存在但不是有效对象。");
 
         if (!IsSupportedVersion(data.Version))
             throw new InvalidDataException(
@@ -700,6 +718,7 @@ public sealed class SaveManager : Singleton<SaveManager>
                 Append(ref hash, tutorial.Version);
 
             Append(ref hash, GameManager.Instance.UltraProject.State.Version);
+            Append(ref hash, GameManager.Instance.Relic.State.Version);
 
             return hash;
         }
@@ -721,6 +740,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public WorkshopSaveData Workshop;
         public SectorSaveData Sectors;
         public UltraProjectStateSaveData UltraProject;
+        public RelicStateSaveData Relic;
         public TutorialSaveData Tutorial;
         public StorySaveData Story;
     }

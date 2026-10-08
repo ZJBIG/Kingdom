@@ -201,6 +201,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         float resourceEnd = Time.realtimeSinceStartup;
 #endif
         gameManager.UltraProject.Tick(deltaSeconds);
+        gameManager.Relic.Tick(deltaSeconds);
         GameState gameState = gameManager.State;
         TickSectorOperations(sectors, deltaSeconds, gameState, resourceManager);
 #if UNITY_EDITOR
@@ -453,6 +454,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         sectors.TickOccupiedResourceProduction(simulationSeconds, resourceManager);
         resourceManager.Tick(simulationSeconds);
         gameManager.UltraProject.Tick(simulationSeconds);
+        gameManager.Relic.Tick(simulationSeconds);
         TickSectorOperations(
             sectors,
             simulationSeconds,

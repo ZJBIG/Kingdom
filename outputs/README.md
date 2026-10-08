@@ -4,7 +4,8 @@
 
 ## 状态与证据
 
-- [当前事项](../ToDoList.txt)：功能开发暂停；E插画、G遗迹和更大机制暂缓。
+- [当前事项](../ToDoList.txt)：G单处遗迹开发已恢复；E插画和更大机制暂缓。
+- [G遗迹阶段交付](阶段交付-G-2026-10-08.md)：维护委托与自主制造路线，逐阶段验证与上传。
 - [阶段交付](阶段交付-2026-10-07.md)：已完成 A–D/F 的具体行为与最新有效验证入口。
 - [当前内容方向](../docs/content/progression-roadmap.md)、[数值方法](../docs/balance/balance-model.md)、[行为验收](../docs/testing/acceptance-checklist.md)：长期合同归权威文档。
 
