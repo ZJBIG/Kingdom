@@ -70,6 +70,16 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     public bool IsPurchased(WorkshopUpgrade definition) =>
         TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state) && state.Purchased;
 
+    public bool TryCraftRelicSupport(out RelicOperationFailure failure)
+    {
+        if (!IsSystemUnlocked)
+        {
+            failure = RelicOperationFailure.PrerequisiteResearchMissing;
+            return false;
+        }
+        return GameManager.Instance.Relic.TryCraftSupport(out failure);
+    }
+
     public IReadOnlyList<WorkshopBenefitRatePreview> GetPurchaseBenefitPreview(WorkshopUpgrade definition)
     {
         if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))

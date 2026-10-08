@@ -301,7 +301,8 @@ public sealed class SectorManager
             GetCampaignDoctrineCasualtyMultiplier(runtimeState));
         ExpantaNum supplyCostMultiplier =
             ProgressionModifierManager.Current.CampaignSupplyCostMultiplier *
-            GetCampaignDoctrineSupplyMultiplier(runtimeState);
+            GetCampaignDoctrineSupplyMultiplier(runtimeState) *
+            GetRelicCampaignSupplyMultiplier(definition, runtimeState);
         ExpantaNum foodCostPerSecond = ExpantaNum.Max(
             ExpantaNum.Zero,
             definition.CampaignFoodPerSecond * supplyCostMultiplier);
@@ -645,7 +646,8 @@ public sealed class SectorManager
             GetCampaignDoctrineProgressMultiplier(runtimeState);
         ExpantaNum campaignSupplyCostMultiplier =
             ProgressionModifierManager.Current.CampaignSupplyCostMultiplier *
-            GetCampaignDoctrineSupplyMultiplier(runtimeState);
+            GetCampaignDoctrineSupplyMultiplier(runtimeState) *
+            GetRelicCampaignSupplyMultiplier(definition, runtimeState);
         if (!campaignProgressMultiplier.IsFinite || campaignProgressMultiplier < ExpantaNum.Zero ||
             !campaignSupplyCostMultiplier.IsFinite || campaignSupplyCostMultiplier < ExpantaNum.Zero)
         {
@@ -725,6 +727,7 @@ public sealed class SectorManager
             return false;
         }
 
+        RefreshRelicCampaignSupport(runtimeState);
         failure = SectorOperationFailure.None;
         return true;
     }
@@ -1116,6 +1119,7 @@ public sealed class SectorManager
         if (runtimeState != null && runtimeState.Campaign.Active &&
             string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
             runtimeState.CancelCampaign();
+        RefreshRelicCampaignSupport(runtimeState);
         return true;
     }
 
@@ -1138,6 +1142,7 @@ public sealed class SectorManager
             }
         }
         runtimeState.CancelCampaign();
+        RefreshRelicCampaignSupport(runtimeState);
         return true;
     }
 
@@ -1674,6 +1679,22 @@ public sealed class SectorManager
         return runtimeState.Campaign.Doctrine == CampaignDoctrine.Surge
             ? new ExpantaNum(1.35d)
             : new ExpantaNum(0.85d);
+    }
+
+    private static ExpantaNum GetRelicCampaignSupplyMultiplier(
+        SectorDefinition definition, GameState runtimeState)
+    {
+        return GameManager.TryGetInstance(out GameManager gameManager) &&
+            ReferenceEquals(gameManager.State, runtimeState)
+            ? gameManager.Relic.GetCampaignSupplyMultiplier(definition)
+            : ExpantaNum.One;
+    }
+
+    private static void RefreshRelicCampaignSupport(GameState runtimeState)
+    {
+        if (GameManager.TryGetInstance(out GameManager gameManager) &&
+            ReferenceEquals(gameManager.State, runtimeState))
+            gameManager.Relic.RefreshCampaignSupport();
     }
 
     private static ExpantaNum GetCampaignDoctrineSupplyMultiplier(GameState runtimeState)

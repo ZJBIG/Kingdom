@@ -31,3 +31,11 @@ G1 已完成：新增 RelicDefinition/RelicState/RelicManager 及唯一 EchoFoun
 - r1 在程序集重载阶段中断，无XML；r2 39/40，缺研究夹具清支付却未清 Completed 状态，修夹具保留拒绝断言；r2另有原生退出停滞，核验命令行后仅终止本代理该测试进程，整轮计失败并保留证据。
 - 修改后 closure exit0；模拟器13项 Passed True、exit0，仅数学/fixture维护诊断，不覆盖新增遗迹、不等于真实Unity parity。
 - G2/G3 工作文件正在实施，未纳入G1提交。下一步验证真实战役扣费、工坊交易，再完成Prefab交互与完整回归。
+
+## G2 战役与工坊
+
+SectorManager 的预览和真实 Food/材料扣款统一应用绑定战役的 0.85 支援倍率；完成/撤退清除服役支援。WorkshopManager 复用现有解锁门槛，提供原子制造命令。
+
+TestResults/outputs-G2-editmode-r2-20261008.xml 8/8，Unity exit0；首轮 XML 8/8 但原生退出1，不作为通过证据。覆盖逐项实际扣款、战力不变、缺料原子失败、撤退/完成消费、目标绑定、制造门槛与重复付款拒绝。
+
+G1 提交 86d03c8faa92a480f8287f664a824471e4d72cfc 已由 origin 分支精确 SHA 核验。TLS 断连返回不确定，通过远端核验确认上传。
