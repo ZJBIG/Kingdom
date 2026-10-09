@@ -26,3 +26,16 @@
 EditMode 断言完成但原生退出问题尚未解决，不能把该轮称为正常完成；真实 Unity 编译与 PlayMode 正常完成。自动审批拒绝了设置 Unity 子进程代理的组合命令，仅返回 `blocked by policy`，未绕过。未执行全仓测试或设备触摸体验；外部运行由用户自行验收，不构成代理待完成门槛。后续针对 EditMode 退出问题先核对网络清理日志，不盲目重复测试。
 
 本轮交付到上述现有分支；提交推送与远端精确 SHA 以最终回复为准，不自动合并 main。
+
+## 2026-10-09 main 合并续接
+
+用户追加授权：把全部待合并提交合入 main 并上传 GitHub/云端 repo。现有唯一 remote 是 `origin=https://github.com/ZJBIG/Kingdom.git`。
+
+- 远端 main 起点 `11b3e26e4c31ec4923b88afd50d151a052358ce5`；远端两个开发分支分别为剧情/遗迹 `ea3a22c46be597371abbd2f70268f7dafe07bba6`、保存修复 `da8d6a5e8f89b0f93f547f97971019540208b578`。先快进 main 至剧情提交，再常规合并保存分支，产生 `d2323a0b37478e64d5abcc7061214ae0b30808fa`，无冲突、无 force/rebase/amend。
+- 保存修复仅包含必要嵌套列表的 JSON/DTO 校验及原提交测试；另一个工作树 `D:/GitHub/Kingdom-source-audit` 尚未提交的 BuildingManager/KingdomLogicTests 修改保留，不因“全部合并”上传未完成工作。原工作树字体、个人记忆、临时文件同样保留。
+- 保存修复与遗迹旧测试夹具不兼容：`RelicSaveTests.SaveJson` 原先 Resources/Buildings/Researches/Workshop/Sectors 为 `{}`，违反新必填列表契约。仅将夹具补成含合法空数组的各段，未修改运行逻辑、存档格式、拒绝规则或放宽断言。
+- 首轮 `TestResults/main-integration-editmode-20261009.xml` 162 项中 160 通过、2 个上述夹具失败；修正后 `TestResults/main-integration-editmode-r2-20261009.xml` 162/162，无失败/跳过，覆盖 KingdomLogicTests、RelicSaveTests、StoryIllustrationTests。日志同名位于 Logs。两轮均在 XML 完成后的原生/网络请求清理阶段停滞，仅终止核验命令行后的本代理进程，不能声称 Unity exit0。
+- 合并状态执行真实 Unity 源码编译，并运行 `StoryIllustrationPlayModeTests;KingdomOnboardingPlayModeTests;RelicPlayModeTests`：`TestResults/main-integration-playmode-20261009.xml` 25/25，无失败/跳过，Unity exit0；日志 `Logs/main-integration-playmode-20261009.log`。最终源文件无 C# 编译错误/NullReference/MissingReference。
+- Git ancestor 检查确认两个开发分支的全部已提交历史都在 main 中。仅提交此次合法夹具调整与本交接；最终 main 上传及精确远端 SHA 由最终回复记录。没有删除开发分支或改变其他 remote。
+
+当前限制仍为 EditMode 原生退出停滞；本轮没有重跑全仓测试，未改变先前外部体验验收边界。

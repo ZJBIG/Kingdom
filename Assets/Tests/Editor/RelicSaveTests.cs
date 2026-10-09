@@ -8,8 +8,10 @@ public sealed class RelicSaveTests
     private static string SaveJson(string relic, TechLevel era = TechLevel.Ultra)
     {
         return "{\"Version\":9,\"General\":{\"TechLevel\":" + (int)era +
-            "},\"Resources\":{},\"Buildings\":{},\"Researches\":{},\"Workshop\":{}," +
-            "\"Sectors\":{},\"Tutorial\":{\"CompletedStepIds\":[]}," +
+            "},\"Resources\":{\"Resources\":[]},\"Buildings\":{\"Buildings\":[]}," +
+            "\"Researches\":{\"States\":[],\"QueuedResearchIds\":[]}," +
+            "\"Workshop\":{\"PurchasedUpgradeIds\":[]}," +
+            "\"Sectors\":{\"States\":[]},\"Tutorial\":{\"CompletedStepIds\":[]}," +
             "\"Story\":{\"CompletedChapterIds\":[]}" +
             (relic == null ? "" : ",\"Relic\":" + relic) + "}";
     }
