@@ -23,9 +23,14 @@ public sealed class KingdomOnboardingPlayModeTests
         SaveManager.SetSaveRootOverrideForTests(saveRoot);
     }
 
-    [TearDown]
-    public void TearDown()
+    [UnityTearDown]
+    public IEnumerator TearDown()
     {
+        Scene empty = SceneManager.CreateScene("OnboardingTeardown-" + Guid.NewGuid().ToString("N"));
+        SceneManager.SetActiveScene(empty);
+        Scene sample = SceneManager.GetSceneByName("SampleScene");
+        if (sample.IsValid() && sample.isLoaded)
+            yield return SceneManager.UnloadSceneAsync(sample);
         SaveManager.ClearSaveRootOverrideForTests();
         if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
             Directory.Delete(saveRoot, true);
@@ -146,12 +151,17 @@ public sealed class KingdomOnboardingPlayModeTests
             "Story must render a card for the real first chapter.");
         Assert.That(card.GetComponent<Button>(), Is.Null,
             "The Story card itself must not be a button.");
-        RectTransform titleRect = card.Find("Title") as RectTransform;
+        RectTransform titleRect = card.Find("Header/Title") as RectTransform;
         Assert.That(titleRect, Is.Not.Null);
-        Assert.That(titleRect.anchorMin, Is.EqualTo(new Vector2(0f, 1f)));
-        Assert.That(titleRect.anchorMax, Is.EqualTo(new Vector2(0f, 1f)));
-        Assert.That(titleRect.pivot, Is.EqualTo(new Vector2(0f, 1f)));
-        Assert.That(titleRect.anchoredPosition.x, Is.EqualTo(16f).Within(.01f));
+        Assert.That(titleRect.rect.width, Is.GreaterThan(0f));
+        Assert.That(titleRect.rect.height, Is.GreaterThan(0f));
+        var titleCorners = new Vector3[4];
+        var cardCorners = new Vector3[4];
+        titleRect.GetWorldCorners(titleCorners);
+        ((RectTransform)card).GetWorldCorners(cardCorners);
+        Assert.That(titleCorners[0].x, Is.GreaterThanOrEqualTo(cardCorners[0].x));
+        Assert.That(titleCorners[2].x, Is.LessThanOrEqualTo(cardCorners[2].x));
+        Assert.That(titleCorners[2].y, Is.LessThanOrEqualTo(cardCorners[2].y));
         TMP_Text body = card.Find("Body")?.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Summary));
@@ -159,9 +169,9 @@ public sealed class KingdomOnboardingPlayModeTests
         if (latest == chapter)
         {
             Assert.That(body.text, Does.Contain(chapter.Body));
-            Assert.That(card.Find("StoryChapterToggle"), Is.Null,
+            Assert.That(card.Find("Header/StoryChapterToggle").gameObject.activeSelf, Is.False,
                 "The latest Story chapter must not be collapsible.");
-            Button navigation = card.Find("StoryChapterNavigation")?.GetComponent<Button>();
+            Button navigation = card.Find("Header/StoryChapterNavigation")?.GetComponent<Button>();
             Assert.That(navigation, Is.Not.Null,
                 "The latest Story chapter must provide a navigation button.");
             Assert.That(card.GetComponent<Image>().color,
@@ -174,23 +184,26 @@ public sealed class KingdomOnboardingPlayModeTests
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryChapter_" +
             latest.Id);
         Assert.That(latestCard, Is.Not.Null);
-        Assert.That(latestCard.Find("StoryChapterToggle"), Is.Null,
+        Assert.That(latestCard.Find("Header/StoryChapterToggle").gameObject.activeSelf, Is.False,
             "The latest Story chapter must not be collapsible.");
-        Assert.That(latestCard.Find("StoryChapterNavigation")?.GetComponent<Button>(),
+        Assert.That(latestCard.Find("Header/StoryChapterNavigation")?.GetComponent<Button>(),
             Is.Not.Null);
         Assert.That(latestCard.GetComponent<Image>().color,
             Is.EqualTo(new Color(.76f, .50f, .25f, 1f)));
         body.ForceMeshUpdate(true, true);
         float collapsedHeight = body.rectTransform.rect.height;
-        Button toggle = card.Find("StoryChapterToggle")?.GetComponent<Button>();
+        Button toggle = card.Find("Header/StoryChapterToggle")?.GetComponent<Button>();
         Assert.That(toggle, Is.Not.Null,
             "Unlocked Story chapters must provide a non-blocking toggle.");
         RectTransform toggleRect = toggle.transform as RectTransform;
-        Assert.That(toggleRect.anchorMin, Is.EqualTo(new Vector2(1f, 1f)));
-        Assert.That(toggleRect.anchorMax, Is.EqualTo(new Vector2(1f, 1f)));
         Assert.That(toggleRect.rect.width, Is.GreaterThan(0f));
         Assert.That(toggleRect.rect.height, Is.GreaterThan(0f));
-        Assert.That(toggle.transform.parent, Is.EqualTo(card));
+        Assert.That(toggle.gameObject.activeInHierarchy, Is.True);
+        Assert.That(toggle.transform.parent, Is.EqualTo(card.Find("Header")));
+        var toggleCorners = new Vector3[4];
+        toggleRect.GetWorldCorners(toggleCorners);
+        Assert.That(titleCorners[2].x, Is.LessThanOrEqualTo(toggleCorners[0].x),
+            "Chapter heading and its toggle must not overlap.");
         Image cardImage = card.GetComponent<Image>();
         Image toggleImage = toggle.GetComponent<Image>();
         Assert.That(cardImage, Is.Not.Null);

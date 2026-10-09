@@ -7,6 +7,7 @@ using UnityEngine.UI;
 // Story displays authored narrative over the permanent runtime completion history.
 public sealed partial class KingdomUIRoot
 {
+    private StoryChapterCard storyChapterCardPrefab;
     private bool storyPageBuilt;
     private string storyPageStateSignature = string.Empty;
     private string storyProgressSignature = string.Empty;
@@ -156,27 +157,13 @@ public sealed partial class KingdomUIRoot
                 IsStoryChapterCollapsed(chapter.Id);
             string chapterTitle = chapter.Title + "\n" + chapter.EraLabel +
                 "\n" + GetEraSubtitle(chapter.RequiredEra);
-            string chapterBody;
-            if (unlocked)
-            {
-                chapterBody = collapsed
-                    ? chapter.Summary
-                    : chapter.Summary + "\n\n" + chapter.Body;
-            }
-            else
-            {
+            if (!unlocked)
                 chapterTitle += " · 尚未完成";
-                chapterBody = "这段文明记忆尚未完成。";
-            }
 
-            y += CreateCard(surface, "StoryChapter_" + chapter.Id,
-                chapterTitle, chapterBody,
-                isLatest ? Copper : unlocked ? PanelRaised : Panel,
-                width, y, unlocked && !isLatest ? 140f : unlocked ? 220f : 150f,
-                unlocked && !isLatest ? chapter.Id : null,
-                isLatest,
-                GetStoryNavigationPage(chapter),
-                GetStoryNavigationTarget(chapter));
+            StoryChapterCard card = CreateStoryChapterCard(surface, chapter,
+                chapterTitle, unlocked, !collapsed, isLatest,
+                isLatest ? Copper : unlocked ? PanelRaised : Panel, y);
+            y += card.Rect.rect.height;
         }
 
         float height = Mathf.Max(pageHost == null ? 720f : pageHost.rect.height, y + 24f);
@@ -250,21 +237,15 @@ public sealed partial class KingdomUIRoot
     }
 
     private float CreateCard(RectTransform parent, string name, string title,
-        string body, Color color, float width, float y, float minimumHeight,
-        string toggleChapterId = null, bool addNavigationButton = false,
-        string navigationPage = null, string navigationTargetId = null)
+        string body, Color color, float width, float y, float minimumHeight)
     {
         RectTransform card = CreatePanel(parent, name, color);
         SetTop(card, y, minimumHeight);
-        bool hasTopRightAction = !string.IsNullOrEmpty(toggleChapterId) ||
-            addNavigationButton;
         float cardWidth = card.rect.width > 1f
             ? card.rect.width
             : Mathf.Max(320f, width - 48f);
         float bodyWidth = Mathf.Max(320f, cardWidth - 32f);
-        float titleWidth = hasTopRightAction
-            ? Mathf.Max(240f, cardWidth - 330f)
-            : bodyWidth;
+        float titleWidth = bodyWidth;
         TMP_Text titleText = CreateText(card, "Title", title, TextPrimary,
             TextAnchor.UpperLeft,
             titleWidth,
@@ -286,11 +267,6 @@ public sealed partial class KingdomUIRoot
         float height = Mathf.Max(minimumHeight,
             16f + titleHeight + 18f + bodyHeight + 16f);
         card.sizeDelta = new Vector2(-24f, height);
-        if (!string.IsNullOrEmpty(toggleChapterId))
-            AddStoryChapterToggle(card, toggleChapterId,
-                IsStoryChapterCollapsed(toggleChapterId) ? "展开" : "收起");
-        else if (addNavigationButton)
-            AddStoryChapterNavigation(card, navigationPage, navigationTargetId);
         return height;
     }
 
@@ -359,74 +335,35 @@ public sealed partial class KingdomUIRoot
             collapsed;
     }
 
-    private void AddStoryChapterToggle(RectTransform card, string chapterId,
-        string label)
+    private StoryChapterCard CreateStoryChapterCard(RectTransform surface,
+        StoryChapter chapter, string heading, bool completed, bool expanded,
+        bool isLatest, Color color, float y)
     {
-        GameObject buttonObject = new GameObject("StoryChapterToggle",
-            typeof(RectTransform), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(card, false);
-        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.anchorMin = new Vector2(1f, 1f);
-        buttonRect.anchorMax = new Vector2(1f, 1f);
-        buttonRect.pivot = new Vector2(1f, 1f);
-        buttonRect.anchoredPosition = new Vector2(-4f, -4f);
-        buttonRect.sizeDelta = new Vector2(240f, 60f);
-
-        Image image = buttonObject.GetComponent<Image>();
-        image.color = Copper;
-        image.raycastTarget = true;
-        Button button = buttonObject.GetComponent<Button>();
-        button.targetGraphic = image;
-        button.transition = Selectable.Transition.ColorTint;
-        button.navigation = new Navigation { mode = Navigation.Mode.None };
-        ApplyButtonColors(button, image.color);
-        TMP_Text labelText = CreateText(buttonRect, "Label", label, TextPrimary,
-            TextAnchor.MiddleCenter, 220f, true);
-        RectTransform labelRect = labelText.rectTransform;
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.pivot = new Vector2(.5f, .5f);
-        labelRect.anchoredPosition = Vector2.zero;
-        labelRect.sizeDelta = Vector2.zero;
-        labelText.alignment = TextAlignmentOptions.Center;
-        button.onClick.AddListener(() =>
-        {
-            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
-            ToggleStoryChapterInPlace(card, chapterId);
-        });
+        if (storyChapterCardPrefab == null)
+            storyChapterCardPrefab = Resources.Load<StoryChapterCard>(
+                "UI/Kingdom/StoryChapterCard");
+        if (storyChapterCardPrefab == null)
+            throw new InvalidOperationException("剧情章节卡片 Prefab 缺失。");
+        StoryChapterCard card = Instantiate(storyChapterCardPrefab, surface, false);
+        card.name = "StoryChapter_" + chapter.Id;
+        // Preserve the existing page's outer positioning; the authored card owns
+        // its internal layout and preferred height, including the optional frame.
+        SetTop(card.Rect, y, card.Rect.sizeDelta.y);
+        card.Bind(chapter, heading, completed, expanded, isLatest, color,
+            sharedFontAsset, () => ToggleStoryChapterInPlace(card, chapter.Id),
+            () => NavigateToStoryTarget(GetStoryNavigationPage(chapter),
+                GetStoryNavigationTarget(chapter)));
+        return card;
     }
 
-    private void ToggleStoryChapterInPlace(RectTransform card, string chapterId)
+    private void ToggleStoryChapterInPlace(StoryChapterCard card, string chapterId)
     {
-        if (card == null || string.IsNullOrEmpty(chapterId))
-            return;
-
-        StoryChapter chapter = null;
-        for (int i = 0; i < StoryManager.Chapters.Count; i++)
-            if (StoryManager.Chapters[i] != null &&
-                StoryManager.Chapters[i].Id == chapterId)
-            {
-                chapter = StoryManager.Chapters[i];
-                break;
-            }
-        if (chapter == null)
-            return;
-
+        float oldHeight = card.Rect.rect.height;
         ToggleStoryChapter(chapterId);
-        bool collapsed = IsStoryChapterCollapsed(chapterId);
-        TMP_Text body = card.Find("Body")?.GetComponent<TMP_Text>();
-        TMP_Text title = card.Find("Title")?.GetComponent<TMP_Text>();
-        if (body == null || title == null)
-            return;
-
-        body.text = collapsed
-            ? chapter.Summary
-            : chapter.Summary + "\n\n" + chapter.Body;
-        ResizeStoryCard(card, title, body, collapsed ? 140f : 220f);
-
-        TMP_Text label = card.Find("StoryChapterToggle/Label")?.GetComponent<TMP_Text>();
-        if (label != null)
-            label.text = collapsed ? "展开" : "收起";
+        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+        card.SetExpanded(!IsStoryChapterCollapsed(chapterId));
+        ResizeStoryFollowingCards(card.Rect, card.Rect.rect.height - oldHeight);
+        Canvas.ForceUpdateCanvases();
     }
 
     private void ResizeStoryCard(RectTransform card, TMP_Text title,
@@ -445,7 +382,11 @@ public sealed partial class KingdomUIRoot
             16f + titleHeight + 18f + bodyHeight + 16f);
         card.sizeDelta = new Vector2(card.sizeDelta.x, newHeight);
 
-        float delta = newHeight - oldHeight;
+        ResizeStoryFollowingCards(card, newHeight - oldHeight);
+    }
+
+    private static void ResizeStoryFollowingCards(RectTransform card, float delta)
+    {
         if (Mathf.Approximately(delta, 0f) || card.parent == null)
             return;
 
@@ -484,41 +425,6 @@ public sealed partial class KingdomUIRoot
         Canvas.ForceUpdateCanvases();
         storyPageStateSignature = GetStoryStateSignature(progressSignature);
         return true;
-    }
-
-    private void AddStoryChapterNavigation(RectTransform card,
-        string pageName, string targetId)
-    {
-        GameObject buttonObject = new GameObject("StoryChapterNavigation",
-            typeof(RectTransform), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(card, false);
-        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.anchorMin = new Vector2(1f, 1f);
-        buttonRect.anchorMax = new Vector2(1f, 1f);
-        buttonRect.pivot = new Vector2(1f, 1f);
-        buttonRect.anchoredPosition = new Vector2(-4f, -4f);
-        buttonRect.sizeDelta = new Vector2(240f, 60f);
-
-        Image image = buttonObject.GetComponent<Image>();
-        image.color = PanelRaised;
-        image.raycastTarget = true;
-        Button button = buttonObject.GetComponent<Button>();
-        button.targetGraphic = image;
-        button.transition = Selectable.Transition.ColorTint;
-        button.navigation = new Navigation { mode = Navigation.Mode.None };
-        ApplyButtonColors(button, image.color);
-        TMP_Text label = CreateText(buttonRect, "Label", "前往相关页",
-            TextPrimary, TextAnchor.MiddleCenter, 220f, true);
-        RectTransform labelRect = label.rectTransform;
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.pivot = new Vector2(.5f, .5f);
-        labelRect.anchoredPosition = Vector2.zero;
-        labelRect.sizeDelta = Vector2.zero;
-        label.alignment = TextAlignmentOptions.Center;
-        button.onClick.AddListener(() => NavigateToStoryTarget(
-            pageName, targetId));
-        buttonObject.AddComponent<UIPageScrollDragForwarder>();
     }
 
     private string GetStoryNavigationPage(StoryChapter chapter)

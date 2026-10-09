@@ -14,6 +14,7 @@ public sealed class StoryChapter
     public string EraLabel { get; }
     public string Summary { get; }
     public string Body { get; }
+    public Sprite Illustration { get; }
     public TechLevel RequiredEra { get; }
     public string RequiredTutorialStepId { get; }
     public IReadOnlyList<string> RequiredResearchIds { get; }
@@ -28,13 +29,14 @@ public sealed class StoryChapter
         IReadOnlyList<string> requiredBuildingIds,
         IReadOnlyList<string> requiredWorkshopIds,
         IReadOnlyList<string> requiredUnlockedSectorIds,
-        IReadOnlyList<string> requiredOccupiedSectorIds)
+        IReadOnlyList<string> requiredOccupiedSectorIds, Sprite illustration = null)
     {
         Id = id;
         Title = title;
         EraLabel = eraLabel;
         Summary = summary;
         Body = body;
+        Illustration = illustration;
         RequiredEra = requiredEra;
         RequiredTutorialStepId = requiredTutorialStepId ?? string.Empty;
         RequiredResearchIds = requiredResearchIds ?? Array.Empty<string>();

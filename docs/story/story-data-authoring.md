@@ -16,6 +16,12 @@
 
 不要把剧情正文写回 `StoryManager.cs`。`StoryManager` 负责运行时读取、顺序完成判定和永久历史查询；完成状态存放在 `GameState.StoryProgress`。
 
+## 章节插画
+
+每章插画位于 `Assets/Resources/Art/Story/Story_<章节资产名>_Main.png`，由章节的 `illustration` 字段引用。使用 Unity 菜单 `Tools/Kingdom/Story/Author Illustrated Chapter Card` 导入单 Sprite、绑定图片并生成 `StoryChapterCard.prefab`；图片和 `.meta` 必须一同提交，替换图片时保留 GUID。
+
+最新完成章节展开显示插画与正文，历史完成章节可展开/收起；未完成章节不显示插画或正文。插画仅作叙事展示，不改变解锁条件、经济或 v9 存档。卡片内部布局与按钮创作在 Prefab，运行时仅绑定章节数据和事件。
+
 ## 科技与探索顺序
 
 章节顺序必须同时遵循科技进步和探索距离，不能只用时代枚举提前解锁。

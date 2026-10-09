@@ -12,6 +12,8 @@ public sealed class StoryChapterDefinition : GameDefinition
     [Header("叙事内容")]
     [TextArea(2, 4)] public string Summary;
     [TextArea(8, 30)] public string Body;
+    [SerializeField] private Sprite illustration;
+    public Sprite Illustration => illustration;
 
     [Header("解锁条件")]
     [Tooltip("完成指定教程动作后解锁。")]
@@ -55,7 +57,7 @@ public sealed class StoryChapterDefinition : GameDefinition
             Id, Title, RequiredEra.GetDescription(), Summary, Body, RequiredEra,
             RequiredTutorialStepId, RequiredResearchIds(), RequiredBuildingIds(),
             RequiredWorkshopIds(), RequiredUnlockedSectorIds(),
-            RequiredOccupiedSectorIds());
+            RequiredOccupiedSectorIds(), illustration);
     }
 
     private List<string> RequiredResearchIds() => ToIds(RequiredResearch);
