@@ -393,6 +393,14 @@ public sealed class SaveManager : Singleton<SaveManager>
             throw new InvalidDataException("存档缺少当前版本的必要数据段。");
         }
 
+        if (data.Resources.Resources == null || data.Buildings.Buildings == null ||
+            data.Researches.States == null || data.Researches.QueuedResearchIds == null ||
+            data.Workshop.PurchasedUpgradeIds == null || data.Sectors.States == null ||
+            data.Tutorial.CompletedStepIds == null)
+        {
+            throw new InvalidDataException("存档缺少当前版本的必要嵌套数据列表。");
+        }
+
         if (data.UltraProject != null)
         {
             UltraProjectManager.ValidateSaveDataForArchive(data.UltraProject);
@@ -426,6 +434,111 @@ public sealed class SaveManager : Singleton<SaveManager>
             if (!HasTopLevelJsonMember(json, requiredKeys[i]))
                 throw new InvalidDataException("存档缺少当前版本的必要数据段。");
         }
+
+        (string section, string list)[] requiredLists =
+        {
+            ("Resources", "Resources"),
+            ("Buildings", "Buildings"),
+            ("Researches", "States"),
+            ("Researches", "QueuedResearchIds"),
+            ("Workshop", "PurchasedUpgradeIds"),
+            ("Sectors", "States"),
+            ("Tutorial", "CompletedStepIds")
+        };
+        for (int i = 0; i < requiredLists.Length; i++)
+        {
+            if (!HasNestedJsonArrayMember(json, requiredLists[i].section, requiredLists[i].list))
+                throw new InvalidDataException("存档缺少当前版本的必要嵌套数据列表。");
+        }
+    }
+
+    private static bool HasNestedJsonArrayMember(string json, string sectionKey, string listKey)
+    {
+        int objectDepth = 0;
+        int sectionDepth = -1;
+        bool inString = false;
+        bool escaped = false;
+        for (int i = 0; i < json.Length; i++)
+        {
+            char current = json[i];
+            if (inString)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+                if (current == '"')
+                    inString = false;
+                continue;
+            }
+
+            if (current == '"')
+            {
+                int keyStart = i + 1;
+                int keyEnd = keyStart;
+                bool keyEscaped = false;
+                for (; keyEnd < json.Length; keyEnd++)
+                {
+                    char keyCharacter = json[keyEnd];
+                    if (keyEscaped)
+                    {
+                        keyEscaped = false;
+                        continue;
+                    }
+                    if (keyCharacter == '\\')
+                    {
+                        keyEscaped = true;
+                        continue;
+                    }
+                    if (keyCharacter == '"')
+                        break;
+                }
+                if (keyEnd >= json.Length)
+                    return false;
+
+                int valueStart = keyEnd + 1;
+                while (valueStart < json.Length && char.IsWhiteSpace(json[valueStart]))
+                    valueStart++;
+                if (valueStart < json.Length && json[valueStart] == ':')
+                {
+                    valueStart++;
+                    while (valueStart < json.Length && char.IsWhiteSpace(json[valueStart]))
+                        valueStart++;
+                    if (objectDepth == 1 && JsonStringEquals(
+                            json, keyStart, keyEnd - keyStart, sectionKey))
+                    {
+                        if (valueStart >= json.Length || json[valueStart] != '{')
+                            return false;
+                        sectionDepth = objectDepth + 1;
+                    }
+                    else if (sectionDepth == objectDepth && JsonStringEquals(
+                                 json, keyStart, keyEnd - keyStart, listKey))
+                    {
+                        return valueStart < json.Length && json[valueStart] == '[';
+                    }
+                }
+
+                i = keyEnd;
+                continue;
+            }
+
+            if (current == '{')
+                objectDepth++;
+            else if (current == '}')
+            {
+                if (objectDepth == sectionDepth)
+                    sectionDepth = -1;
+                objectDepth--;
+            }
+        }
+
+        return false;
     }
 
     private static KingdomSaveData ParseSaveData(string json)
