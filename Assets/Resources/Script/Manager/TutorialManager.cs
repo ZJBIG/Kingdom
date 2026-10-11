@@ -774,7 +774,8 @@ public sealed class TutorialManager : MonoBehaviour
         {
             string chainSummary = BuildOwnedProductionChainSummary(buildings);
             Building chainRecommendation = FindProductionChainRecommendation(game, buildings);
-            bool lacksProductivity = buildings.AvailableProductivity <= ExpantaNum.Zero;
+            bool lacksProductivity = chainRecommendation != null &&
+                chainRecommendation.ProductivityConsumption > ExpantaNum.Max(ExpantaNum.Zero, buildings.AvailableProductivity);
             Building capacityRecommendation = lacksProductivity
                 ? FindPopulationCapacityRecommendation(game, buildings)
                 : null;
@@ -797,6 +798,13 @@ public sealed class TutorialManager : MonoBehaviour
             snapshot.NavigationTargetId = navigationRecommendation == null
                 ? string.Empty
                 : navigationRecommendation.Id;
+            if (lacksProductivity && game.State.Population.Population < game.State.Population.PopulationCapacity)
+            {
+                snapshot.Blocker = "目标建筑生产力不足，现有住房仍可入住。";
+                snapshot.RecommendedAction = "先保持正净粮，等待居民入住；每位新居民提供基础2生产力并消耗0.8食物/秒。";
+                snapshot.NavigationPage = "Resources";
+                snapshot.NavigationTargetId = "Food";
+            }
             if (!lacksProductivity && string.IsNullOrEmpty(chainSummary))
             {
                 bool hasChainAction = TryFindNextProductionChainAction(
@@ -857,7 +865,11 @@ public sealed class TutorialManager : MonoBehaviour
                 industrialMainlineActive = BuildSpacerGuidance(
                     snapshot, game, research, buildings);
             if (!industrialMainlineActive)
+            {
                 BuildEraGoalGuidance(snapshot, eraGoal);
+                if (game.State.TechLevel == TechLevel.StoneAge || game.State.TechLevel == TechLevel.Medieval)
+                    BuildEarlyInvestmentGuidance(snapshot, game);
+            }
         }
         if (step.Kind != TutorialStepKind.LongTerm &&
             !HasVisitedPageForStep(step))
@@ -918,13 +930,7 @@ public sealed class TutorialManager : MonoBehaviour
 
         string[] route =
         {
-            "IndustrialWorkshop", "PrecisionManufacturing", "MachineFactory",
-            "FactoryOrganization", "SteamPower", "SteamPlant",
-            "IndustrialHabitationEngineering", "IndustrialHabitationComplex",
-            "RailwayEngineering", "RailHub", "IndustrialMetalSmelting",
-            "IndustrialMetalSmelter", "IndustrialChemistry", "ChemicalPlant",
-            "PowerGridEngineering", "CentralPowerStation", "ModernUniversity",
-            "University", "TitaniumAlloyEngineering"
+            "IndustrialWorkshop", "SteamPower", "SteamPlant", "PowerGridEngineering", "CentralPowerStation", "IndustrialMetalSmelting", "IndustrialMetalSmelter", "IndustrialChemistry", "ChemicalPlant", "PrecisionManufacturing", "MachineFactory", "FactoryOrganization", "IndustrialHabitationEngineering", "IndustrialHabitationComplex", "RailwayEngineering", "RailHub", "ModernUniversity", "University", "TitaniumAlloyEngineering"
         };
         var pending = new List<string>();
         for (int i = 0; i < route.Length; i++)
@@ -969,6 +975,8 @@ public sealed class TutorialManager : MonoBehaviour
         if (evaluation.Transition == null)
         {
             snapshot.Blocker = snapshot.NextEraGoal;
+            snapshot.RecommendedAction = "查看已完成的文明工程、据点与剧情，继续完成仍未完成的现有目标。";
+            snapshot.NavigationPage = "Story";
             return;
         }
 
@@ -1012,6 +1020,24 @@ public sealed class TutorialManager : MonoBehaviour
         snapshot.NavigationTargetId = evaluation.Transition.Id;
     }
 
+    private static void BuildEarlyInvestmentGuidance(TutorialSnapshot snapshot,
+        GameManager game)
+    {
+        if (game.State.FoodNetRate <= ExpantaNum.Zero)
+        {
+            snapshot.Blocker = "日常粮食供给没有余量，住房和科研投资需要先稳住供给。";
+            snapshot.RecommendedAction = "查看食物来源，补粮或减少持续负担；容量只提供缓冲，不增加粮产。";
+            snapshot.NavigationPage = "Resources";
+            snapshot.NavigationTargetId = "Food";
+            return;
+        }
+        snapshot.RecommendedAction += game.State.TechLevel == TechLevel.StoneAge
+            ? " 可选投资：灌溉改善土地利用与储粮，文书支持科研；生产力紧张时保留部分旧农场。"
+            : " 可选投资：先扩钢材供给、推进机械化，或在准入后完善公共建设与知识设施；这些支线不是工业时代硬门。";
+        if (game.State.Population.Population < game.State.Population.PopulationCapacity)
+            snapshot.RecommendedAction += " 住房容量须等待入住才转为生产力，满员后需持续补粮。";
+    }
+
     private enum GuidanceKind
     {
         Research,
@@ -1048,6 +1074,30 @@ public sealed class TutorialManager : MonoBehaviour
         new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialWorkshop",
             "工业体系还缺少可重复改良的工坊：先完成“", "”。", true,
             "打开研究页面，完成“", "”，让旧工艺能够被反复验证和改进。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "SteamPower",
+            "工业能源尚未建立：先完成“", "”。", true,
+            "打开研究页面，完成“", "”，解锁蒸汽动力。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "SteamPlant",
+            "蒸汽动力已经掌握，但还没有“", "”。", true,
+            "打开建筑页面，建造“", "”，让工业生产真正运转。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "PowerGridEngineering",
+            "蒸汽动力已经建立，接下来连通共享电网，为化工与精密制造提供能源。", string.Empty, false,
+            "打开研究页面，完成“", "”，建立共享电网。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "CentralPowerStation",
+            "电网技术已经掌握，但还没有“", "”连接整座王国。", true,
+            "打开建筑页面，建造“", "”，让能源穿过整座王国。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialMetalSmelting",
+            "工坊与能源已经具备基础，接下来用工业冶炼准备标准材料。", string.Empty, false,
+            "打开研究页面，完成“", "”，建立工业冶炼链。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "IndustrialMetalSmelter",
+            "工业冶炼技术已经掌握，但还没有“", "”把矿石变成标准材料。", true,
+            "打开建筑页面，建造“", "”，观察矿石如何进入工业链。"),
+        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialChemistry",
+            "共享电网已具备基础，下一步让旧材料承担化工与精密制造的新用途。", string.Empty, false,
+            "打开研究页面，完成“", "”，理解化学工业的输入与风险。"),
+        new IndustrialGuidanceRow(GuidanceKind.Building, "ChemicalPlant",
+            "化学技术已经掌握，但还没有“", "”验证这条新链。", true,
+            "打开建筑页面，建造“", "”，观察材料如何重新组合。"),
         new IndustrialGuidanceRow(GuidanceKind.Research, "PrecisionManufacturing",
             "机器工厂还缺少精密制造知识：先完成“", "”。", true,
             "打开研究页面，完成“", "”，让工坊经验能够转化为稳定的机器生产。"),
@@ -1060,12 +1110,6 @@ public sealed class TutorialManager : MonoBehaviour
         new IndustrialGuidanceRow(GuidanceKind.Research, "FactoryOrganization",
             "机器工厂已经启动，但工业规模还需要统一组织：先完成“", "”。", true,
             "打开研究页面，完成“", "”，让工厂经验能够被制度化并复制到更大的王国。"),
-        new IndustrialGuidanceRow(GuidanceKind.Research, "SteamPower",
-            "工业能源尚未建立：先完成“", "”。", true,
-            "打开研究页面，完成“", "”，解锁蒸汽动力。"),
-        new IndustrialGuidanceRow(GuidanceKind.Building, "SteamPlant",
-            "蒸汽动力已经掌握，但还没有“", "”。", true,
-            "打开建筑页面，建造“", "”，让工业生产真正运转。"),
         new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialHabitationEngineering",
             "工业城市即将吸纳更多人口：先完成“", "”。", true,
             "打开研究页面，完成“", "”，理解工业人口与城市的关系。"),
@@ -1078,24 +1122,6 @@ public sealed class TutorialManager : MonoBehaviour
         new IndustrialGuidanceRow(GuidanceKind.Building, "RailHub",
             "铁路技术已经掌握，但王国还没有“", "”。", true,
             "打开建筑页面，建造“", "”，连接分散的生产链。"),
-        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialMetalSmelting",
-            "铁路已经把原料送到工厂，但还缺少稳定的标准材料。", string.Empty, false,
-            "打开研究页面，完成“", "”，建立工业冶炼链。"),
-        new IndustrialGuidanceRow(GuidanceKind.Building, "IndustrialMetalSmelter",
-            "工业冶炼技术已经掌握，但还没有“", "”把矿石变成标准材料。", true,
-            "打开建筑页面，建造“", "”，观察矿石如何进入工业链。"),
-        new IndustrialGuidanceRow(GuidanceKind.Research, "IndustrialChemistry",
-            "物流已经连通，下一步是让旧材料承担更复杂的工业用途。", string.Empty, false,
-            "打开研究页面，完成“", "”，理解化学工业的输入与风险。"),
-        new IndustrialGuidanceRow(GuidanceKind.Building, "ChemicalPlant",
-            "化学技术已经掌握，但还没有“", "”验证这条新链。", true,
-            "打开建筑页面，建造“", "”，观察材料如何重新组合。"),
-        new IndustrialGuidanceRow(GuidanceKind.Research, "PowerGridEngineering",
-            "化工链已经开始运转，下一步是让能源成为全王国共享的基础设施。", string.Empty, false,
-            "打开研究页面，完成“", "”，建立共享电网。"),
-        new IndustrialGuidanceRow(GuidanceKind.Building, "CentralPowerStation",
-            "电网技术已经掌握，但还没有“", "”连接整座王国。", true,
-            "打开建筑页面，建造“", "”，让能源穿过整座王国。"),
         new IndustrialGuidanceRow(GuidanceKind.Research, "ModernUniversity",
             "共享电网已经建立，下一步是把工业经验保存成可复制的知识。", string.Empty, false,
             "打开研究页面，完成“", "”，让知识能够传给下一代。"),
@@ -1753,7 +1779,7 @@ public sealed class TutorialManager : MonoBehaviour
         if (recommendation != null)
         {
             snapshot.Blocker = defaultBlocker;
-            snapshot.RecommendedAction = "打开建筑页面，查看人口容量效果。";
+            snapshot.RecommendedAction = "打开建筑页面，查看人口容量效果：容量即时增加，居民入住后才增加生产力；每位居民基础耗粮0.8/秒，先确认持续供粮。";
             snapshot.NavigationTargetId = recommendation.Id;
             return;
         }
@@ -2286,13 +2312,12 @@ public sealed class TutorialManager : MonoBehaviour
                 ? effect.Type.GetDescription()
                 : target + "：" + effect.Type.GetDescription());
         }
-        if (changes.Count == 0)
         {
             IReadOnlyList<Building> definitions = DataBase<Building>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
                 Building building = definitions[i];
-                if (building == null)
+                if (building == null || changes.Count >= 5)
                     continue;
                 for (int j = 0; j < building.RequiredResearch.Count; j++)
                     if (building.RequiredResearch[j] == research)
@@ -2300,7 +2325,7 @@ public sealed class TutorialManager : MonoBehaviour
                         changes.Add("解锁" + building.Label);
                         break;
                     }
-                if (changes.Count > 0)
+                if (changes.Count >= 5)
                     break;
             }
         }
@@ -2325,7 +2350,7 @@ public sealed class TutorialManager : MonoBehaviour
     }
 
     private static bool HasOwnedProductionChain(BuildingManager buildings) =>
-        buildings != null && HasOwnedProductionChain(buildings.States.Values);
+        buildings != null && TryFindOwnedProductionChain(buildings.States.Values, out _, out _, true);
 
     public static bool HasOwnedProductionChain(IEnumerable<BuildingState> states) =>
         TryFindOwnedProductionChain(states, out _, out _);
@@ -2336,7 +2361,7 @@ public sealed class TutorialManager : MonoBehaviour
         consumed = null;
         generated = null;
         return buildings != null &&
-            TryFindOwnedProductionChain(buildings.States.Values, out consumed, out generated);
+            TryFindOwnedProductionChain(buildings.States.Values, out consumed, out generated, true);
     }
 
 #if UNITY_EDITOR
@@ -2345,7 +2370,8 @@ public sealed class TutorialManager : MonoBehaviour
         TryFindOwnedProductionChain(states, out consumed, out generated);
 #endif
     private static bool TryFindOwnedProductionChain(
-        IEnumerable<BuildingState> states, out Resource consumed, out Resource generated)
+        IEnumerable<BuildingState> states, out Resource consumed, out Resource generated,
+        bool requireProducedStock = false)
     {
         consumed = null;
         generated = null;
@@ -2354,7 +2380,7 @@ public sealed class TutorialManager : MonoBehaviour
 
         foreach (BuildingState source in states)
         {
-            if (source == null || source.Amount <= ExpantaNum.Zero || source.Definition == null)
+            if (source == null || source.Amount <= ExpantaNum.Zero || source.Efficiency <= ExpantaNum.Zero || source.Definition == null)
                 continue;
             IReadOnlyList<Pair<Resource, ExpantaNum>> outputs =
                 source.Definition.ResourceGenerationRates;
@@ -2367,7 +2393,7 @@ public sealed class TutorialManager : MonoBehaviour
                 foreach (BuildingState target in states)
                 {
                     if (target == null || target == source ||
-                        target.Amount <= ExpantaNum.Zero || target.Definition == null)
+                        target.Amount <= ExpantaNum.Zero || target.Efficiency <= ExpantaNum.Zero || target.Definition == null)
                         continue;
                     IReadOnlyList<Pair<Resource, ExpantaNum>> inputs =
                         target.Definition.ResourceConsumptionRates;
@@ -2376,9 +2402,12 @@ public sealed class TutorialManager : MonoBehaviour
                         Pair<Resource, ExpantaNum> input = inputs[inputIndex];
                         if (input.First == output.First && input.Second > ExpantaNum.Zero)
                         {
+                            Resource product = FindFirstResource(target.Definition.ResourceGenerationRates);
+                            if (product == null || requireProducedStock &&
+                                ResourceManager.Instance.GetAmount(product) <= ExpantaNum.Zero)
+                                continue;
                             consumed = output.First;
-                            generated = FindFirstResource(
-                                target.Definition.ResourceGenerationRates) ?? output.First;
+                            generated = product;
                             return true;
                         }
                     }

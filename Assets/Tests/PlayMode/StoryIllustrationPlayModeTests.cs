@@ -47,7 +47,13 @@ public sealed class StoryIllustrationPlayModeTests
         yield return LoadStory(1, TechLevel.Animal);
         RectTransform first = Card("PrologueAshes_00");
         AssertVisibleImage(first, StoryManager.Chapters[0].Illustration);
-        Assert.That(first.Find("Header/StoryChapterToggle").gameObject.activeSelf, Is.False);
+        Button latestToggle = first.Find("Header/StoryChapterToggle").GetComponent<Button>();
+        Assert.That(latestToggle.gameObject.activeSelf, Is.True);
+        latestToggle.onClick.Invoke();
+        Assert.That(first.GetComponent<StoryChapterCard>().IllustrationVisible, Is.False);
+        Assert.That(first.Find("Header/StoryChapterNavigation").gameObject.activeSelf, Is.True);
+        latestToggle.onClick.Invoke();
+        AssertVisibleImage(first, StoryManager.Chapters[0].Illustration);
         for (int i = 1; i < StoryManager.Chapters.Count; i++)
         {
             string id = StoryManager.Chapters[i].Id;

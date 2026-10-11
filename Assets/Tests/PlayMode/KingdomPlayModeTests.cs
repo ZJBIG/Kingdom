@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -366,6 +366,18 @@ public sealed class KingdomPlayModeTests
         campaignDoctrineButton.onClick.Invoke();
         Assert.That(gameManager.State.Campaign.Doctrine, Is.EqualTo(CampaignDoctrine.Surge),
             "The sector detail posture control must issue the campaign doctrine command.");
+        foreach (SectorState sector in gameManager.Sectors.OrderedStates)
+            if (!sector.Definition.IsHomeSystem)
+                sector.SetOccupiedForEditor(true);
+        root.ShowSectorDetailsForEditor(occupiedSector);
+        Assert.That(campaignDoctrineButton.interactable, Is.False,
+            "Completed remote targets no longer offer a campaign posture change.");
+        campaignDoctrineButton.onClick.Invoke();
+        Assert.That(gameManager.State.Campaign.Doctrine, Is.EqualTo(CampaignDoctrine.Surge),
+            "The disabled completed-target control has no stale command listener.");
+        root.ShowBuildingDetailsForEditor(DataBase<Building>.Find("PhaseEnergyArray"));
+        Assert.That(campaignDoctrineButton.interactable, Is.False,
+            "The committed project also stops recommending expedition posture once remote targets are complete.");
     }
 
     [UnityTest]
@@ -1539,8 +1551,9 @@ public sealed class KingdomPlayModeTests
         TMP_Text body = bodyTransform == null ? null : bodyTransform.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(realized.Label));
-        Assert.That(body.text, Does.Not.Contain(unbuilt.Label));
-        Assert.That(body.text, Does.Not.Contain(zeroEfficiency.Label));
+        Assert.That(body.text, Does.Contain(unbuilt.Label), "Unlocked unbuilt sources are navigable candidates, not realized production.");
+        Assert.That(body.text, Does.Contain(zeroEfficiency.Label), "Stopped owned sources remain visible for recovery.");
+        Assert.That(body.text.Split('\n').First(line => line.Contains(zeroEfficiency.Label)), Does.Not.Contain("/s"), "Stopped source does not claim realized production.");
         Assert.That(body.text, Does.Contain(expectedRate.ToGameString() + "/s"));
         ExpantaNum expectedBuildingRate = new ExpantaNum(2d) *
             realizedState.Amount * realizedState.Efficiency *

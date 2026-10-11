@@ -160,6 +160,30 @@ public sealed partial class KingdomUIRoot
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
+        if (amount > ExpantaNum.One || buildingQuantityMode == BuildingQuantityMode.Max)
+        {
+            BuildingDeconstructionPreview preview = BuildingManager.Instance.GetDeconstructionPreview(building, amount);
+            if (preview == null) { ShowTooltip("当前没有可拆除建筑"); return; }
+            var warning = new System.Text.StringBuilder("拆除 ").Append(building.Label).Append(" × ").Append(preview.Amount.ToGameString());
+            warning.Append("\n住房容量减少：").Append(preview.PopulationCapacityRemoved.ToGameString())
+                .Append("（现有居民不会立即减少；增长受新容量限制）")
+                .Append("\n粮仓容量减少：").Append(preview.FoodCapacityRemoved.ToGameString())
+                .Append("；超容量食物损失：").Append(preview.FoodOverflow.ToGameString())
+                .Append("\n净生产力释放：").Append(preview.ProductivityReleased.ToGameString());
+            warning.Append("\n基础电力供给/需求减少：").Append((building.PowerProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.PowerConsumptionRate * preview.Amount).ToGameString());
+            warning.Append("\n基础物流供给/需求减少：").Append((building.LogisticsProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.LogisticsConsumptionRate * preview.Amount).ToGameString());
+            warning.Append("\n基础日常粮产/耗粮减少：").Append((building.FoodProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.FoodConsumptionRate * preview.Amount).ToGameString()).Append(" /s（实际随效率与倍率变化；居民需粮不会立即减少）");
+            foreach (var flow in building.ResourceGenerationRates) warning.Append("\n基础产出减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * preview.Amount).ToGameString()).Append("/s（实际随效率与倍率变化）");
+            foreach (var flow in building.ResourceConsumptionRates) warning.Append("\n基础持续投入减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * preview.Amount).ToGameString()).Append("/s（实际随效率与倍率变化）");
+            foreach (var refund in preview.Refunds) warning.Append("\n返还：").Append(refund.Key.Label).Append(' ').Append(refund.Value.ToGameString());
+            ConfirmReviewAction(warning.ToString(), () => ExecuteBuildingDeconstruction(building, preview.Amount));
+            return;
+        }
+        ExecuteBuildingDeconstruction(building, amount);
+    }
+
+    private void ExecuteBuildingDeconstruction(Building building, ExpantaNum amount)
+    {
         bool success = BuildingManager.Instance.TryDeconstruct(building, amount, out _);
         if (success)
             UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Deconstruct);

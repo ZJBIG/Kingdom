@@ -489,6 +489,9 @@ public static class StoryManager
         return (int)state.Status;
     }
 
+#if UNITY_EDITOR
+    public static bool HasOwnedBuildingForEditor(string buildingId) => HasOwnedBuilding(buildingId);
+#endif
     private static bool HasOwnedBuilding(string buildingId)
     {
         if (string.IsNullOrEmpty(buildingId))
@@ -496,19 +499,14 @@ public static class StoryManager
         BuildingManager manager;
         try { manager = BuildingManager.Instance; }
         catch (InvalidOperationException) { return false; }
-        if (!DataBase<Building>.TryFind(buildingId, out Building definition) ||
-            manager == null || definition == null ||
-            !manager.States.TryGetValue(definition, out BuildingState state) ||
-            state == null || state.Amount <= ExpantaNum.Zero)
+        if (!DataBase<Building>.TryFind(buildingId, out Building definition) || manager == null)
             return false;
-        try
-        {
-            if (GameManager.Instance == null || GameManager.Instance.State == null ||
-                ResearchManager.Instance == null)
-                return false;
-        }
-        catch (InvalidOperationException) { return false; }
-        return manager.ArePrerequisitesMet(definition, out _);
+        var visited = new HashSet<Building>();
+        for (Building current = definition; current != null && visited.Add(current); current = current.UpgradeTo)
+            if (manager.States.TryGetValue(current, out BuildingState owned) &&
+                owned != null && owned.Amount > ExpantaNum.Zero && manager.ArePrerequisitesMet(current, out _))
+                return true;
+        return false;
     }
 
     private static bool HasWorkshopPurchase(string requiredWorkshopId = "")

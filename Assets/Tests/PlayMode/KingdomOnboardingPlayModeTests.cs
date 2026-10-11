@@ -127,6 +127,71 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator CustomQuantity_EndEditReportsOnlyInvalidOrFractionalInput()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return null;
+        yield return null;
+        yield return null;
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        Assert.That(root, Is.Not.Null);
+        root.SetPage("Buildings");
+        TMP_InputField input = root.transform.Find(
+            "SafeAreaRoot/Content/PageTool/BuildingControls/CustomQuantityInput").GetComponent<TMP_InputField>();
+        TMP_Text tooltip = root.transform.Find("SafeAreaRoot/Tooltip/Text").GetComponent<TMP_Text>();
+        tooltip.text = "quantity feedback sentinel";
+        input.SetTextWithoutNotify("12");
+        input.onEndEdit.Invoke(input.text);
+        Assert.That(input.text, Is.EqualTo("12"), "Building quantities are discrete integers.");
+        Assert.That(tooltip.text, Is.EqualTo("quantity feedback sentinel"),
+            "A valid integer does not replace feedback with an unnecessary warning.");
+        input.SetTextWithoutNotify("12.8");
+        input.onEndEdit.Invoke(input.text);
+        Assert.That(input.text, Is.EqualTo("12"));
+        Assert.That(tooltip.text, Is.Not.EqualTo("quantity feedback sentinel"));
+        tooltip.text = "invalid feedback sentinel";
+        input.SetTextWithoutNotify("invalid");
+        input.onEndEdit.Invoke(input.text);
+        Assert.That(input.text, Is.EqualTo("12"), "Invalid input restores the last valid discrete quantity.");
+        Assert.That(tooltip.text, Is.Not.EqualTo("invalid feedback sentinel"));
+    }
+
+    [UnityTest]
+    public IEnumerator InactiveCampaignRepair_DisablesWithoutMaterials_AndPreviewsBeforeCommitting()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return null;
+        yield return null;
+        yield return null;
+        SimulationManager.Instance.SetRunning(false);
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        SectorDefinition sector = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorState state = GameManager.Instance.Sectors.GetState(sector);
+        state.SetUnlockedForEditor(true);
+        state.SetCampaignCasualtiesForEditor(ExpantaNum.One);
+        GameManager.Instance.State.RestoreCampaignForEditor(false, sector.Id, ExpantaNum.One, ExpantaNum.One);
+        foreach (var cost in SectorManager.GetFleetRepairCosts(ExpantaNum.One))
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        root.SetPage("Sectors");
+        root.ShowSectorDetailsForEditor(sector);
+        Assert.That(root.DetailActionButtonForEditor.interactable, Is.False,
+            "An inactive damaged fleet cannot offer unaffordable repairs.");
+        foreach (var cost in SectorManager.GetFleetRepairCosts(ExpantaNum.One))
+            ResourceManager.Instance.SetAmount(cost.First, cost.Second);
+        root.ShowSectorDetailsForEditor(sector);
+        Assert.That(root.DetailActionButtonForEditor.interactable, Is.True);
+        root.DetailActionButtonForEditor.onClick.Invoke();
+        Assert.That(root.ReviewConfirmationPendingForEditor, Is.True,
+            "The primary repair action uses the same cost preview as the secondary action.");
+        Assert.That(state.CampaignCasualties.ApproximatelyEquals(ExpantaNum.One), Is.True,
+            "Repair preview leaves casualties untouched.");
+        root.transform.Find("SafeAreaRoot/ReviewControls/Confirmation/Panel/Actions/Cancel")
+            .GetComponent<Button>().onClick.Invoke();
+        Assert.That(root.ReviewConfirmationPendingForEditor, Is.False);
+        Assert.That(state.CampaignCasualties.ApproximatelyEquals(ExpantaNum.One), Is.True);
+    }
+
+    [UnityTest]
     public IEnumerator StoryPage_RendersRealChapterCardsAndAdaptsBodyHeight()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
@@ -166,30 +231,51 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Summary));
         Assert.That(body.text, Does.Not.Contain("选择右上角"));
-        if (latest == chapter)
-        {
-            Assert.That(body.text, Does.Contain(chapter.Body));
-            Assert.That(card.Find("Header/StoryChapterToggle").gameObject.activeSelf, Is.False,
-                "The latest Story chapter must not be collapsible.");
-            Button navigation = card.Find("Header/StoryChapterNavigation")?.GetComponent<Button>();
-            Assert.That(navigation, Is.Not.Null,
-                "The latest Story chapter must provide a navigation button.");
-            Assert.That(card.GetComponent<Image>().color,
-                Is.EqualTo(new Color(.76f, .50f, .25f, 1f)));
-            yield break;
-        }
-        Assert.That(body.text, Does.Not.Contain(chapter.Body));
-
         Transform latestCard = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryChapter_" +
             latest.Id);
         Assert.That(latestCard, Is.Not.Null);
-        Assert.That(latestCard.Find("Header/StoryChapterToggle").gameObject.activeSelf, Is.False,
-            "The latest Story chapter must not be collapsible.");
-        Assert.That(latestCard.Find("Header/StoryChapterNavigation")?.GetComponent<Button>(),
-            Is.Not.Null);
+        StoryChapterCard latestView = latestCard.GetComponent<StoryChapterCard>();
+        TMP_Text latestBody = latestCard.Find("Body").GetComponent<TMP_Text>();
+        Button latestToggle = latestCard.Find("Header/StoryChapterToggle").GetComponent<Button>();
+        Button latestNavigation = latestCard.Find("Header/StoryChapterNavigation").GetComponent<Button>();
+        Assert.That(latestView.IsExpanded, Is.True, "The latest completed chapter starts expanded.");
+        Assert.That(latestBody.text, Does.Contain(latest.Body));
+        Assert.That(latestToggle.gameObject.activeInHierarchy && latestToggle.interactable, Is.True);
+        Assert.That(latestNavigation.gameObject.activeInHierarchy && latestNavigation.interactable, Is.True);
         Assert.That(latestCard.GetComponent<Image>().color,
             Is.EqualTo(new Color(.76f, .50f, .25f, 1f)));
+        latestToggle.onClick.Invoke();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(latestView.IsExpanded, Is.False);
+        Assert.That(latestBody.text, Is.EqualTo(latest.Summary));
+        Assert.That(latestNavigation.gameObject.activeInHierarchy && latestNavigation.interactable, Is.True,
+            "Collapsing the latest chapter keeps its action navigation reachable.");
+        float latestCollapsedHeight = latestBody.rectTransform.rect.height;
+        latestToggle.onClick.Invoke();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(latestView.IsExpanded, Is.True);
+        Assert.That(latestBody.text, Does.Contain(latest.Body));
+        latestBody.ForceMeshUpdate(true, true);
+        float latestPreferredHeight = latestBody.GetPreferredValues(
+            latestBody.text, latestBody.rectTransform.rect.width, Mathf.Infinity).y;
+        Assert.That(latestBody.rectTransform.rect.height, Is.GreaterThanOrEqualTo(latestPreferredHeight - 1f),
+            "Reopening the latest chapter restores the full TMP body layout.");
+        Assert.That(latestBody.rectTransform.rect.height, Is.GreaterThan(latestCollapsedHeight));
+        Assert.That(latestNavigation.gameObject.activeInHierarchy && latestNavigation.interactable, Is.True);
+        string navigationPage = root.GetStoryNavigationPageForEditor(latest);
+        latestNavigation.onClick.Invoke();
+        yield return null;
+        Assert.That(root.transform.Find("SafeAreaRoot/Content/PageHost/" + navigationPage).gameObject.activeInHierarchy, Is.True,
+            "The latest chapter navigation still opens its real target page after folding.");
+        root.SetPage("Story");
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        if (latest == chapter)
+            yield break;
+        Assert.That(body.text, Does.Not.Contain(chapter.Body));
         body.ForceMeshUpdate(true, true);
         float collapsedHeight = body.rectTransform.rect.height;
         Button toggle = card.Find("Header/StoryChapterToggle")?.GetComponent<Button>();

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Iron
   Label: "\u94C1\u5668\u4E0E\u70BC\u94A2\u57FA\u7840"
-  Description: "\u638C\u63E1\u94C1\u77FF\u9AD8\u6E29\u8FD8\u539F\u3001\u953B\u6253\u9664\u6742\u548C\u521D\u6B65\u70BC\u94A2\u65B9\u6CD5\uFF0C\u4E3A\u94A2\u94C1\u751F\u4EA7\u3001\u91CD\u578B\u5DE5\u5177\u548C\u9632\u5FA1\u8BBE\u65BD\u63D0\u4F9B\u6750\u6599\u57FA\u7840\u3002"
+  Description: "使铁器工艺标准化，提高所有建筑的生产能力，并为行政与钢铁路线奠定前置。现有冶炼炉此前已能产铁；生产倍率同时增加相关持续原料需求，须检查上游供给。"
   BaseCost: "19000"
   prerequisites:
   - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}

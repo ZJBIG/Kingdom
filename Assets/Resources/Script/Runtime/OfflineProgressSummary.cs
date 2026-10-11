@@ -16,6 +16,7 @@ public sealed class OfflineProgressSummary
 {
     public double WallClockSeconds { get; }
     public double SettledSeconds { get; }
+    public double EffectiveEconomySeconds => SimulationManager.CalculateOfflineEffectiveSeconds(0d, SettledSeconds);
     public ExpantaNum FoodBefore { get; }
     public ExpantaNum FoodAfter { get; }
     public ExpantaNum PopulationBefore { get; }
@@ -35,11 +36,33 @@ public sealed class OfflineProgressSummary
     public bool ResearchPowerBlocked { get; }
     public IReadOnlyList<SectorDefinition> SupplyBlockedSectors { get; }
 
+    public RelicStatus RelicStatusBefore { get; }
+    public RelicStatus RelicStatusAfter { get; }
+    public RelicPauseReason RelicPauseReasonBefore { get; }
+    public RelicPauseReason RelicPauseReasonAfter { get; }
+    public ExpantaNum RelicProgressBefore { get; }
+    public ExpantaNum RelicProgressAfter { get; }
+    public bool RelicCommissionActiveBefore { get; }
+    public bool RelicCommissionActiveAfter { get; }
+    public bool RelicSupportReadyBefore { get; }
+    public bool RelicSupportReadyAfter { get; }
+    public string RelicSupportedSectorIdBefore { get; }
+    public string RelicSupportedSectorIdAfter { get; }
+    public int RelicCompletedCommissionsBefore { get; }
+    public int RelicCompletedCommissionsAfter { get; }
+
     internal sealed class Snapshot
     {
         internal readonly Dictionary<Resource, ExpantaNum> Resources = new();
         internal readonly HashSet<string> CompletedResearchIds = new(StringComparer.Ordinal);
         internal readonly HashSet<string> OccupiedSectorIds = new(StringComparer.Ordinal);
+        internal RelicStatus RelicStatus;
+        internal RelicPauseReason RelicPauseReason;
+        internal ExpantaNum RelicProgress;
+        internal bool RelicCommissionActive;
+        internal bool RelicSupportReady;
+        internal string RelicSupportedSectorId;
+        internal int RelicCompletedCommissions;
         internal ExpantaNum Food, Population, Progress;
         internal UltraProjectStage Stage;
         internal UltraProjectStatus Status;
@@ -50,6 +73,13 @@ public sealed class OfflineProgressSummary
         GameManager game = GameManager.Instance;
         var snapshot = new Snapshot
         {
+            RelicStatus = game.Relic.State.Status,
+            RelicPauseReason = game.Relic.State.PauseReason,
+            RelicProgress = game.Relic.State.Progress,
+            RelicCommissionActive = game.Relic.State.CommissionActive,
+            RelicSupportReady = game.Relic.State.SupportReady,
+            RelicSupportedSectorId = game.Relic.State.SupportedSectorId,
+            RelicCompletedCommissions = game.Relic.State.CompletedCommissions,
             Food = game.State.FoodAmount,
             Population = game.State.Population.Population,
             Stage = game.UltraProject.State.CurrentStage,
@@ -68,6 +98,13 @@ public sealed class OfflineProgressSummary
 
     internal OfflineProgressSummary(Snapshot before, Snapshot after, double elapsed, double settled)
     {
+        RelicStatusBefore = before.RelicStatus; RelicStatusAfter = after.RelicStatus;
+        RelicPauseReasonBefore = before.RelicPauseReason; RelicPauseReasonAfter = after.RelicPauseReason;
+        RelicProgressBefore = before.RelicProgress; RelicProgressAfter = after.RelicProgress;
+        RelicCommissionActiveBefore = before.RelicCommissionActive; RelicCommissionActiveAfter = after.RelicCommissionActive;
+        RelicSupportReadyBefore = before.RelicSupportReady; RelicSupportReadyAfter = after.RelicSupportReady;
+        RelicSupportedSectorIdBefore = before.RelicSupportedSectorId; RelicSupportedSectorIdAfter = after.RelicSupportedSectorId;
+        RelicCompletedCommissionsBefore = before.RelicCompletedCommissions; RelicCompletedCommissionsAfter = after.RelicCompletedCommissions;
         WallClockSeconds = elapsed;
         SettledSeconds = settled;
         FoodBefore = before.Food; FoodAfter = after.Food;
@@ -95,7 +132,7 @@ public sealed class OfflineProgressSummary
         CompletedResearches = researches.AsReadOnly();
         foreach (ResearchState state in research.ResearchQueue)
             if (state.Status == ResearchStatus.WaitingResources) { WaitingResearch = state.Definition; break; }
-        ResearchPowerBlocked = research.ActiveResearch != null && research.ResearchPower <= ExpantaNum.Zero;
+        ResearchPowerBlocked = research.ActiveResearch != null && research.CurrentResearchSpeed <= ExpantaNum.Zero;
         var sectors = new List<SectorDefinition>();
         var blocked = new List<SectorDefinition>();
         foreach (SectorState state in game.Sectors.OrderedStates)

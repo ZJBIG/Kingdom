@@ -61,6 +61,18 @@ public sealed class RelicManagerTests
     }
 
     [Test]
+    public void IdleRelicCannotSuspendOrAssignAbsentSupport()
+    {
+        Assert.That(relic.CanSuspend, Is.False);
+        Assert.That(relic.TrySuspend(out RelicOperationFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(RelicOperationFailure.InvalidState));
+        Assert.That(relic.CanAssignSupport(out _), Is.False);
+        Assert.That(relic.TryInvestigate(out _), Is.True);
+        Assert.That(relic.CanSuspend, Is.True);
+        Assert.That(relic.TrySuspend(out _), Is.True);
+    }
+
+    [Test]
     public void StartInvestigation_BeforeUltraRejectsWithoutPayment()
     {
         game.State.RestoreCoreForEditor(0, TechLevel.Spacer, game.State.FoodAmount, 0L);
@@ -217,7 +229,7 @@ public sealed class RelicManagerTests
     {
         MakeOperational(RelicRoute.Dismantle);
         Assert.That(relic.TryCraftSupport(out _), Is.True);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
         Assert.That(relic.TryAssignSupport(out _), Is.True);
         Assert.That(relic.State.SupportReady, Is.False);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -35,6 +35,7 @@ public sealed partial class KingdomUIRoot
         detailBuildingUpgrade = false;
         detailIsBuilding = false;
         selectedBuilding = null;
+        selectedResearchNode = null;
         selectedResource = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
@@ -48,6 +49,7 @@ public sealed partial class KingdomUIRoot
         // DetailScrollContent, otherwise it keeps the authored panel-space
         // offsets and can be clipped by the unified viewport.
         LayoutResourceDetailsBody();
+        RefreshReviewControls();
     }
 
     private bool ShouldDisplayBuilding(Building definition)
@@ -103,8 +105,8 @@ public sealed partial class KingdomUIRoot
         {
             Pair<Resource, ExpantaNum> flow = source[i];
             ExpantaNum multiplier = output
-                ? productionMultiplier * modifiers.GetResourceProductionMultiplier(flow.First)
-                : ExpantaNum.One;
+                ? productionMultiplier * modifiers.GetBuildingResourceProductionMultiplier(building, flow.First) * modifiers.GetResourceProductionMultiplier(flow.First)
+                : productionMultiplier;
             flows.Add(new Pair<Resource, ExpantaNum>(flow.First, flow.Second * multiplier));
         }
         return flows;
@@ -157,6 +159,7 @@ public sealed partial class KingdomUIRoot
             preservedScrollPosition,
             CountFlows(output) + CountFlows(input));
         ConfigureUltraProjectDetails(building);
+        RefreshReviewControls();
     }
 
     private void SetBuildingDetailBody(Building building, BuildingState state)
@@ -170,6 +173,9 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
         text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
         text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
+        AppendBuildingInvestmentExplanation(text, building);
+        if (state != null && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
+            text.AppendLine("停工原因：" + GetStoppedBuildingReason(building));
         text.AppendLine();
         text.AppendLine("研究前置");
         AppendResearchPrerequisites(text, building.RequiredResearch);
@@ -189,64 +195,10 @@ public sealed partial class KingdomUIRoot
             return "建筑状态未初始化";
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
             manager.TryGetUnlockedUpgradeTarget(building, out _);
-        if (!manager.ArePrerequisitesMet(building, out BuildFailure prerequisiteFailure))
-        {
-            switch (prerequisiteFailure)
-            {
-                case BuildFailure.TechnologyInsufficient:
-                    return "需进入" + building.TechLevel.GetDescription();
-                case BuildFailure.SectorNotOccupied:
-                    return "需先占领所属星区";
-                case BuildFailure.ResearchPrerequisiteIncomplete:
-                    return "研究前置未完成";
-                case BuildFailure.WorkshopPrerequisiteIncomplete:
-                    return "工坊前置未完成";
-                default:
-                    return "前置条件未满足";
-            }
-        }
-        if (!upgrading && !manager.CanConstructNew(building))
-            return "已被更高等级建筑替代";
-        if (building is SectorBuilding sectorBuilding && state != null &&
-            state.Amount >= new ExpantaNum(sectorBuilding.MaxAmount))
-            return "已达到该星区建筑上限";
-        ExpantaNum spaceCost = state == null ? building.SpaceCost : state.SpaceCost;
-        if (!(building is SectorBuilding) &&
-            GameManager.Instance.State.AvailableTerritory < spaceCost)
-            return "领土不足：还需" +
-                (spaceCost - GameManager.Instance.State.AvailableTerritory).ToGameString();
-        ExpantaNum productivity = state == null ? building.ProductivityConsumption : state.ProductivityConsumption;
-        if (manager.AvailableProductivity < productivity)
-            return "生产力不足：还需" +
-                (productivity - manager.AvailableProductivity).ToGameString();
-        List<Pair<Resource, ExpantaNum>> requirements = new();
-        if (upgrading)
-            manager.GetUpgradeResourceDeltas(building, ExpantaNum.One, requirements);
-        else
-        {
-            ExpantaNum owned = state == null ? ExpantaNum.Zero : state.Amount;
-            for (int i = 0; i < building.ResourceRequirements.Count; i++)
-            {
-                Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
-                requirements.Add(new Pair<Resource, ExpantaNum>(requirement.First,
-                    requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, ExpantaNum.One)));
-            }
-        }
-        ResourceManager resources = ResourceManager.Instance;
-        if (resources == null)
-            return "资源管理器未初始化";
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
-            if (requirement.First == null)
-                return "资源需求无效";
-            resources.States.TryGetValue(requirement.First, out ResourceState resourceState);
-            ExpantaNum amount = resourceState == null ? ExpantaNum.Zero : resourceState.Amount;
-            if (amount < requirement.Second)
-                return "资源不足：" + requirement.First.Label + " 缺 " +
-                    (requirement.Second - amount).ToGameString();
-        }
-        return "可建造";
+        BuildFailure failure = upgrading
+            ? manager.GetUpgradeFailure(building, ExpantaNum.One)
+            : manager.GetBuildFailure(building, ExpantaNum.One);
+        return failure == BuildFailure.None ? (upgrading ? "可升级" : "可建造") : GetBuildFailureDescription(failure);
     }
 
     private void RefreshSelectedBuildingDetails(Building building)
@@ -336,6 +288,7 @@ public sealed partial class KingdomUIRoot
         HideUltraDoctrineButton();
 
         RefreshResourceDetails(resource);
+        RefreshReviewControls();
     }
 
     private void RefreshResourceDetails(Resource resource)
@@ -371,18 +324,19 @@ public sealed partial class KingdomUIRoot
 
         text.AppendLine(("产出: +" + production.ToGameString() + "/s").Colorize(Positive));
         for (int i = 0; i < producers.Count; i++)
-            text.AppendLine("       --" + producers[i].Building.Label +
+            text.AppendLine("       --" + ReviewLink("building", producers[i].Building.Id, producers[i].Building.Label) +
                 ": " +
                 ("+" + producers[i].Rate.ToGameString() + "/s").Colorize(Positive));
 
         text.AppendLine(("消耗: -" + consumption.ToGameString() + "/s").Colorize(Error));
         for (int i = 0; i < consumers.Count; i++)
-            text.AppendLine("       --" + consumers[i].Building.Label +
+            text.AppendLine("       --" + ReviewLink("building", consumers[i].Building.Id, consumers[i].Building.Label) +
                 ": " +
                 ("-" + consumers[i].Rate.ToGameString() + "/s").Colorize(Error));
 
         text.AppendLine(("净产出: " + (net >= ExpantaNum.Zero ? "+" : "") + net.ToGameString() + "/s").Colorize(net >= ExpantaNum.Zero ? Positive : Error));
         text.AppendLine(GetResourceSupplyStatus(state, consumption));
+        AppendResourceSourceCandidates(text, resource);
         detailBody.text = text.ToString();
         detailBody.richText = true;
         detailBody.fontSize = 30f;
@@ -395,7 +349,10 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null)
             return;
-        detailBody.text = building.Label;
+        BuildingState state = BuildingManager.Instance?.GetState(building);
+        detailBody.text = building.Label + "\n当前状态：" + GetBuildingDetailStatus(building, state);
+        if (state != null && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
+            detailBody.text += "\n停工原因：" + GetStoppedBuildingReason(building);
         detailBody.gameObject.SetActive(true);
     }
 
@@ -591,6 +548,14 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("技术等级: " + research.TechLevel.GetDescription());
         text.AppendLine("研究点需求: " +
             (state == null ? FormatResearchBaseCost(research) : state.BaseCost.ToGameString()));
+        if (researchManager != null)
+        {
+            text.AppendLine("研究能力：" + researchManager.ResearchPower.ToGameString() + "/s；当前实际速度：" + researchManager.CurrentResearchSpeed.ToGameString() + "/s");
+            text.AppendLine("研究能力是基础供给，实际速度还受时代、进度、付款及前置状态影响；科研投资按同一观察时段比较，材料不足时先补生产链。");
+        }
+        if (research.Id == "Smithing_Bronze") text.AppendLine("合金成熟：改善既有冶炼炉的吞吐；铜冶炼已能产出青铜与铁，此项不是首次开启金属产出。");
+        if (research.Id == "Smithing_Iron") text.AppendLine("铁器标准化：改善既有全产业生产，收益来自现有链；不额外开启一种新冶炼机制。");
+        if (research.Id == "GuildSystem") text.AppendLine("行会是跨时代科研投资：现在支付材料与研究时间，长期科研收益延续到工业及以后；不是进入工业前的必买项目。优先补当前主线缺口，再决定是否投资。");
         text.AppendLine();
         text.AppendLine(research.Description);
         text.AppendLine();
@@ -615,6 +580,7 @@ public sealed partial class KingdomUIRoot
         if (detailActionButton != null)
             detailActionButton.interactable = IsResearchActionAvailable(research, state);
         CaptureResearchRefreshSignatures();
+        RefreshReviewControls();
     }
     private static void AppendResearchEffects(
         StringBuilder builder,
@@ -1086,11 +1052,9 @@ public sealed partial class KingdomUIRoot
     {
         if (state != null && state.Status == ResearchStatus.Completed)
             return "研究已完成";
-        return ResearchManager.Instance != null &&
-            (ResearchManager.Instance.ActiveResearch?.Definition == research ||
-             ResearchManager.Instance.IsQueued(research))
-            ? "删除研究队列"
-            : "加入研究队列";
+        ResearchManager manager = ResearchManager.Instance;
+        if (manager?.ActiveResearch?.Definition == research) return "取消当前研究";
+        return manager != null && manager.IsQueued(research) ? "移出研究队列" : "加入研究队列";
     }
 
     private static bool IsResearchActionAvailable(Research research, ResearchState state)
@@ -1645,18 +1609,7 @@ public sealed partial class KingdomUIRoot
             ShowDetails("研究", "研究管理器尚未初始化。", research.Id);
             return;
         }
-        ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
-#if UNITY_EDITOR
-        KingdomEditorPerfLog.Write(
-            $"[KingdomPerf] ResearchActionInvoked id={research.Id} result={result} " +
-            $"active={(ResearchManager.Instance.ActiveResearch?.Definition == research)} " +
-            $"queueCount={ResearchManager.Instance.ResearchQueue.Count}");
-#endif
-        ShowResearchDetails(research, true);
-        RefreshResearchQueueToolbar();
-        researchQueueUiDirty = false;
-        if (detailBody != null)
-            detailBody.text += "\n\n执行结果：" + result.GetDescription();
+        HandleResearchUiAction(research);
     }
 
     private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)

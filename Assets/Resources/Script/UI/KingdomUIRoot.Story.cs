@@ -153,8 +153,8 @@ public sealed partial class KingdomUIRoot
             y += 18f;
             bool unlocked = StoryManager.IsUnlocked(chapter, era, tutorial);
             bool isLatest = unlocked && chapter == latestChapter;
-            bool collapsed = unlocked && !isLatest &&
-                IsStoryChapterCollapsed(chapter.Id);
+            bool collapsed = unlocked && (storyChapterCollapsed.TryGetValue(chapter.Id, out bool savedCollapsed)
+                ? savedCollapsed : !isLatest);
             string chapterTitle = chapter.Title + "\n" + chapter.EraLabel +
                 "\n" + GetEraSubtitle(chapter.RequiredEra);
             if (!unlocked)
@@ -359,6 +359,8 @@ public sealed partial class KingdomUIRoot
     private void ToggleStoryChapterInPlace(StoryChapterCard card, string chapterId)
     {
         float oldHeight = card.Rect.rect.height;
+        if (!storyChapterCollapsed.ContainsKey(chapterId))
+            storyChapterCollapsed[chapterId] = !card.IsExpanded;
         ToggleStoryChapter(chapterId);
         UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
         card.SetExpanded(!IsStoryChapterCollapsed(chapterId));

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Smithing_Bronze
   Label: "\u9752\u94DC\u5408\u91D1\u4E0E\u5668\u5177\u5236\u9020"
-  Description: "\u638C\u63E1\u94DC\u9521\u5408\u91D1\u914D\u6BD4\u3001\u94F8\u9020\u548C\u5668\u5177\u6807\u51C6\uFF0C\u7A33\u5B9A\u751F\u4EA7\u9752\u94DC\u5DE5\u5177\u3001\u6B66\u5668\u4E0E\u5EFA\u7B51\u90E8\u4EF6\u3002"
+  Description: "使铜锡合金配比、铸造和器具标准成熟，提高现有冶炼炉的吞吐量，并为行政与机械化研究奠定前置。冶炼炉此前已能产青铜，本节点改善既有工艺，不是首次开启青铜配方。"
   BaseCost: "21000"
   prerequisites:
   - {fileID: 11400000, guid: 18eb5ef84f011af42afa13a9c95e24b9, type: 2}

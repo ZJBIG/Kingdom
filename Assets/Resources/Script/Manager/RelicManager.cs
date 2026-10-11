@@ -75,9 +75,10 @@ public sealed class RelicManager
             route == RelicRoute.Repair ? Definition?.Repair : Definition?.ReverseEngineering,
             () => state.ChooseRoute(route), out failure);
     }
+    public bool CanSuspend => IsWorking;
     public bool TrySuspend(out RelicOperationFailure failure)
     {
-        failure = state.Suspended ? RelicOperationFailure.InvalidState : RelicOperationFailure.None;
+        failure = !CanSuspend ? RelicOperationFailure.InvalidState : RelicOperationFailure.None;
         if (failure != RelicOperationFailure.None) return false;
         state.Suspend(RelicPauseReason.Manual);
         return true;
@@ -91,9 +92,23 @@ public sealed class RelicManager
         state.Resume();
         return true;
     }
+    public bool CanBeginCommission(out RelicOperationFailure failure)
+    {
+        failure = CanPrepareSupport(RelicRoute.Repair) ? GetAvailabilityFailure() : RelicOperationFailure.InvalidState;
+        if (failure != RelicOperationFailure.None) return false;
+        RelicWorkDefinition work = Definition.Commission;
+        ValidateWork(work);
+        if (CalculateSatisfaction(work, ExpantaNum.One) <= ExpantaNum.Zero)
+        { failure = RelicOperationFailure.InsufficientSupply; return false; }
+        for (int i = 0; i < work.StartupCosts.Count; i++)
+            if (ResourceManager.Instance.GetAmount(work.StartupCosts[i].First) < work.StartupCosts[i].Second)
+            { failure = RelicOperationFailure.InsufficientStartupResources; return false; }
+        return true;
+    }
     public bool TryBeginCommission(out RelicOperationFailure failure)
     {
-        return TryStart(CanPrepareSupport(RelicRoute.Repair), Definition?.Commission,
+        if (!CanBeginCommission(out failure)) return false;
+        return TryStart(true, Definition?.Commission,
             state.BeginCommission, out failure);
     }
     public bool TryCraftSupport(out RelicOperationFailure failure)
@@ -112,7 +127,7 @@ public sealed class RelicManager
             { failure = RelicOperationFailure.InsufficientStartupResources; return false; }
         return true;
     }
-    public bool TryAssignSupport(out RelicOperationFailure failure)
+    public bool CanAssignSupport(out RelicOperationFailure failure)
     {
         failure = GetAvailabilityFailure();
         if (failure != RelicOperationFailure.None) return false;
@@ -121,7 +136,12 @@ public sealed class RelicManager
         var campaign = GameManager.Instance.State.Campaign;
         if (!campaign.Active || !DataBase<SectorDefinition>.TryFind(campaign.TargetSectorId, out SectorDefinition target) || target.IsHomeSystem)
         { failure = RelicOperationFailure.CampaignMissing; return false; }
-        state.ConsumeSupport(target.Id);
+        return true;
+    }
+    public bool TryAssignSupport(out RelicOperationFailure failure)
+    {
+        if (!CanAssignSupport(out failure)) return false;
+        state.ConsumeSupport(GameManager.Instance.State.Campaign.TargetSectorId);
         return true;
     }
     public ExpantaNum GetCampaignSupplyMultiplier(SectorDefinition sector)

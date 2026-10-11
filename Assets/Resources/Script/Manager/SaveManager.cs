@@ -59,6 +59,10 @@ public sealed class SaveManager : Singleton<SaveManager>
 
     public bool HasSave => File.Exists(SavePath);
     public bool LastLoadCreatedNewGame { get; private set; }
+    public bool LastLoadFailed { get; private set; }
+    public long LastSuccessfulSaveUnixSeconds { get; private set; }
+    public bool LastSaveFailed { get; private set; }
+    public string LastSaveError { get; private set; } = string.Empty;
 
     public static void ValidateStorySaveData(KingdomSaveData data)
     {
@@ -125,6 +129,8 @@ public sealed class SaveManager : Singleton<SaveManager>
         LastOfflineProgressSeconds = 0d;
         LastOfflineSummary = null;
         LastLoadCreatedNewGame = false;
+        LastLoadFailed = false;
+        bool hadSave = HasSave;
         if (TryLoadSave(SavePath))
         {
             ready = true;
@@ -134,6 +140,7 @@ public sealed class SaveManager : Singleton<SaveManager>
             return true;
         }
 
+        LastLoadFailed = hadSave;
         ResetRuntimeStateForLoad();
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
@@ -172,6 +179,9 @@ public sealed class SaveManager : Singleton<SaveManager>
             CommitTempSave();
             // Commit the runtime baseline only after the primary is durable.
             GameManager.Instance.MarkSaveTimestamp(saveTimestamp);
+            LastSuccessfulSaveUnixSeconds = saveTimestamp;
+            LastSaveFailed = false;
+            LastSaveError = string.Empty;
 
             dirty = false;
             lastSavedStateSignature = CalculateStateSignature();
@@ -180,6 +190,9 @@ public sealed class SaveManager : Singleton<SaveManager>
         }
         catch (Exception exception)
         {
+            LastSaveFailed = true;
+            LastSaveError = exception.Message;
+            dirty = true;
             Debug.LogError($"保存 Kingdom 数据失败：{exception}");
             return false;
         }

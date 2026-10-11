@@ -405,6 +405,7 @@ public sealed partial class KingdomUIRoot
         ConfigureRelicDetails(definition);
         lastSelectedSectorActionSignature = GetSectorActionSignature(
             definition, sectorManager, state, resourceManager);
+        RefreshReviewControls();
     }
 
     private string BuildSectorDetailDescription(
@@ -493,6 +494,16 @@ public sealed partial class KingdomUIRoot
             SectorCampaignPreview preview = sectorManager.GetCampaignPreview(definition, state, resourceManager);
             body.AppendLine("领土回报：" + definition.TerritoryReward.ToGameString());
             body.AppendLine("占领资源回报：" + FormatResourceCosts(definition.ResourceRewards));
+            AppendCampaignBudget(body, preview);
+            if (GameManager.Instance.UltraProject.IsCampaignDoctrineUnlocked)
+            {
+                body.AppendLine("同一当前状态下的战役姿态比较（不切换姿态）：");
+                foreach (CampaignDoctrine doctrine in new[] { CampaignDoctrine.Stable, CampaignDoctrine.Surge })
+                {
+                    body.AppendLine("战役姿态：" + (doctrine == CampaignDoctrine.Stable ? "稳健" : "突进"));
+                    AppendCampaignBudget(body, sectorManager.GetCampaignPreview(definition, state, resourceManager, doctrine));
+                }
+            }
             body.AppendLine("战斗比率：" + preview.CombatRatio.ToGameString());
             body.AppendLine("舰队生存倍率：" + preview.FleetSurvivalFactor.ToGameString());
             body.AppendLine("舰队整备度：" + preview.FleetReadiness.ToGameString());
@@ -670,10 +681,19 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        // 保持现有单按钮详情结构。舰队有伤亡时优先维修，避免损坏舰队被带入新战役。
+        // An active campaign always keeps its retreat action reachable; repair is a separate authored action.
+        if (sectorState.CampaignActive)
+        {
+            ConfigureActionButton("撤退 / 终止远星战役", () => PauseCampaign(definition));
+            ConfigureCampaignDoctrineAction(state);
+            return;
+        }
         if (sectorState.CampaignCasualties > ExpantaNum.Zero && resourceManager != null)
         {
-            ConfigureActionButton("\u7ef4\u4fee\u8230\u961f", () => RepairSectorFleet(definition));
+            ConfigureActionButton("\u7ef4\u4fee\u8230\u961f", PreviewFleetRepair);
+            if (detailActionButton != null)
+                detailActionButton.interactable = sectorManager.GetMaxAffordableFleetRepair(
+                    definition, state, resourceManager) > ExpantaNum.Zero;
             ConfigureCampaignDoctrineAction(state);
             return;
         }
@@ -704,13 +724,6 @@ public sealed partial class KingdomUIRoot
                     : () => StartColonization(definition));
             if (detailActionButton != null && !sectorState.ColonizationActive)
                 detailActionButton.interactable = canExplore;
-            return;
-        }
-
-        if (sectorState.CampaignActive)
-        {
-            ConfigureActionButton("\u6682\u505c\u8fdc\u661f\u6218\u5f79", () => PauseCampaign(definition));
-            ConfigureCampaignDoctrineAction(state);
             return;
         }
 
@@ -765,6 +778,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
         ShowTooltip("\u661f\u533a\u63a2\u7d22\u5df2\u5f00\u59cb");
         RefreshSectorDetails(definition);
     }
@@ -779,6 +793,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
         ShowTooltip("\u661f\u533a\u63a2\u7d22\u5df2\u6682\u505c");
         RefreshSectorDetails(definition);
     }
@@ -796,21 +811,33 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
+        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
         ShowTooltip("\u8fdc\u661f\u6218\u5f79\u5df2\u5f00\u59cb");
         RefreshSectorDetails(definition);
     }
 
     private void PauseCampaign(SectorDefinition definition)
     {
+        if (GameManager.Instance?.Relic?.State.SupportedSectorId == definition.Id)
+        {
+            ConfirmReviewAction("终止 " + definition.Label + " 的活动战役。伤亡保留；未占领星区进度会缓慢回退。已经分配的遗迹支援将清除，不返还。之后需重新启动战役。", () => ExecuteCampaignRetreat(definition));
+            return;
+        }
+        ExecuteCampaignRetreat(definition);
+    }
+
+    private void ExecuteCampaignRetreat(SectorDefinition definition)
+    {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
         if (gameManager == null || !gameManager.Sectors.CancelCampaign(definition, gameManager.State))
         {
-            ShowTooltip("\u6682\u505c\u6218\u5f79\u5931\u8d25");
+            ShowTooltip("终止战役失败");
             return;
         }
 
-        ShowTooltip("\u8fdc\u661f\u6218\u5f79\u5df2\u6682\u505c");
+        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
+        ShowTooltip("远星战役已终止；未占领星区进度会缓慢回退");
         RefreshUI();
     }
 
@@ -863,7 +890,7 @@ public sealed partial class KingdomUIRoot
             definition,
             gameManager.State,
             resourceManager,
-            gameManager.Sectors.GetState(definition).CampaignCasualties,
+            gameManager.Sectors.GetMaxAffordableFleetRepair(definition, gameManager.State, resourceManager),
             out ExpantaNum repairedAmount,
             out SectorOperationFailure failure);
         if (!repaired)

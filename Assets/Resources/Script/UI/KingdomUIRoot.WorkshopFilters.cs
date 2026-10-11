@@ -50,6 +50,11 @@ public sealed partial class KingdomUIRoot
         if (showOwned == value)
             return;
         showOwned = value;
+        if (value && affordableOnly)
+        {
+            affordableOnly = false;
+            affordableOnlyToggle.SetIsOnWithoutNotify(false);
+        }
         RebuildWorkshopRowsForFilterChange();
     }
 
@@ -58,6 +63,11 @@ public sealed partial class KingdomUIRoot
         if (affordableOnly == value)
             return;
         affordableOnly = value;
+        if (value && showOwned)
+        {
+            showOwned = false;
+            showOwnedToggle.SetIsOnWithoutNotify(false);
+        }
         RebuildWorkshopRowsForFilterChange();
     }
 

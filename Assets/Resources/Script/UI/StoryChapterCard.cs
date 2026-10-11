@@ -23,6 +23,7 @@ public sealed class StoryChapterCard : MonoBehaviour
     public bool IllustrationVisible => illustrationLayout.gameObject.activeSelf;
     public Sprite Illustration => illustration.sprite;
     public RectTransform Rect => (RectTransform)transform;
+    public bool IsExpanded { get; private set; }
 
     private void Awake()
     {
@@ -46,7 +47,7 @@ public sealed class StoryChapterCard : MonoBehaviour
         background.color = color;
         toggleRequested = onToggle;
         navigationRequested = onNavigation;
-        toggleButton.gameObject.SetActive(completed && !showNavigation);
+        toggleButton.gameObject.SetActive(completed);
         navigationButton.gameObject.SetActive(completed && showNavigation);
         if (font != null)
         {
@@ -63,6 +64,7 @@ public sealed class StoryChapterCard : MonoBehaviour
     public void SetExpanded(bool expanded)
     {
         expanded &= completed;
+        IsExpanded = expanded;
         body.text = !completed ? "这段文明记忆尚未完成。"
             : expanded ? chapter.Summary + "\n\n" + chapter.Body : chapter.Summary;
         bool showImage = expanded && chapter.Illustration != null;

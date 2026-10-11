@@ -777,8 +777,10 @@ public sealed class KingdomLogicTests
         SaveManager.KingdomSaveData captured = SaveManager.ParseSaveDataForEditor(
             JsonUtility.ToJson(saveManager.CaptureSaveData()));
         Assert.That(captured.Relic.Status, Is.EqualTo(RelicStatus.Discovered));
+        GameManager.Instance.Relic.State.StartInvestigationForEditor();
         Assert.That(GameManager.Instance.Relic.TrySuspend(out _), Is.True);
         saveManager.ApplySaveDataForEditor(captured);
+        Assert.That(GameManager.Instance.Relic.State.Status, Is.EqualTo(RelicStatus.Discovered));
         Assert.That(GameManager.Instance.Relic.State.Suspended, Is.False);
         Assert.That(GameManager.Instance.Relic.State.Route, Is.EqualTo(RelicRoute.None));
     }

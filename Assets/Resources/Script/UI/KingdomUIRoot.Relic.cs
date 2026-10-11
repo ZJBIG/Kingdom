@@ -34,9 +34,8 @@ public sealed partial class KingdomUIRoot
     public bool RelicConfirmationPendingForEditor => pendingRelicRoute != RelicRoute.None;
     public void ShowRelicDetailsForEditor()
     {
-        if (DataBase<SectorDefinition>.TryFind("TauCetiFoundry", out SectorDefinition sector) &&
-            GameManager.TryGetInstance(out GameManager game))
-            ShowSectorDetails(sector, game.Sectors, game.State, ResourceManager.Instance);
+        if (GameManager.TryGetInstance(out GameManager game) && game.Relic.Definition?.Sector != null)
+            ShowSectorDetails(game.Relic.Definition.Sector, game.Sectors, game.State, ResourceManager.Instance);
     }
 #endif
 
@@ -94,8 +93,8 @@ public sealed partial class KingdomUIRoot
 
     private void ConfigureRelicDetails(SectorDefinition sector)
     {
-        if (sector == null || sector.Id != "TauCetiFoundry" ||
-            !GameManager.TryGetInstance(out GameManager game) || game.Relic.Definition == null)
+        if (sector == null || !GameManager.TryGetInstance(out GameManager game) ||
+            game.Relic.Definition == null || sector.Id != game.Relic.Definition.Sector?.Id)
         {
             HideRelicDetails();
             return;
@@ -182,12 +181,21 @@ public sealed partial class KingdomUIRoot
         SetRelicButton(relicDismantleButton, choosing && pendingRelicRoute == RelicRoute.None, available);
         bool preparing = state.Status == RelicStatus.Operational && !state.Suspended &&
             !state.SupportReady && !state.CommissionActive && string.IsNullOrEmpty(state.SupportedSectorId);
-        SetRelicButton(relicPrepareButton, preparing, available);
+        RelicOperationFailure prepareFailure;
+        bool canPrepare = state.Route == RelicRoute.Repair
+            ? manager.CanBeginCommission(out prepareFailure)
+            : manager.CanCraftSupport(out prepareFailure);
+        SetRelicButton(relicPrepareButton, preparing, canPrepare);
         if (preparing)
             relicPrepareButton.GetComponentInChildren<TMP_Text>(true).text = state.Route == RelicRoute.Repair
                 ? "开始维护委托，制备支援" : "工坊付费制造支援";
-        SetRelicButton(relicAssignButton, state.SupportReady && !state.Suspended, available);
-        SetRelicButton(relicSuspendButton, !state.Suspended);
+        bool canAssign = manager.CanAssignSupport(out RelicOperationFailure assignFailure);
+        SetRelicButton(relicAssignButton, state.SupportReady && !state.Suspended, canAssign);
+        if (state.SupportReady)
+            relicAssignButton.GetComponentInChildren<TMP_Text>(true).text = canAssign && GameManager.Instance != null
+                ? "分配支援：" + (DataBase<SectorDefinition>.TryFind(GameManager.Instance.State.Campaign.TargetSectorId, out SectorDefinition target) ? target.Label : "当前战役")
+                : "需活动远星战役";
+        SetRelicButton(relicSuspendButton, manager.CanSuspend);
         SetRelicButton(relicResumeButton, state.Suspended, available);
         lastRelicDetailSignature = GetRelicDetailSignature(manager);
         LayoutRebuilder.ForceRebuildLayoutImmediate(relicActions);
@@ -261,7 +269,7 @@ public sealed partial class KingdomUIRoot
         }
         relicResultText.text = success ? "操作已完成。" : "未执行：" + GetRelicFailureLabel(failure);
         if (success)
-            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
+            UIButtonSoundManager.Play(command == RelicUiCommand.Suspend ? UIButtonSoundManager.Sound.StrategicStop : command == RelicUiCommand.ConfirmRoute ? UIButtonSoundManager.Sound.StrategicCommit : UIButtonSoundManager.Sound.StrategicStart);
         RefreshRelicDetailsAfterCommand();
     }
 
@@ -349,7 +357,7 @@ public sealed partial class KingdomUIRoot
             case RelicOperationFailure.None: return "无";
             case RelicOperationFailure.DefinitionMissing: return "遗迹定义尚未加载";
             case RelicOperationFailure.NotUltra: return "尚未进入 Ultra 时代";
-            case RelicOperationFailure.SectorNotOccupied: return "尚未占领鲸鱼座工业前哨";
+            case RelicOperationFailure.SectorNotOccupied: return "尚未占领遗迹所在星区";
             case RelicOperationFailure.PrerequisiteResearchMissing: return "前置研究尚未完成";
             case RelicOperationFailure.RequiredBuildingMissing: return "所需建筑尚未建成";
             case RelicOperationFailure.CertificationMissing: return "所需文明工程认证尚未完成";

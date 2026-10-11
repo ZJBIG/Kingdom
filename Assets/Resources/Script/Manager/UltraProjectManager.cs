@@ -35,6 +35,7 @@ public sealed class UltraProjectPreview
     internal UltraProjectPreview(
         UltraProjectState state,
         UltraProjectStageDefinition definition,
+        UltraProjectDoctrine doctrine,
         ExpantaNum progressPerSecond,
         ExpantaNum supplySatisfaction,
         bool canStart,
@@ -49,7 +50,7 @@ public sealed class UltraProjectPreview
             state.Status == UltraProjectStatus.Locked
             ? UltraProjectStage.Prototype
             : state.CurrentStage;
-        Doctrine = state.Doctrine;
+        Doctrine = doctrine;
         Progress = state.StageProgress;
         ProgressPerSecond = progressPerSecond;
         FoodPerSecond = foodPerSecond;
@@ -264,13 +265,20 @@ public sealed class UltraProjectManager
     }
 
     public UltraProjectPreview GetPreview()
+        => GetPreview(state.Doctrine == UltraProjectDoctrine.None ? UltraProjectDoctrine.Stable : state.Doctrine, false);
+
+    public UltraProjectPreview GetPreview(UltraProjectDoctrine doctrine) => GetPreview(doctrine, true);
+
+    private UltraProjectPreview GetPreview(UltraProjectDoctrine previewDoctrine, bool hypothetical)
     {
         UltraProjectStageDefinition stage = GetCurrentStageDefinition();
-        UltraProjectDoctrine previewDoctrine = state.Doctrine == UltraProjectDoctrine.None
-            ? UltraProjectDoctrine.Stable : state.Doctrine;
         UltraProjectOperationFailure failure = state.Status == UltraProjectStatus.Paused
             ? GetPauseFailure()
             : ValidateStart(previewDoctrine);
+        if (!Enum.IsDefined(typeof(UltraProjectDoctrine), previewDoctrine) || previewDoctrine == UltraProjectDoctrine.None)
+            failure = UltraProjectOperationFailure.InvalidDoctrine;
+        else if (hypothetical && ValidateDoctrineUnlock(previewDoctrine) != UltraProjectOperationFailure.None)
+            failure = ValidateDoctrineUnlock(previewDoctrine);
         if (failure == UltraProjectOperationFailure.None &&
             (state.Status == UltraProjectStatus.Locked ||
              state.Status == UltraProjectStatus.Ready) &&
@@ -281,11 +289,24 @@ public sealed class UltraProjectManager
             failure = UltraProjectOperationFailure.InsufficientStartupResources;
         }
         ExpantaNum satisfaction = stage == null ? ExpantaNum.Zero : CalculateSatisfaction(stage, 1d, previewDoctrine);
-        ExpantaNum progressRate = CalculateProgressRate(stage, satisfaction);
         ExpantaNum postureCostMultiplier = GetOperationalCostMultiplier(previewDoctrine);
+        if (hypothetical && stage != null)
+        {
+            // Compare prospective load against current generation without changing project State.
+            BuildingManager buildings = BuildingManager.Instance;
+            GameState game = GameManager.Instance.State;
+            ExpantaNum powerDemand = buildings.TotalPowerDemand - GetCurrentPowerConsumptionRate() + stage.PowerConsumptionRate * postureCostMultiplier;
+            ExpantaNum logisticsDemand = buildings.TotalLogisticsDemand - GetCurrentLogisticsConsumptionRate() + stage.LogisticsConsumptionRate * postureCostMultiplier;
+            satisfaction = ExpantaNum.Min(CalculateMaterialSatisfaction(stage, 1d, previewDoctrine),
+                ExpantaNum.Min(powerDemand > ExpantaNum.Zero ? ExpantaNum.Clamp01(game.PowerProductionRate * game.HappinessRewardMultiplier / powerDemand) : ExpantaNum.One,
+                    logisticsDemand > ExpantaNum.Zero ? ExpantaNum.Clamp01(game.LogisticsProductionRate * game.HappinessRewardMultiplier / logisticsDemand) : ExpantaNum.One));
+        }
+        ExpantaNum progressRate = stage == null || stage.BaseDurationSeconds <= ExpantaNum.Zero ? ExpantaNum.Zero :
+            GetProgressMultiplier(stage, previewDoctrine) * satisfaction / stage.BaseDurationSeconds;
         return new UltraProjectPreview(
             state,
             stage,
+            hypothetical ? previewDoctrine : state.Doctrine,
             progressRate,
             satisfaction,
             (state.Status == UltraProjectStatus.Locked ||
@@ -523,6 +544,17 @@ public sealed class UltraProjectManager
         double deltaSeconds,
         UltraProjectDoctrine doctrine)
     {
+        ExpantaNum result = CalculateMaterialSatisfaction(stage, deltaSeconds, doctrine);
+        result = ExpantaNum.Min(result, GameManager.Instance.State.PowerSatisfaction);
+        result = ExpantaNum.Min(result, GameManager.Instance.State.LogisticsSatisfaction);
+        return ExpantaNum.Clamp01(result);
+    }
+
+    private ExpantaNum CalculateMaterialSatisfaction(
+        UltraProjectStageDefinition stage,
+        double deltaSeconds,
+        UltraProjectDoctrine doctrine)
+    {
         if (stage == null)
             return ExpantaNum.Zero;
         ExpantaNum result = ExpantaNum.One;
@@ -539,16 +571,17 @@ public sealed class UltraProjectManager
         ExpantaNum foodDemand = stage.FoodConsumptionRate * seconds * costMultiplier;
         if (foodDemand > ExpantaNum.Zero)
             result = ExpantaNum.Min(result, GameManager.Instance.State.FoodAmount / foodDemand);
-        result = ExpantaNum.Min(result, GameManager.Instance.State.PowerSatisfaction);
-        result = ExpantaNum.Min(result, GameManager.Instance.State.LogisticsSatisfaction);
         return ExpantaNum.Clamp01(result);
     }
 
     private ExpantaNum GetProgressMultiplier(UltraProjectStageDefinition stage)
+        => GetProgressMultiplier(stage, state.Doctrine);
+
+    private static ExpantaNum GetProgressMultiplier(UltraProjectStageDefinition stage, UltraProjectDoctrine doctrine)
     {
-        if (state.Doctrine == UltraProjectDoctrine.Surge)
+        if (doctrine == UltraProjectDoctrine.Surge)
             return stage.RushPostureMultiplier;
-        return state.Doctrine == UltraProjectDoctrine.Expedition
+        return doctrine == UltraProjectDoctrine.Expedition
             ? stage.RushPostureMultiplier * new ExpantaNum(1.1d)
             : stage.StablePostureMultiplier;
     }

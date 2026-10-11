@@ -328,6 +328,7 @@ public sealed partial class KingdomUIRoot
         {
             navigationVisibilityRefreshTimer = 0f;
             RefreshNavigationVisibility();
+            RefreshReviewControls();
         }
         bool pageScrolling = IsPageScrolling();
         PollResearchQueueVisualIfDue();
@@ -865,6 +866,7 @@ public sealed partial class KingdomUIRoot
                 onboarding.Append("推荐行动：").Append(tutorialSnapshot.RecommendedAction);
                 AppendUltraProjectOverview(onboarding);
                 AppendOfflineSummary(onboarding);
+                AppendSaveFeedback(onboarding);
                 string overviewText = onboarding.ToString();
                 if (!string.IsNullOrWhiteSpace(tutorialSnapshot.NextEraGoal))
                     overviewText = overviewText.Replace(
@@ -931,6 +933,7 @@ public sealed partial class KingdomUIRoot
         body.Append("\n推荐行动：").Append(snapshot.Body ?? string.Empty);
         AppendUltraProjectOverview(body);
         AppendOfflineSummary(body);
+        AppendSaveFeedback(body);
         if (!SignatureEquals(body, developmentGuidanceText.text))
         {
             developmentGuidanceText.text = body.ToString();
@@ -1020,7 +1023,7 @@ public sealed partial class KingdomUIRoot
                 nextStep = "前往巨构详情提交阶段认证";
                 break;
             case UltraProjectStatus.Committed:
-                nextStep = manager.IsCampaignDoctrineUnlocked
+                nextStep = !HasRemainingInterstellarTargets() ? "现有工程与远星目标已完成，前往文明记忆回顾成果" : manager.IsCampaignDoctrineUnlocked
                     ? "前往区划查看并切换远征供给姿态"
                     : "文明工程认证已完成";
                 break;
@@ -1096,7 +1099,7 @@ public sealed partial class KingdomUIRoot
 
         if (project.State.Status == UltraProjectStatus.Committed)
         {
-            pageName = "Sectors";
+            pageName = HasRemainingInterstellarTargets() ? "Sectors" : "Story";
             return pages.ContainsKey(pageName);
         }
 
@@ -1195,14 +1198,15 @@ public sealed partial class KingdomUIRoot
                 (activeResearch.ProgressRatio * 100).ToGameString() + "%)";
 
         SetTopInfoValue(topPowerValue, FormatTopFlow(
-            state.PowerProductionRate, CalculateRawFlowDemand(usePower: true)));
+            state.PowerProductionRate * state.HappinessRewardMultiplier, CalculateRawFlowDemand(usePower: true)));
         SetTopInfoValue(topLogisticsValue, FormatTopFlow(
-            state.LogisticsProductionRate, CalculateRawFlowDemand(usePower: false)));
+            state.LogisticsProductionRate * state.HappinessRewardMultiplier, CalculateRawFlowDemand(usePower: false)));
         SetTopInfoValue(topCurrentResearchValue, currentResearch);
 
         SetTopInfoValue(topFoodValue,
             state.FoodAmount.ToGameString() + "/" + state.FoodCapacity.ToGameString() + "(" +
-            state.FoodNetRate.ToGameString(showPositiveSign: true) + "/s)");
+            state.FoodNetRate.ToGameString(showPositiveSign: true) + "/s 日常；战略需 " +
+            (BuildingManager.Instance?.StrategicFoodConsumptionRate ?? ExpantaNum.Zero).ToGameString() + "/s)");
         SetTopInfoValue(topHappinessValue,
             (state.HappinessMultiplier * 100).ToGameString() + "%(" +
             state.HappinessMultiplier.ToGameString() + "x)");
@@ -1243,17 +1247,7 @@ public sealed partial class KingdomUIRoot
         BuildingManager manager = BuildingManager.Instance;
         if (manager == null)
             return ExpantaNum.Zero;
-
-        ExpantaNum demand = ExpantaNum.Zero;
-        foreach (BuildingState state in manager.States.Values)
-        {
-            if (state == null || state.Definition == null || state.Amount <= ExpantaNum.Zero)
-                continue;
-            demand += state.Amount * (usePower
-                ? state.Definition.PowerConsumptionRate
-                : state.Definition.LogisticsConsumptionRate);
-        }
-        return demand;
+        return usePower ? manager.TotalPowerDemand : manager.TotalLogisticsDemand;
     }
 
     private static void SetTopInfoValue(TMP_Text field, string value)

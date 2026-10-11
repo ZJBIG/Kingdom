@@ -18,6 +18,25 @@ public enum BuildFailure
     BuildingLimitReached
 }
 
+public sealed class BuildingDeconstructionPreview
+{
+    public ExpantaNum Amount { get; }
+    public ExpantaNum ProductivityReleased { get; }
+    public ExpantaNum PopulationCapacityRemoved { get; }
+    public ExpantaNum FoodCapacityRemoved { get; }
+    public ExpantaNum FoodOverflow { get; }
+    public IReadOnlyDictionary<Resource, ExpantaNum> Refunds { get; }
+    internal BuildingDeconstructionPreview(ExpantaNum amount, ExpantaNum productivity,
+        ExpantaNum population, ExpantaNum capacity, ExpantaNum overflow,
+        Dictionary<Resource, ExpantaNum> refunds)
+    {
+        Amount = amount; ProductivityReleased = productivity;
+        PopulationCapacityRemoved = population; FoodCapacityRemoved = capacity;
+        FoodOverflow = overflow;
+        Refunds = new System.Collections.ObjectModel.ReadOnlyDictionary<Resource, ExpantaNum>(refunds);
+    }
+}
+
 public class BuildingManager : Singleton<BuildingManager>
 {
     private const double BuildBoundaryTolerance = 1e-8d;
@@ -607,7 +626,17 @@ public class BuildingManager : Singleton<BuildingManager>
         return target != null;
     }
 
-    public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure)
+    public BuildFailure GetBuildFailure(Building building, ExpantaNum requestedAmount)
+    {
+        TryBuildInternal(building, requestedAmount, out BuildFailure failure, true);
+        return failure;
+    }
+
+    public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure) =>
+        TryBuildInternal(building, requestedAmount, out failure, false);
+
+    private bool TryBuildInternal(Building building, ExpantaNum requestedAmount,
+        out BuildFailure failure, bool previewOnly)
     {
         if (building == null)
         {
@@ -653,7 +682,8 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         ExpantaNum requiredProductivity = state.ProductivityConsumption * amount;
-        if (ExceedsBuildBoundary(requiredProductivity, AvailableProductivity, out requiredProductivity))
+        if (requiredProductivity > ExpantaNum.Zero &&
+            ExceedsBuildBoundary(requiredProductivity, AvailableProductivity, out requiredProductivity))
         {
             failure = BuildFailure.ProductivityInsufficient;
             return false;
@@ -693,6 +723,12 @@ public class BuildingManager : Singleton<BuildingManager>
                 return false;
             }
             costs[resource] = effectiveCost;
+        }
+
+        if (previewOnly)
+        {
+            failure = BuildFailure.None;
+            return true;
         }
 
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
@@ -740,6 +776,85 @@ public class BuildingManager : Singleton<BuildingManager>
         return true;
     }
 
+    private Dictionary<Resource, ExpantaNum> CalculateDeconstructionRefunds(
+        Building building, BuildingState state, ExpantaNum amount)
+    {
+        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        for (int i = 0; i < requirements.Count; i++)
+        {
+            Pair<Resource, ExpantaNum> pair = requirements[i];
+            ExpantaNum refund = pair.Second.GeometricSeriesCost(
+                building.CostGrowth,
+                state.Amount - amount,
+                amount);
+            refund *= GetConstructionCostMultiplier(building);
+            ExpantaNum delta = refund * ProgressionModifierManager.Current.DeconstructionReturnRate;
+            resourceChanges[pair.First] = resourceChanges.TryGetValue(pair.First, out ExpantaNum current)
+                ? current + delta
+                : delta;
+        }
+
+        return resourceChanges;
+    }
+
+    public BuildingDeconstructionPreview GetDeconstructionPreview(Building building, ExpantaNum requestedAmount)
+    {
+        if (building == null || !TryGetStateByStableId(building, out BuildingState state)) return null;
+        ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(requestedAmount, state.Amount);
+        if (amount < ExpantaNum.One) return null;
+        ExpantaNum capacityRemoved = amount * state.Efficiency * state.FoodCapacityGranted *
+            ProgressionModifierManager.Current.FoodCapacityMultiplier;
+        GameState game = GameManager.Instance.State;
+        return new BuildingDeconstructionPreview(amount,
+            amount * (state.ProductivityConsumption - state.ProductivityGranted),
+            amount * state.PopulationCapacityGranted, capacityRemoved,
+            ExpantaNum.Max(ExpantaNum.Zero, game.FoodAmount - ExpantaNum.Max(ExpantaNum.Zero,
+                game.FoodCapacity - capacityRemoved)),
+            CalculateDeconstructionRefunds(building, state, amount));
+    }
+
+    public ExpantaNum TotalPowerDemand => GetBuildingFlowDemand(true) +
+        GameManager.Instance.UltraProject.GetCurrentPowerConsumptionRate() +
+        GameManager.Instance.Relic.CurrentPowerConsumptionRate;
+
+    public ExpantaNum TotalLogisticsDemand => GetBuildingFlowDemand(false) +
+        GameManager.Instance.UltraProject.GetCurrentLogisticsConsumptionRate() +
+        GameManager.Instance.Relic.CurrentLogisticsConsumptionRate;
+
+    private ExpantaNum GetBuildingFlowDemand(bool power)
+    {
+        ExpantaNum demand = ExpantaNum.Zero;
+        ExpantaNum scale = ExpantaNum.Clamp01(GlobalEfficiencyFactor);
+        for (int i = 0; i < orderedStates.Count; i++)
+            demand += orderedStates[i].Amount * scale * (power
+                ? orderedStates[i].Definition.PowerConsumptionRate
+                : orderedStates[i].Definition.LogisticsConsumptionRate);
+        return demand;
+    }
+
+    // Demand is conditional on supply; blocked activities can spend less than this rate.
+    public ExpantaNum StrategicFoodConsumptionRate
+    {
+        get
+        {
+            GameManager game = GameManager.Instance;
+            ExpantaNum rate = game.Relic.CurrentFoodConsumptionRate;
+            if (game.UltraProject.State.Status == UltraProjectStatus.Running)
+                rate += game.UltraProject.GetPreview().FoodPerSecond;
+            foreach (SectorState sector in game.Sectors.OrderedStates)
+            {
+                if (sector.ColonizationActive)
+                    rate += game.Sectors.GetExplorationPreview(sector.Definition, game.State,
+                        ResourceManager.Instance).FoodCostPerSecond;
+                if (sector.CampaignActive)
+                    rate += game.Sectors.GetCampaignPreview(sector.Definition, game.State,
+                        ResourceManager.Instance).FoodCostPerSecond;
+            }
+            return rate;
+        }
+    }
+
     public bool TryDeconstruct(Building building, ExpantaNum requestedAmount)
     {
         return TryDeconstruct(building, requestedAmount, out _);
@@ -763,8 +878,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
-        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        Dictionary<Resource, ExpantaNum> resourceChanges = CalculateDeconstructionRefunds(building, state, amount);
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
         ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
         bool usesTerritory = !(building is SectorBuilding);
@@ -776,20 +890,6 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum previousPopulationProgress =
             GameManager.Instance.State.Population.PopulationChangeProgress;
         ExpantaNum previousAmount = state.Amount;
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
-            ExpantaNum refund = pair.Second.GeometricSeriesCost(
-                building.CostGrowth,
-                state.Amount - amount,
-                amount);
-            refund *= GetConstructionCostMultiplier(building);
-            ExpantaNum delta = refund * ProgressionModifierManager.Current.DeconstructionReturnRate;
-            resourceChanges[pair.First] = resourceChanges.TryGetValue(pair.First, out ExpantaNum current)
-                ? current + delta
-                : delta;
-        }
-
         if (!ResourceManager.Instance.TryApplyAtomicChanges(
                 resourceChanges,
                 () =>
@@ -944,10 +1044,17 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
 
-    public bool TryUpgrade(
-        Building source,
-        ExpantaNum requestedAmount,
-        out BuildFailure failure)
+    public BuildFailure GetUpgradeFailure(Building source, ExpantaNum requestedAmount)
+    {
+        TryUpgradeInternal(source, requestedAmount, out BuildFailure failure, true);
+        return failure;
+    }
+
+    public bool TryUpgrade(Building source, ExpantaNum requestedAmount, out BuildFailure failure) =>
+        TryUpgradeInternal(source, requestedAmount, out failure, false);
+
+    private bool TryUpgradeInternal(Building source, ExpantaNum requestedAmount,
+        out BuildFailure failure, bool previewOnly)
     {
         if (source == null ||
             !TryGetStateByStableId(source, out BuildingState sourceState) ||
@@ -977,13 +1084,19 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < resourceDeltas.Count; i++)
         {
             Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
-            if (delta.Second.IsNaN ||
+            if (delta.First == null || !delta.Second.IsFinite ||
                 (delta.Second > ExpantaNum.Zero &&
                  ResourceManager.Instance.GetAmount(delta.First) < delta.Second))
             {
                 failure = BuildFailure.ResourceInsufficient;
                 return false;
             }
+        }
+
+        if (previewOnly)
+        {
+            failure = BuildFailure.None;
+            return true;
         }
 
         ExpantaNum territoryDelta =

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: EchoFoundryRing
   label: "回声铸造环"
-  description: "旧铸造环仍在等待合格维护者。修复后完成维护委托换取远征支援；拆解后通过自主制造获得相同支援。永久路线互斥，封存保留进度。每次支援只能用于一场活动星际战役，将其食物与材料补给降至85%。"
-  sector: {fileID: 11400000, guid: f60718293a4b5c6d7e8f901a2b3c4d5e, type: 2}
+  description: "比邻星前哨发现的旧铸造环仍在等待合格维护者，可为鲸鱼座和天狼星两场后续远征提供支援。修复后完成维护委托换取远征支援；拆解后通过自主制造获得相同支援。永久路线互斥，封存保留进度。每次支援只能用于一场活动星际战役，将其食物与材料补给降至85%。"
+  sector: {fileID: 11400000, guid: e5f60718293a4b5c6d7e8f901a2b3c4d, type: 2}
   requiredResearch:
   - {fileID: 11400000, guid: 7f9c2e4a6b8d4013a5c7e9f102b4d6e8, type: 2}
   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}

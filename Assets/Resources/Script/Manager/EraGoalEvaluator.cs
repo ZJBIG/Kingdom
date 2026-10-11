@@ -18,6 +18,7 @@ public sealed class EraGoalConditionEvaluation
     public ExpantaNum PaidAmount { get; }
     public ExpantaNum AvailableAmount { get; }
     public ExpantaNum RemainingAmount { get; }
+    public ExpantaNum MissingAmount => ExpantaNum.Max(ExpantaNum.Zero, RemainingAmount - AvailableAmount);
     public ExpantaNum ProductionRate { get; }
     public ExpantaNum ConsumptionRate { get; }
 

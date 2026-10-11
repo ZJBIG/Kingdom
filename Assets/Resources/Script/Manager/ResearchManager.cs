@@ -81,6 +81,9 @@ public class ResearchManager : Singleton<ResearchManager>
             return researchQueueSnapshot;
         }
     }
+    public ExpantaNum CurrentResearchSpeed => ActiveResearch != null && ActiveResearch.CostPaid
+        ? CalculateResearchSpeed(ActiveResearch) : ExpantaNum.Zero;
+
     public int TotalResearchCount => orderedStates.Count;
     public string SelectedResearchId { get; private set; } = string.Empty;
     public event Action<ResearchState> ResearchStateAdded;
@@ -239,21 +242,7 @@ public class ResearchManager : Singleton<ResearchManager>
 
         HashSet<Research> cancelled = researchCancellationBuffer;
         cancelled.Clear();
-        cancelled.Add(research);
-        bool changed;
-        do
-        {
-            changed = false;
-            foreach (ResearchState queuedState in researchQueue)
-            {
-                if (cancelled.Contains(queuedState.Definition) ||
-                    !DependsOnAny(queuedState.Definition, cancelled))
-                    continue;
-                cancelled.Add(queuedState.Definition);
-                changed = true;
-            }
-        }
-        while (changed);
+        CollectCancellation(research, cancelled);
 
         List<ResearchState> remaining = researchQueueRebuildBuffer;
         remaining.Clear();
@@ -280,6 +269,82 @@ public class ResearchManager : Singleton<ResearchManager>
         remaining.Clear();
         cancelled.Clear();
         ResearchQueueChanged?.Invoke();
+        return true;
+    }
+
+    public IReadOnlyList<ResearchState> GetCancellationPreview(Research research)
+    {
+        var result = new List<ResearchState>();
+        if (research == null ||
+            ((ActiveResearch == null || ActiveResearch.Definition != research) && !IsQueued(research)))
+            return result.AsReadOnly();
+        var cancelled = new HashSet<Research>();
+        CollectCancellation(research, cancelled);
+        if (ActiveResearch != null && cancelled.Contains(ActiveResearch.Definition))
+            result.Add(ActiveResearch);
+        foreach (ResearchState state in researchQueue)
+            if (cancelled.Contains(state.Definition)) result.Add(state);
+        return result.AsReadOnly();
+    }
+
+    private void CollectCancellation(Research research, HashSet<Research> cancelled)
+    {
+        cancelled.Add(research);
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (ResearchState queuedState in researchQueue)
+            {
+                if (cancelled.Contains(queuedState.Definition) ||
+                    !DependsOnAny(queuedState.Definition, cancelled))
+                    continue;
+                cancelled.Add(queuedState.Definition);
+                changed = true;
+            }
+        }
+        while (changed);
+
+    }
+
+    public bool CanMoveQueuedResearch(Research research, int targetIndex) =>
+        TryPrepareQueueMove(research, targetIndex, out _);
+
+    public bool MoveQueuedResearch(Research research, int targetIndex)
+    {
+        if (!TryPrepareQueueMove(research, targetIndex, out List<ResearchState> order))
+            return false;
+        researchQueue.Clear();
+        for (int i = 0; i < order.Count; i++)
+        {
+            order[i].SetStatus(ResearchStatus.Queued);
+            researchQueue.Enqueue(order[i]);
+        }
+        researchQueueSnapshotDirty = true;
+        TryStartNextQueuedResearch(false);
+        ResearchQueueChanged?.Invoke();
+        return true;
+    }
+
+    private bool TryPrepareQueueMove(Research research, int targetIndex, out List<ResearchState> order)
+    {
+        order = null;
+        if (!IsQueued(research) || targetIndex < 0 || targetIndex >= researchQueue.Count)
+            return false;
+        order = new List<ResearchState>(researchQueue);
+        int sourceIndex = order.FindIndex(state => state.Definition == research);
+        if (sourceIndex < 0 || sourceIndex == targetIndex) return false;
+        ResearchState moving = order[sourceIndex];
+        order.RemoveAt(sourceIndex);
+        order.Insert(targetIndex, moving);
+        var earlier = new HashSet<Research>();
+        if (ActiveResearch != null) earlier.Add(ActiveResearch.Definition);
+        for (int i = 0; i < order.Count; i++)
+        {
+            foreach (Research prerequisite in order[i].Definition.Prerequisites)
+                if (!IsResearchCompleted(prerequisite.Id) && !earlier.Contains(prerequisite)) return false;
+            earlier.Add(order[i].Definition);
+        }
         return true;
     }
 
@@ -513,13 +578,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
 
         current.SetStatus(ResearchStatus.Researching);
-        GameState gameState = GameManager.Instance.State;
-        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        ExpantaNum speed = ResearchSpeedEffect(
-            gameState.TechLevel,
-            current.Definition.TechLevel) * GlobalEfficiencyFactor *
-            ResearchPower * modifiers.GlobalResearchMultiplier;
-        speed *= gameState.HappinessMultiplier;
+        ExpantaNum speed = CalculateResearchSpeed(current);
         current.SetProgress(AdvanceResearchProgress(
             current.Progress,
             speed,

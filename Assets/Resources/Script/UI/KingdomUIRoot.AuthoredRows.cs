@@ -221,10 +221,24 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
-    private static string FormatBuildingEfficiency(BuildingState state)
+    private string FormatBuildingEfficiency(BuildingState state)
     {
-        if (state == null || state.Amount <= ExpantaNum.Zero)
-            return "—";
+        if (state == null) return "—";
+        Building building = state.Definition;
+        bool upgrade = BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
+        ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
+        BuildFailure failure = upgrade ? BuildingManager.Instance.GetUpgradeFailure(building, amount)
+            : BuildingManager.Instance.GetBuildFailure(building, amount);
+        if (failure != BuildFailure.None) return failure switch
+        {
+            BuildFailure.ResourceInsufficient => "缺材料", BuildFailure.SpaceInsufficient => "缺土地",
+            BuildFailure.ProductivityInsufficient => "生产力", BuildFailure.TechnologyInsufficient => "时代锁",
+            BuildFailure.ResearchPrerequisiteIncomplete => "缺前置", BuildFailure.WorkshopPrerequisiteIncomplete => "缺工坊",
+            BuildFailure.SectorNotOccupied => "待占领", BuildFailure.BuildingTierSuperseded => "已替代",
+            BuildFailure.BuildingLimitReached => "已满额", _ => "不可建"
+        };
+        if (state.Amount <= ExpantaNum.Zero) return "可建";
+        if (state.Efficiency <= ExpantaNum.Zero) return "停工";
         return (ExpantaNum.Clamp01(state.Efficiency) * 100).ToGameString() + "%";
     }
 

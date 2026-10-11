@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GuildSystem
   Label: "\u884C\u4F1A\u5236\u5EA6"
-  Description: "\u4EE5\u884C\u4F1A\u89C4\u8303\u5B66\u5F92\u57F9\u517B\u3001\u4EA7\u54C1\u8D28\u91CF\u548C\u884C\u4E1A\u4E92\u52A9\uFF0C\u8BA9\u5EFA\u7B51\u4E0E\u5DE5\u827A\u77E5\u8BC6\u80FD\u88AB\u7CFB\u7EDF\u5730\u4F20\u627F\u3002"
+  Description: "以行会传承知识与训练学徒，提高全局科研效率，收益延续到后续时代。它是可选的长期科研投资，不是进入工业的硬条件；先投入材料和研究工作，会推迟当下时代目标，回报随后续科研使用兑现。"
   BaseCost: "150000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

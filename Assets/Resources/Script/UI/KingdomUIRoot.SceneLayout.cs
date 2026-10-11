@@ -442,6 +442,7 @@ public sealed partial class KingdomUIRoot
         SetupResearchQueueGraphic(buildingControls);
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
+        BindReviewControls(safeArea, content);
 
         // These are stable scene-owned objects. Their interaction components
         // are repaired only when a scene author accidentally removes one.

@@ -333,6 +333,43 @@ public sealed class StoryManagerTests
         Assert.That(hint, Does.Not.Contain("PrecisionManufacturing"));
     }
 
+    [Test]
+    public void UpgradedBuildingContinuesToSatisfyItsOriginalStoryRequirement()
+    {
+        var host = new UnityEngine.GameObject("Story-UpgradeRequirement");
+        try
+        {
+            var game = host.AddComponent<GameManager>();
+            game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, new ExpantaNum(300), 0L);
+            host.AddComponent<ResourceManager>();
+            var buildings = host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            foreach (var entry in research.States)
+            {
+                var paid = new Dictionary<Resource, ExpantaNum>();
+                foreach (var cost in entry.Key.ResourceRequirements)
+                    paid[cost.First] = cost.Second;
+                entry.Value.RestoreForEditor(entry.Value.BaseCost, true, true, paid);
+            }
+            Building original = DataBase<Building>.Find("Farm");
+            Assert.That(original.UpgradeTo, Is.Not.Null);
+            Assert.That(StoryManager.HasOwnedBuildingForEditor(original.Id), Is.False);
+            buildings.EnsureBuilding(original.UpgradeTo).SetAmountForEditor(ExpantaNum.One);
+            Assert.That(buildings.EnsureBuilding(original).Amount, Is.LessThan(ExpantaNum.One));
+            Assert.That(StoryManager.HasOwnedBuildingForEditor(original.Id), Is.True);
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+    }
+
+    [Test]
+    public void MainlineMemoriesDoNotRequireOptionalKnowledgeOrCivicBuildings()
+    {
+        Assert.That(FindChapter("RememberedKnowledge_04").RequiredResearchIds, Is.Empty);
+        Assert.That(FindChapter("TheFirstChain_05").RequiredBuildingIds, Is.Empty);
+        Assert.That(FindChapter("MedievalOrder_07").RequiredBuildingIds, Is.Empty);
+    }
+
     private static StoryChapter FindChapter(string id)
     {
         for (int i = 0; i < StoryManager.Chapters.Count; i++)

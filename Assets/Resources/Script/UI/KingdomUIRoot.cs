@@ -605,6 +605,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 titleRect.SetAsLastSibling();
         }
         populatedPage = name;
+        CancelReviewConfirmation();
+        RefreshReviewControls();
         RefreshNavigationSelection(name);
         RefreshOverviewNavigationToolbar();
         RefreshWorkshopFiltersVisibility();

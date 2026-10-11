@@ -44,12 +44,24 @@ public sealed partial class KingdomUIRoot
         text.AppendLine("阶段: " + GetUltraStageLabel(preview.Stage));
         text.AppendLine("状态: " + GetUltraStatusLabel(preview.Status));
         text.AppendLine("进度: " + (preview.Progress * new ExpantaNum(100)).ToGameString() + "%");
-        text.AppendLine("姿态: " + GetUltraDoctrineLabel(preview.Doctrine));
+        text.AppendLine("工程姿态: " + GetUltraDoctrineLabel(preview.Doctrine));
         text.AppendLine("供给满足率: " + (preview.SupplySatisfaction * new ExpantaNum(100)).ToGameString() + "%");
         text.AppendLine("持续消耗: 食物 -" + preview.FoodPerSecond.ToGameString() + "/s，电力 -" +
             preview.PowerPerSecond.ToGameString() + "/s，物流 -" +
             preview.LogisticsPerSecond.ToGameString() + "/s");
         AppendUltraMaterialStatus(text, preview);
+        AppendUltraBudget(text, preview);
+        if (preview.Status != UltraProjectStatus.Committed)
+        {
+            text.AppendLine("同一当前状态下的工程姿态比较（不会切换姿态或支付）：");
+            foreach (UltraProjectDoctrine doctrine in new[] { UltraProjectDoctrine.Stable, UltraProjectDoctrine.Surge })
+            {
+                UltraProjectPreview option = manager.GetPreview(doctrine);
+                text.AppendLine("工程姿态 " + GetUltraDoctrineLabel(doctrine) +
+                    (option.Failure == UltraProjectOperationFailure.InvalidDoctrine ? "（当前阶段未开放）" : string.Empty));
+                AppendUltraBudget(text, option);
+            }
+        }
         UltraProjectOperationFailure displayFailure = preview.Failure;
         bool showFailure = preview.Status == UltraProjectStatus.Locked ||
             preview.Status == UltraProjectStatus.Ready;
@@ -78,7 +90,7 @@ public sealed partial class KingdomUIRoot
                 : "暂停期间不消耗资源；确认工程条件后可恢复");
         }
         else if (preview.Status == UltraProjectStatus.Committed)
-            text.AppendLine(preview.Doctrine == UltraProjectDoctrine.Expedition
+            text.AppendLine(!HasRemainingInterstellarTargets() ? "现有工程认证与远星据点已完成，可在文明记忆中回顾成果。" : preview.Doctrine == UltraProjectDoctrine.Expedition
                 ? "文明工程已完成：当前为远征供给姿态"
                 : "文明工程已完成：可切换远征供给姿态");
         else
@@ -167,14 +179,16 @@ public sealed partial class KingdomUIRoot
         detailDoctrineButton.interactable = false;
         UltraProjectDoctrine currentDoctrine = preview.Doctrine == UltraProjectDoctrine.None
             ? UltraProjectDoctrine.Stable : preview.Doctrine;
-        string label = "当前姿态：" + GetUltraDoctrineLabel(currentDoctrine);
+        string label = "工程姿态：" + GetUltraDoctrineLabel(currentDoctrine);
         if (preview.Status == UltraProjectStatus.Committed)
         {
             UltraProjectDoctrine nextDoctrine = currentDoctrine == UltraProjectDoctrine.Expedition
                 ? UltraProjectDoctrine.Stable
                 : UltraProjectDoctrine.Expedition;
-            detailDoctrineButton.interactable = manager.IsCampaignDoctrineUnlocked;
-            label += !detailDoctrineButton.interactable
+            detailDoctrineButton.interactable = manager.IsCampaignDoctrineUnlocked && HasRemainingInterstellarTargets();
+            label += !HasRemainingInterstellarTargets()
+                ? " · 现有远星目标已完成"
+                : !detailDoctrineButton.interactable
                 ? " · 连续性认证尚未完成"
                 : nextDoctrine == UltraProjectDoctrine.Expedition
                     ? " · 切换远征供给"
@@ -235,23 +249,26 @@ public sealed partial class KingdomUIRoot
             : CampaignDoctrine.Surge;
         detailDoctrineButton.gameObject.SetActive(true);
         detailDoctrineButton.onClick.RemoveAllListeners();
-        detailDoctrineButton.interactable = true;
-        detailDoctrineButton.onClick.AddListener(() =>
-        {
-            gameManager.UltraProject.TrySetCampaignDoctrine(nextDoctrine, out _);
-            if (selectedSectorDefinition != null)
-                ShowSectorDetails(
-                    selectedSectorDefinition,
-                    gameManager.Sectors,
-                    gameManager.State,
-                    ResourceManager.Instance);
-        });
+        detailDoctrineButton.interactable = HasRemainingInterstellarTargets();
+        if (detailDoctrineButton.interactable)
+            detailDoctrineButton.onClick.AddListener(() =>
+            {
+                gameManager.UltraProject.TrySetCampaignDoctrine(nextDoctrine, out _);
+                if (selectedSectorDefinition != null)
+                    ShowSectorDetails(
+                        selectedSectorDefinition,
+                        gameManager.Sectors,
+                        gameManager.State,
+                        ResourceManager.Instance);
+            });
 
         TMP_Text text = detailDoctrineButton.GetComponentInChildren<TMP_Text>(true);
         if (text != null)
-            text.text = state.Campaign.Doctrine == CampaignDoctrine.Surge
-                ? "当前远征：突进 · 切换稳健"
-                : "当前远征：稳健 · 切换突进";
+            text.text = !detailDoctrineButton.interactable
+                ? "战役姿态 · 现有远星目标已完成"
+                : state.Campaign.Doctrine == CampaignDoctrine.Surge
+                    ? "战役姿态：突进 · 切换稳健"
+                    : "战役姿态：稳健 · 切换突进";
         SetDoctrineActionVisible(true);
     }
 
@@ -288,7 +305,7 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                manager.TryPause(out _);
+                if (manager.TryPause(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -298,7 +315,7 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                manager.TryResume(out _);
+                if (manager.TryResume(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -308,7 +325,7 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                manager.TryCommitCompletedStage(out _);
+                if (manager.TryCommitCompletedStage(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicCommit);
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -322,14 +339,16 @@ public sealed partial class KingdomUIRoot
             {
                 detailActionButton.onClick.AddListener(() =>
                 {
-                    manager.TryStartStage(startDoctrine, out _);
+                    if (manager.TryStartStage(startDoctrine, out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
                     ShowBuildingDetails(selectedBuilding, true);
                 });
             }
         }
         else if (preview.Status == UltraProjectStatus.Committed)
         {
-            label = "文明工程已完成";
+            label = "回顾文明工程成果";
+            detailActionButton.interactable = true;
+            detailActionButton.onClick.AddListener(() => SetPage("Story"));
         }
 
         TMP_Text buttonText = detailActionButton.GetComponentInChildren<TMP_Text>(true);

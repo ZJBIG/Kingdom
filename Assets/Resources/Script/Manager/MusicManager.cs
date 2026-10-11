@@ -533,7 +533,11 @@ public sealed class UIButtonSoundManager : MonoBehaviour
         Deconstruct,
         WorkshopPurchase,
         ResearchComplete,
-        EraBreakthrough
+        EraBreakthrough,
+        StrategicStart,
+        StrategicStop,
+        StrategicCommit,
+        StrategicSupplyPause
     }
 
     private const int SampleRate = 44100;
@@ -689,6 +693,10 @@ public sealed class UIButtonSoundManager : MonoBehaviour
             Sound.WorkshopPurchase => purchaseClip,
             Sound.ResearchComplete => researchClip,
             Sound.EraBreakthrough => eraClip,
+            Sound.StrategicStart => buildClip,
+            Sound.StrategicStop => deconstructClip,
+            Sound.StrategicCommit => eraClip,
+            Sound.StrategicSupplyPause => sellClip,
             _ => detailClip
         };
         if (clip != null)

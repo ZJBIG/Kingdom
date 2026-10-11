@@ -929,7 +929,8 @@ public sealed partial class KingdomUIRoot
         Research eraTarget = FindCurrentEraResearchTarget();
         TMP_Text eraLabel = overviewCurrentEraButton.GetComponentInChildren<TMP_Text>(true);
         if (eraLabel != null)
-            eraLabel.text = "当前时代";
+            eraLabel.text = "定位本时代研究";
+        overviewCurrentEraButton.gameObject.SetActive(eraTarget != target);
         overviewCurrentEraButton.interactable = visible && eraTarget != null;
         overviewCurrentEraButton.onClick.RemoveAllListeners();
         if (eraTarget != null)

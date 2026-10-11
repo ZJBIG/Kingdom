@@ -536,6 +536,60 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
+    public void ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock()
+    {
+        var host = new GameObject("Tutorial-OperatingChain");
+        try
+        {
+            var resources = host.AddComponent<ResourceManager>();
+            var game = host.AddComponent<GameManager>();
+            var buildings = host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
+            game.State.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
+            Building source = DataBase<Building>.Find("Quarry");
+            Building target = DataBase<Building>.Find("StoneCuttingWorkshop");
+            buildings.EnsureBuilding(source).SetAmountForEditor(ExpantaNum.One);
+            Assert.That(buildings.AvailableProductivity, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(buildings.AvailableProductivity, Is.LessThan(target.ProductivityConsumption));
+            TutorialManager tutorial = TutorialManager.Ensure();
+            tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
+            {
+                ActiveStepId = "production-chain",
+                CompletedStepIds = new List<string> { "orientation", "resources", "building", "population", "research" }
+            }, TechLevel.Animal);
+            tutorial.RecordPageVisitedForEditor("Buildings");
+            TutorialSnapshot shortage = tutorial.Evaluate();
+            Assert.That(shortage.NavigationPage, Is.EqualTo("Buildings")); // Page protocol.
+            Assert.That(shortage.NavigationTargetId, Is.EqualTo("WoodHouse")); // Stable recovery target.
+            BuildingState processing = buildings.EnsureBuilding(target);
+            processing.SetAmountForEditor(ExpantaNum.One);
+            Resource product = target.ResourceGenerationRates[0].First;
+            resources.SetAmount(product, ExpantaNum.Zero);
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("production-chain"));
+            resources.SetAmount(product, ExpantaNum.One);
+            processing.SetEfficiencyForEditor(ExpantaNum.Zero);
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("production-chain"));
+            processing.SetEfficiencyForEditor(ExpantaNum.One);
+            Assert.That(tutorial.Evaluate().StepId, Is.Not.EqualTo("production-chain"));
+        }
+        finally { Object.DestroyImmediate(host); }
+    }
+
+    [Test]
+    public void ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether()
+    {
+        Research agriculture = DataBase<Research>.Find("Agriculture");
+        Building farm = DataBase<Building>.Find("Farm");
+        Assert.That(agriculture.Effects.Count, Is.GreaterThan(0));
+        Assert.That(farm.RequiredResearch, Does.Contain(agriculture));
+        string role = TutorialManager.DescribeResearchRole(agriculture);
+        Assert.That(role, Does.Contain(agriculture.Effects[0].Type.GetDescription()));
+        Assert.That(role, Does.Contain(farm.Label));
+    }
+
+    [Test]
     public void ProductionChainRequiresMatchingOutputAndInputAcrossBuildings()
     {
         Resource intermediate = CreateResource("TutorialChainIntermediate");
@@ -582,6 +636,13 @@ public sealed class TutorialManagerTests
             new List<BuildingState> { producerState }), Is.False);
         Assert.That(TutorialManager.HasOwnedProductionChain(
             ownedStates), Is.True);
+
+        consumerState.SetEfficiencyForEditor(ExpantaNum.Zero);
+        Assert.That(TutorialManager.HasOwnedProductionChain(ownedStates), Is.False);
+        consumerState.SetEfficiencyForEditor(ExpantaNum.One);
+        producerState.SetEfficiencyForEditor(ExpantaNum.Zero);
+        Assert.That(TutorialManager.HasOwnedProductionChain(ownedStates), Is.False);
+        producerState.SetEfficiencyForEditor(ExpantaNum.One);
 
         Resource consumed = null;
         Resource generated = null;

@@ -165,11 +165,15 @@ public sealed partial class KingdomUIRoot
     {
         AddEraButton(card, "DetailAction", "查看详情", Copper, detailAction, 250f, -12f);
         if (queueResearch == null) return;
-        AddEraButton(card, "QueueAction", "加入队列", Positive, () =>
+        ResearchManager currentManager = ResearchManager.Instance;
+        ResearchState currentState = null;
+        currentManager?.States.TryGetValue(queueResearch, out currentState);
+        if (currentState?.Status == ResearchStatus.Completed) return;
+        AddEraButton(card, "QueueAction", GetResearchQueueActionLabel(queueResearch, currentState), Positive, () =>
         {
             ResearchManager manager = ResearchManager.Instance;
             if (manager == null) return;
-            manager.HandleResearchAction(queueResearch);
+            HandleResearchUiAction(queueResearch);
             RefreshEraPageIfChanged();
         }, 250f, -274f);
     }
@@ -242,19 +246,34 @@ public sealed partial class KingdomUIRoot
     private static string BuildNextEraImpact(TechLevel targetEra)
     {
         var lines = new List<string>();
-        IReadOnlyList<Research> researches = DataBase<Research>.All;
-        for (int i = 0; i < researches.Count && lines.Count < 2; i++)
+        Research transition = EraGoalEvaluator.FindTransition(targetEra);
+        if (transition != null)
         {
-            Research research = researches[i];
-            if (research == null || research.TechLevel != targetEra || research.AdvancesTechLevel || research.Effects.Count == 0) continue;
-            lines.Add("研究：" + research.Label + "（" + research.Effects[0].Type.GetDescription() + "）");
+            for (int i = 0; i < transition.Effects.Count; i++)
+            {
+                ResearchEffectDefinition effect = transition.Effects[i];
+                if (effect == null) continue;
+                lines.Add("跃迁即得：" + effect.Type.GetDescription() + " " + effect.NumericValue.ToGameString());
+            }
         }
-        IReadOnlyList<Building> buildings = DataBase<Building>.All;
-        for (int i = 0; i < buildings.Count && lines.Count < 4; i++)
+        string[] signatureBuildings = targetEra switch
         {
-            Building building = buildings[i];
-            if (building == null || building is SectorBuilding || building.TechLevel != targetEra) continue;
-            lines.Add("建设：" + building.Label);
+            TechLevel.StoneAge => new[] { "IrrigationWorks", "ScribeHut" },
+            TechLevel.Medieval => new[] { "SteelForge", "Library" },
+            TechLevel.Industrial => new[] { "MachineFactory", "CentralPowerStation" },
+            TechLevel.Spacer => new[] { "LaunchCenter", "OrbitalResourceExtractionArray" },
+            TechLevel.Ultra => new[] { "PhaseEnergyArray", "AutonomousMatterFabricator" },
+            _ => System.Array.Empty<string>()
+        };
+        for (int i = 0; i < signatureBuildings.Length; i++)
+        {
+            Building building = DataBase<Building>.Find(signatureBuildings[i]);
+            if (building == null) continue;
+            var prerequisites = new List<string>();
+            for (int j = 0; j < building.RequiredResearch.Count; j++)
+                if (building.RequiredResearch[j] != null) prerequisites.Add(building.RequiredResearch[j].Label);
+            lines.Add("时代代表能力（仍需建设）：" + building.Label +
+                (prerequisites.Count > 0 ? "；先研究 " + string.Join("、", prerequisites) : string.Empty));
         }
         return lines.Count == 0 ? "该时代的详细内容将在研究与建筑页面中逐步展开。" : string.Join("\n", lines);
     }
@@ -272,11 +291,14 @@ public sealed partial class KingdomUIRoot
 
     private static string FormatResourceCondition(EraGoalConditionEvaluation condition)
     {
-        if (condition.Met) return "库存 " + condition.AvailableAmount.ToGameString() + " / 需求 " + condition.RequiredAmount.ToGameString() + "（已满足）";
+        string payment = "库存 " + condition.AvailableAmount.ToGameString() + " / 剩余应付 " + condition.RemainingAmount.ToGameString();
+        if (condition.PaidAmount > ExpantaNum.Zero) payment += "（已付 " + condition.PaidAmount.ToGameString() + "）";
+        if (condition.Met) return payment + "（已满足）";
         ExpantaNum net = condition.ProductionRate - condition.ConsumptionRate;
-        if (net > ExpantaNum.Zero) return "库存 " + condition.AvailableAmount.ToGameString() + " / 需求 " + condition.RequiredAmount.ToGameString() + "，缺口 " + condition.RemainingAmount.ToGameString() + "，净产出 +" + net.ToGameString() + "/s，预计 " + (condition.RemainingAmount / net).ToGameString() + " 秒";
-        if (condition.ProductionRate <= ExpantaNum.Zero) return "库存 " + condition.AvailableAmount.ToGameString() + " / 需求 " + condition.RequiredAmount.ToGameString() + "，缺口 " + condition.RemainingAmount.ToGameString() + "，无当前生产来源";
-        return "库存 " + condition.AvailableAmount.ToGameString() + " / 需求 " + condition.RequiredAmount.ToGameString() + "，缺口 " + condition.RemainingAmount.ToGameString() + "，净产出 " + net.ToGameString() + "/s，无法估算";
+        string shortfall = payment + "，尚欠库存 " + condition.MissingAmount.ToGameString();
+        if (net > ExpantaNum.Zero) return shortfall + "，净产出 +" + net.ToGameString() + "/s，按当前净流预计 " + (condition.MissingAmount / net).ToGameString() + " 秒备齐材料";
+        if (condition.ProductionRate <= ExpantaNum.Zero) return shortfall + "，无当前生产来源";
+        return shortfall + "，净产出 " + net.ToGameString() + "/s，无法估算";
     }
 
     private static bool IsEraTransitionResearchCompleted(Research transition) => transition != null && ResearchManager.Instance != null && ResearchManager.Instance.States.TryGetValue(transition, out ResearchState state) && state.Status == ResearchStatus.Completed;

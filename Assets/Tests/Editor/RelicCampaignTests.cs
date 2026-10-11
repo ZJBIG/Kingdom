@@ -163,6 +163,39 @@ public sealed class RelicCampaignTests
         Assert.That(f.Relic.State.SupportReady, Is.True);
     }
 
+    [TestCase(RelicRoute.Repair)]
+    [TestCase(RelicRoute.Dismantle)]
+    public void ProximaDiscovery_AllowsBothRoutesToSupportTwoExistingLaterCampaigns(RelicRoute route)
+    {
+        using var f = new Fixture(false);
+        Assert.That(f.Definition.Sector.Id, Is.EqualTo("ProximaB")); // Stable sector ID.
+        Assert.That(f.TargetState.Occupied, Is.False);
+        f.MakeOperational(route);
+        foreach (string id in new[] { "TauCetiFoundry", "SiriusResourceBelt" })
+        {
+            SectorDefinition target = DataBase<SectorDefinition>.Find(id);
+            SectorState state = f.Game.Sectors.GetState(target);
+            Assert.That(f.Game.Sectors.TryUnlock(target, out SectorOperationFailure unlockFailure), Is.True, unlockFailure.ToString());
+            Assert.That(state.Occupied, Is.False);
+            if (route == RelicRoute.Repair)
+            {
+                Assert.That(f.Relic.CanBeginCommission(out _), Is.True);
+                Assert.That(f.Relic.TryBeginCommission(out _), Is.True);
+                Assert.That(f.Relic.Tick(f.Definition.Commission.DurationSeconds.ToDouble() * 2d), Is.True);
+            }
+            else Assert.That(f.Relic.TryCraftSupport(out _), Is.True);
+            Assert.That(f.Game.Sectors.TryAdvanceCampaign(target, 0d, f.Game.State, f.Resources, out _), Is.True);
+            Assert.That(f.Relic.CanAssignSupport(out _), Is.True);
+            Assert.That(f.Relic.TryAssignSupport(out _), Is.True);
+            Assert.That(f.Relic.GetCampaignSupplyMultiplier(target), Is.LessThan(ExpantaNum.One));
+            Assert.That(f.Game.Sectors.TryAdvanceCampaign(target, 10d, f.Game.State, f.Resources, out _), Is.True);
+            Assert.That(state.CampaignProgress, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(f.Game.Sectors.TryAdvanceCampaign(target, 100000d, f.Game.State, f.Resources, out _), Is.True);
+            Assert.That(state.Occupied, Is.True);
+            f.Relic.RefreshCampaignSupport();
+        }
+    }
+
     private static CampaignPayment RunCampaign(bool support)
     {
         using var f = new Fixture();
@@ -209,7 +242,7 @@ public sealed class RelicCampaignTests
         public readonly SectorDefinition Target;
         public SectorState TargetState => Game.Sectors.GetState(Target);
 
-        public Fixture()
+        public Fixture(bool unlockTarget = true)
         {
             ProgressionModifierManager.Rebuild(null);
             root = new GameObject("RelicCampaignTests");
@@ -241,11 +274,12 @@ public sealed class RelicCampaignTests
                 Resources.SetAmount(resource, new ExpantaNum(1e8d));
             foreach (var building in Definition.RequiredBuildings)
                 buildings.EnsureBuilding(building).SetAmountForEditor(ExpantaNum.One);
+            buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter")).SetAmountForEditor(ExpantaNum.One);
             Game.Sectors.InitializeDefinitions();
             Game.Sectors.GetState(Definition.Sector).SetUnlockedForEditor(true);
             Game.Sectors.GetState(Definition.Sector).SetOccupiedForEditor(true);
-            Target = DataBase<SectorDefinition>.Find("ProximaB");
-            TargetState.SetUnlockedForEditor(true);
+            Target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+            TargetState.SetUnlockedForEditor(unlockTarget);
             Game.UltraProject.State.RestoreForEditor(new UltraProjectStateSaveData
             {
                 ProjectId = UltraProjectState.ProjectId,

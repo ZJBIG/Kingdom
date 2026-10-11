@@ -107,8 +107,9 @@ public sealed class RelicPlayModeTests
         Assert.That(relic.State.SupportReady, Is.True);
         AssertStartupPayment(before, relic.Definition.SupportCraftCosts);
         Assert.That(WorkshopManager.Instance.TryCraftRelicSupport(out _), Is.False);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
+        ui.ShowRelicDetailsForEditor();
         SectorCampaignPreview original = game.Sectors.GetCampaignPreview(target, game.State, resources);
         Assert.That(original.FoodCostPerSecond, Is.GreaterThan(ExpantaNum.Zero));
         Click("Assign");
@@ -151,8 +152,9 @@ public sealed class RelicPlayModeTests
         purchase.onClick.Invoke();
         Assert.That(relic.State.Version, Is.EqualTo(version));
         AssertBalances(before);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
+        ui.ShowRelicDetailsForEditor();
         Click("Assign");
         Assert.That(relic.State.SupportedSectorId, Is.EqualTo(target.Id));
         game.State.RestoreCampaignForEditor(false, string.Empty, ExpantaNum.Zero, ExpantaNum.Zero);

@@ -253,7 +253,16 @@ public sealed class SectorManager
         SectorDefinition definition,
         GameState runtimeState,
         ResourceManager resourceManager)
+        => GetCampaignPreview(definition, runtimeState, resourceManager,
+            runtimeState?.Campaign.Doctrine ?? CampaignDoctrine.Stable);
+
+    public SectorCampaignPreview GetCampaignPreview(
+        SectorDefinition definition,
+        GameState runtimeState,
+        ResourceManager resourceManager,
+        CampaignDoctrine doctrine)
     {
+        if (!Enum.IsDefined(typeof(CampaignDoctrine), doctrine)) throw new ArgumentOutOfRangeException(nameof(doctrine));
         EnsureInitialized();
         if (definition == null || runtimeState == null ||
             !TryGetStateByStableId(definition, out SectorState state))
@@ -291,17 +300,17 @@ public sealed class SectorManager
         ExpantaNum progressPerSecond = CampaignManager.CalculateProgressRate(combatRatio) *
             definition.CampaignProgressMultiplier *
             ProgressionModifierManager.Current.CampaignProgressMultiplier *
-            GetCampaignDoctrineProgressMultiplier(runtimeState);
+            GetCampaignDoctrineProgressMultiplier(runtimeState, doctrine);
         ExpantaNum casualtiesPerSecond = CampaignManager.CalculateCasualtyAmount(
             combatRatio,
             runtimeState.DefensePower,
             definition.EnemyPower,
             1d,
             ProgressionModifierManager.Current.CampaignCasualtyMultiplier *
-            GetCampaignDoctrineCasualtyMultiplier(runtimeState));
+            GetCampaignDoctrineCasualtyMultiplier(runtimeState, doctrine));
         ExpantaNum supplyCostMultiplier =
             ProgressionModifierManager.Current.CampaignSupplyCostMultiplier *
-            GetCampaignDoctrineSupplyMultiplier(runtimeState) *
+            GetCampaignDoctrineSupplyMultiplier(runtimeState, doctrine) *
             GetRelicCampaignSupplyMultiplier(definition, runtimeState);
         ExpantaNum foodCostPerSecond = ExpantaNum.Max(
             ExpantaNum.Zero,
@@ -899,6 +908,25 @@ public sealed class SectorManager
         failure = SectorOperationFailure.None;
         return true;
     }
+
+    public ExpantaNum GetMaxAffordableFleetRepair(
+        SectorDefinition definition, GameState runtimeState, ResourceManager resourceManager)
+    {
+        EnsureInitialized();
+        if (definition == null || runtimeState == null || resourceManager == null ||
+            !TryGetStateByStableId(definition, out SectorState state) ||
+            !string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
+            return ExpantaNum.Zero;
+        ExpantaNum amount = ExpantaNum.Min(state.CampaignCasualties, runtimeState.Campaign.Casualties);
+        IReadOnlyList<Pair<Resource, ExpantaNum>> unitCosts = CalculateFleetRepairCosts(ExpantaNum.One);
+        for (int i = 0; i < unitCosts.Count; i++)
+            if (unitCosts[i].Second > ExpantaNum.Zero)
+                amount = ExpantaNum.Min(amount, resourceManager.GetAmount(unitCosts[i].First) / unitCosts[i].Second);
+        return ExpantaNum.Max(ExpantaNum.Zero, amount);
+    }
+
+    public static IReadOnlyList<Pair<Resource, ExpantaNum>> GetFleetRepairCosts(ExpantaNum amount) =>
+        CalculateFleetRepairCosts(amount);
 
     public bool TryRepairFleet(
         SectorDefinition definition,
@@ -1669,14 +1697,14 @@ public sealed class SectorManager
         return scaledRates;
     }
 
-    private static ExpantaNum GetCampaignDoctrineProgressMultiplier(GameState runtimeState)
+    private static ExpantaNum GetCampaignDoctrineProgressMultiplier(GameState runtimeState, CampaignDoctrine? doctrine = null)
     {
         if (runtimeState == null ||
             !GameManager.TryGetInstance(out GameManager gameManager) ||
             gameManager.UltraProject == null ||
             !gameManager.UltraProject.IsCampaignDoctrineUnlocked)
             return ExpantaNum.One;
-        return runtimeState.Campaign.Doctrine == CampaignDoctrine.Surge
+        return (doctrine ?? runtimeState.Campaign.Doctrine) == CampaignDoctrine.Surge
             ? new ExpantaNum(1.35d)
             : new ExpantaNum(0.85d);
     }
@@ -1697,26 +1725,26 @@ public sealed class SectorManager
             gameManager.Relic.RefreshCampaignSupport();
     }
 
-    private static ExpantaNum GetCampaignDoctrineSupplyMultiplier(GameState runtimeState)
+    private static ExpantaNum GetCampaignDoctrineSupplyMultiplier(GameState runtimeState, CampaignDoctrine? doctrine = null)
     {
         if (runtimeState == null ||
             !GameManager.TryGetInstance(out GameManager gameManager) ||
             gameManager.UltraProject == null ||
             !gameManager.UltraProject.IsCampaignDoctrineUnlocked)
             return ExpantaNum.One;
-        return runtimeState.Campaign.Doctrine == CampaignDoctrine.Surge
+        return (doctrine ?? runtimeState.Campaign.Doctrine) == CampaignDoctrine.Surge
             ? new ExpantaNum(1.35d)
             : new ExpantaNum(1.15d);
     }
 
-    private static ExpantaNum GetCampaignDoctrineCasualtyMultiplier(GameState runtimeState)
+    private static ExpantaNum GetCampaignDoctrineCasualtyMultiplier(GameState runtimeState, CampaignDoctrine? doctrine = null)
     {
         if (runtimeState == null ||
             !GameManager.TryGetInstance(out GameManager gameManager) ||
             gameManager.UltraProject == null ||
             !gameManager.UltraProject.IsCampaignDoctrineUnlocked)
             return ExpantaNum.One;
-        return runtimeState.Campaign.Doctrine == CampaignDoctrine.Surge
+        return (doctrine ?? runtimeState.Campaign.Doctrine) == CampaignDoctrine.Surge
             ? new ExpantaNum(1.25d)
             : new ExpantaNum(0.75d);
     }
