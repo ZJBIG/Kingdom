@@ -562,7 +562,7 @@ public sealed partial class KingdomUIRoot
 
     private bool IsPageScrolling()
     {
-        if (UIPageScrollDragForwarder.IsRecentlyDragged ||
+        if (UIPageScrollDragForwarder.IsRecentlyDragged || StoryBodyScrollRect.IsRecentlyDragged ||
             pageScroll != null && pageScroll.velocity.sqrMagnitude > 0.01f)
             return true;
         if (detailScroll != null && detailScroll.velocity.sqrMagnitude > 0.01f)

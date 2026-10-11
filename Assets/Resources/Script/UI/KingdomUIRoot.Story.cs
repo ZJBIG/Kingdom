@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private StoryChapterCard storyChapterCardPrefab;
+    private StoryIllustrationPreview storyIllustrationPreview;
     private bool storyPageBuilt;
     private string storyPageStateSignature = string.Empty;
     private string storyProgressSignature = string.Empty;
@@ -352,19 +353,34 @@ public sealed partial class KingdomUIRoot
         card.Bind(chapter, heading, completed, expanded, isLatest, color,
             sharedFontAsset, () => ToggleStoryChapterInPlace(card, chapter.Id),
             () => NavigateToStoryTarget(GetStoryNavigationPage(chapter),
-                GetStoryNavigationTarget(chapter)));
+                GetStoryNavigationTarget(chapter)), () => ShowStoryIllustration(chapter));
+        card.HeightChanged += OnStoryCardHeightChanged;
         return card;
+    }
+
+    private static void OnStoryCardHeightChanged(StoryChapterCard card, float delta) =>
+        ResizeStoryFollowingCards(card.Rect, delta);
+
+    private void ShowStoryIllustration(StoryChapter chapter)
+    {
+        if (storyIllustrationPreview == null)
+            storyIllustrationPreview = GetComponentInChildren<StoryIllustrationPreview>(true);
+        if (storyIllustrationPreview != null)
+            storyIllustrationPreview.Show(chapter.Illustration, chapter.Title);
+    }
+
+    private void OnDisable()
+    {
+        if (storyIllustrationPreview != null) storyIllustrationPreview.Hide();
     }
 
     private void ToggleStoryChapterInPlace(StoryChapterCard card, string chapterId)
     {
-        float oldHeight = card.Rect.rect.height;
         if (!storyChapterCollapsed.ContainsKey(chapterId))
             storyChapterCollapsed[chapterId] = !card.IsExpanded;
         ToggleStoryChapter(chapterId);
         UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
         card.SetExpanded(!IsStoryChapterCollapsed(chapterId));
-        ResizeStoryFollowingCards(card.Rect, card.Rect.rect.height - oldHeight);
         Canvas.ForceUpdateCanvases();
     }
 

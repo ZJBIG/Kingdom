@@ -47,11 +47,11 @@ public sealed class StoryIllustrationPlayModeTests
         yield return LoadStory(1, TechLevel.Animal);
         RectTransform first = Card("PrologueAshes_00");
         AssertVisibleImage(first, StoryManager.Chapters[0].Illustration);
-        Button latestToggle = first.Find("Header/StoryChapterToggle").GetComponent<Button>();
+        Button latestToggle = first.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>();
         Assert.That(latestToggle.gameObject.activeSelf, Is.True);
         latestToggle.onClick.Invoke();
         Assert.That(first.GetComponent<StoryChapterCard>().IllustrationVisible, Is.False);
-        Assert.That(first.Find("Header/StoryChapterNavigation").gameObject.activeSelf, Is.True);
+        Assert.That(first.Find("Header/Actions/StoryChapterNavigation").gameObject.activeSelf, Is.True);
         latestToggle.onClick.Invoke();
         AssertVisibleImage(first, StoryManager.Chapters[0].Illustration);
         for (int i = 1; i < StoryManager.Chapters.Count; i++)
@@ -62,7 +62,7 @@ public sealed class StoryIllustrationPlayModeTests
             Assert.That(image.transform.parent.gameObject.activeSelf, Is.False, id + " is still locked.");
             Assert.That(image.sprite, Is.Null, "Locked chapter must not bind unrevealed art.");
         }
-        Button navigation = first.Find("Header/StoryChapterNavigation").GetComponent<Button>();
+        Button navigation = first.Find("Header/Actions/StoryChapterNavigation").GetComponent<Button>();
         Assert.That(navigation.gameObject.activeInHierarchy && navigation.interactable, Is.True);
         Assert.That(navigation.GetComponent<UIPageScrollDragForwarder>(), Is.Not.Null,
             "The authored navigation button must forward page drags.");
@@ -79,7 +79,7 @@ public sealed class StoryIllustrationPlayModeTests
         RectTransform first = Card("PrologueAshes_00");
         RectTransform next = Card("FirstFire_01");
         Image image = first.Find("IllustrationFrame/Illustration").GetComponent<Image>();
-        Button toggle = first.Find("Header/StoryChapterToggle").GetComponent<Button>();
+        Button toggle = first.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>();
         Assert.That(toggle.GetComponent<UIPageScrollDragForwarder>(), Is.Not.Null,
             "The authored toggle button must forward page drags.");
         Assert.That(image.transform.parent.gameObject.activeSelf, Is.False);
@@ -90,7 +90,7 @@ public sealed class StoryIllustrationPlayModeTests
         Canvas.ForceUpdateCanvases();
         AssertVisibleImage(first, StoryManager.Chapters[0].Illustration);
         float expandedHeight = first.rect.height;
-        Assert.That(expandedHeight, Is.GreaterThan(collapsedHeight + image.rectTransform.rect.height * .8f));
+        Assert.That(expandedHeight, Is.GreaterThan(collapsedHeight + 1f));
         Assert.That(next.anchoredPosition.y, Is.LessThan(collapsedNextY));
         AssertNoOverlap(first, next);
         toggle.onClick.Invoke();
@@ -100,7 +100,7 @@ public sealed class StoryIllustrationPlayModeTests
         Assert.That(first.rect.height, Is.EqualTo(collapsedHeight).Within(2f));
         Assert.That(next.anchoredPosition.y, Is.EqualTo(collapsedNextY).Within(2f));
         AssertVisibleImage(next, StoryManager.Chapters[1].Illustration);
-        TMP_Text body = next.Find("Body").GetComponent<TMP_Text>();
+        TMP_Text body = next.Find("BodyViewport/Body").GetComponent<TMP_Text>();
         body.ForceMeshUpdate(true, true);
         Assert.That(body.textInfo.characterCount, Is.GreaterThan(0));
         Assert.That(body.rectTransform.rect.height, Is.GreaterThanOrEqualTo(body.preferredHeight - 2f));
@@ -141,12 +141,12 @@ public sealed class StoryIllustrationPlayModeTests
         AssertVisibleImage(moon, StoryManager.Chapters[14].Illustration);
         RectTransform workshop = Card("WorkshopMemory_09");
         Assert.That(workshop.Find("IllustrationFrame").gameObject.activeSelf, Is.False);
-        workshop.Find("Header/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
+        workshop.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
         yield return null;
         Canvas.ForceUpdateCanvases();
         AssertVisibleImage(workshop, StoryManager.Chapters[9].Illustration);
         AssertNoOverlap(workshop, Card("IndustrialPower_10"));
-        Assert.That(moon.Find("Header/StoryChapterNavigation").GetComponent<Button>().interactable, Is.True);
+        Assert.That(moon.Find("Header/Actions/StoryChapterNavigation").GetComponent<Button>().interactable, Is.True);
     }
 
     [UnityTest]
@@ -159,7 +159,7 @@ public sealed class StoryIllustrationPlayModeTests
             RectTransform card = Card(chapter.Id);
             if (i < StoryManager.Chapters.Count - 1)
             {
-                card.Find("Header/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
+                card.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
                 yield return null;
                 Canvas.ForceUpdateCanvases();
                 AssertNoOverlap(card, Card(StoryManager.Chapters[i + 1].Id));
@@ -228,11 +228,11 @@ public sealed class StoryIllustrationPlayModeTests
         var bodyCorners = new Vector3[4];
         image.rectTransform.GetWorldCorners(imageCorners);
         card.GetWorldCorners(cardCorners);
-        ((RectTransform)card.Find("Body")).GetWorldCorners(bodyCorners);
+        ((RectTransform)card.Find("BodyViewport/Body")).GetWorldCorners(bodyCorners);
         Assert.That(imageCorners[0].x, Is.GreaterThanOrEqualTo(cardCorners[0].x - 1f));
         Assert.That(imageCorners[2].x, Is.LessThanOrEqualTo(cardCorners[2].x + 1f));
-        Assert.That(imageCorners[0].y, Is.GreaterThanOrEqualTo(bodyCorners[1].y - 1f),
-            "Illustration and body text must not overlap.");
+        Assert.That(imageCorners[0].y, Is.LessThanOrEqualTo(bodyCorners[0].y + 1f),
+            "The illustration is behind the text viewport.");
     }
 
     private static void AssertNoOverlap(RectTransform earlier, RectTransform later)

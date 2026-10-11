@@ -551,6 +551,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     /// </summary>
     public void SetPage(string name)
     {
+        if (storyIllustrationPreview != null) storyIllustrationPreview.Hide();
         if (populatedPage != name)
             HideRelicDetails();
 #if UNITY_EDITOR

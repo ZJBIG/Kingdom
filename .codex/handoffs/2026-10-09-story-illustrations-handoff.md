@@ -39,3 +39,50 @@ EditMode 断言完成但原生退出问题尚未解决，不能把该轮称为�
 - Git ancestor 检查确认两个开发分支的全部已提交历史都在 main 中。仅提交此次合法夹具调整与本交接；最终 main 上传及精确远端 SHA 由最终回复记录。没有删除开发分支或改变其他 remote。
 
 当前限制仍为 EditMode 原生退出停滞；本轮没有重跑全仓测试，未改变先前外部体验验收边界。
+
+## 2026-10-11 插画背景卡片与独立预览
+
+用户授权：展开章节改为完整 16:9 插画背景，标题、摘要、正文与按钮叠在上层；正文溢出内部滚动；增加“预览插画”按钮及可缩放拖动的纯图预览。保留已有工作树改动，不改变剧情文本、门槛、插画导入、GUID、经济或 v9 存档。
+
+- `StoryChapterCard.prefab` 改为背景插画 → 黑色 55% 遮罩 → 固定标题/操作区与正文裁剪区。展开高度由 `StoryChapterLayout` 按宽度/16:9 提供，收起回到摘要高度；标题宽度不足时动作行移到下方。图片原素材不修改。
+- 两字按钮：收起/展开维持 112×56，前往从 160×56 改为 112×56；预览插画 160×56，统一 28 字号和内边距。前往的现有条件保留。
+- `StoryBodyScrollRect` 负责单一拖动所有者及边界交接；正文未溢出向外层转发，溢出先滚正文、到边界继续向外层滚。关闭惯性并 Clamped，拖动期间接入现有集中刷新抑制。
+- `KingdomUIRoot.prefab/SafeAreaRoot/StoryIllustrationPreview` 为共享 authored 预览层。运行时只绑定既有节点，完整适配图片，滚轮/双指 1–4 倍缩放、拖动边界、复位、关闭/Esc/遮罩关闭，页面切换及 root 禁用清空图片并关闭。独立于研究图手势。
+- `StoryChapterCard.Bind` 新增插画请求回调，卡片高度变化统一通知外层重排。更新现有 Story/Onboarding 测试路径并新增强类型配置、布局和交互回归；不使用反射。
+- 作者入口 `StoryIllustrationAuthoring.AuthorBackgroundPresentation` 只创作卡片与预览，不重新导入插画、不重新写章节资产；原 AuthorStoryPresentation 同步采用新布局。
+
+### 本轮验证
+
+- Unity 2022.3.62f3c1 authoring 完成真实源码编译，日志 `Logs/story-background-authoring-20261011.log` 记录创作成功及 return code 0。
+- 原有 StoryIllustrationPlayModeTests + KingdomOnboardingPlayModeTests：`TestResults/story-background-playmode-20261011.xml` 21/21，无失败跳过，Unity exit0，同名日志。
+- 新交互测试初轮：`TestResults/story-background-interaction-20261011.xml` 3/3，无失败跳过，Unity exit0；覆盖 modal raycast、图片对应、zoom/pan/clamp/reset、关闭/遮罩/页面/root、滚动位置保留、内外滚动与交接、18章 × 3宽度全部正文可达及邻卡不重叠。
+- 宽度为 Unity 卡片布局单位而非设备物理像素：600 宽 18/18 需内部滚动；1440、1920 宽均 18/18 无需内部滚动。测量日志前缀 `[StoryBackgroundLayout]`，保持原 28 字号及全部正文。
+- EditMode `StoryIllustrationTests`：`TestResults/story-background-editmode-20261011.xml` 3/3 断言通过，无跳过；日志同名。XML 完成后进程在 native/network 退出清理停滞，最后日志 13:25:11，等待超过三分钟后只终止已核验命令行的本代理进程 24872，退出 -1。此轮不声称正常 exit0，不重复盲跑。
+
+未跑全仓测试；双指真实硬件和实体 Esc 输入未自动合成验证，不把确定性缩放 API 覆盖说成设备触摸验收。外部运行由用户自行体验，不作为代理待完成门槛。截图与最终补充验证见后续本轮续记。
+### 最终续记
+
+- 真实 Canvas RenderTexture 渲染检查发现 Header 下的 Actions 无布局遍历桥接，首次截图中按钮有重叠；在布局所有者中明确重建 Actions，补充按钮间几何不重叠及文字宽度容纳断言。没有缩字号或弱化断言。
+- 最终源码与资产再次真实 Unity 编译：`TestResults/story-background-final-playmode-20261011.xml` 25/25，无失败或跳过，Unity exit0；日志 `Logs/story-background-final-playmode-20261011.log`。覆盖原有插画、剧情 Onboarding 和新增交互/渲染用例；日志无 C# 编译错误、NullReference 或 MissingReference。
+- 实际 Canvas（测试临时切换 ScreenSpaceCamera 并恢复，不是图片生成或效果图）渲染证据：`data/story-background-card-20261011.png`、`data/story-background-preview-20261011.png`。已人工查看：卡片背景图与文字层正确、操作按钮不重叠、完整纯图预览正确。截图场景的历史首章不显示“前往”，符合仅最新章节可导航的既有规则。
+- 作者生成资产中的新增空字段尾空格已清理；根 Prefab 保留已有对象块内容与稳定 fileID，并恢复索引已有块顺序，减少 Unity 自动重排噪音。最终只做等价 YAML 顺序/空字段空格清理，未变动序列化值。
+- 未创建临时 Unity 工程，测试隔离存档按 teardown 清理。未 commit/push、未操作真实存档、未终止用户 Editor。
+
+交付完成；后续如调整遮罩透明度/排版，直接维护现有作者入口与 Prefab，不改原插画或剧情文本。本轮唯一验证限制仍是 EditMode 原生退出停滞，以及未合成真实双指硬件/Esc 输入；已正常完成真实编译和相关 PlayMode。
+## 2026-10-11 补充：完整插画适配、生成按钮与统一上传
+
+用户追加授权：核对并修复插画被截断、按钮稍下移、使用图片生成工具制作并套用按钮样式，全部待提交内容一次提交推送。
+
+- 根因：背景 Image 本身 preserveAspect 且保持完整 Sprite；宽 16:9 卡片高于剧情页外层 viewport，图片底边被 RectMask2D 遮住。`StoryChapterLayout` 作为布局自控制器将展开宽度约束为 min(页宽, (viewport高-24)×16/9)，保持16:9并居中，收起仍通栏。添加真实 2640×1200 Canvas 下整图上下边缘在viewport内的回归断言。
+- 卡片按钮下移14布局单位，header高度计入该偏移，窄屏动作换行仍不覆盖正文。
+- 使用内置 image_gen 生成常态及高亮两张无文字透明 PNG：`Assets/Resources/Art/UI/Story/StoryButtonNormal.png`、`StoryButtonHighlight.png`。来源图不编辑，Unity Sprite矩形去掉透明外边距、9-slice保留铜色边框，常态/高亮/按下/选中状态绑定Sprite；剧情卡片及纯图预览按钮统一套用，其他页面不变。完整生成提示词在 `docs/story/story-button-art-generation.md`。
+- 正常作者入口重新生成并绑定真实资源：`Logs/story-button-authoring-20261011.log`，Unity exit0，真实编译完成。
+- 本轮 PlayMode：`TestResults/story-button-playmode-20261011.xml` 25/25，无失败/跳过，Unity exit0；同名Logs文件。包括完整边缘不被viewport截断、正文全量可达、按钮文字与间距、展开收起、导航、缩放/拖动/关闭与输入隔离。
+- 实际 Canvas PNG 已更新并查看：`data/story-background-card-20261011.png` 中原图下边框完整可见，卡片两侧自然留边、纹理按钮下移生效；`data/story-background-preview-20261011.png` 中纯图完整，复位/关闭同样使用纹理按钮。
+- 待上传包括本主题全部代码/Prefab/素材/测试/截图及既有场景、字体、规则、清理删除与审计报告；`tmp/cleanup-audit-20261010/` 是用户已有文字审计交付，不是测试fixture，保留并上传。既有删除与规则有原cleanup handoff授权记录。Git忽略的缓存、真实存档和本机配置不纳入。
+### 本轮最终验证与提交范围
+
+- 最新 EditMode `TestResults/story-button-editmode-20261011.xml` 3/3，无失败/跳过，Unity正常 exit0；日志 `Logs/story-button-editmode-20261011.log`。本轮没有退出停滞，也没有终止测试或用户进程；此前轮次的退出问题保留为历史记录，不声称专门修复了native退出问题。
+- 当前修改均已纳入统一提交（81文件）：新生成素材及.meta、插画背景/完整预览功能、截图与生成提示词、既有场景与字体改动、AGENTS临时工程收尾规则、原cleanup交接与已授权删除、已有审计文字报告及客户端工作记录。Git忽略的Library/Temp/Logs/TestResults/配置/存档不上传。已fetch确认main与origin/main起点一致，无force/rebase/amend。
+- `git diff --cached --check` 通过。按Unity作者输出只清理新增行尾空格，序列化字段值不变。统一提交与push结果/完整SHA由最终回复记录。
+- 未运行全仓测试；真实硬件双指和实体Esc输入仍未验证。交付是仓库源码与素材，不包含外部安装包或设备体验跟踪。

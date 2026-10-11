@@ -227,7 +227,7 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(titleCorners[0].x, Is.GreaterThanOrEqualTo(cardCorners[0].x));
         Assert.That(titleCorners[2].x, Is.LessThanOrEqualTo(cardCorners[2].x));
         Assert.That(titleCorners[2].y, Is.LessThanOrEqualTo(cardCorners[2].y));
-        TMP_Text body = card.Find("Body")?.GetComponent<TMP_Text>();
+        TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Summary));
         Assert.That(body.text, Does.Not.Contain("选择右上角"));
@@ -236,9 +236,9 @@ public sealed class KingdomOnboardingPlayModeTests
             latest.Id);
         Assert.That(latestCard, Is.Not.Null);
         StoryChapterCard latestView = latestCard.GetComponent<StoryChapterCard>();
-        TMP_Text latestBody = latestCard.Find("Body").GetComponent<TMP_Text>();
-        Button latestToggle = latestCard.Find("Header/StoryChapterToggle").GetComponent<Button>();
-        Button latestNavigation = latestCard.Find("Header/StoryChapterNavigation").GetComponent<Button>();
+        TMP_Text latestBody = latestCard.Find("BodyViewport/Body").GetComponent<TMP_Text>();
+        Button latestToggle = latestCard.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>();
+        Button latestNavigation = latestCard.Find("Header/Actions/StoryChapterNavigation").GetComponent<Button>();
         Assert.That(latestView.IsExpanded, Is.True, "The latest completed chapter starts expanded.");
         Assert.That(latestBody.text, Does.Contain(latest.Body));
         Assert.That(latestToggle.gameObject.activeInHierarchy && latestToggle.interactable, Is.True);
@@ -278,14 +278,14 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(body.text, Does.Not.Contain(chapter.Body));
         body.ForceMeshUpdate(true, true);
         float collapsedHeight = body.rectTransform.rect.height;
-        Button toggle = card.Find("Header/StoryChapterToggle")?.GetComponent<Button>();
+        Button toggle = card.Find("Header/Actions/StoryChapterToggle")?.GetComponent<Button>();
         Assert.That(toggle, Is.Not.Null,
             "Unlocked Story chapters must provide a non-blocking toggle.");
         RectTransform toggleRect = toggle.transform as RectTransform;
         Assert.That(toggleRect.rect.width, Is.GreaterThan(0f));
         Assert.That(toggleRect.rect.height, Is.GreaterThan(0f));
         Assert.That(toggle.gameObject.activeInHierarchy, Is.True);
-        Assert.That(toggle.transform.parent, Is.EqualTo(card.Find("Header")));
+        Assert.That(toggle.transform.parent, Is.EqualTo(card.Find("Header/Actions")));
         var toggleCorners = new Vector3[4];
         toggleRect.GetWorldCorners(toggleCorners);
         Assert.That(titleCorners[2].x, Is.LessThanOrEqualTo(toggleCorners[0].x),
@@ -299,8 +299,8 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(toggle.colors.pressedColor.r,
             Is.LessThan(toggle.colors.normalColor.r),
             "The expand/collapse button must darken while pressed.");
-        Assert.That(toggle.GetComponent<UIPageScrollDragForwarder>(), Is.Null,
-            "The Story toggle should use a direct button click without page-drag forwarding.");
+        Assert.That(toggle.GetComponent<UIPageScrollDragForwarder>(), Is.Not.Null,
+            "The Story toggle must forward drags while retaining short clicks.");
         GameObject cardObject = card.gameObject;
         ScrollRect storyScroll = root.transform.Find(
             "SafeAreaRoot/Content/PageHost")?.GetComponent<ScrollRect>();
@@ -321,7 +321,7 @@ public sealed class KingdomOnboardingPlayModeTests
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryChapter_" +
             chapter.Id);
         Assert.That(card, Is.Not.Null);
-        body = card.Find("Body")?.GetComponent<TMP_Text>();
+        body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Body));
         body.ForceMeshUpdate(true, true);
@@ -357,7 +357,7 @@ public sealed class KingdomOnboardingPlayModeTests
             Transform card = cards[i];
             if (card == null || !card.name.StartsWith("StoryChapter_", StringComparison.Ordinal))
                 continue;
-            TMP_Text body = card.Find("Body")?.GetComponent<TMP_Text>();
+            TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
             Assert.That(body, Is.Not.Null, card.name + " must have a TMP Body.");
             Assert.That(body, Is.TypeOf<TextMeshProUGUI>());
             Assert.That(body.text, Is.Not.Empty);
@@ -749,7 +749,7 @@ public sealed class KingdomOnboardingPlayModeTests
         Transform card = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryOverviewHeader");
         Assert.That(card, Is.Not.Null);
-        TMP_Text body = card.Find("Body")?.GetComponent<TMP_Text>();
+        TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
         Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Is.Not.Empty);
         body.ForceMeshUpdate(true, true);

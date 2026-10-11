@@ -1,0 +1,221 @@
+# Kingdom 大清洁 · 候选清单（发现阶段）
+
+> 生成时间：2026-10-10　基准：HEAD `ee6e173` + 工作树 84 项未提交改动（含并行任务）
+> 方法：19 个子代理分区只读审查，全程未修改任何项目文件。
+> **本文件只列"需要清洁的地方"，不代表已授权执行。** 任何删除/移动需用户逐项确认。
+> 分项证据见同目录 `01-` ~ `19-` 报告。
+
+---
+
+## 0. 总体结论
+
+- **真正"脏"的地方集中在四类**：① 本地缓存/过期测试证据（未跟踪，清理不碰版本库）；② 历史审计与一次性报告（已闭环，可归档）；③ 代码死代码与失效工具脚本；④ 文档漂移与重复维护。
+- **代码主干健康**：Manager/UI/Runtime/Data/定义资产 均**未发现**硬约束违规（无反射混入生产代码、无 workforce 残留、无普通资源容量上限、无旧存档迁移）。
+- **定义资产（380 个）整体干净**：无占位值、无空 id、无孤儿 .meta、无悬空 guid 引用。
+- **唯一"未忽略的孤儿"**：根 `Kingdom/`（空目录）。
+
+---
+
+## 1. 本地缓存 / 过期证据（未跟踪，删除不涉及版本库）
+
+| 对象 | 体积 | 跟踪状态 | 建议 |
+|---|---|---|---|
+| `Logs/`（49 个 .log） | 21M | 未跟踪，已忽略 | 可清（本机缓存） |
+| `TestResults/`（39 文件） | 4.5M | **未跟踪**（从未入库） | 见 §2 过期批次 |
+| `UserSettings/` | 1.9M | 未跟踪，已忽略 | 可清 |
+| `.vs/` | 416K | 未跟踪，已忽略 | 可清 |
+| `Builds/Android/.../lib_burst_generated.txt` | 20K | 未跟踪，已忽略 | 可清 |
+| `tools/NewEconomySimulator/bin/` + `obj/` | — | 未跟踪，已忽略 | 可清（`git clean`，无需 `git rm`） |
+| `Library/`（Unity 导入缓存） | 6.6G | 未跟踪，已忽略 | **不动**（重建代价高） |
+
+### 1.1 过期测试证据（`TestResults/`，建议删/归档）
+- [High] `outputs-F-playmode-r1-20261007.xml` + `-errors.txt`（Failed(Child)，被 r3 取代，0 引用）
+- [High] `outputs-F-playmode-r2-20261007.xml` + `-errors.txt`（同上）
+- [High] `outputs-C1-six-states-r3-20261007.xml` + `-errors-20261007.txt`（Failed(Child)，被 r4 取代）
+- [High] `outputs-G1-editmode-r2-20261008.xml`（Failed(Child)，被 r3 取代）
+- [Med] `outputs-G2-editmode-20261008.xml`（被 r2 取代）
+- [High] `outputs-G3-playmode-20261008.xml`（Failed(Child)，被 full-r2 取代）
+- [Med] `outputs-G3-playmode-r2-20261008.xml`（被 full-r2 取代）
+- [Med] `outputs-story-editmode-20261009.xml` + `-r2`（被 r3 取代）
+- [Med] `story-art-editmode-20261009.xml`（早期单跑）
+- [Med] `EditMode-final3-20261007.xml` + `Latest-Test-Errors-editmode-final3.txt`（758 项，被 833 项取代；后者是 `Latest-Test-Errors.txt` 的旧命名）
+- [Low] 各 `*-errors*.txt` 伴随文件（与 xml 信息重复）
+- **保留**：`main-integration-*`、`outputs-G3-*-full-r2`、`G1-r3`、`G2-r2`、`C1-r4`、`F-playmode-r3`、`F12`、`F3`（有文档/handoff 引用）；`review1009-*`（10-10 最新批，留观察）
+
+### 1.2 唯一未忽略的孤儿
+- [Med] `Kingdom/`（仅含空的 `Kingdom/outputs/`，0 文件，`git check-ignore` 不命中）— 建议删除，否则一旦写入会被误纳入跟踪。
+
+### 1.3 产出物与临时目录（**已跟踪**，清理会产生 git 变更）
+> `outputs/`、`output/`、`tmp/` 均**未被 .gitignore 忽略且内容已入库**，与 §1 的未跟踪缓存性质不同。
+
+- **保留（勿误判为陈旧）**：
+  - `outputs/` 全部 18 个 md — 被 `outputs/README.md`（更新 10-08）逐条策展，各报告首行 `更新：2026-10-07`（已删旧统计、仅存方法），被 `ToDoList.txt`、`docs/content/progression-roadmap.md:66` 引用。**日期命名 ≠ 陈旧**；插画制作书/策划为在用创作底稿。
+  - `data/content-closure-static.md` — mtime 2026-10-10 13:13（当日），`AGENTS.md:34` 指定的当前证据入口，内容全部可达。
+- **建议归档**：
+  - [High] `output/fb89034f-45d8-4194-856b-175b429cc8d2/`（整目录，386K）— `pipeline-state.yaml:9` 自述 completed，但其指向的 `.docx`/`final_draft.md`/`.html`/`.pdf` 四项产物**全部缺失**；终稿 md 已另存 `outputs/Kingdom-音效审查与改进建议-2026-09-15.md`
+  - [High] `tmp/build_story_art_review.py`（`:11` 引用已改名文件）、`tmp/build_story_art_focus.py`（`:15` 同）— 输入名已被取代，脚本失效
+  - [Med] `tmp/ultra_dossier_20260914_contact.png`（441K，全仓 0 引用）
+- **建议删除**：
+  - [High] 空目录：`tmp/ultra-r2-editmode-717-first-run/`、`tmp/ultra-r2-editmode-before-retry/`、`tmp/ultra-r2-playmode-before-final/`、`output/.../stage2/intermediate|stage3|trace/`
+  - [High] 9 个悬挂跟踪条目：`tmp/audit_upgrade_continuity.py`、`tmp/verify_e08{,b,c,d,e,f,g}.py`、`tmp/verify_p003c.py` — 磁盘已无、`git ls-files` 仍列出（`git status` 显示 ` D`），应 `git rm` 落实
+- **保留观察**：`tmp/imagegen/stone-style-probe.jsonl`（4.2K，无引用，体积可忽略）
+
+---
+
+## 2. 建议删除（仓库内已跟踪/死代码）
+
+### 2.1 C# 死代码（grep 0 调用点，均有搜索式证据）
+| 文件:行 | 内容 | 置信 |
+|---|---|---|
+| `Manager/UltraProjectManager.cs:589` | `CalculateProgressRate` 私有方法（已被内联取代） | High |
+| `Manager/SectorManager.cs:151,1883,1905` | `SectorSnapshot` 类 + `CaptureSectorSnapshots`/`RestoreSectorSnapshots` 孤立簇 | High |
+| `Manager/TutorialManager.cs:2070` | `IsProductionChainEndpoint` | High |
+| `Manager/CampaignManager.cs:14` | 五参 `CalculateEffectivePower` 重载（七/八参在用） | Med |
+| `Manager/GameManager.cs:2`、`ResearchManager.cs:3`、`SectorManager.cs:3` | 未使用的 `using System.ComponentModel` | High |
+| `Runtime/UltraProjectState.cs:276` | `ReadyToCommit()`（等价转发） | High |
+| `Runtime/UltraProjectState.cs:603,604` | `MarkReadyToCommitForEditor`/`ReadyToCommitForEditor` | High |
+| `Runtime/UltraProjectState.cs:599` | `SetStageProgressForEditor` | Med |
+| `Runtime/CampaignState.cs:200` | `SetDoctrineForEditor` | Med |
+| `Runtime/GameState.cs:34-35` | `HappinessScore` 属性（0 引用） | Med |
+| `Misc/Singleton.cs:51-52` | `Save()`/`Load()` 虚钩子 + 4 处 Manager override | Med（需确认） |
+| `UI/KingdomUIRoot.DetailPanel.cs:1669,1681,1639` | `AppendCosts`/`AppendFlows`/`BuildOne` | High |
+| `UI/KingdomUIRoot.AuthoredRows.cs:429` | `InstantiateAuthoredDetailRow` | High |
+| `UI/KingdomUIRoot.cs:544-545` | 残留注释 "Legacy runtime shell builder..." | Med |
+| `Tests/Editor/C6IndustrialContentTests.cs:696` | 常量恒等式死断言 `1.5*1.25*1.25==2.34375` | Med |
+
+### 2.2 失效工具脚本（`tools/codex/`）
+- [High] `validate-performance-fix.ps1` — 三处硬路径全失效（`Kingdom.Runtime.csproj`/`Assets/Resources/Musics`/`Kingdom.sln`），全仓 0 引用，2026-08-23 一次性快照
+- [Med] `wait-for-unity-perf.ps1` + `validate-unity-perf-log.ps1` — 无流程引用，仅互引
+- [Low] `audit-upgrade-continuity.py` — handoff 自认"无当前引用"
+
+### 2.3 编辑器遗留脚本
+- [High] `Assets/Editor/Codex/EnsureManagerComponents.cs` — 全仓仅自身命中，一次性场景接线修复
+- [High] `Assets/Editor/Content/RuntimeClosureValidatorCommand.cs` — 无调用点，仅转调已在启动路径的校验器
+
+### 2.4 孤儿美术资产（**76 个 PNG ≈3.1MB，全部 git 已跟踪**）
+> 判定：GUID 全仓（Assets + ProjectSettings + Packages）零命中 **且** 文件名词干零命中，并排除动态拼接加载。删除需 `git rm`。
+
+- [High] `Resources/Texture/Pawn/Descent/` 龙立绘 25 个（含 `Void/` 变体）+ `Pawn/Golem/` 5 个 — 代码中 `Pawn`/`Dragon`/`Golem` 0 命中
+- [High] `Resources/Texture/ResearchTree/ResearchNodeCircle.png`、`ResearchNodeLock.png` — 节点外观已改 Prefab
+- [High] `Resources/Texture/Resource/` 47 个：`CastleSavage`、`EvolveShade`、`ExtoicGem/` 整目录 20 个、`Mineral/` 宝石 7 个（Citrine/Diamond/Emerald/Jade/Ruby/Sapphire/Uranium）、`Spacer/` 5 个（BioMicrochips/Brass_c/DualPhaseTitanium_c/Hyperalloy_c/Microchips）、`UltraTech/Glasteel`、`WoodLog/` 5 个异木
+- [High] `Resources/Texture/UI/` 10 个：`allowAll`、`Enable`、`Disable`、`QualityIcons/` 整目录 7 个
+- **已排除（勿误删）**：`UI/KingdomAppIcon.png`（被 `ProjectSettings/ProjectSettings.asset:294` m_Icon 引用）、`MusicIcons/`（`"Texture/MusicIcons/"+category.ToLower()` 动态加载）、56 个 ogg 音频、`Art/Story` 18 张、18 个 UI Prefab — 全部在用
+- **命名错误（无正确拼写副本）**：`ExtoicGem` → `ExoticGem`、`LigtDiamond` → `LightDiamond`
+- **可删**：`Assets/InitTestScene639269782161251882.unity` — Unity Test Framework 残留，已被 `.gitignore:120` 忽略且未跟踪，删后跑测试会重生
+- **不确定**：Pawn 立绘与宝石图标可能是规划中/已砍玩法的美术，**删除前需产品确认**
+
+### 2.5 定义字段无人消费 / 仅测试消费（Data 层）
+> 这些是**序列化字段**，移除需走 Editor 迁移，**不可直接删**。
+
+- [Med] `Data/SectorDefinition.cs:50,51,53` — `Background`/`Icon`/`MapY` 在 Data 外 0 命中；10 个 Sector 资产中 Background/Icon 全为 null
+- [Med] `Data/SectorDefinition.cs:52` — `MapX` 仅 `SectorDefinitionTests.cs:63` 自证断言，运行时/UI 0 命中（资产有值）
+- [Med] `Data/UltraProjectDefinition.cs:44,45` — `RequiredResearchId`/`RequiredBuildingId` 全仓 0 命中（同文件 `:42/:43` 的强引用才是真入口）
+- [Low] `Data/UltraProjectStageDefinition.cs:41` — `PrerequisiteStageId` 仅 `UltraContentSliceTests` 消费；运行时按硬编码阶段 id 推进（`UltraProjectManager.cs:479-499`），不读该字段
+- [Low] `Data/WorkshopUpgrade.cs:11` — `SortOrder` 仅被导出器序列化，UI 不排序（86 个资产都填了）
+- [Low] `Data/BuildingTransactionRules.cs:6,36` — `TryNormalizePositiveWhole`/`Total` 仅测试调用，运行时只用 `ClampToAvailable`
+- [Med] `Data/BuildingTransactionRules.cs:3` — `#if !ECONOMY_SIMULATOR` 条件编译：该符号全仓（ProjectSettings/csproj/sln/asmdef）**从未定义**，恒真死分支
+- [Low] `Data/BuildingTransactionRules.cs:48` — `EconomySimulationParity` 注释自称"与独立模拟器共享"，但 `NewEconomySimulator.csproj` 只编译 `ExpantaNum.cs`，模拟器 `SimulationCore.cs:955-979` 自带私有同名实现 → 注释与事实不符
+
+---
+
+## 3. 建议归档（历史快照 / 已闭环）
+
+### 3.1 文档
+- [High] `docs/audits/2026-09-11-readonly-scan/04-math-api-future-value.md` — 评估对象已删（ExpantaNumExtensions 621→182 行），结论与现状相反
+- [High] `docs/audits/2026-09-11-readonly-scan/05-story-content.md` — 死代码结论多数已被吸收
+- [High] `docs/audits/2026-09-11-readonly-scan/03-runtime-data-validation.md` — 部分吸收，行号全面漂移
+- [High] `docs/audits/2026-09-10-full-readonly-refactor-scan.md` — 核心缺陷已修复
+- [High] `docs/audits/2026-10-09-{information-recovery,progressive-design,ui-controls}*.md` + `2026-10-10-review-implementation.md` — 全部编号行动项已闭环（03 号逐条核实）
+- [Med] `docs/content/alien-war-first-version.md` — 自称"第一版设计/后续实现"，但系统**已实现**
+
+### 3.2 `.codex/`
+- 3 份已闭环 handoff：`2026-09-18-doc-consistency`、`2026-10-08-document-cleanup`、`2026-10-08-relic`
+- 无价值中间产物：`archive/shadercompiler-UnityShaderCompiler.exe0.log`、`archive/detail-ui-migration-current.log`（3.2M）、`archive/pdf-intermediates-20260914-100336/`、空 `package-recovery/`
+- **保留**：`2026-10-09-repo-cleanup`（worktree 未提交改动仍在）、`2026-10-09-story-illustrations`（EditMode 停滞未收口）、`2026-10-09-{information-recovery,progressive-design,ui-controls}`（主题不同）
+- **不误判**：`prompts/CODEX_ECONOMY_PROMPT.md` 在用（4 处引用，是薄入口非旧规则）
+
+---
+
+## 4. 建议更新（漂移 / 失效引用）
+
+### 4.1 文档
+- [Med] `docs/repository-map.md:3`（核对日期停 2026-09-13）、`:10`（漏 `Datas/Ultra/`）、`:50`（`WorkshopState` 实为 `WorkshopUpgradeState`）
+- [High] `docs/ui/page-responsibilities.md` — 只列 8 页，遗漏 **Music 页**（实际 9 页）
+- [Med] `docs/story/story-data-authoring.md:10` — 称"星区条件按编号/开关"，实为 `List<SectorDefinition>` 资产引用
+- [Low] `docs/content/progression-roadmap.md` — 标题用 `MiddleAge`，代码枚举是 `Medieval`
+- [Med] `.agents/skills/kingdom-project-dev/references/validation.md:56`（称无 TestFilter，实际已有）、`:58`（称包装器缺陷未修，实际已修+有测试）
+- [High] `.workbuddy-ai/memory/MEMORY.md:8` — CONTENTADVISE 记载已过时（ToDoList/balance-model 均已无引用）
+- [Med] `tools/README.md:13-15` — 称内容依赖分析在 `ContentDependencyAnalyzer.cs`，但该文件无入口、产出缺失
+- [Med] `TestResults/Latest-Test-Errors.txt` — 内容停 10-08 G3 批，落后于 10-09/10-10 批次
+
+### 4.2 代码/工具
+- [High] `tools/codex/kingdom_project_probe.py:17` — `SCAN_ROOTS` 仍含已删的 `CONTENTADVISE`；`:49` 含不存在的 `data/economy-parity`
+- [Low] `.gitignore:18` `/Kingdom_BurstDebugInformation_DoNotShip/` — 根锚定规则永不匹配实际层级（真正生效的是 `:11 [Bb]uilds/`）
+
+### 4.3 测试（反射违规，硬约束 D7）
+- [High] 9 条反射断言需改写为强类型 API：`GlobalEconomyDefinitionTests.cs:130,158,252`、`ResearchBalanceTests.cs:173`、`KingdomLogicTests.cs:220`、`SectorBuildingTests.cs:40`、`FlowEfficiencyTests.cs:32,119`、`C6IndustrialClosureAuditTests.cs:83`
+  - 其中 R3/R4/R5/R9 是"负向存在性"断言（字段改名即静默通过，无保护力）
+- [Med] 写死相等计算值：`EarlyVerticalSlicePacingTests.cs:78,83,88`（336000/181440/133920 无容差）、`BuildingVerticalSliceTests.cs:103`（`ProductivityConsumption==4d`）
+- [Med] 文件副作用：`KingdomLogicTests.cs:60-62`、`SectorBuildingTests.cs:170-175` 向**仓库根 `Temp/`** 写存档 fixture（建议改 `Path.GetTempPath()`）
+
+### 4.4 UI 硬约束（运行时硬造固定 UI，D7）
+- [High] `KingdomUIRoot.Era.cs:13` `BuildEraPage` — 整页运行时构建，硬编码标题/尺寸
+- [High] `KingdomUIRoot.Story.cs:108` `BuildStoryPageInternal` — 同上
+- [High] `KingdomUIRoot.DetailUI.cs:14` `BuildDetailUI` — 运行时重建并 Destroy authored 子节点
+- [Med] `KingdomUIRoot.Sectors.cs:140` `BuildSectorBuildingMenu` — 运行时建展开菜单
+- 对比：Resources/Buildings/Workshop 走 AuthoredRows+Prefab（合规）→ 上述 4 处与既定架构冲突
+
+---
+
+## 5. 建议合并（重复维护，D8）
+
+### 5.1 文档
+- `docs/repository-map.md:51`（Pair 规则）↔ `docs/architecture/serialized-pairs.md:7-14`
+- `docs/repository-map.md:30`（存档事务）↔ `docs/architecture/runtime-state.md:70-72`
+- "Food 唯一封顶/无容量/workforce" 规则在 6+ 处活动文档重复（AGENTS.md:21、no-resource-caps.md、balance-model.md:21/70、progression-roadmap.md:9、alien-war-first-version.md:46、story 文档:120）→ 建议以 `no-resource-caps.md`+`AGENTS.md` 为唯一权威
+
+### 5.2 代码
+- `RelicStatus`→中文 映射重复：`OfflineSummary.cs:82` ↔ `Relic.cs:340`（文案还不一致）
+- `BuildFailure`→中文 映射重复三处：`PageRows.cs:191` / `AuthoredRows.cs:232` / `DetailPanel.cs:200`
+- 两套运行时 UI 工厂：`DetailUI.cs` ↔ `Story.cs`（`CreateText` 签名不同）
+
+### 5.3 测试
+- `C5ContentClosureAuditTests` ↔ `C6IndustrialClosureAuditTests`（C5 是 C6 严格子集）
+- "资源有源有汇"检查散落 4 个文件
+- `FlowEfficiencyTests` ↔ `FoodEfficiencyTests`（`CalculateEffectiveEfficiency`/Happiness 交叉重复）
+- `StoryIllustrationTests:13` ↔ `StoryManagerTests:9`（18 章常量各写一份）
+
+### 5.4 工具
+- `compile-developer-tests.ps1` ↔ `.py`（孪生，`.py` 为受限 shell 权威）
+- `audit-ui.ps1` ↔ `inspect-kingdom.ps1`（近义静态扫描器，后者覆盖更广）
+
+### 5.5 校验器职责重叠（权威 = `EconomyDependencyValidator`，已由 `GameBootstrap.cs:58` 启动校验）
+- `Assets/Editor/Content/ContentDependencyAnalyzer.cs` ↔ `EconomyDependencyValidator` — 同一套可达闭包 + 研究循环 + 资源死锁
+- `tools/codex/content-closure-check.ps1`、`check-building-sustainability.py` ↔ 同上
+- `tools/codex/building-resource-flow-check.ps1` ↔ `Building.ValidateResourceFlowDefinitions`（`Building.cs:149`，运行时 `BuildingManager.cs:255` 已调用）
+
+---
+
+## 6. 需用户决策（不可单方判定）
+
+1. **数学层大规模删除**：`2026-09-11/04` 报告涉及的整套高级数学 API（Erf/Normal/Prestige/Softcap 等）已被删，仓库内**无对应 decisions 记录**——是有意清理还是误删？
+2. **Unity 官方包未用**：`com.unity.timeline`、`com.unity.visualscripting` 全仓 0 引用、非传递依赖；删除会影响编辑器工具链，需定夺。
+3. **`ContentDependencyAnalyzer.cs` 去留**：`tools/README.md` 称其为当前归宿，但实测无调用、产出缺失。
+4. **`Singleton.Save()/Load()`**：是否有 Inspector/UnityEvent 或外部预留绑定？确认后方可删。
+5. **测试写 `Temp/`**：`Temp/` 是否需显式加入 `.gitignore`？
+6. **`Kingdom.Runtime.csproj`**：是"Unity 按需生成物"还是"项目契约"？（影响 `validate-performance-fix.ps1` 的判定）
+7. **UI 运行时构建**：Era/Story/DetailUI 是否为"已记录的必要兼容回退例外"？（代码注释自述为既定架构，需架构负责人确认）
+8. **`05` 号内容层文案**：`FirstFire_01` 等剧情文案与教程条件不符，属产品/文案判断，静态无法证伪。
+9. **`SectorDefinition.MapX/MapY`** 是否预留地图功能？（当前仅测试自证，运行时/UI 不读）
+10. **`UltraProjectStageDefinition.PrerequisiteStageId`** 是否待接入？（资产已成链填写，但运行时按硬编码阶段 id 推进）
+11. **`WorkshopUpgrade.SortOrder`** 是否待接入排序？（86 个资产都填了，UI 不用）
+12. **`tmp/`、`output/` 已入库且未被忽略** — 删除会产生 git 变更；是保留 git 历史后 `git rm`，还是仅移出活动目录？
+
+---
+
+## 7. 覆盖状态
+
+- [x] `01`–`05`、`07`–`19` 全部报告已回收并整合进 §1–§6
+- [x] 19/19 区块完成（其中 `06`、`14` 为首轮中断后重做）
+
+> 本清单为**发现阶段**产出，不含任何已执行改动。执行前请逐项确认。
