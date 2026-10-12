@@ -297,7 +297,8 @@ public sealed partial class KingdomUIRoot
             }
             row.enabled = false;
             row.interactable = false;
-            row.targetGraphic = null;
+            row.targetGraphic = surfaceImage;
+            row.transition = Selectable.Transition.None;
             surfaceImage.raycastTarget = false;
             ConfigureMusicTrackColumn(rowObject, "Label", track.Label, Vector2.zero, new Vector2(.50f, 1f), new Vector2(12, 4), new Vector2(-8, -4), TextAlignmentOptions.MidlineLeft);
             ConfigureMusicTrackColumn(rowObject, "Length", FormatMusicTime(track.DurationSeconds), new Vector2(.50f, 0), new Vector2(.68f, 1), new Vector2(0, 4), new Vector2(0, -4), TextAlignmentOptions.Center);

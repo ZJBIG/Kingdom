@@ -15,8 +15,10 @@ public static class KingdomUIPrefabLibrary
 
     public const string Root = "KingdomUIRoot";
     public const string Page = "KingdomUIPage";
+    public const string ActionButton = "KingdomUIButton";
     public const string ResourceCard = "KingdomUIResourceCard";
     public const string BuildingCard = "KingdomUIBuildingCard";
+    public const string WorkshopCard = "KingdomUIWorkshopCard";
     public const string ResearchCard = "KingdomUIResearchCard";
     public const string TextRow = "KingdomUITextRow";
     public const string ResearchNode = "KingdomUIResearchNode";
@@ -30,9 +32,9 @@ public static class KingdomUIPrefabLibrary
 
     public static readonly string[] AllReusablePrefabs =
     {
-        Root, Page, ResourceCard, BuildingCard, ResearchCard, TextRow,
+        Root, Page, ResourceCard, BuildingCard, WorkshopCard, ResearchCard, TextRow,
         ResearchNode, ResearchLine, ResearchGraph, OverviewNavigationToolbar, ResearchEraBand,
-        QuantityControls, MusicTrack, SectorRow
+        QuantityControls, MusicTrack, SectorRow, ActionButton
     };
 
     public static GameObject Load(string prefabName)

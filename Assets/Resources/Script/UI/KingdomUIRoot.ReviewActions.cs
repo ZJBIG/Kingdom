@@ -105,6 +105,8 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshReviewControls()
     {
+        RefreshDetailPin();
+        RefreshResourceTreeVisibility();
         if (reviewDetailTools == null) return;
         ObserveStrategicSupplyPause();
         bool research = selectedResearchNode != null;

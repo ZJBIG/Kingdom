@@ -397,7 +397,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Transform child = transform.GetChild(i);
-            if (child.name != "SafeAreaRoot" && child.name != "UnsafeAreaTicker")
+            if (child.name != "SafeAreaRoot" && child.name != "UnsafeAreaTicker" && child.name != "EnvironmentBackground")
                 child.gameObject.SetActive(false);
         }
     }

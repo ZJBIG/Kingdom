@@ -93,7 +93,7 @@ public sealed partial class KingdomUIRoot
     private static readonly Color ResearchFocusWhite = new Color(1f, 1f, 1f, 1f);
     // Keep the idle graph subdued so the selected closure reads immediately.
     private static readonly Color ResearchOutlineNormal = new Color(.28f, .30f, .30f, 1f);
-    private static readonly Color ResearchArrowColor = new Color(.22f, .24f, .24f, 1f);
+    private static readonly Color ResearchArrowColor = new Color(.46f, .43f, .35f, 1f);
     private static readonly Color ResearchFocusSurface = new Color(.30f, .36f, .36f, 1f);
     private static readonly Dictionary<string, Sprite> researchTreeSprites = new();
     private readonly Dictionary<Pair<Research, Research>, List<UIResearchConnectorBatch.Part>> researchTreeLinkVisuals = new(512);
@@ -438,22 +438,13 @@ public sealed partial class KingdomUIRoot
         Mask viewportMask = researchGraphViewport.GetComponent<Mask>();
         if (viewportMask == null)
             viewportMask = researchGraphViewport.gameObject.AddComponent<Mask>();
-        viewportMask.showMaskGraphic = true;
+        viewportMask.showMaskGraphic = false;
 
         Image viewportImage = researchGraphViewport.GetComponent<Image>();
-        Sprite background = LoadResearchTreeSprite("ResearchTree/ResearchTreeBackground");
-        if (background != null)
-        {
-            // The authored texture already contains the graph background tone
-            // and grid. Do not multiply it by the old near-black fallback tint.
-            viewportImage.color = Color.white;
-            viewportImage.sprite = background;
-            viewportImage.type = Image.Type.Tiled;
-        }
-        else
-        {
-            viewportImage.color = new Color(.045f, .05f, .055f, 1f);
-        }
+        // Keep opaque stencil geometry for clipping, without drawing a second panel.
+        viewportImage.color = Color.white;
+        viewportImage.sprite = null;
+        viewportImage.type = Image.Type.Simple;
 
         ScrollRect graphScroll = researchGraphViewport.GetComponent<ScrollRect>();
         graphScroll.viewport = researchGraphViewport;
@@ -1719,6 +1710,8 @@ public sealed partial class KingdomUIRoot
         ApplyButtonColors(button, surface.color);
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => ShowResearchDetails(research));
+        if (node.Find("PinButton") != null)
+            BindRowPin(nodeObject, UIPinPreferences.Research, research.Id);
         if (node.GetComponent<UIResearchGraphDragForwarder>() == null)
         {
             Debug.LogError("[王国界面] ResearchNode prefab is missing its authored drag forwarder: " + research.Id);
@@ -1745,7 +1738,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         frame.sprite = LoadResearchTreeSprite(GetResearchEraTextureName(research.TechLevel));
-        frame.color = Color.white;
         frame.preserveAspect = false;
         frame.raycastTarget = false;
 
@@ -1779,7 +1771,7 @@ public sealed partial class KingdomUIRoot
         // Use the same shared-font Label factory as every other Kingdom page.
         // This keeps Chinese glyph resolution and material setup identical to
         // the working resource/building/research-detail labels.
-        string nodeTitle = string.IsNullOrEmpty(research.Label) ? research.Id : research.Label;
+        string nodeTitle = GetPinnedResearchTitle(research);
         TMP_Text titleLabel = RequireResearchNodeLabel("Label", node, nodeTitle, Color.white);
         if (titleLabel == null)
         {
@@ -1790,7 +1782,6 @@ public sealed partial class KingdomUIRoot
         titleLabel.color = Color.white;
         titleLabel.alignment = TextAlignmentOptions.Center;
         titleLabel.enableWordWrapping = false;
-        titleLabel.overflowMode = TextOverflowModes.Overflow;
         titleLabel.raycastTarget = false;
         titleLabel.enabled = true;
         TMP_Text costLabel = RequireResearchNodeLabel(
@@ -1898,11 +1889,9 @@ public sealed partial class KingdomUIRoot
             return null;
         }
         label.text = text;
-        label.fontSize = 30f;
         label.color = color;
         label.alignment = TextAlignmentOptions.Center;
         label.enableWordWrapping = false;
-        label.overflowMode = TextOverflowModes.Overflow;
         label.font = sharedFontAsset != null ? sharedFontAsset : TMP_Settings.defaultFontAsset;
         if (label.font == null)
             throw new InvalidOperationException(
@@ -1911,20 +1900,7 @@ public sealed partial class KingdomUIRoot
             label.fontSharedMaterial = label.font.material;
         label.raycastTarget = false;
         label.maskable = true;
-        ConfigureResearchNodeLabelRect(rect, name);
         return label;
-    }
-
-    private static void ConfigureResearchNodeLabelRect(RectTransform rect, string name)
-    {
-        bool title = name == "Label";
-        float left = title ? 0f : name == "Cost" ? 0f : name == "Progress" ? .27f : .67f;
-        float right = title ? 1f : name == "Cost" ? .26f : name == "Progress" ? .66f : 1f;
-        rect.anchorMin = new Vector2(left, title ? .34f : 0f);
-        rect.anchorMax = new Vector2(right, title ? 1f : .34f);
-        rect.offsetMin = new Vector2(title ? 8f : 2f, title ? 0f : 1f);
-        rect.offsetMax = new Vector2(title ? -8f : -2f, title ? 0f : -1f);
-        rect.pivot = new Vector2(.5f, .5f);
     }
 
     private static ResearchStatus GetResearchStatus(Research research)

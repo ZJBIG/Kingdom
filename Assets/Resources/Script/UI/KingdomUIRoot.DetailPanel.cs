@@ -270,6 +270,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || resource == null)
             return;
+        resourceTreeVisible = false;
         HideRelicDetails();
 
         TutorialManager.Current?.RecordDetailViewed("Resources", resource.Id);
@@ -294,6 +295,8 @@ public sealed partial class KingdomUIRoot
     private void RefreshResourceDetails(Resource resource)
     {
         if (detailBody == null || resource == null || selectedResource != resource)
+            return;
+        if (resourceTreeVisible)
             return;
         float preservedScrollPosition = requirementGesture == null
             ? 1f
@@ -496,9 +499,10 @@ public sealed partial class KingdomUIRoot
         bool heightChanged = Mathf.Abs(bodyHeight - body.rect.height) > 1f;
         if (heightChanged)
             Canvas.ForceUpdateCanvases();
-        body.offsetMin = new Vector2(34f, -bodyHeight);
-        body.offsetMax = new Vector2(-34f, 0f);
-        float contentHeight = 24f + bodyHeight;
+        float resourceToolbarHeight = selectedResource != null && resourceTreeSurface != null ? 80f : 0f;
+        body.offsetMin = new Vector2(34f, -bodyHeight - resourceToolbarHeight);
+        body.offsetMax = new Vector2(-34f, -resourceToolbarHeight);
+        float contentHeight = 24f + bodyHeight + resourceToolbarHeight;
         RectTransform relicSection = RelicActionsRectForLayout;
         if (relicSection != null)
         {

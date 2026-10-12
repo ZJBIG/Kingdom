@@ -136,13 +136,15 @@ public sealed class SectorBuildingPlayModeTests
         Canvas.ForceUpdateCanvases();
         float expandedHeight = moonRow.GetComponent<RectTransform>().rect.height;
         Assert.That(expandedHeight, Is.GreaterThan(before));
-        Assert.That(expandedHeight, Is.GreaterThan(400f));
-        Assert.That(before, Is.InRange(100f, 120f));
-        if (nextRow != null)
-            Assert.That(nextRow.anchoredPosition.y, Is.LessThan(nextRowBefore - 400f));
-
         Transform menu = moonRow.Find("SectorBuildingMenu");
         Assert.That(menu, Is.Not.Null);
+        float menuHeight = menu.GetComponent<RectTransform>().rect.height;
+        Assert.That(expandedHeight - before, Is.EqualTo(menuHeight).Within(1f),
+            "Expanded row reserves the full authored menu height.");
+        Assert.That(before, Is.InRange(100f, 120f));
+        if (nextRow != null)
+            Assert.That(nextRowBefore - nextRow.anchoredPosition.y,
+                Is.EqualTo(expandedHeight - before).Within(1f), "Following rows move by the expansion height.");
         Transform build = menu.Find("EarthMoonLogisticsHub/Build");
         Assert.That(build, Is.Not.Null);
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.False);

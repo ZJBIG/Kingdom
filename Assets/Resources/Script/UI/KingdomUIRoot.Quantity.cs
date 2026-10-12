@@ -132,11 +132,7 @@ public sealed partial class KingdomUIRoot
         buttonText.text = label;
         buttonText.enabled = true;
         buttonText.gameObject.SetActive(true);
-        buttonText.fontSize = 30;
         buttonText.color = TextPrimary;
-        buttonText.alignment = TextAlignmentOptions.MidlineLeft;
-        buttonText.enableWordWrapping = false;
-        buttonText.overflowMode = TextOverflowModes.Overflow;
         buttonText.raycastTarget = false;
         if (button.targetGraphic != null)
             button.targetGraphic.raycastTarget = true;

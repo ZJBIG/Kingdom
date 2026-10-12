@@ -230,7 +230,6 @@ public sealed partial class KingdomUIRoot
         if (frame != null)
         {
             frame.sprite = LoadResearchTreeSprite(GetResearchEraTextureName(research.TechLevel));
-            frame.color = Color.white;
             frame.raycastTarget = false;
         }
         RectTransform progressRect = frameRect == null ? null : frameRect.Find("ProgressFill") as RectTransform;

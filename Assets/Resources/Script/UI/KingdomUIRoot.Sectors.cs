@@ -25,6 +25,9 @@ public sealed partial class KingdomUIRoot
         public Button Expand;
         public RectTransform Menu;
         public TMP_Text Label;
+        public TMP_Text Metadata;
+        public Button Pin;
+        public int Order;
         public float CollapsedHeight;
         public bool Expanded;
         public string DiagnosticSignature;
@@ -60,7 +63,8 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             objectRow.name = "SectorRow_" + definition.Id;
-            ApplyListRowStyle(objectRow, sectorRowViews.Count);
+            ApplyEraRowStyle(objectRow, definition.IsHomeSystem ? TechLevel.Spacer : TechLevel.Ultra, sectorRowViews.Count);
+            BindRowPin(objectRow, UIPinPreferences.Sector, definition.Id);
             objectRow.SetActive(CanDisplaySector(definition, sectors));
             SectorRowView view = new SectorRowView
             {
@@ -68,6 +72,9 @@ public sealed partial class KingdomUIRoot
                 Row = row,
                 Layout = layout,
                 Label = row.Find("Label")?.GetComponent<TMP_Text>(),
+                Metadata = row.Find("Metadata")?.GetComponent<TMP_Text>(),
+                Pin = row.Find("PinButton")?.GetComponent<Button>(),
+                Order = i,
                 CollapsedHeight = Mathf.Max(1f, layout.preferredHeight)
             };
             if (view.Label == null)
@@ -139,48 +146,61 @@ public sealed partial class KingdomUIRoot
 
     private void BuildSectorBuildingMenu(SectorRowView view, IReadOnlyList<SectorBuilding> buildings)
     {
-        view.Menu = CreatePanel(view.Row, "SectorBuildingMenu", PanelRaised);
-        view.Menu.anchorMin = new Vector2(0f, 0f);
-        view.Menu.anchorMax = new Vector2(1f, 0f);
+        var orderedBuildings = new List<SectorBuilding>(buildings);
+        orderedBuildings.Sort((left, right) => ComparePinnedAuthoredRows(UIPinPreferences.Building,
+            left.TechLevel, left.Id, right.TechLevel, right.Id));
+        view.Menu = CreatePanel(view.Row, "SectorBuildingMenu", Color.clear);
+        view.Menu.anchorMin = new Vector2(0f, 1f);
+        view.Menu.anchorMax = new Vector2(1f, 1f);
         view.Menu.pivot = new Vector2(.5f, 1f);
         view.Menu.anchoredPosition = new Vector2(0f, -view.CollapsedHeight);
         view.Menu.sizeDelta = new Vector2(0f, 416f);
         CreateText("Heading", view.Menu, "星区工程", Copper, TextAlignmentOptions.MidlineLeft)
             .rectTransform.offsetMin = new Vector2(28f, -58f);
-        for (int i = 0; i < buildings.Count; i++)
+        float cardTop = 76f;
+        for (int i = 0; i < orderedBuildings.Count; i++)
         {
-            SectorBuilding building = buildings[i];
-            RectTransform card = CreatePanel(view.Menu, building.Id, Panel);
-            card.gameObject.AddComponent<UIPageScrollDragForwarder>();
+            SectorBuilding building = orderedBuildings[i];
+            GameObject cardObject = KingdomUIPrefabLibrary.Instantiate("KingdomUISectorBuildingCard", view.Menu);
+            if (cardObject == null)
+            {
+                Debug.LogError("[SectorBuildings] Missing authored SectorBuildingCard.");
+                continue;
+            }
+            RectTransform card = cardObject.GetComponent<RectTransform>();
+            LayoutElement layout = cardObject.GetComponent<LayoutElement>();
+            if (card == null || layout == null || layout.preferredHeight <= 0f)
+            {
+                Debug.LogError("[SectorBuildings] SectorBuildingCard needs a RectTransform and preferred height.");
+                Destroy(cardObject);
+                continue;
+            }
+            cardObject.name = building.Id;
             card.anchorMin = new Vector2(0f, 1f);
             card.anchorMax = new Vector2(1f, 1f);
-            card.sizeDelta = new Vector2(-40f, 100f);
-            card.anchoredPosition = new Vector2(0f, -76f - i * 112f);
+            card.pivot = new Vector2(.5f, 1f);
+            card.sizeDelta = new Vector2(-40f, layout.preferredHeight);
+            card.anchoredPosition = new Vector2(0f, -cardTop);
+            cardTop += layout.preferredHeight + 12f;
+            ApplyEraRowStyle(cardObject, building.TechLevel, i);
+            BindRowPin(cardObject, UIPinPreferences.Building, building.Id);
+            SetRowMetadata(cardObject, GetBuildingRoleSummary(building));
             BuildingState state = BuildingManager.Instance.States.TryGetValue(building, out BuildingState stored)
                 ? stored : null;
-            CreateText("Name", card, building.Label ?? building.Id, TextPrimary,
-                TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = new Vector2(20f, 50f);
-            TMP_Text nameText = card.Find("Name").GetComponent<TMP_Text>();
-            nameText.raycastTarget = true;
-            Button nameButton = nameText.gameObject.AddComponent<Button>();
-            nameButton.targetGraphic = nameText;
-            nameButton.gameObject.AddComponent<UIPageScrollDragForwarder>();
-            nameButton.onClick.AddListener(() => ShowBuildingDetails(building));
-            CreateText("Amount", card, (state == null ? "0" : state.Amount.ToGameString()) + "/" + building.MaxAmount,
-                TextSecondary, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = new Vector2(360f, 50f);
-            CreateText("Effect", card, "Logistics +" +
+            SetRowText(cardObject, "Name", building.Label ?? building.Id);
+            Button nameButton = card.Find("Name")?.GetComponent<Button>();
+            if (nameButton != null) nameButton.onClick.AddListener(() => ShowBuildingDetails(building));
+            Button cardButton = cardObject.GetComponent<Button>();
+            if (cardButton != null) cardButton.onClick.AddListener(() => ShowBuildingDetails(building));
+            SetRowText(cardObject, "Amount", (state == null ? "0" : state.Amount.ToGameString()) + "/" + building.MaxAmount);
+            SetRowText(cardObject, "Effect", "Logistics +" +
                 (building.LogisticsProductionRate - building.LogisticsConsumptionRate).ToGameString() +
                 "/s  Fleet +" + building.FleetPowerGranted.ToGameString() +
-                "  Defense +" + building.DefensePowerGranted.ToGameString(),
-                TextSecondary, TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = new Vector2(500f, 50f);
-            CreateText("Cost", card, FormatResourceCosts(building.ResourceRequirements), Copper,
-                TextAlignmentOptions.MidlineLeft).rectTransform.offsetMin = new Vector2(900f, 50f);
-            Button build = CreateButton("Build", card, "建造", BuildableActionColor);
-            Button demolish = CreateButton("Deconstruct", card, "拆除", new Color(.35f, .20f, .18f, 1f));
-            build.gameObject.AddComponent<UIPageScrollDragForwarder>();
-            demolish.gameObject.AddComponent<UIPageScrollDragForwarder>();
-            PositionSectorAction(build, 1f);
-            PositionSectorAction(demolish, 2f);
+                "  Defense +" + building.DefensePowerGranted.ToGameString());
+            SetRowText(cardObject, "Cost", FormatResourceCosts(building.ResourceRequirements), Copper);
+            Button build = RequireChildButton(cardObject, "Build");
+            Button demolish = RequireChildButton(cardObject, "Deconstruct");
+            if (build == null || demolish == null) continue;
             build.interactable = BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.One) >= ExpantaNum.One;
             demolish.interactable = state != null && state.Amount >= ExpantaNum.One;
             build.onClick.AddListener(() =>
@@ -196,17 +216,8 @@ public sealed partial class KingdomUIRoot
                 RebuildSectorMenu(view);
             });
         }
+        view.Menu.sizeDelta = new Vector2(0f, cardTop);
         view.Menu.gameObject.SetActive(view.Expanded);
-    }
-
-    private static void PositionSectorAction(Button button, float index)
-    {
-        RectTransform rect = button.transform as RectTransform;
-        rect.anchorMin = new Vector2(1f, 0f);
-        rect.anchorMax = new Vector2(1f, 1f);
-        rect.pivot = new Vector2(1f, .5f);
-        rect.sizeDelta = new Vector2(128f, -20f);
-        rect.anchoredPosition = new Vector2(-18f - (index - 1f) * 140f, 0f);
     }
 
     private void RebuildSectorMenu(SectorRowView view)
@@ -218,15 +229,28 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshSectorRowsAndLayout()
     {
+        sectorRowViews.Sort((left, right) =>
+        {
+            int pin = UIPinPreferences.Compare(UIPinPreferences.Sector, left.Definition.Id, right.Definition.Id);
+            return pin != 0 ? pin : left.Order.CompareTo(right.Order);
+        });
         float top = 0f;
         for (int i = 0; i < sectorRowViews.Count; i++)
         {
             SectorRowView view = sectorRowViews[i];
+            if (view.Row.GetSiblingIndex() != i) view.Row.SetSiblingIndex(i);
             bool eligible = CanDisplaySector(view.Definition, gameManagerCache?.Sectors);
             view.Row.gameObject.SetActive(eligible);
             if (!eligible)
                 continue;
             bool occupied = gameManagerCache != null && gameManagerCache.Sectors.GetState(view.Definition).Occupied;
+            if (view.Pin != null)
+                SetPinButtonVisual(view.Pin, UIPinPreferences.IsPinned(UIPinPreferences.Sector, view.Definition.Id));
+            if (view.Metadata != null)
+            {
+                string summary = GetSectorRowSummary(view.Definition, gameManagerCache?.Sectors);
+                if (view.Metadata.text != summary) view.Metadata.text = summary;
+            }
             if (occupied)
                 EnsureSectorBuildingControls(view);
             else if (view.Expand != null)
@@ -294,6 +318,22 @@ public sealed partial class KingdomUIRoot
             else
                 Debug.LogError(message + " bounds must be positive.");
         }
+    }
+
+    private string GetSectorRowSummary(SectorDefinition definition, SectorManager manager)
+    {
+        string summary = definition.StarSystemId + " · " + GetSectorStateText(manager, definition);
+        SectorState state = manager?.GetState(definition);
+        if (state != null && state.CampaignProgress > ExpantaNum.Zero && !state.Occupied)
+            summary += " · 进度 " + (state.CampaignProgress * 100).ToGameString() + "%";
+        if (state != null && state.Occupied && definition.OccupiedResourceRatesPerSecond.Count > 0)
+            return summary + " · 产出 " + FormatResourceCosts(definition.OccupiedResourceRatesPerSecond,
+                ProgressionModifierManager.Current) + "/s";
+        if (definition.TerritoryReward > ExpantaNum.Zero)
+            summary += " · 领土 +" + definition.TerritoryReward.ToGameString();
+        if (!definition.IsHomeSystem && definition.EnemyPower > ExpantaNum.Zero)
+            summary += " · 敌方战力 " + definition.EnemyPower.ToGameString();
+        return summary;
     }
 
     private static void RefreshSectorBuildingMenu(SectorRowView view)

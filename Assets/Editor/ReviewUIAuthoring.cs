@@ -85,6 +85,7 @@ public static class ReviewUIAuthoring
                 rect.offsetMax = new Vector2(-420, before.y);
                 Debug.Log("[ReviewAuthoring] " + name + " offsetMax " + before + " -> " + rect.offsetMax);
             }
+            KingdomBackgroundAuthoring.Apply(root);
             PrefabUtility.SaveAsPrefabAsset(root, path);
             AssetDatabase.SaveAssets();
         }
@@ -109,5 +110,6 @@ public static class ReviewUIAuthoring
         Button button = go.AddComponent<Button>(); button.targetGraphic = image; go.AddComponent<LayoutElement>().preferredHeight = 64;
         TMP_Text label = Text("Label", go.transform, font, value); label.alignment = TextAlignmentOptions.Center;
         label.rectTransform.offsetMin = new Vector2(8, 4); label.rectTransform.offsetMax = new Vector2(-8, -4);
+        KingdomButtonAuthoring.Apply(button);
     }
 }

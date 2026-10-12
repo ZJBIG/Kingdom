@@ -28,7 +28,7 @@ public sealed partial class KingdomUIRoot
         float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
         float y = 24f;
 
-        RectTransform current = BeginEraSection(parent, "EraCurrentArchive", "当前时代档案", PanelRaised, width, y, out float currentY);
+        RectTransform current = BeginEraSection(parent, "EraCurrentArchive", "当前时代档案", width, y, out float currentY);
         currentY += CreateEraCard(current, "EraIdentity", "时代身份", state.TechLevel.GetDescription() + " · " + GetEraSubtitle(state.TechLevel) + "\n第 " + ((int)state.TechLevel + 1) + " / " + Enum.GetValues(typeof(TechLevel)).Length + " 阶段", Panel, false, null, null, width, currentY, 100f) + 10f;
         currentY += CreateEraCard(current, "EraDefinition", "时代定义", GetEraDefinition(state.TechLevel), PanelRaised, false, null, null, width, currentY, 100f) + 10f;
         currentY += CreateEraCard(current, "EraCapabilities", "本时代能力", BuildCurrentEraCapabilities(state.TechLevel), Panel, false, null, null, width, currentY, 130f) + 16f;
@@ -36,7 +36,7 @@ public sealed partial class KingdomUIRoot
 
         if (transition == null)
         {
-            RectTransform terminal = BeginEraSection(parent, "EraTransitionSection", "时代状态", Panel, width, y, out float terminalY);
+            RectTransform terminal = BeginEraSection(parent, "EraTransitionSection", "时代状态", width, y, out float terminalY);
             terminalY += CreateEraCard(terminal, "EraTerminal", "当前内容终点", "当前内容已到达最后阶段。\n继续完成研究树中的剩余内容。", PanelRaised, true, () => SetPage("Research"), null, width, terminalY, 150f);
             y += EndEraSection(terminal, terminalY, width);
             SetEraPageHeight(parent, y + 24f, state, goal);
@@ -54,14 +54,14 @@ public sealed partial class KingdomUIRoot
         float progress = eraConditions.Count == 0 ? 1f : completed / (float)eraConditions.Count;
         bool showQueueAction = !IsEraTransitionResearchCompleted(transition);
 
-        RectTransform transitionSection = BeginEraSection(parent, "EraTransitionSection", "下一时代跃迁", Panel, width, y, out float transitionY);
+        RectTransform transitionSection = BeginEraSection(parent, "EraTransitionSection", "下一时代跃迁", width, y, out float transitionY);
         transitionY += CreateEraCard(transitionSection, "EraTransitionTarget", "跃迁目标", goal.TargetEra.GetDescription() + " · " + transition.Label + "\n" + transition.Description, PanelRaised, true,
             () => { SetPage("Research"); ShowResearchDetails(transition); }, showQueueAction ? transition : null, width, transitionY, 180f) + 10f;
         transitionY += CreateEraCard(transitionSection, "EraTransitionStatus", "跃迁状态", GetTransitionStatus(transition, progress) + "\n硬条件：" + completed + "/" + eraConditions.Count + "（" + (progress * 100f).ToString("0") + "%）", Panel, false, null, null, width, transitionY, 110f) + 10f;
         transitionY += CreateEraCard(transitionSection, "EraNextImpact", "进入后变化", BuildNextEraImpact(goal.TargetEra), PanelRaised, false, null, null, width, transitionY, 130f) + 16f;
         y += EndEraSection(transitionSection, transitionY, width) + 18f;
 
-        RectTransform requirements = BeginEraSection(parent, "EraRequirementSection", "跃迁条件与阻碍", PanelRaised, width, y, out float requirementY);
+        RectTransform requirements = BeginEraSection(parent, "EraRequirementSection", "跃迁条件与阻碍", width, y, out float requirementY);
         int researchCount = 0, researchCompleted = 0, resourceCount = 0, resourceMet = 0;
         for (int i = 0; i < eraConditions.Count; i++)
         {
@@ -100,9 +100,9 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Era sections rendered: current={state.TechLevel}, target={goal.TargetEra}, progress={completed}/{eraConditions.Count}, blocker={blockerTitle}");
     }
 
-    private RectTransform BeginEraSection(RectTransform parent, string name, string title, Color color, float width, float y, out float contentY)
+    private RectTransform BeginEraSection(RectTransform parent, string name, string title, float width, float y, out float contentY)
     {
-        RectTransform section = CreatePanel(parent, name, color);
+        RectTransform section = CreatePanel(parent, name, Color.clear);
         // EraRows is the outer page's authored data surface. Forward drags from
         // the section shell itself so a gesture starting in its header/background
         // still reaches the shared PageHost ScrollRect.
@@ -111,7 +111,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text titleText = CreateText(section, "Title", title, TextPrimary, TextAnchor.UpperLeft, Mathf.Max(320f, width - 80f), true);
         titleText.rectTransform.anchoredPosition = new Vector2(20f, -16f);
         titleText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(48f, titleText.preferredHeight));
-        RectTransform content = CreatePanel(section, "Content", Background);
+        RectTransform content = CreatePanel(section, "Content", Color.clear);
         content.GetComponent<Image>().raycastTarget = false;
         content.anchorMin = new Vector2(0f, 1f); content.anchorMax = new Vector2(1f, 1f); content.pivot = new Vector2(.5f, 1f);
         content.anchoredPosition = new Vector2(0f, -70f); content.sizeDelta = new Vector2(-24f, 100f);
@@ -129,12 +129,13 @@ public sealed partial class KingdomUIRoot
         return height;
     }
 
-    private static Color GetEraAlternatePanelColor(int index) => index % 2 == 0 ? Panel : PanelRaised;
+    private static Color GetEraAlternatePanelColor(int index) => index % 2 == 0 ? ListRowEven : ListRowOdd;
 
     private float CreateEraCard(RectTransform parent, string name, string title, string body, Color color,
         bool hasAction, Action action, Research queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
     {
-        RectTransform card = CreatePanel(parent, name, color);
+        Color surfaceColor = !hasAction ? Color.clear : color == PanelRaised ? ListRowOdd : color == Panel ? ListRowEven : color;
+        RectTransform card = CreatePanel(parent, name, surfaceColor);
         card.gameObject.AddComponent<UIPageScrollDragForwarder>();
         SetTop(card, y, minimumHeight);
         const float cardPadding = 20f;
@@ -180,16 +181,11 @@ public sealed partial class KingdomUIRoot
 
     private void AddEraButton(RectTransform card, string name, string label, Color color, Action action, float width, float rightOffset)
     {
-        GameObject buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(card, false);
+        Button button = CreateButton(name, card, label, color);
+        GameObject buttonObject = button.gameObject;
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(1f, 1f); rect.anchorMax = new Vector2(1f, 1f); rect.pivot = new Vector2(1f, 1f);
         rect.anchoredPosition = new Vector2(rightOffset, -12f); rect.sizeDelta = new Vector2(width, 58f);
-        Image image = buttonObject.GetComponent<Image>(); image.color = color; image.raycastTarget = true;
-        Button button = buttonObject.GetComponent<Button>(); button.targetGraphic = image; button.navigation = new Navigation { mode = Navigation.Mode.None };
-        ApplyButtonColors(button, image.color);
-        TMP_Text text = CreateText(rect, "Label", label, TextPrimary, TextAnchor.MiddleCenter, width - 20f, true);
-        text.rectTransform.anchorMin = Vector2.zero; text.rectTransform.anchorMax = Vector2.one; text.rectTransform.pivot = new Vector2(.5f, .5f); text.rectTransform.anchoredPosition = Vector2.zero; text.rectTransform.sizeDelta = Vector2.zero; text.alignment = TextAlignmentOptions.Center;
         button.onClick.AddListener(() => { UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail); action(); });
     }
 

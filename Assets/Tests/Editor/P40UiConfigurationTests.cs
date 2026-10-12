@@ -170,7 +170,7 @@ public sealed class P40UiConfigurationTests
         Assert.That(rect.anchorMax.y, Is.InRange(.49f, .51f));
 
         TMP_Text label = child.GetComponentInChildren<TMP_Text>(true);
-        Assert.That(label.alignment, Is.EqualTo(TextAlignmentOptions.Left),
-            childName + " label must be left aligned.");
+        Assert.That(label.alignment, Is.EqualTo(TextAlignmentOptions.Center),
+            childName + " material button label must be centered.");
     }
 }

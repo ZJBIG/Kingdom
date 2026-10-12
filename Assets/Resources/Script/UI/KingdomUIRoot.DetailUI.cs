@@ -19,13 +19,14 @@ public sealed partial class KingdomUIRoot
         for (int i = detailPanel.childCount - 1; i >= 0; i--)
         {
             Transform legacy = detailPanel.GetChild(i);
+            if (legacy.name == "Surface") continue;
             legacy.gameObject.SetActive(false);
             Destroy(legacy.gameObject);
         }
 
         RectTransform shell = CreateRect("DetailUI", detailPanel);
         Image shellImage = shell.gameObject.AddComponent<Image>();
-        shellImage.color = new Color(.075f, .095f, .105f, .98f);
+        shellImage.color = Color.clear;
         shellImage.raycastTarget = false;
 
         RectTransform header = CreateRect("Header", shell);
@@ -34,7 +35,7 @@ public sealed partial class KingdomUIRoot
         header.offsetMin = new Vector2(22f, -68f);
         header.offsetMax = new Vector2(-22f, -14f);
         Image headerImage = header.gameObject.AddComponent<Image>();
-        headerImage.color = new Color(.13f, .16f, .17f, 1f);
+        headerImage.color = Color.clear;
         headerImage.raycastTarget = false;
         TMP_Text headerText = CreateText("HeaderLabel", header, "详细信息",
             TextSecondary, TextAlignmentOptions.MidlineLeft);
@@ -149,6 +150,8 @@ public sealed partial class KingdomUIRoot
         requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
         requirementGesture.enabled = true;
 
+        BindResourceTree();
+
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, footer={DetailFooterHeight:0}");
         return true;
@@ -193,27 +196,15 @@ public sealed partial class KingdomUIRoot
 
     private static Button CreateButton(string name, Transform parent, string label, Color color)
     {
-        GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-        go.transform.SetParent(parent, false);
+        GameObject go = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.ActionButton, parent);
+        go.name = name;
         Image image = go.GetComponent<Image>();
         image.color = color;
-        image.raycastTarget = true;
+        if (name == "Deconstruct") image.sprite = Resources.Load<Sprite>("Art/UI/Buttons/ControlMetal");
         Button button = go.GetComponent<Button>();
-        button.targetGraphic = image;
-        GameObject labelObject = new GameObject("Label", typeof(RectTransform));
-        labelObject.transform.SetParent(go.transform, false);
-        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.offsetMin = new Vector2(8f, 4f);
-        labelRect.offsetMax = new Vector2(-8f, -4f);
-        TextMeshProUGUI text = labelObject.AddComponent<TextMeshProUGUI>();
+        TMP_Text text = go.transform.Find("Label").GetComponent<TMP_Text>();
         text.font = sharedFontAsset;
         text.text = label;
-        text.fontSize = 30f;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = TextPrimary;
-        text.raycastTarget = false;
         return button;
     }
 

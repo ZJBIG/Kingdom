@@ -28,7 +28,7 @@ public sealed partial class KingdomUIRoot
         if (affordableOnly && !canCraft)
             return;
         int index = visible;
-        GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent,
+        GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.WorkshopCard, parent,
             index, index < workshopRows.Count ? workshopRows[index] : null);
         if (row == null)
             return;
@@ -36,7 +36,9 @@ public sealed partial class KingdomUIRoot
         else workshopRows.Add(row);
         visible++;
         row.name = "RelicSupportWorkshopRow";
-        ApplyListRowStyle(row, index);
+        ApplyEraRowStyle(row, TechLevel.Spacer, index);
+        BindRowPin(row, UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
+        SetRowMetadata(row, "拆解路线 · 可重复制造 · 远征补给支援");
         Transform tier = row.transform.Find("TechLevel") ?? row.transform.Find("Amount");
         if (tier != null) tier.name = "TechLevel";
         SetRowText(row, "Label", "远征支援组件 · 自主制造");

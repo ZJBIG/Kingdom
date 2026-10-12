@@ -8,6 +8,7 @@ public sealed partial class KingdomUIRoot
 {
     private readonly Dictionary<string, Button> musicTrackButtons = new();
     private readonly Dictionary<string, Sprite> musicIconCache = new();
+    private readonly Dictionary<Button, Image> musicButtonIconCache = new();
     private readonly HashSet<Slider> musicPointerStateSliders = new();
     private MusicManager musicManagerCache;
     private Button musicGlobalPauseButton;
@@ -43,6 +44,7 @@ public sealed partial class KingdomUIRoot
         {
             musicTrackVisualStateValid = false;
             lastMusicTimeSecond = -1;
+            musicButtonIconCache.Clear();
             BuildAuthoredMusicPage(existing as RectTransform);
             if (musicPageBuilt)
                 lastMusicCatalogVersion = manager == null ? -1 : manager.CatalogVersion;
@@ -69,7 +71,7 @@ public sealed partial class KingdomUIRoot
     {
         if (button == null)
             return;
-        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
+        Image image = GetMusicButtonIcon(button);
         if (image == null)
             return;
         image.sprite = LoadMusicIcon(iconName);
@@ -77,7 +79,19 @@ public sealed partial class KingdomUIRoot
             image.type = Image.Type.Simple;
         image.preserveAspect = true;
         image.color = Color.white;
-        button.targetGraphic = image;
+    }
+
+    private Image GetMusicButtonIcon(Button button)
+    {
+        if (button == null)
+            return null;
+        if (musicButtonIconCache.TryGetValue(button, out Image cached) && cached != null)
+            return cached;
+        Image icon = button.transform.Find("Icon")?.GetComponent<Image>();
+        if (icon == null)
+            Debug.LogError("[王国界面] Authored music button has no Icon Image: " + button.name);
+        musicButtonIconCache[button] = icon;
+        return icon;
     }
 
     private void ConfigureMusicTrackIcon(Button button, string iconName)
@@ -317,7 +331,6 @@ public sealed partial class KingdomUIRoot
         image.color = Color.white;
         image.raycastTarget = false;
         image.enabled = track != null && image.sprite != null;
-        musicCurrentCategoryIcon.transform.SetAsLastSibling();
     }
 
     private void RefreshMusicTrackIcons(MusicManager manager, MusicManager.MusicTrack currentTrack = null)
@@ -349,13 +362,11 @@ public sealed partial class KingdomUIRoot
                 Transform rowTransform = pair.Value.transform.parent;
                 int rowIndex = rowTransform == null ? 0 : rowTransform.GetSiblingIndex();
                 Color color = selected
-                    ? Copper
-                    : rowIndex % 2 == 0
-                        ? new Color(.18f, .22f, .22f, 1f)
-                        : new Color(.10f, .13f, .13f, 1f);
+                    ? new Color(Copper.r, Copper.g, Copper.b, .14f)
+                    : rowIndex % 2 == 0 ? ListRowEven : ListRowOdd;
                 if (image.color != color)
                     image.color = color;
-                Image playPauseImage = pair.Value.targetGraphic as Image;
+                Image playPauseImage = GetMusicButtonIcon(pair.Value);
                 if (playPauseImage != null)
                 {
                     // A permanently stopped track remains the selected
@@ -378,7 +389,7 @@ public sealed partial class KingdomUIRoot
     {
         if (musicGlobalPauseButton == null || manager == null)
             return;
-        Image image = musicGlobalPauseButton.targetGraphic as Image;
+        Image image = GetMusicButtonIcon(musicGlobalPauseButton);
         if (image == null)
             return;
         Color color = manager.IsPermanentlyStopped ? Error : Color.white;

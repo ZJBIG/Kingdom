@@ -250,6 +250,7 @@ public sealed partial class KingdomUIRoot
         float refreshStart = Time.realtimeSinceStartup;
 #endif
         CacheRuntimeManagers();
+        RefreshEraSurfaces();
         // Keep onboarding and story unlocks current on the page where the
         // player acted. Overview, Era and Story render the resulting snapshot
         // later, but the progression state must not wait for a page switch.

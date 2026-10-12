@@ -104,5 +104,6 @@ public static class RelicUIAuthoring
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.sizeDelta = new Vector2(-16, -8);
+        KingdomButtonAuthoring.Apply(button);
     }
 }

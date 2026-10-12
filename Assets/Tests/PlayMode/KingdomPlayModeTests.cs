@@ -1309,7 +1309,7 @@ public sealed class KingdomPlayModeTests
         bool legacyRootChildrenInactive = true;
         foreach (Transform rootChild in root.transform)
         {
-            if (rootChild == safeAreaRoot || rootChild.name == "UnsafeAreaTicker")
+            if (rootChild == safeAreaRoot || rootChild.name == "UnsafeAreaTicker" || rootChild.name == "EnvironmentBackground")
                 continue;
             legacyRootChildrenInactive &= !rootChild.gameObject.activeSelf;
             Assert.That(rootChild.gameObject.activeSelf, Is.False,
@@ -1417,6 +1417,11 @@ public sealed class KingdomPlayModeTests
 
         Transform detailUI = detailPanel.Find("DetailUI");
         Assert.That(detailUI, Is.Not.Null, "DetailUI runtime root is missing under DetailPanel.");
+        Image detailSurface = detailPanel.Find("Surface")?.GetComponent<Image>();
+        Assert.That(detailSurface, Is.Not.Null, "Detail reconstruction must preserve the authored material surface.");
+        Assert.That(detailSurface.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Backgrounds/ContentSlate")));
+        Assert.That(detailSurface.raycastTarget, Is.False);
+        Assert.That(detailUI.GetComponent<Image>().color.a, Is.LessThan(.01f), "The compatibility shell must not obscure its authored background.");
         Transform detailViewport = detailUI.Find("DetailScrollViewport");
         Transform detailContent = detailViewport == null ? null : detailViewport.Find("DetailScrollContent");
         Assert.That(detailViewport, Is.Not.Null, "DetailPanel must expose one runtime scroll viewport.");
@@ -1436,6 +1441,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(detailScroll.content, Is.SameAs(detailContent));
         Transform header = detailUI.Find("Header");
         Assert.That(header, Is.Not.Null);
+        Assert.That(header.GetComponent<Image>().color.a, Is.LessThan(.01f), "Detail titles share the authored reading surface.");
         Assert.That(header.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
 
         Transform requirements = detailContent.Find("BuildingRequirements");

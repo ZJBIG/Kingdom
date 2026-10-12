@@ -91,12 +91,12 @@ public sealed partial class KingdomUIRoot
 
         try
         {
-            RectTransform surface = CreatePanel(page, "StoryBuildError", PanelRaised);
+            RectTransform surface = CreatePanel(page, "StoryBuildError", Color.clear);
             SetTop(surface, 0f, 260f);
             float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
             CreateCard(surface, "StoryBuildErrorCard", "剧情档案暂时不可用",
                 "剧情页面初始化遇到问题。王国模拟仍在运行，请查看 Console 中的剧情错误日志。",
-                PanelRaised, width, 24f, 220f);
+                width, 24f, 220f);
             surface.sizeDelta = new Vector2(0f, 284f);
             page.sizeDelta = new Vector2(0f, 284f);
         }
@@ -126,24 +126,24 @@ public sealed partial class KingdomUIRoot
         ObserveStoryProgress(era, tutorial, out int unlockedCount,
             out StoryChapter latestChapter);
 
-        RectTransform surface = CreatePanel(page, "StoryOverviewPage", Background);
+        RectTransform surface = CreatePanel(page, "StoryOverviewPage", Color.clear);
         SetTop(surface, 0f, 1400f);
         float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
         float y = 24f;
 
         y += CreateCard(surface, "StoryOverviewHeader", "剧情档案\n鼠族文明复兴",
             "这里记录鼠族从灾变后的第一簇火种，到重新掌握机器与星海的文明记忆。",
-            PanelRaised, width, y, 190f);
+            width, y, 190f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewState",
             "剧情完成状态",
             "已完成章节 " + unlockedCount +
             "/" + StoryManager.Chapters.Count +
             "\n最新记录来自王国刚刚完成的一项真实行动。",
-            Panel, width, y, 150f);
+            width, y, 150f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewMeaning", "最新文明记忆",
-            BuildStoryMeaningText(latestChapter), Panel, width, y, 180f);
+            BuildStoryMeaningText(latestChapter), width, y, 180f);
 
         for (int i = 0; i < StoryManager.Chapters.Count; i++)
         {
@@ -238,9 +238,9 @@ public sealed partial class KingdomUIRoot
     }
 
     private float CreateCard(RectTransform parent, string name, string title,
-        string body, Color color, float width, float y, float minimumHeight)
+        string body, float width, float y, float minimumHeight)
     {
-        RectTransform card = CreatePanel(parent, name, color);
+        RectTransform card = CreatePanel(parent, name, Color.clear);
         SetTop(card, y, minimumHeight);
         float cardWidth = card.rect.width > 1f
             ? card.rect.width

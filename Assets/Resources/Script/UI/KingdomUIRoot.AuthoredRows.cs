@@ -12,8 +12,8 @@ public sealed partial class KingdomUIRoot
 {
     // Keep the alternating list treatment in one place so Resource, Workshop,
     // Building and Music rows remain visually consistent.
-    private static readonly Color ListRowEven = new Color(.25f, .28f, .28f, 1f);
-    private static readonly Color ListRowOdd = new Color(.08f, .10f, .10f, 1f);
+    private static readonly Color ListRowEven = new Color(1f, 1f, 1f, .05f);
+    private static readonly Color ListRowOdd = new Color(1f, 1f, 1f, .09f);
     private readonly System.Text.StringBuilder buildingDisplaySignatureBuilder = new(1024);
     private readonly Dictionary<WorkshopUpgrade, Button> workshopPurchaseButtons = new();
 
@@ -47,10 +47,12 @@ public sealed partial class KingdomUIRoot
         // Image.color owns the alternating row palette. A white normal tint
         // prevents Unity from multiplying that palette a second time.
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(.90f, .90f, .90f, 1f);
-        colors.pressedColor = new Color(.54f, .54f, .54f, 1f);
-        colors.selectedColor = colors.highlightedColor;
-        colors.disabledColor = new Color(.62f, .64f, .63f, .90f);
+        colors.highlightedColor = new Color(1.18f, 1.18f, 1.18f, 1f);
+        colors.pressedColor = new Color(.66f, .66f, .66f, 1f);
+        colors.selectedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
+        colors.disabledColor = new Color(.55f, .57f, .57f, .90f);
+        colors.fadeDuration = .08f;
+        colors.colorMultiplier = 1f;
         button.colors = colors;
     }
 
@@ -70,7 +72,8 @@ public sealed partial class KingdomUIRoot
         }
 
         orderedDefinitions.Sort((left, right) =>
-            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
+            ComparePinnedAuthoredRows(UIPinPreferences.Resource,
+                left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             Resource resource = orderedDefinitions[i];
@@ -86,7 +89,9 @@ public sealed partial class KingdomUIRoot
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.ResourceCard, parent, visible++);
             if (row == null)
                 continue;
-            ApplyListRowStyle(row, visible - 1);
+            ApplyEraRowStyle(row, resource.TechLevel, visible - 1);
+            BindRowPin(row, UIPinPreferences.Resource, resource.Id);
+            SetRowMetadata(row, resource.TechLevel.GetDescription() + " · " + FirstDescriptionLine(resource.Description));
             if (!SetRowText(row, "Label", resource.Label) ||
                 !SetRowText(row, "Amount", amount) ||
                 !SetRowText(row, "ChangeRate", change, net >= ExpantaNum.Zero ? Positive : Error))
@@ -139,6 +144,13 @@ public sealed partial class KingdomUIRoot
             : string.CompareOrdinal(leftId, rightId);
     }
 
+    private static int ComparePinnedAuthoredRows(string kind,
+        TechLevel leftTechLevel, string leftId, TechLevel rightTechLevel, string rightId)
+    {
+        int pin = UIPinPreferences.Compare(kind, leftId, rightId);
+        return pin != 0 ? pin : CompareAuthoredRows(leftTechLevel, leftId, rightTechLevel, rightId);
+    }
+
     private void BuildAuthoredBuildingRows(RectTransform parent)
     {
         int visible = 0;
@@ -153,7 +165,8 @@ public sealed partial class KingdomUIRoot
             orderedDefinitions.Add(building);
         }
         orderedDefinitions.Sort((left, right) =>
-            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
+            ComparePinnedAuthoredRows(UIPinPreferences.Building,
+                left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             Building building = orderedDefinitions[i];
@@ -164,7 +177,9 @@ public sealed partial class KingdomUIRoot
             GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
             if (row == null)
                 continue;
-            ApplyListRowStyle(row, visible - 1);
+            ApplyEraRowStyle(row, building.TechLevel, visible - 1);
+            BindRowPin(row, UIPinPreferences.Building, building.Id);
+            SetRowMetadata(row, GetBuildingRoleSummary(building));
             if (!SetRowText(row, "Label", building.Label) ||
                 !SetRowText(row, "TechLevel", building.TechLevel.GetDescription()) ||
                 !SetRowText(row, "Amount", amount) ||
@@ -272,7 +287,10 @@ public sealed partial class KingdomUIRoot
             orderedDefinitions.Add(definition);
         }
         orderedDefinitions.Sort((left, right) =>
-            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
+            ComparePinnedAuthoredRows(UIPinPreferences.Workshop,
+                left.TechLevel, left.Id, right.TechLevel, right.Id));
+        bool supportPinned = UIPinPreferences.IsPinned(UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
+        if (supportPinned) AppendRelicWorkshopRow(parent, ref visible);
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             WorkshopUpgrade definition = orderedDefinitions[i];
@@ -281,7 +299,7 @@ public sealed partial class KingdomUIRoot
                 ? workshopRows[index]
                 : null;
             GameObject row = InstantiateAuthoredRow(
-                KingdomUIPrefabLibrary.BuildingCard, parent, index, reusable);
+                KingdomUIPrefabLibrary.WorkshopCard, parent, index, reusable);
             if (row == null)
                 continue;
             if (index < workshopRows.Count)
@@ -289,7 +307,9 @@ public sealed partial class KingdomUIRoot
             else
                 workshopRows.Add(row);
             visible++;
-            ApplyListRowStyle(row, index);
+            ApplyEraRowStyle(row, definition.TechLevel, index);
+            BindRowPin(row, UIPinPreferences.Workshop, definition.Id);
+            SetRowMetadata(row, FirstDescriptionLine(definition.Description));
             Transform techLevel = row.transform.Find("TechLevel");
             if (techLevel == null)
             {
@@ -344,7 +364,7 @@ public sealed partial class KingdomUIRoot
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
             workshopPurchaseButtons[definition] = purchaseButton;
         }
-        AppendRelicWorkshopRow(parent, ref visible);
+        if (!supportPinned) AppendRelicWorkshopRow(parent, ref visible);
         for (int i = visible; i < workshopRows.Count; i++)
             if (workshopRows[i] != null)
                 workshopRows[i].SetActive(false);

@@ -236,6 +236,7 @@ public static class StoryIllustrationAuthoring
             SetReference(serialized, "title", title); SetReference(serialized, "closeButton", close);
             SetReference(serialized, "resetButton", reset); SetReference(serialized, "backdropButton", backdrop);
             serialized.ApplyModifiedPropertiesWithoutUndo(); overlay.SetActive(false);
+            KingdomBackgroundAuthoring.Apply(root);
             PrefabUtility.SaveAsPrefabAsset(root, path);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
@@ -287,6 +288,7 @@ public static class StoryIllustrationAuthoring
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.sizeDelta = new Vector2(-12, -8);
+        KingdomButtonAuthoring.Apply(button);
         return button;
     }
 
