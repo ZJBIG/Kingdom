@@ -21,7 +21,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private static readonly Color Background = new(0.035f, 0.055f, 0.065f, 1f);
     private static readonly Color Panel = new(0.10f, 0.13f, 0.14f, 1f);
     private static readonly Color PanelRaised = new(0.16f, 0.19f, 0.19f, 1f);
-    private static readonly Color Copper = new(0.76f, 0.50f, 0.25f, 1f);
+    private static readonly Color BasicMetalIngot = new(0.76f, 0.50f, 0.25f, 1f);
     private static readonly Color BuildableActionColor = new Color32(194, 128, 64, 255);
     private static readonly Color TextPrimary = new(0.92f, 0.89f, 0.80f, 1f);
     private static readonly Color TextSecondary = new(0.63f, 0.69f, 0.67f, 1f);
@@ -139,7 +139,10 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool workshopRowsUiDirty;
     private int lastSelectedResourceVersion = -1;
     private int lastSelectedBuildingVersion = -1;
-    private bool lastSelectedBuildingUpgrade;
+    private Building lastSelectedBuildingUpgradeTarget;
+    private ExpantaNum lastSelectedBuildingAvailableTerritory;
+    private ExpantaNum lastSelectedBuildingAvailableProductivity;
+    private ProgressionModifierState lastSelectedBuildingModifiers;
     private int lastSelectedBuildingResourceVersion = -1;
     private readonly HashSet<string> observedCompletedResearchIds = new();
     private bool researchCompletionObservationInitialized;
@@ -203,6 +206,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text musicGapValueLabel;
     private Slider sfxVolumeSlider;
     private Button sfxMuteButton;
+    private TMP_Text sfxMuteLabel;
     private TMP_Text sfxVolumeValueLabel;
     private RectTransform musicTrackList;
     private bool musicProgressDragging;
@@ -338,6 +342,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 
     private void LateUpdate()
     {
+        TickOnboarding();
         if (populatedPage == "Story")
             KeepStoryTextGeometryDrawable();
         // CanvasScaler and the SafeAreaFitter can complete their first layout
@@ -388,6 +393,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 RefreshResearchTreeVisuals();
                 return;
             }
+            SaveCurrentPagePosition();
             PopulatePage(populatedPage);
         }
     }
@@ -541,7 +547,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         }
     }
 
-    // Legacy runtime shell builder retained as historical reference only.
     // The authored prefab is now the sole source of fixed layout.
 
     /// <summary>
@@ -571,6 +576,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             if (pair.Value.gameObject.activeSelf != shouldBeActive)
                 pair.Value.gameObject.SetActive(shouldBeActive);
         }
+        if (productionTools != null)
+            productionTools.gameObject.SetActive(name == "Production");
 #if UNITY_EDITOR
         float pageVisibilityDurationMs =
             (Time.realtimeSinceStartup - pageSwitchStartTime) * 1000f;
@@ -612,6 +619,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         RefreshOverviewNavigationToolbar();
         RefreshWorkshopFiltersVisibility();
         TutorialManager.Current?.RecordPageVisited(name);
+        TutorialManager.Current?.RecordStagePageVisited(name);
         // The page slot is laid out by the parent Canvas before the first
         // generated page is created. Once a page has been built, forcing a
         // complete Canvas rebuild on every tab switch needlessly walks the
@@ -622,6 +630,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 ? musicPageBuilt
                 : name == "Story"
                     ? storyPageBuilt
+                : name == "Production" ? productionTree != null
                 : name == "Overview" || AreAuthoredRowsBuilt(name);
         bool pageNeedsInitialLayout = !pageHasCachedLayout;
         bool pageGeometryUnavailable = pageHost == null ||
@@ -784,6 +793,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             "Research" => "研究",
             "Era" => "时代",
             "Workshop" => "工坊",
+            "Production" => "生产树",
             "Music" => "音乐",
             "Sectors" => "星区",
             "Story" => "剧情",
@@ -798,6 +808,14 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     {
         if (!pages.TryGetValue(name, out RectTransform page))
             return;
+        if (name == "Production")
+        {
+            if (researchQueueViewport != null) researchQueueViewport.gameObject.SetActive(false);
+            if (buildingControls != null) buildingControls.gameObject.SetActive(false);
+            PopulateProductionPage();
+            ConfigureOuterPageScroll(name, false);
+            return;
+        }
         if (name == "Story")
         {
             if (researchQueueViewport != null)
@@ -827,8 +845,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             page.anchorMax = new Vector2(1f, 1f);
             page.pivot = new Vector2(.5f, 1f);
             page.anchoredPosition = Vector2.zero;
-            page.sizeDelta = new Vector2(0f, Mathf.Max(
-                pageHost == null ? 0f : pageHost.rect.height, 1400f));
+            LayoutRebuilder.ForceRebuildLayoutImmediate(page);
             ConfigureOuterPageScroll("Overview", false, true);
             return;
         }
@@ -946,15 +963,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             rows.anchorMin = new Vector2(0, 1);
             rows.anchorMax = new Vector2(1, 1);
             rows.pivot = new Vector2(.5f, 1);
-            rows.anchoredPosition = new Vector2(0, name == "Research" || name == "Music" ? 0f : -82f);
+            rows.anchoredPosition = Vector2.zero;
             rows.sizeDelta = new Vector2(0, rowsHeight);
-            // The research graph owns the pan/zoom. Its viewport must be the
-            // visible page window, not the old 1400px page canvas; otherwise
-            // the inner ScrollRect measures a rectangle larger than the
-            // screen and loses the expected vertical drag range.
-            page.sizeDelta = new Vector2(0, name == "Research" || name == "Music"
-                ? rowsHeight
-                : Mathf.Max(1400f, rowsHeight + 180f));
+            page.sizeDelta = new Vector2(0, rowsHeight);
         }
         // Every normal page switch must bind the shared ScrollRect to the
         // page that was just populated. Checking the previous content here
@@ -1012,6 +1023,71 @@ public sealed class DevelopmentGuidanceSnapshot
 
 public static class DevelopmentGuidance
 {
+    public static string BuildSituationReport(GameState state, IEnumerable<ResourceState> resources)
+    {
+        if (state == null) return string.Empty;
+        var body = new System.Text.StringBuilder("<b>王国运行简报</b>\n");
+        ExpantaNum foodNet = state.FoodNetRate;
+        if (foodNet < ExpantaNum.Zero)
+            body.Append("粮食正在净消耗；按当前收支，余粮约可维持 ")
+                .Append((state.FoodAmount / -foodNet / 60).ToGameString()).Append(" 分钟。优先补足食物来源。");
+        else if (foodNet > ExpantaNum.Zero)
+            body.Append("粮食净余 ").Append(foodNet.ToGameString()).Append("/秒；新增人口和产业会增加消耗。");
+        else
+            body.Append("粮食收支持平；扩张人口前先增加食物产出。");
+        if (state.PowerConsumptionRate > ExpantaNum.Zero && state.PowerSatisfaction < ExpantaNum.One)
+            body.Append("\n电力供给满足 ").Append((state.PowerSatisfaction * 100).ToGameString())
+                .Append("%；补充发电，恢复用电产业效率。");
+        if (state.LogisticsConsumptionRate > ExpantaNum.Zero && state.LogisticsSatisfaction < ExpantaNum.One)
+            body.Append("\n物流供给满足 ").Append((state.LogisticsSatisfaction * 100).ToGameString())
+                .Append("%；补充运输，恢复依赖物流的产业效率。");
+
+        ExpantaNum productionReward = state.HappinessRewardMultiplier;
+        var declining = new List<ResourceState>();
+        if (resources != null)
+            foreach (ResourceState resource in resources)
+                if (resource.ConsumptionRate > resource.ProductionRate * productionReward)
+                    declining.Add(resource);
+        declining.Sort((a, b) =>
+        {
+            int time = (a.Amount / (a.ConsumptionRate - a.ProductionRate * productionReward))
+                .CompareTo(b.Amount / (b.ConsumptionRate - b.ProductionRate * productionReward));
+            return time != 0 ? time : string.CompareOrdinal(a.Definition.Id, b.Definition.Id);
+        });
+        if (declining.Count > 0)
+        {
+            body.Append("\n\n<b>优先检查的生产链</b>（按余量支撑时间排序）");
+            for (int i = 0; i < declining.Count && i < 3; i++)
+            {
+                ResourceState resource = declining[i];
+                ExpantaNum loss = resource.ConsumptionRate - resource.ProductionRate * productionReward;
+                body.Append("\n").Append(resource.Definition.Label).Append("：净耗 ")
+                    .Append(loss.ToGameString()).Append("/秒，余量约 ")
+                    .Append((resource.Amount / loss / 60).ToGameString()).Append(" 分钟。");
+            }
+            body.Append("\n以上按当前速率估算；在资源详情打开生产树检查来源与持续投入。");
+        }
+        WorldEventState events = state.Events;
+        if (events.Sequence > 0)
+        {
+            body.Append("\n\n<b>聚落事件</b>\n");
+            if (events.ActiveKind == WorldEventKind.Fire)
+                body.Append("失火：人口损失 ").Append(events.PopulationLost)
+                    .Append("；建筑资源与粮食产出降低20%。重建还需约 ")
+                    .Append(Math.Ceiling(events.RemainingSeconds)).Append(" 秒。");
+            else if (events.ActiveKind == WorldEventKind.ProductiveDay)
+                body.Append("生产顺利：建筑资源与粮食产出提高15%，还将持续约 ")
+                    .Append(Math.Ceiling(events.RemainingSeconds)).Append(" 秒。");
+            else if (events.LastKind == WorldEventKind.Aurora)
+                body.Append("极光夜：鼠群在夜空下驻足。仅为见闻，没有数值影响。");
+            else
+                body.Append(events.PopulationLost > 0
+                    ? "火灾重建已结束，建筑产出倍率恢复；损失的人口需要重新增长。"
+                    : "上次事件已经结束，建筑资源与粮食产出倍率已恢复。");
+        }
+        return body.ToString();
+    }
+
     public static DevelopmentGuidanceSnapshot Build(
         GameManager gameManager,
         ResearchManager researchManager,
@@ -1081,7 +1157,7 @@ public static class DevelopmentGuidance
                 snapshot.Status = DevelopmentGuidanceStatus.Available;
                 snapshot.Title = "开始研究：" + research.Label;
                 snapshot.Body = string.IsNullOrWhiteSpace(research.Description)
-                    ? "这是当前研究树中最靠前的可用节点。"
+                    ? "前置研究已完成；查看材料需求，将它加入研究队列。"
                     : research.Description;
                 snapshot.Blockers = new[] { "研究力 " + researchManager.ResearchPower.ToGameString() + "/s" };
                 return snapshot;
@@ -1099,7 +1175,7 @@ public static class DevelopmentGuidance
                 {
                     snapshot.Status = DevelopmentGuidanceStatus.Available;
                     snapshot.Title = "建设：" + building.Label;
-                    snapshot.Body = "当前有可建设的建筑，扩展生产链或研究能力。";
+                    snapshot.Body = TutorialManager.DescribeBuildingRole(building);
                     snapshot.Blockers = Array.Empty<string>();
                     return snapshot;
                 }
@@ -1116,7 +1192,7 @@ public static class DevelopmentGuidance
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Workshop;
         snapshot.Title = "工坊：" + definition.Label;
-                snapshot.Body = "已有可用的工坊升级；它提供基础建设之外的渐进发展路线，查看资源需求与效果。";
+                snapshot.Body = definition.Description;
                 snapshot.Blockers = Array.Empty<string>();
                 return snapshot;
             }

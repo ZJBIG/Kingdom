@@ -65,6 +65,7 @@ function Get-Definition([string]$path, [string]$kind, [hashtable]$definitions) {
         RequiredResearch = @(Get-IdsFromSection (Get-Section $text 'requiredResearch') 'Research' $definitions)
         RequiredUpgrades = @(Get-IdsFromSection (Get-Section $text 'requiredWorkshopUpgrades') 'Workshop' $definitions)
         Costs = @(Get-IdsFromSection (Get-Section $text 'resourceRequirements') 'Resource' $definitions)
+        Consumes = @(Get-IdsFromSection (Get-Section $text 'resourceConsumptionRates') 'Resource' $definitions)
         Generates = @(Get-IdsFromSection (Get-Section $text 'resourceGenerationRates') 'Resource' $definitions)
     }
     return [pscustomobject]$record
@@ -163,6 +164,7 @@ foreach ($file in $definitionFiles) {
             Validate-ReferenceSection $file.Path $owner 'requiredResearch' 'Research'
             Validate-ReferenceSection $file.Path $owner 'requiredWorkshopUpgrades' 'Workshop'
             Validate-ReferenceSection $file.Path $owner 'resourceRequirements' 'Resource'
+            Validate-ReferenceSection $file.Path $owner 'resourceConsumptionRates' 'Resource'
         }
     }
 }
@@ -217,7 +219,8 @@ do {
         if ($availableBuildings.Contains($building.Id) -or $building.Tech -gt $tech) { continue }
         if ((Contains-All $completed $building.RequiredResearch) -and
             (Contains-All $purchased $building.RequiredUpgrades) -and
-            (Contains-All $resources $building.Costs)) {
+            (Contains-All $resources $building.Costs) -and
+            (Contains-All $resources $building.Consumes)) {
             [void]$availableBuildings.Add($building.Id)
             foreach ($output in $building.Generates) { [void]$resources.Add($output) }
             $changed = $true
@@ -231,6 +234,7 @@ function First-Block($definition, [string]$kind) {
     foreach ($id in $definition.RequiredResearch) { if (-not $completed.Contains($id)) { return "requires research $id" } }
     foreach ($id in $definition.RequiredUpgrades) { if (-not $purchased.Contains($id)) { return "requires workshop $id" } }
     foreach ($id in $definition.Costs) { if (-not $resources.Contains($id)) { return "costs unavailable resource $id" } }
+    foreach ($id in $definition.Consumes) { if (-not $resources.Contains($id)) { return "consumes unavailable resource $id" } }
     if ($definition.Tech -gt $tech) { return "requires tech level $($definition.Tech), reached $tech" }
     return 'unresolved dependency'
 }

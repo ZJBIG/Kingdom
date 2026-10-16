@@ -7,8 +7,8 @@ public sealed class MedievalResearchRoleTests
     {
         AssertResearchRole("Fortification", ResearchEffectType.GlobalConstructionMultiplier);
         AssertResearchRole("GuildSystem", ResearchEffectType.GlobalResearchMultiplier);
-        AssertResearchRole("Gunpowder", ResearchEffectType.GlobalLogisticsMultiplier);
-        AssertResearchRole("StandingArmy", ResearchEffectType.PopulationProductivityMultiplier);
+        AssertResearchRole("GunpowderSupplyStandards", ResearchEffectType.GlobalLogisticsMultiplier);
+        AssertResearchRole("PermanentLaborOrganization", ResearchEffectType.PopulationProductivityMultiplier);
     }
 
     [Test]
@@ -20,11 +20,11 @@ public sealed class MedievalResearchRoleTests
             "FeudalAdministration",
             "Fortification",
             "GuildSystem",
-            "Gunpowder",
+            "GunpowderSupplyStandards",
             "MechanicalEngineering",
             "PublicHealth",
             "ScholasticInstitutions",
-            "StandingArmy",
+            "PermanentLaborOrganization",
             "Steelmaking",
             "TradeRoutes",
             "UrbanHousing"

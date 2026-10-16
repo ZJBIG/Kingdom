@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PredictiveCasualtyControl
   m_EditorClassIdentifier: 
   id: PredictiveCasualtyControl
-  Label: "Predictive Casualty Control"
-  Description: "Predictive damage control turns existing campaign telemetry into safer withdrawals and repairs, reducing casualties without introducing real-time combat or new fleet units."
+  Label: "预测损伤控制"
+  Description: "根据远征记录预判危险，提前隔离受损舱段，降低战役损失率。"
   BaseCost: "1.65e13"
   prerequisites:
   - {fileID: 11400000, guid: 3e5a7c9f1b2d4f6081a3c5e7b9d0f2a4, type: 2}

@@ -153,7 +153,7 @@ public sealed partial class KingdomUIRoot
             !parsed.IsFinite || parsed < ExpantaNum.One)
         {
             customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
-            ShowTooltip("数量须为大于等于 1 的有限整数；本次采用 " + customBuildingQuantity.ToGameString() + "，实际可操作量受库存和前置限制。");
+            ShowTooltip("请输入不小于 1 的整数；本次采用 " + customBuildingQuantity.ToGameString() + "，实际可操作量受库存和前置限制。");
             return;
         }
         customBuildingQuantity = parsed.Floor();
@@ -161,7 +161,7 @@ public sealed partial class KingdomUIRoot
             customBuildingQuantity = ExpantaNum.One;
         customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
         if (parsed != customBuildingQuantity)
-            ShowTooltip("数量已归一化为整数 " + customBuildingQuantity.ToGameString() + "，实际可操作量受库存和前置限制。");
+            ShowTooltip("数量已向下取整为 " + customBuildingQuantity.ToGameString() + "，实际可操作量受库存和前置限制。");
     }
 
     private void SelectBuildingQuantityMode(BuildingQuantityMode mode)
@@ -178,7 +178,7 @@ public sealed partial class KingdomUIRoot
         {
             Image image = pair.Value.targetGraphic as Image;
             if (image != null)
-                image.color = pair.Key == buildingQuantityMode ? Copper : PanelRaised;
+                image.color = pair.Key == buildingQuantityMode ? BasicMetalIngot : PanelRaised;
         }
     }
 

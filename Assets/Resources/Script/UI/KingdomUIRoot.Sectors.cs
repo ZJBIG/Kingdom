@@ -155,7 +155,7 @@ public sealed partial class KingdomUIRoot
         view.Menu.pivot = new Vector2(.5f, 1f);
         view.Menu.anchoredPosition = new Vector2(0f, -view.CollapsedHeight);
         view.Menu.sizeDelta = new Vector2(0f, 416f);
-        CreateText("Heading", view.Menu, "星区工程", Copper, TextAlignmentOptions.MidlineLeft)
+        CreateText("Heading", view.Menu, "星区工程", BasicMetalIngot, TextAlignmentOptions.MidlineLeft)
             .rectTransform.offsetMin = new Vector2(28f, -58f);
         float cardTop = 76f;
         for (int i = 0; i < orderedBuildings.Count; i++)
@@ -197,7 +197,7 @@ public sealed partial class KingdomUIRoot
                 (building.LogisticsProductionRate - building.LogisticsConsumptionRate).ToGameString() +
                 "/s  Fleet +" + building.FleetPowerGranted.ToGameString() +
                 "  Defense +" + building.DefensePowerGranted.ToGameString());
-            SetRowText(cardObject, "Cost", FormatResourceCosts(building.ResourceRequirements), Copper);
+            SetRowText(cardObject, "Cost", FormatResourceCosts(building.ResourceRequirements), BasicMetalIngot);
             Button build = RequireChildButton(cardObject, "Build");
             Button demolish = RequireChildButton(cardObject, "Deconstruct");
             if (build == null || demolish == null) continue;
@@ -285,7 +285,7 @@ public sealed partial class KingdomUIRoot
         sectorRowsParent.sizeDelta = new Vector2(0f, Mathf.Max(minimumHeight, top));
         RectTransform page = sectorRowsParent.parent as RectTransform;
         if (page != null)
-            page.sizeDelta = new Vector2(0f, Mathf.Max(1400f, top + 180f));
+            page.sizeDelta = new Vector2(0f, sectorRowsParent.rect.height);
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
             ConfigureOuterPageScroll("Sectors", false, true);
@@ -399,19 +399,19 @@ public sealed partial class KingdomUIRoot
                 if (!wasOccupied && state.Occupied)
                 {
                     EnqueueRecentNotice("星区纳入王国：" + definition.Label +
-                        " 已成为鼠族文明新的责任与资源来源。");
+                        " 已占领；可在星区详情查看领土奖励与持续产出。");
                 }
                 else if (observedSectorProgress.TryGetValue(id, out ExpantaNum previousProgress) &&
                     previousProgress < ExpantaNum.One && progress >= ExpantaNum.One)
                 {
                     EnqueueRecentNotice("远征完成：" + definition.Label +
-                        " 的道路已经打通，现在可以决定是否接纳这片星区。");
+                        " 的进度已完成；前往星区详情确认占领。");
                 }
                 else if (previousCasualties <= ExpantaNum.Zero &&
                     state.CampaignCasualties > ExpantaNum.Zero)
                 {
                     EnqueueRecentNotice("战报：" + definition.Label +
-                        " 的远征出现伤亡；补给与维修是继续前进的代价。");
+                        " 的舰队出现损伤；查看补给余量，必要时撤退后维修。");
                 }
             }
 
@@ -434,6 +434,7 @@ public sealed partial class KingdomUIRoot
             return;
 
         // 星区详情不能继承残留的研究节点选择，否则通用按钮会被改回研究队列操作。
+        RecordOnboardingDetail(definition.Id);
         selectedResearchNode = null;
         ShowDetails(
             definition.Label,
@@ -505,7 +506,7 @@ public sealed partial class KingdomUIRoot
 
         if (state == null)
         {
-            body.AppendLine("运行时状态尚未初始化。");
+            body.AppendLine("星区数据尚未载入，请稍候。");
         }
         else if (definition.IsHomeSystem)
         {
@@ -537,7 +538,7 @@ public sealed partial class KingdomUIRoot
             AppendCampaignBudget(body, preview);
             if (GameManager.Instance.UltraProject.IsCampaignDoctrineUnlocked)
             {
-                body.AppendLine("同一当前状态下的战役姿态比较（不切换姿态）：");
+                body.AppendLine("战役姿态预览（按当前舰队与供给估算，选择后生效）：");
                 foreach (CampaignDoctrine doctrine in new[] { CampaignDoctrine.Stable, CampaignDoctrine.Surge })
                 {
                     body.AppendLine("战役姿态：" + (doctrine == CampaignDoctrine.Stable ? "稳健" : "突进"));
@@ -548,9 +549,9 @@ public sealed partial class KingdomUIRoot
             body.AppendLine("舰队生存倍率：" + preview.FleetSurvivalFactor.ToGameString());
             body.AppendLine("舰队整备度：" + preview.FleetReadiness.ToGameString());
             body.AppendLine("当前伤亡：" + preview.CurrentCasualties.ToGameString());
-            body.AppendLine("补给满意度：" + preview.SupplySatisfaction.ToGameString());
-            body.AppendLine("电力满意度：" + preview.PowerSatisfaction.ToGameString());
-            body.AppendLine("物流满意度：" + preview.LogisticsSatisfaction.ToGameString());
+            body.AppendLine("补给满足率（0—1）：" + preview.SupplySatisfaction.ToGameString());
+            body.AppendLine("电力满足率（0—1）：" + preview.PowerSatisfaction.ToGameString());
+            body.AppendLine("物流满足率（0—1）：" + preview.LogisticsSatisfaction.ToGameString());
                 body.AppendLine("推进速度：" + preview.ProgressPerSecond.ToGameString() + "/s");
             body.AppendLine(preview.EstimatedSecondsRemaining > ExpantaNum.Zero
                 ? "预计完成：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒"

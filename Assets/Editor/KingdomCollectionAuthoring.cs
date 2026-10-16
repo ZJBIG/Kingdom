@@ -11,6 +11,7 @@ public static class KingdomCollectionAuthoring
     [MenuItem("Tools/Kingdom/UI/Author Collection Cards")]
     public static void Author()
     {
+        ImportPinSprites();
         foreach (string name in new[] { "ResourceCard", "BuildingCard", "WorkshopCard", "SectorRow" })
         {
             string path = Folder + "KingdomUI" + name + ".prefab";
@@ -23,18 +24,50 @@ public static class KingdomCollectionAuthoring
         GameObject root = PrefabUtility.LoadPrefabContents(rootPath);
         try
         {
+            TMP_InputField quantity = root.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/CustomQuantityInput").GetComponent<TMP_InputField>();
+            Image field = quantity.GetComponent<Image>();
+            field.sprite = Resources.Load<Sprite>("Art/UI/Buttons/ControlMetal");
+            field.type = Image.Type.Sliced;
+            field.pixelsPerUnitMultiplier = 14;
+            field.color = Color.white;
+            ColorBlock fieldColors = quantity.colors;
+            fieldColors.normalColor = new Color(.16f, .19f, .19f);
+            fieldColors.highlightedColor = new Color(.25f, .28f, .26f);
+            fieldColors.selectedColor = new Color(.28f, .30f, .25f);
+            fieldColors.pressedColor = new Color(.12f, .15f, .15f);
+            quantity.colors = fieldColors;
+            RectTransform fieldRect = (RectTransform)quantity.transform;
+            fieldRect.anchorMin = new Vector2(.58f, .10f);
+            fieldRect.anchorMax = new Vector2(.80f, .90f);
+            TMP_Text hint = quantity.transform.Find("Placeholder").GetComponent<TMP_Text>();
+            hint.text = "数量";
+            hint.fontSize = 30;
+            hint.alignment = TextAlignmentOptions.MidlineLeft;
+            hint.enableWordWrapping = false;
+            hint.color = new Color(.70f, .73f, .69f);
+            TMP_Text value = quantity.transform.Find("Text").GetComponent<TMP_Text>();
+            value.fontSize = 32;
+            value.alignment = TextAlignmentOptions.MidlineLeft;
+            quantity.customCaretColor = true;
+            quantity.caretColor = new Color(.90f, .88f, .75f);
+            RectMask2D inputMask = quantity.GetComponent<RectMask2D>();
+            if (inputMask == null) inputMask = quantity.gameObject.AddComponent<RectMask2D>();
+            inputMask.padding = new Vector4(12, 4, 12, 4);
             Transform surface = root.transform.Find("SafeAreaRoot/DetailPanel/Surface");
             Button pin = Button(surface, "PinButton", "置顶");
             RectTransform rect = (RectTransform)pin.transform;
             rect.anchorMin = rect.anchorMax = new Vector2(1, 1);
             rect.pivot = new Vector2(1, 1);
             rect.anchoredPosition = new Vector2(-24, -14);
-            rect.sizeDelta = new Vector2(52, 48);
-            TMP_Text pinText = pin.GetComponentInChildren<TMP_Text>();
-            pinText.fontSize = 18;
-            pinText.rectTransform.offsetMin = new Vector2(2, 2);
-            pinText.rectTransform.offsetMax = new Vector2(-2, -2);
+            rect.sizeDelta = new Vector2(48, 48);
             pin.gameObject.SetActive(false);
+            Transform musicControls = root.transform.Find("SafeAreaRoot/Content/PageHost/Music/DataRows/MusicSurface/Controls");
+            Button mute = Button(musicControls, "SfxMute", "音效静音");
+            RectTransform muteRect = (RectTransform)mute.transform;
+            muteRect.anchorMin = muteRect.anchorMax = Vector2.zero;
+            muteRect.anchoredPosition = new Vector2(380, 48);
+            muteRect.sizeDelta = new Vector2(190, 64);
+            mute.GetComponentInChildren<TMP_Text>().fontSize = 30;
             PrefabUtility.SaveAsPrefabAsset(root, rootPath);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
@@ -61,13 +94,39 @@ public static class KingdomCollectionAuthoring
         RectTransform rowRect = (RectTransform)root;
         rowRect.sizeDelta = new Vector2(rowRect.sizeDelta.x, layout.preferredHeight);
         bool resource = kind == "ResourceCard";
+        if (kind == "BuildingCard")
+        {
+            TMP_Text status = root.Find("Effect").GetComponent<TMP_Text>();
+            status.fontSize = status.fontSizeMax = 128;
+            status.fontSizeMin = 24;
+            status.enableAutoSizing = true;
+            status.enableWordWrapping = false;
+            status.alignment = TextAlignmentOptions.Center;
+            RectTransform era = (RectTransform)root.Find("TechLevel");
+            era.anchorMin = new Vector2(.23f, 0);
+            era.anchorMax = new Vector2(.34f, 1);
+            RectTransform amount = (RectTransform)root.Find("Amount");
+            amount.anchorMin = new Vector2(.34f, 0);
+            amount.anchorMax = new Vector2(.40f, 1);
+            status.rectTransform.anchorMin = new Vector2(.40f, 0);
+            status.rectTransform.anchorMax = new Vector2(.64f, 1);
+        }
         TMP_Text label = root.Find("Label").GetComponent<TMP_Text>();
         float right = label.rectTransform.anchorMax.x;
         float left = resource ? 154 : 74;
-        SetTextRect(label, 0, right, .40f, 1, left, 8);
-        label.enableWordWrapping = false;
+        bool compactTitle = kind != "SectorRow";
+        SetTextRect(label, 0, right, compactTitle ? 0 : .40f, 1, left, 8);
+        label.enableWordWrapping = compactTitle;
+        if (compactTitle)
+        {
+            label.fontSize = label.fontSizeMax = 42;
+            label.fontSizeMin = 30;
+            label.enableAutoSizing = true;
+            label.alignment = TextAlignmentOptions.MidlineLeft;
+        }
         label.overflowMode = TextOverflowModes.Ellipsis;
         TMP_Text metadata = Text(root, "Metadata", 20);
+        metadata.gameObject.SetActive(!compactTitle);
         SetTextRect(metadata, 0, right, 0, .40f, left, 8);
         metadata.color = new Color(.70f, .73f, .69f);
         metadata.enableWordWrapping = false;
@@ -79,10 +138,7 @@ public static class KingdomCollectionAuthoring
         rect.anchorMin = rect.anchorMax = new Vector2(0, .5f);
         rect.pivot = new Vector2(0, .5f);
         rect.anchoredPosition = new Vector2(12, 0);
-        rect.sizeDelta = new Vector2(52, 48);
-        pin.GetComponentInChildren<TMP_Text>().fontSize = 18;
-        pin.GetComponentInChildren<TMP_Text>().rectTransform.offsetMin = new Vector2(2, 2);
-        pin.GetComponentInChildren<TMP_Text>().rectTransform.offsetMax = new Vector2(-2, -2);
+        rect.sizeDelta = new Vector2(48, 48);
         Transform stripe = root.Find("EraAccent");
         if (stripe == null)
         {
@@ -151,10 +207,7 @@ public static class KingdomCollectionAuthoring
             RectTransform pinRect = (RectTransform)pin.transform;
             pinRect.anchorMin = pinRect.anchorMax = new Vector2(0, .5f);
             pinRect.pivot = new Vector2(0, .5f); pinRect.anchoredPosition = new Vector2(12, 0);
-            pinRect.sizeDelta = new Vector2(52, 48);
-            pin.GetComponentInChildren<TMP_Text>().fontSize = 18;
-            pin.GetComponentInChildren<TMP_Text>().rectTransform.offsetMin = new Vector2(2, 2);
-            pin.GetComponentInChildren<TMP_Text>().rectTransform.offsetMax = new Vector2(-2, -2);
+            pinRect.sizeDelta = new Vector2(48, 48);
             PrefabUtility.SaveAsPrefabAsset(card, path);
         }
         finally { if (loaded) PrefabUtility.UnloadPrefabContents(card); else UnityEngine.Object.DestroyImmediate(card); }
@@ -171,8 +224,52 @@ public static class KingdomCollectionAuthoring
             existing.name = name;
         }
         Button button = existing.GetComponent<Button>();
-        button.GetComponentInChildren<TMP_Text>().text = caption;
+        if (name == "PinButton") AuthorPin(button);
+        else button.GetComponentInChildren<TMP_Text>().text = caption;
         return button;
+    }
+
+    private static void AuthorPin(Button button)
+    {
+        Transform label = button.transform.Find("Label");
+        if (label != null) UnityEngine.Object.DestroyImmediate(label.gameObject);
+        Image hitTarget = button.GetComponent<Image>();
+        hitTarget.sprite = null; hitTarget.color = Color.clear; hitTarget.raycastTarget = true;
+        button.transition = Selectable.Transition.ColorTint;
+        Transform icon = button.transform.Find("Icon");
+        if (icon == null)
+        {
+            icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)).transform;
+            icon.SetParent(button.transform, false);
+        }
+        RectTransform rect = (RectTransform)icon;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+        rect.anchoredPosition = Vector2.zero; rect.sizeDelta = new Vector2(36, 36);
+        Image graphic = icon.GetComponent<Image>();
+        if (graphic == null) graphic = icon.gameObject.AddComponent<Image>();
+        graphic.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Art/UI/Pins/PinOutline.png");
+        if (graphic.sprite == null) throw new InvalidOperationException("Missing generated pin sprite.");
+        graphic.preserveAspect = true;
+        graphic.raycastTarget = false;
+        graphic.color = new Color(.70f, .73f, .69f);
+        button.targetGraphic = graphic;
+    }
+
+    private static void ImportPinSprites()
+    {
+        foreach (string name in new[] { "PinOutline", "PinFilled" })
+        {
+            string path = "Assets/Resources/Art/UI/Pins/" + name + ".png";
+            AssetDatabase.ImportAsset(path);
+            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null) throw new InvalidOperationException("Missing generated pin texture: " + path);
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+        }
     }
 
     private static TMP_Text Text(Transform parent, string name, float size)

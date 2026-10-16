@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DraftingTables
   Label: "\u5236\u56FE\u53F0"
-  Description: "\u5E26\u6BD4\u4F8B\u5C3A\u3001\u5706\u89C4\u548C\u6807\u51C6\u56FE\u7EB8\u5939\u5177\u7684\u5DE5\u7A0B\u5236\u56FE\u8BBE\u5907\u3002"
+  Description: "统一工程图纸与尺寸校核，提高全局建造效率，降低建造材料需求。"
   SortOrder: 10
   TechLevel: 3
   requiredResearch:

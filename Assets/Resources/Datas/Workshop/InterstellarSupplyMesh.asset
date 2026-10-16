@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: InterstellarSupplyMesh
   m_EditorClassIdentifier: 
   id: InterstellarSupplyMesh
-  Label: "Interstellar Supply Mesh"
-  Description: "A synchronized supply doctrine that lets the Ultra material hub schedule long-range freight and fleet support through the existing logistics channel."
+  Label: "星际补给网络"
+  Description: "统一安排长距离货运和舰队补给，提高全局物流供给。"
   SortOrder: 740
   TechLevel: 5
   requiredResearch:

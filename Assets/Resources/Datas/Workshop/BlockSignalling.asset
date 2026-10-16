@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BlockSignalling
   Label: "\u7535\u6C14\u95ED\u585E\u673A"
-  Description: "\u7531\u8F68\u9053\u7EE7\u7535\u5668\u3001\u4FE1\u53F7\u673A\u548C\u533A\u6BB5\u8054\u9501\u6784\u6210\u7684\u94C1\u8DEF\u5B89\u5168\u8BBE\u5907\u3002"
+  Description: "安装区段信号与联锁设备，提高铁路枢纽的物流供给。"
   SortOrder: 260
   TechLevel: 3
   requiredResearch:

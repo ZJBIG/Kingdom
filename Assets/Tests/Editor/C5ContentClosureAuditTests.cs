@@ -11,8 +11,8 @@ public sealed class C5ContentClosureAuditTests
         "Bookmaking",
         "TradeRoutes",
         "Fortification",
-        "StandingArmy",
-        "Gunpowder",
+        "PermanentLaborOrganization",
+        "GunpowderSupplyStandards",
         "Industrialization"
     };
 
@@ -57,7 +57,7 @@ public sealed class C5ContentClosureAuditTests
             new[] { "WoodLog" },
             TechLevel.Animal);
 
-        var strategicResources = new[] { "Steel", "Bronze" };
+        var strategicResources = new[] { "Steel", "BasicMetalIngot" };
         for (int i = 0; i < strategicResources.Length; i++)
         {
             Assert.That(result.ResourcesWithoutSource, Does.Not.Contain(strategicResources[i]),

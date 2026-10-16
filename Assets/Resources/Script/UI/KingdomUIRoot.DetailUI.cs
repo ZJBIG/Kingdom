@@ -150,7 +150,14 @@ public sealed partial class KingdomUIRoot
         requirementGesture.Initialize(detailScrollViewport, detailScrollContent);
         requirementGesture.enabled = true;
 
-        BindResourceTree();
+        BindProductionEntry();
+        GameObject scrollFrame = Resources.Load<GameObject>("UI/Kingdom/KingdomUIScrollFrame");
+        if (scrollFrame == null)
+        {
+            Debug.LogError("Missing authored KingdomUIScrollFrame prefab.");
+            return false;
+        }
+        Instantiate(scrollFrame, detailScrollViewport, false).name = "ScrollFrame";
 
         Canvas.ForceUpdateCanvases();
         Debug.Log($"[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport={detailScrollViewport.rect.size}, content={detailScrollContent.rect.size}, footer={DetailFooterHeight:0}");
@@ -192,20 +199,6 @@ public sealed partial class KingdomUIRoot
         text.alignment = alignment;
         text.raycastTarget = false;
         return text;
-    }
-
-    private static Button CreateButton(string name, Transform parent, string label, Color color)
-    {
-        GameObject go = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.ActionButton, parent);
-        go.name = name;
-        Image image = go.GetComponent<Image>();
-        image.color = color;
-        if (name == "Deconstruct") image.sprite = Resources.Load<Sprite>("Art/UI/Buttons/ControlMetal");
-        Button button = go.GetComponent<Button>();
-        TMP_Text text = go.transform.Find("Label").GetComponent<TMP_Text>();
-        text.font = sharedFontAsset;
-        text.text = label;
-        return button;
     }
 
     private GameObject CreateRuntimeDetailRow(string name, RectTransform parent, float top)

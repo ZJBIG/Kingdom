@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CokeOvenOptimization
   Label: "\u7126\u7089\u6D41\u7A0B\u4F18\u5316"
-  Description: "通过预热、密封和副产物回收，提高焦炉的焦炭产出。"
+  Description: "以预热、密封和副产物回收改进焦化工艺，提高各条产线的焦炭产出。"
   SortOrder: 115
   TechLevel: 3
   requiredResearch:
@@ -23,10 +23,8 @@ MonoBehaviour:
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "120000"
-  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
-    amount: "24000"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    amount: "20000"
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
+    amount: "44000"
   effects:
   - Type: 2
     Building: {fileID: 0}

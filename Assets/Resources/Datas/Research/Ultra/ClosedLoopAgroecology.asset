@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ClosedLoopAgroecology
   m_EditorClassIdentifier: 
   id: ClosedLoopAgroecology
-  Label: "Closed-Loop Agroecology"
-  Description: "Close the orbital agroecology loop around the existing food, biomass and wood systems, supporting Ultra staffing demands without adding a food warehouse or a new resource type."
+  Label: "闭环农业生态"
+  Description: "回收营养与水分并统一安排轨道种植，提高全局食物产出。"
   BaseCost: "2.0e13"
   prerequisites:
   - {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}

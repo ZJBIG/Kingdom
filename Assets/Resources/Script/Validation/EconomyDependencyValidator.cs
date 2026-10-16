@@ -225,7 +225,8 @@ public static class EconomyDependencyValidator
                     continue;
                 if (!AllContained(building.RequiredResearch, completedResearch) ||
                     !AllContained(building.RequiredWorkshopUpgrades, purchasedUpgrades) ||
-                    !CostsReachable(building.ResourceRequirements, resources))
+                    !CostsReachable(building.ResourceRequirements, resources) ||
+                    !CostsReachable(building.ResourceConsumptionRates, resources))
                     continue;
                 availableBuildings.Add(building);
                 for (int j = 0; j < building.ResourceGenerationRates.Count; j++)
@@ -297,6 +298,8 @@ public static class EconomyDependencyValidator
             if (!upgrades.Contains(building.RequiredWorkshopUpgrades[i]))
                 return $"{building.Id} -> 需要工坊升级 {building.RequiredWorkshopUpgrades[i].Id} -> 工坊升级不可达";
         Resource missing = FirstMissingCost(building.ResourceRequirements, resources);
+        if (missing == null)
+            missing = FirstMissingCost(building.ResourceConsumptionRates, resources);
         return missing == null
             ? $"{building.Id} -> 所属时代不可达"
             : $"{building.Id} -> 需要 {missing.Id} -> 没有可达的生产者";

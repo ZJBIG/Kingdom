@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModernMedicine
   Label: "现代医学"
-  Description: "以实验医学、无菌流程、临床记录和标准化护理建立工业时代的现代医疗体系，让每名人口在更健康、更稳定的状态下承担长期生产劳动。"
+  Description: "以无菌流程、临床记录和标准护理改善健康，提高每名人口提供的生产力与幸福度。"
   BaseCost: "650000"
   prerequisites:
   - {fileID: 11400000, guid: 1cd97b5535bbb6b4d99b9b2bf483dfcf, type: 2}

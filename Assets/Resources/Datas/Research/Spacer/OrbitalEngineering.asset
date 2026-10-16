@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalEngineering
   Label: "轨道工程"
-  Description: "把工业电力、内燃机、复合材料与锡基焊接接点整合为近地轨道发射与测控体系。"
+  Description: "整合电力、发动机、复合材料与电气连接技术，为近地轨道设施奠定基础，并提高深空观测站的研究力。"
   BaseCost: "38400000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
@@ -31,7 +31,7 @@ MonoBehaviour:
     amount: "6000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "900"
-  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "18000"
   effects:
   - Type: 13

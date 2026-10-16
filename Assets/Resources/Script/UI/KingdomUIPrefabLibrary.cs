@@ -29,12 +29,14 @@ public static class KingdomUIPrefabLibrary
     public const string QuantityControls = "KingdomUIQuantityControls";
     public const string MusicTrack = "KingdomUIMusicTrack";
     public const string SectorRow = "KingdomUISectorRow";
+    public const string EraCard = "KingdomUIEraCard";
+    public const string EraSection = "KingdomUIEraSection";
 
     public static readonly string[] AllReusablePrefabs =
     {
         Root, Page, ResourceCard, BuildingCard, WorkshopCard, ResearchCard, TextRow,
         ResearchNode, ResearchLine, ResearchGraph, OverviewNavigationToolbar, ResearchEraBand,
-        QuantityControls, MusicTrack, SectorRow, ActionButton
+        QuantityControls, MusicTrack, SectorRow, ActionButton, EraCard, EraSection
     };
 
     public static GameObject Load(string prefabName)

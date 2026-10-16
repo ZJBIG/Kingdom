@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IntegratedFurnaces
   Label: "\u7EFC\u5408\u91D1\u5C5E\u7CBE\u70BC\u7089\u7EC4"
-  Description: "\u5C06\u8FDE\u7EED\u52A0\u6599\u3001\u5206\u533A\u7089\u6E29\u3001\u9752\u94DC\u6807\u51C6\u94F8\u9020\u548C\u94DC\u7535\u89E3\u7CBE\u70BC\u7EDF\u4E00\u5230\u591A\u91D1\u5C5E\u51B6\u70BC\u6D41\u7A0B\uFF0C\u63D0\u9AD8\u5DE5\u4E1A\u91D1\u5C5E\u7194\u7089\u7684\u8FDE\u7EED\u4EA7\u51FA\u3002"
+  Description: "把连续进料、炉温控制、合金工艺和出料检验统一到机械化冶炼中，提高工业金属冶炼厂的集中供应能力。"
   SortOrder: 215
   TechLevel: 3
   requiredResearch:
@@ -27,7 +27,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 47e7a39987c89484e9d48a23e984e758, type: 2}
   - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "60000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "12000"

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousOrbitalMiningSystems
   Label: "轨道自主采矿系统"
-  Description: "整合轨道无人采掘与重矿分选，提升钛、镍和铝土矿供应。"
+  Description: "以无人采掘、遥控选矿和自动维护提高轨道综合资源工厂的产出，并提高占领星区的特级金属矿产出。"
   SortOrder: 620
   TechLevel: 4
   requiredResearch:
@@ -35,9 +35,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "1500"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "240000"
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
-    amount: "180000"
+    amount: "420000"
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "13000"
   effects:

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: UltraComputingNexus
   Label: "极限计算中枢"
-  Description: "由量子阵列、相位材料和跨星区协议构成的研究设施，为 Ultra 文明持续提供经过校验的研究能力。"
+  Description: "以量子阵列和相位材料承载跨星区计算任务，持续提供研究力；运行消耗电子元件和相位材料。"
   TechLevel: 5
   upgradeTo: {fileID: 0}
   costGrowth: "1.25"

@@ -23,7 +23,7 @@
 
 主题：活下来，并让经验不再随个体死亡。
 
-玩家行动：维持 Food，采集 WoodLog、StoneChunk、Clay、Fiber 等基础资源；建立 Farm、Lumberyard、Quarry、ClayPit、FiberGatheringCamp、Smokehouse、KnowledgeCircle、WoodHouse 与 StoneCuttingWorkshop；完成 ControlledFire、StoneTools、Woodworking、KnowledgeSharing、VillageOrganization、Agriculture、AnimalHusbandry、OrganizedDefense 等研究。
+玩家行动：维持 Food，采集 WoodLog、StoneChunk、Clay、Fiber 等基础资源；建立 Farm、Lumberyard、Quarry、ClayPit、FiberGatheringCamp、Smokehouse、KnowledgeCircle、WoodHouse 与 StoneCuttingWorkshop；完成 ControlledFire、StoneProcessing、Woodworking、KnowledgeSharing、VillageOrganization、Agriculture、AnimalHusbandry、WatchAndCooperation 等研究。
 
 冲突：族群仍受季节、食物和脆弱居所威胁；旧文明遗迹只能提供碎片线索，不能替代当前生产。防卫是协作和准备，不写成已有完整军队。
 
@@ -47,7 +47,7 @@
 
 主题：让陌生聚落之间可以长期合作。
 
-玩家行动：完成 FeudalAdministration、TradeRoutes、Bookmaking、GuildSystem、ScholasticInstitutions、PublicHealth、Fortification、StandingArmy、Steelmaking、MechanicalEngineering 与 UrbanHousing；建设 TownHouse、Academy、Caravanserai、Library、SteelForge。
+玩家行动：完成 FeudalAdministration、TradeRoutes、Bookmaking、GuildSystem、ScholasticInstitutions、PublicHealth、Fortification、PermanentLaborOrganization、Steelmaking、MechanicalEngineering 与 UrbanHousing；建设 TownHouse、Academy、Caravanserai、Library、SteelForge。
 
 冲突：贸易、行政、城市住房和常备防卫同时争夺资源与研究能力。规则既可能保护合作，也可能固化权力；剧情应保留争论、失败和制度修补，不把“时代跃迁”写成王冠自动授予的胜利。
 
@@ -59,7 +59,7 @@
 
 主题：复兴不再依靠少数天才，而依靠可重复、可维护的文明工程。
 
-玩家行动：建设 SteamPlant、CentralPowerStation、RailHub、MachineFactory、ChemicalPlant、OilDerrick、OilRefinery、WireMill、University、TitaniumMetallurgicalComplex、NickelRefinery 等；研究 Industrialization、FactoryOrganization、MassProduction、PowerGridEngineering、LogisticsManagement、ScientificMethod、ModernUniversity、IndustrialChemistry、TitaniumAlloyEngineering 等。
+玩家行动：建设 SteamPlant、CentralPowerStation、RailHub、MachineFactory、ChemicalPlant、OilDerrick、OilRefinery、WireMill、University、TitaniumAlloySmelter、AdvancedMetalRefinery 等；研究 Industrialization、FactoryOrganization、MassProduction、PowerGridEngineering、LogisticsManagement、ScientificMethod、ModernUniversity、IndustrialChemistry、TitaniumAlloyEngineering 等。
 
 冲突：速度、规模、污染、能源、物流和战争准备互相牵制。玩家需要让矿山、冶炼、化工、机械、铁路和电力互相接得上；工业不是一键无限产出，而是更长的依赖链与更高的维护责任。
 

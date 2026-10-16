@@ -633,14 +633,14 @@ public sealed class ResearchEffectTests
     [Test]
     public void 已完成研究才会提升真实拆除返还率()
     {
-        Research stoneTools = DataBase<Research>.Find("StoneTools");
+        Research stoneProcessing = DataBase<Research>.Find("StoneProcessing");
         Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
         Research industrialization = DataBase<Research>.Find("Industrialization");
-        Research orbitalHabitation = DataBase<Research>.Find("OrbitalHabitation");
-        Assert.That(stoneTools, Is.Not.Null);
+        Research orbitalStationEngineering = DataBase<Research>.Find("OrbitalStationEngineering");
+        Assert.That(stoneProcessing, Is.Not.Null);
         Assert.That(urbanHousing, Is.Not.Null);
         Assert.That(industrialization, Is.Not.Null);
-        Assert.That(orbitalHabitation, Is.Not.Null);
+        Assert.That(orbitalStationEngineering, Is.Not.Null);
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>());
         Assert.That(
@@ -649,10 +649,10 @@ public sealed class ResearchEffectTests
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
-            CreateState(stoneTools, true),
+            CreateState(stoneProcessing, true),
             CreateState(urbanHousing, false),
             CreateState(industrialization, false),
-            CreateState(orbitalHabitation, false)
+            CreateState(orbitalStationEngineering, false)
         });
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
@@ -660,10 +660,10 @@ public sealed class ResearchEffectTests
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
-            CreateState(stoneTools, true),
+            CreateState(stoneProcessing, true),
             CreateState(urbanHousing, true),
             CreateState(industrialization, false),
-            CreateState(orbitalHabitation, false)
+            CreateState(orbitalStationEngineering, false)
         });
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
@@ -672,7 +672,7 @@ public sealed class ResearchEffectTests
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
             CreateState(industrialization, false),
-            CreateState(orbitalHabitation, false)
+            CreateState(orbitalStationEngineering, false)
         });
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
@@ -681,7 +681,7 @@ public sealed class ResearchEffectTests
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
             CreateState(industrialization, true),
-            CreateState(orbitalHabitation, false)
+            CreateState(orbitalStationEngineering, false)
         });
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
@@ -690,7 +690,7 @@ public sealed class ResearchEffectTests
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
             CreateState(industrialization, true),
-            CreateState(orbitalHabitation, true)
+            CreateState(orbitalStationEngineering, true)
         });
         Assert.That(
             ProgressionModifierManager.Current.DeconstructionReturnRate.ToDouble(),
@@ -700,12 +700,12 @@ public sealed class ResearchEffectTests
     [Test]
     public void 轨道居住研究完成后才会提升人口增长倍率()
     {
-        Research orbitalHabitation = DataBase<Research>.Find("OrbitalHabitation");
-        Assert.That(orbitalHabitation, Is.Not.Null);
+        Research orbitalStationEngineering = DataBase<Research>.Find("OrbitalStationEngineering");
+        Assert.That(orbitalStationEngineering, Is.Not.Null);
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
-            CreateState(orbitalHabitation, false)
+            CreateState(orbitalStationEngineering, false)
         });
         Assert.That(
             ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),
@@ -713,7 +713,7 @@ public sealed class ResearchEffectTests
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
-            CreateState(orbitalHabitation, true)
+            CreateState(orbitalStationEngineering, true)
         });
         Assert.That(
             ProgressionModifierManager.Current.PopulationGrowthMultiplier.ToDouble(),

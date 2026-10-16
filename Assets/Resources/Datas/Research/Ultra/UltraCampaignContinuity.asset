@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: UltraCampaignContinuity
   m_EditorClassIdentifier: 
   id: UltraCampaignContinuity
-  Label: "Ultra Campaign Continuity"
-  Description: "A continuity protocol keeps long-range campaigns supplied through changing phases, improving progress without adding instant travel or a second campaign system."
+  Label: "极致战役连续性"
+  Description: "为远距离战役安排交接窗口与补给冗余，提高战役推进速度。"
   BaseCost: "1.35e13"
   prerequisites:
   - {fileID: 11400000, guid: 1f3a5c7e9b2d4f6081a3c5e7b9d0f2a4, type: 2}

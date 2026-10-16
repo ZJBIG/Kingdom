@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
+  m_Name: AdvancedMetalIngot
+  TechLevel: 3
+  m_EditorClassIdentifier: 
+  id: AdvancedMetalIngot
+  Label: "高级金属锭"
+  Description: "高级冶炼与精炼供应的轻质耐蚀金属锭，用于机械、合金和航天加工。"
+  Sprite: {fileID: 21310005, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
+  Color: {r: 0.6862745, g: 0.6862745, b: 0.6862745, a: 1}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: UltraCivilizationEngineering
   label: "文明工程：相位稳态与深空连续性"
-  description: "以巨构级材料、能源、物流和食物投入，分阶段认证 Ultra 文明的稳定运行能力。"
+  description: "为相位稳态、材料自主与文明连续性完成三阶段工程。每阶段先交付启动材料，再持续供给食物、电力、物流与维护材料，直到工程完成。"
   techLevel: 5
   stages:
   - stageId: PhaseStabilityCertification

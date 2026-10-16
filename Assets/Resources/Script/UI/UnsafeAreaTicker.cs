@@ -299,7 +299,9 @@ public sealed class UnsafeAreaTicker : MonoBehaviour
                 string nextCycle = pendingFeedCycle;
                 pendingFeedCycle = string.Empty;
                 hasPendingFeedCycle = false;
+                int nextHeadline = headlineIndex + 1;
                 ApplyFeedCycle(nextCycle);
+                if (headlines.Length > 0) headlineIndex = nextHeadline % headlines.Length;
                 RebuildFeedLayoutIfNeeded();
             }
             else if (headlines.Length > 0)

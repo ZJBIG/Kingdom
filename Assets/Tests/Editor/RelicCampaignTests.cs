@@ -283,7 +283,6 @@ public sealed class RelicCampaignTests
             Game.UltraProject.State.RestoreForEditor(new UltraProjectStateSaveData
             {
                 ProjectId = UltraProjectState.ProjectId,
-                SaveVersion = UltraProjectState.CurrentSaveVersion,
                 Doctrine = UltraProjectDoctrine.Stable,
                 Status = UltraProjectStatus.Ready,
                 CurrentStage = UltraProjectStage.Stabilization,

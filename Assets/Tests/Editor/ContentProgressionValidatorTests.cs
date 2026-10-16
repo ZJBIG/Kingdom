@@ -5,6 +5,43 @@ using NUnit.Framework;
 public sealed class ContentProgressionValidatorTests
 {
     [Test]
+    public void IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs()
+    {
+        Building chemicalPlant = UnityEngine.Object.Instantiate(DataBase<Building>.Find("ChemicalPlant"));
+        try
+        {
+            chemicalPlant.SetRequiredResearchForEditor(new List<Research>());
+            chemicalPlant.SetRequiredWorkshopUpgradesForEditor(new List<WorkshopUpgrade>());
+            var startingResources = new List<string> { "Coke" };
+            foreach (Pair<Resource, ExpantaNum> cost in chemicalPlant.ResourceRequirements)
+                startingResources.Add(cost.First.Id);
+            ProgressionAuditResult result = ContentProgressionAudit.Run(
+                DataBase<Resource>.All, new[] { chemicalPlant }, Array.Empty<Research>(),
+                startingResources, TechLevel.Industrial);
+
+            Assert.That(result.UnreachableBuildings, Does.Contain(chemicalPlant.Id),
+                "A constructed chemical plant cannot produce its first explosives without crude oil.");
+            Assert.That(result.ResourcesWithoutSource, Does.Contain("Explosives"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(chemicalPlant);
+        }
+    }
+
+    [Test]
+    public void MainProgression_ReachesUltraWithContinuousInputSources()
+    {
+        ProgressionAuditResult result = ContentProgressionAudit.Run(
+            DataBase<Resource>.All, DataBase<Building>.All, DataBase<Research>.All,
+            new[] { "WoodLog" }, TechLevel.Animal);
+        Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.Ultra),
+            result.FormatFailureReport());
+        Assert.That(result.UnreachableResearch, Is.Empty, result.FormatFailureReport());
+        Assert.That(result.UnreachableBuildings, Is.Empty, result.FormatFailureReport());
+    }
+
+    [Test]
     public void MainProgression_ReachesMedievalWithoutInjectedResources()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
@@ -19,9 +56,21 @@ public sealed class ContentProgressionValidatorTests
     }
 
     [Test]
+    public void ResourcesWithoutProducersOrConsumers_AreReportedIndividually()
+    {
+        Resource basicOre = DataBase<Resource>.Find("BasicMetalOre");
+        Resource advancedOre = DataBase<Resource>.Find("AdvancedMetalOre");
+        ProgressionAuditResult result = ContentProgressionAudit.Run(
+            new[] { basicOre, advancedOre }, Array.Empty<Building>(), Array.Empty<Research>(),
+            Array.Empty<string>(), TechLevel.Animal);
+
+        Assert.That(result.ResourcesWithoutSource, Is.EquivalentTo(new[] { basicOre.Id, advancedOre.Id }));
+        Assert.That(result.ResourcesWithoutSink, Is.EquivalentTo(new[] { basicOre.Id, advancedOre.Id }));
+    }
+
+    [Test]
     public void EveryReleasedResource_HasSourceAndSink()
     {
-        // 不再传入硬编码清单：审计覆盖全部已定义资源，新增资源自动纳入检查。
         ProgressionAuditResult result = ContentProgressionAudit.Run(
             DataBase<Resource>.All,
             DataBase<Building>.All,
@@ -115,7 +164,8 @@ public static class ContentProgressionAudit
                     continue;
                 if (!BuildingResearchComplete(building, completedResearch))
                     continue;
-                if (!RequirementsAvailable(building.ResourceRequirements, reachableResources))
+                if (!RequirementsAvailable(building.ResourceRequirements, reachableResources) ||
+                    !RequirementsAvailable(building.ResourceConsumptionRates, reachableResources))
                     continue;
 
                 if (reachableBuildings.Add(building.Id))

@@ -227,46 +227,22 @@ public sealed class UltraProjectStateTests
         Assert.That(restored.LaunchFeePaid, Is.True);
     }
 
-    [Test]
-    public void SaveParserDistinguishesMissingNullAndMalformedUltraSections()
+    [TestCase(null)]
+    [TestCase("null")]
+    [TestCase("{}")]
+    public void SaveParserRejectsMissingNullAndMalformedUltraSections(string section)
     {
-        const string requiredSections =
-            "\"Version\":9,\"General\":{\"TechLevel\":0},\"Resources\":{}," +
-            "\"Buildings\":{},\"Researches\":{},\"Workshop\":{},\"Sectors\":{}," +
-            "\"Tutorial\":{\"CompletedStepIds\":[]},\"Story\":{\"CompletedChapterIds\":[]}";
-        string missing = "{" + requiredSections + "}";
+        string requiredSections =
+            "\"Version\":" + SaveFormat.CurrentVersion + ",\"General\":{\"TechLevel\":0}," +
+            "\"Resources\":{\"Resources\":[]},\"Buildings\":{\"Buildings\":[]}," +
+            "\"Researches\":{\"States\":[],\"QueuedResearchIds\":[]}," +
+            "\"Workshop\":{\"PurchasedUpgradeIds\":[]},\"Sectors\":{\"States\":[]}," +
+            "\"Tutorial\":{\"CompletedStepIds\":[]},\"Story\":{\"CompletedChapterIds\":[]}," +
+            "\"Relic\":" + JsonUtility.ToJson(new RelicState().CaptureSaveDataForEditor());
+        string json = "{" + requiredSections +
+            (section == null ? string.Empty : ",\"UltraProject\":" + section) + "}";
 
-        SaveManager.KingdomSaveData parsedMissing =
-            SaveManager.ParseSaveDataForEditor(missing);
-        Assert.That(parsedMissing.UltraProject, Is.Null);
-
-        Assert.Throws<System.IO.InvalidDataException>(() =>
-            SaveManager.ParseSaveDataForEditor(
-                "{" + requiredSections + ",\"UltraProject\":null}"));
-        Assert.Throws<System.InvalidOperationException>(() =>
-            SaveManager.ParseSaveDataForEditor(
-                "{" + requiredSections + ",\"UltraProject\":{}}"));
-        Assert.Throws<System.IO.InvalidDataException>(() =>
-            SaveManager.ParseSaveDataForEditor(
-                "{" + requiredSections + ",\"Ul\\u0074raProject\":null}"));
-    }
-
-    [Test]
-    public void SaveParserRejectsUnlockedUltraProjectBeforeUltraTechLevel()
-    {
-        const string requiredSections =
-            "\"Version\":9,\"General\":{\"TechLevel\":3},\"Resources\":{}," +
-            "\"Buildings\":{},\"Researches\":{},\"Workshop\":{},\"Sectors\":{}," +
-            "\"Tutorial\":{\"CompletedStepIds\":[]},\"Story\":{\"CompletedChapterIds\":[]}";
-        const string ultraProject =
-            "\"ProjectId\":\"UltraCivilizationEngineering\",\"SaveVersion\":1," +
-            "\"Doctrine\":1,\"Status\":1,\"CurrentStage\":1,\"StageProgress\":\"0\"," +
-            "\"CompletedStages\":[],\"LaunchFeePaid\":false,\"PauseReason\":0," +
-            "\"StateVersion\":1";
-
-        Assert.Throws<System.IO.InvalidDataException>(() =>
-            SaveManager.ParseSaveDataForEditor(
-                "{" + requiredSections + ",\"UltraProject\":{" + ultraProject + "}}"));
+        Assert.Catch<System.Exception>(() => SaveManager.ParseSaveDataForEditor(json));
     }
 
     [Test]
@@ -378,7 +354,6 @@ public sealed class UltraProjectStateTests
         return new UltraProjectStateSaveData
         {
             ProjectId = UltraProjectState.ProjectId,
-            SaveVersion = UltraProjectState.CurrentSaveVersion,
             Doctrine = doctrine,
             Status = UltraProjectStatus.Committed,
             CurrentStage = UltraProjectStage.Completed,

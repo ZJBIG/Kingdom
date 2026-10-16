@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CeramicFiring
   Label: "\u9676\u74F7\u70E7\u5236"
-  Description: "\u638C\u63E1\u9AD8\u6E29\u70E7\u5236\u548C\u9676\u74F7\u914D\u65B9\uFF0C\u4F7F\u65E9\u671F\u9676\u74F7\u80FD\u5728\u540E\u7EED\u5DE5\u4E1A\u4E2D\u5347\u7EA7\u4E3A\u8010\u70ED\u548C\u9694\u70ED\u6750\u6599\u3002"
+  Description: "掌握高温烧制和陶瓷配方，为陶瓷窑奠定技术基础，并降低全局建造材料需求。"
   BaseCost: "1800"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

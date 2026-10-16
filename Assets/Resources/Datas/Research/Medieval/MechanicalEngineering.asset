@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MechanicalEngineering
   Label: "\u673A\u68B0\u5DE5\u7A0B"
-  Description: "\u7CFB\u7EDF\u7814\u7A76\u9F7F\u8F6E\u3001\u66F2\u67C4\u3001\u6C34\u8F6E\u3001\u78E8\u574A\u548C\u52A8\u529B\u4F20\u9012\uFF0C\u628A\u6539\u826F\u78E8\u574A\u5E76\u5165\u901A\u7528\u673A\u68B0\u5DE5\u7A0B\u3002"
+  Description: "改进齿轮、曲柄与水轮传动，提高全局食物产出，并降低建造材料需求。"
   BaseCost: "133920"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "3500"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "1610"
   - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     amount: "4200"

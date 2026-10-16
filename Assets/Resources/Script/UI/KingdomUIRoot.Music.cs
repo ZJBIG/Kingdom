@@ -245,6 +245,12 @@ public sealed partial class KingdomUIRoot
         RefreshMusicGlobalPauseVisual(manager);
     }
 
+    private void ToggleSfxMute()
+    {
+        UIButtonSoundManager.ToggleMuted();
+        RefreshMusicPage();
+    }
+
     private void RefreshMusicPage()
     {
         MusicManager manager = FindMusicManager();
@@ -308,6 +314,7 @@ public sealed partial class KingdomUIRoot
             !Mathf.Approximately(musicGapSlider.value, gap))
             musicGapSlider.SetValueWithoutNotify(gap);
         SetTextIfChanged(musicGapValueLabel, "曲目间隔：" + gap.ToString("0.00") + "s");
+        SetTextIfChanged(sfxMuteLabel, UIButtonSoundManager.SfxMuted ? "恢复音效" : "音效静音");
         if (sfxVolumeSlider != null && !Mathf.Approximately(sfxVolumeSlider.value, UIButtonSoundManager.SfxVolume))
             sfxVolumeSlider.SetValueWithoutNotify(UIButtonSoundManager.SfxVolume);
         SetTextIfChanged(sfxVolumeValueLabel,
@@ -362,7 +369,7 @@ public sealed partial class KingdomUIRoot
                 Transform rowTransform = pair.Value.transform.parent;
                 int rowIndex = rowTransform == null ? 0 : rowTransform.GetSiblingIndex();
                 Color color = selected
-                    ? new Color(Copper.r, Copper.g, Copper.b, .14f)
+                    ? new Color(BasicMetalIngot.r, BasicMetalIngot.g, BasicMetalIngot.b, .14f)
                     : rowIndex % 2 == 0 ? ListRowEven : ListRowOdd;
                 if (image.color != color)
                     image.color = color;

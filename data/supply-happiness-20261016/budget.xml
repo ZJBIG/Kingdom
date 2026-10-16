@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="28" result="Failed(Child)" total="28" passed="25" failed="3" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.3968929">
+  <test-suite type="TestSuite" id="2120" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="988" result="Failed" site="Child" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.396893" total="28" passed="25" failed="3" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3230" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="987" result="Failed" site="Child" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.375846" total="28" passed="25" failed="3" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="7944" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2280" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="18" result="Failed" site="Child" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.303288" total="6" passed="3" failed="3" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2302" name="ProductionBudget_FoodRewardFeedbackNeverCreatesUnfundedOutput" fullname="EconomyIntegrationRegressionTests.ProductionBudget_FoodRewardFeedbackNeverCreatesUnfundedOutput" methodname="ProductionBudget_FoodRewardFeedbackNeverCreatesUnfundedOutput" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1405483191" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.252467" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2301" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.038359" total="5" passed="2" failed="3" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2296" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(0.0d)" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(0.0d)" methodname="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1099679006" result="Failed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.013038" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  BudgetX must fund actual consumption before inventory clamping
+  Expected: True
+  But was:  False
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.AssertBudget (ResourceState resource, ExpantaNum reward) [0x00018] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:776
+at EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs (System.Double inventory) [0x00116] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:723
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2297" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(0.02d)" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(0.02d)" methodname="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1295147517" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.004776" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2298" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(1E-08.0d)" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(1E-08.0d)" methodname="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1877130159" result="Failed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.008404" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  BudgetX must fund actual consumption before inventory clamping
+  Expected: True
+  But was:  False
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.AssertBudget (ResourceState resource, ExpantaNum reward) [0x00018] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:776
+at EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs (System.Double inventory) [0x00116] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:723
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2299" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(1E-100.0d)" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(1E-100.0d)" methodname="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1608313678" result="Failed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.008383" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  BudgetX must fund actual consumption before inventory clamping
+  Expected: True
+  But was:  False
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.AssertBudget (ResourceState resource, ExpantaNum reward) [0x00018] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:776
+at EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs (System.Double inventory) [0x00116] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:723
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2300" name="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(10.0d)" fullname="EconomyIntegrationRegressionTests.ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(10.0d)" methodname="ProductionBudget_LossyCycleNeverConsumesUnfundedInputs" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1161052876" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000702" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2323" name="FlowEfficiencyTests" fullname="FlowEfficiencyTests" classname="FlowEfficiencyTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.021458" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2325" name="EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" fullname="FlowEfficiencyTests.EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" methodname="EffectiveEfficiency_MultipliesPowerAndLogisticsSatisfaction" classname="FlowEfficiencyTests" runstate="Runnable" seed="2008288935" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000442" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2324" name="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" fullname="FlowEfficiencyTests.FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" methodname="FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory" classname="FlowEfficiencyTests" runstate="Runnable" seed="777227353" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.001864" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2332" name="FoodAvailabilityAndHappinessFieldsReplaceLegacyFoodState" fullname="FlowEfficiencyTests.FoodAvailabilityAndHappinessFieldsReplaceLegacyFoodState" methodname="FoodAvailabilityAndHappinessFieldsReplaceLegacyFoodState" classname="FlowEfficiencyTests" runstate="Runnable" seed="1270969960" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.001814" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2327" name="HappinessCurveIsMonotonicAndBounded" fullname="FlowEfficiencyTests.HappinessCurveIsMonotonicAndBounded" methodname="HappinessCurveIsMonotonicAndBounded" classname="FlowEfficiencyTests" runstate="Runnable" seed="542243010" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.004787" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2329" name="HappinessOwnsFoodShortagePenalty" fullname="FlowEfficiencyTests.HappinessOwnsFoodShortagePenalty" methodname="HappinessOwnsFoodShortagePenalty" classname="FlowEfficiencyTests" runstate="Runnable" seed="1706303757" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000377" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2328" name="HappinessPenalizesNegativeFoodNetRateEvenWhenInventoryIsAvailable" fullname="FlowEfficiencyTests.HappinessPenalizesNegativeFoodNetRateEvenWhenInventoryIsAvailable" methodname="HappinessPenalizesNegativeFoodNetRateEvenWhenInventoryIsAvailable" classname="FlowEfficiencyTests" runstate="Runnable" seed="1483486534" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000180" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2333" name="HappinessWithZeroPopulationIsSafe" fullname="FlowEfficiencyTests.HappinessWithZeroPopulationIsSafe" methodname="HappinessWithZeroPopulationIsSafe" classname="FlowEfficiencyTests" runstate="Runnable" seed="2116165900" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000422" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2330" name="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" fullname="FlowEfficiencyTests.MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" methodname="MedicalHappinessBonusOnlyAppliesWhenFoodIsAvailable" classname="FlowEfficiencyTests" runstate="Runnable" seed="81046160" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000289" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2331" name="MedicalHappinessBonusSharesTheExistingUpperBound" fullname="FlowEfficiencyTests.MedicalHappinessBonusSharesTheExistingUpperBound" methodname="MedicalHappinessBonusSharesTheExistingUpperBound" classname="FlowEfficiencyTests" runstate="Runnable" seed="1780233147" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000296" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2326" name="PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" fullname="FlowEfficiencyTests.PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" methodname="PowerAndLogisticsAreDerivedFieldsNotSaveInventoryFields" classname="FlowEfficiencyTests" runstate="Runnable" seed="1367445476" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000233" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2334" name="FoodEfficiencyTests" fullname="FoodEfficiencyTests" classname="FoodEfficiencyTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.007822" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2340" name="EffectiveEfficiency_MultipliesEveryIndependentConstraint" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesEveryIndependentConstraint" methodname="EffectiveEfficiency_MultipliesEveryIndependentConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="1684692525" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000416" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2338" name="EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" fullname="FoodEfficiencyTests.EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" methodname="EffectiveEfficiency_MultipliesFoodAndResourceSatisfaction" classname="FoodEfficiencyTests" runstate="Runnable" seed="1250822107" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000397" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2339" name="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" fullname="FoodEfficiencyTests.EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" methodname="EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint" classname="FoodEfficiencyTests" runstate="Runnable" seed="1174930795" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000386" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2341" name="EveryBuildingUsesTheSameFoodSupplyRatio" fullname="FoodEfficiencyTests.EveryBuildingUsesTheSameFoodSupplyRatio" methodname="EveryBuildingUsesTheSameFoodSupplyRatio" classname="FoodEfficiencyTests" runstate="Runnable" seed="2037578326" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000159" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2335" name="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" fullname="FoodEfficiencyTests.FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" methodname="FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness" classname="FoodEfficiencyTests" runstate="Runnable" seed="2068487794" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000311" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2337" name="FoodAvailability_UsesInventoryAndPotentialFlow" fullname="FoodEfficiencyTests.FoodAvailability_UsesInventoryAndPotentialFlow" methodname="FoodAvailability_UsesInventoryAndPotentialFlow" classname="FoodEfficiencyTests" runstate="Runnable" seed="1762112093" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.001197" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2343" name="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" fullname="FoodEfficiencyTests.GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" methodname="GameState_AdvanceFoodDoesNotVersionWhenAmountIsUnchanged" classname="FoodEfficiencyTests" runstate="Runnable" seed="78719864" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.001098" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2344" name="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" fullname="FoodEfficiencyTests.GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" methodname="GameState_FoodFlowIncludesPopulationConsumptionInRuntimeAndHudRate" classname="FoodEfficiencyTests" runstate="Runnable" seed="2040999785" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000575" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2345" name="GameState_NoOpDerivedMutationsDoNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_NoOpDerivedMutationsDoNotIncrementVersion" methodname="GameState_NoOpDerivedMutationsDoNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="258829052" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000482" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2346" name="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" fullname="FoodEfficiencyTests.GameState_RepeatedSaveTimestampDoesNotIncrementVersion" methodname="GameState_RepeatedSaveTimestampDoesNotIncrementVersion" classname="FoodEfficiencyTests" runstate="Runnable" seed="710905567" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000229" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2336" name="NewGameAndDerivedReset_PreserveFoodProductionBaseline" fullname="FoodEfficiencyTests.NewGameAndDerivedReset_PreserveFoodProductionBaseline" methodname="NewGameAndDerivedReset_PreserveFoodProductionBaseline" classname="FoodEfficiencyTests" runstate="Runnable" seed="415143501" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000642" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2342" name="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" fullname="FoodEfficiencyTests.ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" methodname="ResourceSatisfactionUsesInventoryAndRealizedSameTickProduction" classname="FoodEfficiencyTests" runstate="Runnable" seed="56699056" result="Passed" start-time="2026-10-16 11:07:43Z" end-time="2026-10-16 11:07:43Z" duration="0.000310" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: UrbanHousing
   Label: "\u57CE\u5E02\u4F4F\u5B85"
-  Description: "\u4EE5\u8857\u533A\u3001\u6392\u6C34\u3001\u6D88\u9632\u548C\u591A\u5C42\u7ED3\u6784\u89C4\u5212\u9AD8\u5BC6\u5EA6\u4F4F\u5B85\uFF0C\u4F7F\u57CE\u5E02\u80FD\u591F\u5BB9\u7EB3\u66F4\u591A\u4EBA\u53E3\u800C\u4E0D\u8FC5\u901F\u5931\u5E8F\u3002"
+  Description: "以紧凑街区和多层住宅支持城市定居，降低全局建造材料需求，并提高拆除返还比例。"
   BaseCost: "135000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

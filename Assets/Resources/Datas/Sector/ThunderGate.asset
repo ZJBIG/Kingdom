@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ThunderGate
   Label: "雷门环"
-  Description: "横跨太阳系外缘、如雷霆之门般的燃料与矿产支点。冰冷巨云之间藏着火箭燃料、镍与钛，守住这里便握住通往群星的钥匙。"
+  Description: "太阳系外缘的冰冷资源带。占领后可持续取得火箭燃料、高级金属锭和特级金属矿，为离开太阳系准备补给。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -25,7 +25,7 @@ MonoBehaviour:
   occupiedResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "0.08"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "0.16"
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "0.12"

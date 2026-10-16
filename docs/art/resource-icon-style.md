@@ -27,7 +27,7 @@ This is the visual baseline for Kingdom resource icons. It applies to existing-e
 - Machinery: compact mechanical structure with visible gears, housings, and bolts.
 - Engine: recognizable industrial power device with a body, cylinders or power core, pipes, and a flywheel or equivalent mechanical feature; it must not look like a generic gear pile.
 - Electronics: circuit-board or component arrangement with controlled cyan/blue accents.
-- Copper wire: clearly visible copper-colored coil or bundled conductor.
+- BasicMetalIngot wire: clearly visible copper-colored coil or bundled conductor.
 - Crude oil, lubricant, refined fuel: distinguish liquid, container, and fuel color/shape language; lubricant must read as a filled container, not a stone sculpture.
 - Rubber: rounded dark rubber material with a deliberate manufactured form; avoid an ambiguous rock-like silhouette.
 

@@ -1063,16 +1063,11 @@ public class ResearchManager : Singleton<ResearchManager>
         GlobalEfficiencyFactor = Parse(
             data.GlobalEfficiencyFactor,
             nameof(ResearchManager),
-            nameof(data.GlobalEfficiencyFactor),
-            ExpantaNum.One);
+            nameof(data.GlobalEfficiencyFactor));
         TryStartNextQueuedResearch(false);
         if (researchQueue.Count > 0)
             ResearchQueueChanged?.Invoke();
     }
-
-    public override void Save() => SaveManager.Instance.SaveNow(true);
-
-    public override void Load() => SaveManager.Instance.LoadOrCreateGame();
 
     internal void RebuildProgressionModifiers()
     {
@@ -1168,7 +1163,8 @@ public class ResearchManager : Singleton<ResearchManager>
 
         if (!string.IsNullOrWhiteSpace(data.SelectedResearchId))
             DataBase<Research>.Find(data.SelectedResearchId);
-        Parse(data.GlobalEfficiencyFactor, nameof(ResearchManager), nameof(data.GlobalEfficiencyFactor), ExpantaNum.One);
+        if (Parse(data.GlobalEfficiencyFactor, nameof(ResearchManager), nameof(data.GlobalEfficiencyFactor)) < ExpantaNum.Zero)
+            throw new ArgumentOutOfRangeException(nameof(data.GlobalEfficiencyFactor));
     }
 
     private List<ResearchState> ValidateRestoredResearchQueue(
@@ -1252,14 +1248,11 @@ public class ResearchManager : Singleton<ResearchManager>
     private static ExpantaNum Parse(
         string raw,
         string owner,
-        string field,
-        ExpantaNum fallback = default)
+        string field)
     {
         if (ExpantaNum.TryParse(raw, out ExpantaNum value) && value.IsFinite)
             return value;
-        if (string.IsNullOrEmpty(raw))
-            return fallback;
-            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
+        throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 
     private static List<SaveManager.ResearchResourceCostSaveData> CapturePaidResourceCosts(ResearchState state)
@@ -1298,8 +1291,8 @@ public class ResearchManager : Singleton<ResearchManager>
             if (result.ContainsKey(resource))
                 throw new InvalidOperationException($"Duplicate paid resource cost: {resource.Id}");
             ExpantaNum amount = Parse(saved.Amount, saved.ResourceId, nameof(saved.Amount));
-            if (amount < ExpantaNum.Zero)
-                throw new InvalidOperationException($"Paid resource cost cannot be negative: {saved.ResourceId}");
+            if (!amount.IsFinite || amount < ExpantaNum.Zero)
+                throw new InvalidOperationException($"Paid resource cost must be finite and non-negative: {saved.ResourceId}");
             ExpantaNum required = GetRequiredResourceCost(definition, resource);
             if (required <= ExpantaNum.Zero)
                 throw new InvalidOperationException(

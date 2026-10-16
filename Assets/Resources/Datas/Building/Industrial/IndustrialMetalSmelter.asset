@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: IndustrialMetalSmelter
   m_EditorClassIdentifier: 
   id: IndustrialMetalSmelter
-  Label: "工业多金属综合冶炼炉"
-  Description: "\u540C\u4E00\u5EA7\u673A\u68B0\u5316\u7089\u4F53\u540C\u65F6\u51B6\u70BC\u94DC\u77FF\u3001\u9521\u77FF\u4E0E\u94C1\u77FF\uFF0C\u4EA7\u51FA\u94DC\u952D\u3001\u9521\u952D\u548C\u94C1\u952D\uFF0C\u4F5C\u4E3A\u5DE5\u4E1A\u65F6\u4EE3\u7684\u7EDF\u4E00\u591A\u91D1\u5C5E\u51B6\u70BC\u8282\u70B9\uFF0C\u51CF\u5C11\u91CD\u590D\u5EFA\u7B51\u3002"
+  Label: "工业金属冶炼厂"
+  Description: "以机械化炉体加工低级金属矿和焦炭，同时供应基础金属锭与钢材，服务线材、机械和工业建设。"
   TechLevel: 3
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"
@@ -43,28 +43,18 @@ MonoBehaviour:
     amount: "100"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     amount: "200"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "130"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
-    amount: "3"
-  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
-    amount: "2.4"
-  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
-    amount: "1.8"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
-    amount: "0.4"
+    amount: "7.6"
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "0.6"
   resourceConsumptionRates:
   - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "3.8"
+    amount: "8.8"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     amount: "1.35"
-  - resource: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
-    amount: "2.6"
-  - resource: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
-    amount: "2.4"
   requiredResearch:
   - {fileID: 11400000, guid: 8c04305e545b6e243a3de71a07ca4156, type: 2}
   - {fileID: 11400000, guid: 75de12faf9372884795af2ccd72dc297, type: 2}

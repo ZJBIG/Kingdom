@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: InterstellarResourceCoordination
   m_EditorClassIdentifier: 
   id: InterstellarResourceCoordination
-  Label: "Interstellar Resource Coordination"
-  Description: "Coordinates material allocation between established orbital industries so long-range logistics improve without introducing a separate local inventory or route system."
+  Label: "星际资源协同"
+  Description: "协调轨道工厂之间的物料配送，提高全局物流供给。"
   BaseCost: "3.8e12"
   prerequisites:
   - {fileID: 11400000, guid: f0a9c3e7b1d54682ac95e0f7d3b8c6a1, type: 2}

@@ -18,6 +18,7 @@ public sealed class ResourceState
     public ExpantaNum ConsumptionRate => consumptionRate;
     public ExpantaNum Efficiency => efficiency;
     public int Version { get; private set; }
+    internal ExpantaNum TickPotentialProductionRate => tickPotentialProductionRate;
 
     public ResourceState(Resource definition)
     {
@@ -51,12 +52,17 @@ public sealed class ResourceState
 
     internal void BeginTick(ExpantaNum productionMultiplier)
     {
-        tickPotentialProductionRate = NormalizeFiniteNonNegative(
-            productionRate * ExpantaNum.Max(ExpantaNum.One, productionMultiplier),
-            nameof(productionMultiplier));
+        RefreshTickProduction(productionMultiplier);
         tickPotentialConsumptionRate = consumptionRate;
         tickSatisfaction = ExpantaNum.One;
         hasTickSatisfaction = false;
+    }
+
+    internal void RefreshTickProduction(ExpantaNum productionMultiplier)
+    {
+        tickPotentialProductionRate = NormalizeFiniteNonNegative(
+            productionRate * ExpantaNum.Max(ExpantaNum.One, productionMultiplier),
+            nameof(productionMultiplier));
     }
 
     internal void AdjustTickPotentialProductionRate(ExpantaNum delta) =>

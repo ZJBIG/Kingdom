@@ -82,7 +82,8 @@ public sealed partial class KingdomUIRoot
             Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
             requirements.Add(new Pair<Resource, ExpantaNum>(
                 requirement.First,
-                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, quantity)));
+                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, quantity)
+                    * BuildingManager.GetConstructionCostMultiplier(building)));
         }
         return requirements;
     }
@@ -116,6 +117,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || building == null)
             return;
+        if (!preserveScrollPosition) RecordOnboardingDetail(building.Id);
         HideRelicDetails();
         float? preservedScrollPosition = preserveScrollPosition &&
             selectedBuilding == building && requirementGesture != null
@@ -170,9 +172,10 @@ public sealed partial class KingdomUIRoot
         text.AppendLine(building.Description);
         text.AppendLine();
         text.AppendLine("数量: " + (state == null ? "0" : state.Amount.ToGameString()));
+        if (state != null && state.Amount > ExpantaNum.Zero)
+            text.AppendLine("生产效率：" + (state.Efficiency * 100).ToGameString() + "%");
         text.AppendLine("时代: " + building.TechLevel.GetDescription());
-        text.AppendLine("土地需求: " + building.SpaceCost.ToGameString());
-        text.AppendLine("生产力需求: " + building.ProductivityConsumption.ToGameString());
+        AppendBuildingCapacityRequirements(text, building);
         AppendBuildingInvestmentExplanation(text, building);
         if (state != null && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
             text.AppendLine("停工原因：" + GetStoppedBuildingReason(building));
@@ -187,7 +190,58 @@ public sealed partial class KingdomUIRoot
         detailBody.text = text.ToString();
     }
 
-    private static string GetBuildingDetailStatus(Building building, BuildingState state)
+    private static void GetBuildingCapacityNeeds(Building building, bool upgrading, ExpantaNum quantity,
+        out ExpantaNum space, out ExpantaNum productivity)
+    {
+        space = building is SectorBuilding ? ExpantaNum.Zero : building.SpaceCost * quantity;
+        productivity = building.ProductivityConsumption * quantity;
+        if (upgrading && BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out Building target))
+        {
+            space = (target.SpaceCost - building.SpaceCost) * quantity;
+            // The manager removes the source grant before checking the upgrade's extra burden.
+            productivity = (target.ProductivityConsumption - building.ProductivityConsumption +
+                building.ProductivityGranted) * quantity;
+        }
+    }
+
+    private void AppendBuildingCapacityRequirements(StringBuilder text, Building building)
+    {
+        BuildingManager manager = BuildingManager.Instance;
+        if (manager == null || GameManager.Instance == null) return;
+        bool upgrading = manager.TryGetUnlockedUpgradeTarget(building, out _);
+        ExpantaNum quantity = GetSelectedBuildingQuantity(building, upgrading, false);
+        GetBuildingCapacityNeeds(building, upgrading, quantity, out ExpantaNum space, out ExpantaNum productivity);
+        text.AppendLine((upgrading ? "本次升级 ×" : "本次建造 ×") + quantity.ToGameString());
+        bool landShortage = space > ExpantaNum.Zero && space > GameManager.Instance.State.AvailableTerritory;
+        bool productivityShortage = productivity > ExpantaNum.Zero && productivity > manager.AvailableProductivity;
+        AppendBuildingCapacityLine(text, (landShortage ? LandShortageIcon : LandIcon) + " 土地", space,
+            GameManager.Instance.State.AvailableTerritory);
+        AppendBuildingCapacityLine(text, (productivityShortage ? ProductivityShortageIcon : ProductivityIcon) + " 生产力",
+            productivity, manager.AvailableProductivity);
+        if (landShortage)
+            text.AppendLine("探索并占领新地区可获得土地；拆除闲置建筑也能腾出土地。");
+        if (productivityShortage)
+            text.AppendLine("扩建住房并保证粮食充足，等待居民增长；也可拆除闲置建筑腾出生产力。");
+    }
+
+    private static void AppendBuildingCapacityLine(StringBuilder text, string label, ExpantaNum required, ExpantaNum available)
+    {
+        if (required < ExpantaNum.Zero)
+        {
+            text.Append(label).Append("：释放 ").AppendLine(required.Abs().ToGameString());
+            return;
+        }
+        ExpantaNum shortage = required > ExpantaNum.Zero
+            ? ExpantaNum.Max(ExpantaNum.Zero, required - available) : ExpantaNum.Zero;
+        text.Append(label);
+        if (shortage > ExpantaNum.Zero)
+            text.Append("：需求 ").Append(required.ToGameString()).Append("，缺少 ").Append(shortage.ToGameString());
+        else
+            text.Append("充足");
+        text.AppendLine();
+    }
+
+    private string GetBuildingDetailStatus(Building building, BuildingState state)
     {
         BuildingManager manager = BuildingManager.Instance;
         if (building == null || manager == null || GameManager.Instance == null ||
@@ -195,9 +249,10 @@ public sealed partial class KingdomUIRoot
             return "建筑状态未初始化";
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
             manager.TryGetUnlockedUpgradeTarget(building, out _);
+        ExpantaNum quantity = GetSelectedBuildingQuantity(building, upgrading, false);
         BuildFailure failure = upgrading
-            ? manager.GetUpgradeFailure(building, ExpantaNum.One)
-            : manager.GetBuildFailure(building, ExpantaNum.One);
+            ? manager.GetUpgradeFailure(building, quantity)
+            : manager.GetBuildFailure(building, quantity);
         return failure == BuildFailure.None ? (upgrading ? "可升级" : "可建造") : GetBuildFailureDescription(failure);
     }
 
@@ -268,9 +323,9 @@ public sealed partial class KingdomUIRoot
 
     private void ShowResourceDetails(Resource resource)
     {
+        if (resource != null) RecordOnboardingDetail(resource.Id);
         if (detailBody == null || resource == null)
             return;
-        resourceTreeVisible = false;
         HideRelicDetails();
 
         TutorialManager.Current?.RecordDetailViewed("Resources", resource.Id);
@@ -295,8 +350,6 @@ public sealed partial class KingdomUIRoot
     private void RefreshResourceDetails(Resource resource)
     {
         if (detailBody == null || resource == null || selectedResource != resource)
-            return;
-        if (resourceTreeVisible)
             return;
         float preservedScrollPosition = requirementGesture == null
             ? 1f
@@ -353,7 +406,13 @@ public sealed partial class KingdomUIRoot
         if (detailBody == null)
             return;
         BuildingState state = BuildingManager.Instance?.GetState(building);
-        detailBody.text = building.Label + "\n当前状态：" + GetBuildingDetailStatus(building, state);
+        StringBuilder text = new();
+        text.AppendLine(building.Label);
+        AppendBuildingCapacityRequirements(text, building);
+        if (state != null && state.Amount > ExpantaNum.Zero)
+            text.AppendLine("生产效率：" + (state.Efficiency * 100).ToGameString() + "%");
+        text.Append("当前状态：").Append(GetBuildingDetailStatus(building, state));
+        detailBody.text = text.ToString();
         if (state != null && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
             detailBody.text += "\n停工原因：" + GetStoppedBuildingReason(building);
         detailBody.gameObject.SetActive(true);
@@ -499,7 +558,7 @@ public sealed partial class KingdomUIRoot
         bool heightChanged = Mathf.Abs(bodyHeight - body.rect.height) > 1f;
         if (heightChanged)
             Canvas.ForceUpdateCanvases();
-        float resourceToolbarHeight = selectedResource != null && resourceTreeSurface != null ? 80f : 0f;
+        float resourceToolbarHeight = (selectedResource != null || selectedBuilding != null) && resourceTreeSurface != null ? 80f : 0f;
         body.offsetMin = new Vector2(34f, -bodyHeight - resourceToolbarHeight);
         body.offsetMax = new Vector2(-34f, -resourceToolbarHeight);
         float contentHeight = 24f + bodyHeight + resourceToolbarHeight;
@@ -521,6 +580,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || research == null)
             return;
+        if (!preserveScrollPosition) RecordOnboardingDetail(research.Id);
         HideRelicDetails();
         detailBody.fontSize = 30f;
         bool keepScrollPosition = preserveScrollPosition && selectedResearchNode == research;
@@ -555,11 +615,8 @@ public sealed partial class KingdomUIRoot
         if (researchManager != null)
         {
             text.AppendLine("研究能力：" + researchManager.ResearchPower.ToGameString() + "/s；当前实际速度：" + researchManager.CurrentResearchSpeed.ToGameString() + "/s");
-            text.AppendLine("研究能力是基础供给，实际速度还受时代、进度、付款及前置状态影响；科研投资按同一观察时段比较，材料不足时先补生产链。");
+            text.AppendLine("先付清材料，队首研究才会开始；实际速度显示当前正在研究的项目每秒获得的研究点。");
         }
-        if (research.Id == "Smithing_Bronze") text.AppendLine("合金成熟：改善既有冶炼炉的吞吐；铜冶炼已能产出青铜与铁，此项不是首次开启金属产出。");
-        if (research.Id == "Smithing_Iron") text.AppendLine("铁器标准化：改善既有全产业生产，收益来自现有链；不额外开启一种新冶炼机制。");
-        if (research.Id == "GuildSystem") text.AppendLine("行会是跨时代科研投资：现在支付材料与研究时间，长期科研收益延续到工业及以后；不是进入工业前的必买项目。优先补当前主线缺口，再决定是否投资。");
         text.AppendLine();
         text.AppendLine(research.Description);
         text.AppendLine();
@@ -701,7 +758,7 @@ public sealed partial class KingdomUIRoot
         }
 
         if (!hasConnection)
-            builder.AppendLine("  这项研究的直接效果会立即作用于王国；请结合上方效果观察变化。");
+            builder.AppendLine("  没有以本研究为直接前置的普通建筑或后续研究。");
     }
 
     private static bool ContainsResearch(
@@ -720,6 +777,7 @@ public sealed partial class KingdomUIRoot
     {
         if (detailBody == null || definition == null)
             return;
+        if (!preserveScrollPosition) RecordOnboardingDetail(definition.Id);
         HideRelicDetails();
 
         float? preservedScrollPosition = preserveScrollPosition &&
@@ -918,6 +976,8 @@ public sealed partial class KingdomUIRoot
         Debug.Log("[界面] 工坊行购买：id=" + definition.Id + "，结果=" + failure);
         if (purchased)
             UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
+        else
+            ShowTooltip("购买失败：" + GetWorkshopAvailability(definition, out _));
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
     }
@@ -930,6 +990,8 @@ public sealed partial class KingdomUIRoot
         Debug.Log("[界面] 工坊支付：id=" + definition.Id + "，结果=" + failure);
         if (purchased)
             UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
+        else
+            ShowTooltip("购买失败：" + GetWorkshopAvailability(definition, out _));
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
         ShowWorkshopDetails(definition, true);
@@ -1330,13 +1392,14 @@ public sealed partial class KingdomUIRoot
         // crowd the final "生产力需求" line.
         float preferredBodyHeight = detailBody.GetPreferredValues(detailBody.text, width, 1000f).y;
         float bodyHeight = Mathf.Max(96f, preferredBodyHeight + 18f);
-        body.offsetMin = new Vector2(34f, -bodyHeight);
-        body.offsetMax = new Vector2(-34f, 0f);
+        float productionToolbarHeight = selectedBuilding != null && resourceTreeSurface != null ? 80f : 0f;
+        body.offsetMin = new Vector2(34f, -bodyHeight - productionToolbarHeight);
+        body.offsetMax = new Vector2(-34f, -productionToolbarHeight);
 
         // Body already contains the white "研究支付需求" line. Start
         // the requirement content directly below it; the old orange
         // Heading is hidden and must not leave another header gap.
-        float sectionTop = bodyHeight;
+        float sectionTop = bodyHeight + productionToolbarHeight;
         bool hasFlows = flowHost != null && flowHost.gameObject.activeSelf &&
             flowContent != null && flowCount > 0;
         if (hasFlows)
@@ -1586,26 +1649,6 @@ public sealed partial class KingdomUIRoot
         return cached;
     }
 
-    private void BuildOne(Building building)
-    {
-        if (BuildingManager.Instance == null)
-        {
-            ShowDetails("建筑", "建筑管理器尚未初始化。", building.Id);
-            return;
-        }
-        if (BuildingManager.Instance.States.TryGetValue(building, out BuildingState state) &&
-            state.Amount > ExpantaNum.Zero &&
-            BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _))
-        {
-            PerformBuildingAction(building, true);
-            return;
-        }
-        bool success = BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out BuildFailure failure);
-        if (success)
-            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Build);
-        ShowBuildingDetails(building, true);
-    }
-
     private void ResearchAction(Research research)
     {
         if (ResearchManager.Instance == null)
@@ -1614,28 +1657,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         HandleResearchUiAction(research);
-    }
-
-    private static void AppendCosts(StringBuilder builder, IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
-    {
-        if (costs == null || costs.Count == 0)
-        {
-            builder.AppendLine("  无");
-            return;
-        }
-        for (int i = 0; i < costs.Count; i++)
-            if (costs[i].First != null)
-                builder.AppendLine("  " + costs[i].First.Label + ": " + costs[i].Second.ToGameString());
-    }
-
-    private static void AppendFlows(StringBuilder builder, string prefix, IReadOnlyList<Pair<Resource, ExpantaNum>> flows)
-    {
-        if (flows == null || flows.Count == 0)
-            return;
-        builder.AppendLine(prefix);
-        for (int i = 0; i < flows.Count; i++)
-            if (flows[i].First != null)
-                builder.AppendLine("  " + flows[i].First.Label + ": " + flows[i].Second.ToGameString() + "/s");
     }
 
     private static bool BuildingPrerequisitesMet(Building definition)
@@ -1679,6 +1700,7 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
     private float movementPathLength;
     private bool loggedDrag;
     private bool loggedMovement;
+    private Vector2 lastPointerLocalPosition;
 
     public bool IsDragging => dragging;
 
@@ -1725,8 +1747,8 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button != PointerEventData.InputButton.Left ||
-            viewport == null || content == null)
+        if (eventData.button != PointerEventData.InputButton.Left || !isActiveAndEnabled ||
+            viewport == null || content == null || (pointerHeld && eventData.pointerId != pointerId))
             return;
         pointerHeld = true;
         dragging = false;
@@ -1738,9 +1760,16 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!pointerHeld || eventData.pointerId != pointerId)
+        if (eventData.button != PointerEventData.InputButton.Left || !isActiveAndEnabled || viewport == null || content == null)
             return;
+        // A child Button can own PointerDown while its parent owns the drag lifecycle.
+        if (!pointerHeld)
+            OnPointerDown(eventData);
+        if (eventData.pointerId != pointerId)
+            return;
+        lastPointerLocalPosition = GetLocalPointerPosition(eventData);
         dragging = true;
+        eventData.eligibleForClick = false;
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write($"[KingdomPerf] DetailDrag begin pointer={eventData.pointerId} touchCount={Input.touchCount}");
 #endif
@@ -1757,11 +1786,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         if (!pointerHeld || eventData.pointerId != pointerId ||
             viewport == null || content == null)
             return;
-        // Use Unity's event delta exactly once. The previous implementation
-        // also polled Input in Update, which could apply the same movement a
-        // second time and made short touch drags appear reversed or jumpy.
-        float scale = Mathf.Max(.001f, Mathf.Abs(viewport.lossyScale.y));
-        float deltaY = eventData.delta.y / scale;
+        Vector2 localPosition = GetLocalPointerPosition(eventData);
+        float deltaY = localPosition.y - lastPointerLocalPosition.y;
+        lastPointerLocalPosition = localPosition;
         if (Mathf.Abs(deltaY) > 0.001f)
         {
             dragging = true;
@@ -1787,7 +1814,9 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
             return;
         if (dragging)
             ClampContent();
+        eventData.eligibleForClick = false;
         eventData.Use();
+        ResetPointer();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -1801,6 +1830,15 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
         KingdomEditorPerfLog.Write($"[KingdomPerf] DetailDrag end samples={movementSamples} pathY={movementPathLength:0.00} touchCount={Input.touchCount}");
 #endif
         ResetPointer();
+    }
+
+    private void OnDisable() => ResetPointer();
+
+    private Vector2 GetLocalPointerPosition(PointerEventData eventData)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            viewport, eventData.position, eventData.pressEventCamera, out Vector2 localPosition);
+        return localPosition;
     }
 
     private void LateUpdate()

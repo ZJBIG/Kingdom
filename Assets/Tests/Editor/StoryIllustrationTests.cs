@@ -1,11 +1,41 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public sealed class StoryIllustrationTests
 {
+    [Test]
+    public void StoryAndEraTemplatesHaveAuthoredNonBlockingCardBoundaries()
+    {
+        foreach (string name in new[] { "StoryChapterCard", "KingdomUIEraCard", "KingdomUIEraSection" })
+        {
+            GameObject prefab = Resources.Load<GameObject>("UI/Kingdom/" + name);
+            Assert.That(prefab, Is.Not.Null, name);
+            Transform frame = prefab.transform.Find("CardFrame");
+            Assert.That(frame, Is.Not.Null, name);
+            Assert.That(frame.GetComponent<LayoutElement>().ignoreLayout, Is.True, name);
+            foreach (string edge in new[] { "Top", "Bottom", "Left", "Right" })
+            {
+                Image image = frame.Find(edge).GetComponent<Image>();
+                Assert.That(image.color.a, Is.GreaterThan(0f), name + "/" + edge);
+                Assert.That(image.raycastTarget, Is.False, "Decorative edges must allow page interaction.");
+            }
+            Image divider = prefab.transform.Find(name == "StoryChapterCard" ? "Header/Divider" : "Divider")
+                .GetComponent<Image>();
+            Assert.That(divider.color.a, Is.GreaterThan(0f), name);
+            Assert.That(divider.raycastTarget, Is.False, name);
+            if (name == "StoryChapterCard") continue;
+            Assert.That(prefab.GetComponent<UIPageScrollDragForwarder>(), Is.Not.Null, name);
+            Assert.That(prefab.transform.Find("Title").GetComponent<TMP_Text>().fontStyle,
+                Is.EqualTo(TMPro.FontStyles.Bold));
+            if (name == "KingdomUIEraCard")
+                Assert.That(prefab.transform.Find("Body").GetComponent<TMP_Text>(), Is.Not.Null);
+        }
+    }
+
     [Test]
     public void BackgroundCardAndSharedPreviewHaveAuthoredControlsAndScrollBoundaries()
     {

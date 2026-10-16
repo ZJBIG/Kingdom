@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousOrbitalMining
   Label: "轨道自主采矿"
-  Description: "用远程采掘无人机、稀有金属分选和轨道回收系统扩大稀有金属矿场产能，把工业矿产链延伸到近地资源带。"
+  Description: "将无人采掘、遥控分选和远程维护接入轨道综合资源工厂，提高该工厂产出及占领星区的持续资源产出。"
   BaseCost: "328000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
@@ -32,9 +32,7 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
     amount: "12000"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "160000"
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
-    amount: "100000"
+    amount: "260000"
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "22500"
   effects:

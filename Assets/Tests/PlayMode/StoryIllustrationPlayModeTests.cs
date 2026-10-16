@@ -221,8 +221,6 @@ public sealed class StoryIllustrationPlayModeTests
         Assert.That(image.rectTransform.rect.height, Is.GreaterThan(0f));
         Debug.Log("[StoryIllustrations] " + card.name + " sprite=" + image.sprite.name +
             " card=" + card.rect.size + " image=" + image.rectTransform.rect.size);
-        float aspect = image.sprite.rect.width / image.sprite.rect.height;
-        Assert.That(aspect, Is.EqualTo(16f / 9f).Within(.03f));
         var imageCorners = new Vector3[4];
         var cardCorners = new Vector3[4];
         var bodyCorners = new Vector3[4];

@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -23,7 +25,7 @@ public sealed class SaveArchivePressureTests
             SaveManager.KingdomSaveData save = CreateBaseSave(AllTechLevels[i]);
             string json = JsonUtility.ToJson(save);
             SaveManager.KingdomSaveData restored =
-                JsonUtility.FromJson<SaveManager.KingdomSaveData>(json);
+                SaveManager.ParseSaveDataForEditor(json);
 
             Assert.That(restored, Is.Not.Null);
             Assert.That(restored.Version, Is.EqualTo(SaveFormat.CurrentVersion));
@@ -36,9 +38,53 @@ public sealed class SaveArchivePressureTests
             Assert.That(restored.Sectors, Is.Not.Null);
             Assert.That(restored.UltraProject, Is.Not.Null);
             Assert.That(restored.UltraProject.Status, Is.EqualTo(UltraProjectStatus.Locked));
+            Assert.That(restored.Relic, Is.Not.Null);
+            Assert.That(restored.Relic.Status, Is.EqualTo(RelicStatus.Discovered));
             Assert.That(restored.Tutorial, Is.Not.Null);
             Assert.That(restored.Story, Is.Not.Null);
             Assert.That(restored.Story.CompletedChapterIds, Is.Not.Null);
+        }
+    }
+
+    [TestCase("General")]
+    [TestCase("Resources")]
+    [TestCase("Buildings")]
+    [TestCase("Researches")]
+    [TestCase("Workshop")]
+    [TestCase("Sectors")]
+    [TestCase("UltraProject")]
+    [TestCase("Relic")]
+    [TestCase("Tutorial")]
+    [TestCase("Story")]
+    public void CurrentArchiveRequiresEverySection(string section)
+    {
+        string json = JsonUtility.ToJson(CreateBaseSave(TechLevel.Animal));
+        string missing = json.Replace("\"" + section + "\":", "\"Removed" + section + "\":");
+        Assert.Throws<InvalidDataException>(() => SaveManager.ParseSaveDataForEditor(missing));
+    }
+
+    [Test]
+    public void CurrentArchiveIgnoresRetiredSaveFileName()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "KingdomSaveGeneration-" + Guid.NewGuid().ToString("N"));
+        GameObject owner = null;
+        try
+        {
+            Directory.CreateDirectory(root);
+            SaveManager.SetSaveRootOverrideForTests(root);
+            string json = JsonUtility.ToJson(CreateBaseSave(TechLevel.Animal));
+            File.WriteAllText(Path.Combine(root, "KingdomSave.json"), json);
+            owner = new GameObject("SaveGeneration-Test");
+            SaveManager manager = owner.AddComponent<SaveManager>();
+            Assert.That(manager.HasSave, Is.False, "The retired filename must never be considered a current save.");
+            File.WriteAllText(Path.Combine(root, "KingdomSave-v1.json"), json);
+            Assert.That(manager.HasSave, Is.True);
+        }
+        finally
+        {
+            if (owner != null) UnityEngine.Object.DestroyImmediate(owner);
+            SaveManager.ClearSaveRootOverrideForTests();
+            if (Directory.Exists(root)) Directory.Delete(root, true);
         }
     }
 
@@ -93,7 +139,7 @@ public sealed class SaveArchivePressureTests
         save.Workshop.PurchasedUpgradeIds = new List<string>
         {
             "DraftingTables",
-            "DeepSpaceSystemsControl",
+            "DeepSpaceInfrastructureMaintenanceConsole",
             "AutomatedFleetResupplyModules",
             "AdaptiveArmorRepairSystems",
             "InterstellarCombatSupplySystems"
@@ -246,18 +292,31 @@ public sealed class SaveArchivePressureTests
                 TechLevel = techLevel,
                 FoodAmount = "10",
                 Population = "2",
-                TerritoryTotal = "1"
+                TerritoryTotal = "1",
+                PopulationChangeProgress = "0",
+                AttackPower = "0",
+                DefensePower = "0",
+                FleetPower = "0",
+                MilitaryManpower = "0",
+                SupplySatisfaction = "1",
+                PowerSatisfaction = "1",
+                LogisticsSatisfaction = "1",
+                CampaignCasualties = "0",
+                CampaignCombatRatio = "0"
             },
             Resources = new SaveManager.ResourceSaveData
             {
+                GlobalEfficiencyFactor = "1",
                 Resources = new List<SaveManager.ResourceStateSaveData>()
             },
             Buildings = new SaveManager.BuildingSaveData
             {
+                GlobalEfficiencyFactor = "1",
                 Buildings = new List<SaveManager.BuildingStateSaveData>()
             },
             Researches = new SaveManager.ResearchSaveData
             {
+                GlobalEfficiencyFactor = "1",
                 States = new List<SaveManager.ResearchStateSaveData>(),
                 QueuedResearchIds = new List<string>()
             },
@@ -272,7 +331,6 @@ public sealed class SaveArchivePressureTests
             UltraProject = new UltraProjectStateSaveData
             {
                 ProjectId = UltraProjectState.ProjectId,
-                SaveVersion = UltraProjectState.CurrentSaveVersion,
                 Doctrine = UltraProjectDoctrine.None,
                 Status = UltraProjectStatus.Locked,
                 CurrentStage = UltraProjectStage.None,
@@ -281,6 +339,7 @@ public sealed class SaveArchivePressureTests
                 LaunchFeePaid = false,
                 StateVersion = 1
             },
+            Relic = new RelicState().CaptureSaveDataForEditor(),
             Tutorial = new SaveManager.TutorialSaveData
             {
                 CompletedStepIds = new List<string>()

@@ -417,7 +417,7 @@ public sealed class UltraProjectManager
 
         // Validate on an isolated state before SaveManager mutates any live
         // manager. A malformed Ultra segment is rejected like every other
-        // invalid v9 section instead of being partially applied.
+        // invalid v1 section instead of being partially applied.
         UltraProjectState validator = new();
         validator.RestoreForTransaction(saveData);
     }

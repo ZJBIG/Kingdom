@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AutonomousMatterAssembly
   Label: "自主物质组装"
-  Description: "把分布式认知协议转化为受约束的材料组装流程，使 Ultra 设施能够在既有工业链上持续扩大产能，而不是凭空生成资源。"
+  Description: "以分布式认知协调材料组装、质检与回收，提高所有建筑的生产倍率。"
   BaseCost: "1.6e12"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

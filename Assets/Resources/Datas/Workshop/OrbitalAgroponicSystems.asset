@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalAgroponicSystems
   Label: "轨道营养液种植系统"
-  Description: "将营养液循环、玻璃种植舱、陶瓷过滤膜、电子光照控制和生物质培育模块装配到轨道居住区，把轨道农业生态学落实为可持续的食物与生物质生产设备。"
+  Description: "以营养液循环与光照控制提高全局食物、生物质产出，并提高机械化农田的产出。"
   SortOrder: 585
   TechLevel: 4
   requiredResearch:

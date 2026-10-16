@@ -15,6 +15,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhaseMaterial
   Label: "\u76F8\u4F4D\u6750\u6599"
-  Description: "由钛合金、镍和幽影材料稳定合成的高级材料，用于量子设备与星际舰队。"
+  Description: "由幽影材料、钛合金与高级金属锭合成的高能材料，用于量子设备、轨道设施与星际舰队。"
   Sprite: {fileID: 21300000, guid: 3fec6e8e7c7f1604b87e25e32e5bcdf5, type: 3}
   Color: {r: 0.75, g: 0.85, b: 1, a: 1}

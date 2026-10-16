@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: TitaniumAlloy
-  TechLevel: 4
+  TechLevel: 3
   m_EditorClassIdentifier: 
   id: TitaniumAlloy
-  Label: "\u949B\u5408\u91D1"
-  Description: "经氯化还原与真空熔炼制成的高强度轻质金属，支撑轨道和舰船结构。"
-  Sprite: {fileID: 21300000, guid: c6e8ebbb2b40354489624b49c5757098, type: 3}
+  Label: "钛合金"
+  Description: "特级矿料与工业辅料加工的轻质高强合金，工业后期开始供应航天与战略设施。"
+  Sprite: {fileID: 21310007, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
   Color: {r: 0.627451, g: 0.69803923, b: 0.70980394, a: 1}

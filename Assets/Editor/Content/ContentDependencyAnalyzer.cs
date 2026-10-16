@@ -104,7 +104,8 @@ public static class ContentDependencyAnalyzer
                 Building building = buildings[i];
                 if (building == null || building.TechLevel > result.HighestTechLevel || reachableBuildings.Contains(building.Id)) continue;
                 if (!AllResearchComplete(building.RequiredResearch, completedResearch) ||
-                    !CostsAvailable(building.ResourceRequirements, availableResources)) continue;
+                    !CostsAvailable(building.ResourceRequirements, availableResources) ||
+                    !CostsAvailable(building.ResourceConsumptionRates, availableResources)) continue;
                 reachableBuildings.Add(building.Id);
                 for (int j = 0; j < building.ResourceGenerationRates.Count; j++)
                     if (building.ResourceGenerationRates[j].First != null)
@@ -180,6 +181,12 @@ public static class ContentDependencyAnalyzer
         {
             Resource resource = value.ResourceRequirements[i].First;
             if (resource != null && !resources.Contains(resource.Id)) return DescribeMissingResource(resource.Id, producers, completed, resources, byResearch);
+        }
+        for (int i = 0; i < value.ResourceConsumptionRates.Count; i++)
+        {
+            Resource resource = value.ResourceConsumptionRates[i].First;
+            if (resource == null) return "Missing continuous input: <null>";
+            if (!resources.Contains(resource.Id)) return "Continuous input blocked: " + DescribeMissingResource(resource.Id, producers, completed, resources, byResearch);
         }
         return "TechLevel or unresolved construction condition.";
     }

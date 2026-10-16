@@ -1,0 +1,314 @@
+--- a/Assets/Resources/Datas/Building/Industrial/IntegratedPetrochemicalComplex.asset
++++ b/Assets/Resources/Datas/Building/Industrial/IntegratedPetrochemicalComplex.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: IntegratedPetrochemicalComplex
+   Label: "一体化石油化工联合体"
+-  Description: "整合蒸馏、裂化与合成橡胶，持续产出燃料、润滑剂和橡胶。"
++  Description: "整合蒸馏、裂化与合成工序，持续供应精炼燃料、润滑剂、橡胶、化工材料和工业炸药。"
+   TechLevel: 3
+   upgradeTo: {fileID: 0}
+   costGrowth: "1.22"
+--- a/Assets/Resources/Datas/Building/Spacer/EarthMoonLogisticsHub.asset
++++ b/Assets/Resources/Datas/Building/Spacer/EarthMoonLogisticsHub.asset
+@@ -13,8 +13,8 @@
+   m_Name: EarthMoonLogisticsHub
+   m_EditorClassIdentifier: 
+   id: EarthMoonLogisticsHub
+-  Label: \u5730\u6708\u7269\u6D41\u4E2D\u67A2
+-  Description: \u5728\u6708\u7403\u8F68\u9053\u533A\u5EFA\u7ACB\u7684\u552F\u4E00\u7269\u6D41\u67A2\u7EBD\uFF0C\u5C06\u6708\u9762\u539F\u6750\u3001\u53D1\u5C04\u8FD0\u529B\u4E0E\u5730\u6708\u822A\u7EBF\u7EDF\u4E00\u8C03\u5EA6\uFF0C\u4E3A\u6DF1\u7A7A\u8230\u961F\u63D0\u4F9B\u6301\u7EED\u540E\u52E4\u4E0E\u9632\u5FA1\u652F\u6301\u3002
++  Label: "地月物流中枢"
++  Description: "月球轨道区的专属物流枢纽，统一调度地月货运，增加物流供给，并为舰队与基地防御提供支援。"
+   TechLevel: 4
+   upgradeTo: {fileID: 0}
+   costGrowth: 1.01
+--- a/Assets/Resources/Datas/Tutorial/EraGoal.asset
++++ b/Assets/Resources/Datas/Tutorial/EraGoal.asset
+@@ -14,8 +14,8 @@
+   m_EditorClassIdentifier: 
+   Id: era-goal
+   Title: 看懂下一时代
+-  Description: 打开时代页面，查看关键研究和真实条件的当前值、阻碍与入口，并完成它们以推进时代。
+-  NarrativeText: 当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看每个真实条件，补上最先阻断王国的那一环。
++  Description: "打开时代页面，查看下一时代所需的研究、人口与其他条件，点击未完成项前往处理。"
++  NarrativeText: "族谱上有了更多名字，工坊里也有了新工具。再看看时代页面，还有哪项条件没有备齐。"
+   Kind: 6
+   NextStepId: long-term
+   RewardId: 
+--- a/Assets/Resources/Datas/Tutorial/LongTerm.asset
++++ b/Assets/Resources/Datas/Tutorial/LongTerm.asset
+@@ -14,8 +14,8 @@
+   m_EditorClassIdentifier: 
+   Id: long-term
+   Title: 形成长期目标
+-  Description: 继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。
+-  NarrativeText: 这场复兴没有终点。让旧时代的资源继续服务于新的生产链，用人口、研究和基础设施共同支撑下一次扩张。
++  Description: "在时代页面选择一项未完成条件，补足它需要的研究、人口或资源。"
++  NarrativeText: "新设施仍需要旧工坊的材料。扩建之前，先检查上游产量和食物，别让刚建好的设备空转。"
+   Kind: 7
+   NextStepId: 
+   RewardId: 
+--- a/Assets/Resources/Datas/Tutorial/ProductionChain.asset
++++ b/Assets/Resources/Datas/Tutorial/ProductionChain.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   Id: production-chain
+   Title: 连接生产链
+-  Description: 建立一组相互连接的生产与加工建筑，观察原材料如何转化为更高价值的资源。
++  Description: "让采石场生产石块，再用切石工坊加工石砖；在资源页查看两种材料的库存和净产出。"
+   NarrativeText: 一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。
+   Kind: 5
+   NextStepId: era-goal
+--- a/Assets/Resources/Datas/Workshop/OrbitalLoadTestingRig.asset
++++ b/Assets/Resources/Datas/Workshop/OrbitalLoadTestingRig.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: OrbitalLoadTestingRig
+   Label: "\u8f68\u9053\u8f7d\u8377\u6d4b\u8bd5\u5de5\u88c5"
+-  Description: "\u4f7f\u7528\u632f\u52a8\u53f0\u3001\u5e94\u529b\u4f20\u611f\u5668\u548c\u8fde\u63a5\u4ef6\u6d4b\u8bd5\u6a21\u5757\u7ec4\u6210\u8f7d\u8377\u6d4b\u8bd5\u5de5\u88c5\uff0c\u5c06\u8f68\u9053\u7ed3\u6784\u52a8\u529b\u5b66\u7406\u8bba\u843d\u5b9e\u5230\u592a\u7a7a\u5c45\u4f4f\u5de8\u6784\uff0c\u51cf\u5c11\u91cd\u65b0\u52a0\u56fa\u5e76\u63d0\u9ad8\u5efa\u9020\u53ef\u9760\u6027\u3002"
++  Description: "用振动与载荷测试减少返工，提高轨道居住巨构的建造效率，降低其建造材料需求。"
+   SortOrder: 580
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/PhaseMaterialDurabilityCalibration.asset
++++ b/Assets/Resources/Datas/Workshop/PhaseMaterialDurabilityCalibration.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: PhaseMaterialDurabilityCalibration
+   Label: "相位材料耐久校准设备"
+-  Description: "以相位校准与耐久测试降低辐射老化，提升深空运输可靠性。"
++  Description: "校准相位材料并测试辐射老化，提高远征探索能力。"
+   SortOrder: 420
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/CampaignTimingCalibrationBench.asset
++++ b/Assets/Resources/Datas/Workshop/CampaignTimingCalibrationBench.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: CampaignTimingCalibrationBench
+   Label: "\u6218\u5f79\u65f6\u5e8f\u6821\u51c6\u53f0"
+-  Description: "通过时序校准与分布式指挥降低星际远征补给损耗，使远征期间的食物、燃料和材料消耗降低 6%。"
++  Description: "以时序校准协调远征补给，降低战役期间的食物、燃料与材料消耗。"
+   SortOrder: 460
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/GravityAssistTrajectoryPlanner.asset
++++ b/Assets/Resources/Datas/Workshop/GravityAssistTrajectoryPlanner.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: GravityAssistTrajectoryPlanner
+   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u89c4\u5212\u5668"
+-  Description: "通过引力辅助轨道规划提高星区探索与远程作业效率，使远征探索能力提高 18%。"
++  Description: "计算引力辅助与变轨窗口，提高远征探索能力。"
+   SortOrder: 560
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/ModularHabitatSystems.asset
++++ b/Assets/Resources/Datas/Workshop/ModularHabitatSystems.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: ModularHabitatSystems
+   Label: "模块化空间舱"
+-  Description: "通过模块化舱段与远程调度提高轨道空间站的物流吞吐，使轨道空间站的物流产出提高 25%。"
++  Description: "以模块化货舱、泊位和远程调度提高轨道空间站的物流供给。"
+   SortOrder: 420
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/ReusableLaunchStages.asset
++++ b/Assets/Resources/Datas/Workshop/ReusableLaunchStages.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: ReusableLaunchStages
+   Label: "可复用发射级"
+-  Description: "通过可复用发射级维护流程降低舰队维修材料消耗，使舰队维修成本降低 15%。"
++  Description: "回收发射级并统一检修流程，降低舰队维修材料费用。"
+   SortOrder: 410
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/OrbitalTrafficSchedulingArray.asset
++++ b/Assets/Resources/Datas/Workshop/OrbitalTrafficSchedulingArray.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: OrbitalTrafficSchedulingArray
+   Label: "\u8f68\u9053\u4ea4\u901a\u8c03\u5ea6\u9635\u5217"
+-  Description: "按轨道时隙和泊位优先级，调度空间站物流与舰队交通。"
++  Description: "按轨道时隙和泊位优先级调度货运，提高轨道空间站的物流供给。"
+   SortOrder: 700
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Workshop/SolarWindMonitoringArray.asset
++++ b/Assets/Resources/Datas/Workshop/SolarWindMonitoringArray.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: SolarWindMonitoringArray
+   Label: "\u592a\u9633\u98ce\u76d1\u6d4b\u9635\u5217"
+-  Description: "\u4f7f\u7528\u592a\u9633\u98ce\u7c92\u5b50\u63a2\u6d4b\u5668\u3001\u78c1\u573a\u4f20\u611f\u5668\u548c\u9ad8\u80fd\u8f90\u5c04\u8ba1\u7ec4\u6210\u76d1\u6d4b\u9635\u5217\uff0c\u5c06\u7a7a\u95f4\u5929\u6c14\u9884\u6d4b\u7406\u8bba\u843d\u5b9e\u4e3a\u5b9e\u65f6\u9884\u8b66\u7cfb\u7edf\uff0c\u4fdd\u62a4\u8f68\u9053\u592a\u9633\u80fd\u9635\u5217\u7684\u6301\u7eed\u8fd0\u884c\u3002"
++  Description: "提前预测太阳风并调整阵列运行，提高轨道太阳能阵列的发电量。"
+   SortOrder: 660
+   TechLevel: 4
+   requiredResearch:
+--- a/Assets/Resources/Datas/Research/Spacer/PlanetaryGeologyTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/PlanetaryGeologyTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: PlanetaryGeologyTheory
+   Label: "\u884c\u661f\u5730\u8d28\u5b66\u7406\u8bba"
+-  Description: "\u7814\u7a76\u884c\u661f\u5730\u58f3\u5206\u5c42\u3001\u77ff\u8109\u6210\u56e0\u4e0e\u91cd\u529b\u5f02\u5e38\u7684\u5173\u7cfb\uff0c\u5efa\u7acb\u4ece\u8f68\u9053\u9065\u6d4b\u5230\u77ff\u82af\u9a8c\u8bc1\u7684\u52d8\u63a2\u65b9\u6cd5\uff0c\u63d0\u9ad8\u6df1\u7a7a\u8d44\u6e90\u5f00\u91c7\u7684\u5224\u65ad\u51c6\u786e\u6027\u3002"
++  Description: "以轨道遥测、重力扫描与矿芯分析指导采掘，提高轨道综合资源工厂各条产线的产出。"
+   BaseCost: "352000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
+--- a/Assets/Resources/Datas/Sector/HeliosCore.asset
++++ b/Assets/Resources/Datas/Sector/HeliosCore.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: HeliosCore
+   Label: "曜心"
+-  Description: "恒星核心的灼热边缘，沉睡着旧王国的日冕采集阵列。占领后可将光焰导入能源网络，却要承受极端热潮与持续维护。"
++  Description: "靠近日冕的旧王国采集阵列。灼热光焰之间仍有封存的材料与设备，占领后可持续回收高级金属锭和电子元件。"
+   starSystemId: Sol
+   domain: 0
+   enemyPower: "0"
+--- a/Assets/Resources/Datas/Sector/ShardCrown.asset
++++ b/Assets/Resources/Datas/Sector/ShardCrown.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: ShardCrown
+   Label: "碎冠带"
+-  Description: "悬在终焉星之后、如破碎王冠般铺展的巨大矿藏。无数矿脉在黑暗中闪烁，将钛、镍、铁与铝送回太阳系工业的炉心。"
++  Description: "终焉星之后，一圈碎裂天体如破损王冠铺展。占领后可持续开采低级、高级与特级金属矿，送回太阳系的冶炼炉。"
+   starSystemId: Sol
+   domain: 0
+   enemyPower: "0"
+--- a/Assets/Resources/Datas/Sector/ThunderGate.asset
++++ b/Assets/Resources/Datas/Sector/ThunderGate.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: ThunderGate
+   Label: "雷门环"
+-  Description: "横跨太阳系外缘、如雷霆之门般的燃料与矿产支点。冰冷巨云之间藏着火箭燃料、镍与钛，守住这里便握住通往群星的钥匙。"
++  Description: "太阳系外缘的冰冷资源带。占领后可持续取得火箭燃料、高级金属锭和特级金属矿，为离开太阳系准备补给。"
+   starSystemId: Sol
+   domain: 0
+   enemyPower: "0"
+--- a/Assets/Resources/Datas/Research/Spacer/DeepSpaceBiosecurityTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/DeepSpaceBiosecurityTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: DeepSpaceBiosecurityTheory
+   Label: "\u6df1\u7a7a\u751f\u7269\u5b89\u5168\u7406\u8bba"
+-  Description: "\u7814\u7a76\u6df1\u7a7a\u5c01\u95ed\u73af\u5883\u4e2d\u7684\u6c61\u67d3\u4f20\u64ad\u3001\u6837\u672c\u9694\u79bb\u4e0e\u68c0\u75ab\u5236\u5ea6\uff0c\u5efa\u7acb\u8de8\u8231\u6bb5\u751f\u7269\u98ce\u9669\u8bc4\u4f30\u65b9\u6cd5\uff0c\u4fdd\u62a4\u592a\u7a7a\u5c45\u6c11\u7684\u5065\u5eb7\u548c\u957f\u671f\u52b3\u52a8\u80fd\u529b\u3002"
++  Description: "建立跨舱段隔离、检疫和样本处理规范，提高每名人口提供的生产力。"
+   BaseCost: "450000000"
+   prerequisites:
+   - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/DeepSpaceLogisticsReliability.asset
++++ b/Assets/Resources/Datas/Research/Spacer/DeepSpaceLogisticsReliability.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: DeepSpaceLogisticsReliability
+   Label: "深空物流可靠性"
+-  Description: "以状态监测、备件轮换和远程检修，提升深空物流可靠性。"
++  Description: "以状态监测、备件轮换与远程检修减少停运，提高全局物流供给。"
+   BaseCost: "546000000"
+   prerequisites:
+   - {fileID: 11400000, guid: bc1d2e3f405162738495a6b7c8d9e0f1, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/DeepSpaceThermalExchangeTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/DeepSpaceThermalExchangeTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: DeepSpaceThermalExchangeTheory
+   Label: "\u6df1\u7a7a\u70ed\u4ea4\u6362\u7406\u8bba"
+-  Description: "\u7814\u7a76\u771f\u7a7a\u8f90\u5c04\u3001\u4f4e\u6e29\u9694\u70ed\u4e0e\u9ad8\u80fd\u8f6c\u6362\u8fc7\u7a0b\u4e2d\u7684\u70ed\u91cf\u6d41\u5931\uff0c\u5efa\u7acb\u6df1\u7a7a\u8bbe\u65bd\u7684\u70ed\u7ba1\u7406\u548c\u80fd\u91cf\u56de\u6536\u539f\u7406\uff0c\u4e3a\u957f\u671f\u8f68\u9053\u8fd0\u884c\u4e0e\u540e\u7eed\u9ad8\u80fd\u5de5\u7a0b\u964d\u4f4e\u8f6c\u6362\u635f\u8017\u3002"
++  Description: "回收深空设施的余热并改进辐射散热，提高全局供电能力。"
+   BaseCost: "308000000"
+   prerequisites:
+   - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/GravityAssistTrajectoryTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/GravityAssistTrajectoryTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: GravityAssistTrajectoryTheory
+   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u7406\u8bba"
+-  Description: "\u7814\u7a76\u5929\u4f53\u5f15\u529b\u3001\u8f68\u9053\u8f6c\u79fb\u7a97\u53e3\u4e0e\u901f\u5ea6\u589e\u91cf\u7684\u5173\u7cfb\uff0c\u5efa\u7acb\u8fdc\u5f81\u822a\u7a0b\u7684\u5f15\u529b\u8f85\u52a9\u548c\u71c3\u6599\u9884\u7b97\u65b9\u6cd5\uff0c\u51cf\u5c11\u65e0\u6548\u53d8\u8f68\u5e76\u63d0\u9ad8\u8fdc\u8ddd\u79bb\u63a2\u7d22\u7684\u53ef\u6301\u7eed\u6027\u3002"
++  Description: "计算引力辅助与轨道转移窗口，提高远征探索能力。"
+   BaseCost: "380000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 8e5d3c2b1a09876543210fedcba98765, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/InterstellarAutonomyCharterTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/InterstellarAutonomyCharterTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: InterstellarAutonomyCharterTheory
+   Label: "\u661f\u9645\u81ea\u6cbb\u5baa\u7ae0\u7406\u8bba"
+-  Description: "\u7814\u7a76\u591a\u661f\u533a\u793e\u4f1a\u7684\u81ea\u6cbb\u6743\u3001\u4ee3\u8868\u673a\u5236\u4e0e\u8d44\u6e90\u534f\u5546\u539f\u5219\uff0c\u5efa\u7acb\u9002\u7528\u4e8e\u6b96\u6c11\u5730\u548c\u524d\u6cbf\u7ad9\u7684\u5171\u540c\u5baa\u7ae0\uff0c\u63d0\u9ad8\u8de8\u661f\u533a\u793e\u4f1a\u7684\u7a33\u5b9a\u4e0e\u51dd\u805a\u529b\u3002"
++  Description: "建立星区代表、自治权与资源协商规则，提高居民幸福度。"
+   BaseCost: "1564000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/InterstellarCybersecurityTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/InterstellarCybersecurityTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: InterstellarCybersecurityTheory
+   Label: "\u661f\u9645\u7f51\u7edc\u5b89\u5168\u7406\u8bba"
+-  Description: "\u7814\u7a76\u8de8\u661f\u533a\u8eab\u4efd\u8ba4\u8bc1\u3001\u5bc6\u94a5\u8f6e\u6362\u4e0e\u5ef6\u8fdf\u73af\u5883\u4e0b\u7684\u901a\u4fe1\u653b\u51fb\u6a21\u5f0f\uff0c\u5efa\u7acb\u5206\u5e03\u5f0f\u4fe1\u4efb\u548c\u6570\u636e\u6062\u590d\u5236\u5ea6\uff0c\u4fdd\u62a4\u8fdc\u5f81\u7814\u7a76\u4e0e\u661f\u9645\u7269\u6d41\u4e0d\u53d7\u6076\u610f\u5e72\u6270\u3002"
++  Description: "以身份认证、密钥轮换与数据恢复保护跨星区研究资料，提高全局研究效率。"
+   BaseCost: "1320000000"
+   prerequisites:
+   - {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f60718293a4b5c6d, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/InterstellarRouteControlTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/InterstellarRouteControlTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: InterstellarRouteControlTheory
+   Label: "\u661f\u9645\u822a\u8def\u7ba1\u5236\u7406\u8bba"
+-  Description: "\u7814\u7A76\u661F\u9645\u822A\u8DEF\u65F6\u9699\u3001\u8F68\u9053\u6CCA\u4F4D\u51B2\u7A81\u3001\u5408\u540C\u7ED3\u7B97\u4E0E\u7269\u6D41\u4FE1\u7528\uFF0C\u5EFA\u7ACB\u9762\u5411\u957F\u8DDD\u79BB\u8D27\u8FD0\u4E0E\u8230\u961F\u7684\u822A\u8DEF\u8C03\u5EA6\u5236\u5EA6\u3002"
++  Description: "统一星际航路时隙、轨道泊位与货运交接，提高全局物流供给。"
+   BaseCost: "1218000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 3f8a4c2e1d7b49f6a0c5e8b2d4f7a913, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/OrbitalStructuralDynamicsTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/OrbitalStructuralDynamicsTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: OrbitalStructuralDynamicsTheory
+   Label: "\u8f68\u9053\u7ed3\u6784\u52a8\u529b\u5b66\u7406\u8bba"
+-  Description: "\u7814\u7a76\u8f68\u9053\u5efa\u7b51\u7684\u8f7d\u8377\u4f20\u9012\u3001\u632f\u52a8\u8010\u4e45\u4e0e\u7ec4\u4ef6\u75b2\u52b3\u89c4\u5f8b\uff0c\u5efa\u7acb\u5927\u578b\u7a7a\u95f4\u8bbe\u65bd\u7684\u7ed3\u6784\u9a8c\u8bc1\u548c\u7ef4\u62a4\u539f\u5219\uff0c\u964d\u4f4e\u5efa\u9020\u9636\u6bb5\u7684\u91cd\u590d\u52a0\u56fa\u4e0e\u6750\u6599\u635f\u8017\u3002"
++  Description: "校核轨道结构的振动、载荷与疲劳，减少返工，降低全局建造材料需求。"
+   BaseCost: "144000000"
+   prerequisites:
+   - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/PhaseMaterialDurabilityTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/PhaseMaterialDurabilityTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: PhaseMaterialDurabilityTheory
+   Label: "相位材料耐久理论"
+-  Description: "研究相位材料在真空、辐射和极端温差下的稳定条件，建立相位校准、结构保持与远程运输的统一理论，为深空探索和后续高能工程提供可靠的材料基础。"
++  Description: "研究相位材料在辐射和温差下的稳定条件，提高相位材料产出。"
+   BaseCost: "3740000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 5e6f708192a3b4c5d6e7f8091a2b3c4d, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/PlanetaryAtmosphereEngineering.asset
++++ b/Assets/Resources/Datas/Research/Spacer/PlanetaryAtmosphereEngineering.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: PlanetaryAtmosphereEngineering
+   Label: "\u884c\u661f\u5927\u6c14\u5de5\u7a0b\u7406\u8bba"
+-  Description: "\u7814\u7a76\u884c\u661f\u5927\u6c14\u6210\u5206\u3001\u6e29\u5ba4\u6c14\u4f53\u5904\u7406\u4e0e\u5c01\u95ed\u751f\u6001\u7684\u4ea4\u4e92\u89c4\u5f8b\uff0c\u5efa\u7acb\u9762\u5411\u6b96\u6c11\u5730\u7684\u5927\u6c14\u8c03\u8282\u548c\u73af\u5883\u6539\u9020\u539f\u7406\uff0c\u63d0\u9ad8\u751f\u7269\u8d44\u6e90\u7684\u957f\u671f\u4f9b\u5e94\u80fd\u529b\u3002"
++  Description: "改进封闭种植区的气体循环与碳利用，提高生物质产出。"
+   BaseCost: "630000000"
+   prerequisites:
+   - {fileID: 11400000, guid: b8e4d2c6f1a34790a5c8e3d7f2b61904, type: 2}
+--- a/Assets/Resources/Datas/Research/Spacer/SpaceWeatherForecastingTheory.asset
++++ b/Assets/Resources/Datas/Research/Spacer/SpaceWeatherForecastingTheory.asset
+@@ -14,7 +14,7 @@
+   m_EditorClassIdentifier: 
+   id: SpaceWeatherForecastingTheory
+   Label: "\u7a7a\u95f4\u5929\u6c14\u9884\u6d4b\u7406\u8bba"
+-  Description: "\u7814\u7a76\u592a\u9633\u98ce\u3001\u78c1\u66b4\u548c\u9ad8\u80fd\u7c92\u5b50\u5bf9\u8f68\u9053\u8bbe\u65bd\u4e0e\u6df1\u7a7a\u4efb\u52a1\u7684\u5f71\u54cd\u5468\u671f\uff0c\u5efa\u7acb\u7a7a\u95f4\u5929\u6c14\u9884\u8b66\u548c\u80fd\u6e90\u8c03\u5ea6\u5236\u5ea6\uff0c\u964d\u4f4e\u7a81\u53d1\u8f90\u5c04\u5bf9\u592a\u7a7a\u5de5\u7a0b\u7684\u5e72\u6270\u3002"
++  Description: "预测太阳风、磁暴与高能粒子变化，提高轨道太阳能阵列的发电量。"
+   BaseCost: "420000000"
+   prerequisites:
+   - {fileID: 11400000, guid: 2f3e4d5c6b7a8091f2e3d4c5b6a79801, type: 2}

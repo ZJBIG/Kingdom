@@ -16,7 +16,7 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(phaseMaterial, Is.Not.Null);
         Assert.That(ceramic, Is.Not.Null);
 
-        Building titaniumPlant = DataBase<Building>.Find("TitaniumMetallurgicalComplex");
+        Building titaniumPlant = DataBase<Building>.Find("TitaniumAlloySmelter");
         Building phantomPlant = DataBase<Building>.Find("PhantomMaterialsFabricator");
         Building phasePlant = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
         Building ceramicPlant = DataBase<Building>.Find("AdvancedCeramicsPlant");
@@ -34,13 +34,13 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(phasePlant.ResourceConsumptionRates.Count, Is.GreaterThanOrEqualTo(5));
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
-            DataBase<Resource>.Find("NickelConcentrate")), Is.True);
+            DataBase<Resource>.Find("AdvancedMetalOre")), Is.True);
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
             ceramic), Is.True);
         Assert.That(HasResourceRequirement(
             titaniumPlant.ResourceRequirements,
-            DataBase<Resource>.Find("NickelConcentrate"),
+            DataBase<Resource>.Find("AdvancedMetalOre"),
             180d), Is.True);
         Assert.That(HasResourceRequirement(ceramicPlant.ResourceRequirements, ceramic, 420d), Is.True);
         Assert.That(HasResourceRequirement(phantomPlant.ResourceRequirements, ceramic, 260d), Is.True);
@@ -94,13 +94,13 @@ public sealed class AdvancedMaterialProgressionTests
     public void AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings()
     {
         Assert.That(
-            HasBuildingEffect("TitaniumReductionRetorts", "TitaniumMetallurgicalComplex", 1.2d),
+            HasBuildingEffect("ChlorideReductionRetorts", "TitaniumAlloySmelter", 1.2d),
             Is.True);
         Assert.That(
-            HasBuildingEffect("VacuumArcFurnace", "TitaniumMetallurgicalComplex", 1.2d),
+            HasBuildingEffect("VacuumArcFurnace", "TitaniumAlloySmelter", 1.2d),
             Is.True);
         Assert.That(
-            HasResourceRequirement("TitaniumReductionRetorts", "Nickel", 140d),
+            HasResourceRequirement("ChlorideReductionRetorts", "AdvancedMetalIngot", 140d),
             Is.True);
         Assert.That(
             HasBuildingEffect("PhaseFieldContainment", "PhantomMaterialsFabricator", 1.25d),
@@ -124,7 +124,7 @@ public sealed class AdvancedMaterialProgressionTests
     public void 高级材料研究必须强化对应生产建筑()
     {
         Assert.That(
-            HasResearchBuildingEffect("TitaniumAlloyEngineering", "TitaniumMetallurgicalComplex", 1.1d),
+            HasResearchBuildingEffect("TitaniumAlloyEngineering", "TitaniumAlloySmelter", 1.1d),
             Is.True);
         Assert.That(
             HasResearchBuildingEffect("PhantomMaterials", "PhantomMaterialsFabricator", 1.15d),
@@ -138,7 +138,7 @@ public sealed class AdvancedMaterialProgressionTests
     public void 氯化钛冶金研究负责钛精矿纯化理论()
     {
         Research theory = DataBase<Research>.Find("ChlorideTitaniumMetallurgy");
-        Resource concentrate = DataBase<Resource>.Find("TitaniumConcentrate");
+        Resource concentrate = DataBase<Resource>.Find("SpecialMetalOre");
 
         Assert.That(theory, Is.Not.Null);
         Assert.That(concentrate, Is.Not.Null);

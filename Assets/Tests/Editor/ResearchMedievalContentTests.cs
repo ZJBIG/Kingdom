@@ -12,8 +12,8 @@ public sealed class ResearchMedievalContentTests
         "Bookmaking",
         "TradeRoutes",
         "Fortification",
-        "StandingArmy",
-        "Gunpowder",
+        "PermanentLaborOrganization",
+        "GunpowderSupplyStandards",
         "Industrialization"
     };
 
@@ -91,11 +91,11 @@ public sealed class ResearchMedievalContentTests
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
                 effect.Type == ResearchEffectType.GlobalResearchMultiplier &&
                 effect.NumericValue == new ExpantaNum("1.05")));
-        Assert.That(DataBase<Research>.Find("Gunpowder").Effects,
+        Assert.That(DataBase<Research>.Find("GunpowderSupplyStandards").Effects,
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
                 effect.Type == ResearchEffectType.GlobalLogisticsMultiplier &&
                 effect.NumericValue == new ExpantaNum("1.07")));
-        Assert.That(DataBase<Research>.Find("StandingArmy").Effects,
+        Assert.That(DataBase<Research>.Find("PermanentLaborOrganization").Effects,
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
                 effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
                 effect.NumericValue == new ExpantaNum("1.06")));

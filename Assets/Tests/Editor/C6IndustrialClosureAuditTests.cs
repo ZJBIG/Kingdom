@@ -16,12 +16,12 @@ public sealed class C6IndustrialClosureAuditTests
         "University",
         "RailHub",
         "IndustrialMetalSmelter",
-        "AluminumSmelter",
+        "AdvancedMetalSmelter",
         "CentralPowerStation",
-        "NickelRefinery",
-        "RareMetalMine",
+        "AdvancedMetalRefinery",
+        "IntegratedMetalMine",
         "MechanizedTextileMill",
-        "TitaniumMetallurgicalComplex"
+        "TitaniumAlloySmelter"
     };
 
     private static readonly string[] IndustrialResourceIds =
@@ -39,8 +39,8 @@ public sealed class C6IndustrialClosureAuditTests
         "CopperWire",
         "Engine",
         "Concrete",
-        "BauxiteOre",
-        "Aluminum",
+        "AdvancedMetalOre",
+        "AdvancedMetalIngot",
         "Explosives"
     };
 

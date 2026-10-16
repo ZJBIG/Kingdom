@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HeliosCore
   Label: "曜心"
-  Description: "恒星核心的灼热边缘，沉睡着旧王国的日冕采集阵列。占领后可将光焰导入能源网络，却要承受极端热潮与持续维护。"
+  Description: "靠近日冕的旧王国采集阵列。灼热光焰之间仍有封存的材料与设备，占领后可持续回收高级金属锭和电子元件。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"

@@ -150,7 +150,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
 
     private void Update()
     {
-        if (!IsOpen)
+        if (!IsOpen || OnboardingInputGate.BlocksNavigation)
             return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {

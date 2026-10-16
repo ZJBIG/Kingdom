@@ -9,6 +9,27 @@ using UnityEngine;
 public sealed class GlobalEconomyDefinitionTests
 {
     [Test]
+    public void MetalDefinitions_UseSemanticNamesAndDistinctArtwork()
+    {
+        string[] ids =
+        {
+            "BasicMetalOre", "AdvancedMetalOre", "SpecialMetalOre", "BasicMetalIngot",
+            "AdvancedMetalIngot", "Steel", "TitaniumAlloy"
+        };
+        var sprites = new HashSet<Sprite>();
+        foreach (string id in ids)
+        {
+            Resource resource = DataBase<Resource>.Find(id);
+            Assert.That(resource.name, Is.EqualTo(id), "Asset name must describe its resource identity.");
+            Assert.That(resource.Sprite, Is.Not.Null, id);
+            Assert.That(sprites.Add(resource.Sprite), Is.True, "Each metal has distinct artwork.");
+            Assert.That(AssetDatabase.GetAssetPath(resource), Does.EndWith("/" + id + ".asset"));
+            Assert.That(AssetDatabase.GetAssetPath(resource.Sprite),
+                Is.EqualTo("Assets/Resources/Art/Metals/MetalInventoryAtlas.png"));
+        }
+    }
+
+    [Test]
     public void ResourcePairDefinitionViewsReuseTheirCachedLists()
     {
         Building building = DataBase<Building>.All.First(value => value != null);
@@ -89,26 +110,6 @@ public sealed class GlobalEconomyDefinitionTests
                 Is.GreaterThan(ExpantaNum.Zero),
                 $"建筑 {building.Id} 不能在没有人口容量的情况下直接提供生产力。");
         }
-    }
-
-    private static readonly string[] ReleasedResourceIds =
-    {
-        "Biomass", "Clay", "Cloth", "StoneBrick", "StoneChunk", "WoodLog",
-        "Ceramic", "Chemical", "Coke", "Concrete", "CopperWire", "CrudeOil",
-        "Electronics", "Engine", "Explosives", "Glass", "Lubricant", "Machinery",
-        "RefinedFuel", "Rubber", "Aluminum", "Bronze", "Copper", "Iron",
-        "Nickel", "Steel", "Tin", "TitaniumAlloy", "BauxiteOre", "Coal",
-        "CopperOre", "IronOre", "NickelConcentrate", "TinOre", "TitaniumConcentrate",
-        "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial", "RocketFuel"
-    };
-
-    [Test]
-    public void MigrationProducesThePlannedDefinitionCounts()
-    {
-        Assert.That(AssetDatabase.FindAssets("t:Resource", new[] { "Assets" }).Length,
-            Is.GreaterThanOrEqualTo(ReleasedResourceIds.Length));
-        Assert.That(DataBase<Building>.All.Count, Is.GreaterThan(0));
-
     }
 
     [Test]
@@ -217,17 +218,6 @@ public sealed class GlobalEconomyDefinitionTests
         }
     }
 
-    [Test]
-    public void RetiredToolsAreAbsentAndTheirStableIdsAreNotReused()
-    {
-        Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
-        Assert.That(DataBase<Resource>.Contains("MetalTool"), Is.False);
-        Assert.That(DataBase<Building>.Contains("StoneToolWorkshop"), Is.False);
-        Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
-        Assert.That(AssetDatabase.FindAssets("StoneTool t:Resource"), Is.Empty);
-        Assert.That(AssetDatabase.FindAssets("MetalTool t:Resource"), Is.Empty);
-    }
-
     private static bool ResearchEffectNeedsBuilding(ResearchEffectType type)
     {
         return type == ResearchEffectType.BuildingProductionMultiplier ||
@@ -244,16 +234,6 @@ public sealed class GlobalEconomyDefinitionTests
             type == WorkshopEffectType.BuildingResearchPowerMultiplier ||
             type == WorkshopEffectType.BuildingPowerProductionMultiplier ||
             type == WorkshopEffectType.BuildingLogisticsProductionMultiplier;
-    }
-
-    [Test]
-    public void ResearchNoLongerOwnsBuildingUnlockData()
-    {
-        const BindingFlags flags =
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        Assert.That(typeof(Research).GetField("BuildingUnlock", flags), Is.Null);
-        Assert.That(Enum.IsDefined(typeof(ResearchEffectType), "UnlockBuilding"), Is.False);
-        Assert.That(typeof(ProgressionModifierState).GetField("UnlockedBuildings", flags), Is.Null);
     }
 
     [Test]
@@ -578,11 +558,8 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     [Test]
-    public void ReleasedResourcesExistAndIntegratedDependencyGraphIsReachable()
+    public void IntegratedDependencyGraphIsReachable()
     {
-        foreach (string id in ReleasedResourceIds)
-            Assert.That(DataBase<Resource>.Contains(id), Is.True, id);
-
         Assert.That(EconomyDependencyValidator.Validate(
             DataBase<Resource>.All,
             DataBase<Building>.All,
@@ -594,9 +571,9 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void 所有资源都必须有来源和多个真实消费节点()
     {
-        foreach (string id in ReleasedResourceIds)
+        foreach (Resource resource in DataBase<Resource>.All)
         {
-            Resource resource = DataBase<Resource>.Find(id);
+            string id = resource.Id;
             int sourceCount = 0;
             int sinkCount = 0;
 

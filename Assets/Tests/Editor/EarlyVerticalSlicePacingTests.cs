@@ -19,17 +19,12 @@ public sealed class EarlyVerticalSlicePacingTests
     }
 
     [Test]
-    public void CriticalStoneAgeFlows_HaveConfiguredTwentyPercentHeadroom()
+    public void CriticalStoneAgeFlows_PreserveCombinedMaterialSupply()
     {
         AssertRate("Quarry", "StoneChunk", 2.4d);
         AssertRate("FiberGatheringCamp", "Biomass", 1.5d);
-        AssertRate("MetalMine", "CopperOre", 1d);
-        AssertRate("MetalMine", "TinOre", .8d);
-        AssertRate("MetalMine", "IronOre", .8d);
-        AssertRate("MetalSmelter", "Copper", .8d);
-        AssertRate("MetalSmelter", "Tin", .8d);
-        AssertRate("MetalSmelter", "Iron", .8d);
-        AssertRate("MetalSmelter", "Bronze", .4d);
+        AssertRate("MetalMine", "BasicMetalOre", 2.6d);
+        AssertRate("MetalSmelter", "BasicMetalIngot", 2.8d);
     }
 
     [Test]
@@ -38,12 +33,10 @@ public sealed class EarlyVerticalSlicePacingTests
         Building mine = DataBase<Building>.Find("MetalMine");
         Assert.That(
             mine.ResourceRequirements.Any(pair =>
-                pair.First.Id == "CopperOre" ||
-                pair.First.Id == "TinOre" ||
-                pair.First.Id == "IronOre"),
+                pair.First.Id == "BasicMetalOre"),
             Is.False);
         Assert.That(
-            mine.ResourceRequirements.Any(pair => pair.First.Id == "Bronze"),
+            mine.ResourceRequirements.Any(pair => pair.First.Id == "BasicMetalIngot"),
             Is.False);
     }
 
@@ -52,20 +45,17 @@ public sealed class EarlyVerticalSlicePacingTests
     {
         Building foundry = DataBase<Building>.Find("MetalSmelter");
         Assert.That(
-            foundry.ResourceRequirements.Any(pair => pair.First.Id == "Bronze"),
-            Is.False);
-        Assert.That(
             foundry.ResourceRequirements.Select(pair => pair.First.Id),
-            Does.Not.Contain("Copper").And.Not.Contain("Tin"));
+            Does.Not.Contain("BasicMetalIngot"));
     }
 
     [Test]
-    public void IronSmithing_FollowsReachableBronzeChain()
+    public void IronworkingAndSteelmaking_FollowsReachableBronzeChain()
     {
-        Research iron = DataBase<Research>.Find("Smithing_Iron");
+        Research iron = DataBase<Research>.Find("IronworkingAndSteelmaking");
         Assert.That(
             iron.Prerequisites.Select(value => value.Id),
-            Does.Contain("Smithing_Bronze"));
+            Does.Contain("BronzeAlloyCrafting"));
     }
 
     [Test]

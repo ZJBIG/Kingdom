@@ -21,9 +21,14 @@ public sealed class UnsafeAreaTickerPlayModeTests
         SaveManager.SetSaveRootOverrideForTests(saveRoot);
     }
 
-    [TearDown]
-    public void TearDown()
+    [UnityTearDown]
+    public IEnumerator TearDown()
     {
+        Scene empty = SceneManager.CreateScene("TickerTeardown-" + Guid.NewGuid().ToString("N"));
+        SceneManager.SetActiveScene(empty);
+        Scene sample = SceneManager.GetSceneByName("SampleScene");
+        if (sample.IsValid() && sample.isLoaded)
+            yield return SceneManager.UnloadSceneAsync(sample);
         SaveManager.ClearSaveRootOverrideForTests();
         if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
             Directory.Delete(saveRoot, true);
@@ -70,7 +75,10 @@ public sealed class UnsafeAreaTickerPlayModeTests
         Assert.That(ticker.TextVisible, Is.True);
         StringAssert.Contains("\n", feedText.text,
             "The active headline must be arranged as a vertical character column.");
-        StringAssert.Contains("成\n完\n设\n建", feedText.text);
+        string[] initialCycle = UnsafeAreaTickerRules.BuildFeedCycle(
+            new[] { "建设完成：农场" }, TechLevel.StoneAge, "5500/1/1").Split('\n');
+        Assert.That(feedText.text, Is.EqualTo(ToVerticalDisplay(initialCycle[0])),
+            "Daily life opens the feed; notices are inserted later in the cycle.");
         Assert.That(feedText.alpha, Is.EqualTo(authoredAlpha).Within(0.001f),
             "News scrolling must not animate opacity.");
         float firstHorizontalPosition = feedText.rectTransform.anchoredPosition.x;
@@ -95,11 +103,11 @@ public sealed class UnsafeAreaTickerPlayModeTests
         Assert.That(feedText.text, Is.EqualTo(headlineBeforeExit),
             "The current headline remains during the blank pause.");
         ticker.AdvanceForEditor(5.1f);
-        Assert.That(feedText.text, Is.EqualTo(ToVerticalDisplay(pendingCycle[0])),
-            "A pending era cycle must begin at headline zero.");
+        Assert.That(feedText.text, Is.EqualTo(ToVerticalDisplay(pendingCycle[1])),
+            "A pending cycle continues at the next headline instead of replaying the first.");
         ticker.AdvanceForEditor(10000f);
         ticker.AdvanceForEditor(5.1f);
-        Assert.That(feedText.text, Is.EqualTo(ToVerticalDisplay(pendingCycle[1])),
+        Assert.That(feedText.text, Is.EqualTo(ToVerticalDisplay(pendingCycle[2])),
             "A completed headline advances exactly once after its pause.");
         RectMask2D feedMask = tickerObject.transform.Find(
             "FeedViewport")?.GetComponent<RectMask2D>();

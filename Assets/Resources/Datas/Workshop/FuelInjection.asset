@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FuelInjection
   Label: "内燃机供油组件"
-  Description: "由喷油泵、喷嘴和调压部件组成，提升发动机运行可靠性。"
+  Description: "精确控制供油与机械装配，提高机器制造厂的产出。"
   SortOrder: 240
   TechLevel: 3
   requiredResearch:

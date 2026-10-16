@@ -1,0 +1,29 @@
+--- a/Assets/Resources/UI/Kingdom/KingdomUIRoot.prefab
++++ b/Assets/Resources/UI/Kingdom/KingdomUIRoot.prefab
+@@ -2255,7 +2255,7 @@
+   m_OnCullStateChanged:
+     m_PersistentCalls:
+       m_Calls: []
+-  m_text: Custom
++  m_text: 自定义
+   m_isRightToLeft: 0
+   m_fontAsset: {fileID: 11400000, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+   m_sharedMaterial: {fileID: 2829122849704453864, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+@@ -5413,7 +5413,7 @@
+   m_OnCullStateChanged:
+     m_PersistentCalls:
+       m_Calls: []
+-  m_text: ????/??/??
++  m_text: 正在载入日期
+   m_isRightToLeft: 0
+   m_fontAsset: {fileID: 11400000, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+   m_sharedMaterial: {fileID: 2829122849704453864, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+@@ -13991,7 +13991,7 @@
+   m_OnCullStateChanged:
+     m_PersistentCalls:
+       m_Calls: []
+-  m_text: "SYSTEM READY     \xB7     TOUCH A SECTION TO CONTINUE"
++  m_text: "选择左侧栏目查看王国"
+   m_isRightToLeft: 0
+   m_fontAsset: {fileID: 11400000, guid: 08ad5319768e92d4a9d133b324661387, type: 2}
+   m_sharedMaterial: {fileID: 2829122849704453864, guid: 08ad5319768e92d4a9d133b324661387, type: 2}

@@ -140,6 +140,7 @@ public sealed partial class KingdomUIRoot
     private GameObject overviewNavigationToolbar;
     private Button overviewCurrentTargetButton;
     private Button overviewCurrentEraButton;
+    private const float DefaultResearchScale = 1.3f;
     private string pendingOverviewResearchFocusId;
     private string lastLoggedResearchClosureTarget;
     private UIResearchGraphGesture researchGraphGesture;
@@ -398,7 +399,7 @@ public sealed partial class KingdomUIRoot
     private IEnumerator BuildResearchTreePageCoroutine(RectTransform parent)
     {
         float buildStartTime = Time.realtimeSinceStartup;
-        Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v9-batched parent={parent} parentRect={parent.rect.size}");
+        Debug.Log($"[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent={parent} parentRect={parent.rect.size}");
         researchTreePageBuilt = false;
         researchTreeNodes.Clear();
         researchTreeLinkVisuals.Clear();
@@ -600,6 +601,7 @@ public sealed partial class KingdomUIRoot
         }
         Canvas.ForceUpdateCanvases();
         researchGraphGesture.Initialize(researchGraphViewport, researchGraphContent);
+        researchGraphGesture.ResetView(DefaultResearchScale);
         researchGraphGesture.enabled = researchPageVisibilityGroup == null ||
             researchPageVisibilityGroup.alpha > 0f;
         researchTreePageBuilt = true;
@@ -883,80 +885,8 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshOverviewNavigationToolbar()
     {
-        if (overviewNavigationToolbar == null || overviewCurrentTargetButton == null ||
-            overviewCurrentEraButton == null)
-            return;
-
-        bool visible = string.Equals(populatedPage, "Overview", StringComparison.Ordinal);
-        if (overviewNavigationToolbar.activeSelf != visible)
-            overviewNavigationToolbar.SetActive(visible);
-
-        Research tutorialTarget = null;
-        TutorialSnapshot snapshot = TutorialManager.Current?.Evaluate();
-        if (snapshot != null && snapshot.NavigationPage == "Research" &&
-            !string.IsNullOrWhiteSpace(snapshot.NavigationTargetId) &&
-            DataBase<Research>.TryFind(snapshot.NavigationTargetId, out Research requested))
-            tutorialTarget = requested;
-
-        Research target = tutorialTarget;
-        TMP_Text targetLabel = overviewCurrentTargetButton.GetComponentInChildren<TMP_Text>(true);
-        if (target == null)
-        {
-            target = FindEraGoalResearchTarget();
-            if (targetLabel != null)
-                targetLabel.text = "\u65f6\u4ee3\u76ee\u6807";
-        }
-        else if (targetLabel != null)
-            targetLabel.text = "\u5f53\u524d\u76ee\u6807";
-
-        overviewCurrentTargetButton.interactable = visible && target != null;
-        overviewCurrentTargetButton.onClick.RemoveAllListeners();
-        if (target != null)
-        {
-            Research capturedTarget = target;
-            overviewCurrentTargetButton.onClick.AddListener(() => NavigateToOverviewResearch(capturedTarget));
-        }
-
-        Research eraTarget = FindCurrentEraResearchTarget();
-        TMP_Text eraLabel = overviewCurrentEraButton.GetComponentInChildren<TMP_Text>(true);
-        if (eraLabel != null)
-            eraLabel.text = "定位本时代研究";
-        overviewCurrentEraButton.gameObject.SetActive(eraTarget != target);
-        overviewCurrentEraButton.interactable = visible && eraTarget != null;
-        overviewCurrentEraButton.onClick.RemoveAllListeners();
-        if (eraTarget != null)
-        {
-            Research capturedEraTarget = eraTarget;
-            overviewCurrentEraButton.onClick.AddListener(() => NavigateToOverviewResearch(capturedEraTarget));
-        }
-
-    }
-
-    private Research FindCurrentEraResearchTarget()
-    {
-        if (GameManager.Instance == null || GameManager.Instance.State == null)
-            return null;
-
-        TechLevel era = GameManager.Instance.State.TechLevel;
-        Research firstAvailable = null;
-        Research firstDefined = null;
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            Research research = definitions[i];
-            if (research == null || research.TechLevel != era)
-                continue;
-            if (firstDefined == null)
-                firstDefined = research;
-            ResearchStatus status = GetResearchStatus(research);
-            if (firstAvailable == null &&
-                (status == ResearchStatus.Available ||
-                 status == ResearchStatus.Researching ||
-                 status == ResearchStatus.Queued ||
-                 status == ResearchStatus.WaitingResources))
-                firstAvailable = research;
-        }
-        return firstAvailable ?? firstDefined;
+        // Overview already has one contextual action; the fixed research shortcuts duplicate it.
+        if (overviewNavigationToolbar != null) overviewNavigationToolbar.SetActive(false);
     }
 
     private void NavigateToOverviewResearch(Research target)
@@ -970,26 +900,6 @@ public sealed partial class KingdomUIRoot
             pendingOverviewResearchFocusId = null;
             FocusResearchNode(currentTarget);
         }
-    }
-
-    private Research FindEraGoalResearchTarget()
-    {
-        if (GameManager.Instance == null)
-            return null;
-        EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
-            GameManager.Instance.State.TechLevel,
-            ResearchManager.Instance,
-            ResourceManager.Instance);
-        for (int i = 0; i < evaluation.Conditions.Count; i++)
-        {
-            EraGoalConditionEvaluation condition = evaluation.Conditions[i];
-            if (!condition.Met && condition.Kind == EraGoalConditionKind.PrerequisiteResearch &&
-                condition.Research != null)
-                return condition.Research;
-        }
-        return evaluation.Transition != null
-            ? evaluation.Transition
-            : null;
     }
 
     private void FocusResearchNode(Research research)
@@ -1903,18 +1813,10 @@ public sealed partial class KingdomUIRoot
         return label;
     }
 
-    private static ResearchStatus GetResearchStatus(Research research)
-    {
-        if (research != null && ResearchManager.Instance != null &&
-            ResearchManager.Instance.States.TryGetValue(research, out ResearchState state))
-            return state.Status;
-        return ResearchStatus.Locked;
-    }
-
     private static Color GetResearchStatusColor(ResearchStatus status)
     {
         return status == ResearchStatus.Completed ? Positive :
-            status == ResearchStatus.Available ? Copper :
+            status == ResearchStatus.Available ? BasicMetalIngot :
             status == ResearchStatus.Researching || status == ResearchStatus.Queued ?
             new Color(.38f, .68f, .86f, 1f) : TextSecondary;
     }
@@ -2139,7 +2041,7 @@ public sealed partial class KingdomUIRoot
         if (manager != null)
         {
             if (manager.ActiveResearch?.Definition == research)
-                return Copper;
+                return BasicMetalIngot;
         }
         return focused ? ResearchFocusWhite : ResearchOutlineNormal;
     }

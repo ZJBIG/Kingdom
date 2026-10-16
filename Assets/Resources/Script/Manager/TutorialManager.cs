@@ -101,7 +101,7 @@ public sealed class TutorialSnapshot
 }
 
 [DisallowMultipleComponent]
-public sealed class TutorialManager : MonoBehaviour
+public sealed partial class TutorialManager : MonoBehaviour
 {
     private static readonly HashSet<string> SupportedTriggerConditions =
         new HashSet<string>(StringComparer.Ordinal)
@@ -257,10 +257,10 @@ public sealed class TutorialManager : MonoBehaviour
             "production-chain-owned", "Buildings",
             "一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。"));
         steps.Add(new TutorialStep("era-goal", "看懂下一时代",
-            "打开时代页面，查看关键研究和真实条件的当前值、阻碍与入口，并完成它们以推进时代。",
+            "打开时代页面，查看下一时代所需的研究、材料与当前缺口，并完成它们以推进时代。",
             TutorialStepKind.EraGoal, "long-term", string.Empty, "game-state",
             "era-reached", "Era",
-            "当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看每个真实条件，补上最先阻断王国的那一环。"));
+            "当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看尚未满足的条件，先补齐所缺的研究或材料。"));
         steps.Add(new TutorialStep("long-term", "形成长期目标",
             "继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。",
             TutorialStepKind.LongTerm, string.Empty, string.Empty, "game-state",
@@ -400,9 +400,9 @@ public sealed class TutorialManager : MonoBehaviour
             return new TutorialSnapshot
             {
                 CurrentGoal = "王国状态不可用",
-                GoalDescription = "引导需要先完成核心 Manager 初始化。",
-                Blocker = "缺少必要系统：" + missing.Trim(),
-                RecommendedAction = "检查 GameManager、ResourceManager、BuildingManager 和 ResearchManager 的场景初始化。",
+                GoalDescription = "王国数据尚未载入，暂时无法生成发展建议。",
+                Blocker = "王国数据暂不可用。",
+                RecommendedAction = "稍候片刻；若仍未恢复，请退出后重新打开游戏。",
                 NavigationPage = "Overview"
             };
         }
@@ -472,7 +472,7 @@ public sealed class TutorialManager : MonoBehaviour
                     "/" + game.State.Population.PopulationCapacity.ToGameString() +
                     "，食物与幸福度正在决定下一批族人能否留下。";
             case TutorialStepKind.Research:
-                return "研究已经完成；它的真实解锁内容可以在研究页和对应详情中继续追踪。";
+                return "研究已完成；在研究详情查看解锁的建筑与加成。";
             case TutorialStepKind.ProductionChain:
                 string chainSummary = BuildOwnedProductionChainSummary(buildings);
                 return string.IsNullOrEmpty(chainSummary)
@@ -500,9 +500,9 @@ public sealed class TutorialManager : MonoBehaviour
             case TechLevel.Spacer:
                 return "鼠族已经走出母星，轨道设施、航行与舰队把复兴带向星际。";
             case TechLevel.Ultra:
-                return "鼠族正在探索超越旧文明边界的力量；当前阶段仍应先完成既有时代的跃迁。";
+                return "相位材料与自主制造支撑起巨构。完成文明工程认证，为远星远征准备持续补给。";
             case TechLevel.Archotech:
-                return "鼠族文明开始触及远古技术留下的更深层秘密；这里目前仍是远期框架。";
+                return "鼠族已掌握远古技术。完成剩余研究、工程认证与远星占领，回顾一路留下的文明记忆。";
             default:
                 return "鼠族文明正在重新寻找自己的未来，从当前时代的真实能力继续前进。";
         }
@@ -712,7 +712,7 @@ public sealed class TutorialManager : MonoBehaviour
             if (recommendation == null)
             {
                 snapshot.Blocker = "当前没有可以根据王国状态明确推荐的建筑。";
-                snapshot.RecommendedAction = "打开建筑页面，查看已解锁建筑的真实条件。";
+                snapshot.RecommendedAction = "打开建筑页面，查看已解锁建筑的费用、土地占用与生产力需求。";
             }
             else
             {
@@ -758,15 +758,21 @@ public sealed class TutorialManager : MonoBehaviour
         {
             Research guidanceResearch = FindResearchGuidance(
                 research, game.State.TechLevel);
-            snapshot.Blocker = research.ActiveResearch == null ? "尚未开始一项研究。" : "研究正在推进。";
-            if (research.ActiveResearch != null &&
-                research.ActiveResearch.Status == ResearchStatus.WaitingResources &&
-                !research.CanPayResearchCost(research.ActiveResearch.Definition, out string researchBlocker))
-                snapshot.Blocker = researchBlocker;
+            ResearchState currentResearch = research.ActiveResearch ??
+                (research.ResearchQueue.Count > 0 ? research.ResearchQueue[0] : null);
+            snapshot.Blocker = currentResearch == null ? "尚未开始一项研究。" : "研究正在推进。";
             snapshot.RecommendedAction = guidanceResearch == null
                 ? "打开研究页面，查看研究效果和前置条件。"
                 : "打开研究页面，查看“" + guidanceResearch.Label +
                     "”：" + DescribeResearchRole(guidanceResearch);
+            if (currentResearch != null && currentResearch.Status == ResearchStatus.WaitingResources)
+            {
+                snapshot.Blocker = research.CanPayResearchCost(currentResearch.Definition, out string researchBlocker)
+                    ? "研究资源已经备齐，正在等待自动开研。"
+                    : researchBlocker;
+                snapshot.RecommendedAction = "“" + currentResearch.Definition.Label +
+                    "”已排队，补齐资源后会自动开研，无需重复点击；打开研究页面查看费用。";
+            }
             snapshot.NavigationPage = "Research";
             snapshot.NavigationTargetId = guidanceResearch == null ? string.Empty : guidanceResearch.Id;
         }
@@ -828,7 +834,7 @@ public sealed class TutorialManager : MonoBehaviour
                 else if (hasChainAction && actionWorkshop != null)
                 {
                     snapshot.Blocker = "生产链建筑还缺少工坊改良：" + actionWorkshop.Label;
-                    snapshot.RecommendedAction = "打开 Workshop 页面，先完成“" +
+                    snapshot.RecommendedAction = "打开工坊页面，先完成“" +
                         actionWorkshop.Label + "”。";
                     snapshot.NavigationPage = "Workshop";
                     snapshot.NavigationTargetId = actionWorkshop.Id;
@@ -968,7 +974,7 @@ public sealed class TutorialManager : MonoBehaviour
     private static void BuildEraGoalGuidance(TutorialSnapshot snapshot,
         EraGoalEvaluation evaluation)
     {
-        snapshot.RecommendedAction = "打开时代页面，查看下一时代的真实条件。";
+        snapshot.RecommendedAction = "打开时代页面，查看下一时代所需的研究与材料。";
         snapshot.NavigationPage = "Era";
         snapshot.NavigationTargetId = string.Empty;
 
@@ -1033,7 +1039,7 @@ public sealed class TutorialManager : MonoBehaviour
         }
         snapshot.RecommendedAction += game.State.TechLevel == TechLevel.StoneAge
             ? " 可选投资：灌溉改善土地利用与储粮，文书支持科研；生产力紧张时保留部分旧农场。"
-            : " 可选投资：先扩钢材供给、推进机械化，或在准入后完善公共建设与知识设施；这些支线不是工业时代硬门。";
+            : " 可选投资：先扩钢材供给、推进机械化，或在准入后完善公共建设与知识设施；这些改良不影响工业时代的解锁。";
         if (game.State.Population.Population < game.State.Population.PopulationCapacity)
             snapshot.RecommendedAction += " 住房容量须等待入住才转为生产力，满员后需持续补粮。";
     }
@@ -1102,8 +1108,8 @@ public sealed class TutorialManager : MonoBehaviour
             "机器工厂还缺少精密制造知识：先完成“", "”。", true,
             "打开研究页面，完成“", "”，让工坊经验能够转化为稳定的机器生产。"),
         new IndustrialGuidanceRow(GuidanceKind.Workshop, "MachineFactory",
-            "工业工坊已经解锁，但还没有一项真实改良。", string.Empty, false,
-            "打开 Workshop 页面，购买一项真实改良，再继续建设机器工厂。", string.Empty),
+            "工业工坊已经解锁，但还没有购买工坊改良。", string.Empty, false,
+            "打开工坊页面，购买一项工坊改良，再继续建设机器工厂。", string.Empty),
         new IndustrialGuidanceRow(GuidanceKind.Building, "MachineFactory",
             "精密制造与工坊改良已经准备，但还没有“", "”把规模变成现实。", true,
             "打开建筑页面，建造“", "”，让工业时代第一次真正运转。"),
@@ -1342,7 +1348,7 @@ public sealed class TutorialManager : MonoBehaviour
             if (state.CampaignActive)
             {
                 snapshot.Blocker = "星区“" + sectorLabel +
-                    "”的远征正在进行，先观察真实补给、进度与伤亡。";
+                    "”的远征正在进行，查看补给消耗、远征进度与舰队损伤。";
                 snapshot.RecommendedAction = "打开星区页面，查看“" +
                     sectorLabel + "”的远征状态。";
             }
@@ -1351,7 +1357,7 @@ public sealed class TutorialManager : MonoBehaviour
                 snapshot.Blocker = "星区“" + sectorLabel +
                     "”的远征已经完成阶段性推进，下一步确认占领条件。";
                 snapshot.RecommendedAction = "打开星区页面，完成“" +
-                    sectorLabel + "”的真实占领流程。";
+                    sectorLabel + "”的占领确认。";
             }
             else if (state.ColonizationActive)
             {
@@ -1363,7 +1369,7 @@ public sealed class TutorialManager : MonoBehaviour
             else
             {
                 snapshot.Blocker = "星区“" + sectorLabel +
-                    "”已经解锁，下一步是用真实探索与补给建立前线。";
+                    "”已经解锁，下一步是派出探索队并维持补给，建立前线。";
                 snapshot.RecommendedAction = "打开星区页面，查看“" +
                     sectorLabel + "”可执行的殖民或远征行动。";
             }
@@ -1376,8 +1382,8 @@ public sealed class TutorialManager : MonoBehaviour
 
         if (!hasUnlockedSector)
         {
-            snapshot.Blocker = "太空基础设施已经建立，但还没有解锁真实星区。";
-            snapshot.RecommendedAction = "打开星区页面，查看第一片可解锁的真实星区。";
+            snapshot.Blocker = "太空基础设施已经建立，但尚未解锁星区。";
+            snapshot.RecommendedAction = "打开星区页面，查看第一片可解锁的星区。";
             snapshot.NavigationPage = "Sectors";
             snapshot.NavigationTargetId = string.Empty;
             return true;
@@ -1522,7 +1528,7 @@ public sealed class TutorialManager : MonoBehaviour
                                 : upgradePrerequisite.Label;
                             snapshot.Blocker = "工坊改良“" + prerequisite.Label +
                                 "”还缺少升级前置：“" + upgradeLabel + "”。";
-                            snapshot.RecommendedAction = "打开 Workshop 页面，先完成“" +
+                            snapshot.RecommendedAction = "打开工坊页面，先完成“" +
                                 upgradeLabel + "”，再购买“" + prerequisite.Label + "”。";
                             snapshot.NavigationPage = "Workshop";
                             snapshot.NavigationTargetId = upgradePrerequisite == null
@@ -1535,7 +1541,7 @@ public sealed class TutorialManager : MonoBehaviour
                 string label = prerequisite == null ? "工坊前置" : prerequisite.Label;
                 snapshot.Blocker = "“" + building.Label + "”还需要工坊改良：“" +
                     label + "”。";
-                snapshot.RecommendedAction = "打开 Workshop 页面，完成“" + label +
+                snapshot.RecommendedAction = "打开工坊页面，完成“" + label +
                     "”，再回到建筑页面建造“" + building.Label + "”。";
                 snapshot.NavigationPage = "Workshop";
                 snapshot.NavigationTargetId = prerequisite == null
@@ -1685,7 +1691,7 @@ public sealed class TutorialManager : MonoBehaviour
         snapshot.Blocker = DescribeBuildingBlocker(
             building, game, buildings, resources);
         snapshot.RecommendedAction = "打开建筑页面，建造“" + building.Label +
-            "”，然后观察它对工业生产的真实影响。";
+            "”，然后在资源页查看产出变化。";
         snapshot.NavigationPage = "Buildings";
         snapshot.NavigationTargetId = building.Id;
         return true;
@@ -1790,11 +1796,11 @@ public sealed class TutorialManager : MonoBehaviour
             return;
 
         snapshot.Blocker = blocker == null
-            ? defaultBlocker + "当前没有可用的人口容量建筑定义。"
+            ? defaultBlocker + "当前没有已解锁的住房。"
             : DescribeBuildingBlocker(blocker, game, buildings, resources);
         snapshot.RecommendedAction = blocker == null
             ? "打开建筑页面，确认当前时代的住房解锁条件。"
-            : "打开建筑页面，查看“" + blocker.Label + "”的真实解锁条件。";
+            : "打开建筑页面，查看“" + blocker.Label + "”的解锁条件。";
         snapshot.NavigationTargetId = blocker == null ? string.Empty : blocker.Id;
     }
 
@@ -1828,18 +1834,17 @@ public sealed class TutorialManager : MonoBehaviour
 
         if (game.State.TechLevel == TechLevel.Animal &&
             DataBase<Building>.TryFind("WoodHouse", out Building woodHouse) &&
-            !HasOwnedBuildingId(buildings, woodHouse.Id) &&
             woodHouse.PopulationCapacityGranted > ExpantaNum.Zero &&
-            buildings.ShouldDisplay(woodHouse))
+            buildings.CanConstructNew(woodHouse))
             return woodHouse;
 
         IReadOnlyList<Building> definitions = DataBase<Building>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
             Building building = definitions[i];
-            if (building != null && !HasOwnedBuildingId(buildings, building.Id) &&
+            if (building != null &&
                 building.PopulationCapacityGranted > ExpantaNum.Zero &&
-                buildings.ShouldDisplay(building))
+                buildings.CanConstructNew(building))
                 return building;
         }
         return null;
@@ -2067,35 +2072,6 @@ public sealed class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static bool IsProductionChainEndpoint(
-        Building candidate, IReadOnlyList<Building> definitions)
-    {
-        if (candidate.ResourceGenerationRates.Count == 0 &&
-            candidate.ResourceConsumptionRates.Count == 0)
-            return false;
-        for (int i = 0; i < definitions.Count; i++)
-        {
-            Building other = definitions[i];
-            if (other == null || other == candidate)
-                continue;
-            for (int outputIndex = 0;
-                outputIndex < candidate.ResourceGenerationRates.Count; outputIndex++)
-            {
-                Resource output = candidate.ResourceGenerationRates[outputIndex].First;
-                if (output != null && BuildingConsumes(other, output))
-                    return true;
-            }
-            for (int inputIndex = 0;
-                inputIndex < candidate.ResourceConsumptionRates.Count; inputIndex++)
-            {
-                Resource input = candidate.ResourceConsumptionRates[inputIndex].First;
-                if (input != null && BuildingGenerates(other, input))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     private static Resource FindMissingBuildingResource(
         Building building, BuildingManager buildings, ResourceManager resources)
     {
@@ -2140,7 +2116,7 @@ public sealed class TutorialManager : MonoBehaviour
     public static string DescribeBuildingRole(Building building)
     {
         if (building == null)
-            return "提供新的发展能力。";
+            return "建筑资料暂不可用。";
 
         List<string> changes = new List<string>();
         AddPositiveChange(changes, building.PopulationCapacityGranted,
@@ -2159,7 +2135,7 @@ public sealed class TutorialManager : MonoBehaviour
             "产出 ");
 
         if (changes.Count == 0)
-            return "提供新的发展能力。";
+            return building.Description;
         return string.Join("；", changes) + "。";
     }
 
@@ -2213,13 +2189,13 @@ public sealed class TutorialManager : MonoBehaviour
             ExpantaNum.Zero,
             building.SpaceCost - game.State.AvailableTerritory);
         if (territoryMissing > ExpantaNum.Zero)
-            return action + "领土 " + territoryMissing.ToGameString() + "。";
+            return action + "空闲土地 " + territoryMissing.ToGameString() + "；拆除闲置建筑或占领星区可腾出土地。";
 
         ExpantaNum productivityMissing = ExpantaNum.Max(
             ExpantaNum.Zero,
             building.ProductivityConsumption - buildings.AvailableProductivity);
         if (productivityMissing > ExpantaNum.Zero)
-            return action + "生产力 " + productivityMissing.ToGameString() + "。";
+            return action + "可用生产力 " + productivityMissing.ToGameString() + "；增加居民或减少建筑负担后再建。";
 
         ExpantaNum costMultiplier =
             BuildingManager.GetConstructionCostMultiplier(building);
@@ -2266,6 +2242,8 @@ public sealed class TutorialManager : MonoBehaviour
             return null;
         if (researchManager.ActiveResearch != null)
             return researchManager.ActiveResearch.Definition;
+        if (researchManager.ResearchQueue.Count > 0)
+            return researchManager.ResearchQueue[0].Definition;
 
         // Prefer the real next-era path over database order. The recursive
         // leaf is the first research the player can meaningfully pursue;
@@ -2295,7 +2273,7 @@ public sealed class TutorialManager : MonoBehaviour
     public static string DescribeResearchRole(Research research)
     {
         if (research == null)
-            return "它连接着后续发展路径，值得在研究页面查看详情。";
+            return "研究资料暂不可用。";
 
         List<string> changes = new List<string>();
         if (research.AdvancesTechLevel)
@@ -2330,7 +2308,7 @@ public sealed class TutorialManager : MonoBehaviour
             }
         }
         if (changes.Count == 0)
-            return "它连接着后续发展路径，值得在研究页面查看详情。";
+            return research.Description;
         return "改变：" + string.Join("；", changes) +
             (research.Effects.Count > 3 ? "；等" : string.Empty) + "。";
     }
@@ -2462,10 +2440,10 @@ public sealed class TutorialManager : MonoBehaviour
         bool hasProductionChain = buildings != null &&
             HasOwnedProductionChain(buildings.States.Values);
         return (readiness ?? string.Empty) + "\n" +
-            "\u57fa\u7840\u4ea7\u4e1a\u51c6\u5907\uff1a" +
+            "生产链：" +
             (hasProductionChain
-                ? "\u5df2\u5f62\u6210\u771f\u5b9e\u7684\u539f\u6599\u2192\u52a0\u5de5\u2192\u4ea7\u51fa\u94fe\u3002"
-                : "\u5c1a\u672a\u5f62\u6210\u539f\u6599\u2192\u52a0\u5de5\u2192\u4ea7\u51fa\u94fe\uff08\u53d1\u5c55\u51c6\u5907\uff0c\u4e0d\u6539\u53d8\u65f6\u4ee3\u89c4\u5219\uff09\u3002");
+                ? "已建成相连的原料采集与加工建筑。"
+                : "尚未连接原料来源与加工建筑；在生产树中查看上下游关系。");
     }
 
     private static string BuildEraReadinessSummary(GameManager game,
@@ -2482,10 +2460,10 @@ public sealed class TutorialManager : MonoBehaviour
         string researchPower = researchManager == null
             ? "未知"
             : researchManager.ResearchPower.ToGameString() + "/s";
-        return "当前准备度：人口 " + game.State.Population.Population.ToGameString() +
+        return "王国规模：人口 " + game.State.Population.Population.ToGameString() +
             "/" + game.State.Population.PopulationCapacity.ToGameString() +
-            "；生产力 " + productivity + "；研究力 " + researchPower +
-            "。这些是发展准备信息，不会额外改变时代规则。";
+            "；已用 / 总生产力 " + productivity + "；研究力 " + researchPower +
+            "。时代跃迁所需的研究与材料见时代页面。";
     }
 
     private TutorialStep FindStep(string id)
@@ -2518,15 +2496,18 @@ public sealed class TutorialManager : MonoBehaviour
     public SaveManager.TutorialSaveData CaptureSaveData()
     {
         EnsureDefinitions();
-        return new SaveManager.TutorialSaveData
+        var data = new SaveManager.TutorialSaveData
         {
             ActiveStepId = activeStepId,
             CompletedStepIds = new List<string>(completedStepIds)
         };
+        CaptureStages(data);
+        return data;
     }
 
     public void RestoreSaveData(SaveManager.TutorialSaveData data, TechLevel currentEra)
     {
+        RestoreStages(data);
         EnsureDefinitions();
         completedStepIds.Clear();
         visitedStepId = null;
@@ -2562,6 +2543,7 @@ public sealed class TutorialManager : MonoBehaviour
 #endif
     internal void ResetForNewGame()
     {
+        ResetStages();
         EnsureDefinitions();
         completedStepIds.Clear();
         visitedStepId = null;

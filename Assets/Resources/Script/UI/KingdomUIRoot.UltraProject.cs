@@ -53,7 +53,7 @@ public sealed partial class KingdomUIRoot
         AppendUltraBudget(text, preview);
         if (preview.Status != UltraProjectStatus.Committed)
         {
-            text.AppendLine("同一当前状态下的工程姿态比较（不会切换姿态或支付）：");
+            text.AppendLine("工程姿态预览（按当前供给估算，选择后生效）：");
             foreach (UltraProjectDoctrine doctrine in new[] { UltraProjectDoctrine.Stable, UltraProjectDoctrine.Surge })
             {
                 UltraProjectPreview option = manager.GetPreview(doctrine);
@@ -404,14 +404,14 @@ public sealed partial class KingdomUIRoot
     {
         switch (failure)
         {
-            case UltraProjectOperationFailure.NotUltra: return "尚未进入 Ultra 时代";
+            case UltraProjectOperationFailure.NotUltra: return "尚未进入极致时代";
             case UltraProjectOperationFailure.PrerequisiteResearchMissing: return "研究前置未完成";
             case UltraProjectOperationFailure.RequiredBuildingMissing: return "所需巨构尚未建成";
             case UltraProjectOperationFailure.InsufficientStartupResources: return "启动材料不足";
             case UltraProjectOperationFailure.InsufficientSupply: return "电力、物流、食物或高级材料供给不足";
             case UltraProjectOperationFailure.StageLocked: return "该运行姿态尚未认证";
             case UltraProjectOperationFailure.CampaignDoctrineLocked: return "连续性认证尚未完成";
-            case UltraProjectOperationFailure.DefinitionMissing: return "工程定义未加载";
+            case UltraProjectOperationFailure.DefinitionMissing: return "工程数据尚未载入";
             default: return "当前状态不允许此操作";
         }
     }

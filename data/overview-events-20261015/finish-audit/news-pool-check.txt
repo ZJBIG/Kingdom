@@ -1,0 +1,8 @@
+AnimalEraHeadlines: 30 unique headlines, maximum length 13
+StoneAgeEraHeadlines: 30 unique headlines, maximum length 13
+MedievalEraHeadlines: 30 unique headlines, maximum length 13
+IndustrialEraHeadlines: 30 unique headlines, maximum length 14
+SpacerEraHeadlines: 30 unique headlines, maximum length 14
+UltraEraHeadlines: 30 unique headlines, maximum length 14
+ArchotechEraHeadlines: 30 unique headlines, maximum length 13
+Total: 210 headlines; source-only checks, not runtime tests.

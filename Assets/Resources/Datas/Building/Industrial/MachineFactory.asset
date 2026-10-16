@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: MachineFactory
   Label: "\u673A\u5668\u5236\u9020\u5382"
-  Description: "使用钢材、铜线、青铜、铝、润滑剂和橡胶生产机械部件、内燃机与轻质复合材料，为工业设备和后续航天结构提供基础。"
+  Description: "以钢材、铜线和基础金属锭制造机械部件、发动机与复合材料，为工业扩建和航天设施提供设备。"
   TechLevel: 3
   upgradeTo: {fileID: 11400000, guid: 238504a21c41471ca4c817ede986faba, type: 2}
   costGrowth: "1.2"
@@ -41,7 +41,7 @@ MonoBehaviour:
     amount: "200"
   - resource: {fileID: 11400000, guid: ea6626b86db529342a7f290e104fa492, type: 2}
     amount: "200"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "200"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
@@ -55,14 +55,8 @@ MonoBehaviour:
     amount: "0.8"
   - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     amount: "0.3"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "0.5"
-  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
-    amount: "0.1"
-  - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    amount: "0.1"
-  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "0.08"
   requiredResearch:
   - {fileID: 11400000, guid: 71ebdc916ab8b85498698228066d1d55, type: 2}
   requiredWorkshopUpgrades:

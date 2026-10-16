@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: AdvancedMetalElectrolyticCells
+  m_EditorClassIdentifier: 
+  id: AdvancedMetalElectrolyticCells
+  Label: "高级金属电解槽组"
+  Description: "优化电解槽、耐火材料和碳电极，提升高级金属锭产能，为轻质结构与航天设施提供稳定供给。"
+  SortOrder: 310
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: 35553b6e5bc98bd48985fda0e3472eff, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "140000"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    amount: "13200"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 40dcf98d7f7870d48a5d74c91410104b, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"

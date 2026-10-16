@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.7402067">
+  <test-suite type="TestSuite" id="2103" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="973" result="Passed" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.740207" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3196" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="972" result="Passed" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.682551" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="30832" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2279" name="EraCollectionConfigurationTests" fullname="EraCollectionConfigurationTests" classname="EraCollectionConfigurationTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.602053" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2285" name="BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations" fullname="EraCollectionConfigurationTests.BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations" classname="EraCollectionConfigurationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.473097" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2283" name="BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations(&quot;KingdomUIResourceCard&quot;)" fullname="EraCollectionConfigurationTests.BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations(&quot;KingdomUIResourceCard&quot;)" methodname="BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations" classname="EraCollectionConfigurationTests" runstate="Runnable" seed="1039363838" result="Passed" start-time="2026-10-15 13:25:19Z" end-time="2026-10-15 13:25:20Z" duration="0.414935" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2284" name="BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations(&quot;KingdomUIBuildingCard&quot;)" fullname="EraCollectionConfigurationTests.BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations(&quot;KingdomUIBuildingCard&quot;)" methodname="BindingEraStylePreservesIndependentAuthoredSurfaceAndDecorations" classname="EraCollectionConfigurationTests" runstate="Runnable" seed="1640469252" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.049352" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2286" name="BuildingCapacityIconsResolveThroughTheConfiguredSpriteResourcePath" fullname="EraCollectionConfigurationTests.BuildingCapacityIconsResolveThroughTheConfiguredSpriteResourcePath" methodname="BuildingCapacityIconsResolveThroughTheConfiguredSpriteResourcePath" classname="EraCollectionConfigurationTests" runstate="Runnable" seed="513077215" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.102515" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2282" name="EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard" fullname="EraCollectionConfigurationTests.EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard" classname="EraCollectionConfigurationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.015841" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2280" name="EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard(&quot;KingdomUIResourceCard&quot;)" fullname="EraCollectionConfigurationTests.EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard(&quot;KingdomUIResourceCard&quot;)" methodname="EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard" classname="EraCollectionConfigurationTests" runstate="Runnable" seed="845471267" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.009392" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2281" name="EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard(&quot;KingdomUIBuildingCard&quot;)" fullname="EraCollectionConfigurationTests.EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard(&quot;KingdomUIBuildingCard&quot;)" methodname="EveryEraHasAnIndependentMaterialAndStructurallyDistinctAuthoredCard" classname="EraCollectionConfigurationTests" runstate="Runnable" seed="1026920479" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.002172" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2366" name="KingdomCollectionConfigurationTests" fullname="KingdomCollectionConfigurationTests" classname="KingdomCollectionConfigurationTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.053044" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2372" name="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" fullname="KingdomCollectionConfigurationTests.AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" classname="KingdomCollectionConfigurationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.011495" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2368" name="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;ResourceCard&quot;)" fullname="KingdomCollectionConfigurationTests.AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;ResourceCard&quot;)" methodname="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="155222198" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.004464" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2369" name="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;BuildingCard&quot;)" fullname="KingdomCollectionConfigurationTests.AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;BuildingCard&quot;)" methodname="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="1700789784" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.000318" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2370" name="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;WorkshopCard&quot;)" fullname="KingdomCollectionConfigurationTests.AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;WorkshopCard&quot;)" methodname="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="1377000343" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.003891" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2371" name="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;SectorRow&quot;)" fullname="KingdomCollectionConfigurationTests.AuthoredCollectionRowsProvidePinMetadataAndClippedTitles(&quot;SectorRow&quot;)" methodname="AuthoredCollectionRowsProvidePinMetadataAndClippedTitles" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="1530706243" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.001979" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2373" name="EraAccentsDistinguishEveryPlayableEraAndDetailPinIsAuthored" fullname="KingdomCollectionConfigurationTests.EraAccentsDistinguishEveryPlayableEraAndDetailPinIsAuthored" methodname="EraAccentsDistinguishEveryPlayableEraAndDetailPinIsAuthored" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="1164912999" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.037928" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2367" name="ProductionNodesUseTexturedSurfacesAndCompactCaptionSlots" fullname="KingdomCollectionConfigurationTests.ProductionNodesUseTexturedSurfacesAndCompactCaptionSlots" methodname="ProductionNodesUseTexturedSurfacesAndCompactCaptionSlots" classname="KingdomCollectionConfigurationTests" runstate="Runnable" seed="962811596" result="Passed" start-time="2026-10-15 13:25:20Z" end-time="2026-10-15 13:25:20Z" duration="0.001962" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

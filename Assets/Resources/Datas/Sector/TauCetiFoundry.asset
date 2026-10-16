@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TauCetiFoundry
   Label: "鲸鱼座工业前哨"
-  Description: "沿另一条星际航线，旧工业遗迹在寒冷尘埃中重新苏醒。修复铸造设施后，这里将把远方矿藏锻成支撑王国扩张的钢铁脉搏。"
+  Description: "寒冷尘埃中的旧工业前哨。占领后可持续取得复合材料、电子元件、幽影合金和相位材料，支撑星际建设。"
   starSystemId: TauCeti
   domain: 1
   enemyPower: "4200"
@@ -62,7 +62,7 @@ MonoBehaviour:
     amount: "1.2"
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
     amount: "0.8"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "10.8"
   - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
     amount: "4.8"

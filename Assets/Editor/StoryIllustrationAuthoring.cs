@@ -188,6 +188,7 @@ public static class StoryIllustrationAuthoring
             SetReference(serialized, "toggleButton", toggle); SetReference(serialized, "toggleLabel", toggleLabel);
             SetReference(serialized, "navigationButton", navigation);
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            KingdomCardPolishAuthoring.ApplyCard(root);
             if (PrefabUtility.SaveAsPrefabAsset(root, CardPath) == null) throw new InvalidOperationException("Could not author story card.");
         }
         finally { UnityEngine.Object.DestroyImmediate(root); }

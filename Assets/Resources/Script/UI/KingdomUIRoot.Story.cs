@@ -95,7 +95,7 @@ public sealed partial class KingdomUIRoot
             SetTop(surface, 0f, 260f);
             float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
             CreateCard(surface, "StoryBuildErrorCard", "剧情档案暂时不可用",
-                "剧情页面初始化遇到问题。王国模拟仍在运行，请查看 Console 中的剧情错误日志。",
+                "剧情档案暂时无法打开，资源生产仍会继续。请切换页面后重试。",
                 width, 24f, 220f);
             surface.sizeDelta = new Vector2(0f, 284f);
             page.sizeDelta = new Vector2(0f, 284f);
@@ -139,7 +139,7 @@ public sealed partial class KingdomUIRoot
             "剧情完成状态",
             "已完成章节 " + unlockedCount +
             "/" + StoryManager.Chapters.Count +
-            "\n最新记录来自王国刚刚完成的一项真实行动。",
+            "\n完成章节列出的研究与建设目标后，新的记忆会在这里解锁。",
             width, y, 150f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewMeaning", "最新文明记忆",
@@ -156,14 +156,14 @@ public sealed partial class KingdomUIRoot
             bool isLatest = unlocked && chapter == latestChapter;
             bool collapsed = unlocked && (storyChapterCollapsed.TryGetValue(chapter.Id, out bool savedCollapsed)
                 ? savedCollapsed : !isLatest);
-            string chapterTitle = chapter.Title + "\n" + chapter.EraLabel +
-                "\n" + GetEraSubtitle(chapter.RequiredEra);
+            string chapterTitle = "<b>" + chapter.Title + "</b>\n<size=24><color=#B8B69F>" + chapter.EraLabel +
+                " · " + GetEraSubtitle(chapter.RequiredEra) + "</color></size>";
             if (!unlocked)
                 chapterTitle += " · 尚未完成";
 
             StoryChapterCard card = CreateStoryChapterCard(surface, chapter,
                 chapterTitle, unlocked, !collapsed, isLatest,
-                isLatest ? Copper : unlocked ? PanelRaised : Panel, y);
+                isLatest ? new Color(.22f, .23f, .17f, .96f) : unlocked ? new Color(.14f, .18f, .16f, .94f) : new Color(.10f, .13f, .12f, .88f), y);
             y += card.Rect.rect.height;
         }
 
@@ -197,8 +197,8 @@ public sealed partial class KingdomUIRoot
         if (!string.IsNullOrWhiteSpace(recentActionFeedback))
             actionFeedback += "\n刚刚发生：" + recentActionFeedback;
         string meaning = latestChapter == null
-            ? "完成资源、建筑、研究和生产链行动后，这里会记录它们对鼠族文明复兴的意义。"
-            : "最新完成：“" + latestChapter.Title + "”。\n完整的文明意义与正文见下方章节。";
+            ? "完成资源、建筑、研究和生产链行动后，即可逐步解锁下方章节。"
+            : "最新完成：“" + latestChapter.Title + "”。\n在下方展开章节阅读正文。";
         return meaning + actionFeedback;
     }
 
@@ -371,6 +371,7 @@ public sealed partial class KingdomUIRoot
 
     private void OnDisable()
     {
+        HideOnboarding();
         if (storyIllustrationPreview != null) storyIllustrationPreview.Hide();
     }
 

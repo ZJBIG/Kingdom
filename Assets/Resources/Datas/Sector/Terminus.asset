@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Terminus
   Label: "终焉星"
-  Description: "太阳系边缘的赤色远征前沿。尘暴掩埋着燃料与镍的矿藏，漫长航线和严酷维护将考验王国能否守住第一片远方领地。"
+  Description: "太阳系边缘的赤色前沿。尘暴掩埋了旧补给站，占领后可持续取得高级金属锭、火箭燃料和电子元件；漫长航线需要充足补给。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -23,7 +23,7 @@ MonoBehaviour:
   territoryReward: "100000"
   resourceRewards: []
   occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "0.18"
   - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
     amount: "0.12"

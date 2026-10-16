@@ -163,6 +163,7 @@ public static class KingdomBackgroundAuthoring
         nameLabel.overflowMode = TextOverflowModes.Ellipsis;
         AuthorOverviewToolbar(root.transform.Find("SafeAreaRoot/Content/PageTool/OverviewNavigationToolbar"));
         AuthorOverview(root.transform.Find(pages + "Overview"));
+        KingdomPlannerAuthoring.ApplyOverview(root);
     }
 
     private static void AuthorFrame(Image surface)

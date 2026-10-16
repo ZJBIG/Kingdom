@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ChlorideReductionRetorts
+  m_EditorClassIdentifier: 
+  id: ChlorideReductionRetorts
+  Label: "\u6C2F\u5316\u8FD8\u539F\u7089\u7EC4"
+  Description: "通过氯化、精馏、密闭还原与氯回收降低钛的提取损耗，提高钛合金冶炼厂的钛合金产出，为幽影合金、深空船体和轨道建设提供高强度输入。"
+  SortOrder: 350
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 4f24c46cd5005ce4abb2f72731b2ee25, type: 2}
+  - {fileID: 11400000, guid: f02af0f5c44df0b4082aa367be14589f, type: 2}
+  - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "2600000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "300000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "216000"
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "180000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "96000"
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: "168000"
+  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
+    amount: "88000"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 30afe5eba41c80e40ad21a0e658f9170, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ChlorideTitaniumMetallurgy
   Label: "\u6C2F\u5316\u949B\u51B6\u91D1"
-  Description: "\u5229\u7528\u9AD8\u6E29\u6C2F\u5316\u3001\u7CBE\u998F\u3001\u91D1\u5C5E\u8FD8\u539F\u548C\u771F\u7A7A\u84B8\u998F\uFF0C\u4ECE\u949B\u7CBE\u77FF\u4E2D\u5236\u53D6\u53EF\u4F9B\u771F\u7A7A\u7194\u70BC\u4E0E\u5408\u91D1\u5316\u7684\u91D1\u5C5E\u949B\u3002"
+  Description: "研究高温氯化、蒸馏净化和还原工艺，从特级金属矿中提取适合合金化的材料，为钛合金冶炼奠定基础。"
   BaseCost: "1900000"
   prerequisites:
   - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}

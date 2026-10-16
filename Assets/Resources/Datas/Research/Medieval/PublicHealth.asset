@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PublicHealth
   Label: "\u516C\u5171\u536B\u751F"
-  Description: "建立清洁水源、污物处理、隔离和公共卫生规范，降低人口密集地区的传染与环境性疾病；同时提高人口增长速度40%、人口劳动生产力25%，并使整体建设效率提高2%。"
+  Description: "建立清洁水源、污物处理与隔离规范，提高人口增长速度、人口生产力和幸福度，并降低建造材料需求。"
   BaseCost: "175000"
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}

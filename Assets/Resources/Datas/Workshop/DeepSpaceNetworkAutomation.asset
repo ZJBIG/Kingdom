@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DeepSpaceNetworkAutomation
   Label: "深空网络自动化"
-  Description: "通过自动校准、分布式中继和远程维护降低通信中断，提升深空通信中继站的物流调度与舰队支援效率。"
+  Description: "自动校准中继信号并远程排除故障，提高深空通信中继站的物流供给。"
   SortOrder: 440
   TechLevel: 4
   requiredResearch:

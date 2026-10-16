@@ -17,7 +17,7 @@ public sealed partial class KingdomUIRoot
             var text = new StringBuilder("\n\n离线结算摘要");
             text.Append("\n离开时长：").Append(summary.WallClockSeconds.ToString("0.##"))
                 .Append(" 秒；结算跨度：").Append(summary.SettledSeconds.ToString("0.##"))
-                .Append(" 秒；折减后经济时长：").Append(summary.EffectiveEconomySeconds.ToString("0.##")).Append(" 秒");
+                .Append(" 秒；按离线效率折算的生产时间：").Append(summary.EffectiveEconomySeconds.ToString("0.##")).Append(" 秒");
             if (summary.WallClockSeconds > summary.SettledSeconds)
                 text.Append("；超过离线上限的时段未结算");
             AppendOfflineDifference(text, "食物", summary.FoodBefore, summary.FoodAfter);
@@ -51,7 +51,7 @@ public sealed partial class KingdomUIRoot
             if (summary.ProjectPauseReason != UltraProjectPauseReason.None)
                 text.Append("\n结算结束时：文明工程")
                     .Append(summary.ProjectPauseReason == UltraProjectPauseReason.Manual ? "手动暂停" :
-                        summary.ProjectPauseReason == UltraProjectPauseReason.InsufficientSupply ? "供给不足而暂停" : "定义缺失而暂停");
+                        summary.ProjectPauseReason == UltraProjectPauseReason.InsufficientSupply ? "供给不足而暂停" : "工程数据不可用而暂停");
             if (summary.RelicStatusBefore != summary.RelicStatusAfter || summary.RelicProgressBefore != summary.RelicProgressAfter ||
                 summary.RelicCommissionActiveBefore != summary.RelicCommissionActiveAfter ||
                 summary.RelicSupportReadyBefore != summary.RelicSupportReadyAfter ||

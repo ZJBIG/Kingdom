@@ -1,0 +1,8 @@
+AnimalEraHeadlines: 30 unique, <=20 chars
+StoneAgeEraHeadlines: 30 unique, <=20 chars
+MedievalEraHeadlines: 30 unique, <=20 chars
+IndustrialEraHeadlines: 30 unique, <=20 chars
+SpacerEraHeadlines: 30 unique, <=20 chars
+UltraEraHeadlines: 30 unique, <=20 chars
+ArchotechEraHeadlines: 30 unique, <=20 chars
+Total: 210; static source check only.

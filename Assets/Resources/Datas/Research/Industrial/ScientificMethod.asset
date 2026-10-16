@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ScientificMethod
   Label: "\u79D1\u5B66\u65B9\u6CD5"
-  Description: "\u4EE5\u53EF\u68C0\u9A8C\u5047\u8BBE\u3001\u5BF9\u7167\u5B9E\u9A8C\u3001\u91CF\u5316\u8BB0\u5F55\u548C\u91CD\u590D\u9A8C\u8BC1\u7EC4\u7EC7\u7814\u7A76\uFF0C\u4F7F\u7ECF\u9A8C\u5224\u65AD\u8F6C\u5316\u4E3A\u80FD\u591F\u590D\u73B0\u548C\u4FEE\u6B63\u7684\u77E5\u8BC6\u3002"
+  Description: "以可检验假设、对照实验和重复验证组织研究，提高全局研究效率。"
   BaseCost: "980000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "4000"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "3000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
     amount: "6000"

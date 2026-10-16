@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ConveyorSystems
   Label: "\u4F20\u9001\u7CFB\u7EDF"
-  Description: "\u7531\u76AE\u5E26\u3001\u6EDA\u7B52\u3001\u9A71\u52A8\u8F6E\u548C\u5206\u6599\u673A\u6784\u7EC4\u6210\u7684\u8FDE\u7EED\u8F93\u9001\u8BBE\u5907\u3002"
+  Description: "用皮带、滚筒与分料设备组织连续运输，提高全局物流供给。"
   SortOrder: 160
   TechLevel: 3
   requiredResearch:

@@ -14,7 +14,7 @@ from collections import Counter
 from datetime import datetime, timezone
 
 SCAN_ROOTS = ("Assets", "Packages", "ProjectSettings", "docs", "tools",
-              ".agents/skills", ".codex/handoffs", "CONTENTADVISE")
+              ".agents/skills", ".codex/handoffs")
 EXCLUDED_NAMES = frozenset({"library", ".git", "temp", "tmp", "bin", "obj",
                            "logs", ".vs", "node_modules", "__pycache__", "archive"})
 TEXT_SUFFIXES = frozenset({".cs", ".md", ".json", ".asmdef", ".asset", ".prefab",

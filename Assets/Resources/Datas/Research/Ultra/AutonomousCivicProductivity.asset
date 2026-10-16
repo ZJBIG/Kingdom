@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AutonomousCivicProductivity
   m_EditorClassIdentifier: 
   id: AutonomousCivicProductivity
-  Label: "Autonomous Civic Productivity"
-  Description: "Coordinate population, research and industrial schedules so the Ultra megastructures receive more effective work without restoring a separate workforce system."
+  Label: "自主社会生产调度"
+  Description: "协调居民作息、研究任务和工厂排程，提高每名人口提供的生产力。"
   BaseCost: "2.2e13"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

@@ -33,7 +33,7 @@ head.
 - A missing `ResourceManager` is a failed attempt, not an exception or a fake
   payment.
 
-Save format v9 requires every serialized research state to carry an explicit
+Save format v1 requires every serialized research state to carry an explicit
 `PaidResourceCosts` list, including an empty list when nothing has been paid.
 The loader restores only exact current resource IDs and amounts. Missing,
 duplicate, unknown, negative, excessive or unrequired ledger entries reject the

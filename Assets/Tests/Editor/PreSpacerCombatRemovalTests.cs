@@ -33,11 +33,11 @@ public sealed class PreSpacerCombatRemovalTests
     [Test]
     public void C811_ConvertedResearchUsesDistinctNonCombatRoles()
     {
-        AssertGlobalMultiplier("OrganizedDefense", 1.03d);
+        AssertGlobalMultiplier("WatchAndCooperation", 1.03d);
         AssertGlobalMultiplier("OrganizedWatch", 1.04d);
         AssertEffectType("Fortification", ResearchEffectType.GlobalConstructionMultiplier, 1.05d);
-        AssertEffectType("StandingArmy", ResearchEffectType.PopulationProductivityMultiplier, 1.06d);
-        AssertEffectType("Gunpowder", ResearchEffectType.GlobalLogisticsMultiplier, 1.07d);
+        AssertEffectType("PermanentLaborOrganization", ResearchEffectType.PopulationProductivityMultiplier, 1.06d);
+        AssertEffectType("GunpowderSupplyStandards", ResearchEffectType.GlobalLogisticsMultiplier, 1.07d);
         AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory", 1.20d);
         Assert.That(
             DataBase<Research>.Find("MilitaryIndustry").Effects,

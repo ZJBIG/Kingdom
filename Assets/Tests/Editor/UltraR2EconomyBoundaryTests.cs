@@ -109,7 +109,6 @@ public sealed class UltraR2EconomyBoundaryTests
                 new UltraProjectStateSaveData
                 {
                     ProjectId = UltraProjectState.ProjectId,
-                    SaveVersion = UltraProjectState.CurrentSaveVersion,
                     Doctrine = UltraProjectDoctrine.Stable,
                     Status = UltraProjectStatus.Running,
                     CurrentStage = UltraProjectStage.Prototype,

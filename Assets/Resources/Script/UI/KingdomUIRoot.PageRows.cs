@@ -82,7 +82,7 @@ public sealed partial class KingdomUIRoot
         Image surface = button.targetGraphic as Image;
         if (surface != null)
             SetColorIfChanged(surface, available
-                ? (isDeconstruct ? Error : Copper)
+                ? (isDeconstruct ? Error : BasicMetalIngot)
                 : Panel);
         button.transition = Selectable.Transition.ColorTint;
         ApplyButtonColors(button, surface == null ? Color.white : surface.color);
@@ -125,7 +125,7 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("建筑", "建筑管理器尚未初始化。", building.Id);
+            ShowDetails("建筑", "建筑数据尚未载入，请稍候。", building.Id);
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
@@ -146,7 +146,7 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("建筑", "建筑管理器尚未初始化。", building.Id);
+            ShowDetails("建筑", "建筑数据尚未载入，请稍候。", building.Id);
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
@@ -189,8 +189,8 @@ public sealed partial class KingdomUIRoot
             case BuildFailure.ResearchPrerequisiteIncomplete: return "研究前置未完成";
             case BuildFailure.WorkshopPrerequisiteIncomplete: return "工坊前置未完成";
             case BuildFailure.ResourceInsufficient: return "资源不足";
-            case BuildFailure.SpaceInsufficient: return "土地不足";
-            case BuildFailure.ProductivityInsufficient: return "生产力不足";
+            case BuildFailure.SpaceInsufficient: return "空闲土地不足；拆除闲置建筑或占领星区可腾出土地";
+            case BuildFailure.ProductivityInsufficient: return "可用生产力不足；先增加居民或减少建筑负担";
             case BuildFailure.BuildingTierSuperseded: return "已被更高等级建筑替代";
             case BuildFailure.UpgradeUnavailable: return "升级不可用";
             case BuildFailure.SectorNotOccupied: return "所属星区尚未占领";

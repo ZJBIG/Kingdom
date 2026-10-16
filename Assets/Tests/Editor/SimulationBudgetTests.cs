@@ -59,7 +59,6 @@ public sealed class SimulationBudgetTests
                 new UltraProjectStateSaveData
                 {
                     ProjectId = UltraProjectState.ProjectId,
-                    SaveVersion = UltraProjectState.CurrentSaveVersion,
                     Doctrine = UltraProjectDoctrine.Stable,
                     Status = UltraProjectStatus.Running,
                     CurrentStage = UltraProjectStage.Prototype,
@@ -221,7 +220,6 @@ public sealed class SimulationBudgetTests
                 new UltraProjectStateSaveData
                 {
                     ProjectId = UltraProjectState.ProjectId,
-                    SaveVersion = UltraProjectState.CurrentSaveVersion,
                     Doctrine = UltraProjectDoctrine.Stable,
                     Status = UltraProjectStatus.Committed,
                     CurrentStage = UltraProjectStage.Completed,

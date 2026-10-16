@@ -53,11 +53,11 @@ python -X utf8 tools/codex/kingdom_project_probe.py --project-root . --check-ski
 & "./tools/codex/run-unity-tests.ps1" -Platform EditMode -ProjectPath "."
 ```
 
-真实参数：`Platform`（EditMode/PlayMode）、`ProjectPath`、`UnityPath`、`ResultsPath`、`LogPath`、`LatestErrorsPath`、`TimeoutSeconds`（默认600）。**没有 TestFilter 参数**。
+真实参数：`Platform`（EditMode/PlayMode）、`ProjectPath`、`UnityPath`、`ResultsPath`、`LogPath`、`LatestErrorsPath`、`TestFilter`、`TimeoutSeconds`（默认600）。`TestFilter` 透传 Unity 的 `-testFilter`，多个测试类可用分号分隔。
 
-副作用：删除指定旧 XML/log，覆盖 Latest 摘要，运行 Unity 并写入缓存；超时终止自己启动的进程。选择明确的本轮输出路径并保留旧证据，不向此脚本传个人目录。包装器有“零用例时先写 Passed 后退出失败”的顺序问题；存在 XML 时也不能只信摘要而忽略 Unity 退出码。
+副作用：删除指定旧 XML/log，覆盖 Latest 摘要，运行 Unity 并写入缓存；超时终止自己启动的进程。选择明确的本轮输出路径并保留旧证据，不向此脚本传个人目录。包装器将非零 Unity 退出码、失败用例与零用例判为 Failed，并以非零退出码结束；验收仍需核对本轮 XML、日志和实际输入。
 
-需过滤时使用已定位的 Unity CLI `-runTests -batchmode -projectPath ... -testPlatform ... -testFilter ... -testResults ... -logFile ...`，不要将未知参数塞给包装器。测试命令实际路径由环境检查得到，不猜 Unity 安装路径；不擅自关闭占用项目的 Editor。
+需过滤时使用包装器的 `-TestFilter`；直接调用 Unity CLI 时使用 `-runTests -batchmode -projectPath ... -testPlatform ... -testFilter ... -testResults ... -logFile ...`。测试命令实际路径由环境检查得到，不猜 Unity 安装路径；不擅自关闭占用项目的 Editor。
 
 ### 开发程序集
 

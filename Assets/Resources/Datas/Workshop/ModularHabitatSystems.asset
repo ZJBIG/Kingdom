@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ModularHabitatSystems
   Label: "模块化空间舱"
-  Description: "通过模块化舱段与远程调度提高轨道空间站的物流吞吐，使轨道空间站的物流产出提高 25%。"
+  Description: "以模块化货舱、泊位和远程调度提高轨道空间站的物流供给。"
   SortOrder: 420
   TechLevel: 4
   requiredResearch:

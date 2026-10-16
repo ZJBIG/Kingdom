@@ -10,7 +10,116 @@ public static class ValidationSuite
         CheckEraStepSchedule(report);
         AddTraceComparerChecks(report);
         AddReportContractCheck(report);
+        CheckSettledResourceBudgets(report);
+        CheckHappinessShortageMonotonicity(report);
         return report;
+    }
+
+    private static void CheckSettledResourceBudgets(ValidationReport report)
+    {
+        foreach (var demand in new[] { "2", "4" })
+        foreach (var inventory in new[] { "0", "1e-6", "0.05", "1e-100" })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.Buildings.Add(BudgetBuilding("CycleA", "B", demand, "A", "1"));
+            snapshot.Buildings.Add(BudgetBuilding("CycleB", "A", demand, "B", "1"));
+            var core = BudgetCore(snapshot, inventory);
+            core.Tick(SimulationMode.Realtime, 1d, 1d);
+            var a = core.State.BuildingStates["CycleA"].Efficiency;
+            var b = core.State.BuildingStates["CycleB"].Efficiency;
+            var reward = FoodReward(5d);
+            var initial = ParseAmount(inventory);
+            // Test the actual input budget, not the inventory clamp hiding an overdraft.
+            var budgetFits = a * ParseAmount(demand) <= initial + b * reward + new ExpantaNum(1e-110d) &&
+                b * ParseAmount(demand) <= initial + a * reward + new ExpantaNum(1e-110d);
+            var retainsFundedWork = initial <= ExpantaNum.Zero ||
+                (a > ExpantaNum.Zero && b > ExpantaNum.Zero);
+            AddResult(report, $"settled cyclic input budget (demand={demand}, inventory={inventory})", budgetFits && retainsFundedWork,
+                $"Final efficiencies A={a}, B={b}; funded cyclic work must fit both inputs without a clamp or losing tiny inventory.");
+        }
+
+        var foodSnapshot = BudgetSnapshot();
+        foodSnapshot.Buildings.Add(BudgetBuilding("Source", "", "0", "A", "1"));
+        var farm = BudgetBuilding("Farm", "A", "100", "", "0");
+        farm.FoodProductionRate = "100";
+        foodSnapshot.Buildings.Add(farm);
+        foodSnapshot.Buildings.Add(BudgetBuilding("Processor", "A", "100", "B", "100"));
+        var foodCore = BudgetCore(foodSnapshot, "0");
+        foodCore.Tick(SimulationMode.Realtime, 1d, 1d);
+        var sourceEfficiency = foodCore.State.BuildingStates["Source"].Efficiency;
+        var farmEfficiency = foodCore.State.BuildingStates["Farm"].Efficiency;
+        var processorEfficiency = foodCore.State.BuildingStates["Processor"].Efficiency;
+        var foodReward = FoodReward(5 + farmEfficiency * 100);
+        var funded = (farmEfficiency + processorEfficiency) * 100 <=
+            sourceEfficiency * foodReward + new ExpantaNum(1e-9d);
+        var outputMatches = (foodCore.State.GetResource("B") -
+            processorEfficiency * 100 * foodReward).Abs() < new ExpantaNum(1e-9d);
+        AddResult(report, "settled food happiness feedback budget", funded && outputMatches,
+            $"Acyclic farm/material feedback settles Farm={farmEfficiency}, Processor={processorEfficiency}, H={foodReward}; all output must be funded.");
+    }
+
+    private static void CheckHappinessShortageMonotonicity(ValidationReport report)
+    {
+        var efficiencies = new List<ExpantaNum>();
+        foreach (var food in new[] { "300", "0.292", "0" })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.Population = "10";
+            snapshot.RuntimeState.Food = food;
+            snapshot.Buildings.Add(BudgetBuilding("Manual", "", "0", "A", "1"));
+            var core = BudgetCore(snapshot, "0");
+            core.Tick(SimulationMode.Realtime, 0.1d, 0.1d);
+            efficiencies.Add(core.State.BuildingStates["Manual"].Efficiency);
+        }
+        var epsilon = new ExpantaNum(1e-8d);
+        var passed = efficiencies[0] < ExpantaNum.One &&
+            efficiencies[1] <= efficiencies[0] + epsilon &&
+            efficiencies[2] < efficiencies[1];
+        AddResult(report, "happiness shortage cannot improve efficiency", passed,
+            $"Same net food/population, decreasing stored food: {string.Join(", ", efficiencies)}.");
+    }
+
+    private static EconomySnapshot BudgetSnapshot() => new()
+    {
+        TechLevels = EraStepSchedule.ExpectedTechLevels.ToList(),
+        Resources = new[] { "A", "B" }.Select((id, index) => new ResourceSnapshot
+        {
+            Id = id, Guid = (index + 1).ToString("x32"), AssetPath = $"fixture/{id}.asset", TechLevel = "Animal"
+        }).ToList(),
+        RuntimeState = new RuntimeStateSnapshot { Food = "300", FoodCapacity = "500" }
+    };
+
+    private static BuildingSnapshot BudgetBuilding(string id, string input, string demand,
+        string output, string production) => new()
+    {
+        Id = id, TechLevel = "Animal", AssetPath = $"fixture/{id}.asset",
+        ResourceConsumptionRates = string.IsNullOrEmpty(input) ? [] :
+            [new AmountSnapshot { ResourceId = input, Value = demand }],
+        ResourceGenerationRates = string.IsNullOrEmpty(output) ? [] :
+            [new AmountSnapshot { ResourceId = output, Value = production }]
+    };
+
+    private static SimulationCore BudgetCore(EconomySnapshot snapshot, string inventory)
+    {
+        for (var i = 0; i < snapshot.Buildings.Count; i++)
+        {
+            snapshot.Buildings[i].Guid = (i + 100).ToString("x32");
+            snapshot.RuntimeState.Buildings.Add(new BuildingStateSnapshot
+                { BuildingId = snapshot.Buildings[i].Id, Amount = "1", Efficiency = "1" });
+        }
+        foreach (var resource in snapshot.Resources)
+            snapshot.RuntimeState.Resources.Add(new AmountSnapshot { ResourceId = resource.Id, Value = inventory });
+        snapshot.InitialState.Resources = snapshot.RuntimeState.Resources;
+        snapshot.InitialState.Buildings = snapshot.RuntimeState.Buildings;
+        snapshot.SaveState.Resources = snapshot.RuntimeState.Resources;
+        snapshot.SaveState.Buildings = snapshot.RuntimeState.Buildings;
+        return SimulationCore.FromSnapshot(snapshot);
+    }
+
+    private static ExpantaNum FoodReward(ExpantaNum foodNet)
+    {
+        var score = (ExpantaNum.One + foodNet).Log10();
+        return ExpantaNum.One + new ExpantaNum(0.5d) * score / (score + ExpantaNum.One);
     }
 
     private static void CheckEraStepSchedule(ValidationReport report)

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalTrafficSchedulingArray
   Label: "\u8f68\u9053\u4ea4\u901a\u8c03\u5ea6\u9635\u5217"
-  Description: "按轨道时隙和泊位优先级，调度空间站物流与舰队交通。"
+  Description: "按轨道时隙和泊位优先级调度货运，提高轨道空间站的物流供给。"
   SortOrder: 700
   TechLevel: 4
   requiredResearch:

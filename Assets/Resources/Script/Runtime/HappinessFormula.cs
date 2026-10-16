@@ -65,9 +65,6 @@ public static class HappinessFormula
         ExpantaNum happinessBonus)
     {
         ExpantaNum availability = ExpantaNum.Clamp01(foodAvailability);
-        if (availability < ExpantaNum.One)
-            return availability;
-
         ExpantaNum safePopulation = ExpantaNum.Max(ExpantaNum.One, population);
         if (foodNetRate < ExpantaNum.Zero)
         {
@@ -75,8 +72,11 @@ public static class HappinessFormula
                 (ExpantaNum.Zero - foodNetRate) / safePopulation;
             ExpantaNum shortageMultiplier =
                 ExpantaNum.One / (ExpantaNum.One + deficitPerPerson);
-            return ExpantaNum.Clamp01(shortageMultiplier);
+            return ExpantaNum.Min(availability, ExpantaNum.Clamp01(shortageMultiplier));
         }
+
+        if (availability < ExpantaNum.One)
+            return availability;
 
         ExpantaNum score = CalculateScore(
             CalculateSurplusPerPerson(foodNetRate, safePopulation));

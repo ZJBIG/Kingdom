@@ -6,7 +6,7 @@ Definitions must live below `Assets/Resources/Datas`.
 ## Common usage
 
 ```csharp
-Resource gold = DataBase<Resource>.Find("Gold");
+Resource wood = DataBase<Resource>.Find("WoodLog");
 Building farm = DataBase<Building>.Find("Farm");
 Research agriculture = DataBase<Research>.Find("Agriculture");
 ```
@@ -22,9 +22,9 @@ occupied sector menu is its player-facing entry point.
 For optional definitions:
 
 ```csharp
-if (DataBase<Resource>.TryFind("Gold", out Resource gold))
+if (DataBase<Resource>.TryFind("WoodLog", out Resource wood))
 {
-    // Use gold.
+    // Use wood.
 }
 ```
 
@@ -33,7 +33,7 @@ Enumeration and checks:
 ```csharp
 IReadOnlyList<Resource> resources = DataBase<Resource>.All;
 int resourceCount = DataBase<Resource>.Count;
-bool hasGold = DataBase<Resource>.Contains("Gold");
+bool hasWood = DataBase<Resource>.Contains("WoodLog");
 ```
 
 IDs are compared without case sensitivity, but code should use the canonical spelling stored on the asset.
@@ -51,6 +51,6 @@ The command-line equivalent is:
 powershell -ExecutionPolicy Bypass -File tools/codex/apply-definition-ids.ps1
 ```
 
-Once an ID is used in code or a save file, renaming the Unity asset or changing its display `Label` is safe, but changing the stable `Id` is a data migration and should be intentional.
+Asset filename, Unity asset name, ID and Label must describe the same concept. When a concept changes, update its ID and code references together. The current pre-1.0 workflow discards incompatible saves instead of preserving misleading IDs or adding aliases and migration mappings.
 
 The database loads each definition type once and then performs dictionary lookups. Repeated lookups are inexpensive, but systems that use the same definition in a hot simulation loop should still keep a local reference.

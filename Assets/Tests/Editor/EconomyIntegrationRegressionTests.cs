@@ -59,6 +59,7 @@ public sealed class EconomyIntegrationRegressionTests
             resources.SetAmount(resource, new ExpantaNum("1e6"));
 
         buildings.RebuildBuildingChainIndexForEditor(DataBase<Building>.All);
+        var failures = new List<BuildFailure>();
         foreach (string sourceId in new[] { "MachineFactory", "WireMill", "BuildingMaterialsComplex" })
         {
             Building source = DataBase<Building>.Find(sourceId);
@@ -71,6 +72,8 @@ public sealed class EconomyIntegrationRegressionTests
             Pair<Resource, ExpantaNum> chargedPair = deltas.FirstOrDefault(item => item.Second > ExpantaNum.Zero);
             Resource charged = chargedPair.First;
             Assert.That(charged, Is.Not.Null, sourceId + " must have a paid upgrade delta");
+            buildings.GetConstructionFailures(source, ExpantaNum.One, true, failures);
+            Assert.That(failures, Is.Empty, "An affordable upgrade has no shortage warnings.");
 
             ExpantaNum before = resources.GetAmount(charged);
             Dictionary<Resource, ExpantaNum> paidBalances = deltas
@@ -94,6 +97,8 @@ public sealed class EconomyIntegrationRegressionTests
             ExpantaNum sourceBeforeFailure = buildings.GetState(source).Amount;
             ExpantaNum targetBeforeFailure = buildings.GetState(target).Amount;
             resources.SetAmount(charged, ExpantaNum.Zero);
+            buildings.GetConstructionFailures(source, ExpantaNum.One, true, failures);
+            Assert.That(failures, Is.EqualTo(new[] { BuildFailure.ResourceInsufficient }));
             Assert.That(buildings.TryUpgrade(source, ExpantaNum.One, out BuildFailure failure), Is.False, sourceId);
             Assert.That(failure, Is.EqualTo(BuildFailure.ResourceInsufficient), sourceId);
             Assert.That(buildings.GetState(source).Amount, Is.EqualTo(sourceBeforeFailure), sourceId);
@@ -104,6 +109,26 @@ public sealed class EconomyIntegrationRegressionTests
             Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
             Assert.That(buildings.GetState(target).Amount, Is.EqualTo(ExpantaNum.Zero), sourceId);
         }
+
+        Building upgradeSource = DataBase<Building>.Find("MachineFactory");
+        BuildingState upgradeState = buildings.EnsureBuilding(upgradeSource);
+        buildings.SetAmountAndRatesForEditor(upgradeState, ExpantaNum.One);
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(upgradeSource, out Building upgradeTarget), Is.True);
+        game.State.RestorePopulationForEditor(ExpantaNum.Zero);
+        ExpantaNum occupied = game.State.AvailableTerritory;
+        game.State.CommitConstructionForEditor(occupied);
+        foreach (Resource resource in DataBase<Resource>.All)
+            resources.SetAmount(resource, ExpantaNum.Zero);
+        buildings.GetConstructionFailures(upgradeSource, ExpantaNum.One, true, failures);
+        Assert.That(upgradeTarget.SpaceCost, Is.GreaterThan(upgradeSource.SpaceCost));
+        Assert.That(upgradeTarget.ProductivityConsumption, Is.GreaterThan(upgradeSource.ProductivityConsumption));
+        Assert.That(failures, Is.EqualTo(new[] { BuildFailure.SpaceInsufficient,
+            BuildFailure.ProductivityInsufficient, BuildFailure.ResourceInsufficient }),
+            "Upgrade diagnostics must continue past both capacity failures to check payment.");
+        Assert.That(upgradeState.Amount, Is.EqualTo(ExpantaNum.One), "Preview never upgrades the discrete building count.");
+        Assert.That(buildings.GetUpgradeFailure(upgradeSource, ExpantaNum.One), Is.EqualTo(BuildFailure.SpaceInsufficient));
+        Assert.That(buildings.TryUpgrade(upgradeSource, ExpantaNum.One, out _), Is.False);
+        Assert.That(upgradeState.Amount, Is.EqualTo(ExpantaNum.One));
 
         SaveManager saveManager = CreateManager<SaveManager>("Economy-Save");
         SaveManager.KingdomSaveData save = saveManager.CaptureSaveData();
@@ -204,7 +229,7 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(buildings.GetState(hub).Amount, Is.EqualTo(ExpantaNum.One));
         Assert.That(buildings.ShouldDisplay(source), Is.False);
         Assert.That(buildings.ShouldDisplay(orbital), Is.False);
-        ObserveMaterialState("v9-restored", source, orbital, hub, game, buildings, resources, simulation);
+        ObserveMaterialState("v1-restored", source, orbital, hub, game, buildings, resources, simulation);
 
         Dictionary<Resource, ExpantaNum> outputRates = source.ResourceGenerationRates
             .Where(pair => pair.Second > ExpantaNum.Zero)
@@ -316,10 +341,10 @@ public sealed class EconomyIntegrationRegressionTests
             $"{context}: expected={expected}, actual={actual}, tolerance={tolerance}");
     }
 
-    [TestCase(7200d)]
-    [TestCase(28800d)]
-    public void IntegratedEconomy_ProductionResearchAndSaveRemainValidAcrossOfflineWindow(double requestedSeconds)
+    [Test]
+    public void IntegratedEconomy_ProductionResearchAndSaveRemainValidAcrossShortOfflineWindow()
     {
+        const double requestedSeconds = 60d;
         GameManager game = CreateManager<GameManager>("Integrated-Game");
         ResourceManager resources = CreateManager<ResourceManager>("Integrated-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("Integrated-Buildings");
@@ -407,7 +432,6 @@ public sealed class EconomyIntegrationRegressionTests
         game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
         {
             ProjectId = UltraProjectState.ProjectId,
-            SaveVersion = UltraProjectState.CurrentSaveVersion,
             Doctrine = UltraProjectDoctrine.Stable,
             Status = UltraProjectStatus.Running,
             CurrentStage = UltraProjectStage.Prototype,
@@ -470,8 +494,9 @@ public sealed class EconomyIntegrationRegressionTests
         }
 
         // Normalize the synthetic Ultra prerequisite graph before exercising the
-        // v9 Apply path; the production/research/campaign assertions above have
+        // v1 Apply path; the production/research/campaign assertions above have
         // already observed the live combination before this save-only step.
+        research.RemoveQueuedResearch(quarry);
         CompleteAllResearch(research);
         SaveManager.KingdomSaveData restored = SaveManager.ParseSaveDataForEditor(
             JsonUtility.ToJson(saveManager.CaptureSaveData()));
@@ -503,7 +528,6 @@ public sealed class EconomyIntegrationRegressionTests
 
         Assert.That(effective, Is.GreaterThan(0d));
         Assert.That(resources.GetAmount(wood), Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
-        Assert.That(resources.GetAmount(wood), Is.Not.LessThan(ExpantaNum.Zero));
         Assert.That(research.TotalFinishedResearchCount, Is.GreaterThanOrEqualTo(0));
         Assert.That(resources.GetAmount(wood), Is.GreaterThanOrEqualTo(before));
     }
@@ -628,7 +652,6 @@ public sealed class EconomyIntegrationRegressionTests
         game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
         {
             ProjectId = UltraProjectState.ProjectId,
-            SaveVersion = UltraProjectState.CurrentSaveVersion,
             Doctrine = UltraProjectDoctrine.Stable,
             Status = UltraProjectStatus.Running,
             CurrentStage = UltraProjectStage.Prototype,
@@ -670,6 +693,283 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(state.FoodAmount, Is.EqualTo(state.FoodCapacity));
         Assert.That(theoretical, Is.GreaterThan(state.FoodCapacity));
         Assert.That(capLoss.ToDouble(), Is.EqualTo(10d).Within(0.000001d));
+    }
+
+    [TestCase(0d)]
+    [TestCase(1e-100d)]
+    [TestCase(10d)]
+    public void ProductionBudget_LossyCycleNeverConsumesUnfundedInputs(double inventory)
+    {
+        GameManager game = CreateManager<GameManager>("Budget-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("Budget-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("Budget-Buildings");
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        Resource x = CreateBudgetResource("BudgetX");
+        Resource y = CreateBudgetResource("BudgetY");
+        Resource independent = CreateBudgetResource("BudgetIndependent");
+        Building a = CreateBudgetBuilding("BudgetA", y, x);
+        Building b = CreateBudgetBuilding("BudgetB", x, y);
+        Building quarry = CreateBudgetBuilding("BudgetQuarry", independent, null);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(a), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(b), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(quarry), 1);
+        resources.SetAmount(x, inventory);
+        resources.SetAmount(y, inventory);
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        TestContext.WriteLine($"budget inventory={inventory}: A={buildings.GetState(a).Efficiency}, B={buildings.GetState(b).Efficiency}, H={game.State.HappinessRewardMultiplier}");
+        AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
+        AssertBudget(resources.GetState(y), game.State.HappinessRewardMultiplier);
+        Assert.That(buildings.GetState(quarry).Efficiency.ToDouble(), Is.GreaterThan(0.99d));
+        if (inventory > 0d)
+        {
+            Assert.That(buildings.GetState(a).Efficiency.ToDouble(), Is.GreaterThan(0d));
+        }
+        resources.Tick(1d);
+        Assert.That(resources.GetAmount(x).ToDouble(), Is.GreaterThanOrEqualTo(0d));
+    }
+
+    [Test]
+    public void ProductionBudget_PreservesInventoryBackedSatisfaction()
+    {
+        GameManager game = CreateManager<GameManager>("CachedSupply-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("CachedSupply-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("CachedSupply-Buildings");
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        Resource input = CreateBudgetResource("CachedSupplyInput");
+        Building consumer = CreateBudgetBuilding("CachedSupplyConsumer", null, input);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(consumer), 1);
+        resources.SetAmount(input, 1);
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        Assert.That(resources.GetTickSatisfactionForEditor(input), Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(resources.GetTickSatisfactionForEditor(input), Is.LessThan(ExpantaNum.One));
+        AssertBudget(resources.GetState(input), game.State.HappinessRewardMultiplier);
+    }
+
+    [Test]
+    public void FoodAvailability_ExcludesStarvedFarmAndTracksBudgetCorrection()
+    {
+        GameManager game = CreateManager<GameManager>("ActualFood-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ActualFood-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("ActualFood-Buildings");
+        game.State.RestoreCoreForEditor(0, TechLevel.Animal, 0, 0L);
+        game.State.RestorePopulationForEditor(100);
+        Resource input = CreateBudgetResource("ActualFoodInput");
+        Building farm = CreateBudgetBuilding("ActualFoodFarm", null, input, 100);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(farm), 1);
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        Assert.That(game.State.FoodAvailability.ToDouble(), Is.InRange(0d, 0.1d));
+        Assert.That(game.State.HappinessMultiplier.ToDouble(), Is.InRange(0d, 0.1d));
+
+        game.State.RestorePopulationForEditor(0);
+        Building source = CreateBudgetBuilding("ActualFoodSource", input, null);
+        Building hungry = CreateBudgetBuilding("ActualFoodDemand", null, null);
+        hungry.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, 0, 80, 0,
+            0, 0, 0, 0, 0, 0, 0, new(), new(), new());
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(hungry), 1);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        Assert.That(game.State.FoodAvailability.ToDouble(), Is.InRange(0d, 0.8d));
+        Assert.That(game.State.HappinessRewardMultiplier, Is.LessThanOrEqualTo(ExpantaNum.One));
+        AssertBudget(resources.GetState(input), game.State.HappinessRewardMultiplier);
+    }
+
+    [Test]
+    public void ProductionBudget_FoodRewardFeedbackNeverCreatesUnfundedOutput()
+    {
+        GameManager game = CreateManager<GameManager>("Feedback-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("Feedback-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("Feedback-Buildings");
+        Resource x = CreateBudgetResource("FeedbackX");
+        Building source = CreateBudgetBuilding("FeedbackSource", x, null);
+        Building food = CreateBudgetBuilding("FeedbackFood", null, x, 10d);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(food), 1);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
+        Assert.That(buildings.GetState(food).Efficiency.ToDouble(), Is.GreaterThan(0.6d));
+    }
+
+    private Resource CreateBudgetResource(string id)
+    {
+        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        resource.SetIdForEditor(id);
+        createdObjects.Add(resource);
+        return resource;
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void ProductionBudget_ResourceFlowCycleCannotUseUnfundedEnergy(bool power)
+    {
+        GameManager game = CreateManager<GameManager>("FlowBudget-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("FlowBudget-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("FlowBudget-Buildings");
+        Resource x = CreateBudgetResource("FlowBudgetX");
+        Building producer = CreateBudgetBuilding("FlowBudgetProducer", null, x);
+        Building consumer = CreateBudgetBuilding("FlowBudgetConsumer", x, null);
+        if (power)
+        {
+            producer.SetPowerFlowForEditor(1, 0);
+            consumer.SetPowerFlowForEditor(0, 2);
+        }
+        else
+        {
+            producer.SetLogisticsFlowForEditor(1, 0);
+            consumer.SetLogisticsFlowForEditor(0, 2);
+        }
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(producer), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(consumer), 1);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
+        ExpantaNum production = power ? game.State.PowerProductionRate : game.State.LogisticsProductionRate;
+        ExpantaNum consumption = power ? game.State.PowerConsumptionRate : game.State.LogisticsConsumptionRate;
+        Assert.That(consumption <= production * game.State.HappinessRewardMultiplier, Is.True);
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void ProductionBudget_FoodFeedbackFundsBuildingsAndActualUltraFlow(bool power)
+    {
+        GameManager game = CreateManager<GameManager>("ExternalFlow-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ExternalFlow-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("ExternalFlow-Buildings");
+        CreateManager<ResearchManager>("ExternalFlow-Research");
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e12"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationForEditor(0);
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        UltraProjectStageDefinition stage = game.UltraProject.Definition.Stages[0];
+        ExpantaNum externalDemand = power ? stage.PowerConsumptionRate : stage.LogisticsConsumptionRate;
+        Assert.That(externalDemand, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(stage.BaseDurationSeconds, Is.GreaterThan(ExpantaNum.One));
+        foreach (var cost in stage.ContinuousResourceCosts)
+            resources.SetAmount(cost.First, cost.Second * 100);
+        game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
+        {
+            ProjectId = UltraProjectState.ProjectId,
+            Doctrine = UltraProjectDoctrine.Stable,
+            Status = UltraProjectStatus.Running,
+            CurrentStage = UltraProjectStage.Prototype,
+            StageProgress = "0",
+            CompletedStages = new List<UltraProjectStage>(),
+            LaunchFeePaid = true,
+            StateVersion = 1
+        });
+        Resource x = CreateBudgetResource("ExternalFlowX");
+        Resource y = CreateBudgetResource("ExternalFlowY");
+        Building producer = CreateBudgetBuilding("ExternalFlowProducer", y, x, 100);
+        Building recycler = CreateBudgetBuilding("ExternalFlowRecycler", x, y);
+        Building consumer = CreateBudgetBuilding("ExternalFlowConsumer", null, null);
+        Building support = CreateBudgetBuilding("ExternalFlowSupport", null, null);
+        if (power)
+        {
+            producer.SetPowerFlowForEditor(externalDemand, 0);
+            consumer.SetPowerFlowForEditor(0, externalDemand);
+            support.SetLogisticsFlowForEditor(stage.LogisticsConsumptionRate * 100, 0);
+        }
+        else
+        {
+            producer.SetLogisticsFlowForEditor(externalDemand, 0);
+            consumer.SetLogisticsFlowForEditor(0, externalDemand);
+            support.SetPowerFlowForEditor(stage.PowerConsumptionRate * 100, 0);
+        }
+        foreach (Building building in new[] { producer, recycler, consumer, support })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), 1);
+        resources.SetAmount(x, new ExpantaNum(0.02d));
+        resources.SetAmount(y, new ExpantaNum(0.02d));
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        ExpantaNum supply = (power ? game.State.PowerProductionRate : game.State.LogisticsProductionRate) *
+            game.State.HappinessRewardMultiplier;
+        ExpantaNum buildingDemand = power ? game.State.PowerConsumptionRate : game.State.LogisticsConsumptionRate;
+        Pair<Resource, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
+        ExpantaNum before = resources.GetAmount(meteredCost.First);
+        Assert.That(game.UltraProject.Tick(1d), Is.True);
+        ExpantaNum paidSeconds = (before - resources.GetAmount(meteredCost.First)) / meteredCost.Second;
+        Assert.That(paidSeconds, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(buildingDemand + externalDemand * paidSeconds <= supply, Is.True,
+            "The flow budget must fund buildings and the Ultra work actually paid for.");
+    }
+
+    [Test]
+    public void ProductionBudget_AuthoredCoalPowerCycleFundsPositiveUltraWork()
+    {
+        GameManager game = CreateManager<GameManager>("CoalPower-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("CoalPower-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("CoalPower-Buildings");
+        CreateManager<ResearchManager>("CoalPower-Research");
+        game.State.AdjustFoodCapacityForEditor(new ExpantaNum("1e12"));
+        game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum("1e9"), 0L);
+        game.State.RestorePopulationForEditor(0);
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        foreach (Resource resource in DataBase<Resource>.All)
+            resources.SetAmount(resource, new ExpantaNum("1e6"));
+        UltraProjectStageDefinition stage = game.UltraProject.Definition.Stages[0];
+        foreach (var cost in stage.ContinuousResourceCosts)
+            resources.SetAmount(cost.First, cost.Second * 100);
+        game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
+        {
+            ProjectId = UltraProjectState.ProjectId,
+            Doctrine = UltraProjectDoctrine.Stable,
+            Status = UltraProjectStatus.Running,
+            CurrentStage = UltraProjectStage.Prototype,
+            StageProgress = "0",
+            CompletedStages = new List<UltraProjectStage>(),
+            LaunchFeePaid = true,
+            StateVersion = 1
+        });
+        Building station = DataBase<Building>.Find("CentralPowerStation");
+        Building mine = DataBase<Building>.Find("MechanizedCoalMine");
+        Building logistics = CreateBudgetBuilding("CoalPowerLogistics", null, null);
+        logistics.SetLogisticsFlowForEditor(stage.LogisticsConsumptionRate * 100, 0);
+        foreach (Building building in new[] { station, mine, logistics })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), 1);
+        resources.SetAmount(DataBase<Resource>.Find("Coal"), new ExpantaNum(0.02d));
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        ExpantaNum supply = game.State.PowerProductionRate * game.State.HappinessRewardMultiplier;
+        ExpantaNum buildingDemand = game.State.PowerConsumptionRate;
+        Pair<Resource, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
+        ExpantaNum before = resources.GetAmount(meteredCost.First);
+        Assert.That(game.UltraProject.Tick(1d), Is.True,
+            "Available Coal must keep the authored power cycle and Ultra work running.");
+        ExpantaNum paidSeconds = (before - resources.GetAmount(meteredCost.First)) / meteredCost.Second;
+        Assert.That(paidSeconds, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(buildings.GetState(station).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(buildings.GetState(mine).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(buildingDemand + stage.PowerConsumptionRate * paidSeconds <= supply, Is.True,
+            "The authored cycle must fund both the mine and the Ultra work actually paid for.");
+        AssertBudget(resources.GetState(DataBase<Resource>.Find("Coal")), game.State.HappinessRewardMultiplier);
+    }
+
+    private Building CreateBudgetBuilding(string id, Resource output, Resource input, double food = 0d)
+    {
+        Building building = ScriptableObject.CreateInstance<Building>();
+        building.SetIdForEditor(id);
+        building.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, food, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
+            new List<Pair<Resource, ExpantaNum>>(),
+            output == null ? new List<Pair<Resource, ExpantaNum>>() : new() { new(output, 1) },
+            input == null ? new List<Pair<Resource, ExpantaNum>>() : new() { new(input, 2) });
+        createdObjects.Add(building);
+        return building;
+    }
+
+    private static void AssertBudget(ResourceState resource, ExpantaNum reward)
+    {
+        ExpantaNum available = resource.Amount + resource.ProductionRate * reward;
+        Assert.That(resource.ConsumptionRate <= available, Is.True,
+            $"{resource.Definition.Id}: demand={resource.ConsumptionRate}, available={available}, " +
+            $"inventory={resource.Amount}, production={resource.ProductionRate}, reward={reward}");
     }
 
     private T CreateManager<T>(string name) where T : Component

@@ -579,7 +579,7 @@ public static class StoryManager
         if (!string.IsNullOrEmpty(requiredResearchId) &&
             !HasCompletedResearch(requiredResearchId))
             return "完成研究“" + GetResearchLabel(requiredResearchId) +
-                "”，解锁这段工业能力。";
+                "”，解锁这一章的文明记忆。";
         string requiredBuildingId = First(chapter.RequiredBuildingIds);
         if (!string.IsNullOrEmpty(requiredBuildingId) &&
             !HasOwnedBuilding(requiredBuildingId))
@@ -612,11 +612,11 @@ public static class StoryManager
         {
             string workshopHint = GetBuildingWorkshopHint(requiredBuildingId);
             return !string.IsNullOrEmpty(workshopHint) ? workshopHint :
-                "研究已完成，下一步建造对应建筑，让这段工业记忆成为现实。";
+                "研究已完成，下一步建造“" + GetBuildingLabel(requiredBuildingId) + "”。";
         }
         if (chapter.RequiredWorkshopIds.Count > 0 &&
             !AllWorkshopsPurchased(chapter.RequiredWorkshopIds))
-            return "研究已完成，下一步购买一项真实工坊改造，让旧有生产体系继续成长。";
+            return "研究已完成；前往工坊购买本章要求的改良，完成章节目标。";
         return baseline;
     }
 
@@ -647,9 +647,9 @@ public static class StoryManager
             case ResearchStatus.Researching:
                 return "研究进行中：“" + definition.Label + "”；等待知识积累完成。";
             case ResearchStatus.Queued:
-                return "研究已排队：“" + definition.Label + "”；前面的知识完成后即可推进。";
+                return "研究已排队：“" + definition.Label + "”；排到队首且材料备齐后自动开始。";
             case ResearchStatus.WaitingResources:
-                return "研究等待资源：“" + definition.Label + "”；先补齐研究所需资源。";
+                return "研究等待资源：“" + definition.Label + "”；补齐所需材料后自动开始，无需重复点击。";
             case ResearchStatus.Available:
                 return "研究可开始：“" + definition.Label + "”；用它建立下一段工业能力。";
             default:
@@ -662,11 +662,11 @@ public static class StoryManager
         if (chapter == null)
             return string.Empty;
         if (chapter.RequiredWorkshopIds.Count > 0)
-            return "完成一项真实工坊改造后，这段记忆才会被正式唤醒。";
+            return "前往工坊购买本章要求的改良后解锁。";
         if (chapter.RequiredUnlockedSectorIds.Count > 0)
-            return "解锁一片真实星区后，这段边疆记忆才会被正式唤醒。";
+            return "前往星区页，解锁本章要求的星区后解锁。";
         if (chapter.RequiredOccupiedSectorIds.Count > 0)
-            return "完成一次真实星区占领后，这段记忆才会被正式唤醒。";
+            return "完成本章要求的星区探索或战役，并确认占领后解锁。";
         string requiredResearchId = First(chapter.RequiredResearchIds);
         if (!string.IsNullOrEmpty(requiredResearchId))
             return "完成研究“" + GetResearchLabel(requiredResearchId) +
@@ -724,11 +724,11 @@ public static class StoryManager
                     Research prerequisite = upgrade.RequiredResearch[r];
                     if (prerequisite != null && !HasCompletedResearch(prerequisite.Id))
                         return "建造“" + building.Label + "”前还需要研究“" +
-                            prerequisite.Label + "”，再购买 Workshop 改良“" +
+                            prerequisite.Label + "”，再购买工坊改良“" +
                             upgrade.Label + "”。";
                 }
             return "研究已完成，但建造“" + building.Label +
-                "”前还需要购买 Workshop 改良“" + upgrade.Label + "”。";
+                "”前还需要购买工坊改良“" + upgrade.Label + "”。";
         }
         return string.Empty;
     }

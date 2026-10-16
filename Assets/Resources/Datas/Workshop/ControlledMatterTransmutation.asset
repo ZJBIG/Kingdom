@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ControlledMatterTransmutation
   Label: "受控材料重构装置"
-  Description: "由高能场约束腔、材料分选器和结构重组单元组成，将高能材料重构流程固化为工业设备标准，提高深空建筑的整体生产效率。"
+  Description: "将高能场约束与材料重组工序标准化，提高所有建筑的生产倍率。"
   SortOrder: 760
   TechLevel: 4
   requiredResearch:

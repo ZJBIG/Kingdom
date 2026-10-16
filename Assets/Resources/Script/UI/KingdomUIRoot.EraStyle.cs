@@ -18,8 +18,18 @@ public sealed partial class KingdomUIRoot
         _ => new Color(.84f, .76f, .48f)
     };
 
-    private static void ApplyEraRowStyle(GameObject row, TechLevel era, int index)
+    public static string GetEraCollectionPrefabName(string prefab, TechLevel era) =>
+        "EraCards/" + era + "/" + prefab;
+
+    public static void ApplyEraRowStyle(GameObject row, TechLevel era, int index)
     {
+        if (row.transform.Find("EraDesign") != null)
+        {
+            // These independent prefabs own their material, frame and header palette.
+            Button authoredButton = row.GetComponent<Button>();
+            if (authoredButton != null) ApplyButtonColors(authoredButton, row.GetComponent<Image>().color);
+            return;
+        }
         ApplyListRowStyle(row, index);
         Color accent = GetEraAccent(era);
         Image surface = row.GetComponent<Image>();

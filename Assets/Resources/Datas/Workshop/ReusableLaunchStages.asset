@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ReusableLaunchStages
   Label: "可复用发射级"
-  Description: "通过可复用发射级维护流程降低舰队维修材料消耗，使舰队维修成本降低 15%。"
+  Description: "回收发射级并统一检修流程，降低舰队维修材料费用。"
   SortOrder: 410
   TechLevel: 4
   requiredResearch:

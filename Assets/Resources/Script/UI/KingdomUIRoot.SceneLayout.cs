@@ -14,6 +14,12 @@ public sealed partial class KingdomUIRoot
         if (string.IsNullOrEmpty(populatedPage))
             return;
 
+        if (populatedPage == "Production")
+        {
+            SaveProductionView();
+            return;
+        }
+
         if (populatedPage == "Research")
         {
             if (researchGraphContent != null)
@@ -46,6 +52,11 @@ public sealed partial class KingdomUIRoot
 
     private void RestoreSpecialPagePosition(string pageName)
     {
+        if (pageName == "Production")
+        {
+            RestoreProductionView();
+            return;
+        }
         if (pageName == "Research")
         {
             if (researchGraphPositionCached && researchGraphContent != null)
@@ -82,10 +93,12 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        bool enabled = pageName != "Research" && pageName != "Music";
+        bool enabled = pageName != "Research" && pageName != "Music" && pageName != "Production";
         pageScroll.StopMovement();
         pageScroll.viewport = pageHost;
         pageScroll.content = content;
+        if (pageScroll.verticalScrollbar != null)
+            pageScroll.verticalScrollbar.gameObject.SetActive(enabled);
         pageScroll.horizontal = false;
         pageScroll.vertical = enabled;
         pageScroll.movementType = ScrollRect.MovementType.Clamped;
@@ -106,6 +119,8 @@ public sealed partial class KingdomUIRoot
             if (!resetPosition && pageScrollPositions.TryGetValue(pageName,
                 out float savedPosition))
                 position = Mathf.Clamp01(savedPosition);
+            // Start from the authored top origin, including content shorter than the viewport.
+            content.anchoredPosition = Vector2.zero;
             pageScroll.verticalNormalizedPosition = position;
             if (!pageScrollPositions.ContainsKey(pageName))
                 pageScrollPositions[pageName] = position;
@@ -150,6 +165,7 @@ public sealed partial class KingdomUIRoot
         musicGapValueLabel = controls?.Find("GapValue")?.GetComponent<TMP_Text>();
         sfxVolumeSlider = controls?.Find("SfxVolume")?.GetComponent<Slider>();
         sfxMuteButton = controls?.Find("SfxMute")?.GetComponent<Button>();
+        sfxMuteLabel = sfxMuteButton != null ? sfxMuteButton.GetComponentInChildren<TMP_Text>() : null;
         sfxVolumeValueLabel = controls?.Find("SfxVolumeValue")?.GetComponent<TMP_Text>();
         if (musicProgressSlider != null)
         {
@@ -212,7 +228,7 @@ public sealed partial class KingdomUIRoot
         if (sfxMuteButton != null)
         {
             sfxMuteButton.onClick.RemoveAllListeners();
-            sfxMuteButton.onClick.AddListener(UIButtonSoundManager.ToggleMuted);
+            sfxMuteButton.onClick.AddListener(ToggleSfxMute);
         }
         if (manager != null && manager.Tracks.Count == 0)
             manager.RebuildCatalog();
@@ -383,7 +399,7 @@ public sealed partial class KingdomUIRoot
             return FailRequiredUiBinding("SafeAreaRoot/DetailPanel");
 
         pages.Clear();
-        string[] pageNames = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
+        string[] pageNames = { "Overview", "Resources", "Buildings", "Production", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
         for (int i = 0; i < pageNames.Length; i++)
         {
             RectTransform page = pageHost.Find(pageNames[i]) as RectTransform;
@@ -413,6 +429,7 @@ public sealed partial class KingdomUIRoot
         if (pageScroll == null)
             pageScroll = pageHost.gameObject.AddComponent<ScrollRect>();
         pageScroll.viewport = pageHost;
+        pageScroll.content = pages["Overview"];
         pageScroll.horizontal = false;
         pageScroll.vertical = true;
         pageScroll.movementType = ScrollRect.MovementType.Clamped;
@@ -444,6 +461,8 @@ public sealed partial class KingdomUIRoot
         tooltipPanel = safeArea.Find("Tooltip") as RectTransform;
         tooltipText = tooltipPanel == null ? null : tooltipPanel.Find("Text")?.GetComponent<TMP_Text>();
         BindReviewControls(safeArea, content);
+        if (!BindProductionPage(content))
+            return FailRequiredUiBinding("Production page and tools");
 
         // These are stable scene-owned objects. Their interaction components
         // are repaired only when a scene author accidentally removes one.
@@ -472,6 +491,7 @@ public sealed partial class KingdomUIRoot
         SetNavigationButtonVisible("Overview", true);
         SetNavigationButtonVisible("Resources", true);
         SetNavigationButtonVisible("Buildings", true);
+        SetNavigationButtonVisible("Production", true);
         SetNavigationButtonVisible("Research", true);
         SetNavigationButtonVisible("Era", true);
         SetNavigationButtonVisible("Workshop", workshopUnlocked);
@@ -485,7 +505,7 @@ public sealed partial class KingdomUIRoot
         if (leftNavigation == null)
             return;
 
-        string[] pageNames = { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
+        string[] pageNames = { "Overview", "Resources", "Buildings", "Production", "Research", "Era", "Workshop", "Music", "Sectors", "Story" };
         for (int i = 0; i < pageNames.Length; i++)
         {
             Button button = FindNavigationButton(pageNames[i]);

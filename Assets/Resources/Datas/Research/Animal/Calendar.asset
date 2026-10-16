@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Calendar
   Label: "\u5386\u6CD5\u4E0E\u89C2\u661F"
-  Description: "\u4F9D\u636E\u5929\u8C61\u548C\u5B63\u8282\u5468\u671F\u5EFA\u7ACB\u5386\u6CD5\uFF0C\u6539\u8FDB\u64AD\u79CD\u3001\u653E\u7267\u3001\u704C\u6E89\u4E0E\u957F\u671F\u65F6\u95F4\u8BB0\u5F55\u3002"
+  Description: "以天象和季节记录安排播种与收获，提高全局食物产出。"
   BaseCost: "1900"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

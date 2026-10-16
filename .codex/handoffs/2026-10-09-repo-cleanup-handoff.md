@@ -41,3 +41,23 @@
 - 代码复核建议暂不删 C# 候选：Singleton 的公开 Save/Load 虚方法及多个 override 有外部绑定风险；若干 Editor/测试入口需进一步确认。未修改代码，也未运行离线编译。
 - 历史审计/闭环 handoff 未归档：活动文档仍引用至少两份 handoff，且 ToDoList 仍把旧审计列为未核清；alien-war-first-version 涉及玩法语义，继续保留。孤儿 PNG、运行时 UI 构建、测试反射和定义字段未处理。
 - 验证：核对目标缓存目录不再位于活动项目路径；TestResults 保留批次仍在，`Latest-Test-Errors.txt` 已恢复；跟踪 `output/fb...` 文件只显示预期删除。未执行真实 Unity 编译；无游戏行为修改。
+
+
+## 2026-10-15 早期运行时代码死接口清理
+
+用户要求重点审查项目早期代码，清理冗余/死代码。保留全部既有工作树改动，删除11源文件共105行已确认无消费者或冗余的实现：Singleton和4个Manager的10个Save/Load旧接口、音乐3个旧Play重载和无人读取的分类计数缓存、StartLoadedTrack恒真参数/无用返回值、SaveManager.MarkDirty、人口3个废弃常量、2个私有UI状态文案函数、Sector两个未使用Editor辅助方法。删除Food仅测试使用的无容量重载与1e1000000假上限，原测试改显式容量500并保持运算/上限/负delta校验。没有ID/GUID/资产/存档/公式/数值变化，未删除有效Manager、定义或数学库。
+
+引用证据和逐项文件位于data/early-code-cleanup-20261015/validation.md。Assets源码及UnityEvent退休引用复扫通过，独立只读复核未发现遗漏消费者。真实Unity编译完成：EditMode核心KingdomLogicTests160/160、音效3/4；失败为既有Root缺SfxMute按钮断言，保持原断言/资产不变，EditMode关闭150秒超时由自有启动器结束。PlayMode ReviewInteraction13/13通过，跨页面材质测试第89行文字raycastTarget失败；原断言保留。将原测试音乐段拆成独立UnityTest（不删断言），music-playmode1/1通过，验证实际Addressables播放/暂停/恢复，Unity正常退出0。未运行全仓，不将两项现有UI测试失败隐藏为全绿；本轮清理已完成，已知UI配置问题单列报告。
+
+测试后字体恢复B9BD028E9AFC401532E35CE5A76782C40C7426FCEF7B0B94E12E53085CCBA5DE，临时备份物理删除，无Unity或测试存档fixture残留。无commit/push、包安装、临时Unity项目或真实存档操作。
+
+
+## 2026-10-16 两项UI留项修复完成
+
+更正上一节：跨页面材质失败实际在下划线断言，非raycastTarget。生产树作者工具已明确取消下划线，星区名称仍要求下划线；测试按各自页面精确验证并保留原射线断言。
+
+Root Prefab补入SfxMute，复用现有按钮样式，Controls内中心(380,48)、190x64、字体30，置于背景之后绘制。KingdomCollectionAuthoring同步完整DataRows/MusicSurface路径。绑定现有静音功能，文案随状态切换音效静音/恢复音效，点击即刷新，保留集中状态同步。测试验证真实点击切换、偏好恢复、与播放按钮/音效滑条不重叠、文字不截断及绘制顺序，保留音乐实际播放/暂停/恢复验证。
+
+真实Unity编译完成，ui-final-editmode4/4、最终ui-visible-playmode2/2通过、0失败跳过；已查看1760x800真实GPU截图。两次Unity均写出XML后关闭120秒超时，由启动器结束自有进程，不称runner正常退出。最终日志无CS/Null/Missing/UnassignedReference/Assertion错误，相关diff检查通过。详细证据data/early-code-cleanup-20261015/validation.md；截图data/scroll-frames-20261013/pages/music-controls-1760x800.png。
+
+字体恢复起始字节B9BD028E9AFC401532E35CE5A76782C40C7426FCEF7B0B94E12E53085CCBA5DE，临时备份物理删除，无Unity进程/测试存档fixture残留。没有经济数值/ID/GUID/存档变化，无commit/push、临时项目或真实存档操作。上轮两项留项完成，未执行全仓测试。

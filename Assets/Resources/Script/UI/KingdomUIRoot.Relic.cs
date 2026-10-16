@@ -120,7 +120,7 @@ public sealed partial class KingdomUIRoot
 
         StringBuilder text = new();
         text.AppendLine(manager.Definition.Description);
-        text.AppendLine("准入：Ultra · 占领 " + sector.Label + " · 相位稳定认证");
+        text.AppendLine("开放条件：极致时代 · 占领 " + sector.Label + " · 相位稳定认证");
         text.Append("前置研究：");
         for (int i = 0; i < manager.Definition.RequiredResearch.Count; i++)
         {
@@ -355,8 +355,8 @@ public sealed partial class KingdomUIRoot
         switch (failure)
         {
             case RelicOperationFailure.None: return "无";
-            case RelicOperationFailure.DefinitionMissing: return "遗迹定义尚未加载";
-            case RelicOperationFailure.NotUltra: return "尚未进入 Ultra 时代";
+            case RelicOperationFailure.DefinitionMissing: return "遗迹数据尚未载入";
+            case RelicOperationFailure.NotUltra: return "尚未进入极致时代";
             case RelicOperationFailure.SectorNotOccupied: return "尚未占领遗迹所在星区";
             case RelicOperationFailure.PrerequisiteResearchMissing: return "前置研究尚未完成";
             case RelicOperationFailure.RequiredBuildingMissing: return "所需建筑尚未建成";

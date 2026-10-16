@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TitaniumAlloyEngineering
   Label: "\u949B\u5408\u91D1\u5DE5\u7A0B"
-  Description: "\u638C\u63E1\u771F\u7A7A\u7194\u70BC\u3001\u6210\u5206\u63A7\u5236\u3001\u70ED\u5904\u7406\u548C\u953B\u9020\u6280\u672F\uFF0C\u628A\u949B\u7CBE\u77FF\u8F6C\u5316\u4E3A\u9002\u7528\u4E8E\u9AD8\u8D1F\u8377\u8F7B\u91CF\u7ED3\u6784\u7684\u949B\u5408\u91D1\uFF0C\u652F\u6491\u540E\u7EED
-    Spacer \u5EFA\u8BBE\u3002"
+  Description: "以真空熔炼、成分控制和热处理加工特级金属矿，提高钛合金冶炼厂的产出，供应后续太空建设。"
   BaseCost: 2700000
   prerequisites:
   - {fileID: 11400000, guid: a8f616f3932e140449f43a6d7b6087c6, type: 2}
@@ -25,7 +24,7 @@ MonoBehaviour:
   resourceRequirements:
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: 4200
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
+  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
     amount: 1400
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: 3500

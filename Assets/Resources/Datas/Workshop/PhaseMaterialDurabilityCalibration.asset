@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: PhaseMaterialDurabilityCalibration
+  m_EditorClassIdentifier: 
+  id: PhaseMaterialDurabilityCalibration
+  Label: "相位材料耐久校准设备"
+  Description: "校准相位材料并测试辐射老化，提高远征探索能力。"
+  SortOrder: 420
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: f0a1b2c3d4e567890123456789abcdef, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 3a4b5c6d7e8f901a2b3c4d5e6f708192, type: 2}
+  - {fileID: 11400000, guid: 6b8d0f2a4c7e5193a6f1c8e0b5d9a724, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "10000"
+  - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
+    amount: "7500"
+  - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
+    amount: "6500"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "22500"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "15000"
+  effects:
+  - Type: 19
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.20"

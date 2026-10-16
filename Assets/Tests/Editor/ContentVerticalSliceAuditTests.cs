@@ -7,20 +7,7 @@ public sealed class ContentVerticalSliceAuditTests
     {
         Assert.That(HasGeneration("ClayPit", "Clay"), Is.True);
         Assert.That(HasGeneration("FiberGatheringCamp", "Biomass"), Is.True);
-        Assert.That(DataBase<Building>.Contains("StoneToolWorkshop"), Is.False);
-        Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
-        Assert.That(HasGeneration("MetalMine", "CopperOre"), Is.True);
-        Assert.That(HasGeneration("MetalMine", "TinOre"), Is.True);
-        Assert.That(HasGeneration("MetalMine", "IronOre"), Is.True);
-        Assert.That(DataBase<Building>.Contains("CopperMine"), Is.False);
-        Assert.That(DataBase<Building>.Contains("TinMine"), Is.False);
-        Assert.That(DataBase<Building>.Contains("IronMine"), Is.False);
-        Assert.That(DataBase<Building>.Contains("CopperSmelter"), Is.False);
-        Assert.That(DataBase<Building>.Contains("TinSmelter"), Is.False);
-        Assert.That(DataBase<Building>.Contains("IronSmelter"), Is.False);
-        Assert.That(DataBase<Building>.Contains("IndustrialCopperSmelter"), Is.False);
-        Assert.That(DataBase<Building>.Contains("IndustrialTinSmelter"), Is.False);
-        Assert.That(DataBase<Research>.Contains("IndustrialCopperSmelting"), Is.False);
+        Assert.That(HasGeneration("MetalMine", "BasicMetalOre"), Is.True);
     }
 
     [Test]
@@ -33,12 +20,11 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     [Test]
-    public void MetalSmelter_ConsumesOresAndCoalAndProducesBronze()
+    public void MetalSmelter_ConsumesBasicOreAndCoalAndProducesBasicIngots()
     {
-        Assert.That(HasConsumption("MetalSmelter", "CopperOre"), Is.True);
-        Assert.That(HasConsumption("MetalSmelter", "TinOre"), Is.True);
+        Assert.That(HasConsumption("MetalSmelter", "BasicMetalOre"), Is.True);
         Assert.That(HasConsumption("MetalSmelter", "Coal"), Is.True);
-        Assert.That(HasGeneration("MetalSmelter", "Bronze"), Is.True);
+        Assert.That(HasGeneration("MetalSmelter", "BasicMetalIngot"), Is.True);
     }
 
     [Test]
@@ -69,7 +55,7 @@ public sealed class ContentVerticalSliceAuditTests
             new[] { "WoodLog", "StoneChunk", "Clay", "Biomass" });
         AssertPrerequisites(
             "FeudalAdministration",
-            new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" });
+            new[] { "BronzeAlloyCrafting", "IronworkingAndSteelmaking", "WrittenRecords" });
         AssertTransitionRequirements(
             "FeudalAdministration",
             new[] { "StoneBrick", "Cloth" });
@@ -202,7 +188,7 @@ public sealed class ContentVerticalSliceAuditTests
     {
         Research ceramicFiring = DataBase<Research>.Find("CeramicFiring");
 
-        Assert.That(HasPrerequisite(ceramicFiring, "StoneTools"), Is.True);
+        Assert.That(HasPrerequisite(ceramicFiring, "StoneProcessing"), Is.True);
         Assert.That(HasPrerequisite(ceramicFiring, "ClayExtraction"), Is.True);
     }
 
@@ -220,15 +206,6 @@ public sealed class ContentVerticalSliceAuditTests
             result.FormatFailureReport());
         Assert.That(result.UnreachableResearch, Does.Not.Contain("StoneAgeSettlement"),
             result.FormatFailureReport());
-    }
-
-    [Test]
-    public void TinOre_UsesStableIdAndCorrectDisplayLabel()
-    {
-        Resource tinOre = DataBase<Resource>.Find("TinOre");
-
-        Assert.That(tinOre.Id, Is.EqualTo("TinOre"));
-        StringAssert.Contains("锡矿石", tinOre.Label);
     }
 
     private static bool HasGeneration(string buildingId, string resourceId)

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarTheoryNexus
   Label: "星际理论中枢"
-  Description: "量子计算阵列的后段升级，集中承载引力通信、物质嬗变和深空时间同步等研究，为当前星际阶段提供更高的长期研究产能。"
+  Description: "接替量子计算阵列，集中处理远方观测、引力通信与时钟同步课题，持续提供更高的研究力。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.2"

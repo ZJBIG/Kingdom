@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialHousingStandards
   Label: "工业住宅标准"
-  Description: "以标准化户型、供水管网和集中供暖提高工业居住综合体的人口承载效率，使工业城市能够持续吸纳新增人口。"
+  Description: "以标准户型、供水和集中供暖改善定居条件，提高人口增长速度。"
   SortOrder: 375
   TechLevel: 3
   requiredResearch:

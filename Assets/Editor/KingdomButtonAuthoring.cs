@@ -113,17 +113,18 @@ public static class KingdomButtonAuthoring
 
     private static void AuthorResearchLabels(Transform node)
     {
+        // NotoSansSC line metrics must fit both captions inside the 50px reference node.
         foreach (string name in new[] { "Label", "Cost", "Progress", "State" })
         {
             TMP_Text text = node.Find(name).GetComponent<TMP_Text>();
             bool title = name == "Label";
             float left = title || name == "Cost" ? 0 : name == "Progress" ? .27f : .67f;
             float right = title || name == "State" ? 1 : name == "Cost" ? .26f : .66f;
-            text.rectTransform.anchorMin = new Vector2(left, title ? .42f : 0);
-            text.rectTransform.anchorMax = new Vector2(right, title ? 1 : .42f);
-            text.rectTransform.offsetMin = new Vector2(title ? 8 : 2, 1);
-            text.rectTransform.offsetMax = new Vector2(title ? -8 : -2, -1);
-            text.fontSize = title ? 18 : 13;
+            text.rectTransform.anchorMin = new Vector2(left, title ? .415f : 0);
+            text.rectTransform.anchorMax = new Vector2(right, title ? 1 : .415f);
+            text.rectTransform.offsetMin = new Vector2(title ? 8 : 2, 0);
+            text.rectTransform.offsetMax = new Vector2(title ? -8 : -2, 0);
+            text.fontSize = title ? 20 : 14;
             text.alignment = TextAlignmentOptions.Center;
             text.enableWordWrapping = false; text.overflowMode = TextOverflowModes.Ellipsis;
             text.raycastTarget = false;

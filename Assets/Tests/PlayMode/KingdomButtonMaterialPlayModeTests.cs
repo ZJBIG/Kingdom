@@ -58,7 +58,7 @@ public sealed class KingdomButtonMaterialPlayModeTests
     public IEnumerator AllPagesKeepTheirMaterialsThroughRefreshAndSelection()
     {
         yield return LoadPages();
-        foreach (string page in new[] { "Overview", "Resources", "Buildings", "Research", "Era", "Workshop", "Music", "Sectors", "Story" })
+        foreach (string page in new[] { "Overview", "Resources", "Buildings", "Production", "Research", "Era", "Workshop", "Music", "Sectors", "Story" })
         {
             root.SetPage(page);
             yield return null;
@@ -68,6 +68,28 @@ public sealed class KingdomButtonMaterialPlayModeTests
             foreach (Button button in root.GetComponentsInChildren<Button>())
             {
                 if (!button.gameObject.activeInHierarchy || button.name == "Backdrop") continue;
+                if (button.name == "PinButton" && button.targetGraphic is Image pin)
+                {
+                    Assert.That(button.name, Is.EqualTo("PinButton"));
+                    Assert.That(pin.sprite == Resources.Load<Sprite>("Art/UI/Pins/PinOutline") ||
+                        pin.sprite == Resources.Load<Sprite>("Art/UI/Pins/PinFilled"), Is.True);
+                    Assert.That(pin.raycastTarget, Is.False);
+                    Assert.That(button.GetComponent<Image>().raycastTarget, Is.True);
+                    Assert.That(button.GetComponent<Image>().sprite, Is.Null);
+                    Assert.That(button.GetComponent<Image>().color.a, Is.LessThan(.01f));
+                    Assert.That(button.GetComponentsInChildren<TMP_Text>(true), Is.Empty);
+                    continue;
+                }
+                if (button.targetGraphic is TMP_Text link)
+                {
+                    Assert.That(button.name == "Label" && page == "Production" ||
+                        button.name == "Name" && page == "Sectors", Is.True,
+                        "Only production nodes and sector building names use text navigation targets.");
+                    Assert.That(link.raycastTarget, Is.True);
+                    Assert.That((link.fontStyle & FontStyles.Underline) != 0, Is.EqualTo(page == "Sectors"),
+                        page + "/" + button.name + " authored navigation style");
+                    continue;
+                }
                 Image skin = button.targetGraphic as Image;
                 if (skin != null && skin.sprite == null && skin.color.a < .01f) continue;
                 AssertSkin(button, page);
@@ -114,11 +136,51 @@ public sealed class KingdomButtonMaterialPlayModeTests
             Assert.That(bounds.min.x, Is.GreaterThanOrEqualTo(rect.xMin - 1), name);
             Assert.That(bounds.max.x, Is.LessThanOrEqualTo(rect.xMax + 1), name);
         }
+    }
+
+    [UnityTest]
+    public IEnumerator MusicControls_PlayPauseAndResumeAddressableTrack()
+    {
+        yield return LoadPages();
         root.SetPage("Music");
         yield return null;
         MusicManager manager = Object.FindObjectOfType<MusicManager>();
         Assert.That(manager, Is.Not.Null);
         Transform musicPage = root.transform.Find("SafeAreaRoot/Content/PageHost/Music");
+        Button mute = FindButton("SfxMute");
+        Assert.That(mute, Is.Not.Null);
+        Transform controls = mute.transform.parent;
+        Bounds muteBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(controls, mute.transform);
+        Bounds pauseBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(controls, FindButton("Pause").transform);
+        Bounds volumeBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(controls, controls.Find("SfxVolume"));
+        Assert.That(muteBounds.min.x, Is.GreaterThan(pauseBounds.max.x), "Mute must clear the transport buttons.");
+        Assert.That(muteBounds.max.x, Is.LessThan(volumeBounds.min.x), "Mute must clear the sound-effect slider.");
+        bool previousMuted = UIButtonSoundManager.SfxMuted;
+        bool hadMutePreference = PlayerPrefs.HasKey("Kingdom.Sfx.Mute");
+        int previousMutePreference = PlayerPrefs.GetInt("Kingdom.Sfx.Mute");
+        try
+        {
+            UIButtonSoundManager.SetMuted(false);
+            mute.onClick.Invoke();
+            root.RefreshLiveCardValuesForEditor();
+            Assert.That(UIButtonSoundManager.SfxMuted, Is.True);
+            TMP_Text caption = mute.GetComponentInChildren<TMP_Text>();
+            Assert.That(caption.text, Is.EqualTo("恢复音效"));
+            caption.ForceMeshUpdate();
+            Assert.That(caption.isTextTruncated, Is.False);
+            mute.onClick.Invoke();
+            root.RefreshLiveCardValuesForEditor();
+            Assert.That(UIButtonSoundManager.SfxMuted, Is.False);
+            Assert.That(caption.text, Is.EqualTo("音效静音"));
+        }
+        finally
+        {
+            UIButtonSoundManager.SetMuted(previousMuted);
+            if (hadMutePreference) PlayerPrefs.SetInt("Kingdom.Sfx.Mute", previousMutePreference);
+            else PlayerPrefs.DeleteKey("Kingdom.Sfx.Mute");
+            PlayerPrefs.Save();
+        }
+
         Button trackPlay = null;
         for (int frame = 0; frame < 480 && trackPlay == null; frame++)
         {
@@ -172,6 +234,33 @@ public sealed class KingdomButtonMaterialPlayModeTests
             Assert.That(icon.sprite, Is.Not.Null);
             Assert.That(icon.sprite, Is.Not.SameAs(((Image)button.targetGraphic).sprite));
             Assert.That(icon.type, Is.EqualTo(Image.Type.Simple));
+        }
+        Canvas canvas = root.GetComponent<Canvas>();
+        RenderMode oldMode = canvas.renderMode;
+        Camera oldCamera = canvas.worldCamera;
+        float oldDistance = canvas.planeDistance;
+        GameObject cameraObject = new GameObject("MusicControlsEvidenceCamera");
+        Camera camera = cameraObject.AddComponent<Camera>();
+        RenderTexture target = new RenderTexture(1760, 800, 24);
+        target.Create();
+        try
+        {
+            camera.targetTexture = target;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = camera;
+            canvas.planeDistance = 100;
+            Canvas.ForceUpdateCanvases();
+            Capture(camera, target, "music-controls-1760x800");
+        }
+        finally
+        {
+            canvas.renderMode = oldMode;
+            canvas.worldCamera = oldCamera;
+            canvas.planeDistance = oldDistance;
+            camera.targetTexture = null;
+            target.Release();
+            Object.Destroy(target);
+            Object.Destroy(cameraObject);
         }
     }
 
@@ -363,7 +452,7 @@ public sealed class KingdomButtonMaterialPlayModeTests
             bool hasVisibleCharacter = false;
             for (int i = 0; i < label.textInfo.characterCount; i++)
                 hasVisibleCharacter |= label.textInfo.characterInfo[i].isVisible;
-            Assert.That(hasVisibleCharacter, Is.True, node.name + "/" + name + " must actually draw its caption.");
+            Assert.That(hasVisibleCharacter, Is.True, node.name + "/" + name + " must actually draw its caption: text=" + label.text + " font=" + label.fontSize + " rect=" + label.rectTransform.rect.size + " preferredHeight=" + label.preferredHeight + " rendered=" + label.renderedHeight + " chars=" + label.textInfo.characterCount);
             Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(node, label.rectTransform);
             Assert.That(bounds.min.x, Is.GreaterThanOrEqualTo(node.rect.xMin - 1), node.name + "/" + name);
             Assert.That(bounds.max.x, Is.LessThanOrEqualTo(node.rect.xMax + 1), node.name + "/" + name);
@@ -382,7 +471,11 @@ public sealed class KingdomButtonMaterialPlayModeTests
         Image image = button.targetGraphic as Image;
         Assert.That(image, Is.Not.Null, context + "/" + button.name);
         Assert.That(image.gameObject, Is.SameAs(button.gameObject), context + "/" + button.name);
-        Assert.That(materials.Contains(image.sprite), Is.True, context + "/" + button.name + " has an unthemed skin.");
+        bool themed = materials.Contains(image.sprite);
+        if (button.transform.Find("EraDesign") != null)
+            foreach (TechLevel era in System.Enum.GetValues(typeof(TechLevel)))
+                themed |= image.sprite == Resources.Load<Sprite>("Art/UI/EraCards/" + era);
+        Assert.That(themed, Is.True, context + "/" + button.name + " has an unthemed skin.");
         Assert.That(image.type, Is.EqualTo(Image.Type.Sliced), context + "/" + button.name);
     }
 
@@ -395,8 +488,11 @@ public sealed class KingdomButtonMaterialPlayModeTests
             RectTransform primary = overview.Find("PrimaryCard") as RectTransform;
             RectTransform secondary = overview.Find("SecondaryCard") as RectTransform;
             Bounds a = RectTransformUtility.CalculateRelativeRectTransformBounds(overview, primary);
-            Bounds b = RectTransformUtility.CalculateRelativeRectTransformBounds(overview, secondary);
-            Assert.That(b.max.y, Is.LessThanOrEqualTo(a.min.y - 1), "Overview sections must not overlap as guidance text grows.");
+            if (secondary.gameObject.activeInHierarchy)
+            {
+                Bounds b = RectTransformUtility.CalculateRelativeRectTransformBounds(overview, secondary);
+                Assert.That(b.max.y, Is.LessThanOrEqualTo(a.min.y - 1), "Overview sections must not overlap as guidance text grows.");
+            }
             TMP_Text text = primary.Find("Text").GetComponent<TMP_Text>();
             text.ForceMeshUpdate();
             Assert.That(text.preferredHeight, Is.LessThanOrEqualTo(text.rectTransform.rect.height + 1));
@@ -495,7 +591,17 @@ public sealed class KingdomButtonMaterialPlayModeTests
         if (page == "Era")
             foreach (Image image in root.transform.Find(pages + "Era").GetComponentsInChildren<Image>())
                 if (image.GetComponent<Button>() == null)
-                    Assert.That(image.color.a, Is.LessThan(.12f), image.name + " must not recreate nested dark cards.");
+                {
+                    if (image.transform.Find("CardFrame") != null)
+                        Assert.That(image.color.a, Is.GreaterThan(.4f), image.name + " must retain its authored readable card surface.");
+                    else if (image.name == "Divider" || image.transform.parent.name == "CardFrame")
+                    {
+                        Assert.That(image.color.a, Is.GreaterThan(0f), image.name);
+                        Assert.That(image.raycastTarget, Is.False, "Era decoration must not intercept interaction.");
+                    }
+                    else
+                        Assert.That(image.color.a, Is.LessThan(.12f), image.name + " must preserve the transparent outer page.");
+                }
         if (page == "Resources" || page == "Buildings")
         {
             TMP_Text body = root.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
@@ -528,7 +634,7 @@ public sealed class KingdomButtonMaterialPlayModeTests
 
     private static void Capture(Camera camera, RenderTexture target, string page)
     {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "ui-polish-20261012"));
+        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "scroll-frames-20261013", "pages"));
         Directory.CreateDirectory(directory);
         string path = Path.Combine(directory, page.ToLowerInvariant() + ".png");
         RenderTexture previous = RenderTexture.active;

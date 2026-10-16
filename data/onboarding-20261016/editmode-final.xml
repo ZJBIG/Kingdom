@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="40" result="Passed" total="40" passed="40" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.4718685">
+  <test-suite type="TestSuite" id="2112" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="981" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.471869" total="40" passed="40" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3214" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="980" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.447879" total="40" passed="40" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="12680" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="3075" name="TutorialManagerTests" fullname="TutorialManagerTests" classname="TutorialManagerTests" runstate="Runnable" testcasecount="32" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.397157" total="32" passed="32" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3099" name="AnimalPopulationStepTargetsWoodHouseWhenCapacityIsZero" fullname="TutorialManagerTests.AnimalPopulationStepTargetsWoodHouseWhenCapacityIsZero" methodname="AnimalPopulationStepTargetsWoodHouseWhenCapacityIsZero" classname="TutorialManagerTests" runstate="Runnable" seed="1808411014" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.229171" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3077" name="AuthoredTutorialAssetsFormOneReachableChain" fullname="TutorialManagerTests.AuthoredTutorialAssetsFormOneReachableChain" methodname="AuthoredTutorialAssetsFormOneReachableChain" classname="TutorialManagerTests" runstate="Runnable" seed="556993131" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.009395" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3107" name="ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock" fullname="TutorialManagerTests.ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock" methodname="ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock" classname="TutorialManagerTests" runstate="Runnable" seed="1072830917" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.046474" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3081" name="CompletedGoalFeedbackUsesCompletedDirectPredecessor" fullname="TutorialManagerTests.CompletedGoalFeedbackUsesCompletedDirectPredecessor" methodname="CompletedGoalFeedbackUsesCompletedDirectPredecessor" classname="TutorialManagerTests" runstate="Runnable" seed="1185721106" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000981" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3076" name="DefaultStepsExposeExtensibleTutorialContract" fullname="TutorialManagerTests.DefaultStepsExposeExtensibleTutorialContract" methodname="DefaultStepsExposeExtensibleTutorialContract" classname="TutorialManagerTests" runstate="Runnable" seed="1585587353" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.002244" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3082" name="EveryTechLevelHasCivilizationContext" fullname="TutorialManagerTests.EveryTechLevelHasCivilizationContext" methodname="EveryTechLevelHasCivilizationContext" classname="TutorialManagerTests" runstate="Runnable" seed="1609295485" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000524" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3101" name="PopulationCapacityConditionMatchesItsDeclaredMeaning" fullname="TutorialManagerTests.PopulationCapacityConditionMatchesItsDeclaredMeaning" methodname="PopulationCapacityConditionMatchesItsDeclaredMeaning" classname="TutorialManagerTests" runstate="Runnable" seed="1286245638" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001076" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3098" name="PopulationFoodShortageTargetsFoodDetail" fullname="TutorialManagerTests.PopulationFoodShortageTargetsFoodDetail" methodname="PopulationFoodShortageTargetsFoodDetail" classname="TutorialManagerTests" runstate="Runnable" seed="2097569492" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001996" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3106" name="PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier" fullname="TutorialManagerTests.PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier" classname="TutorialManagerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.007640" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3104" name="PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier(Animal,&quot;WoodHouse&quot;)" fullname="TutorialManagerTests.PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier(Animal,&quot;WoodHouse&quot;)" methodname="PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier" classname="TutorialManagerTests" runstate="Runnable" seed="1843127523" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003068" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3105" name="PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier(StoneAge,&quot;StoneHouse&quot;)" fullname="TutorialManagerTests.PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier(StoneAge,&quot;StoneHouse&quot;)" methodname="PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier" classname="TutorialManagerTests" runstate="Runnable" seed="130401377" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001554" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3097" name="PopulationStepMatchesItsStateDrivenNavigationPage" fullname="TutorialManagerTests.PopulationStepMatchesItsStateDrivenNavigationPage" methodname="PopulationStepMatchesItsStateDrivenNavigationPage" classname="TutorialManagerTests" runstate="Runnable" seed="1146592779" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000995" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3100" name="PopulationStepRequiresPopulationStateToGrow" fullname="TutorialManagerTests.PopulationStepRequiresPopulationStateToGrow" methodname="PopulationStepRequiresPopulationStateToGrow" classname="TutorialManagerTests" runstate="Runnable" seed="849423221" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000592" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3109" name="ProductionChainRequiresMatchingOutputAndInputAcrossBuildings" fullname="TutorialManagerTests.ProductionChainRequiresMatchingOutputAndInputAcrossBuildings" methodname="ProductionChainRequiresMatchingOutputAndInputAcrossBuildings" classname="TutorialManagerTests" runstate="Runnable" seed="1372319967" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003785" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3103" name="ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" fullname="TutorialManagerTests.ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" methodname="ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" classname="TutorialManagerTests" runstate="Runnable" seed="945183447" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.018687" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3108" name="ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" fullname="TutorialManagerTests.ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" methodname="ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" classname="TutorialManagerTests" runstate="Runnable" seed="245290874" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003094" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3102" name="ResearchStepRequiresCompletedStatus" fullname="TutorialManagerTests.ResearchStepRequiresCompletedStatus" methodname="ResearchStepRequiresCompletedStatus" classname="TutorialManagerTests" runstate="Runnable" seed="36710791" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000898" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3078" name="ResourcesTutorialRequiresViewingCoreResourceDetails" fullname="TutorialManagerTests.ResourcesTutorialRequiresViewingCoreResourceDetails" methodname="ResourcesTutorialRequiresViewingCoreResourceDetails" classname="TutorialManagerTests" runstate="Runnable" seed="56485505" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000960" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3096" name="SaveSessionVersionChangesOnlyWhenRuntimeProgressIsRestored" fullname="TutorialManagerTests.SaveSessionVersionChangesOnlyWhenRuntimeProgressIsRestored" methodname="SaveSessionVersionChangesOnlyWhenRuntimeProgressIsRestored" classname="TutorialManagerTests" runstate="Runnable" seed="223660288" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.004700" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3094" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.040036" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3084" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(0,&quot;Research&quot;,&quot;HomeSystemSurvey&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(0,&quot;Research&quot;,&quot;HomeSystemSurvey&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="776406983" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.014940" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3085" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(1,&quot;Buildings&quot;,&quot;LaunchCenter&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(1,&quot;Buildings&quot;,&quot;LaunchCenter&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="2096029478" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.007080" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3086" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(2,&quot;Research&quot;,&quot;OrbitalEngineering&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(2,&quot;Research&quot;,&quot;OrbitalEngineering&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="1982838409" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001383" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3087" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(3,&quot;Sectors&quot;,&quot;DawnRing&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(3,&quot;Sectors&quot;,&quot;DawnRing&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="756264473" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.004146" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3088" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(4,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(4,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="1941346579" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001906" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3089" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(5,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(5,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="1067729324" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001554" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3090" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(6,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(6,&quot;Research&quot;,&quot;DeepSpaceFleet&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="1139251439" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001233" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3091" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(7,&quot;Sectors&quot;,&quot;DawnRing&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(7,&quot;Sectors&quot;,&quot;DawnRing&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="1841555298" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001010" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3092" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(8,&quot;Sectors&quot;,&quot;DawnRing&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(8,&quot;Sectors&quot;,&quot;DawnRing&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="952988717" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001048" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3093" name="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(9,&quot;Sectors&quot;,&quot;DawnRing&quot;)" fullname="TutorialManagerTests.SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet(9,&quot;Sectors&quot;,&quot;DawnRing&quot;)" methodname="SpacerGuidancePrioritizesReachableHomeSystemBeforeDistantFleet" classname="TutorialManagerTests" runstate="Runnable" seed="934750467" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003437" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3083" name="SpacerGuidanceUsesExistingResearchAndBuildingDefinitions" fullname="TutorialManagerTests.SpacerGuidanceUsesExistingResearchAndBuildingDefinitions" methodname="SpacerGuidanceUsesExistingResearchAndBuildingDefinitions" classname="TutorialManagerTests" runstate="Runnable" seed="2141076436" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.000973" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3080" name="TutorialDetailViewedStateIsTransientAndDoesNotChangeSaveFormat" fullname="TutorialManagerTests.TutorialDetailViewedStateIsTransientAndDoesNotChangeSaveFormat" methodname="TutorialDetailViewedStateIsTransientAndDoesNotChangeSaveFormat" classname="TutorialManagerTests" runstate="Runnable" seed="1473948655" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.002019" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3079" name="TutorialProgressRoundTripsThroughSaveJson" fullname="TutorialManagerTests.TutorialProgressRoundTripsThroughSaveJson" methodname="TutorialProgressRoundTripsThroughSaveJson" classname="TutorialManagerTests" runstate="Runnable" seed="796613461" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003127" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3095" name="TutorialStepRequiresVisitToItsCurrentNavigationPage" fullname="TutorialManagerTests.TutorialStepRequiresVisitToItsCurrentNavigationPage" methodname="TutorialStepRequiresVisitToItsCurrentNavigationPage" classname="TutorialManagerTests" runstate="Runnable" seed="264467247" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001005" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3110" name="TutorialStageTests" fullname="TutorialStageTests" classname="TutorialStageTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.029430" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3117" name="BuildingPaymentWaitReleasesBlockingAndKeepsStageSkippable" fullname="TutorialStageTests.BuildingPaymentWaitReleasesBlockingAndKeepsStageSkippable" methodname="BuildingPaymentWaitReleasesBlockingAndKeepsStageSkippable" classname="TutorialStageTests" runstate="Runnable" seed="1183647895" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.008983" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3114" name="ExistingV1SaveBaselinesUnlockedSystemsAndLaterPopulationStillTriggers" fullname="TutorialStageTests.ExistingV1SaveBaselinesUnlockedSystemsAndLaterPopulationStillTriggers" methodname="ExistingV1SaveBaselinesUnlockedSystemsAndLaterPopulationStillTriggers" classname="TutorialStageTests" runstate="Runnable" seed="917858512" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.006224" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3111" name="FreshGameRequiresNavigationThenMatchingSelectionAndAcknowledgement" fullname="TutorialStageTests.FreshGameRequiresNavigationThenMatchingSelectionAndAcknowledgement" methodname="FreshGameRequiresNavigationThenMatchingSelectionAndAcknowledgement" classname="TutorialStageTests" runstate="Runnable" seed="1276231875" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.002055" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3116" name="LockedWorkshopAndSectorsDoNotTrigger" fullname="TutorialStageTests.LockedWorkshopAndSectorsDoNotTrigger" methodname="LockedWorkshopAndSectorsDoNotTrigger" classname="TutorialStageTests" runstate="Runnable" seed="653076561" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001977" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3118" name="MissingBuildingTargetRebindsWithoutReportingCompletion" fullname="TutorialStageTests.MissingBuildingTargetRebindsWithoutReportingCompletion" methodname="MissingBuildingTargetRebindsWithoutReportingCompletion" classname="TutorialStageTests" runstate="Runnable" seed="846581420" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.003002" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3115" name="RestoreReestablishesNavigationInsteadOfKeepingStaleSelection" fullname="TutorialStageTests.RestoreReestablishesNavigationInsteadOfKeepingStaleSelection" methodname="RestoreReestablishesNavigationInsteadOfKeepingStaleSelection" classname="TutorialStageTests" runstate="Runnable" seed="1840256879" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001688" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3112" name="SkipOnlyDismissesCurrentStageAndDoesNotReportCompletion" fullname="TutorialStageTests.SkipOnlyDismissesCurrentStageAndDoesNotReportCompletion" methodname="SkipOnlyDismissesCurrentStageAndDoesNotReportCompletion" classname="TutorialStageTests" runstate="Runnable" seed="241990172" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.002253" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3113" name="SkippedHistoryPersistsAndNewGameClearsIt" fullname="TutorialStageTests.SkippedHistoryPersistsAndNewGameClearsIt" methodname="SkippedHistoryPersistsAndNewGameClearsIt" classname="TutorialStageTests" runstate="Runnable" seed="569591867" result="Passed" start-time="2026-10-16 06:01:35Z" end-time="2026-10-16 06:01:35Z" duration="0.001312" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

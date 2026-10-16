@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Standardization
   Label: "\u6807\u51C6\u5316"
-  Description: "\u7EDF\u4E00\u96F6\u4EF6\u5C3A\u5BF8\u3001\u6750\u6599\u7B49\u7EA7\u3001\u56FE\u7EB8\u7B26\u53F7\u548C\u68C0\u9A8C\u65B9\u6CD5\uFF0C\u4F7F\u4E0D\u540C\u5DE5\u574A\u4E0E\u5DE5\u5382\u751F\u4EA7\u7684\u90E8\u4EF6\u80FD\u591F\u4E92\u6362\u5E76\u7A33\u5B9A\u534F\u4F5C\u3002"
+  Description: "统一部件尺寸、货箱接口和检验方法，提高铁路枢纽的物流供给。"
   BaseCost: "620000"
   prerequisites:
   - {fileID: 11400000, guid: 0ac8b644aa954cf49aec2922361454db, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "12000"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "6000"
   effects:
   - Type: 15

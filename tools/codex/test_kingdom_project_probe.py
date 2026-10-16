@@ -251,12 +251,12 @@ class GuidanceContractTests(unittest.TestCase):
     def test_archives_are_not_required_dependencies(self):
         paths = list(probe.REQUIRED_PROJECT_FILES) + list(probe.REQUIRED_SKILL_FILES)
         ps = self.text("tools/codex/validate-guidance.ps1")
-        paths += re.findall(r'^\s+"([^"]+)",?$', ps, re.M)
+        paths += re.findall(r'^[ \t]+"([^"]+)",?\r?$', ps, re.M)
         self.assertTrue(paths)
         self.assertFalse(any("archive/" in path for path in paths))
 
     def test_powershell_required_paths_exist(self):
-        paths = re.findall(r'^\s+"([^"]+)",?$',
+        paths = re.findall(r'^[ \t]+"([^"]+)",?\r?$',
                            self.text("tools/codex/validate-guidance.ps1"), re.M)
         self.assertGreater(len(paths), 20)
         for relative in paths:

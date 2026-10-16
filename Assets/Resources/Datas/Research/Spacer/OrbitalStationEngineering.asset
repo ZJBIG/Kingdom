@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: OrbitalStationEngineering
+  m_EditorClassIdentifier: 
+  id: OrbitalStationEngineering
+  Label: "轨道空间站工程"
+  Description: "建立可长期运行的轨道补给、研究和转运设施，为深空舰队提供稳定基地，并把轨道建设从一次性发射推进到持续运营。"
+  BaseCost: "162000000"
+  prerequisites:
+  - {fileID: 11400000, guid: b3e1a7c94d2f6081ab35c7e9d4f26018, type: 2}
+  - {fileID: 11400000, guid: e5c1a7f3b9d24860a4d6e8f2c1b93750, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 83c7a054235ab2d4ea6c0135a631aa93, type: 2}
+    amount: "36000"
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
+    amount: "18000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "14000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "10000"
+  - resource: {fileID: 11400000, guid: f19a0c20ce7222a48a86f190be8d7917, type: 2}
+    amount: "5000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "1100"
+  - resource: {fileID: 11400000, guid: 5c2a341303ff6f94ab3b153d2958dada, type: 2}
+    amount: "180000"
+  effects:
+  - Type: 22
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "0.9"
+  - Type: 17
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.25"
+  TechLevel: 4
+  AdvancesTechLevel: 0

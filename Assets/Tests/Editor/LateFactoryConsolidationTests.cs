@@ -30,8 +30,7 @@ public sealed class LateFactoryConsolidationTests
 
         string[] mergedOutputs =
         {
-            "TitaniumConcentrate", "NickelConcentrate", "BauxiteOre", "CopperOre",
-            "TinOre", "IronOre", "Cloth", "TitaniumAlloy", "RocketFuel",
+            "SpecialMetalOre", "AdvancedMetalOre", "BasicMetalOre", "Cloth", "TitaniumAlloy", "RocketFuel",
             "Glass", "Ceramic", "Concrete", "Machinery", "Engine", "Composite",
             "CopperWire", "Electronics", "PhaseMaterial"
         };

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AutonomousMatterFabricator
   m_EditorClassIdentifier: 
   id: AutonomousMatterFabricator
-  Label: "Autonomous Matter and Logistics Fabricator"
-  Description: "A single Ultra factory for the main advanced-material lines: it converts titanium alloy, electronics, machinery, nickel and existing orbital inputs into phantom materials, phase material and composite while also carrying the shared logistics and fleet-support role. It remains a staffed, powered industrial building and does not create resources from nothing."
+  Label: "自主材料与物流工厂"
+  Description: "将钛合金、电子元件、机械部件和高级金属锭组装为幽影合金、幽影纤维、相位材料与复合材料，同时提供物流和舰队支援。"
   TechLevel: 5
   upgradeTo: {fileID: 0}
   costGrowth: "1.27"
@@ -49,7 +49,7 @@ MonoBehaviour:
     amount: "90000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "80000"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "70000"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
@@ -67,7 +67,7 @@ MonoBehaviour:
     amount: "0.55"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "0.25"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "0.3"
   requiredResearch:
   - {fileID: 11400000, guid: f0a9c3e7b1d54682ac95e0f7d3b8c6a1, type: 2}

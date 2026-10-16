@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PhaseGridSynchronization
   m_EditorClassIdentifier: 
   id: PhaseGridSynchronization
-  Label: "Phase Grid Synchronization"
-  Description: "Synchronizes phase-field power systems across existing industrial networks, turning Ultra energy research into a sustained production input rather than a free multiplier."
+  Label: "相位电网同步"
+  Description: "同步跨星区电网的负载与相位，提高全局供电能力。"
   BaseCost: "2.4e12"
   prerequisites:
   - {fileID: 11400000, guid: a91c4e6d2b7f4a80b3e5d1c9f6a2e7b4, type: 2}

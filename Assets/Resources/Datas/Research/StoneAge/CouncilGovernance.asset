@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: CouncilGovernance
   Label: "\u8BAE\u4E8B\u6CBB\u7406"
-  Description: "\u7531\u4EE3\u8868\u5171\u540C\u8BAE\u5B9A\u516C\u5171\u4E8B\u52A1\u3001\u52B3\u5F79\u548C\u8D44\u6E90\u5206\u914D\uFF0C\u4F7F\u805A\u843D\u51B3\u7B56\u4ECE\u4E34\u65F6\u53F7\u4EE4\u8F6C\u53D8\u4E3A\u53EF\u5EF6\u7EED\u7684\u6CBB\u7406\u7A0B\u5E8F\u3002"
+  Description: "由代表共同整理记录、讨论公共事务，提高全局研究效率。"
   BaseCost: "14000"
   prerequisites:
   - {fileID: 11400000, guid: 3869174a039765c4499c4d8576bd23d4, type: 2}

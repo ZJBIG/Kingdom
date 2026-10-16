@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ScholasticInstitutions
   Label: "\u5B66\u9662\u4E0E\u5929\u6587\u5B66"
-  Description: "\u5EFA\u7ACB\u56FA\u5B9A\u8BFE\u7A0B\u3001\u85CF\u4E66\u3001\u8FA9\u8BBA\u548C\u957F\u671F\u5929\u8C61\u89C2\u6D4B\u5236\u5EA6\uFF0C\u4F7F\u5B66\u9662\u6210\u4E3A\u6301\u7EED\u7814\u7A76\u4E2D\u5FC3\u3002"
+  Description: "以课程、藏书、辩论与天象观测传承知识，提高全局研究效率，并降低建造材料需求。"
   BaseCost: "220000"
   prerequisites:
   - {fileID: 11400000, guid: ae9e433b1c0d4074baf90342f66c2509, type: 2}
@@ -27,7 +27,7 @@ MonoBehaviour:
     amount: "1750"
   - resource: {fileID: 11400000, guid: baab91663d03ad045ae0828c1ecb526b, type: 2}
     amount: "3500"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "2100"
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "1260"

@@ -1,0 +1,11 @@
+{
+  "definitions": 380,
+  "resource_identities": 40,
+  "inventories": 33,
+  "pair_groups": 433,
+  "sprite_rects": 7,
+  "atlas_size": [
+    1774,
+    887
+  ]
+}

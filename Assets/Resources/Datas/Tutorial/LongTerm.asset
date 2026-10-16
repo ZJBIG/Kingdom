@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: long-term
   Title: 形成长期目标
-  Description: 继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。
-  NarrativeText: 这场复兴没有终点。让旧时代的资源继续服务于新的生产链，用人口、研究和基础设施共同支撑下一次扩张。
+  Description: "在时代页面选择一项未完成条件，补足它需要的研究、人口或资源。"
+  NarrativeText: "新设施仍需要旧工坊的材料。扩建之前，先检查上游产量和食物，别让刚建好的设备空转。"
   Kind: 7
   NextStepId: 
   RewardId: 

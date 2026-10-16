@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: MetalOreSeparationSystem
+  m_EditorClassIdentifier: 
+  id: MetalOreSeparationSystem
+  Label: "金属矿选矿机组"
+  Description: "改进深层矿物破碎、分级和重选工艺，提高综合金属矿场的三档矿石产出，支撑工业与钛合金加工。"
+  SortOrder: 340
+  TechLevel: 3
+  requiredResearch:
+  - {fileID: 11400000, guid: ca4d5c54b40ea1a499e3283e174da7e3, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 786ea0ba62febff4f9a2957b88ba39c2, type: 2}
+  - {fileID: 11400000, guid: 7f930336953f6ba48ad043598f0617cd, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "100000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "9600"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "4800"
+  - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
+    amount: "4800"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
+    Resource: {fileID: 0}
+    value: "1.25"

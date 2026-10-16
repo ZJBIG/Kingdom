@@ -1,0 +1,82 @@
+[
+  {
+    "Path": "Assets/Resources/Script/Manager/BuildingManager.cs",
+    "SHA256": "49166EA962764BB577B4DA8F3769E8D190A1A660892CE260147EAC42E3F07478",
+    "LastWriteTimeUtc": "2026-10-16T12:59:01.5852601Z"
+  },
+  {
+    "Path": "Assets/Resources/Script/Manager/ResourceManager.cs",
+    "SHA256": "0AE143E1DF005C3AEA6FBEB360DC0B80D5A45A2F23ED6CB08F8C8DB1F169AF8F",
+    "LastWriteTimeUtc": "2026-10-16T12:12:43.4390883Z"
+  },
+  {
+    "Path": "Assets/Resources/Script/Manager/SimulationManager.cs",
+    "SHA256": "4E8ECD0FA8058E048080D3466691211C20A3B7537946DECA2A2803FBC8C4C321",
+    "LastWriteTimeUtc": "2026-10-16T11:12:35.5378524Z"
+  },
+  {
+    "Path": "Assets/Resources/Script/Runtime/HappinessFormula.cs",
+    "SHA256": "A26689DCA5B5B12B9ED5E7AFFAB1A8FCC1F2F77473153BC4517E47DEB14EC314",
+    "LastWriteTimeUtc": "2026-10-16T10:57:50.0479420Z"
+  },
+  {
+    "Path": "Assets/Resources/Script/Runtime/ResourceState.cs",
+    "SHA256": "8E654FB2AD27D4FAF9315DEE6FE8A4F9F5FF180167A7DD959FEB2B9AF78AE7B8",
+    "LastWriteTimeUtc": "2026-10-16T12:12:43.4370660Z"
+  },
+  {
+    "Path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "SHA256": "2196470CFC21370B4B7DAF07DC17F45860E6258FD4500598D0901E770F0BD355",
+    "LastWriteTimeUtc": "2026-10-16T13:04:27.4164713Z"
+  },
+  {
+    "Path": "Assets/Tests/Editor/FoodEfficiencyTests.cs",
+    "SHA256": "09BBC6C901B5BA25440E8631822223A4C7DE06D087A382F7D8C62F314D1A018A",
+    "LastWriteTimeUtc": "2026-10-16T12:15:03.5539564Z"
+  },
+  {
+    "Path": "Assets/Tests/Editor/FlowEfficiencyTests.cs",
+    "SHA256": "10359C315A7ABB486BF0C5F04112AA6562CFAD311E0E934AB451504DB39118E9",
+    "LastWriteTimeUtc": "2026-10-16T12:15:49.4736544Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "SHA256": "DF99FA0A27D9C2DD4F8290F52FD9CAB2ED496FAB84CB849E67CC5B579C6CAE85",
+    "LastWriteTimeUtc": "2026-10-16T12:35:08.7130588Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs",
+    "SHA256": "EFAB9D61F8C62AFA37A59EE5167476D33304F1AA8A46196DF0B9C60E2B98489F",
+    "LastWriteTimeUtc": "2026-10-16T12:35:08.9451876Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/KingdomCollectionPlayModeTests.cs",
+    "SHA256": "035566CAE5C8C44505434EDF8119E6EE89A60A162192DE2E1E219EB24F84A2BA",
+    "LastWriteTimeUtc": "2026-10-16T12:35:08.9498426Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/StoryBackgroundInteractionPlayModeTests.cs",
+    "SHA256": "AD2E232237C2205DDB1549149BBA543E1686C2BAA64AFBD5594D1FAB27A85554",
+    "LastWriteTimeUtc": "2026-10-16T12:44:24.2599476Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/StoryIllustrationPlayModeTests.cs",
+    "SHA256": "77107B971266D799CF48AE5D8FD0C68264C0C616C42ADCECCB69820094664534",
+    "LastWriteTimeUtc": "2026-10-16T12:44:24.2599476Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs",
+    "SHA256": "CE3AEF108B209794AFD4453C0A7E71F2BF9BFCA0DA1BE0E1C9E7F2A9A8C9BDB6",
+    "LastWriteTimeUtc": "2026-10-16T12:44:24.2623925Z"
+  },
+  {
+    "Path": "Assets/Tests/PlayMode/ResourceProductionTreePlayModeTests.cs",
+    "SHA256": "5291EF8F5A92605AA2ED2BA4B8327532A9B826F5D9CD60214BC8BEC5615927CF",
+    "LastWriteTimeUtc": "2026-10-16T12:44:24.2639026Z"
+  },
+  {
+    "Path": "tools/NewEconomySimulator/SimulationCore.cs",
+    "SHA256": "668F49715837FEFECAE77DBAB85414100571C20FC6FF7AA7E583B51263C10D4B",
+    "LastWriteTimeUtc": "2026-10-16T13:01:48.4625339Z"
+  }
+]

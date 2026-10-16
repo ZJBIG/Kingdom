@@ -5,8 +5,8 @@ using UnityEngine.UI;
 public sealed partial class KingdomUIRoot
 {
     private Button detailPinButton;
-    private string detailPinKind;
-    private string detailPinId;
+    private static Sprite pinOutlineSprite;
+    private static Sprite pinFilledSprite;
 
     private static string FirstDescriptionLine(string description)
     {
@@ -47,15 +47,12 @@ public sealed partial class KingdomUIRoot
 
     private static void SetPinButtonVisual(Button button, bool pinned)
     {
-        TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
-        if (label != null)
-        {
-            label.text = pinned ? "取消" : "置顶";
-            label.color = pinned ? Copper : TextSecondary;
-        }
-        Image surface = button.targetGraphic as Image;
-        if (surface != null)
-            surface.color = pinned ? new Color(.74f, .57f, .30f, .28f) : new Color(1f, 1f, 1f, .08f);
+        Image icon = button.transform.Find("Icon")?.GetComponent<Image>();
+        if (icon == null) return;
+        if (pinOutlineSprite == null) pinOutlineSprite = Resources.Load<Sprite>("Art/UI/Pins/PinOutline");
+        if (pinFilledSprite == null) pinFilledSprite = Resources.Load<Sprite>("Art/UI/Pins/PinFilled");
+        icon.sprite = pinned ? pinFilledSprite : pinOutlineSprite;
+        icon.color = pinned ? BasicMetalIngot : TextSecondary;
         button.interactable = true;
     }
 
@@ -112,29 +109,7 @@ public sealed partial class KingdomUIRoot
     private void RefreshDetailPin()
     {
         if (detailPinButton == null)
-        {
             detailPinButton = detailPanel?.Find("Surface/PinButton")?.GetComponent<Button>();
-            detailPinKind = null;
-            detailPinId = null;
-        }
-        if (detailPinButton == null) return;
-        Button button = detailPinButton;
-        string kind = null;
-        string id = null;
-        if (selectedResource != null) { kind = UIPinPreferences.Resource; id = selectedResource.Id; }
-        else if (selectedBuilding != null) { kind = UIPinPreferences.Building; id = selectedBuilding.Id; }
-        else if (selectedWorkshop != null) { kind = UIPinPreferences.Workshop; id = selectedWorkshop.Id; }
-        else if (selectedSectorDefinition != null) { kind = UIPinPreferences.Sector; id = selectedSectorDefinition.Id; }
-        else if (selectedResearchNode != null) { kind = UIPinPreferences.Research; id = selectedResearchNode.Id; }
-        button.gameObject.SetActive(kind != null);
-        if (detailPinKind != kind || detailPinId != id)
-        {
-            detailPinKind = kind;
-            detailPinId = id;
-            button.onClick.RemoveAllListeners();
-            if (kind != null) button.onClick.AddListener(() => TogglePin(kind, id));
-        }
-        if (kind == null) return;
-        SetPinButtonVisual(button, UIPinPreferences.IsPinned(kind, id));
+        if (detailPinButton != null) detailPinButton.gameObject.SetActive(false);
     }
 }

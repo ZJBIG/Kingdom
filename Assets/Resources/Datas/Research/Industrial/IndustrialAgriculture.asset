@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialAgriculture
   Label: "\u519C\u4E1A\u673A\u68B0\u5316"
-  Description: "\u4EE5\u53D1\u52A8\u673A\u3001\u673A\u68B0\u4F20\u52A8\u548C\u89C4\u6A21\u5316\u7EC4\u7EC7\u6539\u9020\u519C\u573A\u3001\u7267\u573A\u4E0E\u704C\u6E89\u8BBE\u65BD\u3002"
+  Description: "以机械播种、灌溉与收割改造农业，提高全局食物产出和机械化农田的生产倍率。"
   BaseCost: "1150000"
   prerequisites:
   - {fileID: 11400000, guid: 56de2faec444b084cba012f0f4113ba5, type: 2}

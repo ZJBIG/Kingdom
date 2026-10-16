@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalVacuumMetallurgy
   Label: "\u8F68\u9053\u771F\u7A7A\u51B6\u91D1"
-  Description: "\u7814\u7A76\u771F\u7A7A\u7194\u70BC\u3001\u65E0\u91CD\u529B\u51DD\u56FA\u548C\u8F68\u9053\u91D1\u5C5E\u7CBE\u70BC\uFF0C\u5C06\u8F68\u9053\u7CBE\u77FF\u8F6C\u5316\u4E3A\u9AD8\u5F3A\u5EA6\u949B\u5408\u91D1\u3002"
+  Description: "改进真空熔炼、无重力凝固与轨道精炼，提高轨道综合资源工厂各条产线的产出。"
   BaseCost: "336000000"
   prerequisites:
   - {fileID: 11400000, guid: 99b51bda79ca95d44b80564d8aa67b7a, type: 2}
@@ -24,7 +24,7 @@ MonoBehaviour:
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "45000"
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
+  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
     amount: "130000"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "21000"

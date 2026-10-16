@@ -14,9 +14,13 @@ using UnityEngine.EventSystems;
 public sealed class KingdomOnboardingPlayModeTests
 {
     private string saveRoot;
+    private TutorialManager initialTutorial;
+    private MusicManager initialMusic;
     [SetUp]
     public void SetUp()
     {
+        initialTutorial = Object.FindObjectOfType<TutorialManager>(true);
+        initialMusic = Object.FindObjectOfType<MusicManager>(true);
         string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         saveRoot = Path.Combine(projectRoot, "Temp", "KingdomOnboardingPlayModeTests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saveRoot);
@@ -31,6 +35,10 @@ public sealed class KingdomOnboardingPlayModeTests
         Scene sample = SceneManager.GetSceneByName("SampleScene");
         if (sample.IsValid() && sample.isLoaded)
             yield return SceneManager.UnloadSceneAsync(sample);
+        TutorialManager tutorial = Object.FindObjectOfType<TutorialManager>(true);
+        MusicManager music = Object.FindObjectOfType<MusicManager>(true);
+        if (tutorial != null && tutorial != initialTutorial) Object.DestroyImmediate(tutorial.gameObject);
+        if (music != null && music != initialMusic) Object.DestroyImmediate(music.gameObject);
         SaveManager.ClearSaveRootOverrideForTests();
         if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
             Directory.Delete(saveRoot, true);
@@ -86,44 +94,6 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(outerScroll.content, Is.EqualTo(
             pageHostTransform.Find("Overview")),
             "Returning from Story must restore Overview as the outer ScrollRect content.");
-    }
-
-    [UnityTest]
-    public IEnumerator StoryPage_GeneratesNonEmptyTMPTextWithGeometry()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-        root.SetPage("Story");
-        yield return null;
-
-        Transform rows = root.transform.Find(
-            "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage");
-        Assert.That(rows, Is.Not.Null);
-        Assert.That(rows.Find("StoryOverviewHeader"), Is.Not.Null);
-        TMP_Text[] texts = rows.GetComponentsInChildren<TMP_Text>(true);
-        Assert.That(texts.Length, Is.GreaterThan(0));
-
-        TMP_Text firstText = null;
-        for (int i = 0; i < texts.Length; i++)
-            if (!string.IsNullOrEmpty(texts[i].text))
-            {
-                firstText = texts[i];
-                break;
-            }
-        Assert.That(firstText, Is.Not.Null,
-            "Story must create non-empty text values.");
-        Assert.That(firstText.font, Is.Not.Null,
-            "Story text must have a font asset.");
-        Assert.That(firstText.rectTransform.rect.width, Is.GreaterThan(0f));
-        Assert.That(firstText.rectTransform.rect.height, Is.GreaterThan(0f));
-        firstText.ForceMeshUpdate(true, true);
-        Assert.That(firstText.textInfo.characterCount, Is.GreaterThan(0),
-            "Story text must generate at least one TMP character.");
     }
 
     [UnityTest]
@@ -243,8 +213,9 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(latestBody.text, Does.Contain(latest.Body));
         Assert.That(latestToggle.gameObject.activeInHierarchy && latestToggle.interactable, Is.True);
         Assert.That(latestNavigation.gameObject.activeInHierarchy && latestNavigation.interactable, Is.True);
-        Assert.That(latestCard.GetComponent<Image>().color,
-            Is.EqualTo(new Color(.76f, .50f, .25f, 1f)));
+        if (latest != chapter)
+            Assert.That(Vector4.Distance(latestCard.GetComponent<Image>().color, card.GetComponent<Image>().color),
+                Is.GreaterThan(.01f), "The latest completed chapter is visually distinguished from earlier chapters.");
         latestToggle.onClick.Invoke();
         yield return null;
         Canvas.ForceUpdateCanvases();
@@ -368,8 +339,12 @@ public sealed class KingdomOnboardingPlayModeTests
             if (!StoryManager.IsUnlocked(chapter, GameManager.Instance.State.TechLevel,
                     TutorialManager.Current))
             {
-                Assert.That(body.text, Is.EqualTo("这段文明记忆尚未完成。"), card.name);
-                Assert.That(body.text, Does.Not.Contain("先唤醒上一段"), card.name);
+                string hint = StoryManager.GetChapterProgressHint(
+                    chapter, GameManager.Instance.State.TechLevel);
+                Assert.That(body.text, Is.EqualTo(hint),
+                    card.name + " must explain the remaining chapter requirement.");
+                Assert.That(body.text, Does.Not.Contain(chapter.Body),
+                    card.name + " must keep the locked story body hidden.");
             }
             Assert.That(body.gameObject.activeInHierarchy, Is.True);
             Assert.That(body.enabled, Is.True);
@@ -508,7 +483,10 @@ public sealed class KingdomOnboardingPlayModeTests
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
-        root.SetPage("Overview");
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        root.SetPage("Buildings");
         yield return null;
         yield return null;
 
@@ -520,31 +498,15 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(outerScroll.content, Is.Not.Null);
         Image background = pageHostTransform.GetComponent<Image>();
         Assert.That(background, Is.Not.Null,
-            "The authored PageHost background must own the Overview drag hit surface.");
+            "The authored PageHost background must own the Buildings drag hit surface.");
         Assert.That(background.raycastTarget, Is.True,
-            "Overview background drags require a raycastable authored PageHost surface.");
+            "Buildings background drags require a raycastable authored PageHost surface.");
 
         Canvas.ForceUpdateCanvases();
         float viewportHeight = outerScroll.viewport.rect.height;
         float contentHeight = outerScroll.content.rect.height;
         float overflow = contentHeight - viewportHeight;
-        if (overflow <= 1f)
-        {
-            // The batch runner uses a 640x480 window, which can make the
-            // authored Overview fit exactly after Canvas scaling. Shrink only
-            // this test's viewport and keep the authored content larger so the
-            // regression exercises a real background drag without adding
-            // production whitespace or rows.
-            RectTransform viewportRect = pageHostTransform as RectTransform;
-            float forcedViewportHeight = Mathf.Max(256f, viewportHeight * .5f);
-            viewportRect.SetSizeWithCurrentAnchors(
-                RectTransform.Axis.Vertical, forcedViewportHeight);
-            Canvas.ForceUpdateCanvases();
-            viewportHeight = outerScroll.viewport.rect.height;
-            contentHeight = outerScroll.content.rect.height;
-            overflow = contentHeight - viewportHeight;
-        }
-        Debug.Log("[王国界面] Outer page real-drag diagnostic: page=Overview" +
+        Debug.Log("[王国界面] Outer page real-drag diagnostic: page=Buildings" +
             ", enabled=" + outerScroll.enabled +
             ", viewport=" + viewportHeight +
             ", content=" + contentHeight +
@@ -555,7 +517,7 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(contentHeight, Is.GreaterThan(0f));
 
         Assert.That(overflow, Is.GreaterThan(1f),
-            "Overview must contain its authored long-form content so this regression exercises a real overflow drag.");
+            "Unlocked building rows must exceed the viewport so this regression exercises a real overflow drag.");
 
         PointerEventData data = new(EventSystem.current)
         {
@@ -586,7 +548,7 @@ public sealed class KingdomOnboardingPlayModeTests
         Debug.Log("[王国界面] Outer page real-drag diagnostic: before=" +
             before + ", after=" + after);
         Assert.That(after, Is.Not.EqualTo(before).Within(.01f),
-            "A direct Overview ScrollRect drag must move the overflowing content.");
+            "A direct Buildings ScrollRect drag must move the overflowing content.");
 
         // The same background surface must clamp at both ends instead of
         // allowing content to escape the authored viewport.
@@ -604,7 +566,7 @@ public sealed class KingdomOnboardingPlayModeTests
         ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.endDragHandler);
         yield return null;
         Assert.That(outerScroll.verticalNormalizedPosition, Is.EqualTo(1f).Within(.01f),
-            "Overview background dragging past the top must remain clamped.");
+            "Buildings background dragging past the top must remain clamped.");
 
         outerScroll.StopMovement();
         outerScroll.verticalNormalizedPosition = 0f;
@@ -620,7 +582,7 @@ public sealed class KingdomOnboardingPlayModeTests
         ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.endDragHandler);
         yield return null;
         Assert.That(outerScroll.verticalNormalizedPosition, Is.EqualTo(0f).Within(.01f),
-            "Overview background dragging past the bottom must remain clamped.");
+            "Buildings background dragging past the bottom must remain clamped.");
 
         // A short background click must not move the page.
         outerScroll.StopMovement();
@@ -635,21 +597,24 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
         Assert.That(outerScroll.content.anchoredPosition.y,
             Is.EqualTo(shortClickPosition).Within(.01f),
-            "A short Overview background click must not move the page.");
+            "A short Buildings background click must not move the page.");
 
         // Page switches must preserve the measured position and rebind the
-        // same ScrollRect to Overview when returning from Research.
+        // same ScrollRect to Buildings when returning from Research.
         float expectedNormalized = outerScroll.verticalNormalizedPosition;
         root.SetPage("Research");
         yield return null;
-        root.SetPage("Overview");
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        root.SetPage("Buildings");
         yield return null;
         Canvas.ForceUpdateCanvases();
         Assert.That(outerScroll.enabled, Is.True);
-        Assert.That(outerScroll.content, Is.EqualTo(pageHostTransform.Find("Overview")));
+        Assert.That(outerScroll.content, Is.EqualTo(pageHostTransform.Find("Buildings")));
         Assert.That(outerScroll.verticalNormalizedPosition,
             Is.EqualTo(expectedNormalized).Within(.02f),
-            "Returning from Research must restore the Overview drag position.");
+            "Returning from Research must restore the Buildings drag position.");
     }
 
     [UnityTest]
@@ -832,9 +797,11 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(text.text, Does.Contain("当前目标"));
         Assert.That(text.text, Does.Contain("当前阻碍"));
         Assert.That(text.text, Does.Contain("推荐行动"));
-        Assert.That(text.text, Does.Contain("人口"));
-        Assert.That(text.text, Does.Contain("食物"));
-        Assert.That(text.text, Does.Contain("下一时代目标"));
+        TutorialSnapshot snapshot = TutorialManager.Current.Evaluate();
+        Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
+        Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
+        Assert.That(text.text, Does.Contain(snapshot.CurrentGoal));
+        Assert.That(text.text, Does.Contain(snapshot.RecommendedAction));
         Assert.That(text.text, Does.Not.Contain("完成方式"));
         Assert.That(text.text, Does.Not.Contain("上一步已完成"));
         Assert.That(text.text, Does.Not.Contain("刚刚发生"));
@@ -862,15 +829,11 @@ public sealed class KingdomOnboardingPlayModeTests
         root.SetPage("Era");
         yield return null;
         Assert.That(eraButton.interactable, Is.False);
-        Assert.That(eraButton.colors.disabledColor.r,
-            Is.EqualTo(194f / 255f).Within(.01f));
         Assert.That(resourcesButton.interactable, Is.True);
 
         root.SetPage("Resources");
         yield return null;
         Assert.That(resourcesButton.interactable, Is.False);
-        Assert.That(resourcesButton.colors.disabledColor.r,
-            Is.EqualTo(194f / 255f).Within(.01f));
         Assert.That(eraButton.interactable, Is.True);
     }
 

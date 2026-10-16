@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Masonry
   Label: "\u77F3\u9020\u5EFA\u7B51"
-  Description: "\u628A\u780C\u7B51\u3001\u627F\u91CD\u7ED3\u6784\u548C\u6C38\u4E45\u77F3\u5236\u4F4F\u5B85\u5408\u5E76\u4E3A\u7EDF\u4E00\u5EFA\u7B51\u6280\u672F\u3002"
+  Description: "以砌筑和承重结构规范减少施工损耗，降低全局建造材料需求。"
   BaseCost: "8500"
   prerequisites:
   - {fileID: 11400000, guid: 01237db29f0c5354db0129f54f07b9e7, type: 2}

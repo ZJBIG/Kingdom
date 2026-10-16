@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SteelForge
   Label: "\u70BC\u94A2\u7089"
-  Description: "\u4EE5\u94C1\u548C\u7164\u4E3A\u539F\u6599\u63A7\u5236\u7089\u6E29\u4E0E\u542B\u78B3\u91CF\uFF0C\u8FDE\u7EED\u751F\u4EA7\u5F3A\u5EA6\u66F4\u9AD8\u7684\u94A2\u6750\u3002"
+  Description: "将基础金属锭与煤炭送入炉中，控制炉温与含碳量，持续生产钢材。"
   TechLevel: 2
   upgradeTo: {fileID: 11400000, guid: 4acdbb942d9189940a48779c3dcde64e, type: 2}
   costGrowth: "1.2"
@@ -41,13 +41,13 @@ MonoBehaviour:
     amount: "250"
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     amount: "100"
-  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "100"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "1"
   resourceConsumptionRates:
-  - resource: {fileID: 11400000, guid: 86787e9ed92e8584e9a1fee8be3de341, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "1"
   - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
     amount: "1"

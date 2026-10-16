@@ -67,7 +67,7 @@
 | 10 | `IndustrialPower_10` | 工业 | `SteamPower`、`PowerGridEngineering`、`SteamPlant`、`CentralPowerStation`、`MachineFactory`、`ReinforcedBoilers` | 从机器转向能源责任，条件充分。 |
 | 11 | `IndustrialMaterials_11` | 工业 | `IndustrialMetalSmelting`、`RailwayEngineering`、`ElectricalCommunication`、`IndustrialExplosives`、`IndustrialMetalSmelter`、`RailHub`、`SteamPlant`、`StandardizedFreightContainers` | 铁路、冶炼和标准货运形成清晰生命线。 |
 | 12 | `IndustrialChemistry_12` | 工业 | `IndustrialChemistry`、`PetroleumExtraction`、`Coking`、`ChemicalPlant`、`RailHub`、`ContinuousDistillation` | 化工收益与污染/责任冲突匹配。 |
-| 13 | `IndustrialFrontier_13` | 工业 | `TitaniumAlloyEngineering`、`ChlorideTitaniumMetallurgy`、`TitaniumMetallurgicalComplex`、`ChemicalPlant` | 钛合金与发射准备完成工业到太空的过渡。 |
+| 13 | `IndustrialFrontier_13` | 工业 | `TitaniumAlloyEngineering`、`ChlorideTitaniumMetallurgy`、`TitaniumAlloySmelter`、`ChemicalPlant` | 钛合金与发射准备完成工业到太空的过渡。 |
 | 14 | `FrontierSectors_14` | 太空 | `HomeSystemSurvey`、`LaunchCenter`、`ReusableLaunchStages`、解锁并占领 `AzurePool` | 本星系测绘、发射与第一次月面殖民顺序正确；“近地/近月”术语需统一。 |
 | 15 | `WarBetweenStars_15` | 太空 | 深空舰队/导航/观测/造船/战斗后勤等研究、`Shipyard`、`DeepSpaceObservatory`、三项工坊、占领 `AzurePool` 与 `Terminus` | 从月面推进到太阳系边缘，补给主题强；伤亡与撤退判断不够显性。 |
 | 16 | `BeyondTheSky_16` | 太空 | 太空补给/轨道能源/轨道工程/幻影材料、`OrbitalSolarArray`、`OrbitalPowerBeaming`、占领 `Terminus` 与 `HeliosCore` | 从远方行星转向太阳能源前哨，顺序合理；母星侧取舍可加强。 |

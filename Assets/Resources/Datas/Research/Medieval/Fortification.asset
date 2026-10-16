@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Fortification
   Label: "防御工事规划"
-  Description: "规划防御工事与公共设施，降低全局建筑的建造阻力。"
+  Description: "统一公共工程的结构与施工规划，提高全局建造效率，降低建造材料需求。"
   BaseCost: "210000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}
@@ -24,7 +24,7 @@ MonoBehaviour:
     amount: "16800"
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "4550"
-  - resource: {fileID: 11400000, guid: 0f5be008baa2ae844980295b49153316, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "2100"
   effects:
   - Type: 5

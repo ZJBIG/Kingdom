@@ -77,7 +77,9 @@ public sealed class StoryChapterCard : MonoBehaviour
         rebuilding = true;
         expanded &= completed;
         IsExpanded = expanded;
-        body.text = !completed ? "这段文明记忆尚未完成。"
+        TechLevel currentEra = GameManager.TryGetInstance(out GameManager game)
+            ? game.State.TechLevel : TechLevel.Animal;
+        body.text = !completed ? StoryManager.GetChapterProgressHint(chapter, currentEra)
             : expanded ? chapter.Summary + "\n\n" + chapter.Body : chapter.Summary;
         bool showImage = expanded && chapter.Illustration != null;
         // A locked card holds no sprite reference, even while its frame is hidden.

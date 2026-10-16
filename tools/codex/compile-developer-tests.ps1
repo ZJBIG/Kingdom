@@ -88,6 +88,10 @@ foreach ($name in $selected) {
 
     $filteredLines = foreach ($line in Get-Content -LiteralPath $sourceResponseFile.FullName) {
         if ($line -match "^-out:" -or $line -match "^-refout:") { continue }
+        if ($line -match '^"(?<path>Assets/.+\.cs)"$' -and
+            -not (Test-Path -LiteralPath (Join-Path $repositoryRoot $Matches.path))) {
+            continue
+        }
         if ($line -match 'Kingdom\.Runtime\.ref\.dll') {
             "-r:`"$($currentRuntime.Replace('\', '/'))`""
             continue

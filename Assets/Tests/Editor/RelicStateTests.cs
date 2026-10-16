@@ -85,7 +85,6 @@ public sealed class RelicStateTests
         Assert.That(state.SupportReady, Is.True);
     }
 
-    [TestCase(0)]
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
@@ -105,7 +104,6 @@ public sealed class RelicStateTests
         RelicStateSaveData data = target.CaptureSaveDataForEditor();
         switch (invalidCase)
         {
-            case 0: data.SaveVersion++; break;
             case 1: data.RelicId = "OtherRelic"; break;
             case 2: data.Progress = "NaN"; break;
             case 3: data.Progress = "1"; break;

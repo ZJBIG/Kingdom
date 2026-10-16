@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalSolarArray
   Label: "轨道太阳能阵列"
-  Description: "在轨道部署可扩展的太阳能板、铜质汇流排、锡基焊接接点与能量传输设备，为航天基础设施提供稳定电力；阵列需要持续使用复合材料维护。"
+  Description: "在轨道部署太阳能板、导电母线和定向输电设备，持续供电；需要复合材料、钛合金与电气部件维护。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: "1.22"
@@ -45,7 +45,7 @@ MonoBehaviour:
     amount: "250"
   - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
     amount: "500"
-  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "240"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "240"

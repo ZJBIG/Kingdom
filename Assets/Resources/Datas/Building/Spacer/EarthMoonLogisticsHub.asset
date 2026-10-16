@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EarthMoonLogisticsHub
   m_EditorClassIdentifier: 
   id: EarthMoonLogisticsHub
-  Label: \u5730\u6708\u7269\u6D41\u4E2D\u67A2
-  Description: \u5728\u6708\u7403\u8F68\u9053\u533A\u5EFA\u7ACB\u7684\u552F\u4E00\u7269\u6D41\u67A2\u7EBD\uFF0C\u5C06\u6708\u9762\u539F\u6750\u3001\u53D1\u5C04\u8FD0\u529B\u4E0E\u5730\u6708\u822A\u7EBF\u7EDF\u4E00\u8C03\u5EA6\uFF0C\u4E3A\u6DF1\u7A7A\u8230\u961F\u63D0\u4F9B\u6301\u7EED\u540E\u52E4\u4E0E\u9632\u5FA1\u652F\u6301\u3002
+  Label: "地月物流中枢"
+  Description: "月球轨道区的专属物流枢纽，统一调度地月货运，增加物流供给，并为舰队与基地防御提供支援。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.01

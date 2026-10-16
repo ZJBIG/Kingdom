@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MetalMine
   m_EditorClassIdentifier: 
   id: MetalMine
-  Label: "\u591A\u91D1\u5C5E\u77FF\u573A"
-  Description: "\u4ECE\u540C\u4E00\u77FF\u533A\u5206\u9009\u94DC\u3001\u9521\u3001\u94C1\u77FF\u77F3\uFF0C\u7528\u4E00\u5EA7\u77FF\u573A\u652F\u6491\u591A\u6761\u65E9\u671F\u51B6\u70BC\u94FE\u3002"
+  Label: "低级金属矿场"
+  Description: "开采低级金属矿，为基础金属冶炼和早期工具工艺提供统一原料。"
   TechLevel: 1
   upgradeTo: {fileID: 11400000, guid: 00e6d4062fd67694882028341311d791, type: 2}
   costGrowth: "1.15"
@@ -41,11 +41,7 @@ MonoBehaviour:
     amount: "140"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "1"
-  - resource: {fileID: 11400000, guid: ecd0719989ed783439d0b85e4f61749a, type: 2}
-    amount: "0.8"
-  - resource: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
-    amount: "0.8"
+    amount: "2.6"
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: cd344edfb133f8249aad441aaa4c5002, type: 2}

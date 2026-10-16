@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SelfRepairingFleetArchitecture
   m_EditorClassIdentifier: 
   id: SelfRepairingFleetArchitecture
-  Label: "Self-Repairing Fleet Architecture"
-  Description: "A distributed repair architecture that reduces fleet recovery cost by coordinating the Ultra fabricator, orbital power and existing fleet maintenance systems."
+  Label: "舰队自修复架构"
+  Description: "统一船体检修接口与自动维修工序，降低舰队维修材料费用。"
   BaseCost: "1.05e13"
   prerequisites:
   - {fileID: 11400000, guid: c4e8a1f7b2d94690ad35ef681c0b7a23, type: 2}

@@ -1830,12 +1830,6 @@ public struct ExpantaNum : IEquatable<ExpantaNum>, IComparable<ExpantaNum>, ICom
         return 16;
     }
 
-    private int GetDirectPentationLimit()
-    {
-        double baseValue;
-        return TryGetSignedScalar(out baseValue) && Math.Abs(baseValue) < 2d ? 3 : 2;
-    }
-
     private static int GetDirectLogIterationLimit() => 64;
 
     private ExpantaNum InfiniteTetration()

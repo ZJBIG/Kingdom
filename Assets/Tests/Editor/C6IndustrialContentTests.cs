@@ -135,8 +135,8 @@ public sealed class C6IndustrialContentTests
         "CopperWire",
         "Engine",
         "Concrete",
-        "BauxiteOre",
-        "Aluminum",
+        "AdvancedMetalOre",
+        "AdvancedMetalIngot",
         "Explosives"
     };
 
@@ -153,17 +153,17 @@ public sealed class C6IndustrialContentTests
         "University",
         "RailHub",
         "IndustrialMetalSmelter",
-        "AluminumSmelter",
+        "AdvancedMetalSmelter",
         "CentralPowerStation",
-        "NickelRefinery",
-        "RareMetalMine",
+        "AdvancedMetalRefinery",
+        "IntegratedMetalMine",
         "MechanizedCoalMine",
         "IndustrialStoneworks",
         "IndustrialOilExtractionComplex",
         "IntegratedPetrochemicalComplex",
         "AdvancedCeramicsPlant",
         "MechanizedTextileMill",
-        "TitaniumMetallurgicalComplex"
+        "TitaniumAlloySmelter"
         , "IndustrialCarbonizationRetort", "IndustrialHabitationComplex"
     };
 
@@ -308,18 +308,15 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C605_IndustrialMetalSmelterProducesCopperTinAndIron()
+    public void C605_IndustrialMetalSmelterProducesBasicIngotsAndSteel()
     {
         Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Copper"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Tin"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Bronze"), Is.GreaterThan(0d));
+        Assert.That(FindRate(smelter.ResourceGenerationRates, "BasicMetalIngot"), Is.GreaterThan(0d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Steel"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceConsumptionRates, "CopperOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceConsumptionRates, "TinOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceGenerationRates, "Iron"), Is.GreaterThan(0d));
-        Assert.That(FindRate(smelter.ResourceConsumptionRates, "IronOre"), Is.GreaterThan(0d));
+        Assert.That(FindRate(smelter.ResourceConsumptionRates, "BasicMetalOre"), Is.GreaterThan(0d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "Steel"), Is.LessThanOrEqualTo(0d));
+        Assert.That(smelter.ResourceGenerationRates.Count, Is.EqualTo(2),
+            "The industrial furnace exposes only basic ingots and steel.");
     }
 
     [Test]
@@ -328,7 +325,7 @@ public sealed class C6IndustrialContentTests
         string[] buildingIds =
         {
             "MetalSmelter", "SteelForge", "IndustrialMetalSmelter",
-            "AluminumSmelter", "NickelRefinery", "TitaniumMetallurgicalComplex"
+            "AdvancedMetalSmelter", "AdvancedMetalRefinery", "TitaniumAlloySmelter"
         };
 
         foreach (string buildingId in buildingIds)
@@ -336,53 +333,57 @@ public sealed class C6IndustrialContentTests
             Building building = DataBase<Building>.Find(buildingId);
             double input = building.ResourceConsumptionRates.Sum(x => x.Second.ToDouble());
             double output = building.ResourceGenerationRates.Sum(x => x.Second.ToDouble());
-
             Assert.That(output, Is.LessThanOrEqualTo(input + 0.0001d),
-                $"{buildingId} 产出总质量 {output} 不得超过输入总质量 {input}");
+                $"{buildingId} output {output} exceeds its material input {input}.");
         }
 
-        Building early = DataBase<Building>.Find("MetalSmelter");
-        Assert.That(FindRate(early.ResourceGenerationRates, "Copper") +
-            FindRate(early.ResourceGenerationRates, "Bronze") / 2d,
-            Is.LessThanOrEqualTo(FindRate(early.ResourceConsumptionRates, "CopperOre") + 0.0001d));
-        Assert.That(FindRate(early.ResourceGenerationRates, "Tin") +
-            FindRate(early.ResourceGenerationRates, "Bronze") / 2d,
-            Is.LessThanOrEqualTo(FindRate(early.ResourceConsumptionRates, "TinOre") + 0.0001d));
-
-        Building industrial = DataBase<Building>.Find("IndustrialMetalSmelter");
-        Assert.That(FindRate(industrial.ResourceGenerationRates, "Tin") +
-            FindRate(industrial.ResourceGenerationRates, "Bronze") / 2d,
-            Is.LessThanOrEqualTo(FindRate(industrial.ResourceConsumptionRates, "TinOre") + 0.0001d));
-        Assert.That(FindRate(industrial.ResourceGenerationRates, "Iron") +
-            FindRate(industrial.ResourceGenerationRates, "Steel"),
-            Is.LessThanOrEqualTo(FindRate(industrial.ResourceConsumptionRates, "IronOre") + 0.0001d));
+        foreach (string buildingId in new[] { "MetalSmelter", "IndustrialMetalSmelter" })
+        {
+            Building building = DataBase<Building>.Find(buildingId);
+            double metals = FindRate(building.ResourceGenerationRates, "BasicMetalIngot") +
+                FindRate(building.ResourceGenerationRates, "Steel");
+            Assert.That(metals, Is.GreaterThan(0d));
+            Assert.That(metals,
+                Is.LessThanOrEqualTo(FindRate(building.ResourceConsumptionRates, "BasicMetalOre") + 0.0001d),
+                "Fuel cannot stand in for the metal ore mass balance.");
+        }
     }
 
     [Test]
-    public void C612_IndustrialMultiMetalMineRecoversCommonOres()
+    public void C612_IndustrialMetalMineSuppliesThreeOreTiers()
     {
-        Building mine = DataBase<Building>.Find("RareMetalMine");
-        WorkshopUpgrade separation =
-            DataBase<WorkshopUpgrade>.Find("HeavyMineralSeparationSystem");
-        Assert.That(separation, Is.Not.Null);
+        Building mine = DataBase<Building>.Find("IntegratedMetalMine");
+        WorkshopUpgrade separation = DataBase<WorkshopUpgrade>.Find("MetalOreSeparationSystem");
         Assert.That(mine.RequiredWorkshopUpgrades, Does.Contain(separation));
-        Assert.That(mine.Label, Does.Contain("多金属"));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "BauxiteOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "CopperOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "TinOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "IronOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "TitaniumConcentrate"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "NickelConcentrate"), Is.GreaterThan(0d));
+        foreach (string id in new[] { "BasicMetalOre", "AdvancedMetalOre", "SpecialMetalOre" })
+            Assert.That(FindRate(mine.ResourceGenerationRates, id), Is.GreaterThan(0d), id);
+        Assert.That(mine.ResourceGenerationRates.Count, Is.EqualTo(3),
+            "The consolidated mine supplies exactly three metal ore tiers.");
     }
 
     [Test]
-    public void 石器时代多金属矿场同时供应铜锡铁矿()
+    public void 石器时代矿场统一供应低级金属矿()
     {
         Building mine = DataBase<Building>.Find("MetalMine");
-        Assert.That(mine, Is.Not.Null);
-        Assert.That(FindRate(mine.ResourceGenerationRates, "CopperOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "TinOre"), Is.GreaterThan(0d));
-        Assert.That(FindRate(mine.ResourceGenerationRates, "IronOre"), Is.GreaterThan(0d));
+        Assert.That(FindRate(mine.ResourceGenerationRates, "BasicMetalOre"), Is.GreaterThan(0d));
+        Assert.That(mine.ResourceGenerationRates.Count, Is.EqualTo(1),
+            "Early mining supplies one shared basic ore inventory.");
+    }
+
+    [Test]
+    public void AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency()
+    {
+        Building lower = DataBase<Building>.Find("AdvancedMetalSmelter");
+        Building upper = DataBase<Building>.Find("AdvancedMetalRefinery");
+        Assert.That(lower.UpgradeTo, Is.SameAs(upper));
+        double lowerOutput = FindRate(lower.ResourceGenerationRates, "AdvancedMetalIngot");
+        double upperOutput = FindRate(upper.ResourceGenerationRates, "AdvancedMetalIngot");
+        Assert.That(lowerOutput, Is.GreaterThan(0d));
+        Assert.That(upperOutput, Is.GreaterThan(lowerOutput));
+        Assert.That(upper.ResourceGenerationRates.Count, Is.EqualTo(1));
+        Assert.That(FindRate(upper.ResourceConsumptionRates, "AdvancedMetalOre"), Is.GreaterThan(0d));
+        Assert.That(upper.ProductivityConsumption.ToDouble() / upperOutput,
+            Is.LessThanOrEqualTo(lower.ProductivityConsumption.ToDouble() / lowerOutput + 0.0001d));
     }
 
     [Test]
@@ -390,16 +391,16 @@ public sealed class C6IndustrialContentTests
     {
         WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find("PoweredMining");
         Assert.That(workshop, Is.Not.Null);
-        Assert.That(HasBuildingEffect(workshop, "RareMetalMine", 1.2d), Is.True);
+        Assert.That(HasBuildingEffect(workshop, "IntegratedMetalMine", 1.2d), Is.True);
         Assert.That(HasBuildingEffect(workshop, "MechanizedCoalMine", 1.2d), Is.True);
     }
 
     [Test]
     public void 工业多金属矿的研究与分离工艺都必须作用于同一上位矿场()
     {
-        Building mine = DataBase<Building>.Find("RareMetalMine");
-        Research development = DataBase<Research>.Find("RareMetalResourceDevelopment");
-        WorkshopUpgrade separation = DataBase<WorkshopUpgrade>.Find("HeavyMineralSeparationSystem");
+        Building mine = DataBase<Building>.Find("IntegratedMetalMine");
+        Research development = DataBase<Research>.Find("IntegratedMetalResourceDevelopment");
+        WorkshopUpgrade separation = DataBase<WorkshopUpgrade>.Find("MetalOreSeparationSystem");
 
         Assert.That(mine, Is.Not.Null);
         Assert.That(development, Is.Not.Null);
@@ -417,32 +418,18 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void 工业多金属矿必须真正替代基础铜锡铁矿场()
+    public void 工业综合矿场必须真正替代低级金属矿场()
     {
         Building lower = DataBase<Building>.Find("MetalMine");
-        Building upper = DataBase<Building>.Find("RareMetalMine");
-
-        Assert.That(lower, Is.Not.Null);
-        Assert.That(upper, Is.Not.Null);
-        Assert.That(lower.UpgradeTo, Is.EqualTo(upper));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "CopperOre"),
-            Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "CopperOre")));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "TinOre"),
-            Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "TinOre")));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "IronOre"),
-            Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "IronOre")));
+        Building upper = DataBase<Building>.Find("IntegratedMetalMine");
+        Assert.That(lower.UpgradeTo, Is.SameAs(upper));
+        Assert.That(FindRate(upper.ResourceGenerationRates, "BasicMetalOre"),
+            Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "BasicMetalOre")));
         Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
-        Assert.That(smelter, Is.Not.Null);
-        Assert.That(FindRate(upper.ResourceGenerationRates, "CopperOre"),
-            Is.GreaterThanOrEqualTo(FindRate(smelter.ResourceConsumptionRates, "CopperOre")));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "TinOre"),
-            Is.GreaterThanOrEqualTo(FindRate(smelter.ResourceConsumptionRates, "TinOre")));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "IronOre"),
-            Is.GreaterThanOrEqualTo(FindRate(smelter.ResourceConsumptionRates, "IronOre")));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "NickelConcentrate"),
-            Is.GreaterThan(0d));
-        Assert.That(FindRate(upper.ResourceGenerationRates, "TitaniumConcentrate"),
-            Is.GreaterThan(0d));
+        Assert.That(FindRate(upper.ResourceGenerationRates, "BasicMetalOre"),
+            Is.GreaterThanOrEqualTo(FindRate(smelter.ResourceConsumptionRates, "BasicMetalOre")));
+        Assert.That(FindRate(upper.ResourceGenerationRates, "AdvancedMetalOre"), Is.GreaterThan(0d));
+        Assert.That(FindRate(upper.ResourceGenerationRates, "SpecialMetalOre"), Is.GreaterThan(0d));
     }
 
     [Test]
@@ -450,12 +437,9 @@ public sealed class C6IndustrialContentTests
     {
         string[] outputIds =
         {
-            "BauxiteOre",
-            "CopperOre",
-            "TinOre",
-            "IronOre",
-            "TitaniumConcentrate",
-            "NickelConcentrate"
+            "AdvancedMetalOre",
+            "BasicMetalOre",
+            "SpecialMetalOre"
         };
 
         for (int i = 0; i < outputIds.Length; i++)
@@ -559,23 +543,14 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C614_SeparateBauxiteMineWasRemovedAfterUnifiedMineMigration()
-    {
-        Assert.That(
-            DataBase<Building>.TryFind("BauxiteMine", out Building bauxiteMine),
-            Is.False);
-        Assert.That(bauxiteMine, Is.Null);
-        Assert.That(DataBase<Building>.Find("RareMetalMine"), Is.Not.Null);
-    }
-
-    [Test]
-    public void C609_MachineFactoryConsumesRubberForEngineProduction()
+    public void C609_MachineFactoryStartsBeforeAdvancedMetalAndPetrochemicalSupply()
     {
         Building factory = DataBase<Building>.Find("MachineFactory");
         Assert.That(factory, Is.Not.Null, "机器制造厂定义不能为空。");
         Assert.That(FindRate(factory.ResourceGenerationRates, "Engine"), Is.GreaterThan(0d));
-        Assert.That(FindRate(factory.ResourceConsumptionRates, "Rubber"),
-            Is.GreaterThan(0d), "机器制造厂应消耗橡胶来生产发动机。");
+        foreach (string resourceId in new[] { "Rubber", "Lubricant", "AdvancedMetalIngot" })
+            Assert.That(FindRate(factory.ResourceConsumptionRates, resourceId),
+                Is.LessThanOrEqualTo(0d), "基础机器厂不能依赖需要机器才能建设的上游：" + resourceId);
     }
 
     [Test]
@@ -602,7 +577,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialWorkshopEffectsMatchTheirTargetBuildingSystems()
     {
-        Assert.That(HasTypedBuildingEffect("AluminumBusbars", "CentralPowerStation",
+        Assert.That(HasTypedBuildingEffect("ConductiveBusbars", "CentralPowerStation",
             WorkshopEffectType.BuildingPowerProductionMultiplier), Is.True);
         Assert.That(HasTypedBuildingEffect("ElectricalInstrumentation", "CentralPowerStation",
             WorkshopEffectType.BuildingPowerProductionMultiplier), Is.True);
@@ -622,7 +597,7 @@ public sealed class C6IndustrialContentTests
         AssertResearchWorkshopValuesDiffer(
             "MechanizedForestry", "MechanizedForestryEquipment", "MechanizedLumberyard");
         AssertResearchWorkshopValuesDiffer(
-            "RareMetalResourceDevelopment", "HeavyMineralSeparationSystem", "RareMetalMine");
+            "IntegratedMetalResourceDevelopment", "MetalOreSeparationSystem", "IntegratedMetalMine");
         AssertResearchWorkshopValuesDiffer(
             "AdvancedCeramicEngineering", "AdvancedCeramicFiring", "AdvancedCeramicsPlant");
         AssertResearchWorkshopValuesDiffer(
@@ -848,9 +823,9 @@ public sealed class C6IndustrialContentTests
     }
 
     [Test]
-    public void C603_IndustrialEraRetainsCoalCopperIronAndSteelUses()
+    public void C603_IndustrialEraRetainsCoalBasicMetalAndSteelUses()
     {
-        var legacyIndustrialResources = new[] { "Coal", "Copper", "Iron", "Steel" };
+        var legacyIndustrialResources = new[] { "Coal", "BasicMetalIngot", "Steel" };
         for (int i = 0; i < legacyIndustrialResources.Length; i++)
         {
             Assert.That(CountConsumerBuildings(legacyIndustrialResources[i]), Is.GreaterThan(0),
@@ -898,7 +873,7 @@ public sealed class C6IndustrialContentTests
             ["Quarry"] = "IndustrialStoneworks",
             ["StoneCuttingWorkshop"] = "IndustrialStoneworks",
             ["CoalMine"] = "MechanizedCoalMine",
-            ["MetalMine"] = "RareMetalMine",
+            ["MetalMine"] = "IntegratedMetalMine",
             ["ClayPit"] = "AdvancedCeramicsPlant",
             ["CeramicKiln"] = "AdvancedCeramicsPlant",
             ["CharcoalKiln"] = "IndustrialCarbonizationRetort",
@@ -909,7 +884,8 @@ public sealed class C6IndustrialContentTests
             ["IrrigationWorks"] = "PlantingField",
             ["MetalSmelter"] = "IndustrialMetalSmelter",
             ["SteelForge"] = "IndustrialMetalSmelter",
-            ["SteamPlant"] = "CentralPowerStation"
+            ["SteamPlant"] = "CentralPowerStation",
+            ["AdvancedMetalSmelter"] = "AdvancedMetalRefinery"
         };
 
         foreach (var pair in expected)
@@ -931,7 +907,7 @@ public sealed class C6IndustrialContentTests
             { "Lumberyard", "MechanizedLumberyard" },
             { "Quarry", "IndustrialStoneworks" },
             { "CoalMine", "MechanizedCoalMine" },
-            { "MetalMine", "RareMetalMine" },
+            { "MetalMine", "IntegratedMetalMine" },
             { "ClayPit", "AdvancedCeramicsPlant" },
             { "CeramicKiln", "AdvancedCeramicsPlant" },
             { "FiberGatheringCamp", "PlantingField" },
@@ -1082,8 +1058,8 @@ public sealed class C6IndustrialContentTests
     {
         AssertResourceMetadata("Concrete");
         AssertResourceMetadata("Explosives");
-        AssertResourceMetadata("BauxiteOre");
-        AssertResourceMetadata("Aluminum");
+        AssertResourceMetadata("AdvancedMetalOre");
+        AssertResourceMetadata("AdvancedMetalIngot");
     }
 
     [Test]

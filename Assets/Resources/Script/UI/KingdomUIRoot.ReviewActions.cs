@@ -26,7 +26,6 @@ public sealed partial class KingdomUIRoot
     public void ShowBuildingDetailsForEditor(Building building) => ShowBuildingDetails(building);
     public void ShowResearchDetailsForEditor(Research research) => ShowResearchDetails(research);
     public void ShowSectorDetailsForEditor(SectorDefinition sector) => RefreshSectorDetails(sector);
-    public void NavigateReviewLinkForEditor(string id) => NavigateReviewLink(id);
     public Building SelectedBuildingForEditor => selectedBuilding;
     public Button ReviewLocateForEditor => reviewLocate;
     public Button ReviewRepairForEditor => reviewRepair;
@@ -50,14 +49,14 @@ public sealed partial class KingdomUIRoot
         root.Find("Confirmation/Panel/Actions/Cancel").GetComponent<Button>().onClick.AddListener(CancelReviewConfirmation);
         reviewDetailTools = root.Find("DetailTools");
         reviewDetailTools.SetParent(detailPanel.Find("DetailUI"), false);
-        reviewLocate = ReviewButton(reviewDetailTools, "Locate", LocateSelectedDetail);
+        reviewLocate = reviewDetailTools.Find("Locate").GetComponent<Button>();
         reviewEarlier = ReviewButton(reviewDetailTools, "Earlier", () => MoveSelectedResearch(-1));
         reviewLater = ReviewButton(reviewDetailTools, "Later", () => MoveSelectedResearch(1));
         reviewRepair = ReviewButton(reviewDetailTools, "Repair", PreviewFleetRepair);
         reviewDetailHeading = detailPanel.Find("DetailUI/Header/HeaderLabel").gameObject;
         reviewPageTools = root.Find("PageTools"); reviewPageTools.SetParent(content.Find("PageTool"), false);
         reviewCurrentResearch = ReviewButton(reviewPageTools, "CurrentResearch", () => NavigateToOverviewResearch(ResearchManager.Instance?.ActiveResearch?.Definition));
-        reviewResetResearch = ReviewButton(reviewPageTools, "ResetResearch", () => researchGraphGesture?.RestoreView(Vector2.zero, 1f));
+        reviewResetResearch = ReviewButton(reviewPageTools, "ResetResearch", () => researchGraphGesture?.ResetView(DefaultResearchScale));
         reviewOffline = ReviewButton(reviewPageTools, "Offline", () =>
         {
             offlineSummaryExpanded = !offlineSummaryExpanded; renderedOfflineSummary = null; RefreshUI();
@@ -106,12 +105,11 @@ public sealed partial class KingdomUIRoot
     private void RefreshReviewControls()
     {
         RefreshDetailPin();
-        RefreshResourceTreeVisibility();
+        RefreshProductionEntry();
         if (reviewDetailTools == null) return;
         ObserveStrategicSupplyPause();
         bool research = selectedResearchNode != null;
-        reviewLocate.gameObject.SetActive(research || selectedBuilding != null);
-        SetTextIfChanged(reviewLocate.GetComponentInChildren<TMP_Text>(), research ? "定位研究图" : "定位建筑列表");
+        reviewLocate.gameObject.SetActive(false);
         int index = SelectedQueueIndex();
         ResearchManager manager = ResearchManager.Instance;
         reviewEarlier.gameObject.SetActive(research && index >= 0);
@@ -122,7 +120,7 @@ public sealed partial class KingdomUIRoot
         reviewRepair.gameObject.SetActive(sector != null && sector.CampaignCasualties > ExpantaNum.Zero);
         if (sector != null && selectedSectorDefinition != null)
             reviewRepair.interactable = GameManager.Instance.Sectors.GetMaxAffordableFleetRepair(selectedSectorDefinition, GameManager.Instance.State, ResourceManager.Instance) > ExpantaNum.Zero;
-        bool hasDetailTools = research || selectedBuilding != null || (sector != null && sector.CampaignCasualties > ExpantaNum.Zero);
+        bool hasDetailTools = (research && index >= 0) || (sector != null && sector.CampaignCasualties > ExpantaNum.Zero);
         reviewDetailTools.gameObject.SetActive(hasDetailTools);
         reviewDetailHeading.SetActive(!hasDetailTools);
         bool overview = populatedPage == "Overview", graph = populatedPage == "Research";
@@ -153,12 +151,6 @@ public sealed partial class KingdomUIRoot
         { RefreshResearchQueueToolbar(); ShowResearchDetails(selectedResearchNode); }
         RefreshReviewControls();
     }
-    private void LocateSelectedDetail()
-    {
-        if (selectedResearchNode != null) NavigateToOverviewResearch(selectedResearchNode);
-        else if (selectedBuilding != null) NavigateToBuildingRow(selectedBuilding);
-    }
-
     private void NavigateToBuildingRow(Building building)
     {
         if (building == null) return;
@@ -234,18 +226,6 @@ public sealed partial class KingdomUIRoot
         ConfirmReviewAction(warning.ToString(), () => RepairSectorFleet(sector));
     }
 
-    private static void AppendSaveFeedback(StringBuilder text)
-    {
-        if (!SaveManager.TryGetInstance(out SaveManager save)) return;
-        text.Append("\n\n存档：");
-        if (save.LastSaveFailed) text.Append("保存失败，使用“保存 / 重试”重试：").Append(save.LastSaveError);
-        else if (save.LastSuccessfulSaveUnixSeconds > 0)
-            text.Append("最近成功 ").Append(DateTimeOffset.FromUnixTimeSeconds(save.LastSuccessfulSaveUnixSeconds).ToLocalTime().ToString("HH:mm:ss"));
-        else text.Append("本次尚未成功保存");
-        if (save.LastLoadFailed) text.Append("\n未加载有效存档，已开始新游戏。");
-        text.Append("\n食物日常净流含人口与常规生产；战略需粮另列工程、遗迹和远征需求。供给阻塞时实际扣除可能低于需求。储粮和幸福不能代替持续供粮。");
-    }
-
     private void AppendResourceSourceCandidates(StringBuilder text, Resource resource)
     {
         BuildingManager manager = BuildingManager.Instance;
@@ -305,8 +285,8 @@ public sealed partial class KingdomUIRoot
         if (manager == null) return;
         if (building.PopulationCapacityGranted > ExpantaNum.Zero)
         {
-            text.AppendLine("住房先增加人口容量，居民入住后才增加生产力和持续耗粮；不会即时赠送人口。容量 +" + building.PopulationCapacityGranted.ToGameString());
-            text.AppendLine("每座满员新增日常需粮：" + (building.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson).ToGameString() + "/s；入住后生产力：" + (building.PopulationCapacityGranted * PopulationState.ProductivityGrantedPerPerson * ProgressionModifierManager.Current.PopulationProductivityMultiplier).ToGameString());
+            text.AppendLine("每座新增人口容量 +" + building.PopulationCapacityGranted.ToGameString());
+            text.AppendLine("备足粮食并等待新居民入住后，才会增加生产力。每座满员新增需粮：" + (building.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson).ToGameString() + "/s；入住后生产力：" + (building.PopulationCapacityGranted * PopulationState.ProductivityGrantedPerPerson * ProgressionModifierManager.Current.PopulationProductivityMultiplier).ToGameString());
         }
         if (manager.GetState(building)?.Amount > ExpantaNum.Zero && manager.TryGetUnlockedUpgradeTarget(building, out Building target))
         {
@@ -330,20 +310,19 @@ public sealed partial class KingdomUIRoot
                 text.AppendLine("升级后基础持续投入 " + flow.First.Label + "：" + flow.Second.ToGameString() + "/s（生产倍率也增加吞吐需求）");
         }
         if (building.FoodCapacityGranted > ExpantaNum.Zero)
-            text.AppendLine("粮仓只延长可离开时间，不增加持续供粮；扩住房前先检查日常净粮和战略需粮。");
+            text.AppendLine("每座基础储粮空间 +" + building.FoodCapacityGranted.ToGameString() + "；满仓后，超出的粮食产出不会存入库存。");
         if (building.FoodProductionRate > ExpantaNum.Zero)
         {
             if (building.SpaceCost > ExpantaNum.Zero) text.AppendLine("基础粮食土地密度：" + (building.FoodProductionRate / building.SpaceCost).ToGameString() + "/s/土地");
-            if (building.ProductivityConsumption > ExpantaNum.Zero) text.AppendLine("基础单位生产力粮产：" + (building.FoodProductionRate / building.ProductivityConsumption).ToGameString() + "/s；更高土地密度不保证更高劳动效率，升级也不直接释放土地。");
+            if (building.ProductivityConsumption > ExpantaNum.Zero) text.AppendLine("基础单位生产力粮产：" + (building.FoodProductionRate / building.ProductivityConsumption).ToGameString() + "/s");
         }
         if (building.ResearchPowerGranted > ExpantaNum.Zero)
-            text.AppendLine("科研投资先占用材料与生产力，收益须在同一时段比较；已付款研究保持进度，缺料时投资科研不能替代生产链。");
+            text.AppendLine("先付清研究所需材料，研究力才会推进队首研究；扩建科研建筑可提高研究力。");
         if (building.Id == "AutonomousMatterFabricator" || building.PowerConsumptionRate > ExpantaNum.Zero || building.LogisticsConsumptionRate > ExpantaNum.Zero)
         {
             GameState state = GameManager.Instance.State;
-            text.AppendLine("新增一座的生产力需求：" + building.ProductivityConsumption.ToGameString() + "；当前余量：" + manager.AvailableProductivity.ToGameString());
-            text.AppendLine("新增电力需求：" + building.PowerConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.PowerProductionRate * state.HappinessRewardMultiplier - manager.TotalPowerDemand).ToGameString() + "/s");
-            text.AppendLine("新增物流需求：" + building.LogisticsConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.LogisticsProductionRate * state.HappinessRewardMultiplier - manager.TotalLogisticsDemand).ToGameString() + "/s。负余量会拖累现有链，需先筹备供给。");
+            text.AppendLine("每座满负荷用电：" + building.PowerConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.PowerProductionRate * state.HappinessRewardMultiplier - manager.TotalPowerDemand).ToGameString() + "/s");
+            text.AppendLine("每座满负荷物流需求：" + building.LogisticsConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.LogisticsProductionRate * state.HappinessRewardMultiplier - manager.TotalLogisticsDemand).ToGameString() + "/s。供给少于总需求时，现有建筑的效率也会下降。");
         }
     }
 
@@ -359,7 +338,7 @@ public sealed partial class KingdomUIRoot
         { text.AppendLine("剩余工期：当前供给不能推进，先补持续供给；暂停保留付款与进度。"); return; }
         ExpantaNum seconds = (ExpantaNum.One - ExpantaNum.Clamp01(preview.Progress)) / preview.ProgressPerSecond;
         text.AppendLine("按当前姿态与供给剩余工期：" + seconds.ToGameString() + " 秒（状态变化后重算）");
-        text.AppendLine("按当前供给冻结条件预计剩余持续食物投入：" + (preview.FoodPerSecond * seconds * preview.SupplySatisfaction).ToGameString());
+        text.AppendLine("维持当前供给至完成预计耗粮：" + (preview.FoodPerSecond * seconds * preview.SupplySatisfaction).ToGameString());
         foreach (var cost in preview.ContinuousCosts)
         {
             ExpantaNum remaining = cost.Second * seconds * preview.SupplySatisfaction;
@@ -372,9 +351,9 @@ public sealed partial class KingdomUIRoot
     {
         if (preview.ProgressPerSecond <= ExpantaNum.Zero)
         { text.AppendLine("当前战力 / 供给不能推进；继续会产生伤亡，先整备或终止战役。"); return; }
-        if (!preview.HasSupply) text.AppendLine("当前补给不足，无法维持推进；以下预算按补足供给后、当前战力与姿态冻结估计。");
+        if (!preview.HasSupply) text.AppendLine("当前补给不足，无法维持推进；以下预算按补齐供给后、维持当前舰队与姿态估算。");
         ExpantaNum seconds = preview.EstimatedSecondsRemaining;
-        text.AppendLine("按当前状态冻结预计剩余工期：" + seconds.ToGameString() + " 秒；持续食物投入：" + (preview.FoodCostPerSecond * seconds).ToGameString());
+        text.AppendLine("维持当前舰队与供给，预计还需：" + seconds.ToGameString() + " 秒；持续食物投入：" + (preview.FoodCostPerSecond * seconds).ToGameString());
         text.AppendLine("预计剩余伤亡：" + (preview.CasualtiesPerSecond * seconds).ToGameString() + "；当前库存可维持：" + preview.EstimatedSupplySeconds.ToGameString() + " 秒（不计未来产出）");
         foreach (var cost in preview.ResourceCostsPerSecond)
         {

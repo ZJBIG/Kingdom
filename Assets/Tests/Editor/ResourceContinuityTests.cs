@@ -22,14 +22,14 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 铝土矿必须进入铝冶金研究与后续冶炼链()
     {
-        Research aluminumMetallurgy = DataBase<Research>.Find("AluminumMetallurgy");
+        Research advancedMetalMetallurgy = DataBase<Research>.Find("AdvancedMetalMetallurgy");
 
         Assert.That(
-            HasPositiveRequirement(aluminumMetallurgy, "CopperWire"),
+            HasPositiveRequirement(advancedMetalMetallurgy, "CopperWire"),
             Is.True,
             "铝冶金研究必须消耗铝土矿样品，保持矿场到冶炼链的长期用途。");
         Assert.That(
-            HasBuildingGeneration("AluminumSmelter", "Aluminum"),
+            HasBuildingGeneration("AdvancedMetalSmelter", "AdvancedMetalIngot"),
             Is.True);
     }
 
@@ -39,7 +39,7 @@ public sealed class ResourceContinuityTests
         Research transition = DataBase<Research>.Find("FeudalAdministration");
 
         Assert.That(transition.Prerequisites.Select(research => research.Id),
-            Is.EquivalentTo(new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" }));
+            Is.EquivalentTo(new[] { "BronzeAlloyCrafting", "IronworkingAndSteelmaking", "WrittenRecords" }));
         Assert.That(HasPositiveRequirement(transition, "StoneBrick"), Is.True);
         Assert.That(HasPositiveRequirement(transition, "Cloth"), Is.True);
     }
@@ -64,23 +64,23 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 工业中间矿物必须连接到太空长期材料链()
     {
-        Assert.That(HasBuildingGeneration("AluminumSmelter", "Aluminum"), Is.True);
+        Assert.That(HasBuildingGeneration("AdvancedMetalSmelter", "AdvancedMetalIngot"), Is.True);
 
-        Assert.That(HasBuildingGeneration("NickelRefinery", "Nickel"), Is.True);
-        Assert.That(HasLaterEraUse("Nickel"), Is.True);
+        Assert.That(HasBuildingGeneration("AdvancedMetalRefinery", "AdvancedMetalIngot"), Is.True);
+        Assert.That(HasLaterEraUse("AdvancedMetalIngot"), Is.True);
 
-        Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "TitaniumConcentrate"), Is.True);
-        Assert.That(HasBuildingGeneration("TitaniumMetallurgicalComplex", "TitaniumAlloy"), Is.True);
+        Assert.That(HasBuildingConsumption("TitaniumAlloySmelter", "SpecialMetalOre"), Is.True);
+        Assert.That(HasBuildingGeneration("TitaniumAlloySmelter", "TitaniumAlloy"), Is.True);
         Assert.That(HasLaterEraUse("TitaniumAlloy"), Is.True);
     }
 
     [Test]
-    public void 锡必须进入轨道电力硬件的跨时代链条()
+    public void 基础金属必须进入轨道电力硬件的跨时代链条()
     {
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalEngineering"), "Tin"), Is.True);
-        Assert.That(HasBuildingRequirement("OrbitalSolarArray", "Tin"), Is.True);
-        Assert.That(HasWorkshopRequirement("OrbitalPowerBeaming", "Tin"), Is.True);
-        Assert.That(HasLaterEraUse("Tin"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalEngineering"), "BasicMetalIngot"), Is.True);
+        Assert.That(HasBuildingRequirement("OrbitalSolarArray", "BasicMetalIngot"), Is.True);
+        Assert.That(HasWorkshopRequirement("OrbitalPowerBeaming", "BasicMetalIngot"), Is.True);
+        Assert.That(HasLaterEraUse("BasicMetalIngot"), Is.True);
     }
 
     [Test]
@@ -123,8 +123,8 @@ public sealed class ResourceContinuityTests
     {
         string[] industrialResources =
         {
-            "Nickel", "Rubber", "Chemical", "Glass", "Electronics",
-            "Engine", "Aluminum", "RefinedFuel", "Lubricant", "Coke"
+            "AdvancedMetalIngot", "Rubber", "Chemical", "Glass", "Electronics",
+            "Engine", "RefinedFuel", "Lubricant", "Coke"
         };
 
         for (int i = 0; i < industrialResources.Length; i++)
@@ -156,9 +156,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 基础金属矿必须通过统一冶炼进入跨时代材料链()
     {
-        Assert.That(HasBuildingGeneration("IndustrialMetalSmelter", "Copper"), Is.True);
-        Assert.That(HasBuildingGeneration("IndustrialMetalSmelter", "Tin"), Is.True);
-        Assert.That(HasBuildingGeneration("IndustrialMetalSmelter", "Iron"), Is.True);
+        Assert.That(HasBuildingGeneration("IndustrialMetalSmelter", "BasicMetalIngot"), Is.True);
         Assert.That(HasLaterEraUse("Steel"), Is.True);
         Assert.That(HasLaterEraUse("CopperWire"), Is.True);
     }
@@ -166,9 +164,9 @@ public sealed class ResourceContinuityTests
     [Test]
     public void IndustrialIntermediateMineralsEnterTheirMatchingPhysicalWorkshops()
     {
-        Assert.That(HasWorkshopRequirement("AluminumElectrolyticCells", "BauxiteOre"), Is.True);
-        Assert.That(HasWorkshopRequirement("NickelLeachingElectrowinningSystem", "NickelConcentrate"), Is.True);
-        Assert.That(HasWorkshopRequirement("TitaniumReductionRetorts", "TitaniumConcentrate"), Is.True);
+        Assert.That(HasWorkshopRequirement("AdvancedMetalElectrolyticCells", "AdvancedMetalOre"), Is.True);
+        Assert.That(HasWorkshopRequirement("PressureLeachingElectrowinningSystem", "AdvancedMetalOre"), Is.True);
+        Assert.That(HasWorkshopRequirement("ChlorideReductionRetorts", "SpecialMetalOre"), Is.True);
     }
 
     [Test]
@@ -191,7 +189,7 @@ public sealed class ResourceContinuityTests
         Assert.That(HasBuildingConsumptionRate("OrbitalHabitatMegastructure", "Electronics", 0.10d), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Chemical"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Rubber"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalHabitation"), "Biomass"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalStationEngineering"), "Biomass"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalLifeSupportNetworks", "Biomass"), Is.True);
         Assert.That(HasLaterEraUse("Biomass"), Is.True);
     }
@@ -222,7 +220,7 @@ public sealed class ResourceContinuityTests
     public void 太空居住链的基础生物质用量必须显著高于高级材料()
     {
         Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Research habitation = DataBase<Research>.Find("OrbitalHabitation");
+        Research habitation = DataBase<Research>.Find("OrbitalStationEngineering");
         WorkshopUpgrade lifeSupport = DataBase<WorkshopUpgrade>.Find("OrbitalLifeSupportNetworks");
 
         Assert.That(GetBuildingAmount(habitat, "Biomass"), Is.GreaterThan(
@@ -270,13 +268,13 @@ public sealed class ResourceContinuityTests
     }
 
     [Test]
-    public void 轨道空间站必须使用镍基耐热材料并持续维护()
+    public void 轨道空间站必须使用高级金属材料并持续维护()
     {
         Building station = DataBase<Building>.Find("OrbitalStation");
 
         Assert.That(station, Is.Not.Null);
-        Assert.That(GetBuildingAmount(station, "Nickel"), Is.GreaterThan(0d));
-        Assert.That(HasBuildingConsumptionRate("OrbitalStation", "Nickel", 0.04d), Is.True);
+        Assert.That(GetBuildingAmount(station, "AdvancedMetalIngot"), Is.GreaterThan(0d));
+        Assert.That(HasBuildingConsumptionRate("OrbitalStation", "AdvancedMetalIngot", 0.04d), Is.True);
     }
 
     [Test]
@@ -325,7 +323,7 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingGeneration("ChemicalPlant", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("OilDerrick", "Explosives"), Is.True);
-        Assert.That(HasBuildingConsumption("RareMetalMine", "Explosives"), Is.True);
+        Assert.That(HasBuildingConsumption("IntegratedMetalMine", "Explosives"), Is.True);
         Assert.That(HasBuildingConsumption("RailHub", "Explosives"), Is.True);
         Assert.That(HasBuildingRequirement("OilRefinery", "Chemical"), Is.True);
     }
@@ -432,15 +430,15 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 工业中间资源必须继续支撑太空设施与后期工坊()
     {
-        Assert.That(HasLaterEraUse("Nickel"), Is.True);
+        Assert.That(HasLaterEraUse("AdvancedMetalIngot"), Is.True);
         Assert.That(HasLaterEraUse("Rubber"), Is.True);
         Assert.That(HasLaterEraUse("Lubricant"), Is.True);
 
-        Assert.That(HasBuildingConsumption("TitaniumMetallurgicalComplex", "NickelConcentrate"), Is.True);
+        Assert.That(HasBuildingConsumption("TitaniumAlloySmelter", "AdvancedMetalOre"), Is.True);
         Assert.That(HasBuildingConsumption("Shipyard", "Rubber"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalStation", "Lubricant"), Is.True);
 
-        Assert.That(HasWorkshopRequirement("AdvancedCompositeLayup", "Nickel"), Is.True);
+        Assert.That(HasWorkshopRequirement("AdvancedCompositeLayup", "AdvancedMetalIngot"), Is.True);
         Assert.That(HasWorkshopRequirement("AutonomousFleetLogistics", "Rubber"), Is.True);
         Assert.That(HasWorkshopRequirement("AutonomousFleetLogistics", "Lubricant"), Is.True);
     }

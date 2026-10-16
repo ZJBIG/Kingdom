@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// 所有可通过 DataBase 查询的只读游戏定义基类。
-/// Id 是代码与存档使用的稳定标识；显示名称和 Unity 资产名称可以独立修改。
+/// Id 是代码与存档使用的语义标识；资产文件名和 Unity 资产名与 Id 一致，Label 使用对应的显示名称。
 /// </summary>
 public abstract class GameDefinition : ScriptableObject
 {

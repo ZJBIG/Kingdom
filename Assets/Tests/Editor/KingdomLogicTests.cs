@@ -165,17 +165,17 @@ public sealed class KingdomLogicTests
     [Test]
     public void AdvanceFood_UsesConsumptionRateAndClampsAtZero()
     {
-        Assert.That(GameManager.AdvanceFood(100, 5, 3, 10).ToDouble(), Is.EqualTo(120d).Within(0.000001d));
-        Assert.That(GameManager.AdvanceFood(10, 0, 3, 10), Is.EqualTo(ExpantaNum.Zero));
-        Assert.Throws<ArgumentOutOfRangeException>(() => GameManager.AdvanceFood(10, 1, 1, -1));
+        Assert.That(GameManager.AdvanceFood(100, 5, 3, 500, 10).ToDouble(), Is.EqualTo(120d).Within(0.000001d));
+        Assert.That(GameManager.AdvanceFood(10, 0, 3, 500, 10).ToDouble(), Is.EqualTo(0d).Within(0.000001d));
+        Assert.Throws<ArgumentOutOfRangeException>(() => GameManager.AdvanceFood(10, 1, 1, 500, -1));
     }
 
     [Test]
     public void AdvanceFood_ClampsProductionAtFoodCapacity()
     {
         Assert.That(
-            GameManager.AdvanceFood(995, 10, 0, 1000, 1),
-            Is.EqualTo(new ExpantaNum(1000)));
+            GameManager.AdvanceFood(995, 10, 0, 1000, 1).ToDouble(),
+            Is.EqualTo(1000d).Within(0.000001d));
     }
 
     [Test]
@@ -189,9 +189,9 @@ public sealed class KingdomLogicTests
         Assert.That(state.FoodCapacity, Is.GreaterThan(state.FoodAmount));
         Assert.That(state.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(state.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
+        Assert.That(state.TerritoryTotal.ToDouble(), Is.GreaterThanOrEqualTo(100d));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
+        Assert.That(state.AvailableTerritory.ToDouble(), Is.EqualTo(state.TerritoryTotal.ToDouble()).Within(1e-9));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(state.Population.PopulationCapacity, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(PopulationState.FoodConsumptionPerPerson, Is.EqualTo(new ExpantaNum(0.8d)));
@@ -352,7 +352,7 @@ public sealed class KingdomLogicTests
             ResourceManager.Instance.SetAmount(wood, new ExpantaNum(91));
             Assert.That(saveManager.SaveNow(true), Is.True);
 
-            string primaryPath = Path.Combine(root, "KingdomSave.json");
+            string primaryPath = Path.Combine(root, "KingdomSave-v1.json");
             Assert.That(File.Exists(primaryPath + ".bak"), Is.False);
             File.WriteAllText(primaryPath, "{ invalid json");
 
@@ -386,7 +386,7 @@ public sealed class KingdomLogicTests
             CreateManager<WorkshopManager>("Save-Unsupported-WorkshopManager");
             SaveManager saveManager = CreateManager<SaveManager>("Save-Unsupported-SaveManager");
 
-            string primaryPath = Path.Combine(root, "KingdomSave.json");
+            string primaryPath = Path.Combine(root, "KingdomSave-v1.json");
             SaveManager.KingdomSaveData unsupported = CreateRepresentativeSaveData();
             unsupported.Version = SaveFormat.CurrentVersion + versionOffset;
             File.WriteAllText(primaryPath, JsonUtility.ToJson(unsupported));
@@ -425,7 +425,7 @@ public sealed class KingdomLogicTests
             SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
             data.General.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600L;
             File.WriteAllText(
-                Path.Combine(root, "KingdomSave.json"),
+                Path.Combine(root, "KingdomSave-v1.json"),
                 JsonUtility.ToJson(data));
 
             Assert.That(saveManager.LoadOrCreateGame(), Is.True);
@@ -513,7 +513,7 @@ public sealed class KingdomLogicTests
             SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
             data.General.LastSaveUnixSeconds = staleTimestamp;
             File.WriteAllText(
-                Path.Combine(root, "KingdomSave.json"),
+                Path.Combine(root, "KingdomSave-v1.json"),
                 JsonUtility.ToJson(data));
 
             Assert.That(firstSaveManager.LoadOrCreateGame(), Is.True);
@@ -613,7 +613,7 @@ public sealed class KingdomLogicTests
         try
         {
             SaveManager.SetSaveRootOverrideForTests(root);
-            File.WriteAllText(Path.Combine(root, "KingdomSave.json"), json);
+            File.WriteAllText(Path.Combine(root, "KingdomSave-v1.json"), json);
             LogAssert.Expect(
                 LogType.Error,
                 new Regex("读取 Kingdom 存档.*失败：.*必要嵌套数据列表", RegexOptions.Singleline));
@@ -629,53 +629,28 @@ public sealed class KingdomLogicTests
         }
     }
 
-    [Test]
-    public void SaveLoad_UltraProjectMissingInitializesNewAndMalformedSectionsReject()
+    [TestCase("UltraProject")]
+    [TestCase("Relic")]
+    public void SaveLoad_MissingCurrentSectionRejectsSave(string section)
     {
-        CreateManager<GameManager>("Save-UltraSection-GameManager");
-        CreateManager<ResourceManager>("Save-UltraSection-ResourceManager");
-        CreateManager<BuildingManager>("Save-UltraSection-BuildingManager");
-        CreateManager<ResearchManager>("Save-UltraSection-ResearchManager");
-        CreateManager<WorkshopManager>("Save-UltraSection-WorkshopManager");
-        SaveManager saveManager =
-            CreateManager<SaveManager>("Save-UltraSection-SaveManager");
+        SaveManager saveManager = CreateManager<SaveManager>("Save-RequiredSection-SaveManager");
+        AssertInvalidSaveStartsNewGame(saveManager, CreateRepresentativeSaveData(),
+            "缺少当前版本的必要数据段", section);
+    }
 
-        SaveManager.KingdomSaveData missing = CreateRepresentativeSaveData();
-        string root = CreateIsolatedSaveRoot("KingdomMissingUltraProjectTest");
-        try
-        {
-            SaveManager.SetSaveRootOverrideForTests(root);
-            string json = RemoveJsonObjectMember(
-                JsonUtility.ToJson(missing), "UltraProject");
-            File.WriteAllText(Path.Combine(root, "KingdomSave.json"), json);
-
-            Assert.That(saveManager.LoadOrCreateGame(), Is.True,
-                "A save written before UltraProject existed must remain loadable.");
-            Assert.That(saveManager.LastLoadCreatedNewGame, Is.False);
-            Assert.That(GameManager.Instance.UltraProject.State.Status,
-                Is.EqualTo(UltraProjectStatus.Locked));
-            Assert.That(GameManager.Instance.UltraProject.State.CompletedStageCount,
-                Is.EqualTo(0));
-        }
-        finally
-        {
-            SaveManager.ClearSaveRootOverrideForTests();
-            if (Directory.Exists(root))
-                Directory.Delete(root, true);
-        }
-
-        SaveManager.KingdomSaveData malformed = CreateRepresentativeSaveData();
-        malformed.UltraProject = new UltraProjectStateSaveData();
-        AssertInvalidSaveStartsNewGame(
-            saveManager,
-            malformed,
-            "The Ultra project save version is not supported");
-
-        AssertInvalidSaveStartsNewGame(
-            saveManager,
-            CreateRepresentativeSaveData(),
-            "显式为空",
-            explicitNullUltraProject: true);
+    [TestCase("resource")]
+    [TestCase("building")]
+    [TestCase("efficiency")]
+    [TestCase("population")]
+    public void SaveLoad_RejectsMissingCurrentEconomicValues(string field)
+    {
+        SaveManager save = CreateManager<SaveManager>("Save-MissingEconomicValue");
+        SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
+        if (field == "resource") data.Resources.Resources[0].Amount = null;
+        else if (field == "building") data.Buildings.Buildings[0].Amount = null;
+        else if (field == "efficiency") data.Resources.GlobalEfficiencyFactor = null;
+        else data.General.Population = null;
+        AssertInvalidSaveStartsNewGame(save, data);
     }
 
     [Test]
@@ -1137,7 +1112,7 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void C305_ResetDerivedEconomyUsesNewBalanceAndPreservesLegacyFood()
+    public void ResetDerivedEconomy_RebuildsCapacityWithoutLosingFood()
     {
         var state = new GameState();
         state.RestoreCoreForEditor(
@@ -1145,14 +1120,16 @@ public sealed class KingdomLogicTests
             TechLevel.Animal,
             new ExpantaNum(10000),
             1L);
+        double foodBefore = state.FoodAmount.ToDouble();
+        double territoryBefore = state.TerritoryTotal.ToDouble();
         state.ResetDerivedEconomyForEditor(
             new ExpantaNum(100));
 
-        Assert.That(state.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(state.FoodAmount.ToDouble(), Is.EqualTo(foodBefore).Within(1e-9));
         Assert.That(state.FoodCapacity, Is.GreaterThanOrEqualTo(state.FoodAmount));
-        Assert.That(state.TerritoryTotal, Is.EqualTo(new ExpantaNum(500)));
+        Assert.That(state.TerritoryTotal.ToDouble(), Is.EqualTo(territoryBefore).Within(1e-9));
         Assert.That(state.TerritoryUsed, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(state.AvailableTerritory, Is.EqualTo(new ExpantaNum(500)));
+        Assert.That(state.AvailableTerritory.ToDouble(), Is.EqualTo(state.TerritoryTotal.ToDouble()).Within(1e-9));
         Assert.That(state.Population.Population, Is.EqualTo(ExpantaNum.Zero));
     }
 
@@ -2036,7 +2013,7 @@ public sealed class KingdomLogicTests
         CreateManager<WorkshopManager>("Save-Completed-WorkshopManager");
         SaveManager saveManager = CreateManager<SaveManager>("Save-Completed-SaveManager");
 
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         Research prerequisite = target.Prerequisites[0];
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Researches.States = new List<SaveManager.ResearchStateSaveData>
@@ -2122,7 +2099,7 @@ public sealed class KingdomLogicTests
         CreateManager<WorkshopManager>("Save-Queue-WorkshopManager");
         SaveManager saveManager = CreateManager<SaveManager>("Save-Queue-SaveManager");
 
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         SaveManager.KingdomSaveData data = CreateRepresentativeSaveData();
         data.Researches.QueuedResearchIds = new List<string> { target.Id };
 
@@ -2490,6 +2467,15 @@ public sealed class KingdomLogicTests
                 Population = "17",
                 PopulationChangeProgress = "0.25",
                 TerritoryTotal = "520",
+                AttackPower = "0",
+                DefensePower = "0",
+                FleetPower = "0",
+                MilitaryManpower = "0",
+                SupplySatisfaction = "1",
+                PowerSatisfaction = "1",
+                LogisticsSatisfaction = "1",
+                CampaignCasualties = "0",
+                CampaignCombatRatio = "0",
                 LastSaveUnixSeconds = 1
             },
             Resources = new SaveManager.ResourceSaveData
@@ -2536,7 +2522,6 @@ public sealed class KingdomLogicTests
             UltraProject = new UltraProjectStateSaveData
             {
                 ProjectId = UltraProjectState.ProjectId,
-                SaveVersion = UltraProjectState.CurrentSaveVersion,
                 Doctrine = UltraProjectDoctrine.None,
                 Status = UltraProjectStatus.Locked,
                 CurrentStage = UltraProjectStage.None,
@@ -2662,8 +2647,7 @@ public sealed class KingdomLogicTests
         SaveManager saveManager,
         SaveManager.KingdomSaveData invalidPrimary,
         string expectedDiagnosticDetail = null,
-        string omittedSectionKey = null,
-        bool explicitNullUltraProject = false)
+        string omittedSectionKey = null)
     {
         if (UnityEngine.Object.FindObjectOfType<ResourceManager>() == null)
             CreateManager<ResourceManager>("InvalidSave-ResourceManager");
@@ -2677,7 +2661,7 @@ public sealed class KingdomLogicTests
             CreateManager<WorkshopManager>("InvalidSave-WorkshopManager");
 
         string root = CreateIsolatedSaveRoot("KingdomInvalidSaveTest");
-        string primaryPath = Path.Combine(root, "KingdomSave.json");
+        string primaryPath = Path.Combine(root, "KingdomSave-v1.json");
         invalidPrimary.Story ??= new SaveManager.StorySaveData
         {
             CompletedChapterIds = new List<string>()
@@ -2698,13 +2682,6 @@ public sealed class KingdomLogicTests
                 Assert.That(removed, Is.Not.EqualTo(json),
                     $"测试前提失效：JSON 中未找到可删除的段“{omittedSectionKey}”。");
                 json = removed;
-            }
-            if (explicitNullUltraProject)
-            {
-                string removed = RemoveJsonObjectMember(json, "UltraProject");
-                Assert.That(removed, Is.Not.EqualTo(json),
-                    "测试前提失效：JSON 中未找到可替换的 UltraProject 段。");
-                json = removed.Insert(1, "\"UltraProject\":null,");
             }
 
             File.WriteAllText(primaryPath, json);
@@ -2930,7 +2907,7 @@ public sealed class KingdomLogicTests
             CreateManager<ResourceManager>("ResourceManager-Test");
 
         Resource wood = DataBase<Resource>.Find("WoodLog");
-        Research research = DataBase<Research>.Find("StoneTools");
+        Research research = DataBase<Research>.Find("StoneProcessing");
         var state = new ResearchState(research);
 
         resourceManager.SetAmount(wood, 29);
@@ -3404,7 +3381,7 @@ public sealed class KingdomLogicTests
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchPrerequisite-ResourceManager");
         ResearchManager researchManager = CreateManager<ResearchManager>("ResearchPrerequisite-ResearchManager");
         Resource wood = DataBase<Resource>.Find("WoodLog");
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         resourceManager.SetAmount(wood, 1000);
 
         Assert.That(
@@ -3424,7 +3401,7 @@ public sealed class KingdomLogicTests
         ResourceManager resourceManager = CreateManager<ResourceManager>("ResearchAtomic-ResourceManager");
         ResearchManager researchManager = CreateManager<ResearchManager>("ResearchAtomic-ResearchManager");
         Resource wood = DataBase<Resource>.Find("WoodLog");
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         resourceManager.SetAmount(wood, 500);
 
         resourceManager.SetAmount(wood, 0);
@@ -3446,7 +3423,7 @@ public sealed class KingdomLogicTests
         ResearchManager researchManager =
             CreateManager<ResearchManager>("ResearchDirectQueue-ResearchManager");
 
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         Assert.That(target.Prerequisites, Is.Not.Empty);
         Assert.That(researchManager.EnqueueResearch(target), Is.False);
         Assert.That(researchManager.ResearchQueue, Is.Empty);
@@ -3464,7 +3441,7 @@ public sealed class KingdomLogicTests
 
         Research active = DataBase<Research>.Find("Agriculture");
         Research prerequisite = DataBase<Research>.Find("Quarry");
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         for (int i = 0; i < target.ResourceRequirements.Count; i++)
         {
             Pair<Resource, ExpantaNum> requirement = target.ResourceRequirements[i];

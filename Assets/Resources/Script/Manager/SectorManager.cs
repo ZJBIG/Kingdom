@@ -148,19 +148,6 @@ public sealed class SectorExplorationPreview
 
 public sealed class SectorManager
 {
-    private sealed class SectorSnapshot
-    {
-        public SectorState State;
-        public bool Unlocked;
-        public bool Occupied;
-        public bool ColonizationActive;
-        public bool CampaignActive;
-        public ExpantaNum Progress;
-        public ExpantaNum Casualties;
-        public ExpantaNum CombatRatio;
-        public int VisitCount;
-    }
-
     private sealed class SectorRestoreData
     {
         public SectorDefinition Definition;
@@ -1878,47 +1865,6 @@ public sealed class SectorManager
                 : cost.Second;
         }
         return aggregate;
-    }
-
-    private List<SectorSnapshot> CaptureSectorSnapshots()
-    {
-        var snapshots = new List<SectorSnapshot>(orderedStates.Count);
-        for (int i = 0; i < orderedStates.Count; i++)
-        {
-            SectorState state = orderedStates[i];
-            snapshots.Add(new SectorSnapshot
-            {
-                State = state,
-                Unlocked = state.Unlocked,
-                Occupied = state.Occupied,
-                ColonizationActive = state.ColonizationActive,
-                CampaignActive = state.CampaignActive,
-                Progress = state.CampaignProgress,
-                Casualties = state.CampaignCasualties,
-                CombatRatio = state.CampaignCombatRatio,
-                VisitCount = state.VisitCount
-            });
-        }
-        return snapshots;
-    }
-
-    private static void RestoreSectorSnapshots(IReadOnlyList<SectorSnapshot> snapshots)
-    {
-        if (snapshots == null)
-            return;
-        for (int i = 0; i < snapshots.Count; i++)
-        {
-            SectorSnapshot snapshot = snapshots[i];
-            snapshot.State.RestoreExact(
-                snapshot.Unlocked,
-                snapshot.Occupied,
-                snapshot.ColonizationActive,
-                snapshot.CampaignActive,
-                snapshot.Progress,
-                snapshot.Casualties,
-                snapshot.CombatRatio,
-                snapshot.VisitCount);
-        }
     }
 
     private static IReadOnlyList<Pair<Resource, ExpantaNum>> CalculateFleetRepairCosts(

@@ -172,14 +172,14 @@ public sealed class UnsafeAreaTickerTests
     }
 
     [Test]
-    public void BuildFeedCycle_DoesNotInventUltraOrArchotechHeadlines()
+    public void BuildFeedCycle_IncludesLateEraDailyLifeAndRealEvents()
     {
         Assert.That(
             UnsafeAreaTickerRules.BuildFeedCycle(null, TechLevel.Ultra, "5500/1/1"),
-            Is.Empty);
+            Is.Not.Empty);
         Assert.That(
             UnsafeAreaTickerRules.BuildFeedCycle(null, TechLevel.Archotech, "5500/1/1"),
-            Is.Empty);
+            Is.Not.Empty);
 
         string realEvent = UnsafeAreaTickerRules.BuildFeedCycle(
             new[] { "知识完成：技术奇点" }, TechLevel.Ultra, "5500/1/1");

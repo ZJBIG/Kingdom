@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: InterstellarCombatSupplySystems
   Label: "\u661f\u9645\u6218\u6597\u8865\u7ed9\u7cfb\u7edf"
-  Description: "\u5c06\u91cd\u578b\u8230\u961f\u7ef4\u4fee\u3001\u5f39\u836f\u4ed3\u50a8\u3001\u71c3\u6599\u4e2d\u8f6c\u548c\u524d\u6cbf\u8865\u7ed9\u8bbe\u65bd\u7ec4\u6210\u4e00\u4f53\uff0c\u8ba9\u540e\u52e4\u6295\u5165\u76f4\u63a5\u8f6c\u5316\u4e3a\u6301\u4e45\u7684\u661f\u9645\u4f5c\u6218\u80fd\u529b\u3002"
+  Description: "整合维修、燃料中转与前沿补给，提高军事能力和轨道空间站的物流供给，降低舰队维修费用。"
   SortOrder: 580
   TechLevel: 4
   requiredResearch:
@@ -33,7 +33,7 @@ MonoBehaviour:
     amount: "7000"
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
     amount: "6000"
-  - resource: {fileID: 11400000, guid: edc302c9078cef949af10de717edb4d0, type: 2}
+  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
     amount: "96000"
   - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
     amount: "4500"

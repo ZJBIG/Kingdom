@@ -210,7 +210,7 @@ public sealed class ResearchBalanceTests
             ["Agriculture"] = 300d,
             ["AnimalHusbandry"] = 240d,
             ["ClayExtraction"] = 240d,
-            ["StoneTools"] = 700d,
+            ["StoneProcessing"] = 700d,
             ["Mining"] = 1800d,
             ["Mathematics"] = 1700d,
             ["Calendar"] = 1900d,
@@ -222,9 +222,9 @@ public sealed class ResearchBalanceTests
             ["FoodStorage"] = 4200d,
             ["WrittenRecords"] = 6500d,
             ["Masonry"] = 8500d,
-            ["Smithing_Copper"] = 15000d,
-            ["Smithing_Iron"] = 19000d,
-            ["Smithing_Bronze"] = 21000d,
+            ["MultiMetalSmeltingFundamentals"] = 15000d,
+            ["IronworkingAndSteelmaking"] = 19000d,
+            ["BronzeAlloyCrafting"] = 21000d,
             ["FeudalAdministration"] = 130000d
         };
 
@@ -250,7 +250,7 @@ public sealed class ResearchBalanceTests
         Assert.That(transition.TechLevel, Is.EqualTo(TechLevel.Medieval));
         Assert.That(transition.AdvancesTechLevel, Is.True);
         Assert.That(transition.Prerequisites.Select(research => research.Id),
-            Is.EquivalentTo(new[] { "Smithing_Bronze", "Smithing_Iron", "WrittenRecords" }));
+            Is.EquivalentTo(new[] { "BronzeAlloyCrafting", "IronworkingAndSteelmaking", "WrittenRecords" }));
     }
 
     [Test]
@@ -263,7 +263,7 @@ public sealed class ResearchBalanceTests
         Research controlledFire = DataBase<Research>.Find("ControlledFire");
         Research mining = DataBase<Research>.Find("Mining");
         Research measurement = DataBase<Research>.Find("Measurement");
-        Research smithing = DataBase<Research>.Find("Smithing_Bronze");
+        Research bronzeAlloyCrafting = DataBase<Research>.Find("BronzeAlloyCrafting");
 
         Assert.That(HasEffect(controlledFire, ResearchEffectType.BuildingProductionMultiplier, 1.1d, "CeramicKiln"), Is.True);
         Assert.That(HasEffect(mining, ResearchEffectType.BuildingProductionMultiplier, 1.242d), Is.True);
@@ -272,7 +272,7 @@ public sealed class ResearchBalanceTests
         Assert.That(HasEffect(measurement, ResearchEffectType.GlobalConstructionMultiplier, 1.1d), Is.True);
         Assert.That(
             HasEffect(
-                smithing,
+                bronzeAlloyCrafting,
                 ResearchEffectType.BuildingProductionMultiplier,
                 1.15d,
                 "MetalSmelter"),
@@ -471,7 +471,7 @@ public sealed class ResearchBalanceTests
         Assert.That(HasTargetedEffect(
             DataBase<Research>.Find("TitaniumAlloyEngineering"),
             ResearchEffectType.BuildingProductionMultiplier,
-            "TitaniumMetallurgicalComplex"), Is.True);
+            "TitaniumAlloySmelter"), Is.True);
     }
 
     [Test]

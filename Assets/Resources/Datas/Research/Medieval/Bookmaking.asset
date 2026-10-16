@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Bookmaking
   Label: "\u4E66\u7C4D\u4E0E\u5370\u5237"
-  Description: "\u6574\u5408\u9020\u7EB8\u3001\u88C5\u8BA2\u3001\u6284\u5F55\u3001\u6D3B\u5B57\u6392\u7248\u548C\u673A\u68B0\u538B\u5370\uFF0C\u5927\u5E45\u964D\u4F4E\u77E5\u8BC6\u590D\u5236\u4E0E\u4F20\u64AD\u6210\u672C\u3002"
+  Description: "改进抄录、活字排版与装订，让研究记录更易复制，提高全局研究效率。"
   BaseCost: "200000"
   prerequisites:
   - {fileID: 11400000, guid: 11a1763744a4e2b42b651b4bc8ddb331, type: 2}

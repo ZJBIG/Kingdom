@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: IronworkingAndSteelmaking
+  m_EditorClassIdentifier: 
+  id: IronworkingAndSteelmaking
+  Label: "\u94C1\u5668\u4E0E\u70BC\u94A2\u57FA\u7840"
+  Description: "标准化铁器与炼钢工艺，提高所有建筑的生产倍率；加工建筑也会随之消耗更多原料。"
+  BaseCost: "19000"
+  prerequisites:
+  - {fileID: 11400000, guid: 64e84dc9f0464d944a8b69cf50c14c21, type: 2}
+  - {fileID: 11400000, guid: 5836e23d4da2eb54887e0bb4f6e2c875, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    amount: "300"
+  - resource: {fileID: 11400000, guid: 5983f0e8f273fd74f9eac78217fad9ca, type: 2}
+    amount: "420"
+  effects:
+  - Type: 12
+    Building: {fileID: 0}
+    Resource: {fileID: 0}
+    value: "1.04"
+  TechLevel: 1
+  AdvancesTechLevel: 0

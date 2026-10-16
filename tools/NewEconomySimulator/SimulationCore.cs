@@ -344,6 +344,9 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         ExpantaNum happiness = ExpantaNum.One;
         ExpantaNum powerSatisfaction = ExpantaNum.One;
         ExpantaNum logisticsSatisfaction = ExpantaNum.One;
+        var foodDemand = state.Population * new ExpantaNum(0.8d);
+        foreach (var building in active)
+            foodDemand += building.Amount * Parse(definitions!.Building[building.Id].FoodConsumptionRate);
 
         for (var pass = 0; pass < maximumPasses; pass++)
         {
@@ -370,7 +373,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                 foreach (var rate in definitions.Amounts(definition.ResourceConsumptionRates))
                     Add(potentialConsumption, rate.Key, potentialScale * rate.Value * productionMultiplier);
 
-                potentialFoodProduction += potentialScale * Parse(definition.FoodProductionRate) * productionMultiplier;
+                potentialFoodProduction += actualScale * Parse(definition.FoodProductionRate) * productionMultiplier;
                 potentialFoodConsumption += potentialScale * Parse(definition.FoodConsumptionRate);
                 potentialPowerProduction += actualScale * Parse(definition.PowerProductionRate) *
                     modifiers.PowerMultiplier * modifiers.BuildingPowerProductionMultiplier(buildingState.Id) *
@@ -449,6 +452,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                 break;
         }
 
+        happiness = EnforceTickResourceBudget(state, active, modifiers, foodDemand, context.DeltaSeconds);
+
         var resourceProduction = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
         var resourceConsumption = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
         var foodProduction = new ExpantaNum(5d);
@@ -488,6 +493,9 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         }
 
         foodProduction *= modifiers.GlobalFoodProductionMultiplier;
+        foodAvailability = CalculateFoodAvailability(state.Food, foodProduction, foodDemand, context.DeltaSeconds);
+        happiness = CalculateHappiness(foodProduction - foodConsumption, state.Population,
+            foodAvailability, modifiers.HappinessBonus);
         foodCapacity *= modifiers.FoodCapacityMultiplier;
         state.SetFoodCapacity(foodCapacity);
         state.SetPopulationCapacity(populationCapacity);
@@ -509,6 +517,208 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             logisticsConsumption,
             researchPower * modifiers.GlobalResearchMultiplier,
             active.Length);
+    }
+
+    private ExpantaNum EnforceTickResourceBudget(SimulationState state,
+        BuildingRuntimeState[] active, SimulationModifiers modifiers,
+        ExpantaNum foodDemand, double seconds)
+    {
+        var production = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+        var consumption = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+        var external = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+        foreach (var sector in state.SectorStates.Values.Where(item => item.Occupied))
+            foreach (var rate in definitions!.Amounts(definitions.Sector[sector.Id].OccupiedResourceRatesPerSecond))
+                Add(external, rate.Key, rate.Value * modifiers.OccupiedResourceMultiplier(rate.Key));
+
+        ExpantaNum foodNet = ExpantaNum.Zero;
+        ExpantaNum happiness = ExpantaNum.One;
+        for (var correction = 0; correction <= definitions!.Resources.Count + 2; correction++)
+        {
+            production.Clear();
+            consumption.Clear();
+            foodNet = new ExpantaNum(5d) * modifiers.GlobalFoodProductionMultiplier -
+                state.Population * new ExpantaNum(0.8d);
+            var foodProduction = new ExpantaNum(5d) * modifiers.GlobalFoodProductionMultiplier;
+            foreach (var building in active)
+                Accumulate(building, production, consumption, ref foodNet, ref foodProduction);
+            var foodAvailability = CalculateFoodAvailability(state.Food, foodProduction, foodDemand, seconds);
+            happiness = CalculateHappiness(foodNet, state.Population, foodAvailability, modifiers.HappinessBonus);
+            if (seconds <= 0d || correction == definitions.Resources.Count + 2)
+                return happiness;
+            var reward = ExpantaNum.Max(ExpantaNum.One, happiness);
+            string? deficit = null;
+            foreach (var resource in definitions.Resources.Keys)
+            {
+                var available = state.GetResource(resource) +
+                    (production.GetValueOrDefault(resource) * reward + external.GetValueOrDefault(resource)) * seconds;
+                if (consumption.GetValueOrDefault(resource) * seconds > available)
+                {
+                    deficit = resource;
+                    break;
+                }
+            }
+            var powerProduction = active.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, true, true));
+            var powerConsumption = active.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, true, false));
+            var logisticsProduction = active.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, true));
+            var logisticsConsumption = active.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, false));
+            var powerChanges = powerConsumption > powerProduction * reward;
+            var logisticsChanges = logisticsConsumption > logisticsProduction * reward;
+            if (deficit is null && !powerChanges && !logisticsChanges)
+                return happiness;
+
+            var affected = new HashSet<BuildingRuntimeState>();
+            var resources = new HashSet<string>(StringComparer.Ordinal);
+            if (deficit is not null) resources.Add(deficit);
+            var foodChanges = false;
+            bool changed;
+            do
+            {
+                changed = false;
+                foreach (var building in active)
+                {
+                    if (affected.Contains(building) || building.Efficiency <= ExpantaNum.Zero)
+                        continue;
+                    var definition = definitions.Building[building.Id];
+                    var flowAffected = powerChanges && Parse(definition.PowerConsumptionRate) > ExpantaNum.Zero ||
+                        logisticsChanges && Parse(definition.LogisticsConsumptionRate) > ExpantaNum.Zero;
+                    if (!flowAffected && !definitions.Amounts(definition.ResourceConsumptionRates).Any(rate =>
+                            rate.Value > ExpantaNum.Zero && (foodChanges || resources.Contains(rate.Key))))
+                        continue;
+                    affected.Add(building);
+                    changed = true;
+                    foreach (var rate in definitions.Amounts(definition.ResourceConsumptionRates))
+                        if (rate.Value > ExpantaNum.Zero) resources.Add(rate.Key);
+                    foreach (var rate in definitions.Amounts(definition.ResourceGenerationRates))
+                        if (rate.Value > ExpantaNum.Zero) resources.Add(rate.Key);
+                    foodChanges |= Parse(definition.FoodProductionRate) * modifiers.BuildingProductionMultiplier(building.Id) *
+                        modifiers.GlobalFoodProductionMultiplier - Parse(definition.FoodConsumptionRate) != ExpantaNum.Zero;
+                    powerChanges |= Parse(definition.PowerProductionRate) > ExpantaNum.Zero;
+                    logisticsChanges |= Parse(definition.LogisticsProductionRate) > ExpantaNum.Zero;
+                }
+            } while (changed);
+
+            var affectedProduction = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+            var affectedConsumption = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+            var affectedFoodNet = ExpantaNum.Zero;
+            var affectedFoodProduction = ExpantaNum.Zero;
+            foreach (var building in affected)
+                Accumulate(building, affectedProduction, affectedConsumption, ref affectedFoodNet, ref affectedFoodProduction);
+            var selectedPowerProduction = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, true, true));
+            var selectedPowerConsumption = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, true, false));
+            var selectedLogisticsProduction = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, true));
+            var selectedLogisticsConsumption = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, false));
+            var minimumReward = ExpantaNum.Min(reward, ExpantaNum.Max(ExpantaNum.One,
+                CalculateHappiness(foodNet - affectedFoodNet, state.Population,
+                    CalculateFoodAvailability(state.Food, foodProduction - affectedFoodProduction, foodDemand, seconds),
+                    modifiers.HappinessBonus)));
+            ExpantaNum low = ExpantaNum.One, high = ExpantaNum.One;
+            foreach (var resource in resources)
+            {
+                var available = state.GetResource(resource) / seconds + external.GetValueOrDefault(resource) +
+                    (production.GetValueOrDefault(resource) - affectedProduction.GetValueOrDefault(resource)) * minimumReward -
+                    (consumption.GetValueOrDefault(resource) - affectedConsumption.GetValueOrDefault(resource));
+                var deficitRate = affectedConsumption.GetValueOrDefault(resource) -
+                    affectedProduction.GetValueOrDefault(resource) * minimumReward;
+                if (deficitRate > ExpantaNum.Zero)
+                    low = ExpantaNum.Min(low, ExpantaNum.Clamp01(available / deficitRate));
+            }
+            low = LimitFlow(low, powerProduction, powerConsumption, selectedPowerProduction, selectedPowerConsumption);
+            low = LimitFlow(low, logisticsProduction, logisticsConsumption, selectedLogisticsProduction, selectedLogisticsConsumption);
+            var candidateProduction = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+            var candidateConsumption = new Dictionary<string, ExpantaNum>(StringComparer.Ordinal);
+            if (!Fits(low)) low *= new ExpantaNum(0.99999d);
+            if (!Fits(low)) low = ExpantaNum.Zero;
+            for (var step = 0; step < 36; step++)
+            {
+                var middle = (low + high) * 0.5d;
+                if (Fits(middle)) low = middle;
+                else high = middle;
+            }
+            foreach (var building in affected)
+                state.SetBuildingEfficiency(building.Id, building.Efficiency * low);
+
+            bool Fits(ExpantaNum candidate)
+            {
+                candidateProduction.Clear();
+                candidateConsumption.Clear();
+                var candidateFood = ExpantaNum.Zero;
+                var candidateFoodProduction = ExpantaNum.Zero;
+                var candidatePowerProduction = ExpantaNum.Zero;
+                var candidatePowerConsumption = ExpantaNum.Zero;
+                var candidateLogisticsProduction = ExpantaNum.Zero;
+                var candidateLogisticsConsumption = ExpantaNum.Zero;
+                foreach (var building in affected)
+                {
+                    Accumulate(building, candidateProduction, candidateConsumption, ref candidateFood,
+                        ref candidateFoodProduction, candidate);
+                    candidatePowerProduction += Flow(building, true, true, candidate);
+                    candidatePowerConsumption += Flow(building, true, false, candidate);
+                    candidateLogisticsProduction += Flow(building, false, true, candidate);
+                    candidateLogisticsConsumption += Flow(building, false, false, candidate);
+                }
+                var candidateReward = ExpantaNum.Max(ExpantaNum.One, CalculateHappiness(
+                    (foodNet - affectedFoodNet) + candidateFood, state.Population,
+                    CalculateFoodAvailability(state.Food, foodProduction - affectedFoodProduction + candidateFoodProduction,
+                        foodDemand, seconds),
+                    modifiers.HappinessBonus));
+                foreach (var resource in resources)
+                {
+                    var available = state.GetResource(resource) +
+                        (external.GetValueOrDefault(resource) + (production.GetValueOrDefault(resource) -
+                            affectedProduction.GetValueOrDefault(resource) +
+                            candidateProduction.GetValueOrDefault(resource)) * candidateReward) * seconds;
+                    var demand = (consumption.GetValueOrDefault(resource) -
+                        affectedConsumption.GetValueOrDefault(resource) +
+                        candidateConsumption.GetValueOrDefault(resource)) * seconds;
+                    if (demand > available) return false;
+                }
+                return powerConsumption - selectedPowerConsumption + candidatePowerConsumption <=
+                        (powerProduction - selectedPowerProduction + candidatePowerProduction) * candidateReward &&
+                    logisticsConsumption - selectedLogisticsConsumption + candidateLogisticsConsumption <=
+                        (logisticsProduction - selectedLogisticsProduction + candidateLogisticsProduction) * candidateReward;
+            }
+
+            ExpantaNum LimitFlow(ExpantaNum candidate, ExpantaNum output, ExpantaNum input,
+                ExpantaNum selectedOutput, ExpantaNum selectedInput)
+            {
+                var deficitRate = selectedInput - selectedOutput * minimumReward;
+                return deficitRate > ExpantaNum.Zero ? ExpantaNum.Min(candidate, ExpantaNum.Clamp01(
+                    ((output - selectedOutput) * minimumReward - (input - selectedInput)) / deficitRate)) : candidate;
+            }
+        }
+        return happiness;
+
+        ExpantaNum Flow(BuildingRuntimeState building, bool power, bool output, ExpantaNum? candidate = null)
+        {
+            var definition = definitions.Building[building.Id];
+            var scale = candidate.HasValue ? building.Amount * (building.Efficiency * candidate.Value) :
+                building.Amount * building.Efficiency;
+            return power
+                ? output ? scale * Parse(definition.PowerProductionRate) * modifiers.PowerMultiplier *
+                    modifiers.BuildingPowerProductionMultiplier(building.Id) : scale * Parse(definition.PowerConsumptionRate)
+                : output ? scale * Parse(definition.LogisticsProductionRate) * modifiers.GlobalLogisticsMultiplier *
+                    modifiers.BuildingLogisticsMultiplier(building.Id) : scale * Parse(definition.LogisticsConsumptionRate);
+        }
+
+        void Accumulate(BuildingRuntimeState building, Dictionary<string, ExpantaNum> output,
+            Dictionary<string, ExpantaNum> input, ref ExpantaNum netFood, ref ExpantaNum foodOutput,
+            ExpantaNum? candidate = null)
+        {
+            var definition = definitions.Building[building.Id];
+            var scale = candidate.HasValue ? building.Amount * (building.Efficiency * candidate.Value) :
+                building.Amount * building.Efficiency;
+            var multiplier = modifiers.BuildingProductionMultiplier(building.Id);
+            foreach (var rate in definitions.Amounts(definition.ResourceGenerationRates))
+                Add(output, rate.Key, scale * rate.Value * multiplier *
+                    modifiers.ResourceProductionMultiplier(rate.Key) *
+                    modifiers.BuildingResourceProductionMultiplier(building.Id, rate.Key));
+            foreach (var rate in definitions.Amounts(definition.ResourceConsumptionRates))
+                Add(input, rate.Key, scale * rate.Value * multiplier);
+            netFood += scale * (Parse(definition.FoodProductionRate) * multiplier *
+                modifiers.GlobalFoodProductionMultiplier - Parse(definition.FoodConsumptionRate));
+            foodOutput += scale * Parse(definition.FoodProductionRate) * multiplier *
+                modifiers.GlobalFoodProductionMultiplier;
+        }
     }
 
     private void ApplyGame(SimulationState state, SimulationTickContext context, TickFrame frame)
@@ -937,12 +1147,12 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         ExpantaNum happinessBonus)
     {
         var availability = ExpantaNum.Clamp01(foodAvailability);
-        if (availability < ExpantaNum.One)
-            return availability;
         var safePopulation = ExpantaNum.Max(ExpantaNum.One, population);
         if (foodNetRate < ExpantaNum.Zero)
-            return ExpantaNum.Clamp01(
-                ExpantaNum.One / (ExpantaNum.One + -foodNetRate / safePopulation));
+            return ExpantaNum.Min(availability, ExpantaNum.Clamp01(
+                ExpantaNum.One / (ExpantaNum.One + -foodNetRate / safePopulation)));
+        if (availability < ExpantaNum.One)
+            return availability;
         var score = (ExpantaNum.One + foodNetRate / safePopulation).Log10();
         if (score < ExpantaNum.Zero)
             return ExpantaNum.One;

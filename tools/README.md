@@ -10,9 +10,6 @@ choices live only in `.agents/skills/kingdom-project-dev/references/validation.m
   harness is frozen to deterministic regression use only — no extension, strategy
   search, scoring or auto-tuning. Its README documents implementation architecture,
   not gameplay acceptance.
-- `content-dependency/`: retired and empty; `ContentDependencyAnalyzer.ps1` no longer
-  exists. Content dependency analysis now lives in Unity editor code
-  (`Assets/Editor/Content/ContentDependencyAnalyzer.cs`).
 - `Assets/Editor/`: Unity-discovered editor menus, migration and validation code (outside this directory).
 
 Do not assume a tool is read-only from its name. Check its current implementation;

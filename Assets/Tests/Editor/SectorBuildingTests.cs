@@ -71,7 +71,7 @@ public sealed class SectorBuildingTests
         Assert.That(asset.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(asset.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(asset.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "Aluminum"), Is.True);
+        Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "AdvancedMetalIngot"), Is.True);
         Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "Electronics"), Is.True);
         Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "RocketFuel"), Is.True);
         Assert.That(File.ReadAllText(

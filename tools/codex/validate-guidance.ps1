@@ -42,9 +42,7 @@ $projectRequired = @(
     "Assets/Tests/AGENTS.md",
     "tools/codex/find-unity.ps1",
     "tools/codex/compile-unity.ps1",
-    "tools/codex/run-unity-tests.ps1",
-    "tools/codex/inspect-kingdom.ps1",
-    "tools/codex/audit-ui.ps1"
+    "tools/codex/run-unity-tests.ps1"
 )
 $missing = @()
 foreach ($relative in $repositoryRequired) {

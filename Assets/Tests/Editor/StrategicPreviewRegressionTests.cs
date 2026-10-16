@@ -17,7 +17,7 @@ public sealed class StrategicPreviewRegressionTests
             host.AddComponent<ResearchManager>().InitializeForEditor();
             game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
             {
-                ProjectId = UltraProjectState.ProjectId, SaveVersion = UltraProjectState.CurrentSaveVersion,
+                ProjectId = UltraProjectState.ProjectId,
                 Doctrine = UltraProjectDoctrine.Stable, Status = UltraProjectStatus.Committed,
                 CurrentStage = UltraProjectStage.Completed, StageProgress = "1",
                 CompletedStages = new List<UltraProjectStage> { UltraProjectStage.Prototype, UltraProjectStage.Stabilization, UltraProjectStage.Expansion },
@@ -87,7 +87,7 @@ public sealed class StrategicPreviewRegressionTests
             game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum(1e9), 0);
             game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
             {
-                ProjectId = UltraProjectState.ProjectId, SaveVersion = UltraProjectState.CurrentSaveVersion,
+                ProjectId = UltraProjectState.ProjectId,
                 Doctrine = UltraProjectDoctrine.Stable, Status = UltraProjectStatus.Ready,
                 CurrentStage = UltraProjectStage.Stabilization, StageProgress = "0",
                 CompletedStages = new List<UltraProjectStage> { UltraProjectStage.Prototype },

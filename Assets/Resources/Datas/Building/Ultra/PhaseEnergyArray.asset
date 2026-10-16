@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: PhaseEnergyArray
   Label: "相位能源阵列"
-  Description: "将相位场工程转化为稳定的高能供给，承担 Ultra 设施的电力需求；阵列仍需旧工业材料维护。"
+  Description: "利用受控相位场持续供电，支撑极致时代的巨构设施；运行消耗幽影合金、电子元件与相位材料。"
   TechLevel: 5
   upgradeTo: {fileID: 0}
   costGrowth: "1.22"

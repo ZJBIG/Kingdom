@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
@@ -15,6 +16,7 @@ public sealed class ResourceProductionTreePlayModeTests
     private string saveRoot;
     private TutorialManager initialTutorial;
     private MusicManager initialMusic;
+    private KingdomUIRoot loadedUi;
     [SetUp] public void SetUp()
     {
         initialTutorial = Object.FindObjectOfType<TutorialManager>(true);
@@ -38,72 +40,385 @@ public sealed class ResourceProductionTreePlayModeTests
         if (Directory.Exists(saveRoot)) Directory.Delete(saveRoot, true);
     }
     [UnityTest]
-    public IEnumerator ProductionTreeUsesExistingScroll_ExpandsAndReturnsToDetails()
+    public IEnumerator IndependentProductionPage_UsesRealEntriesAndPreservesGraphWhileInspectingNodes()
     {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        KingdomUIRoot ui = null;
-        for (int i = 0; i < 160; i++)
+        yield return LoadProductionScene();
+        KingdomUIRoot ui = loadedUi;
+        SimulationManager.Instance.SetRunning(false);
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Building firstProducer = null;
+        foreach (Building building in DataBase<Building>.All)
         {
-            ui = Object.FindObjectOfType<KingdomUIRoot>();
-            if (ui != null && Object.FindObjectOfType<GameBootstrap>()?.Completed == true) break;
+            if (building is SectorBuilding || building.RequiredWorkshopUpgrades.Count > 0) continue;
+            foreach (Pair<Resource, ExpantaNum> output in building.ResourceGenerationRates)
+                if (output.First == wood && output.Second > ExpantaNum.Zero &&
+                    (firstProducer == null || building.TechLevel < firstProducer.TechLevel))
+                { firstProducer = building; break; }
+        }
+        Assert.That(firstProducer, Is.Not.Null, "Real definitions provide an early wood producer without workshop prerequisites.");
+        if (GameManager.Instance.State.TechLevel < firstProducer.TechLevel)
+            GameManager.Instance.AdvanceTechLevelForEditor(firstProducer.TechLevel);
+        foreach (Research research in firstProducer.RequiredResearch)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        Assert.That(BuildingManager.Instance.ArePrerequisitesMet(firstProducer, out _), Is.True,
+            "The initial fixture unlocks only the first real producer's prerequisites.");
+        ui.SetPage("Resources");
+        ui.ShowResourceDetailsForEditor(wood);
+        Transform detail = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent");
+        detail.Find("ResourceProductionTree/Mode").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Transform page = ui.transform.Find("SafeAreaRoot/Content/PageHost/Production");
+        RectTransform viewport = page.Find("GraphViewport") as RectTransform;
+        RectTransform graph = viewport.Find("GraphContent") as RectTransform;
+        UIResearchGraphGesture gesture = viewport.GetComponent<UIResearchGraphGesture>();
+        Assert.That(page.gameObject.activeInHierarchy, Is.True, "The actual resource detail button enters the wide production page.");
+        Assert.That(viewport.rect.width, Is.GreaterThan((detail.parent as RectTransform).rect.width));
+        Assert.That(page.parent.GetComponent<ScrollRect>().enabled, Is.False, "The graph owns both axes.");
+        Assert.That(gesture.IsInitialized, Is.True);
+        Assert.That(graph.childCount, Is.GreaterThan(1));
+        Assert.That(graph.localScale.x, Is.InRange(1f, 2f), "Initial framing enlarges a small graph within the fit limit.");
+        float collapsedScale = graph.localScale.x;
+        graph.GetChild(0).Find("Expand").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.childCount, Is.EqualTo(1), "A collapsed root renders no reserved descendant nodes.");
+        Assert.That(graph.localScale.x, Is.EqualTo(collapsedScale).Within(.001f), "Collapse preserves the current zoom.");
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "page-resource-collapsed");
+        graph.GetChild(0).Find("Expand").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(detail.Find("Body").gameObject.activeSelf, Is.True, "The right detail remains readable.");
+        Building lockedProducer = null;
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (building is SectorBuilding || BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
+            foreach (Pair<Resource, ExpantaNum> output in building.ResourceGenerationRates)
+                if (output.First == wood && output.Second > ExpantaNum.Zero)
+                { lockedProducer = building; break; }
+            if (lockedProducer != null) break;
+        }
+        Assert.That(lockedProducer, Is.Not.Null, "Wood includes a later-era producer for unlock coverage.");
+        foreach (Transform node in graph)
+        {
+            Assert.That(node.Find("Label").GetComponent<TMP_Text>().text, Is.Not.EqualTo(lockedProducer.Label),
+                "A future locked producer must not be shown before its prerequisites are met.");
+            Assert.That(node.Find("Status").GetComponent<TMP_Text>().text, Does.Not.Contain("待解锁"));
+            foreach (Building building in DataBase<Building>.All)
+                if (node.Find("Label").GetComponent<TMP_Text>().text == building.Label)
+                    Assert.That(BuildingManager.Instance.ArePrerequisitesMet(building, out _) ||
+                        (BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing) && existing.Amount > ExpantaNum.Zero),
+                        Is.True, "Every visible building is unlocked or already owned: " + building.Id);
+        }
+        int guardedRootInstance = graph.GetChild(0).GetInstanceID();
+        ui.ShowProductionTree(lockedProducer);
+        yield return null;
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(guardedRootInstance),
+            "Opening a locked building directly cannot replace the current graph with hidden content.");
+        Vector3 beforeUnlockRoot = viewport.InverseTransformPoint(graph.GetChild(0).position);
+        float beforeUnlockScale = graph.localScale.x;
+        PointerEventData unlockDrag = new(EventSystem.current) { button = PointerEventData.InputButton.Left,
+            pointerId = 56, position = RectTransformUtility.WorldToScreenPoint(null, viewport.position), eligibleForClick = true };
+        gesture.OnPointerDown(unlockDrag); gesture.OnBeginDrag(unlockDrag);
+        Assert.That(gesture.IsDragging, Is.True);
+        int rootDuringDrag = graph.GetChild(0).GetInstanceID();
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        WorkshopManager workshop = Object.FindObjectOfType<WorkshopManager>();
+        Assert.That(workshop, Is.Not.Null, "The scene provides the workshop manager for real late-producer prerequisites.");
+        List<string> purchasedUpgradeIds = new();
+        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+            purchasedUpgradeIds.Add(upgrade.Id);
+        workshop.RestoreSaveDataForEditor(new SaveManager.WorkshopSaveData { PurchasedUpgradeIds = purchasedUpgradeIds });
+        Assert.That(BuildingManager.Instance.ArePrerequisitesMet(lockedProducer, out _), Is.True);
+        ui.RefreshProductionVisibilityForEditor();
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(rootDuringDrag),
+            "Unlocks must not replace captured nodes while a graph drag is active.");
+        gesture.OnEndDrag(unlockDrag); gesture.OnPointerUp(unlockDrag);
+        ui.RefreshProductionVisibilityForEditor();
+        float deadline = Time.realtimeSinceStartup + 3f;
+        Transform unlockedNode = null;
+        while (unlockedNode == null && Time.realtimeSinceStartup < deadline)
+        {
+            foreach (Transform node in graph)
+                if (node.gameObject.activeSelf && node.Find("Label").GetComponent<TMP_Text>().text == lockedProducer.Label)
+                { unlockedNode = node; break; }
             yield return null;
         }
-        Assert.That(ui, Is.Not.Null);
-        SimulationManager.Instance.SetRunning(false);
-        ui.SetPage("Resources");
-        ui.ShowResourceDetailsForEditor(DataBase<Resource>.Find("WoodLog"));
-        ui.ToggleResourceTreeForEditor();
-        yield return null;
-        Transform content = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent");
-        Transform surface = content.Find("ResourceProductionTree");
-        Transform rows = surface.Find("Rows");
-        Assert.That(rows.gameObject.activeSelf, Is.True);
-        Assert.That(content.Find("Body").gameObject.activeSelf, Is.False);
-        Assert.That(surface.GetComponentsInChildren<ScrollRect>(true), Is.Empty, "The existing outer detail scroll owns the tree.");
-        Assert.That(rows.childCount, Is.GreaterThan(1), "Wood has actual producer branches.");
-        Button expand = rows.GetChild(0).Find("Expand").GetComponent<Button>();
-        int count = rows.childCount;
-        expand.onClick.Invoke(); yield return null;
-        Assert.That(rows.childCount, Is.LessThan(count), "Collapsing the root hides producer branches.");
-        expand = rows.GetChild(0).Find("Expand").GetComponent<Button>();
-        expand.onClick.Invoke(); yield return null;
-        Assert.That(rows.childCount, Is.GreaterThan(1));
-        RectTransform viewport = content.parent as RectTransform;
-        Assert.That(viewport.rect.width, Is.GreaterThan(0));
-        Assert.That(viewport.rect.height, Is.GreaterThan(0));
-        foreach (RectTransform row in rows)
-            Assert.That(row.rect.width, Is.LessThanOrEqualTo(viewport.rect.width));
-        surface.Find("Mode").GetComponent<Button>().onClick.Invoke(); yield return null;
-        Assert.That(rows.gameObject.activeSelf, Is.False);
-        Assert.That(content.Find("Body").gameObject.activeSelf, Is.True);
+        Assert.That(unlockedNode, Is.Not.Null, "Central refresh reveals the newly unlocked producer without reopening the tree.");
+        Assert.That(unlockedNode.Find("Label").GetComponent<Button>().interactable, Is.True, "Newly unlocked producers retain their detail action.");
+        Assert.That(graph.localScale.x, Is.EqualTo(beforeUnlockScale).Within(.001f), "An unlock preserves the user's zoom.");
+        Assert.That(Vector3.Distance(viewport.InverseTransformPoint(graph.GetChild(0).position), beforeUnlockRoot), Is.LessThan(2f),
+            "Visibility changes preserve the root's visual anchor.");
 
-        ui.ShowResourceDetailsForEditor(DataBase<Resource>.Find("Steel"));
-        ui.ToggleResourceTreeForEditor(); yield return null;
-        for (int step = 0; step < 12; step++)
+        Transform producer = graph.GetChild(1);
+        TMP_Text producerLabel = producer.Find("Label").GetComponent<TMP_Text>();
+        Building selected = null;
+        foreach (Building building in DataBase<Building>.All)
+            if (building.Label == producerLabel.text) { selected = building; break; }
+        Assert.That(selected, Is.Not.Null);
+        int rootInstance = graph.GetChild(0).GetInstanceID();
+        producerLabel.GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(page.gameObject.activeInHierarchy, Is.True, "Inspecting a producer keeps the production graph visible.");
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(rootInstance), "Inspecting details does not rebuild the graph.");
+        RectTransform modeRect = detail.Find("ResourceProductionTree/Mode") as RectTransform;
+        RectTransform bodyRect = detail.Find("Body") as RectTransform;
+        Vector3[] modeCorners = new Vector3[4], bodyCorners = new Vector3[4];
+        modeRect.GetWorldCorners(modeCorners); bodyRect.GetWorldCorners(bodyCorners);
+        Assert.That(bodyCorners[1].y, Is.LessThanOrEqualTo(modeCorners[0].y), "Building detail text starts beneath its production-tree entry.");
+        detail.Find("ResourceProductionTree/Mode").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(selected.Label));
+        int selectedInputs = 0;
+        foreach (Pair<Resource, ExpantaNum> input in selected.ResourceConsumptionRates)
+            if (input.First != null && input.Second > ExpantaNum.Zero) selectedInputs++;
+        Assert.That(graph.childCount, Is.EqualTo(1 + selectedInputs + (selected.UpgradeTo != null &&
+            BuildingManager.Instance.ArePrerequisitesMet(selected.UpgradeTo, out _) ? 1 : 0)),
+            "The building root contains positive ongoing inputs and its upgrade, excluding construction costs.");
+        Assert.That(graph.GetChild(0).Find("Status").GetComponent<TMP_Text>().text, Does.Not.Contain("基础产"));
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-inputs");
+
+        Building multiInput = null;
+        int positiveInputs = 0;
+        foreach (Building building in DataBase<Building>.All)
+        {
+            if (building is SectorBuilding || !BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
+            int count = 0;
+            foreach (Pair<Resource, ExpantaNum> input in building.ResourceConsumptionRates)
+                if (input.First != null && input.Second > ExpantaNum.Zero) count++;
+            if (count >= 2) { multiInput = building; positiveInputs = count; break; }
+        }
+        Assert.That(multiInput, Is.Not.Null, "Real definitions must provide a building with multiple ongoing inputs.");
+        ui.ShowBuildingDetailsForEditor(multiInput);
+        detail.Find("ResourceProductionTree/Mode").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(multiInput.Label));
+        Assert.That(graph.childCount, Is.EqualTo(1 + positiveInputs + (multiInput.UpgradeTo != null &&
+            BuildingManager.Instance.ArePrerequisitesMet(multiInput.UpgradeTo, out _) ? 1 : 0)),
+            "One building root plus discrete positive ongoing inputs and its upgrade.");
+        foreach (Pair<Resource, ExpantaNum> input in multiInput.ResourceConsumptionRates)
+        {
+            if (input.First == null || input.Second <= ExpantaNum.Zero) continue;
+            bool found = false;
+            for (int i = 1; i < graph.childCount; i++)
+                found |= graph.GetChild(i).Find("Label").GetComponent<TMP_Text>().text == input.First.Label;
+            Assert.That(found, Is.True, "The actual building input is represented: " + input.First.Id);
+        }
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-active-inputs");
+
+        Building upgradeSource = null;
+        foreach (Building building in DataBase<Building>.All)
+            if (!(building is SectorBuilding) && building.UpgradeTo != null &&
+                BuildingManager.Instance.ArePrerequisitesMet(building, out _) &&
+                BuildingManager.Instance.ArePrerequisitesMet(building.UpgradeTo, out _)) { upgradeSource = building; break; }
+        Assert.That(upgradeSource, Is.Not.Null, "Real definitions provide an upgrade relationship.");
+        ui.ShowProductionTree(upgradeSource);
+        yield return null;
+        Transform upgradeNode = null;
+        foreach (Transform node in graph)
+            if (node.Find("Label").GetComponent<TMP_Text>().text == upgradeSource.UpgradeTo.Label)
+            { upgradeNode = node; break; }
+        Assert.That(upgradeNode, Is.Not.Null, "The actual building upgrade appears below its source.");
+        upgradeNode.Find("Label").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(upgradeSource.Label),
+            "Inspecting an upgrade preserves the original graph root.");
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-upgrades");
+
+        ui.ShowProductionTree(DataBase<Resource>.Find("Steel"));
+        yield return null;
+        for (int step = 0; step < 24; step++)
         {
             Button next = null;
-            foreach (Transform row in rows)
+            foreach (Transform node in graph)
             {
-                Button candidate = row.Find("Expand").GetComponent<Button>();
+                Button candidate = node.Find("Expand").GetComponent<Button>();
                 if (candidate.interactable && candidate.transform.Find("Label").GetComponent<TMP_Text>().text == "+")
                 { next = candidate; break; }
             }
             if (next == null) break;
-            next.onClick.Invoke(); yield return null;
+            next.onClick.Invoke();
+            yield return null;
         }
-        RectTransform contentRect = content as RectTransform;
-        float range = contentRect.rect.height - viewport.rect.height;
-        Assert.That(range, Is.GreaterThan(0), "Expanded Steel production dependencies must have a real scroll range.");
-        UIResourceTreeDetailDrag drag = surface.Find("Mode").GetComponent<UIResourceTreeDetailDrag>();
+        Assert.That(graph.rect.width, Is.GreaterThan(viewport.rect.width), "A real expanded Steel graph overflows horizontally.");
+        TutorialSnapshot beforeAutomaticRefresh = ui.TutorialSnapshotForEditor;
+        Assert.That(beforeAutomaticRefresh, Is.Not.Null);
+        ui.RefreshAutomaticUIForEditor();
+        Assert.That(ui.TutorialSnapshotForEditor, Is.SameAs(beforeAutomaticRefresh),
+            "Automatic refresh reuses onboarding snapshots within the polling interval.");
+        ui.RefreshUI();
+        Assert.That(ui.TutorialSnapshotForEditor, Is.Not.SameAs(beforeAutomaticRefresh),
+            "Explicit player-action refresh still evaluates onboarding immediately.");
+        TutorialSnapshot beforeSaveSession = ui.TutorialSnapshotForEditor;
+        TutorialManager.Current.ResetForNewGameForEditor();
+        ui.RefreshAutomaticUIForEditor();
+        Assert.That(ui.TutorialSnapshotForEditor, Is.Not.SameAs(beforeSaveSession),
+            "A new save session invalidates cached onboarding immediately.");
+
+        Assert.That(graph.rect.height, Is.GreaterThan(viewport.rect.height), "The same real graph overflows vertically.");
+        for (int i = 0; i < graph.childCount; i++)
+        {
+            RectTransform a = graph.GetChild(i) as RectTransform;
+            for (int j = i + 1; j < graph.childCount; j++)
+            {
+                RectTransform b = graph.GetChild(j) as RectTransform;
+                Assert.That(new Rect(a.anchoredPosition, a.rect.size).Overlaps(new Rect(b.anchoredPosition, b.rect.size)), Is.False);
+            }
+        }
+        gesture.RestoreView((viewport.rect.size - graph.rect.size * 1.25f) * .5f, 1.25f);
+        Vector2 saved = graph.anchoredPosition;
+        int nodeCount = graph.childCount;
+        ui.SetPage("Resources"); yield return null;
+        Assert.That(gesture.isActiveAndEnabled, Is.False, "A hidden production graph cannot handle input.");
+        ui.SetPage("Production"); yield return null;
+        Assert.That(Vector2.Distance(graph.anchoredPosition, saved), Is.LessThan(1f));
+        Assert.That(graph.localScale.x, Is.EqualTo(1.25f).Within(.001f));
+        Assert.That(graph.childCount, Is.EqualTo(nodeCount), "Page switching keeps the expanded graph cache.");
+
+        UIResearchGraphDragForwarder forwarder = graph.GetChild(0).Find("Expand").GetComponent<UIResearchGraphDragForwarder>();
+        Assert.That(forwarder, Is.Not.Null);
         PointerEventData pointer = new(EventSystem.current) { button = PointerEventData.InputButton.Left,
-            pointerId = 31, delta = new Vector2(0, 160), eligibleForClick = true };
-        drag.OnPointerDown(pointer); drag.OnInitializePotentialDrag(pointer);
-        drag.OnBeginDrag(pointer); drag.OnDrag(pointer); drag.OnEndDrag(pointer); drag.OnPointerUp(pointer);
-        Assert.That(contentRect.anchoredPosition.y, Is.GreaterThan(0));
-        Assert.That(contentRect.anchoredPosition.y, Is.LessThanOrEqualTo(range));
-        Assert.That(pointer.eligibleForClick, Is.False, "A tree-button drag must not navigate on release.");
-        rows.GetChild(0).Find("Label").GetComponent<Button>().onClick.Invoke(); yield return null;
-        Assert.That(rows.gameObject.activeSelf, Is.False, "Resource node navigation returns to that resource's detail.");
-        Assert.That(content.Find("Body").gameObject.activeSelf, Is.True);
+            pointerId = 53, eligibleForClick = true, position = RectTransformUtility.WorldToScreenPoint(null, viewport.position) };
+        forwarder.OnPointerDown(pointer); forwarder.OnInitializePotentialDrag(pointer); forwarder.OnBeginDrag(pointer);
+        pointer.position += new Vector2(-100, 100);
+        forwarder.OnDrag(pointer); forwarder.OnEndDrag(pointer); forwarder.OnPointerUp(pointer);
+        Assert.That(Vector2.Distance(graph.anchoredPosition, saved), Is.GreaterThan(1f));
+        Assert.That(pointer.eligibleForClick, Is.False);
+        Vector2 afterNodeDrag = graph.anchoredPosition;
+        PointerEventData background = new(EventSystem.current) { button = PointerEventData.InputButton.Left,
+            pointerId = 54, eligibleForClick = true, position = pointer.position };
+        gesture.OnPointerDown(background); gesture.OnInitializePotentialDrag(background); gesture.OnBeginDrag(background);
+        background.position += new Vector2(80, -80);
+        gesture.OnDrag(background); gesture.OnEndDrag(background); gesture.OnPointerUp(background);
+        Assert.That(Vector2.Distance(graph.anchoredPosition, afterNodeDrag), Is.GreaterThan(1f));
+
+        // Collapse and re-expand a visible producer after zooming; both rebuilds retain its visual anchor.
+        Transform branch = graph.GetChild(1);
+        Button branchExpand = branch.Find("Expand").GetComponent<Button>();
+        Assert.That(branchExpand.interactable, Is.True);
+        Vector2 branchPosition = (branch as RectTransform).anchoredPosition;
+        Vector2 branchSize = (branch as RectTransform).rect.size;
+        gesture.RestoreView(new Vector2(viewport.rect.width * .5f - (branchPosition.x + branchSize.x * .5f) * 1.25f,
+            viewport.rect.height * .5f - (graph.rect.height + branchPosition.y - branchSize.y * .5f) * 1.25f), 1.25f);
+        Vector3 beforeExpand = viewport.InverseTransformPoint(branch.position);
+        branchExpand.onClick.Invoke(); yield return null;
+        Assert.That(graph.localScale.x, Is.EqualTo(1.25f).Within(.001f));
+        graph.GetChild(1).Find("Expand").GetComponent<Button>().onClick.Invoke(); yield return null;
+        Assert.That(Vector3.Distance(viewport.InverseTransformPoint(graph.GetChild(1).position), beforeExpand), Is.LessThan(2f),
+            "Expanding after zoom preserves the clicked producer's visual anchor.");
+
+        float zoomBeforeReset = graph.localScale.x;
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/ProductionTools/Reset").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.localScale.x, Is.GreaterThan(0f).And.LessThan(zoomBeforeReset),
+            "Reset returns the zoomed graph to its fitted view.");
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "page-steel-expanded");
+    }
+
+    private IEnumerator LoadProductionScene()
+    {
+        loadedUi = null;
+        yield return SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Single);
+        yield return null;
+        Scene scene = SceneManager.GetSceneByName("SampleScene");
+        Assert.That(scene.IsValid() && scene.isLoaded, Is.True);
+        GameBootstrap bootstrap = null;
+        for (int i = 0; i < 160; i++)
+        {
+            // Resolve only this loaded scene, never an object pending destruction from the previous test.
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                if (loadedUi == null) loadedUi = root.GetComponentInChildren<KingdomUIRoot>(true);
+                if (bootstrap == null) bootstrap = root.GetComponentInChildren<GameBootstrap>(true);
+            }
+            if (loadedUi != null && bootstrap != null && bootstrap.Completed) break;
+            yield return null;
+        }
+        Assert.That(loadedUi != null, Is.True);
+        Assert.That(bootstrap != null && bootstrap.Completed, Is.True, "The freshly loaded scene must finish bootstrap.");
+        Assert.That(loadedUi.gameObject.scene, Is.EqualTo(scene));
+    }
+
+    private static IEnumerator CaptureTree(Canvas canvas, string name)
+    {
+        Assert.That(SystemInfo.graphicsDeviceType, Is.Not.EqualTo(UnityEngine.Rendering.GraphicsDeviceType.Null),
+            "Canvas evidence requires a graphics device; run Unity without -nographics.");
+        RenderMode oldMode = canvas.renderMode;
+        Camera oldCamera = canvas.worldCamera;
+        float oldDistance = canvas.planeDistance;
+        GameObject cameraObject = new("ProductionTreeEvidenceCamera", typeof(Camera));
+        Camera camera = cameraObject.GetComponent<Camera>();
+        camera.enabled = false;
+        camera.clearFlags = CameraClearFlags.SolidColor;
+        camera.backgroundColor = Color.black;
+        camera.transform.position = new Vector3(0, 0, -10);
+        camera.nearClipPlane = .1f; camera.farClipPlane = 1000;
+        RenderTexture target = null;
+        try
+        {
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = camera; canvas.planeDistance = 100;
+            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "production-redesign-20261014", "pages"));
+            Directory.CreateDirectory(folder);
+            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(2200, 1000), new Vector2Int(1760, 800) })
+            {
+                target = new RenderTexture(size.x, size.y, 24);
+                target.Create(); camera.targetTexture = target;
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                Texture2D pixels = new(size.x, size.y, TextureFormat.RGB24, false);
+                RenderTexture previous = RenderTexture.active;
+                try
+                {
+                    camera.Render();
+                    AssertProductionCanvasVisibility(canvas, size);
+                    RenderTexture.active = target;
+                    pixels.ReadPixels(new Rect(0, 0, size.x, size.y), 0, 0); pixels.Apply();
+                    File.WriteAllBytes(Path.Combine(folder, name + "-final-" + size.x + "x" + size.y + ".png"), pixels.EncodeToPNG());
+                }
+                finally { RenderTexture.active = previous; Object.Destroy(pixels); }
+                camera.targetTexture = null; target.Release(); Object.Destroy(target); target = null;
+            }
+        }
+        finally
+        {
+            canvas.renderMode = oldMode; canvas.worldCamera = oldCamera; canvas.planeDistance = oldDistance;
+            camera.targetTexture = null;
+            if (target != null) { target.Release(); Object.Destroy(target); }
+            Object.Destroy(cameraObject);
+        }
+    }
+
+    private static void AssertProductionCanvasVisibility(Canvas canvas, Vector2Int size)
+    {
+        Transform page = canvas.transform.Find("SafeAreaRoot/Content/PageHost/Production");
+        if (page == null || !page.gameObject.activeInHierarchy) return;
+        RectTransform viewport = page.Find("GraphViewport") as RectTransform;
+        Transform graph = viewport.Find("GraphContent");
+        Assert.That(viewport.rect.width, Is.GreaterThan(0f), size + " actual screenshot viewport width");
+        Assert.That(viewport.rect.height, Is.GreaterThan(0f), size + " actual screenshot viewport height");
+        TMP_Text rootLabel = graph.GetChild(0).Find("Label").GetComponent<TMP_Text>();
+        rootLabel.ForceMeshUpdate();
+        Assert.That(rootLabel.canvasRenderer.cull, Is.False, size + " root label must survive real Canvas clipping");
+        bool visibleGlyph = false;
+        foreach (TMP_CharacterInfo character in rootLabel.textInfo.characterInfo) visibleGlyph |= character.isVisible;
+        Assert.That(visibleGlyph, Is.True, size + " root text must contain visible glyphs");
+        int visibleNodes = 0;
+        Vector3[] corners = new Vector3[4];
+        foreach (Transform node in graph)
+        {
+            Image surface = node.GetComponent<Image>();
+            TMP_Text label = node.Find("Label").GetComponent<TMP_Text>();
+            (node as RectTransform).GetWorldCorners(corners);
+            Vector3 min = viewport.InverseTransformPoint(corners[0]), max = viewport.InverseTransformPoint(corners[2]);
+            Rect nodeBounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            if (!surface.canvasRenderer.cull && !label.canvasRenderer.cull && nodeBounds.Overlaps(viewport.rect)) visibleNodes++;
+        }
+        Assert.That(visibleNodes, Is.GreaterThan(0), size + " actual screenshot must render production nodes, not only connection lines");
+        Debug.Log("[ProductionPageScreenshot] size=" + size + " viewport=" + viewport.rect.size + " visibleNodes=" + visibleNodes);
+        UIResearchGraphGesture gesture = viewport.GetComponent<UIResearchGraphGesture>();
+        Debug.Log("[ProductionPageEvidence] size=" + size + " viewport=" + viewport.rect.size + " graph=" + (graph as RectTransform).rect.size +
+            " nodes=" + graph.childCount + " horizontal=" + gesture.CanPanHorizontal + " vertical=" + gesture.CanPanVertical);
     }
 }

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PhaseEnergyHarmonics
   m_EditorClassIdentifier: 
   id: PhaseEnergyHarmonics
-  Label: "Phase Energy Harmonics"
-  Description: "Tune the phase-energy array to a stable harmonic envelope, increasing the output of the existing Ultra power complex without creating a second energy economy."
+  Label: "相位能源谐振"
+  Description: "校准相位场的谐振周期，提高相位能源阵列的发电量。"
   BaseCost: "1.8e13"
   prerequisites:
   - {fileID: 11400000, guid: a91c4e6d2b7f4a80b3e5d1c9f6a2e7b4, type: 2}

@@ -262,7 +262,6 @@ public sealed class UltraProjectManagerTickTests
         projectManager.RestoreSaveDataForEditor(new UltraProjectStateSaveData
         {
             ProjectId = UltraProjectState.ProjectId,
-            SaveVersion = UltraProjectState.CurrentSaveVersion,
             Doctrine = UltraProjectDoctrine.Stable,
             Status = UltraProjectStatus.Running,
             CurrentStage = UltraProjectStage.Prototype,

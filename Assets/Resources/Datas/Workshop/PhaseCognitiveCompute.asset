@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PhaseCognitiveCompute
   m_EditorClassIdentifier: 
   id: PhaseCognitiveCompute
-  Label: "Phase Cognitive Compute"
-  Description: "A phase-stable cognitive array that turns the Ultra computing nexus into a sustained research capability, using existing advanced materials instead of adding a new science resource."
+  Label: "相位认知计算"
+  Description: "以相位稳定阵列共享计算任务，提高全局研究效率。"
   SortOrder: 730
   TechLevel: 5
   requiredResearch:

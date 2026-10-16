@@ -170,7 +170,18 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         if (deltaSeconds > 0d)
             FlushOfflineCampaignRemainder();
+        double remaining = deltaSeconds;
+        do
+        {
+            double step = Math.Min(remaining, GameManager.Instance.State.Events.NextBoundary(true));
+            ManualTickCore(step);
+            GameManager.Instance.AdvanceWorldEvents(step, true);
+            remaining -= step;
+        } while (remaining > 0d);
+    }
 
+    private void ManualTickCore(double deltaSeconds)
+    {
 #if UNITY_EDITOR
         float tickStart = Time.realtimeSinceStartup;
         long tickAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
@@ -178,6 +189,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 #endif
         BuildingManager buildingManager = BuildingManager.Instance;
         buildingManager.PrepareTickResourceSatisfaction(deltaSeconds);
+        ExpantaNum resourceReward = GameManager.Instance.State.HappinessRewardMultiplier;
 #if UNITY_EDITOR
         float buildingEnd = Time.realtimeSinceStartup;
 #endif
@@ -196,7 +208,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         sectors.TickOccupiedResourceProduction(
             deltaSeconds,
             resourceManager);
-        resourceManager.Tick(deltaSeconds);
+        resourceManager.Tick(deltaSeconds, resourceReward);
 #if UNITY_EDITOR
         float resourceEnd = Time.realtimeSinceStartup;
 #endif
@@ -443,8 +455,26 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         GameManager gameManager,
         bool useRealtimeResearchCadence = false)
     {
+        double remaining = simulationSeconds;
+        do
+        {
+            double step = Math.Min(remaining, gameManager.State.Events.NextBoundary(false));
+            double calendarStep = simulationSeconds > 0d ? calendarSeconds * step / simulationSeconds : calendarSeconds;
+            TickOfflineSimulationCore(calendarStep, step, gameManager, useRealtimeResearchCadence);
+            gameManager.AdvanceWorldEvents(step, false);
+            remaining -= step;
+        } while (remaining > 0d);
+    }
+
+    private static void TickOfflineSimulationCore(
+        double calendarSeconds,
+        double simulationSeconds,
+        GameManager gameManager,
+        bool useRealtimeResearchCadence)
+    {
         BuildingManager buildingManager = BuildingManager.Instance;
         buildingManager.PrepareTickResourceSatisfaction(simulationSeconds);
+        ExpantaNum resourceReward = gameManager.State.HappinessRewardMultiplier;
         gameManager.TickOffline(
             calendarSeconds,
             simulationSeconds,
@@ -452,7 +482,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         ResourceManager resourceManager = ResourceManager.Instance;
         SectorManager sectors = gameManager.Sectors;
         sectors.TickOccupiedResourceProduction(simulationSeconds, resourceManager);
-        resourceManager.Tick(simulationSeconds);
+        resourceManager.Tick(simulationSeconds, resourceReward);
         gameManager.UltraProject.Tick(simulationSeconds);
         gameManager.Relic.Tick(simulationSeconds);
         TickSectorOperations(

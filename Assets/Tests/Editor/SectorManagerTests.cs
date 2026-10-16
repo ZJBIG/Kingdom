@@ -343,7 +343,7 @@ public sealed class SectorManagerTests
         Assert.That(asteroid.ResourceRewards, Is.Empty);
         Assert.That(jovian.ResourceRewards, Is.Empty);
         Assert.That(HasPositiveRate(asteroid.OccupiedResourceRatesPerSecond,
-            DataBase<Resource>.Find("TitaniumConcentrate")), Is.True);
+            DataBase<Resource>.Find("SpecialMetalOre")), Is.True);
         Assert.That(HasPositiveRate(jovian.OccupiedResourceRatesPerSecond,
             DataBase<Resource>.Find("RocketFuel")), Is.True);
     }
@@ -818,17 +818,17 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void InterstellarCampaignsConsumeNickelForFleetStructuralMaintenance()
+    public void InterstellarCampaignsConsumeAdvancedMetalForFleetStructuralMaintenance()
     {
         SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
         SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
         SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
         SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
 
-            Assert.That(FindCampaignCost(alpha, "Nickel"), Is.GreaterThan(ExpantaNum.Zero));
-            Assert.That(FindCampaignCost(proxima, "Nickel"), Is.GreaterThan(ExpantaNum.Zero));
-            Assert.That(FindCampaignCost(tau, "Nickel"), Is.GreaterThan(ExpantaNum.Zero));
-            Assert.That(FindCampaignCost(sirius, "Nickel"), Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(FindCampaignCost(alpha, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(FindCampaignCost(proxima, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(FindCampaignCost(tau, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(FindCampaignCost(sirius, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -938,7 +938,7 @@ public sealed class SectorManagerTests
         SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
         SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
         SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
-        string[] resources = { "RocketFuel", "Engine", "Nickel", "Lubricant", "Biomass" };
+        string[] resources = { "RocketFuel", "Engine", "AdvancedMetalIngot", "Lubricant", "Biomass" };
 
         for (int i = 0; i < resources.Length; i++)
         {
@@ -1613,7 +1613,7 @@ public sealed class SectorManagerTests
         Assert.That(FindOccupiedResourceRate(moon, "TitaniumAlloy"),
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindOccupiedResourceRate(moon, "Composite"), Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindOccupiedResourceRate(mars, "Nickel"), Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(FindOccupiedResourceRate(mars, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindOccupiedResourceRate(mars, "RocketFuel"), Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindOccupiedResourceRate(mars, "Electronics"),
             Is.GreaterThanOrEqualTo(FindOccupiedResourceRate(moon, "Electronics")));
@@ -2058,14 +2058,13 @@ public sealed class SectorManagerTests
                 new ExpantaNum(0.8d),
                 new ExpantaNum(2));
 
-            gameManager.RestoreSaveDataForEditor(
-                new SaveManager.GameSaveData
-                {
-                    FoodAmount = "300",
-                    TechLevel = TechLevel.Animal,
-                    CampaignActive = false,
-                    CampaignTargetSectorId = string.Empty
-                });
+            SaveManager.GameSaveData data = gameManager.CaptureSaveData();
+            data.FoodAmount = "300";
+            data.CampaignActive = false;
+            data.CampaignTargetSectorId = string.Empty;
+            data.CampaignCasualties = "0";
+            data.CampaignCombatRatio = "0";
+            gameManager.RestoreSaveDataForEditor(data);
 
             Assert.That(gameManager.State.Campaign.Active, Is.False);
             Assert.That(gameManager.State.Campaign.TargetSectorId, Is.Empty);

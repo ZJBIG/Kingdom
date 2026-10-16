@@ -17,7 +17,6 @@ public enum RelicPauseReason { None, Manual, InsufficientSupply }
 public sealed class RelicStateSaveData
 {
     public string RelicId;
-    public int SaveVersion;
     public RelicStatus Status;
     public RelicRoute Route;
     public string Progress;
@@ -34,7 +33,6 @@ public sealed class RelicStateSaveData
 public sealed class RelicState
 {
     public const string RelicId = "EchoFoundryRing";
-    public const int CurrentSaveVersion = 1;
 
     public RelicStatus Status { get; private set; }
     public RelicRoute Route { get; private set; }
@@ -163,7 +161,6 @@ public sealed class RelicState
     internal RelicStateSaveData CaptureSaveData() => new RelicStateSaveData
     {
         RelicId = RelicId,
-        SaveVersion = CurrentSaveVersion,
         Status = Status,
         Route = Route,
         Progress = Progress.ToString(),
@@ -204,7 +201,7 @@ public sealed class RelicState
     {
         if (data == null)
             throw new ArgumentNullException(nameof(data));
-        Require(data.SaveVersion == CurrentSaveVersion && string.Equals(data.RelicId, RelicId, StringComparison.Ordinal));
+        Require(string.Equals(data.RelicId, RelicId, StringComparison.Ordinal));
         Require(data.StateVersion > 0 && data.CompletedCommissions >= 0);
         Require(data.Status >= RelicStatus.Discovered && data.Status <= RelicStatus.Operational);
         Require(data.Route >= RelicRoute.None && data.Route <= RelicRoute.Dismantle);

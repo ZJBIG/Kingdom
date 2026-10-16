@@ -86,12 +86,12 @@ public sealed partial class KingdomUIRoot
                     ResourceManager.ApplyCurrentProductionReward(state.ProductionRate),
                     state.ConsumptionRate);
             string change = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
-            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.ResourceCard, parent, visible++);
+            GameObject row = InstantiateAuthoredRow(GetEraCollectionPrefabName(KingdomUIPrefabLibrary.ResourceCard,
+                resource.TechLevel), parent, visible++);
             if (row == null)
                 continue;
             ApplyEraRowStyle(row, resource.TechLevel, visible - 1);
             BindRowPin(row, UIPinPreferences.Resource, resource.Id);
-            SetRowMetadata(row, resource.TechLevel.GetDescription() + " · " + FirstDescriptionLine(resource.Description));
             if (!SetRowText(row, "Label", resource.Label) ||
                 !SetRowText(row, "Amount", amount) ||
                 !SetRowText(row, "ChangeRate", change, net >= ExpantaNum.Zero ? Positive : Error))
@@ -174,16 +174,16 @@ public sealed partial class KingdomUIRoot
             BuildingState state = null;
             if (buildingManager != null && buildingManager.States.TryGetValue(building, out state))
                 amount = state.Amount.ToGameString();
-            GameObject row = InstantiateAuthoredRow(KingdomUIPrefabLibrary.BuildingCard, parent, visible++);
+            GameObject row = InstantiateAuthoredRow(GetEraCollectionPrefabName(KingdomUIPrefabLibrary.BuildingCard,
+                building.TechLevel), parent, visible++);
             if (row == null)
                 continue;
             ApplyEraRowStyle(row, building.TechLevel, visible - 1);
             BindRowPin(row, UIPinPreferences.Building, building.Id);
-            SetRowMetadata(row, GetBuildingRoleSummary(building));
             if (!SetRowText(row, "Label", building.Label) ||
                 !SetRowText(row, "TechLevel", building.TechLevel.GetDescription()) ||
                 !SetRowText(row, "Amount", amount) ||
-                !SetRowText(row, "Effect", FormatBuildingEfficiency(state), TextSecondary))
+                !SetRowText(row, "Effect", FormatBuildingAvailability(state), TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
             if (cardButton == null)
@@ -236,25 +236,36 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
-    private string FormatBuildingEfficiency(BuildingState state)
+    private const string LandIcon = "<sprite=\"BuildingStatusIcons\" index=0>";
+    private const string ProductivityIcon = "<sprite=\"BuildingStatusIcons\" index=1>";
+    private const string MaterialsIcon = "<sprite=\"BuildingStatusIcons\" index=2>";
+
+    private const string LandShortageIcon = "<sprite=\"BuildingStatusIcons\" index=3>";
+    private const string ProductivityShortageIcon = "<sprite=\"BuildingStatusIcons\" index=4>";
+    private const string MaterialsShortageIcon = "<sprite=\"BuildingStatusIcons\" index=5>";
+
+    private readonly List<BuildFailure> buildingAvailabilityFailures = new List<BuildFailure>();
+
+    private string FormatBuildingAvailability(BuildingState state)
     {
-        if (state == null) return "—";
+        if (state == null) return string.Empty;
         Building building = state.Definition;
         bool upgrade = BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
         ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
-        BuildFailure failure = upgrade ? BuildingManager.Instance.GetUpgradeFailure(building, amount)
-            : BuildingManager.Instance.GetBuildFailure(building, amount);
-        if (failure != BuildFailure.None) return failure switch
+        BuildingManager.Instance.GetConstructionFailures(building, amount, upgrade, buildingAvailabilityFailures);
+        string icons = string.Empty;
+        if (buildingAvailabilityFailures.Contains(BuildFailure.SpaceInsufficient)) icons += LandShortageIcon;
+        if (buildingAvailabilityFailures.Contains(BuildFailure.ProductivityInsufficient)) icons += ProductivityShortageIcon;
+        if (buildingAvailabilityFailures.Contains(BuildFailure.ResourceInsufficient)) icons += MaterialsShortageIcon;
+        if (icons.Length > 0) return icons;
+        if (buildingAvailabilityFailures.Count > 0) return buildingAvailabilityFailures[0] switch
         {
-            BuildFailure.ResourceInsufficient => "缺材料", BuildFailure.SpaceInsufficient => "缺土地",
-            BuildFailure.ProductivityInsufficient => "生产力", BuildFailure.TechnologyInsufficient => "时代锁",
-            BuildFailure.ResearchPrerequisiteIncomplete => "缺前置", BuildFailure.WorkshopPrerequisiteIncomplete => "缺工坊",
+            BuildFailure.TechnologyInsufficient => "时代未到",
+            BuildFailure.ResearchPrerequisiteIncomplete => "待研究", BuildFailure.WorkshopPrerequisiteIncomplete => "待工坊升级",
             BuildFailure.SectorNotOccupied => "待占领", BuildFailure.BuildingTierSuperseded => "已替代",
             BuildFailure.BuildingLimitReached => "已满额", _ => "不可建"
         };
-        if (state.Amount <= ExpantaNum.Zero) return "可建";
-        if (state.Efficiency <= ExpantaNum.Zero) return "停工";
-        return (ExpantaNum.Clamp01(state.Efficiency) * 100).ToGameString() + "%";
+        return MaterialsIcon;
     }
 
     private System.Text.StringBuilder BuildBuildingDisplaySignature()
@@ -309,7 +320,6 @@ public sealed partial class KingdomUIRoot
             visible++;
             ApplyEraRowStyle(row, definition.TechLevel, index);
             BindRowPin(row, UIPinPreferences.Workshop, definition.Id);
-            SetRowMetadata(row, FirstDescriptionLine(definition.Description));
             Transform techLevel = row.transform.Find("TechLevel");
             if (techLevel == null)
             {
@@ -323,7 +333,7 @@ public sealed partial class KingdomUIRoot
             if (!SetRowText(row, "Label", definition.Label) ||
                 !SetRowText(row, "TechLevel",
                     definition.TechLevel.GetDescription() + " · " + availability,
-                    purchased ? Positive : canPurchase ? Copper : TextSecondary))
+                    purchased ? Positive : canPurchase ? BasicMetalIngot : TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
             Button purchaseButton = RequireChildButton(
@@ -438,36 +448,10 @@ public sealed partial class KingdomUIRoot
         rect.sizeDelta = new Vector2(0f, layout.preferredHeight);
         rect.anchoredPosition = new Vector2(0f, top);
         nextRowTop += layout.preferredHeight;
-        row.name = prefab + "_" + index;
+        row.name = prefab.Substring(prefab.LastIndexOf('/') + 1) + "_" + index;
         // Row prefabs own the drag-forwarder component.  Do not add it here:
         // page scrolling must remain authored consistently across Resources,
         // Buildings and Era, rather than being repaired differently at runtime.
-        row.SetActive(true);
-        return row;
-    }
-
-    private static GameObject InstantiateAuthoredDetailRow(string prefab, RectTransform parent, string name, float top)
-    {
-        GameObject row = KingdomUIPrefabLibrary.Instantiate(prefab, parent);
-        if (row == null)
-        {
-            Debug.LogError("[王国界面] Required authored detail-row prefab is unavailable: " + prefab);
-            return null;
-        }
-        RectTransform rect = row.GetComponent<RectTransform>();
-        LayoutElement layout = row.GetComponent<LayoutElement>();
-        if (rect == null || layout == null || layout.preferredHeight <= 1f)
-        {
-            Debug.LogError("[王国界面] Authored detail-row prefab is missing LayoutElement: " + prefab);
-            Destroy(row);
-            return null;
-        }
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(1f, 1f);
-        rect.pivot = new Vector2(.5f, 1f);
-        rect.sizeDelta = new Vector2(0f, layout.preferredHeight);
-        rect.anchoredPosition = new Vector2(0f, top);
-        row.name = name;
         row.SetActive(true);
         return row;
     }

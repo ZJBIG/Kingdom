@@ -51,10 +51,10 @@ public class FirstThreeErasContentDefinitionTests
     {
         string[] ids =
         {
-            "FoodPreservation", "HerbalKnowledge", "VillageOrganization", "OrganizedDefense",
+            "FoodPreservation", "HerbalKnowledge", "VillageOrganization", "WatchAndCooperation",
             "Woodworking", "CeramicFiring", "CharcoalMaking", "AnimalFodder",
             "IrrigationEngineering", "VillageCrafts", "CropRotation", "CouncilGovernance",
-            "OrganizedWatch", "Smithing_Bronze", "Smithing_Copper", "Smithing_Iron",
+            "OrganizedWatch", "BronzeAlloyCrafting", "MultiMetalSmeltingFundamentals", "IronworkingAndSteelmaking",
             "FoodStorage", "WrittenRecords", "UrbanHousing", "GuildSystem",
             "ScholasticInstitutions", "PublicHealth", "FeudalAdministration"
         };

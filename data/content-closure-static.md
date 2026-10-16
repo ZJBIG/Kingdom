@@ -12,7 +12,7 @@ Building reachable (Spacer): 19/19
 Research reachable (Ultra): 15/15
 Workshop reachable (Ultra): 3/3
 Building reachable (Ultra): 3/3
-Resources available: 40
+Resources available: 33
 
 ## Unreachable research
 

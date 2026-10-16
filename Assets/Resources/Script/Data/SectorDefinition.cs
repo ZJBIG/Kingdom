@@ -110,21 +110,6 @@ public sealed class SectorDefinition : GameDefinition
         occupiedResourceRatesCache = null;
     }
 
-    public void SetLocationForEditor(string systemId, SectorDomain sectorDomain)
-    {
-        starSystemId = string.IsNullOrWhiteSpace(systemId) ? HomeSystemId : systemId;
-        domain = sectorDomain;
-    }
-
-    public void SetColonizationCostsForEditor(
-        ExpantaNum foodPerSecond,
-        List<Pair<Resource, ExpantaNum>> resourcesPerSecond)
-    {
-        colonizationFoodPerSecond = ExpantaNum.Max(ExpantaNum.Zero, foodPerSecond).ToString();
-        colonizationResourceRatesPerSecond = ResourceAmountDefinitionList.FromPairs(resourcesPerSecond);
-        colonizationResourceRatesCache = null;
-    }
-
     public void SetCampaignCostsForEditor(
         ExpantaNum foodPerSecond,
         List<Pair<Resource, ExpantaNum>> resourcesPerSecond)

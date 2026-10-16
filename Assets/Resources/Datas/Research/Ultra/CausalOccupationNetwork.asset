@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CausalOccupationNetwork
   m_EditorClassIdentifier: 
   id: CausalOccupationNetwork
-  Label: "Causal Occupation Network"
-  Description: "A governance network that converts sustained supply, logistics and fleet presence into more productive occupied territories without turning sectors into instant resource grants."
+  Label: "因果占领网络"
+  Description: "把跨星区补给与驻防计划连接为治理网络，提高所有占领星区的持续资源产出。"
   BaseCost: "1.2e13"
   prerequisites:
   - {fileID: 11400000, guid: e7b3c9d1f5a64280bc14e6a9d2f7c5b8, type: 2}

@@ -44,7 +44,6 @@ public enum UltraProjectPauseReason
 public sealed class UltraProjectStateSaveData
 {
     public string ProjectId;
-    public int SaveVersion;
     public UltraProjectDoctrine Doctrine;
     public UltraProjectStatus Status;
     public UltraProjectStage CurrentStage;
@@ -59,7 +58,6 @@ public sealed class UltraProjectStateSaveData
 public sealed class UltraProjectState
 {
     public const string ProjectId = "UltraCivilizationEngineering";
-    public const int CurrentSaveVersion = 1;
     public const int StageCount = 3;
 
     private static readonly UltraProjectStage[] OrderedStages =
@@ -316,7 +314,6 @@ public sealed class UltraProjectState
         return new UltraProjectStateSaveData
         {
             ProjectId = ProjectId,
-            SaveVersion = CurrentSaveVersion,
             Doctrine = Doctrine,
             Status = Status,
             CurrentStage = CurrentStage,
@@ -376,9 +373,6 @@ public sealed class UltraProjectState
     {
         if (saveData == null)
             throw new ArgumentNullException(nameof(saveData));
-        if (saveData.SaveVersion != CurrentSaveVersion)
-            throw new InvalidOperationException(
-                "The Ultra project save version is not supported.");
         if (!string.Equals(saveData.ProjectId, ProjectId, StringComparison.Ordinal))
             throw new InvalidOperationException(
                 "The Ultra project save belongs to an unsupported project definition.");

@@ -25,6 +25,7 @@ public class ResourceManager : Singleton<ResourceManager>
     private sealed class TransactionWorkspace
     {
         public readonly Dictionary<Resource, ExpantaNum> Deltas = new();
+        public readonly HashSet<string> EntryStableIds = new(StringComparer.OrdinalIgnoreCase);
         public readonly List<KeyValuePair<Resource, ExpantaNum>> Entries = new();
         public readonly List<ResourceState> AddedStates = new();
         public readonly List<ExpantaNum> PreviousAmounts = new();
@@ -199,7 +200,8 @@ public class ResourceManager : Singleton<ResourceManager>
         entries.Clear();
         addedStates.Clear();
         previousAmounts.Clear();
-        HashSet<string> entryStableIds = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> entryStableIds = workspace.EntryStableIds;
+        entryStableIds.Clear();
         foreach (KeyValuePair<Resource, ExpantaNum> entry in deltas)
         {
             if (entry.Key == null || !entry.Value.IsFinite)
@@ -207,6 +209,8 @@ public class ResourceManager : Singleton<ResourceManager>
 
             string stableId = entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim();
             if (!entryStableIds.Add(stableId))
+                return false;
+            if (DataBase<Resource>.TryFind(stableId, out Resource definition) && definition != entry.Key)
                 return false;
 
             entries.Add(entry);
@@ -371,6 +375,15 @@ public class ResourceManager : Singleton<ResourceManager>
         state.SetProductionRate(ApplyDerivedRateDelta(state.ProductionRate, delta));
     }
 
+    internal void ResetBuildingRates()
+    {
+        foreach (ResourceState state in orderedStates)
+        {
+            state.SetProductionRate(ExpantaNum.Zero);
+            state.SetConsumptionRate(ExpantaNum.Zero);
+        }
+    }
+
     public void AdjustConsumptionRate(Resource resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
@@ -434,6 +447,13 @@ public class ResourceManager : Singleton<ResourceManager>
         EnsureResource(resource).AdjustTickPotentialProductionRate(delta);
     }
 
+    internal void RefreshTickProduction()
+    {
+        ExpantaNum reward = GetHappinessRewardMultiplier();
+        foreach (ResourceState state in orderedStates)
+            state.RefreshTickProduction(reward);
+    }
+
     internal void AdjustTickPotentialConsumption(Resource resource, ExpantaNum delta)
     {
         EnsureResource(resource).AdjustTickPotentialConsumptionRate(delta);
@@ -448,13 +468,14 @@ public class ResourceManager : Singleton<ResourceManager>
     internal ExpantaNum GetTickSatisfaction(Resource resource) =>
         GetState(resource).GetTickSatisfactionOrFallback();
 
-    public void Tick(double deltaSeconds)
+    public void Tick(double deltaSeconds) => Tick(deltaSeconds, GetHappinessRewardMultiplier());
+
+    internal void Tick(double deltaSeconds, ExpantaNum happinessMultiplier)
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0d)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
         if (orderedStates.Count == 0)
             return;
-        ExpantaNum happinessMultiplier = GetHappinessRewardMultiplier();
         for (int i = 0; i < orderedStates.Count; i++)
         {
             ResourceState state = orderedStates[i];
@@ -522,7 +543,6 @@ public class ResourceManager : Singleton<ResourceManager>
 
         if (saveData.Resources != null)
         {
-            var restoredResources = new HashSet<Resource>();
             var restoredAmounts = new Dictionary<Resource, ExpantaNum>();
             for (int i = 0; i < saveData.Resources.Count; i++)
             {
@@ -530,23 +550,22 @@ public class ResourceManager : Singleton<ResourceManager>
                 if (!DataBase<Resource>.TryFind(data.ResourceId, out Resource resource))
                     throw new InvalidOperationException(
                         $"存档包含未知资源编号“{data.ResourceId}”。");
-                if (!restoredResources.Add(resource))
+                if (restoredAmounts.ContainsKey(resource))
                     throw new InvalidOperationException(
                         $"存档中的资源状态重复包含“{resource.Id}”。");
                 ExpantaNum amount = Parse(data.Amount, resource.Id, nameof(data.Amount));
-                if (amount < ExpantaNum.Zero)
+                if (!amount.IsFinite || amount < ExpantaNum.Zero)
                     throw new InvalidOperationException(
-                        $"Resource amount cannot be negative: {resource.Id}");
+                        $"Resource amount must be finite and non-negative: {resource.Id}");
                 restoredAmounts.Add(resource, amount);
             }
 
             ExpantaNum restoredGlobalEfficiencyFactor = Parse(
                 saveData.GlobalEfficiencyFactor,
                 nameof(ResourceManager),
-                nameof(saveData.GlobalEfficiencyFactor),
-                ExpantaNum.One);
-            if (restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
-                throw new InvalidOperationException("Resource global efficiency cannot be negative.");
+                nameof(saveData.GlobalEfficiencyFactor));
+            if (!restoredGlobalEfficiencyFactor.IsFinite || restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
+                throw new InvalidOperationException("Resource global efficiency must be finite and non-negative.");
             foreach (KeyValuePair<Resource, ExpantaNum> entry in restoredAmounts)
                 EnsureResource(entry.Key).SetAmount(entry.Value);
             GlobalEfficiencyFactor = restoredGlobalEfficiencyFactor;
@@ -556,8 +575,7 @@ public class ResourceManager : Singleton<ResourceManager>
             GlobalEfficiencyFactor = Parse(
                 saveData.GlobalEfficiencyFactor,
                 nameof(ResourceManager),
-                nameof(saveData.GlobalEfficiencyFactor),
-                ExpantaNum.One);
+                nameof(saveData.GlobalEfficiencyFactor));
         }
 
         EnsureStartingResource();
@@ -572,20 +590,13 @@ public class ResourceManager : Singleton<ResourceManager>
         return state;
     }
 
-    public override void Save() => SaveManager.Instance.SaveNow(true);
-
-    public override void Load() => SaveManager.Instance.LoadOrCreateGame();
-
     private static ExpantaNum Parse(
         string raw,
         string owner,
-        string field,
-        ExpantaNum fallback = default)
+        string field)
     {
-        if (ExpantaNum.TryParse(raw, out ExpantaNum value))
+        if (ExpantaNum.TryParse(raw, out ExpantaNum value) && value.IsFinite)
             return value;
-        if (string.IsNullOrEmpty(raw))
-            return fallback;
-            throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
+        throw new FormatException($"{owner}.{field} 中的 ExpantaNum 值“{raw}”无效。");
     }
 }

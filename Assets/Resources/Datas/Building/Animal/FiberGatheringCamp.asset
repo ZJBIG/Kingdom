@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: FiberGatheringCamp
   Label: "\u7EA4\u7EF4\u91C7\u96C6\u5730"
-  Description: "\u91C7\u96C6\u9EBB\u3001\u8349\u830E\u7B49\u690D\u7269\u7EA4\u7EF4\uFF0C\u4F5C\u4E3A\u7EF3\u7D22\u3001\u7EC7\u7269\u548C\u8F7B\u578B\u5DE5\u5177\u7684\u57FA\u7840\u539F\u6599\u3002"
+  Description: "采集草茎、枝叶和其他植物，持续产出生物质，供应纺织工坊与后续生态生产。"
   TechLevel: 0
   upgradeTo: {fileID: 11400000, guid: b1c2d3e4f5061728394a5b6c7d8e9f01, type: 2}
   costGrowth: "1.14"

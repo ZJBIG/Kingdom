@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AzurePool
   Label: "碧池星"
-  Description: "环绕母星的静默近月基地，是王国建立长期空间据点的第一处试炼场。灰白地表下埋藏复合材料与钛的矿脉，等待被送往更远的航线。"
+  Description: "母星近旁的月面基地。修复旧设施后，可从遗留仓储与加工站持续取得钛合金、复合材料和电子元件，为远航建立补给点。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"

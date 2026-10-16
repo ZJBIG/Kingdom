@@ -1,0 +1,31 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-15T19:14:11.6068331+08:00
+Platform: PlayMode
+Result: Failed
+Total: 31 Passed:26 Failed:5 Skipped:0
+
+=== FAILURE 1 ===
+Test: KingdomOnboardingPlayModeTests.OuterPageScroll_DirectDragReportsMeasuredBounds
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: KingdomOnboardingPlayModeTests.OverviewShowsPersistentOnboardingGoal
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 3 ===
+Test: KingdomOnboardingPlayModeTests.StoryPage_RendersRealChapterCardsAndAdaptsBodyHeight
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 4 ===
+Test: ReviewInteractionPlayModeTests.BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 5 ===
+Test: UnsafeAreaTickerPlayModeTests.CivilizationTelegraph_UsesInsetWithoutInterceptingInput
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

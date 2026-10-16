@@ -109,9 +109,11 @@ public sealed class KingdomCollectionPlayModeTests
         Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Resource, targetResource.Id), Is.True);
         Transform pinnedResourceRow = root.ResourceChangeLabelsForEditor[targetResource].transform.parent;
         AssertFirstCollectionRow(pinnedResourceRow);
-        Assert.That(pinnedResourceRow.Find("Metadata").GetComponent<TMP_Text>().text, Is.Not.Empty);
-        Color actualAccent = pinnedResourceRow.Find("EraAccent").GetComponent<Image>().color;
-        Assert.That(Vector4.Distance(actualAccent, KingdomUIRoot.GetEraAccent(targetResource.TechLevel)), Is.LessThan(.01f));
+        AssertPinAppearance(pinnedResourceRow.Find("PinButton").GetComponent<Button>(), true);
+        Assert.That(pinnedResourceRow.Find("Metadata").gameObject.activeSelf, Is.False);
+        Assert.That(pinnedResourceRow.GetComponent<Image>().sprite,
+            Is.SameAs(Resources.Load<Sprite>("Art/UI/EraCards/" + targetResource.TechLevel)),
+            "Pinned rows retain their authored era artwork.");
         root.SetPage("Buildings");
         yield return null;
         Building targetBuilding = null;
@@ -246,17 +248,9 @@ public sealed class KingdomCollectionPlayModeTests
         yield return null;
         Canvas.ForceUpdateCanvases();
         Button detailPin = root.transform.Find("SafeAreaRoot/DetailPanel/Surface/PinButton").GetComponent<Button>();
-        Assert.That(detailPin.gameObject.activeInHierarchy, Is.True);
-        AssertPointerHitsPin(detailPin);
-        string originalTitle = node.Find("Label").GetComponent<TMP_Text>().text;
-        var click = new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left };
-        ExecuteEvents.Execute(detailPin.gameObject, click, ExecuteEvents.pointerClickHandler);
-        yield return null;
-        Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Research, research.Id), Is.True);
-        Assert.That(node.Find("Label").GetComponent<TMP_Text>().text, Is.Not.EqualTo(originalTitle));
-        detailPin.onClick.Invoke();
+        Assert.That(detailPin.gameObject.activeInHierarchy, Is.False,
+            "Detail pages omit pin actions; sorting remains on collection rows.");
         Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Research, research.Id), Is.False);
-        Assert.That(node.Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(originalTitle));
     }
 
     private static Transform FindLabelRow(Transform rows, string label)
@@ -274,34 +268,25 @@ public sealed class KingdomCollectionPlayModeTests
             a.max.y <= b.min.y + 1 || b.max.y <= a.min.y + 1, Is.True, first.name + " overlaps " + second.name);
     }
 
-    private static void AssertPointerHitsPin(Button pin)
+    private static void AssertPinAppearance(Button pin, bool pinned)
     {
-        Canvas canvas = pin.GetComponentInParent<Canvas>();
-        RectTransform rect = (RectTransform)pin.transform;
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(
-            canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera, rect.TransformPoint(rect.rect.center));
-        var pointer = new PointerEventData(EventSystem.current) { position = screen };
-        var hits = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointer, hits);
-        Graphic graphic = pin.targetGraphic;
-        Debug.Log("[CollectionPinRaycast] screen=" + screen + " screenSize=" + Screen.width + "x" + Screen.height +
-            " rect=" + rect.rect + " world=" + rect.TransformPoint(rect.rect.center) +
-            " canvas=" + canvas.name + " mode=" + canvas.renderMode + " enabled=" + canvas.enabled +
-            " camera=" + (canvas.worldCamera == null ? "null" : canvas.worldCamera.name) +
-            " graphic=" + graphic.name + " enabled=" + graphic.enabled + " active=" + graphic.gameObject.activeInHierarchy +
-            " raycastTarget=" + graphic.raycastTarget + " cull=" + graphic.canvasRenderer.cull +
-            " depth=" + graphic.depth + " hits=" + hits.Count);
-        foreach (GraphicRaycaster raycaster in Object.FindObjectsOfType<GraphicRaycaster>(true))
-            Debug.Log("[CollectionPinRaycaster] name=" + raycaster.name + " active=" + raycaster.gameObject.activeInHierarchy +
-                " enabled=" + raycaster.enabled + " eventCamera=" + (raycaster.eventCamera == null ? "null" : raycaster.eventCamera.name));
-        for (Transform ancestor = pin.transform; ancestor != null; ancestor = ancestor.parent)
-            foreach (CanvasGroup group in ancestor.GetComponents<CanvasGroup>())
-                Debug.Log("[CollectionPinCanvasGroup] name=" + ancestor.name + " alpha=" + group.alpha +
-                    " blocks=" + group.blocksRaycasts + " interactable=" + group.interactable + " ignoreParents=" + group.ignoreParentGroups);
-        foreach (RaycastResult hit in hits) Debug.Log("[CollectionPinHit] " + hit.gameObject.name + " depth=" + hit.depth);
-        Assert.That(hits.Count, Is.GreaterThan(0));
-        Assert.That(hits[0].gameObject, Is.SameAs(pin.gameObject), "Detail tools must not intercept the pin click.");
+        Image icon = pin.transform.Find("Icon")?.GetComponent<Image>();
+        Assert.That(icon, Is.Not.Null);
+        Assert.That(icon.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Pins/" + (pinned ? "PinFilled" : "PinOutline"))), "Generated outline/filled sprite must follow the stored preference.");
+        Assert.That(icon.raycastTarget, Is.False, "The small glyph does not limit the click area.");
+        Assert.That(pin.targetGraphic, Is.SameAs(icon));
+        Image hitSurface = pin.GetComponent<Image>();
+        Assert.That(hitSurface.sprite, Is.Null);
+        Assert.That(hitSurface.color.a, Is.LessThan(.01f), "Pin has no visible button background.");
+        Assert.That(hitSurface.raycastTarget, Is.True);
+        RectTransform target = (RectTransform)pin.transform;
+        Assert.That(target.rect.width, Is.GreaterThanOrEqualTo(47.5f));
+        Assert.That(target.rect.height, Is.GreaterThanOrEqualTo(47.5f));
+        foreach (TMP_Text label in pin.GetComponentsInChildren<TMP_Text>(true))
+            Assert.That(label.gameObject.activeInHierarchy, Is.False, "Pin uses an icon without an active text label.");
     }
+
+
 
     [UnityTest]
     public IEnumerator PopulatedCollectionsRenderAndClipLongTitlesAtThreeLandscapeSizes()
@@ -337,14 +322,33 @@ public sealed class KingdomCollectionPlayModeTests
                     Canvas.ForceUpdateCanvases();
                     yield return null;
                     Transform rows = root.transform.Find(PagesPath + page + "/DataRows");
+                    foreach (Transform row in rows)
+                    {
+                        Button pin = row.gameObject.activeInHierarchy ? row.Find("PinButton")?.GetComponent<Button>() : null;
+                        if (pin == null) continue;
+                        Image icon = pin.transform.Find("Icon").GetComponent<Image>();
+                        if (icon.sprite == Resources.Load<Sprite>("Art/UI/Pins/PinOutline")) { pin.onClick.Invoke(); yield return null; }
+                        break;
+                    }
+                    Canvas.ForceUpdateCanvases();
                     int populated = 0;
                     foreach (Transform row in rows)
                     {
                         if (!row.gameObject.activeInHierarchy || row.Find("PinButton") == null) continue;
                         populated++;
+                        Button pin = row.Find("PinButton").GetComponent<Button>();
+                        AssertPinAppearance(pin, pin.transform.Find("Icon").GetComponent<Image>().sprite == Resources.Load<Sprite>("Art/UI/Pins/PinFilled"));
                         TMP_Text metadata = row.Find("Metadata").GetComponent<TMP_Text>();
-                        Assert.That(metadata.text, Is.Not.Empty, page + " metadata");
+                        if (page != "Sectors") Assert.That(metadata.gameObject.activeSelf, Is.False);
+                        else Assert.That(metadata.text, Is.Not.Empty, page + " metadata");
                         TMP_Text label = row.Find("Label").GetComponent<TMP_Text>();
+                        if (page != "Sectors")
+                        {
+                            label.ForceMeshUpdate();
+                            Assert.That(label.horizontalAlignment, Is.EqualTo(HorizontalAlignmentOptions.Left));
+                            Assert.That(Mathf.Abs(label.textBounds.center.y - label.rectTransform.rect.center.y),
+                                Is.LessThan(label.fontSize * .12f), page + " vertical glyph center");
+                        }
                         string original = label.text;
                         try
                         {
@@ -363,28 +367,6 @@ public sealed class KingdomCollectionPlayModeTests
                             { root.ShowBuildingDetailsForEditor(building); break; }
                     Canvas.ForceUpdateCanvases();
                     Capture(camera, target, page.ToLowerInvariant() + "-" + size.x + "x" + size.y);
-                    if (page == "Resources")
-                    {
-                        Resource steel = DataBase<Resource>.Find("Steel");
-                        Assert.That(steel, Is.Not.Null, "Real industrial resource for recursive production evidence.");
-                        root.ShowResourceDetailsForEditor(steel);
-                        root.ToggleResourceTreeForEditor();
-                        for (int expansion = 0; expansion < 10; expansion++)
-                        {
-                            Transform treeRows = root.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/ResourceProductionTree/Rows");
-                            Assert.That(treeRows, Is.Not.Null);
-                            Button next = null;
-                            foreach (Button button in treeRows.GetComponentsInChildren<Button>())
-                                if (button.name == "Expand" && button.interactable &&
-                                    button.GetComponentInChildren<TMP_Text>().text == "+") { next = button; break; }
-                            if (next == null) break;
-                            // Expand rebuilds rows, so acquire a fresh button for each click.
-                            next.onClick.Invoke();
-                            yield return null;
-                        }
-                        Canvas.ForceUpdateCanvases();
-                        Capture(camera, target, "production-tree-" + size.x + "x" + size.y);
-                    }
                     Debug.Log("[CollectionUIEvidence] page=" + page + " size=" + size + " populated=" + populated);
                 }
                 camera.targetTexture = null;
@@ -406,7 +388,7 @@ public sealed class KingdomCollectionPlayModeTests
 
     private static void Capture(Camera camera, RenderTexture target, string name)
     {
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "collection-ui-20261012"));
+        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "production-compact-20261013"));
         Directory.CreateDirectory(directory);
         Texture2D pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
         RenderTexture previous = RenderTexture.active;

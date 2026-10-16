@@ -14,13 +14,6 @@ public class IndustrialWorkshopAvailabilityTests
     }
 
     [Test]
-    public void DeferredStoneToolsAreNotWorkshopDefinitions()
-    {
-        Assert.That(Resources.Load<WorkshopUpgrade>("Datas/Workshop/StoneAxe"), Is.Null);
-        Assert.That(Resources.Load<WorkshopUpgrade>("Datas/Workshop/StonePickaxe"), Is.Null);
-    }
-
-    [Test]
     public void AddedIndustrialResearchHasRequirementsAndEffects()
     {
         string[] ids =
@@ -58,7 +51,7 @@ public class IndustrialWorkshopAvailabilityTests
     [Test]
     public void IndustrialWorkshopClosureItemsHaveRealCostsAndEffects()
     {
-        AssertWorkshop("ReinforcedBoilers", "Steel", "Bronze", WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant");
+        AssertWorkshop("ReinforcedBoilers", "Steel", "BasicMetalIngot", WorkshopEffectType.BuildingPowerProductionMultiplier, "SteamPlant");
         AssertWorkshop("RotaryKilns", "Steel", "Machinery", WorkshopEffectType.BuildingProductionMultiplier, "BuildingMaterialsComplex");
         WorkshopUpgrade rotaryKilns =
             Resources.Load<WorkshopUpgrade>("Datas/Workshop/RotaryKilns");
@@ -142,7 +135,7 @@ public class IndustrialWorkshopAvailabilityTests
         Assert.That(blasting, Is.Not.Null, "精确爆破工艺工坊必须存在。");
         Assert.That(blasting.ResourceRequirements.Count, Is.EqualTo(3));
         Assert.That(blasting.Effects.Count, Is.GreaterThan(0));
-        foreach (string buildingId in new[] { "RareMetalMine", "OilDerrick" })
+        foreach (string buildingId in new[] { "IntegratedMetalMine", "OilDerrick" })
             Assert.That(blasting.Effects, Has.Some.Matches<WorkshopEffectDefinition>(x =>
                 x != null && x.Type == WorkshopEffectType.BuildingProductionMultiplier &&
                 x.Building != null && x.Building.Id == buildingId &&
@@ -174,7 +167,7 @@ public class IndustrialWorkshopAvailabilityTests
         AssertWorkshop(
             "LaboratoryGlassware",
             "Glass",
-            "Copper",
+            "BasicMetalIngot",
             WorkshopEffectType.BuildingResearchPowerMultiplier,
             "University");
     }

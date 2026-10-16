@@ -57,7 +57,7 @@ public sealed class SaveManagerUltraProjectEraValidationTests
         bool readyToCommit = status == UltraProjectStatus.ReadyToCommit;
         bool paused = status == UltraProjectStatus.Paused;
         string currentStage = committed ? "4" : "1";
-        string progress = committed || readyToCommit ? "1" : paused ? "0.25" : "0.25";
+        string progress = committed || readyToCommit ? "1" : "0.25";
         string completedStages = committed ? "[1,2,3]" : readyToCommit ? "[1]" : "[]";
         string launchFeePaid = status == UltraProjectStatus.Locked ? "false" : "true";
         string pauseReason = paused
@@ -66,16 +66,15 @@ public sealed class SaveManagerUltraProjectEraValidationTests
         int stateVersion = committed ? 10 : readyToCommit ? 5 : paused ? 3 : 2;
 
         return "{" +
-            "\"Version\":9," +
+            "\"Version\":" + SaveFormat.CurrentVersion + "," +
             "\"General\":{\"TechLevel\":" + (int)techLevel + "}," +
-            "\"Resources\":{}," +
-            "\"Buildings\":{}," +
-            "\"Researches\":{}," +
-            "\"Workshop\":{}," +
-            "\"Sectors\":{}," +
+            "\"Resources\":{\"Resources\":[]}," +
+            "\"Buildings\":{\"Buildings\":[]}," +
+            "\"Researches\":{\"States\":[],\"QueuedResearchIds\":[]}," +
+            "\"Workshop\":{\"PurchasedUpgradeIds\":[]}," +
+            "\"Sectors\":{\"States\":[]}," +
             "\"UltraProject\":{" +
                 "\"ProjectId\":\"UltraCivilizationEngineering\"," +
-                "\"SaveVersion\":1," +
                 "\"Doctrine\":1," +
                 "\"Status\":" + (int)status + "," +
                 "\"CurrentStage\":" + currentStage + "," +
@@ -86,7 +85,8 @@ public sealed class SaveManagerUltraProjectEraValidationTests
                 "\"StateVersion\":" + stateVersion +
             "}," +
             "\"Tutorial\":{\"CompletedStepIds\":[]}," +
-            "\"Story\":{\"CompletedChapterIds\":[]}" +
+            "\"Story\":{\"CompletedChapterIds\":[]}," +
+            "\"Relic\":" + UnityEngine.JsonUtility.ToJson(new RelicState().CaptureSaveDataForEditor()) +
             "}";
     }
 }

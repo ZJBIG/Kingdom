@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OrbitalPowerBeaming
   Label: "轨道定向输电终端"
-  Description: "将光伏阵列与定向输电设备结合，稳定向轨道设施传送电力。"
+  Description: "以定向输电终端减少传输损失，提高轨道太阳能阵列的发电量。"
   SortOrder: 430
   TechLevel: 4
   requiredResearch:
@@ -32,7 +32,7 @@ MonoBehaviour:
     amount: "7200"
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "1300"
-  - resource: {fileID: 11400000, guid: 35ba2efb8b93dbd43944f16ab0a6dd4b, type: 2}
+  - resource: {fileID: 11400000, guid: 4817aa5f58c4d7241a93de86da2baa27, type: 2}
     amount: "260000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "180000"

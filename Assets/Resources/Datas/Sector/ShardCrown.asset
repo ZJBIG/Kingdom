@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ShardCrown
   Label: "碎冠带"
-  Description: "悬在终焉星之后、如破碎王冠般铺展的巨大矿藏。无数矿脉在黑暗中闪烁，将钛、镍、铁与铝送回太阳系工业的炉心。"
+  Description: "终焉星之后，一圈碎裂天体如破损王冠铺展。占领后可持续开采低级、高级与特级金属矿，送回太阳系的冶炼炉。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -25,12 +25,10 @@ MonoBehaviour:
   occupiedResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
     amount: "0.18"
-  - resource: {fileID: 11400000, guid: b3866904ca4f3914cac32104c4bb9a5f, type: 2}
-    amount: "0.16"
-  - resource: {fileID: 11400000, guid: 43a3993cc7b441640b86a95cf0842f48, type: 2}
-    amount: "0.22"
   - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "0.14"
+    amount: "0.30"
+  - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    amount: "0.22"
   colonizationFoodPerSecond: "2500"
   colonizationResourceRatesPerSecond: []
   campaignFoodPerSecond: "0"

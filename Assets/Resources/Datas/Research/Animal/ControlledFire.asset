@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ControlledFire
   Label: "\u63A7\u5236\u706B\u79CD"
-  Description: "掌握保存火种与安全用火。当前作为石器工具、黏土与知识路线的前置；陶窑生产倍率要在石器时代建成陶窑后兑现，完成研究不会立即增加当前粮食或木材产量。"
+  Description: "学会保存火种与控制炉温，提高陶瓷窑的产出，并为石料加工、黏土采集与知识传承提供技术基础。"
   BaseCost: "60"
   prerequisites: []
   resourceRequirements:

@@ -1,0 +1,40 @@
+  Built Kingdom.Runtime.Editor (Debug) without test sources: D:\GitHub\Kingdom\Temp\DeveloperBuild\Kingdom.Runtime.Editor.dll
+Assets\Editor\KingdomBackgroundAuthoring.cs(284,13): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\StoryIllustrationAuthoring.cs(111,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomButtonAuthoring.cs(200,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+  Built Kingdom.Editor (Debug) without test sources: D:\GitHub\Kingdom\Temp\DeveloperBuild\Kingdom.Editor.dll
+  target=Editor
+    response_file=D:\GitHub\Kingdom\Library\Bee\artifacts\1300b0aE.dag\Assembly-CSharp-Editor.rsp
+    source_files=100
+    sources_added_beyond_bee_snapshot=0
+    compiler_ran=True
+    compiler_exit=0
+    output_produced=True
+    output=D:\GitHub\Kingdom\Temp\DeveloperTests\Kingdom.EditorTests.dll
+    --- compiler output ---
+Assets\Editor\StoryIllustrationAuthoring.cs(111,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomButtonAuthoring.cs(200,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomBackgroundAuthoring.cs(284,13): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+  target=PlayMode
+    response_file=D:\GitHub\Kingdom\Library\Bee\artifacts\1300b0aE.dag\Kingdom.PlayModeTests.rsp
+    source_files=17
+    sources_added_beyond_bee_snapshot=0
+    compiler_ran=True
+    compiler_exit=0
+    output_produced=True
+    output=D:\GitHub\Kingdom\Temp\DeveloperTests\Kingdom.PlayModeTests.dll
+  worst_compiler_exit=0
+  Test assemblies compiled (Debug): Editor, PlayMode. Summary=D:\GitHub\Kingdom\Temp\DeveloperTests\summary.txt
+
+已成功生成。
+
+Assets\Editor\KingdomBackgroundAuthoring.cs(284,13): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\StoryIllustrationAuthoring.cs(111,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomButtonAuthoring.cs(200,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\StoryIllustrationAuthoring.cs(111,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomButtonAuthoring.cs(200,9): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+Assets\Editor\KingdomBackgroundAuthoring.cs(284,13): warning CS0618: 'TextureImporter.spritesheet' is obsolete: 'Support for accessing sprite meta data through spritesheet has been removed. Please use the UnityEditor.U2D.Sprites.ISpriteEditorDataProvider interface instead.' [D:\GitHub\Kingdom\Kingdom.DeveloperTests.csproj]
+    6 个警告
+    0 个错误
+
+已用时间 00:00:12.00

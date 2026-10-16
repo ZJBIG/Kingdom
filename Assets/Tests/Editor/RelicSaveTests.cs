@@ -7,19 +7,20 @@ public sealed class RelicSaveTests
 {
     private static string SaveJson(string relic, TechLevel era = TechLevel.Ultra)
     {
-        return "{\"Version\":9,\"General\":{\"TechLevel\":" + (int)era +
+        return "{\"Version\":" + SaveFormat.CurrentVersion + ",\"General\":{\"TechLevel\":" + (int)era +
             "},\"Resources\":{\"Resources\":[]},\"Buildings\":{\"Buildings\":[]}," +
             "\"Researches\":{\"States\":[],\"QueuedResearchIds\":[]}," +
             "\"Workshop\":{\"PurchasedUpgradeIds\":[]}," +
             "\"Sectors\":{\"States\":[]},\"Tutorial\":{\"CompletedStepIds\":[]}," +
-            "\"Story\":{\"CompletedChapterIds\":[]}" +
+            "\"Story\":{\"CompletedChapterIds\":[]}," +
+            "\"UltraProject\":" + JsonUtility.ToJson(new UltraProjectState().CaptureSaveData()) +
             (relic == null ? "" : ",\"Relic\":" + relic) + "}";
     }
 
     [Test]
-    public void V9WithoutRelicSectionRemainsSupported()
+    public void MissingRelicSectionIsRejected()
     {
-        Assert.That(SaveManager.ParseSaveDataForEditor(SaveJson(null)).Relic, Is.Null);
+        Assert.Throws<InvalidDataException>(() => SaveManager.ParseSaveDataForEditor(SaveJson(null)));
     }
 
     [TestCase("null")]

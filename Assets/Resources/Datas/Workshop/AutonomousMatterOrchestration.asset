@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AutonomousMatterOrchestration
   m_EditorClassIdentifier: 
   id: AutonomousMatterOrchestration
-  Label: "Autonomous Matter Orchestration"
-  Description: "A self-scheduling fabrication protocol that coordinates the Ultra composite factory with the established industrial network, raising global building production without creating a second material industry."
+  Label: "自主材料调度"
+  Description: "以自动工单协调跨星区材料生产，提高所有建筑的生产倍率。"
   SortOrder: 720
   TechLevel: 5
   requiredResearch:

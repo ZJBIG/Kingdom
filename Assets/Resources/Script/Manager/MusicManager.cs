@@ -44,7 +44,6 @@ public class MusicManager : Singleton<MusicManager>
         }
     }
 
-    private readonly List<Pair<string, int>> musicTypes = new();
     private readonly List<MusicTrack> tracks = new();
     private readonly List<MusicTrack> history = new();
     private readonly WaitForSecondsRealtime autoPlayPollDelay = new(.25f);
@@ -61,7 +60,6 @@ public class MusicManager : Singleton<MusicManager>
     private int historyCursor = -1;
     private bool waitingForNext;
 
-    public IReadOnlyList<Pair<string, int>> MusicTypes => musicTypes;
     public IReadOnlyList<MusicTrack> Tracks => tracks;
     public IReadOnlyList<MusicTrack> History => history;
     public int CatalogVersion { get; private set; }
@@ -135,13 +133,11 @@ public class MusicManager : Singleton<MusicManager>
 
         MusicTrack previous = CurrentTrack;
         tracks.Clear();
-        musicTypes.Clear();
         HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
         IReadOnlyList<MusicCatalogEntry> entries = catalogHandle.Result.Entries;
         for (int categoryIndex = 0; categoryIndex < MusicCategories.Length; categoryIndex++)
         {
             string category = MusicCategories[categoryIndex];
-            int categoryCount = 0;
             for (int i = 0; i < entries.Count; i++)
             {
                 MusicCatalogEntry entry = entries[i];
@@ -157,13 +153,10 @@ public class MusicManager : Singleton<MusicManager>
                 }
                 tracks.Add(new MusicTrack(entry.Id, entry.Label, category, entry.Address,
                     entry.DurationSeconds));
-                categoryCount++;
             }
-            musicTypes.Add(new Pair<string, int>(category, categoryCount));
         }
 
         tracks.Sort(CompareTracks);
-        musicTypes.Insert(0, new Pair<string, int>("All", tracks.Count));
         ReconcileHistory(previous);
         CatalogVersion++;
         Debug.Log("[MusicManager] Addressables catalog contains " + tracks.Count + " tracks.");
@@ -229,26 +222,6 @@ public class MusicManager : Singleton<MusicManager>
         return null;
     }
 
-    public bool Play(string type, string clipName)
-    {
-        if (string.IsNullOrEmpty(clipName))
-            return false;
-        MusicTrack track = FindTrack(clipName);
-        if (track == null || (!string.IsNullOrEmpty(type) &&
-            !string.Equals(type, "All", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(type, "All Music", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(track.Category, type, StringComparison.OrdinalIgnoreCase)))
-            return false;
-        return PlayTrack(track);
-    }
-
-    public bool Play(string clipName)
-    {
-        if (string.IsNullOrEmpty(clipName))
-            return false;
-        return PlayTrack(FindTrack(clipName));
-    }
-
     public bool PlayTrack(MusicTrack track)
     {
         if (AudioSource == null || track == null || string.IsNullOrEmpty(track.Address))
@@ -267,19 +240,6 @@ public class MusicManager : Singleton<MusicManager>
     public bool PlayTrack(int index)
     {
         return index >= 0 && index < tracks.Count && PlayTrack(tracks[index]);
-    }
-
-    public bool Play(AudioClip clip)
-    {
-        if (clip == null)
-            return false;
-        MusicTrack track = FindTrack(clip.name);
-        if (track == null)
-            return false;
-        playbackRequestVersion++;
-        CancelPendingLoad();
-        ClearAudioPlayback(true);
-        return StartLoadedTrack(track, clip, true);
     }
 
     private IEnumerator LoadAndPlay(MusicTrack track, int requestVersion)
@@ -303,23 +263,21 @@ public class MusicManager : Singleton<MusicManager>
             State = PlaybackState.Stopped;
             yield break;
         }
-        StartLoadedTrack(track, clipHandle.Result, true);
+        StartLoadedTrack(track, clipHandle.Result);
     }
 
-    private bool StartLoadedTrack(MusicTrack track, AudioClip clip, bool addToHistory)
+    private void StartLoadedTrack(MusicTrack track, AudioClip clip)
     {
         if (AudioSource == null || track == null || clip == null)
-            return false;
+            return;
         manualStop = false;
         waitingForNext = false;
         AudioSource.clip = clip;
         AudioSource.volume = volume;
         CurrentTrack = track;
-        if (addToHistory)
-            AddToHistory(track);
+        AddToHistory(track);
         State = PlaybackState.Playing;
         AudioSource.Play();
-        return true;
     }
 
     public void Pause()

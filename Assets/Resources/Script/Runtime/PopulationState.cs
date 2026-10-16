@@ -3,13 +3,10 @@ using System;
 [Serializable]
 public sealed class PopulationState
 {
-    private const double SecondsPerDeparture = 60d;
     private const double SecondsPerFoodShortageDeparture = 3600d;
     private static readonly ExpantaNum FoodConsumptionPerPersonValue = new ExpantaNum(0.8d);
     private static readonly ExpantaNum ProductivityGrantedPerPersonValue = new ExpantaNum(2d);
     private static readonly ExpantaNum BaseGrowthRatePerSecondValue = new ExpantaNum(1d / 60d);
-    private static readonly ExpantaNum Eight = new ExpantaNum(8d);
-    private static readonly ExpantaNum DepartureRatePerSecond = new ExpantaNum(1d / SecondsPerDeparture);
     private static readonly ExpantaNum FoodShortageDepartureSeconds = new ExpantaNum(SecondsPerFoodShortageDeparture);
     private static readonly ExpantaNum PopulationStepEpsilon =
         new ExpantaNum(1e-9d);

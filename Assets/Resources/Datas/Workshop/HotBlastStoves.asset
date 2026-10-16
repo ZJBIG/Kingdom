@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HotBlastStoves
   Label: "热风炉组"
-  Description: "以蓄热式热风炉预热鼓风，提高综合冶炼炉的炉温与燃料利用率，使多金属冶炼和钢材产出更加稳定。"
+  Description: "预热鼓风并稳定炉温，提高工业金属冶炼厂的基础金属锭与钢材产出。"
   SortOrder: 190
   TechLevel: 3
   requiredResearch:

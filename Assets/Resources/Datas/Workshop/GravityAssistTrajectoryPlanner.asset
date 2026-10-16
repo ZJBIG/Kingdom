@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: GravityAssistTrajectoryPlanner
   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u89c4\u5212\u5668"
-  Description: "通过引力辅助轨道规划提高星区探索与远程作业效率，使远征探索能力提高 18%。"
+  Description: "计算引力辅助与变轨窗口，提高远征探索能力。"
   SortOrder: 560
   TechLevel: 4
   requiredResearch:

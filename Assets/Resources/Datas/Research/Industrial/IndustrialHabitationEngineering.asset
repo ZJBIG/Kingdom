@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: IndustrialHabitationEngineering
   Label: "工业居住工程"
-  Description: "研究工业城市的高密度住宅、公共管网、隔热结构与人口承载规划，为工业居住综合体建立可持续扩张的理论基础。"
+  Description: "以高密度住宅、公共管网与隔热结构改善定居条件，提高人口增长速度。"
   BaseCost: "520000"
   prerequisites:
   - {fileID: 11400000, guid: ea25df4d3b4dae645b0cec00cf53d779, type: 2}

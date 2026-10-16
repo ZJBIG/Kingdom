@@ -536,6 +536,76 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
+    public void ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch()
+    {
+        var host = new GameObject("Tutorial-QueuedResearch");
+        try
+        {
+            var resources = host.AddComponent<ResourceManager>();
+            host.AddComponent<GameManager>();
+            host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            Research definition = DataBase<Research>.Find("Agriculture");
+            Resource costResource = definition.ResourceRequirements[0].First;
+            resources.SetAmount(costResource, ExpantaNum.Zero);
+            Assert.That(research.EnqueueResearch(definition), Is.True);
+            Assert.That(research.ActiveResearch, Is.Null);
+            Assert.That(research.CanPayResearchCost(definition, out string blocker), Is.False);
+
+            TutorialManager tutorial = TutorialManager.Ensure();
+            tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
+            {
+                ActiveStepId = "research"
+            }, TechLevel.Animal);
+            tutorial.RecordPageVisitedForEditor("Research");
+            TutorialSnapshot snapshot = tutorial.Evaluate();
+            Assert.That(snapshot.NavigationPage, Is.EqualTo("Research")); // Page protocol.
+            Assert.That(snapshot.NavigationTargetId, Is.EqualTo(definition.Id)); // Stable target.
+            Assert.That(snapshot.Blocker, Is.EqualTo(blocker)); // Same manager-owned failure.
+            Assert.That(research.IsQueued(definition), Is.True);
+            Assert.That(resources.GetAmount(costResource), Is.EqualTo(ExpantaNum.Zero));
+
+            for (int i = 0; i < definition.ResourceRequirements.Count; i++)
+            {
+                Pair<Resource, ExpantaNum> cost = definition.ResourceRequirements[i];
+                resources.SetAmount(cost.First, cost.Second);
+            }
+            research.Tick(0d);
+            Assert.That(research.ActiveResearch.Definition, Is.SameAs(definition));
+            Assert.That(research.ActiveResearch.CostPaid, Is.True);
+            Assert.That(research.IsQueued(definition), Is.False);
+        }
+        finally { Object.DestroyImmediate(host); }
+    }
+
+    [TestCase(TechLevel.Animal, "WoodHouse")]
+    [TestCase(TechLevel.StoneAge, "StoneHouse")]
+    public void PopulationGuidanceAllowsMoreHousingButRespectsUnlockedChainTier(
+        TechLevel era, string expectedId)
+    {
+        var host = new GameObject("Tutorial-HousingTier");
+        try
+        {
+            host.AddComponent<ResourceManager>();
+            var game = host.AddComponent<GameManager>();
+            var buildings = host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            game.State.AdvanceTechLevelForEditor(era);
+            foreach (ResearchState state in research.States.Values)
+                state.SetStatusForEditor(ResearchStatus.Completed);
+            Building woodHouse = DataBase<Building>.Find("WoodHouse");
+            buildings.EnsureBuilding(woodHouse).SetAmountForEditor(ExpantaNum.One);
+
+            string targetId = TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings);
+            Assert.That(targetId, Is.EqualTo(expectedId)); // Stable chain tier ID.
+            Assert.That(buildings.CanConstructNew(DataBase<Building>.Find(targetId)), Is.True);
+        }
+        finally { Object.DestroyImmediate(host); }
+    }
+
+    [Test]
     public void ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock()
     {
         var host = new GameObject("Tutorial-OperatingChain");
@@ -548,6 +618,8 @@ public sealed class TutorialManagerTests
             research.InitializeForEditor();
             game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
             game.State.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
+            buildings.EnsureBuilding(DataBase<Building>.Find("WoodHouse"))
+                .SetAmountForEditor(ExpantaNum.One);
             Building source = DataBase<Building>.Find("Quarry");
             Building target = DataBase<Building>.Find("StoneCuttingWorkshop");
             buildings.EnsureBuilding(source).SetAmountForEditor(ExpantaNum.One);

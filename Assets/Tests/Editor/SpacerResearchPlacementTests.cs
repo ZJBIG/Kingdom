@@ -15,7 +15,7 @@ public sealed class SpacerResearchPlacementTests
         AssertPrerequisites(singularity,
             "QuantumComputing",
             "PhaseFieldNavigation",
-            "MatterStateControlTheory",
+            "MaterialLifecycleControl",
             "InterstellarKnowledgeCoordination");
         AssertResource(singularity, "Electronics");
         AssertResource(singularity, "TitaniumAlloy");
@@ -66,7 +66,7 @@ public sealed class SpacerResearchPlacementTests
             "DeepSpaceThermalExchangeTheory",
             "DeepSpaceBiosecurityTheory",
             "DeepSpacePowerGridResilience",
-            "DeepSpaceSystemsTheory",
+            "DeepSpaceLogisticsReliability",
             "PlanetaryGeologyTheory",
             "SpaceWeatherForecastingTheory",
             "PlanetaryAtmosphereEngineering"
@@ -87,10 +87,10 @@ public sealed class SpacerResearchPlacementTests
     {
         Research quantum = DataBase<Research>.Find("QuantumComputing");
         Research material = DataBase<Research>.Find("MatterTransmutationTheory");
-        Research systems = DataBase<Research>.Find("DeepSpaceSystemsTheory");
+        Research systems = DataBase<Research>.Find("DeepSpaceLogisticsReliability");
         Research geology = DataBase<Research>.Find("PlanetaryGeologyTheory");
-        Research phase = DataBase<Research>.Find("PhaseFieldStabilizationTheory");
-        Research causal = DataBase<Research>.Find("InterstellarCausalCoordination");
+        Research phase = DataBase<Research>.Find("PhaseMaterialDurabilityTheory");
+        Research causal = DataBase<Research>.Find("InterstellarCampaignTimingTheory");
 
         Assert.That(HasEffect(systems, ResearchEffectType.GlobalResearchMultiplier), Is.False);
         Assert.That(HasEffect(systems, ResearchEffectType.GlobalLogisticsMultiplier), Is.True);
@@ -113,7 +113,7 @@ public sealed class SpacerResearchPlacementTests
     {
         WorkshopUpgrade trajectory = DataBase<WorkshopUpgrade>.Find("GravityAssistTrajectoryPlanner");
         WorkshopUpgrade thermal = DataBase<WorkshopUpgrade>.Find("DeepSpaceThermalControlArray");
-        WorkshopUpgrade causal = DataBase<WorkshopUpgrade>.Find("CausalSynchronizationArray");
+        WorkshopUpgrade causal = DataBase<WorkshopUpgrade>.Find("CampaignTimingCalibrationBench");
         WorkshopUpgrade solar = DataBase<WorkshopUpgrade>.Find("SolarWindMonitoringArray");
         WorkshopUpgrade material = DataBase<WorkshopUpgrade>.Find("ControlledMatterTransmutation");
 

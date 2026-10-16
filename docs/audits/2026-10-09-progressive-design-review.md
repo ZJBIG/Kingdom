@@ -102,7 +102,7 @@
 
 进入石器已有旧建筑/研究继续生效以及Settlement的直接生产力；不是一切从零开始。Measurement、CeramicFiring、TextileCraft等延伸陶瓷、纺织和石材加工；IrrigationEngineering→灌溉、Masonry→石屋、FoodStorage→粮仓、WrittenRecords→文书提供不同投资用途。
 
-Mining/CharcoalMaking/Smithing_Copper形成矿、燃料与冶炼链。当前MetalSmelter一旦解锁就同时产 Copper/Tin/Bronze/Iron，后续Bronze/Iron研究进一步改善工艺或全局产出。石器阶段没有交易式工坊，不应让玩家寻找尚未开放的 Workshop。中古入口 FeudalAdministration 直接前置 Bronze、Iron、WrittenRecords，支付5000 StoneBrick与2000 Cloth，研究工作量130000。
+Mining/CharcoalMaking/Smithing_Copper形成矿、燃料与冶炼链。当前MetalSmelter一旦解锁就同时产 BasicMetalIngot/Tin/Bronze/Iron，后续Bronze/Iron研究进一步改善工艺或全局产出。石器阶段没有交易式工坊，不应让玩家寻找尚未开放的 Workshop。中古入口 FeudalAdministration 直接前置 Bronze、Iron、WrittenRecords，支付5000 StoneBrick与2000 Cloth，研究工作量130000。
 
 ### 6.2 石器阶段审查项目
 

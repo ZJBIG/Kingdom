@@ -217,7 +217,7 @@ public sealed class AuditRuntimeRegressionTests
         Assert.That(save.LastLoadCreatedNewGame, Is.True);
         Assert.That(save.LastLoadFailed, Is.False);
         Directory.CreateDirectory(saveRoot);
-        File.WriteAllText(Path.Combine(saveRoot, "KingdomSave.json"), "{}");
+        File.WriteAllText(Path.Combine(saveRoot, "KingdomSave-v1.json"), "{}");
         LogAssert.Expect(LogType.Error, new Regex("读取 Kingdom 存档"));
         Assert.That(save.LoadOrCreateGame(), Is.False);
         Assert.That(save.LastLoadFailed, Is.True);

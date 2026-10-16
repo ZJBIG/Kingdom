@@ -41,9 +41,9 @@
 
 ## 新档行为回归（D09）
 
-- `KingdomPlayModeTests.NewGameStartup_InitializesCoreRuntimeState` 与十分钟 smoke 从隔离空目录加载 `SampleScene`，必须等待真实 `GameBootstrap.Completed`，不以调用私有初始化方法替代启动。
-- 自动模拟暂停后才手动推进；十分钟 smoke 仅验证稳定性，不能证明玩家完成操作或首局体验合格。
-- `NewGameCommands_BuildResearchAndReloadWithoutGrants` 使用自然资源与公开命令，覆盖木屋扣款/人口容量、农业真实支付与完成、农场解锁/生产、隔离 v9 保存及读回；禁止注入资源或直接改完成状态。读档前通过 tick 改变现场库存，防止空操作加载蒙混通过。
+- `KingdomPlayModeTests.NewGameStartup_InitializesCoreStateAndAdvancesSimulation` 从隔离空目录加载 `SampleScene`，必须等待真实 `GameBootstrap.Completed`，不以调用私有初始化方法替代启动。
+- 自动模拟暂停后才手动推进；启动与短程模拟合并验证，长时间数值边界由 EditMode 覆盖，不能据此证明玩家完成操作或首局体验合格。
+- `NewGameCommands_BuildResearchAndReloadWithoutGrants` 使用自然资源与公开命令，覆盖木屋扣款/人口容量、农业真实支付与完成、农场解锁/生产、隔离 v1 保存及读回；禁止注入资源或直接改完成状态。读档前通过 tick 改变现场库存，防止空操作加载蒙混通过。
 - 600 秒是固定路线自动化回归的有界模拟预算，不是真人耗时或跨时代通关证明；UI 点击、加工链、工坊、时代门和生命周期仍须分别验收。
 
 ## 证据边界

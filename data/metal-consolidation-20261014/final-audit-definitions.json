@@ -1,0 +1,31 @@
+{
+  "assets_by_type": {
+    "Sector": 10,
+    "Story": 19,
+    "Tutorial": 8,
+    "Ultra": 2,
+    "Workshop": 86,
+    "Resource": 33,
+    "Research": 143,
+    "Building": 72
+  },
+  "unique_meta_guids": 1020,
+  "duplicate_meta_guids": 0,
+  "missing_definition_guids": 0,
+  "compared_archived_pair_groups": 112,
+  "recipe_differences": [],
+  "compared_archived_effect_definitions": 44,
+  "effect_differences": [],
+  "current_duplicate_effect_targets": [],
+  "current_empty_effect_definitions": [],
+  "numeric_and_edges": {
+    "numeric_amounts": 1831,
+    "numeric_scalars": 1054,
+    "upgrade_edges": 48,
+    "research_edges": 721,
+    "workshop_edges": 138
+  },
+  "definition_issues": [],
+  "effect_targets_checked": 320,
+  "effect_target_issues": []
+}

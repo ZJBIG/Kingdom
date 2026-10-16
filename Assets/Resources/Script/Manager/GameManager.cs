@@ -16,7 +16,6 @@ public enum TechLevel
 public class GameManager : Singleton<GameManager>
 {
     private const double SecondsPerDay = 10d;
-    private static readonly ExpantaNum UncappedFoodCeiling = new ExpantaNum("1e1000000");
 
     public GameState State { get; private set; } = new GameState();
     public SectorManager Sectors { get; } = new SectorManager();
@@ -124,6 +123,15 @@ public class GameManager : Singleton<GameManager>
         Tick(deltaSeconds, ExpantaNum.Zero);
     }
 
+    internal void AdvanceWorldEvents(double seconds, bool online)
+    {
+        ExpantaNum previous = State.Events.ProductionMultiplier;
+        State.AdvanceWorldEvents(seconds, online);
+        ExpantaNum current = State.Events.ProductionMultiplier;
+        if (previous != current)
+            BuildingManager.Instance.ApplyEventProductionChange(previous, current);
+    }
+
     public void Tick(
         double deltaSeconds,
         ExpantaNum populationDepartureAllowance)
@@ -170,13 +178,6 @@ public class GameManager : Singleton<GameManager>
 
     private bool CanPopulationLeaveForFoodShortage() =>
         State.FoodAmount <= ExpantaNum.Zero && State.FoodNetRate < ExpantaNum.Zero;
-
-    public static ExpantaNum AdvanceFood(
-        ExpantaNum current,
-        ExpantaNum productionRate,
-        ExpantaNum consumptionRate,
-        double deltaSeconds)
-        => AdvanceFood(current, productionRate, consumptionRate, ExpantaNum.Max(current, UncappedFoodCeiling), deltaSeconds);
 
     public static ExpantaNum AdvanceFood(
         ExpantaNum current,
@@ -301,6 +302,7 @@ public class GameManager : Singleton<GameManager>
         return new SaveManager.GameSaveData
         {
             CalendarDays = State.CalendarDays,
+            Events = State.Events.CaptureSaveData(),
             TechLevel = State.TechLevel,
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
@@ -341,24 +343,21 @@ public class GameManager : Singleton<GameManager>
             data.TechLevel,
             Parse(data.FoodAmount, nameof(data.FoodAmount)),
             data.LastSaveUnixSeconds);
-        if (!string.IsNullOrWhiteSpace(data.Population))
-        {
-            State.RestorePopulation(
-                Parse(data.Population, nameof(data.Population)));
-        }
-        if (!string.IsNullOrWhiteSpace(data.TerritoryTotal))
-            State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
+        State.RestorePopulation(Parse(data.Population, nameof(data.Population)));
+        State.Events.Restore(data.Events);
+        State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
         State.RestoreCampaign(
             data.CampaignActive,
             data.CampaignTargetSectorId,
-            ParseOptional(data.CampaignCasualties, ExpantaNum.Zero, nameof(data.CampaignCasualties)),
-            ParseOptional(data.CampaignCombatRatio, ExpantaNum.Zero, nameof(data.CampaignCombatRatio)),
+            Parse(data.CampaignCasualties, nameof(data.CampaignCasualties)),
+            Parse(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio)),
             data.CampaignDoctrine);
         calendarElapsedSeconds = data.CalendarElapsedSeconds;
     }
 
     private static void ValidateSaveData(SaveManager.GameSaveData data)
     {
+        WorldEventState.Validate(data.Events);
         if (data.CalendarDays < 0)
             throw new System.IO.InvalidDataException("存档的 CalendarDays 不能为负数。");
         if (double.IsNaN(data.CalendarElapsedSeconds) ||
@@ -375,39 +374,28 @@ public class GameManager : Singleton<GameManager>
                 $"存档包含未知远征姿态值“{(int)data.CampaignDoctrine}”。");
 
         ValidateNonNegative(Parse(data.FoodAmount, nameof(data.FoodAmount)), nameof(data.FoodAmount));
-        ValidateOptionalNonNegative(data.Population, nameof(data.Population));
-        ValidateOptionalNonNegative(data.TerritoryTotal, nameof(data.TerritoryTotal));
-        ValidateOptionalNonNegative(data.AttackPower, nameof(data.AttackPower));
-        ValidateOptionalNonNegative(data.DefensePower, nameof(data.DefensePower));
-        ValidateOptionalNonNegative(data.FleetPower, nameof(data.FleetPower));
-        ValidateOptionalNonNegative(data.MilitaryManpower, nameof(data.MilitaryManpower));
-        ValidateOptionalUnitInterval(data.PopulationChangeProgress, nameof(data.PopulationChangeProgress));
-        ValidateOptionalUnitInterval(data.SupplySatisfaction, nameof(data.SupplySatisfaction));
-        ValidateOptionalUnitInterval(data.PowerSatisfaction, nameof(data.PowerSatisfaction));
-        ValidateOptionalUnitInterval(data.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction));
-        ValidateOptionalNonNegative(data.CampaignCasualties, nameof(data.CampaignCasualties));
-        ValidateOptionalNonNegative(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio));
+        ValidateNonNegative(Parse(data.Population, nameof(data.Population)), nameof(data.Population));
+        ValidateNonNegative(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)), nameof(data.TerritoryTotal));
+        ValidateNonNegative(Parse(data.AttackPower, nameof(data.AttackPower)), nameof(data.AttackPower));
+        ValidateNonNegative(Parse(data.DefensePower, nameof(data.DefensePower)), nameof(data.DefensePower));
+        ValidateNonNegative(Parse(data.FleetPower, nameof(data.FleetPower)), nameof(data.FleetPower));
+        ValidateNonNegative(Parse(data.MilitaryManpower, nameof(data.MilitaryManpower)), nameof(data.MilitaryManpower));
+        ValidateUnitInterval(data.PopulationChangeProgress, nameof(data.PopulationChangeProgress));
+        ValidateUnitInterval(data.SupplySatisfaction, nameof(data.SupplySatisfaction));
+        ValidateUnitInterval(data.PowerSatisfaction, nameof(data.PowerSatisfaction));
+        ValidateUnitInterval(data.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction));
+        ValidateNonNegative(Parse(data.CampaignCasualties, nameof(data.CampaignCasualties)), nameof(data.CampaignCasualties));
+        ValidateNonNegative(Parse(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio)), nameof(data.CampaignCombatRatio));
         if (data.LastSaveUnixSeconds < 0L)
             throw new System.IO.InvalidDataException("存档的 LastSaveUnixSeconds 不能为负数。");
         if (string.IsNullOrWhiteSpace(data.CampaignTargetSectorId) &&
-            (!string.IsNullOrWhiteSpace(data.CampaignCasualties) &&
-             Parse(data.CampaignCasualties, nameof(data.CampaignCasualties)) > ExpantaNum.Zero ||
-             !string.IsNullOrWhiteSpace(data.CampaignCombatRatio) &&
+            (Parse(data.CampaignCasualties, nameof(data.CampaignCasualties)) > ExpantaNum.Zero ||
              Parse(data.CampaignCombatRatio, nameof(data.CampaignCombatRatio)) > ExpantaNum.Zero))
             throw new System.IO.InvalidDataException("无目标战役存档不能保留伤亡或战斗比。");
     }
 
-    private static void ValidateOptionalNonNegative(string raw, string field)
+    private static void ValidateUnitInterval(string raw, string field)
     {
-        if (string.IsNullOrWhiteSpace(raw))
-            return;
-        ValidateNonNegative(Parse(raw, field), field);
-    }
-
-    private static void ValidateOptionalUnitInterval(string raw, string field)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return;
         ExpantaNum value = Parse(raw, field);
         if (!value.IsFinite || value < ExpantaNum.Zero || value > ExpantaNum.One)
             throw new System.IO.InvalidDataException(
@@ -426,10 +414,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (data == null)
             throw new ArgumentNullException(nameof(data));
-        State.RestorePopulationChangeProgress(ParseOptional(
-            data.PopulationChangeProgress,
-            ExpantaNum.Zero,
-            nameof(data.PopulationChangeProgress)));
+        State.RestorePopulationChangeProgress(Parse(data.PopulationChangeProgress, nameof(data.PopulationChangeProgress)));
     }
 
     internal void RestoreMilitarySaveData(SaveManager.GameSaveData data)
@@ -438,30 +423,19 @@ public class GameManager : Singleton<GameManager>
             throw new ArgumentNullException(nameof(data));
 
         State.RestoreMilitary(
-            ParseOptional(data.AttackPower, State.AttackPower, nameof(data.AttackPower)),
-            ParseOptional(data.DefensePower, State.DefensePower, nameof(data.DefensePower)),
-            ParseOptional(data.FleetPower, State.FleetPower, nameof(data.FleetPower)),
-            ParseOptional(data.MilitaryManpower, State.MilitaryManpower, nameof(data.MilitaryManpower)),
-            ParseOptional(data.SupplySatisfaction, State.SupplySatisfaction, nameof(data.SupplySatisfaction)),
-            ParseOptional(data.PowerSatisfaction, State.PowerSatisfaction, nameof(data.PowerSatisfaction)),
-            ParseOptional(data.LogisticsSatisfaction, State.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction)));
+            Parse(data.AttackPower, nameof(data.AttackPower)),
+            Parse(data.DefensePower, nameof(data.DefensePower)),
+            Parse(data.FleetPower, nameof(data.FleetPower)),
+            Parse(data.MilitaryManpower, nameof(data.MilitaryManpower)),
+            Parse(data.SupplySatisfaction, nameof(data.SupplySatisfaction)),
+            Parse(data.PowerSatisfaction, nameof(data.PowerSatisfaction)),
+            Parse(data.LogisticsSatisfaction, nameof(data.LogisticsSatisfaction)));
     }
-
-    public override void Save() => SaveManager.Instance.SaveNow(true);
-
-    public override void Load() => SaveManager.Instance.LoadOrCreateGame();
 
     private static ExpantaNum Parse(string raw, string field)
     {
-        if (ExpantaNum.TryParse(raw, out ExpantaNum value))
+        if (ExpantaNum.TryParse(raw, out ExpantaNum value) && value.IsFinite)
             return value;
         throw new FormatException($"GameState.{field} 中的 ExpantaNum 值“{raw}”无效。");
-    }
-
-    private static ExpantaNum ParseOptional(string raw, ExpantaNum fallback, string field)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return fallback;
-        return Parse(raw, field);
     }
 }

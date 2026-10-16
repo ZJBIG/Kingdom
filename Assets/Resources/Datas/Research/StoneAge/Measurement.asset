@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Measurement
   Label: "\u5EA6\u91CF\u8861"
-  Description: "\u7EDF\u4E00\u957F\u5EA6\u3001\u91CD\u91CF\u548C\u5BB9\u91CF\u5355\u4F4D\uFF0C\u5E76\u5236\u4F5C\u53EF\u590D\u6838\u7684\u91CF\u5177\uFF0C\u4F7F\u4EA4\u6613\u3001\u65BD\u5DE5\u548C\u7269\u8D44\u7BA1\u7406\u62E5\u6709\u5171\u540C\u6807\u51C6\u3002"
+  Description: "统一长度、重量与容量单位，减少施工误差，降低全局建造材料需求。"
   BaseCost: "3200"
   prerequisites:
   - {fileID: 11400000, guid: 5e7a600ae8d297e45b3666f2b17cb5df, type: 2}

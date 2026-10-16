@@ -60,6 +60,350 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator BuildingBatchAvailability_DetailsFollowSelectedQuantity()
+    {
+        yield return Load();
+        Building building = DataBase<Building>.Find("WoodHouse");
+        BuildingManager buildings = BuildingManager.Instance;
+        buildings.SetAmountAndRatesForEditor(buildings.States[building], ExpantaNum.Zero);
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, cost.Second * new ExpantaNum(1.5));
+        Assert.That(buildings.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
+        Assert.That(buildings.GetBuildFailure(building, new ExpantaNum(10)), Is.Not.EqualTo(BuildFailure.None));
+        ui.SetPage("Buildings");
+        Transform controls = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls");
+        controls.Find("ShowDetails").GetComponent<Toggle>().isOn = false;
+        controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
+        ui.ShowBuildingDetailsForEditor(building);
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        string singleStatus = body.text;
+        controls.Find("Quantity_Ten").GetComponent<Button>().onClick.Invoke();
+        string batchStatus = body.text;
+        Assert.That(batchStatus, Is.Not.EqualTo(singleStatus), "The compact availability text must explain the same selected quantity as the disabled purchase button.");
+        Assert.That(ui.GetDeconstructButtonForEditor(building).transform.parent.Find("BuildButton").GetComponent<Button>().interactable, Is.False);
+        controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
+        Assert.That(body.text, Is.EqualTo(singleStatus));
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits()
+    {
+        yield return Load();
+        Building building = DataBase<Building>.Find("Quarry");
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        BuildingManager manager = BuildingManager.Instance;
+        manager.SetAmountAndRatesForEditor(manager.States[building], ExpantaNum.Zero);
+        GameState game = GameManager.Instance.State;
+        game.RestorePopulationForEditor(ExpantaNum.Zero);
+        foreach (Resource resource in DataBase<Resource>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
+        game.CommitConstructionForEditor(game.AvailableTerritory);
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.SpaceInsufficient));
+        ui.SetPage("Buildings");
+        Transform controls = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls");
+        TMP_InputField quantityInput = controls.Find("CustomQuantityInput").GetComponent<TMP_InputField>();
+        Assert.That(quantityInput.GetComponent<Image>().sprite,
+            Is.SameAs(Resources.Load<Sprite>("Art/UI/Buttons/ControlMetal")), "Quantity entry uses the authored control frame.");
+        controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
+        ui.RefreshLiveCardValuesForEditor();
+        TMP_Text effect = ui.GetDeconstructButtonForEditor(building).transform.parent.Find("Effect").GetComponent<TMP_Text>();
+        effect.ForceMeshUpdate(true, true);
+        AssertBuildingStatusIcons(effect, 3, 4);
+        CaptureBuildingStatus("land-shortage");
+        yield return null;
+        string single = effect.text;
+        ui.ShowBuildingDetailsForEditor(building);
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        string singleDetails = body.text;
+        Assert.That(singleDetails, Does.Contain("土地：需求 " + building.SpaceCost.ToGameString()
+            + "，缺少 " + building.SpaceCost.ToGameString()));
+        Transform card = effect.transform.parent;
+        Assert.That(card.Find("Metadata").gameObject.activeSelf, Is.False);
+        TMP_Text title = card.Find("Label").GetComponent<TMP_Text>();
+        title.ForceMeshUpdate();
+        AssertTextVisuallyCentered(title, false);
+        Assert.That(title.horizontalAlignment, Is.EqualTo(HorizontalAlignmentOptions.Left));
+        TMP_Text hint = (TMP_Text)quantityInput.placeholder;
+        hint.ForceMeshUpdate();
+        AssertTextVisuallyCentered(hint);
+        Assert.That(title.fontSize, Is.GreaterThanOrEqualTo(30));
+        Assert.That(title.isTextTruncated, Is.False, "The building name must remain readable in its enlarged area.");
+        controls.Find("Quantity_Ten").GetComponent<Button>().onClick.Invoke();
+        ui.RefreshLiveCardValuesForEditor();
+        Assert.That(effect.text, Is.EqualTo(single), "The icon represents the same shortage at either quantity.");
+        Assert.That(body.text, Is.Not.EqualTo(singleDetails));
+        Assert.That(body.text, Does.Contain((building.SpaceCost * 10).ToGameString()), "Details retain the selected batch deficit.");
+
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        ui.RefreshLiveCardValuesForEditor();
+        AssertBuildingStatusIcons(effect, 3, 4, 5);
+        ui.ShowBuildingDetailsForEditor(building);
+        CaptureBuildingStatus("all-shortages");
+        yield return null;
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, new ExpantaNum(1000000));
+
+        game.AdjustTerritoryTotalForEditor(new ExpantaNum(10000));
+        controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.ProductivityInsufficient));
+        ui.RefreshLiveCardValuesForEditor();
+        effect.ForceMeshUpdate(true, true);
+        Assert.That(effect.textInfo.characterInfo[0].elementType, Is.EqualTo(TMP_TextElementType.Sprite));
+        Assert.That(effect.textInfo.characterInfo[0].spriteIndex, Is.EqualTo(4), "Productivity shortage uses the warning resident-group glyph, not the neutral category icon.");
+        CaptureBuildingStatus("productivity-shortage");
+        yield return null;
+        ui.ShowBuildingDetailsForEditor(building);
+        Assert.That(body.text, Does.Contain((building.ProductivityConsumption - manager.AvailableProductivity).ToGameString()));
+        body.ForceMeshUpdate(true, true);
+        var detailIcons = new HashSet<int>();
+        for (int i = 0; i < body.textInfo.characterCount; i++)
+            if (body.textInfo.characterInfo[i].elementType == TMP_TextElementType.Sprite)
+                detailIcons.Add(body.textInfo.characterInfo[i].spriteIndex);
+        Assert.That(detailIcons, Does.Contain(0), "Available land uses the neutral land icon.");
+        Assert.That(detailIcons, Does.Contain(4), "Insufficient productivity uses the warning icon.");
+
+        game.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(100));
+        game.RestorePopulationForEditor(new ExpantaNum(100));
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
+        ui.RefreshLiveCardValuesForEditor();
+        effect.ForceMeshUpdate(true, true);
+        Assert.That(effect.textInfo.characterCount, Is.EqualTo(1));
+        Assert.That(effect.textInfo.characterInfo[0].elementType, Is.EqualTo(TMP_TextElementType.Sprite));
+        Assert.That(effect.textInfo.characterInfo[0].spriteIndex, Is.EqualTo(2), "Sufficient resources retain a large neutral materials icon.");
+        ui.ShowBuildingDetailsForEditor(building);
+        Assert.That(body.text, Does.Contain("土地充足"));
+        Assert.That(body.text, Does.Contain("生产力充足"));
+        CaptureBuildingStatus("ready");
+        yield return null;
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.ResourceInsufficient));
+        ui.RefreshLiveCardValuesForEditor();
+        effect.ForceMeshUpdate(true, true);
+        Assert.That(effect.textInfo.characterCount, Is.EqualTo(1));
+        Assert.That(effect.textInfo.characterInfo[0].spriteIndex, Is.EqualTo(5));
+        ui.ShowBuildingDetailsForEditor(building);
+        CaptureBuildingStatus("materials-shortage");
+        yield return null;
+    }
+
+    private static void AssertBuildingStatusIcons(TMP_Text effect, params int[] indices)
+    {
+        effect.ForceMeshUpdate(true, true);
+        Assert.That(effect.textInfo.characterCount, Is.EqualTo(indices.Length), "Show every shortage once, with no adjacent text.");
+        for (int i = 0; i < indices.Length; i++)
+        {
+            TMP_CharacterInfo glyph = effect.textInfo.characterInfo[i];
+            Assert.That(glyph.elementType, Is.EqualTo(TMP_TextElementType.Sprite));
+            Assert.That(glyph.spriteIndex, Is.EqualTo(indices[i]), "Sprite indices are the authored status protocol.");
+            Assert.That(glyph.topRight.y - glyph.bottomLeft.y,
+                Is.GreaterThanOrEqualTo(((RectTransform)effect.transform.parent).rect.height * .65f),
+                "Even three icons must occupy most of the card height.");
+            Assert.That(glyph.bottomLeft.x, Is.GreaterThanOrEqualTo(effect.rectTransform.rect.xMin));
+            Assert.That(glyph.topRight.x, Is.LessThanOrEqualTo(effect.rectTransform.rect.xMax));
+        }
+    }
+
+    private static void AssertTextVisuallyCentered(TMP_Text text, bool horizontal = true)
+    {
+        text.ForceMeshUpdate();
+        Vector3 center = text.textBounds.center;
+        Vector2 slot = text.rectTransform.rect.center;
+        if (horizontal) Assert.That(Mathf.Abs(center.x - slot.x), Is.LessThan(text.fontSize * .12f), text.name + " horizontal glyph center");
+        Assert.That(Mathf.Abs(center.y - slot.y), Is.LessThan(text.fontSize * .12f), text.name + " vertical glyph center");
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingQuantityInput_CentersShortValuesAndClipsLongText()
+    {
+        yield return Load();
+        ui.SetPage("Buildings");
+        TMP_InputField input = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/CustomQuantityInput").GetComponent<TMP_InputField>();
+        AssertTextVisuallyCentered((TMP_Text)input.placeholder);
+        input.SetTextWithoutNotify("12345");
+        yield return null;
+        AssertTextVisuallyCentered(input.textComponent);
+        RectMask2D mask = input.GetComponent<RectMask2D>();
+        Assert.That(mask, Is.Not.Null, "The quantity field owns its clipping boundary.");
+        input.SetTextWithoutNotify(new string('9', 100));
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        Assert.That(input.textComponent.canvasRenderer.hasRectClipping, Is.True,
+            "Long quantities must be clipped before reaching neighboring controls.");
+        input.SetTextWithoutNotify(string.Empty);
+    }
+
+    [UnityTest]
+    public IEnumerator BuildingDetails_RefreshCapacityAndUseDiscountedMaterialCosts()
+    {
+        yield return Load();
+        Building building = DataBase<Building>.Find("Quarry");
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        BuildingManager manager = BuildingManager.Instance;
+        GameState game = GameManager.Instance.State;
+        game.RestorePopulationForEditor(ExpantaNum.Zero);
+        game.CommitConstructionForEditor(game.AvailableTerritory);
+        foreach (Resource resource in DataBase<Resource>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
+        ui.SetPage("Buildings");
+        ui.ShowBuildingDetailsForEditor(building);
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        ui.RefreshAutomaticUIForEditor();
+        yield return new WaitForSecondsRealtime(.35f);
+        Assert.That(body.text, Does.Contain("缺少"));
+        game.AdjustTerritoryTotalForEditor(new ExpantaNum(10000));
+        game.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(100));
+        game.RestorePopulationForEditor(new ExpantaNum(100));
+        ui.RefreshAutomaticUIForEditor();
+        yield return new WaitForSecondsRealtime(.35f);
+        Assert.That(body.text, Does.Contain("土地充足"));
+        Assert.That(body.text, Does.Contain("生产力充足"));
+
+        var drafting = new WorkshopUpgradeState(DataBase<WorkshopUpgrade>.Find("DraftingTables"));
+        drafting.SetPurchasedForEditor(true);
+        ProgressionModifierManager.Rebuild(null, new[] { drafting });
+        ui.RefreshAutomaticUIForEditor();
+        yield return new WaitForSecondsRealtime(.35f);
+        // Compare the displayed requirement with the transaction's actual payment, not a duplicated formula.
+        var before = new Dictionary<Resource, ExpantaNum>();
+        foreach (var cost in building.ResourceRequirements)
+            before[cost.First] = ResourceManager.Instance.GetAmount(cost.First);
+        var displayed = new List<string>();
+        foreach (TMP_Text label in ui.transform.Find("SafeAreaRoot/DetailPanel").GetComponentsInChildren<TMP_Text>())
+            displayed.Add(label.text);
+        Assert.That(manager.TryBuild(building, ExpantaNum.One, out BuildFailure failure), Is.True, failure.ToString());
+        foreach (var cost in building.ResourceRequirements)
+        {
+            string paid = (before[cost.First] - ResourceManager.Instance.GetAmount(cost.First)).ToGameString();
+            Assert.That(displayed.Exists(value => value.Contains(paid)), Is.True, "Details must show the discounted transaction payment: " + paid);
+        }
+    }
+
+    private void CaptureBuildingStatus(string status)
+    {
+        if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) return;
+        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data",
+            "overview-events-20261015", "large-icons"));
+        Directory.CreateDirectory(directory);
+        Canvas canvas = ui.GetComponent<Canvas>();
+        RenderMode mode = canvas.renderMode;
+        Camera previousCamera = canvas.worldCamera;
+        float distance = canvas.planeDistance;
+        var host = new GameObject("BuildingStatusEvidenceCamera");
+        Camera camera = host.AddComponent<Camera>();
+        var target = new RenderTexture(1760, 800, 24);
+        var pixels = new Texture2D(1760, 800, TextureFormat.RGB24, false);
+        RenderTexture previous = RenderTexture.active;
+        try
+        {
+            camera.enabled = false;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Color.black;
+            camera.transform.position = new Vector3(0, 0, -10);
+            camera.nearClipPlane = .1f;
+            camera.farClipPlane = 1000;
+            target.Create();
+            camera.targetTexture = target;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = camera;
+            canvas.planeDistance = 100;
+            Canvas.ForceUpdateCanvases();
+            camera.Render();
+            RenderTexture.active = target;
+            pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+            pixels.Apply();
+            File.WriteAllBytes(Path.Combine(directory, status + ".png"), pixels.EncodeToPNG());
+        }
+        finally
+        {
+            RenderTexture.active = previous;
+            canvas.renderMode = mode;
+            canvas.worldCamera = previousCamera;
+            canvas.planeDistance = distance;
+            camera.targetTexture = null;
+            target.Release();
+            Object.Destroy(target);
+            Object.Destroy(pixels);
+            Object.Destroy(host);
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator OwnedBuildingEfficiency_RemainsInDetailsWhileTheCardShowsPurchaseStatus()
+    {
+        yield return Load();
+        Building building = DataBase<Building>.Find("WoodHouse");
+        BuildingState state = BuildingManager.Instance.States[building];
+        BuildingManager.Instance.SetAmountAndRatesForEditor(state, ExpantaNum.One);
+        foreach (var cost in building.ResourceRequirements)
+            ResourceManager.Instance.SetAmount(cost.First, ExpantaNum.Zero);
+        state.SetEfficiencyForEditor(ExpantaNum.One);
+        ui.SetPage("Buildings");
+        ui.RefreshLiveCardValuesForEditor();
+        Transform row = ui.GetDeconstructButtonForEditor(building).transform.parent;
+        TMP_Text effect = row.Find("Effect").GetComponent<TMP_Text>();
+        Assert.That(row.Find("BuildButton").GetComponent<Button>().interactable, Is.False);
+        effect.ForceMeshUpdate(true, true);
+        Assert.That(effect.textInfo.characterCount, Is.EqualTo(1));
+        Assert.That(effect.textInfo.characterInfo[0].spriteIndex, Is.EqualTo(5));
+        ui.ShowBuildingDetailsForEditor(building);
+        TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
+        Assert.That(body.text, Does.Contain("生产效率：" + (state.Efficiency * 100).ToGameString() + "%"));
+        state.SetEfficiencyForEditor(ExpantaNum.Zero);
+        ui.ShowBuildingDetailsForEditor(building);
+        Assert.That(body.text, Does.Contain("生产效率：0%"));
+        Assert.That(body.text, Does.Contain("停工原因"));
+    }
+
+    [UnityTest]
+    public IEnumerator WorkshopPurchase_ResourcesSpentAfterRefresh_ExplainsFailureFromBothButtons()
+    {
+        yield return Load();
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        foreach (Research research in DataBase<Research>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
+        foreach (Resource resource in DataBase<Resource>.All)
+            ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
+        ui.SetPage("Workshop");
+        Transform rows = ui.transform.Find("SafeAreaRoot/Content/PageHost/Workshop/DataRows");
+        WorkshopUpgrade target = null;
+        Transform targetRow = null;
+        foreach (Button candidate in rows.GetComponentsInChildren<Button>())
+        {
+            if (candidate.name != "PurchaseButton" || !candidate.interactable) continue;
+            string label = candidate.transform.parent.Find("Label").GetComponent<TMP_Text>().text;
+            foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+                if (upgrade.Label == label && upgrade.ResourceRequirements.Count > 0 &&
+                    upgrade.ResourceRequirements[0].Second > ExpantaNum.Zero)
+                { target = upgrade; targetRow = candidate.transform.parent; break; }
+            if (target != null) break;
+        }
+        Assert.That(target, Is.Not.Null, "The real workshop contains an unlocked upgrade with a material cost.");
+        Resource spent = target.ResourceRequirements[0].First;
+        TMP_Text tooltip = ui.transform.Find("SafeAreaRoot/Tooltip/Text").GetComponent<TMP_Text>();
+        ResourceManager.Instance.SetAmount(spent, ExpantaNum.Zero);
+        ui.ShowTooltip("pending-row");
+        targetRow.Find("PurchaseButton").GetComponent<Button>().onClick.Invoke();
+        Assert.That(WorkshopManager.Instance.IsPurchased(target), Is.False);
+        Assert.That(tooltip.text, Is.Not.EqualTo("pending-row"));
+        Assert.That(tooltip.text, Does.Contain(spent.Label));
+
+        ResourceManager.Instance.SetAmount(spent, new ExpantaNum(1000000));
+        targetRow.GetComponent<Button>().onClick.Invoke();
+        Assert.That(ui.DetailActionButtonForEditor.interactable, Is.True);
+        ResourceManager.Instance.SetAmount(spent, ExpantaNum.Zero);
+        ui.ShowTooltip("pending-detail");
+        ui.DetailActionButtonForEditor.onClick.Invoke();
+        Assert.That(WorkshopManager.Instance.IsPurchased(target), Is.False);
+        Assert.That(tooltip.text, Is.Not.EqualTo("pending-detail"));
+        Assert.That(tooltip.text, Does.Contain(spent.Label));
+    }
+
+    [UnityTest]
     public IEnumerator BatchDeconstruction_PreviewAndCancelDoNotCommit_ConfirmCommitsOnce()
     {
         yield return Load();
@@ -112,7 +456,7 @@ public sealed class ReviewInteractionPlayModeTests
                 break;
             }
         Assert.That(ui.SelectedBuildingForEditor, Is.SameAs(building));
-        Assert.That(ui.ReviewLocateForEditor.gameObject.activeInHierarchy, Is.True);
+        Assert.That(ui.ReviewLocateForEditor.gameObject.activeInHierarchy, Is.False);
         Assert.That(ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls").gameObject.activeInHierarchy, Is.True);
     }
 
@@ -164,6 +508,27 @@ public sealed class ReviewInteractionPlayModeTests
         Bounds queue = RectBounds(pageTool, (RectTransform)pageTool.Find("ResearchQueueViewport"));
         Bounds tools = RectBounds(pageTool, (RectTransform)pageTool.Find("PageTools"));
         Assert.That(queue.max.x, Is.LessThanOrEqualTo(tools.min.x), "Authored page tools have a separate reserved area beside the research queue.");
+
+        UIResearchGraphGesture gesture = null;
+        for (int frame = 0; frame < 480; frame++)
+        {
+            Transform researchViewport = ui.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport");
+            gesture = researchViewport?.GetComponent<UIResearchGraphGesture>();
+            if (gesture != null && gesture.IsInitialized) break;
+            yield return null;
+        }
+        Assert.That(gesture, Is.Not.Null);
+        Assert.That(gesture.IsInitialized, Is.True);
+        RectTransform viewport = (RectTransform)gesture.transform;
+        RectTransform graph = (RectTransform)viewport.Find("ResearchGraphContent");
+        Canvas.ForceUpdateCanvases();
+        Assert.That(graph.rect.height, Is.GreaterThan(viewport.rect.height), "The real research tree must expose vertical overflow for the reset regression.");
+        gesture.RestoreView(Vector2.zero, 1.25f);
+        pageTool.Find("PageTools/ResetResearch").GetComponent<Button>().onClick.Invoke();
+        Assert.That(graph.anchoredPosition.x, Is.EqualTo(0f).Within(.1f));
+        Assert.That(graph.anchoredPosition.y,
+            Is.EqualTo(Mathf.Min(0f, viewport.rect.height - graph.rect.height * graph.localScale.y)).Within(.1f),
+            "Reset restores the visible top-left of the research tree instead of its empty bottom-left.");
     }
 
     private void ClickConfirmation(string name) => ui.transform.Find("SafeAreaRoot/ReviewControls/Confirmation/Panel/Actions/" + name).GetComponent<Button>().onClick.Invoke();
@@ -184,7 +549,7 @@ public sealed class ReviewInteractionPlayModeTests
         buildings.SetAmountAndRatesForEditor(buildings.States[quarry], new ExpantaNum(100));
         Assert.That(buildings.AvailableProductivity, Is.LessThan(ExpantaNum.Zero));
         ui.ShowBuildingDetailsForEditor(house);
-        Assert.That(body.text, Is.EqualTo(availableHousingDetails), "Zero-consumption housing keeps the same availability display under negative productivity.");
+        Assert.That(body.text, Is.EqualTo(availableHousingDetails), "Zero-consumption housing still has zero shortage under productivity overcommit.");
         Assert.That(body.text, Does.Contain((house.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson).ToGameString() + "/s"));
         Assert.That(buildings.GetBuildFailure(house, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
         Assert.That(buildings.TryBuild(house, ExpantaNum.One, out _), Is.True);
@@ -212,7 +577,7 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator ResearchCancellation_ListsDependentItems_AndDoesNotMutateUntilConfirmation()
     {
         yield return Load();
-        Research target = DataBase<Research>.Find("StoneTools");
+        Research target = DataBase<Research>.Find("StoneProcessing");
         ResearchManager manager = ResearchManager.Instance;
         manager.HandleResearchAction(target);
         Research prerequisite = target.Prerequisites[0];

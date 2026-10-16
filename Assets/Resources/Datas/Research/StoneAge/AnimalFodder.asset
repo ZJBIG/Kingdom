@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: AnimalFodder
   Label: "\u9972\u6599\u914D\u5236"
-  Description: "\u6839\u636E\u4E0D\u540C\u7272\u755C\u7684\u98DF\u6027\u914D\u5236\u8349\u6599\u3001\u8C37\u7269\u548C\u526F\u4EA7\u7269\uFF0C\u51CF\u5C11\u5B63\u8282\u53D8\u5316\u5BF9\u755C\u7FA4\u751F\u957F\u4E0E\u7E41\u6B96\u7684\u5F71\u54CD\u3002"
+  Description: "按牲畜食性配制饲料，改善养殖收成，提高全局食物产出。"
   BaseCost: "7000"
   prerequisites:
   - {fileID: 11400000, guid: 37a795c6180558f498b019934dbdf9cb, type: 2}

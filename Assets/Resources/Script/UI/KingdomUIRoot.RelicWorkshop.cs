@@ -38,7 +38,6 @@ public sealed partial class KingdomUIRoot
         row.name = "RelicSupportWorkshopRow";
         ApplyEraRowStyle(row, TechLevel.Spacer, index);
         BindRowPin(row, UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
-        SetRowMetadata(row, "拆解路线 · 可重复制造 · 远征补给支援");
         Transform tier = row.transform.Find("TechLevel") ?? row.transform.Find("Amount");
         if (tier != null) tier.name = "TechLevel";
         SetRowText(row, "Label", "远征支援组件 · 自主制造");

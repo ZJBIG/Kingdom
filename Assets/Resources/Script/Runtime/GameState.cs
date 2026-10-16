@@ -63,6 +63,7 @@ public sealed class GameState
     public ExpantaNum AvailableTerritory => Territory.AvailableTerritory;
     public PopulationState Population { get; private set; }
     public StoryProgressState StoryProgress { get; private set; }
+    public WorldEventState Events { get; private set; }
     public long LastSaveUnixSeconds { get; private set; }
     public int Version { get; private set; }
 
@@ -112,6 +113,7 @@ public sealed class GameState
         Territory = new TerritoryState();
         Population = new PopulationState();
         StoryProgress = new StoryProgressState();
+        Events = new WorldEventState();
         LastSaveUnixSeconds = 0;
         Version++;
     }
@@ -139,6 +141,22 @@ public sealed class GameState
             Population = new PopulationState();
         Population.RestorePopulation(population);
         Version++;
+    }
+
+    internal void AdvanceWorldEvents(double seconds, bool online)
+    {
+        int previousSequence = Events.Sequence;
+        Events.Advance(seconds, online);
+        if (Events.Sequence != previousSequence && Events.LastKind == WorldEventKind.Fire &&
+            Population.Population >= new ExpantaNum(2))
+        {
+            ExpantaNum growthProgress = Population.PopulationChangeProgress;
+            RestorePopulation(Population.Population - ExpantaNum.One);
+            RestorePopulationChangeProgress(growthProgress);
+            Events.RecordPopulationLoss(1);
+        }
+        if (seconds > 0d)
+            Version++;
     }
 
     internal void RestorePopulationChangeProgress(ExpantaNum progress)
@@ -315,6 +333,8 @@ public sealed class GameState
         RestoreCore(calendarDays, techLevel, foodAmount, lastSaveUnixSeconds);
     public void RestorePopulationForEditor(ExpantaNum population) =>
         RestorePopulation(population);
+    public void AdvanceWorldEventsForEditor(double seconds, bool online) =>
+        AdvanceWorldEvents(seconds, online);
     public void RestorePopulationCapacityExactForEditor(
         ExpantaNum restoredCapacity,
         ExpantaNum restoredProgress) =>

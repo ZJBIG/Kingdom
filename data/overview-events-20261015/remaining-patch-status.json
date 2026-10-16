@@ -1,0 +1,130 @@
+[
+  {
+    "path": "Assets/Resources/Datas/Building/Industrial/IntegratedPetrochemicalComplex.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Building/Spacer/EarthMoonLogisticsHub.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Tutorial/EraGoal.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Tutorial/LongTerm.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Tutorial/ProductionChain.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/OrbitalLoadTestingRig.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/PhaseMaterialDurabilityCalibration.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/CampaignTimingCalibrationBench.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/GravityAssistTrajectoryPlanner.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/ModularHabitatSystems.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/ReusableLaunchStages.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/OrbitalTrafficSchedulingArray.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Workshop/SolarWindMonitoringArray.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/PlanetaryGeologyTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Sector/HeliosCore.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Sector/ShardCrown.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Sector/ThunderGate.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/DeepSpaceBiosecurityTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/DeepSpaceLogisticsReliability.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/DeepSpaceThermalExchangeTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/GravityAssistTrajectoryTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/InterstellarAutonomyCharterTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/InterstellarCybersecurityTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/InterstellarRouteControlTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/OrbitalStructuralDynamicsTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/PhaseMaterialDurabilityTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/PlanetaryAtmosphereEngineering.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Datas/Research/Spacer/SpaceWeatherForecastingTheory.asset",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Tests/Editor/UnsafeAreaTickerTests.cs",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/Script/UI/UnsafeAreaTicker.cs",
+    "status": "applied_verified"
+  },
+  {
+    "path": "docs/ui/page-responsibilities.md",
+    "status": "applied_verified"
+  },
+  {
+    "path": "Assets/Resources/UI/Kingdom/KingdomUIRoot.prefab",
+    "status": "applied_verified"
+  }
+]

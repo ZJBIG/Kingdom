@@ -1,0 +1,552 @@
+# 定义文案审查（2026-10-15）
+
+覆盖 Assets/Resources/Datas 的全部 373 个 asset：建筑 72、研究 143、工坊 86、资源 33、星区 10、教程 8、剧情 19、Ultra 工程 2。逐组读取 Label/Description、教程 Title/NarrativeText、剧情 Title/Summary/Body、工程 label/description；结合资源 GUID、生产/消耗字段与 ResearchEffectType、WorkshopEffectType 实际效果核对。剧情保留叙事而非改写为操作说明。时代固定文字位于 UI 源码，交由主代理。
+
+只改玩家文字；未改 ID、GUID、meta、经济数值、解锁条件或字段结构。共享上一轮 finish-audit 基线，由主代理统一重跑。
+
+主要修正：英文开发说明本地化；移除“没有新增第二套系统”等面向开发者的说明；将效果误写为可靠性/承载容量/燃料节省的文字对应回真实研究、物流、人口增长和生产倍率；纠正合并资源残留名称；修复地月物流中枢未加引号的 Unicode 转义。
+
+已落盘原130个资产的145个文字字段，以及此前受写入限制的28个资产修改。2026-10-15续接已应用 blocked-definition-copy.patch，并通过反向补丁检查确认完整落盘；补丁保留为变更记录。
+
+## 已落盘字段变更
+
+- `Building/Animal/FiberGatheringCamp.asset` / `Description`
+  - 原：采集麻、草茎等植物纤维，作为绳索、织物和轻型工具的基础原料。
+  - 新：采集草茎、枝叶和其他植物，持续产出生物质，供应纺织工坊与后续生态生产。
+- `Building/Industrial/AdvancedCeramicsPlant.asset` / `Description`
+  - 原：将黏土采集、分选与高级陶瓷烧制合并为一体化材料厂，同时产出黏土与陶瓷，联合采掘仅形成少量黏土盈余，为工业电气、航天热管理与深空制造提供材料。
+  - 新：将黏土采掘与高温烧结连成一线，同时供应黏土和陶瓷；运行消耗焦炭、化工材料、工业炸药与润滑剂。
+- `Building/Industrial/IndustrialMetalSmelter.asset` / `Description`
+  - 原：用机械化炉体加工低级金属矿和焦炭，统一产出基础金属锭与钢材，延续旧工业的材料供应。
+  - 新：以机械化炉体加工低级金属矿和焦炭，同时供应基础金属锭与钢材，服务线材、机械和工业建设。
+- `Building/Industrial/MachineFactory.asset` / `Description`
+  - 原：基础机器制造厂以钢、线材和基础金属启动机器、发动机与复合材料生产，不依赖需机器建设的铝冶炼或后续石化耗材。
+  - 新：以钢材、铜线和基础金属锭制造机械部件、发动机与复合材料，为工业扩建和航天设施提供设备。
+- `Building/Industrial/OilDerrick.asset` / `Description`
+  - 原：基础油井开采原油，为化工与炸药链提供首批原料；电力和生产力维持开采，不依赖尚未生产的炸药。
+  - 新：钻入地下油层，持续开采原油，供应炼油厂和化工厂；运行需要电力与物流。
+- `Building/Industrial/OilRefinery.asset` / `Description`
+  - 原：通过蒸馏和裂化处理原油，生产可供交通、发电与工业设备使用的燃料。
+  - 新：以蒸馏和裂化处理原油，配合化工材料生产精炼燃料、润滑剂和橡胶，供应运输与工业设备。
+- `Building/Industrial/RailHub.asset` / `Description`
+  - 原：以铁路与调度设施组织大宗运输，持续消耗燃油和润滑剂。
+  - 新：以铁路、货站和调度设施扩大物流供给与储粮空间；运行持续消耗焦炭、润滑剂及维护用材。
+- `Building/Industrial/WireMill.asset` / `Description`
+  - 原：以拉丝、绝缘、绕组和装配工序生产铜线与基础电子元件，是电气工业的集中制造节点。
+  - 新：将基础金属锭和陶瓷加工为铜线与电子元件，供应电力设备、机器制造和通信设施。
+- `Building/Medieval/Academy.asset` / `Description`
+  - 原：组织系统课程、学术讨论和专职研究，使零散知识发展为稳定的学术体系。
+  - 新：组织专职学者、系统课程与天象观测，持续提供研究力，推动新研究完成。
+- `Building/Medieval/SteelForge.asset` / `Description`
+  - 原：以铁和煤为原料控制炉温与含碳量，连续生产强度更高的钢材。
+  - 新：将基础金属锭与煤炭送入炉中，控制炉温与含碳量，持续生产钢材。
+- `Building/Spacer/InterstellarTheoryNexus.asset` / `Description`
+  - 原：量子计算阵列的后段升级，集中承载引力通信、物质嬗变和深空时间同步等研究，为当前星际阶段提供更高的长期研究产能。
+  - 新：接替量子计算阵列，集中处理远方观测、引力通信与时钟同步课题，持续提供更高的研究力。
+- `Building/Spacer/OrbitalResourceExtractionArray.asset` / `Description`
+  - 原：将轨道采集、冶金、建材、机械、线材、推进剂与高阶材料生产整合为一个自动化工厂，承担 Spacer 后期绝大部分材料产出，并提供物流与舰队支援；生态农业阵列仍负责食物、生物质和木材。
+  - 新：在轨道整合采矿、建材、机械、线材、推进剂与相位材料生产，并提供物流和舰队支援。运行需要地面工业原料及幽影材料；食物、生物质与原木由生态农业阵列供应。
+- `Building/Spacer/OrbitalSolarArray.asset` / `Description`
+  - 原：在轨道部署可扩展的太阳能板、铜质汇流排、锡基焊接接点与能量传输设备，为航天基础设施提供稳定电力；阵列需要持续使用复合材料维护。
+  - 新：在轨道部署太阳能板、导电母线和定向输电设备，持续供电；需要复合材料、钛合金与电气部件维护。
+- `Building/Spacer/PhaseMaterialSynthesisArray.asset` / `Description`
+  - 原：以幽影合金和幽影纤维为核心原料，使用钛合金、镍与电子元件维持高能场约束，缓慢合成可用于相位航行与量子设施的相位材料。
+  - 新：以幽影合金和幽影纤维为核心原料，配合钛合金、高级金属锭与电子元件维持高能场，持续合成相位材料。
+- `Building/StoneAge/CharcoalKiln.asset` / `Description`
+  - 原：在缺氧窑体中炭化木材，生产适合冶炼和高温加工的木炭。
+  - 新：在缺氧窑体中炭化原木，制成与煤炭共同供应的炉用燃料，供冶炼和高温加工使用。
+- `Building/StoneAge/Granary.asset` / `Description`
+  - 原：以干燥、熏制、分类和防鼠设施集中保存粮食；在扩大储量的同时保留早期食物加工能力。
+  - 新：以干燥、熏制、分类和防潮设施集中保存粮食，提高食物储量上限，并提供少量食物。
+- `Building/StoneAge/IrrigationWorks.asset` / `Description`
+  - 原：修筑沟渠、蓄水池和分水设施，提高农田产量，并缓冲旱季造成的食物波动。
+  - 新：用沟渠、蓄水池和分水设施开辟灌溉种植区，持续产出食物，并增加储粮空间。
+- `Building/Ultra/AutonomousMatterFabricator.asset` / `Label`
+  - 原：Autonomous Matter and Logistics Fabricator
+  - 新：自主材料与物流工厂
+- `Building/Ultra/AutonomousMatterFabricator.asset` / `Description`
+  - 原：A single Ultra factory for the main advanced-material lines: it converts titanium alloy, electronics, machinery, nickel and existing orbital inputs into phantom materials, phase material and composite while also carrying the shared logistics and fleet-support role. It remains a staffed, powered industrial building and does not create resources from nothing.
+  - 新：将钛合金、电子元件、机械部件和高级金属锭组装为幽影合金、幽影纤维、相位材料与复合材料，同时提供物流和舰队支援。
+- `Building/Ultra/PhaseEnergyArray.asset` / `Description`
+  - 原：将相位场工程转化为稳定的高能供给，承担 Ultra 设施的电力需求；阵列仍需旧工业材料维护。
+  - 新：利用受控相位场持续供电，支撑极致时代的巨构设施；运行消耗幽影合金、电子元件与相位材料。
+- `Building/Ultra/UltraComputingNexus.asset` / `Description`
+  - 原：由量子阵列、相位材料和跨星区协议构成的研究设施，为 Ultra 文明持续提供经过校验的研究能力。
+  - 新：以量子阵列和相位材料承载跨星区计算任务，持续提供研究力；运行消耗电子元件和相位材料。
+- `Research/Animal/Agriculture.asset` / `Description`
+  - 原："\u901A\u8FC7\u9009\u79CD\u3001\u64AD\u79CD\u3001\u8015\u4F5C\u548C\u5B9A\u671F\u6536\u83B7\u5EFA\u7ACB\u7A33\u5B9A\u7684\u7CAE\u98DF\u751F\u4EA7\uFF0C\u4F7F\u805A\u843D\u4E0D\u518D\u5B8C\u5168\u4F9D\u8D56\u5B63\u8282\u6027\u91C7\u96C6\u3002     \u4EBA\u53E3\u589E\u957F\u901F\u5EA6\u63D0\u9AD820%\u3002"
+  - 新：以选种、播种和定期收获建立农业，提高全局食物产出与人口增长速度。
+- `Research/Animal/Calendar.asset` / `Description`
+  - 原：依据天象和季节周期建立历法，改进播种、放牧、灌溉与长期时间记录。
+  - 新：以天象和季节记录安排播种与收获，提高全局食物产出。
+- `Research/Animal/ControlledFire.asset` / `Description`
+  - 原：掌握保存火种与安全用火。当前作为石器工具、黏土与知识路线的前置；陶窑生产倍率要在石器时代建成陶窑后兑现，完成研究不会立即增加当前粮食或木材产量。
+  - 新：学会保存火种与控制炉温，提高陶瓷窑的产出，并为石料加工、黏土采集与知识传承提供技术基础。
+- `Research/Animal/FoodPreservation.asset` / `Description`
+  - 原：利用晾晒、熏制、盐渍和低温储存延缓食物腐败，使狩猎与收获所得能够跨越短缺季节。
+  - 新：用晾晒、熏制和低温保存粮食，提高食物储量上限。
+- `Research/Animal/HerbalKnowledge.asset` / `Description`
+  - 原：辨认常见药用植物并总结采集、干燥和配伍方法，使伤口处理和常见病症拥有更可靠的草药来源。
+  - 新：辨认和配伍草药，改善健康与幸福度，提高人口生产力与全局建造效率。
+- `Research/Animal/KnowledgeSharing.asset` / `Description`
+  - 原：通过示范、讲述和共同记忆传递经验，使工具制作、生存技巧与自然知识能够跨越个人和世代保存。
+  - 新：通过讲述、示范和共同记录传递经验，提高全局研究效率。
+- `Research/Animal/Mathematics.asset` / `Description`
+  - 原：把算术、比例、长度和基础几何统一为服务于生产、测量与组织管理的实用数学。
+  - 新：统一算术、比例和几何方法，提高全局研究效率。
+- `Research/Animal/NaturalPhilosophy.asset` / `Description`
+  - 原：通过系统观察、分类、比较和因果推测解释自然现象，把草药、天象、材料与生物经验整理为可讨论的知识体系。
+  - 新：以观察、分类和比较整理自然知识，提高知识圈与文书小屋的研究力。
+- `Research/Animal/StoneProcessing.asset` / `Description`
+  - 原：改进石料敲击、切割、打磨与装柄方法，把采石、切石和早期建造整合为一套稳定工艺。
+  - 新：改进石料切割、打磨与装柄，提高采石场和切石工坊的产出，降低建造材料需求，并提高拆除返还比例。
+- `Research/Animal/VillageOrganization.asset` / `Description`
+  - 原：划分居住、储藏、生产和公共区域，并建立任务分派与物资协调方式，使扩大后的聚落保持秩序。
+  - 新：以任务分派、轮班和公共区域规划协调聚落，增加可供建筑使用的生产力。
+- `Research/Animal/Woodworking.asset` / `Description`
+  - 原：将植树、伐木、干燥、连接和基础木工合并为完整的木材利用技术，支撑伐木场与手工业棚。
+  - 新：改进伐木、干燥和木构连接，提高伐木场产出，并降低全局建造材料需求。
+- `Research/Industrial/IndustrialAgriculture.asset` / `Description`
+  - 原：以发动机、机械传动和规模化组织改造农场、牧场与灌溉设施。
+  - 新：以机械播种、灌溉与收割改造农业，提高全局食物产出和机械化农田的生产倍率。
+- `Research/Industrial/IndustrialHabitationEngineering.asset` / `Description`
+  - 原：研究工业城市的高密度住宅、公共管网、隔热结构与人口承载规划，为工业居住综合体建立可持续扩张的理论基础。
+  - 新：以高密度住宅、公共管网与隔热结构改善定居条件，提高人口增长速度。
+- `Research/Industrial/IndustrialWorkshop.asset` / `Description`
+  - 原：以动力机械、传动轴、标准机床和专用工位改造传统作坊，使切削、钻孔、锻压与装配能够连续而重复地进行。
+  - 新：以动力机床和专用工位建立工业工坊，解锁可购买的工坊改良。
+- `Research/Industrial/ModernMedicine.asset` / `Description`
+  - 原：以实验医学、无菌流程、临床记录和标准化护理建立工业时代的现代医疗体系，让每名人口在更健康、更稳定的状态下承担长期生产劳动。
+  - 新：以无菌流程、临床记录和标准护理改善健康，提高每名人口提供的生产力与幸福度。
+- `Research/Industrial/ModernUniversity.asset` / `Description`
+  - 原：建立大学院系、实验室、同行评议和学术出版体系，使研究活动持续制度化。
+  - 新：建立院系、实验室与学术出版体系，提高全局研究效率和现代大学的研究力。
+- `Research/Industrial/RailwayEngineering.asset` / `Description`
+  - 原：统一路轨、标准轨距、车站和车辆调度的基础规范，形成可靠的大宗运输网络。
+  - 新：统一轨距、货站与车辆调度，提高全局物流供给和铁路枢纽的物流产出。
+- `Research/Industrial/ScientificInstrumentation.asset` / `Description`
+  - 原：整合实验仪器、传感、计量和流程控制，使工业生产能够依据参数稳定运行。
+  - 新：以实验仪器、传感和计量核对研究结果，提高全局研究效率。
+- `Research/Industrial/ScientificMethod.asset` / `Description`
+  - 原：以可检验假设、对照实验、量化记录和重复验证组织研究，使经验判断转化为能够复现和修正的知识。
+  - 新：以可检验假设、对照实验和重复验证组织研究，提高全局研究效率。
+- `Research/Industrial/Standardization.asset` / `Description`
+  - 原：统一零件尺寸、材料等级、图纸符号和检验方法，使不同工坊与工厂生产的部件能够互换并稳定协作。
+  - 新：统一部件尺寸、货箱接口和检验方法，提高铁路枢纽的物流供给。
+- `Research/Industrial/SteamPower.asset` / `Description`
+  - 原：利用锅炉产生高压蒸汽并驱动活塞或旋转机构，为矿井排水、机床、运输和连续生产提供不受地形限制的动力。
+  - 新：用高压蒸汽驱动活塞与旋转机组，提高全局供电能力，并为工业动力设施奠定技术基础。
+- `Research/Industrial/TitaniumAlloyEngineering.asset` / `Description`
+  - 原：掌握真空熔炼、成分控制、热处理和锻造技术，以特级金属矿制备适用于高负荷轻量结构的钛合金，支撑后续 Spacer 建设。
+  - 新：以真空熔炼、成分控制和热处理加工特级金属矿，提高钛合金冶炼厂的产出，供应后续太空建设。
+- `Research/Medieval/Bookmaking.asset` / `Description`
+  - 原：整合造纸、装订、抄录、活字排版和机械压印，大幅降低知识复制与传播成本。
+  - 新：改进抄录、活字排版与装订，让研究记录更易复制，提高全局研究效率。
+- `Research/Medieval/FeudalAdministration.asset` / `Description`
+  - 原：建立分级封地、赋税登记和地方官署体系，使分散领地能够在稳定权责关系下被持续治理。
+  - 新：以封地登记和地方官署管理分散聚落，增加可供建设的领土。
+- `Research/Medieval/Fortification.asset` / `Description`
+  - 原：规划防御工事与公共设施，降低全局建筑的建造阻力。
+  - 新：统一公共工程的结构与施工规划，提高全局建造效率，降低建造材料需求。
+- `Research/Medieval/GuildSystem.asset` / `Description`
+  - 原：以行会传承知识与训练学徒，提高全局科研效率，收益延续到后续时代。它是可选的长期科研投资，不是进入工业的硬条件；先投入材料和研究工作，会推迟当下时代目标，回报随后续科研使用兑现。
+  - 新：由行会训练学徒、保存工艺和交流经验，持续提高全局研究效率。
+- `Research/Medieval/MechanicalEngineering.asset` / `Description`
+  - 原：系统研究齿轮、曲柄、水轮、磨坊和动力传递，把改良磨坊并入通用机械工程。
+  - 新：改进齿轮、曲柄与水轮传动，提高全局食物产出，并降低建造材料需求。
+- `Research/Medieval/PublicHealth.asset` / `Description`
+  - 原：建立清洁水源、污物处理、隔离和公共卫生规范，降低人口密集地区的传染与环境性疾病；同时提高人口增长速度40%、人口劳动生产力25%，并使整体建设效率提高2%。
+  - 新：建立清洁水源、污物处理与隔离规范，提高人口增长速度、人口生产力和幸福度，并降低建造材料需求。
+- `Research/Medieval/ScholasticInstitutions.asset` / `Description`
+  - 原：建立固定课程、藏书、辩论和长期天象观测制度，使学院成为持续研究中心。
+  - 新：以课程、藏书、辩论与天象观测传承知识，提高全局研究效率，并降低建造材料需求。
+- `Research/Medieval/TradeRoutes.asset` / `Description`
+  - 原：整合道路、桥涵、驿站、商账和护运制度，形成稳定的区域物流与贸易网络。
+  - 新：统一道路、驿站和物资交接规范，降低全局建造材料需求。
+- `Research/Medieval/UrbanHousing.asset` / `Description`
+  - 原：以街区、排水、消防和多层结构规划高密度住宅，使城市能够容纳更多人口而不迅速失序。
+  - 新：以紧凑街区和多层住宅支持城市定居，降低全局建造材料需求，并提高拆除返还比例。
+- `Research/Spacer/AutonomousOrbitalMining.asset` / `Description`
+  - 原：将远程采掘、矿物分选和轨道维护结合，提高综合金属矿场产能，把三档金属矿的工业供给延伸到太空。
+  - 新：将无人采掘、遥控分选和远程维护接入轨道综合资源工厂，提高该工厂产出及占领星区的持续资源产出。
+- `Research/Spacer/GravitationalCommunicationTheory.asset` / `Description`
+  - 原：研究引力场扰动、远距离时钟同步与深空信号校准方法，将复杂通信实验纳入统一科研标准，提升全局研究效率；不直接解锁曲率航行或超光速通信。
+  - 新：校准引力信号与远距离时钟，将跨星区观测纳入统一科研标准，提高全局研究效率。
+- `Research/Spacer/MaterialLifecycleControl.asset` / `Description`
+  - 原：管理高级材料的装配与服役，降低建设损耗。
+  - 新：统一高级材料的装配、检修与回收标准，提高全局建造效率，降低建造材料需求。
+- `Research/Spacer/MatterTransmutationTheory.asset` / `Description`
+  - 原：研究高能场约束、同位素筛选与材料微观重组的实验方法，改进深空材料加工设备的工艺稳定性并提高现有建筑生产效率；不直接实现资源互换、反物质或湮灭能源。
+  - 新：改进高能场约束、材料筛选与微观重组工艺，提高所有建筑的生产倍率。
+- `Research/Spacer/OrbitalEngineering.asset` / `Description`
+  - 原：把工业电力、内燃机、复合材料与锡基焊接接点整合为近地轨道发射与测控体系。
+  - 新：整合电力、发动机、复合材料与电气连接技术，为近地轨道设施奠定基础，并提高深空观测站的研究力。
+- `Research/Spacer/OrbitalLogisticsInfrastructure.asset` / `Description`
+  - 原：将深空物流、燃料储备和舰队调度统一化，形成偏重后勤和持续供给的远征路线，提高舰队长期作战的可靠性。
+  - 新：统一空间站的货舱、补给与舰队调度，提高轨道空间站的物流供给。
+- `Research/Spacer/OrbitalPowerTransmission.asset` / `Description`
+  - 原：研究轨道太阳能阵列、相位稳定器与高压输电节点的系统耦合，建立跨轨道能量传输的理论标准，为后续实体终端和空间设施提供稳定电力。
+  - 新：校准定向输电节点与轨道负载，提高轨道太阳能阵列的发电量。
+- `Research/Spacer/OrbitalPropellantEngineering.asset` / `Description`
+  - 原：研究低温推进剂的储存热力学、精密调配和轨道加压，降低火箭燃料在运输与补给中的损耗。
+  - 新：改进低温储存、精密调配与轨道加压，提高火箭燃料产出和轨道低温推进剂阵列的生产倍率。
+- `Research/Spacer/OrbitalTextileFabrication.asset` / `Description`
+  - 原：研究微重力环境中的张力控制、生物质配方、纤维耐辐照处理和密闭纺织工艺，建立轨道长期布料供应的理论基础。
+  - 新：改进微重力张力控制、纤维耐辐照处理和密闭纺织工艺，提高轨道综合资源工厂各条产线的产出。
+- `Research/Spacer/OrbitalVacuumMetallurgy.asset` / `Description`
+  - 原：研究真空熔炼、无重力凝固和轨道金属精炼，将轨道精矿转化为高强度钛合金。
+  - 新：改进真空熔炼、无重力凝固与轨道精炼，提高轨道综合资源工厂各条产线的产出。
+- `Research/Spacer/PhantomMaterials.asset` / `Description`
+  - 原：把钛合金、复合材料、高级金属锭与相位稳定理论结合，建立幻影合金和幻影纤维产业，为深空设备与远征战争提供材料。
+  - 新：以钛合金、复合材料和高级金属锭发展幽影合金与幽影纤维工艺，提高幽影材料制造厂的产出。
+- `Research/Spacer/PhaseMaterialEngineering.asset` / `Description`
+  - 原：在幻影合金和幻影纤维的基础上建立相位材料合成工艺，借助钛合金、高级金属锭和电子元件稳定高能相位结构。
+  - 新：以幽影合金、幽影纤维和高级金属锭稳定高能相位结构，提高相位材料合成阵列的产出。
+- `Research/Spacer/PrecisionMedicine.asset` / `Description`
+  - 原：建立连续健康监测、基因筛查、个体化治疗与远程手术体系，让长期居住在轨道与深空环境中的人口保持稳定劳动力。
+  - 新：以连续监测、个体治疗与远程手术维持居民健康，提高每名人口提供的生产力与幸福度。
+- `Research/StoneAge/AnimalFodder.asset` / `Description`
+  - 原：根据不同牲畜的食性配制草料、谷物和副产物，减少季节变化对畜群生长与繁殖的影响。
+  - 新：按牲畜食性配制饲料，改善养殖收成，提高全局食物产出。
+- `Research/StoneAge/CeramicFiring.asset` / `Description`
+  - 原：掌握高温烧制和陶瓷配方，使早期陶瓷能在后续工业中升级为耐热和隔热材料。
+  - 新：掌握高温烧制和陶瓷配方，为陶瓷窑奠定技术基础，并降低全局建造材料需求。
+- `Research/StoneAge/CharcoalMaking.asset` / `Description`
+  - 原：通过限氧堆烧把木材转化为高热值木炭，为窑炉、金属冶炼和精细加工提供更稳定的高温燃料。
+  - 新：掌握限氧炭化与窑温控制，提高炭窑的炉用燃料产出；成品计入煤炭库存。
+- `Research/StoneAge/CouncilGovernance.asset` / `Description`
+  - 原：由代表共同议定公共事务、劳役和资源分配，使聚落决策从临时号令转变为可延续的治理程序。
+  - 新：由代表共同整理记录、讨论公共事务，提高全局研究效率。
+- `Research/StoneAge/FoodStorage.asset` / `Description`
+  - 原：建造干燥、通风、防潮和防鼠的储藏空间，并建立分类盘点方式，降低大批粮食的损耗。
+  - 新：建造干燥、通风和防潮的储粮空间，提高食物储量上限。
+- `Research/StoneAge/IronworkingAndSteelmaking.asset` / `Description`
+  - 原：使铁器工艺标准化，提高所有建筑的生产能力，并为行政与钢铁路线奠定前置。此前已建立基础金属冶炼；生产倍率同时增加相关持续原料需求，须检查上游供给。
+  - 新：标准化铁器与炼钢工艺，提高所有建筑的生产倍率；加工建筑也会随之消耗更多原料。
+- `Research/StoneAge/Masonry.asset` / `Description`
+  - 原：把砌筑、承重结构和永久石制住宅合并为统一建筑技术。
+  - 新：以砌筑和承重结构规范减少施工损耗，降低全局建造材料需求。
+- `Research/StoneAge/Measurement.asset` / `Description`
+  - 原：统一长度、重量和容量单位，并制作可复核的量具，使交易、施工和物资管理拥有共同标准。
+  - 新：统一长度、重量与容量单位，减少施工误差，降低全局建造材料需求。
+- `Research/StoneAge/TextileCraft.asset` / `Description`
+  - 原：将植物纤维和动物毛纺成线并织成布料，用于衣物、绳索、袋具和更轻便的生活用品。
+  - 新：改进纺线、织布与布匹整理工艺，提高纺织工坊的布料产出。
+- `Research/StoneAge/WrittenRecords.asset` / `Description`
+  - 原：把符号记录、账目、历法抄录和档案保存合并为稳定的文字体系。
+  - 新：统一符号、账目与档案保存方法，提高文书小屋和图书馆的研究力。
+- `Research/Ultra/AdaptiveFleetLogistics.asset` / `Label`
+  - 原：Adaptive Fleet Logistics
+  - 新：自适应舰队后勤
+- `Research/Ultra/AdaptiveFleetLogistics.asset` / `Description`
+  - 原：An adaptive logistics lattice routes existing materials and fleet support around damaged links, reducing campaign supply cost without creating a new transport resource.
+  - 新：在运输节点受损时重新安排补给路线，降低战役期间的食物与材料消耗。
+- `Research/Ultra/AutonomousCivicProductivity.asset` / `Label`
+  - 原：Autonomous Civic Productivity
+  - 新：自主社会生产调度
+- `Research/Ultra/AutonomousCivicProductivity.asset` / `Description`
+  - 原：Coordinate population, research and industrial schedules so the Ultra megastructures receive more effective work without restoring a separate workforce system.
+  - 新：协调居民作息、研究任务和工厂排程，提高每名人口提供的生产力。
+- `Research/Ultra/AutonomousMatterAssembly.asset` / `Description`
+  - 原：把分布式认知协议转化为受约束的材料组装流程，使 Ultra 设施能够在既有工业链上持续扩大产能，而不是凭空生成资源。
+  - 新：以分布式认知协调材料组装、质检与回收，提高所有建筑的生产倍率。
+- `Research/Ultra/CausalOccupationNetwork.asset` / `Label`
+  - 原：Causal Occupation Network
+  - 新：因果占领网络
+- `Research/Ultra/CausalOccupationNetwork.asset` / `Description`
+  - 原：A governance network that converts sustained supply, logistics and fleet presence into more productive occupied territories without turning sectors into instant resource grants.
+  - 新：把跨星区补给与驻防计划连接为治理网络，提高所有占领星区的持续资源产出。
+- `Research/Ultra/ClosedLoopAgroecology.asset` / `Label`
+  - 原：Closed-Loop Agroecology
+  - 新：闭环农业生态
+- `Research/Ultra/ClosedLoopAgroecology.asset` / `Description`
+  - 原：Close the orbital agroecology loop around the existing food, biomass and wood systems, supporting Ultra staffing demands without adding a food warehouse or a new resource type.
+  - 新：回收营养与水分并统一安排轨道种植，提高全局食物产出。
+- `Research/Ultra/DistributedCognitionProtocol.asset` / `Description`
+  - 原：让各星区的量子阵列共享校验后的模型与观测结果，把技术奇点从单点突破变成可持续的文明协作能力。
+  - 新：让各星区量子阵列共享模型和观测结果，提高全局研究效率。
+- `Research/Ultra/InterstellarResourceCoordination.asset` / `Label`
+  - 原：Interstellar Resource Coordination
+  - 新：星际资源协同
+- `Research/Ultra/InterstellarResourceCoordination.asset` / `Description`
+  - 原：Coordinates material allocation between established orbital industries so long-range logistics improve without introducing a separate local inventory or route system.
+  - 新：协调轨道工厂之间的物料配送，提高全局物流供给。
+- `Research/Ultra/PhaseEnergyHarmonics.asset` / `Label`
+  - 原：Phase Energy Harmonics
+  - 新：相位能源谐振
+- `Research/Ultra/PhaseEnergyHarmonics.asset` / `Description`
+  - 原：Tune the phase-energy array to a stable harmonic envelope, increasing the output of the existing Ultra power complex without creating a second energy economy.
+  - 新：校准相位场的谐振周期，提高相位能源阵列的发电量。
+- `Research/Ultra/PhaseGridSynchronization.asset` / `Label`
+  - 原：Phase Grid Synchronization
+  - 新：相位电网同步
+- `Research/Ultra/PhaseGridSynchronization.asset` / `Description`
+  - 原：Synchronizes phase-field power systems across existing industrial networks, turning Ultra energy research into a sustained production input rather than a free multiplier.
+  - 新：同步跨星区电网的负载与相位，提高全局供电能力。
+- `Research/Ultra/PredictiveCasualtyControl.asset` / `Label`
+  - 原：Predictive Casualty Control
+  - 新：预测损伤控制
+- `Research/Ultra/PredictiveCasualtyControl.asset` / `Description`
+  - 原：Predictive damage control turns existing campaign telemetry into safer withdrawals and repairs, reducing casualties without introducing real-time combat or new fleet units.
+  - 新：根据远征记录预判危险，提前隔离受损舱段，降低战役损失率。
+- `Research/Ultra/SelfRepairingFleetArchitecture.asset` / `Label`
+  - 原：Self-Repairing Fleet Architecture
+  - 新：舰队自修复架构
+- `Research/Ultra/SelfRepairingFleetArchitecture.asset` / `Description`
+  - 原：A distributed repair architecture that reduces fleet recovery cost by coordinating the Ultra fabricator, orbital power and existing fleet maintenance systems.
+  - 新：统一船体检修接口与自动维修工序，降低舰队维修材料费用。
+- `Research/Ultra/UltraCampaignContinuity.asset` / `Label`
+  - 原：Ultra Campaign Continuity
+  - 新：极致战役连续性
+- `Research/Ultra/UltraCampaignContinuity.asset` / `Description`
+  - 原：A continuity protocol keeps long-range campaigns supplied through changing phases, improving progress without adding instant travel or a second campaign system.
+  - 新：为远距离战役安排交接窗口与补给冗余，提高战役推进速度。
+- `Research/Ultra/UltraExpeditionDoctrine.asset` / `Label`
+  - 原：Ultra Expedition Doctrine
+  - 新：极致远征学说
+- `Research/Ultra/UltraExpeditionDoctrine.asset` / `Description`
+  - 原：A causal navigation doctrine that turns the Ultra coordination network into reliable long-range expedition power without adding instant travel or a new campaign system.
+  - 新：以跨星区协同导航与观测校准，提高远征探索能力。
+- `Resource/Animal/StoneBrick.asset` / `Description`
+  - 原：切制平整的石砖，能让建筑从临时遮蔽走向庄严、耐久与秩序。
+  - 新：由石块切制的规整建材，用于住宅、公共设施与后续工业建设。
+- `Resource/Industrial/CopperWire.asset` / `Description`
+  - 原：由铜加工成的导线，连接机械、电气和深空通信设备。
+  - 新：由基础金属锭加工的铜质导线，连接电力、机械与深空通信设备。
+- `Resource/Industrial/Machinery.asset` / `Description`
+  - 原：由钢材、工具与铜制造的精密工业机械部件。
+  - 新：由钢材、铜线与基础金属锭制造的工业部件，用于工厂、运输和航天设备。
+- `Resource/Spacer/PhaseMaterial.asset` / `Description`
+  - 原：由钛合金、镍和幽影材料稳定合成的高级材料，用于量子设备与星际舰队。
+  - 新：由幽影材料、钛合金与高级金属锭合成的高能材料，用于量子设备、轨道设施与星际舰队。
+- `Sector/AzurePool.asset` / `Description`
+  - 原：环绕母星的静默近月基地，是王国建立长期空间据点的第一处试炼场。灰白地表下埋藏复合材料与钛的矿脉，等待被送往更远的航线。
+  - 新：母星近旁的月面基地。修复旧设施后，可从遗留仓储与加工站持续取得钛合金、复合材料和电子元件，为远航建立补给点。
+- `Sector/TauCetiFoundry.asset` / `Description`
+  - 原：沿另一条星际航线，旧工业遗迹在寒冷尘埃中重新苏醒。修复铸造设施后，这里将把远方矿藏锻成支撑王国扩张的钢铁脉搏。
+  - 新：寒冷尘埃中的旧工业前哨。占领后可持续取得复合材料、电子元件、幽影合金和相位材料，支撑星际建设。
+- `Sector/Terminus.asset` / `Description`
+  - 原：太阳系边缘的赤色远征前沿。尘暴掩埋着燃料与镍的矿藏，漫长航线和严酷维护将考验王国能否守住第一片远方领地。
+  - 新：太阳系边缘的赤色前沿。尘暴掩埋了旧补给站，占领后可持续取得高级金属锭、火箭燃料和电子元件；漫长航线需要充足补给。
+- `Workshop/AutonomousMatterOrchestration.asset` / `Label`
+  - 原：Autonomous Matter Orchestration
+  - 新：自主材料调度
+- `Workshop/AutonomousMatterOrchestration.asset` / `Description`
+  - 原：A self-scheduling fabrication protocol that coordinates the Ultra composite factory with the established industrial network, raising global building production without creating a second material industry.
+  - 新：以自动工单协调跨星区材料生产，提高所有建筑的生产倍率。
+- `Workshop/AutonomousOrbitalMiningSystems.asset` / `Description`
+  - 原：把轨道无人采掘、遥控选矿与自动维护结合，提高综合矿场产能并增强特级金属矿供应。
+  - 新：以无人采掘、遥控选矿和自动维护提高轨道综合资源工厂的产出，并提高占领星区的特级金属矿产出。
+- `Workshop/BlockSignalling.asset` / `Description`
+  - 原：由轨道继电器、信号机和区段联锁构成的铁路安全设备。
+  - 新：安装区段信号与联锁设备，提高铁路枢纽的物流供给。
+- `Workshop/CokeOvenOptimization.asset` / `Description`
+  - 原：通过预热、密封和副产物回收，提高焦炉的焦炭产出。
+  - 新：以预热、密封和副产物回收改进焦化工艺，提高各条产线的焦炭产出。
+- `Workshop/ConcreteBatching.asset` / `Description`
+  - 原：由计量斗、输送机和连续搅拌筒组成的混凝土设备。
+  - 新：以连续配料和机械搅拌提高建筑材料联合厂与工业石材联合厂的产出。
+- `Workshop/ConductiveBusbars.asset` / `Description`
+  - 原：用于大发电设备的轻质大截面导电组件。
+  - 新：以大截面导电母线降低输电损失，提高中央发电站的发电量。
+- `Workshop/ContinuousDistillation.asset` / `Description`
+  - 原：由塔板、再沸器和冷凝器组成的连续分馏设备。
+  - 新：以连续分馏设备提高炼油厂和一体化石油化工联合体的产出。
+- `Workshop/ControlledMatterTransmutation.asset` / `Description`
+  - 原：由高能场约束腔、材料分选器和结构重组单元组成，将高能材料重构流程固化为工业设备标准，提高深空建筑的整体生产效率。
+  - 新：将高能场约束与材料重组工序标准化，提高所有建筑的生产倍率。
+- `Workshop/ConveyorSystems.asset` / `Description`
+  - 原：由皮带、滚筒、驱动轮和分料机构组成的连续输送设备。
+  - 新：用皮带、滚筒与分料设备组织连续运输，提高全局物流供给。
+- `Workshop/CryogenicFuelSystems.asset` / `Description`
+  - 原：通过低温储存、精确输送、化学钝化与密封回收技术减少火箭燃料损耗，提升发射中心与深空舰队的燃料利用率。
+  - 新：以低温储存、密封回收和精确输送减少制造损耗，提高火箭燃料产出。
+- `Workshop/DeepSpaceNetworkAutomation.asset` / `Description`
+  - 原：通过自动校准、分布式中继和远程维护降低通信中断，提升深空通信中继站的物流调度与舰队支援效率。
+  - 新：自动校准中继信号并远程排除故障，提高深空通信中继站的物流供给。
+- `Workshop/DraftingTables.asset` / `Description`
+  - 原：带比例尺、圆规和标准图纸夹具的工程制图设备。
+  - 新：统一工程图纸与尺寸校核，提高全局建造效率，降低建造材料需求。
+- `Workshop/ElectricalInstrumentation.asset` / `Description`
+  - 原：测量电压、电流、转速、温度与压力的工业仪表组。
+  - 新：监测电压、温度与转速，提高中央发电站的发电量和现代大学的研究力。
+- `Workshop/FuelInjection.asset` / `Description`
+  - 原：由喷油泵、喷嘴和调压部件组成，提升发动机运行可靠性。
+  - 新：精确控制供油与机械装配，提高机器制造厂的产出。
+- `Workshop/HighPressureTurbines.asset` / `Description`
+  - 原：由多级叶片、转轴和高压缸组成的大发电核心设备。
+  - 新：以多级汽轮机提高中央发电站的发电量。
+- `Workshop/HotBlastStoves.asset` / `Description`
+  - 原：以蓄热式热风炉预热鼓风，提高综合冶炼炉的炉温与燃料利用率，使多金属冶炼和钢材产出更加稳定。
+  - 新：预热鼓风并稳定炉温，提高工业金属冶炼厂的基础金属锭与钢材产出。
+- `Workshop/IndustrialHousingStandards.asset` / `Description`
+  - 原：以标准化户型、供水管网和集中供暖提高工业居住综合体的人口承载效率，使工业城市能够持续吸纳新增人口。
+  - 新：以标准户型、供水和集中供暖改善定居条件，提高人口增长速度。
+- `Workshop/InsulatedWindings.asset` / `Description`
+  - 原：由标准线圈、绝缘层和接线端组成的电机与发电设备组件。
+  - 新：采用标准线圈与绝缘接线，提高电气制造厂和机器制造厂的产出。
+- `Workshop/InterstellarCombatSupplySystems.asset` / `Description`
+  - 原：将重型舰队维修、弹药仓储、燃料中转和前沿补给设施组成一体，让后勤投入直接转化为持久的星际作战能力。
+  - 新：整合维修、燃料中转与前沿补给，提高军事能力和轨道空间站的物流供给，降低舰队维修费用。
+- `Workshop/InterstellarOccupationGovernance.asset` / `Description`
+  - 原：将占领星区的资源中转、军民建设、深空交通与补给节点建成一体化管理系统，将高强度星际战役的胜利转化为可持续使用的领土。
+  - 新：整合占领星区的运输与治理，增加可用领土，并提高占领星区的特级金属矿产出。
+- `Workshop/InterstellarSupplyMesh.asset` / `Label`
+  - 原：Interstellar Supply Mesh
+  - 新：星际补给网络
+- `Workshop/InterstellarSupplyMesh.asset` / `Description`
+  - 原：A synchronized supply doctrine that lets the Ultra material hub schedule long-range freight and fleet support through the existing logistics channel.
+  - 新：统一安排长距离货运和舰队补给，提高全局物流供给。
+- `Workshop/LaboratoryGlassware.asset` / `Description`
+  - 原：用于定量、加热、冷凝和反应观察的标准实验器具。
+  - 新：以标准器具完成定量、加热和反应观察，提高现代大学的研究力。
+- `Workshop/LightAlloyFrames.asset` / `Description`
+  - 原：以铝型材和精密连接件制成的轻量承力框架。
+  - 新：使用轻质合金框架与精密连接件，提高机器制造厂的产出。
+- `Workshop/OrbitalAgroponicSystems.asset` / `Description`
+  - 原：将营养液循环、玻璃种植舱、陶瓷过滤膜、电子光照控制和生物质培育模块装配到轨道居住区，把轨道农业生态学落实为可持续的食物与生物质生产设备。
+  - 新：以营养液循环与光照控制提高全局食物、生物质产出，并提高机械化农田的产出。
+- `Workshop/OrbitalPowerBeaming.asset` / `Description`
+  - 原：将光伏阵列与定向输电设备结合，稳定向轨道设施传送电力。
+  - 新：以定向输电终端减少传输损失，提高轨道太阳能阵列的发电量。
+- `Workshop/OrbitalTextileLooms.asset` / `Description`
+  - 原：将微重力张力控制器、自动卷布机和防辐照纤维处理模块组装为可持续运行的轨道纺织实物设备。
+  - 新：将微重力张力控制与自动卷布设备接入轨道综合资源工厂，提高该工厂各条产线的产出。
+- `Workshop/OrbitalVacuumFurnaces.asset` / `Description`
+  - 原：用精密电磁加热、真空控制和自动浇铸设备，将轨道冶金设施转化为稳定的钛合金产出。
+  - 新：将电磁加热、真空控制与自动浇铸设备接入轨道综合资源工厂，提高该工厂各条产线的产出。
+- `Workshop/PhaseCognitiveCompute.asset` / `Label`
+  - 原：Phase Cognitive Compute
+  - 新：相位认知计算
+- `Workshop/PhaseCognitiveCompute.asset` / `Description`
+  - 原：A phase-stable cognitive array that turns the Ultra computing nexus into a sustained research capability, using existing advanced materials instead of adding a new science resource.
+  - 新：以相位稳定阵列共享计算任务，提高全局研究效率。
+- `Workshop/PoweredMining.asset` / `Description`
+  - 原：以蒸汽或压缩空气驱动钻杆的机械采掘设备。
+  - 新：以蒸汽凿岩设备提高煤矿井、低级金属矿场、综合金属矿场、机械化煤矿、工业石材联合厂与高级陶瓷厂的产出。
+- `Workshop/PrecisionTooling.asset` / `Description`
+  - 原：由车床、铣床、量具和夹具组成的精密加工设备。
+  - 新：以精密车床、铣床与检验量具提高机器制造厂的产出。
+- `Workshop/PressurizedReactors.asset` / `Description`
+  - 原：在可控压力和温度下连续进行催化反应，提升化工厂对化学品、爆炸物与火箭燃料的稳定供应，同时增加对电力和耐压材料的需求。
+  - 新：以温度、压力与催化过程控制，提高化工厂的化工材料、工业炸药和火箭燃料产出。
+- `Workshop/ReinforcedBoilers.asset` / `Description`
+  - 原：采用钢制承压壳体、强化炉膛和安全阀的工业锅炉。
+  - 新：强化承压壳体、炉膛与安全阀，提高蒸汽动力厂的发电量。
+- `Workshop/StandardizedFreightContainers.asset` / `Description`
+  - 原：可重复装卸、堆叠和封装的大宗货运容器。
+  - 新：统一货箱尺寸与装卸接口，提高全局物流供给。
+- `Workshop/VacuumArcFurnace.asset` / `Description`
+  - 原：在真空中用大电流重熔钛金属，去除气体和杂质并精确调整合金成分，提升钛合金在深空船体中的强度和可靠性。
+  - 新：用真空重熔去除杂质并校准合金成分，提高钛合金冶炼厂的产出。
+- `Ultra/UltraCivilizationEngineering.asset` / `description`
+  - 原：以巨构级材料、能源、物流和食物投入，分阶段认证 Ultra 文明的稳定运行能力。
+  - 新：为相位稳态、材料自主与文明连续性完成三阶段工程。每阶段先交付启动材料，再持续供给食物、电力、物流与维护材料，直到工程完成。
+- `Research/StoneAge/CropRotation.asset` / `Description`
+  - 原：在不同季节轮换谷物、豆类与休耕地，减轻土壤养分耗竭和病虫积累，稳定长期产量。 人口增长速度提高15%。
+  - 新：轮换谷物、豆类与休耕地，改善定居生活，提高人口增长速度，并降低建造材料需求。
+## 未落盘字段（精确补丁待应用）
+
+- `Building/Industrial/IntegratedPetrochemicalComplex.asset` / `Description`
+  - 原：整合蒸馏、裂化与合成橡胶，持续产出燃料、润滑剂和橡胶。
+  - 新：整合蒸馏、裂化与合成工序，持续供应精炼燃料、润滑剂、橡胶、化工材料和工业炸药。
+- `Building/Spacer/EarthMoonLogisticsHub.asset` / `Label`
+  - 原：\u5730\u6708\u7269\u6D41\u4E2D\u67A2
+  - 新：地月物流中枢
+- `Building/Spacer/EarthMoonLogisticsHub.asset` / `Description`
+  - 原：\u5728\u6708\u7403\u8F68\u9053\u533A\u5EFA\u7ACB\u7684\u552F\u4E00\u7269\u6D41\u67A2\u7EBD\uFF0C\u5C06\u6708\u9762\u539F\u6750\u3001\u53D1\u5C04\u8FD0\u529B\u4E0E\u5730\u6708\u822A\u7EBF\u7EDF\u4E00\u8C03\u5EA6\uFF0C\u4E3A\u6DF1\u7A7A\u8230\u961F\u63D0\u4F9B\u6301\u7EED\u540E\u52E4\u4E0E\u9632\u5FA1\u652F\u6301\u3002
+  - 新：月球轨道区的专属物流枢纽，统一调度地月货运，增加物流供给，并为舰队与基地防御提供支援。
+- `Tutorial/EraGoal.asset` / `Description`
+  - 原：打开时代页面，查看关键研究和真实条件的当前值、阻碍与入口，并完成它们以推进时代。
+  - 新：打开时代页面，查看下一时代所需的研究、人口与其他条件，点击未完成项前往处理。
+- `Tutorial/EraGoal.asset` / `NarrativeText`
+  - 原：当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看每个真实条件，补上最先阻断王国的那一环。
+  - 新：族谱上有了更多名字，工坊里也有了新工具。再看看时代页面，还有哪项条件没有备齐。
+- `Tutorial/LongTerm.asset` / `Description`
+  - 原：继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。
+  - 新：在时代页面选择一项未完成条件，补足它需要的研究、人口或资源。
+- `Tutorial/LongTerm.asset` / `NarrativeText`
+  - 原：这场复兴没有终点。让旧时代的资源继续服务于新的生产链，用人口、研究和基础设施共同支撑下一次扩张。
+  - 新：新设施仍需要旧工坊的材料。扩建之前，先检查上游产量和食物，别让刚建好的设备空转。
+- `Tutorial/ProductionChain.asset` / `Description`
+  - 原：建立一组相互连接的生产与加工建筑，观察原材料如何转化为更高价值的资源。
+  - 新：让采石场生产石块，再用切石工坊加工石砖；在资源页查看两种材料的库存和净产出。
+- `Workshop/OrbitalLoadTestingRig.asset` / `Description`
+  - 原：使用振动台、应力传感器和连接件测试模块组成载荷测试工装，将轨道结构动力学理论落实到太空居住巨构，减少重新加固并提高建造可靠性。
+  - 新：用振动与载荷测试减少返工，提高轨道居住巨构的建造效率，降低其建造材料需求。
+- `Workshop/PhaseMaterialDurabilityCalibration.asset` / `Description`
+  - 原：以相位校准与耐久测试降低辐射老化，提升深空运输可靠性。
+  - 新：校准相位材料并测试辐射老化，提高远征探索能力。
+- `Workshop/CampaignTimingCalibrationBench.asset` / `Description`
+  - 原：通过时序校准与分布式指挥降低星际远征补给损耗，使远征期间的食物、燃料和材料消耗降低 6%。
+  - 新：以时序校准协调远征补给，降低战役期间的食物、燃料与材料消耗。
+- `Workshop/GravityAssistTrajectoryPlanner.asset` / `Description`
+  - 原：通过引力辅助轨道规划提高星区探索与远程作业效率，使远征探索能力提高 18%。
+  - 新：计算引力辅助与变轨窗口，提高远征探索能力。
+- `Workshop/ModularHabitatSystems.asset` / `Description`
+  - 原：通过模块化舱段与远程调度提高轨道空间站的物流吞吐，使轨道空间站的物流产出提高 25%。
+  - 新：以模块化货舱、泊位和远程调度提高轨道空间站的物流供给。
+- `Workshop/ReusableLaunchStages.asset` / `Description`
+  - 原：通过可复用发射级维护流程降低舰队维修材料消耗，使舰队维修成本降低 15%。
+  - 新：回收发射级并统一检修流程，降低舰队维修材料费用。
+- `Workshop/OrbitalTrafficSchedulingArray.asset` / `Description`
+  - 原：按轨道时隙和泊位优先级，调度空间站物流与舰队交通。
+  - 新：按轨道时隙和泊位优先级调度货运，提高轨道空间站的物流供给。
+- `Workshop/SolarWindMonitoringArray.asset` / `Description`
+  - 原：使用太阳风粒子探测器、磁场传感器和高能辐射计组成监测阵列，将空间天气预测理论落实为实时预警系统，保护轨道太阳能阵列的持续运行。
+  - 新：提前预测太阳风并调整阵列运行，提高轨道太阳能阵列的发电量。
+- `Research/Spacer/PlanetaryGeologyTheory.asset` / `Description`
+  - 原：研究行星地壳分层、矿脉成因与重力异常的关系，建立从轨道遥测到矿芯验证的勘探方法，提高深空资源开采的判断准确性。
+  - 新：以轨道遥测、重力扫描与矿芯分析指导采掘，提高轨道综合资源工厂各条产线的产出。
+
+- `Sector/HeliosCore.asset` / `Description`
+  - 原：恒星核心的灼热边缘，沉睡着旧王国的日冕采集阵列。占领后可将光焰导入能源网络，却要承受极端热潮与持续维护。
+  - 新：靠近日冕的旧王国采集阵列。灼热光焰之间仍有封存的材料与设备，占领后可持续回收高级金属锭和电子元件。
+- `Sector/ShardCrown.asset` / `Description`
+  - 原：悬在终焉星之后、如破碎王冠般铺展的巨大矿藏。无数矿脉在黑暗中闪烁，将钛、镍、铁与铝送回太阳系工业的炉心。
+  - 新：终焉星之后，一圈碎裂天体如破损王冠铺展。占领后可持续开采低级、高级与特级金属矿，送回太阳系的冶炼炉。
+- `Sector/ThunderGate.asset` / `Description`
+  - 原：横跨太阳系外缘、如雷霆之门般的燃料与矿产支点。冰冷巨云之间藏着火箭燃料、镍与钛，守住这里便握住通往群星的钥匙。
+  - 新：太阳系外缘的冰冷资源带。占领后可持续取得火箭燃料、高级金属锭和特级金属矿，为离开太阳系准备补给。
+- `Research/Spacer/DeepSpaceBiosecurityTheory.asset` / `Description`
+  - 原：研究深空封闭环境中的污染传播、样本隔离与检疫制度，建立跨舱段生物风险评估方法，保护太空居民的健康和长期劳动能力。
+  - 新：建立跨舱段隔离、检疫和样本处理规范，提高每名人口提供的生产力。
+- `Research/Spacer/DeepSpaceLogisticsReliability.asset` / `Description`
+  - 原：以状态监测、备件轮换和远程检修，提升深空物流可靠性。
+  - 新：以状态监测、备件轮换与远程检修减少停运，提高全局物流供给。
+- `Research/Spacer/DeepSpaceThermalExchangeTheory.asset` / `Description`
+  - 原：研究真空辐射、低温隔热与高能转换过程中的热量流失，建立深空设施的热管理和能量回收原理，为长期轨道运行与后续高能工程降低转换损耗。
+  - 新：回收深空设施的余热并改进辐射散热，提高全局供电能力。
+- `Research/Spacer/GravityAssistTrajectoryTheory.asset` / `Description`
+  - 原：研究天体引力、轨道转移窗口与速度增量的关系，建立远征航程的引力辅助和燃料预算方法，减少无效变轨并提高远距离探索的可持续性。
+  - 新：计算引力辅助与轨道转移窗口，提高远征探索能力。
+- `Research/Spacer/InterstellarAutonomyCharterTheory.asset` / `Description`
+  - 原：研究多星区社会的自治权、代表机制与资源协商原则，建立适用于殖民地和前沿站的共同宪章，提高跨星区社会的稳定与凝聚力。
+  - 新：建立星区代表、自治权与资源协商规则，提高居民幸福度。
+- `Research/Spacer/InterstellarCybersecurityTheory.asset` / `Description`
+  - 原：研究跨星区身份认证、密钥轮换与延迟环境下的通信攻击模式，建立分布式信任和数据恢复制度，保护远征研究与星际物流不受恶意干扰。
+  - 新：以身份认证、密钥轮换与数据恢复保护跨星区研究资料，提高全局研究效率。
+- `Research/Spacer/InterstellarRouteControlTheory.asset` / `Description`
+  - 原：研究星际航路时隙、轨道泊位冲突、合同结算与物流信用，建立面向长距离货运与舰队的航路调度制度。
+  - 新：统一星际航路时隙、轨道泊位与货运交接，提高全局物流供给。
+- `Research/Spacer/OrbitalStructuralDynamicsTheory.asset` / `Description`
+  - 原：研究轨道建筑的载荷传递、振动耐久与组件疲劳规律，建立大型空间设施的结构验证和维护原则，降低建造阶段的重复加固与材料损耗。
+  - 新：校核轨道结构的振动、载荷与疲劳，减少返工，降低全局建造材料需求。
+- `Research/Spacer/PhaseMaterialDurabilityTheory.asset` / `Description`
+  - 原：研究相位材料在真空、辐射和极端温差下的稳定条件，建立相位校准、结构保持与远程运输的统一理论，为深空探索和后续高能工程提供可靠的材料基础。
+  - 新：研究相位材料在辐射和温差下的稳定条件，提高相位材料产出。
+- `Research/Spacer/PlanetaryAtmosphereEngineering.asset` / `Description`
+  - 原：研究行星大气成分、温室气体处理与封闭生态的交互规律，建立面向殖民地的大气调节和环境改造原理，提高生物资源的长期供应能力。
+  - 新：改进封闭种植区的气体循环与碳利用，提高生物质产出。
+- `Research/Spacer/SpaceWeatherForecastingTheory.asset` / `Description`
+  - 原：研究太阳风、磁暴和高能粒子对轨道设施与深空任务的影响周期，建立空间天气预警和能源调度制度，降低突发辐射对太空工程的干扰。
+  - 新：预测太阳风、磁暴与高能粒子变化，提高轨道太阳能阵列的发电量。
+
+## 验证与限制
+
+- 所有 373 个资产 YAML 解析通过；只替换已列出的文字字段。
+- 对 Assets/Tests 中 Description/Label 断言全文检索；已修改名称仍满足现存非空、乱码、动态 Label 断言，FactoryOrganization、MassProduction 及其文案断言未变。
+- 研究和工坊逐项结合效果类型、目标建筑/资源核对；剧情 Body 逐章保留鼠族叙事，不改成效果表。
+- 纯文案未启动 Unity；未执行真实 Unity 编译。
+- 字形、卡片截断和交互视觉未执行运行验收。
+

@@ -70,6 +70,8 @@ public sealed class AudioFeedbackRegressionTests
         Assert.That(sfxVolume.handleRect, Is.Not.Null);
         Assert.That(sfxMute, Is.Not.Null);
         Assert.That(sfxMute.targetGraphic, Is.Not.Null);
+        Assert.That(sfxMute.transform.GetSiblingIndex(), Is.GreaterThan(controls.Find("Surface").GetSiblingIndex()),
+            "The mute button must render above the authored control background.");
         Assert.That(controls.Find("SfxVolumeValue")?.GetComponent<TMP_Text>(), Is.Not.Null);
     }
 

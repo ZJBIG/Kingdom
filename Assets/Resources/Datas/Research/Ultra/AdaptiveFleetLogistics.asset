@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AdaptiveFleetLogistics
   m_EditorClassIdentifier: 
   id: AdaptiveFleetLogistics
-  Label: "Adaptive Fleet Logistics"
-  Description: "An adaptive logistics lattice routes existing materials and fleet support around damaged links, reducing campaign supply cost without creating a new transport resource."
+  Label: "自适应舰队后勤"
+  Description: "在运输节点受损时重新安排补给路线，降低战役期间的食物与材料消耗。"
   BaseCost: "1.5e13"
   prerequisites:
   - {fileID: 11400000, guid: 3e5a7c9f1b2d4f6081a3c5e7b9d0f2a4, type: 2}

@@ -24,6 +24,115 @@ public sealed class ResourceProductionTreeTests
     }
 
     [Test]
+    public void ResourceRoot_KeepsItsIdentityAndFindsItsProducer()
+    {
+        Resource resource = Make<Resource>();
+        Building producer = Producer(resource);
+        ResourceProductionTree tree = new(resource, new[] { producer }, null,
+            candidate => candidate == resource);
+        Assert.That(tree.Root.Resource, Is.SameAs(resource));
+        Assert.That(tree.GetChildren(tree.Root).Count, Is.EqualTo(1), "One producer is visible.");
+        Assert.That(tree.GetChildren(tree.Root)[0].Building, Is.SameAs(producer));
+    }
+
+    [Test]
+    public void VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors()
+    {
+        Resource output = Make<Resource>(), input = Make<Resource>(), hiddenInput = Make<Resource>();
+        Building source = Producer(output, input), lockedSource = Producer(output);
+        Building lockedUpgrade = Producer(output, hiddenInput);
+        source.SetUpgradeToForEditor(lockedUpgrade);
+        SectorDefinition visibleSector = Make<SectorDefinition>(), hiddenSector = Make<SectorDefinition>();
+        visibleSector.SetOccupiedResourceRatesForEditor(new() { new(output, 3) });
+        hiddenSector.SetOccupiedResourceRatesForEditor(new() { new(output, 3) });
+        HashSet<Resource> resources = new() { output, input };
+        HashSet<Building> buildings = new() { source };
+        ResourceProductionTree tree = new(output, new[] { source, lockedSource },
+            new[] { visibleSector, hiddenSector }, resources.Contains, buildings.Contains,
+            sector => sector == visibleSector);
+
+        var sources = tree.GetChildren(tree.Root);
+        Assert.That(sources.Count, Is.EqualTo(2), "Only the unlocked building and accessible sector remain.");
+        Assert.That(sources[0].Building, Is.SameAs(source));
+        Assert.That(sources[1].Sector, Is.SameAs(visibleSector));
+        Assert.That(tree.GetChildren(sources[0]).Count, Is.EqualTo(1), "The locked upgrade stays hidden.");
+        resources.Remove(input);
+        Assert.That(tree.RefreshVisibility(), Is.True);
+        Assert.That(tree.GetChildren(sources[0]), Is.Empty, "An inaccessible ongoing resource stays hidden.");
+    }
+
+    [Test]
+    public void UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion()
+    {
+        Resource output = Make<Resource>(), input = Make<Resource>();
+        Building source = Producer(output, input), lockedSource = Producer(output), upgrade = Producer(output);
+        source.SetUpgradeToForEditor(upgrade);
+        HashSet<Building> unlocked = new() { source };
+        ResourceProductionTree tree = new(output, new[] { source, lockedSource }, null,
+            buildingVisible: unlocked.Contains);
+        var originalSource = tree.GetChildren(tree.Root)[0];
+        originalSource.Expanded = true;
+        var originalInput = tree.GetChildren(originalSource)[0];
+        originalInput.Expanded = true;
+        Assert.That(tree.RefreshVisibility(), Is.False, "An unchanged filter avoids rebuilding the graph.");
+
+        unlocked.Add(lockedSource);
+        unlocked.Add(upgrade);
+        Assert.That(tree.RefreshVisibility(), Is.True);
+        var sources = tree.GetChildren(tree.Root);
+        Assert.That(sources.Count, Is.EqualTo(2), "The newly unlocked producer becomes visible.");
+        Assert.That(sources[0], Is.SameAs(originalSource));
+        Assert.That(sources[0].Expanded, Is.True);
+        var children = tree.GetChildren(originalSource);
+        Assert.That(children[0], Is.SameAs(originalInput));
+        Assert.That(children[0].Expanded, Is.True);
+        Assert.That(children[1].Building, Is.SameAs(upgrade));
+        Assert.That(children[1].Relationship, Is.EqualTo(ResourceProductionTree.Relation.Upgrade));
+        Assert.That(tree.RefreshVisibility(), Is.False);
+    }
+
+    [Test]
+    public void BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials()
+    {
+        Resource output = Make<Resource>(), input = Make<Resource>(), construction = Make<Resource>();
+        Building root = Producer(output, input, construction);
+        Building supplier = Producer(input);
+        ResourceProductionTree tree = new(root, new[] { root, supplier }, null);
+        Assert.That(tree.Root.Building, Is.SameAs(root));
+        Assert.That(tree.Root.Expanded, Is.True);
+        var inputs = tree.GetChildren(tree.Root);
+        Assert.That(inputs.Count, Is.EqualTo(1), "One discrete ongoing input excludes construction costs.");
+        Assert.That(inputs[0].Resource, Is.SameAs(input));
+        Assert.That(inputs[0].IsCycle, Is.False);
+        Assert.That(tree.GetChildren(inputs[0])[0].Building, Is.SameAs(supplier));
+        ResourceProductionTree noInputs = new(supplier, new[] { supplier }, null);
+        Assert.That(noInputs.GetChildren(noInputs.Root), Is.Empty);
+    }
+
+    [Test]
+    public void BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop()
+    {
+        Resource output = Make<Resource>(), input = Make<Resource>();
+        Building root = Producer(output, input), upgrade = Producer(output), supplier = Producer(input);
+        root.SetUpgradeToForEditor(upgrade);
+        upgrade.SetUpgradeToForEditor(root);
+        ResourceProductionTree tree = new(root, new[] { root, upgrade, supplier }, null);
+        var children = tree.GetChildren(tree.Root);
+        Assert.That(children.Count, Is.EqualTo(2), "One input and one upgrade are discrete relationships.");
+        Assert.That(children[0].Relationship, Is.EqualTo(ResourceProductionTree.Relation.OngoingInput));
+        var producer = tree.GetChildren(children[0])[0];
+        Assert.That(producer.Building, Is.SameAs(supplier));
+        Assert.That(producer.Relationship, Is.EqualTo(ResourceProductionTree.Relation.ProductionSource));
+        Assert.That(children[1].Building, Is.SameAs(upgrade));
+        Assert.That(children[1].Relationship, Is.EqualTo(ResourceProductionTree.Relation.Upgrade));
+        Assert.That(children[1].IsCycle, Is.False);
+        var repeated = tree.GetChildren(children[1])[0];
+        Assert.That(repeated.Building, Is.SameAs(root));
+        Assert.That(repeated.IsCycle, Is.True);
+        Assert.That(tree.GetChildren(repeated), Is.Empty);
+    }
+
+    [Test]
     public void MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies()
     {
         Resource output = Make<Resource>(), input = Make<Resource>(), construction = Make<Resource>();
