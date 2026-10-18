@@ -63,9 +63,7 @@ public sealed class SectorRuntimeState
 public sealed class SimulationState
 {
     private const double SecondsPerDay = 10d;
-    private static readonly ExpantaNum PopulationStepEpsilon = new(1e-9d);
-    private static readonly ExpantaNum PopulationRemainderEpsilon = new(1e-3d);
-    private static readonly ExpantaNum FoodShortageDepartureSeconds = new(3600d);
+    private readonly PopulationState populationState = new();
 
     private readonly SortedDictionary<string, ExpantaNum> resources = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, ExpantaNum> buildings = new(StringComparer.Ordinal);
@@ -88,9 +86,9 @@ public sealed class SimulationState
     public int CalendarDays { get; private set; }
     public ExpantaNum Food { get; private set; }
     public ExpantaNum FoodCapacity { get; private set; }
-    public ExpantaNum Population { get; private set; }
-    public ExpantaNum PopulationCapacity { get; private set; }
-    public ExpantaNum PopulationChangeProgress { get; private set; }
+    public ExpantaNum Population => populationState.Population;
+    public ExpantaNum PopulationCapacity => populationState.PopulationCapacity;
+    public ExpantaNum PopulationChangeProgress => populationState.PopulationChangeProgress;
     public ExpantaNum TerritoryTotal { get; private set; }
     public ExpantaNum AttackPower { get; private set; }
     public ExpantaNum DefensePower { get; private set; }
@@ -188,13 +186,16 @@ public sealed class SimulationState
     public void SetPopulation(ExpantaNum population)
     {
         RequireNonNegative(population, nameof(population));
-        Population = population.Floor();
+        populationState.RestorePopulation(population.Floor());
     }
+
+    public void RestorePopulationChangeProgress(ExpantaNum progress) =>
+        populationState.RestorePopulationChangeProgress(progress);
 
     public void SetPopulationCapacity(ExpantaNum capacity)
     {
         RequireNonNegative(capacity, nameof(capacity));
-        PopulationCapacity = capacity.Floor();
+        populationState.AdjustPopulationCapacity(capacity.Floor() - PopulationCapacity);
     }
 
     public void SetTerritoryTotal(ExpantaNum territory)
@@ -428,25 +429,8 @@ public sealed class SimulationState
         ValidateDelta(deltaSeconds, nameof(deltaSeconds));
         if (!happinessMultiplier.IsFinite || !growthRatePerSecond.IsFinite || growthRatePerSecond < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException(nameof(growthRatePerSecond));
-        if (foodShortageDepartureAllowed)
-        {
-            AdvanceFoodShortageDeparture(deltaSeconds, happinessMultiplier);
-            return;
-        }
-        if (Population >= PopulationCapacity)
-        {
-            PopulationChangeProgress = ExpantaNum.Zero;
-            return;
-        }
-
-        var logisticRate = growthRatePerSecond * ExpantaNum.Max(ExpantaNum.One, Population) *
-            ExpantaNum.Max(ExpantaNum.Zero, ExpantaNum.One - Population / PopulationCapacity);
-        var accumulated = PopulationChangeProgress + ExpantaNum.Max(ExpantaNum.Zero, happinessMultiplier) * deltaSeconds * logisticRate;
-        var births = ExpantaNum.Min(PopulationCapacity - Population, (accumulated + PopulationStepEpsilon).Floor());
-        if (births > ExpantaNum.Zero) Population += births;
-        var remainder = accumulated - births;
-        if (births > ExpantaNum.Zero && remainder <= PopulationRemainderEpsilon) remainder = ExpantaNum.Zero;
-        PopulationChangeProgress = Population >= PopulationCapacity ? ExpantaNum.Zero : remainder - remainder.Floor();
+        populationState.AdvancePopulation(deltaSeconds, happinessMultiplier,
+            growthRatePerSecond, ExpantaNum.Zero, foodShortageDepartureAllowed);
     }
 
     public bool TryPay(IReadOnlyDictionary<string, ExpantaNum> costs)
@@ -494,6 +478,7 @@ public sealed class SimulationState
         FoodCapacity.ToString(),
         Population.ToString(),
         PopulationCapacity.ToString(),
+        PopulationChangeProgress.ToString(),
         TerritoryTotal.ToString(),
         AttackPower.ToString(),
         DefensePower.ToString(),
@@ -519,22 +504,6 @@ public sealed class SimulationState
             item.Casualties.ToString(),
             item.CombatRatio.ToString(),
             item.VisitCount)).ToArray());
-
-    private void AdvanceFoodShortageDeparture(double deltaSeconds, ExpantaNum happinessMultiplier)
-    {
-        if (Population <= ExpantaNum.Zero)
-        {
-            Population = ExpantaNum.Zero;
-            PopulationChangeProgress = ExpantaNum.Zero;
-            return;
-        }
-
-        var shortage = ExpantaNum.Clamp01(ExpantaNum.One - happinessMultiplier);
-        var accumulated = PopulationChangeProgress + shortage * ExpantaNum.Max(ExpantaNum.One, Population) / FoodShortageDepartureSeconds * deltaSeconds;
-        var departures = ExpantaNum.Min(Population, (accumulated + PopulationStepEpsilon).Floor());
-        if (departures > ExpantaNum.Zero) Population -= departures;
-        PopulationChangeProgress = Population <= ExpantaNum.Zero ? ExpantaNum.Zero : accumulated - departures;
-    }
 
     private static void ValidateDelta(double value, string name)
     {
@@ -605,6 +574,7 @@ public sealed record DetailedSimulationStateSummary(
     string FoodCapacity,
     string Population,
     string PopulationCapacity,
+    string PopulationChangeProgress,
     string TerritoryTotal,
     string AttackPower,
     string DefensePower,
@@ -631,7 +601,7 @@ public sealed record DetailedSimulationStateSummary(
             $"{item.Id}={item.Occupied}:{item.ColonizationActive}:{item.CampaignActive}:{item.Progress}:{item.VisitCount}"));
         return $"tick={Tick};elapsed={ElapsedSeconds.ToString("R", CultureInfo.InvariantCulture)};" +
                $"requested={RequestedSeconds.ToString("R", CultureInfo.InvariantCulture)};tech={TechLevel};calendar={CalendarDays};" +
-               $"food={Food}/{FoodCapacity};population={Population}/{PopulationCapacity};territory={TerritoryTotal};" +
+               $"food={Food}/{FoodCapacity};population={Population}/{PopulationCapacity};populationProgress={PopulationChangeProgress};territory={TerritoryTotal};" +
                $"campaign={CampaignActive}:{CampaignTargetSectorId}:{CampaignProgress}:{CampaignCasualties};" +
                $"activeResearch={ActiveResearch};resources={resourcesText};buildings={buildingsText};" +
                $"workshops={workshopsText};sectors={sectorsText}";

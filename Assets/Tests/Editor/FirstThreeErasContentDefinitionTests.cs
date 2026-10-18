@@ -21,18 +21,6 @@ public class FirstThreeErasContentDefinitionTests
     }
 
     [Test]
-    public void HousingResearchUnlocksAreContinuous()
-    {
-        Research masonry = DataBase<Research>.Find("Masonry");
-        Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
-
-        Assert.That(masonry.Label, Is.EqualTo("石造建筑"));
-        Assert.That(
-            urbanHousing.Prerequisites,
-            Does.Contain(masonry));
-    }
-
-    [Test]
     public void FirstThreeErasBuildingsHaveNoFoodConsumption()
     {
         Building[] buildings = Resources.LoadAll<Building>("Datas/Building");
@@ -44,28 +32,6 @@ public class FirstThreeErasContentDefinitionTests
             Assert.That(buildings[i].FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero), buildings[i].Id);
         }
         Assert.That(checkedCount, Is.GreaterThan(0));
-    }
-
-    [Test]
-    public void NewResearchHasDescriptionRequirementsAndEffects()
-    {
-        string[] ids =
-        {
-            "FoodPreservation", "HerbalKnowledge", "VillageOrganization", "WatchAndCooperation",
-            "Woodworking", "CeramicFiring", "CharcoalMaking", "AnimalFodder",
-            "IrrigationEngineering", "VillageCrafts", "CropRotation", "CouncilGovernance",
-            "OrganizedWatch", "BronzeAlloyCrafting", "MultiMetalSmeltingFundamentals", "IronworkingAndSteelmaking",
-            "FoodStorage", "WrittenRecords", "UrbanHousing", "GuildSystem",
-            "ScholasticInstitutions", "PublicHealth", "FeudalAdministration"
-        };
-        for (int i = 0; i < ids.Length; i++)
-        {
-            Research research = DataBase<Research>.Find(ids[i]);
-            Assert.That(research, Is.Not.Null, ids[i]);
-            Assert.That(research.Description, Is.Not.Empty, ids[i]);
-            Assert.That(research.ResourceRequirements.Count, Is.GreaterThan(0), ids[i]);
-            Assert.That(research.Effects.Count, Is.GreaterThan(0), ids[i]);
-        }
     }
 
     private static Building FindBuilding(string id)

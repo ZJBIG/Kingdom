@@ -239,7 +239,6 @@ public sealed class StoryBackgroundInteractionPlayModeTests
     {
         yield return LoadStory();
         Canvas canvas = root.GetComponent<Canvas>();
-        Assert.That(canvas, Is.Not.Null);
         RenderMode originalMode = canvas.renderMode;
         Camera originalCamera = canvas.worldCamera;
         float originalDistance = canvas.planeDistance;

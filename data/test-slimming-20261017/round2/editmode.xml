@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="121" result="Passed" total="121" passed="121" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:55Z" duration="1.0873103">
+  <test-suite type="TestSuite" id="2065" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="926" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:55Z" duration="1.087310" total="121" passed="121" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3120" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="925" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:55Z" duration="1.066192" total="121" passed="121" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="7700" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2066" name="AdvancedMaterialProgressionTests" fullname="AdvancedMaterialProgressionTests" classname="AdvancedMaterialProgressionTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.480464" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2067" name="AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" fullname="AdvancedMaterialProgressionTests.AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" methodname="AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1840587005" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.425736" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2069" name="AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" fullname="AdvancedMaterialProgressionTests.AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" methodname="AdvancedMaterialWorkshopsImproveTheCorrectProductionBuildings" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1590281379" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.005221" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2072" name="SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" fullname="AdvancedMaterialProgressionTests.SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" methodname="SpacerAdvancedMaterialsKeepSourcesAndDurableSinks" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1738982282" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.003039" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2078" name="太空设施必须持续维护生态与后勤" fullname="AdvancedMaterialProgressionTests.太空设施必须持续维护生态与后勤" methodname="太空设施必须持续维护生态与后勤" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1776005171" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.006508" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2077" name="太空高级材料必须拥有明确且无生产循环的核心工坊" fullname="AdvancedMaterialProgressionTests.太空高级材料必须拥有明确且无生产循环的核心工坊" methodname="太空高级材料必须拥有明确且无生产循环的核心工坊" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="84498137" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.000929" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2075" name="太空高级材料必须进入多个星区行动" fullname="AdvancedMaterialProgressionTests.太空高级材料必须进入多个星区行动" methodname="太空高级材料必须进入多个星区行动" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="717181078" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.004928" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2074" name="幽影织物与相位材料必须保持不同的太空职责" fullname="AdvancedMaterialProgressionTests.幽影织物与相位材料必须保持不同的太空职责" methodname="幽影织物与相位材料必须保持不同的太空职责" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="1290310785" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.001215" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2071" name="氯化钛冶金研究负责钛精矿纯化理论" fullname="AdvancedMaterialProgressionTests.氯化钛冶金研究负责钛精矿纯化理论" methodname="氯化钛冶金研究负责钛精矿纯化理论" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="83387350" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.000584" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2068" name="炸药必须保持工业流程持续消耗而非星际战役成本" fullname="AdvancedMaterialProgressionTests.炸药必须保持工业流程持续消耗而非星际战役成本" methodname="炸药必须保持工业流程持续消耗而非星际战役成本" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="772687981" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.001115" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2076" name="相位材料只能服务星际时代星区行动" fullname="AdvancedMaterialProgressionTests.相位材料只能服务星际时代星区行动" methodname="相位材料只能服务星际时代星区行动" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="46926332" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.000528" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2073" name="轨道冶金产物必须进入深空结构与持续工艺" fullname="AdvancedMaterialProgressionTests.轨道冶金产物必须进入深空结构与持续工艺" methodname="轨道冶金产物必须进入深空结构与持续工艺" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="57675145" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.000424" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2070" name="高级材料研究必须强化对应生产建筑" fullname="AdvancedMaterialProgressionTests.高级材料研究必须强化对应生产建筑" methodname="高级材料研究必须强化对应生产建筑" classname="AdvancedMaterialProgressionTests" runstate="Runnable" seed="601434487" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.000239" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2282" name="GlobalEconomyDefinitionTests" fullname="GlobalEconomyDefinitionTests" classname="GlobalEconomyDefinitionTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:55Z" duration="0.078097" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2288" name="BuildingsOwnAndUseAllPrerequisites" fullname="GlobalEconomyDefinitionTests.BuildingsOwnAndUseAllPrerequisites" methodname="BuildingsOwnAndUseAllPrerequisites" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1783073428" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:54Z" duration="0.003450" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2285" name="EditorReconfigurationInvalidatesResourcePairCaches" fullname="GlobalEconomyDefinitionTests.EditorReconfigurationInvalidatesResourcePairCaches" methodname="EditorReconfigurationInvalidatesResourcePairCaches" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="862906481" result="Passed" start-time="2026-10-17 15:14:54Z" end-time="2026-10-17 15:14:55Z" duration="0.005348" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2292" name="EveryResearchAndWorkshopEffectHasAValidTarget" fullname="GlobalEconomyDefinitionTests.EveryResearchAndWorkshopEffectHasAValidTarget" methodname="EveryResearchAndWorkshopEffectHasAValidTarget" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1921547856" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.006921" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2289" name="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" fullname="GlobalEconomyDefinitionTests.EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" methodname="EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1738637468" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.004213" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2296" name="IntegratedDependencyGraphIsReachable" fullname="GlobalEconomyDefinitionTests.IntegratedDependencyGraphIsReachable" methodname="IntegratedDependencyGraphIsReachable" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="556523504" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.012206" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2283" name="MetalDefinitions_UseSemanticNamesAndDistinctArtwork" fullname="GlobalEconomyDefinitionTests.MetalDefinitions_UseSemanticNamesAndDistinctArtwork" methodname="MetalDefinitions_UseSemanticNamesAndDistinctArtwork" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="405973693" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003893" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2286" name="ProductivityGrantsAreReservedForPopulationBuildings" fullname="GlobalEconomyDefinitionTests.ProductivityGrantsAreReservedForPopulationBuildings" methodname="ProductivityGrantsAreReservedForPopulationBuildings" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="725459625" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000748" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2284" name="ResourcePairDefinitionViewsReuseTheirCachedLists" fullname="GlobalEconomyDefinitionTests.ResourcePairDefinitionViewsReuseTheirCachedLists" methodname="ResourcePairDefinitionViewsReuseTheirCachedLists" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="2077201606" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001508" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2287" name="定义序列化字段必须使用字符串数值且统一采用每秒变化率" fullname="GlobalEconomyDefinitionTests.定义序列化字段必须使用字符串数值且统一采用每秒变化率" methodname="定义序列化字段必须使用字符串数值且统一采用每秒变化率" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="2010491717" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.008855" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2291" name="建筑不能重复声明完全相同的资源产出" fullname="GlobalEconomyDefinitionTests.建筑不能重复声明完全相同的资源产出" methodname="建筑不能重复声明完全相同的资源产出" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1628366556" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002651" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2295" name="所有效果类型都必须有运行时支持分支" fullname="GlobalEconomyDefinitionTests.所有效果类型都必须有运行时支持分支" methodname="所有效果类型都必须有运行时支持分支" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="413393464" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003405" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2297" name="所有资源都必须有来源和多个真实消费节点" fullname="GlobalEconomyDefinitionTests.所有资源都必须有来源和多个真实消费节点" methodname="所有资源都必须有来源和多个真实消费节点" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1068421853" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.012441" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2294" name="每个工坊不能重复声明同一效果目标" fullname="GlobalEconomyDefinitionTests.每个工坊不能重复声明同一效果目标" methodname="每个工坊不能重复声明同一效果目标" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1456719808" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001726" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2290" name="每个建筑都必须承担明确的独立职责" fullname="GlobalEconomyDefinitionTests.每个建筑都必须承担明确的独立职责" methodname="每个建筑都必须承担明确的独立职责" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="1739309964" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002335" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2293" name="每个研究不能重复声明同一效果目标" fullname="GlobalEconomyDefinitionTests.每个研究不能重复声明同一效果目标" methodname="每个研究不能重复声明同一效果目标" classname="GlobalEconomyDefinitionTests" runstate="Runnable" seed="315238753" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002940" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2298" name="IndustrialWorkshopAvailabilityTests" fullname="IndustrialWorkshopAvailabilityTests" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.020747" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2300" name="AddedIndustrialResearchHasRequirementsAndEffects" fullname="IndustrialWorkshopAvailabilityTests.AddedIndustrialResearchHasRequirementsAndEffects" methodname="AddedIndustrialResearchHasRequirementsAndEffects" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1073196245" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001975" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2302" name="CokeOvenOptimizationBoostsCokeOutput" fullname="IndustrialWorkshopAvailabilityTests.CokeOvenOptimizationBoostsCokeOutput" methodname="CokeOvenOptimizationBoostsCokeOutput" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="744733718" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002003" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2303" name="DeepOilDrillingAddsARealResearchAndWorkshopProgression" fullname="IndustrialWorkshopAvailabilityTests.DeepOilDrillingAddsARealResearchAndWorkshopProgression" methodname="DeepOilDrillingAddsARealResearchAndWorkshopProgression" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="979053517" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.004693" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2301" name="IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" fullname="IndustrialWorkshopAvailabilityTests.IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" methodname="IndustrialWorkshopClosureItemsHaveRealCostsAndEffects" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1679221895" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002631" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2305" name="LaboratoryGlasswareImprovesUniversityResearchPower" fullname="IndustrialWorkshopAvailabilityTests.LaboratoryGlasswareImprovesUniversityResearchPower" methodname="LaboratoryGlasswareImprovesUniversityResearchPower" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="964591472" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000317" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2304" name="PetroleumResearchIsTheOilDerrickUnlockAndDeepDrillingIsTheUpgrade" fullname="IndustrialWorkshopAvailabilityTests.PetroleumResearchIsTheOilDerrickUnlockAndDeepDrillingIsTheUpgrade" methodname="PetroleumResearchIsTheOilDerrickUnlockAndDeepDrillingIsTheUpgrade" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="1764161545" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000955" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2299" name="WorkshopDefinitionsAreIndustrialOrLater" fullname="IndustrialWorkshopAvailabilityTests.WorkshopDefinitionsAreIndustrialOrLater" methodname="WorkshopDefinitionsAreIndustrialOrLater" classname="IndustrialWorkshopAvailabilityTests" runstate="Runnable" seed="180540608" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002744" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2510" name="KingdomUiLifecycleTests" fullname="KingdomUiLifecycleTests" classname="KingdomUiLifecycleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.017231" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2511" name="DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" fullname="KingdomUiLifecycleTests.DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" methodname="DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="1593804768" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003535" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2513" name="SituationReportSeparatesBalancedFoodFromSupplyShortage" fullname="KingdomUiLifecycleTests.SituationReportSeparatesBalancedFoodFromSupplyShortage" methodname="SituationReportSeparatesBalancedFoodFromSupplyShortage" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="2086591394" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.008698" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2512" name="SituationReportUsesLiveFoodBalanceWithoutMutatingState" fullname="KingdomUiLifecycleTests.SituationReportUsesLiveFoodBalanceWithoutMutatingState" methodname="SituationReportUsesLiveFoodBalanceWithoutMutatingState" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="1683464786" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002990" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2545" name="PreSpacerCombatRemovalTests" fullname="PreSpacerCombatRemovalTests" classname="PreSpacerCombatRemovalTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.015607" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2548" name="C811_ConvertedResearchUsesDistinctNonCombatRoles" fullname="PreSpacerCombatRemovalTests.C811_ConvertedResearchUsesDistinctNonCombatRoles" methodname="C811_ConvertedResearchUsesDistinctNonCombatRoles" classname="PreSpacerCombatRemovalTests" runstate="Runnable" seed="1776093058" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002512" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2546" name="C811_PreSpacerBuildingsHaveNoCombatAttributes" fullname="PreSpacerCombatRemovalTests.C811_PreSpacerBuildingsHaveNoCombatAttributes" methodname="C811_PreSpacerBuildingsHaveNoCombatAttributes" classname="PreSpacerCombatRemovalTests" runstate="Runnable" seed="574765994" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003311" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2547" name="C811_PreSpacerResearchHasNoMilitaryEffects" fullname="PreSpacerCombatRemovalTests.C811_PreSpacerResearchHasNoMilitaryEffects" methodname="C811_PreSpacerResearchHasNoMilitaryEffects" classname="PreSpacerCombatRemovalTests" runstate="Runnable" seed="1547026297" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.005132" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2549" name="C811_SpacerFleetBuildingsRemainAvailable" fullname="PreSpacerCombatRemovalTests.C811_SpacerFleetBuildingsRemainAvailable" methodname="C811_SpacerFleetBuildingsRemainAvailable" classname="PreSpacerCombatRemovalTests" runstate="Runnable" seed="1772431108" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000607" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2625" name="ResearchBalanceTests" fullname="ResearchBalanceTests" classname="ResearchBalanceTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.024705" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2635" name="IndustrialFactoryResearchesHaveDistinctPlayerFacingRoles" fullname="ResearchBalanceTests.IndustrialFactoryResearchesHaveDistinctPlayerFacingRoles" methodname="IndustrialFactoryResearchesHaveDistinctPlayerFacingRoles" classname="ResearchBalanceTests" runstate="Runnable" seed="591179472" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000672" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2633" name="IndustrialResearchEffectsMatchTargetBuildingSystems" fullname="ResearchBalanceTests.IndustrialResearchEffectsMatchTargetBuildingSystems" methodname="IndustrialResearchEffectsMatchTargetBuildingSystems" classname="ResearchBalanceTests" runstate="Runnable" seed="385711507" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000525" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2634" name="IntegratedFurnaces_ImprovesMetalSmelter" fullname="ResearchBalanceTests.IntegratedFurnaces_ImprovesMetalSmelter" methodname="IntegratedFurnaces_ImprovesMetalSmelter" classname="ResearchBalanceTests" runstate="Runnable" seed="1875027397" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000490" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2631" name="医学研究必须按时代递进提升人口劳动力" fullname="ResearchBalanceTests.医学研究必须按时代递进提升人口劳动力" methodname="医学研究必须按时代递进提升人口劳动力" classname="ResearchBalanceTests" runstate="Runnable" seed="64475579" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001125" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2632" name="医学研究成本与资源门槛必须随时代递进" fullname="ResearchBalanceTests.医学研究成本与资源门槛必须随时代递进" methodname="医学研究成本与资源门槛必须随时代递进" classname="ResearchBalanceTests" runstate="Runnable" seed="569052855" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001058" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2630" name="太空医学理论保留人口生产力效果而不依赖已删除工坊" fullname="ResearchBalanceTests.太空医学理论保留人口生产力效果而不依赖已删除工坊" methodname="太空医学理论保留人口生产力效果而不依赖已删除工坊" classname="ResearchBalanceTests" runstate="Runnable" seed="1863157239" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000926" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2628" name="已发布研究与工坊不得拥有空Effect" fullname="ResearchBalanceTests.已发布研究与工坊不得拥有空Effect" methodname="已发布研究与工坊不得拥有空Effect" classname="ResearchBalanceTests" runstate="Runnable" seed="24661033" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.004470" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2629" name="通用机械化生产研究不得与军工体系重复机器工厂倍率" fullname="ResearchBalanceTests.通用机械化生产研究不得与军工体系重复机器工厂倍率" methodname="通用机械化生产研究不得与军工体系重复机器工厂倍率" classname="ResearchBalanceTests" runstate="Runnable" seed="412254078" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000663" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2626" name="高级材料消耗必须先完成对应材料研究" fullname="ResearchBalanceTests.高级材料消耗必须先完成对应材料研究" methodname="高级材料消耗必须先完成对应材料研究" classname="ResearchBalanceTests" runstate="Runnable" seed="2097862276" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.007432" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2627" name="高级材料研究保持时代顺序" fullname="ResearchBalanceTests.高级材料研究保持时代顺序" methodname="高级材料研究保持时代顺序" classname="ResearchBalanceTests" runstate="Runnable" seed="821344630" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000994" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2767" name="SectorDefinitionTests" fullname="SectorDefinitionTests" classname="SectorDefinitionTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.032173" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2773" name="C701_AllCurrentSectorDefinitionsPassRuntimeValidation" fullname="SectorDefinitionTests.C701_AllCurrentSectorDefinitionsPassRuntimeValidation" methodname="C701_AllCurrentSectorDefinitionsPassRuntimeValidation" classname="SectorDefinitionTests" runstate="Runnable" seed="2071740337" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.005773" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2768" name="C701_InitialSectorChainContainsStableIdsAndPrerequisites" fullname="SectorDefinitionTests.C701_InitialSectorChainContainsStableIdsAndPrerequisites" methodname="C701_InitialSectorChainContainsStableIdsAndPrerequisites" classname="SectorDefinitionTests" runstate="Runnable" seed="1672992211" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.005157" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2769" name="C701_InterstellarBranchesKeepTheProximaBPrerequisite" fullname="SectorDefinitionTests.C701_InterstellarBranchesKeepTheProximaBPrerequisite" methodname="C701_InterstellarBranchesKeepTheProximaBPrerequisite" classname="SectorDefinitionTests" runstate="Runnable" seed="645107906" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000769" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2778" name="C701_InterstellarNavigationResearchOwnsTheStarRouteUnlock" fullname="SectorDefinitionTests.C701_InterstellarNavigationResearchOwnsTheStarRouteUnlock" methodname="C701_InterstellarNavigationResearchOwnsTheStarRouteUnlock" classname="SectorDefinitionTests" runstate="Runnable" seed="136606187" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000553" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2774" name="C701_SectorCycleValidationReportsAllIndependentCycles" fullname="SectorDefinitionTests.C701_SectorCycleValidationReportsAllIndependentCycles" methodname="C701_SectorCycleValidationReportsAllIndependentCycles" classname="SectorDefinitionTests" runstate="Runnable" seed="1097681401" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002117" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2775" name="InterstellarCampaignsKeepLayeredContinuousLogistics" fullname="SectorDefinitionTests.InterstellarCampaignsKeepLayeredContinuousLogistics" methodname="InterstellarCampaignsKeepLayeredContinuousLogistics" classname="SectorDefinitionTests" runstate="Runnable" seed="130759678" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.004132" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2776" name="InterstellarCampaignsRequireLongSustainedAdvance" fullname="SectorDefinitionTests.InterstellarCampaignsRequireLongSustainedAdvance" methodname="InterstellarCampaignsRequireLongSustainedAdvance" classname="SectorDefinitionTests" runstate="Runnable" seed="1646077404" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001328" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2770" name="占领星区必须提供持续资源产出而不是只有一次性奖励" fullname="SectorDefinitionTests.占领星区必须提供持续资源产出而不是只有一次性奖励" methodname="占领星区必须提供持续资源产出而不是只有一次性奖励" classname="SectorDefinitionTests" runstate="Runnable" seed="1334049626" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000956" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2777" name="星际战役按星区层级递进使用高级材料" fullname="SectorDefinitionTests.星际战役按星区层级递进使用高级材料" methodname="星际战役按星区层级递进使用高级材料" classname="SectorDefinitionTests" runstate="Runnable" seed="1226659165" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001353" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2771" name="本星系中后期开拓必须持续消耗食物与工业资源" fullname="SectorDefinitionTests.本星系中后期开拓必须持续消耗食物与工业资源" methodname="本星系中后期开拓必须持续消耗食物与工业资源" classname="SectorDefinitionTests" runstate="Runnable" seed="1542442446" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001634" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2772" name="火星开拓成本必须高于月球开拓成本" fullname="SectorDefinitionTests.火星开拓成本必须高于月球开拓成本" methodname="火星开拓成本必须高于月球开拓成本" classname="SectorDefinitionTests" runstate="Runnable" seed="697156543" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000831" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2900" name="SpaceProgressionTests" fullname="SpaceProgressionTests" classname="SpaceProgressionTests" runstate="Runnable" testcasecount="49" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.212223" total="49" passed="49" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2938" name="CeramicRemainsAUsefulSpacerStructureMaterial" fullname="SpaceProgressionTests.CeramicRemainsAUsefulSpacerStructureMaterial" methodname="CeramicRemainsAUsefulSpacerStructureMaterial" classname="SpaceProgressionTests" runstate="Runnable" seed="1041753509" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001046" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2901" name="CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" fullname="SpaceProgressionTests.CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" methodname="CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" classname="SpaceProgressionTests" runstate="Runnable" seed="897261689" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001151" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2922" name="IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" fullname="SpaceProgressionTests.IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" methodname="IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" classname="SpaceProgressionTests" runstate="Runnable" seed="437615071" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001465" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2947" name="OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" fullname="SpaceProgressionTests.OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" methodname="OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" classname="SpaceProgressionTests" runstate="Runnable" seed="109393538" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001663" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2930" name="OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" fullname="SpaceProgressionTests.OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" methodname="OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" classname="SpaceProgressionTests" runstate="Runnable" seed="1723525239" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002520" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2908" name="OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" fullname="SpaceProgressionTests.OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" methodname="OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" classname="SpaceProgressionTests" runstate="Runnable" seed="1295280302" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000826" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2932" name="OrbitalStationClothDemandHasAnIndustrialSupplyChain" fullname="SpaceProgressionTests.OrbitalStationClothDemandHasAnIndustrialSupplyChain" methodname="OrbitalStationClothDemandHasAnIndustrialSupplyChain" classname="SpaceProgressionTests" runstate="Runnable" seed="475167760" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001697" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2927" name="OrbitalStationRequiresAutonomousFleetLogistics" fullname="SpaceProgressionTests.OrbitalStationRequiresAutonomousFleetLogistics" methodname="OrbitalStationRequiresAutonomousFleetLogistics" classname="SpaceProgressionTests" runstate="Runnable" seed="1977982648" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000904" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2946" name="OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" fullname="SpaceProgressionTests.OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" methodname="OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" classname="SpaceProgressionTests" runstate="Runnable" seed="99197629" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001630" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2931" name="ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" fullname="SpaceProgressionTests.ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" methodname="ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" classname="SpaceProgressionTests" runstate="Runnable" seed="878354336" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000718" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2902" name="ResearchPowerBuildingsFormOneContinuousUpgradeChain" fullname="SpaceProgressionTests.ResearchPowerBuildingsFormOneContinuousUpgradeChain" methodname="ResearchPowerBuildingsFormOneContinuousUpgradeChain" classname="SpaceProgressionTests" runstate="Runnable" seed="1942992288" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002712" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2926" name="ShipyardRequiresItsAutomatedAssemblyWorkshop" fullname="SpaceProgressionTests.ShipyardRequiresItsAutomatedAssemblyWorkshop" methodname="ShipyardRequiresItsAutomatedAssemblyWorkshop" classname="SpaceProgressionTests" runstate="Runnable" seed="2076657231" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000710" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2906" name="SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" fullname="SpaceProgressionTests.SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" methodname="SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" classname="SpaceProgressionTests" runstate="Runnable" seed="1382508504" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001490" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2939" name="SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" fullname="SpaceProgressionTests.SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" methodname="SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" classname="SpaceProgressionTests" runstate="Runnable" seed="44037920" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001844" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2943" name="SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" fullname="SpaceProgressionTests.SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" methodname="SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" classname="SpaceProgressionTests" runstate="Runnable" seed="1145517524" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003027" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2914" name="SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" fullname="SpaceProgressionTests.SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" methodname="SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" classname="SpaceProgressionTests" runstate="Runnable" seed="1564079996" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002776" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2924" name="SpacerFrontierStartsBeforePhaseMaterialProduction" fullname="SpaceProgressionTests.SpacerFrontierStartsBeforePhaseMaterialProduction" methodname="SpacerFrontierStartsBeforePhaseMaterialProduction" classname="SpaceProgressionTests" runstate="Runnable" seed="370221115" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000998" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2942" name="SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" fullname="SpaceProgressionTests.SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" methodname="SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" classname="SpaceProgressionTests" runstate="Runnable" seed="1396495119" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002078" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2935" name="SpacerQuantumComputingSliceUsesAdvancedMaterials" fullname="SpaceProgressionTests.SpacerQuantumComputingSliceUsesAdvancedMaterials" methodname="SpacerQuantumComputingSliceUsesAdvancedMaterials" classname="SpaceProgressionTests" runstate="Runnable" seed="1242865876" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002530" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2905" name="SpacerResearchGraphMustRetainMeaningfulBranches" fullname="SpaceProgressionTests.SpacerResearchGraphMustRetainMeaningfulBranches" methodname="SpacerResearchGraphMustRetainMeaningfulBranches" classname="SpaceProgressionTests" runstate="Runnable" seed="719294336" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002025" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2903" name="SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" fullname="SpaceProgressionTests.SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" methodname="SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" classname="SpaceProgressionTests" runstate="Runnable" seed="995611388" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001609" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2921" name="Spacer高级材料必须都有来源和长期战略消耗" fullname="SpaceProgressionTests.Spacer高级材料必须都有来源和长期战略消耗" methodname="Spacer高级材料必须都有来源和长期战略消耗" classname="SpaceProgressionTests" runstate="Runnable" seed="1614571903" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001428" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2911" name="基础资源链使用合并后的工业上位建筑" fullname="SpaceProgressionTests.基础资源链使用合并后的工业上位建筑" methodname="基础资源链使用合并后的工业上位建筑" classname="SpaceProgressionTests" runstate="Runnable" seed="808007271" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000654" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2945" name="太空全局战役效果必须来自有明确职责的研究" fullname="SpaceProgressionTests.太空全局战役效果必须来自有明确职责的研究" methodname="太空全局战役效果必须来自有明确职责的研究" classname="SpaceProgressionTests" runstate="Runnable" seed="1046770972" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000899" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2949" name="太空工业设施必须形成焦炭化工与爆破的持续运营闭环" fullname="SpaceProgressionTests.太空工业设施必须形成焦炭化工与爆破的持续运营闭环" methodname="太空工业设施必须形成焦炭化工与爆破的持续运营闭环" classname="SpaceProgressionTests" runstate="Runnable" seed="163812192" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001745" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2933" name="太空工坊形成研究后的持续成长" fullname="SpaceProgressionTests.太空工坊形成研究后的持续成长" methodname="太空工坊形成研究后的持续成长" classname="SpaceProgressionTests" runstate="Runnable" seed="44628867" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.005533" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2925" name="太空建筑必须经过对应研究" fullname="SpaceProgressionTests.太空建筑必须经过对应研究" methodname="太空建筑必须经过对应研究" classname="SpaceProgressionTests" runstate="Runnable" seed="750756706" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001651" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2940" name="太空研究与工坊必须持续使用高级结构材料" fullname="SpaceProgressionTests.太空研究与工坊必须持续使用高级结构材料" methodname="太空研究与工坊必须持续使用高级结构材料" classname="SpaceProgressionTests" runstate="Runnable" seed="431109872" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002248" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2944" name="太空研究树必须拥有能源生命保障与自主采矿横向分支" fullname="SpaceProgressionTests.太空研究树必须拥有能源生命保障与自主采矿横向分支" methodname="太空研究树必须拥有能源生命保障与自主采矿横向分支" classname="SpaceProgressionTests" runstate="Runnable" seed="896672071" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002180" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2913" name="工业到太空研究链完整" fullname="SpaceProgressionTests.工业到太空研究链完整" methodname="工业到太空研究链完整" classname="SpaceProgressionTests" runstate="Runnable" seed="1073110494" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.003733" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2929" name="所有太空工坊必须支付高级结构材料" fullname="SpaceProgressionTests.所有太空工坊必须支付高级结构材料" methodname="所有太空工坊必须支付高级结构材料" classname="SpaceProgressionTests" runstate="Runnable" seed="248308335" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002094" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2928" name="所有太空建筑必须持续消耗高级资源" fullname="SpaceProgressionTests.所有太空建筑必须持续消耗高级资源" methodname="所有太空建筑必须持续消耗高级资源" classname="SpaceProgressionTests" runstate="Runnable" seed="534931563" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001581" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2934" name="星际补给研究与实体工坊必须保持职责边界" fullname="SpaceProgressionTests.星际补给研究与实体工坊必须保持职责边界" methodname="星际补给研究与实体工坊必须保持职责边界" classname="SpaceProgressionTests" runstate="Runnable" seed="936371950" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000910" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2915" name="星际补给链理论与自动化模块必须降低持续远征补给消耗" fullname="SpaceProgressionTests.星际补给链理论与自动化模块必须降低持续远征补给消耗" methodname="星际补给链理论与自动化模块必须降低持续远征补给消耗" classname="SpaceProgressionTests" runstate="Runnable" seed="545271298" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002216" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2909" name="木材与焦炭必须保留工业到太空的连续上位替代链" fullname="SpaceProgressionTests.木材与焦炭必须保留工业到太空的连续上位替代链" methodname="木材与焦炭必须保留工业到太空的连续上位替代链" classname="SpaceProgressionTests" runstate="Runnable" seed="1986448201" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001297" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2907" name="每个太空建筑都必须使用高级结构材料建造并持续维护" fullname="SpaceProgressionTests.每个太空建筑都必须使用高级结构材料建造并持续维护" methodname="每个太空建筑都必须使用高级结构材料建造并持续维护" classname="SpaceProgressionTests" runstate="Runnable" seed="1783308038" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001288" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2912" name="每个太空研究与工坊都必须改变后期玩法" fullname="SpaceProgressionTests.每个太空研究与工坊都必须改变后期玩法" methodname="每个太空研究与工坊都必须改变后期玩法" classname="SpaceProgressionTests" runstate="Runnable" seed="1424634534" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.007139" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2941" name="每种高级结构材料都必须进入太空建筑研究与工坊" fullname="SpaceProgressionTests.每种高级结构材料都必须进入太空建筑研究与工坊" methodname="每种高级结构材料都必须进入太空建筑研究与工坊" classname="SpaceProgressionTests" runstate="Runnable" seed="1814332639" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001050" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2923" name="炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" fullname="SpaceProgressionTests.炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" methodname="炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" classname="SpaceProgressionTests" runstate="Runnable" seed="1709285637" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000442" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2948" name="相位材料体系必须继续消耗工业焦炭" fullname="SpaceProgressionTests.相位材料体系必须继续消耗工业焦炭" methodname="相位材料体系必须继续消耗工业焦炭" classname="SpaceProgressionTests" runstate="Runnable" seed="376165959" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000699" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2936" name="相位材料合成阵列必须持续消耗工业基础材料" fullname="SpaceProgressionTests.相位材料合成阵列必须持续消耗工业基础材料" methodname="相位材料合成阵列必须持续消耗工业基础材料" classname="SpaceProgressionTests" runstate="Runnable" seed="323570406" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000502" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2916" name="舰队损伤控制分支必须区分战损与维修成本并使用高级材料" fullname="SpaceProgressionTests.舰队损伤控制分支必须区分战损与维修成本并使用高级材料" methodname="舰队损伤控制分支必须区分战损与维修成本并使用高级材料" classname="SpaceProgressionTests" runstate="Runnable" seed="49440986" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001522" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2937" name="轨道农业生态学必须把生物质理论落实为实体工坊" fullname="SpaceProgressionTests.轨道农业生态学必须把生物质理论落实为实体工坊" methodname="轨道农业生态学必须把生物质理论落实为实体工坊" classname="SpaceProgressionTests" runstate="Runnable" seed="22151449" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001727" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2920" name="轨道工业设施不得把原矿或精矿作为建造材料" fullname="SpaceProgressionTests.轨道工业设施不得把原矿或精矿作为建造材料" methodname="轨道工业设施不得把原矿或精矿作为建造材料" classname="SpaceProgressionTests" runstate="Runnable" seed="707606861" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000868" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2919" name="轨道真空冶金阵列不应使用采出精矿作为建造材料" fullname="SpaceProgressionTests.轨道真空冶金阵列不应使用采出精矿作为建造材料" methodname="轨道真空冶金阵列不应使用采出精矿作为建造材料" classname="SpaceProgressionTests" runstate="Runnable" seed="52578711" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.000803" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2910" name="轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" fullname="SpaceProgressionTests.轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" methodname="轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" classname="SpaceProgressionTests" runstate="Runnable" seed="1505768202" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002044" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2917" name="轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" fullname="SpaceProgressionTests.轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" methodname="轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" classname="SpaceProgressionTests" runstate="Runnable" seed="1725924686" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002921" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2918" name="轨道采出资源必须接入明确的下游冶金节点" fullname="SpaceProgressionTests.轨道采出资源必须接入明确的下游冶金节点" methodname="轨道采出资源必须接入明确的下游冶金节点" classname="SpaceProgressionTests" runstate="Runnable" seed="805408369" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001062" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2904" name="高级材料研究与工坊必须先经过对应理论研究" fullname="SpaceProgressionTests.高级材料研究与工坊必须先经过对应理论研究" methodname="高级材料研究与工坊必须先经过对应理论研究" classname="SpaceProgressionTests" runstate="Runnable" seed="744969760" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.009910" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3029" name="UltraContentSliceTests" fullname="UltraContentSliceTests" classname="UltraContentSliceTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.061939" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3034" name="UltraBuildingsConsumeRoleSpecificSupportFlows" fullname="UltraContentSliceTests.UltraBuildingsConsumeRoleSpecificSupportFlows" methodname="UltraBuildingsConsumeRoleSpecificSupportFlows" classname="UltraContentSliceTests" runstate="Runnable" seed="2140252704" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001616" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3032" name="UltraBuildingsHaveDistinctResearchAndPowerRoles" fullname="UltraContentSliceTests.UltraBuildingsHaveDistinctResearchAndPowerRoles" methodname="UltraBuildingsHaveDistinctResearchAndPowerRoles" classname="UltraContentSliceTests" runstate="Runnable" seed="1684897508" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.026199" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3031" name="UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" fullname="UltraContentSliceTests.UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" methodname="UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts" classname="UltraContentSliceTests" runstate="Runnable" seed="1642409178" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.005059" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3035" name="UltraContentReusesExistingStrategicResources" fullname="UltraContentSliceTests.UltraContentReusesExistingStrategicResources" methodname="UltraContentReusesExistingStrategicResources" classname="UltraContentSliceTests" runstate="Runnable" seed="1675226559" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002339" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3033" name="UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" fullname="UltraContentSliceTests.UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" methodname="UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs" classname="UltraContentSliceTests" runstate="Runnable" seed="1453557461" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.008075" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3037" name="UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" fullname="UltraContentSliceTests.UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" methodname="UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms" classname="UltraContentSliceTests" runstate="Runnable" seed="474536633" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.002165" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3036" name="UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" fullname="UltraContentSliceTests.UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" methodname="UltraResearchExtendsExpeditionFleetAndOccupationMechanisms" classname="UltraContentSliceTests" runstate="Runnable" seed="1576919760" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001231" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3030" name="UltraResearchFormsAReachablePostSingularityChain" fullname="UltraContentSliceTests.UltraResearchFormsAReachablePostSingularityChain" methodname="UltraResearchFormsAReachablePostSingularityChain" classname="UltraContentSliceTests" runstate="Runnable" seed="13063012" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001007" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3038" name="UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" fullname="UltraContentSliceTests.UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" methodname="UltraResearchSupportsMegastructureEnergyEcologyAndProductivity" classname="UltraContentSliceTests" runstate="Runnable" seed="347397218" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001250" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3039" name="UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" fullname="UltraContentSliceTests.UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" methodname="UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories" classname="UltraContentSliceTests" runstate="Runnable" seed="1735272119" result="Passed" start-time="2026-10-17 15:14:55Z" end-time="2026-10-17 15:14:55Z" duration="0.001463" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

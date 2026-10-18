@@ -48,6 +48,9 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 {
     private readonly Dictionary<WorkshopUpgrade, WorkshopUpgradeState> states = new();
     private readonly List<WorkshopUpgradeState> orderedStates = new();
+    private ProgressionModifierState previewSource;
+    private WorkshopUpgrade previewDefinition;
+    private ProgressionModifierState previewModifiers;
 
     public IReadOnlyDictionary<WorkshopUpgrade, WorkshopUpgradeState> States => states;
     internal IReadOnlyList<WorkshopUpgradeState> OrderedStates => orderedStates;
@@ -84,10 +87,18 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     {
         if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
             return Array.Empty<WorkshopBenefitRatePreview>();
-        ProgressionModifierState preview = ProgressionModifierManager.BuildPreview(
-            ResearchManager.Instance.OrderedStatesForProgression, orderedStates, state.Definition);
+        ProgressionModifierState current = ProgressionModifierManager.Current;
+        // Research, purchases and save restore replace Current; dynamic rates are never cached.
+        if (!ReferenceEquals(previewSource, current) || previewDefinition != state.Definition)
+        {
+            previewModifiers = ProgressionModifierManager.BuildPreview(
+                ResearchManager.Instance.OrderedStatesForProgression, orderedStates, state.Definition);
+            previewSource = current;
+            previewDefinition = state.Definition;
+        }
         return CalculateBenefitPreview(BuildingManager.Instance.OrderedStates,
-            ProgressionModifierManager.Current, preview, ResourceManager.GetHappinessRewardMultiplier());
+            current, previewModifiers, ResourceManager.GetHappinessRewardMultiplier(),
+            GameManager.Instance.State.Events.ProductionMultiplier);
     }
 
     // Hold quantities and efficiencies fixed; the next tick will recalculate input satisfaction.
@@ -97,7 +108,13 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     public static IReadOnlyList<WorkshopBenefitRatePreview> CalculateBenefitPreview(
         IReadOnlyList<BuildingState> buildings, ProgressionModifierState before,
-        ProgressionModifierState after, ExpantaNum productionRewardMultiplier)
+        ProgressionModifierState after, ExpantaNum productionRewardMultiplier) =>
+        CalculateBenefitPreview(buildings, before, after, productionRewardMultiplier, ExpantaNum.One);
+
+    public static IReadOnlyList<WorkshopBenefitRatePreview> CalculateBenefitPreview(
+        IReadOnlyList<BuildingState> buildings, ProgressionModifierState before,
+        ProgressionModifierState after, ExpantaNum productionRewardMultiplier,
+        ExpantaNum eventProductionMultiplier)
     {
         var result = new List<WorkshopBenefitRatePreview>();
         AddRate(null, null, WorkshopBenefitRateKind.ResearchPower,
@@ -121,18 +138,18 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                 after.GlobalBuildingProductionMultiplier;
             foreach (Pair<Resource, ExpantaNum> rate in building.ResourceGenerationRates)
                 AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceProduction,
-                    scale * rate.Second * oldProduction * productionRewardMultiplier *
+                    scale * rate.Second * oldProduction * productionRewardMultiplier * eventProductionMultiplier *
                     before.GetBuildingResourceProductionMultiplier(building, rate.First) *
                     before.GetResourceProductionMultiplier(rate.First),
-                    scale * rate.Second * newProduction * productionRewardMultiplier *
+                    scale * rate.Second * newProduction * productionRewardMultiplier * eventProductionMultiplier *
                     after.GetBuildingResourceProductionMultiplier(building, rate.First) *
                     after.GetResourceProductionMultiplier(rate.First));
             foreach (Pair<Resource, ExpantaNum> rate in building.ResourceConsumptionRates)
                 AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceConsumption,
                     scale * rate.Second * oldProduction, scale * rate.Second * newProduction);
             AddRate(building, null, WorkshopBenefitRateKind.FoodProduction,
-                scale * building.FoodProductionRate * oldProduction * before.GlobalFoodProductionMultiplier,
-                scale * building.FoodProductionRate * newProduction * after.GlobalFoodProductionMultiplier);
+                scale * building.FoodProductionRate * oldProduction * eventProductionMultiplier * before.GlobalFoodProductionMultiplier,
+                scale * building.FoodProductionRate * newProduction * eventProductionMultiplier * after.GlobalFoodProductionMultiplier);
             AddRate(building, null, WorkshopBenefitRateKind.ResearchPower,
                 scale * building.ResearchPowerGranted * before.GetBuildingResearchPowerMultiplier(building) *
                 before.GlobalResearchMultiplier,
@@ -161,15 +178,20 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     public bool ArePrerequisitesMet(WorkshopUpgrade definition)
     {
-        if (definition == null)
+        if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
             return false;
+        return GetPrerequisiteFailure(state.Definition) == WorkshopPurchaseFailure.None;
+    }
+
+    private WorkshopPurchaseFailure GetPrerequisiteFailure(WorkshopUpgrade definition)
+    {
         for (int i = 0; i < definition.RequiredResearch.Count; i++)
             if (!ResearchManager.Instance.IsResearchCompleted(definition.RequiredResearch[i].Id))
-                return false;
+                return WorkshopPurchaseFailure.ResearchIncomplete;
         for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
             if (!IsPurchased(definition.RequiredUpgrades[i]))
-                return false;
-        return true;
+                return WorkshopPurchaseFailure.UpgradeIncomplete;
+        return WorkshopPurchaseFailure.None;
     }
 
     public bool TryPurchase(
@@ -181,6 +203,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             failure = WorkshopPurchaseFailure.InvalidDefinition;
             return false;
         }
+        definition = state.Definition;
         if (!IsSystemUnlocked)
         {
             failure = WorkshopPurchaseFailure.SystemLocked;
@@ -196,21 +219,11 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             failure = WorkshopPurchaseFailure.AlreadyPurchased;
             return false;
         }
-        for (int i = 0; i < definition.RequiredResearch.Count; i++)
+        WorkshopPurchaseFailure prerequisiteFailure = GetPrerequisiteFailure(definition);
+        if (prerequisiteFailure != WorkshopPurchaseFailure.None)
         {
-            if (!ResearchManager.Instance.IsResearchCompleted(definition.RequiredResearch[i].Id))
-            {
-                failure = WorkshopPurchaseFailure.ResearchIncomplete;
-                return false;
-            }
-        }
-        for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
-        {
-            if (!IsPurchased(definition.RequiredUpgrades[i]))
-            {
-                failure = WorkshopPurchaseFailure.UpgradeIncomplete;
-                return false;
-            }
+            failure = prerequisiteFailure;
+            return false;
         }
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
@@ -254,7 +267,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
 
         BuildingManager.Instance.RefreshBuildingChainAvailability();
-        UpgradeStateChanged?.Invoke(state);
+        ObserverNotifications.Publish(UpgradeStateChanged, state);
         failure = WorkshopPurchaseFailure.None;
         return true;
     }

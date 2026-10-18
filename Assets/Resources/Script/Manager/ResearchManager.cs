@@ -178,7 +178,10 @@ public class ResearchManager : Singleton<ResearchManager>
             return false;
         bool started = TryStartResearchNow(state);
         if (started)
-            ResearchQueueChanged?.Invoke();
+        {
+            RemoveQueuedState(state, false);
+            ObserverNotifications.Publish(ResearchQueueChanged);
+        }
         return started;
     }
 
@@ -203,7 +206,7 @@ public class ResearchManager : Singleton<ResearchManager>
         for (int i = 0; i < batch.Count; i++)
             EnqueueState(batch[i], false);
         TryStartNextQueuedResearch(false);
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         if (ActiveResearch == state)
             return ResearchActionResult.Started;
         return IsQueued(research)
@@ -226,7 +229,7 @@ public class ResearchManager : Singleton<ResearchManager>
             return false;
         EnqueueState(state, false);
         TryStartNextQueuedResearch(false);
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         return true;
     }
 
@@ -249,15 +252,7 @@ public class ResearchManager : Singleton<ResearchManager>
         foreach (ResearchState state in researchQueue)
             if (!cancelled.Contains(state.Definition))
                 remaining.Add(state);
-        researchQueue.Clear();
-        queuedResearches.Clear();
-        researchQueueSnapshotDirty = true;
-        for (int i = 0; i < remaining.Count; i++)
-        {
-            researchQueue.Enqueue(remaining[i]);
-            queuedResearches.Add(remaining[i].Definition);
-        }
-        researchQueueSnapshotDirty = true;
+        RebuildQueue(remaining);
 
         foreach (Research cancelledResearch in cancelled)
         {
@@ -268,7 +263,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
         remaining.Clear();
         cancelled.Clear();
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         return true;
     }
 
@@ -322,7 +317,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
         researchQueueSnapshotDirty = true;
         TryStartNextQueuedResearch(false);
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         return true;
     }
 
@@ -390,7 +385,7 @@ public class ResearchManager : Singleton<ResearchManager>
             {
                 RemoveQueuedState(state, false);
                 if (TryStartResearchNow(state) && notifyQueueChanged)
-                    ResearchQueueChanged?.Invoke();
+                    ObserverNotifications.Publish(ResearchQueueChanged);
                 return;
             }
             // Only raise the event on an actual status transition; the previous
@@ -400,7 +395,7 @@ public class ResearchManager : Singleton<ResearchManager>
             {
                 state.SetStatus(ResearchStatus.WaitingResources);
                 if (notifyQueueChanged)
-                    ResearchQueueChanged?.Invoke();
+                    ObserverNotifications.Publish(ResearchQueueChanged);
             }
             return;
         }
@@ -409,7 +404,7 @@ public class ResearchManager : Singleton<ResearchManager>
         if (TryStartResearchNow(state))
         {
             if (notifyQueueChanged)
-                ResearchQueueChanged?.Invoke();
+                ObserverNotifications.Publish(ResearchQueueChanged);
         }
     }
 
@@ -440,7 +435,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 : ArePrerequisitesCompleted(research)
                     ? ResearchStatus.Available
                     : ResearchStatus.Locked);
-            ResearchQueueChanged?.Invoke();
+            ObserverNotifications.Publish(ResearchQueueChanged);
             return ResearchPaymentResult.InsufficientResources;
         }
 
@@ -451,7 +446,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 : ResearchStatus.Locked);
         // Payment is a transaction for this one research item only. It must
         // never start or reorder research; the queue action owns scheduling.
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         return ResearchPaymentResult.Paid;
     }
 
@@ -565,7 +560,7 @@ public class ResearchManager : Singleton<ResearchManager>
                 : null;
             if (beforeHead != afterHead ||
                 beforeHeadStatus != (afterHead == null ? ResearchStatus.Locked : afterHead.Status))
-                ResearchQueueChanged?.Invoke();
+                ObserverNotifications.Publish(ResearchQueueChanged);
         }
         ResearchState current = ActiveResearch;
         if (current == null)
@@ -603,31 +598,34 @@ public class ResearchManager : Singleton<ResearchManager>
             double remainingSeconds = deltaSeconds;
             while (remainingSeconds > 0d)
             {
-            if (ActiveResearch == null)
-                TryStartNextQueuedResearch(false);
-            ResearchState current = ActiveResearch;
-            if (current == null || !current.CostPaid)
-                return;
-
-            ExpantaNum speed = CalculateResearchSpeed(current);
-            if (speed <= ExpantaNum.Zero)
-            {
-                current.SetStatus(ResearchStatus.Researching);
-                return;
-            }
-
-            ExpantaNum remainingProgress = ExpantaNum.Max(
-                ExpantaNum.Zero,
-                current.BaseCost - current.Progress);
-            double secondsToCompletion = (remainingProgress / speed).ToDouble();
-            double step = Math.Min(
-                remainingSeconds,
-                Math.Max(0d, secondsToCompletion));
-            Tick(step);
-            remainingSeconds -= step;
-
-                if (ActiveResearch == current)
+                if (ActiveResearch == null)
+                    TryStartNextQueuedResearch(false);
+                ResearchState current = ActiveResearch;
+                if (current == null || !current.CostPaid)
                     return;
+
+                ExpantaNum speed = CalculateResearchSpeed(current);
+                if (speed <= ExpantaNum.Zero)
+                {
+                    current.SetStatus(ResearchStatus.Researching);
+                    return;
+                }
+
+                if (AdvanceResearchProgress(current.Progress, speed, current.BaseCost,
+                        remainingSeconds) < current.BaseCost)
+                {
+                    Tick(remainingSeconds);
+                    return;
+                }
+
+                ExpantaNum remainingProgress = ExpantaNum.Max(
+                    ExpantaNum.Zero, current.BaseCost - current.Progress);
+                double completionSeconds = Math.Min(remainingSeconds,
+                    Math.Max(0d, (remainingProgress / speed).ToDouble()));
+                // Establish completion before converting time to double; do not round-trip progress.
+                current.SetStatus(ResearchStatus.Researching);
+                CompleteCurrentResearch(current);
+                remainingSeconds -= completionSeconds;
             }
         }
         finally
@@ -762,7 +760,7 @@ public class ResearchManager : Singleton<ResearchManager>
         queuedResearches.Add(state.Definition);
         researchQueueSnapshotDirty = true;
         if (notifyQueueChanged)
-            ResearchQueueChanged?.Invoke();
+            ObserverNotifications.Publish(ResearchQueueChanged);
     }
 
     private void RemoveQueuedState(ResearchState state, bool notifyQueueChanged = true)
@@ -772,6 +770,14 @@ public class ResearchManager : Singleton<ResearchManager>
         foreach (ResearchState value in researchQueue)
             if (value != state)
                 remaining.Add(value);
+        RebuildQueue(remaining);
+        remaining.Clear();
+        if (notifyQueueChanged)
+            ObserverNotifications.Publish(ResearchQueueChanged);
+    }
+
+    private void RebuildQueue(IReadOnlyList<ResearchState> remaining)
+    {
         researchQueue.Clear();
         queuedResearches.Clear();
         researchQueueSnapshotDirty = true;
@@ -780,10 +786,6 @@ public class ResearchManager : Singleton<ResearchManager>
             researchQueue.Enqueue(remaining[i]);
             queuedResearches.Add(remaining[i].Definition);
         }
-        researchQueueSnapshotDirty = true;
-        remaining.Clear();
-        if (notifyQueueChanged)
-            ResearchQueueChanged?.Invoke();
     }
 
     private bool TryStartResearchNow(ResearchState state)
@@ -833,9 +835,9 @@ public class ResearchManager : Singleton<ResearchManager>
         // Publish one queue change after the whole transition instead of one
         // notification for each internal queue mutation.
         TryStartNextQueuedResearch(false);
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
         if (!suppressCompletionAudio)
-            ResearchCompleted?.Invoke(current);
+            ObserverNotifications.Publish(ResearchCompleted, current);
 #if UNITY_EDITOR
         float completionEnd = Time.realtimeSinceStartup;
         KingdomEditorPerfLog.Write(
@@ -917,7 +919,7 @@ public class ResearchManager : Singleton<ResearchManager>
             var state = new ResearchState(research);
             states.Add(research, state);
             orderedStates.Add(state);
-            ResearchStateAdded?.Invoke(state);
+            ObserverNotifications.Publish(ResearchStateAdded, state);
         }
     }
 
@@ -970,7 +972,7 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         ResetForLoad();
         RefreshAvailabilityStatuses();
-        ResearchQueueChanged?.Invoke();
+        ObserverNotifications.Publish(ResearchQueueChanged);
     }
 #endif
 
@@ -979,7 +981,7 @@ public class ResearchManager : Singleton<ResearchManager>
         if (data == null)
             return;
 
-        ValidateRestoreInput(data);
+        ExpantaNum restoredEfficiency = ValidateRestoreInput(data);
 
         // The save is the complete source of truth for research scheduling.
         // Clear transient scheduling pointers only after validation succeeds.
@@ -1010,7 +1012,6 @@ public class ResearchManager : Singleton<ResearchManager>
                         saved.PaidResourceCosts);
                 state.Restore(
                     Parse(saved.Progress, saved.ResearchId, nameof(saved.Progress)),
-                    saved.CostPaid || AreAllResourceCostsPaid(definition, paidResourceCosts),
                     saved.Completed,
                     paidResourceCosts);
             }
@@ -1060,13 +1061,10 @@ public class ResearchManager : Singleton<ResearchManager>
             Research selected = DataBase<Research>.Find(data.SelectedResearchId);
             SelectedResearchId = selected.Id;
         }
-        GlobalEfficiencyFactor = Parse(
-            data.GlobalEfficiencyFactor,
-            nameof(ResearchManager),
-            nameof(data.GlobalEfficiencyFactor));
+        GlobalEfficiencyFactor = restoredEfficiency;
         TryStartNextQueuedResearch(false);
         if (researchQueue.Count > 0)
-            ResearchQueueChanged?.Invoke();
+            ObserverNotifications.Publish(ResearchQueueChanged);
     }
 
     internal void RebuildProgressionModifiers()
@@ -1090,7 +1088,7 @@ public class ResearchManager : Singleton<ResearchManager>
         }
     }
 
-    private void ValidateRestoreInput(SaveManager.ResearchSaveData data)
+    private ExpantaNum ValidateRestoreInput(SaveManager.ResearchSaveData data)
     {
         // A save is the source of truth. Do not seed validation from the
         // current runtime state, otherwise a direct restore can inherit
@@ -1114,16 +1112,14 @@ public class ResearchManager : Singleton<ResearchManager>
                     RestorePaidResourceCosts(
                         definition,
                         saved.PaidResourceCosts);
-                if (AreAllResourceCostsPaid(definition, paidCosts))
+                bool allCostsPaid = AreAllResourceCostsPaid(definition, paidCosts);
+                if (allCostsPaid)
                     fullyPaid.Add(definition);
-                if ((saved.CostPaid || saved.Completed) &&
-                    !AreAllResourceCostsPaid(definition, paidCosts))
+                if ((saved.CostPaid || saved.Completed) && !allCostsPaid)
                     throw new InvalidOperationException(
                         $"Research payment ledger is incomplete: {definition.Id}");
                 if (saved.Completed)
                     completed.Add(definition);
-                else
-                    completed.Remove(definition);
             }
         }
 
@@ -1163,8 +1159,11 @@ public class ResearchManager : Singleton<ResearchManager>
 
         if (!string.IsNullOrWhiteSpace(data.SelectedResearchId))
             DataBase<Research>.Find(data.SelectedResearchId);
-        if (Parse(data.GlobalEfficiencyFactor, nameof(ResearchManager), nameof(data.GlobalEfficiencyFactor)) < ExpantaNum.Zero)
+        ExpantaNum efficiency = Parse(
+            data.GlobalEfficiencyFactor, nameof(ResearchManager), nameof(data.GlobalEfficiencyFactor));
+        if (efficiency < ExpantaNum.Zero)
             throw new ArgumentOutOfRangeException(nameof(data.GlobalEfficiencyFactor));
+        return efficiency;
     }
 
     private List<ResearchState> ValidateRestoredResearchQueue(

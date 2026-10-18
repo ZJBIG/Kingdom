@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 08:53:31Z" end-time="2026-10-18 08:53:32Z" duration="1.0325753">
+  <test-suite type="TestSuite" id="2100" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="952" result="Passed" start-time="2026-10-18 08:53:31Z" end-time="2026-10-18 08:53:32Z" duration="1.032575" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3190" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="951" result="Passed" start-time="2026-10-18 08:53:31Z" end-time="2026-10-18 08:53:32Z" duration="1.013407" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="21024" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2252" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="45" result="Passed" start-time="2026-10-18 08:53:31Z" end-time="2026-10-18 08:53:32Z" duration="0.998772" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2253" name="ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" fullname="EconomyIntegrationRegressionTests.ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" methodname="ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="135700449" result="Passed" start-time="2026-10-18 08:53:31Z" end-time="2026-10-18 08:53:32Z" duration="0.984118" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomPerf] ManualTick 30.9ms: building=14.9ms, game=2.1ms, resource=1.2ms, sectors=2.0ms, research=10.7ms, activeBuildings=1, efficiencyPasses=1
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

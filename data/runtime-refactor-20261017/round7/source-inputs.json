@@ -1,0 +1,14 @@
+[
+  {
+    "path": "Assets/Resources/Script/Manager/BuildingManager.cs",
+    "sha256": "c0ba2cb947a2bc939e30c2f8f14e90f5417a847671844b7c0225b609a737e977",
+    "lines": 2432,
+    "baseline_lines": 2400
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "sha256": "9757c68c766c12bc5e01b92d24a315e246623eb631771d7f75a97b7e6b916489",
+    "lines": 1518,
+    "baseline_lines": 1431
+  }
+]

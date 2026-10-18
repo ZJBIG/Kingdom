@@ -107,7 +107,6 @@ public sealed class ResourceContinuityTests
     {
         Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
 
-        Assert.That(chemicalPlant, Is.Not.Null);
         Assert.That(chemicalPlant.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(chemicalPlant.RequiredResearch.Select(research => research.Id),
             Is.EquivalentTo(new[] { "PetroleumExtraction", "Coking", "IndustrialChemistry" }));

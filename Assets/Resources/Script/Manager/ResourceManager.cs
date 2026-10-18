@@ -82,7 +82,7 @@ public class ResourceManager : Singleton<ResourceManager>
         var state = new ResourceState(resource);
         states.Add(resource, state);
         InsertOrdered(state);
-        Publish(ResourceStateAdded, state);
+        ObserverNotifications.Publish(ResourceStateAdded, state);
         return state;
     }
 
@@ -124,7 +124,7 @@ public class ResourceManager : Singleton<ResourceManager>
         if (delta == ExpantaNum.Zero)
             return;
         state.SetAmount(state.Amount + delta);
-        Publish(ResourceStateChanged, state);
+        ObserverNotifications.Publish(ResourceStateChanged, state);
     }
 
     /// <summary>
@@ -296,11 +296,11 @@ public class ResourceManager : Singleton<ResourceManager>
         }
 
         for (int i = 0; i < addedStates.Count; i++)
-            Publish(ResourceStateAdded, addedStates[i]);
+            ObserverNotifications.Publish(ResourceStateAdded, addedStates[i]);
         for (int i = 0; i < entries.Count; i++)
         {
             ResourceState state = states[entries[i].Key];
-            Publish(ResourceStateChanged, state);
+            ObserverNotifications.Publish(ResourceStateChanged, state);
         }
         return true;
     }
@@ -325,27 +325,6 @@ public class ResourceManager : Singleton<ResourceManager>
     private static void ReleaseTransactionWorkspace(TransactionWorkspace workspace)
     {
         workspace.InUse = false;
-    }
-
-    private static void Publish(Action<ResourceState> handlers, ResourceState state)
-    {
-        if (handlers == null)
-            return;
-        Delegate[] invocationList = handlers.GetInvocationList();
-        for (int i = 0; i < invocationList.Length; i++)
-        {
-            try
-            {
-                ((Action<ResourceState>)invocationList[i]).Invoke(state);
-            }
-            catch (Exception exception)
-            {
-                // Notifications are observers, not part of the committed
-                // economy transaction. One broken UI listener must not make
-                // a successful payment appear to fail or trigger a refund.
-                Debug.LogException(exception);
-            }
-        }
     }
 
     public void SetAmount(Resource resource, ExpantaNum amount) => EnsureResource(resource).SetAmount(amount);
@@ -379,7 +358,7 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         foreach (ResourceState state in orderedStates)
         {
-            state.SetProductionRate(ExpantaNum.Zero);
+            state.SetProductionRate(IsStartingResource(state.Definition) ? ExpantaNum.One : ExpantaNum.Zero);
             state.SetConsumptionRate(ExpantaNum.Zero);
         }
     }

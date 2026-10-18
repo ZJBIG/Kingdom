@@ -1,0 +1,84 @@
+{
+  "All": {
+    "lines": {
+      "before": 33294,
+      "after": 32629,
+      "removed": 665
+    },
+    "assertions": {
+      "before": 5918,
+      "after": 5784,
+      "removed": 134
+    },
+    "testMethods": {
+      "before": 864,
+      "after": 839,
+      "removed": 25
+    },
+    "testCases": {
+      "before": 180,
+      "after": 180,
+      "removed": 0
+    }
+  },
+  "Editor": {
+    "lines": {
+      "before": 25445,
+      "after": 24881,
+      "removed": 564
+    },
+    "assertions": {
+      "before": 4706,
+      "after": 4586,
+      "removed": 120
+    },
+    "testMethods": {
+      "before": 770,
+      "after": 749,
+      "removed": 21
+    },
+    "testCases": {
+      "before": 176,
+      "after": 176,
+      "removed": 0
+    }
+  },
+  "PlayMode": {
+    "lines": {
+      "before": 7849,
+      "after": 7748,
+      "removed": 101
+    },
+    "assertions": {
+      "before": 1212,
+      "after": 1198,
+      "removed": 14
+    },
+    "testMethods": {
+      "before": 94,
+      "after": 90,
+      "removed": 4
+    },
+    "testCases": {
+      "before": 4,
+      "after": 4,
+      "removed": 0
+    }
+  },
+  "changedTestFiles": [
+    "Assets/Tests/Editor/AdvancedMaterialProgressionTests.cs",
+    "Assets/Tests/Editor/GlobalEconomyDefinitionTests.cs",
+    "Assets/Tests/Editor/IndustrialWorkshopAvailabilityTests.cs",
+    "Assets/Tests/Editor/KingdomUiLifecycleTests.cs",
+    "Assets/Tests/Editor/PreSpacerCombatRemovalTests.cs",
+    "Assets/Tests/Editor/ResearchBalanceTests.cs",
+    "Assets/Tests/Editor/SectorDefinitionTests.cs",
+    "Assets/Tests/Editor/SpaceProgressionTests.cs",
+    "Assets/Tests/Editor/UltraContentSliceTests.cs",
+    "Assets/Tests/PlayMode/KingdomButtonMaterialPlayModeTests.cs",
+    "Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs",
+    "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "Assets/Tests/PlayMode/PageScrollPositionPlayModeTests.cs"
+  ],
+  "priorProductionUnchanged": true
+}

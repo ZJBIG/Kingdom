@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Failed(Child)" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 04:31:46Z" end-time="2026-10-18 04:31:47Z" duration="0.0803714">
+  <test-suite type="TestSuite" id="2083" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="938" result="Failed" site="Child" start-time="2026-10-18 04:31:46Z" end-time="2026-10-18 04:31:47Z" duration="0.080371" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3156" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="937" result="Failed" site="Child" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.066432" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="10508" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2364" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="163" result="Failed" site="Child" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.055762" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="ParameterizedMethod" id="2462" name="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress" fullname="KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress" classname="KingdomLogicTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.044662" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2459" name="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(10,0.5d)" fullname="KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(10,0.5d)" methodname="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress" classname="KingdomLogicTests" runstate="Runnable" seed="713152197" result="Failed" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.031674" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: 0.5d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress (System.Int32 capacity, System.Double progress) [0x0005a] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1715
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2460" name="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(5,0.5d)" fullname="KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(5,0.5d)" methodname="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress" classname="KingdomLogicTests" runstate="Runnable" seed="488826386" result="Failed" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.000627" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: 0.5d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress (System.Int32 capacity, System.Double progress) [0x0005a] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1715
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2461" name="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(20,1.0d)" fullname="KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(20,1.0d)" methodname="PopulationChange_ZeroSecondGameTickPreservesRestoredProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1816023441" result="Failed" start-time="2026-10-18 04:31:47Z" end-time="2026-10-18 04:31:47Z" duration="0.000950" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: 1.0d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_ZeroSecondGameTickPreservesRestoredProgress (System.Int32 capacity, System.Double progress) [0x0005a] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1715
+]]></stack-trace>
+            </failure>
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

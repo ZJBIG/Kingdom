@@ -1,0 +1,27 @@
+[
+  {
+    "path": "Assets/Resources/Script/Manager/ResearchManager.cs",
+    "sha256": "83695467d485ea89012b5fd9c4f8705be0fa2a18bf0950d72d1df07a4334ea6a",
+    "lines": 1330
+  },
+  {
+    "path": "Assets/Resources/Script/Manager/ResourceManager.cs",
+    "sha256": "0ae143e1df005c3aea6fbeb360dc0b80d5a45a2f23ed6cb08f8c8db1f169af8f",
+    "lines": 602
+  },
+  {
+    "path": "Assets/Resources/Script/Manager/BuildingManager.cs",
+    "sha256": "54a74e0a957048494e183669d9150e49c9e68c8498bc39e6595d7bf0a91623e8",
+    "lines": 2400
+  },
+  {
+    "path": "Assets/Resources/Script/Manager/WorkshopManager.cs",
+    "sha256": "87622e2fb81921a43badce133eb852064cb1bc9de40c73cc30158b7fad2d09d5",
+    "lines": 423
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "sha256": "b26e43cb5e7bc7c49cc8ceedbf727300cff74801d3159fa07853e44416b9db04",
+    "lines": 1232
+  }
+]

@@ -24,18 +24,6 @@ public sealed class ResourceProductionTreeTests
     }
 
     [Test]
-    public void ResourceRoot_KeepsItsIdentityAndFindsItsProducer()
-    {
-        Resource resource = Make<Resource>();
-        Building producer = Producer(resource);
-        ResourceProductionTree tree = new(resource, new[] { producer }, null,
-            candidate => candidate == resource);
-        Assert.That(tree.Root.Resource, Is.SameAs(resource));
-        Assert.That(tree.GetChildren(tree.Root).Count, Is.EqualTo(1), "One producer is visible.");
-        Assert.That(tree.GetChildren(tree.Root)[0].Building, Is.SameAs(producer));
-    }
-
-    [Test]
     public void VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors()
     {
         Resource output = Make<Resource>(), input = Make<Resource>(), hiddenInput = Make<Resource>();
@@ -138,6 +126,7 @@ public sealed class ResourceProductionTreeTests
         Resource output = Make<Resource>(), input = Make<Resource>(), construction = Make<Resource>();
         Building first = Producer(output, input, construction), second = Producer(output);
         ResourceProductionTree tree = new(output, new[] { first, second }, null);
+        Assert.That(tree.Root.Resource, Is.SameAs(output));
         var sources = tree.GetChildren(tree.Root);
         Assert.That(sources.Count, Is.EqualTo(2), "Each discrete producer remains a separate branch.");
         Assert.That(sources[0].Building, Is.SameAs(first));

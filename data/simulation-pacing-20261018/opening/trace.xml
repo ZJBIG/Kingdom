@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 07:08:06Z" end-time="2026-10-18 07:08:07Z" duration="0.9089181">
+  <test-suite type="TestSuite" id="2099" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="951" result="Passed" start-time="2026-10-18 07:08:06Z" end-time="2026-10-18 07:08:07Z" duration="0.908918" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3188" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="950" result="Passed" start-time="2026-10-18 07:08:06Z" end-time="2026-10-18 07:08:07Z" duration="0.895836" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="11268" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2246" name="EarlyVerticalSlicePacingTests" fullname="EarlyVerticalSlicePacingTests" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-18 07:08:07Z" end-time="2026-10-18 07:08:07Z" duration="0.882039" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2250" name="NewGame_FixedMainlineTrace" fullname="EarlyVerticalSlicePacingTests.NewGame_FixedMainlineTrace" methodname="NewGame_FixedMainlineTrace" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="91702755" result="Passed" start-time="2026-10-18 07:08:07Z" end-time="2026-10-18 07:08:07Z" duration="0.870397" asserts="0">
+          <properties>
+            <property name="Category" value="PacingDiagnostic" />
+          </properties>
+          <output><![CDATA[[KingdomPerf] ManualTick 31.8ms: building=16.7ms, game=2.0ms, resource=1.1ms, sectors=1.8ms, research=10.1ms, activeBuildings=0, efficiencyPasses=1
+MAINLINE t=0.0 action=new-game wood=60 population=0/0 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE sample=0.0 next=B:WoodHouse food=300 happiness=1.218809
+MAINLINE t=16.5 action=built:WoodHouse wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=16.5 action=queued:Agriculture wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=39.4 action=paid:Agriculture wood=0.021114 population=0/5 foodNet=5 productivity=0 researchSpeed=4.875236
+MAINLINE sample=60.0 next=R:Agriculture food=500 happiness=1.218809
+MAINLINE t=65.8 action=population wood=32.197698 population=1/5 foodNet=4.2 productivity=2 researchSpeed=4.8345
+MAINLINE t=101.2 action=completed:Agriculture wood=74.9832 population=1/5 foodNet=5.2 productivity=2 researchSpeed=0
+MAINLINE sample=120.0 next=B:Farm food=500 happiness=1.221043
+MAINLINE t=123.2 action=population wood=101.84608 population=2/5 foodNet=4.4 productivity=4 researchSpeed=0
+MAINLINE t=123.2 action=built:Farm wood=51.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=123.2 action=queued:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=123.2 action=paid:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=135.4 action=completed:ControlledFire wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=135.4 action=queued:Quarry wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=156.9 action=population wood=73.542079 population=3/5 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE sample=180.0 next=R:Quarry food=500 happiness=1.211382
+MAINLINE t=191.3 action=population wood=115.213551 population=4/5 foodNet=12.4 productivity=5 researchSpeed=0
+MAINLINE sample=240.0 next=R:Quarry food=500 happiness=1.189977
+MAINLINE t=243.7 action=population wood=177.568503 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE t=262.9 action=paid:Quarry wood=0.057463 population=5/5 foodNet=11.6 productivity=7 researchSpeed=4.685196
+MAINLINE t=288.5 action=completed:Quarry wood=30.042743 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE sample=300.0 next=B:Quarry food=500 happiness=1.171299
+MAINLINE sample=360.0 next=B:Quarry food=500 happiness=1.171299
+MAINLINE t=365.4 action=built:Quarry wood=0.115713 population=5/5 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE sample=420.0 next=B:WoodHouse food=500 happiness=1.171299
+MAINLINE t=445.9 action=built:WoodHouse wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE t=445.9 action=queued:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=445.9 action=paid:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=463.0 action=population wood=20.034593 population=6/10 foodNet=10.8 productivity=3 researchSpeed=4.61798
+MAINLINE sample=480.0 next=R:KnowledgeSharing food=500 happiness=1.154495
+MAINLINE t=481.1 action=population wood=40.931043 population=7/10 foodNet=10 productivity=5 researchSpeed=4.556324
+MAINLINE t=502.0 action=population wood=64.737815 population=8/10 foodNet=9.2 productivity=7 researchSpeed=4.498992
+MAINLINE t=529.7 action=population wood=95.89339 population=9/10 foodNet=8.4 productivity=9 researchSpeed=4.445164
+MAINLINE sample=540.0 next=R:KnowledgeSharing food=500 happiness=1.111291
+MAINLINE t=579.7 action=population wood=151.45789 population=10/10 foodNet=7.6 productivity=11 researchSpeed=4.394236
+MAINLINE sample=600.0 next=R:KnowledgeSharing food=500 happiness=1.098559
+MAINLINE finishedCommands=7/19 longestMilestoneGap=80.5s
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

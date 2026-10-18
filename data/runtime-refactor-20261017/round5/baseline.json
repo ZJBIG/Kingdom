@@ -1,0 +1,17 @@
+[
+  {
+    "path": "Assets/Resources/Script/Runtime/PopulationState.cs",
+    "sha256": "fbdd7d4352a314a3cbbd0c5435e6229673ac22833004248e32927c4fd4a2d9c0",
+    "lines": 319
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomLogicTests.cs",
+    "sha256": "b184414f57a9f7f543c9e2e643b994059c127a7fdcfc67c5cbd4aab34c30ef42",
+    "lines": 3737
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "sha256": "c6838de4ff6aee965037924dacf6b512f72fe11b0eeca8518de1b03fc7aa3d6d",
+    "lines": 1371
+  }
+]

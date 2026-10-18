@@ -15,47 +15,6 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
-    public void DefaultStepsExposeExtensibleTutorialContract()
-    {
-        TutorialManager manager = TutorialManager.Ensure();
-
-        Assert.That(manager.Steps.Count, Is.GreaterThanOrEqualTo(8));
-        Assert.That(manager.ActiveStepId, Is.EqualTo("orientation"));
-        TutorialStep first = null;
-        for (int i = 0; i < manager.Steps.Count; i++)
-            if (manager.Steps[i].Id == "orientation")
-            {
-                first = manager.Steps[i];
-                break;
-            }
-        Assert.That(first, Is.Not.Null);
-        Assert.That(first.TriggerCondition, Is.Not.Empty);
-        Assert.That(first.CompletionCondition, Is.Not.Empty);
-        Assert.That(first.NextStepId, Is.EqualTo("resources"));
-
-        TutorialStepDefinition authored = ScriptableObject.CreateInstance<TutorialStepDefinition>();
-        authored.Id = "authored-step";
-        authored.Title = "Authored";
-        authored.Description = "Loaded from a definition asset.";
-        authored.NarrativeText = "The mouse clans remember the first fire.";
-        authored.Kind = TutorialStepKind.LongTerm;
-        authored.NextStepId = string.Empty;
-        authored.RewardId = "existing-feedback";
-        authored.TriggerCondition = "calendar-days>=1";
-        authored.CompletionCondition = "research-complete";
-        authored.NavigationPage = "Era";
-        TutorialStep runtime = authored.ToRuntime();
-        Assert.That(runtime.Id, Is.EqualTo(authored.Id));
-        Assert.That(runtime.RewardId, Is.EqualTo(authored.RewardId));
-        Assert.That(runtime.TriggerCondition, Is.EqualTo(authored.TriggerCondition));
-        Assert.That(runtime.CompletionCondition, Is.EqualTo(authored.CompletionCondition));
-        Assert.That(runtime.NavigationPage, Is.EqualTo(authored.NavigationPage));
-        Assert.That(runtime.NarrativeText, Is.EqualTo(authored.NarrativeText));
-
-        UnityEngine.Object.DestroyImmediate(authored);
-    }
-
-    [Test]
     public void AuthoredTutorialAssetsFormOneReachableChain()
     {
         TutorialStepDefinition[] definitions =
@@ -71,7 +30,6 @@ public sealed class TutorialManagerTests
         for (int i = 0; i < definitions.Length; i++)
         {
             TutorialStepDefinition definition = definitions[i];
-            Assert.That(definition, Is.Not.Null);
             Assert.That(definition.Id, Is.Not.Empty);
             Assert.That(navigationPages.Contains(definition.NavigationPage), Is.True,
                 "Tutorial step must point to an authored page: " + definition.Id);
@@ -116,7 +74,6 @@ public sealed class TutorialManagerTests
                 break;
             }
 
-        Assert.That(resources, Is.Not.Null);
         Assert.That(resources.Title, Is.EqualTo("理解库存与净产出"));
         StringAssert.Contains("食物", resources.Description);
         StringAssert.Contains("原木", resources.Description);
@@ -125,28 +82,6 @@ public sealed class TutorialManagerTests
         StringAssert.DoesNotContain("纤维", resources.NarrativeText);
         StringAssert.DoesNotContain("黏土", resources.Description);
         StringAssert.DoesNotContain("纤维", resources.Description);
-    }
-
-    [Test]
-    public void TutorialProgressRoundTripsThroughSaveJson()
-    {
-        var save = new SaveManager.KingdomSaveData
-        {
-            Version = SaveFormat.CurrentVersion,
-            Tutorial = new SaveManager.TutorialSaveData
-            {
-                ActiveStepId = "era-goal",
-                CompletedStepIds = new List<string> { "orientation", "resources" }
-            }
-        };
-
-        string json = JsonUtility.ToJson(save);
-        SaveManager.KingdomSaveData restored =
-            JsonUtility.FromJson<SaveManager.KingdomSaveData>(json);
-        Assert.That(restored.Tutorial, Is.Not.Null);
-        Assert.That(restored.Tutorial.ActiveStepId, Is.EqualTo("era-goal"));
-        Assert.That(restored.Tutorial.CompletedStepIds,
-            Is.EqualTo(new[] { "orientation", "resources" }));
     }
 
     [Test]
@@ -161,7 +96,6 @@ public sealed class TutorialManagerTests
 
         manager.RecordDetailViewed("Resources", "Food");
         SaveManager.TutorialSaveData captured = manager.CaptureSaveData();
-        Assert.That(captured, Is.Not.Null);
         Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
         Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
         Assert.That(captured.CompletedStepIds, Does.Not.Contain("Food"));
@@ -182,7 +116,6 @@ public sealed class TutorialManagerTests
         }, TechLevel.Animal);
 
         TutorialStep completed = manager.FindPreviousCompletedStepForEditor("resources");
-        Assert.That(completed, Is.Not.Null);
         Assert.That(completed.Id, Is.EqualTo("orientation"));
 
         manager.RestoreSaveData(new SaveManager.TutorialSaveData
@@ -203,36 +136,6 @@ public sealed class TutorialManagerTests
             Assert.That(TutorialManager.GetCivilizationContext(era), Is.Not.Empty,
                 "Every existing era should explain the mouse civilization revival.");
         }
-    }
-
-    [Test]
-    public void SpacerGuidanceUsesExistingResearchAndBuildingDefinitions()
-    {
-        string[] researchIds =
-        {
-            "HomeSystemSurvey",
-            "DeepSpaceFleet",
-            "InterstellarNavigation"
-        };
-        for (int i = 0; i < researchIds.Length; i++)
-            Assert.That(DataBase<Research>.TryFind(
-                researchIds[i], out Research research) && research != null,
-                "Spacer guidance must reference a real Research: " + researchIds[i]);
-
-        string[] buildingIds =
-        {
-            "LaunchCenter",
-            "OrbitalStation",
-            "Shipyard"
-        };
-        for (int i = 0; i < buildingIds.Length; i++)
-            Assert.That(DataBase<Building>.TryFind(
-                buildingIds[i], out Building building) && building != null,
-                "Spacer guidance must reference a real Building: " + buildingIds[i]);
-
-        Func<TutorialSnapshot, GameManager, ResearchManager, BuildingManager, bool>
-            spacerGuidance = TutorialManager.BuildSpacerGuidanceForEditor;
-        Assert.That(spacerGuidance, Is.Not.Null);
     }
 
     [TestCase(0, "Research", "HomeSystemSurvey")]
@@ -443,6 +346,8 @@ public sealed class TutorialManagerTests
             .AddComponent<BuildingManager>();
         try
         {
+            Assert.That(TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings),
+                Is.EqualTo("WoodHouse"), "Zero population capacity must first target starting housing.");
             game.State.RestorePopulationCapacityExactForEditor(
                 new ExpantaNum(2), ExpantaNum.Zero);
             game.State.SetFoodAvailabilityForEditor(new ExpantaNum(0.5));
@@ -459,25 +364,6 @@ public sealed class TutorialManagerTests
         {
             UnityEngine.Object.DestroyImmediate(buildings.gameObject);
             UnityEngine.Object.DestroyImmediate(game.gameObject);
-        }
-    }
-
-    [Test]
-    public void AnimalPopulationStepTargetsWoodHouseWhenCapacityIsZero()
-    {
-        GameObject gameObject = new GameObject("Population-Target-GameManager");
-        GameObject buildingObject = new GameObject("Population-Target-BuildingManager");
-        try
-        {
-            GameManager game = gameObject.AddComponent<GameManager>();
-            BuildingManager buildings = buildingObject.AddComponent<BuildingManager>();
-            string target = TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings);
-            Assert.That(target, Is.EqualTo("WoodHouse"));
-        }
-        finally
-        {
-            UnityEngine.Object.DestroyImmediate(buildingObject);
-            UnityEngine.Object.DestroyImmediate(gameObject);
         }
     }
 

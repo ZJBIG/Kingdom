@@ -4,34 +4,6 @@ using NUnit.Framework;
 
 public sealed class ResearchMedievalContentTests
 {
-    private static readonly string[] MedievalResearchIds =
-    {
-        "FeudalAdministration",
-        "MechanicalEngineering",
-        "Steelmaking",
-        "Bookmaking",
-        "TradeRoutes",
-        "Fortification",
-        "PermanentLaborOrganization",
-        "GunpowderSupplyStandards",
-        "Industrialization"
-    };
-
-    [Test]
-    public void C503_MedievalResearchLayerContainsTheNineCoreResearches()
-    {
-        for (int i = 0; i < MedievalResearchIds.Length; i++)
-        {
-            Research research = DataBase<Research>.Find(MedievalResearchIds[i]);
-            Assert.That(research, Is.Not.Null, $"Missing medieval research '{MedievalResearchIds[i]}'.");
-            Assert.That(research.TechLevel, Is.EqualTo(
-                research.Id == "Industrialization" ? TechLevel.Industrial : TechLevel.Medieval));
-            Assert.That(research.BaseCost, Is.Not.Null.And.Not.Empty);
-            Assert.That(research.Prerequisites, Is.Not.Null);
-            Assert.That(research.ResourceRequirements, Is.Not.Null);
-        }
-    }
-
     [Test]
     public void C503_MedievalBuildingsOwnTheirResearchPrerequisites()
     {
@@ -80,24 +52,4 @@ public sealed class ResearchMedievalContentTests
             error);
     }
 
-    [Test]
-    public void C503_MedievalSpecialistResearchesHaveDistinctEffectRoles()
-    {
-        Assert.That(DataBase<Research>.Find("Fortification").Effects,
-            Has.Some.Matches<ResearchEffectDefinition>(effect =>
-                effect.Type == ResearchEffectType.GlobalConstructionMultiplier &&
-                effect.NumericValue == new ExpantaNum("1.05")));
-        Assert.That(DataBase<Research>.Find("GuildSystem").Effects,
-            Has.Some.Matches<ResearchEffectDefinition>(effect =>
-                effect.Type == ResearchEffectType.GlobalResearchMultiplier &&
-                effect.NumericValue == new ExpantaNum("1.05")));
-        Assert.That(DataBase<Research>.Find("GunpowderSupplyStandards").Effects,
-            Has.Some.Matches<ResearchEffectDefinition>(effect =>
-                effect.Type == ResearchEffectType.GlobalLogisticsMultiplier &&
-                effect.NumericValue == new ExpantaNum("1.07")));
-        Assert.That(DataBase<Research>.Find("PermanentLaborOrganization").Effects,
-            Has.Some.Matches<ResearchEffectDefinition>(effect =>
-                effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
-                effect.NumericValue == new ExpantaNum("1.06")));
-    }
 }

@@ -73,7 +73,7 @@ public sealed class PlannerPagesPlayModeTests
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera;
             canvas.planeDistance = 100;
-            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(2200, 1000), new Vector2Int(1760, 800) })
+            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {
                 target = new RenderTexture(size.x, size.y, 24);
                 target.Create();

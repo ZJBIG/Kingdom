@@ -263,7 +263,6 @@ public sealed class RelicPlayModeTests
         Assert.That(scroll.enabled, Is.False, "Native ScrollRect owns geometry; the existing detail gesture owns scrolling.");
         Assert.That(scroll.vertical, Is.True);
         UIDetailRequirementScrollGesture gesture = scroll.GetComponent<UIDetailRequirementScrollGesture>();
-        Assert.That(gesture, Is.Not.Null);
         Assert.That(gesture.isActiveAndEnabled, Is.True);
         Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height));
         float positionBefore = scroll.content.anchoredPosition.y;
@@ -360,7 +359,6 @@ public sealed class RelicPlayModeTests
     private void Click(string path)
     {
         Button button = ui.RelicActionsForEditor.Find(path)?.GetComponent<Button>();
-        Assert.That(button, Is.Not.Null, path);
         Assert.That(button.gameObject.activeInHierarchy && button.interactable, Is.True, path);
         button.onClick.Invoke();
     }

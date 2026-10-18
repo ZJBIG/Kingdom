@@ -20,6 +20,7 @@ public sealed class PopulationState
     private ExpantaNum population;
     private ExpantaNum populationCapacity;
     private ExpantaNum populationChangeProgress;
+    [NonSerialized] private bool? foodShortageDepartureMode;
 
     public ExpantaNum Population => population;
     public ExpantaNum PopulationCapacity => populationCapacity;
@@ -33,6 +34,7 @@ public sealed class PopulationState
         population = ExpantaNum.Zero;
         populationCapacity = ExpantaNum.Zero;
         populationChangeProgress = ExpantaNum.Zero;
+        foodShortageDepartureMode = null;
         Version++;
     }
 
@@ -69,6 +71,7 @@ public sealed class PopulationState
             throw new ArgumentOutOfRangeException(nameof(restoredPopulation));
         population = restoredPopulation;
         populationChangeProgress = ExpantaNum.Zero;
+        foodShortageDepartureMode = null;
         Version++;
     }
 
@@ -77,12 +80,9 @@ public sealed class PopulationState
         EnsureFinite(restoredProgress, nameof(restoredProgress));
         if (restoredProgress < ExpantaNum.Zero || restoredProgress > ExpantaNum.One)
             throw new ArgumentOutOfRangeException(nameof(restoredProgress));
-        ExpantaNum next = population == populationCapacity
-            ? ExpantaNum.Zero
-            : restoredProgress;
-        if (populationChangeProgress == next)
+        if (populationChangeProgress == restoredProgress)
             return;
-        populationChangeProgress = next;
+        populationChangeProgress = restoredProgress;
         Version++;
     }
 
@@ -116,8 +116,9 @@ public sealed class PopulationState
         EnsureFinite(restoredCapacity, nameof(restoredCapacity));
         EnsureFinite(restoredProgress, nameof(restoredProgress));
         ExpantaNum nextCapacity = NormalizeWhole(restoredCapacity);
-        ExpantaNum nextProgress = population == nextCapacity
-            ? ExpantaNum.Zero
+        // Saves allow one complete pending step; rollback must preserve it.
+        ExpantaNum nextProgress = restoredProgress == ExpantaNum.One
+            ? restoredProgress
             : NormalizeProgress(restoredProgress);
         if (populationCapacity == nextCapacity && populationChangeProgress == nextProgress)
             return;
@@ -138,6 +139,12 @@ public sealed class PopulationState
         EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
         EnsureFinite(growthRatePerSecond, nameof(growthRatePerSecond));
         EnsureFinite(departureAllowance, nameof(departureAllowance));
+        if (deltaSeconds == 0d)
+            return;
+        if (foodShortageDepartureMode.HasValue &&
+            foodShortageDepartureMode.Value != foodShortageDepartureAllowed)
+            SetPopulationChangeProgress(ExpantaNum.Zero);
+        foodShortageDepartureMode = foodShortageDepartureAllowed;
         if (foodShortageDepartureAllowed)
         {
             AdvanceFoodShortageDeparture(deltaSeconds, happinessMultiplier);

@@ -4,18 +4,6 @@ using System.Collections.Generic;
 public sealed class SpaceContentTests
 {
     [Test]
-    public void C702_SpaceResourcesHaveStableIdsAndSpaceCategory()
-    {
-        Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
-        Resource composite = DataBase<Resource>.Find("Composite");
-
-        Assert.That(rocketFuel.Id, Is.EqualTo("RocketFuel"));
-        Assert.That(composite.Id, Is.EqualTo("Composite"));
-        Assert.That(string.IsNullOrWhiteSpace(rocketFuel.Label), Is.False);
-        Assert.That(string.IsNullOrWhiteSpace(composite.Label), Is.False);
-    }
-
-    [Test]
     public void C702_SpaceBuildingsUseSpacerTechLevelAndStableIds()
     {
         Building launchCenter = DataBase<Building>.Find("LaunchCenter");
@@ -68,7 +56,6 @@ public sealed class SpaceContentTests
         {
             WorkshopUpgrade workshop =
                 DataBase<WorkshopUpgrade>.Find(workshopIds[i]);
-            Assert.That(workshop, Is.Not.Null, workshopIds[i]);
             Assert.That(workshop.Label, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(workshop.Description, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(string.IsNullOrWhiteSpace(workshop.Label), Is.False, workshopIds[i]);
@@ -94,7 +81,6 @@ public sealed class SpaceContentTests
         for (int i = 0; i < suppliedBuildingIds.Length; i++)
         {
             Building building = DataBase<Building>.Find(suppliedBuildingIds[i]);
-            Assert.That(building, Is.Not.Null, suppliedBuildingIds[i]);
             Assert.That(building.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero), suppliedBuildingIds[i]);
         }
 

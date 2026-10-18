@@ -8,5 +8,7 @@
   <ItemGroup>
     <Compile Include="..\..\Assets\Resources\Script\Math\ExpantaNum.cs" Link="ExpantaNum.cs" />
     <Compile Include="..\..\Assets\Resources\Script\Math\ExpantaNumExtensions.cs" Link="ExpantaNumExtensions.cs" />
+    <Compile Include="..\..\Assets\Resources\Script\Runtime\PopulationState.cs" Link="PopulationState.cs" />
+    <Compile Include="..\..\Assets\Resources\Script\Runtime\HappinessFormula.cs" Link="HappinessFormula.cs" />
   </ItemGroup>
 </Project>

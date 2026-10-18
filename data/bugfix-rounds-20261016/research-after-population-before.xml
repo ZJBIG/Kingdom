@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Failed(Child)" total="6" passed="4" failed="2" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:01Z" duration="0.7774363">
+  <test-suite type="TestSuite" id="2136" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="999" result="Failed" site="Child" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:01Z" duration="0.777436" total="6" passed="4" failed="2" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3262" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="998" result="Failed" site="Child" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:01Z" duration="0.750550" total="6" passed="4" failed="2" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="41868" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2422" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="166" result="Failed" site="Child" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:00Z" duration="0.093719" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2516" name="PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" fullname="KingdomLogicTests.PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" methodname="PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1377801333" result="Failed" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:00Z" duration="0.034569" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: 0.999d +/- 9.9999999999999995E-07d
+  But was:  0.99907999999999997d
+]]></message>
+            <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress () [0x00055] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1739
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2515" name="PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" fullname="KingdomLogicTests.PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" methodname="PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" classname="KingdomLogicTests" runstate="Runnable" seed="586641815" result="Failed" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:00Z" duration="0.002219" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: 0.999d +/- 9.9999999999999995E-07d
+  But was:  0.99902000000000002d
+]]></message>
+            <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress () [0x0004c] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1721
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="2517" name="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" fullname="KingdomLogicTests.PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" methodname="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" classname="KingdomLogicTests" runstate="Runnable" seed="1588247388" result="Passed" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:00Z" duration="0.020133" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2783" name="ResearchPaymentAutoTests" fullname="ResearchPaymentAutoTests" classname="ResearchPaymentAutoTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:01Z" duration="0.624913" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2785" name="OfflineTickTransfersCompletionRemainderToNextResearch" fullname="ResearchPaymentAutoTests.OfflineTickTransfersCompletionRemainderToNextResearch" methodname="OfflineTickTransfersCompletionRemainderToNextResearch" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="1730641498" result="Passed" start-time="2026-10-16 14:44:00Z" end-time="2026-10-16 14:44:01Z" duration="0.591328" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2786" name="ResearchActionAutomaticallyPaysReadyQueueHead" fullname="ResearchPaymentAutoTests.ResearchActionAutomaticallyPaysReadyQueueHead" methodname="ResearchActionAutomaticallyPaysReadyQueueHead" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="1744983477" result="Passed" start-time="2026-10-16 14:44:01Z" end-time="2026-10-16 14:44:01Z" duration="0.009817" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2784" name="StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" fullname="ResearchPaymentAutoTests.StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" methodname="StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="808234707" result="Passed" start-time="2026-10-16 14:44:01Z" end-time="2026-10-16 14:44:01Z" duration="0.022599" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

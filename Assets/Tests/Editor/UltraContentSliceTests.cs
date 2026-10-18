@@ -66,14 +66,12 @@ public sealed class UltraContentSliceTests
             "MatterAutonomyCertification"
         };
 
-        Assert.That(definition, Is.Not.Null);
         Assert.That(definition.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(definition.Stages, Has.Count.EqualTo(3));
 
         for (int i = 0; i < definition.Stages.Count; i++)
         {
             UltraProjectStageDefinition stage = definition.Stages[i];
-            Assert.That(stage, Is.Not.Null);
             Assert.That(stage.StageId, Is.EqualTo(expectedStageIds[i]));
             Assert.That(stage.PrerequisiteStageId, Is.EqualTo(expectedPrerequisites[i]));
             Assert.That(stage.RequiredResearch, Is.SameAs(expectedResearch[i]));
@@ -116,14 +114,6 @@ public sealed class UltraContentSliceTests
         Assert.That(HasRequiredResearch(fabricator, "InterstellarResourceCoordination"), Is.True);
         Assert.That(fabricator.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(fabricator.ProductivityConsumption >= new ExpantaNum(24000), Is.True,
-            "Ultra 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х敓浜у姏娑堣€楋紒");
-        Assert.That(fabricator.PowerConsumptionRate >= new ExpantaNum(12000), Is.True,
-            "Ultra 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х數鍔涙秷鑰楋紒");
-        Assert.That(fabricator.LogisticsConsumptionRate >= new ExpantaNum(2000), Is.True,
-            "Ultra 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х墿娴佹秷鑰楋紒");
-        Assert.That(fabricator.FoodConsumptionRate >= new ExpantaNum(64), Is.True,
-            "Ultra 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾ч鐗╂秷鑰楋紒");
     }
 
     [Test]

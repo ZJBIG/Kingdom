@@ -60,7 +60,7 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator BuildingBatchAvailability_DetailsFollowSelectedQuantity()
+    public IEnumerator BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput()
     {
         yield return Load();
         Building building = DataBase<Building>.Find("WoodHouse");
@@ -83,6 +83,20 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(ui.GetDeconstructButtonForEditor(building).transform.parent.Find("BuildButton").GetComponent<Button>().interactable, Is.False);
         controls.Find("Quantity_One").GetComponent<Button>().onClick.Invoke();
         Assert.That(body.text, Is.EqualTo(singleStatus));
+
+        TMP_InputField input = controls.Find("CustomQuantityInput").GetComponent<TMP_InputField>();
+        AssertTextVisuallyCentered((TMP_Text)input.placeholder);
+        input.SetTextWithoutNotify("12345");
+        yield return null;
+        AssertTextVisuallyCentered(input.textComponent);
+        RectMask2D mask = input.GetComponent<RectMask2D>();
+        Assert.That(mask, Is.Not.Null, "The quantity field owns its clipping boundary.");
+        input.SetTextWithoutNotify(new string('9', 100));
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        Assert.That(input.textComponent.canvasRenderer.hasRectClipping, Is.True,
+            "Long quantities must be clipped before reaching neighboring controls.");
+        input.SetTextWithoutNotify(string.Empty);
     }
 
     [UnityTest]
@@ -213,26 +227,6 @@ public sealed class ReviewInteractionPlayModeTests
         Vector2 slot = text.rectTransform.rect.center;
         if (horizontal) Assert.That(Mathf.Abs(center.x - slot.x), Is.LessThan(text.fontSize * .12f), text.name + " horizontal glyph center");
         Assert.That(Mathf.Abs(center.y - slot.y), Is.LessThan(text.fontSize * .12f), text.name + " vertical glyph center");
-    }
-
-    [UnityTest]
-    public IEnumerator BuildingQuantityInput_CentersShortValuesAndClipsLongText()
-    {
-        yield return Load();
-        ui.SetPage("Buildings");
-        TMP_InputField input = ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/CustomQuantityInput").GetComponent<TMP_InputField>();
-        AssertTextVisuallyCentered((TMP_Text)input.placeholder);
-        input.SetTextWithoutNotify("12345");
-        yield return null;
-        AssertTextVisuallyCentered(input.textComponent);
-        RectMask2D mask = input.GetComponent<RectMask2D>();
-        Assert.That(mask, Is.Not.Null, "The quantity field owns its clipping boundary.");
-        input.SetTextWithoutNotify(new string('9', 100));
-        Canvas.ForceUpdateCanvases();
-        yield return null;
-        Assert.That(input.textComponent.canvasRenderer.hasRectClipping, Is.True,
-            "Long quantities must be clipped before reaching neighboring controls.");
-        input.SetTextWithoutNotify(string.Empty);
     }
 
     [UnityTest]
@@ -382,7 +376,6 @@ public sealed class ReviewInteractionPlayModeTests
                 { target = upgrade; targetRow = candidate.transform.parent; break; }
             if (target != null) break;
         }
-        Assert.That(target, Is.Not.Null, "The real workshop contains an unlocked upgrade with a material cost.");
         Resource spent = target.ResourceRequirements[0].First;
         TMP_Text tooltip = ui.transform.Find("SafeAreaRoot/Tooltip/Text").GetComponent<TMP_Text>();
         ResourceManager.Instance.SetAmount(spent, ExpantaNum.Zero);
@@ -517,7 +510,6 @@ public sealed class ReviewInteractionPlayModeTests
             if (gesture != null && gesture.IsInitialized) break;
             yield return null;
         }
-        Assert.That(gesture, Is.Not.Null);
         Assert.That(gesture.IsInitialized, Is.True);
         RectTransform viewport = (RectTransform)gesture.transform;
         RectTransform graph = (RectTransform)viewport.Find("ResearchGraphContent");

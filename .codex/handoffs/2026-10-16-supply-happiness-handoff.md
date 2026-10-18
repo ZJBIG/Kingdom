@@ -87,3 +87,22 @@ SimulationCore.cs 同步实际农场供给、每轮/候选/最终食物满足率
 当前最终证据统一见 `data/supply-happiness-20261016/current-review.md`，输入 SHA256 为 `source-inputs-current.json`。真实 Unity EditMode 三类共39/39、0跳过，1.5997477s，短集成0.674890s；原生退出仍超时，自有包装器60s后清理进程exit1，不是正常 runner退出。测试程序集编译exit0（6既有警告）；静态闭包exit0、模型诊断23/23。相关git diff --check通过。当前无自有Unity进程或临时项目残留；本轮未运行PlayMode、未做全仓库测试。
 
 本轮请求的代码修复、旧断言清理和算法说明已完成。下一次若用户要求运行验证，按其范围运行精简后的PlayMode；不自动重试原生退出、不回到Hub/许可证追问，也不将本轮针对性证据说成完整项目验收。
+
+
+## 2026-10-17 大规模测试精简续接
+
+用户明确授权大幅删除普通重复断言、无意义精度断言、旧测试和死代码，继续不运行PlayMode。本轮55份测试净删1571行、561处断言、56个普通测试方法和3个参数用例；PlayMode占291行/158断言/3个方法。保留行为、交易、守恒、非法输入和存档兼容检查，玩法6份既有修改SHA256未变。删减范围和基线见data/test-slimming-20261017/review.md、baseline.json、after.json、summary.json；开始前已有改动另存pre-existing-changes.patch。
+
+开发测试程序集编译exit0，0errors/6既有警告。真实Unity首次导入60秒无XML；缓存后26类439项438通过1项旧容量断言失败（保留XML），修正该中间状态检查后KingdomLogicTests整类158/158通过、0跳过、2.2346202s，其余281项来自前批次通过结果。Unity测试完成后仍原生退出挂起，60秒清理自启动进程，runner exit1；不重复环境诊断，不称正常runner通过。未运行PlayMode/全套，不声称静态删减已证明实际加速。最终输入test-inputs.json；git diff --check通过。下一动作如继续精简，优先找重复夹具/场景加载，保留独有行为与此前玩法回归，不自动push。
+
+
+## 2026-10-17 第二轮测试精简
+
+用户要求继续，不再确认。13份测试又净删665行、134处断言、25个普通方法（Editor21、PlayMode4）；第一轮以来累计2236行/695断言/81普通方法/3参数。清理重复定义目标与职责扫描、旧结构反射、复制平衡数值和无引用helpers；合并高级材料source/sink与星区重复检查。PlayMode导航/滚动/反馈/教程绑定迁入已有真实交互测试，减少4次独立scene load，独有行为保留。生产6文件hash仍匹配既有修复；没有commit/push。
+
+开发测试程序集编译exit0，0errors/6既有警告；真实Unity EditMode9类121/121、0跳过、1.0873103s。Unity结果落盘后仍退出挂起，60秒清理自启动PID，runner exit1。未运行PlayMode/全套，不声称实测提速。相关diff --check通过，无空测试/未引用private方法候选。详见data/test-slimming-20261017/round2/review.md、editmode.xml/log、test-inputs.json和summary.json；旧失败证据保留。后续继续按重复夹具与行为重叠清理，不删除独有失败路径、资源守恒、支付原子性或存档协议检查。
+
+
+## 第三轮测试精简收尾及任务切换
+
+16份测试净删229行/41断言/12普通标记，时代4状态改参数化保留（TestCase+2）。三轮累计2465行/736断言/93普通标记。合并章节子集、人口导航状态序列、重复Ultra恢复、Pin与root身份检查；5处渲染去掉同aspect中间尺寸，Review合并少一次加载。真实Unity EditMode10类95/95、0跳过、1.6483717s；开发编译exit0/0errors/6既有警告；Unity写XML后60s退出挂起被包装器终止exit1，未运行PlayMode。diff --check通过。证据data/test-slimming-20261017/round3/review.md及同目录XML/log/manifest。用户已转向实际游戏运行代码重构，后续不再精简测试；先查调用链、只删除确认dead code或合并行为相同实现，不借机调玩法。

@@ -134,7 +134,6 @@ public sealed class KingdomPageBoundaryPlayModeTests
             Canvas.ForceUpdateCanvases();
             Debug.Log("[PageBoundarySettledScroll] page=" + page + " normalized=" + scroll.verticalNormalizedPosition + " pos=" + scroll.content.anchoredPosition + " content=" + scroll.content.rect.size);
             TMP_Text last = LastActiveText(scroll.content);
-            Assert.That(last, Is.Not.Null, page + " contains actual text.");
             last.ForceMeshUpdate();
             Vector3[] corners = new Vector3[4];
             last.rectTransform.GetWorldCorners(corners);

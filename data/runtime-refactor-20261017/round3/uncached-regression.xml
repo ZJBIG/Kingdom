@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 04:04:15Z" end-time="2026-10-18 04:04:15Z" duration="0.3142285">
+  <test-suite type="TestSuite" id="2065" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="924" result="Failed" site="Child" start-time="2026-10-18 04:04:15Z" end-time="2026-10-18 04:04:15Z" duration="0.314229" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3120" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="923" result="Failed" site="Child" start-time="2026-10-18 04:04:15Z" end-time="2026-10-18 04:04:15Z" duration="0.300942" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="16020" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2216" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="28" result="Failed" site="Child" start-time="2026-10-18 04:04:15Z" end-time="2026-10-18 04:04:15Z" duration="0.287382" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2249" name="WorkshopPreview_UnchangedModifiersAllocateLessThanRebuilding" fullname="EconomyIntegrationRegressionTests.WorkshopPreview_UnchangedModifiersAllocateLessThanRebuilding" methodname="WorkshopPreview_UnchangedModifiersAllocateLessThanRebuilding" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="2089054406" result="Failed" start-time="2026-10-18 04:04:15Z" end-time="2026-10-18 04:04:15Z" duration="0.273450" asserts="0">
+          <properties>
+            <property name="Category" value="Performance" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Reusing the candidate must remove most allocation; minor recorder noise is not an improvement.
+  Expected: less than 6950
+  But was:  15600
+]]></message>
+            <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.WorkshopPreview_UnchangedModifiersAllocateLessThanRebuilding () [0x00114] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1106
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[Workshop preview: unchanged=1950 bytes/call, rebuild=1737 bytes/call
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

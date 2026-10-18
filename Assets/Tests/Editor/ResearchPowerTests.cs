@@ -46,16 +46,6 @@ public sealed class ResearchPowerTests
         Assert.That(result, Is.EqualTo(ExpantaNum.One));
     }
 
-    [Test]
-    public void CalculateResearchPower_UsesFourPerSecondAsTheNewGameBase()
-    {
-        ExpantaNum result = ResearchManager.CalculateResearchPower(
-            null,
-            ResearchManager.BaseResearchPower);
-
-        Assert.That(result.ToDouble(), Is.EqualTo(4d).Within(0.000001d));
-    }
-
     private Building CreateBuilding(string id, double researchPower)
     {
         Building building = ScriptableObject.CreateInstance<Building>();

@@ -4,13 +4,14 @@ This directory contains the replacement simulator foundation and its maintenance
 
 ## Snapshot contract
 
-The current strongly typed snapshot format is version `3`. The Unity editor
+The current strongly typed snapshot format is version `4`. The Unity editor
 exporter resolves each definition through its Unity `.meta` GUID, orders stable
-IDs with ordinal comparison, and writes every economy value as an
+IDs within each definition type with ordinal comparison, preserves research queue
+order, and writes every economy value as an
 `ExpantaNum` string produced by `ToString` after a successful `TryParse`.
 Effects carry independent `BuildingId` and `ResourceId` fields because a
 runtime effect can target both. The loader rejects unsupported versions,
-missing or duplicate IDs/GUIDs, unresolved references, duplicate resource
+missing or same-type duplicate IDs, duplicate GUIDs, unresolved typed references, duplicate resource
 pairs, invalid numbers, and incomplete initial/save/runtime state coverage.
 
 ## Validation coverage
@@ -23,6 +24,8 @@ The executable validation suite checks:
 - ordinary resources have no capacity and can grow past the Food-cap probe;
 - Food has one positive capacity and clamps attempted overfill;
 - Research payment is atomic: an unaffordable multi-resource payment changes nothing, while an affordable payment deducts every cost before activation;
+- population advances through the linked Runtime `PopulationState`, including zero-time and growth/departure transitions;
+- food coverage splits fed and unfed time, and queued Research respects head blocking and online/offline remainder rules;
 - save/restore preserves tick, elapsed time, resources, Food, Food capacity, and Research state.
 
 The deterministic, ordinary-resource, and Food checks run through `SimulationCore`, `SimulationState`, `ISimulationRules`, and `SimulationEventLog`. Research and save/restore are validation adapters around the current public state API because the core does not expose dedicated Research or persistence services.
@@ -72,3 +75,17 @@ Early-era steps preserve short research, Food and production boundaries. Later
 steps reduce long-horizon work while remaining no larger than Unity's 60-second
 offline settlement step. Tick events record era, requested seconds and
 effective seconds for first-difference diagnosis.
+
+Happiness calculations reuse Runtime `HappinessFormula`. Research and subsequent
+population stages read happiness using the current population; resource rewards
+remain fixed at preparation time to preserve the settled input budget, as in
+`SimulationManager`. Population-change progress is restored after deriving housing
+capacity and is included in detailed summaries. Version 3 snapshots must be
+recaptured: they omitted this progress and alphabetized the research queue.
+This snapshot version is independent of the game save format (v1).
+Resource definitions also export the fixed `BaseProductionRate` (the starting
+wood supply). This production participates in input budgets and receives the
+same happiness reward as Runtime; it is separate from building production.
+Save/runtime snapshots include zero amounts for uninstantiated buildings without
+creating Manager state. Sectors use their domain/system gates and have no
+Runtime TechLevel.

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class EconomyParitySnapshotExporter
 {
-    public const int FormatVersion = 3;
+    public const int FormatVersion = 4;
     public const string DefaultRelativePath = "data/economy-parity/UnitySnapshot.json";
 
     [MenuItem("Kingdom/Economy/Export parity snapshot")]
@@ -97,7 +97,8 @@ public static class EconomyParitySnapshotExporter
     private static ResourceDto Resource(Resource value) => new ResourceDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value),
-        TechLevel = value.TechLevel.ToString(), Label = value.Label, Description = value.Description
+        TechLevel = value.TechLevel.ToString(), Label = value.Label, Description = value.Description,
+        BaseProductionRate = Number(ResourceManager.IsStartingResource(value) ? ExpantaNum.One : ExpantaNum.Zero)
     };
 
     private static BuildingDto Building(Building value) => new BuildingDto
@@ -173,8 +174,13 @@ public static class EconomyParitySnapshotExporter
     private static RuntimeStateDto CaptureRuntimeState()
     {
         RuntimeStateDto dto = CopyRuntime(FromSave(SaveManager.Instance.CaptureSaveData()));
-        dto.Buildings = BuildingManager.Instance.States.Values.OrderBy(x => x.Definition.Id, StringComparer.Ordinal)
-            .Select(x => new BuildingStateDto { BuildingId = x.Definition.Id, Amount = Number(x.Amount), Efficiency = Number(x.Efficiency) }).ToList();
+        dto.Buildings = AllBuildings().Select(definition =>
+        {
+            BuildingManager.Instance.States.TryGetValue(definition, out BuildingState state);
+            return new BuildingStateDto { BuildingId = definition.Id,
+                Amount = Number(state?.Amount ?? ExpantaNum.Zero),
+                Efficiency = Number(state?.Efficiency ?? ExpantaNum.One) };
+        }).ToList();
         dto.Research = ResearchManager.Instance.States.Values.OrderBy(x => x.Definition.Id, StringComparer.Ordinal)
             .Select(x => new ResearchStateDto { ResearchId = x.Definition.Id, Progress = Number(x.Progress), CostPaid = x.CostPaid,
                 Completed = x.Status == ResearchStatus.Completed,
@@ -199,22 +205,27 @@ public static class EconomyParitySnapshotExporter
             throw new InvalidDataException("The captured save is missing a required state list.");
 
         SaveManager.GameSaveData game = save.General;
+        var savedBuildings = save.Buildings.Buildings.ToDictionary(x => x.BuildingId, StringComparer.Ordinal);
         return new SaveStateDto
         {
             TechLevel = game.TechLevel.ToString(), Food = Number(game.FoodAmount), FoodCapacity = Number(GameManager.Instance.State.FoodCapacity),
-            CalendarDays = game.CalendarDays, Population = Number(game.Population), TerritoryTotal = Number(game.TerritoryTotal),
+            CalendarDays = game.CalendarDays, Population = Number(game.Population), PopulationChangeProgress = Number(game.PopulationChangeProgress), TerritoryTotal = Number(game.TerritoryTotal),
             AttackPower = Number(game.AttackPower), DefensePower = Number(game.DefensePower), FleetPower = Number(game.FleetPower),
             MilitaryManpower = Number(game.MilitaryManpower), SupplySatisfaction = Number(game.SupplySatisfaction),
             PowerSatisfaction = Number(game.PowerSatisfaction), LogisticsSatisfaction = Number(game.LogisticsSatisfaction),
             CampaignActive = game.CampaignActive, CampaignTargetSectorId = game.CampaignTargetSectorId,
             CampaignCasualties = Number(game.CampaignCasualties), CampaignCombatRatio = Number(game.CampaignCombatRatio),
             ActiveResearchId = save.Researches.ActiveResearchId,
-            QueuedResearchIds = save.Researches.QueuedResearchIds.OrderBy(x => x, StringComparer.Ordinal).ToList(),
+            QueuedResearchIds = save.Researches.QueuedResearchIds.ToList(),
             LastSaveUnixSeconds = game.LastSaveUnixSeconds,
             Resources = save.Resources.Resources.OrderBy(x => x.ResourceId, StringComparer.Ordinal)
                 .Select(x => new AmountDto { ResourceId = x.ResourceId, Value = Number(x.Amount) }).ToList(),
-            Buildings = save.Buildings.Buildings.OrderBy(x => x.BuildingId, StringComparer.Ordinal)
-                .Select(x => new BuildingStateDto { BuildingId = x.BuildingId, Amount = Number(x.Amount), Efficiency = Number(ExpantaNum.One) }).ToList(),
+            Buildings = AllBuildings().Select(definition => new BuildingStateDto
+            {
+                BuildingId = definition.Id,
+                Amount = savedBuildings.TryGetValue(definition.Id, out var saved) ? Number(saved.Amount) : Number(ExpantaNum.Zero),
+                Efficiency = Number(ExpantaNum.One)
+            }).ToList(),
             Research = save.Researches.States.OrderBy(x => x.ResearchId, StringComparer.Ordinal)
                 .Select(x => new ResearchStateDto { ResearchId = x.ResearchId, Progress = Number(x.Progress), CostPaid = x.CostPaid, Completed = x.Completed,
                     PaidResourceCosts = (x.PaidResourceCosts == null
@@ -233,7 +244,7 @@ public static class EconomyParitySnapshotExporter
     {
         TechLevel = value.TechLevel, Food = value.Food, FoodCapacity = value.FoodCapacity, Resources = value.Resources,
         Buildings = value.Buildings, Research = value.Research, PurchasedWorkshopIds = value.PurchasedWorkshopIds, Sectors = value.Sectors,
-        CalendarDays = value.CalendarDays, Population = value.Population, TerritoryTotal = value.TerritoryTotal,
+        CalendarDays = value.CalendarDays, Population = value.Population, PopulationChangeProgress = value.PopulationChangeProgress, TerritoryTotal = value.TerritoryTotal,
         AttackPower = value.AttackPower, DefensePower = value.DefensePower, FleetPower = value.FleetPower,
         MilitaryManpower = value.MilitaryManpower, SupplySatisfaction = value.SupplySatisfaction,
         PowerSatisfaction = value.PowerSatisfaction, LogisticsSatisfaction = value.LogisticsSatisfaction,
@@ -267,7 +278,7 @@ public static class EconomyParitySnapshotExporter
             string id = definition.Id?.Trim() ?? string.Empty;
             if (id.Length == 0)
                 throw new InvalidDataException($"Missing stable ID in {kind} definitions.");
-            if (!ids.Add(id))
+            if (!ids.Add(kind + ":" + id))
                 throw new InvalidOperationException($"Duplicate stable ID '{id}' in {kind} definitions.");
             if (definition.Guid == null || definition.Guid.Length != 32 || !definition.Guid.All(Uri.IsHexDigit))
                 throw new InvalidDataException($"Invalid Unity GUID for {kind} '{id}'.");
@@ -395,7 +406,7 @@ public static class EconomyParitySnapshotExporter
 }
 
 [Serializable] public class DefinitionDto { public string Id=""; public string Guid=""; public string AssetPath=""; public string TechLevel=""; }
-[Serializable] public sealed class ResourceDto : DefinitionDto { public string Label=""; public string Description=""; }
+[Serializable] public sealed class ResourceDto : DefinitionDto { public string BaseProductionRate="0"; public string Label=""; public string Description=""; }
 [Serializable] public sealed class BuildingDto : DefinitionDto { public string CostGrowth="1.15"; public string SpaceCost="0"; public string ProductivityConsumption="0"; public string ProductivityGranted="0"; public string FoodProductionRate="0"; public string FoodConsumptionRate="0"; public string FoodCapacityGranted="0"; public string PowerProductionRate="0"; public string PowerConsumptionRate="0"; public string LogisticsProductionRate="0"; public string LogisticsConsumptionRate="0"; public string ResearchPowerGranted="0"; public string PopulationCapacityGranted="0"; public string FleetPowerGranted="0"; public string AttackPowerGranted="0"; public string DefensePowerGranted="0"; public string MilitaryManpowerGranted="0"; public string UpgradeToId=""; public List<AmountDto> ResourceRequirements=new(); public List<AmountDto> ResourceGenerationRates=new(); public List<AmountDto> ResourceConsumptionRates=new(); public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public string SectorId=""; }
 [Serializable] public sealed class ResearchDto : DefinitionDto { public string BaseCost="0"; public bool AdvancesTechLevel; public List<string> PrerequisiteIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
 [Serializable] public sealed class WorkshopDto : DefinitionDto { public string Label=""; public string Description=""; public int SortOrder; public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
@@ -403,7 +414,7 @@ public static class EconomyParitySnapshotExporter
 [Serializable] public sealed class AmountDto { public string ResourceId=""; public string Value="0"; }
 [Serializable] public sealed class EffectDto { public string Type=""; public string BuildingId=""; public string ResourceId=""; public string Value="1"; }
 [Serializable] public class StateDto { public string TechLevel="Animal"; public string Food="0"; public string FoodCapacity="1"; public List<AmountDto> Resources=new(); public List<BuildingStateDto> Buildings=new(); public List<ResearchStateDto> Research=new(); public List<string> PurchasedWorkshopIds=new(); public List<SectorStateDto> Sectors=new(); }
-[Serializable] public class SaveStateDto : StateDto { public int CalendarDays; public string Population="0"; public string TerritoryTotal="0"; public string AttackPower="0"; public string DefensePower="0"; public string FleetPower="0"; public string MilitaryManpower="0"; public string SupplySatisfaction="1"; public string PowerSatisfaction="1"; public string LogisticsSatisfaction="1"; public bool CampaignActive; public string CampaignTargetSectorId=""; public string CampaignCasualties="0"; public string CampaignCombatRatio="0"; public string ActiveResearchId=""; public List<string> QueuedResearchIds=new(); public long LastSaveUnixSeconds; }
+[Serializable] public class SaveStateDto : StateDto { public int CalendarDays; public string Population="0"; public string PopulationChangeProgress="0"; public string TerritoryTotal="0"; public string AttackPower="0"; public string DefensePower="0"; public string FleetPower="0"; public string MilitaryManpower="0"; public string SupplySatisfaction="1"; public string PowerSatisfaction="1"; public string LogisticsSatisfaction="1"; public bool CampaignActive; public string CampaignTargetSectorId=""; public string CampaignCasualties="0"; public string CampaignCombatRatio="0"; public string ActiveResearchId=""; public List<string> QueuedResearchIds=new(); public long LastSaveUnixSeconds; }
 [Serializable] public sealed class RuntimeStateDto : SaveStateDto { public long Tick; public string ElapsedSeconds="0"; public string CampaignProgress="0"; public List<EventDto> Events=new(); }
 [Serializable] public sealed class BuildingStateDto { public string BuildingId=""; public string Amount="0"; public string Efficiency="1"; }
 [Serializable] public sealed class ResearchStateDto { public string ResearchId=""; public string Progress="0"; public bool CostPaid; public bool Completed; public List<AmountDto> PaidResourceCosts=new(); }

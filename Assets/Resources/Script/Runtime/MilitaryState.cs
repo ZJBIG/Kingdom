@@ -28,15 +28,7 @@ public sealed class MilitaryState
         Version++;
     }
 
-    internal void ResetDerived()
-    {
-        attackPower = ExpantaNum.Zero;
-        defensePower = ExpantaNum.Zero;
-        fleetPower = ExpantaNum.Zero;
-        militaryManpower = ExpantaNum.Zero;
-        supplySatisfaction = ExpantaNum.One;
-        Version++;
-    }
+    internal void ResetDerived() => InitializeNew();
 
 #if UNITY_EDITOR
     public bool AdjustAttackPowerForEditor(ExpantaNum delta) => AdjustAttackPower(delta);

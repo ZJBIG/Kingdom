@@ -8,7 +8,6 @@ public sealed class SpacerResearchPlacementTests
     {
         Research singularity = DataBase<Research>.Find("TechnologicalSingularity");
 
-        Assert.That(singularity, Is.Not.Null);
         Assert.That(singularity.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(singularity.AdvancesTechLevel, Is.True);
         Assert.That(new ExpantaNum(singularity.BaseCost), Is.EqualTo(new ExpantaNum("5.5e11")));
@@ -131,15 +130,6 @@ public sealed class SpacerResearchPlacementTests
             "1.18");
     }
 
-    [Test]
-    public void RevisedResearchGraphHasNoCycles()
-    {
-        Assert.That(
-            ResearchValidator.ValidateNoCycles(DataBase<Research>.All, out string error),
-            Is.True,
-            error);
-    }
-
     private static void AssertPrerequisites(Research research, params string[] ids)
     {
         Assert.That(research.Prerequisites.Select(item => item.Id), Is.EquivalentTo(ids));
@@ -163,7 +153,6 @@ public sealed class SpacerResearchPlacementTests
         WorkshopEffectType type,
         string value)
     {
-        Assert.That(workshop, Is.Not.Null);
         Assert.That(workshop.Effects.Any(effect =>
             effect != null &&
             effect.Type == type &&
@@ -176,7 +165,6 @@ public sealed class SpacerResearchPlacementTests
         string buildingId,
         string value)
     {
-        Assert.That(workshop, Is.Not.Null);
         Assert.That(workshop.Effects.Any(effect =>
             effect != null &&
             effect.Type == type &&

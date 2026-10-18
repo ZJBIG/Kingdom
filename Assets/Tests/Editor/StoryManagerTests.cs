@@ -4,27 +4,6 @@ using NUnit.Framework;
 public sealed class StoryManagerTests
 {
     [Test]
-    public void ArchiveHasReadableProgressChapters()
-    {
-        Assert.That(StoryManager.Chapters.Count, Is.EqualTo(18));
-        var ids = new HashSet<string>();
-        for (int i = 0; i < StoryManager.Chapters.Count; i++)
-        {
-            StoryChapter chapter = StoryManager.Chapters[i];
-            Assert.That(chapter, Is.Not.Null);
-            Assert.That(ids.Add(chapter.Id), Is.True);
-            Assert.That(chapter.Id, Is.Not.Null.And.Not.Empty);
-            Assert.That(chapter.Title, Is.Not.Null.And.Not.Empty);
-            Assert.That(chapter.EraLabel, Is.Not.Null.And.Not.Empty);
-            Assert.That(chapter.Summary, Is.Not.Null.And.Not.Empty);
-            Assert.That(chapter.Body.Trim().Length, Is.InRange(200, 300),
-                chapter.Id + " should contain a complete 200-300 character story.");
-            Assert.That(chapter.Body, Does.Not.Contain("..."),
-                chapter.Id + " must not rely on truncated story text.");
-        }
-    }
-
-    [Test]
     public void StoryArchiveHasFixedOrderAndNoMetaNarrativeTerms()
     {
         string[] expected =
@@ -36,14 +15,26 @@ public sealed class StoryManagerTests
             "IndustrialChemistry_12", "IndustrialFrontier_13", "FrontierSectors_14",
             "WarBetweenStars_15", "BeyondTheSky_16", "TheOldBoundary_17"
         };
+        Assert.That(StoryManager.Chapters.Count, Is.EqualTo(expected.Length));
         string[] forbidden = { "玩家", "页面", "菜单", "按钮", "ID", "数值", "数字", "奖励", "界面" };
         for (int i = 0; i < expected.Length; i++)
         {
-            Assert.That(StoryManager.Chapters[i].Id, Is.EqualTo(expected[i]));
-            string text = StoryManager.Chapters[i].Summary + StoryManager.Chapters[i].Body;
+            StoryChapter chapter = StoryManager.Chapters[i];
+            Assert.That(chapter.Id, Is.EqualTo(expected[i]));
+            Assert.That(chapter.Title, Is.Not.Null.And.Not.Empty);
+            Assert.That(chapter.EraLabel, Is.Not.Null.And.Not.Empty);
+            Assert.That(chapter.Summary, Is.Not.Null.And.Not.Empty);
+            Assert.That(chapter.Body.Trim().Length, Is.InRange(200, 300),
+                chapter.Id + " should contain a complete 200-300 character story.");
+            Assert.That(chapter.Body, Does.Not.Contain("..."),
+                chapter.Id + " must not rely on truncated story text.");
+            if (i >= 8 && i <= 13)
+                Assert.That(chapter.RequiredEra, Is.EqualTo(TechLevel.Industrial));
+            string text = chapter.Summary + chapter.Body;
             for (int f = 0; f < forbidden.Length; f++)
                 Assert.That(text, Does.Not.Contain(forbidden[f]));
         }
+        Assert.That(FindChapter("IndustrialMaterials_11").Body, Does.Not.Contain("IntegratedFurnaces"));
     }
 
 
@@ -184,55 +175,6 @@ public sealed class StoryManagerTests
     }
 
     [Test]
-    public void MachineFactoryRetainsItsWorkshopGate()
-    {
-        Assert.That(DataBase<Building>.TryFind(
-            "MachineFactory", out Building machineFactory), Is.True);
-        Assert.That(machineFactory, Is.Not.Null);
-        Assert.That(DataBase<Research>.TryFind(
-            "PrecisionManufacturing", out Research manufacturing), Is.True);
-        Assert.That(machineFactory.RequiredResearch,
-            Does.Contain(manufacturing),
-            "Story research gate must be a real MachineFactory prerequisite.");
-        Assert.That(machineFactory.RequiredWorkshopUpgrades.Count,
-            Is.GreaterThan(0),
-            "Story must acknowledge the real Workshop gate of MachineFactory.");
-        bool hasPrecisionTooling = false;
-        for (int i = 0; i < machineFactory.RequiredWorkshopUpgrades.Count; i++)
-            if (machineFactory.RequiredWorkshopUpgrades[i] != null &&
-                machineFactory.RequiredWorkshopUpgrades[i].Id == "PrecisionTooling")
-                hasPrecisionTooling = true;
-        Assert.That(hasPrecisionTooling, Is.True,
-            "MachineFactory must retain its real PrecisionTooling Workshop gate.");
-    }
-
-    [Test]
-    public void IndustrialMemoryGatesResolveToRealDefinitions()
-    {
-        for (int i = 0; i < StoryManager.Chapters.Count; i++)
-        {
-            StoryChapter chapter = StoryManager.Chapters[i];
-            if (chapter.RequiredEra != TechLevel.Industrial)
-                continue;
-
-            for (int j = 0; j < chapter.RequiredResearchIds.Count; j++)
-                Assert.That(DataBase<Research>.TryFind(
-                    chapter.RequiredResearchIds[j], out Research research), Is.True,
-                    chapter.Id + " must reference a real Research definition.");
-
-            for (int j = 0; j < chapter.RequiredBuildingIds.Count; j++)
-                Assert.That(DataBase<Building>.TryFind(
-                    chapter.RequiredBuildingIds[j], out Building building), Is.True,
-                    chapter.Id + " must reference a real Building definition.");
-
-            for (int j = 0; j < chapter.RequiredWorkshopIds.Count; j++)
-                Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-                    chapter.RequiredWorkshopIds[j], out WorkshopUpgrade workshop), Is.True,
-                    chapter.Id + " must reference a real Workshop definition.");
-        }
-    }
-
-    [Test]
     public void IndustrialStoryResearchMatchesItsBuildingPrerequisite()
     {
         for (int i = 0; i < StoryManager.Chapters.Count; i++)
@@ -259,51 +201,21 @@ public sealed class StoryManagerTests
     public void WorkshopMemoryUsesTheDeclaredRealUpgrade()
     {
         StoryChapter chapter = FindChapter("WorkshopMemory_09");
-        Assert.That(chapter, Is.Not.Null);
         Assert.That(chapter.RequiredWorkshopIds.Count, Is.GreaterThan(0));
         Assert.That(FirstId(chapter.RequiredResearchIds),
             Is.EqualTo("PrecisionManufacturing"));
         Assert.That(DataBase<WorkshopUpgrade>.TryFind(
             FirstId(chapter.RequiredWorkshopIds), out WorkshopUpgrade workshop), Is.True);
-        Assert.That(workshop, Is.Not.Null);
-        Assert.That(workshop.Id, Is.EqualTo(FirstId(chapter.RequiredWorkshopIds)));
         Assert.That(DataBase<Research>.TryFind(
             FirstId(chapter.RequiredResearchIds), out Research requiredResearch), Is.True);
         Assert.That(workshop.RequiredResearch,
             Does.Contain(requiredResearch),
             "The Story chapter must name the Workshop's direct Research prerequisite.");
-    }
-
-    [Test]
-    public void IndustrialMemoriesFollowTheActionArchiveOrder()
-    {
-        string[] expected =
-        {
-            "IndustrialAwakening_08",
-            "WorkshopMemory_09",
-            "IndustrialPower_10",
-            "IndustrialMaterials_11",
-            "IndustrialChemistry_12",
-            "IndustrialFrontier_13"
-        };
-        int previousIndex = -1;
-        for (int i = 0; i < expected.Length; i++)
-        {
-            int currentIndex = IndexOf(expected[i]);
-            Assert.That(currentIndex, Is.GreaterThan(previousIndex));
-            Assert.That(StoryManager.Chapters[currentIndex].RequiredEra,
-                Is.EqualTo(TechLevel.Industrial));
-            previousIndex = currentIndex;
-        }
-
-        StoryChapter workshop = FindChapter("WorkshopMemory_09");
-        Assert.That(FirstId(workshop.RequiredResearchIds),
-            Is.EqualTo("PrecisionManufacturing"));
-        Assert.That(FirstId(workshop.RequiredWorkshopIds), Is.EqualTo("PrecisionTooling"));
-        Assert.That(workshop.RequiredWorkshopIds.Count, Is.GreaterThan(0));
-
-        StoryChapter materials = FindChapter("IndustrialMaterials_11");
-        Assert.That(materials.Body, Does.Not.Contain("IntegratedFurnaces"));
+        Building machineFactory = DataBase<Building>.Find("MachineFactory");
+        Assert.That(machineFactory.RequiredResearch, Does.Contain(requiredResearch),
+            "Story research gate must be a real MachineFactory prerequisite.");
+        Assert.That(machineFactory.RequiredWorkshopUpgrades, Does.Contain(workshop),
+            "Story must acknowledge the real Workshop gate of MachineFactory.");
     }
 
     [Test]
@@ -383,11 +295,4 @@ public sealed class StoryManagerTests
         return ids != null && ids.Count > 0 ? ids[0] : string.Empty;
     }
 
-    private static int IndexOf(string id)
-    {
-        for (int i = 0; i < StoryManager.Chapters.Count; i++)
-            if (StoryManager.Chapters[i].Id == id)
-                return i;
-        return -1;
-    }
 }

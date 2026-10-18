@@ -26,7 +26,6 @@ public sealed class ProgressionMilestoneRecorderTests
         research = Create<ProgressionMilestoneTestResearchManager>();
         research.EnsureInitialized();
         definition = DataBase<Research>.Find("Quarry");
-        Assert.That(definition, Is.Not.Null);
         Assert.That(definition.HasPositiveResourceRequirement, Is.True);
         foreach (Pair<Resource, ExpantaNum> cost in definition.ResourceRequirements)
             resources.SetAmount(cost.First, ExpantaNum.Zero);

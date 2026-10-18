@@ -1,0 +1,186 @@
+--- Assets/Resources/Script/Runtime/PopulationState.cs (round5 baseline)
++++ Assets/Resources/Script/Runtime/PopulationState.cs
+@@ -80,12 +80,9 @@
+         EnsureFinite(restoredProgress, nameof(restoredProgress));
+         if (restoredProgress < ExpantaNum.Zero || restoredProgress > ExpantaNum.One)
+             throw new ArgumentOutOfRangeException(nameof(restoredProgress));
+-        ExpantaNum next = population == populationCapacity
+-            ? ExpantaNum.Zero
+-            : restoredProgress;
+-        if (populationChangeProgress == next)
+-            return;
+-        populationChangeProgress = next;
++        if (populationChangeProgress == restoredProgress)
++            return;
++        populationChangeProgress = restoredProgress;
+         Version++;
+     }
+ 
+@@ -119,8 +116,9 @@
+         EnsureFinite(restoredCapacity, nameof(restoredCapacity));
+         EnsureFinite(restoredProgress, nameof(restoredProgress));
+         ExpantaNum nextCapacity = NormalizeWhole(restoredCapacity);
+-        ExpantaNum nextProgress = population == nextCapacity
+-            ? ExpantaNum.Zero
++        // Saves allow one complete pending step; rollback must preserve it.
++        ExpantaNum nextProgress = restoredProgress == ExpantaNum.One
++            ? restoredProgress
+             : NormalizeProgress(restoredProgress);
+         if (populationCapacity == nextCapacity && populationChangeProgress == nextProgress)
+             return;
+@@ -141,13 +139,12 @@
+         EnsureFinite(happinessMultiplier, nameof(happinessMultiplier));
+         EnsureFinite(growthRatePerSecond, nameof(growthRatePerSecond));
+         EnsureFinite(departureAllowance, nameof(departureAllowance));
+-        if (deltaSeconds > 0d)
+-        {
+-            if (foodShortageDepartureMode.HasValue &&
+-                foodShortageDepartureMode.Value != foodShortageDepartureAllowed)
+-                SetPopulationChangeProgress(ExpantaNum.Zero);
+-            foodShortageDepartureMode = foodShortageDepartureAllowed;
+-        }
++        if (deltaSeconds == 0d)
++            return;
++        if (foodShortageDepartureMode.HasValue &&
++            foodShortageDepartureMode.Value != foodShortageDepartureAllowed)
++            SetPopulationChangeProgress(ExpantaNum.Zero);
++        foodShortageDepartureMode = foodShortageDepartureAllowed;
+         if (foodShortageDepartureAllowed)
+         {
+             AdvanceFoodShortageDeparture(deltaSeconds, happinessMultiplier);
+--- Assets/Tests/Editor/KingdomLogicTests.cs (round5 baseline)
++++ Assets/Tests/Editor/KingdomLogicTests.cs
+@@ -350,7 +350,8 @@
+             Assert.That(afterFirstSettlement, Is.GreaterThan(beforeSettlement));
+             Assert.That(saveManager.SaveNow(false), Is.True);
+ 
+-            Assert.That(saveManager.ApplyOfflineProgress(), Is.False);
++            long settledAt = GameManager.Instance.State.LastSaveUnixSeconds;
++            Assert.That(saveManager.ApplyOfflineProgressForEditor(settledAt, settledAt), Is.False);
+             Assert.That(saveManager.LastOfflineProgressSeconds, Is.LessThanOrEqualTo(0d));
+             Assert.That(ResourceManager.Instance.GetAmount(wood), Is.Not.LessThan(afterFirstSettlement));
+             Assert.That(ResourceManager.Instance.GetAmount(wood), Is.Not.GreaterThan(afterFirstSettlement));
+@@ -1696,6 +1697,79 @@
+         Assert.That(population.PopulationChangeProgress.ToDouble(),
+             Is.GreaterThan(0d).And.LessThan(0.1d));
+         Assert.That(population.Population, Is.EqualTo(new ExpantaNum(10))); // Discrete population count.
++    }
++
++    [TestCase(10, 0.5d)]
++    [TestCase(5, 0.5d)]
++    [TestCase(20, 1d)]
++    public void PopulationChange_ZeroSecondGameTickPreservesRestoredProgress(int capacity, double progress)
++    {
++        GameManager game = CreateManager<GameManager>("ZeroPopulation-Game");
++        PopulationState population = game.State.Population;
++        population.AdjustPopulationCapacityForEditor(new ExpantaNum(capacity));
++        population.RestorePopulationForEditor(new ExpantaNum(10));
++        population.RestorePopulationChangeProgressForEditor(new ExpantaNum(progress));
++        int version = population.Version;
++
++        game.Tick(0d);
++
++        Assert.That(population.PopulationChangeProgress.ToDouble(),
++            Is.EqualTo(progress).Within(1e-9d));
++        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(10))); // Discrete population count.
++        Assert.That(population.Version, Is.EqualTo(version)); // Discrete mutation version.
++    }
++
++    [Test]
++    public void PopulationChange_CapacityRollbackPreservesCompletedRestoredProgress()
++    {
++        var state = new GameState();
++        state.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
++        state.RestorePopulationForEditor(new ExpantaNum(10));
++        state.RestorePopulationChangeProgressForEditor(ExpantaNum.One);
++        state.AdjustPopulationCapacityForEditor(ExpantaNum.One);
++        state.RestorePopulationCapacityExactForEditor(new ExpantaNum(10), ExpantaNum.One);
++
++        Assert.That(state.Population.PopulationChangeProgress.ToDouble(), Is.InRange(0.999999999d, 1d));
++        state.Population.AdvancePopulationForEditor(
++            1d, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
++        Assert.That(state.Population.Population, Is.EqualTo(new ExpantaNum(9))); // Discrete departure.
++    }
++
++    [TestCase(false)]
++    [TestCase(true)]
++    public void PopulationChange_FullCapacityRestorePreservesDepartureProgress(bool rollback)
++    {
++        var state = new GameState();
++        state.RestorePopulationForEditor(new ExpantaNum(10));
++        state.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
++        PopulationState population = state.Population;
++        population.AdvancePopulationForEditor(
++            180d, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
++        ExpantaNum progress = population.PopulationChangeProgress;
++        Assert.That(progress.ToDouble(), Is.InRange(0.49d, 0.51d));
++
++        if (rollback)
++        {
++            state.AdjustPopulationCapacityForEditor(ExpantaNum.One);
++            state.RestorePopulationCapacityExactForEditor(new ExpantaNum(10), progress);
++        }
++        else
++        {
++            population.RestorePopulationForEditor(new ExpantaNum(10));
++            population.RestorePopulationChangeProgressForEditor(progress);
++        }
++        Assert.That(population.PopulationChangeProgress.ToDouble(),
++            Is.EqualTo(progress.ToDouble()).Within(1e-9d));
++        population.AdvancePopulationForEditor(
++            180d, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
++        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(9))); // Discrete population count.
++
++        population.RestorePopulationForEditor(new ExpantaNum(10));
++        population.RestorePopulationChangeProgressForEditor(progress);
++        population.AdvancePopulationForEditor(
++            60d, ExpantaNum.One, PopulationState.BaseGrowthRatePerSecond, ExpantaNum.Zero, false);
++        Assert.That(population.Population, Is.EqualTo(new ExpantaNum(10))); // Discrete housing limit.
++        Assert.That(population.PopulationChangeProgress.ToDouble(), Is.InRange(0d, 1e-9d));
+     }
+ 
+     [Test]
+--- Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs (round5 baseline)
++++ Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs
+@@ -65,6 +65,41 @@
+                 Is.EqualTo(foodBefore.ToDouble()).Within(0.000001d));
+             restored = SaveManager.ParseSaveDataForEditor(JsonUtility.ToJson(save.CaptureSaveData()));
+         }
++    }
++
++    [Test]
++    public void PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress()
++    {
++        GameManager game = CreateManager<GameManager>("PopulationSave-Game");
++        CreateManager<ResourceManager>("PopulationSave-Resources");
++        BuildingManager buildings = CreateManager<BuildingManager>("PopulationSave-Buildings");
++        CreateManager<ResearchManager>("PopulationSave-Research");
++        CreateManager<WorkshopManager>("PopulationSave-Workshop");
++        SaveManager save = CreateManager<SaveManager>("PopulationSave-Save");
++        if (TutorialManager.Current == null)
++            createdObjects.Add(TutorialManager.Ensure().gameObject);
++
++        game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, ExpantaNum.Zero, 0L);
++        Building house = DataBase<Building>.Find("WoodHouse");
++        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
++        ExpantaNum capacity = game.State.Population.PopulationCapacity;
++        Assert.That(capacity, Is.GreaterThan(ExpantaNum.Zero));
++        game.State.RestorePopulationForEditor(capacity);
++        double halfDepartureSeconds = 1800d / capacity.ToDouble();
++        game.State.Population.AdvancePopulationForEditor(
++            halfDepartureSeconds, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
++        double progress = game.State.Population.PopulationChangeProgress.ToDouble();
++        Assert.That(progress, Is.InRange(0.49d, 0.51d));
++
++        SaveManager.KingdomSaveData restored = SaveManager.ParseSaveDataForEditor(
++            JsonUtility.ToJson(save.CaptureSaveData()));
++        save.ApplySaveDataForEditor(restored);
++        Assert.That(game.State.Population.PopulationCapacity, Is.EqualTo(capacity)); // Discrete housing count.
++        Assert.That(game.State.Population.PopulationChangeProgress.ToDouble(),
++            Is.EqualTo(progress).Within(1e-9d));
++        game.State.Population.AdvancePopulationForEditor(
++            halfDepartureSeconds, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
++        Assert.That(game.State.Population.Population, Is.EqualTo(capacity - ExpantaNum.One)); // Discrete departure.
+     }
+ 
+     [Test]

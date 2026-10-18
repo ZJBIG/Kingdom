@@ -11,33 +11,6 @@ public sealed class MedievalResearchRoleTests
         AssertResearchRole("PermanentLaborOrganization", ResearchEffectType.PopulationProductivityMultiplier);
     }
 
-    [Test]
-    public void EveryMedievalResearchHasAConcreteEffect()
-    {
-        string[] ids =
-        {
-            "Bookmaking",
-            "FeudalAdministration",
-            "Fortification",
-            "GuildSystem",
-            "GunpowderSupplyStandards",
-            "MechanicalEngineering",
-            "PublicHealth",
-            "ScholasticInstitutions",
-            "PermanentLaborOrganization",
-            "Steelmaking",
-            "TradeRoutes",
-            "UrbanHousing"
-        };
-
-        for (int i = 0; i < ids.Length; i++)
-        {
-            Research research = DataBase<Research>.Find(ids[i]);
-            Assert.That(research, Is.Not.Null, ids[i]);
-            Assert.That(research.Effects, Is.Not.Null.And.Not.Empty, ids[i]);
-        }
-    }
-
     private static void AssertResearchRole(string id, ResearchEffectType expectedType)
     {
         Research research = DataBase<Research>.Find(id);

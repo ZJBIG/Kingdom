@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 07:10:33Z" end-time="2026-10-18 07:10:36Z" duration="2.9648214">
+  <test-suite type="TestSuite" id="2099" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="951" result="Passed" start-time="2026-10-18 07:10:33Z" end-time="2026-10-18 07:10:36Z" duration="2.964821" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3188" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="950" result="Passed" start-time="2026-10-18 07:10:33Z" end-time="2026-10-18 07:10:36Z" duration="2.951569" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="11064" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2246" name="EarlyVerticalSlicePacingTests" fullname="EarlyVerticalSlicePacingTests" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-18 07:10:33Z" end-time="2026-10-18 07:10:36Z" duration="2.929515" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2250" name="NewGame_FixedMainlineTrace" fullname="EarlyVerticalSlicePacingTests.NewGame_FixedMainlineTrace" methodname="NewGame_FixedMainlineTrace" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="278573851" result="Passed" start-time="2026-10-18 07:10:34Z" end-time="2026-10-18 07:10:36Z" duration="2.917229" asserts="0">
+          <properties>
+            <property name="Category" value="PacingDiagnostic" />
+          </properties>
+          <output><![CDATA[[KingdomPerf] ManualTick 24.5ms: building=13.6ms, game=1.5ms, resource=1.1ms, sectors=1.6ms, research=6.6ms, activeBuildings=0, efficiencyPasses=1
+MAINLINE t=0.0 action=new-game wood=60 population=0/0 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE sample=0.0 next=B:WoodHouse food=300 happiness=1.218809
+MAINLINE t=16.5 action=built:WoodHouse wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=16.5 action=queued:Agriculture wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=39.4 action=paid:Agriculture wood=0.021114 population=0/5 foodNet=5 productivity=0 researchSpeed=4.875236
+MAINLINE t=65.8 action=population wood=32.197698 population=1/5 foodNet=4.2 productivity=2 researchSpeed=4.8345
+MAINLINE t=101.2 action=completed:Agriculture wood=74.9832 population=1/5 foodNet=5.2 productivity=2 researchSpeed=0
+MAINLINE t=123.2 action=population wood=101.84608 population=2/5 foodNet=4.4 productivity=4 researchSpeed=0
+MAINLINE t=123.2 action=built:Farm wood=51.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=123.2 action=queued:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=123.2 action=paid:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=135.4 action=completed:ControlledFire wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=135.4 action=queued:Quarry wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=156.9 action=population wood=73.542079 population=3/5 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=191.3 action=population wood=115.213551 population=4/5 foodNet=12.4 productivity=5 researchSpeed=0
+MAINLINE t=243.7 action=population wood=177.568503 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE t=262.9 action=paid:Quarry wood=0.057463 population=5/5 foodNet=11.6 productivity=7 researchSpeed=4.685196
+MAINLINE t=288.5 action=completed:Quarry wood=30.042743 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE sample=300.0 next=B:Quarry food=500 happiness=1.171299
+MAINLINE t=365.4 action=built:Quarry wood=0.115713 population=5/5 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE t=445.9 action=built:WoodHouse wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE t=445.9 action=queued:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=445.9 action=paid:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=463.0 action=population wood=20.034593 population=6/10 foodNet=10.8 productivity=3 researchSpeed=4.61798
+MAINLINE t=481.1 action=population wood=40.931043 population=7/10 foodNet=10 productivity=5 researchSpeed=4.556324
+MAINLINE t=502.0 action=population wood=64.737815 population=8/10 foodNet=9.2 productivity=7 researchSpeed=4.498992
+MAINLINE t=529.7 action=population wood=95.89339 population=9/10 foodNet=8.4 productivity=9 researchSpeed=4.445164
+MAINLINE t=579.7 action=population wood=151.45789 population=10/10 foodNet=7.6 productivity=11 researchSpeed=4.394236
+MAINLINE sample=600.0 next=R:KnowledgeSharing food=500 happiness=1.098559
+MAINLINE t=715.0 action=completed:KnowledgeSharing wood=300.093058 population=10/10 foodNet=7.6 productivity=11 researchSpeed=0
+MAINLINE t=715.0 action=built:KnowledgeCircle wood=200.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=0
+MAINLINE t=715.0 action=queued:ClayExtraction wood=160.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=6.316714
+MAINLINE t=715.0 action=paid:ClayExtraction wood=160.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=6.316714
+MAINLINE t=753.0 action=completed:ClayExtraction wood=201.838338 population=10/10 foodNet=7.6 productivity=9 researchSpeed=0
+MAINLINE t=753.0 action=built:ClayPit wood=121.838338 population=10/10 foodNet=7.6 productivity=5 researchSpeed=0
+MAINLINE t=753.0 action=built:WoodHouse wood=10.446338 population=10/15 foodNet=7.6 productivity=5 researchSpeed=0
+MAINLINE t=766.7 action=population wood=25.49661 population=11/15 foodNet=6.8 productivity=7 researchSpeed=0
+MAINLINE t=782.4 action=population wood=42.553875 population=12/15 foodNet=6 productivity=9 researchSpeed=0
+MAINLINE t=795.9 action=built:Farm wood=0.064485 population=12/15 foodNet=15.6 productivity=6 researchSpeed=0
+MAINLINE t=795.9 action=queued:StoneProcessing wood=0.064485 population=12/15 foodNet=15.6 productivity=6 researchSpeed=0
+MAINLINE t=801.5 action=population wood=6.408277 population=13/15 foodNet=14.8 productivity=8 researchSpeed=0
+MAINLINE t=822.5 action=paid:StoneProcessing wood=0.014167 population=13/15 foodNet=14.8 productivity=8 researchSpeed=6.463512
+MAINLINE t=827.1 action=population wood=5.184981 population=14/15 foodNet=14 productivity=10 researchSpeed=6.415212
+MAINLINE t=875.0 action=population wood=58.626532 population=15/15 foodNet=13.2 productivity=12 researchSpeed=6.368608
+MAINLINE sample=900.0 next=R:StoneProcessing food=500 happiness=1.120174
+MAINLINE t=931.6 action=completed:StoneProcessing wood=121.713404 population=15/15 foodNet=16.08 productivity=12 researchSpeed=0
+MAINLINE t=931.6 action=built:StoneCuttingWorkshop wood=26.475304 population=15/15 foodNet=16.08 productivity=7 researchSpeed=0
+MAINLINE t=931.6 action=queued:Woodworking wood=26.475304 population=15/15 foodNet=16.08 productivity=7 researchSpeed=0
+MAINLINE t=983.0 action=paid:Woodworking wood=0.052042 population=15/15 foodNet=16.08 productivity=7 researchSpeed=6.441001
+MAINLINE t=1155.3 action=completed:Woodworking wood=191.353906 population=15/15 foodNet=13.2 productivity=7 researchSpeed=0
+MAINLINE t=1155.3 action=built:Lumberyard wood=82.262986 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1155.3 action=queued:Mathematics wood=82.262986 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1157.5 action=paid:Mathematics wood=0.710604 population=15/15 foodNet=13.2 productivity=3 researchSpeed=6.368608
+MAINLINE sample=1200.0 next=R:Mathematics food=500 happiness=1.107584
+MAINLINE t=1424.4 action=completed:Mathematics wood=1996.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1424.4 action=queued:Calendar wood=1870.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=8.237656
+MAINLINE t=1424.4 action=paid:Calendar wood=1870.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=8.237656
+MAINLINE sample=1500.0 next=R:Calendar food=500 happiness=1.107584
+MAINLINE t=1655.1 action=completed:Calendar wood=3594.862748 population=15/15 foodNet=21.5412 productivity=3 researchSpeed=0
+MAINLINE t=1655.1 action=built:FiberGatheringCamp wood=3540.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=0
+MAINLINE t=1655.1 action=queued:AnimalHusbandry wood=3460.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=8.474511
+MAINLINE t=1655.1 action=paid:AnimalHusbandry wood=3460.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=8.474511
+MAINLINE t=1683.5 action=completed:AnimalHusbandry wood=3678.745948 population=15/15 foodNet=21.5412 productivity=2.4 researchSpeed=0
+MAINLINE t=1683.5 action=queued:StoneAgeSettlement wood=3678.745948 population=15/15 foodNet=21.5412 productivity=2.4 researchSpeed=0
+MAINLINE sample=1800.0 next=R:StoneAgeSettlement food=500 happiness=1.13943
+MAINLINE sample=2100.0 next=R:StoneAgeSettlement food=500 happiness=1.13943
+MAINLINE t=2123.2 action=paid:StoneAgeSettlement wood=5060.544603 population=15/15 foodNet=21.5412 productivity=2.4 researchSpeed=5.649677
+MAINLINE sample=2400.0 next=R:StoneAgeSettlement food=500 happiness=1.13943
+MAINLINE t=2406.4 action=completed:StoneAgeSettlement wood=7238.678283 population=15/15 foodNet=21.5412 productivity=102.4 researchSpeed=0
+MAINLINE finishedCommands=22/22 longestMilestoneGap=439.7s
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

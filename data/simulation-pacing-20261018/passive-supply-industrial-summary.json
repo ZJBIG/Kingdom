@@ -1,0 +1,20 @@
+{
+  "result": "Passed",
+  "passed": 1,
+  "duration_seconds": 226.3951645,
+  "runner_exit": 0,
+  "commands_completed": 49,
+  "final_game_seconds": 152436.8,
+  "final_game_hours": 42.343555555555554,
+  "milestones": {
+    "StoneAgeSettlement": 2406.4,
+    "FeudalAdministration": 34572.3,
+    "Industrialization": 152436.8
+  },
+  "mode": "same fixed serial online route; Runtime starting-production preservation fix; no content value changes",
+  "limitations": [
+    "not a minimum-time route",
+    "not a split-session offline route",
+    "not proof of player enjoyment"
+  ]
+}

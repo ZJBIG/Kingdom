@@ -12,7 +12,279 @@ public static class ValidationSuite
         AddReportContractCheck(report);
         CheckSettledResourceBudgets(report);
         CheckHappinessShortageMonotonicity(report);
+        CheckPopulationTiming(report);
+        CheckResearchTiming(report);
+        CheckPostPopulationHappiness(report);
+        CheckSnapshotPopulationProgress(report);
+        CheckSnapshotQueueOrder(report);
+        CheckSnapshotDefinitionNamespaces(report);
+        CheckSectorWithoutEra(report);
+        CheckBaseResourceProduction(report);
         return report;
+    }
+
+    private static void CheckBaseResourceProduction(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Resources[0].BaseProductionRate = "1";
+        snapshot.Buildings.Add(BudgetBuilding("Consumer", "A", "2", "B", "1"));
+        var core = BudgetCore(snapshot, "0");
+        core.Tick(SimulationMode.Realtime, 1d, 1d);
+        var efficiency = core.State.BuildingStates["Consumer"].Efficiency;
+        AddResult(report, "snapshot base resource production funds consumers", efficiency > new ExpantaNum(0.5d) &&
+            efficiency * 2 <= FoodReward(5) + new ExpantaNum(1e-5d) && core.State.GetResource("B") > ExpantaNum.Zero,
+            "Passive production is exported separately and participates in satisfaction, settlement and final output.");
+    }
+
+    private static void CheckSectorWithoutEra(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Sectors = [new SectorSnapshot
+        {
+            Id = "Home", Guid = new string('d', 32), AssetPath = "fixture/Home.asset",
+            TechLevel = "", Domain = "HomeSystem", StarSystemId = "Sol"
+        }];
+        snapshot.RuntimeState.Sectors = [new SectorStateSnapshot { SectorId = "Home" }];
+        snapshot.SaveState.Sectors = snapshot.RuntimeState.Sectors;
+        snapshot.InitialState.Sectors = snapshot.RuntimeState.Sectors;
+        var accepted = false;
+        try { BudgetCore(snapshot, "0"); accepted = true; }
+        catch (System.IO.InvalidDataException) { }
+        AddResult(report, "snapshot sectors do not invent an era", accepted,
+            "Runtime SectorDefinition has system/domain gates and no TechLevel; its real export must load.");
+    }
+
+    private static void CheckSnapshotDefinitionNamespaces(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Buildings.Add(BudgetBuilding("A", "", "0", "A", "1"));
+        snapshot.Research.Add(new ResearchSnapshot
+        {
+            Id = "A", Guid = new string('f', 32), AssetPath = "fixture/ResearchA.asset",
+            TechLevel = "Animal", ResourceRequirements = [new AmountSnapshot { ResourceId = "A", Value = "1" }]
+        });
+        snapshot.RuntimeState.Research = [new ResearchStateSnapshot { ResearchId = "A" }];
+        snapshot.InitialState.Research = snapshot.RuntimeState.Research;
+        snapshot.SaveState.Research = snapshot.RuntimeState.Research;
+        var valid = false;
+        try { BudgetCore(snapshot, "0"); valid = true; }
+        catch (System.IO.InvalidDataException) { }
+        snapshot.Research[0].PrerequisiteIds = ["B"];
+        var wrongTypeRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.Research[0].PrerequisiteIds.Clear();
+        snapshot.Research[0].Guid = snapshot.Buildings[0].Guid;
+        var sharedGuidRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.Research[0].Guid = new string('f', 32);
+        var duplicate = BudgetBuilding("A", "", "0", "", "0");
+        duplicate.Guid = new string('e', 32);
+        snapshot.Buildings.Add(duplicate);
+        var duplicateTypeRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "snapshot stable IDs are unique within type", valid && wrongTypeRejected &&
+            sharedGuidRejected && duplicateTypeRejected,
+            "Resource, Building and Research may share an ID; wrong-type references, shared GUIDs and same-type duplicates remain invalid.");
+    }
+
+    private static void CheckSnapshotPopulationProgress(ValidationReport report)
+    {
+        foreach (var progress in new[] { "0.9", "1" })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.Population = "1";
+            snapshot.RuntimeState.PopulationChangeProgress = progress;
+            var housing = BudgetBuilding("Housing", "", "0", "", "0");
+            housing.PopulationCapacityGranted = "20";
+            snapshot.Buildings.Add(housing);
+            var core = BudgetCore(snapshot, "0");
+            var restored = (core.State.PopulationChangeProgress - ParseAmount(progress)).Abs() < new ExpantaNum(1e-6d);
+            core.Tick(SimulationMode.Realtime, 0.1d, 0.1d);
+            var continued = progress == "1" ? core.State.Population > ExpantaNum.One :
+                core.State.PopulationChangeProgress > new ExpantaNum(0.9d);
+            AddResult(report, $"snapshot population progress survives derived housing ({progress})",
+                restored && continued, "Restore housing before progress; the first tick must retain a fraction or consume one pending step.");
+        }
+        foreach (var progress in new[] { "-0.1", "1.1", "NaN" })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.PopulationChangeProgress = progress;
+            var rejected = false;
+            try { BudgetCore(snapshot, "0"); }
+            catch (System.IO.InvalidDataException) { rejected = true; }
+            AddResult(report, $"snapshot rejects invalid population progress ({progress})", rejected,
+                "Population progress must be finite and in [0, 1], matching Runtime restore.");
+        }
+    }
+
+    private static void CheckSnapshotQueueOrder(ValidationReport report)
+    {
+        var snapshot = ResearchTimingSnapshot();
+        snapshot.Research.Single(item => item.Id == "Second").BaseCost = "10000";
+        snapshot.RuntimeState.QueuedResearchIds = ["Second", "First"];
+        var core = BudgetCore(snapshot, "0");
+        var restored = core.State.ResearchQueue.SequenceEqual(new[] { "Second", "First" });
+        core.Tick(SimulationMode.Realtime, 0.1d, 0.1d);
+        AddResult(report, "snapshot preserves research queue order", restored &&
+            core.State.ActiveResearch == "Second" && core.State.GetResearchState("First").Progress <= ExpantaNum.Zero,
+            "Queued commands are ordered state; canonicalization must not alphabetize them.");
+    }
+
+    private static void CheckPostPopulationHappiness(ValidationReport report)
+    {
+        foreach (var mode in new[] { SimulationMode.Realtime, SimulationMode.Offline })
+        {
+            var snapshot = ResearchTimingSnapshot();
+            snapshot.Research[0].BaseCost = "10000";
+            var housing = BudgetBuilding("Housing", "", "0", "A", "1");
+            housing.PopulationCapacityGranted = "20";
+            snapshot.Buildings.Add(housing);
+            var core = BudgetCore(snapshot, "0");
+            core.Tick(mode, 120d, 120d);
+            var population = core.State.Population;
+            var expectedHappiness = FoodReward((5 - population * new ExpantaNum(0.8d)) /
+                ExpantaNum.Max(ExpantaNum.One, population));
+            var expectedProgress = 4 * expectedHappiness * 120;
+            AddResult(report, $"research reads post-population happiness ({mode})",
+                population > ExpantaNum.Zero &&
+                (core.State.GetResearchState("First").Progress - expectedProgress).Abs() < new ExpantaNum(1e-4d) &&
+                (core.State.GetResource("A") - FoodReward(5) * 120).Abs() < new ExpantaNum(1e-4d),
+                $"Population={population}, progress={core.State.GetResearchState("First").Progress}, expected={expectedProgress}; resource output retains the prepared budget multiplier.");
+        }
+    }
+
+    private static void CheckPopulationTiming(ValidationReport report)
+    {
+        foreach (var mode in new[] { SimulationMode.Realtime, SimulationMode.Offline })
+        foreach (var food in new[] { "30", "15", "0" })
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.Population = "10";
+            snapshot.RuntimeState.Food = food;
+            var housing = BudgetBuilding("Housing", "", "0", "", "0");
+            housing.PopulationCapacityGranted = "20";
+            snapshot.Buildings.Add(housing);
+            var core = BudgetCore(snapshot, "0");
+            core.Tick(mode, 10d, 10d);
+            var progress = core.State.PopulationChangeProgress;
+            var passed = food == "30" ? progress > new ExpantaNum(0.1d) :
+                food == "15" ? progress > ExpantaNum.Zero && progress < new ExpantaNum(0.01d) :
+                progress > new ExpantaNum(0.01d) && progress < new ExpantaNum(0.02d);
+            AddResult(report, $"food coverage population ({mode}, food={food})", passed,
+                $"Population={core.State.Population}, pending={progress}; only unfed seconds contribute to departure.");
+        }
+
+        var fullHousing = BudgetSnapshot();
+        fullHousing.RuntimeState.Population = "10";
+        fullHousing.RuntimeState.Food = "30";
+        var fullHouse = BudgetBuilding("Housing", "", "0", "", "0");
+        fullHouse.PopulationCapacityGranted = "10";
+        fullHousing.Buildings.Add(fullHouse);
+        var fullCore = BudgetCore(fullHousing, "0");
+        fullCore.Tick(SimulationMode.Offline, 10d, 10d);
+        AddResult(report, "exact food coverage at full housing", fullCore.State.PopulationChangeProgress <= ExpantaNum.Zero &&
+            (fullCore.State.Population - 10).Abs() < new ExpantaNum(1e-9d),
+            "A fully fed interval ending at zero food must not accumulate departure, even when growth is blocked by housing.");
+
+        var state = new SimulationState();
+        state.SetPopulation(new ExpantaNum(10d));
+        state.SetPopulationCapacity(new ExpantaNum(20d));
+        state.AdvancePopulation(10d, new ExpantaNum(0.5d), new ExpantaNum(0.01d), false);
+        var growth = state.PopulationChangeProgress;
+        state.AdvancePopulation(0d, new ExpantaNum(0.5d), new ExpantaNum(0.01d), true);
+        var zeroPreserved = (state.PopulationChangeProgress - growth).Abs() < new ExpantaNum(1e-9d);
+        state.AdvancePopulation(1d, new ExpantaNum(0.5d), new ExpantaNum(0.01d), true);
+        var departure = state.PopulationChangeProgress;
+        state.AdvancePopulation(1d, new ExpantaNum(0.5d), new ExpantaNum(0.01d), false);
+        AddResult(report, "population mode changes and zero time", zeroPreserved &&
+            departure < new ExpantaNum(0.01d) && state.PopulationChangeProgress < growth / 2,
+            "Zero time preserves progress; growth and departure never reuse each other's accumulated fraction.");
+    }
+
+    private static void CheckResearchTiming(ValidationReport report)
+    {
+        foreach (var mode in new[] { SimulationMode.Realtime, SimulationMode.Offline })
+        {
+            var snapshot = ResearchTimingSnapshot();
+            var core = BudgetCore(snapshot, "0");
+            core.Tick(mode, 10d, 10d);
+            var second = core.State.GetResearchState("Second");
+            AddResult(report, $"research remainder ({mode})", core.State.GetResearchState("First").Completed &&
+                (mode == SimulationMode.Realtime ? !second.Completed && second.Progress <= ExpantaNum.Zero &&
+                    core.State.ActiveResearch == "Second" : second.Completed),
+                "Online starts the next item without advancing it; offline consumes the remaining window.");
+        }
+        foreach (var seconds in new[] { 0.001d, 0.1d })
+        {
+            var boundary = ResearchTimingSnapshot();
+            boundary.Research[0].BaseCost = "200";
+            boundary.RuntimeState.Research[0].Progress = "199.99";
+            boundary.Research[0].Effects = [new EffectSnapshot { Type = "GlobalResearchMultiplier", Value = "2" }];
+            boundary.Research[1].BaseCost = "10000";
+            var boundaryCore = BudgetCore(boundary, "0");
+            boundaryCore.Tick(SimulationMode.Offline, seconds, seconds);
+            var speed = 4 * FoodReward(5);
+            var first = boundaryCore.State.GetResearchState("First");
+            var second = boundaryCore.State.GetResearchState("Second");
+            var expectedSecond = ExpantaNum.Max(ExpantaNum.Zero, speed * seconds - new ExpantaNum(0.01d)) * 2;
+            var passed = seconds < 0.01d / speed.ToDouble()
+                ? !first.Completed && (first.Progress - (new ExpantaNum(199.99d) + speed * seconds)).Abs() < new ExpantaNum(1e-8d)
+                : first.Completed && !second.Completed;
+            // ExpantaNum quantizes intermediate scalar arithmetic to 1e-6.
+            AddResult(report, $"offline research completion boundary ({seconds}s)", passed &&
+                (second.Progress - expectedSecond).Abs() < new ExpantaNum(1e-5d),
+                $"Second progress={second.Progress}, expected={expectedSecond}; only true remainder uses the newly completed speed multiplier.");
+        }
+
+        var blocked = ResearchTimingSnapshot();
+        blocked.Research[0].PrerequisiteIds.Add("Second");
+        var blockedCore = BudgetCore(blocked, "0");
+        blockedCore.Tick(SimulationMode.Offline, 10d, 10d);
+        AddResult(report, "research blocked queue head", blockedCore.State.ActiveResearch is null &&
+            blockedCore.State.ResearchStates.Values.All(item => !item.Completed && item.Progress <= ExpantaNum.Zero),
+            "An unmet prerequisite at the queue head must block later entries.");
+        var unpaid = ResearchTimingSnapshot();
+        unpaid.Research[0].ResourceRequirements =
+            [new AmountSnapshot { ResourceId = "A", Value = "2" }, new AmountSnapshot { ResourceId = "B", Value = "2" }];
+        unpaid.RuntimeState.Research[0].CostPaid = false;
+        var paymentCore = BudgetCore(unpaid, "1");
+        paymentCore.State.SetResource("A", "2");
+        paymentCore.Tick(SimulationMode.Realtime, 0.01d, 0.01d);
+        var noPartialPayment = paymentCore.State.ActiveResearch is null &&
+            (paymentCore.State.GetResource("A") - 2).Abs() < new ExpantaNum(1e-9d) &&
+            (paymentCore.State.GetResource("B") - 1).Abs() < new ExpantaNum(1e-9d);
+        paymentCore.State.SetResource("B", "2");
+        paymentCore.Tick(SimulationMode.Realtime, 0.01d, 0.01d);
+        AddResult(report, "queued research payment is atomic", noPartialPayment &&
+            paymentCore.State.ActiveResearch == "First" && paymentCore.State.GetResource("A") <= ExpantaNum.Zero &&
+            paymentCore.State.GetResource("B") <= ExpantaNum.Zero && paymentCore.State.GetResearchState("First").Progress > ExpantaNum.Zero,
+            "Unaffordable head leaves all inputs intact; later funding pays every cost before progress.");
+
+        var activeUnpaid = ResearchTimingSnapshot();
+        activeUnpaid.RuntimeState.ActiveResearchId = "First";
+        activeUnpaid.RuntimeState.QueuedResearchIds = ["Second"];
+        activeUnpaid.RuntimeState.Research[0].CostPaid = false;
+        activeUnpaid.Research[0].ResourceRequirements = [new AmountSnapshot { ResourceId = "A", Value = "2" }];
+        var activeCore = BudgetCore(activeUnpaid, "10");
+        activeCore.Tick(SimulationMode.Offline, 10d, 10d);
+        AddResult(report, "unpaid active research waits", !activeCore.State.GetResearchState("First").CostPaid &&
+            activeCore.State.GetResearchState("First").Progress <= ExpantaNum.Zero &&
+            (activeCore.State.GetResource("A") - 10).Abs() < new ExpantaNum(1e-9d),
+            "Like Runtime Tick, active-but-unpaid input cannot consume resources or advance through the queue-head payment path.");
+
+    }
+
+    private static EconomySnapshot ResearchTimingSnapshot()
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Research = new[] { "First", "Second" }.Select((id, index) => new ResearchSnapshot
+        {
+            Id = id, Guid = (index + 500).ToString("x32"), AssetPath = $"fixture/{id}.asset",
+            TechLevel = "Animal", BaseCost = "1"
+        }).ToList();
+        snapshot.RuntimeState.Research = snapshot.Research.Select(item => new ResearchStateSnapshot
+            { ResearchId = item.Id, CostPaid = true }).ToList();
+        snapshot.InitialState.Research = snapshot.RuntimeState.Research;
+        snapshot.SaveState.Research = snapshot.RuntimeState.Research;
+        snapshot.RuntimeState.QueuedResearchIds = ["First", "Second"];
+        return snapshot;
     }
 
     private static void CheckSettledResourceBudgets(ValidationReport report)

@@ -76,6 +76,8 @@ public sealed class UltraProjectManager
     private readonly UltraProjectState state = new();
     private UltraProjectDefinition definition;
     private UltraProjectOperationFailure lastFailure;
+    private readonly List<Pair<Resource, ExpantaNum>> tickCosts = new();
+    private readonly Dictionary<Resource, int> tickCostIndexes = new();
 
     public UltraProjectState State => state;
     public UltraProjectDefinition Definition
@@ -586,13 +588,6 @@ public sealed class UltraProjectManager
             : stage.StablePostureMultiplier;
     }
 
-    private ExpantaNum CalculateProgressRate(UltraProjectStageDefinition stage, ExpantaNum satisfaction)
-    {
-        if (stage == null || stage.BaseDurationSeconds <= ExpantaNum.Zero)
-            return ExpantaNum.Zero;
-        return GetProgressMultiplier(stage) * satisfaction / stage.BaseDurationSeconds;
-    }
-
     private double FindSecondsToCompleteStage(
         UltraProjectStageDefinition stage,
         double maximumSeconds,
@@ -613,6 +608,27 @@ public sealed class UltraProjectManager
                 low = middle;
         }
         return high;
+    }
+
+    internal ExpantaNum GetCurrentFoodConsumptionRate()
+    {
+        UltraProjectStageDefinition stage = GetCurrentStageDefinition();
+        return state.Status == UltraProjectStatus.Running && stage != null
+            ? stage.FoodConsumptionRate * GetOperationalCostMultiplier()
+            : ExpantaNum.Zero;
+    }
+
+    internal ExpantaNum AccumulateTickResourceDemand(ResourceManager resources)
+    {
+        UltraProjectStageDefinition stage = GetCurrentStageDefinition();
+        if (state.Status != UltraProjectStatus.Running || stage == null)
+            return ExpantaNum.Zero;
+        ExpantaNum multiplier = GetOperationalCostMultiplier();
+        // Aggregate duplicate costs before multiplying, matching payment and preview arithmetic.
+        AggregateCosts(stage.ContinuousResourceCosts, tickCosts, tickCostIndexes);
+        for (int i = 0; i < tickCosts.Count; i++)
+            resources.AdjustTickPotentialConsumption(tickCosts[i].First, tickCosts[i].Second * multiplier);
+        return stage.FoodConsumptionRate * multiplier;
     }
 
     internal ExpantaNum GetCurrentPowerConsumptionRate()
@@ -645,9 +661,17 @@ public sealed class UltraProjectManager
         IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
     {
         List<Pair<Resource, ExpantaNum>> result = new();
-        Dictionary<Resource, int> indexes = new();
+        AggregateCosts(costs, result, new Dictionary<Resource, int>());
+        return result;
+    }
+
+    private static void AggregateCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        List<Pair<Resource, ExpantaNum>> result, Dictionary<Resource, int> indexes)
+    {
+        result.Clear();
+        indexes.Clear();
         if (costs == null)
-            return result;
+            return;
 
         for (int i = 0; i < costs.Count; i++)
         {
@@ -669,7 +693,6 @@ public sealed class UltraProjectManager
             }
         }
 
-        return result;
     }
 
     private static IReadOnlyList<Pair<Resource, ExpantaNum>> ScaleCosts(

@@ -5,6 +5,64 @@ using UnityEngine;
 public sealed class ResearchPaymentAutoTests
 {
     [Test]
+    public void StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave()
+    {
+        GameObject gameObject = new GameObject("ResearchDirectStart-GameManager");
+        GameObject resourceObject = new GameObject("ResearchDirectStart-ResourceManager");
+        GameObject buildingObject = new GameObject("ResearchDirectStart-BuildingManager");
+        GameObject researchObject = new GameObject("ResearchDirectStart-ResearchManager");
+        gameObject.AddComponent<GameManager>();
+        ResourceManager resources = resourceObject.AddComponent<ResourceManager>();
+        buildingObject.AddComponent<BuildingManager>();
+        ResearchManager research = researchObject.AddComponent<ResearchManager>();
+        research.InitializeForEditor();
+
+        try
+        {
+            Research target = DataBase<Research>.Find("Quarry");
+            Assert.That(research.ArePrerequisitesCompleted(target), Is.True);
+            Assert.That(research.CanAccessResearch(target), Is.True);
+            Assert.That(target.ResourceRequirements.Count, Is.GreaterThan(0));
+            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+                resources.SetAmount(cost.First, ExpantaNum.Zero);
+
+            Assert.That(research.HandleResearchAction(target),
+                Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
+            Assert.That(research.IsQueued(target), Is.True);
+            Assert.That(research.GetState(target).CostPaid, Is.False);
+            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+            {
+                Assert.That(resources.GetAmount(cost.First), Is.EqualTo(ExpantaNum.Zero),
+                    "An underfunded queue attempt must leave every resource balance unchanged.");
+                resources.SetAmount(cost.First, cost.Second * 2);
+            }
+
+            Assert.That(research.PayResearchCost(target), Is.EqualTo(ResearchPaymentResult.Paid));
+            Assert.That(research.StartResearch(target), Is.True);
+            Assert.That(research.IsQueued(target), Is.False);
+            Assert.That(research.ActiveResearch, Is.SameAs(research.GetState(target)));
+            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+                Assert.That(resources.GetAmount(cost.First).ToDouble(),
+                    Is.EqualTo(cost.Second.ToDouble()).Within(0.000001d),
+                    "Starting an already paid research must not charge it again.");
+
+            SaveManager.ResearchSaveData saved = JsonUtility.FromJson<SaveManager.ResearchSaveData>(
+                JsonUtility.ToJson(research.CaptureSaveData()));
+            Assert.That(saved.QueuedResearchIds, Does.Not.Contain(target.Id));
+            Assert.DoesNotThrow(() => research.RestoreSaveDataForEditor(saved));
+            Assert.That(research.ActiveResearch, Is.SameAs(research.GetState(target)));
+            Assert.That(research.IsQueued(target), Is.False);
+        }
+        finally
+        {
+            Object.DestroyImmediate(researchObject);
+            Object.DestroyImmediate(buildingObject);
+            Object.DestroyImmediate(resourceObject);
+            Object.DestroyImmediate(gameObject);
+        }
+    }
+
+    [Test]
     public void OfflineTickTransfersCompletionRemainderToNextResearch()
     {
         GameObject gameObject = new GameObject("ResearchOffline-GameManager");
@@ -65,7 +123,6 @@ public sealed class ResearchPaymentAutoTests
             Resource resource = DataBase<Resource>.Find("WoodLog");
             Research research = DataBase<Research>.Find("Quarry");
             Assert.That(resource, Is.Not.Null);
-            Assert.That(research, Is.Not.Null);
             Assert.That(research.ResourceRequirements.Count, Is.GreaterThan(0));
 
             for (int i = 0; i < research.ResourceRequirements.Count; i++)

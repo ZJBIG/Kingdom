@@ -30,14 +30,13 @@ public sealed class PageScrollPositionPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator StoryPageRestoresPositionAfterLeavingAndReturning()
+    public IEnumerator StoryPageRestoresPositionAfterResearchWarmupAndNavigation()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         yield return null;
         yield return new WaitForSeconds(0.6f);
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
         ScrollRect outerScroll = pageHost?.GetComponent<ScrollRect>();
         Button storyButton = root.transform.Find(
@@ -48,14 +47,28 @@ public sealed class PageScrollPositionPlayModeTests
         Assert.That(storyButton, Is.Not.Null);
         Assert.That(overviewButton, Is.Not.Null);
 
+        root.SetPage("Research");
+        yield return null;
+        Assert.That(outerScroll.enabled, Is.False, "Research owns its graph scrolling.");
+        overviewButton.onClick.Invoke();
+        yield return null;
+        Assert.That(outerScroll.enabled && outerScroll.vertical, Is.True);
+        Assert.That(outerScroll.content, Is.EqualTo(pageHost.Find("Overview")));
+
         storyButton.onClick.Invoke();
         yield return null;
         Canvas.ForceUpdateCanvases();
+        Assert.That(outerScroll.enabled && outerScroll.vertical, Is.True);
+        Assert.That(outerScroll.content, Is.EqualTo(pageHost.Find("Story")));
+        Assert.That(outerScroll.verticalNormalizedPosition, Is.GreaterThan(0.99f),
+            "Story must initially enter at the top of its content.");
         outerScroll.verticalNormalizedPosition = 0.42f;
         float expected = outerScroll.verticalNormalizedPosition;
 
         overviewButton.onClick.Invoke();
         yield return null;
+        Assert.That(outerScroll.enabled && outerScroll.vertical, Is.True);
+        Assert.That(outerScroll.content, Is.EqualTo(pageHost.Find("Overview")));
         storyButton.onClick.Invoke();
         yield return null;
         Canvas.ForceUpdateCanvases();

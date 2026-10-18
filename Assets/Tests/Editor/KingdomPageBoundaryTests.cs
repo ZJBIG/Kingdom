@@ -15,7 +15,6 @@ public sealed class KingdomPageBoundaryTests
             "SafeAreaRoot/Content/PageHost/Music/DataRows/MusicSurface/TrackListViewport" })
         {
             Transform frame = root.transform.Find(path + "/ScrollFrame");
-            Assert.That(frame, Is.Not.Null, path);
             Assert.That(frame.GetComponent<LayoutElement>().ignoreLayout, Is.True);
             foreach (string side in new[] { "Top", "Bottom", "Left", "Right" })
             {
@@ -116,7 +115,6 @@ public sealed class KingdomPageBoundaryTests
 
     private static void AssertNoMask(Transform shell, string path)
     {
-        Assert.That(shell, Is.Not.Null, path);
         Assert.That(shell.GetComponent<Mask>(), Is.Null, path);
         Assert.That(shell.GetComponent<RectMask2D>(), Is.Null, path);
     }

@@ -1,0 +1,240 @@
+{
+  "mode": "continuous online, fixed serial commands, no grants",
+  "final_game_seconds": 152436.8,
+  "final_game_hours": 42.343555555555554,
+  "final_game_days": 1.7643148148148147,
+  "test_duration_seconds": "219.9194443",
+  "test_result": "Passed",
+  "runner_exit": 0,
+  "commands_completed": 49,
+  "milestones": {
+    "Agriculture": {
+      "queued": 16.5,
+      "paid": 39.4,
+      "completed": 101.2
+    },
+    "ControlledFire": {
+      "queued": 123.2,
+      "paid": 123.2,
+      "completed": 135.4
+    },
+    "Quarry": {
+      "queued": 135.4,
+      "paid": 262.9,
+      "completed": 288.5
+    },
+    "KnowledgeSharing": {
+      "queued": 445.9,
+      "paid": 445.9,
+      "completed": 715.0
+    },
+    "ClayExtraction": {
+      "queued": 715.0,
+      "paid": 715.0,
+      "completed": 753.0
+    },
+    "StoneProcessing": {
+      "queued": 795.9,
+      "paid": 822.5,
+      "completed": 931.6
+    },
+    "Woodworking": {
+      "queued": 931.6,
+      "paid": 983.0,
+      "completed": 1155.3
+    },
+    "Mathematics": {
+      "queued": 1155.3,
+      "paid": 1157.5,
+      "completed": 1424.4
+    },
+    "Calendar": {
+      "queued": 1424.4,
+      "paid": 1424.4,
+      "completed": 1655.1
+    },
+    "AnimalHusbandry": {
+      "queued": 1655.1,
+      "paid": 1655.1,
+      "completed": 1683.5
+    },
+    "StoneAgeSettlement": {
+      "queued": 1683.5,
+      "paid": 2123.2,
+      "completed": 2406.4
+    },
+    "Mining": {
+      "queued": 2406.4,
+      "paid": 2406.4,
+      "completed": 2511.3
+    },
+    "CharcoalMaking": {
+      "queued": 2511.3,
+      "paid": 2511.3,
+      "completed": 3219.0
+    },
+    "Measurement": {
+      "queued": 3219.0,
+      "paid": 3219.0,
+      "completed": 3595.5
+    },
+    "MultiMetalSmeltingFundamentals": {
+      "queued": 3595.5,
+      "paid": 3595.5,
+      "completed": 5358.8
+    },
+    "BronzeAlloyCrafting": {
+      "queued": 5358.8,
+      "paid": 5430.9,
+      "completed": 7901.3
+    },
+    "IronworkingAndSteelmaking": {
+      "queued": 7901.3,
+      "paid": 7901.3,
+      "completed": 10136.9
+    },
+    "TextileCraft": {
+      "queued": 10136.9,
+      "paid": 10136.9,
+      "completed": 10324.6
+    },
+    "CeramicFiring": {
+      "queued": 10324.6,
+      "paid": 10324.6,
+      "completed": 10535.8
+    },
+    "WrittenRecords": {
+      "queued": 10535.8,
+      "paid": 10546.5,
+      "completed": 11310.7
+    },
+    "FeudalAdministration": {
+      "queued": 11310.7,
+      "paid": 11696.9,
+      "completed": 34572.3
+    },
+    "Steelmaking": {
+      "queued": 34572.3,
+      "paid": 34572.3,
+      "completed": 55818.0
+    },
+    "MechanicalEngineering": {
+      "queued": 55818.0,
+      "paid": 58372.2,
+      "completed": 74054.0
+    },
+    "Industrialization": {
+      "queued": 74054.0,
+      "paid": 94479.6,
+      "completed": 152436.8
+    }
+  },
+  "builds": [
+    {
+      "seconds": 16.5,
+      "building": "WoodHouse"
+    },
+    {
+      "seconds": 123.2,
+      "building": "Farm"
+    },
+    {
+      "seconds": 365.4,
+      "building": "Quarry"
+    },
+    {
+      "seconds": 445.9,
+      "building": "WoodHouse"
+    },
+    {
+      "seconds": 715.0,
+      "building": "KnowledgeCircle"
+    },
+    {
+      "seconds": 753.0,
+      "building": "ClayPit"
+    },
+    {
+      "seconds": 753.0,
+      "building": "WoodHouse"
+    },
+    {
+      "seconds": 795.9,
+      "building": "Farm"
+    },
+    {
+      "seconds": 931.6,
+      "building": "StoneCuttingWorkshop"
+    },
+    {
+      "seconds": 1155.3,
+      "building": "Lumberyard"
+    },
+    {
+      "seconds": 1655.1,
+      "building": "FiberGatheringCamp"
+    },
+    {
+      "seconds": 2406.4,
+      "building": "WoodHouse"
+    },
+    {
+      "seconds": 2406.4,
+      "building": "Farm"
+    },
+    {
+      "seconds": 2406.4,
+      "building": "FiberGatheringCamp"
+    },
+    {
+      "seconds": 2406.4,
+      "building": "FiberGatheringCamp"
+    },
+    {
+      "seconds": 2511.3,
+      "building": "MetalMine"
+    },
+    {
+      "seconds": 2511.3,
+      "building": "MetalMine"
+    },
+    {
+      "seconds": 2511.3,
+      "building": "CoalMine"
+    },
+    {
+      "seconds": 2511.3,
+      "building": "CoalMine"
+    },
+    {
+      "seconds": 5358.8,
+      "building": "MetalSmelter"
+    },
+    {
+      "seconds": 10324.6,
+      "building": "WeavingWorkshop"
+    },
+    {
+      "seconds": 10535.8,
+      "building": "CeramicKiln"
+    },
+    {
+      "seconds": 34572.3,
+      "building": "WoodHouse"
+    },
+    {
+      "seconds": 34572.3,
+      "building": "Farm"
+    },
+    {
+      "seconds": 55818.0,
+      "building": "SteelForge"
+    }
+  ],
+  "limitations": [
+    "No offline sessions",
+    "No player operation latency",
+    "No route search; serial command order can delay optional construction",
+    "Not evidence of player enjoyment"
+  ]
+}

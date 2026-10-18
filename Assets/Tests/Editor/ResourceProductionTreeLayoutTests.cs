@@ -24,7 +24,6 @@ public sealed class ResourceProductionTreeLayoutTests
     {
         GameObject root = Resources.Load<GameObject>("UI/Kingdom/KingdomUIRoot");
         Transform page = root.transform.Find("SafeAreaRoot/Content/PageHost/Production");
-        Assert.That(page, Is.Not.Null);
         Transform viewport = page.Find("GraphViewport");
         Assert.That(viewport.GetComponent<UIResearchGraphGesture>(), Is.Not.Null);
         Assert.That(viewport.GetComponent<UnityEngine.UI.Image>().raycastTarget, Is.True);

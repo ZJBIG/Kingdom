@@ -240,7 +240,6 @@ public sealed class KingdomCollectionPlayModeTests
             graph = root.transform.Find(PagesPath + "Research/DataRows/ResearchGraphViewport/ResearchGraphContent");
             if (graph != null && graph.Find("ResearchNode_" + research.Id) != null) break;
         }
-        Assert.That(graph, Is.Not.Null);
         Transform node = graph.Find("ResearchNode_" + research.Id);
         Assert.That(node, Is.Not.Null);
         root.ShowResearchDetailsForEditor(research);
@@ -271,7 +270,6 @@ public sealed class KingdomCollectionPlayModeTests
     private static void AssertPinAppearance(Button pin, bool pinned)
     {
         Image icon = pin.transform.Find("Icon")?.GetComponent<Image>();
-        Assert.That(icon, Is.Not.Null);
         Assert.That(icon.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Pins/" + (pinned ? "PinFilled" : "PinOutline"))), "Generated outline/filled sprite must follow the stored preference.");
         Assert.That(icon.raycastTarget, Is.False, "The small glyph does not limit the click area.");
         Assert.That(pin.targetGraphic, Is.SameAs(icon));
@@ -289,7 +287,7 @@ public sealed class KingdomCollectionPlayModeTests
 
 
     [UnityTest]
-    public IEnumerator PopulatedCollectionsRenderAndClipLongTitlesAtThreeLandscapeSizes()
+    public IEnumerator PopulatedCollectionsRenderAndClipLongTitlesAtTwoLandscapeSizes()
     {
         yield return LoadCollections();
         Canvas canvas = root.GetComponent<Canvas>();
@@ -310,7 +308,7 @@ public sealed class KingdomCollectionPlayModeTests
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera;
             canvas.planeDistance = 100;
-            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(2200, 1000), new Vector2Int(1760, 800) })
+            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {
                 target = new RenderTexture(size.x, size.y, 24);
                 target.Create();

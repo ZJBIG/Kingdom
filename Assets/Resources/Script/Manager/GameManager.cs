@@ -160,14 +160,30 @@ public class GameManager : Singleton<GameManager>
         double calSeconds,
         ExpantaNum populationDepartureAllowance)
     {
+        double fedSeconds = simSeconds;
+        ExpantaNum foodDeficit = -State.FoodNetRate;
+        if (foodDeficit > ExpantaNum.Zero &&
+            State.FoodAmount < foodDeficit * simSeconds)
+        {
+            fedSeconds = Math.Min(simSeconds,
+                Math.Max(0d, (State.FoodAmount / foodDeficit).ToDouble()));
+        }
         State.AdvanceFood(simSeconds);
         ExpantaNum populationGrowthRate = PopulationGrowthRatePerSecond;
-        bool foodShortage = CanPopulationLeaveForFoodShortage();
         State.AdvancePopulation(
-            simSeconds,
+            fedSeconds,
             populationGrowthRate,
             populationDepartureAllowance,
-            foodShortage);
+            false);
+        double unfedSeconds = simSeconds - fedSeconds;
+        if (unfedSeconds > 0d)
+        {
+            State.AdvancePopulation(
+                unfedSeconds,
+                populationGrowthRate,
+                populationDepartureAllowance,
+                true);
+        }
         calendarElapsedSeconds += calSeconds;
         while (calendarElapsedSeconds >= SecondsPerDay)
         {

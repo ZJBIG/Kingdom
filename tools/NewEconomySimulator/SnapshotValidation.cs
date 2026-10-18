@@ -97,6 +97,11 @@ public static class SnapshotValidation
         CheckDefinitions(result, snapshot.Workshops, "Workshop", DefinitionKind.Workshop, index);
         CheckDefinitions(result, snapshot.Sectors, "Sector", DefinitionKind.Sector, index);
 
+        if (snapshot.Resources != null)
+            foreach (var resource in snapshot.Resources)
+                if (resource != null && (!ExpantaNum.TryParse(resource.BaseProductionRate, out var baseProduction) ||
+                    !baseProduction.IsFinite || baseProduction < ExpantaNum.Zero))
+                    result.Errors.Add($"Invalid BaseProductionRate for '{resource.Id}'.");
         ValidateBuildings(result, snapshot.Buildings, index);
         ValidateResearch(result, snapshot.Research, index);
         ValidateWorkshops(result, snapshot.Workshops, index);
@@ -112,9 +117,7 @@ public static class SnapshotValidation
 
     private sealed class DefinitionIndex
     {
-        private readonly HashSet<string> ids = new(StringComparer.Ordinal);
         private readonly HashSet<string> guids = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, DefinitionKind> kinds = new(StringComparer.Ordinal);
         private readonly Dictionary<DefinitionKind, HashSet<string>> idsByKind = new()
         {
             [DefinitionKind.Resource] = new(StringComparer.Ordinal),
@@ -137,24 +140,20 @@ public static class SnapshotValidation
             }
 
             string id = definition.Id.Trim();
-            if (!ids.Add(id))
+            if (!idsByKind[kind].Add(id))
                 result.Errors.Add($"Duplicate stable ID '{id}' in {kindName} definitions.");
-            else
-            {
-                kinds[id] = kind;
-                idsByKind[kind].Add(id);
-            }
 
             if (!GuidValid(definition.Guid) || !guids.Add(definition.Guid))
                 result.Errors.Add($"Invalid or duplicate Unity GUID for '{id}'.");
             if (string.IsNullOrWhiteSpace(definition.AssetPath))
                 result.Errors.Add($"Missing asset path for '{id}'.");
-            if (string.IsNullOrWhiteSpace(definition.TechLevel) ||
-                !ExpectedTechLevels.Contains(definition.TechLevel, StringComparer.Ordinal))
+            // Sectors have domain/system gates, not a TechLevel in Runtime.
+            if (kind != DefinitionKind.Sector && (string.IsNullOrWhiteSpace(definition.TechLevel) ||
+                !ExpectedTechLevels.Contains(definition.TechLevel, StringComparer.Ordinal)))
                 result.Errors.Add($"Unknown tech level '{definition.TechLevel}' for '{id}'.");
         }
 
-        public bool TryGetKind(string id, out DefinitionKind kind) => kinds.TryGetValue(id, out kind);
+        public bool Contains(string id, DefinitionKind kind) => idsByKind[kind].Contains(id);
 
         public IEnumerable<string> GetIds(DefinitionKind kind) => idsByKind[kind];
     }
@@ -377,6 +376,7 @@ public static class SnapshotValidation
             CheckNumbers(result, owner,
             [
                 ("Population", save.Population),
+                ("PopulationChangeProgress", save.PopulationChangeProgress),
                 ("TerritoryTotal", save.TerritoryTotal),
                 ("AttackPower", save.AttackPower),
                 ("DefensePower", save.DefensePower),
@@ -388,6 +388,9 @@ public static class SnapshotValidation
                 ("CampaignCasualties", save.CampaignCasualties),
                 ("CampaignCombatRatio", save.CampaignCombatRatio)
             ]);
+            if (ExpantaNum.TryParse(save.PopulationChangeProgress, out var populationProgress) && populationProgress.IsFinite &&
+                (populationProgress < ExpantaNum.Zero || populationProgress > ExpantaNum.One))
+                result.Errors.Add($"PopulationChangeProgress must be in [0, 1] in '{owner}'.");
             if (save.CalendarDays < 0 || save.LastSaveUnixSeconds < 0)
                 result.Errors.Add($"Negative calendar/save timestamp in '{owner}'.");
             CheckOptionalRef(result, owner, save.ActiveResearchId, DefinitionKind.Research, index);
@@ -534,10 +537,8 @@ public static class SnapshotValidation
         DefinitionKind expectedKind,
         DefinitionIndex index)
     {
-        if (!index.TryGetKind(id, out var actualKind))
-            result.Errors.Add($"Unknown reference '{id}' in '{owner}'.");
-        else if (actualKind != expectedKind)
-            result.Errors.Add($"Reference '{id}' in '{owner}' has kind {actualKind}, expected {expectedKind}.");
+        if (!index.Contains(id, expectedKind))
+            result.Errors.Add($"Unknown {expectedKind} reference '{id}' in '{owner}'.");
     }
 
     private static void CheckNumbers(
@@ -628,8 +629,6 @@ public static class SnapshotValidation
         state.Research = SortedStates(state.Research, value => value?.ResearchId)!;
         state.PurchasedWorkshopIds = SortedStrings(state.PurchasedWorkshopIds)!;
         state.Sectors = SortedStates(state.Sectors, value => value?.SectorId)!;
-        if (state is SaveStateSnapshot save)
-            save.QueuedResearchIds = SortedStrings(save.QueuedResearchIds)!;
         if (state is RuntimeStateSnapshot runtime)
         {
             runtime.Events = runtime.Events is null

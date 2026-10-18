@@ -1,0 +1,645 @@
+{
+  "FormatVersion": 4,
+  "initialProgress": "0.625",
+  "initialQueue": [
+    "ControlledFire",
+    "Agriculture"
+  ],
+  "after": {
+    "Tick": 1,
+    "ElapsedSeconds": 0.1,
+    "RequestedSeconds": 0.1,
+    "TechLevel": "Animal",
+    "CalendarDays": 0,
+    "Food": "300.42",
+    "FoodCapacity": "500",
+    "Population": "1",
+    "PopulationCapacity": "5",
+    "PopulationChangeProgress": "0.626612",
+    "TerritoryTotal": "500",
+    "AttackPower": "0",
+    "DefensePower": "0",
+    "FleetPower": "0",
+    "MilitaryManpower": "0",
+    "CampaignActive": false,
+    "CampaignTargetSectorId": "",
+    "CampaignProgress": "0",
+    "CampaignCasualties": "0",
+    "CampaignCombatRatio": "0",
+    "ActiveResearch": "",
+    "CompletedResearch": [],
+    "Resources": [
+      {
+        "Id": "AdvancedMetalIngot",
+        "Amount": "0"
+      },
+      {
+        "Id": "AdvancedMetalOre",
+        "Amount": "0"
+      },
+      {
+        "Id": "BasicMetalIngot",
+        "Amount": "0"
+      },
+      {
+        "Id": "BasicMetalOre",
+        "Amount": "0"
+      },
+      {
+        "Id": "Biomass",
+        "Amount": "0"
+      },
+      {
+        "Id": "Ceramic",
+        "Amount": "0"
+      },
+      {
+        "Id": "Chemical",
+        "Amount": "0"
+      },
+      {
+        "Id": "Clay",
+        "Amount": "0"
+      },
+      {
+        "Id": "Cloth",
+        "Amount": "0"
+      },
+      {
+        "Id": "Coal",
+        "Amount": "0"
+      },
+      {
+        "Id": "Coke",
+        "Amount": "0"
+      },
+      {
+        "Id": "Composite",
+        "Amount": "0"
+      },
+      {
+        "Id": "Concrete",
+        "Amount": "0"
+      },
+      {
+        "Id": "CopperWire",
+        "Amount": "0"
+      },
+      {
+        "Id": "CrudeOil",
+        "Amount": "0"
+      },
+      {
+        "Id": "Electronics",
+        "Amount": "0"
+      },
+      {
+        "Id": "Engine",
+        "Amount": "0"
+      },
+      {
+        "Id": "Explosives",
+        "Amount": "0"
+      },
+      {
+        "Id": "Glass",
+        "Amount": "0"
+      },
+      {
+        "Id": "Lubricant",
+        "Amount": "0"
+      },
+      {
+        "Id": "Machinery",
+        "Amount": "0"
+      },
+      {
+        "Id": "PhantomAlloy",
+        "Amount": "0"
+      },
+      {
+        "Id": "PhantomWeave",
+        "Amount": "0"
+      },
+      {
+        "Id": "PhaseMaterial",
+        "Amount": "0"
+      },
+      {
+        "Id": "RefinedFuel",
+        "Amount": "0"
+      },
+      {
+        "Id": "RocketFuel",
+        "Amount": "0"
+      },
+      {
+        "Id": "Rubber",
+        "Amount": "0"
+      },
+      {
+        "Id": "SpecialMetalOre",
+        "Amount": "0"
+      },
+      {
+        "Id": "Steel",
+        "Amount": "0"
+      },
+      {
+        "Id": "StoneBrick",
+        "Amount": "0"
+      },
+      {
+        "Id": "StoneChunk",
+        "Amount": "0"
+      },
+      {
+        "Id": "TitaniumAlloy",
+        "Amount": "0"
+      },
+      {
+        "Id": "WoodLog",
+        "Amount": "0"
+      }
+    ],
+    "Buildings": [
+      {
+        "Id": "Academy",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "AdvancedCeramicsPlant",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "AdvancedMetalRefinery",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "AdvancedMetalSmelter",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "AutonomousMatterFabricator",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "BuildingMaterialsComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Caravanserai",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "CentralPowerStation",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "CeramicKiln",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "CharcoalKiln",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "ChemicalPlant",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "ClayPit",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "CoalMine",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "CokeOven",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "DeepSpaceObservatory",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "DeepSpaceRelay",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "EarthMoonLogisticsHub",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Farm",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "FiberGatheringCamp",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Granary",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IndustrialCarbonizationRetort",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IndustrialHabitationComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IndustrialMetalSmelter",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IndustrialOilExtractionComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IndustrialStoneworks",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IntegratedMetalMine",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IntegratedPetrochemicalComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "InterstellarTheoryNexus",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "IrrigationWorks",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "KnowledgeCircle",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "LaunchCenter",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Library",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Lumberyard",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MachineFactory",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MechanizedCoalMine",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MechanizedLumberyard",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MechanizedTextileMill",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MetalMine",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "MetalSmelter",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OilDerrick",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OilRefinery",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalAgroecologyArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalBuildingMaterialsWorks",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalCarbonizationComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalCryogenicPropellantArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalHabitatMegastructure",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalMachiningComplex",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalResourceExtractionArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalSolarArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalStation",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "OrbitalWireWorks",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "PhantomMaterialsFabricator",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "PhaseEnergyArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "PhaseMaterialSynthesisArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "PlantingField",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "QuantumComputingArray",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Quarry",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "RailHub",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "ScribeHut",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Shipyard",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "Smokehouse",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "SteamPlant",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "SteelForge",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "StoneCuttingWorkshop",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "StoneHouse",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "TitaniumAlloySmelter",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "TownHouse",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "UltraComputingNexus",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "University",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "WeavingWorkshop",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "WireMill",
+        "Amount": "0",
+        "Efficiency": "1"
+      },
+      {
+        "Id": "WoodHouse",
+        "Amount": "1",
+        "Efficiency": "1"
+      }
+    ],
+    "Workshops": [],
+    "Sectors": [
+      {
+        "Id": "AlphaCentauri",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "AzurePool",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "DawnRing",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "HeliosCore",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "ProximaB",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "ShardCrown",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "SiriusResourceBelt",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "TauCetiFoundry",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "Terminus",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      },
+      {
+        "Id": "ThunderGate",
+        "Unlocked": false,
+        "Occupied": false,
+        "ColonizationActive": false,
+        "CampaignActive": false,
+        "Progress": "0",
+        "Casualties": "0",
+        "CombatRatio": "0",
+        "VisitCount": 0
+      }
+    ]
+  },
+  "differences": [
+    "Resource:WoodLog: actual=0, expected=0.120863"
+  ],
+  "passed": false
+}

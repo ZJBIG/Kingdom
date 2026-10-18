@@ -1,0 +1,54 @@
+[
+  {
+    "path": "Assets/Tests/Editor/AdvancedMaterialProgressionTests.cs",
+    "sha256": "4b11d45ad2c6283885d7d39a133b69c0caa5ca662478b44a4ecfcadeffc4ef0d"
+  },
+  {
+    "path": "Assets/Tests/Editor/GlobalEconomyDefinitionTests.cs",
+    "sha256": "66abbf5efef8d4a75c97e162cc10f08ba8e0cc2b028f5c93e6dc85172d24ed80"
+  },
+  {
+    "path": "Assets/Tests/Editor/IndustrialWorkshopAvailabilityTests.cs",
+    "sha256": "9c1653d327d7987a790111bf49b532335cd37c656ce96ab5e1a62729fc12882d"
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomUiLifecycleTests.cs",
+    "sha256": "73306635f741c610e762b81f652c11457d9f58bf407cc7ca472c7e616133ae39"
+  },
+  {
+    "path": "Assets/Tests/Editor/PreSpacerCombatRemovalTests.cs",
+    "sha256": "3ac395514f9f75a18583c182480e7891f607877e478e71d7e5cba388a0b32837"
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchBalanceTests.cs",
+    "sha256": "a2b0ac832c9b6f102053397c7cb7f9579cbd8be92981b837b87eefcdfebb8c0c"
+  },
+  {
+    "path": "Assets/Tests/Editor/SectorDefinitionTests.cs",
+    "sha256": "6eb52b4438c1d9deba549263bf80f48010d95a9860302a38a8910bc0738d2f55"
+  },
+  {
+    "path": "Assets/Tests/Editor/SpaceProgressionTests.cs",
+    "sha256": "c3f419df8f941ca114b6bd4a6f6d8d0014bccd8a9aae78526df11ae2d585d141"
+  },
+  {
+    "path": "Assets/Tests/Editor/UltraContentSliceTests.cs",
+    "sha256": "6ad45f53abfe7e8264c1b15ec321b52f98ad324fbf1a22e39fc6d9ee54f39d0c"
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomButtonMaterialPlayModeTests.cs",
+    "sha256": "c2c1ac415ced8c8d22b8e5fa09d4ace71f366cc5dce13b8392b04410d8befc7a"
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs",
+    "sha256": "dc9170fdc85b80307409b6d0ca0964f53e948f2499026772ad7b56168ac6e07d"
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "sha256": "7ca32a228cf752b3b184a12cd789ec1d9fe4ae45663872eac3c4a998b511b0f0"
+  },
+  {
+    "path": "Assets/Tests/PlayMode/PageScrollPositionPlayModeTests.cs",
+    "sha256": "1d1584c5644c5ba673df0ab1630a841552e9e072a704d5b3724ad5652bdd1902"
+  }
+]

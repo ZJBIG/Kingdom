@@ -61,6 +61,12 @@ public sealed class StoryIllustrationPlayModeTests
             Image image = locked.Find("IllustrationFrame/Illustration").GetComponent<Image>();
             Assert.That(image.transform.parent.gameObject.activeSelf, Is.False, id + " is still locked.");
             Assert.That(image.sprite, Is.Null, "Locked chapter must not bind unrevealed art.");
+            StoryChapter chapter = StoryManager.Chapters[i];
+            TMP_Text body = locked.Find("BodyViewport/Body").GetComponent<TMP_Text>();
+            Assert.That(body.text, Is.EqualTo(StoryManager.GetChapterProgressHint(
+                chapter, GameManager.Instance.State.TechLevel)), id);
+            Assert.That(body.text, Does.Not.Contain(chapter.Body),
+                "Locked chapter must not reveal its story body.");
         }
         Button navigation = first.Find("Header/Actions/StoryChapterNavigation").GetComponent<Button>();
         Assert.That(navigation.gameObject.activeInHierarchy && navigation.interactable, Is.True);
@@ -134,22 +140,6 @@ public sealed class StoryIllustrationPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator CompletedWorkshopAndMoonChaptersDisplayTheirOwnArt()
-    {
-        yield return LoadStory(15, TechLevel.Spacer);
-        RectTransform moon = Card("FrontierSectors_14");
-        AssertVisibleImage(moon, StoryManager.Chapters[14].Illustration);
-        RectTransform workshop = Card("WorkshopMemory_09");
-        Assert.That(workshop.Find("IllustrationFrame").gameObject.activeSelf, Is.False);
-        workshop.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
-        yield return null;
-        Canvas.ForceUpdateCanvases();
-        AssertVisibleImage(workshop, StoryManager.Chapters[9].Illustration);
-        AssertNoOverlap(workshop, Card("IndustrialPower_10"));
-        Assert.That(moon.Find("Header/Actions/StoryChapterNavigation").GetComponent<Button>().interactable, Is.True);
-    }
-
-    [UnityTest]
     public IEnumerator EveryCompletedChapterCanDisplayItsArtWithoutOverlappingFollowingCards()
     {
         yield return LoadStory(StoryManager.Chapters.Count, TechLevel.Ultra);
@@ -165,6 +155,9 @@ public sealed class StoryIllustrationPlayModeTests
                 AssertNoOverlap(card, Card(StoryManager.Chapters[i + 1].Id));
             }
             AssertVisibleImage(card, chapter.Illustration);
+            if (chapter.Id == "FrontierSectors_14")
+                Assert.That(card.Find("Header/Actions/StoryChapterNavigation")
+                    .GetComponent<Button>().interactable, Is.True);
             TMP_Text title = card.Find("Header/Title").GetComponent<TMP_Text>();
             Assert.That(title.rectTransform.rect.height,
                 Is.GreaterThanOrEqualTo(title.preferredHeight - 2f),
@@ -201,7 +194,6 @@ public sealed class StoryIllustrationPlayModeTests
     private RectTransform Card(string id)
     {
         Transform surface = root.transform.Find(SurfacePath);
-        Assert.That(surface, Is.Not.Null);
         RectTransform card = surface.Find("StoryChapter_" + id) as RectTransform;
         Assert.That(card, Is.Not.Null, id);
         return card;

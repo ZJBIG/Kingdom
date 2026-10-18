@@ -94,12 +94,11 @@ public sealed class ResearchState
         bool restoredCostPaid,
         bool completed,
         IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts) =>
-        Restore(restoredProgress, restoredCostPaid, completed, restoredPaidResourceCosts);
+        Restore(restoredProgress, completed, restoredPaidResourceCosts);
 #endif
 
     internal void Restore(
         ExpantaNum restoredProgress,
-        bool restoredCostPaid,
         bool completed,
         IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts)
     {
@@ -132,7 +131,7 @@ public sealed class ResearchState
         SetCostPaid(AreAllResourceCostsPaid());
         if (completed)
         {
-            if (!AreAllResourceCostsPaid())
+            if (!CostPaid)
                 throw new InvalidOperationException(
                     "A research cannot be restored as completed before all resource costs are paid.");
             SetProgress(BaseCost);

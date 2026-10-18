@@ -33,6 +33,148 @@ public sealed class EconomyIntegrationRegressionTests
     }
 
     [Test]
+    public void ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder()
+    {
+        GameManager game = CreateManager<GameManager>("ParitySnapshot-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ParitySnapshot-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("ParitySnapshot-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("ParitySnapshot-Research");
+        CreateManager<WorkshopManager>("ParitySnapshot-Workshop");
+        CreateManager<SaveManager>("ParitySnapshot-Save");
+        SimulationManager simulation = CreateManager<SimulationManager>("ParitySnapshot-Simulation");
+        Building house = DataBase<Building>.Find("WoodHouse");
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
+        game.State.RestorePopulationForEditor(ExpantaNum.One);
+        simulation.ManualTick(0d);
+        foreach (ResourceState state in resources.States.Values)
+            resources.SetAmount(state.Definition, ExpantaNum.Zero);
+        game.State.RestorePopulationChangeProgressForEditor(new ExpantaNum(0.625d));
+        research.HandleResearchAction(DataBase<Research>.Find("ControlledFire"));
+        research.HandleResearchAction(DataBase<Research>.Find("Agriculture"));
+        string[] queue = research.ResearchQueue.Select(state => state.Definition.Id).ToArray();
+        // Stable IDs and queue ordering require exact comparison.
+        Assert.That(queue, Is.EqualTo(new[] { "ControlledFire", "Agriculture" }));
+
+        int runtimeBuildingCount = buildings.States.Count;
+        EconomySnapshotDto snapshot = JsonUtility.FromJson<EconomySnapshotDto>(
+            JsonUtility.ToJson(EconomyParitySnapshotExporter.CaptureCurrent()));
+        Assert.That(snapshot.SaveState.Buildings.Select(state => state.BuildingId),
+            Is.EquivalentTo(snapshot.Buildings.Select(definition => definition.Id)));
+        Assert.That(snapshot.RuntimeState.Buildings.Select(state => state.BuildingId),
+            Is.EquivalentTo(snapshot.Buildings.Select(definition => definition.Id)));
+        Assert.That(buildings.States.Count, Is.EqualTo(runtimeBuildingCount),
+            "Export must materialize zero snapshot entries without creating runtime buildings."); // Discrete count.
+        string evidencePath = Environment.GetEnvironmentVariable("KINGDOM_PARITY_SNAPSHOT_PATH");
+        if (!string.IsNullOrWhiteSpace(evidencePath))
+            System.IO.File.WriteAllText(evidencePath, JsonUtility.ToJson(snapshot, true));
+        foreach (SaveStateDto state in new SaveStateDto[] { snapshot.SaveState, snapshot.RuntimeState })
+        {
+            Assert.That(ExpantaNum.Parse(state.PopulationChangeProgress).ToDouble(),
+                Is.EqualTo(0.625d).Within(1e-6d));
+            Assert.That(state.QueuedResearchIds, Is.EqualTo(queue));
+        }
+        simulation.ManualTick(0.1d);
+        Assert.That(game.State.Population.PopulationChangeProgress.ToDouble(), Is.InRange(0.625001d, 0.99d));
+        if (!string.IsNullOrWhiteSpace(evidencePath))
+            EconomyParitySnapshotExporter.ExportCurrent(evidencePath + ".after.json");
+    }
+
+    [Test]
+    public void GranarySaveRoundTrip_PreservesDerivedFoodCapacityAndInventory()
+    {
+        GameManager game = CreateManager<GameManager>("GranarySave-Game");
+        CreateManager<ResourceManager>("GranarySave-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("GranarySave-Buildings");
+        CreateManager<ResearchManager>("GranarySave-Research");
+        CreateManager<WorkshopManager>("GranarySave-Workshop");
+        SaveManager save = CreateManager<SaveManager>("GranarySave-Save");
+        if (TutorialManager.Current == null)
+            createdObjects.Add(TutorialManager.Ensure().gameObject);
+
+        game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, game.State.FoodAmount, 0L);
+        Building granary = DataBase<Building>.Find("Granary");
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(granary), ExpantaNum.One);
+        game.State.AdvanceFoodForEditor(10000d);
+        ExpantaNum capacityBefore = game.State.FoodCapacity;
+        ExpantaNum foodBefore = game.State.FoodAmount;
+        Assert.That(foodBefore, Is.GreaterThan(GameState.BaseFoodCapacity),
+            "Inventory must use the authored granary capacity to expose the load defect.");
+
+        SaveManager.KingdomSaveData restored = SaveManager.ParseSaveDataForEditor(
+            JsonUtility.ToJson(save.CaptureSaveData()));
+        for (int roundTrip = 0; roundTrip < 2; roundTrip++)
+        {
+            save.ApplySaveDataForEditor(restored);
+            Assert.That(game.State.FoodCapacity.ToDouble(),
+                Is.EqualTo(capacityBefore.ToDouble()).Within(0.000001d),
+                "Reload must derive capacity from the same base and granary exactly once.");
+            Assert.That(game.State.FoodAmount.ToDouble(),
+                Is.EqualTo(foodBefore.ToDouble()).Within(0.000001d));
+            restored = SaveManager.ParseSaveDataForEditor(JsonUtility.ToJson(save.CaptureSaveData()));
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void PopulationFoodBoundary_ExactCoverageDoesNotAccumulateDepartureOnlineOrOffline(bool offline)
+    {
+        GameManager game = CreateManager<GameManager>("FoodBoundary-Game");
+        CreateManager<ResourceManager>("FoodBoundary-Resources");
+        CreateManager<BuildingManager>("FoodBoundary-Buildings");
+        CreateManager<ResearchManager>("FoodBoundary-Research");
+        CreateManager<WorkshopManager>("FoodBoundary-Workshop");
+        SimulationManager simulation = CreateManager<SimulationManager>("FoodBoundary-Simulation");
+        game.State.RestoreCoreForEditor(0, TechLevel.Animal, new ExpantaNum(180), 0L);
+        game.State.RestorePopulationForEditor(new ExpantaNum(10));
+        game.State.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
+
+        if (offline)
+            simulation.AdvanceOffline(60d);
+        else
+            simulation.ManualTick(60d);
+
+        Assert.That(game.State.FoodAmount.ToDouble(), Is.InRange(0d, 1e-6d));
+        Assert.That(game.State.Population.PopulationChangeProgress.ToDouble(), Is.InRange(0d, 1e-6d),
+            "Stock covering the complete tick must not create starvation time at its endpoint.");
+        Assert.That(game.State.CalendarDays, Is.EqualTo(6)); // Discrete calendar step count.
+    }
+
+    [Test]
+    public void PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress()
+    {
+        GameManager game = CreateManager<GameManager>("PopulationSave-Game");
+        CreateManager<ResourceManager>("PopulationSave-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("PopulationSave-Buildings");
+        CreateManager<ResearchManager>("PopulationSave-Research");
+        CreateManager<WorkshopManager>("PopulationSave-Workshop");
+        SaveManager save = CreateManager<SaveManager>("PopulationSave-Save");
+        if (TutorialManager.Current == null)
+            createdObjects.Add(TutorialManager.Ensure().gameObject);
+
+        game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, ExpantaNum.Zero, 0L);
+        Building house = DataBase<Building>.Find("WoodHouse");
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
+        ExpantaNum capacity = game.State.Population.PopulationCapacity;
+        Assert.That(capacity, Is.GreaterThan(ExpantaNum.Zero));
+        game.State.RestorePopulationForEditor(capacity);
+        double halfDepartureSeconds = 1800d / capacity.ToDouble();
+        game.State.Population.AdvancePopulationForEditor(
+            halfDepartureSeconds, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
+        double progress = game.State.Population.PopulationChangeProgress.ToDouble();
+        Assert.That(progress, Is.InRange(0.49d, 0.51d));
+
+        SaveManager.KingdomSaveData restored = SaveManager.ParseSaveDataForEditor(
+            JsonUtility.ToJson(save.CaptureSaveData()));
+        save.ApplySaveDataForEditor(restored);
+        Assert.That(game.State.Population.PopulationCapacity, Is.EqualTo(capacity)); // Discrete housing count.
+        Assert.That(game.State.Population.PopulationChangeProgress.ToDouble(),
+            Is.EqualTo(progress).Within(1e-9d));
+        game.State.Population.AdvancePopulationForEditor(
+            halfDepartureSeconds, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, true);
+        Assert.That(game.State.Population.Population, Is.EqualTo(capacity - ExpantaNum.One)); // Discrete departure.
+    }
+
+    [Test]
     public void FinalIndustrialChains_UpgradeTransactionsAndSaveJsonRemainValid()
     {
         GameManager game = CreateManager<GameManager>("Economy-Game");
@@ -695,6 +837,93 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(capLoss.ToDouble(), Is.EqualTo(10d).Within(0.000001d));
     }
 
+    [Test]
+    public void ProductionBudget_CorrectionRefreshesSeparateCyclesAndIgnoresIdleResources()
+    {
+        GameManager game = CreateManager<GameManager>("BudgetRefresh-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("BudgetRefresh-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("BudgetRefresh-Buildings");
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        Resource[] inputs = Enumerable.Range(0, 4)
+            .Select(i => CreateBudgetResource("BudgetRefreshInput" + i)).ToArray();
+        BuildingState[] states = new BuildingState[4];
+        for (int i = 0; i < states.Length; i++)
+        {
+            Building definition = CreateBudgetBuilding("BudgetRefreshBuilding" + i, inputs[i ^ 1], inputs[i]);
+            states[i] = buildings.EnsureBuilding(definition);
+            buildings.SetAmountAndRatesForEditor(states[i], 1);
+        }
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        double[] initial = states.Select(state => state.Efficiency.ToDouble()).ToArray();
+        for (int i = 0; i < 256; i++)
+            resources.EnsureResource(CreateBudgetResource("BudgetIdle" + i));
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        for (int i = 0; i < states.Length; i++)
+            Assert.That(states[i].Efficiency.ToDouble(), Is.EqualTo(initial[i]).Within(1e-6d));
+
+        foreach (Resource input in inputs)
+            resources.SetAmount(input, 10);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        foreach (BuildingState state in states)
+            Assert.That(state.Efficiency.ToDouble(), Is.GreaterThan(0.99d));
+        foreach (Resource input in inputs)
+            resources.SetAmount(input, 0);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        for (int i = 0; i < states.Length; i++)
+        {
+            Assert.That(states[i].Efficiency.ToDouble(), Is.EqualTo(initial[i]).Within(1e-6d));
+            AssertBudget(resources.GetState(inputs[i]), game.State.HappinessRewardMultiplier);
+        }
+    }
+
+    [TestCase(0, true, false)]
+    [TestCase(256, true, false)]
+    [TestCase(256, true, true)]
+    [TestCase(256, false, false)]
+    [Category("Performance")]
+    public void ProductionBudget_CorrectionPipelineBenchmark(int idleResources, bool correction, bool idleFirst)
+    {
+        GameManager game = CreateManager<GameManager>("BudgetPerf-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("BudgetPerf-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("BudgetPerf-Buildings");
+        game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
+        if (idleFirst)
+            AddIdleResources();
+        Resource x = CreateBudgetResource("BudgetPerfX");
+        Resource y = CreateBudgetResource("BudgetPerfY");
+        Building a = CreateBudgetBuilding("BudgetPerfA", y, x);
+        Building b = CreateBudgetBuilding("BudgetPerfB", x, y);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(a), 1);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(b), 1);
+        resources.SetAmount(x, correction ? 0d : 10d);
+        resources.SetAmount(y, correction ? 0d : 10d);
+        if (!idleFirst)
+            AddIdleResources();
+        for (int i = 0; i < 4; i++)
+            buildings.PrepareTickResourceSatisfactionForEditor(1d);
+
+        const int iterations = 16;
+        double[] samples = new double[5];
+        for (int sample = 0; sample < samples.Length; sample++)
+        {
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < iterations; i++)
+                buildings.PrepareTickResourceSatisfactionForEditor(1d);
+            timer.Stop();
+            samples[sample] = timer.Elapsed.TotalMilliseconds / iterations;
+        }
+        System.Array.Sort(samples);
+        TestContext.WriteLine($"Budget pipeline idle={idleResources}, correction={correction}, idleFirst={idleFirst}: median={samples[2]:F6} ms/tick, min={samples[0]:F6}, max={samples[4]:F6}, A={buildings.GetState(a).Efficiency}, B={buildings.GetState(b).Efficiency}");
+        AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
+        AssertBudget(resources.GetState(y), game.State.HappinessRewardMultiplier);
+
+        void AddIdleResources()
+        {
+            for (int i = 0; i < idleResources; i++)
+                resources.EnsureResource(CreateBudgetResource("BudgetPerfIdle" + i));
+        }
+    }
+
     [TestCase(0d)]
     [TestCase(1e-100d)]
     [TestCase(10d)]
@@ -719,6 +948,8 @@ public sealed class EconomyIntegrationRegressionTests
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
 
         TestContext.WriteLine($"budget inventory={inventory}: A={buildings.GetState(a).Efficiency}, B={buildings.GetState(b).Efficiency}, H={game.State.HappinessRewardMultiplier}");
+        Assert.That(resources.GetState(DataBase<Resource>.Find(ResourceManager.StartingResourceId)).ProductionRate.ToDouble(),
+            Is.GreaterThanOrEqualTo(0.999999d), "Budget correction must preserve passive starting production.");
         AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
         AssertBudget(resources.GetState(y), game.State.HappinessRewardMultiplier);
         Assert.That(buildings.GetState(quarry).Efficiency.ToDouble(), Is.GreaterThan(0.99d));
@@ -970,6 +1201,314 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(resource.ConsumptionRate <= available, Is.True,
             $"{resource.Definition.Id}: demand={resource.ConsumptionRate}, available={available}, " +
             $"inventory={resource.Amount}, production={resource.ProductionRate}, reward={reward}");
+    }
+
+    [TestCase(UltraProjectDoctrine.Stable)]
+    [TestCase(UltraProjectDoctrine.Surge)]
+    public void UltraTickBudget_MatchesPreviewCostsAcrossRepeatedPassesAndPause(UltraProjectDoctrine doctrine)
+    {
+        GameManager game = CreateManager<GameManager>("UltraBudget-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("UltraBudget-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("UltraBudget-Buildings");
+        CreateManager<ResearchManager>("UltraBudget-Research");
+        game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
+        {
+            ProjectId = UltraProjectState.ProjectId,
+            Doctrine = doctrine,
+            Status = UltraProjectStatus.Running,
+            CurrentStage = doctrine == UltraProjectDoctrine.Surge
+                ? UltraProjectStage.Stabilization : UltraProjectStage.Prototype,
+            StageProgress = "0",
+            CompletedStages = doctrine == UltraProjectDoctrine.Surge
+                ? new List<UltraProjectStage> { UltraProjectStage.Prototype } : new List<UltraProjectStage>(),
+            LaunchFeePaid = true,
+            StateVersion = 1
+        });
+        UltraProjectPreview preview = game.UltraProject.GetPreview();
+        Assert.That(preview.ContinuousCosts, Is.Not.Empty);
+        foreach (var cost in preview.ContinuousCosts)
+            resources.SetAmount(cost.First, cost.Second * .5d);
+        Assert.That((buildings.StrategicFoodConsumptionRate / preview.FoodPerSecond).ToDouble(),
+            Is.EqualTo(1d).Within(1e-6));
+        for (int pass = 0; pass < 2; pass++)
+        {
+            buildings.PrepareTickResourceSatisfactionForEditor(1d);
+            foreach (var cost in preview.ContinuousCosts)
+                Assert.That(resources.GetTickSatisfactionForEditor(cost.First).ToDouble(),
+                    Is.EqualTo(.5d).Within(1e-6), "Reused budget buffers must not retain the previous pass.");
+        }
+        Assert.That(game.UltraProject.TryPause(out _), Is.True);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        foreach (var cost in preview.ContinuousCosts)
+            Assert.That(resources.GetTickSatisfactionForEditor(cost.First).ToDouble(),
+                Is.EqualTo(1d).Within(1e-6), "Paused engineering must release its material demand.");
+        Assert.That(buildings.StrategicFoodConsumptionRate.ToDouble(), Is.LessThan(1e-6));
+    }
+
+    [Test]
+    public void UltraTickBudget_CommittedExpeditionHasNoEngineeringDemand()
+    {
+        GameManager game = CreateManager<GameManager>("ExpeditionBudget-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ExpeditionBudget-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("ExpeditionBudget-Buildings");
+        CreateManager<ResearchManager>("ExpeditionBudget-Research");
+        game.UltraProject.RestoreSaveDataForEditor(new UltraProjectStateSaveData
+        {
+            ProjectId = UltraProjectState.ProjectId,
+            Doctrine = UltraProjectDoctrine.Expedition,
+            Status = UltraProjectStatus.Committed,
+            CurrentStage = UltraProjectStage.Completed,
+            StageProgress = "1",
+            CompletedStages = new List<UltraProjectStage>
+            {
+                UltraProjectStage.Prototype, UltraProjectStage.Stabilization, UltraProjectStage.Expansion
+            },
+            LaunchFeePaid = true,
+            StateVersion = 1
+        });
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        Assert.That(buildings.StrategicFoodConsumptionRate.ToDouble(), Is.LessThan(1e-6));
+        foreach (var stage in game.UltraProject.Definition.Stages)
+            foreach (var cost in stage.ContinuousResourceCosts)
+                Assert.That(resources.GetTickSatisfactionForEditor(cost.First).ToDouble(),
+                    Is.EqualTo(1d).Within(1e-6));
+    }
+
+    [Test, Category("Performance")]
+    public void WorkshopPreview_UnchangedModifiersAllocateLessThanRebuilding()
+    {
+        CreateManager<GameManager>("PreviewAllocation-Game");
+        CreateManager<ResourceManager>("PreviewAllocation-Resources");
+        CreateManager<BuildingManager>("PreviewAllocation-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("PreviewAllocation-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("PreviewAllocation-Workshop");
+        workshop.ResetForLoadForEditor();
+        CompleteAllResearch(research);
+        ResearchState[] researchStates = research.States.Values.ToArray();
+        WorkshopUpgradeState[] upgrades = workshop.States.Values.ToArray();
+        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery");
+        ProgressionModifierManager.Rebuild(researchStates, upgrades);
+        workshop.GetPurchaseBenefitPreview(candidate);
+        long cachedBytes = 0;
+        long rebuiltBytes = 0;
+        for (int sample = 0; sample < 8; sample++)
+        {
+            cachedBytes += MeasureAllocation();
+            ProgressionModifierManager.Rebuild(researchStates, upgrades);
+            rebuiltBytes += MeasureAllocation();
+        }
+        TestContext.WriteLine($"Workshop preview: unchanged={cachedBytes / 8} bytes/call, rebuild={rebuiltBytes / 8} bytes/call");
+        Assert.That(rebuiltBytes, Is.GreaterThan(0), "The Unity allocation recorder must capture real allocations.");
+        Assert.That(cachedBytes, Is.LessThan(rebuiltBytes / 2),
+            "Reusing the candidate must remove most allocation; minor recorder noise is not an improvement.");
+
+        long MeasureAllocation()
+        {
+            using var recorder = Unity.Profiling.ProfilerRecorder.StartNew(
+                Unity.Profiling.ProfilerCategory.Memory, "GC.Alloc", 4096,
+                Unity.Profiling.ProfilerRecorderOptions.StartImmediately |
+                Unity.Profiling.ProfilerRecorderOptions.CollectOnlyOnCurrentThread);
+            workshop.GetPurchaseBenefitPreview(candidate);
+            recorder.Stop();
+            long bytes = 0;
+            for (int i = 0; i < recorder.Count; i++)
+                bytes += recorder.GetSample(i).Value;
+            return bytes;
+        }
+    }
+
+    [Test]
+    public void WorkshopPreview_ReusesOnlyModifiersAndInvalidatesAfterProgressionChanges()
+    {
+        GameManager game = CreateManager<GameManager>("PreviewRefresh-Game");
+        CreateManager<ResourceManager>("PreviewRefresh-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("PreviewRefresh-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("PreviewRefresh-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("PreviewRefresh-Workshop");
+        workshop.ResetForLoadForEditor();
+        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery");
+        Building farm = DataBase<Building>.Find("Farm");
+        BuildingState farmState = buildings.EnsureBuilding(farm);
+        buildings.SetAmountAndRatesForEditor(farmState, 2);
+        AssertFresh(candidate);
+        buildings.SetAmountAndRatesForEditor(farmState, 4);
+        AssertFresh(candidate);
+        farmState.SetEfficiencyForEditor(new ExpantaNum(.5d));
+        game.State.Events.RestoreForEditor(new SaveManager.WorldEventSaveData
+        {
+            Sequence = 3, RemainingSeconds = 10d, SecondsUntilNextEvent = 100d
+        });
+        AssertFresh(candidate);
+        AssertFresh(DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering"));
+        AssertFresh(candidate);
+        CompleteAllResearch(research);
+        Rebuild();
+        AssertFresh(candidate);
+        workshop.States[candidate].SetPurchasedForEditor(true);
+        Rebuild();
+        Assert.That(workshop.GetPurchaseBenefitPreview(candidate), Is.Empty);
+        workshop.RestoreSaveDataForEditor(null);
+        AssertFresh(candidate);
+
+        void Rebuild() => ProgressionModifierManager.Rebuild(
+            research.States.Values.ToArray(), workshop.States.Values.ToArray());
+
+        void AssertFresh(WorkshopUpgrade selected)
+        {
+            var before = ProgressionModifierManager.Current;
+            var after = ProgressionModifierManager.BuildPreview(
+                research.States.Values.ToArray(), workshop.States.Values.ToArray(), selected);
+            var expected = WorkshopManager.CalculateBenefitPreview(buildings.States.Values.ToArray(),
+                before, after, game.State.HappinessRewardMultiplier, game.State.Events.ProductionMultiplier);
+            var actual = workshop.GetPurchaseBenefitPreview(selected);
+            Assert.That(actual.Count, Is.EqualTo(expected.Count), "The changed output channels must match.");
+            for (int i = 0; i < expected.Count; i++)
+            {
+                Assert.That(actual[i].Building, Is.SameAs(expected[i].Building));
+                Assert.That(actual[i].Kind, Is.EqualTo(expected[i].Kind));
+                Assert.That(actual[i].Before.ToDouble(), Is.EqualTo(expected[i].Before.ToDouble()).Within(1e-6));
+                Assert.That(actual[i].After.ToDouble(), Is.EqualTo(expected[i].After.ToDouble()).Within(1e-6));
+            }
+        }
+    }
+
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    public void ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(bool offline, bool completionEvent)
+    {
+        GameManager game = CreateManager<GameManager>("ObserverTick-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ObserverTick-Resources");
+        CreateManager<BuildingManager>("ObserverTick-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("ObserverTick-Research");
+        SimulationManager simulation = CreateManager<SimulationManager>("ObserverTick-Simulation");
+        Research target = DataBase<Research>.Find("Quarry");
+        ResearchState state = research.GetState(target);
+        state.RestoreForEditor(state.BaseCost - new ExpantaNum(.01d), true, false, PaidCostsFor(target));
+        Assert.That(research.StartResearch(target), Is.True);
+        Resource output = CreateBudgetResource("ObserverTickOutput");
+        resources.SetProductionRate(output, 10);
+        int laterCalls = 0;
+        bool thrown = false;
+        Action failOnce = () =>
+        {
+            if (thrown) return;
+            thrown = true;
+            throw new InvalidOperationException("research-observer-test");
+        };
+        if (completionEvent)
+        {
+            research.ResearchCompleted += _ => failOnce();
+            research.ResearchCompleted += _ => laterCalls++;
+        }
+        else
+        {
+            research.ResearchQueueChanged += failOnce;
+            research.ResearchQueueChanged += () => laterCalls++;
+        }
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Exception,
+            new System.Text.RegularExpressions.Regex("InvalidOperationException: research-observer-test"));
+        double seconds = offline ? 1d : simulation.TickIntervalSecondsForEditor;
+        Assert.DoesNotThrow(() =>
+        {
+            if (offline) simulation.AdvanceOffline(seconds);
+            else simulation.Advance(seconds);
+        });
+        Assert.That(state.Status, Is.EqualTo(ResearchStatus.Completed));
+        Assert.That(laterCalls, Is.EqualTo(1), "A failing observer must not suppress the later subscriber.");
+        ExpantaNum after = resources.GetAmount(output);
+        Assert.That(after, Is.GreaterThan(ExpantaNum.Zero));
+        simulation.Advance(0d);
+        Assert.That(resources.GetAmount(output).ToDouble(), Is.EqualTo(after.ToDouble()).Within(1e-6),
+            "The committed tick must not remain in the simulation backlog.");
+        Assert.That(game.State.Events.SecondsUntilNextEvent,
+            Is.EqualTo(WorldEventState.EventIntervalSeconds - (offline ? 0d : seconds)).Within(1e-6));
+    }
+
+    [Test]
+    public void ObserverFailure_BuildingRegistrationStillReturnsCommittedState()
+    {
+        CreateManager<GameManager>("ObserverBuilding-Game");
+        CreateManager<ResourceManager>("ObserverBuilding-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("ObserverBuilding-Buildings");
+        Building definition = CreateBudgetBuilding("ObserverBuilding", null, null);
+        int laterCalls = 0;
+        buildings.BuildingStateAdded += _ => throw new InvalidOperationException("building-observer-test");
+        buildings.BuildingStateAdded += _ => laterCalls++;
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Exception,
+            new System.Text.RegularExpressions.Regex("InvalidOperationException: building-observer-test"));
+        BuildingState state = null;
+        Assert.DoesNotThrow(() => state = buildings.EnsureBuilding(definition));
+        Assert.That(buildings.GetState(definition), Is.SameAs(state));
+        Assert.That(laterCalls, Is.EqualTo(1), "The single registration reaches all observers.");
+    }
+
+    [Test]
+    public void ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess()
+    {
+        GameManager game = CreateManager<GameManager>("ObserverWorkshop-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("ObserverWorkshop-Resources");
+        CreateManager<BuildingManager>("ObserverWorkshop-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("ObserverWorkshop-Research");
+        WorkshopManager workshop = CreateManager<WorkshopManager>("ObserverWorkshop-Workshop");
+        CompleteAllResearch(research);
+        game.State.RestoreCoreForEditor(0, TechLevel.Industrial, 300, 0);
+        workshop.RestoreSaveDataForEditor(null);
+        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering");
+        foreach (var cost in candidate.ResourceRequirements)
+            resources.SetAmount(cost.First, cost.Second * 2);
+        int laterCalls = 0;
+        workshop.UpgradeStateChanged += _ => throw new InvalidOperationException("workshop-observer-test");
+        workshop.UpgradeStateChanged += _ => laterCalls++;
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Exception,
+            new System.Text.RegularExpressions.Regex("InvalidOperationException: workshop-observer-test"));
+        bool purchased = false;
+        Assert.DoesNotThrow(() => purchased = workshop.TryPurchase(candidate, out _));
+        Assert.That(purchased, Is.True);
+        Assert.That(workshop.IsPurchased(candidate), Is.True);
+        Assert.That(laterCalls, Is.EqualTo(1), "The committed purchase reaches the later subscriber.");
+        foreach (var cost in candidate.ResourceRequirements)
+            Assert.That((resources.GetAmount(cost.First) / cost.Second).ToDouble(),
+                Is.EqualTo(1d).Within(1e-6), "A notification failure must not refund or repeat payment.");
+    }
+
+    [TestCase(.01d, 1d, true)]
+    [TestCase(.01d, .00001d, false)]
+    [TestCase(0d, 1d, true)]
+    public void OfflineResearch_CompletionBoundaryPreservesNextResearchTime(
+        double remainingCost, double seconds, bool completes)
+    {
+        GameManager game = CreateManager<GameManager>("ResearchBoundary-Game");
+        CreateManager<ResourceManager>("ResearchBoundary-Resources");
+        CreateManager<BuildingManager>("ResearchBoundary-Buildings");
+        ResearchManager research = CreateManager<ResearchManager>("ResearchBoundary-Research");
+        Research first = DataBase<Research>.Find("Quarry");
+        Research second = DataBase<Research>.Find("Agriculture");
+        ResearchState head = research.GetState(first);
+        ResearchState next = research.GetState(second);
+        head.RestoreForEditor(head.BaseCost - new ExpantaNum(remainingCost), true, false, PaidCostsFor(first));
+        next.RestoreForEditor(ExpantaNum.Zero, true, false, PaidCostsFor(second));
+        Assert.That(research.StartResearch(first), Is.True);
+        Assert.That(research.EnqueueResearch(second), Is.True);
+        ExpantaNum firstSpeed = ResearchManager.ResearchSpeedEffect(game.State.TechLevel, first.TechLevel) *
+            research.ResearchPower * ProgressionModifierManager.Current.GlobalResearchMultiplier *
+            game.State.HappinessMultiplier;
+        double completionSeconds = ((head.BaseCost - head.Progress) / firstSpeed).ToDouble();
+        research.TickOfflineForEditor(seconds);
+        if (!completes)
+        {
+            Assert.That(head.Status, Is.EqualTo(ResearchStatus.Researching));
+            Assert.That(next.Progress.ToDouble(), Is.LessThan(1e-6));
+            return;
+        }
+        Assert.That(head.Status, Is.EqualTo(ResearchStatus.Completed));
+        ExpantaNum nextSpeed = ResearchManager.ResearchSpeedEffect(game.State.TechLevel, second.TechLevel) *
+            research.ResearchPower * ProgressionModifierManager.Current.GlobalResearchMultiplier *
+            game.State.HappinessMultiplier;
+        ExpantaNum expected = ResearchManager.AdvanceResearchProgress(ExpantaNum.Zero, nextSpeed,
+            next.BaseCost, seconds - completionSeconds);
+        Assert.That(next.Progress.ToDouble(), Is.EqualTo(expected.ToDouble()).Within(1e-5),
+            "Only the time left after completion belongs to the next research.");
     }
 
     private T CreateManager<T>(string name) where T : Component

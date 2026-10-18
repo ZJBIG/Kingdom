@@ -165,15 +165,6 @@ public sealed class CampaignState
         bool active,
         string targetSectorId,
         ExpantaNum casualties,
-        ExpantaNum combatRatio)
-    {
-        RestoreExact(active, targetSectorId, casualties, combatRatio, CampaignDoctrine.Stable);
-    }
-
-    internal void RestoreExact(
-        bool active,
-        string targetSectorId,
-        ExpantaNum casualties,
         ExpantaNum combatRatio,
         CampaignDoctrine doctrine)
     {

@@ -168,43 +168,6 @@ public sealed class C6IndustrialContentTests
     };
 
     [Test]
-    public void C601_IndustrialResourcesHavePlayerFacingMetadata()
-    {
-        for (int i = 0; i < IndustrialResourceIds.Length; i++)
-        {
-            Resource resource = DataBase<Resource>.Find(IndustrialResourceIds[i]);
-            Assert.That(resource, Is.Not.Null);
-            Assert.That(string.IsNullOrWhiteSpace(resource.Label), Is.False);
-            Assert.That(string.IsNullOrWhiteSpace(resource.Description), Is.False);
-        }
-    }
-
-    [Test]
-    public void C601_IndustrialBuildingsExistAtIndustrialTechLevel()
-    {
-        for (int i = 0; i < IndustrialBuildingIds.Length; i++)
-        {
-            Building building = DataBase<Building>.Find(IndustrialBuildingIds[i]);
-            Assert.That(building, Is.Not.Null, $"Missing industrial building '{IndustrialBuildingIds[i]}'.");
-            Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Industrial));
-            Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
-        }
-    }
-
-    [Test]
-    public void C602_IndustrialBuildingsDeclarePowerAndLogisticsFlows()
-    {
-        Assert.That(DataBase<Building>.Find("SteamPlant").PowerProductionRate,
-            Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("SteamPlant").LogisticsProductionRate,
-            Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("MachineFactory").PowerConsumptionRate,
-            Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("RailHub").LogisticsProductionRate,
-            Is.GreaterThan(ExpantaNum.Zero));
-    }
-
-    [Test]
     public void C602_IndustrialChemistryFollowsThePowerGridFoundation()
     {
         Research chemistry = DataBase<Research>.Find("IndustrialChemistry");
@@ -455,7 +418,6 @@ public sealed class C6IndustrialContentTests
         Building coalMine = DataBase<Building>.Find("CoalMine");
         Building mechanizedMine = DataBase<Building>.Find("MechanizedCoalMine");
         Assert.That(coalMine, Is.Not.Null);
-        Assert.That(mechanizedMine, Is.Not.Null);
         Assert.That(mechanizedMine.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(FindRate(mechanizedMine.ResourceGenerationRates, "Coal"), Is.GreaterThan(0d));
         Assert.That(FindRate(mechanizedMine.ResourceConsumptionRates, "Explosives"), Is.GreaterThan(0d));
@@ -717,7 +679,6 @@ public sealed class C6IndustrialContentTests
         Assert.That(medicalCenterExists, Is.False);
         Assert.That(hospital, Is.Null);
         Assert.That(medicalCenter, Is.Null);
-        Assert.That(modernMedicine, Is.Not.Null);
         Assert.That(modernMedicine.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.PopulationProductivityMultiplier &&
@@ -920,7 +881,6 @@ public sealed class C6IndustrialContentTests
             Building upper = DataBase<Building>.Find(chains[i, 1]);
 
             Assert.That(lower, Is.Not.Null, $"找不到基础建筑 {chains[i, 0]}。");
-            Assert.That(upper, Is.Not.Null, $"找不到工业上位建筑 {chains[i, 1]}。");
             Assert.That(upper.TechLevel, Is.EqualTo(TechLevel.Industrial));
             Assert.That(upper.SpaceCost, Is.GreaterThan(lower.SpaceCost),
                 $"上位建筑 {chains[i, 1]} 的土地需求必须高于 {chains[i, 0]}。");
@@ -1051,15 +1011,6 @@ public sealed class C6IndustrialContentTests
             Assert.That(CountConsumerUses(IndustrialResourceIds[i]), Is.GreaterThanOrEqualTo(2),
                 $"Industrial resource '{IndustrialResourceIds[i]}' must have at least two independent uses.");
         }
-    }
-
-    [Test]
-    public void C608_NewIndustrialResourcesHavePlayerFacingMetadata()
-    {
-        AssertResourceMetadata("Concrete");
-        AssertResourceMetadata("Explosives");
-        AssertResourceMetadata("AdvancedMetalOre");
-        AssertResourceMetadata("AdvancedMetalIngot");
     }
 
     [Test]
@@ -1506,18 +1457,6 @@ public sealed class C6IndustrialContentTests
             if (prerequisites[i] == target)
                 return true;
         return false;
-    }
-
-    private static void AssertResourceMetadata(string resourceId)
-    {
-        Resource resource = DataBase<Resource>.Find(resourceId);
-        Assert.That(resource, Is.Not.Null, $"资源“{resourceId}”必须存在。");
-        Assert.That(string.IsNullOrWhiteSpace(resource.Label), Is.False,
-            $"资源“{resourceId}”必须有中文名称。");
-        Assert.That(string.IsNullOrWhiteSpace(resource.Description), Is.False,
-            $"资源“{resourceId}”必须有中文描述。");
-        Assert.That(resource.Sprite, Is.Not.Null,
-            $"资源“{resourceId}”必须有 UI 图标。");
     }
 
     [Test]

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Failed(Child)" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.3723877">
+  <test-suite type="TestSuite" id="2130" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="994" result="Failed" site="Child" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.372388" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3250" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="993" result="Failed" site="Child" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.326478" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="37352" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2413" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="164" result="Failed" site="Child" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.311932" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="ParameterizedMethod" id="2502" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.302325" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2500" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(False)" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(False)" methodname="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" seed="966995730" result="Failed" start-time="2026-10-16 14:26:16Z" end-time="2026-10-16 14:26:17Z" duration="0.281858" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: ResearchIncomplete
+  But was:  InvalidDefinition
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements (System.Boolean completeResearch) [0x00116] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1518
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2501" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(True)" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(True)" methodname="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" seed="1760771465" result="Failed" start-time="2026-10-16 14:26:17Z" end-time="2026-10-16 14:26:17Z" duration="0.007950" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: ResourceInsufficient
+  But was:  InvalidDefinition
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements (System.Boolean completeResearch) [0x00116] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1518
+]]></stack-trace>
+            </failure>
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,0 +1,26 @@
+using Kingdom.NewEconomySimulator;
+using System.Text.Json;
+
+var input = SnapshotExporter.LoadJson(args[0]);
+var expected = SnapshotExporter.LoadJson(args[1]).RuntimeState;
+var core = SimulationCore.FromSnapshot(input);
+var initialProgress = core.State.PopulationChangeProgress.ToString();
+var initialQueue = core.State.ResearchQueue.ToArray();
+core.Tick(SimulationMode.Realtime, 0.1d, 0.1d);
+var differences = new List<string>();
+void Compare(string field, ExpantaNum actual, string wanted)
+{
+    if (!ExpantaNum.TryParse(wanted, out var value) || !value.IsFinite ||
+        (actual - value).Abs() > new ExpantaNum(1e-5d))
+        differences.Add($"{field}: actual={actual}, expected={wanted}");
+}
+Compare("Population", core.State.Population, expected.Population);
+Compare("PopulationChangeProgress", core.State.PopulationChangeProgress, expected.PopulationChangeProgress);
+Compare("Food", core.State.Food, expected.Food);
+foreach (var resource in expected.Resources)
+    Compare("Resource:" + resource.ResourceId, core.State.GetResource(resource.ResourceId), resource.Value);
+if (!core.State.ResearchQueue.SequenceEqual(expected.QueuedResearchIds)) differences.Add("Research queue differs");
+if ((core.State.ActiveResearch ?? "") != expected.ActiveResearchId) differences.Add("Active research differs");
+Console.WriteLine(JsonSerializer.Serialize(new { input.FormatVersion, initialProgress, initialQueue,
+    after = core.SummarizeDetailed(), differences, passed = differences.Count == 0 }, new JsonSerializerOptions { WriteIndented = true }));
+return differences.Count == 0 ? 0 : 1;

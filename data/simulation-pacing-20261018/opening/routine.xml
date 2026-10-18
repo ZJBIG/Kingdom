@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Skipped:Ignored" total="4" passed="3" failed="0" inconclusive="0" skipped="1" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.407166">
+  <test-suite type="TestSuite" id="2099" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="951" result="Skipped" label="Ignored" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.407166" total="4" passed="3" failed="0" inconclusive="0" skipped="1" asserts="0">
+    <properties />
+    <reason>
+      <message><![CDATA[One or more child tests were ignored]]></message>
+    </reason>
+    <test-suite type="Assembly" id="3188" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="950" result="Skipped" label="Ignored" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.388627" total="4" passed="3" failed="0" inconclusive="0" skipped="1" asserts="0">
+      <properties>
+        <property name="_PID" value="19376" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <reason>
+        <message><![CDATA[One or more child tests were ignored]]></message>
+      </reason>
+      <test-suite type="TestFixture" id="2246" name="EarlyVerticalSlicePacingTests" fullname="EarlyVerticalSlicePacingTests" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" testcasecount="4" result="Skipped" label="Ignored" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.374323" total="4" passed="3" failed="0" inconclusive="0" skipped="1" asserts="0">
+        <properties />
+        <reason>
+          <message><![CDATA[One or more child tests were ignored]]></message>
+        </reason>
+        <test-case id="2249" name="IronworkingAndSteelmaking_FollowsReachableBronzeChain" fullname="EarlyVerticalSlicePacingTests.IronworkingAndSteelmaking_FollowsReachableBronzeChain" methodname="IronworkingAndSteelmaking_FollowsReachableBronzeChain" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="15216852" result="Passed" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.342932" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2247" name="MetalMine_DoesNotRequireItsOwnOutputs" fullname="EarlyVerticalSlicePacingTests.MetalMine_DoesNotRequireItsOwnOutputs" methodname="MetalMine_DoesNotRequireItsOwnOutputs" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="1260482100" result="Passed" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.007603" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2248" name="MetalSmelter_DoesNotRequireItsOwnOutput" fullname="EarlyVerticalSlicePacingTests.MetalSmelter_DoesNotRequireItsOwnOutput" methodname="MetalSmelter_DoesNotRequireItsOwnOutput" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="1089617836" result="Passed" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.002534" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2250" name="NewGame_FixedMainlineTrace" fullname="EarlyVerticalSlicePacingTests.NewGame_FixedMainlineTrace" methodname="NewGame_FixedMainlineTrace" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="668741789" result="Skipped" label="Ignored" start-time="2026-10-18 07:32:34Z" end-time="2026-10-18 07:32:34Z" duration="0.006011" asserts="0">
+          <properties>
+            <property name="Category" value="PacingDiagnostic" />
+          </properties>
+          <reason>
+            <message><![CDATA[Set KINGDOM_RUN_PACING_TRACE=1 to run the fixed-route diagnostic.]]></message>
+          </reason>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

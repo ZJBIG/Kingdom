@@ -14,10 +14,8 @@ public sealed class KingdomButtonMaterialTests
         foreach (string name in new[] { "NavigationStone", "ActionWood", "ControlMetal" })
         {
             Sprite sprite = Resources.Load<Sprite>("Art/UI/Buttons/" + name);
-            Assert.That(sprite, Is.Not.Null, name);
             Assert.That(sprite.border.sqrMagnitude, Is.GreaterThan(0), name + " needs authored nine-slice borders.");
             TextureImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite)) as TextureImporter;
-            Assert.That(importer, Is.Not.Null);
             Assert.That(importer.mipmapEnabled, Is.False);
             materials.Add(sprite);
         }
@@ -32,10 +30,11 @@ public sealed class KingdomButtonMaterialTests
                 if (button.name == "Backdrop") continue;
                 if (button.name == "PinButton" && button.targetGraphic is Image pin)
                 {
-                    Assert.That(button.name, Is.EqualTo("PinButton"));
                     Assert.That(pin.transform.parent, Is.SameAs(button.transform));
                     Assert.That(pin.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Pins/PinOutline")));
                     Assert.That(pin.raycastTarget, Is.False);
+                    Assert.That(pin.preserveAspect, Is.True);
+                    Assert.That(((RectTransform)button.transform).rect.width, Is.GreaterThan(pin.rectTransform.rect.width));
                     Assert.That(button.GetComponent<Image>().raycastTarget, Is.True);
                     Assert.That(button.GetComponent<Image>().sprite, Is.Null);
                     Assert.That(button.GetComponent<Image>().color.a, Is.LessThan(.01f));
@@ -51,13 +50,13 @@ public sealed class KingdomButtonMaterialTests
                     Assert.That(link.gameObject, Is.SameAs(button.gameObject), linkContext);
                     Assert.That(link.font, Is.Not.Null, linkContext);
                     Assert.That(link.raycastTarget, Is.True, linkContext);
-                    Assert.That((link.fontStyle & FontStyles.Underline) != 0, Is.True, linkContext + " navigation is visibly a link.");
+                    Assert.That((link.fontStyle & FontStyles.Underline) != 0,
+                        Is.EqualTo(path == "Assets/Resources/UI/Kingdom/KingdomUISectorBuildingCard.prefab"), linkContext);
                     continue;
                 }
                 Image image = button.targetGraphic as Image;
                 if (image != null && image.color.a < .01f && image.sprite == null) continue;
                 string context = path + "/" + button.name;
-                Assert.That(image, Is.Not.Null, context);
                 Assert.That(image.gameObject, Is.SameAs(button.gameObject), context + " skin must remain the button target.");
                 bool eraSurface = button.gameObject == prefab && prefab.transform.Find("EraDesign") != null &&
                     path.StartsWith("Assets/Resources/UI/Kingdom/EraCards/");
@@ -72,7 +71,6 @@ public sealed class KingdomButtonMaterialTests
                 foreach (TMP_Text label in button.GetComponentsInChildren<TMP_Text>(true))
                 {
                     Assert.That(label.font, Is.Not.Null, context);
-                    Assert.That(label.fontSize, Is.GreaterThan(0), context);
                     Assert.That(label.raycastTarget, Is.False, context + " label must not intercept input.");
                 }
                 checkedButtons++;
@@ -84,23 +82,17 @@ public sealed class KingdomButtonMaterialTests
     }
 
     [Test]
-    public void ResearchNodeKeepsReferenceDimensionsAndMusicSeparatesSkinFromIcon()
+    public void ResearchLabelsKeepHierarchyAndMusicSeparatesSkinFromIcon()
     {
         GameObject node = Resources.Load<GameObject>("UI/Kingdom/KingdomUIResearchNode");
-        RectTransform rect = node.GetComponent<RectTransform>();
-        Assert.That(rect.sizeDelta.x, Is.EqualTo(205f).Within(.01f), "Research reference width.");
-        Assert.That(rect.sizeDelta.y, Is.EqualTo(50f).Within(.01f), "Research reference height.");
         TMP_Text title = node.transform.Find("Label").GetComponent<TMP_Text>();
-        Assert.That(title.fontSize, Is.InRange(19f, 21f), "Research names must remain readable at the reference node size.");
         foreach (string name in new[] { "Cost", "Progress", "State" })
         {
             TMP_Text metadata = node.transform.Find(name).GetComponent<TMP_Text>();
-            Assert.That(metadata.fontSize, Is.InRange(13.5f, 14.5f), "Research metadata must remain readable: " + name);
             Assert.That(metadata.fontSize, Is.LessThan(title.fontSize));
         }
         GameObject root = Resources.Load<GameObject>("UI/Kingdom/KingdomUIRoot");
         Transform music = root.transform.Find("SafeAreaRoot/Content/PageHost/Music");
-        Assert.That(music, Is.Not.Null);
         int icons = 0;
         foreach (Button button in music.GetComponentsInChildren<Button>(true))
         {

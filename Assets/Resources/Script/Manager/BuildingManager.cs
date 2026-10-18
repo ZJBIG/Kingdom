@@ -41,6 +41,16 @@ public class BuildingManager : Singleton<BuildingManager>
 {
     private const double BuildBoundaryTolerance = 1e-8d;
 
+    private static bool CanChangeBuildingAmount(ExpantaNum current, ExpantaNum amount, bool increasing)
+    {
+        if (!amount.IsFinite || amount < ExpantaNum.One)
+            return false;
+        // Small quantities can round away entirely at large represented counts.
+        ExpantaNum next = increasing ? current + amount : current - amount;
+        return next.IsFinite && next >= ExpantaNum.Zero &&
+            (increasing ? next > current : next < current);
+    }
+
     private static bool ExceedsBuildBoundary(
         ExpantaNum required,
         ExpantaNum available,
@@ -114,6 +124,23 @@ public class BuildingManager : Singleton<BuildingManager>
     private readonly HashSet<Resource> budgetResources = new();
     private readonly Dictionary<Resource, ExpantaNum> budgetProduction = new();
     private readonly Dictionary<Resource, ExpantaNum> budgetConsumption = new();
+    private readonly List<BudgetResourceInput> budgetResourceInputs = new();
+    private readonly struct BudgetResourceInput
+    {
+        public readonly ResourceState State;
+        public readonly ExpantaNum Production;
+        public readonly ExpantaNum Consumption;
+        public readonly ExpantaNum ExternalProduction;
+
+        public BudgetResourceInput(ResourceState state, ExpantaNum production,
+            ExpantaNum consumption, ExpantaNum externalProduction)
+        {
+            State = state;
+            Production = production;
+            Consumption = consumption;
+            ExternalProduction = externalProduction;
+        }
+    }
     private readonly Dictionary<Resource, ExpantaNum> candidateProduction = new();
     private readonly Dictionary<Resource, ExpantaNum> candidateConsumption = new();
     private ExpantaNum budgetPowerProduction, budgetPowerConsumption;
@@ -381,12 +408,13 @@ public class BuildingManager : Singleton<BuildingManager>
         if (TryGetStateByStableId(building, out BuildingState existing))
             return existing;
 
+        building = ResolveBuildingDefinition(building);
         var state = new BuildingState(building);
         states.Add(building, state);
         InsertOrdered(state);
 
         EnsureBuildingResources(building);
-        BuildingStateAdded?.Invoke(state);
+        ObserverNotifications.Publish(BuildingStateAdded, state);
         return state;
     }
 
@@ -420,8 +448,18 @@ public class BuildingManager : Singleton<BuildingManager>
         return false;
     }
 
+    private Building ResolveBuildingDefinition(Building building)
+    {
+        if (TryGetStateByStableId(building, out BuildingState state))
+            return state.Definition;
+        if (building != null && DataBase<Building>.TryFind(building.Id, out Building definition))
+            return definition;
+        return building;
+    }
+
     public bool ArePrerequisitesMet(Building building, out BuildFailure failure)
     {
+        building = ResolveBuildingDefinition(building);
         if (building == null)
         {
             failure = BuildFailure.InvalidAmount;
@@ -475,6 +513,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public bool CanConstructNew(Building building)
     {
+        building = ResolveBuildingDefinition(building);
         return ArePrerequisitesMet(building, out _) &&
             IsHighestUnlockedChainTier(building);
     }
@@ -616,19 +655,20 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
+        source = sourceState.Definition;
         EnsureBuildingChainIndex();
         if (!chainMembers.Contains(source))
         {
             return false;
         }
 
-        Building candidate = source.UpgradeTo;
+        Building candidate = ResolveBuildingDefinition(source.UpgradeTo);
         while (candidate != null)
         {
             if (!ArePrerequisitesMet(candidate, out _))
                 break;
             target = candidate;
-            candidate = candidate.UpgradeTo;
+            candidate = ResolveBuildingDefinition(candidate.UpgradeTo);
         }
 
         return target != null;
@@ -659,6 +699,7 @@ public class BuildingManager : Singleton<BuildingManager>
     private bool TryBuildInternal(Building building, ExpantaNum requestedAmount,
         out BuildFailure failure, bool previewOnly, List<BuildFailure> failures = null)
     {
+        building = ResolveBuildingDefinition(building);
         if (building == null)
         {
             failure = BuildFailure.InvalidAmount;
@@ -675,7 +716,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
         BuildingState state = EnsureBuilding(building);
         ExpantaNum amount = requestedAmount.Floor();
-        if (!amount.IsFinite || amount < ExpantaNum.One)
+        if (!CanChangeBuildingAmount(state.Amount, amount, true))
         {
             failure = BuildFailure.InvalidAmount;
             return false;
@@ -807,6 +848,7 @@ public class BuildingManager : Singleton<BuildingManager>
     private Dictionary<Resource, ExpantaNum> CalculateDeconstructionRefunds(
         Building building, BuildingState state, ExpantaNum amount)
     {
+        building = state.Definition;
         IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
         var resourceChanges = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
@@ -830,7 +872,7 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (building == null || !TryGetStateByStableId(building, out BuildingState state)) return null;
         ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(requestedAmount, state.Amount);
-        if (amount < ExpantaNum.One) return null;
+        if (!CanChangeBuildingAmount(state.Amount, amount, false)) return null;
         ExpantaNum capacityRemoved = amount * state.Efficiency * state.FoodCapacityGranted *
             ProgressionModifierManager.Current.FoodCapacityMultiplier;
         GameState game = GameManager.Instance.State;
@@ -869,7 +911,7 @@ public class BuildingManager : Singleton<BuildingManager>
             GameManager game = GameManager.Instance;
             ExpantaNum rate = game.Relic.CurrentFoodConsumptionRate;
             if (game.UltraProject.State.Status == UltraProjectStatus.Running)
-                rate += game.UltraProject.GetPreview().FoodPerSecond;
+                rate += game.UltraProject.GetCurrentFoodConsumptionRate();
             foreach (SectorState sector in game.Sectors.OrderedStates)
             {
                 if (sector.ColonizationActive)
@@ -899,8 +941,9 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
+        building = state.Definition;
         ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(requestedAmount, state.Amount);
-        if (amount < ExpantaNum.One)
+        if (!CanChangeBuildingAmount(state.Amount, amount, false))
         {
             failure = BuildFailure.InvalidAmount;
             return false;
@@ -952,6 +995,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     public ExpantaNum GetMaxBuildable(Building building, ExpantaNum requestedMaximum)
     {
+        building = ResolveBuildingDefinition(building);
         if (!CanConstructNew(building))
             return ExpantaNum.Zero;
 
@@ -1015,7 +1059,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
 
         result = ExpantaNum.Max(ExpantaNum.Zero, result);
-        return result.IsFinite ? result : ExpantaNum.Zero;
+        return CanChangeBuildingAmount(state.Amount, result, true) ? result : ExpantaNum.Zero;
     }
 
     public void GetUpgradeResourceDeltas(
@@ -1033,11 +1077,14 @@ public class BuildingManager : Singleton<BuildingManager>
             return;
         }
 
+        source = sourceState.Definition;
         BuildingState targetState = EnsureBuilding(target);
+        target = targetState.Definition;
         ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(
             requestedAmount.Floor(),
             sourceState.Amount);
-        if (amount < ExpantaNum.One)
+        if (!CanChangeBuildingAmount(sourceState.Amount, amount, false) ||
+            !CanChangeBuildingAmount(targetState.Amount, amount, true))
             return;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> sourceRequirements = source.ResourceRequirements;
@@ -1266,6 +1313,13 @@ public class BuildingManager : Singleton<BuildingManager>
         ref UpgradeProductivitySnapshot productivitySnapshot,
         out BuildFailure failure, List<BuildFailure> failures = null)
     {
+        if (!CanChangeBuildingAmount(sourceState.Amount, amount, false) ||
+            !CanChangeBuildingAmount(targetState.Amount, amount, true))
+        {
+            failure = BuildFailure.InvalidAmount;
+            return false;
+        }
+
         ExpantaNum territoryDelta =
             (targetState.SpaceCost - sourceState.SpaceCost) * amount;
         if (territoryDelta > GameManager.Instance.State.AvailableTerritory)
@@ -1373,15 +1427,9 @@ public class BuildingManager : Singleton<BuildingManager>
         GameState gameState = null)
     {
         bool changed = false;
-        for (int i = 0; i < orderedStates.Count; i++)
+        for (int i = 0; i < activeBuildingStates.Count; i++)
         {
-            BuildingState state = orderedStates[i];
-            // An unbuilt definition contributes no rates and cannot affect
-            // any satisfaction result. Avoid evaluating every modifier and
-            // resource list for the large inactive tail of the definition
-            // list on every convergence pass.
-            if (state.Amount <= ExpantaNum.Zero)
-                continue;
+            BuildingState state = activeBuildingStates[i];
             if (resourceManager == null)
                 resourceManager = ResourceManager.Instance;
             if (gameState == null)
@@ -1440,18 +1488,7 @@ public class BuildingManager : Singleton<BuildingManager>
             if (gameManager.UltraProject.State.Status == UltraProjectStatus.Running &&
                 ResearchManager.TryGetInstance(out _))
             {
-                UltraProjectPreview ultraPreview = gameManager.UltraProject.GetPreview();
-                potentialFoodConsumption += ultraPreview.FoodPerSecond;
-                IReadOnlyList<Pair<Resource, ExpantaNum>> ultraCosts =
-                    ultraPreview.ContinuousCosts;
-                for (int j = 0; j < ultraCosts.Count; j++)
-                {
-                    Pair<Resource, ExpantaNum> cost = ultraCosts[j];
-                    if (cost.First != null && cost.Second > ExpantaNum.Zero)
-                        resourceManager.AdjustTickPotentialConsumption(
-                            cost.First,
-                            cost.Second);
-                }
+                potentialFoodConsumption += gameManager.UltraProject.AccumulateTickResourceDemand(resourceManager);
             }
             potentialPowerConsumption += gameManager.Relic.CurrentPowerConsumptionRate;
             potentialLogisticsConsumption += gameManager.Relic.CurrentLogisticsConsumptionRate;
@@ -1554,6 +1591,9 @@ public class BuildingManager : Singleton<BuildingManager>
             game.Relic.CurrentPowerConsumptionRate;
         ExpantaNum externalLogistics = game.UltraProject.GetCurrentLogisticsConsumptionRate() +
             game.Relic.CurrentLogisticsConsumptionRate;
+        // Only efficiencies change during correction; full-load demand stays fixed.
+        ExpantaNum totalPowerDemand = TotalPowerDemand;
+        ExpantaNum totalLogisticsDemand = TotalLogisticsDemand;
         // Bounded efficiency iteration can leave a lossy cycle or happiness feedback unfunded.
         for (int correction = 0; correction < resources.States.Count + 2; correction++)
         {
@@ -1575,10 +1615,10 @@ public class BuildingManager : Singleton<BuildingManager>
             }
             bool powerChanges = !FitsFlowBudget(
                 game.State.PowerProductionRate * game.State.HappinessRewardMultiplier,
-                game.State.PowerConsumptionRate, externalPower, TotalPowerDemand);
+                game.State.PowerConsumptionRate, externalPower, totalPowerDemand);
             bool logisticsChanges = !FitsFlowBudget(
                 game.State.LogisticsProductionRate * game.State.HappinessRewardMultiplier,
-                game.State.LogisticsConsumptionRate, externalLogistics, TotalLogisticsDemand);
+                game.State.LogisticsConsumptionRate, externalLogistics, totalLogisticsDemand);
             if (deficit == null && !powerChanges && !logisticsChanges)
                 return corrected;
             corrected = true;
@@ -1605,19 +1645,21 @@ public class BuildingManager : Singleton<BuildingManager>
                     Building definition = state.Definition;
                     bool affected = powerChanges && definition.PowerConsumptionRate > ExpantaNum.Zero ||
                         logisticsChanges && definition.LogisticsConsumptionRate > ExpantaNum.Zero;
-                    foreach (var rate in definition.ResourceConsumptionRates)
-                        affected |= rate.Second > ExpantaNum.Zero &&
-                            (foodChanges || budgetResources.Contains(rate.First));
+                    IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+                    for (int j = 0; j < consumption.Count; j++)
+                        affected |= consumption[j].Second > ExpantaNum.Zero &&
+                            (foodChanges || budgetResources.Contains(consumption[j].First));
                     if (!affected)
                         continue;
                     budgetBuildings.Add(state);
                     changed = true;
-                    foreach (var rate in definition.ResourceConsumptionRates)
-                        if (rate.Second > ExpantaNum.Zero)
-                            budgetResources.Add(rate.First);
-                    foreach (var rate in definition.ResourceGenerationRates)
-                        if (rate.Second > ExpantaNum.Zero)
-                            budgetResources.Add(rate.First);
+                    for (int j = 0; j < consumption.Count; j++)
+                        if (consumption[j].Second > ExpantaNum.Zero)
+                            budgetResources.Add(consumption[j].First);
+                    IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+                    for (int j = 0; j < generation.Count; j++)
+                        if (generation[j].Second > ExpantaNum.Zero)
+                            budgetResources.Add(generation[j].First);
                     ExpantaNum foodContribution = definition.FoodProductionRate *
                         modifiers.GetBuildingProductionMultiplier(definition) *
                         modifiers.GlobalBuildingProductionMultiplier * game.State.Events.ProductionMultiplier *
@@ -1636,16 +1678,20 @@ public class BuildingManager : Singleton<BuildingManager>
                 ExpantaNum scale = state.Amount * state.Efficiency;
                 ExpantaNum multiplier = modifiers.GetBuildingProductionMultiplier(definition) *
                     modifiers.GlobalBuildingProductionMultiplier;
-                foreach (var rate in definition.ResourceGenerationRates)
+                IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+                for (int j = 0; j < generation.Count; j++)
                 {
+                    Pair<Resource, ExpantaNum> rate = generation[j];
                     budgetProduction.TryGetValue(rate.First, out ExpantaNum previous);
                     budgetProduction[rate.First] = previous + scale * rate.Second * multiplier *
                         game.State.Events.ProductionMultiplier *
                         modifiers.GetBuildingResourceProductionMultiplier(definition, rate.First) *
                         modifiers.GetResourceProductionMultiplier(rate.First);
                 }
-                foreach (var rate in definition.ResourceConsumptionRates)
+                IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+                for (int j = 0; j < consumption.Count; j++)
                 {
+                    Pair<Resource, ExpantaNum> rate = consumption[j];
                     budgetConsumption.TryGetValue(rate.First, out ExpantaNum previous);
                     budgetConsumption[rate.First] = previous + scale * rate.Second * multiplier;
                 }
@@ -1663,6 +1709,7 @@ public class BuildingManager : Singleton<BuildingManager>
             }
 
             ExpantaNum reward = game.State.HappinessRewardMultiplier;
+            PrepareBudgetResourceInputs(resources, reward);
             // Settle material feedback first; the next pass reallocates flow to its consumers.
             bool reserveExternalFlow = deficit == null;
             ExpantaNum low = ExpantaNum.One;
@@ -1673,29 +1720,26 @@ public class BuildingManager : Singleton<BuildingManager>
                     HappinessFormula.CalculateFoodAvailability(game.State.FoodAmount,
                         game.State.FoodProductionRate - foodProduction, foodDemand, seconds),
                     modifiers.HappinessBonus)));
-            foreach (ResourceState resource in resources.States.Values)
+            for (int i = 0; i < budgetResourceInputs.Count; i++)
             {
-                if (!budgetResources.Contains(resource.Definition))
-                    continue;
-                budgetProduction.TryGetValue(resource.Definition, out ExpantaNum production);
-                budgetConsumption.TryGetValue(resource.Definition, out ExpantaNum consumption);
-                ExpantaNum external = resource.TickPotentialProductionRate - resource.ProductionRate * reward;
-                ExpantaNum available = resource.Amount / seconds + external +
-                    (resource.ProductionRate - production) * minimumReward -
-                    (resource.ConsumptionRate - consumption);
-                ExpantaNum deficitRate = consumption - production * minimumReward;
+                BudgetResourceInput input = budgetResourceInputs[i];
+                ResourceState resource = input.State;
+                ExpantaNum available = resource.Amount / seconds + input.ExternalProduction +
+                    (resource.ProductionRate - input.Production) * minimumReward -
+                    (resource.ConsumptionRate - input.Consumption);
+                ExpantaNum deficitRate = input.Consumption - input.Production * minimumReward;
                 if (deficitRate > ExpantaNum.Zero)
                     low = ExpantaNum.Min(low, ExpantaNum.Clamp01(available / deficitRate));
             }
             low = LimitFlowBudget(low, game.State.PowerProductionRate, game.State.PowerConsumptionRate,
                 budgetPowerProduction, budgetPowerConsumption,
-                minimumReward * AvailableBuildingFlowShare(reserveExternalFlow ? externalPower : ExpantaNum.Zero, TotalPowerDemand));
+                minimumReward * AvailableBuildingFlowShare(reserveExternalFlow ? externalPower : ExpantaNum.Zero, totalPowerDemand));
             low = LimitFlowBudget(low, game.State.LogisticsProductionRate, game.State.LogisticsConsumptionRate,
                 budgetLogisticsProduction, budgetLogisticsConsumption,
-                minimumReward * AvailableBuildingFlowShare(reserveExternalFlow ? externalLogistics : ExpantaNum.Zero, TotalLogisticsDemand));
-            if (!FitsTickResourceBudget(resources, seconds, low, foodNet, foodProduction, foodDemand, reward, reserveExternalFlow))
+                minimumReward * AvailableBuildingFlowShare(reserveExternalFlow ? externalLogistics : ExpantaNum.Zero, totalLogisticsDemand));
+            if (!FitsTickResourceBudget(seconds, low, foodNet, foodProduction, foodDemand, reserveExternalFlow, totalPowerDemand, totalLogisticsDemand))
                 low *= new ExpantaNum(0.99999d);
-            if (!FitsTickResourceBudget(resources, seconds, low, foodNet, foodProduction, foodDemand, reward, reserveExternalFlow))
+            if (!FitsTickResourceBudget(seconds, low, foodNet, foodProduction, foodDemand, reserveExternalFlow, totalPowerDemand, totalLogisticsDemand))
                 low = ExpantaNum.Zero;
             // Retain only a feasible lower bound; do not assume feedback is linear or converged.
             for (int step = 0; step < 36; step++)
@@ -1703,7 +1747,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 ExpantaNum middle = (low + high) * 0.5d;
                 if (middle <= low || middle >= high)
                     break;
-                if (FitsTickResourceBudget(resources, seconds, middle, foodNet, foodProduction, foodDemand, reward, reserveExternalFlow))
+                if (FitsTickResourceBudget(seconds, middle, foodNet, foodProduction, foodDemand, reserveExternalFlow, totalPowerDemand, totalLogisticsDemand))
                     low = middle;
                 else
                     high = middle;
@@ -1711,7 +1755,8 @@ public class BuildingManager : Singleton<BuildingManager>
             foreach (BuildingState state in budgetBuildings)
             {
                 ExpantaNum efficiency = state.Efficiency * low;
-                ApplyRateDelta(state, state.Amount, state.Efficiency, state.Amount, efficiency);
+                ExpantaNum scaleDelta = state.Amount * efficiency - state.Amount * state.Efficiency;
+                ApplyGameRateDelta(state, scaleDelta, ExpantaNum.Zero);
                 state.SetEfficiency(efficiency);
                 researchPowerDirty = true;
             }
@@ -1753,9 +1798,25 @@ public class BuildingManager : Singleton<BuildingManager>
             : scale;
     }
 
-    private bool FitsTickResourceBudget(ResourceManager resources, double seconds,
+    private void PrepareBudgetResourceInputs(ResourceManager resources, ExpantaNum reward)
+    {
+        budgetResourceInputs.Clear();
+        // Preserve resource order; these inputs stay fixed throughout this correction's search.
+        foreach (ResourceState resource in resources.States.Values)
+        {
+            if (!budgetResources.Contains(resource.Definition))
+                continue;
+            budgetProduction.TryGetValue(resource.Definition, out ExpantaNum production);
+            budgetConsumption.TryGetValue(resource.Definition, out ExpantaNum consumption);
+            ExpantaNum external = resource.TickPotentialProductionRate - resource.ProductionRate * reward;
+            budgetResourceInputs.Add(new BudgetResourceInput(resource, production, consumption, external));
+        }
+    }
+
+    private bool FitsTickResourceBudget(double seconds,
         ExpantaNum scale, ExpantaNum foodNet, ExpantaNum foodProduction,
-        ExpantaNum foodDemand, ExpantaNum previousReward, bool reserveExternalFlow)
+        ExpantaNum foodDemand, bool reserveExternalFlow,
+        ExpantaNum totalPowerDemand, ExpantaNum totalLogisticsDemand)
     {
         GameState game = GameManager.Instance.State;
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
@@ -1772,16 +1833,20 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum candidateScale = state.Amount * (state.Efficiency * scale);
             ExpantaNum multiplier = modifiers.GetBuildingProductionMultiplier(definition) *
                 modifiers.GlobalBuildingProductionMultiplier;
-            foreach (var rate in definition.ResourceGenerationRates)
+            IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+            for (int j = 0; j < generation.Count; j++)
             {
+                Pair<Resource, ExpantaNum> rate = generation[j];
                 candidateProduction.TryGetValue(rate.First, out ExpantaNum previous);
                 candidateProduction[rate.First] = previous + candidateScale * rate.Second * multiplier *
                     game.Events.ProductionMultiplier *
                     modifiers.GetBuildingResourceProductionMultiplier(definition, rate.First) *
                     modifiers.GetResourceProductionMultiplier(rate.First);
             }
-            foreach (var rate in definition.ResourceConsumptionRates)
+            IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+            for (int j = 0; j < consumption.Count; j++)
             {
+                Pair<Resource, ExpantaNum> rate = consumption[j];
                 candidateConsumption.TryGetValue(rate.First, out ExpantaNum previous);
                 candidateConsumption[rate.First] = previous + candidateScale * rate.Second * multiplier;
             }
@@ -1802,19 +1867,15 @@ public class BuildingManager : Singleton<BuildingManager>
                 HappinessFormula.CalculateFoodAvailability(game.FoodAmount,
                     game.FoodProductionRate - foodProduction + candidateFoodProduction, foodDemand, seconds),
                 ProgressionModifierManager.Current.HappinessBonus));
-        foreach (ResourceState resource in resources.States.Values)
+        for (int i = 0; i < budgetResourceInputs.Count; i++)
         {
-            if (!budgetResources.Contains(resource.Definition))
-                continue;
-            budgetProduction.TryGetValue(resource.Definition, out ExpantaNum production);
-            budgetConsumption.TryGetValue(resource.Definition, out ExpantaNum consumption);
+            BudgetResourceInput input = budgetResourceInputs[i];
+            ResourceState resource = input.State;
             candidateProduction.TryGetValue(resource.Definition, out ExpantaNum newProduction);
             candidateConsumption.TryGetValue(resource.Definition, out ExpantaNum newConsumption);
-            ExpantaNum external = resource.TickPotentialProductionRate -
-                resource.ProductionRate * previousReward;
-            ExpantaNum available = resource.Amount + (external +
-                (resource.ProductionRate - production + newProduction) * reward) * seconds;
-            ExpantaNum demand = (resource.ConsumptionRate - consumption + newConsumption) * seconds;
+            ExpantaNum available = resource.Amount + (input.ExternalProduction +
+                (resource.ProductionRate - input.Production + newProduction) * reward) * seconds;
+            ExpantaNum demand = (resource.ConsumptionRate - input.Consumption + newConsumption) * seconds;
             if (demand > available)
                 return false;
         }
@@ -1823,12 +1884,12 @@ public class BuildingManager : Singleton<BuildingManager>
                 (game.PowerProductionRate - budgetPowerProduction + candidatePowerProduction) * reward,
                 game.PowerConsumptionRate - budgetPowerConsumption + candidatePowerConsumption,
                 reserveExternalFlow ? manager.UltraProject.GetCurrentPowerConsumptionRate() + manager.Relic.CurrentPowerConsumptionRate : ExpantaNum.Zero,
-                TotalPowerDemand) &&
+                totalPowerDemand) &&
             FitsFlowBudget(
                 (game.LogisticsProductionRate - budgetLogisticsProduction + candidateLogisticsProduction) * reward,
                 game.LogisticsConsumptionRate - budgetLogisticsConsumption + candidateLogisticsConsumption,
                 reserveExternalFlow ? manager.UltraProject.GetCurrentLogisticsConsumptionRate() + manager.Relic.CurrentLogisticsConsumptionRate : ExpantaNum.Zero,
-                TotalLogisticsDemand);
+                totalLogisticsDemand);
     }
 
     private ExpantaNum CalculateEfficiency(
@@ -1966,12 +2027,17 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum newScale = newAmount * newEfficiency;
         ExpantaNum scaleDelta = newScale - oldScale;
         ExpantaNum amountDelta = newAmount - oldAmount;
+        ApplyResourceRateDelta(state, scaleDelta);
+        ApplyGameRateDelta(state, scaleDelta, amountDelta, applyCapacityDeltas);
+    }
+
+    private static void ApplyGameRateDelta(BuildingState state, ExpantaNum scaleDelta,
+        ExpantaNum amountDelta, bool applyCapacityDeltas = true)
+    {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum productionMultiplier =
             modifiers.GetBuildingProductionMultiplier(state.Definition) *
             modifiers.GlobalBuildingProductionMultiplier;
-
-        ApplyResourceRateDelta(state, scaleDelta);
 
         GameManager gameManager = GameManager.Instance;
         gameManager.AdjustFoodRates(

@@ -87,8 +87,6 @@ public sealed class ContentVerticalSliceAuditTests
         {
             TechLevel targetEra = (TechLevel)((int)currentEras[i] + 1);
             Research transition = EraGoalEvaluator.FindTransition(targetEra);
-            Assert.That(transition, Is.Not.Null,
-                "Missing transition research for " + targetEra + ".");
             Assert.That(transition.AdvancesTechLevel, Is.True, transition.Id);
             Assert.That(transition.Prerequisites, Is.Not.Empty, transition.Id);
             Assert.That(transition.ResourceRequirements, Is.Not.Empty, transition.Id);

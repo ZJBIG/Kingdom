@@ -51,7 +51,6 @@ public sealed class SectorBuildingPlayModeTests
 
         Button sectorsButton = root.transform.Find(
             "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Sectors")?.GetComponent<Button>();
-        Assert.That(sectorsButton, Is.Not.Null);
         Assert.That(sectorsButton.gameObject.activeSelf, Is.False,
             "The Sectors navigation entry must remain hidden before its research gates complete.");
 
@@ -78,7 +77,6 @@ public sealed class SectorBuildingPlayModeTests
         sectorsButton.onClick.Invoke();
         yield return null;
         Transform sectorsPage = root.transform.Find("SafeAreaRoot/Content/PageHost/Sectors");
-        Assert.That(sectorsPage, Is.Not.Null);
         Assert.That(sectorsPage.gameObject.activeSelf, Is.True,
             "The enabled Sectors button must navigate to the Sectors page.");
     }
@@ -93,7 +91,6 @@ public sealed class SectorBuildingPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
         GameManager game = Object.FindObjectOfType<GameManager>();
-        Assert.That(game, Is.Not.Null);
         game.InitializeNewGameForEditor();
         ResearchManager.Instance.ResetForPerformanceTest();
         SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
@@ -113,18 +110,14 @@ public sealed class SectorBuildingPlayModeTests
 
         Transform rows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Sectors/DataRows");
-        Assert.That(rows, Is.Not.Null);
         Transform moonRow = rows.Find("SectorRow_AzurePool");
-        Assert.That(moonRow, Is.Not.Null);
         Transform gatedBuildings = moonRow.Find("Buildings");
-        Assert.That(gatedBuildings, Is.Not.Null);
         Assert.That(gatedBuildings.gameObject.activeSelf, Is.False);
 
         moonState.SetOccupiedForEditor(true);
         root.RefreshSectorRowSummariesForEditor();
         yield return null;
         Transform buildingButton = moonRow.Find("Buildings");
-        Assert.That(buildingButton, Is.Not.Null);
         Assert.That(buildingButton.gameObject.activeSelf, Is.True);
 
         float before = moonRow.GetComponent<RectTransform>().rect.height;
@@ -137,7 +130,6 @@ public sealed class SectorBuildingPlayModeTests
         float expandedHeight = moonRow.GetComponent<RectTransform>().rect.height;
         Assert.That(expandedHeight, Is.GreaterThan(before));
         Transform menu = moonRow.Find("SectorBuildingMenu");
-        Assert.That(menu, Is.Not.Null);
         float menuHeight = menu.GetComponent<RectTransform>().rect.height;
         Assert.That(expandedHeight - before, Is.EqualTo(menuHeight).Within(1f),
             "Expanded row reserves the full authored menu height.");
@@ -146,7 +138,6 @@ public sealed class SectorBuildingPlayModeTests
             Assert.That(nextRowBefore - nextRow.anchoredPosition.y,
                 Is.EqualTo(expandedHeight - before).Within(1f), "Following rows move by the expansion height.");
         Transform build = menu.Find("EarthMoonLogisticsHub/Build");
-        Assert.That(build, Is.Not.Null);
         Assert.That(build.GetComponent<UnityEngine.UI.Button>().interactable, Is.False);
 
         PrepareBuildableSectorBuilding(game, hub);
@@ -179,7 +170,6 @@ public sealed class SectorBuildingPlayModeTests
         root.RefreshSectorRowSummariesForEditor();
         yield return null;
         Transform gatedButton = moonRow.Find("Buildings");
-        Assert.That(gatedButton, Is.Not.Null);
         Assert.That(gatedButton.gameObject.activeSelf, Is.False);
         Transform retainedMenu = moonRow.Find("SectorBuildingMenu");
         if (retainedMenu != null)

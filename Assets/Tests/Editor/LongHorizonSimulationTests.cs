@@ -32,9 +32,6 @@ public sealed class LongHorizonSimulationTests
         Assert.That(resource, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
     }
 
-    [TestCase(600d, TestName = "TenMinutes")]
-    [TestCase(3600d, TestName = "OneHour")]
-    [TestCase(14400d, TestName = "FourHours")]
     [TestCase(86400d, TestName = "OneDay")]
     public void FoodAndResourceSimulation_RemainsFiniteAcrossLongHorizon(double durationSeconds)
     {

@@ -268,6 +268,84 @@ public sealed class BuildingCostGrowthTests
             "Farm must become visible as soon as Agriculture is completed.");
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void BuildingTransaction_RejectsSingleUnitChangeThatCannotChangeHugeCount(bool deconstruct)
+    {
+        CreateManager<GameManager>("HugeCount-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("HugeCount-ResourceManager");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("HugeCount-BuildingManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Building building = CreateTransactionBuilding("HugeCountTransaction", wood);
+        BuildingState state = buildingManager.EnsureBuilding(building);
+        state.SetAmountForEditor(new ExpantaNum("1e20"));
+        resourceManager.SetAmount(wood, new ExpantaNum(1000));
+        ExpantaNum previousAmount = state.Amount;
+        ExpantaNum previousWood = resourceManager.GetAmount(wood);
+
+        if (deconstruct)
+            Assert.That(buildingManager.GetDeconstructionPreview(building, ExpantaNum.One), Is.Null);
+        else
+        {
+            Assert.That(buildingManager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.InvalidAmount));
+            Assert.That(buildingManager.GetMaxBuildable(building, ExpantaNum.One), Is.EqualTo(ExpantaNum.Zero)); // Discrete count.
+        }
+
+        bool succeeded = deconstruct
+            ? buildingManager.TryDeconstruct(building, ExpantaNum.One, out _)
+            : buildingManager.TryBuild(building, ExpantaNum.One, out _);
+
+        Assert.That(succeeded, Is.False,
+            "A transaction must reject a quantity that cannot change the represented building count.");
+        Assert.That(state.Amount, Is.EqualTo(previousAmount)); // Discrete count must remain unchanged on rejection.
+        Assert.That(resourceManager.GetAmount(wood).ApproximatelyEquals(previousWood), Is.True,
+            "A rejected quantity must neither charge construction costs nor grant a deconstruction refund.");
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void BuildingUpgrade_RejectsSingleUnitChangeThatCannotChangeEitherHugeCount(bool hugeSource)
+    {
+        CreateManager<GameManager>("HugeUpgrade-GameManager");
+        ResourceManager resourceManager = CreateManager<ResourceManager>("HugeUpgrade-ResourceManager");
+        BuildingManager buildingManager = CreateManager<BuildingManager>("HugeUpgrade-BuildingManager");
+        Resource wood = DataBase<Resource>.Find("WoodLog");
+        Building source = CreateTransactionBuilding("HugeUpgradeSource", wood);
+        Building target = CreateTransactionBuilding("HugeUpgradeTarget", wood);
+        source.SetUpgradeToForEditor(target);
+        buildingManager.RebuildBuildingChainIndexForEditor(new[] { source, target });
+        BuildingState sourceState = buildingManager.EnsureBuilding(source);
+        BuildingState targetState = buildingManager.EnsureBuilding(target);
+        sourceState.SetAmountForEditor(hugeSource ? new ExpantaNum("1e20") : new ExpantaNum(10));
+        targetState.SetAmountForEditor(hugeSource ? ExpantaNum.Zero : new ExpantaNum("1e20"));
+        resourceManager.SetAmount(wood, new ExpantaNum(1000));
+        ExpantaNum previousSource = sourceState.Amount;
+        ExpantaNum previousTarget = targetState.Amount;
+        ExpantaNum previousWood = resourceManager.GetAmount(wood);
+        var deltas = new List<Pair<Resource, ExpantaNum>>();
+
+        Assert.That(buildingManager.GetUpgradeFailure(source, ExpantaNum.One), Is.EqualTo(BuildFailure.InvalidAmount));
+        Assert.That(buildingManager.GetMaxUpgradeable(source, ExpantaNum.One), Is.EqualTo(ExpantaNum.Zero)); // Discrete count.
+        buildingManager.GetUpgradeResourceDeltas(source, ExpantaNum.One, deltas);
+        Assert.That(deltas, Is.Empty);
+        Assert.That(buildingManager.TryUpgrade(source, ExpantaNum.One, out BuildFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.InvalidAmount));
+        Assert.That(sourceState.Amount, Is.EqualTo(previousSource)); // Discrete count must be preserved.
+        Assert.That(targetState.Amount, Is.EqualTo(previousTarget)); // Discrete count must be preserved.
+        Assert.That(resourceManager.GetAmount(wood).ApproximatelyEquals(previousWood), Is.True);
+    }
+
+    private Building CreateTransactionBuilding(string id, Resource resource)
+    {
+        Building building = CreateBuilding(id);
+        building.ConfigureEconomyForEditor(
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            new List<Pair<Resource, ExpantaNum>> { new(resource, new ExpantaNum(10)) },
+            new List<Pair<Resource, ExpantaNum>>(),
+            new List<Pair<Resource, ExpantaNum>>());
+        return building;
+    }
+
     private T CreateManager<T>(string name) where T : Component
     {
         GameObject gameObject = new GameObject(name);

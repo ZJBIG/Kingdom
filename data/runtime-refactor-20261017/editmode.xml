@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="226" result="Failed(Child)" total="226" passed="225" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-17 15:37:25Z" end-time="2026-10-17 15:37:27Z" duration="2.0291612">
+  <test-suite type="TestSuite" id="2056" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="917" result="Failed" site="Child" start-time="2026-10-17 15:37:25Z" end-time="2026-10-17 15:37:27Z" duration="2.029161" total="226" passed="225" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3102" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="916" result="Failed" site="Child" start-time="2026-10-17 15:37:25Z" end-time="2026-10-17 15:37:27Z" duration="2.011853" total="226" passed="225" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="10436" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2075" name="AuditRuntimeRegressionTests" fullname="AuditRuntimeRegressionTests" classname="AuditRuntimeRegressionTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-17 15:37:25Z" end-time="2026-10-17 15:37:26Z" duration="0.524342" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2077" name="CancellationPreview_MatchesRemovalAndRetainsPaidProgress" fullname="AuditRuntimeRegressionTests.CancellationPreview_MatchesRemovalAndRetainsPaidProgress" methodname="CancellationPreview_MatchesRemovalAndRetainsPaidProgress" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="933331197" result="Passed" start-time="2026-10-17 15:37:25Z" end-time="2026-10-17 15:37:26Z" duration="0.307671" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2081" name="DeconstructionPreview_PredictsActualFoodOverflowWhenCapacityFalls" fullname="AuditRuntimeRegressionTests.DeconstructionPreview_PredictsActualFoodOverflowWhenCapacityFalls" methodname="DeconstructionPreview_PredictsActualFoodOverflowWhenCapacityFalls" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="234048843" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.015052" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2080" name="DeconstructionPreview_UsesSubmittedRefundAndDoesNotChangeState" fullname="AuditRuntimeRegressionTests.DeconstructionPreview_UsesSubmittedRefundAndDoesNotChangeState" methodname="DeconstructionPreview_UsesSubmittedRefundAndDoesNotChangeState" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="1246138675" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.014101" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2079" name="EffectiveResearchSpeed_MatchesTickAndIsZeroWhileWaitingForPayment" fullname="AuditRuntimeRegressionTests.EffectiveResearchSpeed_MatchesTickAndIsZeroWhileWaitingForPayment" methodname="EffectiveResearchSpeed_MatchesTickAndIsZeroWhileWaitingForPayment" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="416241060" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.005499" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2084" name="LoadFeedback_DistinguishesFirstStartFromInvalidExistingSave" fullname="AuditRuntimeRegressionTests.LoadFeedback_DistinguishesFirstStartFromInvalidExistingSave" methodname="LoadFeedback_DistinguishesFirstStartFromInvalidExistingSave" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="380761809" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.038142" asserts="0">
+          <properties />
+          <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+读取 Kingdom 存档“C:\Users\19603\AppData\Local\Temp\KingdomAudit-2811d1bca30847f88ca910585584877b\KingdomSave-v1.json”失败：存档缺少当前版本的必要数据段。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2087" name="OfflineSummary_CapturesRelicPauseWithoutAStatusOrProgressChange" fullname="AuditRuntimeRegressionTests.OfflineSummary_CapturesRelicPauseWithoutAStatusOrProgressChange" methodname="OfflineSummary_CapturesRelicPauseWithoutAStatusOrProgressChange" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="106848394" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.029131" asserts="0">
+          <properties />
+          <output><![CDATA[已应用离线进度：10 秒。
+]]></output>
+        </test-case>
+        <test-case id="2085" name="OfflineSummary_CopiesRelicProgressInsteadOfKeepingMutableState" fullname="AuditRuntimeRegressionTests.OfflineSummary_CopiesRelicProgressInsteadOfKeepingMutableState" methodname="OfflineSummary_CopiesRelicProgressInsteadOfKeepingMutableState" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="445094147" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.004043" asserts="0">
+          <properties />
+          <output><![CDATA[已应用离线进度：10 秒。
+]]></output>
+        </test-case>
+        <test-case id="2088" name="OfflineSummary_DistinguishesCoveredAndEffectiveEconomySeconds" fullname="AuditRuntimeRegressionTests.OfflineSummary_DistinguishesCoveredAndEffectiveEconomySeconds" methodname="OfflineSummary_DistinguishesCoveredAndEffectiveEconomySeconds" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="1140257174" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.015634" asserts="0">
+          <properties />
+          <output><![CDATA[已应用离线进度：10800 秒。
+]]></output>
+        </test-case>
+        <test-case id="2086" name="OfflineSummary_ReportsZeroEffectiveResearchSpeedDespitePositiveResearchPower" fullname="AuditRuntimeRegressionTests.OfflineSummary_ReportsZeroEffectiveResearchSpeedDespitePositiveResearchPower" methodname="OfflineSummary_ReportsZeroEffectiveResearchSpeedDespitePositiveResearchPower" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="1449128147" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003558" asserts="0">
+          <properties />
+          <output><![CDATA[已应用离线进度：10 秒。
+]]></output>
+        </test-case>
+        <test-case id="2078" name="QueueMove_RejectsDependencyInversionAndMovesIndependentWaitingHead" fullname="AuditRuntimeRegressionTests.QueueMove_RejectsDependencyInversionAndMovesIndependentWaitingHead" methodname="QueueMove_RejectsDependencyInversionAndMovesIndependentWaitingHead" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="191135145" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.004503" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2083" name="SaveFeedback_FailureKeepsSuccessTimestampAndSuccessfulRetryClearsError" fullname="AuditRuntimeRegressionTests.SaveFeedback_FailureKeepsSuccessTimestampAndSuccessfulRetryClearsError" methodname="SaveFeedback_FailureKeepsSuccessTimestampAndSuccessfulRetryClearsError" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="71470681" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.050241" asserts="0">
+          <properties />
+          <output><![CDATA[Kingdom 数据已保存至：C:\Users\19603\AppData\Local\Temp\KingdomAudit-65668287959744ed90badcf9c5860ce1\KingdomSave-v1.json
+保存 Kingdom 数据失败：System.IO.IOException: Cannot create 'C:\Users\19603\AppData\Local\Temp\KingdomAudit-65668287959744ed90badcf9c5860ce1\blocked' because a file or directory with the same name already exists.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at SaveManager.SaveNow (System.Boolean force) [0x00040] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SaveManager.cs:175 
+Kingdom 数据已保存至：C:\Users\19603\AppData\Local\Temp\KingdomAudit-65668287959744ed90badcf9c5860ce1\KingdomSave-v1.json
+]]></output>
+        </test-case>
+        <test-case id="2082" name="StrategicDemand_IncludesActiveWorkAndDisappearsWhenPaused" fullname="AuditRuntimeRegressionTests.StrategicDemand_IncludesActiveWorkAndDisappearsWhenPaused" methodname="StrategicDemand_IncludesActiveWorkAndDisappearsWhenPaused" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="918841965" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010127" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2076" name="ZeroProductivityHousing_PredictionAndSubmissionAgreeDuringDeficit" fullname="AuditRuntimeRegressionTests.ZeroProductivityHousing_PredictionAndSubmissionAgreeDuringDeficit" methodname="ZeroProductivityHousing_PredictionAndSubmissionAgreeDuringDeficit" classname="AuditRuntimeRegressionTests" runstate="Runnable" seed="1698267088" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.007420" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2320" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="158" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:27Z" duration="1.161880" total="158" passed="158" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2338" name="AdvanceFood_ClampsProductionAtFoodCapacity" fullname="KingdomLogicTests.AdvanceFood_ClampsProductionAtFoodCapacity" methodname="AdvanceFood_ClampsProductionAtFoodCapacity" classname="KingdomLogicTests" runstate="Runnable" seed="1352238068" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002402" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2337" name="AdvanceFood_UsesConsumptionRateAndClampsAtZero" fullname="KingdomLogicTests.AdvanceFood_UsesConsumptionRateAndClampsAtZero" methodname="AdvanceFood_UsesConsumptionRateAndClampsAtZero" classname="KingdomLogicTests" runstate="Runnable" seed="955737315" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002505" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2456" name="AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" fullname="KingdomLogicTests.AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" methodname="AdvanceResearchProgress_UsesElapsedSecondsAndClampsToCost" classname="KingdomLogicTests" runstate="Runnable" seed="632849610" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000965" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2487" name="Agriculture_WithNoResourceRequirementsCanStartImmediately" fullname="KingdomLogicTests.Agriculture_WithNoResourceRequirementsCanStartImmediately" methodname="Agriculture_WithNoResourceRequirementsCanStartImmediately" classname="KingdomLogicTests" runstate="Runnable" seed="697808587" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003050" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2352" name="ApplicationPause_SaveFailureSettlesOnlyThePauseIntervalOnce" fullname="KingdomLogicTests.ApplicationPause_SaveFailureSettlesOnlyThePauseIntervalOnce" methodname="ApplicationPause_SaveFailureSettlesOnlyThePauseIntervalOnce" classname="KingdomLogicTests" runstate="Runnable" seed="1207272265" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.016688" asserts="0">
+          <properties />
+          <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+保存 Kingdom 数据失败：System.IO.IOException: Cannot create 'D:\GitHub\Kingdom\Temp\KingdomPauseSaveFailureTest-9ac970ffccfe45cebc91774ffa30e939\blocked-root' because a file or directory with the same name already exists.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at SaveManager.SaveNow (System.Boolean force) [0x00040] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SaveManager.cs:175 
+已应用离线进度：60 秒。
+保存 Kingdom 数据失败：System.IO.IOException: Cannot create 'D:\GitHub\Kingdom\Temp\KingdomPauseSaveFailureTest-9ac970ffccfe45cebc91774ffa30e939\blocked-root' because a file or directory with the same name already exists.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at SaveManager.SaveNow (System.Boolean force) [0x00040] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SaveManager.cs:175 
+]]></output>
+        </test-case>
+        <test-case id="2353" name="ApplicationPause_SaveFailureThenRestart_ResettlesTheStaleInterval" fullname="KingdomLogicTests.ApplicationPause_SaveFailureThenRestart_ResettlesTheStaleInterval" methodname="ApplicationPause_SaveFailureThenRestart_ResettlesTheStaleInterval" classname="KingdomLogicTests" runstate="Runnable" seed="1278047532" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.057000" asserts="0">
+          <properties />
+          <output><![CDATA[已载入 Kingdom 存档：D:\GitHub\Kingdom\Temp\KingdomPauseRestartSettlementTest-eec54e31f3724565aee9ca72c8e6f4ac\KingdomSave-v1.json
+保存 Kingdom 数据失败：System.IO.IOException: Cannot create 'D:\GitHub\Kingdom\Temp\KingdomPauseRestartSettlementTest-eec54e31f3724565aee9ca72c8e6f4ac\blocked-root' because a file or directory with the same name already exists.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at SaveManager.SaveNow (System.Boolean force) [0x00040] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SaveManager.cs:175 
+已载入 Kingdom 存档：D:\GitHub\Kingdom\Temp\KingdomPauseRestartSettlementTest-eec54e31f3724565aee9ca72c8e6f4ac\KingdomSave-v1.json
+已应用离线进度：3600 秒。
+]]></output>
+        </test-case>
+        <test-case id="2377" name="BuildingEfficiency_UsesTheLeastSatisfiedResourceInput" fullname="KingdomLogicTests.BuildingEfficiency_UsesTheLeastSatisfiedResourceInput" methodname="BuildingEfficiency_UsesTheLeastSatisfiedResourceInput" classname="KingdomLogicTests" runstate="Runnable" seed="792539237" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.004792" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2491" name="BuildingManager_RejectsBuildingsAboveCurrentTechLevel" fullname="KingdomLogicTests.BuildingManager_RejectsBuildingsAboveCurrentTechLevel" methodname="BuildingManager_RejectsBuildingsAboveCurrentTechLevel" classname="KingdomLogicTests" runstate="Runnable" seed="1600488060" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001215" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2331" name="BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" fullname="KingdomLogicTests.BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" methodname="BuildingTransactionRules_FloorsAndClampsAmountsBeforeTotals" classname="KingdomLogicTests" runstate="Runnable" seed="1787177296" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000678" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2336" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.006198" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2332" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="440531165" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000696" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2333" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;not-a-number&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;not-a-number&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="199206289" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003080" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2334" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;0.9&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;0.9&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="1255045699" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000529" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2335" name="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;-2&quot;)" fullname="KingdomLogicTests.BuildingTransactionRules_RejectsInvalidOrSubOneAmounts(&quot;-2&quot;)" methodname="BuildingTransactionRules_RejectsInvalidOrSubOneAmounts" classname="KingdomLogicTests" runstate="Runnable" seed="152173569" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000303" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2400" name="BuildingTransactions_SameIdDefinitionUsesCanonicalCosts" fullname="KingdomLogicTests.BuildingTransactions_SameIdDefinitionUsesCanonicalCosts" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.006300" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2398" name="BuildingTransactions_SameIdDefinitionUsesCanonicalCosts(False)" fullname="KingdomLogicTests.BuildingTransactions_SameIdDefinitionUsesCanonicalCosts(False)" methodname="BuildingTransactions_SameIdDefinitionUsesCanonicalCosts" classname="KingdomLogicTests" runstate="Runnable" seed="499727032" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003969" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2399" name="BuildingTransactions_SameIdDefinitionUsesCanonicalCosts(True)" fullname="KingdomLogicTests.BuildingTransactions_SameIdDefinitionUsesCanonicalCosts(True)" methodname="BuildingTransactions_SameIdDefinitionUsesCanonicalCosts" classname="KingdomLogicTests" runstate="Runnable" seed="222995704" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001499" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2387" name="C401_PopulationGrowthStopsWhenHappinessMultiplierIsZero" fullname="KingdomLogicTests.C401_PopulationGrowthStopsWhenHappinessMultiplierIsZero" methodname="C401_PopulationGrowthStopsWhenHappinessMultiplierIsZero" classname="KingdomLogicTests" runstate="Runnable" seed="141558004" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001243" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2391" name="C402_TerritoryTracksTotalUsedAndAvailableSeparately" fullname="KingdomLogicTests.C402_TerritoryTracksTotalUsedAndAvailableSeparately" methodname="C402_TerritoryTracksTotalUsedAndAvailableSeparately" classname="KingdomLogicTests" runstate="Runnable" seed="1780915344" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000973" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2327" name="CalendarIntToData_RejectsInvalidCalendarDimensions" fullname="KingdomLogicTests.CalendarIntToData_RejectsInvalidCalendarDimensions" methodname="CalendarIntToData_RejectsInvalidCalendarDimensions" classname="KingdomLogicTests" runstate="Runnable" seed="547025371" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000778" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2326" name="CalendarIntToData_UsesTwelveThirtyDayMonths" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.004766" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2321" name="CalendarIntToData_UsesTwelveThirtyDayMonths(0,5500,1,1)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(0,5500,1,1)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="1338149031" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001007" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2322" name="CalendarIntToData_UsesTwelveThirtyDayMonths(359,5500,12,30)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(359,5500,12,30)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="2065141922" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000295" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2323" name="CalendarIntToData_UsesTwelveThirtyDayMonths(360,5501,1,1)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(360,5501,1,1)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="1264471090" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000276" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2324" name="CalendarIntToData_UsesTwelveThirtyDayMonths(361,5501,1,2)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(361,5501,1,2)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="1366867151" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000578" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2325" name="CalendarIntToData_UsesTwelveThirtyDayMonths(-1,5499,12,30)" fullname="KingdomLogicTests.CalendarIntToData_UsesTwelveThirtyDayMonths(-1,5499,12,30)" methodname="CalendarIntToData_UsesTwelveThirtyDayMonths" classname="KingdomLogicTests" runstate="Runnable" seed="170402299" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000707" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2462" name="CampaignPower_IntermediateLogisticsSatisfactionScalesEffectivePower" fullname="KingdomLogicTests.CampaignPower_IntermediateLogisticsSatisfactionScalesEffectivePower" methodname="CampaignPower_IntermediateLogisticsSatisfactionScalesEffectivePower" classname="KingdomLogicTests" runstate="Runnable" seed="1457254922" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001929" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2461" name="CampaignPower_RequiresBothPowerAndLogisticsFlow" fullname="KingdomLogicTests.CampaignPower_RequiresBothPowerAndLogisticsFlow" methodname="CampaignPower_RequiresBothPowerAndLogisticsFlow" classname="KingdomLogicTests" runstate="Runnable" seed="221097339" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001173" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2460" name="CampaignProgress_ClampsAndRejectsNegativeElapsedTime" fullname="KingdomLogicTests.CampaignProgress_ClampsAndRejectsNegativeElapsedTime" methodname="CampaignProgress_ClampsAndRejectsNegativeElapsedTime" classname="KingdomLogicTests" runstate="Runnable" seed="1099783650" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001285" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2459" name="CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" fullname="KingdomLogicTests.CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" methodname="CampaignProgress_UsesDeterministicRatioBandsAndSoftcap" classname="KingdomLogicTests" runstate="Runnable" seed="286234089" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001132" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2486" name="CancellingActiveResearchUsesTheQueueRemovalAction" fullname="KingdomLogicTests.CancellingActiveResearchUsesTheQueueRemovalAction" methodname="CancellingActiveResearchUsesTheQueueRemovalAction" classname="KingdomLogicTests" runstate="Runnable" seed="1331826489" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002426" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2485" name="CancellingQueuedPrerequisiteAlsoCancelsQueuedDependents" fullname="KingdomLogicTests.CancellingQueuedPrerequisiteAlsoCancelsQueuedDependents" methodname="CancellingQueuedPrerequisiteAlsoCancelsQueuedDependents" classname="KingdomLogicTests" runstate="Runnable" seed="936921217" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001552" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2488" name="DataBase_FindsDefinitionsByStableId" fullname="KingdomLogicTests.DataBase_FindsDefinitionsByStableId" methodname="DataBase_FindsDefinitionsByStableId" classname="KingdomLogicTests" runstate="Runnable" seed="1991679655" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000769" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2489" name="DataBase_OffersSafeLookupAndActionableMissingIdErrors" fullname="KingdomLogicTests.DataBase_OffersSafeLookupAndActionableMissingIdErrors" methodname="DataBase_OffersSafeLookupAndActionableMissingIdErrors" classname="KingdomLogicTests" runstate="Runnable" seed="1046780113" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002224" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2397" name="Deconstruction_UsesBuildingStateWhenDefinitionInstanceIsReplaced" fullname="KingdomLogicTests.Deconstruction_UsesBuildingStateWhenDefinitionInstanceIsReplaced" methodname="Deconstruction_UsesBuildingStateWhenDefinitionInstanceIsReplaced" classname="KingdomLogicTests" runstate="Runnable" seed="1248376354" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002401" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2396" name="DeconstructionRefund_UsesDefaultAndCompletedResearchRates" fullname="KingdomLogicTests.DeconstructionRefund_UsesDefaultAndCompletedResearchRates" methodname="DeconstructionRefund_UsesDefaultAndCompletedResearchRates" classname="KingdomLogicTests" runstate="Runnable" seed="1505177560" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.005468" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2484" name="EnqueueResearch_RejectsLockedResearchInsteadOfBlockingQueue" fullname="KingdomLogicTests.EnqueueResearch_RejectsLockedResearchInsteadOfBlockingQueue" methodname="EnqueueResearch_RejectsLockedResearchInsteadOfBlockingQueue" classname="KingdomLogicTests" runstate="Runnable" seed="2037794894" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002129" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2470" name="ExpantaNumAndResourceState_RejectBothInfinitySigns" fullname="KingdomLogicTests.ExpantaNumAndResourceState_RejectBothInfinitySigns" methodname="ExpantaNumAndResourceState_RejectBothInfinitySigns" classname="KingdomLogicTests" runstate="Runnable" seed="1941655895" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001778" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2406" name="FoodShortageSlowlyReducesPopulationWithoutGoingNegative" fullname="KingdomLogicTests.FoodShortageSlowlyReducesPopulationWithoutGoingNegative" methodname="FoodShortageSlowlyReducesPopulationWithoutGoingNegative" classname="KingdomLogicTests" runstate="Runnable" seed="828914155" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001483" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2328" name="GameSave_RoundTripsSubDayCalendarAccumulator" fullname="KingdomLogicTests.GameSave_RoundTripsSubDayCalendarAccumulator" methodname="GameSave_RoundTripsSubDayCalendarAccumulator" classname="KingdomLogicTests" runstate="Runnable" seed="803975840" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000650" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2385" name="GameTick_IntegratesFoodEveryTickAndCalendarSeparately" fullname="KingdomLogicTests.GameTick_IntegratesFoodEveryTickAndCalendarSeparately" methodname="GameTick_IntegratesFoodEveryTickAndCalendarSeparately" classname="KingdomLogicTests" runstate="Runnable" seed="1465717498" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001017" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2395" name="HousingAddsCapacityWithoutAddingProductivity" fullname="KingdomLogicTests.HousingAddsCapacityWithoutAddingProductivity" methodname="HousingAddsCapacityWithoutAddingProductivity" classname="KingdomLogicTests" runstate="Runnable" seed="96150580" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002726" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2405" name="HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" fullname="KingdomLogicTests.HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" methodname="HousingRemoval_AllowsOvercapacityWithoutCapacityRatchet" classname="KingdomLogicTests" runstate="Runnable" seed="530870143" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003334" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2404" name="HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" fullname="KingdomLogicTests.HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" methodname="HousingUpgrade_UsesMaterialDifferenceAndAppliesCapacityNetOnce" classname="KingdomLogicTests" runstate="Runnable" seed="1165475032" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.009091" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2471" name="ManagerBoundaries_RejectNonFiniteValues" fullname="KingdomLogicTests.ManagerBoundaries_RejectNonFiniteValues" methodname="ManagerBoundaries_RejectNonFiniteValues" classname="KingdomLogicTests" runstate="Runnable" seed="1791025572" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003594" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2490" name="Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" fullname="KingdomLogicTests.Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" methodname="Managers_RaiseEventsWhenRuntimeDefinitionsAreDiscovered" classname="KingdomLogicTests" runstate="Runnable" seed="2144516231" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001855" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2463" name="MilitaryState_ClampsSupplyAndNonNegativePower" fullname="KingdomLogicTests.MilitaryState_ClampsSupplyAndNonNegativePower" methodname="MilitaryState_ClampsSupplyAndNonNegativePower" classname="KingdomLogicTests" runstate="Runnable" seed="930697647" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001206" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2340" name="NewGame_StartsWith60WoodLog_AndDoesNotStackOnRepeatInitialization" fullname="KingdomLogicTests.NewGame_StartsWith60WoodLog_AndDoesNotStackOnRepeatInitialization" methodname="NewGame_StartsWith60WoodLog_AndDoesNotStackOnRepeatInitialization" classname="KingdomLogicTests" runstate="Runnable" seed="1557831526" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000889" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2351" name="OfflineProgress_AutosaveAndSecondSettlementDoNotRegrantStartingWood" fullname="KingdomLogicTests.OfflineProgress_AutosaveAndSecondSettlementDoNotRegrantStartingWood" methodname="OfflineProgress_AutosaveAndSecondSettlementDoNotRegrantStartingWood" classname="KingdomLogicTests" runstate="Runnable" seed="878218957" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.033305" asserts="0">
+          <properties />
+          <output><![CDATA[已载入 Kingdom 存档：D:\GitHub\Kingdom\Temp\KingdomOfflineSettlementTest-1aa40bedfddb46e3ba7db05d658a28e0\KingdomSave-v1.json
+已应用离线进度：3600 秒。
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\KingdomOfflineSettlementTest-1aa40bedfddb46e3ba7db05d658a28e0\KingdomSave-v1.json
+]]></output>
+        </test-case>
+        <test-case id="2394" name="OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" fullname="KingdomLogicTests.OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" methodname="OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption" classname="KingdomLogicTests" runstate="Runnable" seed="1668853607" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001944" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2330" name="Pair_PreservesLegacySerializedFieldNames" fullname="KingdomLogicTests.Pair_PreservesLegacySerializedFieldNames" methodname="Pair_PreservesLegacySerializedFieldNames" classname="KingdomLogicTests" runstate="Runnable" seed="214174213" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001409" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2329" name="Pair_ProvidesStructuralEqualityAndDictionaryLookup" fullname="KingdomLogicTests.Pair_ProvidesStructuralEqualityAndDictionaryLookup" methodname="Pair_ProvidesStructuralEqualityAndDictionaryLookup" classname="KingdomLogicTests" runstate="Runnable" seed="1025795364" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003183" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2478" name="PayResearchCost_OnlyPaysTheSpecifiedResearch" fullname="KingdomLogicTests.PayResearchCost_OnlyPaysTheSpecifiedResearch" methodname="PayResearchCost_OnlyPaysTheSpecifiedResearch" classname="KingdomLogicTests" runstate="Runnable" seed="1572224142" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002079" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2408" name="PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" fullname="KingdomLogicTests.PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" methodname="PopulationChange_FoodRecoveryDoesNotSpendPendingDepartureProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1636038778" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002330" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2407" name="PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" fullname="KingdomLogicTests.PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" methodname="PopulationChange_FoodShortageDoesNotSpendPendingBirthProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1597600757" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001107" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2415" name="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" fullname="KingdomLogicTests.PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" methodname="PopulationChange_LargeTicksAndRegimeChangesAreDeterministic" classname="KingdomLogicTests" runstate="Runnable" seed="1158068598" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.015070" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2414" name="PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch" fullname="KingdomLogicTests.PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003263" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2412" name="PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch(False)" fullname="KingdomLogicTests.PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch(False)" methodname="PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch" classname="KingdomLogicTests" runstate="Runnable" seed="388254456" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001852" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2413" name="PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch(True)" fullname="KingdomLogicTests.PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch(True)" methodname="PopulationChange_RestoredProgressUsesFirstActualModeThenResetsOnSwitch" classname="KingdomLogicTests" runstate="Runnable" seed="1602000604" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000484" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2411" name="PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode" fullname="KingdomLogicTests.PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002067" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2409" name="PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode(False)" fullname="KingdomLogicTests.PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode(False)" methodname="PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode" classname="KingdomLogicTests" runstate="Runnable" seed="1661984796" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000996" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2410" name="PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode(True)" fullname="KingdomLogicTests.PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode(True)" methodname="PopulationChange_ZeroSecondsDoesNotEstablishOrSwitchRestoredMode" classname="KingdomLogicTests" runstate="Runnable" seed="32299943" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000397" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2388" name="PopulationGrowth_UsesLogisticRateAndFoodGatedDeparture" fullname="KingdomLogicTests.PopulationGrowth_UsesLogisticRateAndFoodGatedDeparture" methodname="PopulationGrowth_UsesLogisticRateAndFoodGatedDeparture" classname="KingdomLogicTests" runstate="Runnable" seed="138555638" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000981" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2390" name="PopulationGrowthRate_IsMonotonicWithHappiness" fullname="KingdomLogicTests.PopulationGrowthRate_IsMonotonicWithHappiness" methodname="PopulationGrowthRate_IsMonotonicWithHappiness" classname="KingdomLogicTests" runstate="Runnable" seed="804705169" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001389" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2389" name="PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth" fullname="KingdomLogicTests.PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth" methodname="PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth" classname="KingdomLogicTests" runstate="Runnable" seed="68299190" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001926" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2392" name="Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" fullname="KingdomLogicTests.Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" methodname="Productivity_IsDerivedFromPopulationResearchAndOwnedBuildings" classname="KingdomLogicTests" runstate="Runnable" seed="1788869102" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003335" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2393" name="ProductivityProvider_CannotFundItsOwnConstruction" fullname="KingdomLogicTests.ProductivityProvider_CannotFundItsOwnConstruction" methodname="ProductivityProvider_CannotFundItsOwnConstruction" classname="KingdomLogicTests" runstate="Runnable" seed="59736501" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001706" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2480" name="ResearchAction_AddsPaidResearchToQueueWhenAnotherResearchIsActive" fullname="KingdomLogicTests.ResearchAction_AddsPaidResearchToQueueWhenAnotherResearchIsActive" methodname="ResearchAction_AddsPaidResearchToQueueWhenAnotherResearchIsActive" classname="KingdomLogicTests" runstate="Runnable" seed="1544686666" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002904" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2482" name="ResearchAction_AutoQueuesPrerequisitesInTopologicalOrder" fullname="KingdomLogicTests.ResearchAction_AutoQueuesPrerequisitesInTopologicalOrder" methodname="ResearchAction_AutoQueuesPrerequisitesInTopologicalOrder" classname="KingdomLogicTests" runstate="Runnable" seed="989972558" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002476" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2479" name="ResearchAction_QueuesUnpaidOnFirstClickAndPaysAtQueueHead" fullname="KingdomLogicTests.ResearchAction_QueuesUnpaidOnFirstClickAndPaysAtQueueHead" methodname="ResearchAction_QueuesUnpaidOnFirstClickAndPaysAtQueueHead" classname="KingdomLogicTests" runstate="Runnable" seed="1758559597" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001836" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2483" name="ResearchAction_QueuesWithoutPaymentWhenResourcesAreUnavailable" fullname="KingdomLogicTests.ResearchAction_QueuesWithoutPaymentWhenResourcesAreUnavailable" methodname="ResearchAction_QueuesWithoutPaymentWhenResourcesAreUnavailable" classname="KingdomLogicTests" runstate="Runnable" seed="394256660" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001896" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2464" name="ResearchCostPayment_IsAtomicAndOnlyPaidOnceWithoutUi" fullname="KingdomLogicTests.ResearchCostPayment_IsAtomicAndOnlyPaidOnceWithoutUi" methodname="ResearchCostPayment_IsAtomicAndOnlyPaidOnceWithoutUi" classname="KingdomLogicTests" runstate="Runnable" seed="1647490254" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001806" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2477" name="ResearchCostPayment_RejectsPartialMultiResourcePaymentWithoutMutation" fullname="KingdomLogicTests.ResearchCostPayment_RejectsPartialMultiResourcePaymentWithoutMutation" methodname="ResearchCostPayment_RejectsPartialMultiResourcePaymentWithoutMutation" classname="KingdomLogicTests" runstate="Runnable" seed="1997643287" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001358" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2466" name="ResearchCostPayment_WithNoRequirementsStartsPaid" fullname="KingdomLogicTests.ResearchCostPayment_WithNoRequirementsStartsPaid" methodname="ResearchCostPayment_WithNoRequirementsStartsPaid" classname="KingdomLogicTests" runstate="Runnable" seed="1370290140" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000704" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2458" name="ResearchState_RejectsInvalidBaseCostAtCreation" fullname="KingdomLogicTests.ResearchState_RejectsInvalidBaseCostAtCreation" methodname="ResearchState_RejectsInvalidBaseCostAtCreation" classname="KingdomLogicTests" runstate="Runnable" seed="1369246116" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000786" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2457" name="ResearchState_RestoreRecomputesPaymentFromSavedResourceLedger" fullname="KingdomLogicTests.ResearchState_RestoreRecomputesPaymentFromSavedResourceLedger" methodname="ResearchState_RestoreRecomputesPaymentFromSavedResourceLedger" classname="KingdomLogicTests" runstate="Runnable" seed="1781808359" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001067" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2493" name="ResearchValidator_RejectsNullAndDuplicatePrerequisites" fullname="KingdomLogicTests.ResearchValidator_RejectsNullAndDuplicatePrerequisites" methodname="ResearchValidator_RejectsNullAndDuplicatePrerequisites" classname="KingdomLogicTests" runstate="Runnable" seed="1900553951" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001386" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2492" name="ResearchValidator_ReportsCompleteCyclePath" fullname="KingdomLogicTests.ResearchValidator_ReportsCompleteCyclePath" methodname="ResearchValidator_ReportsCompleteCyclePath" classname="KingdomLogicTests" runstate="Runnable" seed="801516401" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001198" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2386" name="ResetDerivedEconomy_RebuildsCapacityWithoutLosingFood" fullname="KingdomLogicTests.ResetDerivedEconomy_RebuildsCapacityWithoutLosingFood" methodname="ResetDerivedEconomy_RebuildsCapacityWithoutLosingFood" classname="KingdomLogicTests" runstate="Runnable" seed="1126366349" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.000945" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2374" name="ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" fullname="KingdomLogicTests.ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" methodname="ResourceAdvance_UsesElapsedSecondsAndClampsAtZero" classname="KingdomLogicTests" runstate="Runnable" seed="1422609337" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001076" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2472" name="ResourceAtomicChanges_CombinesRefundAndDebitWithoutPartialMutation" fullname="KingdomLogicTests.ResourceAtomicChanges_CombinesRefundAndDebitWithoutPartialMutation" methodname="ResourceAtomicChanges_CombinesRefundAndDebitWithoutPartialMutation" classname="KingdomLogicTests" runstate="Runnable" seed="1470726521" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001434" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2475" name="ResourceAtomicChanges_ObserverFailureDoesNotUndoCommittedPayment" fullname="KingdomLogicTests.ResourceAtomicChanges_ObserverFailureDoesNotUndoCommittedPayment" methodname="ResourceAtomicChanges_ObserverFailureDoesNotUndoCommittedPayment" classname="KingdomLogicTests" runstate="Runnable" seed="1366585032" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.004658" asserts="0">
+          <properties />
+          <output><![CDATA[InvalidOperationException: test observer failure
+]]></output>
+        </test-case>
+        <test-case id="2476" name="ResourceAtomicChanges_PreservesCommitFailureWhenRollbackAlsoThrows" fullname="KingdomLogicTests.ResourceAtomicChanges_PreservesCommitFailureWhenRollbackAlsoThrows" methodname="ResourceAtomicChanges_PreservesCommitFailureWhenRollbackAlsoThrows" classname="KingdomLogicTests" runstate="Runnable" seed="1031760920" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.003380" asserts="0">
+          <properties />
+          <output><![CDATA[ApplicationException: rollback failure
+]]></output>
+        </test-case>
+        <test-case id="2474" name="ResourceAtomicChanges_RollsBackExternalDomainCompensationWhenCommitThrows" fullname="KingdomLogicTests.ResourceAtomicChanges_RollsBackExternalDomainCompensationWhenCommitThrows" methodname="ResourceAtomicChanges_RollsBackExternalDomainCompensationWhenCommitThrows" classname="KingdomLogicTests" runstate="Runnable" seed="975175920" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001534" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2473" name="ResourceAtomicChanges_RollsBackWhenDomainCommitThrows" fullname="KingdomLogicTests.ResourceAtomicChanges_RollsBackWhenDomainCommitThrows" methodname="ResourceAtomicChanges_RollsBackWhenDomainCommitThrows" classname="KingdomLogicTests" runstate="Runnable" seed="1697752551" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001424" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2469" name="ResourceAtomicPayment_RejectsAliasDefinitionSharingStableId" fullname="KingdomLogicTests.ResourceAtomicPayment_RejectsAliasDefinitionSharingStableId" methodname="ResourceAtomicPayment_RejectsAliasDefinitionSharingStableId" classname="KingdomLogicTests" runstate="Runnable" seed="1133376709" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001568" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2467" name="ResourceAtomicPayment_RejectsInvalidCostsWithoutMutation" fullname="KingdomLogicTests.ResourceAtomicPayment_RejectsInvalidCostsWithoutMutation" methodname="ResourceAtomicPayment_RejectsInvalidCostsWithoutMutation" classname="KingdomLogicTests" runstate="Runnable" seed="637847769" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001055" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2468" name="ResourceAtomicPayment_RollsBackDomainStateWhenCommitThrows" fullname="KingdomLogicTests.ResourceAtomicPayment_RollsBackDomainStateWhenCommitThrows" methodname="ResourceAtomicPayment_RollsBackDomainStateWhenCommitThrows" classname="KingdomLogicTests" runstate="Runnable" seed="1797269122" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001011" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2375" name="ResourceDerivedRateDelta_SnapsOnlyCancellationResidueToZero" fullname="KingdomLogicTests.ResourceDerivedRateDelta_SnapsOnlyCancellationResidueToZero" methodname="ResourceDerivedRateDelta_SnapsOnlyCancellationResidueToZero" classname="KingdomLogicTests" runstate="Runnable" seed="1839379540" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001303" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2465" name="ResourceManager_RegistersAllDefinitionsForResearchPaymentAndDisplay" fullname="KingdomLogicTests.ResourceManager_RegistersAllDefinitionsForResearchPaymentAndDisplay" methodname="ResourceManager_RegistersAllDefinitionsForResearchPaymentAndDisplay" classname="KingdomLogicTests" runstate="Runnable" seed="1279791926" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001298" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2376" name="ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" fullname="KingdomLogicTests.ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" methodname="ResourceSatisfaction_UsesInventoryAndPotentialProductionForTheTick" classname="KingdomLogicTests" runstate="Runnable" seed="1653999501" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.001441" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2481" name="RestoreResearchSave_ClearsPreviousActiveResearchWhenSaveHasNone" fullname="KingdomLogicTests.RestoreResearchSave_ClearsPreviousActiveResearchWhenSaveHasNone" methodname="RestoreResearchSave_ClearsPreviousActiveResearchWhenSaveHasNone" classname="KingdomLogicTests" runstate="Runnable" seed="2001198474" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.002747" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2425" name="SaveApply_IsIdempotentAndRecalculatesDerivedRates" fullname="KingdomLogicTests.SaveApply_IsIdempotentAndRecalculatesDerivedRates" methodname="SaveApply_IsIdempotentAndRecalculatesDerivedRates" classname="KingdomLogicTests" runstate="Runnable" seed="128808662" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010085" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2428" name="SaveApply_NormalizesFullyPaidActiveResearch" fullname="KingdomLogicTests.SaveApply_NormalizesFullyPaidActiveResearch" methodname="SaveApply_NormalizesFullyPaidActiveResearch" classname="KingdomLogicTests" runstate="Runnable" seed="687088092" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010031" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2343" name="SaveApply_PreservesSavedWoodLogAmount" fullname="KingdomLogicTests.SaveApply_PreservesSavedWoodLogAmount" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.015766" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2341" name="SaveApply_PreservesSavedWoodLogAmount(&quot;0&quot;)" fullname="KingdomLogicTests.SaveApply_PreservesSavedWoodLogAmount(&quot;0&quot;)" methodname="SaveApply_PreservesSavedWoodLogAmount" classname="KingdomLogicTests" runstate="Runnable" seed="1417816938" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.007426" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2342" name="SaveApply_PreservesSavedWoodLogAmount(&quot;13&quot;)" fullname="KingdomLogicTests.SaveApply_PreservesSavedWoodLogAmount(&quot;13&quot;)" methodname="SaveApply_PreservesSavedWoodLogAmount" classname="KingdomLogicTests" runstate="Runnable" seed="2070078017" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.007415" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2372" name="SaveApply_RestoresEveryTechLevelWithoutCrossEraStateLeakage" fullname="KingdomLogicTests.SaveApply_RestoresEveryTechLevelWithoutCrossEraStateLeakage" methodname="SaveApply_RestoresEveryTechLevelWithoutCrossEraStateLeakage" classname="KingdomLogicTests" runstate="Runnable" seed="1784215763" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.025796" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2373" name="SaveApply_RestoresResearchQueueAndLocalSectorCampaignTogether" fullname="KingdomLogicTests.SaveApply_RestoresResearchQueueAndLocalSectorCampaignTogether" methodname="SaveApply_RestoresResearchQueueAndLocalSectorCampaignTogether" classname="KingdomLogicTests" runstate="Runnable" seed="2033614657" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.012502" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2371" name="SaveApply_RoundTripsAllRuntimeSectionsWithActiveResearchAndSectorState" fullname="KingdomLogicTests.SaveApply_RoundTripsAllRuntimeSectionsWithActiveResearchAndSectorState" methodname="SaveApply_RoundTripsAllRuntimeSectionsWithActiveResearchAndSectorState" classname="KingdomLogicTests" runstate="Runnable" seed="1685319087" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.016068" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2347" name="SaveLoad_CorruptPrimaryStartsCleanNewGameWithoutBackup" fullname="KingdomLogicTests.SaveLoad_CorruptPrimaryStartsCleanNewGameWithoutBackup" methodname="SaveLoad_CorruptPrimaryStartsCleanNewGameWithoutBackup" classname="KingdomLogicTests" runstate="Runnable" seed="1129322158" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.031697" asserts="0">
+          <properties />
+          <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\KingdomSaveTest-64b09c995e0d44a49038ed1d103f30db\KingdomSave-v1.json
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\KingdomSaveTest-64b09c995e0d44a49038ed1d103f30db\KingdomSave-v1.json
+读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomSaveTest-64b09c995e0d44a49038ed1d103f30db\KingdomSave-v1.json”失败：存档缺少当前版本的必要数据段。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2365" name="SaveLoad_MissingCurrentSectionRejectsSave" fullname="KingdomLogicTests.SaveLoad_MissingCurrentSectionRejectsSave" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.025753" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2363" name="SaveLoad_MissingCurrentSectionRejectsSave(&quot;UltraProject&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingCurrentSectionRejectsSave(&quot;UltraProject&quot;)" methodname="SaveLoad_MissingCurrentSectionRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="1445088079" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013106" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-278ec15143514f3ba35d65217f2f88d4\KingdomSave-v1.json”失败：存档缺少当前版本的必要数据段。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2364" name="SaveLoad_MissingCurrentSectionRejectsSave(&quot;Relic&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingCurrentSectionRejectsSave(&quot;Relic&quot;)" methodname="SaveLoad_MissingCurrentSectionRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="1485372694" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.011662" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-f188ce84a9a6428b9489091c3f0869e8\KingdomSave-v1.json”失败：存档缺少当前版本的必要数据段。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2362" name="SaveLoad_MissingRequiredNestedListRejectsSave" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.079284" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2355" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Resources&quot;,&quot;Resources&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Resources&quot;,&quot;Resources&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="81771540" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013167" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-a170aa47deae4650a276c3014c8f1d7d\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2356" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Buildings&quot;,&quot;Buildings&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Buildings&quot;,&quot;Buildings&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="390440247" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.011080" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-605a0d5c2e404a3b985cd49782b2e779\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2357" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Researches&quot;,&quot;States&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Researches&quot;,&quot;States&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="573458395" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.011132" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-87306771afe84f27a9f9dfda585f483b\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2358" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Researches&quot;,&quot;QueuedResearchIds&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Researches&quot;,&quot;QueuedResearchIds&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="108658069" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010218" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-6c56a62468714e3ab7ec006e6a32d8d9\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2359" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Workshop&quot;,&quot;PurchasedUpgradeIds&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Workshop&quot;,&quot;PurchasedUpgradeIds&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="307698048" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010916" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-29992dd49c114ac2968cad91b51d25c0\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2360" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Sectors&quot;,&quot;States&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Sectors&quot;,&quot;States&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="1883128631" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.009793" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-04afb1a07af5458895702cb945fb1770\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2361" name="SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Tutorial&quot;,&quot;CompletedStepIds&quot;)" fullname="KingdomLogicTests.SaveLoad_MissingRequiredNestedListRejectsSave(&quot;Tutorial&quot;,&quot;CompletedStepIds&quot;)" methodname="SaveLoad_MissingRequiredNestedListRejectsSave" classname="KingdomLogicTests" runstate="Runnable" seed="1508504502" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.010212" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomMissingNestedListTest-f9361eb8068a45979c84ddf766fc199d\KingdomSave-v1.json”失败：存档缺少当前版本的必要嵌套数据列表。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2354" name="SaveLoad_MissingRequiredSectionStartsNewGame" fullname="KingdomLogicTests.SaveLoad_MissingRequiredSectionStartsNewGame" methodname="SaveLoad_MissingRequiredSectionStartsNewGame" classname="KingdomLogicTests" runstate="Runnable" seed="1323412983" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.011688" asserts="0">
+          <properties />
+          <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-590f53e69cce428f8dc463f9d0c65447\KingdomSave-v1.json”失败：存档缺少当前版本的必要数据段。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2451" name="SaveLoad_RejectsActiveCampaignWithoutMatchingSectorState" fullname="KingdomLogicTests.SaveLoad_RejectsActiveCampaignWithoutMatchingSectorState" methodname="SaveLoad_RejectsActiveCampaignWithoutMatchingSectorState" classname="KingdomLogicTests" runstate="Runnable" seed="171266215" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013206" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-d047a8f5054e40e994024d83ba46e981\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Active campaign cannot target home sector 'AzurePool'.
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2452" name="SaveLoad_RejectsActiveCampaignWithUnknownTarget" fullname="KingdomLogicTests.SaveLoad_RejectsActiveCampaignWithUnknownTarget" methodname="SaveLoad_RejectsActiveCampaignWithUnknownTarget" classname="KingdomLogicTests" runstate="Runnable" seed="848027266" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013288" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-850469eb92ee455f85bbc6225c674d32\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知战役目标星区“missing-sector-id”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2427" name="SaveLoad_RejectsActiveResearchWithUnpaidResourceCosts" fullname="KingdomLogicTests.SaveLoad_RejectsActiveResearchWithUnpaidResourceCosts" methodname="SaveLoad_RejectsActiveResearchWithUnpaidResourceCosts" classname="KingdomLogicTests" runstate="Runnable" seed="1519465236" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.012884" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-66c7fc4363164d9a983e923c169e99f5\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Active research has unpaid resource costs: Quarry
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2430" name="SaveLoad_RejectsCompletedResearchWithIncompletePrerequisite" fullname="KingdomLogicTests.SaveLoad_RejectsCompletedResearchWithIncompletePrerequisite" methodname="SaveLoad_RejectsCompletedResearchWithIncompletePrerequisite" classname="KingdomLogicTests" runstate="Runnable" seed="537505908" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.012677" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-9105bff274084cb8bf1d4600bf7ee783\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Research payment ledger is incomplete: StoneProcessing
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2432" name="SaveLoad_RejectsCompletedResearchWithUnpaidCosts" fullname="KingdomLogicTests.SaveLoad_RejectsCompletedResearchWithUnpaidCosts" methodname="SaveLoad_RejectsCompletedResearchWithUnpaidCosts" classname="KingdomLogicTests" runstate="Runnable" seed="1566163811" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.014147" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-89df3f87c6d4456cafdc1397d67f50f1\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Research payment ledger is incomplete: AdaptiveFleetLogistics
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2429" name="SaveLoad_RejectsCurrentResearchWithoutLedger" fullname="KingdomLogicTests.SaveLoad_RejectsCurrentResearchWithoutLedger" methodname="SaveLoad_RejectsCurrentResearchWithoutLedger" classname="KingdomLogicTests" runstate="Runnable" seed="52753335" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.012522" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-5bf9a5e7ca98479485d5eb1806b5bb98\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Active research has unpaid resource costs: Quarry
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2439" name="SaveLoad_RejectsDuplicateBuildingStateId" fullname="KingdomLogicTests.SaveLoad_RejectsDuplicateBuildingStateId" methodname="SaveLoad_RejectsDuplicateBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1343950998" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.011911" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-97e10fc2aaaf4952a817160aa39159b9\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档中的建筑状态重复包含“Farm”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2435" name="SaveLoad_RejectsDuplicateResearchStateId" fullname="KingdomLogicTests.SaveLoad_RejectsDuplicateResearchStateId" methodname="SaveLoad_RejectsDuplicateResearchStateId" classname="KingdomLogicTests" runstate="Runnable" seed="909425548" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.015445" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-efdec195d7f042b3ad56538e454817cd\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Duplicate research state: ControlledFire
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2438" name="SaveLoad_RejectsDuplicateResourceStateId" fullname="KingdomLogicTests.SaveLoad_RejectsDuplicateResourceStateId" methodname="SaveLoad_RejectsDuplicateResourceStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1639188828" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013212" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-402e44664f9144beaa01ba32d6aa70ab\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档中的资源状态重复包含“WoodLog”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2422" name="SaveLoad_RejectsInvalidCalendarOrTechLevel" fullname="KingdomLogicTests.SaveLoad_RejectsInvalidCalendarOrTechLevel" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.028016" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2420" name="SaveLoad_RejectsInvalidCalendarOrTechLevel(-1)" fullname="KingdomLogicTests.SaveLoad_RejectsInvalidCalendarOrTechLevel(-1)" methodname="SaveLoad_RejectsInvalidCalendarOrTechLevel" classname="KingdomLogicTests" runstate="Runnable" seed="1804395688" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013214" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-50c14d15c72245e1b7b271e4fa947112\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档的 CalendarDays 不能为负数。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2421" name="SaveLoad_RejectsInvalidCalendarOrTechLevel(999)" fullname="KingdomLogicTests.SaveLoad_RejectsInvalidCalendarOrTechLevel(999)" methodname="SaveLoad_RejectsInvalidCalendarOrTechLevel" classname="KingdomLogicTests" runstate="Runnable" seed="550095363" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:26Z" duration="0.013857" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-8cb93416515142a9b20285dc369cca1e\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知时代值“999”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2453" name="SaveLoad_RejectsInvalidCampaignDoctrine" fullname="KingdomLogicTests.SaveLoad_RejectsInvalidCampaignDoctrine" methodname="SaveLoad_RejectsInvalidCampaignDoctrine" classname="KingdomLogicTests" runstate="Runnable" seed="1337258090" result="Passed" start-time="2026-10-17 15:37:26Z" end-time="2026-10-17 15:37:27Z" duration="0.012028" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-04a4988fc90941a18b85b766520ae640\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知远征姿态值“99”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2370" name="SaveLoad_RejectsMissingCurrentEconomicValues" fullname="KingdomLogicTests.SaveLoad_RejectsMissingCurrentEconomicValues" classname="KingdomLogicTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.054607" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2366" name="SaveLoad_RejectsMissingCurrentEconomicValues(&quot;resource&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsMissingCurrentEconomicValues(&quot;resource&quot;)" methodname="SaveLoad_RejectsMissingCurrentEconomicValues" classname="KingdomLogicTests" runstate="Runnable" seed="1276694825" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012914" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-90176136203f4500a75f744c6de1aed4\KingdomSave-v1.json”失败，将开始新游戏。详细信息：WoodLog.Amount 中的 ExpantaNum 值“”无效。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2367" name="SaveLoad_RejectsMissingCurrentEconomicValues(&quot;building&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsMissingCurrentEconomicValues(&quot;building&quot;)" methodname="SaveLoad_RejectsMissingCurrentEconomicValues" classname="KingdomLogicTests" runstate="Runnable" seed="2114277738" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013561" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-4c6efff2463c497292cca213a903e3f1\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Farm.Amount 中的 ExpantaNum 值“”无效。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2368" name="SaveLoad_RejectsMissingCurrentEconomicValues(&quot;efficiency&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsMissingCurrentEconomicValues(&quot;efficiency&quot;)" methodname="SaveLoad_RejectsMissingCurrentEconomicValues" classname="KingdomLogicTests" runstate="Runnable" seed="1977414012" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013664" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-0149dc54efe7467a8da6ab4f2c3909e7\KingdomSave-v1.json”失败，将开始新游戏。详细信息：ResourceManager.GlobalEfficiencyFactor 中的 ExpantaNum 值“”无效。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2369" name="SaveLoad_RejectsMissingCurrentEconomicValues(&quot;population&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsMissingCurrentEconomicValues(&quot;population&quot;)" methodname="SaveLoad_RejectsMissingCurrentEconomicValues" classname="KingdomLogicTests" runstate="Runnable" seed="575216214" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012276" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-29290817e5a045439b6ae51562f43423\KingdomSave-v1.json”失败，将开始新游戏。详细信息：GameState.Population 中的 ExpantaNum 值“”无效。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2423" name="SaveLoad_RejectsNegativeCoreEconomyAndOutOfRangeSatisfaction" fullname="KingdomLogicTests.SaveLoad_RejectsNegativeCoreEconomyAndOutOfRangeSatisfaction" methodname="SaveLoad_RejectsNegativeCoreEconomyAndOutOfRangeSatisfaction" classname="KingdomLogicTests" runstate="Runnable" seed="1016697635" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013289" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-fd298fad53494930848cc14777505e7f\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档的 Population 必须是非负有限值。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2436" name="SaveLoad_RejectsNegativeResearchResourcePayment" fullname="KingdomLogicTests.SaveLoad_RejectsNegativeResearchResourcePayment" methodname="SaveLoad_RejectsNegativeResearchResourcePayment" classname="KingdomLogicTests" runstate="Runnable" seed="259902767" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013789" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-de468ab8f4f740f9b03c5da0120222df\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Paid resource cost must be finite and non-negative: PhantomAlloy
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2424" name="SaveLoad_RejectsPopulationProgressOutsideUnitInterval" fullname="KingdomLogicTests.SaveLoad_RejectsPopulationProgressOutsideUnitInterval" methodname="SaveLoad_RejectsPopulationProgressOutsideUnitInterval" classname="KingdomLogicTests" runstate="Runnable" seed="519136523" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.017062" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-afd5f7109baf47e5aea078d563caf694\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档的 PopulationChangeProgress 必须是 0 到 1 之间的有限值。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2437" name="SaveLoad_RejectsResearchPaymentForUnrequiredResource" fullname="KingdomLogicTests.SaveLoad_RejectsResearchPaymentForUnrequiredResource" methodname="SaveLoad_RejectsResearchPaymentForUnrequiredResource" classname="KingdomLogicTests" runstate="Runnable" seed="21582135" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013602" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-51d025482add462884a655800b36c78a\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Research payment uses a resource not required by AdaptiveFleetLogistics: AdvancedMetalIngot
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2431" name="SaveLoad_RejectsResearchProgressOutsideDefinitionCost" fullname="KingdomLogicTests.SaveLoad_RejectsResearchProgressOutsideDefinitionCost" methodname="SaveLoad_RejectsResearchProgressOutsideDefinitionCost" classname="KingdomLogicTests" runstate="Runnable" seed="712442892" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013448" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-95e5d779e33d4cf4afde44c9e684c5b7\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Research progress is outside the valid range: ControlledFire
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2433" name="SaveLoad_RejectsResearchQueueWithUnmetPrerequisiteOrder" fullname="KingdomLogicTests.SaveLoad_RejectsResearchQueueWithUnmetPrerequisiteOrder" methodname="SaveLoad_RejectsResearchQueueWithUnmetPrerequisiteOrder" classname="KingdomLogicTests" runstate="Runnable" seed="1718331318" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013719" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-0d223ee5758644268657b356ff614359\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Queued research prerequisite is missing: StoneProcessing
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2449" name="SaveLoad_RejectsUnknownBuildingStateId" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.057910" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2445" name="SaveLoad_RejectsUnknownBuildingStateId(&quot;missing-building-id&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownBuildingStateId(&quot;missing-building-id&quot;)" methodname="SaveLoad_RejectsUnknownBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" seed="722249814" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013622" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-c153ca2c8405495da2c5cf46c70faa4b\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知建筑编号“missing-building-id”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2446" name="SaveLoad_RejectsUnknownBuildingStateId(&quot;Glassworks&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownBuildingStateId(&quot;Glassworks&quot;)" methodname="SaveLoad_RejectsUnknownBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1369237444" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014753" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-246b2e65b9434e60b4b7e576de398cc3\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知建筑编号“Glassworks”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2447" name="SaveLoad_RejectsUnknownBuildingStateId(&quot;StoneCuttingWorkshop_Marble&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownBuildingStateId(&quot;StoneCuttingWorkshop_Marble&quot;)" methodname="SaveLoad_RejectsUnknownBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1366289177" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013200" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-2dd17b5d0f0249b0892012b91e5c9268\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知建筑编号“StoneCuttingWorkshop_Marble”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2448" name="SaveLoad_RejectsUnknownBuildingStateId(&quot;Blacksmith&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownBuildingStateId(&quot;Blacksmith&quot;)" methodname="SaveLoad_RejectsUnknownBuildingStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1644866173" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014467" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-8489ee0791f942ddbb141ebaa88bc686\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知建筑编号“Blacksmith”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2434" name="SaveLoad_RejectsUnknownResearchQueueId" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResearchQueueId" methodname="SaveLoad_RejectsUnknownResearchQueueId" classname="KingdomLogicTests" runstate="Runnable" seed="83549869" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014622" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-990f3f9277654960a22afae33fa60e77\KingdomSave-v1.json”失败，将开始新游戏。详细信息：Invalid queued research: missing-research-id
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2444" name="SaveLoad_RejectsUnknownResourceStateId" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResourceStateId" classname="KingdomLogicTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.055709" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2440" name="SaveLoad_RejectsUnknownResourceStateId(&quot;missing-resource-id&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResourceStateId(&quot;missing-resource-id&quot;)" methodname="SaveLoad_RejectsUnknownResourceStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1908680748" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013556" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-b464335aef3d4d82b48e42963b76b169\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知资源编号“missing-resource-id”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2441" name="SaveLoad_RejectsUnknownResourceStateId(&quot;StoneChunk_Marble&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResourceStateId(&quot;StoneChunk_Marble&quot;)" methodname="SaveLoad_RejectsUnknownResourceStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1163754252" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014563" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-ee2f7fc98acb4bde914157a72a7fda63\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知资源编号“StoneChunk_Marble”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2442" name="SaveLoad_RejectsUnknownResourceStateId(&quot;StoneBrick_Marble&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResourceStateId(&quot;StoneBrick_Marble&quot;)" methodname="SaveLoad_RejectsUnknownResourceStateId" classname="KingdomLogicTests" runstate="Runnable" seed="715369294" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013199" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-7309ac87b81b42f297b868fc0d7ffe96\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知资源编号“StoneBrick_Marble”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2443" name="SaveLoad_RejectsUnknownResourceStateId(&quot;StoneTool&quot;)" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownResourceStateId(&quot;StoneTool&quot;)" methodname="SaveLoad_RejectsUnknownResourceStateId" classname="KingdomLogicTests" runstate="Runnable" seed="1356911326" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012686" asserts="0">
+            <properties />
+            <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-6b35d34229924991b083b8b6f35df9bd\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档包含未知资源编号“StoneTool”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2450" name="SaveLoad_RejectsUnknownWorkshopUpgradeId" fullname="KingdomLogicTests.SaveLoad_RejectsUnknownWorkshopUpgradeId" methodname="SaveLoad_RejectsUnknownWorkshopUpgradeId" classname="KingdomLogicTests" runstate="Runnable" seed="122240397" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014659" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-75d8052e4cea4286829b2bb84549c0ce\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档中的工坊升级 ID 无效：“missing-workshop-id”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-case id="2454" name="SaveLoad_RejectsWorkshopUpgradeMissingPrerequisite" fullname="KingdomLogicTests.SaveLoad_RejectsWorkshopUpgradeMissingPrerequisite" methodname="SaveLoad_RejectsWorkshopUpgradeMissingPrerequisite" classname="KingdomLogicTests" runstate="Runnable" seed="1352446114" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.015302" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-de4872b9b73946eeac0c9f18fb30f9e3\KingdomSave-v1.json”失败，将开始新游戏。详细信息：存档中的工坊升级“AdaptiveArmorRepairSystems”超出当前科技时代。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2346" name="SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift" fullname="KingdomLogicTests.SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.052205" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2344" name="SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift(&quot;0&quot;)" fullname="KingdomLogicTests.SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift(&quot;0&quot;)" methodname="SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift" classname="KingdomLogicTests" runstate="Runnable" seed="1462198878" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.025190" asserts="0">
+            <properties />
+            <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\KingdomSaveRoundTripTest-3bbf9c3851ea4bd9aa5ea3abc5d9b21d\KingdomSave-v1.json
+已载入 Kingdom 存档：D:\GitHub\Kingdom\Temp\KingdomSaveRoundTripTest-3bbf9c3851ea4bd9aa5ea3abc5d9b21d\KingdomSave-v1.json
+]]></output>
+          </test-case>
+          <test-case id="2345" name="SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift(&quot;13&quot;)" fullname="KingdomLogicTests.SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift(&quot;13&quot;)" methodname="SaveLoad_SavedWoodLogAmountDoesNotReceiveNewGameGift" classname="KingdomLogicTests" runstate="Runnable" seed="1424910497" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.025739" asserts="0">
+            <properties />
+            <output><![CDATA[没有可应用的有效 Kingdom 存档，已开始新游戏。
+Kingdom 数据已保存至：D:\GitHub\Kingdom\Temp\KingdomSaveRoundTripTest-872e8e811d3a45d3b391072e7084c4c6\KingdomSave-v1.json
+已载入 Kingdom 存档：D:\GitHub\Kingdom\Temp\KingdomSaveRoundTripTest-872e8e811d3a45d3b391072e7084c4c6\KingdomSave-v1.json
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2426" name="SaveLoad_UnknownSelectedResearchIdIsActionable" fullname="KingdomLogicTests.SaveLoad_UnknownSelectedResearchIdIsActionable" methodname="SaveLoad_UnknownSelectedResearchIdIsActionable" classname="KingdomLogicTests" runstate="Runnable" seed="330001987" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013353" asserts="0">
+          <properties />
+          <output><![CDATA[应用 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomInvalidSaveTest-31a8cfdb48ab43068bb5767c25d93d16\KingdomSave-v1.json”失败，将开始新游戏。详细信息：未在 Resources/Datas 中找到编号为“missing-research-id”的Research定义。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2350" name="SaveLoad_UnsupportedVersionStartsNewGame" fullname="KingdomLogicTests.SaveLoad_UnsupportedVersionStartsNewGame" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.028066" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2348" name="SaveLoad_UnsupportedVersionStartsNewGame(-1)" fullname="KingdomLogicTests.SaveLoad_UnsupportedVersionStartsNewGame(-1)" methodname="SaveLoad_UnsupportedVersionStartsNewGame" classname="KingdomLogicTests" runstate="Runnable" seed="731117098" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012719" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomSaveUnsupportedPrimaryTest-755dffcb19124a069a2bd33df7ab9f45\KingdomSave-v1.json”失败：存档版本“0”不受支持，当前应为“1”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+          <test-case id="2349" name="SaveLoad_UnsupportedVersionStartsNewGame(1)" fullname="KingdomLogicTests.SaveLoad_UnsupportedVersionStartsNewGame(1)" methodname="SaveLoad_UnsupportedVersionStartsNewGame" classname="KingdomLogicTests" runstate="Runnable" seed="1391149051" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014060" asserts="0">
+            <properties />
+            <output><![CDATA[读取 Kingdom 存档“D:\GitHub\Kingdom\Temp\KingdomSaveUnsupportedPrimaryTest-5a647238cd9647fdb04b13cdacd89d70\KingdomSave-v1.json”失败：存档版本“2”不受支持，当前应为“1”。
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="2419" name="SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume" fullname="KingdomLogicTests.SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume" methodname="SaveTimestamp_StampsSerializedPayloadBeforeOfflineResume" classname="KingdomLogicTests" runstate="Runnable" seed="2119228260" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001996" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2416" name="SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" fullname="KingdomLogicTests.SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" methodname="SimulationManager_ManualTick_AdvancesCalendarAndResourcesWithoutUi" classname="KingdomLogicTests" runstate="Runnable" seed="696144074" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003909" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2417" name="SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" fullname="KingdomLogicTests.SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" methodname="SimulationManager_UpdateLoopStartsPausedUntilBootstrapRuns" classname="KingdomLogicTests" runstate="Runnable" seed="724331998" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001438" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2384" name="ToGameString_ClampsSignificantDigitsAndFormatsSigns" fullname="KingdomLogicTests.ToGameString_ClampsSignificantDigitsAndFormatsSigns" methodname="ToGameString_ClampsSignificantDigitsAndFormatsSigns" classname="KingdomLogicTests" runstate="Runnable" seed="1941972113" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001820" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2383" name="ToGameString_FiniteOutputsCanBeParsedBack" fullname="KingdomLogicTests.ToGameString_FiniteOutputsCanBeParsedBack" methodname="ToGameString_FiniteOutputsCanBeParsedBack" classname="KingdomLogicTests" runstate="Runnable" seed="291646409" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.006398" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2381" name="ToGameString_UsesCompactNativeNotationForVeryLargeLayeredValues" fullname="KingdomLogicTests.ToGameString_UsesCompactNativeNotationForVeryLargeLayeredValues" methodname="ToGameString_UsesCompactNativeNotationForVeryLargeLayeredValues" classname="KingdomLogicTests" runstate="Runnable" seed="652590073" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002253" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2380" name="ToGameString_UsesFourSignificantDigitsAndPromotesRoundedThousands" fullname="KingdomLogicTests.ToGameString_UsesFourSignificantDigitsAndPromotesRoundedThousands" methodname="ToGameString_UsesFourSignificantDigitsAndPromotesRoundedThousands" classname="KingdomLogicTests" runstate="Runnable" seed="952441809" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001282" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2382" name="ToGameString_UsesRemainingFormatsAndHandlesSmallScientificValues" fullname="KingdomLogicTests.ToGameString_UsesRemainingFormatsAndHandlesSmallScientificValues" methodname="ToGameString_UsesRemainingFormatsAndHandlesSmallScientificValues" classname="KingdomLogicTests" runstate="Runnable" seed="63338116" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001134" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2378" name="TopFlowDemand_UsesRawBuildingDemandWithoutEfficiency" fullname="KingdomLogicTests.TopFlowDemand_UsesRawBuildingDemandWithoutEfficiency" methodname="TopFlowDemand_UsesRawBuildingDemandWithoutEfficiency" classname="KingdomLogicTests" runstate="Runnable" seed="432775988" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003367" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2379" name="TopFlowValue_FormatsSignedColoredBalanceBeforeDemandAndSupply" fullname="KingdomLogicTests.TopFlowValue_FormatsSignedColoredBalanceBeforeDemandAndSupply" methodname="TopFlowValue_FormatsSignedColoredBalanceBeforeDemandAndSupply" classname="KingdomLogicTests" runstate="Runnable" seed="782208142" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001682" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2418" name="UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" fullname="KingdomLogicTests.UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" methodname="UnifiedSaveRoot_DoesNotPersistDerivedRatesOrScriptableObjectReferences" classname="KingdomLogicTests" runstate="Runnable" seed="1775294581" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001072" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2403" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013060" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2401" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(False)" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(False)" methodname="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" seed="1363425372" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.007061" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2402" name="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(True)" fullname="KingdomLogicTests.WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements(True)" methodname="WorkshopPurchase_SameIdDefinitionCannotBypassCanonicalRequirements" classname="KingdomLogicTests" runstate="Runnable" seed="2073629981" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005044" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2455" name="WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder" fullname="KingdomLogicTests.WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder" methodname="WorkshopRestore_AcceptsPurchasedIdsInNonTopologicalOrder" classname="KingdomLogicTests" runstate="Runnable" seed="2075519319" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005654" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2339" name="普通资源库存可以超过粮食容量" fullname="KingdomLogicTests.普通资源库存可以超过粮食容量" methodname="普通资源库存可以超过粮食容量" classname="KingdomLogicTests" runstate="Runnable" seed="1070286056" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002080" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2524" name="OfflineSimulationBoundaryTests" fullname="OfflineSimulationBoundaryTests" classname="OfflineSimulationBoundaryTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.004003" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2531" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003166" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2525" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(0.0d,60.0d,60.0d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(0.0d,60.0d,60.0d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="1082137105" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000669" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2526" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(7199.0d,60.0d,36.4d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(7199.0d,60.0d,36.4d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="1283530202" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000170" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2527" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(7200.0d,60.0d,36.0d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(7200.0d,60.0d,36.0d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="2093071756" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000083" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2528" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(28799.0d,60.0d,15.35d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(28799.0d,60.0d,15.35d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="2059493655" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000066" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2529" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(28800.0d,60.0d,15.0d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(28800.0d,60.0d,15.0d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="1670165175" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000062" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2530" name="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(0.0d,28800.0d,20160.0d)" fullname="OfflineSimulationBoundaryTests.OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries(0.0d,28800.0d,20160.0d)" methodname="OfflineEffectiveTime_UsesExpectedRateAtAndAcrossBoundaries" classname="OfflineSimulationBoundaryTests" runstate="Runnable" seed="308929426" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000065" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2654" name="ResearchPaymentAutoTests" fullname="ResearchPaymentAutoTests" classname="ResearchPaymentAutoTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.014138" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2656" name="OfflineTickTransfersCompletionRemainderToNextResearch" fullname="ResearchPaymentAutoTests.OfflineTickTransfersCompletionRemainderToNextResearch" methodname="OfflineTickTransfersCompletionRemainderToNextResearch" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="1947919140" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003868" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2657" name="ResearchActionAutomaticallyPaysReadyQueueHead" fullname="ResearchPaymentAutoTests.ResearchActionAutomaticallyPaysReadyQueueHead" methodname="ResearchActionAutomaticallyPaysReadyQueueHead" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="838813497" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002836" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2655" name="StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" fullname="ResearchPaymentAutoTests.StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" methodname="StartingPaidQueuedResearch_RemovesQueueEntryAndRestoresOwnSave" classname="ResearchPaymentAutoTests" runstate="Runnable" seed="528778078" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.006305" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2658" name="ResearchPaymentSaveTests" fullname="ResearchPaymentSaveTests" classname="ResearchPaymentSaveTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.030666" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="2670" name="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" fullname="ResearchPaymentSaveTests.CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012866" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2666" name="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;duplicate&quot;)" fullname="ResearchPaymentSaveTests.CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;duplicate&quot;)" methodname="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="791697735" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005498" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2667" name="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;overpaid&quot;)" fullname="ResearchPaymentSaveTests.CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;overpaid&quot;)" methodname="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1444897087" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002612" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2668" name="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;incomplete&quot;)" fullname="ResearchPaymentSaveTests.CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;incomplete&quot;)" methodname="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="93610333" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002109" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2669" name="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;unknown&quot;)" fullname="ResearchPaymentSaveTests.CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation(&quot;unknown&quot;)" methodname="CurrentSave_InvalidLedgerFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="191064416" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001485" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2665" name="CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation" fullname="ResearchPaymentSaveTests.CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005054" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2663" name="CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation(null)" fullname="ResearchPaymentSaveTests.CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation(null)" methodname="CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1181462236" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002392" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2664" name="CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation(&quot;&quot;)" fullname="ResearchPaymentSaveTests.CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation(&quot;&quot;)" methodname="CurrentSave_MissingLedgerAmountFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1626275674" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002035" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2662" name="CurrentSave_NegativeEfficiencyFailsBeforeResearchStateMutation" fullname="ResearchPaymentSaveTests.CurrentSave_NegativeEfficiencyFailsBeforeResearchStateMutation" methodname="CurrentSave_NegativeEfficiencyFailsBeforeResearchStateMutation" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1890277527" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001840" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2661" name="CurrentSave_PaidLedgerRoundTrips" fullname="ResearchPaymentSaveTests.CurrentSave_PaidLedgerRoundTrips" classname="ResearchPaymentSaveTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.009610" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2659" name="CurrentSave_PaidLedgerRoundTrips(False)" fullname="ResearchPaymentSaveTests.CurrentSave_PaidLedgerRoundTrips(False)" methodname="CurrentSave_PaidLedgerRoundTrips" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1401693063" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.004967" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2660" name="CurrentSave_PaidLedgerRoundTrips(True)" fullname="ResearchPaymentSaveTests.CurrentSave_PaidLedgerRoundTrips(True)" methodname="CurrentSave_PaidLedgerRoundTrips" classname="ResearchPaymentSaveTests" runstate="Runnable" seed="1400704832" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003948" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2769" name="SectorManagerTests" fullname="SectorManagerTests" classname="SectorManagerTests" runstate="Runnable" testcasecount="95" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.050167" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2854" name="CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" fullname="SectorManagerTests.CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" methodname="CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" classname="SectorManagerTests" runstate="Runnable" seed="1354233255" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.010457" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2853" name="CampaignRewardFailureRollsBackPaymentAndCompletionState" fullname="SectorManagerTests.CampaignRewardFailureRollsBackPaymentAndCompletionState" methodname="CampaignRewardFailureRollsBackPaymentAndCompletionState" classname="SectorManagerTests" runstate="Runnable" seed="1456682021" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002384" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2865" name="SimulationBudgetTests" fullname="SimulationBudgetTests" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.058240" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2866" name="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" fullname="SimulationBudgetTests.Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" methodname="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" classname="SimulationBudgetTests" runstate="Runnable" seed="1237015332" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005348" asserts="0">
+          <properties />
+          <output><![CDATA[模拟积压超过单帧处理预算，将在后续帧继续结算。
+]]></output>
+        </test-case>
+        <test-case id="2874" name="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" fullname="SimulationBudgetTests.CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" methodname="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" classname="SimulationBudgetTests" runstate="Runnable" seed="1584148083" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.010160" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2870" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.032424" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2868" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="1062599900" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.017603" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2869" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="615991269" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.013883" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2873" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005702" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2871" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="154433088" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002737" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2872" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="1308053869" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002029" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2867" name="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" fullname="SimulationBudgetTests.UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" methodname="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" classname="SimulationBudgetTests" runstate="Runnable" seed="1622088643" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002496" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2875" name="SimulationDeterminismTests" fullname="SimulationDeterminismTests" classname="SimulationDeterminismTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.008066" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2876" name="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" fullname="SimulationDeterminismTests.FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" methodname="FoodAndResourceIntegration_IsStableAcrossThirtyAndSixtyFpsSteps" classname="SimulationDeterminismTests" runstate="Runnable" seed="1486559364" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000771" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2879" name="OfflineEffectiveTime_RejectsNegativeInputs" fullname="SimulationDeterminismTests.OfflineEffectiveTime_RejectsNegativeInputs" methodname="OfflineEffectiveTime_RejectsNegativeInputs" classname="SimulationDeterminismTests" runstate="Runnable" seed="194309105" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000667" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2880" name="OfflineEffectiveTime_RejectsNonFiniteInputs" fullname="SimulationDeterminismTests.OfflineEffectiveTime_RejectsNonFiniteInputs" methodname="OfflineEffectiveTime_RejectsNonFiniteInputs" classname="SimulationDeterminismTests" runstate="Runnable" seed="1123271517" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000736" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2878" name="OfflineEffectiveTime_UsesFullMiddleAndLateBands" fullname="SimulationDeterminismTests.OfflineEffectiveTime_UsesFullMiddleAndLateBands" methodname="OfflineEffectiveTime_UsesFullMiddleAndLateBands" classname="SimulationDeterminismTests" runstate="Runnable" seed="1928344550" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000436" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2877" name="OfflineElapsedTime_ClampsAndRejectsClockRollback" fullname="SimulationDeterminismTests.OfflineElapsedTime_ClampsAndRejectsClockRollback" methodname="OfflineElapsedTime_ClampsAndRejectsClockRollback" classname="SimulationDeterminismTests" runstate="Runnable" seed="1454476183" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000390" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2883" name="SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" fullname="SimulationDeterminismTests.SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" methodname="SimulatorEfficiencyAndResearchSpeedMatchRuntimeRules" classname="SimulationDeterminismTests" runstate="Runnable" seed="1279295724" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000493" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2882" name="SimulatorSatisfactionRulesMatchRuntimeRules" fullname="SimulationDeterminismTests.SimulatorSatisfactionRulesMatchRuntimeRules" methodname="SimulatorSatisfactionRulesMatchRuntimeRules" classname="SimulationDeterminismTests" runstate="Runnable" seed="1797754856" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000785" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2881" name="SimulatorScalarStockpileRuleMatchesRuntimeRule" fullname="SimulationDeterminismTests.SimulatorScalarStockpileRuleMatchesRuntimeRule" methodname="SimulatorScalarStockpileRuleMatchesRuntimeRule" classname="SimulationDeterminismTests" runstate="Runnable" seed="436705190" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000407" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3023" name="UltraProjectManagerTickTests" fullname="UltraProjectManagerTickTests" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.029820" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3031" name="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" fullname="UltraProjectManagerTickTests.Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" methodname="Tick_CompletionBoundaryCapsContinuousPaymentsAtStageRequirements" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1948498646" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005866" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3024" name="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" fullname="UltraProjectManagerTickTests.Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" methodname="Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1180814308" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003391" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3027" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005370" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3025" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(True)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="524163392" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002581" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3026" name="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" fullname="UltraProjectManagerTickTests.Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit(False)" methodname="Tick_ZeroFoodOrAdvancedMaterialSupplyDoesNotPartiallyCommit" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="601851990" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001578" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3030" name="TryResume_AfterSupplyPauseRequiresPositiveSupply" fullname="UltraProjectManagerTickTests.TryResume_AfterSupplyPauseRequiresPositiveSupply" methodname="TryResume_AfterSupplyPauseRequiresPositiveSupply" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="683641732" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.003012" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3029" name="TryResume_DoesNotChargeStageStartupFeeAgain" fullname="UltraProjectManagerTickTests.TryResume_DoesNotChargeStageStartupFeeAgain" methodname="TryResume_DoesNotChargeStageStartupFeeAgain" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="1832979958" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.005307" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3028" name="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" fullname="UltraProjectManagerTickTests.TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" methodname="TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched" classname="UltraProjectManagerTickTests" runstate="Runnable" seed="166010576" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.002919" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3085" name="WorkshopBenefitPreviewTests" fullname="WorkshopBenefitPreviewTests" classname="WorkshopBenefitPreviewTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.012307" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="3086" name="BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs" fullname="WorkshopBenefitPreviewTests.BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs" methodname="BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs" classname="WorkshopBenefitPreviewTests" runstate="Runnable" seed="1601377133" result="Failed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.008968" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: some item value matching lambda expression
+  But was:  < <WorkshopBenefitRatePreview> >
+]]></message>
+            <stack-trace><![CDATA[at WorkshopBenefitPreviewTests.BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs () [0x001c1] in D:\GitHub\Kingdom\Assets\Tests\Editor\WorkshopBenefitPreviewTests.cs:48
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="3088" name="PurchasedCandidateIsNotAppliedTwice_AndResearchPreviewIncludesBaseSupply" fullname="WorkshopBenefitPreviewTests.PurchasedCandidateIsNotAppliedTwice_AndResearchPreviewIncludesBaseSupply" methodname="PurchasedCandidateIsNotAppliedTwice_AndResearchPreviewIncludesBaseSupply" classname="WorkshopBenefitPreviewTests" runstate="Runnable" seed="1618197469" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001164" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3087" name="ResourceOnlyPreview_IncreasesOutputWithoutAdditionalInputs_AndZeroEfficiencyHasNoBenefit" fullname="WorkshopBenefitPreviewTests.ResourceOnlyPreview_IncreasesOutputWithoutAdditionalInputs_AndZeroEfficiencyHasNoBenefit" methodname="ResourceOnlyPreview_IncreasesOutputWithoutAdditionalInputs_AndZeroEfficiencyHasNoBenefit" classname="WorkshopBenefitPreviewTests" runstate="Runnable" seed="1935744488" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000976" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3089" name="WorldEventTests" fullname="WorldEventTests" classname="WorldEventTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.033410" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="3096" name="Fire_LosesAtMostOnePersonAndNeverTheLastPerson" fullname="WorldEventTests.Fire_LosesAtMostOnePersonAndNeverTheLastPerson" classname="WorldEventTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.004168" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3092" name="Fire_LosesAtMostOnePersonAndNeverTheLastPerson(0,0)" fullname="WorldEventTests.Fire_LosesAtMostOnePersonAndNeverTheLastPerson(0,0)" methodname="Fire_LosesAtMostOnePersonAndNeverTheLastPerson" classname="WorldEventTests" runstate="Runnable" seed="1127945292" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001493" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3093" name="Fire_LosesAtMostOnePersonAndNeverTheLastPerson(1,0)" fullname="WorldEventTests.Fire_LosesAtMostOnePersonAndNeverTheLastPerson(1,0)" methodname="Fire_LosesAtMostOnePersonAndNeverTheLastPerson" classname="WorldEventTests" runstate="Runnable" seed="185753968" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000325" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3094" name="Fire_LosesAtMostOnePersonAndNeverTheLastPerson(2,1)" fullname="WorldEventTests.Fire_LosesAtMostOnePersonAndNeverTheLastPerson(2,1)" methodname="Fire_LosesAtMostOnePersonAndNeverTheLastPerson" classname="WorldEventTests" runstate="Runnable" seed="345335830" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000194" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3095" name="Fire_LosesAtMostOnePersonAndNeverTheLastPerson(100,1)" fullname="WorldEventTests.Fire_LosesAtMostOnePersonAndNeverTheLastPerson(100,1)" methodname="Fire_LosesAtMostOnePersonAndNeverTheLastPerson" classname="WorldEventTests" runstate="Runnable" seed="319877805" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000099" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="3091" name="Offline_ExpiresSavedEffectWithoutCreatingEventsOrConsumingProtection" fullname="WorldEventTests.Offline_ExpiresSavedEffectWithoutCreatingEventsOrConsumingProtection" methodname="Offline_ExpiresSavedEffectWithoutCreatingEventsOrConsumingProtection" classname="WorldEventTests" runstate="Runnable" seed="1098497501" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001219" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3090" name="Protection_RotationAndRecovery_AreStableAcrossTimePartitions" fullname="WorldEventTests.Protection_RotationAndRecovery_AreStableAcrossTimePartitions" methodname="Protection_RotationAndRecovery_AreStableAcrossTimePartitions" classname="WorldEventTests" runstate="Runnable" seed="838467141" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.001217" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3097" name="SaveValidation_RejectsImpossibleEffectsWithoutChangingState" fullname="WorldEventTests.SaveValidation_RejectsImpossibleEffectsWithoutChangingState" methodname="SaveValidation_RejectsImpossibleEffectsWithoutChangingState" classname="WorldEventTests" runstate="Runnable" seed="800261781" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000755" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3098" name="Sequence_WrapsAtACompleteCycleWithoutOverflow" fullname="WorldEventTests.Sequence_WrapsAtACompleteCycleWithoutOverflow" methodname="Sequence_WrapsAtACompleteCycleWithoutOverflow" classname="WorldEventTests" runstate="Runnable" seed="1291158591" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.000362" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="3101" name="Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity" fullname="WorldEventTests.Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity" classname="WorldEventTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.022398" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="3099" name="Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity(False)" fullname="WorldEventTests.Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity(False)" methodname="Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity" classname="WorldEventTests" runstate="Runnable" seed="1549202638" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.011891" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="3100" name="Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity(True)" fullname="WorldEventTests.Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity(True)" methodname="Simulation_ResourceOutputsCrossEventBoundaryWithoutScalingInputsOrCapacity" classname="WorldEventTests" runstate="Runnable" seed="866372491" result="Passed" start-time="2026-10-17 15:37:27Z" end-time="2026-10-17 15:37:27Z" duration="0.009363" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

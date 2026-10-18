@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 08:47:09Z" end-time="2026-10-18 08:47:10Z" duration="0.7676543">
+  <test-suite type="TestSuite" id="2100" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="952" result="Failed" site="Child" start-time="2026-10-18 08:47:09Z" end-time="2026-10-18 08:47:10Z" duration="0.767654" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3190" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="951" result="Failed" site="Child" start-time="2026-10-18 08:47:09Z" end-time="2026-10-18 08:47:10Z" duration="0.746017" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="4332" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2252" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="45" result="Failed" site="Child" start-time="2026-10-18 08:47:09Z" end-time="2026-10-18 08:47:10Z" duration="0.729091" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2253" name="ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" fullname="EconomyIntegrationRegressionTests.ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" methodname="ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="29290254" result="Failed" label="Error" start-time="2026-10-18 08:47:09Z" end-time="2026-10-18 08:47:10Z" duration="0.712886" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[System.InvalidOperationException : Duplicate stable ID 'Quarry' in Research definitions.]]></message>
+            <stack-trace><![CDATA[  at EconomyParitySnapshotExporter.CheckDefinitions[T] (System.Collections.Generic.IEnumerable`1[T] definitions, System.String kind, System.Collections.Generic.HashSet`1[T] ids, System.Collections.Generic.HashSet`1[T] guids) [0x00074] in D:\GitHub\Kingdom\Assets\Editor\EconomyParitySnapshotExporter.cs:271 
+  at EconomyParitySnapshotExporter.ValidateSnapshotContracts (EconomySnapshotDto snapshot) [0x0006a] in D:\GitHub\Kingdom\Assets\Editor\EconomyParitySnapshotExporter.cs:255 
+  at EconomyParitySnapshotExporter.CaptureCurrent () [0x001a3] in D:\GitHub\Kingdom\Assets\Editor\EconomyParitySnapshotExporter.cs:47 
+  at EconomyIntegrationRegressionTests.ParitySnapshot_PreservesPopulationProgressAndResearchQueueOrder () [0x0011a] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:53 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

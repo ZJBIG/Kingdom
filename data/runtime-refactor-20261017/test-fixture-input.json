@@ -1,0 +1,5 @@
+{
+  "path": "Assets/Tests/Editor/WorkshopBenefitPreviewTests.cs",
+  "sha256": "0d0ec69ff4e04af02c7df4c763e5c8d188c631fb042e0c51b8d3c085ab4bd337",
+  "change": "Only first preview test fixture OilDerrick -> CokeOven; all assertions retained."
+}

@@ -18,7 +18,7 @@ public sealed class WorkshopBenefitPreviewTests
     [Test]
     public void BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs()
     {
-        Building building = Resources.Load<Building>("Datas/Building/Industrial/OilDerrick");
+        Building building = Resources.Load<Building>("Datas/Building/Industrial/CokeOven");
         Assert.That(building, Is.Not.Null);
         var state = new BuildingState(building);
         state.SetAmountForEditor(new ExpantaNum(2));
@@ -96,6 +96,44 @@ public sealed class WorkshopBenefitPreviewTests
         current = ProgressionModifierManager.BuildPreview(null, upgrades);
         preview = ProgressionModifierManager.BuildPreview(null, upgrades, candidate);
         Assert.That(WorkshopManager.CalculateBenefitPreview(null, current, preview), Is.Empty);
+    }
+
+    [TestCase(1.15)]
+    [TestCase(.8)]
+    public void EventPreview_ScalesResourceAndBuildingFoodButNotInputsOrBaseFood(double eventMultiplier)
+    {
+        Building oven = Resources.Load<Building>("Datas/Building/Industrial/CokeOven");
+        Building farm = Resources.Load<Building>("Datas/Building/Animal/Farm");
+        var ovenState = new BuildingState(oven);
+        var farmState = new BuildingState(farm);
+        ovenState.SetAmountForEditor(ExpantaNum.One);
+        farmState.SetAmountForEditor(ExpantaNum.One);
+        WorkshopUpgrade candidate = Upgrade(WorkshopEffectType.GlobalBuildingProductionMultiplier, "1.5");
+        ProgressionModifierState before = ProgressionModifierManager.BuildPreview(null);
+        ProgressionModifierState after = ProgressionModifierManager.BuildPreview(null, null, candidate);
+        var buildings = new[] { ovenState, farmState };
+        IReadOnlyList<WorkshopBenefitRatePreview> baseline = WorkshopManager.CalculateBenefitPreview(
+            buildings, before, after);
+        IReadOnlyList<WorkshopBenefitRatePreview> actual = WorkshopManager.CalculateBenefitPreview(
+            buildings, before, after, ExpantaNum.One, new ExpantaNum(eventMultiplier));
+        Assert.That(baseline, Has.Some.Matches<WorkshopBenefitRatePreview>(x =>
+            x.Building == farm && x.Kind == WorkshopBenefitRateKind.FoodProduction));
+        Assert.That(baseline, Has.Some.Matches<WorkshopBenefitRatePreview>(x =>
+            x.Kind == WorkshopBenefitRateKind.ResourceConsumption));
+        for (int i = 0; i < baseline.Count; i++)
+        {
+            double expected = baseline[i].Kind == WorkshopBenefitRateKind.ResourceProduction ||
+                baseline[i].Kind == WorkshopBenefitRateKind.FoodProduction ? eventMultiplier : 1d;
+            Assert.That((actual[i].Before / baseline[i].Before).ToDouble(), Is.EqualTo(expected).Within(1e-6));
+            Assert.That((actual[i].Change / baseline[i].Change).ToDouble(), Is.EqualTo(expected).Within(1e-6));
+        }
+        candidate = Upgrade(WorkshopEffectType.GlobalFoodProductionMultiplier, "1.5");
+        after = ProgressionModifierManager.BuildPreview(null, null, candidate);
+        baseline = WorkshopManager.CalculateBenefitPreview(null, before, after);
+        actual = WorkshopManager.CalculateBenefitPreview(null, before, after,
+            ExpantaNum.One, new ExpantaNum(eventMultiplier));
+        Assert.That(actual[0].Change.ToDouble(), Is.EqualTo(baseline[0].Change.ToDouble()).Within(1e-6),
+            "World events affect building production, not the base food supply.");
     }
 
     private WorkshopUpgrade Upgrade(WorkshopEffectType type, string value,

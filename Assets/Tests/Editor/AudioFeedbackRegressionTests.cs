@@ -62,13 +62,10 @@ public sealed class AudioFeedbackRegressionTests
                 break;
             }
         Transform controls = surface?.Find("Controls");
-        Assert.That(controls, Is.Not.Null);
         Slider sfxVolume = controls.Find("SfxVolume")?.GetComponent<Slider>();
         Button sfxMute = controls.Find("SfxMute")?.GetComponent<Button>();
-        Assert.That(sfxVolume, Is.Not.Null);
         Assert.That(sfxVolume.fillRect, Is.Not.Null);
         Assert.That(sfxVolume.handleRect, Is.Not.Null);
-        Assert.That(sfxMute, Is.Not.Null);
         Assert.That(sfxMute.targetGraphic, Is.Not.Null);
         Assert.That(sfxMute.transform.GetSiblingIndex(), Is.GreaterThan(controls.Find("Surface").GetSiblingIndex()),
             "The mute button must render above the authored control background.");

@@ -52,7 +52,6 @@ public sealed class TutorialStageTests
         Assert.That(tutorial.SkippedStageIds, Does.Contain("resources"));
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("resources"));
         TutorialStageSnapshot next = tutorial.EvaluateStage();
-        Assert.That(next, Is.Not.Null);
         Assert.That(next.StageId, Is.Not.EqualTo("resources"));
     }
 
@@ -84,7 +83,6 @@ public sealed class TutorialStageTests
         Assert.That(saved.CompletedStageIds, Is.Empty);
         game.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(3), ExpantaNum.Zero);
         TutorialStageSnapshot unlocked = tutorial.EvaluateStage();
-        Assert.That(unlocked, Is.Not.Null);
         Assert.That(unlocked.StageId, Is.EqualTo("population"));
     }
 
@@ -124,7 +122,6 @@ public sealed class TutorialStageTests
         foreach (Resource definition in DataBase<Resource>.All)
             resources.SetAmount(definition, ExpantaNum.Zero);
         TutorialStageSnapshot waiting = tutorial.EvaluateStage();
-        Assert.That(waiting, Is.Not.Null);
         Assert.That(waiting.Action, Is.EqualTo(TutorialStageAction.Build));
         Assert.That(waiting.CanInteract, Is.False);
         tutorial.SkipCurrentStage();
@@ -146,7 +143,6 @@ public sealed class TutorialStageTests
             CompletedStageIds = new List<string> { "resources" }
         }, TechLevel.Animal);
         TutorialStageSnapshot rebound = tutorial.EvaluateStage();
-        Assert.That(rebound, Is.Not.Null);
         Assert.That(rebound.StageId, Is.EqualTo("building"));
         Assert.That(rebound.Action, Is.EqualTo(TutorialStageAction.Navigate));
         Assert.That(rebound.TargetId, Is.Not.EqualTo("removed-building"));

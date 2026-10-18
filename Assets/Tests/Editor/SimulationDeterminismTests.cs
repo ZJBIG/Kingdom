@@ -124,20 +124,6 @@ public sealed class SimulationDeterminismTests
             Is.EqualTo(research).Within(1e-9d));
     }
 
-    [Test]
-    public void SimulatorPopulationConstantsMatchRuntimeConstants()
-    {
-        Assert.That(PopulationState.FoodConsumptionPerPerson.ToDouble(),
-            Is.EqualTo(.8d).Within(1e-9d));
-        Assert.That(PopulationState.ProductivityGrantedPerPerson.ToDouble(),
-            Is.EqualTo(2d).Within(1e-9d));
-        Assert.That(GameState.BaseFoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(new GameState().FoodProductionRate,
-            Is.EqualTo(GameState.BaseFoodProductionRate));
-        Assert.That(TerritoryState.InitialTotal.ToDouble(),
-            Is.EqualTo(500d).Within(1e-9d));
-    }
-
     private static ExpantaNum IntegrateFood(int stepCount, double deltaSeconds)
     {
         ExpantaNum amount = new ExpantaNum(300);

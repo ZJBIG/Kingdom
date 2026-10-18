@@ -316,14 +316,11 @@ public sealed class KingdomPlayModeTests
                 TMP_Text label = button.transform.Find("Label")?.GetComponent<TMP_Text>();
                 return label != null && label.text == phaseEnergyArray.Label;
             });
-        Assert.That(buildingCard, Is.Not.Null,
-            "The authored Ultra building row must expose the existing detail action.");
         buildingCard.onClick.Invoke();
         yield return null;
 
         Button doctrineButton = root.GetComponentsInChildren<Button>(true)
             .FirstOrDefault(button => button.name == "Doctrine");
-        Assert.That(doctrineButton, Is.Not.Null);
         Assert.That(doctrineButton.gameObject.activeSelf, Is.True);
         Assert.That(doctrineButton.interactable, Is.False,
             "Expedition must remain gated before the civilization engineering is committed.");
@@ -385,15 +382,11 @@ public sealed class KingdomPlayModeTests
         yield return null;
         Transform occupiedSectorRowTransform = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Sectors/DataRows/SectorRow_AlphaCentauri");
-        Assert.That(occupiedSectorRowTransform, Is.Not.Null,
-            "The occupied remote sector must be present in the authored Sectors page.");
         Button occupiedSectorRow = occupiedSectorRowTransform.GetComponent<Button>();
-        Assert.That(occupiedSectorRow, Is.Not.Null);
         occupiedSectorRow.onClick.Invoke();
         yield return null;
         Button campaignDoctrineButton = root.GetComponentsInChildren<Button>(true)
             .FirstOrDefault(button => button.name == "Doctrine");
-        Assert.That(campaignDoctrineButton, Is.Not.Null);
         Assert.That(campaignDoctrineButton.gameObject.activeSelf, Is.True,
             "An occupied remote sector must still expose the unlocked expedition posture control.");
         RectTransform campaignDoctrineRect = campaignDoctrineButton.transform as RectTransform;
@@ -448,12 +441,10 @@ public sealed class KingdomPlayModeTests
             "SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
         TMP_Text guidance = primaryCard?.Find("Text")?.GetComponent<TMP_Text>();
         Button navigation = primaryCard?.Find("NavigationButton")?.GetComponent<Button>();
-        Assert.That(guidance, Is.Not.Null);
         Assert.That(guidance.text, Does.Contain("文明工程"),
             "Ultra Overview guidance must describe the locked civilization project.");
         Assert.That(guidance.text, Does.Contain("阻碍："));
         Assert.That(guidance.text, Does.Contain("下一步："));
-        Assert.That(navigation, Is.Not.Null);
         Assert.That(navigation.interactable, Is.True,
             "A locked Ultra project must expose its authored Overview navigation action.");
 
@@ -628,12 +619,9 @@ public sealed class KingdomPlayModeTests
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         Transform primaryCard = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
-        Assert.That(primaryCard, Is.Not.Null, "Overview must contain its authored PrimaryCard.");
         TMP_Text body = primaryCard.Find("Text")?.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Is.Not.Empty);
         Assert.That(body.preferredHeight, Is.GreaterThan(0f),
             "Development guidance Body must have measurable text content.");
@@ -657,6 +645,19 @@ public sealed class KingdomPlayModeTests
             root.RefreshUI();
             Assert.That(body.text, Is.Not.Empty,
                 "The real refresh must repopulate the authored guidance text.");
+            TutorialSnapshot snapshot = TutorialManager.Current.Evaluate();
+            Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
+            Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
+            Assert.That(body.text, Does.Contain("当前目标"));
+            Assert.That(body.text, Does.Contain("当前阻碍"));
+            Assert.That(body.text, Does.Contain("推荐行动"));
+            Assert.That(body.text, Does.Contain(snapshot.CurrentGoal));
+            Assert.That(body.text, Does.Contain(snapshot.RecommendedAction));
+            Assert.That(body.text, Does.Not.Contain("完成方式"));
+            Assert.That(body.text, Does.Not.Contain("上一步已完成"));
+            Assert.That(body.text, Does.Not.Contain("刚刚发生"));
+            Assert.That(body.text, Does.Not.Contain("文明记忆"),
+                "Story-only memory labels must not duplicate the Overview action card.");
             Assert.That(game.State.Version, Is.EqualTo(versionBeforeRefresh),
                 "Refreshing guidance must not mutate GameState.");
             Assert.That(CaptureOverviewState(), Is.EqualTo(stateBeforeRefresh),
@@ -752,7 +753,6 @@ public sealed class KingdomPlayModeTests
         for (int i = 0; i < transitions.Length; i++)
         {
             Research transition = DataBase<Research>.Find(transitions[i].Id);
-            Assert.That(transition, Is.Not.Null);
             Assert.That(transition.AdvancesTechLevel, Is.True);
             Assert.That(transition.TechLevel, Is.EqualTo(transitions[i].Target));
             CompleteResearchPrerequisites(
@@ -942,12 +942,10 @@ public sealed class KingdomPlayModeTests
         yield return null;
         Button card = root.GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
             button.transform.Find("Label")?.GetComponent<TMP_Text>()?.text == candidate.Label);
-        Assert.That(card, Is.Not.Null, "The real authored workshop card must be present.");
         card.onClick.Invoke();
         yield return null;
         TMP_Text body = root.transform.Find(
             "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")?.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(candidate.Label));
         foreach (WorkshopBenefitRatePreview rate in preview)
             Assert.That(body.text, Does.Contain(rate.Before.ToGameString() + " → " + rate.After.ToGameString() + "/s"));
@@ -969,7 +967,6 @@ public sealed class KingdomPlayModeTests
             beforeCosts[cost.First] = resources.GetAmount(cost.First);
         Button purchase = root.GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
             button.name == "Action" && button.gameObject.activeInHierarchy);
-        Assert.That(purchase, Is.Not.Null);
         Assert.That(purchase.interactable, Is.True);
         ExpantaNum reward = GameManager.Instance.State.HappinessRewardMultiplier;
         purchase.onClick.Invoke();
@@ -1027,7 +1024,6 @@ public sealed class KingdomPlayModeTests
                     TMP_Text label = button.transform.Find("Label")?.GetComponent<TMP_Text>();
                     return label != null && label.text == house.Label;
                 });
-            Assert.That(houseRow, Is.Not.Null);
             Transform row = houseRow.transform;
             Button buildButton = row.Find("BuildButton")?.GetComponent<Button>();
             Button deconstructButton = row.Find("DeconstructButton")?.GetComponent<Button>();
@@ -1097,14 +1093,11 @@ public sealed class KingdomPlayModeTests
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
-
         root.SetPage("Era");
         yield return null;
         yield return null;
 
         Transform rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows");
-        Assert.That(rows, Is.Not.Null, "Era/DataRows must exist under the isolated runtime UI.");
         Assert.That(rows.childCount, Is.GreaterThan(0), "Era page must not remain an empty DataRows container.");
 
         TMP_Text[] texts = rows.GetComponentsInChildren<TMP_Text>(true);
@@ -1143,7 +1136,6 @@ public sealed class KingdomPlayModeTests
         foreach (Button action in eraActions.Where(button => (button.name == "DetailAction" || button.name == "QueueAction") && button.gameObject.activeInHierarchy))
         {
             RectTransform actionRect = action.transform as RectTransform;
-            Assert.That(actionRect, Is.Not.Null);
             Assert.That(actionRect.rect.width, Is.GreaterThan(0f));
             Assert.That(actionRect.rect.height, Is.GreaterThan(0f));
         }
@@ -1153,13 +1145,11 @@ public sealed class KingdomPlayModeTests
             "Era transition section must expose a visible title.");
         Button eraGoalButton = rows.Find(
             "EraTransitionSection/Content/EraTransitionTarget/DetailAction")?.GetComponent<Button>();
-        Assert.That(eraGoalButton, Is.Not.Null);
         Assert.That(eraGoalButton.interactable, Is.True,
             "Era goal row must navigate through its detail action.");
         eraGoalButton.onClick.Invoke();
         yield return null;
         Button detailAction = root.DetailActionButtonForEditor;
-        Assert.That(detailAction, Is.Not.Null);
         Assert.That(detailAction.gameObject.activeSelf, Is.True,
             "Era research navigation must expose the research detail action button.");
 
@@ -1169,15 +1159,12 @@ public sealed class KingdomPlayModeTests
         root.SetPage("Era");
         yield return null;
         rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") as RectTransform;
-        Assert.That(rows, Is.Not.Null);
-
         Transform resourceButtonTransform = rows.GetComponentsInChildren<Button>(true)
             .Select(button => button.transform.parent)
             .FirstOrDefault(parent => parent != null && parent.name.StartsWith("EraResource_", StringComparison.Ordinal));
         if (resourceButtonTransform != null)
         {
             Button resourceButton = resourceButtonTransform.Find("DetailAction")?.GetComponent<Button>();
-            Assert.That(resourceButton, Is.Not.Null, "Resource requirement rows must expose a detail action.");
             resourceButton.onClick.Invoke();
             yield return null;
             Assert.That(rows.gameObject.activeInHierarchy, Is.True,
@@ -1185,7 +1172,6 @@ public sealed class KingdomPlayModeTests
         }
 
         Transform requirementContent = rows.Find("EraRequirementSection/Content");
-        Assert.That(requirementContent, Is.Not.Null);
         Image[] researchRows = requirementContent.GetComponentsInChildren<Image>(true)
             .Where(image => image.name.StartsWith("EraResearch_", StringComparison.Ordinal)).ToArray();
         Image[] resourceRows = requirementContent.GetComponentsInChildren<Image>(true)
@@ -1205,8 +1191,6 @@ public sealed class KingdomPlayModeTests
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null, "SampleScene must contain the runtime KingdomUIRoot.");
-
         root.SetPage("Research");
         Transform viewport = null;
         Transform content = null;
@@ -1245,10 +1229,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(viewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
             "The isolated research Canvas must retain touch raycasting.");
         content = viewport.Find("ResearchGraphContent");
-        Assert.That(content, Is.Not.Null);
         Transform lineLayer = content.Find("ResearchGraphLineLayer");
-        Assert.That(lineLayer, Is.Not.Null,
-            "ResearchGraphLineLayer must be authored in the scene shell.");
         UIResearchConnectorBatch[] connectorBatches =
             lineLayer.GetComponentsInChildren<UIResearchConnectorBatch>(true);
         Assert.That(connectorBatches.Length, Is.GreaterThan(0));
@@ -1285,21 +1266,13 @@ public sealed class KingdomPlayModeTests
         Assert.That(content.Find("ResearchGraphDragSurface"), Is.Not.Null,
             "ResearchGraphDragSurface must be authored in the scene shell.");
         Transform pageTool = root.transform.Find("SafeAreaRoot/Content/PageTool");
-        Assert.That(pageTool, Is.Not.Null, "PageTool must be authored under Content.");
         Transform toolbar = pageTool.Find("OverviewNavigationToolbar");
-        Assert.That(toolbar, Is.Not.Null, "OverviewNavigationToolbar must be authored beside ResearchQueueViewport.");
         Button targetNavigationButton = toolbar.Find("OverviewCurrentTargetButton")?.GetComponent<Button>();
-        Assert.That(targetNavigationButton, Is.Not.Null,
-            "Research Tree must expose a target navigation button.");
         TMP_Text targetNavigationLabel = targetNavigationButton.GetComponentInChildren<TMP_Text>(true);
-        Assert.That(targetNavigationLabel, Is.Not.Null);
         Assert.That(targetNavigationLabel.gameObject.activeSelf, Is.True,
             "The authored target navigation label must remain visible after binding.");
         Button eraNavigationButton = toolbar.Find("OverviewCurrentEraButton")?.GetComponent<Button>();
-        Assert.That(eraNavigationButton, Is.Not.Null,
-            "Research Tree must expose a current-era navigation button.");
         TMP_Text eraNavigationLabel = eraNavigationButton.GetComponentInChildren<TMP_Text>(true);
-        Assert.That(eraNavigationLabel, Is.Not.Null);
         Assert.That(eraNavigationLabel.gameObject.activeSelf, Is.True,
             "The authored current-era navigation label must remain visible after binding.");
         Transform search = toolbar.Find("Search");
@@ -1316,8 +1289,6 @@ public sealed class KingdomPlayModeTests
         Assert.That(toolbar.parent, Is.SameAs(queueViewport.parent),
             "OverviewNavigationToolbar and ResearchQueueViewport must be siblings under PageTool.");
         ScrollRect queueScroll = queueViewport.GetComponent<ScrollRect>();
-        Assert.That(queueScroll, Is.Not.Null,
-            "The graphic research queue must use a ScrollRect for its drag surface.");
         Assert.That(queueScroll.horizontal, Is.True);
         Assert.That(queueScroll.vertical, Is.False);
         Assert.That(queueScroll.movementType, Is.EqualTo(ScrollRect.MovementType.Clamped));
@@ -1328,11 +1299,9 @@ public sealed class KingdomPlayModeTests
         Assert.That(queueViewport.GetComponent<GraphicRaycaster>(), Is.Not.Null,
             "The queue viewport must retain an active raycaster for node Buttons.");
         Transform pageHost = root.transform.Find("SafeAreaRoot/Content/PageHost");
-        Assert.That(pageHost, Is.Not.Null);
         Assert.That(pageHost.GetComponent<Canvas>(), Is.Not.Null,
             "The page viewport must isolate scroll redraws from fixed UI.");
         ScrollRect outerPageScroll = pageHost.GetComponent<ScrollRect>();
-        Assert.That(outerPageScroll, Is.Not.Null);
         Assert.That(outerPageScroll.enabled, Is.False,
             "The legacy outer page ScrollRect must not compete with the research graph gesture.");
 
@@ -1421,7 +1390,6 @@ public sealed class KingdomPlayModeTests
                 firstNode = child;
                 break;
             }
-        Assert.That(firstNode, Is.Not.Null);
         UIResearchGraphDragForwarder forwarder = firstNode.GetComponent<UIResearchGraphDragForwarder>();
         Assert.That(forwarder, Is.Not.Null);
         finalContentRect.anchoredPosition = beforeDrag;
@@ -1451,7 +1419,6 @@ public sealed class KingdomPlayModeTests
 
         Transform researchPage = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Research");
-        Assert.That(researchPage, Is.Not.Null);
         CanvasGroup visibility = researchPage.GetComponent<CanvasGroup>();
         Assert.That(visibility, Is.Not.Null,
             "The cached research hierarchy must use one root CanvasGroup for page visibility.");
@@ -1481,14 +1448,10 @@ public sealed class KingdomPlayModeTests
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null, "KingdomUIRoot was not created after loading SampleScene.");
         Transform detailPanel = root.transform.Find("SafeAreaRoot/DetailPanel");
-        Assert.That(detailPanel, Is.Not.Null, "SafeAreaRoot/DetailPanel is missing under KingdomUIRoot.");
-
         Transform detailUI = detailPanel.Find("DetailUI");
         Assert.That(detailUI, Is.Not.Null, "DetailUI runtime root is missing under DetailPanel.");
         Image detailSurface = detailPanel.Find("Surface")?.GetComponent<Image>();
-        Assert.That(detailSurface, Is.Not.Null, "Detail reconstruction must preserve the authored material surface.");
         Assert.That(detailSurface.sprite, Is.SameAs(Resources.Load<Sprite>("Art/UI/Backgrounds/ContentSlate")));
         Assert.That(detailSurface.raycastTarget, Is.False);
         Assert.That(detailUI.GetComponent<Image>().color.a, Is.LessThan(.01f), "The compatibility shell must not obscure its authored background.");
@@ -1505,12 +1468,10 @@ public sealed class KingdomPlayModeTests
         Assert.That((detailContent as RectTransform).rect.height, Is.GreaterThan(0f),
             "DetailScrollContent must be repaired after the initial layout pass.");
         ScrollRect detailScroll = detailViewport.GetComponent<ScrollRect>();
-        Assert.That(detailScroll, Is.Not.Null);
         Assert.That(detailScroll.enabled, Is.False,
             "The native ScrollRect is a geometry owner only; DetailUIInteraction owns dragging.");
         Assert.That(detailScroll.content, Is.SameAs(detailContent));
         Transform header = detailUI.Find("Header");
-        Assert.That(header, Is.Not.Null);
         Assert.That(header.GetComponent<Image>().color.a, Is.LessThan(.01f), "Detail titles share the authored reading surface.");
         Assert.That(header.GetSiblingIndex(), Is.LessThan(detailViewport.GetSiblingIndex()));
 
@@ -1563,7 +1524,6 @@ public sealed class KingdomPlayModeTests
         foreach (string labelName in new[] { "Label", "Cost", "Progress", "State" })
         {
             TMP_Text label = firstNode.Find(labelName)?.GetComponent<TMP_Text>();
-            Assert.That(label, Is.Not.Null, "Research node label is missing: " + labelName);
             Assert.That(label.alignment, Is.EqualTo(TextAlignmentOptions.Center));
             Assert.That(label.rectTransform.anchorMin.x, Is.LessThan(label.rectTransform.anchorMax.x));
             Assert.That(label.rectTransform.anchorMin.x, Is.GreaterThanOrEqualTo(0f));
@@ -1586,7 +1546,6 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager, Is.Not.Null);
         Assert.That(resourceManager, Is.Not.Null);
         Assert.That(buildingManager, Is.Not.Null);
-        Assert.That(simulationManager, Is.Not.Null);
         simulationManager.SetRunning(false);
         gameManager.InitializeNewGameForEditor();
         Assert.That(gameManager.State.HappinessRewardMultiplier, Is.GreaterThan(ExpantaNum.One));
@@ -1624,7 +1583,6 @@ public sealed class KingdomPlayModeTests
         Transform bodyTransform = root.transform.Find(
             "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body");
         TMP_Text body = bodyTransform == null ? null : bodyTransform.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(realized.Label));
         Assert.That(body.text, Does.Contain(unbuilt.Label), "Unlocked unbuilt sources are navigable candidates, not realized production.");
         Assert.That(body.text, Does.Contain(zeroEfficiency.Label), "Stopped owned sources remain visible for recovery.");
@@ -1668,7 +1626,6 @@ public sealed class KingdomPlayModeTests
         SimulationManager simulationManager = Object.FindObjectOfType<SimulationManager>();
         Assert.That(root, Is.Not.Null);
         Assert.That(gameManager, Is.Not.Null);
-        Assert.That(simulationManager, Is.Not.Null);
         simulationManager.SetRunning(false);
 
         gameManager.State.ResetDerivedEconomyForEditor(new ExpantaNum(500d));
@@ -1683,7 +1640,6 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.CurrentPopulationNetRatePerSecond, Is.LessThan(ExpantaNum.Zero));
         root.RefreshTopInfoForEditor();
         TMP_Text topPopulation = root.TopPopulationValueForEditor;
-        Assert.That(topPopulation, Is.Not.Null);
         Assert.That(
             topPopulation.text,
             Does.Contain(gameManager.CurrentPopulationNetRatePerSecond.ToGameString() + "/s"));

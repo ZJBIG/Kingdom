@@ -3,31 +3,11 @@ using NUnit.Framework;
 
 public sealed class SaveManagerUltraProjectEraValidationTests
 {
-    [Test]
-    public void RunningUltraProjectIsRejectedBeforeUltraTechLevel()
-    {
-        string json = BuildSaveJson(
-            TechLevel.Spacer,
-            UltraProjectStatus.Running);
-
-        Assert.Throws<InvalidDataException>(
-            () => SaveManager.ParseSaveDataForEditor(json));
-    }
-
-    [Test]
-    public void CommittedUltraProjectIsRejectedBeforeUltraTechLevel()
-    {
-        string json = BuildSaveJson(
-            TechLevel.Spacer,
-            UltraProjectStatus.Committed);
-
-        Assert.Throws<InvalidDataException>(
-            () => SaveManager.ParseSaveDataForEditor(json));
-    }
-
+    [TestCase(UltraProjectStatus.Running)]
+    [TestCase(UltraProjectStatus.Committed)]
     [TestCase(UltraProjectStatus.Paused)]
     [TestCase(UltraProjectStatus.ReadyToCommit)]
-    public void OtherUnlockedUltraProjectStatesAreRejectedBeforeUltraTechLevel(
+    public void UnlockedUltraProjectStatesAreRejectedBeforeUltraTechLevel(
         UltraProjectStatus status)
     {
         Assert.Throws<InvalidDataException>(

@@ -128,8 +128,8 @@ public sealed class GameState
         TechLevel = techLevel;
         FoodAmount = NormalizeFiniteNonNegative(foodAmount, nameof(foodAmount));
         FoodAvailability = ExpantaNum.One;
-        // Capacity is derived and is not serialized. Rebuild it from the
-        // canonical baseline instead of inheriting a previous runtime.
+        // Keep restored stock valid until SaveManager rebuilds derived capacity
+        // from the canonical baseline and owned buildings.
         FoodCapacity = ExpantaNum.Max(BaseFoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
         Version++;
@@ -280,7 +280,7 @@ public sealed class GameState
         LogisticsConsumptionRate = ExpantaNum.Zero;
         LogisticsSatisfaction = ExpantaNum.One;
         Military.ResetDerived();
-        FoodCapacity = ExpantaNum.Max(BaseFoodCapacity, FoodAmount);
+        FoodCapacity = BaseFoodCapacity;
         Population.ResetDerivedCapacity();
         Territory.ResetDerived(minimumTerritoryTotal);
         Version++;
@@ -437,16 +437,6 @@ public sealed class GameState
         FoodAmount = amount;
         FoodCapacity = capacity;
         Version++;
-    }
-
-    internal void RestoreCampaignExact(
-        bool active,
-        string targetSectorId,
-        ExpantaNum casualties,
-        ExpantaNum combatRatio)
-    {
-        RestoreCampaignExact(
-            active, targetSectorId, casualties, combatRatio, CampaignDoctrine.Stable);
     }
 
     internal void RestoreCampaignExact(

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="5" result="Failed(Child)" total="5" passed="0" failed="5" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.3752955">
+  <test-suite type="TestSuite" id="2071" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="929" result="Failed" site="Child" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.375296" total="5" passed="0" failed="5" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3132" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="928" result="Failed" site="Child" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.362858" total="5" passed="0" failed="5" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="13064" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2222" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="33" result="Failed" site="Child" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.350432" total="5" passed="0" failed="5" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2261" name="ObserverFailure_BuildingRegistrationStillReturnsCommittedState" fullname="EconomyIntegrationRegressionTests.ObserverFailure_BuildingRegistrationStillReturnsCommittedState" methodname="ObserverFailure_BuildingRegistrationStillReturnsCommittedState" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="34345970" result="Failed" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.249706" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: No Exception to be thrown
+  But was:  <System.InvalidOperationException: building-observer-test
+  at EconomyIntegrationRegressionTests+<>c.<ObserverFailure_BuildingRegistrationStillReturnsCommittedState>b__30_0 (BuildingState _) [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1240 
+  at (wrapper delegate-invoke) System.Action`1[BuildingState].invoke_void_T(BuildingState)
+  at BuildingManager.EnsureBuilding (Building building) [0x0004b] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\BuildingManager.cs:400 
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass30_0.<ObserverFailure_BuildingRegistrationStillReturnsCommittedState>b__2 () [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1245 
+  at NUnit.Framework.Constraints.ThrowsConstraint+VoidInvocationDescriptor.Invoke () [0x00001] in <10b6135e63434fdba4fc6c109928ab3b>:0 
+  at NUnit.Framework.Constraints.ThrowsConstraint+ExceptionInterceptor.Intercept (System.Object invocation) [0x0000a] in <10b6135e63434fdba4fc6c109928ab3b>:0 >
+]]></message>
+            <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.ObserverFailure_BuildingRegistrationStillReturnsCommittedState () [0x000aa] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1245
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2260" name="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation" fullname="EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.072572" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2257" name="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(False,False)" fullname="EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(False,False)" methodname="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1802947308" result="Failed" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.052506" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: No Exception to be thrown
+  But was:  <System.InvalidOperationException: research-observer-test
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass29_0.<ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation>b__0 () [0x00010] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1201 
+  at (wrapper delegate-invoke) <Module>.invoke_void()
+  at ResearchManager.CompleteCurrentResearch (ResearchState current) [0x0008f] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:835 
+  at ResearchManager.Tick (System.Double deltaSeconds) [0x000fc] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:586 
+  at SimulationManager.ManualTickCore (System.Double deltaSeconds) [0x000ba] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:222 
+  at SimulationManager.ManualTick (System.Double deltaSeconds) [0x00057] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:177 
+  at SimulationManager.Advance (System.Double elapsedSeconds) [0x0006c] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:147 
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass29_0.<ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation>b__4 () [0x0001b] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1219 
+  at NUnit.Framework.Constraints.ThrowsConstraint+VoidInvocationDescriptor.Invoke () [0x00001] in <10b6135e63434fdba4fc6c109928ab3b>:0 
+  at NUnit.Framework.Constraints.ThrowsConstraint+ExceptionInterceptor.Intercept (System.Object invocation) [0x0000a] in <10b6135e63434fdba4fc6c109928ab3b>:0 >
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation (System.Boolean offline, System.Boolean completionEvent) [0x0014f] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1216
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2258" name="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(False,True)" fullname="EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(False,True)" methodname="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1850422947" result="Failed" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.003078" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: No Exception to be thrown
+  But was:  <System.InvalidOperationException: research-observer-test
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass29_0.<ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation>b__0 () [0x00010] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1201 
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass29_0.<ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation>b__1 (ResearchState _) [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1205 
+  at (wrapper delegate-invoke) System.Action`1[ResearchState].invoke_void_T(ResearchState)
+  at ResearchManager.CompleteCurrentResearch (ResearchState current) [0x000a8] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:837 
+  at ResearchManager.Tick (System.Double deltaSeconds) [0x000fc] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\ResearchManager.cs:586 
+  at SimulationManager.ManualTickCore (System.Double deltaSeconds) [0x000ba] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:222 
+  at SimulationManager.ManualTick (System.Double deltaSeconds) [0x00057] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:177 
+  at SimulationManager.Advance (System.Double elapsedSeconds) [0x0006c] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\SimulationManager.cs:147 
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass29_0.<ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation>b__4 () [0x0001b] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1219 
+  at NUnit.Framework.Constraints.ThrowsConstraint+VoidInvocationDescriptor.Invoke () [0x00001] in <10b6135e63434fdba4fc6c109928ab3b>:0 
+  at NUnit.Framework.Constraints.ThrowsConstraint+ExceptionInterceptor.Intercept (System.Object invocation) [0x0000a] in <10b6135e63434fdba4fc6c109928ab3b>:0 >
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation (System.Boolean offline, System.Boolean completionEvent) [0x0014f] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1216
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2259" name="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(True,False)" fullname="EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation(True,False)" methodname="ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="199304124" result="Failed" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.015123" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: Completed
+  But was:  Researching
+]]></message>
+              <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.ObserverFailure_ResearchCompletionDoesNotInterruptOrReplaySimulation (System.Boolean offline, System.Boolean completionEvent) [0x00160] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1221
+]]></stack-trace>
+            </failure>
+          </test-case>
+        </test-suite>
+        <test-case id="2262" name="ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess" fullname="EconomyIntegrationRegressionTests.ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess" methodname="ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="1874159245" result="Failed" start-time="2026-10-18 04:12:52Z" end-time="2026-10-18 04:12:52Z" duration="0.012113" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: No Exception to be thrown
+  But was:  <System.InvalidOperationException: workshop-observer-test
+  at EconomyIntegrationRegressionTests+<>c.<ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess>b__31_0 (WorkshopUpgradeState _) [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1265 
+  at (wrapper delegate-invoke) System.Action`1[WorkshopUpgradeState].invoke_void_T(WorkshopUpgradeState)
+  at WorkshopManager.TryPurchase (WorkshopUpgrade definition, WorkshopPurchaseFailure& failure) [0x00163] in D:\GitHub\Kingdom\Assets\Resources\Script\Manager\WorkshopManager.cs:270 
+  at EconomyIntegrationRegressionTests+<>c__DisplayClass31_0.<ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess>b__2 () [0x00000] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1270 
+  at NUnit.Framework.Constraints.ThrowsConstraint+VoidInvocationDescriptor.Invoke () [0x00001] in <10b6135e63434fdba4fc6c109928ab3b>:0 
+  at NUnit.Framework.Constraints.ThrowsConstraint+ExceptionInterceptor.Intercept (System.Object invocation) [0x0000a] in <10b6135e63434fdba4fc6c109928ab3b>:0 >
+]]></message>
+            <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.ObserverFailure_WorkshopPurchaseStillReturnsCommittedSuccess () [0x0012a] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:1270
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

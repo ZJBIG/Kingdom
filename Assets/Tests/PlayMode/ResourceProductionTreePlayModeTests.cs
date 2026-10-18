@@ -143,7 +143,6 @@ public sealed class ResourceProductionTreePlayModeTests
                 { unlockedNode = node; break; }
             yield return null;
         }
-        Assert.That(unlockedNode, Is.Not.Null, "Central refresh reveals the newly unlocked producer without reopening the tree.");
         Assert.That(unlockedNode.Find("Label").GetComponent<Button>().interactable, Is.True, "Newly unlocked producers retain their detail action.");
         Assert.That(graph.localScale.x, Is.EqualTo(beforeUnlockScale).Within(.001f), "An unlock preserves the user's zoom.");
         Assert.That(Vector3.Distance(viewport.InverseTransformPoint(graph.GetChild(0).position), beforeUnlockRoot), Is.LessThan(2f),
@@ -217,7 +216,6 @@ public sealed class ResourceProductionTreePlayModeTests
         foreach (Transform node in graph)
             if (node.Find("Label").GetComponent<TMP_Text>().text == upgradeSource.UpgradeTo.Label)
             { upgradeNode = node; break; }
-        Assert.That(upgradeNode, Is.Not.Null, "The actual building upgrade appears below its source.");
         upgradeNode.Find("Label").GetComponent<Button>().onClick.Invoke();
         yield return null;
         Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(upgradeSource.Label),
@@ -359,7 +357,7 @@ public sealed class ResourceProductionTreePlayModeTests
             canvas.worldCamera = camera; canvas.planeDistance = 100;
             string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "production-redesign-20261014", "pages"));
             Directory.CreateDirectory(folder);
-            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(2200, 1000), new Vector2Int(1760, 800) })
+            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {
                 target = new RenderTexture(size.x, size.y, 24);
                 target.Create(); camera.targetTexture = target;

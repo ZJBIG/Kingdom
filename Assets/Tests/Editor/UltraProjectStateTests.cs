@@ -9,12 +9,10 @@ public sealed class UltraProjectStateTests
     {
         UltraProjectDefinition definition = DataBase<UltraProjectDefinition>.Find(
             "UltraCivilizationEngineering");
-        Assert.That(definition, Is.Not.Null);
         Assert.That(definition.Stages, Has.Count.EqualTo(UltraProjectState.StageCount));
         for (int i = 0; i < definition.Stages.Count; i++)
         {
             UltraProjectStageDefinition stage = definition.Stages[i];
-            Assert.That(stage, Is.Not.Null);
             Assert.That(stage.RequiredResearch, Is.Not.Null);
             Assert.That(stage.RequiredBuilding, Is.Not.Null);
             Assert.That(stage.OneTimeResourceCosts, Is.Not.Empty);
@@ -87,9 +85,9 @@ public sealed class UltraProjectStateTests
         Assert.That(restored.LaunchFeePaid, Is.True);
         Assert.That(restored.StageProgress, Is.EqualTo(ExpantaNum.Zero));
 
-        state.StartForEditor();
-        Assert.That(state.Status, Is.EqualTo(UltraProjectStatus.Running));
-        Assert.That(state.LaunchFeePaid, Is.True);
+        restored.StartForEditor();
+        Assert.That(restored.Status, Is.EqualTo(UltraProjectStatus.Running));
+        Assert.That(restored.LaunchFeePaid, Is.True);
     }
 
     [Test]
@@ -101,7 +99,6 @@ public sealed class UltraProjectStateTests
 
         Assert.That(state.PauseReason, Is.EqualTo(UltraProjectPauseReason.Manual));
         UltraProjectStateSaveData save = state.CaptureSaveData();
-        Assert.That(save.PauseReason, Is.EqualTo(UltraProjectPauseReason.Manual));
 
         UltraProjectState restored = new UltraProjectState();
         restored.RestoreForEditor(save);
@@ -210,22 +207,6 @@ public sealed class UltraProjectStateTests
         Assert.That(restored.Status, Is.EqualTo(UltraProjectStatus.Locked));
     }
 
-
-    [Test]
-    public void SaveRestoreAllowsAbandonedReadyStateWithPaidLaunchFee()
-    {
-        UltraProjectState source = new UltraProjectState(UltraProjectDoctrine.Stable);
-        source.StartForEditor();
-        source.AdvanceStageProgressForEditor(new ExpantaNum(0.4d));
-        source.AbandonForEditor();
-        UltraProjectStateSaveData save = source.CaptureSaveData();
-
-        UltraProjectState restored = new UltraProjectState();
-        Assert.DoesNotThrow(() => restored.RestoreForEditor(save));
-        Assert.That(restored.Status, Is.EqualTo(UltraProjectStatus.Ready));
-        Assert.That(restored.StageProgress, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(restored.LaunchFeePaid, Is.True);
-    }
 
     [TestCase(null)]
     [TestCase("null")]

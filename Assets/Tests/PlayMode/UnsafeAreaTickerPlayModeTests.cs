@@ -61,11 +61,9 @@ public sealed class UnsafeAreaTickerPlayModeTests
         Assert.That(tickerTemplate, Is.Not.Null);
         GameObject tickerObject = Object.Instantiate(tickerTemplate, layoutRect, false);
         UnsafeAreaTicker ticker = tickerObject.GetComponent<UnsafeAreaTicker>();
-        Assert.That(ticker, Is.Not.Null);
         ticker.Initialize(safeArea, null);
         TMP_Text feedText = tickerObject.transform.Find(
             "FeedViewport/FeedText")?.GetComponent<TMP_Text>();
-        Assert.That(feedText, Is.Not.Null);
         float authoredAlpha = feedText.alpha;
         ticker.SetFeed(new[] { "建设完成：农场" }, TechLevel.StoneAge, "5500/1/1");
         yield return null;
@@ -130,7 +128,6 @@ public sealed class UnsafeAreaTickerPlayModeTests
         Assert.That(tickerRect.anchorMin.x, Is.InRange(0.944f, 0.946f));
         Assert.That(tickerRect.anchorMax.x, Is.InRange(0.999f, 1.001f));
         RectTransform accentLine = tickerObject.transform.Find("AccentLine") as RectTransform;
-        Assert.That(accentLine, Is.Not.Null);
         Assert.That(accentLine.anchorMin.x, Is.InRange(-0.001f, 0.001f));
         Assert.That(accentLine.pivot.x, Is.InRange(-0.001f, 0.001f));
 
@@ -147,7 +144,6 @@ public sealed class UnsafeAreaTickerPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         Transform tickerTransform = root.transform.Find("UnsafeAreaTicker");
         Transform safeArea = root.transform.Find("SafeAreaRoot");
         Assert.That(tickerTransform, Is.Not.Null);
@@ -158,7 +154,6 @@ public sealed class UnsafeAreaTickerPlayModeTests
             "The ticker must render behind the SafeArea UI.");
 
         UnsafeAreaTicker ticker = tickerTransform.GetComponent<UnsafeAreaTicker>();
-        Assert.That(ticker, Is.Not.Null);
         Assert.That(ticker.IsConfigured, Is.True);
         Canvas tickerCanvas = tickerTransform.GetComponent<Canvas>();
         Assert.That(tickerCanvas, Is.Not.Null);
@@ -174,7 +169,6 @@ public sealed class UnsafeAreaTickerPlayModeTests
         Assert.That(tickerTransform.Find("FeedViewport")?.GetComponent<RectMask2D>(), Is.Not.Null);
 
         Image rootBackdrop = root.GetComponent<Image>();
-        Assert.That(rootBackdrop, Is.Not.Null);
         Assert.That(rootBackdrop.raycastTarget, Is.False);
     }
 

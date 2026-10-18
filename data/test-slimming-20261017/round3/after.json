@@ -1,0 +1,639 @@
+[
+  {
+    "path": "Assets/Tests/Editor/AdvancedMaterialProgressionTests.cs",
+    "lines": 466,
+    "assertions": 80,
+    "testMethods": 12,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/AudioFeedbackRegressionTests.cs",
+    "lines": 130,
+    "assertions": 15,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/AuditRuntimeRegressionTests.cs",
+    "lines": 283,
+    "assertions": 81,
+    "testMethods": 13,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/BuildingCostGrowthTests.cs",
+    "lines": 378,
+    "assertions": 68,
+    "testMethods": 11,
+    "testCases": 8
+  },
+  {
+    "path": "Assets/Tests/Editor/BuildingVerticalSliceTests.cs",
+    "lines": 240,
+    "assertions": 83,
+    "testMethods": 9,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/C5ContentClosureAuditTests.cs",
+    "lines": 92,
+    "assertions": 7,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/C6IndustrialClosureAuditTests.cs",
+    "lines": 93,
+    "assertions": 9,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/C6IndustrialContentTests.cs",
+    "lines": 1525,
+    "assertions": 320,
+    "testMethods": 59,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ContentProgressionValidatorTests.cs",
+    "lines": 273,
+    "assertions": 10,
+    "testMethods": 5,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ContentVerticalSliceAuditTests.cs",
+    "lines": 243,
+    "assertions": 34,
+    "testMethods": 7,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/EarlyVerticalSlicePacingTests.cs",
+    "lines": 38,
+    "assertions": 4,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "lines": 1064,
+    "assertions": 127,
+    "testMethods": 11,
+    "testCases": 12
+  },
+  {
+    "path": "Assets/Tests/Editor/EraCollectionConfigurationTests.cs",
+    "lines": 120,
+    "assertions": 34,
+    "testMethods": 1,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/EraInventoryShortfallTests.cs",
+    "lines": 53,
+    "assertions": 5,
+    "testMethods": 0,
+    "testCases": 5
+  },
+  {
+    "path": "Assets/Tests/Editor/FirstThreeErasContentDefinitionTests.cs",
+    "lines": 45,
+    "assertions": 9,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/FlowEfficiencyTests.cs",
+    "lines": 105,
+    "assertions": 18,
+    "testMethods": 7,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/FoodEfficiencyTests.cs",
+    "lines": 144,
+    "assertions": 19,
+    "testMethods": 10,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/GlobalEconomyDefinitionTests.cs",
+    "lines": 519,
+    "assertions": 60,
+    "testMethods": 15,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/IndustrialWorkshopAvailabilityTests.cs",
+    "lines": 182,
+    "assertions": 33,
+    "testMethods": 7,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/InvestmentChoiceTests.cs",
+    "lines": 160,
+    "assertions": 32,
+    "testMethods": 1,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomBackgroundMaterialTests.cs",
+    "lines": 92,
+    "assertions": 25,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomButtonMaterialTests.cs",
+    "lines": 113,
+    "assertions": 33,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomCollectionConfigurationTests.cs",
+    "lines": 44,
+    "assertions": 14,
+    "testMethods": 1,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomLogicTests.cs",
+    "lines": 3738,
+    "assertions": 523,
+    "testMethods": 112,
+    "testCases": 46
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomPageBoundaryTests.cs",
+    "lines": 143,
+    "assertions": 32,
+    "testMethods": 6,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomUiLifecycleTests.cs",
+    "lines": 41,
+    "assertions": 11,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/LateFactoryConsolidationTests.cs",
+    "lines": 84,
+    "assertions": 15,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/LongHorizonSimulationTests.cs",
+    "lines": 65,
+    "assertions": 8,
+    "testMethods": 2,
+    "testCases": 1
+  },
+  {
+    "path": "Assets/Tests/Editor/MedievalResearchRoleTests.cs",
+    "lines": 33,
+    "assertions": 2,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/MobileOrientationConfigurationTests.cs",
+    "lines": 26,
+    "assertions": 6,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/OfflineProgressSummaryTests.cs",
+    "lines": 143,
+    "assertions": 33,
+    "testMethods": 3,
+    "testCases": 2
+  },
+  {
+    "path": "Assets/Tests/Editor/OfflineSimulationBoundaryTests.cs",
+    "lines": 21,
+    "assertions": 1,
+    "testMethods": 0,
+    "testCases": 6
+  },
+  {
+    "path": "Assets/Tests/Editor/P40UiConfigurationTests.cs",
+    "lines": 83,
+    "assertions": 17,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/PreSpacerCombatRemovalTests.cs",
+    "lines": 76,
+    "assertions": 10,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ProgressionMilestoneRecorderTests.cs",
+    "lines": 181,
+    "assertions": 28,
+    "testMethods": 6,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/RelicCampaignTests.cs",
+    "lines": 338,
+    "assertions": 69,
+    "testMethods": 8,
+    "testCases": 2
+  },
+  {
+    "path": "Assets/Tests/Editor/RelicManagerTests.cs",
+    "lines": 323,
+    "assertions": 69,
+    "testMethods": 14,
+    "testCases": 2
+  },
+  {
+    "path": "Assets/Tests/Editor/RelicSaveTests.cs",
+    "lines": 54,
+    "assertions": 5,
+    "testMethods": 3,
+    "testCases": 2
+  },
+  {
+    "path": "Assets/Tests/Editor/RelicSimulationTests.cs",
+    "lines": 214,
+    "assertions": 27,
+    "testMethods": 2,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/RelicStateTests.cs",
+    "lines": 168,
+    "assertions": 42,
+    "testMethods": 4,
+    "testCases": 15
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchBalanceTests.cs",
+    "lines": 380,
+    "assertions": 76,
+    "testMethods": 10,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchEffectTests.cs",
+    "lines": 836,
+    "assertions": 94,
+    "testMethods": 22,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchMedievalContentTests.cs",
+    "lines": 56,
+    "assertions": 8,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchPaymentAutoTests.cs",
+    "lines": 178,
+    "assertions": 31,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchPaymentSaveTests.cs",
+    "lines": 165,
+    "assertions": 15,
+    "testMethods": 1,
+    "testCases": 8
+  },
+  {
+    "path": "Assets/Tests/Editor/ResearchPowerTests.cs",
+    "lines": 59,
+    "assertions": 2,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResourceContinuityTests.cs",
+    "lines": 642,
+    "assertions": 137,
+    "testMethods": 32,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResourceProductionTreeLayoutTests.cs",
+    "lines": 119,
+    "assertions": 30,
+    "testMethods": 5,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/ResourceProductionTreeTests.cs",
+    "lines": 181,
+    "assertions": 48,
+    "testMethods": 8,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SafeAreaFitterTests.cs",
+    "lines": 34,
+    "assertions": 6,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SaveArchivePressureTests.cs",
+    "lines": 177,
+    "assertions": 10,
+    "testMethods": 4,
+    "testCases": 10
+  },
+  {
+    "path": "Assets/Tests/Editor/SaveManagerUltraProjectEraValidationTests.cs",
+    "lines": 73,
+    "assertions": 3,
+    "testMethods": 1,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/SectorBuildingTests.cs",
+    "lines": 354,
+    "assertions": 58,
+    "testMethods": 8,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SectorDefinitionTests.cs",
+    "lines": 275,
+    "assertions": 55,
+    "testMethods": 11,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SectorManagerTests.cs",
+    "lines": 2892,
+    "assertions": 512,
+    "testMethods": 95,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SimulationBudgetTests.cs",
+    "lines": 356,
+    "assertions": 15,
+    "testMethods": 3,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/Editor/SimulationDeterminismTests.cs",
+    "lines": 152,
+    "assertions": 23,
+    "testMethods": 8,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SpaceContentTests.cs",
+    "lines": 133,
+    "assertions": 25,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SpaceProgressionTests.cs",
+    "lines": 2036,
+    "assertions": 717,
+    "testMethods": 49,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/SpacerResearchPlacementTests.cs",
+    "lines": 176,
+    "assertions": 19,
+    "testMethods": 5,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/StoryIllustrationTests.cs",
+    "lines": 119,
+    "assertions": 35,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/StoryManagerTests.cs",
+    "lines": 299,
+    "assertions": 69,
+    "testMethods": 13,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/StrategicPreviewRegressionTests.cs",
+    "lines": 117,
+    "assertions": 21,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/TutorialManagerTests.cs",
+    "lines": 661,
+    "assertions": 85,
+    "testMethods": 16,
+    "testCases": 12
+  },
+  {
+    "path": "Assets/Tests/Editor/TutorialStageTests.cs",
+    "lines": 155,
+    "assertions": 32,
+    "testMethods": 8,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/UIPinPreferenceTests.cs",
+    "lines": 53,
+    "assertions": 9,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/UltraContentSliceTests.cs",
+    "lines": 343,
+    "assertions": 142,
+    "testMethods": 10,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/UltraProjectManagerTickTests.cs",
+    "lines": 306,
+    "assertions": 54,
+    "testMethods": 5,
+    "testCases": 2
+  },
+  {
+    "path": "Assets/Tests/Editor/UltraProjectStateTests.cs",
+    "lines": 353,
+    "assertions": 75,
+    "testMethods": 14,
+    "testCases": 3
+  },
+  {
+    "path": "Assets/Tests/Editor/UltraR2EconomyBoundaryTests.cs",
+    "lines": 199,
+    "assertions": 8,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/UnsafeAreaTickerStatusTests.cs",
+    "lines": 155,
+    "assertions": 25,
+    "testMethods": 5,
+    "testCases": 12
+  },
+  {
+    "path": "Assets/Tests/Editor/UnsafeAreaTickerTests.cs",
+    "lines": 189,
+    "assertions": 32,
+    "testMethods": 8,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/WorkshopBenefitPreviewTests.cs",
+    "lines": 114,
+    "assertions": 20,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/Editor/WorldEventTests.cs",
+    "lines": 188,
+    "assertions": 36,
+    "testMethods": 4,
+    "testCases": 6
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomButtonMaterialPlayModeTests.cs",
+    "lines": 604,
+    "assertions": 97,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomCardPolishPlayModeTests.cs",
+    "lines": 261,
+    "assertions": 24,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomCollectionPlayModeTests.cs",
+    "lines": 406,
+    "assertions": 44,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs",
+    "lines": 638,
+    "assertions": 107,
+    "testMethods": 10,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomPageBoundaryPlayModeTests.cs",
+    "lines": 177,
+    "assertions": 23,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomPlayModeTests.cs",
+    "lines": 1927,
+    "assertions": 327,
+    "testMethods": 22,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/KingdomStagedOnboardingPlayModeTests.cs",
+    "lines": 583,
+    "assertions": 90,
+    "testMethods": 13,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/PageScrollPositionPlayModeTests.cs",
+    "lines": 82,
+    "assertions": 13,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/PlannerPagesPlayModeTests.cs",
+    "lines": 281,
+    "assertions": 20,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/RelicPlayModeTests.cs",
+    "lines": 415,
+    "assertions": 80,
+    "testMethods": 6,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/ResourceProductionTreePlayModeTests.cs",
+    "lines": 423,
+    "assertions": 66,
+    "testMethods": 1,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/ReviewInteractionPlayModeTests.cs",
+    "lines": 632,
+    "assertions": 118,
+    "testMethods": 12,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/SectorBuildingPlayModeTests.cs",
+    "lines": 276,
+    "assertions": 33,
+    "testMethods": 2,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/StoryBackgroundInteractionPlayModeTests.cs",
+    "lines": 385,
+    "assertions": 53,
+    "testMethods": 4,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/StoryIllustrationPlayModeTests.cs",
+    "lines": 237,
+    "assertions": 37,
+    "testMethods": 3,
+    "testCases": 0
+  },
+  {
+    "path": "Assets/Tests/PlayMode/UIGestureRegressionPlayModeTests.cs",
+    "lines": 232,
+    "assertions": 22,
+    "testMethods": 4,
+    "testCases": 4
+  },
+  {
+    "path": "Assets/Tests/PlayMode/UnsafeAreaTickerPlayModeTests.cs",
+    "lines": 183,
+    "assertions": 44,
+    "testMethods": 2,
+    "testCases": 0
+  }
+]

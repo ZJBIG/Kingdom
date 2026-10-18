@@ -55,7 +55,6 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Screen.SetResolution(2640, 1200, false);
         yield return LoadFreshGame();
         OnboardingInputGate gate = root.GetComponent<OnboardingInputGate>();
-        Assert.That(gate, Is.Not.Null);
         Assert.That(gate.IsActive, Is.True);
         Assert.That(root.OnboardingStageForEditor.StageId, Is.EqualTo("resources"), "Stage IDs are protocol constants.");
         Assert.That(root.OnboardingStageForEditor.Action, Is.EqualTo(TutorialStageAction.Navigate));
@@ -269,7 +268,6 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         pin.onClick.AddListener(() => UIPinPreferences.SetPinned(UIPinPreferences.Research, definition.Id,
             !UIPinPreferences.IsPinned(UIPinPreferences.Research, definition.Id)));
         root.RefreshOnboardingForEditor();
-        Assert.That(pin, Is.Not.Null);
         Assert.That(pin.gameObject.activeInHierarchy, Is.True);
         Assert.That(OnboardingInputGate.Allows(node.transform), Is.True);
         Assert.That(OnboardingInputGate.Allows(pin.transform), Is.False,
@@ -370,7 +368,6 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Assert.That(root.OnboardingStageForEditor.Action, Is.EqualTo(TutorialStageAction.Select));
         RectTransform target = root.OnboardingTargetForEditor;
         RectMask2D mask = target.GetComponentInParent<RectMask2D>();
-        Assert.That(mask, Is.Not.Null);
         RectTransform viewport = mask.rectTransform;
         Vector3 original = target.position;
         try
@@ -475,10 +472,8 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     private void ClickTarget()
     {
         RectTransform target = root.OnboardingTargetForEditor;
-        Assert.That(target, Is.Not.Null, OnboardingDiagnostic());
         Button targetButton = target.GetComponentInParent<Button>();
         GameObject hit = ClickAt(target);
-        Assert.That(hit, Is.Not.Null, "The required control must survive the real UI raycast filters.");
         Assert.That(hit.transform == target || hit.transform.IsChildOf(target) ||
             (targetButton != null && ExecuteEvents.GetEventHandler<IPointerClickHandler>(hit) == targetButton.gameObject), Is.True,
             "The overlay must leave the indicated control reachable. target=" + target.name +

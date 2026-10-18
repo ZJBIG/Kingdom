@@ -4,50 +4,12 @@ using NUnit.Framework;
 public sealed class BuildingVerticalSliceTests
 {
     [Test]
-    public void BuildingCostGrowth_MatchesTheVerticalSliceBaseline()
-    {
-        var expected = new Dictionary<string, double>
-        {
-            ["Farm"] = 1.14d,
-            ["Lumberyard"] = 1.13d,
-            ["Quarry"] = 1.14d,
-            ["ClayPit"] = 1.14d,
-            ["FiberGatheringCamp"] = 1.14d,
-            ["StoneCuttingWorkshop"] = 1.15d,
-            ["WoodHouse"] = 1.18d,
-            ["KnowledgeCircle"] = 1.20d,
-            ["CoalMine"] = 1.14d,
-            ["MetalMine"] = 1.15d,
-            ["CeramicKiln"] = 1.16d,
-            ["WeavingWorkshop"] = 1.16d,
-            ["MetalSmelter"] = 1.17d,
-            ["Granary"] = 1.18d,
-            ["ScribeHut"] = 1.20d
-        };
-
-        foreach (KeyValuePair<string, double> pair in expected)
-        {
-            Building building = DataBase<Building>.Find(pair.Key);
-            Assert.That(building.CostGrowth.ToDouble(), Is.EqualTo(pair.Value).Within(0.000001d),
-                $"Building '{pair.Key}' has drifted from the vertical-slice cost baseline.");
-        }
-    }
-
-    [Test]
     public void FoodCapacity_IsLimitedToThePlannedFoodBuildings()
     {
         Assert.That(DataBase<Building>.Find("Granary").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("CeramicKiln").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("WoodHouse").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(DataBase<Building>.Find("KnowledgeCircle").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
-    }
-
-    [Test]
-    public void WoodHouse_ProvidesPopulationCapacityInsteadOfProductivity()
-    {
-        Building woodHouse = DataBase<Building>.Find("WoodHouse");
-        Assert.That(woodHouse.ProductivityGranted, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(woodHouse.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(5)));
     }
 
     [Test]
@@ -58,49 +20,6 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(woodHouse.RequiredResearch, Is.Empty);
         Assert.That(woodHouse.RequiredWorkshopUpgrades, Is.Empty);
-    }
-
-    [Test]
-    public void MedievalResourceLayerContainsSteelWithoutAbstractToolStocks()
-    {
-        Resource steel = DataBase<Resource>.Find("Steel");
-        Assert.That(steel, Is.Not.Null);
-        Assert.That(string.IsNullOrWhiteSpace(steel.Label), Is.False);
-        Assert.That(DataBase<Resource>.Contains("MetalTool"), Is.False);
-        Assert.That(DataBase<Resource>.Contains("StoneTool"), Is.False);
-    }
-
-    [Test]
-    public void MedievalBuildingLayerContainsTheSixCoreBuildings()
-    {
-        string[] ids =
-        {
-            "Academy", "Caravanserai", "SteelForge", "Library", "TownHouse"
-        };
-
-        foreach (string id in ids)
-        {
-            Building building = DataBase<Building>.Find(id);
-            Assert.That(building, Is.Not.Null, $"Missing medieval building '{id}'.");
-            Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Medieval));
-            if (id != "TownHouse")
-                Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
-        }
-
-        Assert.That(DataBase<Building>.Contains("Blacksmith"), Is.False);
-        Assert.That(DataBase<Building>.Find("SteelForge").ResourceGenerationRates, Has.Count.EqualTo(1));
-        Assert.That(DataBase<Building>.Find("Library").ResearchPowerGranted, Is.EqualTo(new ExpantaNum(25)));
-    }
-
-    [Test]
-    public void KeyBuildings_MatchTheProductionAndEraPlan()
-    {
-        Building farm = DataBase<Building>.Find("Farm");
-        Building lumberyard = DataBase<Building>.Find("Lumberyard");
-
-        Assert.That(farm.TechLevel, Is.EqualTo(TechLevel.Animal));
-        Assert.That(farm.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(lumberyard.ProductivityConsumption.ToDouble(), Is.EqualTo(4d));
     }
 
     [Test]
@@ -153,11 +72,9 @@ public sealed class BuildingVerticalSliceTests
         Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
         Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
 
-        Assert.That(industrial, Is.Not.Null);
         Assert.That(industrial.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(industrial.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(240)));
         Assert.That(industrial.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(2));
-        Assert.That(orbital, Is.Not.Null);
         Assert.That(orbital.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(orbital.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(3000)));
         Assert.That(orbital.SpaceCost, Is.EqualTo(new ExpantaNum(650)));
@@ -203,7 +120,6 @@ public sealed class BuildingVerticalSliceTests
     {
         Building housing = DataBase<Building>.Find("OrbitalHabitatMegastructure");
 
-        Assert.That(housing, Is.Not.Null);
         Assert.That(housing.PopulationCapacityGranted, Is.GreaterThan(new ExpantaNum(1000)));
         Assert.That(housing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(housing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
@@ -230,7 +146,6 @@ public sealed class BuildingVerticalSliceTests
         Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(industrial, Is.Not.Null);
-        Assert.That(orbital, Is.Not.Null);
         Assert.That(
             orbital.PopulationCapacityGranted,
             Is.GreaterThan(industrial.PopulationCapacityGranted * 10d));

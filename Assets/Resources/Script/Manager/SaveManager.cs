@@ -284,6 +284,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         GameManager.Instance.InitializeNewGame();
         BuildingManager.Instance.InitializeStartingBuildings();
         GameManager.Instance.RestoreSaveData(data.General);
+        ExpantaNum savedFood = GameManager.Instance.State.FoodAmount;
         GameManager.Instance.ResetDerivedEconomy();
         ResourceManager.Instance.ResetDerivedRates();
         GameManager.Instance.InitializeStartingResources();
@@ -301,6 +302,10 @@ public sealed class SaveManager : Singleton<SaveManager>
         BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
         GameManager.Instance.UltraProject.RestoreSaveData(data.UltraProject);
         GameManager.Instance.Relic.RestoreSaveData(data.Relic);
+        // Derived capacity is rebuilt incrementally; preserve legal stock across interim clamps.
+        GameState restoredState = GameManager.Instance.State;
+        restoredState.RestoreFoodExact(
+            ExpantaNum.Min(savedFood, restoredState.FoodCapacity), restoredState.FoodCapacity);
         TutorialManager.Ensure().RestoreSaveData(data.Tutorial, GameManager.Instance.State.TechLevel);
         StoryManager.RestoreSaveData(data.Story);
         StoryManager.RefreshProgress();

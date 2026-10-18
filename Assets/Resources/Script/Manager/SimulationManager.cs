@@ -328,16 +328,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             }
             else
             {
-                if (offlineCampaignPendingSimulationSeconds > 0d)
-                {
-                    TickOfflineSimulation(
-                        offlineCampaignPendingCalendarSeconds,
-                        offlineCampaignPendingSimulationSeconds,
-                        gameManager,
-                        useRealtimeResearchCadence: true);
-                    offlineCampaignPendingCalendarSeconds = 0d;
-                    offlineCampaignPendingSimulationSeconds = 0d;
-                }
+                FlushOfflineCampaignRemainder();
                 TickOfflineSimulation(
                     step,
                     CalculateOfflineEffectiveSeconds(elapsed, step),

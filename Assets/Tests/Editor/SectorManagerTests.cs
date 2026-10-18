@@ -250,7 +250,6 @@ public sealed class SectorManagerTests
     {
         SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
 
-        Assert.That(sector, Is.Not.Null);
         Assert.That(sector.Label, Is.EqualTo("天狼资源带"));
         Assert.That(sector.Description, Does.Not.Contain("鍗"));
     }
@@ -300,7 +299,6 @@ public sealed class SectorManagerTests
         foreach (string id in interstellarIds)
         {
             SectorDefinition sector = DataBase<SectorDefinition>.Find(id);
-            Assert.That(sector, Is.Not.Null, id);
             Assert.That(sector.CampaignFoodPerSecond, Is.GreaterThan(ExpantaNum.Zero), id);
             Assert.That(sector.CampaignProgressMultiplier, Is.GreaterThan(ExpantaNum.Zero), id);
             Assert.That(
@@ -603,7 +601,6 @@ public sealed class SectorManagerTests
         for (int i = 0; i < sectors.Count; i++)
         {
             SectorDefinition sector = sectors[i];
-            Assert.That(sector, Is.Not.Null);
             Assert.That(sector.Label, Is.Not.Null.And.Not.Empty, sector.Id);
             Assert.That(sector.Description, Is.Not.Null.And.Not.Empty, sector.Id);
             Assert.That(sector.EnemyPower.IsNaN, Is.False, sector.Id);
@@ -710,7 +707,6 @@ public sealed class SectorManagerTests
     {
         SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
 
-        Assert.That(sector, Is.Not.Null);
         Assert.That(sector.Domain, Is.EqualTo(SectorDefinition.SectorDomain.Interstellar));
         Assert.That(sector.StarSystemId, Is.EqualTo("Sirius"));
         Assert.That(sector.EnemyPower, Is.GreaterThan(new ExpantaNum(5000d)));
@@ -728,7 +724,6 @@ public sealed class SectorManagerTests
     {
         SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
 
-        Assert.That(sector, Is.Not.Null);
         Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(30000d)));
         Assert.That(HasResourceReward(sector, "Electronics"), Is.True);
         Assert.That(HasResourceReward(sector, "PhantomAlloy"), Is.True);
@@ -742,7 +737,6 @@ public sealed class SectorManagerTests
     {
         SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
 
-        Assert.That(sector, Is.Not.Null);
         Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(40000d)));
         Assert.That(HasResourceReward(sector, "TitaniumAlloy"), Is.True);
         Assert.That(HasCampaignCost(sector, "PhantomAlloy"), Is.True);
@@ -907,7 +901,6 @@ public sealed class SectorManagerTests
         for (int i = 0; i < interstellarSectors.Length; i++)
         {
             SectorDefinition sector = interstellarSectors[i];
-            Assert.That(sector, Is.Not.Null);
             Assert.That(sector.TerritoryReward,
                 Is.GreaterThan(lowOrbit.TerritoryReward * 100d), sector.Id);
             Assert.That(sector.CampaignResourceRatesPerSecond.Count,

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "Assets/Resources/Script/Manager/GameManager.cs",
+    "sha256": "1d34fe746f16c571148104e2d928681837ac3cce14a9737518894800fee8d3d1",
+    "lines": 441
+  },
+  {
+    "path": "Assets/Tests/Editor/KingdomLogicTests.cs",
+    "sha256": "3fe546d09a6de5dd8f1b8b727e6b5e9eca8d059a9f2c2fe4cb8c9e2ee331ad41",
+    "lines": 3811
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "sha256": "6ca5873c1332a5500648ce922248d5f4f0e8e4310d3fb8d2dd0f8d4f68a51508",
+    "lines": 1406
+  }
+]

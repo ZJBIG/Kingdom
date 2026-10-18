@@ -117,6 +117,14 @@ public static class SimulationStateFactory
         }
 
         state.SetPopulation(ParseNumber(runtime.Population, "RuntimeState.Population"));
+        var populationCapacity = ExpantaNum.Zero;
+        foreach (var definition in snapshot.Buildings)
+            populationCapacity += state.BuildingStates[definition.Id].Amount *
+                ParseNumber(definition.PopulationCapacityGranted, definition.Id);
+        state.SetPopulationCapacity(populationCapacity);
+        // Runtime restores progress after deriving housing, which can reset the fraction.
+        state.RestorePopulationChangeProgress(ParseNumber(runtime.PopulationChangeProgress,
+            "RuntimeState.PopulationChangeProgress"));
         state.SetTerritoryTotal(ParseNumber(runtime.TerritoryTotal, "RuntimeState.TerritoryTotal"));
         state.SetMilitary(
             ParseNumber(runtime.AttackPower, "RuntimeState.AttackPower"),
@@ -351,6 +359,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         for (var pass = 0; pass < maximumPasses; pass++)
         {
             var actualProduction = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
+            foreach (var resource in definitions!.Resources.Values)
+                Add(actualProduction, resource.Id, Parse(resource.BaseProductionRate) * ExpantaNum.Max(ExpantaNum.One, happiness));
             var potentialConsumption = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
             var potentialFoodProduction = ExpantaNum.Zero;
             var potentialFoodConsumption = ExpantaNum.Zero;
@@ -410,7 +420,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             }
             actualFoodProduction = (actualFoodProduction + new ExpantaNum(5d)) *
                 modifiers.GlobalFoodProductionMultiplier;
-            happiness = CalculateHappiness(
+            happiness = HappinessFormula.CalculateMultiplier(
                 actualFoodProduction - actualFoodConsumption,
                 state.Population,
                 foodAvailability,
@@ -455,6 +465,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         happiness = EnforceTickResourceBudget(state, active, modifiers, foodDemand, context.DeltaSeconds);
 
         var resourceProduction = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
+        foreach (var resource in definitions!.Resources.Values)
+            Add(resourceProduction, resource.Id, Parse(resource.BaseProductionRate));
         var resourceConsumption = new SortedDictionary<string, ExpantaNum>(StringComparer.Ordinal);
         var foodProduction = new ExpantaNum(5d);
         var foodConsumption = state.Population * new ExpantaNum(0.8d);
@@ -494,7 +506,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
 
         foodProduction *= modifiers.GlobalFoodProductionMultiplier;
         foodAvailability = CalculateFoodAvailability(state.Food, foodProduction, foodDemand, context.DeltaSeconds);
-        happiness = CalculateHappiness(foodProduction - foodConsumption, state.Population,
+        happiness = HappinessFormula.CalculateMultiplier(foodProduction - foodConsumption, state.Population,
             foodAvailability, modifiers.HappinessBonus);
         foodCapacity *= modifiers.FoodCapacityMultiplier;
         state.SetFoodCapacity(foodCapacity);
@@ -516,7 +528,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             logisticsProduction,
             logisticsConsumption,
             researchPower * modifiers.GlobalResearchMultiplier,
-            active.Length);
+            active.Length,
+            state.Population);
     }
 
     private ExpantaNum EnforceTickResourceBudget(SimulationState state,
@@ -535,6 +548,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         for (var correction = 0; correction <= definitions!.Resources.Count + 2; correction++)
         {
             production.Clear();
+            foreach (var resource in definitions!.Resources.Values)
+                Add(production, resource.Id, Parse(resource.BaseProductionRate));
             consumption.Clear();
             foodNet = new ExpantaNum(5d) * modifiers.GlobalFoodProductionMultiplier -
                 state.Population * new ExpantaNum(0.8d);
@@ -542,7 +557,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             foreach (var building in active)
                 Accumulate(building, production, consumption, ref foodNet, ref foodProduction);
             var foodAvailability = CalculateFoodAvailability(state.Food, foodProduction, foodDemand, seconds);
-            happiness = CalculateHappiness(foodNet, state.Population, foodAvailability, modifiers.HappinessBonus);
+            happiness = HappinessFormula.CalculateMultiplier(foodNet, state.Population, foodAvailability, modifiers.HappinessBonus);
             if (seconds <= 0d || correction == definitions.Resources.Count + 2)
                 return happiness;
             var reward = ExpantaNum.Max(ExpantaNum.One, happiness);
@@ -608,7 +623,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             var selectedLogisticsProduction = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, true));
             var selectedLogisticsConsumption = affected.Aggregate(ExpantaNum.Zero, (sum, item) => sum + Flow(item, false, false));
             var minimumReward = ExpantaNum.Min(reward, ExpantaNum.Max(ExpantaNum.One,
-                CalculateHappiness(foodNet - affectedFoodNet, state.Population,
+                HappinessFormula.CalculateMultiplier(foodNet - affectedFoodNet, state.Population,
                     CalculateFoodAvailability(state.Food, foodProduction - affectedFoodProduction, foodDemand, seconds),
                     modifiers.HappinessBonus)));
             ExpantaNum low = ExpantaNum.One, high = ExpantaNum.One;
@@ -656,7 +671,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                     candidateLogisticsProduction += Flow(building, false, true, candidate);
                     candidateLogisticsConsumption += Flow(building, false, false, candidate);
                 }
-                var candidateReward = ExpantaNum.Max(ExpantaNum.One, CalculateHappiness(
+                var candidateReward = ExpantaNum.Max(ExpantaNum.One, HappinessFormula.CalculateMultiplier(
                     (foodNet - affectedFoodNet) + candidateFood, state.Population,
                     CalculateFoodAvailability(state.Food, foodProduction - affectedFoodProduction + candidateFoodProduction,
                         foodDemand, seconds),
@@ -724,19 +739,21 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
     private void ApplyGame(SimulationState state, SimulationTickContext context, TickFrame frame)
     {
         var beforeFood = state.Food;
+        var fedSeconds = context.DeltaSeconds;
+        var deficit = frame.FoodConsumption - frame.FoodProduction;
+        if (deficit > ExpantaNum.Zero && beforeFood < deficit * context.DeltaSeconds)
+            fedSeconds = Math.Min(context.DeltaSeconds, Math.Max(0d, (beforeFood / deficit).ToDouble()));
         state.AdvanceFood(frame.FoodProduction, frame.FoodConsumption, context.DeltaSeconds);
         if (state.Food != beforeFood)
             context.Events.Add(context.Tick, state.ElapsedSeconds, context.Mode,
                 SimulationEventKind.FoodChanged, "Food", "advanced", state.Food - beforeFood);
 
         var beforePopulation = state.Population;
-        var shortage = state.Food <= ExpantaNum.Zero &&
-            frame.FoodProduction - frame.FoodConsumption < ExpantaNum.Zero;
-        state.AdvancePopulation(
-            context.DeltaSeconds,
-            frame.Happiness,
-            new ExpantaNum(1d / 60d) * frame.Modifiers.PopulationGrowthMultiplier,
-            shortage);
+        var growthRate = new ExpantaNum(1d / 60d) * frame.Modifiers.PopulationGrowthMultiplier;
+        state.AdvancePopulation(fedSeconds, CurrentHappiness(state, frame), growthRate, false);
+        var unfedSeconds = context.DeltaSeconds - fedSeconds;
+        if (unfedSeconds > 0d)
+            state.AdvancePopulation(unfedSeconds, CurrentHappiness(state, frame), growthRate, true);
         if (state.Population != beforePopulation)
             context.Events.Add(context.Tick, state.ElapsedSeconds, context.Mode,
                 SimulationEventKind.Diagnostic, "Population", "changed", state.Population - beforePopulation);
@@ -890,42 +907,30 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         var remainingSeconds = context.DeltaSeconds;
         while (remainingSeconds > 0d)
         {
-            if (state.ActiveResearch is null)
-            {
-                var next = state.ResearchQueue.FirstOrDefault(id =>
-                    !state.GetResearchState(id).Completed &&
-                    definitions!.Research.TryGetValue(id, out var definition) &&
-                    CanAccessResearch(state, definition) &&
-                    AreResearchPrerequisitesCompleted(state, definition));
-                if (next is null)
-                    return;
-                state.SetActiveResearch(next);
-            }
+            TryStartNextQueuedResearch(state, context);
 
             if (state.ActiveResearch is not { } researchId)
                 return;
             var researchState = state.GetResearchState(researchId);
-            if (!researchState.CostPaid && !TryPayResearch(state, researchId))
-                return;
             if (!researchState.CostPaid)
-                context.Events.Add(context.Tick, state.ElapsedSeconds, context.Mode,
-                    SimulationEventKind.ResearchChanged, researchId, "paid");
+                return;
 
             var research = definitions!.Research[researchId];
             researchState = state.GetResearchState(researchId);
             var speed = ResearchSpeedEffect(state.TechLevel, research.TechLevel) *
-                frame.ResearchPower * frame.Happiness;
+                frame.ResearchPower * CurrentHappiness(state, frame);
             if (speed <= ExpantaNum.Zero)
                 return;
             var remainingProgress = ExpantaNum.Max(
                 ExpantaNum.Zero,
                 Parse(research.BaseCost) - researchState.Progress);
-            var secondsToCompletion = (remainingProgress / speed).ToDouble();
-            var step = Math.Min(remainingSeconds, Math.Max(0d, secondsToCompletion));
-            var nextProgress = ExpantaNum.Min(
-                Parse(research.BaseCost),
-                researchState.Progress + speed * step);
-            remainingSeconds -= step;
+            var cost = Parse(research.BaseCost);
+            var nextProgress = ExpantaNum.Min(cost, researchState.Progress + speed * remainingSeconds);
+            // Completion is established before the time conversion, as in Runtime TickOffline.
+            if (nextProgress >= cost && context.Mode == SimulationMode.Offline)
+                remainingSeconds -= Math.Min(remainingSeconds, Math.Max(0d, (remainingProgress / speed).ToDouble()));
+            else
+                remainingSeconds = 0d;
             state.SetResearchState(
                 researchId,
                 nextProgress,
@@ -951,7 +956,29 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             this.frame = null;
             EnsureFrame(state, context);
             frame = this.frame!;
+            TryStartNextQueuedResearch(state, context);
         }
+    }
+
+    private void TryStartNextQueuedResearch(SimulationState state, SimulationTickContext context)
+    {
+        if (state.ActiveResearch is not null)
+            return;
+        while (state.ResearchQueue.FirstOrDefault() is { } completed &&
+               state.GetResearchState(completed).Completed)
+            state.DequeueResearch();
+        var next = state.ResearchQueue.FirstOrDefault();
+        if (next is null || !definitions!.Research.TryGetValue(next, out var definition) ||
+            !CanAccessResearch(state, definition) || !AreResearchPrerequisitesCompleted(state, definition))
+            return;
+        var wasPaid = state.GetResearchState(next).CostPaid;
+        if (!TryPayResearch(state, next))
+            return;
+        state.DequeueResearch();
+        state.SetActiveResearch(next);
+        if (!wasPaid)
+            context.Events.Add(context.Tick, state.ElapsedSeconds, context.Mode,
+                SimulationEventKind.ResearchChanged, next, "paid");
     }
 
     private bool TryPayResearch(SimulationState state, string researchId)
@@ -1140,27 +1167,11 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         return ExpantaNum.Clamp01(available / demand);
     }
 
-    private static ExpantaNum CalculateHappiness(
-        ExpantaNum foodNetRate,
-        ExpantaNum population,
-        ExpantaNum foodAvailability,
-        ExpantaNum happinessBonus)
-    {
-        var availability = ExpantaNum.Clamp01(foodAvailability);
-        var safePopulation = ExpantaNum.Max(ExpantaNum.One, population);
-        if (foodNetRate < ExpantaNum.Zero)
-            return ExpantaNum.Min(availability, ExpantaNum.Clamp01(
-                ExpantaNum.One / (ExpantaNum.One + -foodNetRate / safePopulation)));
-        if (availability < ExpantaNum.One)
-            return availability;
-        var score = (ExpantaNum.One + foodNetRate / safePopulation).Log10();
-        if (score < ExpantaNum.Zero)
-            return ExpantaNum.One;
-        var saturation = score / (score + ExpantaNum.One);
-        return ExpantaNum.Min(
-            new ExpantaNum(1.5d),
-            ExpantaNum.One + new ExpantaNum(0.5d) * saturation + happinessBonus);
-    }
+    private static ExpantaNum CurrentHappiness(SimulationState state, TickFrame frame) =>
+        HappinessFormula.CalculateMultiplier(
+            frame.FoodProduction - frame.FoodConsumption -
+                (state.Population - frame.PreparedPopulation) * PopulationState.FoodConsumptionPerPerson,
+            state.Population, frame.FoodAvailability, frame.Modifiers.HappinessBonus);
 
     private static ExpantaNum CalculateFlowSatisfaction(
         ExpantaNum production,
@@ -1235,7 +1246,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         ExpantaNum LogisticsProduction,
         ExpantaNum LogisticsConsumption,
         ExpantaNum ResearchPower,
-        long ActiveBuildings);
+        long ActiveBuildings,
+        ExpantaNum PreparedPopulation);
 }
 
 public sealed class SimulationCore

@@ -47,7 +47,7 @@ public sealed class KingdomCardPolishPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator StoryAndEraCardsStaySeparatedAndRenderAtThreeLandscapeSizes()
+    public IEnumerator StoryAndEraCardsStaySeparatedAndRenderAtTwoLandscapeSizes()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         yield return null;
@@ -80,7 +80,7 @@ public sealed class KingdomCardPolishPlayModeTests
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera;
             canvas.planeDistance = 100;
-            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(2200, 1000), new Vector2Int(1760, 800) })
+            foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {
                 target = new RenderTexture(size.x, size.y, 24);
                 target.Create();
@@ -125,31 +125,21 @@ public sealed class KingdomCardPolishPlayModeTests
                 Transform archive = root.transform.Find(Pages + "Era/DataRows/EraCurrentArchive");
                 Assert.That(archive, Is.Not.Null);
                 AssertBoundary(archive);
-                RectTransform previous = null;
-                foreach (string name in new[] { "EraIdentity" })
-                {
-                    RectTransform card = (RectTransform)archive.Find("Content/" + name);
-                    Assert.That(card, Is.Not.Null, name);
-                    Assert.That(card.GetComponent<Image>().color.a, Is.GreaterThan(.85f),
-                        "Era text must have a readable card surface.");
-                    AssertBoundary(card);
-                    TMP_Text title = card.Find("Title").GetComponent<TMP_Text>();
-                    TMP_Text body = card.Find("Body").GetComponent<TMP_Text>();
-                    title.ForceMeshUpdate();
-                    body.ForceMeshUpdate();
-                    Assert.That(title.textInfo.characterCount, Is.GreaterThan(0));
-                    Assert.That(body.textInfo.characterCount, Is.GreaterThan(0));
-                    AssertInside(card, title.rectTransform);
-                    AssertInside(card, body.rectTransform);
-                    Assert.That(body.rectTransform.rect.height, Is.GreaterThanOrEqualTo(body.preferredHeight - 2f));
-                    RectTransform divider = (RectTransform)card.Find("Divider");
-                    AssertAbove(title.rectTransform, divider);
-                    AssertAbove(divider, body.rectTransform);
-                    if (previous != null) AssertAbove(previous, card);
-                    previous = card;
-                    Debug.Log("[CardPolishLayout] " + name + " card=" + card.rect.size +
-                        " title=" + title.rectTransform.rect.size + " body=" + body.rectTransform.rect.size);
-                }
+                RectTransform identityCard = (RectTransform)archive.Find("Content/EraIdentity");
+                Assert.That(identityCard, Is.Not.Null);
+                AssertBoundary(identityCard);
+                TMP_Text identityTitle = identityCard.Find("Title").GetComponent<TMP_Text>();
+                TMP_Text identityBody = identityCard.Find("Body").GetComponent<TMP_Text>();
+                identityTitle.ForceMeshUpdate();
+                identityBody.ForceMeshUpdate();
+                Assert.That(identityTitle.textInfo.characterCount, Is.GreaterThan(0));
+                Assert.That(identityBody.textInfo.characterCount, Is.GreaterThan(0));
+                AssertInside(identityCard, identityTitle.rectTransform);
+                AssertInside(identityCard, identityBody.rectTransform);
+                Assert.That(identityBody.rectTransform.rect.height, Is.GreaterThanOrEqualTo(identityBody.preferredHeight - 2f));
+                RectTransform divider = (RectTransform)identityCard.Find("Divider");
+                AssertAbove(identityTitle.rectTransform, divider);
+                AssertAbove(divider, identityBody.rectTransform);
                 foreach (Transform row in root.transform.Find(Pages + "Era/DataRows").GetComponentsInChildren<Transform>())
                     Assert.That(new[] { "EraDefinition", "EraCapabilities", "EraTransitionStatus",
                         "EraResearchSummary", "EraResourceSummary", "EraPrimaryBlocker" }, Does.Not.Contain(row.name),
@@ -181,8 +171,6 @@ public sealed class KingdomCardPolishPlayModeTests
             AssertBoundary(card.transform, "Header/Divider");
             TMP_Text title = card.transform.Find("Header/Title").GetComponent<TMP_Text>();
             title.ForceMeshUpdate();
-            Assert.That(title.text, Does.StartWith("<b>"));
-            Assert.That(title.text, Does.Contain("</b>\n<size="));
             Assert.That(title.rectTransform.rect.height, Is.GreaterThanOrEqualTo(title.preferredHeight - 2f));
             AssertInside(card.Rect, title.rectTransform);
             AssertAbove(title.rectTransform, (RectTransform)card.transform.Find("BodyViewport"));

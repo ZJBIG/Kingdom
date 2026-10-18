@@ -1,0 +1,70 @@
+{
+  "All": {
+    "lines": {
+      "before": 34865,
+      "after": 33294,
+      "removed": 1571
+    },
+    "assertions": {
+      "before": 6479,
+      "after": 5918,
+      "removed": 561
+    },
+    "testMethods": {
+      "before": 920,
+      "after": 864,
+      "removed": 56
+    },
+    "testCases": {
+      "before": 183,
+      "after": 180,
+      "removed": 3
+    }
+  },
+  "Editor": {
+    "lines": {
+      "before": 26725,
+      "after": 25445,
+      "removed": 1280
+    },
+    "assertions": {
+      "before": 5109,
+      "after": 4706,
+      "removed": 403
+    },
+    "testMethods": {
+      "before": 823,
+      "after": 770,
+      "removed": 53
+    },
+    "testCases": {
+      "before": 179,
+      "after": 176,
+      "removed": 3
+    }
+  },
+  "PlayMode": {
+    "lines": {
+      "before": 8140,
+      "after": 7849,
+      "removed": 291
+    },
+    "assertions": {
+      "before": 1370,
+      "after": 1212,
+      "removed": 158
+    },
+    "testMethods": {
+      "before": 97,
+      "after": 94,
+      "removed": 3
+    },
+    "testCases": {
+      "before": 4,
+      "after": 4,
+      "removed": 0
+    }
+  },
+  "changedTestFiles": 55,
+  "priorProductionUnchanged": true
+}

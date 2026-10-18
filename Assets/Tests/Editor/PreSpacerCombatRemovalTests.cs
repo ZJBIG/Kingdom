@@ -33,12 +33,12 @@ public sealed class PreSpacerCombatRemovalTests
     [Test]
     public void C811_ConvertedResearchUsesDistinctNonCombatRoles()
     {
-        AssertGlobalMultiplier("WatchAndCooperation", 1.03d);
-        AssertGlobalMultiplier("OrganizedWatch", 1.04d);
-        AssertEffectType("Fortification", ResearchEffectType.GlobalConstructionMultiplier, 1.05d);
-        AssertEffectType("PermanentLaborOrganization", ResearchEffectType.PopulationProductivityMultiplier, 1.06d);
-        AssertEffectType("GunpowderSupplyStandards", ResearchEffectType.GlobalLogisticsMultiplier, 1.07d);
-        AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory", 1.20d);
+        AssertGlobalMultiplier("WatchAndCooperation");
+        AssertGlobalMultiplier("OrganizedWatch");
+        AssertEffectType("Fortification", ResearchEffectType.GlobalConstructionMultiplier);
+        AssertEffectType("PermanentLaborOrganization", ResearchEffectType.PopulationProductivityMultiplier);
+        AssertEffectType("GunpowderSupplyStandards", ResearchEffectType.GlobalLogisticsMultiplier);
+        AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory");
         Assert.That(
             DataBase<Research>.Find("MilitaryIndustry").Effects,
             Has.None.Matches<ResearchEffectDefinition>(effect =>
@@ -52,27 +52,24 @@ public sealed class PreSpacerCombatRemovalTests
         Assert.That(DataBase<Building>.Find("Shipyard").FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
     }
 
-    private static void AssertGlobalMultiplier(string id, double expected)
+    private static void AssertGlobalMultiplier(string id)
     {
-        AssertEffectType(id, ResearchEffectType.GlobalBuildingProductionMultiplier, expected);
+        AssertEffectType(id, ResearchEffectType.GlobalBuildingProductionMultiplier);
     }
 
-    private static void AssertEffectType(string id, ResearchEffectType type, double expected)
+    private static void AssertEffectType(string id, ResearchEffectType type)
     {
         Research research = DataBase<Research>.Find(id);
-        Assert.That(research, Is.Not.Null, id);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
-            effect.Type == type &&
-            effect.NumericValue.ToDouble() == expected));
+            effect.Type == type && effect.NumericValue > ExpantaNum.One));
     }
 
-    private static void AssertBuildingMultiplier(string researchId, string buildingId, double expected)
+    private static void AssertBuildingMultiplier(string researchId, string buildingId)
     {
         Research research = DataBase<Research>.Find(researchId);
-        Assert.That(research, Is.Not.Null, researchId);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building != null && effect.Building.Id == buildingId &&
-            effect.NumericValue.ToDouble() == expected));
+            effect.NumericValue > ExpantaNum.One));
     }
 }

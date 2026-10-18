@@ -1,0 +1,6 @@
+# Round6: shared online/offline food exhaustion boundary
+GameManager.AdvanceSimulationCore previously used final food stock to classify the complete tick as starvation. Now it compares initial stock with the original tick deficit, advances food once, then advances population in chronological fed/unfed segments. Sufficient stock avoids conversion to double; exhausted partial coverage is clamped. Existing per-tick food/efficiency snapshots, happiness formula and calendar timing remain intact. No definition/save schema/asset changes.
+
+before.xml: 2/4 failures (exact exhaustion and half coverage), zero stock and sufficient stock controls passed. integration-before.xml: both online and offline exact coverage fail. After fix verified.xml: 248/248 passed, 2.5507196 seconds. Real Unity compiled and exited normally (runner0). Developer build exit0, 0 errors/6 existing warnings. Independent read-only review found no issue in the patch; broader continuous food/population integration is outside the existing per-tick model.
+
+No PlayMode/full-suite/profiling/real saves/commit/push. Preserve all prior changes via baseline/byte backups and isolated round6-only.patch. Goal remains active and now prioritizes larger coherent runtime work: next production resource-budget correction pipeline.

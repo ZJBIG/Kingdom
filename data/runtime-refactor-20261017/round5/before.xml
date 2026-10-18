@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Failed(Child)" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 04:27:06Z" end-time="2026-10-18 04:27:07Z" duration="0.427033">
+  <test-suite type="TestSuite" id="2079" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="935" result="Failed" site="Child" start-time="2026-10-18 04:27:06Z" end-time="2026-10-18 04:27:07Z" duration="0.427033" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3148" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="934" result="Failed" site="Child" start-time="2026-10-18 04:27:06Z" end-time="2026-10-18 04:27:07Z" duration="0.411951" total="3" passed="0" failed="3" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="22332" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2230" name="EconomyIntegrationRegressionTests" fullname="EconomyIntegrationRegressionTests" classname="EconomyIntegrationRegressionTests" runstate="Runnable" testcasecount="37" result="Failed" site="Child" start-time="2026-10-18 04:27:06Z" end-time="2026-10-18 04:27:07Z" duration="0.369611" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2232" name="PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress" fullname="EconomyIntegrationRegressionTests.PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress" methodname="PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress" classname="EconomyIntegrationRegressionTests" runstate="Runnable" seed="518388592" result="Failed" start-time="2026-10-18 04:27:06Z" end-time="2026-10-18 04:27:07Z" duration="0.355214" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[  Expected: 0.50004000000000004d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+            <stack-trace><![CDATA[at EconomyIntegrationRegressionTests.PopulationSaveRoundTrip_FullHousingPreservesStarvationDepartureProgress () [0x0017e] in D:\GitHub\Kingdom\Assets\Tests\Editor\EconomyIntegrationRegressionTests.cs:98
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2360" name="KingdomLogicTests" fullname="KingdomLogicTests" classname="KingdomLogicTests" runstate="Runnable" testcasecount="160" result="Failed" site="Child" start-time="2026-10-18 04:27:07Z" end-time="2026-10-18 04:27:07Z" duration="0.022829" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="ParameterizedMethod" id="2457" name="PopulationChange_FullCapacityRestorePreservesDepartureProgress" fullname="KingdomLogicTests.PopulationChange_FullCapacityRestorePreservesDepartureProgress" classname="KingdomLogicTests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2026-10-18 04:27:07Z" end-time="2026-10-18 04:27:07Z" duration="0.004663" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="2455" name="PopulationChange_FullCapacityRestorePreservesDepartureProgress(False)" fullname="KingdomLogicTests.PopulationChange_FullCapacityRestorePreservesDepartureProgress(False)" methodname="PopulationChange_FullCapacityRestorePreservesDepartureProgress" classname="KingdomLogicTests" runstate="Runnable" seed="240436819" result="Failed" start-time="2026-10-18 04:27:07Z" end-time="2026-10-18 04:27:07Z" duration="0.002194" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: 0.50004000000000004d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_FullCapacityRestorePreservesDepartureProgress (System.Boolean rollback) [0x000c8] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1724
+]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="2456" name="PopulationChange_FullCapacityRestorePreservesDepartureProgress(True)" fullname="KingdomLogicTests.PopulationChange_FullCapacityRestorePreservesDepartureProgress(True)" methodname="PopulationChange_FullCapacityRestorePreservesDepartureProgress" classname="KingdomLogicTests" runstate="Runnable" seed="1040218382" result="Failed" start-time="2026-10-18 04:27:07Z" end-time="2026-10-18 04:27:07Z" duration="0.000724" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[  Expected: 0.50004000000000004d +/- 1.0000000000000001E-09d
+  But was:  0.0d
+]]></message>
+              <stack-trace><![CDATA[at KingdomLogicTests.PopulationChange_FullCapacityRestorePreservesDepartureProgress (System.Boolean rollback) [0x000c8] in D:\GitHub\Kingdom\Assets\Tests\Editor\KingdomLogicTests.cs:1724
+]]></stack-trace>
+            </failure>
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

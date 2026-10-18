@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Kingdom.NewEconomySimulator;
 
-public static class SnapshotFormat { public const int CurrentVersion = 3; }
+public static class SnapshotFormat { public const int CurrentVersion = 4; }
 
 public sealed class EconomySnapshot
 {
@@ -28,7 +28,7 @@ public abstract class DefinitionSnapshot
     public string TechLevel { get; set; } = "";
 }
 
-public sealed class ResourceSnapshot : DefinitionSnapshot { public string Label { get; set; } = ""; public string Description { get; set; } = ""; }
+public sealed class ResourceSnapshot : DefinitionSnapshot { public string BaseProductionRate { get; set; } = "0"; public string Label { get; set; } = ""; public string Description { get; set; } = ""; }
 
 public sealed class BuildingSnapshot : DefinitionSnapshot
 {
@@ -86,7 +86,7 @@ public class StateSnapshot
 public sealed class InitialStateSnapshot : StateSnapshot { }
 public class SaveStateSnapshot : StateSnapshot
 {
-    public int CalendarDays { get; set; } public string Population { get; set; } = "0"; public string TerritoryTotal { get; set; } = "0"; public string AttackPower { get; set; } = "0"; public string DefensePower { get; set; } = "0"; public string FleetPower { get; set; } = "0"; public string MilitaryManpower { get; set; } = "0"; public string SupplySatisfaction { get; set; } = "1"; public string PowerSatisfaction { get; set; } = "1"; public string LogisticsSatisfaction { get; set; } = "1"; public bool CampaignActive { get; set; } public string CampaignTargetSectorId { get; set; } = ""; public string CampaignCasualties { get; set; } = "0"; public string CampaignCombatRatio { get; set; } = "0"; public string ActiveResearchId { get; set; } = ""; public List<string> QueuedResearchIds { get; set; } = new(); public long LastSaveUnixSeconds { get; set; }
+    public int CalendarDays { get; set; } public string Population { get; set; } = "0"; public string PopulationChangeProgress { get; set; } = "0"; public string TerritoryTotal { get; set; } = "0"; public string AttackPower { get; set; } = "0"; public string DefensePower { get; set; } = "0"; public string FleetPower { get; set; } = "0"; public string MilitaryManpower { get; set; } = "0"; public string SupplySatisfaction { get; set; } = "1"; public string PowerSatisfaction { get; set; } = "1"; public string LogisticsSatisfaction { get; set; } = "1"; public bool CampaignActive { get; set; } public string CampaignTargetSectorId { get; set; } = ""; public string CampaignCasualties { get; set; } = "0"; public string CampaignCombatRatio { get; set; } = "0"; public string ActiveResearchId { get; set; } = ""; public List<string> QueuedResearchIds { get; set; } = new(); public long LastSaveUnixSeconds { get; set; }
 }
 public sealed class RuntimeStateSnapshot : SaveStateSnapshot
 {

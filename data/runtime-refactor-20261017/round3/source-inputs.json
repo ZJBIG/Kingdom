@@ -1,0 +1,14 @@
+[
+  {
+    "path": "Assets/Resources/Script/Manager/WorkshopManager.cs",
+    "sha256": "87622e2fb81921a43badce133eb852064cb1bc9de40c73cc30158b7fad2d09d5",
+    "lines": 423,
+    "baseline_lines": 413
+  },
+  {
+    "path": "Assets/Tests/Editor/EconomyIntegrationRegressionTests.cs",
+    "sha256": "b26e43cb5e7bc7c49cc8ceedbf727300cff74801d3159fa07853e44416b9db04",
+    "lines": 1232,
+    "baseline_lines": 1134
+  }
+]

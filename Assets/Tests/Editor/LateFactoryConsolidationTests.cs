@@ -23,7 +23,6 @@ public sealed class LateFactoryConsolidationTests
         foreach (string id in legacyMaterialFactories)
         {
             Building legacy = DataBase<Building>.Find(id);
-            Assert.That(legacy, Is.Not.Null, id);
             Assert.That(legacy.UpgradeTo, Is.SameAs(hub),
                 $"后期材料链没有收敛到综合工厂：{id}");
         }
@@ -65,7 +64,6 @@ public sealed class LateFactoryConsolidationTests
     public void SpacerEcologyRemainsASeparateFoodAndBiomassMechanism()
     {
         Building ecology = DataBase<Building>.Find("OrbitalAgroecologyArray");
-        Assert.That(ecology, Is.Not.Null);
         Assert.That(ecology.UpgradeTo, Is.Null);
         Assert.That(ecology.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(HasPositiveRate(

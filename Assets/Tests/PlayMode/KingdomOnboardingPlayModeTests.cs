@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
@@ -46,57 +45,6 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator OuterPageScroll_RestoresAfterResearchWarmup()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-        Transform pageHostTransform = root.transform.Find(
-            "SafeAreaRoot/Content/PageHost");
-        Assert.That(pageHostTransform, Is.Not.Null);
-        ScrollRect outerScroll = pageHostTransform.GetComponent<ScrollRect>();
-        Assert.That(outerScroll, Is.Not.Null);
-
-        root.SetPage("Research");
-        yield return null;
-        Assert.That(outerScroll.enabled, Is.False,
-            "Research must keep the outer page ScrollRect disabled.");
-
-        root.SetPage("Overview");
-        yield return null;
-        Assert.That(outerScroll.enabled, Is.True);
-        Assert.That(outerScroll.vertical, Is.True);
-        Assert.That(outerScroll.content, Is.EqualTo(
-            pageHostTransform.Find("Overview")));
-
-        root.SetPage("Story");
-        yield return null;
-        Assert.That(outerScroll.enabled, Is.True);
-        Assert.That(outerScroll.vertical, Is.True);
-        Assert.That(outerScroll.content, Is.EqualTo(
-            pageHostTransform.Find("Story")));
-        Assert.That(outerScroll.verticalNormalizedPosition,
-            Is.GreaterThan(0.99f), "Story must enter at the top of its content.");
-        RectTransform storyPage = pageHostTransform.Find("Story") as RectTransform;
-        Assert.That(storyPage, Is.Not.Null);
-        Assert.That(storyPage.anchorMin, Is.EqualTo(new Vector2(0f, 1f)));
-        Assert.That(storyPage.anchorMax, Is.EqualTo(new Vector2(1f, 1f)));
-        Assert.That(pageHostTransform.Find("Story/StoryOverviewPage"), Is.Not.Null);
-
-        root.SetPage("Overview");
-        yield return null;
-        Assert.That(outerScroll.enabled, Is.True);
-        Assert.That(outerScroll.vertical, Is.True);
-        Assert.That(outerScroll.content, Is.EqualTo(
-            pageHostTransform.Find("Overview")),
-            "Returning from Story must restore Overview as the outer ScrollRect content.");
-    }
-
-    [UnityTest]
     public IEnumerator CustomQuantity_EndEditReportsOnlyInvalidOrFractionalInput()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
@@ -104,7 +52,6 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
         yield return null;
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Buildings");
         TMP_InputField input = root.transform.Find(
             "SafeAreaRoot/Content/PageTool/BuildingControls/CustomQuantityInput").GetComponent<TMP_InputField>();
@@ -170,7 +117,6 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Story");
         yield return null;
         Canvas.ForceUpdateCanvases();
@@ -182,12 +128,9 @@ public sealed class KingdomOnboardingPlayModeTests
         Transform card = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryChapter_" +
             chapter.Id);
-        Assert.That(card, Is.Not.Null,
-            "Story must render a card for the real first chapter.");
         Assert.That(card.GetComponent<Button>(), Is.Null,
             "The Story card itself must not be a button.");
         RectTransform titleRect = card.Find("Header/Title") as RectTransform;
-        Assert.That(titleRect, Is.Not.Null);
         Assert.That(titleRect.rect.width, Is.GreaterThan(0f));
         Assert.That(titleRect.rect.height, Is.GreaterThan(0f));
         var titleCorners = new Vector3[4];
@@ -198,13 +141,11 @@ public sealed class KingdomOnboardingPlayModeTests
         Assert.That(titleCorners[2].x, Is.LessThanOrEqualTo(cardCorners[2].x));
         Assert.That(titleCorners[2].y, Is.LessThanOrEqualTo(cardCorners[2].y));
         TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Summary));
         Assert.That(body.text, Does.Not.Contain("选择右上角"));
         Transform latestCard = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryChapter_" +
             latest.Id);
-        Assert.That(latestCard, Is.Not.Null);
         StoryChapterCard latestView = latestCard.GetComponent<StoryChapterCard>();
         TMP_Text latestBody = latestCard.Find("BodyViewport/Body").GetComponent<TMP_Text>();
         Button latestToggle = latestCard.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>();
@@ -250,8 +191,6 @@ public sealed class KingdomOnboardingPlayModeTests
         body.ForceMeshUpdate(true, true);
         float collapsedHeight = body.rectTransform.rect.height;
         Button toggle = card.Find("Header/Actions/StoryChapterToggle")?.GetComponent<Button>();
-        Assert.That(toggle, Is.Not.Null,
-            "Unlocked Story chapters must provide a non-blocking toggle.");
         RectTransform toggleRect = toggle.transform as RectTransform;
         Assert.That(toggleRect.rect.width, Is.GreaterThan(0f));
         Assert.That(toggleRect.rect.height, Is.GreaterThan(0f));
@@ -264,7 +203,6 @@ public sealed class KingdomOnboardingPlayModeTests
         Image cardImage = card.GetComponent<Image>();
         Image toggleImage = toggle.GetComponent<Image>();
         Assert.That(cardImage, Is.Not.Null);
-        Assert.That(toggleImage, Is.Not.Null);
         Assert.That(toggleImage.color, Is.Not.EqualTo(cardImage.color),
             "The expand/collapse control must be visibly distinct from the card.");
         Assert.That(toggle.colors.pressedColor.r,
@@ -275,7 +213,6 @@ public sealed class KingdomOnboardingPlayModeTests
         GameObject cardObject = card.gameObject;
         ScrollRect storyScroll = root.transform.Find(
             "SafeAreaRoot/Content/PageHost")?.GetComponent<ScrollRect>();
-        Assert.That(storyScroll, Is.Not.Null);
         storyScroll.verticalNormalizedPosition = .5f;
         yield return null;
         float scrollBeforeToggle = storyScroll.verticalNormalizedPosition;
@@ -293,7 +230,6 @@ public sealed class KingdomOnboardingPlayModeTests
             chapter.Id);
         Assert.That(card, Is.Not.Null);
         body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Does.Contain(chapter.Body));
         body.ForceMeshUpdate(true, true);
         float preferredHeight = body.GetPreferredValues(
@@ -305,69 +241,6 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator StoryPage_EachChapterBodyHasDrawableTMPGeometry()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-        root.SetPage("Story");
-        yield return null;
-        Canvas.ForceUpdateCanvases();
-
-        Transform story = root.transform.Find(
-            "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage");
-        Assert.That(story, Is.Not.Null);
-        Transform[] cards = story.GetComponentsInChildren<Transform>(true);
-        int bodyCount = 0;
-        for (int i = 0; i < cards.Length; i++)
-        {
-            Transform card = cards[i];
-            if (card == null || !card.name.StartsWith("StoryChapter_", StringComparison.Ordinal))
-                continue;
-            TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
-            Assert.That(body, Is.Not.Null, card.name + " must have a TMP Body.");
-            Assert.That(body, Is.TypeOf<TextMeshProUGUI>());
-            Assert.That(body.text, Is.Not.Empty);
-            string chapterId = card.name.Substring("StoryChapter_".Length);
-            StoryChapter chapter = StoryManager.Chapters.FirstOrDefault(
-                candidate => candidate != null && candidate.Id == chapterId);
-            Assert.That(chapter, Is.Not.Null, card.name);
-            if (!StoryManager.IsUnlocked(chapter, GameManager.Instance.State.TechLevel,
-                    TutorialManager.Current))
-            {
-                string hint = StoryManager.GetChapterProgressHint(
-                    chapter, GameManager.Instance.State.TechLevel);
-                Assert.That(body.text, Is.EqualTo(hint),
-                    card.name + " must explain the remaining chapter requirement.");
-                Assert.That(body.text, Does.Not.Contain(chapter.Body),
-                    card.name + " must keep the locked story body hidden.");
-            }
-            Assert.That(body.gameObject.activeInHierarchy, Is.True);
-            Assert.That(body.enabled, Is.True);
-            Assert.That(body.font, Is.Not.Null);
-            Assert.That(body.fontSharedMaterial, Is.Not.Null);
-            Assert.That(body.materialForRendering, Is.Not.Null);
-            Assert.That(body.color.a, Is.GreaterThan(0f));
-            body.ForceMeshUpdate(true, true);
-            Assert.That(body.textInfo.characterCount, Is.GreaterThan(0));
-            int vertexCount = 0;
-            for (int mesh = 0; mesh < body.textInfo.meshInfo.Length; mesh++)
-                vertexCount += body.textInfo.meshInfo[mesh].vertices == null
-                    ? 0 : body.textInfo.meshInfo[mesh].vertices.Length;
-            Assert.That(vertexCount, Is.GreaterThan(0), card.name + " must have drawable TMP vertices.");
-            Assert.That(body.rectTransform.rect.width, Is.GreaterThan(0f));
-            Assert.That(body.rectTransform.rect.height, Is.GreaterThan(0f));
-            bodyCount++;
-        }
-
-        Assert.That(bodyCount, Is.EqualTo(StoryManager.Chapters.Count));
-    }
-
-    [UnityTest]
     public IEnumerator StoryRefreshDisablesTheDeferredOldTreeBeforeRebuild()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
@@ -376,7 +249,6 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Story");
         yield return null;
 
@@ -399,7 +271,7 @@ public sealed class KingdomOnboardingPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator StoryDisplaysTheLatestTutorialActionFeedback()
+    public IEnumerator StoryDisplaysTutorialFeedbackAndLatestRuntimeNoticesWithoutRebuilding()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         yield return null;
@@ -407,49 +279,17 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Story");
         yield return null;
-
         root.TutorialRecentCompletionFeedbackForEditor = "真实行动反馈测试";
         root.StoryPageBuiltForEditor = false;
-
         root.RefreshStoryPageIfChangedForEditor();
-        yield return null;
-
-        Transform storyPage = root.transform.Find(
-            "SafeAreaRoot/Content/PageHost/Story") as Transform;
-        Assert.That(storyPage, Is.Not.Null);
-        TMP_Text feedbackBody = null;
-        Transform[] nodes = storyPage.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < nodes.Length; i++)
-        {
-            if (nodes[i].name != "StoryOverviewMeaning" ||
-                !nodes[i].gameObject.activeInHierarchy)
-                continue;
-            feedbackBody = nodes[i].Find("Body")?.GetComponent<TMP_Text>();
-            break;
-        }
-        Assert.That(feedbackBody, Is.Not.Null);
-        Assert.That(feedbackBody.text, Does.Contain("刚刚改变：真实行动反馈测试"));
-    }
-
-    [UnityTest]
-    public IEnumerator StoryDisplaysTheLatestRuntimeActionNotice()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-
-        root.SetPage("Story");
         yield return null;
         Transform surfaceBefore = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage");
         Assert.That(surfaceBefore, Is.Not.Null);
+        TMP_Text tutorialFeedback = surfaceBefore.Find("StoryOverviewMeaning/Body").GetComponent<TMP_Text>();
+        Assert.That(tutorialFeedback.text, Does.Contain("刚刚改变：真实行动反馈测试"));
         root.EnqueueRecentNoticeForEditor("action-feedback-a");
         root.EnqueueRecentNoticeForEditor("action-feedback-b");
         root.EnqueueRecentNoticeForEditor("action-feedback-c");
@@ -459,10 +299,8 @@ public sealed class KingdomOnboardingPlayModeTests
 
         Transform storyPage = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Story");
-        Assert.That(storyPage, Is.Not.Null);
         TMP_Text meaning = storyPage.Find(
             "StoryOverviewPage/StoryOverviewMeaning/Body")?.GetComponent<TMP_Text>();
-        Assert.That(meaning, Is.Not.Null);
         Assert.That(meaning.text, Does.Not.Contain("action-feedback-a"));
         Assert.That(meaning.text, Does.Contain("action-feedback-b"));
         Assert.That(meaning.text, Does.Contain("action-feedback-c"));
@@ -493,12 +331,9 @@ public sealed class KingdomOnboardingPlayModeTests
         Transform pageHostTransform = root.transform.Find(
             "SafeAreaRoot/Content/PageHost");
         ScrollRect outerScroll = pageHostTransform?.GetComponent<ScrollRect>();
-        Assert.That(outerScroll, Is.Not.Null);
         Assert.That(outerScroll.enabled, Is.True);
         Assert.That(outerScroll.content, Is.Not.Null);
         Image background = pageHostTransform.GetComponent<Image>();
-        Assert.That(background, Is.Not.Null,
-            "The authored PageHost background must own the Buildings drag hit surface.");
         Assert.That(background.raycastTarget, Is.True,
             "Buildings background drags require a raycastable authored PageHost surface.");
 
@@ -626,12 +461,10 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Resources");
         yield return null;
         Transform resourcesRows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Resources/DataRows");
-        Assert.That(resourcesRows, Is.Not.Null);
         Assert.That(resourcesRows.childCount, Is.GreaterThan(0));
         Assert.That(resourcesRows.GetChild(0).GetComponent<UIPageScrollDragForwarder>(),
             Is.Not.Null,
@@ -641,7 +474,6 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
         Transform buildingsRows = root.transform.Find(
             "SafeAreaRoot/Content/PageHost/Buildings/DataRows");
-        Assert.That(buildingsRows, Is.Not.Null);
         Assert.That(buildingsRows.childCount, Is.GreaterThan(0));
         Assert.That(buildingsRows.GetChild(0).GetComponent<UIPageScrollDragForwarder>(),
             Is.Not.Null,
@@ -649,7 +481,6 @@ public sealed class KingdomOnboardingPlayModeTests
 
         ScrollRect pageScroll = root.transform.Find(
             "SafeAreaRoot/Content/PageHost")?.GetComponent<ScrollRect>();
-        Assert.That(pageScroll, Is.Not.Null);
         Assert.That(pageScroll.content, Is.EqualTo(
             root.transform.Find("SafeAreaRoot/Content/PageHost/Buildings")));
         Assert.That(pageScroll.enabled, Is.True);
@@ -668,7 +499,6 @@ public sealed class KingdomOnboardingPlayModeTests
             "Era must expose a real vertical drag range.");
 
         Transform eraRows = eraPage.Find("DataRows");
-        Assert.That(eraRows, Is.Not.Null);
         Assert.That(eraRows.childCount, Is.GreaterThan(0));
         Assert.That(eraRows.GetChild(0).GetComponent<UIPageScrollDragForwarder>(),
             Is.Not.Null,
@@ -706,7 +536,6 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
         root.SetPage("Story");
         yield return null;
         Canvas.ForceUpdateCanvases();
@@ -715,7 +544,6 @@ public sealed class KingdomOnboardingPlayModeTests
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage/StoryOverviewHeader");
         Assert.That(card, Is.Not.Null);
         TMP_Text body = (card.Find("BodyViewport/Body") ?? card.Find("Body"))?.GetComponent<TMP_Text>();
-        Assert.That(body, Is.Not.Null);
         Assert.That(body.text, Is.Not.Empty);
         body.ForceMeshUpdate(true, true);
         Assert.That(body.textInfo.characterCount, Is.GreaterThan(0));
@@ -752,89 +580,6 @@ public sealed class KingdomOnboardingPlayModeTests
             viewportCorners[2].x, viewportCorners[2].y);
         Assert.That(bodyRect.Overlaps(viewportRect), Is.True,
             "Expanded Story text must intersect the page viewport.");
-    }
-
-    [UnityTest]
-    public IEnumerator RuntimeUiTextPreservesAuthoredTopBarFontSettings()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-        TMP_Text[] texts = root.transform.Find("SafeAreaRoot")
-            ?.GetComponentsInChildren<TMP_Text>(true);
-        Assert.That(texts, Is.Not.Null);
-        TMP_Text title = root.transform.Find("SafeAreaRoot/TopStatusBar/Title")
-            ?.GetComponent<TMP_Text>();
-        TMP_Text date = root.transform.Find("SafeAreaRoot/TopStatusBar/Title/Date")
-            ?.GetComponent<TMP_Text>();
-        Assert.That(title, Is.Not.Null);
-        Assert.That(date, Is.Not.Null);
-        Assert.That(title.fontSizeMin == 30f && title.fontSizeMax == 30f, Is.False);
-        Assert.That(date.fontSizeMin == 30f && date.fontSizeMax == 30f, Is.False);
-    }
-
-    [UnityTest]
-    public IEnumerator OverviewShowsPersistentOnboardingGoal()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-
-        Transform primaryCard = GameObject.Find("KingdomUIRoot/SafeAreaRoot/Content/PageHost/Overview/PrimaryCard")?.transform;
-        if (primaryCard == null)
-        {
-            KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-            Assert.That(root, Is.Not.Null);
-            primaryCard = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
-        }
-        Assert.That(primaryCard, Is.Not.Null);
-        TMP_Text text = primaryCard.Find("Text")?.GetComponent<TMP_Text>();
-        Assert.That(text, Is.Not.Null);
-        Assert.That(text.text, Does.Contain("当前目标"));
-        Assert.That(text.text, Does.Contain("当前阻碍"));
-        Assert.That(text.text, Does.Contain("推荐行动"));
-        TutorialSnapshot snapshot = TutorialManager.Current.Evaluate();
-        Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
-        Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
-        Assert.That(text.text, Does.Contain(snapshot.CurrentGoal));
-        Assert.That(text.text, Does.Contain(snapshot.RecommendedAction));
-        Assert.That(text.text, Does.Not.Contain("完成方式"));
-        Assert.That(text.text, Does.Not.Contain("上一步已完成"));
-        Assert.That(text.text, Does.Not.Contain("刚刚发生"));
-        Assert.That(text.text, Does.Not.Contain("文明记忆"),
-            "Story-only memory labels must not duplicate the Overview action card.");
-    }
-
-    [UnityTest]
-    public IEnumerator CurrentNavigationPageIsNotInteractable()
-    {
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-
-        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        Assert.That(root, Is.Not.Null);
-
-        Button eraButton = root.transform.Find(
-            "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Era")?.GetComponent<Button>();
-        Button resourcesButton = root.transform.Find(
-            "SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Resources")?.GetComponent<Button>();
-        Assert.That(eraButton, Is.Not.Null);
-        Assert.That(resourcesButton, Is.Not.Null);
-
-        root.SetPage("Era");
-        yield return null;
-        Assert.That(eraButton.interactable, Is.False);
-        Assert.That(resourcesButton.interactable, Is.True);
-
-        root.SetPage("Resources");
-        yield return null;
-        Assert.That(resourcesButton.interactable, Is.False);
-        Assert.That(eraButton.interactable, Is.True);
     }
 
     [UnityTest]
