@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Terminus
   Label: "终焉星"
-  Description: "太阳系边缘的赤色前沿。尘暴掩埋了旧补给站，占领后可持续取得高级金属锭、火箭燃料和电子元件；漫长航线需要充足补给。"
+  Description: "红褐色荒原延伸到地平线。这里拥有广阔的建设空间，但没有仍在运转的工厂；远离母星的工业必须由王国亲手建立。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -22,13 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3673f3f61de36854685da6ae44c7a554, type: 2}
   territoryReward: "100000"
   resourceRewards: []
-  occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "0.18"
-  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    amount: "0.12"
-  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.07"
+  occupiedResourceRatesPerSecond: []
   colonizationFoodPerSecond: "2333.3333333"
   colonizationResourceRatesPerSecond:
     - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}

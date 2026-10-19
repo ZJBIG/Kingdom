@@ -1,0 +1,33 @@
+{
+  "source": "Controlled Unity v4 fixture; excludes world events, Ultra and relic systems",
+  "mode": "Realtime",
+  "seconds": 10,
+  "passed": false,
+  "firstDifference": {
+    "Field": "CalendarDays",
+    "Expected": "7",
+    "Actual": "6"
+  },
+  "differences": [
+    {
+      "Field": "CalendarDays",
+      "Expected": "7",
+      "Actual": "6"
+    },
+    {
+      "Field": "Resources.AdvancedMetalIngot",
+      "Expected": "994400.00008",
+      "Actual": "994408"
+    },
+    {
+      "Field": "Resources.Electronics",
+      "Expected": "991600.00012",
+      "Actual": "991612"
+    },
+    {
+      "Field": "Resources.WoodLog",
+      "Expected": "29363.228177",
+      "Actual": "29363.089085"
+    }
+  ]
+}

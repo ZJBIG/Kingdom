@@ -1,0 +1,5 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-19T18:12:57.2995696+08:00
+Platform: EditMode
+Result: Failed(Timeout)
+Unity EditMode tests timed out after 600 seconds. Log=data/space-progression-20261018/azure-current-priority.log

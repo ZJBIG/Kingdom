@@ -122,6 +122,109 @@ public sealed class SimulationBudgetTests
         }
     }
 
+    [TestCase(1)]
+    [TestCase(7)]
+    public void OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(
+        int segmentCount)
+    {
+        ExpantaNum[] realtime = RunColonizationTicks(false, 600);
+        ExpantaNum[] offline = RunColonizationTicks(true, 600, segmentCount);
+
+        Assert.That(realtime[0], Is.GreaterThan(new ExpantaNum(0.002d)));
+        for (int i = 0; i < realtime.Length; i++)
+            Assert.That(offline[i].ToDouble(),
+                Is.EqualTo(realtime[i].ToDouble()).Within(1e-6d),
+                $"Colonization result index {i}, offline segments {segmentCount}");
+    }
+
+    [Test]
+    public void OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes()
+    {
+        ExpantaNum[] realtime = RunColonizationTicks(false, 1, leadWithHalfTick: true);
+        ExpantaNum[] resumed = RunColonizationTicks(true, 1, leadWithHalfTick: true);
+
+        Assert.That(realtime[0], Is.GreaterThan(ExpantaNum.Zero));
+        for (int i = 0; i < realtime.Length; i++)
+            Assert.That(resumed[i].ToDouble(),
+                Is.EqualTo(realtime[i].ToDouble()).Within(1e-6d),
+                $"Colonization remainder result index {i}");
+    }
+
+    private static ExpantaNum[] RunColonizationTicks(
+        bool offline,
+        int tickCount,
+        int segmentCount = 1,
+        bool leadWithHalfTick = false)
+    {
+        ProgressionModifierManager.Rebuild(null);
+        GameObject host = new GameObject("Simulation-Colonization-Small-Food-Capacity");
+        try
+        {
+            GameManager game = host.AddComponent<GameManager>();
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            host.AddComponent<BuildingManager>();
+            host.AddComponent<ResearchManager>();
+            SimulationManager simulation = host.AddComponent<SimulationManager>();
+            double tick = simulation.TickIntervalSecondsForEditor;
+            SectorDefinition sector = DataBase<SectorDefinition>.Find("HeliosCore");
+            SectorState state = game.Sectors.GetState(sector);
+            state.SetUnlockedForEditor(true);
+            game.State.RestoreCoreForEditor(0, TechLevel.Spacer, new ExpantaNum(500d), 0L);
+            game.AdjustFoodRates(new ExpantaNum(10000d), ExpantaNum.Zero);
+            foreach (Pair<Resource, ExpantaNum> cost in sector.ColonizationResourceRatesPerSecond)
+                resources.SetAmount(cost.First, new ExpantaNum(1000000d));
+            Assert.That(game.State.FoodCapacity,
+                Is.LessThan(sector.ColonizationFoodPerSecond * 60d));
+            Assert.That(game.State.FoodNetRate, Is.GreaterThan(sector.ColonizationFoodPerSecond));
+            Assert.That(game.Sectors.TryAdvanceColonization(
+                sector, 0d, game.State, resources, out SectorOperationFailure failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+
+            if (leadWithHalfTick)
+            {
+                if (offline)
+                    simulation.AdvanceOffline(tick * 1.5d);
+                else
+                {
+                    simulation.ManualTick(tick);
+                    simulation.ManualTick(tick * 0.5d);
+                }
+                simulation.ManualTick(tick);
+            }
+            else if (offline)
+            {
+                double remaining = tick * tickCount;
+                double segmentSeconds = remaining / segmentCount;
+                for (int segment = 0; segment < segmentCount; segment++)
+                {
+                    double elapsed = segment == segmentCount - 1 ? remaining : segmentSeconds;
+                    simulation.AdvanceOffline(elapsed);
+                    remaining -= elapsed;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < tickCount; i++)
+                    simulation.ManualTick(tick);
+            }
+            // Settle the shared offline sub-tick remainder before comparing elapsed time.
+            simulation.ManualTick(1e-9d);
+
+            var result = new ExpantaNum[2 + sector.ColonizationResourceRatesPerSecond.Count];
+            result[0] = state.CampaignProgress;
+            result[1] = game.State.FoodAmount;
+            Assert.That(result[1], Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+            for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
+                result[2 + i] = resources.GetAmount(sector.ColonizationResourceRatesPerSecond[i].First);
+            return result;
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
+            ProgressionModifierManager.Rebuild(null);
+        }
+    }
+
     [TestCase(CampaignDoctrine.Stable)]
     [TestCase(CampaignDoctrine.Surge)]
     public void OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(
@@ -264,7 +367,7 @@ public sealed class SimulationBudgetTests
                 resourceManager);
             if (productionLimited)
             {
-                producerSector = DataBase<SectorDefinition>.Find("DawnRing");
+                producerSector = DataBase<SectorDefinition>.Find("AlphaCentauri");
                 originalProducerRates = new List<Pair<Resource, ExpantaNum>>(
                     producerSector.OccupiedResourceRatesPerSecond);
                 producerSector.SetOccupiedResourceRatesForEditor(

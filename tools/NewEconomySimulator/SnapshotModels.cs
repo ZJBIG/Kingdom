@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Kingdom.NewEconomySimulator;
 
-public static class SnapshotFormat { public const int CurrentVersion = 4; }
+public static class SnapshotFormat { public const int CurrentVersion = 5; }
 
 public sealed class EconomySnapshot
 {
@@ -90,6 +90,10 @@ public class SaveStateSnapshot : StateSnapshot
 }
 public sealed class RuntimeStateSnapshot : SaveStateSnapshot
 {
+    public double CalendarElapsedSeconds { get; set; }
+    public double SimulationTickIntervalSeconds { get; set; } = 0.1d;
+    public double OfflinePendingCalendarSeconds { get; set; }
+    public double OfflinePendingSimulationSeconds { get; set; }
     public long Tick { get; set; } public string ElapsedSeconds { get; set; } = "0"; public string CampaignProgress { get; set; } = "0"; public List<SimulationEventSnapshot> Events { get; set; } = new();
 }
 public sealed class BuildingStateSnapshot { public string BuildingId { get; set; } = ""; public string Amount { get; set; } = "0"; public string Efficiency { get; set; } = "1"; }

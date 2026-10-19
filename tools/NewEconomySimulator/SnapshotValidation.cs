@@ -278,6 +278,9 @@ public static class SnapshotValidation
                 result.Errors.Add($"Missing star system ID for '{sector.Id}'.");
             if (sector.Domain != "HomeSystem" && sector.Domain != "Interstellar")
                 result.Errors.Add($"Unknown sector domain '{sector.Domain}' for '{sector.Id}'.");
+            if (sector.Domain == "HomeSystem" &&
+                (sector.ResourceRewards?.Count > 0 || sector.OccupiedResourceRatesPerSecond?.Count > 0))
+                result.Errors.Add($"Home-system sector '{sector.Id}' must provide development space without resource rewards or passive production.");
             CheckNumbers(result, sector.Id,
             [
                 ("TerritoryReward", sector.TerritoryReward),
@@ -402,6 +405,17 @@ public static class SnapshotValidation
 
         if (state is RuntimeStateSnapshot runtime)
         {
+            if (!double.IsFinite(runtime.CalendarElapsedSeconds) || runtime.CalendarElapsedSeconds < 0d || runtime.CalendarElapsedSeconds >= 10d)
+                result.Errors.Add($"Invalid calendar remainder in '{owner}'.");
+            if (!double.IsFinite(runtime.SimulationTickIntervalSeconds) || runtime.SimulationTickIntervalSeconds <= 0d)
+                result.Errors.Add($"Invalid simulation tick interval in '{owner}'.");
+            if (!double.IsFinite(runtime.OfflinePendingCalendarSeconds) || runtime.OfflinePendingCalendarSeconds < 0d ||
+                !double.IsFinite(runtime.OfflinePendingSimulationSeconds) || runtime.OfflinePendingSimulationSeconds < 0d ||
+                runtime.OfflinePendingSimulationSeconds >= runtime.SimulationTickIntervalSeconds ||
+                (runtime.OfflinePendingCalendarSeconds == 0d) != (runtime.OfflinePendingSimulationSeconds == 0d) ||
+                runtime.OfflinePendingCalendarSeconds < runtime.OfflinePendingSimulationSeconds ||
+                runtime.OfflinePendingCalendarSeconds > runtime.OfflinePendingSimulationSeconds * 4d + 1e-12d)
+                result.Errors.Add($"Invalid offline operation remainder in '{owner}'.");
             if (runtime.Tick < 0)
                 result.Errors.Add($"Negative tick in '{owner}'.");
             CheckNumbers(result, owner,

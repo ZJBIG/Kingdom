@@ -1,0 +1,1 @@
+Snapshot paths and exactly one duration are required.

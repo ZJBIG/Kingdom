@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="163" result="Passed" total="163" passed="163" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 14:27:51Z" end-time="2026-10-18 14:27:56Z" duration="4.6901494">
+  <test-suite type="TestSuite" id="2111" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="961" result="Passed" start-time="2026-10-18 14:27:51Z" end-time="2026-10-18 14:27:56Z" duration="4.690149" total="163" passed="163" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3212" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="960" result="Passed" start-time="2026-10-18 14:27:51Z" end-time="2026-10-18 14:27:56Z" duration="4.657014" total="163" passed="163" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="45716" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2322" name="EconomySnapshotTraceTests" fullname="EconomySnapshotTraceTests" classname="EconomySnapshotTraceTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-18 14:27:51Z" end-time="2026-10-18 14:27:55Z" duration="4.057077" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2323" name="ControlledFixture_ExportsOnlineAndRepeatedOfflineWindows" fullname="EconomySnapshotTraceTests.ControlledFixture_ExportsOnlineAndRepeatedOfflineWindows" methodname="ControlledFixture_ExportsOnlineAndRepeatedOfflineWindows" classname="EconomySnapshotTraceTests" runstate="Runnable" seed="1385987342" result="Passed" start-time="2026-10-18 14:27:51Z" end-time="2026-10-18 14:27:55Z" duration="4.045109" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomPerf] ManualTick 23.1ms: building=12.9ms, game=1.5ms, resource=0.8ms, sectors=1.5ms, research=6.4ms, activeBuildings=1, efficiencyPasses=1
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2686" name="RelicSimulationTests" fullname="RelicSimulationTests" classname="RelicSimulationTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-18 14:27:55Z" end-time="2026-10-18 14:27:56Z" duration="0.111946" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2694" name="AuthoredRelic_PrerequisitesAndEveryCostHaveExistingDefinitionsAndProductionSources" fullname="RelicSimulationTests.AuthoredRelic_PrerequisitesAndEveryCostHaveExistingDefinitionsAndProductionSources" methodname="AuthoredRelic_PrerequisitesAndEveryCostHaveExistingDefinitionsAndProductionSources" classname="RelicSimulationTests" runstate="Runnable" seed="37671576" result="Passed" start-time="2026-10-18 14:27:55Z" end-time="2026-10-18 14:27:55Z" duration="0.006441" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2693" name="FullRateOfflineAndRealtimeCadence_ProduceMatchingRelicProgressAndBalances" fullname="RelicSimulationTests.FullRateOfflineAndRealtimeCadence_ProduceMatchingRelicProgressAndBalances" methodname="FullRateOfflineAndRealtimeCadence_ProduceMatchingRelicProgressAndBalances" classname="RelicSimulationTests" runstate="Runnable" seed="1517802313" result="Passed" start-time="2026-10-18 14:27:55Z" end-time="2026-10-18 14:27:56Z" duration="0.089085" asserts="0">
+          <properties />
+          <output><![CDATA[Relic cadence resource=PhaseMaterial difference=0.00012 quantizationBudget=0.0006
+Relic cadence resource=PhantomAlloy difference=0.00024 quantizationBudget=0.0006
+Relic cadence resource=TitaniumAlloy difference=0 quantizationBudget=0.0006
+Relic cadence resource=CopperWire difference=0 quantizationBudget=0.0006
+Relic cadence resource=Ceramic difference=0 quantizationBudget=0.0006
+Relic cadence resource=RocketFuel difference=0 quantizationBudget=0.0006
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2689" name="Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial" fullname="RelicSimulationTests.Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial" classname="RelicSimulationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.008272" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2687" name="Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(False)" fullname="RelicSimulationTests.Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(False)" methodname="Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial" classname="RelicSimulationTests" runstate="Runnable" seed="545089968" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.003268" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2688" name="Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(True)" fullname="RelicSimulationTests.Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(True)" methodname="Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial" classname="RelicSimulationTests" runstate="Runnable" seed="860756788" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002042" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2692" name="Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment" fullname="RelicSimulationTests.Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment" classname="RelicSimulationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005681" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2690" name="Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment(False)" fullname="RelicSimulationTests.Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment(False)" methodname="Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment" classname="RelicSimulationTests" runstate="Runnable" seed="1618929567" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002577" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2691" name="Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment(True)" fullname="RelicSimulationTests.Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment(True)" methodname="Simulation_ZeroMaterialSupplyPausesWithoutRelicPayment" classname="RelicSimulationTests" runstate="Runnable" seed="734134602" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002207" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="2870" name="SectorManagerTests" fullname="SectorManagerTests" classname="SectorManagerTests" runstate="Runnable" testcasecount="96" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.108665" total="96" passed="96" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2894" name="AllSectorDefinitionsHaveExecutableLabelsRewardsAndCosts" fullname="SectorManagerTests.AllSectorDefinitionsHaveExecutableLabelsRewardsAndCosts" methodname="AllSectorDefinitionsHaveExecutableLabelsRewardsAndCosts" classname="SectorManagerTests" runstate="Runnable" seed="1211269706" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002870" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2888" name="AllSectorPrerequisitesFormAnAcyclicDefinitionGraph" fullname="SectorManagerTests.AllSectorPrerequisitesFormAnAcyclicDefinitionGraph" methodname="AllSectorPrerequisitesFormAnAcyclicDefinitionGraph" classname="SectorManagerTests" runstate="Runnable" seed="1805580800" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001488" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2900" name="AlphaCentauriReturnsStructuralMaterialsForItsLongRangeSupplyCost" fullname="SectorManagerTests.AlphaCentauriReturnsStructuralMaterialsForItsLongRangeSupplyCost" methodname="AlphaCentauriReturnsStructuralMaterialsForItsLongRangeSupplyCost" classname="SectorManagerTests" runstate="Runnable" seed="2141796797" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000725" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2879" name="AtomicResourcePaymentRejectsDuplicateStableIdsInOneRequest" fullname="SectorManagerTests.AtomicResourcePaymentRejectsDuplicateStableIdsInOneRequest" methodname="AtomicResourcePaymentRejectsDuplicateStableIdsInOneRequest" classname="SectorManagerTests" runstate="Runnable" seed="437081858" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000686" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2912" name="C704_ManagerUsesStableDefinitionOrderAndPrerequisites" fullname="SectorManagerTests.C704_ManagerUsesStableDefinitionOrderAndPrerequisites" methodname="C704_ManagerUsesStableDefinitionOrderAndPrerequisites" classname="SectorManagerTests" runstate="Runnable" seed="1285807647" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.003168" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2928" name="C704_NonRepeatableSectorCannotBeOccupiedTwice" fullname="SectorManagerTests.C704_NonRepeatableSectorCannotBeOccupiedTwice" methodname="C704_NonRepeatableSectorCannotBeOccupiedTwice" classname="SectorManagerTests" runstate="Runnable" seed="1065634073" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001754" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2927" name="C704_SectorStateRoundTripsByStableId" fullname="SectorManagerTests.C704_SectorStateRoundTripsByStableId" methodname="C704_SectorStateRoundTripsByStableId" classname="SectorManagerTests" runstate="Runnable" seed="1980539468" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002078" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2930" name="C705_HomeSystemExplorationGrantsOnlyTerritory" fullname="SectorManagerTests.C705_HomeSystemExplorationGrantsOnlyTerritory" methodname="C705_HomeSystemExplorationGrantsOnlyTerritory" classname="SectorManagerTests" runstate="Runnable" seed="1677117368" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000298" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2934" name="C802_CampaignStateTracksTargetAndCasualties" fullname="SectorManagerTests.C802_CampaignStateTracksTargetAndCasualties" methodname="C802_CampaignStateTracksTargetAndCasualties" classname="SectorManagerTests" runstate="Runnable" seed="1401812897" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001554" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2933" name="C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" fullname="SectorManagerTests.C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" methodname="C802_EnemySectorCannotBeOccupiedBeforeCampaignCompletion" classname="SectorManagerTests" runstate="Runnable" seed="1270670917" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000371" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2935" name="C803_CampaignCostMathRejectsInsufficientFoodAtomically" fullname="SectorManagerTests.C803_CampaignCostMathRejectsInsufficientFoodAtomically" methodname="C803_CampaignCostMathRejectsInsufficientFoodAtomically" classname="SectorManagerTests" runstate="Runnable" seed="737697756" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005377" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2936" name="C804_战役补给不足时Tick不会报告推进成功" fullname="SectorManagerTests.C804_战役补给不足时Tick不会报告推进成功" methodname="C804_战役补给不足时Tick不会报告推进成功" classname="SectorManagerTests" runstate="Runnable" seed="474124079" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000913" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2938" name="C805_CampaignPreviewMatchesActualSixtySecondSupplyConsumption" fullname="SectorManagerTests.C805_CampaignPreviewMatchesActualSixtySecondSupplyConsumption" methodname="C805_CampaignPreviewMatchesActualSixtySecondSupplyConsumption" classname="SectorManagerTests" runstate="Runnable" seed="1526096966" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005456" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2937" name="C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" fullname="SectorManagerTests.C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" methodname="C805_CampaignPreviewReportsDeterministicPowerProgressAndCosts" classname="SectorManagerTests" runstate="Runnable" seed="1134046410" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001501" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2940" name="C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" fullname="SectorManagerTests.C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" methodname="C806_InsufficientStrategicResourceLeavesCampaignStateAndFoodUntouched" classname="SectorManagerTests" runstate="Runnable" seed="1495940126" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000943" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2941" name="C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" fullname="SectorManagerTests.C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" methodname="C806_LowCombatConsumesCostsAndRecordsCasualtiesWithoutReward" classname="SectorManagerTests" runstate="Runnable" seed="2101966168" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001235" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2943" name="C806_RewardsApplyOnlyWhenCampaignCompletes" fullname="SectorManagerTests.C806_RewardsApplyOnlyWhenCampaignCompletes" methodname="C806_RewardsApplyOnlyWhenCampaignCompletes" classname="SectorManagerTests" runstate="Runnable" seed="187228417" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001293" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2944" name="C807_GameSaveDataRoundTripsMilitaryRuntimeState" fullname="SectorManagerTests.C807_GameSaveDataRoundTripsMilitaryRuntimeState" methodname="C807_GameSaveDataRoundTripsMilitaryRuntimeState" classname="SectorManagerTests" runstate="Runnable" seed="515129417" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002079" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2945" name="C808_InactiveCampaignSaveClearsExistingCampaignState" fullname="SectorManagerTests.C808_InactiveCampaignSaveClearsExistingCampaignState" methodname="C808_InactiveCampaignSaveClearsExistingCampaignState" classname="SectorManagerTests" runstate="Runnable" seed="1022240061" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001780" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2946" name="C808_PartialSectorSaveClearsMissingSectorStates" fullname="SectorManagerTests.C808_PartialSectorSaveClearsMissingSectorStates" methodname="C808_PartialSectorSaveClearsMissingSectorStates" classname="SectorManagerTests" runstate="Runnable" seed="130098403" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000397" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2947" name="C808b_DuplicateSectorStateIdsAreRejected" fullname="SectorManagerTests.C808b_DuplicateSectorStateIdsAreRejected" methodname="C808b_DuplicateSectorStateIdsAreRejected" classname="SectorManagerTests" runstate="Runnable" seed="1573447388" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000981" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2948" name="C808c_InvalidSectorStateIsRejectedBeforeAnyStateIsApplied" fullname="SectorManagerTests.C808c_InvalidSectorStateIsRejectedBeforeAnyStateIsApplied" methodname="C808c_InvalidSectorStateIsRejectedBeforeAnyStateIsApplied" classname="SectorManagerTests" runstate="Runnable" seed="1391674373" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000558" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2949" name="C808c_UnknownSectorStateIsRejectedBeforeExistingStateIsCleared" fullname="SectorManagerTests.C808c_UnknownSectorStateIsRejectedBeforeExistingStateIsCleared" methodname="C808c_UnknownSectorStateIsRejectedBeforeExistingStateIsCleared" classname="SectorManagerTests" runstate="Runnable" seed="794133156" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000397" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2950" name="C808d_ContradictorySectorFlagsAreRejected" fullname="SectorManagerTests.C808d_ContradictorySectorFlagsAreRejected" methodname="C808d_ContradictorySectorFlagsAreRejected" classname="SectorManagerTests" runstate="Runnable" seed="502078790" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000345" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2954" name="C808e_CancelledCampaignSaveRemainsInactiveWhileRetainingCasualties" fullname="SectorManagerTests.C808e_CancelledCampaignSaveRemainsInactiveWhileRetainingCasualties" methodname="C808e_CancelledCampaignSaveRemainsInactiveWhileRetainingCasualties" classname="SectorManagerTests" runstate="Runnable" seed="565903150" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000713" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2951" name="C809_PreSpaceMilitaryBuildingsAreRemoved" fullname="SectorManagerTests.C809_PreSpaceMilitaryBuildingsAreRemoved" methodname="C809_PreSpaceMilitaryBuildingsAreRemoved" classname="SectorManagerTests" runstate="Runnable" seed="12178206" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000245" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2952" name="C810_BuildingManagerDerivesAndRemovesMilitaryPower" fullname="SectorManagerTests.C810_BuildingManagerDerivesAndRemovesMilitaryPower" methodname="C810_BuildingManagerDerivesAndRemovesMilitaryPower" classname="SectorManagerTests" runstate="Runnable" seed="463277468" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000897" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2953" name="C811_CampaignCasualtiesReduceReadinessAndRepairConsumesStrategicSupply" fullname="SectorManagerTests.C811_CampaignCasualtiesReduceReadinessAndRepairConsumesStrategicSupply" methodname="C811_CampaignCasualtiesReduceReadinessAndRepairConsumesStrategicSupply" classname="SectorManagerTests" runstate="Runnable" seed="2020818567" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002496" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2964" name="C812_CampaignPreviewExposesSupplyAndLogisticsSatisfaction" fullname="SectorManagerTests.C812_CampaignPreviewExposesSupplyAndLogisticsSatisfaction" methodname="C812_CampaignPreviewExposesSupplyAndLogisticsSatisfaction" classname="SectorManagerTests" runstate="Runnable" seed="792870711" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000594" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2918" name="C813_ZeroDeltaStartsHomeExplorationWithoutAdvancingProgress" fullname="SectorManagerTests.C813_ZeroDeltaStartsHomeExplorationWithoutAdvancingProgress" methodname="C813_ZeroDeltaStartsHomeExplorationWithoutAdvancingProgress" classname="SectorManagerTests" runstate="Runnable" seed="1209608214" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000622" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2919" name="C814_CancelledOperationsDecayHomeExplorationSlowerThanInterstellarCampaigns" fullname="SectorManagerTests.C814_CancelledOperationsDecayHomeExplorationSlowerThanInterstellarCampaigns" methodname="C814_CancelledOperationsDecayHomeExplorationSlowerThanInterstellarCampaigns" classname="SectorManagerTests" runstate="Runnable" seed="586251553" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000452" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2920" name="C815_殖民补给不足时Tick不会报告推进成功" fullname="SectorManagerTests.C815_殖民补给不足时Tick不会报告推进成功" methodname="C815_殖民补给不足时Tick不会报告推进成功" classname="SectorManagerTests" runstate="Runnable" seed="334221335" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000391" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2875" name="CampaignCompletionDoesNotDecayAfterRealtimeOrOfflineBoundary" fullname="SectorManagerTests.CampaignCompletionDoesNotDecayAfterRealtimeOrOfflineBoundary" methodname="CampaignCompletionDoesNotDecayAfterRealtimeOrOfflineBoundary" classname="SectorManagerTests" runstate="Runnable" seed="529818354" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000309" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2956" name="CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" fullname="SectorManagerTests.CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" methodname="CampaignFailureRestoresFoodExactlyWhenCommitChangesCapacity" classname="SectorManagerTests" runstate="Runnable" seed="553471090" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001664" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2955" name="CampaignRewardFailureRollsBackPaymentAndCompletionState" fullname="SectorManagerTests.CampaignRewardFailureRollsBackPaymentAndCompletionState" methodname="CampaignRewardFailureRollsBackPaymentAndCompletionState" classname="SectorManagerTests" runstate="Runnable" seed="1251395378" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001423" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2924" name="CancellingDifferentSectorCannotBreakActiveCampaignTarget" fullname="SectorManagerTests.CancellingDifferentSectorCannotBreakActiveCampaignTarget" methodname="CancellingDifferentSectorCannotBreakActiveCampaignTarget" classname="SectorManagerTests" runstate="Runnable" seed="1419916116" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000423" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2923" name="CancellingGlobalCampaignAlsoStopsItsSectorState" fullname="SectorManagerTests.CancellingGlobalCampaignAlsoStopsItsSectorState" methodname="CancellingGlobalCampaignAlsoStopsItsSectorState" classname="SectorManagerTests" runstate="Runnable" seed="169473329" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000598" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2961" name="CompletedCampaignBoundaryCannotRestoreAsActive" fullname="SectorManagerTests.CompletedCampaignBoundaryCannotRestoreAsActive" methodname="CompletedCampaignBoundaryCannotRestoreAsActive" classname="SectorManagerTests" runstate="Runnable" seed="494431108" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000423" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2962" name="CompletedCampaignBoundaryCannotRestoreAsUnoccupiedInactiveState" fullname="SectorManagerTests.CompletedCampaignBoundaryCannotRestoreAsUnoccupiedInactiveState" methodname="CompletedCampaignBoundaryCannotRestoreAsUnoccupiedInactiveState" classname="SectorManagerTests" runstate="Runnable" seed="2003117125" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000685" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2871" name="FirstInterstellarCampaignRequiresHeliosOccupationBeforeUnlockAndDeparture" fullname="SectorManagerTests.FirstInterstellarCampaignRequiresHeliosOccupationBeforeUnlockAndDeparture" methodname="FirstInterstellarCampaignRequiresHeliosOccupationBeforeUnlockAndDeparture" classname="SectorManagerTests" runstate="Runnable" seed="1572061763" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001847" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2916" name="HomeExplorationDoesNotRequireCombatPower" fullname="SectorManagerTests.HomeExplorationDoesNotRequireCombatPower" methodname="HomeExplorationDoesNotRequireCombatPower" classname="SectorManagerTests" runstate="Runnable" seed="460675030" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000478" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2895" name="HomeExplorationPreviewShowsResourceSupplyBeforeStarting" fullname="SectorManagerTests.HomeExplorationPreviewShowsResourceSupplyBeforeStarting" methodname="HomeExplorationPreviewShowsResourceSupplyBeforeStarting" classname="SectorManagerTests" runstate="Runnable" seed="450166993" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001525" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2896" name="HomeExplorationTechnologyImprovesProgressRate" fullname="SectorManagerTests.HomeExplorationTechnologyImprovesProgressRate" methodname="HomeExplorationTechnologyImprovesProgressRate" classname="SectorManagerTests" runstate="Runnable" seed="1795673120" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000491" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2913" name="HomeSectorUnlockRequiresHomeSystemSurveyResearch" fullname="SectorManagerTests.HomeSectorUnlockRequiresHomeSystemSurveyResearch" methodname="HomeSectorUnlockRequiresHomeSystemSurveyResearch" classname="SectorManagerTests" runstate="Runnable" seed="1299916645" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000230" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2885" name="InterstellarAccessUnlocksOneOccupiedPrerequisiteAtATime" fullname="SectorManagerTests.InterstellarAccessUnlocksOneOccupiedPrerequisiteAtATime" methodname="InterstellarAccessUnlocksOneOccupiedPrerequisiteAtATime" classname="SectorManagerTests" runstate="Runnable" seed="1762031783" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000355" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2922" name="InterstellarCampaignConsumesEveryConfiguredContinuousResource" fullname="SectorManagerTests.InterstellarCampaignConsumesEveryConfiguredContinuousResource" methodname="InterstellarCampaignConsumesEveryConfiguredContinuousResource" classname="SectorManagerTests" runstate="Runnable" seed="1372161598" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001294" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2905" name="InterstellarCampaignRewardsAndSupplyCostsScaleBeyondEarlySpaceflight" fullname="SectorManagerTests.InterstellarCampaignRewardsAndSupplyCostsScaleBeyondEarlySpaceflight" methodname="InterstellarCampaignRewardsAndSupplyCostsScaleBeyondEarlySpaceflight" classname="SectorManagerTests" runstate="Runnable" seed="164456918" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001221" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2904" name="InterstellarCampaignsConsumeAdvancedMetalForFleetStructuralMaintenance" fullname="SectorManagerTests.InterstellarCampaignsConsumeAdvancedMetalForFleetStructuralMaintenance" methodname="InterstellarCampaignsConsumeAdvancedMetalForFleetStructuralMaintenance" classname="SectorManagerTests" runstate="Runnable" seed="380297689" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000329" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2883" name="InterstellarCampaignsHaveLongContinuousAdvancedSupplyLoops" fullname="SectorManagerTests.InterstellarCampaignsHaveLongContinuousAdvancedSupplyLoops" methodname="InterstellarCampaignsHaveLongContinuousAdvancedSupplyLoops" classname="SectorManagerTests" runstate="Runnable" seed="1727767843" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000989" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2965" name="InterstellarCampaignsIncreaseSupplyBurdenAndTerritoryRewards" fullname="SectorManagerTests.InterstellarCampaignsIncreaseSupplyBurdenAndTerritoryRewards" methodname="InterstellarCampaignsIncreaseSupplyBurdenAndTerritoryRewards" classname="SectorManagerTests" runstate="Runnable" seed="1909817921" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001031" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2903" name="InterstellarCampaignsRemainLongWithOverwhelmingFleetPower" fullname="SectorManagerTests.InterstellarCampaignsRemainLongWithOverwhelmingFleetPower" methodname="InterstellarCampaignsRemainLongWithOverwhelmingFleetPower" classname="SectorManagerTests" runstate="Runnable" seed="1989268233" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000806" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2902" name="InterstellarCampaignsUseTieredLongRangeProgressMultipliers" fullname="SectorManagerTests.InterstellarCampaignsUseTieredLongRangeProgressMultipliers" methodname="InterstellarCampaignsUseTieredLongRangeProgressMultipliers" classname="SectorManagerTests" runstate="Runnable" seed="1417172660" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000825" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2921" name="InterstellarCampaignUsesOneFleetTargetAtATime" fullname="SectorManagerTests.InterstellarCampaignUsesOneFleetTargetAtATime" methodname="InterstellarCampaignUsesOneFleetTargetAtATime" classname="SectorManagerTests" runstate="Runnable" seed="1298240426" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001227" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2957" name="InterstellarCombatSupplySystemsReduceFleetRepairConsumption" fullname="SectorManagerTests.InterstellarCombatSupplySystemsReduceFleetRepairConsumption" methodname="InterstellarCombatSupplySystemsReduceFleetRepairConsumption" classname="SectorManagerTests" runstate="Runnable" seed="984810706" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001762" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2882" name="InterstellarSectorChainRemainsSequential" fullname="SectorManagerTests.InterstellarSectorChainRemainsSequential" methodname="InterstellarSectorChainRemainsSequential" classname="SectorManagerTests" runstate="Runnable" seed="146220014" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000768" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2889" name="InterstellarSectorsUseCampaignSupplyInsteadOfColonization" fullname="SectorManagerTests.InterstellarSectorsUseCampaignSupplyInsteadOfColonization" methodname="InterstellarSectorsUseCampaignSupplyInsteadOfColonization" classname="SectorManagerTests" runstate="Runnable" seed="2039001308" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000552" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2901" name="InterstellarTerritoryRewardsScaleWithEnemyPowerAndAdvancedSectorOutputStaysLimited" fullname="SectorManagerTests.InterstellarTerritoryRewardsScaleWithEnemyPowerAndAdvancedSectorOutputStaysLimited" methodname="InterstellarTerritoryRewardsScaleWithEnemyPowerAndAdvancedSectorOutputStaysLimited" classname="SectorManagerTests" runstate="Runnable" seed="190444802" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000716" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2911" name="NearEarthSectorChainRequiresLaunchResearchAndSequentialOccupation" fullname="SectorManagerTests.NearEarthSectorChainRequiresLaunchResearchAndSequentialOccupation" methodname="NearEarthSectorChainRequiresLaunchResearchAndSequentialOccupation" classname="SectorManagerTests" runstate="Runnable" seed="217124565" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000645" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2877" name="NonFiniteCampaignCostIsRejectedWithoutFreeProgress" fullname="SectorManagerTests.NonFiniteCampaignCostIsRejectedWithoutFreeProgress" methodname="NonFiniteCampaignCostIsRejectedWithoutFreeProgress" classname="SectorManagerTests" runstate="Runnable" seed="686986402" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001627" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2963" name="NonFiniteCampaignFoodRateIsRejectedBeforeStartingForZeroSeconds" fullname="SectorManagerTests.NonFiniteCampaignFoodRateIsRejectedBeforeStartingForZeroSeconds" methodname="NonFiniteCampaignFoodRateIsRejectedBeforeStartingForZeroSeconds" classname="SectorManagerTests" runstate="Runnable" seed="1207945442" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001020" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2872" name="OccupiedSectorProductionContributesToSameTickSatisfaction" fullname="SectorManagerTests.OccupiedSectorProductionContributesToSameTickSatisfaction" methodname="OccupiedSectorProductionContributesToSameTickSatisfaction" classname="SectorManagerTests" runstate="Runnable" seed="1469976902" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001218" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2886" name="OccupyAppliesRewardExactlyOnceAfterCampaignCompletion" fullname="SectorManagerTests.OccupyAppliesRewardExactlyOnceAfterCampaignCompletion" methodname="OccupyAppliesRewardExactlyOnceAfterCampaignCompletion" classname="SectorManagerTests" runstate="Runnable" seed="1820584110" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000375" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2887" name="OccupyRollsBackStateWhenRewardApplicationFails" fullname="SectorManagerTests.OccupyRollsBackStateWhenRewardApplicationFails" methodname="OccupyRollsBackStateWhenRewardApplicationFails" classname="SectorManagerTests" runstate="Runnable" seed="1750031729" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000392" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2899" name="ProximaReturnsTitaniumForTheNextInterstellarBuildout" fullname="SectorManagerTests.ProximaReturnsTitaniumForTheNextInterstellarBuildout" methodname="ProximaReturnsTitaniumForTheNextInterstellarBuildout" classname="SectorManagerTests" runstate="Runnable" seed="435710943" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000514" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2878" name="RepairWithoutDamageAndWithoutTargetDoesNotChargeOrChangeCampaign" fullname="SectorManagerTests.RepairWithoutDamageAndWithoutTargetDoesNotChargeOrChangeCampaign" methodname="RepairWithoutDamageAndWithoutTargetDoesNotChargeOrChangeCampaign" classname="SectorManagerTests" runstate="Runnable" seed="1817555297" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000833" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2960" name="RepairWithoutResolvableCampaignTargetDoesNotChargeOrMutateGlobalState" fullname="SectorManagerTests.RepairWithoutResolvableCampaignTargetDoesNotChargeOrMutateGlobalState" methodname="RepairWithoutResolvableCampaignTargetDoesNotChargeOrMutateGlobalState" classname="SectorManagerTests" runstate="Runnable" seed="728717733" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000958" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2873" name="SectorCompletionBillingStopsAtTheCompletionBoundary" fullname="SectorManagerTests.SectorCompletionBillingStopsAtTheCompletionBoundary" methodname="SectorCompletionBillingStopsAtTheCompletionBoundary" classname="SectorManagerTests" runstate="Runnable" seed="569195936" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000336" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2929" name="SectorOccupy_RestoresStateWhenRewardApplicationFails" fullname="SectorManagerTests.SectorOccupy_RestoresStateWhenRewardApplicationFails" methodname="SectorOccupy_RestoresStateWhenRewardApplicationFails" classname="SectorManagerTests" runstate="Runnable" seed="1344442174" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000426" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2959" name="SectorRepairSynchronizesGlobalAndSectorCasualties" fullname="SectorManagerTests.SectorRepairSynchronizesGlobalAndSectorCasualties" methodname="SectorRepairSynchronizesGlobalAndSectorCasualties" classname="SectorManagerTests" runstate="Runnable" seed="1210321379" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000898" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2876" name="SectorSaveRejectsActiveCampaignOrColonizationAtCompletionBoundary" fullname="SectorManagerTests.SectorSaveRejectsActiveCampaignOrColonizationAtCompletionBoundary" methodname="SectorSaveRejectsActiveCampaignOrColonizationAtCompletionBoundary" classname="SectorManagerTests" runstate="Runnable" seed="686635891" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000527" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2890" name="SiriusCampaignConsumesAdvancedStructuralMaterials" fullname="SectorManagerTests.SiriusCampaignConsumesAdvancedStructuralMaterials" methodname="SiriusCampaignConsumesAdvancedStructuralMaterials" classname="SectorManagerTests" runstate="Runnable" seed="347304537" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000283" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2914" name="SiriusRequiresOccupiedTauCetiBeforeAccess" fullname="SectorManagerTests.SiriusRequiresOccupiedTauCetiBeforeAccess" methodname="SiriusRequiresOccupiedTauCetiBeforeAccess" classname="SectorManagerTests" runstate="Runnable" seed="1026828295" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000278" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2897" name="SiriusResourceBeltIsAHighCostHighValueSpacerCampaign" fullname="SectorManagerTests.SiriusResourceBeltIsAHighCostHighValueSpacerCampaign" methodname="SiriusResourceBeltIsAHighCostHighValueSpacerCampaign" classname="SectorManagerTests" runstate="Runnable" seed="602809508" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000498" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2881" name="SiriusResourceBeltRequiresTauCetiIndustrialOutpost" fullname="SectorManagerTests.SiriusResourceBeltRequiresTauCetiIndustrialOutpost" methodname="SiriusResourceBeltRequiresTauCetiIndustrialOutpost" classname="SectorManagerTests" runstate="Runnable" seed="102975320" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000223" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2880" name="SiriusResourceBeltUsesReadableChineseLabel" fullname="SectorManagerTests.SiriusResourceBeltUsesReadableChineseLabel" methodname="SiriusResourceBeltUsesReadableChineseLabel" classname="SectorManagerTests" runstate="Runnable" seed="984833081" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001273" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2915" name="SiriusUnlockReportsMissingTauCetiPrerequisite" fullname="SectorManagerTests.SiriusUnlockReportsMissingTauCetiPrerequisite" methodname="SiriusUnlockReportsMissingTauCetiPrerequisite" classname="SectorManagerTests" runstate="Runnable" seed="1532580972" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000389" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2884" name="SolarSystemChainIncludesAsteroidBeltAndThunderGateBeforeAlpha" fullname="SectorManagerTests.SolarSystemChainIncludesAsteroidBeltAndThunderGateBeforeAlpha" methodname="SolarSystemChainIncludesAsteroidBeltAndThunderGateBeforeAlpha" classname="SectorManagerTests" runstate="Runnable" seed="401400553" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000866" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2874" name="SurgeCampaignBillingUsesItsFasterCompletionRate" fullname="SectorManagerTests.SurgeCampaignBillingUsesItsFasterCompletionRate" methodname="SurgeCampaignBillingUsesItsFasterCompletionRate" classname="SectorManagerTests" runstate="Runnable" seed="1569648122" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000194" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2898" name="TauCetiFoundryReturnsAdvancedMaterialsForItsIndustrialOutpostCost" fullname="SectorManagerTests.TauCetiFoundryReturnsAdvancedMaterialsForItsIndustrialOutpostCost" methodname="TauCetiFoundryReturnsAdvancedMaterialsForItsIndustrialOutpostCost" classname="SectorManagerTests" runstate="Runnable" seed="1978389681" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000267" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2891" name="占领星区会按每秒产出资源并支持离线结算入口" fullname="SectorManagerTests.占领星区会按每秒产出资源并支持离线结算入口" methodname="占领星区会按每秒产出资源并支持离线结算入口" classname="SectorManagerTests" runstate="Runnable" seed="1003141499" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000483" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2958" name="取消远征后舰队损伤必须保留并可维修" fullname="SectorManagerTests.取消远征后舰队损伤必须保留并可维修" methodname="取消远征后舰队损伤必须保留并可维修" classname="SectorManagerTests" runstate="Runnable" seed="1207936073" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001240" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2942" name="战役防御力提高舰队生存率并降低伤亡" fullname="SectorManagerTests.战役防御力提高舰队生存率并降低伤亡" methodname="战役防御力提高舰队生存率并降低伤亡" classname="SectorManagerTests" runstate="Runnable" seed="920586018" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000478" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2910" name="所有星际战役都必须是高价值长周期高级材料远征" fullname="SectorManagerTests.所有星际战役都必须是高价值长周期高级材料远征" methodname="所有星际战役都必须是高价值长周期高级材料远征" classname="SectorManagerTests" runstate="Runnable" seed="1516769129" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000735" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2908" name="星际战役必须持续消耗高真空润滑剂维护远征机械" fullname="SectorManagerTests.星际战役必须持续消耗高真空润滑剂维护远征机械" methodname="星际战役必须持续消耗高真空润滑剂维护远征机械" classname="SectorManagerTests" runstate="Runnable" seed="1474050192" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000367" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2909" name="星际战役的单位进度后勤成本必须随远征阶段递增" fullname="SectorManagerTests.星际战役的单位进度后勤成本必须随远征阶段递增" methodname="星际战役的单位进度后勤成本必须随远征阶段递增" classname="SectorManagerTests" runstate="Runnable" seed="1783997636" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000445" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2906" name="星际远征的一次性资源回报必须匹配后期投入规模" fullname="SectorManagerTests.星际远征的一次性资源回报必须匹配后期投入规模" methodname="星际远征的一次性资源回报必须匹配后期投入规模" classname="SectorManagerTests" runstate="Runnable" seed="1664977313" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000535" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2907" name="星际远征规模必须显著高于近地轨道探索" fullname="SectorManagerTests.星际远征规模必须显著高于近地轨道探索" methodname="星际远征规模必须显著高于近地轨道探索" classname="SectorManagerTests" runstate="Runnable" seed="694919259" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000425" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2926" name="本地殖民完成不改变并行的全局星际战役" fullname="SectorManagerTests.本地殖民完成不改变并行的全局星际战役" methodname="本地殖民完成不改变并行的全局星际战役" classname="SectorManagerTests" runstate="Runnable" seed="1044150096" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000913" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2925" name="本星系可以同时启动并推进多个星区探索" fullname="SectorManagerTests.本星系可以同时启动并推进多个星区探索" methodname="本星系可以同时启动并推进多个星区探索" classname="SectorManagerTests" runstate="Runnable" seed="1559539156" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000786" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2917" name="本星系探索不使用星区战役" fullname="SectorManagerTests.本星系探索不使用星区战役" methodname="本星系探索不使用星区战役" classname="SectorManagerTests" runstate="Runnable" seed="1925593148" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000251" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2939" name="自动化舰队补给模块会直接降低战役预览中的持续消耗" fullname="SectorManagerTests.自动化舰队补给模块会直接降低战役预览中的持续消耗" methodname="自动化舰队补给模块会直接降低战役预览中的持续消耗" classname="SectorManagerTests" runstate="Runnable" seed="427316433" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000647" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2892" name="轨道自主采矿工坊必须提升占领区每秒产出" fullname="SectorManagerTests.轨道自主采矿工坊必须提升占领区每秒产出" methodname="轨道自主采矿工坊必须提升占领区每秒产出" classname="SectorManagerTests" runstate="Runnable" seed="1920936671" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000552" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2893" name="轨道自主采矿研究与工坊必须叠加占领区每秒产出" fullname="SectorManagerTests.轨道自主采矿研究与工坊必须叠加占领区每秒产出" methodname="轨道自主采矿研究与工坊必须叠加占领区每秒产出" classname="SectorManagerTests" runstate="Runnable" seed="904572442" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000745" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2932" name="近地星区占领产出必须按阶段承担不同战略职责" fullname="SectorManagerTests.近地星区占领产出必须按阶段承担不同战略职责" methodname="近地星区占领产出必须按阶段承担不同战略职责" classname="SectorManagerTests" runstate="Runnable" seed="2073415105" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000441" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2931" name="近地殖民总成本必须随阶段和回报逐级增长" fullname="SectorManagerTests.近地殖民总成本必须随阶段和回报逐级增长" methodname="近地殖民总成本必须随阶段和回报逐级增长" classname="SectorManagerTests" runstate="Runnable" seed="1796999305" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000777" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2966" name="近地轨道到月球再到火星的殖民周期必须逐级延长" fullname="SectorManagerTests.近地轨道到月球再到火星的殖民周期必须逐级延长" methodname="近地轨道到月球再到火星的殖民周期必须逐级延长" classname="SectorManagerTests" runstate="Runnable" seed="753097832" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000506" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2967" name="SimulationBudgetTests" fullname="SimulationBudgetTests" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.128218" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2968" name="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" fullname="SimulationBudgetTests.Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" methodname="Advance_PreservesBacklogWhileRespectingMaximumTicksPerFrame" classname="SimulationBudgetTests" runstate="Runnable" seed="800944258" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005891" asserts="0">
+          <properties />
+          <output><![CDATA[模拟积压超过单帧处理预算，将在后续帧继续结算。
+]]></output>
+        </test-case>
+        <test-case id="2980" name="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" fullname="SimulationBudgetTests.CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" methodname="CampaignOperationalDoctrinesChangeProgressLossesAndSupplyUse" classname="SimulationBudgetTests" runstate="Runnable" seed="1736031527" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005091" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="2976" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.024280" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2974" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Stable)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="1114188989" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.012561" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2975" name="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" fullname="SimulationBudgetTests.OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices(Surge)" methodname="OfflineCampaignMatchesRealtimeForTheSameEffectiveTickSlices" classname="SimulationBudgetTests" runstate="Runnable" seed="704212733" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.010998" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2979" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.003769" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2977" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Stable)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="942857648" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001770" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2978" name="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" fullname="SimulationBudgetTests.OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes(Surge)" methodname="OfflineCampaignRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="1631067588" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001360" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="2972" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.079411" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="2970" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(1)" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(1)" methodname="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" seed="1150907026" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.038469" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="2971" name="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(7)" fullname="SimulationBudgetTests.OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity(7)" methodname="OfflineColonizationMatchesRealtimeWhenFoodFlowExceedsItsSmallCapacity" classname="SimulationBudgetTests" runstate="Runnable" seed="363837679" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.040325" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="2973" name="OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" fullname="SimulationBudgetTests.OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" methodname="OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes" classname="SimulationBudgetTests" runstate="Runnable" seed="387410520" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001617" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2969" name="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" fullname="SimulationBudgetTests.UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" methodname="UltraContinuousMaterialDemandParticipatesInSameTickSatisfaction" classname="SimulationBudgetTests" runstate="Runnable" seed="2101686399" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.005656" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="2995" name="SpaceProgressionTests" fullname="SpaceProgressionTests" classname="SpaceProgressionTests" runstate="Runnable" testcasecount="50" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.060516" total="50" passed="50" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3034" name="CeramicRemainsAUsefulSpacerStructureMaterial" fullname="SpaceProgressionTests.CeramicRemainsAUsefulSpacerStructureMaterial" methodname="CeramicRemainsAUsefulSpacerStructureMaterial" classname="SpaceProgressionTests" runstate="Runnable" seed="1330032390" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000604" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2997" name="CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" fullname="SpaceProgressionTests.CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" methodname="CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations" classname="SpaceProgressionTests" runstate="Runnable" seed="720537994" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001036" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3018" name="IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" fullname="SpaceProgressionTests.IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" methodname="IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse" classname="SpaceProgressionTests" runstate="Runnable" seed="320140605" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000884" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3043" name="OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" fullname="SpaceProgressionTests.OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" methodname="OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain" classname="SpaceProgressionTests" runstate="Runnable" seed="1809281638" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002069" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3026" name="OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" fullname="SpaceProgressionTests.OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" methodname="OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity" classname="SpaceProgressionTests" runstate="Runnable" seed="699445532" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001351" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2996" name="OrbitalEngineeringEntersSpacerBeforeSurveyFleetAndNavigation" fullname="SpaceProgressionTests.OrbitalEngineeringEntersSpacerBeforeSurveyFleetAndNavigation" methodname="OrbitalEngineeringEntersSpacerBeforeSurveyFleetAndNavigation" classname="SpaceProgressionTests" runstate="Runnable" seed="1381746668" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.006098" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3004" name="OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" fullname="SpaceProgressionTests.OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" methodname="OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance" classname="SpaceProgressionTests" runstate="Runnable" seed="487903797" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000706" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3028" name="OrbitalStationClothDemandHasAnIndustrialSupplyChain" fullname="SpaceProgressionTests.OrbitalStationClothDemandHasAnIndustrialSupplyChain" methodname="OrbitalStationClothDemandHasAnIndustrialSupplyChain" classname="SpaceProgressionTests" runstate="Runnable" seed="464760810" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001237" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3023" name="OrbitalStationRequiresAutonomousFleetLogistics" fullname="SpaceProgressionTests.OrbitalStationRequiresAutonomousFleetLogistics" methodname="OrbitalStationRequiresAutonomousFleetLogistics" classname="SpaceProgressionTests" runstate="Runnable" seed="869569863" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000549" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3042" name="OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" fullname="SpaceProgressionTests.OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" methodname="OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain" classname="SpaceProgressionTests" runstate="Runnable" seed="647585270" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001094" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3027" name="ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" fullname="SpaceProgressionTests.ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" methodname="ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration" classname="SpaceProgressionTests" runstate="Runnable" seed="590553353" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000557" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2998" name="ResearchPowerBuildingsFormOneContinuousUpgradeChain" fullname="SpaceProgressionTests.ResearchPowerBuildingsFormOneContinuousUpgradeChain" methodname="ResearchPowerBuildingsFormOneContinuousUpgradeChain" classname="SpaceProgressionTests" runstate="Runnable" seed="349401452" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001603" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3022" name="ShipyardRequiresItsAutomatedAssemblyWorkshop" fullname="SpaceProgressionTests.ShipyardRequiresItsAutomatedAssemblyWorkshop" methodname="ShipyardRequiresItsAutomatedAssemblyWorkshop" classname="SpaceProgressionTests" runstate="Runnable" seed="1776150855" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000395" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3002" name="SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" fullname="SpaceProgressionTests.SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" methodname="SpacerAddsDedicatedUpperReplacementsForWoodAndCoke" classname="SpaceProgressionTests" runstate="Runnable" seed="2124335897" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001028" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3035" name="SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" fullname="SpaceProgressionTests.SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" methodname="SpacerAdvancedResourcesKeepMultipleLongTermSinkCategories" classname="SpaceProgressionTests" runstate="Runnable" seed="2029154887" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000913" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3039" name="SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" fullname="SpaceProgressionTests.SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" methodname="SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch" classname="SpaceProgressionTests" runstate="Runnable" seed="1427963492" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.002095" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3010" name="SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" fullname="SpaceProgressionTests.SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" methodname="SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet" classname="SpaceProgressionTests" runstate="Runnable" seed="1922385861" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000515" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3020" name="SpacerFrontierStartsBeforePhaseMaterialProduction" fullname="SpaceProgressionTests.SpacerFrontierStartsBeforePhaseMaterialProduction" methodname="SpacerFrontierStartsBeforePhaseMaterialProduction" classname="SpaceProgressionTests" runstate="Runnable" seed="1448403271" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000272" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3038" name="SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" fullname="SpaceProgressionTests.SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" methodname="SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport" classname="SpaceProgressionTests" runstate="Runnable" seed="79698174" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001239" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3031" name="SpacerQuantumComputingSliceUsesAdvancedMaterials" fullname="SpaceProgressionTests.SpacerQuantumComputingSliceUsesAdvancedMaterials" methodname="SpacerQuantumComputingSliceUsesAdvancedMaterials" classname="SpaceProgressionTests" runstate="Runnable" seed="1273699887" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001769" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3001" name="SpacerResearchGraphMustRetainMeaningfulBranches" fullname="SpaceProgressionTests.SpacerResearchGraphMustRetainMeaningfulBranches" methodname="SpacerResearchGraphMustRetainMeaningfulBranches" classname="SpaceProgressionTests" runstate="Runnable" seed="1993460038" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001515" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2999" name="SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" fullname="SpaceProgressionTests.SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" methodname="SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly" classname="SpaceProgressionTests" runstate="Runnable" seed="1726621327" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001023" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3017" name="Spacer高级材料必须都有来源和长期战略消耗" fullname="SpaceProgressionTests.Spacer高级材料必须都有来源和长期战略消耗" methodname="Spacer高级材料必须都有来源和长期战略消耗" classname="SpaceProgressionTests" runstate="Runnable" seed="1062654493" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000878" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3007" name="基础资源链使用合并后的工业上位建筑" fullname="SpaceProgressionTests.基础资源链使用合并后的工业上位建筑" methodname="基础资源链使用合并后的工业上位建筑" classname="SpaceProgressionTests" runstate="Runnable" seed="550249924" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000383" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3041" name="太空全局战役效果必须来自有明确职责的研究" fullname="SpaceProgressionTests.太空全局战役效果必须来自有明确职责的研究" methodname="太空全局战役效果必须来自有明确职责的研究" classname="SpaceProgressionTests" runstate="Runnable" seed="1064377403" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000405" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3045" name="太空工业设施必须形成焦炭化工与爆破的持续运营闭环" fullname="SpaceProgressionTests.太空工业设施必须形成焦炭化工与爆破的持续运营闭环" methodname="太空工业设施必须形成焦炭化工与爆破的持续运营闭环" classname="SpaceProgressionTests" runstate="Runnable" seed="1899986049" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000572" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3029" name="太空工坊形成研究后的持续成长" fullname="SpaceProgressionTests.太空工坊形成研究后的持续成长" methodname="太空工坊形成研究后的持续成长" classname="SpaceProgressionTests" runstate="Runnable" seed="691262607" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.003586" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3021" name="太空建筑必须经过对应研究" fullname="SpaceProgressionTests.太空建筑必须经过对应研究" methodname="太空建筑必须经过对应研究" classname="SpaceProgressionTests" runstate="Runnable" seed="1665371075" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000703" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3036" name="太空研究与工坊必须持续使用高级结构材料" fullname="SpaceProgressionTests.太空研究与工坊必须持续使用高级结构材料" methodname="太空研究与工坊必须持续使用高级结构材料" classname="SpaceProgressionTests" runstate="Runnable" seed="1603652779" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000892" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3040" name="太空研究树必须拥有能源生命保障与自主采矿横向分支" fullname="SpaceProgressionTests.太空研究树必须拥有能源生命保障与自主采矿横向分支" methodname="太空研究树必须拥有能源生命保障与自主采矿横向分支" classname="SpaceProgressionTests" runstate="Runnable" seed="1548179796" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000997" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3009" name="工业到太空研究链完整" fullname="SpaceProgressionTests.工业到太空研究链完整" methodname="工业到太空研究链完整" classname="SpaceProgressionTests" runstate="Runnable" seed="1604696996" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001822" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3025" name="所有太空工坊必须支付高级结构材料" fullname="SpaceProgressionTests.所有太空工坊必须支付高级结构材料" methodname="所有太空工坊必须支付高级结构材料" classname="SpaceProgressionTests" runstate="Runnable" seed="20299285" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000642" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3024" name="所有太空建筑必须持续消耗高级资源" fullname="SpaceProgressionTests.所有太空建筑必须持续消耗高级资源" methodname="所有太空建筑必须持续消耗高级资源" classname="SpaceProgressionTests" runstate="Runnable" seed="1225526786" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000838" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3030" name="星际补给研究与实体工坊必须保持职责边界" fullname="SpaceProgressionTests.星际补给研究与实体工坊必须保持职责边界" methodname="星际补给研究与实体工坊必须保持职责边界" classname="SpaceProgressionTests" runstate="Runnable" seed="545303960" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000516" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3011" name="星际补给链理论与自动化模块必须降低持续远征补给消耗" fullname="SpaceProgressionTests.星际补给链理论与自动化模块必须降低持续远征补给消耗" methodname="星际补给链理论与自动化模块必须降低持续远征补给消耗" classname="SpaceProgressionTests" runstate="Runnable" seed="1307414483" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001020" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3005" name="木材与焦炭必须保留工业到太空的连续上位替代链" fullname="SpaceProgressionTests.木材与焦炭必须保留工业到太空的连续上位替代链" methodname="木材与焦炭必须保留工业到太空的连续上位替代链" classname="SpaceProgressionTests" runstate="Runnable" seed="1685955497" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000748" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3003" name="每个太空建筑都必须使用高级结构材料建造并持续维护" fullname="SpaceProgressionTests.每个太空建筑都必须使用高级结构材料建造并持续维护" methodname="每个太空建筑都必须使用高级结构材料建造并持续维护" classname="SpaceProgressionTests" runstate="Runnable" seed="198483354" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000782" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3008" name="每个太空研究与工坊都必须改变后期玩法" fullname="SpaceProgressionTests.每个太空研究与工坊都必须改变后期玩法" methodname="每个太空研究与工坊都必须改变后期玩法" classname="SpaceProgressionTests" runstate="Runnable" seed="254665353" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001159" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3037" name="每种高级结构材料都必须进入太空建筑研究与工坊" fullname="SpaceProgressionTests.每种高级结构材料都必须进入太空建筑研究与工坊" methodname="每种高级结构材料都必须进入太空建筑研究与工坊" classname="SpaceProgressionTests" runstate="Runnable" seed="868032445" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000667" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3019" name="炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" fullname="SpaceProgressionTests.炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" methodname="炸药必须作为采掘与土木设备的持续消耗而不是战争建造费" classname="SpaceProgressionTests" runstate="Runnable" seed="301658981" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000277" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3044" name="相位材料体系必须继续消耗工业焦炭" fullname="SpaceProgressionTests.相位材料体系必须继续消耗工业焦炭" methodname="相位材料体系必须继续消耗工业焦炭" classname="SpaceProgressionTests" runstate="Runnable" seed="1526951621" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000244" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3032" name="相位材料合成阵列必须持续消耗工业基础材料" fullname="SpaceProgressionTests.相位材料合成阵列必须持续消耗工业基础材料" methodname="相位材料合成阵列必须持续消耗工业基础材料" classname="SpaceProgressionTests" runstate="Runnable" seed="993564040" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000241" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3012" name="舰队损伤控制分支必须区分战损与维修成本并使用高级材料" fullname="SpaceProgressionTests.舰队损伤控制分支必须区分战损与维修成本并使用高级材料" methodname="舰队损伤控制分支必须区分战损与维修成本并使用高级材料" classname="SpaceProgressionTests" runstate="Runnable" seed="816940409" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000743" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3033" name="轨道农业生态学必须把生物质理论落实为实体工坊" fullname="SpaceProgressionTests.轨道农业生态学必须把生物质理论落实为实体工坊" methodname="轨道农业生态学必须把生物质理论落实为实体工坊" classname="SpaceProgressionTests" runstate="Runnable" seed="1187056157" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000696" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3016" name="轨道工业设施不得把原矿或精矿作为建造材料" fullname="SpaceProgressionTests.轨道工业设施不得把原矿或精矿作为建造材料" methodname="轨道工业设施不得把原矿或精矿作为建造材料" classname="SpaceProgressionTests" runstate="Runnable" seed="587078001" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000363" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3015" name="轨道真空冶金阵列不应使用采出精矿作为建造材料" fullname="SpaceProgressionTests.轨道真空冶金阵列不应使用采出精矿作为建造材料" methodname="轨道真空冶金阵列不应使用采出精矿作为建造材料" classname="SpaceProgressionTests" runstate="Runnable" seed="371665362" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000395" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3006" name="轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" fullname="SpaceProgressionTests.轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" methodname="轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料" classname="SpaceProgressionTests" runstate="Runnable" seed="1237607604" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000887" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3013" name="轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" fullname="SpaceProgressionTests.轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" methodname="轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源" classname="SpaceProgressionTests" runstate="Runnable" seed="1908044487" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001015" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3014" name="轨道采出资源必须接入明确的下游冶金节点" fullname="SpaceProgressionTests.轨道采出资源必须接入明确的下游冶金节点" methodname="轨道采出资源必须接入明确的下游冶金节点" classname="SpaceProgressionTests" runstate="Runnable" seed="1782257591" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.000645" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3000" name="高级材料研究与工坊必须先经过对应理论研究" fullname="SpaceProgressionTests.高级材料研究与工坊必须先经过对应理论研究" methodname="高级材料研究与工坊必须先经过对应理论研究" classname="SpaceProgressionTests" runstate="Runnable" seed="1364463626" result="Passed" start-time="2026-10-18 14:27:56Z" end-time="2026-10-18 14:27:56Z" duration="0.001633" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

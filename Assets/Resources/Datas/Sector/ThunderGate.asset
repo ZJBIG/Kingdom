@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ThunderGate
   Label: "雷门环"
-  Description: "太阳系外缘的冰冷资源带。占领后可持续取得火箭燃料、高级金属锭和特级金属矿，为离开太阳系准备补给。"
+  Description: "母恒星系外缘的冰冷资源带。这里是未来远航设施的候选基地，停泊区、燃料生产与维修能力都需要王国逐一建设。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -22,13 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a7b6c5d4e3f20191827364554637281, type: 2}
   territoryReward: "400000"
   resourceRewards: []
-  occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
-    amount: "0.08"
-  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "0.16"
-  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "0.12"
+  occupiedResourceRatesPerSecond: []
   colonizationFoodPerSecond: "3000"
   colonizationResourceRatesPerSecond: []
   campaignFoodPerSecond: "0"

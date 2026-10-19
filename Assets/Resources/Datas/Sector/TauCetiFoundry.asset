@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: TauCetiFoundry
   Label: "鲸鱼座工业前哨"
-  Description: "寒冷尘埃中的旧工业前哨。占领后可持续取得复合材料、电子元件、幽影合金和相位材料，支撑星际建设。"
+  Description: "距母星近十二光年的寒冷尘埃中，旧工业前哨保持沉默。驻留后可持续取得复合材料、电子元件、幽影合金和相位材料。这一处微小据点拓宽了近邻航线，远未触及银河的广阔。"
   starSystemId: TauCeti
   domain: 1
   enemyPower: "4200"

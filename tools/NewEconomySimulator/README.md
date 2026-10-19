@@ -4,7 +4,7 @@ This directory contains the replacement simulator foundation and its maintenance
 
 ## Snapshot contract
 
-The current strongly typed snapshot format is version `4`. The Unity editor
+The current strongly typed snapshot format is version `5`. The Unity editor
 exporter resolves each definition through its Unity `.meta` GUID, orders stable
 IDs within each definition type with ordinal comparison, preserves research queue
 order, and writes every economy value as an
@@ -38,10 +38,19 @@ prerequisites and side effects are documented in
 command recipe here.
 
 The current csproj is a `net9.0` executable, not a library or a .NET 10 file-based
-app. `Program.cs` calls `ValidationSuite.RunCore()` and exits with `0` only when
+app. Without snapshot arguments, `Program.cs` calls `ValidationSuite.RunCore()` and exits with `0` only when
 `report.Passed` is true. Output is Markdown by default; `--json` selects JSON and
 `--csv` takes precedence when both flags are present. Check current suite coverage
 rather than treating the historical five-check list as the total test count.
+
+For controlled Unity snapshot comparisons, the CLI also accepts `--snapshot-before`,
+`--snapshot-after`, and exactly one of `--online-seconds` / `--offline-seconds`.
+A matching covered terminal state exits 0, differences exit 1, and invalid arguments
+exit 2. Version 5 includes the actual tick interval, calendar remainder and pending
+offline calendar/simulation seconds used by campaigns and active colonization.
+It does not compare per-tick Unity events or unsupported world-event, Ultra and
+relic state. Canonical usage remains in
+the validation reference linked above.
 
 ## Boundaries
 
@@ -80,8 +89,9 @@ Happiness calculations reuse Runtime `HappinessFormula`. Research and subsequent
 population stages read happiness using the current population; resource rewards
 remain fixed at preparation time to preserve the settled input budget, as in
 `SimulationManager`. Population-change progress is restored after deriving housing
-capacity and is included in detailed summaries. Version 3 snapshots must be
-recaptured: they omitted this progress and alphabetized the research queue.
+capacity and is included in detailed summaries. Older snapshots must be
+recaptured: v3 omitted this progress and alphabetized the research queue, while
+v4 omitted the tick interval, calendar remainder and pending offline seconds.
 This snapshot version is independent of the game save format (v1).
 Resource definitions also export the fixed `BaseProductionRate` (the starting
 wood supply). This production participates in input budgets and receives the

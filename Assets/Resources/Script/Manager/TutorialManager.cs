@@ -498,7 +498,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             case TechLevel.Industrial:
                 return "鼠族重新掌握电力、铁路与机器制造，文明复兴进入规模化加速阶段。";
             case TechLevel.Spacer:
-                return "鼠族已经走出母星，轨道设施、航行与舰队把复兴带向星际。";
+                return "鼠族开始走出母星，先在母恒星系建立轨道据点与持续补给，再为遥远的邻近恒星准备远征。";
             case TechLevel.Ultra:
                 return "相位材料与自主制造支撑起巨构。完成文明工程认证，为远星远征准备持续补给。";
             case TechLevel.Archotech:
@@ -1269,12 +1269,6 @@ public sealed partial class TutorialManager : MonoBehaviour
         BuildingManager buildings)
     {
         game.Sectors.InitializeDefinitions();
-        for (int i = 0; i < game.Sectors.OrderedStates.Count; i++)
-        {
-            SectorState state = game.Sectors.OrderedStates[i];
-            if (state.Definition != null && state.Definition.IsHomeSystem && state.Occupied)
-                return false;
-        }
         // OrderedStates uses stable IDs. Continue an existing operation before
         // choosing the first reachable, unfinished home-system destination.
         for (int pass = 0; pass < 2; pass++)

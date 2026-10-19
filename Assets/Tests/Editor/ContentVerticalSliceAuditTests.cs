@@ -66,11 +66,11 @@ public sealed class ContentVerticalSliceAuditTests
             "Industrialization",
             new[] { "Steel" });
         AssertPrerequisites(
-            "InterstellarNavigation",
-            new[] { "Industrialization", "TitaniumAlloyEngineering" });
+            "OrbitalEngineering",
+            new[] { "PowerGridEngineering", "CombustionEngines", "TitaniumAlloyEngineering" });
         AssertTransitionRequirements(
-            "InterstellarNavigation",
-            new[] { "RocketFuel", "TitaniumAlloy", "CopperWire", "Electronics" });
+            "OrbitalEngineering",
+            new[] { "BasicMetalIngot", "AdvancedMetalIngot", "TitaniumAlloy", "Concrete", "Electronics", "RefinedFuel" });
         AssertPrerequisites(
             "TechnologicalSingularity",
             new[] { "PhaseFieldNavigation", "QuantumComputing" });

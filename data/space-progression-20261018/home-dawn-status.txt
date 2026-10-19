@@ -1,0 +1,11 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-18T22:25:36.5545837+08:00
+Platform: EditMode
+Result: Failed
+Total: 11 Passed:10 Failed:1 Skipped:0
+
+=== FAILURE 1 ===
+Test: SimulationBudgetTests.OfflineColonizationRemainderIsAppliedBeforeRealtimeResumes
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

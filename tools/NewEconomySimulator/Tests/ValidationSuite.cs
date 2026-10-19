@@ -20,7 +20,206 @@ public static class ValidationSuite
         CheckSnapshotDefinitionNamespaces(report);
         CheckSectorWithoutEra(report);
         CheckBaseResourceProduction(report);
+        CheckSnapshotCommandOptions(report);
+        CheckSnapshotComparisonBoundaries(report);
+        CheckOfflineOperationCadence(report);
+        CheckSnapshotOperationTiming(report);
+        CheckSnapshotTimingComparison(report);
+        CheckHomeSystemDevelopmentContract(report);
         return report;
+    }
+
+    private static void CheckHomeSystemDevelopmentContract(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        var sector = new SectorSnapshot
+        {
+            Id = "Home", Guid = new string('d', 32), AssetPath = "fixture/Home.asset",
+            TechLevel = "", Domain = "HomeSystem", StarSystemId = "Sol"
+        };
+        snapshot.Sectors.Add(sector);
+        snapshot.RuntimeState.Sectors = [new SectorStateSnapshot { SectorId = "Home" }];
+        snapshot.SaveState.Sectors = snapshot.RuntimeState.Sectors;
+        snapshot.InitialState.Sectors = snapshot.RuntimeState.Sectors;
+        BudgetCore(snapshot, "0");
+        bool passed = SnapshotValidation.Validate(snapshot).IsValid;
+        sector.ResourceRewards.Add(new AmountSnapshot { ResourceId = "A", Value = "1" });
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        sector.ResourceRewards.Clear();
+        sector.OccupiedResourceRatesPerSecond.Add(new AmountSnapshot { ResourceId = "A", Value = "1" });
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        sector.Domain = "Interstellar";
+        sector.StarSystemId = "Neighbor";
+        passed &= SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "home-system development forbids resource rewards and passive production", passed,
+            "Local development space remains valid; both local resource grant paths are rejected while interstellar production stays valid.");
+    }
+
+    private static void CheckSnapshotTimingComparison(ValidationReport report)
+    {
+        var core = new SimulationCore(new SimulationState());
+        var passed = SnapshotParityCommand.Compare(core, new RuntimeStateSnapshot()).Count == 0;
+        (string Field, Action<RuntimeStateSnapshot> Change)[] probes =
+        [
+            ("CalendarElapsedSeconds", state => state.CalendarElapsedSeconds = .01d),
+            ("SimulationTickIntervalSeconds", state => state.SimulationTickIntervalSeconds = .11d),
+            ("OfflinePendingCalendarSeconds", state => state.OfflinePendingCalendarSeconds = .01d),
+            ("OfflinePendingSimulationSeconds", state => state.OfflinePendingSimulationSeconds = .01d)
+        ];
+        foreach (var probe in probes)
+        {
+            var expected = new RuntimeStateSnapshot();
+            probe.Change(expected);
+            var differences = SnapshotParityCommand.Compare(core, expected);
+            passed &= differences.Count == 1 && differences[0].Field == probe.Field;
+        }
+        AddResult(report, "snapshot v5 compares every operation timing input independently", passed,
+            "Matching timing has no differences; changing each of the four double timing inputs reports exactly that field.");
+    }
+
+    private static void CheckSnapshotOperationTiming(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.RuntimeState.CalendarElapsedSeconds = 9.95d;
+        snapshot.RuntimeState.SimulationTickIntervalSeconds = (double).1f;
+        snapshot.RuntimeState.OfflinePendingCalendarSeconds = .075d;
+        snapshot.RuntimeState.OfflinePendingSimulationSeconds = .05d;
+        var core = BudgetCore(snapshot, "0");
+        var restored = core.TickSeconds == (double).1f &&
+            Math.Abs(core.State.CalendarElapsedSeconds - 9.95d) < 1e-12d &&
+            Math.Abs(core.OfflinePendingCalendarSeconds - .075d) < 1e-12d &&
+            Math.Abs(core.OfflinePendingSimulationSeconds - .05d) < 1e-12d;
+        core.Tick(SimulationMode.Realtime, .01d, .01d);
+        AddResult(report, "snapshot v5 restores operation timing without quantization", restored &&
+            core.State.CalendarDays == 1 && Math.Abs(core.State.CalendarElapsedSeconds - .035d) < 1e-12d &&
+            Math.Abs(core.State.ElapsedSeconds - .06d) < 1e-12d && core.OfflinePendingSimulationSeconds == 0d,
+            "Double calendar remainder, serialized float tick interval and pending clocks resume before an online tick; game save remains v1.");
+        snapshot.FormatVersion = 4;
+        var oldRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.FormatVersion = SnapshotFormat.CurrentVersion;
+        snapshot.RuntimeState.CalendarElapsedSeconds = 10d;
+        var calendarRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.RuntimeState.CalendarElapsedSeconds = 0d;
+        snapshot.RuntimeState.OfflinePendingSimulationSeconds = snapshot.RuntimeState.SimulationTickIntervalSeconds;
+        var pendingRejected = !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.RuntimeState.OfflinePendingSimulationSeconds = .05d;
+        snapshot.RuntimeState.SimulationTickIntervalSeconds = 0d;
+        AddResult(report, "snapshot v5 rejects stale or impossible operation timing",
+            oldRejected && calendarRejected && pendingRejected && !SnapshotValidation.Validate(snapshot).IsValid,
+            "v4 requires recapture; invalid calendar remainder, tick interval and pending duration are rejected.");
+    }
+
+    private static void CheckOfflineOperationCadence(ValidationReport report)
+    {
+        SimulationCore Colony()
+        {
+            var snapshot = BudgetSnapshot();
+            snapshot.RuntimeState.Food = "500";
+            var supply = BudgetBuilding("Support", "", "0", "", "0");
+            supply.FoodProductionRate = "10000";
+            snapshot.Buildings.Add(supply);
+            snapshot.Sectors = [new SectorSnapshot
+            {
+                Id = "Colony", Guid = new string('d', 32), AssetPath = "fixture/Colony.asset",
+                StarSystemId = "Sol", Domain = "HomeSystem", ColonizationFoodPerSecond = "4000",
+                ColonizationDurationSeconds = "100000", ColonizationResourceRatesPerSecond =
+                    [new AmountSnapshot { ResourceId = "A", Value = "120" }]
+            }];
+            var states = new List<SectorStateSnapshot> { new() { SectorId = "Colony", Unlocked = true, ColonizationActive = true } };
+            snapshot.InitialState.Sectors = states;
+            snapshot.SaveState.Sectors = states;
+            snapshot.RuntimeState.Sectors = states;
+            return BudgetCore(snapshot, "1000000");
+        }
+        bool EqualColony(SimulationCore left, SimulationCore right) =>
+            (left.State.SectorStates["Colony"].Progress - right.State.SectorStates["Colony"].Progress).Abs() < new ExpantaNum(1e-6d) &&
+            (left.State.Food - right.State.Food).Abs() < new ExpantaNum(1e-5d) &&
+            (left.State.GetResource("A") - right.State.GetResource("A")).Abs() < new ExpantaNum(1e-5d);
+        var realtime = Colony();
+        realtime.RunRealtime(600);
+        foreach (var segments in new[] { 1, 7 })
+        {
+            var offline = Colony();
+            var remaining = 60d;
+            for (var i = 0; i < segments; i++)
+            {
+                var seconds = i == segments - 1 ? remaining : 60d / segments;
+                offline.RunOffline(seconds);
+                remaining -= seconds;
+            }
+            offline.Tick(SimulationMode.Realtime, 1e-9d, 1e-9d);
+            AddResult(report, $"offline capped Food colony ({segments} windows)", EqualColony(realtime, offline) &&
+                offline.State.SectorStates["Colony"].Progress > ExpantaNum.Zero,
+                "Capacity 500 funds 0.1s payments of 400 but not a coarse 60s payment; repeated calls retain pending time.");
+        }
+        var reference = Colony();
+        reference.Tick(SimulationMode.Realtime, .1d, .1d);
+        reference.Tick(SimulationMode.Realtime, .05d, .05d);
+        reference.Tick(SimulationMode.Realtime, .1d, .1d);
+        var resumed = Colony();
+        resumed.RunOffline(.15d);
+        var deferred = Math.Abs(resumed.State.RequestedSeconds - .1d) < 1e-9d;
+        resumed.Tick(SimulationMode.Realtime, .1d, .1d);
+        AddResult(report, "offline operation remainder flushes before realtime", deferred && EqualColony(reference, resumed) &&
+            Math.Abs(resumed.State.RequestedSeconds - .25d) < 1e-9d,
+            "The 0.05s operation remainder is retained and settled once before the next realtime tick.");
+        var clockState = new SimulationState();
+        clockState.SetCampaign(true, "fixture", ExpantaNum.Zero, ExpantaNum.One);
+        var clock = new SimulationCore(clockState, tickSeconds: 60d);
+        clock.RunOffline(28860d);
+        clock.Tick(SimulationMode.Realtime, 1e-9d, 1e-9d);
+        AddResult(report, "offline operation rate boundaries conserve both clocks",
+            Math.Abs(clock.State.RequestedSeconds - 28860d) < 1e-6d && Math.Abs(clock.State.ElapsedSeconds - 20175d) < 1e-6d,
+            "Active-campaign clock fixture crosses 2h/8h; configured 60s effective ticks bound this arithmetic check.");
+        var research = ResearchTimingSnapshot();
+        research.Research[0].BaseCost = "0.1";
+        research.Research[1].BaseCost = "10000";
+        var cadence = BudgetCore(research, "1000000");
+        cadence.State.SetCampaign(true, "fixture", ExpantaNum.Zero, ExpantaNum.One);
+        cadence.RunOffline(.1d);
+        AddResult(report, "offline operation research uses realtime completion cadence",
+            cadence.State.GetResearchState("First").Completed && cadence.State.GetResearchState("Second").Progress <= ExpantaNum.Zero,
+            "An operation fine tick activates the next queued item without advancing it with predecessor remainder.");
+    }
+
+    private static void CheckSnapshotComparisonBoundaries(ValidationReport report)
+    {
+        var state = new SimulationState("0", "10");
+        var core = new SimulationCore(state, new DeterministicRules());
+        SnapshotParityCommand.AdvanceRealtime(core, 1e-10d);
+        AddResult(report, "snapshot comparison advances tiny positive durations",
+            state.Tick == 1 && Math.Abs(state.RequestedSeconds - 1e-10d) <= 1e-18d,
+            "A valid duration below 1e-9 must execute a tick rather than compare an unchanged state.");
+        var exactWindow = new SimulationState("0", "10");
+        SnapshotParityCommand.AdvanceRealtime(new SimulationCore(exactWindow, new DeterministicRules()), 10d);
+        AddResult(report, "snapshot comparison preserves whole online tick counts", exactWindow.Tick == 100,
+            "A ten-second window executes exactly 100 ticks, without a floating-point remainder tick.");
+        state.SetCampaign(true, "CampaignFixture", new ExpantaNum(2d), new ExpantaNum(.5d));
+        state.SetCampaignProgress(new ExpantaNum(.25d));
+        var fields = SnapshotParityCommand.Compare(state, new RuntimeStateSnapshot()).Select(item => item.Field).ToHashSet();
+        AddResult(report, "snapshot comparison includes global campaign state",
+            new[] { "CampaignActive", "CampaignTargetSectorId", "CampaignProgress", "CampaignCasualties", "CampaignCombatRatio" }.All(fields.Contains),
+            "All five exported global campaign fields must report a difference independently of sector state.");
+    }
+
+    private static void CheckSnapshotCommandOptions(ValidationReport report)
+    {
+        var valid = SnapshotParityCommand.Parse(["--snapshot-before", "before.json", "--snapshot-after", "after.json", "--offline-seconds", "7260"]);
+        var rejected = 0;
+        foreach (var invalid in new[] { "NaN", "Infinity", "-1", "0", "86401", "oops" })
+            try { SnapshotParityCommand.Parse(["--snapshot-before", "b", "--snapshot-after", "a", "--online-seconds", invalid]); }
+            catch (ArgumentException) { rejected++; }
+        foreach (var invalid in new string[][]
+        {
+            ["--snapshot-before", "b"],
+            ["--snapshot-before", "b", "--snapshot-after", "a", "--online-seconds", "1", "--offline-seconds", "1"],
+            ["--snapshot-before", "b", "--snapshot-before", "c", "--snapshot-after", "a", "--online-seconds", "1"],
+            ["--snapshot-before", "b", "--snapshot-after", "a", "--online-seconds"]
+        })
+            try { SnapshotParityCommand.Parse(invalid); }
+            catch (ArgumentException) { rejected++; }
+        AddResult(report, "snapshot comparison CLI validates inputs", valid.Offline && valid.Seconds == 7260d && rejected == 10,
+            "Valid fixed duration accepted; malformed, duplicate, conflicting and unbounded options rejected.");
     }
 
     private static void CheckBaseResourceProduction(ValidationReport report)

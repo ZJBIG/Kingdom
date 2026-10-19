@@ -1,0 +1,50 @@
+[
+  {
+    "sector": "DawnRing",
+    "territoryBefore": "\"500\"",
+    "territoryAfter": "\"500\"",
+    "passiveRatesBefore": 1,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  },
+  {
+    "sector": "AzurePool",
+    "territoryBefore": "\"12000\"",
+    "territoryAfter": "\"12000\"",
+    "passiveRatesBefore": 3,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  },
+  {
+    "sector": "Terminus",
+    "territoryBefore": "\"100000\"",
+    "territoryAfter": "\"100000\"",
+    "passiveRatesBefore": 3,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  },
+  {
+    "sector": "ShardCrown",
+    "territoryBefore": "\"200000\"",
+    "territoryAfter": "\"200000\"",
+    "passiveRatesBefore": 3,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  },
+  {
+    "sector": "ThunderGate",
+    "territoryBefore": "\"400000\"",
+    "territoryAfter": "\"400000\"",
+    "passiveRatesBefore": 3,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  },
+  {
+    "sector": "HeliosCore",
+    "territoryBefore": "\"800000\"",
+    "territoryAfter": "\"800000\"",
+    "passiveRatesBefore": 2,
+    "passiveRatesAfter": 0,
+    "onlyAuthorizedFieldsChanged": true
+  }
+]

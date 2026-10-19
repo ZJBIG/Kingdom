@@ -747,7 +747,7 @@ public sealed class KingdomPlayModeTests
             new { Id = "StoneAgeSettlement", Target = TechLevel.StoneAge },
             new { Id = "FeudalAdministration", Target = TechLevel.Medieval },
             new { Id = "Industrialization", Target = TechLevel.Industrial },
-            new { Id = "InterstellarNavigation", Target = TechLevel.Spacer }
+            new { Id = "OrbitalEngineering", Target = TechLevel.Spacer }
         };
 
         for (int i = 0; i < transitions.Length; i++)
@@ -866,7 +866,7 @@ public sealed class KingdomPlayModeTests
         root.SetPage("Overview");
         root.RefreshUI();
         yield return new WaitForSeconds(0.35f);
-        TMP_Text body = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/PrimaryCard/Text")
+        TMP_Text body = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/SecondaryCard/Text")
             .GetComponent<TMP_Text>();
         Assert.That(body.text, Does.Contain("离线结算摘要"));
         Assert.That(body.text, Does.Contain(before.ToGameString() + " → " + after.ToGameString()));

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class EconomyParitySnapshotExporter
 {
-    public const int FormatVersion = 4;
+    public const int FormatVersion = 5;
     public const string DefaultRelativePath = "data/economy-parity/UnitySnapshot.json";
 
     [MenuItem("Kingdom/Economy/Export parity snapshot")]
@@ -187,6 +187,10 @@ public static class EconomyParitySnapshotExporter
                 PaidResourceCosts = Amounts(x.Definition.ResourceRequirements.Where(p => x.GetPaidResourceCost(p.First) > ExpantaNum.Zero)
                     .Select(p => new Pair<Resource, ExpantaNum>(p.First, x.GetPaidResourceCost(p.First))).ToList()) }).ToList();
         dto.ElapsedSeconds = Number(ExpantaNum.Zero);
+        dto.CalendarElapsedSeconds = GameManager.Instance.CalendarElapsedSecondsForEditor;
+        dto.SimulationTickIntervalSeconds = SimulationManager.Instance.TickIntervalSecondsForEditor;
+        dto.OfflinePendingCalendarSeconds = SimulationManager.Instance.OfflinePendingCalendarSecondsForEditor;
+        dto.OfflinePendingSimulationSeconds = SimulationManager.Instance.OfflinePendingSimulationSecondsForEditor;
         dto.CampaignProgress = dto.CampaignActive
             ? dto.Sectors.FirstOrDefault(x => x.SectorId == dto.CampaignTargetSectorId)?.Progress ?? Number(ExpantaNum.Zero)
             : Number(ExpantaNum.Zero);
@@ -415,7 +419,7 @@ public static class EconomyParitySnapshotExporter
 [Serializable] public sealed class EffectDto { public string Type=""; public string BuildingId=""; public string ResourceId=""; public string Value="1"; }
 [Serializable] public class StateDto { public string TechLevel="Animal"; public string Food="0"; public string FoodCapacity="1"; public List<AmountDto> Resources=new(); public List<BuildingStateDto> Buildings=new(); public List<ResearchStateDto> Research=new(); public List<string> PurchasedWorkshopIds=new(); public List<SectorStateDto> Sectors=new(); }
 [Serializable] public class SaveStateDto : StateDto { public int CalendarDays; public string Population="0"; public string PopulationChangeProgress="0"; public string TerritoryTotal="0"; public string AttackPower="0"; public string DefensePower="0"; public string FleetPower="0"; public string MilitaryManpower="0"; public string SupplySatisfaction="1"; public string PowerSatisfaction="1"; public string LogisticsSatisfaction="1"; public bool CampaignActive; public string CampaignTargetSectorId=""; public string CampaignCasualties="0"; public string CampaignCombatRatio="0"; public string ActiveResearchId=""; public List<string> QueuedResearchIds=new(); public long LastSaveUnixSeconds; }
-[Serializable] public sealed class RuntimeStateDto : SaveStateDto { public long Tick; public string ElapsedSeconds="0"; public string CampaignProgress="0"; public List<EventDto> Events=new(); }
+[Serializable] public sealed class RuntimeStateDto : SaveStateDto { public long Tick; public string ElapsedSeconds="0"; public string CampaignProgress="0"; public double CalendarElapsedSeconds; public double SimulationTickIntervalSeconds; public double OfflinePendingCalendarSeconds; public double OfflinePendingSimulationSeconds; public List<EventDto> Events=new(); }
 [Serializable] public sealed class BuildingStateDto { public string BuildingId=""; public string Amount="0"; public string Efficiency="1"; }
 [Serializable] public sealed class ResearchStateDto { public string ResearchId=""; public string Progress="0"; public bool CostPaid; public bool Completed; public List<AmountDto> PaidResourceCosts=new(); }
 [Serializable] public sealed class SectorStateDto { public string SectorId=""; public bool Unlocked; public bool Occupied; public bool ColonizationActive; public bool CampaignActive; public string Progress="0"; public string Casualties="0"; public string CombatRatio="0"; public int VisitCount; }

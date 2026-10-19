@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: HeliosCore
   Label: "曜心"
-  Description: "靠近日冕的旧王国采集阵列。灼热光焰之间仍有封存的材料与设备，占领后可持续回收高级金属锭和电子元件。"
+  Description: "靠近日冕的灼热开发区。旧阵列已沉寂，光焰之间没有可直接接收的库存；王国必须承担设施建设和长期补给，才能在此立足。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -22,11 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a7b6c5d4e3f20191827364554637281, type: 2}
   territoryReward: "800000"
   resourceRewards: []
-  occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "0.24"
-  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.12"
+  occupiedResourceRatesPerSecond: []
   colonizationFoodPerSecond: "4000"
   colonizationResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}

@@ -42,7 +42,13 @@ public sealed class RelicSimulationTests
         Near(offline.Progress, realtime.Progress, .01d);
         Near(offline.FoodChange, realtime.FoodChange);
         foreach (var entry in realtime.MaterialChanges)
-            Near(offline.MaterialChanges[entry.Key], entry.Value);
+        {
+            // This full-supply fixture integrates 600 rounded scalar increments versus one large step.
+            ExpantaNum difference = (offline.MaterialChanges[entry.Key] - entry.Value).Abs();
+            ExpantaNum tolerance = ExpantaNum.Max(new ExpantaNum(600d * 1e-6d), entry.Value.Abs() * 1e-8d);
+            TestContext.WriteLine($"Relic cadence resource={entry.Key} difference={difference} quantizationBudget={tolerance}");
+            Assert.That(difference, Is.LessThanOrEqualTo(tolerance), entry.Key);
+        }
     }
 
     [Test]
@@ -126,19 +132,24 @@ public sealed class RelicSimulationTests
             foreach (var resource in DataBase<Resource>.All)
                 resources.SetAmount(resource, new ExpantaNum(1e6d));
             foreach (var required in definition.RequiredBuildings)
-            {
-                // Keep stable prerequisite identity while isolating unrelated authored industry flows.
-                Building clone = UnityEngine.Object.Instantiate(required);
-                temporaryBuildings.Add(clone);
-                clone.ConfigureEconomyForEditor(new ExpantaNum(1.15d),
-                    ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                    ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                    new ExpantaNum(1e6d), ExpantaNum.Zero, new ExpantaNum(1e6d),
-                    ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                    new List<Pair<Resource, ExpantaNum>>(), new List<Pair<Resource, ExpantaNum>>(),
-                    new List<Pair<Resource, ExpantaNum>>());
-                buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(clone), ExpantaNum.One);
-            }
+                buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(required), ExpantaNum.One);
+            // Authored stable IDs resolve to authored definitions; use a distinct fixture for neutral support.
+            Building support = ScriptableObject.CreateInstance<Building>();
+            temporaryBuildings.Add(support);
+            support.SetIdForEditor("RelicSimulationNeutralSupport");
+            support.ConfigureEconomyForEditor(
+                growth: new ExpantaNum(1.15d), territory: ExpantaNum.Zero,
+                productivityConsumptionValue: ExpantaNum.Zero, productivity: new ExpantaNum(1e6d),
+                populationCapacity: ExpantaNum.Zero, researchPower: ExpantaNum.Zero,
+                foodProduction: new ExpantaNum(1e6d), foodConsumption: ExpantaNum.Zero,
+                foodCapacity: ExpantaNum.Zero, powerProduction: new ExpantaNum(1e6d),
+                powerConsumption: ExpantaNum.Zero, logisticsProduction: new ExpantaNum(1e6d),
+                logisticsConsumption: ExpantaNum.Zero, attack: ExpantaNum.Zero,
+                defense: ExpantaNum.Zero, manpower: ExpantaNum.Zero,
+                requirements: new List<Pair<Resource, ExpantaNum>>(),
+                generation: new List<Pair<Resource, ExpantaNum>>(),
+                consumption: new List<Pair<Resource, ExpantaNum>>());
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(support), ExpantaNum.One);
             game.Sectors.InitializeDefinitions();
             game.Sectors.GetState(definition.Sector).SetUnlockedForEditor(true);
             game.Sectors.GetState(definition.Sector).SetOccupiedForEditor(true);
@@ -164,6 +175,9 @@ public sealed class RelicSimulationTests
                     bool producedByOccupiedSector = false;
                     foreach (var rate in definition.Sector.OccupiedResourceRatesPerSecond)
                         if (rate.First == cost.First && rate.Second > ExpantaNum.Zero) producedByOccupiedSector = true;
+                    foreach (var required in definition.RequiredBuildings)
+                        foreach (var rate in required.ResourceGenerationRates)
+                            if (rate.First == cost.First && rate.Second > ExpantaNum.Zero) producedByOccupiedSector = true;
                     if (!producedByOccupiedSector) { missing = cost.First; break; }
                 }
                 Assert.That(missing, Is.Not.Null, "Zero-supply case must not be replenished by its occupied sector.");

@@ -1,10 +1,15 @@
-# 本星系探索奖励约束
+# 本恒星系探索与荒芜开发地合同
 
 本星系（`SectorDefinition.IsHomeSystem`）探索/殖民行动只消耗 Food 与配置的行动资源。
 
-成功后只授予星区状态和 `TerritoryReward`；`ResourceRewards` 必须为空。星区已占领后的
-`OccupiedResourceRatesPerSecond` 是持续战略产出，不属于探索成功的一次性资源奖励，仍可保留。
+2026-10-19用户确认：Sol母恒星系六个据点是等待开发的荒芜空间。探索成功只授予星区状态和
+`TerritoryReward`开发面积；`ResourceRewards`和`OccupiedResourceRatesPerSecond`必须全部为空。
+成功不赠材料，占领也不自动采集或持续生产资源；后续收益来自玩家实际建设及其能源、物流、人口生产力与原料投入。
+
+本轮复用已有全局建筑和领土空间承接开发，不新增按星球建造、独立地图或殖民地生产子系统。
+这里约束本恒星系六据点；系外区域可保留已有一次性战利品与有限战略产出，不能把它们的收益规则套回本地。
 本星系探索不使用敌方强度、攻击力或防御力作为门槛；这些字段只对远星战役有意义。探索能否推进只由已解锁状态、Food 与该星区配置的持续行动资源决定。探索技术效果用于提高推进速度，不改变资源奖励规则。
 
-运行时 `SectorValidator` 与 `SectorManager` 都会拒绝带有本星系资源奖励的定义；
-`SectorManagerTests.C705_HomeSystemExplorationGrantsOnlyTerritory` 覆盖所有本星系资产。
+实施验收需确认六处定义的两类资源列表均空、开发面积保留，Validator与Manager均拒绝带本地自动收益的定义；
+针对性测试需覆盖成功只加面积、占领后在线/离线不产生资源，以及玩家建筑仍正常生产。
+本合同更新不等于资产和行为验证已完成，实际结果记录到同主题交接与验证报告。

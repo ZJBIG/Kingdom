@@ -1,0 +1,26 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-18T19:26:41.4933268+08:00
+Platform: EditMode
+Result: Failed
+Total: 147 Passed:143 Failed:4 Skipped:0
+
+=== FAILURE 1 ===
+Test: EarlyVerticalSlicePacingTests.NewGame_OrbitalThreeDailyVisitsTrace
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: RelicSimulationTests.FullRateOfflineAndRealtimeCadence_ProduceMatchingRelicProgressAndBalances
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 3 ===
+Test: RelicSimulationTests.Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(False)
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 4 ===
+Test: RelicSimulationTests.Simulation_InvestigationAdvancesAndPaysFoodAndEveryMaterial(True)
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

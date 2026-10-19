@@ -14,16 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: DawnRing
   Label: "曙光环"
-  Description: "王国离开地表后触及的第一道天穹边界。古老发射塔在薄雾上方重新点亮，电子元件沿升空走廊流入新生的空间工业。"
+  Description: "王国离开地表后触及的第一道天穹边界。升空走廊之外只有待建的轨道驻留区，第一批设施与补给仍须由母星送来。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
   prerequisiteSectors: []
   territoryReward: "500"
   resourceRewards: []
-  occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "0.04"
+  occupiedResourceRatesPerSecond: []
   colonizationFoodPerSecond: "16.6666667"
   colonizationResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}

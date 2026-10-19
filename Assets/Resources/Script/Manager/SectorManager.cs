@@ -1206,7 +1206,7 @@ public sealed class SectorManager
         for (int i = 0; i < orderedStates.Count; i++)
         {
             SectorState state = orderedStates[i];
-            if (state == null || !state.Occupied)
+            if (state == null || !state.Occupied || state.Definition.IsHomeSystem)
                 continue;
 
             IReadOnlyList<Pair<Resource, ExpantaNum>> rates =
@@ -1247,7 +1247,7 @@ public sealed class SectorManager
         for (int i = 0; i < orderedStates.Count; i++)
         {
             SectorState state = orderedStates[i];
-            if (state == null || !state.Occupied)
+            if (state == null || !state.Occupied || state.Definition.IsHomeSystem)
                 continue;
             IReadOnlyList<Pair<Resource, ExpantaNum>> rates =
                 state.Definition.OccupiedResourceRatesPerSecond;
@@ -1544,7 +1544,10 @@ public sealed class SectorManager
             return false;
 
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
-        if (definition.IsHomeSystem && rewards != null && rewards.Count > 0)
+        if (definition.IsHomeSystem &&
+            ((rewards != null && rewards.Count > 0) ||
+             (definition.OccupiedResourceRatesPerSecond != null &&
+              definition.OccupiedResourceRatesPerSecond.Count > 0)))
             return false;
         if (rewards == null)
             return true;
@@ -1560,8 +1563,11 @@ public sealed class SectorManager
     private static void ApplyRewards(SectorDefinition definition)
     {
         IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
-        if (definition.IsHomeSystem && rewards != null && rewards.Count > 0)
-            throw new InvalidOperationException("Home-system sectors cannot grant resource rewards.");
+        if (definition.IsHomeSystem &&
+            ((rewards != null && rewards.Count > 0) ||
+             (definition.OccupiedResourceRatesPerSecond != null &&
+              definition.OccupiedResourceRatesPerSecond.Count > 0)))
+            throw new InvalidOperationException("Home-system sectors cannot grant resources or occupied production.");
         var aggregated = new Dictionary<Resource, ExpantaNum>();
         for (int i = 0; rewards != null && i < rewards.Count; i++)
         {

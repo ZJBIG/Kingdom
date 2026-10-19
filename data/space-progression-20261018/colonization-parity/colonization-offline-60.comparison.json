@@ -1,0 +1,18 @@
+{
+  "source": "Controlled Unity v4 fixture; excludes world events, Ultra and relic systems",
+  "mode": "Offline",
+  "seconds": 60,
+  "passed": false,
+  "firstDifference": {
+    "Field": "CalendarDays",
+    "Expected": "6",
+    "Actual": "5"
+  },
+  "differences": [
+    {
+      "Field": "CalendarDays",
+      "Expected": "6",
+      "Actual": "5"
+    }
+  ]
+}

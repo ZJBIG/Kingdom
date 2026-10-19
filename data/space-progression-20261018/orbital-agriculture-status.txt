@@ -1,0 +1,5 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-18T22:14:26.6555380+08:00
+Platform: EditMode
+Result: Failed(NoXml)
+ExitCode=1; Unity produced no valid result XML. Log=data/space-progression-20261018/orbital-agriculture.log

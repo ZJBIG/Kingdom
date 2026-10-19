@@ -1,0 +1,28 @@
+test_archives_are_not_required_dependencies (__main__.GuidanceContractTests.test_archives_are_not_required_dependencies) ... ok
+test_client_adapter_is_thin_and_points_to_main (__main__.GuidanceContractTests.test_client_adapter_is_thin_and_points_to_main) ... ok
+test_consolidated_owners_preserve_product_and_design_boundaries (__main__.GuidanceContractTests.test_consolidated_owners_preserve_product_and_design_boundaries) ... ok
+test_current_ui_boundaries_do_not_restore_legacy_refresh_architecture (__main__.GuidanceContractTests.test_current_ui_boundaries_do_not_restore_legacy_refresh_architecture) ... ok
+test_domain_entries_return_through_main (__main__.GuidanceContractTests.test_domain_entries_return_through_main) ... ok
+test_invalid_domain_frontmatter_fails_in_memory (__main__.GuidanceContractTests.test_invalid_domain_frontmatter_fails_in_memory) ... ok
+test_leaf_metadata_does_not_enable_implicit_invocation (__main__.GuidanceContractTests.test_leaf_metadata_does_not_enable_implicit_invocation) ... ok
+test_missing_maintenance_reference_fails_in_memory (__main__.GuidanceContractTests.test_missing_maintenance_reference_fails_in_memory) ... ok
+test_only_main_skill_has_task_router_table (__main__.GuidanceContractTests.test_only_main_skill_has_task_router_table) ... ok
+test_powershell_required_paths_exist (__main__.GuidanceContractTests.test_powershell_required_paths_exist) ... ok
+test_product_defaults_preserved_without_stale_resolution (__main__.GuidanceContractTests.test_product_defaults_preserved_without_stale_resolution) ... ok
+test_real_skill_checks_without_write_operations (__main__.GuidanceContractTests.test_real_skill_checks_without_write_operations) ... ok
+test_required_project_contracts_exist (__main__.GuidanceContractTests.test_required_project_contracts_exist) ... ok
+test_unique_ui_semantics_were_preserved (__main__.GuidanceContractTests.test_unique_ui_semantics_were_preserved) ... ok
+test_cleanup_error_prevents_next_test_setup (__main__.ProbeHarnessTests.test_cleanup_error_prevents_next_test_setup) ... ok
+test_file_symlink_uses_unlink (__main__.ProbeHarnessTests.test_file_symlink_uses_unlink) ... ok
+test_link_cleanup_does_not_swallow_protection_block (__main__.ProbeHarnessTests.test_link_cleanup_does_not_swallow_protection_block) ... ok
+test_link_cleanup_residue_is_an_error (__main__.ProbeHarnessTests.test_link_cleanup_residue_is_an_error) ... ok
+test_non_link_is_preserved (__main__.ProbeHarnessTests.test_non_link_is_preserved) ... ok
+test_posix_symlink_uses_unlink (__main__.ProbeHarnessTests.test_posix_symlink_uses_unlink) ... ok
+test_runner_stops_on_first_failure (__main__.ProbeHarnessTests.test_runner_stops_on_first_failure) ... ok
+test_unowned_link_is_not_inspected_or_removed (__main__.ProbeHarnessTests.test_unowned_link_is_not_inspected_or_removed) ... ok
+test_windows_directory_symlink_uses_rmdir (__main__.ProbeHarnessTests.test_windows_directory_symlink_uses_rmdir) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.145s
+
+OK

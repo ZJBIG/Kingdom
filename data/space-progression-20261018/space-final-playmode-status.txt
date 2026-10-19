@@ -1,0 +1,11 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-18T22:32:38.2076077+08:00
+Platform: PlayMode
+Result: Failed
+Total: 3 Passed:2 Failed:1 Skipped:0
+
+=== FAILURE 1 ===
+Test: KingdomPlayModeTests.OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

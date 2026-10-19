@@ -1,0 +1,5 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-19T17:57:32.1764524+08:00
+Platform: EditMode
+Result: Failed(Timeout)
+Unity EditMode tests timed out after 600 seconds. Log=data/space-progression-20261018/azure-overlap.log

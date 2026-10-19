@@ -58,6 +58,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     }
 
     public double AccumulatedSecondsForEditor => accumulatedSeconds;
+    public double OfflinePendingCalendarSecondsForEditor => offlineCampaignPendingCalendarSeconds;
+    public double OfflinePendingSimulationSecondsForEditor => offlineCampaignPendingSimulationSeconds;
     public float TickIntervalSecondsForEditor => tickIntervalSeconds;
     public int MaximumTicksPerFrameForEditor => maximumTicksPerFrame;
     public void OnApplicationPauseForEditor(bool pauseStatus) => OnApplicationPause(pauseStatus);
@@ -317,7 +319,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         {
             double step = Math.Min(OfflineStepSeconds, remaining);
             GameManager gameManager = GameManager.Instance;
-            if (gameManager.State.Campaign.Active)
+            if (gameManager.State.Campaign.Active || HasActiveColonization(gameManager.Sectors))
             {
                 AdvanceOfflineCampaignWindow(
                     step,
@@ -343,6 +345,17 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             TutorialManager.Current);
 
         return advanced;
+    }
+
+    private static bool HasActiveColonization(SectorManager sectors)
+    {
+        // Colonization also pays from capped Food after production each tick.
+        // A 60-second lump can exceed capacity even when the live flow is sufficient.
+        var states = sectors.OrderedStates;
+        for (int i = 0; i < states.Count; i++)
+            if (states[i].ColonizationActive)
+                return true;
+        return false;
     }
 
     private static void TickSectorOperations(

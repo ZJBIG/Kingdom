@@ -1,0 +1,16 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-19T12:44:38.0631737+08:00
+Platform: EditMode
+Result: Failed
+Total: 213 Passed:211 Failed:2 Skipped:0
+
+=== FAILURE 1 ===
+Test: SectorManagerTests.HomeSectorLegacyOccupationCannotProduceOrContributeToSupply
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: SectorManagerTests.SolarSystemChainIncludesAsteroidBeltAndThunderGateBeforeAlpha
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

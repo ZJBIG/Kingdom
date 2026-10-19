@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ShardCrown
   Label: "碎冠带"
-  Description: "终焉星之后，一圈碎裂天体如破损王冠铺展。占领后可持续开采低级、高级与特级金属矿，送回太阳系的冶炼炉。"
+  Description: "终焉星之后，一圈碎裂天体如破损王冠铺展。勘测队标出了可开发地带，矿产只有投入采掘设施与持续补给后才能利用。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -22,13 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1820cea6c13ab3840b299c478d24406f, type: 2}
   territoryReward: "200000"
   resourceRewards: []
-  occupiedResourceRatesPerSecond:
-  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
-    amount: "0.18"
-  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
-    amount: "0.30"
-  - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
-    amount: "0.22"
+  occupiedResourceRatesPerSecond: []
   colonizationFoodPerSecond: "2500"
   colonizationResourceRatesPerSecond: []
   campaignFoodPerSecond: "0"

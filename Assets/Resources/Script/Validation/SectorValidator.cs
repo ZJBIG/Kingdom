@@ -314,6 +314,12 @@ public static class SectorValidator
                 error = $"星区验证失败：“{sector.Id}”本星系探索不得提供资源奖励。";
                 return false;
             }
+            if (sector.OccupiedResourceRatesPerSecond != null &&
+                sector.OccupiedResourceRatesPerSecond.Count > 0)
+            {
+                error = $"星区验证失败：“{sector.Id}”本星系探索不得提供占领资源产出。";
+                return false;
+            }
             error = null;
             return true;
         }

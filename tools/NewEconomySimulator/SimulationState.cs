@@ -129,17 +129,22 @@ public sealed class SimulationState
     public IReadOnlySet<string> PurchasedWorkshops => purchasedWorkshops;
     public IReadOnlyCollection<string> ResearchQueue => researchQueue.ToArray();
 
-    public void RestoreClock(long tick, double elapsedSeconds, double requestedSeconds, int calendarDays)
+    public double CalendarElapsedSeconds => calendarElapsedSeconds;
+
+    public void RestoreClock(long tick, double elapsedSeconds, double requestedSeconds, int calendarDays,
+        double calendarRemainderSeconds = 0d)
     {
         if (tick < 0 || calendarDays < 0)
             throw new ArgumentOutOfRangeException(nameof(tick));
         ValidateDelta(elapsedSeconds, nameof(elapsedSeconds));
         ValidateDelta(requestedSeconds, nameof(requestedSeconds));
+        if (!double.IsFinite(calendarRemainderSeconds) || calendarRemainderSeconds < 0d || calendarRemainderSeconds >= SecondsPerDay)
+            throw new ArgumentOutOfRangeException(nameof(calendarRemainderSeconds));
         Tick = tick;
         ElapsedSeconds = elapsedSeconds;
         RequestedSeconds = requestedSeconds;
         CalendarDays = calendarDays;
-        calendarElapsedSeconds = 0d;
+        calendarElapsedSeconds = calendarRemainderSeconds;
     }
 
     public void AdvanceClock(double effectiveSeconds, double requestedSeconds)

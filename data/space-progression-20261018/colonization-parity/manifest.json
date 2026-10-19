@@ -1,0 +1,40 @@
+{
+    "Scope": "Controlled housing/population/research fixture, not a new-game route. World events inactive; Ultra/relic not covered by v4.",
+    "Windows": [
+        {
+            "Id": "online-10",
+            "Offline": false,
+            "Seconds": 10.0
+        },
+        {
+            "Id": "offline-60",
+            "Offline": true,
+            "Seconds": 60.0
+        },
+        {
+            "Id": "offline-7260",
+            "Offline": true,
+            "Seconds": 7260.0
+        },
+        {
+            "Id": "offline-28860",
+            "Offline": true,
+            "Seconds": 28860.0
+        },
+        {
+            "Id": "offline-repeat-60",
+            "Offline": true,
+            "Seconds": 60.0
+        },
+        {
+            "Id": "colonization-offline-60",
+            "Offline": true,
+            "Seconds": 60.0
+        },
+        {
+            "Id": "colonization-online-10",
+            "Offline": false,
+            "Seconds": 10.0
+        }
+    ]
+}

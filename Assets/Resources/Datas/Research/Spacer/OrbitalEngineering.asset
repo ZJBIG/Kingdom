@@ -39,4 +39,4 @@ MonoBehaviour:
     Resource: {fileID: 0}
     value: "1.15"
   TechLevel: 4
-  AdvancesTechLevel: 0
+  AdvancesTechLevel: 1

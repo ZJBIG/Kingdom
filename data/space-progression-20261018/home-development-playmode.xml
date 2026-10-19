@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-19 09:45:47Z" end-time="2026-10-19 09:45:51Z" duration="4.1038466">
+  <test-suite type="TestSuite" id="1000" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-10-19 09:45:47Z" end-time="2026-10-19 09:45:51Z" duration="4.103847" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1113" name="Kingdom.PlayModeTests.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Kingdom.PlayModeTests.dll" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-10-19 09:45:47Z" end-time="2026-10-19 09:45:51Z" duration="4.091812" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="21228" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+      </properties>
+      <test-suite type="TestFixture" id="1024" name="KingdomPlayModeTests" fullname="KingdomPlayModeTests" classname="KingdomPlayModeTests" runstate="Runnable" testcasecount="22" result="Passed" start-time="2026-10-19 09:45:47Z" end-time="2026-10-19 09:45:51Z" duration="4.087174" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1036" name="EraTransitions_CompleteInOrderAndExposeNextEraContent" fullname="KingdomPlayModeTests.EraTransitions_CompleteInOrderAndExposeNextEraContent" methodname="EraTransitions_CompleteInOrderAndExposeNextEraContent" classname="KingdomPlayModeTests" runstate="Runnable" seed="669078523" result="Passed" start-time="2026-10-19 09:45:47Z" end-time="2026-10-19 09:45:48Z" duration="0.283637" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+        </test-case>
+        <test-case id="1037" name="HomeSystemGuidance_OverviewOpensFirstReachableSector" fullname="KingdomPlayModeTests.HomeSystemGuidance_OverviewOpensFirstReachableSector" methodname="HomeSystemGuidance_OverviewOpensFirstReachableSector" classname="KingdomPlayModeTests" runstate="Runnable" seed="598770486" result="Passed" start-time="2026-10-19 09:45:48Z" end-time="2026-10-19 09:45:50Z" duration="2.062643" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 字体解析完成：来源=NotoSansSC-Regular，共享字体=，默认字体=SIMSUN SDF
+[王国界面] Research tree cache warmed: prefabs=18/18, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=3, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=3, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=27, nonEmpty=26, characters=11, vertices=56, alphaVisible=27, suspicious=24
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=1.219 productivity=0/0 researchPower=4 era=Animal
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+[KingdomPerf] RefreshUI 24.8ms page=Overview
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 575.33):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5654.665
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5627.62):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 575.33):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+[KingdomMilestone] FirstBuildingBuilt elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] FirstResearchQueued elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] FirstResearchPaid elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] FirstResearchCompleted elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] StoneAgeReached elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] MedievalReached elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomMilestone] IndustrialReached elapsed=0.52s days=0 population=0 food=305.5 foodNet=46.49 wood=61.34 woodNet=1.5 productivity=420/1.21K researchPower=4 era=Spacer
+[KingdomPacing] era=Animal samples=0.1s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+[王国界面] Research era block: era=Animal, nodes=16, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-10
+[王国界面] Research era block: era=Medieval, nodes=12, columns=12-15
+[王国界面] Research era block: era=Industrial, nodes=36, columns=17-29
+[王国界面] Research era block: era=Spacer, nodes=47, columns=31-43
+[王国界面] Research era block: era=Ultra, nodes=15, columns=45-52
+[王国界面] Research graph topology candidate: nodes=143, layers=53, rows=30, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3417
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Research grid layout: nodes=143, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(52,29), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[王国界面] Research graph routes: links=383, sharedBusSegments=3680, batchGraphics=8, cache=struct-half-cell, renderer=batch-mesh-v1
+[王国界面] Outer page scroll diagnostic: Sectors:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 104.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=True
+[SectorBuildings] sector=AlphaCentauri expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=AzurePool expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=DawnRing expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=HeliosCore expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=ProximaB expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=ShardCrown expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=SiriusResourceBelt expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=TauCetiFoundry expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=Terminus expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[SectorBuildings] sector=ThunderGate expanded=False collapsed=104 expandedHeight=104 cards=0 viewport=(1630.00, 1588.00) content=(1630.00, 104.00)
+[KingdomPacing] era=Spacer samples=0.8s resourceWait=0.0% researchWait=0.0% productivityBlocked=0.0% populationBlocked=0.0% actionAvailable=100.0%
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+        </test-case>
+        <test-case id="1038" name="OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload" fullname="KingdomPlayModeTests.OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload" methodname="OfflineSummary_OverviewShowsActualSettlementAndClearsOnReload" classname="KingdomPlayModeTests" runstate="Runnable" seed="136133946" result="Passed" start-time="2026-10-19 09:45:50Z" end-time="2026-10-19 09:45:51Z" duration="1.725449" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+[王国界面] Canvas configured: mode=ScaleWithScreenSize, reference=(2640.00, 1200.00), match=0
+[王国界面] 复用共享字体：
+[王国界面] Research tree cache warmed: prefabs=18/18, sprites=19/19
+[王国界面] Legacy UI isolated: SafeAreaRoot is the only runtime UI surface
+[王国界面] Development guidance binding deferred until layout: rect=(0.00, 0.00)
+[王国界面] Detail UI rebuilt: legacyChildren=discarded, viewport=(582.00, -302.00), content=(582.00, 1.00), footer=82
+[王国界面] Research queue graphic bound: horizontal drag, ResearchNode prefab, ResearchLine bus/end sprites
+[王国界面] Detail UI v2 bound; legacy detail hierarchy is inactive.
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(0.00, 0.00) edge=None designWidth=0.0 text=False
+[王国界面] Authored scene shell bound; Detail UI v2 rebuilt and legacy detail UI discarded.
+[王国界面] Detail UI v2 geometry: viewport=(582.00, 178.00), content=(582.00, 178.00)
+[王国界面] Runtime geometry valid: screen=640x480, safeArea=(640.00, 480.00), navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Panel alignment: navigation=(270.00, 348.00), detail=(622.00, 348.00), bottomDelta=0.00, topDelta=0.00
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(-370.00, 88.00):content=(-370.00, 0.00):position=(0.00, 0.00):normalized=0:raycast=True:eventSystem=False
+[王国界面] TMP runtime diagnostic: reason=initial, name=Title, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(249.90, 60.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Date, active=True, enabled=True, valueLength=6, characterCount=0, vertexCount=0, rect=(249.90, 40.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=3, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=3, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Value, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(128.00, 31.74), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Caption, active=True, enabled=True, valueLength=4, characterCount=0, vertexCount=0, rect=(222.00, 50.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic: reason=initial, name=Text, active=True, enabled=True, valueLength=2, characterCount=0, vertexCount=0, rect=(198.00, 72.00), localScale=(1.00, 1.00, 1.00), rendererAlpha=1, groupAlpha=1, rendererCull=False, groups=SafeAreaRoot=1, font=SIMSUN SDF, material=SIMSUN Atlas Material, shader=TextMeshPro/Distance Field, atlas=SIMSUN Atlas, renderMaterial=SIMSUN Atlas Material, renderShader=TextMeshPro/Distance Field, renderAtlas=SIMSUN Atlas
+[王国界面] TMP runtime diagnostic summary: reason=initial, total=75, active=28, nonEmpty=27, characters=11, vertices=56, alphaVisible=28, suspicious=25
+没有可应用的有效 Kingdom 存档，已开始新游戏。
+[KingdomMilestone] NewGameStarted elapsed=0.00s days=0 population=0 food=300 foodNet=5 wood=60 woodNet=1.219 productivity=0/0 researchPower=4 era=Animal
+[KingdomUI] UnsafeAreaTicker screen=640x480 safeArea=(2640.00, 1980.00) edge=None designWidth=0.0 text=False
+[王国界面] BuildResearchTreePage implementation=ResearchTreeSK-IntegerGrid-v1-batched parent=DataRows (UnityEngine.RectTransform) parentRect=(1630.00, 900.00)
+[王国界面] Outer page scroll diagnostic: Research:enabled=False:vertical=False:viewport=(1630.00, 1588.00):content=(1630.00, 1588.00):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 575.33):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research page warmed and cached before first tab activation
+[王国剧情] New Overview-style Story shell rendered: era=Animal, unlocked=1, height=5654.665
+[王国界面] Outer page scroll diagnostic: Story:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 5627.62):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 575.33):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Story page warmed and cached before first tab activation
+已应用离线进度：10 秒。
+[KingdomMilestone] FirstBuildingBuilt elapsed=0.17s days=1 population=0 food=351.5 foodNet=5 wood=133.5 woodNet=7.313 productivity=4/0 researchPower=4 era=Animal
+[王国界面] Research era block: era=Animal, nodes=16, columns=0-4
+[王国界面] Research era block: era=StoneAge, nodes=17, columns=6-10
+[王国界面] Research era block: era=Medieval, nodes=12, columns=12-15
+[王国界面] Research era block: era=Industrial, nodes=36, columns=17-29
+[王国界面] Research era block: era=Spacer, nodes=47, columns=31-43
+[王国界面] Research era block: era=Ultra, nodes=15, columns=45-52
+[王国界面] Research graph topology candidate: nodes=143, layers=53, rows=30, cycles=0
+[王国界面] Research topology decision: selected=topology-integer-grid, reason=canonical-prerequisite-layout, duplicates=0, backwardsEdges=0, inversions=3417
+[MusicManager] Addressables catalog contains 56 tracks.
+[王国界面] Research grid layout: nodes=143, duplicates=0, backwardsEdges=0, intermediateNodeCrossings=0, maxGrid=(52,29), grid=255x60, layoutSource=topology-integer-grid
+[王国界面] Research static shell source=scene: viewport, content, lineLayer, dragSurface; toolbar=standard-prefab-runtime-fallback; runtime creates only data-driven repeated nodes, links and era bands.
+[王国界面] Research graph routes: links=383, sharedBusSegments=3680, batchGraphics=8, cache=struct-half-cell, renderer=batch-mesh-v1
+[王国界面] Outer page scroll diagnostic: Overview:enabled=True:vertical=True:viewport=(1630.00, 1588.00):content=(1630.00, 974.70):position=(0.00, 0.00):normalized=1:raycast=True:eventSystem=True
+[王国界面] Research graph overflow state: viewport=(1630.00, 1588.00), content=(13515.00, 1920.00), horizontal=True, vertical=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13515.00, 1920.00), scale=1, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research graph implementation=ResearchTreeSK-IntegerGrid-v8, viewport=(1630.00, 1588.00), content=(13515.00, 1920.00), dragOwner=UIResearchGraphGesture, horizontalScrollable=True, verticalScrollable=True, overflow=x=True,y=True
+[王国界面] Research graph bounds: viewport=(1630.00, 1588.00), content=(13515.00, 1920.00), scale=1.3, dragOwner=UIResearchGraphGesture, scrollRectPresent=True
+[王国界面] Research runtime node rects: nodes=143, uniquePositions=143, range=(25,65)-(13285,1805), content=(13515.00, 1920.00)
+[王国界面] Research page build complete: nodes=143, elapsedMs=754.8
+[王国界面] Research graph runtime validation: valid=True, duplicates=0, backwardsEdges=0, missingNodes=0, missingDragForwarders=0, positiveBounds=True, dragSurface=True
+[KingdomPacing] era=Animal samples=1.2s resourceWait=0.0% researchWait=0.0% productivityBlocked=100.0% populationBlocked=0.0% actionAvailable=0.0%
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

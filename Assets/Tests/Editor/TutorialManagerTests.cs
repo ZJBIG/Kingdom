@@ -142,8 +142,8 @@ public sealed class TutorialManagerTests
     [TestCase(1, "Buildings", "LaunchCenter")]
     [TestCase(2, "Research", "OrbitalEngineering")]
     [TestCase(3, "Sectors", "DawnRing")]
-    [TestCase(4, "Research", "DeepSpaceFleet")]
-    [TestCase(5, "Research", "DeepSpaceFleet")]
+    [TestCase(4, "Sectors", "AzurePool")]
+    [TestCase(5, "Sectors", "ThunderGate")]
     [TestCase(6, "Research", "DeepSpaceFleet")]
     [TestCase(7, "Sectors", "DawnRing")]
     [TestCase(8, "Sectors", "DawnRing")]
@@ -212,7 +212,7 @@ public sealed class TutorialManagerTests
                 active.SetColonizationActiveForEditor(true);
                 Assert.That(game.Sectors.CanAccess(
                     DataBase<SectorDefinition>.Find("HeliosCore")), Is.True,
-                    "Additional reachable and active destinations must not delay distant-fleet guidance.");
+                    "Active home-system exploration takes priority over another reachable destination.");
             }
             if (scenario == 7 || scenario == 8)
                 dawn.SetUnlockedForEditor(true);
@@ -234,7 +234,7 @@ public sealed class TutorialManagerTests
             if (scenario == 4)
                 Assert.That(game.Sectors.GetState(
                     DataBase<SectorDefinition>.Find("AzurePool")).Occupied, Is.False,
-                    "The first home-system outpost completes this goal; others remain optional.");
+                    "After the first outpost, guidance must continue through the home system.");
             if (expectedPage == "Sectors")
             {
                 SectorDefinition target = DataBase<SectorDefinition>.Find(expectedTarget);

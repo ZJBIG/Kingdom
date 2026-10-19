@@ -23,6 +23,7 @@ public sealed record SimulationTickContext(
     SimulationEventLog Events)
 {
     public double RequestedSeconds { get; init; }
+    public bool UseRealtimeResearchCadence { get; init; }
 }
 
 public sealed class RuntimeRulesNotMappedException : NotSupportedException
@@ -67,7 +68,8 @@ public static class SimulationStateFactory
             runtime.Tick,
             ParseNumber(runtime.ElapsedSeconds, "RuntimeState.ElapsedSeconds").ToDouble(),
             ParseNumber(runtime.ElapsedSeconds, "RuntimeState.ElapsedSeconds").ToDouble(),
-            runtime.CalendarDays);
+            runtime.CalendarDays,
+            runtime.CalendarElapsedSeconds);
         state.SetTechLevel(runtime.TechLevel);
         foreach (var resource in runtime.Resources)
             state.SetResource(resource.ResourceId, resource.Value);
@@ -927,7 +929,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             var cost = Parse(research.BaseCost);
             var nextProgress = ExpantaNum.Min(cost, researchState.Progress + speed * remainingSeconds);
             // Completion is established before the time conversion, as in Runtime TickOffline.
-            if (nextProgress >= cost && context.Mode == SimulationMode.Offline)
+            if (nextProgress >= cost && context.Mode == SimulationMode.Offline && !context.UseRealtimeResearchCadence)
                 remainingSeconds -= Math.Min(remainingSeconds, Math.Max(0d, (remainingProgress / speed).ToDouble()));
             else
                 remainingSeconds = 0d;
@@ -1262,11 +1264,15 @@ public sealed class SimulationCore
     private readonly ISimulationRules rules;
     private readonly EraStepSchedule? eraStepSchedule;
     private double offlineElapsedSeconds;
+    private double offlinePendingCalendarSeconds;
+    private double offlinePendingSimulationSeconds;
 
     public SimulationState State { get; }
     public SimulationEventLog Events { get; } = new();
     public double TickSeconds { get; }
     public double OfflineTickSeconds { get; }
+    public double OfflinePendingCalendarSeconds => offlinePendingCalendarSeconds;
+    public double OfflinePendingSimulationSeconds => offlinePendingSimulationSeconds;
 
     public SimulationCore(
         SimulationState state,
@@ -1289,22 +1295,27 @@ public sealed class SimulationCore
 
     public static SimulationCore FromSnapshot(
         EconomySnapshot snapshot,
-        double tickSeconds = DefaultTickSeconds,
+        double? tickSeconds = null,
         double offlineTickSeconds = DefaultOfflineTickSeconds,
-        EraStepSchedule? eraStepSchedule = null) =>
-        new(
+        EraStepSchedule? eraStepSchedule = null)
+    {
+        var core = new SimulationCore(
             SimulationStateFactory.Create(snapshot),
             new SnapshotDrivenRules(snapshot),
-            tickSeconds,
+            tickSeconds ?? snapshot.RuntimeState.SimulationTickIntervalSeconds,
             offlineTickSeconds,
             eraStepSchedule);
+        core.offlinePendingCalendarSeconds = snapshot.RuntimeState.OfflinePendingCalendarSeconds;
+        core.offlinePendingSimulationSeconds = snapshot.RuntimeState.OfflinePendingSimulationSeconds;
+        return core;
+    }
 
     public static SimulationCore FromSnapshotWithEraSteps(
         EconomySnapshot snapshot,
         EraStepSchedule? eraStepSchedule = null) =>
         FromSnapshot(
             snapshot,
-            DefaultTickSeconds,
+            null,
             DefaultOfflineTickSeconds,
             eraStepSchedule ?? EraStepSchedule.Default);
 
@@ -1319,14 +1330,23 @@ public sealed class SimulationCore
             return;
         }
 
-        var effectiveSeconds = CalculateOfflineEffectiveSeconds(
-            offlineElapsedSeconds,
-            stepSeconds);
-        Tick(mode, stepSeconds, effectiveSeconds);
+        AdvanceOfflineWindow(stepSeconds);
         offlineElapsedSeconds += stepSeconds;
     }
 
     public void Tick(SimulationMode mode, double requestedSeconds, double effectiveSeconds)
+    {
+        ValidateDelta(requestedSeconds, nameof(requestedSeconds));
+        ValidateDelta(effectiveSeconds, nameof(effectiveSeconds));
+        if (effectiveSeconds > requestedSeconds)
+            throw new ArgumentOutOfRangeException(nameof(effectiveSeconds));
+        if (mode == SimulationMode.Realtime && requestedSeconds > 0d)
+            FlushOfflineRemainder();
+        TickCore(mode, requestedSeconds, effectiveSeconds);
+    }
+
+    private void TickCore(SimulationMode mode, double requestedSeconds, double effectiveSeconds,
+        bool useRealtimeResearchCadence = false)
     {
         ValidateDelta(requestedSeconds, nameof(requestedSeconds));
         ValidateDelta(effectiveSeconds, nameof(effectiveSeconds));
@@ -1342,7 +1362,8 @@ public sealed class SimulationCore
             startingTechLevel, timingDetail, new ExpantaNum(effectiveSeconds));
         var context = new SimulationTickContext(nextTick, effectiveSeconds, mode, Events)
         {
-            RequestedSeconds = requestedSeconds
+            RequestedSeconds = requestedSeconds,
+            UseRealtimeResearchCadence = useRealtimeResearchCadence
         };
         if (rules is IPhasedSimulationRules phased)
             foreach (var system in SimulationSystems.OrderedSystems)
@@ -1370,16 +1391,58 @@ public sealed class SimulationCore
         while (remaining > 0d)
         {
             var requestedSeconds = Math.Min(CurrentStepSeconds(SimulationMode.Offline), remaining);
-            var effectiveSeconds = CalculateOfflineEffectiveSeconds(
-                offlineElapsedSeconds,
-                requestedSeconds);
-            Tick(SimulationMode.Offline, requestedSeconds, effectiveSeconds);
+            AdvanceOfflineWindow(requestedSeconds);
             offlineElapsedSeconds += requestedSeconds;
             remaining -= requestedSeconds;
         }
     }
 
     public void BeginOfflineSession() => offlineElapsedSeconds = 0d;
+
+    private void FlushOfflineRemainder()
+    {
+        if (offlinePendingSimulationSeconds <= 0d) return;
+        TickCore(SimulationMode.Offline, offlinePendingCalendarSeconds, offlinePendingSimulationSeconds, true);
+        offlinePendingCalendarSeconds = 0d;
+        offlinePendingSimulationSeconds = 0d;
+    }
+
+    private void AdvanceOfflineWindow(double calendarSeconds)
+    {
+        if (!State.CampaignActive && !State.SectorStates.Values.Any(item => item.ColonizationActive))
+        {
+            FlushOfflineRemainder();
+            TickCore(SimulationMode.Offline, calendarSeconds,
+                CalculateOfflineEffectiveSeconds(offlineElapsedSeconds, calendarSeconds));
+            return;
+        }
+        // Match Runtime's fixed realtime cadence while operations pay from capped Food.
+        var remaining = calendarSeconds;
+        var elapsed = offlineElapsedSeconds;
+        while (remaining > 0d)
+        {
+            double rate, boundary;
+            if (elapsed < OfflineFullRateSeconds)
+            { rate = 1d; boundary = OfflineFullRateSeconds - elapsed; }
+            else if (elapsed < OfflineReducedRateEndSeconds)
+            { rate = OfflineMiddleRate; boundary = OfflineReducedRateEndSeconds - elapsed; }
+            else { rate = OfflineLateRate; boundary = double.PositiveInfinity; }
+            var untilTick = TickSeconds - offlinePendingSimulationSeconds;
+            var calendarUntilTick = untilTick / rate;
+            var delta = Math.Min(remaining, Math.Min(boundary, calendarUntilTick));
+            var completesTick = delta >= calendarUntilTick;
+            offlinePendingCalendarSeconds += delta;
+            offlinePendingSimulationSeconds += completesTick ? untilTick : delta * rate;
+            remaining -= delta;
+            elapsed += delta;
+            if (completesTick)
+            {
+                TickCore(SimulationMode.Offline, offlinePendingCalendarSeconds, TickSeconds, true);
+                offlinePendingCalendarSeconds = 0d;
+                offlinePendingSimulationSeconds = 0d;
+            }
+        }
+    }
 
     public static double CalculateOfflineEffectiveSeconds(
         double elapsedSeconds,

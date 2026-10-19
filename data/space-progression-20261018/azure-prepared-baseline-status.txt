@@ -1,0 +1,11 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-19T12:50:36.3940279+08:00
+Platform: EditMode
+Result: Failed
+Total: 214 Passed:213 Failed:1 Skipped:0
+
+=== FAILURE 1 ===
+Test: EarlyVerticalSlicePacingTests.NewGame_AzurePoolThreeDailyVisitsTrace
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

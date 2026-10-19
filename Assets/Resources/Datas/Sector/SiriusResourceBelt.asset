@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SiriusResourceBelt
   Label: "天狼资源带"
-  Description: "穿过比邻星前哨后，远征舰队抵达一片幽影矿带。深空工厂将在这里获得稀有合金与纤维，让每一次更远的航行都有坚实骨架。"
+  Description: "距母星约八点六光年的天狼星仍属于银河近邻。远征舰队在幽影矿带建立有限据点；稀有合金与纤维能支撑更远的航行，持续补给和舰队维修仍由后方承担。"
   starSystemId: Sirius
   domain: 1
   enemyPower: "6000"

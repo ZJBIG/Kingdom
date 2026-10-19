@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 10:50:52Z" end-time="2026-10-18 10:51:12Z" duration="20.4653155">
+  <test-suite type="TestSuite" id="2101" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="953" result="Failed" site="Child" start-time="2026-10-18 10:50:52Z" end-time="2026-10-18 10:51:12Z" duration="20.465316" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="3192" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="952" result="Failed" site="Child" start-time="2026-10-18 10:50:52Z" end-time="2026-10-18 10:51:12Z" duration="20.426276" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25672" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="2248" name="EarlyVerticalSlicePacingTests" fullname="EarlyVerticalSlicePacingTests" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2026-10-18 10:50:52Z" end-time="2026-10-18 10:51:12Z" duration="20.381979" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="2253" name="NewGame_ThreeDailyVisitsTrace" fullname="EarlyVerticalSlicePacingTests.NewGame_ThreeDailyVisitsTrace" methodname="NewGame_ThreeDailyVisitsTrace" classname="EarlyVerticalSlicePacingTests" runstate="Runnable" seed="480471800" result="Failed" start-time="2026-10-18 10:50:52Z" end-time="2026-10-18 10:51:12Z" duration="20.363580" asserts="0">
+          <properties>
+            <property name="Category" value="PacingDiagnostic" />
+          </properties>
+          <failure>
+            <message><![CDATA[Unhandled log message: '[Error] 研究依赖循环：InterstellarNavigation -> DeepSpaceFleet -> InterstellarNavigation'. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
+            <stack-trace><![CDATA[ResearchManager:Initialize () (at Assets/Resources/Script/Manager/ResearchManager.cs:111)
+ProgressionMilestoneTestResearchManager:EnsureInitialized () (at Assets/Tests/Editor/ProgressionMilestoneRecorderTests.cs:178)
+EarlyVerticalSlicePacingTests:RunMainlineTrace (bool) (at Assets/Tests/Editor/EarlyVerticalSlicePacingTests.cs:85)
+EarlyVerticalSlicePacingTests:NewGame_ThreeDailyVisitsTrace () (at Assets/Tests/Editor/EarlyVerticalSlicePacingTests.cs:44)
+System.Reflection.MethodBase:Invoke (object,object[])
+NUnit.Framework.Internal.Reflect:InvokeMethod (System.Reflection.MethodInfo,object,object[])
+NUnit.Framework.Internal.MethodWrapper:Invoke (object,object[])
+NUnit.Framework.Internal.Commands.TestMethodCommand:RunNonAsyncTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
+NUnit.Framework.Internal.Commands.TestMethodCommand:RunTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
+NUnit.Framework.Internal.Commands.TestMethodCommand:Execute (NUnit.Framework.Internal.ITestExecutionContext)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[研究依赖循环：InterstellarNavigation -> DeepSpaceFleet -> InterstellarNavigation
+[KingdomPerf] ManualTick 28.9ms: building=16.3ms, game=1.8ms, resource=1.1ms, sectors=2.0ms, research=7.7ms, activeBuildings=0, efficiencyPasses=1
+MAINLINE t=0.0 action=new-game wood=60 population=0/0 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE sample=0.0 next=B:WoodHouse food=300 happiness=1.218809
+MAINLINE t=16.5 action=built:WoodHouse wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=16.5 action=queued:Agriculture wood=0.110365 population=0/5 foodNet=5 productivity=0 researchSpeed=0
+MAINLINE t=39.4 action=paid:Agriculture wood=0.021114 population=0/5 foodNet=5 productivity=0 researchSpeed=4.875236
+MAINLINE t=65.8 action=population wood=32.197698 population=1/5 foodNet=4.2 productivity=2 researchSpeed=4.8345
+MAINLINE t=101.2 action=completed:Agriculture wood=74.9832 population=1/5 foodNet=5.2 productivity=2 researchSpeed=0
+MAINLINE t=123.2 action=population wood=101.84608 population=2/5 foodNet=4.4 productivity=4 researchSpeed=0
+MAINLINE t=123.2 action=built:Farm wood=51.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=123.2 action=queued:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=123.2 action=paid:ControlledFire wood=31.84608 population=2/5 foodNet=14 productivity=1 researchSpeed=4.94908
+MAINLINE t=135.4 action=completed:ControlledFire wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=135.4 action=queued:Quarry wood=46.940774 population=2/5 foodNet=14 productivity=1 researchSpeed=0
+MAINLINE t=156.9 action=population wood=73.542079 population=3/5 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=191.3 action=population wood=115.213551 population=4/5 foodNet=12.4 productivity=5 researchSpeed=0
+MAINLINE t=243.7 action=population wood=177.568503 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE t=262.9 action=paid:Quarry wood=0.057463 population=5/5 foodNet=11.6 productivity=7 researchSpeed=4.685196
+MAINLINE t=288.5 action=completed:Quarry wood=30.042743 population=5/5 foodNet=11.6 productivity=7 researchSpeed=0
+MAINLINE t=365.4 action=built:Quarry wood=0.115713 population=5/5 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE t=445.9 action=built:WoodHouse wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=0
+MAINLINE t=445.9 action=queued:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=445.9 action=paid:KnowledgeSharing wood=0.005363 population=5/10 foodNet=11.6 productivity=1 researchSpeed=4.685196
+MAINLINE t=463.0 action=population wood=20.034593 population=6/10 foodNet=10.8 productivity=3 researchSpeed=4.61798
+MAINLINE t=481.1 action=population wood=40.931043 population=7/10 foodNet=10 productivity=5 researchSpeed=4.556324
+MAINLINE t=502.0 action=population wood=64.737815 population=8/10 foodNet=9.2 productivity=7 researchSpeed=4.498992
+MAINLINE t=529.7 action=population wood=95.89339 population=9/10 foodNet=8.4 productivity=9 researchSpeed=4.445164
+MAINLINE t=579.7 action=population wood=151.45789 population=10/10 foodNet=7.6 productivity=11 researchSpeed=4.394236
+MAINLINE t=715.0 action=completed:KnowledgeSharing wood=300.093058 population=10/10 foodNet=7.6 productivity=11 researchSpeed=0
+MAINLINE t=715.0 action=built:KnowledgeCircle wood=200.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=0
+MAINLINE t=715.0 action=queued:ClayExtraction wood=160.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=6.316714
+MAINLINE t=715.0 action=paid:ClayExtraction wood=160.093058 population=10/10 foodNet=7.6 productivity=9 researchSpeed=6.316714
+MAINLINE t=753.0 action=completed:ClayExtraction wood=201.838338 population=10/10 foodNet=7.6 productivity=9 researchSpeed=0
+MAINLINE t=753.0 action=built:ClayPit wood=121.838338 population=10/10 foodNet=7.6 productivity=5 researchSpeed=0
+MAINLINE t=753.0 action=built:WoodHouse wood=10.446338 population=10/15 foodNet=7.6 productivity=5 researchSpeed=0
+MAINLINE t=766.7 action=population wood=25.49661 population=11/15 foodNet=6.8 productivity=7 researchSpeed=0
+MAINLINE t=782.4 action=population wood=42.553875 population=12/15 foodNet=6 productivity=9 researchSpeed=0
+MAINLINE t=795.9 action=built:Farm wood=0.064485 population=12/15 foodNet=15.6 productivity=6 researchSpeed=0
+MAINLINE t=795.9 action=queued:StoneProcessing wood=0.064485 population=12/15 foodNet=15.6 productivity=6 researchSpeed=0
+MAINLINE t=801.5 action=population wood=6.408277 population=13/15 foodNet=14.8 productivity=8 researchSpeed=0
+MAINLINE t=822.5 action=paid:StoneProcessing wood=0.014167 population=13/15 foodNet=14.8 productivity=8 researchSpeed=6.463512
+MAINLINE t=827.1 action=population wood=5.184981 population=14/15 foodNet=14 productivity=10 researchSpeed=6.415212
+MAINLINE t=875.0 action=population wood=58.626532 population=15/15 foodNet=13.2 productivity=12 researchSpeed=6.368608
+MAINLINE t=931.6 action=completed:StoneProcessing wood=121.713404 population=15/15 foodNet=16.08 productivity=12 researchSpeed=0
+MAINLINE t=931.6 action=built:StoneCuttingWorkshop wood=26.475304 population=15/15 foodNet=16.08 productivity=7 researchSpeed=0
+MAINLINE t=931.6 action=queued:Woodworking wood=26.475304 population=15/15 foodNet=16.08 productivity=7 researchSpeed=0
+MAINLINE t=983.0 action=paid:Woodworking wood=0.052042 population=15/15 foodNet=16.08 productivity=7 researchSpeed=6.441001
+MAINLINE t=1155.3 action=completed:Woodworking wood=191.353906 population=15/15 foodNet=13.2 productivity=7 researchSpeed=0
+MAINLINE t=1155.3 action=built:Lumberyard wood=82.262986 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1155.3 action=queued:Mathematics wood=82.262986 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1157.5 action=paid:Mathematics wood=0.710604 population=15/15 foodNet=13.2 productivity=3 researchSpeed=6.368608
+MAINLINE t=1424.4 action=completed:Mathematics wood=1996.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=0
+MAINLINE t=1424.4 action=queued:Calendar wood=1870.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=8.237656
+MAINLINE t=1424.4 action=paid:Calendar wood=1870.105715 population=15/15 foodNet=13.2 productivity=3 researchSpeed=8.237656
+MAINLINE t=1655.1 action=completed:Calendar wood=3594.862748 population=15/15 foodNet=21.5412 productivity=3 researchSpeed=0
+MAINLINE t=1655.1 action=built:FiberGatheringCamp wood=3540.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=0
+MAINLINE t=1655.1 action=queued:AnimalHusbandry wood=3460.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=8.474511
+MAINLINE t=1655.1 action=paid:AnimalHusbandry wood=3460.317288 population=15/15 foodNet=21.5412 productivity=0 researchSpeed=8.474511
+MAINLINE t=1683.5 action=completed:AnimalHusbandry wood=3678.745948 population=15/15 foodNet=21.5412 productivity=2.4 researchSpeed=0
+MAINLINE t=1683.5 action=queued:StoneAgeSettlement wood=3678.745948 population=15/15 foodNet=21.5412 productivity=2.4 researchSpeed=0
+VISIT session=1 t=18000.0 offline=16200.0 blockerBefore=materials blockerAfter=materials next=R:StoneAgeSettlement
+MAINLINE t=18000.0 action=paid:StoneAgeSettlement wood=99483.280123 population=15/15 foodNet=21.5412 productivity=102.4 researchSpeed=0
+MAINLINE t=18000.0 action=completed:StoneAgeSettlement wood=99483.280123 population=15/15 foodNet=21.5412 productivity=102.4 researchSpeed=0
+MAINLINE t=18000.0 action=built:WoodHouse wood=99363.786874 population=15/20 foodNet=21.5412 productivity=102.4 researchSpeed=0
+MAINLINE t=18000.0 action=built:Farm wood=99304.714141 population=15/20 foodNet=34.3188 productivity=99.4 researchSpeed=0
+MAINLINE t=18000.0 action=built:FiberGatheringCamp wood=99242.532317 population=15/20 foodNet=34.3188 productivity=96.4 researchSpeed=0
+MAINLINE t=18000.0 action=built:FiberGatheringCamp wood=99171.645037 population=15/20 foodNet=34.3188 productivity=93.4 researchSpeed=0
+MAINLINE t=18000.0 action=queued:Mining wood=98991.645037 population=15/20 foodNet=34.3188 productivity=93.4 researchSpeed=17.409477
+MAINLINE t=18000.0 action=paid:Mining wood=98991.645037 population=15/20 foodNet=34.3188 productivity=93.4 researchSpeed=17.409477
+MAINLINE t=18009.5 action=population wood=99066.695987 population=16/20 foodNet=33.5188 productivity=95.56 researchSpeed=17.323068
+MAINLINE t=18020.6 action=population wood=99153.951866 population=17/20 foodNet=32.7188 productivity=97.72 researchSpeed=17.239426
+MAINLINE t=18034.5 action=population wood=99262.690593 population=18/20 foodNet=31.9188 productivity=99.88 researchSpeed=17.158283
+MAINLINE t=18054.5 action=population wood=99418.412793 population=19/20 foodNet=31.1188 productivity=102.04 researchSpeed=17.07943
+MAINLINE t=18092.3 action=population wood=99711.375267 population=20/20 foodNet=30.3188 productivity=104.2 researchSpeed=17.00266
+MAINLINE t=18104.9 action=completed:Mining wood=99808.590441 population=20/20 foodNet=30.3188 productivity=104.2 researchSpeed=0
+MAINLINE t=18104.9 action=built:MetalMine wood=99644.954061 population=20/20 foodNet=30.3188 productivity=94.2 researchSpeed=0
+MAINLINE t=18104.9 action=built:MetalMine wood=99456.772224 population=20/20 foodNet=30.3188 productivity=84.2 researchSpeed=0
+MAINLINE t=18104.9 action=built:CoalMine wood=99320.408574 population=20/20 foodNet=30.3188 productivity=76.2 researchSpeed=0
+MAINLINE t=18104.9 action=built:CoalMine wood=99164.954013 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=0
+MAINLINE t=18104.9 action=queued:CharcoalMaking wood=98914.954013 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE t=18104.9 action=paid:CharcoalMaking wood=98914.954013 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE t=18810.7 action=completed:CharcoalMaking wood=104360.546855 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=0
+MAINLINE t=18810.7 action=queued:Measurement wood=104360.546855 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE t=18810.7 action=paid:Measurement wood=104360.546855 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE t=18900.0 action=population wood=105049.540112 population=19/20 foodNet=23.45224 productivity=66.04 researchSpeed=8.399883
+VISIT session=2 t=46800.0 offline=27900.0 blockerBefore=research blockerAfter=materials next=R:Measurement
+MAINLINE t=46800.0 action=population wood=256258.711712 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=0
+MAINLINE t=46800.0 action=completed:Measurement wood=256258.711712 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=0
+MAINLINE t=46800.0 action=queued:MultiMetalSmeltingFundamentals wood=256258.711712 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE t=46800.0 action=paid:MultiMetalSmeltingFundamentals wood=256258.711712 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=8.50133
+MAINLINE sample=47699.8 next=R:MultiMetalSmeltingFundamentals food=500 happiness=1.143036
+VISIT session=3 t=86400.0 offline=38700.0 blockerBefore=research blockerAfter=materials next=R:MultiMetalSmeltingFundamentals
+MAINLINE t=86400.0 action=completed:MultiMetalSmeltingFundamentals wood=437971.725767 population=20/20 foodNet=30.3188 productivity=68.2 researchSpeed=0
+MAINLINE t=86400.0 action=built:MetalSmelter wood=437891.725767 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=0
+MAINLINE t=86400.0 action=queued:BronzeAlloyCrafting wood=437891.725767 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=0
+MAINLINE t=86465.7 action=paid:BronzeAlloyCrafting wood=438223.63346 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=8.50133
+VISIT session=4 t=104400.0 offline=17100.0 blockerBefore=research blockerAfter=materials next=R:BronzeAlloyCrafting
+MAINLINE t=104400.0 action=completed:BronzeAlloyCrafting wood=546042.244787 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=0
+MAINLINE t=104400.0 action=queued:IronworkingAndSteelmaking wood=546042.244787 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=8.50133
+MAINLINE t=104400.0 action=paid:IronworkingAndSteelmaking wood=546042.244787 population=20/20 foodNet=30.3188 productivity=58.2 researchSpeed=8.50133
+MAINLINE t=105300.0 action=population wood=552986.185787 population=19/20 foodNet=23.45224 productivity=56.04 researchSpeed=8.399883
+VISIT session=5 t=133200.0 offline=27900.0 blockerBefore=research blockerAfter=materials next=R:IronworkingAndSteelmaking
+MAINLINE t=133200.0 action=population wood=709409.735627 population=20/20 foodNet=31.852112 productivity=58.2 researchSpeed=0
+MAINLINE t=133200.0 action=completed:IronworkingAndSteelmaking wood=709409.735627 population=20/20 foodNet=31.852112 productivity=58.2 researchSpeed=0
+MAINLINE t=133200.0 action=queued:TextileCraft wood=709409.735627 population=20/20 foodNet=31.852112 productivity=58.2 researchSpeed=8.525815
+MAINLINE t=133200.0 action=paid:TextileCraft wood=709409.735627 population=20/20 foodNet=31.852112 productivity=58.2 researchSpeed=8.525815
+MAINLINE t=133387.7 action=completed:TextileCraft wood=710911.592776 population=20/20 foodNet=31.852112 productivity=58.2 researchSpeed=0
+MAINLINE t=133387.7 action=built:WeavingWorkshop wood=710879.592776 population=20/20 foodNet=31.852112 productivity=53.2 researchSpeed=0
+MAINLINE t=133387.7 action=queued:CeramicFiring wood=710879.592776 population=20/20 foodNet=31.852112 productivity=53.2 researchSpeed=8.525815
+MAINLINE t=133387.7 action=paid:CeramicFiring wood=710879.592776 population=20/20 foodNet=31.852112 productivity=53.2 researchSpeed=8.525815
+MAINLINE t=133598.9 action=completed:CeramicFiring wood=712569.48212 population=20/20 foodNet=31.852112 productivity=53.2 researchSpeed=0
+MAINLINE t=133598.9 action=built:CeramicKiln wood=712530.11202 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=133598.9 action=queued:WrittenRecords wood=712530.11202 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=133609.6 action=paid:WrittenRecords wood=712431.278519 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=8.525815
+VISIT session=6 t=172800.0 offline=38700.0 blockerBefore=research blockerAfter=materials next=R:WrittenRecords
+MAINLINE t=172800.0 action=completed:WrittenRecords wood=892309.281642 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=172800.0 action=queued:FeudalAdministration wood=892309.281642 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=5.683879
+MAINLINE t=172800.0 action=paid:FeudalAdministration wood=892309.281642 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=5.683879
+MAINLINE sample=173699.4 next=R:FeudalAdministration food=750 happiness=1.146328
+VISIT session=7 t=190800.0 offline=17100.0 blockerBefore=research blockerAfter=research next=R:FeudalAdministration
+MAINLINE t=191700.0 action=population wood=1008431.464302 population=19/20 foodNet=24.67889 productivity=46.04 researchSpeed=5.61662
+VISIT session=8 t=219600.0 offline=27900.0 blockerBefore=research blockerAfter=materials next=R:FeudalAdministration
+MAINLINE t=219600.0 action=population wood=1160753.403762 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=219600.0 action=completed:FeudalAdministration wood=1160753.403762 population=20/20 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=219600.0 action=built:WoodHouse wood=1160631.275949 population=20/25 foodNet=31.852112 productivity=48.2 researchSpeed=0
+MAINLINE t=219600.0 action=built:Farm wood=1160572.947414 population=20/25 foodNet=45.140816 productivity=45.2 researchSpeed=0
+MAINLINE t=219600.0 action=queued:Steelmaking wood=1160572.947414 population=20/25 foodNet=45.140816 productivity=45.2 researchSpeed=8.698097
+MAINLINE t=219600.0 action=paid:Steelmaking wood=1160572.947414 population=20/25 foodNet=45.140816 productivity=45.2 researchSpeed=8.698097
+MAINLINE t=219608.9 action=population wood=1160643.562239 population=21/25 foodNet=44.340816 productivity=47.36 researchSpeed=8.665402
+MAINLINE t=219619.5 action=population wood=1160727.340081 population=22/25 foodNet=43.540816 productivity=49.52 researchSpeed=8.63351
+MAINLINE t=219632.9 action=population wood=1160832.846857 population=23/25 foodNet=42.740816 productivity=51.68 researchSpeed=8.602354
+MAINLINE t=219652.4 action=population wood=1160985.812657 population=24/25 foodNet=41.940816 productivity=53.84 researchSpeed=8.57189
+MAINLINE t=219689.7 action=population wood=1161277.34237 population=25/25 foodNet=41.140816 productivity=56 researchSpeed=8.542073
+VISIT session=9 t=259200.0 offline=38700.0 blockerBefore=research blockerAfter=materials next=R:Steelmaking
+MAINLINE t=259200.0 action=completed:Steelmaking wood=1344000.090479 population=25/25 foodNet=41.140816 productivity=356 researchSpeed=0
+MAINLINE t=259200.0 action=built:SteelForge wood=1343767.532279 population=25/25 foodNet=41.140816 productivity=308 researchSpeed=0
+MAINLINE t=259200.0 action=queued:MechanicalEngineering wood=1343767.532279 population=25/25 foodNet=41.140816 productivity=308 researchSpeed=0
+VISIT session=10 t=277200.0 offline=17100.0 blockerBefore=materials blockerAfter=research next=R:MechanicalEngineering
+MAINLINE t=277200.0 action=paid:MechanicalEngineering wood=1453108.639199 population=25/25 foodNet=41.140816 productivity=308 researchSpeed=8.542073
+MAINLINE sample=278099.0 next=R:MechanicalEngineering food=750 happiness=1.148514
+MAINLINE t=278100.0 action=population wood=1460117.686199 population=24/25 foodNet=31.309853 productivity=305.84 researchSpeed=8.427074
+VISIT session=11 t=306000.0 offline=27900.0 blockerBefore=research blockerAfter=materials next=R:MechanicalEngineering
+MAINLINE t=306000.0 action=population wood=1615127.4489 population=25/25 foodNet=56.42602 productivity=308 researchSpeed=0
+MAINLINE t=306000.0 action=completed:MechanicalEngineering wood=1615127.4489 population=25/25 foodNet=56.42602 productivity=308 researchSpeed=0
+MAINLINE t=306000.0 action=queued:Industrialization wood=1615127.4489 population=25/25 foodNet=56.42602 productivity=308 researchSpeed=0
+VISIT session=12 t=345600.0 offline=38700.0 blockerBefore=materials blockerAfter=research next=R:Industrialization
+MAINLINE t=345600.0 action=paid:Industrialization wood=1801996.02159 population=25/25 foodNet=56.42602 productivity=308 researchSpeed=5.798734
+VISIT session=13 t=363600.0 offline=17100.0 blockerBefore=research blockerAfter=research next=R:Industrialization
+MAINLINE t=364500.0 action=population wood=1920533.769151 population=24/25 foodNet=43.937316 productivity=305.84 researchSpeed=5.729967
+VISIT session=14 t=392400.0 offline=27900.0 blockerBefore=research blockerAfter=research next=R:Industrialization
+MAINLINE t=392400.0 action=population wood=2076024.991172 population=25/25 foodNet=56.42602 productivity=308 researchSpeed=5.798734
+MAINLINE sample=393298.6 next=R:Industrialization food=750 happiness=1.169492
+VISIT session=15 t=432000.0 offline=38700.0 blockerBefore=research blockerAfter=materials next=R:Industrialization
+MAINLINE t=432000.0 action=completed:Industrialization wood=2262893.563862 population=25/25 foodNet=56.42602 productivity=1108 researchSpeed=0
+WAIT sampledOnline=materials seconds=2462.3
+WAIT sampledOnline=research seconds=11937.7
+WAIT sampledOnline=supply seconds=0.0
+WAIT sampledOnline=player seconds=0.0
+SCHEDULE visits=True elapsedHours=120.0000 sessions=16 targetIndustrialDays=1-3 targetMet=False
+MAINLINE finishedCommands=49/49 longestMilestoneGap=39600.0s
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

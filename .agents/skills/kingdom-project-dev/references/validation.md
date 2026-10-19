@@ -115,9 +115,15 @@ dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-r
 ```
 
 - **本机沙箱需先补系统目录环境变量**：`APPDATA` / `ProgramData` / `ProgramFiles(x86)` / `ProgramW6432` 未定义时，NuGet `GetRestoreSettingsTask` 会抛 `Value cannot be null. (Parameter 'path1')`（restore 与 `--no-restore` 均失败，与项目内容无关）。可先 `env APPDATA='C:\Users\<user>\AppData\Roaming' ProgramData='C:\ProgramData' 'ProgramFiles(x86)=C:\Program Files (x86)' 'ProgramW6432=C:\Program Files' dotnet build`，再直接运行 `dotnet bin/Debug/net9.0/NewEconomySimulator.dll`。
-- csproj 只链接 `Assets/Resources/Script/Math/` 下的 `ExpantaNum.cs` 与 `ExpantaNumExtensions.cs`。改动这两个文件必须重跑模拟器自测（退出码 0 且首行 `Passed: True`）；它**不覆盖** Manager / Runtime State 层改动。
+- csproj 链接 `Assets/Resources/Script/Math/` 下的 `ExpantaNum.cs`、`ExpantaNumExtensions.cs`，以及 Runtime 的 `PopulationState.cs`、`HappinessFormula.cs`。改动这两个文件必须重跑模拟器自测（退出码 0 且首行 `Passed: True`）；它**不覆盖** Manager / Runtime State 层改动。
 
-实际为 net9.0 可执行程序，`Program.cs` 运行 `ValidationSuite.RunCore()`，只解析 `--json` / `--csv`；不要杜撰 snapshot 输入参数。构建会产生 bin/obj；程序报告输出 stdout。当前“Unity 对比”含人工 fixture，必须与真实运行采集明确区分。永不以该结果调节数值或声称节奏验收。
+实际为 net9.0 可执行程序，无快照参数时 `Program.cs` 运行 `ValidationSuite.RunCore()`，支持 `--json` / `--csv`。真实受控快照终态对照使用：
+
+```text
+dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-restore -- --snapshot-before BEFORE.json --snapshot-after AFTER.json --offline-seconds 7260
+```
+
+在线对照将最后一项替换为 `--online-seconds 10`；两个时间参数互斥，允许 (0,86400] 秒。输入必须是完整v5快照，旧v4拒绝加载并需重新捕获；诊断版本与游戏存档v1独立。v5包含真实tick间隔、日历小数余量及战役/活动殖民共用的离线pending日历与模拟秒数。退出0代表已覆盖终态字段一致，1为差异，2为非法参数/输入错误。报告首差与全差，不比较逐tick事件；仍没有世界事件、Ultra与遗迹状态，不能称为全系统parity。构建会产生 bin/obj；程序报告输出 stdout。当前“Unity 对比”含人工 fixture，必须与正常新档运行明确区分。永不以该结果调节数值或声称节奏验收。
 
 ## 3. 测试定位与隔离
 

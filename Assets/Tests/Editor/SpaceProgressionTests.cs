@@ -5,6 +5,52 @@ using UnityEngine;
 public sealed class SpaceProgressionTests
 {
     [Test]
+    public void OrbitalEngineeringEntersSpacerBeforeSurveyFleetAndNavigation()
+    {
+        GameObject host = new GameObject("Spacer-EraGate-Regression");
+        try
+        {
+            GameManager game = host.AddComponent<GameManager>();
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            host.AddComponent<BuildingManager>();
+            ResearchManager research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            game.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
+            foreach (var pair in research.States)
+                if (pair.Key.TechLevel <= TechLevel.Industrial)
+                    pair.Value.SetStatusForEditor(ResearchStatus.Completed);
+
+            Research orbital = DataBase<Research>.Find("OrbitalEngineering");
+            Research survey = DataBase<Research>.Find("HomeSystemSurvey");
+            Research navigation = DataBase<Research>.Find("InterstellarNavigation");
+            Assert.That(research.CanAccessResearch(orbital), Is.True);
+            Assert.That(research.CanAccessResearch(survey), Is.False);
+            Assert.That(research.CanAccessResearch(navigation), Is.False);
+            foreach (var cost in orbital.ResourceRequirements)
+                resources.SetAmount(cost.First, cost.Second);
+            Assert.That(research.PayResearchCost(orbital), Is.EqualTo(ResearchPaymentResult.Paid));
+            Assert.That(research.StartResearch(orbital), Is.True);
+            ResearchState orbitalState = research.GetState(orbital);
+            orbitalState.SetProgressForEditor(orbitalState.BaseCost);
+            research.TickOfflineForEditor(1d);
+
+            Assert.That(game.State.TechLevel, Is.EqualTo(TechLevel.Spacer));
+            Assert.That(research.CanAccessResearch(survey), Is.True);
+            Assert.That(research.ArePrerequisitesCompleted(survey), Is.True);
+            Assert.That(research.IsResearchCompleted("DeepSpaceFleet"), Is.False);
+            Assert.That(research.ArePrerequisitesCompleted(navigation), Is.False);
+            Assert.That(ProgressionModifierManager.Current.IsSystemUnlocked(
+                ResearchSystem.InterstellarNavigation), Is.False);
+            Assert.That(EraGoalEvaluator.FindTransition(TechLevel.Spacer), Is.SameAs(orbital));
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
+            ProgressionModifierManager.Rebuild(null);
+        }
+    }
+
+    [Test]
     public void CoreOrbitalFacilitiesRequireAdvancedMaterialsAndContinuousOperations()
     {
         string[] buildingIds =
@@ -384,7 +430,10 @@ public sealed class SpaceProgressionTests
         Assert.That(deepSpaceShipbuilding.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(phaseMaterialEngineering.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Research interstellarNavigation = Resources.Load<Research>("Datas/Research/Spacer/InterstellarNavigation");
-        Assert.That(interstellarNavigation.AdvancesTechLevel, Is.True);
+        Assert.That(orbitalEngineering.AdvancesTechLevel, Is.True);
+        Assert.That(interstellarNavigation.AdvancesTechLevel, Is.False);
+        Assert.That(HasPrerequisite(interstellarNavigation, "DeepSpaceFleet"), Is.True);
+        Assert.That(HasPrerequisite(DataBase<Research>.Find("DeepSpaceFleet"), "InterstellarNavigation"), Is.False);
         Assert.That(HasResourceRequirement(interstellarNavigation, "CopperWire"), Is.True);
         Assert.That(HasResourceRequirement(interstellarNavigation, "Electronics"), Is.True);
 
@@ -396,6 +445,9 @@ public sealed class SpaceProgressionTests
         Assert.That(HasResourceRequirement(DataBase<Research>.Find("HomeSystemSurvey"), "Electronics"), Is.True);
         Assert.That(HasResourceRequirement(DataBase<Research>.Find("HomeSystemSurvey"), "CopperWire"), Is.True);
         Research homeSystemSurvey = DataBase<Research>.Find("HomeSystemSurvey");
+        Assert.That(HasPrerequisite(homeSystemSurvey, "OrbitalEngineering"), Is.True);
+        Assert.That(HasPrerequisite(homeSystemSurvey, "DeepSpaceFleet"), Is.False);
+        Assert.That(HasPrerequisite(DataBase<Research>.Find("DeepSpaceFleet"), "HomeSystemSurvey"), Is.True);
         Assert.That(homeSystemSurvey.Effects.Count(effect =>
             effect != null && effect.Type == ResearchEffectType.UnlockHomeSystemSurvey), Is.EqualTo(1));
         Assert.That(HasPrerequisite(deepSpaceShipbuilding, "OrbitalStationEngineering"), Is.True);

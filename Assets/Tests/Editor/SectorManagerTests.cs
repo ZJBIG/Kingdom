@@ -8,6 +8,59 @@ using Object = UnityEngine.Object;
 public sealed class SectorManagerTests
 {
     [Test]
+    public void FirstInterstellarCampaignRequiresHeliosOccupationBeforeUnlockAndDeparture()
+    {
+        GameObject host = new GameObject("First-Interstellar-Gate-Regression");
+        try
+        {
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            BuildingManager buildings = host.AddComponent<BuildingManager>();
+            buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+                .SetAmountForEditor(ExpantaNum.One);
+            ProgressionModifierManager.Rebuild(null);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
+            ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
+            manager.GetState(DataBase<SectorDefinition>.Find("ShardCrown"))
+                .SetOccupiedForEditor(true);
+
+            Assert.That(manager.CanAccess(alpha), Is.False);
+            Assert.That(manager.TryUnlock(alpha, out SectorOperationFailure failure), Is.False);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.PrerequisiteNotOccupied));
+            Assert.That(manager.GetState(alpha).Unlocked, Is.False);
+            Assert.That(manager.GetState(alpha).CampaignActive, Is.False);
+
+            manager.GetState(DataBase<SectorDefinition>.Find("HeliosCore"))
+                .SetOccupiedForEditor(true);
+            Assert.That(manager.CanAccess(alpha), Is.True);
+            Assert.That(manager.TryUnlock(alpha, out failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            SetCampaignResources(resources, alpha, new ExpantaNum(1000000d));
+            var runtime = new GameState();
+            SetCampaignFood(runtime, new ExpantaNum(1000000d));
+            runtime.AdjustAttackPowerForEditor(new ExpantaNum(100000d));
+            runtime.AdjustMilitaryManpowerForEditor(new ExpantaNum(100000d));
+            runtime.SetSupplySatisfactionForEditor(ExpantaNum.One);
+            runtime.SetPowerSatisfactionForEditor(ExpantaNum.One);
+            runtime.SetLogisticsSatisfactionForEditor(ExpantaNum.One);
+            ExpantaNum foodBefore = runtime.FoodAmount;
+
+            Assert.That(manager.TryAdvanceCampaign(alpha, 1d, runtime, resources, out failure), Is.True);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
+            Assert.That(manager.GetState(alpha).CampaignProgress, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(runtime.FoodAmount, Is.LessThan(foodBefore));
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
+            ProgressionModifierManager.Rebuild(null);
+        }
+    }
+
+    [Test]
     public void OccupiedSectorProductionContributesToSameTickSatisfaction()
     {
         GameObject gameObject = new GameObject("Sector-SameTick-GameManager");
@@ -17,7 +70,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Rebuild(null);
             gameObject.AddComponent<GameManager>();
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
             Pair<Resource, ExpantaNum> production = lowOrbit.OccupiedResourceRatesPerSecond
                 .First(rate => rate.First != null && rate.Second > ExpantaNum.Zero);
             resourceManager.EnsureResource(production.First);
@@ -340,10 +393,8 @@ public sealed class SectorManagerTests
         Assert.That(jovian.TerritoryReward, Is.GreaterThan(asteroid.TerritoryReward));
         Assert.That(asteroid.ResourceRewards, Is.Empty);
         Assert.That(jovian.ResourceRewards, Is.Empty);
-        Assert.That(HasPositiveRate(asteroid.OccupiedResourceRatesPerSecond,
-            DataBase<Resource>.Find("SpecialMetalOre")), Is.True);
-        Assert.That(HasPositiveRate(jovian.OccupiedResourceRatesPerSecond,
-            DataBase<Resource>.Find("RocketFuel")), Is.True);
+        Assert.That(asteroid.OccupiedResourceRatesPerSecond, Is.Empty);
+        Assert.That(jovian.OccupiedResourceRatesPerSecond, Is.Empty);
     }
 
     [Test]
@@ -498,20 +549,20 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("CopperWire"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("Electronics"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
             Assert.That(
-                resourceManager.GetAmount(DataBase<Resource>.Find("CopperWire")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+                resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+                Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(
-                resourceManager.GetAmount(DataBase<Resource>.Find("Electronics")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+                resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+                Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
         {
@@ -520,16 +571,16 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void 轨道自主采矿工坊必须提升占领区每秒产出()
+    public void 轨道自主采矿工坊不阻断系外占领产出()
     {
         GameObject resourceObject = new GameObject("轨道采矿占领区产出测试资源管理器");
         try
         {
             ProgressionModifierManager.Rebuild(null);
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("CopperWire"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("Electronics"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
             WorkshopUpgrade definition =
                 DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems");
             WorkshopUpgradeState state = new WorkshopUpgradeState(definition);
@@ -541,10 +592,10 @@ public sealed class SectorManagerTests
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("CopperWire")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("Electronics")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+                Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+                Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
         {
@@ -554,7 +605,7 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void 轨道自主采矿研究与工坊必须叠加占领区每秒产出()
+    public void 轨道采矿研究与工坊不阻断系外占领产出()
     {
         GameObject resourceObject = new GameObject("轨道采矿研究叠加测试资源管理器");
         try
@@ -573,18 +624,18 @@ public sealed class SectorManagerTests
                 new[] { workshopState });
 
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("CopperWire"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("Electronics"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
+            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("CopperWire")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("Electronics")),
-                Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+                Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+                Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
         {
@@ -1565,7 +1616,54 @@ public sealed class SectorManagerTests
         foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
         {
             if (sector != null && sector.IsHomeSystem)
+            {
                 Assert.That(sector.ResourceRewards, Is.Empty, sector.Id);
+                Assert.That(sector.OccupiedResourceRatesPerSecond, Is.Empty, sector.Id);
+                Assert.That(sector.TerritoryReward, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
+            }
+        }
+    }
+
+    [Test]
+    public void HomeSystemOccupationAddsDevelopmentSpaceWithoutGrantingAnyResource()
+    {
+        var host = new GameObject("Home-System-Development-Only");
+        try
+        {
+            GameManager game = host.AddComponent<GameManager>();
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            resources.InitializeForEditor();
+            var manager = new SectorManager();
+            manager.InitializeDefinitions();
+            var amounts = new Dictionary<Resource, ExpantaNum>();
+            foreach (var pair in resources.States)
+                amounts.Add(pair.Key, pair.Value.Amount);
+            int occupied = 0;
+            foreach (var sector in DataBase<SectorDefinition>.All)
+            {
+                if (!sector.IsHomeSystem) continue;
+                SectorState state = manager.GetState(sector);
+                state.SetUnlockedForEditor(true);
+                state.SetCampaignProgressForEditor(ExpantaNum.One);
+                ExpantaNum territoryBefore = game.State.TerritoryTotal;
+                Assert.That(manager.TryOccupy(sector, out var failure), Is.True, $"{sector.Id}: {failure}");
+                Assert.That((game.State.TerritoryTotal - territoryBefore - sector.TerritoryReward).ToDouble(),
+                    Is.EqualTo(0d).Within(1e-6d), sector.Id);
+                Assert.That(manager.TryOccupy(sector, out _), Is.False, "Occupation cannot award development space twice.");
+                foreach (var pair in amounts)
+                    Assert.That((resources.GetAmount(pair.Key) - pair.Value).ToDouble(),
+                        Is.EqualTo(0d).Within(1e-6d), $"{sector.Id}: {pair.Key.Id}");
+                occupied++;
+            }
+            Assert.That(occupied, Is.EqualTo(6), "The contract covers the six authored home-system sectors.");
+            Assert.That(manager.TickOccupiedResourceProduction(60d, resources), Is.False);
+            foreach (var pair in amounts)
+                Assert.That((resources.GetAmount(pair.Key) - pair.Value).ToDouble(),
+                    Is.EqualTo(0d).Within(1e-6d), pair.Key.Id);
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
         }
     }
 
@@ -1595,21 +1693,53 @@ public sealed class SectorManagerTests
     }
 
     [Test]
-    public void 近地星区占领产出必须按阶段承担不同战略职责()
+    public void HomeSectorLegacyOccupationCannotProduceOrContributeToSupply()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
+        GameObject resourceObject = new GameObject("Home-Sector-No-Production-Resources");
+        SectorDefinition sector = DataBase<SectorDefinition>.Find("DawnRing");
+        var originalRates = new List<Pair<Resource, ExpantaNum>>(sector.OccupiedResourceRatesPerSecond);
+        try
+        {
+            ProgressionModifierManager.Rebuild(null);
+            resourceObject.AddComponent<GameManager>();
+            ResourceManager resources = resourceObject.AddComponent<ResourceManager>();
+            Resource resource = DataBase<Resource>.Find("Electronics");
+            resources.SetAmount(resource, new ExpantaNum(100d));
+            // Simulate a previously occupied sector with stale nonempty production data.
+            sector.SetOccupiedResourceRatesForEditor(new List<Pair<Resource, ExpantaNum>>
+            {
+                new Pair<Resource, ExpantaNum>(resource, new ExpantaNum(10d))
+            });
+            var manager = new SectorManager(_ => { });
+            manager.InitializeDefinitions();
+            SectorState state = manager.GetState(sector);
+            state.SetOccupiedForEditor(true);
+            ExpantaNum before = resources.GetAmount(resource);
+            Assert.That(manager.TickOccupiedResourceProduction(60d, resources), Is.False);
+            Assert.That((resources.GetAmount(resource) - before).ToDouble(), Is.EqualTo(0d).Within(1e-9d));
+            resources.SetAmount(resource, ExpantaNum.Zero);
+            resources.BeginTickForEditor();
+            manager.AccumulateOccupiedResourcePotentialForEditor(resources);
+            resources.AdjustTickPotentialConsumptionForEditor(resource, ExpantaNum.One);
+            resources.CalculateTickSatisfactionForEditor(1d);
+            Assert.That(resources.GetTickSatisfactionForEditor(resource).ToDouble(),
+                Is.EqualTo(0d).Within(1e-9d));
 
-        Assert.That(FindOccupiedResourceRate(lowOrbit, "Electronics"),
-            Is.EqualTo(new ExpantaNum(0.04d)).Within(0.000001d));
-        Assert.That(FindOccupiedResourceRate(moon, "TitaniumAlloy"),
-            Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindOccupiedResourceRate(moon, "Composite"), Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindOccupiedResourceRate(mars, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindOccupiedResourceRate(mars, "RocketFuel"), Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(FindOccupiedResourceRate(mars, "Electronics"),
-            Is.GreaterThanOrEqualTo(FindOccupiedResourceRate(moon, "Electronics")));
+            Assert.That(SectorValidator.ValidateDefinitions(new[] { sector }, out _), Is.False);
+            state.SetOccupiedForEditor(false);
+            state.SetUnlockedForEditor(true);
+            state.SetCampaignProgressForEditor(ExpantaNum.One);
+            Assert.That(manager.TryOccupy(sector, out SectorOperationFailure failure), Is.False);
+            Assert.That(failure, Is.EqualTo(SectorOperationFailure.InvalidReward));
+            Assert.That(state.Occupied, Is.False);
+            Assert.That(state.VisitCount, Is.Zero);
+        }
+        finally
+        {
+            sector.SetOccupiedResourceRatesForEditor(originalRates);
+            ProgressionModifierManager.Rebuild(null);
+            Object.DestroyImmediate(resourceObject);
+        }
     }
 
     [Test]
