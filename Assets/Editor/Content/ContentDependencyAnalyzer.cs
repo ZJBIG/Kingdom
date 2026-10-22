@@ -43,38 +43,38 @@ public static class ContentDependencyAnalyzer
     private static DependencyAnalysisResult AnalyzeCurrentDefinitions()
     {
         return Analyze(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
     }
 
     public static DependencyAnalysisResult Analyze(
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings,
-        IReadOnlyList<Research> researches,
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<ResearchDef> researches,
         IReadOnlyCollection<string> startingResourceIds,
         TechLevel startingTechLevel)
     {
         var result = new DependencyAnalysisResult { HighestTechLevel = startingTechLevel };
-        var byResearch = new Dictionary<string, Research>(StringComparer.OrdinalIgnoreCase);
-        var byResource = new Dictionary<string, Resource>(StringComparer.OrdinalIgnoreCase);
-        var producers = new Dictionary<string, List<Building>>(StringComparer.OrdinalIgnoreCase);
+        var byResearch = new Dictionary<string, ResearchDef>(StringComparer.OrdinalIgnoreCase);
+        var byResource = new Dictionary<string, ResourceDef>(StringComparer.OrdinalIgnoreCase);
+        var producers = new Dictionary<string, List<BuildingDef>>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < resources.Count; i++)
             if (resources[i] != null && !string.IsNullOrEmpty(resources[i].Id)) byResource[resources[i].Id] = resources[i];
         for (int i = 0; i < researches.Count; i++)
             if (researches[i] != null && !string.IsNullOrEmpty(researches[i].Id)) byResearch[researches[i].Id] = researches[i];
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null) continue;
             for (int j = 0; j < building.ResourceGenerationRates.Count; j++)
             {
-                Resource output = building.ResourceGenerationRates[j].First;
+                ResourceDef output = building.ResourceGenerationRates[j].First;
                 if (output == null) continue;
-                if (!producers.TryGetValue(output.Id, out List<Building> values))
-                    producers.Add(output.Id, values = new List<Building>());
+                if (!producers.TryGetValue(output.Id, out List<BuildingDef> values))
+                    producers.Add(output.Id, values = new List<BuildingDef>());
                 values.Add(building);
             }
         }
@@ -91,7 +91,7 @@ public static class ContentDependencyAnalyzer
             changed = false;
             for (int i = 0; i < researches.Count; i++)
             {
-                Research research = researches[i];
+                ResearchDef research = researches[i];
                 if (research == null || completedResearch.Contains(research.Id)) continue;
                 if (!ResearchCanBeCompleted(research, completedResearch, availableResources, result.HighestTechLevel)) continue;
                 completedResearch.Add(research.Id);
@@ -101,7 +101,7 @@ public static class ContentDependencyAnalyzer
             }
             for (int i = 0; i < buildings.Count; i++)
             {
-                Building building = buildings[i];
+                BuildingDef building = buildings[i];
                 if (building == null || building.TechLevel > result.HighestTechLevel || reachableBuildings.Contains(building.Id)) continue;
                 if (!AllResearchComplete(building.RequiredResearch, completedResearch) ||
                     !CostsAvailable(building.ResourceRequirements, availableResources) ||
@@ -117,17 +117,17 @@ public static class ContentDependencyAnalyzer
 
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i];
+            ResearchDef research = researches[i];
             if (research != null && !completedResearch.Contains(research.Id))
                 result.UnreachableResearch.Add(new BlockedDefinition(research.Id, DescribeResearchBlock(research, completedResearch, availableResources, producers, byResearch)));
         }
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building != null && !reachableBuildings.Contains(building.Id))
                 result.UnreachableBuildings.Add(new BlockedDefinition(building.Id, DescribeBuildingBlock(building, completedResearch, availableResources, producers, byResearch)));
         }
-        foreach (KeyValuePair<string, List<Building>> entry in producers)
+        foreach (KeyValuePair<string, List<BuildingDef>> entry in producers)
             if (entry.Value.Count == 0) result.ResourcesWithoutProducer.Add(entry.Key);
         FindResearchCycles(researches, result.ResearchCycles);
         FindResourceDeadlocks(researches, buildings, producers, result.ResourceDeadlocks);
@@ -137,67 +137,67 @@ public static class ContentDependencyAnalyzer
         return result;
     }
 
-    private static bool ResearchCanBeCompleted(Research research, HashSet<string> completed, HashSet<string> resources, TechLevel tech)
+    private static bool ResearchCanBeCompleted(ResearchDef research, HashSet<string> completed, HashSet<string> resources, TechLevel tech)
     {
         bool era = research.TechLevel <= tech || (research.AdvancesTechLevel && (int)research.TechLevel == (int)tech + 1);
         return era && AllResearchComplete(research.Prerequisites, completed) && CostsAvailable(research.ResourceRequirements, resources);
     }
 
-    private static bool AllResearchComplete(IReadOnlyList<Research> values, HashSet<string> completed)
+    private static bool AllResearchComplete(IReadOnlyList<ResearchDef> values, HashSet<string> completed)
     {
         for (int i = 0; i < values.Count; i++) if (values[i] == null || !completed.Contains(values[i].Id)) return false;
         return true;
     }
 
-    private static bool CostsAvailable(IReadOnlyList<Pair<Resource, ExpantaNum>> values, HashSet<string> resources)
+    private static bool CostsAvailable(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> values, HashSet<string> resources)
     {
         for (int i = 0; i < values.Count; i++) if (values[i].First == null || !resources.Contains(values[i].First.Id)) return false;
         return true;
     }
 
-    private static string DescribeResearchBlock(Research value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<Building>> producers, Dictionary<string, Research> byResearch)
+    private static string DescribeResearchBlock(ResearchDef value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<BuildingDef>> producers, Dictionary<string, ResearchDef> byResearch)
     {
         for (int i = 0; i < value.Prerequisites.Count; i++)
         {
-            Research prerequisite = value.Prerequisites[i];
+            ResearchDef prerequisite = value.Prerequisites[i];
             if (prerequisite == null) return "Missing prerequisite: <null>";
             if (!completed.Contains(prerequisite.Id)) return "Missing prerequisite: " + prerequisite.Id + "\n" + TraceResearch(prerequisite, completed, resources, producers, byResearch, new HashSet<string>());
         }
         if (value.TechLevel > TechLevel.Animal) return "TechLevel condition: requires " + value.TechLevel;
         for (int i = 0; i < value.ResourceRequirements.Count; i++)
         {
-            Resource resource = value.ResourceRequirements[i].First;
+            ResourceDef resource = value.ResourceRequirements[i].First;
             if (resource != null && !resources.Contains(resource.Id)) return DescribeMissingResource(resource.Id, producers, completed, resources, byResearch);
         }
         return "Blocked by an unresolved prerequisite condition.";
     }
 
-    private static string DescribeBuildingBlock(Building value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<Building>> producers, Dictionary<string, Research> byResearch)
+    private static string DescribeBuildingBlock(BuildingDef value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<BuildingDef>> producers, Dictionary<string, ResearchDef> byResearch)
     {
         for (int i = 0; i < value.RequiredResearch.Count; i++)
             if (value.RequiredResearch[i] == null || !completed.Contains(value.RequiredResearch[i].Id))
                 return "Missing required research: " + (value.RequiredResearch[i] == null ? "<null>" : value.RequiredResearch[i].Id);
         for (int i = 0; i < value.ResourceRequirements.Count; i++)
         {
-            Resource resource = value.ResourceRequirements[i].First;
+            ResourceDef resource = value.ResourceRequirements[i].First;
             if (resource != null && !resources.Contains(resource.Id)) return DescribeMissingResource(resource.Id, producers, completed, resources, byResearch);
         }
         for (int i = 0; i < value.ResourceConsumptionRates.Count; i++)
         {
-            Resource resource = value.ResourceConsumptionRates[i].First;
+            ResourceDef resource = value.ResourceConsumptionRates[i].First;
             if (resource == null) return "Missing continuous input: <null>";
             if (!resources.Contains(resource.Id)) return "Continuous input blocked: " + DescribeMissingResource(resource.Id, producers, completed, resources, byResearch);
         }
         return "TechLevel or unresolved construction condition.";
     }
 
-    private static string DescribeMissingResource(string id, Dictionary<string, List<Building>> producers, HashSet<string> completed, HashSet<string> resources, Dictionary<string, Research> byResearch)
+    private static string DescribeMissingResource(string id, Dictionary<string, List<BuildingDef>> producers, HashSet<string> completed, HashSet<string> resources, Dictionary<string, ResearchDef> byResearch)
     {
         var builder = new StringBuilder("Missing resource:    ").Append(id);
-        if (!producers.TryGetValue(id, out List<Building> values) || values.Count == 0) return builder.Append("\nRequired producer:    <none>").ToString();
+        if (!producers.TryGetValue(id, out List<BuildingDef> values) || values.Count == 0) return builder.Append("\nRequired producer:    <none>").ToString();
         for (int i = 0; i < values.Count; i++)
         {
-            Building producer = values[i];
+            BuildingDef producer = values[i];
             builder.Append("\nRequired producer:    ").Append(producer.Id);
             for (int j = 0; j < producer.RequiredResearch.Count; j++)
                 if (producer.RequiredResearch[j] != null && !completed.Contains(producer.RequiredResearch[j].Id))
@@ -209,7 +209,7 @@ public static class ContentDependencyAnalyzer
         return builder.ToString();
     }
 
-    private static string TraceResearch(Research value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<Building>> producers, Dictionary<string, Research> byResearch, HashSet<string> seen)
+    private static string TraceResearch(ResearchDef value, HashSet<string> completed, HashSet<string> resources, Dictionary<string, List<BuildingDef>> producers, Dictionary<string, ResearchDef> byResearch, HashSet<string> seen)
     {
         if (value == null || completed.Contains(value.Id)) return string.Empty;
         if (!seen.Add(value.Id)) return "Trace: cycle at " + value.Id;
@@ -222,13 +222,13 @@ public static class ContentDependencyAnalyzer
         return "Trace: " + value.Id;
     }
 
-    private static void FindResearchCycles(IReadOnlyList<Research> values, List<string> output)
+    private static void FindResearchCycles(IReadOnlyList<ResearchDef> values, List<string> output)
     {
         var visiting = new HashSet<string>(StringComparer.OrdinalIgnoreCase); var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase); var path = new List<string>();
         for (int i = 0; i < values.Count; i++) if (values[i] != null) VisitResearch(values[i], visiting, visited, path, output);
     }
 
-    private static void VisitResearch(Research value, HashSet<string> visiting, HashSet<string> visited, List<string> path, List<string> output)
+    private static void VisitResearch(ResearchDef value, HashSet<string> visiting, HashSet<string> visited, List<string> path, List<string> output)
     {
         if (visited.Contains(value.Id)) return;
         if (!visiting.Add(value.Id)) { int start = path.IndexOf(value.Id); output.Add(string.Join(" -> ", path.GetRange(Math.Max(0, start), path.Count - Math.Max(0, start))) + " -> " + value.Id); return; }
@@ -237,14 +237,14 @@ public static class ContentDependencyAnalyzer
         path.RemoveAt(path.Count - 1); visiting.Remove(value.Id); visited.Add(value.Id);
     }
 
-    private static void FindResourceDeadlocks(IReadOnlyList<Research> researches, IReadOnlyList<Building> buildings, Dictionary<string, List<Building>> producers, List<string> output)
+    private static void FindResourceDeadlocks(IReadOnlyList<ResearchDef> researches, IReadOnlyList<BuildingDef> buildings, Dictionary<string, List<BuildingDef>> producers, List<string> output)
     {
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i]; if (research == null) continue;
+            ResearchDef research = researches[i]; if (research == null) continue;
             for (int j = 0; j < research.ResourceRequirements.Count; j++)
             {
-                Resource resource = research.ResourceRequirements[j].First; if (resource == null || resource.Id == "WoodLog" || !producers.TryGetValue(resource.Id, out List<Building> values)) continue;
+                ResourceDef resource = research.ResourceRequirements[j].First; if (resource == null || resource.Id == "WoodLog" || !producers.TryGetValue(resource.Id, out List<BuildingDef> values)) continue;
                 bool allRequireResearch = values.Count > 0;
                 for (int k = 0; k < values.Count; k++) if (!ContainsResearch(values[k].RequiredResearch, research.Id)) allRequireResearch = false;
                 if (allRequireResearch) output.Add(research.Id + " -> requires " + resource.Id + " -> producer requires " + research.Id);
@@ -252,16 +252,16 @@ public static class ContentDependencyAnalyzer
         }
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i]; if (building == null) continue;
+            BuildingDef building = buildings[i]; if (building == null) continue;
             for (int j = 0; j < building.ResourceRequirements.Count; j++)
             {
-                Resource resource = building.ResourceRequirements[j].First; if (resource != null && resource.Id != "WoodLog" && producers.TryGetValue(resource.Id, out List<Building> values) && values.Count == 1 && values[0] == building)
+                ResourceDef resource = building.ResourceRequirements[j].First; if (resource != null && resource.Id != "WoodLog" && producers.TryGetValue(resource.Id, out List<BuildingDef> values) && values.Count == 1 && values[0] == building)
                     output.Add(building.Id + " -> construction requires " + resource.Id + " -> produced only by " + building.Id);
             }
         }
     }
 
-    private static bool ContainsResearch(IReadOnlyList<Research> values, string id) { for (int i = 0; i < values.Count; i++) if (values[i] != null && string.Equals(values[i].Id, id, StringComparison.OrdinalIgnoreCase)) return true; return false; }
+    private static bool ContainsResearch(IReadOnlyList<ResearchDef> values, string id) { for (int i = 0; i < values.Count; i++) if (values[i] != null && string.Equals(values[i].Id, id, StringComparison.OrdinalIgnoreCase)) return true; return false; }
 
     public sealed class BlockedDefinition { public readonly string Id; public readonly string Reason; public BlockedDefinition(string id, string reason) { Id = id; Reason = reason; } }
     public sealed class DependencyAnalysisResult

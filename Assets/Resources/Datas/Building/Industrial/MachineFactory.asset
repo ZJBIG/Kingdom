@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: MachineFactory
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 63f7608ba61f47e4b288dacb74e6a2ba, type: 3}
   id: MachineFactory
   Label: "\u673A\u5668\u5236\u9020\u5382"
   Description: "以钢材、铜线和基础金属锭制造机械部件、发动机与复合材料，为工业扩建和航天设施提供设备。"

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IndustrialMetalSmelter
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 7d3a942042f54b598d2b59c226f58626, type: 3}
   id: IndustrialMetalSmelter
   Label: "工业金属冶炼厂"
   Description: "以机械化炉体加工低级金属矿和焦炭，同时供应基础金属锭与钢材，服务线材、机械和工业建设。"

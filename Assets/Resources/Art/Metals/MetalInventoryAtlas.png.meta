@@ -68,15 +68,9 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 0
   alignment: 0
-  spritePivot:
-    x: 0.5
-    y: 0.5
+  spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -122,14 +116,14 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
     buildTarget: Android
-    maxTextureSize: 4096
+    maxTextureSize: 1024
     resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 50
+    textureFormat: 48
+    textureCompression: 2
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -141,18 +135,12 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 444
-        width: 444
-        height: 443
+        y: 256
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -160,26 +148,20 @@ TextureImporter:
       spriteID: 1a7f088cd00f467282002c4cf68f41ac
       internalID: 21310001
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
       name: AdvancedMetalOre
       rect:
         serializedVersion: 2
-        x: 444
-        y: 444
-        width: 443
-        height: 443
+        x: 256
+        y: 256
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -187,26 +169,20 @@ TextureImporter:
       spriteID: 7f0b553004874517b6a33527f0a91cad
       internalID: 21310002
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
       name: SpecialMetalOre
       rect:
         serializedVersion: 2
-        x: 887
-        y: 444
-        width: 443
-        height: 443
+        x: 512
+        y: 256
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -214,26 +190,20 @@ TextureImporter:
       spriteID: 322107f2af2c4eaaa07731a569aee0f1
       internalID: 21310003
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
       name: BasicMetalIngot
       rect:
         serializedVersion: 2
-        x: 1330
-        y: 444
-        width: 444
-        height: 443
+        x: 768
+        y: 256
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -241,7 +211,7 @@ TextureImporter:
       spriteID: adddf37168724190a8d857fce64a00bc
       internalID: 21310004
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
@@ -250,17 +220,11 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 444
-        height: 444
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -268,26 +232,20 @@ TextureImporter:
       spriteID: 56f482717f9848c8a1b8b72b76bb454e
       internalID: 21310005
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
       name: Steel
       rect:
         serializedVersion: 2
-        x: 444
+        x: 256
         y: 0
-        width: 443
-        height: 444
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -295,26 +253,20 @@ TextureImporter:
       spriteID: 67a9ac8ff6954c80b8c1b0d3f5429bc6
       internalID: 21310006
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
       name: TitaniumAlloy
       rect:
         serializedVersion: 2
-        x: 887
+        x: 512
         y: 0
-        width: 443
-        height: 444
+        width: 256
+        height: 256
       alignment: 0
-      pivot:
-        x: 0.5
-        y: 0.5
-      border:
-        x: 0
-        y: 0
-        z: 0
-        w: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
@@ -322,7 +274,7 @@ TextureImporter:
       spriteID: 04badcf67a184167a5d53c2f3fef4eb4
       internalID: 21310007
       vertices: []
-      indices: null
+      indices:
       edges: []
       weights: []
     outline: []
@@ -331,16 +283,16 @@ TextureImporter:
     spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
-    indices: null
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      BasicMetalOre: 21310001
-      AdvancedMetalOre: 21310002
-      SpecialMetalOre: 21310003
-      BasicMetalIngot: 21310004
       AdvancedMetalIngot: 21310005
+      AdvancedMetalOre: 21310002
+      BasicMetalIngot: 21310004
+      BasicMetalOre: 21310001
+      SpecialMetalOre: 21310003
       Steel: 21310006
       TitaniumAlloy: 21310007
   mipmapLimitGroupName: null

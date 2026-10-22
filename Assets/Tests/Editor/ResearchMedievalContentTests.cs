@@ -19,15 +19,15 @@ public sealed class ResearchMedievalContentTests
         {
             for (int i = 0; i < pair.Value.Length; i++)
                 Assert.That(
-                    DataBase<Building>.Find(pair.Value[i]).RequiredResearch,
-                    Does.Contain(DataBase<Research>.Find(pair.Key)));
+                    DataBase<BuildingDef>.Find(pair.Value[i]).RequiredResearch,
+                    Does.Contain(DataBase<ResearchDef>.Find(pair.Key)));
         }
     }
 
     [Test]
     public void C503_IndustrializationIsTheOnlyIndustrialEraTransition()
     {
-        Research industrialization = DataBase<Research>.Find("Industrialization");
+        ResearchDef industrialization = DataBase<ResearchDef>.Find("Industrialization");
 
         Assert.That(industrialization.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(industrialization.AdvancesTechLevel, Is.True);
@@ -47,7 +47,7 @@ public sealed class ResearchMedievalContentTests
     public void C503_MedievalResearchDependenciesHaveNoCycles()
     {
         Assert.That(
-            ResearchValidator.ValidateNoCycles(DataBase<Research>.All, out string error),
+            ResearchValidator.ValidateNoCycles(DataBase<ResearchDef>.All, out string error),
             Is.True,
             error);
     }

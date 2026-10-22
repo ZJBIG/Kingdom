@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OrbitalAgroecologyArray
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: d20f2499e98e43bc8a94fe281b33b50a, type: 3}
   id: OrbitalAgroecologyArray
   Label: "\u8F68\u9053\u751F\u6001\u519C\u4E1A\u9635\u5217"
   Description: "将轨道光照、营养液循环、微生物再生、自动化种植与远程林业采集整合为一体化生态生产阵列，为轨道居住巨构提供食物、生物质与木材持续供应。"

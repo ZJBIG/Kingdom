@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-18T19:57:54.9059501+08:00
-Platform: EditMode
-Result: Failed(Timeout)
-Unity EditMode tests timed out after 120 seconds. Log=data/space-progression-20261018/relic-fixture.log

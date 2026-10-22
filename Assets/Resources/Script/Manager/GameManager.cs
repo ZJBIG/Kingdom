@@ -84,7 +84,7 @@ public class GameManager : Singleton<GameManager>
 
     private void InitializeStartingInventory()
     {
-        Resource woodLog = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceDef woodLog = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
         ResourceManager.Instance.SetAmount(woodLog, new ExpantaNum(60));
     }
 
@@ -350,7 +350,7 @@ public class GameManager : Singleton<GameManager>
         if (data.CampaignActive && string.IsNullOrWhiteSpace(data.CampaignTargetSectorId))
             throw new System.IO.InvalidDataException("活动战役存档缺少目标星区编号。");
         if (!string.IsNullOrWhiteSpace(data.CampaignTargetSectorId) &&
-            !DataBase<SectorDefinition>.TryFind(data.CampaignTargetSectorId, out _))
+            !DataBase<SectorDef>.TryFind(data.CampaignTargetSectorId, out _))
             throw new System.IO.InvalidDataException(
                 $"存档包含未知战役目标星区“{data.CampaignTargetSectorId}”。");
 

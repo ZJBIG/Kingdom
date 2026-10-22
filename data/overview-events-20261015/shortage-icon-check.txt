@@ -1,8 +1,0 @@
-Atlas 1536x1024, 3 columns x 2 rows, glyph rectangles in bounds.
-0: Land, red warning pixels=0
-1: Productivity, red warning pixels=0
-2: Materials, red warning pixels=0
-3: LandShortage, red warning pixels=22798
-4: ProductivityShortage, red warning pixels=22870
-5: MaterialsShortage, red warning pixels=23075
-Static asset checks; not a Unity rendering test.

@@ -23,7 +23,7 @@ public sealed partial class KingdomUIRoot
 
     public static void ApplyEraRowStyle(GameObject row, TechLevel era, int index)
     {
-        if (row.transform.Find("EraDesign") != null)
+        if (row.transform.Find("EraDesign") != null || row.transform.Find("SectorDesign") != null)
         {
             // These independent prefabs own their material, frame and header palette.
             Button authoredButton = row.GetComponent<Button>();

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 public readonly struct OfflineResourceChange
 {
-    public Resource Resource { get; }
+    public ResourceDef Resource { get; }
     public ExpantaNum Before { get; }
     public ExpantaNum After { get; }
     public ExpantaNum Change => After - Before;
-    internal OfflineResourceChange(Resource resource, ExpantaNum before, ExpantaNum after)
+    internal OfflineResourceChange(ResourceDef resource, ExpantaNum before, ExpantaNum after)
     { Resource = resource; Before = before; After = after; }
 }
 
@@ -23,8 +23,8 @@ public sealed class OfflineProgressSummary
     public ExpantaNum PopulationAfter { get; }
     public bool FoodAtCapacity { get; }
     public IReadOnlyList<OfflineResourceChange> Resources { get; }
-    public IReadOnlyList<Research> CompletedResearches { get; }
-    public IReadOnlyList<SectorDefinition> OccupiedSectors { get; }
+    public IReadOnlyList<ResearchDef> CompletedResearches { get; }
+    public IReadOnlyList<SectorDef> OccupiedSectors { get; }
     public UltraProjectStage StageBefore { get; }
     public UltraProjectStage StageAfter { get; }
     public ExpantaNum StageProgressBefore { get; }
@@ -32,9 +32,9 @@ public sealed class OfflineProgressSummary
     public UltraProjectStatus ProjectStatusBefore { get; }
     public UltraProjectStatus ProjectStatusAfter { get; }
     public UltraProjectPauseReason ProjectPauseReason { get; }
-    public Research WaitingResearch { get; }
+    public ResearchDef WaitingResearch { get; }
     public bool ResearchPowerBlocked { get; }
-    public IReadOnlyList<SectorDefinition> SupplyBlockedSectors { get; }
+    public IReadOnlyList<SectorDef> SupplyBlockedSectors { get; }
 
     public RelicStatus RelicStatusBefore { get; }
     public RelicStatus RelicStatusAfter { get; }
@@ -53,7 +53,7 @@ public sealed class OfflineProgressSummary
 
     internal sealed class Snapshot
     {
-        internal readonly Dictionary<Resource, ExpantaNum> Resources = new();
+        internal readonly Dictionary<ResourceDef, ExpantaNum> Resources = new();
         internal readonly HashSet<string> CompletedResearchIds = new(StringComparer.Ordinal);
         internal readonly HashSet<string> OccupiedSectorIds = new(StringComparer.Ordinal);
         internal RelicStatus RelicStatus;
@@ -123,7 +123,7 @@ public sealed class OfflineProgressSummary
         }
         resources.Sort((a, b) => string.CompareOrdinal(a.Resource.Id, b.Resource.Id));
         Resources = resources.AsReadOnly();
-        var researches = new List<Research>();
+        var researches = new List<ResearchDef>();
         ResearchManager research = ResearchManager.Instance;
         foreach (var pair in research.States)
             if (pair.Value.Status == ResearchStatus.Completed && !before.CompletedResearchIds.Contains(pair.Key.Id))
@@ -133,8 +133,8 @@ public sealed class OfflineProgressSummary
         foreach (ResearchState state in research.ResearchQueue)
             if (state.Status == ResearchStatus.WaitingResources) { WaitingResearch = state.Definition; break; }
         ResearchPowerBlocked = research.ActiveResearch != null && research.CurrentResearchSpeed <= ExpantaNum.Zero;
-        var sectors = new List<SectorDefinition>();
-        var blocked = new List<SectorDefinition>();
+        var sectors = new List<SectorDef>();
+        var blocked = new List<SectorDef>();
         foreach (SectorState state in game.Sectors.OrderedStates)
         {
             if (state.Occupied && !before.OccupiedSectorIds.Contains(state.Definition.Id)) sectors.Add(state.Definition);

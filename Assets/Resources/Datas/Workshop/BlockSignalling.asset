@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BlockSignalling
   m_EditorClassIdentifier: 
   id: BlockSignalling
+  icon: {fileID: 21300000, guid: c112d7562d6a1044fb9228b5aba77fdf, type: 3}
   Label: "\u7535\u6C14\u95ED\u585E\u673A"
   Description: "安装区段信号与联锁设备，提高铁路枢纽的物流供给。"
   SortOrder: 260

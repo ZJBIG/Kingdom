@@ -15,7 +15,7 @@ public sealed partial class KingdomUIRoot
         return end < 0 ? description : description.Substring(0, end);
     }
 
-    private static string GetBuildingRoleSummary(Building building)
+    private static string GetBuildingRoleSummary(BuildingDef building)
     {
         if (building.ResourceGenerationRates.Count > 0)
         {
@@ -100,7 +100,7 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private static string GetPinnedResearchTitle(Research research)
+    private static string GetPinnedResearchTitle(ResearchDef research)
     {
         string title = string.IsNullOrEmpty(research.Label) ? research.Id : research.Label;
         return UIPinPreferences.IsPinned(UIPinPreferences.Research, research.Id) ? "置顶·" + title : title;

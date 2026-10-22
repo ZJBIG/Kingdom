@@ -26,15 +26,38 @@ MonoBehaviour:
   colonizationFoodPerSecond: "4000"
   colonizationResourceRatesPerSecond:
   - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
-    amount: "120"
+    amount: "24"
   - resource: {fileID: 11400000, guid: eab29f1960049dd40b6a478c463d96fc, type: 2}
-    amount: "80"
+    amount: "24"
   colonizationDurationSeconds: "21600"
   campaignFoodPerSecond: "0"
   campaignResourceRatesPerSecond: []
   campaignProgressMultiplier: "0"
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: b3d320856db649e29a75089142ec218b, type: 3}
   mapX: 11
   mapY: 3
+  interiorExploration:
+    label: "近恒星集能勘探"
+    description: "无人观测器测绘日冕、辐射与轨道扰动，确认集能卫星和定向输电装置能够长期工作的轨道。"
+    completionDescription: "观测网确认了可维护的集能轨道与输电窗口。曜心戴森工程现已开放建设，恒星能量将由实际建成的阵列送回产业。"
+    durationSeconds: "43200"
+    requiredResearch:
+    - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+    - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+    resourceRatesPerSecond:
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.16"
+    - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+      amount: "0.12"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+      amount: "0.08"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.1"
+    milestones:
+    - "日冕观测"
+    - "辐射环境测绘"
+    - "确认集能轨道"

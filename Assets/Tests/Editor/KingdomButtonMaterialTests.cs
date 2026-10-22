@@ -45,7 +45,8 @@ public sealed class KingdomButtonMaterialTests
                 {
                     string linkContext = path + "/" + button.name;
                     Assert.That(linkContext == "Assets/Resources/UI/Kingdom/KingdomUIResourceTreeRow.prefab/Label" ||
-                        linkContext == "Assets/Resources/UI/Kingdom/KingdomUISectorBuildingCard.prefab/Name", Is.True,
+                        linkContext == "Assets/Resources/UI/Kingdom/KingdomUISectorBuildingCard.prefab/Name" ||
+                        linkContext == "Assets/Resources/UI/Kingdom/KingdomUISectorBuildingCard.prefab/Stage", Is.True,
                         "Only the authored production/sector navigation links use text targets.");
                     Assert.That(link.gameObject, Is.SameAs(button.gameObject), linkContext);
                     Assert.That(link.font, Is.Not.Null, linkContext);

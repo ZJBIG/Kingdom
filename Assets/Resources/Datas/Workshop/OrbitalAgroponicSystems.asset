@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalAgroponicSystems
   m_EditorClassIdentifier: 
   id: OrbitalAgroponicSystems
+  icon: {fileID: 21300000, guid: 031e3660329f8ad4cb370adde9301f74, type: 3}
   Label: "轨道营养液种植系统"
   Description: "以营养液循环与光照控制提高全局食物、生物质产出，并提高机械化农田的产出。"
   SortOrder: 585

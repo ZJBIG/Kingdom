@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IrrigationWorks
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 299af7312d204bb58ba678c38e99c899, type: 3}
   id: IrrigationWorks
   Label: "\u704C\u6E89\u8BBE\u65BD"
   Description: "用沟渠、蓄水池和分水设施开辟灌溉种植区，持续产出食物，并增加储粮空间。"

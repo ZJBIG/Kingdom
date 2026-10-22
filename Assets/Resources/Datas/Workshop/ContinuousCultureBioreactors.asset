@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ContinuousCultureBioreactors
   m_EditorClassIdentifier: 
   id: ContinuousCultureBioreactors
+  icon: {fileID: 21300000, guid: 5acc6a4e4b4bcb74d841855fc91de646, type: 3}
   Label: "\u8FDE\u7EED\u57F9\u517B\u751F\u7269\u53CD\u5E94\u5668"
   Description: "以连续培养、无菌控制与营养循环提高食品原料的转化稳定性和整体食物产出。"
   SortOrder: 86

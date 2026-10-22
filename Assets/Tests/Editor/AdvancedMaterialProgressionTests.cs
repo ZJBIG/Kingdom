@@ -5,16 +5,16 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void AdvancedMaterialsKeepIndustrialInputsAndDistinctOutputs()
     {
-        Resource titaniumAlloy = DataBase<Resource>.Find("TitaniumAlloy");
-        Resource phantomAlloy = DataBase<Resource>.Find("PhantomAlloy");
-        Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
-        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
-        Resource ceramic = DataBase<Resource>.Find("Ceramic");
+        ResourceDef titaniumAlloy = DataBase<ResourceDef>.Find("TitaniumAlloy");
+        ResourceDef phantomAlloy = DataBase<ResourceDef>.Find("PhantomAlloy");
+        ResourceDef phantomWeave = DataBase<ResourceDef>.Find("PhantomWeave");
+        ResourceDef phaseMaterial = DataBase<ResourceDef>.Find("PhaseMaterial");
+        ResourceDef ceramic = DataBase<ResourceDef>.Find("Ceramic");
 
-        Building titaniumPlant = DataBase<Building>.Find("TitaniumAlloySmelter");
-        Building phantomPlant = DataBase<Building>.Find("PhantomMaterialsFabricator");
-        Building phasePlant = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
-        Building ceramicPlant = DataBase<Building>.Find("AdvancedCeramicsPlant");
+        BuildingDef titaniumPlant = DataBase<BuildingDef>.Find("TitaniumAlloySmelter");
+        BuildingDef phantomPlant = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        BuildingDef phasePlant = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
+        BuildingDef ceramicPlant = DataBase<BuildingDef>.Find("AdvancedCeramicsPlant");
         Assert.That(HasPositiveRate(titaniumPlant.ResourceGenerationRates, titaniumAlloy), Is.True);
         Assert.That(HasPositiveRate(phantomPlant.ResourceGenerationRates, phantomAlloy), Is.True);
         Assert.That(HasPositiveRate(phantomPlant.ResourceGenerationRates, phantomWeave), Is.True);
@@ -23,13 +23,13 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(HasPositiveRate(ceramicPlant.ResourceGenerationRates, ceramic), Is.True);
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
-            DataBase<Resource>.Find("AdvancedMetalOre")), Is.True);
+            DataBase<ResourceDef>.Find("AdvancedMetalOre")), Is.True);
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceConsumptionRates,
             ceramic), Is.True);
         Assert.That(HasPositiveRate(
             titaniumPlant.ResourceRequirements,
-            DataBase<Resource>.Find("AdvancedMetalOre")), Is.True);
+            DataBase<ResourceDef>.Find("AdvancedMetalOre")), Is.True);
         Assert.That(HasPositiveRate(ceramicPlant.ResourceRequirements, ceramic), Is.True);
         Assert.That(HasPositiveRate(phantomPlant.ResourceRequirements, ceramic), Is.True);
         Assert.That(HasPositiveRate(phasePlant.ResourceRequirements, phantomAlloy), Is.True);
@@ -45,12 +45,12 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void 炸药必须保持工业流程持续消耗而非星际战役成本()
     {
-        Resource explosives = DataBase<Resource>.Find("Explosives");
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        ResourceDef explosives = DataBase<ResourceDef>.Find("Explosives");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
         Assert.That(HasPositiveRate(chemicalPlant.ResourceGenerationRates, explosives), Is.True);
 
         int continuousConsumers = 0;
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (!HasPositiveRate(building.ResourceConsumptionRates, explosives))
                 continue;
@@ -63,7 +63,7 @@ public sealed class AdvancedMaterialProgressionTests
         }
         Assert.That(continuousConsumers, Is.GreaterThanOrEqualTo(7));
 
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             Assert.That(
                 HasPositiveRate(sector.CampaignResourceRatesPerSecond, explosives),
@@ -123,8 +123,8 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void 氯化钛冶金研究负责钛精矿纯化理论()
     {
-        Research theory = DataBase<Research>.Find("ChlorideTitaniumMetallurgy");
-        Resource concentrate = DataBase<Resource>.Find("SpecialMetalOre");
+        ResearchDef theory = DataBase<ResearchDef>.Find("ChlorideTitaniumMetallurgy");
+        ResourceDef concentrate = DataBase<ResourceDef>.Find("SpecialMetalOre");
 
         bool hasPurificationTheory = false;
         for (int i = 0; i < theory.Effects.Count; i++)
@@ -147,7 +147,7 @@ public sealed class AdvancedMaterialProgressionTests
     {
         foreach (string resourceId in new[] { "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial" })
         {
-            Resource resource = DataBase<Resource>.Find(resourceId);
+            ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
             TechLevel sourceEra = resourceId == "TitaniumAlloy" || resourceId == "Composite"
                 ? TechLevel.Industrial : TechLevel.Spacer;
             Assert.That(HasSourceAtTechLevel(resourceId, sourceEra), Is.True, resourceId);
@@ -163,43 +163,43 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void 轨道冶金产物必须进入深空结构与持续工艺()
     {
-        Building vacuumMetallurgy = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building logistics = DataBase<Building>.Find("OrbitalStation");
-        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
-        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
+        BuildingDef vacuumMetallurgy = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        BuildingDef logistics = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef deepSpaceRelay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
+        BuildingDef phaseSynthesis = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
 
         Assert.That(
-            HasPositiveRate(vacuumMetallurgy.ResourceGenerationRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            HasPositiveRate(vacuumMetallurgy.ResourceGenerationRates, DataBase<ResourceDef>.Find("TitaniumAlloy")),
             Is.True);
         Assert.That(
-            HasPositiveRate(vacuumMetallurgy.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            HasPositiveRate(vacuumMetallurgy.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhantomAlloy")),
             Is.True);
         Assert.That(
-            HasPositiveRate(habitat.ResourceConsumptionRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            HasPositiveRate(habitat.ResourceConsumptionRates, DataBase<ResourceDef>.Find("TitaniumAlloy")),
             Is.True);
         Assert.That(
-            HasPositiveRate(logistics.ResourceConsumptionRates, DataBase<Resource>.Find("TitaniumAlloy")),
+            HasPositiveRate(logistics.ResourceConsumptionRates, DataBase<ResourceDef>.Find("TitaniumAlloy")),
             Is.True);
         Assert.That(
-            HasPositiveRate(deepSpaceRelay.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            HasPositiveRate(deepSpaceRelay.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhantomAlloy")),
             Is.True);
         Assert.That(
-            HasPositiveRate(phaseSynthesis.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")),
+            HasPositiveRate(phaseSynthesis.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhantomAlloy")),
             Is.True);
     }
 
     [Test]
     public void 幽影织物与相位材料必须保持不同的太空职责()
     {
-        Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
-        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
-        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
-        Building textileArray = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
-        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
-        Building quantumArray = DataBase<Building>.Find("QuantumComputingArray");
+        ResourceDef phantomWeave = DataBase<ResourceDef>.Find("PhantomWeave");
+        ResourceDef phaseMaterial = DataBase<ResourceDef>.Find("PhaseMaterial");
+        BuildingDef phantomFabricator = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        BuildingDef textileArray = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        BuildingDef phaseSynthesis = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
+        BuildingDef deepSpaceRelay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
+        BuildingDef quantumArray = DataBase<BuildingDef>.Find("QuantumComputingArray");
 
         Assert.That(HasPositiveRate(phantomFabricator.ResourceGenerationRates, phantomWeave), Is.True);
         Assert.That(HasPositiveRate(textileArray.ResourceConsumptionRates, phantomWeave), Is.True);
@@ -218,9 +218,9 @@ public sealed class AdvancedMaterialProgressionTests
             "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
         })
         {
-            Resource resource = DataBase<Resource>.Find(resourceId);
+            ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
             int sectorUses = 0;
-            foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+            foreach (SectorDef sector in DataBase<SectorDef>.All)
             {
                 if (sector == null)
                     continue;
@@ -240,10 +240,10 @@ public sealed class AdvancedMaterialProgressionTests
     [Test]
     public void 相位材料只能服务星际时代星区行动()
     {
-        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
+        ResourceDef phaseMaterial = DataBase<ResourceDef>.Find("PhaseMaterial");
 
         int interstellarUses = 0;
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             if (sector == null ||
                 (!HasPositiveRate(sector.CampaignResourceRatesPerSecond, phaseMaterial) &&
@@ -252,7 +252,7 @@ public sealed class AdvancedMaterialProgressionTests
 
             Assert.That(
                 sector.Domain,
-                Is.EqualTo(SectorDefinition.SectorDomain.Interstellar),
+                Is.EqualTo(SectorDef.SectorDomain.Interstellar),
                 $"PhaseMaterial 不应提前进入近地轨道、月球或火星行动：{sector.Id}");
             interstellarUses++;
         }
@@ -268,22 +268,22 @@ public sealed class AdvancedMaterialProgressionTests
         Assert.That(HasPositiveProductionBuilding("PhantomWeave", "PhantomMaterialsFabricator"), Is.True);
         Assert.That(HasPositiveProductionBuilding("PhaseMaterial", "PhaseMaterialSynthesisArray"), Is.True);
 
-        Building machineFactory = DataBase<Building>.Find("MachineFactory");
-        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
-        Building phaseArray = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
-        Assert.That(HasPositiveRate(machineFactory.ResourceConsumptionRates, DataBase<Resource>.Find("Composite")), Is.False);
-        Assert.That(HasPositiveRate(phantomFabricator.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomAlloy")), Is.False);
-        Assert.That(HasPositiveRate(phaseArray.ResourceConsumptionRates, DataBase<Resource>.Find("PhaseMaterial")), Is.False);
+        BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
+        BuildingDef phantomFabricator = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        BuildingDef phaseArray = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
+        Assert.That(HasPositiveRate(machineFactory.ResourceConsumptionRates, DataBase<ResourceDef>.Find("Composite")), Is.False);
+        Assert.That(HasPositiveRate(phantomFabricator.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhantomAlloy")), Is.False);
+        Assert.That(HasPositiveRate(phaseArray.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhaseMaterial")), Is.False);
     }
 
     [Test]
     public void 太空设施必须持续维护生态与后勤()
     {
-        Resource biomass = DataBase<Resource>.Find("Biomass");
-        Resource titaniumAlloy = DataBase<Resource>.Find("TitaniumAlloy");
-        Resource composite = DataBase<Resource>.Find("Composite");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building station = DataBase<Building>.Find("OrbitalStation");
+        ResourceDef biomass = DataBase<ResourceDef>.Find("Biomass");
+        ResourceDef titaniumAlloy = DataBase<ResourceDef>.Find("TitaniumAlloy");
+        ResourceDef composite = DataBase<ResourceDef>.Find("Composite");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
 
         Assert.That(habitat.PopulationCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(habitat.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
@@ -296,8 +296,8 @@ public sealed class AdvancedMaterialProgressionTests
     }
 
     private static bool HasPositiveRate(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
-        Resource resource)
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
+        ResourceDef resource)
     {
         if (rates == null || resource == null)
             return false;
@@ -309,19 +309,19 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasPositiveProductionBuilding(string resourceId, string buildingId)
     {
-        Resource resource = DataBase<Resource>.Find(resourceId);
-        Building building = DataBase<Building>.Find(buildingId);
+        ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         return resource != null && building != null && HasPositiveRate(building.ResourceGenerationRates, resource);
     }
 
     private static bool HasSourceAtTechLevel(string resourceId, TechLevel techLevel)
     {
-        Resource resource = DataBase<Resource>.Find(resourceId);
+        ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
         if (resource == null)
             return false;
-        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        for (int i = 0; i < DataBase<BuildingDef>.All.Count; i++)
         {
-            Building building = DataBase<Building>.All[i];
+            BuildingDef building = DataBase<BuildingDef>.All[i];
             if (building.TechLevel == techLevel &&
                 HasPositiveRate(building.ResourceGenerationRates, resource))
                 return true;
@@ -329,12 +329,12 @@ public sealed class AdvancedMaterialProgressionTests
         return false;
     }
 
-    private static int CountBuildingSinks(Resource resource)
+    private static int CountBuildingSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        for (int i = 0; i < DataBase<BuildingDef>.All.Count; i++)
         {
-            Building building = DataBase<Building>.All[i];
+            BuildingDef building = DataBase<BuildingDef>.All[i];
             if (HasPositiveRate(building.ResourceRequirements, resource) ||
                 HasPositiveRate(building.ResourceConsumptionRates, resource))
                 count++;
@@ -342,30 +342,30 @@ public sealed class AdvancedMaterialProgressionTests
         return count;
     }
 
-    private static int CountResearchSinks(Resource resource)
+    private static int CountResearchSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<Research>.All.Count; i++)
-            if (HasPositiveRate(DataBase<Research>.All[i].ResourceRequirements, resource))
+        for (int i = 0; i < DataBase<ResearchDef>.All.Count; i++)
+            if (HasPositiveRate(DataBase<ResearchDef>.All[i].ResourceRequirements, resource))
                 count++;
         return count;
     }
 
-    private static int CountWorkshopSinks(Resource resource)
+    private static int CountWorkshopSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
-            if (HasPositiveRate(DataBase<WorkshopUpgrade>.All[i].ResourceRequirements, resource))
+        for (int i = 0; i < DataBase<WorkshopUpgradeDef>.All.Count; i++)
+            if (HasPositiveRate(DataBase<WorkshopUpgradeDef>.All[i].ResourceRequirements, resource))
                 count++;
         return count;
     }
 
-    private static int CountSpacerContinuousBuildingSinks(Resource resource)
+    private static int CountSpacerContinuousBuildingSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        for (int i = 0; i < DataBase<BuildingDef>.All.Count; i++)
         {
-            Building building = DataBase<Building>.All[i];
+            BuildingDef building = DataBase<BuildingDef>.All[i];
             if (building.TechLevel == TechLevel.Spacer &&
                 HasPositiveRate(building.ResourceConsumptionRates, resource))
                 count++;
@@ -374,12 +374,12 @@ public sealed class AdvancedMaterialProgressionTests
         return count;
     }
 
-    private static int CountSpacerResearchSinks(Resource resource)
+    private static int CountSpacerResearchSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<Research>.All.Count; i++)
+        for (int i = 0; i < DataBase<ResearchDef>.All.Count; i++)
         {
-            Research research = DataBase<Research>.All[i];
+            ResearchDef research = DataBase<ResearchDef>.All[i];
             if (research.TechLevel == TechLevel.Spacer &&
                 HasPositiveRate(research.ResourceRequirements, resource))
                 count++;
@@ -388,12 +388,12 @@ public sealed class AdvancedMaterialProgressionTests
         return count;
     }
 
-    private static int CountSpacerWorkshopSinks(Resource resource)
+    private static int CountSpacerWorkshopSinks(ResourceDef resource)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
+        for (int i = 0; i < DataBase<WorkshopUpgradeDef>.All.Count; i++)
         {
-            WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All[i];
+            WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.All[i];
             if (workshop.TechLevel == TechLevel.Spacer &&
                 HasPositiveRate(workshop.ResourceRequirements, resource))
                 count++;
@@ -404,7 +404,7 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasBuildingEffect(string workshopId, string buildingId)
     {
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find(workshopId);
         if (workshop == null)
             return false;
         for (int i = 0; i < workshop.Effects.Count; i++)
@@ -422,14 +422,14 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasResourceRequirement(string workshopId, string resourceId)
     {
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
-        Resource resource = DataBase<Resource>.Find(resourceId);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find(workshopId);
+        ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
         return workshop != null && HasPositiveRate(workshop.ResourceRequirements, resource);
     }
 
     private static bool HasResearchBuildingEffect(string researchId, string buildingId)
     {
-        Research research = DataBase<Research>.Find(researchId);
+        ResearchDef research = DataBase<ResearchDef>.Find(researchId);
         if (research == null)
             return false;
         for (int i = 0; i < research.Effects.Count; i++)
@@ -447,8 +447,8 @@ public sealed class AdvancedMaterialProgressionTests
 
     private static bool HasResourceProductionEffect(string workshopId, string resourceId)
     {
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
-        Resource resource = DataBase<Resource>.Find(resourceId);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find(workshopId);
+        ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
         if (workshop == null || resource == null)
             return false;
         for (int i = 0; i < workshop.Effects.Count; i++)

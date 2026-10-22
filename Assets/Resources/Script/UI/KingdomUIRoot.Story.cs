@@ -493,7 +493,7 @@ public sealed partial class KingdomUIRoot
     private static string GetBlockingWorkshopId(string buildingId)
     {
         if (string.IsNullOrEmpty(buildingId) ||
-            !DataBase<Building>.TryFind(buildingId, out Building building) ||
+            !DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) ||
             building == null || building.RequiredWorkshopUpgrades == null)
             return string.Empty;
 
@@ -504,7 +504,7 @@ public sealed partial class KingdomUIRoot
             UnityEngine.Object.FindObjectOfType<WorkshopManager>();
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = building.RequiredWorkshopUpgrades[i];
+            WorkshopUpgradeDef upgrade = building.RequiredWorkshopUpgrades[i];
             if (upgrade != null &&
                 (workshopManager == null || !workshopManager.IsPurchased(upgrade)))
                 return upgrade.Id;
@@ -520,22 +520,22 @@ public sealed partial class KingdomUIRoot
         if (string.IsNullOrEmpty(targetId))
             return;
         if (pageName == "Buildings" &&
-            DataBase<Building>.TryFind(targetId, out Building building) &&
+            DataBase<BuildingDef>.TryFind(targetId, out BuildingDef building) &&
             building != null)
         {
             ShowBuildingDetails(building);
             return;
         }
         if (pageName == "Research" &&
-            DataBase<Research>.TryFind(targetId, out Research research) &&
+            DataBase<ResearchDef>.TryFind(targetId, out ResearchDef research) &&
             research != null)
         {
             ShowResearchDetails(research);
             return;
         }
         if (pageName == "Workshop" &&
-            DataBase<WorkshopUpgrade>.TryFind(targetId,
-                out WorkshopUpgrade workshop) && workshop != null)
+            DataBase<WorkshopUpgradeDef>.TryFind(targetId,
+                out WorkshopUpgradeDef workshop) && workshop != null)
             ShowWorkshopDetails(workshop);
     }
 

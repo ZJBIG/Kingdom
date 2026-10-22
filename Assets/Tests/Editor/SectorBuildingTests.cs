@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -34,26 +33,30 @@ public sealed class SectorBuildingTests
     }
 
     [Test]
-    public void SectorBuildingInheritsBuildingWithoutDuplicateBuildingFields()
+    public void SectorBuildingUsesInheritedDefinitionAndKeepsLocalExplorationGate()
     {
-        Assert.That(typeof(SectorBuilding).BaseType, Is.EqualTo(typeof(Building)));
-        FieldInfo[] fields = typeof(SectorBuilding).GetFields(
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-        Assert.That(fields, Has.Length.EqualTo(2));
-        Assert.That(System.Array.Exists(fields, field => field.Name == "sector"), Is.True);
-        Assert.That(System.Array.Exists(fields, field => field.Name == "maxAmount"), Is.True);
+        SectorBuildingDef sector = ScriptableObject.CreateInstance<SectorBuildingDef>();
+        createdObjects.Add(sector);
+        BuildingDef inherited = sector;
+        inherited.Label = "Shared building definition";
+        Assert.That(sector.Label, Is.EqualTo(inherited.Label));
+        Assert.That(sector.RequiresInteriorExploration, Is.False);
+        sector.SetRequiresInteriorExplorationForEditor(true);
+        Assert.That(sector.RequiresInteriorExploration, Is.True);
+        sector.Label = "Updated through sector definition";
+        Assert.That(inherited.Label, Is.EqualTo(sector.Label));
     }
 
     [Test]
     public void EarthMoonLogisticsHubIsOneSectorBuildingDefinition()
     {
-        SectorBuilding asset = Resources.Load<SectorBuilding>(
+        SectorBuildingDef asset = Resources.Load<SectorBuildingDef>(
             "Datas/Building/Spacer/EarthMoonLogisticsHub");
-        Building fromDatabase = DataBase<Building>.Find("EarthMoonLogisticsHub");
+        BuildingDef fromDatabase = DataBase<BuildingDef>.Find("EarthMoonLogisticsHub");
 
         Assert.That(asset, Is.Not.Null);
         Assert.That(fromDatabase, Is.SameAs(asset));
-        Assert.That(asset.Sector, Is.EqualTo(DataBase<SectorDefinition>.Find("AzurePool")));
+        Assert.That(asset.Sector, Is.EqualTo(DataBase<SectorDef>.Find("AzurePool")));
         Assert.That(asset.MaxAmount, Is.EqualTo(1));
         Assert.That(asset.UpgradeTo, Is.Null);
         Assert.That(asset.SpaceCost, Is.EqualTo(ExpantaNum.Zero));
@@ -82,10 +85,10 @@ public sealed class SectorBuildingTests
     [Test]
     public void SectorBuildingValidationRejectsMissingSector()
     {
-        SectorBuilding building = ScriptableObject.CreateInstance<SectorBuilding>();
+        SectorBuildingDef building = ScriptableObject.CreateInstance<SectorBuildingDef>();
         try
         {
-            Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(building));
+            Assert.Throws<System.InvalidOperationException>(() => SectorBuildingDef.Validate(building));
         }
         finally
         {
@@ -96,17 +99,17 @@ public sealed class SectorBuildingTests
     [Test]
     public void SectorBuildingValidationRejectsInvalidLimitAndTerritoryCost()
     {
-        SectorBuilding building = ScriptableObject.CreateInstance<SectorBuilding>();
-        SectorDefinition sector = ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorBuildingDef building = ScriptableObject.CreateInstance<SectorBuildingDef>();
+        SectorDef sector = ScriptableObject.CreateInstance<SectorDef>();
         try
         {
             building.SetSectorForEditor(sector);
             building.SetMaxAmountForEditor(0);
-            Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(building));
+            Assert.Throws<System.InvalidOperationException>(() => SectorBuildingDef.Validate(building));
 
             building.SetMaxAmountForEditor(1);
             building.SetSpaceCostForEditor("1");
-            Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(building));
+            Assert.Throws<System.InvalidOperationException>(() => SectorBuildingDef.Validate(building));
         }
         finally
         {
@@ -118,15 +121,15 @@ public sealed class SectorBuildingTests
     [Test]
     public void OrdinaryBuildingCannotUpgradeToSectorBuilding()
     {
-        Building ordinary = ScriptableObject.CreateInstance<Building>();
-        SectorBuilding sector = Resources.Load<SectorBuilding>(
+        BuildingDef ordinary = ScriptableObject.CreateInstance<BuildingDef>();
+        SectorBuildingDef sector = Resources.Load<SectorBuildingDef>(
             "Datas/Building/Spacer/EarthMoonLogisticsHub");
         try
         {
             ordinary.SetIdForEditor("TestOrdinaryBuilding");
             ordinary.SetUpgradeToForEditor(sector);
             Assert.Throws<System.InvalidOperationException>(() =>
-                BuildingManager.ValidateBuildingChains(new Building[] { ordinary, sector }));
+                BuildingManager.ValidateBuildingChains(new BuildingDef[] { ordinary, sector }));
         }
         finally
         {
@@ -137,16 +140,16 @@ public sealed class SectorBuildingTests
     [Test]
     public void SectorBuildingCannotParticipateInAnUpgradeChain()
     {
-        SectorBuilding sector = ScriptableObject.CreateInstance<SectorBuilding>();
-        Building target = ScriptableObject.CreateInstance<Building>();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorBuildingDef sector = ScriptableObject.CreateInstance<SectorBuildingDef>();
+        BuildingDef target = ScriptableObject.CreateInstance<BuildingDef>();
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         try
         {
             sector.SetIdForEditor("TestSectorBuilding");
             sector.SetSectorForEditor(moon);
             sector.SetUpgradeToForEditor(target);
 
-            Assert.Throws<System.InvalidOperationException>(() => SectorBuilding.Validate(sector));
+            Assert.Throws<System.InvalidOperationException>(() => SectorBuildingDef.Validate(sector));
         }
         finally
         {
@@ -176,7 +179,7 @@ public sealed class SectorBuildingTests
             SaveManager.SetSaveRootOverrideForTests(saveRoot);
             // 生产环境里 SaveNow 只在 Bootstrap（载入或新建存档）之后可用；隔离根保证从新游戏开始。
             Assert.That(saveManager.LoadOrCreateGame(), Is.False);
-            SectorBuilding building = Resources.Load<SectorBuilding>(
+            SectorBuildingDef building = Resources.Load<SectorBuildingDef>(
                 "Datas/Building/Spacer/EarthMoonLogisticsHub");
         SectorState moon = gameManager.Sectors.GetState(building.Sector);
 
@@ -251,7 +254,7 @@ public sealed class SectorBuildingTests
     [Test]
     public void EarthMoonLogisticsHubStaysUniqueUntilCostGrowthIsFixed()
     {
-        SectorBuilding hub = Resources.Load<SectorBuilding>(
+        SectorBuildingDef hub = Resources.Load<SectorBuildingDef>(
             "Datas/Building/Spacer/EarthMoonLogisticsHub");
         Assert.That(hub, Is.Not.Null);
         // costGrowth=1.01 接近线性：放开 maxAmount 会变成近平价无限复制，须先修 growth。
@@ -280,29 +283,29 @@ public sealed class SectorBuildingTests
     private static void CompleteResearch(ResearchManager manager, string id)
     {
         EnsureInitialized(manager);
-        CompleteResearchWithPrerequisites(manager, DataBase<Research>.Find(id));
+        CompleteResearchWithPrerequisites(manager, DataBase<ResearchDef>.Find(id));
     }
 
     private static void CompleteResearchWithPrerequisites(
-        ResearchManager manager, Research research)
+        ResearchManager manager, ResearchDef research)
     {
         ResearchState state = manager.GetState(research);
         if (state.Status == ResearchStatus.Completed)
             return;
         for (int i = 0; i < research.Prerequisites.Count; i++)
         {
-            Research prerequisite = research.Prerequisites[i];
+            ResearchDef prerequisite = research.Prerequisites[i];
             if (prerequisite != null)
                 CompleteResearchWithPrerequisites(manager, prerequisite);
         }
         // 完成态科研的存档必须携带完整支付台账与连贯的完成前置集，否则还原校验会拒绝该存档。
         ResourceManager resourceManager = UnityEngine.Object.FindObjectOfType<ResourceManager>();
         Assert.That(resourceManager, Is.Not.Null);
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             state.Definition.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
             if (requirement.First != null && requirement.Second > ExpantaNum.Zero)
                 resourceManager.AddAmount(requirement.First, requirement.Second);
         }
@@ -325,13 +328,13 @@ public sealed class SectorBuildingTests
         state.RestorePopulationForEditor(population);
     }
 
-    private static void AddEnoughBuildResources(ResourceManager resourceManager, Building building)
+    private static void AddEnoughBuildResources(ResourceManager resourceManager, BuildingDef building)
     {
         ExpantaNum costMultiplier =
             BuildingManager.GetConstructionCostMultiplierForEditor(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = building.ResourceRequirements[i];
             resourceManager.AddAmount(
                 requirement.First,
                 requirement.Second * costMultiplier * new ExpantaNum(2d));
@@ -339,12 +342,12 @@ public sealed class SectorBuildingTests
     }
 
     private static bool HasPositivePair(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second > ExpantaNum.Zero;
         }

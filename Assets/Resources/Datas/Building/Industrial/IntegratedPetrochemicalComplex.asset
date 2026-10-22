@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IntegratedPetrochemicalComplex
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: a7f0a3707fda45aeb674667bf3e7ac9d, type: 3}
   id: IntegratedPetrochemicalComplex
   Label: "一体化石油化工联合体"
   Description: "整合蒸馏、裂化与合成工序，持续供应精炼燃料、润滑剂、橡胶、化工材料和工业炸药。"

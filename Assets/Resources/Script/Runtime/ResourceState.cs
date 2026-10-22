@@ -12,7 +12,7 @@ public sealed class ResourceState
     private ExpantaNum tickSatisfaction = ExpantaNum.One;
     private bool hasTickSatisfaction;
 
-    public Resource Definition { get; }
+    public ResourceDef Definition { get; }
     public ExpantaNum Amount => amount;
     public ExpantaNum ProductionRate => productionRate;
     public ExpantaNum ConsumptionRate => consumptionRate;
@@ -20,7 +20,7 @@ public sealed class ResourceState
     public int Version { get; private set; }
     internal ExpantaNum TickPotentialProductionRate => tickPotentialProductionRate;
 
-    public ResourceState(Resource definition)
+    public ResourceState(ResourceDef definition)
     {
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
         amount = ExpantaNum.Zero;

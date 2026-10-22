@@ -63,7 +63,7 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator BuildingQuantity_UpdatesBatchAvailabilityAndClipsCustomInput()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("WoodHouse");
+        BuildingDef building = DataBase<BuildingDef>.Find("WoodHouse");
         BuildingManager buildings = BuildingManager.Instance;
         buildings.SetAmountAndRatesForEditor(buildings.States[building], ExpantaNum.Zero);
         foreach (var cost in building.ResourceRequirements)
@@ -103,14 +103,14 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator BuildingCapacityShortages_ShowResolvedIconsAndSelectedBatchDeficits()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("Quarry");
-        foreach (Research research in DataBase<Research>.All)
+        BuildingDef building = DataBase<BuildingDef>.Find("Quarry");
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         BuildingManager manager = BuildingManager.Instance;
         manager.SetAmountAndRatesForEditor(manager.States[building], ExpantaNum.Zero);
         GameState game = GameManager.Instance.State;
         game.RestorePopulationForEditor(ExpantaNum.Zero);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
         game.CommitConstructionForEditor(game.AvailableTerritory);
         Assert.That(manager.GetBuildFailure(building, ExpantaNum.One), Is.EqualTo(BuildFailure.SpaceInsufficient));
@@ -233,14 +233,14 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator BuildingDetails_RefreshCapacityAndUseDiscountedMaterialCosts()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("Quarry");
-        foreach (Research research in DataBase<Research>.All)
+        BuildingDef building = DataBase<BuildingDef>.Find("Quarry");
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         BuildingManager manager = BuildingManager.Instance;
         GameState game = GameManager.Instance.State;
         game.RestorePopulationForEditor(ExpantaNum.Zero);
         game.CommitConstructionForEditor(game.AvailableTerritory);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
         ui.SetPage("Buildings");
         ui.ShowBuildingDetailsForEditor(building);
@@ -256,13 +256,13 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(body.text, Does.Contain("土地充足"));
         Assert.That(body.text, Does.Contain("生产力充足"));
 
-        var drafting = new WorkshopUpgradeState(DataBase<WorkshopUpgrade>.Find("DraftingTables"));
+        var drafting = new WorkshopUpgradeState(DataBase<WorkshopUpgradeDef>.Find("DraftingTables"));
         drafting.SetPurchasedForEditor(true);
         ProgressionModifierManager.Rebuild(null, new[] { drafting });
         ui.RefreshAutomaticUIForEditor();
         yield return new WaitForSecondsRealtime(.35f);
         // Compare the displayed requirement with the transaction's actual payment, not a duplicated formula.
-        var before = new Dictionary<Resource, ExpantaNum>();
+        var before = new Dictionary<ResourceDef, ExpantaNum>();
         foreach (var cost in building.ResourceRequirements)
             before[cost.First] = ResourceManager.Instance.GetAmount(cost.First);
         var displayed = new List<string>();
@@ -329,7 +329,7 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator OwnedBuildingEfficiency_RemainsInDetailsWhileTheCardShowsPurchaseStatus()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("WoodHouse");
+        BuildingDef building = DataBase<BuildingDef>.Find("WoodHouse");
         BuildingState state = BuildingManager.Instance.States[building];
         BuildingManager.Instance.SetAmountAndRatesForEditor(state, ExpantaNum.One);
         foreach (var cost in building.ResourceRequirements)
@@ -357,26 +357,26 @@ public sealed class ReviewInteractionPlayModeTests
     {
         yield return Load();
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
         ui.SetPage("Workshop");
         Transform rows = ui.transform.Find("SafeAreaRoot/Content/PageHost/Workshop/DataRows");
-        WorkshopUpgrade target = null;
+        WorkshopUpgradeDef target = null;
         Transform targetRow = null;
         foreach (Button candidate in rows.GetComponentsInChildren<Button>())
         {
             if (candidate.name != "PurchaseButton" || !candidate.interactable) continue;
             string label = candidate.transform.parent.Find("Label").GetComponent<TMP_Text>().text;
-            foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+            foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
                 if (upgrade.Label == label && upgrade.ResourceRequirements.Count > 0 &&
                     upgrade.ResourceRequirements[0].Second > ExpantaNum.Zero)
                 { target = upgrade; targetRow = candidate.transform.parent; break; }
             if (target != null) break;
         }
-        Resource spent = target.ResourceRequirements[0].First;
+        ResourceDef spent = target.ResourceRequirements[0].First;
         TMP_Text tooltip = ui.transform.Find("SafeAreaRoot/Tooltip/Text").GetComponent<TMP_Text>();
         ResourceManager.Instance.SetAmount(spent, ExpantaNum.Zero);
         ui.ShowTooltip("pending-row");
@@ -400,7 +400,7 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator BatchDeconstruction_PreviewAndCancelDoNotCommit_ConfirmCommitsOnce()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("WoodHouse");
+        BuildingDef building = DataBase<BuildingDef>.Find("WoodHouse");
         BuildingState state = BuildingManager.Instance.States[building];
         BuildingManager.Instance.SetAmountAndRatesForEditor(state, new ExpantaNum(10));
         ui.SetPage("Buildings");
@@ -429,9 +429,9 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator ResourceSources_ContainClickableLinks_AndNavigateToExecutableBuildingRow()
     {
         yield return Load();
-        Building building = DataBase<Building>.Find("Lumberyard");
+        BuildingDef building = DataBase<BuildingDef>.Find("Lumberyard");
         BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.States[building], ExpantaNum.One);
-        Resource wood = DataBase<Resource>.Find("WoodLog");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
         ui.SetPage("Resources"); ui.ShowResourceDetailsForEditor(wood);
         TMP_Text body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body").GetComponent<TMP_Text>();
         body.ForceMeshUpdate(true);
@@ -457,7 +457,7 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator ActiveCampaignWithCasualties_RetreatStaysReachable_RepairIsSeparate()
     {
         yield return Load();
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef sector = DataBase<SectorDef>.Find("TauCetiFoundry");
         SectorState state = GameManager.Instance.Sectors.GetState(sector);
         state.SetUnlockedForEditor(true); state.SetCampaignActiveForEditor(true); state.SetCampaignCasualtiesForEditor(ExpantaNum.One);
         GameManager.Instance.State.RestoreCampaignForEditor(true, sector.Id, ExpantaNum.One, ExpantaNum.One);
@@ -530,9 +530,9 @@ public sealed class ReviewInteractionPlayModeTests
     {
         yield return Load();
         BuildingManager buildings = BuildingManager.Instance;
-        Building house = DataBase<Building>.Find("WoodHouse");
-        Building quarry = DataBase<Building>.Find("Quarry");
-        ResourceManager.Instance.SetAmount(DataBase<Resource>.Find("WoodLog"), new ExpantaNum(10000));
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingDef quarry = DataBase<BuildingDef>.Find("Quarry");
+        ResourceManager.Instance.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
         ui.SetPage("Buildings");
         ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/ShowDetails").GetComponent<Toggle>().isOn = true;
         ui.ShowBuildingDetailsForEditor(house);
@@ -546,14 +546,14 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(buildings.GetBuildFailure(house, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
         Assert.That(buildings.TryBuild(house, ExpantaNum.One, out _), Is.True);
         GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
-        Research masonry = DataBase<Research>.Find("Masonry");
+        ResearchDef masonry = DataBase<ResearchDef>.Find("Masonry");
         ResearchState masonryState = ResearchManager.Instance.States[masonry];
         masonryState.SetProgressForEditor(masonryState.BaseCost);
         masonryState.SetStatusForEditor(ResearchStatus.Completed);
         buildings.SetAmountAndRatesForEditor(buildings.States[quarry], ExpantaNum.Zero);
         foreach (var entry in ResourceManager.Instance.States)
             ResourceManager.Instance.SetAmount(entry.Key, new ExpantaNum(100000));
-        Assert.That(buildings.TryGetUnlockedUpgradeTarget(house, out Building target), Is.True);
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(house, out BuildingDef target), Is.True);
         ui.ShowBuildingDetailsForEditor(house);
         Assert.That(body.text, Does.Contain(target.Label), "Upgrade comparison identifies its actual unlocked target.");
         ExpantaNum capacityDelta = target.PopulationCapacityGranted - house.PopulationCapacityGranted;
@@ -569,10 +569,10 @@ public sealed class ReviewInteractionPlayModeTests
     public IEnumerator ResearchCancellation_ListsDependentItems_AndDoesNotMutateUntilConfirmation()
     {
         yield return Load();
-        Research target = DataBase<Research>.Find("StoneProcessing");
+        ResearchDef target = DataBase<ResearchDef>.Find("StoneProcessing");
         ResearchManager manager = ResearchManager.Instance;
         manager.HandleResearchAction(target);
-        Research prerequisite = target.Prerequisites[0];
+        ResearchDef prerequisite = target.Prerequisites[0];
         Assert.That(manager.GetCancellationPreview(prerequisite).Count, Is.GreaterThan(1));
         ui.SetPage("Research"); ui.ShowResearchDetailsForEditor(prerequisite);
         int countBefore = manager.ResearchQueue.Count;
@@ -607,7 +607,7 @@ public sealed class ReviewInteractionPlayModeTests
         yield return Load();
         ResearchManager manager = ResearchManager.Instance;
         foreach (string id in new[] { "Agriculture", "AnimalHusbandry", "ControlledFire", "ClayExtraction", "KnowledgeSharing" })
-            manager.HandleResearchAction(DataBase<Research>.Find(id));
+            manager.HandleResearchAction(DataBase<ResearchDef>.Find(id));
         ResearchState selected = null; int originalIndex = -1;
         for (int i = 1; i < manager.ResearchQueue.Count; i++)
             if (manager.CanMoveQueuedResearch(manager.ResearchQueue[i].Definition, i - 1))

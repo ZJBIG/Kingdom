@@ -199,7 +199,7 @@ public sealed class PlannerPagesPlayModeTests
             KingdomUIRoot.ApplyEraRowStyle(row, era, index++);
             if (kind == KingdomUIPrefabLibrary.ResourceCard)
             {
-                Resource definition = LongestResource(era);
+                ResourceDef definition = LongestResource(era);
                 Assert.That(definition, Is.Not.Null);
                 SetText(row, "Label", definition.Label);
                 Image icon = row.transform.Find("Icon").GetComponent<Image>();
@@ -210,7 +210,7 @@ public sealed class PlannerPagesPlayModeTests
             }
             else
             {
-                Building definition = LongestBuilding(era);
+                BuildingDef definition = LongestBuilding(era);
                 Assert.That(definition, Is.Not.Null);
                 SetText(row, "Label", definition.Label);
                 SetText(row, "TechLevel", definition.TechLevel.GetDescription());
@@ -225,20 +225,20 @@ public sealed class PlannerPagesPlayModeTests
         return gallery;
     }
 
-    private static Resource LongestResource(TechLevel era)
+    private static ResourceDef LongestResource(TechLevel era)
     {
-        Resource result = null;
-        foreach (Resource item in DataBase<Resource>.All)
+        ResourceDef result = null;
+        foreach (ResourceDef item in DataBase<ResourceDef>.All)
             if (item.TechLevel <= era && (result == null || item.TechLevel > result.TechLevel ||
                 item.TechLevel == result.TechLevel && item.Label.Length > result.Label.Length)) result = item;
         return result;
     }
 
-    private static Building LongestBuilding(TechLevel era)
+    private static BuildingDef LongestBuilding(TechLevel era)
     {
-        Building result = null;
-        foreach (Building item in DataBase<Building>.All)
-            if (!(item is SectorBuilding) && item.TechLevel <= era && (result == null || item.TechLevel > result.TechLevel ||
+        BuildingDef result = null;
+        foreach (BuildingDef item in DataBase<BuildingDef>.All)
+            if (!(item is SectorBuildingDef) && item.TechLevel <= era && (result == null || item.TechLevel > result.TechLevel ||
                 item.TechLevel == result.TechLevel && item.Label.Length > result.Label.Length)) result = item;
         return result;
     }

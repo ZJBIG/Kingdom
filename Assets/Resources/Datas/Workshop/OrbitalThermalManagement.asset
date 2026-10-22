@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalThermalManagement
   m_EditorClassIdentifier: 
   id: OrbitalThermalManagement
+  icon: {fileID: 21300000, guid: bc73ca538afbf9a43ba6a90c3329e6a9, type: 3}
   Label: "轨道热管理与能量转换"
   Description: "通过辐射散热、玻璃隔热窗、陶瓷绝缘、橡胶密封和铜质汇流排降低轨道阵列的热损失，提升太阳能阵列的持续发电能力。"
   SortOrder: 435

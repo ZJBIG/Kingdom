@@ -6,7 +6,7 @@ public sealed class LateFactoryConsolidationTests
     [Test]
     public void SpacerMaterialChainsConvergeOnOneComprehensiveFactory()
     {
-        Building hub = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        BuildingDef hub = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
         Assert.That(hub, Is.Not.Null);
 
         string[] legacyMaterialFactories =
@@ -22,7 +22,7 @@ public sealed class LateFactoryConsolidationTests
 
         foreach (string id in legacyMaterialFactories)
         {
-            Building legacy = DataBase<Building>.Find(id);
+            BuildingDef legacy = DataBase<BuildingDef>.Find(id);
             Assert.That(legacy.UpgradeTo, Is.SameAs(hub),
                 $"后期材料链没有收敛到综合工厂：{id}");
         }
@@ -36,7 +36,7 @@ public sealed class LateFactoryConsolidationTests
 
         foreach (string id in mergedOutputs)
         {
-            Resource resource = DataBase<Resource>.Find(id);
+            ResourceDef resource = DataBase<ResourceDef>.Find(id);
             Assert.That(resource, Is.Not.Null, id);
             Assert.That(HasPositiveRate(hub.ResourceGenerationRates, resource), Is.True,
                 $"综合工厂缺少主要材料产出：{id}");
@@ -52,7 +52,7 @@ public sealed class LateFactoryConsolidationTests
             "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х墿娴佹秷鑰楋紒");
         Assert.That(hub.FoodConsumptionRate >= new ExpantaNum(24), Is.True,
             "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾ч鐗╂秷鑰楋紒");
-        foreach (Pair<Resource, ExpantaNum> generated in hub.ResourceGenerationRates)
+        foreach (Pair<ResourceDef, ExpantaNum> generated in hub.ResourceGenerationRates)
         {
             Assert.That(hub.ResourceConsumptionRates.Any(consumed =>
                 consumed.First == generated.First), Is.False,
@@ -63,18 +63,18 @@ public sealed class LateFactoryConsolidationTests
     [Test]
     public void SpacerEcologyRemainsASeparateFoodAndBiomassMechanism()
     {
-        Building ecology = DataBase<Building>.Find("OrbitalAgroecologyArray");
+        BuildingDef ecology = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
         Assert.That(ecology.UpgradeTo, Is.Null);
         Assert.That(ecology.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(HasPositiveRate(
-            ecology.ResourceGenerationRates, DataBase<Resource>.Find("Biomass")), Is.True);
+            ecology.ResourceGenerationRates, DataBase<ResourceDef>.Find("Biomass")), Is.True);
         Assert.That(HasPositiveRate(
-            ecology.ResourceGenerationRates, DataBase<Resource>.Find("WoodLog")), Is.True);
+            ecology.ResourceGenerationRates, DataBase<ResourceDef>.Find("WoodLog")), Is.True);
     }
 
     private static bool HasPositiveRate(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
-        Resource resource)
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
+        ResourceDef resource)
     {
         if (rates == null || resource == null)
             return false;

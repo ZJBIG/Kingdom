@@ -22,7 +22,7 @@ public sealed partial class KingdomUIRoot
         };
     }
 
-    private static string ResearchStateLabel(Research research, ResearchStatus status)
+    private static string ResearchStateLabel(ResearchDef research, ResearchStatus status)
     {
         string runtimeState = ResearchStateLabel(status);
         if (status == ResearchStatus.Completed ||
@@ -38,13 +38,27 @@ public sealed partial class KingdomUIRoot
         return "可研究";
     }
 
-    private bool IsResourceVisible(Resource resource)
+    private bool IsResourceVisible(ResourceDef resource)
     {
         if (ResourceManager.Instance == null)
             return false;
         if (!ResourceManager.Instance.States.TryGetValue(resource, out ResourceState state))
             return false;
         return state.Amount > ExpantaNum.Zero || state.ProductionRate > ExpantaNum.Zero || state.ConsumptionRate > ExpantaNum.Zero;
+    }
+
+    private readonly Dictionary<Button, UITouchTooltip> buildingActionTooltips = new();
+
+    private void SetBuildingActionQuantity(Button button, ExpantaNum amount, string action)
+    {
+        string quantity = "×" + amount.ToGameString();
+        SetBuildingActionButtonText(button, quantity);
+        if (!buildingActionTooltips.TryGetValue(button, out UITouchTooltip tooltip))
+        {
+            tooltip = button.GetComponent<UITouchTooltip>();
+            buildingActionTooltips[button] = tooltip;
+        }
+        if (tooltip != null) tooltip.SetTooltip(action + " " + quantity);
     }
 
     private void SetBuildingActionButtonText(Button button, string value)
@@ -109,7 +123,7 @@ public sealed partial class KingdomUIRoot
         text.color = available ? TextPrimary : TextSecondary;
     }
 
-    private bool CanPerformBuildingAction(Building building, bool upgrade, ExpantaNum amount)
+    private bool CanPerformBuildingAction(BuildingDef building, bool upgrade, ExpantaNum amount)
     {
         if (BuildingManager.Instance == null)
             return false;
@@ -121,7 +135,7 @@ public sealed partial class KingdomUIRoot
         return maximum >= amount;
     }
 
-    private void PerformBuildingAction(Building building, bool upgrade)
+    private void PerformBuildingAction(BuildingDef building, bool upgrade)
     {
         if (BuildingManager.Instance == null)
         {
@@ -142,7 +156,7 @@ public sealed partial class KingdomUIRoot
             ShowTooltip("建造失败：" + GetBuildFailureDescription(failure));
     }
 
-    private void DeconstructBuilding(Building building)
+    private void DeconstructBuilding(BuildingDef building)
     {
         if (BuildingManager.Instance == null)
         {
@@ -172,7 +186,7 @@ public sealed partial class KingdomUIRoot
         ExecuteBuildingDeconstruction(building, amount);
     }
 
-    private void ExecuteBuildingDeconstruction(Building building, ExpantaNum amount)
+    private void ExecuteBuildingDeconstruction(BuildingDef building, ExpantaNum amount)
     {
         bool success = BuildingManager.Instance.TryDeconstruct(building, amount, out _);
         if (success)
@@ -194,6 +208,7 @@ public sealed partial class KingdomUIRoot
             case BuildFailure.BuildingTierSuperseded: return "已被更高等级建筑替代";
             case BuildFailure.UpgradeUnavailable: return "升级不可用";
             case BuildFailure.SectorNotOccupied: return "所属星区尚未占领";
+            case BuildFailure.InteriorExplorationIncomplete: return "需完成所属星球的深入探索";
             case BuildFailure.BuildingLimitReached: return "已达到建筑上限";
             default: return "前置条件或库存不足";
         }

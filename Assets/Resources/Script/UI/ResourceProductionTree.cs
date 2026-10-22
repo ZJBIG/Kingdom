@@ -4,56 +4,77 @@ using System.Collections.Generic;
 /// <summary>Read-only production dependencies. Children are created only when opened.</summary>
 public sealed class ResourceProductionTree
 {
-    public enum Relation { Root, ProductionSource, OngoingInput, Upgrade }
+    public enum Relation { Root, ProductionSource, OngoingInput, Upgrade, SectorFacility, SectorOutput }
 
     public sealed class Node
     {
-        public Resource Resource { get; internal set; }
-        public Building Building { get; internal set; }
-        public SectorDefinition Sector { get; internal set; }
+        public ResourceDef Resource { get; internal set; }
+        public BuildingDef Building { get; internal set; }
+        public SectorDef Sector { get; internal set; }
         public ExpantaNum Rate { get; internal set; }
         public bool OneTimeReward { get; internal set; }
         public bool IsCycle { get; internal set; }
         public bool Expanded { get; set; }
         public Relation Relationship { get; internal set; }
-        internal List<Resource> Ancestors;
-        internal List<Building> BuildingAncestors;
+        internal List<ResourceDef> Ancestors;
+        internal List<BuildingDef> BuildingAncestors;
         internal List<Node> Children;
         internal List<Node> VisibleChildren;
     }
 
-    private readonly IReadOnlyList<Building> buildings;
-    private readonly IReadOnlyList<SectorDefinition> sectors;
-    private readonly Func<Resource, bool> resourceVisible;
-    private readonly Func<Building, bool> buildingVisible;
-    private readonly Func<SectorDefinition, bool> sectorVisible;
+    private readonly IReadOnlyList<BuildingDef> buildings;
+    private readonly IReadOnlyList<SectorDef> sectors;
+    private readonly Func<ResourceDef, bool> resourceVisible;
+    private readonly Func<BuildingDef, bool> buildingVisible;
+    private readonly Func<SectorDef, bool> sectorVisible;
+    private readonly Func<BuildingDef, bool> producerVisible;
     public Node Root { get; }
 
-    public ResourceProductionTree(Resource resource, IReadOnlyList<Building> buildings,
-        IReadOnlyList<SectorDefinition> sectors, Func<Resource, bool> resourceVisible = null,
-        Func<Building, bool> buildingVisible = null, Func<SectorDefinition, bool> sectorVisible = null)
+    public ResourceProductionTree(ResourceDef resource, IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
+        Func<BuildingDef, bool> producerVisible = null)
     {
         if (resource == null) throw new ArgumentNullException(nameof(resource));
-        this.buildings = buildings ?? Array.Empty<Building>();
-        this.sectors = sectors ?? Array.Empty<SectorDefinition>();
+        this.buildings = buildings ?? Array.Empty<BuildingDef>();
+        this.sectors = sectors ?? Array.Empty<SectorDef>();
         this.resourceVisible = resourceVisible;
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
-        Root = new Node { Resource = resource, Ancestors = new List<Resource>(), BuildingAncestors = new List<Building>(), Expanded = true };
+        this.producerVisible = producerVisible;
+        Root = new Node { Resource = resource, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
     }
 
     /// <summary>A building root traces ongoing inputs and upgrades, never construction costs.</summary>
-    public ResourceProductionTree(Building building, IReadOnlyList<Building> buildings,
-        IReadOnlyList<SectorDefinition> sectors, Func<Resource, bool> resourceVisible = null,
-        Func<Building, bool> buildingVisible = null, Func<SectorDefinition, bool> sectorVisible = null)
+    public ResourceProductionTree(BuildingDef building, IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
+        Func<BuildingDef, bool> producerVisible = null)
     {
         if (building == null) throw new ArgumentNullException(nameof(building));
-        this.buildings = buildings ?? Array.Empty<Building>();
-        this.sectors = sectors ?? Array.Empty<SectorDefinition>();
+        this.buildings = buildings ?? Array.Empty<BuildingDef>();
+        this.sectors = sectors ?? Array.Empty<SectorDef>();
         this.resourceVisible = resourceVisible;
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
-        Root = new Node { Building = building, Ancestors = new List<Resource>(), BuildingAncestors = new List<Building>(), Expanded = true };
+        this.producerVisible = producerVisible;
+        Root = new Node { Building = building, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
+    }
+
+    /// <summary>A sector root groups its local facilities and direct resource outputs.</summary>
+    public ResourceProductionTree(SectorDef sector, IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<SectorDef> sectors, Func<ResourceDef, bool> resourceVisible = null,
+        Func<BuildingDef, bool> buildingVisible = null, Func<SectorDef, bool> sectorVisible = null,
+        Func<BuildingDef, bool> producerVisible = null)
+    {
+        if (sector == null) throw new ArgumentNullException(nameof(sector));
+        this.buildings = buildings ?? Array.Empty<BuildingDef>();
+        this.sectors = sectors ?? Array.Empty<SectorDef>();
+        this.resourceVisible = resourceVisible;
+        this.buildingVisible = buildingVisible;
+        this.sectorVisible = sectorVisible;
+        this.producerVisible = producerVisible;
+        Root = new Node { Sector = sector, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
     }
 
     public IReadOnlyList<Node> GetChildren(Node node)
@@ -64,20 +85,24 @@ public sealed class ResourceProductionTree
         if (node.IsCycle) return node.VisibleChildren;
         if (node.Resource != null)
         {
-            List<Resource> path = new(node.Ancestors) { node.Resource };
+            List<ResourceDef> path = new(node.Ancestors) { node.Resource };
             for (int i = 0; i < buildings.Count; i++)
             {
-                Building building = buildings[i];
+                BuildingDef building = buildings[i];
                 if (building == null) continue;
                 ExpantaNum output = FindRate(building.ResourceGenerationRates, node.Resource);
                 if (output > ExpantaNum.Zero)
-                    node.Children.Add(new Node { Building = building, Rate = output, Ancestors = path,
+                {
+                    int index = node.Children.Count;
+                    while (index > 0 && node.Children[index - 1].Building.TechLevel < building.TechLevel) index--;
+                    node.Children.Insert(index, new Node { Building = building, Rate = output, Ancestors = path,
                         BuildingAncestors = node.BuildingAncestors, Relationship = Relation.ProductionSource,
                         IsCycle = node.BuildingAncestors.Contains(building) });
+                }
             }
             for (int i = 0; i < sectors.Count; i++)
             {
-                SectorDefinition sector = sectors[i];
+                SectorDef sector = sectors[i];
                 if (sector == null) continue;
                 ExpantaNum output = FindRate(sector.OccupiedResourceRatesPerSecond, node.Resource);
                 if (output > ExpantaNum.Zero)
@@ -91,24 +116,42 @@ public sealed class ResourceProductionTree
         }
         else if (node.Building != null)
         {
-            List<Building> buildingPath = new(node.BuildingAncestors) { node.Building };
-            IReadOnlyList<Pair<Resource, ExpantaNum>> inputs = node.Building.ResourceConsumptionRates;
+            List<BuildingDef> buildingPath = new(node.BuildingAncestors) { node.Building };
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> inputs = node.Building.ResourceConsumptionRates;
             for (int i = 0; i < inputs.Count; i++)
             {
-                Pair<Resource, ExpantaNum> input = inputs[i];
+                Pair<ResourceDef, ExpantaNum> input = inputs[i];
                 if (input.First == null || input.Second <= ExpantaNum.Zero) continue;
                 node.Children.Add(new Node { Resource = input.First, Rate = input.Second,
                     Ancestors = node.Ancestors, BuildingAncestors = buildingPath,
                     Relationship = Relation.OngoingInput, IsCycle = node.Ancestors.Contains(input.First) });
             }
-            Building upgrade = node.Building.UpgradeTo;
+            BuildingDef upgrade = node.Building.UpgradeTo;
             if (upgrade != null)
                 node.Children.Add(new Node { Building = upgrade, Ancestors = node.Ancestors,
                     BuildingAncestors = buildingPath, Relationship = Relation.Upgrade,
                     IsCycle = buildingPath.Contains(upgrade) });
         }
+        else if (node.Sector != null && node.Relationship == Relation.Root)
+        {
+            for (int i = 0; i < buildings.Count; i++)
+                if (buildings[i] is SectorBuildingDef local && local.Sector == node.Sector)
+                    node.Children.Add(new Node { Building = local, Ancestors = node.Ancestors,
+                        BuildingAncestors = node.BuildingAncestors, Relationship = Relation.SectorFacility });
+            AddSectorOutputs(node, node.Sector.OccupiedResourceRatesPerSecond, false);
+            AddSectorOutputs(node, node.Sector.ResourceRewards, true);
+        }
         RefreshVisibleChildren(node);
         return node.VisibleChildren;
+    }
+
+    private static void AddSectorOutputs(Node node, IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates, bool oneTime)
+    {
+        for (int i = 0; i < rates.Count; i++)
+            if (rates[i].First != null && rates[i].Second > ExpantaNum.Zero)
+                node.Children.Add(new Node { Resource = rates[i].First, Rate = rates[i].Second,
+                    OneTimeReward = oneTime, Ancestors = node.Ancestors,
+                    BuildingAncestors = node.BuildingAncestors, Relationship = Relation.SectorOutput });
     }
 
     /// <summary>Rechecks cached branches after unlocks without losing expansion state.</summary>
@@ -146,10 +189,12 @@ public sealed class ResourceProductionTree
     private bool IsVisible(Node node) => node.Resource != null
         ? resourceVisible == null || resourceVisible(node.Resource)
         : node.Building != null
-            ? buildingVisible == null || buildingVisible(node.Building)
+            ? (buildingVisible == null || buildingVisible(node.Building)) &&
+              (node.Relationship != Relation.ProductionSource && node.Relationship != Relation.SectorFacility ||
+               producerVisible == null || producerVisible(node.Building))
             : sectorVisible == null || sectorVisible(node.Sector);
 
-    private static ExpantaNum FindRate(IReadOnlyList<Pair<Resource, ExpantaNum>> rates, Resource resource)
+    private static ExpantaNum FindRate(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates, ResourceDef resource)
     {
         ExpantaNum result = ExpantaNum.Zero;
         for (int i = 0; i < rates.Count; i++)

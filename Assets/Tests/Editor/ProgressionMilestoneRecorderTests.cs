@@ -8,7 +8,7 @@ public sealed class ProgressionMilestoneRecorderTests
     private ResourceManager resources;
     private ProgressionMilestoneTestResearchManager research;
     private ProgressionMilestoneRecorder recorder;
-    private Research definition;
+    private ResearchDef definition;
     private GameObject host;
 
     [SetUp]
@@ -25,9 +25,9 @@ public sealed class ProgressionMilestoneRecorderTests
         Create<BuildingManager>();
         research = Create<ProgressionMilestoneTestResearchManager>();
         research.EnsureInitialized();
-        definition = DataBase<Research>.Find("Quarry");
+        definition = DataBase<ResearchDef>.Find("Quarry");
         Assert.That(definition.HasPositiveResourceRequirement, Is.True);
-        foreach (Pair<Resource, ExpantaNum> cost in definition.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
             resources.SetAmount(cost.First, ExpantaNum.Zero);
         host = new GameObject("MilestoneRecorderTest");
         objects.Add(host);
@@ -157,7 +157,7 @@ public sealed class ProgressionMilestoneRecorderTests
     private void SupplyExactCost()
     {
         // Controlled payment fixture, not a no-cheat pacing/playthrough claim.
-        foreach (Pair<Resource, ExpantaNum> cost in definition.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
             resources.SetAmount(cost.First, cost.Second);
     }
 

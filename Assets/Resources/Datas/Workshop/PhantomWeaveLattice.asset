@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhantomWeaveLattice
   m_EditorClassIdentifier: 
   id: PhantomWeaveLattice
+  icon: {fileID: 21300000, guid: 254967b1e4f989c48bad788b8e6ad921, type: 3}
   Label: "幽影纤维晶格铺展"
   Description: "以幽影合金晶格、钛合金张力框架和镍基触媒定向铺展幽影纤维，为远星舰队与深空结构提供稳定的高强度纤维产能。"
   SortOrder: 540

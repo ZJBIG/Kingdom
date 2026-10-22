@@ -42,15 +42,15 @@ public sealed class EconomyIntegrationRegressionTests
         CreateManager<WorkshopManager>("ParitySnapshot-Workshop");
         CreateManager<SaveManager>("ParitySnapshot-Save");
         SimulationManager simulation = CreateManager<SimulationManager>("ParitySnapshot-Simulation");
-        Building house = DataBase<Building>.Find("WoodHouse");
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
         game.State.RestorePopulationForEditor(ExpantaNum.One);
         simulation.ManualTick(0d);
         foreach (ResourceState state in resources.States.Values)
             resources.SetAmount(state.Definition, ExpantaNum.Zero);
         game.State.RestorePopulationChangeProgressForEditor(new ExpantaNum(0.625d));
-        research.HandleResearchAction(DataBase<Research>.Find("ControlledFire"));
-        research.HandleResearchAction(DataBase<Research>.Find("Agriculture"));
+        research.HandleResearchAction(DataBase<ResearchDef>.Find("ControlledFire"));
+        research.HandleResearchAction(DataBase<ResearchDef>.Find("Agriculture"));
         string[] queue = research.ResearchQueue.Select(state => state.Definition.Id).ToArray();
         // Stable IDs and queue ordering require exact comparison.
         Assert.That(queue, Is.EqualTo(new[] { "ControlledFire", "Agriculture" }));
@@ -92,7 +92,7 @@ public sealed class EconomyIntegrationRegressionTests
             createdObjects.Add(TutorialManager.Ensure().gameObject);
 
         game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, game.State.FoodAmount, 0L);
-        Building granary = DataBase<Building>.Find("Granary");
+        BuildingDef granary = DataBase<BuildingDef>.Find("Granary");
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(granary), ExpantaNum.One);
         game.State.AdvanceFoodForEditor(10000d);
         ExpantaNum capacityBefore = game.State.FoodCapacity;
@@ -152,7 +152,7 @@ public sealed class EconomyIntegrationRegressionTests
             createdObjects.Add(TutorialManager.Ensure().gameObject);
 
         game.State.RestoreCoreForEditor(0, TechLevel.StoneAge, ExpantaNum.Zero, 0L);
-        Building house = DataBase<Building>.Find("WoodHouse");
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
         ExpantaNum capacity = game.State.Population.PopulationCapacity;
         Assert.That(capacity, Is.GreaterThan(ExpantaNum.Zero));
@@ -197,28 +197,28 @@ public sealed class EconomyIntegrationRegressionTests
         PurchaseAllWorkshops(workshop);
         ProgressionModifierManager.Rebuild(null);
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resources.SetAmount(resource, new ExpantaNum("1e6"));
 
-        buildings.RebuildBuildingChainIndexForEditor(DataBase<Building>.All);
+        buildings.RebuildBuildingChainIndexForEditor(DataBase<BuildingDef>.All);
         var failures = new List<BuildFailure>();
         foreach (string sourceId in new[] { "MachineFactory", "WireMill", "BuildingMaterialsComplex" })
         {
-            Building source = DataBase<Building>.Find(sourceId);
+            BuildingDef source = DataBase<BuildingDef>.Find(sourceId);
             BuildingState sourceState = buildings.EnsureBuilding(source);
             buildings.SetAmountAndRatesForEditor(sourceState, new ExpantaNum(2));
-            Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out Building target), Is.True, sourceId);
+            Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out BuildingDef target), Is.True, sourceId);
 
-            List<Pair<Resource, ExpantaNum>> deltas = new();
+            List<Pair<ResourceDef, ExpantaNum>> deltas = new();
             buildings.GetUpgradeResourceDeltas(source, ExpantaNum.One, deltas);
-            Pair<Resource, ExpantaNum> chargedPair = deltas.FirstOrDefault(item => item.Second > ExpantaNum.Zero);
-            Resource charged = chargedPair.First;
+            Pair<ResourceDef, ExpantaNum> chargedPair = deltas.FirstOrDefault(item => item.Second > ExpantaNum.Zero);
+            ResourceDef charged = chargedPair.First;
             Assert.That(charged, Is.Not.Null, sourceId + " must have a paid upgrade delta");
             buildings.GetConstructionFailures(source, ExpantaNum.One, true, failures);
             Assert.That(failures, Is.Empty, "An affordable upgrade has no shortage warnings.");
 
             ExpantaNum before = resources.GetAmount(charged);
-            Dictionary<Resource, ExpantaNum> paidBalances = deltas
+            Dictionary<ResourceDef, ExpantaNum> paidBalances = deltas
                 .Where(item => item.First != null && item.Second > ExpantaNum.Zero)
                 .GroupBy(item => item.First)
                 .ToDictionary(group => group.Key, group => resources.GetAmount(group.Key));
@@ -228,7 +228,7 @@ public sealed class EconomyIntegrationRegressionTests
             Assert.That(buildings.GetState(source).Amount, Is.EqualTo(ExpantaNum.One), sourceId);
             Assert.That(buildings.GetState(target).Amount, Is.EqualTo(ExpantaNum.One), sourceId);
 
-            foreach (Pair<Resource, ExpantaNum> delta in deltas)
+            foreach (Pair<ResourceDef, ExpantaNum> delta in deltas)
             {
                 if (delta.First == null || delta.Second <= ExpantaNum.Zero)
                     continue;
@@ -252,14 +252,14 @@ public sealed class EconomyIntegrationRegressionTests
             Assert.That(buildings.GetState(target).Amount, Is.EqualTo(ExpantaNum.Zero), sourceId);
         }
 
-        Building upgradeSource = DataBase<Building>.Find("MachineFactory");
+        BuildingDef upgradeSource = DataBase<BuildingDef>.Find("MachineFactory");
         BuildingState upgradeState = buildings.EnsureBuilding(upgradeSource);
         buildings.SetAmountAndRatesForEditor(upgradeState, ExpantaNum.One);
-        Assert.That(buildings.TryGetUnlockedUpgradeTarget(upgradeSource, out Building upgradeTarget), Is.True);
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(upgradeSource, out BuildingDef upgradeTarget), Is.True);
         game.State.RestorePopulationForEditor(ExpantaNum.Zero);
         ExpantaNum occupied = game.State.AvailableTerritory;
         game.State.CommitConstructionForEditor(occupied);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resources.SetAmount(resource, ExpantaNum.Zero);
         buildings.GetConstructionFailures(upgradeSource, ExpantaNum.One, true, failures);
         Assert.That(upgradeTarget.SpaceCost, Is.GreaterThan(upgradeSource.SpaceCost));
@@ -297,9 +297,9 @@ public sealed class EconomyIntegrationRegressionTests
         workshop.CaptureSaveData();
         SimulationManager simulation = CreateManager<SimulationManager>("SixStates-Simulation");
         SaveManager saveManager = CreateManager<SaveManager>("SixStates-Save");
-        Building source = DataBase<Building>.Find(sourceId);
-        Building orbital = source.UpgradeTo;
-        Building hub = orbital.UpgradeTo;
+        BuildingDef source = DataBase<BuildingDef>.Find(sourceId);
+        BuildingDef orbital = source.UpgradeTo;
+        BuildingDef hub = orbital.UpgradeTo;
         Assert.That(hub.Id, Is.EqualTo("OrbitalResourceExtractionArray")); // Authored stable ID.
 
         game.State.RestorePopulationForEditor(new ExpantaNum(100000));
@@ -307,24 +307,35 @@ public sealed class EconomyIntegrationRegressionTests
         game.State.RestoreCoreForEditor(0, TechLevel.Industrial, new ExpantaNum(500000), 0L);
         CompleteAllResearch(research);
         PurchaseAllWorkshops(workshop);
+        // Purchased planetary stages require their retained discovery and occupation records on reload.
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
+        {
+            if (!sector.IsHomeSystem) continue;
+            SectorState state = game.Sectors.GetState(sector);
+            state.SetUnlockedForEditor(true);
+            state.SetOccupiedForEditor(true);
+            state.SetCampaignProgressForEditor(ExpantaNum.One);
+            if (sector.InteriorExploration != null)
+                state.SetInteriorExplorationForEditor(ExpantaNum.One, false);
+        }
         // Hold one real hub gate closed so the intermediate orbital tier is
         // exercised instead of jumping straight to the highest unlocked tier.
-        WorkshopUpgrade hubGate = hub.RequiredWorkshopUpgrades.First(upgrade =>
+        WorkshopUpgradeDef hubGate = hub.RequiredWorkshopUpgrades.First(upgrade =>
             !orbital.RequiredWorkshopUpgrades.Contains(upgrade));
         workshop.States[hubGate].SetPurchasedForEditor(false);
         ProgressionModifierManager.Rebuild(research.States.Values.ToArray(), workshop.States.Values.ToArray());
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resources.SetAmount(resource, new ExpantaNum("1e8"));
         foreach ((string id, int amount) in new[]
                  { ("WoodHouse", 20000), ("Farm", 10000), ("Granary", 1000),
                    ("SteamPlant", 1000), ("RailHub", 1000) })
         {
-            Building support = DataBase<Building>.Find(id);
+            BuildingDef support = DataBase<BuildingDef>.Find(id);
             buildings.SetAmountAndRatesForEditor(
                 buildings.EnsureBuilding(support), new ExpantaNum(amount));
             game.CommitConstruction(support.SpaceCost * amount);
         }
-        buildings.RebuildBuildingChainIndexForEditor(DataBase<Building>.All);
+        buildings.RebuildBuildingChainIndexForEditor(DataBase<BuildingDef>.All);
 
         Assert.That(buildings.TryBuild(source, new ExpantaNum(2), out BuildFailure buildFailure), Is.True,
             sourceId + ": " + buildFailure);
@@ -333,7 +344,7 @@ public sealed class EconomyIntegrationRegressionTests
 
         game.AdvanceTechLevelForEditor(TechLevel.Ultra);
         buildings.RefreshBuildingChainAvailability();
-        Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out Building unlocked), Is.True);
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out BuildingDef unlocked), Is.True);
         Assert.That(unlocked, Is.SameAs(orbital));
         Assert.That(buildings.TryBuild(source, ExpantaNum.One, out BuildFailure superseded), Is.False);
         Assert.That(superseded, Is.EqualTo(BuildFailure.BuildingTierSuperseded));
@@ -373,30 +384,30 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(buildings.ShouldDisplay(orbital), Is.False);
         ObserveMaterialState("v1-restored", source, orbital, hub, game, buildings, resources, simulation);
 
-        Dictionary<Resource, ExpantaNum> outputRates = source.ResourceGenerationRates
+        Dictionary<ResourceDef, ExpantaNum> outputRates = source.ResourceGenerationRates
             .Where(pair => pair.Second > ExpantaNum.Zero)
             .ToDictionary(pair => pair.First, pair => resources.GetState(pair.First).ProductionRate);
         Assert.That(buildings.TryBuild(hub, ExpantaNum.One, out BuildFailure expansionFailure), Is.True,
             hub.Id + ": " + expansionFailure);
         simulation.ManualTick(0d);
-        foreach (KeyValuePair<Resource, ExpantaNum> output in outputRates)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> output in outputRates)
             Assert.That(resources.GetState(output.Key).ProductionRate, Is.GreaterThan(output.Value),
                 "The comprehensive factory must retain and expand " + output.Key.Id);
     }
 
     private static void UpgradeWithPaymentCheck(
-        Building source, BuildingManager buildings, ResourceManager resources)
+        BuildingDef source, BuildingManager buildings, ResourceManager resources)
     {
-        List<Pair<Resource, ExpantaNum>> deltas = new();
+        List<Pair<ResourceDef, ExpantaNum>> deltas = new();
         buildings.GetUpgradeResourceDeltas(source, ExpantaNum.One, deltas);
-        Dictionary<Resource, ExpantaNum> before = deltas.ToDictionary(pair => pair.First,
+        Dictionary<ResourceDef, ExpantaNum> before = deltas.ToDictionary(pair => pair.First,
             pair => resources.GetAmount(pair.First));
         Assert.That(deltas.Any(pair => pair.Second > ExpantaNum.Zero), Is.True);
-        Resource charged = deltas.First(pair => pair.Second > ExpantaNum.Zero).First;
+        ResourceDef charged = deltas.First(pair => pair.Second > ExpantaNum.Zero).First;
         resources.SetAmount(charged, ExpantaNum.Zero);
-        Dictionary<Resource, ExpantaNum> failedBalances = DataBase<Resource>.All.ToDictionary(resource => resource,
+        Dictionary<ResourceDef, ExpantaNum> failedBalances = DataBase<ResourceDef>.All.ToDictionary(resource => resource,
             resource => resources.GetAmount(resource));
-        Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out Building target), Is.True);
+        Assert.That(buildings.TryGetUnlockedUpgradeTarget(source, out BuildingDef target), Is.True);
         ExpantaNum sourceAmount = buildings.GetState(source).Amount;
         ExpantaNum targetAmount = buildings.GetState(target).Amount;
         ExpantaNum territory = GameManager.Instance.State.TerritoryUsed;
@@ -406,7 +417,7 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(rejected, Is.EqualTo(BuildFailure.ResourceInsufficient));
         Assert.That(buildings.GetState(source).Amount, Is.EqualTo(sourceAmount)); // Discrete counts stay unchanged.
         Assert.That(buildings.GetState(target).Amount, Is.EqualTo(targetAmount));
-        foreach (KeyValuePair<Resource, ExpantaNum> balance in failedBalances)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> balance in failedBalances)
             AssertEconomyClose(resources.GetAmount(balance.Key) - balance.Value, ExpantaNum.Zero,
                 source.Id + " failed upgrade inventory " + balance.Key.Id);
         AssertEconomyClose(GameManager.Instance.State.TerritoryUsed - territory, ExpantaNum.Zero, "failed upgrade territory");
@@ -415,17 +426,17 @@ public sealed class EconomyIntegrationRegressionTests
         resources.SetAmount(charged, before[charged]);
         Assert.That(buildings.TryUpgrade(source, ExpantaNum.One, out BuildFailure failure), Is.True,
             source.Id + ": " + failure);
-        foreach (Pair<Resource, ExpantaNum> delta in deltas)
+        foreach (Pair<ResourceDef, ExpantaNum> delta in deltas)
             AssertEconomyClose(before[delta.First] - resources.GetAmount(delta.First), delta.Second,
                 source.Id + " upgrade payment " + delta.First.Id);
     }
 
     private static void ObserveMaterialState(
-        string phase, Building source, Building orbital, Building hub,
+        string phase, BuildingDef source, BuildingDef orbital, BuildingDef hub,
         GameManager game, BuildingManager buildings, ResourceManager resources, SimulationManager simulation)
     {
         simulation.ManualTick(0d);
-        Dictionary<Resource, ExpantaNum> before = DataBase<Resource>.All.ToDictionary(resource => resource,
+        Dictionary<ResourceDef, ExpantaNum> before = DataBase<ResourceDef>.All.ToDictionary(resource => resource,
             resource => resources.GetAmount(resource));
         ExpantaNum foodBefore = game.State.FoodAmount;
         ExpantaNum foodNet = game.State.FoodNetRate;
@@ -436,7 +447,7 @@ public sealed class EconomyIntegrationRegressionTests
         // The isolated fixture has no active campaign, colonization, research
         // queue or engineering bill; ordinary building/population flow is complete here.
         simulation.ManualTick(1d);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
         {
             ResourceState state = resources.GetState(resource);
             ExpantaNum net = state.ProductionRate * game.State.HappinessRewardMultiplier - state.ConsumptionRate;
@@ -449,7 +460,7 @@ public sealed class EconomyIntegrationRegressionTests
         AssertEconomyClose(game.State.FoodAmount - foodBefore, foodExpected - foodBefore, phase + " Food ledger");
         AssertEconomyClose(game.State.TerritoryUsed, territory, phase + " territory");
         AssertEconomyClose(buildings.UsedProductivity, productivity, phase + " productivity");
-        foreach (Pair<Resource, ExpantaNum> output in source.ResourceGenerationRates)
+        foreach (Pair<ResourceDef, ExpantaNum> output in source.ResourceGenerationRates)
         {
             if (output.Second <= ExpantaNum.Zero)
                 continue;
@@ -508,18 +519,18 @@ public sealed class EconomyIntegrationRegressionTests
         resources.InitializeForEditor();
         // Keep enough headroom for the Ultra continuous bill while retaining
         // observable deltas from the authored production chains.
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resources.SetAmount(resource, new ExpantaNum("1e12"));
 
-        buildings.RebuildBuildingChainIndexForEditor(DataBase<Building>.All);
-        Dictionary<string, List<Resource>> generatedOutputs = new();
+        buildings.RebuildBuildingChainIndexForEditor(DataBase<BuildingDef>.All);
+        Dictionary<string, List<ResourceDef>> generatedOutputs = new();
         foreach (string sourceId in new[] { "MachineFactory", "WireMill", "BuildingMaterialsComplex" })
         {
-            Building source = DataBase<Building>.Find(sourceId);
+            BuildingDef source = DataBase<BuildingDef>.Find(sourceId);
             BuildingState state = buildings.EnsureBuilding(source);
             buildings.SetAmountAndRatesForEditor(state, ExpantaNum.One);
-            List<Resource> outputs = new();
-            foreach (Pair<Resource, ExpantaNum> output in source.ResourceGenerationRates)
+            List<ResourceDef> outputs = new();
+            foreach (Pair<ResourceDef, ExpantaNum> output in source.ResourceGenerationRates)
             {
                 if (output.First == null || output.Second <= ExpantaNum.Zero)
                     continue;
@@ -533,19 +544,19 @@ public sealed class EconomyIntegrationRegressionTests
         // of forcing satisfaction fields after each offline tick.
         foreach (string flowBuildingId in new[] { "SteamPlant", "RailHub" })
         {
-            Building flowBuilding = DataBase<Building>.Find(flowBuildingId);
+            BuildingDef flowBuilding = DataBase<BuildingDef>.Find(flowBuildingId);
             BuildingState flowState = buildings.EnsureBuilding(flowBuilding);
             buildings.SetAmountAndRatesForEditor(flowState, ExpantaNum.One);
         }
 
         // Use the public research transaction path; Quarry is the first reachable
         // node and keeps this regression independent of authored later-era gates.
-        Research quarry = DataBase<Research>.Find("Quarry");
+        ResearchDef quarry = DataBase<ResearchDef>.Find("Quarry");
         Assert.That(research.HandleResearchAction(quarry), Is.Not.EqualTo(ResearchActionResult.Invalid));
         ResearchState quarryState = research.GetState(quarry);
         ExpantaNum researchBefore = quarryState.Progress;
 
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
         SectorState sectorState = game.Sectors.GetState(sector);
         sectorState.SetUnlockedForEditor(true);
         sectorState.SetCampaignActiveForEditor(true);
@@ -559,10 +570,10 @@ public sealed class EconomyIntegrationRegressionTests
         game.AdjustMilitaryManpower(new ExpantaNum("1e9"));
 
         UltraProjectStageDefinition stage = game.UltraProject.Definition.Stages[0];
-        Research[] stageResearch = new[] { stage.RequiredResearch }
-            .Concat(stage.AdditionalRequiredResearch ?? Array.Empty<Research>())
+        ResearchDef[] stageResearch = new[] { stage.RequiredResearch }
+            .Concat(stage.AdditionalRequiredResearch ?? Array.Empty<ResearchDef>())
             .ToArray();
-        foreach (Research required in stageResearch)
+        foreach (ResearchDef required in stageResearch)
         {
             if (required == null)
                 continue;
@@ -582,17 +593,17 @@ public sealed class EconomyIntegrationRegressionTests
             LaunchFeePaid = true,
             StateVersion = 1
         });
-        foreach (Pair<Resource, ExpantaNum> cost in stage.ContinuousResourceCosts)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in stage.ContinuousResourceCosts)
             resources.SetAmount(cost.First, new ExpantaNum("1e30"));
 
-        Dictionary<Resource, ExpantaNum> authoredOutputRates = generatedOutputs
+        Dictionary<ResourceDef, ExpantaNum> authoredOutputRates = generatedOutputs
             .SelectMany(outputSet => outputSet.Value)
             .Distinct()
             .ToDictionary(output => output, output => resources.GetState(output).ProductionRate);
-        foreach (KeyValuePair<Resource, ExpantaNum> outputRate in authoredOutputRates)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> outputRate in authoredOutputRates)
             Assert.That(outputRate.Value, Is.GreaterThan(ExpantaNum.Zero), outputRate.Key.Id);
 
-        Dictionary<Resource, ExpantaNum> before = DataBase<Resource>.All.ToDictionary(resource => resource,
+        Dictionary<ResourceDef, ExpantaNum> before = DataBase<ResourceDef>.All.ToDictionary(resource => resource,
             resource => resources.GetAmount(resource));
         double advanced = simulation.AdvanceOffline(requestedSeconds);
         Assert.That(advanced, Is.GreaterThan(0d));
@@ -614,15 +625,15 @@ public sealed class EconomyIntegrationRegressionTests
             game.State.Campaign.Active || sectorState.CampaignProgress > ExpantaNum.Zero || sectorState.Occupied,
             Is.True,
             "Campaign must remain active or show legal progress/completion after the offline window.");
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             Assert.That(resources.GetAmount(resource), Is.GreaterThanOrEqualTo(ExpantaNum.Zero), resource.Id);
         Assert.That(game.State.FoodAmount, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
         Assert.That(game.State.FoodAmount, Is.LessThanOrEqualTo(game.State.FoodCapacity));
         Assert.That(game.State.FoodTotalConsumptionRate, Is.GreaterThanOrEqualTo(game.State.FoodConsumptionRate));
-        Assert.That(DataBase<Resource>.All.Any(resource => resources.GetAmount(resource) != before[resource]), Is.True);
-        foreach (KeyValuePair<string, List<Resource>> outputSet in generatedOutputs)
+        Assert.That(DataBase<ResourceDef>.All.Any(resource => resources.GetAmount(resource) != before[resource]), Is.True);
+        foreach (KeyValuePair<string, List<ResourceDef>> outputSet in generatedOutputs)
         {
-            foreach (Resource output in outputSet.Value)
+            foreach (ResourceDef output in outputSet.Value)
             {
                 ResourceState outputState = resources.GetState(output);
                 Assert.That(
@@ -663,7 +674,7 @@ public sealed class EconomyIntegrationRegressionTests
 
         game.State.RestoreCoreForEditor(0, TechLevel.Industrial, new ExpantaNum(300), 0L);
         resources.InitializeForEditor();
-        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
         resources.SetAmount(wood, new ExpantaNum(100000));
         ExpantaNum before = resources.GetAmount(wood);
         double effective = simulation.AdvanceOffline(requestedSeconds);
@@ -687,7 +698,7 @@ public sealed class EconomyIntegrationRegressionTests
             0L);
         resources.InitializeForEditor();
 
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef sector = DataBase<SectorDef>.Find("DawnRing");
         SectorState state = game.Sectors.GetState(sector);
         state.SetUnlockedForEditor(true);
         SetResourceAmounts(resources, sector.ColonizationResourceRatesPerSecond, new ExpantaNum("1e9"));
@@ -742,7 +753,7 @@ public sealed class EconomyIntegrationRegressionTests
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
         resources.InitializeForEditor();
 
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
         SectorState state = game.Sectors.GetState(sector);
         state.SetUnlockedForEditor(true);
         SetResourceAmounts(resources, sector.CampaignResourceRatesPerSecond, new ExpantaNum("1e9"));
@@ -844,12 +855,12 @@ public sealed class EconomyIntegrationRegressionTests
         ResourceManager resources = CreateManager<ResourceManager>("BudgetRefresh-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("BudgetRefresh-Buildings");
         game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
-        Resource[] inputs = Enumerable.Range(0, 4)
+        ResourceDef[] inputs = Enumerable.Range(0, 4)
             .Select(i => CreateBudgetResource("BudgetRefreshInput" + i)).ToArray();
         BuildingState[] states = new BuildingState[4];
         for (int i = 0; i < states.Length; i++)
         {
-            Building definition = CreateBudgetBuilding("BudgetRefreshBuilding" + i, inputs[i ^ 1], inputs[i]);
+            BuildingDef definition = CreateBudgetBuilding("BudgetRefreshBuilding" + i, inputs[i ^ 1], inputs[i]);
             states[i] = buildings.EnsureBuilding(definition);
             buildings.SetAmountAndRatesForEditor(states[i], 1);
         }
@@ -861,12 +872,12 @@ public sealed class EconomyIntegrationRegressionTests
         for (int i = 0; i < states.Length; i++)
             Assert.That(states[i].Efficiency.ToDouble(), Is.EqualTo(initial[i]).Within(1e-6d));
 
-        foreach (Resource input in inputs)
+        foreach (ResourceDef input in inputs)
             resources.SetAmount(input, 10);
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
         foreach (BuildingState state in states)
             Assert.That(state.Efficiency.ToDouble(), Is.GreaterThan(0.99d));
-        foreach (Resource input in inputs)
+        foreach (ResourceDef input in inputs)
             resources.SetAmount(input, 0);
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
         for (int i = 0; i < states.Length; i++)
@@ -889,10 +900,10 @@ public sealed class EconomyIntegrationRegressionTests
         game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
         if (idleFirst)
             AddIdleResources();
-        Resource x = CreateBudgetResource("BudgetPerfX");
-        Resource y = CreateBudgetResource("BudgetPerfY");
-        Building a = CreateBudgetBuilding("BudgetPerfA", y, x);
-        Building b = CreateBudgetBuilding("BudgetPerfB", x, y);
+        ResourceDef x = CreateBudgetResource("BudgetPerfX");
+        ResourceDef y = CreateBudgetResource("BudgetPerfY");
+        BuildingDef a = CreateBudgetBuilding("BudgetPerfA", y, x);
+        BuildingDef b = CreateBudgetBuilding("BudgetPerfB", x, y);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(a), 1);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(b), 1);
         resources.SetAmount(x, correction ? 0d : 10d);
@@ -933,12 +944,12 @@ public sealed class EconomyIntegrationRegressionTests
         ResourceManager resources = CreateManager<ResourceManager>("Budget-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("Budget-Buildings");
         game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
-        Resource x = CreateBudgetResource("BudgetX");
-        Resource y = CreateBudgetResource("BudgetY");
-        Resource independent = CreateBudgetResource("BudgetIndependent");
-        Building a = CreateBudgetBuilding("BudgetA", y, x);
-        Building b = CreateBudgetBuilding("BudgetB", x, y);
-        Building quarry = CreateBudgetBuilding("BudgetQuarry", independent, null);
+        ResourceDef x = CreateBudgetResource("BudgetX");
+        ResourceDef y = CreateBudgetResource("BudgetY");
+        ResourceDef independent = CreateBudgetResource("BudgetIndependent");
+        BuildingDef a = CreateBudgetBuilding("BudgetA", y, x);
+        BuildingDef b = CreateBudgetBuilding("BudgetB", x, y);
+        BuildingDef quarry = CreateBudgetBuilding("BudgetQuarry", independent, null);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(a), 1);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(b), 1);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(quarry), 1);
@@ -948,7 +959,7 @@ public sealed class EconomyIntegrationRegressionTests
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
 
         TestContext.WriteLine($"budget inventory={inventory}: A={buildings.GetState(a).Efficiency}, B={buildings.GetState(b).Efficiency}, H={game.State.HappinessRewardMultiplier}");
-        Assert.That(resources.GetState(DataBase<Resource>.Find(ResourceManager.StartingResourceId)).ProductionRate.ToDouble(),
+        Assert.That(resources.GetState(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId)).ProductionRate.ToDouble(),
             Is.GreaterThanOrEqualTo(0.999999d), "Budget correction must preserve passive starting production.");
         AssertBudget(resources.GetState(x), game.State.HappinessRewardMultiplier);
         AssertBudget(resources.GetState(y), game.State.HappinessRewardMultiplier);
@@ -968,8 +979,8 @@ public sealed class EconomyIntegrationRegressionTests
         ResourceManager resources = CreateManager<ResourceManager>("CachedSupply-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("CachedSupply-Buildings");
         game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
-        Resource input = CreateBudgetResource("CachedSupplyInput");
-        Building consumer = CreateBudgetBuilding("CachedSupplyConsumer", null, input);
+        ResourceDef input = CreateBudgetResource("CachedSupplyInput");
+        BuildingDef consumer = CreateBudgetBuilding("CachedSupplyConsumer", null, input);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(consumer), 1);
         resources.SetAmount(input, 1);
 
@@ -988,8 +999,8 @@ public sealed class EconomyIntegrationRegressionTests
         BuildingManager buildings = CreateManager<BuildingManager>("ActualFood-Buildings");
         game.State.RestoreCoreForEditor(0, TechLevel.Animal, 0, 0L);
         game.State.RestorePopulationForEditor(100);
-        Resource input = CreateBudgetResource("ActualFoodInput");
-        Building farm = CreateBudgetBuilding("ActualFoodFarm", null, input, 100);
+        ResourceDef input = CreateBudgetResource("ActualFoodInput");
+        BuildingDef farm = CreateBudgetBuilding("ActualFoodFarm", null, input, 100);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(farm), 1);
 
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
@@ -998,8 +1009,8 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(game.State.HappinessMultiplier.ToDouble(), Is.InRange(0d, 0.1d));
 
         game.State.RestorePopulationForEditor(0);
-        Building source = CreateBudgetBuilding("ActualFoodSource", input, null);
-        Building hungry = CreateBudgetBuilding("ActualFoodDemand", null, null);
+        BuildingDef source = CreateBudgetBuilding("ActualFoodSource", input, null);
+        BuildingDef hungry = CreateBudgetBuilding("ActualFoodDemand", null, null);
         hungry.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, 0, 80, 0,
             0, 0, 0, 0, 0, 0, 0, new(), new(), new());
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), 1);
@@ -1017,9 +1028,9 @@ public sealed class EconomyIntegrationRegressionTests
         GameManager game = CreateManager<GameManager>("Feedback-Game");
         ResourceManager resources = CreateManager<ResourceManager>("Feedback-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("Feedback-Buildings");
-        Resource x = CreateBudgetResource("FeedbackX");
-        Building source = CreateBudgetBuilding("FeedbackSource", x, null);
-        Building food = CreateBudgetBuilding("FeedbackFood", null, x, 10d);
+        ResourceDef x = CreateBudgetResource("FeedbackX");
+        BuildingDef source = CreateBudgetBuilding("FeedbackSource", x, null);
+        BuildingDef food = CreateBudgetBuilding("FeedbackFood", null, x, 10d);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), 1);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(food), 1);
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
@@ -1027,9 +1038,9 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(buildings.GetState(food).Efficiency.ToDouble(), Is.GreaterThan(0.6d));
     }
 
-    private Resource CreateBudgetResource(string id)
+    private ResourceDef CreateBudgetResource(string id)
     {
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
         resource.SetIdForEditor(id);
         createdObjects.Add(resource);
         return resource;
@@ -1042,9 +1053,9 @@ public sealed class EconomyIntegrationRegressionTests
         GameManager game = CreateManager<GameManager>("FlowBudget-Game");
         ResourceManager resources = CreateManager<ResourceManager>("FlowBudget-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("FlowBudget-Buildings");
-        Resource x = CreateBudgetResource("FlowBudgetX");
-        Building producer = CreateBudgetBuilding("FlowBudgetProducer", null, x);
-        Building consumer = CreateBudgetBuilding("FlowBudgetConsumer", x, null);
+        ResourceDef x = CreateBudgetResource("FlowBudgetX");
+        BuildingDef producer = CreateBudgetBuilding("FlowBudgetProducer", null, x);
+        BuildingDef consumer = CreateBudgetBuilding("FlowBudgetConsumer", x, null);
         if (power)
         {
             producer.SetPowerFlowForEditor(1, 0);
@@ -1093,12 +1104,12 @@ public sealed class EconomyIntegrationRegressionTests
             LaunchFeePaid = true,
             StateVersion = 1
         });
-        Resource x = CreateBudgetResource("ExternalFlowX");
-        Resource y = CreateBudgetResource("ExternalFlowY");
-        Building producer = CreateBudgetBuilding("ExternalFlowProducer", y, x, 100);
-        Building recycler = CreateBudgetBuilding("ExternalFlowRecycler", x, y);
-        Building consumer = CreateBudgetBuilding("ExternalFlowConsumer", null, null);
-        Building support = CreateBudgetBuilding("ExternalFlowSupport", null, null);
+        ResourceDef x = CreateBudgetResource("ExternalFlowX");
+        ResourceDef y = CreateBudgetResource("ExternalFlowY");
+        BuildingDef producer = CreateBudgetBuilding("ExternalFlowProducer", y, x, 100);
+        BuildingDef recycler = CreateBudgetBuilding("ExternalFlowRecycler", x, y);
+        BuildingDef consumer = CreateBudgetBuilding("ExternalFlowConsumer", null, null);
+        BuildingDef support = CreateBudgetBuilding("ExternalFlowSupport", null, null);
         if (power)
         {
             producer.SetPowerFlowForEditor(externalDemand, 0);
@@ -1111,7 +1122,7 @@ public sealed class EconomyIntegrationRegressionTests
             consumer.SetLogisticsFlowForEditor(0, externalDemand);
             support.SetPowerFlowForEditor(stage.PowerConsumptionRate * 100, 0);
         }
-        foreach (Building building in new[] { producer, recycler, consumer, support })
+        foreach (BuildingDef building in new[] { producer, recycler, consumer, support })
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), 1);
         resources.SetAmount(x, new ExpantaNum(0.02d));
         resources.SetAmount(y, new ExpantaNum(0.02d));
@@ -1121,7 +1132,7 @@ public sealed class EconomyIntegrationRegressionTests
         ExpantaNum supply = (power ? game.State.PowerProductionRate : game.State.LogisticsProductionRate) *
             game.State.HappinessRewardMultiplier;
         ExpantaNum buildingDemand = power ? game.State.PowerConsumptionRate : game.State.LogisticsConsumptionRate;
-        Pair<Resource, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
+        Pair<ResourceDef, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
         ExpantaNum before = resources.GetAmount(meteredCost.First);
         Assert.That(game.UltraProject.Tick(1d), Is.True);
         ExpantaNum paidSeconds = (before - resources.GetAmount(meteredCost.First)) / meteredCost.Second;
@@ -1141,7 +1152,7 @@ public sealed class EconomyIntegrationRegressionTests
         game.State.RestoreCoreForEditor(0, TechLevel.Ultra, new ExpantaNum("1e9"), 0L);
         game.State.RestorePopulationForEditor(0);
         game.State.AdjustFoodRatesForEditor(-GameState.BaseFoodProductionRate, 0);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resources.SetAmount(resource, new ExpantaNum("1e6"));
         UltraProjectStageDefinition stage = game.UltraProject.Definition.Stages[0];
         foreach (var cost in stage.ContinuousResourceCosts)
@@ -1157,19 +1168,19 @@ public sealed class EconomyIntegrationRegressionTests
             LaunchFeePaid = true,
             StateVersion = 1
         });
-        Building station = DataBase<Building>.Find("CentralPowerStation");
-        Building mine = DataBase<Building>.Find("MechanizedCoalMine");
-        Building logistics = CreateBudgetBuilding("CoalPowerLogistics", null, null);
+        BuildingDef station = DataBase<BuildingDef>.Find("CentralPowerStation");
+        BuildingDef mine = DataBase<BuildingDef>.Find("MechanizedCoalMine");
+        BuildingDef logistics = CreateBudgetBuilding("CoalPowerLogistics", null, null);
         logistics.SetLogisticsFlowForEditor(stage.LogisticsConsumptionRate * 100, 0);
-        foreach (Building building in new[] { station, mine, logistics })
+        foreach (BuildingDef building in new[] { station, mine, logistics })
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), 1);
-        resources.SetAmount(DataBase<Resource>.Find("Coal"), new ExpantaNum(0.02d));
+        resources.SetAmount(DataBase<ResourceDef>.Find("Coal"), new ExpantaNum(0.02d));
 
         buildings.PrepareTickResourceSatisfactionForEditor(1d);
 
         ExpantaNum supply = game.State.PowerProductionRate * game.State.HappinessRewardMultiplier;
         ExpantaNum buildingDemand = game.State.PowerConsumptionRate;
-        Pair<Resource, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
+        Pair<ResourceDef, ExpantaNum> meteredCost = stage.ContinuousResourceCosts[0];
         ExpantaNum before = resources.GetAmount(meteredCost.First);
         Assert.That(game.UltraProject.Tick(1d), Is.True,
             "Available Coal must keep the authored power cycle and Ultra work running.");
@@ -1179,18 +1190,18 @@ public sealed class EconomyIntegrationRegressionTests
         Assert.That(buildings.GetState(mine).Efficiency, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(buildingDemand + stage.PowerConsumptionRate * paidSeconds <= supply, Is.True,
             "The authored cycle must fund both the mine and the Ultra work actually paid for.");
-        AssertBudget(resources.GetState(DataBase<Resource>.Find("Coal")), game.State.HappinessRewardMultiplier);
+        AssertBudget(resources.GetState(DataBase<ResourceDef>.Find("Coal")), game.State.HappinessRewardMultiplier);
     }
 
-    private Building CreateBudgetBuilding(string id, Resource output, Resource input, double food = 0d)
+    private BuildingDef CreateBudgetBuilding(string id, ResourceDef output, ResourceDef input, double food = 0d)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.SetIdForEditor(id);
         building.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, food, 0, 0,
             0, 0, 0, 0, 0, 0, 0,
-            new List<Pair<Resource, ExpantaNum>>(),
-            output == null ? new List<Pair<Resource, ExpantaNum>>() : new() { new(output, 1) },
-            input == null ? new List<Pair<Resource, ExpantaNum>>() : new() { new(input, 2) });
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            output == null ? new List<Pair<ResourceDef, ExpantaNum>>() : new() { new(output, 1) },
+            input == null ? new List<Pair<ResourceDef, ExpantaNum>>() : new() { new(input, 2) });
         createdObjects.Add(building);
         return building;
     }
@@ -1286,7 +1297,7 @@ public sealed class EconomyIntegrationRegressionTests
         CompleteAllResearch(research);
         ResearchState[] researchStates = research.States.Values.ToArray();
         WorkshopUpgradeState[] upgrades = workshop.States.Values.ToArray();
-        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery");
+        WorkshopUpgradeDef candidate = DataBase<WorkshopUpgradeDef>.Find("AgriculturalMachinery");
         ProgressionModifierManager.Rebuild(researchStates, upgrades);
         workshop.GetPurchaseBenefitPreview(candidate);
         long cachedBytes = 0;
@@ -1326,8 +1337,8 @@ public sealed class EconomyIntegrationRegressionTests
         ResearchManager research = CreateManager<ResearchManager>("PreviewRefresh-Research");
         WorkshopManager workshop = CreateManager<WorkshopManager>("PreviewRefresh-Workshop");
         workshop.ResetForLoadForEditor();
-        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery");
-        Building farm = DataBase<Building>.Find("Farm");
+        WorkshopUpgradeDef candidate = DataBase<WorkshopUpgradeDef>.Find("AgriculturalMachinery");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
         BuildingState farmState = buildings.EnsureBuilding(farm);
         buildings.SetAmountAndRatesForEditor(farmState, 2);
         AssertFresh(candidate);
@@ -1339,7 +1350,7 @@ public sealed class EconomyIntegrationRegressionTests
             Sequence = 3, RemainingSeconds = 10d, SecondsUntilNextEvent = 100d
         });
         AssertFresh(candidate);
-        AssertFresh(DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering"));
+        AssertFresh(DataBase<WorkshopUpgradeDef>.Find("IndustrialFoodProcessEngineering"));
         AssertFresh(candidate);
         CompleteAllResearch(research);
         Rebuild();
@@ -1353,7 +1364,7 @@ public sealed class EconomyIntegrationRegressionTests
         void Rebuild() => ProgressionModifierManager.Rebuild(
             research.States.Values.ToArray(), workshop.States.Values.ToArray());
 
-        void AssertFresh(WorkshopUpgrade selected)
+        void AssertFresh(WorkshopUpgradeDef selected)
         {
             var before = ProgressionModifierManager.Current;
             var after = ProgressionModifierManager.BuildPreview(
@@ -1382,11 +1393,11 @@ public sealed class EconomyIntegrationRegressionTests
         CreateManager<BuildingManager>("ObserverTick-Buildings");
         ResearchManager research = CreateManager<ResearchManager>("ObserverTick-Research");
         SimulationManager simulation = CreateManager<SimulationManager>("ObserverTick-Simulation");
-        Research target = DataBase<Research>.Find("Quarry");
+        ResearchDef target = DataBase<ResearchDef>.Find("Quarry");
         ResearchState state = research.GetState(target);
         state.RestoreForEditor(state.BaseCost - new ExpantaNum(.01d), true, false, PaidCostsFor(target));
         Assert.That(research.StartResearch(target), Is.True);
-        Resource output = CreateBudgetResource("ObserverTickOutput");
+        ResourceDef output = CreateBudgetResource("ObserverTickOutput");
         resources.SetProductionRate(output, 10);
         int laterCalls = 0;
         bool thrown = false;
@@ -1431,7 +1442,7 @@ public sealed class EconomyIntegrationRegressionTests
         CreateManager<GameManager>("ObserverBuilding-Game");
         CreateManager<ResourceManager>("ObserverBuilding-Resources");
         BuildingManager buildings = CreateManager<BuildingManager>("ObserverBuilding-Buildings");
-        Building definition = CreateBudgetBuilding("ObserverBuilding", null, null);
+        BuildingDef definition = CreateBudgetBuilding("ObserverBuilding", null, null);
         int laterCalls = 0;
         buildings.BuildingStateAdded += _ => throw new InvalidOperationException("building-observer-test");
         buildings.BuildingStateAdded += _ => laterCalls++;
@@ -1454,7 +1465,7 @@ public sealed class EconomyIntegrationRegressionTests
         CompleteAllResearch(research);
         game.State.RestoreCoreForEditor(0, TechLevel.Industrial, 300, 0);
         workshop.RestoreSaveDataForEditor(null);
-        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("IndustrialFoodProcessEngineering");
+        WorkshopUpgradeDef candidate = DataBase<WorkshopUpgradeDef>.Find("IndustrialFoodProcessEngineering");
         foreach (var cost in candidate.ResourceRequirements)
             resources.SetAmount(cost.First, cost.Second * 2);
         int laterCalls = 0;
@@ -1482,8 +1493,8 @@ public sealed class EconomyIntegrationRegressionTests
         CreateManager<ResourceManager>("ResearchBoundary-Resources");
         CreateManager<BuildingManager>("ResearchBoundary-Buildings");
         ResearchManager research = CreateManager<ResearchManager>("ResearchBoundary-Research");
-        Research first = DataBase<Research>.Find("Quarry");
-        Research second = DataBase<Research>.Find("Agriculture");
+        ResearchDef first = DataBase<ResearchDef>.Find("Quarry");
+        ResearchDef second = DataBase<ResearchDef>.Find("Agriculture");
         ResearchState head = research.GetState(first);
         ResearchState next = research.GetState(second);
         head.RestoreForEditor(head.BaseCost - new ExpantaNum(remainingCost), true, false, PaidCostsFor(first));
@@ -1525,21 +1536,21 @@ public sealed class EconomyIntegrationRegressionTests
 
     private static void CompleteAllResearch(ResearchManager researchManager)
     {
-        foreach (Research definition in DataBase<Research>.All)
+        foreach (ResearchDef definition in DataBase<ResearchDef>.All)
         {
             ResearchState state = researchManager.GetState(definition);
-            Dictionary<Resource, ExpantaNum> paid = new();
-            foreach (Pair<Resource, ExpantaNum> requirement in definition.ResourceRequirements)
+            Dictionary<ResourceDef, ExpantaNum> paid = new();
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in definition.ResourceRequirements)
                 if (requirement.First != null && requirement.Second > ExpantaNum.Zero)
                     paid[requirement.First] = requirement.Second;
             state.RestoreForEditor(state.BaseCost, true, true, paid);
         }
     }
 
-    private static Dictionary<Resource, ExpantaNum> PaidCostsFor(Research definition)
+    private static Dictionary<ResourceDef, ExpantaNum> PaidCostsFor(ResearchDef definition)
     {
-        Dictionary<Resource, ExpantaNum> paid = new();
-        foreach (Pair<Resource, ExpantaNum> requirement in definition.ResourceRequirements)
+        Dictionary<ResourceDef, ExpantaNum> paid = new();
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in definition.ResourceRequirements)
             if (requirement.First != null && requirement.Second > ExpantaNum.Zero)
                 paid[requirement.First] = requirement.Second;
         return paid;
@@ -1554,12 +1565,12 @@ public sealed class EconomyIntegrationRegressionTests
 
     private static void SetResourceAmounts(
         ResourceManager resources,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
         ExpantaNum amount)
     {
         for (int i = 0; rates != null && i < rates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> rate = rates[i];
+            Pair<ResourceDef, ExpantaNum> rate = rates[i];
             if (rate.First != null)
                 resources.SetAmount(rate.First, amount);
         }

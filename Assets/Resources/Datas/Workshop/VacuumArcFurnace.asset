@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: VacuumArcFurnace
   m_EditorClassIdentifier: 
   id: VacuumArcFurnace
+  icon: {fileID: 21300000, guid: c7991da3e025a534d97275262c36a9c4, type: 3}
   Label: "\u771F\u7A7A\u7535\u5F27\u7194\u70BC\u7089"
   Description: "用真空重熔去除杂质并校准合金成分，提高钛合金冶炼厂的产出。"
   SortOrder: 360

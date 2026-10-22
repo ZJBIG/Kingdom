@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalLifeSupportNetworks
   m_EditorClassIdentifier: 
   id: OrbitalLifeSupportNetworks
+  icon: {fileID: 21300000, guid: 7397740df76ddf24a9284e212bbf0dea, type: 3}
   Label: "轨道生命保障网络"
   Description: "将相位材料屏蔽、复合材料舱段和自动化循环系统整合为轨道居住巨构的生命保障网络，提高深空人口增长与长期驻留能力。"
   SortOrder: 575

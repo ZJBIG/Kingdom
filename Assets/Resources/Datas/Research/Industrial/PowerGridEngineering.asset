@@ -18,6 +18,7 @@ MonoBehaviour:
   BaseCost: "900000"
   prerequisites:
   - {fileID: 11400000, guid: 874a8698c303e984795406fc7f83008b, type: 2}
+  - {fileID: 11400000, guid: 542068e7549b5064593ba693741e2f8e, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "1120"

@@ -11,14 +11,14 @@ public enum RelicOperationFailure
 public sealed class RelicManager
 {
     private readonly RelicState state = new();
-    private RelicDefinition definition;
+    private RelicDef definition;
     public RelicState State => state;
-    public RelicDefinition Definition
+    public RelicDef Definition
     {
         get
         {
             if (definition == null)
-                DataBase<RelicDefinition>.TryFind(RelicState.RelicId, out definition);
+                DataBase<RelicDef>.TryFind(RelicState.RelicId, out definition);
             return definition;
         }
     }
@@ -27,7 +27,7 @@ public sealed class RelicManager
          state.Status == RelicStatus.ReverseEngineering || state.CommissionActive);
     public RelicWorkDefinition GetCurrentWork()
     {
-        RelicDefinition data = Definition;
+        RelicDef data = Definition;
         if (data == null) return null;
         switch (state.Status)
         {
@@ -39,9 +39,9 @@ public sealed class RelicManager
             default: return null;
         }
     }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> GetActiveCosts() => IsWorking
-        ? GetCurrentWork()?.ContinuousCosts ?? Array.Empty<Pair<Resource, ExpantaNum>>()
-        : Array.Empty<Pair<Resource, ExpantaNum>>();
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> GetActiveCosts() => IsWorking
+        ? GetCurrentWork()?.ContinuousCosts ?? Array.Empty<Pair<ResourceDef, ExpantaNum>>()
+        : Array.Empty<Pair<ResourceDef, ExpantaNum>>();
     public ExpantaNum CurrentFoodConsumptionRate => IsWorking ? GetCurrentWork()?.FoodConsumptionRate ?? ExpantaNum.Zero : ExpantaNum.Zero;
     public ExpantaNum CurrentPowerConsumptionRate => IsWorking ? GetCurrentWork()?.PowerConsumptionRate ?? ExpantaNum.Zero : ExpantaNum.Zero;
     public ExpantaNum CurrentLogisticsConsumptionRate => IsWorking ? GetCurrentWork()?.LogisticsConsumptionRate ?? ExpantaNum.Zero : ExpantaNum.Zero;
@@ -49,7 +49,7 @@ public sealed class RelicManager
     public RelicOperationFailure GetAvailabilityFailure() => GetAvailabilityFailure(true);
     private RelicOperationFailure GetAvailabilityFailure(bool requireBuildings)
     {
-        RelicDefinition data = Definition;
+        RelicDef data = Definition;
         if (data == null || data.Sector == null) return RelicOperationFailure.DefinitionMissing;
         if (GameManager.Instance.State.TechLevel < TechLevel.Ultra) return RelicOperationFailure.NotUltra;
         if (!GameManager.Instance.Sectors.GetState(data.Sector).Occupied) return RelicOperationFailure.SectorNotOccupied;
@@ -120,7 +120,7 @@ public sealed class RelicManager
     {
         failure = CanPrepareSupport(RelicRoute.Dismantle) ? GetAvailabilityFailure() : RelicOperationFailure.InvalidState;
         if (failure != RelicOperationFailure.None) return false;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = Definition.SupportCraftCosts;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = Definition.SupportCraftCosts;
         ValidateCosts(costs);
         for (int i = 0; i < costs.Count; i++)
             if (ResourceManager.Instance.GetAmount(costs[i].First) < costs[i].Second)
@@ -134,7 +134,7 @@ public sealed class RelicManager
         if (state.Suspended || !state.SupportReady)
         { failure = RelicOperationFailure.InvalidState; return false; }
         var campaign = GameManager.Instance.State.Campaign;
-        if (!campaign.Active || !DataBase<SectorDefinition>.TryFind(campaign.TargetSectorId, out SectorDefinition target) || target.IsHomeSystem)
+        if (!campaign.Active || !DataBase<SectorDef>.TryFind(campaign.TargetSectorId, out SectorDef target) || target.IsHomeSystem)
         { failure = RelicOperationFailure.CampaignMissing; return false; }
         return true;
     }
@@ -144,7 +144,7 @@ public sealed class RelicManager
         state.ConsumeSupport(GameManager.Instance.State.Campaign.TargetSectorId);
         return true;
     }
-    public ExpantaNum GetCampaignSupplyMultiplier(SectorDefinition sector)
+    public ExpantaNum GetCampaignSupplyMultiplier(SectorDef sector)
     {
         var campaign = GameManager.Instance.State.Campaign;
         if (sector == null || sector.IsHomeSystem || !campaign.Active || Definition == null ||
@@ -181,7 +181,7 @@ public sealed class RelicManager
         ExpantaNum remainingSeconds = remainingProgress * work.DurationSeconds;
         ExpantaNum paidSeconds = ExpantaNum.Min(seconds * satisfaction, remainingSeconds);
         ExpantaNum progressDelta = paidSeconds >= remainingSeconds ? remainingProgress : paidSeconds / work.DurationSeconds;
-        Dictionary<Resource, ExpantaNum> payment = Costs(work.ContinuousCosts, paidSeconds);
+        Dictionary<ResourceDef, ExpantaNum> payment = Costs(work.ContinuousCosts, paidSeconds);
         ExpantaNum food = work.FoodConsumptionRate * paidSeconds;
         ExpantaNum previousFood = GameManager.Instance.State.FoodAmount;
         ExpantaNum previousCapacity = GameManager.Instance.State.FoodCapacity;
@@ -211,7 +211,7 @@ public sealed class RelicManager
         { failure = RelicOperationFailure.InsufficientSupply; return false; }
         return TryPay(work.StartupCosts, commit, out failure);
     }
-    private bool TryPay(IReadOnlyList<Pair<Resource, ExpantaNum>> costs, Action commit, out RelicOperationFailure failure)
+    private bool TryPay(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs, Action commit, out RelicOperationFailure failure)
     {
         RelicStateSaveData previous = state.CaptureSaveData();
         bool result = ResourceManager.Instance.TryApplyAtomicPayment(Costs(costs, ExpantaNum.One), commit,
@@ -219,10 +219,10 @@ public sealed class RelicManager
         failure = result ? RelicOperationFailure.None : RelicOperationFailure.InsufficientStartupResources;
         return result;
     }
-    private static Dictionary<Resource, ExpantaNum> Costs(IReadOnlyList<Pair<Resource, ExpantaNum>> costs, ExpantaNum scale)
+    private static Dictionary<ResourceDef, ExpantaNum> Costs(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs, ExpantaNum scale)
     {
         ValidateCosts(costs);
-        Dictionary<Resource, ExpantaNum> result = new();
+        Dictionary<ResourceDef, ExpantaNum> result = new();
         if (costs == null) throw new InvalidOperationException("Missing relic resource costs.");
         for (int i = 0; i < costs.Count; i++)
         {
@@ -243,7 +243,7 @@ public sealed class RelicManager
         ValidateCosts(work.StartupCosts);
         ValidateCosts(work.ContinuousCosts);
     }
-    private static void ValidateCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private static void ValidateCosts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         if (costs == null) throw new InvalidOperationException("Missing relic costs.");
         for (int i = 0; i < costs.Count; i++)
@@ -260,7 +260,7 @@ public sealed class RelicManager
     {
         ValidateWork(work);
         ExpantaNum result = ExpantaNum.One;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = work.ContinuousCosts;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = work.ContinuousCosts;
         for (int i = 0; i < costs.Count; i++)
             result = ExpantaNum.Min(result, ResourceManager.Instance.GetAmount(costs[i].First) / (costs[i].Second * seconds));
         ExpantaNum food = work.FoodConsumptionRate * seconds;
@@ -275,7 +275,7 @@ public sealed class RelicManager
     {
         new RelicState().RestoreForTransaction(data);
         if (!string.IsNullOrEmpty(data.SupportedSectorId) &&
-            (!DataBase<SectorDefinition>.TryFind(data.SupportedSectorId, out SectorDefinition target) || target.IsHomeSystem))
+            (!DataBase<SectorDef>.TryFind(data.SupportedSectorId, out SectorDef target) || target.IsHomeSystem))
             throw new InvalidOperationException("Invalid relic supported campaign target.");
     }
     internal void RestoreSaveData(RelicStateSaveData data)

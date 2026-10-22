@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OrbitalMachiningComplex
   m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 6a19ea895e794d7fba669a6f0a45604d, type: 3}
   id: OrbitalMachiningComplex
   Label: "\u8F68\u9053\u673A\u68B0\u52A0\u5DE5\u7EFC\u5408\u4F53"
   Description: "在轨道洁净环境中承接机器制造厂的机械、内燃机与复合材料生产，本身持续消耗钛合金与电子元件。"

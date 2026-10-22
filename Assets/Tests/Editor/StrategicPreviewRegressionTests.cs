@@ -29,7 +29,7 @@ public sealed class StrategicPreviewRegressionTests
             game.State.SetSupplySatisfactionForEditor(ExpantaNum.One);
             game.State.SetPowerSatisfactionForEditor(ExpantaNum.One);
             game.State.SetLogisticsSatisfactionForEditor(ExpantaNum.One);
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+            SectorDef sector = DataBase<SectorDef>.Find("SiriusResourceBelt");
             int version = game.State.Campaign.Version;
             SectorCampaignPreview stable = game.Sectors.GetCampaignPreview(sector, game.State, resources, CampaignDoctrine.Stable);
             SectorCampaignPreview surge = game.Sectors.GetCampaignPreview(sector, game.State, resources, CampaignDoctrine.Surge);
@@ -52,7 +52,7 @@ public sealed class StrategicPreviewRegressionTests
             ProgressionModifierManager.Rebuild(null);
             ResourceManager resources = host.AddComponent<ResourceManager>();
             GameManager game = host.AddComponent<GameManager>();
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("AlphaCentauri");
+            SectorDef sector = DataBase<SectorDef>.Find("AlphaCentauri");
             game.Sectors.InitializeDefinitions();
             game.State.RestoreCampaignForEditor(true, sector.Id, new ExpantaNum(10), ExpantaNum.One);
             game.Sectors.GetState(sector).SetCampaignCasualtiesForEditor(new ExpantaNum(10));

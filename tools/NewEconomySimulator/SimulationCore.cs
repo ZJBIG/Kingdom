@@ -116,6 +116,8 @@ public static class SimulationStateFactory
                 ParseNumber(saved?.Casualties ?? "0", sector.Id),
                 ParseNumber(saved?.CombatRatio ?? "0", sector.Id),
                 saved?.VisitCount ?? 0);
+            state.SetInteriorExplorationState(sector.Id, saved?.InteriorExplorationActive ?? false,
+                ParseNumber(saved?.InteriorExplorationProgress ?? "0", sector.Id), saved?.InteriorExplorationPaused ?? false);
         }
 
         state.SetPopulation(ParseNumber(runtime.Population, "RuntimeState.Population"));
@@ -220,6 +222,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                 break;
             case SimulationSystems.Colonization:
                 ApplyColonization(state, context, frame!);
+                ApplyInteriorExploration(state, context);
                 break;
             case SimulationSystems.Campaign:
                 ApplyCampaign(state, context, frame!);
@@ -264,7 +267,11 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         if (state.PurchasedWorkshops.Contains(workshopId) ||
             definitions.TechIndex(definition.TechLevel) > definitions.TechIndex(state.TechLevel) ||
             definition.RequiredResearchIds.Any(id => !state.GetResearchState(id).Completed) ||
-            definition.RequiredWorkshopIds.Any(id => !state.PurchasedWorkshops.Contains(id)))
+            definition.RequiredWorkshopIds.Any(id => !state.PurchasedWorkshops.Contains(id)) ||
+            (!string.IsNullOrEmpty(definition.RequiredBuildingId) &&
+                GetBuildingOwnedCount(state, definition.RequiredBuildingId) < ExpantaNum.One) ||
+            (!string.IsNullOrEmpty(definition.RequiredSectorId) &&
+                !state.GetSectorState(definition.RequiredSectorId).Occupied))
             return false;
 
         if (!state.TryPay(definitions.Amounts(definition.ResourceRequirements)))
@@ -286,7 +293,11 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         if (definitions.TechIndex(definition.TechLevel) > definitions.TechIndex(state.TechLevel) ||
             definition.RequiredResearchIds.Any(id => !state.GetResearchState(id).Completed) ||
             definition.RequiredWorkshopIds.Any(id => !state.PurchasedWorkshops.Contains(id)) ||
-            state.TerritoryTotal < Parse(definition.SpaceCost))
+            state.TerritoryTotal < Parse(definition.SpaceCost) ||
+            (definition.MaxAmount > 0 && existing >= new ExpantaNum(definition.MaxAmount)) ||
+            (!string.IsNullOrEmpty(definition.SectorId) &&
+                (!state.GetSectorState(definition.SectorId).Occupied ||
+                 (definition.RequiresInteriorExploration && state.GetSectorState(definition.SectorId).InteriorExplorationProgress < ExpantaNum.One))))
             return false;
 
         var modifiers = BuildModifiers(state);
@@ -835,9 +846,59 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         }
 
         foreach (var sectorState in state.SectorStates.Values.Where(item =>
-                     !item.ColonizationActive && item.Progress > ExpantaNum.Zero &&
+                     !item.Occupied && !item.ColonizationActive && item.Progress > ExpantaNum.Zero &&
                      IsHomeSector(definitions!.Sector[item.Id])))
             DecaySector(state, context, sectorState, 0.005d / 60d, context.DeltaSeconds);
+    }
+
+    public bool TryStartInteriorExploration(SimulationState state, string sectorId)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        if (definitions == null || !definitions.Sector.TryGetValue(sectorId, out var definition) ||
+            definition.InteriorExploration == null) return false;
+        var sector = state.GetSectorState(sectorId);
+        if (!sector.Occupied || sector.InteriorExplorationActive ||
+            sector.InteriorExplorationProgress >= ExpantaNum.One ||
+            definition.InteriorExploration.RequiredResearchIds.Any(id => !state.GetResearchState(id).Completed))
+            return false;
+        state.SetInteriorExplorationState(sectorId, true, sector.InteriorExplorationProgress);
+        return true;
+    }
+
+    public bool TryPauseInteriorExploration(SimulationState state, string sectorId)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        if (definitions == null || !definitions.Sector.ContainsKey(sectorId)) return false;
+        var sector = state.GetSectorState(sectorId);
+        if (!sector.InteriorExplorationActive) return false;
+        state.SetInteriorExplorationState(sectorId, false, sector.InteriorExplorationProgress, true);
+        return true;
+    }
+
+    private void ApplyInteriorExploration(SimulationState state, SimulationTickContext context)
+    {
+        // SectorStates is ordinally sorted, matching Runtime's shared-supply order.
+        foreach (var sector in state.SectorStates.Values.Where(item => item.InteriorExplorationActive))
+        {
+            var exploration = definitions!.Sector[sector.Id].InteriorExploration;
+            if (!sector.Occupied || exploration == null ||
+                exploration.RequiredResearchIds.Any(id => !state.GetResearchState(id).Completed)) continue;
+            var duration = Parse(exploration.DurationSeconds);
+            var seconds = ExpantaNum.Min(new ExpantaNum(context.DeltaSeconds),
+                (ExpantaNum.One - sector.InteriorExplorationProgress) * duration);
+            var rates = definitions.Amounts(exploration.ResourceRatesPerSecond);
+            foreach (var rate in rates)
+                if (rate.Value > ExpantaNum.Zero)
+                    seconds = ExpantaNum.Min(seconds, state.GetResource(rate.Key) / rate.Value);
+            if (seconds <= ExpantaNum.Zero) continue;
+            var costs = rates.ToDictionary(item => item.Key, item => item.Value * seconds, StringComparer.Ordinal);
+            if (!state.TryPay(costs)) continue;
+            var progress = seconds >= (ExpantaNum.One - sector.InteriorExplorationProgress) * duration
+                ? ExpantaNum.One : ExpantaNum.Clamp01(sector.InteriorExplorationProgress + seconds / duration);
+            state.SetInteriorExplorationState(sector.Id, progress < ExpantaNum.One, progress);
+            context.Events.Add(context.Tick, state.ElapsedSeconds, context.Mode,
+                SimulationEventKind.SectorChanged, sector.Id, "interior-exploration", progress);
+        }
     }
 
     private void ApplyCampaign(SimulationState state, SimulationTickContext context, TickFrame frame)
@@ -899,7 +960,7 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
         }
 
         foreach (var sectorState in state.SectorStates.Values.Where(item =>
-                     !item.CampaignActive && item.Progress > ExpantaNum.Zero &&
+                     !item.Occupied && !item.CampaignActive && item.Progress > ExpantaNum.Zero &&
                      !IsHomeSector(definitions!.Sector[item.Id])))
             DecaySector(state, context, sectorState, 0.02d / 60d, context.DeltaSeconds);
     }

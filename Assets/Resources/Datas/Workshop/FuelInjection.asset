@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: FuelInjection
   m_EditorClassIdentifier: 
   id: FuelInjection
+  icon: {fileID: 21300000, guid: 364e8cac5d591874bb2a3b12ab3e1663, type: 3}
   Label: "内燃机供油组件"
   Description: "精确控制供油与机械装配，提高机器制造厂的产出。"
   SortOrder: 240

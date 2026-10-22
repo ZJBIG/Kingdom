@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: IndustrialResearchCoordinationCenter
   m_EditorClassIdentifier: 
   id: IndustrialResearchCoordinationCenter
+  icon: {fileID: 21300000, guid: c30d9dafa5c2de74290082dbfdc69685, type: 3}
   Label: "工业科研协同中心"
   Description: "以标准实验与成果复核流程连接研究机构，提升全局研究效率。"
   SortOrder: 470

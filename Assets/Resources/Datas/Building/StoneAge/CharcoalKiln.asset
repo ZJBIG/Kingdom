@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: CharcoalKiln
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: f7f9968f346d44668deb963579ebb130, type: 3}
   id: CharcoalKiln
   Label: "\u70AD\u7A91"
   Description: "在缺氧窑体中炭化原木，制成与煤炭共同供应的炉用燃料，供冶炼和高温加工使用。"

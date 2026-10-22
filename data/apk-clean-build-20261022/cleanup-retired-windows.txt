@@ -1,0 +1,4 @@
+D:\GitHub\Kingdom\Assets\AddressableAssetsData\Windows  (0.02 MiB)
+D:\GitHub\Kingdom\Assets\AddressableAssetsData\Windows.meta  (0.00 MiB)
+Total: 3 files, 0.02 MiB
+PhysicalPostScanRemaining=0

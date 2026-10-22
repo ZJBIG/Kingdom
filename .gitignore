@@ -21,6 +21,7 @@
 # not current repository evidence.
 /.codex/archive/
 !/.codex/archive/README.md
+/.codex/tmp/
 /.tmpbuild/
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
@@ -109,6 +110,8 @@ InitTestScene*.unity*
 # files in platform-specific subfolders, for example:
 # /Assets/AddressableAssetsData/OSX/addressables_content_state.bin
 /[Aa]ssets/AddressableAssetsData/*/*.bin*
+# Generated folder for the ignored Android content-update state.
+/Assets/AddressableAssetsData/Android.meta
 
 # Visual Scripting auto-generated files
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db

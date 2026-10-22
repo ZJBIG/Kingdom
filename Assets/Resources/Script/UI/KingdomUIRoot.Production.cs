@@ -18,12 +18,9 @@ public sealed partial class KingdomUIRoot
     private Vector2 productionGraphSize;
     private readonly Dictionary<ResourceProductionTree.Node, TMP_Text> productionStatuses = new();
     private float nextProductionVisibilityRefresh;
-    private readonly HashSet<Resource> previousProductionResources = new();
-    private readonly HashSet<Building> previousProductionBuildings = new();
-    private readonly HashSet<SectorDefinition> previousProductionSectors = new();
-    private readonly HashSet<Resource> productionResources = new();
-    private readonly HashSet<Building> productionBuildings = new();
-    private readonly HashSet<SectorDefinition> productionSectors = new();
+    private readonly HashSet<ResourceDef> productionResources = new();
+    private readonly HashSet<BuildingDef> productionBuildings = new();
+    private readonly HashSet<SectorDef> productionSectors = new();
 
 #if UNITY_EDITOR
     public void RefreshProductionVisibilityForEditor() => RefreshProductionVisibilityIfNeeded(true);
@@ -49,9 +46,10 @@ public sealed partial class KingdomUIRoot
     {
         if (selectedResource != null) ShowProductionTree(selectedResource);
         else if (selectedBuilding != null) ShowProductionTree(selectedBuilding);
+        else if (selectedSectorDefinition != null) ShowProductionTree(selectedSectorDefinition);
     }
 
-    public void ShowProductionTree(Resource resource)
+    public void ShowProductionTree(ResourceDef resource)
     {
         if (resource == null) return;
         RefreshProductionVisibility();
@@ -59,13 +57,13 @@ public sealed partial class KingdomUIRoot
         ShowResourceDetails(resource);
         SetPage("Production");
         if (productionTree?.Root.Resource == resource) return;
-        productionTree = new ResourceProductionTree(resource, DataBase<Building>.All, DataBase<SectorDefinition>.All,
-            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
+        productionTree = new ResourceProductionTree(resource, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
         RebuildProductionGraph();
         CenterProductionRoot();
     }
 
-    public void ShowProductionTree(Building building)
+    public void ShowProductionTree(BuildingDef building)
     {
         if (building == null) return;
         RefreshProductionVisibility();
@@ -73,8 +71,22 @@ public sealed partial class KingdomUIRoot
         ShowBuildingDetails(building);
         SetPage("Production");
         if (productionTree?.Root.Building == building) return;
-        productionTree = new ResourceProductionTree(building, DataBase<Building>.All, DataBase<SectorDefinition>.All,
-            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
+        productionTree = new ResourceProductionTree(building, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+        RebuildProductionGraph();
+        CenterProductionRoot();
+    }
+
+    public void ShowProductionTree(SectorDef sector)
+    {
+        if (sector == null) return;
+        RefreshProductionVisibility();
+        if (!productionSectors.Contains(sector)) return;
+        RefreshSectorDetails(sector);
+        SetPage("Production");
+        if (productionTree?.Root.Sector == sector) return;
+        productionTree = new ResourceProductionTree(sector, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+            productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
         RebuildProductionGraph();
         CenterProductionRoot();
     }
@@ -85,22 +97,25 @@ public sealed partial class KingdomUIRoot
         if (productionTree == null)
         {
             if (selectedBuilding != null && productionBuildings.Contains(selectedBuilding))
-                productionTree = new ResourceProductionTree(selectedBuilding, DataBase<Building>.All, DataBase<SectorDefinition>.All,
-                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
+                productionTree = new ResourceProductionTree(selectedBuilding, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
+            else if (selectedSectorDefinition != null && productionSectors.Contains(selectedSectorDefinition))
+                productionTree = new ResourceProductionTree(selectedSectorDefinition, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
             else
             {
-                Resource root = selectedResource;
+                ResourceDef root = selectedResource;
                 if (!productionResources.Contains(root)) root = null;
                 if (root == null)
-                    foreach (Resource resource in DataBase<Resource>.All)
+                    foreach (ResourceDef resource in DataBase<ResourceDef>.All)
                         if (productionResources.Contains(resource)) { root = resource; break; }
                 if (root == null)
                 {
-                    productionHeading.text = "从资源或建筑详情打开生产树";
+                    productionHeading.text = "从资源、建筑或星区详情打开生产树";
                     return;
                 }
-                productionTree = new ResourceProductionTree(root, DataBase<Building>.All, DataBase<SectorDefinition>.All,
-                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains);
+                productionTree = new ResourceProductionTree(root, DataBase<BuildingDef>.All, DataBase<SectorDef>.All,
+                    productionResources.Contains, productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
             }
             RebuildProductionGraph();
             CenterProductionRoot();
@@ -138,7 +153,7 @@ public sealed partial class KingdomUIRoot
         }
         productionHeading.text = productionTree.Root.Building != null
             ? productionTree.Root.Building.Label
-            : productionTree.Root.Resource.Label;
+            : productionTree.Root.Resource != null ? productionTree.Root.Resource.Label : productionTree.Root.Sector.Label;
         productionGesture.Initialize(productionViewport, productionContent);
         productionMeasuredViewport = productionViewport.rect.size;
     }
@@ -147,15 +162,21 @@ public sealed partial class KingdomUIRoot
     {
         GameObject row = Instantiate(resourceTreeRowPrefab, productionContent, false);
         row.name = "ProductionNode";
-        TechLevel era = node.Resource != null ? node.Resource.TechLevel : node.Building != null ? node.Building.TechLevel :
-            node.Sector.IsHomeSystem ? TechLevel.Spacer : TechLevel.Ultra;
-        row.transform.Find("EraAccent").GetComponent<Image>().color = GetEraAccent(era);
         TMP_Text label = row.transform.Find("Label").GetComponent<TMP_Text>();
         TMP_Text status = row.transform.Find("Status").GetComponent<TMP_Text>();
         Image icon = row.transform.Find("Icon").GetComponent<Image>();
-        icon.sprite = node.Resource?.Sprite;
+        icon.sprite = node.Resource != null ? node.Resource.Sprite : node.Building != null ? node.Building.Icon : node.Sector.Icon;
         icon.enabled = icon.sprite != null;
-        label.rectTransform.offsetMin = new Vector2(icon.enabled ? 48f : 8f, label.rectTransform.offsetMin.y);
+        if (node.Resource == null)
+            BindArtworkIcon(icon, icon.sprite, node.Building != null ? node.Building.Label : node.Sector.Label, true);
+        else
+        {
+            Transform frame = icon.transform.Find("ArtworkFrame");
+            if (frame != null) frame.gameObject.SetActive(false);
+            Button preview = icon.GetComponent<Button>();
+            if (preview != null) preview.enabled = false;
+            icon.raycastTarget = false;
+        }
         label.text = node.Resource != null ? node.Resource.Label : node.Building != null ? node.Building.Label : node.Sector.Label;
         productionStatuses.Add(node, status);
         status.text = ProductionNodeStatus(node);
@@ -186,11 +207,14 @@ public sealed partial class KingdomUIRoot
     private static string ProductionNodeStatus(ResourceProductionTree.Node node)
     {
         if (node.IsCycle) return "循环路径";
+        if (node.OneTimeReward) return "一次性占领奖励";
         return node.Relationship switch
         {
             ResourceProductionTree.Relation.Upgrade => "升级建筑",
             ResourceProductionTree.Relation.ProductionSource => "生产来源",
             ResourceProductionTree.Relation.OngoingInput => "持续投入",
+            ResourceProductionTree.Relation.SectorFacility => "星区建筑",
+            ResourceProductionTree.Relation.SectorOutput => "占领持续产出",
             _ => node.Resource != null ? "资源" : node.Building != null ? "建筑" : "星区"
         };
     }
@@ -200,14 +224,11 @@ public sealed partial class KingdomUIRoot
         if (productionTree == null || productionGesture != null && productionGesture.IsDragging) return;
         if (!force && Time.unscaledTime < nextProductionVisibilityRefresh) return;
         nextProductionVisibilityRefresh = Time.unscaledTime + .5f;
-        previousProductionResources.Clear(); previousProductionResources.UnionWith(productionResources);
-        previousProductionBuildings.Clear(); previousProductionBuildings.UnionWith(productionBuildings);
-        previousProductionSectors.Clear(); previousProductionSectors.UnionWith(productionSectors);
         RefreshProductionVisibility();
-        bool visibilityChanged = !previousProductionResources.SetEquals(productionResources) ||
-            !previousProductionBuildings.SetEquals(productionBuildings) || !previousProductionSectors.SetEquals(productionSectors);
+        RefreshProductionEntry();
         if (productionTree.Root.Resource != null ? !productionResources.Contains(productionTree.Root.Resource)
-            : !productionBuildings.Contains(productionTree.Root.Building))
+            : productionTree.Root.Building != null ? !productionBuildings.Contains(productionTree.Root.Building)
+            : !productionSectors.Contains(productionTree.Root.Sector))
         {
             productionTree = null;
             productionViewSaved = false;
@@ -215,7 +236,7 @@ public sealed partial class KingdomUIRoot
             PopulateProductionPage();
             return;
         }
-        if ((force || visibilityChanged) && productionTree.RefreshVisibility())
+        if (productionTree.RefreshVisibility())
         {
             Vector3 before = productionViewport.InverseTransformPoint(productionStatuses[productionTree.Root].transform.parent.position);
             float scale = productionContent.localScale.x;
@@ -240,7 +261,7 @@ public sealed partial class KingdomUIRoot
                     productionResources.Add(entry.Key);
         BuildingManager buildings = BuildingManager.Instance;
         if (buildings != null && GameManager.Instance != null)
-            foreach (Building building in DataBase<Building>.All)
+            foreach (BuildingDef building in DataBase<BuildingDef>.All)
             {
                 if (building == null) continue;
                 bool built = buildings.States.TryGetValue(building, out BuildingState state) && state.Amount > ExpantaNum.Zero;
@@ -260,7 +281,7 @@ public sealed partial class KingdomUIRoot
             }
     }
 
-    private void AddProductionResources(IReadOnlyList<Pair<Resource, ExpantaNum>> rates)
+    private void AddProductionResources(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates)
     {
         for (int i = 0; i < rates.Count; i++)
             if (rates[i].First != null && rates[i].Second > ExpantaNum.Zero)

@@ -48,8 +48,8 @@ public enum ResearchSystem
 public sealed class ResearchEffectDefinition
 {
     public ResearchEffectType Type;
-    public Building Building;
-    public Resource Resource;
+    public BuildingDef Building;
+    public ResourceDef Resource;
     [UnityEngine.SerializeField] private string value = "1";
 
     public string Value

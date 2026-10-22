@@ -145,6 +145,9 @@ public static class SnapshotParityCommand
             Flag(prefix + ".ColonizationActive", sector.ColonizationActive, state.ColonizationActive);
             Flag(prefix + ".CampaignActive", sector.CampaignActive, state.CampaignActive);
             Amount(prefix + ".Progress", sector.Progress, state.Progress);
+            Flag(prefix + ".InteriorExplorationActive", sector.InteriorExplorationActive, state.InteriorExplorationActive);
+            Flag(prefix + ".InteriorExplorationPaused", sector.InteriorExplorationPaused, state.InteriorExplorationPaused);
+            Amount(prefix + ".InteriorExplorationProgress", sector.InteriorExplorationProgress, state.InteriorExplorationProgress);
             Amount(prefix + ".Casualties", sector.Casualties, state.Casualties);
             Amount(prefix + ".CombatRatio", sector.CombatRatio, state.CombatRatio);
             Text(prefix + ".VisitCount", sector.VisitCount.ToString(), state.VisitCount.ToString());

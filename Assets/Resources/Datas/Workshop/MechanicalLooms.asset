@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MechanicalLooms
   m_EditorClassIdentifier: 
   id: MechanicalLooms
+  icon: {fileID: 21300000, guid: a8b19c9f3c41a4241b34909eabad1f8b, type: 3}
   Label: "\u673A\u68B0\u7EC7\u673A"
   Description: "\u4F7F\u7528\u52A8\u529B\u4F20\u52A8\u3001\u68AD\u5B50\u548C\u5377\u5E03\u673A\u6784\u8FDE\u7EED\u7EC7\u9020\u5E03\u5339\u3002"
   SortOrder: 90

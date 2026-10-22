@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GravityAssistTrajectoryPlanner
   m_EditorClassIdentifier: 
   id: GravityAssistTrajectoryPlanner
+  icon: {fileID: 21300000, guid: 6b01420a9873aab4eb9fdccc41a556b5, type: 3}
   Label: "\u5f15\u529b\u8f85\u52a9\u8f68\u9053\u89c4\u5212\u5668"
   Description: "计算引力辅助与变轨窗口，提高远征探索能力。"
   SortOrder: 560

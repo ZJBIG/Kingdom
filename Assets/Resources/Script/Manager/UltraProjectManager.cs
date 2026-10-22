@@ -29,8 +29,8 @@ public sealed class UltraProjectPreview
     public ExpantaNum SupplySatisfaction { get; }
     public bool CanStart { get; }
     public UltraProjectOperationFailure Failure { get; }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> StartupCosts { get; }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ContinuousCosts { get; }
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> StartupCosts { get; }
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ContinuousCosts { get; }
 
     internal UltraProjectPreview(
         UltraProjectState state,
@@ -40,7 +40,7 @@ public sealed class UltraProjectPreview
         ExpantaNum supplySatisfaction,
         bool canStart,
         UltraProjectOperationFailure failure,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> continuousCosts,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> continuousCosts,
         ExpantaNum foodPerSecond,
         ExpantaNum powerPerSecond,
         ExpantaNum logisticsPerSecond)
@@ -60,9 +60,9 @@ public sealed class UltraProjectPreview
         CanStart = canStart;
         Failure = failure;
         StartupCosts = state.LaunchFeePaid
-            ? Array.Empty<Pair<Resource, ExpantaNum>>()
-            : definition?.OneTimeResourceCosts ?? Array.Empty<Pair<Resource, ExpantaNum>>();
-        ContinuousCosts = continuousCosts ?? Array.Empty<Pair<Resource, ExpantaNum>>();
+            ? Array.Empty<Pair<ResourceDef, ExpantaNum>>()
+            : definition?.OneTimeResourceCosts ?? Array.Empty<Pair<ResourceDef, ExpantaNum>>();
+        ContinuousCosts = continuousCosts ?? Array.Empty<Pair<ResourceDef, ExpantaNum>>();
     }
 }
 
@@ -74,13 +74,13 @@ public sealed class UltraProjectManager
 {
     public const string DefinitionId = UltraProjectState.ProjectId;
     private readonly UltraProjectState state = new();
-    private UltraProjectDefinition definition;
+    private UltraProjectDef definition;
     private UltraProjectOperationFailure lastFailure;
-    private readonly List<Pair<Resource, ExpantaNum>> tickCosts = new();
-    private readonly Dictionary<Resource, int> tickCostIndexes = new();
+    private readonly List<Pair<ResourceDef, ExpantaNum>> tickCosts = new();
+    private readonly Dictionary<ResourceDef, int> tickCostIndexes = new();
 
     public UltraProjectState State => state;
-    public UltraProjectDefinition Definition
+    public UltraProjectDef Definition
     {
         get
         {
@@ -91,7 +91,7 @@ public sealed class UltraProjectManager
             // manager's DefinitionMissing failure path usable instead of
             // allowing DataBase.Find to throw before Tick/Preview can pause
             // or report the problem through the normal state machine.
-            DataBase<UltraProjectDefinition>.TryFind(DefinitionId, out definition);
+            DataBase<UltraProjectDef>.TryFind(DefinitionId, out definition);
             return definition;
         }
     }
@@ -128,8 +128,8 @@ public sealed class UltraProjectManager
             return false;
         }
 
-        Dictionary<Resource, ExpantaNum> costs = state.LaunchFeePaid
-            ? new Dictionary<Resource, ExpantaNum>()
+        Dictionary<ResourceDef, ExpantaNum> costs = state.LaunchFeePaid
+            ? new Dictionary<ResourceDef, ExpantaNum>()
             : ToCostDictionary(stage.OneTimeResourceCosts);
         UltraProjectStateSaveData previousState = state.CaptureSaveData();
         if (!ResourceManager.Instance.TryApplyAtomicPayment(
@@ -360,11 +360,11 @@ public sealed class UltraProjectManager
                 remainingProgress,
                 seconds / stage.BaseDurationSeconds * GetProgressMultiplier(stage) * satisfaction);
         }
-        Dictionary<Resource, ExpantaNum> payment = new();
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
+        Dictionary<ResourceDef, ExpantaNum> payment = new();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum amount = cost.Second * seconds * postureCostMultiplier * satisfaction;
@@ -501,12 +501,12 @@ public sealed class UltraProjectManager
         return null;
     }
 
-    private bool HasResearch(Research research) =>
+    private bool HasResearch(ResearchDef research) =>
         research != null && ResearchManager.Instance.IsResearchCompleted(research.Id);
 
     private bool HasAdditionalResearch(UltraProjectStageDefinition stage)
     {
-        IReadOnlyList<Research> research = stage.AdditionalRequiredResearch;
+        IReadOnlyList<ResearchDef> research = stage.AdditionalRequiredResearch;
         if (research == null)
             return true;
         for (int i = 0; i < research.Count; i++)
@@ -515,16 +515,16 @@ public sealed class UltraProjectManager
         return true;
     }
 
-    private bool HasBuilding(Building building)
+    private bool HasBuilding(BuildingDef building)
     {
         return building != null &&
             BuildingManager.Instance.GetState(building).Amount > ExpantaNum.Zero;
     }
 
-    private bool HasResources(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private bool HasResources(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        Dictionary<Resource, ExpantaNum> aggregatedCosts = ToCostDictionary(costs);
-        foreach (KeyValuePair<Resource, ExpantaNum> cost in aggregatedCosts)
+        Dictionary<ResourceDef, ExpantaNum> aggregatedCosts = ToCostDictionary(costs);
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> cost in aggregatedCosts)
         {
             if (ResourceManager.Instance.GetAmount(cost.Key) < cost.Value)
                 return false;
@@ -562,10 +562,10 @@ public sealed class UltraProjectManager
         ExpantaNum result = ExpantaNum.One;
         ExpantaNum seconds = new ExpantaNum(deltaSeconds);
         ExpantaNum costMultiplier = GetOperationalCostMultiplier(doctrine);
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = AggregateCosts(stage.ContinuousResourceCosts);
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             ExpantaNum demand = cost.Second * seconds * costMultiplier;
             if (demand > ExpantaNum.Zero)
                 result = ExpantaNum.Min(result, ResourceManager.Instance.GetAmount(cost.First) / demand);
@@ -657,16 +657,16 @@ public sealed class UltraProjectManager
                 ? new ExpantaNum(1.35d)
                 : ExpantaNum.One;
 
-    private static IReadOnlyList<Pair<Resource, ExpantaNum>> AggregateCosts(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private static IReadOnlyList<Pair<ResourceDef, ExpantaNum>> AggregateCosts(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        List<Pair<Resource, ExpantaNum>> result = new();
-        AggregateCosts(costs, result, new Dictionary<Resource, int>());
+        List<Pair<ResourceDef, ExpantaNum>> result = new();
+        AggregateCosts(costs, result, new Dictionary<ResourceDef, int>());
         return result;
     }
 
-    private static void AggregateCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
-        List<Pair<Resource, ExpantaNum>> result, Dictionary<Resource, int> indexes)
+    private static void AggregateCosts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
+        List<Pair<ResourceDef, ExpantaNum>> result, Dictionary<ResourceDef, int> indexes)
     {
         result.Clear();
         indexes.Clear();
@@ -675,14 +675,14 @@ public sealed class UltraProjectManager
 
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second <= ExpantaNum.Zero)
                 continue;
 
             if (indexes.TryGetValue(cost.First, out int index))
             {
-                Pair<Resource, ExpantaNum> current = result[index];
-                result[index] = new Pair<Resource, ExpantaNum>(
+                Pair<ResourceDef, ExpantaNum> current = result[index];
+                result[index] = new Pair<ResourceDef, ExpantaNum>(
                     current.First,
                     current.Second + cost.Second);
             }
@@ -695,30 +695,30 @@ public sealed class UltraProjectManager
 
     }
 
-    private static IReadOnlyList<Pair<Resource, ExpantaNum>> ScaleCosts(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+    private static IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ScaleCosts(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         ExpantaNum multiplier)
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> aggregated = AggregateCosts(costs);
-        List<Pair<Resource, ExpantaNum>> result = new(aggregated.Count);
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> aggregated = AggregateCosts(costs);
+        List<Pair<ResourceDef, ExpantaNum>> result = new(aggregated.Count);
         for (int i = 0; i < aggregated.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = aggregated[i];
-            result.Add(new Pair<Resource, ExpantaNum>(
+            Pair<ResourceDef, ExpantaNum> cost = aggregated[i];
+            result.Add(new Pair<ResourceDef, ExpantaNum>(
                 cost.First,
                 cost.Second * multiplier));
         }
         return result;
     }
 
-    private static Dictionary<Resource, ExpantaNum> ToCostDictionary(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private static Dictionary<ResourceDef, ExpantaNum> ToCostDictionary(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        Dictionary<Resource, ExpantaNum> result = new();
-        IReadOnlyList<Pair<Resource, ExpantaNum>> aggregated = AggregateCosts(costs);
+        Dictionary<ResourceDef, ExpantaNum> result = new();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> aggregated = AggregateCosts(costs);
         for (int i = 0; i < aggregated.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = aggregated[i];
+            Pair<ResourceDef, ExpantaNum> cost = aggregated[i];
             result.Add(cost.First, cost.Second);
         }
         return result;

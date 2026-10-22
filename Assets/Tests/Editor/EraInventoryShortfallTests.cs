@@ -21,8 +21,8 @@ public sealed class EraInventoryShortfallTests
             ResourceManager resources = resourceObject.AddComponent<ResourceManager>();
             ResearchManager researches = researchObject.AddComponent<ResearchManager>();
             researches.InitializeForEditor();
-            Research transition = EraGoalEvaluator.FindTransition(TechLevel.StoneAge);
-            Resource wood = DataBase<Resource>.Find("WoodLog");
+            ResearchDef transition = EraGoalEvaluator.FindTransition(TechLevel.StoneAge);
+            ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
             ExpantaNum required = ExpantaNum.Zero;
             for (int i = 0; i < transition.ResourceRequirements.Count; i++)
                 if (transition.ResourceRequirements[i].First == wood)
@@ -30,7 +30,7 @@ public sealed class EraInventoryShortfallTests
             Assert.That(required, Is.GreaterThan(ExpantaNum.Zero));
             resources.SetAmount(wood, required * new ExpantaNum(stockRatio));
             researches.GetState(transition).RestoreForEditor(ExpantaNum.Zero, false, false,
-                new Dictionary<Resource, ExpantaNum> { [wood] = required * new ExpantaNum(paidRatio) });
+                new Dictionary<ResourceDef, ExpantaNum> { [wood] = required * new ExpantaNum(paidRatio) });
             EraGoalEvaluation goal = EraGoalEvaluator.Evaluate(TechLevel.Animal, researches, resources);
             EraGoalConditionEvaluation condition = null;
             for (int i = 0; i < goal.Conditions.Count; i++)

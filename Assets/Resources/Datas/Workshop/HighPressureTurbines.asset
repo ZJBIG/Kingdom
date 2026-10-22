@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: HighPressureTurbines
   m_EditorClassIdentifier: 
   id: HighPressureTurbines
+  icon: {fileID: 21300000, guid: 99ddc5af9a671494eb264f8307c1103b, type: 3}
   Label: "\u9AD8\u538B\u6C7D\u8F6E\u673A"
   Description: "以多级汽轮机提高中央发电站的发电量。"
   SortOrder: 270

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: InterstellarSupplyDoctrine
   m_EditorClassIdentifier: 
   id: InterstellarSupplyDoctrine
+  icon: {fileID: 21300000, guid: 73a3af9a96f1bb24191dadbcada679cc, type: 3}
   Label: "星际补给标准化模块"
   Description: "\u5c06\u6df1\u7a7a\u7269\u6d41\u3001\u8230\u961f\u8865\u7ed9\u3001\u7ef4\u4fee\u9884\u7f6e\u4e0e\u524d\u6cbf\u4ed3\u50a8\u7edf\u4e00\u8c03\u5ea6\uff0c\u8ba9\u661f\u9645\u6218\u5f79\u80fd\u591f\u5728\u957f\u5468\u671f\u5185\u4fdd\u6301\u8fd0\u8f6c\u3002"
   SortOrder: 560

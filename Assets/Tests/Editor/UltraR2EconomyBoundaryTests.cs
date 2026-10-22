@@ -90,7 +90,7 @@ public sealed class UltraR2EconomyBoundaryTests
         GameObject resourceObject = new GameObject("UltraR2-Economy-Boundary-Resources");
         GameObject buildingObject = new GameObject("UltraR2-Economy-Boundary-Buildings");
         GameObject researchObject = new GameObject("UltraR2-Economy-Boundary-Research");
-        Building producer = ScriptableObject.CreateInstance<Building>();
+        BuildingDef producer = ScriptableObject.CreateInstance<BuildingDef>();
         try
         {
             GameManager gameManager = root.AddComponent<GameManager>();
@@ -126,7 +126,7 @@ public sealed class UltraR2EconomyBoundaryTests
             UltraProjectStageDefinition stage = gameManager.UltraProject.Definition.Stages[0];
             for (int i = 0; i < stage.ContinuousResourceCosts.Count; i++)
             {
-                Pair<Resource, ExpantaNum> cost = stage.ContinuousResourceCosts[i];
+                Pair<ResourceDef, ExpantaNum> cost = stage.ContinuousResourceCosts[i];
                 resourceManager.SetAmount(cost.First, new ExpantaNum(1e12d));
             }
 
@@ -140,7 +140,7 @@ public sealed class UltraR2EconomyBoundaryTests
                     simulationManager.ManualTick(tickSeconds);
             }
 
-            Resource continuousResource = stage.ContinuousResourceCosts[0].First;
+            ResourceDef continuousResource = stage.ContinuousResourceCosts[0].First;
             return new UltraSimulationSnapshot(
                 gameManager.UltraProject.State.StageProgress.ToDouble(),
                 gameManager.State.FoodAmount.ToDouble(),
@@ -157,7 +157,7 @@ public sealed class UltraR2EconomyBoundaryTests
         }
     }
 
-    private static void ConfigureFlowProducer(Building building)
+    private static void ConfigureFlowProducer(BuildingDef building)
     {
         building.SetIdForEditor("UltraR2EconomyBoundaryProducer");
         building.ConfigureEconomyForEditor(
@@ -177,9 +177,9 @@ public sealed class UltraR2EconomyBoundaryTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>());
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>());
     }
 
     private readonly struct UltraSimulationSnapshot

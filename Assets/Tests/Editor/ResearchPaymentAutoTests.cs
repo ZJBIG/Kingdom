@@ -19,18 +19,18 @@ public sealed class ResearchPaymentAutoTests
 
         try
         {
-            Research target = DataBase<Research>.Find("Quarry");
+            ResearchDef target = DataBase<ResearchDef>.Find("Quarry");
             Assert.That(research.ArePrerequisitesCompleted(target), Is.True);
             Assert.That(research.CanAccessResearch(target), Is.True);
             Assert.That(target.ResourceRequirements.Count, Is.GreaterThan(0));
-            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> cost in target.ResourceRequirements)
                 resources.SetAmount(cost.First, ExpantaNum.Zero);
 
             Assert.That(research.HandleResearchAction(target),
                 Is.EqualTo(ResearchActionResult.QueuedWaitingResources));
             Assert.That(research.IsQueued(target), Is.True);
             Assert.That(research.GetState(target).CostPaid, Is.False);
-            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> cost in target.ResourceRequirements)
             {
                 Assert.That(resources.GetAmount(cost.First), Is.EqualTo(ExpantaNum.Zero),
                     "An underfunded queue attempt must leave every resource balance unchanged.");
@@ -41,7 +41,7 @@ public sealed class ResearchPaymentAutoTests
             Assert.That(research.StartResearch(target), Is.True);
             Assert.That(research.IsQueued(target), Is.False);
             Assert.That(research.ActiveResearch, Is.SameAs(research.GetState(target)));
-            foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> cost in target.ResourceRequirements)
                 Assert.That(resources.GetAmount(cost.First).ToDouble(),
                     Is.EqualTo(cost.Second.ToDouble()).Within(0.000001d),
                     "Starting an already paid research must not charge it again.");
@@ -77,10 +77,10 @@ public sealed class ResearchPaymentAutoTests
 
         try
         {
-            Research first = DataBase<Research>.Find("Quarry");
-            Research second = DataBase<Research>.Find("Agriculture");
+            ResearchDef first = DataBase<ResearchDef>.Find("Quarry");
+            ResearchDef second = DataBase<ResearchDef>.Find("Agriculture");
             resourceManager.SetAmount(
-                DataBase<Resource>.Find("WoodLog"),
+                DataBase<ResourceDef>.Find("WoodLog"),
                 new ExpantaNum(10000d));
 
             Assert.That(researchManager.PayResearchCost(first),
@@ -120,14 +120,14 @@ public sealed class ResearchPaymentAutoTests
 
         try
         {
-            Resource resource = DataBase<Resource>.Find("WoodLog");
-            Research research = DataBase<Research>.Find("Quarry");
+            ResourceDef resource = DataBase<ResourceDef>.Find("WoodLog");
+            ResearchDef research = DataBase<ResearchDef>.Find("Quarry");
             Assert.That(resource, Is.Not.Null);
             Assert.That(research.ResourceRequirements.Count, Is.GreaterThan(0));
 
             for (int i = 0; i < research.ResourceRequirements.Count; i++)
             {
-                Pair<Resource, ExpantaNum> requirement =
+                Pair<ResourceDef, ExpantaNum> requirement =
                     research.ResourceRequirements[i];
                 resourceManager.SetAmount(requirement.First,
                     requirement.Second - ExpantaNum.One);
@@ -142,15 +142,15 @@ public sealed class ResearchPaymentAutoTests
 
             for (int i = 0; i < research.ResourceRequirements.Count; i++)
             {
-                Pair<Resource, ExpantaNum> requirement =
+                Pair<ResourceDef, ExpantaNum> requirement =
                     research.ResourceRequirements[i];
                 resourceManager.SetAmount(requirement.First,
                     requirement.Second + ExpantaNum.One);
             }
-            var amountsBeforePayment = new Dictionary<Resource, ExpantaNum>();
+            var amountsBeforePayment = new Dictionary<ResourceDef, ExpantaNum>();
             for (int i = 0; i < research.ResourceRequirements.Count; i++)
             {
-                Resource paymentResource = research.ResourceRequirements[i].First;
+                ResourceDef paymentResource = research.ResourceRequirements[i].First;
                 amountsBeforePayment[paymentResource] = resourceManager.GetAmount(paymentResource);
             }
 
@@ -161,7 +161,7 @@ public sealed class ResearchPaymentAutoTests
             Assert.That(state.CostPaid, Is.True);
             for (int i = 0; i < research.ResourceRequirements.Count; i++)
             {
-                Pair<Resource, ExpantaNum> requirement =
+                Pair<ResourceDef, ExpantaNum> requirement =
                     research.ResourceRequirements[i];
                 Assert.That(resourceManager.GetAmount(requirement.First),
                     Is.LessThan(amountsBeforePayment[requirement.First]));

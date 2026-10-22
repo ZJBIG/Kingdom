@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhaseFieldContainment
   m_EditorClassIdentifier: 
   id: PhaseFieldContainment
+  icon: {fileID: 21300000, guid: 9d5f4fb6806c7e442ab150a25921efaf, type: 3}
   Label: "\u76F8\u4F4D\u573A\u7EA6\u675F"
   Description: "\u7528\u954D\u57FA\u7EA6\u675F\u73AF\u3001\u949B\u5408\u91D1\u9AA8\u67B6\u548C\u5E7D\u5F71\u7EA4\u7EF4\u573A\u7A33\u5B9A\u5668\u63A7\u5236\u76F8\u4F4D\u6750\u6599\u53CD\u5E94\uFF0C\u63D0\u5347\u5E7D\u5F71\u6750\u6599\u5236\u9020\u5382\u7684\u8FDE\u7EED\u4EA7\u51FA\u3002"
   SortOrder: 450

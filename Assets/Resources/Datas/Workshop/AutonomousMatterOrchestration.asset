@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutonomousMatterOrchestration
   m_EditorClassIdentifier: 
   id: AutonomousMatterOrchestration
+  icon: {fileID: 21300000, guid: 0f7891ffe3d96af4cb342f88c66be2d3, type: 3}
   Label: "自主材料调度"
   Description: "以自动工单协调跨星区材料生产，提高所有建筑的生产倍率。"
   SortOrder: 720

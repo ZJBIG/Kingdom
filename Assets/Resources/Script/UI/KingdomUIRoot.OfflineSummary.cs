@@ -31,9 +31,9 @@ public sealed partial class KingdomUIRoot
             }
             if (summary.Resources.Count > count)
                 text.Append("\n另有 ").Append(summary.Resources.Count - count).Append(" 项资源发生实际变化");
-            foreach (Research research in summary.CompletedResearches)
+            foreach (ResearchDef research in summary.CompletedResearches)
                 text.Append("\n完成研究：").Append(research.Label);
-            foreach (SectorDefinition sector in summary.OccupiedSectors)
+            foreach (SectorDef sector in summary.OccupiedSectors)
                 text.Append("\n新增据点：").Append(sector.Label);
             if (summary.StageBefore != summary.StageAfter || summary.StageProgressBefore != summary.StageProgressAfter ||
                 summary.ProjectStatusBefore != summary.ProjectStatusAfter)
@@ -46,7 +46,7 @@ public sealed partial class KingdomUIRoot
                 text.Append("\n结算结束时：").Append(ReviewLink("research", summary.WaitingResearch.Id, summary.WaitingResearch.Label)).Append("等待研究材料");
             if (summary.ResearchPowerBlocked)
                 text.Append("\n结算结束时：科研当前无法推进，检查供粮与有效科研速度");
-            foreach (SectorDefinition sector in summary.SupplyBlockedSectors)
+            foreach (SectorDef sector in summary.SupplyBlockedSectors)
                 text.Append("\n结算结束时：").Append(ReviewLink("sector", sector.Id, sector.Label)).Append("供给不足");
             if (summary.ProjectPauseReason != UltraProjectPauseReason.None)
                 text.Append("\n结算结束时：文明工程")
@@ -68,7 +68,7 @@ public sealed partial class KingdomUIRoot
             }
             if (summary.RelicPauseReasonAfter != RelicPauseReason.None)
             {
-                SectorDefinition site = GameManager.Instance.Relic.Definition?.Sector;
+                SectorDef site = GameManager.Instance.Relic.Definition?.Sector;
                 text.Append("\n结算结束时：").Append(site == null ? "遗迹工作" : ReviewLink("sector", site.Id, "遗迹工作"))
                     .Append(summary.RelicPauseReasonAfter == RelicPauseReason.Manual ? "手动暂停" : "供给不足而暂停");
             }
@@ -93,5 +93,5 @@ public sealed partial class KingdomUIRoot
     };
 
     private static string OfflineSupportTargetLabel(string id) => string.IsNullOrEmpty(id) ? "无服役目标" :
-        DataBase<SectorDefinition>.TryFind(id, out SectorDefinition sector) ? sector.Label : "当前远星战役";
+        DataBase<SectorDef>.TryFind(id, out SectorDef sector) ? sector.Label : "当前远星战役";
 }

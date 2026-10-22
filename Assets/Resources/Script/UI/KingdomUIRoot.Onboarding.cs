@@ -141,11 +141,11 @@ public sealed partial class KingdomUIRoot
         if (stage.Action != TutorialStageAction.Select) return stage.Instruction;
         string label = stage.TargetId;
         if ((stage.Page == "Resources" || stage.Page == "Production") &&
-            DataBase<Resource>.TryFind(stage.TargetId, out Resource resource)) label = resource.Label;
-        else if (stage.Page == "Buildings" && DataBase<Building>.TryFind(stage.TargetId, out Building building)) label = building.Label;
-        else if (stage.Page == "Research" && DataBase<Research>.TryFind(stage.TargetId, out Research research)) label = research.Label;
-        else if (stage.Page == "Workshop" && DataBase<WorkshopUpgrade>.TryFind(stage.TargetId, out WorkshopUpgrade upgrade)) label = upgrade.Label;
-        else if (stage.Page == "Sectors" && DataBase<SectorDefinition>.TryFind(stage.TargetId, out SectorDefinition sector)) label = sector.Label;
+            DataBase<ResourceDef>.TryFind(stage.TargetId, out ResourceDef resource)) label = resource.Label;
+        else if (stage.Page == "Buildings" && DataBase<BuildingDef>.TryFind(stage.TargetId, out BuildingDef building)) label = building.Label;
+        else if (stage.Page == "Research" && DataBase<ResearchDef>.TryFind(stage.TargetId, out ResearchDef research)) label = research.Label;
+        else if (stage.Page == "Workshop" && DataBase<WorkshopUpgradeDef>.TryFind(stage.TargetId, out WorkshopUpgradeDef upgrade)) label = upgrade.Label;
+        else if (stage.Page == "Sectors" && DataBase<SectorDef>.TryFind(stage.TargetId, out SectorDef sector)) label = sector.Label;
         return "点击「" + label + "」，查看详情与条件。";
     }
 
@@ -170,7 +170,7 @@ public sealed partial class KingdomUIRoot
         if (stage == null) return null;
         if (stage.Action == TutorialStageAction.Navigate)
             return FindNavigationButton(stage.Page)?.transform as RectTransform;
-        if (stage.Action == TutorialStageAction.Build && DataBase<Building>.TryFind(stage.TargetId, out Building buildTarget) &&
+        if (stage.Action == TutorialStageAction.Build && DataBase<BuildingDef>.TryFind(stage.TargetId, out BuildingDef buildTarget) &&
             buildingActionButtons.TryGetValue(buildTarget, out Button buildButton))
             return buildButton.transform as RectTransform;
         if (stage.Action == TutorialStageAction.StartResearch)
@@ -181,29 +181,29 @@ public sealed partial class KingdomUIRoot
             if (stage.StageId == "era-goal")
                 return pages["Era"].Find("DataRows/EraTransitionSection/Content/EraTransitionTarget/Title") as RectTransform;
         }
-        if (stage.Page == "Resources" && DataBase<Resource>.TryFind(stage.TargetId, out Resource resource) &&
+        if (stage.Page == "Resources" && DataBase<ResourceDef>.TryFind(stage.TargetId, out ResourceDef resource) &&
             resourceAmountLabels.TryGetValue(resource, out TMP_Text resourceLabel) && resourceLabel != null)
             return resourceLabel.transform.parent.Find("Label") as RectTransform;
-        if (stage.Page == "Buildings" && DataBase<Building>.TryFind(stage.TargetId, out Building building) &&
+        if (stage.Page == "Buildings" && DataBase<BuildingDef>.TryFind(stage.TargetId, out BuildingDef building) &&
             buildingAmountLabels.TryGetValue(building, out TMP_Text buildingLabel) && buildingLabel != null)
             return buildingLabel.transform.parent.Find("Label") as RectTransform;
-        if (stage.Page == "Research" && DataBase<Research>.TryFind(stage.TargetId, out Research research) &&
+        if (stage.Page == "Research" && DataBase<ResearchDef>.TryFind(stage.TargetId, out ResearchDef research) &&
             researchTreeNodes.TryGetValue(research, out Button researchButton))
             return researchButton.transform as RectTransform;
-        if (stage.Page == "Workshop" && DataBase<WorkshopUpgrade>.TryFind(stage.TargetId, out WorkshopUpgrade upgrade) &&
+        if (stage.Page == "Workshop" && DataBase<WorkshopUpgradeDef>.TryFind(stage.TargetId, out WorkshopUpgradeDef upgrade) &&
             workshopPurchaseButtons.TryGetValue(upgrade, out Button workshopButton) && workshopButton != null)
             return workshopButton.transform.parent.Find("Label") as RectTransform;
         if (stage.Page == "Sectors")
             foreach (SectorRowView view in sectorRowViews)
                 if (view.Definition.Id == stage.TargetId) return view.Label.rectTransform;
-        if (stage.Page == "Production" && DataBase<Resource>.TryFind(stage.TargetId, out Resource chainResource))
+        if (stage.Page == "Production" && DataBase<ResourceDef>.TryFind(stage.TargetId, out ResourceDef chainResource))
         {
             if (productionTree == null || productionTree.Root.Resource != chainResource)
             {
                 RefreshProductionVisibility();
                 if (!productionResources.Contains(chainResource)) return null;
-                productionTree = new ResourceProductionTree(chainResource, DataBase<Building>.All,
-                    DataBase<SectorDefinition>.All, productionResources.Contains,
+                productionTree = new ResourceProductionTree(chainResource, DataBase<BuildingDef>.All,
+                    DataBase<SectorDef>.All, productionResources.Contains,
                     productionBuildings.Contains, productionSectors.Contains);
                 RebuildProductionGraph();
                 CenterProductionRoot();

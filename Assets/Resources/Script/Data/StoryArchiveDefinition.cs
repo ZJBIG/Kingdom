@@ -6,7 +6,7 @@ using UnityEngine;
 public sealed class StoryArchiveDefinition : ScriptableObject
 {
     [Tooltip("按剧情发生顺序排列。排序同时决定同一时代章节的串行解锁顺序。")]
-    public List<StoryChapterDefinition> Chapters = new();
+    public List<StoryChapterDef> Chapters = new();
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -30,7 +30,7 @@ public sealed class StoryArchiveDefinition : ScriptableObject
         TechLevel previousEra = TechLevel.Animal;
         for (int i = 0; i < Chapters.Count; i++)
         {
-            StoryChapterDefinition chapter = Chapters[i];
+            StoryChapterDef chapter = Chapters[i];
             if (chapter == null)
                 continue;
             ValidateChapter(chapter.Id, chapter.Title, chapter.Summary,
@@ -56,7 +56,7 @@ public sealed class StoryArchiveDefinition : ScriptableObject
         previousEra = era;
     }
 
-    private static void ValidateReferences(StoryChapterDefinition chapter)
+    private static void ValidateReferences(StoryChapterDef chapter)
     {
         ValidateList(chapter.RequiredResearch, chapter.Id, "研究");
         ValidateList(chapter.RequiredBuildings, chapter.Id, "建筑");
@@ -66,7 +66,7 @@ public sealed class StoryArchiveDefinition : ScriptableObject
         ValidateEraCompatibility(chapter);
     }
 
-    private static void ValidateEraCompatibility(StoryChapterDefinition chapter)
+    private static void ValidateEraCompatibility(StoryChapterDef chapter)
     {
         for (int i = 0; chapter.RequiredResearch != null && i < chapter.RequiredResearch.Count; i++)
             if (chapter.RequiredResearch[i] != null &&
@@ -87,10 +87,10 @@ public sealed class StoryArchiveDefinition : ScriptableObject
 
     private void ValidateExplorationProgression()
     {
-        StoryChapterDefinition moon = FindChapter("FrontierSectors_14");
-        StoryChapterDefinition distant = FindChapter("WarBetweenStars_15");
-        StoryChapterDefinition solar = FindChapter("BeyondTheSky_16");
-        StoryChapterDefinition interstellar = FindChapter("TheOldBoundary_17");
+        StoryChapterDef moon = FindChapter("FrontierSectors_14");
+        StoryChapterDef distant = FindChapter("WarBetweenStars_15");
+        StoryChapterDef solar = FindChapter("BeyondTheSky_16");
+        StoryChapterDef interstellar = FindChapter("TheOldBoundary_17");
         if (moon == null || distant == null || solar == null || interstellar == null)
             return;
 
@@ -107,7 +107,7 @@ public sealed class StoryArchiveDefinition : ScriptableObject
         RejectInterstellarSectors(solar, "太阳系阶段");
     }
 
-    private StoryChapterDefinition FindChapter(string id)
+    private StoryChapterDef FindChapter(string id)
     {
         for (int i = 0; i < Chapters.Count; i++)
             if (Chapters[i] != null && Chapters[i].Id == id)
@@ -115,19 +115,19 @@ public sealed class StoryArchiveDefinition : ScriptableObject
         return null;
     }
 
-    private static void RequireOccupied(StoryChapterDefinition chapter, string id)
+    private static void RequireOccupied(StoryChapterDef chapter, string id)
     {
         if (!Contains(chapter.RequiredOccupiedSectors, id))
             Debug.LogError("剧情阶段缺少占领星区条件：" + chapter.Id + " -> " + id);
     }
 
-    private static void RequireUnlocked(StoryChapterDefinition chapter, string id)
+    private static void RequireUnlocked(StoryChapterDef chapter, string id)
     {
         if (!Contains(chapter.RequiredUnlockedSectors, id))
             Debug.LogError("剧情阶段缺少解锁星区条件：" + chapter.Id + " -> " + id);
     }
 
-    private static bool Contains(IReadOnlyList<SectorDefinition> sectors, string id)
+    private static bool Contains(IReadOnlyList<SectorDef> sectors, string id)
     {
         for (int i = 0; sectors != null && i < sectors.Count; i++)
             if (sectors[i] != null && sectors[i].Id == id)
@@ -136,26 +136,26 @@ public sealed class StoryArchiveDefinition : ScriptableObject
     }
 
     private static void RejectInterstellarSectors(
-        StoryChapterDefinition chapter, string stage)
+        StoryChapterDef chapter, string stage)
     {
         RejectInterstellarUnlockedSectors(chapter, stage);
         for (int i = 0; chapter.RequiredOccupiedSectors != null &&
              i < chapter.RequiredOccupiedSectors.Count; i++)
         {
-            SectorDefinition sector = chapter.RequiredOccupiedSectors[i];
-            if (sector != null && sector.Domain == SectorDefinition.SectorDomain.Interstellar)
+            SectorDef sector = chapter.RequiredOccupiedSectors[i];
+            if (sector != null && sector.Domain == SectorDef.SectorDomain.Interstellar)
                 Debug.LogError(stage + "不得引用系外星区：" + chapter.Id + " -> " + sector.Id);
         }
     }
 
     private static void RejectInterstellarUnlockedSectors(
-        StoryChapterDefinition chapter, string stage)
+        StoryChapterDef chapter, string stage)
     {
         for (int i = 0; chapter.RequiredUnlockedSectors != null &&
              i < chapter.RequiredUnlockedSectors.Count; i++)
         {
-            SectorDefinition sector = chapter.RequiredUnlockedSectors[i];
-            if (sector != null && sector.Domain == SectorDefinition.SectorDomain.Interstellar)
+            SectorDef sector = chapter.RequiredUnlockedSectors[i];
+            if (sector != null && sector.Domain == SectorDef.SectorDomain.Interstellar)
                 Debug.LogError(stage + " cannot require an interstellar unlocked sector: " +
                     chapter.Id + " -> " + sector.Id);
         }

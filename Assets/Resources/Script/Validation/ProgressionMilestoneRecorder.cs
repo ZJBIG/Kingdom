@@ -173,7 +173,7 @@ public sealed class ProgressionMilestoneRecorder : MonoBehaviour
         ResourceManager resources = ResourceManager.Instance;
         BuildingManager buildings = BuildingManager.Instance;
         ResearchManager research = ResearchManager.Instance;
-        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
         ResourceState woodState = wood == null ? null : resources.GetState(wood);
         string woodAmount = woodState == null ? "0" : woodState.Amount.ToGameString();
         string woodNet = woodState == null

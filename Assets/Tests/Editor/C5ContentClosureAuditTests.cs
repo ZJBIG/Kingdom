@@ -29,9 +29,9 @@ public sealed class C5ContentClosureAuditTests
     public void C504_NewGameCanReachIndustrializationThroughTheContentGraph()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -51,9 +51,9 @@ public sealed class C5ContentClosureAuditTests
     public void C504_MedievalStrategicResourcesHaveSourcesAndSinks()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -71,7 +71,7 @@ public sealed class C5ContentClosureAuditTests
     public void C504_AllResearchAndBuildingStableIdsRemainUnique()
     {
         var researchIds = new HashSet<string>();
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null)
                 continue;
@@ -80,7 +80,7 @@ public sealed class C5ContentClosureAuditTests
         }
 
         var buildingIds = new HashSet<string>();
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building == null)
                 continue;

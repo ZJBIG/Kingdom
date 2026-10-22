@@ -72,6 +72,6 @@ MonoBehaviour:
     amount: "3.6"
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a4fa5b0b1db14b97b4348e25be3a717a, type: 3}
   mapX: 13
   mapY: 3

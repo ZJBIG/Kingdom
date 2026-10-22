@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-18T20:16:11.8394880+08:00
-Platform: EditMode
-Result: Failed(Timeout)
-Unity EditMode tests timed out after 240 seconds. Log=data/space-progression-20261018/orbital-gap.log

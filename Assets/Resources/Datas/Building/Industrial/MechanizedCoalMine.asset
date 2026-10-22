@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: MechanizedCoalMine
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: a34f2da32e1c424982895aa7a708beb0, type: 3}
   id: MechanizedCoalMine
   Label: "机械化煤矿"
   Description: "以蒸汽提升机、深井通风和重型采掘设备扩大煤层开采规模，为焦炭、蒸汽动力与工业冶金提供稳定的高密度燃料；井下爆破作业持续消耗工业炸药。"

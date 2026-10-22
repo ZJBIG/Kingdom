@@ -17,8 +17,8 @@ public sealed class ResearchPowerTests
     [Test]
     public void CalculateResearchPower_UsesAmountAndEfficiency()
     {
-        Building knowledgeCircle = CreateBuilding("KnowledgeCircle", 1d);
-        Building scribeHut = CreateBuilding("ScribeHut", 5d);
+        BuildingDef knowledgeCircle = CreateBuilding("KnowledgeCircle", 1d);
+        BuildingDef scribeHut = CreateBuilding("ScribeHut", 5d);
         var knowledgeState = new BuildingState(knowledgeCircle);
         var scribeState = new BuildingState(scribeHut);
         knowledgeState.SetAmountForEditor(new ExpantaNum(2d));
@@ -35,7 +35,7 @@ public sealed class ResearchPowerTests
     [Test]
     public void CalculateResearchPower_DoesNotCreateNegativePower()
     {
-        Building invalid = CreateBuilding("InvalidResearchBuilding", -10d);
+        BuildingDef invalid = CreateBuilding("InvalidResearchBuilding", -10d);
         var state = new BuildingState(invalid);
         state.SetAmountForEditor(new ExpantaNum(5d));
 
@@ -46,9 +46,9 @@ public sealed class ResearchPowerTests
         Assert.That(result, Is.EqualTo(ExpantaNum.One));
     }
 
-    private Building CreateBuilding(string id, double researchPower)
+    private BuildingDef CreateBuilding(string id, double researchPower)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.name = id;
         building.SetIdForEditor(id);
         building.SetResearchPowerForEditor(new ExpantaNum(researchPower));

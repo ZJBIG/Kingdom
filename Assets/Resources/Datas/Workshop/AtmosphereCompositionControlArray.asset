@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AtmosphereCompositionControlArray
   m_EditorClassIdentifier: 
   id: AtmosphereCompositionControlArray
+  icon: {fileID: 21300000, guid: 280a97aea93808b49a8bb04ebbff2217, type: 3}
   Label: "\u5927\u6c14\u6210\u5206\u63a7\u5236\u9635\u5217"
   Description: "\u4f7f\u7528\u6c14\u4f53\u5206\u79bb\u5668\u3001\u78b3\u5faa\u73af\u5438\u6536\u5854\u548c\u6c27\u6c14\u914d\u6bd4\u4f20\u611f\u5668\u7ec4\u6210\u63a7\u5236\u9635\u5217\uff0c\u5c06\u884c\u661f\u5927\u6c14\u5de5\u7a0b\u7406\u8bba\u843d\u5b9e\u5230\u8f68\u9053\u519c\u4e1a\u751f\u4ea7\uff0c\u7a33\u5b9a\u751f\u7269\u8d44\u6e90\u7684\u6301\u7eed\u4f9b\u5e94\u3002"
   SortOrder: 640

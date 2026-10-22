@@ -298,6 +298,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         WorkshopManager.Instance.RestoreSaveData(data.Workshop);
         BuildingManager.Instance.RefreshBuildingChainAvailability();
         GameManager.Instance.Sectors.RestoreSaveData(data.Sectors);
+        WorkshopManager.Instance.ValidateSectorPrerequisites(GameManager.Instance.Sectors);
         GameManager.Instance.Sectors.ValidateCampaignState(GameManager.Instance.State);
         BuildingManager.Instance.ValidateSectorBuildingState(GameManager.Instance.Sectors);
         GameManager.Instance.UltraProject.RestoreSaveData(data.UltraProject);
@@ -700,28 +701,28 @@ public sealed class SaveManager : Singleton<SaveManager>
                 Append(ref hash, GameManager.Instance.State.Version);
                 Append(ref hash, StoryManager.ProgressVersion);
 
-            IReadOnlyDictionary<Resource, ResourceState> resources = ResourceManager.Instance.States;
-            IReadOnlyList<Resource> resourceDefinitions = DataBase<Resource>.All;
+            IReadOnlyDictionary<ResourceDef, ResourceState> resources = ResourceManager.Instance.States;
+            IReadOnlyList<ResourceDef> resourceDefinitions = DataBase<ResourceDef>.All;
             for (int i = 0; i < resourceDefinitions.Count; i++)
                 if (resources.TryGetValue(resourceDefinitions[i], out ResourceState state))
                     Append(ref hash, state.Version);
 
-            IReadOnlyDictionary<Building, BuildingState> buildings = BuildingManager.Instance.States;
-            IReadOnlyList<Building> buildingDefinitions = DataBase<Building>.All;
+            IReadOnlyDictionary<BuildingDef, BuildingState> buildings = BuildingManager.Instance.States;
+            IReadOnlyList<BuildingDef> buildingDefinitions = DataBase<BuildingDef>.All;
             for (int i = 0; i < buildingDefinitions.Count; i++)
                 if (buildings.TryGetValue(buildingDefinitions[i], out BuildingState state))
                     Append(ref hash, state.Version);
 
-            IReadOnlyDictionary<Research, ResearchState> researches = ResearchManager.Instance.States;
-            IReadOnlyList<Research> researchDefinitions = DataBase<Research>.All;
+            IReadOnlyDictionary<ResearchDef, ResearchState> researches = ResearchManager.Instance.States;
+            IReadOnlyList<ResearchDef> researchDefinitions = DataBase<ResearchDef>.All;
             for (int i = 0; i < researchDefinitions.Count; i++)
                 if (researches.TryGetValue(researchDefinitions[i], out ResearchState state))
                     Append(ref hash, state.Version);
 
-            IReadOnlyDictionary<WorkshopUpgrade, WorkshopUpgradeState> upgrades =
+            IReadOnlyDictionary<WorkshopUpgradeDef, WorkshopUpgradeState> upgrades =
                 WorkshopManager.Instance.States;
-            IReadOnlyList<WorkshopUpgrade> upgradeDefinitions =
-                DataBase<WorkshopUpgrade>.All;
+            IReadOnlyList<WorkshopUpgradeDef> upgradeDefinitions =
+                DataBase<WorkshopUpgradeDef>.All;
             for (int i = 0; i < upgradeDefinitions.Count; i++)
                 if (upgrades.TryGetValue(upgradeDefinitions[i], out WorkshopUpgradeState state))
                     Append(ref hash, state.Version);
@@ -898,6 +899,9 @@ public sealed class SaveManager : Singleton<SaveManager>
         public bool Occupied;
         public bool ColonizationActive;
         public bool CampaignActive;
+        public string InteriorExplorationProgress;
+        public bool InteriorExplorationActive;
+        public bool InteriorExplorationPaused;
         public string CampaignProgress;
         public string CampaignCasualties;
         public string CampaignCombatRatio;

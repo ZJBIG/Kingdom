@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: IntegratedFurnaces
   m_EditorClassIdentifier: 
   id: IntegratedFurnaces
+  icon: {fileID: 21300000, guid: 646374741404f284db06efb59f4c69ef, type: 3}
   Label: "\u7EFC\u5408\u91D1\u5C5E\u7CBE\u70BC\u7089\u7EC4"
   Description: "把连续进料、炉温控制、合金工艺和出料检验统一到机械化冶炼中，提高工业金属冶炼厂的集中供应能力。"
   SortOrder: 215

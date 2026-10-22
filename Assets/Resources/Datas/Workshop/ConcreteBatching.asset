@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ConcreteBatching
   m_EditorClassIdentifier: 
   id: ConcreteBatching
+  icon: {fileID: 21300000, guid: 1bbd93d91e249ef41b54792c5a12c85a, type: 3}
   Label: "\u6DF7\u51DD\u571F\u6405\u62CC\u673A\u7EC4"
   Description: "以连续配料和机械搅拌提高建筑材料联合厂与工业石材联合厂的产出。"
   SortOrder: 210

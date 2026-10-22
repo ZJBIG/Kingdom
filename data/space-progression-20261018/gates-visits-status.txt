@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-18T19:05:06.8440949+08:00
-Platform: EditMode
-Result: Passed
-Total: 194 Passed:194 Failed:0 Skipped:0

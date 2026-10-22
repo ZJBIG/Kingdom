@@ -24,7 +24,7 @@ $idOwners = @{}
 $definitionStubs = @{}
 
 function Get-Section([string]$text, [string]$name) {
-    $pattern = '(?ms)^  ' + [regex]::Escape($name) + ':\s*\r?\n(.*?)(?=^  [A-Za-z][A-Za-z0-9_]*:\s*|\z)'
+    $pattern = '(?ms)^  ' + [regex]::Escape($name) + ':[ \t]*\r?\n(.*?)(?=^  [A-Za-z][A-Za-z0-9_]*:[ \t]*|\z)'
     $match = [regex]::Match($text, $pattern)
     if ($match.Success) { return $match.Groups[1].Value }
     return ''
@@ -41,6 +41,11 @@ function Get-IdsFromSection([string]$section, [string]$kind, [hashtable]$definit
     return @($result)
 }
 
+function Get-ReferenceIds([string]$text, [string]$field, [string]$kind, [hashtable]$definitions) {
+    $match = [regex]::Match($text, '(?m)^  ' + [regex]::Escape($field) + ':.*$')
+    return @(Get-IdsFromSection $match.Value $kind $definitions)
+}
+
 function Get-Number([string]$text, [string]$name, [double]$default = 0) {
     $direct = [regex]::Match($text, '(?m)^  ' + [regex]::Escape($name) + ':\s*([-+0-9.eE]+)')
     if ($direct.Success) { return [double]::Parse($direct.Groups[1].Value, [Globalization.CultureInfo]::InvariantCulture) }
@@ -49,6 +54,7 @@ function Get-Number([string]$text, [string]$name, [double]$default = 0) {
 
 function Get-Definition([string]$path, [string]$kind, [hashtable]$definitions) {
     $text = Get-Content -Raw -LiteralPath $path
+    $interior = [regex]::Replace((Get-Section $text 'interiorExploration'), '(?m)^  ', '')
     $idMatch = [regex]::Match($text, '(?m)^  id:\s*(\S+)\s*$')
     if (-not $idMatch.Success) { return $null }
     $meta = $path + '.meta'
@@ -63,7 +69,18 @@ function Get-Definition([string]$path, [string]$kind, [hashtable]$definitions) {
         Advances = ((Get-Number $text 'AdvancesTechLevel' 0) -gt 0.5)
         Prerequisites = @(Get-IdsFromSection (Get-Section $text 'prerequisites') 'Research' $definitions)
         RequiredResearch = @(Get-IdsFromSection (Get-Section $text 'requiredResearch') 'Research' $definitions)
-        RequiredUpgrades = @(Get-IdsFromSection (Get-Section $text 'requiredWorkshopUpgrades') 'Workshop' $definitions)
+        RequiredUpgrades = @(Get-IdsFromSection (Get-Section $text $(if ($kind -eq 'Workshop') { 'requiredUpgrades' } else { 'requiredWorkshopUpgrades' })) 'Workshop' $definitions)
+        RequiredBuilding = @(Get-ReferenceIds $text 'requiredBuilding' 'Building' $definitions)
+        RequiredSector = @(Get-ReferenceIds $text 'requiredSector' 'Sector' $definitions)
+        SectorPrerequisites = @(Get-IdsFromSection (Get-Section $text 'prerequisiteSectors') 'Sector' $definitions)
+        Domain = [int](Get-Number $text 'domain' 0)
+        Sector = @(Get-ReferenceIds $text 'sector' 'Sector' $definitions)
+        RequiresInterior = ((Get-Number $text 'requiresInteriorExploration' 0) -gt 0.5)
+        HasInterior = -not [string]::IsNullOrWhiteSpace($interior)
+        InteriorResearch = @(Get-IdsFromSection (Get-Section $interior 'requiredResearch') 'Research' $definitions)
+        InteriorInputs = @(Get-IdsFromSection (Get-Section $interior 'resourceRatesPerSecond') 'Resource' $definitions)
+        ColonizationInputs = @(Get-IdsFromSection (Get-Section $text 'colonizationResourceRatesPerSecond') 'Resource' $definitions)
+        CampaignInputs = @(Get-IdsFromSection (Get-Section $text 'campaignResourceRatesPerSecond') 'Resource' $definitions)
         Costs = @(Get-IdsFromSection (Get-Section $text 'resourceRequirements') 'Resource' $definitions)
         Consumes = @(Get-IdsFromSection (Get-Section $text 'resourceConsumptionRates') 'Resource' $definitions)
         Generates = @(Get-IdsFromSection (Get-Section $text 'resourceGenerationRates') 'Resource' $definitions)
@@ -71,7 +88,7 @@ function Get-Definition([string]$path, [string]$kind, [hashtable]$definitions) {
     return [pscustomobject]$record
 }
 
-foreach ($kind in @('Resource', 'Building', 'Research', 'Workshop')) {
+foreach ($kind in @('Resource', 'Building', 'Research', 'Workshop', 'Sector')) {
     $root = Join-Path $assetsRoot "Resources\Datas\$kind"
     if (-not (Test-Path $root)) { continue }
     foreach ($asset in Get-ChildItem -LiteralPath $root -Recurse -Filter '*.asset') {
@@ -131,7 +148,7 @@ $guidToDefinition = $completeDefinitions
 
 function Validate-ReferenceSection([string]$path, [string]$owner, [string]$field, [string]$expectedKind) {
     $text = Get-Content -Raw -LiteralPath $path
-    $section = Get-Section $text $field
+    $section = (Get-Section $text $field) + [regex]::Match($text, '(?m)^  ' + [regex]::Escape($field) + ':.*$').Value
     foreach ($match in [regex]::Matches($section, 'guid:\s*([0-9a-fA-F]+)', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)) {
         $guid = $match.Groups[1].Value.ToLowerInvariant()
         if ($guid.Length -ne 32) {
@@ -158,7 +175,21 @@ foreach ($file in $definitionFiles) {
         'Workshop' {
             Validate-ReferenceSection $file.Path $owner 'requiredResearch' 'Research'
             Validate-ReferenceSection $file.Path $owner 'requiredUpgrades' 'Workshop'
+            Validate-ReferenceSection $file.Path $owner 'requiredBuilding' 'Building'
+            Validate-ReferenceSection $file.Path $owner 'requiredSector' 'Sector'
             Validate-ReferenceSection $file.Path $owner 'resourceRequirements' 'Resource'
+        }
+        'Sector' {
+            Validate-ReferenceSection $file.Path $owner 'prerequisiteSectors' 'Sector'
+            Validate-ReferenceSection $file.Path $owner 'colonizationResourceRatesPerSecond' 'Resource'
+            Validate-ReferenceSection $file.Path $owner 'campaignResourceRatesPerSecond' 'Resource'
+            $interior = Get-Section (Get-Content -Raw -LiteralPath $file.Path) 'interiorExploration'
+            foreach ($reference in [regex]::Matches($interior, 'guid:\s*([0-9a-fA-F]+)')) {
+                $guid = $reference.Groups[1].Value.ToLowerInvariant()
+                if (-not $guidToDefinition.ContainsKey($guid) -or $guidToDefinition[$guid].Kind -notin @('Research', 'Resource')) {
+                    [void]$definitionErrors.Add("${owner}.interiorExploration: unresolved or invalid GUID $guid")
+                }
+            }
         }
         'Building' {
             Validate-ReferenceSection $file.Path $owner 'requiredResearch' 'Research'
@@ -178,6 +209,8 @@ $resources = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]:
 $completed = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
 $availableBuildings = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
 $purchased = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+$reachableSectors = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+$exploredInteriors = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
 [void]$resources.Add('WoodLog')
 $tech = 0
 
@@ -205,10 +238,29 @@ do {
             $changed = $true
         }
     }
+    foreach ($sector in $definitions | Where-Object Kind -eq 'Sector') {
+            if ($reachableSectors.Contains($sector.Id)) { continue }
+            $inputs = if ($sector.Domain -eq 0) { $sector.ColonizationInputs } else { $sector.CampaignInputs }
+            if ((Contains-All $reachableSectors $sector.SectorPrerequisites) -and (Contains-All $resources $inputs)) {
+                [void]$reachableSectors.Add($sector.Id)
+                $changed = $true
+            }
+    }
+    foreach ($sector in $definitions | Where-Object Kind -eq 'Sector') {
+        if ($sector.HasInterior -and -not $exploredInteriors.Contains($sector.Id) -and
+            $reachableSectors.Contains($sector.Id) -and
+            (Contains-All $completed $sector.InteriorResearch) -and
+            (Contains-All $resources $sector.InteriorInputs)) {
+            [void]$exploredInteriors.Add($sector.Id)
+            $changed = $true
+        }
+    }
     $workshopUnlocked = $completed.Contains('IndustrialWorkshop')
     foreach ($upgrade in $definitions | Where-Object Kind -eq 'Workshop') {
         if (-not $workshopUnlocked -or $purchased.Contains($upgrade.Id) -or $upgrade.Tech -gt $tech) { continue }
-        if ((Contains-All $completed $upgrade.RequiredResearch) -and
+        if ((Contains-All $availableBuildings $upgrade.RequiredBuilding) -and
+            (Contains-All $reachableSectors $upgrade.RequiredSector) -and
+            (Contains-All $completed $upgrade.RequiredResearch) -and
             (Contains-All $purchased $upgrade.RequiredUpgrades) -and
             (Contains-All $resources $upgrade.Costs)) {
             [void]$purchased.Add($upgrade.Id)
@@ -217,6 +269,8 @@ do {
     }
     foreach ($building in $definitions | Where-Object Kind -eq 'Building') {
         if ($availableBuildings.Contains($building.Id) -or $building.Tech -gt $tech) { continue }
+        if ($building.RequiresInterior -and ($building.Sector.Count -ne 1 -or
+            -not $exploredInteriors.Contains($building.Sector[0]))) { continue }
         if ((Contains-All $completed $building.RequiredResearch) -and
             (Contains-All $purchased $building.RequiredUpgrades) -and
             (Contains-All $resources $building.Costs) -and
@@ -233,6 +287,8 @@ function First-Block($definition, [string]$kind) {
     foreach ($id in $definition.Prerequisites) { if (-not $completed.Contains($id)) { return "requires research $id" } }
     foreach ($id in $definition.RequiredResearch) { if (-not $completed.Contains($id)) { return "requires research $id" } }
     foreach ($id in $definition.RequiredUpgrades) { if (-not $purchased.Contains($id)) { return "requires workshop $id" } }
+    foreach ($id in $definition.RequiredBuilding) { if (-not $availableBuildings.Contains($id)) { return "requires building $id" } }
+    foreach ($id in $definition.RequiredSector) { if (-not $reachableSectors.Contains($id)) { return "requires occupied sector $id" } }
     foreach ($id in $definition.Costs) { if (-not $resources.Contains($id)) { return "costs unavailable resource $id" } }
     foreach ($id in $definition.Consumes) { if (-not $resources.Contains($id)) { return "consumes unavailable resource $id" } }
     if ($definition.Tech -gt $tech) { return "requires tech level $($definition.Tech), reached $tech" }

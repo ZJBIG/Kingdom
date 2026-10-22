@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ModularHabitatSystems
   m_EditorClassIdentifier: 
   id: ModularHabitatSystems
+  icon: {fileID: 21300000, guid: 6f67a31f59a25c84b9316a3455c106b1, type: 3}
   Label: "模块化空间舱"
   Description: "以模块化货舱、泊位和远程调度提高轨道空间站的物流供给。"
   SortOrder: 420

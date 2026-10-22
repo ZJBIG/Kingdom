@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 从 Resources/Datas 一次性加载并索引某一种游戏定义。
-/// 常用入口：DataBase&lt;Resource&gt;.Find("Gold")。
+/// 常用入口：DataBase&lt;ResourceDef&gt;.Find("Gold")。
 /// </summary>
 public static class DataBase<T> where T : GameDefinition
 {

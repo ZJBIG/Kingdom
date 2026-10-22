@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: RotaryDrillingHeads
   m_EditorClassIdentifier: 
   id: RotaryDrillingHeads
+  icon: {fileID: 21300000, guid: fa7d5ba3141425646a81ed1c96005c9c, type: 3}
   Label: "\u65CB\u8F6C\u94BB\u5934\u7EC4"
   Description: "\u8010\u78E8\u5408\u91D1\u94BB\u5934\u548C\u6CE5\u6D46\u5FAA\u73AF\u7CFB\u7EDF\u63D0\u9AD8\u6DF1\u5C42\u6CB9\u4E95\u7684\u8FDE\u7EED\u4EA7\u91CF\u3002"
   SortOrder: 75

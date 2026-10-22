@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Library
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 26b100e75b6c48588207ebc312218f68, type: 3}
   id: Library
   Label: "\u56FE\u4E66\u9986"
   Description: "\u96C6\u4E2D\u6536\u85CF\u3001\u5206\u7C7B\u548C\u6284\u5F55\u4E66\u7C4D\uFF0C\u4F7F\u77E5\u8BC6\u80FD\u591F\u957F\u671F\u4FDD\u5B58\uFF0C\u5E76\u7A33\u5B9A\u8F6C\u5316\u4E3A\u7814\u7A76\u529B\u3002"

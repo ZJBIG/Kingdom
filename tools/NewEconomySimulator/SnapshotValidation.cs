@@ -68,6 +68,20 @@ public static class SnapshotValidation
             sector.ColonizationResourceRatesPerSecond = SortedAmounts(sector.ColonizationResourceRatesPerSecond)!;
             sector.CampaignResourceRatesPerSecond = SortedAmounts(sector.CampaignResourceRatesPerSecond)!;
             sector.PrerequisiteSectorIds = SortedStrings(sector.PrerequisiteSectorIds)!;
+            var exploration = sector.InteriorExploration;
+            // JsonUtility writes absent inline objects as their empty serialized defaults.
+            if (exploration != null && string.IsNullOrWhiteSpace(exploration.Label) &&
+                string.IsNullOrWhiteSpace(exploration.Description) &&
+                string.IsNullOrWhiteSpace(exploration.CompletionDescription) &&
+                (string.IsNullOrWhiteSpace(exploration.DurationSeconds) || exploration.DurationSeconds == "0") &&
+                exploration.RequiredResearchIds is { Count: 0 } &&
+                exploration.ResourceRatesPerSecond is { Count: 0 } && exploration.Milestones is { Count: 0 })
+                sector.InteriorExploration = null;
+            if (sector.InteriorExploration != null)
+            {
+                sector.InteriorExploration.RequiredResearchIds = SortedStrings(sector.InteriorExploration.RequiredResearchIds)!;
+                sector.InteriorExploration.ResourceRatesPerSecond = SortedAmounts(sector.InteriorExploration.ResourceRatesPerSecond)!;
+            }
         }
 
         NormalizeState(snapshot.InitialState);
@@ -109,7 +123,68 @@ public static class SnapshotValidation
         CheckState(result, "InitialState", snapshot.InitialState, index);
         CheckState(result, "SaveState", snapshot.SaveState, index);
         CheckState(result, "RuntimeState", snapshot.RuntimeState, index);
+        CheckPurchasedWorkshopSectors(result, "InitialState", snapshot.InitialState, snapshot.Workshops);
+        CheckPurchasedWorkshopSectors(result, "SaveState", snapshot.SaveState, snapshot.Workshops);
+        CheckPurchasedWorkshopSectors(result, "RuntimeState", snapshot.RuntimeState, snapshot.Workshops);
+        CheckInteriorStates(result, "InitialState", snapshot.InitialState, snapshot);
+        CheckInteriorStates(result, "SaveState", snapshot.SaveState, snapshot);
+        CheckInteriorStates(result, "RuntimeState", snapshot.RuntimeState, snapshot);
+        foreach (var building in snapshot.Buildings ?? [])
+            if (building != null && building.RequiresInteriorExploration &&
+                !(snapshot.Sectors?.Any(sector => sector != null && sector.Id == building.SectorId && sector.InteriorExploration != null) ?? false))
+                result.Errors.Add($"Building '{building.Id}' requires a configured planetary exploration.");
         return result;
+    }
+
+    private static void CheckInteriorStates(SnapshotValidationResult result, string owner, StateSnapshot? state, EconomySnapshot snapshot)
+    {
+        if (state == null) return;
+        foreach (var saved in state.Sectors ?? [])
+        {
+            if (saved == null || !ExpantaNum.TryParse(saved.InteriorExplorationProgress, out var progress) || !progress.IsFinite)
+            { result.Errors.Add($"Invalid planetary exploration progress in '{owner}'."); continue; }
+            var project = snapshot.Sectors?.FirstOrDefault(sector => sector != null && sector.Id == saved.SectorId)?.InteriorExploration;
+            if (progress < ExpantaNum.Zero || progress > ExpantaNum.One ||
+                ((progress > ExpantaNum.Zero || saved.InteriorExplorationActive || saved.InteriorExplorationPaused) && (!saved.Occupied || project == null)) ||
+                ((saved.InteriorExplorationActive || saved.InteriorExplorationPaused) && progress >= ExpantaNum.One) ||
+                (saved.InteriorExplorationActive && saved.InteriorExplorationPaused))
+                result.Errors.Add($"Invalid planetary exploration state '{saved.SectorId}' in '{owner}'.");
+            if ((progress > ExpantaNum.Zero || saved.InteriorExplorationActive || saved.InteriorExplorationPaused) && project != null &&
+                (project.RequiredResearchIds?.Any(id => !(state.Research?.Any(research => research != null && research.ResearchId == id && research.Completed) ?? false)) ?? true))
+                result.Errors.Add($"Planetary exploration '{saved.SectorId}' is missing required research in '{owner}'.");
+        }
+        foreach (var building in snapshot.Buildings ?? [])
+        {
+            if (building == null || string.IsNullOrEmpty(building.SectorId)) continue;
+            bool owned = state.Buildings?.Any(item => item != null && item.BuildingId == building.Id &&
+                ExpantaNum.TryParse(item.Amount, out var count) && count > ExpantaNum.Zero) ?? false;
+            bool stagePurchased = snapshot.Workshops?.Any(stage => stage != null && stage.RequiredBuildingId == building.Id &&
+                (state.PurchasedWorkshopIds?.Contains(stage.Id) ?? false)) ?? false;
+            if (!owned && !stagePurchased) continue;
+            var sector = state.Sectors?.FirstOrDefault(item => item != null && item.SectorId == building.SectorId);
+            if (sector == null || !sector.Occupied || (building.RequiresInteriorExploration &&
+                (!ExpantaNum.TryParse(sector.InteriorExplorationProgress, out var progress) || progress < ExpantaNum.One)))
+                result.Errors.Add($"Building or purchased stage '{building.Id}' lacks required sector development in '{owner}'.");
+            if (owned && building.MaxAmount > 0 && state.Buildings!.Any(item => item != null && item.BuildingId == building.Id &&
+                ExpantaNum.TryParse(item.Amount, out var count) && count > new ExpantaNum(building.MaxAmount)))
+                result.Errors.Add($"Building '{building.Id}' exceeds its limit in '{owner}'.");
+        }
+    }
+
+    private static void CheckPurchasedWorkshopSectors(SnapshotValidationResult result,
+        string owner, StateSnapshot? state, List<WorkshopSnapshot>? workshops)
+    {
+        if (state?.PurchasedWorkshopIds == null || workshops == null)
+            return;
+        foreach (var workshop in workshops)
+        {
+            if (workshop == null || string.IsNullOrEmpty(workshop.RequiredSectorId) ||
+                !state.PurchasedWorkshopIds.Contains(workshop.Id, StringComparer.Ordinal))
+                continue;
+            if (state.Sectors == null || !state.Sectors.Any(sector => sector != null &&
+                sector.SectorId == workshop.RequiredSectorId && sector.Occupied))
+                result.Errors.Add($"Purchased workshop '{workshop.Id}' in '{owner}' requires occupied sector '{workshop.RequiredSectorId}'.");
+        }
     }
 
     public static bool IsExpantaNumString(string? value) =>
@@ -194,6 +269,7 @@ public static class SnapshotValidation
         {
             if (building is null)
                 continue;
+            if (building.MaxAmount < 0) result.Errors.Add($"Negative building limit for '{building.Id}'.");
             CheckNumbers(result, building.Id,
             [
                 ("CostGrowth", building.CostGrowth),
@@ -255,6 +331,8 @@ public static class SnapshotValidation
         {
             if (workshop is null)
                 continue;
+            CheckOptionalRef(result, workshop.Id, workshop.RequiredBuildingId, DefinitionKind.Building, index);
+            CheckOptionalRef(result, workshop.Id, workshop.RequiredSectorId, DefinitionKind.Sector, index);
             CheckAmounts(result, workshop.Id, workshop.ResourceRequirements, index);
             CheckRequiredRefs(result, workshop.Id, workshop.RequiredResearchIds, DefinitionKind.Research, index);
             CheckRequiredRefs(result, workshop.Id, workshop.RequiredWorkshopIds, DefinitionKind.Workshop, index);
@@ -295,6 +373,20 @@ public static class SnapshotValidation
             CheckAmounts(result, sector.Id, sector.ColonizationResourceRatesPerSecond, index);
             CheckAmounts(result, sector.Id, sector.CampaignResourceRatesPerSecond, index);
             CheckRequiredRefs(result, sector.Id, sector.PrerequisiteSectorIds, DefinitionKind.Sector, index);
+            var project = sector.InteriorExploration;
+            if (project != null)
+            {
+                if (string.IsNullOrWhiteSpace(project.Label) || string.IsNullOrWhiteSpace(project.Description) ||
+                    string.IsNullOrWhiteSpace(project.CompletionDescription) ||
+                    !ExpantaNum.TryParse(project.DurationSeconds, out var duration) || !duration.IsFinite || duration <= ExpantaNum.Zero ||
+                    project.Milestones == null || project.Milestones.Count != 3 || project.Milestones.Any(string.IsNullOrWhiteSpace))
+                    result.Errors.Add($"Invalid planetary exploration definition for '{sector.Id}'.");
+                CheckRequiredRefs(result, sector.Id, project.RequiredResearchIds, DefinitionKind.Research, index);
+                CheckAmounts(result, sector.Id, project.ResourceRatesPerSecond, index);
+                if (project.ResourceRatesPerSecond == null || project.ResourceRatesPerSecond.Count == 0 ||
+                    project.ResourceRatesPerSecond.Any(rate => rate == null || !ExpantaNum.TryParse(rate.Value, out var amount) || !amount.IsFinite || amount <= ExpantaNum.Zero))
+                    result.Errors.Add($"Planetary exploration '{sector.Id}' requires positive supply rates.");
+            }
         }
     }
 

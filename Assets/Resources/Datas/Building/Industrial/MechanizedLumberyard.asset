@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: MechanizedLumberyard
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: dc7133b948564b62aaf4988c682634c9, type: 3}
   id: MechanizedLumberyard
   Label: "\u673A\u68B0\u5316\u6797\u573A"
   Description: "\u4EE5\u91CD\u578B\u6536\u5272\u673A\u3001\u8FD0\u6750\u8F66\u961F\u548C\u96C6\u4E2D\u70D8\u5E72\u7AD9\u66FF\u4EE3\u5206\u6563\u4F10\u6728\uFF0C\u9AD8\u5F3A\u5EA6\u8F93\u51FA\u539F\u6728\uFF0C\u5E76\u4EE5\u7126\u70AD\u7EF4\u6301\u91CD\u578B\u673A\u68B0\u8FD0\u8F6C\u3002"

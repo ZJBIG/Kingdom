@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: AdvancedCeramicsPlant
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: b411e9ab12310d443a9cf546d6e57716, type: 3}
   id: AdvancedCeramicsPlant
   Label: "\u9AD8\u7EA7\u9676\u74F7\u5382"
   Description: "将黏土采掘与高温烧结连成一线，同时供应黏土和陶瓷；运行消耗焦炭、化工材料、工业炸药与润滑剂。"

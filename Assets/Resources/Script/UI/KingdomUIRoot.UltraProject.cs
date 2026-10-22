@@ -21,7 +21,7 @@ public sealed partial class KingdomUIRoot
     public Button DetailDoctrineButtonForEditor => detailDoctrineButton;
 #endif
 
-    private bool IsUltraProjectAccessBuilding(Building building)
+    private bool IsUltraProjectAccessBuilding(BuildingDef building)
     {
         if (building == null)
             return false;
@@ -29,7 +29,7 @@ public sealed partial class KingdomUIRoot
             building.Id == "AutonomousMatterFabricator";
     }
 
-    private void ConfigureUltraProjectDetails(Building building)
+    private void ConfigureUltraProjectDetails(BuildingDef building)
     {
         if (!IsUltraProjectAccessBuilding(building) ||
             !GameManager.TryGetInstance(out GameManager gameManager) ||
@@ -132,12 +132,12 @@ public sealed partial class KingdomUIRoot
     private static void AppendUltraCostRows(
         StringBuilder text,
         ResourceManager resourceManager,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         bool rate)
     {
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum amount = resourceManager.GetAmount(cost.First);
@@ -159,7 +159,7 @@ public sealed partial class KingdomUIRoot
         UltraProjectPreview preview = manager.GetPreview();
         for (int i = 0; i < preview.ContinuousCosts.Count; i++)
         {
-            Resource resource = preview.ContinuousCosts[i].First;
+            ResourceDef resource = preview.ContinuousCosts[i].First;
             if (resource != null && ResourceManager.TryGetInstance(out ResourceManager resourceManager) &&
                 resourceManager.States.TryGetValue(
                     resource, out ResourceState resourceState))

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Lumberyard
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: fc4076392d014ae392114dcf09e33199, type: 3}
   id: Lumberyard
   Label: "\u4F10\u6728\u573A"
   Description: "\u96C6\u4E2D\u780D\u4F10\u3001\u667E\u6652\u548C\u5806\u653E\u6728\u6750\uFF0C\u4E3A\u4F4F\u623F\u3001\u5DE5\u5177\u3001\u71C3\u6599\u4E0E\u540E\u7EED\u5EFA\u7B51\u63D0\u4F9B\u7A33\u5B9A\u6728\u6599\u3002"

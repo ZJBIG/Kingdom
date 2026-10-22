@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: PlantingField
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: de94b8f0af654237b6f8f7b96560412a, type: 3}
   id: PlantingField
   Label: "机械化农田"
   Description: "采用轮作、灌溉与机械播种，稳定产出食物和生物质。"

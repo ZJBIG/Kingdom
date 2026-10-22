@@ -7,8 +7,8 @@ public sealed class ResearchPaymentSaveTests
 {
     private readonly List<GameObject> objects = new();
     private ResearchManager manager;
-    private Research target;
-    private Resource resource;
+    private ResearchDef target;
+    private ResourceDef resource;
     private ExpantaNum required;
 
     [SetUp]
@@ -22,10 +22,10 @@ public sealed class ResearchPaymentSaveTests
         CreateManager<ResourceManager>().InitializeForEditor();
         manager = CreateManager<ResearchManager>();
         manager.InitializeForEditor();
-        target = DataBase<Research>.Find("BronzeAlloyCrafting");
-        resource = DataBase<Resource>.Find("BasicMetalIngot");
+        target = DataBase<ResearchDef>.Find("BronzeAlloyCrafting");
+        resource = DataBase<ResourceDef>.Find("BasicMetalIngot");
         required = ExpantaNum.Zero;
-        foreach (Pair<Resource, ExpantaNum> cost in target.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in target.ResourceRequirements)
             if (cost.First == resource) required += cost.Second;
         Assert.That(required > ExpantaNum.Zero, Is.True);
     }
@@ -56,15 +56,15 @@ public sealed class ResearchPaymentSaveTests
         };
         if (completed)
         {
-            var included = new HashSet<Research>();
-            foreach (Research prerequisite in target.Prerequisites) AddCompleted(prerequisite, data, included);
+            var included = new HashSet<ResearchDef>();
+            foreach (ResearchDef prerequisite in target.Prerequisites) AddCompleted(prerequisite, data, included);
         }
         var saved = CreateState(target, completed);
         data.States.Add(saved);
         return data;
     }
 
-    private static SaveManager.ResearchStateSaveData CreateState(Research definition, bool completed)
+    private static SaveManager.ResearchStateSaveData CreateState(ResearchDef definition, bool completed)
     {
         var saved = new SaveManager.ResearchStateSaveData
         {
@@ -74,7 +74,7 @@ public sealed class ResearchPaymentSaveTests
             Completed = completed,
             PaidResourceCosts = new List<SaveManager.ResearchResourceCostSaveData>()
         };
-        foreach (Pair<Resource, ExpantaNum> cost in definition.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
             if (cost.Second > ExpantaNum.Zero)
                 saved.PaidResourceCosts.Add(new SaveManager.ResearchResourceCostSaveData
                 {
@@ -84,10 +84,10 @@ public sealed class ResearchPaymentSaveTests
         return saved;
     }
 
-    private static void AddCompleted(Research definition, SaveManager.ResearchSaveData data, HashSet<Research> included)
+    private static void AddCompleted(ResearchDef definition, SaveManager.ResearchSaveData data, HashSet<ResearchDef> included)
     {
         if (!included.Add(definition)) return;
-        foreach (Research prerequisite in definition.Prerequisites) AddCompleted(prerequisite, data, included);
+        foreach (ResearchDef prerequisite in definition.Prerequisites) AddCompleted(prerequisite, data, included);
         data.States.Add(CreateState(definition, true));
     }
 

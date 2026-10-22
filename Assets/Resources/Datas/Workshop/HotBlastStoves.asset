@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: HotBlastStoves
   m_EditorClassIdentifier: 
   id: HotBlastStoves
+  icon: {fileID: 21300000, guid: efd4ec6e59e92a54ba6cd244a716c415, type: 3}
   Label: "热风炉组"
   Description: "预热鼓风并稳定炉温，提高工业金属冶炼厂的基础金属锭与钢材产出。"
   SortOrder: 190

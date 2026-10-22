@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Quarry
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 40699a410187408ea350fdc82cc4bcb0, type: 3}
   id: Quarry
   Label: "\u91C7\u77F3\u573A"
   Description: "\u4ECE\u88F8\u9732\u5CA9\u5C42\u4E2D\u91C7\u51FA\u7C97\u77F3\uFF0C\u6301\u7EED\u4F9B\u5E94\u77F3\u5668\u3001\u9053\u8DEF\u548C\u77F3\u8D28\u5EFA\u7B51\u7684\u539F\u6599\u3002"

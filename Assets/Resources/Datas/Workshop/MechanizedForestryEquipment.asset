@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MechanizedForestryEquipment
   m_EditorClassIdentifier: 
   id: MechanizedForestryEquipment
+  icon: {fileID: 21300000, guid: 158fd1073d8615e4488ffd4672732657, type: 3}
   Label: "\u673A\u68B0\u5316\u6797\u4E1A\u88C5\u5907"
   Description: "将林木收割机、运材系统和密闭干馏设备制成可连续运行的工业装备，其远程控制与物料处理方案也可复用于轨道生态农业阵列。"
   SortOrder: 146

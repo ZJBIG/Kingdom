@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: CoalMine
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 5d2c661ac6474c26a586f80b51a6cf0a, type: 3}
   id: CoalMine
   Label: "\u7164\u77FF\u4E95"
   Description: "\u4ECE\u7164\u5C42\u6301\u7EED\u5F00\u91C7\u7164\u70AD\uFF0C\u4E3A\u51B6\u70BC\u3001\u4F9B\u70ED\u548C\u65E9\u671F\u52A8\u529B\u8BBE\u5907\u63D0\u4F9B\u9AD8\u5BC6\u5EA6\u71C3\u6599\u3002"

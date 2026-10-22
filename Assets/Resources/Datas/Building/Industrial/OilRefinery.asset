@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OilRefinery
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: ab95e082aa814e89ba51f76fa2199e50, type: 3}
   id: OilRefinery
   Label: "\u70BC\u6CB9\u5382"
   Description: "以蒸馏和裂化处理原油，配合化工材料生产精炼燃料、润滑剂和橡胶，供应运输与工业设备。"

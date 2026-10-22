@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PrecisionTooling
   m_EditorClassIdentifier: 
   id: PrecisionTooling
+  icon: {fileID: 21300000, guid: 4084cefa85bc9c24f8b9bbb0e37824e1, type: 3}
   Label: "\u7CBE\u5BC6\u673A\u5E8A\u7EC4"
   Description: "以精密车床、铣床与检验量具提高机器制造厂的产出。"
   SortOrder: 50

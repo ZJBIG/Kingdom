@@ -433,7 +433,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         if (showCompletionFeedback && completedStep != null)
             snapshot.CompletedFeedback = BuildCompletedFeedback(
                 completedStep, game, resources, buildings);
-        Resource coreResource = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceDef coreResource = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
         snapshot.CoreResourceText = coreResource == null
             ? "未知"
             : coreResource.Label + " " + resources.GetAmount(coreResource).ToGameString();
@@ -454,7 +454,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             case TutorialStepKind.Orientation:
                 return "王国时间已经开始推进，资源生产循环已进入运行状态。";
             case TutorialStepKind.Resources:
-                Resource coreResource = DataBase<Resource>.Find(
+                ResourceDef coreResource = DataBase<ResourceDef>.Find(
                     ResourceManager.StartingResourceId);
                 if (coreResource != null && resources != null &&
                     resources.States.TryGetValue(coreResource, out ResourceState coreState) &&
@@ -527,7 +527,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         EnsureDefinitions();
         if (string.Equals(pageName, "Resources", StringComparison.Ordinal) &&
             !string.IsNullOrWhiteSpace(targetId) &&
-            DataBase<Resource>.TryFind(targetId, out Resource viewedResource) &&
+            DataBase<ResourceDef>.TryFind(targetId, out ResourceDef viewedResource) &&
             viewedResource != null)
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -637,7 +637,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                 return game.State.CalendarDays >= 1;
             case "Resources":
             case "resource-inventory-positive":
-                Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+                ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
                 return wood != null && resources.GetAmount(wood) > ExpantaNum.Zero;
             case "resource-detail-viewed":
                 TutorialManager current = instance;
@@ -708,7 +708,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         }
         else if (step.Kind == TutorialStepKind.Building)
         {
-            Building recommendation = FindBuildingRecommendation(game, buildings, research);
+            BuildingDef recommendation = FindBuildingRecommendation(game, buildings, research);
             if (recommendation == null)
             {
                 snapshot.Blocker = "当前没有可以根据王国状态明确推荐的建筑。";
@@ -756,7 +756,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         }
         else if (step.Kind == TutorialStepKind.Research)
         {
-            Research guidanceResearch = FindResearchGuidance(
+            ResearchDef guidanceResearch = FindResearchGuidance(
                 research, game.State.TechLevel);
             ResearchState currentResearch = research.ActiveResearch ??
                 (research.ResearchQueue.Count > 0 ? research.ResearchQueue[0] : null);
@@ -779,10 +779,10 @@ public sealed partial class TutorialManager : MonoBehaviour
         else if (step.Kind == TutorialStepKind.ProductionChain)
         {
             string chainSummary = BuildOwnedProductionChainSummary(buildings);
-            Building chainRecommendation = FindProductionChainRecommendation(game, buildings);
+            BuildingDef chainRecommendation = FindProductionChainRecommendation(game, buildings);
             bool lacksProductivity = chainRecommendation != null &&
                 chainRecommendation.ProductivityConsumption > ExpantaNum.Max(ExpantaNum.Zero, buildings.AvailableProductivity);
-            Building capacityRecommendation = lacksProductivity
+            BuildingDef capacityRecommendation = lacksProductivity
                 ? FindPopulationCapacityRecommendation(game, buildings)
                 : null;
             snapshot.Blocker = lacksProductivity
@@ -798,7 +798,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                     ? "打开建筑页面，查看生产与消耗关系。"
                     : "打开建筑页面，继续扩展：" + chainSummary;
             snapshot.NavigationPage = "Buildings";
-            Building navigationRecommendation = lacksProductivity
+            BuildingDef navigationRecommendation = lacksProductivity
                 ? capacityRecommendation
                 : chainRecommendation;
             snapshot.NavigationTargetId = navigationRecommendation == null
@@ -815,8 +815,8 @@ public sealed partial class TutorialManager : MonoBehaviour
             {
                 bool hasChainAction = TryFindNextProductionChainAction(
                     chainRecommendation, resources, buildings, research,
-                    out Building actionBuilding, out Research actionResearch,
-                    out Resource actionResource, out WorkshopUpgrade actionWorkshop);
+                    out BuildingDef actionBuilding, out ResearchDef actionResearch,
+                    out ResourceDef actionResource, out WorkshopUpgradeDef actionWorkshop);
                 if (hasChainAction && actionResearch != null)
                 {
                     snapshot.Blocker = "\u751f\u4ea7\u94fe\u5efa\u7b51\u8fd8\u7f3a\u5c11\u524d\u7f6e\u7814\u7a76\uff1a" + actionResearch.Label;
@@ -954,19 +954,19 @@ public sealed partial class TutorialManager : MonoBehaviour
     private static bool IsIndustrialRouteStepComplete(
         string id, ResearchManager research, BuildingManager buildings)
     {
-        if (DataBase<Research>.TryFind(id, out Research researchDefinition))
+        if (DataBase<ResearchDef>.TryFind(id, out ResearchDef researchDefinition))
             return research.States.TryGetValue(researchDefinition, out ResearchState state) &&
                 state.Status == ResearchStatus.Completed;
-        if (DataBase<Building>.TryFind(id, out Building buildingDefinition))
+        if (DataBase<BuildingDef>.TryFind(id, out BuildingDef buildingDefinition))
             return HasOwnedBuildingId(buildings, id);
         return true;
     }
 
     private static string GetRouteStepLabel(string id)
     {
-        if (DataBase<Research>.TryFind(id, out Research research))
+        if (DataBase<ResearchDef>.TryFind(id, out ResearchDef research))
             return research.Label;
-        if (DataBase<Building>.TryFind(id, out Building building))
+        if (DataBase<BuildingDef>.TryFind(id, out BuildingDef building))
             return building.Label;
         return id;
     }
@@ -1155,7 +1155,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             {
                 case GuidanceKind.Workshop:
                     if (HasRelevantWorkshopForBuilding(
-                        row.Id, research, out WorkshopUpgrade workshopTarget))
+                        row.Id, research, out WorkshopUpgradeDef workshopTarget))
                         continue;
                     snapshot.Blocker = row.BlockerPrefix;
                     snapshot.RecommendedAction = row.ActionPrefix;
@@ -1248,8 +1248,8 @@ public sealed partial class TutorialManager : MonoBehaviour
             if (ApplyBuildingPrerequisiteGuidance(
                 snapshot, buildingId, research))
                 return true;
-            if (!DataBase<Building>.TryFind(
-                buildingId, out Building building) || building == null)
+            if (!DataBase<BuildingDef>.TryFind(
+                buildingId, out BuildingDef building) || building == null)
                 return false;
 
             snapshot.Blocker = DescribeBuildingBlocker(
@@ -1261,7 +1261,79 @@ public sealed partial class TutorialManager : MonoBehaviour
             return true;
         }
 
-        return BuildSpacerSectorGuidance(snapshot, game);
+        TutorialSnapshot development = new TutorialSnapshot();
+        bool hasDevelopment = BuildPlanetDevelopmentGuidance(development, game, buildings);
+        if (BuildSpacerSectorGuidance(snapshot, game))
+        {
+            if (hasDevelopment)
+                snapshot.RecommendedAction += " 本系可选开发：" + development.Blocker + development.RecommendedAction;
+            return true;
+        }
+        if (!hasDevelopment) return false;
+        snapshot.Blocker = development.Blocker;
+        snapshot.RecommendedAction = development.RecommendedAction;
+        snapshot.NavigationPage = development.NavigationPage;
+        snapshot.NavigationTargetId = development.NavigationTargetId;
+        return true;
+    }
+
+    private static bool BuildPlanetDevelopmentGuidance(
+        TutorialSnapshot snapshot, GameManager game, BuildingManager buildings)
+    {
+        // Ongoing surveys take precedence over another optional local investment.
+        for (int pass = 0; pass < 2; pass++)
+        {
+            foreach (SectorState state in game.Sectors.OrderedStates)
+            {
+                SectorDef sector = state.Definition;
+                if (!sector.IsHomeSystem || !state.Occupied || sector.InteriorExploration == null ||
+                    (pass == 0 && !state.InteriorExplorationActive))
+                    continue;
+                SectorInteriorExplorationPreview preview = game.Sectors.GetInteriorExplorationPreview(sector);
+                if (preview.Status == SectorInteriorExplorationStatus.Locked)
+                    continue;
+                string action;
+                if (preview.Status == SectorInteriorExplorationStatus.Completed)
+                {
+                    SectorBuildingDef available = null;
+                    foreach (SectorBuildingDef building in buildings.GetSectorBuildings(sector))
+                    {
+                        if (!building.RequiresInteriorExploration || HasOwnedBuildingId(buildings, building.Id))
+                            continue;
+                        BuildFailure failure = buildings.GetBuildFailure(building, ExpantaNum.One);
+                        if (failure == BuildFailure.None || failure == BuildFailure.ResourceInsufficient ||
+                            failure == BuildFailure.ProductivityInsufficient || failure == BuildFailure.SpaceInsufficient)
+                        {
+                            available = building;
+                            break;
+                        }
+                    }
+                    if (available == null) continue;
+                    snapshot.Blocker = sector.InteriorExploration.Label + "已完成，发现条件已允许建设“" + available.Label + "”。";
+                    action = "查看“" + available.Label + "”的建设费用、运行投入与实际收益。";
+                }
+                else
+                {
+                    snapshot.Blocker = preview.Status == SectorInteriorExplorationStatus.WaitingForSupply
+                        ? sector.InteriorExploration.Label + "等待补给：" + preview.MissingResource.Label + "。"
+                        : preview.Status == SectorInteriorExplorationStatus.Paused
+                            ? sector.InteriorExploration.Label + "已手动暂停，现有发现和进度保留。"
+                            : preview.Status == SectorInteriorExplorationStatus.Running
+                                ? sector.InteriorExploration.Label + "正在推进，持续投入生产资料以确认当地开发条件。"
+                                : "已在“" + sector.Label + "”建立驻留，可以进一步开展" + sector.InteriorExploration.Label + "。";
+                    action = preview.Status == SectorInteriorExplorationStatus.WaitingForSupply
+                        ? "查看短缺材料的来源，补齐后勘探会自动继续。"
+                        : preview.Status == SectorInteriorExplorationStatus.Paused
+                            ? "确认供给后继续勘探，或保留进度稍后开发。"
+                            : "查看勘探目标、持续耗材及完成后可建设的专属结构。";
+                }
+                snapshot.RecommendedAction = "打开星区页面，" + action + "这些是可选的本系开发，也可继续准备系外远征。";
+                snapshot.NavigationPage = "Sectors";
+                snapshot.NavigationTargetId = sector.Id;
+                return true;
+            }
+        }
+        return false;
     }
 
     private static bool BuildHomeSystemGuidance(
@@ -1276,7 +1348,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             for (int i = 0; i < game.Sectors.OrderedStates.Count; i++)
             {
                 SectorState state = game.Sectors.OrderedStates[i];
-                SectorDefinition definition = state.Definition;
+                SectorDef definition = state.Definition;
                 if (definition == null || !definition.IsHomeSystem || state.Occupied ||
                     (pass == 0 && !state.ColonizationActive) ||
                     !game.Sectors.CanAccess(definition))
@@ -1287,7 +1359,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                 {
                     if (ApplyBuildingPrerequisiteGuidance(snapshot, "LaunchCenter", research))
                         return true;
-                    Building launchCenter = DataBase<Building>.Find("LaunchCenter");
+                    BuildingDef launchCenter = DataBase<BuildingDef>.Find("LaunchCenter");
                     snapshot.Blocker = DescribeBuildingBlocker(
                         launchCenter, game, buildings, ResourceManager.Instance);
                     snapshot.RecommendedAction = "打开建筑页面，建造“" + launchCenter.Label +
@@ -1339,19 +1411,24 @@ public sealed partial class TutorialManager : MonoBehaviour
             string sectorLabel = state.Definition == null
                 ? "当前星区"
                 : state.Definition.Label;
-            if (state.CampaignActive)
+            if (!state.Definition.IsHomeSystem && state.CampaignProgress >= ExpantaNum.One)
+            {
+                snapshot.Blocker = "星区“" + sectorLabel + "”的远征已完成，等待确认占领。";
+                snapshot.RecommendedAction = "打开星区页面，确认占领“" + sectorLabel + "”。";
+            }
+            else if (state.CampaignActive)
             {
                 snapshot.Blocker = "星区“" + sectorLabel +
                     "”的远征正在进行，查看补给消耗、远征进度与舰队损伤。";
                 snapshot.RecommendedAction = "打开星区页面，查看“" +
                     sectorLabel + "”的远征状态。";
             }
-            else if (state.CampaignProgress > ExpantaNum.Zero)
+            else if (!state.Definition.IsHomeSystem && state.CampaignProgress > ExpantaNum.Zero)
             {
                 snapshot.Blocker = "星区“" + sectorLabel +
-                    "”的远征已经完成阶段性推进，下一步确认占领条件。";
-                snapshot.RecommendedAction = "打开星区页面，完成“" +
-                    sectorLabel + "”的占领确认。";
+                    "”的远征尚未完成，行动已暂停，现有进度会随时间衰减。";
+                snapshot.RecommendedAction = "打开星区页面，检查“" +
+                    sectorLabel + "”的补给与舰队损伤，恢复条件后继续远征。";
             }
             else if (state.ColonizationActive)
             {
@@ -1374,6 +1451,19 @@ public sealed partial class TutorialManager : MonoBehaviour
             return true;
         }
 
+        foreach (SectorState state in game.Sectors.OrderedStates)
+        {
+            if (state.Unlocked || state.Definition.IsHomeSystem ||
+                game.Sectors.GetUnlockFailure(state.Definition) != SectorOperationFailure.None)
+                continue;
+            snapshot.Blocker = "本系据点与远航前置已就绪，可以解锁“" + state.Definition.Label + "”。";
+            snapshot.RecommendedAction = "打开星区页面，查看“" + state.Definition.Label +
+                "”的远征补给与舰队需求，再主动解锁并出发。";
+            snapshot.NavigationPage = "Sectors";
+            snapshot.NavigationTargetId = state.Definition.Id;
+            return true;
+        }
+
         if (!hasUnlockedSector)
         {
             snapshot.Blocker = "太空基础设施已经建立，但尚未解锁星区。";
@@ -1389,7 +1479,7 @@ public sealed partial class TutorialManager : MonoBehaviour
     private static bool HasCompletedResearchId(
         ResearchManager research, string id)
     {
-        if (research == null || !DataBase<Research>.TryFind(id, out Research definition) ||
+        if (research == null || !DataBase<ResearchDef>.TryFind(id, out ResearchDef definition) ||
             !research.States.TryGetValue(definition, out ResearchState state))
             return false;
         return state != null && state.Status == ResearchStatus.Completed;
@@ -1397,16 +1487,16 @@ public sealed partial class TutorialManager : MonoBehaviour
 
     private static bool HasRelevantWorkshopForBuilding(
         string buildingId, ResearchManager research,
-        out WorkshopUpgrade missingUpgrade)
+        out WorkshopUpgradeDef missingUpgrade)
     {
         missingUpgrade = null;
-        if (!DataBase<Building>.TryFind(buildingId, out Building building) ||
+        if (!DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) ||
             building == null || building.RequiredWorkshopUpgrades.Count == 0)
             return true;
 
         for (int r = 0; r < building.RequiredResearch.Count; r++)
         {
-            Research prerequisite = building.RequiredResearch[r];
+            ResearchDef prerequisite = building.RequiredResearch[r];
             if (prerequisite == null || research == null ||
                 !research.IsResearchCompleted(prerequisite.Id))
                 return true;
@@ -1415,7 +1505,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         WorkshopManager workshop = WorkshopManager.Instance;
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = building.RequiredWorkshopUpgrades[i];
+            WorkshopUpgradeDef upgrade = building.RequiredWorkshopUpgrades[i];
             if (upgrade == null || workshop == null || workshop.IsPurchased(upgrade))
                 continue;
 
@@ -1426,7 +1516,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             bool prerequisitesMet = true;
             for (int r = 0; r < upgrade.RequiredResearch.Count; r++)
             {
-                Research prerequisite = upgrade.RequiredResearch[r];
+                ResearchDef prerequisite = upgrade.RequiredResearch[r];
                 if (prerequisite == null || research == null ||
                     !research.IsResearchCompleted(prerequisite.Id))
                 {
@@ -1457,13 +1547,13 @@ public sealed partial class TutorialManager : MonoBehaviour
         TutorialSnapshot snapshot, string buildingId, ResearchManager research)
     {
         if (snapshot == null ||
-            !DataBase<Building>.TryFind(buildingId, out Building building) ||
+            !DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) ||
             building == null)
             return false;
 
         for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
-            Research prerequisite = building.RequiredResearch[i];
+            ResearchDef prerequisite = building.RequiredResearch[i];
             if (prerequisite == null || research == null ||
                 !research.IsResearchCompleted(prerequisite.Id))
             {
@@ -1483,7 +1573,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
-            WorkshopUpgrade prerequisite = building.RequiredWorkshopUpgrades[i];
+            WorkshopUpgradeDef prerequisite = building.RequiredWorkshopUpgrades[i];
             if (prerequisite == null || workshop == null ||
                 !workshop.IsPurchased(prerequisite))
             {
@@ -1491,7 +1581,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                 {
                     for (int r = 0; r < prerequisite.RequiredResearch.Count; r++)
                     {
-                        Research researchPrerequisite = prerequisite.RequiredResearch[r];
+                        ResearchDef researchPrerequisite = prerequisite.RequiredResearch[r];
                         if (researchPrerequisite == null || research == null ||
                             !research.IsResearchCompleted(researchPrerequisite.Id))
                         {
@@ -1512,7 +1602,7 @@ public sealed partial class TutorialManager : MonoBehaviour
 
                     for (int u = 0; u < prerequisite.RequiredUpgrades.Count; u++)
                     {
-                        WorkshopUpgrade upgradePrerequisite =
+                        WorkshopUpgradeDef upgradePrerequisite =
                             prerequisite.RequiredUpgrades[u];
                         if (upgradePrerequisite == null ||
                             !workshop.IsPurchased(upgradePrerequisite))
@@ -1551,11 +1641,11 @@ public sealed partial class TutorialManager : MonoBehaviour
         TutorialSnapshot snapshot, string researchId, ResearchManager research)
     {
         if (snapshot == null ||
-            !DataBase<Research>.TryFind(researchId, out Research definition) ||
+            !DataBase<ResearchDef>.TryFind(researchId, out ResearchDef definition) ||
             definition == null)
             return false;
 
-        Research prerequisite = FindFirstUncompletedResearchLeaf(
+        ResearchDef prerequisite = FindFirstUncompletedResearchLeaf(
             definition, research, new HashSet<string>());
         if (prerequisite == null)
             return false;
@@ -1592,7 +1682,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             snapshot.RecommendedAction = "打开资源页面，补齐研究资源后再继续“" +
                 prerequisite.Label + "”。";
             snapshot.NavigationPage = "Resources";
-            Resource missingResource = FindMissingResearchResource(research, prerequisite);
+            ResourceDef missingResource = FindMissingResearchResource(research, prerequisite);
             snapshot.NavigationTargetId = missingResource == null
                 ? string.Empty
                 : missingResource.Id;
@@ -1616,8 +1706,8 @@ public sealed partial class TutorialManager : MonoBehaviour
         return true;
     }
 
-    private static Resource FindMissingResearchResource(
-        ResearchManager research, Research definition)
+    private static ResourceDef FindMissingResearchResource(
+        ResearchManager research, ResearchDef definition)
     {
         if (research == null || definition == null ||
             !research.States.TryGetValue(definition, out ResearchState state) ||
@@ -1628,11 +1718,11 @@ public sealed partial class TutorialManager : MonoBehaviour
         if (resources == null)
             return null;
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             definition.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
             if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum remaining = ExpantaNum.Max(
@@ -1645,8 +1735,8 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static Research FindFirstUncompletedResearchLeaf(
-        Research target, ResearchManager research, HashSet<string> visiting)
+    private static ResearchDef FindFirstUncompletedResearchLeaf(
+        ResearchDef target, ResearchManager research, HashSet<string> visiting)
     {
         if (target == null || research == null ||
             research.IsResearchCompleted(target.Id))
@@ -1656,14 +1746,14 @@ public sealed partial class TutorialManager : MonoBehaviour
 
         for (int i = 0; i < target.Prerequisites.Count; i++)
         {
-            Research prerequisite = target.Prerequisites[i];
+            ResearchDef prerequisite = target.Prerequisites[i];
             if (prerequisite == null)
                 throw new InvalidOperationException(
                     "Research definition contains a null prerequisite: " + target.Id);
             if (research.IsResearchCompleted(prerequisite.Id))
                 continue;
 
-            Research leaf = FindFirstUncompletedResearchLeaf(
+            ResearchDef leaf = FindFirstUncompletedResearchLeaf(
                 prerequisite, research, visiting);
             visiting.Remove(target.Id);
             return leaf ?? prerequisite;
@@ -1678,7 +1768,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         ResourceManager resources, BuildingManager buildings)
     {
         if (snapshot == null ||
-            !DataBase<Building>.TryFind(buildingId, out Building building) ||
+            !DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) ||
             building == null)
             return false;
 
@@ -1693,7 +1783,7 @@ public sealed partial class TutorialManager : MonoBehaviour
 
     private static string GetResearchLabel(string id)
     {
-        return DataBase<Research>.TryFind(id, out Research definition) &&
+        return DataBase<ResearchDef>.TryFind(id, out ResearchDef definition) &&
             definition != null && !string.IsNullOrWhiteSpace(definition.Label)
             ? definition.Label
             : id;
@@ -1701,7 +1791,7 @@ public sealed partial class TutorialManager : MonoBehaviour
 
     private static string GetBuildingLabel(string id)
     {
-        return DataBase<Building>.TryFind(id, out Building definition) &&
+        return DataBase<BuildingDef>.TryFind(id, out BuildingDef definition) &&
             definition != null && !string.IsNullOrWhiteSpace(definition.Label)
             ? definition.Label
             : id;
@@ -1709,7 +1799,7 @@ public sealed partial class TutorialManager : MonoBehaviour
 
     private static bool HasOwnedBuildingId(BuildingManager buildings, string id)
     {
-        if (buildings == null || !DataBase<Building>.TryFind(id, out Building definition) ||
+        if (buildings == null || !DataBase<BuildingDef>.TryFind(id, out BuildingDef definition) ||
             !buildings.States.TryGetValue(definition, out BuildingState state))
             return false;
         return state != null && state.Amount > ExpantaNum.Zero;
@@ -1717,22 +1807,22 @@ public sealed partial class TutorialManager : MonoBehaviour
 
     private static string BuildOwnedProductionChainSummary(BuildingManager buildings)
     {
-        if (!TryFindOwnedProductionChain(buildings, out Resource consumed, out Resource generated))
+        if (!TryFindOwnedProductionChain(buildings, out ResourceDef consumed, out ResourceDef generated))
             return string.Empty;
         return consumed.Label + " → " + generated.Label;
     }
 
-    private static Building FindBuildingRecommendation(
+    private static BuildingDef FindBuildingRecommendation(
         GameManager game, BuildingManager buildings, ResearchManager research)
     {
         if (game == null || buildings == null)
             return null;
 
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
-        Building fallback = null;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
+        BuildingDef fallback = null;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
+            BuildingDef building = definitions[i];
             if (building == null || !buildings.ShouldDisplay(building))
                 continue;
             if (fallback == null && HasGuidanceEffect(building))
@@ -1765,7 +1855,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             (game.State.FoodNetRate <= ExpantaNum.Zero ||
              game.State.HappinessMultiplier < ExpantaNum.One))
             return "Food";
-        Building recommendation = FindPopulationCapacityRecommendation(game, buildings);
+        BuildingDef recommendation = FindPopulationCapacityRecommendation(game, buildings);
         return recommendation == null ? string.Empty : recommendation.Id;
     }
 
@@ -1775,7 +1865,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         ResearchManager research)
     {
         snapshot.NavigationPage = "Buildings";
-        Building recommendation = FindPopulationCapacityRecommendation(game, buildings);
+        BuildingDef recommendation = FindPopulationCapacityRecommendation(game, buildings);
         if (recommendation != null)
         {
             snapshot.Blocker = defaultBlocker;
@@ -1784,7 +1874,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             return;
         }
 
-        Building blocker = FindPopulationCapacityBlocker(game, buildings);
+        BuildingDef blocker = FindPopulationCapacityBlocker(game, buildings);
         if (blocker != null && ApplyBuildingPrerequisiteGuidance(
                 snapshot, blocker.Id, research))
             return;
@@ -1798,17 +1888,17 @@ public sealed partial class TutorialManager : MonoBehaviour
         snapshot.NavigationTargetId = blocker == null ? string.Empty : blocker.Id;
     }
 
-    private static Building FindPopulationCapacityBlocker(
+    private static BuildingDef FindPopulationCapacityBlocker(
         GameManager game, BuildingManager buildings)
     {
         if (game == null || buildings == null)
             return null;
 
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
-        Building futureBlocker = null;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
+        BuildingDef futureBlocker = null;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
+            BuildingDef building = definitions[i];
             if (building == null || HasOwnedBuildingId(buildings, building.Id) ||
                 building.PopulationCapacityGranted <= ExpantaNum.Zero)
                 continue;
@@ -1820,22 +1910,22 @@ public sealed partial class TutorialManager : MonoBehaviour
         return futureBlocker;
     }
 
-    private static Building FindPopulationCapacityRecommendation(GameManager game,
+    private static BuildingDef FindPopulationCapacityRecommendation(GameManager game,
         BuildingManager buildings)
     {
         if (game == null || buildings == null)
             return null;
 
         if (game.State.TechLevel == TechLevel.Animal &&
-            DataBase<Building>.TryFind("WoodHouse", out Building woodHouse) &&
+            DataBase<BuildingDef>.TryFind("WoodHouse", out BuildingDef woodHouse) &&
             woodHouse.PopulationCapacityGranted > ExpantaNum.Zero &&
             buildings.CanConstructNew(woodHouse))
             return woodHouse;
 
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
+            BuildingDef building = definitions[i];
             if (building != null &&
                 building.PopulationCapacityGranted > ExpantaNum.Zero &&
                 buildings.CanConstructNew(building))
@@ -1844,35 +1934,35 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static bool HasGuidanceEffect(Building building) =>
+    private static bool HasGuidanceEffect(BuildingDef building) =>
         building.PopulationCapacityGranted > ExpantaNum.Zero ||
         building.FoodProductionRate > ExpantaNum.Zero ||
         building.ResearchPowerGranted > ExpantaNum.Zero ||
         building.ResourceGenerationRates.Count > 0 ||
         building.ResourceConsumptionRates.Count > 0;
 
-    private static Building FindProductionChainRecommendation(GameManager game,
+    private static BuildingDef FindProductionChainRecommendation(GameManager game,
         BuildingManager buildings)
     {
         if (game == null || buildings == null)
             return null;
 
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
         foreach (BuildingState sourceState in buildings.States.Values)
         {
             if (sourceState == null || sourceState.Amount <= ExpantaNum.Zero ||
                 sourceState.Definition == null)
                 continue;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> outputs =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> outputs =
                 sourceState.Definition.ResourceGenerationRates;
             for (int outputIndex = 0; outputIndex < outputs.Count; outputIndex++)
             {
-                Resource output = outputs[outputIndex].First;
+                ResourceDef output = outputs[outputIndex].First;
                 if (output == null || outputs[outputIndex].Second <= ExpantaNum.Zero)
                     continue;
                 for (int i = 0; i < definitions.Count; i++)
                 {
-                    Building candidate = definitions[i];
+                    BuildingDef candidate = definitions[i];
                     if (candidate != null && !HasOwnedBuildingId(buildings, candidate.Id) &&
                         IsCurrentEraBuilding(game, candidate) &&
                         BuildingConsumes(candidate, output))
@@ -1886,16 +1976,16 @@ public sealed partial class TutorialManager : MonoBehaviour
             if (consumerState == null || consumerState.Amount <= ExpantaNum.Zero ||
                 consumerState.Definition == null)
                 continue;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> inputs =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> inputs =
                 consumerState.Definition.ResourceConsumptionRates;
             for (int inputIndex = 0; inputIndex < inputs.Count; inputIndex++)
             {
-                Resource input = inputs[inputIndex].First;
+                ResourceDef input = inputs[inputIndex].First;
                 if (input == null || inputs[inputIndex].Second <= ExpantaNum.Zero)
                     continue;
                 for (int i = 0; i < definitions.Count; i++)
                 {
-                    Building candidate = definitions[i];
+                    BuildingDef candidate = definitions[i];
                     if (candidate != null && !HasOwnedBuildingId(buildings, candidate.Id) &&
                         IsCurrentEraBuilding(game, candidate) &&
                         BuildingGenerates(candidate, input))
@@ -1906,14 +1996,14 @@ public sealed partial class TutorialManager : MonoBehaviour
 
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building producer = definitions[i];
+            BuildingDef producer = definitions[i];
             if (producer == null || HasOwnedBuildingId(buildings, producer.Id) ||
                 !IsCurrentEraBuilding(game, producer) ||
                 producer.ResourceGenerationRates.Count == 0)
                 continue;
             for (int j = 0; j < definitions.Count; j++)
             {
-                Building consumer = definitions[j];
+                BuildingDef consumer = definitions[j];
                 if (consumer == null || consumer == producer ||
                     !IsCurrentEraBuilding(game, consumer))
                     continue;
@@ -1921,7 +2011,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                     outputIndex < producer.ResourceGenerationRates.Count;
                     outputIndex++)
                 {
-                    Resource output = producer.ResourceGenerationRates[outputIndex].First;
+                    ResourceDef output = producer.ResourceGenerationRates[outputIndex].First;
                     if (output != null && BuildingConsumes(consumer, output))
                         return producer;
                 }
@@ -1930,17 +2020,17 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static bool IsCurrentEraBuilding(GameManager game, Building building)
+    private static bool IsCurrentEraBuilding(GameManager game, BuildingDef building)
     {
         return game != null && game.State != null && building != null &&
             building.TechLevel <= game.State.TechLevel;
     }
 
     private static bool TryFindNextProductionChainAction(
-        Building chainRecommendation, ResourceManager resources, BuildingManager buildings,
-        ResearchManager research, out Building buildingTarget,
-        out Research researchTarget, out Resource resourceTarget,
-        out WorkshopUpgrade workshopTarget)
+        BuildingDef chainRecommendation, ResourceManager resources, BuildingManager buildings,
+        ResearchManager research, out BuildingDef buildingTarget,
+        out ResearchDef researchTarget, out ResourceDef resourceTarget,
+        out WorkshopUpgradeDef workshopTarget)
     {
         buildingTarget = chainRecommendation;
         researchTarget = null;
@@ -1963,14 +2053,14 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static bool TryFindBuildingResearchBlocker(
-        Building building, ResearchManager research, out Research target)
+        BuildingDef building, ResearchManager research, out ResearchDef target)
     {
         target = null;
         if (building == null || research == null)
             return false;
         for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
-            Research required = building.RequiredResearch[i];
+            ResearchDef required = building.RequiredResearch[i];
             if (required == null || research.IsResearchCompleted(required.Id))
                 continue;
             target = FindFirstUncompletedResearchLeaf(
@@ -1981,9 +2071,9 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static bool TryFindBuildingWorkshopBlocker(
-        Building building, ResearchManager research, ResourceManager resources,
-        out Research researchTarget, out Resource resourceTarget,
-        out WorkshopUpgrade workshopTarget)
+        BuildingDef building, ResearchManager research, ResourceManager resources,
+        out ResearchDef researchTarget, out ResourceDef resourceTarget,
+        out WorkshopUpgradeDef workshopTarget)
     {
         researchTarget = null;
         resourceTarget = null;
@@ -1994,7 +2084,7 @@ public sealed partial class TutorialManager : MonoBehaviour
 
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
-            WorkshopUpgrade required = building.RequiredWorkshopUpgrades[i];
+            WorkshopUpgradeDef required = building.RequiredWorkshopUpgrades[i];
             if (required == null || workshop != null && workshop.IsPurchased(required))
                 continue;
             if (TryFindWorkshopResearchBlocker(
@@ -2011,14 +2101,14 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static bool TryFindWorkshopResearchBlocker(
-        WorkshopUpgrade upgrade, ResearchManager research, out Research target)
+        WorkshopUpgradeDef upgrade, ResearchManager research, out ResearchDef target)
     {
         target = null;
         if (upgrade == null || research == null)
             return false;
         for (int i = 0; i < upgrade.RequiredResearch.Count; i++)
         {
-            Research required = upgrade.RequiredResearch[i];
+            ResearchDef required = upgrade.RequiredResearch[i];
             if (required == null || research.IsResearchCompleted(required.Id))
                 continue;
             target = FindFirstUncompletedResearchLeaf(
@@ -2029,9 +2119,9 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static bool TryFindWorkshopUpgradeBlocker(
-        WorkshopUpgrade upgrade, WorkshopManager workshop,
-        ResearchManager research, out Research researchTarget,
-        out WorkshopUpgrade workshopTarget)
+        WorkshopUpgradeDef upgrade, WorkshopManager workshop,
+        ResearchManager research, out ResearchDef researchTarget,
+        out WorkshopUpgradeDef workshopTarget)
     {
         researchTarget = null;
         workshopTarget = null;
@@ -2039,7 +2129,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             return false;
         for (int i = 0; i < upgrade.RequiredUpgrades.Count; i++)
         {
-            WorkshopUpgrade required = upgrade.RequiredUpgrades[i];
+            WorkshopUpgradeDef required = upgrade.RequiredUpgrades[i];
             if (required == null || workshop.IsPurchased(required))
                 continue;
             if (TryFindWorkshopResearchBlocker(
@@ -2051,14 +2141,14 @@ public sealed partial class TutorialManager : MonoBehaviour
         return false;
     }
 
-    private static Resource FindMissingWorkshopResource(
-        WorkshopUpgrade upgrade, ResourceManager resources)
+    private static ResourceDef FindMissingWorkshopResource(
+        WorkshopUpgradeDef upgrade, ResourceManager resources)
     {
         if (upgrade == null || resources == null)
             return null;
         for (int i = 0; i < upgrade.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = upgrade.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = upgrade.ResourceRequirements[i];
             if (requirement.First != null && requirement.Second > ExpantaNum.Zero &&
                 resources.GetAmount(requirement.First) < requirement.Second)
                 return requirement.First;
@@ -2066,8 +2156,8 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static Resource FindMissingBuildingResource(
-        Building building, BuildingManager buildings, ResourceManager resources)
+    private static ResourceDef FindMissingBuildingResource(
+        BuildingDef building, BuildingManager buildings, ResourceManager resources)
     {
         if (building == null || buildings == null || resources == null)
             return null;
@@ -2078,7 +2168,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         ExpantaNum multiplier = BuildingManager.GetConstructionCostMultiplier(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = building.ResourceRequirements[i];
             if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum cost = requirement.Second.GeometricSeriesCost(
@@ -2089,25 +2179,25 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    private static bool BuildingConsumes(Building building, Resource resource)
+    private static bool BuildingConsumes(BuildingDef building, ResourceDef resource)
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> inputs = building.ResourceConsumptionRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> inputs = building.ResourceConsumptionRates;
         for (int i = 0; i < inputs.Count; i++)
             if (inputs[i].First == resource && inputs[i].Second > ExpantaNum.Zero)
                 return true;
         return false;
     }
 
-    private static bool BuildingGenerates(Building building, Resource resource)
+    private static bool BuildingGenerates(BuildingDef building, ResourceDef resource)
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> outputs = building.ResourceGenerationRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> outputs = building.ResourceGenerationRates;
         for (int i = 0; i < outputs.Count; i++)
             if (outputs[i].First == resource && outputs[i].Second > ExpantaNum.Zero)
                 return true;
         return false;
     }
 
-    public static string DescribeBuildingRole(Building building)
+    public static string DescribeBuildingRole(BuildingDef building)
     {
         if (building == null)
             return "建筑资料暂不可用。";
@@ -2150,13 +2240,13 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static void AddResourceFlowChanges(List<string> changes,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates, string prefix)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates, string prefix)
     {
         if (rates == null)
             return;
         for (int i = 0; i < rates.Count && changes.Count < 5; i++)
         {
-            Pair<Resource, ExpantaNum> rate = rates[i];
+            Pair<ResourceDef, ExpantaNum> rate = rates[i];
             if (rate.First == null || rate.Second <= ExpantaNum.Zero)
                 continue;
             changes.Add(prefix + rate.First.Label + " " + rate.Second.ToGameString() + "/s");
@@ -2164,7 +2254,7 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static string DescribeBuildingBlocker(
-        Building building,
+        BuildingDef building,
         GameManager game,
         BuildingManager buildings,
         ResourceManager resources)
@@ -2195,7 +2285,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             BuildingManager.GetConstructionCostMultiplier(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement =
+            Pair<ResourceDef, ExpantaNum> requirement =
                 building.ResourceRequirements[i];
             if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
@@ -2229,7 +2319,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             "”的领土、生产力和资源已经满足；可以前往建筑页面建造。";
     }
 
-    private static Research FindResearchGuidance(
+    private static ResearchDef FindResearchGuidance(
         ResearchManager researchManager, TechLevel currentEra)
     {
         if (researchManager == null)
@@ -2244,18 +2334,18 @@ public sealed partial class TutorialManager : MonoBehaviour
         // research rules and queue behavior remain owned by ResearchManager.
         if ((int)currentEra < (int)TechLevel.Archotech)
         {
-            Research transition = EraGoalEvaluator.FindTransition(
+            ResearchDef transition = EraGoalEvaluator.FindTransition(
                 (TechLevel)((int)currentEra + 1));
-            Research leaf = FindFirstUncompletedResearchLeaf(
+            ResearchDef leaf = FindFirstUncompletedResearchLeaf(
                 transition, researchManager, new HashSet<string>());
             if (leaf != null)
                 return leaf;
         }
 
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
+        IReadOnlyList<ResearchDef> definitions = DataBase<ResearchDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research definition = definitions[i];
+            ResearchDef definition = definitions[i];
             if (definition != null &&
                 researchManager.States.TryGetValue(definition, out ResearchState state) &&
                 state != null && state.Status == ResearchStatus.Available)
@@ -2264,7 +2354,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         return null;
     }
 
-    public static string DescribeResearchRole(Research research)
+    public static string DescribeResearchRole(ResearchDef research)
     {
         if (research == null)
             return "研究资料暂不可用。";
@@ -2285,10 +2375,10 @@ public sealed partial class TutorialManager : MonoBehaviour
                 : target + "：" + effect.Type.GetDescription());
         }
         {
-            IReadOnlyList<Building> definitions = DataBase<Building>.All;
+            IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
-                Building building = definitions[i];
+                BuildingDef building = definitions[i];
                 if (building == null || changes.Count >= 5)
                     continue;
                 for (int j = 0; j < building.RequiredResearch.Count; j++)
@@ -2328,7 +2418,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         TryFindOwnedProductionChain(states, out _, out _);
 
     private static bool TryFindOwnedProductionChain(
-        BuildingManager buildings, out Resource consumed, out Resource generated)
+        BuildingManager buildings, out ResourceDef consumed, out ResourceDef generated)
     {
         consumed = null;
         generated = null;
@@ -2338,11 +2428,11 @@ public sealed partial class TutorialManager : MonoBehaviour
 
 #if UNITY_EDITOR
     public static bool TryFindOwnedProductionChainForEditor(
-        IEnumerable<BuildingState> states, out Resource consumed, out Resource generated) =>
+        IEnumerable<BuildingState> states, out ResourceDef consumed, out ResourceDef generated) =>
         TryFindOwnedProductionChain(states, out consumed, out generated);
 #endif
     private static bool TryFindOwnedProductionChain(
-        IEnumerable<BuildingState> states, out Resource consumed, out Resource generated,
+        IEnumerable<BuildingState> states, out ResourceDef consumed, out ResourceDef generated,
         bool requireProducedStock = false)
     {
         consumed = null;
@@ -2354,11 +2444,11 @@ public sealed partial class TutorialManager : MonoBehaviour
         {
             if (source == null || source.Amount <= ExpantaNum.Zero || source.Efficiency <= ExpantaNum.Zero || source.Definition == null)
                 continue;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> outputs =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> outputs =
                 source.Definition.ResourceGenerationRates;
             for (int outputIndex = 0; outputIndex < outputs.Count; outputIndex++)
             {
-                Pair<Resource, ExpantaNum> output = outputs[outputIndex];
+                Pair<ResourceDef, ExpantaNum> output = outputs[outputIndex];
                 if (output.First == null || output.Second <= ExpantaNum.Zero)
                     continue;
 
@@ -2367,14 +2457,14 @@ public sealed partial class TutorialManager : MonoBehaviour
                     if (target == null || target == source ||
                         target.Amount <= ExpantaNum.Zero || target.Efficiency <= ExpantaNum.Zero || target.Definition == null)
                         continue;
-                    IReadOnlyList<Pair<Resource, ExpantaNum>> inputs =
+                    IReadOnlyList<Pair<ResourceDef, ExpantaNum>> inputs =
                         target.Definition.ResourceConsumptionRates;
                     for (int inputIndex = 0; inputIndex < inputs.Count; inputIndex++)
                     {
-                        Pair<Resource, ExpantaNum> input = inputs[inputIndex];
+                        Pair<ResourceDef, ExpantaNum> input = inputs[inputIndex];
                         if (input.First == output.First && input.Second > ExpantaNum.Zero)
                         {
-                            Resource product = FindFirstResource(target.Definition.ResourceGenerationRates);
+                            ResourceDef product = FindFirstResource(target.Definition.ResourceGenerationRates);
                             if (product == null || requireProducedStock &&
                                 ResourceManager.Instance.GetAmount(product) <= ExpantaNum.Zero)
                                 continue;
@@ -2389,14 +2479,14 @@ public sealed partial class TutorialManager : MonoBehaviour
         return false;
     }
 
-    private static Resource FindFirstResource(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates)
+    private static ResourceDef FindFirstResource(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates)
     {
         if (rates == null)
             return null;
         for (int i = 0; i < rates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> rate = rates[i];
+            Pair<ResourceDef, ExpantaNum> rate = rates[i];
             if (rate.First != null && rate.Second > ExpantaNum.Zero)
                 return rate.First;
         }

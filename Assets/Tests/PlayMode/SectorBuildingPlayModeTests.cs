@@ -55,7 +55,7 @@ public sealed class SectorBuildingPlayModeTests
             "The Sectors navigation entry must remain hidden before its research gates complete.");
 
         CompleteResearchAndPrerequisites(game, researchManager, resourceManager,
-            DataBase<Research>.Find("HomeSystemSurvey"), new HashSet<string>());
+            DataBase<ResearchDef>.Find("HomeSystemSurvey"), new HashSet<string>());
         root.RefreshNavigationVisibilityForEditor();
         yield return null;
 
@@ -64,7 +64,7 @@ public sealed class SectorBuildingPlayModeTests
             "Completing HomeSystemSurvey must reveal the home-system Sectors entry.");
 
         CompleteResearchAndPrerequisites(game, researchManager, resourceManager,
-            DataBase<Research>.Find("InterstellarNavigation"), new HashSet<string>());
+            DataBase<ResearchDef>.Find("InterstellarNavigation"), new HashSet<string>());
         root.RefreshNavigationVisibilityForEditor();
         yield return null;
 
@@ -93,15 +93,15 @@ public sealed class SectorBuildingPlayModeTests
         GameManager game = Object.FindObjectOfType<GameManager>();
         game.InitializeNewGameForEditor();
         ResearchManager.Instance.ResetForPerformanceTest();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         SectorState moonState = game.Sectors.GetState(moon);
-        SectorDefinition prerequisite = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef prerequisite = DataBase<SectorDef>.Find("DawnRing");
         game.Sectors.GetState(prerequisite).SetOccupiedForEditor(true);
-        SectorBuilding hub = DataBase<SectorBuilding>.Find("EarthMoonLogisticsHub");
+        SectorBuildingDef hub = DataBase<SectorBuildingDef>.Find("EarthMoonLogisticsHub");
         Assert.That(hub, Is.Not.Null);
         foreach (BuildingState state in BuildingManager.Instance.States.Values)
             state.SetAmountForEditor(ExpantaNum.Zero);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, ExpantaNum.Zero);
         moonState.SetOccupiedForEditor(false);
 
@@ -176,14 +176,14 @@ public sealed class SectorBuildingPlayModeTests
             Assert.That(retainedMenu.gameObject.activeSelf, Is.False);
     }
 
-    private static void PrepareBuildableSectorBuilding(GameManager game, SectorBuilding building)
+    private static void PrepareBuildableSectorBuilding(GameManager game, SectorBuildingDef building)
     {
         game.AdvanceTechLevelForEditor(building.TechLevel);
         game.State.RestorePopulationForEditor(new ExpantaNum(1000d));
 
         for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
-            Research required = building.RequiredResearch[i];
+            ResearchDef required = building.RequiredResearch[i];
             ResearchManager.Instance.GetState(required)
                 .SetStatusForEditor(ResearchStatus.Completed);
         }
@@ -192,7 +192,7 @@ public sealed class SectorBuildingPlayModeTests
             BuildingManager.GetConstructionCostMultiplierForEditor(building);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = building.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = building.ResourceRequirements[i];
             // Derive the fixture from the live construction multiplier. The test
             // must not depend on an exact inventory total or hard-coded costs.
             ResourceManager.Instance.AddAmount(
@@ -203,12 +203,12 @@ public sealed class SectorBuildingPlayModeTests
 
     private static void GrantResearchTestResources(ResourceManager resourceManager)
     {
-        var totals = new Dictionary<Resource, ExpantaNum>();
-        foreach (Research research in DataBase<Research>.All)
+        var totals = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null)
                 continue;
-            foreach (Pair<Resource, ExpantaNum> requirement in research.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in research.ResourceRequirements)
             {
                 if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                     continue;
@@ -218,11 +218,11 @@ public sealed class SectorBuildingPlayModeTests
                     : requirement.Second;
             }
         }
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             if (upgrade == null)
                 continue;
-            foreach (Pair<Resource, ExpantaNum> requirement in upgrade.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in upgrade.ResourceRequirements)
             {
                 if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                     continue;
@@ -232,7 +232,7 @@ public sealed class SectorBuildingPlayModeTests
                     : requirement.Second;
             }
         }
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resourceManager.SetAmount(resource, totals.TryGetValue(
                 resource, out ExpantaNum total) ? total : ExpantaNum.Zero);
     }
@@ -241,7 +241,7 @@ public sealed class SectorBuildingPlayModeTests
         GameManager game,
         ResearchManager researchManager,
         ResourceManager resourceManager,
-        Research target,
+        ResearchDef target,
         HashSet<string> visiting)
     {
         if (target == null || researchManager.IsResearchCompleted(target.Id))

@@ -453,7 +453,7 @@ public sealed partial class KingdomUIRoot
         {
             RefreshRequirementRows(selectedWorkshop.ResourceRequirements);
             ConfigureWorkshopPaymentButton(selectedWorkshop, false);
-            if (!pageScrolling && populatedPage == "Workshop")
+            if (!pageScrolling && (populatedPage == "Workshop" || populatedPage == "Sectors"))
                 SetWorkshopDetailBody(selectedWorkshop);
         }
         else if (!pageScrolling && populatedPage == "Research")
@@ -723,7 +723,7 @@ public sealed partial class KingdomUIRoot
         BuildingState state = null;
         if (buildingManagerCache != null && buildingManagerCache.States.TryGetValue(selectedBuilding, out state))
             version = state.Version;
-        Building upgradeTarget = null;
+        BuildingDef upgradeTarget = null;
         if (state != null && state.Amount > ExpantaNum.Zero && buildingManagerCache != null)
             buildingManagerCache.TryGetUnlockedUpgradeTarget(selectedBuilding, out upgradeTarget);
         ExpantaNum territory = GameManager.Instance.State.AvailableTerritory;
@@ -735,7 +735,7 @@ public sealed partial class KingdomUIRoot
         if (resourceManagerCache != null)
             for (int i = 0; i < sourceCount + targetCount; i++)
             {
-                Resource resource = i < sourceCount ? selectedBuilding.ResourceRequirements[i].First
+                ResourceDef resource = i < sourceCount ? selectedBuilding.ResourceRequirements[i].First
                     : upgradeTarget.ResourceRequirements[i - sourceCount].First;
                 if (resource != null && resourceManagerCache.States.TryGetValue(resource, out ResourceState resourceState))
                     resourceVersion = unchecked(resourceVersion * 31 + resourceState.Version);
@@ -775,23 +775,23 @@ public sealed partial class KingdomUIRoot
         return true;
     }
 
-    private StringBuilder BuildSelectedBuildingPrerequisiteSignature(Building building)
+    private StringBuilder BuildSelectedBuildingPrerequisiteSignature(BuildingDef building)
     {
         StringBuilder signature = selectedBuildingPrerequisiteSignatureBuilder;
         signature.Clear();
         ResearchManager researchManager = ResearchManager.Instance;
-        IReadOnlyList<Research> researchPrerequisites = building.RequiredResearch;
+        IReadOnlyList<ResearchDef> researchPrerequisites = building.RequiredResearch;
         signature.Append('R').Append(researchPrerequisites == null ? 0 : researchPrerequisites.Count).Append(':');
         if (researchPrerequisites != null)
             for (int i = 0; i < researchPrerequisites.Count; i++)
             {
-                Research prerequisite = researchPrerequisites[i];
+                ResearchDef prerequisite = researchPrerequisites[i];
                 signature.Append(prerequisite != null && researchManager != null &&
                     researchManager.IsResearchCompleted(prerequisite.Id) ? '1' : '0');
             }
 
         WorkshopManager workshopManager = WorkshopManager.Instance;
-        IReadOnlyList<WorkshopUpgrade> workshopPrerequisites = building.RequiredWorkshopUpgrades;
+        IReadOnlyList<WorkshopUpgradeDef> workshopPrerequisites = building.RequiredWorkshopUpgrades;
         signature.Append('|').Append('W').Append(workshopPrerequisites == null ? 0 : workshopPrerequisites.Count).Append(':');
         if (workshopPrerequisites != null)
             for (int i = 0; i < workshopPrerequisites.Count; i++)
@@ -1076,7 +1076,7 @@ public sealed partial class KingdomUIRoot
         {
             if (researchManagerCache.ActiveResearch == null && researchManagerCache.ResearchQueue.Count == 0)
                 body.Append("\n\n研究队列空闲：在研究页选择下一项课题。");
-            foreach (Research definition in DataBase<Research>.All)
+            foreach (ResearchDef definition in DataBase<ResearchDef>.All)
             {
                 if (!researchManagerCache.States.TryGetValue(definition, out ResearchState research) ||
                     research.Status != ResearchStatus.Available) continue;
@@ -1087,7 +1087,7 @@ public sealed partial class KingdomUIRoot
         }
         shown = 0;
         if (workshopManagerCache == null || !workshopManagerCache.IsSystemUnlocked) return;
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             if (upgrade.TechLevel > state.TechLevel || workshopManagerCache.IsPurchased(upgrade) ||
                 !workshopManagerCache.ArePrerequisitesMet(upgrade)) continue;
@@ -1173,28 +1173,28 @@ public sealed partial class KingdomUIRoot
             return;
 
         if (pageName == "Research" &&
-            DataBase<Research>.TryFind(targetId, out Research research) &&
+            DataBase<ResearchDef>.TryFind(targetId, out ResearchDef research) &&
             research != null)
         {
             ShowResearchDetails(research);
             return;
         }
         if (pageName == "Buildings" &&
-            DataBase<Building>.TryFind(targetId, out Building building) &&
+            DataBase<BuildingDef>.TryFind(targetId, out BuildingDef building) &&
             building != null)
         {
             ShowBuildingDetails(building);
             return;
         }
         if (pageName == "Resources" &&
-            DataBase<Resource>.TryFind(targetId, out Resource resource) &&
+            DataBase<ResourceDef>.TryFind(targetId, out ResourceDef resource) &&
             resource != null)
         {
             ShowResourceDetails(resource);
             return;
         }
         if (pageName == "Sectors" &&
-            DataBase<SectorDefinition>.TryFind(targetId, out SectorDefinition sector) &&
+            DataBase<SectorDef>.TryFind(targetId, out SectorDef sector) &&
             sector != null)
         {
             GameManager game = GameManager.Instance;
@@ -1202,8 +1202,8 @@ public sealed partial class KingdomUIRoot
             return;
         }
         if (pageName == "Workshop" &&
-            DataBase<WorkshopUpgrade>.TryFind(targetId,
-                out WorkshopUpgrade workshop) && workshop != null)
+            DataBase<WorkshopUpgradeDef>.TryFind(targetId,
+                out WorkshopUpgradeDef workshop) && workshop != null)
             ShowWorkshopDetails(workshop);
     }
 
@@ -1327,9 +1327,9 @@ public sealed partial class KingdomUIRoot
         if (manager == null)
             return;
 
-        foreach (KeyValuePair<Research, ResearchState> entry in manager.States)
+        foreach (KeyValuePair<ResearchDef, ResearchState> entry in manager.States)
         {
-            Research research = entry.Key;
+            ResearchDef research = entry.Key;
             ResearchState state = entry.Value;
             if (research == null || state == null ||
                 state.Status != ResearchStatus.Completed ||
@@ -1362,9 +1362,9 @@ public sealed partial class KingdomUIRoot
         if (manager == null)
             return;
 
-        foreach (KeyValuePair<Building, BuildingState> entry in manager.States)
+        foreach (KeyValuePair<BuildingDef, BuildingState> entry in manager.States)
         {
-            Building building = entry.Key;
+            BuildingDef building = entry.Key;
             BuildingState state = entry.Value;
             if (building == null || state == null || string.IsNullOrEmpty(building.Id))
                 continue;
@@ -1473,7 +1473,7 @@ public sealed partial class KingdomUIRoot
         // creates avoidable ExpantaNum strings and TMP dirties, especially
         // while the research graph owns a touch gesture.
         if (populatedPage == "Buildings" && BuildingManager.Instance != null)
-            foreach (KeyValuePair<Building, TMP_Text> pair in buildingAmountLabels)
+            foreach (KeyValuePair<BuildingDef, TMP_Text> pair in buildingAmountLabels)
                 if (pair.Value != null)
                     if (BuildingManager.Instance.States.TryGetValue(pair.Key, out BuildingState state))
                     {
@@ -1483,9 +1483,8 @@ public sealed partial class KingdomUIRoot
                         bool hasBuildingAmount = state.Amount > ExpantaNum.Zero;
                         if (buildingDeconstructButtons.TryGetValue(pair.Key, out Button deconstructButton) && deconstructButton != null)
                         {
-                            SetBuildingActionButtonText(
-                                deconstructButton,
-                                "\u62c6\u9664x" + GetSelectedBuildingQuantity(pair.Key, false, true).ToGameString());
+                            SetBuildingActionQuantity(
+                                deconstructButton, GetSelectedBuildingQuantity(pair.Key, false, true), "拆除");
                             SetBuildingActionButtonState(deconstructButton, hasBuildingAmount);
                         }
                         else if (buildingDeconstructSurfaces.TryGetValue(pair.Key, out Image deconstructSurface) && deconstructSurface != null)
@@ -1494,10 +1493,7 @@ public sealed partial class KingdomUIRoot
                             buildingActionUpgradeModes.TryGetValue(pair.Key, out bool upgrade))
                         {
                             ExpantaNum actionQuantity = GetSelectedBuildingQuantity(pair.Key, upgrade, false);
-                            SetBuildingActionButtonText(
-                                actionButton,
-                                (upgrade ? "\u5347\u7ea7x" : "\u5efa\u9020x") +
-                                actionQuantity.ToGameString());
+                            SetBuildingActionQuantity(actionButton, actionQuantity, upgrade ? "升级" : "建造");
                             SetBuildingActionButtonState(
                                 actionButton,
                                 CanPerformBuildingAction(pair.Key, upgrade, actionQuantity));
@@ -1506,7 +1502,7 @@ public sealed partial class KingdomUIRoot
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager == null)
             return;
-        if (CaptureVisibleResourceIds(DataBase<Resource>.All))
+        if (CaptureVisibleResourceIds(DataBase<ResourceDef>.All))
         {
             resourceRowsBuilt = false;
             if (populatedPage == "Resources")
@@ -1520,7 +1516,7 @@ public sealed partial class KingdomUIRoot
             return;
         ExpantaNum productionRewardMultiplier = ExpantaNum.One;
         bool productionRewardMultiplierRead = false;
-        foreach (KeyValuePair<Resource, TMP_Text> pair in resourceAmountLabels)
+        foreach (KeyValuePair<ResourceDef, TMP_Text> pair in resourceAmountLabels)
         {
             if (!resourceManager.States.TryGetValue(pair.Key, out ResourceState state))
                 continue;

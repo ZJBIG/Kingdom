@@ -53,6 +53,9 @@ public sealed class SectorRuntimeState
     public bool Unlocked { get; internal set; }
     public bool Occupied { get; internal set; }
     public bool ColonizationActive { get; internal set; }
+    public bool InteriorExplorationActive { get; internal set; }
+    public bool InteriorExplorationPaused { get; internal set; }
+    public ExpantaNum InteriorExplorationProgress { get; internal set; }
     public bool CampaignActive { get; internal set; }
     public ExpantaNum Progress { get; internal set; }
     public ExpantaNum Casualties { get; internal set; }
@@ -400,6 +403,16 @@ public sealed class SimulationState
         sectors[key] = occupied ? "Occupied" : campaignActive ? "Campaign" : colonizationActive ? "Colonizing" : unlocked ? "Unlocked" : "Locked";
     }
 
+    public void SetInteriorExplorationState(string sectorId, bool active, ExpantaNum progress, bool paused = false)
+    {
+        RequireNonNegative(progress, nameof(progress));
+        if (progress > ExpantaNum.One) throw new ArgumentOutOfRangeException(nameof(progress));
+        var sector = GetSectorState(sectorId);
+        sector.InteriorExplorationProgress = progress;
+        sector.InteriorExplorationActive = active;
+        sector.InteriorExplorationPaused = paused;
+    }
+
     public void SetCampaign(bool active, string targetSectorId, ExpantaNum casualties, ExpantaNum combatRatio)
     {
         RequireNonNegative(casualties, nameof(casualties));
@@ -508,7 +521,7 @@ public sealed class SimulationState
             item.Progress.ToString(),
             item.Casualties.ToString(),
             item.CombatRatio.ToString(),
-            item.VisitCount)).ToArray());
+            item.VisitCount, item.InteriorExplorationActive, item.InteriorExplorationProgress.ToString(), item.InteriorExplorationPaused)).ToArray());
 
     private static void ValidateDelta(double value, string name)
     {
@@ -552,7 +565,10 @@ public sealed record SectorSummary(
     string Progress,
     string Casualties,
     string CombatRatio,
-    int VisitCount);
+    int VisitCount,
+    bool InteriorExplorationActive = false,
+    string InteriorExplorationProgress = "0",
+    bool InteriorExplorationPaused = false);
 
 public sealed record SimulationStateSummary(
     long Tick,
@@ -603,7 +619,7 @@ public sealed record DetailedSimulationStateSummary(
         var buildingsText = string.Join(";", Buildings.Select(item => $"{item.Id}={item.Amount}:{item.Efficiency}"));
         var workshopsText = string.Join(";", Workshops.Select(item => item.Id));
         var sectorsText = string.Join(";", Sectors.Select(item =>
-            $"{item.Id}={item.Occupied}:{item.ColonizationActive}:{item.CampaignActive}:{item.Progress}:{item.VisitCount}"));
+            $"{item.Id}={item.Occupied}:{item.ColonizationActive}:{item.CampaignActive}:{item.Progress}:{item.VisitCount}:{item.InteriorExplorationActive}:{item.InteriorExplorationProgress}:{item.InteriorExplorationPaused}"));
         return $"tick={Tick};elapsed={ElapsedSeconds.ToString("R", CultureInfo.InvariantCulture)};" +
                $"requested={RequestedSeconds.ToString("R", CultureInfo.InvariantCulture)};tech={TechLevel};calendar={CalendarDays};" +
                $"food={Food}/{FoodCapacity};population={Population}/{PopulationCapacity};populationProgress={PopulationChangeProgress};territory={TerritoryTotal};" +

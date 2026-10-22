@@ -10,8 +10,8 @@ public enum EraGoalConditionKind
 public sealed class EraGoalConditionEvaluation
 {
     public EraGoalConditionKind Kind { get; }
-    public Research Research { get; }
-    public Resource Resource { get; }
+    public ResearchDef Research { get; }
+    public ResourceDef Resource { get; }
     public ResearchState ResearchState { get; }
     public bool Met { get; }
     public ExpantaNum RequiredAmount { get; }
@@ -23,7 +23,7 @@ public sealed class EraGoalConditionEvaluation
     public ExpantaNum ConsumptionRate { get; }
 
     internal EraGoalConditionEvaluation(
-        Research prerequisite,
+        ResearchDef prerequisite,
         ResearchState state,
         bool met)
     {
@@ -40,7 +40,7 @@ public sealed class EraGoalConditionEvaluation
     }
 
     internal EraGoalConditionEvaluation(
-        Resource resource,
+        ResourceDef resource,
         ResearchState transitionState,
         ExpantaNum requiredAmount,
         ExpantaNum availableAmount,
@@ -67,13 +67,13 @@ public sealed class EraGoalEvaluation
 {
     public TechLevel CurrentEra { get; }
     public TechLevel TargetEra { get; }
-    public Research Transition { get; }
+    public ResearchDef Transition { get; }
     public IReadOnlyList<EraGoalConditionEvaluation> Conditions { get; }
 
     internal EraGoalEvaluation(
         TechLevel currentEra,
         TechLevel targetEra,
-        Research transition,
+        ResearchDef transition,
         IReadOnlyList<EraGoalConditionEvaluation> conditions)
     {
         CurrentEra = currentEra;
@@ -99,7 +99,7 @@ public static class EraGoalEvaluator
                 null,
                 new List<EraGoalConditionEvaluation>());
         TechLevel targetEra = (TechLevel)((int)currentEra + 1);
-        Research transition = FindTransition(targetEra);
+        ResearchDef transition = FindTransition(targetEra);
         var conditions = new List<EraGoalConditionEvaluation>();
         if (transition == null)
             return new EraGoalEvaluation(currentEra, targetEra, null, conditions);
@@ -108,10 +108,10 @@ public static class EraGoalEvaluator
         if (researchManager != null)
             researchManager.States.TryGetValue(transition, out transitionState);
 
-        IReadOnlyList<Research> prerequisites = transition.Prerequisites;
+        IReadOnlyList<ResearchDef> prerequisites = transition.Prerequisites;
         for (int i = 0; i < prerequisites.Count; i++)
         {
-            Research prerequisite = prerequisites[i];
+            ResearchDef prerequisite = prerequisites[i];
             if (prerequisite == null)
                 continue;
 
@@ -126,13 +126,13 @@ public static class EraGoalEvaluator
                 met));
         }
 
-        var resources = new List<Resource>();
+        var resources = new List<ResourceDef>();
         var requiredAmounts = new List<ExpantaNum>();
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             transition.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
             if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
 
@@ -155,7 +155,7 @@ public static class EraGoalEvaluator
 
         for (int i = 0; i < resources.Count; i++)
         {
-            Resource resource = resources[i];
+            ResourceDef resource = resources[i];
             ExpantaNum available = ExpantaNum.Zero;
             ExpantaNum productionRate = ExpantaNum.Zero;
             ExpantaNum consumptionRate = ExpantaNum.Zero;
@@ -183,13 +183,13 @@ public static class EraGoalEvaluator
             conditions);
     }
 
-    public static Research FindTransition(TechLevel targetEra)
+    public static ResearchDef FindTransition(TechLevel targetEra)
     {
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
-        Research result = null;
+        IReadOnlyList<ResearchDef> definitions = DataBase<ResearchDef>.All;
+        ResearchDef result = null;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research candidate = definitions[i];
+            ResearchDef candidate = definitions[i];
             if (candidate == null || !candidate.AdvancesTechLevel ||
                 candidate.TechLevel != targetEra)
                 continue;

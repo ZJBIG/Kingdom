@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Smokehouse
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: efe9c18051cb4aeeb721043966a28ece, type: 3}
   id: Smokehouse
   Label: "\u718F\u5236\u68DA"
   Description: "\u901A\u8FC7\u70DF\u718F\u548C\u98CE\u5E72\u5EF6\u957F\u8089\u7C7B\u4FDD\u5B58\u65F6\u95F4\uFF0C\u540C\u65F6\u63D0\u4F9B\u5C11\u91CF\u6301\u7EED\u98DF\u7269\u548C\u65E9\u671F\u50A8\u7CAE\u7A7A\u95F4\u3002"

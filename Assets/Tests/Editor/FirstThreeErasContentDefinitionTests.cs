@@ -6,9 +6,9 @@ public class FirstThreeErasContentDefinitionTests
     [Test]
     public void HousingUpgradeChainIsDefined()
     {
-        Building wood = FindBuilding("WoodHouse");
-        Building stone = FindBuilding("StoneHouse");
-        Building town = FindBuilding("TownHouse");
+        BuildingDef wood = FindBuilding("WoodHouse");
+        BuildingDef stone = FindBuilding("StoneHouse");
+        BuildingDef town = FindBuilding("TownHouse");
         Assert.That(wood, Is.Not.Null);
         Assert.That(stone, Is.Not.Null);
         Assert.That(town, Is.Not.Null);
@@ -17,13 +17,13 @@ public class FirstThreeErasContentDefinitionTests
         Assert.That(town.UpgradeTo, Is.EqualTo(FindBuilding("IndustrialHabitationComplex")));
         Assert.DoesNotThrow(() =>
             BuildingManager.ValidateBuildingChains(
-                Resources.LoadAll<Building>("Datas/Building")));
+                Resources.LoadAll<BuildingDef>("Datas/Building")));
     }
 
     [Test]
     public void FirstThreeErasBuildingsHaveNoFoodConsumption()
     {
-        Building[] buildings = Resources.LoadAll<Building>("Datas/Building");
+        BuildingDef[] buildings = Resources.LoadAll<BuildingDef>("Datas/Building");
         int checkedCount = 0;
         for (int i = 0; i < buildings.Length; i++)
         {
@@ -34,9 +34,9 @@ public class FirstThreeErasContentDefinitionTests
         Assert.That(checkedCount, Is.GreaterThan(0));
     }
 
-    private static Building FindBuilding(string id)
+    private static BuildingDef FindBuilding(string id)
     {
-        Building[] all = Resources.LoadAll<Building>("Datas/Building");
+        BuildingDef[] all = Resources.LoadAll<BuildingDef>("Datas/Building");
         for (int i = 0; i < all.Length; i++) if (all[i].Id == id) return all[i];
         return null;
     }

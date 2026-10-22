@@ -100,10 +100,10 @@ public sealed partial class KingdomUIRoot
     private string BuildWorkshopFilterMembershipSignature()
     {
         workshopFilterMembershipBuilder.Clear();
-        var definitions = DataBase<WorkshopUpgrade>.All;
+        var definitions = DataBase<WorkshopUpgradeDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            WorkshopUpgrade definition = definitions[i];
+            WorkshopUpgradeDef definition = definitions[i];
             if (definition != null && ShouldRevealWorkshop(definition))
                 workshopFilterMembershipBuilder.Append(definition.Id).Append(';');
         }

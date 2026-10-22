@@ -11,7 +11,9 @@ public enum WorkshopPurchaseFailure
     ResearchIncomplete,
     UpgradeIncomplete,
     AlreadyPurchased,
-    ResourceInsufficient
+    ResourceInsufficient,
+    BuildingMissing,
+    SectorNotOccupied
 }
 
 public enum WorkshopBenefitRateKind
@@ -26,14 +28,14 @@ public enum WorkshopBenefitRateKind
 
 public sealed class WorkshopBenefitRatePreview
 {
-    public Building Building { get; }
-    public Resource Resource { get; }
+    public BuildingDef Building { get; }
+    public ResourceDef Resource { get; }
     public WorkshopBenefitRateKind Kind { get; }
     public ExpantaNum Before { get; }
     public ExpantaNum After { get; }
     public ExpantaNum Change => After - Before;
 
-    public WorkshopBenefitRatePreview(Building building, Resource resource,
+    public WorkshopBenefitRatePreview(BuildingDef building, ResourceDef resource,
         WorkshopBenefitRateKind kind, ExpantaNum before, ExpantaNum after)
     {
         Building = building;
@@ -46,19 +48,19 @@ public sealed class WorkshopBenefitRatePreview
 
 public sealed class WorkshopManager : Singleton<WorkshopManager>
 {
-    private readonly Dictionary<WorkshopUpgrade, WorkshopUpgradeState> states = new();
+    private readonly Dictionary<WorkshopUpgradeDef, WorkshopUpgradeState> states = new();
     private readonly List<WorkshopUpgradeState> orderedStates = new();
     private ProgressionModifierState previewSource;
-    private WorkshopUpgrade previewDefinition;
+    private WorkshopUpgradeDef previewDefinition;
     private ProgressionModifierState previewModifiers;
 
-    public IReadOnlyDictionary<WorkshopUpgrade, WorkshopUpgradeState> States => states;
+    public IReadOnlyDictionary<WorkshopUpgradeDef, WorkshopUpgradeState> States => states;
     internal IReadOnlyList<WorkshopUpgradeState> OrderedStates => orderedStates;
     public event Action<WorkshopUpgradeState> UpgradeStateChanged;
 
     protected override void Initialize()
     {
-        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
+        IReadOnlyList<WorkshopUpgradeDef> definitions = DataBase<WorkshopUpgradeDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
             var state = new WorkshopUpgradeState(definitions[i]);
@@ -70,7 +72,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     public bool IsSystemUnlocked =>
         ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.IndustrialWorkshop);
 
-    public bool IsPurchased(WorkshopUpgrade definition) =>
+    public bool IsPurchased(WorkshopUpgradeDef definition) =>
         TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state) && state.Purchased;
 
     public bool TryCraftRelicSupport(out RelicOperationFailure failure)
@@ -83,7 +85,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         return GameManager.Instance.Relic.TryCraftSupport(out failure);
     }
 
-    public IReadOnlyList<WorkshopBenefitRatePreview> GetPurchaseBenefitPreview(WorkshopUpgrade definition)
+    public IReadOnlyList<WorkshopBenefitRatePreview> GetPurchaseBenefitPreview(WorkshopUpgradeDef definition)
     {
         if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
             return Array.Empty<WorkshopBenefitRatePreview>();
@@ -130,13 +132,13 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
             BuildingState state = buildings[i];
             if (state == null || state.Amount <= ExpantaNum.Zero)
                 continue;
-            Building building = state.Definition;
+            BuildingDef building = state.Definition;
             ExpantaNum scale = state.Amount * state.Efficiency;
             ExpantaNum oldProduction = before.GetBuildingProductionMultiplier(building) *
                 before.GlobalBuildingProductionMultiplier;
             ExpantaNum newProduction = after.GetBuildingProductionMultiplier(building) *
                 after.GlobalBuildingProductionMultiplier;
-            foreach (Pair<Resource, ExpantaNum> rate in building.ResourceGenerationRates)
+            foreach (Pair<ResourceDef, ExpantaNum> rate in building.ResourceGenerationRates)
                 AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceProduction,
                     scale * rate.Second * oldProduction * productionRewardMultiplier * eventProductionMultiplier *
                     before.GetBuildingResourceProductionMultiplier(building, rate.First) *
@@ -144,7 +146,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                     scale * rate.Second * newProduction * productionRewardMultiplier * eventProductionMultiplier *
                     after.GetBuildingResourceProductionMultiplier(building, rate.First) *
                     after.GetResourceProductionMultiplier(rate.First));
-            foreach (Pair<Resource, ExpantaNum> rate in building.ResourceConsumptionRates)
+            foreach (Pair<ResourceDef, ExpantaNum> rate in building.ResourceConsumptionRates)
                 AddRate(building, rate.First, WorkshopBenefitRateKind.ResourceConsumption,
                     scale * rate.Second * oldProduction, scale * rate.Second * newProduction);
             AddRate(building, null, WorkshopBenefitRateKind.FoodProduction,
@@ -168,7 +170,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
         return result;
 
-        void AddRate(Building building, Resource resource, WorkshopBenefitRateKind kind,
+        void AddRate(BuildingDef building, ResourceDef resource, WorkshopBenefitRateKind kind,
             ExpantaNum oldRate, ExpantaNum newRate)
         {
             if (oldRate != newRate)
@@ -176,14 +178,14 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
     }
 
-    public bool ArePrerequisitesMet(WorkshopUpgrade definition)
+    public bool ArePrerequisitesMet(WorkshopUpgradeDef definition)
     {
         if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
             return false;
         return GetPrerequisiteFailure(state.Definition) == WorkshopPurchaseFailure.None;
     }
 
-    private WorkshopPurchaseFailure GetPrerequisiteFailure(WorkshopUpgrade definition)
+    private WorkshopPurchaseFailure GetPrerequisiteFailure(WorkshopUpgradeDef definition)
     {
         for (int i = 0; i < definition.RequiredResearch.Count; i++)
             if (!ResearchManager.Instance.IsResearchCompleted(definition.RequiredResearch[i].Id))
@@ -191,61 +193,59 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         for (int i = 0; i < definition.RequiredUpgrades.Count; i++)
             if (!IsPurchased(definition.RequiredUpgrades[i]))
                 return WorkshopPurchaseFailure.UpgradeIncomplete;
+        if (definition.RequiredBuilding != null &&
+            (!BuildingManager.Instance.States.TryGetValue(definition.RequiredBuilding, out BuildingState building) ||
+                building.Amount < ExpantaNum.One))
+            return WorkshopPurchaseFailure.BuildingMissing;
+        if (definition.RequiredSector != null &&
+            !GameManager.Instance.Sectors.GetState(definition.RequiredSector).Occupied)
+            return WorkshopPurchaseFailure.SectorNotOccupied;
+        return WorkshopPurchaseFailure.None;
+    }
+
+    public WorkshopPurchaseFailure GetPurchaseFailure(WorkshopUpgradeDef definition) =>
+        GetPurchaseFailure(definition, out _, out _);
+
+    private WorkshopPurchaseFailure GetPurchaseFailure(WorkshopUpgradeDef definition,
+        out WorkshopUpgradeState state, out Dictionary<ResourceDef, ExpantaNum> costs)
+    {
+        costs = null;
+        if (!TryGetStateByStableId(definition?.Id, out state))
+            return WorkshopPurchaseFailure.InvalidDefinition;
+        definition = state.Definition;
+        if (!IsSystemUnlocked)
+            return WorkshopPurchaseFailure.SystemLocked;
+        if (definition.TechLevel > GameManager.Instance.State.TechLevel)
+            return WorkshopPurchaseFailure.TechnologyInsufficient;
+        if (state.Purchased)
+            return WorkshopPurchaseFailure.AlreadyPurchased;
+        WorkshopPurchaseFailure failure = GetPrerequisiteFailure(definition);
+        if (failure != WorkshopPurchaseFailure.None)
+            return failure;
+        costs = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in definition.ResourceRequirements)
+        {
+            if (requirement.First == null || !requirement.Second.IsFinite)
+                return WorkshopPurchaseFailure.InvalidDefinition;
+            if (requirement.Second <= ExpantaNum.Zero)
+                continue;
+            costs[requirement.First] = costs.TryGetValue(requirement.First, out ExpantaNum current)
+                ? current + requirement.Second : requirement.Second;
+        }
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> cost in costs)
+            if (ResourceManager.Instance.GetAmount(cost.Key) < cost.Value)
+                return WorkshopPurchaseFailure.ResourceInsufficient;
         return WorkshopPurchaseFailure.None;
     }
 
     public bool TryPurchase(
-        WorkshopUpgrade definition,
+        WorkshopUpgradeDef definition,
         out WorkshopPurchaseFailure failure)
     {
-        if (!TryGetStateByStableId(definition?.Id, out WorkshopUpgradeState state))
-        {
-            failure = WorkshopPurchaseFailure.InvalidDefinition;
+        failure = GetPurchaseFailure(definition, out WorkshopUpgradeState state,
+            out Dictionary<ResourceDef, ExpantaNum> costs);
+        if (failure != WorkshopPurchaseFailure.None)
             return false;
-        }
-        definition = state.Definition;
-        if (!IsSystemUnlocked)
-        {
-            failure = WorkshopPurchaseFailure.SystemLocked;
-            return false;
-        }
-        if (definition.TechLevel > GameManager.Instance.State.TechLevel)
-        {
-            failure = WorkshopPurchaseFailure.TechnologyInsufficient;
-            return false;
-        }
-        if (state.Purchased)
-        {
-            failure = WorkshopPurchaseFailure.AlreadyPurchased;
-            return false;
-        }
-        WorkshopPurchaseFailure prerequisiteFailure = GetPrerequisiteFailure(definition);
-        if (prerequisiteFailure != WorkshopPurchaseFailure.None)
-        {
-            failure = prerequisiteFailure;
-            return false;
-        }
-
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = definition.ResourceRequirements;
-        var costs = new Dictionary<Resource, ExpantaNum>();
-        for (int i = 0; i < requirements.Count; i++)
-        {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
-            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
-            {
-                if (requirement.First == null)
-                {
-                    failure = WorkshopPurchaseFailure.InvalidDefinition;
-                    return false;
-                }
-                continue;
-            }
-
-            costs[requirement.First] = costs.TryGetValue(
-                requirement.First, out ExpantaNum current)
-                ? current + requirement.Second
-                : requirement.Second;
-        }
 
         bool previousPurchased = state.Purchased;
         bool paid = ResourceManager.Instance.TryApplyAtomicPayment(
@@ -296,12 +296,12 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
 
         var purchasedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var purchasedDefinitions = new List<WorkshopUpgrade>(data.PurchasedUpgradeIds.Count);
+        var purchasedDefinitions = new List<WorkshopUpgradeDef>(data.PurchasedUpgradeIds.Count);
         for (int i = 0; i < data.PurchasedUpgradeIds.Count; i++)
         {
             string id = data.PurchasedUpgradeIds[i];
             if (string.IsNullOrWhiteSpace(id) ||
-                !DataBase<WorkshopUpgrade>.TryFind(id, out WorkshopUpgrade definition))
+                !DataBase<WorkshopUpgradeDef>.TryFind(id, out WorkshopUpgradeDef definition))
                 throw new InvalidOperationException(
                     $"存档中的工坊升级 ID 无效：“{id}”。");
             string stableId = definition.Id.Trim();
@@ -313,13 +313,13 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
         for (int i = 0; i < purchasedDefinitions.Count; i++)
         {
-            WorkshopUpgrade definition = purchasedDefinitions[i];
+            WorkshopUpgradeDef definition = purchasedDefinitions[i];
             if (definition.TechLevel > GameManager.Instance.State.TechLevel)
                 throw new InvalidOperationException(
                     $"存档中的工坊升级“{definition.Id}”超出当前科技时代。");
             for (int j = 0; j < definition.RequiredResearch.Count; j++)
             {
-                Research prerequisite = definition.RequiredResearch[j];
+                ResearchDef prerequisite = definition.RequiredResearch[j];
                 if (prerequisite == null ||
                     !ResearchManager.Instance.IsResearchCompleted(prerequisite.Id))
                     throw new InvalidOperationException(
@@ -333,10 +333,10 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         // CaptureSaveData.
         for (int i = 0; i < purchasedDefinitions.Count; i++)
         {
-            WorkshopUpgrade definition = purchasedDefinitions[i];
+            WorkshopUpgradeDef definition = purchasedDefinitions[i];
             for (int j = 0; j < definition.RequiredUpgrades.Count; j++)
             {
-                WorkshopUpgrade prerequisite = definition.RequiredUpgrades[j];
+                WorkshopUpgradeDef prerequisite = definition.RequiredUpgrades[j];
                 if (prerequisite == null ||
                     string.IsNullOrWhiteSpace(prerequisite.Id) ||
                     !purchasedIds.Contains(prerequisite.Id.Trim()))
@@ -357,6 +357,22 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         RebuildProgression();
     }
 
+    internal void ValidateSectorPrerequisites(SectorManager sectors)
+    {
+        for (int i = 0; i < orderedStates.Count; i++)
+        {
+            WorkshopUpgradeState state = orderedStates[i];
+            SectorDef sector = state.Definition.RequiredSector;
+            if (state.Purchased && sector != null && !sectors.GetState(sector).Occupied)
+                throw new InvalidOperationException(
+                    $"存档中的工坊升级“{state.Definition.Id}”缺少已占领星区“{sector.Id}”。");
+            if (state.Purchased && state.Definition.RequiredBuilding is SectorBuildingDef local &&
+                local.RequiresInteriorExploration && !sectors.GetState(local.Sector).InteriorExplorationCompleted)
+                throw new InvalidOperationException(
+                    $"存档中的工坊升级“{state.Definition.Id}”缺少已完成星球探索“{local.Sector.Id}”。");
+        }
+    }
+
     private bool TryGetStateByStableId(string id,
         out WorkshopUpgradeState state)
     {
@@ -368,7 +384,7 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         // Save data and Resources lookups are keyed by stable IDs. Keep
         // runtime behavior correct if Unity returns equivalent asset
         // instances with different object references after a reload.
-        foreach (KeyValuePair<WorkshopUpgrade, WorkshopUpgradeState> entry in states)
+        foreach (KeyValuePair<WorkshopUpgradeDef, WorkshopUpgradeState> entry in states)
         {
             if (entry.Key != null && string.Equals(
                 entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
@@ -384,10 +400,10 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
 
     private void EnsureStateIndex()
     {
-        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
+        IReadOnlyList<WorkshopUpgradeDef> definitions = DataBase<WorkshopUpgradeDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            WorkshopUpgrade definition = definitions[i];
+            WorkshopUpgradeDef definition = definitions[i];
             if (definition == null ||
                 TryGetStateByStableId(definition.Id, out _))
                 continue;

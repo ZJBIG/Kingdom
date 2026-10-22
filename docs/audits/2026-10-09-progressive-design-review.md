@@ -37,7 +37,7 @@
 |---|---|---|
 | [静态闭包报告](../../data/content-closure-static.md) | 文件时间 2026-10-08；Industrial 81/81 研究、37/37 工坊、50/50 建筑；Spacer 47/47、46/46、19/19；Ultra 15/15、3/3、3/3 | 此报告输入下的定义图可达；不是库存、效率、等待或本轮运行验收 |
 | [Latest 测试摘要](../../TestResults/Latest-Test-Errors.txt) | 10-08 隔离 G 检出，EditMode 833/833、PlayMode 47/47；排除当时 Story 改动 | 不覆盖后来整合的全部主工作树；不能称为当前全仓通过 |
-| [10-09 整合 PlayMode XML](../../TestResults/main-integration-playmode-20261009.xml) | 25/25，配套 [日志](../../Logs/main-integration-playmode-20261009.log) 与 [交接](../../.codex/handoffs/2026-10-09-story-illustrations-handoff.md) 记录正常 exit0 | Story、Onboarding、Relic 相关整合行为；不是完整玩家流程 |
+| [10-09 整合 PlayMode XML](../../TestResults/main-integration-playmode-20261009.xml) | 25/25，配套 [日志](../../Logs/main-integration-playmode-20261009.log) 记录正常 exit0（旧交接已清理） | Story、Onboarding、Relic 相关整合行为；不是完整玩家流程 |
 | [10-09 整合 EditMode XML](../../TestResults/main-integration-editmode-r2-20261009.xml) | 162/162；交接记录 XML 后原生退出停滞 | 断言完成，不能把这轮说成正常 exit0 |
 | 当前真实经济 parity | `data/economy-parity/` 不存在 | 本轮未有真实 Unity trace/parity 证据；fixture 诊断不能代替 |
 | 新档测试代码 | [KingdomPlayModeTests](../../Assets/Tests/PlayMode/KingdomPlayModeTests.cs#L127) 有自然资源住房→农业→农场→保存读回 | 不是玩家十分钟体验，也不是完整 Animal→Industrial 无作弊运行 |

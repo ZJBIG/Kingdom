@@ -20,13 +20,13 @@ public class ResourceManager : Singleton<ResourceManager>
         }
     }
 
-    private readonly Dictionary<Resource, ResourceState> states = new();
+    private readonly Dictionary<ResourceDef, ResourceState> states = new();
     private readonly List<ResourceState> orderedStates = new();
     private sealed class TransactionWorkspace
     {
-        public readonly Dictionary<Resource, ExpantaNum> Deltas = new();
+        public readonly Dictionary<ResourceDef, ExpantaNum> Deltas = new();
         public readonly HashSet<string> EntryStableIds = new(StringComparer.OrdinalIgnoreCase);
-        public readonly List<KeyValuePair<Resource, ExpantaNum>> Entries = new();
+        public readonly List<KeyValuePair<ResourceDef, ExpantaNum>> Entries = new();
         public readonly List<ResourceState> AddedStates = new();
         public readonly List<ExpantaNum> PreviousAmounts = new();
         public bool InUse;
@@ -34,7 +34,7 @@ public class ResourceManager : Singleton<ResourceManager>
     private readonly List<TransactionWorkspace> transactionWorkspaces =
         new() { new TransactionWorkspace() };
 
-    public IReadOnlyDictionary<Resource, ResourceState> States => states;
+    public IReadOnlyDictionary<ResourceDef, ResourceState> States => states;
     public event Action<ResourceState> ResourceStateAdded;
     public event Action<ResourceState> ResourceStateChanged;
 
@@ -48,31 +48,31 @@ public class ResourceManager : Singleton<ResourceManager>
     public void InitializeForEditor() => Initialize();
     public void BeginTickForEditor() => BeginTick();
     public void AdjustTickPotentialConsumptionForEditor(
-        Resource resource,
+        ResourceDef resource,
         ExpantaNum delta) =>
         AdjustTickPotentialConsumption(resource, delta);
     public void CalculateTickSatisfactionForEditor(double deltaSeconds) =>
         CalculateTickSatisfaction(deltaSeconds);
-    public ExpantaNum GetTickSatisfactionForEditor(Resource resource) =>
+    public ExpantaNum GetTickSatisfactionForEditor(ResourceDef resource) =>
         GetTickSatisfaction(resource);
 #endif
 
     private void EnsureAllResourceStates()
     {
-        IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
+        IReadOnlyList<ResourceDef> definitions = DataBase<ResourceDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Resource resource = definitions[i];
+            ResourceDef resource = definitions[i];
             if (resource != null)
                 EnsureResource(resource);
         }
     }
 
-    public static bool IsStartingResource(Resource resource) =>
+    public static bool IsStartingResource(ResourceDef resource) =>
         resource != null &&
         string.Equals(resource.Id, StartingResourceId, StringComparison.OrdinalIgnoreCase);
 
-    public ResourceState EnsureResource(Resource resource)
+    public ResourceState EnsureResource(ResourceDef resource)
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
@@ -86,7 +86,7 @@ public class ResourceManager : Singleton<ResourceManager>
         return state;
     }
 
-    public ResourceState GetState(Resource resource)
+    public ResourceState GetState(ResourceDef resource)
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
@@ -95,14 +95,14 @@ public class ResourceManager : Singleton<ResourceManager>
         throw new KeyNotFoundException($"资源状态“{resource.Id}”尚未创建。");
     }
 
-    private bool TryGetStateByStableId(Resource resource, out ResourceState state)
+    private bool TryGetStateByStableId(ResourceDef resource, out ResourceState state)
     {
         state = null;
         if (resource == null)
             return false;
         if (states.TryGetValue(resource, out state))
             return true;
-        foreach (KeyValuePair<Resource, ResourceState> entry in states)
+        foreach (KeyValuePair<ResourceDef, ResourceState> entry in states)
         {
             if (entry.Key != null && string.Equals(
                     entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
@@ -116,9 +116,9 @@ public class ResourceManager : Singleton<ResourceManager>
         return false;
     }
 
-    public ExpantaNum GetAmount(Resource resource) => EnsureResource(resource).Amount;
+    public ExpantaNum GetAmount(ResourceDef resource) => EnsureResource(resource).Amount;
 
-    public void AddAmount(Resource resource, ExpantaNum delta)
+    public void AddAmount(ResourceDef resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
         if (delta == ExpantaNum.Zero)
@@ -132,7 +132,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// balance is checked before any balance is changed, then change events
     /// are raised only after the complete debit has been committed.
     /// </summary>
-    public bool TryApplyAtomicPayment(IReadOnlyDictionary<Resource, ExpantaNum> costs)
+    public bool TryApplyAtomicPayment(IReadOnlyDictionary<ResourceDef, ExpantaNum> costs)
     {
         return TryApplyAtomicPayment(costs, null);
     }
@@ -143,7 +143,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// observing resources deducted while the research is still unpaid.
     /// </summary>
     public bool TryApplyAtomicPayment(
-        IReadOnlyDictionary<Resource, ExpantaNum> costs,
+        IReadOnlyDictionary<ResourceDef, ExpantaNum> costs,
         Action commitState,
         Action rollbackState = null)
     {
@@ -154,7 +154,7 @@ public class ResourceManager : Singleton<ResourceManager>
         try
         {
             workspace.Deltas.Clear();
-            foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in costs)
             {
                 if (entry.Key == null || !entry.Value.IsFinite ||
                     entry.Value <= ExpantaNum.Zero)
@@ -170,7 +170,7 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 
     public bool TryApplyAtomicChanges(
-        IReadOnlyDictionary<Resource, ExpantaNum> deltas,
+        IReadOnlyDictionary<ResourceDef, ExpantaNum> deltas,
         Action commitState = null,
         Action rollbackState = null)
     {
@@ -189,12 +189,12 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 
     private bool ApplyAtomicChanges(
-        IReadOnlyDictionary<Resource, ExpantaNum> deltas,
+        IReadOnlyDictionary<ResourceDef, ExpantaNum> deltas,
         Action commitState,
         Action rollbackState,
         TransactionWorkspace workspace)
     {
-        List<KeyValuePair<Resource, ExpantaNum>> entries = workspace.Entries;
+        List<KeyValuePair<ResourceDef, ExpantaNum>> entries = workspace.Entries;
         List<ResourceState> addedStates = workspace.AddedStates;
         List<ExpantaNum> previousAmounts = workspace.PreviousAmounts;
         entries.Clear();
@@ -202,7 +202,7 @@ public class ResourceManager : Singleton<ResourceManager>
         previousAmounts.Clear();
         HashSet<string> entryStableIds = workspace.EntryStableIds;
         entryStableIds.Clear();
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in deltas)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in deltas)
         {
             if (entry.Key == null || !entry.Value.IsFinite)
                 return false;
@@ -210,7 +210,7 @@ public class ResourceManager : Singleton<ResourceManager>
             string stableId = entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim();
             if (!entryStableIds.Add(stableId))
                 return false;
-            if (DataBase<Resource>.TryFind(stableId, out Resource definition) && definition != entry.Key)
+            if (DataBase<ResourceDef>.TryFind(stableId, out ResourceDef definition) && definition != entry.Key)
                 return false;
 
             entries.Add(entry);
@@ -220,7 +220,7 @@ public class ResourceManager : Singleton<ResourceManager>
         // state. A rejected transaction must not mutate the state registry.
         for (int i = 0; i < entries.Count; i++)
         {
-            KeyValuePair<Resource, ExpantaNum> entry = entries[i];
+            KeyValuePair<ResourceDef, ExpantaNum> entry = entries[i];
             ResourceState state = states.TryGetValue(entry.Key, out ResourceState existing)
                 ? existing
                 : null;
@@ -240,7 +240,7 @@ public class ResourceManager : Singleton<ResourceManager>
         // Added notification that observers cannot undo.
         for (int i = 0; i < entries.Count; i++)
         {
-            Resource resource = entries[i].Key;
+            ResourceDef resource = entries[i].Key;
             if (states.ContainsKey(resource))
                 continue;
 
@@ -257,7 +257,7 @@ public class ResourceManager : Singleton<ResourceManager>
         {
             for (int i = 0; i < entries.Count; i++)
             {
-                KeyValuePair<Resource, ExpantaNum> entry = entries[i];
+                KeyValuePair<ResourceDef, ExpantaNum> entry = entries[i];
                 ResourceState state = states[entry.Key];
                 state.SetAmount(state.Amount + entry.Value);
             }
@@ -327,9 +327,9 @@ public class ResourceManager : Singleton<ResourceManager>
         workspace.InUse = false;
     }
 
-    public void SetAmount(Resource resource, ExpantaNum amount) => EnsureResource(resource).SetAmount(amount);
-    public void SetProductionRate(Resource resource, ExpantaNum rate) => EnsureResource(resource).SetProductionRate(rate);
-    public void SetConsumptionRate(Resource resource, ExpantaNum rate) => EnsureResource(resource).SetConsumptionRate(rate);
+    public void SetAmount(ResourceDef resource, ExpantaNum amount) => EnsureResource(resource).SetAmount(amount);
+    public void SetProductionRate(ResourceDef resource, ExpantaNum rate) => EnsureResource(resource).SetProductionRate(rate);
+    public void SetConsumptionRate(ResourceDef resource, ExpantaNum rate) => EnsureResource(resource).SetConsumptionRate(rate);
 
     internal void ResetDerivedRates()
     {
@@ -348,7 +348,7 @@ public class ResourceManager : Singleton<ResourceManager>
         GlobalEfficiencyFactor = ExpantaNum.One;
     }
 
-    public void AdjustProductionRate(Resource resource, ExpantaNum delta)
+    public void AdjustProductionRate(ResourceDef resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
         state.SetProductionRate(ApplyDerivedRateDelta(state.ProductionRate, delta));
@@ -363,7 +363,7 @@ public class ResourceManager : Singleton<ResourceManager>
         }
     }
 
-    public void AdjustConsumptionRate(Resource resource, ExpantaNum delta)
+    public void AdjustConsumptionRate(ResourceDef resource, ExpantaNum delta)
     {
         ResourceState state = EnsureResource(resource);
         state.SetConsumptionRate(ApplyDerivedRateDelta(state.ConsumptionRate, delta));
@@ -421,7 +421,7 @@ public class ResourceManager : Singleton<ResourceManager>
             orderedStates[i].BeginTick(happinessMultiplier);
     }
 
-    internal void AdjustTickPotentialProduction(Resource resource, ExpantaNum delta)
+    internal void AdjustTickPotentialProduction(ResourceDef resource, ExpantaNum delta)
     {
         EnsureResource(resource).AdjustTickPotentialProductionRate(delta);
     }
@@ -433,7 +433,7 @@ public class ResourceManager : Singleton<ResourceManager>
             state.RefreshTickProduction(reward);
     }
 
-    internal void AdjustTickPotentialConsumption(Resource resource, ExpantaNum delta)
+    internal void AdjustTickPotentialConsumption(ResourceDef resource, ExpantaNum delta)
     {
         EnsureResource(resource).AdjustTickPotentialConsumptionRate(delta);
     }
@@ -444,7 +444,7 @@ public class ResourceManager : Singleton<ResourceManager>
             orderedStates[i].CalculateTickSatisfaction(deltaSeconds);
     }
 
-    internal ExpantaNum GetTickSatisfaction(Resource resource) =>
+    internal ExpantaNum GetTickSatisfaction(ResourceDef resource) =>
         GetState(resource).GetTickSatisfactionOrFallback();
 
     public void Tick(double deltaSeconds) => Tick(deltaSeconds, GetHappinessRewardMultiplier());
@@ -522,11 +522,11 @@ public class ResourceManager : Singleton<ResourceManager>
 
         if (saveData.Resources != null)
         {
-            var restoredAmounts = new Dictionary<Resource, ExpantaNum>();
+            var restoredAmounts = new Dictionary<ResourceDef, ExpantaNum>();
             for (int i = 0; i < saveData.Resources.Count; i++)
             {
                 SaveManager.ResourceStateSaveData data = saveData.Resources[i];
-                if (!DataBase<Resource>.TryFind(data.ResourceId, out Resource resource))
+                if (!DataBase<ResourceDef>.TryFind(data.ResourceId, out ResourceDef resource))
                     throw new InvalidOperationException(
                         $"存档包含未知资源编号“{data.ResourceId}”。");
                 if (restoredAmounts.ContainsKey(resource))
@@ -545,7 +545,7 @@ public class ResourceManager : Singleton<ResourceManager>
                 nameof(saveData.GlobalEfficiencyFactor));
             if (!restoredGlobalEfficiencyFactor.IsFinite || restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
                 throw new InvalidOperationException("Resource global efficiency must be finite and non-negative.");
-            foreach (KeyValuePair<Resource, ExpantaNum> entry in restoredAmounts)
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in restoredAmounts)
                 EnsureResource(entry.Key).SetAmount(entry.Value);
             GlobalEfficiencyFactor = restoredGlobalEfficiencyFactor;
         }
@@ -562,7 +562,7 @@ public class ResourceManager : Singleton<ResourceManager>
 
     public ResourceState EnsureStartingResource()
     {
-        Resource woodLog = DataBase<Resource>.Find(StartingResourceId);
+        ResourceDef woodLog = DataBase<ResourceDef>.Find(StartingResourceId);
         ResourceState state = EnsureResource(woodLog);
         if (state.ProductionRate < ExpantaNum.One)
             state.SetProductionRate(ExpantaNum.One);

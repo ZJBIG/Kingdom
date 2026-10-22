@@ -1,0 +1,21 @@
+{
+  "apk_bytes": 218585088,
+  "sha256": "f8141f177dea99c354e86e58070f2dbcaafc405c6884ed6afd5fa335ba2c85ce",
+  "baseline_bytes": 240632223,
+  "saved_bytes": 22047135,
+  "saved_percent": 9.162170687339742,
+  "entries": 92,
+  "bundle_count": 57,
+  "bundles_bytes": 106557403,
+  "baseline_bundles_bytes": 128604524,
+  "libraries": [
+    "lib/arm64-v8a/lib_burst_generated.so",
+    "lib/arm64-v8a/libil2cpp.so",
+    "lib/arm64-v8a/libmain.so",
+    "lib/arm64-v8a/libunity.so"
+  ],
+  "suspect_entries": [],
+  "input_files": 1894,
+  "input_changes": [],
+  "boot_config": "wait-for-native-debugger=0\nhdr-display-enabled=0\ngc-max-time-slice=3\nandroidStartInFullscreen=1\nandroidRenderOutsideSafeArea=1\nbuild-guid=1109a545815a4b08a10dc02c3d4804d0\n"
+}

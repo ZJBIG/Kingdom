@@ -6,16 +6,16 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void FoodCapacity_IsLimitedToThePlannedFoodBuildings()
     {
-        Assert.That(DataBase<Building>.Find("Granary").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("CeramicKiln").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("WoodHouse").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("KnowledgeCircle").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("Granary").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("CeramicKiln").FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("WoodHouse").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("KnowledgeCircle").FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
     public void WoodHouse_IsTheZeroProductivityCostStartingPopulationBootstrap()
     {
-        Building woodHouse = DataBase<Building>.Find("WoodHouse");
+        BuildingDef woodHouse = DataBase<BuildingDef>.Find("WoodHouse");
         Assert.That(woodHouse.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(woodHouse.ProductivityConsumption, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(woodHouse.RequiredResearch, Is.Empty);
@@ -25,11 +25,11 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void HousingChainScalesCapacityWithoutCreatingFoodCapacity()
     {
-        Building woodHouse = DataBase<Building>.Find("WoodHouse");
-        Building stoneHouse = DataBase<Building>.Find("StoneHouse");
-        Building townHouse = DataBase<Building>.Find("TownHouse");
-        Building industrialHousing = DataBase<Building>.Find("IndustrialHabitationComplex");
-        Building orbitalHousing = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        BuildingDef woodHouse = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingDef stoneHouse = DataBase<BuildingDef>.Find("StoneHouse");
+        BuildingDef townHouse = DataBase<BuildingDef>.Find("TownHouse");
+        BuildingDef industrialHousing = DataBase<BuildingDef>.Find("IndustrialHabitationComplex");
+        BuildingDef orbitalHousing = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(woodHouse, Is.Not.Null);
         Assert.That(stoneHouse, Is.Not.Null);
@@ -69,8 +69,8 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void IndustrialAndSpacerHaveDedicatedHousingBuildings()
     {
-        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
-        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        BuildingDef industrial = DataBase<BuildingDef>.Find("IndustrialHabitationComplex");
+        BuildingDef orbital = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(industrial.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(industrial.PopulationCapacityGranted, Is.EqualTo(new ExpantaNum(240)));
@@ -85,8 +85,8 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void IndustrialAndSpacerLogisticsNodesProvideFoodBufferWithoutProducingFood()
     {
-        Building railHub = DataBase<Building>.Find("RailHub");
-        Building orbitalHub = DataBase<Building>.Find("OrbitalStation");
+        BuildingDef railHub = DataBase<BuildingDef>.Find("RailHub");
+        BuildingDef orbitalHub = DataBase<BuildingDef>.Find("OrbitalStation");
 
         Assert.That(railHub, Is.Not.Null);
         Assert.That(orbitalHub, Is.Not.Null);
@@ -101,9 +101,9 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void 工业住宅必须区分居住理论实体工坊与建筑落地()
     {
-        Research theory = DataBase<Research>.Find("IndustrialHabitationEngineering");
-        WorkshopUpgrade standards = DataBase<WorkshopUpgrade>.Find("IndustrialHousingStandards");
-        Building housing = DataBase<Building>.Find("IndustrialHabitationComplex");
+        ResearchDef theory = DataBase<ResearchDef>.Find("IndustrialHabitationEngineering");
+        WorkshopUpgradeDef standards = DataBase<WorkshopUpgradeDef>.Find("IndustrialHousingStandards");
+        BuildingDef housing = DataBase<BuildingDef>.Find("IndustrialHabitationComplex");
 
         Assert.That(theory, Is.Not.Null);
         Assert.That(standards, Is.Not.Null);
@@ -118,7 +118,7 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void 太空住宅必须同时承担人口容量与持续运营成本()
     {
-        Building housing = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        BuildingDef housing = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(housing.PopulationCapacityGranted, Is.GreaterThan(new ExpantaNum(1000)));
         Assert.That(housing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
@@ -128,7 +128,7 @@ public sealed class BuildingVerticalSliceTests
         bool consumesTitaniumAlloy = false;
         for (int i = 0; i < housing.ResourceConsumptionRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = housing.ResourceConsumptionRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = housing.ResourceConsumptionRates[i];
             if (pair.First != null && pair.First.Id == "TitaniumAlloy")
             {
                 consumesTitaniumAlloy = true;
@@ -142,8 +142,8 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void 太空住宅维护剖面必须由生态补给主导且不增加普通资源容量()
     {
-        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
-        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        BuildingDef industrial = DataBase<BuildingDef>.Find("IndustrialHabitationComplex");
+        BuildingDef orbital = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(industrial, Is.Not.Null);
         Assert.That(
@@ -165,8 +165,8 @@ public sealed class BuildingVerticalSliceTests
     [Test]
     public void 工业与太空住宅必须使用符合时代的建造材料()
     {
-        Building industrial = DataBase<Building>.Find("IndustrialHabitationComplex");
-        Building orbital = DataBase<Building>.Find("OrbitalHabitatMegastructure");
+        BuildingDef industrial = DataBase<BuildingDef>.Find("IndustrialHabitationComplex");
+        BuildingDef orbital = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
 
         Assert.That(industrial, Is.Not.Null);
         Assert.That(orbital, Is.Not.Null);
@@ -181,7 +181,7 @@ public sealed class BuildingVerticalSliceTests
             Is.GreaterThan(industrial.ResourceRequirements.Count));
     }
 
-    private static bool HasResearchPrerequisite(Research research, string id)
+    private static bool HasResearchPrerequisite(ResearchDef research, string id)
     {
         for (int i = 0; i < research.Prerequisites.Count; i++)
             if (research.Prerequisites[i] != null && research.Prerequisites[i].Id == id)
@@ -189,7 +189,7 @@ public sealed class BuildingVerticalSliceTests
         return false;
     }
 
-    private static bool HasResearchEffect(Research research, ResearchEffectType type)
+    private static bool HasResearchEffect(ResearchDef research, ResearchEffectType type)
     {
         for (int i = 0; i < research.Effects.Count; i++)
             if (research.Effects[i] != null && research.Effects[i].Type == type)
@@ -197,7 +197,7 @@ public sealed class BuildingVerticalSliceTests
         return false;
     }
 
-    private static bool HasWorkshopResearch(WorkshopUpgrade workshop, string id)
+    private static bool HasWorkshopResearch(WorkshopUpgradeDef workshop, string id)
     {
         for (int i = 0; i < workshop.RequiredResearch.Count; i++)
             if (workshop.RequiredResearch[i] != null && workshop.RequiredResearch[i].Id == id)
@@ -205,7 +205,7 @@ public sealed class BuildingVerticalSliceTests
         return false;
     }
 
-    private static bool HasBuildingResearch(Building building, string id)
+    private static bool HasBuildingResearch(BuildingDef building, string id)
     {
         for (int i = 0; i < building.RequiredResearch.Count; i++)
             if (building.RequiredResearch[i] != null && building.RequiredResearch[i].Id == id)
@@ -213,11 +213,11 @@ public sealed class BuildingVerticalSliceTests
         return false;
     }
 
-    private static bool HasBuildingRequirement(Building building, string id)
+    private static bool HasBuildingRequirement(BuildingDef building, string id)
     {
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceRequirements[i];
             if (pair.First != null && pair.First.Id == id && pair.Second > ExpantaNum.Zero)
                 return true;
         }
@@ -225,11 +225,11 @@ public sealed class BuildingVerticalSliceTests
         return false;
     }
 
-    private static ExpantaNum GetResourceRate(Building building, string resourceId)
+    private static ExpantaNum GetResourceRate(BuildingDef building, string resourceId)
     {
         for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceConsumptionRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceConsumptionRates[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second;
         }

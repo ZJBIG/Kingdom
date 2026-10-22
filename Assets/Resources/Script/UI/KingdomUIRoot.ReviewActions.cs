@@ -23,13 +23,13 @@ public sealed partial class KingdomUIRoot
 
 #if UNITY_EDITOR
     public bool ReviewConfirmationPendingForEditor => pendingReviewAction != null;
-    public void ShowBuildingDetailsForEditor(Building building) => ShowBuildingDetails(building);
-    public void ShowResearchDetailsForEditor(Research research) => ShowResearchDetails(research);
-    public void ShowSectorDetailsForEditor(SectorDefinition sector) => RefreshSectorDetails(sector);
-    public Building SelectedBuildingForEditor => selectedBuilding;
+    public void ShowBuildingDetailsForEditor(BuildingDef building) => ShowBuildingDetails(building);
+    public void ShowResearchDetailsForEditor(ResearchDef research) => ShowResearchDetails(research);
+    public void ShowSectorDetailsForEditor(SectorDef sector) => RefreshSectorDetails(sector);
+    public BuildingDef SelectedBuildingForEditor => selectedBuilding;
     public Button ReviewLocateForEditor => reviewLocate;
     public Button ReviewRepairForEditor => reviewRepair;
-    public Button GetDeconstructButtonForEditor(Building building) => buildingDeconstructButtons.TryGetValue(building, out Button button) ? button : null;
+    public Button GetDeconstructButtonForEditor(BuildingDef building) => buildingDeconstructButtons.TryGetValue(building, out Button button) ? button : null;
 #endif
 
     private void BindReviewControls(Transform safeArea, Transform content)
@@ -151,11 +151,11 @@ public sealed partial class KingdomUIRoot
         { RefreshResearchQueueToolbar(); ShowResearchDetails(selectedResearchNode); }
         RefreshReviewControls();
     }
-    private void NavigateToBuildingRow(Building building)
+    private void NavigateToBuildingRow(BuildingDef building)
     {
         if (building == null) return;
         Transform row = null;
-        if (building is SectorBuilding sectorBuilding)
+        if (building is SectorBuildingDef sectorBuilding)
         {
             SetPage("Sectors");
             foreach (SectorRowView view in sectorRowViews)
@@ -186,14 +186,14 @@ public sealed partial class KingdomUIRoot
     }
     private void NavigateReviewLink(string id)
     {
-        if (id.StartsWith("building:", StringComparison.Ordinal) && DataBase<Building>.TryFind(id.Substring(9), out Building building)) NavigateToBuildingRow(building);
-        else if (id.StartsWith("research:", StringComparison.Ordinal) && DataBase<Research>.TryFind(id.Substring(9), out Research research)) NavigateToOverviewResearch(research);
-        else if (id.StartsWith("sector:", StringComparison.Ordinal) && DataBase<SectorDefinition>.TryFind(id.Substring(7), out SectorDefinition sector))
+        if (id.StartsWith("building:", StringComparison.Ordinal) && DataBase<BuildingDef>.TryFind(id.Substring(9), out BuildingDef building)) NavigateToBuildingRow(building);
+        else if (id.StartsWith("research:", StringComparison.Ordinal) && DataBase<ResearchDef>.TryFind(id.Substring(9), out ResearchDef research)) NavigateToOverviewResearch(research);
+        else if (id.StartsWith("sector:", StringComparison.Ordinal) && DataBase<SectorDef>.TryFind(id.Substring(7), out SectorDef sector))
         { SetPage("Sectors"); RefreshSectorDetails(sector); }
     }
     private static string ReviewLink(string type, string id, string label) => "<link=\"" + type + ":" + id + "\"><u>" + label + "</u></link>";
 
-    private void HandleResearchUiAction(Research research)
+    private void HandleResearchUiAction(ResearchDef research)
     {
         ResearchManager manager = ResearchManager.Instance;
         if (manager == null || research == null) return;
@@ -206,7 +206,7 @@ public sealed partial class KingdomUIRoot
         }
         else ExecuteResearchUiAction(research);
     }
-    private void ExecuteResearchUiAction(Research research)
+    private void ExecuteResearchUiAction(ResearchDef research)
     {
         ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
         ShowResearchDetails(research, true); RefreshResearchQueueToolbar(); researchQueueUiDirty = false;
@@ -215,7 +215,7 @@ public sealed partial class KingdomUIRoot
     }
     private void PreviewFleetRepair()
     {
-        SectorDefinition sector = selectedSectorDefinition;
+        SectorDef sector = selectedSectorDefinition;
         if (sector == null || GameManager.Instance == null) return;
         SectorState state = GameManager.Instance.Sectors.GetState(sector);
         ExpantaNum amount = GameManager.Instance.Sectors.GetMaxAffordableFleetRepair(sector, GameManager.Instance.State, ResourceManager.Instance);
@@ -226,14 +226,14 @@ public sealed partial class KingdomUIRoot
         ConfirmReviewAction(warning.ToString(), () => RepairSectorFleet(sector));
     }
 
-    private void AppendResourceSourceCandidates(StringBuilder text, Resource resource)
+    private void AppendResourceSourceCandidates(StringBuilder text, ResourceDef resource)
     {
         BuildingManager manager = BuildingManager.Instance;
         if (manager == null) return;
         bool stoppedHeading = false, availableHeading = false;
         foreach (var entry in manager.States)
         {
-            Building building = entry.Key; BuildingState state = entry.Value;
+            BuildingDef building = entry.Key; BuildingState state = entry.Value;
             bool source = false;
             foreach (var flow in building.ResourceGenerationRates) if (flow.First == resource && flow.Second > ExpantaNum.Zero) { source = true; break; }
             if (!source) continue;
@@ -245,7 +245,7 @@ public sealed partial class KingdomUIRoot
         }
         foreach (var entry in manager.States)
         {
-            Building building = entry.Key;
+            BuildingDef building = entry.Key;
             if (entry.Value.Amount > ExpantaNum.Zero || !manager.ShouldDisplay(building)) continue;
             foreach (var flow in building.ResourceGenerationRates)
                 if (flow.First == resource && flow.Second > ExpantaNum.Zero)
@@ -258,7 +258,7 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private static string GetStoppedBuildingReason(Building building)
+    private static string GetStoppedBuildingReason(BuildingDef building)
     {
         BuildingManager manager = BuildingManager.Instance;
         if (manager.AvailableProductivity < ExpantaNum.Zero) return "生产力不足；补人口、供粮或减少高负荷建筑";
@@ -279,7 +279,7 @@ public sealed partial class KingdomUIRoot
         return false;
     }
 
-    private static void AppendBuildingInvestmentExplanation(StringBuilder text, Building building)
+    private static void AppendBuildingInvestmentExplanation(StringBuilder text, BuildingDef building)
     {
         BuildingManager manager = BuildingManager.Instance;
         if (manager == null) return;
@@ -288,10 +288,10 @@ public sealed partial class KingdomUIRoot
             text.AppendLine("每座新增人口容量 +" + building.PopulationCapacityGranted.ToGameString());
             text.AppendLine("备足粮食并等待新居民入住后，才会增加生产力。每座满员新增需粮：" + (building.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson).ToGameString() + "/s；入住后生产力：" + (building.PopulationCapacityGranted * PopulationState.ProductivityGrantedPerPerson * ProgressionModifierManager.Current.PopulationProductivityMultiplier).ToGameString());
         }
-        if (manager.GetState(building)?.Amount > ExpantaNum.Zero && manager.TryGetUnlockedUpgradeTarget(building, out Building target))
+        if (manager.GetState(building)?.Amount > ExpantaNum.Zero && manager.TryGetUnlockedUpgradeTarget(building, out BuildingDef target))
         {
             text.AppendLine("每座升级为 " + target.Label + " 的基础增量（产出另受倍率与供给影响）：");
-            if (!(building is SectorBuilding)) AppendInvestmentDelta(text, "土地需求", target.SpaceCost - building.SpaceCost);
+            if (!(building is SectorBuildingDef)) AppendInvestmentDelta(text, "土地需求", target.SpaceCost - building.SpaceCost);
             AppendInvestmentDelta(text, "生产力需求", target.ProductivityConsumption - building.ProductivityConsumption);
             AppendInvestmentDelta(text, "直接生产力", target.ProductivityGranted - building.ProductivityGranted);
             AppendInvestmentDelta(text, "日常净粮 /s", target.FoodProductionRate - target.FoodConsumptionRate - building.FoodProductionRate + building.FoodConsumptionRate);

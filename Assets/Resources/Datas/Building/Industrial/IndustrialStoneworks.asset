@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IndustrialStoneworks
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 0da221bf081c4c33b54df67cb8a14ba0, type: 3}
   id: IndustrialStoneworks
   Label: "工业石材联合厂"
   Description: "将深井采石、破碎筛分和自动切石线整合为一体，同时供应工程石块与标准石砖；重型钻机和锯切设备持续消耗润滑剂与工业炸药。"

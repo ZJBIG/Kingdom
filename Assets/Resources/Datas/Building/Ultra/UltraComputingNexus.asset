@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: UltraComputingNexus
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 9ec7185f0842463da6bd98a3c7ad131a, type: 3}
   id: UltraComputingNexus
   Label: "极限计算中枢"
   Description: "以量子阵列和相位材料承载跨星区计算任务，持续提供研究力；运行消耗电子元件和相位材料。"

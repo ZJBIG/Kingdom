@@ -35,11 +35,11 @@ public static class EconomyParitySnapshotExporter
                 TechLevel.Ultra.ToString(),
                 TechLevel.Archotech.ToString()
             },
-            Resources = OrderedDefinitions(DataBase<Resource>.All, "Resource").Select(Resource).ToList(),
+            Resources = OrderedDefinitions(DataBase<ResourceDef>.All, "Resource").Select(Resource).ToList(),
             Buildings = AllBuildings().Select(Building).ToList(),
-            Research = OrderedDefinitions(DataBase<Research>.All, "Research").Select(Research).ToList(),
-            Workshops = OrderedDefinitions(DataBase<WorkshopUpgrade>.All, "Workshop").Select(Workshop).ToList(),
-            Sectors = OrderedDefinitions(DataBase<SectorDefinition>.All, "Sector").Select(Sector).ToList(),
+            Research = OrderedDefinitions(DataBase<ResearchDef>.All, "Research").Select(Research).ToList(),
+            Workshops = OrderedDefinitions(DataBase<WorkshopUpgradeDef>.All, "Workshop").Select(Workshop).ToList(),
+            Sectors = OrderedDefinitions(DataBase<SectorDef>.All, "Sector").Select(Sector).ToList(),
             InitialState = CaptureInitialState(),
             SaveState = CaptureSaveState(),
             RuntimeState = CaptureRuntimeState()
@@ -57,22 +57,22 @@ public static class EconomyParitySnapshotExporter
         File.WriteAllText(fullPath, JsonUtility.ToJson(CaptureCurrent(), true));
     }
 
-    private static IEnumerable<Building> AllBuildings()
+    private static IEnumerable<BuildingDef> AllBuildings()
     {
-        var byId = new SortedDictionary<string, Building>(StringComparer.Ordinal);
-        AddBuildings(byId, DataBase<Building>.All);
-        AddBuildings(byId, DataBase<SectorBuilding>.All);
+        var byId = new SortedDictionary<string, BuildingDef>(StringComparer.Ordinal);
+        AddBuildings(byId, DataBase<BuildingDef>.All);
+        AddBuildings(byId, DataBase<SectorBuildingDef>.All);
         return byId.Values;
     }
 
-    private static void AddBuildings(SortedDictionary<string, Building> byId, IEnumerable<Building> buildings)
+    private static void AddBuildings(SortedDictionary<string, BuildingDef> byId, IEnumerable<BuildingDef> buildings)
     {
-        foreach (Building building in buildings)
+        foreach (BuildingDef building in buildings)
         {
             if (building == null)
                 throw new InvalidOperationException("A building definition is null.");
             string id = StableId(building);
-            if (byId.TryGetValue(id, out Building existing))
+            if (byId.TryGetValue(id, out BuildingDef existing))
             {
                 if (AssetDatabase.GetAssetPath(existing) != AssetDatabase.GetAssetPath(building))
                     throw new InvalidOperationException($"Duplicate building stable ID '{id}'.");
@@ -94,14 +94,14 @@ public static class EconomyParitySnapshotExporter
         return byId.Values.ToList();
     }
 
-    private static ResourceDto Resource(Resource value) => new ResourceDto
+    private static ResourceDto Resource(ResourceDef value) => new ResourceDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value),
         TechLevel = value.TechLevel.ToString(), Label = value.Label, Description = value.Description,
         BaseProductionRate = Number(ResourceManager.IsStartingResource(value) ? ExpantaNum.One : ExpantaNum.Zero)
     };
 
-    private static BuildingDto Building(Building value) => new BuildingDto
+    private static BuildingDto Building(BuildingDef value) => new BuildingDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value), TechLevel = value.TechLevel.ToString(),
         CostGrowth = Number(value.CostGrowth), SpaceCost = Number(value.SpaceCost),
@@ -116,10 +116,12 @@ public static class EconomyParitySnapshotExporter
         ResourceRequirements = Amounts(value.ResourceRequirements), ResourceGenerationRates = Amounts(value.ResourceGenerationRates),
         ResourceConsumptionRates = Amounts(value.ResourceConsumptionRates), RequiredResearchIds = Ids(value.RequiredResearch),
         RequiredWorkshopIds = Ids(value.RequiredWorkshopUpgrades),
-        SectorId = value is SectorBuilding sectorBuilding ? Id(sectorBuilding.Sector) : string.Empty
+        SectorId = value is SectorBuildingDef sectorBuilding ? Id(sectorBuilding.Sector) : string.Empty,
+        RequiresInteriorExploration = value is SectorBuildingDef local && local.RequiresInteriorExploration,
+        MaxAmount = value is SectorBuildingDef limited ? limited.MaxAmount : 0
     };
 
-    private static ResearchDto Research(Research value) => new ResearchDto
+    private static ResearchDto Research(ResearchDef value) => new ResearchDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value), TechLevel = value.TechLevel.ToString(),
         BaseCost = Number(value.BaseCost), AdvancesTechLevel = value.AdvancesTechLevel,
@@ -127,15 +129,17 @@ public static class EconomyParitySnapshotExporter
         Effects = Effects(value.Effects)
     };
 
-    private static WorkshopDto Workshop(WorkshopUpgrade value) => new WorkshopDto
+    private static WorkshopDto Workshop(WorkshopUpgradeDef value) => new WorkshopDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value), TechLevel = value.TechLevel.ToString(),
         Label = value.Label, Description = value.Description, SortOrder = value.SortOrder,
         RequiredResearchIds = Ids(value.RequiredResearch), RequiredWorkshopIds = Ids(value.RequiredUpgrades),
+        RequiredBuildingId = value.RequiredBuilding == null ? "" : value.RequiredBuilding.Id,
+        RequiredSectorId = value.RequiredSector == null ? "" : value.RequiredSector.Id,
         ResourceRequirements = Amounts(value.ResourceRequirements), Effects = Effects(value.Effects)
     };
 
-    private static SectorDto Sector(SectorDefinition value) => new SectorDto
+    private static SectorDto Sector(SectorDef value) => new SectorDto
     {
         Id = StableId(value), Guid = Guid(value), AssetPath = AssetDatabase.GetAssetPath(value), StarSystemId = value.StarSystemId,
         Domain = value.Domain.ToString(), TerritoryReward = Number(value.TerritoryReward), EnemyPower = Number(value.EnemyPower),
@@ -144,7 +148,15 @@ public static class EconomyParitySnapshotExporter
         CampaignProgressMultiplier = Number(value.CampaignProgressMultiplier), PrerequisiteSectorIds = Ids(value.PrerequisiteSectors),
         ResourceRewards = Amounts(value.ResourceRewards), OccupiedResourceRatesPerSecond = Amounts(value.OccupiedResourceRatesPerSecond),
         ColonizationResourceRatesPerSecond = Amounts(value.ColonizationResourceRatesPerSecond),
-        CampaignResourceRatesPerSecond = Amounts(value.CampaignResourceRatesPerSecond)
+        CampaignResourceRatesPerSecond = Amounts(value.CampaignResourceRatesPerSecond),
+        InteriorExploration = Interior(value.InteriorExploration)
+    };
+
+    private static InteriorExplorationDto Interior(SectorInteriorExplorationDefinition value) => value == null ? null : new InteriorExplorationDto
+    {
+        Label = value.Label, Description = value.Description, CompletionDescription = value.CompletionDescription,
+        DurationSeconds = Number(value.DurationSeconds), RequiredResearchIds = Ids(value.RequiredResearch),
+        ResourceRatesPerSecond = Amounts(value.ResourceRatesPerSecond), Milestones = new List<string>(value.Milestones)
     };
 
     private static StateDto CaptureInitialState()
@@ -153,14 +165,14 @@ public static class EconomyParitySnapshotExporter
         return new StateDto
         {
             TechLevel = game.TechLevel.ToString(), Food = Number(game.FoodAmount), FoodCapacity = Number(game.FoodCapacity),
-            Resources = OrderedDefinitions(DataBase<Resource>.All, "Resource")
+            Resources = OrderedDefinitions(DataBase<ResourceDef>.All, "Resource")
                 .Select(x => new AmountDto { ResourceId = x.Id, Value = Number(ResourceManager.IsStartingResource(x) ? new ExpantaNum(60) : ExpantaNum.Zero) }).ToList(),
             Buildings = AllBuildings()
                 .Select(x => new BuildingStateDto { BuildingId = x.Id, Amount = Number(ExpantaNum.Zero), Efficiency = Number(ExpantaNum.One) }).ToList(),
-            Research = OrderedDefinitions(DataBase<Research>.All, "Research")
+            Research = OrderedDefinitions(DataBase<ResearchDef>.All, "Research")
                 .Select(x => new ResearchStateDto { ResearchId = x.Id, Progress = Number(ExpantaNum.Zero), CostPaid = !x.HasPositiveResourceRequirement }).ToList(),
             PurchasedWorkshopIds = new List<string>(),
-            Sectors = OrderedDefinitions(DataBase<SectorDefinition>.All, "Sector")
+            Sectors = OrderedDefinitions(DataBase<SectorDef>.All, "Sector")
                 .Select(x => new SectorStateDto { SectorId = x.Id }).ToList()
         };
     }
@@ -185,7 +197,7 @@ public static class EconomyParitySnapshotExporter
             .Select(x => new ResearchStateDto { ResearchId = x.Definition.Id, Progress = Number(x.Progress), CostPaid = x.CostPaid,
                 Completed = x.Status == ResearchStatus.Completed,
                 PaidResourceCosts = Amounts(x.Definition.ResourceRequirements.Where(p => x.GetPaidResourceCost(p.First) > ExpantaNum.Zero)
-                    .Select(p => new Pair<Resource, ExpantaNum>(p.First, x.GetPaidResourceCost(p.First))).ToList()) }).ToList();
+                    .Select(p => new Pair<ResourceDef, ExpantaNum>(p.First, x.GetPaidResourceCost(p.First))).ToList()) }).ToList();
         dto.ElapsedSeconds = Number(ExpantaNum.Zero);
         dto.CalendarElapsedSeconds = GameManager.Instance.CalendarElapsedSecondsForEditor;
         dto.SimulationTickIntervalSeconds = SimulationManager.Instance.TickIntervalSecondsForEditor;
@@ -240,7 +252,8 @@ public static class EconomyParitySnapshotExporter
             Sectors = save.Sectors.States.OrderBy(x => x.SectorId, StringComparer.Ordinal)
                 .Select(x => new SectorStateDto { SectorId = x.SectorId, Unlocked = x.Unlocked, Occupied = x.Occupied,
                     ColonizationActive = x.ColonizationActive, CampaignActive = x.CampaignActive, Progress = Number(x.CampaignProgress),
-                    Casualties = Number(x.CampaignCasualties), CombatRatio = Number(x.CampaignCombatRatio), VisitCount = x.VisitCount }).ToList()
+                    Casualties = Number(x.CampaignCasualties), CombatRatio = Number(x.CampaignCombatRatio), VisitCount = x.VisitCount,
+                    InteriorExplorationActive = x.InteriorExplorationActive, InteriorExplorationPaused = x.InteriorExplorationPaused, InteriorExplorationProgress = Number(x.InteriorExplorationProgress) }).ToList()
         };
     }
 
@@ -353,13 +366,13 @@ public static class EconomyParitySnapshotExporter
         return result;
     }
 
-    private static List<AmountDto> Amounts(IReadOnlyList<Pair<Resource, ExpantaNum>> values)
+    private static List<AmountDto> Amounts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> values)
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
 
         var byResourceId = new SortedDictionary<string, AmountDto>(StringComparer.Ordinal);
-        foreach (Pair<Resource, ExpantaNum> value in values)
+        foreach (Pair<ResourceDef, ExpantaNum> value in values)
         {
             if (value.First == null)
                 throw new InvalidOperationException("A resource amount references a null resource.");
@@ -388,8 +401,8 @@ public static class EconomyParitySnapshotExporter
     private static List<EffectDto> Effects<T>(
         IReadOnlyList<T> values,
         Func<T, string> type,
-        Func<T, Building> building,
-        Func<T, Resource> resource,
+        Func<T, BuildingDef> building,
+        Func<T, ResourceDef> resource,
         Func<T, ExpantaNum> amount)
     {
         if (values == null)
@@ -411,10 +424,10 @@ public static class EconomyParitySnapshotExporter
 
 [Serializable] public class DefinitionDto { public string Id=""; public string Guid=""; public string AssetPath=""; public string TechLevel=""; }
 [Serializable] public sealed class ResourceDto : DefinitionDto { public string BaseProductionRate="0"; public string Label=""; public string Description=""; }
-[Serializable] public sealed class BuildingDto : DefinitionDto { public string CostGrowth="1.15"; public string SpaceCost="0"; public string ProductivityConsumption="0"; public string ProductivityGranted="0"; public string FoodProductionRate="0"; public string FoodConsumptionRate="0"; public string FoodCapacityGranted="0"; public string PowerProductionRate="0"; public string PowerConsumptionRate="0"; public string LogisticsProductionRate="0"; public string LogisticsConsumptionRate="0"; public string ResearchPowerGranted="0"; public string PopulationCapacityGranted="0"; public string FleetPowerGranted="0"; public string AttackPowerGranted="0"; public string DefensePowerGranted="0"; public string MilitaryManpowerGranted="0"; public string UpgradeToId=""; public List<AmountDto> ResourceRequirements=new(); public List<AmountDto> ResourceGenerationRates=new(); public List<AmountDto> ResourceConsumptionRates=new(); public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public string SectorId=""; }
+[Serializable] public sealed class BuildingDto : DefinitionDto { public string CostGrowth="1.15"; public string SpaceCost="0"; public string ProductivityConsumption="0"; public string ProductivityGranted="0"; public string FoodProductionRate="0"; public string FoodConsumptionRate="0"; public string FoodCapacityGranted="0"; public string PowerProductionRate="0"; public string PowerConsumptionRate="0"; public string LogisticsProductionRate="0"; public string LogisticsConsumptionRate="0"; public string ResearchPowerGranted="0"; public string PopulationCapacityGranted="0"; public string FleetPowerGranted="0"; public string AttackPowerGranted="0"; public string DefensePowerGranted="0"; public string MilitaryManpowerGranted="0"; public string UpgradeToId=""; public List<AmountDto> ResourceRequirements=new(); public List<AmountDto> ResourceGenerationRates=new(); public List<AmountDto> ResourceConsumptionRates=new(); public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public string SectorId=""; public bool RequiresInteriorExploration; public int MaxAmount; }
 [Serializable] public sealed class ResearchDto : DefinitionDto { public string BaseCost="0"; public bool AdvancesTechLevel; public List<string> PrerequisiteIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
-[Serializable] public sealed class WorkshopDto : DefinitionDto { public string Label=""; public string Description=""; public int SortOrder; public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
-[Serializable] public sealed class SectorDto : DefinitionDto { public string StarSystemId=""; public string Domain=""; public string TerritoryReward="0"; public string EnemyPower="0"; public bool Repeatable; public string ColonizationFoodPerSecond="0"; public string ColonizationDurationSeconds="0"; public string CampaignFoodPerSecond="0"; public string CampaignProgressMultiplier="1"; public List<string> PrerequisiteSectorIds=new(); public List<AmountDto> ResourceRewards=new(); public List<AmountDto> OccupiedResourceRatesPerSecond=new(); public List<AmountDto> ColonizationResourceRatesPerSecond=new(); public List<AmountDto> CampaignResourceRatesPerSecond=new(); }
+[Serializable] public sealed class WorkshopDto : DefinitionDto { public string RequiredBuildingId=""; public string RequiredSectorId=""; public string Label=""; public string Description=""; public int SortOrder; public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
+[Serializable] public sealed class SectorDto : DefinitionDto { public InteriorExplorationDto InteriorExploration; public string StarSystemId=""; public string Domain=""; public string TerritoryReward="0"; public string EnemyPower="0"; public bool Repeatable; public string ColonizationFoodPerSecond="0"; public string ColonizationDurationSeconds="0"; public string CampaignFoodPerSecond="0"; public string CampaignProgressMultiplier="1"; public List<string> PrerequisiteSectorIds=new(); public List<AmountDto> ResourceRewards=new(); public List<AmountDto> OccupiedResourceRatesPerSecond=new(); public List<AmountDto> ColonizationResourceRatesPerSecond=new(); public List<AmountDto> CampaignResourceRatesPerSecond=new(); }
 [Serializable] public sealed class AmountDto { public string ResourceId=""; public string Value="0"; }
 [Serializable] public sealed class EffectDto { public string Type=""; public string BuildingId=""; public string ResourceId=""; public string Value="1"; }
 [Serializable] public class StateDto { public string TechLevel="Animal"; public string Food="0"; public string FoodCapacity="1"; public List<AmountDto> Resources=new(); public List<BuildingStateDto> Buildings=new(); public List<ResearchStateDto> Research=new(); public List<string> PurchasedWorkshopIds=new(); public List<SectorStateDto> Sectors=new(); }
@@ -422,6 +435,8 @@ public static class EconomyParitySnapshotExporter
 [Serializable] public sealed class RuntimeStateDto : SaveStateDto { public long Tick; public string ElapsedSeconds="0"; public string CampaignProgress="0"; public double CalendarElapsedSeconds; public double SimulationTickIntervalSeconds; public double OfflinePendingCalendarSeconds; public double OfflinePendingSimulationSeconds; public List<EventDto> Events=new(); }
 [Serializable] public sealed class BuildingStateDto { public string BuildingId=""; public string Amount="0"; public string Efficiency="1"; }
 [Serializable] public sealed class ResearchStateDto { public string ResearchId=""; public string Progress="0"; public bool CostPaid; public bool Completed; public List<AmountDto> PaidResourceCosts=new(); }
-[Serializable] public sealed class SectorStateDto { public string SectorId=""; public bool Unlocked; public bool Occupied; public bool ColonizationActive; public bool CampaignActive; public string Progress="0"; public string Casualties="0"; public string CombatRatio="0"; public int VisitCount; }
+[Serializable] public sealed class SectorStateDto { public bool InteriorExplorationActive; public bool InteriorExplorationPaused; public string InteriorExplorationProgress="0"; public string SectorId=""; public bool Unlocked; public bool Occupied; public bool ColonizationActive; public bool CampaignActive; public string Progress="0"; public string Casualties="0"; public string CombatRatio="0"; public int VisitCount; }
 [Serializable] public sealed class EventDto { public long Tick; public string Kind=""; public string Id=""; public string Amount="0"; public string Detail=""; }
 [Serializable] public sealed class EconomySnapshotDto { public int FormatVersion; public string Source=""; public List<string> TechLevels=new(); public List<ResourceDto> Resources=new(); public List<BuildingDto> Buildings=new(); public List<ResearchDto> Research=new(); public List<WorkshopDto> Workshops=new(); public List<SectorDto> Sectors=new(); public StateDto InitialState=new(); public SaveStateDto SaveState=new(); public RuntimeStateDto RuntimeState=new(); }
+
+[Serializable] public sealed class InteriorExplorationDto { public string Label=""; public string Description=""; public string CompletionDescription=""; public string DurationSeconds="0"; public List<string> RequiredResearchIds=new(); public List<AmountDto> ResourceRatesPerSecond=new(); public List<string> Milestones=new(); }

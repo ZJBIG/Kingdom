@@ -234,7 +234,7 @@ class GuidanceContractTests(unittest.TestCase):
     def test_unique_ui_semantics_were_preserved(self):
         text = self.text("docs/ui/page-responsibilities.md")
         for marker in ("Resource | 无主操作按钮", "左右各48", "金色Outline", "连接线",
-                       "SectorBuilding", "TryBuild/TryDeconstruct", "重复订阅"):
+                       "SectorBuildingDef", "TryBuild/TryDeconstruct", "重复订阅"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, text)
         ui = self.text(".agents/skills/kingdom-ui-redesign/SKILL.md")

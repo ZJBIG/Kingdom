@@ -13,13 +13,13 @@ public sealed class MedievalResearchRoleTests
 
     private static void AssertResearchRole(string id, ResearchEffectType expectedType)
     {
-        Research research = DataBase<Research>.Find(id);
+        ResearchDef research = DataBase<ResearchDef>.Find(id);
         Assert.That(research, Is.Not.Null, id);
         Assert.That(HasEffectType(research, expectedType), Is.True,
             id + " must retain its player-facing effect role.");
     }
 
-    private static bool HasEffectType(Research research, ResearchEffectType expectedType)
+    private static bool HasEffectType(ResearchDef research, ResearchEffectType expectedType)
     {
         for (int i = 0; i < research.Effects.Count; i++)
         {

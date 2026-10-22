@@ -12,7 +12,7 @@ public static class SectorValidator
         new ExpantaNum(1d / 60d);
 
     public static bool ValidateDefinitions(
-        IEnumerable<SectorDefinition> sectors,
+        IEnumerable<SectorDef> sectors,
         out string error)
     {
         if (sectors == null)
@@ -21,9 +21,9 @@ public static class SectorValidator
             return false;
         }
 
-        var definitions = new List<SectorDefinition>();
+        var definitions = new List<SectorDef>();
         var ids = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-        foreach (SectorDefinition sector in sectors)
+        foreach (SectorDef sector in sectors)
         {
             if (sector == null)
             {
@@ -41,8 +41,8 @@ public static class SectorValidator
                 return false;
             }
             if (string.IsNullOrWhiteSpace(sector.StarSystemId) ||
-                (sector.IsHomeSystem && sector.StarSystemId != SectorDefinition.HomeSystemId) ||
-                (!sector.IsHomeSystem && sector.StarSystemId == SectorDefinition.HomeSystemId))
+                (sector.IsHomeSystem && sector.StarSystemId != SectorDef.HomeSystemId) ||
+                (!sector.IsHomeSystem && sector.StarSystemId == SectorDef.HomeSystemId))
             {
                 error = $"星区验证失败：“{sector.Id}”的领域与星系配置无效。";
                 return false;
@@ -58,17 +58,17 @@ public static class SectorValidator
             definitions.Add(sector);
         }
 
-        var known = new HashSet<SectorDefinition>(definitions);
+        var known = new HashSet<SectorDef>(definitions);
         for (int i = 0; i < definitions.Count; i++)
         {
-            SectorDefinition sector = definitions[i];
-            IReadOnlyList<SectorDefinition> prerequisites = sector.PrerequisiteSectors;
-            var unique = new HashSet<SectorDefinition>();
+            SectorDef sector = definitions[i];
+            IReadOnlyList<SectorDef> prerequisites = sector.PrerequisiteSectors;
+            var unique = new HashSet<SectorDef>();
             if (prerequisites != null)
             {
                 for (int j = 0; j < prerequisites.Count; j++)
                 {
-                    SectorDefinition prerequisite = prerequisites[j];
+                    SectorDef prerequisite = prerequisites[j];
                     if (prerequisite == null || !known.Contains(prerequisite) ||
                         prerequisite == sector || !unique.Add(prerequisite))
                     {
@@ -76,6 +76,13 @@ public static class SectorValidator
                         return false;
                     }
                 }
+            }
+
+            if (sector.InteriorExploration != null &&
+                (!sector.IsHomeSystem || !SectorManager.ValidateInteriorDefinition(sector.InteriorExploration)))
+            {
+                error = $"Invalid planetary exploration definition: '{sector.Id}'.";
+                return false;
             }
 
             if (sector.IsHomeSystem)
@@ -103,7 +110,7 @@ public static class SectorValidator
     }
 
     private static bool ValidateInterstellarCampaignScale(
-        SectorDefinition sector,
+        SectorDef sector,
         out string error)
     {
         if (sector.TerritoryReward < MinimumInterstellarTerritoryReward)
@@ -114,7 +121,7 @@ public static class SectorValidator
 
         // 后期战役奖励必须足以补偿长距离补给投入，防止出现琐碎奖励的合法定义。
         ExpantaNum totalResourceReward = ExpantaNum.Zero;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = sector.ResourceRewards;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rewards = sector.ResourceRewards;
         if (rewards != null)
         {
             for (int i = 0; i < rewards.Count; i++)
@@ -129,14 +136,14 @@ public static class SectorValidator
             return false;
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs =
             sector.CampaignResourceRatesPerSecond;
         bool usesAdvancedResource = false;
         if (costs != null)
         {
             for (int i = 0; i < costs.Count; i++)
             {
-                Pair<Resource, ExpantaNum> cost = costs[i];
+                Pair<ResourceDef, ExpantaNum> cost = costs[i];
                 if (cost.First != null && cost.Second > ExpantaNum.Zero &&
                     IsAdvancedCampaignResource(cost.First.Id))
                 {
@@ -171,7 +178,7 @@ public static class SectorValidator
     /// 本星系探索不能反向依赖后续远星路线。
     /// </summary>
     public static bool ValidateProgressionReachability(
-        IEnumerable<SectorDefinition> sectors,
+        IEnumerable<SectorDef> sectors,
         out string error)
     {
         if (sectors == null)
@@ -180,8 +187,8 @@ public static class SectorValidator
             return false;
         }
 
-        var definitions = new List<SectorDefinition>();
-        foreach (SectorDefinition sector in sectors)
+        var definitions = new List<SectorDef>();
+        foreach (SectorDef sector in sectors)
         {
             if (sector == null)
             {
@@ -200,11 +207,11 @@ public static class SectorValidator
             return false;
         }
 
-        var memo = new Dictionary<SectorDefinition, bool>();
+        var memo = new Dictionary<SectorDef, bool>();
         for (int i = 0; i < definitions.Count; i++)
         {
-            SectorDefinition sector = definitions[i];
-            IReadOnlyList<SectorDefinition> prerequisites = sector.PrerequisiteSectors;
+            SectorDef sector = definitions[i];
+            IReadOnlyList<SectorDef> prerequisites = sector.PrerequisiteSectors;
             if (sector.IsHomeSystem)
             {
                 if (prerequisites == null)
@@ -226,7 +233,7 @@ public static class SectorValidator
                 return false;
             }
 
-            var visiting = new HashSet<SectorDefinition>();
+            var visiting = new HashSet<SectorDef>();
             if (!ReachesHomeSector(sector, memo, visiting))
             {
                 error = $"星区进度验证失败：远星星区“{sector.Id}”无法从本星系探索区到达。";
@@ -239,9 +246,9 @@ public static class SectorValidator
     }
 
     private static bool ReachesHomeSector(
-        SectorDefinition sector,
-        Dictionary<SectorDefinition, bool> memo,
-        HashSet<SectorDefinition> visiting)
+        SectorDef sector,
+        Dictionary<SectorDef, bool> memo,
+        HashSet<SectorDef> visiting)
     {
         if (sector.IsHomeSystem)
             return true;
@@ -251,12 +258,12 @@ public static class SectorValidator
             return false;
 
         bool reachesHome = false;
-        IReadOnlyList<SectorDefinition> prerequisites = sector.PrerequisiteSectors;
+        IReadOnlyList<SectorDef> prerequisites = sector.PrerequisiteSectors;
         if (prerequisites != null)
         {
             for (int i = 0; i < prerequisites.Count; i++)
             {
-                SectorDefinition prerequisite = prerequisites[i];
+                SectorDef prerequisite = prerequisites[i];
                 if (prerequisite != null && ReachesHomeSector(prerequisite, memo, visiting))
                 {
                     reachesHome = true;
@@ -271,7 +278,7 @@ public static class SectorValidator
     }
 
     public static bool ValidateNoCycles(
-        IEnumerable<SectorDefinition> sectors,
+        IEnumerable<SectorDef> sectors,
         out string error)
     {
         if (sectors == null)
@@ -281,10 +288,10 @@ public static class SectorValidator
         }
 
         var cycles = new Dictionary<string, string>();
-        var visited = new HashSet<SectorDefinition>();
-        var visiting = new HashSet<SectorDefinition>();
-        var path = new List<SectorDefinition>();
-        foreach (SectorDefinition sector in sectors)
+        var visited = new HashSet<SectorDef>();
+        var visiting = new HashSet<SectorDef>();
+        var path = new List<SectorDef>();
+        foreach (SectorDef sector in sectors)
         {
             if (!Visit(sector, visiting, visited, path, cycles, out error))
                 return false;
@@ -304,9 +311,9 @@ public static class SectorValidator
         return true;
     }
 
-    private static bool ValidateRewards(SectorDefinition sector, out string error)
+    private static bool ValidateRewards(SectorDef sector, out string error)
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = sector.ResourceRewards;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rewards = sector.ResourceRewards;
         if (sector.IsHomeSystem)
         {
             if (rewards != null && rewards.Count > 0)
@@ -330,7 +337,7 @@ public static class SectorValidator
         }
         for (int i = 0; i < rewards.Count; i++)
         {
-            Pair<Resource, ExpantaNum> reward = rewards[i];
+            Pair<ResourceDef, ExpantaNum> reward = rewards[i];
             if (reward.First == null || reward.Second.IsNaN || reward.Second <= ExpantaNum.Zero)
             {
                 error = $"星区验证失败：“{sector.Id}”包含无效的资源奖励。";
@@ -343,7 +350,7 @@ public static class SectorValidator
 
     private static bool ValidateCosts(
         ExpantaNum foodPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         string sectorId,
         string operation,
         out string error)
@@ -355,7 +362,7 @@ public static class SectorValidator
         }
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second.IsNaN || cost.Second < ExpantaNum.Zero)
             {
                 error = $"星区验证失败：“{sectorId}”包含无效的{operation}资源成本。";
@@ -367,10 +374,10 @@ public static class SectorValidator
     }
 
     private static bool Visit(
-        SectorDefinition sector,
-        HashSet<SectorDefinition> visiting,
-        HashSet<SectorDefinition> visited,
-        List<SectorDefinition> path,
+        SectorDef sector,
+        HashSet<SectorDef> visiting,
+        HashSet<SectorDef> visited,
+        List<SectorDef> path,
         Dictionary<string, string> cycles,
         out string error)
     {
@@ -394,10 +401,10 @@ public static class SectorValidator
         }
 
         path.Add(sector);
-        var uniquePrerequisites = new HashSet<SectorDefinition>();
+        var uniquePrerequisites = new HashSet<SectorDef>();
         if (sector.PrerequisiteSectors != null)
         {
-            foreach (SectorDefinition prerequisite in sector.PrerequisiteSectors)
+            foreach (SectorDef prerequisite in sector.PrerequisiteSectors)
             {
                 if (prerequisite == null)
                 {
@@ -421,7 +428,7 @@ public static class SectorValidator
         return true;
     }
 
-    private static string BuildCycleKey(List<SectorDefinition> path, SectorDefinition repeated)
+    private static string BuildCycleKey(List<SectorDef> path, SectorDef repeated)
     {
         int start = path.IndexOf(repeated);
         if (start < 0)
@@ -453,7 +460,7 @@ public static class SectorValidator
         return best;
     }
 
-    private static string BuildCycleDisplayError(List<SectorDefinition> path, SectorDefinition repeated)
+    private static string BuildCycleDisplayError(List<SectorDef> path, SectorDef repeated)
     {
         int start = path.IndexOf(repeated);
         if (start < 0)

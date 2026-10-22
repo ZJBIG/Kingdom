@@ -48,9 +48,9 @@ public sealed class C6IndustrialClosureAuditTests
     public void C604_NewGameReachesIndustrialAndTheWholeIndustrialLayer()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 

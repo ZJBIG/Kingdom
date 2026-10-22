@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CampaignTimingCalibrationBench
   m_EditorClassIdentifier: 
   id: CampaignTimingCalibrationBench
+  icon: {fileID: 21300000, guid: adf2d2f901e42914c8d023092974ed9a, type: 3}
   Label: "\u6218\u5f79\u65f6\u5e8f\u6821\u51c6\u53f0"
   Description: "以时序校准协调远征补给，降低战役期间的食物、燃料与材料消耗。"
   SortOrder: 460

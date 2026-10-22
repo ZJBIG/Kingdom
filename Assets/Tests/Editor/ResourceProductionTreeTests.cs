@@ -14,9 +14,9 @@ public sealed class ResourceProductionTreeTests
         foreach (Object value in created) Object.DestroyImmediate(value);
         created.Clear();
     }
-    private Building Producer(Resource output, Resource input = null, Resource constructionCost = null)
+    private BuildingDef Producer(ResourceDef output, ResourceDef input = null, ResourceDef constructionCost = null)
     {
-        Building building = Make<Building>();
+        BuildingDef building = Make<BuildingDef>();
         building.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             constructionCost == null ? new() : new() { new(constructionCost, 10) },
             new() { new(output, 2) }, input == null ? new() : new() { new(input, 1) });
@@ -26,15 +26,15 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void VisibilityFiltersLockedSources_Inputs_Upgrades_AndSectors()
     {
-        Resource output = Make<Resource>(), input = Make<Resource>(), hiddenInput = Make<Resource>();
-        Building source = Producer(output, input), lockedSource = Producer(output);
-        Building lockedUpgrade = Producer(output, hiddenInput);
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>(), hiddenInput = Make<ResourceDef>();
+        BuildingDef source = Producer(output, input), lockedSource = Producer(output);
+        BuildingDef lockedUpgrade = Producer(output, hiddenInput);
         source.SetUpgradeToForEditor(lockedUpgrade);
-        SectorDefinition visibleSector = Make<SectorDefinition>(), hiddenSector = Make<SectorDefinition>();
+        SectorDef visibleSector = Make<SectorDef>(), hiddenSector = Make<SectorDef>();
         visibleSector.SetOccupiedResourceRatesForEditor(new() { new(output, 3) });
         hiddenSector.SetOccupiedResourceRatesForEditor(new() { new(output, 3) });
-        HashSet<Resource> resources = new() { output, input };
-        HashSet<Building> buildings = new() { source };
+        HashSet<ResourceDef> resources = new() { output, input };
+        HashSet<BuildingDef> buildings = new() { source };
         ResourceProductionTree tree = new(output, new[] { source, lockedSource },
             new[] { visibleSector, hiddenSector }, resources.Contains, buildings.Contains,
             sector => sector == visibleSector);
@@ -52,10 +52,10 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void UnlockRefreshRevealsCachedBranches_AndPreservesExistingNodesAndExpansion()
     {
-        Resource output = Make<Resource>(), input = Make<Resource>();
-        Building source = Producer(output, input), lockedSource = Producer(output), upgrade = Producer(output);
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>();
+        BuildingDef source = Producer(output, input), lockedSource = Producer(output), upgrade = Producer(output);
         source.SetUpgradeToForEditor(upgrade);
-        HashSet<Building> unlocked = new() { source };
+        HashSet<BuildingDef> unlocked = new() { source };
         ResourceProductionTree tree = new(output, new[] { source, lockedSource }, null,
             buildingVisible: unlocked.Contains);
         var originalSource = tree.GetChildren(tree.Root)[0];
@@ -82,9 +82,9 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void BuildingRootUsesOngoingInputs_AndDoesNotIncludeConstructionMaterials()
     {
-        Resource output = Make<Resource>(), input = Make<Resource>(), construction = Make<Resource>();
-        Building root = Producer(output, input, construction);
-        Building supplier = Producer(input);
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>(), construction = Make<ResourceDef>();
+        BuildingDef root = Producer(output, input, construction);
+        BuildingDef supplier = Producer(input);
         ResourceProductionTree tree = new(root, new[] { root, supplier }, null);
         Assert.That(tree.Root.Building, Is.SameAs(root));
         Assert.That(tree.Root.Expanded, Is.True);
@@ -100,8 +100,8 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void BuildingUpgradesAndInputProducersRemainDistinct_AndUpgradeCyclesStop()
     {
-        Resource output = Make<Resource>(), input = Make<Resource>();
-        Building root = Producer(output, input), upgrade = Producer(output), supplier = Producer(input);
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>();
+        BuildingDef root = Producer(output, input), upgrade = Producer(output), supplier = Producer(input);
         root.SetUpgradeToForEditor(upgrade);
         upgrade.SetUpgradeToForEditor(root);
         ResourceProductionTree tree = new(root, new[] { root, upgrade, supplier }, null);
@@ -123,8 +123,8 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void MultipleSourcesRemainSeparate_AndOnlyProductionInputsBecomeDependencies()
     {
-        Resource output = Make<Resource>(), input = Make<Resource>(), construction = Make<Resource>();
-        Building first = Producer(output, input, construction), second = Producer(output);
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>(), construction = Make<ResourceDef>();
+        BuildingDef first = Producer(output, input, construction), second = Producer(output);
         ResourceProductionTree tree = new(output, new[] { first, second }, null);
         Assert.That(tree.Root.Resource, Is.SameAs(output));
         var sources = tree.GetChildren(tree.Root);
@@ -139,7 +139,7 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void CyclesStopOnlyTheirOwnPath()
     {
-        Resource a = Make<Resource>(), b = Make<Resource>();
+        ResourceDef a = Make<ResourceDef>(), b = Make<ResourceDef>();
         ResourceProductionTree tree = new(a, new[] { Producer(a, b), Producer(b, a) }, null);
         var sourceA = tree.GetChildren(tree.Root)[0];
         var inputB = tree.GetChildren(sourceA)[0];
@@ -153,7 +153,7 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void SectorRecurringProductionAndOneTimeRewardStayDistinct()
     {
-        Resource resource = Make<Resource>(); SectorDefinition sector = Make<SectorDefinition>();
+        ResourceDef resource = Make<ResourceDef>(); SectorDef sector = Make<SectorDef>();
         sector.SetOccupiedResourceRatesForEditor(new() { new(resource, 3) });
         sector.SetRewardsForEditor(0, new() { new(resource, 20) });
         ResourceProductionTree tree = new(resource, null, new[] { sector });
@@ -167,7 +167,7 @@ public sealed class ResourceProductionTreeTests
     [Test]
     public void SharedInputCanExpandUnderBothAlternativeProducers()
     {
-        Resource resource = Make<Resource>(), input = Make<Resource>();
+        ResourceDef resource = Make<ResourceDef>(), input = Make<ResourceDef>();
         ResourceProductionTree tree = new(resource, new[] { Producer(resource, input), Producer(resource, input), Producer(input) }, null);
         var sources = tree.GetChildren(tree.Root);
         foreach (var source in sources)
@@ -176,5 +176,132 @@ public sealed class ResourceProductionTreeTests
             Assert.That(dependency.IsCycle, Is.False);
             Assert.That(tree.GetChildren(dependency).Count, Is.EqualTo(1), "Path cycles do not globally suppress shared inputs.");
         }
+    }
+
+    [Test]
+    public void SectorRootFiltersLocalFacilities_AndUnlockRefreshPreservesExpandedSupplyBranches()
+    {
+        SectorDef sector = Make<SectorDef>(), otherSector = Make<SectorDef>();
+        ResourceDef output = Make<ResourceDef>(), input = Make<ResourceDef>();
+        SectorBuildingDef local = Make<SectorBuildingDef>(), locked = Make<SectorBuildingDef>(), foreign = Make<SectorBuildingDef>();
+        local.SetSectorForEditor(sector);
+        locked.SetSectorForEditor(sector);
+        foreign.SetSectorForEditor(otherSector);
+        local.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            new(), new() { new(output, 2) }, new() { new(input, 1) });
+        BuildingDef supplier = Producer(input), ordinaryProducer = Producer(output);
+        HashSet<BuildingDef> unlocked = new() { local, foreign, supplier, ordinaryProducer };
+        ResourceProductionTree tree = new(sector, new BuildingDef[] { local, locked, foreign, supplier, ordinaryProducer },
+            new[] { sector, otherSector }, buildingVisible: unlocked.Contains);
+
+        Assert.That(tree.Root.Sector, Is.SameAs(sector));
+        Assert.That(tree.Root.Expanded, Is.True);
+        var facilities = tree.GetChildren(tree.Root);
+        Assert.That(facilities.Count, Is.EqualTo(1), "Only the unlocked facility belonging to this sector appears.");
+        var originalFacility = facilities[0];
+        Assert.That(originalFacility.Building, Is.SameAs(local));
+        Assert.That(originalFacility.Relationship, Is.EqualTo(ResourceProductionTree.Relation.SectorFacility));
+        originalFacility.Expanded = true;
+        var originalInput = tree.GetChildren(originalFacility)[0];
+        originalInput.Expanded = true;
+        Assert.That(originalInput.Resource, Is.SameAs(input));
+        Assert.That(tree.GetChildren(originalInput)[0].Building, Is.SameAs(supplier),
+            "A sector facility traces its ongoing input to the ordinary supply building.");
+
+        unlocked.Add(locked);
+        Assert.That(tree.RefreshVisibility(), Is.True);
+        facilities = tree.GetChildren(tree.Root);
+        Assert.That(facilities.Count, Is.EqualTo(2));
+        Assert.That(facilities[1].Building, Is.SameAs(locked));
+        Assert.That(facilities[0], Is.SameAs(originalFacility));
+        Assert.That(facilities[0].Expanded, Is.True);
+        Assert.That(tree.GetChildren(facilities[0])[0], Is.SameAs(originalInput));
+        Assert.That(originalInput.Expanded, Is.True);
+        Assert.That(tree.RefreshVisibility(), Is.False);
+    }
+
+    [Test]
+    public void SectorRootKeepsRecurringOutputsAndRewardsSeparate_AndSectorSourcesRemainLeaves()
+    {
+        ResourceDef resource = Make<ResourceDef>(), hidden = Make<ResourceDef>();
+        SectorDef sector = Make<SectorDef>();
+        sector.SetOccupiedResourceRatesForEditor(new() { new(resource, 3), new(hidden, 1) });
+        sector.SetRewardsForEditor(0, new() { new(resource, 20), new(hidden, 1) });
+        ResourceProductionTree tree = new(sector, null, new[] { sector }, resourceVisible: value => value == resource);
+
+        var outputs = tree.GetChildren(tree.Root);
+        Assert.That(outputs.Count, Is.EqualTo(2), "Hidden resources are excluded from both recurring and reward outputs.");
+        Assert.That(outputs[0].Resource, Is.SameAs(resource));
+        Assert.That(outputs[1].Resource, Is.SameAs(resource));
+        Assert.That(outputs[0].Relationship, Is.EqualTo(ResourceProductionTree.Relation.SectorOutput));
+        Assert.That(outputs[1].Relationship, Is.EqualTo(ResourceProductionTree.Relation.SectorOutput));
+        Assert.That(outputs[0].OneTimeReward, Is.False);
+        Assert.That(outputs[1].OneTimeReward, Is.True);
+        Assert.That(outputs[1].Rate > outputs[0].Rate, Is.True, "A reward amount remains distinct from the recurring rate.");
+        var sources = tree.GetChildren(outputs[0]);
+        Assert.That(sources.Count, Is.EqualTo(2));
+        foreach (var source in sources)
+        {
+            Assert.That(source.Sector, Is.SameAs(sector));
+            Assert.That(source.Relationship, Is.EqualTo(ResourceProductionTree.Relation.ProductionSource));
+            Assert.That(tree.GetChildren(source), Is.Empty, "A source sector cannot recursively reopen the sector root.");
+        }
+    }
+
+    [Test]
+    public void ProducerVisibilityHidesSupersededSources_ButKeepsUpgradesAndCachedNodes()
+    {
+        ResourceDef output = Make<ResourceDef>();
+        BuildingDef lower = Producer(output), higher = Producer(output);
+        lower.SetUpgradeToForEditor(higher);
+        HashSet<BuildingDef> displayed = new() { lower };
+        ResourceProductionTree tree = new(output, new[] { lower, higher }, null,
+            buildingVisible: _ => true, producerVisible: displayed.Contains);
+        var originalLower = tree.GetChildren(tree.Root)[0];
+        originalLower.Expanded = true;
+        var originalUpgrade = tree.GetChildren(originalLower)[0];
+        Assert.That(originalUpgrade.Building, Is.SameAs(higher));
+        Assert.That(originalUpgrade.Relationship, Is.EqualTo(ResourceProductionTree.Relation.Upgrade),
+            "A producer-list filter must not hide the unlocked upgrade destination of an owned lower tier.");
+
+        displayed.Add(higher);
+        Assert.That(tree.RefreshVisibility(), Is.True);
+        var sources = tree.GetChildren(tree.Root);
+        Assert.That(sources.Count, Is.EqualTo(2), "Owned lower tiers remain alongside the newly available higher tier.");
+        Assert.That(sources[0], Is.SameAs(originalLower));
+        Assert.That(originalLower.Expanded, Is.True);
+        Assert.That(tree.GetChildren(originalLower)[0], Is.SameAs(originalUpgrade));
+
+        displayed.Remove(lower);
+        Assert.That(tree.RefreshVisibility(), Is.True);
+        Assert.That(tree.GetChildren(tree.Root).Count, Is.EqualTo(1));
+        Assert.That(tree.GetChildren(tree.Root)[0].Building, Is.SameAs(higher), "An empty superseded tier disappears.");
+        Assert.That(tree.RefreshVisibility(), Is.False);
+
+        SectorDef sector = Make<SectorDef>();
+        SectorBuildingDef facility = Make<SectorBuildingDef>();
+        facility.SetSectorForEditor(sector);
+        ResourceProductionTree sectorTree = new(sector, new BuildingDef[] { facility }, null,
+            buildingVisible: _ => true, producerVisible: displayed.Contains);
+        Assert.That(sectorTree.GetChildren(sectorTree.Root), Is.Empty, "The same producer filter governs local facilities.");
+        displayed.Add(facility);
+        Assert.That(sectorTree.RefreshVisibility(), Is.True);
+        Assert.That(sectorTree.GetChildren(sectorTree.Root)[0].Building, Is.SameAs(facility));
+    }
+
+    [Test]
+    public void ResourceSourcesOrderHigherErasFirst_AndPreserveAuthoredOrderWithinAnEra()
+    {
+        ResourceDef output = Make<ResourceDef>();
+        BuildingDef lower = Producer(output), firstHigher = Producer(output), secondHigher = Producer(output);
+        lower.TechLevel = TechLevel.Animal;
+        firstHigher.TechLevel = secondHigher.TechLevel = TechLevel.Ultra;
+        ResourceProductionTree tree = new(output, new[] { lower, firstHigher, secondHigher }, null);
+
+        var sources = tree.GetChildren(tree.Root);
+        Assert.That(sources.Count, Is.EqualTo(3));
+        Assert.That(sources[0].Building, Is.SameAs(firstHigher));
+        Assert.That(sources[1].Building, Is.SameAs(secondHigher), "Equal-era sources retain definition order.");
+        Assert.That(sources[2].Building, Is.SameAs(lower));
     }
 }

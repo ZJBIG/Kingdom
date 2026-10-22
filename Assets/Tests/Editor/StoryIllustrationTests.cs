@@ -69,7 +69,7 @@ public sealed class StoryIllustrationTests
         var sprites = new HashSet<Sprite>();
         for (int i = 0; i < archive.Chapters.Count; i++)
         {
-            StoryChapterDefinition definition = archive.Chapters[i];
+            StoryChapterDef definition = archive.Chapters[i];
             StoryChapter runtime = StoryManager.Chapters[i];
             Assert.That(runtime.Id, Is.EqualTo(definition.Id), "Stable IDs must retain archive order.");
             Assert.That(runtime.Illustration, Is.SameAs(definition.Illustration));
@@ -92,7 +92,7 @@ public sealed class StoryIllustrationTests
     public void OptionalIllustrationDoesNotAlterTheChapterActionGates()
     {
         StoryArchiveDefinition archive = Resources.Load<StoryArchiveDefinition>("Datas/Story/StoryArchive");
-        foreach (StoryChapterDefinition definition in archive.Chapters)
+        foreach (StoryChapterDef definition in archive.Chapters)
         {
             StoryChapter runtime = definition.ToRuntime();
             Assert.That(runtime.RequiredEra, Is.EqualTo(definition.RequiredEra));

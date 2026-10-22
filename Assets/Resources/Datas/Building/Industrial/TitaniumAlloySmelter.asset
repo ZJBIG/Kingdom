@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: TitaniumAlloySmelter
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: c2af14d074354f04bc3b083a887e6f17, type: 3}
   id: TitaniumAlloySmelter
   Label: "钛合金冶炼厂"
   Description: "以特级金属矿为主料，配合高级金属矿、金属锭及化工材料，通过氯化还原和合金化生产高强度钛合金。"

@@ -110,7 +110,7 @@ public sealed class WorldEventTests
     {
         ProgressionModifierManager.Rebuild(null);
         var root = new GameObject("WorldEventTests");
-        Building output = ScriptableObject.CreateInstance<Building>();
+        BuildingDef output = ScriptableObject.CreateInstance<BuildingDef>();
         try
         {
             GameManager game = root.AddComponent<GameManager>();
@@ -119,8 +119,8 @@ public sealed class WorldEventTests
             ResearchManager research = root.AddComponent<ResearchManager>();
             SimulationManager simulation = root.AddComponent<SimulationManager>();
             research.InitializeForEditor();
-            Resource stone = DataBase<Resource>.Find("StoneChunk");
-            Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+            ResourceDef stone = DataBase<ResourceDef>.Find("StoneChunk");
+            ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
             resources.SetAmount(wood, new ExpantaNum(1e6d));
             output.ConfigureEconomyForEditor(
                 growth: ExpantaNum.One, territory: ExpantaNum.Zero,
@@ -132,10 +132,10 @@ public sealed class WorldEventTests
                 logisticsConsumption: ExpantaNum.Zero, attack: ExpantaNum.Zero,
                 defense: ExpantaNum.Zero, manpower: ExpantaNum.Zero,
                 requirements: null,
-                generation: new System.Collections.Generic.List<Pair<Resource, ExpantaNum>>
-                    { new Pair<Resource, ExpantaNum>(stone, new ExpantaNum(10d)) },
-                consumption: new System.Collections.Generic.List<Pair<Resource, ExpantaNum>>
-                    { new Pair<Resource, ExpantaNum>(wood, ExpantaNum.One) });
+                generation: new System.Collections.Generic.List<Pair<ResourceDef, ExpantaNum>>
+                    { new Pair<ResourceDef, ExpantaNum>(stone, new ExpantaNum(10d)) },
+                consumption: new System.Collections.Generic.List<Pair<ResourceDef, ExpantaNum>>
+                    { new Pair<ResourceDef, ExpantaNum>(wood, ExpantaNum.One) });
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(output), ExpantaNum.One);
             game.State.Events.RestoreForEditor(new SaveManager.WorldEventSaveData
                 { Sequence = 2, SecondsUntilNextEvent = 1d });

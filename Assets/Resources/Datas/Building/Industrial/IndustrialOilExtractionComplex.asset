@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IndustrialOilExtractionComplex
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 661e46f4aa4c479eb27d89823fa122ed, type: 3}
   id: IndustrialOilExtractionComplex
   Label: "工业石油开采综合体"
   Description: "整合深井钻探与输油设施，持续供应炼油和化工所需原油。"

@@ -20,7 +20,7 @@ public sealed partial class KingdomUIRoot
     private Button relicSuspendButton;
     private Button relicResumeButton;
     private RelicRoute pendingRelicRoute;
-    private SectorDefinition relicSelectedSector;
+    private SectorDef relicSelectedSector;
     private int lastRelicDetailSignature = -1;
 
     private RectTransform RelicActionsRectForLayout =>
@@ -91,7 +91,7 @@ public sealed partial class KingdomUIRoot
 
     private Button RelicButton(string path) => relicActions.Find(path)?.GetComponent<Button>();
 
-    private void ConfigureRelicDetails(SectorDefinition sector)
+    private void ConfigureRelicDetails(SectorDef sector)
     {
         if (sector == null || !GameManager.TryGetInstance(out GameManager game) ||
             game.Relic.Definition == null || sector.Id != game.Relic.Definition.Sector?.Id)
@@ -124,7 +124,7 @@ public sealed partial class KingdomUIRoot
         text.Append("前置研究：");
         for (int i = 0; i < manager.Definition.RequiredResearch.Count; i++)
         {
-            Research research = manager.Definition.RequiredResearch[i];
+            ResearchDef research = manager.Definition.RequiredResearch[i];
             if (research != null)
                 text.Append(i == 0 ? string.Empty : "、").Append(research.Label);
         }
@@ -132,7 +132,7 @@ public sealed partial class KingdomUIRoot
         text.Append("所需建筑：");
         for (int i = 0; i < manager.Definition.RequiredBuildings.Count; i++)
         {
-            Building building = manager.Definition.RequiredBuildings[i];
+            BuildingDef building = manager.Definition.RequiredBuildings[i];
             if (building != null)
                 text.Append(i == 0 ? string.Empty : "、").Append(building.Label).Append(" ×1");
         }
@@ -193,7 +193,7 @@ public sealed partial class KingdomUIRoot
         SetRelicButton(relicAssignButton, state.SupportReady && !state.Suspended, canAssign);
         if (state.SupportReady)
             relicAssignButton.GetComponentInChildren<TMP_Text>(true).text = canAssign && GameManager.Instance != null
-                ? "分配支援：" + (DataBase<SectorDefinition>.TryFind(GameManager.Instance.State.Campaign.TargetSectorId, out SectorDefinition target) ? target.Label : "当前战役")
+                ? "分配支援：" + (DataBase<SectorDef>.TryFind(GameManager.Instance.State.Campaign.TargetSectorId, out SectorDef target) ? target.Label : "当前战役")
                 : "需活动远星战役";
         SetRelicButton(relicSuspendButton, manager.CanSuspend);
         SetRelicButton(relicResumeButton, state.Suspended, available);
@@ -305,7 +305,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private static void AppendRelicCosts(StringBuilder text,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs, bool rate)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs, bool rate)
     {
         if (costs == null || costs.Count == 0)
         {
@@ -315,7 +315,7 @@ public sealed partial class KingdomUIRoot
         ResourceManager.TryGetInstance(out ResourceManager resources);
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null)
                 continue;
             ExpantaNum owned = resources == null ? ExpantaNum.Zero : resources.GetAmount(cost.First);
@@ -327,7 +327,7 @@ public sealed partial class KingdomUIRoot
 
     private static string GetRelicSectorLabel(string id)
     {
-        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
+        IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
         for (int i = 0; i < sectors.Count; i++)
             if (sectors[i] != null && sectors[i].Id == id)
                 return sectors[i].Label;

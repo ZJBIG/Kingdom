@@ -14,6 +14,97 @@ public sealed class TutorialManagerTests
             UnityEngine.Object.DestroyImmediate(managers[i].gameObject);
     }
 
+    [TestCase(0, "AzurePool")]
+    [TestCase(1, "ThunderGate")]
+    [TestCase(2, "AzurePool")]
+    [TestCase(3, "AzurePool")]
+    [TestCase(4, "AlphaCentauri")]
+    [TestCase(5, "AlphaCentauri")]
+    [TestCase(6, "AlphaCentauri")]
+    [TestCase(7, "AlphaCentauri")]
+    [TestCase(8, "AlphaCentauri")]
+    public void SpacerGuidanceConnectsLocalDiscoveriesToConstructionAndFirstDistantUnlock(int scenario, string expectedTarget)
+    {
+        GameObject host = new GameObject("Tutorial-PlanetDevelopment-Guidance");
+        try
+        {
+            ResourceManager resources = host.AddComponent<ResourceManager>();
+            resources.InitializeForEditor();
+            GameManager game = host.AddComponent<GameManager>();
+            BuildingManager buildings = host.AddComponent<BuildingManager>();
+            ResearchManager research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            game.State.AdvanceTechLevelForEditor(TechLevel.Spacer);
+            foreach (ResearchState state in research.States.Values)
+                state.SetStatusForEditor(ResearchStatus.Completed);
+            ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values));
+            foreach (string id in new[] { "LaunchCenter", "OrbitalStation", "Shipyard" })
+                buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)).SetAmountForEditor(ExpantaNum.One);
+            game.Sectors.InitializeDefinitions();
+            foreach (SectorState state in game.Sectors.OrderedStates)
+            {
+                if (!state.Definition.IsHomeSystem)
+                {
+                    if (scenario < 4)
+                    {
+                        state.SetUnlockedForEditor(true);
+                        state.SetOccupiedForEditor(true);
+                    }
+                    continue;
+                }
+                state.SetUnlockedForEditor(true);
+                state.SetOccupiedForEditor(true);
+                state.SetCampaignProgressForEditor(ExpantaNum.One);
+                if (state.Definition.InteriorExploration == null) continue;
+                state.SetInteriorExplorationForEditor(ExpantaNum.One);
+                foreach (SectorBuildingDef building in buildings.GetSectorBuildings(state.Definition))
+                    if (building.RequiresInteriorExploration && (scenario == 4 || state.Definition.Id != "AzurePool"))
+                        buildings.EnsureBuilding(building).SetAmountForEditor(ExpantaNum.One);
+            }
+            SectorState azure = game.Sectors.GetState(DataBase<SectorDef>.Find("AzurePool"));
+            if (scenario == 0 || scenario == 1 || scenario == 5) azure.SetInteriorExplorationForEditor(ExpantaNum.Zero);
+            if (scenario == 2 || scenario == 6) azure.SetInteriorExplorationForEditor(new ExpantaNum(0.3d), false, true);
+            if (scenario == 1)
+                game.Sectors.GetState(DataBase<SectorDef>.Find("ThunderGate"))
+                    .SetInteriorExplorationForEditor(new ExpantaNum(0.2d), true);
+            SectorState alpha = game.Sectors.GetState(DataBase<SectorDef>.Find("AlphaCentauri"));
+            if (scenario == 7 || scenario == 8)
+            {
+                alpha.SetUnlockedForEditor(true);
+                alpha.SetCampaignProgressForEditor(scenario == 8 ? ExpantaNum.One : new ExpantaNum(0.37d));
+            }
+            ExpantaNum before = azure.InteriorExplorationProgress;
+            TutorialSnapshot snapshot = new TutorialSnapshot();
+            Assert.That(TutorialManager.BuildSpacerGuidanceForEditor(snapshot, game, research, buildings), Is.True);
+            // Exact values are navigation protocol IDs; descriptive labels come from definitions.
+            Assert.That(snapshot.NavigationPage, Is.EqualTo("Sectors"));
+            Assert.That(snapshot.NavigationTargetId, Is.EqualTo(expectedTarget));
+            if (scenario == 1)
+            {
+                var preview = game.Sectors.GetInteriorExplorationPreview(DataBase<SectorDef>.Find("ThunderGate"));
+                Assert.That(preview.Status, Is.EqualTo(SectorInteriorExplorationStatus.WaitingForSupply));
+                Assert.That(snapshot.Blocker, Does.Contain(preview.MissingResource.Label));
+            }
+            if (scenario == 3)
+                Assert.That(snapshot.Blocker, Does.Contain(DataBase<SectorBuildingDef>.Find("AzureIceSeaArk").Label));
+            Assert.That(azure.InteriorExplorationProgress, Is.EqualTo(before), "Guidance must not advance exploration.");
+            if (scenario == 5 || scenario == 6)
+                Assert.That(snapshot.RecommendedAction, Does.Contain(azure.Definition.InteriorExploration.Label),
+                    "Optional local development must remain visible without hiding first departure navigation.");
+            if (scenario == 7)
+                Assert.That(snapshot.RecommendedAction, Does.Contain("继续远征").And.Not.Contain("占领确认"),
+                    "A paused partial campaign must not suggest an occupation that the manager rejects.");
+            if (scenario == 8)
+                Assert.That(snapshot.RecommendedAction, Does.Contain("确认占领").And.Not.Contain("继续远征"));
+            Assert.That(alpha.Unlocked, Is.EqualTo(scenario < 4 || scenario == 7 || scenario == 8), "Guidance must not unlock or start a distant expedition.");
+        }
+        finally
+        {
+            Object.DestroyImmediate(host);
+            ProgressionModifierManager.Rebuild(null);
+        }
+    }
+
     [Test]
     public void AuthoredTutorialAssetsFormOneReachableChain()
     {
@@ -165,7 +256,7 @@ public sealed class TutorialManagerTests
             game.State.AdvanceTechLevelForEditor(TechLevel.Spacer);
             game.Sectors.InitializeDefinitions();
             var researchStates = new List<ResearchState>();
-            foreach (KeyValuePair<Research, ResearchState> pair in research.States)
+            foreach (KeyValuePair<ResearchDef, ResearchState> pair in research.States)
             {
                 bool queued = pair.Key.Id == "DeepSpaceFleet" ||
                     pair.Key.Id == "InterstellarNavigation" ||
@@ -177,11 +268,11 @@ public sealed class TutorialManagerTests
             }
             ProgressionModifierManager.Rebuild(researchStates);
             if (scenario != 1 && scenario != 2)
-                buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+                buildings.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter"))
                     .SetAmountForEditor(ExpantaNum.One);
 
             SectorState dawn = game.Sectors.GetState(
-                DataBase<SectorDefinition>.Find("DawnRing"));
+                DataBase<SectorDef>.Find("DawnRing"));
             if (scenario == 4)
             {
                 dawn.SetUnlockedForEditor(true);
@@ -207,11 +298,11 @@ public sealed class TutorialManagerTests
             if (scenario == 5)
             {
                 SectorState active = game.Sectors.GetState(
-                    DataBase<SectorDefinition>.Find("ThunderGate"));
+                    DataBase<SectorDef>.Find("ThunderGate"));
                 active.SetUnlockedForEditor(true);
                 active.SetColonizationActiveForEditor(true);
                 Assert.That(game.Sectors.CanAccess(
-                    DataBase<SectorDefinition>.Find("HeliosCore")), Is.True,
+                    DataBase<SectorDef>.Find("HeliosCore")), Is.True,
                     "Active home-system exploration takes priority over another reachable destination.");
             }
             if (scenario == 7 || scenario == 8)
@@ -233,18 +324,18 @@ public sealed class TutorialManagerTests
             Assert.That(snapshot.NavigationTargetId, Is.EqualTo(expectedTarget));
             if (scenario == 4)
                 Assert.That(game.Sectors.GetState(
-                    DataBase<SectorDefinition>.Find("AzurePool")).Occupied, Is.False,
+                    DataBase<SectorDef>.Find("AzurePool")).Occupied, Is.False,
                     "After the first outpost, guidance must continue through the home system.");
             if (expectedPage == "Sectors")
             {
-                SectorDefinition target = DataBase<SectorDefinition>.Find(expectedTarget);
+                SectorDef target = DataBase<SectorDef>.Find(expectedTarget);
                 Assert.That(target.IsHomeSystem, Is.True);
                 Assert.That(game.Sectors.CanAccess(target), Is.True);
                 Assert.That(game.Sectors.GetUnlockFailure(target),
                     Is.EqualTo(SectorOperationFailure.None)
                         .Or.EqualTo(SectorOperationFailure.AlreadyUnlocked));
             }
-            Assert.That(research.GetState(DataBase<Research>.Find("DeepSpaceFleet")).Status,
+            Assert.That(research.GetState(DataBase<ResearchDef>.Find("DeepSpaceFleet")).Status,
                 Is.EqualTo(ResearchStatus.Queued), "Guidance must not complete research.");
             Assert.That(dawn.Unlocked, Is.EqualTo(dawnUnlocked),
                 "Guidance must not unlock destinations.");
@@ -406,7 +497,7 @@ public sealed class TutorialManagerTests
     [Test]
     public void ResearchStepRequiresCompletedStatus()
     {
-        Research definition = ScriptableObject.CreateInstance<Research>();
+        ResearchDef definition = ScriptableObject.CreateInstance<ResearchDef>();
         definition.SetIdForEditor("TutorialResearchStatus");
         definition.BaseCost = "1";
         ResearchState state = new ResearchState(definition);
@@ -432,8 +523,8 @@ public sealed class TutorialManagerTests
             host.AddComponent<BuildingManager>();
             var research = host.AddComponent<ResearchManager>();
             research.InitializeForEditor();
-            Research definition = DataBase<Research>.Find("Agriculture");
-            Resource costResource = definition.ResourceRequirements[0].First;
+            ResearchDef definition = DataBase<ResearchDef>.Find("Agriculture");
+            ResourceDef costResource = definition.ResourceRequirements[0].First;
             resources.SetAmount(costResource, ExpantaNum.Zero);
             Assert.That(research.EnqueueResearch(definition), Is.True);
             Assert.That(research.ActiveResearch, Is.Null);
@@ -454,7 +545,7 @@ public sealed class TutorialManagerTests
 
             for (int i = 0; i < definition.ResourceRequirements.Count; i++)
             {
-                Pair<Resource, ExpantaNum> cost = definition.ResourceRequirements[i];
+                Pair<ResourceDef, ExpantaNum> cost = definition.ResourceRequirements[i];
                 resources.SetAmount(cost.First, cost.Second);
             }
             research.Tick(0d);
@@ -481,12 +572,12 @@ public sealed class TutorialManagerTests
             game.State.AdvanceTechLevelForEditor(era);
             foreach (ResearchState state in research.States.Values)
                 state.SetStatusForEditor(ResearchStatus.Completed);
-            Building woodHouse = DataBase<Building>.Find("WoodHouse");
+            BuildingDef woodHouse = DataBase<BuildingDef>.Find("WoodHouse");
             buildings.EnsureBuilding(woodHouse).SetAmountForEditor(ExpantaNum.One);
 
             string targetId = TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings);
             Assert.That(targetId, Is.EqualTo(expectedId)); // Stable chain tier ID.
-            Assert.That(buildings.CanConstructNew(DataBase<Building>.Find(targetId)), Is.True);
+            Assert.That(buildings.CanConstructNew(DataBase<BuildingDef>.Find(targetId)), Is.True);
         }
         finally { Object.DestroyImmediate(host); }
     }
@@ -504,10 +595,10 @@ public sealed class TutorialManagerTests
             research.InitializeForEditor();
             game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
             game.State.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
-            buildings.EnsureBuilding(DataBase<Building>.Find("WoodHouse"))
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse"))
                 .SetAmountForEditor(ExpantaNum.One);
-            Building source = DataBase<Building>.Find("Quarry");
-            Building target = DataBase<Building>.Find("StoneCuttingWorkshop");
+            BuildingDef source = DataBase<BuildingDef>.Find("Quarry");
+            BuildingDef target = DataBase<BuildingDef>.Find("StoneCuttingWorkshop");
             buildings.EnsureBuilding(source).SetAmountForEditor(ExpantaNum.One);
             Assert.That(buildings.AvailableProductivity, Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(buildings.AvailableProductivity, Is.LessThan(target.ProductivityConsumption));
@@ -523,7 +614,7 @@ public sealed class TutorialManagerTests
             Assert.That(shortage.NavigationTargetId, Is.EqualTo("WoodHouse")); // Stable recovery target.
             BuildingState processing = buildings.EnsureBuilding(target);
             processing.SetAmountForEditor(ExpantaNum.One);
-            Resource product = target.ResourceGenerationRates[0].First;
+            ResourceDef product = target.ResourceGenerationRates[0].First;
             resources.SetAmount(product, ExpantaNum.Zero);
             Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("production-chain"));
             resources.SetAmount(product, ExpantaNum.One);
@@ -538,8 +629,8 @@ public sealed class TutorialManagerTests
     [Test]
     public void ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether()
     {
-        Research agriculture = DataBase<Research>.Find("Agriculture");
-        Building farm = DataBase<Building>.Find("Farm");
+        ResearchDef agriculture = DataBase<ResearchDef>.Find("Agriculture");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
         Assert.That(agriculture.Effects.Count, Is.GreaterThan(0));
         Assert.That(farm.RequiredResearch, Does.Contain(agriculture));
         string role = TutorialManager.DescribeResearchRole(agriculture);
@@ -550,10 +641,10 @@ public sealed class TutorialManagerTests
     [Test]
     public void ProductionChainRequiresMatchingOutputAndInputAcrossBuildings()
     {
-        Resource intermediate = CreateResource("TutorialChainIntermediate");
-        Resource product = CreateResource("TutorialChainProduct");
-        Building producer = CreateBuilding("TutorialProducer");
-        Building consumer = CreateBuilding("TutorialConsumer");
+        ResourceDef intermediate = CreateResource("TutorialChainIntermediate");
+        ResourceDef product = CreateResource("TutorialChainProduct");
+        BuildingDef producer = CreateBuilding("TutorialProducer");
+        BuildingDef consumer = CreateBuilding("TutorialConsumer");
         producer.ConfigureEconomyForEditor(
             new ExpantaNum(1.15d), ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero,
@@ -561,12 +652,12 @@ public sealed class TutorialManagerTests
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(intermediate, ExpantaNum.One)
+                new Pair<ResourceDef, ExpantaNum>(intermediate, ExpantaNum.One)
             },
-            new List<Pair<Resource, ExpantaNum>>());
+            new List<Pair<ResourceDef, ExpantaNum>>());
         consumer.ConfigureEconomyForEditor(
             new ExpantaNum(1.15d), ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero,
@@ -574,14 +665,14 @@ public sealed class TutorialManagerTests
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(product, ExpantaNum.One)
+                new Pair<ResourceDef, ExpantaNum>(product, ExpantaNum.One)
             },
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(intermediate, ExpantaNum.One)
+                new Pair<ResourceDef, ExpantaNum>(intermediate, ExpantaNum.One)
             });
 
         BuildingState producerState = new BuildingState(producer);
@@ -602,8 +693,8 @@ public sealed class TutorialManagerTests
         Assert.That(TutorialManager.HasOwnedProductionChain(ownedStates), Is.False);
         producerState.SetEfficiencyForEditor(ExpantaNum.One);
 
-        Resource consumed = null;
-        Resource generated = null;
+        ResourceDef consumed = null;
+        ResourceDef generated = null;
         Assert.That(TutorialManager.TryFindOwnedProductionChainForEditor(
             ownedStates, out consumed, out generated), Is.True);
         Assert.That(consumed, Is.SameAs(intermediate));
@@ -642,17 +733,17 @@ public sealed class TutorialManagerTests
         return string.Empty;
     }
 
-    private static Resource CreateResource(string id)
+    private static ResourceDef CreateResource(string id)
     {
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
         resource.SetIdForEditor(id);
         resource.Label = id;
         return resource;
     }
 
-    private static Building CreateBuilding(string id)
+    private static BuildingDef CreateBuilding(string id)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.SetIdForEditor(id);
         building.Label = id;
         return building;

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ThunderGate
   Label: "雷门环"
-  Description: "母恒星系外缘的冰冷资源带。这里是未来远航设施的候选基地，停泊区、燃料生产与维修能力都需要王国逐一建设。"
+  Description: "母恒星系外缘气态巨行星的环带与轨道区。上层大气蕴含大量氢原料；采集、低温加工和运输设施都需要王国主动建设，驻留本身不产出材料。"
   starSystemId: Sol
   domain: 0
   enemyPower: "0"
@@ -31,6 +31,29 @@ MonoBehaviour:
   campaignProgressMultiplier: "0"
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: aae1a343a69140c99c359328792a605f, type: 3}
   mapX: 9
   mapY: 3
+  interiorExploration:
+    label: "深层大气勘探"
+    description: "无人探测器绘制风场并下潜取样，寻找可长期维持的大气采集窗口，为低温推进剂基地勘定作业区。"
+    completionDescription: "探测器确认了稳定采集窗口与可回收航路。雷门推进剂基地现已开放建设；大气原料将在厂内完成分离与液化。"
+    durationSeconds: "28800"
+    requiredResearch:
+    - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+    - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}
+    resourceRatesPerSecond:
+    - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+      amount: "0.12"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "0.16"
+    - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+      amount: "0.08"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.08"
+    milestones:
+    - "风场测绘"
+    - "深层大气取样"
+    - "确认稳定采集窗口"

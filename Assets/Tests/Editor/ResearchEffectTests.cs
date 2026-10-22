@@ -18,7 +18,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_AppliesCompletedEffectsAndIgnoresIncompleteResearch()
     {
-        Research completed = CreateResearch("research-completed");
+        ResearchDef completed = CreateResearch("research-completed");
         completed.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -52,7 +52,7 @@ public sealed class ResearchEffectTests
             }
         });
 
-        Research incomplete = CreateResearch("research-incomplete");
+        ResearchDef incomplete = CreateResearch("research-incomplete");
         incomplete.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -86,7 +86,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_AddsRepeatedGlobalEffectsWithoutCompounding()
     {
-        Research first = CreateResearch("research-first");
+        ResearchDef first = CreateResearch("research-first");
         first.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -95,7 +95,7 @@ public sealed class ResearchEffectTests
                 Value = new ExpantaNum(2d)
             }
         });
-        Research second = CreateResearch("research-second");
+        ResearchDef second = CreateResearch("research-second");
         second.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -119,10 +119,10 @@ public sealed class ResearchEffectTests
     [Test]
     public void CompletedMedicalResearchAccumulatesPopulationProductivityAcrossEras()
     {
-        Research herbalKnowledge = DataBase<Research>.Find("HerbalKnowledge");
-        Research publicHealth = DataBase<Research>.Find("PublicHealth");
-        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
-        Research precisionMedicine = DataBase<Research>.Find("PrecisionMedicine");
+        ResearchDef herbalKnowledge = DataBase<ResearchDef>.Find("HerbalKnowledge");
+        ResearchDef publicHealth = DataBase<ResearchDef>.Find("PublicHealth");
+        ResearchDef modernMedicine = DataBase<ResearchDef>.Find("ModernMedicine");
+        ResearchDef precisionMedicine = DataBase<ResearchDef>.Find("PrecisionMedicine");
 
         Assert.That(herbalKnowledge, Is.Not.Null);
         Assert.That(publicHealth, Is.Not.Null);
@@ -145,10 +145,10 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_BuildingProductionEffectCanTargetOneOutputResource()
     {
-        Research research = CreateResearch("targeted-building-output");
-        Building building = CreateDefinition<Building>("multi-output-building");
-        Resource targeted = CreateDefinition<Resource>("targeted-output");
-        Resource unrelated = CreateDefinition<Resource>("unrelated-output");
+        ResearchDef research = CreateResearch("targeted-building-output");
+        BuildingDef building = CreateDefinition<BuildingDef>("multi-output-building");
+        ResourceDef targeted = CreateDefinition<ResourceDef>("targeted-output");
+        ResourceDef unrelated = CreateDefinition<ResourceDef>("unrelated-output");
         research.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -183,7 +183,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void HappinessBonusEffectsUseAdditiveFractionValues()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null || research.Effects == null)
                 continue;
@@ -223,7 +223,7 @@ public sealed class ResearchEffectTests
     {
         GameManager gameManager = CreateManager<GameManager>("医学生产力-游戏管理器");
         BuildingManager buildingManager = CreateManager<BuildingManager>("医学生产力-建筑管理器");
-        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        ResearchDef modernMedicine = DataBase<ResearchDef>.Find("ModernMedicine");
         Assert.That(modernMedicine, Is.Not.Null);
 
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(5d));
@@ -248,8 +248,8 @@ public sealed class ResearchEffectTests
     {
         GameManager gameManager = CreateManager<GameManager>("医学建造门槛-游戏管理器");
         BuildingManager buildingManager = CreateManager<BuildingManager>("医学建造门槛-建筑管理器");
-        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
-        Building laborBuilding = CreateDefinition<Building>("医学劳动力门槛测试建筑");
+        ResearchDef modernMedicine = DataBase<ResearchDef>.Find("ModernMedicine");
+        BuildingDef laborBuilding = CreateDefinition<BuildingDef>("医学劳动力门槛测试建筑");
         CreateManager<ResourceManager>("medical-threshold-resource-manager");
         laborBuilding.TechLevel = TechLevel.Animal;
         laborBuilding.ConfigureEconomyForEditor(
@@ -269,9 +269,9 @@ public sealed class ResearchEffectTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>());
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>());
 
         Assert.That(modernMedicine, Is.Not.Null);
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(5d));
@@ -302,8 +302,8 @@ public sealed class ResearchEffectTests
         CreateManager<ResourceManager>("粮食容量-资源管理器");
         BuildingManager buildingManager = CreateManager<BuildingManager>("粮食容量-建筑管理器");
 
-        Research foodPreservation = DataBase<Research>.Find("FoodPreservation");
-        Building granary = DataBase<Building>.Find("Granary");
+        ResearchDef foodPreservation = DataBase<ResearchDef>.Find("FoodPreservation");
+        BuildingDef granary = DataBase<BuildingDef>.Find("Granary");
         Assert.That(foodPreservation, Is.Not.Null);
         Assert.That(granary, Is.Not.Null);
 
@@ -340,7 +340,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_AddsPopulationGrowthEffectsWithoutCompounding()
     {
-        Research first = CreateResearch("population-growth-first");
+        ResearchDef first = CreateResearch("population-growth-first");
         first.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -368,7 +368,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_AppliesOccupiedResourceProductionTheory()
     {
-        Research administration = CreateResearch("occupation-administration");
+        ResearchDef administration = CreateResearch("occupation-administration");
         administration.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -391,7 +391,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_AppliesCampaignProgressTheory()
     {
-        Research doctrine = CreateResearch("campaign-doctrine");
+        ResearchDef doctrine = CreateResearch("campaign-doctrine");
         doctrine.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -414,17 +414,17 @@ public sealed class ResearchEffectTests
     [Test]
     public void 轨道能源与深空物流效果必须作用于目标建筑()
     {
-        Research powerTheory = Resources.Load<Research>(
+        ResearchDef powerTheory = Resources.Load<ResearchDef>(
             "Datas/Research/Spacer/OrbitalPowerTransmission");
-        Research logisticsTheory = Resources.Load<Research>(
+        ResearchDef logisticsTheory = Resources.Load<ResearchDef>(
             "Datas/Research/Spacer/OrbitalLogisticsInfrastructure");
-        WorkshopUpgrade powerWorkshop = Resources.Load<WorkshopUpgrade>(
+        WorkshopUpgradeDef powerWorkshop = Resources.Load<WorkshopUpgradeDef>(
             "Datas/Workshop/OrbitalPowerBeaming");
-        WorkshopUpgrade logisticsWorkshop = Resources.Load<WorkshopUpgrade>(
+        WorkshopUpgradeDef logisticsWorkshop = Resources.Load<WorkshopUpgradeDef>(
             "Datas/Workshop/DeepSpaceNetworkAutomation");
-        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
-        Building logisticsHub = DataBase<Building>.Find("OrbitalStation");
-        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+        BuildingDef solarArray = DataBase<BuildingDef>.Find("OrbitalSolarArray");
+        BuildingDef logisticsHub = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef deepSpaceRelay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
 
         Assert.That(powerTheory, Is.Not.Null);
         Assert.That(logisticsTheory, Is.Not.Null);
@@ -466,9 +466,9 @@ public sealed class ResearchEffectTests
         ResourceManager resourceManager = CreateManager<ResourceManager>("工业研究倍率-资源管理器");
         CreateManager<BuildingManager>("工业研究倍率-建筑管理器");
 
-        Research deepDrilling = DataBase<Research>.Find("DeepOilDrilling");
-        Building oilDerrick = DataBase<Building>.Find("OilDerrick");
-        Resource crudeOil = DataBase<Resource>.Find("CrudeOil");
+        ResearchDef deepDrilling = DataBase<ResearchDef>.Find("DeepOilDrilling");
+        BuildingDef oilDerrick = DataBase<BuildingDef>.Find("OilDerrick");
+        ResourceDef crudeOil = DataBase<ResourceDef>.Find("CrudeOil");
         resourceManager.SetAmount(crudeOil, ExpantaNum.Zero);
         Assert.That(deepDrilling, Is.Not.Null);
         Assert.That(oilDerrick, Is.Not.Null);
@@ -499,12 +499,12 @@ public sealed class ResearchEffectTests
         CreateManager<ResourceManager>("太空倍率-资源管理器");
         CreateManager<BuildingManager>("太空倍率-建筑管理器");
 
-        Research powerTheory = DataBase<Research>.Find("OrbitalPowerTransmission");
-        Research logisticsTheory = DataBase<Research>.Find("OrbitalLogisticsInfrastructure");
-        WorkshopUpgrade powerWorkshop = DataBase<WorkshopUpgrade>.Find("OrbitalPowerBeaming");
-        WorkshopUpgrade logisticsWorkshop = DataBase<WorkshopUpgrade>.Find("DeepSpaceNetworkAutomation");
-        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
-        Building deepSpaceRelay = DataBase<Building>.Find("DeepSpaceRelay");
+        ResearchDef powerTheory = DataBase<ResearchDef>.Find("OrbitalPowerTransmission");
+        ResearchDef logisticsTheory = DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure");
+        WorkshopUpgradeDef powerWorkshop = DataBase<WorkshopUpgradeDef>.Find("OrbitalPowerBeaming");
+        WorkshopUpgradeDef logisticsWorkshop = DataBase<WorkshopUpgradeDef>.Find("DeepSpaceNetworkAutomation");
+        BuildingDef solarArray = DataBase<BuildingDef>.Find("OrbitalSolarArray");
+        BuildingDef deepSpaceRelay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
 
         Assert.That(powerTheory, Is.Not.Null);
         Assert.That(logisticsTheory, Is.Not.Null);
@@ -548,9 +548,9 @@ public sealed class ResearchEffectTests
     [Test]
     public void 星际补给链理论与自动化补给模块会降低持续补给倍率()
     {
-        Research theory = Resources.Load<Research>(
+        ResearchDef theory = Resources.Load<ResearchDef>(
             "Datas/Research/Spacer/InterstellarSupplyChainTheory");
-        WorkshopUpgrade modules = Resources.Load<WorkshopUpgrade>(
+        WorkshopUpgradeDef modules = Resources.Load<WorkshopUpgradeDef>(
             "Datas/Workshop/AutomatedFleetResupplyModules");
         Assert.That(theory, Is.Not.Null);
         Assert.That(modules, Is.Not.Null);
@@ -571,7 +571,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void 舰队损伤控制理论会降低实际战损倍率()
     {
-        Research theory = CreateResearch("fleet-damage-control");
+        ResearchDef theory = CreateResearch("fleet-damage-control");
         theory.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -600,7 +600,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void Rebuild_UsesTheHighestCompletedDeconstructionReturnRate()
     {
-        Research early = CreateResearch("deconstruction-early");
+        ResearchDef early = CreateResearch("deconstruction-early");
         early.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -609,7 +609,7 @@ public sealed class ResearchEffectTests
                 Value = new ExpantaNum(0.10d)
             }
         });
-        Research late = CreateResearch("deconstruction-late");
+        ResearchDef late = CreateResearch("deconstruction-late");
         late.SetEffectsForEditor(new List<ResearchEffectDefinition>
         {
             new ResearchEffectDefinition
@@ -633,10 +633,10 @@ public sealed class ResearchEffectTests
     [Test]
     public void 已完成研究才会提升真实拆除返还率()
     {
-        Research stoneProcessing = DataBase<Research>.Find("StoneProcessing");
-        Research urbanHousing = DataBase<Research>.Find("UrbanHousing");
-        Research industrialization = DataBase<Research>.Find("Industrialization");
-        Research orbitalStationEngineering = DataBase<Research>.Find("OrbitalStationEngineering");
+        ResearchDef stoneProcessing = DataBase<ResearchDef>.Find("StoneProcessing");
+        ResearchDef urbanHousing = DataBase<ResearchDef>.Find("UrbanHousing");
+        ResearchDef industrialization = DataBase<ResearchDef>.Find("Industrialization");
+        ResearchDef orbitalStationEngineering = DataBase<ResearchDef>.Find("OrbitalStationEngineering");
         Assert.That(stoneProcessing, Is.Not.Null);
         Assert.That(urbanHousing, Is.Not.Null);
         Assert.That(industrialization, Is.Not.Null);
@@ -700,7 +700,7 @@ public sealed class ResearchEffectTests
     [Test]
     public void 轨道居住研究完成后才会提升人口增长倍率()
     {
-        Research orbitalStationEngineering = DataBase<Research>.Find("OrbitalStationEngineering");
+        ResearchDef orbitalStationEngineering = DataBase<ResearchDef>.Find("OrbitalStationEngineering");
         Assert.That(orbitalStationEngineering, Is.Not.Null);
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
@@ -726,10 +726,10 @@ public sealed class ResearchEffectTests
         // P2-04「效果实际改变状态/倍率」：效果存在、类型合法、数值非中性，都不等于
         // 它真的改变了倍率。这里断言「生效前为中性值 → 生效后抬离中性值」，且不外溢到
         // 非目标建筑。只断言关系，不写死可调的倍率数值。
-        Research writtenRecords = Resources.Load<Research>("Datas/Research/StoneAge/WrittenRecords");
-        Building scribeHut = DataBase<Building>.Find("ScribeHut");
-        Building library = DataBase<Building>.Find("Library");
-        Building knowledgeCircle = DataBase<Building>.Find("KnowledgeCircle");
+        ResearchDef writtenRecords = Resources.Load<ResearchDef>("Datas/Research/StoneAge/WrittenRecords");
+        BuildingDef scribeHut = DataBase<BuildingDef>.Find("ScribeHut");
+        BuildingDef library = DataBase<BuildingDef>.Find("Library");
+        BuildingDef knowledgeCircle = DataBase<BuildingDef>.Find("KnowledgeCircle");
 
         Assert.That(writtenRecords, Is.Not.Null);
         Assert.That(scribeHut, Is.Not.Null);
@@ -763,11 +763,11 @@ public sealed class ResearchEffectTests
     [Test]
     public void 建筑建造成本倍率必须实际改变目标建筑的建造成本倍率()
     {
-        Research automation = Resources.Load<Research>(
+        ResearchDef automation = Resources.Load<ResearchDef>(
             "Datas/Research/Spacer/OrbitalConstructionAutomation");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building station = DataBase<Building>.Find("OrbitalStation");
-        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef solarArray = DataBase<BuildingDef>.Find("OrbitalSolarArray");
 
         Assert.That(automation, Is.Not.Null);
         Assert.That(habitat, Is.Not.Null);
@@ -797,19 +797,19 @@ public sealed class ResearchEffectTests
             "BuildingConstructionMultiplier 只能作用于效果指定的建筑，不得外溢。");
     }
 
-    private Research CreateResearch(string id)
+    private ResearchDef CreateResearch(string id)
     {
-        Research research = CreateDefinition<Research>(id);
+        ResearchDef research = CreateDefinition<ResearchDef>(id);
         research.BaseCost = "100";
         return research;
     }
 
-    private ResearchState CreateState(Research research, bool completed)
+    private ResearchState CreateState(ResearchDef research, bool completed)
     {
         ResearchState state = new ResearchState(research);
-        var paidCosts = new Dictionary<Resource, ExpantaNum>();
+        var paidCosts = new Dictionary<ResourceDef, ExpantaNum>();
         if (completed)
-            foreach (Pair<Resource, ExpantaNum> requirement in research.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in research.ResourceRequirements)
                 if (requirement.First != null)
                     paidCosts[requirement.First] = requirement.Second;
         state.RestoreForEditor(ExpantaNum.Zero, false, completed, paidCosts);

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PressurizedReactors
   m_EditorClassIdentifier: 
   id: PressurizedReactors
+  icon: {fileID: 21300000, guid: 2cf6af4d9e458d54a9538bff64de6de2, type: 3}
   Label: "\u50AC\u5316\u9AD8\u538B\u53CD\u5E94\u5668"
   Description: "以温度、压力与催化过程控制，提高化工厂的化工材料、工业炸药和火箭燃料产出。"
   SortOrder: 290
@@ -25,7 +26,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c8ab19b7e26172b4db2b21f98091ac06, type: 2}
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
-    amount: "2200000"
+    amount: "1400000"
   - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
     amount: "180000"
   - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}

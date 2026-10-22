@@ -26,7 +26,237 @@ public static class ValidationSuite
         CheckSnapshotOperationTiming(report);
         CheckSnapshotTimingComparison(report);
         CheckHomeSystemDevelopmentContract(report);
+        CheckWorkshopProjectPrerequisites(report);
+        CheckInteriorExploration(report);
         return report;
+    }
+
+    private static EconomySnapshot InteriorSnapshot()
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Sectors.Add(new SectorSnapshot
+        {
+            Id = "Ocean", Guid = new string('d', 32), AssetPath = "fixture/Ocean.asset",
+            Domain = "HomeSystem", StarSystemId = "Sol", InteriorExploration = new()
+            {
+                Label = "Ocean survey", Description = "Drill ice", CompletionDescription = "Ocean found",
+                DurationSeconds = "10", Milestones = ["Scan", "Drill", "Dive"],
+                ResourceRatesPerSecond = [new() { ResourceId = "A", Value = "2" }, new() { ResourceId = "B", Value = "3" }]
+            }
+        });
+        var body = BudgetBuilding("Ark", "", "0", "", "0");
+        body.Guid = new string('e', 32); body.SectorId = "Ocean";
+        body.RequiresInteriorExploration = true; body.MaxAmount = 1;
+        body.ResourceRequirements = [new() { ResourceId = "A", Value = "5" }];
+        snapshot.Buildings.Add(body);
+        snapshot.RuntimeState.Sectors = [new() { SectorId = "Ocean", Occupied = true, Unlocked = true, Progress = "1" }];
+        snapshot.InitialState.Sectors = snapshot.RuntimeState.Sectors;
+        snapshot.SaveState.Sectors = snapshot.RuntimeState.Sectors;
+        snapshot.RuntimeState.Resources = [new() { ResourceId = "A", Value = "100" }, new() { ResourceId = "B", Value = "100" }];
+        snapshot.RuntimeState.Buildings = [new() { BuildingId = "Ark", Amount = "0" }];
+        snapshot.InitialState.Resources = snapshot.RuntimeState.Resources;
+        snapshot.SaveState.Resources = snapshot.RuntimeState.Resources;
+        snapshot.InitialState.Buildings = snapshot.RuntimeState.Buildings;
+        snapshot.SaveState.Buildings = snapshot.RuntimeState.Buildings;
+        return snapshot;
+    }
+
+    private static void CheckInteriorExploration(ValidationReport report)
+    {
+        bool Near(ExpantaNum actual, string target) => (actual - ExpantaNum.Parse(target)).Abs() < new ExpantaNum(1e-7d);
+        var snapshot = InteriorSnapshot();
+        var core = SimulationCore.FromSnapshot(snapshot);
+        var state = core.State; var rules = core.SnapshotRules!;
+        var passed = !rules.TryPurchaseBuilding(state, "Ark") && Near(state.GetResource("A"), "100");
+        state.SetResource("A", "1");
+        passed &= rules.TryStartInteriorExploration(state, "Ocean");
+        core.Tick(SimulationMode.Realtime, 1, 1);
+        var sector = state.GetSectorState("Ocean");
+        passed &= Near(sector.InteriorExplorationProgress, ".05") && Near(state.GetResource("A"), "0") &&
+            Near(state.GetResource("B"), "98.5") && sector.InteriorExplorationActive && Near(sector.Progress, "1");
+        core.Tick(SimulationMode.Realtime, 1, 1);
+        passed &= Near(sector.InteriorExplorationProgress, ".05") && Near(state.GetResource("B"), "98.5");
+        AddResult(report, "planetary exploration bills affordable partial seconds atomically", passed,
+            "Scarce A pays only half a second of both inputs; missing supply preserves progress and leaves the operation active.");
+
+        passed = rules.TryPauseInteriorExploration(state, "Ocean") && sector.InteriorExplorationPaused;
+        state.SetResource("A", "100");
+        core.Tick(SimulationMode.Realtime, 1, 1);
+        passed &= Near(sector.InteriorExplorationProgress, ".05") && Near(state.GetResource("A"), "100");
+        passed &= rules.TryStartInteriorExploration(state, "Ocean") && !sector.InteriorExplorationPaused;
+        core.Tick(SimulationMode.Realtime, 20, 20);
+        passed &= Near(sector.InteriorExplorationProgress, "1") && !sector.InteriorExplorationActive &&
+            Near(state.GetResource("A"), "81") && Near(state.GetResource("B"), "70") &&
+            !rules.TryStartInteriorExploration(state, "Ocean");
+        var before = state.GetResource("A"); core.Tick(SimulationMode.Realtime, 1, 1);
+        passed &= Near(state.GetResource("A") - before, "0") && rules.TryPurchaseBuilding(state, "Ark") &&
+            !rules.TryPurchaseBuilding(state, "Ark") && Near(state.GetResource("A"), "76");
+        AddResult(report, "planetary exploration pause resume completion and unique building gate", passed,
+            "Manual pause spends nothing; resume charges remaining duration only; completion stops payment and opens exactly one Ark.");
+
+        SimulationCore Active()
+        {
+            var result = SimulationCore.FromSnapshot(InteriorSnapshot());
+            result.SnapshotRules!.TryStartInteriorExploration(result.State, "Ocean");
+            return result;
+        }
+        var realtime = Active(); var offline = Active();
+        for (int tick = 0; tick < 55; tick++) realtime.Tick(SimulationMode.Realtime, .1, .1);
+        offline.RunOffline(2.75); offline.RunOffline(2.75);
+        passed = Near(realtime.State.GetSectorState("Ocean").InteriorExplorationProgress - offline.State.GetSectorState("Ocean").InteriorExplorationProgress, "0") &&
+            Near(realtime.State.GetResource("A") - offline.State.GetResource("A"), "0") &&
+            Near(realtime.State.GetResource("B") - offline.State.GetResource("B"), "0") &&
+            Math.Abs(offline.OfflinePendingSimulationSeconds) < 1e-9d;
+        AddResult(report, "planetary exploration uses ordinary offline windows without a Food cadence remainder", passed,
+            $"Realtime={realtime.State.GetSectorState("Ocean").InteriorExplorationProgress}; offline={offline.State.GetSectorState("Ocean").InteriorExplorationProgress}; A={realtime.State.GetResource("A")}/{offline.State.GetResource("A")}; tick={offline.TickSeconds}; pending={offline.OfflinePendingSimulationSeconds}");
+
+        snapshot = InteriorSnapshot();
+        var saved = snapshot.RuntimeState.Sectors[0];
+        saved.InteriorExplorationProgress = ".25"; saved.InteriorExplorationActive = true;
+        var roundtrip = SnapshotExporter.LoadJsonText(System.Text.Json.JsonSerializer.Serialize(snapshot));
+        passed = SnapshotValidation.Validate(roundtrip).IsValid &&
+            roundtrip.Sectors[0].InteriorExploration!.Milestones.SequenceEqual(new[] { "Scan", "Drill", "Dive" }) &&
+            roundtrip.Buildings[0].RequiresInteriorExploration && roundtrip.Buildings[0].MaxAmount == 1;
+        var restored = SimulationCore.FromSnapshot(roundtrip);
+        passed &= Near(restored.State.GetSectorState("Ocean").InteriorExplorationProgress, ".25") &&
+            restored.State.GetSectorState("Ocean").InteriorExplorationActive;
+        roundtrip.RuntimeState.Sectors[0].InteriorExplorationProgress = ".5";
+        passed &= SnapshotParityCommand.Compare(restored, roundtrip.RuntimeState).Any(d => d.Field.EndsWith("InteriorExplorationProgress"));
+        saved.Occupied = false; passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        saved.Occupied = true; saved.InteriorExplorationProgress = "1";
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        saved.InteriorExplorationActive = false; saved.InteriorExplorationProgress = "1.01";
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "planetary exploration snapshot roundtrip comparison and invalid states", passed,
+            "Ordered milestones, gates and active progress survive; comparison catches drift; unoccupied, active-complete and out-of-range states reject.");
+
+        snapshot = InteriorSnapshot();
+        saved = snapshot.RuntimeState.Sectors[0];
+        saved.InteriorExplorationPaused = true;
+        roundtrip = SnapshotExporter.LoadJsonText(System.Text.Json.JsonSerializer.Serialize(snapshot));
+        restored = SimulationCore.FromSnapshot(roundtrip);
+        passed = restored.State.GetSectorState("Ocean").InteriorExplorationPaused &&
+            Near(restored.State.GetSectorState("Ocean").InteriorExplorationProgress, "0");
+        saved.InteriorExplorationActive = true;
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        saved.InteriorExplorationActive = false; saved.InteriorExplorationPaused = false;
+        snapshot.Research = [new() { Id = "Probe", Guid = new string('f', 32), AssetPath = "fixture/Probe.asset", TechLevel = "Animal" }];
+        snapshot.Sectors[0].InteriorExploration!.RequiredResearchIds = ["Probe"];
+        snapshot.RuntimeState.Research = [new() { ResearchId = "Probe", CostPaid = true }];
+        snapshot.InitialState.Research = snapshot.RuntimeState.Research;
+        snapshot.SaveState.Research = snapshot.RuntimeState.Research;
+        core = SimulationCore.FromSnapshot(snapshot); state = core.State; rules = core.SnapshotRules!;
+        passed &= !rules.TryStartInteriorExploration(state, "Ocean") && Near(state.GetResource("A"), "100");
+        state.SetResearchState("Probe", ExpantaNum.One, true, true);
+        passed &= rules.TryStartInteriorExploration(state, "Ocean");
+        saved.InteriorExplorationPaused = true;
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "planetary exploration preserves zero-progress pause and research prerequisites", passed,
+            "A paused zero-progress save stays paused; active-and-paused is invalid; missing research blocks start and restored operation state.");
+
+        snapshot = InteriorSnapshot();
+        snapshot.Sectors.Add(new()
+        {
+            Id = "OceanZ", Guid = new string('c', 32), AssetPath = "fixture/OceanZ.asset",
+            Domain = "HomeSystem", StarSystemId = "Sol", InteriorExploration = snapshot.Sectors[0].InteriorExploration
+        });
+        snapshot.RuntimeState.Sectors.Add(new() { SectorId = "OceanZ", Occupied = true });
+        core = SimulationCore.FromSnapshot(snapshot); state = core.State; rules = core.SnapshotRules!;
+        state.SetResource("A", "1");
+        rules.TryStartInteriorExploration(state, "OceanZ"); rules.TryStartInteriorExploration(state, "Ocean");
+        core.Tick(SimulationMode.Realtime, 1, 1);
+        passed = Near(state.GetSectorState("Ocean").InteriorExplorationProgress, ".05") &&
+            Near(state.GetSectorState("OceanZ").InteriorExplorationProgress, "0") &&
+            Near(state.GetResource("B"), "98.5");
+        state.SetResource("A", "4");
+        core.Tick(SimulationMode.Realtime, 1, 1);
+        passed &= state.GetSectorState("OceanZ").InteriorExplorationProgress > ExpantaNum.Zero;
+        AddResult(report, "planetary explorations share supplies in stable sector order", passed,
+            "Start order cannot reorder scarce supplies; both active projects resume automatically when stock is replenished.");
+
+        snapshot = InteriorSnapshot();
+        var project = snapshot.Sectors[0].InteriorExploration!;
+        project.DurationSeconds = "0"; passed = !SnapshotValidation.Validate(snapshot).IsValid;
+        project.DurationSeconds = "10"; project.ResourceRatesPerSecond[0].Value = "0";
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        project.ResourceRatesPerSecond[0].Value = "2"; project.RequiredResearchIds = ["Missing"];
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        project.RequiredResearchIds.Clear(); snapshot.RuntimeState.Buildings = [new() { BuildingId = "Ark", Amount = "1" }];
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.RuntimeState.Buildings.Clear(); project.Milestones.RemoveAt(0);
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "planetary exploration rejects invalid definitions and unfinished construction saves", passed,
+            "Zero duration/rates, missing research, wrong milestone count and a locked facility in a save are rejected.");
+
+        snapshot = InteriorSnapshot();
+        snapshot.Buildings[0].RequiresInteriorExploration = false;
+        snapshot.Sectors[0].InteriorExploration = new();
+        roundtrip = SnapshotExporter.LoadJsonText(System.Text.Json.JsonSerializer.Serialize(snapshot));
+        passed = roundtrip.Sectors[0].InteriorExploration == null && SnapshotValidation.Validate(roundtrip).IsValid;
+        snapshot.Sectors[0].InteriorExploration!.Label = "Partially configured";
+        SnapshotValidation.Normalize(snapshot);
+        passed &= snapshot.Sectors[0].InteriorExploration != null && !SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "Unity empty inline exploration normalizes without hiding malformed projects", passed,
+            "An absent Unity inline object is optional; a partially authored project still fails validation.");
+    }
+
+    private static void CheckWorkshopProjectPrerequisites(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        snapshot.Buildings.Add(BudgetBuilding("Project", "", "0", "", "0"));
+        snapshot.Sectors.Add(new SectorSnapshot
+        {
+            Id = "Orbit", Guid = new string('d', 32), AssetPath = "fixture/Orbit.asset",
+            Domain = "HomeSystem", StarSystemId = "Sol"
+        });
+        var stage = new WorkshopSnapshot
+        {
+            Id = "Stage", Guid = new string('e', 32), AssetPath = "fixture/Stage.asset",
+            TechLevel = "Animal", RequiredBuildingId = "Project", RequiredSectorId = "Orbit",
+            ResourceRequirements = [new AmountSnapshot { ResourceId = "A", Value = "2" }]
+        };
+        snapshot.Workshops.Add(stage);
+        snapshot.RuntimeState.Sectors.Add(new SectorStateSnapshot { SectorId = "Orbit" });
+        snapshot.InitialState.Sectors = snapshot.RuntimeState.Sectors;
+        snapshot.SaveState.Sectors = snapshot.RuntimeState.Sectors;
+        var core = BudgetCore(snapshot, "10");
+        var state = core.State;
+        state.SetBuilding("Project", ExpantaNum.Zero);
+        var passed = !core.SnapshotRules!.TryPurchaseWorkshop(state, "Stage") && state.GetResource("A") > "9.99";
+        state.SetBuilding("Project", ExpantaNum.One);
+        passed &= !core.SnapshotRules!.TryPurchaseWorkshop(state, "Stage") && state.GetResource("A") > "9.99";
+        state.SetSectorState("Orbit", true, true, false, false,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, 1);
+        state.SetResource("A", ExpantaNum.One);
+        passed &= !core.SnapshotRules!.TryPurchaseWorkshop(state, "Stage") && state.GetResource("A") > ".99";
+        state.SetResource("A", "10");
+        passed &= core.SnapshotRules!.TryPurchaseWorkshop(state, "Stage") &&
+            state.GetResource("A") > "7.99" && state.GetResource("A") < "8.01" &&
+            !core.SnapshotRules!.TryPurchaseWorkshop(state, "Stage") && state.GetResource("A") > "7.99";
+        AddResult(report, "workshop project gates building, occupation and atomic payment", passed,
+            "Missing body, missing occupation and insufficient stock preserve payment; valid purchase charges once.");
+
+        snapshot.RuntimeState.PurchasedWorkshopIds.Add("Stage");
+        snapshot.RuntimeState.Buildings[0].Amount = "0";
+        snapshot.RuntimeState.Sectors[0].Occupied = true;
+        passed = SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.RuntimeState.Sectors[0].Occupied = false;
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        snapshot.RuntimeState.PurchasedWorkshopIds.Clear();
+        stage.RequiredBuildingId = "Missing";
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        stage.RequiredBuildingId = "Project";
+        stage.RequiredSectorId = "Missing";
+        passed &= !SnapshotValidation.Validate(snapshot).IsValid;
+        stage.RequiredSectorId = "Orbit";
+        var roundtrip = SnapshotExporter.LoadJsonText(System.Text.Json.JsonSerializer.Serialize(snapshot));
+        passed &= roundtrip.Workshops[0].RequiredBuildingId == "Project" &&
+            roundtrip.Workshops[0].RequiredSectorId == "Orbit";
+        stage.RequiredBuildingId = "";
+        stage.RequiredSectorId = "";
+        passed &= SnapshotValidation.Validate(snapshot).IsValid;
+        AddResult(report, "workshop project snapshot preserves prerequisites and completed stages", passed,
+            "Invalid references and purchased stages without occupation fail; demolishing the body preserves a completed stage; empty optional gates remain valid.");
     }
 
     private static void CheckHomeSystemDevelopmentContract(ValidationReport report)
@@ -250,7 +480,7 @@ public static class ValidationSuite
         try { BudgetCore(snapshot, "0"); accepted = true; }
         catch (System.IO.InvalidDataException) { }
         AddResult(report, "snapshot sectors do not invent an era", accepted,
-            "Runtime SectorDefinition has system/domain gates and no TechLevel; its real export must load.");
+            "Runtime SectorDef has system/domain gates and no TechLevel; its real export must load.");
     }
 
     private static void CheckSnapshotDefinitionNamespaces(ValidationReport report)

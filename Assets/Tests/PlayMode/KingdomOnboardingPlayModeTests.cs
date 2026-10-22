@@ -82,7 +82,7 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
         SimulationManager.Instance.SetRunning(false);
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef sector = DataBase<SectorDef>.Find("TauCetiFoundry");
         SectorState state = GameManager.Instance.Sectors.GetState(sector);
         state.SetUnlockedForEditor(true);
         state.SetCampaignCasualtiesForEditor(ExpantaNum.One);
@@ -322,7 +322,7 @@ public sealed class KingdomOnboardingPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         root.SetPage("Buildings");
         yield return null;
@@ -440,7 +440,7 @@ public sealed class KingdomOnboardingPlayModeTests
         root.SetPage("Research");
         yield return null;
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         root.SetPage("Buildings");
         yield return null;
@@ -625,7 +625,7 @@ public sealed class KingdomOnboardingPlayModeTests
                 break;
             }
         Assert.That(chapter, Is.Not.Null);
-        WorkshopUpgrade upgrade = DataBase<WorkshopUpgrade>.Find("PrecisionTooling");
+        WorkshopUpgradeDef upgrade = DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling");
         Assert.That(upgrade, Is.Not.Null);
         Assert.That(WorkshopManager.Instance, Is.Not.Null);
 

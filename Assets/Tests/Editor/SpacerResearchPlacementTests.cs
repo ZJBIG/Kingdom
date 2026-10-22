@@ -6,7 +6,7 @@ public sealed class SpacerResearchPlacementTests
     [Test]
     public void TechnologicalSingularityIsTheIndependentUltraTransition()
     {
-        Research singularity = DataBase<Research>.Find("TechnologicalSingularity");
+        ResearchDef singularity = DataBase<ResearchDef>.Find("TechnologicalSingularity");
 
         Assert.That(singularity.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(singularity.AdvancesTechLevel, Is.True);
@@ -43,9 +43,9 @@ public sealed class SpacerResearchPlacementTests
         };
 
         foreach (string id in researchIds)
-            Assert.That(DataBase<Research>.TryFind(id, out _), Is.False, id);
+            Assert.That(DataBase<ResearchDef>.TryFind(id, out _), Is.False, id);
         foreach (string id in workshopIds)
-            Assert.That(DataBase<WorkshopUpgrade>.TryFind(id, out _), Is.False, id);
+            Assert.That(DataBase<WorkshopUpgradeDef>.TryFind(id, out _), Is.False, id);
     }
 
     [Test]
@@ -73,7 +73,7 @@ public sealed class SpacerResearchPlacementTests
 
         foreach (string id in earlyResearchIds)
         {
-            Research research = DataBase<Research>.Find(id);
+            ResearchDef research = DataBase<ResearchDef>.Find(id);
             Assert.That(research, Is.Not.Null, id);
             Assert.That(HasResource(research, "PhaseMaterial"), Is.False, id);
             Assert.That(HasResource(research, "PhantomAlloy"), Is.False, id);
@@ -84,12 +84,12 @@ public sealed class SpacerResearchPlacementTests
     [Test]
     public void ResearchLabelsDescriptionsAndEffectsMatchTheirRoles()
     {
-        Research quantum = DataBase<Research>.Find("QuantumComputing");
-        Research material = DataBase<Research>.Find("MatterTransmutationTheory");
-        Research systems = DataBase<Research>.Find("DeepSpaceLogisticsReliability");
-        Research geology = DataBase<Research>.Find("PlanetaryGeologyTheory");
-        Research phase = DataBase<Research>.Find("PhaseMaterialDurabilityTheory");
-        Research causal = DataBase<Research>.Find("InterstellarCampaignTimingTheory");
+        ResearchDef quantum = DataBase<ResearchDef>.Find("QuantumComputing");
+        ResearchDef material = DataBase<ResearchDef>.Find("MatterTransmutationTheory");
+        ResearchDef systems = DataBase<ResearchDef>.Find("DeepSpaceLogisticsReliability");
+        ResearchDef geology = DataBase<ResearchDef>.Find("PlanetaryGeologyTheory");
+        ResearchDef phase = DataBase<ResearchDef>.Find("PhaseMaterialDurabilityTheory");
+        ResearchDef causal = DataBase<ResearchDef>.Find("InterstellarCampaignTimingTheory");
 
         Assert.That(HasEffect(systems, ResearchEffectType.GlobalResearchMultiplier), Is.False);
         Assert.That(HasEffect(systems, ResearchEffectType.GlobalLogisticsMultiplier), Is.True);
@@ -110,11 +110,11 @@ public sealed class SpacerResearchPlacementTests
     [Test]
     public void WorkshopEffectsMatchTheirDescriptions()
     {
-        WorkshopUpgrade trajectory = DataBase<WorkshopUpgrade>.Find("GravityAssistTrajectoryPlanner");
-        WorkshopUpgrade thermal = DataBase<WorkshopUpgrade>.Find("DeepSpaceThermalControlArray");
-        WorkshopUpgrade causal = DataBase<WorkshopUpgrade>.Find("CampaignTimingCalibrationBench");
-        WorkshopUpgrade solar = DataBase<WorkshopUpgrade>.Find("SolarWindMonitoringArray");
-        WorkshopUpgrade material = DataBase<WorkshopUpgrade>.Find("ControlledMatterTransmutation");
+        WorkshopUpgradeDef trajectory = DataBase<WorkshopUpgradeDef>.Find("GravityAssistTrajectoryPlanner");
+        WorkshopUpgradeDef thermal = DataBase<WorkshopUpgradeDef>.Find("DeepSpaceThermalControlArray");
+        WorkshopUpgradeDef causal = DataBase<WorkshopUpgradeDef>.Find("CampaignTimingCalibrationBench");
+        WorkshopUpgradeDef solar = DataBase<WorkshopUpgradeDef>.Find("SolarWindMonitoringArray");
+        WorkshopUpgradeDef material = DataBase<WorkshopUpgradeDef>.Find("ControlledMatterTransmutation");
 
         AssertWorkshopEffect(trajectory, WorkshopEffectType.ExplorationPowerMultiplier, "1.18");
         AssertBuildingWorkshopEffect(
@@ -130,26 +130,26 @@ public sealed class SpacerResearchPlacementTests
             "1.18");
     }
 
-    private static void AssertPrerequisites(Research research, params string[] ids)
+    private static void AssertPrerequisites(ResearchDef research, params string[] ids)
     {
         Assert.That(research.Prerequisites.Select(item => item.Id), Is.EquivalentTo(ids));
     }
 
-    private static void AssertResource(Research research, string id)
+    private static void AssertResource(ResearchDef research, string id)
     {
-        Pair<Resource, ExpantaNum> pair = research.ResourceRequirements
+        Pair<ResourceDef, ExpantaNum> pair = research.ResourceRequirements
             .Single(item => item.First != null && item.First.Id == id);
         Assert.That(pair.Second, Is.GreaterThan(ExpantaNum.Zero), id);
     }
 
-    private static bool HasResource(Research research, string id) =>
+    private static bool HasResource(ResearchDef research, string id) =>
         research.ResourceRequirements.Any(item => item.First != null && item.First.Id == id);
 
-    private static bool HasEffect(Research research, ResearchEffectType type) =>
+    private static bool HasEffect(ResearchDef research, ResearchEffectType type) =>
         research.Effects.Any(effect => effect != null && effect.Type == type);
 
     private static void AssertWorkshopEffect(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         WorkshopEffectType type,
         string value)
     {
@@ -160,7 +160,7 @@ public sealed class SpacerResearchPlacementTests
     }
 
     private static void AssertBuildingWorkshopEffect(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         WorkshopEffectType type,
         string buildingId,
         string value)

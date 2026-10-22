@@ -11,7 +11,7 @@ public sealed class RelicSimulationTests
     {
         Snapshot sealedResult = Run(offline, true, false);
         Snapshot working = Run(offline, false, false);
-        RelicWorkDefinition work = DataBase<RelicDefinition>.Find(RelicState.RelicId).Investigation;
+        RelicWorkDefinition work = DataBase<RelicDef>.Find(RelicState.RelicId).Investigation;
         Near(working.Progress, new ExpantaNum(60d) / work.DurationSeconds);
         Near(sealedResult.FoodChange - working.FoodChange, work.FoodConsumptionRate * 60d);
         foreach (var cost in work.ContinuousCosts)
@@ -54,16 +54,16 @@ public sealed class RelicSimulationTests
     [Test]
     public void AuthoredRelic_PrerequisitesAndEveryCostHaveExistingDefinitionsAndProductionSources()
     {
-        RelicDefinition definition = DataBase<RelicDefinition>.Find(RelicState.RelicId);
+        RelicDef definition = DataBase<RelicDef>.Find(RelicState.RelicId);
         Assert.That(definition.Sector, Is.Not.Null);
         Assert.That(definition.Sector.IsHomeSystem, Is.False);
-        Assert.That(DataBase<SectorDefinition>.Find(definition.Sector.Id), Is.SameAs(definition.Sector));
+        Assert.That(DataBase<SectorDef>.Find(definition.Sector.Id), Is.SameAs(definition.Sector));
         Assert.That(definition.RequiredResearch.Count, Is.GreaterThan(0));
         Assert.That(definition.RequiredBuildings.Count, Is.GreaterThan(0));
         foreach (var research in definition.RequiredResearch)
-            Assert.That(DataBase<Research>.Find(research.Id), Is.SameAs(research));
+            Assert.That(DataBase<ResearchDef>.Find(research.Id), Is.SameAs(research));
         foreach (var building in definition.RequiredBuildings)
-            Assert.That(DataBase<Building>.Find(building.Id), Is.SameAs(building));
+            Assert.That(DataBase<BuildingDef>.Find(building.Id), Is.SameAs(building));
         Assert.That(definition.CampaignSupplyMultiplier, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(definition.CampaignSupplyMultiplier, Is.LessThan(ExpantaNum.One));
         var works = new[] { definition.Investigation, definition.Repair,
@@ -78,25 +78,25 @@ public sealed class RelicSimulationTests
         AssertCosts(definition.SupportCraftCosts);
     }
 
-    private static void AssertCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private static void AssertCosts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         Assert.That(costs.Count, Is.GreaterThan(0));
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var cost in costs)
         {
             Assert.That(cost.First, Is.Not.Null);
-            Assert.That(DataBase<Resource>.Find(cost.First.Id), Is.SameAs(cost.First));
+            Assert.That(DataBase<ResourceDef>.Find(cost.First.Id), Is.SameAs(cost.First));
             Assert.That(ids.Add(cost.First.Id), Is.True, "A transaction must not duplicate a stable resource ID.");
             Assert.That(cost.Second.IsFinite, Is.True);
             Assert.That(cost.Second, Is.GreaterThan(ExpantaNum.Zero));
             bool produced = false;
-            foreach (var building in DataBase<Building>.All)
+            foreach (var building in DataBase<BuildingDef>.All)
                 foreach (var output in building.ResourceGenerationRates)
                     if (output.First == cost.First && output.Second > ExpantaNum.Zero) produced = true;
-            foreach (var building in DataBase<SectorBuilding>.All)
+            foreach (var building in DataBase<SectorBuildingDef>.All)
                 foreach (var output in building.ResourceGenerationRates)
                     if (output.First == cost.First && output.Second > ExpantaNum.Zero) produced = true;
-            foreach (var sector in DataBase<SectorDefinition>.All)
+            foreach (var sector in DataBase<SectorDef>.All)
                 foreach (var output in sector.OccupiedResourceRatesPerSecond)
                     if (output.First == cost.First && output.Second > ExpantaNum.Zero) produced = true;
             Assert.That(produced, Is.True, $"Relic sink {cost.First.Id} requires an authored production source.");
@@ -107,7 +107,7 @@ public sealed class RelicSimulationTests
     {
         ProgressionModifierManager.Rebuild(null);
         var root = new GameObject("RelicSimulationTests");
-        var temporaryBuildings = new List<Building>();
+        var temporaryBuildings = new List<BuildingDef>();
         try
         {
             GameManager game = root.AddComponent<GameManager>();
@@ -120,21 +120,21 @@ public sealed class RelicSimulationTests
             game.State.SetPowerSatisfactionForEditor(ExpantaNum.One);
             game.State.SetLogisticsSatisfactionForEditor(ExpantaNum.One);
             research.InitializeForEditor();
-            RelicDefinition definition = game.Relic.Definition;
+            RelicDef definition = game.Relic.Definition;
             foreach (var prerequisite in definition.RequiredResearch)
             {
                 var state = research.GetState(prerequisite);
-                var paid = new Dictionary<Resource, ExpantaNum>();
+                var paid = new Dictionary<ResourceDef, ExpantaNum>();
                 foreach (var cost in prerequisite.ResourceRequirements)
                     if (cost.First != null && cost.Second > ExpantaNum.Zero) paid[cost.First] = cost.Second;
                 state.RestoreForEditor(state.BaseCost, true, true, paid);
             }
-            foreach (var resource in DataBase<Resource>.All)
+            foreach (var resource in DataBase<ResourceDef>.All)
                 resources.SetAmount(resource, new ExpantaNum(1e6d));
             foreach (var required in definition.RequiredBuildings)
                 buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(required), ExpantaNum.One);
             // Authored stable IDs resolve to authored definitions; use a distinct fixture for neutral support.
-            Building support = ScriptableObject.CreateInstance<Building>();
+            BuildingDef support = ScriptableObject.CreateInstance<BuildingDef>();
             temporaryBuildings.Add(support);
             support.SetIdForEditor("RelicSimulationNeutralSupport");
             support.ConfigureEconomyForEditor(
@@ -146,9 +146,9 @@ public sealed class RelicSimulationTests
                 powerConsumption: ExpantaNum.Zero, logisticsProduction: new ExpantaNum(1e6d),
                 logisticsConsumption: ExpantaNum.Zero, attack: ExpantaNum.Zero,
                 defense: ExpantaNum.Zero, manpower: ExpantaNum.Zero,
-                requirements: new List<Pair<Resource, ExpantaNum>>(),
-                generation: new List<Pair<Resource, ExpantaNum>>(),
-                consumption: new List<Pair<Resource, ExpantaNum>>());
+                requirements: new List<Pair<ResourceDef, ExpantaNum>>(),
+                generation: new List<Pair<ResourceDef, ExpantaNum>>(),
+                consumption: new List<Pair<ResourceDef, ExpantaNum>>());
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(support), ExpantaNum.One);
             game.Sectors.InitializeDefinitions();
             game.Sectors.GetState(definition.Sector).SetUnlockedForEditor(true);
@@ -169,7 +169,7 @@ public sealed class RelicSimulationTests
             RelicWorkDefinition work = definition.Investigation;
             if (missingMaterial)
             {
-                Resource missing = null;
+                ResourceDef missing = null;
                 foreach (var cost in work.ContinuousCosts)
                 {
                     bool producedByOccupiedSector = false;
@@ -184,7 +184,7 @@ public sealed class RelicSimulationTests
                 resources.SetAmount(missing, ExpantaNum.Zero);
             }
             ExpantaNum foodBefore = game.State.FoodAmount;
-            var before = new Dictionary<Resource, ExpantaNum>();
+            var before = new Dictionary<ResourceDef, ExpantaNum>();
             foreach (var cost in work.ContinuousCosts) before.Add(cost.First, resources.GetAmount(cost.First));
             if (offline)
                 Assert.That(simulation.AdvanceOffline(60d), Is.EqualTo(60d).Within(1e-8d));

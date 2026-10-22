@@ -30,15 +30,15 @@ public sealed class ContentVerticalSliceAuditTests
     [Test]
     public void VerticalSliceTransitionResearches_AdvanceTheirTechLevels()
     {
-        Research stoneAge = DataBase<Research>.Find("StoneAgeSettlement");
-        Research medieval = DataBase<Research>.Find("FeudalAdministration");
+        ResearchDef stoneAge = DataBase<ResearchDef>.Find("StoneAgeSettlement");
+        ResearchDef medieval = DataBase<ResearchDef>.Find("FeudalAdministration");
 
         Assert.That(stoneAge.AdvancesTechLevel, Is.True);
         Assert.That(stoneAge.TechLevel, Is.EqualTo(TechLevel.StoneAge));
         Assert.That(HasPrerequisite(stoneAge, "AnimalHusbandry"), Is.True);
         Assert.That(HasPrerequisite(stoneAge, "Agriculture"), Is.True);
         Assert.That(HasPrerequisite(stoneAge, "ClayExtraction"), Is.True);
-        foreach (Research prerequisite in stoneAge.Prerequisites)
+        foreach (ResearchDef prerequisite in stoneAge.Prerequisites)
             Assert.That(prerequisite.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(medieval.AdvancesTechLevel, Is.True);
         Assert.That(medieval.TechLevel, Is.EqualTo(TechLevel.Medieval));
@@ -86,7 +86,7 @@ public sealed class ContentVerticalSliceAuditTests
         for (int i = 0; i < currentEras.Length; i++)
         {
             TechLevel targetEra = (TechLevel)((int)currentEras[i] + 1);
-            Research transition = EraGoalEvaluator.FindTransition(targetEra);
+            ResearchDef transition = EraGoalEvaluator.FindTransition(targetEra);
             Assert.That(transition.AdvancesTechLevel, Is.True, transition.Id);
             Assert.That(transition.Prerequisites, Is.Not.Empty, transition.Id);
             Assert.That(transition.ResourceRequirements, Is.Not.Empty, transition.Id);
@@ -101,11 +101,11 @@ public sealed class ContentVerticalSliceAuditTests
     private static void AssertTransitionRequirements(
         string researchId, string[] resourceIds)
     {
-        Research transition = DataBase<Research>.Find(researchId);
+        ResearchDef transition = DataBase<ResearchDef>.Find(researchId);
         Assert.That(transition, Is.Not.Null, researchId);
         for (int i = 0; i < resourceIds.Length; i++)
         {
-            Resource expected = DataBase<Resource>.Find(resourceIds[i]);
+            ResourceDef expected = DataBase<ResourceDef>.Find(resourceIds[i]);
             Assert.That(expected, Is.Not.Null, resourceIds[i]);
             Assert.That(HasResourceRequirement(transition, expected), Is.True,
                 researchId + " resource " + resourceIds[i]);
@@ -113,18 +113,18 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     private static void AssertEvaluatorConditionsMatchTransition(
-        Research transition, EraGoalEvaluation evaluation)
+        ResearchDef transition, EraGoalEvaluation evaluation)
     {
         Assert.That(evaluation.Conditions, Is.Not.Null, transition.Id);
         for (int i = 0; i < transition.Prerequisites.Count; i++)
         {
-            Research prerequisite = transition.Prerequisites[i];
+            ResearchDef prerequisite = transition.Prerequisites[i];
             Assert.That(HasResearchCondition(evaluation, prerequisite), Is.True,
                 transition.Id + " prerequisite condition " + prerequisite.Id);
         }
         for (int i = 0; i < transition.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = transition.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = transition.ResourceRequirements[i];
             if (requirement == null || requirement.First == null ||
                 requirement.Second <= ExpantaNum.Zero)
                 continue;
@@ -134,7 +134,7 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     private static bool HasResearchCondition(
-        EraGoalEvaluation evaluation, Research prerequisite)
+        EraGoalEvaluation evaluation, ResearchDef prerequisite)
     {
         for (int i = 0; i < evaluation.Conditions.Count; i++)
         {
@@ -148,7 +148,7 @@ public sealed class ContentVerticalSliceAuditTests
     }
 
     private static bool HasResourceCondition(
-        EraGoalEvaluation evaluation, Resource resource)
+        EraGoalEvaluation evaluation, ResourceDef resource)
     {
         for (int i = 0; i < evaluation.Conditions.Count; i++)
         {
@@ -160,11 +160,11 @@ public sealed class ContentVerticalSliceAuditTests
         return false;
     }
 
-    private static bool HasResourceRequirement(Research research, Resource resource)
+    private static bool HasResourceRequirement(ResearchDef research, ResourceDef resource)
     {
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = research.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = research.ResourceRequirements[i];
             if (requirement != null && requirement.First == resource &&
                 requirement.Second > ExpantaNum.Zero)
                 return true;
@@ -174,7 +174,7 @@ public sealed class ContentVerticalSliceAuditTests
 
     private static void AssertPrerequisites(string researchId, string[] prerequisiteIds)
     {
-        Research transition = DataBase<Research>.Find(researchId);
+        ResearchDef transition = DataBase<ResearchDef>.Find(researchId);
         Assert.That(transition, Is.Not.Null, researchId);
         for (int i = 0; i < prerequisiteIds.Length; i++)
             Assert.That(HasPrerequisite(transition, prerequisiteIds[i]), Is.True,
@@ -184,7 +184,7 @@ public sealed class ContentVerticalSliceAuditTests
     [Test]
     public void CeramicFiring_RequiresTheClayExtractionResearchPath()
     {
-        Research ceramicFiring = DataBase<Research>.Find("CeramicFiring");
+        ResearchDef ceramicFiring = DataBase<ResearchDef>.Find("CeramicFiring");
 
         Assert.That(HasPrerequisite(ceramicFiring, "StoneProcessing"), Is.True);
         Assert.That(HasPrerequisite(ceramicFiring, "ClayExtraction"), Is.True);
@@ -194,9 +194,9 @@ public sealed class ContentVerticalSliceAuditTests
     public void ProgressionAudit_AllowsTheNextEraTransitionResearch()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -208,16 +208,16 @@ public sealed class ContentVerticalSliceAuditTests
 
     private static bool HasGeneration(string buildingId, string resourceId)
     {
-        return HasPair(DataBase<Building>.Find(buildingId).ResourceGenerationRates, resourceId);
+        return HasPair(DataBase<BuildingDef>.Find(buildingId).ResourceGenerationRates, resourceId);
     }
 
     private static bool HasConsumption(string buildingId, string resourceId)
     {
-        return HasPair(DataBase<Building>.Find(buildingId).ResourceConsumptionRates, resourceId);
+        return HasPair(DataBase<BuildingDef>.Find(buildingId).ResourceConsumptionRates, resourceId);
     }
 
     private static bool HasPair(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
@@ -229,7 +229,7 @@ public sealed class ContentVerticalSliceAuditTests
         return false;
     }
 
-    private static bool HasPrerequisite(Research research, string researchId)
+    private static bool HasPrerequisite(ResearchDef research, string researchId)
     {
         for (int i = 0; i < research.Prerequisites.Count; i++)
         {

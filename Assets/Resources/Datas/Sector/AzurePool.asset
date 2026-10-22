@@ -38,6 +38,26 @@ MonoBehaviour:
   campaignResourceRatesPerSecond: []
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6b5ddbd033f8438aaf2b992dc309a3c8, type: 3}
   mapX: 3
   mapY: 1
+  interiorExploration:
+    label: "冰下海洋勘探"
+    description: "以无人钻探器穿透冰壳，测量冰下海洋的压力、温度与化学环境，确认封闭生态设施的部署条件。"
+    completionDescription: "钻探器抵达稳定液态海洋。冰壳提供天然屏障，封闭生态循环可在此维持；冰海方舟现已开放建设。"
+    durationSeconds: "21600"
+    requiredResearch:
+    - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+    resourceRatesPerSecond:
+    - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+      amount: "0.1"
+    - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+      amount: "0.08"
+    - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+      amount: "0.12"
+    - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+      amount: "0.05"
+    milestones:
+    - "冰层扫描"
+    - "穿透冰壳"
+    - "抵达冰下液态海洋"

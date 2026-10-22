@@ -8,15 +8,20 @@ and runtime evidence gates; simulator fixtures are not Unity acceptance.
 
 ## Current ownership
 
-- Resource, Building and Research ScriptableObjects are definitions.
+- ResourceDef, BuildingDef and ResearchDef ScriptableObjects are definitions.
 - ResourceState, BuildingState, ResearchState, StoryProgressState and GameState are mutable runtime authority.
 
-- `BuildingState.Amount` is also the authoritative count for `SectorBuilding`.
+- `BuildingState.Amount` is also the authoritative count for `SectorBuildingDef`.
   Sector building construction and deconstruction are gated by sector
   occupation and `MaxAmount`, but do not read, submit, or refund homeland
   territory `spaceCost`.
 - ResourceManager, BuildingManager and ResearchManager own State collections.
 - SimulationManager is the only gameplay clock.
+- SectorManager owns optional planetary exploration in SectorState: separate progress,
+  active and manual-pause flags. Occupation opens ordinary facilities; exploration
+  completion additionally gates configured special buildings. Exploration pays only
+  the affordable advancing duration in one inventory/state transaction, uses stable
+  sector order and retains progress while paused or waiting for supplies.
 - `KingdomUIRoot` partials are presentation only;
   lifecycle ownership is documented in `docs/architecture/ui-boundaries.md`.
 - SaveManager captures non-derivable State using stable definition IDs.
@@ -70,3 +75,10 @@ No partial mutation on failure.
 Save only non-derivable values using stable definition IDs and parseable ExpantaNum `ToString()` values, never localized display labels. Rates, efficiency, UI state caches and indexes are rebuilt after load. The current clean-break format is v1. `General`, `Resources`, `Buildings`, `Researches`, `Workshop`, `Sectors`, `Tutorial`, `Story`, `UltraProject` and `Relic` are required sections. Missing, corrupt or semantically invalid sections reject the whole save and initialize a clean game without retaining partially applied data. No optional historical extensions or resource-ID aliases are supported. Persisted economic numeric strings are required and finite; missing amounts, progress, efficiency or General numeric values reject the save instead of inheriting runtime values or defaulting to zero/one.
 
 `KingdomSave-v1.json` is the only managed save. The historical `KingdomSave.json` is ignored, including its old v1 format; version numbers alone do not identify this new save generation. Writes use a temporary file followed by atomic replacement; there is no backup, recovery candidate, migration or retired-ID mapping. Existing `.bak` files are ignored. Story completion is serialized in the required `Story.CompletedChapterIds` segment.
+
+Each serialized sector includes required `InteriorExplorationProgress` plus
+`InteriorExplorationActive` and `InteriorExplorationPaused`. Restore rejects missing
+or non-finite progress, out-of-range progress, active-and-paused combinations,
+unfinished occupation/research prerequisites and exploration-gated construction
+without completed exploration. Purchased workshop stages retain that condition
+even after demolition of their body; reconstruction restores the recorded stages.

@@ -42,15 +42,15 @@ public sealed class FoodEfficiencyTests
     [Test]
     public void EnergyDrivenBuildings_DoNotUseFoodHappinessConstraint()
     {
-        Building energyDriven = ScriptableObject.CreateInstance<Building>();
+        BuildingDef energyDriven = ScriptableObject.CreateInstance<BuildingDef>();
         try
         {
             energyDriven.ConfigureEconomyForEditor(
                 1.15d, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 100, 0, 0, 0, 0, 0,
-                new List<Pair<Resource, ExpantaNum>>(),
-                new List<Pair<Resource, ExpantaNum>>(),
-                new List<Pair<Resource, ExpantaNum>>());
+                new List<Pair<ResourceDef, ExpantaNum>>(),
+                new List<Pair<ResourceDef, ExpantaNum>>(),
+                new List<Pair<ResourceDef, ExpantaNum>>());
             Assert.That(BuildingManager.IsFoodConstraintRequired(energyDriven), Is.False);
         }
         finally

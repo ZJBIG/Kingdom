@@ -5,10 +5,10 @@ using System.Text;
 public static class EconomyDependencyValidator
 {
     public static bool Validate(
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings,
-        IReadOnlyList<Research> researches,
-        IReadOnlyList<WorkshopUpgrade> upgrades,
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<ResearchDef> researches,
+        IReadOnlyList<WorkshopUpgradeDef> upgrades,
         out string error,
         TechLevel validationCeiling = TechLevel.Archotech)
     {
@@ -17,6 +17,8 @@ public static class EconomyDependencyValidator
         if (!ResearchValidator.ValidateNoCycles(researches, out error))
             return false;
         if (!ValidateResearchEffects(researches, out error))
+            return false;
+        if (!ValidateWorkshopLocations(upgrades, buildings, out error))
             return false;
         if (!ValidateWorkshopPrerequisites(upgrades, out error))
             return false;
@@ -33,12 +35,12 @@ public static class EconomyDependencyValidator
 
     // 内容质量门槛：每条科研必须至少有一个真实效果，防止空效果节点合法通过。
     private static bool ValidateResearchEffects(
-        IReadOnlyList<Research> researches,
+        IReadOnlyList<ResearchDef> researches,
         out string error)
     {
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i];
+            ResearchDef research = researches[i];
             if (research == null)
                 continue;
             if (research.Effects == null || research.Effects.Count == 0)
@@ -54,19 +56,44 @@ public static class EconomyDependencyValidator
 
 #if UNITY_EDITOR
     public static bool ValidateWorkshopPrerequisitesForEditor(
-        IReadOnlyList<WorkshopUpgrade> upgrades,
+        IReadOnlyList<WorkshopUpgradeDef> upgrades,
         out string error) =>
         ValidateWorkshopPrerequisites(upgrades, out error);
 #endif
 
-    private static bool ValidateWorkshopPrerequisites(
-        IReadOnlyList<WorkshopUpgrade> upgrades,
-        out string error)
+    private static bool ValidateWorkshopLocations(
+        IReadOnlyList<WorkshopUpgradeDef> upgrades, IReadOnlyList<BuildingDef> buildings, out string error)
     {
-        var known = new HashSet<WorkshopUpgrade>();
+        var knownBuildings = new HashSet<BuildingDef>(buildings);
+        var knownSectors = new HashSet<SectorDef>(DataBase<SectorDef>.All);
         for (int i = 0; i < upgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = upgrades[i];
+            WorkshopUpgradeDef upgrade = upgrades[i];
+            if (upgrade == null)
+                continue;
+            if (upgrade.RequiredBuilding != null && !knownBuildings.Contains(upgrade.RequiredBuilding))
+            {
+                error = $"工坊升级“{upgrade.Id}”要求的建筑不在当前定义集合中。";
+                return false;
+            }
+            if (upgrade.RequiredSector != null && !knownSectors.Contains(upgrade.RequiredSector))
+            {
+                error = $"工坊升级“{upgrade.Id}”要求的星区不在当前定义集合中。";
+                return false;
+            }
+        }
+        error = string.Empty;
+        return true;
+    }
+
+    private static bool ValidateWorkshopPrerequisites(
+        IReadOnlyList<WorkshopUpgradeDef> upgrades,
+        out string error)
+    {
+        var known = new HashSet<WorkshopUpgradeDef>();
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            WorkshopUpgradeDef upgrade = upgrades[i];
             if (upgrade == null)
             {
                 error = "工坊升级定义集合包含空引用。";
@@ -77,18 +104,19 @@ public static class EconomyDependencyValidator
 
         for (int i = 0; i < upgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = upgrades[i];
+            WorkshopUpgradeDef upgrade = upgrades[i];
             if (upgrade == null)
                 continue;
-            if (upgrade.RequiredResearch.Count == 0 && upgrade.RequiredUpgrades.Count == 0)
+            if (upgrade.RequiredResearch.Count == 0 && upgrade.RequiredUpgrades.Count == 0 &&
+                upgrade.RequiredBuilding == null && upgrade.RequiredSector == null)
             {
                 error = $"工坊升级“{upgrade.Id}”缺少前置条件。";
                 return false;
             }
-            var uniqueResearch = new HashSet<Research>();
+            var uniqueResearch = new HashSet<ResearchDef>();
             for (int j = 0; j < upgrade.RequiredResearch.Count; j++)
             {
-                Research prerequisite = upgrade.RequiredResearch[j];
+                ResearchDef prerequisite = upgrade.RequiredResearch[j];
                 if (prerequisite == null)
                 {
                     error = $"工坊升级“{upgrade.Id}”包含无效的研究前置条件。";
@@ -100,10 +128,10 @@ public static class EconomyDependencyValidator
                     return false;
                 }
             }
-            var uniqueUpgrades = new HashSet<WorkshopUpgrade>();
+            var uniqueUpgrades = new HashSet<WorkshopUpgradeDef>();
             for (int j = 0; j < upgrade.RequiredUpgrades.Count; j++)
             {
-                WorkshopUpgrade prerequisite = upgrade.RequiredUpgrades[j];
+                WorkshopUpgradeDef prerequisite = upgrade.RequiredUpgrades[j];
                 if (prerequisite == null || !known.Contains(prerequisite))
                 {
                     error = $"工坊升级“{upgrade.Id}”包含无效的工坊前置条件。";
@@ -122,11 +150,11 @@ public static class EconomyDependencyValidator
             }
         }
 
-        var visiting = new HashSet<WorkshopUpgrade>();
-        var visited = new HashSet<WorkshopUpgrade>();
+        var visiting = new HashSet<WorkshopUpgradeDef>();
+        var visited = new HashSet<WorkshopUpgradeDef>();
         for (int i = 0; i < upgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = upgrades[i];
+            WorkshopUpgradeDef upgrade = upgrades[i];
             if (upgrade != null && HasWorkshopCycle(upgrade, visiting, visited, out error))
                 return false;
         }
@@ -135,9 +163,9 @@ public static class EconomyDependencyValidator
     }
 
     private static bool HasWorkshopCycle(
-        WorkshopUpgrade current,
-        HashSet<WorkshopUpgrade> visiting,
-        HashSet<WorkshopUpgrade> visited,
+        WorkshopUpgradeDef current,
+        HashSet<WorkshopUpgradeDef> visiting,
+        HashSet<WorkshopUpgradeDef> visited,
         out string error)
     {
         if (visited.Contains(current))
@@ -152,7 +180,7 @@ public static class EconomyDependencyValidator
         }
         for (int i = 0; i < current.RequiredUpgrades.Count; i++)
         {
-            WorkshopUpgrade prerequisite = current.RequiredUpgrades[i];
+            WorkshopUpgradeDef prerequisite = current.RequiredUpgrades[i];
             if (prerequisite != null && HasWorkshopCycle(prerequisite, visiting, visited, out error))
                 return true;
         }
@@ -163,22 +191,24 @@ public static class EconomyDependencyValidator
     }
 
     private static bool ValidateReleasedReachability(
-        IReadOnlyList<Building> buildings,
-        IReadOnlyList<Research> researches,
-        IReadOnlyList<WorkshopUpgrade> upgrades,
+        IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<ResearchDef> researches,
+        IReadOnlyList<WorkshopUpgradeDef> upgrades,
         out string error,
         TechLevel validationCeiling)
     {
-        var resources = new HashSet<Resource>();
-        var completedResearch = new HashSet<Research>();
-        var purchasedUpgrades = new HashSet<WorkshopUpgrade>();
-        var availableBuildings = new HashSet<Building>();
+        var resources = new HashSet<ResourceDef>();
+        var completedResearch = new HashSet<ResearchDef>();
+        var purchasedUpgrades = new HashSet<WorkshopUpgradeDef>();
+        var availableBuildings = new HashSet<BuildingDef>();
+        var reachableSectors = new HashSet<SectorDef>();
+        var exploredInteriors = new HashSet<SectorDef>();
         TechLevel techLevel = TechLevel.Animal;
 
-        for (int i = 0; i < DataBase<Resource>.All.Count; i++)
-            if (DataBase<Resource>.All[i] != null &&
-                DataBase<Resource>.All[i].Id == ResourceManager.StartingResourceId)
-                resources.Add(DataBase<Resource>.All[i]);
+        for (int i = 0; i < DataBase<ResourceDef>.All.Count; i++)
+            if (DataBase<ResourceDef>.All[i] != null &&
+                DataBase<ResourceDef>.All[i].Id == ResourceManager.StartingResourceId)
+                resources.Add(DataBase<ResourceDef>.All[i]);
 
         bool changed;
         do
@@ -186,7 +216,7 @@ public static class EconomyDependencyValidator
             changed = false;
             for (int i = 0; i < researches.Count; i++)
             {
-                Research research = researches[i];
+                ResearchDef research = researches[i];
                 if (research == null || research.TechLevel > validationCeiling ||
                     completedResearch.Contains(research))
                     continue;
@@ -202,14 +232,43 @@ public static class EconomyDependencyValidator
                 changed = true;
             }
 
+            IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
+            for (int i = 0; i < sectors.Count; i++)
+            {
+                SectorDef sector = sectors[i];
+                if (reachableSectors.Contains(sector) ||
+                    !AllContained(sector.PrerequisiteSectors, reachableSectors) ||
+                    !CostsReachable(sector.IsHomeSystem ? sector.ColonizationResourceRatesPerSecond :
+                        sector.CampaignResourceRatesPerSecond, resources))
+                    continue;
+                reachableSectors.Add(sector);
+                changed = true;
+            }
+
+            for (int i = 0; i < sectors.Count; i++)
+            {
+                SectorDef sector = sectors[i];
+                var exploration = sector.InteriorExploration;
+                if (exploration == null || exploredInteriors.Contains(sector) ||
+                    !reachableSectors.Contains(sector) ||
+                    !AllContained(exploration.RequiredResearch, completedResearch) ||
+                    !CostsReachable(exploration.ResourceRatesPerSecond, resources))
+                    continue;
+                exploredInteriors.Add(sector);
+                changed = true;
+            }
+
             bool workshopSystemUnlocked = ContainsId(completedResearch, "IndustrialWorkshop");
             for (int i = 0; i < upgrades.Count; i++)
             {
-                WorkshopUpgrade upgrade = upgrades[i];
+                WorkshopUpgradeDef upgrade = upgrades[i];
                 if (upgrade == null || upgrade.TechLevel > validationCeiling ||
                     purchasedUpgrades.Contains(upgrade) || !workshopSystemUnlocked)
                     continue;
-                if (!AllContained(upgrade.RequiredResearch, completedResearch) ||
+                if (upgrade.TechLevel > techLevel ||
+                    (upgrade.RequiredBuilding != null && !availableBuildings.Contains(upgrade.RequiredBuilding)) ||
+                    (upgrade.RequiredSector != null && !reachableSectors.Contains(upgrade.RequiredSector)) ||
+                    !AllContained(upgrade.RequiredResearch, completedResearch) ||
                     !AllContained(upgrade.RequiredUpgrades, purchasedUpgrades) ||
                     !CostsReachable(upgrade.ResourceRequirements, resources))
                     continue;
@@ -219,11 +278,13 @@ public static class EconomyDependencyValidator
 
             for (int i = 0; i < buildings.Count; i++)
             {
-                Building building = buildings[i];
+                BuildingDef building = buildings[i];
                 if (building == null || building.TechLevel > validationCeiling ||
                     availableBuildings.Contains(building) || building.TechLevel > techLevel)
                     continue;
                 if (!AllContained(building.RequiredResearch, completedResearch) ||
+                    (building is SectorBuildingDef local && local.RequiresInteriorExploration &&
+                        !exploredInteriors.Contains(local.Sector)) ||
                     !AllContained(building.RequiredWorkshopUpgrades, purchasedUpgrades) ||
                     !CostsReachable(building.ResourceRequirements, resources) ||
                     !CostsReachable(building.ResourceConsumptionRates, resources))
@@ -231,7 +292,7 @@ public static class EconomyDependencyValidator
                 availableBuildings.Add(building);
                 for (int j = 0; j < building.ResourceGenerationRates.Count; j++)
                 {
-                    Resource output = building.ResourceGenerationRates[j].First;
+                    ResourceDef output = building.ResourceGenerationRates[j].First;
                     if (output != null)
                         resources.Add(output);
                 }
@@ -241,10 +302,10 @@ public static class EconomyDependencyValidator
         while (changed);
 
         var blockedDefinitions = new List<string>();
-        var tracedResearch = new HashSet<Research>();
+        var tracedResearch = new HashSet<ResearchDef>();
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i];
+            ResearchDef research = researches[i];
             if (research != null && research.TechLevel <= validationCeiling &&
                 !completedResearch.Contains(research))
             {
@@ -257,16 +318,16 @@ public static class EconomyDependencyValidator
         }
         for (int i = 0; i < upgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = upgrades[i];
+            WorkshopUpgradeDef upgrade = upgrades[i];
             if (upgrade != null && upgrade.TechLevel <= validationCeiling &&
                 !purchasedUpgrades.Contains(upgrade))
             {
-                blockedDefinitions.Add(DescribeBlockedUpgrade(upgrade, completedResearch, purchasedUpgrades, resources));
+                blockedDefinitions.Add(DescribeBlockedUpgrade(upgrade, completedResearch, purchasedUpgrades, resources, availableBuildings, reachableSectors));
             }
         }
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building != null && building.TechLevel <= validationCeiling &&
                 !availableBuildings.Contains(building))
             {
@@ -286,10 +347,10 @@ public static class EconomyDependencyValidator
     }
 
     private static string DescribeBlockedBuilding(
-        Building building,
-        HashSet<Research> research,
-        HashSet<WorkshopUpgrade> upgrades,
-        HashSet<Resource> resources)
+        BuildingDef building,
+        HashSet<ResearchDef> research,
+        HashSet<WorkshopUpgradeDef> upgrades,
+        HashSet<ResourceDef> resources)
     {
         for (int i = 0; i < building.RequiredResearch.Count; i++)
             if (!research.Contains(building.RequiredResearch[i]))
@@ -297,7 +358,7 @@ public static class EconomyDependencyValidator
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
             if (!upgrades.Contains(building.RequiredWorkshopUpgrades[i]))
                 return $"{building.Id} -> 需要工坊升级 {building.RequiredWorkshopUpgrades[i].Id} -> 工坊升级不可达";
-        Resource missing = FirstMissingCost(building.ResourceRequirements, resources);
+        ResourceDef missing = FirstMissingCost(building.ResourceRequirements, resources);
         if (missing == null)
             missing = FirstMissingCost(building.ResourceConsumptionRates, resources);
         return missing == null
@@ -306,10 +367,10 @@ public static class EconomyDependencyValidator
     }
 
     private static string DescribeBlockedResearch(
-        Research value,
-        HashSet<Research> research,
-        HashSet<Resource> resources,
-        HashSet<Research> tracedResearch)
+        ResearchDef value,
+        HashSet<ResearchDef> research,
+        HashSet<ResourceDef> resources,
+        HashSet<ResearchDef> tracedResearch)
     {
         for (int i = 0; i < value.Prerequisites.Count; i++)
             if (value.Prerequisites[i] == null || !research.Contains(value.Prerequisites[i]))
@@ -320,23 +381,23 @@ public static class EconomyDependencyValidator
                 AppendResearchTrace(
                     value,
                     research,
-                    new HashSet<Research>(),
+                    new HashSet<ResearchDef>(),
                     tracedResearch,
                     trace,
                     string.Empty);
                 return trace.ToString();
             }
-        Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
+        ResourceDef missing = FirstMissingCost(value.ResourceRequirements, resources);
         return missing == null
             ? $"{value.Id} -> 时代跃迁不可达"
             : $"{value.Id} -> 需要 {missing.Id} -> 没有可达的生产者";
     }
 
     private static void AppendResearchTrace(
-        Research value,
-        HashSet<Research> reachable,
-        HashSet<Research> visiting,
-        HashSet<Research> visited,
+        ResearchDef value,
+        HashSet<ResearchDef> reachable,
+        HashSet<ResearchDef> visiting,
+        HashSet<ResearchDef> visited,
         StringBuilder trace,
         string indent)
     {
@@ -355,7 +416,7 @@ public static class EconomyDependencyValidator
 
         for (int i = 0; i < value.Prerequisites.Count; i++)
         {
-            Research prerequisite = value.Prerequisites[i];
+            ResearchDef prerequisite = value.Prerequisites[i];
             if (prerequisite == null || reachable.Contains(prerequisite))
                 continue;
 
@@ -378,25 +439,30 @@ public static class EconomyDependencyValidator
     }
 
     private static string DescribeBlockedUpgrade(
-        WorkshopUpgrade value,
-        HashSet<Research> research,
-        HashSet<WorkshopUpgrade> upgrades,
-        HashSet<Resource> resources)
+        WorkshopUpgradeDef value,
+        HashSet<ResearchDef> research,
+        HashSet<WorkshopUpgradeDef> upgrades,
+        HashSet<ResourceDef> resources,
+        HashSet<BuildingDef> buildings, HashSet<SectorDef> sectors)
     {
+        if (value.RequiredBuilding != null && !buildings.Contains(value.RequiredBuilding))
+            return $"{value.Id} -> 需要建筑 {value.RequiredBuilding.Id} -> 建筑不可达";
+        if (value.RequiredSector != null && !sectors.Contains(value.RequiredSector))
+            return $"{value.Id} -> 需要占领星区 {value.RequiredSector.Id} -> 星区不可达";
         for (int i = 0; i < value.RequiredResearch.Count; i++)
             if (!research.Contains(value.RequiredResearch[i]))
                 return $"{value.Id} -> 需要研究 {value.RequiredResearch[i].Id} -> 研究不可达";
         for (int i = 0; i < value.RequiredUpgrades.Count; i++)
             if (!upgrades.Contains(value.RequiredUpgrades[i]))
                 return $"{value.Id} -> 需要工坊升级 {value.RequiredUpgrades[i].Id} -> 工坊升级不可达";
-        Resource missing = FirstMissingCost(value.ResourceRequirements, resources);
+        ResourceDef missing = FirstMissingCost(value.ResourceRequirements, resources);
         return missing == null
             ? $"{value.Id} -> 工业工坊系统尚未解锁"
             : $"{value.Id} -> 需要 {missing.Id} -> 没有可达的生产者";
     }
 
-    private static Resource FirstMissingCost(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs, HashSet<Resource> resources)
+    private static ResourceDef FirstMissingCost(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs, HashSet<ResourceDef> resources)
     {
         for (int i = 0; i < costs.Count; i++)
             if (costs[i].First != null && !resources.Contains(costs[i].First))
@@ -405,7 +471,7 @@ public static class EconomyDependencyValidator
     }
 
     private static bool CostsReachable(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs, HashSet<Resource> resources) =>
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs, HashSet<ResourceDef> resources) =>
         FirstMissingCost(costs, resources) == null;
 
     private static bool AllContained<T>(
@@ -417,29 +483,29 @@ public static class EconomyDependencyValidator
         return true;
     }
 
-    private static bool ContainsId(HashSet<Research> values, string id)
+    private static bool ContainsId(HashSet<ResearchDef> values, string id)
     {
-        foreach (Research value in values)
+        foreach (ResearchDef value in values)
             if (value != null && value.Id == id)
                 return true;
         return false;
     }
 
     private static bool ValidateBuildingPrerequisites(
-        IReadOnlyList<Building> buildings,
+        IReadOnlyList<BuildingDef> buildings,
         out string error)
     {
-        var research = new HashSet<Research>();
-        var upgrades = new HashSet<WorkshopUpgrade>();
+        var research = new HashSet<ResearchDef>();
+        var upgrades = new HashSet<WorkshopUpgradeDef>();
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null)
                 continue;
             research.Clear();
             for (int j = 0; j < building.RequiredResearch.Count; j++)
             {
-                Research value = building.RequiredResearch[j];
+                ResearchDef value = building.RequiredResearch[j];
                 if (value == null)
                 {
                     error = $"建筑“{building.Id}”包含空的研究前置条件。";
@@ -454,7 +520,7 @@ public static class EconomyDependencyValidator
             upgrades.Clear();
             for (int j = 0; j < building.RequiredWorkshopUpgrades.Count; j++)
             {
-                WorkshopUpgrade value = building.RequiredWorkshopUpgrades[j];
+                WorkshopUpgradeDef value = building.RequiredWorkshopUpgrades[j];
                 if (value == null)
                 {
                     error = $"建筑“{building.Id}”包含空的工坊前置条件。";
@@ -473,35 +539,35 @@ public static class EconomyDependencyValidator
 
 #if UNITY_EDITOR
     public static bool ValidateProductionGraphForEditor(
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings,
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings,
         out string error) =>
         ValidateProductionGraph(resources, buildings, out error);
 #endif
 
     private static bool ValidateProductionGraph(
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings,
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings,
         out string error)
     {
-        var graph = new Dictionary<Resource, List<Resource>>();
+        var graph = new Dictionary<ResourceDef, List<ResourceDef>>();
         for (int i = 0; i < resources.Count; i++)
             if (resources[i] != null)
-                graph[resources[i]] = new List<Resource>();
+                graph[resources[i]] = new List<ResourceDef>();
 
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null)
                 continue;
             for (int inputIndex = 0; inputIndex < building.ResourceConsumptionRates.Count; inputIndex++)
             {
-                Resource input = building.ResourceConsumptionRates[inputIndex].First;
+                ResourceDef input = building.ResourceConsumptionRates[inputIndex].First;
                 if (input == null)
                     continue;
                 for (int outputIndex = 0; outputIndex < building.ResourceGenerationRates.Count; outputIndex++)
                 {
-                    Resource output = building.ResourceGenerationRates[outputIndex].First;
+                    ResourceDef output = building.ResourceGenerationRates[outputIndex].First;
                     if (output != null && !graph[input].Contains(output))
                         graph[input].Add(output);
                 }
@@ -509,13 +575,13 @@ public static class EconomyDependencyValidator
         }
 
         var cycles = new HashSet<string>(StringComparer.Ordinal);
-        var visited = new HashSet<Resource>();
-        foreach (Resource resource in graph.Keys)
+        var visited = new HashSet<ResourceDef>();
+        foreach (ResourceDef resource in graph.Keys)
             FindProductionCycles(
                 resource,
                 graph,
-                new HashSet<Resource>(),
-                new List<Resource>(),
+                new HashSet<ResourceDef>(),
+                new List<ResourceDef>(),
                 cycles,
                 visited);
 
@@ -540,16 +606,16 @@ public static class EconomyDependencyValidator
 
     private static bool IsBootstrappableCycle(
         string cycle,
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings)
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings)
     {
         string[] ids = cycle.Split(new[] { " -> " }, StringSplitOptions.RemoveEmptyEntries);
-        var cycleResources = new HashSet<Resource>();
+        var cycleResources = new HashSet<ResourceDef>();
         for (int i = 0; i < ids.Length - 1; i++)
         {
             for (int resourceIndex = 0; resourceIndex < resources.Count; resourceIndex++)
             {
-                Resource resource = resources[resourceIndex];
+                ResourceDef resource = resources[resourceIndex];
                 if (resource != null && resource.Id == ids[i])
                 {
                     cycleResources.Add(resource);
@@ -563,7 +629,7 @@ public static class EconomyDependencyValidator
 
         for (int buildingIndex = 0; buildingIndex < buildings.Count; buildingIndex++)
         {
-            Building building = buildings[buildingIndex];
+            BuildingDef building = buildings[buildingIndex];
             if (building == null || !GeneratesAny(building, cycleResources))
                 continue;
 
@@ -572,7 +638,7 @@ public static class EconomyDependencyValidator
                  inputIndex < building.ResourceConsumptionRates.Count && !hasExternalInput;
                  inputIndex++)
             {
-                Resource input = building.ResourceConsumptionRates[inputIndex].First;
+                ResourceDef input = building.ResourceConsumptionRates[inputIndex].First;
                 if (input == null || !cycleResources.Contains(input))
                     hasExternalInput = true;
             }
@@ -584,11 +650,11 @@ public static class EconomyDependencyValidator
         return false;
     }
 
-    private static bool GeneratesAny(Building building, HashSet<Resource> resources)
+    private static bool GeneratesAny(BuildingDef building, HashSet<ResourceDef> resources)
     {
         for (int outputIndex = 0; outputIndex < building.ResourceGenerationRates.Count; outputIndex++)
         {
-            Resource output = building.ResourceGenerationRates[outputIndex].First;
+            ResourceDef output = building.ResourceGenerationRates[outputIndex].First;
             if (output != null && resources.Contains(output))
                 return true;
         }
@@ -597,12 +663,12 @@ public static class EconomyDependencyValidator
     }
 
     private static void FindProductionCycles(
-        Resource current,
-        Dictionary<Resource, List<Resource>> graph,
-        HashSet<Resource> pathSet,
-        List<Resource> path,
+        ResourceDef current,
+        Dictionary<ResourceDef, List<ResourceDef>> graph,
+        HashSet<ResourceDef> pathSet,
+        List<ResourceDef> path,
         HashSet<string> cycles,
-        HashSet<Resource> visited)
+        HashSet<ResourceDef> visited)
     {
         if (visited.Contains(current))
             return;
@@ -615,7 +681,7 @@ public static class EconomyDependencyValidator
         }
         pathSet.Add(current);
         path.Add(current);
-        List<Resource> outputs = graph[current];
+        List<ResourceDef> outputs = graph[current];
         for (int i = 0; i < outputs.Count; i++)
             FindProductionCycles(outputs[i], graph, pathSet, path, cycles, visited);
         path.RemoveAt(path.Count - 1);
@@ -623,7 +689,7 @@ public static class EconomyDependencyValidator
         visited.Add(current);
     }
 
-    private static string CanonicalizeCycle(List<Resource> path, int startIndex)
+    private static string CanonicalizeCycle(List<ResourceDef> path, int startIndex)
     {
         int count = path.Count - startIndex;
         var ids = new string[count];
@@ -656,25 +722,25 @@ public static class EconomyDependencyValidator
     }
 
     private static bool ValidateDirectUnlockDeadlocks(
-        IReadOnlyList<Building> buildings,
-        IReadOnlyList<Research> researches,
-        IReadOnlyList<WorkshopUpgrade> upgrades,
+        IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<ResearchDef> researches,
+        IReadOnlyList<WorkshopUpgradeDef> upgrades,
         out string error)
     {
-        var producers = new Dictionary<Resource, List<Building>>();
+        var producers = new Dictionary<ResourceDef, List<BuildingDef>>();
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null)
                 continue;
             for (int j = 0; j < building.ResourceGenerationRates.Count; j++)
             {
-                Resource resource = building.ResourceGenerationRates[j].First;
+                ResourceDef resource = building.ResourceGenerationRates[j].First;
                 if (resource == null)
                     continue;
-                if (!producers.TryGetValue(resource, out List<Building> values))
+                if (!producers.TryGetValue(resource, out List<BuildingDef> values))
                 {
-                    values = new List<Building>();
+                    values = new List<BuildingDef>();
                     producers.Add(resource, values);
                 }
                 values.Add(building);
@@ -683,12 +749,12 @@ public static class EconomyDependencyValidator
 
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null)
                 continue;
             for (int j = 0; j < building.ResourceRequirements.Count; j++)
             {
-                Resource resource = building.ResourceRequirements[j].First;
+                ResourceDef resource = building.ResourceRequirements[j].First;
                 if (OnlyProducerIs(producers, resource, building))
                 {
                     error = $"{building.Id} -> 需要 {resource.Id} -> 该资源只能由自身生产";
@@ -697,10 +763,10 @@ public static class EconomyDependencyValidator
             }
             for (int u = 0; u < building.RequiredWorkshopUpgrades.Count; u++)
             {
-                WorkshopUpgrade upgrade = building.RequiredWorkshopUpgrades[u];
+                WorkshopUpgradeDef upgrade = building.RequiredWorkshopUpgrades[u];
                 for (int j = 0; j < upgrade.ResourceRequirements.Count; j++)
                 {
-                    Resource resource = upgrade.ResourceRequirements[j].First;
+                    ResourceDef resource = upgrade.ResourceRequirements[j].First;
                     if (OnlyProducerIs(producers, resource, building))
                     {
                         error = $"{building.Id} -> 需要工坊升级 {upgrade.Id} -> 消耗 {resource.Id} " +
@@ -711,10 +777,10 @@ public static class EconomyDependencyValidator
             }
             for (int r = 0; r < building.RequiredResearch.Count; r++)
             {
-                Research research = building.RequiredResearch[r];
+                ResearchDef research = building.RequiredResearch[r];
                 for (int j = 0; j < research.ResourceRequirements.Count; j++)
                 {
-                    Resource resource = research.ResourceRequirements[j].First;
+                    ResourceDef resource = research.ResourceRequirements[j].First;
                     if (OnlyProducerIs(producers, resource, building))
                     {
                         error = $"{building.Id} -> 需要研究 {research.Id} -> 消耗 {resource.Id} " +
@@ -730,12 +796,12 @@ public static class EconomyDependencyValidator
     }
 
     private static bool OnlyProducerIs(
-        Dictionary<Resource, List<Building>> producers,
-        Resource resource,
-        Building building) =>
+        Dictionary<ResourceDef, List<BuildingDef>> producers,
+        ResourceDef resource,
+        BuildingDef building) =>
         resource != null &&
         resource.Id != ResourceManager.StartingResourceId &&
-        producers.TryGetValue(resource, out List<Building> values) &&
+        producers.TryGetValue(resource, out List<BuildingDef> values) &&
         values.Count == 1 &&
         values[0] == building;
 }

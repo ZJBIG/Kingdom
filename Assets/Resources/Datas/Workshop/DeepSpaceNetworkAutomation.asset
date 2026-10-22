@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DeepSpaceNetworkAutomation
   m_EditorClassIdentifier: 
   id: DeepSpaceNetworkAutomation
+  icon: {fileID: 21300000, guid: 475feff7605777043b6263db101bc1d2, type: 3}
   Label: "深空网络自动化"
   Description: "自动校准中继信号并远程排除故障，提高深空通信中继站的物流供给。"
   SortOrder: 440

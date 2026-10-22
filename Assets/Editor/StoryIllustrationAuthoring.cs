@@ -52,7 +52,7 @@ public static class StoryIllustrationAuthoring
         StoryArchiveDefinition archive = LoadArchive();
         for (int i = 0; i < archive.Chapters.Count; i++)
         {
-            StoryChapterDefinition chapter = archive.Chapters[i];
+            StoryChapterDef chapter = archive.Chapters[i];
             var serialized = new SerializedObject(chapter);
             SerializedProperty illustration = serialized.FindProperty("illustration");
             if (illustration == null)
@@ -78,7 +78,7 @@ public static class StoryIllustrationAuthoring
         return archive;
     }
 
-    private static string IllustrationPath(StoryChapterDefinition chapter) =>
+    private static string IllustrationPath(StoryChapterDef chapter) =>
         "Assets/Resources/Art/Story/Story_" + chapter.name + "_Main.png";
 
     [MenuItem("Tools/Kingdom/Story/Author Background Cards And Preview")]

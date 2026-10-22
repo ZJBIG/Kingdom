@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutonomousSurveyDrones
   m_EditorClassIdentifier: 
   id: AutonomousSurveyDrones
+  icon: {fileID: 21300000, guid: f24327cf09a0e7e41a29572e5c554dec, type: 3}
   Label: "\u81EA\u52A8\u6D4B\u7ED8\u65E0\u4EBA\u673A"
   Description: "\u7528\u949B\u5408\u91D1\u9AA8\u67B6\u3001\u4F4E\u6E29\u7535\u5B50\u5B66\u3001\u91CF\u5B50\u7EA0\u9519\u548C\u5E7D\u5F71\u7EA4\u7EF4\u5236\u9020\u6DF1\u7A7A\u6D4B\u7ED8\u65E0\u4EBA\u673A\uFF0C\u63D0\u9AD8\u89C2\u6D4B\u7AD9\u7684\u7814\u7A76\u548C\u63A2\u7D22\u6548\u7387\u3002"
   SortOrder: 530

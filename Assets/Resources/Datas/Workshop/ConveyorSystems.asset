@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ConveyorSystems
   m_EditorClassIdentifier: 
   id: ConveyorSystems
+  icon: {fileID: 21300000, guid: efee8363601077e4ea6ae650cc1514ef, type: 3}
   Label: "\u4F20\u9001\u7CFB\u7EDF"
   Description: "用皮带、滚筒与分料设备组织连续运输，提高全局物流供给。"
   SortOrder: 160

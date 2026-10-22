@@ -7,22 +7,22 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_InitialSectorChainContainsStableIdsAndPrerequisites()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
-        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef mars = DataBase<SectorDef>.Find("Terminus");
+        SectorDef alpha = DataBase<SectorDef>.Find("AlphaCentauri");
 
         Assert.That(lowOrbit.Id, Is.EqualTo("DawnRing"));
         Assert.That(moon.Id, Is.EqualTo("AzurePool"));
         Assert.That(mars.Id, Is.EqualTo("Terminus"));
-        Assert.That(alpha.Domain, Is.EqualTo(SectorDefinition.SectorDomain.Interstellar));
+        Assert.That(alpha.Domain, Is.EqualTo(SectorDef.SectorDomain.Interstellar));
         Assert.That(alpha.StarSystemId, Is.EqualTo("AlphaCentauri"));
         Assert.That(lowOrbit.PrerequisiteSectors, Is.Empty);
         Assert.That(moon.PrerequisiteSectors, Has.Count.EqualTo(1));
         Assert.That(moon.PrerequisiteSectors[0].Id, Is.EqualTo("DawnRing"));
         Assert.That(mars.PrerequisiteSectors, Has.Count.EqualTo(1));
         Assert.That(mars.PrerequisiteSectors[0].Id, Is.EqualTo("AzurePool"));
-        foreach (SectorDefinition sector in new[] { lowOrbit, moon, mars })
+        foreach (SectorDef sector in new[] { lowOrbit, moon, mars })
         {
             Assert.That(sector.EnemyPower, Is.EqualTo(ExpantaNum.Zero), sector.Id);
             Assert.That(sector.CampaignFoodPerSecond, Is.EqualTo(ExpantaNum.Zero), sector.Id);
@@ -35,10 +35,10 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_InterstellarBranchesKeepTheProximaBPrerequisite()
     {
-        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
-        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
-        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef alpha = DataBase<SectorDef>.Find("AlphaCentauri");
+        SectorDef proxima = DataBase<SectorDef>.Find("ProximaB");
+        SectorDef tau = DataBase<SectorDef>.Find("TauCetiFoundry");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(proxima.PrerequisiteSectors, Has.Count.EqualTo(1));
         Assert.That(proxima.PrerequisiteSectors[0].Id, Is.EqualTo(alpha.Id));
@@ -53,7 +53,7 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 占领星区必须提供持续资源产出而不是只有一次性奖励()
     {
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             if (sector == null)
                 continue;
@@ -78,10 +78,10 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 本星系中后期开拓必须持续消耗食物与工业资源()
     {
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef mars = DataBase<SectorDef>.Find("Terminus");
 
-        foreach (SectorDefinition sector in new[] { moon, mars })
+        foreach (SectorDef sector in new[] { moon, mars })
         {
             Assert.That(sector.ColonizationFoodPerSecond, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
             Assert.That(sector.ColonizationResourceRatesPerSecond, Has.Count.GreaterThanOrEqualTo(3), sector.Id);
@@ -101,8 +101,8 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 火星开拓成本必须高于月球开拓成本()
     {
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef mars = DataBase<SectorDef>.Find("Terminus");
 
         Assert.That(mars.ColonizationDurationSeconds, Is.GreaterThan(moon.ColonizationDurationSeconds));
         Assert.That(mars.ColonizationFoodPerSecond, Is.GreaterThan(moon.ColonizationFoodPerSecond));
@@ -115,7 +115,7 @@ public sealed class SectorDefinitionTests
     public void C701_AllCurrentSectorDefinitionsPassRuntimeValidation()
     {
         Assert.That(
-            SectorValidator.ValidateDefinitions(DataBase<SectorDefinition>.All, out string error),
+            SectorValidator.ValidateDefinitions(DataBase<SectorDef>.All, out string error),
             Is.True,
             error);
     }
@@ -123,11 +123,11 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_SectorCycleValidationReportsAllIndependentCycles()
     {
-        SectorDefinition a = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
-        SectorDefinition b = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
-        SectorDefinition c = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
-        SectorDefinition d = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
-        SectorDefinition e = UnityEngine.ScriptableObject.CreateInstance<SectorDefinition>();
+        SectorDef a = UnityEngine.ScriptableObject.CreateInstance<SectorDef>();
+        SectorDef b = UnityEngine.ScriptableObject.CreateInstance<SectorDef>();
+        SectorDef c = UnityEngine.ScriptableObject.CreateInstance<SectorDef>();
+        SectorDef d = UnityEngine.ScriptableObject.CreateInstance<SectorDef>();
+        SectorDef e = UnityEngine.ScriptableObject.CreateInstance<SectorDef>();
         try
         {
             a.SetIdForEditor("A");
@@ -135,11 +135,11 @@ public sealed class SectorDefinitionTests
             c.SetIdForEditor("C");
             d.SetIdForEditor("D");
             e.SetIdForEditor("E");
-            a.SetPrerequisitesForEditor(new List<SectorDefinition> { b });
-            b.SetPrerequisitesForEditor(new List<SectorDefinition> { c });
-            c.SetPrerequisitesForEditor(new List<SectorDefinition> { a });
-            d.SetPrerequisitesForEditor(new List<SectorDefinition> { e });
-            e.SetPrerequisitesForEditor(new List<SectorDefinition> { d });
+            a.SetPrerequisitesForEditor(new List<SectorDef> { b });
+            b.SetPrerequisitesForEditor(new List<SectorDef> { c });
+            c.SetPrerequisitesForEditor(new List<SectorDef> { a });
+            d.SetPrerequisitesForEditor(new List<SectorDef> { e });
+            e.SetPrerequisitesForEditor(new List<SectorDef> { d });
 
             Assert.That(
                 SectorValidator.ValidateNoCycles(new[] { a, b, c, d, e }, out string error),
@@ -157,11 +157,11 @@ public sealed class SectorDefinitionTests
         }
     }
 
-    private static ExpantaNum FindColonizationRate(SectorDefinition sector, string resourceId)
+    private static ExpantaNum FindColonizationRate(SectorDef sector, string resourceId)
     {
         for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = sector.ColonizationResourceRatesPerSecond[i];
+            Pair<ResourceDef, ExpantaNum> pair = sector.ColonizationResourceRatesPerSecond[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second;
         }
@@ -171,7 +171,7 @@ public sealed class SectorDefinitionTests
     [Test]
     public void InterstellarCampaignsKeepLayeredContinuousLogistics()
     {
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             if (sector == null || sector.IsHomeSystem)
                 continue;
@@ -197,7 +197,7 @@ public sealed class SectorDefinitionTests
     [Test]
     public void InterstellarCampaignsRequireLongSustainedAdvance()
     {
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             if (sector == null || sector.IsHomeSystem || sector.CampaignProgressMultiplier <= ExpantaNum.Zero)
                 continue;
@@ -213,13 +213,13 @@ public sealed class SectorDefinitionTests
     [Test]
     public void 星际战役按星区层级递进使用高级材料()
     {
-        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
-        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
-        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef alpha = DataBase<SectorDef>.Find("AlphaCentauri");
+        SectorDef proxima = DataBase<SectorDef>.Find("ProximaB");
+        SectorDef tau = DataBase<SectorDef>.Find("TauCetiFoundry");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(CountAdvancedMaterials(alpha.CampaignResourceRatesPerSecond), Is.GreaterThanOrEqualTo(2));
-        foreach (SectorDefinition sector in new[] { proxima, tau, sirius })
+        foreach (SectorDef sector in new[] { proxima, tau, sirius })
         {
             Assert.That(CountAdvancedMaterials(sector.OccupiedResourceRatesPerSecond), Is.GreaterThanOrEqualTo(2), sector.Id);
             Assert.That(CountAdvancedMaterials(sector.CampaignResourceRatesPerSecond), Is.GreaterThanOrEqualTo(3), sector.Id);
@@ -232,14 +232,14 @@ public sealed class SectorDefinitionTests
         Assert.That(proxima.TerritoryReward, Is.LessThan(sirius.TerritoryReward));
     }
 
-    private static int CountAdvancedMaterials(IReadOnlyList<Pair<Resource, ExpantaNum>> rates)
+    private static int CountAdvancedMaterials(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates)
     {
         if (rates == null)
             return 0;
         int count = 0;
         for (int i = 0; i < rates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = rates[i];
+            Pair<ResourceDef, ExpantaNum> pair = rates[i];
             if (pair != null && pair.First != null && pair.Second > ExpantaNum.Zero &&
                 (pair.First.Id == "TitaniumAlloy" ||
                  pair.First.Id == "Composite" ||
@@ -251,11 +251,11 @@ public sealed class SectorDefinitionTests
         return count;
     }
 
-    private static ExpantaNum FindCampaignRate(SectorDefinition sector, string resourceId)
+    private static ExpantaNum FindCampaignRate(SectorDef sector, string resourceId)
     {
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = sector.CampaignResourceRatesPerSecond[i];
+            Pair<ResourceDef, ExpantaNum> pair = sector.CampaignResourceRatesPerSecond[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second;
         }
@@ -265,7 +265,7 @@ public sealed class SectorDefinitionTests
     [Test]
     public void C701_InterstellarNavigationResearchOwnsTheStarRouteUnlock()
     {
-        Research navigation = DataBase<Research>.Find("InterstellarNavigation");
+        ResearchDef navigation = DataBase<ResearchDef>.Find("InterstellarNavigation");
         Assert.That(navigation.Effects, Has.Some.Matches<ResearchEffectDefinition>(
             effect => effect != null &&
                 effect.Type == ResearchEffectType.UnlockInterstellarNavigation));

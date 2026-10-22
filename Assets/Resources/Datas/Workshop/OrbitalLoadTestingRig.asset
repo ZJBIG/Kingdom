@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalLoadTestingRig
   m_EditorClassIdentifier: 
   id: OrbitalLoadTestingRig
+  icon: {fileID: 21300000, guid: 42ee901613c03494b8c4bdb93682a464, type: 3}
   Label: "\u8f68\u9053\u8f7d\u8377\u6d4b\u8bd5\u5de5\u88c5"
   Description: "用振动与载荷测试减少返工，提高轨道居住巨构的建造效率，降低其建造材料需求。"
   SortOrder: 580

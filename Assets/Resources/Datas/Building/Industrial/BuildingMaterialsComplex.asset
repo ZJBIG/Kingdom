@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: BuildingMaterialsComplex
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 4e9f579164b740f5a69310ac20fa620a, type: 3}
   id: BuildingMaterialsComplex
   Label: "\u5EFA\u7B51\u6750\u6599\u8054\u5408\u5382"
   Description: "整合玻璃、陶瓷与混凝土生产，供应工业建筑和深空建设。"

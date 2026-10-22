@@ -15,7 +15,8 @@ public enum BuildFailure
     BuildingTierSuperseded,
     UpgradeUnavailable,
     SectorNotOccupied,
-    BuildingLimitReached
+    BuildingLimitReached,
+    InteriorExplorationIncomplete
 }
 
 public sealed class BuildingDeconstructionPreview
@@ -25,15 +26,15 @@ public sealed class BuildingDeconstructionPreview
     public ExpantaNum PopulationCapacityRemoved { get; }
     public ExpantaNum FoodCapacityRemoved { get; }
     public ExpantaNum FoodOverflow { get; }
-    public IReadOnlyDictionary<Resource, ExpantaNum> Refunds { get; }
+    public IReadOnlyDictionary<ResourceDef, ExpantaNum> Refunds { get; }
     internal BuildingDeconstructionPreview(ExpantaNum amount, ExpantaNum productivity,
         ExpantaNum population, ExpantaNum capacity, ExpantaNum overflow,
-        Dictionary<Resource, ExpantaNum> refunds)
+        Dictionary<ResourceDef, ExpantaNum> refunds)
     {
         Amount = amount; ProductivityReleased = productivity;
         PopulationCapacityRemoved = population; FoodCapacityRemoved = capacity;
         FoodOverflow = overflow;
-        Refunds = new System.Collections.ObjectModel.ReadOnlyDictionary<Resource, ExpantaNum>(refunds);
+        Refunds = new System.Collections.ObjectModel.ReadOnlyDictionary<ResourceDef, ExpantaNum>(refunds);
     }
 }
 
@@ -76,16 +77,16 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     private static bool IsBuildResourceCostWithinBoundary(
-        Building building,
+        BuildingDef building,
         BuildingState state,
         ExpantaNum amount)
     {
-        var costs = new Dictionary<Resource, ExpantaNum>();
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        var costs = new Dictionary<ResourceDef, ExpantaNum>();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = building.ResourceRequirements;
         ExpantaNum multiplier = GetConstructionCostMultiplier(building);
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = requirements[i];
             ExpantaNum cost = pair.Second.GeometricSeriesCost(
                 building.CostGrowth,
                 state.Amount,
@@ -97,7 +98,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 : cost;
         }
 
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in costs)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in costs)
         {
             if (ExceedsBuildBoundary(
                     entry.Value,
@@ -116,14 +117,14 @@ public class BuildingManager : Singleton<BuildingManager>
 
     private const double UpgradeRecoveryRate = 0.8d;
     private const int UpgradeBinarySearchLimit = 256;
-    private readonly Dictionary<Building, BuildingState> states = new();
+    private readonly Dictionary<BuildingDef, BuildingState> states = new();
     private readonly List<BuildingState> orderedStates = new();
     private readonly List<BuildingState> activeBuildingStates = new();
     private readonly HashSet<BuildingState> activeBuildingStateSet = new();
     private readonly HashSet<BuildingState> budgetBuildings = new();
-    private readonly HashSet<Resource> budgetResources = new();
-    private readonly Dictionary<Resource, ExpantaNum> budgetProduction = new();
-    private readonly Dictionary<Resource, ExpantaNum> budgetConsumption = new();
+    private readonly HashSet<ResourceDef> budgetResources = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> budgetProduction = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> budgetConsumption = new();
     private readonly List<BudgetResourceInput> budgetResourceInputs = new();
     private readonly struct BudgetResourceInput
     {
@@ -141,16 +142,16 @@ public class BuildingManager : Singleton<BuildingManager>
             ExternalProduction = externalProduction;
         }
     }
-    private readonly Dictionary<Resource, ExpantaNum> candidateProduction = new();
-    private readonly Dictionary<Resource, ExpantaNum> candidateConsumption = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> candidateProduction = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> candidateConsumption = new();
     private ExpantaNum budgetPowerProduction, budgetPowerConsumption;
     private ExpantaNum budgetLogisticsProduction, budgetLogisticsConsumption;
-    private readonly List<Pair<Resource, ExpantaNum>> upgradeAffordabilityDeltas = new();
+    private readonly List<Pair<ResourceDef, ExpantaNum>> upgradeAffordabilityDeltas = new();
     // 一个升级目标可以由多个分支汇聚而来，因此这里必须保留全部前置建筑。
-    private readonly Dictionary<Building, List<Building>> chainPredecessors = new();
-    private readonly HashSet<Building> chainMembers = new();
-    private readonly HashSet<Building> chainRoots = new();
-    private readonly Dictionary<SectorDefinition, List<SectorBuilding>> sectorBuildingsBySector = new();
+    private readonly Dictionary<BuildingDef, List<BuildingDef>> chainPredecessors = new();
+    private readonly HashSet<BuildingDef> chainMembers = new();
+    private readonly HashSet<BuildingDef> chainRoots = new();
+    private readonly Dictionary<SectorDef, List<SectorBuildingDef>> sectorBuildingsBySector = new();
     private bool chainIndexInitialized;
     // FindObjectOfType scans the whole scene and is far too expensive to run
     // on every prerequisite check; ArePrerequisitesMet is called from UI
@@ -164,7 +165,7 @@ public class BuildingManager : Singleton<BuildingManager>
     internal int LastActiveBuildingCount { get; private set; }
     internal int ResearchPowerRebuildCount { get; private set; }
 
-    public IReadOnlyDictionary<Building, BuildingState> States => states;
+    public IReadOnlyDictionary<BuildingDef, BuildingState> States => states;
     internal IReadOnlyList<BuildingState> OrderedStates => orderedStates;
     public ExpantaNum TotalProductivity =>
         ExpantaNum.Max(ExpantaNum.Zero, CalculateRawTotalProductivity());
@@ -215,31 +216,31 @@ public class BuildingManager : Singleton<BuildingManager>
 
     internal void InitializeStartingBuildings()
     {
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
         RebuildBuildingChainIndex(GetBuildingDefinitionsForIndex(definitions));
         for (int i = 0; i < definitions.Count; i++)
             EnsureBuilding(definitions[i]);
     }
 
-    private static IReadOnlyList<Building> GetBuildingDefinitionsForIndex(
-        IReadOnlyList<Building> definitions)
+    private static IReadOnlyList<BuildingDef> GetBuildingDefinitionsForIndex(
+        IReadOnlyList<BuildingDef> definitions)
     {
-        List<Building> indexedDefinitions = new(definitions.Count + DataBase<SectorBuilding>.All.Count);
+        List<BuildingDef> indexedDefinitions = new(definitions.Count + DataBase<SectorBuildingDef>.All.Count);
         for (int i = 0; i < definitions.Count; i++)
             if (definitions[i] != null)
                 indexedDefinitions.Add(definitions[i]);
 
-        IReadOnlyList<SectorBuilding> sectorBuildings = DataBase<SectorBuilding>.All;
+        IReadOnlyList<SectorBuildingDef> sectorBuildings = DataBase<SectorBuildingDef>.All;
         for (int i = 0; i < sectorBuildings.Count; i++)
         {
-            SectorBuilding sectorBuilding = sectorBuildings[i];
+            SectorBuildingDef sectorBuilding = sectorBuildings[i];
             if (sectorBuilding != null && !indexedDefinitions.Contains(sectorBuilding))
                 indexedDefinitions.Add(sectorBuilding);
         }
         return indexedDefinitions;
     }
 
-    public static void ValidateBuildingChains(IReadOnlyList<Building> definitions)
+    public static void ValidateBuildingChains(IReadOnlyList<BuildingDef> definitions)
     {
         if (definitions == null)
             throw new ArgumentNullException(nameof(definitions));
@@ -247,20 +248,20 @@ public class BuildingManager : Singleton<BuildingManager>
         ValidateMergedResourceFlows(definitions);
         for (int i = 0; i < definitions.Count; i++)
         {
-            if (definitions[i] is SectorBuilding sectorBuilding)
-                SectorBuilding.Validate(sectorBuilding);
+            if (definitions[i] is SectorBuildingDef sectorBuilding)
+                SectorBuildingDef.Validate(sectorBuilding);
         }
 
-        var definitionSet = new HashSet<Building>();
+        var definitionSet = new HashSet<BuildingDef>();
         for (int i = 0; i < definitions.Count; i++)
             if (definitions[i] != null)
                 definitionSet.Add(definitions[i]);
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building source = definitions[i];
+            BuildingDef source = definitions[i];
             if (source == null || source.UpgradeTo == null)
                 continue;
-            Building target = source.UpgradeTo;
+            BuildingDef target = source.UpgradeTo;
             if (!definitionSet.Contains(target))
                 throw new InvalidOperationException(
                     $"建筑升级链“{source.Id}”指向了未加载的定义。");
@@ -269,18 +270,18 @@ public class BuildingManager : Singleton<BuildingManager>
                     $"建筑升级链“{source.Id}”不能升级到自身。");
             ValidateChainEconomy(source);
             ValidateChainEconomy(target);
-            if (target is SectorBuilding)
+            if (target is SectorBuildingDef)
                 throw new InvalidOperationException(
                     $"Building '{source.Id}' cannot upgrade to sector building '{target.Id}'.");
         }
 
-        var visited = new HashSet<Building>();
-        var visiting = new HashSet<Building>();
+        var visited = new HashSet<BuildingDef>();
+        var visiting = new HashSet<BuildingDef>();
         for (int i = 0; i < definitions.Count; i++)
             ValidateChainNode(definitions[i], visited, visiting);
     }
 
-    public static void ValidateMergedResourceFlows(IReadOnlyList<Building> definitions)
+    public static void ValidateMergedResourceFlows(IReadOnlyList<BuildingDef> definitions)
     {
         if (definitions == null)
             throw new ArgumentNullException(nameof(definitions));
@@ -291,16 +292,16 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
 
-    private static void ValidateChainEconomy(Building building)
+    private static void ValidateChainEconomy(BuildingDef building)
     {
         if (!building.HasValidCostGrowth)
             throw new InvalidOperationException(
                 $"建筑升级链成员“{building.Id}”的成本增长倍率无效。");
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             building.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
             if (requirement.First == null)
                 throw new InvalidOperationException(
                     $"建筑升级链成员“{building.Id}”的资源引用为空。");
@@ -312,9 +313,9 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     private static void ValidateChainNode(
-        Building building,
-        HashSet<Building> visited,
-        HashSet<Building> visiting)
+        BuildingDef building,
+        HashSet<BuildingDef> visited,
+        HashSet<BuildingDef> visiting)
     {
         if (building == null || visited.Contains(building))
             return;
@@ -327,13 +328,13 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
 #if UNITY_EDITOR
-    public void RebuildBuildingChainIndexForEditor(IReadOnlyList<Building> definitions) =>
+    public void RebuildBuildingChainIndexForEditor(IReadOnlyList<BuildingDef> definitions) =>
         RebuildBuildingChainIndex(definitions);
-    public int GetChainPredecessorCountForEditor(Building target) =>
-        chainPredecessors.TryGetValue(target, out List<Building> predecessors)
+    public int GetChainPredecessorCountForEditor(BuildingDef target) =>
+        chainPredecessors.TryGetValue(target, out List<BuildingDef> predecessors)
             ? predecessors.Count
             : 0;
-    public static ExpantaNum GetConstructionCostMultiplierForEditor(Building building) =>
+    public static ExpantaNum GetConstructionCostMultiplierForEditor(BuildingDef building) =>
         GetConstructionCostMultiplier(building);
     public void PrepareTickResourceSatisfactionForEditor(double deltaSeconds) =>
         PrepareTickResourceSatisfaction(deltaSeconds);
@@ -354,7 +355,7 @@ public class BuildingManager : Singleton<BuildingManager>
         SetAmountAndRates(state, newAmount);
 #endif
 
-    private void RebuildBuildingChainIndex(IReadOnlyList<Building> definitions)
+    private void RebuildBuildingChainIndex(IReadOnlyList<BuildingDef> definitions)
     {
         ValidateBuildingChains(definitions);
         chainPredecessors.Clear();
@@ -363,12 +364,12 @@ public class BuildingManager : Singleton<BuildingManager>
         sectorBuildingsBySector.Clear();
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building source = definitions[i];
+            BuildingDef source = definitions[i];
             if (source == null || source.UpgradeTo == null)
                 continue;
-            if (!chainPredecessors.TryGetValue(source.UpgradeTo, out List<Building> predecessors))
+            if (!chainPredecessors.TryGetValue(source.UpgradeTo, out List<BuildingDef> predecessors))
             {
-                predecessors = new List<Building>();
+                predecessors = new List<BuildingDef>();
                 chainPredecessors.Add(source.UpgradeTo, predecessors);
             }
             predecessors.Add(source);
@@ -377,18 +378,18 @@ public class BuildingManager : Singleton<BuildingManager>
         }
         for (int i = 0; i < definitions.Count; i++)
         {
-            if (definitions[i] is not SectorBuilding sectorBuilding)
+            if (definitions[i] is not SectorBuildingDef sectorBuilding)
                 continue;
             if (!sectorBuildingsBySector.TryGetValue(
                     sectorBuilding.Sector,
-                    out List<SectorBuilding> buildings))
+                    out List<SectorBuildingDef> buildings))
             {
-                buildings = new List<SectorBuilding>();
+                buildings = new List<SectorBuildingDef>();
                 sectorBuildingsBySector.Add(sectorBuilding.Sector, buildings);
             }
             buildings.Add(sectorBuilding);
         }
-        foreach (Building member in chainMembers)
+        foreach (BuildingDef member in chainMembers)
             if (!chainPredecessors.ContainsKey(member))
                 chainRoots.Add(member);
         chainIndexInitialized = true;
@@ -398,10 +399,10 @@ public class BuildingManager : Singleton<BuildingManager>
     {
         if (!chainIndexInitialized)
             RebuildBuildingChainIndex(
-                GetBuildingDefinitionsForIndex(DataBase<Building>.All));
+                GetBuildingDefinitionsForIndex(DataBase<BuildingDef>.All));
     }
 
-    public BuildingState EnsureBuilding(Building building)
+    public BuildingState EnsureBuilding(BuildingDef building)
     {
         if (building == null)
             throw new ArgumentNullException(nameof(building));
@@ -418,7 +419,7 @@ public class BuildingManager : Singleton<BuildingManager>
         return state;
     }
 
-    public BuildingState GetState(Building building)
+    public BuildingState GetState(BuildingDef building)
     {
         if (building == null)
             throw new ArgumentNullException(nameof(building));
@@ -427,14 +428,14 @@ public class BuildingManager : Singleton<BuildingManager>
         throw new KeyNotFoundException($"建筑状态“{building.Id}”尚未创建。");
     }
 
-    private bool TryGetStateByStableId(Building building, out BuildingState state)
+    private bool TryGetStateByStableId(BuildingDef building, out BuildingState state)
     {
         state = null;
         if (building == null)
             return false;
         if (states.TryGetValue(building, out state))
             return true;
-        foreach (KeyValuePair<Building, BuildingState> entry in states)
+        foreach (KeyValuePair<BuildingDef, BuildingState> entry in states)
         {
             if (entry.Key != null && string.Equals(
                     entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
@@ -448,16 +449,16 @@ public class BuildingManager : Singleton<BuildingManager>
         return false;
     }
 
-    private Building ResolveBuildingDefinition(Building building)
+    private BuildingDef ResolveBuildingDefinition(BuildingDef building)
     {
         if (TryGetStateByStableId(building, out BuildingState state))
             return state.Definition;
-        if (building != null && DataBase<Building>.TryFind(building.Id, out Building definition))
+        if (building != null && DataBase<BuildingDef>.TryFind(building.Id, out BuildingDef definition))
             return definition;
         return building;
     }
 
-    public bool ArePrerequisitesMet(Building building, out BuildFailure failure)
+    public bool ArePrerequisitesMet(BuildingDef building, out BuildFailure failure)
     {
         building = ResolveBuildingDefinition(building);
         if (building == null)
@@ -471,7 +472,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        if (building is SectorBuilding sectorBuilding)
+        if (building is SectorBuildingDef sectorBuilding)
         {
             SectorState sectorState = GameManager.Instance.Sectors.GetState(sectorBuilding.Sector);
             if (!sectorState.Occupied)
@@ -479,12 +480,17 @@ public class BuildingManager : Singleton<BuildingManager>
                 failure = BuildFailure.SectorNotOccupied;
                 return false;
             }
+            if (sectorBuilding.RequiresInteriorExploration && !sectorState.InteriorExplorationCompleted)
+            {
+                failure = BuildFailure.InteriorExplorationIncomplete;
+                return false;
+            }
         }
 
-        IReadOnlyList<Research> requiredResearch = building.RequiredResearch;
+        IReadOnlyList<ResearchDef> requiredResearch = building.RequiredResearch;
         for (int i = 0; i < requiredResearch.Count; i++)
         {
-            Research research = requiredResearch[i];
+            ResearchDef research = requiredResearch[i];
             if (research == null || !ResearchManager.Instance.IsResearchCompleted(research.Id))
             {
                 failure = BuildFailure.ResearchPrerequisiteIncomplete;
@@ -495,10 +501,10 @@ public class BuildingManager : Singleton<BuildingManager>
         WorkshopManager workshop = cachedWorkshopManager;
         if (workshop == null)
             workshop = cachedWorkshopManager = FindObjectOfType<WorkshopManager>();
-        IReadOnlyList<WorkshopUpgrade> requiredUpgrades = building.RequiredWorkshopUpgrades;
+        IReadOnlyList<WorkshopUpgradeDef> requiredUpgrades = building.RequiredWorkshopUpgrades;
         for (int i = 0; i < requiredUpgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = requiredUpgrades[i];
+            WorkshopUpgradeDef upgrade = requiredUpgrades[i];
             if (workshop == null || upgrade == null || !workshop.IsPurchased(upgrade))
             {
                 failure = BuildFailure.WorkshopPrerequisiteIncomplete;
@@ -511,19 +517,19 @@ public class BuildingManager : Singleton<BuildingManager>
 
     }
 
-    public bool CanConstructNew(Building building)
+    public bool CanConstructNew(BuildingDef building)
     {
         building = ResolveBuildingDefinition(building);
         return ArePrerequisitesMet(building, out _) &&
             IsHighestUnlockedChainTier(building);
     }
 
-    public IReadOnlyList<SectorBuilding> GetSectorBuildings(SectorDefinition sector)
+    public IReadOnlyList<SectorBuildingDef> GetSectorBuildings(SectorDef sector)
     {
         EnsureBuildingChainIndex();
         if (sector == null)
-            return Array.Empty<SectorBuilding>();
-        if (sectorBuildingsBySector.TryGetValue(sector, out List<SectorBuilding> buildings) &&
+            return Array.Empty<SectorBuildingDef>();
+        if (sectorBuildingsBySector.TryGetValue(sector, out List<SectorBuildingDef> buildings) &&
             buildings.Count > 0)
             return buildings;
 
@@ -532,22 +538,22 @@ public class BuildingManager : Singleton<BuildingManager>
         // menu solely because the object reference changed.
         string sectorId = sector.Id == null ? string.Empty : sector.Id.Trim();
         if (sectorId.Length == 0)
-            return Array.Empty<SectorBuilding>();
-        foreach (KeyValuePair<SectorDefinition, List<SectorBuilding>> entry in sectorBuildingsBySector)
+            return Array.Empty<SectorBuildingDef>();
+        foreach (KeyValuePair<SectorDef, List<SectorBuildingDef>> entry in sectorBuildingsBySector)
         {
-            SectorDefinition indexed = entry.Key;
+            SectorDef indexed = entry.Key;
             if (indexed != null && string.Equals(indexed.Id, sectorId, StringComparison.OrdinalIgnoreCase) &&
                 entry.Value != null && entry.Value.Count > 0)
                 return entry.Value;
         }
-        IReadOnlyList<SectorBuilding> allSectorBuildings = DataBase<SectorBuilding>.All;
+        IReadOnlyList<SectorBuildingDef> allSectorBuildings = DataBase<SectorBuildingDef>.All;
         if (allSectorBuildings.Count > 0)
         {
-            List<SectorBuilding> matches = new();
+            List<SectorBuildingDef> matches = new();
             for (int i = 0; i < allSectorBuildings.Count; i++)
             {
-                SectorBuilding building = allSectorBuildings[i];
-                SectorDefinition buildingSector = building == null ? null : building.Sector;
+                SectorBuildingDef building = allSectorBuildings[i];
+                SectorDef buildingSector = building == null ? null : building.Sector;
                 if (buildingSector != null &&
                     string.Equals(buildingSector.Id, sectorId, StringComparison.OrdinalIgnoreCase))
                     matches.Add(building);
@@ -558,22 +564,22 @@ public class BuildingManager : Singleton<BuildingManager>
 
         // The base Building database is the authoritative merged catalog in
         // some editor/runtime initialization orders. Include its derived
-        // SectorBuilding entries before declaring the menu empty.
-        IReadOnlyList<Building> allBuildings = DataBase<Building>.All;
-        List<SectorBuilding> baseMatches = new();
+        // SectorBuildingDef entries before declaring the menu empty.
+        IReadOnlyList<BuildingDef> allBuildings = DataBase<BuildingDef>.All;
+        List<SectorBuildingDef> baseMatches = new();
         for (int i = 0; i < allBuildings.Count; i++)
         {
-            if (allBuildings[i] is not SectorBuilding building || building.Sector == null)
+            if (allBuildings[i] is not SectorBuildingDef building || building.Sector == null)
                 continue;
             if (string.Equals(building.Sector.Id, sectorId, StringComparison.OrdinalIgnoreCase))
                 baseMatches.Add(building);
         }
         if (baseMatches.Count > 0)
             return baseMatches;
-        return Array.Empty<SectorBuilding>();
+        return Array.Empty<SectorBuildingDef>();
     }
 
-    private bool IsHighestUnlockedChainTier(Building building)
+    private bool IsHighestUnlockedChainTier(BuildingDef building)
     {
         EnsureBuildingChainIndex();
         if (!chainMembers.Contains(building))
@@ -582,9 +588,9 @@ public class BuildingManager : Singleton<BuildingManager>
         return FindHighestUnlockedTier(building) == building;
     }
 
-    private Building FindHighestUnlockedTier(Building building)
+    private BuildingDef FindHighestUnlockedTier(BuildingDef building)
     {
-        Building highest = building;
+        BuildingDef highest = building;
         while (highest.UpgradeTo != null &&
                ArePrerequisitesMet(highest.UpgradeTo, out _))
             highest = highest.UpgradeTo;
@@ -594,23 +600,23 @@ public class BuildingManager : Singleton<BuildingManager>
     public void RefreshBuildingChainAvailability()
     {
         EnsureBuildingChainIndex();
-        foreach (Building root in chainRoots)
+        foreach (BuildingDef root in chainRoots)
         {
             RemoveZeroIntermediateStates(root);
         }
     }
 
-    private void RemoveZeroIntermediateStates(Building root)
+    private void RemoveZeroIntermediateStates(BuildingDef root)
     {
         if (!ArePrerequisitesMet(root, out _))
             return;
 
-        Building highest = FindHighestUnlockedTier(root);
+        BuildingDef highest = FindHighestUnlockedTier(root);
         if (highest == root)
             return;
 
-        var lowerTiers = new List<Building>();
-        Building current = root;
+        var lowerTiers = new List<BuildingDef>();
+        BuildingDef current = root;
         while (current != null && current != highest)
         {
             lowerTiers.Add(current);
@@ -621,7 +627,7 @@ public class BuildingManager : Singleton<BuildingManager>
             RemoveZeroBuildingState(lowerTiers[i]);
     }
 
-    private void RemoveZeroBuildingState(Building building)
+    private void RemoveZeroBuildingState(BuildingDef building)
     {
         if (!TryGetStateByStableId(building, out BuildingState state) ||
             state.Amount > ExpantaNum.Zero)
@@ -630,7 +636,7 @@ public class BuildingManager : Singleton<BuildingManager>
         orderedStates.Remove(state);
     }
 
-    public bool ShouldDisplay(Building building)
+    public bool ShouldDisplay(BuildingDef building)
     {
         if (building == null)
             return false;
@@ -645,7 +651,7 @@ public class BuildingManager : Singleton<BuildingManager>
 
     }
 
-    public bool TryGetUnlockedUpgradeTarget(Building source, out Building target)
+    public bool TryGetUnlockedUpgradeTarget(BuildingDef source, out BuildingDef target)
     {
         target = null;
         if (source == null ||
@@ -662,7 +668,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        Building candidate = ResolveBuildingDefinition(source.UpgradeTo);
+        BuildingDef candidate = ResolveBuildingDefinition(source.UpgradeTo);
         while (candidate != null)
         {
             if (!ArePrerequisitesMet(candidate, out _))
@@ -674,13 +680,13 @@ public class BuildingManager : Singleton<BuildingManager>
         return target != null;
     }
 
-    public BuildFailure GetBuildFailure(Building building, ExpantaNum requestedAmount)
+    public BuildFailure GetBuildFailure(BuildingDef building, ExpantaNum requestedAmount)
     {
         TryBuildInternal(building, requestedAmount, out BuildFailure failure, true);
         return failure;
     }
 
-    public void GetConstructionFailures(Building building, ExpantaNum amount, bool upgrading,
+    public void GetConstructionFailures(BuildingDef building, ExpantaNum amount, bool upgrading,
         List<BuildFailure> destination)
     {
         destination.Clear();
@@ -693,10 +699,10 @@ public class BuildingManager : Singleton<BuildingManager>
             destination.Add(failure);
     }
 
-    public bool TryBuild(Building building, ExpantaNum requestedAmount, out BuildFailure failure) =>
+    public bool TryBuild(BuildingDef building, ExpantaNum requestedAmount, out BuildFailure failure) =>
         TryBuildInternal(building, requestedAmount, out failure, false);
 
-    private bool TryBuildInternal(Building building, ExpantaNum requestedAmount,
+    private bool TryBuildInternal(BuildingDef building, ExpantaNum requestedAmount,
         out BuildFailure failure, bool previewOnly, List<BuildFailure> failures = null)
     {
         building = ResolveBuildingDefinition(building);
@@ -722,7 +728,7 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        SectorBuilding sectorBuilding = building as SectorBuilding;
+        SectorBuildingDef sectorBuilding = building as SectorBuildingDef;
         bool usesTerritory = sectorBuilding == null;
         ExpantaNum requiredSpace = ExpantaNum.Zero;
         if (usesTerritory)
@@ -753,11 +759,11 @@ public class BuildingManager : Singleton<BuildingManager>
             failures.Add(failure);
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
-        var costs = new Dictionary<Resource, ExpantaNum>();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = building.ResourceRequirements;
+        var costs = new Dictionary<ResourceDef, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = requirements[i];
             if (pair.First == null)
             {
                 failure = BuildFailure.ResourceInsufficient;
@@ -778,7 +784,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 : totalCost;
         }
 
-        foreach (Resource resource in new List<Resource>(costs.Keys))
+        foreach (ResourceDef resource in new List<ResourceDef>(costs.Keys))
         {
             ExpantaNum available = ResourceManager.Instance.GetAmount(resource);
             if (ExceedsBuildBoundary(costs[resource], available, out ExpantaNum effectiveCost))
@@ -845,15 +851,15 @@ public class BuildingManager : Singleton<BuildingManager>
         return true;
     }
 
-    private Dictionary<Resource, ExpantaNum> CalculateDeconstructionRefunds(
-        Building building, BuildingState state, ExpantaNum amount)
+    private Dictionary<ResourceDef, ExpantaNum> CalculateDeconstructionRefunds(
+        BuildingDef building, BuildingState state, ExpantaNum amount)
     {
         building = state.Definition;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
-        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = building.ResourceRequirements;
+        var resourceChanges = new Dictionary<ResourceDef, ExpantaNum>();
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = requirements[i];
             ExpantaNum refund = pair.Second.GeometricSeriesCost(
                 building.CostGrowth,
                 state.Amount - amount,
@@ -868,7 +874,7 @@ public class BuildingManager : Singleton<BuildingManager>
         return resourceChanges;
     }
 
-    public BuildingDeconstructionPreview GetDeconstructionPreview(Building building, ExpantaNum requestedAmount)
+    public BuildingDeconstructionPreview GetDeconstructionPreview(BuildingDef building, ExpantaNum requestedAmount)
     {
         if (building == null || !TryGetStateByStableId(building, out BuildingState state)) return null;
         ExpantaNum amount = BuildingTransactionRules.ClampToAvailable(requestedAmount, state.Amount);
@@ -925,13 +931,13 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
 
-    public bool TryDeconstruct(Building building, ExpantaNum requestedAmount)
+    public bool TryDeconstruct(BuildingDef building, ExpantaNum requestedAmount)
     {
         return TryDeconstruct(building, requestedAmount, out _);
     }
 
     public bool TryDeconstruct(
-        Building building,
+        BuildingDef building,
         ExpantaNum requestedAmount,
         out BuildFailure failure)
     {
@@ -949,10 +955,10 @@ public class BuildingManager : Singleton<BuildingManager>
             return false;
         }
 
-        Dictionary<Resource, ExpantaNum> resourceChanges = CalculateDeconstructionRefunds(building, state, amount);
+        Dictionary<ResourceDef, ExpantaNum> resourceChanges = CalculateDeconstructionRefunds(building, state, amount);
         ExpantaNum previousFoodAmount = GameManager.Instance.State.FoodAmount;
         ExpantaNum previousFoodCapacity = GameManager.Instance.State.FoodCapacity;
-        bool usesTerritory = !(building is SectorBuilding);
+        bool usesTerritory = !(building is SectorBuildingDef);
         ExpantaNum previousTerritoryUsed = usesTerritory
             ? GameManager.Instance.State.TerritoryUsed
             : ExpantaNum.Zero;
@@ -993,7 +999,7 @@ public class BuildingManager : Singleton<BuildingManager>
         return true;
     }
 
-    public ExpantaNum GetMaxBuildable(Building building, ExpantaNum requestedMaximum)
+    public ExpantaNum GetMaxBuildable(BuildingDef building, ExpantaNum requestedMaximum)
     {
         building = ResolveBuildingDefinition(building);
         if (!CanConstructNew(building))
@@ -1004,7 +1010,7 @@ public class BuildingManager : Singleton<BuildingManager>
         if (result < ExpantaNum.One)
             return ExpantaNum.Zero;
 
-        if (building is SectorBuilding sectorBuilding)
+        if (building is SectorBuildingDef sectorBuilding)
         {
             ExpantaNum remaining = new ExpantaNum(sectorBuilding.MaxAmount) - state.Amount;
             result = ExpantaNum.Min(result, ExpantaNum.Max(ExpantaNum.Zero, remaining));
@@ -1022,14 +1028,14 @@ public class BuildingManager : Singleton<BuildingManager>
                 (AvailableProductivity / state.ProductivityConsumption).Floor());
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = building.ResourceRequirements;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = building.ResourceRequirements;
         ResourceManager resourceManager = null;
         ExpantaNum constructionCostMultiplier = ExpantaNum.One;
         ExpantaNum costGrowth = ExpantaNum.One;
         bool constructionParametersInitialized = false;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = requirements[i];
             if (pair.Second <= ExpantaNum.Zero)
                 continue;
             if (resourceManager == null)
@@ -1063,16 +1069,16 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     public void GetUpgradeResourceDeltas(
-        Building source,
+        BuildingDef source,
         ExpantaNum requestedAmount,
-        List<Pair<Resource, ExpantaNum>> destination)
+        List<Pair<ResourceDef, ExpantaNum>> destination)
     {
         if (destination == null)
             throw new ArgumentNullException(nameof(destination));
         destination.Clear();
         if (source == null ||
             !TryGetStateByStableId(source, out BuildingState sourceState) ||
-            !TryGetUnlockedUpgradeTarget(source, out Building target))
+            !TryGetUnlockedUpgradeTarget(source, out BuildingDef target))
         {
             return;
         }
@@ -1087,15 +1093,15 @@ public class BuildingManager : Singleton<BuildingManager>
             !CanChangeBuildingAmount(targetState.Amount, amount, true))
             return;
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> sourceRequirements = source.ResourceRequirements;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> targetRequirements = target.ResourceRequirements;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> sourceRequirements = source.ResourceRequirements;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> targetRequirements = target.ResourceRequirements;
         AddUpgradeResources(sourceRequirements, destination);
         AddUpgradeResources(targetRequirements, destination);
         ExpantaNum sourceCostMultiplier = ExpantaNum.One;
         ExpantaNum targetCostMultiplier = ExpantaNum.One;
         for (int i = 0; i < destination.Count; i++)
         {
-            Resource resource = destination[i].First;
+            ResourceDef resource = destination[i].First;
             ExpantaNum sourceBaseCost = FindBaseCost(sourceRequirements, resource);
             ExpantaNum targetBaseCost = FindBaseCost(targetRequirements, resource);
             ExpantaNum sourceCost = sourceBaseCost.GeometricSeriesCost(
@@ -1113,27 +1119,27 @@ public class BuildingManager : Singleton<BuildingManager>
             }
             sourceCost *= sourceCostMultiplier;
             targetCost *= targetCostMultiplier;
-            destination[i] = new Pair<Resource, ExpantaNum>(
+            destination[i] = new Pair<ResourceDef, ExpantaNum>(
                 resource,
                 targetCost - sourceCost * UpgradeRecoveryRate);
         }
     }
 
-    public BuildFailure GetUpgradeFailure(Building source, ExpantaNum requestedAmount)
+    public BuildFailure GetUpgradeFailure(BuildingDef source, ExpantaNum requestedAmount)
     {
         TryUpgradeInternal(source, requestedAmount, out BuildFailure failure, true);
         return failure;
     }
 
-    public bool TryUpgrade(Building source, ExpantaNum requestedAmount, out BuildFailure failure) =>
+    public bool TryUpgrade(BuildingDef source, ExpantaNum requestedAmount, out BuildFailure failure) =>
         TryUpgradeInternal(source, requestedAmount, out failure, false);
 
-    private bool TryUpgradeInternal(Building source, ExpantaNum requestedAmount,
+    private bool TryUpgradeInternal(BuildingDef source, ExpantaNum requestedAmount,
         out BuildFailure failure, bool previewOnly, List<BuildFailure> failures = null)
     {
         if (source == null ||
             !TryGetStateByStableId(source, out BuildingState sourceState) ||
-            !TryGetUnlockedUpgradeTarget(source, out Building target))
+            !TryGetUnlockedUpgradeTarget(source, out BuildingDef target))
         {
             failure = BuildFailure.UpgradeUnavailable;
             return false;
@@ -1154,11 +1160,11 @@ public class BuildingManager : Singleton<BuildingManager>
                 sourceState, targetState, amount, ref productivitySnapshot, out failure, failures))
             return false;
 
-        var resourceDeltas = new List<Pair<Resource, ExpantaNum>>();
+        var resourceDeltas = new List<Pair<ResourceDef, ExpantaNum>>();
         GetUpgradeResourceDeltas(source, amount, resourceDeltas);
         for (int i = 0; i < resourceDeltas.Count; i++)
         {
-            Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
+            Pair<ResourceDef, ExpantaNum> delta = resourceDeltas[i];
             if (delta.First == null || !delta.Second.IsFinite ||
                 (delta.Second > ExpantaNum.Zero &&
                  ResourceManager.Instance.GetAmount(delta.First) < delta.Second))
@@ -1190,10 +1196,10 @@ public class BuildingManager : Singleton<BuildingManager>
             GameManager.Instance.State.Population.PopulationChangeProgress;
         ExpantaNum previousSourceAmount = sourceState.Amount;
         ExpantaNum previousTargetAmount = targetState.Amount;
-        var resourceChanges = new Dictionary<Resource, ExpantaNum>();
+        var resourceChanges = new Dictionary<ResourceDef, ExpantaNum>();
         for (int i = 0; i < resourceDeltas.Count; i++)
         {
-            Pair<Resource, ExpantaNum> delta = resourceDeltas[i];
+            Pair<ResourceDef, ExpantaNum> delta = resourceDeltas[i];
             if (delta.First == null || !delta.Second.IsFinite)
             {
                 failure = BuildFailure.ResourceInsufficient;
@@ -1242,11 +1248,11 @@ public class BuildingManager : Singleton<BuildingManager>
         return true;
     }
 
-    public ExpantaNum GetMaxUpgradeable(Building source, ExpantaNum requestedMaximum)
+    public ExpantaNum GetMaxUpgradeable(BuildingDef source, ExpantaNum requestedMaximum)
     {
         if (source == null ||
             !TryGetStateByStableId(source, out BuildingState sourceState) ||
-            !TryGetUnlockedUpgradeTarget(source, out Building target))
+            !TryGetUnlockedUpgradeTarget(source, out BuildingDef target))
         {
             return ExpantaNum.Zero;
         }
@@ -1288,11 +1294,11 @@ public class BuildingManager : Singleton<BuildingManager>
         if (!CanApplyUpgradeConstraints(
                 sourceState, targetState, amount, ref productivitySnapshot, out _))
             return false;
-        List<Pair<Resource, ExpantaNum>> deltas = upgradeAffordabilityDeltas;
+        List<Pair<ResourceDef, ExpantaNum>> deltas = upgradeAffordabilityDeltas;
         GetUpgradeResourceDeltas(sourceState.Definition, amount, deltas);
         for (int i = 0; i < deltas.Count; i++)
         {
-            Pair<Resource, ExpantaNum> delta = deltas[i];
+            Pair<ResourceDef, ExpantaNum> delta = deltas[i];
             if (delta.Second.IsNaN)
                 return false;
             if (delta.Second > ExpantaNum.Zero)
@@ -1355,12 +1361,12 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     private static void AddUpgradeResources(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
-        List<Pair<Resource, ExpantaNum>> destination)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements,
+        List<Pair<ResourceDef, ExpantaNum>> destination)
     {
         for (int i = 0; i < requirements.Count; i++)
         {
-            Resource resource = requirements[i].First;
+            ResourceDef resource = requirements[i].First;
             bool found = false;
             for (int j = 0; j < destination.Count; j++)
             {
@@ -1371,13 +1377,13 @@ public class BuildingManager : Singleton<BuildingManager>
                 }
             }
             if (!found)
-                destination.Add(new Pair<Resource, ExpantaNum>(resource, ExpantaNum.Zero));
+                destination.Add(new Pair<ResourceDef, ExpantaNum>(resource, ExpantaNum.Zero));
         }
     }
 
     private static ExpantaNum FindBaseCost(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
-        Resource resource)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements,
+        ResourceDef resource)
     {
         for (int i = 0; i < requirements.Count; i++)
             if (requirements[i].First == resource)
@@ -1385,7 +1391,7 @@ public class BuildingManager : Singleton<BuildingManager>
         return ExpantaNum.Zero;
     }
 
-    internal static ExpantaNum GetConstructionCostMultiplier(Building building)
+    internal static ExpantaNum GetConstructionCostMultiplier(BuildingDef building)
     {
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum efficiency = modifiers.GlobalConstructionMultiplier *
@@ -1493,7 +1499,7 @@ public class BuildingManager : Singleton<BuildingManager>
             potentialPowerConsumption += gameManager.Relic.CurrentPowerConsumptionRate;
             potentialLogisticsConsumption += gameManager.Relic.CurrentLogisticsConsumptionRate;
             potentialFoodConsumption += gameManager.Relic.CurrentFoodConsumptionRate;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> relicCosts = gameManager.Relic.GetActiveCosts();
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> relicCosts = gameManager.Relic.GetActiveCosts();
             for (int j = 0; j < relicCosts.Count; j++)
                 resourceManager.AdjustTickPotentialConsumption(relicCosts[j].First, relicCosts[j].Second);
             gameManager.Sectors.AccumulateOccupiedResourcePotential(resourceManager);
@@ -1522,7 +1528,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 potentialLogisticsConsumption +=
                     potentialScale * state.Definition.LogisticsConsumptionRate;
 
-                IReadOnlyList<Pair<Resource, ExpantaNum>> consumption =
+                IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption =
                     state.Definition.ResourceConsumptionRates;
                 for (int j = 0; j < consumption.Count; j++)
                     resourceManager.AdjustTickPotentialConsumption(
@@ -1603,7 +1609,7 @@ public class BuildingManager : Singleton<BuildingManager>
             resources.RefreshTickProduction();
             game.Sectors.AccumulateOccupiedResourcePotential(resources);
             resources.CalculateTickSatisfaction(seconds);
-            Resource deficit = null;
+            ResourceDef deficit = null;
             foreach (ResourceState resource in resources.States.Values)
             {
                 ExpantaNum available = resource.Amount + resource.TickPotentialProductionRate * seconds;
@@ -1642,10 +1648,10 @@ public class BuildingManager : Singleton<BuildingManager>
                     BuildingState state = activeBuildingStates[i];
                     if (budgetBuildings.Contains(state) || state.Efficiency <= ExpantaNum.Zero)
                         continue;
-                    Building definition = state.Definition;
+                    BuildingDef definition = state.Definition;
                     bool affected = powerChanges && definition.PowerConsumptionRate > ExpantaNum.Zero ||
                         logisticsChanges && definition.LogisticsConsumptionRate > ExpantaNum.Zero;
-                    IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+                    IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
                     for (int j = 0; j < consumption.Count; j++)
                         affected |= consumption[j].Second > ExpantaNum.Zero &&
                             (foodChanges || budgetResources.Contains(consumption[j].First));
@@ -1656,7 +1662,7 @@ public class BuildingManager : Singleton<BuildingManager>
                     for (int j = 0; j < consumption.Count; j++)
                         if (consumption[j].Second > ExpantaNum.Zero)
                             budgetResources.Add(consumption[j].First);
-                    IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+                    IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = definition.ResourceGenerationRates;
                     for (int j = 0; j < generation.Count; j++)
                         if (generation[j].Second > ExpantaNum.Zero)
                             budgetResources.Add(generation[j].First);
@@ -1674,24 +1680,24 @@ public class BuildingManager : Singleton<BuildingManager>
             ExpantaNum foodProduction = ExpantaNum.Zero;
             foreach (BuildingState state in budgetBuildings)
             {
-                Building definition = state.Definition;
+                BuildingDef definition = state.Definition;
                 ExpantaNum scale = state.Amount * state.Efficiency;
                 ExpantaNum multiplier = modifiers.GetBuildingProductionMultiplier(definition) *
                     modifiers.GlobalBuildingProductionMultiplier;
-                IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+                IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = definition.ResourceGenerationRates;
                 for (int j = 0; j < generation.Count; j++)
                 {
-                    Pair<Resource, ExpantaNum> rate = generation[j];
+                    Pair<ResourceDef, ExpantaNum> rate = generation[j];
                     budgetProduction.TryGetValue(rate.First, out ExpantaNum previous);
                     budgetProduction[rate.First] = previous + scale * rate.Second * multiplier *
                         game.State.Events.ProductionMultiplier *
                         modifiers.GetBuildingResourceProductionMultiplier(definition, rate.First) *
                         modifiers.GetResourceProductionMultiplier(rate.First);
                 }
-                IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+                IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
                 for (int j = 0; j < consumption.Count; j++)
                 {
-                    Pair<Resource, ExpantaNum> rate = consumption[j];
+                    Pair<ResourceDef, ExpantaNum> rate = consumption[j];
                     budgetConsumption.TryGetValue(rate.First, out ExpantaNum previous);
                     budgetConsumption[rate.First] = previous + scale * rate.Second * multiplier;
                 }
@@ -1828,25 +1834,25 @@ public class BuildingManager : Singleton<BuildingManager>
         ExpantaNum candidateLogisticsProduction = ExpantaNum.Zero, candidateLogisticsConsumption = ExpantaNum.Zero;
         foreach (BuildingState state in budgetBuildings)
         {
-            Building definition = state.Definition;
+            BuildingDef definition = state.Definition;
             // Quantize efficiency before rates, exactly as the committed State does.
             ExpantaNum candidateScale = state.Amount * (state.Efficiency * scale);
             ExpantaNum multiplier = modifiers.GetBuildingProductionMultiplier(definition) *
                 modifiers.GlobalBuildingProductionMultiplier;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> generation = definition.ResourceGenerationRates;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = definition.ResourceGenerationRates;
             for (int j = 0; j < generation.Count; j++)
             {
-                Pair<Resource, ExpantaNum> rate = generation[j];
+                Pair<ResourceDef, ExpantaNum> rate = generation[j];
                 candidateProduction.TryGetValue(rate.First, out ExpantaNum previous);
                 candidateProduction[rate.First] = previous + candidateScale * rate.Second * multiplier *
                     game.Events.ProductionMultiplier *
                     modifiers.GetBuildingResourceProductionMultiplier(definition, rate.First) *
                     modifiers.GetResourceProductionMultiplier(rate.First);
             }
-            IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption = definition.ResourceConsumptionRates;
             for (int j = 0; j < consumption.Count; j++)
             {
-                Pair<Resource, ExpantaNum> rate = consumption[j];
+                Pair<ResourceDef, ExpantaNum> rate = consumption[j];
                 candidateConsumption.TryGetValue(rate.First, out ExpantaNum previous);
                 candidateConsumption[rate.First] = previous + candidateScale * rate.Second * multiplier;
             }
@@ -1893,12 +1899,12 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     private ExpantaNum CalculateEfficiency(
-        Building building,
+        BuildingDef building,
         ResourceManager resourceManager,
         GameState gameState)
     {
         ExpantaNum resourceSatisfaction = ExpantaNum.One;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates = building.ResourceConsumptionRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates = building.ResourceConsumptionRates;
         for (int i = 0; i < rates.Count; i++)
             resourceSatisfaction = ExpantaNum.Min(
                 resourceSatisfaction,
@@ -1926,7 +1932,7 @@ public class BuildingManager : Singleton<BuildingManager>
             logisticsSatisfaction);
     }
 
-    public static bool IsFoodConstraintRequired(Building building)
+    public static bool IsFoodConstraintRequired(BuildingDef building)
     {
         if (building == null)
             return false;
@@ -2076,7 +2082,7 @@ public class BuildingManager : Singleton<BuildingManager>
         ProgressionModifierState modifiers = ProgressionModifierManager.Current;
         ExpantaNum productionMultiplier = modifiers.GetBuildingProductionMultiplier(state.Definition) *
             modifiers.GlobalBuildingProductionMultiplier;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = state.Definition.ResourceGenerationRates;
         ResourceManager resourceManager = null;
         for (int i = 0; i < generation.Count; i++)
         {
@@ -2092,7 +2098,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 * modifiers.GetResourceProductionMultiplier(generation[i].First));
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> consumption = state.Definition.ResourceConsumptionRates;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption = state.Definition.ResourceConsumptionRates;
         for (int i = 0; i < consumption.Count; i++)
         {
             if (resourceManager == null)
@@ -2125,7 +2131,7 @@ public class BuildingManager : Singleton<BuildingManager>
             if (scale <= ExpantaNum.Zero)
                 continue;
 
-            Building building = state.Definition;
+            BuildingDef building = state.Definition;
             ExpantaNum oldBuildingMultiplier =
                 previous.GetBuildingProductionMultiplier(building) *
                 previous.GlobalBuildingProductionMultiplier;
@@ -2133,11 +2139,11 @@ public class BuildingManager : Singleton<BuildingManager>
                 current.GetBuildingProductionMultiplier(building) *
                 current.GlobalBuildingProductionMultiplier;
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> generation =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation =
                 building.ResourceGenerationRates;
             for (int j = 0; j < generation.Count; j++)
             {
-                Pair<Resource, ExpantaNum> rate = generation[j];
+                Pair<ResourceDef, ExpantaNum> rate = generation[j];
                 ExpantaNum oldMultiplier =
                     oldBuildingMultiplier *
                     previous.GetBuildingResourceProductionMultiplier(building, rate.First) *
@@ -2152,7 +2158,7 @@ public class BuildingManager : Singleton<BuildingManager>
                     * GameManager.Instance.State.Events.ProductionMultiplier);
             }
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> consumption =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> consumption =
                 building.ResourceConsumptionRates;
             for (int j = 0; j < consumption.Count; j++)
                 ResourceManager.Instance.AdjustConsumptionRate(
@@ -2197,13 +2203,13 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
-            Building building = state.Definition;
+            BuildingDef building = state.Definition;
             ExpantaNum scale = state.Amount * state.Efficiency * delta *
                 modifiers.GetBuildingProductionMultiplier(building) *
                 modifiers.GlobalBuildingProductionMultiplier;
             if (scale == ExpantaNum.Zero)
                 continue;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> generation = building.ResourceGenerationRates;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> generation = building.ResourceGenerationRates;
             for (int j = 0; j < generation.Count; j++)
                 ResourceManager.Instance.AdjustProductionRate(generation[j].First,
                     scale * generation[j].Second *
@@ -2232,7 +2238,7 @@ public class BuildingManager : Singleton<BuildingManager>
         }
     }
 
-    private static void EnsureBuildingResources(Building building)
+    private static void EnsureBuildingResources(BuildingDef building)
     {
         ResourceManager resourceManager = null;
         EnsureResources(building.ResourceRequirements, ref resourceManager);
@@ -2241,7 +2247,7 @@ public class BuildingManager : Singleton<BuildingManager>
     }
 
     private static void EnsureResources(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         ref ResourceManager resourceManager)
     {
         for (int i = 0; i < pairs.Count; i++)
@@ -2280,7 +2286,7 @@ public class BuildingManager : Singleton<BuildingManager>
             if (state.Amount <= ExpantaNum.Zero)
                 continue;
 
-            if (state.Definition is not SectorBuilding)
+            if (state.Definition is not SectorBuildingDef)
                 GameManager.Instance.CommitConstruction(state.SpaceCost * state.Amount);
             ApplyRateDelta(state, ExpantaNum.Zero, ExpantaNum.One, state.Amount, state.Efficiency);
         }
@@ -2330,12 +2336,12 @@ public class BuildingManager : Singleton<BuildingManager>
 
         if (data.Buildings != null)
         {
-            var restoredBuildings = new HashSet<Building>();
-            var restoredAmounts = new Dictionary<Building, ExpantaNum>();
+            var restoredBuildings = new HashSet<BuildingDef>();
+            var restoredAmounts = new Dictionary<BuildingDef, ExpantaNum>();
             for (int i = 0; i < data.Buildings.Count; i++)
             {
                 SaveManager.BuildingStateSaveData saved = data.Buildings[i];
-                if (!DataBase<Building>.TryFind(saved.BuildingId, out Building definition))
+                if (!DataBase<BuildingDef>.TryFind(saved.BuildingId, out BuildingDef definition))
                     throw new InvalidOperationException(
                         $"存档包含未知建筑编号“{saved.BuildingId}”。");
                 if (!restoredBuildings.Add(definition))
@@ -2354,7 +2360,7 @@ public class BuildingManager : Singleton<BuildingManager>
                 nameof(data.GlobalEfficiencyFactor));
             if (restoredGlobalEfficiencyFactor < ExpantaNum.Zero)
                 throw new InvalidOperationException("Building global efficiency cannot be negative.");
-            foreach (KeyValuePair<Building, ExpantaNum> entry in restoredAmounts)
+            foreach (KeyValuePair<BuildingDef, ExpantaNum> entry in restoredAmounts)
                 EnsureBuilding(entry.Key).Restore(entry.Value);
             GlobalEfficiencyFactor = restoredGlobalEfficiencyFactor;
         }
@@ -2376,7 +2382,7 @@ public class BuildingManager : Singleton<BuildingManager>
         for (int i = 0; i < orderedStates.Count; i++)
         {
             BuildingState state = orderedStates[i];
-            if (state.Definition is not SectorBuilding sectorBuilding)
+            if (state.Definition is not SectorBuildingDef sectorBuilding)
                 continue;
             if (state.Amount > new ExpantaNum(sectorBuilding.MaxAmount))
                 throw new InvalidOperationException(
@@ -2387,6 +2393,9 @@ public class BuildingManager : Singleton<BuildingManager>
                 throw new InvalidOperationException(
                     $"Sector building '{sectorBuilding.Id}' is built before sector '{sectorBuilding.Sector.Id}' is occupied.");
             }
+            if (state.Amount > ExpantaNum.Zero && sectorBuilding.RequiresInteriorExploration &&
+                !sectors.GetState(sectorBuilding.Sector).InteriorExplorationCompleted)
+                throw new InvalidOperationException($"Sector building '{sectorBuilding.Id}' requires completed planetary exploration.");
         }
     }
 

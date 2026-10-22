@@ -28,7 +28,7 @@ public sealed partial class TutorialManager
     private int stagePhase;
     private ExpantaNum stageBuildingAmount = ExpantaNum.Zero;
     private bool restoreBuildingBaseline;
-    private List<Pair<Building, Building>> productionStageLinks;
+    private List<Pair<BuildingDef, BuildingDef>> productionStageLinks;
 
     public IReadOnlyCollection<string> CompletedStageIds => completedStageIds;
     public IReadOnlyCollection<string> SkippedStageIds => skippedStageIds;
@@ -60,7 +60,7 @@ public sealed partial class TutorialManager
         bool available = TryGetStage(activeStageId, game, resources, buildings, research, out TutorialStageSnapshot snapshot);
         if (!available && activeStageId != "building" && activeStageId != "research") return null;
         bool replaceTarget = activeStageId == "building" &&
-            (!DataBase<Building>.TryFind(stageTargetId, out Building currentBuilding) || !buildings.CanConstructNew(currentBuilding));
+            (!DataBase<BuildingDef>.TryFind(stageTargetId, out BuildingDef currentBuilding) || !buildings.CanConstructNew(currentBuilding));
         if (activeStageId == "production-chain" && !HasEligibleProductionTarget(stageTargetId, buildings))
             replaceTarget = true;
         if (replaceTarget)
@@ -77,7 +77,7 @@ public sealed partial class TutorialManager
             stagePhase == 1 && !string.IsNullOrEmpty(stageTargetId) ? TutorialStageAction.Select : TutorialStageAction.Inspect;
         if (stagePhase >= 2 && activeStageId == "building")
         {
-            if (!DataBase<Building>.TryFind(stageTargetId, out Building building)) return null;
+            if (!DataBase<BuildingDef>.TryFind(stageTargetId, out BuildingDef building)) return null;
             BuildingState state = buildings.GetState(building);
             if (state != null && state.Amount > stageBuildingAmount)
             {
@@ -89,7 +89,7 @@ public sealed partial class TutorialManager
         }
         if (stagePhase >= 2 && activeStageId == "research")
         {
-            if (!DataBase<Research>.TryFind(stageTargetId, out Research definition)) return null;
+            if (!DataBase<ResearchDef>.TryFind(stageTargetId, out ResearchDef definition)) return null;
             ResearchState state = research.GetState(definition);
             if (state != null && (state.Status == ResearchStatus.Researching || state.Status == ResearchStatus.Completed))
             {
@@ -131,7 +131,7 @@ public sealed partial class TutorialManager
         if (snapshot == null || snapshot.Action != TutorialStageAction.Select || snapshot.Page != page || snapshot.TargetId != targetId) return;
         stagePhase = 2;
         version++;
-        if (activeStageId == "building" && DataBase<Building>.TryFind(targetId, out Building building))
+        if (activeStageId == "building" && DataBase<BuildingDef>.TryFind(targetId, out BuildingDef building))
         {
             if (!restoreBuildingBaseline)
                 stageBuildingAmount = cachedBuildingManager.GetState(building)?.Amount ?? ExpantaNum.Zero;
@@ -205,8 +205,8 @@ public sealed partial class TutorialManager
                 return resources.States.Count > 0;
             case "building":
                 snapshot.Title = "建造第一座建筑"; snapshot.Page = "Buildings";
-                foreach (Building definition in DataBase<Building>.All)
-                    if (definition != null && !(definition is SectorBuilding) && buildings.CanConstructNew(definition) &&
+                foreach (BuildingDef definition in DataBase<BuildingDef>.All)
+                    if (definition != null && !(definition is SectorBuildingDef) && buildings.CanConstructNew(definition) &&
                         (baseline || buildings.GetBuildFailure(definition, ExpantaNum.One) == BuildFailure.None))
                     { snapshot.TargetId = definition.Id; return true; }
                 return false;
@@ -216,7 +216,7 @@ public sealed partial class TutorialManager
                 return game.State.Population != null && game.State.Population.PopulationCapacity > ExpantaNum.Zero;
             case "research":
                 snapshot.Title = "研究新知识"; snapshot.Page = "Research";
-                foreach (Research definition in DataBase<Research>.All)
+                foreach (ResearchDef definition in DataBase<ResearchDef>.All)
                     if (definition != null && research.CanAccessResearch(definition) && research.ArePrerequisitesCompleted(definition) &&
                         (baseline || research.GetState(definition)?.Status != ResearchStatus.Completed))
                     { snapshot.TargetId = definition.Id; return true; }
@@ -227,10 +227,10 @@ public sealed partial class TutorialManager
                 EnsureProductionStageLinks();
                 for (int i = 0; i < productionStageLinks.Count; i++)
                 {
-                    Pair<Building, Building> link = productionStageLinks[i];
+                    Pair<BuildingDef, BuildingDef> link = productionStageLinks[i];
                     if (!buildings.ArePrerequisitesMet(link.First, out _) || !buildings.ArePrerequisitesMet(link.Second, out _)) continue;
-                    foreach (Pair<Resource, ExpantaNum> input in link.Second.ResourceConsumptionRates)
-                        foreach (Pair<Resource, ExpantaNum> output in link.First.ResourceGenerationRates)
+                    foreach (Pair<ResourceDef, ExpantaNum> input in link.Second.ResourceConsumptionRates)
+                        foreach (Pair<ResourceDef, ExpantaNum> output in link.First.ResourceGenerationRates)
                             if (input.First != null && input.First == output.First && input.Second > ExpantaNum.Zero && output.Second > ExpantaNum.Zero)
                             { snapshot.TargetId = input.First.Id; return true; }
                 }
@@ -248,7 +248,7 @@ public sealed partial class TutorialManager
                 snapshot.Instruction = "工坊升级会改善生产能力；查看配方、前置条件和费用，再决定制作。";
                 WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
                 if (workshop == null || !workshop.IsSystemUnlocked) return false;
-                foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+                foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
                     if (upgrade != null && upgrade.TechLevel <= game.State.TechLevel && workshop.ArePrerequisitesMet(upgrade))
                     { snapshot.TargetId = upgrade.Id; return true; }
                 return false;
@@ -260,7 +260,7 @@ public sealed partial class TutorialManager
                 {
                     if (state == null || state.Definition == null) continue;
                     bool visible = true;
-                    IReadOnlyList<SectorDefinition> prerequisites = state.Definition.PrerequisiteSectors;
+                    IReadOnlyList<SectorDef> prerequisites = state.Definition.PrerequisiteSectors;
                     for (int i = 0; prerequisites != null && i < prerequisites.Count; i++)
                         if (prerequisites[i] == null || !game.Sectors.GetState(prerequisites[i]).Occupied)
                         { visible = false; break; }
@@ -274,19 +274,19 @@ public sealed partial class TutorialManager
     private void EnsureProductionStageLinks()
     {
         if (productionStageLinks != null) return;
-        productionStageLinks = new List<Pair<Building, Building>>();
-        foreach (Building source in DataBase<Building>.All)
+        productionStageLinks = new List<Pair<BuildingDef, BuildingDef>>();
+        foreach (BuildingDef source in DataBase<BuildingDef>.All)
         {
-            if (source == null || source is SectorBuilding) continue;
-            foreach (Building target in DataBase<Building>.All)
+            if (source == null || source is SectorBuildingDef) continue;
+            foreach (BuildingDef target in DataBase<BuildingDef>.All)
             {
-                if (target == null || target == source || target is SectorBuilding) continue;
+                if (target == null || target == source || target is SectorBuildingDef) continue;
                 bool connected = false;
-                foreach (Pair<Resource, ExpantaNum> output in source.ResourceGenerationRates)
-                    foreach (Pair<Resource, ExpantaNum> input in target.ResourceConsumptionRates)
+                foreach (Pair<ResourceDef, ExpantaNum> output in source.ResourceGenerationRates)
+                    foreach (Pair<ResourceDef, ExpantaNum> input in target.ResourceConsumptionRates)
                         if (output.First != null && output.First == input.First && output.Second > ExpantaNum.Zero && input.Second > ExpantaNum.Zero)
                             connected = true;
-                if (connected) productionStageLinks.Add(new Pair<Building, Building>(source, target));
+                if (connected) productionStageLinks.Add(new Pair<BuildingDef, BuildingDef>(source, target));
             }
         }
     }
@@ -305,11 +305,11 @@ public sealed partial class TutorialManager
         EnsureProductionStageLinks();
         for (int i = 0; i < productionStageLinks.Count; i++)
         {
-            Pair<Building, Building> link = productionStageLinks[i];
+            Pair<BuildingDef, BuildingDef> link = productionStageLinks[i];
             if (!buildings.ArePrerequisitesMet(link.First, out _) || !buildings.ArePrerequisitesMet(link.Second, out _)) continue;
-            foreach (Pair<Resource, ExpantaNum> input in link.Second.ResourceConsumptionRates)
+            foreach (Pair<ResourceDef, ExpantaNum> input in link.Second.ResourceConsumptionRates)
                 if (input.First != null && input.First.Id == resourceId && input.Second > ExpantaNum.Zero)
-                    foreach (Pair<Resource, ExpantaNum> output in link.First.ResourceGenerationRates)
+                    foreach (Pair<ResourceDef, ExpantaNum> output in link.First.ResourceGenerationRates)
                         if (output.First == input.First && output.Second > ExpantaNum.Zero) return true;
         }
         return false;

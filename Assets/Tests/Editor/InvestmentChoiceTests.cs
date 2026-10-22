@@ -10,13 +10,13 @@ public sealed class InvestmentChoiceTests
     public void TightProductivitySupportsDeferringOrPartiallyUpgradingFarms(bool upgradeOne)
     {
         using var f = new Fixture();
-        f.Complete(DataBase<Research>.Find("Agriculture"));
+        f.Complete(DataBase<ResearchDef>.Find("Agriculture"));
         f.Game.State.Population.RestorePopulationForEditor(new ExpantaNum(6));
         f.Game.State.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(6));
-        Building farm = DataBase<Building>.Find("Farm");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
         Assert.That(f.Buildings.TryBuild(farm, new ExpantaNum(2), out _), Is.True);
         f.Game.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
-        f.Complete(DataBase<Research>.Find("IrrigationEngineering"));
+        f.Complete(DataBase<ResearchDef>.Find("IrrigationEngineering"));
         f.Simulation.ManualTick(0d);
         ExpantaNum production = f.Game.State.FoodProductionRate;
         ExpantaNum available = f.Buildings.AvailableProductivity;
@@ -27,7 +27,7 @@ public sealed class InvestmentChoiceTests
             Assert.That(f.Game.State.FoodProductionRate, Is.GreaterThan(production));
             Assert.That(f.Buildings.AvailableProductivity, Is.LessThan(available));
             Assert.That(f.Buildings.GetState(farm).Amount, Is.GreaterThan(ExpantaNum.Zero));
-            Resource wood = DataBase<Resource>.Find("WoodLog");
+            ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
             ExpantaNum stock = f.Resources.GetAmount(wood);
             Assert.That(f.Buildings.TryUpgrade(farm, ExpantaNum.One, out BuildFailure failure), Is.False);
             Assert.That(failure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
@@ -45,13 +45,13 @@ public sealed class InvestmentChoiceTests
     public void HousingUpgradeGrantsCapacityBeforeResidentsAndTheirFoodBurden()
     {
         using var f = new Fixture();
-        f.Complete(DataBase<Research>.Find("Agriculture"));
-        Building house = DataBase<Building>.Find("WoodHouse");
+        f.Complete(DataBase<ResearchDef>.Find("Agriculture"));
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
         Assert.That(f.Buildings.TryBuild(house, ExpantaNum.One, out _), Is.True);
         f.Game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
-        Assert.That(f.Buildings.TryBuild(DataBase<Building>.Find("Farm"), ExpantaNum.One, out _), Is.True);
+        Assert.That(f.Buildings.TryBuild(DataBase<BuildingDef>.Find("Farm"), ExpantaNum.One, out _), Is.True);
         f.Game.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
-        f.Complete(DataBase<Research>.Find("Masonry"));
+        f.Complete(DataBase<ResearchDef>.Find("Masonry"));
         f.Simulation.ManualTick(0d);
         ExpantaNum population = f.Game.State.Population.Population;
         ExpantaNum capacity = f.Game.State.Population.PopulationCapacity;
@@ -74,8 +74,8 @@ public sealed class InvestmentChoiceTests
     public void KnowledgeInvestmentAndDirectEraAdvanceKeepPaymentSeparateFromResearchWork(bool knowledgeFirst)
     {
         using var f = new Fixture();
-        Research knowledge = DataBase<Research>.Find("KnowledgeSharing");
-        Research era = DataBase<Research>.Find("StoneAgeSettlement");
+        ResearchDef knowledge = DataBase<ResearchDef>.Find("KnowledgeSharing");
+        ResearchDef era = DataBase<ResearchDef>.Find("StoneAgeSettlement");
         f.CompletePrerequisites(knowledge);
         f.CompletePrerequisites(era);
         ProgressionModifierManager.Rebuild(new List<ResearchState>(f.Research.States.Values));
@@ -131,17 +131,17 @@ public sealed class InvestmentChoiceTests
             Simulation = root.AddComponent<SimulationManager>();
             Research.InitializeForEditor();
             Game.State.RestoreCoreForEditor(0, TechLevel.Animal, new ExpantaNum(300), 0L);
-            foreach (Resource resource in DataBase<Resource>.All)
+            foreach (ResourceDef resource in DataBase<ResourceDef>.All)
                 Resources.SetAmount(resource, new ExpantaNum(1000000));
         }
-        public void CompletePrerequisites(Research definition)
+        public void CompletePrerequisites(ResearchDef definition)
         {
-            foreach (Research prerequisite in definition.Prerequisites) Complete(prerequisite);
+            foreach (ResearchDef prerequisite in definition.Prerequisites) Complete(prerequisite);
         }
-        public void Complete(Research definition)
+        public void Complete(ResearchDef definition)
         {
             CompletePrerequisites(definition);
-            var paid = new Dictionary<Resource, ExpantaNum>();
+            var paid = new Dictionary<ResourceDef, ExpantaNum>();
             foreach (var cost in definition.ResourceRequirements) paid[cost.First] = cost.Second;
             Research.GetState(definition).RestoreForEditor(definition.BaseCost, true, true, paid);
         }

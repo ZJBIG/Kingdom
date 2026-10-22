@@ -26,15 +26,15 @@ public sealed class EconomySnapshotTraceTests
             Add<WorkshopManager>();
             Add<SaveManager>();
             SimulationManager simulation = Add<SimulationManager>();
-            Building house = DataBase<Building>.Find("WoodHouse");
+            BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(house), ExpantaNum.One);
             game.State.RestorePopulationForEditor(ExpantaNum.One);
             simulation.ManualTick(0d);
             foreach (ResourceState state in resources.States.Values)
                 resources.SetAmount(state.Definition, ExpantaNum.Zero);
             game.State.RestorePopulationChangeProgressForEditor(new ExpantaNum(.625d));
-            research.HandleResearchAction(DataBase<Research>.Find("ControlledFire"));
-            research.HandleResearchAction(DataBase<Research>.Find("Agriculture"));
+            research.HandleResearchAction(DataBase<ResearchDef>.Find("ControlledFire"));
+            research.HandleResearchAction(DataBase<ResearchDef>.Find("Agriculture"));
             Directory.CreateDirectory(directory);
             var manifest = new TraceManifest();
             Capture("online-10", false, 10d);
@@ -43,11 +43,11 @@ public sealed class EconomySnapshotTraceTests
             Capture("offline-28860", true, 28860d);
             Capture("offline-repeat-60", true, 60d);
             // Real farm definitions keep Food flow reproducible from v5, unlike an injected rate.
-            Building farm = DataBase<Building>.Find("Farm");
+            BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(farm), new ExpantaNum(2000d));
             game.State.RestoreCoreForEditor(0, TechLevel.Spacer, new ExpantaNum(500d), 0L);
             simulation.ManualTick(0d);
-            SectorDefinition helios = DataBase<SectorDefinition>.Find("HeliosCore");
+            SectorDef helios = DataBase<SectorDef>.Find("HeliosCore");
             game.Sectors.GetState(helios).SetUnlockedForEditor(true);
             foreach (var cost in helios.ColonizationResourceRatesPerSecond)
                 resources.SetAmount(cost.First, new ExpantaNum(1000000d));
@@ -55,6 +55,47 @@ public sealed class EconomySnapshotTraceTests
                 Is.True, $"Controlled colonization must start: {failure}");
             Capture("colonization-offline-60", true, 60d);
             Capture("colonization-online-10", false, 10d);
+            // Use authored projects with controlled occupation/research and supplies, not a pacing grant.
+            research.ResetForLoadForEditor();
+            var planets = new[] { "AzurePool", "HeliosCore", "ThunderGate" };
+            foreach (string id in planets)
+            {
+                SectorDef planet = DataBase<SectorDef>.Find(id);
+                Occupy(planet);
+                foreach (ResearchDef prerequisite in planet.InteriorExploration.RequiredResearch)
+                    CompleteResearch(prerequisite);
+                foreach (var rate in planet.InteriorExploration.ResourceRatesPerSecond)
+                    resources.SetAmount(rate.First, new ExpantaNum(1000000d));
+            }
+            ProgressionModifierState previousModifiers = ProgressionModifierManager.Current;
+            ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values));
+            buildings.ApplyProgressionModifierChangeForEditor(previousModifiers, ProgressionModifierManager.Current);
+            foreach (string id in planets)
+                Assert.That(game.Sectors.TryStartInteriorExploration(DataBase<SectorDef>.Find(id), out var startFailure),
+                    Is.True, startFailure.ToString());
+            Capture("interior-online-10", false, 10d);
+            Capture("interior-offline-60", true, 60d);
+            SectorDef azure = DataBase<SectorDef>.Find("AzurePool");
+            game.Sectors.PauseInteriorExploration(azure);
+            ExpantaNum pausedProgress = game.Sectors.GetState(azure).InteriorExplorationProgress;
+            Capture("interior-paused-offline-60", true, 60d);
+            Assert.That(game.Sectors.GetState(azure).InteriorExplorationProgress, Is.EqualTo(pausedProgress),
+                "A manually paused project must not advance.");
+            resources.SetAmount(DataBase<ResourceDef>.Find("Electronics"), ExpantaNum.Zero);
+            Capture("interior-shortage-offline-60", true, 60d);
+            Assert.That(game.Sectors.GetInteriorExplorationPreview(helios).Status,
+                Is.EqualTo(SectorInteriorExplorationStatus.WaitingForSupply));
+            foreach (string id in planets)
+            {
+                SectorDef planet = DataBase<SectorDef>.Find(id);
+                foreach (var rate in planet.InteriorExploration.ResourceRatesPerSecond)
+                    resources.SetAmount(rate.First, new ExpantaNum(1000000d));
+                game.Sectors.GetState(planet).SetInteriorExplorationForEditor(
+                    ExpantaNum.One - new ExpantaNum(20d) / planet.InteriorExploration.DurationSeconds, true);
+            }
+            Capture("interior-completion-offline-60", true, 60d);
+            foreach (string id in planets)
+                Assert.That(game.Sectors.GetState(DataBase<SectorDef>.Find(id)).InteriorExplorationCompleted, Is.True);
             File.WriteAllText(Path.Combine(directory, "manifest.json"), JsonUtility.ToJson(manifest, true));
             Assert.That(game.State.Population.Population, Is.GreaterThanOrEqualTo(ExpantaNum.Zero));
 
@@ -67,6 +108,27 @@ public sealed class EconomySnapshotTraceTests
                 else for (int i = 0; i < 100; i++) simulation.ManualTick(.1d);
                 EconomyParitySnapshotExporter.ExportCurrent(Path.Combine(directory, id + ".after.json"));
                 manifest.Windows.Add(new TraceWindow { Id = id, Offline = offline, Seconds = seconds });
+            }
+
+            void CompleteResearch(ResearchDef definition)
+            {
+                ResearchState state = research.GetState(definition);
+                if (state.Status == ResearchStatus.Completed) return;
+                foreach (ResearchDef prerequisite in definition.Prerequisites) CompleteResearch(prerequisite);
+                foreach (var cost in definition.ResourceRequirements) resources.AddAmount(cost.First, cost.Second);
+                Assert.That(ResearchManager.TryPayResearchCost(state), Is.True);
+                state.SetProgressForEditor(state.BaseCost);
+                state.SetStatusForEditor(ResearchStatus.Completed);
+            }
+
+            void Occupy(SectorDef definition)
+            {
+                foreach (SectorDef prerequisite in definition.PrerequisiteSectors) Occupy(prerequisite);
+                SectorState state = game.Sectors.GetState(definition);
+                state.SetUnlockedForEditor(true);
+                state.SetOccupiedForEditor(true);
+                state.SetColonizationActiveForEditor(false);
+                state.SetCampaignProgressForEditor(ExpantaNum.One);
             }
         }
         finally
@@ -99,7 +161,7 @@ public sealed class EconomySnapshotTraceTests
 
     [Serializable] private sealed class TraceManifest
     {
-        public string Scope = "Controlled housing/population/research fixture, not a new-game route. World events inactive; Ultra/relic not covered by v5.";
+        public string Scope = "Controlled housing/population/research, colonization and authored planetary exploration fixtures, not a new-game route. World events inactive; Ultra/relic not covered by v5.";
         public List<TraceWindow> Windows = new();
     }
     [Serializable] private sealed class TraceWindow { public string Id; public bool Offline; public double Seconds; }

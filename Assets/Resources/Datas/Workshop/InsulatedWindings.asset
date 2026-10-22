@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: InsulatedWindings
   m_EditorClassIdentifier: 
   id: InsulatedWindings
+  icon: {fileID: 21300000, guid: 0161fb90663bb074c9c5583b88354e8f, type: 3}
   Label: "\u7EDD\u7F18\u7ED5\u7EC4\u7EC4\u4EF6"
   Description: "采用标准线圈与绝缘接线，提高电气制造厂和机器制造厂的产出。"
   SortOrder: 220

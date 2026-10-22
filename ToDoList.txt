@@ -1,12 +1,13 @@
 Kingdom 当前事项
-更新：2026-10-13。
+更新：2026-10-22。
 
 规则入口：AGENTS.md → .agents/skills/kingdom-project-dev/SKILL.md
 能力与证据导航：outputs/阶段交付.md
 当前内容方向：docs/content/progression-roadmap.md
 
 当前工作
-- 资源/建筑列表与独立生产树：收紧折叠布局、补建筑下级关系、放大置顶 Pin，并清理已确认死代码和过时资料。实现与验证由 .codex/handoffs/2026-10-12-button-redesign-handoff.md 持续记录。
+- 本轮建筑/星区插图、生产树接入、工坊92张图片及卡片绑定已完成；当前交接见 .codex/handoffs/2026-10-21-building-icons-handoff.md。
+- 研究前置按生产依赖调整4处；静态闭包全部可达，实际等待节奏尚未实测。证据和限制见 .codex/handoffs/2026-10-18-simulation-pacing-handoff.md。
 
 已实现
 - A–G 原约定能力与18章插画、背景阅读卡和独立插画预览；不再保留 E 暂缓的旧施工状态。

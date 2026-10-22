@@ -1,5 +1,0 @@
-Kingdom Unity Test Runner - Latest Error Report
-Generated: 2026-10-19T13:06:50.2609957+08:00
-Platform: EditMode
-Result: NotStarted
-Test run started; no result XML is available yet.

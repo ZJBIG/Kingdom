@@ -77,7 +77,7 @@ public sealed class KingdomPerfTestTools : EditorWindow
 
         ExpantaNum amount = new(TestAmount);
         int count = 0;
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
         {
             if (resource == null)
                 continue;
@@ -119,7 +119,7 @@ public sealed class KingdomPerfTestTools : EditorWindow
         InjectAllResources();
         SetResearchAcceleration(false);
         int queued = 0;
-        var candidates = new List<Research>(DataBase<Research>.All);
+        var candidates = new List<ResearchDef>(DataBase<ResearchDef>.All);
         candidates.Sort((left, right) =>
         {
             int leftCount = left?.Prerequisites?.Count ?? 0;
@@ -131,7 +131,7 @@ public sealed class KingdomPerfTestTools : EditorWindow
         // the player so prerequisite batches are added when needed.
         for (int pass = 0; pass < candidates.Count && researches.ResearchQueue.Count < QueueTestTargetCount; pass++)
         {
-            foreach (Research research in candidates)
+            foreach (ResearchDef research in candidates)
             {
                 if (researches.ResearchQueue.Count >= QueueTestTargetCount)
                     break;
@@ -186,9 +186,9 @@ public sealed class KingdomPerfTestTools : EditorWindow
         int ticks = 0;
         for (; ticks < 512 && researches.TotalFinishedResearchCount < researches.TotalResearchCount; ticks++)
         {
-            for (int i = 0; i < DataBase<Research>.All.Count; i++)
+            for (int i = 0; i < DataBase<ResearchDef>.All.Count; i++)
             {
-                Research research = DataBase<Research>.All[i];
+                ResearchDef research = DataBase<ResearchDef>.All[i];
                 if (research != null)
                     researches.EnqueueResearch(research);
             }

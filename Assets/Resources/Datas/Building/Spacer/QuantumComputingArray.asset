@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: QuantumComputingArray
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 0590d4165c2c4fb0b920d7e542767cfa, type: 3}
   id: QuantumComputingArray
   Label: "\u91CF\u5B50\u8BA1\u7B97\u9635\u5217"
   Description: "以幽影材料和钛合金构成低温量子系统，支撑深空测绘与理论研究。"

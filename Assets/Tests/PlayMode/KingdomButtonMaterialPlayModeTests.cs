@@ -283,16 +283,16 @@ public sealed class KingdomButtonMaterialPlayModeTests
                 {
                     if (page == "Buildings" && size.x == 2640)
                     {
-                        foreach (Resource resource in DataBase<Resource>.All)
+                        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
                             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
-                        Building house = DataBase<Building>.Find("WoodHouse");
+                        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
                         Assert.That(house, Is.Not.Null);
                         Assert.That(BuildingManager.Instance.TryBuild(house, ExpantaNum.One, out BuildFailure failure),
                             Is.True, "Screenshot fixture must expose real enabled actions: " + failure);
                     }
                     if (page == "Workshop")
                     {
-                        foreach (Research research in DataBase<Research>.All)
+                        foreach (ResearchDef research in DataBase<ResearchDef>.All)
                             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
                         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
                         root.RefreshNavigationVisibilityForEditor();
@@ -312,17 +312,17 @@ public sealed class KingdomButtonMaterialPlayModeTests
                     if (page == "Buildings")
                     {
                         root.RefreshLiveCardValuesForEditor();
-                        Building house = DataBase<Building>.Find("WoodHouse");
+                        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
                         Button deconstruct = root.GetDeconstructButtonForEditor(house);
                         Assert.That(deconstruct.interactable, Is.True);
                         Button build = deconstruct.transform.parent.Find("BuildButton").GetComponent<Button>();
                         if (size.x == 2640) Assert.That(build.interactable, Is.True, "Initial buildable fixture must expose enabled actions.");
                     }
                     if (page == "Resources")
-                        root.ShowResourceDetailsForEditor(DataBase<Resource>.All[0]);
+                        root.ShowResourceDetailsForEditor(DataBase<ResourceDef>.All[0]);
                     if (page == "Buildings")
                     {
-                        Building house = DataBase<Building>.Find("WoodHouse");
+                        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
                         root.GetDeconstructButtonForEditor(house).transform.parent.GetComponent<Button>().onClick.Invoke();
                     }
                     Canvas.ForceUpdateCanvases();
@@ -377,7 +377,7 @@ public sealed class KingdomButtonMaterialPlayModeTests
         Transform viewport = null;
         Transform content = null;
         bool ready = false;
-        int expected = DataBase<Research>.All.Count;
+        int expected = DataBase<ResearchDef>.All.Count;
         Assert.That(expected, Is.GreaterThan(0));
         for (int frame = 0; frame < 480; frame++)
         {
@@ -485,7 +485,7 @@ public sealed class KingdomButtonMaterialPlayModeTests
         }
         if (page == "Buildings")
         {
-            Building house = DataBase<Building>.Find("WoodHouse");
+            BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
             Transform row = root.GetDeconstructButtonForEditor(house).transform.parent;
             float right = float.NegativeInfinity;
             foreach (string column in new[] { "Label", "TechLevel", "Amount", "Effect", "BuildButton", "DeconstructButton" })

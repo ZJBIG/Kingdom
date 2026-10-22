@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalPowerBeaming
   m_EditorClassIdentifier: 
   id: OrbitalPowerBeaming
+  icon: {fileID: 21300000, guid: 7f8de1bc6a0daf94c829c05d43b08a5b, type: 3}
   Label: "轨道定向输电终端"
   Description: "以定向输电终端减少传输损失，提高轨道太阳能阵列的发电量。"
   SortOrder: 430

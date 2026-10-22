@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PoweredMining
   m_EditorClassIdentifier: 
   id: PoweredMining
+  icon: {fileID: 21300000, guid: 4fe82b07d5cc2b146a9f15c0a578e85f, type: 3}
   Label: "\u84B8\u6C7D\u51FF\u5CA9\u673A\u7EC4"
   Description: "以蒸汽凿岩设备提高煤矿井、低级金属矿场、综合金属矿场、机械化煤矿、工业石材联合厂与高级陶瓷厂的产出。"
   SortOrder: 60

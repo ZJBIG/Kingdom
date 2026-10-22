@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AdvancedMetalElectrolyticCells
   m_EditorClassIdentifier: 
   id: AdvancedMetalElectrolyticCells
+  icon: {fileID: 21300000, guid: 71d5a53311b22b24689fcdd29794b434, type: 3}
   Label: "高级金属电解槽组"
   Description: "优化电解槽、耐火材料和碳电极，提升高级金属锭产能，为轻质结构与航天设施提供稳定供给。"
   SortOrder: 310

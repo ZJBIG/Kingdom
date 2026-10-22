@@ -87,40 +87,40 @@ public sealed class KingdomPlayModeTests
         // Controlled production fixture; this does not assert natural era progression.
         foreach (string supportId in new[] { "IrrigationWorks", "CentralPowerStation", "Caravanserai" })
         {
-            Building support = DataBase<Building>.Find(supportId);
-            foreach (Pair<Resource, ExpantaNum> input in support.ResourceConsumptionRates)
+            BuildingDef support = DataBase<BuildingDef>.Find(supportId);
+            foreach (Pair<ResourceDef, ExpantaNum> input in support.ResourceConsumptionRates)
                 resources.SetAmount(input.First, new ExpantaNum(10000));
             buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(support),
                 supportId == "IrrigationWorks" ? new ExpantaNum(100) : new ExpantaNum(4));
         }
 
-        Resource crudeOil = DataBase<Resource>.Find("CrudeOil");
-        Resource explosives = DataBase<Resource>.Find("Explosives");
+        ResourceDef crudeOil = DataBase<ResourceDef>.Find("CrudeOil");
+        ResourceDef explosives = DataBase<ResourceDef>.Find("Explosives");
         resources.SetAmount(crudeOil, ExpantaNum.Zero);
         resources.SetAmount(explosives, ExpantaNum.Zero);
         buildings.SetAmountAndRatesForEditor(
-            buildings.EnsureBuilding(DataBase<Building>.Find("OilDerrick")), ExpantaNum.One);
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("OilDerrick")), ExpantaNum.One);
         simulation.ManualTick(1d);
         Assert.That(resources.GetAmount(crudeOil), Is.GreaterThan(ExpantaNum.Zero),
             "The first oil well must start before any explosives exist.");
 
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
-        foreach (Pair<Resource, ExpantaNum> input in chemicalPlant.ResourceConsumptionRates)
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
+        foreach (Pair<ResourceDef, ExpantaNum> input in chemicalPlant.ResourceConsumptionRates)
             if (input.First != crudeOil) resources.SetAmount(input.First, new ExpantaNum(10000));
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(chemicalPlant), ExpantaNum.One);
         simulation.ManualTick(1d);
         Assert.That(resources.GetAmount(explosives), Is.GreaterThan(ExpantaNum.Zero),
             "Oil produced by the first well must start the chemical supply chain.");
 
-        Building factory = DataBase<Building>.Find("MachineFactory");
-        foreach (Pair<Resource, ExpantaNum> input in factory.ResourceConsumptionRates)
+        BuildingDef factory = DataBase<BuildingDef>.Find("MachineFactory");
+        foreach (Pair<ResourceDef, ExpantaNum> input in factory.ResourceConsumptionRates)
             resources.SetAmount(input.First, new ExpantaNum(10000));
         foreach (string unavailableId in new[] { "AdvancedMetalIngot", "Lubricant", "Rubber", "Machinery" })
-            if (DataBase<Resource>.TryFind(unavailableId, out Resource unavailable))
+            if (DataBase<ResourceDef>.TryFind(unavailableId, out ResourceDef unavailable))
                 resources.SetAmount(unavailable, ExpantaNum.Zero);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(factory), ExpantaNum.One);
         simulation.ManualTick(1d);
-        Assert.That(resources.GetAmount(DataBase<Resource>.Find("Machinery")),
+        Assert.That(resources.GetAmount(DataBase<ResourceDef>.Find("Machinery")),
             Is.GreaterThan(ExpantaNum.Zero),
             "The first machinery must not require upstream facilities built with machinery.");
     }
@@ -132,7 +132,7 @@ public sealed class KingdomPlayModeTests
         GameManager gameManager = GameManager.Instance;
         ResourceManager resourceManager = ResourceManager.Instance;
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
         // Era and counts are discrete contracts; startup inventory/rates may be tuned.
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(gameManager.State.FoodAmount, Is.GreaterThan(ExpantaNum.Zero));
@@ -165,10 +165,10 @@ public sealed class KingdomPlayModeTests
         ResearchManager researches = ResearchManager.Instance;
         SimulationManager simulation = SimulationManager.Instance;
         SaveManager saves = SaveManager.Instance;
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building house = DataBase<Building>.Find("WoodHouse");
-        Building farm = DataBase<Building>.Find("Farm");
-        Research agriculture = DataBase<Research>.Find("Agriculture");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+        ResearchDef agriculture = DataBase<ResearchDef>.Find("Agriculture");
         int simulatedSeconds = 0;
         const int simulationBudget = 600; // Bounded regression, not a human pacing claim.
 
@@ -209,13 +209,13 @@ public sealed class KingdomPlayModeTests
             simulatedSeconds++;
         }
         Assert.That(researches.CanPayResearchCost(agriculture, out string blocker), Is.True, blocker);
-        var inventoryBeforeResearch = new Dictionary<Resource, ExpantaNum>();
-        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+        var inventoryBeforeResearch = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in agriculture.ResourceRequirements)
             inventoryBeforeResearch.Add(requirement.First, resources.GetAmount(requirement.First));
         // No tick between these observations: a payment ledger alone must not
         // pass if the underlying inventory was never actually charged.
         Assert.That(researches.HandleResearchAction(agriculture), Is.EqualTo(ResearchActionResult.Started));
-        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in agriculture.ResourceRequirements)
             Assert.That((inventoryBeforeResearch[requirement.First] -
                 resources.GetAmount(requirement.First) - requirement.Second).Abs(),
                 Is.LessThan(new ExpantaNum(0.000001)),
@@ -230,7 +230,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(research.Progress, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(research.Status, Is.EqualTo(ResearchStatus.Completed),
             "Agriculture must finish through paid simulation, not a forced status.");
-        foreach (Pair<Resource, ExpantaNum> requirement in agriculture.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in agriculture.ResourceRequirements)
             Assert.That((research.GetPaidResourceCost(requirement.First) - requirement.Second).Abs(),
                 Is.LessThan(new ExpantaNum(0.000001)),
                 "The payment ledger must match the actual definition: " + requirement.First.Id);
@@ -286,7 +286,7 @@ public sealed class KingdomPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         GameManager gameManager = GameManager.Instance;
         SaveManager saveManager = SaveManager.Instance;
-        Building phaseEnergyArray = DataBase<Building>.Find("PhaseEnergyArray");
+        BuildingDef phaseEnergyArray = DataBase<BuildingDef>.Find("PhaseEnergyArray");
         Assert.That(root, Is.Not.Null);
         Assert.That(phaseEnergyArray, Is.Not.Null);
 
@@ -367,9 +367,9 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.UltraProject.State.Doctrine,
             Is.EqualTo(UltraProjectDoctrine.Expedition));
 
-        SectorDefinition occupiedSector = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDef occupiedSector = DataBase<SectorDef>.Find("AlphaCentauri");
         Assert.That(occupiedSector, Is.Not.Null);
-        foreach (SectorDefinition prerequisite in occupiedSector.PrerequisiteSectors)
+        foreach (SectorDef prerequisite in occupiedSector.PrerequisiteSectors)
         {
             SectorState prerequisiteState = gameManager.Sectors.GetState(prerequisite);
             prerequisiteState.SetUnlockedForEditor(true);
@@ -406,7 +406,7 @@ public sealed class KingdomPlayModeTests
         campaignDoctrineButton.onClick.Invoke();
         Assert.That(gameManager.State.Campaign.Doctrine, Is.EqualTo(CampaignDoctrine.Surge),
             "The disabled completed-target control has no stale command listener.");
-        root.ShowBuildingDetailsForEditor(DataBase<Building>.Find("PhaseEnergyArray"));
+        root.ShowBuildingDetailsForEditor(DataBase<BuildingDef>.Find("PhaseEnergyArray"));
         Assert.That(campaignDoctrineButton.interactable, Is.False,
             "The committed project also stops recommending expedition posture once remote targets are complete.");
     }
@@ -417,7 +417,7 @@ public sealed class KingdomPlayModeTests
         yield return LoadIsolatedNewGame();
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         GameManager gameManager = GameManager.Instance;
-        Building phaseEnergyArray = DataBase<Building>.Find("PhaseEnergyArray");
+        BuildingDef phaseEnergyArray = DataBase<BuildingDef>.Find("PhaseEnergyArray");
         Assert.That(root, Is.Not.Null);
         Assert.That(phaseEnergyArray, Is.Not.Null);
 
@@ -500,7 +500,7 @@ public sealed class KingdomPlayModeTests
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(3));
         gameManager.State.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
         BuildingState farm =
-            buildingManager.EnsureBuilding(DataBase<Building>.Find("Farm"));
+            buildingManager.EnsureBuilding(DataBase<BuildingDef>.Find("Farm"));
         farm.SetAmountForEditor(1);
         farm.SetEfficiencyForEditor(ExpantaNum.Zero);
 
@@ -521,11 +521,11 @@ public sealed class KingdomPlayModeTests
         GameManager game = GameManager.Instance;
         game.State.RestorePopulationForEditor(0);
         game.State.RestorePopulationCapacityExactForEditor(0, 0);
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
         resource.SetIdForEditor("PlayModeBudgetInput");
         createdObjects.Add(resource);
-        Building source = CreateFlowBuilding("PlayModeBudgetSource", "Budget source", resource, 1);
-        Building food = CreateFlowBuilding("PlayModeBudgetFood", "Budget food", resource, 0);
+        BuildingDef source = CreateFlowBuilding("PlayModeBudgetSource", "Budget source", resource, 1);
+        BuildingDef food = CreateFlowBuilding("PlayModeBudgetFood", "Budget food", resource, 0);
         food.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, 10, 0, 0,
             0, 0, 0, 0, 0, 0, 0, new(), new(), new() { new(resource, 2) });
         BuildingManager buildings = BuildingManager.Instance;
@@ -565,7 +565,7 @@ public sealed class KingdomPlayModeTests
 
         gameManager.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
 
-        Building refinery = DataBase<Building>.Find("OilRefinery");
+        BuildingDef refinery = DataBase<BuildingDef>.Find("OilRefinery");
         Assert.That(refinery.RequiredResearch, Is.Not.Empty);
         Assert.That(refinery.RequiredWorkshopUpgrades, Is.Not.Empty);
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out BuildFailure failure), Is.False);
@@ -574,9 +574,9 @@ public sealed class KingdomPlayModeTests
 
         for (int i = 0; i < refinery.RequiredResearch.Count; i++)
         {
-            Research required = refinery.RequiredResearch[i];
-            var paidCosts = new Dictionary<Resource, ExpantaNum>();
-            foreach (Pair<Resource, ExpantaNum> requirement in required.ResourceRequirements)
+            ResearchDef required = refinery.RequiredResearch[i];
+            var paidCosts = new Dictionary<ResourceDef, ExpantaNum>();
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in required.ResourceRequirements)
                 paidCosts[requirement.First] = requirement.Second;
             researchManager.GetState(required).RestoreForEditor(
                 ExpantaNum.Zero, true, true, paidCosts);
@@ -585,7 +585,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.False);
         Assert.That(failure, Is.EqualTo(BuildFailure.WorkshopPrerequisiteIncomplete));
 
-        WorkshopUpgrade upgrade = refinery.RequiredWorkshopUpgrades[0];
+        WorkshopUpgradeDef upgrade = refinery.RequiredWorkshopUpgrades[0];
         workshopManager.States[upgrade].SetPurchasedForEditor(true);
 
         Assert.That(buildingManager.ArePrerequisitesMet(refinery, out failure), Is.True);
@@ -709,10 +709,10 @@ public sealed class KingdomPlayModeTests
         gameManager.InitializeNewGameForEditor();
         researchManager.ResetForLoadForEditor();
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
         resourceManager.SetAmount(wood, 1000);
-        Research active = DataBase<Research>.Find("Agriculture");
-        Research queued = DataBase<Research>.Find("ControlledFire");
+        ResearchDef active = DataBase<ResearchDef>.Find("Agriculture");
+        ResearchDef queued = DataBase<ResearchDef>.Find("ControlledFire");
 
         Assert.That(researchManager.HandleResearchAction(active), Is.EqualTo(ResearchActionResult.Started));
         Assert.That(researchManager.HandleResearchAction(queued), Is.EqualTo(ResearchActionResult.Queued));
@@ -752,7 +752,7 @@ public sealed class KingdomPlayModeTests
 
         for (int i = 0; i < transitions.Length; i++)
         {
-            Research transition = DataBase<Research>.Find(transitions[i].Id);
+            ResearchDef transition = DataBase<ResearchDef>.Find(transitions[i].Id);
             Assert.That(transition.AdvancesTechLevel, Is.True);
             Assert.That(transition.TechLevel, Is.EqualTo(transitions[i].Target));
             CompleteResearchPrerequisites(
@@ -769,13 +769,13 @@ public sealed class KingdomPlayModeTests
             Assert.That(gameManager.State.TechLevel, Is.EqualTo(transitions[i].Target),
                 "Completed transition must update the authoritative TechLevel.");
 
-            Research nextResearch = DataBase<Research>.All.FirstOrDefault(value =>
+            ResearchDef nextResearch = DataBase<ResearchDef>.All.FirstOrDefault(value =>
                 value != null && value.TechLevel == transitions[i].Target &&
                 !value.AdvancesTechLevel);
             Assert.That(nextResearch, Is.Not.Null,
                 "No next-era Research definition exists after " + transition.Id);
 
-            Building nextBuilding = DataBase<Building>.All.FirstOrDefault(value =>
+            BuildingDef nextBuilding = DataBase<BuildingDef>.All.FirstOrDefault(value =>
                 value != null && value.TechLevel == transitions[i].Target);
             Assert.That(nextBuilding, Is.Not.Null,
                 "No next-era Building definition exists after " + transition.Id);
@@ -786,14 +786,14 @@ public sealed class KingdomPlayModeTests
 
             if (transitions[i].Target == TechLevel.Industrial)
             {
-                Research workshopTheory = DataBase<Research>.Find("IndustrialWorkshop");
+                ResearchDef workshopTheory = DataBase<ResearchDef>.Find("IndustrialWorkshop");
                 Assert.That(workshopTheory, Is.Not.Null);
                 CompleteResearchThroughRuntime(gameManager, researchManager, resourceManager, workshopTheory);
                 Assert.That(workshopManager.IsSystemUnlocked, Is.True,
                     "IndustrialWorkshop must unlock the Workshop system at runtime.");
             }
 
-            WorkshopUpgrade nextWorkshop = DataBase<WorkshopUpgrade>.All.FirstOrDefault(value =>
+            WorkshopUpgradeDef nextWorkshop = DataBase<WorkshopUpgradeDef>.All.FirstOrDefault(value =>
                 value != null && value.TechLevel == transitions[i].Target &&
                 value.RequiredUpgrades.Count == 0 &&
                 (transitions[i].Target != TechLevel.Industrial ||
@@ -821,7 +821,7 @@ public sealed class KingdomPlayModeTests
                 state.Definition.Id == "InterstellarNavigation"
                     ? ResearchStatus.Queued : ResearchStatus.Completed);
         ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values));
-        BuildingManager.Instance.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+        BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter"))
             .SetAmountForEditor(ExpantaNum.One);
         TutorialManager.Current.RestoreSaveData(new SaveManager.TutorialSaveData
         {
@@ -832,7 +832,7 @@ public sealed class KingdomPlayModeTests
         yield return new WaitForSeconds(0.35f);
         Transform card = root.transform.Find("SafeAreaRoot/Content/PageHost/Overview/PrimaryCard");
         TMP_Text guidance = card.Find("Text").GetComponent<TMP_Text>();
-        SectorDefinition target = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef target = DataBase<SectorDef>.Find("DawnRing");
         Assert.That(guidance.text, Does.Contain(target.Label));
         Button navigation = card.Find("NavigationButton").GetComponent<Button>();
         Assert.That(navigation.interactable, Is.True);
@@ -853,8 +853,8 @@ public sealed class KingdomPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         SaveManager save = SaveManager.Instance;
         ResourceManager resources = ResourceManager.Instance;
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building lumber = DataBase<Building>.Find("Lumberyard");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef lumber = DataBase<BuildingDef>.Find("Lumberyard");
         Assert.That(lumber, Is.Not.Null);
         BuildingState state = BuildingManager.Instance.EnsureBuilding(lumber);
         BuildingManager.Instance.SetAmountAndRatesForEditor(state, ExpantaNum.One);
@@ -892,8 +892,8 @@ public sealed class KingdomPlayModeTests
         BuildingManager buildings = BuildingManager.Instance;
         ResearchManager research = ResearchManager.Instance;
         WorkshopManager workshop = WorkshopManager.Instance;
-        WorkshopUpgrade candidate = DataBase<WorkshopUpgrade>.Find("RotaryDrillingHeads");
-        Building target = DataBase<Building>.Find("OilDerrick");
+        WorkshopUpgradeDef candidate = DataBase<WorkshopUpgradeDef>.Find("RotaryDrillingHeads");
+        BuildingDef target = DataBase<BuildingDef>.Find("OilDerrick");
         Assert.That(root, Is.Not.Null);
         Assert.That(candidate, Is.Not.Null);
         Assert.That(target, Is.Not.Null);
@@ -901,37 +901,37 @@ public sealed class KingdomPlayModeTests
         // Controlled Industrial fixture inside an isolated new-game scene; this is UI/rate
         // regression coverage, not evidence of reaching Industrial from natural production.
         GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.Industrial);
-        var completed = new List<Research>(candidate.RequiredResearch)
+        var completed = new List<ResearchDef>(candidate.RequiredResearch)
         {
-            DataBase<Research>.Find("IndustrialWorkshop")
+            DataBase<ResearchDef>.Find("IndustrialWorkshop")
         };
-        foreach (Research prerequisite in completed)
+        foreach (ResearchDef prerequisite in completed)
         {
-            var paid = new Dictionary<Resource, ExpantaNum>();
-            foreach (Pair<Resource, ExpantaNum> cost in prerequisite.ResourceRequirements)
+            var paid = new Dictionary<ResourceDef, ExpantaNum>();
+            foreach (Pair<ResourceDef, ExpantaNum> cost in prerequisite.ResourceRequirements)
                 paid[cost.First] = cost.Second;
             research.GetState(prerequisite).RestoreForEditor(ExpantaNum.Zero, false, true, paid);
         }
-        foreach (WorkshopUpgrade prerequisite in candidate.RequiredUpgrades)
+        foreach (WorkshopUpgradeDef prerequisite in candidate.RequiredUpgrades)
             workshop.States[prerequisite].SetPurchasedForEditor(true);
         ProgressionModifierState previous = ProgressionModifierManager.Current;
         ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values),
             new List<WorkshopUpgradeState>(workshop.States.Values));
         buildings.ApplyProgressionModifierChangeForEditor(previous, ProgressionModifierManager.Current);
-        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in candidate.ResourceRequirements)
             resources.SetAmount(cost.First, cost.Second * new ExpantaNum(3));
         BuildingState building = buildings.EnsureBuilding(target);
         buildings.SetAmountAndRatesForEditor(building, ExpantaNum.One);
 
-        var inventoryVersions = new Dictionary<Resource, int>();
-        foreach (KeyValuePair<Resource, ResourceState> entry in resources.States)
+        var inventoryVersions = new Dictionary<ResourceDef, int>();
+        foreach (KeyValuePair<ResourceDef, ResourceState> entry in resources.States)
             inventoryVersions.Add(entry.Key, entry.Value.Version);
         int buildingVersion = building.Version;
         int workshopVersion = workshop.States[candidate].Version;
         ProgressionModifierState current = ProgressionModifierManager.Current;
         IReadOnlyList<WorkshopBenefitRatePreview> preview = workshop.GetPurchaseBenefitPreview(candidate);
         Assert.That(preview, Is.Not.Empty);
-        foreach (KeyValuePair<Resource, int> version in inventoryVersions)
+        foreach (KeyValuePair<ResourceDef, int> version in inventoryVersions)
             Assert.That(resources.GetState(version.Key).Version, Is.EqualTo(version.Value),
                 "A read-only preview must not mutate resource state versions.");
         Assert.That(building.Version, Is.EqualTo(buildingVersion));
@@ -959,11 +959,11 @@ public sealed class KingdomPlayModeTests
         foreach (WorkshopBenefitRatePreview rate in preview)
             Assert.That(body.text, Does.Contain(rate.Before.ToGameString() + " → " + rate.After.ToGameString() + "/s"));
 
-        var beforeRates = new Dictionary<Resource, Pair<ExpantaNum, ExpantaNum>>();
-        foreach (KeyValuePair<Resource, ResourceState> entry in resources.States)
+        var beforeRates = new Dictionary<ResourceDef, Pair<ExpantaNum, ExpantaNum>>();
+        foreach (KeyValuePair<ResourceDef, ResourceState> entry in resources.States)
             beforeRates[entry.Key] = new Pair<ExpantaNum, ExpantaNum>(entry.Value.ProductionRate, entry.Value.ConsumptionRate);
-        var beforeCosts = new Dictionary<Resource, ExpantaNum>();
-        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+        var beforeCosts = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (Pair<ResourceDef, ExpantaNum> cost in candidate.ResourceRequirements)
             beforeCosts[cost.First] = resources.GetAmount(cost.First);
         Button purchase = root.GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
             button.name == "Action" && button.gameObject.activeInHierarchy);
@@ -971,7 +971,7 @@ public sealed class KingdomPlayModeTests
         ExpantaNum reward = GameManager.Instance.State.HappinessRewardMultiplier;
         purchase.onClick.Invoke();
         Assert.That(workshop.IsPurchased(candidate), Is.True);
-        foreach (Pair<Resource, ExpantaNum> cost in candidate.ResourceRequirements)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in candidate.ResourceRequirements)
             Assert.That((beforeCosts[cost.First] - resources.GetAmount(cost.First) - cost.Second).Abs(),
                 Is.LessThan(new ExpantaNum("1e-6")), "The real purchase must charge its authored cost.");
         foreach (WorkshopBenefitRatePreview rate in preview)
@@ -999,7 +999,7 @@ public sealed class KingdomPlayModeTests
         BuildingManager buildingManager = BuildingManager.Instance;
         ResearchManager researchManager = ResearchManager.Instance;
         SimulationManager simulationManager = SimulationManager.Instance;
-        Building house = DataBase<Building>.Find("WoodHouse");
+        BuildingDef house = DataBase<BuildingDef>.Find("WoodHouse");
         Assert.That(root, Is.Not.Null);
         Assert.That(house, Is.Not.Null);
 
@@ -1037,7 +1037,7 @@ public sealed class KingdomPlayModeTests
             Assert.That(buildingManager.GetState(house).Amount,
                 Is.GreaterThanOrEqualTo(ExpantaNum.One));
 
-            foreach (Pair<Resource, ExpantaNum> requirement in house.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in house.ResourceRequirements)
                 if (requirement.First != null)
                     resourceManager.SetAmount(requirement.First, ExpantaNum.Zero);
             root.RefreshUI();
@@ -1062,7 +1062,7 @@ public sealed class KingdomPlayModeTests
             Assert.That(requests, Is.EqualTo(new[] { UIButtonSoundManager.Sound.Deconstruct }));
 
             GrantResearchTestResources(resourceManager);
-            Research first = FindAvailableResearch(researchManager);
+            ResearchDef first = FindAvailableResearch(researchManager);
             requests.Clear();
             CompleteResearchThroughRuntime(gameManager, researchManager, resourceManager, first);
             Assert.That(requests, Has.Count.EqualTo(1));
@@ -1072,7 +1072,7 @@ public sealed class KingdomPlayModeTests
                     : UIButtonSoundManager.Sound.ResearchComplete));
 
             GrantResearchTestResources(resourceManager);
-            Research offline = FindAvailableResearch(researchManager);
+            ResearchDef offline = FindAvailableResearch(researchManager);
             requests.Clear();
             Assert.That(researchManager.HandleResearchAction(offline),
                 Is.Not.EqualTo(ResearchActionResult.Invalid));
@@ -1194,7 +1194,7 @@ public sealed class KingdomPlayModeTests
         root.SetPage("Research");
         Transform viewport = null;
         Transform content = null;
-        int expectedResearchNodes = DataBase<Research>.All.Count;
+        int expectedResearchNodes = DataBase<ResearchDef>.All.Count;
         Assert.That(expectedResearchNodes, Is.GreaterThanOrEqualTo(79),
             "The research graph must retain the minimum vertical-slice node coverage.");
         bool layoutReady = false;
@@ -1550,17 +1550,17 @@ public sealed class KingdomPlayModeTests
         gameManager.InitializeNewGameForEditor();
         Assert.That(gameManager.State.HappinessRewardMultiplier, Is.GreaterThan(ExpantaNum.One));
 
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
         resource.SetIdForEditor("PlayModeDetailFlowResource");
         resource.Label = "Test flow resource";
         resource.Description = "Resource detail flow regression";
         createdObjects.Add(resource);
 
-        Building realized = CreateFlowBuilding(
+        BuildingDef realized = CreateFlowBuilding(
             "PlayModeRealizedProducer", "Realized producer", resource, new ExpantaNum(2d));
-        Building unbuilt = CreateFlowBuilding(
+        BuildingDef unbuilt = CreateFlowBuilding(
             "PlayModeUnbuiltProducer", "Unbuilt producer", resource, new ExpantaNum(9d));
-        Building zeroEfficiency = CreateFlowBuilding(
+        BuildingDef zeroEfficiency = CreateFlowBuilding(
             "PlayModeZeroEfficiencyProducer", "Zero efficiency producer", resource, new ExpantaNum(7d));
 
         BuildingState realizedState = buildingManager.EnsureBuilding(realized);
@@ -1605,7 +1605,7 @@ public sealed class KingdomPlayModeTests
         yield return null;
         yield return null;
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
         resourceManager.SetProductionRate(wood, ExpantaNum.One);
         resourceManager.SetConsumptionRate(wood, ExpantaNum.Zero);
         root.RefreshLiveCardValuesForEditor();
@@ -1663,7 +1663,7 @@ public sealed class KingdomPlayModeTests
         SimulationManager simulationManager = FindOrCreateManager<SimulationManager>("PlayMode-Pause-Managers");
         yield return null;
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
         resourceManager.SetAmount(wood, ExpantaNum.Zero);
         resourceManager.SetProductionRate(wood, 10);
         simulationManager.SetRunning(false);
@@ -1755,12 +1755,12 @@ public sealed class KingdomPlayModeTests
         Assert.Fail("SampleScene did not create KingdomUIRoot within the frame budget.");
     }
 
-    private static Research FindAvailableResearch(ResearchManager researchManager)
+    private static ResearchDef FindAvailableResearch(ResearchManager researchManager)
     {
-        IReadOnlyList<Research> researches = DataBase<Research>.All;
+        IReadOnlyList<ResearchDef> researches = DataBase<ResearchDef>.All;
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i];
+            ResearchDef research = researches[i];
             ResearchState state = researchManager.GetState(research);
             if (state.Status != ResearchStatus.Completed &&
                 (research.Prerequisites == null || research.Prerequisites.Count == 0))
@@ -1773,12 +1773,12 @@ public sealed class KingdomPlayModeTests
 
     private static void GrantResearchTestResources(ResourceManager resourceManager)
     {
-        var totals = new Dictionary<Resource, ExpantaNum>();
-        foreach (Research research in DataBase<Research>.All)
+        var totals = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null)
                 continue;
-            foreach (Pair<Resource, ExpantaNum> requirement in research.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in research.ResourceRequirements)
             {
                 if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                     continue;
@@ -1788,11 +1788,11 @@ public sealed class KingdomPlayModeTests
                     : requirement.Second;
             }
         }
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             if (upgrade == null)
                 continue;
-            foreach (Pair<Resource, ExpantaNum> requirement in upgrade.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> requirement in upgrade.ResourceRequirements)
             {
                 if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                     continue;
@@ -1802,7 +1802,7 @@ public sealed class KingdomPlayModeTests
                     : requirement.Second;
             }
         }
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             resourceManager.SetAmount(resource, totals.TryGetValue(
                 resource, out ExpantaNum total) ? total : ExpantaNum.Zero);
     }
@@ -1811,7 +1811,7 @@ public sealed class KingdomPlayModeTests
         GameManager gameManager,
         ResearchManager researchManager,
         ResourceManager resourceManager,
-        Research target)
+        ResearchDef target)
     {
         ResearchActionResult action = researchManager.HandleResearchAction(target);
         Assert.That(action, Is.Not.EqualTo(ResearchActionResult.Invalid));
@@ -1840,7 +1840,7 @@ public sealed class KingdomPlayModeTests
         GameManager gameManager,
         ResearchManager researchManager,
         ResourceManager resourceManager,
-        Research target,
+        ResearchDef target,
         HashSet<string> visiting)
     {
         if (target == null || researchManager.IsResearchCompleted(target.Id))
@@ -1850,7 +1850,7 @@ public sealed class KingdomPlayModeTests
 
         for (int i = 0; i < target.Prerequisites.Count; i++)
         {
-            Research prerequisite = target.Prerequisites[i];
+            ResearchDef prerequisite = target.Prerequisites[i];
             CompleteResearchPrerequisites(
                 gameManager,
                 researchManager,
@@ -1867,13 +1867,13 @@ public sealed class KingdomPlayModeTests
         visiting.Remove(target.Id);
     }
 
-    private Building CreateFlowBuilding(
+    private BuildingDef CreateFlowBuilding(
         string id,
         string label,
-        Resource resource,
+        ResourceDef resource,
         ExpantaNum productionRate)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.SetIdForEditor(id);
         building.Label = label;
         building.Description = label;
@@ -1895,12 +1895,12 @@ public sealed class KingdomPlayModeTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(resource, productionRate)
+                new Pair<ResourceDef, ExpantaNum>(resource, productionRate)
             },
-            new List<Pair<Resource, ExpantaNum>>());
+            new List<Pair<ResourceDef, ExpantaNum>>());
         createdObjects.Add(building);
         return building;
     }

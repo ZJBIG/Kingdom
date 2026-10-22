@@ -1,19 +1,21 @@
 # Definition database
 
-`Resource`, `Building`, and `Research` inherit from `GameDefinition` and are indexed by a stable `Id`.
+`ResourceDef`, `BuildingDef`, and `ResearchDef` inherit from `GameDefinition` and are indexed by a stable `Id`.
 Definitions must live below `Assets/Resources/Datas`.
+Every concrete or intermediate class derived directly or indirectly from `GameDefinition` uses the `Def` suffix.
+The base `GameDefinition` keeps its name. Script filenames match their classes; renaming a script moves its existing `.meta` with it and preserves asset GUIDs, stable IDs, serialized field names and resource directories.
 
 ## Common usage
 
 ```csharp
-Resource wood = DataBase<Resource>.Find("WoodLog");
-Building farm = DataBase<Building>.Find("Farm");
-Research agriculture = DataBase<Research>.Find("Agriculture");
+ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+ResearchDef agriculture = DataBase<ResearchDef>.Find("Agriculture");
 ```
 
-`SectorBuilding` is a `Building` subtype, not a wrapper around another
-building asset. It keeps the inherited building fields and adds only its
-`Sector` and `MaxAmount`. Therefore `DataBase<Building>.All` includes the same
+`SectorBuildingDef` is a `BuildingDef` subtype, not a wrapper around another
+building asset. It keeps the inherited building fields and adds its
+`Sector`, `MaxAmount` and optional `RequiresInteriorExploration` gate. Therefore `DataBase<BuildingDef>.All` includes the same
 asset instance, while the Buildings page filters the subtype out and the
 occupied sector menu is its player-facing entry point.
 
@@ -22,7 +24,7 @@ occupied sector menu is its player-facing entry point.
 For optional definitions:
 
 ```csharp
-if (DataBase<Resource>.TryFind("WoodLog", out Resource wood))
+if (DataBase<ResourceDef>.TryFind("WoodLog", out ResourceDef wood))
 {
     // Use wood.
 }
@@ -31,9 +33,9 @@ if (DataBase<Resource>.TryFind("WoodLog", out Resource wood))
 Enumeration and checks:
 
 ```csharp
-IReadOnlyList<Resource> resources = DataBase<Resource>.All;
-int resourceCount = DataBase<Resource>.Count;
-bool hasWood = DataBase<Resource>.Contains("WoodLog");
+IReadOnlyList<ResourceDef> resources = DataBase<ResourceDef>.All;
+int resourceCount = DataBase<ResourceDef>.Count;
+bool hasWood = DataBase<ResourceDef>.Contains("WoodLog");
 ```
 
 IDs are compared without case sensitivity, but code should use the canonical spelling stored on the asset.

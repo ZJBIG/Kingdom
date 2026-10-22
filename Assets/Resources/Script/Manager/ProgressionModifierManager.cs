@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 public sealed class ProgressionModifierState
 {
-    private readonly Dictionary<Building, ExpantaNum> buildingProductionMultipliers = new();
-    private readonly Dictionary<Building, Dictionary<Resource, ExpantaNum>> buildingResourceProductionMultipliers = new();
-    private readonly Dictionary<Building, ExpantaNum> buildingResearchPowerMultipliers = new();
-    private readonly Dictionary<Building, ExpantaNum> buildingPowerProductionMultipliers = new();
-    private readonly Dictionary<Building, ExpantaNum> buildingLogisticsProductionMultipliers = new();
-    private readonly Dictionary<Building, ExpantaNum> buildingConstructionMultipliers = new();
-    private readonly Dictionary<Resource, ExpantaNum> resourceProductionMultipliers = new();
-    private readonly Dictionary<Resource, ExpantaNum> occupiedResourceProductionMultipliers = new();
+    private readonly Dictionary<BuildingDef, ExpantaNum> buildingProductionMultipliers = new();
+    private readonly Dictionary<BuildingDef, Dictionary<ResourceDef, ExpantaNum>> buildingResourceProductionMultipliers = new();
+    private readonly Dictionary<BuildingDef, ExpantaNum> buildingResearchPowerMultipliers = new();
+    private readonly Dictionary<BuildingDef, ExpantaNum> buildingPowerProductionMultipliers = new();
+    private readonly Dictionary<BuildingDef, ExpantaNum> buildingLogisticsProductionMultipliers = new();
+    private readonly Dictionary<BuildingDef, ExpantaNum> buildingConstructionMultipliers = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> resourceProductionMultipliers = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> occupiedResourceProductionMultipliers = new();
     private readonly HashSet<ResearchSystem> unlockedSystems = new();
 
     public ExpantaNum GlobalResearchMultiplier { get; internal set; } = ExpantaNum.One;
@@ -38,70 +38,70 @@ public sealed class ProgressionModifierState
     public bool IsSystemUnlocked(ResearchSystem system) =>
         system != ResearchSystem.None && unlockedSystems.Contains(system);
 
-    public ExpantaNum GetBuildingProductionMultiplier(Building building) =>
+    public ExpantaNum GetBuildingProductionMultiplier(BuildingDef building) =>
         GetMultiplier(buildingProductionMultipliers, building);
 
-    public ExpantaNum GetBuildingResourceProductionMultiplier(Building building, Resource resource)
+    public ExpantaNum GetBuildingResourceProductionMultiplier(BuildingDef building, ResourceDef resource)
     {
         if (ReferenceEquals(building, null) || ReferenceEquals(resource, null) ||
-            !buildingResourceProductionMultipliers.TryGetValue(building, out Dictionary<Resource, ExpantaNum> resources))
+            !buildingResourceProductionMultipliers.TryGetValue(building, out Dictionary<ResourceDef, ExpantaNum> resources))
             return ExpantaNum.One;
         return GetMultiplier(resources, resource);
     }
 
 
-    public ExpantaNum GetBuildingResearchPowerMultiplier(Building building) =>
+    public ExpantaNum GetBuildingResearchPowerMultiplier(BuildingDef building) =>
         GetMultiplier(buildingResearchPowerMultipliers, building);
 
-    public ExpantaNum GetBuildingPowerProductionMultiplier(Building building) =>
+    public ExpantaNum GetBuildingPowerProductionMultiplier(BuildingDef building) =>
         GetMultiplier(buildingPowerProductionMultipliers, building);
 
-    public ExpantaNum GetBuildingLogisticsProductionMultiplier(Building building) =>
+    public ExpantaNum GetBuildingLogisticsProductionMultiplier(BuildingDef building) =>
         GetMultiplier(buildingLogisticsProductionMultipliers, building);
 
-    public ExpantaNum GetBuildingConstructionMultiplier(Building building) =>
+    public ExpantaNum GetBuildingConstructionMultiplier(BuildingDef building) =>
         GetMultiplier(buildingConstructionMultipliers, building);
 
-    public ExpantaNum GetResourceProductionMultiplier(Resource resource) =>
+    public ExpantaNum GetResourceProductionMultiplier(ResourceDef resource) =>
         GetMultiplier(resourceProductionMultipliers, resource);
 
-    public ExpantaNum GetOccupiedResourceProductionMultiplier(Resource resource) =>
+    public ExpantaNum GetOccupiedResourceProductionMultiplier(ResourceDef resource) =>
         GetMultiplier(occupiedResourceProductionMultipliers, resource);
 
-    internal void AddBuildingProductionMultiplier(Building building, ExpantaNum value) =>
+    internal void AddBuildingProductionMultiplier(BuildingDef building, ExpantaNum value) =>
         AddMultiplier(buildingProductionMultipliers, building, value);
 
     internal void AddBuildingResourceProductionMultiplier(
-        Building building,
-        Resource resource,
+        BuildingDef building,
+        ResourceDef resource,
         ExpantaNum value)
     {
         if (ReferenceEquals(building, null) || ReferenceEquals(resource, null))
             return;
         if (!buildingResourceProductionMultipliers.TryGetValue(
                 building,
-                out Dictionary<Resource, ExpantaNum> resources))
+                out Dictionary<ResourceDef, ExpantaNum> resources))
         {
-            resources = new Dictionary<Resource, ExpantaNum>();
+            resources = new Dictionary<ResourceDef, ExpantaNum>();
             buildingResourceProductionMultipliers[building] = resources;
         }
         AddMultiplier(resources, resource, value);
     }
 
 
-    internal void AddBuildingResearchPowerMultiplier(Building building, ExpantaNum value) =>
+    internal void AddBuildingResearchPowerMultiplier(BuildingDef building, ExpantaNum value) =>
         AddMultiplier(buildingResearchPowerMultipliers, building, value);
 
-    internal void AddBuildingPowerProductionMultiplier(Building building, ExpantaNum value) =>
+    internal void AddBuildingPowerProductionMultiplier(BuildingDef building, ExpantaNum value) =>
         AddMultiplier(buildingPowerProductionMultipliers, building, value);
 
-    internal void AddBuildingLogisticsProductionMultiplier(Building building, ExpantaNum value) =>
+    internal void AddBuildingLogisticsProductionMultiplier(BuildingDef building, ExpantaNum value) =>
         AddMultiplier(buildingLogisticsProductionMultipliers, building, value);
 
-    internal void AddBuildingConstructionMultiplier(Building building, ExpantaNum value) =>
+    internal void AddBuildingConstructionMultiplier(BuildingDef building, ExpantaNum value) =>
         AddMultiplier(buildingConstructionMultipliers, building, value);
 
-    internal void AddResourceProductionMultiplier(Resource resource, ExpantaNum value) =>
+    internal void AddResourceProductionMultiplier(ResourceDef resource, ExpantaNum value) =>
         AddMultiplier(resourceProductionMultipliers, resource, value);
 
     internal void AddGlobalResearchMultiplier(ExpantaNum value) =>
@@ -136,7 +136,7 @@ public sealed class ProgressionModifierState
         OccupiedResourceProductionMultiplier =
             AdditiveMultiplier(OccupiedResourceProductionMultiplier, value);
 
-    internal void AddOccupiedResourceProductionMultiplier(Resource resource, ExpantaNum value) =>
+    internal void AddOccupiedResourceProductionMultiplier(ResourceDef resource, ExpantaNum value) =>
         AddMultiplier(occupiedResourceProductionMultipliers, resource, value);
     internal void AddCampaignProgressMultiplier(ExpantaNum value) =>
         CampaignProgressMultiplier =
@@ -207,7 +207,7 @@ public static class ProgressionModifierManager
     public static ProgressionModifierState BuildPreview(
         IReadOnlyList<ResearchState> researchStates,
         IReadOnlyList<WorkshopUpgradeState> workshopStates = null,
-        WorkshopUpgrade candidate = null)
+        WorkshopUpgradeDef candidate = null)
     {
         var rebuilt = new ProgressionModifierState();
         bool alreadyPurchased = false;

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Farm
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: f4bacf9b1d99437d9f2437584bb4e2e4, type: 3}
   id: Farm
   Label: "\u519C\u573A"
   Description: "\u5F00\u57A6\u5E76\u8F6E\u4F5C\u519C\u7530\uFF0C\u7A33\u5B9A\u4EA7\u51FA\u7CAE\u98DF\uFF0C\u4F7F\u4EBA\u53E3\u589E\u957F\u4E0D\u518D\u5B8C\u5168\u4F9D\u8D56\u72E9\u730E\u4E0E\u91C7\u96C6\u3002"

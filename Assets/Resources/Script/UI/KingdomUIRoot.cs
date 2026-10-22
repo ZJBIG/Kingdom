@@ -76,9 +76,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool useCompactBuildingDetails;
     private bool detailBuildingUpgrade;
     private bool detailIsBuilding;
-    private Building selectedBuilding;
-    private Resource selectedResource;
-    private WorkshopUpgrade selectedWorkshop;
+    private BuildingDef selectedBuilding;
+    private ResourceDef selectedResource;
+    private WorkshopUpgradeDef selectedWorkshop;
     private static TMP_FontAsset sharedFontAsset;
     private float liveRefreshTimer;
     private float topInfoRefreshTimer;
@@ -139,7 +139,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private bool workshopRowsUiDirty;
     private int lastSelectedResourceVersion = -1;
     private int lastSelectedBuildingVersion = -1;
-    private Building lastSelectedBuildingUpgradeTarget;
+    private BuildingDef lastSelectedBuildingUpgradeTarget;
     private ExpantaNum lastSelectedBuildingAvailableTerritory;
     private ExpantaNum lastSelectedBuildingAvailableProductivity;
     private ProgressionModifierState lastSelectedBuildingModifiers;
@@ -169,22 +169,22 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private static Font sharedSourceFont;
     private readonly Dictionary<BuildingQuantityMode, Button> buildingQuantityButtons = new();
     private readonly Dictionary<string, RectTransform> pages = new();
-    private readonly Dictionary<Building, TMP_Text> buildingAmountLabels = new();
-    private readonly Dictionary<Building, TMP_Text> buildingEffectLabels = new();
-    private readonly Dictionary<Building, Image> buildingDeconstructSurfaces = new();
-    private readonly Dictionary<Building, Button> buildingDeconstructButtons = new();
-    private readonly Dictionary<Building, Button> buildingActionButtons = new();
+    private readonly Dictionary<BuildingDef, TMP_Text> buildingAmountLabels = new();
+    private readonly Dictionary<BuildingDef, TMP_Text> buildingEffectLabels = new();
+    private readonly Dictionary<BuildingDef, Image> buildingDeconstructSurfaces = new();
+    private readonly Dictionary<BuildingDef, Button> buildingDeconstructButtons = new();
+    private readonly Dictionary<BuildingDef, Button> buildingActionButtons = new();
     private readonly Dictionary<Button, TMP_Text> buildingActionButtonTexts = new();
     private readonly Dictionary<Button, Outline> buildingActionButtonOutlines = new();
-    private readonly Dictionary<Building, bool> buildingActionUpgradeModes = new();
+    private readonly Dictionary<BuildingDef, bool> buildingActionUpgradeModes = new();
     private string lastBuildingDisplaySignature;
-    private readonly Dictionary<Resource, TMP_Text> resourceAmountLabels = new();
-    private readonly Dictionary<Resource, TMP_Text> resourceChangeLabels = new();
+    private readonly Dictionary<ResourceDef, TMP_Text> resourceAmountLabels = new();
+    private readonly Dictionary<ResourceDef, TMP_Text> resourceChangeLabels = new();
     private readonly HashSet<string> visibleResourceIds = new(StringComparer.OrdinalIgnoreCase);
     private RectTransform researchGraphViewport;
     private RectTransform researchGraphContent;
     private CanvasGroup researchPageVisibilityGroup;
-    private readonly Dictionary<Research, Button> researchTreeNodes = new();
+    private readonly Dictionary<ResearchDef, Button> researchTreeNodes = new();
     private readonly Dictionary<Button, Color> navigationBaseColors = new();
     private bool researchTreePageBuilt;
     private Coroutine researchTreeWarmupCoroutine;
@@ -229,7 +229,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
 #if UNITY_EDITOR
     public Button DetailActionButtonForEditor => detailActionButton;
     public TMP_Text TopPopulationValueForEditor => topPopulationValue;
-    public Dictionary<Resource, TMP_Text> ResourceChangeLabelsForEditor => resourceChangeLabels;
+    public Dictionary<ResourceDef, TMP_Text> ResourceChangeLabelsForEditor => resourceChangeLabels;
     public string TutorialRecentCompletionFeedbackForEditor
     {
         get => tutorialRecentCompletionFeedback;
@@ -896,6 +896,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
                 buildingActionButtonTexts.Clear();
+                buildingActionTooltips.Clear();
                 buildingActionButtonOutlines.Clear();
                 buildingActionUpgradeModes.Clear();
                 BuildAuthoredBuildingRows(rows);
@@ -923,6 +924,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             case "Workshop":
                 if (workshopRowsBuilt) break;
                 buildingActionButtonTexts.Clear();
+                buildingActionTooltips.Clear();
                 buildingActionButtonOutlines.Clear();
                 BuildAuthoredWorkshopRows(rows);
                 workshopRowsBuilt = true;
@@ -1107,7 +1109,7 @@ public static class DevelopmentGuidance
         if (researchManager != null && researchManager.ActiveResearch != null)
         {
             ResearchState active = researchManager.ActiveResearch;
-            Research research = active.Definition;
+            ResearchDef research = active.Definition;
             snapshot.Title = research.Label;
             if (active.Status == ResearchStatus.WaitingResources)
             {
@@ -1139,10 +1141,10 @@ public static class DevelopmentGuidance
 
         if (researchManager != null)
         {
-            IReadOnlyList<Research> definitions = DataBase<Research>.All;
+            IReadOnlyList<ResearchDef> definitions = DataBase<ResearchDef>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
-                Research research = definitions[i];
+                ResearchDef research = definitions[i];
                 if (research == null)
                     continue;
                 // The UI can be built during the same frame that the
@@ -1166,11 +1168,11 @@ public static class DevelopmentGuidance
 
         if (buildingManager != null)
         {
-            IReadOnlyList<Building> definitions = DataBase<Building>.All;
+            IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
-                Building building = definitions[i];
-                if (building != null && !(building is SectorBuilding) &&
+                BuildingDef building = definitions[i];
+                if (building != null && !(building is SectorBuildingDef) &&
                     buildingManager.CanConstructNew(building))
                 {
                     snapshot.Status = DevelopmentGuidanceStatus.Available;
@@ -1184,10 +1186,10 @@ public static class DevelopmentGuidance
 
         if (workshopManager != null && workshopManager.IsSystemUnlocked)
         {
-            IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
+            IReadOnlyList<WorkshopUpgradeDef> definitions = DataBase<WorkshopUpgradeDef>.All;
             for (int i = 0; i < definitions.Count; i++)
             {
-                WorkshopUpgrade definition = definitions[i];
+                WorkshopUpgradeDef definition = definitions[i];
                 if (definition == null || workshopManager.IsPurchased(definition) || !workshopManager.ArePrerequisitesMet(definition))
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Workshop;
@@ -1226,7 +1228,7 @@ public static class DevelopmentGuidance
             return blockers;
         for (int i = 0; i < state.Definition.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = state.Definition.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = state.Definition.ResourceRequirements[i];
             if (requirement.First == null)
                 continue;
             ExpantaNum remaining = ExpantaNum.Max(

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ChlorideReductionRetorts
   m_EditorClassIdentifier: 
   id: ChlorideReductionRetorts
+  icon: {fileID: 21300000, guid: fa81815102e30054581f48e1bb7ca800, type: 3}
   Label: "\u6C2F\u5316\u8FD8\u539F\u7089\u7EC4"
   Description: "通过氯化、精馏、密闭还原与氯回收降低钛的提取损耗，提高钛合金冶炼厂的钛合金产出，为幽影合金、深空船体和轨道建设提供高强度输入。"
   SortOrder: 350

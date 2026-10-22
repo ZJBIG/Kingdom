@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: AdvancedMetalSmelter
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 9900fa66e7694ad6837f3e87c7c83df5, type: 3}
   id: AdvancedMetalSmelter
   Label: "高级金属冶炼厂"
   Description: "以电解冶炼加工高级金属矿，消耗电力和化工材料生产高级金属锭，供机械、轻质结构与合金加工使用。"

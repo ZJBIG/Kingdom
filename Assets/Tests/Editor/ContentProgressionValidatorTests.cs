@@ -7,16 +7,16 @@ public sealed class ContentProgressionValidatorTests
     [Test]
     public void IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs()
     {
-        Building chemicalPlant = UnityEngine.Object.Instantiate(DataBase<Building>.Find("ChemicalPlant"));
+        BuildingDef chemicalPlant = UnityEngine.Object.Instantiate(DataBase<BuildingDef>.Find("ChemicalPlant"));
         try
         {
-            chemicalPlant.SetRequiredResearchForEditor(new List<Research>());
-            chemicalPlant.SetRequiredWorkshopUpgradesForEditor(new List<WorkshopUpgrade>());
+            chemicalPlant.SetRequiredResearchForEditor(new List<ResearchDef>());
+            chemicalPlant.SetRequiredWorkshopUpgradesForEditor(new List<WorkshopUpgradeDef>());
             var startingResources = new List<string> { "Coke" };
-            foreach (Pair<Resource, ExpantaNum> cost in chemicalPlant.ResourceRequirements)
+            foreach (Pair<ResourceDef, ExpantaNum> cost in chemicalPlant.ResourceRequirements)
                 startingResources.Add(cost.First.Id);
             ProgressionAuditResult result = ContentProgressionAudit.Run(
-                DataBase<Resource>.All, new[] { chemicalPlant }, Array.Empty<Research>(),
+                DataBase<ResourceDef>.All, new[] { chemicalPlant }, Array.Empty<ResearchDef>(),
                 startingResources, TechLevel.Industrial);
 
             Assert.That(result.UnreachableBuildings, Does.Contain(chemicalPlant.Id),
@@ -33,7 +33,7 @@ public sealed class ContentProgressionValidatorTests
     public void MainProgression_ReachesUltraWithContinuousInputSources()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All, DataBase<Building>.All, DataBase<Research>.All,
+            DataBase<ResourceDef>.All, DataBase<BuildingDef>.All, DataBase<ResearchDef>.All,
             new[] { "WoodLog" }, TechLevel.Animal);
         Assert.That(result.HighestTechLevel, Is.GreaterThanOrEqualTo(TechLevel.Ultra),
             result.FormatFailureReport());
@@ -45,9 +45,9 @@ public sealed class ContentProgressionValidatorTests
     public void MainProgression_ReachesMedievalWithoutInjectedResources()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -58,10 +58,10 @@ public sealed class ContentProgressionValidatorTests
     [Test]
     public void ResourcesWithoutProducersOrConsumers_AreReportedIndividually()
     {
-        Resource basicOre = DataBase<Resource>.Find("BasicMetalOre");
-        Resource advancedOre = DataBase<Resource>.Find("AdvancedMetalOre");
+        ResourceDef basicOre = DataBase<ResourceDef>.Find("BasicMetalOre");
+        ResourceDef advancedOre = DataBase<ResourceDef>.Find("AdvancedMetalOre");
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            new[] { basicOre, advancedOre }, Array.Empty<Building>(), Array.Empty<Research>(),
+            new[] { basicOre, advancedOre }, Array.Empty<BuildingDef>(), Array.Empty<ResearchDef>(),
             Array.Empty<string>(), TechLevel.Animal);
 
         Assert.That(result.ResourcesWithoutSource, Is.EquivalentTo(new[] { basicOre.Id, advancedOre.Id }));
@@ -72,9 +72,9 @@ public sealed class ContentProgressionValidatorTests
     public void EveryReleasedResource_HasSourceAndSink()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -107,9 +107,9 @@ public sealed class ProgressionAuditResult
 public static class ContentProgressionAudit
 {
     public static ProgressionAuditResult Run(
-        IReadOnlyList<Resource> resources,
-        IReadOnlyList<Building> buildings,
-        IReadOnlyList<Research> researches,
+        IReadOnlyList<ResourceDef> resources,
+        IReadOnlyList<BuildingDef> buildings,
+        IReadOnlyList<ResearchDef> researches,
         IReadOnlyList<string> startingResourceIds,
         TechLevel startingTechLevel,
         IReadOnlyCollection<string> releasedResourceIds = null)
@@ -141,7 +141,7 @@ public static class ContentProgressionAudit
 
             for (int i = 0; i < researches.Count; i++)
             {
-                Research research = researches[i];
+                ResearchDef research = researches[i];
                 if (research == null || completedResearch.Contains(research.Id))
                     continue;
                 if (!IsResearchEraAccessible(research, result.HighestTechLevel) ||
@@ -159,7 +159,7 @@ public static class ContentProgressionAudit
 
             for (int i = 0; i < buildings.Count; i++)
             {
-                Building building = buildings[i];
+                BuildingDef building = buildings[i];
                 if (building == null || building.TechLevel > result.HighestTechLevel)
                     continue;
                 if (!BuildingResearchComplete(building, completedResearch))
@@ -179,7 +179,7 @@ public static class ContentProgressionAudit
 
         for (int i = 0; i < resources.Count; i++)
         {
-            Resource resource = resources[i];
+            ResourceDef resource = resources[i];
             if (resource == null)
                 continue;
             if (releasedResources != null && !releasedResources.Contains(resource.Id))
@@ -192,14 +192,14 @@ public static class ContentProgressionAudit
 
         for (int i = 0; i < researches.Count; i++)
         {
-            Research research = researches[i];
+            ResearchDef research = researches[i];
             if (research != null && !completedResearch.Contains(research.Id))
                 result.UnreachableResearch.Add(research.Id);
         }
 
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building != null && !reachableBuildings.Contains(building.Id))
                 result.UnreachableBuildings.Add(building.Id);
         }
@@ -207,18 +207,18 @@ public static class ContentProgressionAudit
         return result;
     }
 
-    private static bool PrerequisitesComplete(Research research, HashSet<string> completedResearch)
+    private static bool PrerequisitesComplete(ResearchDef research, HashSet<string> completedResearch)
     {
         for (int i = 0; i < research.Prerequisites.Count; i++)
         {
-            Research prerequisite = research.Prerequisites[i];
+            ResearchDef prerequisite = research.Prerequisites[i];
             if (prerequisite == null || !completedResearch.Contains(prerequisite.Id))
                 return false;
         }
         return true;
     }
 
-    private static bool IsResearchEraAccessible(Research research, TechLevel highestTechLevel)
+    private static bool IsResearchEraAccessible(ResearchDef research, TechLevel highestTechLevel)
     {
         if (research.TechLevel <= highestTechLevel)
             return true;
@@ -228,12 +228,12 @@ public static class ContentProgressionAudit
     }
 
     private static bool RequirementsAvailable(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements,
         HashSet<string> reachableResources)
     {
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = requirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = requirements[i];
             if (pair.First == null || !reachableResources.Contains(pair.First.Id))
                 return false;
         }
@@ -241,12 +241,12 @@ public static class ContentProgressionAudit
     }
 
     private static bool BuildingResearchComplete(
-        Building building,
+        BuildingDef building,
         HashSet<string> completedResearch)
     {
         for (int i = 0; i < building.RequiredResearch.Count; i++)
         {
-            Research research = building.RequiredResearch[i];
+            ResearchDef research = building.RequiredResearch[i];
             if (research == null || !completedResearch.Contains(research.Id))
                 return false;
         }
@@ -254,14 +254,14 @@ public static class ContentProgressionAudit
     }
 
     private static void AddPairs(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         HashSet<string> reachableResources,
         HashSet<string> affectedResources,
         bool addReachable = true)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Resource resource = pairs[i].First;
+            ResourceDef resource = pairs[i].First;
             if (resource == null)
                 continue;
             affectedResources.Add(resource.Id);

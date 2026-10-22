@@ -43,23 +43,23 @@ public sealed class GameBootstrap : Singleton<GameBootstrap>
 
     private static void ValidateDefinitions()
     {
-        ValidateDefinitions<Resource>();
-        ValidateDefinitions<Building>();
-        BuildingManager.ValidateBuildingChains(DataBase<Building>.All);
-        ValidateDefinitions<Research>();
-        ValidateDefinitions<WorkshopUpgrade>();
-        ValidateDefinitions<SectorDefinition>();
+        ValidateDefinitions<ResourceDef>();
+        ValidateDefinitions<BuildingDef>();
+        BuildingManager.ValidateBuildingChains(DataBase<BuildingDef>.All);
+        ValidateDefinitions<ResearchDef>();
+        ValidateDefinitions<WorkshopUpgradeDef>();
+        ValidateDefinitions<SectorDef>();
         if (!SectorValidator.ValidateDefinitions(
-            DataBase<SectorDefinition>.All,
+            DataBase<SectorDef>.All,
                 out string sectorError))
         {
             Debug.LogWarning(sectorError);
         }
         if (!EconomyDependencyValidator.Validate(
-                DataBase<Resource>.All,
-                DataBase<Building>.All,
-                DataBase<Research>.All,
-                DataBase<WorkshopUpgrade>.All,
+                DataBase<ResourceDef>.All,
+                DataBase<BuildingDef>.All,
+                DataBase<ResearchDef>.All,
+                DataBase<WorkshopUpgradeDef>.All,
                 out string error))
         {
             Debug.LogWarning(error);

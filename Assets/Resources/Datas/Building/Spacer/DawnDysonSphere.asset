@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45a0d5d64f04e8f9a1a9a768bf40c21, type: 3}
+  m_Name: DawnDysonSphere
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: cca3e7d26f0643df9deff0da66b3605b, type: 3}
+  id: DawnDysonSphere
+  Label: "戴森球：总装与试验阵列"
+  Description: "曜心唯一的戴森球总装与控制基地。依托近恒星作业区部署试验阵列，再逐阶段投资集能卫星、环恒星集能带与联控网络，将恒星能量送回本系产业与远航准备设施。"
+  TechLevel: 4
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.25"
+  spaceCost: "0"
+  productivityConsumption: "400"
+  powerConsumptionRate: "0"
+  logisticsConsumptionRate: "24"
+  powerProductionRate: "1200"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "24000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "4000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "4000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "3600"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "6000"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "3600"
+  resourceGenerationRates: []
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "0.08"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.06"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.16"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "0.1"
+  requiredResearch:
+  - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+  requiredWorkshopUpgrades: []
+  sector: {fileID: 11400000, guid: d06dcc262d273e54e88f2b4e72492797, type: 2}
+  maxAmount: 1
+  requiresInteriorExploration: 1

@@ -19,7 +19,7 @@ public sealed class GlobalEconomyDefinitionTests
         var sprites = new HashSet<Sprite>();
         foreach (string id in ids)
         {
-            Resource resource = DataBase<Resource>.Find(id);
+            ResourceDef resource = DataBase<ResourceDef>.Find(id);
             Assert.That(resource.name, Is.EqualTo(id), "Asset name must describe its resource identity.");
             Assert.That(resource.Sprite, Is.Not.Null, id);
             Assert.That(sprites.Add(resource.Sprite), Is.True, "Each metal has distinct artwork.");
@@ -32,10 +32,10 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void ResourcePairDefinitionViewsReuseTheirCachedLists()
     {
-        Building building = DataBase<Building>.All.First(value => value != null);
-        Research research = DataBase<Research>.All.First(value => value != null);
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All.First(value => value != null);
-        SectorDefinition sector = DataBase<SectorDefinition>.All.First(value => value != null);
+        BuildingDef building = DataBase<BuildingDef>.All.First(value => value != null);
+        ResearchDef research = DataBase<ResearchDef>.All.First(value => value != null);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.All.First(value => value != null);
+        SectorDef sector = DataBase<SectorDef>.All.First(value => value != null);
 
         Assert.That(ReferenceEquals(building.ResourceRequirements, building.ResourceRequirements), Is.True);
         Assert.That(ReferenceEquals(building.ResourceGenerationRates, building.ResourceGenerationRates), Is.True);
@@ -51,39 +51,39 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void EditorReconfigurationInvalidatesResourcePairCaches()
     {
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
-        Research research = ScriptableObject.CreateInstance<Research>();
-        WorkshopUpgrade workshop = ScriptableObject.CreateInstance<WorkshopUpgrade>();
-        SectorDefinition sector = ScriptableObject.CreateInstance<SectorDefinition>();
-        Building building = ScriptableObject.CreateInstance<Building>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
+        ResearchDef research = ScriptableObject.CreateInstance<ResearchDef>();
+        WorkshopUpgradeDef workshop = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
+        SectorDef sector = ScriptableObject.CreateInstance<SectorDef>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         try
         {
-            Pair<Resource, ExpantaNum> first = new(resource, new ExpantaNum("1"));
-            Pair<Resource, ExpantaNum> second = new(resource, new ExpantaNum("2"));
+            Pair<ResourceDef, ExpantaNum> first = new(resource, new ExpantaNum("1"));
+            Pair<ResourceDef, ExpantaNum> second = new(resource, new ExpantaNum("2"));
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> researchBefore = research.ResourceRequirements;
-            research.SetResourceRequirementsForEditor(new List<Pair<Resource, ExpantaNum>> { first });
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> researchBefore = research.ResourceRequirements;
+            research.SetResourceRequirementsForEditor(new List<Pair<ResourceDef, ExpantaNum>> { first });
             Assert.That(ReferenceEquals(researchBefore, research.ResourceRequirements), Is.False);
             Assert.That(research.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> workshopBefore = workshop.ResourceRequirements;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> workshopBefore = workshop.ResourceRequirements;
             workshop.ConfigureForEditor(null, null,
-                new List<Pair<Resource, ExpantaNum>> { first }, null);
+                new List<Pair<ResourceDef, ExpantaNum>> { first }, null);
             Assert.That(ReferenceEquals(workshopBefore, workshop.ResourceRequirements), Is.False);
             Assert.That(workshop.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> sectorBefore = sector.OccupiedResourceRatesPerSecond;
-            sector.SetOccupiedResourceRatesForEditor(new List<Pair<Resource, ExpantaNum>> { second });
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> sectorBefore = sector.OccupiedResourceRatesPerSecond;
+            sector.SetOccupiedResourceRatesForEditor(new List<Pair<ResourceDef, ExpantaNum>> { second });
             Assert.That(ReferenceEquals(sectorBefore, sector.OccupiedResourceRatesPerSecond), Is.False);
             Assert.That(sector.OccupiedResourceRatesPerSecond[0].Second, Is.GreaterThan(ExpantaNum.Zero));
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> buildingBefore = building.ResourceRequirements;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> buildingBefore = building.ResourceRequirements;
             building.ConfigureEconomyForEditor(
                 ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                new List<Pair<Resource, ExpantaNum>> { first }, null, null);
+                new List<Pair<ResourceDef, ExpantaNum>> { first }, null, null);
             Assert.That(ReferenceEquals(buildingBefore, building.ResourceRequirements), Is.False);
             Assert.That(building.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
         }
@@ -100,7 +100,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void ProductivityGrantsAreReservedForPopulationBuildings()
     {
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building.ProductivityGranted <= ExpantaNum.Zero)
                 continue;
@@ -118,13 +118,13 @@ public sealed class GlobalEconomyDefinitionTests
         Type[] definitionTypes =
         {
             typeof(ResourceAmountDefinition),
-            typeof(Resource),
-            typeof(Building),
-            typeof(Research),
+            typeof(ResourceDef),
+            typeof(BuildingDef),
+            typeof(ResearchDef),
             typeof(ResearchEffectDefinition),
-            typeof(WorkshopUpgrade),
+            typeof(WorkshopUpgradeDef),
             typeof(WorkshopEffectDefinition),
-            typeof(SectorDefinition)
+            typeof(SectorDef)
         };
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -156,7 +156,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void BuildingsOwnAndUseAllPrerequisites()
     {
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             AssertUnique(building.RequiredResearch, $"{building.Id} research");
             AssertUnique(building.RequiredWorkshopUpgrades, $"{building.Id} workshop");
@@ -167,7 +167,7 @@ public sealed class GlobalEconomyDefinitionTests
     public void EveryWorkshopUpgradeHasAnEffectAndReferencedBuildingsAreDiscoverable()
     {
         int buildingGates = 0;
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             Assert.That(upgrade.Effects, Is.Not.Empty, upgrade.Id);
             Assert.That(
@@ -177,7 +177,7 @@ public sealed class GlobalEconomyDefinitionTests
             AssertUnique(upgrade.RequiredResearch, $"{upgrade.Id} research");
             AssertUnique(upgrade.RequiredUpgrades, $"{upgrade.Id} upgrade");
         }
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
             buildingGates += building.RequiredWorkshopUpgrades.Count;
         Assert.That(buildingGates, Is.GreaterThan(0));
     }
@@ -185,7 +185,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void 每个建筑都必须承担明确的独立职责()
     {
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             bool hasIndependentFunction =
                 building.ResourceGenerationRates.Count > 0 ||
@@ -211,14 +211,14 @@ public sealed class GlobalEconomyDefinitionTests
     public void 建筑不能重复声明完全相同的资源产出()
     {
         var signatures = new HashSet<string>(StringComparer.Ordinal);
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building == null || building.ResourceGenerationRates == null ||
                 building.ResourceGenerationRates.Count == 0)
                 continue;
 
             var parts = new List<string>();
-            foreach (Pair<Resource, ExpantaNum> pair in building.ResourceGenerationRates)
+            foreach (Pair<ResourceDef, ExpantaNum> pair in building.ResourceGenerationRates)
             {
                 if (pair == null || pair.First == null || pair.Second <= ExpantaNum.Zero)
                     continue;
@@ -236,7 +236,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void EveryResearchAndWorkshopEffectHasAValidTarget()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             Assert.That(research.Effects, Is.Not.Null, research.Id);
             Assert.That(
@@ -268,7 +268,7 @@ public sealed class GlobalEconomyDefinitionTests
             }
         }
 
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             Assert.That(upgrade.Effects, Is.Not.Null, upgrade.Id);
             Assert.That(upgrade.Effects, Is.Not.Empty, upgrade.Id);
@@ -300,7 +300,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void 每个研究不能重复声明同一效果目标()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             var keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (ResearchEffectDefinition effect in research.Effects)
@@ -319,7 +319,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void 每个工坊不能重复声明同一效果目标()
     {
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             var keys = new HashSet<string>(StringComparer.Ordinal);
             foreach (WorkshopEffectDefinition effect in upgrade.Effects)
@@ -338,7 +338,7 @@ public sealed class GlobalEconomyDefinitionTests
     [Test]
     public void 所有效果类型都必须有运行时支持分支()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             foreach (ResearchEffectDefinition effect in research.Effects)
             {
@@ -353,7 +353,7 @@ public sealed class GlobalEconomyDefinitionTests
             }
         }
 
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
         {
             foreach (WorkshopEffectDefinition effect in upgrade.Effects)
             {
@@ -443,23 +443,23 @@ public sealed class GlobalEconomyDefinitionTests
     public void IntegratedDependencyGraphIsReachable()
     {
         Assert.That(EconomyDependencyValidator.Validate(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
-            DataBase<WorkshopUpgrade>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
+            DataBase<WorkshopUpgradeDef>.All,
             out string error), Is.True, error);
     }
 
     [Test]
     public void 所有资源都必须有来源和多个真实消费节点()
     {
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
         {
             string id = resource.Id;
             int sourceCount = 0;
             int sinkCount = 0;
 
-            foreach (Building building in DataBase<Building>.All)
+            foreach (BuildingDef building in DataBase<BuildingDef>.All)
             {
                 if (building == null)
                     continue;
@@ -470,15 +470,15 @@ public sealed class GlobalEconomyDefinitionTests
                     sinkCount++;
             }
 
-            foreach (Research research in DataBase<Research>.All)
+            foreach (ResearchDef research in DataBase<ResearchDef>.All)
                 if (research != null && HasPositiveResourcePair(research.ResourceRequirements, resource))
                     sinkCount++;
 
-            foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+            foreach (WorkshopUpgradeDef workshop in DataBase<WorkshopUpgradeDef>.All)
                 if (workshop != null && HasPositiveResourcePair(workshop.ResourceRequirements, resource))
                     sinkCount++;
 
-            foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+            foreach (SectorDef sector in DataBase<SectorDef>.All)
             {
                 if (sector == null)
                     continue;
@@ -495,12 +495,12 @@ public sealed class GlobalEconomyDefinitionTests
     }
 
     private static bool HasPositiveResourcePair(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
-        Resource resource)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
+        ResourceDef resource)
     {
         if (pairs == null || resource == null)
             return false;
-        foreach (Pair<Resource, ExpantaNum> pair in pairs)
+        foreach (Pair<ResourceDef, ExpantaNum> pair in pairs)
             if (pair != null && pair.First == resource && pair.Second > ExpantaNum.Zero)
                 return true;
         return false;

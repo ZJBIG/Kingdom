@@ -3,11 +3,11 @@ using System;
 [Serializable]
 public sealed class WorkshopUpgradeState
 {
-    public WorkshopUpgrade Definition { get; }
+    public WorkshopUpgradeDef Definition { get; }
     public bool Purchased { get; private set; }
     public int Version { get; private set; }
 
-    public WorkshopUpgradeState(WorkshopUpgrade definition)
+    public WorkshopUpgradeState(WorkshopUpgradeDef definition)
     {
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
     }

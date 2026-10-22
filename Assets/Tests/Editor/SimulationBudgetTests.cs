@@ -48,7 +48,7 @@ public sealed class SimulationBudgetTests
         GameObject resourceObject = new GameObject("Simulation-Ultra-Supply-ResourceManager");
         GameObject buildingObject = new GameObject("Simulation-Ultra-Supply-BuildingManager");
         GameObject researchObject = new GameObject("Simulation-Ultra-Supply-ResearchManager");
-        Building testBuilding = ScriptableObject.CreateInstance<Building>();
+        BuildingDef testBuilding = ScriptableObject.CreateInstance<BuildingDef>();
         try
         {
             GameManager gameManager = gameObject.AddComponent<GameManager>();
@@ -74,7 +74,7 @@ public sealed class SimulationBudgetTests
                 0L);
 
             UltraProjectPreview preview = gameManager.UltraProject.GetPreview();
-            Pair<Resource, ExpantaNum> continuousCost = preview.ContinuousCosts[0];
+            Pair<ResourceDef, ExpantaNum> continuousCost = preview.ContinuousCosts[0];
             resourceManager.SetAmount(continuousCost.First, continuousCost.Second);
             testBuilding.SetIdForEditor("SimulationUltraSupplyConsumer");
             testBuilding.ConfigureEconomyForEditor(
@@ -94,11 +94,11 @@ public sealed class SimulationBudgetTests
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
-                new List<Pair<Resource, ExpantaNum>>(),
-                new List<Pair<Resource, ExpantaNum>>(),
-                new List<Pair<Resource, ExpantaNum>>
+                new List<Pair<ResourceDef, ExpantaNum>>(),
+                new List<Pair<ResourceDef, ExpantaNum>>(),
+                new List<Pair<ResourceDef, ExpantaNum>>
                 {
-                    new Pair<Resource, ExpantaNum>(continuousCost.First, continuousCost.Second)
+                    new Pair<ResourceDef, ExpantaNum>(continuousCost.First, continuousCost.Second)
                 });
             BuildingState state = buildingManager.EnsureBuilding(testBuilding);
             buildingManager.SetAmountAndRatesForEditor(state, ExpantaNum.One);
@@ -166,12 +166,12 @@ public sealed class SimulationBudgetTests
             host.AddComponent<ResearchManager>();
             SimulationManager simulation = host.AddComponent<SimulationManager>();
             double tick = simulation.TickIntervalSecondsForEditor;
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("HeliosCore");
+            SectorDef sector = DataBase<SectorDef>.Find("HeliosCore");
             SectorState state = game.Sectors.GetState(sector);
             state.SetUnlockedForEditor(true);
             game.State.RestoreCoreForEditor(0, TechLevel.Spacer, new ExpantaNum(500d), 0L);
             game.AdjustFoodRates(new ExpantaNum(10000d), ExpantaNum.Zero);
-            foreach (Pair<Resource, ExpantaNum> cost in sector.ColonizationResourceRatesPerSecond)
+            foreach (Pair<ResourceDef, ExpantaNum> cost in sector.ColonizationResourceRatesPerSecond)
                 resources.SetAmount(cost.First, new ExpantaNum(1000000d));
             Assert.That(game.State.FoodCapacity,
                 Is.LessThan(sector.ColonizationFoodPerSecond * 60d));
@@ -310,8 +310,8 @@ public sealed class SimulationBudgetTests
     {
         ProgressionModifierManager.Rebuild(null);
         GameObject gameObject = new GameObject("Simulation-Campaign-Slicing");
-        SectorDefinition producerSector = null;
-        List<Pair<Resource, ExpantaNum>> originalProducerRates = null;
+        SectorDef producerSector = null;
+        List<Pair<ResourceDef, ExpantaNum>> originalProducerRates = null;
         try
         {
             GameManager gameManager = gameObject.AddComponent<GameManager>();
@@ -336,7 +336,7 @@ public sealed class SimulationBudgetTests
                     LaunchFeePaid = true,
                     StateVersion = 10
                 });
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
             SectorState sectorState = gameManager.Sectors.GetState(sector);
             sectorState.SetUnlockedForEditor(true);
             sectorState.SetCampaignActiveForEditor(true);
@@ -367,13 +367,13 @@ public sealed class SimulationBudgetTests
                 resourceManager);
             if (productionLimited)
             {
-                producerSector = DataBase<SectorDefinition>.Find("AlphaCentauri");
-                originalProducerRates = new List<Pair<Resource, ExpantaNum>>(
+                producerSector = DataBase<SectorDef>.Find("AlphaCentauri");
+                originalProducerRates = new List<Pair<ResourceDef, ExpantaNum>>(
                     producerSector.OccupiedResourceRatesPerSecond);
                 producerSector.SetOccupiedResourceRatesForEditor(
-                    new List<Pair<Resource, ExpantaNum>>
+                    new List<Pair<ResourceDef, ExpantaNum>>
                     {
-                        new Pair<Resource, ExpantaNum>(
+                        new Pair<ResourceDef, ExpantaNum>(
                             sector.CampaignResourceRatesPerSecond[0].First,
                             preview.ResourceCostsPerSecond[0].Second * 0.5d)
                     });
@@ -392,7 +392,7 @@ public sealed class SimulationBudgetTests
             }
             for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             {
-                Pair<Resource, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
+                Pair<ResourceDef, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
                 ExpantaNum amount = supplyLimited
                     ? preview.ResourceCostsPerSecond[i].Second *
                         new ExpantaNum(tickSeconds * (tickCount - 0.5d))
@@ -442,7 +442,7 @@ public sealed class SimulationBudgetTests
             result[4] = gameManager.State.FoodAmount;
             for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             {
-                Resource resource = sector.CampaignResourceRatesPerSecond[i].First;
+                ResourceDef resource = sector.CampaignResourceRatesPerSecond[i].First;
                 result[5 + i] = resourceManager.GetAmount(resource);
             }
             return result;

@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Granary
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: fe2b95ba857f44e295a35db2c6171d6b, type: 3}
   id: Granary
   Label: "\u7CAE\u4ED3"
   Description: "以干燥、熏制、分类和防潮设施集中保存粮食，提高食物储量上限，并提供少量食物。"

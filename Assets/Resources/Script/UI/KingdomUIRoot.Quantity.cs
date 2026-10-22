@@ -182,7 +182,7 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private ExpantaNum GetSelectedBuildingQuantity(Building building, bool upgrade, bool deconstruct)
+    private ExpantaNum GetSelectedBuildingQuantity(BuildingDef building, bool upgrade, bool deconstruct)
     {
         switch (buildingQuantityMode)
         {

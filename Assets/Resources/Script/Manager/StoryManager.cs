@@ -82,7 +82,7 @@ public static class StoryManager
         var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < archive.Chapters.Count; i++)
         {
-            StoryChapterDefinition data = archive.Chapters[i];
+            StoryChapterDef data = archive.Chapters[i];
             if (data == null)
                 continue;
             AddChapter(data.ToRuntime(), ids, loaded);
@@ -124,23 +124,23 @@ public static class StoryManager
                 throw new InvalidOperationException("剧情章节包含禁用元叙事词：" +
                     chapter.Id + " -> " + forbidden[i]);
         ValidateRuntimeList(chapter.RequiredResearchIds, chapter.RequiredEra,
-            (id, era) => DataBase<Research>.TryFind(id, out Research definition)
+            (id, era) => DataBase<ResearchDef>.TryFind(id, out ResearchDef definition)
                 ? definition.TechLevel <= era : false,
             "研究", chapter.Id);
         ValidateRuntimeList(chapter.RequiredBuildingIds, chapter.RequiredEra,
-            (id, era) => DataBase<Building>.TryFind(id, out Building definition)
+            (id, era) => DataBase<BuildingDef>.TryFind(id, out BuildingDef definition)
                 ? definition.TechLevel <= era : false,
             "建筑", chapter.Id);
         ValidateRuntimeList(chapter.RequiredWorkshopIds, chapter.RequiredEra,
-            (id, era) => DataBase<WorkshopUpgrade>.TryFind(id, out WorkshopUpgrade definition)
+            (id, era) => DataBase<WorkshopUpgradeDef>.TryFind(id, out WorkshopUpgradeDef definition)
                 ? definition.TechLevel <= era : false,
             "工坊", chapter.Id);
         ValidateRuntimeList(chapter.RequiredUnlockedSectorIds, chapter.RequiredEra,
-            (id, era) => DataBase<SectorDefinition>.TryFind(id, out SectorDefinition definition)
+            (id, era) => DataBase<SectorDef>.TryFind(id, out SectorDef definition)
                 && definition != null,
             "解锁星区", chapter.Id);
         ValidateRuntimeList(chapter.RequiredOccupiedSectorIds, chapter.RequiredEra,
-            (id, era) => DataBase<SectorDefinition>.TryFind(id, out SectorDefinition definition)
+            (id, era) => DataBase<SectorDef>.TryFind(id, out SectorDef definition)
                 && definition != null,
             "占领星区", chapter.Id);
     }
@@ -404,8 +404,8 @@ public static class StoryManager
         for (int i = 0; ids != null && i < ids.Count; i++)
         {
             SectorManager manager = GetSectorManager();
-            if (manager == null || !DataBase<SectorDefinition>.TryFind(ids[i],
-                out SectorDefinition definition) || definition == null)
+            if (manager == null || !DataBase<SectorDef>.TryFind(ids[i],
+                out SectorDef definition) || definition == null)
                 return false;
             SectorState state = manager.GetState(definition);
             if (state == null || (occupied ? !state.Occupied : !state.Unlocked))
@@ -467,7 +467,7 @@ public static class StoryManager
         ResearchManager manager;
         try { manager = ResearchManager.Instance; }
         catch (InvalidOperationException) { return false; }
-        if (!DataBase<Research>.TryFind(researchId, out Research definition))
+        if (!DataBase<ResearchDef>.TryFind(researchId, out ResearchDef definition))
             return false;
         return manager != null && definition != null &&
             manager.States.TryGetValue(definition, out ResearchState state) &&
@@ -477,7 +477,7 @@ public static class StoryManager
     private static int GetResearchStatusCode(string researchId)
     {
         if (string.IsNullOrEmpty(researchId) ||
-            !DataBase<Research>.TryFind(researchId, out Research definition) ||
+            !DataBase<ResearchDef>.TryFind(researchId, out ResearchDef definition) ||
             definition == null)
             return -1;
         ResearchManager manager;
@@ -499,10 +499,10 @@ public static class StoryManager
         BuildingManager manager;
         try { manager = BuildingManager.Instance; }
         catch (InvalidOperationException) { return false; }
-        if (!DataBase<Building>.TryFind(buildingId, out Building definition) || manager == null)
+        if (!DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef definition) || manager == null)
             return false;
-        var visited = new HashSet<Building>();
-        for (Building current = definition; current != null && visited.Add(current); current = current.UpgradeTo)
+        var visited = new HashSet<BuildingDef>();
+        for (BuildingDef current = definition; current != null && visited.Add(current); current = current.UpgradeTo)
             if (manager.States.TryGetValue(current, out BuildingState owned) &&
                 owned != null && owned.Amount > ExpantaNum.Zero && manager.ArePrerequisitesMet(current, out _))
                 return true;
@@ -635,7 +635,7 @@ public static class StoryManager
 
     private static string GetResearchProgressHint(string researchId)
     {
-        if (!DataBase<Research>.TryFind(researchId, out Research definition) ||
+        if (!DataBase<ResearchDef>.TryFind(researchId, out ResearchDef definition) ||
             definition == null)
             return "完成研究“" + researchId + "”，继续追踪这段工业记忆。";
         ResearchManager manager = ResearchManager.Instance;
@@ -683,27 +683,27 @@ public static class StoryManager
 
     private static string GetResearchLabel(string researchId)
     {
-        return DataBase<Research>.TryFind(researchId, out Research research) &&
+        return DataBase<ResearchDef>.TryFind(researchId, out ResearchDef research) &&
             research != null && !string.IsNullOrEmpty(research.Label)
             ? research.Label : researchId;
     }
 
     private static string GetBuildingLabel(string buildingId)
     {
-        return DataBase<Building>.TryFind(buildingId, out Building building) &&
+        return DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) &&
             building != null && !string.IsNullOrEmpty(building.Label)
             ? building.Label : buildingId;
     }
 
     private static string GetBuildingWorkshopHint(string buildingId)
     {
-        if (!DataBase<Building>.TryFind(buildingId, out Building building) ||
+        if (!DataBase<BuildingDef>.TryFind(buildingId, out BuildingDef building) ||
             building == null)
             return string.Empty;
         if (building.RequiredResearch != null)
             for (int i = 0; i < building.RequiredResearch.Count; i++)
             {
-                Research prerequisite = building.RequiredResearch[i];
+                ResearchDef prerequisite = building.RequiredResearch[i];
                 if (prerequisite != null && !HasCompletedResearch(prerequisite.Id))
                     return "建造“" + building.Label + "”前还需要研究“" +
                         prerequisite.Label + "”。";
@@ -715,13 +715,13 @@ public static class StoryManager
             : cachedWorkshopManager = UnityEngine.Object.FindObjectOfType<WorkshopManager>();
         for (int i = 0; i < building.RequiredWorkshopUpgrades.Count; i++)
         {
-            WorkshopUpgrade upgrade = building.RequiredWorkshopUpgrades[i];
+            WorkshopUpgradeDef upgrade = building.RequiredWorkshopUpgrades[i];
             if (upgrade == null || (manager != null && manager.IsPurchased(upgrade)))
                 continue;
             if (upgrade.RequiredResearch != null)
                 for (int r = 0; r < upgrade.RequiredResearch.Count; r++)
                 {
-                    Research prerequisite = upgrade.RequiredResearch[r];
+                    ResearchDef prerequisite = upgrade.RequiredResearch[r];
                     if (prerequisite != null && !HasCompletedResearch(prerequisite.Id))
                         return "建造“" + building.Label + "”前还需要研究“" +
                             prerequisite.Label + "”，再购买工坊改良“" +

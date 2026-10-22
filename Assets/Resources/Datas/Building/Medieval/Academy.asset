@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: Academy
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 5d8849fc4c5f427ea2e7c200b7ebb376, type: 3}
   id: Academy
   Label: "\u5B66\u9662"
   Description: "组织专职学者、系统课程与天象观测，持续提供研究力，推动新研究完成。"

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhaseMaterialCalibration
   m_EditorClassIdentifier: 
   id: PhaseMaterialCalibration
+  icon: {fileID: 21300000, guid: 519a80eb62f8049488a1de89b992fd0e, type: 3}
   Label: "相位材料校准"
   Description: "通过量子场标定、镍基触媒和钛合金真空腔稳定相位材料产线，在不扩建工厂的情况下提高高科技材料产率。"
   SortOrder: 530

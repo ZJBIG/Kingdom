@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CryogenicFuelSystems
   m_EditorClassIdentifier: 
   id: CryogenicFuelSystems
+  icon: {fileID: 21300000, guid: dadecedb47e599940aa58464987c8f6d, type: 3}
   Label: "低温推进剂系统"
   Description: "以低温储存、密封回收和精确输送减少制造损耗，提高火箭燃料产出。"
   SortOrder: 440

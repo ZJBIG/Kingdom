@@ -7,10 +7,10 @@ Keep the asset representation separate from the runtime API:
 - `ResourceAmountDefinition` serializes `resource` and an `amount` string in
   definition assets. This is an existing compatible representation, not a defect.
 - `ResourceAmountDefinitionList` converts and caches those values as
-  `Pair<Resource, ExpantaNum>` for building requirements, generation/consumption
+  `Pair<ResourceDef, ExpantaNum>` for building requirements, generation/consumption
   and research costs. The implementation is in
   `Assets/Resources/Script/Misc/Tool.cs`.
-- Do not introduce `Pair<Resource,string>` runtime APIs, repeat the completed
+- Do not introduce `Pair<ResourceDef,string>` runtime APIs, repeat the completed
   Pair migration, or rewrite valid asset amounts to satisfy an obsolete guide.
 
 ## Use Pair when

@@ -20,9 +20,9 @@ public sealed class SpaceProgressionTests
                 if (pair.Key.TechLevel <= TechLevel.Industrial)
                     pair.Value.SetStatusForEditor(ResearchStatus.Completed);
 
-            Research orbital = DataBase<Research>.Find("OrbitalEngineering");
-            Research survey = DataBase<Research>.Find("HomeSystemSurvey");
-            Research navigation = DataBase<Research>.Find("InterstellarNavigation");
+            ResearchDef orbital = DataBase<ResearchDef>.Find("OrbitalEngineering");
+            ResearchDef survey = DataBase<ResearchDef>.Find("HomeSystemSurvey");
+            ResearchDef navigation = DataBase<ResearchDef>.Find("InterstellarNavigation");
             Assert.That(research.CanAccessResearch(orbital), Is.True);
             Assert.That(research.CanAccessResearch(survey), Is.False);
             Assert.That(research.CanAccessResearch(navigation), Is.False);
@@ -62,7 +62,7 @@ public sealed class SpaceProgressionTests
 
         for (int i = 0; i < buildingIds.Length; i++)
         {
-            Building building = DataBase<Building>.Find(buildingIds[i]);
+            BuildingDef building = DataBase<BuildingDef>.Find(buildingIds[i]);
             Assert.That(building.TechLevel, Is.EqualTo(TechLevel.Spacer));
             Assert.That(building.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(building.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
@@ -74,7 +74,7 @@ public sealed class SpaceProgressionTests
     }
 
     [Test]
-    public void ResearchPowerBuildingsFormOneContinuousUpgradeChain()
+    public void OrdinaryResearchPowerBuildingsFormOneContinuousUpgradeChain()
     {
         string[] chainIds =
         {
@@ -84,8 +84,8 @@ public sealed class SpaceProgressionTests
 
         for (int i = 0; i < chainIds.Length - 1; i++)
         {
-            Building current = DataBase<Building>.Find(chainIds[i]);
-            Building next = DataBase<Building>.Find(chainIds[i + 1]);
+            BuildingDef current = DataBase<BuildingDef>.Find(chainIds[i]);
+            BuildingDef next = DataBase<BuildingDef>.Find(chainIds[i + 1]);
             Assert.That(current, Is.Not.Null, chainIds[i]);
             Assert.That(next, Is.Not.Null, chainIds[i + 1]);
             Assert.That(current.UpgradeTo, Is.SameAs(next),
@@ -95,10 +95,18 @@ public sealed class SpaceProgressionTests
         string[] researchBuildingIds = chainIds
             .Concat(new[] { "UltraComputingNexus" })
             .ToArray();
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building.ResearchPowerGranted <= ExpantaNum.Zero)
                 continue;
+            if (building is SectorBuildingDef localResearch)
+            {
+                Assert.DoesNotThrow(() => SectorBuildingDef.Validate(localResearch));
+                Assert.That(localResearch.Sector.IsHomeSystem, Is.True);
+                Assert.That(localResearch.RequiredResearch,
+                    Does.Contain(DataBase<ResearchDef>.Find("HomeSystemSurvey")));
+                continue;
+            }
             Assert.That(researchBuildingIds, Does.Contain(building.Id),
                 $"非研究力建筑链成员仍提供研究力：{building.Id}");
         }
@@ -108,16 +116,16 @@ public sealed class SpaceProgressionTests
     public void SpacerResearchMustHavePhysicalImplementationUnlessItIsTheoryOnly()
     {
         string[] theoryOnlyIds = { "HomeSystemSurvey", "InterstellarNavigation", "PrecisionMedicine" };
-        Research[] spacerResearch = DataBase<Research>.All
+        ResearchDef[] spacerResearch = DataBase<ResearchDef>.All
             .Where(research => research != null && research.TechLevel == TechLevel.Spacer)
             .ToArray();
-        WorkshopUpgrade[] spacerWorkshops = DataBase<WorkshopUpgrade>.All
+        WorkshopUpgradeDef[] spacerWorkshops = DataBase<WorkshopUpgradeDef>.All
             .Where(workshop => workshop != null && workshop.TechLevel == TechLevel.Spacer)
             .ToArray();
 
         for (int i = 0; i < spacerResearch.Length; i++)
         {
-            Research research = spacerResearch[i];
+            ResearchDef research = spacerResearch[i];
             if (research.Id == "GravitationalCommunicationTheory")
                 continue;
             if (theoryOnlyIds.Contains(research.Id))
@@ -138,34 +146,34 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 高级材料研究与工坊必须先经过对应理论研究()
     {
-        Research phantomMaterials = DataBase<Research>.Find("PhantomMaterials");
-        Research phaseMaterialEngineering = DataBase<Research>.Find("PhaseMaterialEngineering");
-        Research[] spacerResearch = DataBase<Research>.All
+        ResearchDef phantomMaterials = DataBase<ResearchDef>.Find("PhantomMaterials");
+        ResearchDef phaseMaterialEngineering = DataBase<ResearchDef>.Find("PhaseMaterialEngineering");
+        ResearchDef[] spacerResearch = DataBase<ResearchDef>.All
             .Where(research => research != null && research.TechLevel == TechLevel.Spacer)
             .ToArray();
-        WorkshopUpgrade[] spacerWorkshops = DataBase<WorkshopUpgrade>.All
+        WorkshopUpgradeDef[] spacerWorkshops = DataBase<WorkshopUpgradeDef>.All
             .Where(workshop => workshop != null && workshop.TechLevel == TechLevel.Spacer)
             .ToArray();
 
         for (int i = 0; i < spacerResearch.Length; i++)
         {
-            Research research = spacerResearch[i];
+            ResearchDef research = spacerResearch[i];
             if (HasResourceRequirement(research, "PhaseMaterial"))
                 Assert.That(ResearchDependsOn(
                     research,
                     phaseMaterialEngineering.Id,
-                    new System.Collections.Generic.HashSet<Research>()), Is.True, research.Id);
+                    new System.Collections.Generic.HashSet<ResearchDef>()), Is.True, research.Id);
             if (HasResourceRequirement(research, "PhantomAlloy") ||
                 HasResourceRequirement(research, "PhantomWeave"))
                 Assert.That(ResearchDependsOn(
                     research,
                     phantomMaterials.Id,
-                    new System.Collections.Generic.HashSet<Research>()), Is.True, research.Id);
+                    new System.Collections.Generic.HashSet<ResearchDef>()), Is.True, research.Id);
         }
 
         for (int i = 0; i < spacerWorkshops.Length; i++)
         {
-            WorkshopUpgrade workshop = spacerWorkshops[i];
+            WorkshopUpgradeDef workshop = spacerWorkshops[i];
             if (HasWorkshopResourceRequirement(workshop, "PhaseMaterial"))
                 Assert.That(WorkshopResearchDependsOn(workshop, phaseMaterialEngineering.Id), Is.True, workshop.Id);
             if (HasWorkshopResourceRequirement(workshop, "PhantomAlloy") ||
@@ -177,7 +185,7 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerResearchGraphMustRetainMeaningfulBranches()
     {
-        Research[] spacerResearch = DataBase<Research>.All
+        ResearchDef[] spacerResearch = DataBase<ResearchDef>.All
             .Where(research => research != null && research.TechLevel == TechLevel.Spacer)
             .ToArray();
 
@@ -198,10 +206,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerAddsDedicatedUpperReplacementsForWoodAndCoke()
     {
-        Building mechanizedLumberyard = DataBase<Building>.Find("MechanizedLumberyard");
-        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Building carbonizationComplex = DataBase<Building>.Find("OrbitalCarbonizationComplex");
+        BuildingDef mechanizedLumberyard = DataBase<BuildingDef>.Find("MechanizedLumberyard");
+        BuildingDef agroecologyArray = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        BuildingDef carbonizationComplex = DataBase<BuildingDef>.Find("OrbitalCarbonizationComplex");
 
         Assert.That(mechanizedLumberyard, Is.Not.Null);
         Assert.That(agroecologyArray, Is.Not.Null);
@@ -230,9 +238,9 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("OrbitalCarbonizationComplex", "PhantomAlloy"), Is.True);
         Assert.That(HasBuildingResourceConsumption("OrbitalCarbonizationComplex", "PhaseMaterial"), Is.True);
 
-        Research forestryTheory = DataBase<Research>.Find("MechanizedForestry");
-        Research cokingTheory = DataBase<Research>.Find("Coking");
-        WorkshopUpgrade forestryEquipment = DataBase<WorkshopUpgrade>.Find("MechanizedForestryEquipment");
+        ResearchDef forestryTheory = DataBase<ResearchDef>.Find("MechanizedForestry");
+        ResearchDef cokingTheory = DataBase<ResearchDef>.Find("Coking");
+        WorkshopUpgradeDef forestryEquipment = DataBase<WorkshopUpgradeDef>.Find("MechanizedForestryEquipment");
         Assert.That(forestryTheory.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null && effect.Building == agroecologyArray &&
             effect.Type == ResearchEffectType.BuildingProductionMultiplier));
@@ -247,9 +255,9 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 每个太空建筑都必须使用高级结构材料建造并持续维护()
     {
-        Building[] spacerBuildings = DataBase<Building>.All
+        BuildingDef[] spacerBuildings = DataBase<BuildingDef>.All
             .Where(building => building != null && building.TechLevel == TechLevel.Spacer &&
-                building is not SectorBuilding)
+                building is not SectorBuildingDef)
             .ToArray();
 
         string[] structuralMaterials =
@@ -263,7 +271,7 @@ public sealed class SpaceProgressionTests
 
         for (int i = 0; i < spacerBuildings.Length; i++)
         {
-            Building building = spacerBuildings[i];
+            BuildingDef building = spacerBuildings[i];
             bool hasStructuralConstruction = structuralMaterials.Any(resourceId =>
                 HasBuildingResourceRequirement(building.Id, resourceId));
             bool hasStructuralMaintenance = structuralMaterials.Any(resourceId =>
@@ -279,8 +287,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalForestryAndCarbonizationRequireAdvancedStructuralMaintenance()
     {
-        Building agroecology = DataBase<Building>.Find("OrbitalAgroecologyArray");
-        Building carbonization = DataBase<Building>.Find("OrbitalCarbonizationComplex");
+        BuildingDef agroecology = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
+        BuildingDef carbonization = DataBase<BuildingDef>.Find("OrbitalCarbonizationComplex");
 
         Assert.That(agroecology, Is.Not.Null);
         Assert.That(carbonization, Is.Not.Null);
@@ -297,12 +305,12 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 木材与焦炭必须保留工业到太空的连续上位替代链()
     {
-        Building lumberyard = DataBase<Building>.Find("Lumberyard");
-        Building mechanizedLumberyard = DataBase<Building>.Find("MechanizedLumberyard");
-        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
-        Building cokeOven = DataBase<Building>.Find("CokeOven");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Building carbonizationComplex = DataBase<Building>.Find("OrbitalCarbonizationComplex");
+        BuildingDef lumberyard = DataBase<BuildingDef>.Find("Lumberyard");
+        BuildingDef mechanizedLumberyard = DataBase<BuildingDef>.Find("MechanizedLumberyard");
+        BuildingDef agroecologyArray = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
+        BuildingDef cokeOven = DataBase<BuildingDef>.Find("CokeOven");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        BuildingDef carbonizationComplex = DataBase<BuildingDef>.Find("OrbitalCarbonizationComplex");
 
         Assert.That(lumberyard, Is.Not.Null);
         Assert.That(mechanizedLumberyard, Is.Not.Null);
@@ -336,10 +344,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 轨道纺织制造阵列必须升级工业纺织厂并使用高阶材料()
     {
-        Building lower = DataBase<Building>.Find("MechanizedTextileMill");
-        Building upper = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Research theory = DataBase<Research>.Find("OrbitalTextileFabrication");
-        WorkshopUpgrade looms = DataBase<WorkshopUpgrade>.Find("OrbitalTextileLooms");
+        BuildingDef lower = DataBase<BuildingDef>.Find("MechanizedTextileMill");
+        BuildingDef upper = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        ResearchDef theory = DataBase<ResearchDef>.Find("OrbitalTextileFabrication");
+        WorkshopUpgradeDef looms = DataBase<WorkshopUpgradeDef>.Find("OrbitalTextileLooms");
 
         Assert.That(lower, Is.Not.Null);
         Assert.That(upper, Is.Not.Null);
@@ -370,28 +378,28 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 基础资源链使用合并后的工业上位建筑()
     {
-        Assert.That(DataBase<Building>.Find("Quarry").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("IndustrialStoneworks")));
-        Assert.That(DataBase<Building>.Find("StoneCuttingWorkshop").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("IndustrialStoneworks")));
-        Assert.That(DataBase<Building>.Find("ClayPit").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("AdvancedCeramicsPlant")));
-        Assert.That(DataBase<Building>.Find("MetalMine").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("IntegratedMetalMine")));
-        Assert.That(DataBase<Building>.Find("CoalMine").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("MechanizedCoalMine")));
-        Assert.That(DataBase<Building>.Find("Farm").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("IrrigationWorks")));
-        Assert.That(DataBase<Building>.Find("IrrigationWorks").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("PlantingField")));
-        Assert.That(DataBase<Building>.Find("FiberGatheringCamp").UpgradeTo,
-            Is.EqualTo(DataBase<Building>.Find("PlantingField")));
+        Assert.That(DataBase<BuildingDef>.Find("Quarry").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("IndustrialStoneworks")));
+        Assert.That(DataBase<BuildingDef>.Find("StoneCuttingWorkshop").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("IndustrialStoneworks")));
+        Assert.That(DataBase<BuildingDef>.Find("ClayPit").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("AdvancedCeramicsPlant")));
+        Assert.That(DataBase<BuildingDef>.Find("MetalMine").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("IntegratedMetalMine")));
+        Assert.That(DataBase<BuildingDef>.Find("CoalMine").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("MechanizedCoalMine")));
+        Assert.That(DataBase<BuildingDef>.Find("Farm").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("IrrigationWorks")));
+        Assert.That(DataBase<BuildingDef>.Find("IrrigationWorks").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("PlantingField")));
+        Assert.That(DataBase<BuildingDef>.Find("FiberGatheringCamp").UpgradeTo,
+            Is.EqualTo(DataBase<BuildingDef>.Find("PlantingField")));
     }
 
     [Test]
     public void 每个太空研究与工坊都必须改变后期玩法()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null || research.TechLevel != TechLevel.Spacer)
                 continue;
@@ -401,7 +409,7 @@ public sealed class SpaceProgressionTests
                 Assert.That(research.Effects[i], Is.Not.Null, research.Id);
         }
 
-        foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef workshop in DataBase<WorkshopUpgradeDef>.All)
         {
             if (workshop == null || workshop.TechLevel != TechLevel.Spacer)
                 continue;
@@ -415,11 +423,11 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 工业到太空研究链完整()
     {
-        Research orbitalEngineering = Resources.Load<Research>("Datas/Research/Spacer/OrbitalEngineering");
-        Research orbitalStationEngineering = Resources.Load<Research>("Datas/Research/Spacer/OrbitalStationEngineering");
-        Research deepSpaceShipbuilding = Resources.Load<Research>("Datas/Research/Spacer/DeepSpaceShipbuilding");
-        Research phaseMaterialEngineering = Resources.Load<Research>("Datas/Research/Spacer/PhaseMaterialEngineering");
-        Research phaseFieldNavigation = Resources.Load<Research>("Datas/Research/Spacer/PhaseFieldNavigation");
+        ResearchDef orbitalEngineering = Resources.Load<ResearchDef>("Datas/Research/Spacer/OrbitalEngineering");
+        ResearchDef orbitalStationEngineering = Resources.Load<ResearchDef>("Datas/Research/Spacer/OrbitalStationEngineering");
+        ResearchDef deepSpaceShipbuilding = Resources.Load<ResearchDef>("Datas/Research/Spacer/DeepSpaceShipbuilding");
+        ResearchDef phaseMaterialEngineering = Resources.Load<ResearchDef>("Datas/Research/Spacer/PhaseMaterialEngineering");
+        ResearchDef phaseFieldNavigation = Resources.Load<ResearchDef>("Datas/Research/Spacer/PhaseFieldNavigation");
 
         Assert.That(orbitalEngineering, Is.Not.Null, "轨道工程研究必须存在。");
         Assert.That(orbitalStationEngineering, Is.Not.Null, "轨道空间站工程研究必须存在。");
@@ -429,11 +437,11 @@ public sealed class SpaceProgressionTests
         Assert.That(orbitalStationEngineering.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(deepSpaceShipbuilding.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(phaseMaterialEngineering.TechLevel, Is.EqualTo(TechLevel.Spacer));
-        Research interstellarNavigation = Resources.Load<Research>("Datas/Research/Spacer/InterstellarNavigation");
+        ResearchDef interstellarNavigation = Resources.Load<ResearchDef>("Datas/Research/Spacer/InterstellarNavigation");
         Assert.That(orbitalEngineering.AdvancesTechLevel, Is.True);
         Assert.That(interstellarNavigation.AdvancesTechLevel, Is.False);
         Assert.That(HasPrerequisite(interstellarNavigation, "DeepSpaceFleet"), Is.True);
-        Assert.That(HasPrerequisite(DataBase<Research>.Find("DeepSpaceFleet"), "InterstellarNavigation"), Is.False);
+        Assert.That(HasPrerequisite(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "InterstellarNavigation"), Is.False);
         Assert.That(HasResourceRequirement(interstellarNavigation, "CopperWire"), Is.True);
         Assert.That(HasResourceRequirement(interstellarNavigation, "Electronics"), Is.True);
 
@@ -442,34 +450,34 @@ public sealed class SpaceProgressionTests
         Assert.That(HasPrerequisite(orbitalStationEngineering, "OrbitalEngineering"), Is.True);
         Assert.That(HasPrerequisite(orbitalStationEngineering, "HomeSystemSurvey"), Is.False);
         Assert.That(HasPrerequisite(orbitalStationEngineering, "IndustrialHabitationEngineering"), Is.True);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("HomeSystemSurvey"), "Electronics"), Is.True);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("HomeSystemSurvey"), "CopperWire"), Is.True);
-        Research homeSystemSurvey = DataBase<Research>.Find("HomeSystemSurvey");
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("HomeSystemSurvey"), "Electronics"), Is.True);
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("HomeSystemSurvey"), "CopperWire"), Is.True);
+        ResearchDef homeSystemSurvey = DataBase<ResearchDef>.Find("HomeSystemSurvey");
         Assert.That(HasPrerequisite(homeSystemSurvey, "OrbitalEngineering"), Is.True);
         Assert.That(HasPrerequisite(homeSystemSurvey, "DeepSpaceFleet"), Is.False);
-        Assert.That(HasPrerequisite(DataBase<Research>.Find("DeepSpaceFleet"), "HomeSystemSurvey"), Is.True);
+        Assert.That(HasPrerequisite(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "HomeSystemSurvey"), Is.True);
         Assert.That(homeSystemSurvey.Effects.Count(effect =>
             effect != null && effect.Type == ResearchEffectType.UnlockHomeSystemSurvey), Is.EqualTo(1));
         Assert.That(HasPrerequisite(deepSpaceShipbuilding, "OrbitalStationEngineering"), Is.True);
         Assert.That(HasPrerequisite(deepSpaceShipbuilding, "DeepSpaceFleet"), Is.False);
         Assert.That(HasResourceRequirement(deepSpaceShipbuilding, "Biomass"), Is.False);
-        Assert.That(HasPrerequisite(DataBase<Research>.Find("DeepSpaceFleet"), "LogisticsManagement"), Is.True);
+        Assert.That(HasPrerequisite(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "LogisticsManagement"), Is.True);
         Assert.That(ResearchDependsOn(
             phaseFieldNavigation,
             "PhantomMaterials",
-            new System.Collections.Generic.HashSet<Research>()), Is.True);
+            new System.Collections.Generic.HashSet<ResearchDef>()), Is.True);
         Assert.That(ResearchDependsOn(
             phaseFieldNavigation,
             "PhaseMaterialEngineering",
-            new System.Collections.Generic.HashSet<Research>()), Is.True);
+            new System.Collections.Generic.HashSet<ResearchDef>()), Is.True);
         Assert.That(HasWorkshopResearch(
-            DataBase<WorkshopUpgrade>.Find("PhaseMaterialCalibration"),
+            DataBase<WorkshopUpgradeDef>.Find("PhaseMaterialCalibration"),
             "PhaseMaterialEngineering"), Is.True);
-        Assert.That(DataBase<Research>.Find("OrbitalLogisticsInfrastructure").Description, Is.Not.Empty);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("DeepSpaceFleet"), "Machinery"), Is.True);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("DeepSpaceFleet"), "Engine"), Is.True);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("DeepSpaceFleet"), "Chemical"), Is.True);
-        Assert.That(HasResourceRequirement(DataBase<Research>.Find("OrbitalLogisticsInfrastructure"), "Biomass"), Is.False);
+        Assert.That(DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure").Description, Is.Not.Empty);
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "Machinery"), Is.True);
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "Engine"), Is.True);
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("DeepSpaceFleet"), "Chemical"), Is.True);
+        Assert.That(HasResourceRequirement(DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure"), "Biomass"), Is.False);
         Assert.That(HasResourceRequirement(deepSpaceShipbuilding, "Chemical"), Is.True);
 
         Assert.That(HasBuildingEffectType(
@@ -490,8 +498,8 @@ public sealed class SpaceProgressionTests
         Assert.That(HasBuildingResourceConsumption("DeepSpaceRelay", "Glass"), Is.True);
         Assert.That(GetBuildingResourceConsumption("DeepSpaceRelay", "Composite"),
             Is.GreaterThan(ExpantaNum.Zero));
-        Building relay = DataBase<Building>.Find("DeepSpaceRelay");
-        Building station = DataBase<Building>.Find("OrbitalStation");
+        BuildingDef relay = DataBase<BuildingDef>.Find("DeepSpaceRelay");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
         Assert.That(relay.SpaceCost, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(relay.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(relay.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
@@ -501,9 +509,9 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerEarlyRouteBuildsLogisticsAndShipsBeforeTheFleet()
     {
-        Research fleet = DataBase<Research>.Find("DeepSpaceFleet");
-        Research logistics = DataBase<Research>.Find("OrbitalLogisticsInfrastructure");
-        Research survey = DataBase<Research>.Find("DeepSpaceSurvey");
+        ResearchDef fleet = DataBase<ResearchDef>.Find("DeepSpaceFleet");
+        ResearchDef logistics = DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure");
+        ResearchDef survey = DataBase<ResearchDef>.Find("DeepSpaceSurvey");
 
         Assert.That(fleet, Is.Not.Null);
         Assert.That(logistics, Is.Not.Null);
@@ -539,8 +547,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 星际补给链理论与自动化模块必须降低持续远征补给消耗()
     {
-        Research theory = DataBase<Research>.Find("InterstellarSupplyChainTheory");
-        WorkshopUpgrade modules = DataBase<WorkshopUpgrade>.Find("AutomatedFleetResupplyModules");
+        ResearchDef theory = DataBase<ResearchDef>.Find("InterstellarSupplyChainTheory");
+        WorkshopUpgradeDef modules = DataBase<WorkshopUpgradeDef>.Find("AutomatedFleetResupplyModules");
 
         Assert.That(theory, Is.Not.Null);
         Assert.That(modules, Is.Not.Null);
@@ -563,7 +571,7 @@ public sealed class SpaceProgressionTests
         Assert.That(HasResourceRequirement(theory, "TitaniumAlloy"), Is.True);
         Assert.That(HasResourceRequirement(theory, "PhaseMaterial"), Is.True);
         Assert.That(HasResourceRequirement(theory, "Rubber"), Is.True);
-        WorkshopUpgrade doctrine = DataBase<WorkshopUpgrade>.Find("InterstellarSupplyDoctrine");
+        WorkshopUpgradeDef doctrine = DataBase<WorkshopUpgradeDef>.Find("InterstellarSupplyDoctrine");
         Assert.That(doctrine, Is.Not.Null);
         Assert.That(HasWorkshopResourceRequirement(doctrine, "Rubber"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(modules, "PhantomWeave"), Is.True);
@@ -579,8 +587,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 舰队损伤控制分支必须区分战损与维修成本并使用高级材料()
     {
-        Research theory = DataBase<Research>.Find("FleetDamageControlTheory");
-        WorkshopUpgrade systems = DataBase<WorkshopUpgrade>.Find("AdaptiveArmorRepairSystems");
+        ResearchDef theory = DataBase<ResearchDef>.Find("FleetDamageControlTheory");
+        WorkshopUpgradeDef systems = DataBase<WorkshopUpgradeDef>.Find("AdaptiveArmorRepairSystems");
 
         Assert.That(theory, Is.Not.Null);
         Assert.That(systems, Is.Not.Null);
@@ -606,10 +614,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 轨道资源提取阵列必须替代工业多金属矿场并持续消耗运行资源()
     {
-        Building lower = DataBase<Building>.Find("IntegratedMetalMine");
-        Building upper = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Research theory = DataBase<Research>.Find("AutonomousOrbitalMining");
-        WorkshopUpgrade systems = DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems");
+        BuildingDef lower = DataBase<BuildingDef>.Find("IntegratedMetalMine");
+        BuildingDef upper = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        ResearchDef theory = DataBase<ResearchDef>.Find("AutonomousOrbitalMining");
+        WorkshopUpgradeDef systems = DataBase<WorkshopUpgradeDef>.Find("AutonomousOrbitalMiningSystems");
 
         Assert.That(lower, Is.Not.Null);
         Assert.That(upper, Is.Not.Null);
@@ -650,7 +658,7 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 轨道采出资源必须接入明确的下游冶金节点()
     {
-        Building extraction = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        BuildingDef extraction = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
         Assert.That(extraction, Is.Not.Null);
 
         string[,] downstreamRoutes =
@@ -665,7 +673,7 @@ public sealed class SpaceProgressionTests
         {
             string resourceId = downstreamRoutes[i, 0];
             string buildingId = downstreamRoutes[i, 1];
-            Building downstream = DataBase<Building>.Find(buildingId);
+            BuildingDef downstream = DataBase<BuildingDef>.Find(buildingId);
             Assert.That(
                 FindRate(extraction.ResourceGenerationRates, resourceId),
                 Is.GreaterThan(0d),
@@ -681,7 +689,7 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 轨道真空冶金阵列不应使用采出精矿作为建造材料()
     {
-        Building metallurgy = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        BuildingDef metallurgy = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
         Assert.That(metallurgy, Is.Not.Null);
         Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Concrete"), Is.True);
         Assert.That(ContainsResource(metallurgy.ResourceRequirements, "Machinery"), Is.True);
@@ -714,7 +722,7 @@ public sealed class SpaceProgressionTests
 
         for (int buildingIndex = 0; buildingIndex < orbitalIndustrialBuildings.Length; buildingIndex++)
         {
-            Building building = DataBase<Building>.Find(orbitalIndustrialBuildings[buildingIndex]);
+            BuildingDef building = DataBase<BuildingDef>.Find(orbitalIndustrialBuildings[buildingIndex]);
             Assert.That(building, Is.Not.Null, orbitalIndustrialBuildings[buildingIndex]);
             for (int resourceIndex = 0; resourceIndex < rawExtractionResources.Length; resourceIndex++)
                 Assert.That(
@@ -727,15 +735,15 @@ public sealed class SpaceProgressionTests
     [Test]
     public void Spacer高级材料必须都有来源和长期战略消耗()
     {
-        Building titaniumWorks = DataBase<Building>.Find("TitaniumAlloySmelter");
-        Building machineFactory = DataBase<Building>.Find("MachineFactory");
-        Building phantomFabricator = DataBase<Building>.Find("PhantomMaterialsFabricator");
-        Building phaseSynthesis = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
-        Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
-        Building orbitalResourceArray = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Research occupationAdministration =
-            DataBase<Research>.Find("InterstellarOccupationAdministration");
+        BuildingDef titaniumWorks = DataBase<BuildingDef>.Find("TitaniumAlloySmelter");
+        BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
+        BuildingDef phantomFabricator = DataBase<BuildingDef>.Find("PhantomMaterialsFabricator");
+        BuildingDef phaseSynthesis = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
+        BuildingDef orbitalStation = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef orbitalResourceArray = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        ResearchDef occupationAdministration =
+            DataBase<ResearchDef>.Find("InterstellarOccupationAdministration");
 
         Assert.That(titaniumWorks, Is.Not.Null);
         Assert.That(machineFactory, Is.Not.Null);
@@ -768,11 +776,11 @@ public sealed class SpaceProgressionTests
     [Test]
     public void IndustrialFuelAndChemicalChainKeepsCoalCokeAndExplosivesInContinuousUse()
     {
-        Building coalMine = DataBase<Building>.Find("CoalMine");
-        Building mechanizedCoalMine = DataBase<Building>.Find("MechanizedCoalMine");
-        Building cokeOven = DataBase<Building>.Find("CokeOven");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        BuildingDef coalMine = DataBase<BuildingDef>.Find("CoalMine");
+        BuildingDef mechanizedCoalMine = DataBase<BuildingDef>.Find("MechanizedCoalMine");
+        BuildingDef cokeOven = DataBase<BuildingDef>.Find("CokeOven");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
 
         Assert.That(coalMine, Is.Not.Null);
         Assert.That(mechanizedCoalMine, Is.Not.Null);
@@ -827,10 +835,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerFrontierStartsBeforePhaseMaterialProduction()
     {
-        Research deepSpaceFleet = DataBase<Research>.Find("DeepSpaceFleet");
-        Building shipyard = DataBase<Building>.Find("Shipyard");
-        Resource phaseMaterial = DataBase<Resource>.Find("PhaseMaterial");
-        Resource titaniumAlloy = DataBase<Resource>.Find("TitaniumAlloy");
+        ResearchDef deepSpaceFleet = DataBase<ResearchDef>.Find("DeepSpaceFleet");
+        BuildingDef shipyard = DataBase<BuildingDef>.Find("Shipyard");
+        ResourceDef phaseMaterial = DataBase<ResourceDef>.Find("PhaseMaterial");
+        ResourceDef titaniumAlloy = DataBase<ResourceDef>.Find("TitaniumAlloy");
 
         Assert.That(deepSpaceFleet, Is.Not.Null);
         Assert.That(shipyard, Is.Not.Null);
@@ -855,22 +863,22 @@ public sealed class SpaceProgressionTests
         Assert.That(GetBuildingResourceRequirement("DeepSpaceRelay", "Steel"), Is.GreaterThan(
             GetBuildingResourceRequirement("DeepSpaceRelay", "PhantomWeave") * 6d));
 
-        Assert.That(DataBase<Building>.Find("LaunchCenter").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("OrbitalStation").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("Shipyard").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("LaunchCenter").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("OrbitalStation").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("Shipyard").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("LaunchCenter").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("OrbitalStation").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
-        Assert.That(DataBase<Building>.Find("Shipyard").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("LaunchCenter").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("OrbitalStation").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("Shipyard").DefensePowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("LaunchCenter").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("OrbitalStation").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("Shipyard").AttackPowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("LaunchCenter").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("OrbitalStation").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
+        Assert.That(DataBase<BuildingDef>.Find("Shipyard").MilitaryManpowerGranted.ToDouble(), Is.GreaterThan(0d));
     }
 
     [Test]
     public void ShipyardRequiresItsAutomatedAssemblyWorkshop()
     {
-        Building shipyard = DataBase<Building>.Find("Shipyard");
-        WorkshopUpgrade assembly = DataBase<WorkshopUpgrade>.Find("AutomatedShipyardAssembly");
+        BuildingDef shipyard = DataBase<BuildingDef>.Find("Shipyard");
+        WorkshopUpgradeDef assembly = DataBase<WorkshopUpgradeDef>.Find("AutomatedShipyardAssembly");
 
         Assert.That(shipyard, Is.Not.Null);
         Assert.That(assembly, Is.Not.Null);
@@ -882,8 +890,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalStationRequiresAutonomousFleetLogistics()
     {
-        Building hub = DataBase<Building>.Find("OrbitalStation");
-        WorkshopUpgrade logistics = DataBase<WorkshopUpgrade>.Find("AutonomousFleetLogistics");
+        BuildingDef hub = DataBase<BuildingDef>.Find("OrbitalStation");
+        WorkshopUpgradeDef logistics = DataBase<WorkshopUpgradeDef>.Find("AutonomousFleetLogistics");
 
         Assert.That(hub, Is.Not.Null);
         Assert.That(logistics, Is.Not.Null);
@@ -904,13 +912,13 @@ public sealed class SpaceProgressionTests
             "PhaseMaterial"
         };
 
-        Building[] spacerBuildings = DataBase<Building>.All
+        BuildingDef[] spacerBuildings = DataBase<BuildingDef>.All
             .Where(building => building != null && building.TechLevel == TechLevel.Spacer &&
-                building is not SectorBuilding)
+                building is not SectorBuildingDef)
             .ToArray();
 
         Assert.That(spacerBuildings, Is.Not.Empty);
-        foreach (Building building in spacerBuildings)
+        foreach (BuildingDef building in spacerBuildings)
         {
             Assert.That(
                 advancedResources.Any(resourceId =>
@@ -932,12 +940,12 @@ public sealed class SpaceProgressionTests
             "PhaseMaterial"
         };
 
-        WorkshopUpgrade[] spacerWorkshops = DataBase<WorkshopUpgrade>.All
+        WorkshopUpgradeDef[] spacerWorkshops = DataBase<WorkshopUpgradeDef>.All
             .Where(workshop => workshop != null && workshop.TechLevel == TechLevel.Spacer)
             .ToArray();
 
         Assert.That(spacerWorkshops, Is.Not.Empty);
-        foreach (WorkshopUpgrade workshop in spacerWorkshops)
+        foreach (WorkshopUpgradeDef workshop in spacerWorkshops)
         {
             if (workshop.Id == "ClosedLoopBiosecurityModules")
                 continue;
@@ -952,12 +960,12 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalEcologyUsesADedicatedArrayForFoodAndBiomassWithoutFoodCapacity()
     {
-        Building plantingField = DataBase<Building>.Find("PlantingField");
-        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
-        Building station = DataBase<Building>.Find("OrbitalStation");
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Research agroecology = DataBase<Research>.Find("OrbitalAgroecology");
-        WorkshopUpgrade agroponics = DataBase<WorkshopUpgrade>.Find("OrbitalAgroponicSystems");
+        BuildingDef plantingField = DataBase<BuildingDef>.Find("PlantingField");
+        BuildingDef agroecologyArray = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        ResearchDef agroecology = DataBase<ResearchDef>.Find("OrbitalAgroecology");
+        WorkshopUpgradeDef agroponics = DataBase<WorkshopUpgradeDef>.Find("OrbitalAgroponicSystems");
 
         Assert.That(plantingField, Is.Not.Null);
         Assert.That(agroecologyArray, Is.Not.Null);
@@ -996,9 +1004,9 @@ public sealed class SpaceProgressionTests
     [Test]
     public void ResearchBuildingsSeparateScientificCoreFromDeepSpaceExploration()
     {
-        Building university = DataBase<Building>.Find("University");
-        Building observatory = DataBase<Building>.Find("DeepSpaceObservatory");
-        Building quantum = DataBase<Building>.Find("QuantumComputingArray");
+        BuildingDef university = DataBase<BuildingDef>.Find("University");
+        BuildingDef observatory = DataBase<BuildingDef>.Find("DeepSpaceObservatory");
+        BuildingDef quantum = DataBase<BuildingDef>.Find("QuantumComputingArray");
 
         Assert.That(university, Is.Not.Null);
         Assert.That(observatory, Is.Not.Null);
@@ -1014,8 +1022,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalStationClothDemandHasAnIndustrialSupplyChain()
     {
-        Building weavingWorkshop = DataBase<Building>.Find("WeavingWorkshop");
-        WorkshopUpgrade mechanicalLooms = DataBase<WorkshopUpgrade>.Find("MechanicalLooms");
+        BuildingDef weavingWorkshop = DataBase<BuildingDef>.Find("WeavingWorkshop");
+        WorkshopUpgradeDef mechanicalLooms = DataBase<WorkshopUpgradeDef>.Find("MechanicalLooms");
 
         Assert.That(
             weavingWorkshop.ResourceGenerationRates.Any(pair =>
@@ -1045,26 +1053,26 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 太空工坊形成研究后的持续成长()
     {
-        WorkshopUpgrade launchStages =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/ReusableLaunchStages");
-        WorkshopUpgrade habitatSystems =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/ModularHabitatSystems");
-        WorkshopUpgrade shipyardAssembly =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/AutomatedShipyardAssembly");
-        WorkshopUpgrade cryogenicFuel =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/CryogenicFuelSystems");
-        WorkshopUpgrade compositeLayup =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/AdvancedCompositeLayup");
-        WorkshopUpgrade phaseFieldContainment =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/PhaseFieldContainment");
-        WorkshopUpgrade orbitalThermalManagement =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/OrbitalThermalManagement");
-        WorkshopUpgrade orbitalPowerBeaming =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/OrbitalPowerBeaming");
-        WorkshopUpgrade orbitalLifeSupport =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/OrbitalLifeSupportNetworks");
-        WorkshopUpgrade orbitalMining =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/AutonomousOrbitalMiningSystems");
+        WorkshopUpgradeDef launchStages =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/ReusableLaunchStages");
+        WorkshopUpgradeDef habitatSystems =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/ModularHabitatSystems");
+        WorkshopUpgradeDef shipyardAssembly =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/AutomatedShipyardAssembly");
+        WorkshopUpgradeDef cryogenicFuel =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/CryogenicFuelSystems");
+        WorkshopUpgradeDef compositeLayup =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/AdvancedCompositeLayup");
+        WorkshopUpgradeDef phaseFieldContainment =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/PhaseFieldContainment");
+        WorkshopUpgradeDef orbitalThermalManagement =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/OrbitalThermalManagement");
+        WorkshopUpgradeDef orbitalPowerBeaming =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/OrbitalPowerBeaming");
+        WorkshopUpgradeDef orbitalLifeSupport =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/OrbitalLifeSupportNetworks");
+        WorkshopUpgradeDef orbitalMining =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/AutonomousOrbitalMiningSystems");
 
         Assert.That(launchStages, Is.Not.Null, "可复用发射级工坊必须存在。");
         Assert.That(habitatSystems, Is.Not.Null, "模块化空间舱工坊必须存在。");
@@ -1075,8 +1083,8 @@ public sealed class SpaceProgressionTests
         Assert.That(orbitalPowerBeaming, Is.Not.Null, "轨道能量束工坊必须存在。");
         Assert.That(orbitalLifeSupport, Is.Not.Null, "轨道生命保障网络工坊必须存在。");
         Assert.That(orbitalMining, Is.Not.Null, "轨道自主采矿系统工坊必须存在。");
-        WorkshopUpgrade industrialHousing =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/IndustrialHousingStandards");
+        WorkshopUpgradeDef industrialHousing =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/IndustrialHousingStandards");
         Assert.That(industrialHousing, Is.Not.Null, "工业住宅标准工坊必须存在。");
         Assert.That(HasWorkshopEffectType(
             industrialHousing, WorkshopEffectType.PopulationGrowthMultiplier), Is.True);
@@ -1172,7 +1180,7 @@ public sealed class SpaceProgressionTests
             effect.Building != null &&
             effect.Building.Id == "PhantomMaterialsFabricator"), Is.EqualTo(1));
 
-        Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
+        BuildingDef orbitalStation = DataBase<BuildingDef>.Find("OrbitalStation");
         Assert.That(orbitalStation, Is.Not.Null);
         Assert.That(GetBuildingResourceRequirement("OrbitalStation", "Biomass"), Is.GreaterThan(
             GetBuildingResourceRequirement("OrbitalStation", "PhantomWeave") * 15d));
@@ -1183,63 +1191,63 @@ public sealed class SpaceProgressionTests
         Assert.That(GetBuildingResourceConsumption("OrbitalHabitatMegastructure", "Biomass"), Is.GreaterThan(
             GetBuildingResourceConsumption("OrbitalHabitatMegastructure", "PhantomWeave") * 20d));
         Assert.That(HasWorkshopBuildingEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/DeepSpaceNetworkAutomation"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/DeepSpaceNetworkAutomation"),
             "DeepSpaceRelay",
             WorkshopEffectType.BuildingLogisticsProductionMultiplier), Is.True);
         Assert.That(HasWorkshopBuildingEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarSupplyDoctrine"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarSupplyDoctrine"),
             "OrbitalStation",
             WorkshopEffectType.BuildingLogisticsProductionMultiplier), Is.False);
         Assert.That(HasWorkshopEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarSupplyDoctrine"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarSupplyDoctrine"),
             WorkshopEffectType.CampaignSupplyCostMultiplier), Is.True);
         Assert.That(HasWorkshopResourceRequirement(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/DeepSpaceNetworkAutomation"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/DeepSpaceNetworkAutomation"),
             "PhaseMaterial"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarCombatSupplySystems"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarCombatSupplySystems"),
             "AdvancedMetalIngot"), Is.True);
-        WorkshopUpgrade networkAutomation =
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/DeepSpaceNetworkAutomation");
-        Assert.That(DataBase<Building>.Find("DeepSpaceRelay").RequiredWorkshopUpgrades,
+        WorkshopUpgradeDef networkAutomation =
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/DeepSpaceNetworkAutomation");
+        Assert.That(DataBase<BuildingDef>.Find("DeepSpaceRelay").RequiredWorkshopUpgrades,
             Does.Contain(networkAutomation));
         Assert.That(HasWorkshopResourceRequirement(networkAutomation, "Machinery"), Is.True);
         Assert.That(HasWorkshopResourceRequirement(networkAutomation, "Glass"), Is.True);
         Assert.That(GetWorkshopResourceRequirement(networkAutomation, "Machinery"), Is.GreaterThan(
             GetWorkshopResourceRequirement(networkAutomation, "TitaniumAlloy") * 5d));
         Assert.That(HasWorkshopEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarCombatSupplySystems"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarCombatSupplySystems"),
             WorkshopEffectType.FleetRepairCostMultiplier), Is.True);
         Assert.That(HasWorkshopBuildingEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarCombatSupplySystems"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarCombatSupplySystems"),
             "OrbitalStation",
             WorkshopEffectType.BuildingLogisticsProductionMultiplier), Is.True);
         Assert.That(HasWorkshopEffectType(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarOccupationGovernance"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarOccupationGovernance"),
             WorkshopEffectType.OccupiedResourceProductionMultiplier), Is.True);
         Assert.That(HasWorkshopResourceRequirement(
-            Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarOccupationGovernance"),
+            Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarOccupationGovernance"),
             "Biomass"), Is.True);
         Assert.That(HasResearchEffectType(
-            DataBase<Research>.Find("InterstellarOccupationAdministration"),
+            DataBase<ResearchDef>.Find("InterstellarOccupationAdministration"),
             ResearchEffectType.OccupiedResourceProductionMultiplier), Is.True);
         Assert.That(HasResourceRequirement(
-            DataBase<Research>.Find("InterstellarOccupationAdministration"),
+            DataBase<ResearchDef>.Find("InterstellarOccupationAdministration"),
             "Biomass"), Is.True);
         Assert.That(HasResearchEffectType(
-            DataBase<Research>.Find("InterstellarCombatLogistics"),
+            DataBase<ResearchDef>.Find("InterstellarCombatLogistics"),
             ResearchEffectType.FleetRepairCostMultiplier), Is.True);
         Assert.That(HasResearchEffectType(
-            DataBase<Research>.Find("InterstellarLogisticsDoctrine"),
+            DataBase<ResearchDef>.Find("InterstellarLogisticsDoctrine"),
             ResearchEffectType.CampaignProgressMultiplier), Is.True);
     }
 
     [Test]
     public void 星际补给研究与实体工坊必须保持职责边界()
     {
-        WorkshopUpgrade automation = DataBase<WorkshopUpgrade>.Find("AutonomousFleetLogistics");
-        WorkshopUpgrade combat = DataBase<WorkshopUpgrade>.Find("InterstellarCombatSupplySystems");
-        WorkshopUpgrade standardization = DataBase<WorkshopUpgrade>.Find("InterstellarSupplyDoctrine");
+        WorkshopUpgradeDef automation = DataBase<WorkshopUpgradeDef>.Find("AutonomousFleetLogistics");
+        WorkshopUpgradeDef combat = DataBase<WorkshopUpgradeDef>.Find("InterstellarCombatSupplySystems");
+        WorkshopUpgradeDef standardization = DataBase<WorkshopUpgradeDef>.Find("InterstellarSupplyDoctrine");
 
         Assert.That(automation, Is.Not.Null, "自动化舰队后勤工坊必须存在。");
         Assert.That(combat, Is.Not.Null, "星际战斗补给系统工坊必须存在。");
@@ -1269,10 +1277,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerQuantumComputingSliceUsesAdvancedMaterials()
     {
-        Research quantumComputing = DataBase<Research>.Find("QuantumComputing");
-        Building quantumArray = DataBase<Building>.Find("QuantumComputingArray");
-        WorkshopUpgrade errorCorrection =
-            DataBase<WorkshopUpgrade>.Find("QuantumErrorCorrection");
+        ResearchDef quantumComputing = DataBase<ResearchDef>.Find("QuantumComputing");
+        BuildingDef quantumArray = DataBase<BuildingDef>.Find("QuantumComputingArray");
+        WorkshopUpgradeDef errorCorrection =
+            DataBase<WorkshopUpgradeDef>.Find("QuantumErrorCorrection");
 
         Assert.That(quantumComputing, Is.Not.Null);
         Assert.That(quantumArray, Is.Not.Null);
@@ -1316,8 +1324,8 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 轨道农业生态学必须把生物质理论落实为实体工坊()
     {
-        Research theory = DataBase<Research>.Find("OrbitalAgroecology");
-        WorkshopUpgrade systems = DataBase<WorkshopUpgrade>.Find("OrbitalAgroponicSystems");
+        ResearchDef theory = DataBase<ResearchDef>.Find("OrbitalAgroecology");
+        WorkshopUpgradeDef systems = DataBase<WorkshopUpgradeDef>.Find("OrbitalAgroponicSystems");
 
         Assert.That(theory, Is.Not.Null);
         Assert.That(systems, Is.Not.Null);
@@ -1390,7 +1398,7 @@ public sealed class SpaceProgressionTests
             "PhaseMaterial"
         };
 
-        foreach (Research research in DataBase<Research>.All.Where(item =>
+        foreach (ResearchDef research in DataBase<ResearchDef>.All.Where(item =>
                      item != null && item.TechLevel == TechLevel.Spacer && item.Id != "HomeSystemSurvey"))
         {
             if (research.Id == "DeepSpaceBiosecurityTheory")
@@ -1401,7 +1409,7 @@ public sealed class SpaceProgressionTests
                 research.Id + " 必须消耗至少一种高级结构材料");
         }
 
-        foreach (WorkshopUpgrade workshop in DataBase<WorkshopUpgrade>.All.Where(item =>
+        foreach (WorkshopUpgradeDef workshop in DataBase<WorkshopUpgradeDef>.All.Where(item =>
                      item != null && item.TechLevel == TechLevel.Spacer))
         {
             if (workshop.Id == "ClosedLoopBiosecurityModules")
@@ -1428,20 +1436,20 @@ public sealed class SpaceProgressionTests
         foreach (string resourceId in advancedMaterialIds)
         {
             Assert.That(
-                DataBase<Building>.All.Any(building =>
+                DataBase<BuildingDef>.All.Any(building =>
                     building != null && building.TechLevel == TechLevel.Spacer &&
                     (HasResourcePair(building.ResourceRequirements, resourceId) ||
                      HasResourcePair(building.ResourceConsumptionRates, resourceId))),
                 Is.True,
                 resourceId + " 必须进入至少一座太空建筑的建造或维护链");
             Assert.That(
-                DataBase<Research>.All.Any(research =>
+                DataBase<ResearchDef>.All.Any(research =>
                     research != null && research.TechLevel == TechLevel.Spacer &&
                     HasResourcePair(research.ResourceRequirements, resourceId)),
                 Is.True,
                 resourceId + " 必须进入至少一项太空研究");
             Assert.That(
-                DataBase<WorkshopUpgrade>.All.Any(workshop =>
+                DataBase<WorkshopUpgradeDef>.All.Any(workshop =>
                     workshop != null && workshop.TechLevel == TechLevel.Spacer &&
                     HasResourcePair(workshop.ResourceRequirements, resourceId)),
                 Is.True,
@@ -1452,12 +1460,12 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerLogisticsHubTurnsAdvancedMaterialsIntoFleetSupport()
     {
-        Building hub = DataBase<Building>.Find("OrbitalStation");
-        Research infrastructure = DataBase<Research>.Find("OrbitalLogisticsInfrastructure");
-        WorkshopUpgrade automation =
-            DataBase<WorkshopUpgrade>.Find("AutonomousFleetLogistics");
-        WorkshopUpgrade containers =
-            DataBase<WorkshopUpgrade>.Find("StandardizedFreightContainers");
+        BuildingDef hub = DataBase<BuildingDef>.Find("OrbitalStation");
+        ResearchDef infrastructure = DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure");
+        WorkshopUpgradeDef automation =
+            DataBase<WorkshopUpgradeDef>.Find("AutonomousFleetLogistics");
+        WorkshopUpgradeDef containers =
+            DataBase<WorkshopUpgradeDef>.Find("StandardizedFreightContainers");
 
         Assert.That(hub, Is.Not.Null);
         Assert.That(infrastructure, Is.Not.Null);
@@ -1516,10 +1524,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void SpacerDeepSpaceSurveyIsAnEarlyExplorationResearch()
     {
-        Building observatory = DataBase<Building>.Find("DeepSpaceObservatory");
-        Research survey = DataBase<Research>.Find("DeepSpaceSurvey");
-        WorkshopUpgrade drones =
-            DataBase<WorkshopUpgrade>.Find("AutonomousSurveyDrones");
+        BuildingDef observatory = DataBase<BuildingDef>.Find("DeepSpaceObservatory");
+        ResearchDef survey = DataBase<ResearchDef>.Find("DeepSpaceSurvey");
+        WorkshopUpgradeDef drones =
+            DataBase<WorkshopUpgradeDef>.Find("AutonomousSurveyDrones");
 
         Assert.That(observatory, Is.Not.Null);
         Assert.That(survey, Is.Not.Null);
@@ -1565,13 +1573,13 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 太空研究树必须拥有能源生命保障与自主采矿横向分支()
     {
-        Research power = DataBase<Research>.Find("OrbitalPowerTransmission");
-        Research lifeSupport = DataBase<Research>.Find("BioregenerativeLifeSupport");
-        Research mining = DataBase<Research>.Find("AutonomousOrbitalMining");
-        Research logistics = DataBase<Research>.Find("OrbitalLogisticsInfrastructure");
-        Research doctrine = DataBase<Research>.Find("InterstellarLogisticsDoctrine");
-        Research occupation = DataBase<Research>.Find("InterstellarOccupationAdministration");
-        Research construction = DataBase<Research>.Find("OrbitalConstructionAutomation");
+        ResearchDef power = DataBase<ResearchDef>.Find("OrbitalPowerTransmission");
+        ResearchDef lifeSupport = DataBase<ResearchDef>.Find("BioregenerativeLifeSupport");
+        ResearchDef mining = DataBase<ResearchDef>.Find("AutonomousOrbitalMining");
+        ResearchDef logistics = DataBase<ResearchDef>.Find("OrbitalLogisticsInfrastructure");
+        ResearchDef doctrine = DataBase<ResearchDef>.Find("InterstellarLogisticsDoctrine");
+        ResearchDef occupation = DataBase<ResearchDef>.Find("InterstellarOccupationAdministration");
+        ResearchDef construction = DataBase<ResearchDef>.Find("OrbitalConstructionAutomation");
 
         Assert.That(power, Is.Not.Null);
         Assert.That(lifeSupport, Is.Not.Null);
@@ -1596,12 +1604,12 @@ public sealed class SpaceProgressionTests
         Assert.That(HasPrerequisite(construction, "OrbitalPowerTransmission"), Is.True);
         Assert.That(
             HasWorkshopResearch(
-                DataBase<WorkshopUpgrade>.Find("OrbitalPowerBeaming"),
+                DataBase<WorkshopUpgradeDef>.Find("OrbitalPowerBeaming"),
                 "OrbitalPowerTransmission"),
             Is.True);
         Assert.That(
             HasWorkshopResearch(
-                DataBase<WorkshopUpgrade>.Find("OrbitalLifeSupportNetworks"),
+                DataBase<WorkshopUpgradeDef>.Find("OrbitalLifeSupportNetworks"),
                 "BioregenerativeLifeSupport"),
             Is.True);
 
@@ -1626,7 +1634,7 @@ public sealed class SpaceProgressionTests
             Is.True);
         Assert.That(
             HasWorkshopEffectType(
-                DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems"),
+                DataBase<WorkshopUpgradeDef>.Find("AutonomousOrbitalMiningSystems"),
                 WorkshopEffectType.OccupiedResourceProductionMultiplier),
             Is.True);
         Assert.That(HasResearchEffectType(construction, ResearchEffectType.GlobalConstructionMultiplier), Is.True);
@@ -1640,22 +1648,22 @@ public sealed class SpaceProgressionTests
             ResearchEffectType.BuildingConstructionMultiplier), Is.True);
         Assert.That(HasRequiredResearch("OrbitalHabitatMegastructure", "OrbitalConstructionAutomation"), Is.True);
         Assert.That(HasWorkshopResearch(
-            DataBase<WorkshopUpgrade>.Find("ModularHabitatSystems"),
+            DataBase<WorkshopUpgradeDef>.Find("ModularHabitatSystems"),
             "OrbitalConstructionAutomation"), Is.True);
         Assert.That(
-            DataBase<Building>.Find("OrbitalHabitatMegastructure").RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("ModularHabitatSystems")));
+            DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure").RequiredWorkshopUpgrades,
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("ModularHabitatSystems")));
     }
 
     [Test]
     public void 太空全局战役效果必须来自有明确职责的研究()
     {
-        Research fleet = DataBase<Research>.Find("DeepSpaceFleet");
-        Research combat = DataBase<Research>.Find("InterstellarCombatLogistics");
-        Research doctrine = DataBase<Research>.Find("InterstellarLogisticsDoctrine");
-        Research supply = DataBase<Research>.Find("InterstellarSupplyChainTheory");
-        Research occupation = DataBase<Research>.Find("InterstellarOccupationAdministration");
-        Research survey = DataBase<Research>.Find("DeepSpaceSurvey");
+        ResearchDef fleet = DataBase<ResearchDef>.Find("DeepSpaceFleet");
+        ResearchDef combat = DataBase<ResearchDef>.Find("InterstellarCombatLogistics");
+        ResearchDef doctrine = DataBase<ResearchDef>.Find("InterstellarLogisticsDoctrine");
+        ResearchDef supply = DataBase<ResearchDef>.Find("InterstellarSupplyChainTheory");
+        ResearchDef occupation = DataBase<ResearchDef>.Find("InterstellarOccupationAdministration");
+        ResearchDef survey = DataBase<ResearchDef>.Find("DeepSpaceSurvey");
 
         Assert.That(fleet, Is.Not.Null);
         Assert.That(combat, Is.Not.Null);
@@ -1678,10 +1686,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalVacuumMetallurgyMustExtendTheTitaniumAlloyChain()
     {
-        Building industrial = DataBase<Building>.Find("TitaniumAlloySmelter");
-        Building orbital = DataBase<Building>.Find("OrbitalResourceExtractionArray");
-        Research theory = DataBase<Research>.Find("OrbitalVacuumMetallurgy");
-        WorkshopUpgrade furnaces = DataBase<WorkshopUpgrade>.Find("OrbitalVacuumFurnaces");
+        BuildingDef industrial = DataBase<BuildingDef>.Find("TitaniumAlloySmelter");
+        BuildingDef orbital = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
+        ResearchDef theory = DataBase<ResearchDef>.Find("OrbitalVacuumMetallurgy");
+        WorkshopUpgradeDef furnaces = DataBase<WorkshopUpgradeDef>.Find("OrbitalVacuumFurnaces");
 
         Assert.That(industrial, Is.Not.Null);
         Assert.That(orbital, Is.Not.Null);
@@ -1710,10 +1718,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void OrbitalCryogenicPropellantArrayMustSupplyTheRocketFuelChain()
     {
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
-        Building orbital = DataBase<Building>.Find("OrbitalCryogenicPropellantArray");
-        WorkshopUpgrade cryogenic = DataBase<WorkshopUpgrade>.Find("CryogenicFuelSystems");
-        Research theory = DataBase<Research>.Find("OrbitalPropellantEngineering");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
+        BuildingDef orbital = DataBase<BuildingDef>.Find("OrbitalCryogenicPropellantArray");
+        WorkshopUpgradeDef cryogenic = DataBase<WorkshopUpgradeDef>.Find("CryogenicFuelSystems");
+        ResearchDef theory = DataBase<ResearchDef>.Find("OrbitalPropellantEngineering");
 
         Assert.That(chemicalPlant, Is.Not.Null);
         Assert.That(orbital, Is.Not.Null);
@@ -1739,7 +1747,7 @@ public sealed class SpaceProgressionTests
         Assert.That(cryogenic.RequiredResearch, Does.Contain(theory));
     }
 
-    private static bool HasPrerequisite(Research research, string id)
+    private static bool HasPrerequisite(ResearchDef research, string id)
     {
         for (int i = 0; i < research.Prerequisites.Count; i++)
             if (research.Prerequisites[i] != null && research.Prerequisites[i].Id == id)
@@ -1747,7 +1755,7 @@ public sealed class SpaceProgressionTests
         return false;
     }
 
-    private static bool HasBuildingEffect(Research research, string id)
+    private static bool HasBuildingEffect(ResearchDef research, string id)
     {
         for (int i = 0; i < research.Effects.Count; i++)
         {
@@ -1760,7 +1768,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasBuildingEffectType(
-        Research research,
+        ResearchDef research,
         string id,
         ResearchEffectType type)
     {
@@ -1776,7 +1784,7 @@ public sealed class SpaceProgressionTests
         return false;
     }
 
-    private static bool HasResearchEffectType(Research research, ResearchEffectType type)
+    private static bool HasResearchEffectType(ResearchDef research, ResearchEffectType type)
     {
         if (research == null)
             return false;
@@ -1789,9 +1797,9 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 相位材料体系必须继续消耗工业焦炭()
     {
-        Building synthesisArray = DataBase<Building>.Find("PhaseMaterialSynthesisArray");
-        Research engineering = DataBase<Research>.Find("PhaseMaterialEngineering");
-        WorkshopUpgrade calibration = DataBase<WorkshopUpgrade>.Find("PhaseMaterialCalibration");
+        BuildingDef synthesisArray = DataBase<BuildingDef>.Find("PhaseMaterialSynthesisArray");
+        ResearchDef engineering = DataBase<ResearchDef>.Find("PhaseMaterialEngineering");
+        WorkshopUpgradeDef calibration = DataBase<WorkshopUpgradeDef>.Find("PhaseMaterialCalibration");
 
         Assert.That(HasBuildingResourceRequirement("PhaseMaterialSynthesisArray", "Coke"), Is.True);
         Assert.That(HasBuildingResourceConsumption("PhaseMaterialSynthesisArray", "Coke"), Is.True);
@@ -1800,7 +1808,7 @@ public sealed class SpaceProgressionTests
         Assert.That(synthesisArray.TechLevel, Is.EqualTo(TechLevel.Spacer));
     }
 
-    private static bool HasResourceRequirement(Research research, string resourceId)
+    private static bool HasResourceRequirement(ResearchDef research, string resourceId)
     {
         if (research == null)
             return false;
@@ -1813,7 +1821,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasWorkshopResourceRequirement(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string resourceId)
     {
         if (workshop == null)
@@ -1827,7 +1835,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static ExpantaNum GetWorkshopResourceRequirement(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string resourceId)
     {
         if (workshop == null)
@@ -1841,7 +1849,7 @@ public sealed class SpaceProgressionTests
 
     private static bool HasRequiredResearch(string buildingId, string researchId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return false;
         for (int i = 0; i < building.RequiredResearch.Count; i++)
@@ -1852,7 +1860,7 @@ public sealed class SpaceProgressionTests
 
     private static bool HasBuildingResourceRequirement(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return false;
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
@@ -1865,7 +1873,7 @@ public sealed class SpaceProgressionTests
 
     private static ExpantaNum GetBuildingResourceRequirement(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return ExpantaNum.Zero;
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
@@ -1877,7 +1885,7 @@ public sealed class SpaceProgressionTests
 
     private static bool HasBuildingResourceConsumption(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return false;
         for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
@@ -1890,7 +1898,7 @@ public sealed class SpaceProgressionTests
 
     private static ExpantaNum GetBuildingResourceConsumption(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return ExpantaNum.Zero;
         for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
@@ -1903,17 +1911,17 @@ public sealed class SpaceProgressionTests
     private static int CountResourceSinkCategories(string resourceId)
     {
         int categories = 0;
-        if (DataBase<Building>.All.Any(building =>
+        if (DataBase<BuildingDef>.All.Any(building =>
                 HasResourcePair(building.ResourceRequirements, resourceId) ||
                 HasResourcePair(building.ResourceConsumptionRates, resourceId)))
             categories++;
-        if (DataBase<Research>.All.Any(research =>
+        if (DataBase<ResearchDef>.All.Any(research =>
                 HasResourcePair(research.ResourceRequirements, resourceId)))
             categories++;
-        if (DataBase<WorkshopUpgrade>.All.Any(workshop =>
+        if (DataBase<WorkshopUpgradeDef>.All.Any(workshop =>
                 HasResourcePair(workshop.ResourceRequirements, resourceId)))
             categories++;
-        if (DataBase<SectorDefinition>.All.Any(sector =>
+        if (DataBase<SectorDef>.All.Any(sector =>
                 HasResourcePair(sector.ResourceRewards, resourceId) ||
                 HasResourcePair(sector.CampaignResourceRatesPerSecond, resourceId)))
             categories++;
@@ -1921,7 +1929,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasResourcePair(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         if (pairs == null)
@@ -1935,7 +1943,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasWorkshopResearch(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string researchId)
     {
         for (int i = 0; i < workshop.RequiredResearch.Count; i++)
@@ -1945,10 +1953,10 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool WorkshopResearchDependsOn(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string researchId)
     {
-        var visited = new System.Collections.Generic.HashSet<Research>();
+        var visited = new System.Collections.Generic.HashSet<ResearchDef>();
         for (int i = 0; i < workshop.RequiredResearch.Count; i++)
             if (ResearchDependsOn(workshop.RequiredResearch[i], researchId, visited))
                 return true;
@@ -1956,9 +1964,9 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool ResearchDependsOn(
-        Research research,
+        ResearchDef research,
         string researchId,
-        System.Collections.Generic.HashSet<Research> visited)
+        System.Collections.Generic.HashSet<ResearchDef> visited)
     {
         if (research == null || !visited.Add(research))
             return false;
@@ -1971,12 +1979,12 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool ContainsResource(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return true;
         }
@@ -1984,12 +1992,12 @@ public sealed class SpaceProgressionTests
     }
 
     private static double FindRate(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second.ToDouble();
         }
@@ -1997,7 +2005,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasWorkshopUpgrade(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string upgradeId)
     {
         for (int i = 0; i < workshop.RequiredUpgrades.Count; i++)
@@ -2007,7 +2015,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasWorkshopBuildingEffectType(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string buildingId,
         WorkshopEffectType type)
     {
@@ -2024,7 +2032,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasResourceEffect(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string resourceId)
     {
         for (int i = 0; i < workshop.Effects.Count; i++)
@@ -2038,7 +2046,7 @@ public sealed class SpaceProgressionTests
     }
 
     private static bool HasWorkshopEffectType(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         WorkshopEffectType type)
     {
         if (workshop == null)
@@ -2052,10 +2060,10 @@ public sealed class SpaceProgressionTests
     [Test]
     public void 太空工业设施必须形成焦炭化工与爆破的持续运营闭环()
     {
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
-        Building cokeOven = DataBase<Building>.Find("CokeOven");
-        Building carbonization = DataBase<Building>.Find("OrbitalCarbonizationComplex");
-        Building extraction = DataBase<Building>.Find("OrbitalResourceExtractionArray");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
+        BuildingDef cokeOven = DataBase<BuildingDef>.Find("CokeOven");
+        BuildingDef carbonization = DataBase<BuildingDef>.Find("OrbitalCarbonizationComplex");
+        BuildingDef extraction = DataBase<BuildingDef>.Find("OrbitalResourceExtractionArray");
 
         Assert.That(chemicalPlant, Is.Not.Null);
         Assert.That(cokeOven, Is.Not.Null);

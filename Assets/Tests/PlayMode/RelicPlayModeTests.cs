@@ -63,7 +63,7 @@ public sealed class RelicPlayModeTests
         yield return LoadRelic();
         Investigate();
         int version = relic.State.Version;
-        Dictionary<Resource, ExpantaNum> before = Balances();
+        Dictionary<ResourceDef, ExpantaNum> before = Balances();
         Click("Repair");
         Assert.That(ui.RelicConfirmationPendingForEditor, Is.True);
         Assert.That(relic.State.Version, Is.EqualTo(version), "Preview is presentation only.");
@@ -93,7 +93,7 @@ public sealed class RelicPlayModeTests
     {
         yield return LoadRelic();
         Investigate();
-        Dictionary<Resource, ExpantaNum> before = Balances();
+        Dictionary<ResourceDef, ExpantaNum> before = Balances();
         Click("Dismantle");
         Assert.That(relic.State.Route, Is.EqualTo(RelicRoute.None));
         AssertBalances(before);
@@ -107,7 +107,7 @@ public sealed class RelicPlayModeTests
         Assert.That(relic.State.SupportReady, Is.True);
         AssertStartupPayment(before, relic.Definition.SupportCraftCosts);
         Assert.That(WorkshopManager.Instance.TryCraftRelicSupport(out _), Is.False);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef target = DataBase<SectorDef>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
         ui.ShowRelicDetailsForEditor();
         SectorCampaignPreview original = game.Sectors.GetCampaignPreview(target, game.State, resources);
@@ -137,7 +137,7 @@ public sealed class RelicPlayModeTests
         yield return null;
         Button purchase = WorkshopSupportPurchase();
         Assert.That(purchase.gameObject.activeInHierarchy && purchase.interactable, Is.True);
-        Dictionary<Resource, ExpantaNum> before = Balances();
+        Dictionary<ResourceDef, ExpantaNum> before = Balances();
         purchase.onClick.Invoke();
         Assert.That(relic.State.SupportReady, Is.True);
         AssertStartupPayment(before, relic.Definition.SupportCraftCosts);
@@ -152,7 +152,7 @@ public sealed class RelicPlayModeTests
         purchase.onClick.Invoke();
         Assert.That(relic.State.Version, Is.EqualTo(version));
         AssertBalances(before);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef target = DataBase<SectorDef>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
         ui.ShowRelicDetailsForEditor();
         Click("Assign");
@@ -176,7 +176,7 @@ public sealed class RelicPlayModeTests
         ui.ShowRelicDetailsForEditor();
         Click("Suspend");
         ExpantaNum progress = relic.State.Progress;
-        Dictionary<Resource, ExpantaNum> before = Balances();
+        Dictionary<ResourceDef, ExpantaNum> before = Balances();
         ExpantaNum food = game.State.FoodAmount;
         Assert.That(relic.Tick(30d), Is.False);
         Near(relic.State.Progress, progress);
@@ -308,10 +308,10 @@ public sealed class RelicPlayModeTests
         game.State.SetPowerSatisfactionForEditor(ExpantaNum.One);
         game.State.SetLogisticsSatisfactionForEditor(ExpantaNum.One);
         // Set up a late-game integration fixture through public typed seams.
-        foreach (Research value in DataBase<Research>.All)
+        foreach (ResearchDef value in DataBase<ResearchDef>.All)
         {
-            Dictionary<Resource, ExpantaNum> paid = new();
-            foreach (Pair<Resource, ExpantaNum> cost in value.ResourceRequirements)
+            Dictionary<ResourceDef, ExpantaNum> paid = new();
+            foreach (Pair<ResourceDef, ExpantaNum> cost in value.ResourceRequirements)
                 if (cost.First != null && cost.Second > ExpantaNum.Zero)
                     paid[cost.First] = cost.Second;
             ResearchState state = ResearchManager.Instance.GetState(value);
@@ -319,9 +319,9 @@ public sealed class RelicPlayModeTests
         }
         ProgressionModifierManager.Rebuild(new List<ResearchState>(ResearchManager.Instance.States.Values),
             new List<WorkshopUpgradeState>(WorkshopManager.Instance.States.Values));
-        foreach (Resource value in DataBase<Resource>.All)
+        foreach (ResourceDef value in DataBase<ResourceDef>.All)
             resources.SetAmount(value, new ExpantaNum(1e9d));
-        foreach (Building value in relic.Definition.RequiredBuildings)
+        foreach (BuildingDef value in relic.Definition.RequiredBuildings)
             BuildingManager.Instance.EnsureBuilding(value).SetAmountForEditor(ExpantaNum.One);
         game.Sectors.GetState(relic.Definition.Sector).SetUnlockedForEditor(true);
         game.Sectors.GetState(relic.Definition.Sector).SetOccupiedForEditor(true);
@@ -363,10 +363,10 @@ public sealed class RelicPlayModeTests
         button.onClick.Invoke();
     }
 
-    private Dictionary<Resource, ExpantaNum> Balances()
+    private Dictionary<ResourceDef, ExpantaNum> Balances()
     {
-        Dictionary<Resource, ExpantaNum> result = new();
-        foreach (Resource value in DataBase<Resource>.All)
+        Dictionary<ResourceDef, ExpantaNum> result = new();
+        foreach (ResourceDef value in DataBase<ResourceDef>.All)
             result[value] = resources.GetAmount(value);
         return result;
     }
@@ -384,17 +384,17 @@ public sealed class RelicPlayModeTests
         return null;
     }
 
-    private void AssertBalances(Dictionary<Resource, ExpantaNum> before)
+    private void AssertBalances(Dictionary<ResourceDef, ExpantaNum> before)
     {
-        foreach (KeyValuePair<Resource, ExpantaNum> item in before)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> item in before)
             Near(resources.GetAmount(item.Key), item.Value);
     }
 
-    private void AssertStartupPayment(Dictionary<Resource, ExpantaNum> before,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private void AssertStartupPayment(Dictionary<ResourceDef, ExpantaNum> before,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        Dictionary<Resource, ExpantaNum> expected = new(before);
-        foreach (Pair<Resource, ExpantaNum> cost in costs)
+        Dictionary<ResourceDef, ExpantaNum> expected = new(before);
+        foreach (Pair<ResourceDef, ExpantaNum> cost in costs)
             expected[cost.First] -= cost.Second;
         AssertBalances(expected);
     }

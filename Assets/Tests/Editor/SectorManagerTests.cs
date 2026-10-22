@@ -15,7 +15,7 @@ public sealed class SectorManagerTests
         {
             ResourceManager resources = host.AddComponent<ResourceManager>();
             BuildingManager buildings = host.AddComponent<BuildingManager>();
-            buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter"))
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter"))
                 .SetAmountForEditor(ExpantaNum.One);
             ProgressionModifierManager.Rebuild(null);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
@@ -23,8 +23,8 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
-            manager.GetState(DataBase<SectorDefinition>.Find("ShardCrown"))
+            SectorDef alpha = DataBase<SectorDef>.Find("AlphaCentauri");
+            manager.GetState(DataBase<SectorDef>.Find("ShardCrown"))
                 .SetOccupiedForEditor(true);
 
             Assert.That(manager.CanAccess(alpha), Is.False);
@@ -33,7 +33,7 @@ public sealed class SectorManagerTests
             Assert.That(manager.GetState(alpha).Unlocked, Is.False);
             Assert.That(manager.GetState(alpha).CampaignActive, Is.False);
 
-            manager.GetState(DataBase<SectorDefinition>.Find("HeliosCore"))
+            manager.GetState(DataBase<SectorDef>.Find("HeliosCore"))
                 .SetOccupiedForEditor(true);
             Assert.That(manager.CanAccess(alpha), Is.True);
             Assert.That(manager.TryUnlock(alpha, out failure), Is.True);
@@ -70,8 +70,8 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Rebuild(null);
             gameObject.AddComponent<GameManager>();
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
-            Pair<Resource, ExpantaNum> production = lowOrbit.OccupiedResourceRatesPerSecond
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("SiriusResourceBelt");
+            Pair<ResourceDef, ExpantaNum> production = lowOrbit.OccupiedResourceRatesPerSecond
                 .First(rate => rate.First != null && rate.Second > ExpantaNum.Zero);
             resourceManager.EnsureResource(production.First);
             var manager = new SectorManager(_ => { });
@@ -131,7 +131,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorState state = manager.GetState(DataBase<SectorDefinition>.Find("ProximaB"));
+        SectorState state = manager.GetState(DataBase<SectorDef>.Find("ProximaB"));
         state.SetUnlockedForEditor(true);
         state.SetOccupiedForEditor(true);
         state.SetCampaignProgressForEditor(ExpantaNum.One);
@@ -150,7 +150,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
 
         Assert.Throws<InvalidOperationException>(() =>
             manager.RestoreSaveData(new SaveManager.SectorSaveData
@@ -159,6 +159,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = sector.Id,
                         Unlocked = true,
                         CampaignActive = true,
@@ -169,7 +170,7 @@ public sealed class SectorManagerTests
                 }
             }));
 
-        SectorDefinition home = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef home = DataBase<SectorDef>.Find("AzurePool");
         Assert.Throws<InvalidOperationException>(() =>
             manager.RestoreSaveData(new SaveManager.SectorSaveData
             {
@@ -177,6 +178,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = home.Id,
                         Unlocked = true,
                         ColonizationActive = true,
@@ -192,15 +194,15 @@ public sealed class SectorManagerTests
     public void NonFiniteCampaignCostIsRejectedWithoutFreeProgress()
     {
         GameObject resourceObject = new GameObject("Campaign-NonFinite-Cost-ResourceManager");
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
-        List<Pair<Resource, ExpantaNum>> originalRates =
-            new List<Pair<Resource, ExpantaNum>>(sector.CampaignResourceRatesPerSecond);
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
+        List<Pair<ResourceDef, ExpantaNum>> originalRates =
+            new List<Pair<ResourceDef, ExpantaNum>>(sector.CampaignResourceRatesPerSecond);
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            List<Pair<Resource, ExpantaNum>> invalidRates =
-                new List<Pair<Resource, ExpantaNum>>(originalRates);
-            invalidRates[0] = new Pair<Resource, ExpantaNum>(
+            List<Pair<ResourceDef, ExpantaNum>> invalidRates =
+                new List<Pair<ResourceDef, ExpantaNum>>(originalRates);
+            invalidRates[0] = new Pair<ResourceDef, ExpantaNum>(
                 invalidRates[0].First,
                 ExpantaNum.PositiveInfinity);
             sector.SetCampaignCostsForEditor(sector.CampaignFoodPerSecond, invalidRates);
@@ -242,7 +244,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource titanium = DataBase<Resource>.Find("TitaniumAlloy");
+            ResourceDef titanium = DataBase<ResourceDef>.Find("TitaniumAlloy");
             resourceManager.SetAmount(titanium, new ExpantaNum(100));
             GameState runtimeState = new GameState();
             ExpantaNum before = resourceManager.GetAmount(titanium);
@@ -270,8 +272,8 @@ public sealed class SectorManagerTests
     public void AtomicResourcePaymentRejectsDuplicateStableIdsInOneRequest()
     {
         GameObject resourceObject = new GameObject("Resource-DuplicateStableId-Test");
-        Resource first = ScriptableObject.CreateInstance<Resource>();
-        Resource second = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef first = ScriptableObject.CreateInstance<ResourceDef>();
+        ResourceDef second = ScriptableObject.CreateInstance<ResourceDef>();
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
@@ -280,7 +282,7 @@ public sealed class SectorManagerTests
             second.SetIdForEditor(stableId);
 
             bool applied = resourceManager.TryApplyAtomicChanges(
-                new Dictionary<Resource, ExpantaNum>
+                new Dictionary<ResourceDef, ExpantaNum>
                 {
                     [first] = ExpantaNum.One,
                     [second] = ExpantaNum.One
@@ -301,7 +303,7 @@ public sealed class SectorManagerTests
     [Test]
     public void SiriusResourceBeltUsesReadableChineseLabel()
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(sector.Label, Is.EqualTo("天狼资源带"));
         Assert.That(sector.Description, Does.Not.Contain("鍗"));
@@ -310,8 +312,8 @@ public sealed class SectorManagerTests
     [Test]
     public void SiriusResourceBeltRequiresTauCetiIndustrialOutpost()
     {
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
 
         Assert.That(sirius, Is.Not.Null);
         Assert.That(tau, Is.Not.Null);
@@ -321,10 +323,10 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarSectorChainRemainsSequential()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(alpha, Is.Not.Null);
         Assert.That(proxima, Is.Not.Null);
@@ -351,7 +353,7 @@ public sealed class SectorManagerTests
 
         foreach (string id in interstellarIds)
         {
-            SectorDefinition sector = DataBase<SectorDefinition>.Find(id);
+            SectorDef sector = DataBase<SectorDef>.Find(id);
             Assert.That(sector.CampaignFoodPerSecond, Is.GreaterThan(ExpantaNum.Zero), id);
             Assert.That(sector.CampaignProgressMultiplier, Is.GreaterThan(ExpantaNum.Zero), id);
             Assert.That(
@@ -373,10 +375,10 @@ public sealed class SectorManagerTests
     [Test]
     public void SolarSystemChainIncludesAsteroidBeltAndThunderGateBeforeAlpha()
     {
-        SectorDefinition mars = Resources.Load<SectorDefinition>("Datas/Sector/Terminus");
-        SectorDefinition asteroid = Resources.Load<SectorDefinition>("Datas/Sector/ShardCrown");
-        SectorDefinition jovian = Resources.Load<SectorDefinition>("Datas/Sector/ThunderGate");
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+        SectorDef mars = Resources.Load<SectorDef>("Datas/Sector/Terminus");
+        SectorDef asteroid = Resources.Load<SectorDef>("Datas/Sector/ShardCrown");
+        SectorDef jovian = Resources.Load<SectorDef>("Datas/Sector/ThunderGate");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
 
         Assert.That(mars, Is.Not.Null);
         Assert.That(asteroid, Is.Not.Null);
@@ -385,8 +387,8 @@ public sealed class SectorManagerTests
         Assert.That(asteroid.PrerequisiteSectors, Does.Contain(mars));
         Assert.That(jovian.PrerequisiteSectors, Does.Contain(asteroid));
         Assert.That(alpha.PrerequisiteSectors, Does.Contain(asteroid));
-        Assert.That(asteroid.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
-        Assert.That(jovian.Domain, Is.EqualTo(SectorDefinition.SectorDomain.HomeSystem));
+        Assert.That(asteroid.Domain, Is.EqualTo(SectorDef.SectorDomain.HomeSystem));
+        Assert.That(jovian.Domain, Is.EqualTo(SectorDef.SectorDomain.HomeSystem));
         Assert.That(asteroid.EnemyPower, Is.LessThanOrEqualTo(ExpantaNum.Zero));
         Assert.That(jovian.EnemyPower, Is.LessThanOrEqualTo(ExpantaNum.Zero));
         Assert.That(asteroid.TerritoryReward, Is.GreaterThan(ExpantaNum.Zero));
@@ -402,10 +404,10 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition alpha = DataBase<SectorDefinition>.Find("AlphaCentauri");
-        SectorDefinition proxima = DataBase<SectorDefinition>.Find("ProximaB");
-        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef alpha = DataBase<SectorDef>.Find("AlphaCentauri");
+        SectorDef proxima = DataBase<SectorDef>.Find("ProximaB");
+        SectorDef tau = DataBase<SectorDef>.Find("TauCetiFoundry");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(manager.CanAccess(proxima), Is.False);
         Assert.That(manager.CanAccess(tau), Is.False);
@@ -426,7 +428,7 @@ public sealed class SectorManagerTests
     [Test]
     public void OccupyAppliesRewardExactlyOnceAfterCampaignCompletion()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         int applied = 0;
         var manager = new SectorManager(_ => applied++);
         manager.InitializeDefinitions();
@@ -444,7 +446,7 @@ public sealed class SectorManagerTests
     [Test]
     public void OccupyRollsBackStateWhenRewardApplicationFails()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         var manager = new SectorManager(_ => throw new InvalidOperationException("reward probe"));
         manager.InitializeDefinitions();
         SectorState state = manager.GetState(lowOrbit);
@@ -460,16 +462,16 @@ public sealed class SectorManagerTests
     [Test]
     public void AllSectorPrerequisitesFormAnAcyclicDefinitionGraph()
     {
-        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
-        var marks = new Dictionary<SectorDefinition, int>();
+        IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
+        var marks = new Dictionary<SectorDef, int>();
         for (int i = 0; i < sectors.Count; i++)
             Assert.That(VisitSectorPrerequisites(sectors[i], marks), Is.False,
                 $"星区前置关系存在循环：{sectors[i].Id}。");
     }
 
     private static bool VisitSectorPrerequisites(
-        SectorDefinition sector,
-        Dictionary<SectorDefinition, int> marks)
+        SectorDef sector,
+        Dictionary<SectorDef, int> marks)
     {
         if (sector == null)
             return false;
@@ -477,12 +479,12 @@ public sealed class SectorManagerTests
             return mark == 1;
 
         marks[sector] = 1;
-        IReadOnlyList<SectorDefinition> prerequisites = sector.PrerequisiteSectors;
+        IReadOnlyList<SectorDef> prerequisites = sector.PrerequisiteSectors;
         if (prerequisites != null)
         {
             for (int i = 0; i < prerequisites.Count; i++)
             {
-                SectorDefinition prerequisite = prerequisites[i];
+                SectorDef prerequisite = prerequisites[i];
                 if (prerequisite != null &&
                     VisitSectorPrerequisites(prerequisite, marks))
                     return true;
@@ -499,17 +501,17 @@ public sealed class SectorManagerTests
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
         GameState runtimeState = new GameState();
-        SectorDefinition[] sectors =
+        SectorDef[] sectors =
         {
-            DataBase<SectorDefinition>.Find("AlphaCentauri"),
-            DataBase<SectorDefinition>.Find("ProximaB"),
-            DataBase<SectorDefinition>.Find("TauCetiFoundry"),
-            DataBase<SectorDefinition>.Find("SiriusResourceBelt")
+            DataBase<SectorDef>.Find("AlphaCentauri"),
+            DataBase<SectorDef>.Find("ProximaB"),
+            DataBase<SectorDef>.Find("TauCetiFoundry"),
+            DataBase<SectorDef>.Find("SiriusResourceBelt")
         };
 
         for (int i = 0; i < sectors.Length; i++)
         {
-            SectorDefinition sector = sectors[i];
+            SectorDef sector = sectors[i];
             Assert.That(sector.IsHomeSystem, Is.False, sector.Id);
             Assert.That(sector.ColonizationFoodPerSecond,
                 Is.EqualTo(ExpantaNum.Zero), sector.Id);
@@ -531,7 +533,7 @@ public sealed class SectorManagerTests
     [Test]
     public void SiriusCampaignConsumesAdvancedStructuralMaterials()
     {
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(sirius, Is.Not.Null);
         Assert.That(FindCampaignCost(sirius, "PhantomAlloy"),
@@ -549,19 +551,19 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("PhaseMaterial"));
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("SiriusResourceBelt");
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
             Assert.That(
-                resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+                resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy")),
                 Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(
-                resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+                resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhaseMaterial")),
                 Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
@@ -578,11 +580,11 @@ public sealed class SectorManagerTests
         {
             ProgressionModifierManager.Rebuild(null);
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
-            WorkshopUpgrade definition =
-                DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems");
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("PhaseMaterial"));
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("SiriusResourceBelt");
+            WorkshopUpgradeDef definition =
+                DataBase<WorkshopUpgradeDef>.Find("AutonomousOrbitalMiningSystems");
             WorkshopUpgradeState state = new WorkshopUpgradeState(definition);
             state.SetPurchasedForEditor(true);
             ProgressionModifierManager.Rebuild(null, new[] { state });
@@ -592,9 +594,9 @@ public sealed class SectorManagerTests
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy")),
                 Is.GreaterThan(ExpantaNum.Zero));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhaseMaterial")),
                 Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
@@ -610,13 +612,13 @@ public sealed class SectorManagerTests
         GameObject resourceObject = new GameObject("轨道采矿研究叠加测试资源管理器");
         try
         {
-            Research researchDefinition =
-                DataBase<Research>.Find("AutonomousOrbitalMining");
+            ResearchDef researchDefinition =
+                DataBase<ResearchDef>.Find("AutonomousOrbitalMining");
             ResearchState researchState = new ResearchState(researchDefinition);
             researchState.SetStatusForEditor(ResearchStatus.Completed);
 
-            WorkshopUpgrade workshopDefinition =
-                DataBase<WorkshopUpgrade>.Find("AutonomousOrbitalMiningSystems");
+            WorkshopUpgradeDef workshopDefinition =
+                DataBase<WorkshopUpgradeDef>.Find("AutonomousOrbitalMiningSystems");
             WorkshopUpgradeState workshopState = new WorkshopUpgradeState(workshopDefinition);
             workshopState.SetPurchasedForEditor(true);
             ProgressionModifierManager.Rebuild(
@@ -624,17 +626,17 @@ public sealed class SectorManagerTests
                 new[] { workshopState });
 
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.EnsureResource(DataBase<Resource>.Find("TitaniumAlloy"));
-            resourceManager.EnsureResource(DataBase<Resource>.Find("PhaseMaterial"));
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("TitaniumAlloy"));
+            resourceManager.EnsureResource(DataBase<ResourceDef>.Find("PhaseMaterial"));
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("SiriusResourceBelt");
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             manager.GetState(lowOrbit).SetOccupiedForEditor(true);
 
             Assert.That(manager.TickOccupiedResourceProduction(10d, resourceManager), Is.True);
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")),
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy")),
                 Is.GreaterThan(ExpantaNum.Zero));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhaseMaterial")),
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhaseMaterial")),
                 Is.GreaterThan(ExpantaNum.Zero));
         }
         finally
@@ -647,11 +649,11 @@ public sealed class SectorManagerTests
     [Test]
     public void AllSectorDefinitionsHaveExecutableLabelsRewardsAndCosts()
     {
-        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
+        IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
         Assert.That(sectors, Is.Not.Empty);
         for (int i = 0; i < sectors.Count; i++)
         {
-            SectorDefinition sector = sectors[i];
+            SectorDef sector = sectors[i];
             Assert.That(sector.Label, Is.Not.Null.And.Not.Empty, sector.Id);
             Assert.That(sector.Description, Is.Not.Null.And.Not.Empty, sector.Id);
             Assert.That(sector.EnemyPower.IsNaN, Is.False, sector.Id);
@@ -665,7 +667,7 @@ public sealed class SectorManagerTests
                 Assert.That(sector.ResourceRewards.Count, Is.GreaterThan(0), sector.Id);
             for (int rewardIndex = 0; rewardIndex < sector.ResourceRewards.Count; rewardIndex++)
             {
-                Pair<Resource, ExpantaNum> reward = sector.ResourceRewards[rewardIndex];
+                Pair<ResourceDef, ExpantaNum> reward = sector.ResourceRewards[rewardIndex];
                 Assert.That(reward.First, Is.Not.Null, sector.Id);
                 Assert.That(reward.Second, Is.GreaterThan(ExpantaNum.Zero), sector.Id);
             }
@@ -692,7 +694,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
             for (int i = 0; i < lowOrbit.ColonizationResourceRatesPerSecond.Count; i++)
                 resourceManager.SetAmount(
                     lowOrbit.ColonizationResourceRatesPerSecond[i].First,
@@ -733,7 +735,7 @@ public sealed class SectorManagerTests
         {
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
             GameState runtimeState = new GameState();
             SectorExplorationPreview baseline = manager.GetExplorationPreview(
                 lowOrbit, runtimeState, null);
@@ -756,9 +758,9 @@ public sealed class SectorManagerTests
     [Test]
     public void SiriusResourceBeltIsAHighCostHighValueSpacerCampaign()
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
-        Assert.That(sector.Domain, Is.EqualTo(SectorDefinition.SectorDomain.Interstellar));
+        Assert.That(sector.Domain, Is.EqualTo(SectorDef.SectorDomain.Interstellar));
         Assert.That(sector.StarSystemId, Is.EqualTo("Sirius"));
         Assert.That(sector.EnemyPower, Is.GreaterThan(new ExpantaNum(5000d)));
         Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(100000d)));
@@ -773,7 +775,7 @@ public sealed class SectorManagerTests
     [Test]
     public void TauCetiFoundryReturnsAdvancedMaterialsForItsIndustrialOutpostCost()
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
 
         Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(30000d)));
         Assert.That(HasResourceReward(sector, "Electronics"), Is.True);
@@ -786,7 +788,7 @@ public sealed class SectorManagerTests
     [Test]
     public void ProximaReturnsTitaniumForTheNextInterstellarBuildout()
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
 
         Assert.That(sector.TerritoryReward, Is.GreaterThan(new ExpantaNum(40000d)));
         Assert.That(HasResourceReward(sector, "TitaniumAlloy"), Is.True);
@@ -797,7 +799,7 @@ public sealed class SectorManagerTests
     [Test]
     public void AlphaCentauriReturnsStructuralMaterialsForItsLongRangeSupplyCost()
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
 
         Assert.That(sector, Is.Not.Null);
         Assert.That(HasResourceReward(sector, "TitaniumAlloy"), Is.True);
@@ -811,10 +813,10 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarTerritoryRewardsScaleWithEnemyPowerAndAdvancedSectorOutputStaysLimited()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(alpha.TerritoryReward, Is.EqualTo(new ExpantaNum(700000d)));
         Assert.That(proxima.TerritoryReward, Is.EqualTo(new ExpantaNum(1500000d)));
@@ -828,10 +830,10 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarCampaignsUseTieredLongRangeProgressMultipliers()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(alpha.CampaignProgressMultiplier.ToDouble(), Is.EqualTo(0.015d).Within(0.000001d));
         Assert.That(proxima.CampaignProgressMultiplier.ToDouble(), Is.EqualTo(0.010d).Within(0.000001d));
@@ -853,7 +855,7 @@ public sealed class SectorManagerTests
 
     private static double GetOverwhelmingPowerCaptureMinutes(string sectorId)
     {
-        SectorDefinition sector = Resources.Load<SectorDefinition>("Datas/Sector/" + sectorId);
+        SectorDef sector = Resources.Load<SectorDef>("Datas/Sector/" + sectorId);
         double progressPerSecond = CampaignManager.AdvanceProgress(
             ExpantaNum.Zero,
             new ExpantaNum(100d),
@@ -865,10 +867,10 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarCampaignsConsumeAdvancedMetalForFleetStructuralMaintenance()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
             Assert.That(FindCampaignCost(alpha, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(FindCampaignCost(proxima, "AdvancedMetalIngot"), Is.GreaterThan(ExpantaNum.Zero));
@@ -879,10 +881,10 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarCampaignRewardsAndSupplyCostsScaleBeyondEarlySpaceflight()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(alpha.TerritoryReward, Is.GreaterThanOrEqualTo(new ExpantaNum(100000d)));
         Assert.That(proxima.TerritoryReward, Is.GreaterThanOrEqualTo(new ExpantaNum(180000d)));
@@ -913,12 +915,12 @@ public sealed class SectorManagerTests
     [Test]
     public void 星际远征的一次性资源回报必须匹配后期投入规模()
     {
-        SectorDefinition[] sectors =
+        SectorDef[] sectors =
         {
-            Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri"),
-            Resources.Load<SectorDefinition>("Datas/Sector/ProximaB"),
-            Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry"),
-            Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt")
+            Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri"),
+            Resources.Load<SectorDef>("Datas/Sector/ProximaB"),
+            Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry"),
+            Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt")
         };
         ExpantaNum[] minimumRewards =
         {
@@ -939,19 +941,19 @@ public sealed class SectorManagerTests
     [Test]
     public void 星际远征规模必须显著高于近地轨道探索()
     {
-        SectorDefinition lowOrbit = Resources.Load<SectorDefinition>("Datas/Sector/DawnRing");
-        SectorDefinition[] interstellarSectors =
+        SectorDef lowOrbit = Resources.Load<SectorDef>("Datas/Sector/DawnRing");
+        SectorDef[] interstellarSectors =
         {
-            Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri"),
-            Resources.Load<SectorDefinition>("Datas/Sector/ProximaB"),
-            Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry"),
-            Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt")
+            Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri"),
+            Resources.Load<SectorDef>("Datas/Sector/ProximaB"),
+            Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry"),
+            Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt")
         };
 
         Assert.That(lowOrbit, Is.Not.Null);
         for (int i = 0; i < interstellarSectors.Length; i++)
         {
-            SectorDefinition sector = interstellarSectors[i];
+            SectorDef sector = interstellarSectors[i];
             Assert.That(sector.TerritoryReward,
                 Is.GreaterThan(lowOrbit.TerritoryReward * 100d), sector.Id);
             Assert.That(sector.CampaignResourceRatesPerSecond.Count,
@@ -964,10 +966,10 @@ public sealed class SectorManagerTests
     [Test]
     public void 星际战役必须持续消耗高真空润滑剂维护远征机械()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
 
         Assert.That(FindCampaignCost(alpha, "Lubricant"), Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(FindCampaignCost(proxima, "Lubricant"), Is.GreaterThan(ExpantaNum.Zero));
@@ -978,10 +980,10 @@ public sealed class SectorManagerTests
     [Test]
     public void 星际战役的单位进度后勤成本必须随远征阶段递增()
     {
-        SectorDefinition alpha = Resources.Load<SectorDefinition>("Datas/Sector/AlphaCentauri");
-        SectorDefinition proxima = Resources.Load<SectorDefinition>("Datas/Sector/ProximaB");
-        SectorDefinition tau = Resources.Load<SectorDefinition>("Datas/Sector/TauCetiFoundry");
-        SectorDefinition sirius = Resources.Load<SectorDefinition>("Datas/Sector/SiriusResourceBelt");
+        SectorDef alpha = Resources.Load<SectorDef>("Datas/Sector/AlphaCentauri");
+        SectorDef proxima = Resources.Load<SectorDef>("Datas/Sector/ProximaB");
+        SectorDef tau = Resources.Load<SectorDef>("Datas/Sector/TauCetiFoundry");
+        SectorDef sirius = Resources.Load<SectorDef>("Datas/Sector/SiriusResourceBelt");
         string[] resources = { "RocketFuel", "Engine", "AdvancedMetalIngot", "Lubricant", "Biomass" };
 
         for (int i = 0; i < resources.Length; i++)
@@ -1004,7 +1006,7 @@ public sealed class SectorManagerTests
     [Test]
     public void 所有星际战役都必须是高价值长周期高级材料远征()
     {
-        IReadOnlyList<SectorDefinition> sectors = DataBase<SectorDefinition>.All;
+        IReadOnlyList<SectorDef> sectors = DataBase<SectorDef>.All;
         string[] advancedResources =
         {
             "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
@@ -1012,8 +1014,8 @@ public sealed class SectorManagerTests
 
         for (int i = 0; i < sectors.Count; i++)
         {
-            SectorDefinition sector = sectors[i];
-            if (sector == null || sector.Domain != SectorDefinition.SectorDomain.Interstellar)
+            SectorDef sector = sectors[i];
+            if (sector == null || sector.Domain != SectorDef.SectorDomain.Interstellar)
                 continue;
 
             Assert.That(sector.TerritoryReward, Is.GreaterThanOrEqualTo(new ExpantaNum(100000d)), sector.Id);
@@ -1033,7 +1035,7 @@ public sealed class SectorManagerTests
         }
     }
 
-    private static ExpantaNum FindCampaignCost(SectorDefinition sector, string resourceId)
+    private static ExpantaNum FindCampaignCost(SectorDef sector, string resourceId)
     {
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             if (sector.CampaignResourceRatesPerSecond[i].First != null &&
@@ -1044,12 +1046,12 @@ public sealed class SectorManagerTests
 
     private static void SetCampaignResources(
         ResourceManager resourceManager,
-        SectorDefinition sector,
+        SectorDef sector,
         ExpantaNum amount)
     {
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
         {
-            Pair<Resource, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
+            Pair<ResourceDef, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
             resourceManager.SetAmount(rate.First, amount);
         }
     }
@@ -1064,7 +1066,7 @@ public sealed class SectorManagerTests
     }
 
     private static ExpantaNum GetColonizationResourceTotal(
-        SectorDefinition sector,
+        SectorDef sector,
         string resourceId)
     {
         ExpantaNum rate = ExpantaNum.Zero;
@@ -1076,7 +1078,7 @@ public sealed class SectorManagerTests
     }
 
     private static ExpantaNum FindOccupiedResourceRate(
-        SectorDefinition sector,
+        SectorDef sector,
         string resourceId)
     {
         for (int i = 0; i < sector.OccupiedResourceRatesPerSecond.Count; i++)
@@ -1086,7 +1088,7 @@ public sealed class SectorManagerTests
         return ExpantaNum.Zero;
     }
 
-    private static bool HasResourceReward(SectorDefinition sector, string resourceId)
+    private static bool HasResourceReward(SectorDef sector, string resourceId)
     {
         for (int i = 0; i < sector.ResourceRewards.Count; i++)
             if (sector.ResourceRewards[i].First != null &&
@@ -1096,19 +1098,19 @@ public sealed class SectorManagerTests
         return false;
     }
 
-    private static ExpantaNum GetOneTimeResourceRewardTotal(SectorDefinition sector)
+    private static ExpantaNum GetOneTimeResourceRewardTotal(SectorDef sector)
     {
         ExpantaNum total = ExpantaNum.Zero;
         for (int i = 0; i < sector.ResourceRewards.Count; i++)
         {
-            Pair<Resource, ExpantaNum> reward = sector.ResourceRewards[i];
+            Pair<ResourceDef, ExpantaNum> reward = sector.ResourceRewards[i];
             if (reward.First != null && reward.Second > ExpantaNum.Zero)
                 total += reward.Second;
         }
         return total;
     }
 
-    private static bool HasCampaignCost(SectorDefinition sector, string resourceId)
+    private static bool HasCampaignCost(SectorDef sector, string resourceId)
     {
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             if (sector.CampaignResourceRatesPerSecond[i].First != null &&
@@ -1121,11 +1123,11 @@ public sealed class SectorManagerTests
     [Test]
     public void NearEarthSectorChainRequiresLaunchResearchAndSequentialOccupation()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
-        Building launchCenter = DataBase<Building>.Find("LaunchCenter");
-        Research orbitalEngineering = DataBase<Research>.Find("OrbitalEngineering");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef mars = DataBase<SectorDef>.Find("Terminus");
+        BuildingDef launchCenter = DataBase<BuildingDef>.Find("LaunchCenter");
+        ResearchDef orbitalEngineering = DataBase<ResearchDef>.Find("OrbitalEngineering");
 
         Assert.That(lowOrbit, Is.Not.Null);
         Assert.That(moon, Is.Not.Null);
@@ -1148,8 +1150,8 @@ public sealed class SectorManagerTests
         Assert.That(manager.OrderedStates.Any(state => state.Definition.Id == "DawnRing"), Is.True);
         Assert.That(manager.OrderedStates.Any(state => state.Definition.Id == "Terminus"), Is.True);
         Assert.That(manager.OrderedStates.Any(state => state.Definition.Id == "AzurePool"), Is.True);
-        Assert.That(manager.CanAccess(DataBase<SectorDefinition>.Find("DawnRing")), Is.True);
-        Assert.That(manager.CanAccess(DataBase<SectorDefinition>.Find("AzurePool")), Is.False);
+        Assert.That(manager.CanAccess(DataBase<SectorDef>.Find("DawnRing")), Is.True);
+        Assert.That(manager.CanAccess(DataBase<SectorDef>.Find("AzurePool")), Is.False);
     }
 
     [Test]
@@ -1158,7 +1160,7 @@ public sealed class SectorManagerTests
         ProgressionModifierManager.Rebuild(null);
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
 
         Assert.That(manager.GetUnlockFailure(lowOrbit),
             Is.EqualTo(SectorOperationFailure.HomeSystemSurveyRequired));
@@ -1169,8 +1171,8 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition tau = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef tau = DataBase<SectorDef>.Find("TauCetiFoundry");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(tau, Is.Not.Null);
         Assert.That(sirius, Is.Not.Null);
@@ -1188,7 +1190,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition sirius = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef sirius = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
         Assert.That(sirius, Is.Not.Null);
         Assert.That(manager.TryUnlock(sirius, out SectorOperationFailure failure), Is.False);
@@ -1205,7 +1207,7 @@ public sealed class SectorManagerTests
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
             SectorState state = manager.GetState(lowOrbit);
             state.SetUnlockedForEditor(true);
             GameState runtimeState = new GameState();
@@ -1231,7 +1233,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         SectorState state = manager.GetState(lowOrbit);
         state.SetUnlockedForEditor(true);
         GameState runtimeState = new GameState();
@@ -1254,7 +1256,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         for (int i = 0; i < lowOrbit.ColonizationResourceRatesPerSecond.Count; i++)
                 resourceManager.SetAmount(
                     lowOrbit.ColonizationResourceRatesPerSecond[i].First,
@@ -1284,8 +1286,8 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorState home = manager.GetState(DataBase<SectorDefinition>.Find("DawnRing"));
-        SectorState interstellar = manager.GetState(DataBase<SectorDefinition>.Find("ProximaB"));
+        SectorState home = manager.GetState(DataBase<SectorDef>.Find("DawnRing"));
+        SectorState interstellar = manager.GetState(DataBase<SectorDef>.Find("ProximaB"));
         home.SetUnlockedForEditor(true);
         interstellar.SetUnlockedForEditor(true);
         home.SetCampaignProgressForEditor(new ExpantaNum(0.5d));
@@ -1303,7 +1305,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         SectorState state = manager.GetState(moon);
         state.SetUnlockedForEditor(true);
         state.SetColonizationActiveForEditor(true);
@@ -1329,9 +1331,9 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition first = DataBase<SectorDefinition>.Find("ProximaB");
-            SectorDefinition second = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-            foreach (SectorDefinition sector in new[] { first, second })
+            SectorDef first = DataBase<SectorDef>.Find("ProximaB");
+            SectorDef second = DataBase<SectorDef>.Find("TauCetiFoundry");
+            foreach (SectorDef sector in new[] { first, second })
             {
                 for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
                     resourceManager.SetAmount(
@@ -1377,12 +1379,12 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("AlphaCentauri");
+            SectorDef sector = DataBase<SectorDef>.Find("AlphaCentauri");
             const double deltaSeconds = 60d;
             ExpantaNum initialAmount = new ExpantaNum(1000000d);
             for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             {
-                Pair<Resource, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
+                Pair<ResourceDef, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
                 resourceManager.SetAmount(rate.First, initialAmount);
             }
 
@@ -1415,7 +1417,7 @@ public sealed class SectorManagerTests
 
             for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             {
-                Pair<Resource, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
+                Pair<ResourceDef, ExpantaNum> rate = sector.CampaignResourceRatesPerSecond[i];
                 Assert.That(
                     resourceManager.GetAmount(rate.First),
                     Is.LessThan(initialAmount),
@@ -1434,7 +1436,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
         SectorState state = manager.GetState(sector);
         state.SetCampaignActiveForEditor(true);
         GameState runtimeState = new GameState();
@@ -1450,8 +1452,8 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition activeSector = DataBase<SectorDefinition>.Find("ProximaB");
-        SectorDefinition otherSector = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef activeSector = DataBase<SectorDef>.Find("ProximaB");
+        SectorDef otherSector = DataBase<SectorDef>.Find("TauCetiFoundry");
         SectorState otherState = manager.GetState(otherSector);
         otherState.SetCampaignActiveForEditor(true);
         GameState runtimeState = new GameState();
@@ -1469,14 +1471,14 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.SetAmount(DataBase<Resource>.Find("RefinedFuel"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RefinedFuel"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RocketFuel"), new ExpantaNum(5));
 
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-            foreach (SectorDefinition sector in new[] { lowOrbit, moon })
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
+            SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+            foreach (SectorDef sector in new[] { lowOrbit, moon })
                 for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
                     resourceManager.SetAmount(
                         sector.ColonizationResourceRatesPerSecond[i].First,
@@ -1517,7 +1519,7 @@ public sealed class SectorManagerTests
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+            SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
             SectorState lowOrbitState = manager.GetState(lowOrbit);
             lowOrbitState.SetUnlockedForEditor(true);
             lowOrbitState.SetCampaignProgressForEditor(new ExpantaNum("0.99999"));
@@ -1558,7 +1560,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         SectorState state = manager.GetState(lowOrbit);
         state.SetUnlockedForEditor(true);
         state.SetOccupiedForEditor(true);
@@ -1582,7 +1584,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorState state = manager.GetState(DataBase<SectorDefinition>.Find("DawnRing"));
+        SectorState state = manager.GetState(DataBase<SectorDef>.Find("DawnRing"));
         state.SetUnlockedForEditor(true);
         state.SetCampaignProgressForEditor(ExpantaNum.One);
 
@@ -1598,7 +1600,7 @@ public sealed class SectorManagerTests
         var manager = new SectorManager(_ =>
             throw new System.InvalidOperationException("test reward failure"));
         manager.InitializeDefinitions();
-        SectorState state = manager.GetState(DataBase<SectorDefinition>.Find("DawnRing"));
+        SectorState state = manager.GetState(DataBase<SectorDef>.Find("DawnRing"));
         state.SetUnlockedForEditor(true);
         state.SetCampaignProgressForEditor(ExpantaNum.One);
         state.SetVisitCountForEditor(2);
@@ -1613,7 +1615,7 @@ public sealed class SectorManagerTests
     [Test]
     public void C705_HomeSystemExplorationGrantsOnlyTerritory()
     {
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             if (sector != null && sector.IsHomeSystem)
             {
@@ -1635,11 +1637,11 @@ public sealed class SectorManagerTests
             resources.InitializeForEditor();
             var manager = new SectorManager();
             manager.InitializeDefinitions();
-            var amounts = new Dictionary<Resource, ExpantaNum>();
+            var amounts = new Dictionary<ResourceDef, ExpantaNum>();
             foreach (var pair in resources.States)
                 amounts.Add(pair.Key, pair.Value.Amount);
             int occupied = 0;
-            foreach (var sector in DataBase<SectorDefinition>.All)
+            foreach (var sector in DataBase<SectorDef>.All)
             {
                 if (!sector.IsHomeSystem) continue;
                 SectorState state = manager.GetState(sector);
@@ -1670,9 +1672,9 @@ public sealed class SectorManagerTests
     [Test]
     public void 近地殖民总成本必须随阶段和回报逐级增长()
     {
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition mars = DataBase<SectorDefinition>.Find("Terminus");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef mars = DataBase<SectorDef>.Find("Terminus");
 
         ExpantaNum lowOrbitFood = lowOrbit.ColonizationFoodPerSecond * lowOrbit.ColonizationDurationSeconds;
         ExpantaNum moonFood = moon.ColonizationFoodPerSecond * moon.ColonizationDurationSeconds;
@@ -1696,19 +1698,19 @@ public sealed class SectorManagerTests
     public void HomeSectorLegacyOccupationCannotProduceOrContributeToSupply()
     {
         GameObject resourceObject = new GameObject("Home-Sector-No-Production-Resources");
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("DawnRing");
-        var originalRates = new List<Pair<Resource, ExpantaNum>>(sector.OccupiedResourceRatesPerSecond);
+        SectorDef sector = DataBase<SectorDef>.Find("DawnRing");
+        var originalRates = new List<Pair<ResourceDef, ExpantaNum>>(sector.OccupiedResourceRatesPerSecond);
         try
         {
             ProgressionModifierManager.Rebuild(null);
             resourceObject.AddComponent<GameManager>();
             ResourceManager resources = resourceObject.AddComponent<ResourceManager>();
-            Resource resource = DataBase<Resource>.Find("Electronics");
+            ResourceDef resource = DataBase<ResourceDef>.Find("Electronics");
             resources.SetAmount(resource, new ExpantaNum(100d));
             // Simulate a previously occupied sector with stale nonempty production data.
-            sector.SetOccupiedResourceRatesForEditor(new List<Pair<Resource, ExpantaNum>>
+            sector.SetOccupiedResourceRatesForEditor(new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(resource, new ExpantaNum(10d))
+                new Pair<ResourceDef, ExpantaNum>(resource, new ExpantaNum(10d))
             });
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
@@ -1747,7 +1749,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         SectorState state = manager.GetState(moon);
         state.SetUnlockedForEditor(true);
 
@@ -1775,7 +1777,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
             SetCampaignResources(resourceManager, sector, new ExpantaNum(1000000));
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
@@ -1808,7 +1810,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
@@ -1835,7 +1837,7 @@ public sealed class SectorManagerTests
         ProgressionModifierManager.Rebuild(null);
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
         SectorState state = manager.GetState(moon);
         state.SetUnlockedForEditor(true);
         var runtimeState = new GameState();
@@ -1896,7 +1898,7 @@ public sealed class SectorManagerTests
 
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
             SectorState state = manager.GetState(sector);
             state.SetUnlockedForEditor(true);
             state.SetCampaignActiveForEditor(true);
@@ -1908,18 +1910,18 @@ public sealed class SectorManagerTests
                 gameManager.State,
                 resourceManager);
             ExpantaNum foodBefore = gameManager.State.FoodAmount;
-            var expectedResourceRates = new Dictionary<Resource, ExpantaNum>();
+            var expectedResourceRates = new Dictionary<ResourceDef, ExpantaNum>();
             for (int i = 0; i < preview.ResourceCostsPerSecond.Count; i++)
             {
-                Pair<Resource, ExpantaNum> rate = preview.ResourceCostsPerSecond[i];
+                Pair<ResourceDef, ExpantaNum> rate = preview.ResourceCostsPerSecond[i];
                 expectedResourceRates[rate.First] = expectedResourceRates.TryGetValue(
                     rate.First,
                     out ExpantaNum existing)
                     ? existing + rate.Second
                     : rate.Second;
             }
-            var resourceBefore = new Dictionary<Resource, ExpantaNum>();
-            foreach (Resource resource in expectedResourceRates.Keys)
+            var resourceBefore = new Dictionary<ResourceDef, ExpantaNum>();
+            foreach (ResourceDef resource in expectedResourceRates.Keys)
                 resourceBefore[resource] = resourceManager.GetAmount(resource);
 
             Assert.That(preview.IsValid, Is.True);
@@ -1933,7 +1935,7 @@ public sealed class SectorManagerTests
             ExpantaNum actualFoodCost = foodBefore - gameManager.State.FoodAmount;
             ExpantaNum expectedFoodCost = preview.FoodCostPerSecond * 60d;
             Assert.That(actualFoodCost.ToDouble(), Is.EqualTo(expectedFoodCost.ToDouble()).Within(0.000001d));
-            foreach (KeyValuePair<Resource, ExpantaNum> expected in expectedResourceRates)
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> expected in expectedResourceRates)
             {
                 ExpantaNum actualCost = resourceBefore[expected.Key] - resourceManager.GetAmount(expected.Key);
                 ExpantaNum expectedCost = expected.Value * 60d;
@@ -1951,7 +1953,7 @@ public sealed class SectorManagerTests
     [Test]
     public void 自动化舰队补给模块会直接降低战役预览中的持续消耗()
     {
-        WorkshopUpgrade definition = Resources.Load<WorkshopUpgrade>(
+        WorkshopUpgradeDef definition = Resources.Load<WorkshopUpgradeDef>(
             "Datas/Workshop/AutomatedFleetResupplyModules");
         WorkshopUpgradeState workshopState = new WorkshopUpgradeState(definition);
         workshopState.SetPurchasedForEditor(true);
@@ -1961,7 +1963,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Rebuild(null, new[] { workshopState });
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             manager.GetState(moon).SetUnlockedForEditor(true);
             SectorCampaignPreview preview = manager.GetCampaignPreview(
                 moon,
@@ -1986,7 +1988,7 @@ public sealed class SectorManagerTests
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
@@ -2025,7 +2027,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
 
             var rewards = 0;
@@ -2034,7 +2036,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             manager.GetState(moon).SetUnlockedForEditor(true);
@@ -2094,7 +2096,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
 
             var rewards = 0;
@@ -2103,7 +2105,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             SectorState state = manager.GetState(moon);
@@ -2205,7 +2207,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         SectorState moonState = manager.GetState(moon);
         moonState.SetUnlockedForEditor(true);
         moonState.SetCampaignProgressForEditor(new ExpantaNum(0.5d));
@@ -2224,11 +2226,12 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         var duplicateStates = new List<SaveManager.SectorStateSaveData>
         {
             new SaveManager.SectorStateSaveData
             {
+                InteriorExplorationProgress = "0",
                 SectorId = moon.Id,
                 CampaignProgress = "0",
                 CampaignCasualties = "0",
@@ -2236,6 +2239,7 @@ public sealed class SectorManagerTests
             },
             new SaveManager.SectorStateSaveData
             {
+                InteriorExplorationProgress = "0",
                 SectorId = moon.Id,
                 CampaignProgress = "1",
                 CampaignCasualties = "0",
@@ -2255,8 +2259,8 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
-        SectorDefinition lowOrbit = DataBase<SectorDefinition>.Find("DawnRing");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
+        SectorDef lowOrbit = DataBase<SectorDef>.Find("DawnRing");
         SectorState moonState = manager.GetState(moon);
         moonState.SetUnlockedForEditor(true);
 
@@ -2267,6 +2271,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = moon.Id,
                         Unlocked = true,
                         CampaignProgress = "0.25",
@@ -2276,6 +2281,7 @@ public sealed class SectorManagerTests
                     },
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = lowOrbit.Id,
                         CampaignProgress = "0",
                         CampaignCasualties = "0",
@@ -2294,7 +2300,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         SectorState moonState = manager.GetState(moon);
         moonState.SetUnlockedForEditor(true);
 
@@ -2305,6 +2311,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = "MissingSector",
                         CampaignProgress = "0",
                         CampaignCasualties = "0",
@@ -2321,7 +2328,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
 
         Assert.Throws<System.InvalidOperationException>(() =>
             manager.RestoreSaveData(new SaveManager.SectorSaveData
@@ -2330,6 +2337,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = moon.Id,
                         Unlocked = true,
                         Occupied = true,
@@ -2345,10 +2353,10 @@ public sealed class SectorManagerTests
     [Test]
     public void C809_PreSpaceMilitaryBuildingsAreRemoved()
     {
-        Assert.That(DataBase<Building>.Contains("Barracks"), Is.False);
-        Assert.That(DataBase<Building>.Contains("Castle"), Is.False);
-        Assert.That(DataBase<Building>.Contains("Arsenal"), Is.False);
-        Assert.That(DataBase<Building>.Contains("ArmsFactory"), Is.False);
+        Assert.That(DataBase<BuildingDef>.Contains("Barracks"), Is.False);
+        Assert.That(DataBase<BuildingDef>.Contains("Castle"), Is.False);
+        Assert.That(DataBase<BuildingDef>.Contains("Arsenal"), Is.False);
+        Assert.That(DataBase<BuildingDef>.Contains("ArmsFactory"), Is.False);
     }
 
     [Test]
@@ -2362,7 +2370,7 @@ public sealed class SectorManagerTests
             GameManager gameManager = gameObject.AddComponent<GameManager>();
             resourceObject.AddComponent<ResourceManager>();
             BuildingManager buildingManager = buildingObject.AddComponent<BuildingManager>();
-            Building library = DataBase<Building>.Find("Library");
+            BuildingDef library = DataBase<BuildingDef>.Find("Library");
             BuildingState state = buildingManager.EnsureBuilding(library);
 
             buildingManager.SetAmountAndRatesForEditor(state, new ExpantaNum(1));
@@ -2412,21 +2420,21 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.SetAmount(DataBase<Resource>.Find("TitaniumAlloy"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("Composite"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("PhantomWeave"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
-            ExpantaNum titaniumBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy"));
-            ExpantaNum compositeBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("Composite"));
-            ExpantaNum phantomWeaveBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave"));
-            ExpantaNum rocketFuelBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel"));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("Composite"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("PhantomWeave"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RocketFuel"), new ExpantaNum(5));
+            ExpantaNum titaniumBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"));
+            ExpantaNum compositeBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("Composite"));
+            ExpantaNum phantomWeaveBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhantomWeave"));
+            ExpantaNum rocketFuelBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("RocketFuel"));
 
             GameState runtimeState = new GameState();
             runtimeState.BeginCampaignForEditor("ProximaB");
             runtimeState.RecordCampaignCombatForEditor(new ExpantaNum(0.8d), new ExpantaNum(10));
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorState sectorState = manager.GetState(DataBase<SectorDefinition>.Find("ProximaB"));
+            SectorState sectorState = manager.GetState(DataBase<SectorDef>.Find("ProximaB"));
             sectorState.SetCampaignActiveForEditor(true);
             sectorState.SetCampaignCasualtiesForEditor(new ExpantaNum(10));
 
@@ -2441,10 +2449,10 @@ public sealed class SectorManagerTests
             Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
             Assert.That(repairedAmount, Is.EqualTo(new ExpantaNum(5)));
             Assert.That(runtimeState.Campaign.Casualties, Is.EqualTo(new ExpantaNum(5)));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")), Is.LessThan(titaniumBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("Composite")), Is.LessThan(compositeBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave")), Is.LessThan(phantomWeaveBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel")), Is.LessThan(rocketFuelBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy")), Is.LessThan(titaniumBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("Composite")), Is.LessThan(compositeBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhantomWeave")), Is.LessThan(phantomWeaveBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("RocketFuel")), Is.LessThan(rocketFuelBeforeRepair));
         }
         finally
         {
@@ -2480,7 +2488,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
 
             var manager = new SectorManager(_ =>
@@ -2489,7 +2497,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             SetCampaignResources(resourceManager, moon, new ExpantaNum(1000000));
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             ExpantaNum rocketFuelBeforeFailure = resourceManager.GetAmount(rocketFuel);
@@ -2538,7 +2546,7 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(10));
             var runtimeState = new GameState();
             var manager = new SectorManager(_ =>
@@ -2550,7 +2558,7 @@ public sealed class SectorManagerTests
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.InterstellarNavigation);
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.DeepSpaceFleet);
-            SectorDefinition moon = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef moon = DataBase<SectorDef>.Find("ProximaB");
             SetCampaignResources(resourceManager, moon, new ExpantaNum(100000));
             resourceManager.SetAmount(rocketFuel, new ExpantaNum(1000000));
             ExpantaNum rocketFuelBeforeFailure = resourceManager.GetAmount(rocketFuel);
@@ -2588,17 +2596,17 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.SetAmount(DataBase<Resource>.Find("TitaniumAlloy"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("Composite"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("PhantomWeave"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
-            ExpantaNum titaniumBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy"));
-            ExpantaNum compositeBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("Composite"));
-            ExpantaNum phantomWeaveBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave"));
-            ExpantaNum rocketFuelBeforeRepair = resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel"));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("Composite"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("PhantomWeave"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RocketFuel"), new ExpantaNum(5));
+            ExpantaNum titaniumBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"));
+            ExpantaNum compositeBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("Composite"));
+            ExpantaNum phantomWeaveBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhantomWeave"));
+            ExpantaNum rocketFuelBeforeRepair = resourceManager.GetAmount(DataBase<ResourceDef>.Find("RocketFuel"));
 
-            WorkshopUpgrade definition =
-                Resources.Load<WorkshopUpgrade>("Datas/Workshop/InterstellarCombatSupplySystems");
+            WorkshopUpgradeDef definition =
+                Resources.Load<WorkshopUpgradeDef>("Datas/Workshop/InterstellarCombatSupplySystems");
             WorkshopUpgradeState workshopState = new WorkshopUpgradeState(definition);
             workshopState.SetPurchasedForEditor(true);
             ProgressionModifierManager.Rebuild(null, new[] { workshopState });
@@ -2608,7 +2616,7 @@ public sealed class SectorManagerTests
             runtimeState.RecordCampaignCombatForEditor(new ExpantaNum(0.8d), new ExpantaNum(10));
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorState sectorState = manager.GetState(DataBase<SectorDefinition>.Find("ProximaB"));
+            SectorState sectorState = manager.GetState(DataBase<SectorDef>.Find("ProximaB"));
             sectorState.SetCampaignActiveForEditor(true);
             sectorState.SetCampaignCasualtiesForEditor(new ExpantaNum(10));
 
@@ -2620,10 +2628,10 @@ public sealed class SectorManagerTests
                 out SectorOperationFailure failure), Is.True);
             Assert.That(failure, Is.EqualTo(SectorOperationFailure.None));
             Assert.That(repairedAmount, Is.EqualTo(new ExpantaNum(5)));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("TitaniumAlloy")), Is.LessThan(titaniumBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("Composite")), Is.LessThan(compositeBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("PhantomWeave")), Is.LessThan(phantomWeaveBeforeRepair));
-            Assert.That(resourceManager.GetAmount(DataBase<Resource>.Find("RocketFuel")), Is.LessThan(rocketFuelBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy")), Is.LessThan(titaniumBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("Composite")), Is.LessThan(compositeBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("PhantomWeave")), Is.LessThan(phantomWeaveBeforeRepair));
+            Assert.That(resourceManager.GetAmount(DataBase<ResourceDef>.Find("RocketFuel")), Is.LessThan(rocketFuelBeforeRepair));
         }
         finally
         {
@@ -2639,12 +2647,12 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.SetAmount(DataBase<Resource>.Find("TitaniumAlloy"), new ExpantaNum(40));
-            resourceManager.SetAmount(DataBase<Resource>.Find("Composite"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("PhantomWeave"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"), new ExpantaNum(40));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("Composite"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("PhantomWeave"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RocketFuel"), new ExpantaNum(10));
 
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
             SectorManager manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
             ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.HomeSystemSurvey);
@@ -2705,14 +2713,14 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            resourceManager.SetAmount(DataBase<Resource>.Find("TitaniumAlloy"), new ExpantaNum(20));
-            resourceManager.SetAmount(DataBase<Resource>.Find("Composite"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("PhantomWeave"), new ExpantaNum(10));
-            resourceManager.SetAmount(DataBase<Resource>.Find("RocketFuel"), new ExpantaNum(5));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("TitaniumAlloy"), new ExpantaNum(20));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("Composite"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("PhantomWeave"), new ExpantaNum(10));
+            resourceManager.SetAmount(DataBase<ResourceDef>.Find("RocketFuel"), new ExpantaNum(5));
 
             var manager = new SectorManager(_ => { });
             manager.InitializeDefinitions();
-            SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+            SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
             SectorState state = manager.GetState(sector);
             state.SetCampaignActiveForEditor(true);
             state.SetCampaignCasualtiesForEditor(new ExpantaNum(10));
@@ -2755,10 +2763,10 @@ public sealed class SectorManagerTests
         try
         {
             ResourceManager resourceManager = resourceObject.AddComponent<ResourceManager>();
-            Resource titanium = DataBase<Resource>.Find("TitaniumAlloy");
-            Resource composite = DataBase<Resource>.Find("Composite");
-            Resource phantomWeave = DataBase<Resource>.Find("PhantomWeave");
-            Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
+            ResourceDef titanium = DataBase<ResourceDef>.Find("TitaniumAlloy");
+            ResourceDef composite = DataBase<ResourceDef>.Find("Composite");
+            ResourceDef phantomWeave = DataBase<ResourceDef>.Find("PhantomWeave");
+            ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
             resourceManager.SetAmount(titanium, new ExpantaNum(20));
             resourceManager.SetAmount(composite, new ExpantaNum(10));
             resourceManager.SetAmount(phantomWeave, new ExpantaNum(10));
@@ -2808,8 +2816,8 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition existingSector = DataBase<SectorDefinition>.Find("DawnRing");
-        SectorDefinition campaignSector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef existingSector = DataBase<SectorDef>.Find("DawnRing");
+        SectorDef campaignSector = DataBase<SectorDef>.Find("ProximaB");
         SectorState existingState = manager.GetState(existingSector);
         existingState.SetUnlockedForEditor(true);
 
@@ -2820,6 +2828,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = campaignSector.Id,
                         Unlocked = true,
                         CampaignActive = true,
@@ -2839,7 +2848,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
 
         Assert.Throws<InvalidOperationException>(() =>
             manager.RestoreSaveData(new SaveManager.SectorSaveData
@@ -2848,6 +2857,7 @@ public sealed class SectorManagerTests
                 {
                     new SaveManager.SectorStateSaveData
                     {
+                        InteriorExplorationProgress = "0",
                         SectorId = sector.Id,
                         Unlocked = true,
                         CampaignProgress = "1",
@@ -2862,9 +2872,9 @@ public sealed class SectorManagerTests
     public void NonFiniteCampaignFoodRateIsRejectedBeforeStartingForZeroSeconds()
     {
         GameObject resourceObject = new GameObject("Campaign-NonFinite-Cost-ResourceManager");
-        SectorDefinition sector = DataBase<SectorDefinition>.Find("ProximaB");
+        SectorDef sector = DataBase<SectorDef>.Find("ProximaB");
         ExpantaNum originalFoodRate = sector.CampaignFoodPerSecond;
-        var originalResourceRates = new List<Pair<Resource, ExpantaNum>>();
+        var originalResourceRates = new List<Pair<ResourceDef, ExpantaNum>>();
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
             originalResourceRates.Add(sector.CampaignResourceRatesPerSecond[i]);
 
@@ -2911,7 +2921,7 @@ public sealed class SectorManagerTests
     {
         var manager = new SectorManager(_ => { });
         manager.InitializeDefinitions();
-        SectorDefinition moon = DataBase<SectorDefinition>.Find("AzurePool");
+        SectorDef moon = DataBase<SectorDef>.Find("AzurePool");
         var runtimeState = new GameState();
         runtimeState.AdjustAttackPowerForEditor(new ExpantaNum(100));
         runtimeState.AdjustMilitaryManpowerForEditor(new ExpantaNum(100));
@@ -2930,12 +2940,12 @@ public sealed class SectorManagerTests
     [Test]
     public void InterstellarCampaignsIncreaseSupplyBurdenAndTerritoryRewards()
     {
-        SectorDefinition alphaCentauri = DataBase<SectorDefinition>.Find("AlphaCentauri");
-        SectorDefinition proximaB = DataBase<SectorDefinition>.Find("ProximaB");
-        SectorDefinition tauCetiFoundry = DataBase<SectorDefinition>.Find("TauCetiFoundry");
-        SectorDefinition siriusResourceBelt = DataBase<SectorDefinition>.Find("SiriusResourceBelt");
+        SectorDef alphaCentauri = DataBase<SectorDef>.Find("AlphaCentauri");
+        SectorDef proximaB = DataBase<SectorDef>.Find("ProximaB");
+        SectorDef tauCetiFoundry = DataBase<SectorDef>.Find("TauCetiFoundry");
+        SectorDef siriusResourceBelt = DataBase<SectorDef>.Find("SiriusResourceBelt");
 
-        SectorDefinition[] sectors =
+        SectorDef[] sectors =
         {
             alphaCentauri,
             proximaB,
@@ -2988,9 +2998,9 @@ public sealed class SectorManagerTests
     [Test]
     public void 近地轨道到月球再到火星的殖民周期必须逐级延长()
     {
-        SectorDefinition lowOrbit = Resources.Load<SectorDefinition>("Datas/Sector/DawnRing");
-        SectorDefinition moon = Resources.Load<SectorDefinition>("Datas/Sector/AzurePool");
-        SectorDefinition mars = Resources.Load<SectorDefinition>("Datas/Sector/Terminus");
+        SectorDef lowOrbit = Resources.Load<SectorDef>("Datas/Sector/DawnRing");
+        SectorDef moon = Resources.Load<SectorDef>("Datas/Sector/AzurePool");
+        SectorDef mars = Resources.Load<SectorDef>("Datas/Sector/Terminus");
 
         Assert.That(lowOrbit, Is.Not.Null);
         Assert.That(moon, Is.Not.Null);
@@ -3002,15 +3012,15 @@ public sealed class SectorManagerTests
         Assert.That(moon.ColonizationDurationSeconds, Is.LessThan(mars.ColonizationDurationSeconds));
     }
     private static bool HasPositiveRate(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
-        Resource resource)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
+        ResourceDef resource)
     {
         if (resource == null)
             return false;
 
         for (int i = 0; i < rates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = rates[i];
+            Pair<ResourceDef, ExpantaNum> pair = rates[i];
             if (pair.First == resource && pair.Second > ExpantaNum.Zero)
                 return true;
         }

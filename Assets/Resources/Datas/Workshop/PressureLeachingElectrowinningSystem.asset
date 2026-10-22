@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PressureLeachingElectrowinningSystem
   m_EditorClassIdentifier: 
   id: PressureLeachingElectrowinningSystem
+  icon: {fileID: 21300000, guid: 487a1b912c7727543ad95e380d3e6e87, type: 3}
   Label: "\u52A0\u538B\u6D78\u51FA\u7535\u89E3\u673A\u7EC4"
   Description: "优化加压浸出、溶液萃取与电解精炼，去除高级金属矿中的杂质，提高高级金属精炼厂的集中供应能力。"
   SortOrder: 365

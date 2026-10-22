@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: OrbitalTrafficSchedulingArray
   m_EditorClassIdentifier: 
   id: OrbitalTrafficSchedulingArray
+  icon: {fileID: 21300000, guid: c7ff4cb2f5fecbb489fe7447ddc37e8f, type: 3}
   Label: "\u8f68\u9053\u4ea4\u901a\u8c03\u5ea6\u9635\u5217"
   Description: "按轨道时隙和泊位优先级调度货运，提高轨道空间站的物流供给。"
   SortOrder: 700

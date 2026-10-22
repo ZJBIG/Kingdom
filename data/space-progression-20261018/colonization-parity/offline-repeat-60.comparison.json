@@ -1,8 +1,0 @@
-{
-  "source": "Controlled Unity v4 fixture; excludes world events, Ultra and relic systems",
-  "mode": "Offline",
-  "seconds": 60,
-  "passed": true,
-  "firstDifference": null,
-  "differences": []
-}

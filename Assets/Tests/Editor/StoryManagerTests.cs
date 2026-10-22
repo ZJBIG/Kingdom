@@ -155,20 +155,20 @@ public sealed class StoryManagerTests
                 continue;
 
             for (int j = 0; j < chapter.RequiredResearchIds.Count; j++)
-                Assert.That(DataBase<Research>.TryFind(
-                    chapter.RequiredResearchIds[j], out Research research) &&
+                Assert.That(DataBase<ResearchDef>.TryFind(
+                    chapter.RequiredResearchIds[j], out ResearchDef research) &&
                     research != null, Is.True,
                     chapter.Id + " must reference an existing Research definition.");
 
             for (int j = 0; j < chapter.RequiredBuildingIds.Count; j++)
-                Assert.That(DataBase<Building>.TryFind(
-                    chapter.RequiredBuildingIds[j], out Building building) &&
+                Assert.That(DataBase<BuildingDef>.TryFind(
+                    chapter.RequiredBuildingIds[j], out BuildingDef building) &&
                     building != null, Is.True,
                     chapter.Id + " must reference an existing Building definition.");
 
             for (int j = 0; j < chapter.RequiredWorkshopIds.Count; j++)
-                Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-                    chapter.RequiredWorkshopIds[j], out WorkshopUpgrade workshop) &&
+                Assert.That(DataBase<WorkshopUpgradeDef>.TryFind(
+                    chapter.RequiredWorkshopIds[j], out WorkshopUpgradeDef workshop) &&
                     workshop != null, Is.True,
                     chapter.Id + " must reference an existing Workshop definition.");
         }
@@ -185,11 +185,11 @@ public sealed class StoryManagerTests
                 chapter.RequiredBuildingIds.Count == 0)
                 continue;
 
-            Assert.That(DataBase<Research>.TryFind(
-                chapter.RequiredResearchIds[0], out Research research), Is.True,
+            Assert.That(DataBase<ResearchDef>.TryFind(
+                chapter.RequiredResearchIds[0], out ResearchDef research), Is.True,
                 chapter.Id + " must resolve its research gate.");
-            Assert.That(DataBase<Building>.TryFind(
-                chapter.RequiredBuildingIds[0], out Building building), Is.True,
+            Assert.That(DataBase<BuildingDef>.TryFind(
+                chapter.RequiredBuildingIds[0], out BuildingDef building), Is.True,
                 chapter.Id + " must resolve its building gate.");
             Assert.That(building.RequiredResearch, Does.Contain(research),
                 chapter.Id + " must name the real research prerequisite of " +
@@ -204,14 +204,14 @@ public sealed class StoryManagerTests
         Assert.That(chapter.RequiredWorkshopIds.Count, Is.GreaterThan(0));
         Assert.That(FirstId(chapter.RequiredResearchIds),
             Is.EqualTo("PrecisionManufacturing"));
-        Assert.That(DataBase<WorkshopUpgrade>.TryFind(
-            FirstId(chapter.RequiredWorkshopIds), out WorkshopUpgrade workshop), Is.True);
-        Assert.That(DataBase<Research>.TryFind(
-            FirstId(chapter.RequiredResearchIds), out Research requiredResearch), Is.True);
+        Assert.That(DataBase<WorkshopUpgradeDef>.TryFind(
+            FirstId(chapter.RequiredWorkshopIds), out WorkshopUpgradeDef workshop), Is.True);
+        Assert.That(DataBase<ResearchDef>.TryFind(
+            FirstId(chapter.RequiredResearchIds), out ResearchDef requiredResearch), Is.True);
         Assert.That(workshop.RequiredResearch,
             Does.Contain(requiredResearch),
             "The Story chapter must name the Workshop's direct Research prerequisite.");
-        Building machineFactory = DataBase<Building>.Find("MachineFactory");
+        BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
         Assert.That(machineFactory.RequiredResearch, Does.Contain(requiredResearch),
             "Story research gate must be a real MachineFactory prerequisite.");
         Assert.That(machineFactory.RequiredWorkshopUpgrades, Does.Contain(workshop),
@@ -259,12 +259,12 @@ public sealed class StoryManagerTests
             research.InitializeForEditor();
             foreach (var entry in research.States)
             {
-                var paid = new Dictionary<Resource, ExpantaNum>();
+                var paid = new Dictionary<ResourceDef, ExpantaNum>();
                 foreach (var cost in entry.Key.ResourceRequirements)
                     paid[cost.First] = cost.Second;
                 entry.Value.RestoreForEditor(entry.Value.BaseCost, true, true, paid);
             }
-            Building original = DataBase<Building>.Find("Farm");
+            BuildingDef original = DataBase<BuildingDef>.Find("Farm");
             Assert.That(original.UpgradeTo, Is.Not.Null);
             Assert.That(StoryManager.HasOwnedBuildingForEditor(original.Id), Is.False);
             buildings.EnsureBuilding(original.UpgradeTo).SetAmountForEditor(ExpantaNum.One);

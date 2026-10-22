@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ReusableLaunchStages
   m_EditorClassIdentifier: 
   id: ReusableLaunchStages
+  icon: {fileID: 21300000, guid: aa2b1d615fb8c364ebcad1fc449f6e86, type: 3}
   Label: "可复用发射级"
   Description: "回收发射级并统一检修流程，降低舰队维修材料费用。"
   SortOrder: 410
@@ -34,11 +35,11 @@ MonoBehaviour:
   - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
     amount: "105000"
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
-    amount: "131250"
+    amount: "80000"
   - resource: {fileID: 11400000, guid: 18293a4b5c6d7e8f901a2b3c4d5e6f70, type: 2}
-    amount: "93750"
+    amount: "50000"
   - resource: {fileID: 11400000, guid: 8dd04e7a08c489243b94fb4ed6aa6b05, type: 2}
-    amount: "8100000"
+    amount: "4500000"
   effects:
   - Type: 13
     Building: {fileID: 0}

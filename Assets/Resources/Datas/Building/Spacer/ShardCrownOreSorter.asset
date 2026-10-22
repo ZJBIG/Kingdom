@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45a0d5d64f04e8f9a1a9a768bf40c21, type: 3}
+  m_Name: ShardCrownOreSorter
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 0efae75a8b944ed7ac428de09ba82e82, type: 3}
+  id: ShardCrownOreSorter
+  Label: "碎冠带矿料分选站"
+  Description: "在碎冠带主动部署采掘与分选设备，供给基础、高级与特殊矿料。需要炸药、精炼燃料及机械维护，冶炼仍由既有工业承担。"
+  TechLevel: 4
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.25"
+  spaceCost: "0"
+  productivityConsumption: "360"
+  powerConsumptionRate: "160"
+  logisticsConsumptionRate: "28"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "20000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "1800"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "2000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "2400"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "1200"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: cab0b756c4a7b1540a580c0e836cd806, type: 2}
+    amount: "96"
+  - resource: {fileID: 11400000, guid: eff51b472ae372e4f9c9f24c89d112e3, type: 2}
+    amount: "24"
+  - resource: {fileID: 11400000, guid: 605f4f30b687fbf428ee44c2b5715c51, type: 2}
+    amount: "6"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: 2c025959bcb548f1bba4d459df5f2e5c, type: 2}
+    amount: "1"
+  - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    amount: "2"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "0.08"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.04"
+  requiredResearch:
+  - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+  - {fileID: 11400000, guid: c7d5e1f9a3b24860b4c6d8e2f1a93750, type: 2}
+  requiredWorkshopUpgrades: []
+  sector: {fileID: 11400000, guid: 9a7b6c5d4e3f20191827364554637281, type: 2}
+  maxAmount: 3

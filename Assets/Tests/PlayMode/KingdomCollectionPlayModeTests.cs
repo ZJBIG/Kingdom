@@ -68,21 +68,21 @@ public sealed class KingdomCollectionPlayModeTests
         Assert.That(root, Is.Not.Null);
         SimulationManager.Instance.SetRunning(false);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             ClearPinForFixture(UIPinPreferences.Research, research.Id);
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         }
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
         {
             ClearPinForFixture(UIPinPreferences.Resource, resource.Id);
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
         }
-        foreach (Building building in DataBase<Building>.All) ClearPinForFixture(UIPinPreferences.Building, building.Id);
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All) ClearPinForFixture(UIPinPreferences.Workshop, upgrade.Id);
+        foreach (BuildingDef building in DataBase<BuildingDef>.All) ClearPinForFixture(UIPinPreferences.Building, building.Id);
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All) ClearPinForFixture(UIPinPreferences.Workshop, upgrade.Id);
         ClearPinForFixture(UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             ClearPinForFixture(UIPinPreferences.Sector, sector.Id);
             GameManager.Instance.Sectors.GetState(sector).SetOccupiedForEditor(true);
@@ -97,7 +97,7 @@ public sealed class KingdomCollectionPlayModeTests
         yield return LoadCollections();
         root.SetPage("Resources");
         yield return null;
-        Resource targetResource = null;
+        ResourceDef targetResource = null;
         Transform resourceRow = null;
         foreach (var pair in root.ResourceChangeLabelsForEditor)
             if (resourceRow == null || pair.Value.transform.parent.GetSiblingIndex() > resourceRow.GetSiblingIndex())
@@ -116,9 +116,9 @@ public sealed class KingdomCollectionPlayModeTests
             "Pinned rows retain their authored era artwork.");
         root.SetPage("Buildings");
         yield return null;
-        Building targetBuilding = null;
+        BuildingDef targetBuilding = null;
         Transform buildingRow = null;
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             Button deconstruct = root.GetDeconstructButtonForEditor(building);
             if (deconstruct != null && (buildingRow == null || deconstruct.transform.parent.GetSiblingIndex() > buildingRow.GetSiblingIndex()))
@@ -161,9 +161,9 @@ public sealed class KingdomCollectionPlayModeTests
         root.SetPage("Workshop");
         yield return null;
         Transform workshopRows = root.transform.Find(PagesPath + "Workshop/DataRows");
-        WorkshopUpgrade upgrade = null;
+        WorkshopUpgradeDef upgrade = null;
         Transform upgradeRow = null;
-        foreach (WorkshopUpgrade candidate in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef candidate in DataBase<WorkshopUpgradeDef>.All)
         {
             Transform row = FindLabelRow(workshopRows, candidate.Label);
             if (row != null && (upgradeRow == null || row.GetSiblingIndex() > upgradeRow.GetSiblingIndex()))
@@ -184,9 +184,9 @@ public sealed class KingdomCollectionPlayModeTests
         root.SetPage("Sectors");
         yield return null;
         Transform sectorRows = root.transform.Find(PagesPath + "Sectors/DataRows");
-        SectorDefinition target = null;
+        SectorDef target = null;
         Transform targetRow = null;
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             Transform row = sectorRows.Find("SectorRow_" + sector.Id);
             if (row != null && row.gameObject.activeInHierarchy &&
@@ -216,7 +216,7 @@ public sealed class KingdomCollectionPlayModeTests
             if (sectorBuildingCard != null) break;
         }
         Assert.That(sectorBuildingCard, Is.Not.Null, "Occupied sector must expose real building cards.");
-        SectorBuilding sectorBuilding = DataBase<SectorBuilding>.Find(sectorBuildingCard.name);
+        SectorBuildingDef sectorBuilding = DataBase<SectorBuildingDef>.Find(sectorBuildingCard.name);
         Assert.That(sectorBuilding, Is.Not.Null);
         ExpantaNum before = BuildingManager.Instance.States[sectorBuilding].Amount;
         Canvas.ForceUpdateCanvases();
@@ -232,7 +232,7 @@ public sealed class KingdomCollectionPlayModeTests
         AssertRectsDoNotOverlap((RectTransform)expandedSector.Find("PinButton"), (RectTransform)expandedSector.Find("Label"));
 
         root.SetPage("Research");
-        Research research = DataBase<Research>.All[0];
+        ResearchDef research = DataBase<ResearchDef>.All[0];
         Transform graph = null;
         for (int frame = 0; frame < 480; frame++)
         {
@@ -358,9 +358,9 @@ public sealed class KingdomCollectionPlayModeTests
                         finally { label.text = original; label.ForceMeshUpdate(); }
                     }
                     Assert.That(populated, Is.GreaterThan(0), page + " screenshot must show real definitions");
-                    if (page == "Resources") root.ShowResourceDetailsForEditor(DataBase<Resource>.All[0]);
+                    if (page == "Resources") root.ShowResourceDetailsForEditor(DataBase<ResourceDef>.All[0]);
                     if (page == "Buildings")
-                        foreach (Building building in DataBase<Building>.All)
+                        foreach (BuildingDef building in DataBase<BuildingDef>.All)
                             if (root.GetDeconstructButtonForEditor(building) != null)
                             { root.ShowBuildingDetailsForEditor(building); break; }
                     Canvas.ForceUpdateCanvases();

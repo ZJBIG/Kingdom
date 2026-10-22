@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: RailHub
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: c29bb15d0df148f49f50533ca2e11565, type: 3}
   id: RailHub
   Label: "\u94C1\u8DEF\u67A2\u7EBD"
   Description: "以铁路、货站和调度设施扩大物流供给与储粮空间；运行持续消耗焦炭、润滑剂及维护用材。"

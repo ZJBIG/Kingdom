@@ -27,7 +27,13 @@ public enum SectorOperationFailure
     NoFleetDamage,
     InvalidRepairAmount,
     InsufficientFleetRepairSupply,
-    FleetRepairRequired
+    FleetRepairRequired,
+    InteriorExplorationUnavailable,
+    InteriorExplorationRequiresOccupation,
+    InteriorExplorationResearchRequired,
+    InteriorExplorationCompleted,
+    InvalidInteriorExploration,
+    InsufficientInteriorExplorationSupply
 }
 
 public sealed class SectorCampaignPreview
@@ -41,7 +47,7 @@ public sealed class SectorCampaignPreview
     public ExpantaNum FleetReadiness { get; }
     public ExpantaNum CurrentCasualties { get; }
     public ExpantaNum EstimatedRepairAmount { get; }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> FleetRepairCosts { get; }
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> FleetRepairCosts { get; }
     public ExpantaNum SupplySatisfaction { get; }
     public ExpantaNum PowerSatisfaction { get; }
     public ExpantaNum LogisticsSatisfaction { get; }
@@ -49,7 +55,7 @@ public sealed class SectorCampaignPreview
     public ExpantaNum EstimatedSecondsRemaining { get; }
     public ExpantaNum CasualtiesPerSecond { get; }
     public ExpantaNum FoodCostPerSecond { get; }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerSecond { get; }
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ResourceCostsPerSecond { get; }
     public bool HasOngoingSupplyCost { get; }
     public ExpantaNum EstimatedSupplySeconds { get; }
     internal SectorCampaignPreview(
@@ -62,14 +68,14 @@ public sealed class SectorCampaignPreview
         ExpantaNum fleetReadiness,
         ExpantaNum currentCasualties,
         ExpantaNum estimatedRepairAmount,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> fleetRepairCosts,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> fleetRepairCosts,
         ExpantaNum supplySatisfaction,
         ExpantaNum powerSatisfaction,
         ExpantaNum logisticsSatisfaction,
         ExpantaNum progressPerSecond,
         ExpantaNum casualtiesPerSecond,
         ExpantaNum foodCostPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceRatesPerSecond,
         bool hasOngoingSupplyCost,
         ExpantaNum estimatedSupplySeconds)
     {
@@ -110,7 +116,7 @@ public sealed class SectorExplorationPreview
     public ExpantaNum ProgressPerSecond { get; }
     public ExpantaNum EstimatedSecondsRemaining { get; }
     public ExpantaNum FoodCostPerSecond { get; }
-    public IReadOnlyList<Pair<Resource, ExpantaNum>> ResourceCostsPerSecond { get; }
+    public IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ResourceCostsPerSecond { get; }
 
 
 
@@ -124,7 +130,7 @@ public sealed class SectorExplorationPreview
         ExpantaNum colonizationDurationSeconds,
         ExpantaNum explorationSpeedMultiplier,
         ExpantaNum foodCostPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceRatesPerSecond)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceRatesPerSecond)
     {
         IsValid = isValid;
         HasSupply = hasSupply;
@@ -146,11 +152,11 @@ public sealed class SectorExplorationPreview
     }
 }
 
-public sealed class SectorManager
+public sealed partial class SectorManager
 {
     private sealed class SectorRestoreData
     {
-        public SectorDefinition Definition;
+        public SectorDef Definition;
         public bool Unlocked;
         public bool Occupied;
         public bool ColonizationActive;
@@ -159,16 +165,19 @@ public sealed class SectorManager
         public ExpantaNum Casualties;
         public ExpantaNum CombatRatio;
         public int VisitCount;
+        public ExpantaNum InteriorProgress;
+        public bool InteriorActive;
+        public bool InteriorPaused;
     }
 
     private const string LaunchCenterId = "LaunchCenter";
 
-    private readonly Dictionary<SectorDefinition, SectorState> states = new();
+    private readonly Dictionary<SectorDef, SectorState> states = new();
     private readonly List<SectorState> orderedStates = new();
-    private readonly Dictionary<Resource, ExpantaNum> occupiedProductionBuffer = new();
-    private readonly List<Pair<Resource, ExpantaNum>> campaignResourceCostBuffer = new();
-    private readonly Dictionary<Resource, ExpantaNum> campaignCostAggregationBuffer = new();
-    private readonly Action<SectorDefinition> rewardApplier;
+    private readonly Dictionary<ResourceDef, ExpantaNum> occupiedProductionBuffer = new();
+    private readonly List<Pair<ResourceDef, ExpantaNum>> campaignResourceCostBuffer = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> campaignCostAggregationBuffer = new();
+    private readonly Action<SectorDef> rewardApplier;
     private BuildingManager buildingManagerCache;
     private bool initialized;
 
@@ -176,12 +185,12 @@ public sealed class SectorManager
     {
     }
 
-    public SectorManager(Action<SectorDefinition> rewardApplier)
+    public SectorManager(Action<SectorDef> rewardApplier)
     {
         this.rewardApplier = rewardApplier ?? throw new ArgumentNullException(nameof(rewardApplier));
     }
 
-    public IReadOnlyDictionary<SectorDefinition, SectorState> States => states;
+    public IReadOnlyDictionary<SectorDef, SectorState> States => states;
     public IReadOnlyList<SectorState> OrderedStates => orderedStates;
 
     public void InitializeDefinitions()
@@ -189,10 +198,10 @@ public sealed class SectorManager
         if (initialized)
             return;
 
-        IReadOnlyList<SectorDefinition> definitions = DataBase<SectorDefinition>.All;
+        IReadOnlyList<SectorDef> definitions = DataBase<SectorDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            SectorDefinition definition = definitions[i];
+            SectorDef definition = definitions[i];
             if (definition == null || TryGetStateByStableId(definition, out _))
                 continue;
             SectorState state = new SectorState(definition);
@@ -203,7 +212,7 @@ public sealed class SectorManager
         initialized = true;
     }
 
-    public SectorState GetState(SectorDefinition definition)
+    public SectorState GetState(SectorDef definition)
     {
         EnsureInitialized();
         if (definition == null)
@@ -214,7 +223,7 @@ public sealed class SectorManager
     }
 
     private bool TryGetStateByStableId(
-        SectorDefinition definition,
+        SectorDef definition,
         out SectorState state)
     {
         state = null;
@@ -222,7 +231,7 @@ public sealed class SectorManager
             return false;
         if (states.TryGetValue(definition, out state))
             return true;
-        foreach (KeyValuePair<SectorDefinition, SectorState> entry in states)
+        foreach (KeyValuePair<SectorDef, SectorState> entry in states)
         {
             if (entry.Key != null && string.Equals(
                     entry.Key.Id == null ? string.Empty : entry.Key.Id.Trim(),
@@ -237,14 +246,14 @@ public sealed class SectorManager
     }
 
     public SectorCampaignPreview GetCampaignPreview(
-        SectorDefinition definition,
+        SectorDef definition,
         GameState runtimeState,
         ResourceManager resourceManager)
         => GetCampaignPreview(definition, runtimeState, resourceManager,
             runtimeState?.Campaign.Doctrine ?? CampaignDoctrine.Stable);
 
     public SectorCampaignPreview GetCampaignPreview(
-        SectorDefinition definition,
+        SectorDef definition,
         GameState runtimeState,
         ResourceManager resourceManager,
         CampaignDoctrine doctrine)
@@ -263,14 +272,14 @@ public sealed class SectorManager
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
-                Array.Empty<Pair<Resource, ExpantaNum>>(),
+                Array.Empty<Pair<ResourceDef, ExpantaNum>>(),
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
                 ExpantaNum.Zero,
-                Array.Empty<Pair<Resource, ExpantaNum>>(),
+                Array.Empty<Pair<ResourceDef, ExpantaNum>>(),
                 false,
                 ExpantaNum.Zero);
 
@@ -302,14 +311,14 @@ public sealed class SectorManager
         ExpantaNum foodCostPerSecond = ExpantaNum.Max(
             ExpantaNum.Zero,
             definition.CampaignFoodPerSecond * supplyCostMultiplier);
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts =
             ScaleCampaignResourceRates(
                 definition.CampaignResourceRatesPerSecond,
                 supplyCostMultiplier);
         bool hasSupply = runtimeState.FoodAmount >= foodCostPerSecond;
         for (int i = 0; i < resourceCosts.Count && hasSupply; i++)
         {
-            Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = resourceCosts[i];
             hasSupply = resourceManager != null &&
                 resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState) &&
                 resourceState.Amount >= cost.Second;
@@ -321,8 +330,8 @@ public sealed class SectorManager
             resourceCosts,
             out bool hasOngoingSupplyCost);
         ExpantaNum estimatedRepairAmount = ExpantaNum.Zero;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> fleetRepairCosts =
-            Array.Empty<Pair<Resource, ExpantaNum>>();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> fleetRepairCosts =
+            Array.Empty<Pair<ResourceDef, ExpantaNum>>();
         if (string.Equals(
                 definition.Id,
                 runtimeState.Campaign.TargetSectorId,
@@ -360,7 +369,7 @@ public sealed class SectorManager
     }
 
     public SectorExplorationPreview GetExplorationPreview(
-        SectorDefinition definition,
+        SectorDef definition,
         GameState runtimeState,
         ResourceManager resourceManager)
     {
@@ -377,7 +386,7 @@ public sealed class SectorManager
                 ExpantaNum.One,
                 ExpantaNum.One,
                 ExpantaNum.Zero,
-                Array.Empty<Pair<Resource, ExpantaNum>>());
+                Array.Empty<Pair<ResourceDef, ExpantaNum>>());
 
         // Home-system exploration is a supplied survey operation, not a combat
         // gate. Keep the preview focused on its resource costs.
@@ -388,12 +397,12 @@ public sealed class SectorManager
         ExpantaNum foodCostPerSecond = ExpantaNum.Max(
             ExpantaNum.Zero,
             definition.ColonizationFoodPerSecond);
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts =
-            definition.ColonizationResourceRatesPerSecond ?? Array.Empty<Pair<Resource, ExpantaNum>>();
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts =
+            definition.ColonizationResourceRatesPerSecond ?? Array.Empty<Pair<ResourceDef, ExpantaNum>>();
         bool hasSupply = runtimeState.FoodAmount >= foodCostPerSecond;
         for (int i = 0; i < resourceCosts.Count && hasSupply; i++)
         {
-            Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = resourceCosts[i];
             hasSupply = resourceManager != null &&
                 cost.First != null &&
                 resourceManager.States.TryGetValue(cost.First, out ResourceState resourceState) &&
@@ -416,7 +425,7 @@ public sealed class SectorManager
         GameState runtimeState,
         ResourceManager resourceManager,
         ExpantaNum foodCostPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts,
         out bool hasOngoingSupplyCost)
     {
         hasOngoingSupplyCost = false;
@@ -431,7 +440,7 @@ public sealed class SectorManager
 
         for (int i = 0; resourceCosts != null && i < resourceCosts.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = resourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = resourceCosts[i];
             if (cost.First == null || cost.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum amount = ExpantaNum.Zero;
@@ -450,7 +459,7 @@ public sealed class SectorManager
         return duration;
     }
 
-    public bool CanAccess(SectorDefinition definition)
+    public bool CanAccess(SectorDef definition)
     {
         EnsureInitialized();
         if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
@@ -458,7 +467,7 @@ public sealed class SectorManager
         if (state.Occupied || state.Unlocked)
             return true;
 
-        IReadOnlyList<SectorDefinition> prerequisites = definition.PrerequisiteSectors;
+        IReadOnlyList<SectorDef> prerequisites = definition.PrerequisiteSectors;
         if (prerequisites == null)
             return true;
 
@@ -472,7 +481,7 @@ public sealed class SectorManager
         return true;
     }
 
-    public SectorOperationFailure GetUnlockFailure(SectorDefinition definition)
+    public SectorOperationFailure GetUnlockFailure(SectorDef definition)
     {
         EnsureInitialized();
         if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
@@ -491,7 +500,7 @@ public sealed class SectorManager
         return SectorOperationFailure.None;
     }
 
-    public bool TryUnlock(SectorDefinition definition, out SectorOperationFailure failure)
+    public bool TryUnlock(SectorDef definition, out SectorOperationFailure failure)
     {
         failure = GetUnlockFailure(definition);
         if (failure != SectorOperationFailure.None)
@@ -500,7 +509,7 @@ public sealed class SectorManager
         return true;
     }
 
-    public bool TryOccupy(SectorDefinition definition, out SectorOperationFailure failure)
+    public bool TryOccupy(SectorDef definition, out SectorOperationFailure failure)
     {
         EnsureInitialized();
         if (definition == null || !TryGetStateByStableId(definition, out SectorState state))
@@ -553,7 +562,7 @@ public sealed class SectorManager
     }
 
     public bool TryAdvanceCampaign(
-        SectorDefinition definition,
+        SectorDef definition,
         double deltaSeconds,
         GameState runtimeState,
         out SectorOperationFailure failure)
@@ -568,7 +577,7 @@ public sealed class SectorManager
     }
 
     public bool TryAdvanceCampaign(
-        SectorDefinition definition,
+        SectorDef definition,
         double deltaSeconds,
         GameState runtimeState,
         ResourceManager resourceManager,
@@ -662,7 +671,7 @@ public sealed class SectorManager
                 campaignSupplyCostMultiplier,
                 resourceManager,
                 out ExpantaNum foodCost,
-                out List<Pair<Resource, ExpantaNum>> resourceCosts,
+                out List<Pair<ResourceDef, ExpantaNum>> resourceCosts,
                 out failure))
             return false;
         if (runtimeState.FoodAmount < foodCost)
@@ -729,7 +738,7 @@ public sealed class SectorManager
     }
 
     private bool CommitCampaignAdvance(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorState state,
         double deltaSeconds,
         GameState runtimeState)
@@ -791,7 +800,7 @@ public sealed class SectorManager
     }
 
     public bool TryAdvanceColonization(
-        SectorDefinition definition,
+        SectorDef definition,
         double deltaSeconds,
         GameState runtimeState,
         ResourceManager resourceManager,
@@ -839,7 +848,7 @@ public sealed class SectorManager
                     deltaSeconds),
                 resourceManager,
                 out ExpantaNum foodCost,
-                out List<Pair<Resource, ExpantaNum>> resourceCosts,
+                out List<Pair<ResourceDef, ExpantaNum>> resourceCosts,
                 out failure))
             return false;
         double billableSeconds = CalculateColonizationBillableSeconds(
@@ -897,7 +906,7 @@ public sealed class SectorManager
     }
 
     public ExpantaNum GetMaxAffordableFleetRepair(
-        SectorDefinition definition, GameState runtimeState, ResourceManager resourceManager)
+        SectorDef definition, GameState runtimeState, ResourceManager resourceManager)
     {
         EnsureInitialized();
         if (definition == null || runtimeState == null || resourceManager == null ||
@@ -905,18 +914,18 @@ public sealed class SectorManager
             !string.Equals(runtimeState.Campaign.TargetSectorId, definition.Id, StringComparison.OrdinalIgnoreCase))
             return ExpantaNum.Zero;
         ExpantaNum amount = ExpantaNum.Min(state.CampaignCasualties, runtimeState.Campaign.Casualties);
-        IReadOnlyList<Pair<Resource, ExpantaNum>> unitCosts = CalculateFleetRepairCosts(ExpantaNum.One);
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> unitCosts = CalculateFleetRepairCosts(ExpantaNum.One);
         for (int i = 0; i < unitCosts.Count; i++)
             if (unitCosts[i].Second > ExpantaNum.Zero)
                 amount = ExpantaNum.Min(amount, resourceManager.GetAmount(unitCosts[i].First) / unitCosts[i].Second);
         return ExpantaNum.Max(ExpantaNum.Zero, amount);
     }
 
-    public static IReadOnlyList<Pair<Resource, ExpantaNum>> GetFleetRepairCosts(ExpantaNum amount) =>
+    public static IReadOnlyList<Pair<ResourceDef, ExpantaNum>> GetFleetRepairCosts(ExpantaNum amount) =>
         CalculateFleetRepairCosts(amount);
 
     public bool TryRepairFleet(
-        SectorDefinition definition,
+        SectorDef definition,
         GameState runtimeState,
         ResourceManager resourceManager,
         ExpantaNum requestedAmount,
@@ -963,9 +972,9 @@ public sealed class SectorManager
             return false;
         }
 
-        if (!DataBase<SectorDefinition>.TryFind(
+        if (!DataBase<SectorDef>.TryFind(
                 runtimeState.Campaign.TargetSectorId,
-                out SectorDefinition targetDefinition) ||
+                out SectorDef targetDefinition) ||
             targetDefinition == null ||
             !TryGetStateByStableId(targetDefinition, out SectorState targetState))
         {
@@ -1025,7 +1034,7 @@ public sealed class SectorManager
         ExpantaNum targetAmount = ExpantaNum.Min(
             requestedAmount,
             ExpantaNum.Min(state.CampaignCasualties, runtimeState.Campaign.Casualties));
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs = CalculateFleetRepairCosts(targetAmount);
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs = CalculateFleetRepairCosts(targetAmount);
         if (!HasResourceCosts(resourceManager, costs))
         {
             failure = SectorOperationFailure.InsufficientFleetRepairSupply;
@@ -1114,12 +1123,12 @@ public sealed class SectorManager
         return advanced;
     }
 
-    public bool CancelCampaign(SectorDefinition definition)
+    public bool CancelCampaign(SectorDef definition)
     {
         return CancelCampaign(definition, null);
     }
 
-    public bool CancelCampaign(SectorDefinition definition, GameState runtimeState)
+    public bool CancelCampaign(SectorDef definition, GameState runtimeState)
     {
         EnsureInitialized();
         if (definition == null || !TryGetStateByStableId(definition, out SectorState state) || !state.CampaignActive)
@@ -1209,13 +1218,13 @@ public sealed class SectorManager
             if (state == null || !state.Occupied || state.Definition.IsHomeSystem)
                 continue;
 
-            IReadOnlyList<Pair<Resource, ExpantaNum>> rates =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates =
                 state.Definition.OccupiedResourceRatesPerSecond;
             if (rates == null)
                 continue;
             for (int j = 0; j < rates.Count; j++)
             {
-                Pair<Resource, ExpantaNum> rate = rates[j];
+                Pair<ResourceDef, ExpantaNum> rate = rates[j];
                 if (rate.First == null || rate.Second <= ExpantaNum.Zero)
                     continue;
                 ExpantaNum delta = rate.Second * deltaSeconds * multiplier *
@@ -1227,7 +1236,7 @@ public sealed class SectorManager
                 produced = true;
             }
         }
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in occupiedProductionBuffer)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in occupiedProductionBuffer)
             resourceManager.AddAmount(entry.Key, entry.Value);
         return produced;
     }
@@ -1249,11 +1258,11 @@ public sealed class SectorManager
             SectorState state = orderedStates[i];
             if (state == null || !state.Occupied || state.Definition.IsHomeSystem)
                 continue;
-            IReadOnlyList<Pair<Resource, ExpantaNum>> rates =
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates =
                 state.Definition.OccupiedResourceRatesPerSecond;
             for (int j = 0; rates != null && j < rates.Count; j++)
             {
-                Pair<Resource, ExpantaNum> rate = rates[j];
+                Pair<ResourceDef, ExpantaNum> rate = rates[j];
                 if (rate.First != null && rate.Second > ExpantaNum.Zero)
                     resourceManager.AdjustTickPotentialProduction(
                         rate.First,
@@ -1317,7 +1326,7 @@ public sealed class SectorManager
     }
 
     private static ExpantaNum CalculateCampaignCombatRatio(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorState state,
         GameState runtimeState)
     {
@@ -1341,7 +1350,7 @@ public sealed class SectorManager
             state.CampaignCasualties);
     }
 
-    public bool CancelColonization(SectorDefinition definition)
+    public bool CancelColonization(SectorDef definition)
     {
         EnsureInitialized();
         if (definition == null || !TryGetStateByStableId(definition, out SectorState state) || !state.ColonizationActive)
@@ -1384,6 +1393,9 @@ public sealed class SectorManager
                 CampaignProgress = state.CampaignProgress.ToString(),
                 CampaignCasualties = state.CampaignCasualties.ToString(),
                 CampaignCombatRatio = state.CampaignCombatRatio.ToString(),
+                InteriorExplorationProgress = state.InteriorExplorationProgress.ToString(),
+                InteriorExplorationActive = state.InteriorExplorationActive,
+                InteriorExplorationPaused = state.InteriorExplorationPaused,
                 VisitCount = state.VisitCount
             });
         }
@@ -1403,13 +1415,13 @@ public sealed class SectorManager
         if (data?.States == null)
             return;
 
-        var restoredSectors = new HashSet<SectorDefinition>();
+        var restoredSectors = new HashSet<SectorDef>();
         var restoredData = new List<SectorRestoreData>(data.States.Count);
         for (int i = 0; i < data.States.Count; i++)
         {
             SaveManager.SectorStateSaveData saved = data.States[i];
             if (saved == null ||
-                !DataBase<SectorDefinition>.TryFind(saved.SectorId, out SectorDefinition definition) ||
+                !DataBase<SectorDef>.TryFind(saved.SectorId, out SectorDef definition) ||
                 definition == null ||
                 !TryGetStateByStableId(definition, out _))
                 throw new InvalidOperationException(
@@ -1426,6 +1438,10 @@ public sealed class SectorManager
             ExpantaNum combatRatio = string.IsNullOrWhiteSpace(saved.CampaignCombatRatio)
                 ? ExpantaNum.Zero
                 : ParseSectorNumber(saved.CampaignCombatRatio, saved.SectorId, "CampaignCombatRatio");
+            ExpantaNum interiorProgress = ParseSectorNumber(
+                saved.InteriorExplorationProgress, saved.SectorId, "InteriorExplorationProgress");
+            ValidateInteriorRestoredState(definition, saved.Occupied, interiorProgress,
+                saved.InteriorExplorationActive, saved.InteriorExplorationPaused);
             ValidateRestoredState(
                 saved.SectorId,
                 saved.Unlocked,
@@ -1446,6 +1462,9 @@ public sealed class SectorManager
                 Progress = progress,
                 Casualties = casualties,
                 CombatRatio = combatRatio,
+                InteriorProgress = interiorProgress,
+                InteriorActive = saved.InteriorExplorationActive,
+                InteriorPaused = saved.InteriorExplorationPaused,
                 VisitCount = saved.VisitCount
             });
         }
@@ -1464,6 +1483,7 @@ public sealed class SectorManager
                 restored.Casualties,
                 restored.CombatRatio,
                 restored.VisitCount);
+            GetState(restored.Definition).SetInteriorExploration(restored.InteriorProgress, restored.InteriorActive, restored.InteriorPaused);
         }
     }
 
@@ -1482,7 +1502,7 @@ public sealed class SectorManager
                 throw new InvalidOperationException("全局战役状态缺少目标星区。");
             return;
         }
-        if (!DataBase<SectorDefinition>.TryFind(campaign.TargetSectorId, out SectorDefinition definition) ||
+        if (!DataBase<SectorDef>.TryFind(campaign.TargetSectorId, out SectorDef definition) ||
             !TryGetStateByStableId(definition, out SectorState state))
             throw new InvalidOperationException(
                 $"全局战役目标星区“{campaign.TargetSectorId}”不存在。");
@@ -1520,7 +1540,7 @@ public sealed class SectorManager
 
     private bool HasLaunchCenter()
     {
-        if (!DataBase<Building>.TryFind(LaunchCenterId, out Building launchCenter))
+        if (!DataBase<BuildingDef>.TryFind(LaunchCenterId, out BuildingDef launchCenter))
             return false;
         BuildingManager buildingManager = buildingManagerCache;
         if (buildingManager == null)
@@ -1538,12 +1558,12 @@ public sealed class SectorManager
             modifiers.IsSystemUnlocked(ResearchSystem.InterstellarNavigation);
     }
 
-    private static bool ValidateRewards(SectorDefinition definition)
+    private static bool ValidateRewards(SectorDef definition)
     {
         if (definition.TerritoryReward.IsNaN || definition.TerritoryReward < ExpantaNum.Zero)
             return false;
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rewards = definition.ResourceRewards;
         if (definition.IsHomeSystem &&
             ((rewards != null && rewards.Count > 0) ||
              (definition.OccupiedResourceRatesPerSecond != null &&
@@ -1553,25 +1573,25 @@ public sealed class SectorManager
             return true;
         for (int i = 0; i < rewards.Count; i++)
         {
-            Pair<Resource, ExpantaNum> reward = rewards[i];
+            Pair<ResourceDef, ExpantaNum> reward = rewards[i];
             if (reward.First == null || reward.Second.IsNaN || reward.Second < ExpantaNum.Zero)
                 return false;
         }
         return true;
     }
 
-    private static void ApplyRewards(SectorDefinition definition)
+    private static void ApplyRewards(SectorDef definition)
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rewards = definition.ResourceRewards;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rewards = definition.ResourceRewards;
         if (definition.IsHomeSystem &&
             ((rewards != null && rewards.Count > 0) ||
              (definition.OccupiedResourceRatesPerSecond != null &&
               definition.OccupiedResourceRatesPerSecond.Count > 0)))
             throw new InvalidOperationException("Home-system sectors cannot grant resources or occupied production.");
-        var aggregated = new Dictionary<Resource, ExpantaNum>();
+        var aggregated = new Dictionary<ResourceDef, ExpantaNum>();
         for (int i = 0; rewards != null && i < rewards.Count; i++)
         {
-            Pair<Resource, ExpantaNum> reward = rewards[i];
+            Pair<ResourceDef, ExpantaNum> reward = rewards[i];
             if (reward.Second <= ExpantaNum.Zero)
                 continue;
             ExpantaNum total = aggregated.TryGetValue(reward.First, out ExpantaNum current)
@@ -1588,7 +1608,7 @@ public sealed class SectorManager
         // overflows during aggregation.
         if (definition.TerritoryReward.IsNaN || definition.TerritoryReward < ExpantaNum.Zero)
             throw new InvalidOperationException("Sector territory reward is invalid.");
-        foreach (KeyValuePair<Resource, ExpantaNum> reward in aggregated)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> reward in aggregated)
         {
             if (reward.Key == null || !reward.Value.IsFinite || reward.Value < ExpantaNum.Zero)
                 throw new InvalidOperationException("Sector resource reward is invalid.");
@@ -1613,12 +1633,12 @@ public sealed class SectorManager
     }
 
     private bool TryCalculateCampaignCosts(
-        SectorDefinition definition,
+        SectorDef definition,
         double deltaSeconds,
         ExpantaNum supplyCostMultiplier,
         ResourceManager resourceManager,
         out ExpantaNum foodCost,
-        out List<Pair<Resource, ExpantaNum>> resourceCosts,
+        out List<Pair<ResourceDef, ExpantaNum>> resourceCosts,
         out SectorOperationFailure failure)
     {
         foodCost = ExpantaNum.Zero;
@@ -1641,12 +1661,12 @@ public sealed class SectorManager
             return false;
         }
 
-        IReadOnlyList<Pair<Resource, ExpantaNum>> configuredRates =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> configuredRates =
             definition.CampaignResourceRatesPerSecond;
 
         for (int i = 0; configuredRates != null && i < configuredRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = configuredRates[i];
+            Pair<ResourceDef, ExpantaNum> cost = configuredRates[i];
             if (cost.First == null || !cost.Second.IsFinite || cost.Second < ExpantaNum.Zero)
             {
                 failure = SectorOperationFailure.InvalidCampaignCost;
@@ -1658,7 +1678,7 @@ public sealed class SectorManager
                 failure = SectorOperationFailure.InvalidCampaignCost;
                 return false;
             }
-            resourceCosts.Add(new Pair<Resource, ExpantaNum>(
+            resourceCosts.Add(new Pair<ResourceDef, ExpantaNum>(
                 cost.First,
                 totalCost));
         }
@@ -1672,18 +1692,18 @@ public sealed class SectorManager
         return true;
     }
 
-    private static IReadOnlyList<Pair<Resource, ExpantaNum>> ScaleCampaignResourceRates(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> configuredRates,
+    private static IReadOnlyList<Pair<ResourceDef, ExpantaNum>> ScaleCampaignResourceRates(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> configuredRates,
         ExpantaNum multiplier)
     {
         if (configuredRates == null || configuredRates.Count == 0)
-            return Array.Empty<Pair<Resource, ExpantaNum>>();
+            return Array.Empty<Pair<ResourceDef, ExpantaNum>>();
 
-        var scaledRates = new List<Pair<Resource, ExpantaNum>>(configuredRates.Count);
+        var scaledRates = new List<Pair<ResourceDef, ExpantaNum>>(configuredRates.Count);
         for (int i = 0; i < configuredRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> rate = configuredRates[i];
-            scaledRates.Add(new Pair<Resource, ExpantaNum>(
+            Pair<ResourceDef, ExpantaNum> rate = configuredRates[i];
+            scaledRates.Add(new Pair<ResourceDef, ExpantaNum>(
                 rate.First,
                 rate.Second * multiplier));
         }
@@ -1703,7 +1723,7 @@ public sealed class SectorManager
     }
 
     private static ExpantaNum GetRelicCampaignSupplyMultiplier(
-        SectorDefinition definition, GameState runtimeState)
+        SectorDef definition, GameState runtimeState)
     {
         return GameManager.TryGetInstance(out GameManager gameManager) &&
             ReferenceEquals(gameManager.State, runtimeState)
@@ -1799,11 +1819,11 @@ public sealed class SectorManager
 
     private bool TryCalculateCosts(
         ExpantaNum foodPerSecond,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> configuredRatesPerSecond,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> configuredRatesPerSecond,
         double deltaSeconds,
         ResourceManager resourceManager,
         out ExpantaNum foodCost,
-        out List<Pair<Resource, ExpantaNum>> resourceCosts,
+        out List<Pair<ResourceDef, ExpantaNum>> resourceCosts,
         out SectorOperationFailure failure)
     {
         foodCost = ExpantaNum.Zero;
@@ -1827,7 +1847,7 @@ public sealed class SectorManager
         {
             for (int i = 0; i < configuredRatesPerSecond.Count; i++)
             {
-                Pair<Resource, ExpantaNum> cost = configuredRatesPerSecond[i];
+                Pair<ResourceDef, ExpantaNum> cost = configuredRatesPerSecond[i];
                 if (cost.First == null || !cost.Second.IsFinite || cost.Second < ExpantaNum.Zero)
                 {
                     failure = SectorOperationFailure.InvalidCampaignCost;
@@ -1839,7 +1859,7 @@ public sealed class SectorManager
                     failure = SectorOperationFailure.InvalidCampaignCost;
                     return false;
                 }
-                resourceCosts.Add(new Pair<Resource, ExpantaNum>(
+                resourceCosts.Add(new Pair<ResourceDef, ExpantaNum>(
                     cost.First,
                     totalCost));
             }
@@ -1854,16 +1874,16 @@ public sealed class SectorManager
         return true;
     }
 
-    private Dictionary<Resource, ExpantaNum> AggregateCosts(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private Dictionary<ResourceDef, ExpantaNum> AggregateCosts(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        Dictionary<Resource, ExpantaNum> aggregate = campaignCostAggregationBuffer;
+        Dictionary<ResourceDef, ExpantaNum> aggregate = campaignCostAggregationBuffer;
         aggregate.Clear();
         if (costs == null)
             return aggregate;
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || cost.Second <= ExpantaNum.Zero)
                 continue;
             aggregate[cost.First] = aggregate.TryGetValue(cost.First, out ExpantaNum current)
@@ -1873,46 +1893,46 @@ public sealed class SectorManager
         return aggregate;
     }
 
-    private static IReadOnlyList<Pair<Resource, ExpantaNum>> CalculateFleetRepairCosts(
+    private static IReadOnlyList<Pair<ResourceDef, ExpantaNum>> CalculateFleetRepairCosts(
         ExpantaNum repairAmount)
     {
         if (!repairAmount.IsFinite || repairAmount <= ExpantaNum.Zero)
-            return Array.Empty<Pair<Resource, ExpantaNum>>();
+            return Array.Empty<Pair<ResourceDef, ExpantaNum>>();
 
         ExpantaNum multiplier =
             ProgressionModifierManager.Current.FleetRepairCostMultiplier;
-        return new List<Pair<Resource, ExpantaNum>>
+        return new List<Pair<ResourceDef, ExpantaNum>>
         {
-            new Pair<Resource, ExpantaNum>(
-                DataBase<Resource>.Find("TitaniumAlloy"),
+            new Pair<ResourceDef, ExpantaNum>(
+                DataBase<ResourceDef>.Find("TitaniumAlloy"),
                 repairAmount * new ExpantaNum(2d) * multiplier),
-            new Pair<Resource, ExpantaNum>(
-                DataBase<Resource>.Find("Composite"),
+            new Pair<ResourceDef, ExpantaNum>(
+                DataBase<ResourceDef>.Find("Composite"),
                 repairAmount * multiplier),
-            new Pair<Resource, ExpantaNum>(
-                DataBase<Resource>.Find("PhantomWeave"),
+            new Pair<ResourceDef, ExpantaNum>(
+                DataBase<ResourceDef>.Find("PhantomWeave"),
                 repairAmount * multiplier),
-            new Pair<Resource, ExpantaNum>(
-                DataBase<Resource>.Find("RocketFuel"),
+            new Pair<ResourceDef, ExpantaNum>(
+                DataBase<ResourceDef>.Find("RocketFuel"),
                 repairAmount * new ExpantaNum(0.5d) * multiplier)
         };
     }
 
     private bool HasResourceCosts(
         ResourceManager resourceManager,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         if (costs == null || costs.Count == 0)
             return true;
         for (int i = 0; i < costs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = costs[i];
+            Pair<ResourceDef, ExpantaNum> cost = costs[i];
             if (cost.First == null || !cost.Second.IsFinite || cost.Second < ExpantaNum.Zero)
                 return false;
         }
         if (resourceManager == null)
             return AggregateCosts(costs).Count == 0;
-        foreach (KeyValuePair<Resource, ExpantaNum> cost in AggregateCosts(costs))
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> cost in AggregateCosts(costs))
         {
             if (!resourceManager.States.TryGetValue(cost.Key, out ResourceState state) ||
                 state.Amount < cost.Value)
@@ -1925,13 +1945,13 @@ public sealed class SectorManager
         GameState runtimeState,
         ResourceManager resourceManager,
         ExpantaNum foodCost,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> resourceCosts,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> resourceCosts,
         Action commitState,
         Action rollbackState)
     {
         if (runtimeState == null || runtimeState.FoodAmount < foodCost)
             return false;
-        Dictionary<Resource, ExpantaNum> payment = AggregateCosts(resourceCosts);
+        Dictionary<ResourceDef, ExpantaNum> payment = AggregateCosts(resourceCosts);
         ExpantaNum previousFoodAmount = runtimeState.FoodAmount;
         ExpantaNum previousFoodCapacity = runtimeState.FoodCapacity;
         if (payment.Count == 0)
@@ -1984,7 +2004,7 @@ public sealed class SectorManager
     }
 
     private void CompleteOccupation(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorState state)
     {
         state.SetOccupied(true);

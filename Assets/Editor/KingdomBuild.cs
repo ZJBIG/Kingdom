@@ -20,6 +20,7 @@ public static class KingdomBuild
 
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+        EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
         PlayerSettings.SetScriptingBackend(
             BuildTargetGroup.Android,
             ScriptingImplementation.IL2CPP);
@@ -37,7 +38,7 @@ public static class KingdomBuild
             scenes,
             outputPath,
             BuildTarget.Android,
-            BuildOptions.StrictMode);
+            BuildOptions.StrictMode | BuildOptions.CompressWithLz4HC);
         if (report.summary.result != BuildResult.Succeeded)
             throw new InvalidOperationException(
                 $"Android build failed: {report.summary.result}, errors={report.summary.totalErrors}.");

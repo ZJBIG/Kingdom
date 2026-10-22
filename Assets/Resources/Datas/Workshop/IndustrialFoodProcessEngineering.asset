@@ -13,6 +13,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_EditorClassIdentifier: 
   id: IndustrialFoodProcessEngineering
+  icon: {fileID: 21300000, guid: 463e9027b68e840429b07c5f4338b0aa, type: 3}
   Label: "\u5DE5\u4E1A\u98DF\u54C1\u8FC7\u7A0B\u5DE5\u7A0B"
   Description: "\u7528\u5DE5\u4E1A\u5316\u7684\u70ED\u529B\u3001\u8D28\u91CF\u548C\u8FC7\u7A0B\u63A7\u5236\u65B9\u6CD5\u63D0\u9AD8\u5168\u5C40\u98DF\u7269\u4EA7\u51FA\u3002"
   SortOrder: 82

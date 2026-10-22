@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: InterstellarCombatSupplySystems
   m_EditorClassIdentifier: 
   id: InterstellarCombatSupplySystems
+  icon: {fileID: 21300000, guid: 71e219718dfb16b439fc475ee1ad655a, type: 3}
   Label: "\u661f\u9645\u6218\u6597\u8865\u7ed9\u7cfb\u7edf"
   Description: "整合维修、燃料中转与前沿补给，提高军事能力和轨道空间站的物流供给，降低舰队维修费用。"
   SortOrder: 580

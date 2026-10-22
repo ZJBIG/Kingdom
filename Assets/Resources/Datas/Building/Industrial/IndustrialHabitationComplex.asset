@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: IndustrialHabitationComplex
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 0057cf8b672c4dd6999ac7fbfd29beaa, type: 3}
   id: IndustrialHabitationComplex
   Label: "\u5DE5\u4E1A\u5C45\u4F4F\u7EFC\u5408\u4F53"
   Description: "\u5C06\u94A2\u7ED3\u6784\u3001\u6DF7\u51DD\u571F\u9AA8\u67B6\u3001\u73BB\u7483\u5E55\u5899\u548C\u9676\u74F7\u9694\u70ED\u6574\u5408\u4E3A\u5927\u89C4\u6A21\u57CE\u5E02\u4F4F\u5B85\uFF0C\u4E3A\u5DE5\u4E1A\u4EBA\u53E3\u63D0\u4F9B\u7A33\u5B9A\u800C\u9AD8\u5BC6\u5EA6\u7684\u5C45\u4F4F\u7A7A\u95F4\u3002"

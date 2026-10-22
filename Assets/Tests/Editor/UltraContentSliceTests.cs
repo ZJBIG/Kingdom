@@ -6,11 +6,11 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraResearchFormsAReachablePostSingularityChain()
     {
-        Research phase = DataBase<Research>.Find("PhaseFieldEngineering");
-        Research cognition = DataBase<Research>.Find("DistributedCognitionProtocol");
-        Research assembly = DataBase<Research>.Find("AutonomousMatterAssembly");
-        Research grid = DataBase<Research>.Find("PhaseGridSynchronization");
-        Research coordination = DataBase<Research>.Find("InterstellarResourceCoordination");
+        ResearchDef phase = DataBase<ResearchDef>.Find("PhaseFieldEngineering");
+        ResearchDef cognition = DataBase<ResearchDef>.Find("DistributedCognitionProtocol");
+        ResearchDef assembly = DataBase<ResearchDef>.Find("AutonomousMatterAssembly");
+        ResearchDef grid = DataBase<ResearchDef>.Find("PhaseGridSynchronization");
+        ResearchDef coordination = DataBase<ResearchDef>.Find("InterstellarResourceCoordination");
 
         Assert.That(phase, Is.Not.Null);
         Assert.That(cognition, Is.Not.Null);
@@ -39,19 +39,19 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraCivilizationEngineeringHasExactlyThreeOrderedStagesWithValidCosts()
     {
-        UltraProjectDefinition definition = DataBase<UltraProjectDefinition>.Find(
+        UltraProjectDef definition = DataBase<UltraProjectDef>.Find(
             "UltraCivilizationEngineering");
-        Research[] expectedResearch =
+        ResearchDef[] expectedResearch =
         {
-            DataBase<Research>.Find("PhaseFieldEngineering"),
-            DataBase<Research>.Find("AutonomousMatterAssembly"),
-            DataBase<Research>.Find("UltraCampaignContinuity")
+            DataBase<ResearchDef>.Find("PhaseFieldEngineering"),
+            DataBase<ResearchDef>.Find("AutonomousMatterAssembly"),
+            DataBase<ResearchDef>.Find("UltraCampaignContinuity")
         };
-        Building[] expectedBuildings =
+        BuildingDef[] expectedBuildings =
         {
-            DataBase<Building>.Find("PhaseEnergyArray"),
-            DataBase<Building>.Find("AutonomousMatterFabricator"),
-            DataBase<Building>.Find("AutonomousMatterFabricator")
+            DataBase<BuildingDef>.Find("PhaseEnergyArray"),
+            DataBase<BuildingDef>.Find("AutonomousMatterFabricator"),
+            DataBase<BuildingDef>.Find("AutonomousMatterFabricator")
         };
         string[] expectedStageIds =
         {
@@ -84,15 +84,15 @@ public sealed class UltraContentSliceTests
         UltraProjectStageDefinition continuity = definition.Stages[2];
         Assert.That(continuity.AdditionalRequiredResearch, Has.Count.EqualTo(1));
         Assert.That(continuity.AdditionalRequiredResearch[0], Is.SameAs(
-            DataBase<Research>.Find("AdaptiveFleetLogistics")));
+            DataBase<ResearchDef>.Find("AdaptiveFleetLogistics")));
     }
 
     [Test]
     public void UltraBuildingsHaveDistinctResearchAndPowerRoles()
     {
-        Building computing = DataBase<Building>.Find("UltraComputingNexus");
-        Building energy = DataBase<Building>.Find("PhaseEnergyArray");
-        Building fabricator = DataBase<Building>.Find("AutonomousMatterFabricator");
+        BuildingDef computing = DataBase<BuildingDef>.Find("UltraComputingNexus");
+        BuildingDef energy = DataBase<BuildingDef>.Find("PhaseEnergyArray");
+        BuildingDef fabricator = DataBase<BuildingDef>.Find("AutonomousMatterFabricator");
 
         Assert.That(computing, Is.Not.Null);
         Assert.That(energy, Is.Not.Null);
@@ -107,10 +107,10 @@ public sealed class UltraContentSliceTests
         Assert.That(HasRequiredResearch(computing, "AutonomousMatterAssembly"), Is.True);
         Assert.That(HasRequiredResearch(energy, "PhaseFieldEngineering"), Is.True);
         Assert.That(HasRequiredResearch(fabricator, "PhaseGridSynchronization"), Is.True);
-        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<Resource>.Find("PhantomAlloy")), Is.True);
-        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<Resource>.Find("PhantomWeave")), Is.True);
-        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<Resource>.Find("PhaseMaterial")), Is.True);
-        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<Resource>.Find("Composite")), Is.True);
+        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("PhantomAlloy")), Is.True);
+        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("PhantomWeave")), Is.True);
+        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("PhaseMaterial")), Is.True);
+        Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("Composite")), Is.True);
         Assert.That(HasRequiredResearch(fabricator, "InterstellarResourceCoordination"), Is.True);
         Assert.That(fabricator.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
@@ -119,17 +119,17 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraHasOneIntegratedFactoryWithUniqueStrategicMaterialOutputs()
     {
-        Building[] ultraBuildings = DataBase<Building>.All
+        BuildingDef[] ultraBuildings = DataBase<BuildingDef>.All
             .Where(item => item != null && item.TechLevel == TechLevel.Ultra)
             .ToArray();
-        Building integratedFactory = DataBase<Building>.Find("AutonomousMatterFabricator");
+        BuildingDef integratedFactory = DataBase<BuildingDef>.Find("AutonomousMatterFabricator");
         string[] strategicMaterialIds =
         {
             "PhantomAlloy", "PhantomWeave", "PhaseMaterial", "Composite"
         };
 
         Assert.That(ultraBuildings, Has.Length.EqualTo(3));
-        Building[] ultraFactories = ultraBuildings
+        BuildingDef[] ultraFactories = ultraBuildings
             .Where(item => item.ResourceGenerationRates.Any(rate => rate.Second > ExpantaNum.Zero))
             .ToArray();
         Assert.That(ultraFactories, Has.Length.EqualTo(1));
@@ -137,8 +137,8 @@ public sealed class UltraContentSliceTests
 
         foreach (string resourceId in strategicMaterialIds)
         {
-            Resource resource = DataBase<Resource>.Find(resourceId);
-            Building[] producers = ultraBuildings
+            ResourceDef resource = DataBase<ResourceDef>.Find(resourceId);
+            BuildingDef[] producers = ultraBuildings
                 .Where(item => HasPositiveRate(item.ResourceGenerationRates, resource))
                 .ToArray();
 
@@ -150,9 +150,9 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraBuildingsConsumeRoleSpecificSupportFlows()
     {
-        Building computing = DataBase<Building>.Find("UltraComputingNexus");
-        Building energy = DataBase<Building>.Find("PhaseEnergyArray");
-        Building fabricator = DataBase<Building>.Find("AutonomousMatterFabricator");
+        BuildingDef computing = DataBase<BuildingDef>.Find("UltraComputingNexus");
+        BuildingDef energy = DataBase<BuildingDef>.Find("PhaseEnergyArray");
+        BuildingDef fabricator = DataBase<BuildingDef>.Find("AutonomousMatterFabricator");
 
         Assert.That(computing.ResearchPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(computing.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
@@ -184,9 +184,9 @@ public sealed class UltraContentSliceTests
         };
 
         foreach (string id in expectedResources)
-            Assert.That(DataBase<Resource>.Find(id), Is.Not.Null, id);
+            Assert.That(DataBase<ResourceDef>.Find(id), Is.Not.Null, id);
 
-        foreach (Research research in DataBase<Research>.All
+        foreach (ResearchDef research in DataBase<ResearchDef>.All
                      .Where(item => item != null && item.TechLevel == TechLevel.Ultra))
         {
             Assert.That(research.ResourceRequirements, Is.Not.Empty, research.Id);
@@ -197,9 +197,9 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraResearchExtendsExpeditionFleetAndOccupationMechanisms()
     {
-        Research expedition = DataBase<Research>.Find("UltraExpeditionDoctrine");
-        Research repair = DataBase<Research>.Find("SelfRepairingFleetArchitecture");
-        Research occupation = DataBase<Research>.Find("CausalOccupationNetwork");
+        ResearchDef expedition = DataBase<ResearchDef>.Find("UltraExpeditionDoctrine");
+        ResearchDef repair = DataBase<ResearchDef>.Find("SelfRepairingFleetArchitecture");
+        ResearchDef occupation = DataBase<ResearchDef>.Find("CausalOccupationNetwork");
 
         Assert.That(expedition, Is.Not.Null);
         Assert.That(repair, Is.Not.Null);
@@ -222,9 +222,9 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraResearchDeepensCampaignContinuitySupplyAndCasualtyMechanisms()
     {
-        Research continuity = DataBase<Research>.Find("UltraCampaignContinuity");
-        Research logistics = DataBase<Research>.Find("AdaptiveFleetLogistics");
-        Research casualty = DataBase<Research>.Find("PredictiveCasualtyControl");
+        ResearchDef continuity = DataBase<ResearchDef>.Find("UltraCampaignContinuity");
+        ResearchDef logistics = DataBase<ResearchDef>.Find("AdaptiveFleetLogistics");
+        ResearchDef casualty = DataBase<ResearchDef>.Find("PredictiveCasualtyControl");
 
         Assert.That(continuity, Is.Not.Null);
         Assert.That(logistics, Is.Not.Null);
@@ -252,9 +252,9 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraResearchSupportsMegastructureEnergyEcologyAndProductivity()
     {
-        Research energy = DataBase<Research>.Find("PhaseEnergyHarmonics");
-        Research ecology = DataBase<Research>.Find("ClosedLoopAgroecology");
-        Research productivity = DataBase<Research>.Find("AutonomousCivicProductivity");
+        ResearchDef energy = DataBase<ResearchDef>.Find("PhaseEnergyHarmonics");
+        ResearchDef ecology = DataBase<ResearchDef>.Find("ClosedLoopAgroecology");
+        ResearchDef productivity = DataBase<ResearchDef>.Find("AutonomousCivicProductivity");
 
         Assert.That(energy, Is.Not.Null);
         Assert.That(ecology, Is.Not.Null);
@@ -279,9 +279,9 @@ public sealed class UltraContentSliceTests
     [Test]
     public void UltraWorkshopsExtendCapabilityMechanismsWithoutAddingFactories()
     {
-        WorkshopUpgrade orchestration = DataBase<WorkshopUpgrade>.Find("AutonomousMatterOrchestration");
-        WorkshopUpgrade compute = DataBase<WorkshopUpgrade>.Find("PhaseCognitiveCompute");
-        WorkshopUpgrade supply = DataBase<WorkshopUpgrade>.Find("InterstellarSupplyMesh");
+        WorkshopUpgradeDef orchestration = DataBase<WorkshopUpgradeDef>.Find("AutonomousMatterOrchestration");
+        WorkshopUpgradeDef compute = DataBase<WorkshopUpgradeDef>.Find("PhaseCognitiveCompute");
+        WorkshopUpgradeDef supply = DataBase<WorkshopUpgradeDef>.Find("InterstellarSupplyMesh");
 
         Assert.That(orchestration, Is.Not.Null);
         Assert.That(compute, Is.Not.Null);
@@ -300,27 +300,27 @@ public sealed class UltraContentSliceTests
         Assert.That(HasWorkshopEffect(supply, WorkshopEffectType.GlobalLogisticsMultiplier), Is.True);
     }
 
-    private static bool HasPrerequisite(Research research, string id) =>
+    private static bool HasPrerequisite(ResearchDef research, string id) =>
         research.Prerequisites.Any(item => item != null && item.Id == id);
 
-    private static bool HasEffect(Research research, ResearchEffectType type) =>
+    private static bool HasEffect(ResearchDef research, ResearchEffectType type) =>
         research.Effects.Any(effect => effect != null && effect.Type == type);
 
-    private static ResearchEffectDefinition FindEffect(Research research, ResearchEffectType type) =>
+    private static ResearchEffectDefinition FindEffect(ResearchDef research, ResearchEffectType type) =>
         research.Effects.First(effect => effect != null && effect.Type == type);
 
-    private static bool HasRequiredResearch(Building building, string id) =>
+    private static bool HasRequiredResearch(BuildingDef building, string id) =>
         building.RequiredResearch.Any(item => item != null && item.Id == id);
 
-    private static bool HasWorkshopResearch(WorkshopUpgrade workshop, string id) =>
+    private static bool HasWorkshopResearch(WorkshopUpgradeDef workshop, string id) =>
         workshop.RequiredResearch.Any(item => item != null && item.Id == id);
 
-    private static bool HasWorkshopEffect(WorkshopUpgrade workshop, WorkshopEffectType type) =>
+    private static bool HasWorkshopEffect(WorkshopUpgradeDef workshop, WorkshopEffectType type) =>
         workshop.Effects.Any(effect => effect != null && effect.Type == type);
 
     private static bool HasPositiveRate(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
-        Resource resource)
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
+        ResourceDef resource)
     {
         if (rates == null || resource == null)
             return false;
@@ -328,7 +328,7 @@ public sealed class UltraContentSliceTests
     }
 
     private static void AssertValidResourceCosts(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         string label)
     {
         Assert.That(costs, Is.Not.Null, label);

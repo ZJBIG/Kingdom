@@ -54,7 +54,7 @@ public sealed class UltraProjectManagerTickTests
     public void Tick_PartialAdvancedMaterialSupplyProgressesAndOnlyPausesWhenExhausted()
     {
         RestoreRunningProject(ExpantaNum.Zero);
-        Pair<Resource, ExpantaNum> limitingCost = firstStage.ContinuousResourceCosts[0];
+        Pair<ResourceDef, ExpantaNum> limitingCost = firstStage.ContinuousResourceCosts[0];
         const double tickSeconds = 30d;
         ExpantaNum available = limitingCost.Second * tickSeconds * 0.4d;
         SetAllContinuousResources(new ExpantaNum(1e9d));
@@ -114,7 +114,7 @@ public sealed class UltraProjectManagerTickTests
                 ExpantaNum.Zero);
         }
 
-        Dictionary<Resource, ExpantaNum> resourceBalances = CaptureContinuousBalances();
+        Dictionary<ResourceDef, ExpantaNum> resourceBalances = CaptureContinuousBalances();
         ExpantaNum foodBefore = gameManager.State.FoodAmount;
 
         Assert.That(projectManager.Tick(30d), Is.False);
@@ -124,23 +124,23 @@ public sealed class UltraProjectManagerTickTests
         Assert.That(projectManager.LastFailure,
             Is.EqualTo(UltraProjectOperationFailure.InsufficientSupply));
         Assert.That(gameManager.State.FoodAmount, Is.EqualTo(foodBefore));
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in resourceBalances)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in resourceBalances)
             Assert.That(resourceManager.GetAmount(entry.Key), Is.EqualTo(entry.Value));
     }
 
     [Test]
     public void TryStartStage_InsufficientStartupMaterialLeavesEveryBalanceAndStateUntouched()
     {
-        Pair<Resource, ExpantaNum> missingCost = firstStage.OneTimeResourceCosts[
+        Pair<ResourceDef, ExpantaNum> missingCost = firstStage.OneTimeResourceCosts[
             firstStage.OneTimeResourceCosts.Count - 1];
         for (int i = 0; i < firstStage.OneTimeResourceCosts.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = firstStage.OneTimeResourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = firstStage.OneTimeResourceCosts[i];
             resourceManager.SetAmount(cost.First,
                 cost.First == missingCost.First ? ExpantaNum.Zero : cost.Second * 2d);
         }
 
-        Dictionary<Resource, ExpantaNum> balances = CaptureStartupBalances();
+        Dictionary<ResourceDef, ExpantaNum> balances = CaptureStartupBalances();
         ExpantaNum foodBefore = gameManager.State.FoodAmount;
 
         Assert.That(projectManager.TryStartStage(
@@ -152,7 +152,7 @@ public sealed class UltraProjectManagerTickTests
         Assert.That(projectManager.State.Status, Is.EqualTo(UltraProjectStatus.Locked));
         Assert.That(projectManager.State.StageProgress, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(gameManager.State.FoodAmount, Is.EqualTo(foodBefore));
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in balances)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in balances)
             Assert.That(resourceManager.GetAmount(entry.Key), Is.EqualTo(entry.Value));
     }
 
@@ -161,7 +161,7 @@ public sealed class UltraProjectManagerTickTests
     {
         for (int i = 0; i < firstStage.OneTimeResourceCosts.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = firstStage.OneTimeResourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = firstStage.OneTimeResourceCosts[i];
             resourceManager.SetAmount(cost.First, cost.Second * 3d);
         }
 
@@ -173,7 +173,7 @@ public sealed class UltraProjectManagerTickTests
         Assert.That(projectManager.TryPause(out UltraProjectOperationFailure pauseFailure), Is.True);
         Assert.That(pauseFailure, Is.EqualTo(UltraProjectOperationFailure.None));
 
-        Dictionary<Resource, ExpantaNum> balancesAfterStartup = CaptureStartupBalances();
+        Dictionary<ResourceDef, ExpantaNum> balancesAfterStartup = CaptureStartupBalances();
         ExpantaNum foodAfterStartup = gameManager.State.FoodAmount;
         ExpantaNum progressAfterStartup = projectManager.State.StageProgress;
 
@@ -184,7 +184,7 @@ public sealed class UltraProjectManagerTickTests
         Assert.That(projectManager.State.LaunchFeePaid, Is.True);
         Assert.That(projectManager.State.StageProgress, Is.EqualTo(progressAfterStartup));
         Assert.That(gameManager.State.FoodAmount, Is.EqualTo(foodAfterStartup));
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in balancesAfterStartup)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in balancesAfterStartup)
             Assert.That(resourceManager.GetAmount(entry.Key), Is.EqualTo(entry.Value));
     }
 
@@ -218,7 +218,7 @@ public sealed class UltraProjectManagerTickTests
             (ExpantaNum.One - startingProgress) * firstStage.BaseDurationSeconds /
             firstStage.StablePostureMultiplier;
         ExpantaNum foodBefore = gameManager.State.FoodAmount;
-        Dictionary<Resource, ExpantaNum> balances = CaptureContinuousBalances();
+        Dictionary<ResourceDef, ExpantaNum> balances = CaptureContinuousBalances();
 
         Assert.That(projectManager.Tick(requestedSeconds), Is.True);
 
@@ -233,7 +233,7 @@ public sealed class UltraProjectManagerTickTests
         Assert.That(foodSpent,
             Is.LessThanOrEqualTo(expectedFoodSpend + foodTolerance));
 
-        foreach (Pair<Resource, ExpantaNum> cost in firstStage.ContinuousResourceCosts)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in firstStage.ContinuousResourceCosts)
         {
             ExpantaNum spent = balances[cost.First] - resourceManager.GetAmount(cost.First);
             ExpantaNum expectedSpend = cost.Second * billableSeconds;
@@ -244,13 +244,13 @@ public sealed class UltraProjectManagerTickTests
         }
     }
 
-    private void CompleteResearch(Research research)
+    private void CompleteResearch(ResearchDef research)
     {
         ResearchState state = researchManager.GetState(research);
-        Dictionary<Resource, ExpantaNum> paidCosts = new();
+        Dictionary<ResourceDef, ExpantaNum> paidCosts = new();
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = research.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> cost = research.ResourceRequirements[i];
             if (cost.First != null && cost.Second > ExpantaNum.Zero)
                 paidCosts[cost.First] = cost.Second;
         }
@@ -276,28 +276,28 @@ public sealed class UltraProjectManagerTickTests
     {
         for (int i = 0; i < firstStage.ContinuousResourceCosts.Count; i++)
         {
-            Pair<Resource, ExpantaNum> cost = firstStage.ContinuousResourceCosts[i];
+            Pair<ResourceDef, ExpantaNum> cost = firstStage.ContinuousResourceCosts[i];
             resourceManager.SetAmount(cost.First, amount);
         }
     }
 
-    private Dictionary<Resource, ExpantaNum> CaptureContinuousBalances()
+    private Dictionary<ResourceDef, ExpantaNum> CaptureContinuousBalances()
     {
-        Dictionary<Resource, ExpantaNum> balances = new();
+        Dictionary<ResourceDef, ExpantaNum> balances = new();
         for (int i = 0; i < firstStage.ContinuousResourceCosts.Count; i++)
         {
-            Resource resource = firstStage.ContinuousResourceCosts[i].First;
+            ResourceDef resource = firstStage.ContinuousResourceCosts[i].First;
             balances[resource] = resourceManager.GetAmount(resource);
         }
         return balances;
     }
 
-    private Dictionary<Resource, ExpantaNum> CaptureStartupBalances()
+    private Dictionary<ResourceDef, ExpantaNum> CaptureStartupBalances()
     {
-        Dictionary<Resource, ExpantaNum> balances = new();
+        Dictionary<ResourceDef, ExpantaNum> balances = new();
         for (int i = 0; i < firstStage.OneTimeResourceCosts.Count; i++)
         {
-            Resource resource = firstStage.OneTimeResourceCosts[i].First;
+            ResourceDef resource = firstStage.OneTimeResourceCosts[i].First;
             balances[resource] = resourceManager.GetAmount(resource);
         }
         return balances;

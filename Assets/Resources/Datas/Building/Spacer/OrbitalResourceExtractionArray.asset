@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OrbitalResourceExtractionArray
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: dd1c57ac2b584c4e80ff7a1770434aa0, type: 3}
   id: OrbitalResourceExtractionArray
   Label: "轨道综合资源工厂"
   Description: "在轨道整合采矿、建材、机械、线材、推进剂与相位材料生产，并提供物流和舰队支援。运行需要地面工业原料及幽影材料；食物、生物质与原木由生态农业阵列供应。"

@@ -6,7 +6,7 @@ public sealed class BuildingState
     private ExpantaNum amount;
     private ExpantaNum efficiency = ExpantaNum.One;
 
-    public Building Definition { get; }
+    public BuildingDef Definition { get; }
     public ExpantaNum Amount => amount;
     public ExpantaNum Efficiency => efficiency;
     public int Version { get; private set; }
@@ -17,7 +17,7 @@ public sealed class BuildingState
     public ExpantaNum PopulationCapacityGranted => Definition.PopulationCapacityGranted;
     public ExpantaNum FoodCapacityGranted => Definition.FoodCapacityGranted;
 
-    public BuildingState(Building definition)
+    public BuildingState(BuildingDef definition)
     {
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
     }

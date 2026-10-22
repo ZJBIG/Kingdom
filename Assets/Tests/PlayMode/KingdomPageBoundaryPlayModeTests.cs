@@ -62,12 +62,12 @@ public sealed class KingdomPageBoundaryPlayModeTests
         Assert.That(bootstrap != null && bootstrap.Completed, Is.True);
         SimulationManager.Instance.SetRunning(false);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         ProgressionModifierManager.Current.AddUnlockedSystemForEditor(ResearchSystem.IndustrialWorkshop);
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
-        foreach (SectorDefinition sector in DataBase<SectorDefinition>.All)
+        foreach (SectorDef sector in DataBase<SectorDef>.All)
             GameManager.Instance.Sectors.GetState(sector).SetOccupiedForEditor(true);
         List<string> chapters = new();
         foreach (StoryChapter chapter in StoryManager.Chapters) chapters.Add(chapter.Id);

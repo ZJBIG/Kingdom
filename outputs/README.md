@@ -1,11 +1,12 @@
 # Kingdom 当前文档入口
 
-更新：2026-10-13。源码与资产是实现事实；规则从根 [AGENTS](../AGENTS.md) 进入[项目主技能](../.agents/skills/kingdom-project-dev/SKILL.md)。技能正文、参考资料、客户端入口及旧文档已一并核对，不维护第二套路由。
+更新：2026-10-22。源码与资产是实现事实；规则从根 [AGENTS](../AGENTS.md) 进入[项目主技能](../.agents/skills/kingdom-project-dev/SKILL.md)。技能正文、参考资料、客户端入口及旧文档已一并核对，不维护第二套路由。
 
 ## 状态与证据
 
 - [当前事项](../ToDoList.txt)：A–G 与18章插画已完成；后续机制仅保留候选。
-- [当前交付](阶段交付.md)：A–D/F/G 已完成，G 合同、分支提交和最新真实验证集中于此。
+- [原阶段交付](阶段交付.md)：保留 A–G 合同与当时验证边界；不作为后续修改的最新证据。
+- [当前美术与界面交接](../.codex/handoffs/2026-10-21-building-icons-handoff.md)、[当前研究与进度交接](../.codex/handoffs/2026-10-18-simulation-pacing-handoff.md)：本轮改动、当前证据及未验证边界。
 - [当前内容方向](../docs/content/progression-roadmap.md)、[数值方法](../docs/balance/balance-model.md)、[行为验收](../docs/testing/acceptance-checklist.md)：长期合同归权威文档。
 
 ## 保留的专题

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: FiberGatheringCamp
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 063f6ac1ef4d4cf8b20e160ced61ae26, type: 3}
   id: FiberGatheringCamp
   Label: "\u7EA4\u7EF4\u91C7\u96C6\u5730"
   Description: "采集草茎、枝叶和其他植物，持续产出生物质，供应纺织工坊与后续生态生产。"

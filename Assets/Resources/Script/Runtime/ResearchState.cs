@@ -17,9 +17,9 @@ public sealed class ResearchState
     private ExpantaNum progress;
     private ResearchStatus status;
     private bool costPaid;
-    private readonly Dictionary<Resource, ExpantaNum> paidResourceCosts = new();
+    private readonly Dictionary<ResourceDef, ExpantaNum> paidResourceCosts = new();
 
-    public Research Definition { get; }
+    public ResearchDef Definition { get; }
     public ExpantaNum Progress => progress;
     public ResearchStatus Status => status;
     public bool CostPaid => costPaid;
@@ -30,7 +30,7 @@ public sealed class ResearchState
         ? ExpantaNum.One
         : ExpantaNum.Clamp01(progress / BaseCost);
 
-    public ResearchState(Research definition)
+    public ResearchState(ResearchDef definition)
     {
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
         if (!ExpantaNum.TryParse(definition.BaseCost, out ExpantaNum parsedCost) || parsedCost < ExpantaNum.Zero)
@@ -51,7 +51,7 @@ public sealed class ResearchState
     internal void SetStatus(ResearchStatus value) => Change(ref status, value);
     internal void SetCostPaid(bool value) => Change(ref costPaid, value);
 
-    public ExpantaNum GetPaidResourceCost(Resource resource)
+    public ExpantaNum GetPaidResourceCost(ResourceDef resource)
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
@@ -60,7 +60,7 @@ public sealed class ResearchState
             : ExpantaNum.Zero;
     }
 
-    internal void SetPaidResourceCost(Resource resource, ExpantaNum amount)
+    internal void SetPaidResourceCost(ResourceDef resource, ExpantaNum amount)
     {
         if (resource == null)
             throw new ArgumentNullException(nameof(resource));
@@ -93,14 +93,14 @@ public sealed class ResearchState
         ExpantaNum restoredProgress,
         bool restoredCostPaid,
         bool completed,
-        IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts) =>
+        IReadOnlyDictionary<ResourceDef, ExpantaNum> restoredPaidResourceCosts) =>
         Restore(restoredProgress, completed, restoredPaidResourceCosts);
 #endif
 
     internal void Restore(
         ExpantaNum restoredProgress,
         bool completed,
-        IReadOnlyDictionary<Resource, ExpantaNum> restoredPaidResourceCosts)
+        IReadOnlyDictionary<ResourceDef, ExpantaNum> restoredPaidResourceCosts)
     {
         if (!restoredProgress.IsFinite)
             throw new ArgumentOutOfRangeException(nameof(restoredProgress));
@@ -110,7 +110,7 @@ public sealed class ResearchState
         ResetPaidResourceCosts();
         if (restoredPaidResourceCosts != null)
         {
-            foreach (KeyValuePair<Resource, ExpantaNum> entry in restoredPaidResourceCosts)
+            foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in restoredPaidResourceCosts)
             {
                 ExpantaNum required = GetRequiredResourceCost(entry.Key);
                 if (required <= ExpantaNum.Zero)
@@ -140,13 +140,13 @@ public sealed class ResearchState
         }
     }
 
-    private ExpantaNum GetRequiredResourceCost(Resource resource)
+    private ExpantaNum GetRequiredResourceCost(ResourceDef resource)
     {
         if (resource == null)
             return ExpantaNum.Zero;
 
         ExpantaNum required = ExpantaNum.Zero;
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             Definition.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
             if (requirements[i].First == resource)
@@ -156,11 +156,11 @@ public sealed class ResearchState
 
     private bool AreAllResourceCostsPaid()
     {
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
             Definition.ResourceRequirements;
         for (int i = 0; i < requirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> requirement = requirements[i];
+            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
             if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
                 continue;
             if (GetPaidResourceCost(requirement.First) < GetRequiredResourceCost(requirement.First))

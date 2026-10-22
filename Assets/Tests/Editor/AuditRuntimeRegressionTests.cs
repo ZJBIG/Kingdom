@@ -48,16 +48,16 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void ZeroProductivityHousing_PredictionAndSubmissionAgreeDuringDeficit()
     {
-        buildings.EnsureBuilding(DataBase<Building>.Find("Lumberyard"))
+        buildings.EnsureBuilding(DataBase<BuildingDef>.Find("Lumberyard"))
             .SetAmountForEditor(new ExpantaNum(100));
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), new ExpantaNum(10000));
-        Building housing = DataBase<Building>.Find("WoodHouse");
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
+        BuildingDef housing = DataBase<BuildingDef>.Find("WoodHouse");
         Assert.That(buildings.AvailableProductivity, Is.LessThan(ExpantaNum.Zero));
         Assert.That(buildings.GetMaxBuildable(housing, ExpantaNum.One), Is.GreaterThanOrEqualTo(ExpantaNum.One));
         Assert.That(buildings.GetBuildFailure(housing, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
         Assert.That(buildings.TryBuild(housing, ExpantaNum.One, out _), Is.True);
-        Building staffed = DataBase<Building>.Find("Lumberyard");
-        foreach (Research prerequisite in staffed.RequiredResearch)
+        BuildingDef staffed = DataBase<BuildingDef>.Find("Lumberyard");
+        foreach (ResearchDef prerequisite in staffed.RequiredResearch)
         {
             ResearchState prerequisiteState = research.GetState(prerequisite);
             prerequisiteState.SetProgressForEditor(prerequisiteState.BaseCost);
@@ -70,8 +70,8 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void CancellationPreview_MatchesRemovalAndRetainsPaidProgress()
     {
-        Research target = DataBase<Research>.Find("KnowledgeSharing");
-        Research prerequisite = target.Prerequisites[0];
+        ResearchDef target = DataBase<ResearchDef>.Find("KnowledgeSharing");
+        ResearchDef prerequisite = target.Prerequisites[0];
         foreach (var pair in resources.States) resources.SetAmount(pair.Key, new ExpantaNum(10000));
         research.HandleResearchAction(target);
         ResearchState active = research.ActiveResearch;
@@ -96,14 +96,14 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void QueueMove_RejectsDependencyInversionAndMovesIndependentWaitingHead()
     {
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), ExpantaNum.Zero);
-        Research target = DataBase<Research>.Find("KnowledgeSharing");
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), ExpantaNum.Zero);
+        ResearchDef target = DataBase<ResearchDef>.Find("KnowledgeSharing");
         research.HandleResearchAction(target);
         Assert.That(research.CanMoveQueuedResearch(target, 0), Is.False);
         Assert.That(research.MoveQueuedResearch(target, 0), Is.False);
         research.ResetForLoadForEditor();
-        Research first = DataBase<Research>.Find("Quarry");
-        Research second = DataBase<Research>.Find("Agriculture");
+        ResearchDef first = DataBase<ResearchDef>.Find("Quarry");
+        ResearchDef second = DataBase<ResearchDef>.Find("Agriculture");
         research.HandleResearchAction(first);
         research.HandleResearchAction(second);
         Assert.That(research.CanMoveQueuedResearch(second, 0), Is.True);
@@ -116,11 +116,11 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void EffectiveResearchSpeed_MatchesTickAndIsZeroWhileWaitingForPayment()
     {
-        Research definition = DataBase<Research>.Find("Quarry");
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), ExpantaNum.Zero);
+        ResearchDef definition = DataBase<ResearchDef>.Find("Quarry");
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), ExpantaNum.Zero);
         research.HandleResearchAction(definition);
         Assert.That(research.CurrentResearchSpeed.ToDouble(), Is.EqualTo(0d).Within(1e-8));
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), new ExpantaNum(10000));
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
         research.Tick(0d);
         ExpantaNum speed = research.CurrentResearchSpeed;
         Assert.That(speed, Is.GreaterThan(ExpantaNum.Zero));
@@ -133,14 +133,14 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void DeconstructionPreview_UsesSubmittedRefundAndDoesNotChangeState()
     {
-        Building housing = DataBase<Building>.Find("WoodHouse");
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), new ExpantaNum(10000));
+        BuildingDef housing = DataBase<BuildingDef>.Find("WoodHouse");
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
         Assert.That(buildings.TryBuild(housing, new ExpantaNum(2), out _), Is.True);
         BuildingState state = buildings.EnsureBuilding(housing);
         ExpantaNum count = state.Amount;
         var preview = buildings.GetDeconstructionPreview(housing, ExpantaNum.One);
         Assert.That(state.Amount, Is.EqualTo(count)); // Discrete building count.
-        var before = new System.Collections.Generic.Dictionary<Resource, ExpantaNum>();
+        var before = new System.Collections.Generic.Dictionary<ResourceDef, ExpantaNum>();
         foreach (var pair in preview.Refunds) before.Add(pair.Key, resources.GetAmount(pair.Key));
         Assert.That(buildings.TryDeconstruct(housing, ExpantaNum.One), Is.True);
         foreach (var pair in preview.Refunds)
@@ -151,7 +151,7 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void DeconstructionPreview_PredictsActualFoodOverflowWhenCapacityFalls()
     {
-        Building storage = DataBase<Building>.Find("Granary");
+        BuildingDef storage = DataBase<BuildingDef>.Find("Granary");
         BuildingState state = buildings.EnsureBuilding(storage);
         buildings.SetAmountAndRatesForEditor(state, ExpantaNum.One);
         game.State.RestoreCoreForEditor(0, TechLevel.Animal, game.State.FoodCapacity, 0L);
@@ -247,8 +247,8 @@ public sealed class AuditRuntimeRegressionTests
     [Test]
     public void OfflineSummary_ReportsZeroEffectiveResearchSpeedDespitePositiveResearchPower()
     {
-        Research definition = DataBase<Research>.Find("Quarry");
-        resources.SetAmount(DataBase<Resource>.Find("WoodLog"), new ExpantaNum(10000));
+        ResearchDef definition = DataBase<ResearchDef>.Find("Quarry");
+        resources.SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(10000));
         research.HandleResearchAction(definition);
         Assert.That(research.ActiveResearch, Is.Not.Null);
         research.GlobalEfficiencyFactor = ExpantaNum.Zero;

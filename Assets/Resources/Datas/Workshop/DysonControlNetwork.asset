@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: DysonControlNetwork
+  m_EditorClassIdentifier: 
+  id: DysonControlNetwork
+  icon: {fileID: 21300000, guid: d602bafeae74b2644b3d97c4da10adad, type: 3}
+  Label: "戴森球：戴森群联控网"
+  Description: "以相态材料稳定高通量传输，建成联控、冗余与轨道调度网络，完成这项文明工程。"
+  SortOrder: 542
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: a9f3c7e1d5b248609c4e2f7a1b8d6350, type: 2}
+  - {fileID: 11400000, guid: a4b6c8d0e2f54791ab3c5d7e9f1026a8, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: a020bc2be197437592c6b628a40936aa, type: 2}
+  requiredBuilding: {fileID: 11400000, guid: d3e8f24e01584b7da96ee4c608c864d7, type: 2}
+  requiredSector: {fileID: 11400000, guid: d06dcc262d273e54e88f2b4e72492797, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "240000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "48000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "72000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "36000"
+  - resource: {fileID: 11400000, guid: 6ebfa83f682e08f47bf9a5cf367b9d24, type: 2}
+    amount: "48000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "24000"
+  - resource: {fileID: 11400000, guid: a7f19d3c5e8246b1a0d4c8e2f6b93a11, type: 2}
+    amount: "6000"
+  effects:
+  - Type: 10
+    Building: {fileID: 11400000, guid: d3e8f24e01584b7da96ee4c608c864d7, type: 2}
+    Resource: {fileID: 0}
+    value: "15"

@@ -1,8 +1,0 @@
-{
-  "source": "Controlled Unity v5 fixture; excludes world events, Ultra and relic systems",
-  "mode": "Realtime",
-  "seconds": 10,
-  "passed": true,
-  "firstDifference": null,
-  "differences": []
-}

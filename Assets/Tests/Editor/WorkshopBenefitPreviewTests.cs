@@ -18,15 +18,15 @@ public sealed class WorkshopBenefitPreviewTests
     [Test]
     public void BuildingMultiplierPreview_UsesAdditiveStackAndCurrentEfficiencyForOutputAndInputs()
     {
-        Building building = Resources.Load<Building>("Datas/Building/Industrial/CokeOven");
+        BuildingDef building = Resources.Load<BuildingDef>("Datas/Building/Industrial/CokeOven");
         Assert.That(building, Is.Not.Null);
         var state = new BuildingState(building);
         state.SetAmountForEditor(new ExpantaNum(2));
         state.SetEfficiencyForEditor(new ExpantaNum("0.5"));
-        WorkshopUpgrade purchased = Upgrade(WorkshopEffectType.BuildingProductionMultiplier, "1.5", building);
+        WorkshopUpgradeDef purchased = Upgrade(WorkshopEffectType.BuildingProductionMultiplier, "1.5", building);
         var purchasedState = new WorkshopUpgradeState(purchased);
         purchasedState.SetPurchasedForEditor(true);
-        WorkshopUpgrade candidate = Upgrade(WorkshopEffectType.BuildingProductionMultiplier, "1.25", building);
+        WorkshopUpgradeDef candidate = Upgrade(WorkshopEffectType.BuildingProductionMultiplier, "1.25", building);
         var upgrades = new[] { purchasedState };
         ProgressionModifierManager.Rebuild(null, upgrades);
         ProgressionModifierState current = ProgressionModifierManager.Current;
@@ -62,10 +62,10 @@ public sealed class WorkshopBenefitPreviewTests
     [Test]
     public void ResourceOnlyPreview_IncreasesOutputWithoutAdditionalInputs_AndZeroEfficiencyHasNoBenefit()
     {
-        Building building = Resources.Load<Building>("Datas/Building/Industrial/OilDerrick");
+        BuildingDef building = Resources.Load<BuildingDef>("Datas/Building/Industrial/OilDerrick");
         var state = new BuildingState(building);
         state.SetAmountForEditor(new ExpantaNum("1e100"));
-        WorkshopUpgrade candidate = Upgrade(WorkshopEffectType.ResourceProductionMultiplier, "1.5",
+        WorkshopUpgradeDef candidate = Upgrade(WorkshopEffectType.ResourceProductionMultiplier, "1.5",
             resource: building.ResourceGenerationRates[0].First);
         ProgressionModifierState current = ProgressionModifierManager.BuildPreview(null);
         ProgressionModifierState preview = ProgressionModifierManager.BuildPreview(null, null, candidate);
@@ -83,7 +83,7 @@ public sealed class WorkshopBenefitPreviewTests
     [Test]
     public void PurchasedCandidateIsNotAppliedTwice_AndResearchPreviewIncludesBaseSupply()
     {
-        WorkshopUpgrade candidate = Upgrade(WorkshopEffectType.GlobalResearchMultiplier, "2");
+        WorkshopUpgradeDef candidate = Upgrade(WorkshopEffectType.GlobalResearchMultiplier, "2");
         ProgressionModifierState current = ProgressionModifierManager.BuildPreview(null);
         ProgressionModifierState preview = ProgressionModifierManager.BuildPreview(null, null, candidate);
         IReadOnlyList<WorkshopBenefitRatePreview> rates = WorkshopManager.CalculateBenefitPreview(null, current, preview);
@@ -102,13 +102,13 @@ public sealed class WorkshopBenefitPreviewTests
     [TestCase(.8)]
     public void EventPreview_ScalesResourceAndBuildingFoodButNotInputsOrBaseFood(double eventMultiplier)
     {
-        Building oven = Resources.Load<Building>("Datas/Building/Industrial/CokeOven");
-        Building farm = Resources.Load<Building>("Datas/Building/Animal/Farm");
+        BuildingDef oven = Resources.Load<BuildingDef>("Datas/Building/Industrial/CokeOven");
+        BuildingDef farm = Resources.Load<BuildingDef>("Datas/Building/Animal/Farm");
         var ovenState = new BuildingState(oven);
         var farmState = new BuildingState(farm);
         ovenState.SetAmountForEditor(ExpantaNum.One);
         farmState.SetAmountForEditor(ExpantaNum.One);
-        WorkshopUpgrade candidate = Upgrade(WorkshopEffectType.GlobalBuildingProductionMultiplier, "1.5");
+        WorkshopUpgradeDef candidate = Upgrade(WorkshopEffectType.GlobalBuildingProductionMultiplier, "1.5");
         ProgressionModifierState before = ProgressionModifierManager.BuildPreview(null);
         ProgressionModifierState after = ProgressionModifierManager.BuildPreview(null, null, candidate);
         var buildings = new[] { ovenState, farmState };
@@ -136,10 +136,10 @@ public sealed class WorkshopBenefitPreviewTests
             "World events affect building production, not the base food supply.");
     }
 
-    private WorkshopUpgrade Upgrade(WorkshopEffectType type, string value,
-        Building building = null, Resource resource = null)
+    private WorkshopUpgradeDef Upgrade(WorkshopEffectType type, string value,
+        BuildingDef building = null, ResourceDef resource = null)
     {
-        WorkshopUpgrade upgrade = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        WorkshopUpgradeDef upgrade = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
         created.Add(upgrade);
         upgrade.SetIdForEditor("preview-" + created.Count);
         upgrade.ConfigureForEditor(null, null, null, new List<WorkshopEffectDefinition>

@@ -9,9 +9,9 @@ public sealed class ResourceProductionTreeLayoutTests
     private static readonly Vector2 Gap = new(16, 24);
     private T Make<T>() where T : ScriptableObject
     { T value = ScriptableObject.CreateInstance<T>(); created.Add(value); return value; }
-    private Building Producer(Resource output, Resource input = null)
+    private BuildingDef Producer(ResourceDef output, ResourceDef input = null)
     {
-        Building value = Make<Building>();
+        BuildingDef value = Make<BuildingDef>();
         value.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new(), new() { new(output, 2) }, input == null ? new() : new() { new(input, 1) });
         return value;
@@ -56,7 +56,7 @@ public sealed class ResourceProductionTreeLayoutTests
     [Test]
     public void AlternativeSourcesSitSideBySide_ParentCenteredAboveThem()
     {
-        Resource resource = Make<Resource>();
+        ResourceDef resource = Make<ResourceDef>();
         ResourceProductionTree tree = new(resource, new[] { Producer(resource), Producer(resource), Producer(resource) }, null);
         ResourceProductionTreeLayout layout = new(tree, NodeSize, Gap);
         Assert.That(layout.Nodes.Count, Is.EqualTo(4), "Root and three alternative sources are discrete nodes.");
@@ -71,8 +71,8 @@ public sealed class ResourceProductionTreeLayoutTests
     [Test]
     public void CollapsedSiblingUsesOnlyItsVisibleContour_AndRootCollapseUsesOneNode()
     {
-        Resource output = Make<Resource>(), a = Make<Resource>(), b = Make<Resource>(), c = Make<Resource>();
-        Building broad = Producer(output);
+        ResourceDef output = Make<ResourceDef>(), a = Make<ResourceDef>(), b = Make<ResourceDef>(), c = Make<ResourceDef>();
+        BuildingDef broad = Producer(output);
         broad.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new(), new() { new(output, 2) }, new() { new(a, 1), new(b, 1), new(c, 1) });
         ResourceProductionTree tree = new(output, new[] { broad, Producer(output) }, null);
@@ -94,7 +94,7 @@ public sealed class ResourceProductionTreeLayoutTests
     [Test]
     public void ExpandedDependenciesHaveForwardEdgesAndDoNotOverlap_CollapsingRemovesDescendants()
     {
-        Resource output = Make<Resource>(), a = Make<Resource>(), b = Make<Resource>();
+        ResourceDef output = Make<ResourceDef>(), a = Make<ResourceDef>(), b = Make<ResourceDef>();
         ResourceProductionTree tree = new(output, new[] { Producer(output, a), Producer(output, b), Producer(a, b), Producer(b) }, null);
         var sources = tree.GetChildren(tree.Root);
         sources[0].Expanded = sources[1].Expanded = true;

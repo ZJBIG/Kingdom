@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhaseMaterialDurabilityCalibration
   m_EditorClassIdentifier: 
   id: PhaseMaterialDurabilityCalibration
+  icon: {fileID: 21300000, guid: 27d0774169025004bb9f8098247f2036, type: 3}
   Label: "相位材料耐久校准设备"
   Description: "校准相位材料并测试辐射老化，提高远征探索能力。"
   SortOrder: 420

@@ -11,7 +11,7 @@ public sealed class RelicManagerTests
     private BuildingManager buildings;
     private ResearchManager research;
     private RelicManager relic;
-    private RelicDefinition definition;
+    private RelicDef definition;
 
     [SetUp]
     public void SetUp()
@@ -96,7 +96,7 @@ public sealed class RelicManagerTests
     public void StartInvestigation_WithoutRequiredResearchRejectsWithoutPayment()
     {
         ResearchState required = research.GetState(definition.RequiredResearch[0]);
-        required.RestoreForEditor(ExpantaNum.Zero, false, false, new Dictionary<Resource, ExpantaNum>());
+        required.RestoreForEditor(ExpantaNum.Zero, false, false, new Dictionary<ResourceDef, ExpantaNum>());
         required.SetStatusForEditor(ResearchStatus.Locked);
         AssertStartRejectedWithoutChanges();
     }
@@ -132,7 +132,7 @@ public sealed class RelicManagerTests
     public void Tick_PartialSupplyAdvancesAndZeroSupplyPausesWithoutSpending()
     {
         Assert.That(relic.TryInvestigate(out _), Is.True);
-        Pair<Resource, ExpantaNum> limiting = definition.Investigation.ContinuousCosts[0];
+        Pair<ResourceDef, ExpantaNum> limiting = definition.Investigation.ContinuousCosts[0];
         double seconds = Math.Min(10d, definition.Investigation.DurationSeconds.ToDouble() * .1d);
         resources.SetAmount(limiting.First, limiting.Second * seconds * .4d);
         ExpantaNum foodBefore = game.State.FoodAmount;
@@ -142,7 +142,7 @@ public sealed class RelicManagerTests
         Assert.That(game.State.FoodAmount, Is.LessThan(foodBefore));
         resources.SetAmount(limiting.First, ExpantaNum.Zero);
         RelicStateSaveData before = relic.CaptureSaveDataForEditor();
-        Dictionary<Resource, ExpantaNum> balances = Capture(definition.Investigation.ContinuousCosts);
+        Dictionary<ResourceDef, ExpantaNum> balances = Capture(definition.Investigation.ContinuousCosts);
         foodBefore = game.State.FoodAmount;
         Assert.That(relic.Tick(seconds), Is.False);
         Assert.That(relic.State.Suspended, Is.True);
@@ -160,11 +160,11 @@ public sealed class RelicManagerTests
         data.Progress = ".99";
         relic.RestoreSaveDataForEditor(data);
         ExpantaNum remainingSeconds = (ExpantaNum.One - relic.State.Progress) * definition.Investigation.DurationSeconds;
-        Dictionary<Resource, ExpantaNum> balances = Capture(definition.Investigation.ContinuousCosts);
+        Dictionary<ResourceDef, ExpantaNum> balances = Capture(definition.Investigation.ContinuousCosts);
         ExpantaNum foodBefore = game.State.FoodAmount;
         Assert.That(relic.Tick(definition.Investigation.DurationSeconds.ToDouble() * 5d), Is.True);
         Assert.That(relic.State.Status, Is.EqualTo(RelicStatus.AwaitingChoice));
-        foreach (Pair<Resource, ExpantaNum> cost in definition.Investigation.ContinuousCosts)
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.Investigation.ContinuousCosts)
             Near(balances[cost.First] - resources.GetAmount(cost.First), cost.Second * remainingSeconds, .05d);
         Near(foodBefore - game.State.FoodAmount, definition.Investigation.FoodConsumptionRate * remainingSeconds, .05d);
     }
@@ -176,7 +176,7 @@ public sealed class RelicManagerTests
         Assert.That(relic.Tick(definition.Investigation.DurationSeconds.ToDouble() * .1d), Is.True);
         Assert.That(relic.TrySuspend(out _), Is.True);
         RelicStateSaveData data = JsonUtility.FromJson<RelicStateSaveData>(JsonUtility.ToJson(relic.CaptureSaveDataForEditor()));
-        Dictionary<Resource, ExpantaNum> balances = Capture(definition.Investigation.StartupCosts);
+        Dictionary<ResourceDef, ExpantaNum> balances = Capture(definition.Investigation.StartupCosts);
         relic.RestoreSaveDataForEditor(data);
         Assert.That(relic.Tick(10d), Is.False);
         Assert.That(relic.TryResume(out _), Is.True);
@@ -205,7 +205,7 @@ public sealed class RelicManagerTests
         Assert.That(relic.TryBeginCommission(out _), Is.False);
         Assert.That(relic.TryCraftSupport(out _), Is.True);
         Assert.That(relic.State.SupportReady, Is.True);
-        Dictionary<Resource, ExpantaNum> after = Capture(definition.SupportCraftCosts);
+        Dictionary<ResourceDef, ExpantaNum> after = Capture(definition.SupportCraftCosts);
         Assert.That(relic.TryCraftSupport(out _), Is.False);
         AssertBalances(after);
     }
@@ -215,7 +215,7 @@ public sealed class RelicManagerTests
     {
         MakeOperational(RelicRoute.Dismantle);
         resources.SetAmount(definition.SupportCraftCosts[definition.SupportCraftCosts.Count - 1].First, ExpantaNum.Zero);
-        Dictionary<Resource, ExpantaNum> balances = Capture(definition.SupportCraftCosts);
+        Dictionary<ResourceDef, ExpantaNum> balances = Capture(definition.SupportCraftCosts);
         int version = relic.State.Version;
         Assert.That(relic.TryCraftSupport(out _), Is.False);
         Assert.That(relic.State.SupportReady, Is.False);
@@ -228,7 +228,7 @@ public sealed class RelicManagerTests
     {
         MakeOperational(RelicRoute.Dismantle);
         Assert.That(relic.TryCraftSupport(out _), Is.True);
-        SectorDefinition target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+        SectorDef target = DataBase<SectorDef>.Find("TauCetiFoundry");
         game.State.BeginCampaignForEditor(target.Id);
         Assert.That(relic.TryAssignSupport(out _), Is.True);
         Assert.That(relic.State.SupportReady, Is.False);
@@ -256,7 +256,7 @@ public sealed class RelicManagerTests
 
     private void AssertStartRejectedWithoutChanges()
     {
-        Dictionary<Resource, ExpantaNum> balances = Capture(definition.Investigation.StartupCosts);
+        Dictionary<ResourceDef, ExpantaNum> balances = Capture(definition.Investigation.StartupCosts);
         int version = relic.State.Version;
         Assert.That(relic.TryInvestigate(out _), Is.False);
         Assert.That(relic.State.Status, Is.EqualTo(RelicStatus.Discovered));
@@ -278,10 +278,10 @@ public sealed class RelicManagerTests
         Assert.That(relic.Tick((route == RelicRoute.Repair ? definition.Repair : definition.ReverseEngineering).DurationSeconds.ToDouble() * 2d), Is.True);
     }
 
-    private void CompleteResearch(Research value)
+    private void CompleteResearch(ResearchDef value)
     {
-        Dictionary<Resource, ExpantaNum> paid = new();
-        foreach (Pair<Resource, ExpantaNum> cost in value.ResourceRequirements)
+        Dictionary<ResourceDef, ExpantaNum> paid = new();
+        foreach (Pair<ResourceDef, ExpantaNum> cost in value.ResourceRequirements)
             if (cost.First != null && cost.Second > ExpantaNum.Zero)
                 paid[cost.First] = cost.Second;
         ResearchState state = research.GetState(value);
@@ -294,23 +294,23 @@ public sealed class RelicManagerTests
         FundCosts(work.ContinuousCosts);
     }
 
-    private void FundCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private void FundCosts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         for (int i = 0; i < costs.Count; i++)
             resources.SetAmount(costs[i].First, new ExpantaNum(1e6d));
     }
 
-    private Dictionary<Resource, ExpantaNum> Capture(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+    private Dictionary<ResourceDef, ExpantaNum> Capture(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
-        Dictionary<Resource, ExpantaNum> result = new();
+        Dictionary<ResourceDef, ExpantaNum> result = new();
         for (int i = 0; i < costs.Count; i++)
             result[costs[i].First] = resources.GetAmount(costs[i].First);
         return result;
     }
 
-    private void AssertBalances(Dictionary<Resource, ExpantaNum> balances)
+    private void AssertBalances(Dictionary<ResourceDef, ExpantaNum> balances)
     {
-        foreach (KeyValuePair<Resource, ExpantaNum> entry in balances)
+        foreach (KeyValuePair<ResourceDef, ExpantaNum> entry in balances)
             Near(resources.GetAmount(entry.Key), entry.Value);
     }
 

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AdvancedCompositeLayup
   m_EditorClassIdentifier: 
   id: AdvancedCompositeLayup
+  icon: {fileID: 21300000, guid: 237419dfc89aeb0448ba1abe655baa6c, type: 3}
   Label: "先进复合材料铺层"
   Description: "通过纤维定向铺层、树脂固化和无损检测控制复合材料的强度与一致性，提高各类复合材料生产线的整体产出。"
   SortOrder: 450

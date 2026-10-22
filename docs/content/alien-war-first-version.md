@@ -6,7 +6,7 @@
 
 ## 核心数据
 
-- `SectorDefinition`
+- `SectorDef`
 - `SectorState`
 - `MilitaryState`
 - `CampaignState`

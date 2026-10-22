@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SolarWindMonitoringArray
   m_EditorClassIdentifier: 
   id: SolarWindMonitoringArray
+  icon: {fileID: 21300000, guid: cce25f2b4b84c9b43bbe33031cde0a46, type: 3}
   Label: "\u592a\u9633\u98ce\u76d1\u6d4b\u9635\u5217"
   Description: "提前预测太阳风并调整阵列运行，提高轨道太阳能阵列的发电量。"
   SortOrder: 660

@@ -5,7 +5,7 @@ public sealed class PreSpacerCombatRemovalTests
     [Test]
     public void C811_PreSpacerBuildingsHaveNoCombatAttributes()
     {
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building == null || building.TechLevel >= TechLevel.Spacer)
                 continue;
@@ -20,7 +20,7 @@ public sealed class PreSpacerCombatRemovalTests
     [Test]
     public void C811_PreSpacerResearchHasNoMilitaryEffects()
     {
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
             if (research == null || research.TechLevel >= TechLevel.Spacer)
                 continue;
@@ -40,7 +40,7 @@ public sealed class PreSpacerCombatRemovalTests
         AssertEffectType("GunpowderSupplyStandards", ResearchEffectType.GlobalLogisticsMultiplier);
         AssertBuildingMultiplier("MilitaryIndustry", "MachineFactory");
         Assert.That(
-            DataBase<Research>.Find("MilitaryIndustry").Effects,
+            DataBase<ResearchDef>.Find("MilitaryIndustry").Effects,
             Has.None.Matches<ResearchEffectDefinition>(effect =>
                 effect.Type == ResearchEffectType.GlobalBuildingProductionMultiplier));
     }
@@ -48,8 +48,8 @@ public sealed class PreSpacerCombatRemovalTests
     [Test]
     public void C811_SpacerFleetBuildingsRemainAvailable()
     {
-        Assert.That(DataBase<Building>.Find("OrbitalStation").FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(DataBase<Building>.Find("Shipyard").FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("OrbitalStation").FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(DataBase<BuildingDef>.Find("Shipyard").FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     private static void AssertGlobalMultiplier(string id)
@@ -59,14 +59,14 @@ public sealed class PreSpacerCombatRemovalTests
 
     private static void AssertEffectType(string id, ResearchEffectType type)
     {
-        Research research = DataBase<Research>.Find(id);
+        ResearchDef research = DataBase<ResearchDef>.Find(id);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == type && effect.NumericValue > ExpantaNum.One));
     }
 
     private static void AssertBuildingMultiplier(string researchId, string buildingId)
     {
-        Research research = DataBase<Research>.Find(researchId);
+        ResearchDef research = DataBase<ResearchDef>.Find(researchId);
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
             effect.Building != null && effect.Building.Id == buildingId &&

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ReinforcedBoilers
   m_EditorClassIdentifier: 
   id: ReinforcedBoilers
+  icon: {fileID: 21300000, guid: 789b4c3d9c45d8541b709e24a677a68e, type: 3}
   Label: "\u5F3A\u5316\u9505\u7089"
   Description: "强化承压壳体、炉膛与安全阀，提高蒸汽动力厂的发电量。"
   SortOrder: 30

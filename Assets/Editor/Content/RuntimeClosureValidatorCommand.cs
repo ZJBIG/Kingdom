@@ -9,10 +9,10 @@ public static class RuntimeClosureValidatorCommand
     {
         try
         {
-            IReadOnlyList<Resource> resources = DataBase<Resource>.All;
-            IReadOnlyList<Building> buildings = DataBase<Building>.All;
-            IReadOnlyList<Research> researches = DataBase<Research>.All;
-            IReadOnlyList<WorkshopUpgrade> upgrades = DataBase<WorkshopUpgrade>.All;
+            IReadOnlyList<ResourceDef> resources = DataBase<ResourceDef>.All;
+            IReadOnlyList<BuildingDef> buildings = DataBase<BuildingDef>.All;
+            IReadOnlyList<ResearchDef> researches = DataBase<ResearchDef>.All;
+            IReadOnlyList<WorkshopUpgradeDef> upgrades = DataBase<WorkshopUpgradeDef>.All;
             Debug.Log($"Runtime closure input: resources={resources.Count}, buildings={buildings.Count}, research={researches.Count}, workshops={upgrades.Count}");
             if (!EconomyDependencyValidator.Validate(resources, buildings, researches, upgrades, out string error))
                 throw new InvalidOperationException(error);

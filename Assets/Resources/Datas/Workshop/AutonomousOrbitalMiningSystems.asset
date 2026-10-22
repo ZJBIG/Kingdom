@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutonomousOrbitalMiningSystems
   m_EditorClassIdentifier: 
   id: AutonomousOrbitalMiningSystems
+  icon: {fileID: 21300000, guid: 6d5163842bcdc6e47b15770e90f12557, type: 3}
   Label: "轨道自主采矿系统"
   Description: "以无人采掘、遥控选矿和自动维护提高轨道综合资源工厂的产出，并提高占领星区的特级金属矿产出。"
   SortOrder: 620

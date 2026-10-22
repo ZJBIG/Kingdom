@@ -1,0 +1,2473 @@
+[
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/alltime.png.meta",
+    "guid": "661595440dc4d134fa18a192a2b0695a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/day.png.meta",
+    "guid": "16c52cb245a452845a6006d9f0da3793",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/next.png.meta",
+    "guid": "fb4868ad44323714bb764beafaa89d6e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/night.png.meta",
+    "guid": "f3d76526905bf2a4e8775e88ba684494",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/pause.png.meta",
+    "guid": "b7d525f88b8aeda489ef6df6d2eabdd1",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/play.png.meta",
+    "guid": "5b7be17afbf002a44a9fed5cf7fb9a62",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/previous.png.meta",
+    "guid": "6b93c36991fbcf64d8789c4731961710",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/MusicIcons/tense.png.meta",
+    "guid": "ac6cfa03571ff3641817b9d7a06e1cd5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressAnimal.png.meta",
+    "guid": "41acac9534bbfbd4895028eee4d65135",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressArchotech.png.meta",
+    "guid": "b3a5fb53574114146875bbdb8cf9e9ec",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressIndustrial.png.meta",
+    "guid": "fcc9cde38495f8744940429083cc901f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressMedieval.png.meta",
+    "guid": "5a48f25e90658df40a59b050cf4a7ec3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressSpacer.png.meta",
+    "guid": "a5368e7b0416a4c47a4f9e9e85ac1c54",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressStoneAge.png.meta",
+    "guid": "ab3e6e57a1ba99c4390431ca3cd6b424",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ProgressUltra.png.meta",
+    "guid": "f9241d59d15c28b4dbc32257f54928ba",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraAnimal.png.meta",
+    "guid": "9a4e1c7b2d6f8053b7e1a9c4d6f28510",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraArchotech.png.meta",
+    "guid": "d2a6f8c1e5b37049a7c3d9f2b6e10485",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraIndustrial.png.meta",
+    "guid": "da7b4fc06e5d7b9318a4f0c2e9b36547",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraMedieval.png.meta",
+    "guid": "eb8c50d17f6e8ca429b5f1d3fa476558",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraSpacer.png.meta",
+    "guid": "ab5f2d8c6e1a7039b4f8d2c5e7a19036",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraStoneAge.png.meta",
+    "guid": "fc9d61e2807f9db53ac602e4ab587669",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchEraUltra.png.meta",
+    "guid": "c7e3a1f5b9d26048a6c2e8f1d4b70395",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchLineCircle.png.meta",
+    "guid": "2b8a9f4c6d1e7b305a2f8c9d4e6b1730",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchLineEnd.png.meta",
+    "guid": "4c1e8a6f2b9d7e305a4f8c1d6b3e2750",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchLineHorizontal.png.meta",
+    "guid": "6e3a1c8f4b2d7e509a5c1f6b8d3e2740",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchLineVertical.png.meta",
+    "guid": "8f2c6a1e4b7d3059c5a3f8e2d6b17400",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchNodeCircle.png.meta",
+    "guid": "b85f2dae4c3a5b7196e2f8d0a7c14325",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchNodeLock.png.meta",
+    "guid": "c96a3ebf5d4c6a8207f3e9b1d8a25436",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/ResearchTree/ResearchTreeBackground.png.meta",
+    "guid": "a74e1c9d3b2f4a6085d1e7c9b6f03214",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Resources/Texture/UI/KingdomAppIcon.png.meta",
+    "guid": "6d9e0d775f664fd8bf8c3bdc97e3d6f1",
+    "spriteIDs": [
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Basic/Cloth.png.meta",
+    "guid": "a85c7bd64554a77408d2a762bd75b6e6",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Basic/PlantFiber.png.meta",
+    "guid": "4709208185bcaa44a8a16fe8afc32ffc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Chemical.png.meta",
+    "guid": "40f449c8569652a44a60de74bdc1bd5f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Coke.png.meta",
+    "guid": "47e126d562921d546810124a0e611618",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Concrete.png.meta",
+    "guid": "38e54f85e9e237444aa28bc7b4e12475",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/CopperWire.png.meta",
+    "guid": "b9175b4d1186b3740b441c46113fce09",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/CrudeOil.png.meta",
+    "guid": "cd0ed4b68a5edec418d49887c8c59abc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Electronics.png.meta",
+    "guid": "ee28dbcad0ffa8847a47114f0b585558",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Engine.png.meta",
+    "guid": "a461981d472cb8a47b84eca9e6cfed00",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Explosives.png.meta",
+    "guid": "19509e1ccdb99654e971b2267fa24cb1",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Glass.png.meta",
+    "guid": "1e82a40c6e366aa42ad4add6f3b98c91",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/IndustrialCeramic.png.meta",
+    "guid": "e9c8047a18d052d4ba6472b0106cfc86",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Lubricant.png.meta",
+    "guid": "b266652ed588a014c84e893eff410432",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Machinery.png.meta",
+    "guid": "32d3e942e07a418b8245791a31fbaf2c",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/RefinedFuel.png.meta",
+    "guid": "a69d2c66dd70ecb4b8e458b34152ab61",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Industrial/Rubber.png.meta",
+    "guid": "e65f4145441deed42be4045e600db5b3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Mineral/Coal.png.meta",
+    "guid": "0ca33c39a13102849a44dde0e9ecf31f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Mineral/StoneBrick.png.meta",
+    "guid": "6488ea994bb5b454fbf636aacfd3ad40",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Mineral/StoneChunk.png.meta",
+    "guid": "73ab6924373cf8144a41e11b5eed2856",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Spacer/Composite.png.meta",
+    "guid": "abda49f3560d2ea4fb4afd5ac449c081",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Spacer/Nimonic_c.png.meta",
+    "guid": "3fec6e8e7c7f1604b87e25e32e5bcdf5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Spacer/PhantomAlloy.png.meta",
+    "guid": "9b19ef966811e904282a76eafb47cb81",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Spacer/PhantomWeave.png.meta",
+    "guid": "0625531f4b27efa4a8107c5649b2a930",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/Spacer/RocketFuel.png.meta",
+    "guid": "00fd246e9a390204680d686512e0fbfe",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Texture/Resource/WoodLog/WoodLog.png.meta",
+    "guid": "dd191cf4bf110854791134f1b927f071",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Metals/MetalInventoryAtlas.png.meta",
+    "guid": "a863c8798f7b44d3a4e76eed1f86c197",
+    "spriteIDs": [
+      "1a7f088cd00f467282002c4cf68f41ac",
+      "21310001",
+      "7f0b553004874517b6a33527f0a91cad",
+      "21310002",
+      "322107f2af2c4eaaa07731a569aee0f1",
+      "21310003",
+      "adddf37168724190a8d857fce64a00bc",
+      "21310004",
+      "56f482717f9848c8a1b8b72b76bb454e",
+      "21310005",
+      "67a9ac8ff6954c80b8c1b0d3f5429bc6",
+      "21310006",
+      "04badcf67a184167a5d53c2f3fef4eb4",
+      "21310007",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/AlphaCentauri.png.meta",
+    "guid": "fca6da91d8b7476a9a0bd33e035488f2",
+    "spriteIDs": [
+      "f28e7080a2de41cab339dacdaa45b641",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/AzurePool.png.meta",
+    "guid": "6b5ddbd033f8438aaf2b992dc309a3c8",
+    "spriteIDs": [
+      "73db263e023b4daf90187cb9d65ba9d1",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/DawnRing.png.meta",
+    "guid": "33672915634f4813a4b3e7dc3a90b9d8",
+    "spriteIDs": [
+      "0c22e31f1f9b4111ac24040c35f02ac0",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/HeliosCore.png.meta",
+    "guid": "b3d320856db649e29a75089142ec218b",
+    "spriteIDs": [
+      "9ee9c1aae97247098f814f800460b613",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/ProximaB.png.meta",
+    "guid": "29498a76ce484c6b995857a551a7d48f",
+    "spriteIDs": [
+      "56f80760eaff496aaa5dc8b6b22dfb14",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/ShardCrown.png.meta",
+    "guid": "36fdd11242714532a0d7126ed7a69b44",
+    "spriteIDs": [
+      "d4ae68b59612423b8d93bb9962600f41",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/SiriusResourceBelt.png.meta",
+    "guid": "c9a8463de142464da2ef4d9c0fc45db5",
+    "spriteIDs": [
+      "4d6d12ff2f6142af9ea677af4c58ea4f",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/TauCetiFoundry.png.meta",
+    "guid": "a4fa5b0b1db14b97b4348e25be3a717a",
+    "spriteIDs": [
+      "8ed079b883ab454ea9edfefae509251d",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/Terminus.png.meta",
+    "guid": "03bb04c511d74459988a3b75a06caf04",
+    "spriteIDs": [
+      "026b6fc9668143d3a73e91bc0b328c8b",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Sector/ThunderGate.png.meta",
+    "guid": "aae1a343a69140c99c359328792a605f",
+    "spriteIDs": [
+      "479e62a0b4c04aee8dd0815cf2cc419a",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_BeyondTheSky_16_Main.png.meta",
+    "guid": "8fc2d7708be7c9f4d89ed59f46b645a3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_FirstFire_01_Main.png.meta",
+    "guid": "fb400c8cab191324ab69d7d73951fd90",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_FrontierSectors_14_Main.png.meta",
+    "guid": "0423c46117b17354d9aa65f9bb949cb5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_IndustrialAwakening_08_Main.png.meta",
+    "guid": "19da5321e702acb4a9d3dc6d8e040daf",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_IndustrialChemistry_12_Main.png.meta",
+    "guid": "2f7db591af5620c419123dd660403506",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_IndustrialFrontier_13_Main.png.meta",
+    "guid": "98c425839c4e2324f83dd815f42e8212",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_IndustrialMaterials_11_Main.png.meta",
+    "guid": "66261483cd13f7449a8ada409893bf6f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_IndustrialPower_10_Main.png.meta",
+    "guid": "63529807103573042973b538c7dc1fd0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_MedievalOrder_07_Main.png.meta",
+    "guid": "8df13522c2d0a9a4e80fa8fd200555a2",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_PrologueAshes_00_Main.png.meta",
+    "guid": "3fef305c3ce311045a6f3181d66ef563",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_RememberedKnowledge_04_Main.png.meta",
+    "guid": "84eac729f8f715c4d9dc7f2bb5c95d9e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_StoneAgeReturn_06_Main.png.meta",
+    "guid": "f7ed570e958849646a6c5f5689ac9543",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_TheFirstChain_05_Main.png.meta",
+    "guid": "991e94cd86b84f5439d9ef11b6a36643",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_TheGrowingClan_03_Main.png.meta",
+    "guid": "67768720c792fcf4dadff5a60741a7a6",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_TheOldBoundary_17_Main.png.meta",
+    "guid": "a0ed6e1a455ce5f468cf66be06750ea4",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_WallsAndShelter_02_Main.png.meta",
+    "guid": "ee903de2e096fe046bd775b88ae14ce8",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_WarBetweenStars_15_Main.png.meta",
+    "guid": "de93ce6960c460348bf3d1f66af8e39c",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Story/Story_WorkshopMemory_09_Main.png.meta",
+    "guid": "d104111f35110194798dcaca84366b67",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/ResearchGraphPanel.png.meta",
+    "guid": "fad9ff9e942846d48bdd1943cfd915e6",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AdaptiveArmorRepairSystems.png.meta",
+    "guid": "3ac5335ae4ce782498a841658e3e0f49",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AdvancedCeramicFiring.png.meta",
+    "guid": "eda2e0a894258cb4999fe3b77f0b6b57",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AdvancedCompositeLayup.png.meta",
+    "guid": "237419dfc89aeb0448ba1abe655baa6c",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AdvancedMetalElectrolyticCells.png.meta",
+    "guid": "71d5a53311b22b24689fcdd29794b434",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AgriculturalMachinery.png.meta",
+    "guid": "3aa7b807479a0bd44a147421fc638d87",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AtmosphereCompositionControlArray.png.meta",
+    "guid": "280a97aea93808b49a8bb04ebbff2217",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutomatedFleetResupplyModules.png.meta",
+    "guid": "d40b379d5e037954bab737e20eb8bb3b",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutomatedShipyardAssembly.png.meta",
+    "guid": "14900e78cd0563c47b067898af7bb1ff",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutonomousFleetLogistics.png.meta",
+    "guid": "f245b7fc86537ad4597686881a3c0217",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutonomousMatterOrchestration.png.meta",
+    "guid": "0f7891ffe3d96af4cb342f88c66be2d3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutonomousOrbitalMiningSystems.png.meta",
+    "guid": "6d5163842bcdc6e47b15770e90f12557",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/AutonomousSurveyDrones.png.meta",
+    "guid": "f24327cf09a0e7e41a29572e5c554dec",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/BlockSignalling.png.meta",
+    "guid": "c112d7562d6a1044fb9228b5aba77fdf",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/CampaignTimingCalibrationBench.png.meta",
+    "guid": "adf2d2f901e42914c8d023092974ed9a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ChlorideReductionRetorts.png.meta",
+    "guid": "fa81815102e30054581f48e1bb7ca800",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ClosedLoopBiosecurityModules.png.meta",
+    "guid": "bb07b92c00b867b45910ff7cccf5f5d9",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/CokeOvenOptimization.png.meta",
+    "guid": "ad04ca2e995b3e849ba64dba81bbc1e4",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ColonialAssemblyCouncilTerminal.png.meta",
+    "guid": "bcf9621bb8637ad4889f605d7fc16384",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ConcreteBatching.png.meta",
+    "guid": "1bbd93d91e249ef41b54792c5a12c85a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ConductiveBusbars.png.meta",
+    "guid": "88fada7fed42639479a40485d4439fb6",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ContinuousCultureBioreactors.png.meta",
+    "guid": "5acc6a4e4b4bcb74d841855fc91de646",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ContinuousDistillation.png.meta",
+    "guid": "618d566fc547fe947847b0bbf78eab4d",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ControlledBlasting.png.meta",
+    "guid": "0688cf7bf6851934497828ba47b23632",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ControlledMatterTransmutation.png.meta",
+    "guid": "3b82b940326c44446b9ac5b786d03c14",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ConveyorSystems.png.meta",
+    "guid": "efee8363601077e4ea6ae650cc1514ef",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/CryogenicFuelSystems.png.meta",
+    "guid": "dadecedb47e599940aa58464987c8f6d",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DeepSpaceInfrastructureMaintenanceConsole.png.meta",
+    "guid": "44cecbf61f9f3b741a2d5399ae404494",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DeepSpaceNetworkAutomation.png.meta",
+    "guid": "475feff7605777043b6263db101bc1d2",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DeepSpaceThermalControlArray.png.meta",
+    "guid": "83bd091d445c51e4289b03ec19f733a1",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DraftingTables.png.meta",
+    "guid": "7d0cbbf93ae6ce7488c7bac8cdaf6160",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DysonCollectorFleet.png.meta",
+    "guid": "c2eedfc44e9c26f4f89ac06d3f45eef7",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DysonControlNetwork.png.meta",
+    "guid": "d602bafeae74b2644b3d97c4da10adad",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/DysonStellarBelt.png.meta",
+    "guid": "ecc96346102f7634487ef8b346e18bfd",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ElectricalInstrumentation.png.meta",
+    "guid": "0192f342be3ee5f4e8fbe0491873ec49",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/EnzymaticConversionSystems.png.meta",
+    "guid": "88e0787cd31746242b7e8e049222c35e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/FuelInjection.png.meta",
+    "guid": "364e8cac5d591874bb2a3b12ab3e1663",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/GravitationalWaveReceiverArray.png.meta",
+    "guid": "69e1a3f6ecc304a48a84025f8026b984",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/GravityAssistTrajectoryPlanner.png.meta",
+    "guid": "6b01420a9873aab4eb9fdccc41a556b5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/HighPressureTurbines.png.meta",
+    "guid": "99ddc5af9a671494eb264f8307c1103b",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/HotBlastStoves.png.meta",
+    "guid": "efd4ec6e59e92a54ba6cd244a716c415",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/IndustrialFoodProcessEngineering.png.meta",
+    "guid": "463e9027b68e840429b07c5f4338b0aa",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/IndustrialHousingStandards.png.meta",
+    "guid": "79388e3a757292c43a9456ea1e61adf2",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/IndustrialResearchCoordinationCenter.png.meta",
+    "guid": "c30d9dafa5c2de74290082dbfdc69685",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InsulatedWindings.png.meta",
+    "guid": "0161fb90663bb074c9c5583b88354e8f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/IntegratedDeepSpaceProductionControl.png.meta",
+    "guid": "4b1225e212db5424b9882399dd68ffa4",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/IntegratedFurnaces.png.meta",
+    "guid": "646374741404f284db06efb59f4c69ef",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarCombatSupplySystems.png.meta",
+    "guid": "71e219718dfb16b439fc475ee1ad655a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarOccupationGovernance.png.meta",
+    "guid": "1ec5f76bdaae7544eb3cff4606495df0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarResearchCoordinationArray.png.meta",
+    "guid": "8739eda1d1bbbab4a87b705ac8d54bab",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarSecurityGateway.png.meta",
+    "guid": "257bdd896fbc40e459876d4088f56f14",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarSupplyDoctrine.png.meta",
+    "guid": "73a3af9a96f1bb24191dadbcada679cc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/InterstellarSupplyMesh.png.meta",
+    "guid": "08f7f55f3ae6ca6438092e5ba1b2a8c9",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/LaboratoryGlassware.png.meta",
+    "guid": "76bd18c11686af2449cf25f17bedb218",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/LightAlloyFrames.png.meta",
+    "guid": "417b2109710f4e141a8ea8cf9a62a01f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/MechanicalLooms.png.meta",
+    "guid": "a8b19c9f3c41a4241b34909eabad1f8b",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/MechanizedForestryEquipment.png.meta",
+    "guid": "158fd1073d8615e4488ffd4672732657",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/MetalOreSeparationSystem.png.meta",
+    "guid": "e1ec5d8d031f7664eab1fcb27ff1980c",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ModularHabitatSystems.png.meta",
+    "guid": "6f67a31f59a25c84b9316a3455c106b1",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ModularMatterAssembly.png.meta",
+    "guid": "4fe916551e711fb47bae254eb7e0019d",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalAgroponicSystems.png.meta",
+    "guid": "031e3660329f8ad4cb370adde9301f74",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalCarbonizationProcessControl.png.meta",
+    "guid": "7b3d03769821ec440a87d9115d4b612b",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalLifeSupportNetworks.png.meta",
+    "guid": "7397740df76ddf24a9284e212bbf0dea",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalLoadTestingRig.png.meta",
+    "guid": "42ee901613c03494b8c4bdb93682a464",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalPowerBeaming.png.meta",
+    "guid": "7f8de1bc6a0daf94c829c05d43b08a5b",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalPowerGridStabilization.png.meta",
+    "guid": "19b4d01f4e70c3d48ba0c782069c8ecc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalTextileLooms.png.meta",
+    "guid": "c4cd58867fb3a4b42848100db0eba4e4",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalThermalManagement.png.meta",
+    "guid": "bc73ca538afbf9a43ba6a90c3329e6a9",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalTrafficSchedulingArray.png.meta",
+    "guid": "c7ff4cb2f5fecbb489fe7447ddc37e8f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/OrbitalVacuumFurnaces.png.meta",
+    "guid": "6b41f45390aadce40b4ddbaafd077e70",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhantomAlloyRecrystallization.png.meta",
+    "guid": "b3ddb7030b9f72144be309042fb719de",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhantomWeaveLattice.png.meta",
+    "guid": "254967b1e4f989c48bad788b8e6ad921",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhaseCognitiveCompute.png.meta",
+    "guid": "daae46e608e9c594cab65d7f50c82bf0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhaseFieldContainment.png.meta",
+    "guid": "9d5f4fb6806c7e442ab150a25921efaf",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhaseMaterialCalibration.png.meta",
+    "guid": "519a80eb62f8049488a1de89b992fd0e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PhaseMaterialDurabilityCalibration.png.meta",
+    "guid": "27d0774169025004bb9f8098247f2036",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PlanetaryCoreAnalysisBench.png.meta",
+    "guid": "3b10563d44272d54cb09a6de638006eb",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PoweredMining.png.meta",
+    "guid": "4fe82b07d5cc2b146a9f15c0a578e85f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PrecisionTooling.png.meta",
+    "guid": "4084cefa85bc9c24f8b9bbb0e37824e1",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PressureLeachingElectrowinningSystem.png.meta",
+    "guid": "487a1b912c7727543ad95e380d3e6e87",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/PressurizedReactors.png.meta",
+    "guid": "2cf6af4d9e458d54a9538bff64de6de2",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/QuantumErrorCorrection.png.meta",
+    "guid": "3cb505e2d8a66344ebbfa73742959831",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/RedundantNavigationControl.png.meta",
+    "guid": "0f1625596fbda2e4984a5502bb5a0b5f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ReinforcedBoilers.png.meta",
+    "guid": "789b4c3d9c45d8541b709e24a677a68e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ReusableLaunchStages.png.meta",
+    "guid": "aa2b1d615fb8c364ebcad1fc449f6e86",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/RotaryDrillingHeads.png.meta",
+    "guid": "fa7d5ba3141425646a81ed1c96005c9c",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/RotaryKilns.png.meta",
+    "guid": "51a1ff0ea2318be4b8cca7d0330915bb",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/SolarWindMonitoringArray.png.meta",
+    "guid": "cce25f2b4b84c9b43bbe33031cde0a46",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/StandardizedFreightContainers.png.meta",
+    "guid": "01493a988805fe2488fc1e744fce3e4e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ThunderCryogenicSeparation.png.meta",
+    "guid": "f0a1ac595628f7e47ae485314c42ddf8",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ThunderOrbitalLoadingRing.png.meta",
+    "guid": "232cce0b68485224dadf374abfa0751f",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/ThunderParallelRefining.png.meta",
+    "guid": "37b90a383f56ab545b4ecfce3b308567",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/WorkshopIcons/VacuumArcFurnace.png.meta",
+    "guid": "c7991da3e025a534d97275262c36a9c4",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Backgrounds/ContentSlate.png.meta",
+    "guid": "2fba11f10f22a0d4393ddcde1bc82dbc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Backgrounds/KingdomEnvironment.png.meta",
+    "guid": "6bbc597bc2fe0364b82ba7c69c6f5033",
+    "spriteIDs": [
+      "b1c415fe242deeed0800000000000000",
+      "-2382735967907656677",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Backgrounds/NavigationTimber.png.meta",
+    "guid": "1ab98d96f7791364698895c96c23d1bd",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Buttons/ActionWood.png.meta",
+    "guid": "f3f95346185aaee4c928dd6fb6c35160",
+    "spriteIDs": [
+      "6749718dc00027460800000000000000",
+      "7237847606302839926",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Buttons/ControlMetal.png.meta",
+    "guid": "f2c1f8bb8f0dab84f9209c37702c160f",
+    "spriteIDs": [
+      "c5d18db5ef7419da0800000000000000",
+      "-5939887275736818340",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Buttons/NavigationStone.png.meta",
+    "guid": "a7f90725e2b5a9b4a8d654f26e284c45",
+    "spriteIDs": [
+      "1f0cf0e352ea3cce0800000000000000",
+      "-1386072785321737999",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Animal.png.meta",
+    "guid": "44c3628c721940b41920ef203266cd78",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Archotech.png.meta",
+    "guid": "3b5998a62101fc24084c6ea7b6e0fe02",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Industrial.png.meta",
+    "guid": "64ee831dc6ea46d4bba141c8960b5bdc",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Medieval.png.meta",
+    "guid": "261b0d9c3117b724da4bb3c076ed25c3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Spacer.png.meta",
+    "guid": "51516ca1fd266fc4c91f604d24c406b0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/StoneAge.png.meta",
+    "guid": "4945153ca0350e241b105bb2ecb3169d",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/EraCards/Ultra.png.meta",
+    "guid": "039b114b829650b4ba126ce7f17e6048",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Pins/PinFilled.png.meta",
+    "guid": "ed5dcbde52a79684da09875acca3f0b3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Pins/PinOutline.png.meta",
+    "guid": "0429b62127e5dac4eb8646a634ed7e14",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Sectors/SectorGlowRail.png.meta",
+    "guid": "4e51c029cd97ca543a4191e7aa476239",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Sectors/SectorStarfield.png.meta",
+    "guid": "e2cb5994e5f72604d84961e7d49113f5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Status/BuildingStatusAtlas.png.meta",
+    "guid": "2873454337b14ca6847375134c5c1905",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Story/StoryButtonHighlight.png.meta",
+    "guid": "553aab4e5cdd6a342bd35ba035efa758",
+    "spriteIDs": [
+      "0a6809bbe92136e40800000000000000",
+      "5648378830613677728",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/UI/Story/StoryButtonNormal.png.meta",
+    "guid": "c56b5f7c3f382c34b9a12d78b16019f2",
+    "spriteIDs": [
+      "837b232005781be60800000000000000",
+      "7976305192753870648",
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/ClayPit.png.meta",
+    "guid": "b134c4b72bdb4216adaab47ef9349ae4",
+    "spriteIDs": [
+      "d83d660e766d42e5a50d6a3306f174f1",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/Farm.png.meta",
+    "guid": "f4bacf9b1d99437d9f2437584bb4e2e4",
+    "spriteIDs": [
+      "8bc854c7b0b549828e39982a99491ca1",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/FiberGatheringCamp.png.meta",
+    "guid": "063f6ac1ef4d4cf8b20e160ced61ae26",
+    "spriteIDs": [
+      "883394de1a2344709eb52aa6761f5a39",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/KnowledgeCircle.png.meta",
+    "guid": "a60e9bc2561d4b969e867d72a9030db7",
+    "spriteIDs": [
+      "804da886f11349159597ef0f118f23d3",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/Lumberyard.png.meta",
+    "guid": "fc4076392d014ae392114dcf09e33199",
+    "spriteIDs": [
+      "73905d6db2664e1bbb79992ce5f184e9",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/Quarry.png.meta",
+    "guid": "40699a410187408ea350fdc82cc4bcb0",
+    "spriteIDs": [
+      "baf269df6bdd45878d2f634053eea9cd",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/Smokehouse.png.meta",
+    "guid": "efe9c18051cb4aeeb721043966a28ece",
+    "spriteIDs": [
+      "bce9380a737847a5a7360a5386595396",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/StoneCuttingWorkshop.png.meta",
+    "guid": "5e806ea8472a4aa197dfce3a0095276b",
+    "spriteIDs": [
+      "5e3fdc2390524a8c85869bde98464b22",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Animal/WoodHouse.png.meta",
+    "guid": "1938bcd3d6f64154a8f77fbe1c0b951f",
+    "spriteIDs": [
+      "4e233dd362ab46c694d82a8054e1d163",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/AdvancedCeramicsPlant.png.meta",
+    "guid": "b411e9ab12310d443a9cf546d6e57716",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/AdvancedMetalRefinery.png.meta",
+    "guid": "93529a629be745b2b8c1097f24a1e0e3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/AdvancedMetalSmelter.png.meta",
+    "guid": "9900fa66e7694ad6837f3e87c7c83df5",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/BuildingMaterialsComplex.png.meta",
+    "guid": "4e9f579164b740f5a69310ac20fa620a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/CentralPowerStation.png.meta",
+    "guid": "bbeaa1c41cc0495d957b1e3c7be458df",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/ChemicalPlant.png.meta",
+    "guid": "237fb3c6d770414991ee9327c56c65ee",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/CokeOven.png.meta",
+    "guid": "ce5d3d8fcd504ad3a76c85b1acc3c67e",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IndustrialCarbonizationRetort.png.meta",
+    "guid": "40b63d1e662c4871a11c84e9f996294a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IndustrialHabitationComplex.png.meta",
+    "guid": "0057cf8b672c4dd6999ac7fbfd29beaa",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IndustrialMetalSmelter.png.meta",
+    "guid": "7d3a942042f54b598d2b59c226f58626",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IndustrialOilExtractionComplex.png.meta",
+    "guid": "661e46f4aa4c479eb27d89823fa122ed",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IndustrialStoneworks.png.meta",
+    "guid": "0da221bf081c4c33b54df67cb8a14ba0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IntegratedMetalMine.png.meta",
+    "guid": "d8a856e54e8147fcad681474c3146cba",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/IntegratedPetrochemicalComplex.png.meta",
+    "guid": "a7f0a3707fda45aeb674667bf3e7ac9d",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/MachineFactory.png.meta",
+    "guid": "63f7608ba61f47e4b288dacb74e6a2ba",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/MechanizedCoalMine.png.meta",
+    "guid": "a34f2da32e1c424982895aa7a708beb0",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/MechanizedLumberyard.png.meta",
+    "guid": "dc7133b948564b62aaf4988c682634c9",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/MechanizedTextileMill.png.meta",
+    "guid": "82f9d89d1a6540a79f5673b2da5b6c29",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/OilDerrick.png.meta",
+    "guid": "0f09924f6d494de1a67d7c1b382b8006",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/OilRefinery.png.meta",
+    "guid": "ab95e082aa814e89ba51f76fa2199e50",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/PlantingField.png.meta",
+    "guid": "de94b8f0af654237b6f8f7b96560412a",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/RailHub.png.meta",
+    "guid": "c29bb15d0df148f49f50533ca2e11565",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/SteamPlant.png.meta",
+    "guid": "65d3e36fffb04350a4ad5b7084d5f894",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/TitaniumAlloySmelter.png.meta",
+    "guid": "c2af14d074354f04bc3b083a887e6f17",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/University.png.meta",
+    "guid": "f856adc099ab4dc18a6b98b768625042",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Industrial/WireMill.png.meta",
+    "guid": "dd5c0b85e6044e76ab4bd00f9329ddf3",
+    "spriteIDs": [
+      "5e97eb03825dee720800000000000000",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Medieval/Academy.png.meta",
+    "guid": "5d8849fc4c5f427ea2e7c200b7ebb376",
+    "spriteIDs": [
+      "e20a658d7c044cb3af4f4f3555ab6d53",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Medieval/Caravanserai.png.meta",
+    "guid": "36cc6e7f33ec44f981dc303e2d6d0cba",
+    "spriteIDs": [
+      "25767099bd2c4806bfd873a193b52ee0",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Medieval/Library.png.meta",
+    "guid": "26b100e75b6c48588207ebc312218f68",
+    "spriteIDs": [
+      "54305ccb41c14ef19604ac916775f8e6",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Medieval/SteelForge.png.meta",
+    "guid": "5607c6220250407bb9315e571c92b0ad",
+    "spriteIDs": [
+      "e6f04ab9ddae4b4287b2434223abf11e",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Medieval/TownHouse.png.meta",
+    "guid": "5398308fe7c748029886068fd592b145",
+    "spriteIDs": [
+      "0c1ba2c5779a4868a2b029b02d37564a",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/AzureIceSeaArk.png.meta",
+    "guid": "456707a4148d4ea49b72e51ae3f67df5",
+    "spriteIDs": [
+      "02349228f65448c486d05cc1e2eaa40b",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/DawnDysonSphere.png.meta",
+    "guid": "cca3e7d26f0643df9deff0da66b3605b",
+    "spriteIDs": [
+      "c3c30b3c8bec47a3a7b14ad4136a9db9",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/DawnOrbitalObservatory.png.meta",
+    "guid": "e28534ca75d14dd8b796ab48f4219277",
+    "spriteIDs": [
+      "fa1351cdfdfc4c76a77d78aad13b40f4",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/DeepSpaceObservatory.png.meta",
+    "guid": "2caab121c0d84ad1a9fec7c6dfc0f48a",
+    "spriteIDs": [
+      "0e11d1dcac474172b512cf07991d0ccd",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/DeepSpaceRelay.png.meta",
+    "guid": "f6e150dccd3449138ed8e10ecdc92c20",
+    "spriteIDs": [
+      "b8e1880ec8354729862731d5fda59519",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/EarthMoonLogisticsHub.png.meta",
+    "guid": "ba22eb3f53434d6786bb7124b3948a6e",
+    "spriteIDs": [
+      "e92d303f80aa4abb920f8fa40dbe4ad6",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/HeliosPowerArray.png.meta",
+    "guid": "51df3a96277a496ca13d08e15b6d2675",
+    "spriteIDs": [
+      "f41227ae09ce41eba33e2aea73faa93f",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/InterstellarTheoryNexus.png.meta",
+    "guid": "9d06ccdd399347e3b7d88b55da6a26e1",
+    "spriteIDs": [
+      "7e9e8b8c5651459c9ac9ba644d4dd9b4",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/LaunchCenter.png.meta",
+    "guid": "ee96ac43ccd3451699052fc8f454708e",
+    "spriteIDs": [
+      "8f62fb2fde134b8db7aee060cdb42526",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalAgroecologyArray.png.meta",
+    "guid": "d20f2499e98e43bc8a94fe281b33b50a",
+    "spriteIDs": [
+      "43b1249170574c55a6de6a371ffe960c",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalBuildingMaterialsWorks.png.meta",
+    "guid": "55b3b5f4fde54bb093556cc59b0a6e36",
+    "spriteIDs": [
+      "6348191fc7914627833a434ba7be585c",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalCarbonizationComplex.png.meta",
+    "guid": "fd8a8366b4a441478bb6eb2079d806f3",
+    "spriteIDs": [
+      "05da29761f8245b9afea3aad8d1ce9f7",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalCryogenicPropellantArray.png.meta",
+    "guid": "274838077337472aa7868c1d969e54fe",
+    "spriteIDs": [
+      "f139c4fb719e4dc289aa04ca70403b4e",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalHabitatMegastructure.png.meta",
+    "guid": "14dba5896e3c400793a731df98b22193",
+    "spriteIDs": [
+      "e32ce7cc8749492884da6412344e2b09",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalMachiningComplex.png.meta",
+    "guid": "6a19ea895e794d7fba669a6f0a45604d",
+    "spriteIDs": [
+      "491ee4d85ff9496e96d97c2abdd52b76",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalResourceExtractionArray.png.meta",
+    "guid": "dd1c57ac2b584c4e80ff7a1770434aa0",
+    "spriteIDs": [
+      "44bdf76dc6214e46b41c7828a25332b5",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalSolarArray.png.meta",
+    "guid": "666e693184614725b16e78319e7b740b",
+    "spriteIDs": [
+      "6ed59e8c575948ada9074816ac4e4b81",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalStation.png.meta",
+    "guid": "703c447ffa044f7688fa83223a707e63",
+    "spriteIDs": [
+      "639a0e9177544083bc1de72ac3368f69",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/OrbitalWireWorks.png.meta",
+    "guid": "2deaf9e2d1c1453f97981670ea9d874d",
+    "spriteIDs": [
+      "68d89af8e01d437685111433cf238655",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/PhantomMaterialsFabricator.png.meta",
+    "guid": "58c9de341998480d9a1226d908bd1999",
+    "spriteIDs": [
+      "7512cbf28fa940b19281e72d0411c669",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/PhaseMaterialSynthesisArray.png.meta",
+    "guid": "893f7ae0fde24185a1ea19edaa1c1131",
+    "spriteIDs": [
+      "251e3fce77b840d98c23670f89a7ee44",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/QuantumComputingArray.png.meta",
+    "guid": "0590d4165c2c4fb0b920d7e542767cfa",
+    "spriteIDs": [
+      "39c414b42b904851a05e92c203de113a",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/ShardCrownOreSorter.png.meta",
+    "guid": "0efae75a8b944ed7ac428de09ba82e82",
+    "spriteIDs": [
+      "0554973c502f4bc89f02c745e0a480b9",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/Shipyard.png.meta",
+    "guid": "e4a210a105f247b4a83ed6b194fa50c4",
+    "spriteIDs": [
+      "9b023592f4fc4089a571c9cc26969447",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/TerminusMaterialsWorks.png.meta",
+    "guid": "db905fdb427d48d5870340db6ef4d158",
+    "spriteIDs": [
+      "65de35aa8cbf446c8033f2a760be016b",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Spacer/ThunderGatePropellantWorks.png.meta",
+    "guid": "c2b9e5f8d2cb482497b1de5b49e191b6",
+    "spriteIDs": [
+      "4e6cca8f9887460598afd4b3b726ffb0",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/CeramicKiln.png.meta",
+    "guid": "370fa7d5f4bc442fb4df5afcf0718e14",
+    "spriteIDs": [
+      "6433820ec3004477b8d5d0d0b4ac4463",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/CharcoalKiln.png.meta",
+    "guid": "f7f9968f346d44668deb963579ebb130",
+    "spriteIDs": [
+      "bcba21ac7bc64f0eb3957e9a182dd6e6",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/CoalMine.png.meta",
+    "guid": "5d2c661ac6474c26a586f80b51a6cf0a",
+    "spriteIDs": [
+      "7178a2c010a54ed18bac015e6ee77c54",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/Granary.png.meta",
+    "guid": "fe2b95ba857f44e295a35db2c6171d6b",
+    "spriteIDs": [
+      "4dc1d0df8f054af5b57b1eb18c85b9f1",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/IrrigationWorks.png.meta",
+    "guid": "299af7312d204bb58ba678c38e99c899",
+    "spriteIDs": [
+      "c03dfc86f15d480e8db691dcdff8f7d5",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/MetalMine.png.meta",
+    "guid": "606e0d6a084d4915b51310498f18fc86",
+    "spriteIDs": [
+      "ba7bbf4935b2452db1e507731e34c544",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/MetalSmelter.png.meta",
+    "guid": "23d2b885340046a9bcf5090d734f7b43",
+    "spriteIDs": [
+      "9b24f35fffbf45f98265f0723f330d41",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/ScribeHut.png.meta",
+    "guid": "952385ea27904135b9278830b832c0d8",
+    "spriteIDs": [
+      "7f4c7bb151ca4740b5106adfa6c04a90",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/StoneHouse.png.meta",
+    "guid": "b485363cf5344f36bf1f4ce9cff16585",
+    "spriteIDs": [
+      "0b9b35b3065a403b935db34ddbb3b0ca",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/StoneAge/WeavingWorkshop.png.meta",
+    "guid": "56eff08ee56e4baa90cac0c3a7075995",
+    "spriteIDs": [
+      "7aa17b1761714755aefe114e66834692",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Ultra/AutonomousMatterFabricator.png.meta",
+    "guid": "3e535cc41cfb4a1ba7d719b0d4e1e728",
+    "spriteIDs": [
+      "12c2651a8fc6481eaad300144a3bf711",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Ultra/PhaseEnergyArray.png.meta",
+    "guid": "5bdc904b04a74895901acf4b262f927b",
+    "spriteIDs": [
+      "7abfacaade7148fbbbe42b56acbfdbe4",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Resources/Art/Building/Ultra/UltraComputingNexus.png.meta",
+    "guid": "9ec7185f0842463da6bd98a3c7ad131a",
+    "spriteIDs": [
+      "d07873a471d5448986ce8a62d0cb4bdb",
+      "0"
+    ]
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Alive.ogg.meta",
+    "guid": "dc9ed491acc993540ad246729f879aab",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Ambition.ogg.meta",
+    "guid": "722f5331d2f6d4949a6bc7f79437608b",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/EverythingsGoingToBeOkay.ogg.meta",
+    "guid": "7a69a705b95b6df4a8737a5d0c082896",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Honor.ogg.meta",
+    "guid": "250ed482645d8404fbad2bfba4a6985e",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Legacy.ogg.meta",
+    "guid": "76e5afe93474c6541b411464024bdff4",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Muffalo.ogg.meta",
+    "guid": "257760232b939834690d8cf170bd79ed",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/OneCanDreamToFly.ogg.meta",
+    "guid": "66def5159c357f04bb35ba0698f4d26b",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/OnTheRoad.ogg.meta",
+    "guid": "d3f76c5364499314e9b8834d88c81ae8",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/ProtectOurHome.ogg.meta",
+    "guid": "a9ccfad372646374e852b86505b8e276",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Rimmas.ogg.meta",
+    "guid": "0cf77a307c660e0499583b517559f01b",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Rimraid.ogg.meta",
+    "guid": "6ce0c6741f9b39c4b8c1b6af81dae9f0",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/AllTime/Spacekattommy.ogg.meta",
+    "guid": "8155a61bb7c949848bcdfe743c35fd75",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/APlaceOfOurOwn.ogg.meta",
+    "guid": "6af8c9ca64b63944faa2a1cdf4916f8a",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/AteWithoutTable.ogg.meta",
+    "guid": "4740f175457111e42a0cab3d597c4281",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/BackInTheSaddle.ogg.meta",
+    "guid": "d960a4f9b99784042ab200f30c356084",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/BackToWork.ogg.meta",
+    "guid": "7ed21ff2821e39c48a8386c867bc66ac",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/BrightSideOfLife.ogg.meta",
+    "guid": "7e06b9c6adbb55741917d8117e831327",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/FairGlade.ogg.meta",
+    "guid": "682c41776d136664781e9709b801c109",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/LovelyDay.ogg.meta",
+    "guid": "105a0f59769766a49bd5ff8aae4db52d",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/Move.ogg.meta",
+    "guid": "fd130a48006aa70488051e7d953d2be3",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/MyFriend.ogg.meta",
+    "guid": "db952cbc0fae05a49bbf138894c0fe17",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/RusticRanching.ogg.meta",
+    "guid": "a8c6e0d2b89518d4587717f90838d507",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/SimpleLife.ogg.meta",
+    "guid": "e5047133ca9dea745b012f7b91f50fa2",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/Sunlight.ogg.meta",
+    "guid": "4e2f8649bb9fc9b4784b07fb2d323b76",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/United.ogg.meta",
+    "guid": "a1ea0f467c38c024f80b4c248c9997d5",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Day/WhatWeOnceHad.ogg.meta",
+    "guid": "1481089910a3d994fb818f13188622cd",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Blue.ogg.meta",
+    "guid": "ca9046cb52f9ff941ab51db7d95ea3a7",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/FarAway.ogg.meta",
+    "guid": "f82123dd45f14a74f8960d523eedef7c",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Illusion.ogg.meta",
+    "guid": "e91f7677754a2a347b83eac04aed2dba",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/LongWayHome.ogg.meta",
+    "guid": "22df5719d6200ca43871bf625d090aa1",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/NeverForgotten.ogg.meta",
+    "guid": "b4af07633b3ffc14da9e7ca168d0d6ed",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Nimbostratus.ogg.meta",
+    "guid": "21877aa5ee1966944916804233be1081",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Odyssey.ogg.meta",
+    "guid": "c90c1b1ebf263684aa5f18e867680e39",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/OneThousandStars.ogg.meta",
+    "guid": "43b725a803e3e6a42ab88a7338d45f68",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Passenger.ogg.meta",
+    "guid": "ddf77c0c86fc6a04e9c89f40de0ee1b2",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/RememberOurPast.ogg.meta",
+    "guid": "f065f3072a2d7a04ab1ad9f21d030d45",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/SereneNight.ogg.meta",
+    "guid": "f6611d1c661f51e4ebeea8a3ec093e25",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Serenity.ogg.meta",
+    "guid": "a505680e60304954991b34219755a9c2",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/Solitude.ogg.meta",
+    "guid": "48322a59cee1d55409175351d2e06c56",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/StrangeFeeling.ogg.meta",
+    "guid": "be7cc38bb6fb84442abec5a1326b7471",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Night/TheFallen.ogg.meta",
+    "guid": "937abbf536e21d449a2c9270cab48809",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/CarryOn.ogg.meta",
+    "guid": "819ea3ad9ae02124d9b188dfd8b1601f",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/CodeRed.ogg.meta",
+    "guid": "e8fcbd5cbd59d104eb556320df108372",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/CruelWorld.ogg.meta",
+    "guid": "9a20a6b345b42c54a9db39961c2baab2",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/Delusion.ogg.meta",
+    "guid": "c0c9bc3692d1e884d8a607d62ee93986",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/FinalStand.ogg.meta",
+    "guid": "196e1803df683a243b4b0e1f0fd785fe",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/HoldOn.ogg.meta",
+    "guid": "33da9c3c1cdfc4048905c56f2251fa7b",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/LoneHunter.ogg.meta",
+    "guid": "e3e0ca6aa48368a499f4b870f29da7d5",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/Outlaw.ogg.meta",
+    "guid": "96dbdc29e63f3284f8541e85f54058b7",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/Rise.ogg.meta",
+    "guid": "126b1faee43277e43a240e83a4faf14f",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/StayStrong.ogg.meta",
+    "guid": "800e15a2ea182c8428357e882b764ba9",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/ToughLife.ogg.meta",
+    "guid": "397d3d3384c4deb45944d918e8223fd4",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/Triumph.ogg.meta",
+    "guid": "8f3cdf8823fb93a47a84c51915fcc477",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/TrustMe.ogg.meta",
+    "guid": "3339d32619146774cad89100effd606e",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/Valiant.ogg.meta",
+    "guid": "afbf232e4e6078c46852f75bfea04f85",
+    "spriteIDs": []
+  },
+  {
+    "path": "Assets/Musics/PMusic/Tense/WeWill.ogg.meta",
+    "guid": "746c1839cad7dc04e8a854dda9d43db4",
+    "spriteIDs": []
+  }
+]

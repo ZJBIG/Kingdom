@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Kingdom.EditorTools
 {
-    [CustomPropertyDrawer(typeof(Pair<Resource, ExpantaNum>))]
+    [CustomPropertyDrawer(typeof(Pair<ResourceDef, ExpantaNum>))]
     public sealed class ResourceExpantaNumPairDrawer : PropertyDrawer
     {
         private const float Gap = 6f;

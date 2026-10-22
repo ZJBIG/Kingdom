@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc5040d1cb167245a5b3cfed0296900, type: 3}
+  m_Name: ThunderParallelRefining
+  m_EditorClassIdentifier: 
+  id: ThunderParallelRefining
+  icon: {fileID: 21300000, guid: 37b90a383f56ab545b4ecfce3b308567, type: 3}
+  Label: "雷门推进剂基地：并联精馏阵列"
+  Description: "增设并联精馏与热交换阵列，回收原有流程中未利用的组分，继续提高燃料产出效率；维护配方由基地统一承担。"
+  SortOrder: 551
+  TechLevel: 4
+  requiredResearch:
+  - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}
+  requiredUpgrades:
+  - {fileID: 11400000, guid: 785dcac134bc4901a886522e75ee6784, type: 2}
+  requiredBuilding: {fileID: 11400000, guid: 08251377a2624ef2a6a920f42d693ab2, type: 2}
+  requiredSector: {fileID: 11400000, guid: a8b7c6d5e4f302918273645546372810, type: 2}
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "96000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "16000"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "30000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "20000"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "24000"
+  - resource: {fileID: 11400000, guid: 4c4b74868294c8244bb871228399a59e, type: 2}
+    amount: "16000"
+  - resource: {fileID: 11400000, guid: c0d5c94e253ab6346bb66ba0149828aa, type: 2}
+    amount: "12000"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "18000"
+  effects:
+  - Type: 0
+    Building: {fileID: 11400000, guid: 08251377a2624ef2a6a920f42d693ab2, type: 2}
+    Resource: {fileID: 0}
+    value: "3"

@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45a0d5d64f04e8f9a1a9a768bf40c21, type: 3}
+  m_Name: ThunderGatePropellantWorks
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: c2b9e5f8d2cb482497b1de5b49e191b6, type: 3}
+  id: ThunderGatePropellantWorks
+  Label: "雷门推进剂基地：大气采集平台"
+  Description: "雷门环唯一的推进剂基地。首批采集平台配有低温试验线，立即生产火箭燃料；继续投资低温分离、并联精馏与轨道装载环，可提高燃料效率和物流供给。扩建复用现有维护配方，需要持续供电和补给。"
+  TechLevel: 4
+  upgradeTo: {fileID: 0}
+  costGrowth: "1.25"
+  spaceCost: "0"
+  productivityConsumption: "746.666666666667"
+  powerConsumptionRate: "460"
+  logisticsProductionRate: "16"
+  logisticsConsumptionRate: "54.666666666667"
+  resourceRequirements:
+  - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
+    amount: "42000"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "5400"
+  - resource: {fileID: 11400000, guid: 58c01a80982138348ac6ee3b3a5eb80b, type: 2}
+    amount: "10000"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "5600"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "6600"
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "4200"
+  resourceGenerationRates:
+  - resource: {fileID: 11400000, guid: 7290adf4d8f7f384b838e5e7fa5ccdd9, type: 2}
+    amount: "32"
+  resourceConsumptionRates:
+  - resource: {fileID: 11400000, guid: e2c10f3ce1c7662429e2ecccf775bc8a, type: 2}
+    amount: "4"
+  - resource: {fileID: 11400000, guid: 16fc78f2a1a42f34082a13ff9bcea0f3, type: 2}
+    amount: "0.146666666666667"
+  - resource: {fileID: 11400000, guid: c808958905a95a542b1920651b42ab84, type: 2}
+    amount: "0.153333333333333"
+  - resource: {fileID: 11400000, guid: e6db015a2dcff3a48bb70de20cf6e719, type: 2}
+    amount: "0.02"
+  - resource: {fileID: 11400000, guid: 368963e163df7904b9e0282d7da20ac4, type: 2}
+    amount: "0.2"
+  requiredResearch:
+  - {fileID: 11400000, guid: 1d6f4b8a2c9e47f0b5d3a7c1e8f6b204, type: 2}
+  - {fileID: 11400000, guid: c5d6e7f8091a2b3c4d5e6f708192a4b5, type: 2}
+  requiredWorkshopUpgrades: []
+  sector: {fileID: 11400000, guid: a8b7c6d5e4f302918273645546372810, type: 2}
+  maxAmount: 1
+  requiresInteriorExploration: 1

@@ -70,6 +70,6 @@ MonoBehaviour:
     amount: "2.4"
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 29498a76ce484c6b995857a551a7d48f, type: 3}
   mapX: 13
   mapY: 5

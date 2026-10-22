@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ElectricalInstrumentation
   m_EditorClassIdentifier: 
   id: ElectricalInstrumentation
+  icon: {fileID: 21300000, guid: 0192f342be3ee5f4e8fbe0491873ec49, type: 3}
   Label: "\u7535\u6C14\u4EEA\u8868"
   Description: "监测电压、温度与转速，提高中央发电站的发电量和现代大学的研究力。"
   SortOrder: 150

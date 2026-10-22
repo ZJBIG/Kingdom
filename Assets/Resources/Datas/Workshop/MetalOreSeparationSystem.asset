@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MetalOreSeparationSystem
   m_EditorClassIdentifier: 
   id: MetalOreSeparationSystem
+  icon: {fileID: 21300000, guid: e1ec5d8d031f7664eab1fcb27ff1980c, type: 3}
   Label: "金属矿选矿机组"
   Description: "改进深层矿物破碎、分级和重选工艺，提高综合金属矿场的三档矿石产出，支撑工业与钛合金加工。"
   SortOrder: 340

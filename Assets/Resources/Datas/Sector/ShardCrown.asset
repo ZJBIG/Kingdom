@@ -31,6 +31,6 @@ MonoBehaviour:
   campaignProgressMultiplier: "0"
   repeatable: 0
   background: {fileID: 0}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 36fdd11242714532a0d7126ed7a69b44, type: 3}
   mapX: 8
   mapY: 3

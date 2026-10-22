@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OilDerrick
   m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 0f09924f6d494de1a67d7c1b382b8006, type: 3}
   id: OilDerrick
   Label: "\u77F3\u6CB9\u94BB\u4E95"
   Description: "钻入地下油层，持续开采原油，供应炼油厂和化工厂；运行需要电力与物流。"

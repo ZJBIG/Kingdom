@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutomatedFleetResupplyModules
   m_EditorClassIdentifier: 
   id: AutomatedFleetResupplyModules
+  icon: {fileID: 21300000, guid: d40b379d5e037954bab737e20eb8bb3b, type: 3}
   Label: "\u81ea\u52a8\u5316\u8230\u961f\u8865\u7ed9\u6a21\u5757"
   Description: "\u5c06\u8865\u7ed9\u8231\u3001\u7ef4\u4fee\u9884\u7f6e\u4e0e\u914d\u9001\u8c03\u5ea6\u6a21\u5757\u5316\uff0c\u8ba9\u661f\u9645\u8fdc\u5f81\u4ee5\u66f4\u4f4e\u7684\u8d44\u6e90\u6d88\u8017\u6301\u7eed\u3002"
   SortOrder: 670

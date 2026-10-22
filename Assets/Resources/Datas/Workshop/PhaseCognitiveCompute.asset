@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhaseCognitiveCompute
   m_EditorClassIdentifier: 
   id: PhaseCognitiveCompute
+  icon: {fileID: 21300000, guid: daae46e608e9c594cab65d7f50c82bf0, type: 3}
   Label: "相位认知计算"
   Description: "以相位稳定阵列共享计算任务，提高全局研究效率。"
   SortOrder: 730

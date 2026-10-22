@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: IndustrialHousingStandards
   m_EditorClassIdentifier: 
   id: IndustrialHousingStandards
+  icon: {fileID: 21300000, guid: 79388e3a757292c43a9456ea1e61adf2, type: 3}
   Label: "工业住宅标准"
   Description: "以标准户型、供水和集中供暖改善定居条件，提高人口增长速度。"
   SortOrder: 375

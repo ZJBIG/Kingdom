@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CokeOvenOptimization
   m_EditorClassIdentifier: 
   id: CokeOvenOptimization
+  icon: {fileID: 21300000, guid: ad04ca2e995b3e849ba64dba81bbc1e4, type: 3}
   Label: "\u7126\u7089\u6D41\u7A0B\u4F18\u5316"
   Description: "以预热、密封和副产物回收改进焦化工艺，提高各条产线的焦炭产出。"
   SortOrder: 115

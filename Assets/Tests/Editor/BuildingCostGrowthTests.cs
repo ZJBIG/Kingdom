@@ -58,28 +58,28 @@ public sealed class BuildingCostGrowthTests
     [Test]
     public void BuildingChain_AllowsMultipleBranchesToShareOneUpgradeTarget()
     {
-        Building branchA = CreateBuilding("BranchA");
-        Building branchB = CreateBuilding("BranchB");
-        Building sharedTarget = CreateBuilding("SharedTarget");
+        BuildingDef branchA = CreateBuilding("BranchA");
+        BuildingDef branchB = CreateBuilding("BranchB");
+        BuildingDef sharedTarget = CreateBuilding("SharedTarget");
         branchA.SetUpgradeToForEditor(sharedTarget);
         branchB.SetUpgradeToForEditor(sharedTarget);
 
         Assert.DoesNotThrow(() => BuildingManager.ValidateBuildingChains(
-            new List<Building> { branchA, branchB, sharedTarget }));
+            new List<BuildingDef> { branchA, branchB, sharedTarget }));
     }
 
     [Test]
     public void AllBuildings_DoNotSerializeTheSameResourceAsProductionAndConsumption()
     {
         Assert.DoesNotThrow(() => BuildingManager.ValidateMergedResourceFlows(
-            DataBase<Building>.All));
+            DataBase<BuildingDef>.All));
     }
 
     [Test]
     public void BuildingDefinition_RejectsUnmergedOpposingResourceFlows()
     {
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
-        Building building = CreateBuilding("UnmergedResourceFlow");
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
+        BuildingDef building = CreateBuilding("UnmergedResourceFlow");
         createdObjects.Add(resource);
         building.ConfigureEconomyForEditor(
             new ExpantaNum(1.1d), ExpantaNum.Zero, ExpantaNum.Zero,
@@ -87,9 +87,9 @@ public sealed class BuildingCostGrowthTests
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>> { new(resource, ExpantaNum.One) },
-            new List<Pair<Resource, ExpantaNum>> { new(resource, ExpantaNum.One) });
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>> { new(resource, ExpantaNum.One) },
+            new List<Pair<ResourceDef, ExpantaNum>> { new(resource, ExpantaNum.One) });
 
         Assert.Throws<System.InvalidOperationException>(() =>
             BuildingManager.ValidateMergedResourceFlows(new[] { building }));
@@ -99,18 +99,18 @@ public sealed class BuildingCostGrowthTests
     public void BuildingChainIndex_PreservesAllSharedTargetPredecessors()
     {
         CreateManager<GameManager>("SharedTarget-GameManager");
-        Building branchA = CreateBuilding("IndexedBranchA");
-        Building branchB = CreateBuilding("IndexedBranchB");
-        Building sharedTarget = CreateBuilding("IndexedSharedTarget");
+        BuildingDef branchA = CreateBuilding("IndexedBranchA");
+        BuildingDef branchB = CreateBuilding("IndexedBranchB");
+        BuildingDef sharedTarget = CreateBuilding("IndexedSharedTarget");
         branchA.SetUpgradeToForEditor(sharedTarget);
         branchB.SetUpgradeToForEditor(sharedTarget);
 
         BuildingManager manager = CreateManager<BuildingManager>("SharedTarget-ChainManager");
         manager.RebuildBuildingChainIndexForEditor(
-            new List<Building> { branchA, branchB, sharedTarget });
+            new List<BuildingDef> { branchA, branchB, sharedTarget });
 
         Assert.That(manager.GetChainPredecessorCountForEditor(sharedTarget), Is.EqualTo(2));
-        Assert.That(manager.TryGetUnlockedUpgradeTarget(branchA, out Building target), Is.False);
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(branchA, out BuildingDef target), Is.False);
         Assert.That(target, Is.Null);
         manager.EnsureBuilding(branchA).SetAmountForEditor(ExpantaNum.One);
         manager.EnsureBuilding(branchB).SetAmountForEditor(ExpantaNum.One);
@@ -125,15 +125,15 @@ public sealed class BuildingCostGrowthTests
     {
         CreateManager<GameManager>("LinearChain-GameManager");
         BuildingManager manager = CreateManager<BuildingManager>("LinearChain-Manager");
-        Building a = CreateBuilding("LinearA");
-        Building b = CreateBuilding("LinearB");
-        Building c = CreateBuilding("LinearC");
-        Building d = CreateBuilding("LinearD");
+        BuildingDef a = CreateBuilding("LinearA");
+        BuildingDef b = CreateBuilding("LinearB");
+        BuildingDef c = CreateBuilding("LinearC");
+        BuildingDef d = CreateBuilding("LinearD");
         a.SetUpgradeToForEditor(b);
         b.SetUpgradeToForEditor(c);
         c.SetUpgradeToForEditor(d);
 
-        manager.RebuildBuildingChainIndexForEditor(new List<Building> { a, b, c, d });
+        manager.RebuildBuildingChainIndexForEditor(new List<BuildingDef> { a, b, c, d });
         manager.EnsureBuilding(a);
         manager.EnsureBuilding(b);
         manager.EnsureBuilding(c);
@@ -151,16 +151,16 @@ public sealed class BuildingCostGrowthTests
     {
         CreateManager<GameManager>("HighestZero-GameManager");
         BuildingManager manager = CreateManager<BuildingManager>("HighestZero-Manager");
-        Building x1 = CreateBuilding("HighestZeroX1");
-        Building x2 = CreateBuilding("HighestZeroX2");
-        Building x3 = CreateBuilding("HighestZeroX3");
-        Building x4 = CreateBuilding("HighestZeroX4");
+        BuildingDef x1 = CreateBuilding("HighestZeroX1");
+        BuildingDef x2 = CreateBuilding("HighestZeroX2");
+        BuildingDef x3 = CreateBuilding("HighestZeroX3");
+        BuildingDef x4 = CreateBuilding("HighestZeroX4");
         x1.SetUpgradeToForEditor(x2);
         x2.SetUpgradeToForEditor(x3);
         x3.SetUpgradeToForEditor(x4);
         x4.TechLevel = TechLevel.Spacer;
 
-        manager.RebuildBuildingChainIndexForEditor(new List<Building> { x1, x2, x3, x4 });
+        manager.RebuildBuildingChainIndexForEditor(new List<BuildingDef> { x1, x2, x3, x4 });
         manager.EnsureBuilding(x1).SetAmountForEditor(ExpantaNum.One);
         manager.EnsureBuilding(x2);
         manager.EnsureBuilding(x3);
@@ -171,7 +171,7 @@ public sealed class BuildingCostGrowthTests
         Assert.That(manager.ShouldDisplay(x2), Is.False);
         Assert.That(manager.ShouldDisplay(x3), Is.True);
         Assert.That(manager.ShouldDisplay(x4), Is.False);
-        Assert.That(manager.TryGetUnlockedUpgradeTarget(x1, out Building target), Is.True);
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(x1, out BuildingDef target), Is.True);
         Assert.That(target, Is.SameAs(x3));
         Assert.That(manager.CanConstructNew(x3), Is.True);
     }
@@ -181,11 +181,11 @@ public sealed class BuildingCostGrowthTests
     {
         CreateManager<GameManager>("SkipTier-GameManager");
         BuildingManager manager = CreateManager<BuildingManager>("SkipTier-Manager");
-        Building x1 = CreateBuilding("SkipX1");
-        Building x2 = CreateBuilding("SkipX2");
-        Building x3 = CreateBuilding("SkipX3");
-        Building x4 = CreateBuilding("SkipX4");
-        Building x5 = CreateBuilding("SkipX5");
+        BuildingDef x1 = CreateBuilding("SkipX1");
+        BuildingDef x2 = CreateBuilding("SkipX2");
+        BuildingDef x3 = CreateBuilding("SkipX3");
+        BuildingDef x4 = CreateBuilding("SkipX4");
+        BuildingDef x5 = CreateBuilding("SkipX5");
         x1.SetUpgradeToForEditor(x2);
         x2.SetUpgradeToForEditor(x3);
         x3.SetUpgradeToForEditor(x4);
@@ -194,7 +194,7 @@ public sealed class BuildingCostGrowthTests
         x5.TechLevel = TechLevel.Spacer;
 
         manager.RebuildBuildingChainIndexForEditor(
-            new List<Building> { x1, x2, x3, x4, x5 });
+            new List<BuildingDef> { x1, x2, x3, x4, x5 });
         manager.EnsureBuilding(x1).SetAmountForEditor(ExpantaNum.One);
         manager.EnsureBuilding(x2);
         manager.EnsureBuilding(x3).SetAmountForEditor(ExpantaNum.One);
@@ -212,9 +212,9 @@ public sealed class BuildingCostGrowthTests
         Assert.That(manager.ShouldDisplay(x3), Is.True);
         Assert.That(manager.ShouldDisplay(x4), Is.True);
         Assert.That(manager.ShouldDisplay(x5), Is.False);
-        Assert.That(manager.TryGetUnlockedUpgradeTarget(x1, out Building x1Target), Is.True);
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(x1, out BuildingDef x1Target), Is.True);
         Assert.That(x1Target, Is.SameAs(x4));
-        Assert.That(manager.TryGetUnlockedUpgradeTarget(x3, out Building x3Target), Is.True);
+        Assert.That(manager.TryGetUnlockedUpgradeTarget(x3, out BuildingDef x3Target), Is.True);
         Assert.That(x3Target, Is.SameAs(x4));
         Assert.That(manager.CanConstructNew(x4), Is.True);
     }
@@ -229,8 +229,8 @@ public sealed class BuildingCostGrowthTests
         GameManager.Instance.State.RestorePopulationForEditor(new ExpantaNum(20));
         CompleteResearch(researchManager, "Agriculture");
 
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building farm = DataBase<Building>.Find("Farm");
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
         resourceManager.AddAmount(wood, new ExpantaNum(1000));
         ExpantaNum amountBeforeBuild = resourceManager.GetAmount(wood);
 
@@ -257,7 +257,7 @@ public sealed class BuildingCostGrowthTests
             CreateManager<BuildingManager>("FarmVisibility-BuildingManager");
         ResearchManager researchManager =
             CreateManager<ResearchManager>("FarmVisibility-ResearchManager");
-        Building farm = DataBase<Building>.Find("Farm");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
 
         Assert.That(buildingManager.ShouldDisplay(farm), Is.False);
         CompleteResearch(researchManager, "Agriculture");
@@ -275,8 +275,8 @@ public sealed class BuildingCostGrowthTests
         CreateManager<GameManager>("HugeCount-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("HugeCount-ResourceManager");
         BuildingManager buildingManager = CreateManager<BuildingManager>("HugeCount-BuildingManager");
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building building = CreateTransactionBuilding("HugeCountTransaction", wood);
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef building = CreateTransactionBuilding("HugeCountTransaction", wood);
         BuildingState state = buildingManager.EnsureBuilding(building);
         state.SetAmountForEditor(new ExpantaNum("1e20"));
         resourceManager.SetAmount(wood, new ExpantaNum(1000));
@@ -309,9 +309,9 @@ public sealed class BuildingCostGrowthTests
         CreateManager<GameManager>("HugeUpgrade-GameManager");
         ResourceManager resourceManager = CreateManager<ResourceManager>("HugeUpgrade-ResourceManager");
         BuildingManager buildingManager = CreateManager<BuildingManager>("HugeUpgrade-BuildingManager");
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building source = CreateTransactionBuilding("HugeUpgradeSource", wood);
-        Building target = CreateTransactionBuilding("HugeUpgradeTarget", wood);
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef source = CreateTransactionBuilding("HugeUpgradeSource", wood);
+        BuildingDef target = CreateTransactionBuilding("HugeUpgradeTarget", wood);
         source.SetUpgradeToForEditor(target);
         buildingManager.RebuildBuildingChainIndexForEditor(new[] { source, target });
         BuildingState sourceState = buildingManager.EnsureBuilding(source);
@@ -322,7 +322,7 @@ public sealed class BuildingCostGrowthTests
         ExpantaNum previousSource = sourceState.Amount;
         ExpantaNum previousTarget = targetState.Amount;
         ExpantaNum previousWood = resourceManager.GetAmount(wood);
-        var deltas = new List<Pair<Resource, ExpantaNum>>();
+        var deltas = new List<Pair<ResourceDef, ExpantaNum>>();
 
         Assert.That(buildingManager.GetUpgradeFailure(source, ExpantaNum.One), Is.EqualTo(BuildFailure.InvalidAmount));
         Assert.That(buildingManager.GetMaxUpgradeable(source, ExpantaNum.One), Is.EqualTo(ExpantaNum.Zero)); // Discrete count.
@@ -335,14 +335,14 @@ public sealed class BuildingCostGrowthTests
         Assert.That(resourceManager.GetAmount(wood).ApproximatelyEquals(previousWood), Is.True);
     }
 
-    private Building CreateTransactionBuilding(string id, Resource resource)
+    private BuildingDef CreateTransactionBuilding(string id, ResourceDef resource)
     {
-        Building building = CreateBuilding(id);
+        BuildingDef building = CreateBuilding(id);
         building.ConfigureEconomyForEditor(
             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            new List<Pair<Resource, ExpantaNum>> { new(resource, new ExpantaNum(10)) },
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>());
+            new List<Pair<ResourceDef, ExpantaNum>> { new(resource, new ExpantaNum(10)) },
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>());
         return building;
     }
 
@@ -353,9 +353,9 @@ public sealed class BuildingCostGrowthTests
         return gameObject.AddComponent<T>();
     }
 
-    private Building CreateBuilding(string id)
+    private BuildingDef CreateBuilding(string id)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.SetIdForEditor(id);
         createdObjects.Add(building);
         return building;
@@ -364,7 +364,7 @@ public sealed class BuildingCostGrowthTests
     private static void CompleteResearch(ResearchManager manager, string id)
     {
         EnsureInitialized(manager);
-        ResearchState state = manager.GetState(DataBase<Research>.Find(id));
+        ResearchState state = manager.GetState(DataBase<ResearchDef>.Find(id));
         state.SetStatusForEditor(ResearchStatus.Completed);
     }
 

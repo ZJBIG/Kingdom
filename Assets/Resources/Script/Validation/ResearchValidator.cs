@@ -3,7 +3,7 @@ using System.Text;
 
 public static class ResearchValidator
 {
-    public static bool ValidateNoCycles(IEnumerable<Research> researches, out string error)
+    public static bool ValidateNoCycles(IEnumerable<ResearchDef> researches, out string error)
     {
         if (researches == null)
         {
@@ -11,11 +11,11 @@ public static class ResearchValidator
             return false;
         }
 
-        var visiting = new HashSet<Research>();
-        var visited = new HashSet<Research>();
-        var path = new List<Research>();
+        var visiting = new HashSet<ResearchDef>();
+        var visited = new HashSet<ResearchDef>();
+        var path = new List<ResearchDef>();
 
-        foreach (Research research in researches)
+        foreach (ResearchDef research in researches)
         {
             if (!Visit(research, visiting, visited, path, out error))
                 return false;
@@ -26,10 +26,10 @@ public static class ResearchValidator
     }
 
     private static bool Visit(
-        Research research,
-        HashSet<Research> visiting,
-        HashSet<Research> visited,
-        List<Research> path,
+        ResearchDef research,
+        HashSet<ResearchDef> visiting,
+        HashSet<ResearchDef> visited,
+        List<ResearchDef> path,
         out string error)
     {
         if (research == null)
@@ -51,10 +51,10 @@ public static class ResearchValidator
         }
 
         path.Add(research);
-        var uniquePrerequisites = new HashSet<Research>();
+        var uniquePrerequisites = new HashSet<ResearchDef>();
         if (research.Prerequisites != null)
         {
-            foreach (Research prerequisite in research.Prerequisites)
+            foreach (ResearchDef prerequisite in research.Prerequisites)
             {
                 if (prerequisite == null)
                 {
@@ -87,7 +87,7 @@ public static class ResearchValidator
         return true;
     }
 
-    private static string BuildCycleError(List<Research> path, Research repeated)
+    private static string BuildCycleError(List<ResearchDef> path, ResearchDef repeated)
     {
         int start = path.IndexOf(repeated);
         if (start < 0)
@@ -106,7 +106,7 @@ public static class ResearchValidator
         return builder.ToString();
     }
 
-    private static string DisplayName(Research research)
+    private static string DisplayName(ResearchDef research)
     {
         if (research == null)
             return "<null>";

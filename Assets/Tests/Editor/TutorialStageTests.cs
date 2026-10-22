@@ -112,14 +112,14 @@ public sealed class TutorialStageTests
     public void BuildingPaymentWaitReleasesBlockingAndKeepsStageSkippable()
     {
         ResourceManager resources = host.GetComponent<ResourceManager>();
-        resources.SetAmount(DataBase<Resource>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
+        resources.SetAmount(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
         tutorial.EvaluateStage();
         tutorial.SkipCurrentStage();
         TutorialStageSnapshot building = tutorial.EvaluateStage();
         Assert.That(building.StageId, Is.EqualTo("building"));
         tutorial.RecordStagePageVisited(building.Page);
         tutorial.RecordStageTargetViewed(building.Page, building.TargetId);
-        foreach (Resource definition in DataBase<Resource>.All)
+        foreach (ResourceDef definition in DataBase<ResourceDef>.All)
             resources.SetAmount(definition, ExpantaNum.Zero);
         TutorialStageSnapshot waiting = tutorial.EvaluateStage();
         Assert.That(waiting.Action, Is.EqualTo(TutorialStageAction.Build));
@@ -132,7 +132,7 @@ public sealed class TutorialStageTests
     public void MissingBuildingTargetRebindsWithoutReportingCompletion()
     {
         ResourceManager resources = host.GetComponent<ResourceManager>();
-        resources.SetAmount(DataBase<Resource>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
+        resources.SetAmount(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
         tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             StagesInitialized = true,
@@ -146,7 +146,7 @@ public sealed class TutorialStageTests
         Assert.That(rebound.StageId, Is.EqualTo("building"));
         Assert.That(rebound.Action, Is.EqualTo(TutorialStageAction.Navigate));
         Assert.That(rebound.TargetId, Is.Not.EqualTo("removed-building"));
-        Assert.That(DataBase<Building>.TryFind(rebound.TargetId, out Building replacement), Is.True);
+        Assert.That(DataBase<BuildingDef>.TryFind(rebound.TargetId, out BuildingDef replacement), Is.True);
         Assert.That(host.GetComponent<BuildingManager>().CanConstructNew(replacement), Is.True);
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("building"));
     }

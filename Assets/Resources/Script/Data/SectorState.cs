@@ -3,6 +3,20 @@ using System;
 [Serializable]
 public sealed class SectorState
 {
+    private ExpantaNum interiorExplorationProgress;
+    private bool interiorExplorationActive;
+    private bool interiorExplorationPaused;
+    public ExpantaNum InteriorExplorationProgress => interiorExplorationProgress;
+    public bool InteriorExplorationActive => interiorExplorationActive;
+    public bool InteriorExplorationPaused => interiorExplorationPaused;
+    public bool InteriorExplorationCompleted => Definition.InteriorExploration != null && interiorExplorationProgress >= ExpantaNum.One;
+    internal void SetInteriorExploration(ExpantaNum progress, bool active, bool paused = false)
+    {
+        Change(ref interiorExplorationProgress, progress);
+        Change(ref interiorExplorationActive, active);
+        Change(ref interiorExplorationPaused, paused);
+    }
+
     private bool unlocked;
     private bool occupied;
     private bool colonizationActive;
@@ -12,7 +26,7 @@ public sealed class SectorState
     private ExpantaNum campaignCombatRatio;
     private int visitCount;
 
-    public SectorDefinition Definition { get; }
+    public SectorDef Definition { get; }
     public bool Unlocked => unlocked;
     public bool Occupied => occupied;
     public bool ColonizationActive => colonizationActive;
@@ -23,7 +37,7 @@ public sealed class SectorState
     public int VisitCount => visitCount;
     public int Version { get; private set; }
 
-    public SectorState(SectorDefinition definition)
+    public SectorState(SectorDef definition)
     {
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
         campaignProgress = ExpantaNum.Zero;
@@ -43,6 +57,7 @@ public sealed class SectorState
 
     internal void ResetForLoad()
     {
+        SetInteriorExploration(ExpantaNum.Zero, false);
         SetUnlocked(false);
         SetOccupied(false);
         SetColonizationActive(false);
@@ -131,6 +146,7 @@ public sealed class SectorState
     }
 
 #if UNITY_EDITOR
+    public void SetInteriorExplorationForEditor(ExpantaNum progress, bool active = false, bool paused = false) => SetInteriorExploration(progress, active, paused);
     public void SetUnlockedForEditor(bool value) => SetUnlocked(value);
     public void SetOccupiedForEditor(bool value) => SetOccupied(value);
     public void SetColonizationActiveForEditor(bool value) => SetColonizationActive(value);

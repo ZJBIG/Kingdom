@@ -27,7 +27,7 @@ public sealed class OfflineProgressSummaryTests
         game.InitializeNewGameForEditor();
         game.State.RestorePopulationForEditor(new ExpantaNum(2));
         game.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(2), ExpantaNum.Zero);
-        Building building = DataBase<Building>.Find("Lumberyard");
+        BuildingDef building = DataBase<BuildingDef>.Find("Lumberyard");
         Assert.That(building, Is.Not.Null);
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(building), ExpantaNum.One);
     }
@@ -42,7 +42,7 @@ public sealed class OfflineProgressSummaryTests
     [Test]
     public void ActualSettlement_CopiesResourceFoodAndPopulationDifferences()
     {
-        Resource wood = DataBase<Resource>.Find(ResourceManager.StartingResourceId);
+        ResourceDef wood = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
         ExpantaNum before = resources.GetAmount(wood);
         ExpantaNum foodBefore = game.State.FoodAmount;
         ExpantaNum populationBefore = game.State.Population.Population;
@@ -93,13 +93,13 @@ public sealed class OfflineProgressSummaryTests
     public void ActualResearchSettlement_ReportsOnlyCompletedResearchAndEndMaterialBlocker(bool supplied)
     {
         ResearchManager manager = ResearchManager.Instance;
-        Research definition = DataBase<Research>.Find("ControlledFire");
+        ResearchDef definition = DataBase<ResearchDef>.Find("ControlledFire");
         Assert.That(definition, Is.Not.Null);
         if (!supplied)
         {
-            Building lumberyard = DataBase<Building>.Find("Lumberyard");
+            BuildingDef lumberyard = DataBase<BuildingDef>.Find("Lumberyard");
             buildings.SetAmountAndRatesForEditor(buildings.GetState(lumberyard), ExpantaNum.Zero);
-            resources.SetAmount(DataBase<Resource>.Find(ResourceManager.StartingResourceId), ExpantaNum.Zero);
+            resources.SetAmount(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), ExpantaNum.Zero);
         }
         Assert.That(manager.EnqueueResearch(definition), Is.True);
         ResearchState research = manager.GetState(definition);
@@ -130,7 +130,7 @@ public sealed class OfflineProgressSummaryTests
         }
     }
 
-    private static OfflineResourceChange Find(OfflineProgressSummary summary, Resource resource)
+    private static OfflineResourceChange Find(OfflineProgressSummary summary, ResourceDef resource)
     {
         foreach (OfflineResourceChange change in summary.Resources)
             if (change.Resource == resource) return change;

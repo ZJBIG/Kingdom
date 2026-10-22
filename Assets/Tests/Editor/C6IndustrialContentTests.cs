@@ -9,14 +9,14 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void WorkshopPrerequisiteCyclesAreRejected()
     {
-        WorkshopUpgrade first = ScriptableObject.CreateInstance<WorkshopUpgrade>();
-        WorkshopUpgrade second = ScriptableObject.CreateInstance<WorkshopUpgrade>();
+        WorkshopUpgradeDef first = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
+        WorkshopUpgradeDef second = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
         first.SetIdForEditor("CycleWorkshopA");
         second.SetIdForEditor("CycleWorkshopB");
-        first.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { second },
-            new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-        second.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { first },
-            new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+        first.ConfigureForEditor(new List<ResearchDef>(), new List<WorkshopUpgradeDef> { second },
+            new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+        second.ConfigureForEditor(new List<ResearchDef>(), new List<WorkshopUpgradeDef> { first },
+            new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
 
         try
         {
@@ -35,25 +35,25 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void WorkshopPrerequisiteNullAndDuplicateEntriesAreRejected()
     {
-        WorkshopUpgrade upgrade = ScriptableObject.CreateInstance<WorkshopUpgrade>();
-        WorkshopUpgrade prerequisite = ScriptableObject.CreateInstance<WorkshopUpgrade>();
-        Research research = ScriptableObject.CreateInstance<Research>();
+        WorkshopUpgradeDef upgrade = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
+        WorkshopUpgradeDef prerequisite = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
+        ResearchDef research = ScriptableObject.CreateInstance<ResearchDef>();
         upgrade.SetIdForEditor("InvalidWorkshop");
         prerequisite.SetIdForEditor("WorkshopPrerequisite");
         research.SetIdForEditor("WorkshopResearch");
 
         try
         {
-            upgrade.ConfigureForEditor(new List<Research>(), new List<WorkshopUpgrade> { null },
-                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            upgrade.ConfigureForEditor(new List<ResearchDef>(), new List<WorkshopUpgradeDef> { null },
+                new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
             Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
                 new[] { upgrade, prerequisite }, out _), Is.False);
 
-            prerequisite.ConfigureForEditor(new List<Research> { research }, new List<WorkshopUpgrade>(),
-                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
-            upgrade.ConfigureForEditor(new List<Research>(),
-                new List<WorkshopUpgrade> { prerequisite, prerequisite },
-                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            prerequisite.ConfigureForEditor(new List<ResearchDef> { research }, new List<WorkshopUpgradeDef>(),
+                new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            upgrade.ConfigureForEditor(new List<ResearchDef>(),
+                new List<WorkshopUpgradeDef> { prerequisite, prerequisite },
+                new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
             Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
                 new[] { upgrade, prerequisite }, out string duplicateError), Is.False);
             Assert.That(duplicateError, Does.Contain("重复"));
@@ -69,20 +69,20 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void WorkshopResearchPrerequisiteNullAndDuplicateEntriesAreRejected()
     {
-        WorkshopUpgrade upgrade = ScriptableObject.CreateInstance<WorkshopUpgrade>();
-        Research first = ScriptableObject.CreateInstance<Research>();
+        WorkshopUpgradeDef upgrade = ScriptableObject.CreateInstance<WorkshopUpgradeDef>();
+        ResearchDef first = ScriptableObject.CreateInstance<ResearchDef>();
         upgrade.SetIdForEditor("InvalidResearchPrerequisites");
         first.SetIdForEditor("ResearchPrerequisiteA");
 
         try
         {
-            upgrade.ConfigureForEditor(new List<Research> { null }, new List<WorkshopUpgrade>(),
-                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            upgrade.ConfigureForEditor(new List<ResearchDef> { null }, new List<WorkshopUpgradeDef>(),
+                new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
             Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
                 new[] { upgrade }, out _), Is.False);
 
-            upgrade.ConfigureForEditor(new List<Research> { first, first }, new List<WorkshopUpgrade>(),
-                new List<Pair<Resource, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
+            upgrade.ConfigureForEditor(new List<ResearchDef> { first, first }, new List<WorkshopUpgradeDef>(),
+                new List<Pair<ResourceDef, ExpantaNum>>(), new List<WorkshopEffectDefinition>());
             Assert.That(EconomyDependencyValidator.ValidateWorkshopPrerequisitesForEditor(
                 new[] { upgrade }, out string duplicateError), Is.False);
             Assert.That(duplicateError, Does.Contain("重复"));
@@ -97,19 +97,19 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void EconomyDependencyValidationRejectsResearchCycles()
     {
-        Research first = ScriptableObject.CreateInstance<Research>();
-        Research second = ScriptableObject.CreateInstance<Research>();
+        ResearchDef first = ScriptableObject.CreateInstance<ResearchDef>();
+        ResearchDef second = ScriptableObject.CreateInstance<ResearchDef>();
         first.SetIdForEditor("EconomyCycleResearchA");
         second.SetIdForEditor("EconomyCycleResearchB");
-        first.SetPrerequisitesForEditor(new List<Research> { second });
-        second.SetPrerequisitesForEditor(new List<Research> { first });
+        first.SetPrerequisitesForEditor(new List<ResearchDef> { second });
+        second.SetPrerequisitesForEditor(new List<ResearchDef> { first });
 
         try
         {
             bool valid = EconomyDependencyValidator.Validate(
-                new List<Resource>(), new List<Building>(),
-                new List<Research> { first, second },
-                new List<WorkshopUpgrade>(), out string error);
+                new List<ResourceDef>(), new List<BuildingDef>(),
+                new List<ResearchDef> { first, second },
+                new List<WorkshopUpgradeDef>(), out string error);
             Assert.That(valid, Is.False);
             Assert.That(error, Does.Contain("EconomyCycleResearchA"));
         }
@@ -170,8 +170,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C602_IndustrialChemistryFollowsThePowerGridFoundation()
     {
-        Research chemistry = DataBase<Research>.Find("IndustrialChemistry");
-        Research powerGrid = DataBase<Research>.Find("PowerGridEngineering");
+        ResearchDef chemistry = DataBase<ResearchDef>.Find("IndustrialChemistry");
+        ResearchDef powerGrid = DataBase<ResearchDef>.Find("PowerGridEngineering");
 
         Assert.That(chemistry, Is.Not.Null);
         Assert.That(powerGrid, Is.Not.Null);
@@ -188,8 +188,8 @@ public sealed class C6IndustrialContentTests
             effect.Building.Id == "BuildingMaterialsComplex" &&
             effect.NumericValue.ToDouble() >= 1.05d));
 
-        Research electrical = DataBase<Research>.Find("ElectricalEngineering");
-        Research standardization = DataBase<Research>.Find("Standardization");
+        ResearchDef electrical = DataBase<ResearchDef>.Find("ElectricalEngineering");
+        ResearchDef standardization = DataBase<ResearchDef>.Find("Standardization");
         Assert.That(electrical, Is.Not.Null);
         Assert.That(standardization, Is.Not.Null);
         Assert.That(ContainsResearch(electrical.Prerequisites, chemistry), Is.False);
@@ -210,12 +210,12 @@ public sealed class C6IndustrialContentTests
         }
         Assert.That(standardizationImprovesRailHub, Is.True);
 
-        Assert.That(DataBase<Building>.Find("OilDerrick").RequiredResearch,
+        Assert.That(DataBase<BuildingDef>.Find("OilDerrick").RequiredResearch,
             Does.Contain(powerGrid));
-        Assert.That(DataBase<Building>.Find("IndustrialMetalSmelter").RequiredResearch,
+        Assert.That(DataBase<BuildingDef>.Find("IndustrialMetalSmelter").RequiredResearch,
             Does.Contain(powerGrid));
 
-        Building powerStation = DataBase<Building>.Find("CentralPowerStation");
+        BuildingDef powerStation = DataBase<BuildingDef>.Find("CentralPowerStation");
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "Steel"), Is.True);
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "Ceramic"), Is.True);
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "Coal"), Is.True);
@@ -228,9 +228,9 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C603_IndustrialResearchCoordinationExtendsModernUniversity()
     {
-        Research university = DataBase<Research>.Find("ModernUniversity");
-        Research coordination = DataBase<Research>.Find("IndustrialResearchCoordination");
-        WorkshopUpgrade center = DataBase<WorkshopUpgrade>.Find("IndustrialResearchCoordinationCenter");
+        ResearchDef university = DataBase<ResearchDef>.Find("ModernUniversity");
+        ResearchDef coordination = DataBase<ResearchDef>.Find("IndustrialResearchCoordination");
+        WorkshopUpgradeDef center = DataBase<WorkshopUpgradeDef>.Find("IndustrialResearchCoordinationCenter");
 
         Assert.That(university, Is.Not.Null);
         Assert.That(coordination, Is.Not.Null);
@@ -258,7 +258,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void ChemicalPlantConsumesCrudeOilAndCokeForIndustrialChemistry()
     {
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
         Assert.That(chemicalPlant, Is.Not.Null);
         Assert.That(FindRate(chemicalPlant.ResourceConsumptionRates, "CrudeOil"),
             Is.GreaterThan(0d));
@@ -273,7 +273,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C605_IndustrialMetalSmelterProducesBasicIngotsAndSteel()
     {
-        Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
+        BuildingDef smelter = DataBase<BuildingDef>.Find("IndustrialMetalSmelter");
         Assert.That(FindRate(smelter.ResourceGenerationRates, "BasicMetalIngot"), Is.GreaterThan(0d));
         Assert.That(FindRate(smelter.ResourceGenerationRates, "Steel"), Is.GreaterThan(0d));
         Assert.That(FindRate(smelter.ResourceConsumptionRates, "BasicMetalOre"), Is.GreaterThan(0d));
@@ -293,7 +293,7 @@ public sealed class C6IndustrialContentTests
 
         foreach (string buildingId in buildingIds)
         {
-            Building building = DataBase<Building>.Find(buildingId);
+            BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
             double input = building.ResourceConsumptionRates.Sum(x => x.Second.ToDouble());
             double output = building.ResourceGenerationRates.Sum(x => x.Second.ToDouble());
             Assert.That(output, Is.LessThanOrEqualTo(input + 0.0001d),
@@ -302,7 +302,7 @@ public sealed class C6IndustrialContentTests
 
         foreach (string buildingId in new[] { "MetalSmelter", "IndustrialMetalSmelter" })
         {
-            Building building = DataBase<Building>.Find(buildingId);
+            BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
             double metals = FindRate(building.ResourceGenerationRates, "BasicMetalIngot") +
                 FindRate(building.ResourceGenerationRates, "Steel");
             Assert.That(metals, Is.GreaterThan(0d));
@@ -315,8 +315,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C612_IndustrialMetalMineSuppliesThreeOreTiers()
     {
-        Building mine = DataBase<Building>.Find("IntegratedMetalMine");
-        WorkshopUpgrade separation = DataBase<WorkshopUpgrade>.Find("MetalOreSeparationSystem");
+        BuildingDef mine = DataBase<BuildingDef>.Find("IntegratedMetalMine");
+        WorkshopUpgradeDef separation = DataBase<WorkshopUpgradeDef>.Find("MetalOreSeparationSystem");
         Assert.That(mine.RequiredWorkshopUpgrades, Does.Contain(separation));
         foreach (string id in new[] { "BasicMetalOre", "AdvancedMetalOre", "SpecialMetalOre" })
             Assert.That(FindRate(mine.ResourceGenerationRates, id), Is.GreaterThan(0d), id);
@@ -327,7 +327,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 石器时代矿场统一供应低级金属矿()
     {
-        Building mine = DataBase<Building>.Find("MetalMine");
+        BuildingDef mine = DataBase<BuildingDef>.Find("MetalMine");
         Assert.That(FindRate(mine.ResourceGenerationRates, "BasicMetalOre"), Is.GreaterThan(0d));
         Assert.That(mine.ResourceGenerationRates.Count, Is.EqualTo(1),
             "Early mining supplies one shared basic ore inventory.");
@@ -336,8 +336,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void AdvancedMetalRefiningUpgradeKeepsOneInventoryAndProductivityEfficiency()
     {
-        Building lower = DataBase<Building>.Find("AdvancedMetalSmelter");
-        Building upper = DataBase<Building>.Find("AdvancedMetalRefinery");
+        BuildingDef lower = DataBase<BuildingDef>.Find("AdvancedMetalSmelter");
+        BuildingDef upper = DataBase<BuildingDef>.Find("AdvancedMetalRefinery");
         Assert.That(lower.UpgradeTo, Is.SameAs(upper));
         double lowerOutput = FindRate(lower.ResourceGenerationRates, "AdvancedMetalIngot");
         double upperOutput = FindRate(upper.ResourceGenerationRates, "AdvancedMetalIngot");
@@ -352,7 +352,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C613_PoweredMiningImprovesTheUnifiedIndustrialMine()
     {
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find("PoweredMining");
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find("PoweredMining");
         Assert.That(workshop, Is.Not.Null);
         Assert.That(HasBuildingEffect(workshop, "IntegratedMetalMine", 1.2d), Is.True);
         Assert.That(HasBuildingEffect(workshop, "MechanizedCoalMine", 1.2d), Is.True);
@@ -361,9 +361,9 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 工业多金属矿的研究与分离工艺都必须作用于同一上位矿场()
     {
-        Building mine = DataBase<Building>.Find("IntegratedMetalMine");
-        Research development = DataBase<Research>.Find("IntegratedMetalResourceDevelopment");
-        WorkshopUpgrade separation = DataBase<WorkshopUpgrade>.Find("MetalOreSeparationSystem");
+        BuildingDef mine = DataBase<BuildingDef>.Find("IntegratedMetalMine");
+        ResearchDef development = DataBase<ResearchDef>.Find("IntegratedMetalResourceDevelopment");
+        WorkshopUpgradeDef separation = DataBase<WorkshopUpgradeDef>.Find("MetalOreSeparationSystem");
 
         Assert.That(mine, Is.Not.Null);
         Assert.That(development, Is.Not.Null);
@@ -383,12 +383,12 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 工业综合矿场必须真正替代低级金属矿场()
     {
-        Building lower = DataBase<Building>.Find("MetalMine");
-        Building upper = DataBase<Building>.Find("IntegratedMetalMine");
+        BuildingDef lower = DataBase<BuildingDef>.Find("MetalMine");
+        BuildingDef upper = DataBase<BuildingDef>.Find("IntegratedMetalMine");
         Assert.That(lower.UpgradeTo, Is.SameAs(upper));
         Assert.That(FindRate(upper.ResourceGenerationRates, "BasicMetalOre"),
             Is.GreaterThan(FindRate(lower.ResourceGenerationRates, "BasicMetalOre")));
-        Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
+        BuildingDef smelter = DataBase<BuildingDef>.Find("IndustrialMetalSmelter");
         Assert.That(FindRate(upper.ResourceGenerationRates, "BasicMetalOre"),
             Is.GreaterThanOrEqualTo(FindRate(smelter.ResourceConsumptionRates, "BasicMetalOre")));
         Assert.That(FindRate(upper.ResourceGenerationRates, "AdvancedMetalOre"), Is.GreaterThan(0d));
@@ -415,30 +415,30 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 工业机械化煤矿替代基础煤矿并持续消耗炸药()
     {
-        Building coalMine = DataBase<Building>.Find("CoalMine");
-        Building mechanizedMine = DataBase<Building>.Find("MechanizedCoalMine");
+        BuildingDef coalMine = DataBase<BuildingDef>.Find("CoalMine");
+        BuildingDef mechanizedMine = DataBase<BuildingDef>.Find("MechanizedCoalMine");
         Assert.That(coalMine, Is.Not.Null);
         Assert.That(mechanizedMine.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(FindRate(mechanizedMine.ResourceGenerationRates, "Coal"), Is.GreaterThan(0d));
         Assert.That(FindRate(mechanizedMine.ResourceConsumptionRates, "Explosives"), Is.GreaterThan(0d));
-        Assert.That(mechanizedMine.RequiredResearch, Does.Contain(DataBase<Research>.Find("IndustrialExplosives")));
+        Assert.That(mechanizedMine.RequiredResearch, Does.Contain(DataBase<ResearchDef>.Find("IndustrialExplosives")));
         Assert.That(mechanizedMine.RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("ControlledBlasting")));
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("ControlledBlasting")));
     }
 
     [Test]
     public void 工业石材联合厂合并采石与切石并持续供给工业建筑()
     {
-        Building quarry = DataBase<Building>.Find("Quarry");
-        Building cutter = DataBase<Building>.Find("StoneCuttingWorkshop");
-        Building stoneworks = DataBase<Building>.Find("IndustrialStoneworks");
+        BuildingDef quarry = DataBase<BuildingDef>.Find("Quarry");
+        BuildingDef cutter = DataBase<BuildingDef>.Find("StoneCuttingWorkshop");
+        BuildingDef stoneworks = DataBase<BuildingDef>.Find("IndustrialStoneworks");
         Assert.That(quarry.UpgradeTo, Is.EqualTo(stoneworks));
         Assert.That(cutter.UpgradeTo, Is.EqualTo(stoneworks));
         Assert.That(FindRate(stoneworks.ResourceGenerationRates, "StoneChunk"), Is.GreaterThan(0d));
         Assert.That(FindRate(stoneworks.ResourceGenerationRates, "StoneBrick"), Is.GreaterThan(0d));
         Assert.That(FindRate(stoneworks.ResourceConsumptionRates, "Lubricant"), Is.GreaterThan(0d));
         Assert.That(FindRate(stoneworks.ResourceConsumptionRates, "Explosives"), Is.GreaterThan(0d));
-        Assert.That(DataBase<Research>.Find("ConcreteEngineering").Effects,
+        Assert.That(DataBase<ResearchDef>.Find("ConcreteEngineering").Effects,
             Has.Some.Matches<ResearchEffectDefinition>(effect =>
                 effect != null && effect.Building == stoneworks && effect.NumericValue.ToDouble() >= 1.1d));
     }
@@ -446,21 +446,21 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void AdvancedCeramicsPlantUsesItsClayExtractionAndCeramicPrerequisites()
     {
-        Building clayPit = DataBase<Building>.Find("ClayPit");
-        Building processingWorks = DataBase<Building>.Find("AdvancedCeramicsPlant");
+        BuildingDef clayPit = DataBase<BuildingDef>.Find("ClayPit");
+        BuildingDef processingWorks = DataBase<BuildingDef>.Find("AdvancedCeramicsPlant");
 
         Assert.That(clayPit, Is.Not.Null);
         Assert.That(processingWorks, Is.Not.Null);
         Assert.That(clayPit.UpgradeTo, Is.EqualTo(processingWorks));
         Assert.That(processingWorks.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(processingWorks.RequiredResearch,
-            Does.Contain(DataBase<Research>.Find("Industrialization")));
+            Does.Contain(DataBase<ResearchDef>.Find("Industrialization")));
         Assert.That(processingWorks.RequiredResearch,
-            Does.Contain(DataBase<Research>.Find("AdvancedCeramicEngineering")));
+            Does.Contain(DataBase<ResearchDef>.Find("AdvancedCeramicEngineering")));
         Assert.That(processingWorks.RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("RotaryKilns")));
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("RotaryKilns")));
         Assert.That(processingWorks.RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("ControlledBlasting")));
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("ControlledBlasting")));
         Assert.That(FindRate(processingWorks.ResourceGenerationRates, "Clay"),
             Is.GreaterThan(FindRate(clayPit.ResourceGenerationRates, "Clay")));
         Assert.That(FindRate(processingWorks.ResourceConsumptionRates, "Explosives"),
@@ -472,24 +472,24 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 工业石油开采综合体替代油井并持续维护石化供给()
     {
-        Building derrick = DataBase<Building>.Find("OilDerrick");
-        Building complex = DataBase<Building>.Find("IndustrialOilExtractionComplex");
+        BuildingDef derrick = DataBase<BuildingDef>.Find("OilDerrick");
+        BuildingDef complex = DataBase<BuildingDef>.Find("IndustrialOilExtractionComplex");
         Assert.That(derrick, Is.Not.Null);
         Assert.That(complex, Is.Not.Null);
         Assert.That(derrick.UpgradeTo, Is.EqualTo(complex));
         Assert.That(FindRate(complex.ResourceGenerationRates, "CrudeOil"), Is.GreaterThan(0d));
         Assert.That(FindRate(complex.ResourceConsumptionRates, "Lubricant"), Is.GreaterThan(0d));
         Assert.That(FindRate(complex.ResourceConsumptionRates, "Explosives"), Is.GreaterThan(0d));
-        Assert.That(complex.RequiredResearch, Does.Contain(DataBase<Research>.Find("DeepOilDrilling")));
+        Assert.That(complex.RequiredResearch, Does.Contain(DataBase<ResearchDef>.Find("DeepOilDrilling")));
         Assert.That(complex.RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("RotaryDrillingHeads")));
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("RotaryDrillingHeads")));
     }
 
     [Test]
     public void 一体化石油化工联合体集中输出燃料润滑剂与橡胶()
     {
-        Building refinery = DataBase<Building>.Find("OilRefinery");
-        Building complex = DataBase<Building>.Find("IntegratedPetrochemicalComplex");
+        BuildingDef refinery = DataBase<BuildingDef>.Find("OilRefinery");
+        BuildingDef complex = DataBase<BuildingDef>.Find("IntegratedPetrochemicalComplex");
         Assert.That(refinery, Is.Not.Null);
         Assert.That(complex, Is.Not.Null);
         Assert.That(refinery.UpgradeTo, Is.EqualTo(complex));
@@ -499,15 +499,15 @@ public sealed class C6IndustrialContentTests
         Assert.That(FindRate(complex.ResourceGenerationRates, "Chemical"), Is.GreaterThan(0d));
         Assert.That(FindRate(complex.ResourceConsumptionRates, "CrudeOil"), Is.GreaterThan(0d));
         Assert.That(FindRate(complex.ResourceConsumptionRates, "Chemical"), Is.LessThanOrEqualTo(0d));
-        Assert.That(complex.RequiredResearch, Does.Contain(DataBase<Research>.Find("IndustrialChemistry")));
+        Assert.That(complex.RequiredResearch, Does.Contain(DataBase<ResearchDef>.Find("IndustrialChemistry")));
         Assert.That(complex.RequiredWorkshopUpgrades,
-            Does.Contain(DataBase<WorkshopUpgrade>.Find("ContinuousDistillation")));
+            Does.Contain(DataBase<WorkshopUpgradeDef>.Find("ContinuousDistillation")));
     }
 
     [Test]
     public void C609_MachineFactoryStartsBeforeAdvancedMetalAndPetrochemicalSupply()
     {
-        Building factory = DataBase<Building>.Find("MachineFactory");
+        BuildingDef factory = DataBase<BuildingDef>.Find("MachineFactory");
         Assert.That(factory, Is.Not.Null, "机器制造厂定义不能为空。");
         Assert.That(FindRate(factory.ResourceGenerationRates, "Engine"), Is.GreaterThan(0d));
         foreach (string resourceId in new[] { "Rubber", "Lubricant", "AdvancedMetalIngot" })
@@ -518,17 +518,17 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void SpacerDemandReusesIndustrialWorkshopEfficiencyChains()
     {
-        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("PressurizedReactors"), "ChemicalPlant", 1.35d), Is.True);
-        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("ContinuousDistillation"), "IntegratedPetrochemicalComplex", 1.30d), Is.True);
-        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("InsulatedWindings"), "WireMill", 1.25d), Is.True);
-        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("PrecisionTooling"), "MachineFactory", 1.25d), Is.True);
-        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgrade>.Find("FuelInjection"), "MachineFactory", 1.25d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgradeDef>.Find("PressurizedReactors"), "ChemicalPlant", 1.35d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgradeDef>.Find("ContinuousDistillation"), "IntegratedPetrochemicalComplex", 1.30d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgradeDef>.Find("InsulatedWindings"), "WireMill", 1.25d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling"), "MachineFactory", 1.25d), Is.True);
+        Assert.That(HasBuildingEffect(DataBase<WorkshopUpgradeDef>.Find("FuelInjection"), "MachineFactory", 1.25d), Is.True);
     }
 
     [Test]
     public void C610_RailHubConsumesEnginesForLogistics()
     {
-        Building railHub = DataBase<Building>.Find("RailHub");
+        BuildingDef railHub = DataBase<BuildingDef>.Find("RailHub");
         Assert.That(railHub, Is.Not.Null, "铁路枢纽定义不能为空。");
         Assert.That(FindRate(railHub.ResourceConsumptionRates, "Engine"),
             Is.GreaterThan(0d), "铁路枢纽应持续消耗发动机来维持运输能力。");
@@ -569,7 +569,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialResearchGraphRetainsMeaningfulBranches()
     {
-        Research[] industrialResearch = DataBase<Research>.All
+        ResearchDef[] industrialResearch = DataBase<ResearchDef>.All
             .Where(research => research != null && research.TechLevel == TechLevel.Industrial)
             .ToArray();
 
@@ -593,20 +593,20 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void AgriculturalMachineryImprovesFoodBuildings()
     {
-        Assert.That(DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery").Effects.Any(
+        Assert.That(DataBase<WorkshopUpgradeDef>.Find("AgriculturalMachinery").Effects.Any(
             effect => effect.Type == WorkshopEffectType.GlobalFoodProductionMultiplier), Is.True);
     }
 
     [Test]
     public void IndustrialFoodProcessWorkshopsUseDistinctGlobalRolesAndEntryAccess()
     {
-        WorkshopUpgrade first = DataBase<WorkshopUpgrade>.Find(
+        WorkshopUpgradeDef first = DataBase<WorkshopUpgradeDef>.Find(
             "IndustrialFoodProcessEngineering");
-        WorkshopUpgrade second = DataBase<WorkshopUpgrade>.Find(
+        WorkshopUpgradeDef second = DataBase<WorkshopUpgradeDef>.Find(
             "EnzymaticConversionSystems");
-        WorkshopUpgrade third = DataBase<WorkshopUpgrade>.Find(
+        WorkshopUpgradeDef third = DataBase<WorkshopUpgradeDef>.Find(
             "ContinuousCultureBioreactors");
-        Research industrialWorkshop = DataBase<Research>.Find("IndustrialWorkshop");
+        ResearchDef industrialWorkshop = DataBase<ResearchDef>.Find("IndustrialWorkshop");
 
         Assert.That(first, Is.Not.Null);
         Assert.That(second, Is.Not.Null);
@@ -616,7 +616,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(second.RequiredUpgrades, Does.Contain(first));
         Assert.That(third.RequiredUpgrades, Does.Contain(second));
 
-        WorkshopUpgrade[] upgrades = { first, second, third };
+        WorkshopUpgradeDef[] upgrades = { first, second, third };
         for (int i = 0; i < upgrades.Length; i++)
         {
             Assert.That(upgrades[i].Effects, Has.Count.EqualTo(1));
@@ -643,8 +643,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void PlantingFieldMustOutproduceIrrigationWorksInBothAgriculturalOutputs()
     {
-        Building field = DataBase<Building>.Find("PlantingField");
-        Building irrigation = DataBase<Building>.Find("IrrigationWorks");
+        BuildingDef field = DataBase<BuildingDef>.Find("PlantingField");
+        BuildingDef irrigation = DataBase<BuildingDef>.Find("IrrigationWorks");
 
         Assert.That(field, Is.Not.Null);
         Assert.That(irrigation, Is.Not.Null);
@@ -656,9 +656,9 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 种植田必须在农业理论和农业机械工坊都完成后建造()
     {
-        Building field = DataBase<Building>.Find("PlantingField");
-        Research agriculture = DataBase<Research>.Find("IndustrialAgriculture");
-        WorkshopUpgrade machinery = DataBase<WorkshopUpgrade>.Find("AgriculturalMachinery");
+        BuildingDef field = DataBase<BuildingDef>.Find("PlantingField");
+        ResearchDef agriculture = DataBase<ResearchDef>.Find("IndustrialAgriculture");
+        WorkshopUpgradeDef machinery = DataBase<WorkshopUpgradeDef>.Find("AgriculturalMachinery");
 
         Assert.That(field, Is.Not.Null);
         Assert.That(agriculture, Is.Not.Null);
@@ -670,10 +670,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 医疗建筑删除后医学研究仍保留人口生产力效果()
     {
-        bool hospitalExists = DataBase<Building>.TryFind("Hospital", out Building hospital);
-        bool medicalCenterExists = DataBase<Building>.TryFind(
-            "IndustrialMedicalCenter", out Building medicalCenter);
-        Research modernMedicine = DataBase<Research>.Find("ModernMedicine");
+        bool hospitalExists = DataBase<BuildingDef>.TryFind("Hospital", out BuildingDef hospital);
+        bool medicalCenterExists = DataBase<BuildingDef>.TryFind(
+            "IndustrialMedicalCenter", out BuildingDef medicalCenter);
+        ResearchDef modernMedicine = DataBase<ResearchDef>.Find("ModernMedicine");
 
         Assert.That(hospitalExists, Is.False);
         Assert.That(medicalCenterExists, Is.False);
@@ -708,13 +708,13 @@ public sealed class C6IndustrialContentTests
 
         for (int i = 0; i < retiredBuildingIds.Length; i++)
         {
-            bool exists = DataBase<Building>.TryFind(retiredBuildingIds[i], out Building retired);
+            bool exists = DataBase<BuildingDef>.TryFind(retiredBuildingIds[i], out BuildingDef retired);
             Assert.That(exists, Is.False, retiredBuildingIds[i]);
             Assert.That(retired, Is.Null, retiredBuildingIds[i]);
         }
 
         Assert.That(
-            DataBase<WorkshopUpgrade>.TryFind("RemoteSurgicalSystems", out WorkshopUpgrade retiredUpgrade),
+            DataBase<WorkshopUpgradeDef>.TryFind("RemoteSurgicalSystems", out WorkshopUpgradeDef retiredUpgrade),
             Is.False);
         Assert.That(retiredUpgrade, Is.Null);
     }
@@ -722,8 +722,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C606_IndustrialPowerAndLogisticsRolesRemainDistinct()
     {
-        Building powerStation = DataBase<Building>.Find("CentralPowerStation");
-        Building railHub = DataBase<Building>.Find("RailHub");
+        BuildingDef powerStation = DataBase<BuildingDef>.Find("CentralPowerStation");
+        BuildingDef railHub = DataBase<BuildingDef>.Find("RailHub");
 
         Assert.That(powerStation.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero),
             "中央电站必须提供电力。");
@@ -738,7 +738,7 @@ public sealed class C6IndustrialContentTests
     {
         for (int i = 0; i < IndustrialBuildingIds.Length; i++)
         {
-            Building building = DataBase<Building>.Find(IndustrialBuildingIds[i]);
+            BuildingDef building = DataBase<BuildingDef>.Find(IndustrialBuildingIds[i]);
             Assert.That(building.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero),
                 $"Industrial building '{building.Id}' must not directly consume Food.");
             Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
@@ -754,10 +754,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C603_IndustrialAndSpacerBuildingsHaveAnExplicitGameplayRole()
     {
-        IReadOnlyList<Building> buildings = DataBase<Building>.All;
+        IReadOnlyList<BuildingDef> buildings = DataBase<BuildingDef>.All;
         for (int i = 0; i < buildings.Count; i++)
         {
-            Building building = buildings[i];
+            BuildingDef building = buildings[i];
             if (building == null || building.TechLevel < TechLevel.Industrial)
                 continue;
 
@@ -797,10 +797,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C603_IndustrialEnergyChainRetainsContinuousSourcesAndSinks()
     {
-        Building cokeOven = DataBase<Building>.Find("CokeOven");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Building mechanizedLumberyard = DataBase<Building>.Find("MechanizedLumberyard");
-        Building mechanizedCoalMine = DataBase<Building>.Find("MechanizedCoalMine");
+        BuildingDef cokeOven = DataBase<BuildingDef>.Find("CokeOven");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        BuildingDef mechanizedLumberyard = DataBase<BuildingDef>.Find("MechanizedLumberyard");
+        BuildingDef mechanizedCoalMine = DataBase<BuildingDef>.Find("MechanizedCoalMine");
 
         Assert.That(cokeOven, Is.Not.Null);
         Assert.That(retort, Is.Not.Null);
@@ -813,11 +813,11 @@ public sealed class C6IndustrialContentTests
         Assert.That(FindRate(mechanizedCoalMine.ResourceGenerationRates, "Coal"),
             Is.GreaterThan(0d));
 
-        bool cokeHasContinuousSink = DataBase<Building>.All.Any(building =>
+        bool cokeHasContinuousSink = DataBase<BuildingDef>.All.Any(building =>
             FindRate(building.ResourceConsumptionRates, "Coke") > 0d);
-        bool coalHasContinuousSink = DataBase<Building>.All.Any(building =>
+        bool coalHasContinuousSink = DataBase<BuildingDef>.All.Any(building =>
             FindRate(building.ResourceConsumptionRates, "Coal") > 0d);
-        bool woodHasContinuousSink = DataBase<Building>.All.Any(building =>
+        bool woodHasContinuousSink = DataBase<BuildingDef>.All.Any(building =>
             FindRate(building.ResourceConsumptionRates, "WoodLog") > 0d);
 
         Assert.That(cokeHasContinuousSink, Is.True, "焦炭必须有持续消费建筑。");
@@ -851,13 +851,13 @@ public sealed class C6IndustrialContentTests
 
         foreach (var pair in expected)
         {
-            Building source = DataBase<Building>.Find(pair.Key);
-            Building target = DataBase<Building>.Find(pair.Value);
+            BuildingDef source = DataBase<BuildingDef>.Find(pair.Key);
+            BuildingDef target = DataBase<BuildingDef>.Find(pair.Value);
             Assert.That(source.UpgradeTo, Is.SameAs(target),
                 $"Building chain '{pair.Key}' must point to '{pair.Value}'.");
         }
 
-        BuildingManager.ValidateBuildingChains(DataBase<Building>.All);
+        BuildingManager.ValidateBuildingChains(DataBase<BuildingDef>.All);
     }
 
     [Test]
@@ -877,8 +877,8 @@ public sealed class C6IndustrialContentTests
 
         for (int i = 0; i < chains.GetLength(0); i++)
         {
-            Building lower = DataBase<Building>.Find(chains[i, 0]);
-            Building upper = DataBase<Building>.Find(chains[i, 1]);
+            BuildingDef lower = DataBase<BuildingDef>.Find(chains[i, 0]);
+            BuildingDef upper = DataBase<BuildingDef>.Find(chains[i, 1]);
 
             Assert.That(lower, Is.Not.Null, $"找不到基础建筑 {chains[i, 0]}。");
             Assert.That(upper.TechLevel, Is.EqualTo(TechLevel.Industrial));
@@ -895,10 +895,10 @@ public sealed class C6IndustrialContentTests
     {
         string error;
         bool valid = EconomyDependencyValidator.Validate(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
-            DataBase<WorkshopUpgrade>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
+            DataBase<WorkshopUpgradeDef>.All,
             out error);
 
         Assert.That(valid, Is.True, error);
@@ -907,7 +907,7 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C608_PrecisionManufacturingDoesNotRequireDownstreamGlass()
     {
-        Research precision = DataBase<Research>.Find("PrecisionManufacturing");
+        ResearchDef precision = DataBase<ResearchDef>.Find("PrecisionManufacturing");
 
         Assert.That(ContainsResource(precision.ResourceRequirements, "Glass"), Is.False);
         Assert.That(ContainsResource(precision.ResourceRequirements, "CopperWire"), Is.True);
@@ -916,39 +916,39 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C610_IndustrialEntryResearchDoesNotLoopThroughItsOutputBuildings()
     {
-        Research precision = DataBase<Research>.Find("PrecisionManufacturing");
-        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
-        Research metal = DataBase<Research>.Find("IndustrialMetalSmelting");
-        Research workshop = DataBase<Research>.Find("IndustrialWorkshop");
+        ResearchDef precision = DataBase<ResearchDef>.Find("PrecisionManufacturing");
+        ResearchDef concrete = DataBase<ResearchDef>.Find("ConcreteEngineering");
+        ResearchDef metal = DataBase<ResearchDef>.Find("IndustrialMetalSmelting");
+        ResearchDef workshop = DataBase<ResearchDef>.Find("IndustrialWorkshop");
 
         Assert.That(precision, Is.Not.Null);
         Assert.That(concrete, Is.Not.Null);
         Assert.That(metal, Is.Not.Null);
         Assert.That(workshop, Is.Not.Null);
         Assert.That(precision.Prerequisites,
-            Has.None.Matches<Research>(item => item != null && item.Id == concrete.Id));
+            Has.None.Matches<ResearchDef>(item => item != null && item.Id == concrete.Id));
         Assert.That(precision.Prerequisites,
-            Has.None.Matches<Research>(item => item != null && item.Id == metal.Id));
+            Has.None.Matches<ResearchDef>(item => item != null && item.Id == metal.Id));
         Assert.That(precision.Prerequisites,
-            Has.Some.Matches<Research>(item => item != null && item.Id == workshop.Id));
+            Has.Some.Matches<ResearchDef>(item => item != null && item.Id == workshop.Id));
         Assert.That(metal.Prerequisites,
-            Has.Some.Matches<Research>(item => item != null && item.Id == workshop.Id));
-        Assert.That(DataBase<Building>.Find("MachineFactory").RequiredResearch,
-            Has.Some.Matches<Research>(item => item != null && item.Id == precision.Id));
-        Assert.That(DataBase<Building>.Find("BuildingMaterialsComplex").RequiredResearch,
-            Has.Some.Matches<Research>(item => item != null && item.Id == concrete.Id));
-        Assert.That(DataBase<Building>.Find("IndustrialMetalSmelter").RequiredResearch,
-            Has.Some.Matches<Research>(item => item != null && item.Id == metal.Id));
+            Has.Some.Matches<ResearchDef>(item => item != null && item.Id == workshop.Id));
+        Assert.That(DataBase<BuildingDef>.Find("MachineFactory").RequiredResearch,
+            Has.Some.Matches<ResearchDef>(item => item != null && item.Id == precision.Id));
+        Assert.That(DataBase<BuildingDef>.Find("BuildingMaterialsComplex").RequiredResearch,
+            Has.Some.Matches<ResearchDef>(item => item != null && item.Id == concrete.Id));
+        Assert.That(DataBase<BuildingDef>.Find("IndustrialMetalSmelter").RequiredResearch,
+            Has.Some.Matches<ResearchDef>(item => item != null && item.Id == metal.Id));
     }
 
     [Test]
     public void C601_IndustrialBuildingsOwnTheirResearchPrerequisites()
     {
-        Research industrialization = DataBase<Research>.Find("Industrialization");
+        ResearchDef industrialization = DataBase<ResearchDef>.Find("Industrialization");
         var expected = new HashSet<string>(IndustrialBuildingIds);
         var actual = new HashSet<string>();
 
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
             if (building.TechLevel != TechLevel.Industrial)
                 continue;
@@ -965,10 +965,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 机械化纺织厂必须作为布料工坊的工业上位替代()
     {
-        Building lower = DataBase<Building>.Find("WeavingWorkshop");
-        Building upper = DataBase<Building>.Find("MechanizedTextileMill");
-        Research theory = DataBase<Research>.Find("PrecisionManufacturing");
-        WorkshopUpgrade looms = DataBase<WorkshopUpgrade>.Find("MechanicalLooms");
+        BuildingDef lower = DataBase<BuildingDef>.Find("WeavingWorkshop");
+        BuildingDef upper = DataBase<BuildingDef>.Find("MechanizedTextileMill");
+        ResearchDef theory = DataBase<ResearchDef>.Find("PrecisionManufacturing");
+        WorkshopUpgradeDef looms = DataBase<WorkshopUpgradeDef>.Find("MechanicalLooms");
 
         Assert.That(lower, Is.Not.Null);
         Assert.That(upper, Is.Not.Null);
@@ -996,9 +996,9 @@ public sealed class C6IndustrialContentTests
     public void C601_IndustrialResourcesHaveSourcesAndMultipleUses()
     {
         ProgressionAuditResult result = ContentProgressionAudit.Run(
-            DataBase<Resource>.All,
-            DataBase<Building>.All,
-            DataBase<Research>.All,
+            DataBase<ResourceDef>.All,
+            DataBase<BuildingDef>.All,
+            DataBase<ResearchDef>.All,
             new[] { "WoodLog" },
             TechLevel.Animal);
 
@@ -1016,9 +1016,9 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void C611_IndustrialConstructionMaterialsRemainUsefulInSpaceEra()
     {
-        Building launchCenter = DataBase<Building>.Find("LaunchCenter");
-        Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
-        Building shipyard = DataBase<Building>.Find("Shipyard");
+        BuildingDef launchCenter = DataBase<BuildingDef>.Find("LaunchCenter");
+        BuildingDef orbitalStation = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef shipyard = DataBase<BuildingDef>.Find("Shipyard");
 
         Assert.That(ContainsResource(launchCenter.ResourceRequirements, "Concrete"), Is.True);
         Assert.That(ContainsResource(launchCenter.ResourceRequirements, "Explosives"), Is.False);
@@ -1029,9 +1029,9 @@ public sealed class C6IndustrialContentTests
     private static int CountConsumerBuildings(string resourceId)
     {
         int count = 0;
-        for (int i = 0; i < DataBase<Building>.All.Count; i++)
+        for (int i = 0; i < DataBase<BuildingDef>.All.Count; i++)
         {
-            Building building = DataBase<Building>.All[i];
+            BuildingDef building = DataBase<BuildingDef>.All[i];
             if (ContainsResource(building.ResourceRequirements, resourceId) ||
                 ContainsResource(building.ResourceConsumptionRates, resourceId))
                 count++;
@@ -1042,10 +1042,10 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 机械化林场必须成为伐木场的工业上位替代()
     {
-        Building lower = DataBase<Building>.Find("Lumberyard");
-        Building upper = DataBase<Building>.Find("MechanizedLumberyard");
-        Research research = DataBase<Research>.Find("MechanizedForestry");
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find("MechanizedForestryEquipment");
+        BuildingDef lower = DataBase<BuildingDef>.Find("Lumberyard");
+        BuildingDef upper = DataBase<BuildingDef>.Find("MechanizedLumberyard");
+        ResearchDef research = DataBase<ResearchDef>.Find("MechanizedForestry");
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find("MechanizedForestryEquipment");
 
         Assert.That(lower.UpgradeTo, Is.EqualTo(upper));
         Assert.That(upper.TechLevel, Is.EqualTo(TechLevel.Industrial));
@@ -1069,11 +1069,11 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 工业炭化干馏炉必须把原木转化为焦炭()
     {
-        Building lower = DataBase<Building>.Find("CharcoalKiln");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Research industrialization = DataBase<Research>.Find("Industrialization");
-        Research mechanizedForestry = DataBase<Research>.Find("MechanizedForestry");
-        Research coking = DataBase<Research>.Find("Coking");
+        BuildingDef lower = DataBase<BuildingDef>.Find("CharcoalKiln");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        ResearchDef industrialization = DataBase<ResearchDef>.Find("Industrialization");
+        ResearchDef mechanizedForestry = DataBase<ResearchDef>.Find("MechanizedForestry");
+        ResearchDef coking = DataBase<ResearchDef>.Find("Coking");
 
         Assert.That(lower.UpgradeTo, Is.EqualTo(retort));
         Assert.That(retort.TechLevel, Is.EqualTo(TechLevel.Industrial));
@@ -1094,11 +1094,11 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void CokeOvenSharesTheIndustrialCarbonizationUpgrade()
     {
-        Building cokeOven = DataBase<Building>.Find("CokeOven");
-        Building retort = DataBase<Building>.Find("IndustrialCarbonizationRetort");
-        Research coking = DataBase<Research>.Find("Coking");
-        WorkshopUpgrade optimization = DataBase<WorkshopUpgrade>.Find("CokeOvenOptimization");
-        WorkshopUpgrade forestry = DataBase<WorkshopUpgrade>.Find("MechanizedForestryEquipment");
+        BuildingDef cokeOven = DataBase<BuildingDef>.Find("CokeOven");
+        BuildingDef retort = DataBase<BuildingDef>.Find("IndustrialCarbonizationRetort");
+        ResearchDef coking = DataBase<ResearchDef>.Find("Coking");
+        WorkshopUpgradeDef optimization = DataBase<WorkshopUpgradeDef>.Find("CokeOvenOptimization");
+        WorkshopUpgradeDef forestry = DataBase<WorkshopUpgradeDef>.Find("MechanizedForestryEquipment");
 
         Assert.That(cokeOven, Is.Not.Null);
         Assert.That(retort, Is.Not.Null);
@@ -1127,8 +1127,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialMetalSmelterRequiresItsPhysicalFurnaceWorkshop()
     {
-        Building smelter = DataBase<Building>.Find("IndustrialMetalSmelter");
-        WorkshopUpgrade furnaces = DataBase<WorkshopUpgrade>.Find("IntegratedFurnaces");
+        BuildingDef smelter = DataBase<BuildingDef>.Find("IndustrialMetalSmelter");
+        WorkshopUpgradeDef furnaces = DataBase<WorkshopUpgradeDef>.Find("IntegratedFurnaces");
 
         Assert.That(smelter, Is.Not.Null);
         Assert.That(furnaces, Is.Not.Null);
@@ -1140,8 +1140,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void BuildingMaterialsComplexRequiresItsRotaryKilnWorkshop()
     {
-        Building buildingMaterialsComplex = DataBase<Building>.Find("BuildingMaterialsComplex");
-        WorkshopUpgrade rotaryKilns = DataBase<WorkshopUpgrade>.Find("RotaryKilns");
+        BuildingDef buildingMaterialsComplex = DataBase<BuildingDef>.Find("BuildingMaterialsComplex");
+        WorkshopUpgradeDef rotaryKilns = DataBase<WorkshopUpgradeDef>.Find("RotaryKilns");
 
         Assert.That(buildingMaterialsComplex, Is.Not.Null);
         Assert.That(rotaryKilns, Is.Not.Null);
@@ -1155,8 +1155,8 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void MachineFactoryRequiresItsPrecisionToolingWorkshop()
     {
-        Building machineFactory = DataBase<Building>.Find("MachineFactory");
-        WorkshopUpgrade precisionTooling = DataBase<WorkshopUpgrade>.Find("PrecisionTooling");
+        BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
+        WorkshopUpgradeDef precisionTooling = DataBase<WorkshopUpgradeDef>.Find("PrecisionTooling");
 
         Assert.That(machineFactory, Is.Not.Null);
         Assert.That(precisionTooling, Is.Not.Null);
@@ -1168,12 +1168,12 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void AdvancedCeramicsPlant_HasOnlySmallClayExtractionSurplus()
     {
-        Building plant = DataBase<Building>.Find("AdvancedCeramicsPlant");
+        BuildingDef plant = DataBase<BuildingDef>.Find("AdvancedCeramicsPlant");
 
         Assert.That(plant, Is.Not.Null);
         Assert.That(FindRate(plant.ResourceGenerationRates, "Ceramic"),
             Is.GreaterThan(0d));
-        Assert.That(FindRate(DataBase<Building>.Find("ClayPit").ResourceGenerationRates, "Clay"),
+        Assert.That(FindRate(DataBase<BuildingDef>.Find("ClayPit").ResourceGenerationRates, "Clay"),
             Is.GreaterThan(0d));
         Assert.That(CountConsumerUses("Clay"), Is.GreaterThan(0));
     }
@@ -1181,19 +1181,19 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialResearchMaterialCosts_RequireTheirProductionEntrances()
     {
-        Research chemicalResearch = DataBase<Research>.Find("IndustrialChemistry");
-        Research machineryResearch = DataBase<Research>.Find("PrecisionManufacturing");
-        Research coking = DataBase<Research>.Find("Coking");
-        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
+        ResearchDef chemicalResearch = DataBase<ResearchDef>.Find("IndustrialChemistry");
+        ResearchDef machineryResearch = DataBase<ResearchDef>.Find("PrecisionManufacturing");
+        ResearchDef coking = DataBase<ResearchDef>.Find("Coking");
+        ResearchDef concrete = DataBase<ResearchDef>.Find("ConcreteEngineering");
 
         Assert.That(chemicalResearch, Is.Not.Null);
         Assert.That(machineryResearch, Is.Not.Null);
         Assert.That(coking, Is.Not.Null);
         Assert.That(concrete, Is.Not.Null);
 
-        for (int i = 0; i < DataBase<Research>.All.Count; i++)
+        for (int i = 0; i < DataBase<ResearchDef>.All.Count; i++)
         {
-            Research research = DataBase<Research>.All[i];
+            ResearchDef research = DataBase<ResearchDef>.All[i];
             if (research == null || research.TechLevel != TechLevel.Industrial)
                 continue;
 
@@ -1220,19 +1220,19 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialWorkshopMaterialCosts_RequireTheirProductionEntrances()
     {
-        Research chemicalResearch = DataBase<Research>.Find("IndustrialChemistry");
-        Research machineryResearch = DataBase<Research>.Find("PrecisionManufacturing");
-        Research coking = DataBase<Research>.Find("Coking");
-        Research concrete = DataBase<Research>.Find("ConcreteEngineering");
+        ResearchDef chemicalResearch = DataBase<ResearchDef>.Find("IndustrialChemistry");
+        ResearchDef machineryResearch = DataBase<ResearchDef>.Find("PrecisionManufacturing");
+        ResearchDef coking = DataBase<ResearchDef>.Find("Coking");
+        ResearchDef concrete = DataBase<ResearchDef>.Find("ConcreteEngineering");
 
         Assert.That(chemicalResearch, Is.Not.Null);
         Assert.That(machineryResearch, Is.Not.Null);
         Assert.That(coking, Is.Not.Null);
         Assert.That(concrete, Is.Not.Null);
 
-        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
+        for (int i = 0; i < DataBase<WorkshopUpgradeDef>.All.Count; i++)
         {
-            WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.All[i];
+            WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.All[i];
             if (workshop == null || workshop.TechLevel != TechLevel.Industrial)
                 continue;
 
@@ -1263,34 +1263,34 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void IndustrialMaterialEntrances_HaveSourcesAndSinks()
     {
-        Assert.That(FindRate(DataBase<Building>.Find("ChemicalPlant").ResourceGenerationRates, "Chemical"),
+        Assert.That(FindRate(DataBase<BuildingDef>.Find("ChemicalPlant").ResourceGenerationRates, "Chemical"),
             Is.GreaterThan(0d));
-        Assert.That(FindRate(DataBase<Building>.Find("MachineFactory").ResourceGenerationRates, "Machinery"),
+        Assert.That(FindRate(DataBase<BuildingDef>.Find("MachineFactory").ResourceGenerationRates, "Machinery"),
             Is.GreaterThan(0d));
-        Assert.That(FindRate(DataBase<Building>.Find("BuildingMaterialsComplex").ResourceGenerationRates, "Glass"),
+        Assert.That(FindRate(DataBase<BuildingDef>.Find("BuildingMaterialsComplex").ResourceGenerationRates, "Glass"),
             Is.GreaterThan(0d));
         Assert.That(CountConsumerUses("Chemical"), Is.GreaterThan(0));
         Assert.That(CountConsumerUses("Machinery"), Is.GreaterThan(0));
         Assert.That(CountConsumerUses("Glass"), Is.GreaterThan(0));
     }
 
-    private static bool HasResearchPrerequisiteTransitively(Research research, Research target)
+    private static bool HasResearchPrerequisiteTransitively(ResearchDef research, ResearchDef target)
     {
         return HasResearchPrerequisiteTransitively(
-            research, target, new HashSet<Research>());
+            research, target, new HashSet<ResearchDef>());
     }
 
     private static bool HasResearchPrerequisiteTransitively(
-        Research research,
-        Research target,
-        HashSet<Research> visited)
+        ResearchDef research,
+        ResearchDef target,
+        HashSet<ResearchDef> visited)
     {
         if (research == null || target == null || !visited.Add(research))
             return false;
 
         for (int i = 0; i < research.Prerequisites.Count; i++)
         {
-            Research prerequisite = research.Prerequisites[i];
+            ResearchDef prerequisite = research.Prerequisites[i];
             if (prerequisite == target ||
                 HasResearchPrerequisiteTransitively(prerequisite, target, visited))
                 return true;
@@ -1300,24 +1300,24 @@ public sealed class C6IndustrialContentTests
     }
 
     private static bool HasWorkshopPrerequisiteTransitively(
-        WorkshopUpgrade workshop,
-        Research target)
+        WorkshopUpgradeDef workshop,
+        ResearchDef target)
     {
         return HasWorkshopPrerequisiteTransitively(
-            workshop, target, new HashSet<WorkshopUpgrade>());
+            workshop, target, new HashSet<WorkshopUpgradeDef>());
     }
 
     private static bool HasWorkshopPrerequisiteTransitively(
-        WorkshopUpgrade workshop,
-        Research target,
-        HashSet<WorkshopUpgrade> visited)
+        WorkshopUpgradeDef workshop,
+        ResearchDef target,
+        HashSet<WorkshopUpgradeDef> visited)
     {
         if (workshop == null || target == null || !visited.Add(workshop))
             return false;
 
         for (int i = 0; i < workshop.RequiredResearch.Count; i++)
         {
-            Research prerequisite = workshop.RequiredResearch[i];
+            ResearchDef prerequisite = workshop.RequiredResearch[i];
             if (prerequisite == target ||
                 HasResearchPrerequisiteTransitively(prerequisite, target))
                 return true;
@@ -1336,22 +1336,22 @@ public sealed class C6IndustrialContentTests
     private static int CountConsumerUses(string resourceId)
     {
         int count = CountConsumerBuildings(resourceId);
-        for (int i = 0; i < DataBase<Research>.All.Count; i++)
-            if (ContainsResource(DataBase<Research>.All[i].ResourceRequirements, resourceId))
+        for (int i = 0; i < DataBase<ResearchDef>.All.Count; i++)
+            if (ContainsResource(DataBase<ResearchDef>.All[i].ResourceRequirements, resourceId))
                 count++;
-        for (int i = 0; i < DataBase<WorkshopUpgrade>.All.Count; i++)
-            if (ContainsResource(DataBase<WorkshopUpgrade>.All[i].ResourceRequirements, resourceId))
+        for (int i = 0; i < DataBase<WorkshopUpgradeDef>.All.Count; i++)
+            if (ContainsResource(DataBase<WorkshopUpgradeDef>.All[i].ResourceRequirements, resourceId))
                 count++;
         return count;
     }
 
     private static bool ContainsResource(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return true;
         }
@@ -1359,12 +1359,12 @@ public sealed class C6IndustrialContentTests
     }
 
     private static double FindRate(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return pair.Second.ToDouble();
         }
@@ -1372,7 +1372,7 @@ public sealed class C6IndustrialContentTests
     }
 
     private static bool HasBuildingEffect(
-        WorkshopUpgrade workshop,
+        WorkshopUpgradeDef workshop,
         string buildingId,
         double minimumMultiplier)
     {
@@ -1393,8 +1393,8 @@ public sealed class C6IndustrialContentTests
         string buildingId,
         WorkshopEffectType type)
     {
-        WorkshopUpgrade workshop =
-            DataBase<WorkshopUpgrade>.Find(workshopId);
+        WorkshopUpgradeDef workshop =
+            DataBase<WorkshopUpgradeDef>.Find(workshopId);
         if (workshop == null)
             return false;
         for (int i = 0; i < workshop.Effects.Count; i++)
@@ -1412,8 +1412,8 @@ public sealed class C6IndustrialContentTests
         string workshopId,
         string buildingId)
     {
-        Research research = DataBase<Research>.Find(researchId);
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
+        ResearchDef research = DataBase<ResearchDef>.Find(researchId);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find(workshopId);
         Assert.That(research, Is.Not.Null, researchId);
         Assert.That(workshop, Is.Not.Null, workshopId);
 
@@ -1448,8 +1448,8 @@ public sealed class C6IndustrialContentTests
     }
 
     private static bool ContainsResearch(
-        System.Collections.Generic.IReadOnlyList<Research> prerequisites,
-        Research target)
+        System.Collections.Generic.IReadOnlyList<ResearchDef> prerequisites,
+        ResearchDef target)
     {
         if (prerequisites == null || target == null)
             return false;
@@ -1462,12 +1462,12 @@ public sealed class C6IndustrialContentTests
     [Test]
     public void 生产循环验证必须一次性报告所有独立循环()
     {
-        Resource[] resources =
+        ResourceDef[] resources =
         {
             CreateTestResource("CycleA"), CreateTestResource("CycleB"), CreateTestResource("CycleC"),
             CreateTestResource("CycleD"), CreateTestResource("CycleE")
         };
-        Building[] buildings =
+        BuildingDef[] buildings =
         {
             CreateCycleBuilding("CycleAB", resources[0], resources[1]),
             CreateCycleBuilding("CycleBC", resources[1], resources[2]),
@@ -1494,30 +1494,30 @@ public sealed class C6IndustrialContentTests
         }
     }
 
-    private static Resource CreateTestResource(string id)
+    private static ResourceDef CreateTestResource(string id)
     {
-        Resource resource = ScriptableObject.CreateInstance<Resource>();
+        ResourceDef resource = ScriptableObject.CreateInstance<ResourceDef>();
         resource.SetIdForEditor(id);
         return resource;
     }
 
-    private static Building CreateCycleBuilding(string id, Resource input, Resource output)
+    private static BuildingDef CreateCycleBuilding(string id, ResourceDef input, ResourceDef output)
     {
-        Building building = ScriptableObject.CreateInstance<Building>();
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
         building.SetIdForEditor(id);
         building.ConfigureEconomyForEditor(
             new ExpantaNum("1.15"), ExpantaNum.One, ExpantaNum.One, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            new List<Pair<Resource, ExpantaNum>>(),
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(output, ExpantaNum.One)
+                new Pair<ResourceDef, ExpantaNum>(output, ExpantaNum.One)
             },
-            new List<Pair<Resource, ExpantaNum>>
+            new List<Pair<ResourceDef, ExpantaNum>>
             {
-                new Pair<Resource, ExpantaNum>(input, ExpantaNum.One)
+                new Pair<ResourceDef, ExpantaNum>(input, ExpantaNum.One)
             });
         return building;
     }

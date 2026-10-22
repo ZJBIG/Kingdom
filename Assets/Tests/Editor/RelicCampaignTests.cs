@@ -91,7 +91,7 @@ public sealed class RelicCampaignTests
     {
         using var f = new Fixture();
         f.PrepareAndAssign();
-        SectorDefinition other = DataBase<SectorDefinition>.Find("AlphaCentauri");
+        SectorDef other = DataBase<SectorDef>.Find("AlphaCentauri");
         f.Game.Sectors.GetState(other).SetUnlockedForEditor(true);
         SectorCampaignPreview preview = f.Game.Sectors.GetCampaignPreview(other, f.Game.State, f.Resources);
         Near(preview.FoodCostPerSecond,
@@ -173,7 +173,7 @@ public sealed class RelicCampaignTests
         f.MakeOperational(route);
         foreach (string id in new[] { "TauCetiFoundry", "SiriusResourceBelt" })
         {
-            SectorDefinition target = DataBase<SectorDefinition>.Find(id);
+            SectorDef target = DataBase<SectorDef>.Find(id);
             SectorState state = f.Game.Sectors.GetState(target);
             Assert.That(f.Game.Sectors.TryUnlock(target, out SectorOperationFailure unlockFailure), Is.True, unlockFailure.ToString());
             Assert.That(state.Occupied, Is.False);
@@ -238,8 +238,8 @@ public sealed class RelicCampaignTests
         public readonly ResourceManager Resources;
         public readonly WorkshopManager Workshop;
         public RelicManager Relic => Game.Relic;
-        public RelicDefinition Definition => Relic.Definition;
-        public readonly SectorDefinition Target;
+        public RelicDef Definition => Relic.Definition;
+        public readonly SectorDef Target;
         public SectorState TargetState => Game.Sectors.GetState(Target);
 
         public Fixture(bool unlockTarget = true)
@@ -263,22 +263,22 @@ public sealed class RelicCampaignTests
             var completed = new List<ResearchState>();
             foreach (var entry in research.States)
             {
-                var paid = new Dictionary<Resource, ExpantaNum>();
+                var paid = new Dictionary<ResourceDef, ExpantaNum>();
                 foreach (var cost in entry.Key.ResourceRequirements)
                     if (cost.First != null && cost.Second > ExpantaNum.Zero) paid[cost.First] = cost.Second;
                 entry.Value.RestoreForEditor(entry.Value.BaseCost, true, true, paid);
                 completed.Add(entry.Value);
             }
             ProgressionModifierManager.Rebuild(completed);
-            foreach (var resource in DataBase<Resource>.All)
+            foreach (var resource in DataBase<ResourceDef>.All)
                 Resources.SetAmount(resource, new ExpantaNum(1e8d));
             foreach (var building in Definition.RequiredBuildings)
                 buildings.EnsureBuilding(building).SetAmountForEditor(ExpantaNum.One);
-            buildings.EnsureBuilding(DataBase<Building>.Find("LaunchCenter")).SetAmountForEditor(ExpantaNum.One);
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter")).SetAmountForEditor(ExpantaNum.One);
             Game.Sectors.InitializeDefinitions();
             Game.Sectors.GetState(Definition.Sector).SetUnlockedForEditor(true);
             Game.Sectors.GetState(Definition.Sector).SetOccupiedForEditor(true);
-            Target = DataBase<SectorDefinition>.Find("TauCetiFoundry");
+            Target = DataBase<SectorDef>.Find("TauCetiFoundry");
             TargetState.SetUnlockedForEditor(unlockTarget);
             Game.UltraProject.State.RestoreForEditor(new UltraProjectStateSaveData
             {
@@ -312,13 +312,13 @@ public sealed class RelicCampaignTests
         }
         public bool Advance(double seconds, out SectorOperationFailure failure) =>
             Game.Sectors.TryAdvanceCampaign(Target, seconds, Game.State, Resources, out failure);
-        public Dictionary<Resource, ExpantaNum> Capture(IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+        public Dictionary<ResourceDef, ExpantaNum> Capture(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
         {
-            var balances = new Dictionary<Resource, ExpantaNum>();
+            var balances = new Dictionary<ResourceDef, ExpantaNum>();
             foreach (var cost in costs) balances[cost.First] = Resources.GetAmount(cost.First);
             return balances;
         }
-        public void AssertBalances(Dictionary<Resource, ExpantaNum> balances)
+        public void AssertBalances(Dictionary<ResourceDef, ExpantaNum> balances)
         {
             foreach (var entry in balances) Near(Resources.GetAmount(entry.Key), entry.Value);
         }

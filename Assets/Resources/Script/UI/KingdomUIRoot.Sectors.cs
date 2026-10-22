@@ -14,12 +14,12 @@ public sealed partial class KingdomUIRoot
 {
     private readonly StringBuilder sectorDetailTextBuilder = new(1024);
     private readonly StringBuilder sectorCostTextBuilder = new(256);
-    private SectorDefinition selectedSectorDefinition;
+    private SectorDef selectedSectorDefinition;
     private int lastSelectedSectorActionSignature = int.MinValue;
     private float sectorPageRefreshTimer;
     private sealed class SectorRowView
     {
-        public SectorDefinition Definition;
+        public SectorDef Definition;
         public RectTransform Row;
         public LayoutElement Layout;
         public Button Expand;
@@ -46,10 +46,10 @@ public sealed partial class KingdomUIRoot
         sectorRowViews.Clear();
         CacheRuntimeManagers();
         SectorManager sectors = gameManagerCache == null ? null : gameManagerCache.Sectors;
-        IReadOnlyList<SectorDefinition> definitions = DataBase<SectorDefinition>.All;
+        IReadOnlyList<SectorDef> definitions = DataBase<SectorDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            SectorDefinition definition = definitions[i];
+            SectorDef definition = definitions[i];
             if (definition == null)
                 continue;
             GameObject objectRow = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.SectorRow, parent);
@@ -65,6 +65,8 @@ public sealed partial class KingdomUIRoot
             objectRow.name = "SectorRow_" + definition.Id;
             ApplyEraRowStyle(objectRow, definition.IsHomeSystem ? TechLevel.Spacer : TechLevel.Ultra, sectorRowViews.Count);
             BindRowPin(objectRow, UIPinPreferences.Sector, definition.Id);
+            Image sectorIcon = row.Find("SectorIcon")?.GetComponent<Image>();
+            BindArtworkIcon(sectorIcon, definition.Icon, definition.Label);
             objectRow.SetActive(CanDisplaySector(definition, sectors));
             SectorRowView view = new SectorRowView
             {
@@ -98,14 +100,14 @@ public sealed partial class KingdomUIRoot
     }
 
     private static bool CanDisplaySector(
-        SectorDefinition definition, SectorManager sectorManager)
+        SectorDef definition, SectorManager sectorManager)
     {
         if (definition == null)
             return false;
-        IReadOnlyList<SectorDefinition> prerequisites = definition.PrerequisiteSectors;
+        IReadOnlyList<SectorDef> prerequisites = definition.PrerequisiteSectors;
         for (int i = 0; prerequisites != null && i < prerequisites.Count; i++)
         {
-            SectorDefinition prerequisite = prerequisites[i];
+            SectorDef prerequisite = prerequisites[i];
             if (prerequisite == null || sectorManager == null ||
                 !sectorManager.GetState(prerequisite).Occupied)
                 return false;
@@ -117,7 +119,7 @@ public sealed partial class KingdomUIRoot
     {
         if (view == null || view.Expand != null)
             return;
-        IReadOnlyList<SectorBuilding> buildings =
+        IReadOnlyList<SectorBuildingDef> buildings =
             BuildingManager.Instance.GetSectorBuildings(view.Definition);
         if (buildings.Count == 0)
             return;
@@ -144,23 +146,23 @@ public sealed partial class KingdomUIRoot
         RefreshSectorRowsAndLayout();
     }
 
-    private void BuildSectorBuildingMenu(SectorRowView view, IReadOnlyList<SectorBuilding> buildings)
+    private void BuildSectorBuildingMenu(SectorRowView view, IReadOnlyList<SectorBuildingDef> buildings)
     {
-        var orderedBuildings = new List<SectorBuilding>(buildings);
+        var orderedBuildings = new List<SectorBuildingDef>(buildings);
         orderedBuildings.Sort((left, right) => ComparePinnedAuthoredRows(UIPinPreferences.Building,
             left.TechLevel, left.Id, right.TechLevel, right.Id));
-        view.Menu = CreatePanel(view.Row, "SectorBuildingMenu", Color.clear);
+        view.Menu = KingdomUIPrefabLibrary.Instantiate("KingdomUISectorBuildingMenu", view.Row)
+            .GetComponent<RectTransform>();
+        view.Menu.name = "SectorBuildingMenu";
         view.Menu.anchorMin = new Vector2(0f, 1f);
         view.Menu.anchorMax = new Vector2(1f, 1f);
         view.Menu.pivot = new Vector2(.5f, 1f);
         view.Menu.anchoredPosition = new Vector2(0f, -view.CollapsedHeight);
         view.Menu.sizeDelta = new Vector2(0f, 416f);
-        CreateText("Heading", view.Menu, "星区工程", BasicMetalIngot, TextAlignmentOptions.MidlineLeft)
-            .rectTransform.offsetMin = new Vector2(28f, -58f);
         float cardTop = 76f;
         for (int i = 0; i < orderedBuildings.Count; i++)
         {
-            SectorBuilding building = orderedBuildings[i];
+            SectorBuildingDef building = orderedBuildings[i];
             GameObject cardObject = KingdomUIPrefabLibrary.Instantiate("KingdomUISectorBuildingCard", view.Menu);
             if (cardObject == null)
             {
@@ -184,7 +186,8 @@ public sealed partial class KingdomUIRoot
             cardTop += layout.preferredHeight + 12f;
             ApplyEraRowStyle(cardObject, building.TechLevel, i);
             BindRowPin(cardObject, UIPinPreferences.Building, building.Id);
-            SetRowMetadata(cardObject, GetBuildingRoleSummary(building));
+            Image buildingIcon = card.Find("BuildingIcon")?.GetComponent<Image>();
+            BindArtworkIcon(buildingIcon, building.Icon, building.Label);
             BuildingState state = BuildingManager.Instance.States.TryGetValue(building, out BuildingState stored)
                 ? stored : null;
             SetRowText(cardObject, "Name", building.Label ?? building.Id);
@@ -192,20 +195,29 @@ public sealed partial class KingdomUIRoot
             if (nameButton != null) nameButton.onClick.AddListener(() => ShowBuildingDetails(building));
             Button cardButton = cardObject.GetComponent<Button>();
             if (cardButton != null) cardButton.onClick.AddListener(() => ShowBuildingDetails(building));
-            SetRowText(cardObject, "Amount", (state == null ? "0" : state.Amount.ToGameString()) + "/" + building.MaxAmount);
-            SetRowText(cardObject, "Effect", "Logistics +" +
-                (building.LogisticsProductionRate - building.LogisticsConsumptionRate).ToGameString() +
-                "/s  Fleet +" + building.FleetPowerGranted.ToGameString() +
-                "  Defense +" + building.DefensePowerGranted.ToGameString());
-            SetRowText(cardObject, "Cost", FormatResourceCosts(building.ResourceRequirements), BasicMetalIngot);
+            RefreshSectorBuildingCard(card, building, state);
+            Button stageDetails = card.Find("Stage")?.GetComponent<Button>();
+            if (stageDetails != null) stageDetails.onClick.AddListener(() =>
+            {
+                GetSectorBuildingStage(building, out WorkshopUpgradeDef next, out WorkshopUpgradeDef latest, out _, out _);
+                if (next != null || latest != null) ShowWorkshopDetails(next ?? latest);
+            });
             Button build = RequireChildButton(cardObject, "Build");
             Button demolish = RequireChildButton(cardObject, "Deconstruct");
             if (build == null || demolish == null) continue;
-            build.interactable = BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.One) >= ExpantaNum.One;
             demolish.interactable = state != null && state.Amount >= ExpantaNum.One;
+            demolish.GetComponent<UITouchTooltip>()?.SetTooltip("拆除 ×1");
             build.onClick.AddListener(() =>
             {
-                if (BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out _))
+                BuildingState current = BuildingManager.Instance.GetState(building);
+                GetSectorBuildingStage(building, out WorkshopUpgradeDef next, out _, out _, out _);
+                if (current.Amount > ExpantaNum.Zero && next != null)
+                {
+                    if (WorkshopManager.Instance.TryPurchase(next, out _))
+                        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
+                    else ShowTooltip(GetWorkshopAvailability(next, out _));
+                }
+                else if (BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out _))
                     UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Build);
                 RebuildSectorMenu(view);
             });
@@ -218,6 +230,146 @@ public sealed partial class KingdomUIRoot
         }
         view.Menu.sizeDelta = new Vector2(0f, cardTop);
         view.Menu.gameObject.SetActive(view.Expanded);
+    }
+
+    private static void GetSectorBuildingStage(BuildingDef building, out WorkshopUpgradeDef next,
+        out WorkshopUpgradeDef latest, out int purchased, out int total)
+    {
+        next = null;
+        latest = null;
+        purchased = 0;
+        total = 0;
+        WorkshopManager workshop = WorkshopManager.Instance;
+        foreach (WorkshopUpgradeDef stage in DataBase<WorkshopUpgradeDef>.All)
+        {
+            if (stage.RequiredBuilding != building) continue;
+            total++;
+            if (workshop.IsPurchased(stage))
+            {
+                purchased++;
+                if (latest == null || CompareSectorStages(latest, stage) < 0) latest = stage;
+            }
+            else if (next == null || CompareSectorStages(stage, next) < 0) next = stage;
+        }
+    }
+
+    private static int CompareSectorStages(WorkshopUpgradeDef left, WorkshopUpgradeDef right)
+    {
+        int order = left.SortOrder.CompareTo(right.SortOrder);
+        return order != 0 ? order : string.CompareOrdinal(left.Id, right.Id);
+    }
+
+    private void RefreshSectorBuildingCard(Transform card, SectorBuildingDef building, BuildingState state)
+    {
+        bool built = state != null && state.Amount > ExpantaNum.Zero;
+        GetSectorBuildingStage(building, out WorkshopUpgradeDef next, out WorkshopUpgradeDef latest,
+            out int purchased, out int total);
+        bool staged = total > 0;
+        SetRowText(card.gameObject, "Amount", (built ? state.Amount.ToGameString() : "0") + "/" + building.MaxAmount);
+        SetRowText(card.gameObject, "Metadata", staged
+            ? (built ? "已建成：" : purchased > 0 ? "已保留：" : "待建设：") +
+                (latest == null ? building.Label : latest.Label) +
+                (!built && purchased > 0 ? "（工程本体待重建）" : string.Empty)
+            : building.RequiresInteriorExploration && !gameManagerCache.Sectors.GetState(building.Sector).InteriorExplorationCompleted
+                ? "需完成" + building.Sector.InteriorExploration.Label
+                : GetBuildingRoleSummary(building));
+        string effects = FormatSectorBuildingEffects(building);
+        string outputContext = built ? "当前" : purchased > 0 ? "重建后" : "建成后";
+        if (staged && building.PowerProductionRate > ExpantaNum.Zero)
+        {
+            ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+            ExpantaNum power = building.PowerProductionRate * modifiers.PowerMultiplier *
+                modifiers.GetBuildingPowerProductionMultiplier(building);
+            effects += "\n" + outputContext + "单座电力：" + power.ToGameString() +
+                " /s（含已建结构，满效率）";
+        }
+        if (staged && building.ResourceGenerationRates.Count > 0)
+        {
+            ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+            foreach (var output in building.ResourceGenerationRates)
+                effects += "\n" + outputContext + "产出：" + output.First.Label + " " + (output.Second *
+                    modifiers.GlobalBuildingProductionMultiplier * modifiers.GetBuildingProductionMultiplier(building) *
+                    modifiers.GetBuildingResourceProductionMultiplier(building, output.First) *
+                    modifiers.GetResourceProductionMultiplier(output.First)).ToGameString() + " /s（满效率）";
+            if (building.LogisticsProductionRate > ExpantaNum.Zero)
+                effects += "\n" + outputContext + "物流：" + (building.LogisticsProductionRate * modifiers.GlobalLogisticsMultiplier *
+                    modifiers.GetBuildingLogisticsProductionMultiplier(building)).ToGameString() + " /s（满效率）";
+        }
+        if (staged && next != null)
+        {
+            StringBuilder benefit = new();
+            AppendWorkshopEffects(benefit, next.Effects);
+            effects += "\n" + next.Label + "：" + benefit.ToString().Trim();
+        }
+        SetRowText(card.gameObject, "Effect", effects);
+        SetRowText(card.gameObject, "Cost", !built || !staged
+            ? "建造：" + FormatSectorBuildingCost(building, state)
+            : next == null ? "工程投资已完成" : next.Label + "：" + FormatResourceCosts(next.ResourceRequirements), BasicMetalIngot);
+        Button build = card.Find("Build")?.GetComponent<Button>();
+        if (build != null)
+        {
+            bool canPurchase = false;
+            string availability = next == null ? "工程已建成" : GetWorkshopAvailability(next, out canPurchase);
+            build.interactable = built && staged ? next != null && canPurchase
+                : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.One) >= ExpantaNum.One;
+            bool complete = built && (staged ? next == null : state.Amount >= building.MaxAmount);
+            TMP_Text label = build.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = complete ? "完成" : "×1";
+            build.GetComponent<UITouchTooltip>()?.SetTooltip(complete ? "已建成" : built && staged ? "建设" + next.Label : "建造" + building.Label);
+            SetRowText(card.gameObject, "Stage", !staged ? string.Empty : !built
+                ? building.RequiresInteriorExploration && !gameManagerCache.Sectors.GetState(building.Sector).InteriorExplorationCompleted
+                    ? "需完成" + building.Sector.InteriorExploration.Label + " · 工程详情"
+                    : "建设" + building.Label + "后继续扩建 · 工程详情"
+                : next == null ? "工程已全部建成 · 查看工程记录"
+                : next.Label + " · " + availability + " · 查看结构详情");
+        }
+        Button stageDetails = card.Find("Stage")?.GetComponent<Button>();
+        if (stageDetails != null)
+        {
+            stageDetails.gameObject.SetActive(staged);
+            if (stageDetails.targetGraphic != null)
+                stageDetails.targetGraphic.raycastTarget = true;
+        }
+    }
+
+    private string FormatSectorBuildingCost(BuildingDef building, BuildingState state)
+    {
+        List<Pair<ResourceDef, ExpantaNum>> nextCosts = new(building.ResourceRequirements.Count);
+        ExpantaNum owned = state == null ? ExpantaNum.Zero : state.Amount;
+        ExpantaNum costMultiplier = BuildingManager.GetConstructionCostMultiplier(building);
+        for (int i = 0; i < building.ResourceRequirements.Count; i++)
+        {
+            Pair<ResourceDef, ExpantaNum> requirement = building.ResourceRequirements[i];
+            nextCosts.Add(new Pair<ResourceDef, ExpantaNum>(requirement.First,
+                requirement.Second.GeometricSeriesCost(building.CostGrowth, owned, ExpantaNum.One) *
+                costMultiplier));
+        }
+        return FormatResourceCosts(nextCosts);
+    }
+
+    private string FormatSectorBuildingEffects(BuildingDef building)
+    {
+        StringBuilder text = new("每座基础：");
+        if (building.ResourceGenerationRates.Count > 0)
+            text.Append("产出 ").Append(FormatResourceCosts(building.ResourceGenerationRates)).Append(" /s；");
+        AppendSectorBuildingEffect(text, "粮食", building.FoodProductionRate, true);
+        AppendSectorBuildingEffect(text, "电力", building.PowerProductionRate, true);
+        AppendSectorBuildingEffect(text, "物流", building.LogisticsProductionRate, true);
+        AppendSectorBuildingEffect(text, "研究力", building.ResearchPowerGranted, true);
+        AppendSectorBuildingEffect(text, "舰队", building.FleetPowerGranted, false);
+        AppendSectorBuildingEffect(text, "防御", building.DefensePowerGranted, false);
+        return text.ToString().TrimEnd('；');
+    }
+
+    private static void AppendSectorBuildingEffect(
+        StringBuilder text, string label, ExpantaNum amount, bool perSecond)
+    {
+        if (amount <= ExpantaNum.Zero)
+            return;
+        text.Append(label).Append(' ').Append(amount.ToGameString());
+        if (perSecond)
+            text.Append(" /s");
+        text.Append('；');
     }
 
     private void RebuildSectorMenu(SectorRowView view)
@@ -320,15 +472,36 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private string GetSectorRowSummary(SectorDefinition definition, SectorManager manager)
+    private string GetSectorRowSummary(SectorDef definition, SectorManager manager)
     {
-        string summary = definition.StarSystemId + " · " + GetSectorStateText(manager, definition);
         SectorState state = manager?.GetState(definition);
+        string summary = state != null && state.Occupied && definition.IsHomeSystem
+            ? "已驻留" : definition.StarSystemId + " · " + GetSectorStateText(manager, definition);
         if (state != null && state.CampaignProgress > ExpantaNum.Zero && !state.Occupied)
             summary += " · 进度 " + (state.CampaignProgress * 100).ToGameString() + "%";
+        if (state != null && state.Occupied && definition.InteriorExploration != null)
+        {
+            var preview = manager.GetInteriorExplorationPreview(definition);
+            summary += preview.Status == SectorInteriorExplorationStatus.Completed
+                ? " · 深入探索完成"
+                : " · " + definition.InteriorExploration.Label + " " +
+                    (preview.Progress * 100).ToGameString() + "% · " + GetSectorInteriorExplorationStatusText(preview.Status);
+            if (preview.MissingResource != null)
+                summary += "：" + preview.MissingResource.Label;
+        }
+        if (state != null && state.Occupied)
+            foreach (SectorBuildingDef building in BuildingManager.Instance.GetSectorBuildings(definition))
+            {
+                if (!BuildingManager.Instance.States.TryGetValue(building, out BuildingState owned) || owned.Amount <= ExpantaNum.Zero)
+                    continue;
+                GetSectorBuildingStage(building, out _, out WorkshopUpgradeDef latest, out _, out int total);
+                if (total > 0) summary += " · " + (latest == null ? building.Label : latest.Label);
+            }
         if (state != null && state.Occupied && definition.OccupiedResourceRatesPerSecond.Count > 0)
             return summary + " · 产出 " + FormatResourceCosts(definition.OccupiedResourceRatesPerSecond,
                 ProgressionModifierManager.Current) + "/s";
+        if (state != null && state.Occupied && definition.IsHomeSystem)
+            return summary;
         if (definition.TerritoryReward > ExpantaNum.Zero)
             summary += " · 领土 +" + definition.TerritoryReward.ToGameString();
         if (!definition.IsHomeSystem && definition.EnemyPower > ExpantaNum.Zero)
@@ -336,25 +509,19 @@ public sealed partial class KingdomUIRoot
         return summary;
     }
 
-    private static void RefreshSectorBuildingMenu(SectorRowView view)
+    private void RefreshSectorBuildingMenu(SectorRowView view)
     {
-        IReadOnlyList<SectorBuilding> buildings =
+        IReadOnlyList<SectorBuildingDef> buildings =
             BuildingManager.Instance.GetSectorBuildings(view.Definition);
         for (int i = 0; i < buildings.Count; i++)
         {
-            SectorBuilding building = buildings[i];
+            SectorBuildingDef building = buildings[i];
             Transform card = view.Menu.Find(building.Id);
             if (card == null)
                 continue;
             BuildingState state = BuildingManager.Instance.States.TryGetValue(
                 building, out BuildingState stored) ? stored : null;
-            TMP_Text amount = card.Find("Amount")?.GetComponent<TMP_Text>();
-            if (amount != null)
-                amount.text = (state == null ? "0" : state.Amount.ToGameString()) + "/" + building.MaxAmount;
-            Button build = card.Find("Build")?.GetComponent<Button>();
-            if (build != null)
-                build.interactable = BuildingManager.Instance.GetMaxBuildable(
-                    building, ExpantaNum.One) >= ExpantaNum.One;
+            RefreshSectorBuildingCard(card, building, state);
             Button deconstruct = card.Find("Deconstruct")?.GetComponent<Button>();
             if (deconstruct != null)
                 deconstruct.interactable = state != null && state.Amount >= ExpantaNum.One;
@@ -383,7 +550,7 @@ public sealed partial class KingdomUIRoot
 
         foreach (SectorState state in sectorManager.OrderedStates)
         {
-            SectorDefinition definition = state == null ? null : state.Definition;
+            SectorDef definition = state == null ? null : state.Definition;
             if (definition == null || string.IsNullOrEmpty(definition.Id))
                 continue;
 
@@ -425,7 +592,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void ShowSectorDetails(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorManager sectorManager,
         GameState state,
         ResourceManager resourceManager)
@@ -450,7 +617,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private string BuildSectorDetailDescription(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorManager sectorManager,
         GameState state,
         ResourceManager resourceManager)
@@ -475,7 +642,7 @@ public sealed partial class KingdomUIRoot
             !sectorState.Unlocked && !sectorState.Occupied)
             body.AppendLine("\u5f53\u524d\u963b\u788d\uff1a" +
                 sectorManager.GetUnlockFailure(definition).GetDescription());
-        IReadOnlyList<SectorDefinition> prerequisites = definition.PrerequisiteSectors;
+        IReadOnlyList<SectorDef> prerequisites = definition.PrerequisiteSectors;
         if (prerequisites == null || prerequisites.Count == 0)
             body.AppendLine("直接前置星区：无");
         else
@@ -483,7 +650,7 @@ public sealed partial class KingdomUIRoot
             body.AppendLine("直接前置星区：");
             for (int i = 0; i < prerequisites.Count; i++)
             {
-                SectorDefinition prerequisite = prerequisites[i];
+                SectorDef prerequisite = prerequisites[i];
                 if (prerequisite == null)
                     continue;
                 string prerequisiteState = sectorManager == null
@@ -495,7 +662,7 @@ public sealed partial class KingdomUIRoot
                     .AppendLine(prerequisiteState);
             }
         }
-        IReadOnlyList<Pair<Resource, ExpantaNum>> occupiedRates =
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> occupiedRates =
             definition.OccupiedResourceRatesPerSecond;
         body.AppendLine("当前占领持续产出：" +
             (occupiedRates == null || occupiedRates.Count == 0
@@ -507,6 +674,14 @@ public sealed partial class KingdomUIRoot
         if (state == null)
         {
             body.AppendLine("星区数据尚未载入，请稍候。");
+        }
+        else if (sectorState != null && sectorState.Occupied && definition.InteriorExploration != null)
+        {
+            AppendInteriorExplorationDetails(body, definition, sectorManager);
+        }
+        else if (sectorState != null && sectorState.Occupied)
+        {
+            body.AppendLine("已建立驻留，可展开星区建筑进行建设。");
         }
         else if (definition.IsHomeSystem)
         {
@@ -594,7 +769,7 @@ public sealed partial class KingdomUIRoot
         GameState state,
         ResourceManager resourceManager)
     {
-        SectorDefinition definition = selectedSectorDefinition;
+        SectorDef definition = selectedSectorDefinition;
         if (definition == null || detailBody == null)
             return;
         float preservedScrollPosition = requirementGesture == null
@@ -623,7 +798,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private static int GetSectorActionSignature(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorManager sectorManager,
         GameState state,
         ResourceManager resourceManager)
@@ -639,6 +814,12 @@ public sealed partial class KingdomUIRoot
         if (sectorState.CampaignProgress >= ExpantaNum.One) signature |= 16;
         if (sectorState.CampaignCasualties > ExpantaNum.Zero) signature |= 32;
         if (resourceManager != null) signature |= 64;
+        if (definition.InteriorExploration != null)
+        {
+            var interior = sectorManager.GetInteriorExplorationPreview(definition);
+            signature = unchecked(signature * 31 + (int)interior.Status);
+            signature = unchecked(signature * 31 + (int)interior.Failure);
+        }
         if (!sectorState.Unlocked)
             signature |= (int)sectorManager.GetUnlockFailure(definition) << 7;
         if (resourceManager != null)
@@ -679,11 +860,11 @@ public sealed partial class KingdomUIRoot
     private static void AppendResourceStateVersions(
         ref int signature,
         ResourceManager resourceManager,
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs)
     {
         for (int i = 0; costs != null && i < costs.Count; i++)
         {
-            Resource resource = costs[i].First;
+            ResourceDef resource = costs[i].First;
             int version = -1;
             if (resource != null && resourceManager.States.TryGetValue(
                     resource, out ResourceState resourceState))
@@ -693,7 +874,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void ConfigureSectorAction(
-        SectorDefinition definition,
+        SectorDef definition,
         SectorManager sectorManager,
         GameState state,
         ResourceManager resourceManager)
@@ -707,6 +888,19 @@ public sealed partial class KingdomUIRoot
         HideUltraDoctrineButton();
         if (sectorState.Occupied)
         {
+            if (definition.InteriorExploration != null)
+            {
+                var preview = sectorManager.GetInteriorExplorationPreview(definition);
+                if (preview.Status != SectorInteriorExplorationStatus.Completed)
+                {
+                    bool active = sectorState.InteriorExplorationActive;
+                    ConfigureActionButton(active ? "暂停勘探" : preview.Status == SectorInteriorExplorationStatus.Paused ? "继续勘探" : "开始勘探",
+                        () => ToggleInteriorExploration(definition));
+                    if (detailActionButton != null)
+                        detailActionButton.interactable = preview.Status != SectorInteriorExplorationStatus.Locked;
+                    return;
+                }
+            }
             if (detailActionButton != null)
                 detailActionButton.gameObject.SetActive(false);
             if (!definition.IsHomeSystem)
@@ -791,7 +985,71 @@ public sealed partial class KingdomUIRoot
         ConfigureCampaignDoctrineAction(state);
     }
 
-    private void UnlockSector(SectorDefinition definition)
+    private static string GetSectorInteriorExplorationStatusText(SectorInteriorExplorationStatus status)
+    {
+        return status switch
+        {
+            SectorInteriorExplorationStatus.Locked => "条件未满足",
+            SectorInteriorExplorationStatus.Ready => "待开始",
+            SectorInteriorExplorationStatus.Running => "勘探中",
+            SectorInteriorExplorationStatus.WaitingForSupply => "等待补给",
+            SectorInteriorExplorationStatus.Paused => "已手动暂停",
+            SectorInteriorExplorationStatus.Completed => "探索完成",
+            _ => "状态未知"
+        };
+    }
+
+    private void AppendInteriorExplorationDetails(StringBuilder body, SectorDef definition, SectorManager manager)
+    {
+        var exploration = definition.InteriorExploration;
+        var preview = manager.GetInteriorExplorationPreview(definition);
+        body.AppendLine();
+        body.AppendLine("星球探索：" + exploration.Label);
+        body.AppendLine(exploration.Description);
+        body.AppendLine("勘探状态：" + GetSectorInteriorExplorationStatusText(preview.Status));
+        body.AppendLine("勘探进度：" + (preview.Progress * 100).ToGameString() + "%");
+        if (preview.MissingResearch != null) body.AppendLine("需要研究：" + preview.MissingResearch.Label);
+        if (preview.MissingResource != null) body.AppendLine("等待补给：" + preview.MissingResource.Label);
+        if (preview.Status != SectorInteriorExplorationStatus.Completed)
+        {
+            body.AppendLine("持续投入：" + FormatResourceCostsPerMinute(exploration.ResourceRatesPerSecond));
+            body.AppendLine("供给充足时剩余：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒");
+            body.AppendLine("缺料自动等待，补足后继续；手动暂停保留进度。完成后停止消耗。");
+        }
+        for (int i = 0; i < exploration.Milestones.Count; i++)
+        {
+            if (preview.Progress * exploration.Milestones.Count < new ExpantaNum(i + 1))
+            {
+                body.AppendLine("当前目标：" + exploration.Milestones[i]);
+                break;
+            }
+            body.AppendLine("发现：" + exploration.Milestones[i]);
+        }
+        if (preview.Status == SectorInteriorExplorationStatus.Completed)
+            body.AppendLine(exploration.CompletionDescription);
+        body.AppendLine("探索完成后可建设：");
+        foreach (SectorBuildingDef building in BuildingManager.Instance.GetSectorBuildings(definition))
+            if (building.RequiresInteriorExploration) body.AppendLine("  " + building.Label);
+    }
+
+    private void ToggleInteriorExploration(SectorDef definition)
+    {
+        CacheRuntimeManagers();
+        SectorManager sectors = gameManagerCache?.Sectors;
+        if (sectors == null) return;
+        if (sectors.GetState(definition).InteriorExplorationActive)
+        {
+            sectors.PauseInteriorExploration(definition);
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
+        }
+        else if (sectors.TryStartInteriorExploration(definition, out SectorOperationFailure failure))
+            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
+        else ShowTooltip("开始勘探失败：" + failure.GetDescription());
+        RefreshSectorDetails(definition);
+        RefreshSectorRowsAndLayout();
+    }
+
+    private void UnlockSector(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -806,7 +1064,7 @@ public sealed partial class KingdomUIRoot
         RefreshSectorDetails(definition);
     }
 
-    private void StartColonization(SectorDefinition definition)
+    private void StartColonization(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -824,7 +1082,7 @@ public sealed partial class KingdomUIRoot
         RefreshSectorDetails(definition);
     }
 
-    private void PauseColonization(SectorDefinition definition)
+    private void PauseColonization(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -839,7 +1097,7 @@ public sealed partial class KingdomUIRoot
         RefreshSectorDetails(definition);
     }
 
-    private void StartCampaign(SectorDefinition definition)
+    private void StartCampaign(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -857,7 +1115,7 @@ public sealed partial class KingdomUIRoot
         RefreshSectorDetails(definition);
     }
 
-    private void PauseCampaign(SectorDefinition definition)
+    private void PauseCampaign(SectorDef definition)
     {
         if (GameManager.Instance?.Relic?.State.SupportedSectorId == definition.Id)
         {
@@ -867,7 +1125,7 @@ public sealed partial class KingdomUIRoot
         ExecuteCampaignRetreat(definition);
     }
 
-    private void ExecuteCampaignRetreat(SectorDefinition definition)
+    private void ExecuteCampaignRetreat(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -882,7 +1140,7 @@ public sealed partial class KingdomUIRoot
         RefreshUI();
     }
 
-    private void OccupySector(SectorDefinition definition)
+    private void OccupySector(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -910,7 +1168,7 @@ public sealed partial class KingdomUIRoot
         RefreshSectorDetails(definition);
     }
 
-    private void RefreshSectorDetails(SectorDefinition definition)
+    private void RefreshSectorDetails(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -919,7 +1177,7 @@ public sealed partial class KingdomUIRoot
             ShowSectorDetails(definition, gameManager.Sectors, gameManager.State, resourceManager);
     }
 
-    private void RepairSectorFleet(SectorDefinition definition)
+    private void RepairSectorFleet(SectorDef definition)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -951,7 +1209,7 @@ public sealed partial class KingdomUIRoot
             resourceManager);
     }
 
-    private static string GetSectorStateText(SectorManager manager, SectorDefinition definition)
+    private static string GetSectorStateText(SectorManager manager, SectorDef definition)
     {
         if (manager == null)
             return "未初始化";
@@ -971,18 +1229,18 @@ public sealed partial class KingdomUIRoot
         return state.CampaignProgress > ExpantaNum.Zero ? "已暂停" : "已解锁";
     }
 
-    private string FormatResourceCosts(IReadOnlyList<Pair<Resource, ExpantaNum>> costs) =>
+    private string FormatResourceCosts(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs) =>
         FormatResourceCosts(costs, ExpantaNum.One);
 
     private string FormatResourceCostsPerMinute(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs) =>
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs) =>
         FormatResourceCosts(costs, new ExpantaNum(60d)) + "/min";
 
     private static string FormatPerMinute(ExpantaNum perSecond) =>
         (perSecond * new ExpantaNum(60d)).ToGameString();
 
     private string FormatResourceCosts(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         ExpantaNum multiplier)
     {
         if (costs == null || costs.Count == 0)
@@ -993,7 +1251,7 @@ public sealed partial class KingdomUIRoot
         {
             if (i > 0)
                 result.Append("、");
-            Resource resource = costs[i].First;
+            ResourceDef resource = costs[i].First;
             result.Append(resource == null ? "未知资源" : resource.Label)
                 .Append(" ")
                 .Append((costs[i].Second * multiplier).ToGameString());
@@ -1002,7 +1260,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private string FormatResourceCosts(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> costs,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> costs,
         ProgressionModifierState modifiers)
     {
         if (costs == null || costs.Count == 0)
@@ -1013,7 +1271,7 @@ public sealed partial class KingdomUIRoot
         {
             if (i > 0)
                 result.Append("、");
-            Resource resource = costs[i].First;
+            ResourceDef resource = costs[i].First;
             ExpantaNum multiplier = modifiers == null
                 ? ExpantaNum.One
                 : modifiers.OccupiedResourceProductionMultiplier *

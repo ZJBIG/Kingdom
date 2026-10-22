@@ -143,7 +143,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         ClickAt(OverlayButton("Skip"));
         yield return Settle();
         Assert.That(root.OnboardingStageForEditor.StageId, Is.EqualTo("building"));
-        Building definition = DataBase<Building>.Find(root.OnboardingStageForEditor.TargetId);
+        BuildingDef definition = DataBase<BuildingDef>.Find(root.OnboardingStageForEditor.TargetId);
         ClickTarget();
         yield return Settle();
         Assert.That(root.OnboardingStageForEditor.Action, Is.EqualTo(TutorialStageAction.Select));
@@ -169,8 +169,8 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         ClickAt(root.transform.Find("SafeAreaRoot/LeftNavigation/NavigationButtons/Nav_Research") as RectTransform);
         yield return Settle();
         Assert.That(root.OnboardingStageForEditor.Action, Is.EqualTo(TutorialStageAction.Build));
-        var beforeResources = new Dictionary<Resource, ExpantaNum>();
-        foreach (Pair<Resource, ExpantaNum> cost in definition.ResourceRequirements)
+        var beforeResources = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
             beforeResources[cost.First] = ResourceManager.Instance.GetAmount(cost.First);
         ClickTarget();
         yield return Settle();
@@ -188,7 +188,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     {
         yield return LoadFreshGame();
         TutorialManager tutorial = TutorialManager.Current;
-        Research definition = DataBase<Research>.Find("ControlledFire");
+        ResearchDef definition = DataBase<ResearchDef>.Find("ControlledFire");
         Assert.That(ResearchManager.Instance.CanAccessResearch(definition) &&
             ResearchManager.Instance.ArePrerequisitesCompleted(definition), Is.True);
         tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
@@ -245,7 +245,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     public IEnumerator ResearchSelection_BlocksNestedPinAndRoutesPointerToRequiredNode()
     {
         yield return LoadFreshGame();
-        Research definition = DataBase<Research>.Find("ControlledFire");
+        ResearchDef definition = DataBase<ResearchDef>.Find("ControlledFire");
         TutorialManager.Current.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             StagesInitialized = true,
@@ -321,7 +321,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         }, GameManager.Instance.State.TechLevel);
         root.RefreshOnboardingForEditor();
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Spacer);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         ProgressionModifierManager.Rebuild(new List<ResearchState>(ResearchManager.Instance.States.Values));
         GameManager.Instance.State.RestorePopulationCapacityExactForEditor(new ExpantaNum(100), ExpantaNum.Zero);
@@ -400,7 +400,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
 
     private static void SetFixtureResources(ExpantaNum amount)
     {
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, amount);
     }
 

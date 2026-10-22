@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GravitationalWaveReceiverArray
   m_EditorClassIdentifier: 
   id: GravitationalWaveReceiverArray
+  icon: {fileID: 21300000, guid: 69e1a3f6ecc304a48a84025f8026b984, type: 3}
   Label: "引力波通信接收阵列"
   Description: "由引力波接收器、量子时钟和相位校准设备组成，提高远征探索能力，为跨星区测绘提供更稳定的信号定位。"
   SortOrder: 705

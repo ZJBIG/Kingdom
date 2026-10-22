@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: StoneHouse
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: b485363cf5344f36bf1f4ce9cff16585, type: 3}
   id: StoneHouse
   Label: "\u77F3\u5C4B"
   Description: "\u4EE5\u52A0\u5DE5\u77F3\u6750\u66FF\u4EE3\u6613\u635F\u6728\u6784\uFF0C\u63D0\u4F9B\u66F4\u8010\u4E45\u4E14\u5BB9\u91CF\u66F4\u9AD8\u7684\u5B9A\u5C45\u4F4F\u5B85\u3002"

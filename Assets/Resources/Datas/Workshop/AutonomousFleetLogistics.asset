@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutonomousFleetLogistics
   m_EditorClassIdentifier: 
   id: AutonomousFleetLogistics
+  icon: {fileID: 21300000, guid: f245b7fc86537ad4597686881a3c0217, type: 3}
   Label: "\u81EA\u52A8\u5316\u8230\u961F\u540E\u52E4"
   Description: "\u7528\u81EA\u52A8\u8C03\u5EA6\u3001\u6A21\u5757\u5316\u50A8\u8FD0\u3001\u6DA6\u6ED1\u7EF4\u62A4\u548C\u6A61\u80F6\u5BC6\u5C01\u964D\u4F4E\u6DF1\u7A7A\u7269\u6D41\u7B49\u5F85\uFF0C\u63D0\u9AD8\u540E\u52E4\u67A2\u7EBD\u7684\u7269\u6D41\u541E\u5410\u3002"
   SortOrder: 500

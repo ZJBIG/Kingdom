@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PhantomAlloyRecrystallization
   m_EditorClassIdentifier: 
   id: PhantomAlloyRecrystallization
+  icon: {fileID: 21300000, guid: b3ddb7030b9f72144be309042fb719de, type: 3}
   Label: "幽影合金再结晶"
   Description: "通过相位材料诱导、钛合金真空坩埚和多级冷却重排幽影合金晶格，提升深空结构合金的稳定产出。"
   SortOrder: 550

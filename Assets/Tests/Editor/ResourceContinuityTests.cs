@@ -22,7 +22,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 铝土矿必须进入铝冶金研究与后续冶炼链()
     {
-        Research advancedMetalMetallurgy = DataBase<Research>.Find("AdvancedMetalMetallurgy");
+        ResearchDef advancedMetalMetallurgy = DataBase<ResearchDef>.Find("AdvancedMetalMetallurgy");
 
         Assert.That(
             HasPositiveRequirement(advancedMetalMetallurgy, "CopperWire"),
@@ -36,7 +36,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 中古时代转型研究必须拥有冶炼前置并消耗石砖与布料()
     {
-        Research transition = DataBase<Research>.Find("FeudalAdministration");
+        ResearchDef transition = DataBase<ResearchDef>.Find("FeudalAdministration");
 
         Assert.That(transition.Prerequisites.Select(research => research.Id),
             Is.EquivalentTo(new[] { "BronzeAlloyCrafting", "IronworkingAndSteelmaking", "WrittenRecords" }));
@@ -77,7 +77,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 基础金属必须进入轨道电力硬件的跨时代链条()
     {
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalEngineering"), "BasicMetalIngot"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("OrbitalEngineering"), "BasicMetalIngot"), Is.True);
         Assert.That(HasBuildingRequirement("OrbitalSolarArray", "BasicMetalIngot"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalPowerBeaming", "BasicMetalIngot"), Is.True);
         Assert.That(HasLaterEraUse("BasicMetalIngot"), Is.True);
@@ -105,7 +105,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void ChemicalPlantIsAvailableBeforeDeepOilDrilling()
     {
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
 
         Assert.That(chemicalPlant.TechLevel, Is.EqualTo(TechLevel.Industrial));
         Assert.That(chemicalPlant.RequiredResearch.Select(research => research.Id),
@@ -149,7 +149,7 @@ public sealed class ResourceContinuityTests
     {
         Assert.That(HasBuildingConsumption("CokeOven", "Coal"), Is.True);
         Assert.That(HasBuildingGeneration("CokeOven", "Coke"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("PhantomMaterials"), "Coke"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("PhantomMaterials"), "Coke"), Is.True);
     }
 
     [Test]
@@ -188,7 +188,7 @@ public sealed class ResourceContinuityTests
         Assert.That(HasBuildingConsumptionRate("OrbitalHabitatMegastructure", "Electronics", 0.10d), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Chemical"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Rubber"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalStationEngineering"), "Biomass"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("OrbitalStationEngineering"), "Biomass"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalLifeSupportNetworks", "Biomass"), Is.True);
         Assert.That(HasLaterEraUse("Biomass"), Is.True);
     }
@@ -196,10 +196,10 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 纤维采集地必须在工业时代升级为同时产粮的种植田()
     {
-        Building camp = DataBase<Building>.Find("FiberGatheringCamp");
-        Building farm = DataBase<Building>.Find("Farm");
-        Building field = DataBase<Building>.Find("PlantingField");
-        Building irrigation = DataBase<Building>.Find("IrrigationWorks");
+        BuildingDef camp = DataBase<BuildingDef>.Find("FiberGatheringCamp");
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+        BuildingDef field = DataBase<BuildingDef>.Find("PlantingField");
+        BuildingDef irrigation = DataBase<BuildingDef>.Find("IrrigationWorks");
 
         Assert.That(camp, Is.Not.Null);
         Assert.That(farm, Is.Not.Null);
@@ -218,9 +218,9 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 太空居住链的基础生物质用量必须显著高于高级材料()
     {
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Research habitation = DataBase<Research>.Find("OrbitalStationEngineering");
-        WorkshopUpgrade lifeSupport = DataBase<WorkshopUpgrade>.Find("OrbitalLifeSupportNetworks");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        ResearchDef habitation = DataBase<ResearchDef>.Find("OrbitalStationEngineering");
+        WorkshopUpgradeDef lifeSupport = DataBase<WorkshopUpgradeDef>.Find("OrbitalLifeSupportNetworks");
 
         Assert.That(GetBuildingAmount(habitat, "Biomass"), Is.GreaterThan(
             GetBuildingAmount(habitat, "TitaniumAlloy") * 4d));
@@ -237,8 +237,8 @@ public sealed class ResourceContinuityTests
     [Test]
     public void FullOrbitalHabitatCanBeSupportedByOrbitalAgriculture()
     {
-        Building habitat = DataBase<Building>.Find("OrbitalHabitatMegastructure");
-        Building agroecologyArray = DataBase<Building>.Find("OrbitalAgroecologyArray");
+        BuildingDef habitat = DataBase<BuildingDef>.Find("OrbitalHabitatMegastructure");
+        BuildingDef agroecologyArray = DataBase<BuildingDef>.Find("OrbitalAgroecologyArray");
 
         Assert.That(habitat, Is.Not.Null);
         Assert.That(agroecologyArray, Is.Not.Null);
@@ -257,7 +257,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void OrbitalStationUsesMuchMoreBiomassThanTitaniumAlloy()
     {
-        Building station = DataBase<Building>.Find("OrbitalStation");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
 
         Assert.That(station, Is.Not.Null);
         Assert.That(GetBuildingAmount(station, "Biomass"), Is.GreaterThan(
@@ -269,7 +269,7 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 轨道空间站必须使用高级金属材料并持续维护()
     {
-        Building station = DataBase<Building>.Find("OrbitalStation");
+        BuildingDef station = DataBase<BuildingDef>.Find("OrbitalStation");
 
         Assert.That(station, Is.Not.Null);
         Assert.That(GetBuildingAmount(station, "AdvancedMetalIngot"), Is.GreaterThan(0d));
@@ -284,9 +284,9 @@ public sealed class ResourceContinuityTests
             "TitaniumAlloy", "Composite", "PhantomAlloy", "PhantomWeave", "PhaseMaterial"
         };
 
-        Building[] spaceBuildings = DataBase<Building>.All
+        BuildingDef[] spaceBuildings = DataBase<BuildingDef>.All
             .Where(building => building != null && building.TechLevel >= TechLevel.Spacer &&
-                building is not SectorBuilding)
+                building is not SectorBuildingDef)
             .ToArray();
 
         Assert.That(spaceBuildings, Is.Not.Empty);
@@ -348,12 +348,12 @@ public sealed class ResourceContinuityTests
     [Test]
     public void 所有工业建筑必须拥有持续资源维护回路()
     {
-        Building[] industrialBuildings = DataBase<Building>.All
+        BuildingDef[] industrialBuildings = DataBase<BuildingDef>.All
             .Where(building => building != null && building.TechLevel == TechLevel.Industrial)
             .ToArray();
 
         Assert.That(industrialBuildings, Is.Not.Empty);
-        foreach (Building building in industrialBuildings)
+        foreach (BuildingDef building in industrialBuildings)
         {
             Assert.That(
                 building.ResourceConsumptionRates,
@@ -372,28 +372,28 @@ public sealed class ResourceContinuityTests
         var missingSource = new List<string>();
         var missingSink = new List<string>();
 
-        foreach (Resource resource in DataBase<Resource>.All)
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
         {
             if (resource == null)
                 continue;
             string id = resource.Id;
 
             bool hasSource =
-                DataBase<Building>.All.Any(building => building != null &&
+                DataBase<BuildingDef>.All.Any(building => building != null &&
                     HasResourcePair(building.ResourceGenerationRates, id)) ||
-                DataBase<SectorDefinition>.All.Any(sector => sector != null &&
+                DataBase<SectorDef>.All.Any(sector => sector != null &&
                     (HasResourcePair(sector.ResourceRewards, id) ||
                      HasResourcePair(sector.OccupiedResourceRatesPerSecond, id)));
 
             bool hasSink =
-                DataBase<Building>.All.Any(building => building != null &&
+                DataBase<BuildingDef>.All.Any(building => building != null &&
                     (HasResourcePair(building.ResourceConsumptionRates, id) ||
                      HasResourcePair(building.ResourceRequirements, id))) ||
-                DataBase<Research>.All.Any(research => research != null &&
+                DataBase<ResearchDef>.All.Any(research => research != null &&
                     HasResourcePair(research.ResourceRequirements, id)) ||
-                DataBase<WorkshopUpgrade>.All.Any(workshop => workshop != null &&
+                DataBase<WorkshopUpgradeDef>.All.Any(workshop => workshop != null &&
                     HasResourcePair(workshop.ResourceRequirements, id)) ||
-                DataBase<SectorDefinition>.All.Any(sector => sector != null &&
+                DataBase<SectorDef>.All.Any(sector => sector != null &&
                     (HasResourcePair(sector.CampaignResourceRatesPerSecond, id) ||
                      HasResourcePair(sector.ColonizationResourceRatesPerSecond, id)));
 
@@ -421,7 +421,7 @@ public sealed class ResourceContinuityTests
         Assert.That(HasBuildingGeneration("FiberGatheringCamp", "Biomass"), Is.True);
         Assert.That(HasBuildingGeneration("PlantingField", "Biomass"), Is.True);
         Assert.That(HasBuildingConsumption("OrbitalHabitatMegastructure", "Biomass"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("OrbitalAgroecology"), "Biomass"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("OrbitalAgroecology"), "Biomass"), Is.True);
         Assert.That(HasWorkshopRequirement("OrbitalAgroponicSystems", "Biomass"), Is.True);
         Assert.That(HasCampaignCost("AlphaCentauri", "Biomass", 0.8d), Is.True);
     }
@@ -442,11 +442,11 @@ public sealed class ResourceContinuityTests
         Assert.That(HasWorkshopRequirement("AutonomousFleetLogistics", "Lubricant"), Is.True);
     }
 
-    private static bool HasRequirement(Research research, string resourceId, double amount)
+    private static bool HasRequirement(ResearchDef research, string resourceId, double amount)
     {
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = research.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = research.ResourceRequirements[i];
             if (pair.First != null && pair.First.Id == resourceId &&
                 pair.Second.ToDouble() == amount)
                 return true;
@@ -454,11 +454,11 @@ public sealed class ResourceContinuityTests
         return false;
     }
 
-    private static bool HasPositiveRequirement(Research research, string resourceId)
+    private static bool HasPositiveRequirement(ResearchDef research, string resourceId)
     {
         for (int i = 0; i < research.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = research.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = research.ResourceRequirements[i];
             if (pair.First != null && pair.First.Id == resourceId &&
                 pair.Second > ExpantaNum.Zero)
                 return true;
@@ -474,15 +474,15 @@ public sealed class ResourceContinuityTests
             HasBuildingConsumptionRate("PhantomMaterialsFabricator", "Coke", 0.06d),
             Is.True);
         Assert.That(HasWorkshopRequirement("PhantomWeaveLattice", "Coke"), Is.True);
-        Assert.That(HasPositiveRequirement(DataBase<Research>.Find("PhantomMaterials"), "Coke"), Is.True);
+        Assert.That(HasPositiveRequirement(DataBase<ResearchDef>.Find("PhantomMaterials"), "Coke"), Is.True);
     }
 
     private static bool HasBuildingRequirement(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         for (int i = 0; i < building.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceRequirements[i];
             if (pair.First != null && pair.First.Id == resourceId)
                 return true;
         }
@@ -491,10 +491,10 @@ public sealed class ResourceContinuityTests
 
     private static bool HasGenerationRate(string buildingId, string resourceId, double amount)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         for (int i = 0; i < building.ResourceGenerationRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceGenerationRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceGenerationRates[i];
             if (pair.First != null && pair.First.Id == resourceId &&
                 pair.Second.ToDouble() == amount)
                 return true;
@@ -505,10 +505,10 @@ public sealed class ResourceContinuityTests
 
     private static bool HasCampaignCost(string sectorId, string resourceId, double amount)
     {
-        SectorDefinition sector = DataBase<SectorDefinition>.Find(sectorId);
+        SectorDef sector = DataBase<SectorDef>.Find(sectorId);
         for (int i = 0; i < sector.CampaignResourceRatesPerSecond.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = sector.CampaignResourceRatesPerSecond[i];
+            Pair<ResourceDef, ExpantaNum> pair = sector.CampaignResourceRatesPerSecond[i];
             if (pair.First != null && pair.First.Id == resourceId &&
                 pair.Second.ToDouble() >= amount)
                 return true;
@@ -517,35 +517,35 @@ public sealed class ResourceContinuityTests
         return false;
     }
 
-    private static double GetBuildingAmount(Building building, string resourceId, bool consumption = false)
+    private static double GetBuildingAmount(BuildingDef building, string resourceId, bool consumption = false)
     {
         var pairs = consumption
             ? building.ResourceConsumptionRates
             : building.ResourceRequirements;
-        Pair<Resource, ExpantaNum> pair = pairs.First(item => item.First != null && item.First.Id == resourceId);
+        Pair<ResourceDef, ExpantaNum> pair = pairs.First(item => item.First != null && item.First.Id == resourceId);
         return pair.Second.ToDouble();
     }
 
-    private static double GetResearchAmount(Research research, string resourceId)
+    private static double GetResearchAmount(ResearchDef research, string resourceId)
     {
-        Pair<Resource, ExpantaNum> pair = research.ResourceRequirements
+        Pair<ResourceDef, ExpantaNum> pair = research.ResourceRequirements
             .First(item => item.First != null && item.First.Id == resourceId);
         return pair.Second.ToDouble();
     }
 
-    private static double GetWorkshopAmount(WorkshopUpgrade workshop, string resourceId)
+    private static double GetWorkshopAmount(WorkshopUpgradeDef workshop, string resourceId)
     {
-        Pair<Resource, ExpantaNum> pair = workshop.ResourceRequirements
+        Pair<ResourceDef, ExpantaNum> pair = workshop.ResourceRequirements
             .First(item => item.First != null && item.First.Id == resourceId);
         return pair.Second.ToDouble();
     }
 
     private static bool HasBuildingConsumption(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceConsumptionRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceConsumptionRates[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second > ExpantaNum.Zero)
                 return true;
         }
@@ -555,12 +555,12 @@ public sealed class ResourceContinuityTests
 
     private static bool HasBuildingConsumptionRate(string buildingId, string resourceId, double amount)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return false;
         for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceConsumptionRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceConsumptionRates[i];
             if (pair.First != null &&
                 pair.First.Id == resourceId &&
                 pair.Second.ToDouble() == amount)
@@ -572,10 +572,10 @@ public sealed class ResourceContinuityTests
 
     private static bool HasWorkshopRequirement(string workshopId, string resourceId)
     {
-        WorkshopUpgrade workshop = DataBase<WorkshopUpgrade>.Find(workshopId);
+        WorkshopUpgradeDef workshop = DataBase<WorkshopUpgradeDef>.Find(workshopId);
         for (int i = 0; i < workshop.ResourceRequirements.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = workshop.ResourceRequirements[i];
+            Pair<ResourceDef, ExpantaNum> pair = workshop.ResourceRequirements[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second > ExpantaNum.Zero)
                 return true;
         }
@@ -585,12 +585,12 @@ public sealed class ResourceContinuityTests
 
     private static bool HasBuildingGeneration(string buildingId, string resourceId)
     {
-        Building building = DataBase<Building>.Find(buildingId);
+        BuildingDef building = DataBase<BuildingDef>.Find(buildingId);
         if (building == null)
             return false;
         for (int i = 0; i < building.ResourceGenerationRates.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = building.ResourceGenerationRates[i];
+            Pair<ResourceDef, ExpantaNum> pair = building.ResourceGenerationRates[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second > ExpantaNum.Zero)
                 return true;
         }
@@ -599,28 +599,28 @@ public sealed class ResourceContinuityTests
 
     private static bool HasLaterEraUse(string resourceId)
     {
-        bool inBuilding = DataBase<Building>.All.Any(building =>
+        bool inBuilding = DataBase<BuildingDef>.All.Any(building =>
             building != null && building.TechLevel >= TechLevel.Spacer &&
             (HasResourcePair(building.ResourceRequirements, resourceId) ||
              HasResourcePair(building.ResourceConsumptionRates, resourceId)));
-        bool inResearch = DataBase<Research>.All.Any(research =>
+        bool inResearch = DataBase<ResearchDef>.All.Any(research =>
             research != null && research.TechLevel >= TechLevel.Spacer &&
             HasResourcePair(research.ResourceRequirements, resourceId));
-        bool inWorkshop = DataBase<WorkshopUpgrade>.All.Any(workshop =>
+        bool inWorkshop = DataBase<WorkshopUpgradeDef>.All.Any(workshop =>
             workshop != null && workshop.TechLevel >= TechLevel.Spacer &&
             HasResourcePair(workshop.ResourceRequirements, resourceId));
         return inBuilding || inResearch || inWorkshop;
     }
 
     private static bool HasResourcePair(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
         string resourceId)
     {
         if (pairs == null)
             return false;
         for (int i = 0; i < pairs.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = pairs[i];
+            Pair<ResourceDef, ExpantaNum> pair = pairs[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second > ExpantaNum.Zero)
                 return true;
         }
@@ -629,10 +629,10 @@ public sealed class ResourceContinuityTests
 
     private static bool HasColonizationCost(string sectorId, string resourceId, double amount)
     {
-        SectorDefinition sector = DataBase<SectorDefinition>.Find(sectorId);
+        SectorDef sector = DataBase<SectorDef>.Find(sectorId);
         for (int i = 0; i < sector.ColonizationResourceRatesPerSecond.Count; i++)
         {
-            Pair<Resource, ExpantaNum> pair = sector.ColonizationResourceRatesPerSecond[i];
+            Pair<ResourceDef, ExpantaNum> pair = sector.ColonizationResourceRatesPerSecond[i];
             if (pair.First != null && pair.First.Id == resourceId && pair.Second.ToDouble() == amount)
                 return true;
         }

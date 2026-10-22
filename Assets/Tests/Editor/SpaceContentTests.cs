@@ -6,10 +6,10 @@ public sealed class SpaceContentTests
     [Test]
     public void C702_SpaceBuildingsUseSpacerTechLevelAndStableIds()
     {
-        Building launchCenter = DataBase<Building>.Find("LaunchCenter");
-        Building orbitalStation = DataBase<Building>.Find("OrbitalStation");
-        Building shipyard = DataBase<Building>.Find("Shipyard");
-        Building observatory = DataBase<Building>.Find("DeepSpaceObservatory");
+        BuildingDef launchCenter = DataBase<BuildingDef>.Find("LaunchCenter");
+        BuildingDef orbitalStation = DataBase<BuildingDef>.Find("OrbitalStation");
+        BuildingDef shipyard = DataBase<BuildingDef>.Find("Shipyard");
+        BuildingDef observatory = DataBase<BuildingDef>.Find("DeepSpaceObservatory");
 
         Assert.That(launchCenter.TechLevel, Is.EqualTo(TechLevel.Spacer));
         Assert.That(orbitalStation.TechLevel, Is.EqualTo(TechLevel.Spacer));
@@ -18,25 +18,25 @@ public sealed class SpaceContentTests
         Assert.That(launchCenter.Id, Is.EqualTo("LaunchCenter"));
         Assert.That(orbitalStation.Id, Is.EqualTo("OrbitalStation"));
         Assert.That(shipyard.Id, Is.EqualTo("Shipyard"));
-        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("Electronics")), Is.True);
-        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("RocketFuel")), Is.True);
-        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("PhantomWeave")), Is.True);
-        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<Resource>.Find("PhaseMaterial")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<ResourceDef>.Find("Electronics")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<ResourceDef>.Find("RocketFuel")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhantomWeave")), Is.True);
+        Assert.That(HasRate(observatory.ResourceConsumptionRates, DataBase<ResourceDef>.Find("PhaseMaterial")), Is.True);
     }
 
     [Test]
     public void C702_SpaceResourcesHaveSourcesAndMultipleSinks()
     {
-        Resource rocketFuel = DataBase<Resource>.Find("RocketFuel");
-        Resource composite = DataBase<Resource>.Find("Composite");
-        Building chemicalPlant = DataBase<Building>.Find("ChemicalPlant");
-        Building machineFactory = DataBase<Building>.Find("MachineFactory");
+        ResourceDef rocketFuel = DataBase<ResourceDef>.Find("RocketFuel");
+        ResourceDef composite = DataBase<ResourceDef>.Find("Composite");
+        BuildingDef chemicalPlant = DataBase<BuildingDef>.Find("ChemicalPlant");
+        BuildingDef machineFactory = DataBase<BuildingDef>.Find("MachineFactory");
 
         Assert.That(HasRate(chemicalPlant.ResourceGenerationRates, rocketFuel), Is.True);
         Assert.That(FindRate(machineFactory.ResourceGenerationRates, composite),
             Is.GreaterThan(0d));
-        Assert.That(CountReferences(DataBase<Building>.All, rocketFuel), Is.GreaterThanOrEqualTo(2));
-        Assert.That(CountReferences(DataBase<Building>.All, composite), Is.GreaterThanOrEqualTo(2));
+        Assert.That(CountReferences(DataBase<BuildingDef>.All, rocketFuel), Is.GreaterThanOrEqualTo(2));
+        Assert.That(CountReferences(DataBase<BuildingDef>.All, composite), Is.GreaterThanOrEqualTo(2));
     }
 
     [Test]
@@ -54,8 +54,8 @@ public sealed class SpaceContentTests
         };
         for (int i = 0; i < workshopIds.Length; i++)
         {
-            WorkshopUpgrade workshop =
-                DataBase<WorkshopUpgrade>.Find(workshopIds[i]);
+            WorkshopUpgradeDef workshop =
+                DataBase<WorkshopUpgradeDef>.Find(workshopIds[i]);
             Assert.That(workshop.Label, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(workshop.Description, Does.Not.Contain("閸"), workshopIds[i]);
             Assert.That(string.IsNullOrWhiteSpace(workshop.Label), Is.False, workshopIds[i]);
@@ -80,11 +80,11 @@ public sealed class SpaceContentTests
 
         for (int i = 0; i < suppliedBuildingIds.Length; i++)
         {
-            Building building = DataBase<Building>.Find(suppliedBuildingIds[i]);
+            BuildingDef building = DataBase<BuildingDef>.Find(suppliedBuildingIds[i]);
             Assert.That(building.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero), suppliedBuildingIds[i]);
         }
 
-        Building solarArray = DataBase<Building>.Find("OrbitalSolarArray");
+        BuildingDef solarArray = DataBase<BuildingDef>.Find("OrbitalSolarArray");
         Assert.That(solarArray.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(solarArray.SpaceCost, Is.GreaterThanOrEqualTo(new ExpantaNum(420d)));
         Assert.That(solarArray.ProductivityConsumption, Is.GreaterThanOrEqualTo(new ExpantaNum(500d)));
@@ -93,8 +93,8 @@ public sealed class SpaceContentTests
     }
 
     private static bool HasRate(
-        System.Collections.Generic.IReadOnlyList<Pair<Resource, ExpantaNum>> pairs,
-        Resource resource)
+        System.Collections.Generic.IReadOnlyList<Pair<ResourceDef, ExpantaNum>> pairs,
+        ResourceDef resource)
     {
         for (int i = 0; i < pairs.Count; i++)
             if (pairs[i].First == resource && pairs[i].Second > ExpantaNum.Zero)
@@ -103,8 +103,8 @@ public sealed class SpaceContentTests
     }
 
     private static double FindRate(
-        IReadOnlyList<Pair<Resource, ExpantaNum>> rates,
-        Resource resource)
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> rates,
+        ResourceDef resource)
     {
         for (int i = 0; i < rates.Count; i++)
             if (rates[i].First == resource)
@@ -113,13 +113,13 @@ public sealed class SpaceContentTests
     }
 
     private static int CountReferences(
-        System.Collections.Generic.IReadOnlyList<Building> buildings,
-        Resource resource)
+        System.Collections.Generic.IReadOnlyList<BuildingDef> buildings,
+        ResourceDef resource)
     {
         int count = 0;
         for (int i = 0; i < buildings.Count; i++)
         {
-            IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = buildings[i].ResourceRequirements;
+            IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = buildings[i].ResourceRequirements;
             for (int j = 0; j < requirements.Count; j++)
                 if (requirements[j].First == resource && requirements[j].Second > ExpantaNum.Zero)
                 {

@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: MetalMine
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 606e0d6a084d4915b51310498f18fc86, type: 3}
   id: MetalMine
   Label: "低级金属矿场"
   Description: "开采低级金属矿，为基础金属冶炼和早期工具工艺提供统一原料。"

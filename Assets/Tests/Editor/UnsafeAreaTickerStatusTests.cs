@@ -16,7 +16,7 @@ public sealed class UnsafeAreaTickerStatusTests
         state.AdjustFoodRatesForEditor(ExpantaNum.Zero, new ExpantaNum(10));
         state.SetPowerSatisfactionForEditor(new ExpantaNum(.5));
         state.SetLogisticsSatisfactionForEditor(new ExpantaNum(.5));
-        Research research = ScriptableObject.CreateInstance<Research>();
+        ResearchDef research = ScriptableObject.CreateInstance<ResearchDef>();
         try
         {
             research.Label = "不应挤掉风险的研究";
@@ -52,16 +52,16 @@ public sealed class UnsafeAreaTickerStatusTests
     [TestCase(true, "：研究进行中")]
     public void LongResearchNameKeepsItsStatusSuffix(bool paid, string suffix)
     {
-        Research research = ScriptableObject.CreateInstance<Research>();
-        Resource material = ScriptableObject.CreateInstance<Resource>();
+        ResearchDef research = ScriptableObject.CreateInstance<ResearchDef>();
+        ResourceDef material = ScriptableObject.CreateInstance<ResourceDef>();
         try
         {
             research.Label = new string('长', 40);
             research.BaseCost = "100";
             if (!paid)
-                research.SetResourceRequirementsForEditor(new System.Collections.Generic.List<Pair<Resource, ExpantaNum>>
+                research.SetResourceRequirementsForEditor(new System.Collections.Generic.List<Pair<ResourceDef, ExpantaNum>>
                 {
-                    new Pair<Resource, ExpantaNum>(material, ExpantaNum.One)
+                    new Pair<ResourceDef, ExpantaNum>(material, ExpantaNum.One)
                 });
             var researchState = new ResearchState(research);
             if (paid) researchState.SetProgressForEditor(new ExpantaNum(50));
@@ -106,7 +106,7 @@ public sealed class UnsafeAreaTickerStatusTests
     [Test]
     public void ResearchProgressDoesNotRestartTheNewsCycle()
     {
-        Research research = ScriptableObject.CreateInstance<Research>();
+        ResearchDef research = ScriptableObject.CreateInstance<ResearchDef>();
         try
         {
             research.Label = "测试研究";

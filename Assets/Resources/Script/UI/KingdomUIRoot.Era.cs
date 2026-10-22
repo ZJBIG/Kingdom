@@ -24,7 +24,7 @@ public sealed partial class KingdomUIRoot
         }
 
         EraGoalEvaluation goal = preparedGoal ?? EraGoalEvaluator.Evaluate(state.TechLevel, researchManagerCache, resourceManagerCache);
-        Research transition = goal.Transition;
+        ResearchDef transition = goal.Transition;
         float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
         float y = 24f;
 
@@ -67,7 +67,7 @@ public sealed partial class KingdomUIRoot
         {
             EraGoalConditionEvaluation condition = eraConditions[i];
             if (condition.Kind != EraGoalConditionKind.PrerequisiteResearch) continue;
-            Research research = condition.Research;
+            ResearchDef research = condition.Research;
             ResearchState researchState = condition.ResearchState;
             requirementY += CreateEraCard(requirements, "EraResearch_" + research.Id, (condition.Met ? "✓ " : "○ ") + research.Label,
                 condition.Met ? "已完成" : ResearchStateLabel(research, researchState == null ? ResearchStatus.Locked : researchState.Status),
@@ -78,7 +78,7 @@ public sealed partial class KingdomUIRoot
         {
             EraGoalConditionEvaluation condition = eraConditions[i];
             if (condition.Kind != EraGoalConditionKind.Resource) continue;
-            Resource resource = condition.Resource;
+            ResourceDef resource = condition.Resource;
             requirementY += CreateEraCard(requirements, "EraResource_" + resource.Id, (condition.Met ? "✓ " : "○ ") + resource.Label,
                 FormatResourceCondition(condition), GetEraAlternatePanelColor(resourceIndex++), true, () => ShowResourceDetails(resource), null, width, requirementY, 120f) + 10f;
         }
@@ -121,7 +121,7 @@ public sealed partial class KingdomUIRoot
     private static Color GetEraAlternatePanelColor(int index) => index % 2 == 0 ? ListRowEven : ListRowOdd;
 
     private float CreateEraCard(RectTransform parent, string name, string title, string body, Color color,
-        bool hasAction, Action action, Research queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
+        bool hasAction, Action action, ResearchDef queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
     {
         RectTransform card = Instantiate(KingdomUIPrefabLibrary.Load(KingdomUIPrefabLibrary.EraCard), parent, false).GetComponent<RectTransform>();
         card.name = name;
@@ -159,7 +159,7 @@ public sealed partial class KingdomUIRoot
         return height;
     }
 
-    private void AddEraActions(RectTransform card, Action detailAction, Research queueResearch)
+    private void AddEraActions(RectTransform card, Action detailAction, ResearchDef queueResearch)
     {
         AddEraButton(card, "DetailAction", "查看详情", BasicMetalIngot, detailAction);
         if (queueResearch == null) return;
@@ -203,7 +203,7 @@ public sealed partial class KingdomUIRoot
         eraPageStateSignature = BuildEraPageStateSignature(state, goal);
     }
 
-    private static string GetTransitionStatus(Research transition, float progress)
+    private static string GetTransitionStatus(ResearchDef transition, float progress)
     {
         ResearchManager manager = ResearchManager.Instance;
         if (manager != null && manager.States.TryGetValue(transition, out ResearchState state))
@@ -218,7 +218,7 @@ public sealed partial class KingdomUIRoot
     private static string BuildNextEraImpact(TechLevel targetEra)
     {
         var lines = new List<string>();
-        Research transition = EraGoalEvaluator.FindTransition(targetEra);
+        ResearchDef transition = EraGoalEvaluator.FindTransition(targetEra);
         if (transition != null)
         {
             for (int i = 0; i < transition.Effects.Count; i++)
@@ -239,7 +239,7 @@ public sealed partial class KingdomUIRoot
         };
         for (int i = 0; i < signatureBuildings.Length; i++)
         {
-            Building building = DataBase<Building>.Find(signatureBuildings[i]);
+            BuildingDef building = DataBase<BuildingDef>.Find(signatureBuildings[i]);
             if (building == null) continue;
             var prerequisites = new List<string>();
             for (int j = 0; j < building.RequiredResearch.Count; j++)
@@ -263,7 +263,7 @@ public sealed partial class KingdomUIRoot
         return shortfall + "，净产出 " + net.ToGameString() + "/s，无法估算";
     }
 
-    private static bool IsEraTransitionResearchCompleted(Research transition) => transition != null && ResearchManager.Instance != null && ResearchManager.Instance.States.TryGetValue(transition, out ResearchState state) && state.Status == ResearchStatus.Completed;
+    private static bool IsEraTransitionResearchCompleted(ResearchDef transition) => transition != null && ResearchManager.Instance != null && ResearchManager.Instance.States.TryGetValue(transition, out ResearchState state) && state.Status == ResearchStatus.Completed;
 
     private static string GetEraDefinition(TechLevel era) => era switch
     {

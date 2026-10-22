@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OrbitalStation
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 703c447ffa044f7688fa83223a707e63, type: 3}
   id: OrbitalStation
   Label: "\u8F68\u9053\u7A7A\u95F4\u7AD9"
   Description: "集成轨道补给与深空中转，为舰队提供后勤吞吐和物流调度。"

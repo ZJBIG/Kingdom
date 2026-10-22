@@ -56,6 +56,8 @@ public sealed class BuildingSnapshot : DefinitionSnapshot
     public List<string> RequiredResearchIds { get; set; } = new();
     public List<string> RequiredWorkshopIds { get; set; } = new();
     public string SectorId { get; set; } = "";
+    public bool RequiresInteriorExploration { get; set; }
+    public int MaxAmount { get; set; }
 }
 
 public sealed class ResearchSnapshot : DefinitionSnapshot
@@ -65,11 +67,25 @@ public sealed class ResearchSnapshot : DefinitionSnapshot
 }
 public sealed class WorkshopSnapshot : DefinitionSnapshot
 {
+    public string RequiredBuildingId { get; set; } = "";
+    public string RequiredSectorId { get; set; } = "";
     public string Label { get; set; } = ""; public string Description { get; set; } = ""; public int SortOrder { get; set; }
     public List<string> RequiredResearchIds { get; set; } = new(); public List<string> RequiredWorkshopIds { get; set; } = new(); public List<AmountSnapshot> ResourceRequirements { get; set; } = new(); public List<EffectSnapshot> Effects { get; set; } = new();
 }
+public sealed class InteriorExplorationSnapshot
+{
+    public string Label { get; set; } = "";
+    public string Description { get; set; } = "";
+    public string CompletionDescription { get; set; } = "";
+    public string DurationSeconds { get; set; } = "0";
+    public List<string> RequiredResearchIds { get; set; } = new();
+    public List<AmountSnapshot> ResourceRatesPerSecond { get; set; } = new();
+    public List<string> Milestones { get; set; } = new();
+}
+
 public sealed class SectorSnapshot : DefinitionSnapshot
 {
+    public InteriorExplorationSnapshot? InteriorExploration { get; set; }
     public string StarSystemId { get; set; } = ""; public string Domain { get; set; } = ""; public string TerritoryReward { get; set; } = "0"; public string EnemyPower { get; set; } = "0"; public bool Repeatable { get; set; }
     public string ColonizationFoodPerSecond { get; set; } = "0"; public string ColonizationDurationSeconds { get; set; } = "0"; public string CampaignFoodPerSecond { get; set; } = "0"; public string CampaignProgressMultiplier { get; set; } = "1";
     public List<string> PrerequisiteSectorIds { get; set; } = new(); public List<AmountSnapshot> ResourceRewards { get; set; } = new(); public List<AmountSnapshot> OccupiedResourceRatesPerSecond { get; set; } = new(); public List<AmountSnapshot> ColonizationResourceRatesPerSecond { get; set; } = new(); public List<AmountSnapshot> CampaignResourceRatesPerSecond { get; set; } = new();
@@ -98,6 +114,6 @@ public sealed class RuntimeStateSnapshot : SaveStateSnapshot
 }
 public sealed class BuildingStateSnapshot { public string BuildingId { get; set; } = ""; public string Amount { get; set; } = "0"; public string Efficiency { get; set; } = "1"; }
 public sealed class ResearchStateSnapshot { public string ResearchId { get; set; } = ""; public string Progress { get; set; } = "0"; public bool CostPaid { get; set; } public bool Completed { get; set; } public List<AmountSnapshot> PaidResourceCosts { get; set; } = new(); }
-public sealed class SectorStateSnapshot { public string SectorId { get; set; } = ""; public bool Unlocked { get; set; } public bool Occupied { get; set; } public bool ColonizationActive { get; set; } public bool CampaignActive { get; set; } public string Progress { get; set; } = "0"; public string Casualties { get; set; } = "0"; public string CombatRatio { get; set; } = "0"; public int VisitCount { get; set; } }
+public sealed class SectorStateSnapshot { public string SectorId { get; set; } = ""; public bool Unlocked { get; set; } public bool Occupied { get; set; } public bool ColonizationActive { get; set; } public bool InteriorExplorationActive { get; set; } public bool InteriorExplorationPaused { get; set; } public string InteriorExplorationProgress { get; set; } = "0"; public bool CampaignActive { get; set; } public string Progress { get; set; } = "0"; public string Casualties { get; set; } = "0"; public string CombatRatio { get; set; } = "0"; public int VisitCount { get; set; } }
 public sealed class SimulationEventSnapshot { public long Tick { get; set; } public string Kind { get; set; } = ""; public string Id { get; set; } = ""; public string Amount { get; set; } = "0"; public string Detail { get; set; } = ""; }
 public sealed class SnapshotValidationResult { public List<string> Errors { get; } = new(); public bool IsValid => Errors.Count == 0; }

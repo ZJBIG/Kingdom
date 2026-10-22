@@ -29,13 +29,13 @@ public sealed partial class KingdomUIRoot
     private enum ResearchCurveType { LeftTop, LeftBottom, RightTop, RightBottom }
     private readonly struct ResearchArrowCacheKey : IEquatable<ResearchArrowCacheKey>
     {
-        public readonly Research From;
-        public readonly Research To;
+        public readonly ResearchDef From;
+        public readonly ResearchDef To;
         public readonly Vector2Int TargetGrid;
 
         public ResearchArrowCacheKey(
-            Research from,
-            Research to,
+            ResearchDef from,
+            ResearchDef to,
             Vector2Int targetGrid)
         {
             From = from;
@@ -92,15 +92,17 @@ public sealed partial class KingdomUIRoot
     }
     private static readonly Color ResearchFocusWhite = new Color(1f, 1f, 1f, 1f);
     // Keep the idle graph subdued so the selected closure reads immediately.
-    private static readonly Color ResearchOutlineNormal = new Color(.28f, .30f, .30f, 1f);
+    private static readonly Color ResearchOutlineNormal = new Color(.38f, .47f, .49f, 1f);
     private static readonly Color ResearchArrowColor = new Color(.46f, .43f, .35f, 1f);
-    private static readonly Color ResearchFocusSurface = new Color(.30f, .36f, .36f, 1f);
+    private static readonly Color ResearchLockedSurface = new Color(.13f, .16f, .17f, 1f);
+    private static readonly Color ResearchNormalSurface = new Color(.22f, .27f, .28f, 1f);
+    private static readonly Color ResearchFocusSurface = new Color(.32f, .40f, .42f, 1f);
     private static readonly Dictionary<string, Sprite> researchTreeSprites = new();
-    private readonly Dictionary<Pair<Research, Research>, List<UIResearchConnectorBatch.Part>> researchTreeLinkVisuals = new(512);
+    private readonly Dictionary<Pair<ResearchDef, ResearchDef>, List<UIResearchConnectorBatch.Part>> researchTreeLinkVisuals = new(512);
     // Keep a membership index alongside the ordered visual list. Long edges
     // can visit the same shared segment repeatedly; List.Contains would make
     // that deduplication quadratic in the number of segments on one edge.
-    private readonly Dictionary<Pair<Research, Research>, HashSet<UIResearchConnectorBatch.Part>> researchTreeLinkVisualSets = new(512);
+    private readonly Dictionary<Pair<ResearchDef, ResearchDef>, HashSet<UIResearchConnectorBatch.Part>> researchTreeLinkVisualSets = new(512);
     // Current content uses roughly 3.4k shared segments. Reserve that scale
     // up front so adding a normal batch of later-era research does not cause
     // repeated dictionary growth while the graph is being built.
@@ -127,7 +129,7 @@ public sealed partial class KingdomUIRoot
         public Text LegacyLabel;
         public int StateVersion = -1;
     }
-    private readonly Dictionary<Research, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
+    private readonly Dictionary<ResearchDef, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
     private readonly HashSet<UIResearchConnectorBatch.Part> focusedResearchLineVisuals = new();
     private readonly HashSet<string> selectedResearchPrerequisiteIdBuffer =
         new(StringComparer.Ordinal);
@@ -136,7 +138,7 @@ public sealed partial class KingdomUIRoot
     private int researchTopologyDuplicateCount;
     private int researchTopologyBackwardsEdgeCount;
     private int researchTopologyInversionCount;
-    private Research selectedResearchNode;
+    private ResearchDef selectedResearchNode;
     private GameObject overviewNavigationToolbar;
     private Button overviewCurrentTargetButton;
     private Button overviewCurrentEraButton;
@@ -236,9 +238,9 @@ public sealed partial class KingdomUIRoot
     {
         ResearchManager manager = ResearchManager.Instance;
         var signature = new StringBuilder(researchTreeNodes.Count * 48);
-        foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
+        foreach (KeyValuePair<ResearchDef, Button> pair in researchTreeNodes)
         {
-            Research research = pair.Key;
+            ResearchDef research = pair.Key;
             if (research == null)
                 continue;
             manager.States.TryGetValue(research, out ResearchState state);
@@ -305,7 +307,7 @@ public sealed partial class KingdomUIRoot
 
     private string BuildResearchDetailSignature()
     {
-        Research research = selectedResearchNode;
+        ResearchDef research = selectedResearchNode;
         if (research == null || ResearchManager.Instance == null)
             return string.Empty;
         ResearchManager manager = ResearchManager.Instance;
@@ -320,22 +322,22 @@ public sealed partial class KingdomUIRoot
                 signature.Append(":queue=").Append(i);
         if (manager.ActiveResearch?.Definition == research)
             signature.Append(":active");
-        IReadOnlyList<Research> prerequisites = research.Prerequisites;
+        IReadOnlyList<ResearchDef> prerequisites = research.Prerequisites;
         if (prerequisites != null)
         {
             signature.Append(":prerequisites");
             for (int i = 0; i < prerequisites.Count; i++)
             {
-                Research prerequisite = prerequisites[i];
+                ResearchDef prerequisite = prerequisites[i];
                 signature.Append('|').Append(prerequisite?.Id ?? string.Empty).Append('=')
                     .Append(prerequisite != null && manager.IsResearchCompleted(prerequisite.Id) ? '1' : '0');
             }
         }
-        IReadOnlyList<Pair<Resource, ExpantaNum>> requirements = research.ResourceRequirements;
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements = research.ResourceRequirements;
         if (requirements != null && ResourceManager.Instance != null)
             for (int i = 0; i < requirements.Count; i++)
             {
-                Resource resource = requirements[i].First;
+                ResourceDef resource = requirements[i].First;
                 if (resource == null)
                     continue;
                 signature.Append('|').Append(resource.Id).Append('=');
@@ -478,9 +480,9 @@ public sealed partial class KingdomUIRoot
         researchGraphContent.pivot = Vector2.zero;
         researchGraphContent.anchoredPosition = Vector2.zero;
         graphScroll.content = researchGraphContent;
-        IReadOnlyList<Research> definitions = DataBase<Research>.All;
+        IReadOnlyList<ResearchDef> definitions = DataBase<ResearchDef>.All;
         float positionsStartTime = Time.realtimeSinceStartup;
-        Dictionary<Research, Vector2> positions = CreateResearchTreePositions(definitions);
+        Dictionary<ResearchDef, Vector2> positions = CreateResearchTreePositions(definitions);
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write($"[KingdomPerf] ResearchBuildPhase phase=positions elapsedMs={(Time.realtimeSinceStartup - positionsStartTime) * 1000f:0.0} definitions={definitions.Count}");
 #endif
@@ -568,7 +570,7 @@ public sealed partial class KingdomUIRoot
         float nodeFrameStartTime = Time.realtimeSinceStartup;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research research = definitions[i];
+            ResearchDef research = definitions[i];
             if (research != null && positions.TryGetValue(research, out Vector2 position))
                 CreateResearchTreeNode(researchGraphContent, research, position);
             // Batch inexpensive nodes while bounding main-thread work. A
@@ -621,7 +623,7 @@ public sealed partial class KingdomUIRoot
         {
             string pendingId = pendingOverviewResearchFocusId;
             pendingOverviewResearchFocusId = null;
-            if (DataBase<Research>.TryFind(pendingId, out Research pendingResearch))
+            if (DataBase<ResearchDef>.TryFind(pendingId, out ResearchDef pendingResearch))
                 FocusResearchNode(pendingResearch);
         }
         if (selectedResearchNode != null)
@@ -698,7 +700,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private System.Collections.IEnumerator CompleteResearchTreeDiagnostics(
-        IReadOnlyList<Research> definitions,
+        IReadOnlyList<ResearchDef> definitions,
         float buildStartTime)
     {
         yield return null;
@@ -724,8 +726,8 @@ public sealed partial class KingdomUIRoot
 #endif
     }
 
-    private void LogResearchGridLayout(IReadOnlyList<Research> definitions,
-        IReadOnlyDictionary<Research, Vector2> positions)
+    private void LogResearchGridLayout(IReadOnlyList<ResearchDef> definitions,
+        IReadOnlyDictionary<ResearchDef, Vector2> positions)
     {
         var occupied = new HashSet<Vector2Int>();
         int duplicateCount = 0;
@@ -733,7 +735,7 @@ public sealed partial class KingdomUIRoot
         int intermediateNodeCrossingCount = 0;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research research = definitions[i];
+            ResearchDef research = definitions[i];
             if (research == null || !positions.TryGetValue(research, out Vector2 position))
                 continue;
             Vector2Int grid = GetResearchGridPosition(position);
@@ -743,7 +745,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             for (int p = 0; p < research.Prerequisites.Count; p++)
             {
-                Research prerequisite = research.Prerequisites[p];
+                ResearchDef prerequisite = research.Prerequisites[p];
                 if (prerequisite == null || !positions.TryGetValue(prerequisite, out Vector2 prerequisitePosition))
                     continue;
                 if (GetResearchGridPosition(prerequisitePosition).x >= grid.x)
@@ -778,7 +780,7 @@ public sealed partial class KingdomUIRoot
         float minY = float.PositiveInfinity;
         float maxX = float.NegativeInfinity;
         float maxY = float.NegativeInfinity;
-        foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
+        foreach (KeyValuePair<ResearchDef, Button> pair in researchTreeNodes)
         {
             RectTransform rect = pair.Value == null ? null : pair.Value.transform as RectTransform;
             if (rect == null)
@@ -793,7 +795,7 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Research runtime node rects: nodes={researchTreeNodes.Count}, uniquePositions={actualCells.Count}, range=({minX},{minY})-({maxX},{maxY}), content={researchGraphContent.rect.size}");
     }
 
-    private void ValidateRuntimeResearchGraph(IReadOnlyList<Research> definitions)
+    private void ValidateRuntimeResearchGraph(IReadOnlyList<ResearchDef> definitions)
     {
         var occupied = new HashSet<Vector2Int>();
         int duplicateCount = 0;
@@ -802,7 +804,7 @@ public sealed partial class KingdomUIRoot
         int missingDragForwarderCount = 0;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research research = definitions[i];
+            ResearchDef research = definitions[i];
             if (research == null)
                 continue;
             if (!researchTreeNodes.TryGetValue(research, out Button button) || button == null)
@@ -822,7 +824,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             for (int p = 0; p < research.Prerequisites.Count; p++)
             {
-                Research prerequisite = research.Prerequisites[p];
+                ResearchDef prerequisite = research.Prerequisites[p];
                 if (prerequisite == null || !researchTreeNodes.TryGetValue(prerequisite, out Button prerequisiteButton) ||
                     prerequisiteButton == null)
                     continue;
@@ -863,7 +865,7 @@ public sealed partial class KingdomUIRoot
         string selectedId = ResearchManager.Instance.SelectedResearchId;
         if (string.IsNullOrWhiteSpace(selectedId))
             return;
-        if (DataBase<Research>.TryFind(selectedId, out Research selected))
+        if (DataBase<ResearchDef>.TryFind(selectedId, out ResearchDef selected))
         {
             if (selectedResearchNode == null ||
                 !string.Equals(selectedResearchNode.Id, selected.Id, StringComparison.Ordinal))
@@ -889,20 +891,20 @@ public sealed partial class KingdomUIRoot
         if (overviewNavigationToolbar != null) overviewNavigationToolbar.SetActive(false);
     }
 
-    private void NavigateToOverviewResearch(Research target)
+    private void NavigateToOverviewResearch(ResearchDef target)
     {
         if (target == null)
             return;
         pendingOverviewResearchFocusId = target.Id;
         SetPage("Research");
-        if (researchTreePageBuilt && DataBase<Research>.TryFind(target.Id, out Research currentTarget))
+        if (researchTreePageBuilt && DataBase<ResearchDef>.TryFind(target.Id, out ResearchDef currentTarget))
         {
             pendingOverviewResearchFocusId = null;
             FocusResearchNode(currentTarget);
         }
     }
 
-    private void FocusResearchNode(Research research)
+    private void FocusResearchNode(ResearchDef research)
     {
         if (research == null || researchGraphViewport == null || researchGraphContent == null ||
             !researchTreeNodes.TryGetValue(research, out Button button) || button == null)
@@ -915,7 +917,7 @@ public sealed partial class KingdomUIRoot
         FocusResearchRect(node, research);
     }
 
-    private void FocusResearchRect(RectTransform node, Research research)
+    private void FocusResearchRect(RectTransform node, ResearchDef research)
     {
         if (node == null || researchGraphViewport == null || researchGraphContent == null)
             return;
@@ -936,9 +938,9 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private Dictionary<Research, Vector2> CreateResearchTreePositions(IReadOnlyList<Research> definitions)
+    private Dictionary<ResearchDef, Vector2> CreateResearchTreePositions(IReadOnlyList<ResearchDef> definitions)
     {
-        Dictionary<Research, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
+        Dictionary<ResearchDef, Vector2> topologyPositions = CreateTopologyResearchTreePositions(definitions);
         AnalyzeTopologyResearchLayout(definitions, topologyPositions);
         // Prerequisites are the canonical layout source. These counts diagnose
         // its readability; there is no authored-coordinate fallback to accept
@@ -947,8 +949,8 @@ public sealed partial class KingdomUIRoot
         return topologyPositions;
     }
 
-    private void AnalyzeTopologyResearchLayout(IReadOnlyList<Research> definitions,
-        IReadOnlyDictionary<Research, Vector2> positions)
+    private void AnalyzeTopologyResearchLayout(IReadOnlyList<ResearchDef> definitions,
+        IReadOnlyDictionary<ResearchDef, Vector2> positions)
     {
         var occupied = new HashSet<Vector2Int>();
         var edges = new List<Vector4>();
@@ -958,7 +960,7 @@ public sealed partial class KingdomUIRoot
         researchTopologyInversionCount = 0;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research research = definitions[i];
+            ResearchDef research = definitions[i];
             if (research == null || !positions.TryGetValue(research, out Vector2 position))
                 continue;
             int column = Mathf.RoundToInt((position.x - ResearchGraphPaddingX) / ResearchGridX);
@@ -970,7 +972,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             for (int p = 0; p < research.Prerequisites.Count; p++)
             {
-                Research prerequisite = research.Prerequisites[p];
+                ResearchDef prerequisite = research.Prerequisites[p];
                 if (prerequisite == null || !positions.TryGetValue(prerequisite, out Vector2 prerequisitePosition))
                     continue;
                 int prerequisiteColumn = Mathf.RoundToInt((prerequisitePosition.x - ResearchGraphPaddingX) / ResearchGridX);
@@ -1003,37 +1005,37 @@ public sealed partial class KingdomUIRoot
         researchTreeMaximumRow = maximumRow;
     }
 
-    private Dictionary<Research, Vector2> CreateTopologyResearchTreePositions(IReadOnlyList<Research> definitions)
+    private Dictionary<ResearchDef, Vector2> CreateTopologyResearchTreePositions(IReadOnlyList<ResearchDef> definitions)
     {
         // The graph is laid out on integer cells only.  A plain depth layout
         // is not sufficient for this project: nodes from different eras can
         // otherwise occupy the same visual region.  Era blocks are therefore
         // allocated from left to right, while prerequisite depth still wins
         // whenever a cross-era edge needs more columns.
-        var ordered = new List<Research>();
-        var known = new HashSet<Research>();
+        var ordered = new List<ResearchDef>();
+        var known = new HashSet<ResearchDef>();
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research research = definitions[i];
+            ResearchDef research = definitions[i];
             if (research != null && known.Add(research))
                 ordered.Add(research);
         }
         ordered.Sort(CompareResearchStable);
 
-        var depth = new Dictionary<Research, int>();
-        var visiting = new HashSet<Research>();
-        var cycleNodes = new HashSet<Research>();
+        var depth = new Dictionary<ResearchDef, int>();
+        var visiting = new HashSet<ResearchDef>();
+        var cycleNodes = new HashSet<ResearchDef>();
         for (int i = 0; i < ordered.Count; i++)
             ComputeResearchDepth(ordered[i], known, depth, visiting, cycleNodes);
 
-        var row = new Dictionary<Research, int>();
-        var column = new Dictionary<Research, int>();
+        var row = new Dictionary<ResearchDef, int>();
+        var column = new Dictionary<ResearchDef, int>();
         var occupied = new HashSet<Vector2Int>();
         int eraCount = Enum.GetValues(typeof(TechLevel)).Length;
         int previousEraEnd = -1;
         for (int era = 0; era < eraCount; era++)
         {
-            var eraNodes = new List<Research>();
+            var eraNodes = new List<ResearchDef>();
             for (int i = 0; i < ordered.Count; i++)
                 if ((int)ordered[i].TechLevel == era)
                     eraNodes.Add(ordered[i]);
@@ -1054,7 +1056,7 @@ public sealed partial class KingdomUIRoot
             });
             for (int i = 0; i < eraNodes.Count; i++)
             {
-                Research research = eraNodes[i];
+                ResearchDef research = eraNodes[i];
                 int deepestPrerequisiteColumn = -1;
                 if (research.Prerequisites != null)
                     for (int p = 0; p < research.Prerequisites.Count; p++)
@@ -1078,7 +1080,7 @@ public sealed partial class KingdomUIRoot
             int eraEnd = eraStart;
             for (int i = 0; i < eraNodes.Count; i++)
             {
-                Research research = eraNodes[i];
+                ResearchDef research = eraNodes[i];
                 int rowIndex = GetMinimumPlacedPrerequisiteRow(research, row, known);
                 int researchColumn = column[research];
                 while (!occupied.Add(new Vector2Int(researchColumn, rowIndex)))
@@ -1092,10 +1094,10 @@ public sealed partial class KingdomUIRoot
 
         RepairResearchRowsToAvoidNodeCrossing(ordered, known, column, row, occupied);
 
-        var gridPositions = new Dictionary<Research, Vector2Int>();
+        var gridPositions = new Dictionary<ResearchDef, Vector2Int>();
         int maximumRow = 0;
         int maximumColumn = 0;
-        foreach (KeyValuePair<Research, int> entry in row)
+        foreach (KeyValuePair<ResearchDef, int> entry in row)
         {
             int researchColumn = column.TryGetValue(entry.Key, out int c) ? c : 0;
             Vector2Int grid = new(researchColumn, entry.Value);
@@ -1106,23 +1108,23 @@ public sealed partial class KingdomUIRoot
         researchTreeMaximumRow = maximumRow;
         Debug.Log($"[王国界面] Research graph topology candidate: nodes={gridPositions.Count}, layers={maximumColumn + 1}, rows={maximumRow + 1}, cycles={cycleNodes.Count}");
 
-        var positions = new Dictionary<Research, Vector2>();
-        foreach (KeyValuePair<Research, Vector2Int> entry in gridPositions)
+        var positions = new Dictionary<ResearchDef, Vector2>();
+        foreach (KeyValuePair<ResearchDef, Vector2Int> entry in gridPositions)
             positions[entry.Key] = new Vector2(
                 ResearchGraphPaddingX + entry.Value.x * ResearchGridX,
                 ResearchGraphPaddingY + ResearchTopPadding + entry.Value.y * ResearchGridY);
         return positions;
     }
 
-    private static void RepairResearchRowsToAvoidNodeCrossing(IReadOnlyList<Research> ordered,
-        HashSet<Research> known, IReadOnlyDictionary<Research, int> columns,
-        Dictionary<Research, int> rows, HashSet<Vector2Int> occupied)
+    private static void RepairResearchRowsToAvoidNodeCrossing(IReadOnlyList<ResearchDef> ordered,
+        HashSet<ResearchDef> known, IReadOnlyDictionary<ResearchDef, int> columns,
+        Dictionary<ResearchDef, int> rows, HashSet<Vector2Int> occupied)
     {
         // A long horizontal bus must never pass through a third-party node.
         // Move only the target on the first available integer row; this keeps
         // the relationship layout deterministic and leaves the connector free
         // to use the shared grid bus without visually entering another card.
-        var byColumn = new List<Research>(ordered);
+        var byColumn = new List<ResearchDef>(ordered);
         byColumn.Sort((left, right) =>
         {
             int result = columns[left].CompareTo(columns[right]);
@@ -1130,7 +1132,7 @@ public sealed partial class KingdomUIRoot
         });
         for (int i = 0; i < byColumn.Count; i++)
         {
-            Research target = byColumn[i];
+            ResearchDef target = byColumn[i];
             if (target == null || target.Prerequisites == null || !rows.TryGetValue(target, out int targetRow))
                 continue;
             occupied.Remove(new Vector2Int(columns[target], targetRow));
@@ -1143,15 +1145,15 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private static bool HasIntermediateNodeOnResearchRow(Research target, int targetRow,
-        IReadOnlyDictionary<Research, int> columns, HashSet<Research> known,
+    private static bool HasIntermediateNodeOnResearchRow(ResearchDef target, int targetRow,
+        IReadOnlyDictionary<ResearchDef, int> columns, HashSet<ResearchDef> known,
         HashSet<Vector2Int> occupied)
     {
         if (target == null || target.Prerequisites == null || !columns.TryGetValue(target, out int targetColumn))
             return false;
         for (int i = 0; i < target.Prerequisites.Count; i++)
         {
-            Research prerequisite = target.Prerequisites[i];
+            ResearchDef prerequisite = target.Prerequisites[i];
             if (prerequisite == null || !known.Contains(prerequisite) ||
                 !columns.TryGetValue(prerequisite, out int prerequisiteColumn) ||
                 prerequisiteColumn >= targetColumn)
@@ -1163,8 +1165,8 @@ public sealed partial class KingdomUIRoot
         return false;
     }
 
-    private static int GetMinimumPlacedPrerequisiteRow(Research research,
-        IReadOnlyDictionary<Research, int> placedRows, HashSet<Research> known)
+    private static int GetMinimumPlacedPrerequisiteRow(ResearchDef research,
+        IReadOnlyDictionary<ResearchDef, int> placedRows, HashSet<ResearchDef> known)
     {
         int row = 0;
         bool hasPrerequisite = false;
@@ -1172,7 +1174,7 @@ public sealed partial class KingdomUIRoot
         {
             for (int i = 0; i < research.Prerequisites.Count; i++)
             {
-                Research prerequisite = research.Prerequisites[i];
+                ResearchDef prerequisite = research.Prerequisites[i];
                 if (prerequisite == null || !known.Contains(prerequisite) ||
                     !placedRows.TryGetValue(prerequisite, out int prerequisiteRow))
                     continue;
@@ -1183,8 +1185,8 @@ public sealed partial class KingdomUIRoot
         return hasPrerequisite ? row : 0;
     }
 
-    private static void ComputeResearchDepth(Research research, HashSet<Research> known,
-        Dictionary<Research, int> depth, HashSet<Research> visiting, HashSet<Research> cycleNodes)
+    private static void ComputeResearchDepth(ResearchDef research, HashSet<ResearchDef> known,
+        Dictionary<ResearchDef, int> depth, HashSet<ResearchDef> visiting, HashSet<ResearchDef> cycleNodes)
     {
         if (research == null || depth.ContainsKey(research))
             return;
@@ -1199,7 +1201,7 @@ public sealed partial class KingdomUIRoot
         {
             for (int i = 0; i < research.Prerequisites.Count; i++)
             {
-                Research prerequisite = research.Prerequisites[i];
+                ResearchDef prerequisite = research.Prerequisites[i];
                 if (prerequisite == null || !known.Contains(prerequisite))
                     continue;
                 ComputeResearchDepth(prerequisite, known, depth, visiting, cycleNodes);
@@ -1211,7 +1213,7 @@ public sealed partial class KingdomUIRoot
         depth[research] = maximumPrerequisiteDepth + 1;
     }
 
-    private static int CompareResearchStable(Research left, Research right)
+    private static int CompareResearchStable(ResearchDef left, ResearchDef right)
     {
         int result = string.Compare(left == null ? string.Empty : left.Id,
             right == null ? string.Empty : right.Id, StringComparison.Ordinal);
@@ -1221,8 +1223,8 @@ public sealed partial class KingdomUIRoot
             right == null ? string.Empty : right.Label, StringComparison.Ordinal);
     }
 
-    private System.Collections.IEnumerator CreateResearchTreeLinks(RectTransform content, IReadOnlyList<Research> definitions,
-        IReadOnlyDictionary<Research, Vector2> positions)
+    private System.Collections.IEnumerator CreateResearchTreeLinks(RectTransform content, IReadOnlyList<ResearchDef> definitions,
+        IReadOnlyDictionary<ResearchDef, Vector2> positions)
     {
         // Direct geometry equivalent of ResearchTreeSK.Edge.Add(from,to).
         // Every part is positioned by an integer (X,Y) grid key and reused
@@ -1231,12 +1233,12 @@ public sealed partial class KingdomUIRoot
         float edgeFrameStartTime = Time.realtimeSinceStartup;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Research target = definitions[i];
+            ResearchDef target = definitions[i];
             if (target == null || target.Prerequisites == null)
                 continue;
             for (int p = 0; p < target.Prerequisites.Count; p++)
             {
-                Research prerequisite = target.Prerequisites[p];
+                ResearchDef prerequisite = target.Prerequisites[p];
                 if (prerequisite == null || !positions.TryGetValue(prerequisite, out Vector2 fromPosition) ||
                     !positions.TryGetValue(target, out Vector2 toPosition))
                     continue;
@@ -1268,9 +1270,9 @@ public sealed partial class KingdomUIRoot
     }
 
     private void CreateReferenceResearchEdge(RectTransform content, Vector2Int from, Vector2Int to,
-        Research prerequisite, Research target)
+        ResearchDef prerequisite, ResearchDef target)
     {
-        Pair<Research, Research> linkKey = new(prerequisite, target);
+        Pair<ResearchDef, ResearchDef> linkKey = new(prerequisite, target);
         Color color = GetResearchLinkColor(prerequisite, target);
         int dy = to.y - from.y;
         int dx = to.x - from.x;
@@ -1337,7 +1339,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void CreateResearchVerticalLine(RectTransform content, float x, float y,
-        Pair<Research, Research> linkKey, Color color, bool overCurve)
+        Pair<ResearchDef, ResearchDef> linkKey, Color color, bool overCurve)
     {
         // ResearchTreeSK's X/Y are full-cell coordinates. The node itself is
         // placed at X*255+25, Y*60+5; the connector formulas intentionally
@@ -1357,7 +1359,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void CreateResearchHorizontalLine(RectTransform content, float x, float y,
-        Pair<Research, Research> linkKey, Color color, bool overCurve, bool startLine = false)
+        Pair<ResearchDef, ResearchDef> linkKey, Color color, bool overCurve, bool startLine = false)
     {
         float pixelX = startLine
             ? x * ResearchGridX - ResearchNodeMarginHalf
@@ -1386,7 +1388,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void CreateResearchEndArrow(RectTransform content, float x, float y,
-        Pair<Research, Research> linkKey, Color color)
+        Pair<ResearchDef, ResearchDef> linkKey, Color color)
     {
         // Exact ResearchTreeSK.EndArrow rectangle. With NodeMargins.x=50,
         // the 16px arrow ends at the target card's 25px left inset.
@@ -1408,7 +1410,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void CreateResearchCurve(RectTransform content, float x, float y,
-        ResearchCurveType type, Pair<Research, Research> linkKey, Color color)
+        ResearchCurveType type, Pair<ResearchDef, ResearchDef> linkKey, Color color)
     {
         float pixelX = x * ResearchGridX - ResearchCurveRadius;
         float pixelY = ResearchTopPadding + y * ResearchGridY - ResearchCurveRadius;
@@ -1422,7 +1424,7 @@ public sealed partial class KingdomUIRoot
         RectTransform content,
         ResearchLineCacheKey key,
         Rect rect,
-        Sprite sprite, Pair<Research, Research> linkKey, Color color)
+        Sprite sprite, Pair<ResearchDef, ResearchDef> linkKey, Color color)
     {
         if (!researchSharedLineVisuals.TryGetValue(
                 key, out UIResearchConnectorBatch.Part part))
@@ -1543,7 +1545,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void AddResearchTreeLinkVisual(
-        Pair<Research, Research> linkKey,
+        Pair<ResearchDef, ResearchDef> linkKey,
         UIResearchConnectorBatch.Part visual)
     {
         if (!researchTreeLinkVisuals.TryGetValue(
@@ -1558,7 +1560,7 @@ public sealed partial class KingdomUIRoot
             visuals.Add(visual);
     }
 
-    private void CreateResearchTreeNode(RectTransform content, Research research, Vector2 position)
+    private void CreateResearchTreeNode(RectTransform content, ResearchDef research, Vector2 position)
     {
         ResearchState state = null;
         if (ResearchManager.Instance != null)
@@ -1604,7 +1606,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
         surface.color = status == ResearchStatus.Locked ?
-            new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f);
+            ResearchLockedSurface : ResearchNormalSurface;
         Button button = node.GetComponent<Button>();
         if (button == null)
         {
@@ -1821,14 +1823,14 @@ public sealed partial class KingdomUIRoot
             new Color(.38f, .68f, .86f, 1f) : TextSecondary;
     }
 
-    private Color GetResearchLinkColor(Research prerequisite, Research target)
+    private Color GetResearchLinkColor(ResearchDef prerequisite, ResearchDef target)
     {
         if (IsResearchInSelectedPrerequisitePath(prerequisite, target))
             return ResearchFocusWhite;
         return ResearchArrowColor;
     }
 
-    private bool IsResearchInSelectedPrerequisitePath(Research prerequisite, Research target)
+    private bool IsResearchInSelectedPrerequisitePath(ResearchDef prerequisite, ResearchDef target)
     {
         return IsResearchInSelectedPrerequisitePath(
             prerequisite,
@@ -1837,8 +1839,8 @@ public sealed partial class KingdomUIRoot
     }
 
     private bool IsResearchInSelectedPrerequisitePath(
-        Research prerequisite,
-        Research target,
+        ResearchDef prerequisite,
+        ResearchDef target,
         HashSet<string> focused)
     {
         if (selectedResearchNode == null || prerequisite == null || target == null)
@@ -1870,7 +1872,7 @@ public sealed partial class KingdomUIRoot
         return focused;
     }
 
-    private static void CollectPrerequisiteIdClosure(Research research, HashSet<string> focused)
+    private static void CollectPrerequisiteIdClosure(ResearchDef research, HashSet<string> focused)
     {
         if (research == null || string.IsNullOrEmpty(research.Id) || !focused.Add(research.Id) ||
             research.Prerequisites == null)
@@ -1889,7 +1891,7 @@ public sealed partial class KingdomUIRoot
             !string.Equals(lastLoggedResearchClosureTarget, selectedResearchNode.Id, StringComparison.Ordinal))
         {
             var focusedLabels = new List<string>();
-            foreach (KeyValuePair<Research, Button> node in researchTreeNodes)
+            foreach (KeyValuePair<ResearchDef, Button> node in researchTreeNodes)
                 if (node.Key != null && focusedIds.Contains(node.Key.Id))
                     focusedLabels.Add(node.Key.Id);
             focusedLabels.Sort(StringComparer.Ordinal);
@@ -1898,9 +1900,9 @@ public sealed partial class KingdomUIRoot
             if (string.Equals(selectedResearchNode.Id, "ModernUniversity", StringComparison.Ordinal))
                 Debug.Log($"[王国界面] 现代大学闭包检查：是否包含星际导航={focusedIds.Contains("InterstellarNavigation")}");
         }
-        foreach (KeyValuePair<Research, Button> pair in researchTreeNodes)
+        foreach (KeyValuePair<ResearchDef, Button> pair in researchTreeNodes)
         {
-            Research research = pair.Key;
+            ResearchDef research = pair.Key;
             Button button = pair.Value;
             if (research == null || button == null)
                 continue;
@@ -1923,7 +1925,7 @@ public sealed partial class KingdomUIRoot
             Image surface = visualReferences?.Surface ?? button.targetGraphic as Image;
             if (surface != null)
                 SetColorIfChanged(surface, focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
-                    new Color(.10f, .12f, .12f, .94f) : new Color(.16f, .19f, .19f, .96f));
+                    ResearchLockedSurface : ResearchNormalSurface);
             Image[] outline = visualReferences?.Outline;
             if (outline != null)
             {
@@ -1986,7 +1988,7 @@ public sealed partial class KingdomUIRoot
             HashSet<UIResearchConnectorBatch.Part> focusedLineVisuals =
                 focusedResearchLineVisuals;
             focusedLineVisuals.Clear();
-            foreach (KeyValuePair<Pair<Research, Research>,
+            foreach (KeyValuePair<Pair<ResearchDef, ResearchDef>,
                          List<UIResearchConnectorBatch.Part>> pair in
                      researchTreeLinkVisuals)
             {
@@ -2035,7 +2037,7 @@ public sealed partial class KingdomUIRoot
 #endif
     }
 
-    private static Color GetResearchOutlineColor(Research research, bool focused)
+    private static Color GetResearchOutlineColor(ResearchDef research, bool focused)
     {
         ResearchManager manager = ResearchManager.Instance;
         if (manager != null)
@@ -2063,7 +2065,7 @@ public sealed partial class KingdomUIRoot
     private void RefreshActiveResearchProgressVisual(ResearchManager manager)
     {
         ResearchState state = manager == null ? null : manager.ActiveResearch;
-        Research research = state?.Definition;
+        ResearchDef research = state?.Definition;
         if (research == null || !researchTreeNodes.TryGetValue(research, out Button button) || button == null)
             return;
 
@@ -2126,7 +2128,7 @@ public sealed partial class KingdomUIRoot
         return (state.ProgressRatio.ToDouble() * 100d).ToString("0.0") + "%";
     }
 
-    private static string FormatResearchBaseCost(Research research)
+    private static string FormatResearchBaseCost(ResearchDef research)
     {
         if (research == null || string.IsNullOrWhiteSpace(research.BaseCost))
             return ExpantaNum.Zero.ToGameString();

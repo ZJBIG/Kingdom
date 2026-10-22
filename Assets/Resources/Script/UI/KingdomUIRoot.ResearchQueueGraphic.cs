@@ -15,20 +15,20 @@ public sealed partial class KingdomUIRoot
     // Instantiating UI prefabs during a queue transition.
     private readonly List<GameObject> researchQueueNodePool = new();
     private readonly List<GameObject> researchQueueConnectorPool = new();
-    private readonly List<Research> researchQueueDefinitionBuffer = new();
-    private readonly List<Research> researchQueueDefinitionOrder = new();
+    private readonly List<ResearchDef> researchQueueDefinitionBuffer = new();
+    private readonly List<ResearchDef> researchQueueDefinitionOrder = new();
     private int researchQueueGraphicRefreshCount;
     private int researchQueueGraphicRebuildCount;
     private sealed class ResearchQueueNodeVisualReferences
     {
-        public Research Research;
+        public ResearchDef Research;
         public Image Surface;
         public Image[] Outline;
         public Image ProgressImage;
         public TMP_Text ProgressText;
         public int StateVersion;
     }
-    private readonly Dictionary<Research, ResearchQueueNodeVisualReferences> researchQueueNodeVisualReferences = new();
+    private readonly Dictionary<ResearchDef, ResearchQueueNodeVisualReferences> researchQueueNodeVisualReferences = new();
 
     private void SetupResearchQueueGraphic(RectTransform toolbar)
     {
@@ -104,9 +104,9 @@ public sealed partial class KingdomUIRoot
         researchQueueGraphicRefreshCount++;
         float refreshStart = Time.realtimeSinceStartup;
 
-        List<Research> definitions = researchQueueDefinitionBuffer;
+        List<ResearchDef> definitions = researchQueueDefinitionBuffer;
         definitions.Clear();
-        Research active = ResearchManager.Instance.ActiveResearch?.Definition;
+        ResearchDef active = ResearchManager.Instance.ActiveResearch?.Definition;
         if (active != null)
             definitions.Add(active);
         IReadOnlyList<ResearchState> queued = ResearchManager.Instance.ResearchQueue;
@@ -179,7 +179,7 @@ public sealed partial class KingdomUIRoot
 #endif
     }
 
-    private bool QueueDefinitionsMatch(IReadOnlyList<Research> definitions)
+    private bool QueueDefinitionsMatch(IReadOnlyList<ResearchDef> definitions)
     {
         if (definitions == null || definitions.Count != researchQueueNodeVisualReferences.Count)
             return false;
@@ -191,7 +191,7 @@ public sealed partial class KingdomUIRoot
         return true;
     }
 
-    private void CreateResearchQueueNode(Research research, Vector2 position)
+    private void CreateResearchQueueNode(ResearchDef research, Vector2 position)
     {
         GameObject nodeObject = GetResearchQueueNodeObject();
         if (nodeObject == null)
@@ -214,8 +214,8 @@ public sealed partial class KingdomUIRoot
         surface.color = selectedResearchNode == research
             ? ResearchFocusSurface
             : status == ResearchStatus.Locked
-            ? new Color(.10f, .12f, .12f, .94f)
-            : new Color(.16f, .19f, .19f, .96f);
+            ? ResearchLockedSurface
+            : ResearchNormalSurface;
         Button button = node.GetComponent<Button>();
         button.targetGraphic = surface;
         button.transition = Selectable.Transition.None;
@@ -265,7 +265,7 @@ public sealed partial class KingdomUIRoot
     private void RefreshActiveResearchQueueProgressVisual(ResearchManager manager)
     {
         ResearchState state = manager == null ? null : manager.ActiveResearch;
-        Research research = state?.Definition;
+        ResearchDef research = state?.Definition;
         if (research == null ||
             !researchQueueNodeVisualReferences.TryGetValue(research, out ResearchQueueNodeVisualReferences visual) ||
             visual == null)
@@ -283,7 +283,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void RefreshResearchQueueNodeVisual(
-        Research research,
+        ResearchDef research,
         ResearchQueueNodeVisualReferences visual)
     {
         if (research == null || visual == null || visual.Surface == null ||
@@ -315,7 +315,7 @@ public sealed partial class KingdomUIRoot
             status == ResearchStatus.Completed ? Color.white : accent);
     }
 
-    private void SelectResearchQueueNode(Research research)
+    private void SelectResearchQueueNode(ResearchDef research)
     {
         ShowResearchDetails(research);
         RefreshResearchQueueGraphic();
@@ -325,9 +325,9 @@ public sealed partial class KingdomUIRoot
     {
         if (ResearchManager.Instance == null)
             return;
-        foreach (KeyValuePair<Research, ResearchQueueNodeVisualReferences> pair in researchQueueNodeVisualReferences)
+        foreach (KeyValuePair<ResearchDef, ResearchQueueNodeVisualReferences> pair in researchQueueNodeVisualReferences)
         {
-            Research research = pair.Key;
+            ResearchDef research = pair.Key;
             ResearchQueueNodeVisualReferences visual = pair.Value;
             if (research == null || visual == null)
                 continue;
@@ -338,7 +338,7 @@ public sealed partial class KingdomUIRoot
     }
 
     private void ApplyResearchQueueSelectionVisual(
-        Research research,
+        ResearchDef research,
         Image surface,
         Image[] outline,
         ResearchStatus status)
@@ -346,8 +346,8 @@ public sealed partial class KingdomUIRoot
         bool selected = research != null && research == selectedResearchNode;
         if (surface != null)
             surface.color = selected ? ResearchFocusSurface : status == ResearchStatus.Locked
-                ? new Color(.10f, .12f, .12f, .94f)
-                : new Color(.16f, .19f, .19f, .96f);
+                ? ResearchLockedSurface
+                : ResearchNormalSurface;
         if (outline == null)
             return;
         for (int i = 0; i < outline.Length; i++)

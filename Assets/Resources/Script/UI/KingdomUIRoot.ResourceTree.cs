@@ -32,8 +32,12 @@ public sealed partial class KingdomUIRoot
     private void RefreshProductionEntry()
     {
         if (resourceTreeSurface == null) return;
-        resourceTreeSurface.gameObject.SetActive(selectedResource != null || selectedBuilding != null);
-        resourceTreeModeLabel.text = selectedBuilding != null ? "查看建筑树" : "查看生产树";
+        SectorState sector = selectedSectorDefinition == null ? null :
+            GameManager.Instance?.Sectors?.GetState(selectedSectorDefinition);
+        resourceTreeSurface.gameObject.SetActive(selectedResource != null || selectedBuilding != null ||
+            sector != null && (sector.Unlocked || sector.Occupied));
+        resourceTreeModeLabel.text = selectedSectorDefinition != null ? "查看星区生产树" :
+            selectedBuilding != null ? "查看建筑树" : "查看生产树";
     }
 
     private void AddResourceTreeLink(RectTransform parent, Vector2 start, Vector2 end)

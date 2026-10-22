@@ -81,7 +81,10 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         Vector2 spriteSize = image.sprite.rect.size;
         if (viewportSize.x <= 0f || viewportSize.y <= 0f || spriteSize.x <= 0f || spriteSize.y <= 0f)
             return;
-        fittedSize = spriteSize * Mathf.Min(viewportSize.x / spriteSize.x, viewportSize.y / spriteSize.y);
+        RectTransform frame = image.transform.Find("ArtworkFrame") as RectTransform;
+        Vector2 contentSize = viewportSize;
+        if (frame != null) contentSize -= Vector2.Max(Vector2.zero, frame.sizeDelta);
+        fittedSize = spriteSize * Mathf.Min(contentSize.x / spriteSize.x, contentSize.y / spriteSize.y);
         Zoom = 1f;
         image.rectTransform.sizeDelta = fittedSize;
         image.rectTransform.anchoredPosition = Vector2.zero;

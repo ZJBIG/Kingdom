@@ -1,0 +1,97 @@
+{
+  "apk_bytes": 240632223,
+  "sha256": "4dfc9d22e3e284fcf7e7195ad254b82e4d66774d80efe3da994e761730fe69f4",
+  "entries": 92,
+  "bundle_count": 57,
+  "bundles_bytes": 128604524,
+  "libraries": [
+    "lib/arm64-v8a/lib_burst_generated.so",
+    "lib/arm64-v8a/libil2cpp.so",
+    "lib/arm64-v8a/libmain.so",
+    "lib/arm64-v8a/libunity.so"
+  ],
+  "suspect_entries": [],
+  "boot": {
+    "assets/bin/Data/boot.config": "wait-for-native-debugger=0\nhdr-display-enabled=0\ngc-max-time-slice=3\nandroidStartInFullscreen=1\nandroidRenderOutsideSafeArea=1\nbuild-guid=9cda96ed272d49c9b006e429d3ec66e3\n"
+  },
+  "groups_raw_and_zip_bytes": {
+    "Other": [
+      496565,
+      407346
+    ],
+    "Native libraries": [
+      54112704,
+      17693818
+    ],
+    "Addressables": [
+      128604524,
+      128604524
+    ],
+    "Unity data": [
+      98912425,
+      93902190
+    ]
+  },
+  "largest_entries": [
+    {
+      "path": "assets/bin/Data/data.unity3d",
+      "raw": 91889724,
+      "zip": 91889724
+    },
+    {
+      "path": "lib/arm64-v8a/libil2cpp.so",
+      "raw": 37333744,
+      "zip": 10266926
+    },
+    {
+      "path": "lib/arm64-v8a/libunity.so",
+      "raw": 16654464,
+      "zip": 7380261
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/tense/trustme_7af89adcb1b12e7a2cfc8823ead3b224.bundle",
+      "raw": 3980437,
+      "zip": 3980437
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/tense/triumph_aa4cfefb2522a1eb355cc6e5b58ead7a.bundle",
+      "raw": 3729787,
+      "zip": 3729787
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/tense/lonehunter_687f9b9cb5b9c5ad679cd15d35965fb7.bundle",
+      "raw": 3482515,
+      "zip": 3482515
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/alltime/legacy_fa8dc7b8b5dfc5af13747c137fc9b186.bundle",
+      "raw": 3377291,
+      "zip": 3377291
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/alltime/alive_daaf975f0082a40ae0130cc21c9c04da.bundle",
+      "raw": 3143665,
+      "zip": 3143665
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/alltime/onecandreamtofly_039bb3230e1516c3a703a6bc908a3b9c.bundle",
+      "raw": 3140004,
+      "zip": 3140004
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/tense/delusion_c4b71f88679a134c7c2ffd3930a4680a.bundle",
+      "raw": 3125527,
+      "zip": 3125527
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/alltime/everythingsgoingtobeokay_a3129f7250dbcd77928639da666e0e67.bundle",
+      "raw": 3124085,
+      "zip": 3124085
+    },
+    {
+      "path": "assets/aa/Android/kingdommusic_assets_music/tense/carryon_735c1f61604106d49ce4ad75bc46a4cd.bundle",
+      "raw": 2991377,
+      "zip": 2991377
+    }
+  ]
+}

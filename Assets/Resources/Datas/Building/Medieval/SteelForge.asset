@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: SteelForge
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 5607c6220250407bb9315e571c92b0ad, type: 3}
   id: SteelForge
   Label: "\u70BC\u94A2\u7089"
   Description: "将基础金属锭与煤炭送入炉中，控制炉温与含碳量，持续生产钢材。"

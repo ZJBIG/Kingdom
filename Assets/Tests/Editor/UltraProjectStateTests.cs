@@ -7,7 +7,7 @@ public sealed class UltraProjectStateTests
     [Test]
     public void UltraProjectDefinitionUsesAuthoredStrongReferencesAndGiantUpkeep()
     {
-        UltraProjectDefinition definition = DataBase<UltraProjectDefinition>.Find(
+        UltraProjectDef definition = DataBase<UltraProjectDef>.Find(
             "UltraCivilizationEngineering");
         Assert.That(definition.Stages, Has.Count.EqualTo(UltraProjectState.StageCount));
         for (int i = 0; i < definition.Stages.Count; i++)

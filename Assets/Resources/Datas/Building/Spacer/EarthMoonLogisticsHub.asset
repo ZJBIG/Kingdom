@@ -11,10 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b45a0d5d64f04e8f9a1a9a768bf40c21, type: 3}
   m_Name: EarthMoonLogisticsHub
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: ba22eb3f53434d6786bb7124b3948a6e, type: 3}
   id: EarthMoonLogisticsHub
-  Label: "地月物流中枢"
-  Description: "月球轨道区的专属物流枢纽，统一调度地月货运，增加物流供给，并为舰队与基地防御提供支援。"
+  Label: "碧池星物流中枢"
+  Description: "连接碧池星冰海驻留基地与轨道转运站的物流中枢，统一调度跨星球补给，增加物流供给，并为舰队与基地防御提供支援。"
   TechLevel: 4
   upgradeTo: {fileID: 0}
   costGrowth: 1.01

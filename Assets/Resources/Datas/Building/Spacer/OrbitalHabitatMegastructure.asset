@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: OrbitalHabitatMegastructure
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 14dba5896e3c400793a731df98b22193, type: 3}
   id: OrbitalHabitatMegastructure
   Label: "\u8F68\u9053\u5C45\u4F4F\u5DE8\u6784"
   Description: "\u4EE5\u949B\u5408\u91D1\u4E3B\u627F\u529B\u9AA8\u67B6\u3001\u590D\u5408\u6750\u6599\u5916\u58F3\u548C\u76F8\u4F4D\u6750\u6599\u5C4F\u853D\u6784\u6210\u7684\u6DF1\u7A7A\u5C45\u4F4F\u5DE8\u6784\uFF0C\u4E3A\u8FDC\u5F81\u8230\u961F\u548C\u661F\u533A\u6CBB\u7406\u63D0\u4F9B\u957F\u671F\u4EBA\u53E3\u57FA\u5730\u3002"

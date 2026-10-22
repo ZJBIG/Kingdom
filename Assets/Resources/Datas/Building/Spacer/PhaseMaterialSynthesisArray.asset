@@ -11,7 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1df40775f864874083816b75d1cf5ba, type: 3}
   m_Name: PhaseMaterialSynthesisArray
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
+  icon: {fileID: 21300000, guid: 893f7ae0fde24185a1ea19edaa1c1131, type: 3}
   id: PhaseMaterialSynthesisArray
   Label: "相位材料合成阵列"
   Description: "以幽影合金和幽影纤维为核心原料，配合钛合金、高级金属锭与电子元件维持高能场，持续合成相位材料。"

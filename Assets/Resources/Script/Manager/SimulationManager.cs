@@ -369,6 +369,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
             gameState,
             resourceManager,
             out _);
+        sectors.TickActiveInteriorExploration(simulationSeconds, gameState, resourceManager, out _);
         sectors.TickActiveCampaign(
             simulationSeconds,
             gameState,

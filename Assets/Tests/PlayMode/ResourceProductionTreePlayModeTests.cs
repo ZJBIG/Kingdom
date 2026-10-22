@@ -45,12 +45,12 @@ public sealed class ResourceProductionTreePlayModeTests
         yield return LoadProductionScene();
         KingdomUIRoot ui = loadedUi;
         SimulationManager.Instance.SetRunning(false);
-        Resource wood = DataBase<Resource>.Find("WoodLog");
-        Building firstProducer = null;
-        foreach (Building building in DataBase<Building>.All)
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        BuildingDef firstProducer = null;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
-            if (building is SectorBuilding || building.RequiredWorkshopUpgrades.Count > 0) continue;
-            foreach (Pair<Resource, ExpantaNum> output in building.ResourceGenerationRates)
+            if (building is SectorBuildingDef || building.RequiredWorkshopUpgrades.Count > 0) continue;
+            foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
                 if (output.First == wood && output.Second > ExpantaNum.Zero &&
                     (firstProducer == null || building.TechLevel < firstProducer.TechLevel))
                 { firstProducer = building; break; }
@@ -58,7 +58,7 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(firstProducer, Is.Not.Null, "Real definitions provide an early wood producer without workshop prerequisites.");
         if (GameManager.Instance.State.TechLevel < firstProducer.TechLevel)
             GameManager.Instance.AdvanceTechLevelForEditor(firstProducer.TechLevel);
-        foreach (Research research in firstProducer.RequiredResearch)
+        foreach (ResearchDef research in firstProducer.RequiredResearch)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         Assert.That(BuildingManager.Instance.ArePrerequisitesMet(firstProducer, out _), Is.True,
             "The initial fixture unlocks only the first real producer's prerequisites.");
@@ -86,11 +86,11 @@ public sealed class ResourceProductionTreePlayModeTests
         graph.GetChild(0).Find("Expand").GetComponent<Button>().onClick.Invoke();
         yield return null;
         Assert.That(detail.Find("Body").gameObject.activeSelf, Is.True, "The right detail remains readable.");
-        Building lockedProducer = null;
-        foreach (Building building in DataBase<Building>.All)
+        BuildingDef lockedProducer = null;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
-            if (building is SectorBuilding || BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
-            foreach (Pair<Resource, ExpantaNum> output in building.ResourceGenerationRates)
+            if (building is SectorBuildingDef || BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
+            foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
                 if (output.First == wood && output.Second > ExpantaNum.Zero)
                 { lockedProducer = building; break; }
             if (lockedProducer != null) break;
@@ -101,7 +101,7 @@ public sealed class ResourceProductionTreePlayModeTests
             Assert.That(node.Find("Label").GetComponent<TMP_Text>().text, Is.Not.EqualTo(lockedProducer.Label),
                 "A future locked producer must not be shown before its prerequisites are met.");
             Assert.That(node.Find("Status").GetComponent<TMP_Text>().text, Does.Not.Contain("待解锁"));
-            foreach (Building building in DataBase<Building>.All)
+            foreach (BuildingDef building in DataBase<BuildingDef>.All)
                 if (node.Find("Label").GetComponent<TMP_Text>().text == building.Label)
                     Assert.That(BuildingManager.Instance.ArePrerequisitesMet(building, out _) ||
                         (BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing) && existing.Amount > ExpantaNum.Zero),
@@ -120,15 +120,16 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(gesture.IsDragging, Is.True);
         int rootDuringDrag = graph.GetChild(0).GetInstanceID();
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
-        foreach (Research research in DataBase<Research>.All)
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
             ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
         WorkshopManager workshop = Object.FindObjectOfType<WorkshopManager>();
         Assert.That(workshop, Is.Not.Null, "The scene provides the workshop manager for real late-producer prerequisites.");
         List<string> purchasedUpgradeIds = new();
-        foreach (WorkshopUpgrade upgrade in DataBase<WorkshopUpgrade>.All)
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
             purchasedUpgradeIds.Add(upgrade.Id);
         workshop.RestoreSaveDataForEditor(new SaveManager.WorkshopSaveData { PurchasedUpgradeIds = purchasedUpgradeIds });
         Assert.That(BuildingManager.Instance.ArePrerequisitesMet(lockedProducer, out _), Is.True);
+        BuildingManager.Instance.GetState(lockedProducer).SetAmountForEditor(ExpantaNum.One);
         ui.RefreshProductionVisibilityForEditor();
         Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(rootDuringDrag),
             "Unlocks must not replace captured nodes while a graph drag is active.");
@@ -138,11 +139,12 @@ public sealed class ResourceProductionTreePlayModeTests
         Transform unlockedNode = null;
         while (unlockedNode == null && Time.realtimeSinceStartup < deadline)
         {
+            yield return null;
             foreach (Transform node in graph)
                 if (node.gameObject.activeSelf && node.Find("Label").GetComponent<TMP_Text>().text == lockedProducer.Label)
                 { unlockedNode = node; break; }
-            yield return null;
         }
+        Assert.That(unlockedNode, Is.Not.Null, "The unlocked owned producer appears after refresh.");
         Assert.That(unlockedNode.Find("Label").GetComponent<Button>().interactable, Is.True, "Newly unlocked producers retain their detail action.");
         Assert.That(graph.localScale.x, Is.EqualTo(beforeUnlockScale).Within(.001f), "An unlock preserves the user's zoom.");
         Assert.That(Vector3.Distance(viewport.InverseTransformPoint(graph.GetChild(0).position), beforeUnlockRoot), Is.LessThan(2f),
@@ -150,8 +152,8 @@ public sealed class ResourceProductionTreePlayModeTests
 
         Transform producer = graph.GetChild(1);
         TMP_Text producerLabel = producer.Find("Label").GetComponent<TMP_Text>();
-        Building selected = null;
-        foreach (Building building in DataBase<Building>.All)
+        BuildingDef selected = null;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
             if (building.Label == producerLabel.text) { selected = building; break; }
         Assert.That(selected, Is.Not.Null);
         int rootInstance = graph.GetChild(0).GetInstanceID();
@@ -168,7 +170,7 @@ public sealed class ResourceProductionTreePlayModeTests
         yield return null;
         Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(selected.Label));
         int selectedInputs = 0;
-        foreach (Pair<Resource, ExpantaNum> input in selected.ResourceConsumptionRates)
+        foreach (Pair<ResourceDef, ExpantaNum> input in selected.ResourceConsumptionRates)
             if (input.First != null && input.Second > ExpantaNum.Zero) selectedInputs++;
         Assert.That(graph.childCount, Is.EqualTo(1 + selectedInputs + (selected.UpgradeTo != null &&
             BuildingManager.Instance.ArePrerequisitesMet(selected.UpgradeTo, out _) ? 1 : 0)),
@@ -176,13 +178,13 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(graph.GetChild(0).Find("Status").GetComponent<TMP_Text>().text, Does.Not.Contain("基础产"));
         yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-inputs");
 
-        Building multiInput = null;
+        BuildingDef multiInput = null;
         int positiveInputs = 0;
-        foreach (Building building in DataBase<Building>.All)
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
         {
-            if (building is SectorBuilding || !BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
+            if (building is SectorBuildingDef || !BuildingManager.Instance.ArePrerequisitesMet(building, out _)) continue;
             int count = 0;
-            foreach (Pair<Resource, ExpantaNum> input in building.ResourceConsumptionRates)
+            foreach (Pair<ResourceDef, ExpantaNum> input in building.ResourceConsumptionRates)
                 if (input.First != null && input.Second > ExpantaNum.Zero) count++;
             if (count >= 2) { multiInput = building; positiveInputs = count; break; }
         }
@@ -194,7 +196,7 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(graph.childCount, Is.EqualTo(1 + positiveInputs + (multiInput.UpgradeTo != null &&
             BuildingManager.Instance.ArePrerequisitesMet(multiInput.UpgradeTo, out _) ? 1 : 0)),
             "One building root plus discrete positive ongoing inputs and its upgrade.");
-        foreach (Pair<Resource, ExpantaNum> input in multiInput.ResourceConsumptionRates)
+        foreach (Pair<ResourceDef, ExpantaNum> input in multiInput.ResourceConsumptionRates)
         {
             if (input.First == null || input.Second <= ExpantaNum.Zero) continue;
             bool found = false;
@@ -204,9 +206,9 @@ public sealed class ResourceProductionTreePlayModeTests
         }
         yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-active-inputs");
 
-        Building upgradeSource = null;
-        foreach (Building building in DataBase<Building>.All)
-            if (!(building is SectorBuilding) && building.UpgradeTo != null &&
+        BuildingDef upgradeSource = null;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+            if (!(building is SectorBuildingDef) && building.UpgradeTo != null &&
                 BuildingManager.Instance.ArePrerequisitesMet(building, out _) &&
                 BuildingManager.Instance.ArePrerequisitesMet(building.UpgradeTo, out _)) { upgradeSource = building; break; }
         Assert.That(upgradeSource, Is.Not.Null, "Real definitions provide an upgrade relationship.");
@@ -222,7 +224,7 @@ public sealed class ResourceProductionTreePlayModeTests
             "Inspecting an upgrade preserves the original graph root.");
         yield return CaptureTree(ui.GetComponent<Canvas>(), "page-building-upgrades");
 
-        ui.ShowProductionTree(DataBase<Resource>.Find("Steel"));
+        ui.ShowProductionTree(DataBase<ResourceDef>.Find("Steel"));
         yield return null;
         for (int step = 0; step < 24; step++)
         {
@@ -312,6 +314,227 @@ public sealed class ResourceProductionTreePlayModeTests
         yield return CaptureTree(ui.GetComponent<Canvas>(), "page-steel-expanded");
     }
 
+    [UnityTest]
+    public IEnumerator SectorProduction_RespectsOccupationExplorationAndAuthoredIcons()
+    {
+        yield return LoadProductionScene();
+        KingdomUIRoot ui = loadedUi;
+        SimulationManager.Instance.SetRunning(false);
+        SectorDef sector = DataBase<SectorDef>.Find("HeliosCore");
+        Assert.That(sector, Is.Not.Null);
+        SectorState state = GameManager.Instance.Sectors.GetState(sector);
+        ui.ShowProductionTree(DataBase<ResourceDef>.Find("WoodLog"));
+        Transform page = ui.transform.Find("SafeAreaRoot/Content/PageHost/Production");
+        Transform graph = page.Find("GraphViewport/GraphContent");
+        int originalRoot = graph.GetChild(0).GetInstanceID();
+        state.SetUnlockedForEditor(false);
+        state.SetOccupiedForEditor(false);
+        ui.ShowProductionTree(sector);
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(originalRoot), "Locked sectors cannot replace the graph.");
+
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
+        foreach (ResearchDef research in DataBase<ResearchDef>.All)
+            ResearchManager.Instance.GetState(research).SetStatusForEditor(ResearchStatus.Completed);
+        List<string> upgrades = new();
+        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All) upgrades.Add(upgrade.Id);
+        Object.FindObjectOfType<WorkshopManager>().RestoreSaveDataForEditor(
+            new SaveManager.WorkshopSaveData { PurchasedUpgradeIds = upgrades });
+        state.SetUnlockedForEditor(true);
+        state.SetInteriorExplorationForEditor(ExpantaNum.Zero);
+        ui.ShowProductionTree(sector);
+        yield return null;
+        Assert.That(graph.childCount, Is.EqualTo(1), "Unoccupied home sectors expose no local facilities.");
+        Assert.That(graph.GetChild(0).Find("Icon").GetComponent<Image>().sprite, Is.EqualTo(sector.Icon));
+        Transform detail = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent");
+        Assert.That(detail.Find("ResourceProductionTree").gameObject.activeInHierarchy, Is.True);
+
+        state.SetOccupiedForEditor(true);
+        ui.RefreshProductionVisibilityForEditor();
+        yield return null;
+        BuildingDef special = null;
+        int ordinary = 0;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+            if (building is SectorBuildingDef local && local.Sector == sector)
+            {
+                if (local.RequiresInteriorExploration)
+                {
+                    special = local;
+                    Assert.That(FindProductionNode(graph, local.Label), Is.Null, "Exploration gates the special facility.");
+                }
+                else
+                {
+                    ordinary++;
+                    Assert.That(FindProductionNode(graph, local.Label), Is.Not.Null);
+                }
+            }
+        Assert.That(ordinary, Is.GreaterThan(0));
+        Assert.That(special, Is.Not.Null);
+        state.SetInteriorExplorationForEditor(ExpantaNum.One);
+        ui.RefreshProductionVisibilityForEditor();
+        yield return null;
+        Assert.That(FindProductionNode(graph, special.Label), Is.Not.Null);
+        foreach (Transform node in graph)
+        {
+            Image icon = node.Find("Icon").GetComponent<Image>();
+            Assert.That(icon.sprite, Is.Not.Null);
+            Assert.That(icon.preserveAspect, Is.True);
+            Assert.That(icon.raycastTarget, Is.True, "Artwork is an explicit preview target.");
+            Assert.That(icon.transform.Find("ArtworkFrame").gameObject.activeSelf, Is.True);
+            Assert.That(icon.sprite.texture.mipmapCount, Is.GreaterThan(1));
+            Assert.That(icon.sprite.texture.filterMode, Is.EqualTo(FilterMode.Trilinear));
+            Assert.That(icon.sprite.texture.width, Is.LessThanOrEqualTo(1024));
+            RectTransform label = node.Find("Label") as RectTransform;
+            RectTransform image = icon.rectTransform;
+            Assert.That(label.offsetMin.y, Is.GreaterThan(image.offsetMax.y), "Title sits above the artwork.");
+            RectTransform status = node.Find("Status") as RectTransform;
+            Assert.That(status.offsetMax.y - ((RectTransform)node).rect.height, Is.LessThan(image.offsetMin.y), "Relationship sits below the artwork.");
+        }
+        int sectorRoot = graph.GetChild(0).GetInstanceID();
+        Transform facility = FindProductionNode(graph, special.Label);
+        Assert.That(facility.Find("Icon").GetComponent<Image>().sprite, Is.EqualTo(special.Icon));
+        facility.Find("Label").GetComponent<Button>().onClick.Invoke();
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(sectorRoot), "Inspecting a facility preserves the sector graph.");
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-local-facilities", true);
+        StoryIllustrationPreview preview = ui.GetComponentInChildren<StoryIllustrationPreview>(true);
+        Assert.That(preview, Is.Not.Null, "Artwork reuses the authored illustration overlay.");
+        RectTransform previewFrame = null;
+        foreach (RectTransform candidate in preview.GetComponentsInChildren<RectTransform>(true))
+            if (candidate.name == "ArtworkFrame") { previewFrame = candidate; break; }
+        Assert.That(previewFrame, Is.Not.Null);
+        facility.Find("Icon").GetComponent<Button>().onClick.Invoke();
+        Assert.That(preview.IsOpen, Is.True);
+        Assert.That(preview.Illustration, Is.EqualTo(special.Icon));
+        AssertArtworkFrame(previewFrame);
+        AssertArtworkFrame(facility.Find("Icon/ArtworkFrame") as RectTransform);
+        Assert.That(graph.GetChild(0).GetInstanceID(), Is.EqualTo(sectorRoot));
+        preview.ZoomAt(2f, RectTransformUtility.WorldToScreenPoint(null, preview.transform.position));
+        Assert.That(preview.Zoom, Is.GreaterThan(1f));
+        preview.Pan(new Vector2(20f, 20f));
+        preview.ResetView();
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "building-artwork-preview", true);
+        preview.Hide();
+        graph.GetChild(0).Find("Icon").GetComponent<Button>().onClick.Invoke();
+        Assert.That(preview.Illustration, Is.EqualTo(sector.Icon));
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-artwork-preview", true);
+        preview.Hide();
+        detail.Find("ResourceProductionTree/Mode").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(graph.GetChild(0).Find("Label").GetComponent<TMP_Text>().text, Is.EqualTo(special.Label));
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-facility-inputs", true);
+
+        BuildingDef old = DataBase<BuildingDef>.Find("Lumberyard");
+        Assert.That(old.UpgradeTo, Is.Not.Null);
+        BuildingManager.Instance.GetState(old).SetAmountForEditor(ExpantaNum.Zero);
+        ui.ShowProductionTree(DataBase<ResourceDef>.Find("WoodLog"));
+        yield return null;
+        Assert.That(graph.GetChild(0).Find("Icon").GetComponent<Button>().enabled, Is.False,
+            "Resource icons retain their normal appearance without disabled-button tinting.");
+        Assert.That(FindProductionNode(graph, old.Label), Is.Null, "Empty superseded producers are hidden.");
+        BuildingManager.Instance.GetState(old).SetAmountForEditor(ExpantaNum.One);
+        ui.RefreshProductionVisibilityForEditor();
+        yield return null;
+        Assert.That(FindProductionNode(graph, old.Label), Is.Not.Null, "Owned old producers stay visible.");
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+        {
+            Transform node = FindProductionNode(graph, building.Label);
+            if (node != null) Assert.That(BuildingManager.Instance.ShouldDisplay(building), Is.True);
+        }
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "resource-retained-building-chain", true);
+        SectorState firstSector = GameManager.Instance.Sectors.GetState(DataBase<SectorDef>.Find("DawnRing"));
+        firstSector.SetUnlockedForEditor(true);
+        firstSector.SetOccupiedForEditor(true);
+        ui.SetPage("Sectors");
+        yield return null;
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-list-icons", true);
+        Button sectorPreviewButton = null;
+        foreach (Button button in ui.GetComponentsInChildren<Button>())
+            if (button.name == "SectorIcon" && button.transform.parent.name == "SectorRow_DawnRing")
+            { sectorPreviewButton = button; break; }
+        Assert.That(sectorPreviewButton, Is.Not.Null);
+        sectorPreviewButton.onClick.Invoke();
+        Assert.That(preview.IsOpen, Is.True);
+        Assert.That(preview.Illustration, Is.EqualTo(sectorPreviewButton.GetComponent<Image>().sprite));
+        preview.Hide();
+        sectorPreviewButton.transform.parent.Find("Buildings").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Transform facilityCardIcon = null;
+        foreach (Image candidate in sectorPreviewButton.transform.parent.GetComponentsInChildren<Image>())
+            if (candidate.name == "BuildingIcon")
+            {
+                facilityCardIcon = candidate.transform;
+                AssertArtworkFrame(candidate.transform.Find("ArtworkFrame") as RectTransform);
+                Assert.That(candidate.rectTransform.rect.width,
+                    Is.GreaterThan(sectorPreviewButton.GetComponent<RectTransform>().rect.width * .9f),
+                    "Sector facilities and sector portraits share the enlarged picture scale.");
+                break;
+            }
+        Assert.That(facilityCardIcon, Is.Not.Null, "Expanded sectors expose the actual facility cards.");
+        RectTransform menu = sectorPreviewButton.transform.parent.Find("SectorBuildingMenu") as RectTransform;
+        Vector3[] headingCorners = new Vector3[4];
+        (menu.Find("Heading") as RectTransform).GetWorldCorners(headingCorners);
+        Assert.That(menu.InverseTransformPoint(headingCorners[0]).y,
+            Is.GreaterThan((facilityCardIcon.parent as RectTransform).anchoredPosition.y),
+            "The engineering heading stays above the facility cards.");
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "sector-building-cards", true);
+        ui.SetPage("Buildings");
+        yield return null;
+        Button buildingPreviewButton = null;
+        foreach (Button button in ui.GetComponentsInChildren<Button>())
+            if (button.name == "BuildingIcon") { buildingPreviewButton = button; break; }
+        Assert.That(buildingPreviewButton, Is.Not.Null);
+        RectTransform portrait = buildingPreviewButton.transform as RectTransform;
+        AssertArtworkFrame(portrait.Find("ArtworkFrame") as RectTransform);
+        RectTransform cardRect = portrait.parent as RectTransform;
+        Vector3[] portraitCorners = new Vector3[4];
+        (portrait.Find("ArtworkFrame") as RectTransform).GetWorldCorners(portraitCorners);
+        foreach (Vector3 corner in portraitCorners)
+        {
+            Vector3 local = cardRect.InverseTransformPoint(corner);
+            Assert.That(local.x, Is.InRange(cardRect.rect.xMin, cardRect.rect.xMax));
+            Assert.That(local.y, Is.InRange(cardRect.rect.yMin, cardRect.rect.yMax), "The framed portrait stays inside the actual compact card.");
+        }
+        buildingPreviewButton.onClick.Invoke();
+        Assert.That(preview.IsOpen, Is.True);
+        Assert.That(preview.Illustration, Is.EqualTo(buildingPreviewButton.GetComponent<Image>().sprite));
+        preview.Hide();
+        yield return CaptureTree(ui.GetComponent<Canvas>(), "building-list-icons", true);
+    }
+
+    private static void AssertArtworkFrame(RectTransform frame)
+    {
+        Assert.That(frame, Is.Not.Null, "Artwork uses the shared authored mount.");
+        RectTransform artwork = frame.parent as RectTransform;
+        Image[] edges = frame.GetComponentsInChildren<Image>(true);
+        Assert.That(edges.Length, Is.GreaterThan(0), "The mount must contain visible authored edges.");
+        foreach (string name in new[] { "EdgeTop", "EdgeBottom", "EdgeLeft", "EdgeRight" })
+        {
+            Image edge = frame.Find(name).GetComponent<Image>();
+            Assert.That(edge.color.grayscale, Is.GreaterThan(.35f), "All four sides form a readable closed frame.");
+            Assert.That(Mathf.Min(edge.rectTransform.rect.width, edge.rectTransform.rect.height), Is.GreaterThanOrEqualTo(1.9f));
+        }
+        Vector3[] corners = new Vector3[4];
+        foreach (Image edge in edges)
+        {
+            Assert.That(edge.enabled && edge.gameObject.activeSelf, Is.True);
+            Assert.That(edge.raycastTarget, Is.False, "Decoration must not block preview clicks or graph dragging.");
+            Assert.That(edge.color.a, Is.GreaterThan(.5f));
+            edge.rectTransform.GetWorldCorners(corners);
+            Vector3 lower = artwork.InverseTransformPoint(corners[0]);
+            Vector3 upper = artwork.InverseTransformPoint(corners[2]);
+            Rect image = artwork.rect;
+            Assert.That(lower.x >= image.xMax - .1f || upper.x <= image.xMin + .1f ||
+                        lower.y >= image.yMax - .1f || upper.y <= image.yMin + .1f, Is.True,
+                edge.name + " must stay outside the illustration instead of covering it.");
+        }
+    }
+
+    private static Transform FindProductionNode(Transform graph, string label)
+    {
+        foreach (Transform node in graph)
+            if (node.Find("Label").GetComponent<TMP_Text>().text == label) return node;
+        return null;
+    }
+
     private IEnumerator LoadProductionScene()
     {
         loadedUi = null;
@@ -336,8 +559,20 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(loadedUi.gameObject.scene, Is.EqualTo(scene));
     }
 
-    private static IEnumerator CaptureTree(Canvas canvas, string name)
+    private static IEnumerator CaptureTree(Canvas canvas, string name, bool dismissTutorial = false)
     {
+        if (dismissTutorial)
+        {
+            HashSet<string> skipped = new();
+            TutorialStageSnapshot stage;
+            while ((stage = TutorialManager.Current?.EvaluateStage()) != null)
+            {
+                Assert.That(skipped.Add(stage.StageId), Is.True, "Skipping must advance the isolated fixture's tutorial.");
+                TutorialManager.Current.SkipCurrentStage();
+            }
+            canvas.GetComponent<KingdomUIRoot>().RefreshOnboardingForEditor();
+            yield return null;
+        }
         Assert.That(SystemInfo.graphicsDeviceType, Is.Not.EqualTo(UnityEngine.Rendering.GraphicsDeviceType.Null),
             "Canvas evidence requires a graphics device; run Unity without -nographics.");
         RenderMode oldMode = canvas.renderMode;
@@ -355,7 +590,7 @@ public sealed class ResourceProductionTreePlayModeTests
         {
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera; canvas.planeDistance = 100;
-            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "production-redesign-20261014", "pages"));
+            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "artwork-mount-20261021", "pages"));
             Directory.CreateDirectory(folder);
             foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {
@@ -408,6 +643,8 @@ public sealed class ResourceProductionTreePlayModeTests
         {
             Image surface = node.GetComponent<Image>();
             TMP_Text label = node.Find("Label").GetComponent<TMP_Text>();
+            label.ForceMeshUpdate();
+            Assert.That(label.isTextOverflowing, Is.False, size + " production name must fit: " + label.text);
             (node as RectTransform).GetWorldCorners(corners);
             Vector3 min = viewport.InverseTransformPoint(corners[0]), max = viewport.InverseTransformPoint(corners[2]);
             Rect nodeBounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);

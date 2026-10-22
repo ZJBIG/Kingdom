@@ -22,7 +22,7 @@ head.
 
 ## Payment rules
 
-- Payment uses the real `Research.ResourceRequirements` and
+- Payment uses the real `ResearchDef.ResourceRequirements` and
   `ResourceManager` inventory.
 - Payment is atomic: if the complete remaining cost is unavailable, no resource
   is deducted and `ResearchState.CostPaid` remains false.

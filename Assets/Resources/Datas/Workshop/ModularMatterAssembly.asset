@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ModularMatterAssembly
   m_EditorClassIdentifier: 
   id: ModularMatterAssembly
+  icon: {fileID: 21300000, guid: 4fe916551e711fb47bae254eb7e0019d, type: 3}
   Label: "模块化材料装配"
   Description: "用标准接口与远程质检，提高相位材料装配、生产和回收效率。"
   SortOrder: 480

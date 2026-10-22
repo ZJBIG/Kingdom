@@ -15,7 +15,7 @@ public sealed partial class KingdomUIRoot
     private static readonly Color ListRowEven = new Color(1f, 1f, 1f, .05f);
     private static readonly Color ListRowOdd = new Color(1f, 1f, 1f, .09f);
     private readonly System.Text.StringBuilder buildingDisplaySignatureBuilder = new(1024);
-    private readonly Dictionary<WorkshopUpgrade, Button> workshopPurchaseButtons = new();
+    private readonly Dictionary<WorkshopUpgradeDef, Button> workshopPurchaseButtons = new();
 
     private static void ApplyListRowStyle(GameObject row, int index)
     {
@@ -60,12 +60,12 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         ResourceManager resourceManager = ResourceManager.Instance;
-        IReadOnlyList<Resource> definitions = DataBase<Resource>.All;
+        IReadOnlyList<ResourceDef> definitions = DataBase<ResourceDef>.All;
         CaptureVisibleResourceIds(definitions);
-        var orderedDefinitions = new List<Resource>();
+        var orderedDefinitions = new List<ResourceDef>();
         for (int i = 0; i < definitions.Count; i++)
         {
-            Resource resource = definitions[i];
+            ResourceDef resource = definitions[i];
             if (resource == null || !visibleResourceIds.Contains(resource.Id))
                 continue;
             orderedDefinitions.Add(resource);
@@ -76,7 +76,7 @@ public sealed partial class KingdomUIRoot
                 left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
-            Resource resource = orderedDefinitions[i];
+            ResourceDef resource = orderedDefinitions[i];
             ResourceState state = null;
             resourceManager?.States.TryGetValue(resource, out state);
             string amount = state == null ? "0" : state.Amount.ToGameString();
@@ -120,12 +120,12 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Authored resource rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
-    private bool CaptureVisibleResourceIds(IReadOnlyList<Resource> definitions)
+    private bool CaptureVisibleResourceIds(IReadOnlyList<ResourceDef> definitions)
     {
         bool changed = false;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Resource resource = definitions[i];
+            ResourceDef resource = definitions[i];
             if (resource == null || visibleResourceIds.Contains(resource.Id) ||
                 !IsResourceVisible(resource))
                 continue;
@@ -155,12 +155,12 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         BuildingManager buildingManager = BuildingManager.Instance;
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
-        var orderedDefinitions = new List<Building>();
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
+        var orderedDefinitions = new List<BuildingDef>();
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
-            if (building == null || building is SectorBuilding || !ShouldDisplayBuilding(building))
+            BuildingDef building = definitions[i];
+            if (building == null || building is SectorBuildingDef || !ShouldDisplayBuilding(building))
                 continue;
             orderedDefinitions.Add(building);
         }
@@ -169,7 +169,7 @@ public sealed partial class KingdomUIRoot
                 left.TechLevel, left.Id, right.TechLevel, right.Id));
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
-            Building building = orderedDefinitions[i];
+            BuildingDef building = orderedDefinitions[i];
             string amount = "0";
             BuildingState state = null;
             if (buildingManager != null && buildingManager.States.TryGetValue(building, out state))
@@ -180,6 +180,8 @@ public sealed partial class KingdomUIRoot
                 continue;
             ApplyEraRowStyle(row, building.TechLevel, visible - 1);
             BindRowPin(row, UIPinPreferences.Building, building.Id);
+            Image buildingIcon = row.transform.Find("BuildingIcon")?.GetComponent<Image>();
+            BindArtworkIcon(buildingIcon, building.Icon, building.Label);
             if (!SetRowText(row, "Label", building.Label) ||
                 !SetRowText(row, "TechLevel", building.TechLevel.GetDescription()) ||
                 !SetRowText(row, "Amount", amount) ||
@@ -201,9 +203,7 @@ public sealed partial class KingdomUIRoot
             if (buildButton == null || deconstructButton == null)
                 continue;
             ExpantaNum buildQuantity = GetSelectedBuildingQuantity(building, canUpgrade, false);
-            SetBuildingActionButtonText(
-                buildButton,
-                (canUpgrade ? "\u5347\u7ea7x" : "\u5efa\u9020x") + buildQuantity.ToGameString());
+            SetBuildingActionQuantity(buildButton, buildQuantity, canUpgrade ? "升级" : "建造");
             buildButton.onClick.RemoveAllListeners();
             buildButton.onClick.AddListener(() =>
             {
@@ -218,9 +218,7 @@ public sealed partial class KingdomUIRoot
                 buildingManager.States.TryGetValue(building, out BuildingState buildingState) &&
                 buildingState.Amount > ExpantaNum.Zero;
             ExpantaNum deconstructQuantity = GetSelectedBuildingQuantity(building, false, true);
-            SetBuildingActionButtonText(
-                deconstructButton,
-                "\u62c6\u9664x" + deconstructQuantity.ToGameString());
+            SetBuildingActionQuantity(deconstructButton, deconstructQuantity, "拆除");
             deconstructButton.onClick.RemoveAllListeners();
             deconstructButton.onClick.AddListener(() =>
             {
@@ -249,7 +247,7 @@ public sealed partial class KingdomUIRoot
     private string FormatBuildingAvailability(BuildingState state)
     {
         if (state == null) return string.Empty;
-        Building building = state.Definition;
+        BuildingDef building = state.Definition;
         bool upgrade = BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
         ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
         BuildingManager.Instance.GetConstructionFailures(building, amount, upgrade, buildingAvailabilityFailures);
@@ -272,11 +270,11 @@ public sealed partial class KingdomUIRoot
     {
         System.Text.StringBuilder signature = buildingDisplaySignatureBuilder;
         signature.Clear();
-        IReadOnlyList<Building> definitions = DataBase<Building>.All;
+        IReadOnlyList<BuildingDef> definitions = DataBase<BuildingDef>.All;
         for (int i = 0; i < definitions.Count; i++)
         {
-            Building building = definitions[i];
-            if (building != null && !(building is SectorBuilding) &&
+            BuildingDef building = definitions[i];
+            if (building != null && !(building is SectorBuildingDef) &&
                 ShouldDisplayBuilding(building))
                 signature.Append(building.Id).Append(';');
         }
@@ -287,11 +285,11 @@ public sealed partial class KingdomUIRoot
     {
         int visible = 0;
         workshopPurchaseButtons.Clear();
-        IReadOnlyList<WorkshopUpgrade> definitions = DataBase<WorkshopUpgrade>.All;
-        var orderedDefinitions = new List<WorkshopUpgrade>();
+        IReadOnlyList<WorkshopUpgradeDef> definitions = DataBase<WorkshopUpgradeDef>.All;
+        var orderedDefinitions = new List<WorkshopUpgradeDef>();
         for (int i = 0; i < definitions.Count; i++)
         {
-            WorkshopUpgrade definition = definitions[i];
+            WorkshopUpgradeDef definition = definitions[i];
             if (definition == null || WorkshopManager.Instance == null ||
                 !ShouldRevealWorkshop(definition))
                 continue;
@@ -304,7 +302,7 @@ public sealed partial class KingdomUIRoot
         if (supportPinned) AppendRelicWorkshopRow(parent, ref visible);
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
-            WorkshopUpgrade definition = orderedDefinitions[i];
+            WorkshopUpgradeDef definition = orderedDefinitions[i];
             int index = visible;
             GameObject reusable = index < workshopRows.Count
                 ? workshopRows[index]
@@ -320,6 +318,13 @@ public sealed partial class KingdomUIRoot
             visible++;
             ApplyEraRowStyle(row, definition.TechLevel, index);
             BindRowPin(row, UIPinPreferences.Workshop, definition.Id);
+            Image workshopIcon = row.transform.Find("WorkshopIcon")?.GetComponent<Image>();
+            if (workshopIcon == null)
+            {
+                Debug.LogError("[王国界面] WorkshopCard prefab is missing authored WorkshopIcon Image.");
+                continue;
+            }
+            BindArtworkIcon(workshopIcon, definition.Icon, definition.Label);
             Transform techLevel = row.transform.Find("TechLevel");
             if (techLevel == null)
             {
@@ -382,7 +387,7 @@ public sealed partial class KingdomUIRoot
         Debug.Log($"[王国界面] Authored workshop rows: visible={visible}, pooled={workshopRows.Count}, rowsRect={parent.rect.size}");
     }
 
-    private bool ShouldRevealWorkshop(WorkshopUpgrade definition)
+    private bool ShouldRevealWorkshop(WorkshopUpgradeDef definition)
     {
         WorkshopManager manager = WorkshopManager.Instance;
         GameManager game = GameManager.Instance;
@@ -405,9 +410,9 @@ public sealed partial class KingdomUIRoot
         WorkshopManager manager = WorkshopManager.Instance;
         if (manager == null)
             return;
-        foreach (KeyValuePair<WorkshopUpgrade, Button> pair in workshopPurchaseButtons)
+        foreach (KeyValuePair<WorkshopUpgradeDef, Button> pair in workshopPurchaseButtons)
         {
-            WorkshopUpgrade definition = pair.Key;
+            WorkshopUpgradeDef definition = pair.Key;
             Button purchaseButton = pair.Value;
             if (definition == null || purchaseButton == null ||
                 !purchaseButton.gameObject.activeInHierarchy)
