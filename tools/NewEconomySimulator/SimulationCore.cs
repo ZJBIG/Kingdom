@@ -398,14 +398,18 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
 
                 potentialFoodProduction += actualScale * Parse(definition.FoodProductionRate) * productionMultiplier;
                 potentialFoodConsumption += potentialScale * Parse(definition.FoodConsumptionRate);
-                potentialPowerProduction += actualScale * Parse(definition.PowerProductionRate) *
-                    modifiers.PowerMultiplier * modifiers.BuildingPowerProductionMultiplier(buildingState.Id) *
-                    ExpantaNum.Max(ExpantaNum.One, happiness);
-                potentialPowerConsumption += potentialScale * Parse(definition.PowerConsumptionRate);
-                potentialLogisticsProduction += actualScale * Parse(definition.LogisticsProductionRate) *
-                    modifiers.GlobalLogisticsMultiplier * modifiers.BuildingLogisticsMultiplier(buildingState.Id) *
-                    ExpantaNum.Max(ExpantaNum.One, happiness);
-                potentialLogisticsConsumption += potentialScale * Parse(definition.LogisticsConsumptionRate);
+                var power = Parse(definition.PowerContribution);
+                if (power > ExpantaNum.Zero)
+                    potentialPowerProduction += actualScale * power * modifiers.PowerMultiplier *
+                        modifiers.BuildingPowerProductionMultiplier(buildingState.Id) * ExpantaNum.Max(ExpantaNum.One, happiness);
+                else if (power < ExpantaNum.Zero)
+                    potentialPowerConsumption += potentialScale * -power;
+                var logistics = Parse(definition.LogisticsContribution);
+                if (logistics > ExpantaNum.Zero)
+                    potentialLogisticsProduction += actualScale * logistics * modifiers.GlobalLogisticsMultiplier *
+                        modifiers.BuildingLogisticsMultiplier(buildingState.Id) * ExpantaNum.Max(ExpantaNum.One, happiness);
+                else if (logistics < ExpantaNum.Zero)
+                    potentialLogisticsConsumption += potentialScale * -logistics;
             }
 
             foreach (var sector in state.SectorStates.Values.Where(item => item.Occupied))
@@ -458,11 +462,11 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                 var efficiency = ExpantaNum.One;
                 foreach (var rate in definitions.Amounts(definition.ResourceConsumptionRates))
                     efficiency = ExpantaNum.Min(efficiency, resourceSatisfaction[rate.Key]);
-                if (Parse(definition.PowerConsumptionRate) > ExpantaNum.Zero)
+                if (Parse(definition.PowerContribution) < ExpantaNum.Zero)
                     efficiency = ExpantaNum.Min(efficiency, powerSatisfaction);
-                if (Parse(definition.LogisticsConsumptionRate) > ExpantaNum.Zero)
+                if (Parse(definition.LogisticsContribution) < ExpantaNum.Zero)
                     efficiency = ExpantaNum.Min(efficiency, logisticsSatisfaction);
-                var foodConstraintRequired = Parse(definition.PowerConsumptionRate) <= ExpantaNum.Zero ||
+                var foodConstraintRequired = Parse(definition.PowerContribution) >= ExpantaNum.Zero ||
                     Parse(definition.FoodConsumptionRate) > ExpantaNum.Zero;
                 if (foodConstraintRequired)
                     efficiency = ExpantaNum.Min(efficiency, ExpantaNum.Min(ExpantaNum.One, happiness));
@@ -507,12 +511,16 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             foodConsumption += scale * Parse(definition.FoodConsumptionRate);
             foodCapacity += scale * Parse(definition.FoodCapacityGranted);
             populationCapacity += buildingState.Amount * Parse(definition.PopulationCapacityGranted);
-            powerProduction += scale * Parse(definition.PowerProductionRate) *
-                modifiers.PowerMultiplier * modifiers.BuildingPowerProductionMultiplier(buildingState.Id);
-            powerConsumption += scale * Parse(definition.PowerConsumptionRate);
-            logisticsProduction += scale * Parse(definition.LogisticsProductionRate) *
-                modifiers.GlobalLogisticsMultiplier * modifiers.BuildingLogisticsMultiplier(buildingState.Id);
-            logisticsConsumption += scale * Parse(definition.LogisticsConsumptionRate);
+            var power = Parse(definition.PowerContribution);
+            if (power > ExpantaNum.Zero)
+                powerProduction += scale * power * modifiers.PowerMultiplier * modifiers.BuildingPowerProductionMultiplier(buildingState.Id);
+            else if (power < ExpantaNum.Zero)
+                powerConsumption += scale * -power;
+            var logistics = Parse(definition.LogisticsContribution);
+            if (logistics > ExpantaNum.Zero)
+                logisticsProduction += scale * logistics * modifiers.GlobalLogisticsMultiplier * modifiers.BuildingLogisticsMultiplier(buildingState.Id);
+            else if (logistics < ExpantaNum.Zero)
+                logisticsConsumption += scale * -logistics;
             researchPower += buildingState.Amount * Parse(definition.ResearchPowerGranted) *
                 buildingState.Efficiency * modifiers.BuildingResearchPowerMultiplier(buildingState.Id);
         }
@@ -607,8 +615,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                     if (affected.Contains(building) || building.Efficiency <= ExpantaNum.Zero)
                         continue;
                     var definition = definitions.Building[building.Id];
-                    var flowAffected = powerChanges && Parse(definition.PowerConsumptionRate) > ExpantaNum.Zero ||
-                        logisticsChanges && Parse(definition.LogisticsConsumptionRate) > ExpantaNum.Zero;
+                    var flowAffected = powerChanges && Parse(definition.PowerContribution) < ExpantaNum.Zero ||
+                        logisticsChanges && Parse(definition.LogisticsContribution) < ExpantaNum.Zero;
                     if (!flowAffected && !definitions.Amounts(definition.ResourceConsumptionRates).Any(rate =>
                             rate.Value > ExpantaNum.Zero && (foodChanges || resources.Contains(rate.Key))))
                         continue;
@@ -620,8 +628,8 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
                         if (rate.Value > ExpantaNum.Zero) resources.Add(rate.Key);
                     foodChanges |= Parse(definition.FoodProductionRate) * modifiers.BuildingProductionMultiplier(building.Id) *
                         modifiers.GlobalFoodProductionMultiplier - Parse(definition.FoodConsumptionRate) != ExpantaNum.Zero;
-                    powerChanges |= Parse(definition.PowerProductionRate) > ExpantaNum.Zero;
-                    logisticsChanges |= Parse(definition.LogisticsProductionRate) > ExpantaNum.Zero;
+                    powerChanges |= Parse(definition.PowerContribution) > ExpantaNum.Zero;
+                    logisticsChanges |= Parse(definition.LogisticsContribution) > ExpantaNum.Zero;
                 }
             } while (changed);
 
@@ -721,11 +729,14 @@ public sealed class SnapshotDrivenRules : IPhasedSimulationRules
             var definition = definitions.Building[building.Id];
             var scale = candidate.HasValue ? building.Amount * (building.Efficiency * candidate.Value) :
                 building.Amount * building.Efficiency;
-            return power
-                ? output ? scale * Parse(definition.PowerProductionRate) * modifiers.PowerMultiplier *
-                    modifiers.BuildingPowerProductionMultiplier(building.Id) : scale * Parse(definition.PowerConsumptionRate)
-                : output ? scale * Parse(definition.LogisticsProductionRate) * modifiers.GlobalLogisticsMultiplier *
-                    modifiers.BuildingLogisticsMultiplier(building.Id) : scale * Parse(definition.LogisticsConsumptionRate);
+            var contribution = Parse(power ? definition.PowerContribution : definition.LogisticsContribution);
+            if (!output)
+                return contribution < ExpantaNum.Zero ? scale * -contribution : ExpantaNum.Zero;
+            if (contribution <= ExpantaNum.Zero)
+                return ExpantaNum.Zero;
+            return scale * contribution * (power
+                ? modifiers.PowerMultiplier * modifiers.BuildingPowerProductionMultiplier(building.Id)
+                : modifiers.GlobalLogisticsMultiplier * modifiers.BuildingLogisticsMultiplier(building.Id));
         }
 
         void Accumulate(BuildingRuntimeState building, Dictionary<string, ExpantaNum> output,

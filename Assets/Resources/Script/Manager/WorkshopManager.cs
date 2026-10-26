@@ -100,7 +100,8 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
         }
         return CalculateBenefitPreview(BuildingManager.Instance.OrderedStates,
             current, previewModifiers, ResourceManager.GetHappinessRewardMultiplier(),
-            GameManager.Instance.State.Events.ProductionMultiplier);
+            GameManager.Instance.State.Events.ProductionMultiplier,
+            ResearchManager.Instance.GlobalEfficiencyFactor * GameManager.Instance.State.HappinessMultiplier);
     }
 
     // Hold quantities and efficiencies fixed; the next tick will recalculate input satisfaction.
@@ -116,12 +117,13 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
     public static IReadOnlyList<WorkshopBenefitRatePreview> CalculateBenefitPreview(
         IReadOnlyList<BuildingState> buildings, ProgressionModifierState before,
         ProgressionModifierState after, ExpantaNum productionRewardMultiplier,
-        ExpantaNum eventProductionMultiplier)
+        ExpantaNum eventProductionMultiplier, ExpantaNum? researchRateMultiplier = null)
     {
         var result = new List<WorkshopBenefitRatePreview>();
+        ExpantaNum researchRate = researchRateMultiplier ?? ExpantaNum.One;
         AddRate(null, null, WorkshopBenefitRateKind.ResearchPower,
-            ResearchManager.BaseResearchPower * before.GlobalResearchMultiplier,
-            ResearchManager.BaseResearchPower * after.GlobalResearchMultiplier);
+            ResearchManager.BaseResearchPower * before.GlobalResearchMultiplier * researchRate,
+            ResearchManager.BaseResearchPower * after.GlobalResearchMultiplier * researchRate);
         AddRate(null, null, WorkshopBenefitRateKind.FoodProduction,
             GameState.BaseFoodProductionRate * before.GlobalFoodProductionMultiplier,
             GameState.BaseFoodProductionRate * after.GlobalFoodProductionMultiplier);
@@ -154,19 +156,19 @@ public sealed class WorkshopManager : Singleton<WorkshopManager>
                 scale * building.FoodProductionRate * newProduction * eventProductionMultiplier * after.GlobalFoodProductionMultiplier);
             AddRate(building, null, WorkshopBenefitRateKind.ResearchPower,
                 scale * building.ResearchPowerGranted * before.GetBuildingResearchPowerMultiplier(building) *
-                before.GlobalResearchMultiplier,
+                before.GlobalResearchMultiplier * researchRate,
                 scale * building.ResearchPowerGranted * after.GetBuildingResearchPowerMultiplier(building) *
-                after.GlobalResearchMultiplier);
+                after.GlobalResearchMultiplier * researchRate);
             AddRate(building, null, WorkshopBenefitRateKind.PowerProduction,
-                scale * building.PowerProductionRate * before.PowerMultiplier *
-                before.GetBuildingPowerProductionMultiplier(building),
-                scale * building.PowerProductionRate * after.PowerMultiplier *
-                after.GetBuildingPowerProductionMultiplier(building));
+                scale * ExpantaNum.Max(ExpantaNum.Zero, building.PowerContribution) * before.PowerMultiplier *
+                before.GetBuildingPowerProductionMultiplier(building) * productionRewardMultiplier,
+                scale * ExpantaNum.Max(ExpantaNum.Zero, building.PowerContribution) * after.PowerMultiplier *
+                after.GetBuildingPowerProductionMultiplier(building) * productionRewardMultiplier);
             AddRate(building, null, WorkshopBenefitRateKind.LogisticsProduction,
-                scale * building.LogisticsProductionRate * before.GlobalLogisticsMultiplier *
-                before.GetBuildingLogisticsProductionMultiplier(building),
-                scale * building.LogisticsProductionRate * after.GlobalLogisticsMultiplier *
-                after.GetBuildingLogisticsProductionMultiplier(building));
+                scale * ExpantaNum.Max(ExpantaNum.Zero, building.LogisticsContribution) * before.GlobalLogisticsMultiplier *
+                before.GetBuildingLogisticsProductionMultiplier(building) * productionRewardMultiplier,
+                scale * ExpantaNum.Max(ExpantaNum.Zero, building.LogisticsContribution) * after.GlobalLogisticsMultiplier *
+                after.GetBuildingLogisticsProductionMultiplier(building) * productionRewardMultiplier);
         }
         return result;
 

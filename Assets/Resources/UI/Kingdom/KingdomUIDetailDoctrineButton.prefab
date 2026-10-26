@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7100003}
   - component: {fileID: 7100004}
   - component: {fileID: 7100005}
+  - component: {fileID: 7281247614005155773}
   m_Layer: 5
   m_Name: Doctrine
   m_TagString: Untagged
@@ -121,6 +122,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7100001}
   m_CullTransparentMesh: 1
+--- !u!114 &7281247614005155773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7100001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &7100010
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,6 +344,7 @@ GameObject:
   - component: {fileID: 7100102}
   - component: {fileID: 7100103}
   - component: {fileID: 7100104}
+  - component: {fileID: 7379371714593146207}
   m_Layer: 5
   m_Name: Action
   m_TagString: Untagged
@@ -440,6 +454,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7100100}
   m_CullTransparentMesh: 1
+--- !u!114 &7379371714593146207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7100100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &7100110
 GameObject:
   m_ObjectHideFlags: 0

@@ -33,6 +33,13 @@ head.
 - A missing `ResourceManager` is a failed attempt, not an exception or a fake
   payment.
 
+Queue reordering uses the displayed order: the active research is index 0,
+followed by waiting items. An independent second item may move ahead of the
+active research; the suspended item retains its progress and paid-cost ledger.
+Resuming it does not charge again. The new head follows the same full-payment
+rule and waits if unaffordable. Reordering cannot place a research before an
+unfinished prerequisite.
+
 Save format v1 requires every serialized research state to carry an explicit
 `PaidResourceCosts` list, including an empty list when nothing has been paid.
 The loader restores only exact current resource IDs and amounts. Missing,

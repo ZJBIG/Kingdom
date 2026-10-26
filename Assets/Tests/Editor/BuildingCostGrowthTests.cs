@@ -84,9 +84,7 @@ public sealed class BuildingCostGrowthTests
         building.ConfigureEconomyForEditor(
             new ExpantaNum(1.1d), ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             new List<Pair<ResourceDef, ExpantaNum>>(),
             new List<Pair<ResourceDef, ExpantaNum>> { new(resource, ExpantaNum.One) },
             new List<Pair<ResourceDef, ExpantaNum>> { new(resource, ExpantaNum.One) });
@@ -339,7 +337,7 @@ public sealed class BuildingCostGrowthTests
     {
         BuildingDef building = CreateBuilding(id);
         building.ConfigureEconomyForEditor(
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new List<Pair<ResourceDef, ExpantaNum>> { new(resource, new ExpantaNum(10)) },
             new List<Pair<ResourceDef, ExpantaNum>>(),
             new List<Pair<ResourceDef, ExpantaNum>>());

@@ -107,14 +107,30 @@ public sealed partial class TutorialManager
                 research.CanPayResearchCost(definition, out _);
         }
         if (snapshot.Action == TutorialStageAction.Navigate)
-            snapshot.Instruction = "点击“" + StagePageLabel(snapshot.Page) + "”进入页面。";
+            snapshot.Instruction = StageNarrative(activeStageId) + "\n点击“" + StagePageLabel(snapshot.Page) + "”进入页面。";
         else if (snapshot.Action == TutorialStageAction.Select)
-            snapshot.Instruction = "点击高亮条目，查看详情与条件。";
+            snapshot.Instruction = StageNarrative(activeStageId);
         else if (snapshot.Action == TutorialStageAction.Build)
-            snapshot.Instruction = "点击建造，完成一次建筑建设。";
+            snapshot.Instruction = "让族人不再露宿荒野。点击建造，完成一次建筑建设。";
         else if (snapshot.Action == TutorialStageAction.StartResearch)
-            snapshot.Instruction = "查看解锁效果与费用，点击研究操作开始研究。";
+            snapshot.Instruction = "研究是第一生产力。先备齐材料、全额支付，再让新知识成为族群的力量。";
         return snapshot;
+    }
+
+    private static string StageNarrative(string id)
+    {
+        switch (id)
+        {
+            case "resources": return "守住火种，先备好明天的食粮。库存与净产出记录着族群的生计。";
+            case "building": return "为族人搭起第一处屋檐，让营地有一个可以留下的理由。";
+            case "population": return "屋檐下有了新的声音。稳定食物与幸福度，才能让更多族人安居。";
+            case "research": return "研究是第一生产力。安顿下来后，把火塘边的经验变成可以传承的知识。";
+            case "production-chain": return "工厂已经把分散的工序连成网络。沿着原料去向，找到供给与消耗之间的联系。";
+            case "era-goal": return "旧日经验将成为新文明的根基。先看清跃迁条件，再为下一时代做准备。";
+            case "workshop": return "工匠把一次次试验留下来。制作合适的改良，让每一份劳动更有收获。";
+            case "sectors": return "抬头望向星空，家园仍是远行的起点。备好持续补给，再迈出探索的一步。";
+            default: return string.Empty;
+        }
     }
 
     public void RecordStagePageVisited(string page)
@@ -216,6 +232,7 @@ public sealed partial class TutorialManager
                 return game.State.Population != null && game.State.Population.PopulationCapacity > ExpantaNum.Zero;
             case "research":
                 snapshot.Title = "研究新知识"; snapshot.Page = "Research";
+                if (!ProgressionVisibilityRules.IsResearchUnlocked(game.State)) return false;
                 foreach (ResearchDef definition in DataBase<ResearchDef>.All)
                     if (definition != null && research.CanAccessResearch(definition) && research.ArePrerequisitesCompleted(definition) &&
                         (baseline || research.GetState(definition)?.Status != ResearchStatus.Completed))
@@ -223,6 +240,7 @@ public sealed partial class TutorialManager
                 return false;
             case "production-chain":
                 snapshot.Title = "连接生产链"; snapshot.Page = "Production";
+                if (!ProgressionVisibilityRules.IsProductionUnlocked(research)) return false;
                 snapshot.Instruction = "查看上下游：原料来源需要支撑加工消耗，避免缺料使建筑停产。";
                 EnsureProductionStageLinks();
                 for (int i = 0; i < productionStageLinks.Count; i++)
@@ -237,11 +255,11 @@ public sealed partial class TutorialManager
                 return false;
             case "era-goal":
                 snapshot.Title = "迈向下一时代"; snapshot.Page = "Era";
+                if (!ProgressionVisibilityRules.IsEraUnlocked(research)) return false;
                 snapshot.Instruction = "时代页列出关键研究与材料；条件满足后，通过时代研究推进文明。";
                 EraGoalEvaluation era = EraGoalEvaluator.Evaluate(game.State.TechLevel, research, resources);
                 if (baseline && game.State.TechLevel > TechLevel.Animal) return true;
                 if (era.Transition == null) return false;
-                foreach (EraGoalConditionEvaluation condition in era.Conditions) if (!condition.Met) return false;
                 return true;
             case "workshop":
                 snapshot.Title = "使用工坊"; snapshot.Page = "Workshop";

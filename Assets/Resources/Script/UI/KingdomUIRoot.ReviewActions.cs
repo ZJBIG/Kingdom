@@ -140,9 +140,7 @@ public sealed partial class KingdomUIRoot
 
     private int SelectedQueueIndex()
     {
-        var queue = ResearchManager.Instance?.ResearchQueue;
-        if (queue != null) for (int i = 0; i < queue.Count; i++) if (queue[i].Definition == selectedResearchNode) return i;
-        return -1;
+        return ResearchManager.Instance?.GetResearchOrderIndex(selectedResearchNode) ?? -1;
     }
     private void MoveSelectedResearch(int offset)
     {
@@ -208,9 +206,8 @@ public sealed partial class KingdomUIRoot
     }
     private void ExecuteResearchUiAction(ResearchDef research)
     {
-        ResearchActionResult result = ResearchManager.Instance.HandleResearchAction(research);
+        ResearchManager.Instance.HandleResearchAction(research);
         ShowResearchDetails(research, true); RefreshResearchQueueToolbar(); researchQueueUiDirty = false;
-        if (detailBody != null) detailBody.text += "\n\n执行结果：" + result.GetDescription();
         RefreshReviewControls();
     }
     private void PreviewFleetRepair()
@@ -261,14 +258,15 @@ public sealed partial class KingdomUIRoot
     private static string GetStoppedBuildingReason(BuildingDef building)
     {
         BuildingManager manager = BuildingManager.Instance;
-        if (manager.AvailableProductivity < ExpantaNum.Zero) return "生产力不足；补人口、供粮或减少高负荷建筑";
+        if (manager.GetLaborOperatingRatio(building) <= ExpantaNum.Zero)
+            return "该建筑劳力开工率为 0%；增加居民或劳力供给可恢复生产";
         foreach (var flow in building.ResourceConsumptionRates)
             if (flow.Second > ExpantaNum.Zero && ResourceManager.Instance.GetState(flow.First).GetTickSatisfactionOrFallback() <= ExpantaNum.Zero)
                 return "缺少 " + flow.First.Label + "，查看资源详情定位上游";
         GameState state = GameManager.Instance.State;
-        if (building.PowerConsumptionRate > ExpantaNum.Zero && state.PowerSatisfaction <= ExpantaNum.Zero) return "电力不足";
-        if (building.LogisticsConsumptionRate > ExpantaNum.Zero && state.LogisticsSatisfaction <= ExpantaNum.Zero) return "物流不足";
-        return "当前供给或生产力未满足；查看产出与持续消耗";
+        if (building.PowerContribution < ExpantaNum.Zero && state.PowerSatisfaction <= ExpantaNum.Zero) return "电力不足";
+        if (building.LogisticsContribution < ExpantaNum.Zero && state.LogisticsSatisfaction <= ExpantaNum.Zero) return "物流不足";
+        return "当前供给未满足；查看产出与持续消耗";
     }
 
     private static bool HasRemainingInterstellarTargets()
@@ -277,59 +275,6 @@ public sealed partial class KingdomUIRoot
         foreach (SectorState state in GameManager.Instance.Sectors.OrderedStates)
             if (!state.Definition.IsHomeSystem && !state.Occupied) return true;
         return false;
-    }
-
-    private static void AppendBuildingInvestmentExplanation(StringBuilder text, BuildingDef building)
-    {
-        BuildingManager manager = BuildingManager.Instance;
-        if (manager == null) return;
-        if (building.PopulationCapacityGranted > ExpantaNum.Zero)
-        {
-            text.AppendLine("每座新增人口容量 +" + building.PopulationCapacityGranted.ToGameString());
-            text.AppendLine("备足粮食并等待新居民入住后，才会增加生产力。每座满员新增需粮：" + (building.PopulationCapacityGranted * PopulationState.FoodConsumptionPerPerson).ToGameString() + "/s；入住后生产力：" + (building.PopulationCapacityGranted * PopulationState.ProductivityGrantedPerPerson * ProgressionModifierManager.Current.PopulationProductivityMultiplier).ToGameString());
-        }
-        if (manager.GetState(building)?.Amount > ExpantaNum.Zero && manager.TryGetUnlockedUpgradeTarget(building, out BuildingDef target))
-        {
-            text.AppendLine("每座升级为 " + target.Label + " 的基础增量（产出另受倍率与供给影响）：");
-            if (!(building is SectorBuildingDef)) AppendInvestmentDelta(text, "土地需求", target.SpaceCost - building.SpaceCost);
-            AppendInvestmentDelta(text, "生产力需求", target.ProductivityConsumption - building.ProductivityConsumption);
-            AppendInvestmentDelta(text, "直接生产力", target.ProductivityGranted - building.ProductivityGranted);
-            AppendInvestmentDelta(text, "日常净粮 /s", target.FoodProductionRate - target.FoodConsumptionRate - building.FoodProductionRate + building.FoodConsumptionRate);
-            ExpantaNum residents = target.PopulationCapacityGranted - building.PopulationCapacityGranted;
-            AppendInvestmentDelta(text, "人口容量", residents);
-            if (residents != ExpantaNum.Zero)
-            {
-                AppendInvestmentDelta(text, "新增居民满员需粮 /s", residents * PopulationState.FoodConsumptionPerPerson);
-                AppendInvestmentDelta(text, "入住后生产力", residents * PopulationState.ProductivityGrantedPerPerson * ProgressionModifierManager.Current.PopulationProductivityMultiplier);
-            }
-            AppendInvestmentDelta(text, "粮食容量", (target.FoodCapacityGranted - building.FoodCapacityGranted) * ProgressionModifierManager.Current.FoodCapacityMultiplier);
-            AppendInvestmentDelta(text, "科研能力", target.ResearchPowerGranted - building.ResearchPowerGranted);
-            AppendInvestmentDelta(text, "电力需求 /s", target.PowerConsumptionRate - building.PowerConsumptionRate);
-            AppendInvestmentDelta(text, "物流需求 /s", target.LogisticsConsumptionRate - building.LogisticsConsumptionRate);
-            foreach (var flow in target.ResourceConsumptionRates)
-                text.AppendLine("升级后基础持续投入 " + flow.First.Label + "：" + flow.Second.ToGameString() + "/s（生产倍率也增加吞吐需求）");
-        }
-        if (building.FoodCapacityGranted > ExpantaNum.Zero)
-            text.AppendLine("每座基础储粮空间 +" + building.FoodCapacityGranted.ToGameString() + "；满仓后，超出的粮食产出不会存入库存。");
-        if (building.FoodProductionRate > ExpantaNum.Zero)
-        {
-            if (building.SpaceCost > ExpantaNum.Zero) text.AppendLine("基础粮食土地密度：" + (building.FoodProductionRate / building.SpaceCost).ToGameString() + "/s/土地");
-            if (building.ProductivityConsumption > ExpantaNum.Zero) text.AppendLine("基础单位生产力粮产：" + (building.FoodProductionRate / building.ProductivityConsumption).ToGameString() + "/s");
-        }
-        if (building.ResearchPowerGranted > ExpantaNum.Zero)
-            text.AppendLine("先付清研究所需材料，研究力才会推进队首研究；扩建科研建筑可提高研究力。");
-        if (building.Id == "AutonomousMatterFabricator" || building.PowerConsumptionRate > ExpantaNum.Zero || building.LogisticsConsumptionRate > ExpantaNum.Zero)
-        {
-            GameState state = GameManager.Instance.State;
-            text.AppendLine("每座满负荷用电：" + building.PowerConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.PowerProductionRate * state.HappinessRewardMultiplier - manager.TotalPowerDemand).ToGameString() + "/s");
-            text.AppendLine("每座满负荷物流需求：" + building.LogisticsConsumptionRate.ToGameString() + "/s；当前全负荷余量：" + (state.LogisticsProductionRate * state.HappinessRewardMultiplier - manager.TotalLogisticsDemand).ToGameString() + "/s。供给少于总需求时，现有建筑的效率也会下降。");
-        }
-    }
-
-    private static void AppendInvestmentDelta(StringBuilder text, string label, ExpantaNum delta)
-    {
-        if (delta != ExpantaNum.Zero)
-            text.AppendLine(label + "：" + (delta > ExpantaNum.Zero ? "+" : string.Empty) + delta.ToGameString());
     }
 
     private static void AppendUltraBudget(StringBuilder text, UltraProjectPreview preview)

@@ -556,6 +556,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     /// </summary>
     public void SetPage(string name)
     {
+        if (!IsProgressionPageUnlocked(name)) return;
         if (storyIllustrationPreview != null) storyIllustrationPreview.Hide();
         if (populatedPage != name)
             HideRelicDetails();
@@ -822,8 +823,10 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 researchQueueViewport.gameObject.SetActive(false);
             if (buildingControls != null)
                 buildingControls.gameObject.SetActive(false);
-            BuildStoryPage(page, refreshEraRows);
-            ConfigureOuterPageScroll(name, false, true);
+            bool storyChanged = BuildStoryPage(page, refreshEraRows);
+            Vector2 viewportSize = pageHost == null ? Vector2.zero : pageHost.rect.size;
+            ConfigureOuterPageScroll(name, false, storyChanged || viewportSize != storyScrollViewportSize);
+            storyScrollViewportSize = viewportSize;
             return;
         }
         if (researchQueueViewport != null)
@@ -897,6 +900,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 buildingActionButtons.Clear();
                 buildingActionButtonTexts.Clear();
                 buildingActionTooltips.Clear();
+                buildingActionIcons.Clear();
+                buildingActionIconUpgradeModes.Clear();
                 buildingActionButtonOutlines.Clear();
                 buildingActionUpgradeModes.Clear();
                 BuildAuthoredBuildingRows(rows);
@@ -925,6 +930,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 if (workshopRowsBuilt) break;
                 buildingActionButtonTexts.Clear();
                 buildingActionTooltips.Clear();
+                buildingActionIcons.Clear();
+                buildingActionIconUpgradeModes.Clear();
                 buildingActionButtonOutlines.Clear();
                 BuildAuthoredWorkshopRows(rows);
                 workshopRowsBuilt = true;
@@ -957,7 +964,9 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
             {
                 // Music controls stay in the page viewport; the track list has
                 // its own ScrollRect below them so TIME / SEEK remains visible.
-                Canvas.ForceUpdateCanvases();
+                if (!pageWasBuilt || pageHost == null ||
+                    pageHost.rect.width <= 1f || pageHost.rect.height <= 1f)
+                    Canvas.ForceUpdateCanvases();
                 float visibleHeight = pageHost == null ? 720f : pageHost.rect.height;
                 rowsHeight = Mathf.Max(240f, visibleHeight);
             }
@@ -1161,7 +1170,7 @@ public static class DevelopmentGuidance
                 snapshot.Body = string.IsNullOrWhiteSpace(research.Description)
                     ? "前置研究已完成；查看材料需求，将它加入研究队列。"
                     : research.Description;
-                snapshot.Blockers = new[] { "研究力 " + researchManager.ResearchPower.ToGameString() + "/s" };
+                snapshot.Blockers = new[] { "研究力 " + researchManager.EffectiveResearchPower.ToGameString() + "/s" };
                 return snapshot;
             }
         }

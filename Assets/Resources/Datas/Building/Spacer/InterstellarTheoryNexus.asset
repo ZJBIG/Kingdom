@@ -23,8 +23,8 @@ MonoBehaviour:
   productivityConsumption: "1600"
   researchPowerGranted: "900"
   foodConsumptionRate: "4"
-  powerConsumptionRate: "500"
-  logisticsConsumptionRate: "80"
+  powerContribution: -500
+  logisticsContribution: -80
   resourceRequirements:
   - resource: {fileID: 11400000, guid: f718293a4b5c6d7e8f901a2b3c4d5e6f, type: 2}
     amount: "10000"

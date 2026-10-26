@@ -12,6 +12,7 @@ public sealed class GameState
 
     public int CalendarDays { get; private set; }
     public TechLevel TechLevel { get; private set; }
+    public bool HasBuiltHousing { get; private set; }
     public ExpantaNum FoodAmount { get; private set; }
     public ExpantaNum FoodCapacity { get; private set; }
     private ExpantaNum unscaledFoodProductionRate;
@@ -97,6 +98,7 @@ public sealed class GameState
     {
         CalendarDays = 0;
         TechLevel = TechLevel.Animal;
+        HasBuiltHousing = false;
         FoodAmount = new ExpantaNum(300);
         FoodCapacity = BaseFoodCapacity;
         unscaledFoodProductionRate = BaseFoodProductionRate;
@@ -132,6 +134,12 @@ public sealed class GameState
         // from the canonical baseline and owned buildings.
         FoodCapacity = ExpantaNum.Max(BaseFoodCapacity, FoodAmount);
         LastSaveUnixSeconds = lastSaveUnixSeconds;
+        Version++;
+    }
+
+    internal void RestoreHousingMilestone(bool hasBuiltHousing)
+    {
+        HasBuiltHousing = hasBuiltHousing;
         Version++;
     }
 

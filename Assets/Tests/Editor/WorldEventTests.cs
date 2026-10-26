@@ -127,9 +127,9 @@ public sealed class WorldEventTests
                 productivityConsumptionValue: ExpantaNum.Zero, productivity: ExpantaNum.Zero,
                 populationCapacity: ExpantaNum.Zero, researchPower: ExpantaNum.Zero,
                 foodProduction: new ExpantaNum(10d), foodConsumption: ExpantaNum.Zero,
-                foodCapacity: new ExpantaNum(5000d), powerProduction: ExpantaNum.Zero,
-                powerConsumption: ExpantaNum.Zero, logisticsProduction: ExpantaNum.Zero,
-                logisticsConsumption: ExpantaNum.Zero, attack: ExpantaNum.Zero,
+                foodCapacity: new ExpantaNum(5000d),
+            powerContributionValue: ExpantaNum.Zero,
+            logisticsContributionValue: ExpantaNum.Zero, attack: ExpantaNum.Zero,
                 defense: ExpantaNum.Zero, manpower: ExpantaNum.Zero,
                 requirements: null,
                 generation: new System.Collections.Generic.List<Pair<ResourceDef, ExpantaNum>>

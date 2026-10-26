@@ -5,6 +5,97 @@ using NUnit.Framework;
 public sealed class ContentProgressionValidatorTests
 {
     [Test]
+    public void ResearchCosts_HaveAProducerWithinTheirPrerequisiteClosure()
+    {
+        IReadOnlyList<ResearchDef> researches = DataBase<ResearchDef>.All;
+        IReadOnlyList<BuildingDef> buildings = DataBase<BuildingDef>.All;
+        foreach (ResearchDef research in researches)
+        {
+            var ancestors = new HashSet<ResearchDef>();
+            foreach (ResearchDef prerequisite in research.Prerequisites)
+                AddResearchAncestors(prerequisite, ancestors);
+            TechLevel accessibleEra = research.AdvancesTechLevel
+                ? (TechLevel)((int)research.TechLevel - 1) : research.TechLevel;
+            // Reaching an era already requires its advancement research and its ancestors.
+            foreach (ResearchDef advancement in researches)
+                if (advancement.AdvancesTechLevel && advancement.TechLevel <= accessibleEra)
+                    AddResearchAncestors(advancement, ancestors);
+
+            foreach (Pair<ResourceDef, ExpantaNum> cost in research.ResourceRequirements)
+            {
+                if (cost.Second <= ExpantaNum.Zero || ResourceManager.IsStartingResource(cost.First))
+                    continue;
+                bool hasProducer = false;
+                foreach (BuildingDef building in buildings)
+                {
+                    if (!BuildingPrerequisitesAvailable(building, ancestors, accessibleEra,
+                            new HashSet<WorkshopUpgradeDef>()))
+                        continue;
+                    foreach (Pair<ResourceDef, ExpantaNum> output in building.ResourceGenerationRates)
+                        if (output.First == cost.First && output.Second > ExpantaNum.Zero)
+                            hasProducer = true;
+                    if (hasProducer)
+                        break;
+                }
+                Assert.That(hasProducer, Is.True,
+                    research.Id + " requires " + cost.First.Id +
+                    " without a producer unlocked by its research/era prerequisites.");
+            }
+        }
+    }
+
+    private static void AddResearchAncestors(ResearchDef research, HashSet<ResearchDef> ancestors)
+    {
+        if (!ancestors.Add(research))
+            return;
+        foreach (ResearchDef prerequisite in research.Prerequisites)
+            AddResearchAncestors(prerequisite, ancestors);
+    }
+
+    private static bool BuildingPrerequisitesAvailable(BuildingDef building,
+        HashSet<ResearchDef> ancestors, TechLevel era, HashSet<WorkshopUpgradeDef> visiting)
+    {
+        if (building.TechLevel > era)
+            return false;
+        foreach (ResearchDef prerequisite in building.RequiredResearch)
+            if (!ancestors.Contains(prerequisite))
+                return false;
+        foreach (WorkshopUpgradeDef upgrade in building.RequiredWorkshopUpgrades)
+            if (!WorkshopPrerequisitesAvailable(upgrade, ancestors, era, visiting))
+                return false;
+        return true;
+    }
+
+    private static bool WorkshopPrerequisitesAvailable(WorkshopUpgradeDef upgrade,
+        HashSet<ResearchDef> ancestors, TechLevel era, HashSet<WorkshopUpgradeDef> visiting)
+    {
+        if (upgrade.TechLevel > era || !visiting.Add(upgrade))
+            return false;
+        try
+        {
+            bool unlocked = false;
+            foreach (ResearchDef research in ancestors)
+                foreach (ResearchEffectDefinition effect in research.Effects)
+                    if (effect.Type == ResearchEffectType.UnlockIndustrialWorkshop)
+                        unlocked = true;
+            if (!unlocked || upgrade.RequiredSector != null)
+                return false;
+            foreach (ResearchDef prerequisite in upgrade.RequiredResearch)
+                if (!ancestors.Contains(prerequisite))
+                    return false;
+            foreach (WorkshopUpgradeDef prerequisite in upgrade.RequiredUpgrades)
+                if (!WorkshopPrerequisitesAvailable(prerequisite, ancestors, era, visiting))
+                    return false;
+            return upgrade.RequiredBuilding == null ||
+                BuildingPrerequisitesAvailable(upgrade.RequiredBuilding, ancestors, era, visiting);
+        }
+        finally
+        {
+            visiting.Remove(upgrade);
+        }
+    }
+
+    [Test]
     public void IndustrialProduction_DoesNotGrantOutputsWithoutAllContinuousInputs()
     {
         BuildingDef chemicalPlant = UnityEngine.Object.Instantiate(DataBase<BuildingDef>.Find("ChemicalPlant"));

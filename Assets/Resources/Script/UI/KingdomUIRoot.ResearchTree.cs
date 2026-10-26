@@ -127,6 +127,8 @@ public sealed partial class KingdomUIRoot
         public TMP_Text ProgressText;
         public TMP_Text LabelText;
         public Text LegacyLabel;
+        public Graphic[] Graphics;
+        public UITouchTooltip Tooltip;
         public int StateVersion = -1;
     }
     private readonly Dictionary<ResearchDef, ResearchNodeVisualReferences> researchNodeVisualReferences = new();
@@ -313,9 +315,7 @@ public sealed partial class KingdomUIRoot
         ResearchManager manager = ResearchManager.Instance;
         manager.States.TryGetValue(research, out ResearchState state);
         var signature = new StringBuilder(research.Id).Append(':')
-            .Append(state == null ? -1 : (int)state.Status).Append(':')
-            .Append(QuantizedResearchProgress(state)).Append(':')
-            .Append(state != null && state.CostPaid ? '1' : '0');
+            .Append(state == null ? -1 : (int)state.Status);
         IReadOnlyList<ResearchState> queue = manager.ResearchQueue;
         for (int i = 0; i < queue.Count; i++)
             if (queue[i]?.Definition == research)
@@ -342,8 +342,6 @@ public sealed partial class KingdomUIRoot
                     continue;
                 signature.Append('|').Append(resource.Id).Append('=');
                 signature.Append(ResourceManager.Instance.GetAmount(resource).ToGameString());
-                if (state != null)
-                    signature.Append('/').Append(state.GetPaidResourceCost(resource).ToGameString());
             }
         return signature.ToString();
     }
@@ -865,7 +863,7 @@ public sealed partial class KingdomUIRoot
         string selectedId = ResearchManager.Instance.SelectedResearchId;
         if (string.IsNullOrWhiteSpace(selectedId))
             return;
-        if (DataBase<ResearchDef>.TryFind(selectedId, out ResearchDef selected))
+        if (DataBase<ResearchDef>.TryFind(selectedId, out ResearchDef selected) && CanInspectResearch(selected))
         {
             if (selectedResearchNode == null ||
                 !string.Equals(selectedResearchNode.Id, selected.Id, StringComparison.Ordinal))
@@ -893,7 +891,7 @@ public sealed partial class KingdomUIRoot
 
     private void NavigateToOverviewResearch(ResearchDef target)
     {
-        if (target == null)
+        if (!CanInspectResearch(target))
             return;
         pendingOverviewResearchFocusId = target.Id;
         SetPage("Research");
@@ -906,7 +904,7 @@ public sealed partial class KingdomUIRoot
 
     private void FocusResearchNode(ResearchDef research)
     {
-        if (research == null || researchGraphViewport == null || researchGraphContent == null ||
+        if (!CanInspectResearch(research) || researchGraphViewport == null || researchGraphContent == null ||
             !researchTreeNodes.TryGetValue(research, out Button button) || button == null)
             return;
 
@@ -1619,6 +1617,7 @@ public sealed partial class KingdomUIRoot
         // ColorTint would overwrite the focused surface immediately after
         // the click and erase the intended P2 contrast.
         button.transition = Selectable.Transition.None;
+        button.interactable = CanInspectResearch(research);
         ApplyButtonColors(button, surface.color);
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => ShowResearchDetails(research));
@@ -1739,6 +1738,8 @@ public sealed partial class KingdomUIRoot
             ProgressText = progressLabel,
             LabelText = titleLabel,
             LegacyLabel = titleLabel.GetComponent<Text>(),
+            Graphics = node.GetComponentsInChildren<Graphic>(true),
+            Tooltip = node.GetComponent<UITouchTooltip>(),
             StateVersion = state == null ? -1 : state.Version
         };
         UITouchTooltip tooltip = node.GetComponent<UITouchTooltip>();
@@ -1747,7 +1748,9 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] ResearchNode prefab is missing its authored tooltip: " + research.Id);
             return;
         }
-        tooltip.SetTooltip(research.Description);
+        tooltip.SetTooltip(CanInspectResearch(research) ? research.Description : "进入" + research.TechLevel.GetDescription() + "后开放");
+        foreach (Graphic graphic in researchNodeVisualReferences[research].Graphics)
+            if (graphic != null) graphic.canvasRenderer.SetAlpha(button.interactable ? 1f : .3f);
     }
 
     private static Image[] CreateResearchNodeBorder(RectTransform node)
@@ -1911,6 +1914,8 @@ public sealed partial class KingdomUIRoot
             if (ResearchManager.Instance != null)
                 ResearchManager.Instance.States.TryGetValue(research, out state);
             ResearchStatus status = state == null ? ResearchStatus.Locked : state.Status;
+            bool accessible = CanInspectResearch(research);
+            button.interactable = accessible;
             Color accent = GetResearchStatusColor(status);
             bool focused = focusedIds.Contains(research.Id);
 
@@ -1921,7 +1926,13 @@ public sealed partial class KingdomUIRoot
             bool stateChanged = visualReferences == null ||
                 visualReferences.StateVersion != stateVersion;
             if (visualReferences != null)
+            {
                 visualReferences.StateVersion = stateVersion;
+                if (visualReferences.Graphics != null)
+                    foreach (Graphic graphic in visualReferences.Graphics)
+                        if (graphic != null) graphic.canvasRenderer.SetAlpha(accessible ? 1f : .3f);
+                visualReferences.Tooltip?.SetTooltip(accessible ? research.Description : "进入" + research.TechLevel.GetDescription() + "后开放");
+            }
             Image surface = visualReferences?.Surface ?? button.targetGraphic as Image;
             if (surface != null)
                 SetColorIfChanged(surface, focused ? ResearchFocusSurface : status == ResearchStatus.Locked ?
@@ -1946,7 +1957,7 @@ public sealed partial class KingdomUIRoot
                 if (Mathf.Abs(progressImage.fillAmount - fill) > 0.0001f)
                     progressImage.fillAmount = fill;
                 SetColorIfChanged(progressImage, Color.white);
-                progressImage.canvasRenderer.SetAlpha(1f);
+                progressImage.canvasRenderer.SetAlpha(accessible ? 1f : .3f);
                 progressImage.enabled = true;
                 progress.gameObject.SetActive(true);
                 // Keep the progress fill on top of its era frame, but only

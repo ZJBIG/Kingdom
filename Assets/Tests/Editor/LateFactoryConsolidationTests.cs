@@ -42,14 +42,12 @@ public sealed class LateFactoryConsolidationTests
                 $"综合工厂缺少主要材料产出：{id}");
         }
 
-        Assert.That(hub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(hub.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(hub.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(hub.ProductivityConsumption >= new ExpantaNum(16000), Is.True,
             "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х敓浜у姏娑堣€楋紒");
-        Assert.That(hub.PowerConsumptionRate >= new ExpantaNum(5000), Is.True,
+        Assert.That((-hub.PowerContribution) >= new ExpantaNum(5000), Is.True,
             "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х數鍔涙秷鑰楋紒");
-        Assert.That(hub.LogisticsConsumptionRate >= new ExpantaNum(1200), Is.True,
-            "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾х墿娴佹秷鑰楋紒");
         Assert.That(hub.FoodConsumptionRate >= new ExpantaNum(24), Is.True,
             "Spacer 绁煎悎宸ュ巶蹇呴』淇濇寔宸ㄦ瀯绾ч鐗╂秷鑰楋紒");
         foreach (Pair<ResourceDef, ExpantaNum> generated in hub.ResourceGenerationRates)

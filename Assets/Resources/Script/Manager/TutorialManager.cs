@@ -780,38 +780,17 @@ public sealed partial class TutorialManager : MonoBehaviour
         {
             string chainSummary = BuildOwnedProductionChainSummary(buildings);
             BuildingDef chainRecommendation = FindProductionChainRecommendation(game, buildings);
-            bool lacksProductivity = chainRecommendation != null &&
-                chainRecommendation.ProductivityConsumption > ExpantaNum.Max(ExpantaNum.Zero, buildings.AvailableProductivity);
-            BuildingDef capacityRecommendation = lacksProductivity
-                ? FindPopulationCapacityRecommendation(game, buildings)
-                : null;
-            snapshot.Blocker = lacksProductivity
-                ? "可用生产力不足。"
-                : string.IsNullOrEmpty(chainSummary)
+            snapshot.Blocker = string.IsNullOrEmpty(chainSummary)
                     ? "尚未拥有一组相连的生产与加工建筑。"
                     : chainSummary;
-            snapshot.RecommendedAction = lacksProductivity
-                ? capacityRecommendation == null
-                    ? "打开建筑页面，先解决人口容量与生产力问题。"
-                    : "打开建筑页面，先建造“" + capacityRecommendation.Label + "”获得人口容量。"
-                : string.IsNullOrEmpty(chainSummary)
+            snapshot.RecommendedAction = string.IsNullOrEmpty(chainSummary)
                     ? "打开建筑页面，查看生产与消耗关系。"
-                    : "打开建筑页面，继续扩展：" + chainSummary;
+                    : "打开建筑页面，继续扩展：" + chainSummary + "。劳力不足时，建筑会按全局开工率运作；供粮与新增居民能提高开工率。";
             snapshot.NavigationPage = "Buildings";
-            BuildingDef navigationRecommendation = lacksProductivity
-                ? capacityRecommendation
-                : chainRecommendation;
-            snapshot.NavigationTargetId = navigationRecommendation == null
+            snapshot.NavigationTargetId = chainRecommendation == null
                 ? string.Empty
-                : navigationRecommendation.Id;
-            if (lacksProductivity && game.State.Population.Population < game.State.Population.PopulationCapacity)
-            {
-                snapshot.Blocker = "目标建筑生产力不足，现有住房仍可入住。";
-                snapshot.RecommendedAction = "先保持正净粮，等待居民入住；每位新居民提供基础2生产力并消耗0.8食物/秒。";
-                snapshot.NavigationPage = "Resources";
-                snapshot.NavigationTargetId = "Food";
-            }
-            if (!lacksProductivity && string.IsNullOrEmpty(chainSummary))
+                : chainRecommendation.Id;
+            if (string.IsNullOrEmpty(chainSummary))
             {
                 bool hasChainAction = TryFindNextProductionChainAction(
                     chainRecommendation, resources, buildings, research,
@@ -1302,7 +1281,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                             continue;
                         BuildFailure failure = buildings.GetBuildFailure(building, ExpantaNum.One);
                         if (failure == BuildFailure.None || failure == BuildFailure.ResourceInsufficient ||
-                            failure == BuildFailure.ProductivityInsufficient || failure == BuildFailure.SpaceInsufficient)
+                            failure == BuildFailure.SpaceInsufficient)
                         {
                             available = building;
                             break;
@@ -2209,10 +2188,8 @@ public sealed partial class TutorialManager : MonoBehaviour
             "食物 +" + building.FoodProductionRate.ToGameString() + "/s");
         AddPositiveChange(changes, building.ResearchPowerGranted,
             "研究力 +" + building.ResearchPowerGranted.ToGameString() + "/s");
-        AddRateChanges(changes, "电力", building.PowerProductionRate,
-            building.PowerConsumptionRate);
-        AddRateChanges(changes, "物流", building.LogisticsProductionRate,
-            building.LogisticsConsumptionRate);
+        AddContributionChange(changes, "电力", building.PowerContribution);
+        AddContributionChange(changes, "物流", building.LogisticsContribution);
         AddResourceFlowChanges(changes, building.ResourceConsumptionRates,
             "消耗 ");
         AddResourceFlowChanges(changes, building.ResourceGenerationRates,
@@ -2230,13 +2207,11 @@ public sealed partial class TutorialManager : MonoBehaviour
             changes.Add(text);
     }
 
-    private static void AddRateChanges(List<string> changes, string label,
-        ExpantaNum production, ExpantaNum consumption)
+    private static void AddContributionChange(List<string> changes, string label,
+        ExpantaNum contribution)
     {
-        if (production > ExpantaNum.Zero && changes.Count < 5)
-            changes.Add(label + " +" + production.ToGameString() + "/s");
-        if (consumption > ExpantaNum.Zero && changes.Count < 5)
-            changes.Add(label + " -" + consumption.ToGameString() + "/s");
+        if (contribution != ExpantaNum.Zero && changes.Count < 5)
+            changes.Add(label + " " + (contribution > ExpantaNum.Zero ? "+" : string.Empty) + contribution.ToGameString());
     }
 
     private static void AddResourceFlowChanges(List<string> changes,
@@ -2360,6 +2335,10 @@ public sealed partial class TutorialManager : MonoBehaviour
             return "研究资料暂不可用。";
 
         List<string> changes = new List<string>();
+        if (research.Id == ProgressionVisibilityRules.EraResearchId)
+            changes.Add("解锁时代页面，查看文明跃迁的条件与阻碍");
+        if (research.Id == ProgressionVisibilityRules.ProductionResearchId)
+            changes.Add("解锁生产树，查看资源的上下游关系");
         if (research.AdvancesTechLevel)
             changes.Add("推进至" + research.TechLevel.GetDescription());
         for (int i = 0; i < research.Effects.Count && changes.Count < 4; i++)

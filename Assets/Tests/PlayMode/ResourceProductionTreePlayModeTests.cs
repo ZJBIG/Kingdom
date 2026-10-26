@@ -13,6 +13,7 @@ using Object = UnityEngine.Object;
 
 public sealed class ResourceProductionTreePlayModeTests
 {
+    private static readonly string evidenceRun = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
     private string saveRoot;
     private TutorialManager initialTutorial;
     private MusicManager initialMusic;
@@ -269,6 +270,7 @@ public sealed class ResourceProductionTreePlayModeTests
         int nodeCount = graph.childCount;
         ui.SetPage("Resources"); yield return null;
         Assert.That(gesture.isActiveAndEnabled, Is.False, "A hidden production graph cannot handle input.");
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.ProductionResearchId)).SetStatusForEditor(ResearchStatus.Completed);
         ui.SetPage("Production"); yield return null;
         Assert.That(Vector2.Distance(graph.anchoredPosition, saved), Is.LessThan(1f));
         Assert.That(graph.localScale.x, Is.EqualTo(1.25f).Within(.001f));
@@ -429,7 +431,9 @@ public sealed class ResourceProductionTreePlayModeTests
         yield return null;
         Assert.That(graph.GetChild(0).Find("Icon").GetComponent<Button>().enabled, Is.False,
             "Resource icons retain their normal appearance without disabled-button tinting.");
-        Assert.That(FindProductionNode(graph, old.Label), Is.Null, "Empty superseded producers are hidden.");
+        Assert.That(FindProductionNode(graph, old.Label) != null,
+            Is.EqualTo(BuildingManager.Instance.CanConstructNew(old)),
+            "An empty earlier producer remains visible only when the manager permits building it, including material-free recovery sources.");
         BuildingManager.Instance.GetState(old).SetAmountForEditor(ExpantaNum.One);
         ui.RefreshProductionVisibilityForEditor();
         yield return null;
@@ -557,6 +561,9 @@ public sealed class ResourceProductionTreePlayModeTests
         Assert.That(loadedUi != null, Is.True);
         Assert.That(bootstrap != null && bootstrap.Completed, Is.True, "The freshly loaded scene must finish bootstrap.");
         Assert.That(loadedUi.gameObject.scene, Is.EqualTo(scene));
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.ProductionResearchId))
+            .SetStatusForEditor(ResearchStatus.Completed);
+        loadedUi.RefreshAutomaticUIForEditor();
     }
 
     private static IEnumerator CaptureTree(Canvas canvas, string name, bool dismissTutorial = false)
@@ -590,7 +597,7 @@ public sealed class ResourceProductionTreePlayModeTests
         {
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera; canvas.planeDistance = 100;
-            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "artwork-mount-20261021", "pages"));
+            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "experience-20261023", "production-pages", evidenceRun));
             Directory.CreateDirectory(folder);
             foreach (Vector2Int size in new[] { new Vector2Int(2640, 1200), new Vector2Int(1760, 800) })
             {

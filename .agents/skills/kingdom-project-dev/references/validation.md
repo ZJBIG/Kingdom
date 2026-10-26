@@ -123,7 +123,7 @@ dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-r
 dotnet run --project tools/NewEconomySimulator/NewEconomySimulator.csproj --no-restore -- --snapshot-before BEFORE.json --snapshot-after AFTER.json --offline-seconds 7260
 ```
 
-在线对照将最后一项替换为 `--online-seconds 10`；两个时间参数互斥，允许 (0,86400] 秒。输入必须是完整v5快照，旧v4拒绝加载并需重新捕获；诊断版本与游戏存档v1独立。v5包含真实tick间隔、日历小数余量及战役/活动殖民共用的离线pending日历与模拟秒数。退出0代表已覆盖终态字段一致，1为差异，2为非法参数/输入错误。报告首差与全差，不比较逐tick事件；仍没有世界事件、Ultra与遗迹状态，不能称为全系统parity。构建会产生 bin/obj；程序报告输出 stdout。当前“Unity 对比”含人工 fixture，必须与正常新档运行明确区分。永不以该结果调节数值或声称节奏验收。
+在线对照将最后一项替换为 `--online-seconds 10`；两个时间参数互斥，允许 (0,86400] 秒。输入必须是完整v6快照，旧v5及更早版本拒绝加载并需重新捕获；诊断版本与游戏存档v1独立。v6建筑定义仅含有符号PowerContribution/LogisticsContribution，并保留真实tick间隔、日历小数余量及战役/活动殖民共用的离线pending日历与模拟秒数。退出0代表已覆盖终态字段一致，1为差异，2为非法参数/输入错误。报告首差与全差，不比较逐tick事件；仍没有世界事件、Ultra与遗迹状态，不能称为全系统parity。构建会产生 bin/obj；程序报告输出 stdout。当前“Unity 对比”含人工 fixture，必须与正常新档运行明确区分。永不以该结果调节数值或声称节奏验收。
 
 ## 3. 测试定位与隔离
 

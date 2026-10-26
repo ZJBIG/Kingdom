@@ -163,6 +163,7 @@ GameObject:
   - component: {fileID: 2732236384462791354}
   - component: {fileID: 6531011834058208271}
   - component: {fileID: 8909441040572044304}
+  - component: {fileID: 2352460447383574214}
   m_Layer: 0
   m_Name: StoryIllustrationPreview
   m_TagString: Untagged
@@ -304,6 +305,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2352460447383574214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583356358333211106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &680792397273774652
 GameObject:
   m_ObjectHideFlags: 0
@@ -318,6 +331,7 @@ GameObject:
   - component: {fileID: 8885241884373499583}
   - component: {fileID: 2651046823470165548}
   - component: {fileID: 4551397253051078570}
+  - component: {fileID: 6492618875421274313}
   m_Layer: 0
   m_Name: StoryChapterNavigation
   m_TagString: Untagged
@@ -459,6 +473,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6492618875421274313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680792397273774652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &1470680237692627712
 GameObject:
   m_ObjectHideFlags: 0
@@ -951,6 +977,7 @@ GameObject:
   - component: {fileID: 5421359250635434028}
   - component: {fileID: 3246566938579685745}
   - component: {fileID: 4845802717358999}
+  - component: {fileID: 5775412962775791517}
   m_Layer: 0
   m_Name: StoryChapterToggle
   m_TagString: Untagged
@@ -1090,6 +1117,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &5775412962775791517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3276473760661621136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
   m_Name:
   m_EditorClassIdentifier:
 --- !u!1 &3600704519939925124

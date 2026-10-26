@@ -5,6 +5,26 @@ using UnityEngine;
 public sealed class FoodEfficiencyTests
 {
     [Test]
+    public void LaborOperatingRatio_TracksSupplyWithoutExceedingFullOperation()
+    {
+        Assert.That(BuildingManager.CalculateLaborOperatingRatio(10, 20),
+            Is.GreaterThan(new ExpantaNum(0.49d)).And.LessThan(new ExpantaNum(0.51d)));
+        Assert.That(BuildingManager.CalculateLaborOperatingRatio(20, 10),
+            Is.GreaterThanOrEqualTo(ExpantaNum.One).And.LessThanOrEqualTo(ExpantaNum.One));
+        Assert.That(BuildingManager.CalculateLaborOperatingRatio(0, 10), Is.LessThanOrEqualTo(ExpantaNum.Zero));
+        Assert.That(BuildingManager.CalculateLaborOperatingRatio(0, 0), Is.GreaterThanOrEqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void FarmsRecoverFoodWithoutAdditionalStarvationEfficiencyPenalty()
+    {
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+        Assert.That(farm, Is.Not.Null);
+        Assert.That(farm.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(BuildingManager.IsFoodConstraintRequired(farm), Is.False);
+    }
+
+    [Test]
     public void FoodAvailability_DecreasingSupplyCannotImproveDeficitHappiness()
     {
         ExpantaNum previous = HappinessFormula.CalculateMultiplier(-100, 10, 1);
@@ -46,8 +66,7 @@ public sealed class FoodEfficiencyTests
         try
         {
             energyDriven.ConfigureEconomyForEditor(
-                1.15d, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 100, 0, 0, 0, 0, 0,
+                1.15d, 0, 0, 0, 0, 0, 0, 0, 0, -100, 0, 0, 0, 0,
                 new List<Pair<ResourceDef, ExpantaNum>>(),
                 new List<Pair<ResourceDef, ExpantaNum>>(),
                 new List<Pair<ResourceDef, ExpantaNum>>());

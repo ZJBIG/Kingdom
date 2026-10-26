@@ -52,14 +52,10 @@ public class BuildingDef : GameDefinition
     private string foodConsumptionRate = "0";
     [SerializeField, Tooltip("每个建筑提供的食物储存容量。")]
     private string foodCapacityGranted = "0";
-    [SerializeField, Tooltip("每个建筑每秒提供的电力流量。")]
-    private string powerProductionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒消耗的电力流量。")]
-    private string powerConsumptionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒提供的物流吞吐。")]
-    private string logisticsProductionRate = "0";
-    [SerializeField, Tooltip("每个建筑每秒消耗的物流吞吐。")]
-    private string logisticsConsumptionRate = "0";
+    [SerializeField, Tooltip("电力：正数供给，负数消耗，零表示无。")]
+    private string powerContribution = "0";
+    [SerializeField, Tooltip("物流：正数供给，负数消耗，零表示无。")]
+    private string logisticsContribution = "0";
     [SerializeField, Tooltip("每个建筑提供的有效舰队力量。")]
     private string fleetPowerGranted = "0";
     [SerializeField]
@@ -77,10 +73,8 @@ public class BuildingDef : GameDefinition
     [System.NonSerialized] private ParsedExpantaNumCache foodProductionRateCache;
     [System.NonSerialized] private ParsedExpantaNumCache foodConsumptionRateCache;
     [System.NonSerialized] private ParsedExpantaNumCache foodCapacityGrantedCache;
-    [System.NonSerialized] private ParsedExpantaNumCache powerProductionRateCache;
-    [System.NonSerialized] private ParsedExpantaNumCache powerConsumptionRateCache;
-    [System.NonSerialized] private ParsedExpantaNumCache logisticsProductionRateCache;
-    [System.NonSerialized] private ParsedExpantaNumCache logisticsConsumptionRateCache;
+    [System.NonSerialized] private ParsedExpantaNumCache powerContributionCache;
+    [System.NonSerialized] private ParsedExpantaNumCache logisticsContributionCache;
     [System.NonSerialized] private ParsedExpantaNumCache fleetPowerGrantedCache;
     [System.NonSerialized] private ParsedExpantaNumCache attackPowerGrantedCache;
     [System.NonSerialized] private ParsedExpantaNumCache defensePowerGrantedCache;
@@ -132,12 +126,8 @@ public class BuildingDef : GameDefinition
     public ExpantaNum FoodProductionRate => foodProductionRateCache.Get(foodProductionRate);
     public ExpantaNum FoodConsumptionRate => foodConsumptionRateCache.Get(foodConsumptionRate);
     public ExpantaNum FoodCapacityGranted => foodCapacityGrantedCache.Get(foodCapacityGranted);
-    public ExpantaNum PowerProductionRate => powerProductionRateCache.Get(powerProductionRate);
-    public ExpantaNum PowerConsumptionRate => powerConsumptionRateCache.Get(powerConsumptionRate);
-    public ExpantaNum LogisticsProductionRate =>
-        logisticsProductionRateCache.Get(logisticsProductionRate);
-    public ExpantaNum LogisticsConsumptionRate =>
-        logisticsConsumptionRateCache.Get(logisticsConsumptionRate);
+    public ExpantaNum PowerContribution => powerContributionCache.Get(powerContribution);
+    public ExpantaNum LogisticsContribution => logisticsContributionCache.Get(logisticsContribution);
     public ExpantaNum FleetPowerGranted => fleetPowerGrantedCache.Get(fleetPowerGranted);
     public ExpantaNum AttackPowerGranted => attackPowerGrantedCache.Get(attackPowerGranted);
     public ExpantaNum DefensePowerGranted => defensePowerGrantedCache.Get(defensePowerGranted);
@@ -198,10 +188,8 @@ public class BuildingDef : GameDefinition
         ExpantaNum foodProduction,
         ExpantaNum foodConsumption,
         ExpantaNum foodCapacity,
-        ExpantaNum powerProduction,
-        ExpantaNum powerConsumption,
-        ExpantaNum logisticsProduction,
-        ExpantaNum logisticsConsumption,
+        ExpantaNum powerContributionValue,
+        ExpantaNum logisticsContributionValue,
         ExpantaNum attack,
         ExpantaNum defense,
         ExpantaNum manpower,
@@ -218,10 +206,8 @@ public class BuildingDef : GameDefinition
         foodProductionRate = foodProduction.ToString();
         foodConsumptionRate = foodConsumption.ToString();
         foodCapacityGranted = foodCapacity.ToString();
-        powerProductionRate = powerProduction.ToString();
-        powerConsumptionRate = powerConsumption.ToString();
-        logisticsProductionRate = logisticsProduction.ToString();
-        logisticsConsumptionRate = logisticsConsumption.ToString();
+        powerContribution = powerContributionValue.ToString();
+        logisticsContribution = logisticsContributionValue.ToString();
         attackPowerGranted = attack.ToString();
         defensePowerGranted = defense.ToString();
         militaryManpowerGranted = manpower.ToString();
@@ -248,10 +234,8 @@ public class BuildingDef : GameDefinition
         ExpantaNum foodProduction,
         ExpantaNum foodConsumption,
         ExpantaNum foodCapacity,
-        ExpantaNum powerProduction,
-        ExpantaNum powerConsumption,
-        ExpantaNum logisticsProduction,
-        ExpantaNum logisticsConsumption,
+        ExpantaNum powerContributionValue,
+        ExpantaNum logisticsContributionValue,
         ExpantaNum attack,
         ExpantaNum defense,
         List<Pair<ResourceDef, ExpantaNum>> requirements,
@@ -261,8 +245,8 @@ public class BuildingDef : GameDefinition
         ConfigureEconomyForEditor(
             growth, territory, productivityConsumptionValue, productivity,
             populationCapacity, researchPower, foodProduction, foodConsumption,
-            foodCapacity, powerProduction, powerConsumption, logisticsProduction,
-            logisticsConsumption, attack, defense, ExpantaNum.Zero,
+            foodCapacity, powerContributionValue, logisticsContributionValue,
+            attack, defense, ExpantaNum.Zero,
             requirements, generation, consumption);
     }
 
@@ -280,17 +264,9 @@ public class BuildingDef : GameDefinition
 
     public void SetResearchPowerForEditor(ExpantaNum value) =>
         researchPowerGranted = ExpantaNum.Max(ExpantaNum.Zero, value).ToString();
-    public void SetPowerFlowForEditor(ExpantaNum production, ExpantaNum consumption)
-    {
-        powerProductionRate = ExpantaNum.Max(ExpantaNum.Zero, production).ToString();
-        powerConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, consumption).ToString();
-    }
+    public void SetPowerContributionForEditor(ExpantaNum value) => powerContribution = value.ToString();
 
-    public void SetLogisticsFlowForEditor(ExpantaNum production, ExpantaNum consumption)
-    {
-        logisticsProductionRate = ExpantaNum.Max(ExpantaNum.Zero, production).ToString();
-        logisticsConsumptionRate = ExpantaNum.Max(ExpantaNum.Zero, consumption).ToString();
-    }
+    public void SetLogisticsContributionForEditor(ExpantaNum value) => logisticsContribution = value.ToString();
 #endif
 
     private void EnsureMergedResourceRates()

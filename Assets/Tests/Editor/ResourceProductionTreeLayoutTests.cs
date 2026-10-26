@@ -12,7 +12,7 @@ public sealed class ResourceProductionTreeLayoutTests
     private BuildingDef Producer(ResourceDef output, ResourceDef input = null)
     {
         BuildingDef value = Make<BuildingDef>();
-        value.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        value.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new(), new() { new(output, 2) }, input == null ? new() : new() { new(input, 1) });
         return value;
     }
@@ -73,7 +73,7 @@ public sealed class ResourceProductionTreeLayoutTests
     {
         ResourceDef output = Make<ResourceDef>(), a = Make<ResourceDef>(), b = Make<ResourceDef>(), c = Make<ResourceDef>();
         BuildingDef broad = Producer(output);
-        broad.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        broad.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new(), new() { new(output, 2) }, new() { new(a, 1), new(b, 1), new(c, 1) });
         ResourceProductionTree tree = new(output, new[] { broad, Producer(output) }, null);
         tree.GetChildren(tree.Root)[0].Expanded = true;

@@ -421,6 +421,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(root, Is.Not.Null);
         Assert.That(phaseEnergyArray, Is.Not.Null);
 
+        EnsureFixtureHousing();
         gameManager.State.AdvanceTechLevelForEditor(TechLevel.Ultra);
         gameManager.UltraProject.RestoreSaveDataForEditor(
             CreateUltraProjectSave(
@@ -501,7 +502,8 @@ public sealed class KingdomPlayModeTests
         gameManager.State.AdjustPopulationCapacityForEditor(new ExpantaNum(10));
         BuildingState farm =
             buildingManager.EnsureBuilding(DataBase<BuildingDef>.Find("Farm"));
-        farm.SetAmountForEditor(1);
+        buildingManager.SetAmountAndRatesForEditor(farm, ExpantaNum.One);
+        BuildingManager.ApplyRateDeltaForEditor(farm, farm.Amount, farm.Efficiency, farm.Amount, ExpantaNum.Zero);
         farm.SetEfficiencyForEditor(ExpantaNum.Zero);
 
         simulationManager.SetRunning(false);
@@ -526,8 +528,7 @@ public sealed class KingdomPlayModeTests
         createdObjects.Add(resource);
         BuildingDef source = CreateFlowBuilding("PlayModeBudgetSource", "Budget source", resource, 1);
         BuildingDef food = CreateFlowBuilding("PlayModeBudgetFood", "Budget food", resource, 0);
-        food.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, 10, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, new(), new(), new() { new(resource, 2) });
+        food.ConfigureEconomyForEditor(1.15d, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, new(), new(), new() { new(resource, 2) });
         BuildingManager buildings = BuildingManager.Instance;
         ResourceManager resources = ResourceManager.Instance;
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), 1);
@@ -635,6 +636,11 @@ public sealed class KingdomPlayModeTests
             "The scene must complete the real bootstrap before measuring refresh.");
         Assert.That(SaveManager.Instance.LastLoadCreatedNewGame, Is.True,
             "This fixture must start from its isolated empty save directory.");
+        BuildingDef firstHouse = DataBase<BuildingDef>.Find("WoodHouse");
+        Assert.That(body.text, Does.Contain(firstHouse.Label),
+            "Before housing, guidance must name the real first housing target.");
+        EnsureFixtureHousing();
+        root.RefreshUI();
         Transform overview = primaryCard.parent;
         string stateBeforeRefresh = CaptureOverviewState();
         int versionBeforeRefresh = game.State.Version;
@@ -648,9 +654,9 @@ public sealed class KingdomPlayModeTests
             TutorialSnapshot snapshot = TutorialManager.Current.Evaluate();
             Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
             Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
-            Assert.That(body.text, Does.Contain("当前目标"));
-            Assert.That(body.text, Does.Contain("当前阻碍"));
-            Assert.That(body.text, Does.Contain("推荐行动"));
+            Assert.That(body.text, Does.Contain("聚落下一步"));
+            Assert.That(body.text, Does.Contain("为什么还不能推进"));
+            Assert.That(body.text, Does.Contain("现在就做"));
             Assert.That(body.text, Does.Contain(snapshot.CurrentGoal));
             Assert.That(body.text, Does.Contain(snapshot.RecommendedAction));
             Assert.That(body.text, Does.Not.Contain("完成方式"));
@@ -667,9 +673,7 @@ public sealed class KingdomPlayModeTests
             int navigationCount = 0;
             foreach (Transform item in overview.GetComponentsInChildren<Transform>(true))
             {
-                if (!item.gameObject.activeInHierarchy)
-                    continue;
-                if (item.name.StartsWith("PrimaryCard", StringComparison.Ordinal))
+                if (item.gameObject.activeInHierarchy && item.name.StartsWith("PrimaryCard", StringComparison.Ordinal))
                     primaryCardCount++;
                 if (item.parent != null &&
                     item.parent.name.StartsWith("PrimaryCard", StringComparison.Ordinal) &&
@@ -679,6 +683,11 @@ public sealed class KingdomPlayModeTests
             // Exact equality is intentional for a single authored primary goal/action.
             Assert.That(primaryCardCount, Is.EqualTo(1));
             Assert.That(navigationCount, Is.EqualTo(1));
+            Button navigation = primaryCard.Find("NavigationButton").GetComponent<Button>();
+            bool offersNavigation = !string.IsNullOrWhiteSpace(snapshot.NavigationPage) && snapshot.NavigationPage != "Overview";
+            Assert.That(navigation.gameObject.activeSelf, Is.EqualTo(offersNavigation),
+                "An in-place population goal must hide navigation; another-page goal must expose it.");
+            Assert.That(navigation.interactable, Is.EqualTo(offersNavigation));
             Assert.That(primaryCard.GetComponentsInChildren<TMP_Text>(true)
                 .Count(text => text.text == body.text), Is.EqualTo(1),
                 "The primary goal text must not be duplicated inside the card.");
@@ -744,7 +753,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(gameManager.State.TechLevel, Is.EqualTo(TechLevel.Animal));
         var transitions = new[]
         {
-            new { Id = "StoneAgeSettlement", Target = TechLevel.StoneAge },
+            new { Id = "StoneAgeTransition", Target = TechLevel.StoneAge },
             new { Id = "FeudalAdministration", Target = TechLevel.Medieval },
             new { Id = "Industrialization", Target = TechLevel.Industrial },
             new { Id = "OrbitalEngineering", Target = TechLevel.Spacer }
@@ -815,14 +824,15 @@ public sealed class KingdomPlayModeTests
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
         GameManager game = GameManager.Instance;
         ResearchManager research = ResearchManager.Instance;
+        EnsureFixtureHousing();
         game.State.AdvanceTechLevelForEditor(TechLevel.Spacer);
         foreach (ResearchState state in research.States.Values)
             state.SetStatusForEditor(state.Definition.Id == "DeepSpaceFleet" ||
                 state.Definition.Id == "InterstellarNavigation"
                     ? ResearchStatus.Queued : ResearchStatus.Completed);
         ProgressionModifierManager.Rebuild(new List<ResearchState>(research.States.Values));
-        BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter"))
-            .SetAmountForEditor(ExpantaNum.One);
+        BuildingManager.Instance.SetAmountAndRatesForEditor(
+            BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("LaunchCenter")), ExpantaNum.One);
         TutorialManager.Current.RestoreSaveData(new SaveManager.TutorialSaveData
         {
             ActiveStepId = "long-term", CompletedStepIds = new List<string>()
@@ -1093,6 +1103,8 @@ public sealed class KingdomPlayModeTests
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        EnsureFixtureHousing();
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId)).SetStatusForEditor(ResearchStatus.Completed);
         root.SetPage("Era");
         yield return null;
         yield return null;
@@ -1101,8 +1113,8 @@ public sealed class KingdomPlayModeTests
         Assert.That(rows.childCount, Is.GreaterThan(0), "Era page must not remain an empty DataRows container.");
 
         TMP_Text[] texts = rows.GetComponentsInChildren<TMP_Text>(true);
-        Assert.That(texts.Any(text => text.text.Contains("时代档案")), Is.True,
-            "Era page must display an authored-style era archive header.");
+        Assert.That(texts.Any(text => text.text == "文明阶段"), Is.True,
+            "Era page must display the current civilization section.");
         Assert.That(texts.Any(text => text.text.Contains("下一时代跃迁")), Is.True,
             "Era page must display the dedicated next-era transition section.");
         Assert.That(rows.Find("EraCurrentArchive"), Is.Not.Null,
@@ -1111,29 +1123,30 @@ public sealed class KingdomPlayModeTests
             "Era page must group next-era transition information.");
         Assert.That(rows.Find("EraRequirementSection"), Is.Not.Null,
             "Era page must group research and resource requirements together.");
-        Assert.That(texts.Any(text => text.text == "本时代能力"), Is.True,
-            "Era page must summarize capabilities already earned in the current era.");
+        TMP_Text[] identity = rows.Find("EraCurrentArchive/Content/EraIdentity").GetComponentsInChildren<TMP_Text>(true);
+        Assert.That(identity.Any(text => text.text.Contains(GameManager.Instance.State.TechLevel.GetDescription())), Is.True,
+            "The civilization identity must describe the current era.");
+        Assert.That(identity.Any(text => text.text.Length > 100), Is.True,
+            "The current civilization must retain its authored era description.");
         Assert.That(texts.Any(text => text.text == "进入后变化"), Is.True,
             "Era page must summarize representative changes in the next era.");
-        Assert.That(texts.Any(text => text.text.Contains("研究前置")), Is.True,
-            "Era page must separate research prerequisites.");
-        Assert.That(texts.Any(text => text.text.Contains("资源储备")), Is.True,
-            "Era page must separate resource reserves.");
-        Assert.That(texts.Any(text => text.text == "当前首要阻碍"), Is.True,
-            "Era page must display the first unmet era condition as the actionable blocker.");
-        Assert.That(texts.Any(text => text.text.Contains("阻碍类别：")), Is.True,
-            "Era page must classify the current blocker.");
+        Assert.That(texts.Any(text => text.text == "跃迁条件与阻碍"), Is.True,
+            "Era page must group the actual research and material conditions.");
+        AssertEraConditionRows(rows);
         Assert.That(texts.Any(text => text.text.Contains("下一时代") || text.text.Contains("时代状态")), Is.True,
             "Era page must identify the next era or the terminal state.");
         Assert.That(texts.Any(text => text.text.Contains("发展准备度") || text.text.Contains("基础产业准备")), Is.False,
             "Era page must not duplicate Overview soft readiness guidance.");
 
         Button[] eraActions = rows.GetComponentsInChildren<Button>(true);
-        Assert.That(eraActions.Any(button => button.name == "DetailAction" && button.interactable), Is.True,
-            "Era cards must expose at least one usable detail action.");
+        Assert.That(eraActions.Any(button => button.name == "EraTransitionTarget" && button.interactable), Is.True,
+            "The transition card itself must expose its usable detail action.");
         Assert.That(eraActions.Any(button => button.name == "QueueAction" && button.interactable), Is.True,
             "An incomplete transition research must expose a queue action.");
-        foreach (Button action in eraActions.Where(button => (button.name == "DetailAction" || button.name == "QueueAction") && button.gameObject.activeInHierarchy))
+        foreach (Button action in eraActions.Where(button => (button.name == "EraTransitionTarget" ||
+            button.name.StartsWith("EraResearch_", StringComparison.Ordinal) ||
+            button.name.StartsWith("EraResource_", StringComparison.Ordinal) || button.name == "QueueAction") &&
+            button.gameObject.activeInHierarchy))
         {
             RectTransform actionRect = action.transform as RectTransform;
             Assert.That(actionRect.rect.width, Is.GreaterThan(0f));
@@ -1144,7 +1157,7 @@ public sealed class KingdomPlayModeTests
         Assert.That(eraGoalTitle, Is.Not.Null,
             "Era transition section must expose a visible title.");
         Button eraGoalButton = rows.Find(
-            "EraTransitionSection/Content/EraTransitionTarget/DetailAction")?.GetComponent<Button>();
+            "EraTransitionSection/Content/EraTransitionTarget")?.GetComponent<Button>();
         Assert.That(eraGoalButton.interactable, Is.True,
             "Era goal row must navigate through its detail action.");
         eraGoalButton.onClick.Invoke();
@@ -1156,20 +1169,11 @@ public sealed class KingdomPlayModeTests
         // The transition detail action intentionally navigates to Research. Re-enter
         // Era before inspecting its resource requirement; otherwise this stale
         // transform reference points at an inactive page.
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId)).SetStatusForEditor(ResearchStatus.Completed);
         root.SetPage("Era");
         yield return null;
         rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows") as RectTransform;
-        Transform resourceButtonTransform = rows.GetComponentsInChildren<Button>(true)
-            .Select(button => button.transform.parent)
-            .FirstOrDefault(parent => parent != null && parent.name.StartsWith("EraResource_", StringComparison.Ordinal));
-        if (resourceButtonTransform != null)
-        {
-            Button resourceButton = resourceButtonTransform.Find("DetailAction")?.GetComponent<Button>();
-            resourceButton.onClick.Invoke();
-            yield return null;
-            Assert.That(rows.gameObject.activeInHierarchy, Is.True,
-                "Resource details must update the side panel without leaving the Era page.");
-        }
+        AssertEraConditionRows(rows);
 
         Transform requirementContent = rows.Find("EraRequirementSection/Content");
         Image[] researchRows = requirementContent.GetComponentsInChildren<Image>(true)
@@ -1185,12 +1189,80 @@ public sealed class KingdomPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator EraPage_ControlledStoneAgeShowsResourceShortfallsAndKeepsDetailsOnPage()
+    {
+        yield return LoadIsolatedNewGame();
+        EnsureFixtureHousing();
+        GameManager.Instance.State.AdvanceTechLevelForEditor(TechLevel.StoneAge);
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId))
+            .SetStatusForEditor(ResearchStatus.Completed);
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        root.SetPage("Era");
+        yield return null;
+        yield return null;
+        Transform rows = root.transform.Find("SafeAreaRoot/Content/PageHost/Era/DataRows");
+        EraGoalEvaluation goal = EraGoalEvaluator.Evaluate(GameManager.Instance.State.TechLevel,
+            ResearchManager.Instance, ResourceManager.Instance);
+        Assert.That(goal.Conditions.Count(condition => condition.Kind == EraGoalConditionKind.Resource), Is.GreaterThan(0),
+            "This controlled era must really exercise material requirements.");
+        AssertEraConditionRows(rows);
+        Image[] resourceRows = rows.Find("EraRequirementSection/Content").GetComponentsInChildren<Image>(true)
+            .Where(image => image.name.StartsWith("EraResource_", StringComparison.Ordinal)).ToArray();
+        Assert.That(resourceRows.Length, Is.GreaterThan(1), "Exercise alternating material row backgrounds.");
+        for (int i = 1; i < resourceRows.Length; i++)
+            Assert.That(resourceRows[i].color, Is.Not.EqualTo(resourceRows[i - 1].color));
+        foreach (EraGoalConditionEvaluation condition in goal.Conditions)
+        {
+            if (condition.Kind != EraGoalConditionKind.Resource) continue;
+            Transform row = rows.Find("EraRequirementSection/Content/EraResource_" + condition.Resource.Id);
+            Button detail = row.GetComponent<Button>();
+            Assert.That(detail.interactable, Is.True);
+            detail.onClick.Invoke();
+            yield return null;
+            Assert.That(rows.gameObject.activeInHierarchy, Is.True,
+                "Material inspection must keep the Era conditions visible.");
+            TMP_Text body = root.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")
+                .GetComponent<TMP_Text>();
+            Assert.That(body.text, Does.Contain(condition.Resource.Label));
+        }
+    }
+
+    private static void AssertEraConditionRows(Transform rows)
+    {
+        EraGoalEvaluation goal = EraGoalEvaluator.Evaluate(GameManager.Instance.State.TechLevel,
+            ResearchManager.Instance, ResourceManager.Instance);
+        Assert.That(goal.Transition, Is.Not.Null);
+        TMP_Text[] target = rows.Find("EraTransitionSection/Content/EraTransitionTarget").GetComponentsInChildren<TMP_Text>(true);
+        Assert.That(target.Any(text => text.text.Contains(goal.Transition.Label)), Is.True);
+        int met = goal.Conditions.Count(condition => condition.Met);
+        Assert.That(target.Any(text => text.text.Contains("已满足 " + met + "/" + goal.Conditions.Count)), Is.True);
+        Transform requirements = rows.Find("EraRequirementSection/Content");
+        Assert.That(requirements.childCount, Is.EqualTo(Math.Max(1, goal.Conditions.Count)),
+            "Each live condition must have exactly one row, or a single ready row when none exist.");
+        foreach (EraGoalConditionEvaluation condition in goal.Conditions)
+        {
+            bool isResearch = condition.Kind == EraGoalConditionKind.PrerequisiteResearch;
+            string id = isResearch ? condition.Research.Id : condition.Resource.Id;
+            string label = isResearch ? condition.Research.Label : condition.Resource.Label;
+            Transform row = requirements.Find((isResearch ? "EraResearch_" : "EraResource_") + id);
+            Assert.That(row, Is.Not.Null, "Missing actual condition " + id);
+            TMP_Text[] labels = row.GetComponentsInChildren<TMP_Text>(true);
+            Assert.That(labels.Any(text => text.text.Contains((condition.Met ? "✓ " : "○ ") + label)), Is.True,
+                "Condition rows must expose their live met/unmet state.");
+            if (!isResearch && !condition.Met)
+                Assert.That(labels.Any(text => text.text.Contains("尚欠库存 " + condition.MissingAmount.ToGameString())), Is.True,
+                    "Missing materials must show the actual current shortfall.");
+        }
+    }
+
+    [UnityTest]
     public IEnumerator ResearchTree_RuntimeLayoutAndOverflow_AreLoggedAndNonOverlapping()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         yield return WaitForRuntimeUiRoot();
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
         root.SetPage("Research");
         Transform viewport = null;
         Transform content = null;
@@ -1432,6 +1504,8 @@ public sealed class KingdomPlayModeTests
         Assert.That(finalGesture.enabled, Is.False,
             "A hidden persistent graph must not continue processing gestures.");
 
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+
         root.SetPage("Research");
         yield return null;
         Assert.That(researchPage.gameObject.activeSelf, Is.True);
@@ -1498,6 +1572,8 @@ public sealed class KingdomPlayModeTests
         Assert.That(bodyText.text, Does.Contain("Runtime detail"));
         Assert.That(bodyText.rectTransform.rect.height, Is.GreaterThan(0f),
             "Detail body must retain a visible rect after being reparented.");
+
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
 
         root.SetPage("Research");
         Transform researchViewport = null;
@@ -1636,6 +1712,7 @@ public sealed class KingdomPlayModeTests
             new ExpantaNum(20d), ExpantaNum.Zero);
         gameManager.State.AdjustFoodRatesForEditor(
             ExpantaNum.Zero, new ExpantaNum(20d));
+        BuildingManager.Instance.PrepareTickResourceSatisfactionForEditor(.1d);
 
         Assert.That(gameManager.CurrentPopulationNetRatePerSecond, Is.LessThan(ExpantaNum.Zero));
         root.RefreshTopInfoForEditor();
@@ -1716,6 +1793,15 @@ public sealed class KingdomPlayModeTests
             LaunchFeePaid = launchFeePaid,
             StateVersion = stateVersion
         };
+    }
+
+    private static void EnsureFixtureHousing()
+    {
+        BuildingManager buildings = BuildingManager.Instance;
+        buildings.SetAmountAndRatesForEditor(
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+        Assert.That(GameManager.Instance.State.HasBuiltHousing, Is.True,
+            "Controlled later-system fixtures must include the housing unlock milestone.");
     }
 
     private static IEnumerator LoadIsolatedNewGame()
@@ -1887,11 +1973,7 @@ public sealed class KingdomPlayModeTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,

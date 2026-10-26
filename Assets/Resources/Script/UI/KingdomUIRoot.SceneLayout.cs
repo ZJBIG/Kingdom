@@ -373,6 +373,12 @@ public sealed partial class KingdomUIRoot
     /// </summary>
     private bool TryBindAuthoredShell()
     {
+        if (!TryGetComponent<InteractionFrameRateController>(out _))
+            gameObject.AddComponent<InteractionFrameRateController>();
+        Button[] authoredButtons = GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < authoredButtons.Length; i++)
+            if (!authoredButtons[i].TryGetComponent<UIButtonClickFeedback>(out _))
+                authoredButtons[i].gameObject.AddComponent<UIButtonClickFeedback>();
         safeArea = transform.Find("SafeAreaRoot") as RectTransform;
         if (safeArea == null)
             return FailRequiredUiBinding("SafeAreaRoot");
@@ -491,13 +497,24 @@ public sealed partial class KingdomUIRoot
         SetNavigationButtonVisible("Overview", true);
         SetNavigationButtonVisible("Resources", true);
         SetNavigationButtonVisible("Buildings", true);
-        SetNavigationButtonVisible("Production", true);
-        SetNavigationButtonVisible("Research", true);
-        SetNavigationButtonVisible("Era", true);
+        SetNavigationButtonVisible("Production", IsProgressionPageUnlocked("Production"));
+        SetNavigationButtonVisible("Research", IsProgressionPageUnlocked("Research"));
+        SetNavigationButtonVisible("Era", IsProgressionPageUnlocked("Era"));
         SetNavigationButtonVisible("Workshop", workshopUnlocked);
         SetNavigationButtonVisible("Music", true);
         SetNavigationButtonVisible("Sectors", sectorsUnlocked);
         SetNavigationButtonVisible("Story", true);
+    }
+
+    private bool IsProgressionPageUnlocked(string pageName)
+    {
+        if (pageName == "Research")
+            return ProgressionVisibilityRules.IsResearchUnlocked(GameManager.Instance?.State);
+        if (pageName == "Production")
+            return ProgressionVisibilityRules.IsProductionUnlocked(ResearchManager.Instance);
+        if (pageName == "Era")
+            return ProgressionVisibilityRules.IsEraUnlocked(ResearchManager.Instance);
+        return true;
     }
 
     private void RefreshNavigationSelection(string activePage)

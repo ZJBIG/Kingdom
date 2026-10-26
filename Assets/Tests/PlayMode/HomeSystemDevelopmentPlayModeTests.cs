@@ -110,14 +110,16 @@ public sealed class HomeSystemDevelopmentPlayModeTests
         Assert.That(card, Is.Not.Null);
         Assert.That(menu.Find("ThunderGateHydrogenCollector"), Is.Null);
         Assert.That(DataBase<ResourceDef>.Contains("Hydrogen"), Is.False);
-        Assert.That(card.Find("Effect").GetComponent<TMPro.TMP_Text>().text,
-            Does.Contain(DataBase<ResourceDef>.Find("RocketFuel").Label));
+        card.Find("Name").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        AssertDetailContains(ui, DataBase<ResourceDef>.Find("RocketFuel").Label);
+        AssertDetailRequirements(ui, works.ResourceRequirements, works);
         Canvas.ForceUpdateCanvases();
         Assert.That(row.GetComponent<RectTransform>().rect.height - collapsedHeight,
             Is.EqualTo(menu.GetComponent<RectTransform>().rect.height).Within(1f));
         Button build = card.Find("Build").GetComponent<Button>();
         Assert.That(build.interactable, Is.True);
-        Assert.That(build.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("建设" + works.Label));
+        yield return AssertBuildActionNamesStructure(ui, card, works.Label);
         AssertCardGeometry(card);
         build.onClick.Invoke();
         yield return null;
@@ -128,17 +130,23 @@ public sealed class HomeSystemDevelopmentPlayModeTests
         {
             WorkshopUpgradeDef stage = DataBase<WorkshopUpgradeDef>.Find(stageId);
             Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.True);
-            Assert.That(card.Find("Build").GetComponentInChildren<TMPro.TMP_Text>().text,
-                Is.EqualTo("建设" + stage.Label));
-            Assert.That(card.Find("Metadata").GetComponent<TMPro.TMP_Text>().text, Does.Not.Contain("阶段"));
+            yield return AssertBuildActionNamesStructure(ui, card, stage.Label);
+            Assert.That(card.Find("Metadata"), Is.Null);
             AssertCardGeometry(card);
-            card.Find("Build").GetComponent<Button>().onClick.Invoke();
+            card.Find("Name").GetComponent<Button>().onClick.Invoke();
             yield return null;
+            AssertDetailContains(ui, stage.Label);
+            AssertDetailContains(ui, stage.Description);
+            AssertDetailRequirements(ui, stage.ResourceRequirements);
+            yield return PurchaseStageAndAssertPayment(card, stage);
             card = row.Find("SectorBuildingMenu/" + works.Id);
             Assert.That(WorkshopManager.Instance.IsPurchased(stage), Is.True);
-            Assert.That(card.Find("Metadata").GetComponent<TMPro.TMP_Text>().text, Does.Contain(stage.Label));
+            Assert.That(card.Find("Name").GetComponent<TMPro.TMP_Text>().text, Is.EqualTo(stage.Label));
+            card.Find("Name").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            AssertDetailContains(ui, stage.Description);
         }
-        Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.False);
+        Assert.That(card.Find("Build").gameObject.activeSelf, Is.False);
         Assert.That(ProgressionModifierManager.Current.GetBuildingLogisticsProductionMultiplier(works), Is.GreaterThan(ExpantaNum.One));
         ui.RefreshSectorRowSummariesForEditor();
         AssertSectorSummaryFits(row);
@@ -150,7 +158,7 @@ public sealed class HomeSystemDevelopmentPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator HeliosProjectBuildsStagesRefreshesLocksAndRestoresPurchasedStagesAfterRebuilding()
+    public IEnumerator HeliosProjectBuildsStagesRefreshesLocksAndPreservesPurchasedStagesWhenPaused()
     {
         yield return LoadPreparedGame();
         GameManager game = GameManager.Instance;
@@ -172,84 +180,94 @@ public sealed class HomeSystemDevelopmentPlayModeTests
         Transform card = row.Find("SectorBuildingMenu/" + project.Id);
         Assert.That(card, Is.Not.Null);
         Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.True);
-        Assert.That(card.Find("Build").GetComponentInChildren<TMPro.TMP_Text>().text,
-            Is.EqualTo("建设" + project.Label));
-        Assert.That(card.Find("Effect").GetComponent<TMPro.TMP_Text>().text,
-            Does.Contain("建成后单座电力").And.Not.Contain("重建后"));
+        yield return AssertBuildActionNamesStructure(ui, card, project.Label);
+        card.Find("Name").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        AssertDetailRequirements(ui, project.ResourceRequirements, project);
+        AssertDetailContains(ui, "<sprite=\"HudPower\" index=0>+");
         AssertCardGeometry(card);
         card.Find("Build").GetComponent<Button>().onClick.Invoke();
         yield return null;
-        card = row.Find("SectorBuildingMenu/" + project.Id);
         WorkshopUpgradeDef firstStage = DataBase<WorkshopUpgradeDef>.Find("DysonCollectorFleet");
-        Assert.That(WorkshopManager.Instance.IsPurchased(firstStage), Is.False);
-        Assert.That(card.Find("Build").GetComponentInChildren<TMPro.TMP_Text>().text,
-            Is.EqualTo("建设" + firstStage.Label));
-        Assert.That(card.Find("Cost").GetComponent<TMPro.TMP_Text>().text,
-            Does.Contain(firstStage.ResourceRequirements[0].Second.ToGameString()));
-        AssertCardGeometry(card);
-        card.Find("Build").GetComponent<Button>().onClick.Invoke();
-        yield return null;
-        Assert.That(WorkshopManager.Instance.IsPurchased(firstStage), Is.True);
-        card = row.Find("SectorBuildingMenu/" + project.Id);
-        string firstPower = card.Find("Effect").GetComponent<TMPro.TMP_Text>().text;
-        Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.True);
-        Button stageDetails = card.Find("Stage").GetComponent<Button>();
-        Assert.That(stageDetails.targetGraphic, Is.Not.Null);
-        Assert.That(stageDetails.targetGraphic.raycastTarget, Is.True,
-            "The stage detail link must remain clickable after refreshing its text.");
-        Assert.That(stageDetails.IsInteractable(), Is.True);
-        stageDetails.onClick.Invoke();
-        AssertEngineeringRecord(ui, project, true);
-        AssertCardGeometry(card);
-        Assert.That(WorkshopManager.Instance.IsPurchased(DataBase<WorkshopUpgradeDef>.Find("DysonStellarBelt")),
-            Is.False, "Opening stage details must not purchase it.");
-        card.Find("Build").GetComponent<Button>().onClick.Invoke();
-        yield return null;
-        card = row.Find("SectorBuildingMenu/" + project.Id);
-        Assert.That(card.Find("Effect").GetComponent<TMPro.TMP_Text>().text, Is.Not.EqualTo(firstPower));
-        yield return new WaitForSecondsRealtime(0.3f);
-        ui.RefreshAutomaticUIForEditor();
-        AssertEngineeringRecord(ui, project, true);
+        WorkshopUpgradeDef middleStage = DataBase<WorkshopUpgradeDef>.Find("DysonStellarBelt");
         WorkshopUpgradeDef finalStage = DataBase<WorkshopUpgradeDef>.Find("DysonControlNetwork");
+        foreach (WorkshopUpgradeDef stage in new[] { firstStage, middleStage })
+        {
+            card = row.Find("SectorBuildingMenu/" + project.Id);
+            Assert.That(WorkshopManager.Instance.IsPurchased(stage), Is.False);
+            yield return AssertBuildActionNamesStructure(ui, card, stage.Label);
+            card.Find("Name").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            AssertDetailContains(ui, stage.Label);
+            AssertDetailContains(ui, stage.Description);
+            AssertDetailRequirements(ui, stage.ResourceRequirements);
+            Assert.That(WorkshopManager.Instance.IsPurchased(stage), Is.False,
+                "Opening building details must not buy an engineering structure.");
+            AssertCardGeometry(card);
+            yield return PurchaseStageAndAssertPayment(card, stage);
+        }
+        card = row.Find("SectorBuildingMenu/" + project.Id);
         ResearchDef phaseMaterial = DataBase<ResearchDef>.Find("PhaseMaterialEngineering");
         ResearchManager.Instance.GetState(phaseMaterial).SetStatusForEditor(ResearchStatus.Available);
         ui.RefreshSectorRowSummariesForEditor();
         Assert.That(WorkshopManager.Instance.GetPurchaseFailure(finalStage),
             Is.EqualTo(WorkshopPurchaseFailure.ResearchIncomplete));
         Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.False,
-            "The final stage remains locked until its material research is completed.");
+            "The final structure remains locked until its material research is completed.");
+        card.Find("Name").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        AssertDetailContains(ui, finalStage.Label);
+        AssertDetailContains(ui, finalStage.Description);
+        Assert.That(card.Find("Name").GetComponent<TMPro.TMP_Text>().text, Is.EqualTo(middleStage.Label));
+        Assert.That(card.Find("Deconstruct").gameObject.activeSelf, Is.False);
+        AssertDetailRequirements(ui, finalStage.ResourceRequirements);
+        var lockedBalances = CaptureBalances(finalStage.ResourceRequirements);
+        Assert.That(WorkshopManager.Instance.TryPurchase(finalStage, out _), Is.False);
+        AssertBalancesUnchanged(lockedBalances);
+        Assert.That(WorkshopManager.Instance.IsPurchased(finalStage), Is.False);
         ResearchManager.Instance.GetState(phaseMaterial).SetStatusForEditor(ResearchStatus.Completed);
         ui.RefreshSectorRowSummariesForEditor();
         Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.True);
         AssertCardGeometry(card);
-        card.Find("Build").GetComponent<Button>().onClick.Invoke();
-        yield return null;
+        yield return PurchaseStageAndAssertPayment(card, finalStage);
         card = row.Find("SectorBuildingMenu/" + project.Id);
-        Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.False);
-        foreach (WorkshopUpgradeDef stage in DataBase<WorkshopUpgradeDef>.All)
-            if (stage.RequiredBuilding == project)
-                Assert.That(WorkshopManager.Instance.IsPurchased(stage), Is.True, stage.Id);
+        Assert.That(card.Find("Name").GetComponent<TMPro.TMP_Text>().text, Is.EqualTo(finalStage.Label));
+        Assert.That(card.Find("Build").gameObject.activeSelf, Is.False);
+        AssertEngineeringPurchases(project);
         AssertCardGeometry(card);
-        card.Find("Stage").GetComponent<Button>().onClick.Invoke();
-        AssertEngineeringRecord(ui, project, true);
-        card.Find("Deconstruct").GetComponent<Button>().onClick.Invoke();
+        card.Find("Name").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        AssertDetailContains(ui, finalStage.Description);
+        foreach (TMPro.TMP_Text label in DetailContent(ui).GetComponentsInChildren<TMPro.TMP_Text>())
+            Assert.That(label.transform.parent.name, Does.Not.StartWith("Requirement_"),
+                "Completed engineering must not keep showing the base construction bill.");
+        var preservedBalances = CaptureBalances(project.ResourceRequirements);
+        Assert.That(BuildingManager.Instance.TryDeconstruct(project, ExpantaNum.One, out BuildFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.DeconstructionUnavailable));
+        AssertBalancesUnchanged(preservedBalances);
+        BuildingState state = BuildingManager.Instance.GetState(project);
+        ExpantaNum completedPowerMultiplier = ProgressionModifierManager.Current.GetBuildingPowerProductionMultiplier(project);
+        card.Find("ToggleEnabled").GetComponent<Button>().onClick.Invoke();
         yield return null;
         card = row.Find("SectorBuildingMenu/" + project.Id);
-        Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.True);
-        Assert.That(WorkshopManager.Instance.IsPurchased(firstStage), Is.True);
-        Assert.That(card.Find("Metadata").GetComponent<TMPro.TMP_Text>().text,
-            Does.Contain("已保留：").And.Contain("工程本体待重建").And.Not.Contain("待建设："));
-        Assert.That(card.Find("Effect").GetComponent<TMPro.TMP_Text>().text, Does.Contain("重建后单座电力"));
-        yield return new WaitForSecondsRealtime(0.3f);
-        ui.RefreshAutomaticUIForEditor();
-        AssertEngineeringRecord(ui, project, false);
+        Assert.That(state.IsEnabled, Is.False);
+        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.One), "A unique facility's discrete count survives pausing.");
+        AssertEngineeringPurchases(project);
+        AssertBalancesUnchanged(preservedBalances);
+        Assert.That(card.Find("Build").gameObject.activeSelf, Is.False);
+        Assert.That(card.Find("ToggleEnabled/ResumeIcon").gameObject.activeSelf, Is.True);
         AssertCardGeometry(card);
-        card.Find("Build").GetComponent<Button>().onClick.Invoke();
+        card.Find("ToggleEnabled").GetComponent<Button>().onClick.Invoke();
         yield return null;
         card = row.Find("SectorBuildingMenu/" + project.Id);
-        Assert.That(card.Find("Build").GetComponent<Button>().interactable, Is.False);
-        Assert.That(BuildingManager.Instance.GetState(project).Amount, Is.EqualTo(ExpantaNum.One),
-            "The rebuilt unique building count is a discrete count.");
+        Assert.That(state.IsEnabled, Is.True);
+        Assert.That(state.Amount, Is.EqualTo(ExpantaNum.One), "Resuming preserves the discrete facility count.");
+        AssertEngineeringPurchases(project);
+        AssertBalancesUnchanged(preservedBalances);
+        Assert.That(ProgressionModifierManager.Current.GetBuildingPowerProductionMultiplier(project)
+            .ApproximatelyEquals(completedPowerMultiplier), Is.True);
+        Assert.That(card.Find("ToggleEnabled/PauseIcon").gameObject.activeSelf, Is.True);
+        Assert.That(card.Find("Build").gameObject.activeSelf, Is.False);
     }
 
     private static IEnumerator LoadPreparedGame()
@@ -286,16 +304,112 @@ public sealed class HomeSystemDevelopmentPlayModeTests
         Assert.That(game.Sectors.GetState(definition).InteriorExplorationCompleted, Is.True);
     }
 
-    private static void AssertEngineeringRecord(KingdomUIRoot ui, SectorBuildingDef project, bool bodyBuilt)
+    private static Transform DetailContent(KingdomUIRoot ui) =>
+        ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent");
+
+    private static void AssertDetailContains(KingdomUIRoot ui, string text)
     {
-        string body = ui.transform.Find("SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")
-            .GetComponent<TMPro.TMP_Text>().text;
-        Assert.That(body, Does.Contain("工程建设记录").And.Contain(project.Label));
+        foreach (TMPro.TMP_Text label in DetailContent(ui).GetComponentsInChildren<TMPro.TMP_Text>())
+            if (label.text.Contains(text)) return;
+        Assert.Fail("Selected building detail is missing: " + text);
+    }
+
+    private static void AssertDetailRequirements(KingdomUIRoot ui,
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements, BuildingDef construction = null)
+    {
+        foreach (var requirement in requirements)
+        {
+            bool found = false;
+            foreach (TMPro.TMP_Text label in DetailContent(ui).GetComponentsInChildren<TMPro.TMP_Text>())
+            {
+                if (!label.transform.parent.name.StartsWith("Requirement_") ||
+                    label.name != "Label" || label.text != requirement.First.Label) continue;
+                string amount = label.transform.parent.Find("Amount").GetComponent<TMPro.TMP_Text>().text;
+                ExpantaNum expected = requirement.Second * (construction == null ? ExpantaNum.One
+                    : BuildingManager.GetConstructionCostMultiplierForEditor(construction));
+                Assert.That(amount, Does.StartWith(expected.ToGameString() + " "));
+                found = true;
+                break;
+            }
+            Assert.That(found, Is.True, "Missing construction material: " + requirement.First.Id);
+        }
+    }
+
+    private static Dictionary<ResourceDef, ExpantaNum> CaptureBalances(
+        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements)
+    {
+        var balances = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (var requirement in requirements)
+            balances[requirement.First] = ResourceManager.Instance.GetAmount(requirement.First);
+        return balances;
+    }
+
+    private static void AssertBalancesUnchanged(Dictionary<ResourceDef, ExpantaNum> balances)
+    {
+        foreach (var balance in balances)
+            Assert.That(ResourceManager.Instance.GetAmount(balance.Key).ApproximatelyEquals(balance.Value),
+                Is.True, balance.Key.Id + " must not be charged.");
+    }
+
+    private static IEnumerator PurchaseStageAndAssertPayment(Transform card, WorkshopUpgradeDef stage)
+    {
+        Transform row = card.parent.parent;
+        string buildingId = card.name;
+        KingdomUIRoot ui = card.GetComponentInParent<KingdomUIRoot>();
+        var balances = CaptureBalances(stage.ResourceRequirements);
+        card.Find("Build").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        Assert.That(WorkshopManager.Instance.IsPurchased(stage), Is.True, stage.Id);
+        foreach (var requirement in stage.ResourceRequirements)
+        {
+            ExpantaNum paid = balances[requirement.First] - ResourceManager.Instance.GetAmount(requirement.First);
+            ExpantaNum tolerance = ExpantaNum.Max(ExpantaNum.One, requirement.Second.Abs()) * new ExpantaNum(1e-6d);
+            Assert.That((paid - requirement.Second).Abs(), Is.LessThanOrEqualTo(tolerance),
+                stage.Id + " must pay the complete material bill exactly once.");
+        }
+        Transform refreshedCard = row.Find("SectorBuildingMenu/" + buildingId);
+        Assert.That(refreshedCard.Find("Name").GetComponent<TMPro.TMP_Text>().text, Is.EqualTo(stage.Label));
+        refreshedCard.Find("Name").GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        AssertDetailContains(ui, "当前阶段：" + stage.Label);
+        AssertDetailContains(ui, stage.Description);
+    }
+
+    private static void AssertEngineeringPurchases(SectorBuildingDef project)
+    {
         foreach (WorkshopUpgradeDef structure in DataBase<WorkshopUpgradeDef>.All)
             if (structure.RequiredBuilding == project)
-                Assert.That(body, Does.Contain(structure.Label + (WorkshopManager.Instance.IsPurchased(structure)
-                    ? bodyBuilt ? "：已建成" : "：记录保留，重建本体后恢复"
-                    : "：待建设")));
+                Assert.That(WorkshopManager.Instance.IsPurchased(structure), Is.True, structure.Id);
+    }
+
+    private static IEnumerator AssertBuildActionNamesStructure(KingdomUIRoot ui, Transform card, string structureName)
+    {
+        Button build = card.Find("Build").GetComponent<Button>();
+        bool staged = BuildingManager.IsMegastructure(DataBase<SectorBuildingDef>.Find(card.name));
+        Assert.That(card.Find("Amount").gameObject.activeSelf, Is.EqualTo(!staged));
+        Assert.That(build.transform.Find("Label").gameObject.activeSelf, Is.EqualTo(!staged));
+        if (staged)
+        {
+            Image icon = build.transform.Find("MegastructureIcon").GetComponent<Image>();
+            Assert.That(icon.gameObject.activeSelf, Is.True);
+            Assert.That(icon.sprite, Is.Not.Null);
+        }
+        else
+            Assert.That(build.transform.Find("Label").GetComponent<TMPro.TMP_Text>().text, Is.EqualTo("×1"));
+        RectTransform buildRect = build.GetComponent<RectTransform>();
+        Assert.That(buildRect.rect.width, Is.EqualTo(88f).Within(1f));
+        Assert.That(buildRect.rect.height, Is.EqualTo(104f).Within(1f));
+        UITouchTooltip tooltip = build.GetComponent<UITouchTooltip>();
+        Assert.That(tooltip, Is.Not.Null);
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+            { button = PointerEventData.InputButton.Left };
+        tooltip.OnPointerDown(pointer);
+        yield return new WaitForSecondsRealtime(.6f);
+        tooltip.OnPointerUp(pointer);
+        Transform help = ui.transform.Find("SafeAreaRoot/Tooltip");
+        Assert.That(help.gameObject.activeInHierarchy, Is.True);
+        Assert.That(help.Find("Text").GetComponent<TMPro.TMP_Text>().text, Does.Contain(structureName),
+            "Holding the quantity action must explain the actual structure that it will build.");
     }
 
     private static void AssertCardGeometry(Transform card)
@@ -303,7 +417,9 @@ public sealed class HomeSystemDevelopmentPlayModeTests
         Canvas.ForceUpdateCanvases();
         RectTransform rect = card.GetComponent<RectTransform>();
         Assert.That(rect.rect.width, Is.GreaterThan(0f));
-        string[] names = { "Name", "Amount", "Metadata", "Effect", "Cost", "Stage", "Build", "Deconstruct" };
+        foreach (string removed in new[] { "Effect", "Cost", "Stage", "Metadata" })
+            Assert.That(card.Find(removed), Is.Null, removed + " does not belong in the compact facility card.");
+        string[] names = { "Name", "Amount", "Build", "ToggleEnabled", "Deconstruct" };
         for (int i = 0; i < names.Length; i++)
         {
             RectTransform child = card.Find(names[i]).GetComponent<RectTransform>();

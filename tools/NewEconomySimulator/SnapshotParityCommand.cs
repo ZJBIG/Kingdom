@@ -19,7 +19,7 @@ public static class SnapshotParityCommand
             var differences = Compare(core, expected);
             Console.WriteLine(JsonSerializer.Serialize(new
             {
-                source = "Controlled Unity v5 fixture; excludes world events, Ultra and relic systems",
+                source = $"Controlled Unity v{SnapshotFormat.CurrentVersion} fixture; excludes world events, Ultra and relic systems",
                 mode = options.Offline ? "Offline" : "Realtime", seconds = options.Seconds,
                 passed = differences.Count == 0, firstDifference = differences.FirstOrDefault(), differences
             }, new JsonSerializerOptions { WriteIndented = true }));

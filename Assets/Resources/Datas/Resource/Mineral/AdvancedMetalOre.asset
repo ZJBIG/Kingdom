@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: AdvancedMetalOre
-  TechLevel: 3
   m_EditorClassIdentifier: 
   id: AdvancedMetalOre
-  Label: "高级金属矿"
-  Description: "铝、镍等工业金属的混合矿料，用于高级金属加工。"
+  Label: "\u9AD8\u7EA7\u91D1\u5C5E\u77FF"
+  TechLevel: 3
+  Description: "\u94DD\u3001\u954D\u7B49\u5DE5\u4E1A\u91D1\u5C5E\u7684\u6DF7\u5408\u77FF\u6599\uFF0C\u7528\u4E8E\u9AD8\u7EA7\u91D1\u5C5E\u52A0\u5DE5\u3002"
   Sprite: {fileID: 21310002, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.93962264, g: 0.37244946, b: 0.17551434, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

@@ -30,14 +30,18 @@ public sealed class ContentVerticalSliceAuditTests
     [Test]
     public void VerticalSliceTransitionResearches_AdvanceTheirTechLevels()
     {
-        ResearchDef stoneAge = DataBase<ResearchDef>.Find("StoneAgeSettlement");
+        ResearchDef stoneAge = DataBase<ResearchDef>.Find("StoneAgeTransition");
+        ResearchDef settlement = DataBase<ResearchDef>.Find("StoneAgeSettlement");
         ResearchDef medieval = DataBase<ResearchDef>.Find("FeudalAdministration");
 
         Assert.That(stoneAge.AdvancesTechLevel, Is.True);
         Assert.That(stoneAge.TechLevel, Is.EqualTo(TechLevel.StoneAge));
-        Assert.That(HasPrerequisite(stoneAge, "AnimalHusbandry"), Is.True);
-        Assert.That(HasPrerequisite(stoneAge, "Agriculture"), Is.True);
-        Assert.That(HasPrerequisite(stoneAge, "ClayExtraction"), Is.True);
+        Assert.That(HasPrerequisite(stoneAge, "CivilizationPlanning"), Is.True);
+        Assert.That(settlement.AdvancesTechLevel, Is.False);
+        Assert.That(settlement.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(HasPrerequisite(settlement, "AnimalHusbandry"), Is.True);
+        Assert.That(HasPrerequisite(settlement, "Agriculture"), Is.True);
+        Assert.That(HasPrerequisite(settlement, "ClayExtraction"), Is.True);
         foreach (ResearchDef prerequisite in stoneAge.Prerequisites)
             Assert.That(prerequisite.TechLevel, Is.EqualTo(TechLevel.Animal));
         Assert.That(medieval.AdvancesTechLevel, Is.True);
@@ -49,10 +53,14 @@ public sealed class ContentVerticalSliceAuditTests
     {
         AssertPrerequisites(
             "StoneAgeSettlement",
-            new[] { "Agriculture", "AnimalHusbandry", "ClayExtraction" });
+            new[] { "Agriculture", "AnimalHusbandry", "ClayExtraction", "Quarry" });
         AssertTransitionRequirements(
             "StoneAgeSettlement",
             new[] { "WoodLog", "StoneChunk", "Clay", "Biomass" });
+        AssertPrerequisites("CivilizationPlanning", new[] { "StoneAgeSettlement" });
+        AssertPrerequisites("StoneAgeTransition", new[] { "CivilizationPlanning" });
+        Assert.That(DataBase<ResearchDef>.Find("StoneAgeTransition").ResourceRequirements, Is.Empty,
+            "The transition does not charge the settlement materials a second time.");
         AssertPrerequisites(
             "FeudalAdministration",
             new[] { "BronzeAlloyCrafting", "IronworkingAndSteelmaking", "WrittenRecords" });
@@ -89,7 +97,13 @@ public sealed class ContentVerticalSliceAuditTests
             ResearchDef transition = EraGoalEvaluator.FindTransition(targetEra);
             Assert.That(transition.AdvancesTechLevel, Is.True, transition.Id);
             Assert.That(transition.Prerequisites, Is.Not.Empty, transition.Id);
-            Assert.That(transition.ResourceRequirements, Is.Not.Empty, transition.Id);
+            if (transition.Id == "StoneAgeTransition")
+                Assert.That(transition.ResourceRequirements, Is.Empty,
+                    "Settlement already paid the first era's material cost.");
+            else
+                Assert.That(transition.ResourceRequirements, Is.Not.Empty, transition.Id);
+            Assert.That(ExpantaNum.Parse(transition.BaseCost), Is.GreaterThan(ExpantaNum.Zero),
+                "Every transition still requires actual research work: " + transition.Id);
 
             EraGoalEvaluation evaluation = EraGoalEvaluator.Evaluate(
                 currentEras[i], null, null);

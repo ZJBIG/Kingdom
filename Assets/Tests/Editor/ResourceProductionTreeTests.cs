@@ -17,7 +17,7 @@ public sealed class ResourceProductionTreeTests
     private BuildingDef Producer(ResourceDef output, ResourceDef input = null, ResourceDef constructionCost = null)
     {
         BuildingDef building = Make<BuildingDef>();
-        building.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        building.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             constructionCost == null ? new() : new() { new(constructionCost, 10) },
             new() { new(output, 2) }, input == null ? new() : new() { new(input, 1) });
         return building;
@@ -117,6 +117,8 @@ public sealed class ResourceProductionTreeTests
         var repeated = tree.GetChildren(children[1])[0];
         Assert.That(repeated.Building, Is.SameAs(root));
         Assert.That(repeated.IsCycle, Is.True);
+        Assert.That(repeated.ReferenceTarget, Is.SameAs(tree.Root),
+            "An upgrade loop references the already displayed building instead of recursing.");
         Assert.That(tree.GetChildren(repeated), Is.Empty);
     }
 
@@ -146,8 +148,42 @@ public sealed class ResourceProductionTreeTests
         var sourceB = tree.GetChildren(inputB)[0];
         var inputA = tree.GetChildren(sourceB)[0];
         Assert.That(inputA.IsCycle, Is.True);
+        Assert.That(inputA.ReferenceTarget, Is.SameAs(tree.Root));
         Assert.That(tree.GetChildren(inputA), Is.Empty);
         Assert.That(inputB.IsCycle, Is.False);
+    }
+
+    [Test]
+    public void ActualOilLoop_ReferencesExistingOil_AndKeepsIndependentStarterSource()
+    {
+        ResourceDef oil = DataBase<ResourceDef>.Find("CrudeOil");
+        BuildingDef complex = DataBase<BuildingDef>.Find("IndustrialOilExtractionComplex");
+        BuildingDef chemical = DataBase<BuildingDef>.Find("ChemicalPlant");
+        BuildingDef starter = DataBase<BuildingDef>.Find("OilDerrick");
+        ResourceProductionTree tree = new(oil, new[] { complex, chemical, starter }, null);
+        ResourceProductionTree.Node advanced = null, independent = null;
+        foreach (ResourceProductionTree.Node source in tree.GetChildren(tree.Root))
+        {
+            if (source.Building == complex) advanced = source;
+            if (source.Building == starter) independent = source;
+        }
+        Assert.That(advanced, Is.Not.Null);
+        Assert.That(independent, Is.Not.Null, "The oil source without ongoing material input remains visible.");
+        ResourceProductionTree.Node explosives = null;
+        foreach (ResourceProductionTree.Node input in tree.GetChildren(advanced))
+            if (input.Resource.Id == "Explosives") explosives = input;
+        Assert.That(explosives, Is.Not.Null);
+        ResourceProductionTree.Node chemicalSource = tree.GetChildren(explosives)[0];
+        ResourceProductionTree.Node repeatedOil = null;
+        foreach (ResourceProductionTree.Node input in tree.GetChildren(chemicalSource))
+            if (input.Resource == oil) repeatedOil = input;
+        Assert.That(repeatedOil, Is.Not.Null);
+        Assert.That(repeatedOil.ReferenceTarget, Is.SameAs(tree.Root));
+        Assert.That(tree.GetChildren(repeatedOil), Is.Empty,
+            "Real reciprocal industrial recipes terminate as a reference, not a second subtree.");
+        foreach (Pair<ResourceDef, ExpantaNum> input in starter.ResourceConsumptionRates)
+            Assert.That(input.Second, Is.LessThanOrEqualTo(ExpantaNum.Zero),
+                "A cycle is not a start-up deadlock when the initial oil source has no ongoing material cost.");
     }
 
     [Test]
@@ -187,7 +223,7 @@ public sealed class ResourceProductionTreeTests
         local.SetSectorForEditor(sector);
         locked.SetSectorForEditor(sector);
         foreign.SetSectorForEditor(otherSector);
-        local.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        local.ConfigureEconomyForEditor(ExpantaNum.One, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new(), new() { new(output, 2) }, new() { new(input, 1) });
         BuildingDef supplier = Producer(input), ordinaryProducer = Producer(output);
         HashSet<BuildingDef> unlocked = new() { local, foreign, supplier, ordinaryProducer };

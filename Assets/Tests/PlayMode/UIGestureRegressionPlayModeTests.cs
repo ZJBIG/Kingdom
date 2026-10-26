@@ -76,10 +76,11 @@ public sealed class UIGestureRegressionPlayModeTests
             Is.LessThan(.1f), "Content translation must follow the pointer regardless of content zoom or render camera.");
     }
 
-    [Test]
-    public void PinchKeepsBothPointersAndContinuesWithRemainingFinger()
+    [TestCase(false)]
+    [TestCase(true)]
+    public void PinchKeepsBothPointersAndContinuesWithRemainingFinger(bool cameraCanvas)
     {
-        CreateGraph(false);
+        CreateGraph(cameraCanvas);
         graph.RestoreView(new Vector2(-300, -300), 1f);
         var first = Pointer(10, new Vector2(-50, 0));
         var second = Pointer(20, new Vector2(50, 0));
@@ -88,10 +89,22 @@ public sealed class UIGestureRegressionPlayModeTests
         graph.OnBeginDrag(first);
         graph.OnBeginDrag(second);
         Vector2 beforePinch = content.anchoredPosition;
+        Vector2 centerBefore = (first.position + second.position) * .5f;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, centerBefore,
+            eventCamera, out Vector2 localBefore);
+        Vector2 contentPoint = (localBefore - viewport.rect.min - beforePinch) / content.localScale.x;
         Move(second, new Vector2(25, 0));
         graph.OnDrag(second);
         Assert.That(content.localScale.x, Is.GreaterThan(1f));
-        Assert.That(Vector2.Distance(content.anchoredPosition, beforePinch), Is.LessThan(.1f));
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport,
+            (first.position + second.position) * .5f, eventCamera, out Vector2 localAfter);
+        Assert.That(Vector2.Distance(content.anchoredPosition + contentPoint * content.localScale.x,
+            localAfter - viewport.rect.min), Is.LessThan(.1f),
+            "The point beneath the pinch center must stay beneath the fingers while zooming.");
+        Move(second, new Vector2(-25, 0));
+        graph.OnDrag(second);
+        Assert.That(Vector2.Distance(content.anchoredPosition, beforePinch), Is.LessThan(.1f),
+            "Reversing the pinch must return to the original view without drifting.");
         graph.OnPointerUp(first);
         graph.OnEndDrag(first);
         Vector2 beforePan = content.anchoredPosition;

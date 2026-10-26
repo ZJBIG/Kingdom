@@ -59,6 +59,9 @@ public class MusicManager : Singleton<MusicManager>
     private int playbackRequestVersion;
     private int historyCursor = -1;
     private bool waitingForNext;
+    private bool playbackObserved;
+    private bool applicationPaused;
+    private double expectedPlaybackEnd;
 
     public IReadOnlyList<MusicTrack> Tracks => tracks;
     public IReadOnlyList<MusicTrack> History => history;
@@ -278,6 +281,8 @@ public class MusicManager : Singleton<MusicManager>
         AddToHistory(track);
         State = PlaybackState.Playing;
         AudioSource.Play();
+        playbackObserved = AudioSource.isPlaying;
+        expectedPlaybackEnd = AudioSettings.dspTime + clip.length / Mathf.Max(.01f, AudioSource.pitch);
     }
 
     public void Pause()
@@ -296,6 +301,8 @@ public class MusicManager : Singleton<MusicManager>
             manualStop = false;
             AudioSource.UnPause();
             State = PlaybackState.Playing;
+            expectedPlaybackEnd = AudioSettings.dspTime +
+                (AudioSource.clip.length - AudioSource.time) / Mathf.Max(.01f, AudioSource.pitch);
         }
     }
 
@@ -303,6 +310,7 @@ public class MusicManager : Singleton<MusicManager>
     {
         manualStop = true;
         waitingForNext = false;
+        playbackObserved = false;
         playbackRequestVersion++;
         CancelPendingLoad();
         ClearAudioPlayback(false);
@@ -402,6 +410,8 @@ public class MusicManager : Singleton<MusicManager>
             float.IsNaN(normalized) || float.IsInfinity(normalized))
             return;
         AudioSource.time = Mathf.Clamp01(normalized) * Mathf.Max(0f, length - 0.01f);
+        expectedPlaybackEnd = AudioSettings.dspTime +
+            (length - AudioSource.time) / Mathf.Max(.01f, AudioSource.pitch);
     }
 
     public void SetVolume(float value)
@@ -447,20 +457,19 @@ public class MusicManager : Singleton<MusicManager>
     {
         while (true)
         {
-            if (AudioSource == null || loadingCoroutine != null || State == PlaybackState.Paused)
+            if (AudioSource == null || loadingCoroutine != null || State == PlaybackState.Paused ||
+                applicationPaused || AudioListener.pause)
             {
                 yield return autoPlayPollDelay;
                 continue;
             }
-            if (State == PlaybackState.Playing && !AudioSource.isPlaying && AudioSource.clip != null)
+            if (State == PlaybackState.Playing && AudioSource.clip != null)
             {
-                float length = AudioSource.clip.length;
-                int endTolerance = Mathf.Max(1, AudioSource.clip.frequency / 10);
-                bool reachedEnd = length > 0f &&
-                    (AudioSource.time >= length - 0.25f ||
-                     (AudioSource.clip.samples > 0 &&
-                      AudioSource.timeSamples >= AudioSource.clip.samples - endTolerance));
-                if (reachedEnd)
+                playbackObserved |= AudioSource.isPlaying;
+                // Unity may reset time/timeSamples after the clip ends. Observe
+                // the playing-to-stopped transition instead of that reset cursor.
+                if (!AudioSource.isPlaying &&
+                    (playbackObserved || AudioSettings.dspTime >= expectedPlaybackEnd))
                 {
                     int requestVersion = ++playbackRequestVersion;
                     State = PlaybackState.Stopped;
@@ -474,6 +483,8 @@ public class MusicManager : Singleton<MusicManager>
             yield return autoPlayPollDelay;
         }
     }
+
+    private void OnApplicationPause(bool paused) => applicationPaused = paused;
 }
 
 /// <summary>
@@ -495,23 +506,20 @@ public sealed class UIButtonSoundManager : MonoBehaviour
         StrategicStart,
         StrategicStop,
         StrategicCommit,
-        StrategicSupplyPause
+        StrategicSupplyPause,
+        Click
     }
 
-    private const int SampleRate = 44100;
+    private const int SampleRate = 22050;
     private const float OutputVolume = .42f;
     private const string VolumePreference = "Kingdom.Sfx.Volume";
     private const string MutePreference = "Kingdom.Sfx.Mute";
     private static UIButtonSoundManager cachedManager;
     private AudioSource source;
-    private AudioClip detailClip;
-    private AudioClip purchaseClip;
-    private AudioClip sellClip;
-    private AudioClip buildClip;
-    private AudioClip upgradeClip;
-    private AudioClip deconstructClip;
-    private AudioClip researchClip;
-    private AudioClip eraClip;
+    private AudioSource actionSource;
+    private AudioSource milestoneSource;
+    private AudioClip[][] clips;
+    private int[] nextVariant;
     private ResearchManager subscribedResearchManager;
     private float volume = 1f;
     private bool muted;
@@ -563,7 +571,6 @@ public sealed class UIButtonSoundManager : MonoBehaviour
         UIButtonSoundManager manager = cachedManager;
         if (manager != null)
         {
-            manager.InitializeAudio();
             return manager;
         }
         manager = FindObjectOfType<UIButtonSoundManager>();
@@ -587,25 +594,34 @@ public sealed class UIButtonSoundManager : MonoBehaviour
             source = GetComponent<AudioSource>();
             if (source == null)
                 source = gameObject.AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            source.loop = false;
-            source.spatialBlend = 0f;
+            ConfigureSource(source, 160);
+            actionSource = gameObject.AddComponent<AudioSource>();
+            ConfigureSource(actionSource, 128);
+            milestoneSource = gameObject.AddComponent<AudioSource>();
+            ConfigureSource(milestoneSource, 64);
             volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolumePreference, 1f));
             muted = PlayerPrefs.GetInt(MutePreference, 0) != 0;
             ApplyVolume();
-            detailClip = CreateTone("UI_Detail", 720f, .065f, .42f);
-            purchaseClip = CreateTwoTone("UI_Purchase", 430f, 650f, .12f, .46f);
-            sellClip = CreateTwoTone("UI_Sell", 560f, 300f, .13f, .44f);
-            buildClip = CreateTwoTone("UI_Build", 360f, 540f, .11f, .42f);
-            upgradeClip = CreateTwoTone("UI_Upgrade", 440f, 760f, .14f, .44f);
-            deconstructClip = CreateTwoTone("UI_Deconstruct", 620f, 300f, .13f, .40f);
-            researchClip = CreateTwoTone("UI_ResearchComplete", 520f, 880f, .22f, .40f);
-            eraClip = CreateTwoTone("UI_EraBreakthrough", 420f, 980f, .30f, .46f);
+            int soundCount = (int)Sound.Click + 1;
+            clips = new AudioClip[soundCount][];
+            nextVariant = new int[soundCount];
+            for (int i = 0; i < soundCount; i++)
+            {
+                clips[i] = new AudioClip[3];
+                for (int variant = 0; variant < 3; variant++)
+                    clips[i][variant] = CreateSound((Sound)i, variant);
+            }
             if (Application.isPlaying)
                 DontDestroyOnLoad(gameObject);
         }
 
-        ResearchManager manager = FindObjectOfType<ResearchManager>();
+        SubscribeResearch(FindObjectOfType<ResearchManager>());
+    }
+
+    public static void BindResearchManager(ResearchManager manager) => EnsureManager().SubscribeResearch(manager);
+
+    private void SubscribeResearch(ResearchManager manager)
+    {
         if (manager != subscribedResearchManager)
         {
             if (subscribedResearchManager != null)
@@ -622,12 +638,27 @@ public sealed class UIButtonSoundManager : MonoBehaviour
             subscribedResearchManager.ResearchCompleted -= OnResearchCompleted;
         if (cachedManager == this)
             cachedManager = null;
+        if (clips != null)
+            foreach (AudioClip[] variants in clips)
+                foreach (AudioClip clip in variants)
+                    ReleaseTone(clip);
+    }
+
+    private static void ReleaseTone(AudioClip clip)
+    {
+        if (clip == null) return;
+        if (Application.isPlaying) Destroy(clip);
+        else DestroyImmediate(clip);
     }
 
     private void ApplyVolume()
     {
         if (source != null)
             source.volume = muted ? 0f : volume * OutputVolume;
+        if (actionSource != null)
+            actionSource.volume = muted ? 0f : volume * OutputVolume;
+        if (milestoneSource != null)
+            milestoneSource.volume = muted ? 0f : volume * OutputVolume;
     }
 
     private void OnResearchCompleted(ResearchState state)
@@ -637,65 +668,145 @@ public sealed class UIButtonSoundManager : MonoBehaviour
         Play(state.Definition.AdvancesTechLevel ? Sound.EraBreakthrough : Sound.ResearchComplete);
     }
 
+    private static void ConfigureSource(AudioSource output, int priority)
+    {
+        output.playOnAwake = false;
+        output.loop = false;
+        output.spatialBlend = 0f;
+        output.priority = priority;
+    }
+
     private void PlayInternal(Sound sound)
     {
-        if (source == null)
+        int index = (int)sound;
+        if (source == null || index < 0 || index >= clips.Length)
             return;
-        AudioClip clip = sound switch
-        {
-            Sound.Purchase => purchaseClip,
-            Sound.Sell => sellClip,
-            Sound.Build => buildClip,
-            Sound.Upgrade => upgradeClip,
-            Sound.Deconstruct => deconstructClip,
-            Sound.WorkshopPurchase => purchaseClip,
-            Sound.ResearchComplete => researchClip,
-            Sound.EraBreakthrough => eraClip,
-            Sound.StrategicStart => buildClip,
-            Sound.StrategicStop => deconstructClip,
-            Sound.StrategicCommit => eraClip,
-            Sound.StrategicSupplyPause => sellClip,
-            _ => detailClip
-        };
-        if (clip != null)
-        {
-            PlayRequested?.Invoke(sound);
-            source.PlayOneShot(clip);
-        }
+        PlayRequested?.Invoke(sound);
+        if (muted || volume <= 0f)
+            return;
+
+        bool milestone = sound == Sound.ResearchComplete || sound == Sound.EraBreakthrough ||
+            sound == Sound.StrategicCommit;
+        AudioSource output = milestone ? milestoneSource :
+            sound == Sound.Click || sound == Sound.Detail ? source : actionSource;
+        // A batch of completed research must not cut off the era celebration.
+        if (sound == Sound.ResearchComplete && output.isPlaying && output.clip != null &&
+            output.clip.name.StartsWith("SFX_EraBreakthrough", StringComparison.Ordinal))
+            return;
+        AudioClip clip = clips[index][nextVariant[index]];
+        nextVariant[index] = (nextVariant[index] + 1) % clips[index].Length;
+        // Three independent voices keep rapid input bounded without delaying feedback.
+        output.clip = clip;
+        output.Play();
     }
 
-    private static AudioClip CreateTone(string name, float frequency, float duration, float amplitude)
+    private static AudioClip CreateSound(Sound sound, int variant)
     {
-        int sampleCount = Mathf.Max(1, Mathf.RoundToInt(SampleRate * duration));
-        float[] samples = new float[sampleCount];
-        for (int i = 0; i < sampleCount; i++)
+        float duration = sound == Sound.EraBreakthrough ? 1.05f :
+            sound == Sound.ResearchComplete || sound == Sound.StrategicCommit ? .65f :
+            sound == Sound.Click ? .045f : .32f;
+        float[] samples = new float[Mathf.RoundToInt(SampleRate * duration)];
+        float tuning = 1f + (variant - 1) * .025f;
+        uint noise = (uint)(179 + (int)sound * 977 + variant * 131);
+        switch (sound)
         {
-            float t = i / (float)SampleRate;
-            float envelope = Mathf.Min(1f, i / (SampleRate * .008f)) *
-                Mathf.Min(1f, (sampleCount - i) / (SampleRate * .018f));
-            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * amplitude * envelope;
+            case Sound.Click:
+                AddNote(samples, 0f, .04f, 1050f, .24f, 0, tuning, ref noise);
+                break;
+            case Sound.Detail:
+                AddNote(samples, 0f, .11f, 660f, .26f, 0, tuning, ref noise);
+                AddNote(samples, .045f, .13f, 880f, .18f, 1, tuning, ref noise);
+                break;
+            case Sound.Build:
+                AddNote(samples, 0f, .09f, 330f, .48f, 0, tuning, ref noise);
+                AddNote(samples, .085f, .12f, 440f, .40f, 0, tuning, ref noise);
+                break;
+            case Sound.Upgrade:
+                AddNote(samples, 0f, .09f, 330f, .36f, 0, tuning, ref noise);
+                AddNote(samples, .07f, .18f, 880f, .34f, 2, tuning, ref noise);
+                AddNote(samples, .14f, .17f, 1320f, .24f, 1, tuning, ref noise);
+                break;
+            case Sound.Deconstruct:
+                AddNote(samples, 0f, .10f, 410f, .37f, 0, tuning, ref noise);
+                AddNote(samples, .065f, .13f, 270f, .32f, 0, tuning, ref noise);
+                AddNote(samples, .14f, .15f, 160f, .26f, 0, tuning, ref noise);
+                break;
+            case Sound.WorkshopPurchase:
+                AddNote(samples, 0f, .10f, 260f, .32f, 0, tuning, ref noise);
+                AddNote(samples, .055f, .23f, 1174.66f, .34f, 2, tuning, ref noise);
+                break;
+            case Sound.Purchase:
+            case Sound.Sell:
+                bool buying = sound == Sound.Purchase;
+                AddNote(samples, 0f, .17f, buying ? 1046.5f : 1318.5f, .33f, 2, tuning, ref noise);
+                AddNote(samples, .075f, .22f, buying ? 1568f : 784f, .30f, 2, tuning, ref noise);
+                break;
+            case Sound.ResearchComplete:
+                AddNote(samples, 0f, .32f, 659.25f, .30f, 1, tuning, ref noise);
+                AddNote(samples, .12f, .36f, 783.99f, .28f, 1, tuning, ref noise);
+                AddNote(samples, .25f, .39f, 1046.5f, .30f, 1, tuning, ref noise);
+                break;
+            case Sound.EraBreakthrough:
+                AddNote(samples, 0f, .28f, 261.63f, .30f, 0, tuning, ref noise);
+                AddNote(samples, .12f, .43f, 523.25f, .28f, 1, tuning, ref noise);
+                AddNote(samples, .28f, .48f, 659.25f, .27f, 1, tuning, ref noise);
+                AddNote(samples, .44f, .60f, 783.99f, .27f, 1, tuning, ref noise);
+                AddNote(samples, .44f, .60f, 1046.5f, .24f, 1, tuning, ref noise);
+                break;
+            case Sound.StrategicStart:
+                AddNote(samples, 0f, .12f, 392f, .32f, 0, tuning, ref noise);
+                AddNote(samples, .08f, .22f, 587.33f, .30f, 1, tuning, ref noise);
+                break;
+            case Sound.StrategicStop:
+                AddNote(samples, 0f, .14f, 523.25f, .28f, 0, tuning, ref noise);
+                AddNote(samples, .10f, .20f, 349.23f, .26f, 0, tuning, ref noise);
+                break;
+            case Sound.StrategicCommit:
+                AddNote(samples, 0f, .30f, 392f, .30f, 1, tuning, ref noise);
+                AddNote(samples, .14f, .36f, 587.33f, .28f, 2, tuning, ref noise);
+                AddNote(samples, .28f, .36f, 783.99f, .27f, 1, tuning, ref noise);
+                break;
+            case Sound.StrategicSupplyPause:
+                AddNote(samples, 0f, .13f, 440f, .25f, 0, tuning, ref noise);
+                AddNote(samples, .15f, .13f, 440f, .20f, 0, tuning, ref noise);
+                break;
         }
-        AudioClip clip = AudioClip.Create(name, sampleCount, 1, SampleRate, false);
+        AudioClip clip = AudioClip.Create($"SFX_{sound}_{variant}", samples.Length, 1, SampleRate, false);
         clip.SetData(samples, 0);
         return clip;
     }
 
-    private static AudioClip CreateTwoTone(string name, float startFrequency, float endFrequency,
-        float duration, float amplitude)
+    // Damped resonances: wood/body, soft bell, and small metal/tool accents.
+    private static void AddNote(float[] samples, float start, float duration, float frequency,
+        float amplitude, int timbre, float tuning, ref uint noise)
     {
-        int sampleCount = Mathf.Max(1, Mathf.RoundToInt(SampleRate * duration));
-        float[] samples = new float[sampleCount];
-        for (int i = 0; i < sampleCount; i++)
+        int offset = Mathf.RoundToInt(start * SampleRate);
+        int count = Mathf.Min(Mathf.RoundToInt(duration * SampleRate), samples.Length - offset);
+        for (int i = 0; i < count; i++)
         {
-            float progress = i / (float)Mathf.Max(1, sampleCount - 1);
-            float frequency = Mathf.Lerp(startFrequency, endFrequency, progress);
             float t = i / (float)SampleRate;
-            float envelope = Mathf.Min(1f, i / (SampleRate * .008f)) *
-                Mathf.Min(1f, (sampleCount - i) / (SampleRate * .022f));
-            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * amplitude * envelope;
+            float phase = 2f * Mathf.PI * frequency * tuning * t;
+            float progress = i / (float)count;
+            float attack = Mathf.Min(1f, t / .002f);
+            float release = Mathf.Min(1f, (count - 1 - i) / (SampleRate * .012f));
+            float body;
+            if (timbre == 0)
+            {
+                noise ^= noise << 13;
+                noise ^= noise >> 17;
+                noise ^= noise << 5;
+                float grain = (noise & 65535) / 32767.5f - 1f;
+                body = .65f * Mathf.Sin(phase) + .20f * Mathf.Sin(phase * 1.58f) +
+                    .15f * grain * Mathf.Exp(-t * 120f);
+            }
+            else
+            {
+                float partial = timbre == 1 ? 2.01f : 2.76f;
+                body = .65f * Mathf.Sin(phase) + .23f * Mathf.Sin(phase * partial) * Mathf.Exp(-t * 12f) +
+                    .12f * Mathf.Sin(phase * 4.07f) * Mathf.Exp(-t * 22f);
+            }
+            samples[offset + i] += body * amplitude * attack * release *
+                Mathf.Exp(-progress * (timbre == 0 ? 6f : 4f));
         }
-        AudioClip clip = AudioClip.Create(name, sampleCount, 1, SampleRate, false);
-        clip.SetData(samples, 0);
-        return clip;
     }
 }

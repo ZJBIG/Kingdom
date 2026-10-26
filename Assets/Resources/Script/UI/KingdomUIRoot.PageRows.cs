@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -48,6 +48,8 @@ public sealed partial class KingdomUIRoot
     }
 
     private readonly Dictionary<Button, UITouchTooltip> buildingActionTooltips = new();
+    private readonly Dictionary<Button, UIBuildingActionIcon> buildingActionIcons = new();
+    private readonly Dictionary<Button, bool> buildingActionIconUpgradeModes = new();
 
     private void SetBuildingActionQuantity(Button button, ExpantaNum amount, string action)
     {
@@ -59,6 +61,12 @@ public sealed partial class KingdomUIRoot
             buildingActionTooltips[button] = tooltip;
         }
         if (tooltip != null) tooltip.SetTooltip(action + " " + quantity);
+        if (!buildingActionIcons.TryGetValue(button, out UIBuildingActionIcon icon))
+        {
+            icon = button.GetComponent<UIBuildingActionIcon>();
+            buildingActionIcons[button] = icon;
+        }
+        if (icon != null) icon.SetUpgrade(buildingActionIconUpgradeModes.TryGetValue(button, out bool upgrade) && upgrade);
     }
 
     private void SetBuildingActionButtonText(Button button, string value)
@@ -147,13 +155,13 @@ public sealed partial class KingdomUIRoot
         bool success = upgrade
             ? BuildingManager.Instance.TryUpgrade(building, amount, out failure)
             : BuildingManager.Instance.TryBuild(building, amount, out failure);
-        ShowBuildingDetails(building, true);
         if (success)
             UIButtonSoundManager.Play(upgrade
                 ? UIButtonSoundManager.Sound.Upgrade
                 : UIButtonSoundManager.Sound.Build);
         else
             ShowTooltip("建造失败：" + GetBuildFailureDescription(failure));
+        ShowBuildingDetails(building, true);
     }
 
     private void DeconstructBuilding(BuildingDef building)
@@ -174,11 +182,14 @@ public sealed partial class KingdomUIRoot
                 .Append("\n粮仓容量减少：").Append(preview.FoodCapacityRemoved.ToGameString())
                 .Append("；超容量食物损失：").Append(preview.FoodOverflow.ToGameString())
                 .Append("\n净生产力释放：").Append(preview.ProductivityReleased.ToGameString());
-            warning.Append("\n基础电力供给/需求减少：").Append((building.PowerProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.PowerConsumptionRate * preview.Amount).ToGameString());
-            warning.Append("\n基础物流供给/需求减少：").Append((building.LogisticsProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.LogisticsConsumptionRate * preview.Amount).ToGameString());
-            warning.Append("\n基础日常粮产/耗粮减少：").Append((building.FoodProductionRate * preview.Amount).ToGameString()).Append(" / ").Append((building.FoodConsumptionRate * preview.Amount).ToGameString()).Append(" /s（实际随效率与倍率变化；居民需粮不会立即减少）");
-            foreach (var flow in building.ResourceGenerationRates) warning.Append("\n基础产出减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * preview.Amount).ToGameString()).Append("/s（实际随效率与倍率变化）");
-            foreach (var flow in building.ResourceConsumptionRates) warning.Append("\n基础持续投入减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * preview.Amount).ToGameString()).Append("/s（实际随效率与倍率变化）");
+            ExpantaNum scale = preview.Amount;
+            if (building.PowerContribution != ExpantaNum.Zero)
+                warning.Append("\n电力变化：").Append(building.PowerContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingPower(building) * scale).ToGameString());
+            if (building.LogisticsContribution != ExpantaNum.Zero)
+                warning.Append("\n物流变化：").Append(building.LogisticsContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingLogistics(building) * scale).ToGameString());
+            warning.Append("\n当前日常粮产/耗粮减少：").Append((DisplayedBuildingFood(building) * scale).ToGameString()).Append(" / ").Append((building.FoodConsumptionRate * DisplayedBuildingOperatingEfficiency(building) * scale).ToGameString()).Append(" /s（居民需粮不会立即减少）");
+            foreach (var flow in GetEffectiveBuildingFlows(building, true)) warning.Append("\n当前产出减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
+            foreach (var flow in GetEffectiveBuildingFlows(building, false)) warning.Append("\n当前持续投入减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
             foreach (var refund in preview.Refunds) warning.Append("\n返还：").Append(refund.Key.Label).Append(' ').Append(refund.Value.ToGameString());
             ConfirmReviewAction(warning.ToString(), () => ExecuteBuildingDeconstruction(building, preview.Amount));
             return;
@@ -204,8 +215,7 @@ public sealed partial class KingdomUIRoot
             case BuildFailure.WorkshopPrerequisiteIncomplete: return "工坊前置未完成";
             case BuildFailure.ResourceInsufficient: return "资源不足";
             case BuildFailure.SpaceInsufficient: return "空闲土地不足；拆除闲置建筑或占领星区可腾出土地";
-            case BuildFailure.ProductivityInsufficient: return "可用生产力不足；先增加居民或减少建筑负担";
-            case BuildFailure.BuildingTierSuperseded: return "已被更高等级建筑替代";
+            case BuildFailure.BuildingTierSuperseded: return "该设施已转为后续建筑；请选取当前建筑";
             case BuildFailure.UpgradeUnavailable: return "升级不可用";
             case BuildFailure.SectorNotOccupied: return "所属星区尚未占领";
             case BuildFailure.InteriorExplorationIncomplete: return "需完成所属星球的深入探索";

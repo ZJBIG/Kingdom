@@ -116,11 +116,11 @@ def main():
                 "generates": pairs(text, "resourceGenerationRates", resource_index),
                 "consumes": pairs(text, "resourceConsumptionRates", resource_index),
                 "requires": pairs(text, "resourceRequirements", resource_index),
-                "power_c": num(text, "powerConsumptionRate"),
-                "logistics_c": num(text, "logisticsConsumptionRate"),
+                "power_c": max(0, -num(text, "powerContribution")),
+                "logistics_c": max(0, -num(text, "logisticsContribution")),
                 "productivity_c": num(text, "productivityConsumption"),
-                "power_p": num(text, "powerProductionRate"),
-                "logistics_p": num(text, "logisticsProductionRate"),
+                "power_p": max(0, num(text, "powerContribution")),
+                "logistics_p": max(0, num(text, "logisticsContribution")),
                 "population": num(text, "populationCapacityGranted"),
             }
 

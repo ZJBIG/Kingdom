@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 1905681817374886007}
   - component: {fileID: 3629439539142480345}
   - component: {fileID: 585160233318057957}
+  - component: {fileID: 3043521016410572565}
   m_Layer: 0
   m_Name: KingdomUIButton
   m_TagString: Untagged
@@ -266,5 +267,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &3043521016410572565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5484635881026838021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
   m_Name:
   m_EditorClassIdentifier:

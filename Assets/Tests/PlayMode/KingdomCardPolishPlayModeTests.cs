@@ -116,6 +116,8 @@ public sealed class KingdomCardPolishPlayModeTests
                 AssertStoryLayout(cards);
                 AssertForwardedDrag(cards[0].transform.Find("Header/Actions/StoryChapterToggle").gameObject, camera);
 
+                ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId)).SetStatusForEditor(ResearchStatus.Completed);
+
                 root.SetPage("Era");
                 yield return null;
                 yield return null;

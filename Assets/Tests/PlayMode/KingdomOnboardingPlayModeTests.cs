@@ -15,6 +15,8 @@ public sealed class KingdomOnboardingPlayModeTests
     private string saveRoot;
     private TutorialManager initialTutorial;
     private MusicManager initialMusic;
+    private GameObject supportedViewportCamera;
+    private RenderTexture supportedViewportTarget;
     [SetUp]
     public void SetUp()
     {
@@ -34,6 +36,12 @@ public sealed class KingdomOnboardingPlayModeTests
         Scene sample = SceneManager.GetSceneByName("SampleScene");
         if (sample.IsValid() && sample.isLoaded)
             yield return SceneManager.UnloadSceneAsync(sample);
+        if (supportedViewportCamera != null) Object.DestroyImmediate(supportedViewportCamera);
+        if (supportedViewportTarget != null)
+        {
+            supportedViewportTarget.Release();
+            Object.DestroyImmediate(supportedViewportTarget);
+        }
         TutorialManager tutorial = Object.FindObjectOfType<TutorialManager>(true);
         MusicManager music = Object.FindObjectOfType<MusicManager>(true);
         if (tutorial != null && tutorial != initialTutorial) Object.DestroyImmediate(tutorial.gameObject);
@@ -42,6 +50,34 @@ public sealed class KingdomOnboardingPlayModeTests
         if (!string.IsNullOrEmpty(saveRoot) && Directory.Exists(saveRoot))
             Directory.Delete(saveRoot, true);
         saveRoot = null;
+    }
+
+    [UnityTest]
+    public IEnumerator OnboardingHighlightFollowsTargetBetweenStateRefreshes()
+    {
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        yield return null;
+        yield return null;
+        SimulationManager.Instance.SetRunning(false);
+        TutorialManager.Current.ResetForNewGameForEditor();
+        KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        root.SetPage("Overview");
+        root.TickOnboardingForEditor();
+        RectTransform target = root.OnboardingTargetForEditor;
+        Assert.That(target, Is.Not.Null);
+        RectTransform highlight = root.transform.Find("SafeAreaRoot/OnboardingOverlay/Highlight") as RectTransform;
+        Vector3 initialTargetCenter = target.TransformPoint(target.rect.center);
+        Vector3 initialHighlightCenter = highlight.TransformPoint(highlight.rect.center);
+        Assert.That(Vector3.Distance(initialTargetCenter, initialHighlightCenter), Is.LessThan(1f));
+        Vector2 original = target.anchoredPosition;
+        target.anchoredPosition += Vector2.right * 16f;
+        root.TickOnboardingForEditor();
+        Vector3 movedTargetCenter = target.TransformPoint(target.rect.center);
+        Vector3 movedHighlightCenter = highlight.TransformPoint(highlight.rect.center);
+        Assert.That(Vector3.Distance(initialTargetCenter, movedTargetCenter), Is.GreaterThan(1f));
+        Assert.That(Vector3.Distance(movedTargetCenter, movedHighlightCenter), Is.LessThan(1f),
+            "Target geometry must be followed immediately, without waiting for the 0.2-second state refresh.");
+        target.anchoredPosition = original;
     }
 
     [UnityTest]
@@ -437,6 +473,7 @@ public sealed class KingdomOnboardingPlayModeTests
         // Page switches must preserve the measured position and rebind the
         // same ScrollRect to Buildings when returning from Research.
         float expectedNormalized = outerScroll.verticalNormalizedPosition;
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
         root.SetPage("Research");
         yield return null;
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
@@ -461,6 +498,19 @@ public sealed class KingdomOnboardingPlayModeTests
         yield return null;
 
         KingdomUIRoot root = Object.FindObjectOfType<KingdomUIRoot>();
+        // Match the supported landscape canvas even when batch Game View stays 640x480.
+        supportedViewportCamera = new GameObject("OnboardingSupportedViewport", typeof(Camera));
+        Camera camera = supportedViewportCamera.GetComponent<Camera>();
+        camera.transform.position = new Vector3(0, 0, -10);
+        supportedViewportTarget = new RenderTexture(2640, 1200, 24);
+        supportedViewportTarget.Create();
+        camera.targetTexture = supportedViewportTarget;
+        Canvas canvas = root.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        canvas.worldCamera = camera;
+        canvas.planeDistance = 100;
+        for (int frame = 0; frame < 5; frame++) yield return null;
+        Canvas.ForceUpdateCanvases();
         root.SetPage("Resources");
         yield return null;
         Transform resourcesRows = root.transform.Find(
@@ -485,6 +535,8 @@ public sealed class KingdomOnboardingPlayModeTests
             root.transform.Find("SafeAreaRoot/Content/PageHost/Buildings")));
         Assert.That(pageScroll.enabled, Is.True);
 
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId)).SetStatusForEditor(ResearchStatus.Completed);
+
         root.SetPage("Era");
         yield return null;
         Transform eraPage = root.transform.Find(
@@ -496,7 +548,8 @@ public sealed class KingdomOnboardingPlayModeTests
         Canvas.ForceUpdateCanvases();
         Assert.That(pageScroll.content.rect.height,
             Is.GreaterThan(pageScroll.viewport.rect.height),
-            "Era must expose a real vertical drag range.");
+            "The authored Era content must expose a real drag range in the supported landscape viewport.");
+        Debug.Log($"[OnboardingPageDrag] target=2640x1200 viewport={pageScroll.viewport.rect.size} content={pageScroll.content.rect.size}");
 
         Transform eraRows = eraPage.Find("DataRows");
         Assert.That(eraRows.childCount, Is.GreaterThan(0));
@@ -506,15 +559,18 @@ public sealed class KingdomOnboardingPlayModeTests
 
         Canvas.ForceUpdateCanvases();
         float before = pageScroll.content.anchoredPosition.y;
+        GameObject hit = eraRows.GetChild(0).gameObject;
+        Vector2 dragPosition = RectTransformUtility.WorldToScreenPoint(camera,
+            pageScroll.viewport.TransformPoint(pageScroll.viewport.rect.center));
         PointerEventData data = new(EventSystem.current)
         {
-            position = new Vector2(Screen.width * .65f, Screen.height * .55f),
-            pressPosition = new Vector2(Screen.width * .65f, Screen.height * .55f),
+            position = dragPosition,
+            pressPosition = dragPosition,
+            pointerPressRaycast = new RaycastResult { module = root.GetComponent<GraphicRaycaster>(), gameObject = hit },
             button = PointerEventData.InputButton.Left,
             pointerId = -1,
             delta = Vector2.zero
         };
-        GameObject hit = eraRows.GetChild(0).gameObject;
         ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.initializePotentialDrag);
         ExecuteEvents.ExecuteHierarchy(hit, data, ExecuteEvents.beginDragHandler);
         data.position += Vector2.up * 160f;

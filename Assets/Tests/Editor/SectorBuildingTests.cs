@@ -67,12 +67,12 @@ public sealed class SectorBuildingTests
         Assert.That(HasPositivePair(asset.ResourceRequirements, "Machinery"), Is.True);
         Assert.That(HasPositivePair(asset.ResourceRequirements, "Electronics"), Is.True);
         Assert.That(HasPositivePair(asset.ResourceRequirements, "RocketFuel"), Is.True);
-        Assert.That(asset.LogisticsProductionRate - asset.LogisticsConsumptionRate,
+        Assert.That(asset.LogisticsContribution,
             Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(asset.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(asset.DefensePowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(asset.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(asset.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(asset.PowerContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(asset.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "AdvancedMetalIngot"), Is.True);
         Assert.That(HasPositivePair(asset.ResourceConsumptionRates, "Electronics"), Is.True);
@@ -212,20 +212,44 @@ public sealed class SectorBuildingTests
             buildingManager.GetMaxBuildable(building, ExpantaNum.One),
             Is.EqualTo(ExpantaNum.Zero));
 
-        Assert.That(
-            buildingManager.TryDeconstruct(building, ExpantaNum.One, out BuildFailure deconstructFailure),
-            Is.True);
-        Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.GetDeconstructionPreview(building, ExpantaNum.One), Is.Not.Null);
+        var balancesBeforeToggle = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            balancesBeforeToggle.Add(resource, resourceManager.GetAmount(resource));
+        BuildingState builtState = buildingManager.GetState(building);
+        ExpantaNum builtAmount = builtState.Amount;
+        ExpantaNum foodCapacity = gameManager.State.FoodCapacity;
+        ExpantaNum populationCapacity = gameManager.State.Population.PopulationCapacity;
+        Assert.That(buildingManager.SetSectorBuildingEnabled(building, false), Is.True);
+        Assert.That(builtState.IsEnabled, Is.False);
+        Assert.That(builtState.Efficiency, Is.EqualTo(ExpantaNum.Zero),
+            "A manually disabled facility has exactly zero operating efficiency.");
+        Assert.That(builtState.Amount, Is.EqualTo(builtAmount));
         Assert.That(gameManager.State.TerritoryUsed, Is.EqualTo(territoryUsed));
         Assert.That(gameManager.State.AvailableTerritory, Is.EqualTo(territoryAvailable));
-        AddEnoughBuildResources(resourceManager, building);
-        bool rebuilt = buildingManager.TryBuild(
-            building, ExpantaNum.One, out BuildFailure rebuildFailure);
-        Assert.That(
-            rebuilt,
-            Is.True,
-            "Rebuild after deconstruct must succeed, but was rejected with " + rebuildFailure);
-        Assert.That(rebuildFailure, Is.EqualTo(BuildFailure.None));
+        Assert.That(gameManager.State.FoodCapacity, Is.EqualTo(foodCapacity));
+        Assert.That(gameManager.State.Population.PopulationCapacity, Is.EqualTo(populationCapacity));
+        Assert.That(buildingManager.TryBuild(building, ExpantaNum.One, out limitFailure), Is.False);
+        Assert.That(limitFailure, Is.EqualTo(BuildFailure.BuildingLimitReached),
+            "Disabled facilities still occupy their local construction slot.");
+        Assert.That(buildingManager.SetSectorBuildingEnabled(building, true), Is.True);
+        Assert.That(builtState.IsEnabled, Is.True);
+        Assert.That(builtState.Amount, Is.EqualTo(builtAmount));
+        foreach (var balance in balancesBeforeToggle)
+            Assert.That(resourceManager.GetAmount(balance.Key), Is.EqualTo(balance.Value),
+                "Disabling and enabling must neither refund nor charge construction resources.");
+
+        BuildingDeconstructionPreview demolition = buildingManager.GetDeconstructionPreview(building, ExpantaNum.One);
+        Assert.That(buildingManager.TryDeconstruct(building, ExpantaNum.One, out BuildFailure deconstructFailure), Is.True);
+        Assert.That(deconstructFailure, Is.EqualTo(BuildFailure.None));
+        Assert.That(builtState.Amount == ExpantaNum.Zero, Is.True);
+        foreach (var refund in demolition.Refunds)
+            Assert.That((resourceManager.GetAmount(refund.Key) - balancesBeforeToggle[refund.Key] - refund.Value).Abs().ToDouble(),
+                Is.LessThan(1e-5d));
+        Assert.That(gameManager.State.TerritoryUsed == territoryUsed, Is.True);
+        Assert.That(gameManager.State.AvailableTerritory == territoryAvailable, Is.True);
+        Assert.That(buildingManager.TryDeconstruct(building, ExpantaNum.One, out _), Is.False);
+        Assert.That(buildingManager.TryBuild(building, ExpantaNum.One, out _), Is.True);
 
         try
         {
@@ -249,6 +273,29 @@ public sealed class SectorBuildingTests
             if (Directory.Exists(saveRoot))
                 Directory.Delete(saveRoot, true);
         }
+    }
+
+    [TestCase("DawnDysonSphere")]
+    [TestCase("ThunderGatePropellantWorks")]
+    public void MegastructureCannotBeDemolishedOrRefunded(string id)
+    {
+        CreateManager<GameManager>("Megastructure-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("Megastructure-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("Megastructure-Buildings");
+        SectorBuildingDef project = DataBase<SectorBuildingDef>.Find(id);
+        BuildingState state = buildings.EnsureBuilding(project);
+        buildings.SetAmountAndRatesForEditor(state, ExpantaNum.One);
+        var balances = new Dictionary<ResourceDef, ExpantaNum>();
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+            balances.Add(resource, resources.GetAmount(resource));
+        Assert.That(BuildingManager.IsMegastructure(project), Is.True);
+        Assert.That(buildings.GetDeconstructionPreview(project, ExpantaNum.One), Is.Null);
+        Assert.That(buildings.TryDeconstruct(project, ExpantaNum.One, out BuildFailure failure), Is.False);
+        Assert.That(failure, Is.EqualTo(BuildFailure.DeconstructionUnavailable));
+        Assert.That(state.Amount == ExpantaNum.One, Is.True);
+        foreach (var balance in balances)
+            Assert.That(resources.GetAmount(balance.Key) == balance.Value, Is.True,
+                "Rejected demolition must not modify any resource balance.");
     }
 
     [Test]

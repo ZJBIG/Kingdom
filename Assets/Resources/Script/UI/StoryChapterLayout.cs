@@ -22,10 +22,26 @@ public sealed class StoryChapterLayout : LayoutGroup, ILayoutSelfController
     private float actionWidth;
     private float actionHeight;
     private bool stacked;
+    private bool measurementsDirty = true;
+    private float measuredWidth;
+    private Vector2 measuredViewportSize;
+    private string measuredTitle;
+    private string measuredBody;
+    private int measuredActions;
+    private TMP_FontAsset measuredTitleFont;
+    private TMP_FontAsset measuredBodyFont;
+    private float measuredTitleFontSize;
+    private float measuredBodyFontSize;
+    private float preferredHeight;
+
+#if UNITY_EDITOR
+    public int MeasurementCountForEditor { get; private set; }
+#endif
 
     public void SetIllustrated(bool value)
     {
         illustrated = value;
+        measurementsDirty = true;
         SetDirty();
     }
 
@@ -38,7 +54,37 @@ public sealed class StoryChapterLayout : LayoutGroup, ILayoutSelfController
 
     public override void CalculateLayoutInputVertical()
     {
+        EnsureMeasurements();
+        SetLayoutInputForAxis(preferredHeight, preferredHeight, 0, 1);
+    }
+
+    private void EnsureMeasurements()
+    {
+        FitWidthToViewport();
         float width = Mathf.Max(1, rectTransform.rect.width - padding.horizontal);
+        Vector2 viewportSize = pageScroll != null && pageScroll.viewport != null
+            ? pageScroll.viewport.rect.size : Vector2.zero;
+        int visibleActions = 0;
+        for (int i = 0; i < actions.childCount; i++)
+            visibleActions = unchecked(visibleActions * 31 + (actions.GetChild(i).gameObject.activeSelf ? 1 : 0));
+        if (!measurementsDirty && Mathf.Abs(width - measuredWidth) <= .1f &&
+            viewportSize == measuredViewportSize && title.text == measuredTitle && body.text == measuredBody &&
+            visibleActions == measuredActions && title.font == measuredTitleFont && body.font == measuredBodyFont &&
+            title.fontSize == measuredTitleFontSize && body.fontSize == measuredBodyFontSize)
+            return;
+        measurementsDirty = false;
+        measuredWidth = width;
+        measuredViewportSize = viewportSize;
+        measuredTitle = title.text;
+        measuredBody = body.text;
+        measuredActions = visibleActions;
+        measuredTitleFont = title.font;
+        measuredBodyFont = body.font;
+        measuredTitleFontSize = title.fontSize;
+        measuredBodyFontSize = body.fontSize;
+#if UNITY_EDITOR
+        MeasurementCountForEditor++;
+#endif
         // Header has no layout controller, so Unity stops traversal before Actions.
         LayoutRebuilder.ForceRebuildLayoutImmediate(actions);
         actionWidth = LayoutUtility.GetPreferredWidth(actions);
@@ -48,32 +94,39 @@ public sealed class StoryChapterLayout : LayoutGroup, ILayoutSelfController
         titleHeight = title.GetPreferredValues(title.text, titleWidth, Mathf.Infinity).y;
         headerHeight = stacked ? titleHeight + spacing + actionHeight + actionTopInset
             : Mathf.Max(titleHeight, actionHeight + actionTopInset);
-        float height = illustrated ? rectTransform.rect.width / illustrationAspect
+        preferredHeight = illustrated ? rectTransform.rect.width / illustrationAspect
             : padding.vertical + headerHeight + spacing + body.GetPreferredValues(body.text, width, Mathf.Infinity).y;
-        SetLayoutInputForAxis(height, height, 0, 1);
     }
 
     public override void SetLayoutHorizontal()
     {
-        FitWidthToViewport();
-        CalculateLayoutInputVertical();
+        EnsureMeasurements();
         float width = Mathf.Max(1, rectTransform.rect.width - padding.horizontal);
         SetChildAlongAxis(header, 0, padding.left, width);
         Place((RectTransform)title.transform, stacked ? width : Mathf.Max(1, width - actionWidth - spacing),
             titleHeight, 0, 0);
+        bool actionSizeChanged = Vector2.Distance(actions.rect.size, new Vector2(actionWidth, actionHeight)) > .1f;
         Place(actions, actionWidth, actionHeight, stacked ? 0 : width - actionWidth,
             (stacked ? titleHeight + spacing : 0) + actionTopInset);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(actions);
+        if (actionSizeChanged) LayoutRebuilder.ForceRebuildLayoutImmediate(actions);
         SetChildAlongAxis(bodyViewport, 0, padding.left, width);
     }
 
     public override void SetLayoutVertical()
     {
-        CalculateLayoutInputVertical();
+        EnsureMeasurements();
         SetChildAlongAxis(header, 1, padding.top, headerHeight);
         SetChildAlongAxis(bodyViewport, 1, padding.top + headerHeight + spacing,
             Mathf.Max(0, rectTransform.rect.height - padding.vertical - headerHeight - spacing));
     }
+
+#if UNITY_EDITOR
+    protected override void OnValidate()
+    {
+        measurementsDirty = true;
+        base.OnValidate();
+    }
+#endif
 
     private void FitWidthToViewport()
     {

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2810251496857796742}
   - component: {fileID: 4532585457685758576}
   - component: {fileID: 2339602975663351866}
+  - component: {fileID: 7735496155866942915}
   m_Layer: 5
   m_Name: KingdomUIMusicTrack
   m_TagString: Untagged
@@ -160,6 +161,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7735496155866942915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &1000009
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,6 +453,7 @@ GameObject:
   - component: {fileID: 1000032}
   - component: {fileID: 1000033}
   - component: {fileID: 1000034}
+  - component: {fileID: 8787438487329062326}
   m_Layer: 5
   m_Name: PlayPause
   m_TagString: Untagged
@@ -549,6 +563,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8787438487329062326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &260695165105010323
 GameObject:
   m_ObjectHideFlags: 0

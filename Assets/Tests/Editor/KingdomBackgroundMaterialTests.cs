@@ -64,10 +64,16 @@ public sealed class KingdomBackgroundMaterialTests
         Assert.That(graph.color.a, Is.GreaterThan(.99f), "Stencil geometry must still clip nodes and links.");
         Assert.That(graph.raycastTarget, Is.True);
         Assert.That(graph.sprite, Is.Null);
-        foreach (string name in new[] { "BuildingCard", "ResourceCard", "ResearchCard", "TextRow", "MusicTrack", "SectorRow", "WorkshopCard" })
+        foreach (string name in new[] { "BuildingCard", "ResourceCard", "ResearchCard", "TextRow", "MusicTrack" })
         {
             Image row = Resources.Load<GameObject>("UI/Kingdom/KingdomUI" + name).GetComponent<Image>();
             Assert.That(row.color.a, Is.GreaterThan(0).And.LessThan(.12f), name);
+        }
+        foreach (string name in new[] { "SectorRow", "WorkshopCard" })
+        {
+            Image row = Resources.Load<GameObject>("UI/Kingdom/KingdomUI" + name).GetComponent<Image>();
+            Assert.That(row.sprite, Is.Not.Null, name + " retains its authored card texture.");
+            Assert.That(row.color.a, Is.GreaterThan(.99f), name + " uses an opaque authored frame.");
         }
     }
 

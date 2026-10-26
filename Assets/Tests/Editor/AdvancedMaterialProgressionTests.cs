@@ -287,8 +287,8 @@ public sealed class AdvancedMaterialProgressionTests
 
         Assert.That(habitat.PopulationCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(habitat.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(habitat.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(habitat.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(habitat.PowerContribution, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(habitat.LogisticsContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, biomass), Is.True);
         Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, titaniumAlloy), Is.True);
         Assert.That(HasPositiveRate(habitat.ResourceConsumptionRates, composite), Is.True);

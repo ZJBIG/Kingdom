@@ -864,11 +864,7 @@ public sealed class KingdomLogicTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
@@ -903,8 +899,8 @@ public sealed class KingdomLogicTests
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("TopFlow-BuildingManager");
         BuildingDef building = CreateEconomyBuilding("TopFlow-Consumer", 0d, 0d, 0d);
-        building.SetPowerFlowForEditor(ExpantaNum.Zero, new ExpantaNum(7));
-        building.SetLogisticsFlowForEditor(ExpantaNum.Zero, new ExpantaNum(3));
+        building.SetPowerContributionForEditor(-new ExpantaNum(7));
+        building.SetLogisticsContributionForEditor(-new ExpantaNum(3));
 
         Assert.That(buildingManager.TryBuild(building, new ExpantaNum(2), out BuildFailure failure),
             Is.True);
@@ -1126,7 +1122,8 @@ public sealed class KingdomLogicTests
     public void PopulationNetRate_UsesStarvationDepartureBeforePositiveGrowth()
     {
         GameManager gameManager = CreateManager<GameManager>("PopulationNetRate-GameManager");
-        CreateManager<BuildingManager>("PopulationNetRate-BuildingManager");
+        BuildingManager buildings = CreateManager<BuildingManager>("PopulationNetRate-BuildingManager");
+        CreateManager<ResourceManager>("PopulationNetRate-ResourceManager");
         gameManager.State.RestoreCoreForEditor(
             0,
             TechLevel.Animal,
@@ -1135,6 +1132,7 @@ public sealed class KingdomLogicTests
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(10));
         gameManager.State.AdjustPopulationCapacityForEditor(new ExpantaNum(20));
         gameManager.State.AdjustFoodRatesForEditor(ExpantaNum.Zero, new ExpantaNum(20));
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
 
         Assert.That(gameManager.State.FoodNetRate, Is.LessThan(ExpantaNum.Zero));
         Assert.That(gameManager.CurrentPopulationGrowthRatePerSecond, Is.GreaterThan(ExpantaNum.Zero));
@@ -1236,11 +1234,12 @@ public sealed class KingdomLogicTests
     }
 
     [Test]
-    public void ProductivityProvider_CannotFundItsOwnConstruction()
+    public void ProductivityProvider_CanBeBuiltBeforeLaborSupplyCatchesUp()
     {
         GameManager gameManager = CreateManager<GameManager>("SelfFunding-GameManager");
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("SelfFunding-BuildingManager");
+        CreateManager<ResourceManager>("SelfFunding-ResourceManager");
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(2));
         BuildingDef building = CreateEconomyBuilding(
             "SelfFundingProvider",
@@ -1250,17 +1249,19 @@ public sealed class KingdomLogicTests
 
         Assert.That(
             buildingManager.TryBuild(building, ExpantaNum.One, out BuildFailure failure),
-            Is.False);
-        Assert.That(failure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
-        Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.Zero));
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.GetState(building).Amount, Is.EqualTo(ExpantaNum.One));
+        Assert.That(buildingManager.LaborOperatingRatio, Is.GreaterThanOrEqualTo(ExpantaNum.One));
     }
 
     [Test]
-    public void OvercommittedProductivity_PreservesBuildingsAndBlocksNewConsumption()
+    public void OvercommittedProductivity_PreservesBuildingsAndAllowsReducedOperation()
     {
         GameManager gameManager = CreateManager<GameManager>("Overcommit-GameManager");
         BuildingManager buildingManager =
             CreateManager<BuildingManager>("Overcommit-BuildingManager");
+        CreateManager<ResourceManager>("Overcommit-ResourceManager");
         gameManager.State.RestorePopulationForEditor(new ExpantaNum(2));
         BuildingDef existing = CreateEconomyBuilding(
             "LegacyOvercommit",
@@ -1280,9 +1281,66 @@ public sealed class KingdomLogicTests
         Assert.That(buildingManager.AvailableProductivity, Is.EqualTo(new ExpantaNum(-2)));
         Assert.That(
             buildingManager.TryBuild(candidate, ExpantaNum.One, out BuildFailure failure),
-            Is.False);
-        Assert.That(failure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
+            Is.True);
+        Assert.That(failure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.LaborOperatingRatio,
+            Is.GreaterThan(ExpantaNum.Zero).And.LessThan(ExpantaNum.One));
         Assert.That(existingState.Amount, Is.EqualTo(ExpantaNum.One));
+    }
+
+    [Test]
+    public void LaborDeficitScalesContinuousInputsAndOutputsWithoutShrinkingHousing()
+    {
+        GameManager game = CreateManager<GameManager>("LaborRatio-Game");
+        ResourceManager resources = CreateManager<ResourceManager>("LaborRatio-Resources");
+        BuildingManager buildings = CreateManager<BuildingManager>("LaborRatio-Buildings");
+        game.State.RestorePopulationForEditor(new ExpantaNum(2));
+        ResourceDef input = DataBase<ResourceDef>.Find("WoodLog");
+        ResourceDef output = DataBase<ResourceDef>.Find("StoneChunk");
+        resources.SetAmount(input, new ExpantaNum(1000));
+        BuildingDef producer = CreateEconomyBuilding("LaborRatioProducer", 8, 0, 0);
+        producer.ConfigureEconomyForEditor(1.15d, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            new List<Pair<ResourceDef, ExpantaNum>>(),
+            new List<Pair<ResourceDef, ExpantaNum>> { new Pair<ResourceDef, ExpantaNum>(output, 10) },
+            new List<Pair<ResourceDef, ExpantaNum>> { new Pair<ResourceDef, ExpantaNum>(input, 4) });
+        BuildingDef housing = CreateEconomyBuilding("LaborRatioHousing", 0, 0, 20);
+        Assert.That(buildings.TryBuild(producer, ExpantaNum.One, out _), Is.True);
+        Assert.That(buildings.TryBuild(housing, ExpantaNum.One, out _), Is.True);
+
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        ExpantaNum constrainedOutput = resources.EnsureResource(output).ProductionRate;
+        ExpantaNum constrainedInput = resources.EnsureResource(input).ConsumptionRate;
+        Assert.That(buildings.GetState(producer).Efficiency,
+            Is.GreaterThan(new ExpantaNum(0.49d)).And.LessThan(new ExpantaNum(0.51d)));
+        Assert.That(game.State.Population.PopulationCapacity, Is.GreaterThanOrEqualTo(new ExpantaNum(20)));
+        Assert.That(buildings.GetLaborOperatingRatio(housing), Is.GreaterThanOrEqualTo(ExpantaNum.One));
+
+        game.State.RestorePopulationForEditor(new ExpantaNum(4));
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        Assert.That(resources.EnsureResource(output).ProductionRate,
+            Is.GreaterThan(constrainedOutput * 1.99d).And.LessThan(constrainedOutput * 2.01d));
+        Assert.That(resources.EnsureResource(input).ConsumptionRate,
+            Is.GreaterThan(constrainedInput * 1.99d).And.LessThan(constrainedInput * 2.01d));
+        Assert.That(game.State.Population.PopulationCapacity, Is.GreaterThanOrEqualTo(new ExpantaNum(20)));
+
+        BuildingDef extraDemand = CreateEconomyBuilding("LaborRatioSecondDemand", 8, 0, 0);
+        Assert.That(buildings.TryBuild(extraDemand, ExpantaNum.One, out _), Is.True);
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        Assert.That(buildings.GetState(producer).Efficiency,
+            Is.GreaterThan(new ExpantaNum(0.49d)).And.LessThan(new ExpantaNum(0.51d)),
+            "The next batch observes a new building's labor demand.");
+
+        ResearchDef laborResearch = CreateResearch("LaborRatioPermanentEffect");
+        laborResearch.SetEffectsForEditor(new List<ResearchEffectDefinition>
+        {
+            new ResearchEffectDefinition { Type = ResearchEffectType.ProductivityGranted, Value = new ExpantaNum(8) }
+        });
+        ResearchState completed = new ResearchState(laborResearch);
+        completed.RestoreForEditor(ExpantaNum.Zero, false, true, null);
+        ProgressionModifierManager.Rebuild(new List<ResearchState> { completed });
+        buildings.PrepareTickResourceSatisfactionForEditor(1d);
+        Assert.That(buildings.GetState(producer).Efficiency, Is.GreaterThanOrEqualTo(ExpantaNum.One),
+            "The next batch observes permanent productivity effects without a cached stale ratio.");
     }
 
     [Test]
@@ -1403,7 +1461,7 @@ public sealed class KingdomLogicTests
         }
 
         alias.ConfigureEconomyForEditor(
-            original.CostGrowth, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            original.CostGrowth, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             new List<Pair<ResourceDef, ExpantaNum>> { new(wood, new ExpantaNum(1000000)) },
             new List<Pair<ResourceDef, ExpantaNum>>(), new List<Pair<ResourceDef, ExpantaNum>>());
         ExpantaNum expectedRefund = buildings.GetDeconstructionPreview(original, new ExpantaNum(2)).Refunds[wood];
@@ -3762,11 +3820,7 @@ public sealed class KingdomLogicTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,

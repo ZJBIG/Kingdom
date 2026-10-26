@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: BasicMetalOre
-  TechLevel: 1
   m_EditorClassIdentifier: 
   id: BasicMetalOre
-  Label: "低级金属矿"
-  Description: "铜、锡、铁等常见金属的混合矿料，用于基础冶炼。"
+  Label: "\u4F4E\u7EA7\u91D1\u5C5E\u77FF"
+  TechLevel: 1
+  Description: "\u94DC\u3001\u9521\u3001\u94C1\u7B49\u5E38\u89C1\u91D1\u5C5E\u7684\u6DF7\u5408\u77FF\u6599\uFF0C\u7528\u4E8E\u57FA\u7840\u51B6\u70BC\u3002"
   Sprite: {fileID: 21310001, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.65, g: 0.25, b: 0.08, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

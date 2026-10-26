@@ -21,10 +21,10 @@ MonoBehaviour:
   costGrowth: "1.25"
   spaceCost: "0"
   productivityConsumption: "360"
-  powerConsumptionRate: "240"
-  logisticsConsumptionRate: "32"
   foodProductionRate: "960"
   researchPowerGranted: "480"
+  powerContribution: -240
+  logisticsContribution: -32
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "24000"

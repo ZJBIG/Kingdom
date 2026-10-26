@@ -88,8 +88,8 @@ public sealed class SpaceContentTests
         Assert.That(solarArray.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(solarArray.SpaceCost, Is.GreaterThanOrEqualTo(new ExpantaNum(420d)));
         Assert.That(solarArray.ProductivityConsumption, Is.GreaterThanOrEqualTo(new ExpantaNum(500d)));
-        Assert.That(solarArray.PowerProductionRate, Is.GreaterThanOrEqualTo(new ExpantaNum(360d)));
-        Assert.That(solarArray.LogisticsConsumptionRate, Is.GreaterThanOrEqualTo(new ExpantaNum(8d)));
+        Assert.That(solarArray.PowerContribution, Is.GreaterThanOrEqualTo(new ExpantaNum(360d)));
+        Assert.That((-solarArray.LogisticsContribution), Is.GreaterThanOrEqualTo(new ExpantaNum(8d)));
     }
 
     private static bool HasRate(

@@ -25,13 +25,19 @@ public sealed partial class KingdomUIRoot
     public RectTransform OnboardingTargetForEditor => onboardingTarget;
     public TutorialStageSnapshot OnboardingStageForEditor => onboardingStage;
     public void RefreshOnboardingForEditor() => RefreshOnboarding();
+    public void TickOnboardingForEditor() => TickOnboarding();
 #endif
 
     private void TickOnboarding()
     {
-        if (Time.unscaledTime < nextOnboardingRefresh) return;
-        nextOnboardingRefresh = Time.unscaledTime + .2f;
-        RefreshOnboarding();
+        if (Time.unscaledTime >= nextOnboardingRefresh)
+        {
+            nextOnboardingRefresh = Time.unscaledTime + .2f;
+            RefreshOnboarding();
+        }
+        // Scroll inertia and graph framing continue between state refreshes.
+        if (onboardingTarget != null && onboardingOverlay.gameObject.activeSelf)
+            PlaceOnboardingOverlay(onboardingTarget);
     }
 
     private bool BindOnboarding()
@@ -124,14 +130,18 @@ public sealed partial class KingdomUIRoot
             return;
         }
         onboardingTarget = target;
+        string instruction = OnboardingInstruction(onboardingStage);
+        bool layoutChanged = !onboardingOverlay.gameObject.activeSelf ||
+            onboardingTitle.text != onboardingStage.Title || onboardingBody.text != instruction;
         onboardingTitle.text = onboardingStage.Title;
-        onboardingBody.text = OnboardingInstruction(onboardingStage);
+        onboardingBody.text = instruction;
         onboardingHighlight.gameObject.SetActive(true);
         onboardingArrow.gameObject.SetActive(true);
         for (int i = 0; i < onboardingDims.Length; i++) onboardingDims[i].gameObject.SetActive(true);
         onboardingNext.gameObject.SetActive(onboardingStage.Action == TutorialStageAction.Inspect);
         onboardingOverlay.gameObject.SetActive(true);
         onboardingOverlay.SetAsLastSibling();
+        if (layoutChanged) Canvas.ForceUpdateCanvases();
         PlaceOnboardingOverlay(target);
         onboardingGate.Configure(target, onboardingOverlay, onboardingNext, onboardingSkip);
     }
@@ -146,7 +156,7 @@ public sealed partial class KingdomUIRoot
         else if (stage.Page == "Research" && DataBase<ResearchDef>.TryFind(stage.TargetId, out ResearchDef research)) label = research.Label;
         else if (stage.Page == "Workshop" && DataBase<WorkshopUpgradeDef>.TryFind(stage.TargetId, out WorkshopUpgradeDef upgrade)) label = upgrade.Label;
         else if (stage.Page == "Sectors" && DataBase<SectorDef>.TryFind(stage.TargetId, out SectorDef sector)) label = sector.Label;
-        return "点击「" + label + "」，查看详情与条件。";
+        return stage.Instruction + "\n点击「" + label + "」，查看详情与条件。";
     }
 
     private void ShowOnboardingWaiting(string instruction)

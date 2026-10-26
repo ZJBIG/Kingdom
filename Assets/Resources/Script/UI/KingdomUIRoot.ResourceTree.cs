@@ -29,15 +29,29 @@ public sealed partial class KingdomUIRoot
         resourceTreeSurface.gameObject.SetActive(false);
     }
 
+    private bool CanShowProductionEntry()
+    {
+        if (!IsProgressionPageUnlocked("Production")) return false;
+        SectorState sector = selectedSectorDefinition == null ? null :
+            GameManager.Instance?.Sectors?.GetState(selectedSectorDefinition);
+        return selectedResource != null || selectedBuilding != null ||
+            sector != null && (sector.Unlocked || sector.Occupied);
+    }
+
     private void RefreshProductionEntry()
     {
         if (resourceTreeSurface == null) return;
-        SectorState sector = selectedSectorDefinition == null ? null :
-            GameManager.Instance?.Sectors?.GetState(selectedSectorDefinition);
-        resourceTreeSurface.gameObject.SetActive(selectedResource != null || selectedBuilding != null ||
-            sector != null && (sector.Unlocked || sector.Occupied));
+        bool visible = CanShowProductionEntry();
+        bool changed = resourceTreeSurface.gameObject.activeSelf != visible;
+        resourceTreeSurface.gameObject.SetActive(visible);
         resourceTreeModeLabel.text = selectedSectorDefinition != null ? "查看星区生产树" :
             selectedBuilding != null ? "查看建筑树" : "查看生产树";
+        if (!changed || detailBody == null) return;
+        if (selectedBuilding != null)
+            PlaceRequirementsAfterDescription(ultraDetailRequirementCount,
+                requirementGesture == null ? null : (float?)requirementGesture.GetNormalizedPosition(),
+                ultraDetailFlowCount);
+        else LayoutResourceDetailsBody();
     }
 
     private void AddResourceTreeLink(RectTransform parent, Vector2 start, Vector2 end)

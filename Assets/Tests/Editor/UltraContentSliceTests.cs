@@ -101,10 +101,9 @@ public sealed class UltraContentSliceTests
         Assert.That(energy.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(fabricator.TechLevel, Is.EqualTo(TechLevel.Ultra));
         Assert.That(computing.ResearchPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(computing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(energy.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(energy.PowerProductionRate, Is.GreaterThan(energy.PowerConsumptionRate));
-        Assert.That(HasRequiredResearch(computing, "AutonomousMatterAssembly"), Is.True);
+        Assert.That(computing.PowerContribution, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(energy.PowerContribution, Is.GreaterThan(ExpantaNum.Zero));
+                Assert.That(HasRequiredResearch(computing, "AutonomousMatterAssembly"), Is.True);
         Assert.That(HasRequiredResearch(energy, "PhaseFieldEngineering"), Is.True);
         Assert.That(HasRequiredResearch(fabricator, "PhaseGridSynchronization"), Is.True);
         Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("PhantomAlloy")), Is.True);
@@ -112,7 +111,7 @@ public sealed class UltraContentSliceTests
         Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("PhaseMaterial")), Is.True);
         Assert.That(HasPositiveRate(fabricator.ResourceGenerationRates, DataBase<ResourceDef>.Find("Composite")), Is.True);
         Assert.That(HasRequiredResearch(fabricator, "InterstellarResourceCoordination"), Is.True);
-        Assert.That(fabricator.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(fabricator.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
     }
 
@@ -156,19 +155,17 @@ public sealed class UltraContentSliceTests
 
         Assert.That(computing.ResearchPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(computing.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(computing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(computing.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(computing.PowerContribution, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(computing.LogisticsContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(computing.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
 
-        Assert.That(energy.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(energy.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(energy.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(energy.PowerContribution, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(energy.LogisticsContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(energy.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
 
-        Assert.That(fabricator.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(fabricator.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.FoodConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(fabricator.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(fabricator.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(fabricator.PowerContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(fabricator.FleetPowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.DefensePowerGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(fabricator.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));

@@ -94,8 +94,8 @@ public sealed class BuildingVerticalSliceTests
         Assert.That(orbitalHub.FoodCapacityGranted, Is.GreaterThan(ExpantaNum.Zero));
         Assert.That(railHub.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(orbitalHub.FoodProductionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(railHub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(orbitalHub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(railHub.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(orbitalHub.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
     }
 
     [Test]
@@ -122,8 +122,8 @@ public sealed class BuildingVerticalSliceTests
 
         Assert.That(housing.PopulationCapacityGranted, Is.GreaterThan(new ExpantaNum(1000)));
         Assert.That(housing.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(housing.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
-        Assert.That(housing.LogisticsConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(housing.PowerContribution, Is.LessThan(ExpantaNum.Zero));
+        Assert.That(housing.LogisticsContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(housing.ResourceConsumptionRates, Has.Count.GreaterThanOrEqualTo(5));
         bool consumesTitaniumAlloy = false;
         for (int i = 0; i < housing.ResourceConsumptionRates.Count; i++)
@@ -155,8 +155,8 @@ public sealed class BuildingVerticalSliceTests
             Is.GreaterThan(industrial.ProductivityConsumption * 4d));
         Assert.That(orbital.FoodConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
         Assert.That(orbital.FoodCapacityGranted, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(orbital.PowerConsumptionRate, Is.GreaterThan(industrial.PowerConsumptionRate));
-        Assert.That(orbital.LogisticsConsumptionRate, Is.GreaterThan(industrial.LogisticsConsumptionRate));
+        Assert.That((-orbital.PowerContribution), Is.GreaterThan((-industrial.PowerContribution)));
+        Assert.That((-orbital.LogisticsContribution), Is.GreaterThan((-industrial.LogisticsContribution)));
         Assert.That(
             GetResourceRate(orbital, "Biomass"),
             Is.GreaterThan(GetResourceRate(orbital, "TitaniumAlloy") * 20d));

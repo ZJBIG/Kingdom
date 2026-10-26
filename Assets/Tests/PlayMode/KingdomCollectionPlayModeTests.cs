@@ -67,6 +67,7 @@ public sealed class KingdomCollectionPlayModeTests
         root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
         SimulationManager.Instance.SetRunning(false);
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
         foreach (ResearchDef research in DataBase<ResearchDef>.All)
         {
@@ -80,8 +81,6 @@ public sealed class KingdomCollectionPlayModeTests
             ResourceManager.Instance.SetAmount(resource, new ExpantaNum(1000000));
         }
         foreach (BuildingDef building in DataBase<BuildingDef>.All) ClearPinForFixture(UIPinPreferences.Building, building.Id);
-        foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All) ClearPinForFixture(UIPinPreferences.Workshop, upgrade.Id);
-        ClearPinForFixture(UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
         foreach (SectorDef sector in DataBase<SectorDef>.All)
         {
             ClearPinForFixture(UIPinPreferences.Sector, sector.Id);
@@ -155,32 +154,64 @@ public sealed class KingdomCollectionPlayModeTests
     }
 
     [UnityTest]
-    public IEnumerator WorkshopSectorSectorBuildingAndResearchPinsBindToTheirOwnDefinitions()
+    public IEnumerator WorkshopRowsOmitPinsAndSortNewestEraFirstIncludingRelicSupport()
     {
         yield return LoadCollections();
-        root.SetPage("Workshop");
-        yield return null;
-        Transform workshopRows = root.transform.Find(PagesPath + "Workshop/DataRows");
-        WorkshopUpgradeDef upgrade = null;
-        Transform upgradeRow = null;
-        foreach (WorkshopUpgradeDef candidate in DataBase<WorkshopUpgradeDef>.All)
+        foreach (WorkshopUpgradeState state in WorkshopManager.Instance.States.Values)
+            state.SetPurchasedForEditor(true);
+        GameManager.Instance.Relic.State.RestoreForEditor(new RelicStateSaveData
         {
-            Transform row = FindLabelRow(workshopRows, candidate.Label);
-            if (row != null && (upgradeRow == null || row.GetSiblingIndex() > upgradeRow.GetSiblingIndex()))
-            { upgrade = candidate; upgradeRow = row; }
+            RelicId = RelicState.RelicId, Status = RelicStatus.Operational,
+            Route = RelicRoute.Dismantle, Progress = "0", StateVersion = 100
+        });
+        Toggle owned = root.transform.Find("SafeAreaRoot/Content/PageTool/WorkshopFilters/ShowOwned").GetComponent<Toggle>();
+        owned.isOn = true;
+        root.SetPage("Workshop"); root.RefreshUI();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Transform rows = root.transform.Find(PagesPath + "Workshop/DataRows");
+        GameObject ordinary = Resources.Load<GameObject>("UI/Kingdom/KingdomUIBuildingCard");
+        int count = 0;
+        bool foundSupport = false;
+        TechLevel previousEra = TechLevel.Archotech;
+        string previousId = string.Empty;
+        foreach (Transform row in rows)
+        {
+            if (!row.gameObject.activeInHierarchy || row.GetComponent<LayoutElement>() == null) continue;
+            bool support = row.name == "RelicSupportWorkshopRow";
+            WorkshopUpgradeDef definition = null;
+            if (!support)
+                foreach (WorkshopUpgradeDef candidate in DataBase<WorkshopUpgradeDef>.All)
+                    if (row.Find("Label").GetComponent<TMP_Text>().text == candidate.Label)
+                    { definition = candidate; break; }
+            Assert.That(support || definition != null, Is.True);
+            TechLevel era = support ? TechLevel.Spacer : definition.TechLevel;
+            string id = support ? "relic-support" : definition.Id;
+            if (count > 0)
+            {
+                Assert.That((int)era, Is.LessThanOrEqualTo((int)previousEra), "Workshop eras run newest to oldest.");
+                if (era == previousEra)
+                    Assert.That(string.CompareOrdinal(previousId, id), Is.LessThan(0), "Within an era, stable IDs define order.");
+            }
+            previousEra = era; previousId = id; count++;
+            Assert.That(row.Find("PinButton"), Is.Null);
+            Assert.That(row.Find("TechLevel").GetComponent<TMP_Text>().text, Is.EqualTo(era.GetDescription()));
+            Assert.That(row.GetComponent<LayoutElement>().preferredHeight,
+                Is.EqualTo(ordinary.GetComponent<LayoutElement>().preferredHeight).Within(.01f));
+            Assert.That(row.Find("PurchaseButton").GetComponent<Button>(), Is.Not.Null);
+            if (support) { foundSupport = true; continue; }
+            Assert.That(row.Find("PurchaseButton").GetComponent<Button>().interactable, Is.False, "Already owned upgrades cannot charge again.");
+            row.GetComponent<Button>().onClick.Invoke();
+            Assert.That(WorkshopManager.Instance.IsPurchased(definition), Is.True, "Opening workshop details does not purchase or undo an upgrade.");
         }
-        Assert.That(upgrade, Is.Not.Null);
-        bool purchased = WorkshopManager.Instance.IsPurchased(upgrade);
-        AssertPinClickIsIndependent(upgradeRow);
-        yield return null;
-        Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Workshop, upgrade.Id), Is.True);
-        Assert.That(WorkshopManager.Instance.IsPurchased(upgrade), Is.EqualTo(purchased));
-        upgradeRow = FindLabelRow(workshopRows, upgrade.Label);
-        AssertFirstCollectionRow(upgradeRow);
-        upgradeRow.Find("PinButton").GetComponent<Button>().onClick.Invoke();
-        yield return null;
-        Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Workshop, upgrade.Id), Is.False);
+        Assert.That(count, Is.GreaterThan(1));
+        Assert.That(foundSupport, Is.True, "Operational dismantle-route support joins the Spacer rows.");
+    }
 
+    [UnityTest]
+    public IEnumerator SectorAndResearchPinsBindToTheirOwnDefinitions()
+    {
+        yield return LoadCollections();
         root.SetPage("Sectors");
         yield return null;
         Transform sectorRows = root.transform.Find(PagesPath + "Sectors/DataRows");
@@ -212,7 +243,7 @@ public sealed class KingdomCollectionPlayModeTests
             yield return null;
             Transform menu = row.Find("SectorBuildingMenu");
             foreach (Transform card in menu)
-                if (card.Find("PinButton") != null) { sectorBuildingCard = card; expandedSector = row; }
+                if (card.GetComponent<LayoutElement>() != null) { sectorBuildingCard = card; expandedSector = row; }
             if (sectorBuildingCard != null) break;
         }
         Assert.That(sectorBuildingCard, Is.Not.Null, "Occupied sector must expose real building cards.");
@@ -220,16 +251,21 @@ public sealed class KingdomCollectionPlayModeTests
         Assert.That(sectorBuilding, Is.Not.Null);
         ExpantaNum before = BuildingManager.Instance.States[sectorBuilding].Amount;
         Canvas.ForceUpdateCanvases();
-        AssertRectsDoNotOverlap((RectTransform)sectorBuildingCard.Find("PinButton"),
-            (RectTransform)sectorBuildingCard.Find("Name"));
-        sectorBuildingCard.Find("PinButton").GetComponent<Button>().onClick.Invoke();
+        Assert.That(sectorBuildingCard.Find("PinButton"), Is.Null,
+            "Sector facilities use compact building rows without a pin control.");
+        GameObject ordinaryCard = Resources.Load<GameObject>("UI/Kingdom/KingdomUIBuildingCard");
+        Assert.That(sectorBuildingCard.GetComponent<RectTransform>().rect.height,
+            Is.EqualTo(ordinaryCard.GetComponent<LayoutElement>().preferredHeight).Within(.01f));
+        Button facilityDetails = sectorBuildingCard.Find("Name")?.GetComponent<Button>();
+        Assert.That(facilityDetails, Is.Not.Null, "Facility name opens the authored detail panel.");
+        facilityDetails.onClick.Invoke();
         yield return null;
-        Assert.That(UIPinPreferences.IsPinned(UIPinPreferences.Building, sectorBuilding.Id), Is.True);
-        Assert.That(BuildingManager.Instance.States[sectorBuilding].Amount == before, Is.True, "Pin preserves discrete building count.");
-        sectorBuildingCard = expandedSector.Find("SectorBuildingMenu/" + sectorBuilding.Id);
-        AssertFirstCollectionRow(sectorBuildingCard);
+        Assert.That(BuildingManager.Instance.States[sectorBuilding].Amount == before, Is.True,
+            "Opening facility details preserves discrete building count.");
         Assert.That(sectorBuildingCard.Find("Metadata").GetComponent<TMP_Text>().text, Is.Not.Empty);
         AssertRectsDoNotOverlap((RectTransform)expandedSector.Find("PinButton"), (RectTransform)expandedSector.Find("Label"));
+
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
 
         root.SetPage("Research");
         ResearchDef research = DataBase<ResearchDef>.All[0];

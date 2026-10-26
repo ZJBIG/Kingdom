@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,30 +7,6 @@ public sealed partial class KingdomUIRoot
     private Button detailPinButton;
     private static Sprite pinOutlineSprite;
     private static Sprite pinFilledSprite;
-
-    private static string FirstDescriptionLine(string description)
-    {
-        if (string.IsNullOrWhiteSpace(description)) return "查看详情了解用途";
-        int end = description.IndexOfAny(new[] { '\r', '\n', '。' });
-        return end < 0 ? description : description.Substring(0, end);
-    }
-
-    private static string GetBuildingRoleSummary(BuildingDef building)
-    {
-        if (building.ResourceGenerationRates.Count > 0)
-        {
-            var output = building.ResourceGenerationRates[0];
-            if (output.First != null)
-                return "产出 " + output.First.Label + " · 基础 +" + output.Second.ToGameString() + "/s";
-        }
-        if (building.FoodProductionRate > ExpantaNum.Zero)
-            return "食物供给 · 基础 +" + building.FoodProductionRate.ToGameString() + "/s";
-        if (building.PowerProductionRate > ExpantaNum.Zero)
-            return "电力供给 · 基础 +" + building.PowerProductionRate.ToGameString() + "/s";
-        if (building.LogisticsProductionRate > ExpantaNum.Zero)
-            return "物流供给 · 基础 +" + building.LogisticsProductionRate.ToGameString() + "/s";
-        return FirstDescriptionLine(building.Description);
-    }
 
     private void BindRowPin(GameObject row, string kind, string id)
     {
@@ -59,14 +35,11 @@ public sealed partial class KingdomUIRoot
     private void TogglePin(string kind, string id)
     {
         UIPinPreferences.SetPinned(kind, id, !UIPinPreferences.IsPinned(kind, id));
-        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
         float position = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
         if (kind == UIPinPreferences.Resource)
             resourceRowsBuilt = false;
         else if (kind == UIPinPreferences.Building)
             buildingRowsBuilt = false;
-        else if (kind == UIPinPreferences.Workshop)
-            workshopRowsBuilt = false;
         if (populatedPage == "Sectors")
         {
             if (kind == UIPinPreferences.Building)
@@ -75,8 +48,7 @@ public sealed partial class KingdomUIRoot
             RefreshSectorRowsAndLayout();
         }
         else if ((kind == UIPinPreferences.Resource && populatedPage == "Resources") ||
-                 (kind == UIPinPreferences.Building && populatedPage == "Buildings") ||
-                 (kind == UIPinPreferences.Workshop && populatedPage == "Workshop"))
+                 (kind == UIPinPreferences.Building && populatedPage == "Buildings"))
             PopulatePage(populatedPage);
         if (kind == UIPinPreferences.Research)
             RefreshResearchPinButtons();

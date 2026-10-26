@@ -28,7 +28,42 @@ public static class ValidationSuite
         CheckHomeSystemDevelopmentContract(report);
         CheckWorkshopProjectPrerequisites(report);
         CheckInteriorExploration(report);
+        CheckSignedBuildingFlows(report);
         return report;
+    }
+
+    private static void CheckSignedBuildingFlows(ValidationReport report)
+    {
+        var snapshot = BudgetSnapshot();
+        var power = BudgetBuilding("PowerSource", "", "0", "", "0");
+        power.PowerContribution = "20";
+        var logistics = BudgetBuilding("LogisticsSource", "", "0", "", "0");
+        logistics.LogisticsContribution = "20";
+        var consumer = BudgetBuilding("Consumer", "", "0", "A", "1");
+        consumer.PowerContribution = "-10";
+        consumer.LogisticsContribution = "-10";
+        snapshot.Buildings.AddRange([power, logistics, consumer, BudgetBuilding("Neutral", "", "0", "B", "1")]);
+        var core = BudgetCore(snapshot, "0");
+        var roundtrip = SnapshotExporter.LoadJsonText(System.Text.Json.JsonSerializer.Serialize(snapshot));
+        var passed = roundtrip.FormatVersion == SnapshotFormat.CurrentVersion &&
+            roundtrip.Buildings.Single(item => item.Id == "PowerSource").PowerContribution == "20" &&
+            roundtrip.Buildings.Single(item => item.Id == "Consumer").PowerContribution == "-10" &&
+            roundtrip.Buildings.Single(item => item.Id == "Consumer").LogisticsContribution == "-10" &&
+            roundtrip.Buildings.Single(item => item.Id == "Neutral").LogisticsContribution == "0";
+        core.Tick(SimulationMode.Realtime, .1d, .1d);
+        var epsilon = new ExpantaNum(1e-8d);
+        passed &= (core.State.BuildingStates["Consumer"].Efficiency - ExpantaNum.One).Abs() < epsilon;
+        core.State.SetBuilding("PowerSource", ExpantaNum.Zero);
+        core.State.SetBuilding("LogisticsSource", ExpantaNum.Zero);
+        core.Tick(SimulationMode.Realtime, .1d, .1d);
+        passed &= core.State.BuildingStates["Consumer"].Efficiency < epsilon &&
+            (core.State.BuildingStates["Neutral"].Efficiency - ExpantaNum.One).Abs() < epsilon;
+        core.State.SetBuilding("PowerSource", ExpantaNum.One);
+        core.State.SetBuilding("LogisticsSource", ExpantaNum.One);
+        core.Tick(SimulationMode.Realtime, .1d, .1d);
+        passed &= (core.State.BuildingStates["Consumer"].Efficiency - ExpantaNum.One).Abs() < epsilon;
+        AddResult(report, "signed building power and logistics roundtrip shortage recovery", passed,
+            "Positive providers fund negative consumers; zero properties impose no dependency; removing and restoring supply stops and restarts consumers.");
     }
 
     private static EconomySnapshot InteriorSnapshot()
@@ -303,7 +338,7 @@ public static class ValidationSuite
             var differences = SnapshotParityCommand.Compare(core, expected);
             passed &= differences.Count == 1 && differences[0].Field == probe.Field;
         }
-        AddResult(report, "snapshot v5 compares every operation timing input independently", passed,
+        AddResult(report, "snapshot v6 compares every operation timing input independently", passed,
             "Matching timing has no differences; changing each of the four double timing inputs reports exactly that field.");
     }
 
@@ -320,11 +355,11 @@ public static class ValidationSuite
             Math.Abs(core.OfflinePendingCalendarSeconds - .075d) < 1e-12d &&
             Math.Abs(core.OfflinePendingSimulationSeconds - .05d) < 1e-12d;
         core.Tick(SimulationMode.Realtime, .01d, .01d);
-        AddResult(report, "snapshot v5 restores operation timing without quantization", restored &&
+        AddResult(report, "snapshot v6 restores operation timing without quantization", restored &&
             core.State.CalendarDays == 1 && Math.Abs(core.State.CalendarElapsedSeconds - .035d) < 1e-12d &&
             Math.Abs(core.State.ElapsedSeconds - .06d) < 1e-12d && core.OfflinePendingSimulationSeconds == 0d,
             "Double calendar remainder, serialized float tick interval and pending clocks resume before an online tick; game save remains v1.");
-        snapshot.FormatVersion = 4;
+        snapshot.FormatVersion = SnapshotFormat.CurrentVersion - 1;
         var oldRejected = !SnapshotValidation.Validate(snapshot).IsValid;
         snapshot.FormatVersion = SnapshotFormat.CurrentVersion;
         snapshot.RuntimeState.CalendarElapsedSeconds = 10d;
@@ -334,9 +369,9 @@ public static class ValidationSuite
         var pendingRejected = !SnapshotValidation.Validate(snapshot).IsValid;
         snapshot.RuntimeState.OfflinePendingSimulationSeconds = .05d;
         snapshot.RuntimeState.SimulationTickIntervalSeconds = 0d;
-        AddResult(report, "snapshot v5 rejects stale or impossible operation timing",
+        AddResult(report, "snapshot v6 rejects stale or impossible operation timing",
             oldRejected && calendarRejected && pendingRejected && !SnapshotValidation.Validate(snapshot).IsValid,
-            "v4 requires recapture; invalid calendar remainder, tick interval and pending duration are rejected.");
+            "v5 requires recapture; invalid calendar remainder, tick interval and pending duration are rejected.");
     }
 
     private static void CheckOfflineOperationCadence(ValidationReport report)

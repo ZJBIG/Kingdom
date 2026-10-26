@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Kingdom.NewEconomySimulator;
 
-public static class SnapshotFormat { public const int CurrentVersion = 5; }
+public static class SnapshotFormat { public const int CurrentVersion = 6; }
 
 public sealed class EconomySnapshot
 {
@@ -39,10 +39,8 @@ public sealed class BuildingSnapshot : DefinitionSnapshot
     public string FoodProductionRate { get; set; } = "0";
     public string FoodConsumptionRate { get; set; } = "0";
     public string FoodCapacityGranted { get; set; } = "0";
-    public string PowerProductionRate { get; set; } = "0";
-    public string PowerConsumptionRate { get; set; } = "0";
-    public string LogisticsProductionRate { get; set; } = "0";
-    public string LogisticsConsumptionRate { get; set; } = "0";
+    public string PowerContribution { get; set; } = "0";
+    public string LogisticsContribution { get; set; } = "0";
     public string ResearchPowerGranted { get; set; } = "0";
     public string PopulationCapacityGranted { get; set; } = "0";
     public string FleetPowerGranted { get; set; } = "0";

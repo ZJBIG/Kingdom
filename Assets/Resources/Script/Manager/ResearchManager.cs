@@ -44,6 +44,9 @@ public class ResearchManager : Singleton<ResearchManager>
         }
     }
     public ExpantaNum ResearchPower { get; private set; } = BaseResearchPower;
+    public ExpantaNum EffectiveResearchPower => ResearchPower * GlobalEfficiencyFactor *
+        ProgressionModifierManager.Current.GlobalResearchMultiplier *
+        GameManager.Instance.State.HappinessMultiplier;
 
     private readonly Dictionary<ResearchDef, ResearchState> states = new();
     private readonly List<ResearchState> orderedStates = new();
@@ -302,6 +305,20 @@ public class ResearchManager : Singleton<ResearchManager>
 
     }
 
+    // Display order includes the active research before the waiting queue.
+    public int GetResearchOrderIndex(ResearchDef research)
+    {
+        if (research == null) return -1;
+        if (ActiveResearch?.Definition == research) return 0;
+        int index = ActiveResearch == null ? 0 : 1;
+        foreach (ResearchState state in researchQueue)
+        {
+            if (state.Definition == research) return index;
+            index++;
+        }
+        return -1;
+    }
+
     public bool CanMoveQueuedResearch(ResearchDef research, int targetIndex) =>
         TryPrepareQueueMove(research, targetIndex, out _);
 
@@ -309,13 +326,15 @@ public class ResearchManager : Singleton<ResearchManager>
     {
         if (!TryPrepareQueueMove(research, targetIndex, out List<ResearchState> order))
             return false;
-        researchQueue.Clear();
+        // Suspending research retains its progress and payment ledger. The
+        // normal head-payment path starts the new first item without refunds.
+        ResearchState previousActive = ActiveResearch;
+        bool keepActive = previousActive != null && order[0] == previousActive;
+        ActiveResearch = keepActive ? previousActive : null;
+        if (keepActive) order.RemoveAt(0);
         for (int i = 0; i < order.Count; i++)
-        {
             order[i].SetStatus(ResearchStatus.Queued);
-            researchQueue.Enqueue(order[i]);
-        }
-        researchQueueSnapshotDirty = true;
+        RebuildQueue(order);
         TryStartNextQueuedResearch(false);
         ObserverNotifications.Publish(ResearchQueueChanged);
         return true;
@@ -324,16 +343,17 @@ public class ResearchManager : Singleton<ResearchManager>
     private bool TryPrepareQueueMove(ResearchDef research, int targetIndex, out List<ResearchState> order)
     {
         order = null;
-        if (!IsQueued(research) || targetIndex < 0 || targetIndex >= researchQueue.Count)
+        int sourceIndex = GetResearchOrderIndex(research);
+        int count = researchQueue.Count + (ActiveResearch == null ? 0 : 1);
+        if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= count || sourceIndex == targetIndex)
             return false;
-        order = new List<ResearchState>(researchQueue);
-        int sourceIndex = order.FindIndex(state => state.Definition == research);
-        if (sourceIndex < 0 || sourceIndex == targetIndex) return false;
+        order = new List<ResearchState>(count);
+        if (ActiveResearch != null) order.Add(ActiveResearch);
+        order.AddRange(researchQueue);
         ResearchState moving = order[sourceIndex];
         order.RemoveAt(sourceIndex);
         order.Insert(targetIndex, moving);
         var earlier = new HashSet<ResearchDef>();
-        if (ActiveResearch != null) earlier.Add(ActiveResearch.Definition);
         for (int i = 0; i < order.Count; i++)
         {
             foreach (ResearchDef prerequisite in order[i].Definition.Prerequisites)
@@ -637,12 +657,9 @@ public class ResearchManager : Singleton<ResearchManager>
     private ExpantaNum CalculateResearchSpeed(ResearchState current)
     {
         GameState gameState = GameManager.Instance.State;
-        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
-        ExpantaNum speed = ResearchSpeedEffect(
+        return ResearchSpeedEffect(
             gameState.TechLevel,
-            current.Definition.TechLevel) * GlobalEfficiencyFactor *
-            ResearchPower * modifiers.GlobalResearchMultiplier;
-        return speed * gameState.HappinessMultiplier;
+            current.Definition.TechLevel) * EffectiveResearchPower;
     }
 
     public static bool TryPayResearchCost(ResearchState state)

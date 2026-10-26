@@ -10,6 +10,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     private const double OfflineReducedRateEndSeconds = 8d * 60d * 60d;
     private const double OfflineMiddleRate = 0.60d;
     private const double OfflineLateRate = 0.25d;
+    // Leave room for the population step epsilon and ExpantaNum quantization.
+    private static readonly ExpantaNum PopulationBatchStepLimit = new ExpantaNum(.999999d);
 
     [SerializeField] private float tickIntervalSeconds = 0.1f;
     [SerializeField] private int maximumTicksPerFrame = 20;
@@ -58,6 +60,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
     }
 
     public double AccumulatedSecondsForEditor => accumulatedSeconds;
+    public long PreparedSegmentCountForEditor { get; private set; }
     public double OfflinePendingCalendarSecondsForEditor => offlineCampaignPendingCalendarSeconds;
     public double OfflinePendingSimulationSecondsForEditor => offlineCampaignPendingSimulationSeconds;
     public float TickIntervalSecondsForEditor => tickIntervalSeconds;
@@ -175,7 +178,8 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         double remaining = deltaSeconds;
         do
         {
-            double step = Math.Min(remaining, GameManager.Instance.State.Events.NextBoundary(true));
+            GameManager game = GameManager.Instance;
+            double step = Math.Min(GetIntegrationStep(remaining, game), game.State.Events.NextBoundary(true));
             ManualTickCore(step);
             GameManager.Instance.AdvanceWorldEvents(step, true);
             remaining -= step;
@@ -184,13 +188,40 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 
     private void ManualTickCore(double deltaSeconds)
     {
+        double remaining = deltaSeconds;
+        // A fed segment, an unfed segment, and at most one rounding-residue
+        // segment. Each segment commits forward before the next is prepared.
+        for (int segment = 0; segment < 3; segment++)
+        {
 #if UNITY_EDITOR
-        float tickStart = Time.realtimeSinceStartup;
-        long tickAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+            float tickStart = Time.realtimeSinceStartup;
+            long tickAllocatedStart = GC.GetAllocatedBytesForCurrentThread();
+#endif
+            BuildingManager.Instance.PrepareTickResourceSatisfaction(remaining);
+            double step = segment == 2 ? remaining :
+                GameManager.Instance.GetFoodSegmentSeconds(remaining);
+            ManualTickPreparedSegment(step
+#if UNITY_EDITOR
+                , tickStart, tickAllocatedStart
+#endif
+                );
+            remaining = Math.Max(0d, remaining - step);
+            if (remaining <= 0d)
+                break;
+        }
+    }
+
+    private void ManualTickPreparedSegment(double deltaSeconds
+#if UNITY_EDITOR
+        , float tickStart, long tickAllocatedStart
+#endif
+        )
+    {
+#if UNITY_EDITOR
+        PreparedSegmentCountForEditor++;
         perfTickAllocationCounterAvailable |= tickAllocatedStart > 0L;
 #endif
         BuildingManager buildingManager = BuildingManager.Instance;
-        buildingManager.PrepareTickResourceSatisfaction(deltaSeconds);
         ExpantaNum resourceReward = GameManager.Instance.State.HappinessRewardMultiplier;
 #if UNITY_EDITOR
         float buildingEnd = Time.realtimeSinceStartup;
@@ -305,6 +336,46 @@ public sealed class SimulationManager : Singleton<SimulationManager>
 #endif
     }
 
+    private double GetIntegrationStep(double remaining, GameManager game)
+    {
+        double cadence = tickIntervalSeconds;
+        if (cadence <= 0d || double.IsNaN(cadence) || double.IsInfinity(cadence))
+            throw new InvalidOperationException("模拟 tick 间隔必须大于零。");
+        double window = Math.Min(OfflineStepSeconds, remaining);
+        if (window <= cadence)
+            return window;
+
+        // Only merge an equilibrium window. Dynamic population, research and
+        // continuous transactions must observe the same cadence online/offline.
+        GameState state = game.State;
+        bool starving = state.FoodAmount <= ExpantaNum.Zero && state.FoodNetRate < ExpantaNum.Zero;
+        if ((!starving && state.Population.Population != state.Population.PopulationCapacity) ||
+            state.Campaign.Active || ResearchManager.Instance.ResearchQueue.Count > 0 ||
+            ResearchManager.Instance.ActiveResearch != null ||
+            game.UltraProject.State.Status == UltraProjectStatus.Running ||
+            game.Relic.CanSuspend)
+            return cadence;
+        var sectors = game.Sectors.OrderedStates;
+        for (int i = 0; i < sectors.Count; i++)
+            if (sectors[i].ColonizationActive || sectors[i].InteriorExplorationActive)
+                return cadence;
+
+        BuildingManager.Instance.PrepareTickResourceSatisfaction(cadence);
+        starving = state.FoodAmount <= ExpantaNum.Zero && state.FoodNetRate < ExpantaNum.Zero;
+        if ((!starving && state.Population.Population != state.Population.PopulationCapacity) ||
+            (starving && state.Population.PopulationChangeProgress +
+                game.CurrentPopulationDepartureRatePerSecond * window >= PopulationBatchStepLimit) ||
+            (!starving && (state.FoodAvailability < ExpantaNum.One ||
+                state.FoodAmount + state.FoodNetRate * window < ExpantaNum.Zero)) ||
+            state.PowerSatisfaction < ExpantaNum.One ||
+            state.LogisticsSatisfaction < ExpantaNum.One)
+            return cadence;
+        foreach (ResourceState resource in ResourceManager.Instance.States.Values)
+            if (resource.Amount < resource.TickPotentialConsumptionRate * window)
+                return cadence;
+        return window;
+    }
+
     public double AdvanceOffline(double elapsedSeconds)
     {
         if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
@@ -385,8 +456,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         TickOfflineSimulation(
             offlineCampaignPendingCalendarSeconds,
             offlineCampaignPendingSimulationSeconds,
-            GameManager.Instance,
-            useRealtimeResearchCadence: true);
+            GameManager.Instance);
         offlineCampaignPendingCalendarSeconds = 0d;
         offlineCampaignPendingSimulationSeconds = 0d;
     }
@@ -446,39 +516,58 @@ public sealed class SimulationManager : Singleton<SimulationManager>
                 TickOfflineSimulation(
                     pendingCalendarSeconds,
                     effectiveTickSeconds,
-                    gameManager,
-                    useRealtimeResearchCadence: true);
+                    gameManager);
                 pendingCalendarSeconds = 0d;
                 pendingSimulationSeconds = 0d;
             }
         }
     }
 
-    private static void TickOfflineSimulation(
+    private void TickOfflineSimulation(
         double calendarSeconds,
         double simulationSeconds,
-        GameManager gameManager,
-        bool useRealtimeResearchCadence = false)
+        GameManager gameManager)
     {
         double remaining = simulationSeconds;
         do
         {
-            double step = Math.Min(remaining, gameManager.State.Events.NextBoundary(false));
+            double step = Math.Min(GetIntegrationStep(remaining, gameManager), gameManager.State.Events.NextBoundary(false));
             double calendarStep = simulationSeconds > 0d ? calendarSeconds * step / simulationSeconds : calendarSeconds;
-            TickOfflineSimulationCore(calendarStep, step, gameManager, useRealtimeResearchCadence);
+            TickOfflineSimulationCore(calendarStep, step, gameManager);
             gameManager.AdvanceWorldEvents(step, false);
             remaining -= step;
         } while (remaining > 0d);
     }
 
-    private static void TickOfflineSimulationCore(
+    private void TickOfflineSimulationCore(
         double calendarSeconds,
         double simulationSeconds,
-        GameManager gameManager,
-        bool useRealtimeResearchCadence)
+        GameManager gameManager)
     {
+        double remaining = simulationSeconds;
+        double remainingCalendar = calendarSeconds;
+        for (int segment = 0; segment < 3; segment++)
+        {
+            BuildingManager.Instance.PrepareTickResourceSatisfaction(remaining);
+            double step = segment == 2 ? remaining : gameManager.GetFoodSegmentSeconds(remaining);
+            double calendarStep = remaining > 0d ? remainingCalendar * step / remaining : remainingCalendar;
+            TickOfflinePreparedSegment(calendarStep, step, gameManager);
+            remaining = Math.Max(0d, remaining - step);
+            remainingCalendar = Math.Max(0d, remainingCalendar - calendarStep);
+            if (remaining <= 0d)
+                break;
+        }
+    }
+
+    private void TickOfflinePreparedSegment(
+        double calendarSeconds,
+        double simulationSeconds,
+        GameManager gameManager)
+    {
+#if UNITY_EDITOR
+        PreparedSegmentCountForEditor++;
+#endif
         BuildingManager buildingManager = BuildingManager.Instance;
-        buildingManager.PrepareTickResourceSatisfaction(simulationSeconds);
         ExpantaNum resourceReward = gameManager.State.HappinessRewardMultiplier;
         gameManager.TickOffline(
             calendarSeconds,
@@ -500,10 +589,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         researchManager.SuppressCompletionAudio = true;
         try
         {
-            if (useRealtimeResearchCadence)
-                researchManager.Tick(simulationSeconds);
-            else
-                researchManager.TickOffline(simulationSeconds);
+            researchManager.Tick(simulationSeconds);
         }
         finally
         {

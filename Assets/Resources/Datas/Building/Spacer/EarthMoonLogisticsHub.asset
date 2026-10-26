@@ -21,9 +21,8 @@ MonoBehaviour:
   costGrowth: 1.01
   productivityConsumption: 420
   foodConsumptionRate: 4
-  powerConsumptionRate: 180
-  logisticsProductionRate: 320
-  logisticsConsumptionRate: 80
+  powerContribution: -180
+  logisticsContribution: 240
   fleetPowerGranted: 80
   defensePowerGranted: 50
   resourceRequirements:

@@ -2,6 +2,42 @@ using NUnit.Framework;
 
 public sealed class FlowEfficiencyTests
 {
+    [TestCase(-9d)]
+    [TestCase(0d)]
+    [TestCase(9d)]
+    public void BuildingFlowContributionRetainsItsSignAndRefreshesCachedValues(double value)
+    {
+        var building = UnityEngine.ScriptableObject.CreateInstance<BuildingDef>();
+        try
+        {
+            building.SetPowerContributionForEditor(1);
+            building.SetLogisticsContributionForEditor(1);
+            Assert.That(building.PowerContribution, Is.GreaterThan(ExpantaNum.Zero));
+            Assert.That(building.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero));
+            building.SetPowerContributionForEditor(value);
+            building.SetLogisticsContributionForEditor(-value);
+            Assert.That(building.PowerContribution.ToDouble(), Is.EqualTo(value).Within(1e-8));
+            Assert.That(building.LogisticsContribution.ToDouble(), Is.EqualTo(-value).Within(1e-8));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(building); }
+    }
+
+    [TestCase("DeepSpaceRelay", false, -23d)]
+    [TestCase("EarthMoonLogisticsHub", false, 240d)]
+    [TestCase("OrbitalResourceExtractionArray", false, 1200d)]
+    [TestCase("OrbitalStation", false, 180d)]
+    [TestCase("ThunderGatePropellantWorks", false, -38.666666666667d)]
+    [TestCase("AutonomousMatterFabricator", false, 3000d)]
+    [TestCase("PhaseEnergyArray", true, 1410d)]
+    public void MigratedBuildingUsesOneAuthoredSignedContribution(string id, bool power, double expected)
+    {
+        BuildingDef building = DataBase<BuildingDef>.Find(id);
+        ExpantaNum actual = power ? building.PowerContribution : building.LogisticsContribution;
+        // Building values use ExpantaNum's six-decimal quantization contract.
+        double quantizedExpected = new ExpantaNum(expected).ToDouble();
+        Assert.That(actual.ToDouble(), Is.EqualTo(quantizedExpected).Within(System.Math.Abs(quantizedExpected) * 1e-9));
+    }
+
     [Test]
     public void FlowSatisfaction_UsesProductionAgainstDemandWithoutInventory()
     {
@@ -33,14 +69,15 @@ public sealed class FlowEfficiencyTests
     }
 
     [Test]
-    public void HappinessPenalizesNegativeFoodNetRateEvenWhenInventoryIsAvailable()
+    public void StoredFoodPreventsPrematureHappinessPenalty()
     {
         ExpantaNum result = HappinessFormula.CalculateMultiplier(
             new ExpantaNum(-100),
             new ExpantaNum(10));
 
-        Assert.That(result, Is.GreaterThan(ExpantaNum.Zero).And.LessThan(ExpantaNum.One));
-        Assert.That(HappinessFormula.CalculateMultiplier(-200, 10), Is.LessThan(result));
+        Assert.That(result, Is.GreaterThanOrEqualTo(ExpantaNum.One));
+        Assert.That(HappinessFormula.CalculateMultiplier(-200, 10), Is.GreaterThanOrEqualTo(ExpantaNum.One));
+        Assert.That(HappinessFormula.CalculateMultiplier(-100, 10, 0.5d), Is.LessThan(result));
     }
 
     [Test]

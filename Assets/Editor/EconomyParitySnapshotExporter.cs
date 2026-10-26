@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class EconomyParitySnapshotExporter
 {
-    public const int FormatVersion = 5;
+    public const int FormatVersion = 6;
     public const string DefaultRelativePath = "data/economy-parity/UnitySnapshot.json";
 
     [MenuItem("Kingdom/Economy/Export parity snapshot")]
@@ -107,9 +107,8 @@ public static class EconomyParitySnapshotExporter
         CostGrowth = Number(value.CostGrowth), SpaceCost = Number(value.SpaceCost),
         ProductivityConsumption = Number(value.ProductivityConsumption), ProductivityGranted = Number(value.ProductivityGranted),
         FoodProductionRate = Number(value.FoodProductionRate), FoodConsumptionRate = Number(value.FoodConsumptionRate),
-        FoodCapacityGranted = Number(value.FoodCapacityGranted), PowerProductionRate = Number(value.PowerProductionRate),
-        PowerConsumptionRate = Number(value.PowerConsumptionRate), LogisticsProductionRate = Number(value.LogisticsProductionRate),
-        LogisticsConsumptionRate = Number(value.LogisticsConsumptionRate), ResearchPowerGranted = Number(value.ResearchPowerGranted),
+        FoodCapacityGranted = Number(value.FoodCapacityGranted), PowerContribution = Number(value.PowerContribution),
+        LogisticsContribution = Number(value.LogisticsContribution), ResearchPowerGranted = Number(value.ResearchPowerGranted),
         PopulationCapacityGranted = Number(value.PopulationCapacityGranted), FleetPowerGranted = Number(value.FleetPowerGranted),
         AttackPowerGranted = Number(value.AttackPowerGranted), DefensePowerGranted = Number(value.DefensePowerGranted),
         MilitaryManpowerGranted = Number(value.MilitaryManpowerGranted), UpgradeToId = Id(value.UpgradeTo),
@@ -424,7 +423,7 @@ public static class EconomyParitySnapshotExporter
 
 [Serializable] public class DefinitionDto { public string Id=""; public string Guid=""; public string AssetPath=""; public string TechLevel=""; }
 [Serializable] public sealed class ResourceDto : DefinitionDto { public string BaseProductionRate="0"; public string Label=""; public string Description=""; }
-[Serializable] public sealed class BuildingDto : DefinitionDto { public string CostGrowth="1.15"; public string SpaceCost="0"; public string ProductivityConsumption="0"; public string ProductivityGranted="0"; public string FoodProductionRate="0"; public string FoodConsumptionRate="0"; public string FoodCapacityGranted="0"; public string PowerProductionRate="0"; public string PowerConsumptionRate="0"; public string LogisticsProductionRate="0"; public string LogisticsConsumptionRate="0"; public string ResearchPowerGranted="0"; public string PopulationCapacityGranted="0"; public string FleetPowerGranted="0"; public string AttackPowerGranted="0"; public string DefensePowerGranted="0"; public string MilitaryManpowerGranted="0"; public string UpgradeToId=""; public List<AmountDto> ResourceRequirements=new(); public List<AmountDto> ResourceGenerationRates=new(); public List<AmountDto> ResourceConsumptionRates=new(); public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public string SectorId=""; public bool RequiresInteriorExploration; public int MaxAmount; }
+[Serializable] public sealed class BuildingDto : DefinitionDto { public string CostGrowth="1.15"; public string SpaceCost="0"; public string ProductivityConsumption="0"; public string ProductivityGranted="0"; public string FoodProductionRate="0"; public string FoodConsumptionRate="0"; public string FoodCapacityGranted="0"; public string PowerContribution="0"; public string LogisticsContribution="0"; public string ResearchPowerGranted="0"; public string PopulationCapacityGranted="0"; public string FleetPowerGranted="0"; public string AttackPowerGranted="0"; public string DefensePowerGranted="0"; public string MilitaryManpowerGranted="0"; public string UpgradeToId=""; public List<AmountDto> ResourceRequirements=new(); public List<AmountDto> ResourceGenerationRates=new(); public List<AmountDto> ResourceConsumptionRates=new(); public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public string SectorId=""; public bool RequiresInteriorExploration; public int MaxAmount; }
 [Serializable] public sealed class ResearchDto : DefinitionDto { public string BaseCost="0"; public bool AdvancesTechLevel; public List<string> PrerequisiteIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
 [Serializable] public sealed class WorkshopDto : DefinitionDto { public string RequiredBuildingId=""; public string RequiredSectorId=""; public string Label=""; public string Description=""; public int SortOrder; public List<string> RequiredResearchIds=new(); public List<string> RequiredWorkshopIds=new(); public List<AmountDto> ResourceRequirements=new(); public List<EffectDto> Effects=new(); }
 [Serializable] public sealed class SectorDto : DefinitionDto { public InteriorExplorationDto InteriorExploration; public string StarSystemId=""; public string Domain=""; public string TerritoryReward="0"; public string EnemyPower="0"; public bool Repeatable; public string ColonizationFoodPerSecond="0"; public string ColonizationDurationSeconds="0"; public string CampaignFoodPerSecond="0"; public string CampaignProgressMultiplier="1"; public List<string> PrerequisiteSectorIds=new(); public List<AmountDto> ResourceRewards=new(); public List<AmountDto> OccupiedResourceRatesPerSecond=new(); public List<AmountDto> ColonizationResourceRatesPerSecond=new(); public List<AmountDto> CampaignResourceRatesPerSecond=new(); }

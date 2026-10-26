@@ -66,17 +66,13 @@ public static class HappinessFormula
     {
         ExpantaNum availability = ExpantaNum.Clamp01(foodAvailability);
         ExpantaNum safePopulation = ExpantaNum.Max(ExpantaNum.One, population);
-        if (foodNetRate < ExpantaNum.Zero)
-        {
-            ExpantaNum deficitPerPerson =
-                (ExpantaNum.Zero - foodNetRate) / safePopulation;
-            ExpantaNum shortageMultiplier =
-                ExpantaNum.One / (ExpantaNum.One + deficitPerPerson);
-            return ExpantaNum.Min(availability, ExpantaNum.Clamp01(shortageMultiplier));
-        }
-
         if (availability < ExpantaNum.One)
             return availability;
+
+        // Stored food feeds people just as production does. A falling stock is
+        // a planning warning, not a shortage while the current tick is fed.
+        if (foodNetRate <= ExpantaNum.Zero)
+            return ExpantaNum.One;
 
         ExpantaNum score = CalculateScore(
             CalculateSurplusPerPerson(foodNetRate, safePopulation));

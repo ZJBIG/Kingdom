@@ -583,7 +583,7 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
-    public void ChainGuidanceHandlesPositiveButInsufficientProductivityAndRequiresProducedStock()
+    public void ChainGuidancePrioritizesActualPrerequisitesAndRequiresProducedStock()
     {
         var host = new GameObject("Tutorial-OperatingChain");
         try
@@ -610,8 +610,10 @@ public sealed class TutorialManagerTests
             }, TechLevel.Animal);
             tutorial.RecordPageVisitedForEditor("Buildings");
             TutorialSnapshot shortage = tutorial.Evaluate();
-            Assert.That(shortage.NavigationPage, Is.EqualTo("Buildings")); // Page protocol.
-            Assert.That(shortage.NavigationTargetId, Is.EqualTo("WoodHouse")); // Stable recovery target.
+            Assert.That(shortage.NavigationPage, Is.EqualTo("Research")); // Page protocol.
+            Assert.That(DataBase<ResearchDef>.TryFind(shortage.NavigationTargetId, out ResearchDef prerequisite), Is.True);
+            Assert.That(research.IsResearchCompleted(prerequisite.Id), Is.False,
+                "Guidance must solve an actual prerequisite rather than treating labor demand as a construction gate.");
             BuildingState processing = buildings.EnsureBuilding(target);
             processing.SetAmountForEditor(ExpantaNum.One);
             ResourceDef product = target.ResourceGenerationRates[0].First;
@@ -648,9 +650,7 @@ public sealed class TutorialManagerTests
         producer.ConfigureEconomyForEditor(
             new ExpantaNum(1.15d), ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             new List<Pair<ResourceDef, ExpantaNum>>(),
             new List<Pair<ResourceDef, ExpantaNum>>
@@ -661,9 +661,7 @@ public sealed class TutorialManagerTests
         consumer.ConfigureEconomyForEditor(
             new ExpantaNum(1.15d), ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             new List<Pair<ResourceDef, ExpantaNum>>(),
             new List<Pair<ResourceDef, ExpantaNum>>

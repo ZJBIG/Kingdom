@@ -44,6 +44,7 @@ public sealed partial class KingdomUIRoot
 
     private void OpenSelectedProductionTree()
     {
+        if (!IsProgressionPageUnlocked("Production")) return;
         if (selectedResource != null) ShowProductionTree(selectedResource);
         else if (selectedBuilding != null) ShowProductionTree(selectedBuilding);
         else if (selectedSectorDefinition != null) ShowProductionTree(selectedSectorDefinition);
@@ -51,7 +52,7 @@ public sealed partial class KingdomUIRoot
 
     public void ShowProductionTree(ResourceDef resource)
     {
-        if (resource == null) return;
+        if (resource == null || !IsProgressionPageUnlocked("Production")) return;
         RefreshProductionVisibility();
         if (!productionResources.Contains(resource)) return;
         ShowResourceDetails(resource);
@@ -65,7 +66,7 @@ public sealed partial class KingdomUIRoot
 
     public void ShowProductionTree(BuildingDef building)
     {
-        if (building == null) return;
+        if (building == null || !IsProgressionPageUnlocked("Production")) return;
         RefreshProductionVisibility();
         if (!productionBuildings.Contains(building)) return;
         ShowBuildingDetails(building);
@@ -79,7 +80,7 @@ public sealed partial class KingdomUIRoot
 
     public void ShowProductionTree(SectorDef sector)
     {
-        if (sector == null) return;
+        if (sector == null || !IsProgressionPageUnlocked("Production")) return;
         RefreshProductionVisibility();
         if (!productionSectors.Contains(sector)) return;
         RefreshSectorDetails(sector);
@@ -181,10 +182,15 @@ public sealed partial class KingdomUIRoot
         productionStatuses.Add(node, status);
         status.text = ProductionNodeStatus(node);
         Button expand = row.transform.Find("Expand").GetComponent<Button>();
-        expand.interactable = productionTree.GetChildren(node).Count > 0;
-        expand.transform.Find("Label").GetComponent<TMP_Text>().text = !expand.interactable ? "·" : node.Expanded ? "-" : "+";
+        expand.interactable = node.ReferenceTarget != null || productionTree.GetChildren(node).Count > 0;
+        expand.transform.Find("Label").GetComponent<TMP_Text>().text = node.ReferenceTarget != null ? "↩" : !expand.interactable ? "·" : node.Expanded ? "-" : "+";
         expand.onClick.AddListener(() =>
         {
+            if (node.ReferenceTarget != null)
+            {
+                FocusProductionReference(node.ReferenceTarget);
+                return;
+            }
             Vector3 oldPosition = productionViewport.InverseTransformPoint(row.transform.position);
             float scale = productionContent.localScale.x;
             node.Expanded = !node.Expanded;
@@ -195,6 +201,11 @@ public sealed partial class KingdomUIRoot
         });
         label.GetComponent<Button>().onClick.AddListener(() =>
         {
+            if (node.ReferenceTarget != null)
+            {
+                FocusProductionReference(node.ReferenceTarget);
+                return;
+            }
             if (node.Resource != null) ShowResourceDetails(node.Resource);
             else if (node.Building != null) ShowBuildingDetails(node.Building);
             else RefreshSectorDetails(node.Sector);
@@ -204,9 +215,21 @@ public sealed partial class KingdomUIRoot
         return row.GetComponent<RectTransform>();
     }
 
+    private void FocusProductionReference(ResourceProductionTree.Node target)
+    {
+        if (!productionStatuses.TryGetValue(target, out TMP_Text status) || status == null)
+            return;
+        Vector2 position = productionViewport.InverseTransformPoint(status.transform.parent.position);
+        Vector2 center = productionViewport.rect.center;
+        productionGesture.RestoreView(productionContent.anchoredPosition + center - position,
+            productionContent.localScale.x);
+        SaveProductionView();
+    }
+
     private static string ProductionNodeStatus(ResourceProductionTree.Node node)
     {
-        if (node.IsCycle) return "循环路径";
+        if (node.ReferenceTarget != null)
+            return "参见本链「" + (node.Resource != null ? node.Resource.Label : node.Building.Label) + "」";
         if (node.OneTimeReward) return "一次性占领奖励";
         return node.Relationship switch
         {

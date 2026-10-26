@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: BasicMetalIngot
-  TechLevel: 1
   m_EditorClassIdentifier: 
   id: BasicMetalIngot
-  Label: "基础金属锭"
-  Description: "统一供应工具、线材、钢材与基础结构的金属锭，冶炼技术决定加工能力。"
+  Label: "\u57FA\u7840\u91D1\u5C5E\u952D"
+  TechLevel: 1
+  Description: "\u7EDF\u4E00\u4F9B\u5E94\u5DE5\u5177\u3001\u7EBF\u6750\u3001\u94A2\u6750\u4E0E\u57FA\u7840\u7ED3\u6784\u7684\u91D1\u5C5E\u952D\uFF0C\u51B6\u70BC\u6280\u672F\u51B3\u5B9A\u52A0\u5DE5\u80FD\u529B\u3002"
   Sprite: {fileID: 21310004, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.8, g: 0.35, b: 0.12, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

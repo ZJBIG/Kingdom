@@ -60,8 +60,6 @@ public class GameManager : Singleton<GameManager>
         if (Application.platform == RuntimePlatform.Android ||
             Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            Application.targetFrameRate = 60;
-            QualitySettings.vSyncCount = 0;
             Application.runInBackground = false;
         }
     }
@@ -233,11 +231,29 @@ public class GameManager : Singleton<GameManager>
             ProgressionModifierManager.Current.GlobalFoodProductionMultiplier;
         potentialConsumptionRate +=
             State.Population.Population * PopulationState.FoodConsumptionPerPerson;
-        State.SetFoodAvailability(HappinessFormula.CalculateFoodAvailability(
-            State.FoodAmount,
+        State.SetFoodAvailability(CalculateSegmentFoodAvailability(
             potentialProductionRate,
             potentialConsumptionRate,
             deltaSeconds));
+    }
+
+    // Simulation stops at the stock-depletion boundary before preparing the
+    // next segment. Stored food therefore supports full operation in this one.
+    internal ExpantaNum CalculateSegmentFoodAvailability(
+        ExpantaNum production, ExpantaNum consumption, double seconds) =>
+        State.FoodAmount > ExpantaNum.Zero ? ExpantaNum.One :
+            HappinessFormula.CalculateFoodAvailability(
+                State.FoodAmount, production, consumption, seconds);
+
+    internal double GetFoodSegmentSeconds(double maximumSeconds)
+    {
+        if (maximumSeconds <= 0d || State.FoodAmount <= ExpantaNum.Zero ||
+            State.FoodNetRate >= ExpantaNum.Zero)
+            return maximumSeconds;
+        double supported = (State.FoodAmount / -State.FoodNetRate).ToDouble();
+        // A minimum positive step consumes rounding residue and guarantees
+        // progress without rewinding an already committed simulation segment.
+        return Math.Min(maximumSeconds, Math.Max(1e-9d, supported));
     }
 
     internal void PrepareFlowSatisfaction(
@@ -320,6 +336,7 @@ public class GameManager : Singleton<GameManager>
             CalendarDays = State.CalendarDays,
             Events = State.Events.CaptureSaveData(),
             TechLevel = State.TechLevel,
+            HasBuiltHousing = State.HasBuiltHousing,
             FoodAmount = State.FoodAmount.ToString(),
             Population = State.Population.Population.ToString(),
             PopulationChangeProgress =
@@ -360,6 +377,7 @@ public class GameManager : Singleton<GameManager>
             Parse(data.FoodAmount, nameof(data.FoodAmount)),
             data.LastSaveUnixSeconds);
         State.RestorePopulation(Parse(data.Population, nameof(data.Population)));
+        State.RestoreHousingMilestone(data.HasBuiltHousing);
         State.Events.Restore(data.Events);
         State.RestoreTerritoryTotal(Parse(data.TerritoryTotal, nameof(data.TerritoryTotal)));
         State.RestoreCampaign(

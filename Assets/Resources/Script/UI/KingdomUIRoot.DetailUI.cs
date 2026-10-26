@@ -203,41 +203,11 @@ public sealed partial class KingdomUIRoot
 
     private GameObject CreateRuntimeDetailRow(string name, RectTransform parent, float top)
     {
-        GameObject row = new GameObject(name, typeof(RectTransform), typeof(Image));
-        row.transform.SetParent(parent, false);
-        RectTransform rect = row.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(1f, 1f);
-        rect.pivot = new Vector2(.5f, 1f);
-        rect.sizeDelta = new Vector2(0f, 72f);
-        rect.anchoredPosition = new Vector2(0f, top);
-        Image background = row.GetComponent<Image>();
-        background.color = new Color(1f, 1f, 1f, .035f);
-        background.raycastTarget = false;
-
-        GameObject iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-        iconObject.transform.SetParent(row.transform, false);
-        RectTransform iconRect = iconObject.GetComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0f, .5f);
-        iconRect.anchorMax = new Vector2(0f, .5f);
-        iconRect.pivot = new Vector2(.5f, .5f);
-        iconRect.sizeDelta = new Vector2(56f, 56f);
-        iconRect.anchoredPosition = new Vector2(30f, 0f);
-        iconObject.GetComponent<Image>().raycastTarget = false;
-
-        TMP_Text labelText = CreateText("Label", row.transform, string.Empty,
-            TextPrimary, TextAlignmentOptions.MidlineLeft);
-        labelText.rectTransform.anchorMin = Vector2.zero;
-        labelText.rectTransform.anchorMax = new Vector2(.58f, 1f);
-        labelText.rectTransform.offsetMin = new Vector2(66f, 0f);
-        labelText.rectTransform.offsetMax = Vector2.zero;
-
-        TMP_Text amountText = CreateText("Amount", row.transform, string.Empty,
-            TextSecondary, TextAlignmentOptions.MidlineRight);
-        amountText.rectTransform.anchorMin = new Vector2(.58f, 0f);
-        amountText.rectTransform.anchorMax = Vector2.one;
-        amountText.rectTransform.offsetMin = Vector2.zero;
-        amountText.rectTransform.offsetMax = new Vector2(-18f, 0f);
+        GameObject row = KingdomUIPrefabLibrary.Instantiate(KingdomUIPrefabLibrary.DetailResourceRow, parent);
+        row.name = name;
+        row.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, top);
+        row.transform.Find("Label").GetComponent<TMP_Text>().font = sharedFontAsset;
+        row.transform.Find("Amount").GetComponent<TMP_Text>().font = sharedFontAsset;
         return row;
     }
 }

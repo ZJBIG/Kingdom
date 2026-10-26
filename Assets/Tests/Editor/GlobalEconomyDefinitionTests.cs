@@ -81,8 +81,7 @@ public sealed class GlobalEconomyDefinitionTests
             building.ConfigureEconomyForEditor(
                 ExpantaNum.One, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+                ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
                 new List<Pair<ResourceDef, ExpantaNum>> { first }, null, null);
             Assert.That(ReferenceEquals(buildingBefore, building.ResourceRequirements), Is.False);
             Assert.That(building.ResourceRequirements[0].Second, Is.EqualTo(first.Second));
@@ -193,8 +192,8 @@ public sealed class GlobalEconomyDefinitionTests
                 building.ResearchPowerGranted > ExpantaNum.Zero ||
                 building.FoodProductionRate > ExpantaNum.Zero ||
                 building.FoodCapacityGranted > ExpantaNum.Zero ||
-                building.PowerProductionRate > ExpantaNum.Zero ||
-                building.LogisticsProductionRate > ExpantaNum.Zero ||
+                building.PowerContribution > ExpantaNum.Zero ||
+                building.LogisticsContribution > ExpantaNum.Zero ||
                 building.FleetPowerGranted > ExpantaNum.Zero ||
                 building.AttackPowerGranted > ExpantaNum.Zero ||
                 building.DefensePowerGranted > ExpantaNum.Zero ||

@@ -13,13 +13,13 @@ public sealed class ResourceProductionTree
         public SectorDef Sector { get; internal set; }
         public ExpantaNum Rate { get; internal set; }
         public bool OneTimeReward { get; internal set; }
-        public bool IsCycle { get; internal set; }
+        public Node ReferenceTarget { get; internal set; }
+        public bool IsCycle => ReferenceTarget != null;
         public bool Expanded { get; set; }
         public Relation Relationship { get; internal set; }
-        internal List<ResourceDef> Ancestors;
-        internal List<BuildingDef> BuildingAncestors;
         internal List<Node> Children;
         internal List<Node> VisibleChildren;
+        internal Node Parent;
     }
 
     private readonly IReadOnlyList<BuildingDef> buildings;
@@ -42,7 +42,7 @@ public sealed class ResourceProductionTree
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
         this.producerVisible = producerVisible;
-        Root = new Node { Resource = resource, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
+        Root = new Node { Resource = resource, Expanded = true };
     }
 
     /// <summary>A building root traces ongoing inputs and upgrades, never construction costs.</summary>
@@ -58,7 +58,7 @@ public sealed class ResourceProductionTree
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
         this.producerVisible = producerVisible;
-        Root = new Node { Building = building, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
+        Root = new Node { Building = building, Expanded = true };
     }
 
     /// <summary>A sector root groups its local facilities and direct resource outputs.</summary>
@@ -74,7 +74,7 @@ public sealed class ResourceProductionTree
         this.buildingVisible = buildingVisible;
         this.sectorVisible = sectorVisible;
         this.producerVisible = producerVisible;
-        Root = new Node { Sector = sector, Ancestors = new List<ResourceDef>(), BuildingAncestors = new List<BuildingDef>(), Expanded = true };
+        Root = new Node { Sector = sector, Expanded = true };
     }
 
     public IReadOnlyList<Node> GetChildren(Node node)
@@ -85,7 +85,6 @@ public sealed class ResourceProductionTree
         if (node.IsCycle) return node.VisibleChildren;
         if (node.Resource != null)
         {
-            List<ResourceDef> path = new(node.Ancestors) { node.Resource };
             for (int i = 0; i < buildings.Count; i++)
             {
                 BuildingDef building = buildings[i];
@@ -95,9 +94,9 @@ public sealed class ResourceProductionTree
                 {
                     int index = node.Children.Count;
                     while (index > 0 && node.Children[index - 1].Building.TechLevel < building.TechLevel) index--;
-                    node.Children.Insert(index, new Node { Building = building, Rate = output, Ancestors = path,
-                        BuildingAncestors = node.BuildingAncestors, Relationship = Relation.ProductionSource,
-                        IsCycle = node.BuildingAncestors.Contains(building) });
+                    node.Children.Insert(index, new Node { Building = building, Rate = output, Parent = node,
+                        Relationship = Relation.ProductionSource,
+                        ReferenceTarget = FindAncestor(node, null, building) });
                 }
             }
             for (int i = 0; i < sectors.Count; i++)
@@ -106,38 +105,36 @@ public sealed class ResourceProductionTree
                 if (sector == null) continue;
                 ExpantaNum output = FindRate(sector.OccupiedResourceRatesPerSecond, node.Resource);
                 if (output > ExpantaNum.Zero)
-                    node.Children.Add(new Node { Sector = sector, Rate = output, Ancestors = path,
-                        BuildingAncestors = node.BuildingAncestors, Relationship = Relation.ProductionSource });
+                    node.Children.Add(new Node { Sector = sector, Rate = output, Parent = node,
+                        Relationship = Relation.ProductionSource });
                 ExpantaNum reward = FindRate(sector.ResourceRewards, node.Resource);
                 if (reward > ExpantaNum.Zero)
-                    node.Children.Add(new Node { Sector = sector, Rate = reward, OneTimeReward = true, Ancestors = path,
-                        BuildingAncestors = node.BuildingAncestors, Relationship = Relation.ProductionSource });
+                    node.Children.Add(new Node { Sector = sector, Rate = reward, OneTimeReward = true, Parent = node,
+                        Relationship = Relation.ProductionSource });
             }
         }
         else if (node.Building != null)
         {
-            List<BuildingDef> buildingPath = new(node.BuildingAncestors) { node.Building };
             IReadOnlyList<Pair<ResourceDef, ExpantaNum>> inputs = node.Building.ResourceConsumptionRates;
             for (int i = 0; i < inputs.Count; i++)
             {
                 Pair<ResourceDef, ExpantaNum> input = inputs[i];
                 if (input.First == null || input.Second <= ExpantaNum.Zero) continue;
-                node.Children.Add(new Node { Resource = input.First, Rate = input.Second,
-                    Ancestors = node.Ancestors, BuildingAncestors = buildingPath,
-                    Relationship = Relation.OngoingInput, IsCycle = node.Ancestors.Contains(input.First) });
+                node.Children.Add(new Node { Resource = input.First, Rate = input.Second, Parent = node,
+                    Relationship = Relation.OngoingInput, ReferenceTarget = FindAncestor(node, input.First, null) });
             }
             BuildingDef upgrade = node.Building.UpgradeTo;
             if (upgrade != null)
-                node.Children.Add(new Node { Building = upgrade, Ancestors = node.Ancestors,
-                    BuildingAncestors = buildingPath, Relationship = Relation.Upgrade,
-                    IsCycle = buildingPath.Contains(upgrade) });
+                node.Children.Add(new Node { Building = upgrade, Parent = node,
+                    Relationship = Relation.Upgrade,
+                    ReferenceTarget = FindAncestor(node, null, upgrade) });
         }
         else if (node.Sector != null && node.Relationship == Relation.Root)
         {
             for (int i = 0; i < buildings.Count; i++)
                 if (buildings[i] is SectorBuildingDef local && local.Sector == node.Sector)
-                    node.Children.Add(new Node { Building = local, Ancestors = node.Ancestors,
-                        BuildingAncestors = node.BuildingAncestors, Relationship = Relation.SectorFacility });
+                    node.Children.Add(new Node { Building = local, Parent = node,
+                        Relationship = Relation.SectorFacility });
             AddSectorOutputs(node, node.Sector.OccupiedResourceRatesPerSecond, false);
             AddSectorOutputs(node, node.Sector.ResourceRewards, true);
         }
@@ -149,9 +146,17 @@ public sealed class ResourceProductionTree
     {
         for (int i = 0; i < rates.Count; i++)
             if (rates[i].First != null && rates[i].Second > ExpantaNum.Zero)
-                node.Children.Add(new Node { Resource = rates[i].First, Rate = rates[i].Second,
-                    OneTimeReward = oneTime, Ancestors = node.Ancestors,
-                    BuildingAncestors = node.BuildingAncestors, Relationship = Relation.SectorOutput });
+                node.Children.Add(new Node { Resource = rates[i].First, Rate = rates[i].Second, Parent = node,
+                    OneTimeReward = oneTime,
+                    Relationship = Relation.SectorOutput });
+    }
+
+    private static Node FindAncestor(Node node, ResourceDef resource, BuildingDef building)
+    {
+        for (Node ancestor = node; ancestor != null; ancestor = ancestor.Parent)
+            if (resource != null ? ancestor.Resource == resource : ancestor.Building == building)
+                return ancestor;
+        return null;
     }
 
     /// <summary>Rechecks cached branches after unlocks without losing expansion state.</summary>

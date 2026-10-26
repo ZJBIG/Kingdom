@@ -27,10 +27,8 @@ MonoBehaviour:
   foodProductionRate: "0"
   foodConsumptionRate: "2.5"
   foodCapacityGranted: "0"
-  powerProductionRate: "0"
-  powerConsumptionRate: "150"
-  logisticsProductionRate: "25"
-  logisticsConsumptionRate: "48"
+  powerContribution: -150
+  logisticsContribution: -23
   fleetPowerGranted: "100"
   attackPowerGranted: "0"
   defensePowerGranted: "0"

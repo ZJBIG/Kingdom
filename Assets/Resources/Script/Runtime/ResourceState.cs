@@ -19,6 +19,7 @@ public sealed class ResourceState
     public ExpantaNum Efficiency => efficiency;
     public int Version { get; private set; }
     internal ExpantaNum TickPotentialProductionRate => tickPotentialProductionRate;
+    internal ExpantaNum TickPotentialConsumptionRate => tickPotentialConsumptionRate;
 
     public ResourceState(ResourceDef definition)
     {

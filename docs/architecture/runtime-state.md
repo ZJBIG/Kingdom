@@ -12,9 +12,13 @@ and runtime evidence gates; simulator fixtures are not Unity acceptance.
 - ResourceState, BuildingState, ResearchState, StoryProgressState and GameState are mutable runtime authority.
 
 - `BuildingState.Amount` is also the authoritative count for `SectorBuildingDef`.
-  Sector building construction and deconstruction are gated by sector
-  occupation and `MaxAmount`, but do not read, submit, or refund homeland
-  territory `spaceCost`.
+  Sector building construction is gated by sector occupation and `MaxAmount`,
+  without submitting homeland territory `spaceCost`. Sector facilities cannot
+  be deconstructed. `BuildingManager.SetSectorBuildingEnabled` changes their
+  `BuildingState.IsEnabled`; disabled facilities retain ownership, physical
+  capacities and permanent engineering stages, but stop ongoing inputs, outputs
+  and productivity supply/demand. Save entries persist this state as `Disabled`;
+  absent flags default to enabled. Re-enabling does not charge construction costs.
 - ResourceManager, BuildingManager and ResearchManager own State collections.
 - SimulationManager is the only gameplay clock.
 - SectorManager owns optional planetary exploration in SectorState: separate progress,

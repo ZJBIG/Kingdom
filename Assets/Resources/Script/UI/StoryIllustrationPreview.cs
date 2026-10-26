@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 /// <summary>Displays an authored illustration overlay without changing story or simulation state.</summary>
 public sealed class StoryIllustrationPreview : MonoBehaviour,
-    IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+    IScrollHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler
 {
     [SerializeField] private RectTransform viewport;
     [SerializeField] private Image image;
@@ -22,6 +22,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
     private Camera eventCamera;
     private bool dragging;
     private bool pinching;
+    private bool movedSincePress;
 
     public bool IsOpen => gameObject.activeInHierarchy && image != null && image.sprite != null;
     public float Zoom { get; private set; } = 1f;
@@ -70,6 +71,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
             title.text = string.Empty;
         dragging = false;
         pinching = false;
+        movedSincePress = false;
         previousPinchDistance = 0f;
     }
 
@@ -130,8 +132,11 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         eventData.Use();
     }
 
+    public void OnPointerDown(PointerEventData eventData) => movedSincePress = false;
+
     public void OnBeginDrag(PointerEventData eventData)
     {
+        movedSincePress = true;
         dragging = Input.touchCount < 2;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, eventData.position,
             eventData.pressEventCamera, out previousDragPosition);
@@ -150,6 +155,18 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
     }
 
     public void OnEndDrag(PointerEventData eventData) => dragging = false;
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || !IsOpen)
+            return;
+        bool moved = movedSincePress;
+        movedSincePress = false;
+        if (!moved && !pinching && eventData.eligibleForClick &&
+            !RectTransformUtility.RectangleContainsScreenPoint(image.rectTransform,
+                eventData.position, eventData.pressEventCamera))
+            Hide();
+    }
 
     private void Update()
     {
@@ -180,6 +197,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
                 || !RectTransformUtility.RectangleContainsScreenPoint(viewport, second.position, eventCamera))
                 return;
             pinching = true;
+            movedSincePress = true;
             dragging = false;
         }
         if (previousPinchDistance > 0f)

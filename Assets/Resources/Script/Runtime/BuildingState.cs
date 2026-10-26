@@ -5,10 +5,12 @@ public sealed class BuildingState
 {
     private ExpantaNum amount;
     private ExpantaNum efficiency = ExpantaNum.One;
+    private bool disabled;
 
     public BuildingDef Definition { get; }
     public ExpantaNum Amount => amount;
     public ExpantaNum Efficiency => efficiency;
+    public bool IsEnabled => !disabled;
     public int Version { get; private set; }
 
     public ExpantaNum SpaceCost => Definition.SpaceCost;
@@ -35,15 +37,25 @@ public sealed class BuildingState
     public void SetEfficiencyForEditor(ExpantaNum value) => SetEfficiency(value);
 #endif
 
+    internal void SetEnabled(bool enabled)
+    {
+        if (disabled == !enabled) return;
+        disabled = !enabled;
+        Version++;
+    }
+
     internal void ResetForLoad()
     {
         SetAmount(ExpantaNum.Zero);
+        SetEnabled(true);
         SetEfficiency(ExpantaNum.One);
     }
 
-    internal void Restore(ExpantaNum restoredAmount)
+    internal void Restore(ExpantaNum restoredAmount, bool isDisabled = false)
     {
         SetAmount(restoredAmount);
+        SetEnabled(!isDisabled);
+        SetEfficiency(isDisabled ? ExpantaNum.Zero : ExpantaNum.One);
     }
 
     private void Change(ref ExpantaNum field, ExpantaNum value)

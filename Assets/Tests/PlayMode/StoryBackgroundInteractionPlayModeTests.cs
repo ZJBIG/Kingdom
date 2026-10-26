@@ -100,6 +100,27 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         open.onClick.Invoke();
         preview.transform.Find("Backdrop").GetComponent<Button>().onClick.Invoke();
         AssertClosed(preview);
+        open.onClick.Invoke();
+        Canvas.ForceUpdateCanvases();
+        Vector2 blankLocal = new Vector2(viewport.rect.xMin + .01f, viewport.rect.yMin + .01f);
+        Vector2 blankScreen = RectTransformUtility.WorldToScreenPoint(null, viewport.TransformPoint(blankLocal));
+        Assert.That(RectTransformUtility.RectangleContainsScreenPoint(image, blankScreen), Is.False,
+            "This exercises blank space inside the preview viewport, outside the fitted image.");
+        var blankPointer = Pointer(blankScreen);
+        blankPointer.eligibleForClick = true;
+        var imagePointer = Pointer(RectTransformUtility.WorldToScreenPoint(null, image.position));
+        imagePointer.eligibleForClick = true;
+        preview.OnPointerDown(imagePointer);
+        preview.OnPointerClick(imagePointer);
+        Assert.That(preview.IsOpen, Is.True, "Clicking the image keeps its preview open.");
+        preview.OnPointerDown(blankPointer);
+        preview.OnBeginDrag(blankPointer);
+        preview.OnEndDrag(blankPointer);
+        preview.OnPointerClick(blankPointer);
+        Assert.That(preview.IsOpen, Is.True, "Releasing a drag in blank space must not close the preview.");
+        preview.OnPointerDown(blankPointer);
+        preview.OnPointerClick(blankPointer);
+        AssertClosed(preview);
         Assert.That(Vector2.Distance(outerBefore, outer.content.anchoredPosition), Is.LessThan(1f));
         Assert.That(Vector2.Distance(bodyBefore, body.content.anchoredPosition), Is.LessThan(1f));
         open.onClick.Invoke();
@@ -176,6 +197,47 @@ public sealed class StoryBackgroundInteractionPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator ChapterMeasurementsReuseUnchangedInputsAndInvalidateForContentAndViewportChanges()
+    {
+        yield return LoadStory();
+        StoryChapterCard card = Card(0);
+        StoryChapterLayout layout = card.GetComponent<StoryChapterLayout>();
+        TMP_Text title = card.transform.Find("Header/Title").GetComponent<TMP_Text>();
+        TMP_Text body = card.transform.Find("BodyViewport/Body").GetComponent<TMP_Text>();
+        GameObject action = card.transform.Find("Header/Actions").GetChild(0).gameObject;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        int initial = layout.MeasurementCountForEditor;
+        for (int i = 0; i < 3; i++)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        Assert.That(layout.MeasurementCountForEditor, Is.EqualTo(initial),
+            "The measurement counter is discrete: unchanged rebuilds must reuse existing measurements.");
+        title.text += "\nLayout cache probe";
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        int afterTitle = layout.MeasurementCountForEditor;
+        Assert.That(afterTitle, Is.GreaterThan(initial));
+        body.text += "\nBody cache probe";
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        int afterBody = layout.MeasurementCountForEditor;
+        Assert.That(afterBody, Is.GreaterThan(afterTitle));
+        action.SetActive(!action.activeSelf);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        int afterAction = layout.MeasurementCountForEditor;
+        Assert.That(afterAction, Is.GreaterThan(afterBody));
+        card.SetExpanded(!card.IsExpanded);
+        int afterExpansion = layout.MeasurementCountForEditor;
+        Assert.That(afterExpansion, Is.GreaterThan(afterAction));
+        RectTransform viewport = OuterScroll().viewport;
+        float originalHeight = viewport.rect.height;
+        viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight + 50f);
+        layout.CalculateLayoutInputVertical();
+        int afterViewport = layout.MeasurementCountForEditor;
+        Assert.That(afterViewport, Is.GreaterThan(afterExpansion));
+        viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(card.Rect);
+        Debug.Log($"[StoryLayoutCache] initial={initial} unchanged={initial} title={afterTitle} body={afterBody} action={afterAction} expansion={afterExpansion} viewport={afterViewport}");
+    }
+
+    [UnityTest]
     public IEnumerator EveryChapterFitsAuthoredBackgroundAndKeepsAllTextAccessibleAtNarrowAndWideWidths()
     {
         yield return LoadStory();
@@ -194,6 +256,23 @@ public sealed class StoryBackgroundInteractionPlayModeTests
                 TMP_Text title = card.transform.Find("Header/Title").GetComponent<TMP_Text>();
                 TMP_Text text = card.transform.Find("BodyViewport/Body").GetComponent<TMP_Text>();
                 StoryBodyScrollRect inner = card.transform.Find("BodyViewport").GetComponent<StoryBodyScrollRect>();
+                Assert.That(inner.content.anchorMin.y, Is.EqualTo(1f).Within(.001f));
+                Assert.That(inner.content.anchorMax.y, Is.EqualTo(1f).Within(.001f));
+                Assert.That(inner.content.pivot.y, Is.EqualTo(1f).Within(.001f),
+                    "The authored top pivot makes anchoredPosition.y = 0 the top of the body.");
+                Vector2 originalPosition = inner.content.anchoredPosition;
+                inner.content.anchoredPosition = new Vector2(originalPosition.x + 7f, 100f);
+                inner.velocity = new Vector2(20f, 100f);
+                card.SetExpanded(true);
+                Assert.That(inner.content.anchoredPosition.y, Is.EqualTo(0f).Within(.1f),
+                    "Expanding must immediately return the body to its authored top: " + chapter.Id);
+                Assert.That(inner.content.anchoredPosition.x, Is.EqualTo(originalPosition.x + 7f).Within(.1f),
+                    "Resetting the body must preserve its horizontal position.");
+                Assert.That(inner.velocity.magnitude, Is.LessThan(.1f));
+                inner.content.anchoredPosition = new Vector2(originalPosition.x, inner.content.anchoredPosition.y);
+                Bounds topBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(inner.viewport, inner.content);
+                Assert.That(topBounds.max.y, Is.EqualTo(inner.viewport.rect.yMax).Within(2f),
+                    "The first line must be reachable immediately after expansion: " + chapter.Id);
                 text.ForceMeshUpdate(true, true);
                 Assert.That(text.text, Is.EqualTo(chapter.Summary + "\n\n" + chapter.Body));
                 Assert.That(text.rectTransform.rect.height, Is.GreaterThanOrEqualTo(text.preferredHeight - 2f));
@@ -277,13 +356,13 @@ public sealed class StoryBackgroundInteractionPlayModeTests
             Assert.That(illustrationBounds.min.y, Is.GreaterThanOrEqualTo(outer.viewport.rect.yMin - 1f),
                 "The lower illustration border must not be clipped by the page.");
             Assert.That(illustrationBounds.max.y, Is.LessThanOrEqualTo(outer.viewport.rect.yMax + 1f));
-            string evidenceDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data"));
+            string evidenceDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "player-qa-fixes-20261025"));
             Directory.CreateDirectory(evidenceDirectory);
-            CaptureCanvas(camera, target, Path.Combine(evidenceDirectory, "story-background-card-20261011.png"));
+            CaptureCanvas(camera, target, Path.Combine(evidenceDirectory, "story-background-card.png"));
             card.transform.Find("Header/Actions/StoryIllustrationPreview").GetComponent<Button>().onClick.Invoke();
             yield return null;
             Canvas.ForceUpdateCanvases();
-            CaptureCanvas(camera, target, Path.Combine(evidenceDirectory, "story-background-preview-20261011.png"));
+            CaptureCanvas(camera, target, Path.Combine(evidenceDirectory, "story-background-preview.png"));
         }
         finally
         {
@@ -322,15 +401,23 @@ public sealed class StoryBackgroundInteractionPlayModeTests
     private IEnumerator LoadStory()
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-        yield return null;
-        yield return null;
-        yield return null;
+        for (int i = 0; i < 160 && Object.FindObjectOfType<GameBootstrap>()?.Completed != true; i++)
+            yield return null;
         root = Object.FindObjectOfType<KingdomUIRoot>();
         Assert.That(root, Is.Not.Null);
+        Assert.That(Object.FindObjectOfType<GameBootstrap>()?.Completed, Is.True);
+        SimulationManager.Instance.SetRunning(false);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
         var completed = new List<string>();
         foreach (StoryChapter chapter in StoryManager.Chapters) completed.Add(chapter.Id);
         StoryManager.RestoreSaveData(new SaveManager.StorySaveData { CompletedChapterIds = completed });
+        for (int i = 0; i < 16; i++)
+        {
+            root.RefreshOnboardingForEditor();
+            if (TutorialManager.Current?.EvaluateStage() == null) break;
+            TutorialManager.Current.SkipCurrentStage();
+        }
+        root.RefreshOnboardingForEditor();
         root.StoryPageBuiltForEditor = false;
         root.SetPage("Story");
         yield return null;

@@ -26,6 +26,76 @@ public sealed class TutorialStageTests
     public void TearDown() => Object.DestroyImmediate(host);
 
     [Test]
+    public void ResearchPageRequiresAnOwnedHomeAndTutorialWaitsForIt()
+    {
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(game.State), Is.False);
+        tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
+        {
+            StagesInitialized = true,
+            CompletedStageIds = new List<string> { "resources", "building", "population" }
+        }, TechLevel.Animal);
+        Assert.That(tutorial.EvaluateStage(), Is.Null);
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+        Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(game.State), Is.True);
+        Assert.That(tutorial.EvaluateStage()?.StageId, Is.EqualTo("research")); // Stable stage protocol.
+    }
+
+    [Test]
+    public void FirstHousingUnlockPersistsAfterDeconstructionAndSaveRestore()
+    {
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        ResourceManager resources = host.GetComponent<ResourceManager>();
+        BuildingDef home = DataBase<BuildingDef>.Find("WoodHouse");
+        resources.SetAmount(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), ExpantaNum.Zero);
+        Assert.That(buildings.TryBuild(home, ExpantaNum.One, out _), Is.False);
+        Assert.That(game.State.HasBuiltHousing, Is.False);
+        resources.SetAmount(DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
+        Assert.That(buildings.TryBuild(home, ExpantaNum.One, out _), Is.True);
+        Assert.That(buildings.TryDeconstruct(home, ExpantaNum.One), Is.True);
+        Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(game.State), Is.True);
+        SaveManager.GameSaveData saved = game.CaptureSaveData();
+        game.InitializeNewGameForEditor();
+        Assert.That(game.State.HasBuiltHousing, Is.False);
+        game.RestoreSaveDataForEditor(saved);
+        Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(game.State), Is.True);
+    }
+
+    [Test]
+    public void EraPlanningUnlocksBeforeTheSeparateStoneAgeTransition()
+    {
+        ResearchManager research = host.GetComponent<ResearchManager>();
+        ResearchDef settlement = DataBase<ResearchDef>.Find("StoneAgeSettlement");
+        ResearchDef planning = DataBase<ResearchDef>.Find(ProgressionVisibilityRules.EraResearchId);
+        ResearchDef transition = DataBase<ResearchDef>.Find("StoneAgeTransition");
+        Assert.That(settlement.AdvancesTechLevel, Is.False);
+        Assert.That(settlement.TechLevel, Is.EqualTo(TechLevel.Animal)); // Era protocol.
+        Assert.That(planning.Prerequisites, Does.Contain(settlement));
+        Assert.That(transition.Prerequisites, Does.Contain(planning));
+        Assert.That(transition.AdvancesTechLevel, Is.True);
+        Assert.That(transition.TechLevel, Is.EqualTo(TechLevel.StoneAge));
+        Assert.That(ProgressionVisibilityRules.IsEraUnlocked(research), Is.False);
+        research.GetState(settlement).SetStatusForEditor(ResearchStatus.Completed);
+        Assert.That(ProgressionVisibilityRules.IsEraUnlocked(research), Is.False);
+        research.GetState(planning).SetStatusForEditor(ResearchStatus.Completed);
+        Assert.That(ProgressionVisibilityRules.IsEraUnlocked(research), Is.True);
+        Assert.That(game.State.TechLevel, Is.EqualTo(TechLevel.Animal));
+        Assert.That(research.GetState(transition).Status, Is.Not.EqualTo(ResearchStatus.Completed));
+    }
+
+    [Test]
+    public void ProductionPageRequiresCompletedFactoryOrganization()
+    {
+        ResearchManager research = host.GetComponent<ResearchManager>();
+        ResearchState factory = research.GetState(DataBase<ResearchDef>.Find("FactoryOrganization"));
+        Assert.That(ProgressionVisibilityRules.IsProductionUnlocked(research), Is.False);
+        factory.SetStatusForEditor(ResearchStatus.Researching);
+        Assert.That(ProgressionVisibilityRules.IsProductionUnlocked(research), Is.False);
+        factory.SetStatusForEditor(ResearchStatus.Completed);
+        Assert.That(ProgressionVisibilityRules.IsProductionUnlocked(research), Is.True);
+    }
+
+    [Test]
     public void FreshGameRequiresNavigationThenMatchingSelectionAndAcknowledgement()
     {
         TutorialStageSnapshot first = tutorial.EvaluateStage();
@@ -47,11 +117,14 @@ public sealed class TutorialStageTests
     [Test]
     public void SkipOnlyDismissesCurrentStageAndDoesNotReportCompletion()
     {
+        host.GetComponent<ResourceManager>().SetAmount(
+            DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId), new ExpantaNum(1000));
         tutorial.EvaluateStage();
         tutorial.SkipCurrentStage();
         Assert.That(tutorial.SkippedStageIds, Does.Contain("resources"));
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("resources"));
         TutorialStageSnapshot next = tutorial.EvaluateStage();
+        Assert.That(next, Is.Not.Null, "An affordable building stage remains available after skipping only resources.");
         Assert.That(next.StageId, Is.Not.EqualTo("resources"));
     }
 

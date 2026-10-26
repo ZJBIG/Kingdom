@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: AdvancedMetalIngot
-  TechLevel: 3
   m_EditorClassIdentifier: 
   id: AdvancedMetalIngot
-  Label: "高级金属锭"
-  Description: "高级冶炼与精炼供应的轻质耐蚀金属锭，用于机械、合金和航天加工。"
+  Label: "\u9AD8\u7EA7\u91D1\u5C5E\u952D"
+  TechLevel: 3
+  Description: "\u9AD8\u7EA7\u51B6\u70BC\u4E0E\u7CBE\u70BC\u4F9B\u5E94\u7684\u8F7B\u8D28\u8010\u8680\u91D1\u5C5E\u952D\uFF0C\u7528\u4E8E\u673A\u68B0\u3001\u5408\u91D1\u548C\u822A\u5929\u52A0\u5DE5\u3002"
   Sprite: {fileID: 21310005, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.6862745, g: 0.6862745, b: 0.6862745, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

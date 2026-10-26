@@ -30,7 +30,7 @@ public sealed partial class KingdomUIRoot
 
         RectTransform current = BeginEraSection(parent, "EraCurrentArchive", "文明阶段", width, y, out float currentY);
         currentY += CreateEraCard(current, "EraIdentity", state.TechLevel.GetDescription() + " · 第 " + ((int)state.TechLevel + 1) + " / " + Enum.GetValues(typeof(TechLevel)).Length + " 阶段",
-            GetEraSubtitle(state.TechLevel) + "\n" + GetEraDefinition(state.TechLevel), Panel, false, null, null, width, currentY, 100f);
+            GetEraSubtitle(state.TechLevel) + "\n" + GetEraDefinition(state.TechLevel), Panel, false, null, null, width, currentY, 180f);
         y += EndEraSection(current, currentY, width) + 18f;
 
         if (transition == null)
@@ -54,8 +54,8 @@ public sealed partial class KingdomUIRoot
         bool showQueueAction = !IsEraTransitionResearchCompleted(transition);
 
         RectTransform transitionSection = BeginEraSection(parent, "EraTransitionSection", "下一时代跃迁", width, y, out float transitionY);
-        transitionY += CreateEraCard(transitionSection, "EraTransitionTarget", "迈向 " + goal.TargetEra.GetDescription(), transition.Label + "\n" + transition.Description + "\n\n" + GetTransitionStatus(transition, progress) + " · 所需条件 " + completed + "/" + eraConditions.Count, PanelRaised, true,
-            () => { SetPage("Research"); ShowResearchDetails(transition); }, showQueueAction ? transition : null, width, transitionY, 180f) + 10f;
+        transitionY += CreateEraCard(transitionSection, "EraTransitionTarget", "迈向 " + goal.TargetEra.GetDescription(), transition.Label + "\n" + GetTransitionStatus(transition, progress) + " · 已满足 " + completed + "/" + eraConditions.Count + " 项条件\n选择此项，在右侧查看详情；加入队列后，如有材料需求会一次支付，完成研究后进入新时代。", PanelRaised, true,
+            () => ShowResearchDetails(transition), showQueueAction ? transition : null, width, transitionY, 180f) + 10f;
         string impact = BuildNextEraImpact(goal.TargetEra);
         if (!string.IsNullOrEmpty(impact))
             transitionY += CreateEraCard(transitionSection, "EraNextImpact", "进入后变化", impact, PanelRaised, false, null, null, width, transitionY, 130f) + 16f;
@@ -70,8 +70,8 @@ public sealed partial class KingdomUIRoot
             ResearchDef research = condition.Research;
             ResearchState researchState = condition.ResearchState;
             requirementY += CreateEraCard(requirements, "EraResearch_" + research.Id, (condition.Met ? "✓ " : "○ ") + research.Label,
-                condition.Met ? "已完成" : ResearchStateLabel(research, researchState == null ? ResearchStatus.Locked : researchState.Status),
-                GetEraAlternatePanelColor(researchIndex++), true, () => { SetPage("Research"); ShowResearchDetails(research); }, null, width, requirementY, 92f) + 10f;
+                condition.Met ? "前置研究已完成" : "必须先完成这项研究 · " + ResearchStateLabel(research, researchState == null ? ResearchStatus.Locked : researchState.Status) + "\n选择此项，在右侧查看前置、材料和研究操作。",
+                GetEraAlternatePanelColor(researchIndex++), true, () => ShowResearchDetails(research), null, width, requirementY, 92f) + 10f;
         }
         int resourceIndex = 0;
         for (int i = 0; i < eraConditions.Count; i++)
@@ -131,7 +131,7 @@ public sealed partial class KingdomUIRoot
         const float cardPadding = 24f;
         const float titleBodyGap = 24f;
         float cardWidth = Mathf.Max(320f, width - 96f);
-        float titleWidth = hasAction ? Mathf.Max(240f, cardWidth - 540f) : cardWidth;
+        float titleWidth = queueResearch != null ? Mathf.Max(240f, cardWidth - 360f) : cardWidth;
         TMP_Text titleText = card.Find("Title").GetComponent<TMP_Text>();
         titleText.text = title;
         titleText.font = sharedFontAsset;
@@ -143,7 +143,7 @@ public sealed partial class KingdomUIRoot
         // body inside the remaining column prevents long transition
         // descriptions from flowing underneath the buttons on narrow
         // landscape layouts.
-        float bodyWidth = hasAction ? Mathf.Max(320f, cardWidth - 540f) : cardWidth;
+        float bodyWidth = queueResearch != null ? Mathf.Max(320f, cardWidth - 360f) : cardWidth;
         TMP_Text bodyText = card.Find("Body").GetComponent<TMP_Text>();
         bodyText.text = body;
         bodyText.font = sharedFontAsset;
@@ -155,23 +155,30 @@ public sealed partial class KingdomUIRoot
         float height = Mathf.Max(minimumHeight,
             cardPadding + titleHeight + titleBodyGap + bodyHeight + cardPadding);
         card.sizeDelta = new Vector2(-24f, height);
+        Button selection = card.GetComponent<Button>();
+        if (selection != null)
+        {
+            selection.interactable = hasAction && action != null;
+            if (selection.interactable)
+                selection.onClick.AddListener(() => { action(); });
+        }
         if (hasAction && action != null) AddEraActions(card, action, queueResearch);
         return height;
     }
 
     private void AddEraActions(RectTransform card, Action detailAction, ResearchDef queueResearch)
     {
-        AddEraButton(card, "DetailAction", "查看详情", BasicMetalIngot, detailAction);
         if (queueResearch == null) return;
         ResearchManager currentManager = ResearchManager.Instance;
         ResearchState currentState = null;
         currentManager?.States.TryGetValue(queueResearch, out currentState);
         if (currentState?.Status == ResearchStatus.Completed) return;
-        AddEraButton(card, "QueueAction", GetResearchQueueActionLabel(queueResearch, currentState), Positive, () =>
+        AddEraButton(card, "QueueAction", GetResearchQueueActionLabel(queueResearch, currentState) + "\n时代跃迁课题", Positive, () =>
         {
             ResearchManager manager = ResearchManager.Instance;
             if (manager == null) return;
             HandleResearchUiAction(queueResearch);
+            ShowResearchDetails(queueResearch);
             RefreshEraPageIfChanged();
         });
     }
@@ -183,7 +190,7 @@ public sealed partial class KingdomUIRoot
         button.targetGraphic.color = color;
         button.GetComponentInChildren<TMP_Text>().text = label;
         button.GetComponentInChildren<TMP_Text>().font = sharedFontAsset;
-        button.onClick.AddListener(() => { UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail); action(); });
+        button.onClick.AddListener(() => { action(); });
     }
 
     private static void ClearEraCards(RectTransform parent)
@@ -253,7 +260,7 @@ public sealed partial class KingdomUIRoot
     private static string BuildConditionTitle(EraGoalConditionEvaluation condition) => condition.Kind == EraGoalConditionKind.PrerequisiteResearch ? "研究：" + condition.Research.Label : "资源：" + condition.Resource.Label;
     private static string FormatResourceCondition(EraGoalConditionEvaluation condition)
     {
-        string payment = "库存 " + condition.AvailableAmount.ToGameString() + " / 剩余应付 " + condition.RemainingAmount.ToGameString();
+        string payment = "本次需备齐 " + condition.RemainingAmount.ToGameString() + "；现有库存 " + condition.AvailableAmount.ToGameString();
         if (condition.PaidAmount > ExpantaNum.Zero) payment += "（已付 " + condition.PaidAmount.ToGameString() + "）";
         if (condition.Met) return payment + "（已满足）";
         ExpantaNum net = condition.ProductionRate - condition.ConsumptionRate;
@@ -267,7 +274,14 @@ public sealed partial class KingdomUIRoot
 
     private static string GetEraDefinition(TechLevel era) => era switch
     {
-        TechLevel.Animal => "采集原木、储备食物并建造住房；居民入住后提供生产力。", TechLevel.StoneAge => "开采矿石、冶炼金属，用农田和粮仓支撑更多居民。", TechLevel.Medieval => "冶炼钢材，建立贸易与学术设施，为机器生产准备材料和研究。", TechLevel.Industrial => "建设电网与铁路，将矿石、石油加工成机器和精密材料。", TechLevel.Spacer => "建造轨道设施与舰队；维持食物和材料补给，探索并占领星区。", TechLevel.Ultra => "建造自主制造巨构，完成三阶段文明工程认证，解锁远征供给姿态。", TechLevel.Archotech => "完成文明工程认证，探索远古遗迹，继续占领远星据点。", _ => string.Empty
+        TechLevel.Animal => "鼠族还在树根与岩隙间寻找容身之所。拾来的枝木点起火堆，挖出的黏土围住灶台，第一座木屋让流散的同族有了归处。食物先要填饱肚子，剩余劳力才能开垦田地、收集石料，记下长者口耳相传的知识。此时还没有可靠的历法，季节藏在风向与草籽之中。聚落要学会储粮、分工和研究，才能把偶然的丰收变成能延续到下一代的生活。",
+        TechLevel.StoneAge => "石斧凿开山壁，炉火照亮鼠族的第一批金属工具。散落的洞穴逐渐连成聚落，农田与粮仓把居民留在土地上，陶器让食物和原料有了更可靠的容器。矿石、木料和粮食开始沿着固定的道路交换，每一座新工坊都需要有人照料。首领不再只数过冬的口粮，也要安排开采、冶炼与研究的先后，让有限的劳力支撑更长的生产链。",
+        TechLevel.Medieval => "鼠族城镇的屋顶越过围墙，锻炉、集市和学堂沿街而立。钢材让工具更坚固，水利与轮作支持更多居民，商队把不同聚落的短缺连成交换的机会。知识不再只藏在长者记忆里，抄写与教学使工艺能够传承。繁荣也带来新的协调难题：矿井需要粮食，工坊需要钢材，研究需要稳定的供给。城市必须学会制度与分工，才能迎接机器的时代。",
+        TechLevel.Industrial => "蒸汽越过鼠族工厂的屋脊，电线与铁轨把矿山、田野和城市连成整体。机器放大了劳作的成果，也把煤炭、原油和金属变成每日不能中断的需求。炼油、化工与精密加工相互依存，基础采集设施仍为复杂产业提供启动的根基。此时扩张不只是多造厂房：劳力、电力、物流和口粮必须一起安排，才能让规模庞大的生产链持续运转。",
+        TechLevel.Spacer => "第一批鼠族航行者离开母星，在轨道上回望祖先仰望过的夜空。船坞、观测站与星区据点将文明的道路延伸到行星之外，但舰队仍要依靠家园的粮食、燃料与材料。勘探带来新来源，远航也拉长了补给线。每一处占领都需要慎重维护，轨道工业则把旧有工坊的成果送向新的用途。星际生活从来不是遗忘故乡，而是让故乡能够支持更远的探索。",
+        TechLevel.Ultra => "自动化设施与自主制造巨构接过繁重的劳作，鼠族开始以整个文明的尺度安排资源。曾经分散的研究、工业与远征供给汇成共同的工程目标，技术奇点带来新的能力，也要求更加稳定的基础生产。居民的生活依旧离不开食物与居所，远方舰队依旧需要可靠补给。文明工程的每一阶段认证，都在检验这套庞大体系能否将新知识转化为长期可用的力量。",
+        TechLevel.Archotech => "鼠族文明已走到现有技术的边缘，远古遗迹的结构却仍超出熟悉的解释。完成文明工程认证后，研究者与探险者把目光投向更遥远的星区，尝试从残存装置中理解失落文明的选择。强大的制造能力并未消除供给与组织的重要性，远星据点仍依靠持续的生产维系。每一次发现都让鼠族重新审视自己的道路：如何带着聚落时代留下的记忆，走向尚未命名的未来。",
+        _ => string.Empty
     };
 
     private static string GetEraSubtitle(TechLevel era) => era switch

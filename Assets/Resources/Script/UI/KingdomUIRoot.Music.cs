@@ -24,6 +24,12 @@ public sealed partial class KingdomUIRoot
     private bool lastMusicTrackVisualPlaying;
     private bool lastMusicTrackVisualStopped;
     private bool musicTrackVisualStateValid;
+    private bool musicStaticValuesValid;
+    private int lastMusicVolumePercent;
+    private float lastMusicGapValue;
+    private int lastSfxVolumePercent;
+    private bool lastSfxMuted;
+    private string lastMusicCategory;
 
     private MusicManager FindMusicManager()
     {
@@ -43,6 +49,8 @@ public sealed partial class KingdomUIRoot
             existing.Find("TrackListViewport") != null)
         {
             musicTrackVisualStateValid = false;
+            musicStaticValuesValid = false;
+            lastMusicCategory = null;
             lastMusicTimeSecond = -1;
             musicButtonIconCache.Clear();
             BuildAuthoredMusicPage(existing as RectTransform);
@@ -305,21 +313,38 @@ public sealed partial class KingdomUIRoot
         if (musicVolumeSlider != null &&
             !Mathf.Approximately(musicVolumeSlider.value, manager.Volume))
             musicVolumeSlider.SetValueWithoutNotify(manager.Volume);
-        SetTextIfChanged(musicVolumeValueLabel,
-            "音量：" + Mathf.RoundToInt(manager.Volume * 100f) + "%");
+        int volumePercent = Mathf.RoundToInt(manager.Volume * 100f);
+        if (!musicStaticValuesValid || lastMusicVolumePercent != volumePercent)
+        {
+            SetTextIfChanged(musicVolumeValueLabel, "音量：" + volumePercent + "%");
+            lastMusicVolumePercent = volumePercent;
+        }
         float gap = Mathf.Clamp(manager.GapSeconds, 0f, MusicManager.MaxGapSeconds);
         if (musicGapSlider != null && !Mathf.Approximately(musicGapSlider.maxValue, MusicManager.MaxGapSeconds))
             musicGapSlider.maxValue = MusicManager.MaxGapSeconds;
         if (musicGapSlider != null &&
             !Mathf.Approximately(musicGapSlider.value, gap))
             musicGapSlider.SetValueWithoutNotify(gap);
-        SetTextIfChanged(musicGapValueLabel, "曲目间隔：" + gap.ToString("0.00") + "s");
-        SetTextIfChanged(sfxMuteLabel, UIButtonSoundManager.SfxMuted ? "恢复音效" : "音效静音");
-        if (sfxVolumeSlider != null && !Mathf.Approximately(sfxVolumeSlider.value, UIButtonSoundManager.SfxVolume))
-            sfxVolumeSlider.SetValueWithoutNotify(UIButtonSoundManager.SfxVolume);
-        SetTextIfChanged(sfxVolumeValueLabel,
-            "音效音量：" + Mathf.RoundToInt(UIButtonSoundManager.SfxVolume * 100f) + "%" +
-            (UIButtonSoundManager.SfxMuted ? "（静音）" : string.Empty));
+        if (!musicStaticValuesValid || lastMusicGapValue != gap)
+        {
+            SetTextIfChanged(musicGapValueLabel, "曲目间隔：" + gap.ToString("0.00") + "s");
+            lastMusicGapValue = gap;
+        }
+        bool muted = UIButtonSoundManager.SfxMuted;
+        float sfxVolume = UIButtonSoundManager.SfxVolume;
+        int sfxVolumePercent = Mathf.RoundToInt(sfxVolume * 100f);
+        if (!musicStaticValuesValid || lastSfxMuted != muted)
+            SetTextIfChanged(sfxMuteLabel, muted ? "恢复音效" : "音效静音");
+        if (sfxVolumeSlider != null && !Mathf.Approximately(sfxVolumeSlider.value, sfxVolume))
+            sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
+        if (!musicStaticValuesValid || lastSfxVolumePercent != sfxVolumePercent || lastSfxMuted != muted)
+        {
+            SetTextIfChanged(sfxVolumeValueLabel,
+                "音效音量：" + sfxVolumePercent + "%" + (muted ? "（静音）" : string.Empty));
+            lastSfxVolumePercent = sfxVolumePercent;
+        }
+        lastSfxMuted = muted;
+        musicStaticValuesValid = true;
         RefreshMusicGlobalPauseVisual(manager);
         RefreshMusicTrackIcons(manager, track);
     }
@@ -330,6 +355,8 @@ public sealed partial class KingdomUIRoot
             return;
         Image image = musicCurrentCategoryIcon;
         string category = track == null ? string.Empty : track.Category;
+        if (lastMusicCategory == category) return;
+        lastMusicCategory = category;
         image.sprite = string.IsNullOrEmpty(category)
             ? null
             : LoadMusicIcon(category.ToLowerInvariant());

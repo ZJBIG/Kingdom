@@ -89,7 +89,12 @@ public sealed class StoryChapterCard : MonoBehaviour
         previewButton.gameObject.SetActive(showImage);
         layout.SetIllustrated(showImage);
         bodyScroll.StopMovement();
-        bodyScroll.verticalNormalizedPosition = 1;
+        // The authored body is anchored and pivoted at the top. Reset it
+        // directly so each new card does not force a whole-Canvas rebuild
+        // through ScrollRect's normalized-position setter before first layout.
+        Vector2 bodyPosition = bodyScroll.content.anchoredPosition;
+        bodyPosition.y = 0;
+        bodyScroll.content.anchoredPosition = bodyPosition;
         toggleLabel.text = expanded ? "收起" : "展开";
         LayoutRebuilder.ForceRebuildLayoutImmediate(Rect);
         measuredHeight = Rect.rect.height;

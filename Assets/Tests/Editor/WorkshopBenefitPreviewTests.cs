@@ -136,6 +136,41 @@ public sealed class WorkshopBenefitPreviewTests
             "World events affect building production, not the base food supply.");
     }
 
+    [TestCase(WorkshopEffectType.GlobalResearchMultiplier, WorkshopBenefitRateKind.ResearchPower)]
+    [TestCase(WorkshopEffectType.PowerMultiplier, WorkshopBenefitRateKind.PowerProduction)]
+    [TestCase(WorkshopEffectType.GlobalLogisticsMultiplier, WorkshopBenefitRateKind.LogisticsProduction)]
+    public void Preview_UsesEffectiveResearchAndFlowRewards(
+        WorkshopEffectType effect, WorkshopBenefitRateKind channel)
+    {
+        BuildingDef building = ScriptableObject.CreateInstance<BuildingDef>();
+        created.Add(building);
+        building.SetIdForEditor("effective-preview-building");
+        building.SetResearchPowerForEditor(new ExpantaNum(3d));
+        building.SetPowerContributionForEditor(new ExpantaNum(4d));
+        building.SetLogisticsContributionForEditor(new ExpantaNum(5d));
+        var state = new BuildingState(building);
+        state.SetAmountForEditor(new ExpantaNum(2d));
+        state.SetEfficiencyForEditor(new ExpantaNum(.5d));
+        WorkshopUpgradeDef candidate = Upgrade(effect, "1.5");
+        ProgressionModifierState before = ProgressionModifierManager.BuildPreview(null);
+        ProgressionModifierState after = ProgressionModifierManager.BuildPreview(null, null, candidate);
+        var buildings = new[] { state };
+        IReadOnlyList<WorkshopBenefitRatePreview> baseline = WorkshopManager.CalculateBenefitPreview(
+            buildings, before, after);
+        IReadOnlyList<WorkshopBenefitRatePreview> effective = WorkshopManager.CalculateBenefitPreview(
+            buildings, before, after, new ExpantaNum(1.2d), ExpantaNum.One, new ExpantaNum(1.8d));
+        Assert.That(effective.Count, Is.GreaterThan(0));
+        for (int i = 0; i < baseline.Count; i++)
+        {
+            Assert.That(effective[i].Kind, Is.EqualTo(channel));
+            double multiplier = channel == WorkshopBenefitRateKind.ResearchPower ? 1.8d : 1.2d;
+            Assert.That((effective[i].Before / baseline[i].Before).ToDouble(),
+                Is.EqualTo(multiplier).Within(1e-6));
+            Assert.That((effective[i].Change / baseline[i].Change).ToDouble(),
+                Is.EqualTo(multiplier).Within(1e-6));
+        }
+    }
+
     private WorkshopUpgradeDef Upgrade(WorkshopEffectType type, string value,
         BuildingDef building = null, ResourceDef resource = null)
     {

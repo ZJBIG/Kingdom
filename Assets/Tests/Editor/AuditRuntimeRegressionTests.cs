@@ -64,7 +64,10 @@ public sealed class AuditRuntimeRegressionTests
             prerequisiteState.SetStatusForEditor(ResearchStatus.Completed);
         }
         Assert.That(game.State.TechLevel, Is.GreaterThanOrEqualTo(staffed.TechLevel));
-        Assert.That(buildings.GetBuildFailure(staffed, ExpantaNum.One), Is.EqualTo(BuildFailure.ProductivityInsufficient));
+        foreach (Pair<ResourceDef, ExpantaNum> cost in staffed.ResourceRequirements)
+            resources.SetAmount(cost.First, new ExpantaNum("1e12"));
+        Assert.That(buildings.GetBuildFailure(staffed, ExpantaNum.One), Is.EqualTo(BuildFailure.None));
+        Assert.That(buildings.GetLaborOperatingRatio(staffed), Is.LessThan(ExpantaNum.One));
     }
 
     [Test]
@@ -111,6 +114,93 @@ public sealed class AuditRuntimeRegressionTests
         Assert.That(research.ResearchQueue[0].Definition, Is.SameAs(second));
         Assert.That(research.ResearchQueue[0].Status, Is.EqualTo(ResearchStatus.WaitingResources));
         Assert.That(research.ResearchQueue[1].Status, Is.EqualTo(ResearchStatus.Queued));
+    }
+
+    [Test]
+    public void QueueMove_SecondResearchPreemptsActiveAndResumesWithoutRepaying()
+    {
+        foreach (var pair in resources.States) resources.SetAmount(pair.Key, new ExpantaNum(10000));
+        ResearchDef first = DataBase<ResearchDef>.Find("Quarry");
+        ResearchDef second = DataBase<ResearchDef>.Find("Agriculture");
+        research.HandleResearchAction(first);
+        ResearchState original = research.ActiveResearch;
+        original.SetProgressForEditor(original.BaseCost / new ExpantaNum(4));
+        ExpantaNum originalProgress = original.Progress;
+        research.HandleResearchAction(second);
+        Assert.That(research.GetResearchOrderIndex(second), Is.EqualTo(1), "Display order is discrete: active then waiting.");
+        Assert.That(research.CanMoveQueuedResearch(second, 0), Is.True);
+        Assert.That(research.MoveQueuedResearch(second, 0), Is.True);
+        ResearchState promoted = research.ActiveResearch;
+        Assert.That(promoted.Definition, Is.SameAs(second));
+        Assert.That(promoted.CostPaid, Is.True);
+        Assert.That(research.ResearchQueue.Count, Is.EqualTo(1));
+        Assert.That(research.ResearchQueue[0], Is.SameAs(original));
+        Assert.That(original.Status, Is.EqualTo(ResearchStatus.Queued));
+        Assert.That(original.CostPaid, Is.True);
+        Assert.That(original.Progress.ApproximatelyEquals(originalProgress), Is.True);
+        foreach (Pair<ResourceDef, ExpantaNum> cost in first.ResourceRequirements)
+            Assert.That(original.GetPaidResourceCost(cost.First).ApproximatelyEquals(cost.Second), Is.True);
+        promoted.SetProgressForEditor(promoted.BaseCost / new ExpantaNum(5));
+        ExpantaNum promotedProgress = promoted.Progress;
+        var inventory = new System.Collections.Generic.Dictionary<ResourceDef, ExpantaNum>();
+        foreach (var pair in resources.States) inventory.Add(pair.Key, pair.Value.Amount);
+        SaveManager.ResearchSaveData saved = research.CaptureSaveData();
+        research.ResetForLoadForEditor();
+        research.RestoreSaveDataForEditor(saved);
+        Assert.That(research.ActiveResearch, Is.SameAs(promoted));
+        Assert.That(research.ResearchQueue[0], Is.SameAs(original));
+        Assert.That(original.CostPaid && promoted.CostPaid, Is.True);
+        Assert.That(original.Progress.ApproximatelyEquals(originalProgress), Is.True);
+        Assert.That(promoted.Progress.ApproximatelyEquals(promotedProgress), Is.True);
+        Assert.That(research.MoveQueuedResearch(first, 0), Is.True);
+        Assert.That(research.ActiveResearch, Is.SameAs(original));
+        Assert.That(original.Progress.ApproximatelyEquals(originalProgress), Is.True);
+        Assert.That(research.ResearchQueue[0], Is.SameAs(promoted));
+        Assert.That(promoted.Progress.ApproximatelyEquals(promotedProgress), Is.True);
+        foreach (var pair in inventory)
+            Assert.That(resources.GetAmount(pair.Key).ApproximatelyEquals(pair.Value), Is.True, "Resuming a paid research does not pay twice.");
+        research.Tick(1d);
+        Assert.That(original.Progress, Is.GreaterThan(originalProgress));
+        Assert.That(promoted.Progress.ApproximatelyEquals(promotedProgress), Is.True, "Only the active research advances.");
+    }
+
+    [Test]
+    public void QueueMove_CannotPromoteDependentOverActivePrerequisite()
+    {
+        foreach (var pair in resources.States) resources.SetAmount(pair.Key, new ExpantaNum(10000));
+        ResearchDef target = DataBase<ResearchDef>.Find("KnowledgeSharing");
+        research.HandleResearchAction(target);
+        ResearchState active = research.ActiveResearch;
+        Assert.That(active, Is.Not.Null);
+        SaveManager.ResearchSaveData before = research.CaptureSaveData();
+        Assert.That(research.CanMoveQueuedResearch(target, 0), Is.False);
+        Assert.That(research.MoveQueuedResearch(target, 0), Is.False);
+        Assert.That(research.ActiveResearch, Is.SameAs(active));
+        Assert.That(research.CaptureSaveData().QueuedResearchIds, Is.EqualTo(before.QueuedResearchIds));
+        Assert.That(research.MoveQueuedResearch(active.Definition, 1), Is.False);
+        Assert.That(research.ActiveResearch, Is.SameAs(active));
+    }
+
+    [Test]
+    public void QueueMove_UnfundedPromotionWaitsAndPaidOriginalCanResume()
+    {
+        foreach (var pair in resources.States) resources.SetAmount(pair.Key, new ExpantaNum(10000));
+        ResearchDef first = DataBase<ResearchDef>.Find("Quarry");
+        ResearchDef second = DataBase<ResearchDef>.Find("Agriculture");
+        research.HandleResearchAction(first);
+        ResearchState original = research.ActiveResearch;
+        research.HandleResearchAction(second);
+        foreach (var pair in resources.States) resources.SetAmount(pair.Key, ExpantaNum.Zero);
+        Assert.That(research.MoveQueuedResearch(second, 0), Is.True);
+        Assert.That(research.ActiveResearch, Is.Null);
+        Assert.That(research.ResearchQueue[0].Definition, Is.SameAs(second));
+        Assert.That(research.ResearchQueue[0].Status, Is.EqualTo(ResearchStatus.WaitingResources));
+        Assert.That(research.ResearchQueue[0].CostPaid, Is.False);
+        Assert.That(research.MoveQueuedResearch(first, 0), Is.True);
+        Assert.That(research.ActiveResearch, Is.SameAs(original));
+        Assert.That(original.CostPaid, Is.True);
+        foreach (var pair in resources.States)
+            Assert.That(pair.Value.Amount.ApproximatelyEquals(ExpantaNum.Zero), Is.True);
     }
 
     [Test]

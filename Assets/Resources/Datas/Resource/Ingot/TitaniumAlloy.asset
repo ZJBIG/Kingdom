@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: TitaniumAlloy
-  TechLevel: 3
   m_EditorClassIdentifier: 
   id: TitaniumAlloy
-  Label: "钛合金"
-  Description: "特级矿料与工业辅料加工的轻质高强合金，工业后期开始供应航天与战略设施。"
+  Label: "\u949B\u5408\u91D1"
+  TechLevel: 3
+  Description: "\u7279\u7EA7\u77FF\u6599\u4E0E\u5DE5\u4E1A\u8F85\u6599\u52A0\u5DE5\u7684\u8F7B\u8D28\u9AD8\u5F3A\u5408\u91D1\uFF0C\u5DE5\u4E1A\u540E\u671F\u5F00\u59CB\u4F9B\u5E94\u822A\u5929\u4E0E\u6218\u7565\u8BBE\u65BD\u3002"
   Sprite: {fileID: 21310007, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.627451, g: 0.69803923, b: 0.70980394, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

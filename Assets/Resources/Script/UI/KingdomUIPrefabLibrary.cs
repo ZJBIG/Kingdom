@@ -21,6 +21,7 @@ public static class KingdomUIPrefabLibrary
     public const string WorkshopCard = "KingdomUIWorkshopCard";
     public const string ResearchCard = "KingdomUIResearchCard";
     public const string TextRow = "KingdomUITextRow";
+    public const string DetailResourceRow = "KingdomUIDetailResourceRow";
     public const string ResearchNode = "KingdomUIResearchNode";
     public const string ResearchLine = "KingdomUIResearchLine";
     public const string ResearchGraph = "KingdomUIResearchGraph";
@@ -34,7 +35,7 @@ public static class KingdomUIPrefabLibrary
 
     public static readonly string[] AllReusablePrefabs =
     {
-        Root, Page, ResourceCard, BuildingCard, WorkshopCard, ResearchCard, TextRow,
+        Root, Page, ResourceCard, BuildingCard, WorkshopCard, ResearchCard, TextRow, DetailResourceRow,
         ResearchNode, ResearchLine, ResearchGraph, OverviewNavigationToolbar, ResearchEraBand,
         QuantityControls, MusicTrack, SectorRow, ActionButton, EraCard, EraSection
     };

@@ -97,8 +97,15 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         yield return Settle();
         Assert.That(tutorial.SkippedStageIds, Does.Contain(first));
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain(first));
+        Assert.That(root.OnboardingStageForEditor, Is.Null,
+            "With fewer than 80 starting wood, no next affordable building target exists yet.");
+        Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
+        SimulationManager.Instance.ManualTick(30d);
+        root.RefreshAutomaticUIForEditor();
+        yield return Settle();
         Assert.That(root.OnboardingStageForEditor, Is.Not.Null,
             "Skipping resources must leave the next available system eligible for its own introduction.");
+        Assert.That(tutorial.SkippedStageIds, Does.Contain(first));
         Assert.That(root.OnboardingStageForEditor.StageId, Is.Not.EqualTo(first));
         root.gameObject.SetActive(false);
         yield return null;
@@ -187,6 +194,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     public IEnumerator ResearchStage_ClickNodeAndActionStartsResearch_AndUnpaidStepDoesNotBlock()
     {
         yield return LoadFreshGame();
+        PrepareResearchUnlocked();
         TutorialManager tutorial = TutorialManager.Current;
         ResearchDef definition = DataBase<ResearchDef>.Find("ControlledFire");
         Assert.That(ResearchManager.Instance.CanAccessResearch(definition) &&
@@ -245,6 +253,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     public IEnumerator ResearchSelection_BlocksNestedPinAndRoutesPointerToRequiredNode()
     {
         yield return LoadFreshGame();
+        PrepareResearchUnlocked();
         ResearchDef definition = DataBase<ResearchDef>.Find("ControlledFire");
         TutorialManager.Current.RestoreSaveData(new SaveManager.TutorialSaveData
         {
@@ -264,7 +273,12 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         // a fixture to cover overlapping child controls without changing assets.
         GameObject resourceCard = Resources.Load<GameObject>("UI/Kingdom/KingdomUIResourceCard");
         Button pin = Object.Instantiate(resourceCard.transform.Find("PinButton").GetComponent<Button>(), target);
-        ((RectTransform)pin.transform).anchoredPosition = Vector2.zero;
+        // The resource pin is authored against its row's left edge. Center the
+        // injected control inside this node so the raycast tests overlapping
+        // controls rather than a floating-point point on the node's boundary.
+        RectTransform pinRect = (RectTransform)pin.transform;
+        pinRect.anchorMin = pinRect.anchorMax = new Vector2(.5f, .5f);
+        pinRect.anchoredPosition = Vector2.zero;
         pin.onClick.AddListener(() => UIPinPreferences.SetPinned(UIPinPreferences.Research, definition.Id,
             !UIPinPreferences.IsPinned(UIPinPreferences.Research, definition.Id)));
         root.RefreshOnboardingForEditor();
@@ -278,6 +292,17 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         bool wasPinned = UIPinPreferences.IsPinned(UIPinPreferences.Research, definition.Id);
         try
         {
+            Canvas.ForceUpdateCanvases();
+            Canvas canvas = target.GetComponentInParent<Canvas>();
+            Camera camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            Vector2 point = RectTransformUtility.WorldToScreenPoint(camera, pinRect.TransformPoint(pinRect.rect.center));
+            Assert.That(RectTransformUtility.RectangleContainsScreenPoint(target, point, camera), Is.True,
+                "The injected pin must overlap the required node in the live canvas coordinate system.");
+            var hits = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = point }, hits);
+            Assert.That(hits.Count, Is.GreaterThan(0));
+            Assert.That(ExecuteEvents.GetEventHandler<IPointerClickHandler>(hits[0].gameObject), Is.SameAs(node.gameObject),
+                "Before dispatch, the live raycast must route the overlapping pin position to the required node.");
             GameObject hit = ClickAt((RectTransform)pin.transform);
             Assert.That(hit, Is.Not.Null, "The node remains clickable beneath its excluded pin graphic.");
             Assert.That(ExecuteEvents.GetEventHandler<IPointerClickHandler>(hit), Is.SameAs(node.gameObject),
@@ -402,6 +427,16 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     {
         foreach (ResourceDef resource in DataBase<ResourceDef>.All)
             ResourceManager.Instance.SetAmount(resource, amount);
+    }
+
+    private void PrepareResearchUnlocked()
+    {
+        BuildingManager buildings = BuildingManager.Instance;
+        buildings.SetAmountAndRatesForEditor(
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+        root.RefreshAutomaticUIForEditor();
+        root.RefreshNavigationVisibilityForEditor();
+        Assert.That(ProgressionVisibilityRules.IsResearchUnlocked(GameManager.Instance.State), Is.True);
     }
 
     private IEnumerator LoadFreshGame()
@@ -559,7 +594,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             capture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
             capture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
             capture.Apply();
-            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "onboarding-20261016"));
+            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "player-qa-fixes-20261025", "onboarding"));
             Directory.CreateDirectory(directory);
             File.WriteAllBytes(Path.Combine(directory, filename), capture.EncodeToPNG());
         }

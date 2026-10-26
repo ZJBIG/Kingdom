@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2529e4489d1c7644b4f6a249bbb442b, type: 3}
   m_Name: Steel
-  TechLevel: 2
   m_EditorClassIdentifier: 
   id: Steel
-  Label: "钢材"
-  Description: "基础金属进一步加工的结构钢，持续用于机械、建筑和航天设施。"
+  Label: "\u94A2\u6750"
+  TechLevel: 2
+  Description: "\u57FA\u7840\u91D1\u5C5E\u8FDB\u4E00\u6B65\u52A0\u5DE5\u7684\u7ED3\u6784\u94A2\uFF0C\u6301\u7EED\u7528\u4E8E\u673A\u68B0\u3001\u5EFA\u7B51\u548C\u822A\u5929\u8BBE\u65BD\u3002"
   Sprite: {fileID: 21310006, guid: a863c8798f7b44d3a4e76eed1f86c197, type: 3}
-  Color: {r: 0.35, g: 0.42, b: 0.5, a: 1}
+  Color: {r: 1, g: 1, b: 1, a: 1}

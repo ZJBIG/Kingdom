@@ -106,6 +106,10 @@ public sealed class HomeSystemDevelopmentTests
     public void AuthoredPropellantRecipeStopsWithoutChemicalsAndResumesAfterSupply(bool offline)
     {
         AddNeutralSupport();
+        // Keep this recipe fixture at population equilibrium. Otherwise the
+        // dynamic-population cadence repeatedly quantizes fractional upkeep,
+        // so its accumulated rounding no longer measures the recipe ratio.
+        game.State.RestorePopulationForEditor(game.State.Population.PopulationCapacity);
         SectorBuildingDef works = DataBase<SectorBuildingDef>.Find("ThunderGatePropellantWorks");
         Occupy(works.Sector);
         foreach (ResourceDef resource in DataBase<ResourceDef>.All)
@@ -143,7 +147,7 @@ public sealed class HomeSystemDevelopmentTests
 
     [TestCase(false)]
     [TestCase(true)]
-    public void SuppliedDawnObservatoryContributesResearchPowerUntilDeconstructed(bool offline)
+    public void SuppliedDawnObservatoryStopsResearchWhileDisabledAndResumesWhenEnabled(bool offline)
     {
         SectorBuildingDef observatory = DataBase<SectorBuildingDef>.Find("DawnOrbitalObservatory");
         foreach (ResearchDef required in observatory.RequiredResearch) CompleteResearch(required);
@@ -167,11 +171,17 @@ public sealed class HomeSystemDevelopmentTests
         foreach (var maintenance in observatory.ResourceConsumptionRates)
             Assert.That(resources.GetAmount(maintenance.First), Is.LessThan(beforeOperation[maintenance.First]),
                 "Operating the authored observatory must pay its real maintenance.");
-        Assert.That(buildings.TryDeconstruct(observatory, ExpantaNum.One), Is.True);
+        DisableAndAssertConstructionRetained(observatory);
+        var whileDisabled = SnapshotResources();
         Advance(offline);
         Near(ResearchManager.CalculateResearchPower(new List<BuildingState>(buildings.States.Values),
             ResearchManager.BaseResearchPower), baseline);
         Near(research.ResearchPower, baseline);
+        foreach (var maintenance in observatory.ResourceConsumptionRates)
+            Near(resources.GetAmount(maintenance.First), whileDisabled[maintenance.First]);
+        Assert.That(buildings.SetSectorBuildingEnabled(observatory, true), Is.True);
+        Advance(offline);
+        Near(research.ResearchPower, suppliedPower);
     }
 
     [Test]
@@ -207,11 +217,12 @@ public sealed class HomeSystemDevelopmentTests
         AssertPurchaseRejectedWithoutMutation(belt, WorkshopPurchaseFailure.SectorNotOccupied);
         Occupy(dyson.Sector);
         FundUpgrade(belt);
-        Assert.That(buildings.TryDeconstruct(dyson, ExpantaNum.One), Is.True);
-        AssertPurchaseRejectedWithoutMutation(belt, WorkshopPurchaseFailure.BuildingMissing);
-        FundConstruction(dyson);
-        Assert.That(buildings.TryBuild(dyson, ExpantaNum.One, out buildFailure), Is.True, buildFailure.ToString());
+        DisableAndAssertConstructionRetained(dyson);
         Assert.That(workshop.TryPurchase(belt, out failure), Is.True, failure.ToString());
+        Assert.That(buildings.GetState(dyson).IsEnabled, Is.False,
+            "Buying a permanent stage must not start a disabled facility.");
+        Near(buildings.GetState(dyson).Efficiency, ExpantaNum.Zero);
+        Assert.That(buildings.SetSectorBuildingEnabled(dyson, true), Is.True);
     }
 
     [TestCase(false)]
@@ -242,7 +253,7 @@ public sealed class HomeSystemDevelopmentTests
     }
 
     [Test]
-    public void DysonPurchasedStagesSurviveDemolitionSaveAndRebuild()
+    public void DysonPurchasedStagesAndDisabledFacilitiesSurviveSaveAndResume()
     {
         saveRoot = Path.Combine(Application.dataPath, "..", "Temp", "PlanetDevelopment-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saveRoot);
@@ -279,13 +290,17 @@ public sealed class HomeSystemDevelopmentTests
         ExpantaNum logisticsMultiplier = ProgressionModifierManager.Current.GetBuildingLogisticsProductionMultiplier(works);
         Assert.That(fuelMultiplier, Is.GreaterThan(ExpantaNum.One));
         Assert.That(logisticsMultiplier, Is.GreaterThan(ExpantaNum.One));
-        Assert.That(buildings.TryDeconstruct(dyson, ExpantaNum.One), Is.True);
-        Assert.That(buildings.TryDeconstruct(works, ExpantaNum.One), Is.True);
+        DisableAndAssertConstructionRetained(dyson);
+        DisableAndAssertConstructionRetained(works);
         Assert.That(saves.SaveNow(true), Is.True);
         workshop.ResetForLoadForEditor();
         Assert.That(saves.LoadOrCreateGame(), Is.True);
-        Near(buildings.GetState(dyson).Amount, ExpantaNum.Zero);
-        Near(buildings.GetState(works).Amount, ExpantaNum.Zero);
+        Near(buildings.GetState(dyson).Amount, ExpantaNum.One);
+        Near(buildings.GetState(works).Amount, ExpantaNum.One);
+        Assert.That(buildings.GetState(dyson).IsEnabled, Is.False);
+        Assert.That(buildings.GetState(works).IsEnabled, Is.False);
+        Near(buildings.GetState(dyson).Efficiency, ExpantaNum.Zero);
+        Near(buildings.GetState(works).Efficiency, ExpantaNum.Zero);
         Assert.That(game.Sectors.GetState(works.Sector).Occupied, Is.True);
         foreach (string id in new[] { "DysonCollectorFleet", "DysonStellarBelt", "DysonControlNetwork" })
             Assert.That(workshop.IsPurchased(DataBase<WorkshopUpgradeDef>.Find(id)), Is.True);
@@ -297,11 +312,11 @@ public sealed class HomeSystemDevelopmentTests
         }
         SaveManager.KingdomSaveData missingExploration = saves.CaptureSaveData();
         SaveManager.KingdomSaveData missingThunderExploration = saves.CaptureSaveData();
-        FundConstruction(dyson);
-        Assert.That(buildings.TryBuild(dyson, ExpantaNum.One, out failure), Is.True, failure.ToString());
+        var beforeResume = SnapshotResources();
+        Assert.That(buildings.SetSectorBuildingEnabled(dyson, true), Is.True);
         Near(ProgressionModifierManager.Current.GetBuildingPowerProductionMultiplier(dyson), new ExpantaNum(23d));
-        FundConstruction(works);
-        Assert.That(buildings.TryBuild(works, ExpantaNum.One, out failure), Is.True, failure.ToString());
+        Assert.That(buildings.SetSectorBuildingEnabled(works, true), Is.True);
+        AssertBalances(beforeResume);
         Near(ProgressionModifierManager.Current.GetBuildingProductionMultiplier(works), fuelMultiplier);
         Near(ProgressionModifierManager.Current.GetBuildingLogisticsProductionMultiplier(works), logisticsMultiplier);
         var beforeDuplicate = SnapshotResources();
@@ -322,7 +337,7 @@ public sealed class HomeSystemDevelopmentTests
                 sector.InteriorExplorationActive = false;
             }
         Assert.Throws<InvalidOperationException>(() => saves.ApplySaveDataForEditor(missingExploration),
-            "Purchased stages retain their exploration prerequisite even when their building has been demolished.");
+            "Purchased stages retain their exploration prerequisite while their facility is disabled.");
         foreach (SaveManager.SectorStateSaveData sector in missingThunderExploration.Sectors.States)
             if (sector.SectorId == "ThunderGate")
             {
@@ -330,7 +345,7 @@ public sealed class HomeSystemDevelopmentTests
                 sector.InteriorExplorationActive = false;
             }
         Assert.Throws<InvalidOperationException>(() => saves.ApplySaveDataForEditor(missingThunderExploration),
-            "Purchased propellant structures retain their exploration prerequisite while the base is demolished.");
+            "Purchased propellant structures retain their exploration prerequisite while the base is disabled.");
     }
 
     [TestCase(false)]
@@ -352,7 +367,7 @@ public sealed class HomeSystemDevelopmentTests
         ExpantaNum initialFuel = resources.GetAmount(fuel);
         Advance(offline);
         ExpantaNum previousGain = (resources.GetAmount(fuel) - initialFuel) / new ExpantaNum(60d);
-        ExpantaNum initialLogistics = game.State.LogisticsProductionRate;
+        ExpantaNum initialLogistics = game.State.LogisticsConsumptionRate;
         foreach (string id in new[] { "ThunderCryogenicSeparation", "ThunderParallelRefining", "ThunderOrbitalLoadingRing" })
         {
             WorkshopUpgradeDef stage = DataBase<WorkshopUpgradeDef>.Find(id);
@@ -364,10 +379,16 @@ public sealed class HomeSystemDevelopmentTests
             Assert.That(gain, Is.GreaterThan(previousGain), id);
             previousGain = gain;
         }
-        Assert.That(game.State.LogisticsProductionRate, Is.GreaterThan(initialLogistics));
-        Assert.That(buildings.TryDeconstruct(works, ExpantaNum.One), Is.True);
+        Near(game.State.LogisticsConsumptionRate, initialLogistics);
+        DisableAndAssertConstructionRetained(works);
+        ExpantaNum fuelWhileDisabled = resources.GetAmount(fuel);
         Advance(offline);
-        Assert.That(game.State.LogisticsProductionRate, Is.LessThan(initialLogistics));
+        Assert.That(game.State.LogisticsConsumptionRate, Is.LessThan(initialLogistics));
+        Near(resources.GetAmount(fuel), fuelWhileDisabled);
+        Assert.That(buildings.SetSectorBuildingEnabled(works, true), Is.True);
+        Advance(offline);
+        Assert.That(resources.GetAmount(fuel), Is.GreaterThan(fuelWhileDisabled));
+        Near(game.State.LogisticsConsumptionRate, initialLogistics);
     }
 
     [TestCase(false)]
@@ -396,10 +417,39 @@ public sealed class HomeSystemDevelopmentTests
         Advance(offline);
         Assert.That(game.State.FoodProductionRate, Is.GreaterThan(baselineFood));
         Assert.That(research.ResearchPower, Is.GreaterThan(baselineResearch));
-        Assert.That(buildings.TryDeconstruct(ark, ExpantaNum.One), Is.True);
+        DisableAndAssertConstructionRetained(ark);
         Advance(offline);
         Near(game.State.FoodProductionRate, baselineFood);
         Near(research.ResearchPower, baselineResearch);
+        Assert.That(buildings.SetSectorBuildingEnabled(ark, true), Is.True);
+        Advance(offline);
+        Assert.That(game.State.FoodProductionRate, Is.GreaterThan(baselineFood));
+        Assert.That(research.ResearchPower, Is.GreaterThan(baselineResearch));
+    }
+
+    private void DisableAndAssertConstructionRetained(SectorBuildingDef building)
+    {
+        BuildingState state = buildings.GetState(building);
+        ExpantaNum amount = state.Amount;
+        ExpantaNum territory = game.State.TerritoryUsed;
+        ExpantaNum foodCapacity = game.State.FoodCapacity;
+        ExpantaNum populationCapacity = game.State.Population.PopulationCapacity;
+        var balances = SnapshotResources();
+        if (BuildingManager.IsMegastructure(building))
+        {
+            Assert.That(buildings.GetDeconstructionPreview(building, ExpantaNum.One), Is.Null);
+            Assert.That(buildings.TryDeconstruct(building, ExpantaNum.One, out BuildFailure failure), Is.False);
+            Assert.That(failure, Is.EqualTo(BuildFailure.DeconstructionUnavailable));
+        }
+        else Assert.That(buildings.GetDeconstructionPreview(building, ExpantaNum.One), Is.Not.Null);
+        Assert.That(buildings.SetSectorBuildingEnabled(building, false), Is.True);
+        Assert.That(state.IsEnabled, Is.False);
+        Near(state.Efficiency, ExpantaNum.Zero);
+        Near(state.Amount, amount);
+        Near(game.State.TerritoryUsed, territory);
+        Near(game.State.FoodCapacity, foodCapacity);
+        Near(game.State.Population.PopulationCapacity, populationCapacity);
+        AssertBalances(balances);
     }
 
     private SectorBuildingDef PrepareDyson()
@@ -496,8 +546,9 @@ public sealed class HomeSystemDevelopmentTests
         support.ConfigureEconomyForEditor(
             growth: 1.15d, territory: 0d, productivityConsumptionValue: 0d, productivity: 1e9d,
             populationCapacity: 1e9d, researchPower: 0d, foodProduction: 1e9d, foodConsumption: 0d,
-            foodCapacity: 1e9d, powerProduction: 1e9d, powerConsumption: 0d,
-            logisticsProduction: 1e9d, logisticsConsumption: 0d, attack: 0d, defense: 0d, manpower: 0d,
+            foodCapacity: 1e9d,
+            powerContributionValue: 1e9d,
+            logisticsContributionValue: 1e9d, attack: 0d, defense: 0d, manpower: 0d,
             requirements: new List<Pair<ResourceDef, ExpantaNum>>(), generation: new List<Pair<ResourceDef, ExpantaNum>>(),
             consumption: new List<Pair<ResourceDef, ExpantaNum>>());
         buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(support), ExpantaNum.One);

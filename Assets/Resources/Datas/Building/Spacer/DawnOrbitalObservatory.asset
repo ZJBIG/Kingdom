@@ -21,9 +21,9 @@ MonoBehaviour:
   costGrowth: "1.25"
   spaceCost: "0"
   productivityConsumption: "120"
-  powerConsumptionRate: "80"
-  logisticsConsumptionRate: "12"
   researchPowerGranted: "600"
+  powerContribution: -80
+  logisticsContribution: -12
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "6000"

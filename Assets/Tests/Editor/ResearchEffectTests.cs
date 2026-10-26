@@ -244,7 +244,7 @@ public sealed class ResearchEffectTests
     }
 
     [Test]
-    public void 医学人口生产力会改变真实建筑建造门槛()
+    public void 医学人口生产力改善过载建筑开工率()
     {
         GameManager gameManager = CreateManager<GameManager>("医学建造门槛-游戏管理器");
         BuildingManager buildingManager = CreateManager<BuildingManager>("医学建造门槛-建筑管理器");
@@ -261,11 +261,7 @@ public sealed class ResearchEffectTests
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
-            ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
             ExpantaNum.Zero,
@@ -282,17 +278,16 @@ public sealed class ResearchEffectTests
         });
         Assert.That(
             buildingManager.TryBuild(laborBuilding, ExpantaNum.One, out BuildFailure baselineFailure),
-            Is.False);
-        Assert.That(baselineFailure, Is.EqualTo(BuildFailure.ProductivityInsufficient));
+            Is.True);
+        Assert.That(baselineFailure, Is.EqualTo(BuildFailure.None));
+        ExpantaNum baselineRatio = buildingManager.GetLaborOperatingRatio(laborBuilding);
+        Assert.That(baselineRatio, Is.GreaterThan(ExpantaNum.Zero).And.LessThan(ExpantaNum.One));
 
         ProgressionModifierManager.Rebuild(new List<ResearchState>
         {
             CreateState(modernMedicine, true)
         });
-        Assert.That(
-            buildingManager.TryBuild(laborBuilding, ExpantaNum.One, out BuildFailure completedFailure),
-            Is.True);
-        Assert.That(completedFailure, Is.EqualTo(BuildFailure.None));
+        Assert.That(buildingManager.GetLaborOperatingRatio(laborBuilding), Is.GreaterThan(baselineRatio));
     }
 
     [Test]

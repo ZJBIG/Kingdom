@@ -27,10 +27,8 @@ MonoBehaviour:
   foodProductionRate: "0"
   foodConsumptionRate: "0"
   foodCapacityGranted: "0"
-  powerProductionRate: "0"
-  powerConsumptionRate: "0"
-  logisticsProductionRate: "0"
-  logisticsConsumptionRate: "0"
+  powerContribution: 0
+  logisticsContribution: 0
   fleetPowerGranted: "0"
   attackPowerGranted: "0"
   defensePowerGranted: "0"
@@ -40,7 +38,7 @@ MonoBehaviour:
     amount: "80"
   resourceGenerationRates:
   - resource: {fileID: 11400000, guid: bf2b669cfeb39be4296819ca44b67e98, type: 2}
-    amount: "1.5"
+    amount: "1.2"
   resourceConsumptionRates: []
   requiredResearch:
   - {fileID: 11400000, guid: 0f3d70375d0fdf14dabc4dfd617c19c8, type: 2}

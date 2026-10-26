@@ -175,6 +175,7 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         if (eventData.pointerId != pointerId && eventData.pointerId != secondPointerId)
             return;
         eventData.eligibleForClick = false;
+        Vector2 previousCenter = (pointerScreenPosition + secondPointerScreenPosition) * .5f;
         if (eventData.pointerId == pointerId)
             pointerScreenPosition = eventData.position;
         else
@@ -186,6 +187,16 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
             if (previousDistance > .001f)
             {
                 float scale = Mathf.Clamp(content.localScale.x * distance / previousDistance, MinScale, MaxScale);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, previousCenter,
+                    eventData.pressEventCamera, out Vector2 previousLocal);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport,
+                    (pointerScreenPosition + secondPointerScreenPosition) * .5f,
+                    eventData.pressEventCamera, out Vector2 currentLocal);
+                // anchoredPosition is relative to the bottom-left anchor, not the viewport pivot.
+                previousLocal -= viewport.rect.min;
+                currentLocal -= viewport.rect.min;
+                content.anchoredPosition = currentLocal -
+                    (previousLocal - content.anchoredPosition) * (scale / content.localScale.x);
                 content.localScale = new Vector3(scale, scale, 1f);
                 RefreshOverflowState();
                 ClampContentPosition();
@@ -298,6 +309,10 @@ public sealed class UIResearchGraphGesture : MonoBehaviour,
         if (resetToTop)
         {
             SetTopLeftPosition();
+        }
+        else
+        {
+            ClampContentPosition();
         }
     }
 

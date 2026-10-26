@@ -50,9 +50,22 @@ public sealed class StoryManagerTests
         Assert.That(FindChapter("RememberedKnowledge_04").RequiredTutorialStepId,
             Is.EqualTo("research"));
         Assert.That(FindChapter("TheFirstChain_05").RequiredTutorialStepId,
-            Is.EqualTo("production-chain"));
+            Is.Empty, "Story follows real production, independently of the later production-tree tutorial.");
         Assert.That(FindChapter("TheOldBoundary_17").RequiredEra,
             Is.EqualTo(TechLevel.Ultra));
+    }
+
+    [Test]
+    public void EarlyChaptersRequireDevelopmentBeyondTutorialClicks()
+    {
+        Assert.That(FindChapter("WallsAndShelter_02").RequiredBuildingIds,
+            Does.Contain("WoodHouse"));
+        Assert.That(FindChapter("TheGrowingClan_03").RequiredResearchIds,
+            Does.Contain("Agriculture"));
+        Assert.That(FindChapter("RememberedKnowledge_04").RequiredResearchIds,
+            Does.Contain("KnowledgeSharing"));
+        Assert.That(FindChapter("TheFirstChain_05").RequiredBuildingIds,
+            Does.Contain("Quarry").And.Contain("StoneCuttingWorkshop"));
     }
 
     [Test]
@@ -275,10 +288,13 @@ public sealed class StoryManagerTests
     }
 
     [Test]
-    public void MainlineMemoriesDoNotRequireOptionalKnowledgeOrCivicBuildings()
+    public void MainlineMemoriesRequireProgressionWithoutOptionalKnowledgeOrCivicBuildings()
     {
-        Assert.That(FindChapter("RememberedKnowledge_04").RequiredResearchIds, Is.Empty);
-        Assert.That(FindChapter("TheFirstChain_05").RequiredBuildingIds, Is.Empty);
+        StoryChapter knowledge = FindChapter("RememberedKnowledge_04");
+        Assert.That(knowledge.RequiredResearchIds, Is.EquivalentTo(new[] { "KnowledgeSharing" }));
+        Assert.That(knowledge.RequiredBuildingIds, Is.Empty, "Knowledge requires its milestone research, without forcing an optional knowledge building.");
+        Assert.That(FindChapter("TheFirstChain_05").RequiredBuildingIds,
+            Is.EquivalentTo(new[] { "Quarry", "StoneCuttingWorkshop" }), "The chain memory follows its actual raw-material and processing buildings.");
         Assert.That(FindChapter("MedievalOrder_07").RequiredBuildingIds, Is.Empty);
     }
 

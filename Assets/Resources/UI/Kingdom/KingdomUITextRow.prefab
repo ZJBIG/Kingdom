@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 900000000000000002}
   - component: {fileID: 900000000000000003}
   - component: {fileID: 900000000000000004}
+  - component: {fileID: 8313503240560814181}
   m_Layer: 0
   m_Name: Detail
   m_TagString: Untagged
@@ -121,6 +122,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 900000000000000000}
   m_CullTransparentMesh: 1
+--- !u!114 &8313503240560814181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900000000000000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &900000000000000006
 GameObject:
   m_ObjectHideFlags: 0
@@ -269,6 +282,7 @@ GameObject:
   - component: {fileID: 2810251496857796742}
   - component: {fileID: 4532585457685758576}
   - component: {fileID: 2339602975663351866}
+  - component: {fileID: 4854170506139091277}
   m_Layer: 0
   m_Name: KingdomUITextRow
   m_TagString: Untagged
@@ -410,6 +424,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2c1a6d84f2e4e9b8a5f3c7d1b6e9024, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &4854170506139091277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2444942796830092244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
   m_Name:
   m_EditorClassIdentifier:
 --- !u!1 &3589370038893933131

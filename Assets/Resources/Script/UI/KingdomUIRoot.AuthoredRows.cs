@@ -111,7 +111,6 @@ public sealed partial class KingdomUIRoot
                 continue;
             button.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
                 ShowResourceDetails(resource);
             });
             resourceAmountLabels[resource] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
@@ -192,7 +191,6 @@ public sealed partial class KingdomUIRoot
                 continue;
             cardButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
                 ShowBuildingDetails(building);
             });
 
@@ -203,6 +201,7 @@ public sealed partial class KingdomUIRoot
             if (buildButton == null || deconstructButton == null)
                 continue;
             ExpantaNum buildQuantity = GetSelectedBuildingQuantity(building, canUpgrade, false);
+            buildingActionIconUpgradeModes[buildButton] = canUpgrade;
             SetBuildingActionQuantity(buildButton, buildQuantity, canUpgrade ? "升级" : "建造");
             buildButton.onClick.RemoveAllListeners();
             buildButton.onClick.AddListener(() =>
@@ -231,15 +230,14 @@ public sealed partial class KingdomUIRoot
             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
             buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
         }
+        lastBuildingDisplaySignature = BuildBuildingDisplaySignature().ToString();
         Debug.Log($"[王国界面] Authored building rows: visible={visible}, rowsRect={parent.rect.size}");
     }
 
-    private const string LandIcon = "<sprite=\"BuildingStatusIcons\" index=0>";
-    private const string ProductivityIcon = "<sprite=\"BuildingStatusIcons\" index=1>";
+    private const string LandIcon = "<sprite=\"HudTerritory\" index=0>";
     private const string MaterialsIcon = "<sprite=\"BuildingStatusIcons\" index=2>";
 
     private const string LandShortageIcon = "<sprite=\"BuildingStatusIcons\" index=3>";
-    private const string ProductivityShortageIcon = "<sprite=\"BuildingStatusIcons\" index=4>";
     private const string MaterialsShortageIcon = "<sprite=\"BuildingStatusIcons\" index=5>";
 
     private readonly List<BuildFailure> buildingAvailabilityFailures = new List<BuildFailure>();
@@ -253,17 +251,16 @@ public sealed partial class KingdomUIRoot
         BuildingManager.Instance.GetConstructionFailures(building, amount, upgrade, buildingAvailabilityFailures);
         string icons = string.Empty;
         if (buildingAvailabilityFailures.Contains(BuildFailure.SpaceInsufficient)) icons += LandShortageIcon;
-        if (buildingAvailabilityFailures.Contains(BuildFailure.ProductivityInsufficient)) icons += ProductivityShortageIcon;
-        if (buildingAvailabilityFailures.Contains(BuildFailure.ResourceInsufficient)) icons += MaterialsShortageIcon;
         if (icons.Length > 0) return icons;
         if (buildingAvailabilityFailures.Count > 0) return buildingAvailabilityFailures[0] switch
         {
+            BuildFailure.ResourceInsufficient => string.Empty,
             BuildFailure.TechnologyInsufficient => "时代未到",
             BuildFailure.ResearchPrerequisiteIncomplete => "待研究", BuildFailure.WorkshopPrerequisiteIncomplete => "待工坊升级",
-            BuildFailure.SectorNotOccupied => "待占领", BuildFailure.BuildingTierSuperseded => "已替代",
+            BuildFailure.SectorNotOccupied => "待占领", BuildFailure.BuildingTierSuperseded => string.Empty,
             BuildFailure.BuildingLimitReached => "已满额", _ => "不可建"
         };
-        return MaterialsIcon;
+        return string.Empty;
     }
 
     private System.Text.StringBuilder BuildBuildingDisplaySignature()
@@ -276,7 +273,12 @@ public sealed partial class KingdomUIRoot
             BuildingDef building = definitions[i];
             if (building != null && !(building is SectorBuildingDef) &&
                 ShouldDisplayBuilding(building))
-                signature.Append(building.Id).Append(';');
+            {
+                signature.Append(building.Id).Append(':');
+                if (BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out BuildingDef target))
+                    signature.Append(target.Id);
+                signature.Append(';');
+            }
         }
         return signature;
     }
@@ -296,13 +298,16 @@ public sealed partial class KingdomUIRoot
             orderedDefinitions.Add(definition);
         }
         orderedDefinitions.Sort((left, right) =>
-            ComparePinnedAuthoredRows(UIPinPreferences.Workshop,
-                left.TechLevel, left.Id, right.TechLevel, right.Id));
-        bool supportPinned = UIPinPreferences.IsPinned(UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
-        if (supportPinned) AppendRelicWorkshopRow(parent, ref visible);
+            CompareAuthoredRows(left.TechLevel, left.Id, right.TechLevel, right.Id));
+        bool supportInserted = false;
         for (int i = 0; i < orderedDefinitions.Count; i++)
         {
             WorkshopUpgradeDef definition = orderedDefinitions[i];
+            if (!supportInserted && CompareAuthoredRows(TechLevel.Spacer, "relic-support", definition.TechLevel, definition.Id) < 0)
+            {
+                AppendRelicWorkshopRow(parent, ref visible);
+                supportInserted = true;
+            }
             int index = visible;
             GameObject reusable = index < workshopRows.Count
                 ? workshopRows[index]
@@ -317,7 +322,6 @@ public sealed partial class KingdomUIRoot
                 workshopRows.Add(row);
             visible++;
             ApplyEraRowStyle(row, definition.TechLevel, index);
-            BindRowPin(row, UIPinPreferences.Workshop, definition.Id);
             Image workshopIcon = row.transform.Find("WorkshopIcon")?.GetComponent<Image>();
             if (workshopIcon == null)
             {
@@ -325,48 +329,23 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             BindArtworkIcon(workshopIcon, definition.Icon, definition.Label);
-            Transform techLevel = row.transform.Find("TechLevel");
-            if (techLevel == null)
-            {
-                techLevel = row.transform.Find("Amount");
-                if (techLevel != null)
-                    techLevel.name = "TechLevel";
-            }
             bool purchased = WorkshopManager.Instance.IsPurchased(definition);
             string availability = GetWorkshopAvailability(
                 definition, out bool canPurchase);
             if (!SetRowText(row, "Label", definition.Label) ||
-                !SetRowText(row, "TechLevel",
-                    definition.TechLevel.GetDescription() + " · " + availability,
+                !SetRowText(row, "TechLevel", definition.TechLevel.GetDescription()) ||
+                !SetRowText(row, "Effect", availability,
                     purchased ? Positive : canPurchase ? BasicMetalIngot : TextSecondary))
                 continue;
             Button cardButton = RequireRowButton(row);
-            Button purchaseButton = RequireChildButton(
-                row,
-                row.transform.Find("PurchaseButton") == null
-                    ? "BuildButton"
-                    : "PurchaseButton");
-            Button deconstructButton = RequireChildButton(row, "DeconstructButton");
-            if (cardButton == null || purchaseButton == null || deconstructButton == null)
+            Button purchaseButton = RequireChildButton(row, "PurchaseButton");
+            if (cardButton == null || purchaseButton == null)
                 continue;
             cardButton.onClick.RemoveAllListeners();
             cardButton.onClick.AddListener(() =>
             {
-                UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
                 ShowWorkshopDetails(definition);
             });
-            RectTransform purchaseRect = purchaseButton.transform as RectTransform;
-            RectTransform deconstructRect = deconstructButton.transform as RectTransform;
-            if (purchaseRect != null && deconstructRect != null)
-            {
-                purchaseRect.anchorMin = deconstructRect.anchorMin;
-                purchaseRect.anchorMax = deconstructRect.anchorMax;
-                purchaseRect.pivot = deconstructRect.pivot;
-                purchaseRect.anchoredPosition = deconstructRect.anchoredPosition;
-                purchaseRect.sizeDelta = deconstructRect.sizeDelta;
-            }
-            purchaseButton.gameObject.name = "PurchaseButton";
-            deconstructButton.gameObject.SetActive(false);
             SetBuildingActionButtonText(
                 purchaseButton,
                 purchased ? "已拥有" : "购买");
@@ -379,7 +358,7 @@ public sealed partial class KingdomUIRoot
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
             workshopPurchaseButtons[definition] = purchaseButton;
         }
-        if (!supportPinned) AppendRelicWorkshopRow(parent, ref visible);
+        if (!supportInserted) AppendRelicWorkshopRow(parent, ref visible);
         for (int i = visible; i < workshopRows.Count; i++)
             if (workshopRows[i] != null)
                 workshopRows[i].SetActive(false);
@@ -418,7 +397,9 @@ public sealed partial class KingdomUIRoot
                 !purchaseButton.gameObject.activeInHierarchy)
                 continue;
             bool purchased = manager.IsPurchased(definition);
-            GetWorkshopAvailability(definition, out bool canPurchase);
+            string availability = GetWorkshopAvailability(definition, out bool canPurchase);
+            SetRowText(purchaseButton.transform.parent.gameObject, "Effect", availability,
+                purchased ? Positive : canPurchase ? BasicMetalIngot : TextSecondary);
             SetBuildingActionButtonText(
                 purchaseButton,
                 purchased ? "已拥有" : "购买");
@@ -484,6 +465,8 @@ public sealed partial class KingdomUIRoot
         Button button = row.GetComponent<Button>();
         if (button == null)
             Debug.LogError("[王国界面] Authored row is missing its root Button: " + row.name);
+        else if (!button.TryGetComponent<UIButtonClickFeedback>(out _))
+            button.gameObject.AddComponent<UIButtonClickFeedback>();
         return button;
     }
 
@@ -493,6 +476,8 @@ public sealed partial class KingdomUIRoot
         Button button = child == null ? null : child.GetComponent<Button>();
         if (button == null)
             Debug.LogError("[王国界面] Authored building card is missing Button: " + childName);
+        else if (!button.TryGetComponent<UIButtonClickFeedback>(out _))
+            button.gameObject.AddComponent<UIButtonClickFeedback>();
         return button;
     }
 }

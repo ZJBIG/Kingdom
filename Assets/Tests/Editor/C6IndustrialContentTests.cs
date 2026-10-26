@@ -222,7 +222,7 @@ public sealed class C6IndustrialContentTests
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "Machinery"), Is.False);
         Assert.That(ContainsResource(powerStation.ResourceRequirements, "CopperWire"), Is.False);
         Assert.That(ContainsResource(powerStation.ResourceConsumptionRates, "Lubricant"), Is.False);
-        Assert.That(powerStation.LogisticsConsumptionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That((-powerStation.LogisticsContribution), Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -725,12 +725,12 @@ public sealed class C6IndustrialContentTests
         BuildingDef powerStation = DataBase<BuildingDef>.Find("CentralPowerStation");
         BuildingDef railHub = DataBase<BuildingDef>.Find("RailHub");
 
-        Assert.That(powerStation.PowerProductionRate, Is.GreaterThan(ExpantaNum.Zero),
+        Assert.That(powerStation.PowerContribution, Is.GreaterThan(ExpantaNum.Zero),
             "中央电站必须提供电力。");
-        Assert.That(railHub.LogisticsProductionRate, Is.GreaterThan(ExpantaNum.Zero),
+        Assert.That(railHub.LogisticsContribution, Is.GreaterThan(ExpantaNum.Zero),
             "铁路枢纽必须提供物流。");
-        Assert.That(powerStation.LogisticsProductionRate, Is.EqualTo(ExpantaNum.Zero));
-        Assert.That(railHub.PowerProductionRate, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(powerStation.LogisticsContribution, Is.EqualTo(ExpantaNum.Zero));
+        Assert.That(railHub.PowerContribution, Is.EqualTo(ExpantaNum.Zero));
     }
 
     [Test]
@@ -743,10 +743,10 @@ public sealed class C6IndustrialContentTests
                 $"Industrial building '{building.Id}' must not directly consume Food.");
             Assert.That(building.ProductivityConsumption, Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(
-                building.PowerProductionRate > ExpantaNum.Zero ||
-                building.PowerConsumptionRate > ExpantaNum.Zero ||
-                building.LogisticsProductionRate > ExpantaNum.Zero ||
-                building.LogisticsConsumptionRate > ExpantaNum.Zero,
+                building.PowerContribution > ExpantaNum.Zero ||
+                (-building.PowerContribution) > ExpantaNum.Zero ||
+                building.LogisticsContribution > ExpantaNum.Zero ||
+                (-building.LogisticsContribution) > ExpantaNum.Zero,
                 $"Industrial building '{building.Id}' must declare a Power or Logistics flow.");
         }
     }
@@ -763,10 +763,10 @@ public sealed class C6IndustrialContentTests
 
             bool hasRole = building.ResourceGenerationRates.Count > 0 ||
                 building.ResourceConsumptionRates.Count > 0 ||
-                building.PowerProductionRate > ExpantaNum.Zero ||
-                building.PowerConsumptionRate > ExpantaNum.Zero ||
-                building.LogisticsProductionRate > ExpantaNum.Zero ||
-                building.LogisticsConsumptionRate > ExpantaNum.Zero ||
+                building.PowerContribution > ExpantaNum.Zero ||
+                (-building.PowerContribution) > ExpantaNum.Zero ||
+                building.LogisticsContribution > ExpantaNum.Zero ||
+                (-building.LogisticsContribution) > ExpantaNum.Zero ||
                 building.PopulationCapacityGranted > ExpantaNum.Zero ||
                 building.ResearchPowerGranted > ExpantaNum.Zero ||
                 building.FoodProductionRate > ExpantaNum.Zero ||
@@ -1055,7 +1055,7 @@ public sealed class C6IndustrialContentTests
             Is.GreaterThan(0d));
         Assert.That(upper.ProductivityConsumption,
             Is.GreaterThan(lower.ProductivityConsumption));
-        Assert.That(upper.PowerConsumptionRate, Is.GreaterThan(ExpantaNum.Zero));
+        Assert.That(upper.PowerContribution, Is.LessThan(ExpantaNum.Zero));
         Assert.That(research.Effects, Has.Some.Matches<ResearchEffectDefinition>(effect =>
             effect != null &&
             effect.Type == ResearchEffectType.BuildingProductionMultiplier &&
@@ -1508,8 +1508,7 @@ public sealed class C6IndustrialContentTests
         building.ConfigureEconomyForEditor(
             new ExpantaNum("1.15"), ExpantaNum.One, ExpantaNum.One, ExpantaNum.Zero,
             ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
-            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
+            ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero, ExpantaNum.Zero,
             new List<Pair<ResourceDef, ExpantaNum>>(),
             new List<Pair<ResourceDef, ExpantaNum>>
             {

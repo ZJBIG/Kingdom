@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1000051}
   - component: {fileID: 5318767221497904533}
   - component: {fileID: 371367077092302094}
+  - component: {fileID: 2711644140299338734}
   m_Layer: 5
   m_Name: KingdomUIResearchNode
   m_TagString: Untagged
@@ -150,6 +151,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f4c1a2e6b8d4f7c91e0a3b5d7c2e8f1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &2711644140299338734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e5fbb855b44f6e8a43c9b282c375fd, type: 3}
   m_Name:
   m_EditorClassIdentifier:
 --- !u!1 &1000009

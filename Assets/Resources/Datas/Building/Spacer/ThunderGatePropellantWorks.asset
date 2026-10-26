@@ -21,9 +21,8 @@ MonoBehaviour:
   costGrowth: "1.25"
   spaceCost: "0"
   productivityConsumption: "746.666666666667"
-  powerConsumptionRate: "460"
-  logisticsProductionRate: "16"
-  logisticsConsumptionRate: "54.666666666667"
+  powerContribution: -460
+  logisticsContribution: -38.666666666667
   resourceRequirements:
   - resource: {fileID: 11400000, guid: 7de4205da9ac6c241bf3dd0b35aa9652, type: 2}
     amount: "42000"

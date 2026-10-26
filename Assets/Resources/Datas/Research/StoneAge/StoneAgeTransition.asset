@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755e6eabd0fdcbc4c92dd540b39a0ec9, type: 3}
+  m_Name: StoneAgeTransition
+  m_EditorClassIdentifier: 
+  id: StoneAgeTransition
+  Label: "迈入石器时代"
+  Description: "把定居聚落的经验整理为共同的文明基础，正式迈入石器时代，开放新的生产与研究。"
+  BaseCost: "600"
+  prerequisites:
+  - {fileID: 11400000, guid: 8e0fc30982c64b7290ae89c352265c3d, type: 2}
+  resourceRequirements: []
+  effects: []
+  TechLevel: 1
+  AdvancesTechLevel: 1

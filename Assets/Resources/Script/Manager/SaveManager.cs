@@ -773,6 +773,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public WorldEventSaveData Events = new WorldEventSaveData();
         public int CalendarDays;
         public TechLevel TechLevel;
+        public bool HasBuiltHousing;
         public string FoodAmount;
         public string Population;
         public string PopulationChangeProgress;
@@ -830,6 +831,7 @@ public sealed class SaveManager : Singleton<SaveManager>
     {
         public string BuildingId;
         public string Amount;
+        public bool Disabled;
     }
 
     [Serializable]

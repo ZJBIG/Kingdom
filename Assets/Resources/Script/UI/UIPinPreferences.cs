@@ -6,10 +6,8 @@ public static class UIPinPreferences
 {
     public const string Resource = "resource";
     public const string Building = "building";
-    public const string Workshop = "workshop";
     public const string Sector = "sector";
     public const string Research = "research";
-    public const string RelicSupportId = "relic-support";
 
     public static bool IsPinned(string kind, string id) =>
         PlayerPrefs.GetInt(Key(kind, id), 0) != 0;

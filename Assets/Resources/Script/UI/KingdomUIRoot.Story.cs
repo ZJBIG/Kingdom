@@ -10,6 +10,7 @@ public sealed partial class KingdomUIRoot
     private StoryChapterCard storyChapterCardPrefab;
     private StoryIllustrationPreview storyIllustrationPreview;
     private bool storyPageBuilt;
+    private Vector2 storyScrollViewportSize;
     private string storyPageStateSignature = string.Empty;
     private string storyProgressSignature = string.Empty;
     private int storyObservedUnlockCount = -1;
@@ -45,10 +46,16 @@ public sealed partial class KingdomUIRoot
         storyObservedEraInitialized = true;
     }
 
-    private void BuildStoryPage(RectTransform page, bool refresh)
+    private bool BuildStoryPage(RectTransform page, bool refresh)
     {
         if (page == null)
-            return;
+            return false;
+        TutorialManager tutorial = TutorialManager.Current;
+        TechLevel era = GameManager.Instance == null || GameManager.Instance.State == null
+            ? TechLevel.Animal : GameManager.Instance.State.TechLevel;
+        if (!refresh && storyPageBuilt && GetStoryStateSignature(
+                StoryManager.GetProgressSignature(era, tutorial)) == storyPageStateSignature)
+            return false;
 
         string previousSignature = storyPageStateSignature;
         string previousProgressSignature = storyProgressSignature;
@@ -60,6 +67,7 @@ public sealed partial class KingdomUIRoot
         try
         {
             BuildStoryPageInternal(page, refresh);
+            return true;
         }
         catch (Exception exception)
         {
@@ -81,6 +89,7 @@ public sealed partial class KingdomUIRoot
             if (!previousBuilt)
                 BuildStoryFailureCard(page);
             Debug.LogException(exception);
+            return !previousBuilt;
         }
     }
 
@@ -380,7 +389,6 @@ public sealed partial class KingdomUIRoot
         if (!storyChapterCollapsed.ContainsKey(chapterId))
             storyChapterCollapsed[chapterId] = !card.IsExpanded;
         ToggleStoryChapter(chapterId);
-        UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Detail);
         card.SetExpanded(!IsStoryChapterCollapsed(chapterId));
         Canvas.ForceUpdateCanvases();
     }
@@ -567,6 +575,8 @@ public sealed partial class KingdomUIRoot
             : GameManager.Instance.State.TechLevel;
         string progressSignature = StoryManager.GetProgressSignature(era, tutorial);
         string currentSignature = GetStoryStateSignature(progressSignature);
+        if (wasBuilt && previous == currentSignature)
+            return;
         if (wasBuilt && progressSignature == storyProgressSignature &&
             previous != currentSignature && RefreshStoryMeaningInPlace(
                 page, era, tutorial, progressSignature))

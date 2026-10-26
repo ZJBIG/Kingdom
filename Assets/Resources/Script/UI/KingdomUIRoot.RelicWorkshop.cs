@@ -37,27 +37,16 @@ public sealed partial class KingdomUIRoot
         visible++;
         row.name = "RelicSupportWorkshopRow";
         ApplyEraRowStyle(row, TechLevel.Spacer, index);
-        BindRowPin(row, UIPinPreferences.Workshop, UIPinPreferences.RelicSupportId);
-        Transform tier = row.transform.Find("TechLevel") ?? row.transform.Find("Amount");
-        if (tier != null) tier.name = "TechLevel";
+        Image icon = row.transform.Find("WorkshopIcon")?.GetComponent<Image>();
+        if (icon != null) BindArtworkIcon(icon, game.Relic.Definition.Sector.Icon, "远征支援组件");
         SetRowText(row, "Label", "远征支援组件 · 自主制造");
-        SetRowText(row, "TechLevel", state.SupportReady || !string.IsNullOrEmpty(state.SupportedSectorId)
+        SetRowText(row, "TechLevel", TechLevel.Spacer.GetDescription());
+        SetRowText(row, "Effect", state.SupportReady || !string.IsNullOrEmpty(state.SupportedSectorId)
             ? "已有待用或服役支援" : "单次制造 · 降低一场远星战役补给", TextSecondary);
         Button card = RequireRowButton(row);
-        Button purchase = RequireChildButton(row, row.transform.Find("PurchaseButton") == null
-            ? "BuildButton" : "PurchaseButton");
-        Button remove = RequireChildButton(row, "DeconstructButton");
-        if (card == null || purchase == null || remove == null)
+        Button purchase = RequireChildButton(row, "PurchaseButton");
+        if (card == null || purchase == null)
             return;
-        RectTransform purchaseRect = purchase.transform as RectTransform;
-        RectTransform removeRect = remove.transform as RectTransform;
-        purchaseRect.anchorMin = removeRect.anchorMin;
-        purchaseRect.anchorMax = removeRect.anchorMax;
-        purchaseRect.pivot = removeRect.pivot;
-        purchaseRect.anchoredPosition = removeRect.anchoredPosition;
-        purchaseRect.sizeDelta = removeRect.sizeDelta;
-        remove.gameObject.SetActive(false);
-        purchase.name = "PurchaseButton";
         SetBuildingActionButtonText(purchase, "制造支援");
         purchase.interactable = canCraft;
         SetBuildingActionButtonState(purchase, canCraft);
