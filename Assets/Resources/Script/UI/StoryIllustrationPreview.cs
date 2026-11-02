@@ -20,7 +20,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
     private float previousPinchDistance;
     private Vector2 previousPinchCenter;
     private Camera eventCamera;
-    private bool dragging;
+    private int dragPointerId = int.MinValue;
     private bool pinching;
     private bool movedSincePress;
 
@@ -69,7 +69,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
             image.sprite = null;
         if (title != null)
             title.text = string.Empty;
-        dragging = false;
+        dragPointerId = int.MinValue;
         pinching = false;
         movedSincePress = false;
         previousPinchDistance = 0f;
@@ -92,6 +92,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         image.rectTransform.anchoredPosition = Vector2.zero;
         image.preserveAspect = true;
         previousPinchDistance = 0f;
+        dragPointerId = int.MinValue;
     }
 
     public void ZoomAt(float multiplier, Vector2 screenPosition, Camera camera = null)
@@ -137,15 +138,22 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
     public void OnBeginDrag(PointerEventData eventData)
     {
         movedSincePress = true;
-        dragging = Input.touchCount < 2;
+        dragPointerId = Input.touchCount < 2 ? eventData.pointerId : int.MinValue;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, eventData.position,
             eventData.pressEventCamera, out previousDragPosition);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!dragging || pinching || Input.touchCount >= 2)
+        if (pinching || Input.touchCount >= 2)
             return;
+        if (dragPointerId != eventData.pointerId)
+        {
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, eventData.position - eventData.delta,
+                    eventData.pressEventCamera, out previousDragPosition))
+                return;
+            dragPointerId = eventData.pointerId;
+        }
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, eventData.position,
                 eventData.pressEventCamera, out Vector2 position))
         {
@@ -154,7 +162,11 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         }
     }
 
-    public void OnEndDrag(PointerEventData eventData) => dragging = false;
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (eventData.pointerId == dragPointerId)
+            dragPointerId = int.MinValue;
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -182,7 +194,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
         if (Input.touchCount < 2)
         {
             if (pinching)
-                dragging = false;
+                dragPointerId = int.MinValue;
             pinching = false;
             previousPinchDistance = 0f;
             return;
@@ -198,7 +210,7 @@ public sealed class StoryIllustrationPreview : MonoBehaviour,
                 return;
             pinching = true;
             movedSincePress = true;
-            dragging = false;
+            dragPointerId = int.MinValue;
         }
         if (previousPinchDistance > 0f)
         {

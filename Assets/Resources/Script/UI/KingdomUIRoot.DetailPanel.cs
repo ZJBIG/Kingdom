@@ -26,7 +26,7 @@ public sealed partial class KingdomUIRoot
     private readonly List<ResourceBuildingFlow> resourceConsumerFlowBuffer = new();
     private readonly StringBuilder resourceDetailTextBuilder = new();
 
-    private void ShowDetails(string title, string description, string id)
+    private void ShowDetails(string title, string description)
     {
         if (detailBody == null)
             return;
@@ -39,7 +39,7 @@ public sealed partial class KingdomUIRoot
         selectedResource = null;
         selectedWorkshop = null;
         selectedSectorDefinition = null;
-        detailBody.text = title + "\n\n" + description + "\n\n标识：" + id;
+        detailBody.text = title + "\n\n" + description;
         HideBuildingRequirements();
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
@@ -74,8 +74,6 @@ public sealed partial class KingdomUIRoot
         }
         ExpantaNum quantity = building is SectorBuildingDef ? ExpantaNum.One
             : GetSelectedBuildingQuantity(building, upgrading, false);
-        if (quantity < ExpantaNum.One)
-            return requirements;
 
         if (upgrading)
         {
@@ -190,10 +188,7 @@ public sealed partial class KingdomUIRoot
             BuildingManager.Instance.States.TryGetValue(building, out BuildingState existing)
             ? existing
             : null;
-        if (useCompactBuildingDetails)
-            SetCompactBuildingDetailBody(building);
-        else
-            SetBuildingDetailBody(building, state);
+        SetBuildingDetailBody(building, state);
         bool upgrading = state != null && state.Amount > ExpantaNum.Zero &&
             BuildingManager.Instance != null &&
             BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
@@ -207,7 +202,7 @@ public sealed partial class KingdomUIRoot
         List<Pair<ResourceDef, ExpantaNum>> requirements = GetNextBuildingRequirements(building, state, upgrading);
         ultraDetailRequirementCount = requirements == null ? 0 : requirements.Count;
         ultraDetailFlowCount = CountFlows(output) + CountFlows(input);
-        ShowBuildingRequirements(requirements, GetBuildingRequirementHeading(building, state));
+        ShowBuildingRequirements(requirements, GetBuildingRequirementHeading(building, state, upgrading));
         PlaceRequirementsAfterDescription(
             requirements == null ? 0 : requirements.Count,
             preservedScrollPosition,
@@ -218,6 +213,7 @@ public sealed partial class KingdomUIRoot
 
     private void SetBuildingDetailBody(BuildingDef building, BuildingState state)
     {
+        if (useCompactBuildingDetails) state = BuildingManager.Instance?.GetState(building);
         StringBuilder text = new();
         if (BuildingManager.IsMegastructure(building)) AppendBuildingIdentity(text, building, state);
         else text.AppendLine(building.Label);
@@ -226,6 +222,14 @@ public sealed partial class KingdomUIRoot
         if (state != null && state.Amount > ExpantaNum.Zero)
             AppendBuildingEfficiency(text, building);
         AppendBuildingStageDetails(text, building, state);
+        if (useCompactBuildingDetails)
+        {
+            detailBody.text = text.ToString();
+            if (state != null && state.IsEnabled && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
+                detailBody.text += "\n停工原因：" + GetStoppedBuildingReason(building);
+            detailBody.gameObject.SetActive(true);
+            return;
+        }
         if (state != null && state.IsEnabled && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
             text.AppendLine("停工原因：" + GetStoppedBuildingReason(building));
         text.AppendLine();
@@ -248,11 +252,11 @@ public sealed partial class KingdomUIRoot
         return total > 0;
     }
 
-    private static string GetBuildingRequirementHeading(BuildingDef building, BuildingState state)
+    private static string GetBuildingRequirementHeading(BuildingDef building, BuildingState state, bool upgrading)
     {
         if (TryGetBuildingDetailStage(building, state, out WorkshopUpgradeDef nextStage))
             return nextStage == null ? "工程建设已完成" : nextStage.Label + " · 建造需求";
-        return "建筑建造需求";
+        return upgrading ? "建筑升级需求" : "建筑建造需求";
     }
 
     private static void AppendBuildingAttribute(StringBuilder text, string icon, ExpantaNum amount, string unit = "")
@@ -288,7 +292,6 @@ public sealed partial class KingdomUIRoot
         if (building.ResearchPowerGranted > ExpantaNum.Zero) outputCount++;
         if (building.PowerContribution > ExpantaNum.Zero) outputCount++;
         if (building.LogisticsContribution > ExpantaNum.Zero) outputCount++;
-        bool hasOutput = false;
         foreach (var output in building.ResourceGenerationRates)
             if (output.First != null && output.Second > ExpantaNum.Zero)
                 AppendEfficiency(output.First.Label, DisplayedBuildingResourceMultiplier(building, output.First));
@@ -300,7 +303,7 @@ public sealed partial class KingdomUIRoot
             AppendEfficiency("<sprite=\"HudPower\" index=0>", DisplayedBuildingPower(building) / building.PowerContribution);
         if (building.LogisticsContribution > ExpantaNum.Zero)
             AppendEfficiency("<sprite=\"HudLogistics\" index=0>", DisplayedBuildingLogistics(building) / building.LogisticsContribution);
-        if (!hasOutput)
+        if (outputCount == 0)
             text.AppendLine("<sprite=\"HudProductionEfficiency\" index=0>" + (DisplayedBuildingOperatingEfficiency(building) * 100).ToGameString() + "%");
 
         void AppendEfficiency(string label, ExpantaNum multiplier)
@@ -308,7 +311,6 @@ public sealed partial class KingdomUIRoot
             text.Append("<sprite=\"HudProductionEfficiency\" index=0>");
             if (outputCount > 1) text.Append(label).Append("：");
             text.Append((multiplier * 100).ToGameString()).AppendLine("%");
-            hasOutput = true;
         }
     }
 
@@ -325,21 +327,10 @@ public sealed partial class KingdomUIRoot
     private static void AppendBuildingIdentity(StringBuilder text, BuildingDef building, BuildingState state)
     {
         WorkshopUpgradeDef latest = null;
-        bool staged = BuildingManager.IsMegastructure(building);
-        if (staged && state != null && state.Amount > ExpantaNum.Zero)
+        if (state != null && state.Amount > ExpantaNum.Zero)
             GetSectorBuildingStage(building, out _, out latest, out _, out _);
-        text.AppendLine((staged ? "当前阶段：" : string.Empty) + (latest == null ? building.Label : latest.Label));
+        text.AppendLine("当前阶段：" + (latest == null ? building.Label : latest.Label));
         text.AppendLine(latest == null ? building.Description : latest.Description);
-    }
-
-    private static void GetBuildingCapacityNeeds(BuildingDef building, bool upgrading, ExpantaNum quantity,
-        out ExpantaNum space)
-    {
-        space = building is SectorBuildingDef ? ExpantaNum.Zero : building.SpaceCost * quantity;
-        if (upgrading && BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out BuildingDef target))
-        {
-            space = (target.SpaceCost - building.SpaceCost) * quantity;
-        }
     }
 
     private void AppendBuildingCapacityRequirements(StringBuilder text, BuildingDef building)
@@ -359,7 +350,8 @@ public sealed partial class KingdomUIRoot
             }
             return;
         }
-        GetBuildingCapacityNeeds(building, upgrading, quantity, out ExpantaNum space);
+        ExpantaNum space = upgrading ? (target.SpaceCost - building.SpaceCost) * quantity
+            : building is SectorBuildingDef ? ExpantaNum.Zero : building.SpaceCost * quantity;
         text.AppendLine((upgrading ? "本次升级 ×" : "本次建造 ×") + quantity.ToGameString());
         if (upgrading) text.AppendLine("升级为：" + target.Label);
         bool landShortage = space > ExpantaNum.Zero && space > GameManager.Instance.State.AvailableTerritory;
@@ -368,10 +360,6 @@ public sealed partial class KingdomUIRoot
                 GameManager.Instance.State.AvailableTerritory);
         AppendBuildingCapacityLine(text, "<sprite=\"HudProductivity\" index=0>", manager.UsedProductivity,
             manager.TotalProductivity);
-        manager.GetConstructionFailures(building, quantity, upgrading, buildingAvailabilityFailures);
-        bool materialsShortage = buildingAvailabilityFailures.Contains(BuildFailure.ResourceInsufficient);
-        text.AppendLine((materialsShortage ? MaterialsShortageIcon + " 资源不足"
-            : MaterialsIcon + " 资源充足"));
     }
 
     private static void AppendBuildingCapacityLine(StringBuilder text, string label, ExpantaNum required, ExpantaNum available)
@@ -415,7 +403,7 @@ public sealed partial class KingdomUIRoot
         TMP_Text requirementHeading = requirementContent == null ? null
             : requirementContent.Find("Heading")?.GetComponent<TMP_Text>();
         if (detailBuildingUpgrade != upgrading || requirementHeading == null ||
-            requirementHeading.text != GetBuildingRequirementHeading(building, state) || !RefreshRequirementRows(requirements))
+            requirementHeading.text != GetBuildingRequirementHeading(building, state, upgrading) || !RefreshRequirementRows(requirements))
         {
             ShowBuildingDetails(building, true);
             return;
@@ -438,10 +426,10 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        if (useCompactBuildingDetails)
-            SetCompactBuildingDetailBody(building);
-        else
-            SetBuildingDetailBody(building, state);
+        string previousBody = detailBody.text;
+        SetBuildingDetailBody(building, state);
+        if (!string.Equals(previousBody, detailBody.text, StringComparison.Ordinal))
+            ResizeDetailBodyIfNeeded(ultraDetailRequirementCount, ultraDetailFlowCount);
         if (detailActionButton != null)
             detailActionButton.gameObject.SetActive(false);
         HideUltraDoctrineButton();
@@ -451,8 +439,8 @@ public sealed partial class KingdomUIRoot
 #if UNITY_EDITOR
     public void ShowResourceDetailsForEditor(ResourceDef resource) =>
         ShowResourceDetails(resource);
-    public void ShowDetailsForEditor(string title, string description, string id) =>
-        ShowDetails(title, description, id);
+    public void ShowDetailsForEditor(string title, string description) =>
+        ShowDetails(title, description);
 #endif
 
     private void ShowResourceDetails(ResourceDef resource)
@@ -499,7 +487,7 @@ public sealed partial class KingdomUIRoot
             ? ExpantaNum.Zero
             : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate);
         ExpantaNum consumption = state == null ? ExpantaNum.Zero : state.ConsumptionRate;
-        ExpantaNum net = NormalizeDisplayedNetRate(production, consumption);
+        ExpantaNum net = production - consumption;
         RefreshResourceBuildingFlows(resource);
         List<ResourceBuildingFlow> producers = resourceProducerFlowBuffer;
         List<ResourceBuildingFlow> consumers = resourceConsumerFlowBuffer;
@@ -535,30 +523,11 @@ public sealed partial class KingdomUIRoot
             requirementGesture.SetNormalizedPosition(preservedScrollPosition);
     }
 
-    private void SetCompactBuildingDetailBody(BuildingDef building)
-    {
-        if (detailBody == null)
-            return;
-        BuildingState state = BuildingManager.Instance?.GetState(building);
-        StringBuilder text = new();
-        if (BuildingManager.IsMegastructure(building)) AppendBuildingIdentity(text, building, state);
-        else text.AppendLine(building.Label);
-        AppendBuildingCapacityRequirements(text, building);
-        AppendBuildingBasicAttributes(text, building);
-        if (state != null && state.Amount > ExpantaNum.Zero)
-            AppendBuildingEfficiency(text, building);
-        AppendBuildingStageDetails(text, building, state);
-        detailBody.text = text.ToString();
-        if (state != null && state.IsEnabled && state.Amount > ExpantaNum.Zero && state.Efficiency <= ExpantaNum.Zero)
-            detailBody.text += "\n停工原因：" + GetStoppedBuildingReason(building);
-        detailBody.gameObject.SetActive(true);
-    }
-
     private static string GetResourceSupplyStatus(ResourceState state, ExpantaNum consumption)
     {
         if (state == null)
             return "当前供给状态：未初始化";
-        if (consumption <= ExpantaNum.Zero)
+        if (consumption <= ExpantaNum.Zero && state.TickPotentialConsumptionRate <= ExpantaNum.Zero)
             return "当前供给状态：无消耗需求";
 
         ExpantaNum satisfaction = state.GetTickSatisfactionOrFallback();
@@ -566,7 +535,7 @@ public sealed partial class KingdomUIRoot
             return "当前供给状态：供给充足".Colorize(Positive);
         if (satisfaction > ExpantaNum.Zero)
             return ("当前供给状态：供给不足（满足度 " +
-                satisfaction.ToGameString() + "）").Colorize(Error);
+                (satisfaction * new ExpantaNum(100)).ToGameString() + "%）").Colorize(Error);
         return "当前供给状态：暂无供给".Colorize(Error);
     }
 
@@ -685,10 +654,8 @@ public sealed partial class KingdomUIRoot
         body.anchorMax = new Vector2(1, 1);
         body.pivot = new Vector2(.5f, 1f);
         float width = GetMeasuredDetailTextWidth(body);
-        float bodyHeight = Mathf.Clamp(
-            detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f,
-            96f,
-            1400f);
+        float bodyHeight = Mathf.Max(96f,
+            detailBody.GetPreferredValues(detailBody.text, width, 1000f).y + 20f);
         // The body height only changes when the line count changes; ordinary
         // value refreshes keep the same height. Skip the two full-canvas
         // immediate layout passes unless the height actually changed, otherwise
@@ -771,7 +738,7 @@ public sealed partial class KingdomUIRoot
             research.ResourceRequirements == null ? 0 : research.ResourceRequirements.Count,
             keepScrollPosition ? (float?)savedRequirementScrollPosition : null,
             0);
-        ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        ConfigureActionButton(GetResearchQueueActionLabel(research, state), () => ResearchAction(research));
         if (detailActionButton != null)
             detailActionButton.interactable = IsResearchActionAvailable(research, state);
         CaptureResearchRefreshSignatures();
@@ -858,13 +825,6 @@ public sealed partial class KingdomUIRoot
         if (research == null)
             return;
 
-        bool hasConnection = false;
-        if (research.AdvancesTechLevel)
-        {
-            builder.AppendLine("  完成后推进至：" + research.TechLevel.GetDescription());
-            hasConnection = true;
-        }
-
         int buildingCount = 0;
         IReadOnlyList<BuildingDef> buildings = DataBase<BuildingDef>.All;
         for (int i = 0; i < buildings.Count && buildingCount < 3; i++)
@@ -873,9 +833,8 @@ public sealed partial class KingdomUIRoot
             if (building == null || building is SectorBuildingDef ||
                 !ContainsResearch(building.RequiredResearch, research))
                 continue;
-            builder.AppendLine("  解锁建筑方向：" + building.Label);
+            builder.AppendLine("  关联建筑：" + building.Label);
             buildingCount++;
-            hasConnection = true;
         }
 
         int researchCount = 0;
@@ -888,10 +847,9 @@ public sealed partial class KingdomUIRoot
                 continue;
             builder.AppendLine("  研究后续方向：" + next.Label);
             researchCount++;
-            hasConnection = true;
         }
 
-        if (!hasConnection)
+        if (buildingCount == 0 && researchCount == 0)
             builder.AppendLine("  没有以本研究为直接前置的普通建筑或后续研究。");
     }
 
@@ -935,9 +893,10 @@ public sealed partial class KingdomUIRoot
             preservedScrollPosition,
             0);
         ConfigureWorkshopPaymentButton(definition);
+        RefreshReviewControls();
     }
 
-    private void SetWorkshopDetailBody(WorkshopUpgradeDef definition)
+    private bool SetWorkshopDetailBody(WorkshopUpgradeDef definition)
     {
         StringBuilder text = new();
         text.AppendLine(definition.Label);
@@ -954,9 +913,6 @@ public sealed partial class KingdomUIRoot
             text.AppendLine("工程本体：" + definition.RequiredBuilding.Label);
         if (definition.RequiredSector != null)
             text.AppendLine("占领星区：" + definition.RequiredSector.Label);
-        text.AppendLine();
-        string availability = GetWorkshopAvailability(definition, out _);
-        if (!string.IsNullOrEmpty(availability)) text.AppendLine("当前状态：" + availability);
         text.AppendLine();
         text.AppendLine("效果");
         AppendWorkshopEffects(text, definition.Effects);
@@ -978,8 +934,10 @@ public sealed partial class KingdomUIRoot
                     : "：待建设"));
         }
         string body = text.ToString();
-        if (detailBody.text != body)
-            detailBody.text = body;
+        if (detailBody.text == body)
+            return false;
+        detailBody.text = body;
+        return true;
     }
 
     private static void AppendWorkshopBenefitPreview(StringBuilder text, WorkshopUpgradeDef definition)
@@ -997,10 +955,10 @@ public sealed partial class KingdomUIRoot
                 text.AppendLine("结构记录已保留；重建工程本体后恢复收益，无需重复购买。");
             return;
         }
-        text.AppendLine("购买后速率预览（按当前持有数量和效率）");
-        text.AppendLine("资源产出包含当前幸福加成；持续原料不受该加成放大。");
         IReadOnlyList<WorkshopBenefitRatePreview> rates = manager.GetPurchaseBenefitPreview(definition);
-        bool extraInputs = false;
+        if (rates.Count == 0) return;
+        text.AppendLine("购买后效果预览（按当前持有数量和效率）");
+        text.AppendLine("资源产出包含当前幸福加成；持续原料不受该加成放大。");
         for (int i = 0; i < rates.Count; i++)
         {
             WorkshopBenefitRatePreview rate = rates[i];
@@ -1015,17 +973,13 @@ public sealed partial class KingdomUIRoot
                 WorkshopBenefitRateKind.LogisticsProduction => "物流供给",
                 _ => string.Empty
             };
-            extraInputs |= rate.Kind == WorkshopBenefitRateKind.ResourceConsumption && rate.Change > ExpantaNum.Zero;
+            string unit = rate.Kind == WorkshopBenefitRateKind.PowerProduction ||
+                rate.Kind == WorkshopBenefitRateKind.LogisticsProduction ? string.Empty : "/s";
             text.Append("  ").Append(target).Append(" / ").Append(metric).Append(": ")
                 .Append(rate.Before.ToGameString()).Append(" → ").Append(rate.After.ToGameString())
-                .Append("/s（变化 ").Append(rate.Change > ExpantaNum.Zero ? "+" : string.Empty)
-                .Append(rate.Change.ToGameString()).AppendLine("/s）");
+                .Append(unit).Append("（变化 ").Append(rate.Change > ExpantaNum.Zero ? "+" : string.Empty)
+                .Append(rate.Change.ToGameString()).Append(unit).AppendLine("）");
         }
-        if (rates.Count == 0)
-            text.AppendLine("  当前没有建筑速率收益变化；作用对象及其他长期效果见上方。尚未持有的目标建筑建成后才有建筑收益。");
-        else if (!extraInputs)
-            text.AppendLine("  当前建筑的持续原料速率不增加。");
-        text.AppendLine("原料、电力和物流约束变化后会重算效率；预计增产仍需持续供应原料。");
     }
 
     private static void AppendWorkshopEffects(
@@ -1110,7 +1064,7 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private void ConfigureWorkshopPaymentButton(WorkshopUpgradeDef definition, bool bindAction = true)
+    private void ConfigureWorkshopPaymentButton(WorkshopUpgradeDef definition)
     {
         if (detailActionButton == null)
             return;
@@ -1125,17 +1079,19 @@ public sealed partial class KingdomUIRoot
         detailActionButton.gameObject.SetActive(!string.IsNullOrEmpty(availability));
     }
 
-    private void PurchaseWorkshopFromRow(WorkshopUpgradeDef definition)
+    private void PurchaseWorkshopUpgrade(WorkshopUpgradeDef definition)
     {
         if (definition == null || WorkshopManager.Instance == null)
             return;
         bool purchased = WorkshopManager.Instance.TryPurchase(
             definition, out WorkshopPurchaseFailure failure);
-        Debug.Log("[界面] 工坊行购买：id=" + definition.Id + "，结果=" + failure);
+        Debug.Log("[界面] 工坊购买：id=" + definition.Id + "，结果=" + failure);
         if (purchased)
             UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
         else if (failure != WorkshopPurchaseFailure.SystemLocked)
             ShowTooltip("购买失败：" + GetWorkshopAvailability(definition, out _));
+        if (purchased && selectedWorkshop != null && SetWorkshopDetailBody(selectedWorkshop))
+            ResizeDetailBodyIfNeeded(selectedWorkshop.ResourceRequirements?.Count ?? 0, 0);
         if (purchased && populatedPage == "Workshop")
             RefreshWorkshopRows();
     }
@@ -1144,14 +1100,7 @@ public sealed partial class KingdomUIRoot
     {
         if (definition == null || WorkshopManager.Instance == null)
             return;
-        bool purchased = WorkshopManager.Instance.TryPurchase(definition, out WorkshopPurchaseFailure failure);
-        Debug.Log("[界面] 工坊支付：id=" + definition.Id + "，结果=" + failure);
-        if (purchased)
-            UIButtonSoundManager.Play(UIButtonSoundManager.Sound.WorkshopPurchase);
-        else if (failure != WorkshopPurchaseFailure.SystemLocked)
-            ShowTooltip("购买失败：" + GetWorkshopAvailability(definition, out _));
-        if (purchased && populatedPage == "Workshop")
-            RefreshWorkshopRows();
+        PurchaseWorkshopUpgrade(definition);
         ShowWorkshopDetails(definition, true);
     }
 
@@ -1172,7 +1121,7 @@ public sealed partial class KingdomUIRoot
             return;
         }
 
-        ConfigureActionButton("加入研究队列", () => ResearchAction(research));
+        ConfigureActionButton(GetResearchQueueActionLabel(research, state), () => ResearchAction(research));
         if (detailActionButton != null)
             detailActionButton.interactable = IsResearchActionAvailable(research, state);
     }
@@ -1231,8 +1180,10 @@ public sealed partial class KingdomUIRoot
         if (state != null && state.Status == ResearchStatus.Completed)
             return "研究已完成";
         ResearchManager manager = ResearchManager.Instance;
-        if (manager?.ActiveResearch?.Definition == research) return "取消当前研究";
-        return manager != null && manager.IsQueued(research) ? "移出研究队列" : "加入研究队列";
+        if (manager?.ActiveResearch?.Definition == research) return "移出研究队列";
+        if (manager != null && manager.IsQueued(research)) return "移出研究队列";
+        return manager != null && research != null && !manager.ArePrerequisitesCompleted(research)
+            ? "加入队列（前置优先）" : "加入研究队列";
     }
 
     private static bool IsResearchActionAvailable(ResearchDef research, ResearchState state)
@@ -1242,9 +1193,8 @@ public sealed partial class KingdomUIRoot
         ResearchManager manager = ResearchManager.Instance;
         if (manager == null)
             return false;
-        if (manager.ActiveResearch?.Definition == research || manager.IsQueued(research))
-            return true;
-        return manager.CanAccessResearch(research);
+        return manager.ActiveResearch?.Definition == research ||
+            manager.IsQueued(research) || manager.CanAccessResearch(research);
     }
 
     private static bool CanInspectResearch(ResearchDef research)
@@ -1377,13 +1327,6 @@ public sealed partial class KingdomUIRoot
         if (requirementHost == null || requirementContent == null || !requirementHost.gameObject.activeSelf)
             return false;
 
-        int validCount = 0;
-        if (requirements != null)
-            for (int i = 0; i < requirements.Count; i++)
-                if (requirements[i] != null && requirements[i].First != null)
-                    validCount++;
-
-        int updated = 0;
         if (requirements != null)
             for (int i = 0; i < requirements.Count; i++)
             {
@@ -1397,9 +1340,8 @@ public sealed partial class KingdomUIRoot
                     return false;
                 SetTextIfChanged(label, requirement.First.Label);
                 SetTextIfChanged(amount, FormatRequirementAmount(requirement));
-                updated++;
             }
-        return updated == validCount;
+        return true;
     }
 
     private string FormatRequirementAmount(Pair<ResourceDef, ExpantaNum> requirement)
@@ -1407,11 +1349,28 @@ public sealed partial class KingdomUIRoot
         if (requirement.First == null)
             return string.Empty;
 
+        if ((selectedResearchNode != null && ResearchManager.TryGetInstance(out ResearchManager research) &&
+            research.GetState(selectedResearchNode)?.CostPaid == true) || IsWorkshopPurchased(selectedWorkshop))
+            return requirement.Second.ToGameString() + "（已支付）";
+
         ExpantaNum owned = ExpantaNum.Zero;
         ResourceManager resourceManager = ResourceManager.Instance;
         if (resourceManager != null && resourceManager.States.TryGetValue(requirement.First, out ResourceState resourceState))
             owned = resourceState.Amount;
-        return requirement.Second.ToGameString() + " (" + owned.ToGameString() + ")";
+        string amount = detailBuildingUpgrade && requirement.Second < ExpantaNum.Zero
+            ? "返还 " + requirement.Second.Abs().ToGameString()
+            : requirement.Second.ToGameString();
+        return amount + " (" + owned.ToGameString() + ")";
+    }
+
+    private void ResizeDetailBodyIfNeeded(int requirementCount, int flowCount)
+    {
+        RectTransform body = detailBody.rectTransform;
+        float bodyHeight = Mathf.Max(96f,
+            detailBody.GetPreferredValues(detailBody.text, GetMeasuredDetailTextWidth(body), 1000f).y + 18f);
+        if (!Mathf.Approximately(body.rect.height, bodyHeight))
+            PlaceRequirementsAfterDescription(requirementCount,
+                requirementGesture == null ? (float?)null : requirementGesture.GetNormalizedPosition(), flowCount);
     }
 
     private void PlaceRequirementsAfterDescription(
@@ -1585,12 +1544,14 @@ public sealed partial class KingdomUIRoot
     private bool RefreshFlowRows(IReadOnlyList<Pair<ResourceDef, ExpantaNum>> output,
         IReadOnlyList<Pair<ResourceDef, ExpantaNum>> input)
     {
-        if (flowHost == null || flowContent == null || !flowHost.gameObject.activeSelf)
+        if (flowHost == null || flowContent == null)
             return false;
 
         int expected = CountFlows(output) + CountFlows(input);
         if (flowContent.childCount - 1 != expected)
             return false;
+        if (!flowHost.gameObject.activeSelf)
+            return expected == 0;
 
         int index = 0;
         if (!RefreshFlowRowsInPlace(flowContent, output, ref index, false) ||
@@ -1665,35 +1626,19 @@ public sealed partial class KingdomUIRoot
 
     private static string FormatFlowAmount(Pair<ResourceDef, ExpantaNum> flow, bool consumption)=> (consumption ? "-" : "+") + flow.Second.ToGameString() + "/s";
 
-    private static ExpantaNum NormalizeDisplayedNetRate(
-        ExpantaNum production, ExpantaNum consumption)
-    {
-        return production.ApproximatelyEquals(consumption)
-            ? ExpantaNum.Zero
-            : production - consumption;
-    }
-
     private void ConfigureActionButton(string label, UnityEngine.Events.UnityAction action)
     {
         HideUltraDoctrineButton();
-        if (!detailIsBuilding && selectedResearchNode != null)
-        {
-            ResearchState researchState = null;
-            if (ResearchManager.Instance != null)
-                ResearchManager.Instance.States.TryGetValue(selectedResearchNode, out researchState);
-            label = GetResearchQueueActionLabel(selectedResearchNode, researchState);
-        }
         if (detailActionButton == null)
             return;
         detailActionButton.gameObject.SetActive(true);
         detailActionButton.interactable = true;
         detailActionButton.onClick.RemoveAllListeners();
-        detailActionButton.onClick.AddListener(() => action());
-        TMP_Text text = GetDetailButtonText(detailActionButton, ref detailActionButtonText);
-        if (text != null)
-            text.text = detailIsBuilding
-                ? (detailBuildingUpgrade ? "升级 1 个" : "建造 1 个")
-                : label;
+        detailActionButton.onClick.AddListener(action);
+        if (detailActionButtonText == null)
+            detailActionButtonText = detailActionButton.GetComponentInChildren<TMP_Text>(true);
+        if (detailActionButtonText != null)
+            detailActionButtonText.text = label;
 #if UNITY_EDITOR
         KingdomEditorPerfLog.Write(
             $"[KingdomPerf] ResearchActionButton active={detailActionButton.gameObject.activeSelf} " +
@@ -1702,18 +1647,11 @@ public sealed partial class KingdomUIRoot
 #endif
     }
 
-    private static TMP_Text GetDetailButtonText(Button button, ref TMP_Text cached)
-    {
-        if (cached == null && button != null)
-            cached = button.GetComponentInChildren<TMP_Text>(true);
-        return cached;
-    }
-
     private void ResearchAction(ResearchDef research)
     {
         if (ResearchManager.Instance == null)
         {
-            ShowDetails("研究", "研究管理器尚未初始化。", research.Id);
+            ShowDetails("研究", "研究管理器尚未初始化。");
             return;
         }
         HandleResearchUiAction(research);
@@ -1749,7 +1687,7 @@ public sealed partial class KingdomUIRoot
 /// </summary>
 public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
     IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler,
-    IEndDragHandler, IPointerDownHandler, IPointerUpHandler
+    IEndDragHandler, IPointerDownHandler, IPointerUpHandler, IScrollHandler
 {
     private RectTransform viewport;
     private RectTransform content;
@@ -1803,6 +1741,15 @@ public sealed class UIDetailRequirementScrollGesture : MonoBehaviour,
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         eventData.useDragThreshold = true;
+    }
+
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (!isActiveAndEnabled || viewport == null || content == null)
+            return;
+        content.anchoredPosition -= new Vector2(0f, eventData.scrollDelta.y * 80f);
+        ClampContent();
+        eventData.Use();
     }
 
     public void OnPointerDown(PointerEventData eventData)

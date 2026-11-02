@@ -55,7 +55,7 @@ public sealed partial class KingdomUIRoot
         reviewRepair = ReviewButton(reviewDetailTools, "Repair", PreviewFleetRepair);
         reviewDetailHeading = detailPanel.Find("DetailUI/Header/HeaderLabel").gameObject;
         reviewPageTools = root.Find("PageTools"); reviewPageTools.SetParent(content.Find("PageTool"), false);
-        reviewCurrentResearch = ReviewButton(reviewPageTools, "CurrentResearch", () => NavigateToOverviewResearch(ResearchManager.Instance?.ActiveResearch?.Definition));
+        reviewCurrentResearch = ReviewButton(reviewPageTools, "CurrentResearch", () => NavigateToOverviewResearch(GetCurrentResearchTarget()));
         reviewResetResearch = ReviewButton(reviewPageTools, "ResetResearch", () => researchGraphGesture?.ResetView(DefaultResearchScale));
         reviewOffline = ReviewButton(reviewPageTools, "Offline", () =>
         {
@@ -65,7 +65,9 @@ public sealed partial class KingdomUIRoot
         {
             if (SaveManager.TryGetInstance(out SaveManager save))
             {
-                save.SaveNow(true); ShowTooltip(save.LastSaveFailed ? "保存失败：" + save.LastSaveError : "保存成功"); RefreshUI();
+                ShowTooltip(save.SaveNow(true) ? "保存成功" : string.IsNullOrEmpty(save.LastSaveError)
+                    ? "保存失败" : "保存失败：" + save.LastSaveError);
+                RefreshUI();
             }
         });
         detailBody.raycastTarget = true;
@@ -104,7 +106,6 @@ public sealed partial class KingdomUIRoot
 
     private void RefreshReviewControls()
     {
-        RefreshDetailPin();
         RefreshProductionEntry();
         if (reviewDetailTools == null) return;
         ObserveStrategicSupplyPause();
@@ -126,7 +127,7 @@ public sealed partial class KingdomUIRoot
         bool overview = populatedPage == "Overview", graph = populatedPage == "Research";
         reviewPageTools.gameObject.SetActive(overview || graph);
         reviewCurrentResearch.gameObject.SetActive(graph); reviewResetResearch.gameObject.SetActive(graph);
-        reviewCurrentResearch.interactable = manager?.ActiveResearch != null;
+        reviewCurrentResearch.interactable = CanInspectResearch(GetCurrentResearchTarget());
         reviewSave.gameObject.SetActive(overview);
         bool summary = SaveManager.TryGetInstance(out SaveManager save) && save.LastOfflineSummary != null;
         reviewOffline.gameObject.SetActive(overview && summary);
@@ -138,6 +139,19 @@ public sealed partial class KingdomUIRoot
         }
     }
 
+    private static ResearchDef GetCurrentResearchTarget()
+    {
+        ResearchManager manager = ResearchManager.Instance;
+        if (manager == null)
+            return null;
+        if (manager.ActiveResearch != null)
+            return manager.ActiveResearch.Definition;
+        return manager.ResearchQueue.Count > 0 &&
+            manager.ResearchQueue[0].Status == ResearchStatus.WaitingResources
+            ? manager.ResearchQueue[0].Definition
+            : null;
+    }
+
     private int SelectedQueueIndex()
     {
         return ResearchManager.Instance?.GetResearchOrderIndex(selectedResearchNode) ?? -1;
@@ -146,7 +160,7 @@ public sealed partial class KingdomUIRoot
     {
         int index = SelectedQueueIndex();
         if (index >= 0 && ResearchManager.Instance.MoveQueuedResearch(selectedResearchNode, index + offset))
-        { RefreshResearchQueueToolbar(); ShowResearchDetails(selectedResearchNode); }
+            ShowResearchDetails(selectedResearchNode);
         RefreshReviewControls();
     }
     private void NavigateToBuildingRow(BuildingDef building)
@@ -180,7 +194,6 @@ public sealed partial class KingdomUIRoot
                 pageScroll.verticalNormalizedPosition = Mathf.Clamp01(1f + local.y / overflow);
             }
         }
-        RefreshReviewControls();
     }
     private void NavigateReviewLink(string id)
     {
@@ -198,7 +211,7 @@ public sealed partial class KingdomUIRoot
         var preview = manager.GetCancellationPreview(research);
         if (preview.Count > 1)
         {
-            StringBuilder warning = new("移出研究及其依赖队列（已支付材料不退还，付款台账和研究进度保留）：");
+            StringBuilder warning = new("移出所选研究及依赖它的后续研究（不退款，付款记录和进度保留）：");
             foreach (ResearchState state in preview) warning.Append('\n').Append(state.Definition.Label);
             ConfirmReviewAction(warning.ToString(), () => ExecuteResearchUiAction(research));
         }
@@ -207,8 +220,7 @@ public sealed partial class KingdomUIRoot
     private void ExecuteResearchUiAction(ResearchDef research)
     {
         ResearchManager.Instance.HandleResearchAction(research);
-        ShowResearchDetails(research, true); RefreshResearchQueueToolbar(); researchQueueUiDirty = false;
-        RefreshReviewControls();
+        ShowResearchDetails(research, true); researchQueueUiDirty = false;
     }
     private void PreviewFleetRepair()
     {
@@ -220,7 +232,7 @@ public sealed partial class KingdomUIRoot
         StringBuilder warning = new("当前舰队损伤："); warning.Append(state.CampaignCasualties.ToGameString()).Append("；本次可支付维修：").Append(amount.ToGameString());
         foreach (var cost in SectorManager.GetFleetRepairCosts(amount)) warning.Append('\n').Append(cost.First.Label).Append("：").Append(cost.Second.ToGameString());
         warning.Append("\n维修不会终止活动战役；确认时再次校验材料。");
-        ConfirmReviewAction(warning.ToString(), () => RepairSectorFleet(sector));
+        ConfirmReviewAction(warning.ToString(), () => RepairSectorFleet(sector, amount));
     }
 
     private void AppendResourceSourceCandidates(StringBuilder text, ResourceDef resource)
@@ -247,7 +259,7 @@ public sealed partial class KingdomUIRoot
             foreach (var flow in building.ResourceGenerationRates)
                 if (flow.First == resource && flow.Second > ExpantaNum.Zero)
                 {
-                    if (!availableHeading) { text.AppendLine("已解锁可建来源（点击定位）："); availableHeading = true; }
+                    if (!availableHeading) { text.AppendLine("未建生产来源（点击定位）："); availableHeading = true; }
                     BuildFailure failure = manager.GetBuildFailure(building, ExpantaNum.One);
                     text.AppendLine(ReviewLink("building", building.Id, building.Label) + "：" + (failure == BuildFailure.None ? "可建" : GetBuildFailureDescription(failure)));
                     break;
@@ -258,8 +270,10 @@ public sealed partial class KingdomUIRoot
     private static string GetStoppedBuildingReason(BuildingDef building)
     {
         BuildingManager manager = BuildingManager.Instance;
+        if (manager.GetState(building)?.IsEnabled == false)
+            return "已停用";
         if (manager.GetLaborOperatingRatio(building) <= ExpantaNum.Zero)
-            return "该建筑劳力开工率为 0%；增加居民或劳力供给可恢复生产";
+            return "生产力不足，开工率为 0%";
         foreach (var flow in building.ResourceConsumptionRates)
             if (flow.Second > ExpantaNum.Zero && ResourceManager.Instance.GetState(flow.First).GetTickSatisfactionOrFallback() <= ExpantaNum.Zero)
                 return "缺少 " + flow.First.Label + "，查看资源详情定位上游";
@@ -299,7 +313,7 @@ public sealed partial class KingdomUIRoot
         if (!preview.HasSupply) text.AppendLine("当前补给不足，无法维持推进；以下预算按补齐供给后、维持当前舰队与姿态估算。");
         ExpantaNum seconds = preview.EstimatedSecondsRemaining;
         text.AppendLine("维持当前舰队与供给，预计还需：" + seconds.ToGameString() + " 秒；持续食物投入：" + (preview.FoodCostPerSecond * seconds).ToGameString());
-        text.AppendLine("预计剩余伤亡：" + (preview.CasualtiesPerSecond * seconds).ToGameString() + "；当前库存可维持：" + preview.EstimatedSupplySeconds.ToGameString() + " 秒（不计未来产出）");
+        text.AppendLine("预计剩余伤亡：" + (preview.CasualtiesPerSecond * seconds).ToGameString() + "；当前库存可维持：" + (preview.HasOngoingSupplyCost ? preview.EstimatedSupplySeconds.ToGameString() + " 秒" : "无限") + "（不计未来产出）");
         foreach (var cost in preview.ResourceCostsPerSecond)
         {
             ExpantaNum total = cost.Second * seconds;

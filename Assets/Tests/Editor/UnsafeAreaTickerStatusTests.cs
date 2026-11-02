@@ -40,12 +40,11 @@ public sealed class UnsafeAreaTickerStatusTests
 
         var notices = UnsafeAreaTickerRules.BuildStatusNotices(state, null);
         foreach (string notice in notices)
-        {
             Assert.That(notice.Length,
                 Is.LessThanOrEqualTo(UnsafeAreaTickerRules.MaximumHeadlineCharacters));
-            StringAssert.Contains("暂停", notice,
-                "Each supply warning must tell the player how to reduce demand.");
-        }
+        StringAssert.Contains("增加食物产出", notices[0]);
+        StringAssert.Contains("扩建发电设施", notices[1]);
+        StringAssert.Contains("扩建物流设施", notices[2]);
     }
 
     [TestCase(false, "：待支付物资")]

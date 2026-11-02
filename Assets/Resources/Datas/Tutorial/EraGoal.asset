@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: EraGoal
   m_EditorClassIdentifier: 
   Id: era-goal
-  Title: 看懂下一时代
-  Description: "打开时代页面，查看下一时代所需的研究、人口与其他条件，点击未完成项前往处理。"
-  NarrativeText: "族谱上有了更多名字，工坊里也有了新工具。再看看时代页面，还有哪项条件没有备齐。"
+  Title: 迈向石器时代
+  Description: 完成定居聚落与真实前置，再完成文明规划和石器时代跃迁。
+  NarrativeText: 让住房、供粮与加工支撑长久定居，迈向新的文明阶段。
   Kind: 6
   NextStepId: long-term
   RewardId: 

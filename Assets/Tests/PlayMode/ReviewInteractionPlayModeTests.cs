@@ -533,6 +533,26 @@ public sealed class ReviewInteractionPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator BatchDeconstruction_DescribesRemovedBuildingsCurrentContribution()
+    {
+        yield return Load();
+        BuildingDef building = DataBase<BuildingDef>.Find("Lumberyard");
+        BuildingState state = BuildingManager.Instance.States[building];
+        BuildingManager.Instance.SetAmountAndRatesForEditor(state, new ExpantaNum(10));
+        ui.SetPage("Buildings");
+        ui.transform.Find("SafeAreaRoot/Content/PageTool/BuildingControls/Quantity_Ten").GetComponent<Button>().onClick.Invoke();
+        ui.RefreshLiveCardValuesForEditor();
+        ui.GetDeconstructButtonForEditor(building).onClick.Invoke();
+        Assert.That(ui.ReviewConfirmationPendingForEditor, Is.True);
+        TMP_Text warning = ui.transform.Find("SafeAreaRoot/ReviewControls/Confirmation/Panel/Viewport/Content/Warning").GetComponent<TMP_Text>();
+        Assert.That(warning.text, Does.Contain("所拆建筑当前数据"));
+        Assert.That(warning.text, Does.Contain("拆除后总量可能不同"));
+        Assert.That(warning.text, Does.Contain("当前产出："));
+        ClickConfirmation("Cancel");
+        Assert.That(state.Amount, Is.GreaterThan(ExpantaNum.Zero));
+    }
+
+    [UnityTest]
     public IEnumerator ResourceSources_ContainClickableLinks_AndNavigateToExecutableBuildingRow()
     {
         yield return Load();
@@ -703,6 +723,10 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(manager.ActiveResearch, Is.SameAs(activeBefore));
         Canvas.ForceUpdateCanvases();
         Transform panel = ui.transform.Find("SafeAreaRoot/ReviewControls/Confirmation/Panel");
+        string warning = panel.Find("Viewport/Content/Warning").GetComponent<TMP_Text>().text;
+        Assert.That(warning, Does.Contain("依赖它的后续研究"));
+        Assert.That(warning, Does.Contain(prerequisite.Label));
+        Assert.That(warning, Does.Contain(target.Label));
         Bounds viewport = RectBounds(panel, (RectTransform)panel.Find("Viewport"));
         Bounds actions = RectBounds(panel, (RectTransform)panel.Find("Actions"));
         Assert.That(viewport.min.y, Is.GreaterThanOrEqualTo(actions.max.y), "Scrollable impact text does not obscure confirm/cancel controls.");
@@ -748,11 +772,14 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(body.text, Does.Not.Contain("先付清材料"));
 
         Assert.That(manager.ArePrerequisitesCompleted(current), Is.False);
+        TMP_Text actionLabel = ui.DetailActionButtonForEditor.GetComponentInChildren<TMP_Text>();
+        Assert.That(actionLabel.text, Does.Contain("前置优先"));
         foreach (var entry in ResourceManager.Instance.States)
             ResourceManager.Instance.SetAmount(entry.Key, ExpantaNum.Zero);
         Assert.That(ui.DetailActionButtonForEditor.interactable, Is.True);
         ui.DetailActionButtonForEditor.onClick.Invoke();
         Assert.That(manager.IsQueued(current), Is.True, "Current-era research can plan unmet prerequisites without materials.");
+        Assert.That(actionLabel.text, Does.Contain("移出"));
         foreach (ResearchDef prerequisite in current.Prerequisites)
             Assert.That(manager.IsQueued(prerequisite) || manager.ActiveResearch?.Definition == prerequisite ||
                 manager.IsResearchCompleted(prerequisite.Id), Is.True);
@@ -764,6 +791,36 @@ public sealed class ReviewInteractionPlayModeTests
         Assert.That(futureNode.interactable, Is.True);
         Assert.That(body.text, Does.Contain(future.Description));
         Assert.That(ui.DetailActionButtonForEditor.interactable, Is.False);
+    }
+
+    [UnityTest]
+    public IEnumerator ResearchEraChange_RefreshesLockedNodeLabelWithoutStateVersionChange()
+    {
+        yield return Load();
+        BuildingManager buildings = BuildingManager.Instance;
+        buildings.SetAmountAndRatesForEditor(
+            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+        ui.SetPage("Research");
+        ResearchDef research = DataBase<ResearchDef>.Find("IndustrialAgriculture");
+        Button node = null;
+        for (int frame = 0; frame < 600; frame++)
+        {
+            Transform graph = ui.transform.Find("SafeAreaRoot/Content/PageHost/Research/DataRows/ResearchGraphViewport/ResearchGraphContent");
+            node = graph?.Find("ResearchNode_" + research.Id)?.GetComponent<Button>();
+            if (node != null) break;
+            yield return null;
+        }
+        Assert.That(node, Is.Not.Null);
+        TMP_Text label = node.transform.Find("State").GetComponent<TMP_Text>();
+        ResearchState state = ResearchManager.Instance.GetState(research);
+        Assert.That(state.Status, Is.EqualTo(ResearchStatus.Locked));
+        Assert.That(label.text, Is.EqualTo("未解锁"));
+        int version = state.Version;
+        GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Industrial);
+        ui.ShowResearchDetailsForEditor(research);
+        Assert.That(state.Version, Is.EqualTo(version), "Only the era changes, not this research state.");
+        Assert.That(node.interactable, Is.True);
+        Assert.That(label.text, Is.EqualTo("需前置研究"));
     }
 
     private static Bounds RectBounds(Transform parent, RectTransform rect)

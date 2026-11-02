@@ -259,6 +259,65 @@ public sealed class StoryManagerTests
     }
 
     [Test]
+    public void HintsIdentifyTheFirstUnmetResearchAndBuilding()
+    {
+        var host = new UnityEngine.GameObject("Story-MissingConditions");
+        try
+        {
+            host.AddComponent<GameManager>();
+            host.AddComponent<ResourceManager>();
+            var buildings = host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            ResearchDef firstResearch = DataBase<ResearchDef>.Find("Agriculture");
+            ResearchDef nextResearch = DataBase<ResearchDef>.Find("ControlledFire");
+            research.GetState(firstResearch).SetStatusForEditor(ResearchStatus.Completed);
+            var researchChapter = new StoryChapter("test-research", "", "", "", "",
+                TechLevel.Animal, "", new[] { firstResearch.Id, nextResearch.Id },
+                null, null, null, null);
+            Assert.That(StoryManager.GetUnlockHint(researchChapter, TechLevel.Animal), Does.Contain(nextResearch.Label));
+            Assert.That(StoryManager.GetChapterProgressHint(researchChapter, TechLevel.Animal), Does.Contain(nextResearch.Label));
+
+            foreach (var entry in research.States)
+                entry.Value.SetStatusForEditor(ResearchStatus.Completed);
+            BuildingDef firstBuilding = DataBase<BuildingDef>.Find("Quarry");
+            BuildingDef nextBuilding = DataBase<BuildingDef>.Find("StoneCuttingWorkshop");
+            buildings.EnsureBuilding(firstBuilding).SetAmountForEditor(ExpantaNum.One);
+            var buildingChapter = new StoryChapter("test-building", "", "", "", "",
+                TechLevel.Animal, "", null, new[] { firstBuilding.Id, nextBuilding.Id },
+                null, null, null);
+            Assert.That(StoryManager.HasOwnedBuildingForEditor(firstBuilding.Id), Is.True);
+            Assert.That(StoryManager.GetUnlockHint(buildingChapter, TechLevel.Animal), Does.Contain(nextBuilding.Label));
+            Assert.That(StoryManager.GetChapterProgressHint(buildingChapter, TechLevel.Animal), Does.Contain(nextBuilding.Label));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+    }
+
+    [Test]
+    public void BuildingPrerequisiteCompletionChangesStoryRefreshSignature()
+    {
+        var host = new UnityEngine.GameObject("Story-BuildingPrerequisiteSignature");
+        try
+        {
+            host.AddComponent<GameManager>();
+            host.AddComponent<ResourceManager>();
+            host.AddComponent<BuildingManager>();
+            var research = host.AddComponent<ResearchManager>();
+            research.InitializeForEditor();
+            ResearchDef prerequisite = DataBase<ResearchDef>.Find("StoneProcessing");
+            foreach (var entry in research.States)
+                entry.Value.SetStatusForEditor(entry.Key == prerequisite ? ResearchStatus.Locked : ResearchStatus.Completed);
+            Assert.That(StoryManager.HasOwnedBuildingForEditor("StoneCuttingWorkshop"), Is.False);
+            string before = StoryManager.GetProgressSignature(TechLevel.Animal, null);
+            research.GetState(prerequisite).SetStatusForEditor(ResearchStatus.Completed);
+            string after = StoryManager.GetProgressSignature(TechLevel.Animal, null);
+            Assert.That(StoryManager.HasOwnedBuildingForEditor("StoneCuttingWorkshop"), Is.False);
+            Assert.That(after, Is.Not.EqualTo(before), "Building advice must refresh even before the building is constructed.");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+    }
+
+    [Test]
     public void UpgradedBuildingContinuesToSatisfyItsOriginalStoryRequirement()
     {
         var host = new UnityEngine.GameObject("Story-UpgradeRequirement");

@@ -1,0 +1,5 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-30T10:18:30.8948927+08:00
+Platform: EditMode
+Result: Failed(Timeout)
+Unity EditMode tests timed out after 120 seconds. Log=D:\GitHub\Kingdom/data/experience-20261030/story-hints-edit.log

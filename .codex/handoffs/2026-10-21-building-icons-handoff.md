@@ -279,3 +279,16 @@
 - 当前保留245张优化图源640.55→272.12 MiB，减少57.52%，未测量构建包。75张无消费者的旧贴图及旧ClayPit重复图删除；应用/研究树/音乐/Pin动态加载图保留。旧图集/精选/Prefab截图已删除，当前预览data/art-optimization-20261022/imported-artwork.png。
 - 真实Unity编译/导入/GPU预览完成：导入时294张，200缩图；79建筑、92工坊、33资源、10星区图片引用有效。Unity自然结束，OS退出码未捕获。废图删除后静态引用和92工坊SHA256再次通过。未运行测试套件或构建包。最后临时清理被自动审批审查拒绝，临时作者工具、原图备份、审查拼图及脚本尚存，精确残留和下一动作见repo-cleanup-handoff同日收尾节。旧段落路径仅为历史记录。
 
+
+
+## 2026-11-01 追加：Android 包体压缩、像素风图标与最新 APK
+
+- 用户授权缩减包体、删除不需要文件及重新生成低像素图标，明确不使用子代理；本轮未启用子代理。保留原有工作区玩法/UI/教程修改，打包当前源码，未动真实存档、未提交推送。
+- 34 张 Resources/Art/UI 图片仅修改 Android 平台压缩：Backgrounds 3 张与 EraCards 7 张 ASTC_4x4→ASTC_6x6；另外 24 张原未压缩图片改为 ASTC_4x4，沿用各自原尺寸上限。GUID、精灵坐标/边框及其他平台设置保持。AndroidArtworkOptimization.cs 同步背景/时代卡片策略，只有一行永久代码改动。图片原稿及游戏内容保留。
+- 内置 imagegen 新生成鼠耳少女皇冠像素风大头像，接入 Assets/Resources/Texture/UI/KingdomAppIcon.png：512×512 RGB、最近邻缩放、Point、无 mipmaps；保留 GUID 6d9e0d775f664fd8bf8c3bdc97e3d6f1 及 PlayerSettings 绑定。提示词概要和生成原图路径见 icon-generation.json。包内 res/FN.png 为 192×192，已提取目视检查。
+- 音乐 Android quality 0.35→0.2 试验在重新导入、清理 Addressables/SBP 缓存并重建后，实际 57 个音乐资源 bundle 总字节仍为 106557403，未带来包体收益；撤回此试验，恢复原 0.35 / 32000 Hz，保留全部 56 首曲目。未将缓存猜测当作最终根因。
+- 中途 final-build 因用户中断未正常结束，原日志保留为 final-build-interrupted.log；恢复后执行 tools/codex/build-android.ps1，最终 final-build-exit.txt=0，final-build.log 确认 errors=0 / warnings=13、Addressables 成功重建、Unity 正常退出。Android 设置/UI 合约/YAML 脚本引用检查通过。未运行 EditMode/PlayMode 或完整玩法回归。
+- 最终 Builds/Android/Kingdom.apk：212170739 bytes（202.34 MiB），原 219006004 bytes（208.86 MiB），减少 6835265 bytes（6.52 MiB，3.12%）。主 data.unity3d 压缩字节 92015092→85265606。APK SHA256=077ef82b7c0ad80bd9fe8f26ac162d8c1119237f262d49585a10f28d05d58ef2。
+- ZIP CRC、ARM64、com.ZJ.Kingdom/versionName 0.5/versionCode 1/minSdk 22/targetSdk 35、包内图标核对通过；apksigner v1/v2 有效且与旧 APK 为同一证书。完整证据位于 data/apk-size-20261101/：apk-audit.json、signature.txt、manifest.txt、final-build.log、identity-check.json、final-input-check.json。
+- 临时 AndroidSizePrepare/AndroidSizeRebuild 的 cs/meta 已从 Assets 移除，作者源码保留证据目录。SIMSUN SDF.asset SHA256 与本轮前一致（15a052df327a1e9d034458c890ccadcbb5f8723008d76c39d28213bf683c9a71）；目标 diff --check 通过。
+- 自动审批拒绝本轮临时备份清理命令，仅返回 blocked by policy，未给出具体原因。未重试删除；.codex/archive/apk-size-20261101/ 保留字体备份、原图标和原 APK，均不进入包内。无临时 Unity 副本、无遗留 Unity 构建进程。此次包体与图标任务已完成，无需为外部设备验收继续挂起。

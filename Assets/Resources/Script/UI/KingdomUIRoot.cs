@@ -18,7 +18,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         Custom
     }
 
-    private static readonly Color Background = new(0.035f, 0.055f, 0.065f, 1f);
     private static readonly Color Panel = new(0.10f, 0.13f, 0.14f, 1f);
     private static readonly Color PanelRaised = new(0.16f, 0.19f, 0.19f, 1f);
     private static readonly Color BasicMetalIngot = new(0.76f, 0.50f, 0.25f, 1f);
@@ -67,7 +66,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private TMP_Text topPowerValue;
     private TMP_Text topLogisticsValue;
     private TMP_Text topCurrentResearchValue;
-    private TMP_Text topKingdomTitle;
     private TMP_Text topKingdomDate;
     private RectTransform buildingControls;
     private Toggle showBuildingDetailsToggle;
@@ -138,6 +136,7 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private WorkshopManager workshopEventSource;
     private bool workshopRowsUiDirty;
     private int lastSelectedResourceVersion = -1;
+    private float nextSelectedResourceRefresh;
     private int lastSelectedBuildingVersion = -1;
     private BuildingDef lastSelectedBuildingUpgradeTarget;
     private ExpantaNum lastSelectedBuildingAvailableTerritory;
@@ -171,7 +170,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private readonly Dictionary<string, RectTransform> pages = new();
     private readonly Dictionary<BuildingDef, TMP_Text> buildingAmountLabels = new();
     private readonly Dictionary<BuildingDef, TMP_Text> buildingEffectLabels = new();
-    private readonly Dictionary<BuildingDef, Image> buildingDeconstructSurfaces = new();
     private readonly Dictionary<BuildingDef, Button> buildingDeconstructButtons = new();
     private readonly Dictionary<BuildingDef, Button> buildingActionButtons = new();
     private readonly Dictionary<Button, TMP_Text> buildingActionButtonTexts = new();
@@ -208,7 +206,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
     private Button sfxMuteButton;
     private TMP_Text sfxMuteLabel;
     private TMP_Text sfxVolumeValueLabel;
-    private RectTransform musicTrackList;
     private bool musicProgressDragging;
     private bool musicPageBuilt;
     private TMP_Text developmentGuidanceText;
@@ -617,7 +614,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         CancelReviewConfirmation();
         RefreshReviewControls();
         RefreshNavigationSelection(name);
-        RefreshOverviewNavigationToolbar();
         RefreshWorkshopFiltersVisibility();
         TutorialManager.Current?.RecordPageVisited(name);
         TutorialManager.Current?.RecordStagePageVisited(name);
@@ -649,6 +645,8 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
         float populateStartTime = Time.realtimeSinceStartup;
 #endif
         PopulatePage(name);
+        if (name == "Buildings")
+            RefreshBuildingDisplayMembership();
         RestoreSpecialPagePosition(name);
 #if UNITY_EDITOR
         float populateDurationMs = (Time.realtimeSinceStartup - populateStartTime) * 1000f;
@@ -895,7 +893,6 @@ public sealed partial class KingdomUIRoot : MonoBehaviour
                 if (buildingRowsBuilt) break;
                 buildingAmountLabels.Clear();
                 buildingEffectLabels.Clear();
-                buildingDeconstructSurfaces.Clear();
                 buildingDeconstructButtons.Clear();
                 buildingActionButtons.Clear();
                 buildingActionButtonTexts.Clear();
@@ -1028,7 +1025,6 @@ public sealed class DevelopmentGuidanceSnapshot
     public DevelopmentGuidanceStatus Status { get; internal set; }
     public string Title { get; internal set; } = string.Empty;
     public string Body { get; internal set; } = string.Empty;
-    public string EraText { get; internal set; } = string.Empty;
     public IReadOnlyList<string> Blockers { get; internal set; } = Array.Empty<string>();
 }
 
@@ -1076,7 +1072,7 @@ public static class DevelopmentGuidance
                     .Append(loss.ToGameString()).Append("/秒，余量约 ")
                     .Append((resource.Amount / loss / 60).ToGameString()).Append(" 分钟。");
             }
-            body.Append("\n以上按当前速率估算；在资源详情打开生产树检查来源与持续投入。");
+            body.Append("\n以上按当前速率估算；查看资源详情中的来源与持续投入。");
         }
         WorldEventState events = state.Events;
         if (events.Sequence > 0)
@@ -1110,14 +1106,16 @@ public static class DevelopmentGuidance
         DevelopmentGuidanceSnapshot snapshot = new DevelopmentGuidanceSnapshot
         {
             Status = DevelopmentGuidanceStatus.Complete,
-            EraText = gameState == null ? "时代未知" : gameState.TechLevel.GetDescription(),
             Title = "当前时代已稳定",
             Body = "继续扩张生产链，或查看研究树寻找下一阶段目标。"
         };
 
-        if (researchManager != null && researchManager.ActiveResearch != null)
+        ResearchState active = researchManager?.ActiveResearch;
+        if (active == null && researchManager != null && researchManager.ResearchQueue.Count > 0 &&
+            researchManager.ResearchQueue[0].Status == ResearchStatus.WaitingResources)
+            active = researchManager.ResearchQueue[0];
+        if (active != null)
         {
-            ResearchState active = researchManager.ActiveResearch;
             ResearchDef research = active.Definition;
             snapshot.Title = research.Label;
             if (active.Status == ResearchStatus.WaitingResources)
@@ -1132,7 +1130,7 @@ public static class DevelopmentGuidance
                 snapshot.Body = "研究正在推进，保持研究力即可；完成后查看它解锁的建筑、生产链或时代条件。";
                 snapshot.Blockers = new[]
                 {
-                    "进度 " + (active.ProgressRatio * 100).ToGameString() + "%"
+                    "进度 " + Math.Min(99.9d, active.ProgressRatio.ToDouble() * 100d).ToString("0.0") + "%"
                 };
             }
             return snapshot;
@@ -1141,11 +1139,11 @@ public static class DevelopmentGuidance
         if (gameState != null)
         {
             if (gameState.HappinessMultiplier < ExpantaNum.One)
-                return BuildStabilitySnapshot(gameState, "幸福度不足", "先提高食物净产出，避免人口与生产效率继续下降。", gameState.FoodNetRate);
+                return BuildStabilitySnapshot("幸福度不足", "先提高食物净产出，避免人口与生产效率继续下降。", gameState.FoodNetRate);
             if (gameState.PowerSatisfaction < ExpantaNum.One)
-                return BuildStabilitySnapshot(gameState, "电力供应不足", "先补充电力生产，避免工业建筑效率下降。", gameState.PowerProductionRate - gameState.PowerConsumptionRate);
+                return BuildStabilitySnapshot("电力供应不足", "先补充电力生产，避免工业建筑效率下降。", gameState.PowerProductionRate - gameState.PowerConsumptionRate);
             if (gameState.LogisticsSatisfaction < ExpantaNum.One)
-                return BuildStabilitySnapshot(gameState, "物流能力不足", "先补充物流生产，避免后续产业链被运输能力卡住。", gameState.LogisticsProductionRate - gameState.LogisticsConsumptionRate);
+                return BuildStabilitySnapshot("物流能力不足", "先补充物流生产，避免后续产业链被运输能力卡住。", gameState.LogisticsProductionRate - gameState.LogisticsConsumptionRate);
         }
 
         if (researchManager != null)
@@ -1163,7 +1161,7 @@ public static class DevelopmentGuidance
                 // that require an initialized state.
                 if (!researchManager.States.TryGetValue(research, out ResearchState state))
                     continue;
-                if (state.Status != ResearchStatus.Available)
+                if (state.Status != ResearchStatus.Available || !researchManager.CanAccessResearch(research))
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Available;
                 snapshot.Title = "开始研究：" + research.Label;
@@ -1182,7 +1180,7 @@ public static class DevelopmentGuidance
             {
                 BuildingDef building = definitions[i];
                 if (building != null && !(building is SectorBuildingDef) &&
-                    buildingManager.CanConstructNew(building))
+                    buildingManager.GetBuildFailure(building, ExpantaNum.One) == BuildFailure.None)
                 {
                     snapshot.Status = DevelopmentGuidanceStatus.Available;
                     snapshot.Title = "建设：" + building.Label;
@@ -1199,7 +1197,9 @@ public static class DevelopmentGuidance
             for (int i = 0; i < definitions.Count; i++)
             {
                 WorkshopUpgradeDef definition = definitions[i];
-                if (definition == null || workshopManager.IsPurchased(definition) || !workshopManager.ArePrerequisitesMet(definition))
+                if (definition == null ||
+                    (gameState != null && definition.TechLevel > gameState.TechLevel) ||
+                    workshopManager.IsPurchased(definition) || !workshopManager.ArePrerequisitesMet(definition))
                     continue;
                 snapshot.Status = DevelopmentGuidanceStatus.Workshop;
         snapshot.Title = "工坊：" + definition.Label;
@@ -1213,7 +1213,6 @@ public static class DevelopmentGuidance
     }
 
     private static DevelopmentGuidanceSnapshot BuildStabilitySnapshot(
-        GameState gameState,
         string title,
         string body,
         ExpantaNum netRate)
@@ -1223,8 +1222,7 @@ public static class DevelopmentGuidance
             Status = DevelopmentGuidanceStatus.Stabilize,
             Title = title,
             Body = body,
-            Blockers = new[] { "净变化 " + (netRate >= ExpantaNum.Zero ? "+" : "") + netRate.ToGameString() + "/s" },
-            EraText = gameState == null ? string.Empty : gameState.TechLevel.GetDescription()
+            Blockers = new[] { "净变化 " + (netRate >= ExpantaNum.Zero ? "+" : "") + netRate.ToGameString() + "/s" }
         };
     }
 

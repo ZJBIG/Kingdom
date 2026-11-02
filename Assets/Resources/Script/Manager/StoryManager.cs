@@ -426,8 +426,12 @@ public static class StoryManager
         IReadOnlyList<string> ids)
     {
         for (int i = 0; ids != null && i < ids.Count; i++)
-            signature.Append("|b:").Append(ids[i]).Append('=').Append(
-                HasOwnedBuilding(ids[i]) ? '1' : '0');
+        {
+            bool owned = HasOwnedBuilding(ids[i]);
+            signature.Append("|b:").Append(ids[i]).Append('=').Append(owned ? '1' : '0');
+            if (!owned)
+                signature.Append("|prerequisite:").Append(GetBuildingWorkshopHint(ids[i]));
+        }
     }
 
     private static void AppendWorkshopSignature(StringBuilder signature,
@@ -575,21 +579,27 @@ public static class StoryManager
                 (previous.RequiredEra == TechLevel.Industrial ? "工业" : "文明") +
                 "记忆“" + previous.Title + "”：" +
                 GetUnlockHint(previous, currentEra);
-        string requiredResearchId = First(chapter.RequiredResearchIds);
-        if (!string.IsNullOrEmpty(requiredResearchId) &&
-            !HasCompletedResearch(requiredResearchId))
+        string requiredResearchId = FirstMissingResearch(chapter.RequiredResearchIds);
+        if (!string.IsNullOrEmpty(requiredResearchId))
             return "完成研究“" + GetResearchLabel(requiredResearchId) +
-                "”，解锁这一章的文明记忆。";
-        string requiredBuildingId = First(chapter.RequiredBuildingIds);
-        if (!string.IsNullOrEmpty(requiredBuildingId) &&
-            !HasOwnedBuilding(requiredBuildingId))
+                "”，继续解锁这一章的文明记忆。";
+        string requiredBuildingId = FirstMissingBuilding(chapter.RequiredBuildingIds);
+        if (!string.IsNullOrEmpty(requiredBuildingId))
         {
             string workshopHint = GetBuildingWorkshopHint(requiredBuildingId);
             return !string.IsNullOrEmpty(workshopHint) ? workshopHint :
                 "建成“" + GetBuildingLabel(requiredBuildingId) +
                 "”，让这段工业记忆从计划变成现实。";
         }
-        return GetUnlockHint(chapter);
+        if (!AllWorkshopsPurchased(chapter.RequiredWorkshopIds))
+            return "前往工坊购买本章要求的改良。";
+        if (!AllSectorsInState(chapter.RequiredUnlockedSectorIds, false))
+            return "前往星区页，解锁本章要求的星区。";
+        if (!AllSectorsInState(chapter.RequiredOccupiedSectorIds, true))
+            return "完成本章要求的星区探索或战役，并确认占领。";
+        if (!HasCompletedTutorialStep(chapter.RequiredTutorialStepId, TutorialManager.Current))
+            return "完成当前发展行动后，这段记忆会被重新读出。";
+        return "章节条件已满足，等待剧情更新。";
     }
 
     public static string GetChapterProgressHint(StoryChapter chapter,
@@ -602,22 +612,34 @@ public static class StoryManager
             chapter, currentEra, TutorialManager.Current);
         if (previous != null)
             return baseline;
-        string requiredResearchId = First(chapter.RequiredResearchIds);
-        if (!string.IsNullOrEmpty(requiredResearchId) &&
-            !HasCompletedResearch(requiredResearchId))
+        string requiredResearchId = FirstMissingResearch(chapter.RequiredResearchIds);
+        if (!string.IsNullOrEmpty(requiredResearchId))
             return GetResearchProgressHint(requiredResearchId);
-        string requiredBuildingId = First(chapter.RequiredBuildingIds);
-        if (!string.IsNullOrEmpty(requiredBuildingId) &&
-            !HasOwnedBuilding(requiredBuildingId))
+        string requiredBuildingId = FirstMissingBuilding(chapter.RequiredBuildingIds);
+        if (!string.IsNullOrEmpty(requiredBuildingId))
         {
             string workshopHint = GetBuildingWorkshopHint(requiredBuildingId);
             return !string.IsNullOrEmpty(workshopHint) ? workshopHint :
-                "研究已完成，下一步建造“" + GetBuildingLabel(requiredBuildingId) + "”。";
+                "下一步建造“" + GetBuildingLabel(requiredBuildingId) + "”。";
         }
         if (chapter.RequiredWorkshopIds.Count > 0 &&
             !AllWorkshopsPurchased(chapter.RequiredWorkshopIds))
-            return "研究已完成；前往工坊购买本章要求的改良，完成章节目标。";
+            return "前往工坊购买本章要求的改良。";
         return baseline;
+    }
+
+    private static string FirstMissingResearch(IReadOnlyList<string> ids)
+    {
+        for (int i = 0; i < ids.Count; i++)
+            if (!HasCompletedResearch(ids[i])) return ids[i];
+        return string.Empty;
+    }
+
+    private static string FirstMissingBuilding(IReadOnlyList<string> ids)
+    {
+        for (int i = 0; i < ids.Count; i++)
+            if (!HasOwnedBuilding(ids[i])) return ids[i];
+        return string.Empty;
     }
 
     private static StoryChapter GetPreviousLockedChapter(

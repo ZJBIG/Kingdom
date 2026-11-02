@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Research
   m_EditorClassIdentifier: 
   Id: research
-  Title: 用研究打开下一步
-  Description: 在研究页面选择并完成一项可用研究，查看它连接的建筑、生产链或时代目标。
-  NarrativeText: 废墟中仍保存着失落的知识。研究不是孤立的清单：它会解锁建筑、改变生产方式，或把王国推向下一时代。
+  Title: 研究农业
+  Description: 选择农业，加入研究队列；完成后建造农场，让农业实际供粮。
+  NarrativeText: 学会耕种，让食物供应支撑更多居民。
   Kind: 4
   NextStepId: production-chain
   RewardId: 

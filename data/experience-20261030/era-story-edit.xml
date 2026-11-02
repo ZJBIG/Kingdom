@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-30 10:17:37Z" end-time="2026-10-30 10:17:38Z" duration="0.7113284">
+  <test-suite type="TestSuite" id="2273" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1096" result="Passed" start-time="2026-10-30 10:17:37Z" end-time="2026-10-30 10:17:38Z" duration="0.711328" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3536" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1095" result="Passed" start-time="2026-10-30 10:17:37Z" end-time="2026-10-30 10:17:38Z" duration="0.672524" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="27772" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="3359" name="StoryManagerTests" fullname="StoryManagerTests" classname="StoryManagerTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-10-30 10:17:37Z" end-time="2026-10-30 10:17:38Z" duration="0.654736" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3373" name="BuildingPrerequisiteCompletionChangesStoryRefreshSignature" fullname="StoryManagerTests.BuildingPrerequisiteCompletionChangesStoryRefreshSignature" methodname="BuildingPrerequisiteCompletionChangesStoryRefreshSignature" classname="StoryManagerTests" runstate="Runnable" seed="1886013445" result="Passed" start-time="2026-10-30 10:17:37Z" end-time="2026-10-30 10:17:38Z" duration="0.640472" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

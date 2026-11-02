@@ -655,7 +655,7 @@ public sealed class KingdomPlayModeTests
             Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
             Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
             Assert.That(body.text, Does.Contain("聚落下一步"));
-            Assert.That(body.text, Does.Contain("为什么还不能推进"));
+            Assert.That(body.text, Does.Contain("建造条件"));
             Assert.That(body.text, Does.Contain("现在就做"));
             Assert.That(body.text, Does.Contain(snapshot.CurrentGoal));
             Assert.That(body.text, Does.Contain(snapshot.RecommendedAction));
@@ -1566,7 +1566,7 @@ public sealed class KingdomPlayModeTests
 
         Transform bodyTransform = detailContent.Find("Body");
         Assert.That(bodyTransform, Is.Not.Null, "Detail body is missing under DetailScrollContent.");
-        root.ShowDetailsForEditor("Runtime detail", "Visible body", "detail-test");
+        root.ShowDetailsForEditor("Runtime detail", "Visible body");
         yield return null;
         TMP_Text bodyText = bodyTransform.GetComponent<TMP_Text>();
         Assert.That(bodyText.text, Does.Contain("Runtime detail"));

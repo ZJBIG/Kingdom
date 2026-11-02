@@ -222,8 +222,10 @@ public sealed partial class KingdomUIRoot
                         if (!string.IsNullOrEmpty(availability)) ShowTooltip(availability);
                     }
                 }
-                else if (BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out _))
+                else if (BuildingManager.Instance.TryBuild(building, ExpantaNum.One, out BuildFailure failure))
                     UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Build);
+                else
+                    ShowTooltip("建造失败：" + GetBuildFailureDescription(failure));
                 RebuildSectorMenu(view);
             });
             toggle.onClick.AddListener(() =>
@@ -545,8 +547,7 @@ public sealed partial class KingdomUIRoot
         ShowDetails(
             definition.Label,
             BuildSectorDetailDescription(
-                definition, sectorManager, state, resourceManager),
-            definition.Id);
+                definition, sectorManager, state, resourceManager));
         selectedSectorDefinition = definition;
         ConfigureSectorAction(definition, sectorManager, state, resourceManager);
         ConfigureRelicDetails(definition);
@@ -603,7 +604,7 @@ public sealed partial class KingdomUIRoot
         }
         IReadOnlyList<Pair<ResourceDef, ExpantaNum>> occupiedRates =
             definition.OccupiedResourceRatesPerSecond;
-        body.AppendLine("当前占领持续产出：" +
+        body.AppendLine("占领持续产出：" +
             (occupiedRates == null || occupiedRates.Count == 0
                 ? "无"
                 : FormatResourceCosts(
@@ -629,7 +630,6 @@ public sealed partial class KingdomUIRoot
                 : sectorManager.GetExplorationPreview(definition, state, resourceManager);
             if (explorationPreview != null)
             {
-                body.AppendLine("探索方式：仅按持续资源供给推进");
                 body.AppendLine("预计剩余：" + explorationPreview.EstimatedSecondsRemaining.ToGameString() + " 秒");
                 body.AppendLine("食物补给：" + FormatPerMinute(explorationPreview.FoodCostPerSecond) + "/min");
                 body.AppendLine("战略资源补给：" +
@@ -667,9 +667,6 @@ public sealed partial class KingdomUIRoot
             body.AppendLine("电力满足率（0—1）：" + preview.PowerSatisfaction.ToGameString());
             body.AppendLine("物流满足率（0—1）：" + preview.LogisticsSatisfaction.ToGameString());
                 body.AppendLine("推进速度：" + preview.ProgressPerSecond.ToGameString() + "/s");
-            body.AppendLine(preview.EstimatedSecondsRemaining > ExpantaNum.Zero
-                ? "预计完成：" + preview.EstimatedSecondsRemaining.ToGameString() + " 秒"
-                : "预计完成：无法估算（当前条件不支持推进）");
             body.AppendLine("预计伤亡：" + preview.CasualtiesPerSecond.ToGameString() + "/s");
             body.AppendLine("食物补给：" + FormatPerMinute(preview.FoodCostPerSecond) + "/min");
             body.AppendLine("战略资源补给：" +
@@ -692,13 +689,11 @@ public sealed partial class KingdomUIRoot
                             : "无，可开始远星战役";
                 body.AppendLine("当前阻碍：" + blocker);
             }
-            if (preview.ProgressPerSecond <= ExpantaNum.Zero)
-                body.AppendLine("警告：当前战斗或后勤条件不足，战役不会推进，继续行动只会增加伤亡。");
-            else if (preview.LogisticsSatisfaction < ExpantaNum.One ||
+            if (preview.ProgressPerSecond > ExpantaNum.Zero &&
+                (preview.LogisticsSatisfaction < ExpantaNum.One ||
                 preview.SupplySatisfaction < ExpantaNum.One ||
-                preview.PowerSatisfaction < ExpantaNum.One)
+                preview.PowerSatisfaction < ExpantaNum.One))
                 body.AppendLine("提示：补给尚未完善，战役推进速度和舰队安全性低于最佳状态。");
-            body.AppendLine("提示：远星战役是长期后勤行动，建议先完成舰队、燃料和先进材料准备。");
         }
         return body.ToString();
     }
@@ -717,8 +712,7 @@ public sealed partial class KingdomUIRoot
 
         string value = definition.Label + "\n\n" +
             BuildSectorDetailDescription(
-                definition, sectorManager, state, resourceManager) +
-            "\n\n标识：" + definition.Id;
+                definition, sectorManager, state, resourceManager);
         if (detailBody.text != value)
         {
             detailBody.text = value;
@@ -1116,7 +1110,7 @@ public sealed partial class KingdomUIRoot
             ShowSectorDetails(definition, gameManager.Sectors, gameManager.State, resourceManager);
     }
 
-    private void RepairSectorFleet(SectorDef definition)
+    private void RepairSectorFleet(SectorDef definition, ExpantaNum amount)
     {
         CacheRuntimeManagers();
         GameManager gameManager = gameManagerCache;
@@ -1128,7 +1122,7 @@ public sealed partial class KingdomUIRoot
             definition,
             gameManager.State,
             resourceManager,
-            gameManager.Sectors.GetMaxAffordableFleetRepair(definition, gameManager.State, resourceManager),
+            amount,
             out ExpantaNum repairedAmount,
             out SectorOperationFailure failure);
         if (!repaired)

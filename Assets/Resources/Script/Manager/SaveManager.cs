@@ -884,6 +884,7 @@ public sealed class SaveManager : Singleton<SaveManager>
         public string ActiveStepId;
         public List<string> CompletedStepIds;
         public bool StagesInitialized;
+        public bool FarmGoalStageSchemaApplied;
         public List<string> CompletedStageIds;
         public List<string> SkippedStageIds;
         public List<string> BaselineStageIds;

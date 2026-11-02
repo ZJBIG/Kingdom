@@ -66,7 +66,7 @@ public sealed partial class KingdomUIRoot
 
         try
         {
-            BuildStoryPageInternal(page, refresh);
+            BuildStoryPageInternal(page);
             return true;
         }
         catch (Exception exception)
@@ -115,41 +115,29 @@ public sealed partial class KingdomUIRoot
         }
     }
 
-    private void BuildStoryPageInternal(RectTransform page, bool refresh)
+    private void BuildStoryPageInternal(RectTransform page)
     {
-        if (page == null)
-            return;
-
         TutorialManager tutorial = TutorialManager.Current;
         TechLevel era = GameManager.Instance == null || GameManager.Instance.State == null
             ? TechLevel.Animal
             : GameManager.Instance.State.TechLevel;
         string progressSignature = StoryManager.GetProgressSignature(era, tutorial);
         string quickSignature = GetStoryStateSignature(progressSignature);
-        if (!refresh && storyPageBuilt && quickSignature == storyPageStateSignature)
-            return;
-
         storyPageStateSignature = quickSignature;
         storyPageBuilt = false;
         storyBodyTextCache.Clear();
         ObserveStoryProgress(era, tutorial, out int unlockedCount,
             out StoryChapter latestChapter);
 
+        StoryChapterCard[] previousCards = page.GetComponentsInChildren<StoryChapterCard>();
         RectTransform surface = CreatePanel(page, "StoryOverviewPage", Color.clear);
         SetTop(surface, 0f, 1400f);
         float width = Mathf.Max(480f, pageHost == null ? 1200f : pageHost.rect.width);
         float y = 24f;
 
         y += CreateCard(surface, "StoryOverviewHeader", "剧情档案\n鼠族文明复兴",
-            "这里记录鼠族从灾变后的第一簇火种，到重新掌握机器与星海的文明记忆。",
+            "鼠族文明记忆 · 已解锁章节 " + unlockedCount + "/" + StoryManager.Chapters.Count,
             width, y, 190f);
-        y += 18f;
-        y += CreateCard(surface, "StoryOverviewState",
-            "剧情完成状态",
-            "已完成章节 " + unlockedCount +
-            "/" + StoryManager.Chapters.Count +
-            "\n完成章节列出的研究与建设目标后，新的记忆会在这里解锁。",
-            width, y, 150f);
         y += 18f;
         y += CreateCard(surface, "StoryOverviewMeaning", "最新文明记忆",
             BuildStoryMeaningText(latestChapter), width, y, 180f);
@@ -161,10 +149,11 @@ public sealed partial class KingdomUIRoot
                 continue;
 
             y += 18f;
-            bool unlocked = StoryManager.IsUnlocked(chapter, era, tutorial);
+            bool unlocked = StoryManager.IsCompleted(chapter);
             bool isLatest = unlocked && chapter == latestChapter;
-            bool collapsed = unlocked && (storyChapterCollapsed.TryGetValue(chapter.Id, out bool savedCollapsed)
-                ? savedCollapsed : !isLatest);
+            if (unlocked && !storyChapterCollapsed.ContainsKey(chapter.Id))
+                storyChapterCollapsed[chapter.Id] = !isLatest;
+            bool collapsed = unlocked && storyChapterCollapsed[chapter.Id];
             string chapterTitle = "<b>" + chapter.Title + "</b>\n<size=24><color=#B8B69F>" + chapter.EraLabel +
                 " · " + GetEraSubtitle(chapter.RequiredEra) + "</color></size>";
             if (!unlocked)
@@ -182,6 +171,11 @@ public sealed partial class KingdomUIRoot
         page.anchorMax = new Vector2(1f, 1f);
         page.pivot = new Vector2(.5f, 1f);
         page.sizeDelta = new Vector2(0f, height);
+        foreach (StoryChapterCard previous in previousCards)
+        {
+            StoryChapterCard replacement = surface.Find(previous.name)?.GetComponent<StoryChapterCard>();
+            if (replacement != null) replacement.RestoreReadingPosition(previous);
+        }
         ClearNewStoryPageExcept(page, surface);
         storyProgressSignature = progressSignature;
         storyPageBuilt = true;
@@ -207,7 +201,7 @@ public sealed partial class KingdomUIRoot
             actionFeedback += "\n刚刚发生：" + recentActionFeedback;
         string meaning = latestChapter == null
             ? "完成资源、建筑、研究和生产链行动后，即可逐步解锁下方章节。"
-            : "最新完成：“" + latestChapter.Title + "”。\n在下方展开章节阅读正文。";
+            : "最新完成：“" + latestChapter.Title + "”。";
         return meaning + actionFeedback;
     }
 
@@ -565,8 +559,7 @@ public sealed partial class KingdomUIRoot
         if (populatedPage != "Story" || !pages.TryGetValue("Story", out RectTransform page))
             return;
         bool preserveScroll = pageScroll != null && pageScroll.content == page;
-        float previousScroll = preserveScroll
-            ? pageScroll.verticalNormalizedPosition : 1f;
+        Vector2 previousScroll = page.anchoredPosition;
         string previous = storyPageStateSignature;
         bool wasBuilt = storyPageBuilt;
         TutorialManager tutorial = TutorialManager.Current;
@@ -582,7 +575,8 @@ public sealed partial class KingdomUIRoot
                 page, era, tutorial, progressSignature))
         {
             if (preserveScroll && pageScroll != null && pageScroll.content == page)
-                pageScroll.verticalNormalizedPosition = previousScroll;
+                page.anchoredPosition = new Vector2(previousScroll.x, Mathf.Clamp(previousScroll.y,
+                    0f, Mathf.Max(0f, page.rect.height - pageScroll.viewport.rect.height)));
             return;
         }
         BuildStoryPage(page, false);
@@ -594,7 +588,8 @@ public sealed partial class KingdomUIRoot
             else
                 Canvas.ForceUpdateCanvases();
             if (preserveScroll && pageScroll != null && pageScroll.content == page)
-                pageScroll.verticalNormalizedPosition = previousScroll;
+                page.anchoredPosition = new Vector2(previousScroll.x, Mathf.Clamp(previousScroll.y,
+                    0f, Mathf.Max(0f, page.rect.height - pageScroll.viewport.rect.height)));
         }
     }
 }

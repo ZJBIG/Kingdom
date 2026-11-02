@@ -202,7 +202,7 @@ public sealed class RelicPlayModeTests
         ui.SetPage("Sectors");
         ui.ShowRelicDetailsForEditor();
         Click("Dismantle");
-        ui.ShowDetailsForEditor("Other object", "Other details", "RelicTestOther");
+        ui.ShowDetailsForEditor("Other object", "Other details");
         Assert.That(ui.RelicConfirmationPendingForEditor, Is.False);
         Assert.That(ui.RelicActionsForEditor.gameObject.activeSelf, Is.False);
         ui.ShowRelicDetailsForEditor();

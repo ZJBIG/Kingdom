@@ -18,7 +18,7 @@ public sealed partial class KingdomUIRoot
         GameState state = gameManagerCache == null ? null : gameManagerCache.State;
         if (state == null)
         {
-            CreateEraCard(parent, "EraArchiveHeader", "时代档案", "正在读取王国状态……", PanelRaised, false, null, null);
+            CreateEraCard(parent, "EraArchiveHeader", "时代档案", "正在读取王国状态……", PanelRaised, null, null);
             nextRowTop = 260f;
             return;
         }
@@ -30,14 +30,14 @@ public sealed partial class KingdomUIRoot
 
         RectTransform current = BeginEraSection(parent, "EraCurrentArchive", "文明阶段", width, y, out float currentY);
         currentY += CreateEraCard(current, "EraIdentity", state.TechLevel.GetDescription() + " · 第 " + ((int)state.TechLevel + 1) + " / " + Enum.GetValues(typeof(TechLevel)).Length + " 阶段",
-            GetEraSubtitle(state.TechLevel) + "\n" + GetEraDefinition(state.TechLevel), Panel, false, null, null, width, currentY, 180f);
-        y += EndEraSection(current, currentY, width) + 18f;
+            GetEraSubtitle(state.TechLevel) + "\n" + GetEraDefinition(state.TechLevel), Panel, null, null, width, currentY, 180f);
+        y += EndEraSection(current, currentY) + 18f;
 
         if (transition == null)
         {
             RectTransform terminal = BeginEraSection(parent, "EraTransitionSection", "时代状态", width, y, out float terminalY);
-            terminalY += CreateEraCard(terminal, "EraTerminal", "当前内容终点", "当前内容已到达最后阶段。\n继续完成研究树中的剩余内容。", PanelRaised, true, () => SetPage("Research"), null, width, terminalY, 150f);
-            y += EndEraSection(terminal, terminalY, width);
+            terminalY += CreateEraCard(terminal, "EraTerminal", "当前内容终点", "当前内容已到达最后阶段。\n继续完成研究树中的剩余内容。", PanelRaised, () => SetPage("Research"), null, width, terminalY, 150f);
+            y += EndEraSection(terminal, terminalY);
             SetEraPageHeight(parent, y + 24f, state, goal);
             return;
         }
@@ -54,12 +54,12 @@ public sealed partial class KingdomUIRoot
         bool showQueueAction = !IsEraTransitionResearchCompleted(transition);
 
         RectTransform transitionSection = BeginEraSection(parent, "EraTransitionSection", "下一时代跃迁", width, y, out float transitionY);
-        transitionY += CreateEraCard(transitionSection, "EraTransitionTarget", "迈向 " + goal.TargetEra.GetDescription(), transition.Label + "\n" + GetTransitionStatus(transition, progress) + " · 已满足 " + completed + "/" + eraConditions.Count + " 项条件\n选择此项，在右侧查看详情；加入队列后，如有材料需求会一次支付，完成研究后进入新时代。", PanelRaised, true,
+        transitionY += CreateEraCard(transitionSection, "EraTransitionTarget", "迈向 " + goal.TargetEra.GetDescription(), transition.Label + "\n" + GetTransitionStatus(transition, progress) + " · 已满足 " + completed + "/" + eraConditions.Count + " 项条件\n完成该研究后进入新时代。", PanelRaised,
             () => ShowResearchDetails(transition), showQueueAction ? transition : null, width, transitionY, 180f) + 10f;
         string impact = BuildNextEraImpact(goal.TargetEra);
         if (!string.IsNullOrEmpty(impact))
-            transitionY += CreateEraCard(transitionSection, "EraNextImpact", "进入后变化", impact, PanelRaised, false, null, null, width, transitionY, 130f) + 16f;
-        y += EndEraSection(transitionSection, transitionY, width) + 18f;
+            transitionY += CreateEraCard(transitionSection, "EraNextImpact", "进入后变化", impact, PanelRaised, null, null, width, transitionY, 130f) + 16f;
+        y += EndEraSection(transitionSection, transitionY) + 18f;
 
         RectTransform requirements = BeginEraSection(parent, "EraRequirementSection", "跃迁条件与阻碍", width, y, out float requirementY);
         int researchIndex = 0;
@@ -70,8 +70,8 @@ public sealed partial class KingdomUIRoot
             ResearchDef research = condition.Research;
             ResearchState researchState = condition.ResearchState;
             requirementY += CreateEraCard(requirements, "EraResearch_" + research.Id, (condition.Met ? "✓ " : "○ ") + research.Label,
-                condition.Met ? "前置研究已完成" : "必须先完成这项研究 · " + ResearchStateLabel(research, researchState == null ? ResearchStatus.Locked : researchState.Status) + "\n选择此项，在右侧查看前置、材料和研究操作。",
-                GetEraAlternatePanelColor(researchIndex++), true, () => ShowResearchDetails(research), null, width, requirementY, 92f) + 10f;
+                condition.Met ? "前置研究已完成" : "必须先完成这项研究 · " + ResearchStateLabel(research, researchState == null ? ResearchStatus.Locked : researchState.Status),
+                GetEraAlternatePanelColor(researchIndex++), () => ShowResearchDetails(research), null, width, requirementY, 92f) + 10f;
         }
         int resourceIndex = 0;
         for (int i = 0; i < eraConditions.Count; i++)
@@ -80,12 +80,12 @@ public sealed partial class KingdomUIRoot
             if (condition.Kind != EraGoalConditionKind.Resource) continue;
             ResourceDef resource = condition.Resource;
             requirementY += CreateEraCard(requirements, "EraResource_" + resource.Id, (condition.Met ? "✓ " : "○ ") + resource.Label,
-                FormatResourceCondition(condition), GetEraAlternatePanelColor(resourceIndex++), true, () => ShowResourceDetails(resource), null, width, requirementY, 120f) + 10f;
+                FormatResourceCondition(condition), GetEraAlternatePanelColor(resourceIndex++), () => ShowResourceDetails(resource), null, width, requirementY, 120f) + 10f;
         }
         string blockerTitle = blockerIndex < 0 ? "全部条件已满足" : BuildConditionTitle(eraConditions[blockerIndex]);
         if (eraConditions.Count == 0)
-            requirementY += CreateEraCard(requirements, "EraRequirementsMet", "可以推进", "前置研究与材料均已备齐，前往研究页开始时代跃迁。", Panel, false, null, null, width, requirementY, 100f);
-        y += EndEraSection(requirements, requirementY, width);
+            requirementY += CreateEraCard(requirements, "EraRequirementsMet", "可以推进", "将上方跃迁课题加入队列，完成研究后进入新时代。", Panel, null, null, width, requirementY, 100f);
+        y += EndEraSection(requirements, requirementY);
         SetEraPageHeight(parent, y + 24f, state, goal);
         Debug.Log($"[王国界面] Era sections rendered: current={state.TechLevel}, target={goal.TargetEra}, progress={completed}/{eraConditions.Count}, blocker={blockerTitle}");
     }
@@ -108,7 +108,7 @@ public sealed partial class KingdomUIRoot
         return content;
     }
 
-    private float EndEraSection(RectTransform content, float contentY, float width)
+    private float EndEraSection(RectTransform content, float contentY)
     {
         float contentHeight = contentY + 12f;
         content.sizeDelta = new Vector2(-24f, contentHeight);
@@ -121,7 +121,7 @@ public sealed partial class KingdomUIRoot
     private static Color GetEraAlternatePanelColor(int index) => index % 2 == 0 ? ListRowEven : ListRowOdd;
 
     private float CreateEraCard(RectTransform parent, string name, string title, string body, Color color,
-        bool hasAction, Action action, ResearchDef queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
+        Action action, ResearchDef queueResearch, float width = 1200f, float y = 0f, float minimumHeight = 140f)
     {
         RectTransform card = Instantiate(KingdomUIPrefabLibrary.Load(KingdomUIPrefabLibrary.EraCard), parent, false).GetComponent<RectTransform>();
         card.name = name;
@@ -158,22 +158,22 @@ public sealed partial class KingdomUIRoot
         Button selection = card.GetComponent<Button>();
         if (selection != null)
         {
-            selection.interactable = hasAction && action != null;
+            selection.interactable = action != null;
             if (selection.interactable)
                 selection.onClick.AddListener(() => { action(); });
         }
-        if (hasAction && action != null) AddEraActions(card, action, queueResearch);
+        if (action != null) AddEraActions(card, queueResearch);
         return height;
     }
 
-    private void AddEraActions(RectTransform card, Action detailAction, ResearchDef queueResearch)
+    private void AddEraActions(RectTransform card, ResearchDef queueResearch)
     {
         if (queueResearch == null) return;
         ResearchManager currentManager = ResearchManager.Instance;
         ResearchState currentState = null;
         currentManager?.States.TryGetValue(queueResearch, out currentState);
         if (currentState?.Status == ResearchStatus.Completed) return;
-        AddEraButton(card, "QueueAction", GetResearchQueueActionLabel(queueResearch, currentState) + "\n时代跃迁课题", Positive, () =>
+        AddEraButton(card, "QueueAction", GetResearchQueueActionLabel(queueResearch, currentState), Positive, () =>
         {
             ResearchManager manager = ResearchManager.Instance;
             if (manager == null) return;
@@ -217,6 +217,7 @@ public sealed partial class KingdomUIRoot
         {
             if (state.Status == ResearchStatus.Researching) return "跃迁研究进行中";
             if (state.Status == ResearchStatus.Completed) return "已完成";
+            if (manager.IsQueued(transition)) return state.Status == ResearchStatus.WaitingResources ? "已排队，等待材料" : "已排队，等待开研";
         }
         if (progress >= 1f) return "全部条件满足，等待研究";
         return progress <= 0f ? "尚未满足跃迁条件" : "部分条件已满足";
@@ -294,6 +295,13 @@ public sealed partial class KingdomUIRoot
         if (state == null) return string.Empty;
         goal ??= EraGoalEvaluator.Evaluate(state.TechLevel, researchManagerCache, resourceManagerCache);
         StringBuilder signature = eraPageSignatureBuilder; signature.Clear(); signature.Append((int)state.TechLevel).Append('|').Append(goal.Transition?.Id ?? string.Empty);
+        if (goal.Transition != null && researchManagerCache != null)
+        {
+            ResearchState transitionState = researchManagerCache.GetState(goal.Transition);
+            signature.Append("|transition=").Append((int)(transitionState?.Status ?? ResearchStatus.Locked))
+                .Append(':').Append(transitionState?.CostPaid ?? false)
+                .Append(':').Append(researchManagerCache.IsQueued(goal.Transition));
+        }
         for (int i = 0; i < goal.Conditions.Count; i++) { EraGoalConditionEvaluation c = goal.Conditions[i]; signature.Append('|').Append(c.Kind).Append(':').Append(c.Met ? '1' : '0').Append(':').Append(c.Research?.Id ?? c.Resource?.Id ?? string.Empty).Append(':').Append(c.AvailableAmount).Append(':').Append(c.PaidAmount).Append(':').Append(c.RemainingAmount).Append(':').Append(c.ProductionRate).Append(':').Append(c.ConsumptionRate).Append(':').Append(c.ResearchState?.Version ?? 0); }
         return signature.ToString();
     }

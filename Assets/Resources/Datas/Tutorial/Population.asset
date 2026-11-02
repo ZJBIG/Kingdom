@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Population
   m_EditorClassIdentifier: 
   Id: population
-  Title: 发展人口
-  Description: 先提供人口容量，再维持食物和幸福度，观察人口增长并理解人口如何转化为生产力。
-  NarrativeText: 分散的族群开始回到火种旁。容身之处提供人口容量，食物和幸福度决定他们能否留下；人口增长后，新的生产力也会回到王国。
+  Title: 居民陆续入住
+  Description: 居民入住会增加生产力；维持食物与幸福度，同时继续研究和建设。
+  NarrativeText: 屋檐下有了新的声音，人口成长会与聚落建设一起推进。
   Kind: 3
   NextStepId: research
   RewardId: 

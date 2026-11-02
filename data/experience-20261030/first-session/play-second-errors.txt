@@ -1,0 +1,16 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-30T20:37:45.6442576+08:00
+Platform: PlayMode
+Result: Failed
+Total: 16 Passed:14 Failed:2 Skipped:0
+
+=== FAILURE 1 ===
+Test: KingdomStagedOnboardingPlayModeTests.FarmGoalShortageNamesBuildingAndResumesAfterResourcesRecover
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: KingdomStagedOnboardingPlayModeTests.FirstSession_RealButtonsAndNaturalProductionReachStoneAge
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

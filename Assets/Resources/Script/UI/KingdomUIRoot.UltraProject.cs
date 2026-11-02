@@ -58,7 +58,7 @@ public sealed partial class KingdomUIRoot
             {
                 UltraProjectPreview option = manager.GetPreview(doctrine);
                 text.AppendLine("工程姿态 " + GetUltraDoctrineLabel(doctrine) +
-                    (option.Failure == UltraProjectOperationFailure.InvalidDoctrine ? "（当前阶段未开放）" : string.Empty));
+                    (option.Failure == UltraProjectOperationFailure.StageLocked ? "（当前阶段未开放）" : string.Empty));
                 AppendUltraBudget(text, option);
             }
         }
@@ -73,7 +73,7 @@ public sealed partial class KingdomUIRoot
         else if (preview.Status == UltraProjectStatus.ReadyToCommit)
             text.AppendLine("下一步: 提交阶段认证，解锁新的文明能力");
         else if (preview.Status == UltraProjectStatus.Running)
-            text.AppendLine("运行中: 资源不足会自动暂停，不会产生负库存");
+            text.AppendLine("持续供给不足时减速，断供时暂停");
         else if (preview.Status == UltraProjectStatus.Paused)
         {
             bool supplyRecovered =
@@ -179,10 +179,11 @@ public sealed partial class KingdomUIRoot
         detailDoctrineButton.interactable = false;
         UltraProjectDoctrine currentDoctrine = preview.Doctrine == UltraProjectDoctrine.None
             ? UltraProjectDoctrine.Stable : preview.Doctrine;
+        UltraProjectDoctrine nextDoctrine = currentDoctrine;
         string label = "工程姿态：" + GetUltraDoctrineLabel(currentDoctrine);
         if (preview.Status == UltraProjectStatus.Committed)
         {
-            UltraProjectDoctrine nextDoctrine = currentDoctrine == UltraProjectDoctrine.Expedition
+            nextDoctrine = currentDoctrine == UltraProjectDoctrine.Expedition
                 ? UltraProjectDoctrine.Stable
                 : UltraProjectDoctrine.Expedition;
             detailDoctrineButton.interactable = manager.IsCampaignDoctrineUnlocked && HasRemainingInterstellarTargets();
@@ -193,37 +194,30 @@ public sealed partial class KingdomUIRoot
                 : nextDoctrine == UltraProjectDoctrine.Expedition
                     ? " · 切换远征供给"
                     : " · 切换稳定";
-            if (detailDoctrineButton.interactable)
-            {
-                detailDoctrineButton.onClick.AddListener(() =>
-                {
-                    manager.TrySetOperationalDoctrine(nextDoctrine, out _);
-                    ShowBuildingDetails(selectedBuilding, true);
-                });
-            }
         }
         else if (preview.Status == UltraProjectStatus.Ready ||
                  preview.Status == UltraProjectStatus.Paused)
         {
-            UltraProjectDoctrine nextDoctrine = currentDoctrine == UltraProjectDoctrine.Surge
+            nextDoctrine = currentDoctrine == UltraProjectDoctrine.Surge
                 ? UltraProjectDoctrine.Stable : UltraProjectDoctrine.Surge;
             detailDoctrineButton.interactable = preview.Stage >= UltraProjectStage.Stabilization;
             label += detailDoctrineButton.interactable
                 ? (nextDoctrine == UltraProjectDoctrine.Surge ? " · 切换高压" : " · 切换稳定")
                 : " · 第二阶段后开放高压";
-            if (detailDoctrineButton.interactable)
-            {
-                detailDoctrineButton.onClick.AddListener(() =>
-                {
-                    manager.TrySetOperationalDoctrine(nextDoctrine, out _);
-                    ShowBuildingDetails(selectedBuilding, true);
-                });
-            }
         }
         else if (preview.Status == UltraProjectStatus.Running)
             label += " · 工程运行中不可切换";
         else if (preview.Status == UltraProjectStatus.ReadyToCommit)
             label += " · 提交阶段后再切换";
+        if (detailDoctrineButton.interactable)
+        {
+            detailDoctrineButton.onClick.AddListener(() =>
+            {
+                if (!manager.TrySetOperationalDoctrine(nextDoctrine, out UltraProjectOperationFailure failure))
+                    ShowTooltip("切换失败：" + GetUltraFailureLabel(failure));
+                ShowBuildingDetails(selectedBuilding, true);
+            });
+        }
         TMP_Text text = detailDoctrineButton.GetComponentInChildren<TMP_Text>(true);
         if (text != null)
             text.text = label;
@@ -305,7 +299,8 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                if (manager.TryPause(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
+                if (manager.TryPause(out UltraProjectOperationFailure failure)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStop);
+                else ShowTooltip("暂停失败：" + GetUltraFailureLabel(failure));
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -315,7 +310,8 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                if (manager.TryResume(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
+                if (manager.TryResume(out UltraProjectOperationFailure failure)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
+                else ShowTooltip("恢复失败：" + GetUltraFailureLabel(failure));
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -325,7 +321,8 @@ public sealed partial class KingdomUIRoot
             detailActionButton.interactable = true;
             detailActionButton.onClick.AddListener(() =>
             {
-                if (manager.TryCommitCompletedStage(out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicCommit);
+                if (manager.TryCommitCompletedStage(out UltraProjectOperationFailure failure)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicCommit);
+                else ShowTooltip("认证失败：" + GetUltraFailureLabel(failure));
                 ShowBuildingDetails(selectedBuilding, true);
             });
         }
@@ -339,7 +336,8 @@ public sealed partial class KingdomUIRoot
             {
                 detailActionButton.onClick.AddListener(() =>
                 {
-                    if (manager.TryStartStage(startDoctrine, out _)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
+                    if (manager.TryStartStage(startDoctrine, out UltraProjectOperationFailure failure)) UIButtonSoundManager.Play(UIButtonSoundManager.Sound.StrategicStart);
+                    else ShowTooltip("启动失败：" + GetUltraFailureLabel(failure));
                     ShowBuildingDetails(selectedBuilding, true);
                 });
             }

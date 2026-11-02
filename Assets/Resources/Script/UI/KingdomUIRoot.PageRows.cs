@@ -9,32 +9,22 @@ using UnityEngine.UI;
 /// </summary>
 public sealed partial class KingdomUIRoot
 {
-    private static string ResearchStateLabel(ResearchStatus status)
-    {
-        return status switch
-        {
-            ResearchStatus.Completed => "已完成",
-            ResearchStatus.Researching => "研究中",
-            ResearchStatus.Queued => "已排队",
-            ResearchStatus.WaitingResources => "等待资源",
-            ResearchStatus.Available => "可研究",
-            _ => "未解锁"
-        };
-    }
-
     private static string ResearchStateLabel(ResearchDef research, ResearchStatus status)
     {
-        string runtimeState = ResearchStateLabel(status);
-        if (status == ResearchStatus.Completed ||
-            status == ResearchStatus.Researching ||
-            status == ResearchStatus.Queued ||
-            status == ResearchStatus.WaitingResources)
-            return runtimeState;
+        switch (status)
+        {
+            case ResearchStatus.Completed: return "已完成";
+            case ResearchStatus.Researching: return "研究中";
+            case ResearchStatus.Queued: return "已排队";
+            case ResearchStatus.WaitingResources: return "等待资源";
+        }
         if (research != null && research.AdvancesTechLevel)
             return "时代进步";
         if (research != null && GameManager.Instance != null &&
             research.TechLevel > GameManager.Instance.State.TechLevel)
             return "未解锁";
+        if (status == ResearchStatus.Locked)
+            return "需前置研究";
         return "可研究";
     }
 
@@ -107,7 +97,7 @@ public sealed partial class KingdomUIRoot
                 ? (isDeconstruct ? Error : BasicMetalIngot)
                 : Panel);
         button.transition = Selectable.Transition.ColorTint;
-        ApplyButtonColors(button, surface == null ? Color.white : surface.color);
+        ApplyButtonColors(button);
         if (!buildingActionButtonOutlines.TryGetValue(button, out Outline outline) || outline == null)
         {
             outline = button.GetComponent<Outline>();
@@ -147,10 +137,13 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("建筑", "建筑数据尚未载入，请稍候。", building.Id);
+            ShowDetails("建筑", "建筑数据尚未载入，请稍候。");
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
+        BuildingDef upgradeTarget = null;
+        if (upgrade)
+            BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out upgradeTarget);
         BuildFailure failure;
         bool success = upgrade
             ? BuildingManager.Instance.TryUpgrade(building, amount, out failure)
@@ -160,7 +153,10 @@ public sealed partial class KingdomUIRoot
                 ? UIButtonSoundManager.Sound.Upgrade
                 : UIButtonSoundManager.Sound.Build);
         else
-            ShowTooltip("建造失败：" + GetBuildFailureDescription(failure));
+            ShowTooltip((upgrade ? "升级失败：" : "建造失败：") + GetBuildFailureDescription(failure));
+        if (success && upgradeTarget != null &&
+            (!BuildingManager.Instance.States.TryGetValue(building, out BuildingState sourceState) || sourceState.Amount <= ExpantaNum.Zero))
+            building = upgradeTarget;
         ShowBuildingDetails(building, true);
     }
 
@@ -168,28 +164,44 @@ public sealed partial class KingdomUIRoot
     {
         if (BuildingManager.Instance == null)
         {
-            ShowDetails("建筑", "建筑数据尚未载入，请稍候。", building.Id);
+            ShowDetails("建筑", "建筑数据尚未载入，请稍候。");
             return;
         }
         ExpantaNum amount = GetSelectedBuildingQuantity(building, false, true);
-        if (amount > ExpantaNum.One || buildingQuantityMode == BuildingQuantityMode.Max)
+        BuildingDeconstructionPreview preview = BuildingManager.Instance.GetDeconstructionPreview(building, amount);
+        if (preview == null) { ShowTooltip("当前没有可拆除建筑"); return; }
+        if (amount > ExpantaNum.One || buildingQuantityMode == BuildingQuantityMode.Max ||
+            preview.FoodOverflow > ExpantaNum.Zero)
         {
-            BuildingDeconstructionPreview preview = BuildingManager.Instance.GetDeconstructionPreview(building, amount);
-            if (preview == null) { ShowTooltip("当前没有可拆除建筑"); return; }
             var warning = new System.Text.StringBuilder("拆除 ").Append(building.Label).Append(" × ").Append(preview.Amount.ToGameString());
-            warning.Append("\n住房容量减少：").Append(preview.PopulationCapacityRemoved.ToGameString())
-                .Append("（现有居民不会立即减少；增长受新容量限制）")
-                .Append("\n粮仓容量减少：").Append(preview.FoodCapacityRemoved.ToGameString())
-                .Append("；超容量食物损失：").Append(preview.FoodOverflow.ToGameString())
-                .Append("\n净生产力释放：").Append(preview.ProductivityReleased.ToGameString());
+            if (preview.PopulationCapacityRemoved > ExpantaNum.Zero)
+                warning.Append("\n住房容量减少：").Append(preview.PopulationCapacityRemoved.ToGameString())
+                    .Append("（现有居民不会立即减少；增长受新容量限制）");
+            if (preview.FoodCapacityRemoved > ExpantaNum.Zero)
+                warning.Append("\n粮仓容量减少：").Append(preview.FoodCapacityRemoved.ToGameString());
+            if (preview.FoodOverflow > ExpantaNum.Zero)
+                warning.Append("\n超容量食物损失：").Append(preview.FoodOverflow.ToGameString());
+            if (preview.ProductivityReleased != ExpantaNum.Zero)
+                warning.Append("\n可用生产力变化：").Append(preview.ProductivityReleased > ExpantaNum.Zero ? "+" : string.Empty)
+                    .Append(preview.ProductivityReleased.ToGameString());
             ExpantaNum scale = preview.Amount;
+            ExpantaNum foodProduction = DisplayedBuildingFood(building) * scale;
+            ExpantaNum foodConsumption = building.FoodConsumptionRate * DisplayedBuildingOperatingEfficiency(building) * scale;
+            var outputs = GetEffectiveBuildingFlows(building, true);
+            var inputs = GetEffectiveBuildingFlows(building, false);
+            if (building.PowerContribution != ExpantaNum.Zero || building.LogisticsContribution != ExpantaNum.Zero ||
+                foodProduction > ExpantaNum.Zero || foodConsumption > ExpantaNum.Zero || outputs.Count > 0 || inputs.Count > 0)
+                warning.Append("\n所拆建筑当前数据（拆除后总量可能不同）：");
             if (building.PowerContribution != ExpantaNum.Zero)
                 warning.Append("\n电力变化：").Append(building.PowerContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingPower(building) * scale).ToGameString());
             if (building.LogisticsContribution != ExpantaNum.Zero)
                 warning.Append("\n物流变化：").Append(building.LogisticsContribution < ExpantaNum.Zero ? "+" : string.Empty).Append((-DisplayedBuildingLogistics(building) * scale).ToGameString());
-            warning.Append("\n当前日常粮产/耗粮减少：").Append((DisplayedBuildingFood(building) * scale).ToGameString()).Append(" / ").Append((building.FoodConsumptionRate * DisplayedBuildingOperatingEfficiency(building) * scale).ToGameString()).Append(" /s（居民需粮不会立即减少）");
-            foreach (var flow in GetEffectiveBuildingFlows(building, true)) warning.Append("\n当前产出减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
-            foreach (var flow in GetEffectiveBuildingFlows(building, false)) warning.Append("\n当前持续投入减少：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
+            if (foodProduction > ExpantaNum.Zero)
+                warning.Append("\n当前粮食产出：").Append(foodProduction.ToGameString()).Append("/s");
+            if (foodConsumption > ExpantaNum.Zero)
+                warning.Append("\n当前建筑耗粮：").Append(foodConsumption.ToGameString()).Append("/s（居民需粮不变）");
+            foreach (var flow in outputs) warning.Append("\n当前产出：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
+            foreach (var flow in inputs) warning.Append("\n当前持续投入：").Append(flow.First.Label).Append(' ').Append((flow.Second * scale).ToGameString()).Append("/s");
             foreach (var refund in preview.Refunds) warning.Append("\n返还：").Append(refund.Key.Label).Append(' ').Append(refund.Value.ToGameString());
             ConfirmReviewAction(warning.ToString(), () => ExecuteBuildingDeconstruction(building, preview.Amount));
             return;
@@ -199,9 +211,11 @@ public sealed partial class KingdomUIRoot
 
     private void ExecuteBuildingDeconstruction(BuildingDef building, ExpantaNum amount)
     {
-        bool success = BuildingManager.Instance.TryDeconstruct(building, amount, out _);
+        bool success = BuildingManager.Instance.TryDeconstruct(building, amount, out BuildFailure failure);
         if (success)
             UIButtonSoundManager.Play(UIButtonSoundManager.Sound.Deconstruct);
+        else
+            ShowTooltip("拆除失败：" + GetBuildFailureDescription(failure));
         ShowBuildingDetails(building, true);
     }
 
@@ -214,7 +228,8 @@ public sealed partial class KingdomUIRoot
             case BuildFailure.ResearchPrerequisiteIncomplete: return "研究前置未完成";
             case BuildFailure.WorkshopPrerequisiteIncomplete: return "工坊前置未完成";
             case BuildFailure.ResourceInsufficient: return "资源不足";
-            case BuildFailure.SpaceInsufficient: return "空闲土地不足；拆除闲置建筑或占领星区可腾出土地";
+            case BuildFailure.SpaceInsufficient: return "空闲土地不足；拆除闲置建筑可腾出土地";
+            case BuildFailure.DeconstructionUnavailable: return "该建筑不可拆除";
             case BuildFailure.BuildingTierSuperseded: return "该设施已转为后续建筑；请选取当前建筑";
             case BuildFailure.UpgradeUnavailable: return "升级不可用";
             case BuildFailure.SectorNotOccupied: return "所属星区尚未占领";

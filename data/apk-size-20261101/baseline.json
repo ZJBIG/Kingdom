@@ -1,0 +1,2387 @@
+{
+  "apkBytes": 219006004,
+  "entries": [
+    {
+      "name": "META-INF/com/android/build/gradle/app-metadata.properties",
+      "size": 56,
+      "compressed": 52
+    },
+    {
+      "name": "classes.dex",
+      "size": 132620,
+      "compressed": 58358
+    },
+    {
+      "name": "lib/arm64-v8a/lib_burst_generated.so",
+      "size": 117760,
+      "compressed": 44080
+    },
+    {
+      "name": "lib/arm64-v8a/libil2cpp.so",
+      "size": 37333744,
+      "compressed": 10266926
+    },
+    {
+      "name": "lib/arm64-v8a/libmain.so",
+      "size": 6736,
+      "compressed": 2551
+    },
+    {
+      "name": "lib/arm64-v8a/libunity.so",
+      "size": 16654464,
+      "compressed": 7380261
+    },
+    {
+      "name": "assets/aa/AddressablesLink/link.xml",
+      "size": 1506,
+      "compressed": 1506
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/alive_4471bb04bac6c36804f02a6e780193ed.bundle",
+      "size": 2582178,
+      "compressed": 2582178
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/ambition_efca76f0953df5c6708afb09ee6a0a17.bundle",
+      "size": 2050510,
+      "compressed": 2050510
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/everythingsgoingtobeokay_d565d022a795506dde3086074170f7b9.bundle",
+      "size": 2371216,
+      "compressed": 2371216
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/honor_d4fb37691c900910bb7e586da26dea2a.bundle",
+      "size": 1744622,
+      "compressed": 1744622
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/legacy_47255c7eda19e39557c31ddde0e5a62e.bundle",
+      "size": 2551835,
+      "compressed": 2551835
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/muffalo_f0128d0782d94c4f2d61f0d41ba5bf68.bundle",
+      "size": 2695613,
+      "compressed": 2695613
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/onecandreamtofly_50487e1e57c203db356aae989038aeec.bundle",
+      "size": 2934124,
+      "compressed": 2934124
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/ontheroad_9b5834f9bd4f7e325911f398bbd77117.bundle",
+      "size": 1388858,
+      "compressed": 1388858
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/protectourhome_e87d248df0060b7479709977b8519284.bundle",
+      "size": 2065688,
+      "compressed": 2065688
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/rimmas_d12ec2b95917cf6a6e33242cba1a217c.bundle",
+      "size": 2335014,
+      "compressed": 2335014
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/rimraid_4b353d7b5a8368a53b834c35a63aea5f.bundle",
+      "size": 1850719,
+      "compressed": 1850719
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/alltime/spacekattommy_0989c977e87b92080ae726ffaa9df108.bundle",
+      "size": 1344602,
+      "compressed": 1344602
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/catalog_286c4e8bb9b33ad5a3c5766921a0efb9.bundle",
+      "size": 3832,
+      "compressed": 3832
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/aplaceofourown_2cb1f8d0362cd3574af029879bebc563.bundle",
+      "size": 2024019,
+      "compressed": 2024019
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/atewithouttable_4718d37026ca24f0596efa94144347a9.bundle",
+      "size": 1676457,
+      "compressed": 1676457
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/backinthesaddle_63fa9520dc80c2b479a44dbdf2fca183.bundle",
+      "size": 1593210,
+      "compressed": 1593210
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/backtowork_16593dbd4b9feedf2a802ddf52f8bdb8.bundle",
+      "size": 2762873,
+      "compressed": 2762873
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/brightsideoflife_d633849c4700445c686ef7dbf9c90f14.bundle",
+      "size": 1854481,
+      "compressed": 1854481
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/fairglade_850180c60224b5bd3ca64baf050bb36c.bundle",
+      "size": 1914627,
+      "compressed": 1914627
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/lovelyday_3ba3fb73b36ae89feb1924d1d829aaac.bundle",
+      "size": 1617659,
+      "compressed": 1617659
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/move_406934d3940995212eb11f341c54458a.bundle",
+      "size": 1487118,
+      "compressed": 1487118
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/myfriend_16752bea37c82fa65b5d16b55fc86b93.bundle",
+      "size": 1735489,
+      "compressed": 1735489
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/rusticranching_20521067f156d5bfe125b78faf634846.bundle",
+      "size": 2101032,
+      "compressed": 2101032
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/simplelife_85f76ce5a658521ad879402a2188b041.bundle",
+      "size": 1256257,
+      "compressed": 1256257
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/sunlight_9f548d6886871c38e1157c9306096e0a.bundle",
+      "size": 1977796,
+      "compressed": 1977796
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/united_09f77dce49e5440eef7e9b1a4e160382.bundle",
+      "size": 1773150,
+      "compressed": 1773150
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/day/whatweoncehad_3451dd873d0fdb964e5a34e0dc92f70c.bundle",
+      "size": 1500562,
+      "compressed": 1500562
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/blue_a0466c9f3b445215b7223fd78f1bfb51.bundle",
+      "size": 1896556,
+      "compressed": 1896556
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/faraway_cc98c1889b566b7fdc4b9ecb85fed13d.bundle",
+      "size": 1444980,
+      "compressed": 1444980
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/illusion_d49551a2c15650abf9f1867d8148bd67.bundle",
+      "size": 1691939,
+      "compressed": 1691939
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/longwayhome_5a0867aec8eb28a1d180ab258afff4cc.bundle",
+      "size": 2345770,
+      "compressed": 2345770
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/neverforgotten_3f089639cd28a9ed233b34f43bddd985.bundle",
+      "size": 1976688,
+      "compressed": 1976688
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/nimbostratus_06f504ada07d7be2913d3052da0f41d9.bundle",
+      "size": 1494299,
+      "compressed": 1494299
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/odyssey_9d3c193ba0e90e652081c1765a84647e.bundle",
+      "size": 2277596,
+      "compressed": 2277596
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/onethousandstars_ecb7c8fb119871a8872dff1d6a914022.bundle",
+      "size": 1400799,
+      "compressed": 1400799
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/passenger_1af46dcb13290825054db374fff1c396.bundle",
+      "size": 2109187,
+      "compressed": 2109187
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/rememberourpast_60546a925e9cdae415b37f53d71f5c7d.bundle",
+      "size": 2153041,
+      "compressed": 2153041
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/serenenight_665ff0642388f85aa1f40dc93e13d514.bundle",
+      "size": 1869029,
+      "compressed": 1869029
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/serenity_79e0682bfd3e5cae33049ee690bf2889.bundle",
+      "size": 2038536,
+      "compressed": 2038536
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/solitude_026c012ff241e6dcd266497a4c39c3a8.bundle",
+      "size": 964504,
+      "compressed": 964504
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/strangefeeling_9ffea73e1e29faefef85ab3b7abb97ca.bundle",
+      "size": 419042,
+      "compressed": 419042
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/night/thefallen_32c9bb213303c09b463bc821cc2a1655.bundle",
+      "size": 697200,
+      "compressed": 697200
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/carryon_2d170f6622f6edd4c35701fe64fa2589.bundle",
+      "size": 2523659,
+      "compressed": 2523659
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/codered_82620d2c02a7f6b15ab560d946abbd30.bundle",
+      "size": 1898364,
+      "compressed": 1898364
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/cruelworld_d2dc98f01b10643696dd000af5328a22.bundle",
+      "size": 1560206,
+      "compressed": 1560206
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/delusion_94e5974d79c3ab8cf9cb414c15a7f179.bundle",
+      "size": 2437035,
+      "compressed": 2437035
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/finalstand_1206413b2c132befa785fd8dc9e51407.bundle",
+      "size": 2009600,
+      "compressed": 2009600
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/holdon_7b9ba8670749df45dd3fdc6674e3faa7.bundle",
+      "size": 1579617,
+      "compressed": 1579617
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/lonehunter_7c739ce5de9659f9290cb69b9cf47c26.bundle",
+      "size": 2748943,
+      "compressed": 2748943
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/outlaw_f279410fd1e193e0bb8d77510d1ed7cf.bundle",
+      "size": 1625499,
+      "compressed": 1625499
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/rise_8a390386d266fc2d7d326ad3bc9fabcc.bundle",
+      "size": 1327867,
+      "compressed": 1327867
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/staystrong_4607201e3bc7f4a320733305d0c92885.bundle",
+      "size": 2243746,
+      "compressed": 2243746
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/toughlife_72fd4fd479ceba46e3efc3032d48faeb.bundle",
+      "size": 1237467,
+      "compressed": 1237467
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/triumph_8664d71c4d7563de5db7d9721a085f5b.bundle",
+      "size": 3079671,
+      "compressed": 3079671
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/trustme_760836449c84b8965b3c922a655e7818.bundle",
+      "size": 3033603,
+      "compressed": 3033603
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/valiant_7bca37149cc56d0e3aa2b0df22241005.bundle",
+      "size": 1972580,
+      "compressed": 1972580
+    },
+    {
+      "name": "assets/aa/Android/kingdommusic_assets_music/tense/wewill_0e3d8b25c6dd13a136b8056b1d988a88.bundle",
+      "size": 1306839,
+      "compressed": 1306839
+    },
+    {
+      "name": "assets/aa/catalog.json",
+      "size": 270250,
+      "compressed": 270250
+    },
+    {
+      "name": "assets/aa/settings.json",
+      "size": 1592,
+      "compressed": 1592
+    },
+    {
+      "name": "assets/bin/Data/Managed/Metadata/global-metadata.dat",
+      "size": 5558892,
+      "compressed": 1593370
+    },
+    {
+      "name": "assets/bin/Data/Managed/Resources/mscorlib.dll-resources.dat",
+      "size": 337563,
+      "compressed": 126076
+    },
+    {
+      "name": "assets/bin/Data/RuntimeInitializeOnLoads.json",
+      "size": 1258,
+      "compressed": 341
+    },
+    {
+      "name": "assets/bin/Data/ScriptingAssemblies.json",
+      "size": 3597,
+      "compressed": 789
+    },
+    {
+      "name": "assets/bin/Data/boot.config",
+      "size": 171,
+      "compressed": 139
+    },
+    {
+      "name": "assets/bin/Data/data.unity3d",
+      "size": 92015092,
+      "compressed": 92015092
+    },
+    {
+      "name": "assets/bin/Data/unity default resources",
+      "size": 1121184,
+      "compressed": 291714
+    },
+    {
+      "name": "assets/bin/Data/unity_app_guid",
+      "size": 36,
+      "compressed": 38
+    },
+    {
+      "name": "META-INF/com.android.games.engine.build_fingerprint",
+      "size": 70,
+      "compressed": 70
+    },
+    {
+      "name": "AndroidManifest.xml",
+      "size": 5388,
+      "compressed": 5388
+    },
+    {
+      "name": "res/De.png",
+      "size": 47979,
+      "compressed": 47979
+    },
+    {
+      "name": "res/FN.png",
+      "size": 82987,
+      "compressed": 82987
+    },
+    {
+      "name": "res/H-.png",
+      "size": 22061,
+      "compressed": 22061
+    },
+    {
+      "name": "res/Iw.png",
+      "size": 47979,
+      "compressed": 47979
+    },
+    {
+      "name": "res/K0.png",
+      "size": 12740,
+      "compressed": 12740
+    },
+    {
+      "name": "res/Ut.png",
+      "size": 3416,
+      "compressed": 3416
+    },
+    {
+      "name": "res/W5.png",
+      "size": 5870,
+      "compressed": 5870
+    },
+    {
+      "name": "res/YA.png",
+      "size": 12740,
+      "compressed": 12740
+    },
+    {
+      "name": "res/b2.png",
+      "size": 5870,
+      "compressed": 5870
+    },
+    {
+      "name": "res/l4.png",
+      "size": 22061,
+      "compressed": 22061
+    },
+    {
+      "name": "res/mG.png",
+      "size": 3416,
+      "compressed": 3416
+    },
+    {
+      "name": "res/oj.png",
+      "size": 82987,
+      "compressed": 82987
+    },
+    {
+      "name": "resources.arsc",
+      "size": 3044,
+      "compressed": 3044
+    },
+    {
+      "name": "META-INF/CERT.SF",
+      "size": 13184,
+      "compressed": 5886
+    },
+    {
+      "name": "META-INF/CERT.RSA",
+      "size": 1167,
+      "compressed": 1018
+    },
+    {
+      "name": "META-INF/MANIFEST.MF",
+      "size": 13110,
+      "compressed": 5613
+    }
+  ],
+  "sourceGroups": {
+    "AddressableAssets.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData.meta": [
+      172,
+      1
+    ],
+    "Editor.meta": [
+      180,
+      1
+    ],
+    "KingdomAssemblyMarker.cs": [
+      177,
+      1
+    ],
+    "KingdomAssemblyMarker.cs.meta": [
+      243,
+      1
+    ],
+    "Musics.meta": [
+      180,
+      1
+    ],
+    "Resources.meta": [
+      180,
+      1
+    ],
+    "Scenes.meta": [
+      180,
+      1
+    ],
+    "Settings.meta": [
+      180,
+      1
+    ],
+    "Tests.meta": [
+      180,
+      1
+    ],
+    "TextMesh Pro.meta": [
+      180,
+      1
+    ],
+    "UniversalRenderPipelineGlobalSettings.asset": [
+      759,
+      1
+    ],
+    "UniversalRenderPipelineGlobalSettings.asset.meta": [
+      197,
+      1
+    ],
+    "AddressableAssets/Music.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/AddressableAssetSettings.asset": [
+      4062,
+      1
+    ],
+    "AddressableAssetsData/AddressableAssetSettings.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/Android.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/AssetGroupTemplates.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/DefaultObject.asset": [
+      469,
+      1
+    ],
+    "AddressableAssetsData/DefaultObject.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/ProfileDataSourceSettings.asset": [
+      1033,
+      1
+    ],
+    "AddressableAssetsData/ProfileDataSourceSettings.asset.meta": [
+      189,
+      1
+    ],
+    "Editor/AndroidArtworkOptimization.cs": [
+      9668,
+      1
+    ],
+    "Editor/AndroidArtworkOptimization.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/Codex.meta": [
+      180,
+      1
+    ],
+    "Editor/Content.meta": [
+      180,
+      1
+    ],
+    "Editor/Drawers.meta": [
+      180,
+      1
+    ],
+    "Editor/EconomyParitySnapshotExporter.cs": [
+      31137,
+      1
+    ],
+    "Editor/EconomyParitySnapshotExporter.cs.meta": [
+      60,
+      1
+    ],
+    "Editor/EraCollectionArtAuthoring.cs": [
+      2780,
+      1
+    ],
+    "Editor/EraCollectionArtAuthoring.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/EraCollectionAuthoring.cs": [
+      9952,
+      1
+    ],
+    "Editor/EraCollectionAuthoring.cs.meta": [
+      240,
+      1
+    ],
+    "Editor/KingdomBackgroundAuthoring.cs": [
+      15244,
+      1
+    ],
+    "Editor/KingdomBackgroundAuthoring.cs.meta": [
+      251,
+      1
+    ],
+    "Editor/KingdomBuild.cs": [
+      2413,
+      1
+    ],
+    "Editor/KingdomBuild.cs.meta": [
+      240,
+      1
+    ],
+    "Editor/KingdomButtonAuthoring.cs": [
+      12149,
+      1
+    ],
+    "Editor/KingdomButtonAuthoring.cs.meta": [
+      251,
+      1
+    ],
+    "Editor/KingdomCardPolishAuthoring.cs": [
+      7909,
+      1
+    ],
+    "Editor/KingdomCardPolishAuthoring.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/KingdomCollectionAuthoring.cs": [
+      15653,
+      1
+    ],
+    "Editor/KingdomCollectionAuthoring.cs.meta": [
+      251,
+      1
+    ],
+    "Editor/KingdomPageBoundaryAuthoring.cs": [
+      8709,
+      1
+    ],
+    "Editor/KingdomPageBoundaryAuthoring.cs.meta": [
+      60,
+      1
+    ],
+    "Editor/KingdomPerfTestTools.cs": [
+      10046,
+      1
+    ],
+    "Editor/KingdomPerfTestTools.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/KingdomPlannerAuthoring.cs": [
+      3047,
+      1
+    ],
+    "Editor/KingdomPlannerAuthoring.cs.meta": [
+      251,
+      1
+    ],
+    "Editor/Migration.meta": [
+      180,
+      1
+    ],
+    "Editor/MusicAddressablesConfigurator.cs": [
+      6814,
+      1
+    ],
+    "Editor/MusicAddressablesConfigurator.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/PMusicAudioImporter.cs": [
+      1344,
+      1
+    ],
+    "Editor/PMusicAudioImporter.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/ProductionPageAuthoring.cs": [
+      5405,
+      1
+    ],
+    "Editor/ProductionPageAuthoring.cs.meta": [
+      60,
+      1
+    ],
+    "Editor/RelicUIAuthoring.cs": [
+      5588,
+      1
+    ],
+    "Editor/RelicUIAuthoring.cs.meta": [
+      251,
+      1
+    ],
+    "Editor/ResourceTreeAuthoring.cs": [
+      7434,
+      1
+    ],
+    "Editor/ResourceTreeAuthoring.cs.meta": [
+      60,
+      1
+    ],
+    "Editor/StoryIllustrationAuthoring.cs": [
+      18034,
+      1
+    ],
+    "Editor/StoryIllustrationAuthoring.cs.meta": [
+      254,
+      1
+    ],
+    "Musics/PMusic.meta": [
+      172,
+      1
+    ],
+    "Resources/Art.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas.meta": [
+      180,
+      1
+    ],
+    "Resources/Fonts.meta": [
+      172,
+      1
+    ],
+    "Resources/Script.meta": [
+      180,
+      1
+    ],
+    "Resources/Sprite Assets.meta": [
+      180,
+      1
+    ],
+    "Resources/Texture.meta": [
+      180,
+      1
+    ],
+    "Resources/UI.meta": [
+      180,
+      1
+    ],
+    "Scenes/SampleScene.unity": [
+      34538,
+      1
+    ],
+    "Scenes/SampleScene.unity.meta": [
+      162,
+      1
+    ],
+    "Settings/Renderer2D.asset": [
+      3136,
+      1
+    ],
+    "Settings/Renderer2D.asset.meta": [
+      197,
+      1
+    ],
+    "Settings/UniversalRP.asset": [
+      3645,
+      1
+    ],
+    "Settings/UniversalRP.asset.meta": [
+      197,
+      1
+    ],
+    "Tests/AGENTS.md": [
+      1133,
+      1
+    ],
+    "Tests/AGENTS.md.meta": [
+      165,
+      1
+    ],
+    "Tests/Editor.meta": [
+      180,
+      1
+    ],
+    "Tests/PlayMode.meta": [
+      180,
+      1
+    ],
+    "TextMesh Pro/Fonts.meta": [
+      180,
+      1
+    ],
+    "TextMesh Pro/Resources.meta": [
+      180,
+      1
+    ],
+    "TextMesh Pro/Shaders.meta": [
+      180,
+      1
+    ],
+    "TextMesh Pro/Sprites.meta": [
+      180,
+      1
+    ],
+    "AddressableAssets/Music/MusicCatalog.asset": [
+      7504,
+      1
+    ],
+    "AddressableAssets/Music/MusicCatalog.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/Android/addressables_content_state.bin": [
+      18177,
+      1
+    ],
+    "AddressableAssetsData/Android/addressables_content_state.bin.meta": [
+      155,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Built In Data.asset": [
+      1019,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Built In Data.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Default Local Group.asset": [
+      822,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Default Local Group.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Kingdom Music.asset": [
+      12141,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Kingdom Music.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Schemas.meta": [
+      172,
+      1
+    ],
+    "AddressableAssetsData/AssetGroupTemplates/Packed Assets.asset": [
+      2140,
+      1
+    ],
+    "AddressableAssetsData/AssetGroupTemplates/Packed Assets.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptFastMode.asset": [
+      810,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptFastMode.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptPackedMode.asset": [
+      812,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptPackedMode.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptPackedPlayMode.asset": [
+      816,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptPackedPlayMode.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptVirtualMode.asset": [
+      813,
+      1
+    ],
+    "AddressableAssetsData/DataBuilders/BuildScriptVirtualMode.asset.meta": [
+      189,
+      1
+    ],
+    "AddressableAssetsData/AssetGroups/Schemas": [
+      5667,
+      10
+    ],
+    "Editor/Codex/LatestTestErrorReport.cs": [
+      4860,
+      1
+    ],
+    "Editor/Codex/LatestTestErrorReport.cs.meta": [
+      243,
+      1
+    ],
+    "Editor/Codex/SolutionSync.cs": [
+      1649,
+      1
+    ],
+    "Editor/Codex/SolutionSync.cs.meta": [
+      254,
+      1
+    ],
+    "Editor/Content/ContentDependencyAnalyzer.cs": [
+      18752,
+      1
+    ],
+    "Editor/Content/ContentDependencyAnalyzer.cs.meta": [
+      254,
+      1
+    ],
+    "Editor/Content/RuntimeClosureValidatorCommand.cs": [
+      1176,
+      1
+    ],
+    "Editor/Content/RuntimeClosureValidatorCommand.cs.meta": [
+      254,
+      1
+    ],
+    "Editor/Drawers/ExpantaNumDrawer.cs": [
+      955,
+      1
+    ],
+    "Editor/Drawers/ExpantaNumDrawer.cs.meta": [
+      254,
+      1
+    ],
+    "Editor/Drawers/ResourceExpantaNumPairDrawer.cs": [
+      1932,
+      1
+    ],
+    "Editor/Drawers/ResourceExpantaNumPairDrawer.cs.meta": [
+      254,
+      1
+    ],
+    "Editor/Migration/DefinitionIdMigration.cs": [
+      4823,
+      1
+    ],
+    "Editor/Migration/DefinitionIdMigration.cs.meta": [
+      254,
+      1
+    ],
+    "Musics/PMusic/AllTime.meta": [
+      172,
+      1
+    ],
+    "Musics/PMusic/Day.meta": [
+      172,
+      1
+    ],
+    "Musics/PMusic/Night.meta": [
+      172,
+      1
+    ],
+    "Musics/PMusic/Tense.meta": [
+      172,
+      1
+    ],
+    "Musics/PMusic/AllTime": [
+      67038047,
+      24
+    ],
+    "Musics/PMusic/Day": [
+      68335502,
+      28
+    ],
+    "Musics/PMusic/Night": [
+      69465830,
+      30
+    ],
+    "Musics/PMusic/Tense": [
+      85033205,
+      30
+    ],
+    "Resources/Art/Building.meta": [
+      172,
+      1
+    ],
+    "Resources/Art/Metals.meta": [
+      177,
+      1
+    ],
+    "Resources/Art/Sector.meta": [
+      180,
+      1
+    ],
+    "Resources/Art/Story.meta": [
+      180,
+      1
+    ],
+    "Resources/Art/UI.meta": [
+      177,
+      1
+    ],
+    "Resources/Art/WorkshopIcons.meta": [
+      172,
+      1
+    ],
+    "Resources/Datas/Building.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas/Research.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas/Resource.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas/Sector.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas/Story.meta": [
+      172,
+      1
+    ],
+    "Resources/Datas/Tutorial.meta": [
+      214,
+      1
+    ],
+    "Resources/Datas/Ultra.meta": [
+      180,
+      1
+    ],
+    "Resources/Datas/Workshop.meta": [
+      180,
+      1
+    ],
+    "Resources/Fonts/NotoSansSC-Regular.otf": [
+      8482020,
+      1
+    ],
+    "Resources/Fonts/NotoSansSC-Regular.otf.meta": [
+      441,
+      1
+    ],
+    "Resources/Script/AGENTS.md": [
+      1017,
+      1
+    ],
+    "Resources/Script/AGENTS.md.meta": [
+      165,
+      1
+    ],
+    "Resources/Script/Data.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/Kingdom.Runtime.asmdef": [
+      460,
+      1
+    ],
+    "Resources/Script/Kingdom.Runtime.asmdef.meta": [
+      173,
+      1
+    ],
+    "Resources/Script/Manager.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/Math.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/Misc.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/Runtime.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/UI.meta": [
+      180,
+      1
+    ],
+    "Resources/Script/Validation.meta": [
+      180,
+      1
+    ],
+    "Resources/Sprite Assets/BuildingStatusIcons.asset": [
+      4845,
+      1
+    ],
+    "Resources/Sprite Assets/BuildingStatusIcons.asset.meta": [
+      197,
+      1
+    ],
+    "Resources/Sprite Assets/HudFood.asset": [
+      2747,
+      1
+    ],
+    "Resources/Sprite Assets/HudFood.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudFoodStorage.asset": [
+      2766,
+      1
+    ],
+    "Resources/Sprite Assets/HudFoodStorage.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudLogistics.asset": [
+      2760,
+      1
+    ],
+    "Resources/Sprite Assets/HudLogistics.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudPopulation.asset": [
+      2763,
+      1
+    ],
+    "Resources/Sprite Assets/HudPopulation.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudPower.asset": [
+      2749,
+      1
+    ],
+    "Resources/Sprite Assets/HudPower.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudProductionEfficiency.asset": [
+      2893,
+      1
+    ],
+    "Resources/Sprite Assets/HudProductionEfficiency.asset.meta": [
+      197,
+      1
+    ],
+    "Resources/Sprite Assets/HudProductivity.asset": [
+      2769,
+      1
+    ],
+    "Resources/Sprite Assets/HudProductivity.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudResearchPower.asset": [
+      2770,
+      1
+    ],
+    "Resources/Sprite Assets/HudResearchPower.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Sprite Assets/HudTerritory.asset": [
+      2760,
+      1
+    ],
+    "Resources/Sprite Assets/HudTerritory.asset.meta": [
+      189,
+      1
+    ],
+    "Resources/Texture/MusicIcons.meta": [
+      172,
+      1
+    ],
+    "Resources/Texture/ResearchTree.meta": [
+      172,
+      1
+    ],
+    "Resources/Texture/Resource.meta": [
+      180,
+      1
+    ],
+    "Resources/Texture/UI.meta": [
+      180,
+      1
+    ],
+    "Resources/UI/Kingdom.meta": [
+      172,
+      1
+    ],
+    "Resources/Art/Building": [
+      56854836,
+      164
+    ],
+    "Resources/Art/Metals": [
+      585947,
+      2
+    ],
+    "Resources/Art/Sector": [
+      5059505,
+      20
+    ],
+    "Resources/Art/Story": [
+      32731669,
+      36
+    ],
+    "Resources/Art/UI": [
+      45385333,
+      85
+    ],
+    "Resources/Art/WorkshopIcons": [
+      52332943,
+      184
+    ],
+    "Resources/Datas/Building": [
+      210458,
+      164
+    ],
+    "Resources/Datas/Research": [
+      252190,
+      296
+    ],
+    "Resources/Datas/Resource": [
+      31246,
+      71
+    ],
+    "Resources/Datas/Sector": [
+      27263,
+      20
+    ],
+    "Resources/Datas/Story": [
+      53154,
+      38
+    ],
+    "Resources/Datas/Tutorial": [
+      8320,
+      16
+    ],
+    "Resources/Datas/Ultra": [
+      12788,
+      4
+    ],
+    "Resources/Datas/Workshop": [
+      179811,
+      184
+    ],
+    "Resources/Script/Data": [
+      74762,
+      32
+    ],
+    "Resources/Script/Manager": [
+      715596,
+      44
+    ],
+    "Resources/Script/Math": [
+      99748,
+      4
+    ],
+    "Resources/Script/Misc": [
+      16011,
+      6
+    ],
+    "Resources/Script/Runtime": [
+      118248,
+      30
+    ],
+    "Resources/Script/UI": [
+      813717,
+      98
+    ],
+    "Resources/Script/Validation": [
+      71351,
+      10
+    ],
+    "Resources/Texture/MusicIcons": [
+      27511,
+      16
+    ],
+    "Resources/Texture/ResearchTree": [
+      122813,
+      42
+    ],
+    "Resources/Texture/Resource": [
+      1868494,
+      55
+    ],
+    "Resources/Texture/UI": [
+      563058,
+      2
+    ],
+    "Resources/UI/Kingdom": [
+      2950092,
+      100
+    ],
+    "Tests/Editor/AdvancedMaterialProgressionTests.cs": [
+      21711,
+      1
+    ],
+    "Tests/Editor/AdvancedMaterialProgressionTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/AudioFeedbackRegressionTests.cs": [
+      4998,
+      1
+    ],
+    "Tests/Editor/AudioFeedbackRegressionTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/AuditRuntimeRegressionTests.cs": [
+      21323,
+      1
+    ],
+    "Tests/Editor/AuditRuntimeRegressionTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/BuildingCostGrowthTests.cs": [
+      17568,
+      1
+    ],
+    "Tests/Editor/BuildingCostGrowthTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/BuildingVerticalSliceTests.cs": [
+      11978,
+      1
+    ],
+    "Tests/Editor/BuildingVerticalSliceTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/C5ContentClosureAuditTests.cs": [
+      3118,
+      1
+    ],
+    "Tests/Editor/C5ContentClosureAuditTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/C6IndustrialClosureAuditTests.cs": [
+      2974,
+      1
+    ],
+    "Tests/Editor/C6IndustrialClosureAuditTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/C6IndustrialContentTests.cs": [
+      73263,
+      1
+    ],
+    "Tests/Editor/C6IndustrialContentTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/ContentProgressionValidatorTests.cs": [
+      15734,
+      1
+    ],
+    "Tests/Editor/ContentProgressionValidatorTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/ContentVerticalSliceAuditTests.cs": [
+      10933,
+      1
+    ],
+    "Tests/Editor/ContentVerticalSliceAuditTests.cs.meta": [
+      275,
+      1
+    ],
+    "Tests/Editor/EarlyGameUiPresentationTests.cs": [
+      4151,
+      1
+    ],
+    "Tests/Editor/EarlyGameUiPresentationTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/EarlyVerticalSlicePacingTests.cs": [
+      50165,
+      1
+    ],
+    "Tests/Editor/EarlyVerticalSlicePacingTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/EconomyIntegrationRegressionTests.cs": [
+      106767,
+      1
+    ],
+    "Tests/Editor/EconomyIntegrationRegressionTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/EconomySnapshotTraceTests.cs": [
+      9914,
+      1
+    ],
+    "Tests/Editor/EconomySnapshotTraceTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/EraCollectionConfigurationTests.cs": [
+      7234,
+      1
+    ],
+    "Tests/Editor/EraCollectionConfigurationTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/EraInventoryShortfallTests.cs": [
+      2664,
+      1
+    ],
+    "Tests/Editor/EraInventoryShortfallTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/FirstThreeErasContentDefinitionTests.cs": [
+      1635,
+      1
+    ],
+    "Tests/Editor/FirstThreeErasContentDefinitionTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/FlowEfficiencyTests.cs": [
+      5858,
+      1
+    ],
+    "Tests/Editor/FlowEfficiencyTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/FoodEfficiencyTests.cs": [
+      6789,
+      1
+    ],
+    "Tests/Editor/FoodEfficiencyTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/GlobalEconomyDefinitionTests.cs": [
+      24329,
+      1
+    ],
+    "Tests/Editor/GlobalEconomyDefinitionTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/HomeSystemDevelopmentTests.cs": [
+      31743,
+      1
+    ],
+    "Tests/Editor/HomeSystemDevelopmentTests.cs.meta": [
+      241,
+      1
+    ],
+    "Tests/Editor/IndustrialWorkshopAvailabilityTests.cs": [
+      9031,
+      1
+    ],
+    "Tests/Editor/IndustrialWorkshopAvailabilityTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/InteractionSettingsTests.cs": [
+      1398,
+      1
+    ],
+    "Tests/Editor/InteractionSettingsTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/InvestmentChoiceTests.cs": [
+      14762,
+      1
+    ],
+    "Tests/Editor/InvestmentChoiceTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/KingdomBackgroundMaterialTests.cs": [
+      5929,
+      1
+    ],
+    "Tests/Editor/KingdomBackgroundMaterialTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/KingdomButtonMaterialTests.cs": [
+      6802,
+      1
+    ],
+    "Tests/Editor/KingdomButtonMaterialTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/KingdomCollectionConfigurationTests.cs": [
+      11576,
+      1
+    ],
+    "Tests/Editor/KingdomCollectionConfigurationTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/KingdomLogicTests.cs": [
+      187261,
+      1
+    ],
+    "Tests/Editor/KingdomLogicTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/KingdomPageBoundaryTests.cs": [
+      8056,
+      1
+    ],
+    "Tests/Editor/KingdomPageBoundaryTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/KingdomUiLifecycleTests.cs": [
+      1755,
+      1
+    ],
+    "Tests/Editor/KingdomUiLifecycleTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/LateFactoryConsolidationTests.cs": [
+      3508,
+      1
+    ],
+    "Tests/Editor/LateFactoryConsolidationTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/LongHorizonSimulationTests.cs": [
+      2138,
+      1
+    ],
+    "Tests/Editor/LongHorizonSimulationTests.cs.meta": [
+      275,
+      1
+    ],
+    "Tests/Editor/MedievalResearchRoleTests.cs": [
+      1299,
+      1
+    ],
+    "Tests/Editor/MedievalResearchRoleTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/MobileOrientationConfigurationTests.cs": [
+      950,
+      1
+    ],
+    "Tests/Editor/MobileOrientationConfigurationTests.cs.meta": [
+      275,
+      1
+    ],
+    "Tests/Editor/OfflineProgressSummaryTests.cs": [
+      6953,
+      1
+    ],
+    "Tests/Editor/OfflineProgressSummaryTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/OfflineSimulationBoundaryTests.cs": [
+      676,
+      1
+    ],
+    "Tests/Editor/OfflineSimulationBoundaryTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/P40UiConfigurationTests.cs": [
+      4037,
+      1
+    ],
+    "Tests/Editor/P40UiConfigurationTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/PlayerQaParityTests.cs": [
+      11671,
+      1
+    ],
+    "Tests/Editor/PlayerQaParityTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/PreSpacerCombatRemovalTests.cs": [
+      3269,
+      1
+    ],
+    "Tests/Editor/PreSpacerCombatRemovalTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/ProgressionMilestoneRecorderTests.cs": [
+      7481,
+      1
+    ],
+    "Tests/Editor/ProgressionMilestoneRecorderTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/RelicCampaignTests.cs": [
+      17191,
+      1
+    ],
+    "Tests/Editor/RelicCampaignTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/RelicManagerTests.cs": [
+      15204,
+      1
+    ],
+    "Tests/Editor/RelicManagerTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/RelicSaveTests.cs": [
+      2166,
+      1
+    ],
+    "Tests/Editor/RelicSaveTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/RelicSimulationTests.cs": [
+      12541,
+      1
+    ],
+    "Tests/Editor/RelicSimulationTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/RelicStateTests.cs": [
+      7830,
+      1
+    ],
+    "Tests/Editor/RelicStateTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/ResearchBalanceTests.cs": [
+      17962,
+      1
+    ],
+    "Tests/Editor/ResearchBalanceTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/ResearchEffectTests.cs": [
+      34252,
+      1
+    ],
+    "Tests/Editor/ResearchEffectTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/ResearchMedievalContentTests.cs": [
+      2082,
+      1
+    ],
+    "Tests/Editor/ResearchMedievalContentTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/ResearchPaymentAutoTests.cs": [
+      8633,
+      1
+    ],
+    "Tests/Editor/ResearchPaymentAutoTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/ResearchPaymentSaveTests.cs": [
+      7655,
+      1
+    ],
+    "Tests/Editor/ResearchPaymentSaveTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/ResearchPowerTests.cs": [
+      4413,
+      1
+    ],
+    "Tests/Editor/ResearchPowerTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/ResourceContinuityTests.cs": [
+      28924,
+      1
+    ],
+    "Tests/Editor/ResourceContinuityTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/ResourceProductionTreeLayoutTests.cs": [
+      7037,
+      1
+    ],
+    "Tests/Editor/ResourceProductionTreeLayoutTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/ResourceProductionTreeTests.cs": [
+      19461,
+      1
+    ],
+    "Tests/Editor/ResourceProductionTreeTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/SafeAreaFitterTests.cs": [
+      1060,
+      1
+    ],
+    "Tests/Editor/SafeAreaFitterTests.cs.meta": [
+      275,
+      1
+    ],
+    "Tests/Editor/SaveArchivePressureTests.cs": [
+      6820,
+      1
+    ],
+    "Tests/Editor/SaveArchivePressureTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/SaveManagerUltraProjectEraValidationTests.cs": [
+      3321,
+      1
+    ],
+    "Tests/Editor/SaveManagerUltraProjectEraValidationTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/SectorBuildingTests.cs": [
+      18850,
+      1
+    ],
+    "Tests/Editor/SectorBuildingTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/Editor/SectorDefinitionTests.cs": [
+      12642,
+      1
+    ],
+    "Tests/Editor/SectorDefinitionTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/SectorInteriorExplorationTests.cs": [
+      14891,
+      1
+    ],
+    "Tests/Editor/SectorInteriorExplorationTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/SectorManagerTests.cs": [
+      148657,
+      1
+    ],
+    "Tests/Editor/SectorManagerTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/SimulationBudgetTests.cs": [
+      20875,
+      1
+    ],
+    "Tests/Editor/SimulationBudgetTests.cs.meta": [
+      275,
+      1
+    ],
+    "Tests/Editor/SimulationDeterminismTests.cs": [
+      6168,
+      1
+    ],
+    "Tests/Editor/SimulationDeterminismTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/SpaceContentTests.cs": [
+      5825,
+      1
+    ],
+    "Tests/Editor/SpaceContentTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/SpaceProgressionTests.cs": [
+      118167,
+      1
+    ],
+    "Tests/Editor/SpaceProgressionTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/SpacerResearchPlacementTests.cs": [
+      7425,
+      1
+    ],
+    "Tests/Editor/SpacerResearchPlacementTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/Editor/StoryIllustrationTests.cs": [
+      6774,
+      1
+    ],
+    "Tests/Editor/StoryIllustrationTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/StoryManagerTests.cs": [
+      18773,
+      1
+    ],
+    "Tests/Editor/StoryManagerTests.cs.meta": [
+      197,
+      1
+    ],
+    "Tests/Editor/StrategicPreviewRegressionTests.cs": [
+      7550,
+      1
+    ],
+    "Tests/Editor/StrategicPreviewRegressionTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/TutorialManagerTests.cs": [
+      37737,
+      1
+    ],
+    "Tests/Editor/TutorialManagerTests.cs.meta": [
+      197,
+      1
+    ],
+    "Tests/Editor/TutorialStageTests.cs": [
+      32852,
+      1
+    ],
+    "Tests/Editor/TutorialStageTests.cs.meta": [
+      61,
+      1
+    ],
+    "Tests/Editor/UIPinPreferenceTests.cs": [
+      2058,
+      1
+    ],
+    "Tests/Editor/UIPinPreferenceTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/UltraContentSliceTests.cs": [
+      18816,
+      1
+    ],
+    "Tests/Editor/UltraContentSliceTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/UltraProjectManagerTickTests.cs": [
+      14687,
+      1
+    ],
+    "Tests/Editor/UltraProjectManagerTickTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/UltraProjectStateTests.cs": [
+      15823,
+      1
+    ],
+    "Tests/Editor/UltraProjectStateTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/UltraR2EconomyBoundaryTests.cs": [
+      8081,
+      1
+    ],
+    "Tests/Editor/UltraR2EconomyBoundaryTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/Editor/UnsafeAreaTickerStatusTests.cs": [
+      7015,
+      1
+    ],
+    "Tests/Editor/UnsafeAreaTickerStatusTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/Editor/UnsafeAreaTickerTests.cs": [
+      6269,
+      1
+    ],
+    "Tests/Editor/UnsafeAreaTickerTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/Editor/WorkshopBenefitPreviewTests.cs": [
+      11435,
+      1
+    ],
+    "Tests/Editor/WorkshopBenefitPreviewTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/Editor/WorldEventTests.cs": [
+      10244,
+      1
+    ],
+    "Tests/Editor/WorldEventTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/PlayMode/EarlyGameUiExperiencePlayModeTests.cs": [
+      12130,
+      1
+    ],
+    "Tests/PlayMode/EarlyGameUiExperiencePlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/HomeSystemDevelopmentPlayModeTests.cs": [
+      28787,
+      1
+    ],
+    "Tests/PlayMode/HomeSystemDevelopmentPlayModeTests.cs.meta": [
+      241,
+      1
+    ],
+    "Tests/PlayMode/InputFeedbackPlayModeTests.cs": [
+      4418,
+      1
+    ],
+    "Tests/PlayMode/InputFeedbackPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/Kingdom.PlayModeTests.asmdef": [
+      537,
+      1
+    ],
+    "Tests/PlayMode/Kingdom.PlayModeTests.asmdef.meta": [
+      173,
+      1
+    ],
+    "Tests/PlayMode/KingdomButtonMaterialPlayModeTests.cs": [
+      33636,
+      1
+    ],
+    "Tests/PlayMode/KingdomButtonMaterialPlayModeTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/PlayMode/KingdomCardPolishPlayModeTests.cs": [
+      13147,
+      1
+    ],
+    "Tests/PlayMode/KingdomCardPolishPlayModeTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/PlayMode/KingdomCollectionPlayModeTests.cs": [
+      24051,
+      1
+    ],
+    "Tests/PlayMode/KingdomCollectionPlayModeTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/PlayMode/KingdomOnboardingPlayModeTests.cs": [
+      36296,
+      1
+    ],
+    "Tests/PlayMode/KingdomOnboardingPlayModeTests.cs.meta": [
+      197,
+      1
+    ],
+    "Tests/PlayMode/KingdomPageBoundaryPlayModeTests.cs": [
+      10008,
+      1
+    ],
+    "Tests/PlayMode/KingdomPageBoundaryPlayModeTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/PlayMode/KingdomPlayModeTests.cs": [
+      109780,
+      1
+    ],
+    "Tests/PlayMode/KingdomPlayModeTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/PlayMode/KingdomStagedOnboardingPlayModeTests.cs": [
+      46046,
+      1
+    ],
+    "Tests/PlayMode/KingdomStagedOnboardingPlayModeTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/PlayMode/LaborGlyphPlayModeTests.cs": [
+      8296,
+      1
+    ],
+    "Tests/PlayMode/LaborGlyphPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/MusicContinuationPlayModeTests.cs": [
+      4804,
+      1
+    ],
+    "Tests/PlayMode/MusicContinuationPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/PageScrollPositionPlayModeTests.cs": [
+      4941,
+      1
+    ],
+    "Tests/PlayMode/PageScrollPositionPlayModeTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/PlayMode/PlannerPagesPlayModeTests.cs": [
+      14784,
+      1
+    ],
+    "Tests/PlayMode/PlannerPagesPlayModeTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/PlayMode/PlayerLayoutRequestPlayModeTests.cs": [
+      20836,
+      1
+    ],
+    "Tests/PlayMode/PlayerLayoutRequestPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaBoundaryPlayModeTests.cs": [
+      3184,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaBoundaryPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaFreshSessionPlayModeTests.cs": [
+      11398,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaFreshSessionPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaRelicLayoutPlayModeTests.cs": [
+      11206,
+      1
+    ],
+    "Tests/PlayMode/PlayerQaRelicLayoutPlayModeTests.cs.meta": [
+      243,
+      1
+    ],
+    "Tests/PlayMode/RelicPlayModeTests.cs": [
+      20030,
+      1
+    ],
+    "Tests/PlayMode/RelicPlayModeTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/PlayMode/ResourceProductionTreePlayModeTests.cs": [
+      43223,
+      1
+    ],
+    "Tests/PlayMode/ResourceProductionTreePlayModeTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/PlayMode/ReviewInteractionPlayModeTests.cs": [
+      57728,
+      1
+    ],
+    "Tests/PlayMode/ReviewInteractionPlayModeTests.cs.meta": [
+      240,
+      1
+    ],
+    "Tests/PlayMode/SectorBuildingPlayModeTests.cs": [
+      51541,
+      1
+    ],
+    "Tests/PlayMode/SectorBuildingPlayModeTests.cs.meta": [
+      60,
+      1
+    ],
+    "Tests/PlayMode/SoundPalettePlayModeTests.cs": [
+      10071,
+      1
+    ],
+    "Tests/PlayMode/SoundPalettePlayModeTests.cs.meta": [
+      241,
+      1
+    ],
+    "Tests/PlayMode/StoryBackgroundInteractionPlayModeTests.cs": [
+      29151,
+      1
+    ],
+    "Tests/PlayMode/StoryBackgroundInteractionPlayModeTests.cs.meta": [
+      251,
+      1
+    ],
+    "Tests/PlayMode/StoryIllustrationPlayModeTests.cs": [
+      11834,
+      1
+    ],
+    "Tests/PlayMode/StoryIllustrationPlayModeTests.cs.meta": [
+      254,
+      1
+    ],
+    "Tests/PlayMode/UIGestureRegressionPlayModeTests.cs": [
+      11983,
+      1
+    ],
+    "Tests/PlayMode/UIGestureRegressionPlayModeTests.cs.meta": [
+      62,
+      1
+    ],
+    "Tests/PlayMode/UnsafeAreaTickerPlayModeTests.cs": [
+      8980,
+      1
+    ],
+    "Tests/PlayMode/UnsafeAreaTickerPlayModeTests.cs.meta": [
+      240,
+      1
+    ],
+    "TextMesh Pro/Fonts/SIMSUN SDF.asset": [
+      32056553,
+      1
+    ],
+    "TextMesh Pro/Fonts/SIMSUN SDF.asset.meta": [
+      197,
+      1
+    ],
+    "TextMesh Pro/Fonts/SIMSUN.TTC": [
+      18070492,
+      1
+    ],
+    "TextMesh Pro/Fonts/SIMSUN.TTC.meta": [
+      492,
+      1
+    ],
+    "TextMesh Pro/Resources/Fonts & Materials.meta": [
+      200,
+      1
+    ],
+    "TextMesh Pro/Resources/LineBreaking Following Characters.txt": [
+      269,
+      1
+    ],
+    "TextMesh Pro/Resources/LineBreaking Following Characters.txt.meta": [
+      187,
+      1
+    ],
+    "TextMesh Pro/Resources/LineBreaking Leading Characters.txt": [
+      95,
+      1
+    ],
+    "TextMesh Pro/Resources/LineBreaking Leading Characters.txt.meta": [
+      187,
+      1
+    ],
+    "TextMesh Pro/Resources/Sprite Assets.meta": [
+      200,
+      1
+    ],
+    "TextMesh Pro/Resources/Style Sheets.meta": [
+      200,
+      1
+    ],
+    "TextMesh Pro/Resources/TMP Settings.asset": [
+      1729,
+      1
+    ],
+    "TextMesh Pro/Resources/TMP Settings.asset.meta": [
+      187,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro.cginc": [
+      2361,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro.cginc.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Mobile.cginc": [
+      5468,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Mobile.cginc.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Properties.cginc": [
+      2928,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Properties.cginc.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Surface.cginc": [
+      3664,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMPro_Surface.cginc.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader": [
+      3640,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader": [
+      3694,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap.shader": [
+      3642,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Bitmap.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF Overlay.shader": [
+      10902,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF Overlay.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF SSD.shader": [
+      12310,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF SSD.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader": [
+      8069,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader": [
+      7883,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader": [
+      3177,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile.shader": [
+      7914,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Mobile.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader": [
+      3662,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Surface.shader": [
+      4513,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF-Surface.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF.shader": [
+      10917,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_SDF.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Sprite.shader": [
+      2789,
+      1
+    ],
+    "TextMesh Pro/Shaders/TMP_Sprite.shader.meta": [
+      213,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne Attribution.txt": [
+      187,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne Attribution.txt.meta": [
+      165,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne.json": [
+      4122,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne.json.meta": [
+      185,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne.png": [
+      112319,
+      1
+    ],
+    "TextMesh Pro/Sprites/EmojiOne.png.meta": [
+      10215,
+      1
+    ],
+    "TextMesh Pro/Resources/Fonts & Materials": [
+      2274681,
+      4
+    ],
+    "TextMesh Pro/Resources/Sprite Assets": [
+      14287,
+      2
+    ],
+    "TextMesh Pro/Resources/Style Sheets": [
+      5210,
+      2
+    ]
+  }
+}

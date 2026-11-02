@@ -1,0 +1,55 @@
+--- baseline/before/python/options.py
++++ baseline/after/python/options.py
+@@ -1,2 +1,3 @@
+ def resolve_limit(config):
+-    return config.get("limit") or 100
++    limit = config.get("limit")
++    return 100 if limit is None else limit
+--- baseline/before/python/test_options.py
++++ baseline/after/python/test_options.py
+@@ -1,5 +1,6 @@
+ import unittest
+ from options import resolve_limit
++from cli import rows_for_report
+ 
+ class LimitTests(unittest.TestCase):
+     def test_default(self):
+@@ -10,3 +11,9 @@
+         self.assertEqual(resolve_limit({"limit": 0}), 0)
+     def test_positive(self):
+         self.assertEqual(resolve_limit({"limit": 7}), 7)
++
++    def test_report_rows(self):
++        rows = list(range(150))
++        for config, expected in [({}, rows[:100]), ({"limit": None}, rows[:100]), ({"limit": 0}, []), ({"limit": 7}, rows[:7])]:
++            with self.subTest(config=config):
++                self.assertEqual(rows_for_report(rows, config), expected)
+--- assisted/before/python/options.py
++++ assisted/after/python/options.py
+@@ -1,2 +1,3 @@
+ def resolve_limit(config):
+-    return config.get("limit") or 100
++    limit = config.get("limit")
++    return 100 if limit is None else limit
+--- assisted/before/python/test_options.py
++++ assisted/after/python/test_options.py
+@@ -1,5 +1,6 @@
+ import unittest
+ from options import resolve_limit
++from cli import rows_for_report
+ 
+ class LimitTests(unittest.TestCase):
+     def test_default(self):
+@@ -10,3 +11,12 @@
+         self.assertEqual(resolve_limit({"limit": 0}), 0)
+     def test_positive(self):
+         self.assertEqual(resolve_limit({"limit": 7}), 7)
++
++class ReportTests(unittest.TestCase):
++    def test_report_limits(self):
++        rows = list(range(120))
++        for config, expected in [({}, rows[:100]), ({"limit": None}, rows[:100]),
++                                 ({"limit": 0}, []), ({"limit": 7}, rows[:7]),
++                                 ({"limit": -1}, rows[:-1])]:
++            with self.subTest(config=config):
++                self.assertEqual(rows_for_report(rows, config), expected)

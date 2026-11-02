@@ -78,26 +78,20 @@ public sealed class TutorialStep
 
 public sealed class TutorialSnapshot
 {
+    public string ActionId { get; internal set; } = string.Empty;
+    public string Benefit { get; internal set; } = string.Empty;
+    public string NextGoal { get; internal set; } = string.Empty;
+    public bool IsWaiting { get; internal set; }
+    public bool CanAct { get; internal set; } = true;
     public string StepId { get; internal set; } = string.Empty;
-    public string CurrentEra { get; internal set; } = string.Empty;
-    public string CivilizationContext { get; internal set; } = string.Empty;
-    public string PopulationText { get; internal set; } = string.Empty;
-    public string FoodText { get; internal set; } = string.Empty;
-    public string CoreResourceText { get; internal set; } = string.Empty;
-    public string CompletedGoal { get; internal set; } = string.Empty;
     public string CompletedFeedback { get; internal set; } = string.Empty;
+    public string CompletedFeedbackId { get; internal set; } = string.Empty;
     public string CurrentGoal { get; internal set; } = string.Empty;
-    public string GoalDescription { get; internal set; } = string.Empty;
-    public string NarrativeText { get; internal set; } = string.Empty;
     public string NextEraGoal { get; internal set; } = string.Empty;
     public string Blocker { get; internal set; } = string.Empty;
     public string RecommendedAction { get; internal set; } = string.Empty;
     public string NavigationPage { get; internal set; } = "Overview";
     public string NavigationTargetId { get; internal set; } = string.Empty;
-    public string IndustrialCurrentStep { get; internal set; } = string.Empty;
-    public string IndustrialNextStep { get; internal set; } = string.Empty;
-    public string IndustrialAfterStep { get; internal set; } = string.Empty;
-    public bool IsComplete { get; internal set; }
 }
 
 [DisallowMultipleComponent]
@@ -152,7 +146,6 @@ public sealed partial class TutorialManager : MonoBehaviour
     private string activeStepId;
     private string visitedStepId;
     private string visitedDetailStepId;
-    private string visitedDetailTargetId;
     private bool pendingCompletionFeedback;
     private int version;
     private GameManager cachedGameManager;
@@ -185,7 +178,6 @@ public sealed partial class TutorialManager : MonoBehaviour
     public string ActiveStepId => activeStepId;
     public int Version => version;
     public int SaveSessionVersion { get; private set; }
-    public event Action<TutorialSnapshot> SnapshotChanged;
 
     private void Awake()
     {
@@ -226,41 +218,41 @@ public sealed partial class TutorialManager : MonoBehaviour
             steps.Clear();
             activeStepId = string.Empty;
         }
-        steps.Add(new TutorialStep("orientation", "建立一个不断发展的王国",
-            "打开概览并让王国时间推进一天；等待期间可查看资源页，观察原木和食物如何开始变化。",
+        steps.Add(new TutorialStep("orientation", "给族人一个留下的地方",
+            "前往建筑页，建起第一座木屋；缺原木时查看库存与净产出。",
             TutorialStepKind.Orientation, "resources", string.Empty, "game-state",
-            "calendar-days>=1", "Overview",
-            "鼠族文明曾经中断，如今只剩下最初的火种。先让时间向前，让资源流动起来，复兴才有立足之处。"));
-        steps.Add(new TutorialStep("resources", "理解资源来源",
-            "打开资源页面，查看原木等核心资源的数量和净产出，确认建设前的资源来源。",
+            "building-owned", "Buildings",
+            "一处屋檐能让族人留下，也会开放研究。"));
+        steps.Add(new TutorialStep("resources", "理解库存与净产出",
+            "原木支撑建设，食物维持居民；库存决定现在能否行动，净产出决定还需等待多久。",
             TutorialStepKind.Resources, "building", string.Empty, "game-state",
             "resource-detail-viewed", "Resources",
-            "复兴不能只靠勇气。食物维持族群，原木支撑最初的建设；先看清来源与净产出，再决定下一步把力量投向哪里。"));
-        steps.Add(new TutorialStep("building", "让建筑解决问题",
-            "在建筑页面建造一座可用建筑，观察它如何改变生产、研究力、人口容量或其他能力。",
+            "先看清建房缺口：有正净产出时可以等待，没有时就补充来源。"));
+        steps.Add(new TutorialStep("building", "建造木屋",
+            "前往建筑页，选择木屋并建造1座；建成后立即研究农业。",
             TutorialStepKind.Building, "population", string.Empty, "game-state",
             "building-owned", "Buildings",
-            "第一座建筑不是终点，而是鼠族重新定居的证据。选择能解决当前阻碍的建筑，让土地、资源和生产力开始互相支持。"));
-        steps.Add(new TutorialStep("population", "发展人口",
-            "先提供人口容量，再维持食物和幸福度，观察人口增长并理解人口如何转化为生产力。",
+            "为族人搭起第一处屋檐，让营地有一个可以留下的理由。"));
+        steps.Add(new TutorialStep("population", "居民陆续入住",
+            "居民入住会增加生产力；维持食物与幸福度，同时继续研究和建设。",
             TutorialStepKind.Population, "research", string.Empty, "game-state",
             "population-grown", "Buildings",
-            "分散的族群开始回到火种旁。容身之处提供人口容量，食物和幸福度决定他们能否留下；人口增长后，新的生产力也会回到王国。"));
-        steps.Add(new TutorialStep("research", "用研究打开下一步",
-            "在研究页面选择并完成一项可用研究，查看它连接的建筑、生产链或时代目标。",
+            "屋檐下有了新的声音，人口成长会与聚落建设一起推进。"));
+        steps.Add(new TutorialStep("research", "研究农业",
+            "选择农业，加入研究队列；完成后建造农场，让农业实际供粮。",
             TutorialStepKind.Research, "production-chain", string.Empty, "game-state",
             "research-complete", "Research",
-            "废墟中仍保存着失落的知识。研究不是孤立的清单：它会解锁建筑、改变生产方式，或把王国推向下一时代。"));
-        steps.Add(new TutorialStep("production-chain", "连接生产链",
-            "建立一组相互连接的生产与加工建筑，观察原材料如何转化为更高价值的资源。",
+            "学会耕种，让食物供应支撑更多居民。"));
+        steps.Add(new TutorialStep("production-chain", "连接石材加工链",
+            "依次完成采石、采石场、石料加工与切石工坊，观察真实加工产出。",
             TutorialStepKind.ProductionChain, "era-goal", string.Empty, "game-state",
             "production-chain-owned", "Buildings",
-            "一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。"));
-        steps.Add(new TutorialStep("era-goal", "看懂下一时代",
-            "打开时代页面，查看下一时代所需的研究、材料与当前缺口，并完成它们以推进时代。",
+            "让采石场支撑切石工坊，把原料变成建设材料。"));
+        steps.Add(new TutorialStep("era-goal", "迈向石器时代",
+            "完成定居聚落与真实前置，再完成文明规划和石器时代跃迁。",
             TutorialStepKind.EraGoal, "long-term", string.Empty, "game-state",
             "era-reached", "Era",
-            "当知识、人口和生产重新连接，时代跃迁就不再只是一个名称变化。查看尚未满足的条件，先补齐所缺的研究或材料。"));
+            "让住房、供粮与加工支撑长久定居，迈向新的文明阶段。"));
         steps.Add(new TutorialStep("long-term", "形成长期目标",
             "继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。",
             TutorialStepKind.LongTerm, string.Empty, string.Empty, "game-state",
@@ -400,7 +392,6 @@ public sealed partial class TutorialManager : MonoBehaviour
             return new TutorialSnapshot
             {
                 CurrentGoal = "王国状态不可用",
-                GoalDescription = "王国数据尚未载入，暂时无法生成发展建议。",
                 Blocker = "王国数据暂不可用。",
                 RecommendedAction = "稍候片刻；若仍未恢复，请退出后重新打开游戏。",
                 NavigationPage = "Overview"
@@ -408,7 +399,8 @@ public sealed partial class TutorialManager : MonoBehaviour
         }
         dependencyErrorLogged = false;
 
-        int previousVersion = version;
+        if (TryBuildFirstSessionSnapshot(game, resources, buildings, research, out TutorialSnapshot firstSession))
+            return firstSession;
         AdvanceCompletedSteps(game, resources, buildings, research);
         TutorialStep step = FindStep(activeStepId) ?? steps[steps.Count - 1];
         TutorialStep completedStep = FindPreviousCompletedStep(step.Id);
@@ -419,27 +411,18 @@ public sealed partial class TutorialManager : MonoBehaviour
         TutorialSnapshot snapshot = new TutorialSnapshot
         {
             StepId = step.Id,
-            CurrentEra = game.State.TechLevel.GetDescription(),
-            CivilizationContext = GetCivilizationContext(game.State.TechLevel),
-            PopulationText = game.State.Population.Population.ToGameString() + "/" + game.State.Population.PopulationCapacity.ToGameString(),
-            FoodText = game.State.FoodAmount.ToGameString() + "/" + game.State.FoodCapacity.ToGameString(),
-            CompletedGoal = completedStep == null ? string.Empty : completedStep.Title,
             CurrentGoal = step.Title,
-            GoalDescription = step.Description,
-            NarrativeText = step.NarrativeText,
-            NextEraGoal = BuildNextEraGoal(game, research, eraGoal),
-            IsComplete = step.Kind == TutorialStepKind.LongTerm
+            NextEraGoal = BuildNextEraGoal(game, research, eraGoal)
         };
         if (showCompletionFeedback && completedStep != null)
             snapshot.CompletedFeedback = BuildCompletedFeedback(
                 completedStep, game, resources, buildings);
-        ResourceDef coreResource = DataBase<ResourceDef>.Find(ResourceManager.StartingResourceId);
-        snapshot.CoreResourceText = coreResource == null
-            ? "未知"
-            : coreResource.Label + " " + resources.GetAmount(coreResource).ToGameString();
         BuildDetails(snapshot, step, game, resources, buildings, research, eraGoal);
-        if (version != previousVersion)
-            SnapshotChanged?.Invoke(snapshot);
+        if (!string.IsNullOrEmpty(recentFirstSessionProgress))
+        {
+            snapshot.CompletedFeedback = recentFirstSessionProgress;
+            snapshot.CompletedFeedbackId = recentFirstSessionProgressId;
+        }
         return snapshot;
     }
 
@@ -540,13 +523,11 @@ public sealed partial class TutorialManager : MonoBehaviour
                 StringComparison.Ordinal))
             return;
         if (step.Kind != TutorialStepKind.Resources ||
-            (!string.Equals(targetId, "Food", StringComparison.Ordinal) &&
-             !string.Equals(targetId, ResourceManager.StartingResourceId,
-                 StringComparison.Ordinal)))
+            !string.Equals(targetId, ResourceManager.StartingResourceId,
+                StringComparison.Ordinal))
             return;
 
         visitedDetailStepId = step.Id;
-        visitedDetailTargetId = targetId;
         version++;
     }
 
@@ -575,12 +556,6 @@ public sealed partial class TutorialManager : MonoBehaviour
     {
         if (step == null)
             return string.Empty;
-        if (step.Kind == TutorialStepKind.Population && gameState != null &&
-            gameState.Population != null &&
-            gameState.Population.PopulationCapacity > ExpantaNum.Zero &&
-            (gameState.FoodNetRate <= ExpantaNum.Zero ||
-             gameState.HappinessMultiplier < ExpantaNum.One))
-            return "Resources";
         return step.NavigationPage;
     }
 
@@ -642,10 +617,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             case "resource-detail-viewed":
                 TutorialManager current = instance;
                 return current != null &&
-                    string.Equals(current.visitedDetailStepId, step.Id, StringComparison.Ordinal) &&
-                    (string.Equals(current.visitedDetailTargetId, "Food", StringComparison.Ordinal) ||
-                     string.Equals(current.visitedDetailTargetId, ResourceManager.StartingResourceId,
-                         StringComparison.Ordinal));
+                    string.Equals(current.visitedDetailStepId, step.Id, StringComparison.Ordinal);
             case "Building":
             case "building-owned":
                 foreach (BuildingState state in buildings.States.Values)
@@ -699,12 +671,8 @@ public sealed partial class TutorialManager : MonoBehaviour
         }
         else if (step.Kind == TutorialStepKind.Resources)
         {
-            snapshot.Blocker = "核心资源尚未形成可见库存。";
-            snapshot.RecommendedAction = game.State.FoodNetRate <= ExpantaNum.Zero
-                ? "打开资源页面并查看食物详情：先确认库存与净产出，避免幸福度和人口增长被饥荒拖慢。"
-                : "打开资源页面并查看原木详情：库存决定现在能否行动，净产出决定下一步需要等待多久。";
             snapshot.NavigationPage = "Resources";
-            snapshot.NavigationTargetId = GetResourcesNavigationTarget(game.State);
+            snapshot.NavigationTargetId = ResourceManager.StartingResourceId;
         }
         else if (step.Kind == TutorialStepKind.Building)
         {
@@ -727,13 +695,12 @@ public sealed partial class TutorialManager : MonoBehaviour
         else if (step.Kind == TutorialStepKind.Population)
         {
             if (game.State.Population.PopulationCapacity > ExpantaNum.Zero &&
-                (game.State.FoodNetRate <= ExpantaNum.Zero ||
-                 game.State.HappinessMultiplier < ExpantaNum.One))
+                game.State.HappinessMultiplier < ExpantaNum.One)
             {
-                snapshot.Blocker = "食物净产出或幸福度不足，人口增长会受限。";
-                snapshot.RecommendedAction = "打开资源页面，先稳定食物净产出。";
-                snapshot.NavigationPage = "Resources";
-                snapshot.NavigationTargetId = "Food";
+                snapshot.Blocker = "幸福度不足，人口增长会受限。";
+                snapshot.RecommendedAction = "查看粮食建筑，补足食物供应。";
+                snapshot.NavigationPage = "Buildings";
+                snapshot.NavigationTargetId = GetFoodBuildingNavigationTarget(game, buildings);
             }
             else if (game.State.Population.PopulationCapacity <= ExpantaNum.Zero)
             {
@@ -771,7 +738,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                     ? "研究资源已经备齐，正在等待自动开研。"
                     : researchBlocker;
                 snapshot.RecommendedAction = "“" + currentResearch.Definition.Label +
-                    "”已排队，补齐资源后会自动开研，无需重复点击；打开研究页面查看费用。";
+                    "”已排队，会自动开研，无需重复点击；打开研究页面查看费用。";
             }
             snapshot.NavigationPage = "Research";
             snapshot.NavigationTargetId = guidanceResearch == null ? string.Empty : guidanceResearch.Id;
@@ -853,7 +820,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             {
                 BuildEraGoalGuidance(snapshot, eraGoal);
                 if (game.State.TechLevel == TechLevel.StoneAge || game.State.TechLevel == TechLevel.Medieval)
-                    BuildEarlyInvestmentGuidance(snapshot, game);
+                    BuildEarlyInvestmentGuidance(snapshot, game, buildings);
             }
         }
         if (step.Kind != TutorialStepKind.LongTerm &&
@@ -863,34 +830,27 @@ public sealed partial class TutorialManager : MonoBehaviour
             if (step.Kind == TutorialStepKind.Population)
                 snapshot.RecommendedAction = "打开建筑页面，查看人口容量与人口变化。";
             if (step.Kind == TutorialStepKind.Population &&
-                GetNavigationPageForStep(step, game.State) == "Resources")
-                snapshot.RecommendedAction = "打开资源页面，观察食物供给与幸福度。";
+                game.State.Population.PopulationCapacity > ExpantaNum.Zero &&
+                game.State.HappinessMultiplier < ExpantaNum.One)
+                snapshot.RecommendedAction = "查看粮食建筑，补足食物供应。";
             snapshot.NavigationPage = GetNavigationPageForStep(step, game.State);
             snapshot.NavigationTargetId = string.Empty;
             if (step.Kind == TutorialStepKind.Resources)
-                snapshot.NavigationTargetId = GetResourcesNavigationTarget(game.State);
+                snapshot.NavigationTargetId = ResourceManager.StartingResourceId;
             else if (step.Kind == TutorialStepKind.Population)
                 snapshot.NavigationTargetId = GetPopulationNavigationTarget(game, buildings);
         }
         if (step.Kind == TutorialStepKind.Resources)
         {
             snapshot.Blocker = "\u5148\u67e5\u770b\u4e00\u4e2a\u6838\u5fc3\u8d44\u6e90\u8be6\u60c5\uff0c\u7406\u89e3\u5e93\u5b58\u4e0e\u51c0\u4ea7\u51fa\u3002";
-            snapshot.RecommendedAction = game.State.FoodNetRate <= ExpantaNum.Zero
-                ? "\u6253\u5f00\u8d44\u6e90\u9875\u9762\u5e76\u67e5\u770b\u98df\u7269\u8be6\u60c5\uff1a\u5148\u786e\u8ba4\u98df\u7269\u5e93\u5b58\u4e0e\u51c0\u4ea7\u51fa\u3002"
-                : "\u6253\u5f00\u8d44\u6e90\u9875\u9762\u5e76\u67e5\u770b\u539f\u6728\u8be6\u60c5\uff1a\u5e93\u5b58\u51b3\u5b9a\u73b0\u5728\u80fd\u5426\u884c\u52a8\uff0c\u51c0\u4ea7\u51fa\u51b3\u5b9a\u9700\u8981\u7b49\u5f85\u591a\u4e45\u3002";
+            snapshot.RecommendedAction = "打开资源页面并查看原木详情：库存决定现在能否行动，净产出决定需要等待多久。";
         }
         if (!industrialMainlineActive && step.Kind != TutorialStepKind.EraGoal &&
             step.Kind != TutorialStepKind.LongTerm)
             industrialMainlineActive = BuildIndustrialGuidance(
                 snapshot, game, resources, research, buildings);
-        if (game.State.TechLevel == TechLevel.Industrial)
-            BuildIndustrialRoute(snapshot, research, buildings);
-        if (industrialMainlineActive)
-            snapshot.NextEraGoal = "长期方向（完成当前工业主线后）：" + snapshot.NextEraGoal;
 
-        // Authored navigation is the default for ordinary steps. Population
-        // keeps its state-driven Resources/Buildings choice, while EraGoal
-        // and industrial guidance must point at the real current blocker.
+        // EraGoal and industrial guidance must point at the real current blocker.
         if (!industrialMainlineActive &&
             step.Kind != TutorialStepKind.Population &&
             step.Kind != TutorialStepKind.EraGoal &&
@@ -900,61 +860,9 @@ public sealed partial class TutorialManager : MonoBehaviour
             snapshot.NavigationPage = step.NavigationPage;
     }
 
-    private static string GetResourcesNavigationTarget(GameState state)
-    {
-        return state != null && state.FoodNetRate <= ExpantaNum.Zero
-            ? "Food"
-            : ResourceManager.StartingResourceId;
-    }
-
-    private static void BuildIndustrialRoute(
-        TutorialSnapshot snapshot, ResearchManager research, BuildingManager buildings)
-    {
-        if (snapshot == null || research == null || buildings == null)
-            return;
-
-        string[] route =
-        {
-            "IndustrialWorkshop", "SteamPower", "SteamPlant", "PowerGridEngineering", "CentralPowerStation", "IndustrialMetalSmelting", "IndustrialMetalSmelter", "IndustrialChemistry", "ChemicalPlant", "PrecisionManufacturing", "MachineFactory", "FactoryOrganization", "IndustrialHabitationEngineering", "IndustrialHabitationComplex", "RailwayEngineering", "RailHub", "ModernUniversity", "University", "TitaniumAlloyEngineering"
-        };
-        var pending = new List<string>();
-        for (int i = 0; i < route.Length; i++)
-            if (!IsIndustrialRouteStepComplete(route[i], research, buildings))
-                pending.Add(route[i]);
-
-        if (pending.Count > 0)
-            snapshot.IndustrialCurrentStep = GetRouteStepLabel(pending[0]);
-        if (pending.Count > 1)
-            snapshot.IndustrialNextStep = GetRouteStepLabel(pending[1]);
-        if (pending.Count > 2)
-            snapshot.IndustrialAfterStep = GetRouteStepLabel(pending[2]);
-    }
-
-    private static bool IsIndustrialRouteStepComplete(
-        string id, ResearchManager research, BuildingManager buildings)
-    {
-        if (DataBase<ResearchDef>.TryFind(id, out ResearchDef researchDefinition))
-            return research.States.TryGetValue(researchDefinition, out ResearchState state) &&
-                state.Status == ResearchStatus.Completed;
-        if (DataBase<BuildingDef>.TryFind(id, out BuildingDef buildingDefinition))
-            return HasOwnedBuildingId(buildings, id);
-        return true;
-    }
-
-    private static string GetRouteStepLabel(string id)
-    {
-        if (DataBase<ResearchDef>.TryFind(id, out ResearchDef research))
-            return research.Label;
-        if (DataBase<BuildingDef>.TryFind(id, out BuildingDef building))
-            return building.Label;
-        return id;
-    }
-
     private static void BuildEraGoalGuidance(TutorialSnapshot snapshot,
         EraGoalEvaluation evaluation)
     {
-        snapshot.RecommendedAction = "打开时代页面，查看下一时代所需的研究与材料。";
-        snapshot.NavigationPage = "Era";
         snapshot.NavigationTargetId = string.Empty;
 
         if (evaluation.Transition == null)
@@ -995,6 +903,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             snapshot.RecommendedAction = "打开资源页面，查看“" + resourceLabel +
                 "”的来源与净产出，继续完善生产链。";
             snapshot.NavigationPage = "Resources";
+            snapshot.NavigationTargetId = condition.Resource == null ? string.Empty : condition.Resource.Id;
             return;
         }
 
@@ -1006,14 +915,14 @@ public sealed partial class TutorialManager : MonoBehaviour
     }
 
     private static void BuildEarlyInvestmentGuidance(TutorialSnapshot snapshot,
-        GameManager game)
+        GameManager game, BuildingManager buildings)
     {
         if (game.State.FoodNetRate <= ExpantaNum.Zero)
         {
             snapshot.Blocker = "日常粮食供给没有余量，住房和科研投资需要先稳住供给。";
-            snapshot.RecommendedAction = "查看食物来源，补粮或减少持续负担；容量只提供缓冲，不增加粮产。";
-            snapshot.NavigationPage = "Resources";
-            snapshot.NavigationTargetId = "Food";
+            snapshot.RecommendedAction = "查看粮食建筑，补粮或减少持续负担。";
+            snapshot.NavigationPage = "Buildings";
+            snapshot.NavigationTargetId = GetFoodBuildingNavigationTarget(game, buildings);
             return;
         }
         snapshot.RecommendedAction += game.State.TechLevel == TechLevel.StoneAge
@@ -1129,6 +1038,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         for (int i = 0; i < IndustrialGuidancePath.Length; i++)
         {
             IndustrialGuidanceRow row = IndustrialGuidancePath[i];
+            string targetId = row.Id;
             string label = string.Empty;
             switch (row.Kind)
             {
@@ -1152,14 +1062,21 @@ public sealed partial class TutorialManager : MonoBehaviour
                     snapshot.NavigationPage = "Research";
                     break;
                 case GuidanceKind.Building:
-                    if (HasOwnedBuildingId(buildings, row.Id))
+                    if (DataBase<BuildingDef>.TryFind(targetId, out BuildingDef target) && target != null)
+                    {
+                        while (!buildings.CanConstructNew(target) && target.UpgradeTo != null &&
+                            buildings.ArePrerequisitesMet(target.UpgradeTo, out _))
+                            target = target.UpgradeTo;
+                        targetId = target.Id;
+                    }
+                    if (HasOwnedBuildingId(buildings, targetId))
                         continue;
-                    if (ApplyBuildingPrerequisiteGuidance(snapshot, row.Id, research))
+                    if (ApplyBuildingPrerequisiteGuidance(snapshot, targetId, research))
                         return true;
                     if (ApplyIndustrialBuildingGuidance(
-                        snapshot, row.Id, game, resources, buildings))
+                        snapshot, targetId, game, resources, buildings))
                         return true;
-                    label = GetBuildingLabel(row.Id);
+                    label = targetId;
                     snapshot.NavigationPage = "Buildings";
                     break;
             }
@@ -1167,7 +1084,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             snapshot.Blocker = row.BlockerPrefix +
                 (row.BlockerUsesLabel ? label : string.Empty) + row.BlockerSuffix;
             snapshot.RecommendedAction = row.ActionPrefix + label + row.ActionSuffix;
-            snapshot.NavigationTargetId = row.Id;
+            snapshot.NavigationTargetId = targetId;
             return true;
         }
         return false;
@@ -1488,32 +1405,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             if (upgrade == null || workshop == null || workshop.IsPurchased(upgrade))
                 continue;
 
-            // Leave research and upgrade prerequisites to the existing
-            // building-prerequisite guidance until this upgrade is actually
-            // purchasable. This avoids sending the player to Workshop too
-            // early, while still rejecting unrelated purchases.
-            bool prerequisitesMet = true;
-            for (int r = 0; r < upgrade.RequiredResearch.Count; r++)
-            {
-                ResearchDef prerequisite = upgrade.RequiredResearch[r];
-                if (prerequisite == null || research == null ||
-                    !research.IsResearchCompleted(prerequisite.Id))
-                {
-                    prerequisitesMet = false;
-                    break;
-                }
-            }
-            if (prerequisitesMet)
-                for (int u = 0; u < upgrade.RequiredUpgrades.Count; u++)
-                    if (upgrade.RequiredUpgrades[u] == null ||
-                        workshop == null ||
-                        !workshop.IsPurchased(upgrade.RequiredUpgrades[u]))
-                    {
-                        prerequisitesMet = false;
-                        break;
-                    }
-
-            if (prerequisitesMet)
+            if (workshop.ArePrerequisitesMet(upgrade))
             {
                 missingUpgrade = upgrade;
                 return false;
@@ -1635,29 +1527,25 @@ public sealed partial class TutorialManager : MonoBehaviour
             prerequisiteState == null)
             return false;
 
+        snapshot.NavigationPage = "Research";
+        snapshot.NavigationTargetId = prerequisite.Id;
         if (prerequisiteState.Status == ResearchStatus.Researching)
         {
             snapshot.Blocker = "研究正在进行：“" + prerequisite.Label + "”。";
             snapshot.RecommendedAction = "等待当前研究完成，或打开研究页面查看进度。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = prerequisite.Id;
             return true;
         }
-        if (prerequisiteState.Status == ResearchStatus.Queued)
+        bool canPay = research.CanPayResearchCost(prerequisite, out string researchBlocker);
+        if (prerequisiteState.Status == ResearchStatus.Queued ||
+            (research.IsQueued(prerequisite) && canPay))
         {
             snapshot.Blocker = "研究已进入队列：“" + prerequisite.Label + "”。";
             snapshot.RecommendedAction = "等待队列推进，不需要重复开始这项研究。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = prerequisite.Id;
             return true;
         }
-        string researchBlocker = string.Empty;
-        if (prerequisiteState.Status == ResearchStatus.WaitingResources ||
-            !research.CanPayResearchCost(prerequisite, out researchBlocker))
+        if (!canPay)
         {
-            snapshot.Blocker = string.IsNullOrEmpty(researchBlocker)
-                ? "研究资源尚未准备好。"
-                : researchBlocker;
+            snapshot.Blocker = researchBlocker;
             snapshot.RecommendedAction = "打开资源页面，补齐研究资源后再继续“" +
                 prerequisite.Label + "”。";
             snapshot.NavigationPage = "Resources";
@@ -1671,8 +1559,6 @@ public sealed partial class TutorialManager : MonoBehaviour
         {
             snapshot.Blocker = "研究前置已经满足：“" + prerequisite.Label + "”可以开始。";
             snapshot.RecommendedAction = "打开研究页面，开始“" + prerequisite.Label + "”。";
-            snapshot.NavigationPage = "Research";
-            snapshot.NavigationTargetId = prerequisite.Id;
             return true;
         }
 
@@ -1680,8 +1566,6 @@ public sealed partial class TutorialManager : MonoBehaviour
             prerequisite.Label + "”。";
         snapshot.RecommendedAction = "打开研究页面，先完成“" + prerequisite.Label +
             "”，再继续研究“" + definition.Label + "”。";
-        snapshot.NavigationPage = "Research";
-        snapshot.NavigationTargetId = prerequisite.Id;
         return true;
     }
 
@@ -1768,14 +1652,6 @@ public sealed partial class TutorialManager : MonoBehaviour
             : id;
     }
 
-    private static string GetBuildingLabel(string id)
-    {
-        return DataBase<BuildingDef>.TryFind(id, out BuildingDef definition) &&
-            definition != null && !string.IsNullOrWhiteSpace(definition.Label)
-            ? definition.Label
-            : id;
-    }
-
     private static bool HasOwnedBuildingId(BuildingManager buildings, string id)
     {
         if (buildings == null || !DataBase<BuildingDef>.TryFind(id, out BuildingDef definition) ||
@@ -1802,7 +1678,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         for (int i = 0; i < definitions.Count; i++)
         {
             BuildingDef building = definitions[i];
-            if (building == null || !buildings.ShouldDisplay(building))
+            if (building == null || !buildings.CanConstructNew(building))
                 continue;
             if (fallback == null && HasGuidanceEffect(building))
                 fallback = building;
@@ -1831,11 +1707,27 @@ public sealed partial class TutorialManager : MonoBehaviour
             return string.Empty;
         if (game.State != null && game.State.Population != null &&
             game.State.Population.PopulationCapacity > ExpantaNum.Zero &&
-            (game.State.FoodNetRate <= ExpantaNum.Zero ||
-             game.State.HappinessMultiplier < ExpantaNum.One))
-            return "Food";
+            game.State.HappinessMultiplier < ExpantaNum.One)
+            return GetFoodBuildingNavigationTarget(game, buildings);
         BuildingDef recommendation = FindPopulationCapacityRecommendation(game, buildings);
         return recommendation == null ? string.Empty : recommendation.Id;
+    }
+
+    private static string GetFoodBuildingNavigationTarget(GameManager game,
+        BuildingManager buildings)
+    {
+        BuildingDef fallback = null;
+        foreach (BuildingDef building in DataBase<BuildingDef>.All)
+        {
+            if (building == null || building is SectorBuildingDef ||
+                building.FoodProductionRate <= ExpantaNum.Zero)
+                continue;
+            if (buildings.CanConstructNew(building))
+                return building.Id;
+            if (fallback == null && IsCurrentEraBuilding(game, building))
+                fallback = building;
+        }
+        return fallback == null ? string.Empty : fallback.Id;
     }
 
     private static void BuildPopulationCapacityGuidance(
@@ -2248,13 +2140,7 @@ public sealed partial class TutorialManager : MonoBehaviour
             ExpantaNum.Zero,
             building.SpaceCost - game.State.AvailableTerritory);
         if (territoryMissing > ExpantaNum.Zero)
-            return action + "空闲土地 " + territoryMissing.ToGameString() + "；拆除闲置建筑或占领星区可腾出土地。";
-
-        ExpantaNum productivityMissing = ExpantaNum.Max(
-            ExpantaNum.Zero,
-            building.ProductivityConsumption - buildings.AvailableProductivity);
-        if (productivityMissing > ExpantaNum.Zero)
-            return action + "可用生产力 " + productivityMissing.ToGameString() + "；增加居民或减少建筑负担后再建。";
+            return action + "空闲土地 " + territoryMissing.ToGameString() + "；拆除闲置建筑可腾出土地。";
 
         ExpantaNum costMultiplier =
             BuildingManager.GetConstructionCostMultiplier(building);
@@ -2291,7 +2177,7 @@ public sealed partial class TutorialManager : MonoBehaviour
         }
 
         return "“" + building.Label +
-            "”的领土、生产力和资源已经满足；可以前往建筑页面建造。";
+            "”的领土和资源已经满足；可以前往建筑页面建造。";
     }
 
     private static ResearchDef FindResearchGuidance(
@@ -2363,7 +2249,7 @@ public sealed partial class TutorialManager : MonoBehaviour
                 for (int j = 0; j < building.RequiredResearch.Count; j++)
                     if (building.RequiredResearch[j] == research)
                     {
-                        changes.Add("解锁" + building.Label);
+                        changes.Add("关联建筑：" + building.Label);
                         break;
                     }
                 if (changes.Count >= 5)
@@ -2575,11 +2461,11 @@ public sealed partial class TutorialManager : MonoBehaviour
         completedStepIds.Clear();
         visitedStepId = null;
         visitedDetailStepId = null;
-        visitedDetailTargetId = null;
         pendingCompletionFeedback = false;
         if (data != null && data.CompletedStepIds != null)
             for (int i = 0; i < data.CompletedStepIds.Count; i++)
-                if (FindStep(data.CompletedStepIds[i]) != null)
+                if (FindStep(data.CompletedStepIds[i]) != null ||
+                    data.CompletedStepIds[i] == "farm-supply" || data.CompletedStepIds[i] == "stone-supply")
                     completedStepIds.Add(data.CompletedStepIds[i]);
         activeStepId = FindStep(data == null ? string.Empty : data.ActiveStepId)?.Id;
         if (string.IsNullOrEmpty(activeStepId))
@@ -2611,7 +2497,6 @@ public sealed partial class TutorialManager : MonoBehaviour
         completedStepIds.Clear();
         visitedStepId = null;
         visitedDetailStepId = null;
-        visitedDetailTargetId = null;
         pendingCompletionFeedback = false;
         activeStepId = FindRootStepId();
         version++;

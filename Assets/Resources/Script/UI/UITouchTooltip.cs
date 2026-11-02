@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 /// Mobile-safe long-press tooltip. It deliberately has no mouse-only path;
 /// touch and pointer devices can both use the same press gesture.
 /// </summary>
-public sealed class UITouchTooltip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+public sealed class UITouchTooltip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IBeginDragHandler
 {
     private const float HoldSeconds = 0.55f;
     private string tooltip;
@@ -17,18 +17,23 @@ public sealed class UITouchTooltip : MonoBehaviour, IPointerDownHandler, IPointe
     public void OnPointerDown(PointerEventData eventData)
     {
         StopHold();
-        holdRoutine = StartCoroutine(ShowAfterHold());
+        holdRoutine = StartCoroutine(ShowAfterHold(eventData));
     }
 
     public void OnPointerUp(PointerEventData eventData) => StopHold();
 
     public void OnPointerExit(PointerEventData eventData) => StopHold();
 
-    private IEnumerator ShowAfterHold()
+    public void OnBeginDrag(PointerEventData eventData) => StopHold();
+
+    private IEnumerator ShowAfterHold(PointerEventData eventData)
     {
         yield return new WaitForSecondsRealtime(HoldSeconds);
-        if (!string.IsNullOrWhiteSpace(tooltip))
-            GetComponentInParent<KingdomUIRoot>()?.ShowTooltip(tooltip);
+        if (!string.IsNullOrWhiteSpace(tooltip) && GetComponentInParent<KingdomUIRoot>() is KingdomUIRoot root)
+        {
+            eventData.eligibleForClick = false;
+            root.ShowTooltip(tooltip);
+        }
         holdRoutine = null;
     }
 

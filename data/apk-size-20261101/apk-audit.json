@@ -1,0 +1,37 @@
+{
+  "before": {
+    "bytes": 219006004,
+    "sha256": "ada8ef0c0a9871f24e7216674c9fc1723d5be44d95d6530ae491ca1d988eacab",
+    "music_bundle_count": 57,
+    "music_bundle_bytes": 106557403,
+    "main_data_bytes": 92015092,
+    "native_libraries": [
+      "lib/arm64-v8a/lib_burst_generated.so",
+      "lib/arm64-v8a/libil2cpp.so",
+      "lib/arm64-v8a/libmain.so",
+      "lib/arm64-v8a/libunity.so"
+    ],
+    "zip_entries": 92
+  },
+  "after": {
+    "bytes": 212170739,
+    "sha256": "077ef82b7c0ad80bd9fe8f26ac162d8c1119237f262d49585a10f28d05d58ef2",
+    "music_bundle_count": 57,
+    "music_bundle_bytes": 106557403,
+    "main_data_bytes": 85265606,
+    "native_libraries": [
+      "lib/arm64-v8a/lib_burst_generated.so",
+      "lib/arm64-v8a/libil2cpp.so",
+      "lib/arm64-v8a/libmain.so",
+      "lib/arm64-v8a/libunity.so"
+    ],
+    "zip_entries": 92
+  },
+  "saved_bytes": 6835265,
+  "saved_percent": 3.1210400058255936,
+  "packaged_icon": {
+    "entry": "res/FN.png",
+    "size": 192,
+    "mean_rgb_difference": 1.9117567274305556
+  }
+}

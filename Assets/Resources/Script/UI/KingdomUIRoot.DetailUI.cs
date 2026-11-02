@@ -16,6 +16,7 @@ public sealed partial class KingdomUIRoot
         if (detailPanel == null)
             return false;
 
+        detailPanel.Find("Surface/PinButton")?.gameObject.SetActive(false);
         for (int i = detailPanel.childCount - 1; i >= 0; i--)
         {
             Transform legacy = detailPanel.GetChild(i);

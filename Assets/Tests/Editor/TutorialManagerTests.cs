@@ -185,15 +185,15 @@ public sealed class TutorialManagerTests
             CompletedStepIds = new List<string> { "orientation" }
         }, TechLevel.Animal);
 
-        manager.RecordDetailViewed("Resources", "Food");
+        manager.RecordDetailViewed("Resources", ResourceManager.StartingResourceId);
         SaveManager.TutorialSaveData captured = manager.CaptureSaveData();
         Assert.That(captured.ActiveStepId, Is.EqualTo("resources"));
         Assert.That(captured.CompletedStepIds, Does.Contain("orientation"));
-        Assert.That(captured.CompletedStepIds, Does.Not.Contain("Food"));
+        Assert.That(captured.CompletedStepIds, Does.Not.Contain(ResourceManager.StartingResourceId));
 
         string json = JsonUtility.ToJson(captured);
         StringAssert.DoesNotContain("visitedDetail", json);
-        StringAssert.DoesNotContain("Food", json);
+        StringAssert.DoesNotContain(ResourceManager.StartingResourceId, json);
     }
 
     [Test]
@@ -365,7 +365,7 @@ public sealed class TutorialManagerTests
         Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.False);
         manager.RecordPageVisitedForEditor("Resources");
         Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.False);
-        manager.RecordPageVisitedForEditor("Overview");
+        manager.RecordPageVisitedForEditor("Buildings");
         Assert.That(manager.HasVisitedPageForStepForEditor(orientation), Is.True);
         Assert.That(manager.HasVisitedPageForStepForEditor(resources), Is.False);
 
@@ -380,7 +380,7 @@ public sealed class TutorialManagerTests
         dependencyHost.AddComponent<ResourceManager>();
         dependencyHost.AddComponent<GameManager>();
         dependencyHost.AddComponent<BuildingManager>();
-        dependencyHost.AddComponent<ResearchManager>();
+        dependencyHost.AddComponent<ResearchManager>().InitializeForEditor();
         try
         {
             TutorialManager manager = TutorialManager.Ensure();
@@ -407,7 +407,7 @@ public sealed class TutorialManagerTests
     }
 
     [Test]
-    public void PopulationStepMatchesItsStateDrivenNavigationPage()
+    public void PopulationStepUsesBuildingsForHousingAndFoodSupply()
     {
         TutorialManager manager = TutorialManager.Ensure();
         TutorialStep population = null;
@@ -420,21 +420,23 @@ public sealed class TutorialManagerTests
         state.RestorePopulationCapacityExactForEditor(new ExpantaNum(2), ExpantaNum.Zero);
         state.SetFoodAvailabilityForEditor(new ExpantaNum(0.5));
         Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, state),
-            Is.EqualTo("Resources"));
+            Is.EqualTo("Buildings"));
         state.AdjustFoodRatesForEditor(ExpantaNum.Zero, new ExpantaNum(6));
         Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, state),
-            Is.EqualTo("Resources"));
+            Is.EqualTo("Buildings"));
         Assert.That(TutorialManager.GetNavigationPageForStepForEditor(population, new GameState()),
             Is.EqualTo("Buildings"));
     }
 
     [Test]
-    public void PopulationFoodShortageTargetsFoodDetail()
+    public void PopulationFoodShortageTargetsFoodBuilding()
     {
         GameManager game = new GameObject("Population-Food-Target-GameManager")
             .AddComponent<GameManager>();
         BuildingManager buildings = new GameObject("Population-Food-Target-BuildingManager")
             .AddComponent<BuildingManager>();
+        ResearchManager research = game.gameObject.AddComponent<ResearchManager>();
+        research.InitializeForEditor();
         try
         {
             Assert.That(TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings),
@@ -443,8 +445,9 @@ public sealed class TutorialManagerTests
                 new ExpantaNum(2), ExpantaNum.Zero);
             game.State.SetFoodAvailabilityForEditor(new ExpantaNum(0.5));
 
-            Assert.That(TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings),
-                Is.EqualTo("Food"));
+            string targetId = TutorialManager.GetPopulationNavigationTargetForEditor(game, buildings);
+            Assert.That(DataBase<BuildingDef>.TryFind(targetId, out BuildingDef foodBuilding), Is.True);
+            Assert.That(foodBuilding.FoodProductionRate, Is.GreaterThan(ExpantaNum.Zero));
 
             game.State.AdjustFoodRatesForEditor(new ExpantaNum(6), ExpantaNum.Zero);
             game.State.SetFoodAvailabilityForEditor(ExpantaNum.One);
@@ -519,10 +522,13 @@ public sealed class TutorialManagerTests
         try
         {
             var resources = host.AddComponent<ResourceManager>();
+            resources.InitializeForEditor();
             host.AddComponent<GameManager>();
-            host.AddComponent<BuildingManager>();
+            var buildings = host.AddComponent<BuildingManager>();
             var research = host.AddComponent<ResearchManager>();
             research.InitializeForEditor();
+            buildings.SetAmountAndRatesForEditor(
+                buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
             ResearchDef definition = DataBase<ResearchDef>.Find("Agriculture");
             ResourceDef costResource = definition.ResourceRequirements[0].First;
             resources.SetAmount(costResource, ExpantaNum.Zero);
@@ -539,7 +545,11 @@ public sealed class TutorialManagerTests
             TutorialSnapshot snapshot = tutorial.Evaluate();
             Assert.That(snapshot.NavigationPage, Is.EqualTo("Research")); // Page protocol.
             Assert.That(snapshot.NavigationTargetId, Is.EqualTo(definition.Id)); // Stable target.
-            Assert.That(snapshot.Blocker, Is.EqualTo(blocker)); // Same manager-owned failure.
+            Assert.That(blocker, Is.Not.Empty);
+            Assert.That(snapshot.Blocker, Does.Contain(costResource.Label));
+            Assert.That(snapshot.RecommendedAction, Does.Contain("进度与材料").And.Not.Contain("加入研究队列"));
+            Assert.That(snapshot.IsWaiting, Is.True);
+            Assert.That(snapshot.CanAct, Is.False);
             Assert.That(research.IsQueued(definition), Is.True);
             Assert.That(resources.GetAmount(costResource), Is.EqualTo(ExpantaNum.Zero));
 
@@ -589,24 +599,26 @@ public sealed class TutorialManagerTests
         try
         {
             var resources = host.AddComponent<ResourceManager>();
+            resources.InitializeForEditor();
             var game = host.AddComponent<GameManager>();
             var buildings = host.AddComponent<BuildingManager>();
             var research = host.AddComponent<ResearchManager>();
             research.InitializeForEditor();
             game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
             game.State.Population.AdjustPopulationCapacityForEditor(new ExpantaNum(5));
-            buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse"))
-                .SetAmountForEditor(ExpantaNum.One);
+            buildings.SetAmountAndRatesForEditor(
+                buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), ExpantaNum.One);
+            research.GetState(DataBase<ResearchDef>.Find("Agriculture")).SetStatusForEditor(ResearchStatus.Completed);
             BuildingDef source = DataBase<BuildingDef>.Find("Quarry");
             BuildingDef target = DataBase<BuildingDef>.Find("StoneCuttingWorkshop");
-            buildings.EnsureBuilding(source).SetAmountForEditor(ExpantaNum.One);
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(source), ExpantaNum.One);
             Assert.That(buildings.AvailableProductivity, Is.GreaterThan(ExpantaNum.Zero));
             Assert.That(buildings.AvailableProductivity, Is.LessThan(target.ProductivityConsumption));
             TutorialManager tutorial = TutorialManager.Ensure();
             tutorial.RestoreSaveData(new SaveManager.TutorialSaveData
             {
                 ActiveStepId = "production-chain",
-                CompletedStepIds = new List<string> { "orientation", "resources", "building", "population", "research" }
+                CompletedStepIds = new List<string> { "orientation", "resources", "building", "population", "research", "farm-supply" }
             }, TechLevel.Animal);
             tutorial.RecordPageVisitedForEditor("Buildings");
             TutorialSnapshot shortage = tutorial.Evaluate();
@@ -614,16 +626,24 @@ public sealed class TutorialManagerTests
             Assert.That(DataBase<ResearchDef>.TryFind(shortage.NavigationTargetId, out ResearchDef prerequisite), Is.True);
             Assert.That(research.IsResearchCompleted(prerequisite.Id), Is.False,
                 "Guidance must solve an actual prerequisite rather than treating labor demand as a construction gate.");
+            CompleteFixtureResearch(target.RequiredResearch, research);
             BuildingState processing = buildings.EnsureBuilding(target);
-            processing.SetAmountForEditor(ExpantaNum.One);
+            buildings.SetAmountAndRatesForEditor(processing, ExpantaNum.One);
             ResourceDef product = target.ResourceGenerationRates[0].First;
             resources.SetAmount(product, ExpantaNum.Zero);
-            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("production-chain"));
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("stone-chain"));
             resources.SetAmount(product, ExpantaNum.One);
             processing.SetEfficiencyForEditor(ExpantaNum.Zero);
-            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("production-chain"));
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("stone-chain"));
             processing.SetEfficiencyForEditor(ExpantaNum.One);
-            Assert.That(tutorial.Evaluate().StepId, Is.Not.EqualTo("production-chain"));
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("stone-chain"),
+                "Owned buildings, stock and positive preview efficiency do not prove a real production tick.");
+            resources.SetAmount(product, ExpantaNum.Zero);
+            resources.SetAmount(source.ResourceGenerationRates[0].First, new ExpantaNum(100));
+            host.AddComponent<SimulationManager>().ManualTick(1d);
+            Assert.That(resources.GetAmount(product) > ExpantaNum.Zero, Is.True);
+            Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("first-transition"));
+            Assert.That(tutorial.CompletedStepIds, Does.Contain("stone-supply"));
         }
         finally { Object.DestroyImmediate(host); }
     }
@@ -638,6 +658,7 @@ public sealed class TutorialManagerTests
         string role = TutorialManager.DescribeResearchRole(agriculture);
         Assert.That(role, Does.Contain(agriculture.Effects[0].Type.GetDescription()));
         Assert.That(role, Does.Contain(farm.Label));
+        Assert.That(role, Does.Contain("关联建筑：" + farm.Label));
     }
 
     [Test]
@@ -711,6 +732,15 @@ public sealed class TutorialManagerTests
             if (definitions[i] != null && definitions[i].Id == id)
                 return true;
         return false;
+    }
+
+    private static void CompleteFixtureResearch(IReadOnlyList<ResearchDef> definitions, ResearchManager research)
+    {
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            CompleteFixtureResearch(definitions[i].Prerequisites, research);
+            research.GetState(definitions[i]).SetStatusForEditor(ResearchStatus.Completed);
+        }
     }
 
     private static string FindRootId(

@@ -103,6 +103,16 @@ public sealed class StoryChapterCard : MonoBehaviour
             HeightChanged?.Invoke(this, measuredHeight - oldHeight);
     }
 
+    public void RestoreReadingPosition(StoryChapterCard previous)
+    {
+        if (previous == null || previous.chapter != chapter || !previous.IsExpanded || !IsExpanded)
+            return;
+        Vector2 position = previous.bodyScroll.content.anchoredPosition;
+        position.y = Mathf.Clamp(position.y, 0f,
+            Mathf.Max(0f, bodyScroll.content.rect.height - bodyScroll.viewport.rect.height));
+        bodyScroll.content.anchoredPosition = position;
+    }
+
     private void OnRectTransformDimensionsChange()
     {
         if (chapter == null || rebuilding || !isActiveAndEnabled) return;

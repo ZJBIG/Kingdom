@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-30 09:58:54Z" end-time="2026-10-30 09:58:54Z" duration="0.4588863">
+  <test-suite type="TestSuite" id="2272" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1095" result="Passed" start-time="2026-10-30 09:58:54Z" end-time="2026-10-30 09:58:54Z" duration="0.458886" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3534" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1094" result="Passed" start-time="2026-10-30 09:58:54Z" end-time="2026-10-30 09:58:54Z" duration="0.427932" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="2856" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="3378" name="TutorialManagerTests" fullname="TutorialManagerTests" classname="TutorialManagerTests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-10-30 09:58:54Z" end-time="2026-10-30 09:58:54Z" duration="0.411194" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3417" name="ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" fullname="TutorialManagerTests.ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" methodname="ResearchRoleIncludesDirectEffectsAndBuildingUnlocksTogether" classname="TutorialManagerTests" runstate="Runnable" seed="1084161801" result="Passed" start-time="2026-10-30 09:58:54Z" end-time="2026-10-30 09:58:54Z" duration="0.395551" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

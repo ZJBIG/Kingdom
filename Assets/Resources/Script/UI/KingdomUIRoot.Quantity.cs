@@ -15,7 +15,6 @@ public sealed partial class KingdomUIRoot
         if (buildingControls == null)
             return;
         bool visible = populatedPage == "Buildings";
-        TMP_Text buildingPageTitle = pageTitle;
         buildingControls.gameObject.SetActive(visible);
     }
 
@@ -157,8 +156,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         customBuildingQuantity = parsed.Floor();
-        if (customBuildingQuantity < ExpantaNum.One)
-            customBuildingQuantity = ExpantaNum.One;
         customQuantityInput.SetTextWithoutNotify(customBuildingQuantity.ToString());
         if (parsed != customBuildingQuantity)
             ShowTooltip("数量已向下取整为 " + customBuildingQuantity.ToGameString() + "，实际可操作量受库存和前置限制。");
@@ -187,17 +184,10 @@ public sealed partial class KingdomUIRoot
         switch (buildingQuantityMode)
         {
             case BuildingQuantityMode.Ten:
-                return new ExpantaNum(10);
+                return upgrade
+                    ? ExpantaNum.Min(new ExpantaNum(10), BuildingManager.Instance.GetState(building)?.Amount ?? ExpantaNum.Zero)
+                    : new ExpantaNum(10);
             case BuildingQuantityMode.Max:
-                if (deconstruct)
-                {
-                    if (BuildingManager.Instance.States.TryGetValue(building, out BuildingState maxState))
-                        return maxState.Amount;
-                    return ExpantaNum.Zero;
-                }
-                return EnsureMinimumBuildQuantity(upgrade
-                    ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
-                    : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity));
             case BuildingQuantityMode.Custom:
                 ExpantaNum maximum;
                 if (deconstruct)
@@ -212,7 +202,7 @@ public sealed partial class KingdomUIRoot
                         ? BuildingManager.Instance.GetMaxUpgradeable(building, ExpantaNum.PositiveInfinity)
                         : BuildingManager.Instance.GetMaxBuildable(building, ExpantaNum.PositiveInfinity);
                 }
-                ExpantaNum selected = customBuildingQuantity >= maximum
+                ExpantaNum selected = buildingQuantityMode == BuildingQuantityMode.Max || customBuildingQuantity >= maximum
                     ? maximum
                     : customBuildingQuantity;
                 return deconstruct ? selected : EnsureMinimumBuildQuantity(selected);

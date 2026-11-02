@@ -16,10 +16,14 @@ public sealed class StoryBackgroundInteractionPlayModeTests
     private const string SurfacePath = "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage";
     private string saveRoot;
     private KingdomUIRoot root;
+    private TutorialManager initialTutorial;
+    private MusicManager initialMusic;
 
     [SetUp]
     public void SetUp()
     {
+        initialTutorial = Object.FindObjectOfType<TutorialManager>(true);
+        initialMusic = Object.FindObjectOfType<MusicManager>(true);
         saveRoot = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")),
             "Temp", "KingdomStoryBackgroundTests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saveRoot);
@@ -34,6 +38,10 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         Scene sample = SceneManager.GetSceneByName("SampleScene");
         if (sample.IsValid() && sample.isLoaded)
             yield return SceneManager.UnloadSceneAsync(sample);
+        TutorialManager tutorial = Object.FindObjectOfType<TutorialManager>(true);
+        MusicManager music = Object.FindObjectOfType<MusicManager>(true);
+        if (tutorial != null && tutorial != initialTutorial) Object.DestroyImmediate(tutorial.gameObject);
+        if (music != null && music != initialMusic) Object.DestroyImmediate(music.gameObject);
         SaveManager.ClearSaveRootOverrideForTests();
         if (Directory.Exists(saveRoot))
             Directory.Delete(saveRoot, true);
@@ -398,7 +406,79 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         }
     }
 
-    private IEnumerator LoadStory()
+    [UnityTest]
+    public IEnumerator NewChapterKeepsThePreviousChapterExpandedAndRespectsManualCollapse()
+    {
+        yield return LoadStory(2);
+        Assert.That(Card(1).IsExpanded, Is.True);
+        CompleteStoryChapters(3);
+        root.RefreshStoryPageIfChangedForEditor();
+        yield return null;
+        Assert.That(Card(1).IsExpanded, Is.True, "Unlocking another chapter must not close the chapter being read.");
+        Assert.That(Card(2).IsExpanded, Is.True, "A newly unlocked latest chapter still opens by default.");
+        Card(1).transform.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
+        Assert.That(Card(1).IsExpanded, Is.False);
+        CompleteStoryChapters(4);
+        root.RefreshStoryPageIfChangedForEditor();
+        yield return null;
+        Assert.That(Card(1).IsExpanded, Is.False, "A manual collapse survives subsequent unlocks.");
+    }
+
+    [UnityTest]
+    public IEnumerator NewChapterPreservesActualPagePositionWhenContentHeightChanges()
+    {
+        yield return LoadStory(2);
+        ScrollRect outer = OuterScroll();
+        outer.StopMovement();
+        outer.verticalNormalizedPosition = .4f;
+        Vector2 before = outer.content.anchoredPosition;
+        float heightBefore = outer.content.rect.height;
+        CompleteStoryChapters(3);
+        root.RefreshStoryPageIfChangedForEditor();
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        Assert.That(Mathf.Abs(outer.content.rect.height - heightBefore), Is.GreaterThan(1f),
+            "The fixture must change the page height to distinguish pixel position from scroll ratio.");
+        Assert.That(outer.content.anchoredPosition.y, Is.EqualTo(before.y).Within(1f));
+    }
+
+    [UnityTest]
+    public IEnumerator NewChapterPreservesExpandedBodyReadingPosition()
+    {
+        yield return LoadStory(2);
+        ScrollRect outer = OuterScroll();
+        outer.viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 600f);
+        Canvas.ForceUpdateCanvases();
+        root.StoryPageBuiltForEditor = false;
+        root.RefreshStoryPageIfChangedForEditor();
+        yield return null;
+        StoryBodyScrollRect body = Card(1).transform.Find("BodyViewport").GetComponent<StoryBodyScrollRect>();
+        Assert.That(body.IsOverflowing, Is.True, "The fixture must expose actual nested text overflow.");
+        body.StopMovement();
+        body.verticalNormalizedPosition = .4f;
+        float before = body.content.anchoredPosition.y;
+        Assert.That(before, Is.GreaterThan(1f));
+        CompleteStoryChapters(3);
+        root.RefreshStoryPageIfChangedForEditor();
+        yield return null;
+        StoryBodyScrollRect replacement = Card(1).transform.Find("BodyViewport").GetComponent<StoryBodyScrollRect>();
+        Assert.That(replacement, Is.Not.SameAs(body));
+        Assert.That(replacement.IsOverflowing, Is.True);
+        Assert.That(replacement.content.anchoredPosition.y, Is.EqualTo(before).Within(1f));
+        Card(1).transform.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
+        Card(1).transform.Find("Header/Actions/StoryChapterToggle").GetComponent<Button>().onClick.Invoke();
+        Assert.That(replacement.content.anchoredPosition.y, Is.EqualTo(0f).Within(.1f), "Manually reopening a chapter still starts at its beginning.");
+    }
+
+    private static void CompleteStoryChapters(int count)
+    {
+        var completed = new List<string>();
+        for (int i = 0; i < Mathf.Min(count, StoryManager.Chapters.Count); i++)
+            completed.Add(StoryManager.Chapters[i].Id);
+        StoryManager.RestoreSaveData(new SaveManager.StorySaveData { CompletedChapterIds = completed });
+    }
+
+    private IEnumerator LoadStory(int completedChapterCount = int.MaxValue)
     {
         SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         for (int i = 0; i < 160 && Object.FindObjectOfType<GameBootstrap>()?.Completed != true; i++)
@@ -408,9 +488,7 @@ public sealed class StoryBackgroundInteractionPlayModeTests
         Assert.That(Object.FindObjectOfType<GameBootstrap>()?.Completed, Is.True);
         SimulationManager.Instance.SetRunning(false);
         GameManager.Instance.AdvanceTechLevelForEditor(TechLevel.Ultra);
-        var completed = new List<string>();
-        foreach (StoryChapter chapter in StoryManager.Chapters) completed.Add(chapter.Id);
-        StoryManager.RestoreSaveData(new SaveManager.StorySaveData { CompletedChapterIds = completed });
+        CompleteStoryChapters(completedChapterCount);
         for (int i = 0; i < 16; i++)
         {
             root.RefreshOnboardingForEditor();

@@ -266,11 +266,11 @@ public static class UnsafeAreaTickerRules
             notices.Add("极光夜：鼠群赏夜空，无数值影响");
 
         if (state.FoodNetRate < ExpantaNum.Zero)
-            notices.Add("粮食持续减少：增产或暂停耗粮建筑");
+            notices.Add("粮食持续减少：增加食物产出");
         if (notices.Count < MaximumNoticeCount && state.PowerSatisfaction < ExpantaNum.One)
-            notices.Add("供电不足：扩建发电或暂停耗电建筑");
+            notices.Add("供电不足：扩建发电设施");
         if (notices.Count < MaximumNoticeCount && state.LogisticsSatisfaction < ExpantaNum.One)
-            notices.Add("物流不足：扩建物流或暂停耗物流建筑");
+            notices.Add("物流不足：扩建物流设施");
         if (notices.Count < MaximumNoticeCount && research != null)
         {
             string suffix = !research.CostPaid

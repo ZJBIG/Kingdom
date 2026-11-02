@@ -1,0 +1,77 @@
+{
+  "environment": {
+    "python": "Python 3.13.5",
+    "node": "v24.22.1"
+  },
+  "input_manifest_sha256": "f5dd187eb75d6b336491be2f024507ef3a394438cfbe6f782e03182d6aad80cd",
+  "variants": {
+    "baseline": {
+      "changed_files": [
+        "python/options.py",
+        "python/test_options.py"
+      ],
+      "user_notes_unchanged": true,
+      "web_and_unity_unchanged": true,
+      "generated_files": [],
+      "checks": [
+        {
+          "cwd": "baseline/python",
+          "command": [
+            "python",
+            "-B",
+            "-m",
+            "unittest",
+            "-v"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_default (test_options.LimitTests.test_default) ... ok\ntest_null (test_options.LimitTests.test_null) ... ok\ntest_positive (test_options.LimitTests.test_positive) ... ok\ntest_report_rows (test_options.LimitTests.test_report_rows) ... ok\ntest_zero (test_options.LimitTests.test_zero) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.000s\n\nOK\n"
+        },
+        {
+          "cwd": "baseline/web",
+          "command": [
+            "node",
+            "--test"
+          ],
+          "exit_code": 1,
+          "stdout": "\u2716 detach and reattach keeps one active notification (1.6391ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 119.5742\n\n\u2716 failing tests:\n\ntest at selection.test.js:4:1\n\u2716 detach and reattach keeps one active notification (1.6391ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  2 !== 1\n  \n      at TestContext.<anonymous> (file:///C:/Users/19603/AppData/Local/Temp/agensi-skill-eval-20261024/baseline/web/selection.test.js:11:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+          "stderr": ""
+        }
+      ]
+    },
+    "assisted": {
+      "changed_files": [
+        "python/options.py",
+        "python/test_options.py"
+      ],
+      "user_notes_unchanged": true,
+      "web_and_unity_unchanged": true,
+      "generated_files": [],
+      "checks": [
+        {
+          "cwd": "assisted/python",
+          "command": [
+            "python",
+            "-B",
+            "-m",
+            "unittest",
+            "-v"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_default (test_options.LimitTests.test_default) ... ok\ntest_null (test_options.LimitTests.test_null) ... ok\ntest_positive (test_options.LimitTests.test_positive) ... ok\ntest_zero (test_options.LimitTests.test_zero) ... ok\ntest_report_limits (test_options.ReportTests.test_report_limits) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.000s\n\nOK\n"
+        },
+        {
+          "cwd": "assisted/web",
+          "command": [
+            "node",
+            "--test"
+          ],
+          "exit_code": 1,
+          "stdout": "\u2716 detach and reattach keeps one active notification (1.3009ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 120.2709\n\n\u2716 failing tests:\n\ntest at selection.test.js:4:1\n\u2716 detach and reattach keeps one active notification (1.3009ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  2 !== 1\n  \n      at TestContext.<anonymous> (file:///C:/Users/19603/AppData/Local/Temp/agensi-skill-eval-20261024/assisted/web/selection.test.js:11:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+          "stderr": ""
+        }
+      ]
+    }
+  }
+}

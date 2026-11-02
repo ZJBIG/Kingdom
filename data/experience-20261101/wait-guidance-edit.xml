@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Passed" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.615538">
+  <test-suite type="TestSuite" id="2285" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1108" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.615538" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3560" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1107" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.581750" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25756" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="3392" name="TutorialManagerTests" fullname="TutorialManagerTests" classname="TutorialManagerTests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.448749" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3426" name="ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" fullname="TutorialManagerTests.ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" methodname="ResearchGuidanceShowsQueuedPaymentBlockerAndDoesNotRestartResearch" classname="TutorialManagerTests" runstate="Runnable" seed="1865697463" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.424500" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="3433" name="TutorialStageTests" fullname="TutorialStageTests" classname="TutorialStageTests" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.068236" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="3450" name="FarmRequiresAPositiveProductionTickAndZeroEfficiencyCannotCompleteIt" fullname="TutorialStageTests.FarmRequiresAPositiveProductionTickAndZeroEfficiencyCannotCompleteIt" methodname="FarmRequiresAPositiveProductionTickAndZeroEfficiencyCannotCompleteIt" classname="TutorialStageTests" runstate="Runnable" seed="473960244" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.046649" asserts="0">
+          <properties />
+          <output><![CDATA[[KingdomPerf] ManualTick 25.9ms: building=15.0ms, game=1.6ms, resource=0.8ms, sectors=3.5ms, research=5.0ms, activeBuildings=2, efficiencyPasses=1
+]]></output>
+        </test-case>
+        <test-case id="3449" name="PaidResearchWaitsForCompletionAndAgricultureImmediatelyTargetsFarm" fullname="TutorialStageTests.PaidResearchWaitsForCompletionAndAgricultureImmediatelyTargetsFarm" methodname="PaidResearchWaitsForCompletionAndAgricultureImmediatelyTargetsFarm" classname="TutorialStageTests" runstate="Runnable" seed="385539276" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.011799" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="3456" name="ResourceSourceResearchInProgressCannotRestoreTheInteractionGate" fullname="TutorialStageTests.ResourceSourceResearchInProgressCannotRestoreTheInteractionGate" methodname="ResourceSourceResearchInProgressCannotRestoreTheInteractionGate" classname="TutorialStageTests" runstate="Runnable" seed="402938793" result="Passed" start-time="2026-11-01 03:31:50Z" end-time="2026-11-01 03:31:50Z" duration="0.004805" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

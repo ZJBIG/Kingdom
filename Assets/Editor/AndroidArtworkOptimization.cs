@@ -41,7 +41,7 @@ public static class AndroidArtworkOptimization
             TextureImporterFormat.ASTC_4x4, false, report);
         foreach (string root in new[] { "Assets/Resources/Art/UI/Backgrounds", "Assets/Resources/Art/UI/EraCards" })
             foreach (string path in TexturePaths(root))
-                Configure(path, 4096, TextureImporterFormat.ASTC_4x4, false, report);
+                Configure(path, 4096, TextureImporterFormat.ASTC_6x6, false, report);
 
         foreach (string path in Directory.GetFiles("Assets/Musics/PMusic", "*.ogg", SearchOption.AllDirectories))
         {

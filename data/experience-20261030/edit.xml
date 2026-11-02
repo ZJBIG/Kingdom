@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.096513">
+  <test-suite type="TestSuite" id="2271" name="Kingdom" fullname="Kingdom" runstate="Runnable" testcasecount="1094" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.096513" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3532" name="Assembly-CSharp-Editor.dll" fullname="D:/GitHub/Kingdom/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="1093" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.071860" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="22348" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="2849" name="KingdomUiLifecycleTests" fullname="KingdomUiLifecycleTests" classname="KingdomUiLifecycleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.052310" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="2850" name="DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" fullname="KingdomUiLifecycleTests.DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" methodname="DevelopmentGuidanceWithoutManagersReturnsSafeCompleteState" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="1168084892" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.020597" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2852" name="SituationReportSeparatesBalancedFoodFromSupplyShortage" fullname="KingdomUiLifecycleTests.SituationReportSeparatesBalancedFoodFromSupplyShortage" methodname="SituationReportSeparatesBalancedFoodFromSupplyShortage" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="1019004246" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.010627" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="2851" name="SituationReportUsesLiveFoodBalanceWithoutMutatingState" fullname="KingdomUiLifecycleTests.SituationReportUsesLiveFoodBalanceWithoutMutatingState" methodname="SituationReportUsesLiveFoodBalanceWithoutMutatingState" classname="KingdomUiLifecycleTests" runstate="Runnable" seed="1496200635" result="Passed" start-time="2026-10-30 02:02:30Z" end-time="2026-10-30 02:02:30Z" duration="0.003795" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "Assets/TextMesh Pro/Fonts/SIMSUN SDF.asset",
+    "backup": ".codex\\archive\\apk-size-20261101\\0-SIMSUN SDF.asset",
+    "sha256": "15a052df327a1e9d034458c890ccadcbb5f8723008d76c39d28213bf683c9a71"
+  },
+  {
+    "path": "Assets/Resources/Texture/UI/KingdomAppIcon.png",
+    "backup": ".codex\\archive\\apk-size-20261101\\1-KingdomAppIcon.png",
+    "sha256": "1fff287ba0d2386d18a5ddb1d1c229954aed779201a5a7d8a049f53bcaecbc8a"
+  },
+  {
+    "path": "Builds/Android/Kingdom.apk",
+    "backup": ".codex\\archive\\apk-size-20261101\\2-Kingdom.apk",
+    "sha256": "ada8ef0c0a9871f24e7216674c9fc1723d5be44d95d6530ae491ca1d988eacab"
+  }
+]

@@ -141,9 +141,6 @@ public sealed partial class KingdomUIRoot
     private int researchTopologyBackwardsEdgeCount;
     private int researchTopologyInversionCount;
     private ResearchDef selectedResearchNode;
-    private GameObject overviewNavigationToolbar;
-    private Button overviewCurrentTargetButton;
-    private Button overviewCurrentEraButton;
     private const float DefaultResearchScale = 1.3f;
     private string pendingOverviewResearchFocusId;
     private string lastLoggedResearchClosureTarget;
@@ -344,13 +341,6 @@ public sealed partial class KingdomUIRoot
                 signature.Append(ResourceManager.Instance.GetAmount(resource).ToGameString());
             }
         return signature.ToString();
-    }
-
-    private static int QuantizedResearchProgress(ResearchState state)
-    {
-        if (state == null)
-            return 0;
-        return Mathf.RoundToInt(Mathf.Clamp01((float)state.ProgressRatio.ToDouble()) * 1000f);
     }
 
     private static readonly string[] ResearchTreeWarmupSprites =
@@ -616,7 +606,6 @@ public sealed partial class KingdomUIRoot
             yield break;
         RefreshResearchTreeVisuals();
         RefreshResearchQueueToolbar();
-        RefreshOverviewNavigationToolbar();
         if (!string.IsNullOrWhiteSpace(pendingOverviewResearchFocusId))
         {
             string pendingId = pendingOverviewResearchFocusId;
@@ -638,25 +627,7 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] OverviewNavigationToolbar must be authored in the scene UI prefab.");
             return;
         }
-        GameObject toolbar = existing.gameObject;
-        overviewNavigationToolbar = toolbar;
-
-        RectTransform rect = toolbar.GetComponent<RectTransform>();
-        if (rect == null)
-            return;
-
-        // The toolbar layout and controls are authored by the prefab. Runtime
-        // code only binds behavior to the existing controls.
-        overviewCurrentTargetButton = toolbar.transform
-            .Find("OverviewCurrentTargetButton")?.GetComponent<Button>();
-        overviewCurrentEraButton = toolbar.transform
-            .Find("OverviewCurrentEraButton")?.GetComponent<Button>();
-        if (overviewCurrentTargetButton == null || overviewCurrentEraButton == null)
-        {
-            Debug.LogError("[王国界面] Overview navigation toolbar is missing its authored navigation buttons.");
-            return;
-        }
-        RefreshOverviewNavigationToolbar();
+        existing.gameObject.SetActive(false);
     }
 
     private void AbortResearchTreeBuild()
@@ -867,7 +838,7 @@ public sealed partial class KingdomUIRoot
         {
             if (selectedResearchNode == null ||
                 !string.Equals(selectedResearchNode.Id, selected.Id, StringComparison.Ordinal))
-                selectedResearchNode = selected;
+                ShowResearchDetails(selected, true);
         }
         else
         {
@@ -881,12 +852,6 @@ public sealed partial class KingdomUIRoot
         RefreshResearchQueueGraphic();
         if (researchTreePageBuilt && ResearchManager.Instance != null)
             lastResearchQueueSignature = BuildResearchQueueSignature();
-    }
-
-    private void RefreshOverviewNavigationToolbar()
-    {
-        // Overview already has one contextual action; the fixed research shortcuts duplicate it.
-        if (overviewNavigationToolbar != null) overviewNavigationToolbar.SetActive(false);
     }
 
     private void NavigateToOverviewResearch(ResearchDef target)
@@ -1618,7 +1583,7 @@ public sealed partial class KingdomUIRoot
         // the click and erase the intended P2 contrast.
         button.transition = Selectable.Transition.None;
         button.interactable = CanInspectResearch(research);
-        ApplyButtonColors(button, surface.color);
+        ApplyButtonColors(button);
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => ShowResearchDetails(research));
         if (node.Find("PinButton") != null)
@@ -1974,7 +1939,7 @@ public sealed partial class KingdomUIRoot
                 }
             }
             TMP_Text stateText = visualReferences?.StateText;
-            if (stateChanged && stateText != null)
+            if (stateText != null)
                 SetTextIfChanged(stateText, ResearchStateLabel(research, status));
             if (stateText != null)
                 SetColorIfChanged(stateText, accent);
@@ -2136,7 +2101,7 @@ public sealed partial class KingdomUIRoot
             return "100.0%";
         if (state == null)
             return "0%";
-        return (state.ProgressRatio.ToDouble() * 100d).ToString("0.0") + "%";
+        return Math.Min(99.9d, state.ProgressRatio.ToDouble() * 100d).ToString("0.0") + "%";
     }
 
     private static string FormatResearchBaseCost(ResearchDef research)

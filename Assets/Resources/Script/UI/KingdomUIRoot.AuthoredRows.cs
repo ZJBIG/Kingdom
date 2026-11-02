@@ -35,11 +35,11 @@ public sealed partial class KingdomUIRoot
             // Keep the alternating normal color while restoring a visible
             // hover/pressed state for touch and mouse feedback.
             button.transition = Selectable.Transition.ColorTint;
-            ApplyButtonColors(button, surface.color);
+            ApplyButtonColors(button);
         }
     }
 
-    private static void ApplyButtonColors(Button button, Color normal)
+    private static void ApplyButtonColors(Button button)
     {
         if (button == null)
             return;
@@ -82,9 +82,7 @@ public sealed partial class KingdomUIRoot
             string amount = state == null ? "0" : state.Amount.ToGameString();
             ExpantaNum net = state == null
                 ? ExpantaNum.Zero
-                : NormalizeDisplayedNetRate(
-                    ResourceManager.ApplyCurrentProductionReward(state.ProductionRate),
-                    state.ConsumptionRate);
+                : ResourceManager.ApplyCurrentProductionReward(state.ProductionRate) - state.ConsumptionRate;
             string change = (net >= ExpantaNum.Zero ? "+" : string.Empty) + net.ToGameString() + "/s";
             GameObject row = InstantiateAuthoredRow(GetEraCollectionPrefabName(KingdomUIPrefabLibrary.ResourceCard,
                 resource.TechLevel), parent, visible++);
@@ -225,7 +223,6 @@ public sealed partial class KingdomUIRoot
             });
             deconstructButton.interactable = hasAmount;
             SetBuildingActionButtonState(deconstructButton, hasAmount);
-            buildingDeconstructSurfaces[building] = deconstructButton.targetGraphic as Image;
             buildingDeconstructButtons[building] = deconstructButton;
             buildingAmountLabels[building] = row.transform.Find("Amount")?.GetComponent<TMP_Text>();
             buildingEffectLabels[building] = row.transform.Find("Effect")?.GetComponent<TMP_Text>();
@@ -235,10 +232,8 @@ public sealed partial class KingdomUIRoot
     }
 
     private const string LandIcon = "<sprite=\"HudTerritory\" index=0>";
-    private const string MaterialsIcon = "<sprite=\"BuildingStatusIcons\" index=2>";
 
     private const string LandShortageIcon = "<sprite=\"BuildingStatusIcons\" index=3>";
-    private const string MaterialsShortageIcon = "<sprite=\"BuildingStatusIcons\" index=5>";
 
     private readonly List<BuildFailure> buildingAvailabilityFailures = new List<BuildFailure>();
 
@@ -249,9 +244,8 @@ public sealed partial class KingdomUIRoot
         bool upgrade = BuildingManager.Instance.TryGetUnlockedUpgradeTarget(building, out _);
         ExpantaNum amount = GetSelectedBuildingQuantity(building, upgrade, false);
         BuildingManager.Instance.GetConstructionFailures(building, amount, upgrade, buildingAvailabilityFailures);
-        string icons = string.Empty;
-        if (buildingAvailabilityFailures.Contains(BuildFailure.SpaceInsufficient)) icons += LandShortageIcon;
-        if (icons.Length > 0) return icons;
+        if (buildingAvailabilityFailures.Contains(BuildFailure.SpaceInsufficient))
+            return LandShortageIcon;
         if (buildingAvailabilityFailures.Count > 0) return buildingAvailabilityFailures[0] switch
         {
             BuildFailure.ResourceInsufficient => string.Empty,
@@ -352,7 +346,7 @@ public sealed partial class KingdomUIRoot
             purchaseButton.onClick.RemoveAllListeners();
             purchaseButton.onClick.AddListener(() =>
             {
-                PurchaseWorkshopFromRow(definition);
+                PurchaseWorkshopUpgrade(definition);
             });
             purchaseButton.interactable = canPurchase;
             SetBuildingActionButtonState(purchaseButton, purchaseButton.interactable);
@@ -379,8 +373,7 @@ public sealed partial class KingdomUIRoot
             manager.ArePrerequisitesMet(definition);
         if (!unlocked || !affordableOnly)
             return unlocked;
-        GetWorkshopAvailability(definition, out bool canPurchase);
-        return canPurchase;
+        return manager.GetPurchaseFailure(definition) == WorkshopPurchaseFailure.None;
     }
 
 

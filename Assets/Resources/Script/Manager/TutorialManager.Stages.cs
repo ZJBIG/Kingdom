@@ -18,7 +18,7 @@ public sealed class TutorialStageSnapshot
 public sealed partial class TutorialManager
 {
     private static readonly string[] StageIds =
-        { "resources", "building", "population", "research", "production-chain", "era-goal", "workshop", "sectors" };
+        { "resources", "building", "population", "farm-goal", "research", "stone-chain", "first-transition", "production-chain", "era-goal", "workshop", "sectors" };
     private readonly HashSet<string> completedStageIds = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> skippedStageIds = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> baselineStageIds = new HashSet<string>(StringComparer.Ordinal);
@@ -43,6 +43,8 @@ public sealed partial class TutorialManager
             return null;
         if (!stagesInitialized)
             EstablishStageBaseline(game, resources, buildings, research);
+        if (TryBuildFirstSessionSnapshot(game, resources, buildings, research, out TutorialSnapshot firstSession))
+            return EvaluateFirstSessionStage(firstSession);
         if (string.IsNullOrEmpty(activeStageId))
             for (int i = 0; i < StageIds.Length; i++)
             {
@@ -58,6 +60,24 @@ public sealed partial class TutorialManager
             }
         if (string.IsNullOrEmpty(activeStageId)) return null;
         bool available = TryGetStage(activeStageId, game, resources, buildings, research, out TutorialStageSnapshot snapshot);
+        if (activeStageId == "research" && stageTargetId == "Agriculture" &&
+            DataBase<ResearchDef>.TryFind("Agriculture", out ResearchDef completedAgriculture) &&
+            research.GetState(completedAgriculture)?.Status == ResearchStatus.Completed)
+        {
+            CompleteCurrentStage();
+            return EvaluateStage();
+        }
+        if (!available && activeStageId == "farm-goal")
+        {
+            if (DataBase<BuildingDef>.TryFind("Farm", out BuildingDef completedFarm) &&
+                ((buildings.GetState(completedFarm)?.Amount ?? ExpantaNum.Zero) > ExpantaNum.Zero ||
+                 buildings.GetBuildFailure(completedFarm, ExpantaNum.One) == BuildFailure.BuildingTierSuperseded))
+            {
+                CompleteCurrentStage();
+                return EvaluateStage();
+            }
+            return null;
+        }
         if (!available && activeStageId != "building" && activeStageId != "research") return null;
         bool replaceTarget = activeStageId == "building" &&
             (!DataBase<BuildingDef>.TryFind(stageTargetId, out BuildingDef currentBuilding) || !buildings.CanConstructNew(currentBuilding));
@@ -87,6 +107,12 @@ public sealed partial class TutorialManager
             snapshot.Action = TutorialStageAction.Build;
             snapshot.CanInteract = buildings.GetBuildFailure(building, ExpantaNum.One) == BuildFailure.None;
         }
+        if (stagePhase >= 2 && activeStageId == "farm-goal")
+        {
+            if (!DataBase<BuildingDef>.TryFind(stageTargetId, out BuildingDef farm)) return null;
+            snapshot.Action = TutorialStageAction.Build;
+            snapshot.CanInteract = buildings.GetBuildFailure(farm, ExpantaNum.One) == BuildFailure.None;
+        }
         if (stagePhase >= 2 && activeStageId == "research")
         {
             if (!DataBase<ResearchDef>.TryFind(stageTargetId, out ResearchDef definition)) return null;
@@ -99,21 +125,27 @@ public sealed partial class TutorialManager
             if (research.IsQueued(definition))
             {
                 snapshot.Action = TutorialStageAction.Inspect;
-                snapshot.Instruction = "该研究已加入队列；资源全额支付后才开始推进，可在研究页查看当前缺口。";
+                snapshot.CanInteract = false;
+                snapshot.Instruction = state != null && state.CostPaid
+                    ? "排队中，材料已支付。"
+                    : "排队中，材料未支付。";
                 return snapshot;
             }
             snapshot.Action = TutorialStageAction.StartResearch;
-            snapshot.CanInteract = research.CanAccessResearch(definition) && research.ArePrerequisitesCompleted(definition) &&
+            snapshot.CanInteract = research.ArePrerequisitesCompleted(definition) &&
                 research.CanPayResearchCost(definition, out _);
         }
+        string narrative = activeStageId == "farm-goal"
+            ? "农业已完成，建造一座农场。"
+            : StageNarrative(activeStageId);
         if (snapshot.Action == TutorialStageAction.Navigate)
-            snapshot.Instruction = StageNarrative(activeStageId) + "\n点击“" + StagePageLabel(snapshot.Page) + "”进入页面。";
-        else if (snapshot.Action == TutorialStageAction.Select)
-            snapshot.Instruction = StageNarrative(activeStageId);
+            snapshot.Instruction = narrative + "\n点击“" + StagePageLabel(snapshot.Page) + "”进入页面。";
         else if (snapshot.Action == TutorialStageAction.Build)
-            snapshot.Instruction = "让族人不再露宿荒野。点击建造，完成一次建筑建设。";
+            snapshot.Instruction = activeStageId == "farm-goal"
+                ? narrative
+                : "让族人不再露宿荒野。点击建造，完成一次建筑建设。";
         else if (snapshot.Action == TutorialStageAction.StartResearch)
-            snapshot.Instruction = "研究是第一生产力。先备齐材料、全额支付，再让新知识成为族群的力量。";
+            snapshot.Instruction = "加入研究队列，材料备齐后自动开研。";
         return snapshot;
     }
 
@@ -158,7 +190,9 @@ public sealed partial class TutorialManager
     public void AcknowledgeCurrentStage()
     {
         TutorialStageSnapshot snapshot = EvaluateStage();
-        if (snapshot != null && snapshot.Action == TutorialStageAction.Inspect && snapshot.CanInteract)
+        if (snapshot != null && snapshot.StageId != "building" && snapshot.StageId != "research" &&
+            snapshot.StageId != "farm-goal" && snapshot.StageId != "stone-chain" && snapshot.StageId != "first-transition" &&
+            snapshot.Action == TutorialStageAction.Inspect && snapshot.CanInteract)
             CompleteCurrentStage();
     }
 
@@ -230,9 +264,26 @@ public sealed partial class TutorialManager
                 snapshot.Title = "发展人口"; snapshot.Page = "Overview";
                 snapshot.Instruction = "人口容量提供容身之处；维持食物与幸福度，人口才能持续增长并提供生产力。";
                 return game.State.Population != null && game.State.Population.PopulationCapacity > ExpantaNum.Zero;
+            case "farm-goal":
+                snapshot.Title = "建造农场"; snapshot.Page = "Buildings";
+                if (!DataBase<ResearchDef>.TryFind("Agriculture", out ResearchDef completedAgriculture) ||
+                    research.GetState(completedAgriculture)?.Status != ResearchStatus.Completed ||
+                    !DataBase<BuildingDef>.TryFind("Farm", out BuildingDef farm) ||
+                    !buildings.CanConstructNew(farm) ||
+                    HasOwnedBuildingId(buildings, farm.Id))
+                    return false;
+                snapshot.TargetId = farm.Id;
+                return true;
             case "research":
                 snapshot.Title = "研究新知识"; snapshot.Page = "Research";
                 if (!ProgressionVisibilityRules.IsResearchUnlocked(game.State)) return false;
+                if (DataBase<ResearchDef>.TryFind("Agriculture", out ResearchDef agriculture))
+                {
+                    ResearchState state = research.GetState(agriculture);
+                    if (state?.Status != ResearchStatus.Completed &&
+                        research.CanAccessResearch(agriculture) && research.ArePrerequisitesCompleted(agriculture))
+                    { snapshot.Title = "研究农业"; snapshot.TargetId = agriculture.Id; return true; }
+                }
                 foreach (ResearchDef definition in DataBase<ResearchDef>.All)
                     if (definition != null && research.CanAccessResearch(definition) && research.ArePrerequisitesCompleted(definition) &&
                         (baseline || research.GetState(definition)?.Status != ResearchStatus.Completed))
@@ -336,6 +387,7 @@ public sealed partial class TutorialManager
     private void CaptureStages(SaveManager.TutorialSaveData data)
     {
         data.StagesInitialized = stagesInitialized;
+        data.FarmGoalStageSchemaApplied = true;
         data.CompletedStageIds = new List<string>(completedStageIds);
         data.SkippedStageIds = new List<string>(skippedStageIds);
         data.BaselineStageIds = new List<string>(baselineStageIds);
@@ -348,6 +400,8 @@ public sealed partial class TutorialManager
     private void RestoreStages(SaveManager.TutorialSaveData data)
     {
         completedStageIds.Clear(); skippedStageIds.Clear(); baselineStageIds.Clear(); ClearActiveStage();
+        recentFirstSessionProgress = string.Empty;
+        recentFirstSessionProgressId = string.Empty;
         stagesInitialized = data != null && data.StagesInitialized;
         if (!stagesInitialized)
         {
@@ -363,6 +417,16 @@ public sealed partial class TutorialManager
         RestoreStageSet(data.CompletedStageIds, completedStageIds);
         RestoreStageSet(data.SkippedStageIds, skippedStageIds);
         RestoreStageSet(data.BaselineStageIds, baselineStageIds);
+        bool researchStageResolved = completedStageIds.Contains("research") || skippedStageIds.Contains("research") ||
+            baselineStageIds.Contains("research") || Array.IndexOf(StageIds, data.ActiveStageId) > Array.IndexOf(StageIds, "research");
+        ResearchManager researchManager = FindObjectOfType<ResearchManager>();
+        BuildingManager buildingManager = FindObjectOfType<BuildingManager>();
+        if (!data.FarmGoalStageSchemaApplied && researchStageResolved &&
+            DataBase<ResearchDef>.TryFind("Agriculture", out ResearchDef agriculture) &&
+            researchManager?.GetState(agriculture)?.Status == ResearchStatus.Completed &&
+            DataBase<BuildingDef>.TryFind("Farm", out BuildingDef farm) &&
+            (buildingManager?.GetState(farm)?.Amount ?? ExpantaNum.Zero) <= ExpantaNum.Zero)
+            baselineStageIds.Add("farm-goal");
         if (Array.IndexOf(StageIds, data.ActiveStageId) < 0 || completedStageIds.Contains(data.ActiveStageId) ||
             skippedStageIds.Contains(data.ActiveStageId) || baselineStageIds.Contains(data.ActiveStageId)) return;
         activeStageId = data.ActiveStageId;
@@ -388,5 +452,7 @@ public sealed partial class TutorialManager
     {
         completedStageIds.Clear(); skippedStageIds.Clear(); baselineStageIds.Clear();
         stagesInitialized = true; ClearActiveStage();
+        recentFirstSessionProgress = string.Empty;
+        recentFirstSessionProgressId = string.Empty;
     }
 }

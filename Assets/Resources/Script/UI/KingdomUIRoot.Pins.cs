@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public sealed partial class KingdomUIRoot
 {
-    private Button detailPinButton;
     private static Sprite pinOutlineSprite;
     private static Sprite pinFilledSprite;
 
@@ -55,7 +54,6 @@ public sealed partial class KingdomUIRoot
         Canvas.ForceUpdateCanvases();
         if (pageScroll != null)
             pageScroll.verticalNormalizedPosition = position;
-        RefreshDetailPin();
     }
 
     private void RefreshResearchPinButtons()
@@ -78,10 +76,4 @@ public sealed partial class KingdomUIRoot
         return UIPinPreferences.IsPinned(UIPinPreferences.Research, research.Id) ? "置顶·" + title : title;
     }
 
-    private void RefreshDetailPin()
-    {
-        if (detailPinButton == null)
-            detailPinButton = detailPanel?.Find("Surface/PinButton")?.GetComponent<Button>();
-        if (detailPinButton != null) detailPinButton.gameObject.SetActive(false);
-    }
 }

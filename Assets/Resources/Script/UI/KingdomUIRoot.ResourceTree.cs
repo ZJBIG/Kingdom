@@ -51,7 +51,8 @@ public sealed partial class KingdomUIRoot
             PlaceRequirementsAfterDescription(ultraDetailRequirementCount,
                 requirementGesture == null ? null : (float?)requirementGesture.GetNormalizedPosition(),
                 ultraDetailFlowCount);
-        else LayoutResourceDetailsBody();
+        else if (selectedResearchNode == null && selectedWorkshop == null)
+            LayoutResourceDetailsBody();
     }
 
     private void AddResourceTreeLink(RectTransform parent, Vector2 start, Vector2 end)

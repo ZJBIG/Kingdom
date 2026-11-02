@@ -253,6 +253,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         float sectorEnd = Time.realtimeSinceStartup;
 #endif
         ResearchManager.Instance.Tick(deltaSeconds);
+        if (deltaSeconds > 0d) TutorialManager.Current?.RecordFirstSessionProductionTick();
         StoryManager.RefreshProgress(gameManager.State.TechLevel,
             TutorialManager.Current);
 #if UNITY_EDITOR
@@ -590,6 +591,7 @@ public sealed class SimulationManager : Singleton<SimulationManager>
         try
         {
             researchManager.Tick(simulationSeconds);
+            if (simulationSeconds > 0d) TutorialManager.Current?.RecordFirstSessionProductionTick();
         }
         finally
         {

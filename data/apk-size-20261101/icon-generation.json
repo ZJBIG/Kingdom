@@ -1,0 +1,7 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:/Users/19603/.codex/generated_images/01a178aa-e1a1-7dd3-b40b-d7b16a2c0bc1/exec-4a6058a8-238a-4d8b-b0a8-f95bc861b882.png",
+  "prompt_summary": "Square low-resolution pixel-art launcher icon; a cheerful brown-haired mouse-eared girl with a gold crown, large centered face, dark navy background, cream/copper/gold palette; no text, simple silhouette readable at 48/64 pixels.",
+  "project_asset": "Assets/Resources/Texture/UI/KingdomAppIcon.png",
+  "integration": "512x512 RGB nearest-neighbor resampling; original GUID retained; point filtering; no mipmaps"
+}

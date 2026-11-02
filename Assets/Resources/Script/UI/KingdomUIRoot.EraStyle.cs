@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +26,7 @@ public sealed partial class KingdomUIRoot
         {
             // These independent prefabs own their material, frame and header palette.
             Button authoredButton = row.GetComponent<Button>();
-            if (authoredButton != null) ApplyButtonColors(authoredButton, row.GetComponent<Image>().color);
+            if (authoredButton != null) ApplyButtonColors(authoredButton);
             return;
         }
         ApplyListRowStyle(row, index);
@@ -36,12 +35,6 @@ public sealed partial class KingdomUIRoot
         surface.color = new Color(accent.r, accent.g, accent.b, index % 2 == 0 ? .12f : .18f);
         Transform stripe = row.transform.Find("EraAccent");
         if (stripe != null) stripe.GetComponent<Image>().color = accent;
-    }
-
-    private static void SetRowMetadata(GameObject row, string value)
-    {
-        Transform metadata = row.transform.Find("Metadata");
-        if (metadata != null) metadata.GetComponent<TMP_Text>().text = value ?? string.Empty;
     }
 
     private void RefreshEraSurfaces()

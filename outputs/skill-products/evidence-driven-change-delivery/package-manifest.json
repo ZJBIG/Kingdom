@@ -1,0 +1,25 @@
+{
+  "version": "0.1.1",
+  "archive": "evidence-driven-change-delivery-v0.1.1.zip",
+  "archive_bytes": 4871,
+  "archive_sha256": "e94676aec0ce159e25b9ca3e999844d55ee6f47a9fb0dd150369a1f49275fbf1",
+  "entries": [
+    {
+      "path": "SKILL.md",
+      "bytes": 5593,
+      "sha256": "fbb39552bf3a8c95261f1c645db6237ef44f58ddd06c725241d60064ba0bda98"
+    },
+    {
+      "path": "references/delivery.md",
+      "bytes": 1419,
+      "sha256": "5088d2cf7fba045bee46dbfb3c751639392093cb29b0a9b5aa5b4376b660152d"
+    },
+    {
+      "path": "references/verification.md",
+      "bytes": 2673,
+      "sha256": "4d51e0ee16b92f35e5eea970786d7630854a6197ed69f33e64cfb3d74d670918"
+    }
+  ],
+  "zip_crc_check": "passed",
+  "source_bytes_match": "passed"
+}

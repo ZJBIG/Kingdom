@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Orientation
   m_EditorClassIdentifier: 
   Id: orientation
-  Title: 建立一个不断发展的王国
-  Description: 打开概览并让王国时间推进一天；等待期间可查看资源页，观察原木和食物如何开始变化。
-  NarrativeText: 鼠族文明曾经中断，如今只剩下最初的火种。先让时间向前，让资源流动起来，复兴才有立足之处。
+  Title: 给族人一个留下的地方
+  Description: 前往建筑页，建起第一座木屋；缺原木时查看库存与净产出。
+  NarrativeText: 一处屋檐能让族人留下，也会开放研究。
   Kind: 0
   NextStepId: resources
   RewardId: 
   TriggerCondition: game-state
-  CompletionCondition: calendar-days>=1
-  NavigationPage: Overview
+  CompletionCondition: building-owned
+  NavigationPage: Buildings

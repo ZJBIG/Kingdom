@@ -277,7 +277,6 @@ public sealed partial class KingdomUIRoot
             return;
         }
         musicListScroll.content = content;
-        musicTrackList = content;
         for (int i = content.childCount - 1; i >= 0; i--)
             Destroy(content.GetChild(i).gameObject);
 
@@ -344,7 +343,7 @@ public sealed partial class KingdomUIRoot
                 continue;
             }
             playPause.targetGraphic = playPauseImage;
-            ConfigureMusicTrackIcon(playPause, "play");
+            ConfigureMusicIcon(playPause, "play", true);
             playPause.onClick.RemoveAllListeners();
             playPause.onClick.AddListener(() => ToggleMusicTrack(track));
             if (rowObject.GetComponent<UIPageScrollDragForwarder>() == null)
@@ -441,7 +440,6 @@ public sealed partial class KingdomUIRoot
         pageScroll.movementType = ScrollRect.MovementType.Clamped;
 
         Transform topInfo = safeArea.Find("TopStatusBar/TopInfoShell/InfoGrid");
-        topKingdomTitle = safeArea.Find("TopStatusBar/Title")?.GetComponent<TMP_Text>();
         topKingdomDate = safeArea.Find("TopStatusBar/Title/Date")?.GetComponent<TMP_Text>();
         topFoodValue = topInfo?.Find("Food/Value")?.GetComponent<TMP_Text>();
         topHappinessValue = topInfo?.Find("Happiness/Value")?.GetComponent<TMP_Text>();

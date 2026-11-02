@@ -1,0 +1,21 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-30T20:36:07.7442612+08:00
+Platform: EditMode
+Result: Failed
+Total: 74 Passed:71 Failed:3 Skipped:0
+
+=== FAILURE 1 ===
+Test: TutorialManagerTests.ChainGuidancePrioritizesActualPrerequisitesAndRequiresProducedStock
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 2 ===
+Test: TutorialStageTests.FarmRequiresAPositiveProductionTickAndZeroEfficiencyCannotCompleteIt
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+
+=== FAILURE 3 ===
+Test: TutorialStageTests.StoneChainRecognizesEarlyResearchAndBuildingsButRequiresRealOutput
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

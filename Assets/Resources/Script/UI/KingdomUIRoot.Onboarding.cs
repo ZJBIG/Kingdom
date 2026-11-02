@@ -20,10 +20,14 @@ public sealed partial class KingdomUIRoot
     private Canvas onboardingCanvas;
     private readonly Vector3[] onboardingCorners = new Vector3[4];
     private RectTransform lastOnboardingFramedTarget;
+    private string onboardingCompletionFeedback;
+    private string onboardingCompletionNextGoal;
+    private float onboardingCompletionUntil;
 
 #if UNITY_EDITOR
     public RectTransform OnboardingTargetForEditor => onboardingTarget;
     public TutorialStageSnapshot OnboardingStageForEditor => onboardingStage;
+    public bool OnboardingCompletionVisibleForEditor => Time.unscaledTime < onboardingCompletionUntil;
     public void RefreshOnboardingForEditor() => RefreshOnboarding();
     public void TickOnboardingForEditor() => TickOnboarding();
 #endif
@@ -36,8 +40,7 @@ public sealed partial class KingdomUIRoot
             RefreshOnboarding();
         }
         // Scroll inertia and graph framing continue between state refreshes.
-        if (onboardingTarget != null && onboardingOverlay.gameObject.activeSelf)
-            PlaceOnboardingOverlay(onboardingTarget);
+        SyncOnboardingGeometry();
     }
 
     private bool BindOnboarding()
@@ -75,14 +78,38 @@ public sealed partial class KingdomUIRoot
             HideOnboarding();
             RefreshOnboarding();
         });
+        // Layout and explicit canvas refreshes can move a target after LateUpdate.
+        Canvas.willRenderCanvases += SyncOnboardingGeometry;
         return true;
+    }
+
+    private void SyncOnboardingGeometry()
+    {
+        if (!isActiveAndEnabled || onboardingTarget == null || onboardingOverlay == null ||
+            !onboardingTarget.gameObject.activeInHierarchy || !onboardingOverlay.gameObject.activeSelf) return;
+        PlaceOnboardingOverlay(onboardingTarget);
     }
 
     private void RefreshOnboarding()
     {
         if (!BindOnboarding()) return;
-        TutorialManager manager = TutorialManager.Current;
+        if (storyIllustrationPreview != null && storyIllustrationPreview.IsOpen)
+        {
+            HideOnboarding();
+            return;
+        }
+        CacheRuntimeManagers();
+        bool firstSession = gameManagerCache != null && gameManagerCache.State != null &&
+            (gameManagerCache.State.TechLevel == TechLevel.Animal || !string.IsNullOrEmpty(tutorialSnapshot?.ActionId));
+        TutorialManager manager = RefreshTutorialSnapshot(firstSession);
         onboardingStage = manager == null ? null : manager.EvaluateStage();
+        if (manager != null && firstSession && populatedPage == "Overview") RefreshDevelopmentGuidance();
+        if (manager != null && Time.unscaledTime < onboardingCompletionUntil)
+        {
+            ShowOnboardingMessage("刚刚改变", onboardingCompletionFeedback +
+                (string.IsNullOrEmpty(onboardingCompletionNextGoal) ? string.Empty : "\n下一步：" + onboardingCompletionNextGoal), false);
+            return;
+        }
         if (onboardingStage == null)
         {
             HideOnboarding();
@@ -90,21 +117,32 @@ public sealed partial class KingdomUIRoot
         }
         if (!onboardingStage.CanInteract)
         {
-            ShowOnboardingWaiting("当前条件尚不足，可继续发展；条件满足后将继续引导。也可以跳过本阶段。");
+            ShowOnboardingWaiting(onboardingStage.Instruction);
             return;
         }
-        if (onboardingStage.Action == TutorialStageAction.StartResearch &&
+        if ((onboardingStage.Action == TutorialStageAction.Build && populatedPage != onboardingStage.Page) ||
+            (onboardingStage.Action == TutorialStageAction.StartResearch &&
             (populatedPage != onboardingStage.Page || selectedResearchNode == null ||
-             selectedResearchNode.Id != onboardingStage.TargetId))
+             selectedResearchNode.Id != onboardingStage.TargetId)))
         {
             manager.ReopenCurrentStage();
             onboardingStage = manager.EvaluateStage();
+        }
+        if (onboardingStage == null)
+        {
+            HideOnboarding();
+            return;
         }
         // A system can unlock while its page is already being viewed.
         if (onboardingStage.Action == TutorialStageAction.Navigate && populatedPage == onboardingStage.Page)
         {
             manager.RecordStagePageVisited(populatedPage);
             onboardingStage = manager.EvaluateStage();
+        }
+        if (onboardingStage == null)
+        {
+            HideOnboarding();
+            return;
         }
         RectTransform target = ResolveOnboardingTarget(onboardingStage);
         if (target == null || !target.gameObject.activeInHierarchy)
@@ -113,6 +151,15 @@ public sealed partial class KingdomUIRoot
             return;
         }
         Button targetButton = target.GetComponentInParent<Button>();
+        bool selectSingleQuantity = false;
+        if (onboardingStage.Action == TutorialStageAction.Build && buildingQuantityMode == BuildingQuantityMode.Ten &&
+            targetButton != null && !targetButton.IsInteractable() &&
+            buildingQuantityButtons.TryGetValue(BuildingQuantityMode.One, out Button singleQuantityButton))
+        {
+            target = singleQuantityButton.transform as RectTransform;
+            targetButton = singleQuantityButton;
+            selectSingleQuantity = true;
+        }
         if (onboardingStage.Action != TutorialStageAction.Inspect &&
             targetButton != null && !targetButton.IsInteractable())
         {
@@ -130,11 +177,12 @@ public sealed partial class KingdomUIRoot
             return;
         }
         onboardingTarget = target;
-        string instruction = OnboardingInstruction(onboardingStage);
+        string instruction = selectSingleQuantity ? "选择「1个」。" : OnboardingInstruction(onboardingStage);
         bool layoutChanged = !onboardingOverlay.gameObject.activeSelf ||
             onboardingTitle.text != onboardingStage.Title || onboardingBody.text != instruction;
         onboardingTitle.text = onboardingStage.Title;
         onboardingBody.text = instruction;
+        onboardingSkip.gameObject.SetActive(true);
         onboardingHighlight.gameObject.SetActive(true);
         onboardingArrow.gameObject.SetActive(true);
         for (int i = 0; i < onboardingDims.Length; i++) onboardingDims[i].gameObject.SetActive(true);
@@ -153,13 +201,18 @@ public sealed partial class KingdomUIRoot
         if ((stage.Page == "Resources" || stage.Page == "Production") &&
             DataBase<ResourceDef>.TryFind(stage.TargetId, out ResourceDef resource)) label = resource.Label;
         else if (stage.Page == "Buildings" && DataBase<BuildingDef>.TryFind(stage.TargetId, out BuildingDef building)) label = building.Label;
-        else if (stage.Page == "Research" && DataBase<ResearchDef>.TryFind(stage.TargetId, out ResearchDef research)) label = research.Label;
+        else if ((stage.Page == "Research" || stage.Page == "Era") && DataBase<ResearchDef>.TryFind(stage.TargetId, out ResearchDef research)) label = research.Label;
         else if (stage.Page == "Workshop" && DataBase<WorkshopUpgradeDef>.TryFind(stage.TargetId, out WorkshopUpgradeDef upgrade)) label = upgrade.Label;
         else if (stage.Page == "Sectors" && DataBase<SectorDef>.TryFind(stage.TargetId, out SectorDef sector)) label = sector.Label;
-        return stage.Instruction + "\n点击「" + label + "」，查看详情与条件。";
+        return "点击「" + label + "」，查看详情与条件。";
     }
 
     private void ShowOnboardingWaiting(string instruction)
+    {
+        ShowOnboardingMessage(onboardingStage.Title, instruction);
+    }
+
+    private void ShowOnboardingMessage(string title, string instruction, bool allowSkip = true)
     {
         onboardingGate.Clear();
         onboardingTarget = null;
@@ -169,9 +222,10 @@ public sealed partial class KingdomUIRoot
         onboardingHighlight.gameObject.SetActive(false);
         onboardingArrow.gameObject.SetActive(false);
         for (int i = 0; i < onboardingDims.Length; i++) onboardingDims[i].gameObject.SetActive(false);
-        onboardingTitle.text = onboardingStage.Title;
+        onboardingTitle.text = title;
         onboardingBody.text = instruction;
         onboardingNext.gameObject.SetActive(false);
+        onboardingSkip.gameObject.SetActive(allowSkip);
         onboardingPanel.anchoredPosition = new Vector2(0, 32);
     }
 
@@ -185,6 +239,9 @@ public sealed partial class KingdomUIRoot
             return buildButton.transform as RectTransform;
         if (stage.Action == TutorialStageAction.StartResearch)
             return detailActionButton == null ? null : detailActionButton.transform as RectTransform;
+        if (stage.Page == "Era" && stage.Action == TutorialStageAction.Select &&
+            pages.TryGetValue("Era", out RectTransform eraPage))
+            return eraPage.Find("DataRows/EraTransitionSection/Content/EraTransitionTarget/Title") as RectTransform;
         if (stage.Action == TutorialStageAction.Inspect)
         {
             if (stage.StageId == "population") return topPopulationValue?.rectTransform;
@@ -214,7 +271,7 @@ public sealed partial class KingdomUIRoot
                 if (!productionResources.Contains(chainResource)) return null;
                 productionTree = new ResourceProductionTree(chainResource, DataBase<BuildingDef>.All,
                     DataBase<SectorDef>.All, productionResources.Contains,
-                    productionBuildings.Contains, productionSectors.Contains);
+                    productionBuildings.Contains, productionSectors.Contains, ShouldDisplayBuilding);
                 RebuildProductionGraph();
                 CenterProductionRoot();
             }

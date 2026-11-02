@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ProductionChain
   m_EditorClassIdentifier: 
   Id: production-chain
-  Title: 连接生产链
-  Description: "让采石场生产石块，再用切石工坊加工石砖；在资源页查看两种材料的库存和净产出。"
-  NarrativeText: 一个文明不能只会采集。鼠族必须把原料送进加工建筑，让上游产出真正支撑下游，而不是让资源停在仓库里。
+  Title: 连接石材加工链
+  Description: 依次完成采石、采石场、石料加工与切石工坊，观察真实加工产出。
+  NarrativeText: 让采石场支撑切石工坊，把原料变成建设材料。
   Kind: 5
   NextStepId: era-goal
   RewardId: 

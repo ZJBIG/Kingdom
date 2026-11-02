@@ -1,0 +1,11 @@
+Kingdom Unity Test Runner - Latest Error Report
+Generated: 2026-10-30T18:28:53.5630708+08:00
+Platform: PlayMode
+Result: Failed
+Total: 2 Passed:1 Failed:1 Skipped:0
+
+=== FAILURE 1 ===
+Test: StoryBackgroundInteractionPlayModeTests.NewChapterPreservesActualPagePositionWhenContentHeightChanges
+Message: System.Xml.XmlElement
+StackTrace: System.Xml.XmlElement
+UnityExitCode: 2

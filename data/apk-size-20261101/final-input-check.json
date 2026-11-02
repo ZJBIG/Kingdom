@@ -1,0 +1,8 @@
+{
+  "initial_input_files": 1218,
+  "changed_since_first_build": [
+    "Assets\\Editor\\PMusicAudioImporter.cs"
+  ],
+  "explanation": "Music importer restored from quality 0.2 trial to original 0.35; gameplay, scene, prefab, definitions and ProjectSettings unchanged.",
+  "music_tracks": 56
+}

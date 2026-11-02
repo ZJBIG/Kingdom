@@ -22,7 +22,6 @@ public sealed partial class KingdomUIRoot
     private int lastMusicCatalogVersion = -1;
     private string lastMusicTrackVisualId;
     private bool lastMusicTrackVisualPlaying;
-    private bool lastMusicTrackVisualStopped;
     private bool musicTrackVisualStateValid;
     private bool musicStaticValuesValid;
     private int lastMusicVolumePercent;
@@ -100,11 +99,6 @@ public sealed partial class KingdomUIRoot
             Debug.LogError("[王国界面] Authored music button has no Icon Image: " + button.name);
         musicButtonIconCache[button] = icon;
         return icon;
-    }
-
-    private void ConfigureMusicTrackIcon(Button button, string iconName)
-    {
-        ConfigureMusicIcon(button, iconName, true);
     }
 
     private Sprite LoadMusicIcon(string iconName)
@@ -231,11 +225,9 @@ public sealed partial class KingdomUIRoot
                 manager.Resume();
             else
                 manager.PlayTrack(track);
-            RefreshMusicTrackIcons(manager);
-            RefreshMusicGlobalPauseVisual(manager);
-            return;
         }
-        manager.PlayTrack(track);
+        else
+            manager.PlayTrack(track);
         RefreshMusicTrackIcons(manager);
         RefreshMusicGlobalPauseVisual(manager);
     }
@@ -346,7 +338,7 @@ public sealed partial class KingdomUIRoot
         lastSfxMuted = muted;
         musicStaticValuesValid = true;
         RefreshMusicGlobalPauseVisual(manager);
-        RefreshMusicTrackIcons(manager, track);
+        RefreshMusicTrackIcons(manager);
     }
 
     private void RefreshCurrentMusicCategoryIcon(MusicManager.MusicTrack track)
@@ -367,22 +359,18 @@ public sealed partial class KingdomUIRoot
         image.enabled = track != null && image.sprite != null;
     }
 
-    private void RefreshMusicTrackIcons(MusicManager manager, MusicManager.MusicTrack currentTrack = null)
+    private void RefreshMusicTrackIcons(MusicManager manager)
     {
         if (manager == null)
             return;
-        currentTrack ??= manager.CurrentTrack;
-        string currentTrackId = currentTrack == null ? null : currentTrack.Id;
+        string currentTrackId = manager.CurrentTrack == null ? null : manager.CurrentTrack.Id;
         bool isPlaying = manager.IsPlaying;
-        bool isStopped = manager.IsPermanentlyStopped;
         if (musicTrackVisualStateValid &&
             lastMusicTrackVisualId == currentTrackId &&
-            lastMusicTrackVisualPlaying == isPlaying &&
-            lastMusicTrackVisualStopped == isStopped)
+            lastMusicTrackVisualPlaying == isPlaying)
             return;
         lastMusicTrackVisualId = currentTrackId;
         lastMusicTrackVisualPlaying = isPlaying;
-        lastMusicTrackVisualStopped = isStopped;
         musicTrackVisualStateValid = true;
         foreach (KeyValuePair<string, Button> pair in musicTrackButtons)
         {
@@ -403,14 +391,7 @@ public sealed partial class KingdomUIRoot
                 Image playPauseImage = GetMusicButtonIcon(pair.Value);
                 if (playPauseImage != null)
                 {
-                    // A permanently stopped track remains the selected
-                    // restart target; keep the play affordance visible rather
-                    // than treating it as an ordinary unselected row.
-                    string iconName = selected && manager.IsPermanentlyStopped
-                            ? "play"
-                            : selected && isPlaying
-                                ? "pause"
-                                : "play";
+                    string iconName = selected && isPlaying ? "pause" : "play";
                     Sprite icon = LoadMusicIcon(iconName);
                     if (playPauseImage.sprite != icon)
                         playPauseImage.sprite = icon;

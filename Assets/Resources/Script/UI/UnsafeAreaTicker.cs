@@ -75,9 +75,6 @@ public sealed class UnsafeAreaTicker : MonoBehaviour
         RefreshLayoutIfChanged();
         RebuildFeedLayoutIfNeeded();
 
-        if (CurrentEdge == UnsafeAreaTickerEdge.None)
-            return;
-
         if (textVisible)
             AnimateFeed(Time.unscaledDeltaTime);
     }
