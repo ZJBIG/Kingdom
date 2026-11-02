@@ -23,6 +23,7 @@ public sealed partial class KingdomUIRoot
     private string onboardingCompletionFeedback;
     private string onboardingCompletionNextGoal;
     private float onboardingCompletionUntil;
+    private bool onboardingShowingCompletion;
 
 #if UNITY_EDITOR
     public RectTransform OnboardingTargetForEditor => onboardingTarget;
@@ -68,7 +69,10 @@ public sealed partial class KingdomUIRoot
         onboardingSkip.GetComponentInChildren<TMP_Text>().font = sharedFontAsset;
         onboardingNext.onClick.AddListener(() =>
         {
-            TutorialManager.Current?.AcknowledgeCurrentStage();
+            if (onboardingShowingCompletion)
+                onboardingCompletionUntil = 0f;
+            else
+                TutorialManager.Current?.AcknowledgeCurrentStage();
             HideOnboarding();
             RefreshOnboarding();
         });
@@ -93,6 +97,7 @@ public sealed partial class KingdomUIRoot
     private void RefreshOnboarding()
     {
         if (!BindOnboarding()) return;
+        onboardingShowingCompletion = false;
         if (storyIllustrationPreview != null && storyIllustrationPreview.IsOpen)
         {
             HideOnboarding();
@@ -106,8 +111,10 @@ public sealed partial class KingdomUIRoot
         if (manager != null && firstSession && populatedPage == "Overview") RefreshDevelopmentGuidance();
         if (manager != null && Time.unscaledTime < onboardingCompletionUntil)
         {
-            ShowOnboardingMessage("刚刚改变", onboardingCompletionFeedback +
+            ShowOnboardingMessage("新进展", onboardingCompletionFeedback +
                 (string.IsNullOrEmpty(onboardingCompletionNextGoal) ? string.Empty : "\n下一步：" + onboardingCompletionNextGoal), false);
+            onboardingShowingCompletion = true;
+            onboardingNext.gameObject.SetActive(true);
             return;
         }
         if (onboardingStage == null)

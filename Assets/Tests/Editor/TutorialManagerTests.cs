@@ -165,7 +165,7 @@ public sealed class TutorialManagerTests
                 break;
             }
 
-        Assert.That(resources.Title, Is.EqualTo("理解库存与净产出"));
+        Assert.That(resources.Title, Is.EqualTo("族人的生计账"));
         StringAssert.Contains("食物", resources.Description);
         StringAssert.Contains("原木", resources.Description);
         Assert.That(resources.CompletionCondition, Is.EqualTo("resource-detail-viewed"));

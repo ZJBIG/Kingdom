@@ -199,6 +199,8 @@ public sealed partial class KingdomUIRoot
     {
         if (id.StartsWith("building:", StringComparison.Ordinal) && DataBase<BuildingDef>.TryFind(id.Substring(9), out BuildingDef building)) NavigateToBuildingRow(building);
         else if (id.StartsWith("research:", StringComparison.Ordinal) && DataBase<ResearchDef>.TryFind(id.Substring(9), out ResearchDef research)) NavigateToOverviewResearch(research);
+        else if (id.StartsWith("resource:", StringComparison.Ordinal) && DataBase<ResourceDef>.TryFind(id.Substring(9), out ResourceDef resource))
+        { SetPage("Resources"); ShowResourceDetails(resource); }
         else if (id.StartsWith("sector:", StringComparison.Ordinal) && DataBase<SectorDef>.TryFind(id.Substring(7), out SectorDef sector))
         { SetPage("Sectors"); RefreshSectorDetails(sector); }
     }

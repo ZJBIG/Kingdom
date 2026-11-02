@@ -325,7 +325,7 @@ public sealed class KingdomOnboardingPlayModeTests
             "SafeAreaRoot/Content/PageHost/Story/StoryOverviewPage");
         Assert.That(surfaceBefore, Is.Not.Null);
         TMP_Text tutorialFeedback = surfaceBefore.Find("StoryOverviewMeaning/Body").GetComponent<TMP_Text>();
-        Assert.That(tutorialFeedback.text, Does.Contain("刚刚改变：真实行动反馈测试"));
+        Assert.That(tutorialFeedback.text, Does.Contain("新进展：真实行动反馈测试"));
         root.EnqueueRecentNoticeForEditor("action-feedback-a");
         root.EnqueueRecentNoticeForEditor("action-feedback-b");
         root.EnqueueRecentNoticeForEditor("action-feedback-c");

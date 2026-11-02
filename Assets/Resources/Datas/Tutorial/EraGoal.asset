@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: era-goal
   Title: 迈向石器时代
-  Description: 完成定居聚落与真实前置，再完成文明规划和石器时代跃迁。
-  NarrativeText: 让住房、供粮与加工支撑长久定居，迈向新的文明阶段。
+  Description: 定居聚落、文明规划、石器跃迁——走完这三步，族群将翻开新的一页。
+  NarrativeText: 从落脚到定居，只差最后一步。
   Kind: 6
   NextStepId: long-term
   RewardId: 

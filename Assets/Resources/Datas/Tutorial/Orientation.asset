@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Orientation
   m_EditorClassIdentifier: 
   Id: orientation
-  Title: 给族人一个留下的地方
-  Description: 前往建筑页，建起第一座木屋；缺原木时查看库存与净产出。
-  NarrativeText: 一处屋檐能让族人留下，也会开放研究。
+  Title: 第一处屋檐
+  Description: 荒野里的第一夜，从一座木屋开始。前往建筑页建起它——屋檐落成，族人才会留下，研究也将开放。
+  NarrativeText: 一处屋檐，是族群在这片土地上的第一个承诺。
   Kind: 0
   NextStepId: resources
   RewardId: 

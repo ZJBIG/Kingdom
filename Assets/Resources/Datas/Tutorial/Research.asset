@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: research
   Title: 研究农业
-  Description: 选择农业，加入研究队列；完成后建造农场，让农业实际供粮。
-  NarrativeText: 学会耕种，让食物供应支撑更多居民。
+  Description: 把火塘边的经验变成能传承的知识。完成农业研究，让食物不再靠天。
+  NarrativeText: 会种粮的族群，才养得起更多人。
   Kind: 4
   NextStepId: production-chain
   RewardId: 

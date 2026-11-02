@@ -13,7 +13,7 @@ public sealed partial class TutorialManager
         {
             if (research.IsResearchCompleted("StoneAgeTransition") && !completedStepIds.Contains("era-goal"))
             {
-                RecordFirstSessionResult("era-goal", "石器时代已开启，可以发展新建筑与研究。");
+                RecordFirstSessionResult("era-goal", "石器时代开启。新的建筑与研究，正在等你。");
                 ResolveFirstSessionStage("first-transition");
                 ResolveFirstSessionStage("era-goal");
                 // Population is parallel feedback, never a delayed operation gate.
@@ -32,17 +32,17 @@ public sealed partial class TutorialManager
             // Resource teaching is integrated with the first home's real payment.
             RecordFirstSessionResult("resources", string.Empty);
             ResolveFirstSessionStage("resources");
-            RecordFirstSessionResult("building", "木屋已建成，研究已开放；居民会陆续入住。");
+            RecordFirstSessionResult("building", "屋檐落成，研究开放。居民将陆续入住。");
             ResolveFirstSessionStage("building");
         }
         if (HasObservedPopulationGrowth(game.State))
         {
-            RecordFirstSessionResult("population", "首位居民已入住，正在提供生产力。");
+            RecordFirstSessionResult("population", "第一位族人留下了。有人，就有一切。");
             ResolveFirstSessionStage("population");
         }
         if (research.IsResearchCompleted("Agriculture"))
         {
-            RecordFirstSessionResult("research", "农业已完成，接下来让农场实际供粮。");
+            RecordFirstSessionResult("research", "农业研究完成。下一步，让农场真正产粮。");
             ResolveFirstSessionStage("research");
         }
         if (completedStepIds.Contains("farm-supply")) ResolveFirstSessionStage("farm-goal");
@@ -55,27 +55,27 @@ public sealed partial class TutorialManager
         snapshot = new TutorialSnapshot { CompletedFeedback = recentFirstSessionProgress, CompletedFeedbackId = recentFirstSessionProgressId };
         if (!game.State.HasBuiltHousing || game.State.Population.PopulationCapacity <= ExpantaNum.Zero)
             SetFirstBuildingAction(snapshot, "building", "WoodHouse",
-                "先给族人一个留下的地方。", "研究农业，准备稳定供粮。", game, resources, buildings, research);
+                "建起木屋，让族人有处落脚，也让研究开放。", "研究农业，准备稳定供粮。", game, resources, buildings, research);
         else if (!research.IsResearchCompleted("Agriculture"))
             SetFirstResearchAction(snapshot, "research", "Agriculture",
                 "学会耕种，让食物供应支撑更多居民。", "建造农场，让农业开始供粮。", game, resources, buildings, research);
         else if (!completedStepIds.Contains("farm-supply"))
             SetFirstBuildingAction(snapshot, "farm-goal", "Farm",
-                "把耕种变成稳定的粮食来源。", "研究采石，建立石材加工链。", game, resources, buildings, research, true);
+                "把耕种变成稳定的粮食来源。", "研究采石。", game, resources, buildings, research, true);
         else if (!completedStepIds.Contains("stone-supply"))
         {
             if (!research.IsResearchCompleted("Quarry"))
                 SetFirstResearchAction(snapshot, "stone-chain", "Quarry", "从采集走向开采。",
                     "建造采石场，取得石料。", game, resources, buildings, research);
             else if (!HasOwnedBuildingId(buildings, "Quarry"))
-                SetFirstBuildingAction(snapshot, "stone-chain", "Quarry", "为加工链提供石料。",
+                SetFirstBuildingAction(snapshot, "stone-chain", "Quarry", "采石场是加工链的源头。",
                     "研究石料加工。", game, resources, buildings, research);
             else if (!research.IsResearchCompleted("StoneProcessing"))
-                SetFirstResearchAction(snapshot, "stone-chain", "StoneProcessing", "把石料变成更有用的材料。",
+                SetFirstResearchAction(snapshot, "stone-chain", "StoneProcessing", "把石头变成能盖房子的材料。",
                     "建造切石工坊，连接原料与加工。", game, resources, buildings, research);
             else
                 SetFirstBuildingAction(snapshot, "stone-chain", "StoneCuttingWorkshop", "让采石场支撑切石工坊。",
-                    "整合定居聚落，准备文明跃迁。", game, resources, buildings, research, true);
+                    "研究定居聚落。", game, resources, buildings, research, true);
         }
         else
         {
@@ -117,13 +117,13 @@ public sealed partial class TutorialManager
         if (game == null || game.State.TechLevel != TechLevel.Animal || buildings == null) return;
         if (DataBase<BuildingDef>.TryFind("Farm", out BuildingDef farm) &&
             IsFirstSessionBuildingRunning(buildings, farm) && game.State.FoodProductionRate > ExpantaNum.Zero)
-            RecordFirstSessionResult("farm-supply", "农场开始供粮，人口增长有了稳定支持。");
+            RecordFirstSessionResult("farm-supply", "农场开始产粮。留意食物净产出，让口粮跟上人口。");
         if (DataBase<BuildingDef>.TryFind("Quarry", out BuildingDef quarry) && IsFirstSessionBuildingRunning(buildings, quarry) &&
             DataBase<BuildingDef>.TryFind("StoneCuttingWorkshop", out BuildingDef workshop) && IsFirstSessionBuildingRunning(buildings, workshop))
         {
             ResourceDef product = FindFirstResource(workshop.ResourceGenerationRates);
             if (product != null && ResourceManager.Instance.GetAmount(product) > ExpantaNum.Zero)
-                RecordFirstSessionResult("stone-supply", "切石工坊已产出材料，第一条加工链开始运转。");
+                RecordFirstSessionResult("stone-supply", "第一条加工链转起来了：石料进，建材出。");
         }
     }
 
@@ -150,7 +150,7 @@ public sealed partial class TutorialManager
         snapshot.Benefit = benefit;
         snapshot.NextGoal = next;
         snapshot.CanAct = buildings.GetBuildFailure(building, ExpantaNum.One) == BuildFailure.None;
-        snapshot.Blocker = snapshot.CanAct ? "材料和土地已备齐。" : DescribeBuildingBlocker(building, game, buildings, resources);
+        snapshot.Blocker = snapshot.CanAct ? "材料与土地齐备，随时可以动工。" : DescribeBuildingBlocker(building, game, buildings, resources);
         snapshot.RecommendedAction = "前往建筑页，选择" + building.Label + "并建造 1 座。";
         if (requireProduction && HasOwnedBuildingId(buildings, id))
         {
@@ -159,8 +159,11 @@ public sealed partial class TutorialManager
             snapshot.RecommendedAction = "查看" + building.Label + "的实际产出。";
             snapshot.CanAct = false;
             snapshot.IsWaiting = true;
-            snapshot.Blocker = IsFirstSessionBuildingRunning(buildings, building)
-                ? "等待实际生产；期间可以自由操作。" : "当前没有有效产出；检查启用状态、劳力与原料。";
+            snapshot.Blocker = buildings.GetLaborOperatingRatio(building) <= ExpantaNum.Zero
+                ? "等待居民入住。"
+                : IsFirstSessionBuildingRunning(buildings, building)
+                    ? "建筑页查看产出。"
+                    : "建筑页查看停工原因。";
             snapshot.Benefit = DescribeActualBuildingBenefit(building, buildings, game);
             for (int i = 0; i < building.ResourceConsumptionRates.Count; i++)
             {
@@ -172,7 +175,7 @@ public sealed partial class TutorialManager
             return;
         }
         ResourceDef missing = FindMissingBuildingResource(building, buildings, resources);
-        if (!snapshot.CanAct && missing != null && GetFirstSessionNetRate(resources, missing) <= ExpantaNum.Zero && stage != "building")
+        if (!snapshot.CanAct && missing != null && GetFirstSessionNetRate(resources, missing) <= ExpantaNum.Zero && id != "WoodHouse" && stage != "building")
             SetFirstResourceSource(snapshot, missing, stage, game, resources, buildings, research, new HashSet<string>());
         snapshot.IsWaiting = !snapshot.CanAct;
     }
@@ -189,7 +192,7 @@ public sealed partial class TutorialManager
         snapshot.NavigationPage = definition.AdvancesTechLevel && ProgressionVisibilityRules.IsEraUnlocked(research) ? "Era" : "Research";
         snapshot.NavigationTargetId = definition.Id;
         snapshot.Benefit = definition == target ? benefit : "先完成前置知识，才能继续" + target.Label + "。";
-        snapshot.NextGoal = next;
+        snapshot.NextGoal = definition == target ? next : "继续完成" + target.Label + "的前置，推进" + target.Label + "。";
         snapshot.RecommendedAction = "选择" + definition.Label + "，加入研究队列。";
         snapshot.CanAct = research.ArePrerequisitesCompleted(definition) && research.CanPayResearchCost(definition, out _);
         if (state != null && state.Status == ResearchStatus.Researching)
@@ -206,7 +209,7 @@ public sealed partial class TutorialManager
             snapshot.RecommendedAction = "查看" + definition.Label + "的进度与材料。";
             snapshot.Blocker = definition.Label + (state != null && state.CostPaid ? "排队中，材料已支付。" : "排队中，材料未支付。");
         }
-        else snapshot.Blocker = snapshot.CanAct ? "前置和材料已满足。" : "先备齐" + definition.Label + "的研究材料。";
+        else snapshot.Blocker = snapshot.CanAct ? "前置与材料齐备，随时可以开研。" : "先备齐" + definition.Label + "的研究材料。";
         ResourceDef missing = FindMissingResearchResource(research, definition);
         if (missing != null && (state == null || !state.CostPaid))
         {
@@ -216,9 +219,50 @@ public sealed partial class TutorialManager
             ExpantaNum net = GetFirstSessionNetRate(resources, missing);
             snapshot.Blocker += "还缺" + missing.Label + " " + remaining.ToGameString() +
                 (net > ExpantaNum.Zero ? "，约 " + (remaining / net).ToGameString() + " 秒备齐。" : "，当前没有正净产出。");
-            if (net <= ExpantaNum.Zero) SetFirstResourceSource(snapshot, missing, stage, game, resources, buildings, research, new HashSet<string>());
+            if (net > ExpantaNum.Zero && state?.Status != ResearchStatus.Researching &&
+                !research.IsQueued(definition))
+                snapshot.RecommendedAction = "查看缺料来源；保存后可暂离，回来查看离线进度。";
+            if (stage == "first-transition")
+            {
+                // Establish sources and upstream supply for the existing processing chain.
+                foreach (Pair<ResourceDef, ExpantaNum> cost in definition.ResourceRequirements)
+                {
+                    ResourceDef material = cost.First;
+                    if (material == null || resources.GetAmount(material) + (state?.GetPaidResourceCost(material) ?? ExpantaNum.Zero) >= cost.Second ||
+                        HasFirstSessionMaterialSurplus(buildings, material)) continue;
+                    SetFirstResourceSource(snapshot, material, stage, game, resources, buildings, research, new HashSet<string>());
+                    break;
+                }
+                if (snapshot.ActionId == "research:" + definition.Id && net <= ExpantaNum.Zero)
+                {
+                    snapshot.Blocker = missing.Label + "来源已建，建筑页查看劳力与停工原因。";
+                    snapshot.RecommendedAction = "到建筑页查看实际产出；居民入住后才增加生产力。";
+                }
+            }
+            else if (net <= ExpantaNum.Zero)
+                SetFirstResourceSource(snapshot, missing, stage, game, resources, buildings, research, new HashSet<string>());
         }
         snapshot.IsWaiting = !snapshot.CanAct;
+    }
+
+    private static bool HasFirstSessionMaterialSurplus(BuildingManager buildings, ResourceDef resource)
+    {
+        ExpantaNum supply = ExpantaNum.Zero;
+        ExpantaNum demand = ExpantaNum.Zero;
+        ProgressionModifierState modifiers = ProgressionModifierManager.Current;
+        // Compare installed capacity, not a temporary happiness/event boost or input-starved tick.
+        foreach (BuildingState state in buildings.States.Values)
+        {
+            if (state == null || !state.IsEnabled || state.Amount <= ExpantaNum.Zero || state.Definition is SectorBuildingDef) continue;
+            BuildingDef building = state.Definition;
+            ExpantaNum scale = state.Amount * modifiers.GetBuildingProductionMultiplier(building) * modifiers.GlobalBuildingProductionMultiplier;
+            foreach (Pair<ResourceDef, ExpantaNum> rate in building.ResourceGenerationRates)
+                if (rate.First == resource)
+                    supply += scale * rate.Second * modifiers.GetBuildingResourceProductionMultiplier(building, resource) * modifiers.GetResourceProductionMultiplier(resource);
+            foreach (Pair<ResourceDef, ExpantaNum> rate in building.ResourceConsumptionRates)
+                if (rate.First == resource) demand += scale * rate.Second;
+        }
+        return supply > demand;
     }
 
     private static ExpantaNum GetFirstSessionNetRate(ResourceManager resources, ResourceDef resource) =>
@@ -245,6 +289,8 @@ public sealed partial class TutorialManager
         {
             snapshot.NavigationPage = "Research"; snapshot.NavigationTargetId = leaf.Id;
             snapshot.ActionId = "research:" + leaf.Id; snapshot.CurrentGoal = "研究" + leaf.Label;
+            snapshot.Benefit = "先解锁" + source.Label + "，补足" + resource.Label + "的来源。";
+            snapshot.NextGoal = "建造" + source.Label + "，补充" + resource.Label + "。";
             ResearchState state = research.GetState(leaf);
             snapshot.CanAct = research.CanPayResearchCost(leaf, out _) && !research.IsQueued(leaf) && state.Status != ResearchStatus.Researching;
             snapshot.Blocker = state.Status == ResearchStatus.Researching ? leaf.Label + "研究中；期间可以自由操作。" :
@@ -255,11 +301,27 @@ public sealed partial class TutorialManager
         }
         else
         {
+            ExpantaNum vacantCapacity = ExpantaNum.Max(ExpantaNum.Zero,
+                game.State.Population.PopulationCapacity - game.State.Population.Population);
+            ExpantaNum housedProductivity = buildings.TotalProductivity + vacantCapacity * PopulationState.ProductivityGrantedPerPerson *
+                ProgressionModifierManager.Current.PopulationProductivityMultiplier;
+            if (housedProductivity < buildings.UsedProductivity + source.ProductivityConsumption - source.ProductivityGranted &&
+                DataBase<BuildingDef>.TryFind("WoodHouse", out BuildingDef home) && buildings.CanConstructNew(home))
+            {
+                SetFirstBuildingAction(snapshot, stage, home.Id,
+                    "增加住房容量，居民入住后才增加生产力。", "建造" + source.Label + "，补充" + resource.Label + "。",
+                    game, resources, buildings, research);
+                return;
+            }
             snapshot.NavigationPage = "Buildings"; snapshot.NavigationTargetId = source.Id;
             snapshot.ActionId = "build:" + source.Id; snapshot.CurrentGoal = "补充" + source.Label;
+            snapshot.Benefit = HasOwnedBuildingId(buildings, source.Id)
+                ? "扩充上游供给，让加工之外也能存下" + resource.Label + "。"
+                : "增加" + resource.Label + "来源，让后续建设有材料可用。";
+            snapshot.NextGoal = "补足" + resource.Label + "，继续当前目标。";
             snapshot.CanAct = buildings.GetBuildFailure(source, ExpantaNum.One) == BuildFailure.None;
-            snapshot.Blocker = snapshot.CanAct ? "增加" + resource.Label + "来源，恢复正净产出。" : DescribeBuildingBlocker(source, game, buildings, resources);
-            snapshot.RecommendedAction = "检查并启用" + source.Label + "，按缺口补充生产。";
+            snapshot.Blocker = snapshot.CanAct ? "先建立" + resource.Label + "来源，让材料持续积累。" : DescribeBuildingBlocker(source, game, buildings, resources);
+            snapshot.RecommendedAction = "建造 1 座" + source.Label + "，在建筑页查看实际产出。";
             ResourceDef missing = FindMissingBuildingResource(source, buildings, resources);
             if (missing != null && GetFirstSessionNetRate(resources, missing) <= ExpantaNum.Zero)
                 SetFirstResourceSource(snapshot, missing, stage, game, resources, buildings, research, visiting);
@@ -309,9 +371,23 @@ public sealed partial class TutorialManager
             Action = queued || producing ? TutorialStageAction.Inspect : stagePhase == 0 ? TutorialStageAction.Navigate :
                 stagePhase == 1 ? TutorialStageAction.Select : operation,
             CanInteract = stagePhase < 2 && !queued && !producing || action.CanAct,
-            Instruction = queued || producing || !action.CanAct ? action.Blocker :
+            Instruction = queued || producing ? WaitingInstruction(action) :
                 stagePhase == 0 ? action.Benefit + "\n点击“" + StagePageLabel(action.NavigationPage) + "”，开始下一步。" :
+                !action.CanAct ? WaitingInstruction(action) :
                 operation == TutorialStageAction.Build ? "建造 1 座，" + action.Benefit : "加入研究队列，完成后" + action.NextGoal
         };
+    }
+
+    // Keep the next concrete goal visible while the current action is waiting.
+    private static string WaitingInstruction(TutorialSnapshot action)
+    {
+        string status = action.ActionId.StartsWith("produce:", System.StringComparison.Ordinal)
+            ? action.Benefit + action.Blocker
+            : action.Blocker;
+        if (action.ActionId.StartsWith("research:", System.StringComparison.Ordinal))
+            status += "可到" + StagePageLabel(action.NavigationPage) + "页查看。";
+        return string.IsNullOrEmpty(action.NextGoal)
+            ? status
+            : status + "\n完成后：" + action.NextGoal;
     }
 }

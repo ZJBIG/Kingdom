@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -593,7 +593,7 @@ public sealed partial class KingdomUIRoot
                 {
                     onboardingCompletionFeedback = tutorialSnapshot.CompletedFeedback;
                     onboardingCompletionNextGoal = tutorialSnapshot.CurrentGoal;
-                    onboardingCompletionUntil = Time.unscaledTime + 1.5f;
+                    onboardingCompletionUntil = Time.unscaledTime + 4f;
                 }
             }
         }
@@ -619,8 +619,12 @@ public sealed partial class KingdomUIRoot
 
         float normalizedPosition = pageScroll == null ? 1f : pageScroll.verticalNormalizedPosition;
         ResearchDef selectedEraResearch = selectedResearchNode;
+        bool advancedSelectedEra = selectedEraResearch != null && selectedEraResearch.AdvancesTechLevel &&
+            selectedEraResearch.TechLevel <= state.TechLevel && IsEraTransitionResearchCompleted(selectedEraResearch);
+        if (advancedSelectedEra) selectedEraResearch = eraGoal.Transition;
         PopulatePage("Era", true, eraGoal);
-        if (selectedEraResearch != null) ShowResearchDetails(selectedEraResearch, true);
+        if (selectedEraResearch != null) ShowResearchDetails(selectedEraResearch, !advancedSelectedEra);
+        else if (advancedSelectedEra) ShowDetails("时代进展", "当前时代跃迁已完成。查看中央页面，继续发展王国。");
         if (pageScroll != null)
             pageScroll.verticalNormalizedPosition = normalizedPosition;
     }
@@ -945,7 +949,7 @@ public sealed partial class KingdomUIRoot
                 StringBuilder onboarding = developmentGuidanceTextBuilder;
                 onboarding.Clear();
                 onboarding.Append("<b>聚落下一步</b>\n").Append(tutorialSnapshot.CurrentGoal).Append("\n\n");
-                onboarding.Append("<b>当前条件</b>\n").Append(tutorialSnapshot.Blocker).Append("\n\n");
+                onboarding.Append("<b>当前条件</b>\n").Append(LinkTutorialMaterial(tutorialSnapshot.Blocker)).Append("\n\n");
                 onboarding.Append("<b>现在就做</b>\n").Append(tutorialSnapshot.RecommendedAction);
                 if (!string.IsNullOrEmpty(tutorialSnapshot.Benefit))
                     onboarding.Append("\n\n").Append(tutorialSnapshot.Benefit);
@@ -1292,6 +1296,28 @@ public sealed partial class KingdomUIRoot
             DataBase<WorkshopUpgradeDef>.TryFind(targetId,
                 out WorkshopUpgradeDef workshop) && workshop != null)
             ShowWorkshopDetails(workshop);
+    }
+
+    private static string LinkTutorialMaterial(string blocker)
+    {
+        if (string.IsNullOrEmpty(blocker) || ResourceManager.Instance == null)
+            return blocker;
+        foreach (ResourceDef resource in DataBase<ResourceDef>.All)
+        {
+            if (resource == null || string.IsNullOrEmpty(resource.Label))
+                continue;
+            string shortage = "还缺" + resource.Label + " ";
+            int marker = blocker.IndexOf(shortage, StringComparison.Ordinal);
+            int index = marker >= 0 ? marker + "还缺".Length : -1;
+            if (index < 0 && blocker.StartsWith(resource.Label + "来源已建，", StringComparison.Ordinal))
+                index = 0;
+            if (index < 0)
+                continue;
+            return blocker.Substring(0, index) +
+                ReviewLink("resource", resource.Id, resource.Label) +
+                blocker.Substring(index + resource.Label.Length);
+        }
+        return blocker;
     }
 
     private void RefreshTopInfo()

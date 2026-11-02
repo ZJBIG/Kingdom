@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ProductionChain
   m_EditorClassIdentifier: 
   Id: production-chain
-  Title: 连接石材加工链
-  Description: 依次完成采石、采石场、石料加工与切石工坊，观察真实加工产出。
-  NarrativeText: 让采石场支撑切石工坊，把原料变成建设材料。
+  Title: 第一条加工链
+  Description: 采石场出料，切石工坊加工。让这条链真正转起来，聚落就有了自己的建材。
+  NarrativeText: 原料变成材料的那一刻，营地开始像个家。
   Kind: 5
   NextStepId: era-goal
   RewardId: 

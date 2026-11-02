@@ -449,6 +449,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Assert.That(research.EnqueueResearch(agriculture), Is.True);
         yield return Settle();
         Assert.That(body.text, Is.EqualTo(root.OnboardingStageForEditor.Instruction), "The live panel must retain the queued status instead of replacing it with generic advice.");
+        Assert.That(body.text, Does.Contain(tutorial.Evaluate().NextGoal));
         Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
         Assert.That(OverlayButton("Next").gameObject.activeSelf, Is.False);
         Assert.That(EventSystem.current.sendNavigationEvents, Is.True);
@@ -491,6 +492,7 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         Assert.That(root.OnboardingStageForEditor.Action, Is.EqualTo(TutorialStageAction.Build));
         Assert.That(root.OnboardingStageForEditor.CanInteract, Is.False);
         Assert.That(body.text, Does.Contain(farm.Label), "The waiting goal must name the building instead of showing only generic conditions.");
+        Assert.That(body.text, Does.Contain(tutorial.Evaluate().NextGoal));
         Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
         Assert.That(OverlayButton("Next").gameObject.activeSelf, Is.False);
 
@@ -513,12 +515,80 @@ public sealed class KingdomStagedOnboardingPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator CompletionFeedbackCanBeReadAndDismissedWithoutCompletingTheNextLesson()
+    {
+        yield return LoadFreshGame();
+        PrepareResearchUnlocked();
+        root.RefreshOnboardingForEditor();
+        Assert.That(root.OnboardingCompletionVisibleForEditor, Is.True);
+        Assert.That(OverlayButton("Next").gameObject.activeSelf, Is.True);
+        Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
+        yield return new WaitForSecondsRealtime(2f);
+        root.RefreshOnboardingForEditor();
+        Assert.That(root.OnboardingCompletionVisibleForEditor, Is.True,
+            "The two-line result must remain readable beyond the former 1.5-second timeout.");
+        ClickAt(OverlayButton("Next"));
+        root.RefreshOnboardingForEditor();
+        Assert.That(root.OnboardingCompletionVisibleForEditor, Is.False);
+        Assert.That(TutorialManager.Current.CompletedStageIds, Does.Not.Contain("research"));
+        Assert.That(root.OnboardingStageForEditor.TargetId, Is.EqualTo("Agriculture"));
+    }
+
+    [UnityTest]
+    public IEnumerator ProductionWaitShowsActualBenefitAndLocationAfterChangingPages()
+    {
+        yield return LoadFreshGame();
+        PrepareResearchUnlocked();
+        GameManager.Instance.State.Population.RestorePopulationForEditor(ExpantaNum.One);
+        ResearchManager.Instance.GetState(DataBase<ResearchDef>.Find("Agriculture")).SetStatusForEditor(ResearchStatus.Completed);
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+        BuildingManager.Instance.SetAmountAndRatesForEditor(BuildingManager.Instance.EnsureBuilding(farm), ExpantaNum.One);
+        root.SetPage("Story");
+        yield return Settle();
+        TutorialSnapshot action = TutorialManager.Current.Evaluate();
+        var body = root.transform.Find("SafeAreaRoot/OnboardingOverlay/Panel/Body").GetComponent<TMPro.TMP_Text>();
+        Assert.That(action.ActionId, Is.EqualTo("produce:Farm")); // Stable action identity.
+        Assert.That(body.text, Does.Contain(action.Benefit).And.Contain("建筑页"));
+        Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
+        Assert.That(OverlayButton("Next").gameObject.activeSelf, Is.False);
+        yield return CaptureReferenceFrame("farm-production-wait.png", false);
+    }
+
+    [UnityTest]
+    public IEnumerator EraTransitionRefreshSelectsTheNextGoalInsteadOfTheCompletedResearch()
+    {
+        yield return LoadFreshGame();
+        PrepareResearchUnlocked();
+        foreach (ResearchDef definition in DataBase<ResearchDef>.All)
+            if (definition.TechLevel == TechLevel.Animal && !definition.AdvancesTechLevel)
+                ResearchManager.Instance.GetState(definition).SetStatusForEditor(ResearchStatus.Completed);
+        ProgressionModifierManager.Rebuild(new List<ResearchState>(ResearchManager.Instance.States.Values));
+        SetFixtureResources(new ExpantaNum(1000000));
+        ResearchDef transition = DataBase<ResearchDef>.Find("StoneAgeTransition");
+        root.RefreshNavigationVisibilityForEditor();
+        root.SetPage("Era");
+        root.ShowResearchDetailsForEditor(transition);
+        Assert.That(ResearchManager.Instance.SelectedResearchId, Is.EqualTo(transition.Id)); // Stable selected ID.
+        Assert.That(ResearchManager.Instance.EnqueueResearch(transition), Is.True);
+        SimulationManager.Instance.ManualTick(1000d);
+        Assert.That(GameManager.Instance.State.TechLevel, Is.EqualTo(TechLevel.StoneAge)); // Era protocol.
+        yield return new WaitForSecondsRealtime(1.2f);
+        root.RefreshAutomaticUIForEditor();
+        ResearchDef next = EraGoalEvaluator.Evaluate(GameManager.Instance.State.TechLevel, ResearchManager.Instance, ResourceManager.Instance).Transition;
+        Assert.That(next, Is.Not.Null);
+        Assert.That(ResearchManager.Instance.SelectedResearchId, Is.EqualTo(next.Id),
+            "The refreshed era goal and its detail must describe the same next transition.");
+        yield return CaptureReferenceFrame("era-detail-after-transition.png", false);
+    }
+
+    [UnityTest]
     public IEnumerator FirstSession_RealButtonsAndNaturalProductionReachStoneAge()
     {
         Screen.SetResolution(2640, 1200, false);
         yield return LoadFreshGame();
         double simulatedSeconds = 0d;
         var visited = new HashSet<string>();
+        bool materialLinkVerified = false;
         for (int operation = 0; operation < 400 && GameManager.Instance.State.TechLevel == TechLevel.Animal; operation++)
         {
             yield return Settle();
@@ -531,6 +601,9 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             {
                 Assert.That(stage.Action, Is.Not.EqualTo(TutorialStageAction.Inspect), "Only real operations advance this route.");
                 string before = action.ActionId;
+                if (stage.Action == TutorialStageAction.Build &&
+                    (before == "build:Lumberyard" || before == "build:ClayPit" || before == "build:FiberGatheringCamp" || before == "build:Quarry"))
+                    yield return CaptureReferenceFrame("expansion-" + stage.TargetId + ".png");
                 ClickTarget();
                 root.RefreshOnboardingForEditor();
                 if (stage.Action == TutorialStageAction.Build)
@@ -546,6 +619,44 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.False);
             Assert.That(EventSystem.current.sendNavigationEvents, Is.True);
             Assert.That(OverlayButton("Next").gameObject.activeSelf, Is.False);
+            if (!materialLinkVerified &&
+                (action.Blocker.Contains("还缺") || action.Blocker.Contains("来源已建")))
+            {
+                root.SetPage("Overview");
+                root.RefreshUI();
+                TMPro.TMP_Text guidance = root.transform.Find(
+                    "SafeAreaRoot/Content/PageHost/Overview/PrimaryCard/Text").GetComponent<TMPro.TMP_Text>();
+                guidance.ForceMeshUpdate(true);
+                int resourceLink = -1;
+                ResourceDef linkedResource = null;
+                for (int i = 0; i < guidance.textInfo.linkCount; i++)
+                {
+                    string linkId = guidance.textInfo.linkInfo[i].GetLinkID();
+                    if (!linkId.StartsWith("resource:", StringComparison.Ordinal)) continue;
+                    resourceLink = i;
+                    linkedResource = DataBase<ResourceDef>.Find(linkId.Substring("resource:".Length));
+                    break;
+                }
+                Assert.That(resourceLink, Is.GreaterThanOrEqualTo(0),
+                    "A named material shortage must be a link in the current guidance.");
+                Assert.That(linkedResource, Is.Not.Null);
+                Assert.That(action.Blocker, Does.Contain(linkedResource.Label),
+                    "The link must target the material named by the actual blocker.");
+                TMPro.TMP_CharacterInfo character = guidance.textInfo.characterInfo[
+                    guidance.textInfo.linkInfo[resourceLink].linkTextfirstCharacterIndex];
+                Vector3 world = guidance.transform.TransformPoint(
+                    (character.bottomLeft + character.topRight) * .5f);
+                guidance.GetComponent<UIReviewTextLinks>().OnPointerClick(new PointerEventData(EventSystem.current)
+                { position = RectTransformUtility.WorldToScreenPoint(null, world) });
+                TMPro.TMP_Text details = root.transform.Find(
+                    "SafeAreaRoot/DetailPanel/DetailUI/DetailScrollViewport/DetailScrollContent/Body")
+                    .GetComponent<TMPro.TMP_Text>();
+                Assert.That(details.text, Does.Contain(linkedResource.Label),
+                    "Following the material link must open that resource's live production details.");
+                root.SetPage("Overview");
+                yield return Settle();
+                materialLinkVerified = true;
+            }
             double seconds = 30d;
             ResearchState active = ResearchManager.Instance.ActiveResearch;
             if (active != null && ResearchManager.Instance.CurrentResearchSpeed > ExpantaNum.Zero)
@@ -553,11 +664,13 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             SimulationManager.Instance.ManualTick(seconds);
             simulatedSeconds += seconds;
             Debug.Log("[FirstSession] Wait " + action.ActionId + " seconds=" + seconds + " total=" + simulatedSeconds + " blocker=" + action.Blocker);
-            Assert.That(simulatedSeconds, Is.LessThan(40000d), "Natural production must remain bounded without grants.");
+            Assert.That(simulatedSeconds, Is.LessThan(4485d), "Expansion teaching must improve the observed 4485-second route without resource grants.");
         }
         Assert.That(GameManager.Instance.State.TechLevel, Is.EqualTo(TechLevel.StoneAge)); // Era protocol.
+        Assert.That(materialLinkVerified, Is.True,
+            "The natural first-session route must expose and navigate a real material bottleneck.");
         TutorialManager.Current.Evaluate();
-        foreach (string milestone in new[] { "build:WoodHouse", "research:Agriculture", "build:Farm", "research:Quarry", "build:Quarry", "research:StoneProcessing", "build:StoneCuttingWorkshop", "research:StoneAgeSettlement", "research:CivilizationPlanning", "research:StoneAgeTransition" })
+        foreach (string milestone in new[] { "build:WoodHouse", "research:Agriculture", "build:Farm", "research:Quarry", "build:Quarry", "research:StoneProcessing", "build:StoneCuttingWorkshop", "research:Woodworking", "build:Lumberyard", "build:ClayPit", "build:FiberGatheringCamp", "research:StoneAgeSettlement", "research:CivilizationPlanning", "research:StoneAgeTransition" })
             Assert.That(visited, Does.Contain(milestone), "Natural button route must cover " + milestone);
         Assert.That(TutorialManager.Current.CompletedStepIds, Does.Contain("farm-supply").And.Contain("stone-supply").And.Contain("era-goal"));
         yield return Settle();
@@ -670,6 +783,13 @@ public sealed class KingdomStagedOnboardingPlayModeTests
         float deadline = Time.realtimeSinceStartup + 8f;
         for (int frame = 0; frame < 1200 && Time.realtimeSinceStartup < deadline; frame++)
         {
+            if (root.OnboardingCompletionVisibleForEditor)
+            {
+                ClickAt(OverlayButton("Next"));
+                root.RefreshOnboardingForEditor();
+                yield return null;
+                continue;
+            }
             TutorialStageSnapshot stage = root.OnboardingStageForEditor;
             if (stage == null || !stage.CanInteract ||
                 (root.OnboardingTargetForEditor != null && root.GetComponent<OnboardingInputGate>().IsActive))
@@ -791,13 +911,13 @@ public sealed class KingdomStagedOnboardingPlayModeTests
             Assert.That(root.GetComponent<OnboardingInputGate>().IsActive, Is.EqualTo(requireGate), OnboardingDiagnostic());
             var body = root.transform.Find("SafeAreaRoot/OnboardingOverlay/Panel/Body").GetComponent<TMPro.TMP_Text>();
             body.ForceMeshUpdate();
-            Assert.That(body.preferredHeight, Is.LessThanOrEqualTo(body.rectTransform.rect.height + 1f), "Tutorial body must fit its authored panel.");
+            Assert.That(body.preferredHeight, Is.LessThanOrEqualTo(body.rectTransform.rect.height + 1f), "Tutorial body must fit its authored panel: " + body.text);
             camera.Render();
             RenderTexture.active = target;
             capture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
             capture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
             capture.Apply();
-            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "experience-20261030", "first-session", "screenshots"));
+            string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "data", "experience-20261102", "screenshots"));
             Directory.CreateDirectory(directory);
             File.WriteAllBytes(Path.Combine(directory, filename), capture.EncodeToPNG());
         }

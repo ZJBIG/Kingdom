@@ -655,7 +655,10 @@ public sealed class KingdomPlayModeTests
             Assert.That(snapshot.CurrentGoal, Is.Not.Empty);
             Assert.That(snapshot.RecommendedAction, Is.Not.Empty);
             Assert.That(body.text, Does.Contain("聚落下一步"));
-            Assert.That(body.text, Does.Contain("建造条件"));
+            Assert.That(body.text, Does.Contain("当前条件"));
+            if (snapshot.Blocker.Contains("还缺") || snapshot.Blocker.Contains("来源已建"))
+                Assert.That(body.text, Does.Contain("<link=\"resource:"),
+                    "The current bottleneck material must navigate to its resource flow details.");
             Assert.That(body.text, Does.Contain("现在就做"));
             Assert.That(body.text, Does.Contain(snapshot.CurrentGoal));
             Assert.That(body.text, Does.Contain(snapshot.RecommendedAction));

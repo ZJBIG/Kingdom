@@ -235,6 +235,7 @@ public sealed class TutorialStageTests
         TutorialStageSnapshot waiting = tutorial.EvaluateStage();
         Assert.That(waiting.Action, Is.EqualTo(TutorialStageAction.Inspect));
         Assert.That(waiting.CanInteract, Is.False, "Waiting in the queue is not a completed tutorial action.");
+        Assert.That(waiting.Instruction, Does.Contain(tutorial.Evaluate().NextGoal));
         tutorial.AcknowledgeCurrentStage();
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("research"));
         Assert.That(research.IsQueued(agriculture), Is.True);
@@ -280,6 +281,22 @@ public sealed class TutorialStageTests
     }
 
     [Test]
+    public void UnaffordableHomeExplainsNavigationBeforeShowingTheWait()
+    {
+        TutorialSnapshot action = tutorial.Evaluate();
+        Assert.That(action.CanAct, Is.False);
+        TutorialStageSnapshot navigate = tutorial.EvaluateStage();
+        Assert.That(navigate.Action, Is.EqualTo(TutorialStageAction.Navigate));
+        Assert.That(navigate.Instruction, Does.Contain(action.Benefit));
+        tutorial.RecordStagePageVisited(navigate.Page);
+        tutorial.RecordStageTargetViewed(navigate.Page, navigate.TargetId);
+        TutorialStageSnapshot waiting = tutorial.EvaluateStage();
+        Assert.That(waiting.CanInteract, Is.False);
+        Assert.That(waiting.Instruction, Does.Contain(action.Blocker).And.Contain(action.NextGoal));
+        Assert.That(waiting.Instruction, Is.Not.EqualTo(navigate.Instruction));
+    }
+
+    [Test]
     public void PopulationGrowthIsParallelToAgricultureAndDoesNotReplaceItsTarget()
     {
         BuildHome();
@@ -304,6 +321,7 @@ public sealed class TutorialStageTests
         Assert.That(state.CostPaid, Is.True);
         Assert.That(state.Status, Is.EqualTo(ResearchStatus.Researching));
         Assert.That(tutorial.Evaluate().IsWaiting, Is.True);
+        Assert.That(tutorial.EvaluateStage().Instruction, Does.Contain(tutorial.Evaluate().NextGoal));
         Assert.That(tutorial.Evaluate().RecommendedAction, Does.Contain("进度与材料").And.Not.Contain("加入研究队列"));
         tutorial.AcknowledgeCurrentStage();
         Assert.That(tutorial.CompletedStageIds, Does.Not.Contain("research"));
@@ -343,6 +361,26 @@ public sealed class TutorialStageTests
     }
 
     [Test]
+    public void FarmWithoutResidentsExplainsHowToStartProduction()
+    {
+        BuildHome();
+        SetResearchCompleted("Agriculture");
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        BuildingDef farm = DataBase<BuildingDef>.Find("Farm");
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(farm), ExpantaNum.One);
+        Tick(1d);
+        TutorialSnapshot action = tutorial.Evaluate();
+        Assert.That(action.ActionId, Is.EqualTo("produce:Farm")); // Stable action identity.
+        Assert.That(buildings.GetLaborOperatingRatio(farm) <= ExpantaNum.Zero, Is.True);
+        Assert.That(action.Blocker, Does.Contain("入住"));
+        Assert.That(tutorial.EvaluateStage().Instruction, Does.Contain(action.Blocker));
+        Assert.That(tutorial.CompletedStepIds, Does.Not.Contain("farm-supply"));
+        game.State.Population.RestorePopulationForEditor(ExpantaNum.One);
+        Tick(1d);
+        Assert.That(tutorial.Evaluate().StepId, Is.EqualTo("stone-chain"));
+    }
+
+    [Test]
     public void StoneChainRecognizesEarlyResearchAndBuildingsButRequiresRealOutput()
     {
         BuildHome();
@@ -377,6 +415,140 @@ public sealed class TutorialStageTests
     }
 
     [Test]
+    public void SettlementMaterialWaitTeachesFirstSourceEvenWithPositiveBaseIncome()
+    {
+        BuildHome();
+        SetResearchCompleted("Agriculture");
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("StoneAgeSettlement"));
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("Woodworking"));
+        SetResearchCompleted("Woodworking");
+        RestoreProductionResults("farm-supply", "stone-supply");
+        ResourceManager resources = host.GetComponent<ResourceManager>();
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        SetResources(new ExpantaNum(10000));
+        resources.SetAmount(wood, new ExpantaNum(500));
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), new ExpantaNum(4));
+        Assert.That(resources.States[wood].ProductionRate > resources.States[wood].ConsumptionRate, Is.True);
+        AssertUnifiedAction("first-transition", "Buildings", "Lumberyard");
+        Assert.That(tutorial.Evaluate().NextGoal, Does.Contain(wood.Label));
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("Lumberyard")), ExpantaNum.One);
+        AssertUnifiedAction("first-transition", "Research", "StoneAgeSettlement");
+        SetResources(new ExpantaNum(10000));
+        Assert.That(host.GetComponent<ResearchManager>().EnqueueResearch(DataBase<ResearchDef>.Find("StoneAgeSettlement")), Is.True);
+        resources.SetAmount(wood, ExpantaNum.Zero);
+        AssertUnifiedAction("first-transition", "Research", "StoneAgeSettlement");
+        Assert.That(tutorial.Evaluate().CanAct, Is.False, "A paid research keeps its progress instead of redirecting to more buildings.");
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ResearchWaitIdentifiesTheLastMaterialToBecomeReady(bool stopped)
+    {
+        BuildHome();
+        ResearchDef settlement = DataBase<ResearchDef>.Find("StoneAgeSettlement");
+        CompleteFixturePrerequisites(settlement);
+        RestoreProductionResults("farm-supply", "stone-supply");
+        SetResources(new ExpantaNum(10000));
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        foreach (string id in new[] { "Lumberyard", "Quarry", "ClayPit", "FiberGatheringCamp" })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), new ExpantaNum(2));
+        ResourceManager resources = host.GetComponent<ResourceManager>();
+        ResourceDef wood = DataBase<ResourceDef>.Find("WoodLog");
+        ResourceDef stone = DataBase<ResourceDef>.Find("StoneChunk");
+        foreach (Pair<ResourceDef, ExpantaNum> cost in settlement.ResourceRequirements)
+            if (cost.First == wood || cost.First == stone)
+                resources.SetAmount(cost.First, cost.Second - new ExpantaNum(100));
+        resources.SetProductionRate(wood, new ExpantaNum(10));
+        resources.SetConsumptionRate(wood, ExpantaNum.Zero);
+        resources.SetProductionRate(stone, stopped ? ExpantaNum.Zero : ExpantaNum.One);
+        resources.SetConsumptionRate(stone, ExpantaNum.Zero);
+        TutorialSnapshot action = tutorial.Evaluate();
+        Assert.That(action.NavigationTargetId, Is.EqualTo(settlement.Id)); // Stable research identity.
+        Assert.That(action.Blocker, Does.Contain(stone.Label).And.Not.Contain("还缺" + wood.Label),
+            "A shorter wait must not hide the material that determines readiness, including a stopped source.");
+        if (stopped)
+        {
+            Assert.That(action.Blocker, Does.Not.Contain("秒备齐"));
+            Assert.That(action.RecommendedAction, Does.Not.Contain("暂离"),
+                "A stopped source needs repair guidance instead of offline-wait advice.");
+        }
+        else
+        {
+            Assert.That(action.RecommendedAction, Does.Contain("查看缺料来源").And.Contain("暂离"));
+            resources.SetAmount(stone, new ExpantaNum(10000));
+            Assert.That(tutorial.Evaluate().Blocker, Does.Contain(wood.Label));
+        }
+    }
+
+    [Test]
+    public void SettlementStorageAddsUpstreamSupplyWhenProcessingUsesItsBaseOutput()
+    {
+        BuildHome();
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("StoneAgeSettlement"));
+        RestoreProductionResults("farm-supply", "stone-supply");
+        SetResources(new ExpantaNum(10000));
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), new ExpantaNum(4));
+        foreach (string id in new[] { "Farm", "Quarry", "StoneCuttingWorkshop" })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), ExpantaNum.One);
+        game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
+        Tick(1d);
+        ResourceDef stone = DataBase<ResourceDef>.Find("StoneChunk");
+        ResourceManager resources = host.GetComponent<ResourceManager>();
+        resources.SetAmount(stone, new ExpantaNum(500));
+        Assert.That(resources.States[stone].ProductionRate * game.State.HappinessRewardMultiplier > resources.States[stone].ConsumptionRate, Is.True);
+        AssertUnifiedAction("first-transition", "Buildings", "Quarry");
+        Assert.That(buildings.TryBuild(DataBase<BuildingDef>.Find("Quarry"), ExpantaNum.One, out _), Is.True);
+        AssertUnifiedAction("first-transition", "Research", "StoneAgeSettlement");
+    }
+
+    [Test]
+    public void InstalledUpstreamSurplusDoesNotAddBuildingsWhileResidentsAreArriving()
+    {
+        BuildHome();
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("StoneAgeSettlement"));
+        RestoreProductionResults("farm-supply", "stone-supply");
+        SetResources(new ExpantaNum(10000));
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("WoodHouse")), new ExpantaNum(4));
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("Quarry")), new ExpantaNum(2));
+        buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find("StoneCuttingWorkshop")), ExpantaNum.One);
+        game.State.Population.RestorePopulationForEditor(ExpantaNum.Zero);
+        Tick(1d);
+        host.GetComponent<ResourceManager>().SetAmount(DataBase<ResourceDef>.Find("StoneChunk"), new ExpantaNum(500));
+        for (int refresh = 0; refresh < 3; refresh++)
+        {
+            AssertUnifiedAction("first-transition", "Research", "StoneAgeSettlement");
+            Assert.That(tutorial.Evaluate().CanAct, Is.False);
+            Assert.That(tutorial.Evaluate().RecommendedAction, Does.Contain("建筑页"));
+        }
+    }
+
+    [Test]
+    public void FirstSourceExpansionAddsHousingCapacityOnceThenReturnsToTheSource()
+    {
+        BuildHome();
+        SetResearchCompleted("Agriculture");
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("StoneAgeSettlement"));
+        CompleteFixturePrerequisites(DataBase<ResearchDef>.Find("Woodworking"));
+        SetResearchCompleted("Woodworking");
+        RestoreProductionResults("farm-supply", "stone-supply");
+        SetResources(new ExpantaNum(10000));
+        host.GetComponent<ResourceManager>().SetAmount(DataBase<ResourceDef>.Find("WoodLog"), new ExpantaNum(500));
+        BuildingManager buildings = host.GetComponent<BuildingManager>();
+        foreach (string id in new[] { "Farm", "Quarry", "StoneCuttingWorkshop" })
+            buildings.SetAmountAndRatesForEditor(buildings.EnsureBuilding(DataBase<BuildingDef>.Find(id)), ExpantaNum.One);
+        game.State.Population.RestorePopulationForEditor(new ExpantaNum(5));
+        AssertUnifiedAction("first-transition", "Buildings", "WoodHouse");
+        Assert.That(tutorial.Evaluate().Benefit, Does.Contain("入住"));
+        Assert.That(buildings.TryBuild(DataBase<BuildingDef>.Find("WoodHouse"), ExpantaNum.One, out _), Is.True);
+        AssertUnifiedAction("first-transition", "Buildings", "Lumberyard");
+        Assert.That(game.State.Population.Population < game.State.Population.PopulationCapacity, Is.True,
+            "Vacant housing is enough to continue; the lesson must not repeatedly add houses while residents are arriving.");
+    }
+
+    [Test]
     public void SettlementFollowsRealPrerequisitesThenPlanningAndTheEraTransition()
     {
         BuildHome();
@@ -390,6 +562,9 @@ public sealed class TutorialStageTests
         Assert.That(research.ArePrerequisitesCompleted(target), Is.True);
         Assert.That(research.IsResearchCompleted(target.Id), Is.False);
         ResearchDef settlement = DataBase<ResearchDef>.Find("StoneAgeSettlement");
+        Assert.That(target, Is.Not.SameAs(settlement));
+        Assert.That(prerequisite.NextGoal, Does.Contain(settlement.Label),
+            "Completing a prerequisite must still point to the unfinished settlement research.");
         CompleteFixturePrerequisites(settlement);
         AssertUnifiedAction("first-transition", "Research", settlement.Id);
         SetResearchCompleted(settlement.Id);

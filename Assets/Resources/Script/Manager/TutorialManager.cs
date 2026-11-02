@@ -218,46 +218,46 @@ public sealed partial class TutorialManager : MonoBehaviour
             steps.Clear();
             activeStepId = string.Empty;
         }
-        steps.Add(new TutorialStep("orientation", "给族人一个留下的地方",
-            "前往建筑页，建起第一座木屋；缺原木时查看库存与净产出。",
+        steps.Add(new TutorialStep("orientation", "第一处屋檐",
+            "荒野里的第一夜，从一座木屋开始。前往建筑页建起它——屋檐落成，族人才会留下，研究也将开放。",
             TutorialStepKind.Orientation, "resources", string.Empty, "game-state",
             "building-owned", "Buildings",
-            "一处屋檐能让族人留下，也会开放研究。"));
-        steps.Add(new TutorialStep("resources", "理解库存与净产出",
-            "原木支撑建设，食物维持居民；库存决定现在能否行动，净产出决定还需等待多久。",
+            "一处屋檐，是族群在这片土地上的第一个承诺。"));
+        steps.Add(new TutorialStep("resources", "族人的生计账",
+            "原木盖房，食物养人。库存是手里的余粮，净产出是每秒的收入减去消耗——正数在积累，负数要补来源。",
             TutorialStepKind.Resources, "building", string.Empty, "game-state",
             "resource-detail-viewed", "Resources",
-            "先看清建房缺口：有正净产出时可以等待，没有时就补充来源。"));
+            "看清家底，才知道明天能走多远。"));
         steps.Add(new TutorialStep("building", "建造木屋",
-            "前往建筑页，选择木屋并建造1座；建成后立即研究农业。",
+            "选择木屋并建造 1 座。屋檐落成后，居民会陆续入住，研究也将随之开放。",
             TutorialStepKind.Building, "population", string.Empty, "game-state",
             "building-owned", "Buildings",
             "为族人搭起第一处屋檐，让营地有一个可以留下的理由。"));
-        steps.Add(new TutorialStep("population", "居民陆续入住",
-            "居民入住会增加生产力；维持食物与幸福度，同时继续研究和建设。",
+        steps.Add(new TutorialStep("population", "屋檐下有了人声",
+            "居民带来生产力，也要吃饭。住房、食物、幸福度都稳住，聚落才会长大。",
             TutorialStepKind.Population, "research", string.Empty, "game-state",
             "population-grown", "Buildings",
-            "屋檐下有了新的声音，人口成长会与聚落建设一起推进。"));
+            "第一个愿意留下的人，比任何资源都珍贵。"));
         steps.Add(new TutorialStep("research", "研究农业",
-            "选择农业，加入研究队列；完成后建造农场，让农业实际供粮。",
+            "把火塘边的经验变成能传承的知识。完成农业研究，让食物不再靠天。",
             TutorialStepKind.Research, "production-chain", string.Empty, "game-state",
             "research-complete", "Research",
-            "学会耕种，让食物供应支撑更多居民。"));
-        steps.Add(new TutorialStep("production-chain", "连接石材加工链",
-            "依次完成采石、采石场、石料加工与切石工坊，观察真实加工产出。",
+            "会种粮的族群，才养得起更多人。"));
+        steps.Add(new TutorialStep("production-chain", "第一条加工链",
+            "采石场出料，切石工坊加工。让这条链真正转起来，聚落就有了自己的建材。",
             TutorialStepKind.ProductionChain, "era-goal", string.Empty, "game-state",
             "production-chain-owned", "Buildings",
-            "让采石场支撑切石工坊，把原料变成建设材料。"));
+            "原料变成材料的那一刻，营地开始像个家。"));
         steps.Add(new TutorialStep("era-goal", "迈向石器时代",
-            "完成定居聚落与真实前置，再完成文明规划和石器时代跃迁。",
+            "定居聚落、文明规划、石器跃迁——走完这三步，族群将翻开新的一页。",
             TutorialStepKind.EraGoal, "long-term", string.Empty, "game-state",
             "era-reached", "Era",
-            "让住房、供粮与加工支撑长久定居，迈向新的文明阶段。"));
-        steps.Add(new TutorialStep("long-term", "形成长期目标",
-            "继续完成当前时代目标，让生产链、人口和研究共同支持王国的下一次扩张。",
+            "从落脚到定居，只差最后一步。"));
+        steps.Add(new TutorialStep("long-term", "筹备下一次时代跃迁",
+            "去时代页查看下一阶段的目标。扩建前先看上游产量和食物，别让新设备空转。",
             TutorialStepKind.LongTerm, string.Empty, string.Empty, "game-state",
             "long-term", "Era",
-            "这场复兴没有终点。让旧时代的资源继续服务于新的生产链，用人口、研究和基础设施共同支撑下一次扩张。"));
+            "稳住食物与材料供给，让新工坊接着旧工坊往前走。"));
         if (string.IsNullOrEmpty(activeStepId))
             activeStepId = steps[0].Id;
     }
@@ -1581,21 +1581,25 @@ public sealed partial class TutorialManager : MonoBehaviour
         if (resources == null)
             return null;
 
-        IReadOnlyList<Pair<ResourceDef, ExpantaNum>> requirements =
-            definition.ResourceRequirements;
-        for (int i = 0; i < requirements.Count; i++)
+        ResourceDef bottleneck = null;
+        ExpantaNum longestWait = ExpantaNum.Zero;
+        foreach (Pair<ResourceDef, ExpantaNum> requirement in definition.ResourceRequirements)
         {
-            Pair<ResourceDef, ExpantaNum> requirement = requirements[i];
-            if (requirement.First == null || requirement.Second <= ExpantaNum.Zero)
-                continue;
-            ExpantaNum remaining = ExpantaNum.Max(
-                ExpantaNum.Zero,
-                requirement.Second - state.GetPaidResourceCost(requirement.First));
-            if (remaining > ExpantaNum.Zero &&
-                resources.GetAmount(requirement.First) < remaining)
-                return requirement.First;
+            ResourceDef resource = requirement.First;
+            if (resource == null || requirement.Second <= ExpantaNum.Zero) continue;
+            ExpantaNum missing = requirement.Second - state.GetPaidResourceCost(resource) - resources.GetAmount(resource);
+            if (missing <= ExpantaNum.Zero) continue;
+            ExpantaNum net = GetFirstSessionNetRate(resources, resource);
+            // A stopped source blocks readiness regardless of other materials' countdowns.
+            if (net <= ExpantaNum.Zero) return resource;
+            ExpantaNum wait = missing / net;
+            if (bottleneck == null || wait > longestWait)
+            {
+                bottleneck = resource;
+                longestWait = wait;
+            }
         }
-        return null;
+        return bottleneck;
     }
 
     private static ResearchDef FindFirstUncompletedResearchLeaf(
@@ -2171,8 +2175,8 @@ public sealed partial class TutorialManager : MonoBehaviour
             string prefix = action + requirement.First.Label + " " +
                 missing.ToGameString();
             return netRate > ExpantaNum.Zero
-                ? prefix + "，按当前净产出约 " +
-                    (missing / netRate).ToGameString() + " 秒。"
+                ? prefix + "，约 " +
+                    (missing / netRate).ToGameString() + " 秒备齐。"
                 : prefix + "，当前没有正净产出。";
         }
 

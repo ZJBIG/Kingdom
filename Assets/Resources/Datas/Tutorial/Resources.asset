@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Resources
   m_EditorClassIdentifier: 
   Id: resources
-  Title: 理解库存与净产出
-  Description: 原木支撑建设，食物维持居民；库存决定现在能否行动，净产出决定还需等待多久。
-  NarrativeText: 先看清建房缺口：有正净产出时可以等待，没有时就补充来源。
+  Title: 族人的生计账
+  Description: 原木盖房，食物养人。库存是手里的余粮，净产出是每秒的收入减去消耗——正数在积累，负数要补来源。
+  NarrativeText: 看清家底，才知道明天能走多远。
   Kind: 1
   NextStepId: building
   RewardId: 

@@ -1,0 +1,75 @@
+{
+  "files": [
+    {
+      "sha256": "902BE202C6030E2909E3C080AEE551838820BB6B0E2E342E647B758050E0A83E",
+      "path": "Assets/Resources/Datas/Tutorial/Building.asset"
+    },
+    {
+      "sha256": "2D8D047ADD535EA7B9C75B967078188269CD4D99581DA3DF8302FA71231F11F2",
+      "path": "Assets/Resources/Datas/Tutorial/EraGoal.asset"
+    },
+    {
+      "sha256": "D2D7932EC3D120CB907EB9322871260955D88525978421EB30E67DF6521457EE",
+      "path": "Assets/Resources/Datas/Tutorial/LongTerm.asset"
+    },
+    {
+      "sha256": "A574CB3A3D23272051D837130AC89D9219263F20C6833DD7F412AFE43E215F0D",
+      "path": "Assets/Resources/Datas/Tutorial/Orientation.asset"
+    },
+    {
+      "sha256": "E3DF3EBC27E376EFAC2524EFD33B6457D7A9159AC3FDFC1282114C0CF077984B",
+      "path": "Assets/Resources/Datas/Tutorial/Population.asset"
+    },
+    {
+      "sha256": "EDB73E21F248A9789324AD63F618A6DA6BA787909299A5F498413D923F5AEE4C",
+      "path": "Assets/Resources/Datas/Tutorial/ProductionChain.asset"
+    },
+    {
+      "sha256": "AC5B397ED735C60D58C55D9C2B4B11E24925EA5094A0E1579DFE9EB89A8DB67B",
+      "path": "Assets/Resources/Datas/Tutorial/Research.asset"
+    },
+    {
+      "sha256": "B161BA4ED07BCBC90308FB581BCBD5F8A4BBFA816425062EC74EC761D19C1669",
+      "path": "Assets/Resources/Datas/Tutorial/Resources.asset"
+    },
+    {
+      "sha256": "0FE3805C41CB7A27F858E10277B3405ABA8B967468BE4130AA53DE3BE8335C27",
+      "path": "Assets/Resources/Script/Manager/TutorialManager.FirstSession.cs"
+    },
+    {
+      "sha256": "A909D1EF6AC06B92A003B829328C3861331A15F75F8E5210DCB16339C3F5F32A",
+      "path": "Assets/Resources/Script/Manager/TutorialManager.Stages.cs"
+    },
+    {
+      "sha256": "EFAE7FF3DFBD14258C869433DFF46F3D7AFBC17A5B1A9FE4A2AC6BDC37BF6E13",
+      "path": "Assets/Resources/Script/Manager/TutorialManager.cs"
+    },
+    {
+      "sha256": "7581BC5A9DCCECE50CFC05D468E2D262D9989BF59709EEC2CF1E6052512DE50B",
+      "path": "Assets/Resources/Script/UI/KingdomUIRoot.Onboarding.cs"
+    },
+    {
+      "sha256": "CA484EDF8A51B079E67A56C036037BAA87821FB7F50607FD59AE14F0D77D3BA9",
+      "path": "Assets/Resources/Script/UI/KingdomUIRoot.Story.cs"
+    },
+    {
+      "sha256": "7B299AB21AC32575E0064C6507069D51BE394522D9F3A8C5EDF7664D7D324882",
+      "path": "Assets/Tests/Editor/TutorialManagerTests.cs"
+    },
+    {
+      "sha256": "2AA0D9C3CD3DF6CBD81FE37B6366CADFB22F1A283DD1DDEE309B453C02E84375",
+      "path": "Assets/Tests/Editor/TutorialStageTests.cs"
+    },
+    {
+      "sha256": "CADDD48A58CC6D13F95F3C0D06C8062430067A326112D124199B49C30E8DB9D0",
+      "path": "Assets/Tests/PlayMode/KingdomOnboardingPlayModeTests.cs"
+    },
+    {
+      "sha256": "AE5F49E08087E6C865B1A43E50A7D59BE458B684BF7DF32C4ABF5B38EDFEC329",
+      "path": "Assets/Tests/PlayMode/KingdomStagedOnboardingPlayModeTests.cs"
+    }
+  ],
+  "dirty": true,
+  "capturedAt": "2026-11-02T12:45:15.9197419+08:00",
+  "head": "b075387a84c30fc7a7d56e6459cfba027b8c4506"
+}

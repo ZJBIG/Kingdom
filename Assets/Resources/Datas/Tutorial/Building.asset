@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: building
   Title: 建造木屋
-  Description: 前往建筑页，选择木屋并建造1座；建成后立即研究农业。
+  Description: 选择木屋并建造 1 座。屋檐落成后，居民会陆续入住，研究也将随之开放。
   NarrativeText: 为族人搭起第一处屋檐，让营地有一个可以留下的理由。
   Kind: 2
   NextStepId: population

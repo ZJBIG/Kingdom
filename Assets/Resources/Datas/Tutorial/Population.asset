@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Population
   m_EditorClassIdentifier: 
   Id: population
-  Title: 居民陆续入住
-  Description: 居民入住会增加生产力；维持食物与幸福度，同时继续研究和建设。
-  NarrativeText: 屋檐下有了新的声音，人口成长会与聚落建设一起推进。
+  Title: 屋檐下有了人声
+  Description: 居民带来生产力，也要吃饭。住房、食物、幸福度都稳住，聚落才会长大。
+  NarrativeText: 第一个愿意留下的人，比任何资源都珍贵。
   Kind: 3
   NextStepId: research
   RewardId: 

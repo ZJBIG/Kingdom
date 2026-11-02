@@ -143,9 +143,9 @@ public sealed partial class TutorialManager
         else if (snapshot.Action == TutorialStageAction.Build)
             snapshot.Instruction = activeStageId == "farm-goal"
                 ? narrative
-                : "让族人不再露宿荒野。点击建造，完成一次建筑建设。";
+                : "让族人不再露宿荒野。点击建造，见证它落成。";
         else if (snapshot.Action == TutorialStageAction.StartResearch)
-            snapshot.Instruction = "加入研究队列，材料备齐后自动开研。";
+            snapshot.Instruction = "加入研究队列——材料一备齐，就会自动开研。";
         return snapshot;
     }
 
@@ -153,11 +153,11 @@ public sealed partial class TutorialManager
     {
         switch (id)
         {
-            case "resources": return "守住火种，先备好明天的食粮。库存与净产出记录着族群的生计。";
+            case "resources": return "库存是现在的余粮，净产出是明天的指望。这本账，决定族群能走多远。";
             case "building": return "为族人搭起第一处屋檐，让营地有一个可以留下的理由。";
             case "population": return "屋檐下有了新的声音。稳定食物与幸福度，才能让更多族人安居。";
-            case "research": return "研究是第一生产力。安顿下来后，把火塘边的经验变成可以传承的知识。";
-            case "production-chain": return "工厂已经把分散的工序连成网络。沿着原料去向，找到供给与消耗之间的联系。";
+            case "research": return "火塘边的经验，写下来才是知识。安顿之后，让知识带着族群往前走。";
+            case "production-chain": return "每条加工链都是一条命脉：上游断料，下游就得停工。沿着原料看清这条链。";
             case "era-goal": return "旧日经验将成为新文明的根基。先看清跃迁条件，再为下一时代做准备。";
             case "workshop": return "工匠把一次次试验留下来。制作合适的改良，让每一份劳动更有收获。";
             case "sectors": return "抬头望向星空，家园仍是远行的起点。备好持续补给，再迈出探索的一步。";
@@ -251,7 +251,7 @@ public sealed partial class TutorialManager
             case "resources":
                 snapshot.Title = "认识资源"; snapshot.Page = "Resources";
                 snapshot.TargetId = ResourceManager.StartingResourceId;
-                snapshot.Instruction = "库存显示现有数量，净产出帮助判断资源来源与消耗。";
+                snapshot.Instruction = "库存是手里的余粮，净产出是每秒的收入减去消耗。看看哪项在亏、亏多少。";
                 return resources.States.Count > 0;
             case "building":
                 snapshot.Title = "建造第一座建筑"; snapshot.Page = "Buildings";
@@ -262,7 +262,7 @@ public sealed partial class TutorialManager
                 return false;
             case "population":
                 snapshot.Title = "发展人口"; snapshot.Page = "Overview";
-                snapshot.Instruction = "人口容量提供容身之处；维持食物与幸福度，人口才能持续增长并提供生产力。";
+                snapshot.Instruction = "住房让人住得下，食物让人留得住。两样稳住，人口和生产力都会涨。";
                 return game.State.Population != null && game.State.Population.PopulationCapacity > ExpantaNum.Zero;
             case "farm-goal":
                 snapshot.Title = "建造农场"; snapshot.Page = "Buildings";
@@ -292,7 +292,7 @@ public sealed partial class TutorialManager
             case "production-chain":
                 snapshot.Title = "连接生产链"; snapshot.Page = "Production";
                 if (!ProgressionVisibilityRules.IsProductionUnlocked(research)) return false;
-                snapshot.Instruction = "查看上下游：原料来源需要支撑加工消耗，避免缺料使建筑停产。";
+                snapshot.Instruction = "顺着原料往下走：上游供得上，下游才不停工。";
                 EnsureProductionStageLinks();
                 for (int i = 0; i < productionStageLinks.Count; i++)
                 {
@@ -307,14 +307,14 @@ public sealed partial class TutorialManager
             case "era-goal":
                 snapshot.Title = "迈向下一时代"; snapshot.Page = "Era";
                 if (!ProgressionVisibilityRules.IsEraUnlocked(research)) return false;
-                snapshot.Instruction = "时代页列出关键研究与材料；条件满足后，通过时代研究推进文明。";
+                snapshot.Instruction = "时代页列着跃迁的全部条件。凑齐它们，就能翻开新的一页。";
                 EraGoalEvaluation era = EraGoalEvaluator.Evaluate(game.State.TechLevel, research, resources);
                 if (baseline && game.State.TechLevel > TechLevel.Animal) return true;
                 if (era.Transition == null) return false;
                 return true;
             case "workshop":
                 snapshot.Title = "使用工坊"; snapshot.Page = "Workshop";
-                snapshot.Instruction = "工坊升级会改善生产能力；查看配方、前置条件和费用，再决定制作。";
+                snapshot.Instruction = "工坊改良让同样的劳动产出更多。看清前置和费用，挑最值的先制作。";
                 WorkshopManager workshop = FindObjectOfType<WorkshopManager>();
                 if (workshop == null || !workshop.IsSystemUnlocked) return false;
                 foreach (WorkshopUpgradeDef upgrade in DataBase<WorkshopUpgradeDef>.All)
@@ -323,7 +323,7 @@ public sealed partial class TutorialManager
                 return false;
             case "sectors":
                 snapshot.Title = "探索星区"; snapshot.Page = "Sectors";
-                snapshot.Instruction = "查看星区的探索、占领条件及消耗，准备好后再开展探索。";
+                snapshot.Instruction = "每片星区都标着探索的代价。备好补给再出发——家园等你们回来。";
                 if (!ProgressionModifierManager.Current.IsSystemUnlocked(ResearchSystem.HomeSystemSurvey)) return false;
                 foreach (SectorState state in game.Sectors.OrderedStates)
                 {

@@ -196,7 +196,7 @@ public sealed partial class KingdomUIRoot
         string actionFeedback = string.IsNullOrWhiteSpace(
             tutorialRecentCompletionFeedback)
             ? string.Empty
-            : "\n刚刚改变：" + tutorialRecentCompletionFeedback;
+            : "\n新进展：" + tutorialRecentCompletionFeedback;
         if (!string.IsNullOrWhiteSpace(recentActionFeedback))
             actionFeedback += "\n刚刚发生：" + recentActionFeedback;
         string meaning = latestChapter == null
